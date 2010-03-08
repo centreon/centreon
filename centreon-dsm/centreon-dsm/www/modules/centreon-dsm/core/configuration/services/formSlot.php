@@ -58,14 +58,14 @@
 		 * Contact Groups
 		 */
 		$pool["pool_cg"] = array();
-		$DBRESULT =& $pearDB->query("SELECT cg_cg_id, pool_id FROM mod_pool_cg_relation WHERE pool_id = '$slot_id'");
+		$DBRESULT =& $pearDB->query("SELECT cg_cg_id, pool_id FROM mod_dsm_cg_relation WHERE pool_id = '$slot_id'");
 		while ($data =& $DBRESULT->fetchRow())
 			$pool["pool_cg"][$data["cg_cg_id"]] = 1;
 		$DBRESULT->free();
 		unset($data);
 		
 		$pool["pool_cct"] = array();
-		$DBRESULT =& $pearDB->query("SELECT cct_cct_id, pool_id FROM mod_pool_cct_relation WHERE pool_id = '$slot_id'");
+		$DBRESULT =& $pearDB->query("SELECT cct_cct_id, pool_id FROM mod_dsm_cct_relation WHERE pool_id = '$slot_id'");
 		while ($data =& $DBRESULT->fetchRow())
 			$pool["pool_cct"][$data["cct_cct_id"]] = 1;
 		$DBRESULT->free();
