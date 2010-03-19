@@ -303,14 +303,6 @@
 			$poolObj->setValue(insertpoolInDB());
 		else if ($form->getSubmitValue("submitC"))
 			updatePoolInDB($poolObj->getValue());
-		else if ($form->getSubmitValue("submitMC"))	{
-			$select = explode(",", $select);
-			foreach ($select as $key => $value) {
-				if ($value) {
-					updatePoolInDB($value, true);
-				}
-			}
-		}
 		$o = NULL;
 		$form->addElement("button", "change", _("Modify"), array("onClick"=>"javascript:window.location.href='?p=".$p."&o=c&pool_id=".$poolObj->getValue()."'"));
 		$form->freeze();
