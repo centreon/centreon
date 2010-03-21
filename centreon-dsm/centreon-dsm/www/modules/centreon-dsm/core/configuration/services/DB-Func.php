@@ -99,7 +99,7 @@
 		return ($pool_id);
 	}
 	
-	function generateServices($prefix, $number, $host_id) {
+	function generateServices($prefix, $number, $host_id, $template, $cmd, $args, $tp1, $tp2) {
 		global $pearDB;
 		
 		$DBRESULT =& $pearDB->query(	"SELECT service_id, service_description " .
@@ -108,13 +108,62 @@
 											"AND service_id = service_service_id " .
 											"AND service_description LIKE '$prefix%' ORDER BY service_description ASC");
 		$currentNumber = $DBRESULT->numRows();
-		print $currentNumber."/".$number;
 		if ($currentNumber == 0) {
-			;
+			for ($i = 1 ; $i <= $number ; $i++) {
+				$suffix = "";
+				for ($t = $i; $t < 1000 ; $t*=10) {
+					$suffix .= "0";
+				}
+				$suffix .= $i;   
+				$request = "INSERT INTO service " .
+							"(service_description, service_template_model_stm_id, command_command_id, command_command_id_arg, timeperiod_tp_id, timeperiod_tp_id2, service_activate, service_register, service_active_checks_enabled, service_passive_checks_enabled, service_parallelize_check, service_obsess_over_service, service_check_freshness, service_event_handler_enabled, service_process_perf_data, service_retain_status_information, service_notifications_enabled, service_is_volatile) " .
+							"VALUES ('".$prefix.$suffix."', '".$template."', ".($cmd ? "'$cmd'" : "NULL").", ".($args ? "'$args'" : "NULL").", ".( $tp1 ? "'$tp1'" : "NULL").", ".($tp2 ? "'$tp2'" : "NULL").", '1', '1', '0', '1', '2', '2', '2', '2', '2', '2', '2', '2')";
+				$pearDB->query($request);
+				
+				$request = "SELECT MAX(service_id) FROM service WHERE service_description = '".$prefix.$suffix."' AND service_activate = '1' AND service_register = '1'";
+				$DBRESULT =& $pearDB->query($request);
+				$service = $DBRESULT->fetchRow();
+				$service_id = $service["MAX(service_id)"];
+			
+				if ($service_id != 0) {
+					$request = "INSERT INTO host_service_relation (service_service_id, host_host_id) VALUES ('$service_id', '".$host_id."')";
+					$pearDB->query($request);
+					
+					$request = "INSERT INTO extended_service_information (service_service_id) VALUE ('$service_id')";
+					$pearDB->query($request);
+				}	
+			}
 		} else if ($currentNumber < $number) {
-			;
+			for ($i = 1; $data =& $DBRESULT->fetchRow() ; $i++) {
+				;	
+			}
+			while ($i <= $number) {
+				$suffix = "";
+				for ($t = $i; $t < 1000 ; $t*=10) {
+					$suffix .= "0";
+				}
+				$suffix .= $i;   
+				$request = "INSERT INTO service " .
+							"(service_description, service_template_model_stm_id, command_command_id, command_command_id_arg, timeperiod_tp_id, timeperiod_tp_id2, service_activate, service_register, service_active_checks_enabled, service_passive_checks_enabled, service_parallelize_check, service_obsess_over_service, service_check_freshness, service_event_handler_enabled, service_process_perf_data, service_retain_status_information, service_notifications_enabled, service_is_volatile) " .
+							"VALUES ('".$prefix.$suffix."', '".$template."', ".($cmd ? "'$cmd'" : "NULL").", ".($args ? "'$args'" : "NULL").", ".( $tp1 ? "'$tp1'" : "NULL").", ".($tp2 ? "'$tp2'" : "NULL").", '1', '1', '0', '1', '2', '2', '2', '2', '2', '2', '2', '2')";
+				$pearDB->query($request);
+				
+				$request = "SELECT MAX(service_id) FROM service WHERE service_description = '".$prefix.$suffix."' AND service_activate = '1' AND service_register = '1'";
+				$DBRESULT =& $pearDB->query($request);
+				$service = $DBRESULT->fetchRow();
+				$service_id = $service["MAX(service_id)"];
+			
+				if ($service_id != 0) {
+					$request = "INSERT INTO host_service_relation (service_service_id, host_host_id) VALUES ('$service_id', '".$host_id."')";
+					$pearDB->query($request);
+					
+					$request = "INSERT INTO extended_service_information (service_service_id) VALUE ('$service_id')";
+					$pearDB->query($request);
+				}
+				$i++;
+			}
 		} else if ($currentNumber > $number) {
-			for ($i = 0; $data =& $DBRESULT->fetchRow() ; $i++) {
+			for ($i = 1; $data =& $DBRESULT->fetchRow() ; $i++) {
 				if ($i > $number) {
 					$pearDB->query("DELETE FROM service WHERE service_id = '".$data["service_id"]."'");
 				}
@@ -148,7 +197,7 @@
 		isset($ret["pool_notif_options"]) && $ret["pool_notif_options"] != NULL ? $rq .= "'".implode(",", array_keys($ret["pool_notif_options"]))."' ": $rq .= "NULL ";
 		$rq .= ")";
 
-		generateServices($ret["pool_prefix"], $ret["pool_number"], $ret["pool_host_id"]);
+		generateServices($ret["pool_prefix"], $ret["pool_number"], $ret["pool_host_id"], $ret["pool_service_template_id"], $ret["pool_cmd_id"], $ret["pool_args"], $ret["pool_tp_id"], $ret["pool_tp_id2"]);
 		
 		$DBRESULT =& $pearDB->query($rq);
 		$DBRESULT =& $pearDB->query("SELECT MAX(pool_id) FROM mod_dsm_pool");
@@ -207,7 +256,7 @@
 
 		$rq .= "WHERE pool_id = '".$pool_id."'";
 		$DBRESULT =& $pearDB->query($rq);
-		generateServices($ret["pool_prefix"], $ret["pool_number"], $ret["pool_host_id"]);
+		generateServices($ret["pool_prefix"], $ret["pool_number"], $ret["pool_host_id"], $ret["pool_service_template_id"], $ret["pool_cmd_id"], $ret["pool_args"], $ret["pool_tp_id"], $ret["pool_tp_id2"]);
 	}
 
 	function updatePoolContactGroup($pool_id = null, $ret = array())	{
