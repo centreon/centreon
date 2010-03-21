@@ -9,20 +9,20 @@
 	</div>
 	<div id='tab1' class='tab'>
 	 <table class="ListTable">
-	 	<tr class="ListHeader"><td class="FormHeader" colspan="2">&nbsp;<img src='./img/icones/16x16/user1.gif'>&nbsp;&nbsp;{$form.header.title}</td></tr>
-	 	<tr class="list_lvl_1"><td class="ListColLvl1_name" colspan="2"><img src='./img/icones/16x16/house.gif'>&nbsp;&nbsp;{$form.header.information}</td></tr>
+	 	<tr class="ListHeader"><td class="FormHeader" colspan="2">&nbsp;<img src='./img/icones/16x16/gears.gif'>&nbsp;&nbsp;{$form.header.title}</td></tr>
+	 	<tr class="list_lvl_1"><td class="ListColLvl1_name" colspan="2"><img src='./img/icones/16x16/clipboard.gif'>&nbsp;&nbsp;{$form.header.information}</td></tr>
 		<tr class="list_one"><td class="FormRowField">{$form.pool_name.label}</td><td class="FormRowValue">{$form.pool_name.html}</td></tr>
 		<tr class="list_two"><td class="FormRowField">{$form.pool_description.label}</td><td class="FormRowValue">{$form.pool_description.html}</td></tr>
 		<tr class="list_one"><td class="FormRowField">{$form.pool_host_id.label}</td><td class="FormRowValue">{$form.pool_host_id.html}</td></tr>
 		
-		<tr class="list_lvl_1"><td class="ListColLvl1_name" colspan="2"><img src='./img/icones/16x16/oreon.gif'>&nbsp;&nbsp;{$form.header.slotInformation}</td></tr>
+		<tr class="list_lvl_1"><td class="ListColLvl1_name" colspan="2"><img src='./img/icones/16x16/centreon.gif'>&nbsp;&nbsp;{$form.header.slotInformation}</td></tr>
 		<tr class="list_one"><td class="FormRowField">{$form.pool_service_template_id.label}</td><td class="FormRowValue">{$form.pool_service_template_id.html}</td></tr>
 		<tr class="list_two"><td class="FormRowField">{$form.pool_number.label}</td><td class="FormRowValue">{$form.pool_number.html}</td></tr>
 		<tr class="list_one"><td class="FormRowField">{$form.pool_prefix.label}</td><td class="FormRowValue">{$form.pool_prefix.html}</td></tr>		
 	 	<tr class="list_two"><td class="FormRowField">{$form.pool_cmd_id.label}</td><td class="FormRowValue">{$form.pool_cmd_id.html}&nbsp;{$form.pool_args.html}</td></tr>
 	 	<tr class="list_one"><td class="FormRowField">{$form.pool_tp_id.label}</td><td class="FormRowValue">{$form.pool_tp_id.html}</td></tr>
 	 	
-	 	<tr class="list_lvl_1"><td class="ListColLvl1_name" colspan="2"><img src='./img/icones/16x16/oreon.gif'>&nbsp;&nbsp;{$form.header.Notification}</td></tr>
+	 	<tr class="list_lvl_1"><td class="ListColLvl1_name" colspan="2"><img src='./img/icones/16x16/centreon.gif'>&nbsp;&nbsp;{$form.header.Notification}</td></tr>
 	 	<tr class="list_two"><td class="FormRowField">{$form.pool_tp_id2.label}</td><td class="FormRowValue">{$form.pool_tp_id2.html}</td></tr>
 	 	<tr class="list_one"><td class="FormRowField">{$form.pool_notif_interval.label}</td><td class="FormRowValue">{$form.pool_notif_interval.html}</td></tr>
 	 	

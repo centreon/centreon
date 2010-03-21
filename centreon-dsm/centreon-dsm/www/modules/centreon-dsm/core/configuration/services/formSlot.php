@@ -50,8 +50,11 @@
 		 * Set Service Notification Options
 		 */
 		$tmp = explode(',', $pool["pool_notif_options"]);
-		foreach ($tmp as $key => $value)
+		unset($pool["pool_notif_options"]);
+		$pool["pool_notif_options"] = array();
+		foreach ($tmp as $value) {
 			$pool["pool_notif_options"][trim($value)] = 1;
+		}
 		$DBRESULT->free();
 		
 		/*
@@ -59,15 +62,18 @@
 		 */
 		$pool["pool_cg"] = array();
 		$DBRESULT =& $pearDB->query("SELECT cg_cg_id, pool_id FROM mod_dsm_cg_relation WHERE pool_id = '$slot_id'");
-		while ($data =& $DBRESULT->fetchRow())
-			$pool["pool_cg"][$data["cg_cg_id"]] = 1;
+		for ($i = 0; $data =& $DBRESULT->fetchRow(); $i++)
+			$pool["pool_cg"][$i] = $data["cg_cg_id"];
 		$DBRESULT->free();
 		unset($data);
 		
+		/*
+		 * Contact list
+		 */
 		$pool["pool_cct"] = array();
 		$DBRESULT =& $pearDB->query("SELECT cct_cct_id, pool_id FROM mod_dsm_cct_relation WHERE pool_id = '$slot_id'");
-		while ($data =& $DBRESULT->fetchRow())
-			$pool["pool_cct"][$data["cct_cct_id"]] = 1;
+		for ($i = 0; $data =& $DBRESULT->fetchRow(); $i++)
+			$pool["pool_cct"][$i] = $data["cct_cct_id"];
 		$DBRESULT->free();
 		unset($data);
 	}
@@ -153,11 +159,11 @@
 	 */
 	$form = new HTML_QuickForm('Form', 'post', "?p=".$p);
 	if ($o == "a")
-		$form->addElement('header', 'title', _("Add a pool"));
+		$form->addElement('header', 'title', _("Add a pool of services"));
 	else if ($o == "c")
-		$form->addElement('header', 'title', _("Modify a pool"));
+		$form->addElement('header', 'title', _("Modify a pool of services"));
 	else if ($o == "w")
-		$form->addElement('header', 'title', _("View a pool"));
+		$form->addElement('header', 'title', _("View a pool of services"));
 
 	/*
 	 * pool basic information
@@ -199,8 +205,7 @@
 	 * pool Oreon information
 	 */
 	$form->addElement('header', 'oreon', _("Centreon"));
-	
-	//$form->addElement('select', 'pool_type_msg', _("Mail Type"), array(NULL=>NULL, "txt"=>"txt", "html"=>"html", "pdf"=>"pdf"));
+
 	/*
 	 * Notification informations
 	 */
@@ -209,13 +214,11 @@
 	/*
 	 * notifications Options
 	 */
-	$svNotifOpt[] = &HTML_QuickForm::createElement('checkbox', 'w', '&nbsp;', _("Warning"), array('id' => 'sWarning', 'onClick' => 'uncheckAllS(this);'));
-	$svNotifOpt[] = &HTML_QuickForm::createElement('checkbox', 'u', '&nbsp;', _("Unknown"), array('id' => 'sUnknown', 'onClick' => 'uncheckAllS(this);'));
-	$svNotifOpt[] = &HTML_QuickForm::createElement('checkbox', 'c', '&nbsp;', _("Critical"), array('id' => 'sCritical', 'onClick' => 'uncheckAllS(this);'));
-	$svNotifOpt[] = &HTML_QuickForm::createElement('checkbox', 'r', '&nbsp;', _("Recovery"), array('id' => 'sRecovery', 'onClick' => 'uncheckAllS(this);'));
-	$svNotifOpt[] = &HTML_QuickForm::createElement('checkbox', 'f', '&nbsp;', _("Flapping"), array('id' => 'sFlapping', 'onClick' => 'uncheckAllS(this);'));
-	$svNotifOpt[] = &HTML_QuickForm::createElement('checkbox', 's', '&nbsp;', _("Downtime Scheduled"), array('id' => 'sScheduled', 'onClick' => 'uncheckAllS(this);'));
-	$svNotifOpt[] = &HTML_QuickForm::createElement('checkbox', 'n', '&nbsp;', _("None"), array('id' => 'sNone', 'onClick' => 'uncheckAllS(this);'));
+	$svNotifOpt[] = &HTML_QuickForm::createElement('checkbox', 'w', '&nbsp;', _("Warning"));
+	$svNotifOpt[] = &HTML_QuickForm::createElement('checkbox', 'u', '&nbsp;', _("Unknown"));
+	$svNotifOpt[] = &HTML_QuickForm::createElement('checkbox', 'c', '&nbsp;', _("Critical"));
+	$svNotifOpt[] = &HTML_QuickForm::createElement('checkbox', 'r', '&nbsp;', _("Recovery"));
+	$svNotifOpt[] = &HTML_QuickForm::createElement('checkbox', 'f', '&nbsp;', _("Flapping"));
 	$form->addGroup($svNotifOpt, 'pool_notif_options', _("Notification Options"), '&nbsp;&nbsp;');
     
     $form->addElement('select', 'pool_tp_id2', _("Notification Period"), $notifTps);
