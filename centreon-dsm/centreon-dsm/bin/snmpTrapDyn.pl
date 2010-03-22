@@ -31,22 +31,24 @@
 # 
 # For more information : contact@centreon.com
 # 
-# SVN : $URL$
-# SVN : $Id$
+# SVN : $URL: http://svn.centreon.com/branches/centreon-2.1/lib/purge.pm $
+# SVN : $Id: purge.pm 10097 2010-02-25 17:34:45Z jmathis $
 #
 ####################################################################################
 
 use strict;
 use DBI;
 use File::Path qw(mkpath);
-use vars qw($mysql_database_oreon $mysql_database_ods $mysql_host $mysql_user $mysql_passwd $ndo_conf $LOG $NAGIOSCMD $CECORECMD $LOCKDIR $MAXDATAAGE);
+use Time::HiRes qw(usleep ualarm gettimeofday tv_interval nanosleep clock_gettime clock_getres clock_nanosleep clock stat);
+use vars qw($mysql_database_oreon $mysql_database_ods $mysql_host $mysql_user $mysql_passwd $ndo_conf $LOG $NAGIOSCMD $CECORECMD $LOCKDIR $MAXDATAAGE $CACHEDIR);
 
-$LOG = "/var/lib/centreon/trap-dynamic.log";
+$LOG = "/var/lib/centreon/trap-control-M.log";
 
 $NAGIOSCMD = "/usr/local/nagios/var/rw/nagios.cmd";
 $CECORECMD = "/var/lib/centreon/centcore.cmd";
 
 $LOCKDIR = "/var/lib/centreon/tmp/";
+$CACHEDIR = "/var/lib/centreon/cache/";
 $MAXDATAAGE = 60;
 
 #require "@CENTREON_ETC@/conf.pm";
@@ -107,7 +109,7 @@ if ($sth2->execute()){
 my $request = "SELECT no.name1, no.name2 ".
     "FROM ".$ndo_conf->{'db_prefix'}."servicestatus nss , ".$ndo_conf->{'db_prefix'}."objects no, ".$ndo_conf->{'db_prefix'}."services ns ".
     "WHERE no.object_id = nss.service_object_id AND no.name1 like '".$ARGV[0]."' AND no.object_id = ns.service_object_id ".
-    "AND nss.current_state = 0 AND no.name2 LIKE '".$confDSM->{'pool_prefix'}."%' ";
+    "AND nss.current_state = 0 AND no.name2 LIKE '".$confDSM->{'pool_prefix'}."%' ORDER BY name2";
 $sth2 = $dbh2->prepare($request);
 if (!defined($sth2)) {
     print "ERROR : ".$DBI::errstr."\n";
@@ -119,17 +121,169 @@ if (!$sth2->execute()){
 
 # Sort Data
 my $data;
-my @hash;
-my @hash2;
+my @slotList;
 my $i;
-while ($data = $sth2->fetchrow_hashref()) {
-    $i = $data->{'name2'};
-    $i =~ s/$confDSM->{'pool_prefix'}//g;
-    $hash[$i] = $data->{'name2'};
-    @hash2 = sort {$a <=> $b} @hash;
+for ($i = 0;$data = $sth2->fetchrow_hashref();$i++) {
+    $slotList[$i] = $data->{'name2'};
 }
 undef($data);
 
+# Check Temporary lock files directory
+if (!-d $LOCKDIR){ 
+    writeLogFile("Cannot find temporary lock files directory. I create it : $LOCKDIR.");
+    mkpath($LOCKDIR);
+}
+
+# Purge Slot locks
+my @fileList = glob($LOCKDIR."/*");
+foreach (@fileList) {
+    my ($dev,$ino,$mode,$nlink,$uid,$gid,$rdev,$size,$atime,$mtime,$ctime,$blksize,$blocks) = lstat($_);
+    if (time() - $mtime > $MAXDATAAGE) {
+	writeLogFile("remove old lock file: ".$_." (normal behavior)");
+	unlink($_);
+    }
+}
+undef(@fileList);
+
+############################################
+# Read cache of results
+
+my @timeList;
+my @outputList;
+my @fileList;
+my $t = 0;
+my @fileList = glob($CACHEDIR."/".$host_name."-*");
+foreach (@fileList) {
+    if (open(FILE, $_)) {
+	my $filename = $_;
+	$fileList[$t] = $filename;
+	my $i = 0;
+	while (<FILE>) {
+	    if ($i == 0) {
+		$timeList[$t] = $_;
+		$timeList[$t] =~ s/\n//g;
+	    } else {
+		if (defined($outputList[$t])) {
+		    $outputList[$t] = $_; 
+		} else {
+		    $outputList[$t] .= $_; 
+		}
+	    }
+	    $i++;
+	}
+	close FILE;
+	writeLogFile("DELETE File : ".$filename);
+	unlink($filename);
+    }
+    $t++;
+}
+undef(@fileList);
+
+# Add Current entry in List
+$timeList[$t] = $timeRequest;
+$outputList[$t] = $output;
+
+############################################
+# Send data to Nagios serveurs
+my $y = 0;
+foreach my $str (@slotList) {
+    print "$y : ".$timeList[$y]." |-> ".$str." \n";
+    if (defined($timeList[$y])) {
+	# Check if I can use this slot
+	if (length($str) && !-e $LOCKDIR."-$str") {
+	    my $time_now = $timeList[$y];
+	    my $host_id = getHostID($host_name, $dbh);
+	    my $data_poller = getHostPoller($host_id, $dbh);
+	    $output = $outputList[$y]; 
+
+	    # Write Tempory lock
+	    if (system("touch ".$LOCKDIR."$str.lock")) {
+		writeLogFile("Cannot write lock file... Be carefull, some data can be loose.");
+	    }
+	    
+	    # Build external command
+	    my $externalCMD = "[$timeRequest] PROCESS_SERVICE_CHECK_RESULT;$host_name;$str;2;$output";
+	    if ($data_poller->{'localhost'} == 0) {
+		my $externalCMD = "EXTERNALCMD:".$data_poller->{'id'}.":".$externalCMD;
+		writeLogFile("Send external command : $externalCMD");
+		if (system("echo '$externalCMD' >> $CECORECMD")) {
+		    writeLogFile("Cannot Write external command for centcore");
+		}
+	    } else {
+		writeLogFile("Send external command : $externalCMD");
+		if (system("echo '$externalCMD' >> $NAGIOSCMD")) {
+		    writeLogFile("Cannot Write external command for local nagios");
+		}
+	    }
+	    undef($fileList[$y]);
+	    undef($timeList[$y]);
+	    undef($outputList[$y]);
+	} else {
+	    if (-e $LOCKDIR."-$str") {
+		;#print "$str : already used !";
+	    }
+	}
+	$y++;
+    } else {
+	if (defined($fileList[$y]) && length($fileList[$y])) {
+	    writeLogFile("Slot system busy... all slots are already in use...");
+	    writeLogFile("Add alert in cache...");
+	    
+	    my $CACHEFILE = $CACHEDIR.$host_name.'-'.time().".cache";
+	    if (-e $CACHEFILE) {
+		my $i = 0;
+		while (-e $CACHEFILE."-".$i) {
+		    $i++;
+		}
+		$CACHEFILE .= "-".$i;
+	    }
+
+	    open (CACHE, ">> ".$CACHEFILE) || print "can't write $LOG: $!";
+	    print CACHE $timeList[$y]."\n";
+	    print CACHE $outputList[$y];
+	    close CACHE;
+	}
+    }
+}
+
+my $count = @timeList;
+
+if ($count) {
+    my $y = 0;
+    foreach my $str (@timeList) { 
+	if (length($str)) {
+	    ###########################################
+	    # Put data in cache
+	    writeLogFile("Slot system busy... all slots are already in use...");
+	    writeLogFile("Add alert in cache...");
+	    
+	    # Check Temporary lock files directory
+	    if (!-d $CACHEDIR){
+		writeLogFile("Cannot find temporary cache files directory. I create it : $CACHEDIR.");
+		mkpath($CACHEDIR);
+	    }
+	    
+	    my $CACHEFILE = $CACHEDIR.$host_name.'-'.$str.".cache";
+	    if (-e $CACHEFILE) {
+		my $i = 0;
+		while (-e $CACHEFILE."-".$i) {
+		    $i++;
+		}
+		$CACHEFILE .= "-".$i;
+	    }
+	    
+	    open (CACHE, ">> ".$CACHEFILE) || print "can't write $LOG: $!";
+	    print CACHE $timeList[$y]."\n";
+	    print CACHE $outputList[$y];
+	    close CACHE;
+	}
+	$y++;
+    }
+} else {
+    exit 0;
+}
+
+# Declare functions
 sub getHostID($$) {
     my $con = $_[1];
     
@@ -161,58 +315,4 @@ sub getHostPoller($$) {
     undef($sth2);
     return $data_poller;
 }
-
-# Check Temporary lock files directory
-if (!-d $LOCKDIR){ 
-    writeLogFile("Cannot fine temporary lock files directory. I create it : $LOCKDIR.");
-    mkpath($LOCKDIR);
-}
-
-# Purge Slot locks
-my @fileList = glob($LOCKDIR."/*");
-foreach (@fileList) {
-    my ($dev,$ino,$mode,$nlink,$uid,$gid,$rdev,$size,$atime,$mtime,$ctime,$blksize,$blocks) = lstat($_);
-    if (time() - $mtime > $MAXDATAAGE) {
-	writeLogFile("remove old lock file: ".$_." (normal behavior)");
-	unlink($_);
-    }
-}
-
-############################################
-# Send data to Nagios serveurs
-foreach my $str (@hash2) {
-    # Check if I can use this slot
-    if (length($str) && !-e $LOCKDIR."-$str") {
-	my $time_now = time();
-	my $host_id = getHostID($host_name, $dbh);
-	my $data_poller = getHostPoller($host_id, $dbh);
-
-	# Write Tempory lock
-	if (system("touch ".$LOCKDIR."$str.lock")) {
-	    writeLogFile("Cannot write lock file... Be carefull, some data can be loose.");
-	}
-
-	# Build external command
-	my $externalCMD = "[$timeRequest] PROCESS_SERVICE_CHECK_RESULT;$host_name;$str;2;$output";
-	if ($data_poller->{'localhost'} == 0) {
-	    my $externalCMD = "EXTERNALCMD:".$data_poller->{'id'}.":".$externalCMD;
-	    writeLogFile("Send external command : $externalCMD");
-	    if (system("echo '$externalCMD' >> $CECORECMD")) {
-		writeLogFile("Cannot Write external command for centcore");
-	    }
-	} else {
-	    writeLogFile("Send external command : $externalCMD");
-	    if (system("echo '$externalCMD' >> $NAGIOSCMD")) {
-		writeLogFile("Cannot Write external command for local nagios");
-	    }
-	}
-	exit 0;
-    } else {
-	if (-e $LOCKDIR."-$str") {
-	    ;#print "$str : already used !";
-	}
-    }
-}
-
-# Put data in cache
 
