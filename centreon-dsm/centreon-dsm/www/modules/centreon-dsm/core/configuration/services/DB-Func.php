@@ -106,7 +106,6 @@
 										"WHERE hsr.host_host_id = '$host_id' " .
 											"AND service_id = service_service_id " .
 											"AND service_description LIKE '$oldPrefix%' ORDER BY service_description ASC");
-		print "oldPrefix => $oldPrefix <br>";
 		$currentNumber = $DBRESULT->numRows();
 		if ($currentNumber == 0) {
 			for ($i = 1 ; $i <= $number ; $i++) {
