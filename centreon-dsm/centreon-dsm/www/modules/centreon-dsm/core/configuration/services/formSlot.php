@@ -183,7 +183,6 @@
 	$form->addElement('select', 'pool_host_id', _("Host Name"), $poolHost);
 	$form->addElement('select', 'pool_cmd_id', _("Check commands"), $Cmds);
 	$form->addElement('text', 'pool_args', _("arguments"), $attrsText2);
- 	$form->addElement('select', 'pool_tp_id', _("Check Period"), $notifTps);
  	$form->addElement('select', 'pool_service_template_id', _("Service template based"), $poolST);
 
 	/*

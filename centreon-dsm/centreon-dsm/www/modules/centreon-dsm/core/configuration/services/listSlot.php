@@ -80,14 +80,15 @@
 	$tpl->assign("headerMenu_desc", _("Description"));
 	$tpl->assign("headerMenu_name", _("Slot Name"));
 	$tpl->assign("headerMenu_email", _("Email"));
-	$tpl->assign("headerMenu_tp", _("Timeperiod"));
+	$tpl->assign("headerMenu_prefix", _("Prefix"));
+	$tpl->assign("headerMenu_number", _("Number"));
 	$tpl->assign("headerMenu_status", _("Status"));
 	$tpl->assign("headerMenu_options", _("Options"));
 	
 	if ($search)
-		$rq = "SELECT pool_id, pool_tp_id , pool_name, pool_description, pool_number, pool_activate FROM mod_dsm_pool WHERE (pool_name LIKE '%".htmlentities($search, ENT_QUOTES)."%' OR pool_description LIKE '%".htmlentities($search, ENT_QUOTES)."%') ORDER BY pool_name LIMIT ".$num * $limit.", ".$limit;
+		$rq = "SELECT pool_id, pool_prefix , pool_name, pool_description, pool_number, pool_activate FROM mod_dsm_pool WHERE (pool_name LIKE '%".htmlentities($search, ENT_QUOTES)."%' OR pool_description LIKE '%".htmlentities($search, ENT_QUOTES)."%') ORDER BY pool_name LIMIT ".$num * $limit.", ".$limit;
 	else
-		$rq = "SELECT pool_id, pool_tp_id , pool_name, pool_description, pool_number, pool_activate FROM mod_dsm_pool ORDER BY pool_name LIMIT ".$num * $limit.", ".$limit;
+		$rq = "SELECT pool_id, pool_prefix , pool_name, pool_description, pool_number, pool_activate FROM mod_dsm_pool ORDER BY pool_name LIMIT ".$num * $limit.", ".$limit;
 	$DBRESULT =& $pearDB->query($rq);
 
 	$search = tidySearchKey($search, $advanced_search);
@@ -116,7 +117,8 @@
 						"RowMenu_name" 		=> html_entity_decode($contact["pool_name"]),
 						"RowMenu_link" 		=> "?p=".$p."&o=c&pool_id=".$contact['pool_id'],
 						"RowMenu_desc" 		=> html_entity_decode($contact["pool_description"]),
-						"RowMenu_tp" 		=> html_entity_decode($tpCache[$contact["pool_tp_id"]], ENT_QUOTES),
+						"RowMenu_number" 		=> html_entity_decode($contact["pool_number"], ENT_QUOTES),
+						"RowMenu_prefix" 		=> html_entity_decode($contact["pool_prefix"], ENT_QUOTES),
 						"RowMenu_status" 	=> $contact["pool_activate"] ? _("Enabled") : _("Disabled"),
 						"RowMenu_options" 	=> $moptions);
 		$style != "two" ? $style = "two" : $style = "one";	
