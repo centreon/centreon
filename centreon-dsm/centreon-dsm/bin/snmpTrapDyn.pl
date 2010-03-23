@@ -218,12 +218,12 @@ foreach my $str (@slotList) {
 	    undef($fileList[$y]);
 	    undef($timeList[$y]);
 	    undef($outputList[$y]);
+		$y++;
 	} else {
 	    if (-e $LOCKDIR."-$str") {
 		;#print "$str : already used !";
 	    }
 	}
-	$y++;
     } else {
 	if (defined($fileList[$y]) && length($fileList[$y])) {
 	    writeLogFile("Slot system busy... all slots are already in use...");
