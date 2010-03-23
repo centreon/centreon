@@ -187,7 +187,7 @@ $outputList[$t] = $output;
 # Send data to Nagios serveurs
 my $y = 0;
 foreach my $str (@slotList) {
-    print "$y : ".$timeList[$y]." |-> ".$str." \n";
+#    print "$y : ".$timeList[$y]." |-> ".$str." \n";
     if (defined($timeList[$y])) {
 	# Check if I can use this slot
 	if (length($str) && !-e $LOCKDIR."-$str") {
