@@ -1,0 +1,10 @@
+# -*-Shell-script-*-
+# install_vars
+# This file contain reconfigured variables used in install scripts
+TMPDIR="/tmp/centreon-setup"
+DEFAULT_CENTREON_CONF="/etc/centreon/centreon.conf"
+CENTREON_CONF="/etc/centreon.conf"
+DEFAULT_WEB_USER="www-data"
+DEFAULT_WEB_GROUP="www-data"
+DEFAULT_CENTREON_ETC="/etc/centreon"
+DEFAULT_CENTREON_GENDIR="/usr/local/centreon"
