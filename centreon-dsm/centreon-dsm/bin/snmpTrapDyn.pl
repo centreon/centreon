@@ -42,14 +42,14 @@ use File::Path qw(mkpath);
 use Time::HiRes qw(usleep ualarm gettimeofday tv_interval nanosleep clock_gettime clock_getres clock_nanosleep clock stat);
 use vars qw($mysql_database_oreon $mysql_database_ods $mysql_host $mysql_user $mysql_passwd $ndo_conf $LOG $NAGIOSCMD $CECORECMD $LOCKDIR $MAXDATAAGE $CACHEDIR);
 
-$LOG = "@INSTALL_DIR_CENTREON@/centreon/log/dynamicTrap.log";
+$LOG = "@INSTALL_DIR_CENTREON@/log/dynamicTrap.log";
 
 $NAGIOSCMD = "@NAGIOS_VAR@/rw/nagios.cmd";
 $CECORECMD = "@CENTREON_VARLIB@/centcore.cmd";
 
 $LOCKDIR = "@CENTREON_VARLIB@/tmp/";
 $CACHEDIR = "@CENTREON_VARLIB@/cache/";
-$MAXDATAAGE = 60;
+$MAXDATAAGE = 5;
 
 require "@CENTREON_ETC@/conf.pm";
 
@@ -93,7 +93,7 @@ if (!defined($dbh2)) {
 
 # Get module trap on this host
 my $confDSM;
-$sth2 = $dbh->prepare("SELECT pool_prefix FROM mod_dsm_pool mdp, host h WHERE mdp.pool_host_id = h.host_id AND h.host_name LIKE '".$ARGV[0]."'");
+$sth2 = $dbh->prepare("SELECT pool_prefix FROM mod_dsm_pool mdp, host h WHERE mdp.pool_host_id = h.host_id AND ( h.host_name LIKE '".$ARGV[0]."' OR h.host_address LIKE '".$ARGV[0]."')");
 if (!defined($sth2)) {
     print "ERROR : ".$DBI::errstr."\n";
 }
@@ -104,10 +104,24 @@ if ($sth2->execute()){
     exit(1);
 }
 
+# Get host/address
+my $host_name;
+$sth2 = $dbh->prepare("SELECT host_name FROM host WHERE (host_address LIKE '".$ARGV[0]."' OR host_name LIKE '".$ARGV[0]."')");
+if (!defined($sth2)) {
+    print "ERROR : ".$DBI::errstr."\n";
+}
+if ($sth2->execute()){
+    my $hostDataTemp = $sth2->fetchrow_hashref();
+    $host_name = $hostDataTemp->{'host_name'};
+} else {
+    print "Can get hosts Informations $!\n";
+    exit(1);
+}
+
 # Get slot free
 my $request = "SELECT no.name1, no.name2 ".
     "FROM ".$ndo_conf->{'db_prefix'}."servicestatus nss , ".$ndo_conf->{'db_prefix'}."objects no, ".$ndo_conf->{'db_prefix'}."services ns ".
-    "WHERE no.object_id = nss.service_object_id AND no.name1 like '".$ARGV[0]."' AND no.object_id = ns.service_object_id ".
+    "WHERE no.object_id = nss.service_object_id AND no.name1 like '".$host_name."' AND no.object_id = ns.service_object_id ".
     "AND nss.current_state = 0 AND no.name2 LIKE '".$confDSM->{'pool_prefix'}."%' ORDER BY name2";
 $sth2 = $dbh2->prepare($request);
 if (!defined($sth2)) {
