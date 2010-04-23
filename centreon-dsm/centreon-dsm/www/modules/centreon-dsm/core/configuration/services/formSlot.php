@@ -45,37 +45,6 @@
 	if (($o == "c" || $o == "w") && $slot_id)	{
 		$DBRESULT =& $pearDB->query("SELECT * FROM mod_dsm_pool WHERE pool_id = '".$slot_id."' LIMIT 1");
 		$pool = array_map("myDecode", $DBRESULT->fetchRow());
-				
-		/*
-		 * Set Service Notification Options
-		 */
-		$tmp = explode(',', $pool["pool_notif_options"]);
-		unset($pool["pool_notif_options"]);
-		$pool["pool_notif_options"] = array();
-		foreach ($tmp as $value) {
-			$pool["pool_notif_options"][trim($value)] = 1;
-		}
-		$DBRESULT->free();
-		
-		/*
-		 * Contact Groups
-		 */
-		$pool["pool_cg"] = array();
-		$DBRESULT =& $pearDB->query("SELECT cg_cg_id, pool_id FROM mod_dsm_cg_relation WHERE pool_id = '$slot_id'");
-		for ($i = 0; $data =& $DBRESULT->fetchRow(); $i++)
-			$pool["pool_cg"][$i] = $data["cg_cg_id"];
-		$DBRESULT->free();
-		unset($data);
-		
-		/*
-		 * Contact list
-		 */
-		$pool["pool_cct"] = array();
-		$DBRESULT =& $pearDB->query("SELECT cct_cct_id, pool_id FROM mod_dsm_cct_relation WHERE pool_id = '$slot_id'");
-		for ($i = 0; $data =& $DBRESULT->fetchRow(); $i++)
-			$pool["pool_cct"][$i] = $data["cct_cct_id"];
-		$DBRESULT->free();
-		unset($data);
 	}
 	
 	/*
@@ -186,21 +155,6 @@
  	$form->addElement('select', 'pool_service_template_id', _("Service template based"), $poolST);
 
 	/*
-	 * pool Groups Field
-	 */	
-	$ams3 =& $form->addElement('advmultiselect', 'pool_cg', _("Contact groups linked"), $notifCgs, $attrsAdvSelect);
-	$ams3->setButtonAttributes('add', array('value' =>  _("Add")));
-	$ams3->setButtonAttributes('remove', array('value' => _("Delete")));
-	$ams3->setElementTemplate($template);
-	echo $ams3->getElementJs(false);
-	
-	$ams3 =& $form->addElement('advmultiselect', 'pool_cct', _("Contact linked"), $notifCcts, $attrsAdvSelect);
-	$ams3->setButtonAttributes('add', array('value' =>  _("Add")));
-	$ams3->setButtonAttributes('remove', array('value' => _("Delete")));
-	$ams3->setElementTemplate($template);
-	echo $ams3->getElementJs(false);
-
-	/*
 	 * pool Oreon information
 	 */
 	$form->addElement('header', 'oreon', _("Centreon"));
@@ -210,20 +164,7 @@
 	 */
 	$form->addElement('header', 'notification', _("Notification Type"));
 
-	/*
-	 * notifications Options
-	 */
-	$svNotifOpt[] = &HTML_QuickForm::createElement('checkbox', 'w', '&nbsp;', _("Warning"));
-	$svNotifOpt[] = &HTML_QuickForm::createElement('checkbox', 'u', '&nbsp;', _("Unknown"));
-	$svNotifOpt[] = &HTML_QuickForm::createElement('checkbox', 'c', '&nbsp;', _("Critical"));
-	$svNotifOpt[] = &HTML_QuickForm::createElement('checkbox', 'r', '&nbsp;', _("Recovery"));
-	$svNotifOpt[] = &HTML_QuickForm::createElement('checkbox', 'f', '&nbsp;', _("Flapping"));
-	$form->addGroup($svNotifOpt, 'pool_notif_options', _("Notification Options"), '&nbsp;&nbsp;');
-    
-    $form->addElement('select', 'pool_tp_id2', _("Notification Period"), $notifTps);
- 	$form->addElement('text', 'pool_notif_interval', _("Notification interval"), $attrsTextSmall);
- 	
-	/*
+    	/*
 	 * Further informations
 	 */
 	$form->addElement('header', 'furtherInfos', _("Additional Information"));

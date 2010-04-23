@@ -198,7 +198,7 @@
 		isset($ret["pool_cmd_id"]) && $ret["pool_cmd_id"] != NULL ? $rq .= "'".htmlentities($ret["pool_cmd_id"], ENT_QUOTES)."', ": $rq .= "NULL, ";
 		isset($ret["pool_args"]) && $ret["pool_args"] != NULL ? $rq .= "'".htmlentities($ret["pool_args"], ENT_QUOTES)."', ": $rq .= "NULL, ";
 		isset($ret["pool_activate"]["pool_activate"]) && $ret["pool_activate"]["pool_activate"] != NULL ? $rq .= "'".$ret["pool_activate"]["pool_activate"]."', ": $rq .= "NULL, ";
-		isset($ret["pool_service_template_id"]) && $ret["pool_service_template_id"] != NULL ? $rq .= "'".$ret["pool_service_template_id"]."', ": $rq .= "NULL ";
+		isset($ret["pool_service_template_id"]) && $ret["pool_service_template_id"] != NULL ? $rq .= "'".$ret["pool_service_template_id"]."' ": $rq .= "NULL ";
 		$rq .= ")";
 
 		generateServices($ret["pool_prefix"], $ret["pool_number"], $ret["pool_host_id"], $ret["pool_service_template_id"], $ret["pool_cmd_id"], $ret["pool_args"], "kjqsddlqkjdqslkjdqsldkj");

@@ -42,17 +42,17 @@ use File::Path qw(mkpath);
 use Time::HiRes qw(usleep ualarm gettimeofday tv_interval nanosleep clock_gettime clock_getres clock_nanosleep clock stat);
 use vars qw($mysql_database_oreon $mysql_database_ods $mysql_host $mysql_user $mysql_passwd $ndo_conf $LOG $NAGIOSCMD $CECORECMD $LOCKDIR $MAXDATAAGE $CACHEDIR);
 
-$LOG = "/var/lib/centreon/trap-control-M.log";
+$LOG = "/data/nagi00/centreon/log/dynamicTrap.log";
 
-$NAGIOSCMD = "/usr/local/nagios/var/rw/nagios.cmd";
-$CECORECMD = "/var/lib/centreon/centcore.cmd";
+$NAGIOSCMD = "/data/nagi00/nagios/var/rw/nagios.cmd";
+$CECORECMD = "/data/nagi00/centreon/var/centcore.cmd";
 
-$LOCKDIR = "/var/lib/centreon/tmp/";
-$CACHEDIR = "/var/lib/centreon/cache/";
+$LOCKDIR = "/data/nagi00/centreon/var/tmp/";
+$CACHEDIR = "/data/nagi00/centreon/var/cache/";
 $MAXDATAAGE = 60;
 
 #require "@CENTREON_ETC@/conf.pm";
-require "/etc/centreon/conf.pm";
+require "/data/nagi00/centreon/etc/conf.pm";
 
 # log files management function
 sub writeLogFile($){
@@ -124,6 +124,7 @@ my $data;
 my @slotList;
 my $i;
 for ($i = 0;$data = $sth2->fetchrow_hashref();$i++) {
+#    print "SLOT : ".$data->{'name2'}."\n";
     $slotList[$i] = $data->{'name2'};
 }
 undef($data);
@@ -190,7 +191,7 @@ foreach my $str (@slotList) {
 #    print "$y : ".$timeList[$y]." |-> ".$str." \n";
     if (defined($timeList[$y])) {
 	# Check if I can use this slot
-	if (length($str) && !-e $LOCKDIR."-$str") {
+	if (length($str) && !-e $LOCKDIR."$str.lock") {
 	    my $time_now = $timeList[$y];
 	    my $host_id = getHostID($host_name, $dbh);
 	    my $data_poller = getHostPoller($host_id, $dbh);
@@ -210,7 +211,7 @@ foreach my $str (@slotList) {
 		    writeLogFile("Cannot Write external command for centcore");
 		}
 	    } else {
-		writeLogFile("Send external command : $externalCMD");
+		writeLogFile("Send external command in local poller : $externalCMD");
 		if (system("echo '$externalCMD' >> $NAGIOSCMD")) {
 		    writeLogFile("Cannot Write external command for local nagios");
 		}

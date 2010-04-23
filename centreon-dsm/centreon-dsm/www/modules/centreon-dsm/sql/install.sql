@@ -2,14 +2,14 @@
 -- Structure de la table `mod_dsm_cct_relation`
 --
 
-CREATE TABLE IF NOT EXISTS `mod_dsm_cct_relation` (
-  `cgpr_id` int(11) NOT NULL AUTO_INCREMENT,
-  `cct_cct_id` int(11) DEFAULT NULL,
-  `pool_id` int(11) DEFAULT NULL,
-  PRIMARY KEY (`cgpr_id`),
-  KEY `cct_cct_id` (`cct_cct_id`),
-  KEY `pool_id` (`pool_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+--CREATE TABLE IF NOT EXISTS `mod_dsm_cct_relation` (
+--  `cgpr_id` int(11) NOT NULL AUTO_INCREMENT,
+--  `cct_cct_id` int(11) DEFAULT NULL,
+--  `pool_id` int(11) DEFAULT NULL,
+--  PRIMARY KEY (`cgpr_id`),
+--  KEY `cct_cct_id` (`cct_cct_id`),
+--  KEY `pool_id` (`pool_id`)
+--) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 -- --------------------------------------------------------
 
@@ -17,14 +17,14 @@ CREATE TABLE IF NOT EXISTS `mod_dsm_cct_relation` (
 -- Structure de la table `mod_dsm_cg_relation`
 --
 
-CREATE TABLE IF NOT EXISTS `mod_dsm_cg_relation` (
-  `cgpr_id` int(11) NOT NULL AUTO_INCREMENT,
-  `cg_cg_id` int(11) DEFAULT NULL,
-  `pool_id` int(11) DEFAULT NULL,
-  PRIMARY KEY (`cgpr_id`),
-  KEY `cg_cg_id` (`cg_cg_id`),
-  KEY `pool_id` (`pool_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+--CREATE TABLE IF NOT EXISTS `mod_dsm_cg_relation` (
+--  `cgpr_id` int(11) NOT NULL AUTO_INCREMENT,
+--  `cg_cg_id` int(11) DEFAULT NULL,
+--  `pool_id` int(11) DEFAULT NULL,
+--  PRIMARY KEY (`cgpr_id`),
+--  KEY `cg_cg_id` (`cg_cg_id`),
+--  KEY `pool_id` (`pool_id`)
+--) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 -- --------------------------------------------------------
 
@@ -63,16 +63,16 @@ CREATE TABLE IF NOT EXISTS `mod_dsm_pool` (
 -- Contraintes pour la table `mod_dsm_cct_relation`
 --
 ALTER TABLE `mod_dsm_cct_relation`
-  ADD CONSTRAINT `mod_dsm_cct_relation_ibfk_2` FOREIGN KEY (`pool_id`) REFERENCES `mod_dsm_pool` (`pool_id`) ON DELETE CASCADE,
-  ADD CONSTRAINT `mod_dsm_cct_relation_ibfk_1` FOREIGN KEY (`cct_cct_id`) REFERENCES `contact` (`contact_id`) ON DELETE CASCADE;
-
+--  ADD CONSTRAINT `mod_dsm_cct_relation_ibfk_2` FOREIGN KEY (`pool_id`) REFERENCES `mod_dsm_pool` (`pool_id`) ON DELETE CASCADE,
+--  ADD CONSTRAINT `mod_dsm_cct_relation_ibfk_1` FOREIGN KEY (`cct_cct_id`) REFERENCES `contact` (`contact_id`) ON DELETE CASCADE;
+--
 --
 -- Contraintes pour la table `mod_dsm_cg_relation`
 --
 ALTER TABLE `mod_dsm_cg_relation`
-  ADD CONSTRAINT `mod_dsm_cg_relation_ibfk_2` FOREIGN KEY (`pool_id`) REFERENCES `mod_dsm_pool` (`pool_id`) ON DELETE CASCADE,
-  ADD CONSTRAINT `mod_dsm_cg_relation_ibfk_1` FOREIGN KEY (`cg_cg_id`) REFERENCES `contactgroup` (`cg_id`) ON DELETE CASCADE;
-
+--  ADD CONSTRAINT `mod_dsm_cg_relation_ibfk_2` FOREIGN KEY (`pool_id`) REFERENCES `mod_dsm_pool` (`pool_id`) ON DELETE CASCADE,
+--  ADD CONSTRAINT `mod_dsm_cg_relation_ibfk_1` FOREIGN KEY (`cg_cg_id`) REFERENCES `contactgroup` (`cg_id`) ON DELETE CASCADE;
+--
 --
 -- Contraintes pour la table `mod_dsm_pool`
 --
