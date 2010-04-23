@@ -42,17 +42,16 @@ use File::Path qw(mkpath);
 use Time::HiRes qw(usleep ualarm gettimeofday tv_interval nanosleep clock_gettime clock_getres clock_nanosleep clock stat);
 use vars qw($mysql_database_oreon $mysql_database_ods $mysql_host $mysql_user $mysql_passwd $ndo_conf $LOG $NAGIOSCMD $CECORECMD $LOCKDIR $MAXDATAAGE $CACHEDIR);
 
-$LOG = "/data/nagi00/centreon/log/dynamicTrap.log";
+$LOG = "@INSTALL_DIR_CENTREON@/centreon/log/dynamicTrap.log";
 
-$NAGIOSCMD = "/data/nagi00/nagios/var/rw/nagios.cmd";
-$CECORECMD = "/data/nagi00/centreon/var/centcore.cmd";
+$NAGIOSCMD = "@NAGIOS_VAR@/rw/nagios.cmd";
+$CECORECMD = "@CENTREON_VARLIB@/centcore.cmd";
 
-$LOCKDIR = "/data/nagi00/centreon/var/tmp/";
-$CACHEDIR = "/data/nagi00/centreon/var/cache/";
+$LOCKDIR = "@CENTREON_VARLIB@/tmp/";
+$CACHEDIR = "@CENTREON_VARLIB@/cache/";
 $MAXDATAAGE = 60;
 
-#require "@CENTREON_ETC@/conf.pm";
-require "/data/nagi00/centreon/etc/conf.pm";
+require "@CENTREON_ETC@/conf.pm";
 
 # log files management function
 sub writeLogFile($){

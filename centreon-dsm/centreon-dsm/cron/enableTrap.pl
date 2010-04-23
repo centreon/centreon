@@ -47,7 +47,7 @@ use vars qw($mysql_user $mysql_password $mysql_host $mysql_db $mysql_db_centreon
 use vars qw ($mysql_database_oreon $mysql_database_ods $mysql_passwd $debug);
 my %Relations;
 
-require "/data/nagi00/centreon/etc/conf.pm";
+require "@CENTREON_ETC@/conf.pm";
 
 $mysql_password = $mysql_passwd;
 $mysql_db_centreon = $mysql_database_oreon;

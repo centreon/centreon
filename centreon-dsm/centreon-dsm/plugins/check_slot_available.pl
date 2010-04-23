@@ -40,8 +40,7 @@ use strict;
 use DBI;
 use vars qw($mysql_database_oreon $mysql_database_ods $mysql_host $mysql_user $mysql_passwd $ndo_conf $LOG $NAGIOSCMD $CECORECMD $LOCKDIR $MAXDATAAGE $CACHEDIR);
 
-#require "@CENTREON_ETC@/conf.pm";
-require "/data/nagi00/centreon/etc/conf.pm";
+require "@CENTREON_ETC@/conf.pm";
 
 # Set arguments
 my $host_name = $ARGV[0];
