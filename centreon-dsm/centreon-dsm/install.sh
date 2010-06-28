@@ -43,7 +43,7 @@
 # 
 
 # List of files containing macros
-MACRO_FILES="bin/snmpTrapDyn.pl  "
+MACRO_FILES="bin/snmpTrapDyn.pl cron/enableTrap.pl cron/purgeCacheTrap.pl centreon-dsm.conf"
 
 # Define Centreon Config Books version
 NAME="centreon-dsm"
@@ -87,12 +87,16 @@ function usage() {
 ## {Get Centreon install dir and user/group for apache}
 #----
 function get_centreon_parameters() {
+
 	INSTALL_DIR_CENTREON=`cat $CENTREON_CONF/$FILE_CONF | grep "INSTALL_DIR_CENTREON" | cut -d '=' -f2`;
 	LOG_DIR_CENTREON=`cat $CENTREON_CONF/$FILE_CONF | grep "CENTREON_LOG" | cut -d '=' -f2`;
 	WEB_USER=`cat $CENTREON_CONF/$FILE_CONF | grep "WEB_USER" | cut -d '=' -f2`;
 	WEB_GROUP=`cat $CENTREON_CONF/$FILE_CONF | grep "WEB_GROUP" | cut -d '=' -f2`;
 	CENTREON_CONF=`cat $CENTREON_CONF/$FILE_CONF | grep "CENTREON_ETC" | cut -d '=' -f2`;
-
+	NAGIOS_PLUGIN=`cat $CENTREON_CONF/$FILE_CONF | grep "NAGIOS_PLUGIN" | cut -d '=' -f2`;
+	NAGIOS_VAR=`cat $CENTREON_CONF/$FILE_CONF | grep "NAGIOS_VAR" | cut -d '=' -f2`;
+	CENTREON_VARLIB=`cat $CENTREON_CONF/$FILE_CONF | grep "CENTREON_VARLIB" | cut -d '=' -f2`;
+	
 	if [ "$INSTALL_DIR_CENTREON" != "" ] && [ "$WEB_USER" != "" ] && [ "$WEB_GROUP" != "" ] ; then
 		return 1;
 	else
@@ -188,6 +192,12 @@ function install_module() {
 
 	echo_success "Copying module" "$ok"
 	/bin/cp -Rf --preserve $TEMP_D/www/* $INSTALL_DIR_CENTREON/www >> $LOG_FILE 2>> $LOG_FILE
+
+	echo_success "Install Cron config File" "$ok"
+	/bin/cp -Rf --preserve $TEMP_D/centreon-dsm.conf /etc/cron.d/ >> $LOG_FILE 2>> $LOG_FILE
+
+	echo_success "Restart crond" "$ok"
+	/etc/init.d/crond restart >> $LOG_FILE 2>> $LOG_FILE
 
 	echo_success "Delete temp install directory" "$ok"
 	/bin/rm -Rf $TEMP_D $TEMP >> $LOG_FILE 2>> $LOG_FILE
