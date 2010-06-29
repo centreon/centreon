@@ -97,6 +97,8 @@ function get_centreon_parameters() {
 	NAGIOS_VAR=`cat $CENTREON_CONF/$FILE_CONF | grep "NAGIOS_VAR" | cut -d '=' -f2`;
 	CENTREON_VARLIB=`cat $CENTREON_CONF/$FILE_CONF | grep "CENTREON_VARLIB" | cut -d '=' -f2`;
 	
+	CENTREON_VARLIB=`echo $CENTREON_VARLIB | sed -e 's|\t|""|g'`
+	
 	if [ "$INSTALL_DIR_CENTREON" != "" ] && [ "$WEB_USER" != "" ] && [ "$WEB_GROUP" != "" ] ; then
 		return 1;
 	else
@@ -200,7 +202,16 @@ function install_module() {
 	fi
 
 	echo_success "Copying module" "$ok"
-	/bin/cp -Rf --preserve $TEMP_D/www/* $INSTALL_DIR_CENTREON/www >> $LOG_FILE 2>> $LOG_FILE
+    /bin/cp -Rf --preserve $TEMP_D/www/* $INSTALL_DIR_CENTREON/www >> $LOG_FILE 2>> $LOG_FILE
+
+    echo_success "Copying Handler" "$ok"
+    /bin/cp -Rf --preserve $TEMP_D/bin/* $INSTALL_DIR_CENTREON/bin >> $LOG_FILE 2>> $LOG_FILE
+
+    echo_success "Copying Cron script" "$ok"
+    /bin/cp -Rf --preserve $TEMP_D/cron/* $INSTALL_DIR_CENTREON/cron >> $LOG_FILE 2>> $LOG_FILE
+
+    echo_success "Copying Plugins" "$ok"
+    /bin/cp -Rf --preserve $TEMP_D/plugins/* $NAGIOS_PLUGIN/ >> $LOG_FILE 2>> $LOG_FILE
 
 	echo_success "Install Cron config File" "$ok"
 	/bin/cp -Rf --preserve $TEMP_D/centreon-dsm.conf /etc/cron.d/ >> $LOG_FILE 2>> $LOG_FILE
