@@ -43,7 +43,7 @@
 # 
 
 # List of files containing macros
-MACRO_FILES="bin/snmpTrapDyn.pl cron/enableTrap.pl cron/purgeCacheTrap.pl centreon-dsm.conf"
+MACRO_FILES="bin/snmpTrapDyn.pl cron/enableTrap.pl cron/purgeCacheTrap.pl centreon-dsm.conf plugins/check_slot_available.pl plugins/check_slot_cache_size.pl"
 
 # Define Centreon Config Books version
 NAME="centreon-dsm"
@@ -149,8 +149,17 @@ function install_module() {
 	
 	TEMP_D="/tmp/installation-dsm"
 	/bin/mkdir $TEMP_D >> $LOG_FILE 2>> $LOG_FILE
-	/bin/mkdir $TEMP_D/www >> $LOG_FILE 2>> $LOG_FILE
-	/bin/cp -Rf www/* $TEMP_D/www >> $LOG_FILE 2>> $LOG_FILE
+    /bin/mkdir $TEMP_D/www >> $LOG_FILE 2>> $LOG_FILE
+    /bin/mkdir $TEMP_D/bin >> $LOG_FILE 2>> $LOG_FILE
+    /bin/mkdir $TEMP_D/cron >> $LOG_FILE 2>> $LOG_FILE
+    /bin/mkdir $TEMP_D/plugins >> $LOG_FILE 2>> $LOG_FILE
+
+    /bin/cp -Rf www/* $TEMP_D/www >> $LOG_FILE 2>> $LOG_FILE
+    /bin/cp -Rf bin/* $TEMP_D/bin >> $LOG_FILE 2>> $LOG_FILE
+    /bin/cp -Rf cron/* $TEMP_D/cron >> $LOG_FILE 2>> $LOG_FILE
+    /bin/cp -Rf plugins/* $TEMP_D/plugins >> $LOG_FILE 2>> $LOG_FILE
+    /bin/cp -Rf centreon-dsm.conf $TEMP_D/ >> $LOG_FILE 2>> $LOG_FILE
+	
 	/bin/rm -Rf $TEMP_D/install $TEMP_D/*.log
 
 	echo_success "Replacing macros" "$ok"
