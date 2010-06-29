@@ -40,7 +40,9 @@ use strict;
 use DBI;
 use File::Path qw(mkpath);
 use Time::HiRes qw(usleep ualarm gettimeofday tv_interval nanosleep clock_gettime clock_getres clock_nanosleep clock stat);
-use vars qw($mysql_database_oreon $mysql_database_ods $mysql_host $mysql_user $mysql_passwd $ndo_conf $LOG $NAGIOSCMD $CECORECMD $LOCKDIR $MAXDATAAGE $CACHEDIR);
+use vars qw($mysql_database_oreon $mysql_database_ods $mysql_host $mysql_user $mysql_passwd $ndo_conf $LOG $NAGIOSCMD $CECORECMD $LOCKDIR $MAXDATAAGE $CACHEDIR $EXCLUDESTR);
+
+$EXCLUDESTR = "";
 
 $LOG = "@INSTALL_DIR_CENTREON@/log/dynamicTrap.log";
 
@@ -74,6 +76,14 @@ sub writeLogFile($){
 my $host_name = $ARGV[0];
 my $output = $ARGV[2];
 my $timeRequest = $ARGV[1];
+
+foreach (split(',', $EXCLUDESTR)) {
+    if ($output =~ /$_/) {
+        writeLogFile("Exclusion case found ($_)");
+        writeLogFile("Alerte for host $host_name not accepted (output : $output)");
+        exit(1);
+    }
+}
 
 my $dbh = DBI->connect("dbi:mysql:".$mysql_database_oreon.";host=".$mysql_host, $mysql_user, $mysql_passwd) or die "Data base connexion impossible : $mysql_database_oreon => $! \n";
 
