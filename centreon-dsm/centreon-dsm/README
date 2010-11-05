@@ -1,0 +1,45 @@
+Installation :
+--------------
+
+Use install.sh
+
+Usage :
+-------
+
+Usage before revision 34 : deprecated.
+
+  ./snmpTrapDyn.pl hostname timerequest output
+      	hostname		The hostname with trap services
+	timerequest		The time epoch for the trap request
+	output			The output to display in service comment
+
+In this version, the status if always CRITICAL.
+   
+Usage after release 1.0
+
+  ./snmpTrapDyn.pl [-a actionid] [-h] -H hostname -i id -t timerequest -s status output_part1 ...
+	-a|--action		Action id
+	-h|--help		Help
+	-H|--Host		The hostname with trap services
+	-i|--id			Id
+	-t|--time		The time epoch for the trap request
+	-s|--status		The id status nagios 0 Ok; 1 Warning ; 2 Critical ; 3 Unknown 
+	output_part1		The output to display in service comment
+
+Configuration :
+---------------
+
+The configuration vairables are in conf_dsm.pm
+
+EXCLUDESTR	The list of string to exclude, separateb by ,
+LOG		The log file
+NAGIOSCMD	The pipe for send commands to Nagios
+CECORECMD	The pipe for send commands to CentCore
+LOCKDIR		The directory for lock files
+CACHEDIR	The directory for cache
+MAXDATAAGE	The max age of cahce in minutes
+MACRO_ID_NAME	The name of macro in the service for storage the unique ID
+
+ Optionnal :
+pattern_output	A array of pattern for custom output by action
+action_list	A array of custom action (In development)
