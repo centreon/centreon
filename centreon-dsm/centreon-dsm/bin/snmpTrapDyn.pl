@@ -31,8 +31,8 @@
 # 
 # For more information : contact@centreon.com
 # 
-# SVN : $URL: http://svn.centreon.com/branches/centreon-2.1/lib/purge.pm $
-# SVN : $Id: purge.pm 10097 2010-02-25 17:34:45Z jmathis $
+# SVN : $URL
+# SVN : $Id
 #
 ####################################################################################
 
@@ -40,7 +40,7 @@ use strict;
 use DBI;
 use File::Path qw(mkpath);
 use Time::HiRes qw(usleep ualarm gettimeofday tv_interval nanosleep clock_gettime clock_getres clock_nanosleep clock stat);
-use vars qw($mysql_database_oreon $mysql_database_ods $mysql_host $mysql_user $mysql_passwd $ndo_conf $LOG $NAGIOSCMD $CECORECMD $LOCKDIR $MAXDATAAGE $CACHEDIR $EXCLUDESTR $MACRO_ID_NAME @pattern_output @action_list);
+use vars qw($mysql_database_oreon $mysql_database_ods $mysql_host $mysql_user $mysql_passwd $ndo_conf $LOG $NAGIOSCMD $CECORECMD $LOCKDIR $MAXDATAAGE $CACHEDIR $EXCLUDESTR $MACRO_ID_NAME $FORCEFREE @pattern_output @action_list @macroList @statusList);
 
 # Test for new release
 my $longopt = 1;
@@ -51,8 +51,8 @@ if ($@) {
 
 ############################################
 # To the config file
-require "/etc/centreon/conf.pm";
-require "/etc/centreon/conf_dsm.pm";
+require "@CENTREON_ETC@/conf.pm";
+require "@CENTREON_ETC@/conf_dsm.pm";
 
 ############################################
 # log files management function
@@ -76,6 +76,7 @@ sub writeLogFile {
     close LOG or warn $!;
 }
 
+###########################################
 # help
 sub help {
     print <<EOF;
@@ -85,6 +86,7 @@ Usage: snmpTrapDyn [-h] -H hostname -t time [-a action] [-i id] [-s status] outp
     -i|--id	The trap id
     -t|--time	The time of the trap
     -s|--status	The nagios status (0 - Ok, 1 - Warning, 2 - Critical, 3 - Unknown)
+    -m|--macros The liste of Macros that you like to store in custom macro separated by "|"
     -h|--help	Help
 
 EOF
@@ -164,7 +166,7 @@ sub get_free_slot {
 #############################################
 # send a command to the poller
 sub send_command {
-    my ($host_name, $service, $status, $timeRequest, $output, $id, $dbh) = @_;
+    my ($host_name, $service, $status, $timeRequest, $output, $macros, $id, $dbh) = @_;
 
     my $host_id = getHostID($host_name, $dbh);
     my $data_poller = getHostPoller($host_id, $dbh);
@@ -179,32 +181,69 @@ sub send_command {
 	$sendMacro = 1;
     }
 
+    if ($FORCEFREE && $status == 0) {
+	$output = "Free slot";
+    }
+
+    $output =~ s/\'//g;
     my $externalCMD = "[$timeRequest] PROCESS_SERVICE_CHECK_RESULT;$host_name;$service;$status;$output";
+    
     if ($data_poller->{'localhost'} == 0) {
 	my $externalCMD = "EXTERNALCMD:".$data_poller->{'id'}.":".$externalCMD;
 	writeLogFile("Send external command : $externalCMD");
-	if (system("echo '$externalCMD' >> $CECORECMD")) {
+	if (system("echo \"$externalCMD\" >> $CECORECMD")) {
 	    writeLogFile("Cannot Write external command for centcore");
 	}
 	if ($sendMacro) {
 	    writeLogFile("Send external command : $externalMacro");
-	    if (system("echo '$externalMacro' >> $CECORECMD")) {
+	    if (system("echo \"$externalMacro\" >> $CECORECMD")) {
 		writeLogFile("Cannot Write external command for centcore");
 	    }
+	}
+    } else {
+	writeLogFile("Send external command in local poller : $externalCMD");
+	if (system("echo \"$externalCMD\" >> $NAGIOSCMD")) {
+	    writeLogFile("Cannot Write external command for local nagios");
+	}
+	if ($sendMacro) {
+	    writeLogFile("Send external command in local poller : $externalMacro");
+	    if (system("echo \"$externalMacro\" >> $NAGIOSCMD")) {
+		writeLogFile("Cannot Write external command for centcore");
+	    }
+	}
+    }
+
+    my @tab = split(/\|/, $macros);
+    foreach my $string (@tab) {
+	my @tab2 = split(/\=/, $string);
+	if ($FORCEFREE && $status == 0) {
+	    $tab2[1] = "empty";
+	}
+	updateMacro($host_name, $service, $data_poller->{'localhost'}, $tab2[0], $tab2[1], $timeRequest);
+	undef(@tab2);
+    }
+}
+
+##########################################################
+# Declare functions
+# host / service / localhost / macro / var / time / $poller
+sub updateMacro($$$$$$) {
+    my $externalCMD = "[".$_[5]."] CHANGE_CUSTOM_SVC_VAR;".$_[0].";".$_[1].";".$_[3].";".$_[4];
+    if ($_[2] == 0) {
+	my $externalCMD = "EXTERNALCMD:".$_[6].":".$externalCMD;
+	writeLogFile("Send external command : $externalCMD");
+	if (system("echo '$externalCMD' >> $CECORECMD")) {
+	    writeLogFile("Cannot Write external command for centcore");
 	}
     } else {
 	writeLogFile("Send external command in local poller : $externalCMD");
 	if (system("echo '$externalCMD' >> $NAGIOSCMD")) {
 	    writeLogFile("Cannot Write external command for local nagios");
 	}
-	if ($sendMacro) {
-	    writeLogFile("Send external command in local poller : $externalMacro");
-	    if (system("echo '$externalMacro' >> $NAGIOSCMD")) {
-		writeLogFile("Cannot Write external command for centcore");
-	    }
-	}
     }
 }
+
+
 
 ##########################################
 ### DEFAULT ACTION
@@ -235,8 +274,9 @@ my $action = "nil";
 my $hostname = "nil";
 my $id = "nil";
 my $timeRequest = "nil";
-my $status = 2;
+my $status = -1;
 my $output;
+my $macros = "";
 if ($longopt) {
    my $result = GetOptions(
 			   "action=i" => \$action,
@@ -244,6 +284,7 @@ if ($longopt) {
 			   "id=s" => \$id,
 			   "time=s" => \$timeRequest,
 			   "status=i" => \$status,
+			   "macros=s" => \$macros,
 			   "help" => \&help);
    
    if ($hostname eq "nil" || $id eq "nil" 
@@ -267,7 +308,7 @@ if ($longopt) {
 		   } else {
 		       writeLogFile("Missing argument $1", "WW");
 		       $output =~ s/$&/ /g
-		       }
+	           }
 	       }
 	   }
        } else {
@@ -287,8 +328,10 @@ if ($longopt) {
 
 if (!$longopt) {
     $hostname = $ARGV[0];
-    $timeRequest = $ARGV[1];
-    $output = $ARGV[2];
+    $timeRequest = $ARGV[2];
+    $status = $ARGV[1];
+    $output = $ARGV[3];
+    $macros = $ARGV[4];
 }
 
 writeLogFile("Command line information :", "DD");
@@ -358,7 +401,7 @@ if ($longopt && $id ne "nil")  {
     $slot_service = get_slot($hostname, $id, $dbh, $dbh2);
     
     if ($slot_service ne "nil") {
-	send_command($host_name, $slot_service, $status, $timeRequest, $output, $id, $dbh);
+	send_command($host_name, $slot_service, $status, $timeRequest, $output, $macros, $id, $dbh);
 	exit(0);
     }
 }
@@ -425,6 +468,10 @@ foreach (@fileList) {
 	    if ($i == 0) {
 		$timeList[$t] = $_;
 		$timeList[$t] =~ s/\n//g;
+	    } elsif ($i == 1) {
+		$statusList[$t] = $_;
+	    } elsif ($i == 2) {
+                $macroList[$t] = $_;
 	    } else {
 		if (defined($outputList[$t])) {
 		    $outputList[$t] = $_; 
@@ -446,19 +493,18 @@ undef(@fileList);
 # Add Current entry in List
 $timeList[$t] = $timeRequest;
 $outputList[$t] = $output;
+$statusList[$t] = $status;
+$macroList[$t] = $macros;
 
 ############################################
 # Send data to Nagios serveurs
 my $y = 0;
 foreach my $str (@slotList) {
-#    print "$y : ".$timeList[$y]." |-> ".$str." \n";
     if (defined($timeList[$y])) {
 	# Check if I can use this slot
 	if (length($str) && !-e $LOCKDIR."$str.lock") {
 	    my $time_now = $timeList[$y];
-	    #my $host_id = getHostID($host_name, $dbh);
-	    #my $data_poller = getHostPoller($host_id, $dbh);
-	    $output = $outputList[$y]; 
+	    $output = $outputList[$y];
 
 	    # Write Tempory lock
 	    if (system("touch ".$LOCKDIR."$str.lock")) {
@@ -466,12 +512,14 @@ foreach my $str (@slotList) {
 	    }
 	    
 	    # Build external command
-	    send_command($host_name, $str, $status, $timeRequest, $output, $id, $dbh);
+	    send_command($host_name, $str, $status, $timeRequest, $output, $macros, $id, $dbh);
 	    
 	    undef($fileList[$y]);
 	    undef($timeList[$y]);
 	    undef($outputList[$y]);
-		$y++;
+	    undef($statusList[$y]);
+	    undef($macroList[$y]);
+	    $y++;
 	} else {
 	    if (-e $LOCKDIR."-$str") {
 		;#print "$str : already used !";
@@ -493,6 +541,8 @@ foreach my $str (@slotList) {
 
 	    open (CACHE, ">> ".$CACHEFILE) || print "can't write $LOG: $!";
 	    print CACHE $timeList[$y]."\n";
+	    print CACHE $statusList[$y]."\n";
+	    print CACHE $macroList[$y]."\n";
 	    print CACHE $outputList[$y];
 	    close CACHE;
 	}
@@ -527,6 +577,8 @@ if ($count) {
 	    
 	    open (CACHE, ">> ".$CACHEFILE) || print "can't write $LOG: $!";
 	    print CACHE $timeList[$y]."\n";
+	    print CACHE $statusList[$y]."\n";
+	    print CACHE $macroList[$y]."\n";
 	    print CACHE $outputList[$y];
 	    close CACHE;
 	}
