@@ -17,7 +17,7 @@ In this version, the status if always CRITICAL.
    
 Usage after release 1.0.2
 
-  ./snmpTrapDyn.pl [-a actionid] [-h] -H hostname -i id -t timerequest -s status output_part1 ...
+  ./snmpTrapDyn.pl [-a action] [-h] -H hostname [-i id] -t timerequest [-s status] output_part1 ...
 	-a|--action		Action id
 	-h|--help		Help
 	-H|--Host		The hostname with trap services

@@ -424,7 +424,14 @@ function install_module() {
 
 	RESULT=0
 	${CP} -Rf --preserve $TEMP_D/bin/* $INSTALL_DIR_CENTREON/bin/. >> $LOG_FILE 2>> $LOG_FILE
+	if [ "$?" -eq 0 ] ; then
+		RESULT=`expr $RESULT + 1`
+	fi
 	${CP} -Rf --preserve $TEMP_D/etc/* $CENTREON_CONF/. >> $LOG_FILE 2>> $LOG_FILE
+	if [ "$?" -eq 0 ] ; then
+		RESULT=`expr $RESULT + 1`
+	fi
+	
 	if [ "$RESULT" -eq 2 ] ; then
 		echo_success "Copying module" "$ok"
 	else 

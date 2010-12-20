@@ -3,7 +3,7 @@ $EXCLUDESTR = "";
 
 $LOG = "@CENTREON_LOG@/dynamicTrap.log";
 
-$NAGIOSCMD = "@NAGIOS_VAR@/rw/nagios.cmd";
+$NAGIOSCMD = "@NAGIOS_CMD@/nagios.cmd";
 $CECORECMD = "@CENTREON_VARLIB@/centcore.cmd";
 
 $LOCKDIR = "@CENTREON_VARLIB@/centreon-dsm/tmp/";
