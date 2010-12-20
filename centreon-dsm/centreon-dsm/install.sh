@@ -37,7 +37,7 @@
 
 # Define syslog version
 NAME="Centreon-DSM"
-VERSION="1.0.1"
+VERSION="1.1"
 MODULE=$NAME.$VERSION
 
 # Define vars
@@ -154,7 +154,7 @@ ${CAT} << __EOT__
 #                                                                             #
 #                          Thanks for using $NAME                      #
 #                                                                             #
-#                                    v$VERSION                                   #
+#                                    v$VERSION                                     #
 #                                                                             #
 ###############################################################################
 __EOT__
