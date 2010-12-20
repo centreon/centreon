@@ -1,13 +1,13 @@
 # String for exclusion
 $EXCLUDESTR = "";
 
-$LOG = "@INSTALL_DIR_CENTREON@/log/dynamicTrap.log";
+$LOG = "@CENTREON_LOG@/dynamicTrap.log";
 
 $NAGIOSCMD = "@NAGIOS_VAR@/rw/nagios.cmd";
 $CECORECMD = "@CENTREON_VARLIB@/centcore.cmd";
 
-$LOCKDIR = "@CENTREON_VARLIB@/tmp/";
-$CACHEDIR = "@CENTREON_VARLIB@/cache/";
+$LOCKDIR = "@CENTREON_VARLIB@/centreon-dsm/tmp/";
+$CACHEDIR = "@CENTREON_VARLIB@/centreon-dsm/cache/";
 $MAXDATAAGE = 5;
 
 $MACRO_ID_NAME = "ALARM_ID";
