@@ -364,8 +364,10 @@ function install_module() {
 	echo "$line"
 	TEMP_D="/tmp/Install_module"
 	${MKDIR} -p $TEMP_D/bin >> $LOG_FILE 2>> $LOG_FILE
+	${MKDIR} -p $TEMP_D/etc >> $LOG_FILE 2>> $LOG_FILE
 
 	${CP} -Rf bin/* $TEMP_D/bin >> $LOG_FILE 2>> $LOG_FILE
+	${CP} -Rf etc/* $TEMP_D/etc >> $LOG_FILE 2>> $LOG_FILE
 
 	${MKDIR} -p $CENTREON_VARLIB/centreon-dsm >> $LOG_FILE 2>> $LOG_FILE
 	if [ "$?" -eq 0 ] ; then
@@ -381,17 +383,17 @@ function install_module() {
 	if [ "$?" -eq 0 ] ; then
 		RESULT=`expr $RESULT + 1`
 	fi
-	FILE="bin/snmpTrapDyn.pl"
+	FILE="etc/conf_dsm.pl"
 	${SED} -i -e 's|@CENTREON_LOG@|'"$CENTREON_LOG"'|g' $TEMP_D/$FILE 2>> $LOG_FILE
 	if [ "$?" -eq 0 ] ; then
 		RESULT=`expr $RESULT + 1`
 	fi
-	FILE="bin/snmpTrapDyn.pl"
+	FILE="etc/conf_dsm.pl"
 	${SED} -i -e 's|@CENTREON_VARLIB@|'"$CENTREON_VARLIB"'|g' $TEMP_D/$FILE 2>> $LOG_FILE
 	if [ "$?" -eq 0 ] ; then
 		RESULT=`expr $RESULT + 1`
 	fi
-	FILE="bin/snmpTrapDyn.pl"
+	FILE="etc/conf_dsm.pl"
 	${SED} -i -e 's|@NAGIOS_CMD@|'"$NAGIOS_VAR/rw"'|g' $TEMP_D/$FILE 2>> $LOG_FILE
 	if [ "$?" -eq 0 ] ; then
 		RESULT=`expr $RESULT + 1`
@@ -420,8 +422,10 @@ function install_module() {
 		exit 1
 	fi
 
+	RESULT=0
 	${CP} -Rf --preserve $TEMP_D/bin/* $INSTALL_DIR_CENTREON/bin/. >> $LOG_FILE 2>> $LOG_FILE
-	if [ "$?" -eq 0 ] ; then
+	${CP} -Rf --preserve $TEMP_D/etc/* $CENTREON_CONF/. >> $LOG_FILE 2>> $LOG_FILE
+	if [ "$RESULT" -eq 2 ] ; then
 		echo_success "Copying module" "$ok"
 	else 
 		echo_failure "Copying module" "$fail"
