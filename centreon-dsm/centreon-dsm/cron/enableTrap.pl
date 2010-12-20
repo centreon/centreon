@@ -1,6 +1,6 @@
 #! /usr/bin/perl -w
 ################################################################################
-# Copyright 2005-2009 MERETHIS
+# Copyright 2005-2010 MERETHIS
 # Centreon is developped by : Julien Mathis and Romain Le Merlus under
 # GPL Licence 2.0.
 #
@@ -31,8 +31,8 @@
 #
 # For more information : contact@centreon.com
 #
-# SVN : $URL: http://svn.centreon.com/branches/centreon-2.1/cron/purgeComments $
-# SVN : $Id: purgeComments 9201 2009-10-15 09:31:03Z jmathis $
+# SVN : $URL:$
+# SVN : $Id:$
 #
 ####################################################################################
 
@@ -47,7 +47,7 @@ use vars qw($mysql_user $mysql_password $mysql_host $mysql_db $mysql_db_centreon
 use vars qw ($mysql_database_oreon $mysql_database_ods $mysql_passwd $debug);
 my %Relations;
 
-require "@CENTREON_ETC@/conf.pm";
+require "@CENTREON_ETC@conf.pm";
 
 $mysql_password = $mysql_passwd;
 $mysql_db_centreon = $mysql_database_oreon;
@@ -57,8 +57,8 @@ my $retention = 30;
 
 $debug = 0;
 
-my $centcore_file = "/data/nagi00/centreon/lib/centcore.cmd";
-my $nagios_file = "/data/nagi00/nagios/var/rw/nagios.cmd";
+my $centcore_file = "@CENTREON_VARLIB@/centcore.cmd";
+my $nagios_file = "@NAGIOS_CMD@/nagios.cmd";
 
 ################################################################################
 
