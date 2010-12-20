@@ -383,17 +383,17 @@ function install_module() {
 	if [ "$?" -eq 0 ] ; then
 		RESULT=`expr $RESULT + 1`
 	fi
-	FILE="etc/conf_dsm.pl"
+	FILE="etc/conf_dsm.pm"
 	${SED} -i -e 's|@CENTREON_LOG@|'"$CENTREON_LOG"'|g' $TEMP_D/$FILE 2>> $LOG_FILE
 	if [ "$?" -eq 0 ] ; then
 		RESULT=`expr $RESULT + 1`
 	fi
-	FILE="etc/conf_dsm.pl"
+	FILE="etc/conf_dsm.pm"
 	${SED} -i -e 's|@CENTREON_VARLIB@|'"$CENTREON_VARLIB"'|g' $TEMP_D/$FILE 2>> $LOG_FILE
 	if [ "$?" -eq 0 ] ; then
 		RESULT=`expr $RESULT + 1`
 	fi
-	FILE="etc/conf_dsm.pl"
+	FILE="etc/conf_dsm.pm"
 	${SED} -i -e 's|@NAGIOS_CMD@|'"$NAGIOS_VAR/rw"'|g' $TEMP_D/$FILE 2>> $LOG_FILE
 	if [ "$?" -eq 0 ] ; then
 		RESULT=`expr $RESULT + 1`
