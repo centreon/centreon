@@ -72,6 +72,40 @@ sub writeLogFile($){
     close LOG or warn $!;
 }
 
+# Declare functions
+sub getHostID($$) {
+    my $con = $_[1];
+    
+    # Request
+    my $sth2 = $con->prepare("SELECT `host_id` FROM `host` WHERE `host_name` = '".$_[0]."' AND `host_register` = '1'");
+    if (!$sth2->execute) {
+		writeLogFile("Error:" . $sth2->errstr . "\n");
+    }
+    
+    my $data_host = $sth2->fetchrow_hashref();
+    my $host_id = $data_host->{'host_id'};
+    $sth2->finish();
+    
+    # free data
+    undef($data_host);
+    undef($con);
+    
+    # return host_id
+    return $host_id;
+}
+
+sub getHostPoller($$) {
+    my $con = $_[1];
+    my $sth2 = $con->prepare("SELECT ns.id, ns.localhost FROM nagios_server ns, ns_host_relation nsh WHERE nsh.host_host_id = '".$_[0]."' AND ns.id = nsh.nagios_server_id");
+    if (!$sth2->execute) {
+        writeLogFile("Error:" . $sth2->errstr . "\n");
+    }
+    my $data_poller = $sth2->fetchrow_hashref();
+    undef($sth2);
+    return $data_poller;
+}
+
+
 # Connect to Centreon Database
 my $dbh = DBI->connect("dbi:mysql:".$mysql_database_oreon.";host=".$mysql_host, $mysql_user, $mysql_passwd) or die "Data base connexion impossible : $mysql_database_oreon => $! \n";
 
@@ -136,8 +170,9 @@ if ($sth2->execute()){
 			mkpath($LOCKDIR);
 			}
 			
+			my @fileList;
 			# Purge Slot locks
-			my @fileList = glob($LOCKDIR."/*");
+			@fileList = glob($LOCKDIR."/*");
 			foreach (@fileList) {
 			my ($dev,$ino,$mode,$nlink,$uid,$gid,$rdev,$size,$atime,$mtime,$ctime,$blksize,$blocks) = lstat($_);
 			if (time() - $mtime > $MAXDATAAGE) {
@@ -152,9 +187,8 @@ if ($sth2->execute()){
 
 			my @timeList;
 			my @outputList;
-			my @fileList;
 			my $t = 0;
-			my @fileList = glob($CACHEDIR."/".$host_name."-*");
+			@fileList = glob($CACHEDIR."/".$host_name."-*");
 			foreach (@fileList) {
 			if (open(FILE, $_)) {
 				my $filename = $_;
@@ -287,37 +321,3 @@ if ($sth2->execute()){
     }
     exit(0);
 }  
-
-# Declare functions
-sub getHostID($$) {
-    my $con = $_[1];
-    
-    # Request
-    my $sth2 = $con->prepare("SELECT `host_id` FROM `host` WHERE `host_name` = '".$_[0]."' AND `host_register` = '1'");
-    if (!$sth2->execute) {
-		writeLogFile("Error:" . $sth2->errstr . "\n");
-    }
-    
-    my $data_host = $sth2->fetchrow_hashref();
-    my $host_id = $data_host->{'host_id'};
-    $sth2->finish();
-    
-    # free data
-    undef($data_host);
-    undef($con);
-    
-    # return host_id
-    return $host_id;
-}
-
-sub getHostPoller($$) {
-    my $con = $_[1];
-    my $sth2 = $con->prepare("SELECT ns.id, ns.localhost FROM nagios_server ns, ns_host_relation nsh WHERE nsh.host_host_id = '".$_[0]."' AND ns.id = nsh.nagios_server_id");
-    if (!$sth2->execute) {
-        writeLogFile("Error:" . $sth2->errstr . "\n");
-    }
-    my $data_poller = $sth2->fetchrow_hashref();
-    undef($sth2);
-    return $data_poller;
-}
-
