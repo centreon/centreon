@@ -41,7 +41,7 @@ use DBI;
 use File::Path qw(mkpath);
 use Time::HiRes qw(usleep ualarm gettimeofday tv_interval nanosleep clock_gettime clock_getres clock_nanosleep clock stat);
 
-use vars qw($mysql_database_oreon $mysql_database_ods $mysql_host $mysql_user $mysql_passwd $ndo_conf $LOG $NAGIOSCMD $CECORECMD $LOCKDIR $MAXDATAAGE $CACHEDIR $EXCLUDESTR $MACRO_ID_NAME $FORCEFREE @pattern_output @action_list @macroList @statusList @idList $debug);
+use vars qw($mysql_database_oreon $mysql_database_ods $mysql_host $mysql_user $mysql_passwd $ndo_conf $LOG $NAGIOSCMD $CECORECMD $LOCKDIR $MAXDATAAGE $CACHEDIR $EXCLUDESTR $MACRO_ID_NAME $FORCEFREE @pattern_output @action_list @macroList @statusList @idList $debug $DBType);
 
 #############################################
 # Test for new release
@@ -55,8 +55,8 @@ $debug = 0;
 
 ############################################
 # To the config file
-require "@CENTREON_ETC@/conf.pm";
-require "@CENTREON_ETC@/conf_dsm.pm";
+require "/etc/centreon/conf.pm";
+require "/etc/centreon/conf_dsm.pm";
 
 ############################################
 # log files management function
@@ -98,52 +98,82 @@ EOF
 }
 
 ##################################################
+# Get DB type NDO / Broker
+# NDO => 0 ; Broker => 1
+sub getDBType($) {
+	my $dbh = $_[0];
+	
+	my $request = "SELECT * FROM options WHERE `key` LIKE 'Broker'";
+	my $sth = $dbh->prepare($request);
+    if (!defined($sth)) {
+		writeLogFile($DBI::errstr, "EE");
+		print $DBI::errstr; 
+	} else {
+		if (!$sth->execute()) {
+			my $row = $sth->fetchrow_hashref();
+			if ($row->{'value'} == 'ndo') {
+				return 0;
+			} else {
+				return 1;
+			}
+		}
+		return 1;
+	}
+}
+
+##################################################
 # get slot by host and id
 sub get_slot {
     my ($host, $id, $dbh, $dbh2) = @_;
     my $service_id = "nil";
     my $count_services;
     my @list_services;
+    my $query_get;
 
-    my $query_get = "SELECT varvalue " .
-	"FROM " . $ndo_conf->{'db_prefix'} . "customvariablestatus " .
-	"WHERE varname = 'SERVICE_ID' AND object_id = (SELECT object_id " .
-	"FROM " . $ndo_conf->{'db_prefix'} . "customvariablestatus " .
-	"WHERE varname = '" . $MACRO_ID_NAME . "' AND varvalue = '" . $id . "' LIMIT 1)";
+	if ($DBType == 1) {
+		$query_get = "SELECT services.service_id AS varvalue FROM customvariables, hosts, services WHERE hosts.host_id = services.host_id AND hosts.host_id = customvariables.host_id AND services.service_id = customvariables.service_id AND hosts.name LIKE '$host' AND customvariables.name LIKE '" . $MACRO_ID_NAME . "' AND value = '" . $id . "' LIMIT 1";
+		print $query_get;
+	} else {
+		$query_get = "SELECT varvalue " .
+		"FROM " . $ndo_conf->{'db_prefix'} . "customvariablestatus " .
+		"WHERE varname = 'SERVICE_ID' AND object_id = (SELECT object_id " .
+		"FROM " . $ndo_conf->{'db_prefix'} . "customvariablestatus " .
+		"WHERE varname = '" . $MACRO_ID_NAME . "' AND varvalue = '" . $id . "' LIMIT 1)";
+	}
     my $sth2 = $dbh2->prepare($query_get);
     if (!defined($sth2)) {
-	writeLogFile($DBI::errstr, "EE");
-	exit(1);
+		writeLogFile($DBI::errstr, "EE");
+		exit(1);
     } else {
-	if (!$sth2->execute()){
-	    writeLogFile("Error when getting perfdata file : " . $sth2->errstr . "", "EE");
-	    exit(1);
-	}
-	@list_services;
-	while (my $row = $sth2->fetchrow_hashref()) {
-	    push(@list_services, $row->{"varvalue"});
-	}
-	undef($sth2);
-	$count_services = @list_services;
-	if ($count_services == 0) {
-	    return "nil";
-	}
-	my $query_check = "SELECT s.service_description " .
-	    "FROM host_service_relation as hsr, host as h, service as s " .
-	    "WHERE hsr.host_host_id = h.host_id AND h.host_name = '" . $host . "' AND h.host_register = '1' AND hsr.service_service_id = s.service_id AND hsr.service_service_id IN (" . join(",", @list_services) . ")";
-	my $sth2 = $dbh->prepare($query_check);
-	if (!defined($sth2)) {
-	    writeLogFile($DBI::errstr, "EE");
-	    exit(1);
-	}
-	if (!$sth2->execute()) {
-	    writeLogFile("Error when getting perfdata file : " . $sth2->errstr . "", "EE");
-	    exit(1);
-	}
-	if (my $row = $sth2->fetchrow_hashref()) {
-	    $service_id = $row->{"service_description"};
-	}
-	undef($sth2);
+		if (!$sth2->execute()){
+		    writeLogFile("Error when getting perfdata file : " . $sth2->errstr . "", "EE");
+		    exit(1);
+		}
+		@list_services;
+		while (my $row = $sth2->fetchrow_hashref()) {
+		    push(@list_services, $row->{"varvalue"});
+		}
+		undef($sth2);
+		$count_services = @list_services;
+		if ($count_services == 0) {
+		    return "nil";
+		}
+		my $query_check = "SELECT s.service_description " .
+		    "FROM host_service_relation as hsr, host as h, service as s " .
+		    "WHERE hsr.host_host_id = h.host_id AND h.host_name = '" . $host . "' AND h.host_register = '1' AND hsr.service_service_id = s.service_id AND hsr.service_service_id IN (" . join(",", @list_services) . ")";
+		my $sth2 = $dbh->prepare($query_check);
+		if (!defined($sth2)) {
+		    writeLogFile($DBI::errstr, "EE");
+		    exit(1);
+		}
+		if (!$sth2->execute()) {
+		    writeLogFile("Error when getting perfdata file : " . $sth2->errstr . "", "EE");
+		    exit(1);
+		}
+		if (my $row = $sth2->fetchrow_hashref()) {
+		    $service_id = $row->{"service_description"};
+		}
+		undef($sth2);
     }
 
     return $service_id;
@@ -153,18 +183,23 @@ sub get_slot {
 # get a free slot for a host
 sub get_free_slot {
     my ($host, $pool_prefix, $dbh, $dbh2, $ndo_conf) = @_;
+	my $request;
 
-    my $request = "SELECT no.name1, no.name2 ".
-	"FROM ".$ndo_conf->{'db_prefix'}."servicestatus nss , ".$ndo_conf->{'db_prefix'}."objects no, ".$ndo_conf->{'db_prefix'}."services ns ".
-	"WHERE no.object_id = nss.service_object_id AND no.name1 like '" . $host . "' AND no.object_id = ns.service_object_id ".
-	"AND nss.current_state = 0 AND no.name2 LIKE '" . $pool_prefix . "%' ORDER BY name2";
+	if ($DBType == 1) {
+    	$request = "SELECT description FROM services, hosts WHERE hosts.host_id = services.host_id AND state IN ('0', '4') AND hosts.name LIKE '$host' ORDER BY description";
+    } else {
+	   	$request = "SELECT no.name1, no.name2 ".
+		"FROM ".$ndo_conf->{'db_prefix'}."servicestatus nss , ".$ndo_conf->{'db_prefix'}."objects no, ".$ndo_conf->{'db_prefix'}."services ns ".
+		"WHERE no.object_id = nss.service_object_id AND no.name1 like '" . $host . "' AND no.object_id = ns.service_object_id ".
+		"AND nss.current_state = 0 AND no.name2 LIKE '" . $pool_prefix . "%' ORDER BY name2";
+	}
     my $sth2 = $dbh2->prepare($request);
     if (!defined($sth2)) {
 	writeLogFile($DBI::errstr, "EE");
 	exit(1);
     }
     if (!$sth2->execute()){
-	writeLogFile("Error when getting perfdata file : " . $sth2->errstr . "", "EE");
+	writeLogFile("Error when getting info : " . $sth2->errstr . "", "EE");
 	exit(1);
     }
     return 1;
@@ -359,6 +394,10 @@ foreach (split(',', $EXCLUDESTR)) {
 my $dbh = DBI->connect("dbi:mysql:".$mysql_database_oreon.";host=".$mysql_host, $mysql_user, $mysql_passwd) or die "Data base connexion impossible : $mysql_database_oreon => $! \n";
 
 #############################################
+# Define DBTyper
+$DBType = getDBType($dbh);
+
+#############################################
 # Get host/address
 my $host_name;
 my $sth2 = $dbh->prepare("SELECT host_name FROM host WHERE (host_address LIKE '" . $hostname . "' OR host_name LIKE '" . $hostname . "')");
@@ -375,54 +414,85 @@ if ($sth2->execute()){
 undef($sth2);
 writeLogFile("Real hostname = " . $host_name, "DD");
 
-#############################################
-# Get module trap on this host
+# MySQL Broker Handle
+my $dbh2;
 my $pool_prefix;
-$sth2 = $dbh->prepare("SELECT pool_prefix FROM mod_dsm_pool mdp, host h WHERE mdp.pool_host_id = h.host_id AND ( h.host_name LIKE '" . $hostname . "' OR h.host_address LIKE '" . $hostname . "')");
-if (!defined($sth2)) {
-    writeLogFile($DBI::errstr, "EE");
-}
-if ($sth2->execute()){
-    $pool_prefix = $sth2->fetchrow_hashref()->{'pool_prefix'};
+
+if ($DBType == 0) {
+	#############################################
+	# Get module trap on this host
+	
+	$sth2 = $dbh->prepare("SELECT pool_prefix FROM mod_dsm_pool mdp, host h WHERE mdp.pool_host_id = h.host_id AND ( h.host_name LIKE '" . $hostname . "' OR h.host_address LIKE '" . $hostname . "')");
+	if (!defined($sth2)) {
+	    writeLogFile($DBI::errstr, "EE");
+	}
+	if ($sth2->execute()){
+	    $pool_prefix = $sth2->fetchrow_hashref()->{'pool_prefix'};
+	} else {
+	    writeLogFile("Can get DSM informations $!", "EE");
+	    exit(1);
+	}
+	undef($sth2);
+	writeLogFile("Trap pool prefix = " . $pool_prefix, "DD");
+
+	#############################################
+	# Connect to NDO databases
+	$sth2 = $dbh->prepare("SELECT db_host,db_name,db_port,db_prefix,db_user,db_pass FROM cfg_ndo2db");
+	if (!$sth2->execute) {
+	    writeLogFile("Error when getting drop and perfdata properties : ".$sth2->errstr."");
+	}
+	$ndo_conf = $sth2->fetchrow_hashref();
+	undef($sth2);
+
+	############################################
+	# get ndo configuration
+	$dbh2 = DBI->connect("dbi:mysql:".$ndo_conf->{'db_name'}.";host=".$ndo_conf->{'db_host'}, $ndo_conf->{'db_user'}, $ndo_conf->{'db_pass'});
+	if (!defined($dbh2)) {
+	    writeLogFile($DBI::errstr, "EE");
+	    writeLogFile("Data base connexion not possible : ".$ndo_conf->{'db_name'}." => $!", "EE");
+	}
+	if ($longopt && $id ne "nil")  {
+	    my $slot_service;
+	    $slot_service = get_slot($hostname, $id, $dbh, $dbh2);
+	    
+	    if ($slot_service ne "nil") {
+		send_command($host_name, $slot_service, $status, $timeRequest, $output, $macros, $id, $dbh);
+		exit(0);
+	    }
+	}
+
 } else {
-    writeLogFile("Can get DSM informations $!", "EE");
-    exit(1);
-}
-undef($sth2);
-writeLogFile("Trap pool prefix = " . $pool_prefix, "DD");
+	
+	############################################
+	# get Broker configuration
+	$dbh2 = DBI->connect("dbi:mysql:".$mysql_database_ods.";host=".$mysql_host, $mysql_user, $mysql_passwd) or die "Data base connexion impossible : $mysql_database_oreon => $! \n";
+	if (!defined($dbh2)) {
+	    writeLogFile($DBI::errstr, "EE");
+	    writeLogFile("Data base connexion not possible : ".$mysql_database_ods." => $!", "EE");
+	}
+	if ($longopt && $id ne "nil")  {
+	    my $slot_service;
+	    $slot_service = get_slot($hostname, $id, $dbh, $dbh2);
+	    
+	    if ($slot_service ne "nil") {
+			send_command($host_name, $slot_service, $status, $timeRequest, $output, $macros, $id, $dbh);
+			exit(0);
+	    }
+	}
 
-#############################################
-# Connect to NDO databases
-$sth2 = $dbh->prepare("SELECT db_host,db_name,db_port,db_prefix,db_user,db_pass FROM cfg_ndo2db");
-if (!$sth2->execute) {
-    writeLogFile("Error when getting drop and perfdata properties : ".$sth2->errstr."");
-}
-$ndo_conf = $sth2->fetchrow_hashref();
-undef($sth2);
-
-############################################
-# get ndo configuration
-my $dbh2 = DBI->connect("dbi:mysql:".$ndo_conf->{'db_name'}.";host=".$ndo_conf->{'db_host'}, $ndo_conf->{'db_user'}, $ndo_conf->{'db_pass'});
-if (!defined($dbh2)) {
-    writeLogFile($DBI::errstr, "EE");
-    writeLogFile("Data base connexion impossible : ".$ndo_conf->{'db_name'}." => $!", "EE");
-}
-if ($longopt && $id ne "nil")  {
-    my $slot_service;
-    $slot_service = get_slot($hostname, $id, $dbh, $dbh2);
-    
-    if ($slot_service ne "nil") {
-	send_command($host_name, $slot_service, $status, $timeRequest, $output, $macros, $id, $dbh);
-	exit(0);
-    }
 }
 
 ############################################
 # Get slot free
-my $request = "SELECT no.name1, no.name2 ".
-	"FROM ".$ndo_conf->{'db_prefix'}."servicestatus nss , ".$ndo_conf->{'db_prefix'}."objects no, ".$ndo_conf->{'db_prefix'}."services ns ".
-	"WHERE no.object_id = nss.service_object_id AND no.name1 like '" . $host_name . "' AND no.object_id = ns.service_object_id ".
-	"AND nss.current_state = 0 AND no.name2 LIKE '" . $pool_prefix . "%' ORDER BY name2";
+my $request = "";
+if ($DBType == 1) {
+	$request = "SELECT hosts.name AS host_name, services.description AS service_description FROM hosts, services WHERE hosts.host_id = services.host_id AND hosts.name LIKE '" . $host_name . "' AND services.state IN ('0', 4)";
+} else {
+	$request = "SELECT no.name1 AS host_name, no.name2 AS service_description ".
+		"FROM ".$ndo_conf->{'db_prefix'}."servicestatus nss , ".$ndo_conf->{'db_prefix'}."objects no, ".$ndo_conf->{'db_prefix'}."services ns ".
+		"WHERE no.object_id = nss.service_object_id AND no.name1 like '" . $host_name . "' AND no.object_id = ns.service_object_id ".
+		"AND nss.current_state = 0 AND no.name2 LIKE '" . $pool_prefix . "%' ORDER BY name2";
+}
 my $sth2 = $dbh2->prepare($request);
 if (!defined($sth2)) {
     writeLogFile($DBI::errstr, "EE");
@@ -439,7 +509,7 @@ my $data;
 my @slotList;
 my $i;
 for ($i = 0;$data = $sth2->fetchrow_hashref();$i++) {
-    $slotList[$i] = $data->{'name2'};
+    $slotList[$i] = $data->{'service_description'};
 }
 undef($data);
 
