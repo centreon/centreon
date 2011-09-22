@@ -55,8 +55,8 @@ $debug = 0;
 
 ############################################
 # To the config file
-require "/etc/centreon/conf.pm";
-require "/etc/centreon/conf_dsm.pm";
+require "@CENTREON_ETC@/conf.pm";
+require "@CENTREON_ETC@/conf_dsm.pm";
 
 ############################################
 # log files management function
