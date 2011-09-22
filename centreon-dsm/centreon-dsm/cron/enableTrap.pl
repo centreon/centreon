@@ -43,7 +43,7 @@ use File::stat;
 use Getopt::Long;
 use POSIX;
 
-use vars qw($mysql_user $mysql_password $mysql_host $mysql_db $mysql_db_centreon $opt_h $opt_a $data);
+use vars qw($mysql_user $mysql_password $mysql_host $mysql_db $mysql_db_centreon $opt_h $opt_a $data $DBType);
 use vars qw ($mysql_database_oreon $mysql_database_ods $mysql_passwd $debug);
 my %Relations;
 
@@ -71,21 +71,37 @@ my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = gmtime(time);
 
 # Connect to centreon DB
 my $dbh_centreon = DBI->connect("DBI:mysql:database=".$mysql_db_centreon.";host=".$mysql_host, $mysql_user, $mysql_password, {'RaiseError' => 1});
-# Get ndo / nagios connexion informations
-my $sth1 = $dbh_centreon->prepare("SELECT * FROM cfg_ndo2db LIMIT 1");
-if (!$sth1->execute) {
-    die "Error:" . $sth1->errstr . "\n";
-}
-my $ndo2db = $sth1->fetchrow_hashref();
-my $prefix = $ndo2db->{'db_prefix'};
-my $ndoDB = $ndo2db->{'db_name'};
+
+# Get DBType
+$DBType = getDBType($dbh_centreon);
+
+my $ndo2db;
+my $prefix;
+my $ndoDB;
+
+if ($DBType == 1) {
+	# Get ndo / nagios connexion informations
+	my $sth1 = $dbh_centreon->prepare("SELECT * FROM cfg_ndo2db LIMIT 1");
+	if (!$sth1->execute) {
+	    die "Error:" . $sth1->errstr . "\n";
+	}
+	$ndo2db = $sth1->fetchrow_hashref();
+	$prefix = $ndo2db->{'db_prefix'};
+	$ndoDB = $ndo2db->{'db_name'};
+} 
 
 # Connect to ndo DB
-my $dbh = DBI->connect("DBI:mysql:database=".$ndoDB.";host=".$mysql_host, $mysql_user, $mysql_password, {'RaiseError' => 1});
+my $dbh;
+my $sth1;
+if ($DBType == 1) {
+	$dbh = DBI->connect("DBI:mysql:database=".$mysql_database_ods.";host=".$mysql_host, $mysql_user, $mysql_password, {'RaiseError' => 1});
+} else {
+	$dbh = DBI->connect("DBI:mysql:database=".$ndoDB.";host=".$mysql_host, $mysql_user, $mysql_password, {'RaiseError' => 1});
+}
 
 # Get id of the localhost poller
 $sth1 = $dbh_centreon->prepare("SELECT id FROM nagios_server WHERE `localhost` = '1'");
-if (!$sth1->execute) {
+if (!$sth1->execute()) {
     die "Error:" . $sth1->errstr . "\n";
 }
 my $localhost = $sth1->fetchrow_hashref();
@@ -99,9 +115,32 @@ while (my $relation = $sth1->fetchrow_hashref()) {
     $Relations{$relation->{'host_name'}} = $relation->{'nagios_server_id'};
 }
 
+$sth1 = $dbh_centreon->prepare("SELECT pool_host_id FROM mod_dsm_pool ");
+if (!$sth1->execute) {
+    die "Error:" . $sth1->errstr . "\n";
+}
+my $str = "";
+while (my $relation = $sth1->fetchrow_hashref()) {
+	if ($str !~ "") {
+		$str .= ",";
+	}
+    $str .= "'".$relation->{'pool_host_id'}."'";
+}
+
+if ($str eq '' && $DBType == 1) {
+	exit();
+}
+
 # Comment Purges
-my $sth2 = $dbh->prepare("SELECT name1, name2 FROM nagios_objects WHERE object_id IN (SELECT service_object_id FROM `nagios_services` WHERE service_object_id NOT IN (SELECT service_object_id FROM `nagios_servicestatus`))");
-if (!$sth2->execute) { die "Error:" . $sth2->errstr . "\n";}
+my $sth2;
+if ($DBType == 1) {
+	$sth2 = $dbh->prepare("SELECT hosts.name AS name1, services.description AS name2 FROM hosts, services WHERE hosts.host_id = services.host_id AND services.host_id IN ($str) AND services.state = '4'");
+} else {
+	$sth2 = $dbh->prepare("SELECT name1, name2 FROM nagios_objects WHERE object_id IN (SELECT service_object_id FROM `nagios_services` WHERE service_object_id NOT IN (SELECT service_object_id FROM `nagios_servicestatus`))");
+}
+if (!$sth2->execute()) { 
+	die "Error:" . $sth2->errstr . "\n";
+}
 while (my $comments = $sth2->fetchrow_hashref()) {
     #
     # check if it's a service or a host
