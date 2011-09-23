@@ -55,18 +55,50 @@ if (defined($ARGV[2]) && $ARGV[2]) {
 
 my $dbh = DBI->connect("dbi:mysql:".$mysql_database_oreon.";host=".$mysql_host, $mysql_user, $mysql_passwd) or die "Data base connexion impossible : $mysql_database_oreon => $! \n";
 
-# Connect to NDO databases
-my $sth2 = $dbh->prepare("SELECT db_host,db_name,db_port,db_prefix,db_user,db_pass FROM cfg_ndo2db");
-if (!$sth2->execute) {
-    writeLogFile("Error when getting drop and perfdata properties : ".$sth2->errstr."");
+##################################################
+# Get DB type NDO / Broker
+# NDO => 0 ; Broker => 1
+sub getDBType($) {
+	my $dbh = $_[0];
+	
+	my $request = "SELECT * FROM options WHERE `key` LIKE 'Broker'";
+	my $sth = $dbh->prepare($request);
+    if (!defined($sth)) {
+		writeLogFile($DBI::errstr, "EE");
+		print $DBI::errstr; 
+	} else {
+		if (!$sth->execute()) {
+			my $row = $sth->fetchrow_hashref();
+			if ($row->{'value'} == 'ndo') {
+				return 0;
+			} else {
+				return 1;
+			}
+		}
+		return 1;
+	}
 }
-$ndo_conf = $sth2->fetchrow_hashref();
-undef($sth2);
 
-my $dbh2 = DBI->connect("dbi:mysql:".$ndo_conf->{'db_name'}.";host=".$ndo_conf->{'db_host'}, $ndo_conf->{'db_user'}, $ndo_conf->{'db_pass'});
-if (!defined($dbh2)) {
-    print "ERROR : ".$DBI::errstr."\n";
-    print "Data base connexion impossible : ".$ndo_conf->{'db_name'}." => $! \n";
+# Get Broker type
+$DBType = getDBType($dbh);
+
+my $dbh2;
+if ($DBType == 1) {
+	$dbh2 = DBI->connect("dbi:mysql:".$mysql_database_ods.";host=".$mysql_host, $mysql_user, $mysql_passwd) or die "Data base connexion impossible : $mysql_database_oreon => $! \n";
+} else {
+	# Connect to NDO databases
+	my $sth2 = $dbh->prepare("SELECT db_host,db_name,db_port,db_prefix,db_user,db_pass FROM cfg_ndo2db");
+	if (!$sth2->execute) {
+	    writeLogFile("Error when getting drop and perfdata properties : ".$sth2->errstr."");
+	}
+	$ndo_conf = $sth2->fetchrow_hashref();
+	undef($sth2);
+	
+	$dbh2 = DBI->connect("dbi:mysql:".$ndo_conf->{'db_name'}.";host=".$ndo_conf->{'db_host'}, $ndo_conf->{'db_user'}, $ndo_conf->{'db_pass'});
+	if (!defined($dbh2)) {
+	    print "ERROR : ".$DBI::errstr."\n";
+	    print "Data base connexion impossible : ".$ndo_conf->{'db_name'}." => $! \n";
+	}
 }
 
 # Get module trap on this host
@@ -83,10 +115,16 @@ if ($sth2->execute()){
 }
 
 # Get slot free
-my $request = "SELECT no.name1, no.name2 ".
-    "FROM ".$ndo_conf->{'db_prefix'}."servicestatus nss , ".$ndo_conf->{'db_prefix'}."objects no, ".$ndo_conf->{'db_prefix'}."services ns ".
-    "WHERE no.object_id = nss.service_object_id AND no.name1 like '".$ARGV[0]."' AND no.object_id = ns.service_object_id ".
-    "AND nss.current_state = 0 AND no.name2 LIKE '".$confDSM->{'pool_prefix'}."%' ORDER BY name2";
+my $request;
+if ($DBType == 1) {
+	$request = "SELECT description FROM services, hosts WHERE hosts.host_id = services.host_id AND state IN ('0', '4') AND hosts.name LIKE '".$ARGV[0]."' AND services.description LIKE '".$confDSM->{'pool_prefix'}."%' ORDER BY description";
+} else {
+	$request = "SELECT no.name1, no.name2 ".
+	    "FROM ".$ndo_conf->{'db_prefix'}."servicestatus nss , ".$ndo_conf->{'db_prefix'}."objects no, ".$ndo_conf->{'db_prefix'}."services ns ".
+	    "WHERE no.object_id = nss.service_object_id AND no.name1 like '".$ARGV[0]."' AND no.object_id = ns.service_object_id ".
+	    "AND nss.current_state = 0 AND no.name2 LIKE '".$confDSM->{'pool_prefix'}."%' ORDER BY name2";
+}
+
 $sth2 = $dbh2->prepare($request);
 if (!defined($sth2)) {
     print "ERROR : ".$DBI::errstr."\n";
