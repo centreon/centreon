@@ -38,9 +38,9 @@
 
 use strict;
 use DBI;
-use vars qw($mysql_database_oreon $mysql_database_ods $mysql_host $mysql_user $mysql_passwd $ndo_conf $LOG $NAGIOSCMD $CECORECMD $LOCKDIR $MAXDATAAGE $CACHEDIR);
+use vars qw($mysql_database_oreon $mysql_database_ods $mysql_host $mysql_user $mysql_passwd $ndo_conf $LOG $NAGIOSCMD $CECORECMD $LOCKDIR $MAXDATAAGE $CACHEDIR $DBType);
 
-require "@CENTREON_ETC@conf.pm";
+require "@CENTREON_ETC@/conf.pm";
 
 # Set arguments
 my $host_name = $ARGV[0];
@@ -83,11 +83,12 @@ sub getDBType($) {
 $DBType = getDBType($dbh);
 
 my $dbh2;
+my $sth2;
 if ($DBType == 1) {
 	$dbh2 = DBI->connect("dbi:mysql:".$mysql_database_ods.";host=".$mysql_host, $mysql_user, $mysql_passwd) or die "Data base connexion impossible : $mysql_database_oreon => $! \n";
 } else {
 	# Connect to NDO databases
-	my $sth2 = $dbh->prepare("SELECT db_host,db_name,db_port,db_prefix,db_user,db_pass FROM cfg_ndo2db");
+	$sth2 = $dbh->prepare("SELECT db_host,db_name,db_port,db_prefix,db_user,db_pass FROM cfg_ndo2db");
 	if (!$sth2->execute) {
 	    writeLogFile("Error when getting drop and perfdata properties : ".$sth2->errstr."");
 	}
@@ -117,7 +118,7 @@ if ($sth2->execute()){
 # Get slot free
 my $request;
 if ($DBType == 1) {
-	$request = "SELECT description FROM services, hosts WHERE hosts.host_id = services.host_id AND state IN ('0', '4') AND hosts.name LIKE '".$ARGV[0]."' AND services.description LIKE '".$confDSM->{'pool_prefix'}."%' ORDER BY description";
+	$request = "SELECT description FROM services, hosts WHERE hosts.host_id = services.host_id AND services.state IN ('0', '4') AND hosts.name LIKE '".$ARGV[0]."' AND services.description LIKE '".$confDSM->{'pool_prefix'}."%' AND services.enabled = '1' ORDER BY description";
 } else {
 	$request = "SELECT no.name1, no.name2 ".
 	    "FROM ".$ndo_conf->{'db_prefix'}."servicestatus nss , ".$ndo_conf->{'db_prefix'}."objects no, ".$ndo_conf->{'db_prefix'}."services ns ".
