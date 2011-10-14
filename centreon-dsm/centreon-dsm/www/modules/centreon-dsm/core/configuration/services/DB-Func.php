@@ -36,9 +36,16 @@
  *
  */
 
-	if (!isset ($oreon))
+	if (!isset ($oreon)) {
 		exit ();
+	}
 
+	/**
+	 *
+	 * Enable a slot pool system
+	 * @param $pool_id
+	 * @param $pool_arr
+	 */
 	function enablePoolInDB ($pool_id = null, $pool_arr = array())	{
 		global $pearDB;
 
@@ -53,6 +60,12 @@
 		}
 	}
 
+	/**
+	 *
+	 * Disable a slot pool system
+	 * @param $pool_id
+	 * @param $pool_arr
+	 */
 	function disablePoolInDB ($pool_id = null, $pool_arr = array())	{
 		global $pearDB;
 
@@ -67,6 +80,11 @@
 		}
 	}
 
+	/**
+	 *
+	 * Delete a slot pool system
+	 * @param $pools
+	 */
 	function deletePoolInDB ($pools = array())	{
 		global $pearDB;
 
@@ -75,7 +93,11 @@
 		}
 	}
 
-
+    /**
+     *
+     * Update a slot pool in DB
+     * @param $pool_id
+     */
 	function updatePoolInDB($pool_id = NULL) {
 		global $form;
 
@@ -90,16 +112,89 @@
 		updatePool($pool_id);
 	}
 
+	/**
+     *
+     * Insert a slot pool in DB
+     * @param $pool_id
+     */
 	function insertPoolInDB ($ret = array())	{
 		$pool_id = insertPool($ret);
 		return ($pool_id);
 	}
 
+	/**
+	 *
+	 * Check Pool Existance
+	 * @param $pool_name
+	 */
+	function testPoolExistence($pool_name) {
+        $DBRESULT = $pearDB->query("SELECT * FROM `mod_dsm_pool` WHERE `pool_name` = '".$key."'");
+        if ($DBRESULT->numRows() == 0) {
+            return 0;
+        } else {
+            return 1;
+        }
+	}
+
+	/**
+	 *
+	 * Duplicate Pool
+	 * @param $select
+	 * @param $nbrDup
+	 */
+	function multiplePoolInDB($pool = array(), $nbrDup = array()) {
+        foreach ($pool as $key => $value) {
+            $DBRESULT = $pearDB->query("SELECT * FROM `mod_dsm_pool` WHERE `pool_id` = '".$key."' LIMIT 1");
+
+            $row = $DBRESULT->fetchRow();
+			$row["pool_id"] = '';
+
+            for ($i = 1; $i <= $nbrDup[$key]; $i++)	{
+				$val = null;
+
+				foreach ($row as $key2 => $value2) {
+					$key2 == "pool_name" ? ($pool_name = $value2 = $value2."_".$i) : null;
+					$val ? $val .= ($value2 != NULL?(", '".$pearDB->escape($value2)."'"):", NULL") : $val .= ($value2 != NULL?("'".$pearDB->escape($value2)."'"):"NULL");
+					if ($key2 != "pool_id") {
+						$fields[$key2] = $pearDB->escape($value2);
+					}
+					if (isset($pool_name)) {
+					    $fields["pool_name"] = $pool_name;
+					}
+				}
+
+				if (isset($pool_name) && testPoolExistence($pool_name)) {
+					$val ? $rq = "INSERT INTO `mod_dsm_pool` VALUES (".$val.")" : $rq = null;
+					$DBRESULT = $pearDB->query($rq);
+					$DBRESULT = $pearDB->query("SELECT MAX(pool_id) FROM `mod_dsm_pool`");
+					$cmd_id = $DBRESULT->fetchRow();
+				}
+			}
+
+			/*
+		 	 * Generate all services
+		 	 */
+		    generateServices($row["pool_prefix"], $row["pool_number"], $row["pool_host_id"], $row["pool_service_template_id"], $row["pool_cmd_id"], $row["pool_args"], "kjqsddlqkjdqslkjdqsldkj");
+        }
+	}
+
+    /**
+     *
+     * Generate Slot services for pool
+     * @param $prefix
+     * @param $number
+     * @param $host_id
+     * @param $template
+     * @param $cmd
+     * @param $args
+     * @param $oldPrefix
+     */
 	function generateServices($prefix, $number, $host_id, $template, $cmd, $args, $oldPrefix) {
 		global $pearDB;
 
-		if (!isset($oldPrefix))
+		if (!isset($oldPrefix)) {
 			$oldPrefix = "213343434334343434343";
+		}
 
 		$DBRESULT =& $pearDB->query(	"SELECT service_id, service_description " .
 										"FROM service s, host_service_relation hsr " .
@@ -179,11 +274,17 @@
 		}
 	}
 
+	/**
+	 *
+	 * Insert Pool
+	 * @param $ret
+	 */
 	function insertPool($ret = array())	{
 		global $form, $pearDB;
 
-		if (!count($ret))
+		if (!count($ret)) {
 			$ret = $form->getSubmitValues();
+		}
 
 		$rq = "INSERT INTO `mod_dsm_pool` ( " .
 				"`pool_id`,`pool_name`,`pool_host_id`,`pool_description`,`pool_number`,`pool_prefix`,`pool_cmd_id`,`pool_args`,".
@@ -201,6 +302,9 @@
 		isset($ret["pool_service_template_id"]) && $ret["pool_service_template_id"] != NULL ? $rq .= "'".$ret["pool_service_template_id"]."' ": $rq .= "NULL ";
 		$rq .= ")";
 
+		/*
+		 * Generate all services
+		 */
 		generateServices($ret["pool_prefix"], $ret["pool_number"], $ret["pool_host_id"], $ret["pool_service_template_id"], $ret["pool_cmd_id"], $ret["pool_args"], "kjqsddlqkjdqslkjdqsldkj");
 
 		$DBRESULT =& $pearDB->query($rq);
@@ -210,8 +314,10 @@
 		return ($pool_id["MAX(pool_id)"]);
 	}
 
-	/*
-	 * Update Pool informations
+	/**
+	 *
+	 * Update Pool
+	 * @param $ret
 	 */
 	function updatePool($pool_id = null) {
 		global $form, $pearDB;
@@ -254,6 +360,11 @@
 		generateServices($ret["pool_prefix"], $ret["pool_number"], $ret["pool_host_id"], $ret["pool_service_template_id"], $ret["pool_cmd_id"], $ret["pool_args"], $oldPrefix);
 	}
 
+	/**
+	 *
+	 * Update Pool ContactGroups
+	 * @param $ret
+	 */
 	function updatePoolContactGroup($pool_id = null, $ret = array())	{
 		global $form, $pearDB;
 
@@ -274,6 +385,11 @@
 		}
 	}
 
+	/**
+	 *
+	 * Update Pool Contacts
+	 * @param $ret
+	 */
 	function updatePoolContact($pool_id = null, $ret = array())	{
 		global $form, $pearDB;
 
