@@ -170,11 +170,6 @@
 					$cmd_id = $DBRESULT->fetchRow();
 				}
 			}
-
-			/*
-		 	 * Generate all services
-		 	 */
-		    generateServices($row["pool_prefix"], $row["pool_number"], $row["pool_host_id"], $row["pool_service_template_id"], $row["pool_cmd_id"], $row["pool_args"], "kjqsddlqkjdqslkjdqsldkj");
         }
 	}
 
