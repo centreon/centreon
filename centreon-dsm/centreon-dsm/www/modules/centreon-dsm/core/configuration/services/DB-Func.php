@@ -128,7 +128,9 @@
 	 * @param $pool_name
 	 */
 	function testPoolExistence($pool_name) {
-        $DBRESULT = $pearDB->query("SELECT * FROM `mod_dsm_pool` WHERE `pool_name` = '".$key."'");
+         global $pearDB;
+
+	    $DBRESULT = $pearDB->query("SELECT * FROM `mod_dsm_pool` WHERE `pool_name` = '".$pool_name."'");
         if ($DBRESULT->numRows() == 0) {
             return 0;
         } else {
@@ -143,7 +145,9 @@
 	 * @param $nbrDup
 	 */
 	function multiplePoolInDB($pool = array(), $nbrDup = array()) {
-        foreach ($pool as $key => $value) {
+        global $pearDB;
+
+	    foreach ($pool as $key => $value) {
             $DBRESULT = $pearDB->query("SELECT * FROM `mod_dsm_pool` WHERE `pool_id` = '".$key."' LIMIT 1");
 
             $row = $DBRESULT->fetchRow();
@@ -159,11 +163,11 @@
 						$fields[$key2] = $pearDB->escape($value2);
 					}
 					if (isset($pool_name)) {
-					    $fields["pool_name"] = $pool_name;
+					    $fields["pool_name"] = $pool_name."_$i";
 					}
 				}
 
-				if (isset($pool_name) && testPoolExistence($pool_name)) {
+				if (isset($pool_name) && !testPoolExistence($pool_name)) {
 					$val ? $rq = "INSERT INTO `mod_dsm_pool` VALUES (".$val.")" : $rq = null;
 					$DBRESULT = $pearDB->query($rq);
 					$DBRESULT = $pearDB->query("SELECT MAX(pool_id) FROM `mod_dsm_pool`");
