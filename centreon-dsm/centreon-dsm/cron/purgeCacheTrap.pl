@@ -94,7 +94,7 @@ sub get_slot {
 	    writeLogFile("Error when getting perfdata file : " . $sth2->errstr . "", "EE");
 	    exit(1);
 	}
-	@list_services;
+	#@list_services;
 	while (my $row = $sth2->fetchrow_hashref()) {
 	    push(@list_services, $row->{"varvalue"});
 	}
@@ -257,7 +257,7 @@ my $status = -1;
 my $output = "";
 my $macros = "";
 
-my $host_name = '';
+$host_name = '';
 my $pool_prefix = "";
 
 ############################################

@@ -47,18 +47,43 @@ use vars qw($mysql_user $mysql_password $mysql_host $mysql_db $mysql_db_centreon
 use vars qw ($mysql_database_oreon $mysql_database_ods $mysql_passwd $debug);
 my %Relations;
 
-require "@CENTREON_ETC@conf.pm";
+require "/etc/centreon/conf.pm";
 
 $mysql_password = $mysql_passwd;
 $mysql_db_centreon = $mysql_database_oreon;
 
 # Retention in days
-my $retention = 30;
+my $retention = 10;
 
 $debug = 0;
 
-my $centcore_file = "@CENTREON_VARLIB@/centcore.cmd";
-my $nagios_file = "@NAGIOS_CMD@/nagios.cmd";
+my $centcore_file = "/var/lib/centreon/centcore.cmd";
+my $nagios_file = "/var/log/nagios/rw/nagios.cmd";
+
+
+##################################################
+# Get DB type NDO / Broker
+# NDO => 0 ; Broker => 1
+sub getDBType($) {
+	my $dbh = $_[0];
+	
+	my $request = "SELECT * FROM options WHERE `key` LIKE 'Broker'";
+	my $sth = $dbh->prepare($request);
+    if (!defined($sth)) {
+		writeLogFile($DBI::errstr, "EE");
+		print $DBI::errstr; 
+	} else {
+		if (!$sth->execute()) {
+			my $row = $sth->fetchrow_hashref();
+			if ($row->{'value'} == 'ndo') {
+				return 0;
+			} else {
+				return 1;
+			}
+		}
+		return 1;
+	}
+}
 
 ################################################################################
 
@@ -128,7 +153,10 @@ while (my $relation = $sth1->fetchrow_hashref()) {
 }
 
 if ($str eq '' && $DBType == 1) {
+	print "OK=>".$str."\n";
 	exit();
+} else {
+	;
 }
 
 # Comment Purges
