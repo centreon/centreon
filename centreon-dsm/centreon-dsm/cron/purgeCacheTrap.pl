@@ -41,7 +41,7 @@ use DBI;
 use File::Path qw(mkpath);
 use Time::HiRes qw(usleep ualarm gettimeofday tv_interval nanosleep clock_gettime clock_getres clock_nanosleep clock stat);
 
-use vars qw($mysql_database_oreon $mysql_database_ods $mysql_host $mysql_user $mysql_passwd $ndo_conf $LOG $NAGIOSCMD $CECORECMD $LOCKDIR $MAXDATAAGE $CACHEDIR $EXCLUDESTR $MACRO_ID_NAME $FORCEFREE @pattern_output @action_list @macroList @statusList @idList @slotList $debug);
+use vars qw($mysql_database_oreon $mysql_database_ods $mysql_host $mysql_user $mysql_passwd $ndo_conf $DBType $LOG $NAGIOSCMD $CECORECMD $LOCKDIR $MAXDATAAGE $CACHEDIR $EXCLUDESTR $MACRO_ID_NAME $FORCEFREE @pattern_output @action_list @macroList @statusList @idList @slotList $debug);
 
 $debug = 0;
 
@@ -70,6 +70,30 @@ sub writeLogFile {
 
     print LOG ($year+1900) . "-" . $mon . "-" . $mday . " $hour:$min:$sec - [" . $lvl . "] " . $msg . "\n";
     close LOG or warn $!;
+}
+
+##################################################
+# Get DB type NDO / Broker
+# NDO => 0 ; Broker => 1
+sub getDBType($) {
+	my $dbh = $_[0];
+	
+	my $request = "SELECT * FROM options WHERE `key` LIKE 'Broker'";
+	my $sth = $dbh->prepare($request);
+    if (!defined($sth)) {
+		writeLogFile($DBI::errstr, "EE");
+		print $DBI::errstr; 
+	} else {
+		if (!$sth->execute()) {
+			my $row = $sth->fetchrow_hashref();
+			if ($row->{'value'} == 'ndo') {
+				return 0;
+			} else {
+				return 1;
+			}
+		}
+		return 1;
+	}
 }
 
 ##################################################
@@ -128,19 +152,25 @@ sub get_slot {
 # get a free slot for a host
 sub get_free_slot {
     my ($host, $pool_prefix, $dbh, $dbh2, $ndo_conf) = @_;
+	my $request;
 
-    my $request = "SELECT no.name1, no.name2 ".
-	"FROM ".$ndo_conf->{'db_prefix'}."servicestatus nss , ".$ndo_conf->{'db_prefix'}."objects no, ".$ndo_conf->{'db_prefix'}."services ns ".
-	"WHERE no.object_id = nss.service_object_id AND no.name1 like '" . $host . "' AND no.object_id = ns.service_object_id ".
-	"AND nss.current_state = 0 AND no.name2 LIKE '" . $pool_prefix . "%' ORDER BY name2";
+	if ($DBType == 1) {
+    	$request = "SELECT description FROM services, hosts WHERE hosts.host_id = services.host_id AND state IN ('0', '4') AND (hosts.name LIKE '$host' OR hosts.address LIKE '$host') ORDER BY description";    
+	} else {
+	   	$request = "SELECT no.name1, no.name2 ".
+			"FROM ".$ndo_conf->{'db_prefix'}."servicestatus nss , ".$ndo_conf->{'db_prefix'}."objects no, ".$ndo_conf->{'db_prefix'}."services ns ".
+			"WHERE no.object_id = nss.service_object_id AND no.name1 like '" . $host . "' AND no.object_id = ns.service_object_id ".
+			"AND nss.current_state = 0 AND no.name2 LIKE '" . $pool_prefix . "%' ORDER BY name2";
+	}
+	writeLogFile("$request", "II");
     my $sth2 = $dbh2->prepare($request);
     if (!defined($sth2)) {
-	writeLogFile($DBI::errstr, "EE");
-	exit(1);
+		writeLogFile($DBI::errstr, "EE");
+		exit(1);
     }
     if (!$sth2->execute()){
-	writeLogFile("Error when getting perfdata file : " . $sth2->errstr . "", "EE");
-	exit(1);
+		writeLogFile("Error when getting info : " . $sth2->errstr . "", "EE");
+		exit(1);
     }
     return 1;
 }
@@ -282,27 +312,35 @@ undef(@fileList);
 #############################################
 # Connect to Centreon databases
 my $dbh = DBI->connect("dbi:mysql:".$mysql_database_oreon.";host=".$mysql_host, $mysql_user, $mysql_passwd) or die "Data base connexion impossible : $mysql_database_oreon => $! \n";
+my $dbhO = DBI->connect("dbi:mysql:".$mysql_database_ods.";host=".$mysql_host, $mysql_user, $mysql_passwd) or die "Data base connexion impossible : $mysql_database_ods => $! \n";
 
 #############################################
-# Connect to NDO databases
-my $sth2 = $dbh->prepare("SELECT db_host,db_name,db_port,db_prefix,db_user,db_pass FROM cfg_ndo2db");
-if (!$sth2->execute) {
-    writeLogFile("Error when getting drop and perfdata properties : ".$sth2->errstr."");
-}
-$ndo_conf = $sth2->fetchrow_hashref();
-undef($sth2);
+# Define DBTyper
+$DBType = getDBType($dbh);
+my $dbh2;
 
-############################################
-# get ndo configuration
-my $dbh2 = DBI->connect("dbi:mysql:".$ndo_conf->{'db_name'}.";host=".$ndo_conf->{'db_host'}, $ndo_conf->{'db_user'}, $ndo_conf->{'db_pass'});
-if (!defined($dbh2)) {
-    writeLogFile($DBI::errstr, "EE");
-    writeLogFile("Data base connexion impossible : ".$ndo_conf->{'db_name'}." => $!", "EE");
+if ($DBType == 0) {
+	#############################################
+	# Connect to NDO databases
+	my $sth2 = $dbh->prepare("SELECT db_host,db_name,db_port,db_prefix,db_user,db_pass FROM cfg_ndo2db");
+	if (!$sth2->execute) {
+	    writeLogFile("Error when getting drop and perfdata properties : ".$sth2->errstr."");
+	}
+	$ndo_conf = $sth2->fetchrow_hashref();
+	undef($sth2);
+
+	############################################
+	# get ndo configuration
+	$dbh2 = DBI->connect("dbi:mysql:".$ndo_conf->{'db_name'}.";host=".$ndo_conf->{'db_host'}, $ndo_conf->{'db_user'}, $ndo_conf->{'db_pass'});
+	if (!defined($dbh2)) {
+	    writeLogFile($DBI::errstr, "EE");
+	    writeLogFile("Data base connexion impossible : ".$ndo_conf->{'db_name'}." => $!", "EE");
+	}
 }
 
 ############################################
 # Get hosts List
-$sth2 = $dbh->prepare("SELECT h.host_name, mdp.pool_prefix FROM mod_dsm_pool mdp, host h WHERE mdp.pool_host_id = h.host_id AND mdp.pool_activate = '1'");
+my $sth2 = $dbh->prepare("SELECT h.host_name, mdp.pool_prefix FROM mod_dsm_pool mdp, host h WHERE mdp.pool_host_id = h.host_id AND mdp.pool_activate = '1'");
 if (!defined($sth2)) {
     print "ERROR : ".$DBI::errstr."\n";
 }
@@ -314,11 +352,17 @@ if ($sth2->execute()){
 
 	############################################
 	# Get slot free
-	my $request = "SELECT no.name1, no.name2 ".
-	    "FROM ".$ndo_conf->{'db_prefix'}."servicestatus nss , ".$ndo_conf->{'db_prefix'}."objects no, ".$ndo_conf->{'db_prefix'}."services ns ".
-	    "WHERE no.object_id = nss.service_object_id AND no.name1 like '" . $host_name . "' AND no.object_id = ns.service_object_id ".
-	    "AND nss.current_state = 0 AND no.name2 LIKE '" . $pool_prefix . "%' ORDER BY name2";
-	my $sth3 = $dbh2->prepare($request);
+	my $sth3;
+	if ($DBType == 0) {
+		my $request = "SELECT no.name1, no.name2 ".
+		    "FROM ".$ndo_conf->{'db_prefix'}."servicestatus nss , ".$ndo_conf->{'db_prefix'}."objects no, ".$ndo_conf->{'db_prefix'}."services ns ".
+		    "WHERE no.object_id = nss.service_object_id AND no.name1 like '" . $host_name . "' AND no.object_id = ns.service_object_id ".
+		    "AND nss.current_state = 0 AND no.name2 LIKE '" . $pool_prefix . "%' ORDER BY name2";
+		$sth3 = $dbh2->prepare($request);
+	} else {
+		my $request = "SELECT description AS name2 FROM services, hosts WHERE hosts.host_id = services.host_id AND services.state IN ('0', '4') AND (hosts.name LIKE '$host' OR hosts.address LIKE '$host') AND services.description LIKE '" . $pool_prefix . "%' ORDER BY description";
+		$sth3 = $dbhO->prepare($request);	
+	}
 	if (!defined($sth3)) {
 	    writeLogFile($DBI::errstr, "EE");
 	    exit(1);

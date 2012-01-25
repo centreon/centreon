@@ -41,7 +41,7 @@ use DBI;
 use File::Path qw(mkpath);
 use Time::HiRes qw(usleep ualarm gettimeofday tv_interval nanosleep clock_gettime clock_getres clock_nanosleep clock stat);
 
-use vars qw($mysql_database_oreon $mysql_database_ods $mysql_host $mysql_user $mysql_passwd $ndo_conf $LOG $NAGIOSCMD $CECORECMD $LOCKDIR $MAXDATAAGE $CACHEDIR $EXCLUDESTR $MACRO_ID_NAME $FORCEFREE @pattern_output @action_list @macroList @statusList @idList $debug $DBType);
+use vars qw($mysql_database_oreon $mysql_database_ods $mysql_host $mysql_user $mysql_passwd $ndo_conf $LOG $NAGIOSCMD $DBType $CECORECMD $LOCKDIR $MAXDATAAGE $CACHEDIR $EXCLUDESTR $MACRO_ID_NAME $FORCEFREE @pattern_output @action_list @macroList @statusList @idList $debug $DBType);
 
 #############################################
 # Test for new release
@@ -467,6 +467,7 @@ if ($DBType == 0) {
 } else {
 	############################################
 	# get Broker configuration
+	
 	$dbh2 = DBI->connect("dbi:mysql:".$mysql_database_ods.";host=".$mysql_host, $mysql_user, $mysql_passwd) or die "Data base connexion impossible : $mysql_database_oreon => $! \n";
 	if (!defined($dbh2)) {
 	    writeLogFile($DBI::errstr, "EE");
@@ -487,7 +488,7 @@ if ($DBType == 0) {
 # Get slot free
 my $request = "";
 if ($DBType == 1) {
-	$request = "SELECT hosts.name AS host_name, services.description AS service_description FROM hosts, services WHERE hosts.host_id = services.host_id AND hosts.name LIKE '" . $host_name . "' AND services.state IN ('0', 4) AND services.enabled = '1' ";
+	$request = "SELECT hosts.name AS host_name, services.description AS service_description FROM hosts, services WHERE hosts.host_id = services.host_id AND hosts.name LIKE '" . $host_name . "' AND services.state IN ('0', 4) AND description LIKE '" . $pool_prefix . "%' AND services.enabled = '1' ";
 	writeLogFile($request, "II");
 } else {
 	$request = "SELECT no.name1 AS host_name, no.name2 AS service_description ".
