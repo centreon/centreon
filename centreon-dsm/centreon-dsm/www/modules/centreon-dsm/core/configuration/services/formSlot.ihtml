@@ -1,4 +1,7 @@
 {$form.javascript}
+{if $msgErr != "" }
+<div style="color: red; font-style: italic">{$msgErr}</div>
+{/if}
 <form {$form.attributes}>
 	<div id="validFormTop">
 	{if $o == "a" || $o == "c" || $o == "mc"}
@@ -11,17 +14,17 @@
 	 <table class="ListTable">
 	 	<tr class="ListHeader"><td class="FormHeader" colspan="2">&nbsp;<img src='./img/icones/16x16/gears.gif'>&nbsp;&nbsp;{$form.header.title}</td></tr>
 	 	<tr class="list_lvl_1"><td class="ListColLvl1_name" colspan="2"><img src='./img/icones/16x16/clipboard.gif'>&nbsp;&nbsp;{$form.header.information}</td></tr>
-		<tr class="list_one"><td class="FormRowField">{$form.pool_name.label}</td><td class="FormRowValue">{$form.pool_name.html}</td></tr>
-		<tr class="list_two"><td class="FormRowField">{$form.pool_description.label}</td><td class="FormRowValue">{$form.pool_description.html}</td></tr>
-		<tr class="list_one"><td class="FormRowField">{$form.pool_host_id.label}</td><td class="FormRowValue">{$form.pool_host_id.html}</td></tr>
+		<tr class="list_one"><td class="FormRowField"><img class="helpTooltip" name="pool_name" /><span>{$form.pool_name.label}</span></td><td class="FormRowValue">{$form.pool_name.html}</td></tr>
+		<tr class="list_two"><td class="FormRowField"><img class="helpTooltip" name="pool_description" /><span>{$form.pool_description.label}</span></td><td class="FormRowValue">{$form.pool_description.html}</td></tr>
+		<tr class="list_one"><td class="FormRowField"><img class="helpTooltip" name="pool_host_id" /><span>{$form.pool_host_id.label}</span></td><td class="FormRowValue">{$form.pool_host_id.html}</td></tr>
 		
 		<tr class="list_lvl_1"><td class="ListColLvl1_name" colspan="2"><img src='./img/icones/16x16/centreon.gif'>&nbsp;&nbsp;{$form.header.slotInformation}</td></tr>
-		<tr class="list_one"><td class="FormRowField">{$form.pool_service_template_id.label}</td><td class="FormRowValue">{$form.pool_service_template_id.html}</td></tr>
-		<tr class="list_two"><td class="FormRowField">{$form.pool_number.label}</td><td class="FormRowValue">{$form.pool_number.html}</td></tr>
-		<tr class="list_one"><td class="FormRowField">{$form.pool_prefix.label}</td><td class="FormRowValue">{$form.pool_prefix.html}</td></tr>		
-	 	<tr class="list_two"><td class="FormRowField">{$form.pool_cmd_id.label}</td><td class="FormRowValue">{$form.pool_cmd_id.html}&nbsp;{$form.pool_args.html}</td></tr>	 	
+		<tr class="list_one"><td class="FormRowField"><img class="helpTooltip" name="pool_service_template" /><span>{$form.pool_service_template_id.label}</span></td><td class="FormRowValue">{$form.pool_service_template_id.html}</td></tr>
+		<tr class="list_two"><td class="FormRowField"><img class="helpTooltip" name="pool_number" /><span>{$form.pool_number.label}</span></td><td class="FormRowValue">{$form.pool_number.html}</td></tr>
+		<tr class="list_one"><td class="FormRowField"><img class="helpTooltip" name="pool_prefix" /><span>{$form.pool_prefix.label}</span></td><td class="FormRowValue">{$form.pool_prefix.html}</td></tr>		
+	 	<tr class="list_two"><td class="FormRowField"><img class="helpTooltip" name="pool_cmd_id" /><span>{$form.pool_cmd_id.label}</span></td><td class="FormRowValue">{$form.pool_cmd_id.html}&nbsp;{$form.pool_args.html}</td></tr>	 	
 		<tr class="list_lvl_1"><td class="ListColLvl1_name" colspan="2"><img src='./img/icones/16x16/note.gif'>&nbsp;&nbsp;{$form.header.furtherInfos}</td></tr>
-		<tr class="list_one"><td class="FormRowField">{$form.pool_activate.label}</td><td class="FormRowValue">{$form.pool_activate.html}</td></tr>
+		<tr class="list_one"><td class="FormRowField"><img class="helpTooltip" name="pool_activate" /><span>{$form.pool_activate.label}</span></td><td class="FormRowValue">{$form.pool_activate.html}</td></tr>
 		{if $o == "a" || $o == "c"}
 			<tr class="list_lvl_2"><td class="ListColLvl2_name" colspan="2">{$form.required._note}</td></tr>
 		{/if}
@@ -37,4 +40,4 @@
 	</div>
 	{$form.hidden}
 </form>
-
+{$helptext}
