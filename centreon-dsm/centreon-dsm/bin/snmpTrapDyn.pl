@@ -103,7 +103,7 @@ EOF
 sub getDBType($) {
 	my $dbh = $_[0];
 	
-	my $request = "SELECT * FROM options WHERE `key` LIKE 'Broker'";
+	my $request = "SELECT * FROM options WHERE `key` LIKE 'broker'";
 	my $sth = $dbh->prepare($request);
     if (!defined($sth)) {
 		writeLogFile($DBI::errstr, "EE");
@@ -111,10 +111,10 @@ sub getDBType($) {
 	} else {
 		if (!$sth->execute()) {
 			my $row = $sth->fetchrow_hashref();
-			if ($row->{'value'} == 'ndo') {
-				return 0;
-			} else {
+			if ($row->{'value'} == 'broker') {
 				return 1;
+			} else {
+				return 0;
 			}
 		}
 		return 1;
