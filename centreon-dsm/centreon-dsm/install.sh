@@ -37,7 +37,7 @@
 
 # Define syslog version
 NAME="Centreon-DSM"
-VERSION="1.1"
+VERSION="1.3.1"
 MODULE=$NAME.$VERSION
 
 # Define vars
