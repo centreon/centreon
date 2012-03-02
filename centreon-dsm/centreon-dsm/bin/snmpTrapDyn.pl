@@ -45,7 +45,7 @@ use vars qw($mysql_database_oreon $mysql_database_ods $mysql_host $mysql_user $m
 
 #############################################
 # Test for new release
-my $longopt = 1;
+my $longopt = 0;
 eval "use Getopt::Long qw(:config no_ignore_case)";
 if ($@) {
     $longopt = 0;
@@ -217,12 +217,12 @@ sub send_command {
     my $externalMacro = "";
     my $sendMacro = 0;
     writeLogFile("OKOK : $MACRO_ID_NAME", "II");
-	if (defined($MACRO_ID_NAME) && $MACRO_ID_NAME ne "nil") {
-	if ($status == 0) {
-	    $id = "empty";
-	}
-	$externalMacro = "[$timeRequest] CHANGE_CUSTOM_SVC_VAR;$host_name;$service;$MACRO_ID_NAME;$id";
-	$sendMacro = 1;
+	if (defined($MACRO_ID_NAME) && $MACRO_ID_NAME ne "nil" && $id ne "nil") {
+		if ($status == 0) {
+		    $id = "empty";
+		}
+		$externalMacro = "[$timeRequest] CHANGE_CUSTOM_SVC_VAR;$host_name;$service;$MACRO_ID_NAME;$id";
+		$sendMacro = 1;
     }
     
     if ($FORCEFREE && $status == 0) {
@@ -233,32 +233,32 @@ sub send_command {
     my $externalCMD = "[$timeRequest] PROCESS_SERVICE_CHECK_RESULT;$host_name;$service;$status;$output";
     
     if ($debug == 1) {
-	print $externalCMD . "\n";
+		print $externalCMD . "\n";
     }
 
     if ($data_poller->{'localhost'} == 0) {
-	my $externalCMD = "EXTERNALCMD:".$data_poller->{'id'}.":".$externalCMD;
-	writeLogFile("Send external command : $externalCMD");
-	if (system("echo \"$externalCMD\" >> $CECORECMD")) {
-	    writeLogFile("Cannot Write external command for centcore");
-	}
-	if ($sendMacro) {
-	    writeLogFile("Send external command : $externalMacro");
-	    if (system("echo \"$externalMacro\" >> $CECORECMD")) {
-		writeLogFile("Cannot Write external command for centcore");
-	    }
-	}
+		my $externalCMD = "EXTERNALCMD:".$data_poller->{'id'}.":".$externalCMD;
+		writeLogFile("Send external command : $externalCMD");
+		if (system("echo \"$externalCMD\" >> $CECORECMD")) {
+		    writeLogFile("Cannot Write external command for centcore");
+		}
+		if ($sendMacro) {
+		    writeLogFile("Send external command : $externalMacro");
+		    if (system("echo \"$externalMacro\" >> $CECORECMD")) {
+				writeLogFile("Cannot Write external command for centcore");
+		    }
+		}
     } else {
-	writeLogFile("Send external command in local poller : $externalCMD");
-	if (system("echo \"$externalCMD\" >> $NAGIOSCMD")) {
-	    writeLogFile("Cannot Write external command for local nagios");
-	}
-	if ($sendMacro) {
-	    writeLogFile("Send external command in local poller : $externalMacro");
-	    if (system("echo \"$externalMacro\" >> $NAGIOSCMD")) {
-		writeLogFile("Cannot Write external command for centcore");
-	    }
-	}
+		writeLogFile("Send external command in local poller : $externalCMD");
+		if (system("echo \"$externalCMD\" >> $NAGIOSCMD")) {
+		    writeLogFile("Cannot Write external command for local nagios");
+		}
+		if ($sendMacro) {
+		    writeLogFile("Send external command in local poller : $externalMacro");
+		    if (system("echo \"$externalMacro\" >> $NAGIOSCMD")) {
+				writeLogFile("Cannot Write external command for centcore");
+		    }
+		}
     }
 
     my @tab = split(/\|/, $macros);
@@ -278,20 +278,20 @@ sub send_command {
 sub updateMacro($$$$$$) {
     my $externalCMD = "[".$_[5]."] CHANGE_CUSTOM_SVC_VAR;".$_[0].";".$_[1].";".$_[3].";".$_[4];
     if ($debug == 1) {
-	print $externalCMD . "\n";
+		print $externalCMD . "\n";
     }
 
     if ($_[2] == 0) {
-	my $externalCMD = "EXTERNALCMD:".$_[6].":".$externalCMD;
-	writeLogFile("Send external command : $externalCMD");
-	if (system("echo '$externalCMD' >> $CECORECMD")) {
-	    writeLogFile("Cannot Write external command for centcore");
-	}
+		my $externalCMD = "EXTERNALCMD:".$_[6].":".$externalCMD;
+		writeLogFile("Send external command : $externalCMD");
+		if (system("echo '$externalCMD' >> $CECORECMD")) {
+		    writeLogFile("Cannot Write external command for centcore");
+		}
     } else {
-	writeLogFile("Send external command in local poller : $externalCMD");
-	if (system("echo '$externalCMD' >> $NAGIOSCMD")) {
-	    writeLogFile("Cannot Write external command for local nagios");
-	}
+		writeLogFile("Send external command in local poller : $externalCMD");
+		if (system("echo '$externalCMD' >> $NAGIOSCMD")) {
+		    writeLogFile("Cannot Write external command for local nagios");
+		}
     }
 }
 
@@ -420,23 +420,24 @@ writeLogFile("Real hostname = " . $host_name, "DD");
 my $dbh2;
 my $pool_prefix;
 
-if ($DBType == 0) {
-	#############################################
-	# Get module trap on this host
-	
-	$sth2 = $dbh->prepare("SELECT pool_prefix FROM mod_dsm_pool mdp, host h WHERE mdp.pool_host_id = h.host_id AND ( h.host_name LIKE '" . $hostname . "' OR h.host_address LIKE '" . $hostname . "')");
-	if (!defined($sth2)) {
-	    writeLogFile($DBI::errstr, "EE");
-	}
-	if ($sth2->execute()){
-	    $pool_prefix = $sth2->fetchrow_hashref()->{'pool_prefix'};
-	} else {
-	    writeLogFile("Can get DSM informations $!", "EE");
-	    exit(1);
-	}
-	undef($sth2);
-	writeLogFile("Trap pool prefix = " . $pool_prefix, "DD");
 
+#############################################
+# Get module trap on this host
+
+$sth2 = $dbh->prepare("SELECT pool_prefix FROM mod_dsm_pool mdp, host h WHERE mdp.pool_host_id = h.host_id AND ( h.host_name LIKE '" . $hostname . "' OR h.host_address LIKE '" . $hostname . "')");
+if (!defined($sth2)) {
+    writeLogFile($DBI::errstr, "EE");
+}
+if ($sth2->execute()){
+    $pool_prefix = $sth2->fetchrow_hashref()->{'pool_prefix'};
+} else {
+    writeLogFile("Can get DSM informations $!", "EE");
+    exit(1);
+}
+undef($sth2);
+writeLogFile("Trap pool prefix = " . $pool_prefix, "DD");
+
+if ($DBType == 0) {
 	#############################################
 	# Connect to NDO databases
 	$sth2 = $dbh->prepare("SELECT db_host,db_name,db_port,db_prefix,db_user,db_pass FROM cfg_ndo2db");
@@ -488,7 +489,7 @@ if ($DBType == 0) {
 # Get slot free
 my $request = "";
 if ($DBType == 1) {
-	$request = "SELECT hosts.name AS host_name, services.description AS service_description FROM hosts, services WHERE hosts.host_id = services.host_id AND hosts.name LIKE '" . $host_name . "' AND services.state IN ('0', 4) AND description LIKE '" . $pool_prefix . "%' AND services.enabled = '1' ";
+	$request = "SELECT hosts.name AS host_name, services.description AS service_description FROM hosts, services WHERE hosts.host_id = services.host_id AND hosts.name LIKE '" . $host_name . "' AND services.state IN (0, 4) AND description LIKE '" . $pool_prefix . "%' AND services.enabled = 1 ";
 	writeLogFile($request, "II");
 } else {
 	$request = "SELECT no.name1 AS host_name, no.name2 AS service_description ".
