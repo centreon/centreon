@@ -78,21 +78,21 @@ sub writeLogFile {
 sub getDBType($) {
 	my $dbh = $_[0];
 	
-	my $request = "SELECT * FROM options WHERE `key` LIKE 'broker'";
+	my $request = "SELECT `value` FROM options WHERE `key` = 'broker'";
 	my $sth = $dbh->prepare($request);
     if (!defined($sth)) {
 		writeLogFile($DBI::errstr, "EE");
 		print $DBI::errstr; 
 	} else {
-		if (!$sth->execute()) {
+		if ($sth->execute()) {
 			my $row = $sth->fetchrow_hashref();
-			if ($row->{'value'} == 'broker') {
+			if (defined $row && $row->{'value'} == 'broker') {
 				return 1;
 			} else {
 				return 0;
 			}
 		}
-		return 1;
+		return 0;
 	}
 }
 
