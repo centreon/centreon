@@ -60,6 +60,30 @@ $debug = 0;
 my $centcore_file = "@CENTREON_VARLIB@/centcore.cmd";
 my $nagios_file = "@NAGIOS_CMD@/nagios.cmd";
 
+##################################################
+# Get DB type NDO / Broker
+# NDO => 0 ; Broker => 1
+sub getDBType($) {
+	my $dbh = $_[0];
+	
+	my $request = "SELECT * FROM options WHERE `key` LIKE 'broker'";
+	my $sth = $dbh->prepare($request);
+    if (!defined($sth)) {
+		writeLogFile($DBI::errstr, "EE");
+		print $DBI::errstr; 
+	} else {
+		if (!$sth->execute()) {
+			my $row = $sth->fetchrow_hashref();
+			if ($row->{'value'} == 'broker') {
+				return 1;
+			} else {
+				return 0;
+			}
+		}
+		return 1;
+	}
+}
+
 ################################################################################
 
 ## Init Date
