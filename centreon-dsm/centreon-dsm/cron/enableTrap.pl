@@ -74,7 +74,7 @@ sub getDBType($) {
 	} else {
 		if ($sth->execute()) {
 			my $row = $sth->fetchrow_hashref();
-			if (defined $row && $row->{'value'} == 'broker') {
+			if (defined $row && $row->{'value'} eq 'broker') {
 				return 1;
 			} else {
 				return 0;
