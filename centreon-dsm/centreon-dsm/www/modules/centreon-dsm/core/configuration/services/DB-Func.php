@@ -349,7 +349,12 @@
 					$suffix .= "0";
 				}
 				$suffix .= $i;
-				$request = "UPDATE service SET service_template_model_stm_id = '".$template."', service_description = '$prefix$suffix' WHERE service_id = '".$data["service_id"]."'";
+				$request = "UPDATE service SET
+					service_template_model_stm_id = '".$template."',
+					service_description = '$prefix$suffix',
+					command_command_id = ".($cmd ? "'$cmd'" : "NULL").",
+					command_command_id_arg = ".($args ? "'$args'" : "NULL")."
+					WHERE service_id = '".$data["service_id"]."'";
 				$pearDB->query($request);
 				$pearDB->query("DELETE FROM host_service_relation WHERE service_service_id = '".$data["service_id"]."'");
 				$request = "INSERT INTO host_service_relation (service_service_id, host_host_id) VALUES ('".$data["service_id"]."', '".$host_id."')";
