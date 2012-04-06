@@ -29,4 +29,8 @@ $ACTION_ALARM = 0;
 #$action_list[$ACTION_ALARM]->{'host'}->{'pattern'} = "";
 
 
+# Application conf
+$DEBUG_ENABLED = 0;
+$USE_LONG_OUTPUT = 0;
+
 1;

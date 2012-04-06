@@ -43,20 +43,22 @@ use Time::HiRes qw(usleep ualarm gettimeofday tv_interval nanosleep clock_gettim
 
 use vars qw($mysql_database_oreon $mysql_database_ods $mysql_host $mysql_user $mysql_passwd $ndo_conf $LOG $NAGIOSCMD $DBType $CECORECMD $LOCKDIR $MAXDATAAGE $CACHEDIR $EXCLUDESTR $MACRO_ID_NAME $FORCEFREE @pattern_output @action_list @macroList @statusList @idList $debug $DBType);
 
+############################################
+# To the config file
+require "@CENTREON_ETC@/conf.pm";
+require "@CENTREON_ETC@/conf_dsm.pm";
+
 #############################################
 # Test for new release
-my $longopt = 0;
+my $longopt = $USE_LONG_OPT;
 eval "use Getopt::Long qw(:config no_ignore_case)";
 if ($@) {
     $longopt = 0;
 }
 
-$debug = 0;
+$debug = $DEBUG_ENABLED;
 
-############################################
-# To the config file
-require "@CENTREON_ETC@/conf.pm";
-require "@CENTREON_ETC@/conf_dsm.pm";
+
 
 ############################################
 # log files management function
@@ -344,34 +346,36 @@ if ($longopt) {
        writeLogFile("An option isn't set", "II");
        $longopt = 0;
    } else {
-       if ($action ne "nil" && $output ne "") {
-	   writeLogFile("Action num : " . $action, "DD");
-	   my @opt_args = @ARGV;
-	   # Generate output
-	   if (!defined($pattern_output[$action])) {
-	       $output = join(' ', @opt_args);
-	   } else {
-	       writeLogFile("Pattern Output : " . $pattern_output[$action], "DD");
-	       $output = $pattern_output[$action];
-	       while ($pattern_output[$action] =~ /%%(\d+)%%/g) {
-		   if (defined($opt_args[$1 - 1])) {
-		       my $ss = $opt_args[$1 - 1];
-		       $output =~ s/$&/$ss/g;
+       if ($action ne "nil" && $output eq "") {
+		   writeLogFile("Action num : " . $action, "DD");
+		   my @opt_args = @ARGV;
+		   # Generate output
+		   if (!defined($pattern_output[$action])) {
+		       $output = join(' ', @opt_args);
 		   } else {
-		       writeLogFile("Missing argument $1", "WW");
-		       $output =~ s/$&/ /g
-	           }
-	       }
-	   }
+		       writeLogFile("Pattern Output : " . $pattern_output[$action], "DD");
+		       $output = $pattern_output[$action];
+		       while ($pattern_output[$action] =~ /%%(\d+)%%/g) {
+			   if (defined($opt_args[$1 - 1])) {
+			       my $ss = $opt_args[$1 - 1];
+			       $output =~ s/$&/$ss/g;
+			   } else {
+			       writeLogFile("Missing argument $1", "WW");
+			       $output =~ s/$&/ /g
+		           }
+		       }
+		   }
+		} else {
+			$output = join(' ', @ARGV);
+        }
+		if ($action ne "nil") {
+			if (defined($action_list[$action]->{'host'})) {
+				no strict 'refs';
+				my $action_run = 'action_host_' . $action_list[$action]->{'host'}->{'run'};
+				writeLogFile("Action call : " . $action_run, "DD");
+				$hostname = &$action_run($hostname, $action_list[$action]->{'host'}->{'pattern'}, @ARGV);
+			}
        }
-       if ($action ne "nil") {
-	   if (defined($action_list[$action]->{'host'})) {
-	       no strict 'refs';
-	       my $action_run = 'action_host_' . $action_list[$action]->{'host'}->{'run'};
-	       writeLogFile("Action call : " . $action_run, "DD");
-	       $hostname = &$action_run($hostname, $action_list[$action]->{'host'}->{'pattern'}, @ARGV);
-	   }
-       }       
    }
 } else {
     $hostname = $ARGV[0];
