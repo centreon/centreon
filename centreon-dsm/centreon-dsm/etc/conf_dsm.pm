@@ -31,6 +31,6 @@ $ACTION_ALARM = 0;
 
 # Application conf
 $DEBUG_ENABLED = 0;
-$USE_LONG_OUTPUT = 0;
+$USE_LONG_OPT = 0;
 
 1;
