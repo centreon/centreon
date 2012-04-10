@@ -28,8 +28,8 @@
 		{section name=elem loop=$elemArr}
 		<tr class={$elemArr[elem].MenuClass}>
 			<td class="ListColPicker">{$elemArr[elem].RowMenu_select}</td>
-			<td class="ListColLeft"><a href="{$elemArr[elem].RowMenu_link}">{$elemArr[elem].RowMenu_desc}</a></td>
 			<td class="ListColLeft"><a href="{$elemArr[elem].RowMenu_link}">{$elemArr[elem].RowMenu_name}</a></td>
+			<td class="ListColLeft"><a href="{$elemArr[elem].RowMenu_link}">{$elemArr[elem].RowMenu_desc}</a></td>
 			<td class="ListColCenter">{$elemArr[elem].RowMenu_number}</td>
 			<td class="ListColCenter">{$elemArr[elem].RowMenu_prefix}</td>
 			<td class="ListColCenter">{$elemArr[elem].RowMenu_status}</td>
