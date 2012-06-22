@@ -214,7 +214,6 @@ sub send_command {
 
     my $externalMacro = "";
     my $sendMacro = 0;
-    writeLogFile("OKOK : $MACRO_ID_NAME", "II");
     if (defined($MACRO_ID_NAME) && $MACRO_ID_NAME ne "nil" && $id ne "nil") {
 	if ($status == 0) {
 	    $id = "empty";
@@ -460,12 +459,13 @@ if ($DBType == 0) {
 	    my $slot_service;
 	    $slot_service = get_slot($hostname, $id, $dbh, $dbh2);
 	    
-	if ($slot_service ne "nil") {
-		send_command($host_name, $slot_service, $status, $timeRequest, $output, $macros, $id, $dbh);
-		exit(0);
-	    }
+		if ($slot_service ne "nil") {
+			if (($status == 0 && $id != "nil" && $FORCEFREE) || $status != 0) {
+				send_command($host_name, $slot_service, $status, $timeRequest, $output, $macros, $id, $dbh);
+				exit(0);
+		    }
+		}
 	}
-
 } else {
 	############################################
 	# get Broker configuration
@@ -478,9 +478,12 @@ if ($DBType == 0) {
 	if ($longopt && $id ne "nil")  {
 	    my $slot_service;
 	    $slot_service = get_slot($hostname, $id, $dbh, $dbh2);
+	    
 	    if ($slot_service ne "nil") {
-		send_command($host_name, $slot_service, $status, $timeRequest, $output, $macros, $id, $dbh);
-		exit(0);
+	    	if (($status == 0 && $id != "nil" && $FORCEFREE) || $status != 0) {
+				send_command($host_name, $slot_service, $status, $timeRequest, $output, $macros, $id, $dbh);
+				exit(0);
+			}
 	    }
 	}
 
@@ -615,19 +618,21 @@ foreach my $str (@slotList) {
 		if ($id =~ /$tmpID/) {
 		    # print "We find the same id into the data cache. We update the actual slot...\n";
 		    $tab[1] = $tmpName;
-		} else {
-		    # Write Tempory lock
-		    open (CACHE, ">> ".$LOCKDIR."$tab[1].lock") || print "can't write $LOCKDIR.$tab[1].lock: $!";
-		    print CACHE trim($host_name)."\n";
-		    print CACHE trim($tab[1])."\n";
-		    print CACHE trim($id)."\n";
-		    close CACHE;
 		}
 	    }
 
-	    # Build external command
-	    writeLogFile("OKOK : $id", "II");    
-	    send_command($host_name, $tab[1], $status, $timeRequest, $output, $macros, $id, $dbh);
+		# Build external command
+        if (($status == 0 && $id != "nil" && $FORCEFREE) || $status != 0) {
+            # Write Tempory lock
+            open (CACHE, ">> ".$LOCKDIR.$tab[0].";".$tab[1].".lock") || print "can't write $LOCKDIR.$tab[0];$tab[1].lock: $!";
+            print CACHE trim($host_name)."\n";
+            print CACHE trim($tab[1])."\n";
+            print CACHE trim($id)."\n";
+            close CACHE;
+
+            # Send Command
+            send_command($host_name, $tab[1], $status, $timeRequest, $output, $macros, $id, $dbh);
+        }
 	    
 	    undef($fileList[$y]);
 	    undef($timeList[$y]);
