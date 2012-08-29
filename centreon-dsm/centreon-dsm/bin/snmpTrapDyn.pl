@@ -84,16 +84,16 @@ sub writeLogFile {
 # help
 sub help {
     print <<EOF;
-  Usage: snmpTrapDyn [-h] -H hostname -t time [-a action] [-i id] [-s status] output
-      -a|--actionThe action id, the action is configured in config file
-      -H|--hostThe hostame
-      -i|--idThe trap id
-      -t|--timeThe time of the trap
-      -s|--statusThe nagios status (0 - Ok, 1 - Warning, 2 - Critical, 3 - Unknown)
-      -m|--macros The liste of Macros that you like to store in custom macro separated by "|"
-      -h|--help Help
+Usage: snmpTrapDyn [-h] -H hostname -t time [-a action] [-i id] [-s status] output
+    -a|--action	The action id, the action is configured in config file
+    -H|--host	The hostame
+    -i|--id	The trap id
+    -t|--time	The time of the trap
+    -s|--status	The nagios status (0 - Ok, 1 - Warning, 2 - Critical, 3 - Unknown)
+    -m|--macros The liste of Macros that you like to store in custom macro separated by "|"
+    -h|--help	Help
 EOF
-      exit(0);
+    exit(0);
 }
 
 ##################################################
@@ -101,12 +101,11 @@ EOF
 # NDO => 0 ; Broker => 1
 sub getDBType($) {
     my $dbh = $_[0];
-    
+
     my $request = "SELECT `value` FROM options WHERE `key` = 'broker'";
     my $sth = $dbh->prepare($request);
     if (!defined($sth)) {
 	writeLogFile($DBI::errstr, "EE");
-	print $DBI::errstr; 
     } else {
 	if ($sth->execute()) {
 	    my $row = $sth->fetchrow_hashref();
@@ -133,7 +132,7 @@ sub get_slot {
 
     if ($DBType == 1) {
 	$query_get = "SELECT services.service_id AS varvalue FROM customvariables, hosts, services WHERE hosts.host_id = services.host_id AND hosts.host_id = customvariables.host_id AND services.service_id = customvariables.service_id AND (hosts.name LIKE '$host' OR hosts.address LIKE '$host') AND customvariables.name LIKE '" . $MACRO_ID_NAME . "' AND value = '" . $id . "' LIMIT 1";
-    } else {
+	} else {
 	$query_get = "SELECT varvalue " .
 	    "FROM " . $ndo_conf->{'db_prefix'} . "customvariablestatus " .
 	    "WHERE varname = 'SERVICE_ID' AND object_id = (SELECT object_id " .
@@ -175,7 +174,7 @@ sub get_slot {
 	}
 	undef($sth2);
     }
-    
+
     return $service_id;
 }
 
@@ -186,7 +185,7 @@ sub get_free_slot {
     my $request;
 
     if ($DBType == 1) {
-	$request = "SELECT description FROM services, hosts WHERE hosts.host_id = services.host_id AND state IN ('0', '4') AND (hosts.name LIKE '$host' OR hosts.address LIKE '$host') ORDER BY description";
+    	$request = "SELECT description FROM services, hosts WHERE hosts.host_id = services.host_id AND state IN ('0', '4') AND (hosts.name LIKE '$host' OR hosts.address LIKE '$host') ORDER BY description";
 	writeLogFile("$request", "II");    
     } else {
 	$request = "SELECT no.name1, no.name2 ".
@@ -216,7 +215,7 @@ sub send_command {
 
     my $host_id = getHostID($host_name, $dbh);
     my $data_poller = getHostPoller($host_id, $dbh);
-    
+
     my $externalMacro = "";
     if (defined($MACRO_ID_NAME) && $MACRO_ID_NAME ne "nil" && $id ne "nil") {
 	if ($status == 0) {
@@ -224,18 +223,18 @@ sub send_command {
 	}
 	updateMacro($host_name, $service, $data_poller->{'localhost'}, $MACRO_ID_NAME, $id, $timeRequest);
     }
-    
+
     # Prepare to send update of Service
     $output =~ s/\'//g;
     $externalCMD = "[$timeRequest] PROCESS_SERVICE_CHECK_RESULT;$host_name;$service;$status;$output";
-    
+
     sendExternalCommad($data_poller->{'id'}, $externalCMD);
-    
+
     if ($FORCEFREE && $status == 0) {
 	$externalCMD = "[$timeRequest] SCHEDULE_FORCED_SVC_CHECK;$host_name;$service;$timeRequest";
 	sendExternalCommad($data_poller->{'id'}, $externalCMD);
     }
-    
+
     my @tab = split(/\|/, $macros);
     foreach my $string (@tab) {
 	my @tab2 = split(/\=/, $string);
@@ -318,49 +317,48 @@ my $status = -1;
 my $output = "";
 my $macros = "";
 if ($longopt) {
-    my $result = GetOptions("action=i" => \$action,
-			    "Host=s" => \$hostname,
-			    "output=s" => \$output,
-			    "id=s" => \$id,
-			    "time=s" => \$timeRequest,
-			    "status=i" => \$status,
-			    "macros=s" => \$macros,
-			    "help" => \&help);
-    
-    if ($hostname eq "nil" || $id eq "nil" || $timeRequest eq "nil") {
-	writeLogFile("An option isn't set", "II");
-	$longopt = 0;
-    } else {
-	if ($action ne "nil" && $output eq "") {
-	    writeLogFile("Action num : " . $action, "DD");
-	    my @opt_args = @ARGV;
-	    
-            # Generate output
-	    if (!defined($pattern_output[$action])) {
-		$output = join(' ', @opt_args);
-	    } else {
-		writeLogFile("Pattern Output : " . $pattern_output[$action], "DD");
-		$output = $pattern_output[$action];
-		while ($pattern_output[$action] =~ /%%(\d+)%%/g) {
-		    if (defined($opt_args[$1 - 1])) {
-			my $ss = $opt_args[$1 - 1];
-			$output =~ s/$&/$ss/g;
-		    } else {
-			writeLogFile("Missing argument $1", "WW");
-			$output =~ s/$&/ /g;
-		    }
-		}
-	    }
-	}
-	if ($action ne "nil") {
-	    if (defined($action_list[$action]->{'host'})) {
-		no strict 'refs';
-		my $action_run = 'action_host_' . $action_list[$action]->{'host'}->{'run'};
-		writeLogFile("Action call : " . $action_run, "DD");
-		$hostname = &$action_run($hostname, $action_list[$action]->{'host'}->{'pattern'}, @ARGV);
-	    }
-	}
-    }
+   my $result = GetOptions("action=i" => \$action,
+			   "Host=s" => \$hostname,
+			   "output=s" => \$output,
+			   "id=s" => \$id,
+			   "time=s" => \$timeRequest,
+			   "status=i" => \$status,
+			   "macros=s" => \$macros,
+			   "help" => \&help);
+   
+   if ($hostname eq "nil" || $id eq "nil" || $timeRequest eq "nil") {
+       writeLogFile("An option isn't set", "II");
+       $longopt = 0;
+   } else {
+       if ($action ne "nil" && $output eq "") {
+	   writeLogFile("Action num : " . $action, "DD");
+	   my @opt_args = @ARGV;
+	   # Generate output
+	   if (!defined($pattern_output[$action])) {
+	       $output = join(' ', @opt_args);
+	   } else {
+	       writeLogFile("Pattern Output : " . $pattern_output[$action], "DD");
+	       $output = $pattern_output[$action];
+	       while ($pattern_output[$action] =~ /%%(\d+)%%/g) {
+		   if (defined($opt_args[$1 - 1])) {
+		       my $ss = $opt_args[$1 - 1];
+		       $output =~ s/$&/$ss/g;
+		   } else {
+		       writeLogFile("Missing argument $1", "WW");
+		       $output =~ s/$&/ /g;
+		   }
+	       }
+	   }
+       }
+       if ($action ne "nil") {
+	   if (defined($action_list[$action]->{'host'})) {
+	       no strict 'refs';
+	       my $action_run = 'action_host_' . $action_list[$action]->{'host'}->{'run'};
+	       writeLogFile("Action call : " . $action_run, "DD");
+	       $hostname = &$action_run($hostname, $action_list[$action]->{'host'}->{'pattern'}, @ARGV);
+	   }
+       }
+   }
 } else {
     $hostname = $ARGV[0];
     $timeRequest = $ARGV[2];
@@ -480,8 +478,7 @@ if ($DBType == 0) {
 # Get slot free
 my $request = "";
 if ($DBType == 1) {
-    $request = "SELECT hosts.name AS host_name, services.description AS service_description FROM hosts, services WHERE hosts.host_id = services.host_id AND hosts.name LIKE '" . $host_name . "' AND services.state IN (0, 4) AND description LIKE '" . $pool_prefix . "%' AND services.enabled = 1 ";
-    writeLogFile($request, "II");
+    $request = "SELECT hosts.name AS host_name, services.description AS service_description FROM hosts, services WHERE hosts.host_id = services.host_id AND hosts.name LIKE '" . $host_name . "' AND services.state = 0 AND description LIKE '" . $pool_prefix . "%' AND services.enabled = 1 ";
 } else {
     $request = "SELECT no.name1 AS host_name, no.name2 AS service_description ".
 	"FROM ".$ndo_conf->{'db_prefix'}."servicestatus nss , ".$ndo_conf->{'db_prefix'}."objects no, ".$ndo_conf->{'db_prefix'}."services ns ".
@@ -574,7 +571,7 @@ $macroList[$t] = $macros;
 $idList[$t] = $id;
 
 ############################################
-# Send data to Nagios serveurs
+# Send data to Nagios servers
 my $y = 0;
 foreach my $str (@slotList) {
     my @tab = split(";", $str);
@@ -598,11 +595,11 @@ foreach my $str (@slotList) {
 			$tmpID = trim($_);
 		    }
 		    $a++;
-		    #writeLogFile(" * line : $_") if ($debug);
+		    writeLogFile(" * line : $_") if ($debug);
 		}
 		close(FILE);
 		
-		if ($id =~ /$tmpID/) {
+		if ($id =~ /$\$tmpID^/) {
 		    # print "We find the same id into the data cache. We update the actual slot...\n";
 		    $tab[1] = $tmpName;
 		}
@@ -610,7 +607,7 @@ foreach my $str (@slotList) {
 	    
 	    # Build external command
 	    if (($status == 0 && $id != "nil" && $FORCEFREE) || $status != 0) {
-		# Write Tempory lock
+		# Write Tempory lock file
 		open (CACHE, ">> ".$LOCKDIR.$tab[0].";".$tab[1].".lock") || print "can't write $LOCKDIR.$tab[0];$tab[1].lock: $!";
 		print CACHE trim($host_name)."\n";
 		print CACHE trim($tab[1])."\n";
@@ -620,13 +617,17 @@ foreach my $str (@slotList) {
 		# Send Command
 		send_command($host_name, $tab[1], $status, $timeRequest, $output, $macros, $id, $dbh);
 	    }
-	        
+	    
 	    undef($fileList[$y]);
 	    undef($timeList[$y]);
 	    undef($outputList[$y]);
 	    undef($statusList[$y]);
 	    undef($macroList[$y]);
 	    $y++;
+	} else {
+	    if (-e $LOCKDIR."-$str") {
+		;#print "$str : already used !";
+	    }
 	}
     } else {
 	if (defined($fileList[$y]) && length($fileList[$y])) {
@@ -642,7 +643,7 @@ foreach my $str (@slotList) {
 		}
 		$CACHEFILE .= "-".$i;
 	    }
-	        
+	    
 	    open (CACHE, ">> ".$CACHEFILE) || print "can't write $LOG: $!";
 	    print CACHE trim($timeList[$y])."\n";
 	    print CACHE trim($statusList[$y])."\n";
@@ -679,7 +680,7 @@ if ($count) {
 		}
 		$CACHEFILE .= "-".$i;
 	    }
-	        
+	    
 	    open (CACHE, ">> ".$CACHEFILE) || print "can't write $LOG: $!";
 	    print CACHE trim($timeList[$y])."\n";
 	    print CACHE trim($statusList[$y])."\n";
@@ -735,6 +736,3 @@ sub trim {
     $s =~ s/^\n*|\n*$//g;
     return $s;
 }
-
-
-__END__
