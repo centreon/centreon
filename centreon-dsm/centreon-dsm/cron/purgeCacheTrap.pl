@@ -41,14 +41,440 @@ use DBI;
 use File::Path qw(mkpath);
 use Time::HiRes qw(usleep ualarm gettimeofday tv_interval nanosleep clock_gettime clock_getres clock_nanosleep clock stat);
 
-use vars qw($mysql_database_oreon $mysql_database_ods $mysql_host $mysql_user $mysql_passwd $ndo_conf $DBType $LOG $NAGIOSCMD $CECORECMD $LOCKDIR $MAXDATAAGE $CACHEDIR $EXCLUDESTR $MACRO_ID_NAME $FORCEFREE @pattern_output @action_list @macroList @statusList @idList @slotList $debug);
-
-$debug = 0;
+use vars qw($mysql_database_oreon $mysql_database_ods $mysql_host $mysql_user $mysql_passwd $ndo_conf $LOG);
+use vars qw($NAGIOSCMD $DBType $CECORECMD $LOCKDIR $MAXDATAAGE $CACHEDIR $EXCLUDESTR $MACRO_ID_NAME $FORCEFREE);
+use vars qw(@pattern_output @action_list @macroList @statusList @idList @hostList $debug $DBType $DEBUG_ENABLED);
+use vars qw($alreadySent %macroCache @slotList $host_name $hostname);
 
 ############################################
 # To the config file
-require "@CENTREON_ETC@/conf.pm";
-require "@CENTREON_ETC@/conf_dsm.pm";
+require "/etc/centreon/conf.pm";
+require "/etc/centreon/conf_dsm.pm";
+
+$debug = $DEBUG_ENABLED;
+
+############################################
+# Set arguments
+writeLogFile("=====================================================", "DD");
+writeLogFile("Cron Purge Cache", "DD");
+
+############################################
+# Check Temporary lock files directory
+if (!-d $LOCKDIR){ 
+    writeLogFile("Cannot find temporary lock files directory. I create it : $LOCKDIR.");
+    mkpath($LOCKDIR);
+}
+
+#############################################
+# Connect to Centreon Database
+my $dbh = MySQLConnect();
+
+#############################################
+# Define DBTyper
+$DBType = getDBType($dbh);
+
+############################################
+# Purge Slot locks
+purgeLockFiles();
+
+############################################
+## Connect to RT Database
+my $dbh2;
+if ($DBType == 0) {
+    $dbh2 = ndoDBConnect();
+} else {
+    $dbh2 = storageDBConnect();
+}
+
+#############################################
+## Purge old slot alarm_id
+%macroCache = cleanEmptyMacros($dbh, $dbh2);
+
+#############################################
+## Check all hosts
+#
+my $pool_prefix;
+my @timeList;
+my @outputList;
+my @outputList;
+my @fileList;
+my $sth2 = $dbh->prepare("SELECT pool_prefix, pool_host_id, host_name FROM mod_dsm_pool, host WHERE pool_host_id = host_id");
+if (!defined($sth2)) {
+    writeLogFile($DBI::errstr, "EE");
+}
+if ($sth2->execute()) {
+    while (my $data = $sth2->fetchrow_hashref()) {
+	writeLogFile("Check ".$data->{'host_name'}. " informations...", "DD");
+	$pool_prefix = getPoolPrefix($data->{'host_name'});
+
+	############################################
+	# Set host_name
+	$host_name = $data->{'host_name'};
+
+	############################################
+	## Get Free Slots
+	getFreeSlot();
+
+	############################################
+	# Read cache of results
+	my $t = 0;
+	my @fileList = glob($CACHEDIR."/".$host_name."*");
+	foreach my $filename (@fileList) {
+	    if (open(FILE, $filename)) {
+		$fileList[$t] = $filename;
+		my $i = 0;
+		while (<FILE>) {
+		    if ($i == 0) {
+			$timeList[$t] = trim($_);
+			$timeList[$t] =~ s/\n//g;
+		    } elsif ($i == 1) {
+			$statusList[$t] = trim($_);
+		    } elsif ($i == 2) {
+			$macroList[$t] = trim($_);
+		    } elsif ($i == 3) {
+			$idList[$t] = trim($_);
+		    } else {
+			if (defined($outputList[$t])) {
+			    $outputList[$t] = trim($_); 
+			} else {
+			    $outputList[$t] .= trim($_); 
+			}
+		    }
+		    $i++;
+		}
+		close FILE;
+		unlink($filename);
+	    }
+	    $t++;
+	}
+	undef(@fileList);
+
+	############################################
+	## Send data to Nagios servers if slot are 
+	## available
+	#
+	my $showAlert = 0;
+	my $output;
+	my $timeRequest;
+	my $id;
+	my $status; 
+	my $y = 0;
+	if (@slotList ne 0) {
+	    foreach my $str (@slotList) {
+		my @tab = split(";", $str);
+		if (defined($timeList[$y])) {
+		    # Check if I can use this slot
+		    if (length($str) && !-e $LOCKDIR."$str.lock") {
+			my $time_now = $timeList[$y];
+			$output = $outputList[$y];
+			$host_name = $data->{'host_name'};
+
+			# Check Lock Files
+			my @fileList = glob($LOCKDIR."/".$data->{'host_name'}."*");
+			my $tmpID;
+			
+			foreach (@fileList) {
+			    open(FILE, $_);
+			    my $a = 1;
+			    my $tmpName;
+			    while (<FILE>) {
+				if ($a eq 2) {
+				    $tmpName = trim($_);
+				} elsif ($a eq 3) {
+				    $tmpID = trim($_);
+				}
+				$a++;
+			    }
+			    close(FILE);
+			    
+			    if ($id eq $tmpID) {
+				# print "We find the same id into the data cache. We update the actual slot...\n";
+				$tab[1] = $tmpName;
+			    }
+			}
+
+			# Build external command
+			if (($statusList[$y] == 0 && $idList[$y] != "nil" && $FORCEFREE) || $statusList[$y] != 0) {
+			    writeLogFile("3");
+			    # Send Command
+			    send_command($data->{'host_name'}, $tab[1], trim($statusList[$y]), trim($timeList[$y]), $outputList[$y], $macroList[$y], $idList[$y], $dbh);
+			}
+			
+			undef($fileList[$y]);
+			undef($timeList[$y]);
+			undef($outputList[$y]);
+			undef($statusList[$y]);
+			undef($macroList[$y]);
+			$y++;
+		    }
+		} else {
+		    if (defined($fileList[$y]) && length($fileList[$y])) {
+			$showAlert = saveAlarmInCache($showAlert, time(), $y);
+		    }
+		}
+	    }
+	} else {
+	    $y = 0;
+	    foreach my $time (@timeList) {
+		if (defined($macroCache{$data->{'host_name'}.";".$idList[$y]})) {
+		    my $slot_service = get_slot($data->{'host_name'}, $idList[$y], $dbh, $dbh2);
+		    if ($slot_service ne "nil") {
+			if (($status == 0 && $id ne "nil" && $FORCEFREE) || $status != 0) {
+			    send_command($data->{'host_name'}, $slot_service, $statusList[$y], $timeList[$y], $outputList[$y], $macroList[$y], $idList[$y], $dbh);
+			    $alreadySent = 1;
+			    
+			    # Free information
+			    undef($fileList[$y]);
+			    undef($timeList[$y]);
+			    undef($outputList[$y]);
+			    undef($statusList[$y]);
+			    undef($macroList[$y]);
+			}
+		    }
+		}
+		$y++;
+	    }
+	}
+	
+	##############################################
+	## Save Alarm in cache if they can not be send
+	## to a slot (when all slot are busy). 
+	#
+	my $count = @timeList;
+	
+	$showAlert = 0;
+	if ($count) {
+	    my $y = 0;
+	    foreach my $str (@timeList) { 
+		if (length($str)) {
+		    $host_name = $data->{'host_name'};
+		    $showAlert = saveAlarmInCache($showAlert, $str, $y);
+		    
+		    # Free information
+		    undef($fileList[$y]);
+		    undef($timeList[$y]);
+		    undef($outputList[$y]);
+		    undef($statusList[$y]);
+		    undef($macroList[$y]);
+		}
+		$y++;
+	    }
+	}
+    }
+}
+exit();
+
+############################################################
+## Declare functions
+############################################################
+
+###################################################
+## Get a host_id from a name
+#
+sub getHostID($$) {
+    my ($host_name, $con) = @_;
+
+    # Request
+    my $sth2 = $con->prepare("SELECT `host_id` FROM `host` WHERE `host_name` = '".$host_name."' AND `host_register` = '1'");
+    if (!$sth2->execute) {
+	writeLogFile("Error:" . $sth2->errstr . "\n");
+    }
+
+    my $data_host = $sth2->fetchrow_hashref();
+    my $host_id = $data_host->{'host_id'};
+    $sth2->finish();
+
+    # free data
+    undef($data_host);
+    undef($con);
+
+    # return host_id
+    return $host_id;
+}
+
+###################################################
+## Get the poller id when the host is monitored
+#
+sub getHostPoller($$) {
+    my ($host_id, $con) = @_;
+
+    my $sth2 = $con->prepare("SELECT ns.id, ns.localhost FROM nagios_server ns, ns_host_relation nsh WHERE nsh.host_host_id = '".$host_id."' AND ns.id = nsh.nagios_server_id");
+    if (!$sth2->execute) {
+        writeLogFile("Error:" . $sth2->errstr . "\n");
+    }
+    my $data_poller = $sth2->fetchrow_hashref();
+    undef($sth2);
+    return $data_poller;
+}
+
+#############################################
+## Trim a string value
+#
+sub trim {
+    my $s = shift();
+    $s =~ s/^\n*|\n*$//g;
+    return $s;
+}
+
+#############################################
+## Clean macro content fo all ok service 
+#
+sub cleanEmptyMacros($$) {
+    my ($dbh, $dbh2) = @_;
+
+    my $sth2 = $dbh->prepare("SELECT pool_prefix, pool_host_id FROM mod_dsm_pool");
+    if (!defined($sth2)) {
+	writeLogFile($DBI::errstr, "EE");
+    }
+    if ($sth2->execute()) {
+	while (my $data = $sth2->fetchrow_hashref()) {
+	    my $request;
+	    if ($DBType == 1) {
+		$request = "SELECT h.name AS hostname, s.description, cv.name AS macro, cv.value FROM services s, customvariables cv, hosts h WHERE s.host_id = h.host_id AND s.host_id = '".$data->{'pool_host_id'}."' AND cv.host_id = s.host_id and s.service_id = cv.service_id AND s.description LIKE '".$data->{'pool_prefix'}."%' AND s.state IN('0', '4') AND cv.value <> 'empty' AND cv.name = '$MACRO_ID_NAME'";
+	    } else {
+		$request = "SELECT varvalue AS value, varname AS macro, name1 AS hostname, name2 AS description FROM ".$ndo_conf->{'db_prefix'}."customvariablestatus cv, ".$ndo_conf->{'db_prefix'}."objects no, ".$ndo_conf->{'db_prefix'}."servicestatus ns WHERE no.object_id = ns.service_object_id AND no.object_id = cv.object_id AND ns.current_state IN ('0', '4') AND no.name2 LIKE '".$data->{'pool_prefix'}."%' AND varname = '$MACRO_ID_NAME' AND cv.object_id IN (SELECT object_id FROM ".$ndo_conf->{'db_prefix'}."customvariablestatus WHERE varname = '$MACRO_ID_NAME') AND no.name1 IN (select no.name1 from ".$ndo_conf->{'db_prefix'}."customvariablestatus nc, ".$ndo_conf->{'db_prefix'}."objects no WHERE varname = 'host_id' AND no.object_id = nc.object_id AND varvalue LIKE '".$data->{'pool_host_id'}."' AND no.name2 IS NULL AND no.objecttype_id = '1')";
+	    }
+	    my $sth3 = $dbh2->prepare($request);
+	    if ($sth3->execute()) {
+		while (my $d = $sth3->fetchrow_hashref()) {
+		    my $poller = getHostPoller($data->{'pool_host_id'}, $dbh);
+		    if (!-e $LOCKDIR."/".$d->{'hostname'}.";".$d->{'description'}.".lock") {
+			updateMacro($d->{'hostname'}, $d->{'description'}, $poller->{'localhost'}, $d->{'macro'}, "empty", time(), $poller->{'id'});
+		    }
+		}
+	    }
+	}
+    }
+    
+    #################################
+    # Build Macro Cache
+    %macroCache = buildMacroCache($dbh, $dbh2)
+}
+
+#############################################
+## Build a macro cache in order to redirect 
+## faster trap with a known ID.
+#
+sub buildMacroCache($$) {
+    my ($dbh, $dbh2) = @_;
+
+    my $sth2 = $dbh->prepare("SELECT pool_prefix, pool_host_id FROM mod_dsm_pool");
+    if (!defined($sth2)) {
+        writeLogFile($DBI::errstr, "EE");
+    }
+    if ($sth2->execute()) {
+        while (my $data = $sth2->fetchrow_hashref()) {
+            my $request;
+            if ($DBType == 1) {
+                $request = "SELECT h.name AS hostname, s.description, cv.name AS macro, cv.value FROM services s, customvariables cv, hosts h WHERE s.host_id = h.host_id AND s.host_id = '".$data->{'pool_host_id'}."' AND cv.host_id = s.host_id and s.service_id = cv.service_id AND s.description LIKE '".$data->{'pool_prefix'}."%' AND s.state NOT IN('0', '4') AND cv.value <> 'empty' AND cv.name = '$MACRO_ID_NAME'";
+            } else {
+		$request = "SELECT varvalue AS value, varname AS macro, name1 AS hostname, name2 AS description FROM ".$ndo_conf->{'db_prefix'}."customvariablestatus cv, ".$ndo_conf->{'db_prefix'}."objects no, ".$ndo_conf->{'db_prefix'}."servicestatus ns WHERE no.object_id = ns.service_object_id AND no.object_id = cv.object_id AND ns.current_state NOT IN ('0', '4') AND no.name2 LIKE '".$data->{'pool_prefix'}."%' AND varname = '$MACRO_ID_NAME' AND cv.object_id IN (SELECT object_id FROM ".$ndo_conf->{'db_prefix'}."customvariablestatus WHERE varname = '$MACRO_ID_NAME') AND no.name1 IN (select no.name1 from ".$ndo_conf->{'db_prefix'}."customvariablestatus nc, ".$ndo_conf->{'db_prefix'}."objects no WHERE varname = 'host_id' AND no.object_id = nc.object_id AND varvalue LIKE '".$data->{'pool_host_id'}."' AND no.name2 IS NULL AND no.objecttype_id = '1')";
+            }
+	    my $sth3 = $dbh2->prepare($request);
+            if ($sth3->execute()) {
+                while (my $d = $sth3->fetchrow_hashref()) {
+                    #writeLogFile("CACHE LINK: ".$d->{'hostname'}.";".$d->{'value'}, "DD") if ($debug);
+		    $macroCache{$d->{'hostname'}.";".$d->{'value'}} = $d->{'description'};
+                } 
+            }
+        }
+    }
+    return %macroCache;
+}
+
+############################################
+## Our version of die
+#    - add log into program log file
+#    - exit with error code 1
+#
+sub MyDie($) {
+    my ($error) = @_;
+    writeLogFile($error, 'EE');
+    exit(1);
+}
+
+############################################
+## Connect to Centreon MySQL Database.
+#
+sub MySQLConnect() {
+    return DBI->connect("dbi:mysql:".$mysql_database_oreon.";host=".$mysql_host, $mysql_user, $mysql_passwd) or MyDie "DB Connection Error: $mysql_database_oreon => $! \n";
+}
+
+#############################################
+## Connect to storage database
+#
+sub storageDBConnect() {
+    my $dbh2 = DBI->connect("dbi:mysql:".$mysql_database_ods.";host=".$mysql_host, $mysql_user, $mysql_passwd) or die "Storage DB connection impossible : $mysql_database_oreon => $DBI::errstr \n";
+    return($dbh2);
+}
+
+#############################################
+## Connect to NDO database
+#    Get into cfg_ndo2db table for getting 
+#    NDO connect info.
+sub ndoDBConnect() {
+    my $ndo_conf = ndoInfo();
+    
+    my $dbh2 = DBI->connect("dbi:mysql:".$ndo_conf->{'db_name'}.";host=".$ndo_conf->{'db_host'}, $ndo_conf->{'db_user'}, $ndo_conf->{'db_pass'}) 
+	or MyDie("NDO DB Connection Error: $mysql_database_oreon => $DBI::errstr \n");
+    undef($ndo_conf);
+    return($dbh2);
+}
+
+###########################################
+## Get NDO Mysql information
+#
+sub ndoInfo() {
+    my $sth2 = $dbh->prepare("SELECT db_host,db_name,db_port,db_prefix,db_user,db_pass FROM cfg_ndo2db");
+    if (!$sth2->execute) {
+	writeLogFile("Error when getting drop and perfdata properties : ".$sth2->errstr."");
+    }
+    $ndo_conf = $sth2->fetchrow_hashref();
+    undef($sth2);
+    return($ndo_conf);
+}
+
+########################################
+## Get host/address
+#
+sub getRealHostName($) {
+    my ($host_name) = @_; 
+    
+    my $sth2 = $dbh->prepare("SELECT host_name FROM host WHERE (host_address LIKE '" . $hostname . "' OR host_name LIKE '" . $hostname . "')");
+    if (!defined($sth2)) {
+	writelogFile($DBI::errstr, "EE");
+    } else {
+	if ($sth2->execute()){
+	    my $hostDataTemp = $sth2->fetchrow_hashref();
+	    writeLogFile("Real hostname = " . $hostDataTemp->{'host_name'}, "DD");
+	    return($hostDataTemp->{'host_name'});
+	} else {
+	    writeLogFile("Can get hosts Informations (name or address) $!", "EE");
+	    exit(1);
+	}
+    }
+}
+
+########################################
+## Get DSM Pool prefix.
+#
+sub getPoolPrefix($) {
+    my ($hostname) = @_;
+    
+    my $sth2 = $dbh->prepare("SELECT pool_prefix FROM mod_dsm_pool mdp, host h WHERE mdp.pool_host_id = h.host_id AND ( h.host_name LIKE '" . $hostname . "' OR h.host_address LIKE '" . $hostname . "')");
+    if (!defined($sth2)) {
+	writeLogFile($DBI::errstr, "EE");
+    }
+    if ($sth2->execute()){
+	$pool_prefix = $sth2->fetchrow_hashref()->{'pool_prefix'};
+    } else {
+	writeLogFile("Can get DSM informations $!", "EE");
+	exit(1);
+    }
+    undef($sth2);
+    writeLogFile("Trap pool prefix = " . $pool_prefix, "DD");
+    return($pool_prefix);
+}
 
 ############################################
 # log files management function
@@ -57,6 +483,14 @@ sub writeLogFile {
     if (!defined($lvl)) {
 	$lvl = 'II';
     }
+    
+    ##############################
+    # Disable debug String write 
+    # if not in debug mode
+    if ($debug == 0 && $lvl eq "DD") {
+	return(0);
+    }
+
     my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = localtime(time());
     open (LOG, ">> ".$LOG) || print "can't write $LOG: $!";
 
@@ -72,28 +506,45 @@ sub writeLogFile {
     close LOG or warn $!;
 }
 
+###########################################
+# help
+sub help {
+    print <<EOF;
+Usage: snmpTrapDyn [-h] -H hostname -t time [-a action] [-i id] [-s status] output
+    -a|--action	The action id, the action is configured in config file
+    -H|--host	The hostame
+    -i|--id	The trap id
+    -t|--time	The time of the trap
+    -s|--status	The nagios status (0 - Ok, 1 - Warning, 2 - Critical, 3 - Unknown)
+    -m|--macros The liste of Macros that you like to store in custom macro separated by "|"
+    -h|--help	Help
+EOF
+    exit(0);
+}
+
 ##################################################
 # Get DB type NDO / Broker
 # NDO => 0 ; Broker => 1
 sub getDBType($) {
-	my $dbh = $_[0];
-	
-	my $request = "SELECT `value` FROM options WHERE `key` = 'broker'";
-	my $sth = $dbh->prepare($request);
+    my ($dbh) = @_;
+
+    my $request = "SELECT `value` FROM options WHERE `key` = 'broker'";
+    my $sth = $dbh->prepare($request);
     if (!defined($sth)) {
-		writeLogFile($DBI::errstr, "EE");
-		print $DBI::errstr; 
-	} else {
-		if ($sth->execute()) {
-			my $row = $sth->fetchrow_hashref();
-			if (defined $row && $row->{'value'} eq 'broker') {
-				return 1;
-			} else {
-				return 0;
-			}
-		}
+	writeLogFile($DBI::errstr, "EE");
+    } else {
+	if ($sth->execute()) {
+	    my $row = $sth->fetchrow_hashref();
+	    if (defined $row && $row->{'value'} eq 'broker') {
+		writeLogFile("Broker mode: Centreon Broker", "DD");
+		return 1;
+	    } else {
+		writeLogFile("Broker mode: NDO", "DD");
 		return 0;
+	    }
 	}
+	return 0;
+    }
 }
 
 ##################################################
@@ -103,12 +554,17 @@ sub get_slot {
     my $service_id = "nil";
     my $count_services;
     my @list_services;
+    my $query_get;
 
-    my $query_get = "SELECT varvalue " .
-	"FROM " . $ndo_conf->{'db_prefix'} . "customvariablestatus " .
-	"WHERE varname = 'SERVICE_ID' AND object_id = (SELECT object_id " .
-	"FROM " . $ndo_conf->{'db_prefix'} . "customvariablestatus " .
-	"WHERE varname = '" . $MACRO_ID_NAME . "' AND varvalue = '" . $id . "' LIMIT 1)";
+    if ($DBType == 1) {
+	$query_get = "SELECT services.service_id AS varvalue FROM customvariables, hosts, services WHERE hosts.host_id = services.host_id AND hosts.host_id = customvariables.host_id AND services.service_id = customvariables.service_id AND (hosts.name LIKE '$host' OR hosts.address LIKE '$host') AND customvariables.name LIKE '" . $MACRO_ID_NAME . "' AND value = '" . $id . "' LIMIT 1";
+    } else {
+	$query_get = "SELECT varvalue " .
+	    "FROM " . $ndo_conf->{'db_prefix'} . "customvariablestatus " .
+	    "WHERE varname = 'SERVICE_ID' AND object_id = (SELECT object_id " .
+	    "FROM " . $ndo_conf->{'db_prefix'} . "customvariablestatus " .
+	    "WHERE varname = '" . $MACRO_ID_NAME . "' AND varvalue = '" . $id . "' LIMIT 1)";
+    }
     my $sth2 = $dbh2->prepare($query_get);
     if (!defined($sth2)) {
 	writeLogFile($DBI::errstr, "EE");
@@ -118,7 +574,7 @@ sub get_slot {
 	    writeLogFile("Error when getting perfdata file : " . $sth2->errstr . "", "EE");
 	    exit(1);
 	}
-	#@list_services;
+	@list_services;
 	while (my $row = $sth2->fetchrow_hashref()) {
 	    push(@list_services, $row->{"varvalue"});
 	}
@@ -129,7 +585,7 @@ sub get_slot {
 	}
 	my $query_check = "SELECT s.service_description " .
 	    "FROM host_service_relation as hsr, host as h, service as s " .
-	    "WHERE hsr.host_host_id = h.host_id AND h.host_name = '" . $host . "' AND h.host_register = '1' AND hsr.service_service_id = s.service_id AND hsr.service_service_id IN (" . join(",", @list_services) . ")";
+	    "WHERE hsr.host_host_id = h.host_id AND (h.host_name = '" . $host . "' OR h.host_address = '" . $host . "') AND h.host_register = '1' AND hsr.service_service_id = s.service_id AND hsr.service_service_id IN (" . join(",", @list_services) . ")";
 	my $sth2 = $dbh->prepare($query_check);
 	if (!defined($sth2)) {
 	    writeLogFile($DBI::errstr, "EE");
@@ -144,35 +600,7 @@ sub get_slot {
 	}
 	undef($sth2);
     }
-
     return $service_id;
-}
-
-##########################################
-# get a free slot for a host
-sub get_free_slot {
-    my ($host, $pool_prefix, $dbh, $dbh2, $ndo_conf) = @_;
-	my $request;
-
-	if ($DBType == 1) {
-    	$request = "SELECT description FROM services, hosts WHERE hosts.host_id = services.host_id AND state IN ('0', '4') AND (hosts.name LIKE '$host' OR hosts.address LIKE '$host') ORDER BY description";    
-	} else {
-	   	$request = "SELECT no.name1, no.name2 ".
-			"FROM ".$ndo_conf->{'db_prefix'}."servicestatus nss , ".$ndo_conf->{'db_prefix'}."objects no, ".$ndo_conf->{'db_prefix'}."services ns ".
-			"WHERE no.object_id = nss.service_object_id AND no.name1 like '" . $host . "' AND no.object_id = ns.service_object_id ".
-			"AND nss.current_state = 0 AND no.name2 LIKE '" . $pool_prefix . "%' ORDER BY name2";
-	}
-	writeLogFile("$request", "II");
-    my $sth2 = $dbh2->prepare($request);
-    if (!defined($sth2)) {
-		writeLogFile($DBI::errstr, "EE");
-		exit(1);
-    }
-    if (!$sth2->execute()){
-		writeLogFile("Error when getting info : " . $sth2->errstr . "", "EE");
-		exit(1);
-    }
-    return 1;
 }
 
 #############################################
@@ -184,47 +612,26 @@ sub send_command {
     my $data_poller = getHostPoller($host_id, $dbh);
 
     my $externalMacro = "";
-    my $sendMacro = 0;
-    if (defined($MACRO_ID_NAME) && $MACRO_ID_NAME ne "nil") {
+    if (defined($MACRO_ID_NAME) && $MACRO_ID_NAME ne "nil" && $id ne "nil") {
 	if ($status == 0) {
 	    $id = "empty";
 	}
-	$externalMacro = "[$timeRequest] CHANGE_CUSTOM_SVC_VAR;$host_name;$service;$MACRO_ID_NAME;$id";
-	$sendMacro = 1;
-    }
-    
-    if ($FORCEFREE && $status == 0) {
-	$output = "Free slot";
+	updateMacro($host_name, $service, $data_poller->{'localhost'}, $MACRO_ID_NAME, $id, $timeRequest, $data_poller->{'id'});
     }
 
+    # Prepare to send update of Service
     $output =~ s/\'//g;
     my $externalCMD = "[$timeRequest] PROCESS_SERVICE_CHECK_RESULT;$host_name;$service;$status;$output";
-    
-    print $externalCMD . "\n";
 
-    if ($data_poller->{'localhost'} == 0) {
-	my $externalCMD = "EXTERNALCMD:".$data_poller->{'id'}.":".$externalCMD;
-	writeLogFile("Send external command : $externalCMD");
-	if (system("echo \"$externalCMD\" >> $CECORECMD")) {
-	    writeLogFile("Cannot Write external command for centcore");
-	}
-	if ($sendMacro) {
-	    writeLogFile("Send external command : $externalMacro");
-	    if (system("echo \"$externalMacro\" >> $CECORECMD")) {
-		writeLogFile("Cannot Write external command for centcore");
-	    }
-	}
-    } else {
-	writeLogFile("Send external command in local poller : $externalCMD");
-	if (system("echo \"$externalCMD\" >> $NAGIOSCMD")) {
-	    writeLogFile("Cannot Write external command for local nagios");
-	}
-	if ($sendMacro) {
-	    writeLogFile("Send external command in local poller : $externalMacro");
-	    if (system("echo \"$externalMacro\" >> $NAGIOSCMD")) {
-		writeLogFile("Cannot Write external command for centcore");
-	    }
-	}
+    sendExternalCommad($data_poller->{'id'}, $externalCMD);
+
+    writeLock($host_name, $service, $id);
+
+    if ($FORCEFREE && $status == 0) {
+	$externalCMD = "[$timeRequest] SCHEDULE_FORCED_SVC_CHECK;$host_name;$service;$timeRequest";
+	sendExternalCommad($data_poller->{'id'}, $externalCMD);
+
+	writeLogFile("Force free the following slot: $host_name;$service", "DD");
     }
 
     my @tab = split(/\|/, $macros);
@@ -233,336 +640,148 @@ sub send_command {
 	if ($FORCEFREE && $status == 0) {
 	    $tab2[1] = "empty";
 	}
-	updateMacro($host_name, $service, $data_poller->{'localhost'}, $tab2[0], $tab2[1], $timeRequest);
+	updateMacro($host_name, $service, $data_poller->{'localhost'}, $tab2[0], $tab2[1], $timeRequest, $data_poller->{'id'});
 	undef(@tab2);
     }
 }
 
 ##########################################################
-# Declare functions
-# host / service / localhost / macro / var / time / $poller
+## Send external command to Centcore
+#
+sub sendExternalCommad($$) {
+    my ($id, $command) = @_;
+    
+    my $externalCMD = "EXTERNALCMD:".$id.":".$command;
+
+    writeLogFile("Send external command : $externalCMD");    
+    if (system("echo \"$externalCMD\" >> $CECORECMD")) {
+        writeLogFile("Cannot Write external command for centcore", 'II');
+	return 0;
+    }
+    return 1;
+}
+
+##########################################################
+## Declare functions
+# @Params: host / service / localhost / macro / var / time / $poller
 sub updateMacro($$$$$$) {
-    my $externalCMD = "[".$_[5]."] CHANGE_CUSTOM_SVC_VAR;".$_[0].";".$_[1].";".$_[3].";".$_[4];
-    print $externalCMD . "\n";
-    if ($_[2] == 0) {
-	my $externalCMD = "EXTERNALCMD:".$_[6].":".$externalCMD;
+    my ($host, $service, $localhost, $macro, $var, $time, $poller) = @_;
+
+    my $externalCMD = "[".$time."] CHANGE_CUSTOM_SVC_VAR;".$host.";".$service.";".$macro.";".$var;
+
+    if ($localhost == 0) {
+	my $externalCMD = "EXTERNALCMD:".$poller.":".$externalCMD;
 	writeLogFile("Send external command : $externalCMD");
 	if (system("echo '$externalCMD' >> $CECORECMD")) {
-	    writeLogFile("Cannot Write external command for centcore");
+	    writeLogFile("Cannot Write external command for centcore", 'II');
 	}
     } else {
 	writeLogFile("Send external command in local poller : $externalCMD");
 	if (system("echo '$externalCMD' >> $NAGIOSCMD")) {
-	    writeLogFile("Cannot Write external command for local nagios");
+	    writeLogFile("Cannot Write external command for local nagios", 'II');
 	}
     }
 }
 
-##########################################
-### DEFAULT ACTION
-sub action_host_rename  {
-    my $hostname = shift;
-    my $pattern = shift;
-    my @arg = @_;
+##################################################
+## Write Locks
+# in order to lock slot during the first minute in order
+# to manage the refresh time of Nagios (UI and External Cmd)
+#
+sub writeLock($$$) {
+    my ($host_name, $service, $id) = @_;
 
-    my $output = $pattern;
-    while ($pattern =~ /%%(\d+)%%/g) {
-	if (defined($arg[$1 - 1])) {
-	    my $ss = $arg[$1 - 1];
-	    $output =~ s/$&/$ss/g;
-	} else {
-	    writeLogFile("Missing argument $1", "EE");
-	    exit 1;
-	}
-    }
-    return $output;
-}
-
-## Get help
-my $action = "nil";
-my $host_name = "nil";
-my $id = "nil";
-my $timeRequest = "nil";
-my $status = -1;
-my $output = "";
-my $macros = "";
-
-$host_name = '';
-my $pool_prefix = "";
-
-############################################
-# Check Temporary lock files directory
-if (!-d $LOCKDIR){ 
-    writeLogFile("Cannot find temporary lock files directory. I create it : $LOCKDIR.");
-    mkpath($LOCKDIR);
-}
-
-############################################
-# Purge Slot locks
-my @fileList = glob($LOCKDIR."/*");
-foreach (@fileList) {
-    my ($dev,$ino,$mode,$nlink,$uid,$gid,$rdev,$size,$atime,$mtime,$ctime,$blksize,$blocks) = lstat($_);
-    if (time() - $mtime > $MAXDATAAGE) {
-	writeLogFile("remove old lock file: ".$_." (normal behavior)");
-	unlink($_);
-    }
-}
-undef(@fileList);
-
-#############################################
-# Connect to Centreon databases
-my $dbh = DBI->connect("dbi:mysql:".$mysql_database_oreon.";host=".$mysql_host, $mysql_user, $mysql_passwd) or die "Data base connexion impossible : $mysql_database_oreon => $! \n";
-my $dbhO = DBI->connect("dbi:mysql:".$mysql_database_ods.";host=".$mysql_host, $mysql_user, $mysql_passwd) or die "Data base connexion impossible : $mysql_database_ods => $! \n";
-
-#############################################
-# Define DBTyper
-$DBType = getDBType($dbh);
-my $dbh2;
-
-if ($DBType == 0) {
-	#############################################
-	# Connect to NDO databases
-	my $sth2 = $dbh->prepare("SELECT db_host,db_name,db_port,db_prefix,db_user,db_pass FROM cfg_ndo2db");
-	if (!$sth2->execute) {
-	    writeLogFile("Error when getting drop and perfdata properties : ".$sth2->errstr."");
-	}
-	$ndo_conf = $sth2->fetchrow_hashref();
-	undef($sth2);
-
-	############################################
-	# get ndo configuration
-	$dbh2 = DBI->connect("dbi:mysql:".$ndo_conf->{'db_name'}.";host=".$ndo_conf->{'db_host'}, $ndo_conf->{'db_user'}, $ndo_conf->{'db_pass'});
-	if (!defined($dbh2)) {
-	    writeLogFile($DBI::errstr, "EE");
-	    writeLogFile("Data base connexion impossible : ".$ndo_conf->{'db_name'}." => $!", "EE");
-	}
-}
-
-############################################
-# Get hosts List
-my $sth2 = $dbh->prepare("SELECT h.host_name, mdp.pool_prefix FROM mod_dsm_pool mdp, host h WHERE mdp.pool_host_id = h.host_id AND mdp.pool_activate = '1'");
-if (!defined($sth2)) {
-    print "ERROR : ".$DBI::errstr."\n";
-}
-if ($sth2->execute()){
-    my $host;
-    while ($host = $sth2->fetchrow_hashref()) {
-	$host_name = $host->{'host_name'};
-	$pool_prefix = $host->{'pool_prefix'};
-
-	############################################
-	# Get slot free
-	my $sth3;
-	if ($DBType == 0) {
-		my $request = "SELECT no.name1, no.name2 ".
-		    "FROM ".$ndo_conf->{'db_prefix'}."servicestatus nss , ".$ndo_conf->{'db_prefix'}."objects no, ".$ndo_conf->{'db_prefix'}."services ns ".
-		    "WHERE no.object_id = nss.service_object_id AND no.name1 like '" . $host_name . "' AND no.object_id = ns.service_object_id ".
-		    "AND nss.current_state = 0 AND no.name2 LIKE '" . $pool_prefix . "%' ORDER BY name2";
-		$sth3 = $dbh2->prepare($request);
-	} else {
-		my $request = "SELECT description AS name2 FROM services, hosts WHERE hosts.host_id = services.host_id AND services.state IN ('0', '4') AND (hosts.name LIKE '$host' OR hosts.address LIKE '$host') AND services.description LIKE '" . $pool_prefix . "%' ORDER BY description";
-		$sth3 = $dbhO->prepare($request);	
-	}
-	if (!defined($sth3)) {
-	    writeLogFile($DBI::errstr, "EE");
-	    exit(1);
-	}
-	if (!$sth3->execute()){
-	    writeLogFile("Error when getting perfdata file : " . $sth3->errstr . "", "EE");
-	    exit(1);
-	}
-	############################################
-	# Sort Data
-	my $data;
-	my @slotList;
-	my $i;
-	for ($i = 0;$data = $sth3->fetchrow_hashref();$i++) {
-	    $slotList[$i] = $data->{'name2'};
-	}
-	undef($data);
-
-	############################################
-	# Read cache of results
-
-	my @timeList;
-	my @outputList;
-	my $t = 0;
-	@fileList = glob($CACHEDIR."/".$host_name."-*");
-	foreach (@fileList) {
-	    if (open(FILE, $_)) {
-		my $filename = $_;
-		$fileList[$t] = $filename;
-		my $i = 0;
-		while (<FILE>) {
-		    if ($i == 0) {
-			$timeList[$t] = $_;
-			$timeList[$t] =~ s/\n//g;
-			$timeRequest = $timeList[$t];
-			print "TIME: ".trim($timeRequest)."\n";
-		    } elsif ($i == 1) {
-			$statusList[$t] = $_;
-			print "STATUS: ".trim($_)."\n";
-		    } elsif ($i == 2) {
-			print "MACRO: ".trim($_)."\n";
-			$macroList[$t] = $_;
-		    } elsif ($i == 3) {
-			print "ID: ".trim($_)."\n";
-			$idList[$t] = $_;
-		    } else {
-			if (defined($outputList[$t])) {
-			    $outputList[$t] = $_; 
-			} else {
-			    $outputList[$t] .= $_; 
-			}
-			print "OUTPUT: ".trim($outputList[$t])."\n";
-		    }
-		    $i++;
-		}
-		close FILE;
-		writeLogFile("DELETE File : ".$filename);
-		unlink($filename);
-	    }
-	    $t++;
-	}
-	undef(@fileList);
-	
-	foreach my $str (@timeList) {
-	    print $str . '\n';
-	}
-
-	############################################
-	# Send data to Nagios serveurs
-	my $y = 0;
-	foreach my $str (@slotList) {
-	    if (defined($timeList[$y])) {
-		# Check if I can use this slot
-		if (length($str) && !-e $LOCKDIR."$str.lock") {
-		    my $time_now = $timeList[$y];
-
-		    # Write Tempory lock
-		    if (system("touch ".$LOCKDIR."$str.lock")) {
-			writeLogFile("Cannot write lock file... Be carefull, some data can be loose.");
-		    }
-		    
-		    # Build external command
-		    send_command($host_name, $str, trim($statusList[$y]), trim($timeList[$y]), $outputList[$y], trim($macroList[$y]), trim($idList[$y]), $dbh);
-		    
-		    undef($fileList[$y]);
-		    undef($timeList[$y]);
-		    undef($outputList[$y]);
-		    undef($statusList[$y]);
-		    undef($macroList[$y]);
-		    $y++;
-		} else {
-		    if (-e $LOCKDIR."-$str") {
-			;#print "$str : already used !";
-		    }
-		}
-	    } else {
-		if (defined($fileList[$y]) && length($fileList[$y])) {
-		    
-		    writeLogFile("Slot system busy... all slots are already in use...");
-		    writeLogFile("Add alert in cache...");
-		    
-		    my $CACHEFILE = $CACHEDIR.$host_name.'-'.time().".cache";
-		    if (-e $CACHEFILE) {
-			my $i = 0;
-			while (-e $CACHEFILE."-".$i) {
-			    $i++;
-			}
-			$CACHEFILE .= "-".$i;
-		    }
-		    
-		    open (CACHE, ">> ".$CACHEFILE) || print "can't write $LOG: $!";
-		    print CACHE trim($timeList[$y])."\n";
-		    print CACHE trim($statusList[$y])."\n";
-		    print CACHE trim($macroList[$y])."\n";
-		    print CACHE trim($idList[$y])."\n";
-		    print CACHE trim($outputList[$y]);
-		    close CACHE;
-		}
-	    }
-	}
-	my $count = @timeList;
-	
-	if ($count) {
-	    my $y = 0;
-	    foreach my $str (@timeList) { 
-		if (length($str) && $timeList[$y] != "" && $statusList[$y] != "-1") {
-		    ###########################################
-		    # Put data in cache
-		    writeLogFile("Slot system busy... all slots are already in use...");
-		    writeLogFile("Add alert in cache...");
-		    
-		    # Check Temporary lock files directory
-		    if (!-d $CACHEDIR){
-			writeLogFile("Cannot find temporary cache files directory. I create it : $CACHEDIR.");
-			mkpath($CACHEDIR);
-		    }
-		    
-		    my $CACHEFILE = $CACHEDIR.$host_name.'-'.$str.".cache";
-		    if (-e $CACHEFILE) {
-			my $i = 0;
-			while (-e $CACHEFILE."-".$i) {
-			    $i++;
-			}
-			$CACHEFILE .= "-".$i;
-		    }
-		    
-		    open (CACHE, ">> ".$CACHEFILE) || print "can't write $LOG: $!";
-		    print CACHE trim($timeList[$y])."\n";
-		    print CACHE trim($statusList[$y])."\n";
-		    print CACHE trim($macroList[$y])."\n";
-		    print CACHE trim($idList[$y])."\n";
-		    print CACHE trim($outputList[$y]);
-		    close CACHE;
-		}
-		$y++;
-	    }
-	} else {
-	    exit 0;
-	}
-    }
-}
-
-
-############################################
-# Declare functions
-
-sub getHostID($$) {
-    my $con = $_[1];
-    
-    # Request
-    my $sth2 = $con->prepare("SELECT `host_id` FROM `host` WHERE `host_name` = '".$_[0]."' AND `host_register` = '1'");
-    if (!$sth2->execute) {
-	writeLogFile("Error:" . $sth2->errstr . "\n");
+    if (-f $LOCKDIR.$host_name.";".$service.".lock") {
+	unlink($LOCKDIR.$host_name.";".$service.".lock");
     }
     
-    my $data_host = $sth2->fetchrow_hashref();
-    my $host_id = $data_host->{'host_id'};
-    $sth2->finish();
-    
-    # free data
-    undef($data_host);
-    undef($con);
-    
-    # return host_id
-    return $host_id;
+    writeLogFile("Write lock file: ".$LOCKDIR.$host_name.";".$service.".lock", "DD");
+
+    open (LOCK, ">> ".$LOCKDIR.$host_name.";".$service.".lock") || print "can't write $LOCKDIR.$host_name;$service.lock: $!";
+    print LOCK trim($host_name)."\n";
+    print LOCK trim($service)."\n";
+    print LOCK trim($id)."\n";
+    close LOCK;
 }
 
-sub getHostPoller($$) {
-    my $con = $_[1];
-    my $sth2 = $con->prepare("SELECT ns.id, ns.localhost FROM nagios_server ns, ns_host_relation nsh WHERE nsh.host_host_id = '".$_[0]."' AND ns.id = nsh.nagios_server_id");
-    if (!$sth2->execute) {
-        writeLogFile("Error:" . $sth2->errstr . "\n");
+##################################################
+## Save all non-managed alarm into a cache file.
+#
+sub saveAlarmInCache($$$) {
+    my ($showAlert, $str, $y) = @_;
+
+    if ($showAlert == 0) {
+	writeLogFile("Slot system busy... all slots are already in use...");
+	writeLogFile("Add alert in cache...");
+	$showAlert++;
     }
-    my $data_poller = $sth2->fetchrow_hashref();
-    undef($sth2);
-    return $data_poller;
+    my $CACHEFILE = $CACHEDIR.$host_name.'-'.$str.".cache";
+    if (-e $CACHEFILE) {
+	my $i = 0;
+	while (-e $CACHEFILE."-".$i) {
+	    $i++;
+	}
+	$CACHEFILE .= "-".$i;
+    }   
+
+    open (CACHE, ">> ".$CACHEFILE) || print "can't write $LOG: $!";
+    print CACHE trim($timeList[$y])."\n";
+    print CACHE trim($statusList[$y])."\n";
+    print CACHE trim($macroList[$y])."\n";
+    print CACHE trim($idList[$y])."\n";
+    print CACHE trim($outputList[$y]);
+    close CACHE;
+
+    writeLogFile("Write Cache file: $CACHEFILE", "DD");
+
+    return($showAlert);
 }
 
-sub trim {
-    my $s = shift();
-    $s =~ s/^\n*|\n*$//g;
-    return $s;
+###################################################
+## Purge old Lock files
+#
+sub purgeLockFiles() {
+    my @fileList = glob($LOCKDIR."/*");
+    foreach (@fileList) {
+	my ($dev,$ino,$mode,$nlink,$uid,$gid,$rdev,$size,$atime,$mtime,$ctime,$blksize,$blocks) = lstat($_);
+	if (time() - $mtime > $MAXDATAAGE) {
+	    writeLogFile("remove old lock file: ".$_." (normal behavior)");
+	    unlink($_);
+	}
+    }
+    undef(@fileList);
 }
+
+#################################################
+## Get Free Slot list
+#
+sub getFreeSlot() {
+    my $request = "";
+    if ($DBType == 1) {
+	$request = "SELECT hosts.name AS host_name, services.description AS service_description FROM hosts, services WHERE hosts.host_id = services.host_id AND hosts.name LIKE '" . $host_name . "' AND services.state IN ('0', '4') AND description LIKE '" . $pool_prefix . "%' AND services.enabled = 1 ";
+    } else {
+	$request = "SELECT no.name1 AS host_name, no.name2 AS service_description ".
+	    "FROM ".$ndo_conf->{'db_prefix'}."servicestatus nss , ".$ndo_conf->{'db_prefix'}."objects no, ".$ndo_conf->{'db_prefix'}."services ns ".
+	    "WHERE no.object_id = nss.service_object_id AND no.name1 like '" . $host_name . "' AND no.object_id = ns.service_object_id ".
+	    "AND nss.current_state = 0 AND no.name2 LIKE '" . $pool_prefix . "%' ORDER BY name2";
+    }
+    #writeLogFile($request);
+    my $sth2 = $dbh2->prepare($request);
+    if (!defined($sth2)) {
+	writeLogFile($DBI::errstr, "EE");
+	exit(1);
+    }
+    if (!$sth2->execute()){
+	writeLogFile("Error when getting perfdata file : " . $sth2->errstr . "", "EE");
+	exit(1);
+    }
+    
+    my $data;
+    my $i;
+    for ($i = 0;$data = $sth2->fetchrow_hashref();$i++) {
+	$slotList[$i] = $data->{'host_name'}."\;".$data->{'service_description'};
+    }
+    undef($data);
+}
+
+__END__
