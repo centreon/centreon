@@ -255,7 +255,7 @@ if (@slotList ne 0) {
 		}
 		
 		# Build external command
-		if (($status == 0 && $id != "nil" && $FORCEFREE) || $status != 0) {
+		if (($statusList[$y] == 0 && $idList[$y] != "nil" && $FORCEFREE) || $statusList[$y] != 0) {
 		    # Send Command
 		    send_command($host_name, $tab[1], trim($statusList[$y]), trim($timeList[$y]), $outputList[$y], $macroList[$y], $idList[$y], $dbh);
 		}
@@ -388,7 +388,6 @@ sub cleanEmptyMacros($$) {
 	    } else {
 		$request = "SELECT varvalue AS value, varname AS macro, name1 AS hostname, name2 AS description FROM ".$ndo_conf->{'db_prefix'}."customvariablestatus cv, ".$ndo_conf->{'db_prefix'}."objects no, ".$ndo_conf->{'db_prefix'}."servicestatus ns WHERE no.object_id = ns.service_object_id AND no.object_id = cv.object_id AND ns.current_state IN ('0', '4') AND no.name2 LIKE '".$data->{'pool_prefix'}."%' AND varname = '$MACRO_ID_NAME' AND cv.object_id IN (SELECT object_id FROM ".$ndo_conf->{'db_prefix'}."customvariablestatus WHERE varname = '$MACRO_ID_NAME') AND no.name1 IN (select no.name1 from ".$ndo_conf->{'db_prefix'}."customvariablestatus nc, ".$ndo_conf->{'db_prefix'}."objects no WHERE varname = 'host_id' AND no.object_id = nc.object_id AND varvalue LIKE '".$data->{'pool_host_id'}."' AND no.name2 IS NULL AND no.objecttype_id = '1')";
 	    }
-	    #writeLogFile($request) if ($debug);
 	    my $sth3 = $dbh2->prepare($request);
 	    if ($sth3->execute()) {
 		while (my $d = $sth3->fetchrow_hashref()) {
@@ -797,13 +796,15 @@ sub saveAlarmInCache($$$) {
 sub purgeLockFiles($) {
     my ($host_name) = @_;
 
-    my @fileList = glob($LOCKDIR."/".$host_name."-*");
+    my @fileList = glob($LOCKDIR."/".$host_name."*");
     foreach (@fileList) {
 	my ($dev,$ino,$mode,$nlink,$uid,$gid,$rdev,$size,$atime,$mtime,$ctime,$blksize,$blocks) = lstat($_);
+	my $delta = time() - $mtime;
+	writeLogFile("CHECK : $_ => $delta");
 	if (time() - $mtime > $MAXDATAAGE) {
 	    writeLogFile("remove old lock file: ".$_." (normal behavior)");
 	    unlink($_);
-	}
+	} 
     }
     undef(@fileList);
 }
@@ -814,7 +815,7 @@ sub purgeLockFiles($) {
 sub getFreeSlot() {
     my $request = "";
     if ($DBType == 1) {
-	$request = "SELECT hosts.name AS host_name, services.description AS service_description FROM hosts, services WHERE hosts.host_id = services.host_id AND hosts.name LIKE '" . $host_name . "' AND services.state = 0 AND description LIKE '" . $pool_prefix . "%' AND services.enabled = 1 ";
+	$request = "SELECT hosts.name AS host_name, services.description AS service_description FROM hosts, services WHERE hosts.host_id = services.host_id AND hosts.name LIKE '" . $host_name . "' AND services.state IN ('0', '4') AND description LIKE '" . $pool_prefix . "%' AND services.enabled = 1 ";
     } else {
 	$request = "SELECT no.name1 AS host_name, no.name2 AS service_description ".
 	    "FROM ".$ndo_conf->{'db_prefix'}."servicestatus nss , ".$ndo_conf->{'db_prefix'}."objects no, ".$ndo_conf->{'db_prefix'}."services ns ".
