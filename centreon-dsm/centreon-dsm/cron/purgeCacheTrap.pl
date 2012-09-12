@@ -48,8 +48,8 @@ use vars qw($alreadySent %macroCache @slotList $host_name $hostname);
 
 ############################################
 # To the config file
-require "/etc/centreon/conf.pm";
-require "/etc/centreon/conf_dsm.pm";
+require "@CENTREON_ETC@/conf.pm";
+require "@CENTREON_ETC@/conf_dsm.pm";
 
 $debug = $DEBUG_ENABLED;
 
