@@ -487,7 +487,7 @@ sub writeLogFile {
     ##############################
     # Disable debug String write 
     # if not in debug mode
-    if ($debug == 0 && $lvl eq "DD") {
+    if ($debug eq 0 && $lvl eq "DD") {
 	return(0);
     }
 
