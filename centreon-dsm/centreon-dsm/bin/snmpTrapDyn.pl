@@ -48,8 +48,8 @@ use vars qw($alreadySent %macroCache @slotList);
 
 ############################################
 # To the config file
-require "@CENTREON_ETC@/conf.pm";
-require "@CENTREON_ETC@/conf_dsm.pm";
+require "/etc/centreon/conf.pm";
+require "/etc/centreon/conf_dsm.pm";
 
 #############################################
 # Test for new release
@@ -609,6 +609,8 @@ sub get_slot {
     my $count_services;
     my @list_services;
     my $query_get;
+
+	$id =~ s/\\/\\\\/g;
 
     if ($DBType == 1) {
 	$query_get = "SELECT services.service_id AS varvalue FROM customvariables, hosts, services WHERE hosts.host_id = services.host_id AND hosts.host_id = customvariables.host_id AND services.service_id = customvariables.service_id AND (hosts.name LIKE '$host' OR hosts.address LIKE '$host') AND customvariables.name LIKE '" . $MACRO_ID_NAME . "' AND value = '" . $id . "' LIMIT 1";
