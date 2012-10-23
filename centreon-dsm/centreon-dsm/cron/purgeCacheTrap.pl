@@ -669,18 +669,11 @@ sub updateMacro($$$$$$) {
 
     my $externalCMD = "[".$time."] CHANGE_CUSTOM_SVC_VAR;".$host.";".$service.";".$macro.";".$var;
 
-    if ($localhost == 0) {
-	my $externalCMD = "EXTERNALCMD:".$poller.":".$externalCMD;
+    my $externalCMD = "EXTERNALCMD:".$poller.":".$externalCMD;
 	writeLogFile("Send external command : $externalCMD");
 	if (system("echo '$externalCMD' >> $CECORECMD")) {
 	    writeLogFile("Cannot Write external command for centcore", 'II');
 	}
-    } else {
-	writeLogFile("Send external command in local poller : $externalCMD");
-	if (system("echo '$externalCMD' >> $NAGIOSCMD")) {
-	    writeLogFile("Cannot Write external command for local nagios", 'II');
-	}
-    }
 }
 
 ##################################################
@@ -756,6 +749,9 @@ sub purgeLockFiles() {
 ## Get Free Slot list
 #
 sub getFreeSlot() {
+    
+    undef(@slotList);
+    
     my $request = "";
     if ($DBType == 1) {
 	$request = "SELECT hosts.name AS host_name, services.description AS service_description FROM hosts, services WHERE hosts.host_id = services.host_id AND hosts.name LIKE '" . $host_name . "' AND services.state IN ('0', '4') AND description LIKE '" . $pool_prefix . "%' AND services.enabled = 1 ";
@@ -765,7 +761,6 @@ sub getFreeSlot() {
 	    "WHERE no.object_id = nss.service_object_id AND no.name1 like '" . $host_name . "' AND no.object_id = ns.service_object_id ".
 	    "AND nss.current_state = 0 AND no.name2 LIKE '" . $pool_prefix . "%' ORDER BY name2";
     }
-    #writeLogFile($request);
     my $sth2 = $dbh2->prepare($request);
     if (!defined($sth2)) {
 	writeLogFile($DBI::errstr, "EE");
