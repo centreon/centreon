@@ -619,8 +619,8 @@ sub get_slot {
 						"hosts.host_id = services.host_id AND ".
 						"hosts.host_id = customvariables.host_id AND ".
 						"services.service_id = customvariables.service_id AND ".
-						"(hosts.name LIKE '$host' OR hosts.address LIKE '$host') AND ".
-						"customvariables.name LIKE '" . $MACRO_ID_NAME . "' AND ".
+						"(hosts.name = '$host' OR hosts.address = '$host') AND ".
+						"customvariables.name = '" . $MACRO_ID_NAME . "' AND ".
 						"value = '" . $id . "' LIMIT 1";
     } else {
 	$query_get = "SELECT varvalue " .
