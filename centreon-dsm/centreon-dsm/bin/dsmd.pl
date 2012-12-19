@@ -42,7 +42,7 @@ use File::Path qw(mkpath);
 use Time::HiRes qw(usleep ualarm gettimeofday tv_interval nanosleep clock_gettime clock_getres clock_nanosleep clock stat);
 
 use vars qw($mysql_database_oreon $mysql_database_ods $mysql_host $mysql_user $mysql_passwd $ndo_conf $LOG);
-use vars qw($NAGIOSCMD $DBType $CECORECMD $LOCKDIR $MAXDATAAGE $CACHEDIR $EXCLUDESTR $MACRO_ID_NAME $FORCEFREE);
+use vars qw($DBType $CECORECMD $LOCKDIR $MAXDATAAGE $CACHEDIR $EXCLUDESTR $MACRO_ID_NAME $FORCEFREE);
 use vars qw(@pattern_output @action_list @macroList @statusList @idList @hostList @cacheList @outputList @timeList $debug $DBType $DEBUG_ENABLED $USE_LONG_OPT);
 use vars qw($alreadySent %macroCache @slotList $pool_prefix $dbh $dbhS);
 
