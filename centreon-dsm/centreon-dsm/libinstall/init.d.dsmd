@@ -11,12 +11,12 @@
 # Source function library.
 . /etc/init.d/functions
   
-binary=/usr/share/centreon/bin/dsmd.pl
+binary=@CENTCORE_BINDIR@/bin/dsmd.pl
 servicename=$(basename "$0")
-user=centreon
+user=@CENTREON_USER@
 timeout=60
 
-pidfile=/var/run/centreon/dsmd.pid
+pidfile=@CENTREON_RUNDIR@/dsmd.pid
 
 # Check if we can find the binary.
 if [ ! -x $binary ]; then
