@@ -115,20 +115,20 @@ while ($run) {
         # Check Alarms
         writeLogFile("Check alarm cache", "DD");
 
+        #############################################
+        ## Purge old lock in database
+        purgeLockFiles();
+
         checkCackeList();
         processAlarm();
         
         $lastCheck = $now;
     } 
-    if ($now gt ($lastPurge + 15) || $lastPurge eq 0) {
+    if ($now gt ($lastPurge + 30) || $lastPurge eq 0) {
         ####################################
         # Purge info
         writeLogFile("Purge Locks & old macro status", "DD");
         
-        #############################################
-        ## Purge old lock in database
-        purgeLockFiles();
-
         #############################################
         ## Purge old slot alarm_id
         %macroCache = cleanEmptyMacros($dbh, $dbh2);
@@ -712,7 +712,7 @@ sub send_command {
     writeLock($host_name, $service, $id);
     
     if ($FORCEFREE && $status == 0) {
-        $externalCMD = "[".time()."] SCHEDULE_FORCED_SVC_CHECK;$host_name;$service;".(time() + 10);
+        $externalCMD = "[".time()."] SCHEDULE_FORCED_SVC_CHECK;$host_name;$service;".(time() + 2);
         sendExternalCommad($data_poller->{'id'}, $externalCMD, $data_poller->{'localhost'});
         writeLogFile("Force free the following slot: $host_name;$service", "DD");
     }
