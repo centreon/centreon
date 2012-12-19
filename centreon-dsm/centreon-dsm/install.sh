@@ -218,7 +218,7 @@ ${CAT} << __EOT__
 #                   	to finish the setup                                   #
 #                                                                             #
 #      Report bugs at                                                         #
-#           http://forge.centreon.com/projects/show/centreon-dsm              #
+#               http://forge.centreon.com/projects/centreon-dsm               #
 #                                                                             #
 ###############################################################################
 __EOT__

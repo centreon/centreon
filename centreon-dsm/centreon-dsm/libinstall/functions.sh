@@ -213,6 +213,9 @@ function get_centreon_parameters() {
 	NAGIOS_VAR=`${CAT} $CENTREON_CONF/$FILE_CONF | ${GREP} "NAGIOS_VAR" | cut -d '=' -f2`;
 	CENTREON_LOG=`${CAT} $CENTREON_CONF/$FILE_CONF | ${GREP} "CENTREON_LOG" | cut -d '=' -f2`;
 	CENTREON_VARLIB=`${CAT} $CENTREON_CONF/instCentCore.conf | ${GREP} "CENTREON_VARLIB" | cut -d '=' -f2`;
+	CENTREON_BINDIR=`${CAT} $CENTREON_CONF/instCentCore.conf | ${GREP} "CENTREON_BINDIR" | cut -d '=' -f2`;
+	CENTREON_USER=`${CAT} $CENTREON_CONF/$FILE_CONF | ${GREP} "CENTREON_USER" | cut -d '=' -f2`;
+	CENTREON_GROUP=`${CAT} $CENTREON_CONF/$FILE_CONF | ${GREP} "CENTREON_GROUP" | cut -d '=' -f2`;
 
 	RESULT=0
 	if [ "$INSTALL_DIR_CENTREON" != "" ] ; then
@@ -356,56 +359,47 @@ function install_module() {
 		exit 1
 	fi
 
-	${RM} -Rf $TEMP_D >> $LOG_FILE 2>> $LOG_FILE
-
 	echo ""
 	echo "$line"
 	echo -e "\tInstall $NAME binaries"
 	echo "$line"
 	TEMP_D="/tmp/Install_module"
+	
 	${MKDIR} -p $TEMP_D/bin >> $LOG_FILE 2>> $LOG_FILE
 	${MKDIR} -p $TEMP_D/etc >> $LOG_FILE 2>> $LOG_FILE
+	${MKDIR} -p $TEMP_D/init.d >> $LOG_FILE 2>> $LOG_FILE
 
 	${CP} -Rf bin/* $TEMP_D/bin >> $LOG_FILE 2>> $LOG_FILE
 	${CP} -Rf etc/* $TEMP_D/etc >> $LOG_FILE 2>> $LOG_FILE
+	${CP} -Rf etc/* $TEMP_D/init.d >> $LOG_FILE 2>> $LOG_FILE
 
-	${MKDIR} -p $CENTREON_VARLIB/centreon-dsm >> $LOG_FILE 2>> $LOG_FILE
-	if [ "$?" -eq 0 ] ; then
-		echo_success "Creating path for temporary files" "$ok"
-	else 
-		echo_failure "Creating path for temporary files" "$fail"
-		exit 1
-	fi
-	
+	################################################################
+	## DSMD client
+	#
 	RESULT=0
-	FILE="bin/snmpTrapDyn.pl"
+	FILE="bin/dsmclient.pl"
 	${SED} -i -e 's|@CENTREON_ETC@|'"$CENTREON_CONF"'|g' $TEMP_D/$FILE 2>> $LOG_FILE
 	if [ "$?" -eq 0 ] ; then
 		RESULT=`expr $RESULT + 1`
 	fi
-	FILE="etc/conf_dsm.pm"
-	${SED} -i -e 's|@CENTREON_LOG@|'"$CENTREON_LOG"'|g' $TEMP_D/$FILE 2>> $LOG_FILE
-	if [ "$?" -eq 0 ] ; then
-		RESULT=`expr $RESULT + 1`
-	fi
-	FILE="etc/conf_dsm.pm"
-	${SED} -i -e 's|@CENTREON_VARLIB@|'"$CENTREON_VARLIB"'|g' $TEMP_D/$FILE 2>> $LOG_FILE
-	if [ "$?" -eq 0 ] ; then
-		RESULT=`expr $RESULT + 1`
-	fi
-	FILE="etc/conf_dsm.pm"
-	${SED} -i -e 's|@NAGIOS_CMD@|'"$NAGIOS_VAR/rw"'|g' $TEMP_D/$FILE 2>> $LOG_FILE
+
+	################################################################
+	## DSMD daemon
+	#
+	RESULT=0
+	FILE="bin/dsmd.pl"
+	${SED} -i -e 's|@CENTREON_ETC@|'"$CENTREON_CONF"'|g' $TEMP_D/$FILE 2>> $LOG_FILE
 	if [ "$?" -eq 0 ] ; then
 		RESULT=`expr $RESULT + 1`
 	fi
 
-	if [ "$RESULT" -eq 4 ] ; then
+	if [ "$RESULT" -eq 2 ] ; then
 		echo_success "Changing macros" "$ok"
 	else 
 		echo_failure "Changing macros" "$fail"
 		exit 1
 	fi
-
+	
 	${CHMOD} -R 755 $TEMP_D/* >> $LOG_FILE 2>> $LOG_FILE
 	if [ "$?" -eq 0 ] ; then
 		echo_success "Setting right" "$ok"
@@ -422,12 +416,15 @@ function install_module() {
 		exit 1
 	fi
 
+	################################################################
+	## Install binaries
+	#
 	RESULT=0
-	${CP} -Rf --preserve $TEMP_D/bin/* $INSTALL_DIR_CENTREON/bin/. >> $LOG_FILE 2>> $LOG_FILE
+	${CP} -Rf --preserve $TEMP_D/bin/* $INSTALL_DIR_CENTREON/bin/ >> $LOG_FILE 2>> $LOG_FILE
 	if [ "$?" -eq 0 ] ; then
 		RESULT=`expr $RESULT + 1`
 	fi
-	${CP} -Rf --preserve $TEMP_D/etc/* $CENTREON_CONF/. >> $LOG_FILE 2>> $LOG_FILE
+	${CP} -Rf --preserve $TEMP_D/etc/* $CENTREON_CONF/ >> $LOG_FILE 2>> $LOG_FILE
 	if [ "$?" -eq 0 ] ; then
 		RESULT=`expr $RESULT + 1`
 	fi
@@ -441,173 +438,73 @@ function install_module() {
 
 	${RM} -Rf $TEMP_D >> $LOG_FILE 2>> $LOG_FILE
 
-	echo ""
-	echo "$line"
-	echo -e "\tInstall $NAME cron"
-	echo "$line"
-	TEMP_D="/tmp/Install_module"
-	${MKDIR} -p $TEMP_D/cron >> $LOG_FILE 2>> $LOG_FILE
-
-	${CP} -Rf cron/* $TEMP_D/cron >> $LOG_FILE 2>> $LOG_FILE
-
+	################################################################
+	## DSMD config file
+	#
 	RESULT=0
-	FILE="cron/enableTrap.pl"
-	${SED} -i -e 's|@CENTREON_ETC@|'"$CENTREON_CONF"'|g' $TEMP_D/$FILE 2>> $LOG_FILE
-	if [ "$?" -eq 0 ] ; then
-		RESULT=`expr $RESULT + 1`
-	fi
-	FILE="cron/purgeCacheTrap.pl"
-	${SED} -i -e 's|@CENTREON_ETC@|'"$CENTREON_CONF"'|g' $TEMP_D/$FILE 2>> $LOG_FILE
-	if [ "$?" -eq 0 ] ; then
-		RESULT=`expr $RESULT + 1`
-	fi
-	FILE="cron/enableTrap.pl"
-	${SED} -i -e 's|@CENTREON_VARLIB@|'"$CENTREON_VARLIB"'|g' $TEMP_D/$FILE 2>> $LOG_FILE
-	if [ "$?" -eq 0 ] ; then
-		RESULT=`expr $RESULT + 1`
-	fi
-	FILE="cron/purgeCacheTrap.pl"
-	${SED} -i -e 's|@CENTREON_VARLIB@|'"$CENTREON_VARLIB"'|g' $TEMP_D/$FILE 2>> $LOG_FILE
-	if [ "$?" -eq 0 ] ; then
-		RESULT=`expr $RESULT + 1`
-	fi
-	FILE="cron/purgeCacheTrap.pl"
+	FILE="etc/conf_dsm.pm"
 	${SED} -i -e 's|@CENTREON_LOG@|'"$CENTREON_LOG"'|g' $TEMP_D/$FILE 2>> $LOG_FILE
 	if [ "$?" -eq 0 ] ; then
 		RESULT=`expr $RESULT + 1`
 	fi
-	FILE="cron/enableTrap.pl"
-	${SED} -i -e 's|@NAGIOS_CMD@|'"$NAGIOS_VAR/rw"'|g' $TEMP_D/$FILE 2>> $LOG_FILE
-	if [ "$?" -eq 0 ] ; then
-		RESULT=`expr $RESULT + 1`
-	fi
-	FILE="cron/purgeCacheTrap.pl"
-	${SED} -i -e 's|@NAGIOS_CMD@|'"$NAGIOS_VAR/rw"'|g' $TEMP_D/$FILE 2>> $LOG_FILE
-	if [ "$?" -eq 0 ] ; then
-		RESULT=`expr $RESULT + 1`
-	fi
-
-	if [ "$RESULT" -eq 7 ] ; then
-		echo_success "Changing macros" "$ok"
-	else 
-		echo_failure "Changing macros" "$fail"
-		exit 1
-	fi
-
-	${CHMOD} -R 755 $TEMP_D/* >> $LOG_FILE 2>> $LOG_FILE
-	if [ "$?" -eq 0 ] ; then
-		echo_success "Setting right" "$ok"
-	else 
-		echo_failure "Setting right" "$fail"
-		exit 1
-	fi	
-
-	${CHOWN} -R $WEB_USER.$WEB_GROUP $TEMP_D/* >> $LOG_FILE 2>> $LOG_FILE
-	if [ "$?" -eq 0 ] ; then
-		echo_success "Setting owner/group" "$ok"
-	else 
-		echo_failure "Setting owner/group" "$fail"
-		exit 1
-	fi
-
-	${CP} -Rf --preserve $TEMP_D/cron/* $INSTALL_DIR_CENTREON/cron/. >> $LOG_FILE 2>> $LOG_FILE
-	if [ "$?" -eq 0 ] ; then
-		echo_success "Copying module" "$ok"
-	else 
-		echo_failure "Copying module" "$fail"
-		exit 1
-	fi
-
-	${RM} -Rf $TEMP_D >> $LOG_FILE 2>> $LOG_FILE
-
-	echo ""
-	echo "$line"
-	echo -e "\tInstall $NAME plugins"
-	echo "$line"
-	TEMP_D="/tmp/Install_module"
-	${MKDIR} -p $TEMP_D/plugins >> $LOG_FILE 2>> $LOG_FILE
-
-	${CP} -Rf plugins/* $TEMP_D/plugins >> $LOG_FILE 2>> $LOG_FILE
-
-	RESULT=0
-	FILE="plugins/check_slot_available.pl"
-	${SED} -i -e 's|@CENTREON_ETC@|'"$CENTREON_CONF"'|g' $TEMP_D/$FILE 2>> $LOG_FILE
-	if [ "$?" -eq 0 ] ; then
-		RESULT=`expr $RESULT + 1`
-	fi
-	FILE="plugins/check_slot_cache_size.pl"
-	${SED} -i -e 's|@CENTREON_ETC@|'"$CENTREON_CONF"'|g' $TEMP_D/$FILE 2>> $LOG_FILE
-	if [ "$?" -eq 0 ] ; then
-		RESULT=`expr $RESULT + 1`
-	fi
-	FILE="plugins/check_slot_cache_size.pl"
 	${SED} -i -e 's|@CENTREON_VARLIB@|'"$CENTREON_VARLIB"'|g' $TEMP_D/$FILE 2>> $LOG_FILE
 	if [ "$?" -eq 0 ] ; then
 		RESULT=`expr $RESULT + 1`
 	fi
 
-	if [ "$RESULT" -eq 3 ] ; then
-		echo_success "Changing macros" "$ok"
+	if [ "$RESULT" -eq 2 ] ; then
+		echo_success "Changing macros for dsm config file" "$ok"
 	else 
-		echo_failure "Changing macros" "$fail"
+		echo_failure "Changing macros for dsm config file" "$fail"
+		exit 1
+	fi
+	
+	################################################################
+	## DSMD init script
+	#
+	RESULT=0
+	FILE="libinstall/init.d.dsmd"
+	${SED} -i -e 's|@CENTREON_USER@|'"$CENTREON_USER"'|g' $TEMP_D/$FILE 2>> $LOG_FILE
+	if [ "$?" -eq 0 ] ; then
+		RESULT=`expr $RESULT + 1`
+	fi
+	${SED} -i -e 's|@CENTREON_BINDIR@|'"$CENTREON_BINDIR"'|g' $TEMP_D/$FILE 2>> $LOG_FILE
+	if [ "$?" -eq 0 ] ; then
+		RESULT=`expr $RESULT + 1`
+	fi
+
+	if [ "$RESULT" -eq 2 ] ; then
+		echo_success "Changing macros for init script" "$ok"
+	else 
+		echo_failure "Changing macros for init script" "$fail"
 		exit 1
 	fi
 
-	${CHMOD} -R 755 $TEMP_D/* >> $LOG_FILE 2>> $LOG_FILE
+	${CHMOD} -R 755 $TEMP_D/libinstall/init.d.dsmd >> $LOG_FILE 2>> $LOG_FILE
 	if [ "$?" -eq 0 ] ; then
-		echo_success "Setting right" "$ok"
+		echo_success "Set owner for init script" "$ok"
 	else 
-		echo_failure "Setting right" "$fail"
-		exit 1
-	fi	
-
-	${CHOWN} -R $NAGIOS_USER.$NAGIOS_GROUP $TEMP_D/* >> $LOG_FILE 2>> $LOG_FILE
-	if [ "$?" -eq 0 ] ; then
-		echo_success "Setting owner/group" "$ok"
-	else 
-		echo_failure "Setting owner/group" "$fail"
+		echo_failure "Set owner for init script" "$fail"
 		exit 1
 	fi
-
-	${CP} -Rf --preserve $TEMP_D/plugins/* $NAGIOS_PLUGIN/. >> $LOG_FILE 2>> $LOG_FILE
+	${CHOWN} $CENTREON_USER $TEMP_D/libinstall/init.d.dsmd >> $LOG_FILE 2>> $LOG_FILE
 	if [ "$?" -eq 0 ] ; then
-		echo_success "Copying module" "$ok"
+		echo_success "Set mod for init script" "$ok"
 	else 
-		echo_failure "Copying module" "$fail"
+		echo_failure "Set mod for init script" "$fail"
+		exit 1
+	fi
+	
+	${CP} -Rf --preserve $TEMP_D/libinstall/init.d.dsmd /etc/init.d/dsmd >> $LOG_FILE 2>> $LOG_FILE
+	if [ "$?" -eq 0 ] ; then
+		echo_success "Copying init script" "$ok"
+	else 
+		echo_failure "Copying init script" "$fail"
 		exit 1
 	fi
 
 	${RM} -Rf $TEMP_D >> $LOG_FILE 2>> $LOG_FILE
 	
-	echo ""
-	echo "$line"
-	echo -e "\tIntegrate $NAME cron"
-	echo "$line"
-
-	FILE="centreon-dsm.conf"
-	${SED} -i -e 's|@INSTALL_DIR_CENTREON@|'"$INSTALL_DIR_CENTREON"'|g' $FILE 2>> $LOG_FILE
-	if [ "$?" -eq 0 ] ; then
-		RESULT=`expr $RESULT + 1`
-	fi
-
-	${CP} -Rf centreon-dsm.conf /etc/cron.d/centreon-dsm >> $LOG_FILE 2>> $LOG_FILE
-
-	${CHMOD} -R 644 /etc/cron.d/centreon-dsm >> $LOG_FILE 2>> $LOG_FILE
-	if [ "$?" -eq 0 ] ; then
-		echo_success "Setting right" "$ok"
-	else 
-		echo_failure "Setting right" "$fail"
-		exit 1
-	fi	
-
-	${CHOWN} -R root:root /etc/cron.d/centreon-dsm >> $LOG_FILE 2>> $LOG_FILE
-	if [ "$?" -eq 0 ] ; then
-		echo_success "Setting owner/group" "$ok"
-	else 
-		echo_failure "Setting owner/group" "$fail"
-		exit 1
-	fi
-
 	echo ""
 	echo "$line"
 	echo -e "\tEnd of $NAME installation"
