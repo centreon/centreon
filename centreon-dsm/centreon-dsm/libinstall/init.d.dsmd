@@ -3,7 +3,7 @@
 # crond          Start/Stop the dsmd daemon.
 #
 # chkconfig: 2345 70 30
-# description: dsmd is the centreon-dsm daemin
+# description: dsmd is the centreon-dsm daemon
 # processname: dsmd
 # config: /etc/centreon
 # pidfile: ${RunDir}/dsmd.pid
