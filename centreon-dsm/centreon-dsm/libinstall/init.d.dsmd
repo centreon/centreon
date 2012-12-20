@@ -11,7 +11,7 @@
 # Source function library.
 . /etc/init.d/functions
   
-binary=@CENTREON_BINDIR@/bin/dsmd.pl
+binary=@CENTREON_BINDIR@/dsmd.pl
 servicename=$(basename "$0")
 user=@CENTREON_USER@
 timeout=60
