@@ -782,9 +782,9 @@ sub updateMacro($$$$$$) {
 
     my  $CMDFile;
     if ($localhost eq 1) {
-        $CMDFile = getNagiosConfigurationField($id, "command_file");
+        $CMDFile = getNagiosConfigurationField($poller, "command_file");
         if (!defined($CMDFile) && $CMDFile eq "") {
-        	writeLogFile("Can't find external command file for poller $id", "EE");
+        	writeLogFile("Can't find external command file for poller $poller", "EE");
         	writeLogFile(" -> Drop command: $externalCMD", "EE");
         	return;
         }
