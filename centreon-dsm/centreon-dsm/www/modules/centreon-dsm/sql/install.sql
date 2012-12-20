@@ -86,3 +86,37 @@ ALTER TABLE `mod_dsm_pool`
 
 INSERT INTO `topology` (`topology_id`, `topology_name`, `topology_icone`, `topology_parent`, `topology_page`, `topology_order`, `topology_group`, `topology_url`, `topology_url_opt`, `topology_popup`, `topology_modules`, `topology_show`, `topology_style_class`, `topology_style_id`, `topology_OnClick`) VALUES (NULL, 'Dynamic Services', NULL, 507, NULL, 0, 11, NULL, NULL, '0', '0', '1', NULL, NULL, NULL);
 INSERT INTO `topology` (`topology_id`, `topology_name`, `topology_icone`, `topology_parent`, `topology_page`, `topology_order`, `topology_group`, `topology_url`, `topology_url_opt`, `topology_popup`, `topology_modules`, `topology_show`, `topology_style_class`, `topology_style_id`, `topology_OnClick`) VALUES (NULL, 'Configure', './img/icones/16x16/centreon.gif', 507, 50711, 10, 11, './modules/centreon-dsm/core/configuration/services/slots.php', NULL, '0', '0', '1', NULL, NULL, NULL);
+
+--
+-- Structure de la table `mod_dsm_cache`
+--
+
+CREATE TABLE IF NOT EXISTS @DB_CENTSTORAGE@.`mod_dsm_cache` (
+  `cache_id` int(11) NOT NULL AUTO_INCREMENT,
+  `entry_time` int(11) DEFAULT NULL,
+  `host_name` varchar(255) DEFAULT NULL,
+  `ctime` int(11) DEFAULT NULL,
+  `status` smallint(6) DEFAULT NULL,
+  `macros` text,
+  `id` varchar(255) DEFAULT NULL,
+  `output` text,
+  `finished` int(11) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`cache_id`),
+  KEY `host_name` (`host_name`,`entry_time`,`ctime`)
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1;
+
+
+--
+-- Structure de la table `mod_dsm_locks`
+--
+
+CREATE TABLE IF NOT EXISTS @DB_CENTSTORAGE@.`mod_dsm_locks` (
+  `lock_id` int(11) NOT NULL AUTO_INCREMENT,
+  `host_name` varchar(255) DEFAULT NULL,
+  `service_description` varchar(255) DEFAULT NULL,
+  `id` varchar(255) DEFAULT NULL,
+  `ctime` int(11) DEFAULT NULL,
+  PRIMARY KEY (`lock_id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1;
+
+
