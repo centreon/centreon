@@ -153,7 +153,6 @@ sub processAlarm() {
 
     my $slot_service;
     my @fullHostList = getHostList();
-
     my $y = 0;
     foreach my $t (@cacheList) {
 
@@ -753,7 +752,12 @@ sub sendExternalCommad($$) {
     my $CMDFile;
     my $externalCMD;
     if ($localhost eq 1) {
-        $CMDFile = "/var/log/nagios/rw/nagios.cmd";
+        $CMDFile = getNagiosConfigurationField($id, "command_file");
+		if (!defined($CMDFile) && $CMDFile eq "") {
+        	writeLogFile("Can't find external command file for poller $id", "EE");
+        	writeLogFile(" -> Drop command: $externalCMD", "EE");
+        	return;
+        }
         $externalCMD = $command;
     } else {
         $CMDFile = $CECORECMD;
@@ -778,7 +782,12 @@ sub updateMacro($$$$$$) {
 
     my  $CMDFile;
     if ($localhost eq 1) {
-        $CMDFile = "/var/log/nagios/rw/nagios.cmd";
+        $CMDFile = getNagiosConfigurationField($id, "command_file");
+        if (!defined($CMDFile) && $CMDFile eq "") {
+        	writeLogFile("Can't find external command file for poller $id", "EE");
+        	writeLogFile(" -> Drop command: $externalCMD", "EE");
+        	return;
+        }
     } else {
         $CMDFile = $CECORECMD;
         $externalCMD = "EXTERNALCMD:".$poller.":".$externalCMD;
@@ -788,6 +797,16 @@ sub updateMacro($$$$$$) {
 	if (system("echo '$externalCMD' >> $CMDFile")) {
 	    writeLogFile("Cannot Write external command for centcore", 'II');
 	}
+}
+
+sub getNagiosConfigurationField($$){
+    my $sth2 = $dbh->prepare("SELECT ".$_[1]." FROM `cfg_nagios` WHERE `nagios_server_id` = '".$_[0]."' AND nagios_activate = '1'");
+    if (!$sth2->execute()) {
+        writeLogFile("Error when getting server properties : ".$sth2->errstr);
+    }
+    my $data = $sth2->fetchrow_hashref();
+    $sth2->finish();
+    return $data->{$_[1]};
 }
 
 ##################################################
