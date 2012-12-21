@@ -3,7 +3,6 @@ $EXCLUDESTR = "";
 
 $LOG = "@CENTREON_LOG@/centreon-dsm.log";
 
-$NAGIOSCMD = "@NAGIOS_CMD@/nagios.cmd";
 $CECORECMD = "@CENTREON_VARLIB@/centcore.cmd";
 
 $MAXDATAAGE = 15;
