@@ -711,9 +711,9 @@ sub send_command {
     writeLock($host_name, $service, $id);
     
     if ($FORCEFREE && $status == 0) {
-        $externalCMD = "[".time()."] SCHEDULE_FORCED_SVC_CHECK;$host_name;$service;".(time() + 2);
+        $externalCMD = "[".time()."] PROCESS_SERVICE_CHECK_RESULT;$host_name;$service;0;Free slot";
         sendExternalCommad($data_poller->{'id'}, $externalCMD, $data_poller->{'localhost'});
-        writeLogFile("Force free the following slot: $host_name;$service", "DD");
+        writeLogFile("Force to free the following slot: $host_name;$service", "DD");
     }
 
     my @tab = split(/\|/, $macros);
