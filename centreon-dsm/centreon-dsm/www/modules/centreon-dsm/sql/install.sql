@@ -102,7 +102,8 @@ CREATE TABLE IF NOT EXISTS @DB_CENTSTORAGE@.`mod_dsm_cache` (
   `output` text,
   `finished` int(11) NOT NULL DEFAULT '0',
   PRIMARY KEY (`cache_id`),
-  KEY `host_name` (`host_name`,`entry_time`,`ctime`)
+  KEY `host_name` (`host_name`,`entry_time`,`ctime`,`finished`),
+  KEY `finished` (`finished`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=latin1;
 
 
@@ -118,5 +119,4 @@ CREATE TABLE IF NOT EXISTS @DB_CENTSTORAGE@.`mod_dsm_locks` (
   `ctime` int(11) DEFAULT NULL,
   PRIMARY KEY (`lock_id`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=latin1;
-
 
