@@ -547,7 +547,8 @@ sub getPoolPrefix($) {
         writeLogFile($DBI::errstr, "EE");
     }
     if ($sth2->execute()){
-        $prefix = $sth2->fetchrow_hashref()->{'pool_prefix'};
+        my $tmp = $sth2->fetchrow_hashref();
+        $prefix = $tmp->{'pool_prefix'};
     } else {
         writeLogFile("Can get DSM informations $!", "EE");
         exit(1);
