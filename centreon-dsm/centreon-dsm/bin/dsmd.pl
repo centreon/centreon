@@ -157,50 +157,52 @@ sub processAlarm() {
     foreach my $t (@cacheList) {
 
         $pool_prefix = getPoolPrefix($hostList[$y]);
-        $hostname = getRealHostName($hostList[$y]);
+        $hostname = getRealHostName($hostList[$y], $y);
         
-        if ($idList[$y] eq 'nil' || $idList[$y] eq '') {
-            #writeLogFile("I can't found an ID", "DD");
-            
-            writeLogFile("Processing[$y]: ".$hostList[$y] . "|".$outputList[$y]."|".$statusList[$y]."|", "DD");
-
-            $slot_service = getFreeSlotWithoutID($hostList[$y]);
-            
-            if (!send_command($hostList[$y], $slot_service, $statusList[$y], $timeList[$y], $outputList[$y], $macroList[$y], $idList[$y], $dbh)) {
-                removeAlarmInCache($cacheList[$y]);
-            }
-        } else {
-            #writeLogFile("I can found an ID", "DD");
-
-            writeLogFile("Processing[$y]: ".$hostList[$y] . "|".$outputList[$y]."|".$idList[$y]."|".$statusList[$y]."|", "DD");
-            
-            $slot_service = get_slot($hostname, $idList[$y], $dbh, $dbh2);
-
-            my $lockState = checkLockState($hostList[$y], $idList[$y]);
-           
-            if ($statusList[$y] ne 0) {
-                #writeLogFile("Status Non OK", "DD");                
-                if ($slot_service eq "nil") {
-                    if (defined($macroCache{$hostList[$y].";".$idList[$y]})) {
-                        $slot_service = $macroCache{$hostList[$y].";".$idList[$y]};
-                    } else {
-                        $slot_service = getFreeSlotWithID($hostList[$y]);
-                    }
-                }
-                #writeLogFile(" * HOST: $hostname - SLOT: ".$slot_service . " -> ID: ".$idList[$y]);
-                if ($lockState) {
-                    if (!send_command($hostList[$y], $slot_service, $statusList[$y], $timeList[$y], $outputList[$y], $macroList[$y], $idList[$y], $dbh)) {
-                        removeAlarmInCache($cacheList[$y]);
-                    }
-                }
-            } else {
-                if ($statusList[$y] eq 0 && $idList[$y] ne "nil" && $FORCEFREE && $lockState) {
-                    if (!send_command($hostList[$y], $slot_service, $statusList[$y], $timeList[$y], $outputList[$y], $macroList[$y], $idList[$y], $dbh)) {
-                        removeAlarmInCache($cacheList[$y]);
-                    }
-                } 
-            }
-        }
+        if ($hostname ne '-1' && $pool_prefix ne -1) {
+	        if ($idList[$y] eq 'nil' || $idList[$y] eq '') {
+	            #writeLogFile("I can't found an ID", "DD");
+	            
+	            writeLogFile("Processing[$y]: ".$hostList[$y] . "|".$outputList[$y]."|".$statusList[$y]."|", "DD");
+	
+	            $slot_service = getFreeSlotWithoutID($hostList[$y]);
+	            
+	            if (!send_command($hostList[$y], $slot_service, $statusList[$y], $timeList[$y], $outputList[$y], $macroList[$y], $idList[$y], $dbh)) {
+	                removeAlarmInCache($cacheList[$y]);
+	            }
+	        } else {
+	            #writeLogFile("I can found an ID", "DD");
+	
+	            writeLogFile("Processing[$y]: ".$hostList[$y] . "|".$outputList[$y]."|".$idList[$y]."|".$statusList[$y]."|", "DD");
+	            
+	            $slot_service = get_slot($hostname, $idList[$y], $dbh, $dbh2);
+	
+	            my $lockState = checkLockState($hostList[$y], $idList[$y]);
+	           
+	            if ($statusList[$y] ne 0) {
+	                #writeLogFile("Status Non OK", "DD");                
+	                if ($slot_service eq "nil") {
+	                    if (defined($macroCache{$hostList[$y].";".$idList[$y]})) {
+	                        $slot_service = $macroCache{$hostList[$y].";".$idList[$y]};
+	                    } else {
+	                        $slot_service = getFreeSlotWithID($hostList[$y]);
+	                    }
+	                }
+	                #writeLogFile(" * HOST: $hostname - SLOT: ".$slot_service . " -> ID: ".$idList[$y]);
+	                if ($lockState) {
+	                    if (!send_command($hostList[$y], $slot_service, $statusList[$y], $timeList[$y], $outputList[$y], $macroList[$y], $idList[$y], $dbh)) {
+	                        removeAlarmInCache($cacheList[$y]);
+	                    }
+	                }
+	            } else {
+	                if ($statusList[$y] eq 0 && $idList[$y] ne "nil" && $FORCEFREE && $lockState) {
+	                    if (!send_command($hostList[$y], $slot_service, $statusList[$y], $timeList[$y], $outputList[$y], $macroList[$y], $idList[$y], $dbh)) {
+	                        removeAlarmInCache($cacheList[$y]);
+	                    }
+	                } 
+	            }
+	        }
+		}
         $y++;
     }
 
@@ -255,7 +257,7 @@ sub checkCackeList() {
     }   
 }
 
-sub removeAlarm() {
+sub removeAlarm($) {
     my ($y) = @_;
 
     # Free information
@@ -483,7 +485,7 @@ sub ndoDBConnect() {
     my $dbhTmp;
     while (!defined($dbhTmp) || !$dbhTmp->ping()) {
         if (!defined($dbhTmp) || !$dbhTmp->ping()) {
-            $dbhTmp = DBI->connect("dbi:mysql:".$ndo_conf->{'db_name'}.";host=".$ndo_conf->{'db_host'}, $ndo_conf->{'db_user'}, $ndo_conf->{'db_pass'}) 
+            $dbhTmp = DBI->connect("dbi:mysql:".$ndo_conf->{'db_name'}.";host=".$ndo_conf->{'db_host'}.":".$ndo_conf->{'db_port'}, $ndo_conf->{'db_user'}, $ndo_conf->{'db_pass'}) 
                 or MyDie("NDO DB Connection Error: $mysql_database_oreon => $DBI::errstr \n");
             if (!defined($dbhTmp)) {
                 writeLogFile("Error when connecting to database : " . $DBI::errstr . "\n");
@@ -491,7 +493,7 @@ sub ndoDBConnect() {
             }
         } else {
             sleep(2);    
-            $dbhTmp = DBI->connect("dbi:mysql:".$ndo_conf->{'db_name'}.";host=".$ndo_conf->{'db_host'}, $ndo_conf->{'db_user'}, $ndo_conf->{'db_pass'}) 
+            $dbhTmp = DBI->connect("dbi:mysql:".$ndo_conf->{'db_name'}.";host=".$ndo_conf->{'db_host'}.":".$ndo_conf->{'db_port'}, $ndo_conf->{'db_user'}, $ndo_conf->{'db_pass'}) 
                 or MyDie("NDO DB Connection Error: $mysql_database_oreon => $DBI::errstr \n");
         }
         if ($run == 0) {
@@ -517,8 +519,8 @@ sub ndoInfo() {
 ########################################
 ## Get host/address
 #
-sub getRealHostName($) {
-    my ($host_name) = @_; 
+sub getRealHostName($$) {
+    my ($host_name, $y) = @_; 
 
     my $sth2 = $dbh->prepare("SELECT host_name FROM host WHERE (host_address LIKE '" . $host_name . "' OR host_name LIKE '" . $host_name . "')");
     if (!defined($sth2)) {
@@ -526,11 +528,14 @@ sub getRealHostName($) {
     } else {
         if ($sth2->execute()){
             my $hostDataTemp = $sth2->fetchrow_hashref();
-            #writeLogFile("Real hostname = " . $hostDataTemp->{'host_name'}, "DD");
+            writeLogFile("Real hostname = " . $hostDataTemp->{'host_name'}, "DD");
             return($hostDataTemp->{'host_name'});
         } else {
-            writeLogFile("Can get hosts Informations (name or address) $!", "EE");
-            exit(1);
+            writeLogFile("Can get hosts Informations (name or address) $!", "II");
+            writeLogFile("Remove entry from database (Cache_id: ".$cacheList[$y].")", "II");
+            cancelAlarmInCache($cacheList[$y]);
+            removeAlarm($y);
+            return(-1);
         }
     }
 }
@@ -549,9 +554,10 @@ sub getPoolPrefix($) {
     if ($sth2->execute()){
         my $tmp = $sth2->fetchrow_hashref();
         $prefix = $tmp->{'pool_prefix'};
+        unset($tmp);
     } else {
-        writeLogFile("Can get DSM informations $!", "EE");
-        exit(1);
+        writeLogFile("Can get DSM informations $! (function 'getPoolPrefix'). Host may not have slots configured.", "EE");
+        return(-1);
     }
     undef($sth2);
     return($prefix);
@@ -738,12 +744,6 @@ sub send_command {
     return 0;
 }
 
-sub getPollerExternalCmd($) {
-    my ($poller_id) = @_;
-    
-    return ;
-}
-
 ##########################################################
 ## Send external command to Centcore
 #
@@ -864,6 +864,17 @@ sub removeAlarmInCache($) {
     my $request = "UPDATE mod_dsm_cache SET `finished` = '1' WHERE cache_id = '".$cache_id."'";
     $dbhS->do($request);
 }
+
+##################################################
+## Remove Alarms in Cache table
+#
+sub cancelAlarmInCache($) {
+    my ($cache_id) = @_;
+
+    my $request = "UPDATE mod_dsm_cache SET `finished` = '2' WHERE cache_id = '".$cache_id."'";
+    $dbhS->do($request);
+}
+
 
 ###################################################
 ## Purge old Lock files
