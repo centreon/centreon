@@ -43,3 +43,5 @@ MACRO_ID_NAME	The name of macro in the service for storage the unique ID
  Optionnal :
 pattern_output	A array of pattern for custom output by action
 action_list	A array of custom action (In development)
+
+DEPRECATED
