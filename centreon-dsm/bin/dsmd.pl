@@ -88,7 +88,7 @@ MySQLConnect();
 MySQLConnectStorage();
 
 #############################################
-# Define DBTyper
+# Define DBType
 $DBType = getDBType($dbh);
 
 ############################################
@@ -109,6 +109,23 @@ my $lastPurge = 0;
 # Event Loop
 while ($run) {
     my $now = time();
+
+    #############################################
+    # Connect to Centreon Database
+    MySQLConnect();
+    MySQLConnectStorage();
+
+    #############################################
+    # Define DBType
+    $DBType = getDBType($dbh);
+
+    ############################################
+    ## Connect to RT Database
+    if ($DBType == 0) {
+        $dbh2 = ndoDBConnect();
+    } else {
+        $dbh2 = storageDBConnect();
+    }
 
     if ($now gt ($lastCheck + 5)) {
         ####################################
@@ -167,7 +184,7 @@ sub processAlarm() {
 	
 	            $slot_service = getFreeSlotWithoutID($hostList[$y]);
 	            
-	            if (!send_command($hostList[$y], $slot_service, $statusList[$y], $timeList[$y], $outputList[$y], $macroList[$y], $idList[$y], $dbh)) {
+	            if (!send_command($hostList[$y], $slot_service, $statusList[$y], $timeList[$y], $outputList[$y], $macroList[$y], $idList[$y], $dbh, $y)) {
 	                removeAlarmInCache($cacheList[$y]);
 	            }
 	        } else {
@@ -190,13 +207,13 @@ sub processAlarm() {
 	                }
 	                #writeLogFile(" * HOST: $hostname - SLOT: ".$slot_service . " -> ID: ".$idList[$y]);
 	                if ($lockState) {
-	                    if (!send_command($hostList[$y], $slot_service, $statusList[$y], $timeList[$y], $outputList[$y], $macroList[$y], $idList[$y], $dbh)) {
+	                    if (!send_command($hostList[$y], $slot_service, $statusList[$y], $timeList[$y], $outputList[$y], $macroList[$y], $idList[$y], $dbh, $y)) {
 	                        removeAlarmInCache($cacheList[$y]);
 	                    }
 	                }
 	            } else {
 	                if ($statusList[$y] eq 0 && $idList[$y] ne "nil" && $FORCEFREE && $lockState) {
-	                    if (!send_command($hostList[$y], $slot_service, $statusList[$y], $timeList[$y], $outputList[$y], $macroList[$y], $idList[$y], $dbh)) {
+	                    if (!send_command($hostList[$y], $slot_service, $statusList[$y], $timeList[$y], $outputList[$y], $macroList[$y], $idList[$y], $dbh, $y)) {
 	                        removeAlarmInCache($cacheList[$y]);
 	                    }
 	                } 
@@ -205,7 +222,6 @@ sub processAlarm() {
 		}
         $y++;
     }
-
 }
 
 sub getHostList() {
@@ -417,7 +433,7 @@ sub MySQLConnect() {
         if (!defined($dbh) || !$dbh->ping()) {
             $dbh = DBI->connect("DBI:mysql:database=".$mysql_database_oreon.";host=".$mysql_host, $mysql_user, $mysql_passwd, {'RaiseError' => 0, 'PrintError' => 0, 'AutoCommit' => 1});
             if (!defined($dbh)) {
-                writeLogFile("Error when connecting to database : " . $DBI::errstr . "\n");
+                writeLogFile("Error when connecting to database $mysql_database_oreon : " . $DBI::errstr . "\n");
                 sleep(2);
             }
         } else {
@@ -439,7 +455,7 @@ sub MySQLConnectStorage() {
         if (!defined($dbhS) || !$dbhS->ping()) {
             $dbhS = DBI->connect("DBI:mysql:database=".$mysql_database_ods.";host=".$mysql_host, $mysql_user, $mysql_passwd, {'RaiseError' => 0, 'PrintError' => 0, 'AutoCommit' => 1});
             if (!defined($dbhS)) {
-                writeLogFile("Error when connecting to database : " . $DBI::errstr . "\n");
+                writeLogFile("Error when connecting to database $mysql_database_ods {} : " . $DBI::errstr . "\n");
                 sleep(2);
             }
         } else {
@@ -461,7 +477,7 @@ sub storageDBConnect() {
         if (!defined($dbhTmp) || !$dbhTmp->ping()) {
             $dbhTmp = DBI->connect("DBI:mysql:database=".$mysql_database_ods.";host=".$mysql_host, $mysql_user, $mysql_passwd, {'RaiseError' => 0, 'PrintError' => 0, 'AutoCommit' => 1});
             if (!defined($dbhTmp)) {
-                writeLogFile("Error when connecting to database : " . $DBI::errstr . "\n");
+                writeLogFile("Error when connecting to database $mysql_database_ods : " . $DBI::errstr . "\n");
                 sleep(2);
             }
         } else {
@@ -480,21 +496,22 @@ sub storageDBConnect() {
 #    Get into cfg_ndo2db table for getting 
 #    NDO connect info.
 sub ndoDBConnect() {
-    my $ndo_conf = ndoInfo();
+    my $ndo_conf; 
 
     my $dbhTmp;
     while (!defined($dbhTmp) || !$dbhTmp->ping()) {
         if (!defined($dbhTmp) || !$dbhTmp->ping()) {
-            $dbhTmp = DBI->connect("dbi:mysql:".$ndo_conf->{'db_name'}.";host=".$ndo_conf->{'db_host'}.":".$ndo_conf->{'db_port'}, $ndo_conf->{'db_user'}, $ndo_conf->{'db_pass'}) 
-                or MyDie("NDO DB Connection Error: $mysql_database_oreon => $DBI::errstr \n");
+            MySQLConnect();
+            $ndo_conf = ndoInfo();
+            
+            $dbhTmp = DBI->connect("dbi:mysql:".$ndo_conf->{'db_name'}.";host=".$ndo_conf->{'db_host'}.":".$ndo_conf->{'db_port'}, $ndo_conf->{'db_user'}, $ndo_conf->{'db_pass'}); 
             if (!defined($dbhTmp)) {
-                writeLogFile("Error when connecting to database : " . $DBI::errstr . "\n");
+                writeLogFile("Error when connecting to database ".$ndo_conf->{'db_name'}." : " . $DBI::errstr . "\n");
                 sleep(2);
             }
         } else {
             sleep(2);    
-            $dbhTmp = DBI->connect("dbi:mysql:".$ndo_conf->{'db_name'}.";host=".$ndo_conf->{'db_host'}.":".$ndo_conf->{'db_port'}, $ndo_conf->{'db_user'}, $ndo_conf->{'db_pass'}) 
-                or MyDie("NDO DB Connection Error: $mysql_database_oreon => $DBI::errstr \n");
+            $dbhTmp = DBI->connect("dbi:mysql:".$ndo_conf->{'db_name'}.";host=".$ndo_conf->{'db_host'}.":".$ndo_conf->{'db_port'}, $ndo_conf->{'db_user'}, $ndo_conf->{'db_pass'});
         }
         if ($run == 0) {
             return;
@@ -554,7 +571,7 @@ sub getPoolPrefix($) {
     if ($sth2->execute()){
         my $tmp = $sth2->fetchrow_hashref();
         $prefix = $tmp->{'pool_prefix'};
-        unset($tmp);
+        undef($tmp);
     } else {
         writeLogFile("Can get DSM informations $! (function 'getPoolPrefix'). Host may not have slots configured.", "EE");
         return(-1);
@@ -607,10 +624,10 @@ sub getDBType($) {
         if ($sth->execute()) {
             my $row = $sth->fetchrow_hashref();
             if (defined $row && $row->{'value'} eq 'broker') {
-                writeLogFile("Broker mode: Centreon Broker", "DD");
+                #writeLogFile("Broker mode: Centreon Broker", "DD");
                 return 1;
             } else {
-                writeLogFile("Broker mode: NDO", "DD");
+                #writeLogFile("Broker mode: NDO", "DD");
                 return 0;
             }
         }
@@ -648,11 +665,11 @@ sub get_slot($$$$) {
     my $sth2 = $dbh2->prepare($query_get);
     if (!defined($sth2)) {
         writeLogFile($DBI::errstr, "EE");
-        exit(1);
+        return('nil');
     } else {
         if (!$sth2->execute()){
             writeLogFile("Error when getting perfdata file : " . $sth2->errstr . "", "EE");
-            exit(1);
+            return('nil');
         }
         @list_services;
         while (my $row = $sth2->fetchrow_hashref()) {
@@ -672,11 +689,11 @@ sub get_slot($$$$) {
         my $sth2 = $dbh->prepare($query_check);
         if (!defined($sth2)) {
             writeLogFile($DBI::errstr, "EE");
-            exit(1);
+            return(0);
         }
         if (!$sth2->execute()) {
             writeLogFile("Error when getting perfdata file : " . $sth2->errstr . "", "EE");
-            exit(1);
+            return(0);
         }
         if (my $row = $sth2->fetchrow_hashref()) {
             $service_id = $row->{"service_description"};
@@ -689,14 +706,32 @@ sub get_slot($$$$) {
 #############################################
 # send a command to the poller
 sub send_command {
-    my ($host_name, $service, $status, $timeRequest, $output, $macros, $id, $dbh) = @_;
+    my ($host_name, $service, $status, $timeRequest, $output, $macros, $id, $dbh, $bufferIndex) = @_;
 
     my $oldID = $id;
+
+#    if ($status eq 0 && $id ne "nil") {
+#        my $request = "SELECT * FROM mod_dsm_cache WHERE id = '$id' AND finished = '0' AND host_name = '$host_name' AND status <> '0'";
+#        writeLogFile($request);
+#	my $sth2 = $dbh2->prepare($request);
+#        if (!defined($sth2)) {
+#            writeLogFile($DBI::errstr, "EE");
+#        }
+#        if ($sth2->execute()) {
+#            if ($sth2->rows eq 0) {
+#                writeLogFile("Can't find another element with the same ID. I remove this entry (".$sth2->rows.")");
+#                forceCancelAlarmInCache($cacheList[$bufferIndex]);
+#            } else {
+#                writeLogFile("There are another element(".$sth2->rows.")... I wait...");
+#            }
+#        }
+#    }
 
     if ($service eq 'nil') {
         writeLogFile("Can't find free service. This alarm will be processed next time.", "DD");
         return -1;
     }
+
 
     my $host_id = getHostID($host_name, $dbh);
     my $data_poller = getHostPoller($host_id, $dbh);
@@ -875,6 +910,16 @@ sub cancelAlarmInCache($) {
     $dbhS->do($request);
 }
 
+##################################################
+## Remove Alarms in Cache table because it's 
+## impossible to redirect
+#
+sub forceCancelAlarmInCache($) {
+    my ($cache_id) = @_;
+
+    my $request = "UPDATE mod_dsm_cache SET `finished` = '3' WHERE cache_id = '".$cache_id."'";
+    $dbhS->do($request);
+}
 
 ###################################################
 ## Purge old Lock files
