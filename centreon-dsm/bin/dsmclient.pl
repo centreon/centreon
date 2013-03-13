@@ -98,7 +98,7 @@ if ($longopt) {
 #############################################
 #############################################
 
-########################################
+#############################################
 ## Get host/address
 #
 sub getRealHostName($) {
@@ -176,6 +176,30 @@ sub MyDie($) {
     exit(1);
 }
 
+############################################
+## Check if an alarm with a status 0 can be
+# managed. If there are no trace of an open 
+# alarm with the same id, you cannot take in 
+# account the alarm.
+#
+sub checkClosedAlarm($$$$) {
+    my ($host_name, $id, $status, $entry_time) = @_;
+    
+    if ($status ne 0) {
+        return 1;
+    } else {
+	my $request = "SELECT * FROM mod_dsm_cache WHERE host_name LIKE '$host_name' AND ctime < '$entry_time' AND id = '$id'";
+	my $res = $dbh2->prepare($request);
+	if (!$res->execute()) {
+	    writeLogFile("Error: " . $res->errstr . "\n");
+	}
+	if ($res->rows != 0) {
+	    return 1;
+	}
+	return 0;
+    }
+}
+
 ###############################################
 ###############################################
 
@@ -199,15 +223,17 @@ MySQLConnectStorage();
 my $host_name = getRealHostName($hostname);
 
 if ($id ne 'nil') {   
-    if (defined($host_name) && $host_name ne "") {
+    if (defined($host_name) && $host_name ne "" && checkClosedAlarm($host_name, $id, $status, $entry_time)) {
         my $request = "INSERT INTO mod_dsm_cache (cache_id, entry_time, host_name, ctime, status, macros, id, output, finished) ";
         $request .= " VALUES (NULL, '".time()."', '".$host_name."', '".$timeRequest."', '".$status."', '".$macros."', '".$id."', '".$output."', '0')";
         $dbh2->do($request);
         
         writeLogFile("Insert Alarm for host '".$host_name."' at '".$timeRequest."' with id '".$id."' and output '".$output."'.");
+    } else {
+	writeLogFile("Cannot take in account the alarme on host '$host_name', status '$status' and id '$id'... An open alarm can't be found.", "II");
     }
 } else {
-    if (defined($host_name) && $host_name ne "") {
+    if (defined($host_name) && $host_name ne "" && $status ne 0) {
         my $request = "INSERT INTO mod_dsm_cache (cache_id, entry_time, host_name, ctime, status, macros, id, output, finished) ";
         $request .= " VALUES (NULL, '".time()."', '".$host_name."', '".$timeRequest."', '".$status."', NULL, NULL, '".$output."', '0')";
         $dbh2->do($request);
