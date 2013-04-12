@@ -223,7 +223,7 @@ MySQLConnectStorage();
 my $host_name = getRealHostName($hostname);
 
 if ($id ne 'nil') {   
-    if (defined($host_name) && $host_name ne "" && checkClosedAlarm($host_name, $id, $status, $entry_time)) {
+    if (defined($host_name) && $host_name ne "" && checkClosedAlarm($host_name, $id, $status, $timeRequest)) {
         my $request = "INSERT INTO mod_dsm_cache (cache_id, entry_time, host_name, ctime, status, macros, id, output, finished) ";
         $request .= " VALUES (NULL, '".time()."', '".$host_name."', '".$timeRequest."', '".$status."', '".$macros."', '".$id."', '".$output."', '0')";
         $dbh2->do($request);
