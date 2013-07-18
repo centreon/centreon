@@ -39,7 +39,7 @@
 	if (!isset($oreon))
 		exit();
 
-	ini_set("display_errors", "On");
+	ini_set("display_errors", "Off");
 
 	$pool = array();
 	if (($o == "c" || $o == "w") && $slot_id)	{
