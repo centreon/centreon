@@ -99,6 +99,21 @@ if ($longopt) {
 #############################################
 
 #############################################
+## Help function
+#
+sub help() {
+    print "Usage:\n";
+    print $0.": -H -i -t -s -o [-m] [-h]\n\n";
+    print "Options: \n";
+    print "   -H (--Host):    the host name or ip address of the host on which you want to redirect the trap\n";
+    print "   -i (--id):      the id of the alarm\n";
+    print "   -s (--status):  the status that the slot will take. Use \@STATUS\@ in order to get the configured status of trap\n";
+    print "   -t (--time):    the trap reception time \n";
+    print "   -o (--output):  the output displayed into the slot\n";
+    print "   -m (--macro):   the macro that you want to update (cf documentation)\n";
+    print "   -h (--help):    this option...\n\n";
+}
+#############################################
 ## Get host/address
 #
 sub getRealHostName($) {
