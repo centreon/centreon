@@ -5,7 +5,7 @@ $LOG = "@CENTREON_LOG@/centreon-dsm.log";
 
 $CECORECMD = "@CENTREON_VARLIB@/centcore.cmd";
 
-$MAXDATAAGE = 15;
+$MAXDATAAGE = 5;
 
 # Force recovery if the service is ok 
 $FORCEFREE = 1;
