@@ -102,6 +102,17 @@ b ellow in order to understand the role of al l parameters.
 |Status                        |The status of the slot.       |
 +------------------------------+------------------------------+
 
+You can find in the following picture, an example of form.
+
+.. image:: /_static/use/form-slot.png
+   :align: center
+
+An example of passif service template is available below:
+ 
+.. image:: /_static/use/form-passif-service.png
+   :align: center
+
+
 When you validate the form, Centreon will create of update all slot. If you don't 
 have changed any value, you don't have to do nother action. Else you have to go to 
 Configuration > Monitoring Engine in order to generate configuration of the poller 
