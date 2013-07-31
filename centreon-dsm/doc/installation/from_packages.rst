@@ -22,7 +22,21 @@ installed on the main server.
 
 Run the commands::
 
-  $ yum install centreon-dsm-server centreon-dsm-client
+  $ yum install centreon-dsm
+
+
+The meta package centreon-dsm will install centreon-dsm-client and centreon-dsm-server.
+
+After installing the rpm, you have to finich the module installation via the web
+frontend. Go on Administration > Modules and install the Centreon-DSM module.
+
+.. image:: /_static/installation/module_setup.png
+   :align: center
+
+Your Centreon DSM Module is now installed.
+
+.. image:: /_static/installation/module_setup_finished.png
+   :align: center
 
 
 Install a poller
@@ -33,6 +47,9 @@ This part is to install dsm on a poller. Only client will be installed
 Run the commands::
 
   $ yum install centreon-dsm-client
+
+You have now to configure MySQL access in order that your poller is enable to connect
+to central server with the centreon user to the centreon et centreon_storage database.
 
 
 Base configuration of pollers
