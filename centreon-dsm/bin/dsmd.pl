@@ -1,6 +1,6 @@
 #! /usr/bin/perl
 ################################################################################
-# Copyright 2005-2011 MERETHIS
+# Copyright 2005-2013 MERETHIS
 # Centreon is developped by : Julien Mathis and Romain Le Merlus under
 # GPL Licence 2.0.
 # 
@@ -31,9 +31,6 @@
 # 
 # For more information : contact@centreon.com
 # 
-# SVN : $URL
-# SVN : $Id
-#
 ####################################################################################
 
 use strict;
@@ -127,7 +124,7 @@ while ($run) {
         $dbh2 = storageDBConnect();
     }
 
-    if ($now gt ($lastCheck + 5)) {
+    if ($now gt ($lastCheck + 2)) {
         ####################################
         # Check Alarms
         writeLogFile("Check alarm cache", "DD");
@@ -135,7 +132,6 @@ while ($run) {
         #############################################
         ## Purge old lock in database
         purgeLockFiles();
-
         checkCackeList();
         processAlarm();
         
@@ -167,7 +163,6 @@ sub catchStopSignal {
 ##
 #
 sub processAlarm() {
-
     my $slot_service;
     my @fullHostList = getHostList();
     my $y = 0;
@@ -175,29 +170,19 @@ sub processAlarm() {
 
         $pool_prefix = getPoolPrefix($hostList[$y]);
         $hostname = getRealHostName($hostList[$y], $y);
-        
+
         if ($hostname ne '-1' && $pool_prefix ne -1) {
 	        if ($idList[$y] eq 'nil' || $idList[$y] eq '') {
-	            #writeLogFile("I can't found an ID", "DD");
-	            
-	            writeLogFile("Processing[$y]: ".$hostList[$y] . "|".$outputList[$y]."|".$statusList[$y]."|", "DD");
-	
+	            writeLogFile("1 - Processing[$y]: ".$hostList[$y] . "|".$outputList[$y]."|".$statusList[$y]."|", "DD");
 	            $slot_service = getFreeSlotWithoutID($hostList[$y]);
-	            
 	            if (!send_command($hostList[$y], $slot_service, $statusList[$y], $timeList[$y], $outputList[$y], $macroList[$y], $idList[$y], $dbh, $y)) {
 	                removeAlarmInCache($cacheList[$y]);
 	            }
 	        } else {
-	            #writeLogFile("I can found an ID", "DD");
-	
-	            writeLogFile("Processing[$y]: ".$hostList[$y] . "|".$outputList[$y]."|".$idList[$y]."|".$statusList[$y]."|", "DD");
-	            
+	            writeLogFile("2 - Processing[$y]: ".$hostList[$y] . "|".$outputList[$y]."|".$idList[$y]."|".$statusList[$y]."|", "DD");
 	            $slot_service = get_slot($hostname, $idList[$y], $dbh, $dbh2);
-	
 	            my $lockState = checkLockState($hostList[$y], $idList[$y]);
-	           
 	            if ($statusList[$y] ne 0) {
-	                #writeLogFile("Status Non OK", "DD");                
 	                if ($slot_service eq "nil") {
 	                    if (defined($macroCache{$hostList[$y].";".$idList[$y]})) {
 	                        $slot_service = $macroCache{$hostList[$y].";".$idList[$y]};
@@ -205,7 +190,6 @@ sub processAlarm() {
 	                        $slot_service = getFreeSlotWithID($hostList[$y]);
 	                    }
 	                }
-	                #writeLogFile(" * HOST: $hostname - SLOT: ".$slot_service . " -> ID: ".$idList[$y]);
 	                if ($lockState) {
 	                    if (!send_command($hostList[$y], $slot_service, $statusList[$y], $timeList[$y], $outputList[$y], $macroList[$y], $idList[$y], $dbh, $y)) {
 	                        removeAlarmInCache($cacheList[$y]);
@@ -224,6 +208,7 @@ sub processAlarm() {
     }
 }
 
+# Get host list 
 sub getHostList() {
     my @tmpList;
     my $request = "SELECT pool_host_id, host_name FROM mod_dsm_pool p, host h WHERE p.pool_host_id = h.host_id AND h.host_activate = '1' AND h.host_register = '1' AND p.pool_activate = '1'";
@@ -239,7 +224,7 @@ sub getHostList() {
     return @tmpList;
 }
 
-
+# Free all information in cache
 sub freeCacheInfo(){
     undef(@hostList);
     undef(@cacheList);
@@ -250,6 +235,7 @@ sub freeCacheInfo(){
     undef(@outputList);
 }
 
+# read cache in db
 sub checkCackeList() {
     my $t = 0;
 
@@ -273,6 +259,7 @@ sub checkCackeList() {
     }   
 }
 
+# Remove into cach an alarm
 sub removeAlarm($) {
     my ($y) = @_;
 
@@ -284,10 +271,6 @@ sub removeAlarm($) {
     undef($statusList[$y]);
     undef($macroList[$y]);
 }
-
-############################################################
-## Declare functions
-############################################################
 
 ###################################################
 ## Get a host_id from a name
@@ -338,11 +321,11 @@ sub trim {
 }
 
 #############################################
-## Clean macro content fo all ok service 
+## Clean macro content for all ok service 
 #
 sub cleanEmptyMacros($$) {
     my ($dbh, $dbh2) = @_;
-    
+
     my $sth = $dbhS->prepare("SELECT * from mod_dsm_locks");
     if (!defined($sth)) {
         writeLogFile($DBI::errstr, "EE");
@@ -360,8 +343,8 @@ sub cleanEmptyMacros($$) {
         writeLogFile($DBI::errstr, "EE");
     }
     if ($sth2->execute()) {
+        my $request;
         while (my $data = $sth2->fetchrow_hashref()) {
-            my $request;
             if ($DBType == 1) {
                 $request = "SELECT h.name AS hostname, s.description, cv.name AS macro, cv.value FROM services s, customvariables cv, hosts h WHERE s.host_id = h.host_id AND s.host_id = '".$data->{'pool_host_id'}."' AND cv.host_id = s.host_id and s.service_id = cv.service_id AND s.description LIKE '".$data->{'pool_prefix'}."%' AND s.state IN('0', '4') AND cv.value <> 'empty' AND cv.name = '$MACRO_ID_NAME'";
             } else {
@@ -421,6 +404,7 @@ sub buildMacroCache($$) {
 #
 sub MyDie($) {
     my ($error) = @_;
+
     writeLogFile($error, 'EE');
     exit(1);
 }
@@ -624,10 +608,8 @@ sub getDBType($) {
         if ($sth->execute()) {
             my $row = $sth->fetchrow_hashref();
             if (defined $row && $row->{'value'} eq 'broker') {
-                #writeLogFile("Broker mode: Centreon Broker", "DD");
                 return 1;
             } else {
-                #writeLogFile("Broker mode: NDO", "DD");
                 return 0;
             }
         }
@@ -828,7 +810,7 @@ sub updateMacro($$$$$$) {
         $CMDFile = $CECORECMD;
         $externalCMD = "EXTERNALCMD:".$poller.":".$externalCMD;
     }    
-
+    
 	writeLogFile("Send external command : $externalCMD ($CMDFile)");
 	if (system("echo '$externalCMD' >> $CMDFile")) {
 	    writeLogFile("Cannot Write external command for centcore", 'II');
@@ -928,8 +910,6 @@ sub purgeLockFiles() {
     my ($dev,$ino,$mode,$nlink,$uid,$gid,$rdev,$size,$atime,$mtime,$ctime,$blksize,$blocks) = lstat($_);
     my $delta = time() - $mtime;
 
-    $MAXDATAAGE = 30;
-    
     my $request = "DELETE FROM mod_dsm_locks WHERE ctime < '".(time()-$MAXDATAAGE)."'";    
     my $sth2 = $dbhS->do($request);
     if (!defined($sth2)) {
