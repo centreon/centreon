@@ -17,7 +17,7 @@ Contents:
 
    release_notes/index
    installation/index
-   use/index
+   user/index
 
 Indices and tables
 ==================
