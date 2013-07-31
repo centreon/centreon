@@ -112,6 +112,8 @@ An example of passif service template is available below:
 .. image:: /_static/use/form-passif-service.png
    :align: center
 
+WARNING: The macro ALARM_ID is mandatory. The default empty is also necessary.
+
 
 When you validate the form, Centreon will create of update all slot. If you don't 
 have changed any value, you don't have to do nother action. Else you have to go to 
