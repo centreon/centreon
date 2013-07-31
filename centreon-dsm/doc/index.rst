@@ -17,9 +17,7 @@ Contents:
 
    release_notes/index
    installation/index
-   upgrade/index
-   exploitation/index
-   faq/index
+   use/index
 
 Indices and tables
 ==================
