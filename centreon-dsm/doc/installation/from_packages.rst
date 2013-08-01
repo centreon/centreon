@@ -30,12 +30,12 @@ The meta package centreon-dsm will install centreon-dsm-client and centreon-dsm-
 After installing the rpm, you have to finich the module installation via the web
 frontend. Go on Administration > Modules and install the Centreon-DSM module.
 
-.. image:: /_static/installation/module_setup.png
+.. image:: /_static/installation/module-setup.png
    :align: center
 
 Your Centreon DSM Module is now installed.
 
-.. image:: /_static/installation/module_setup_finished.png
+.. image:: /_static/installation/module-setup-finished.png
    :align: center
 
 
