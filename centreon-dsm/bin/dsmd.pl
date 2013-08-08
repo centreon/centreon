@@ -943,7 +943,7 @@ sub getFreeSlotWithoutID($) {
     } else {
         $request = "SELECT no.name1 AS host_name, no.name2 AS service_description ".
             "FROM ".$ndo_conf->{'db_prefix'}."servicestatus nss , ".$ndo_conf->{'db_prefix'}."objects no, ".$ndo_conf->{'db_prefix'}."services ns ".
-            "WHERE no.object_id = nss.service_object_id AND no.name1 like '" . $host_name . "' AND no.object_id = ns.service_object_id".
+            "WHERE no.object_id = nss.service_object_id AND no.name1 like '" . $host_name . "' AND no.object_id = ns.service_object_id ".
             "AND nss.current_state = 0 AND no.name2 LIKE '" . $pool_prefix . "%' ORDER BY service_description";
     }
     my $sth2 = $dbh2->prepare($request);
@@ -1000,7 +1000,7 @@ sub getFreeSlotWithID($$) {
     } else {
         $request = "SELECT no.name1 AS host_name, no.name2 AS service_description ".
             "FROM ".$ndo_conf->{'db_prefix'}."servicestatus nss , ".$ndo_conf->{'db_prefix'}."objects no, ".$ndo_conf->{'db_prefix'}."services ns ".
-            "WHERE no.object_id = nss.service_object_id AND no.name1 like '" . $host_name . "' AND no.object_id = ns.service_object_id".
+            "WHERE no.object_id = nss.service_object_id AND no.name1 like '" . $host_name . "' AND no.object_id = ns.service_object_id ".
             "AND nss.current_state = 0 AND no.name2 LIKE '" . $pool_prefix . "%' ORDER BY service_description";
     }
     my $sth2 = $dbh2->prepare($request);
