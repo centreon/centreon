@@ -1,28 +1,33 @@
 .. _install_from_packages:
 
-==============
-Using packages
-==============
+===============
+From 1.x to 2.x
+===============
+
+*****************
+From RPM packages
+*****************
 
 Merethis provides RPM for its products through Centreon Entreprise
 Server (CES). Open source products are freely available from our
 repository.
 
-These packages have been successfully tested with CentOS 5 and RedHat 5.
+****************
+Centreon upgrade
+****************
 
-*********************
-Centreon installation
-*********************
-
-Install a central server
+Upgrade a central server
 ------------------------
 
-This part is to install a central server. DSM server and client will be 
-installed on the main server.
+This part is to upgrade a central server. DSM server and client will be 
+installed on the main server. The version 1.x of DSM doesn't contain a
+server and a client. Client embedded tha whole intelligence and the 
+server is a cron task. That's why this version is a major version. Many
+changes have been done.
 
-Run the commands::
+To upgrade run the following command::
 
-  $ yum install centreon-dsm
+  $ yum upgrade centreon-dsm
 
 
 The meta package centreon-dsm will install centreon-dsm-client and centreon-dsm-server.
@@ -38,6 +43,17 @@ Your Centreon DSM Module is now installed.
 .. image:: /_static/installation/module-setup-finished.png
    :align: center
 
+In order to migrate the trap configuration, you have to change all specific commands 
+configured on your specific traps. On each specific commands rename the following path : 
+
+  /usr/share/centreon/bin/snmpTrapDyn.pl 
+
+by 
+
+  /usr/share/centreon/bin/dsmclient.pl
+
+All parameters are the same. You have nothing to change concerning parameters.
+
 
 Install a poller
 ----------------
@@ -46,10 +62,20 @@ This part is to install dsm on a poller. Only client will be installed
 
 Run the commands::
 
+  $ yum erase centreon-dsm
   $ yum install centreon-dsm-client
 
 You have now to configure MySQL access in order that your poller is enable to connect
 to central server with the centreon user to the centreon et centreon_storage database.
+
+In order to do that, connect you on MySQL with root user and lanuch the following 
+request :
+
+  $ GRANT SELECT ON `centreon`.`*` TO 'centreon'@'POLLER_IP';
+  $ GRANT SELECT, INSERT, UPDATE ON `centreon_storage`.`*` TO 'centreon'@'POLLER_IP';
+
+Now, from your poller, try to connect with MySQL client. If you have problem to configure
+MySQL connection, please refer to the database documentation : http://dev.mysql.com/doc/refman/5.5/en/grant.html
 
 
 Base configuration of pollers
