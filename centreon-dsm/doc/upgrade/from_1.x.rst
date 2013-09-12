@@ -19,21 +19,26 @@ Centreon upgrade
 Upgrade a central server
 ------------------------
 
-This part is to upgrade a central server. DSM server and client will be 
-installed on the main server. The version 1.x of DSM doesn't contain a
-server and a client. Client embedded tha whole intelligence and the 
-server is a cron task. That's why this version is a major version. Many
-changes have been done.
+This part is a how to upgrade a Centreon DSM for a central server. 
+
+Centreon DSM server and client will be installed on the main server. 
+The version 1.x of DSM doesn't contain a server and a client : the 
+client embed the intelligence and the server is just a cron task. 
+This organisation was a problem due of load problems. That's why 
+we completely change this module. That's why this version is a major 
+version.
 
 To upgrade run the following command::
 
   $ yum upgrade centreon-dsm
 
 
-The meta package centreon-dsm will install centreon-dsm-client and centreon-dsm-server.
+The meta package centreon-dsm will install centreon-dsm-client and 
+centreon-dsm-server.
 
-After installing the rpm, you have to finish the module installation via the web
-frontend. Go on Administration > Modules and install the Centreon-DSM module.
+After installing the rpm, you have to finish the module installation 
+via the web frontend. Go on Administration > Modules and install the 
+Centreon-DSM module.
 
 .. image:: /_static/installation/module-setup.png
    :align: center
@@ -43,8 +48,9 @@ Your Centreon DSM Module is now installed.
 .. image:: /_static/installation/module-setup-finished.png
    :align: center
 
-In order to migrate the trap configuration, you have to change all specific commands 
-configured on your specific traps. On each specific commands rename the following path : 
+In order to migrate the trap configuration, you have to change all 
+specific commands configured on your specific traps. On each specific 
+commands rename the following path : 
 
   /usr/share/centreon/bin/snmpTrapDyn.pl 
 
@@ -58,9 +64,10 @@ All parameters are the same. You have nothing to change concerning parameters.
 Install a poller
 ----------------
 
-This part is to install dsm on a poller. Only client will be installed
+This part is an howto install Centreon DSM on a poller. Only client will be 
+installed on a poller.
 
-Run the commands::
+To install centreon DSM, run the following commands::
 
   $ yum erase centreon-dsm
   $ yum install centreon-dsm-client
