@@ -223,8 +223,7 @@ you want to redirect to slots. You can call this service trap-link. This service
 can stay disable in order to not show it in the monitoring page. 
 
 
-Test your platforme
--------------------
+
 
 
 
