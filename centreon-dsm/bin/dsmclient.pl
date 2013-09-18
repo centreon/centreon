@@ -240,18 +240,20 @@ my $host_name = getRealHostName($hostname);
 if ($id ne 'nil') {   
     if (defined($host_name) && $host_name ne "" && checkClosedAlarm($host_name, $id, $status, $timeRequest)) {
         my $request = "INSERT INTO mod_dsm_cache (cache_id, entry_time, host_name, ctime, status, macros, id, output, finished) ";
-        $request .= " VALUES (NULL, '".time()."', '".$host_name."', '".$timeRequest."', '".$status."', '".$macros."', '".$id."', '".$output."', '0')";
-        $dbh2->do($request);
+        $request .= " VALUES (NULL, ?, ?, ?, ?, ?, ?, ?, '0')";
+        $sth = $dbh->prepare($request);
+        $sth->execute(time(), $host_name, $timeRequest, $status, $macros, $id, $output);
         
         writeLogFile("Insert Alarm for host '".$host_name."' at '".$timeRequest."' with id '".$id."' and output '".$output."'.");
     } else {
-	writeLogFile("Cannot take in account the alarme on host '$host_name', status '$status' and id '$id'... An open alarm can't be found.", "II");
+        writeLogFile("Cannot take in account the alarme on host '$host_name', status '$status' and id '$id'... An open alarm can't be found.", "II");
     }
 } else {
     if (defined($host_name) && $host_name ne "" && $status ne 0) {
         my $request = "INSERT INTO mod_dsm_cache (cache_id, entry_time, host_name, ctime, status, macros, id, output, finished) ";
-        $request .= " VALUES (NULL, '".time()."', '".$host_name."', '".$timeRequest."', '".$status."', NULL, NULL, '".$output."', '0')";
-        $dbh2->do($request);
+        $request .= " VALUES (NULL, ?, ?, ?, ?, NULL, NULL, ?, '0')";
+        $sth = $dbh->prepare($request);
+        $sth->execute(time(), $host_name, $timeRequest, $status, $output);
         
         writeLogFile("Insert Alarm for host '".$host_name."' at '".$timeRequest."' with output '".$output."'.");
     }
