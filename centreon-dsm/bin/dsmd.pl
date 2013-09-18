@@ -635,21 +635,21 @@ sub get_slot($$$$) {
             "hosts.host_id = customvariables.host_id AND ".
             "services.service_id = customvariables.service_id AND ".
             "(hosts.name = '$host' OR hosts.address = '$host') AND ".
-            "customvariables.name = '" . $MACRO_ID_NAME . "' AND ".
-            "value = '" . $id . "' LIMIT 1";
+            "customvariables.name = ? AND ".
+            "value = ? LIMIT 1";
     } else {
         $query_get = "SELECT varvalue " .
             "FROM " . $ndo_conf->{'db_prefix'} . "customvariablestatus " .
             "WHERE varname = 'SERVICE_ID' AND object_id = (SELECT object_id " .
             "FROM " . $ndo_conf->{'db_prefix'} . "customvariablestatus " .
-            "WHERE varname = '" . $MACRO_ID_NAME . "' AND varvalue = '" . $id . "' LIMIT 1)";
+            "WHERE varname = ? AND varvalue = ? LIMIT 1)";
     }
     my $sth2 = $dbh2->prepare($query_get);
     if (!defined($sth2)) {
         writeLogFile($DBI::errstr, "EE");
         return('nil');
     } else {
-        if (!$sth2->execute()){
+        if (!$sth2->execute($MACRO_ID_NAME, $id)){
             writeLogFile("Error when getting perfdata file : " . $sth2->errstr . "", "EE");
             return('nil');
         }
@@ -665,15 +665,15 @@ sub get_slot($$$$) {
         my $query_check = "SELECT s.service_description " .
             "FROM host_service_relation as hsr, host as h, service as s " .
             "WHERE hsr.host_host_id = h.host_id ".
-            " AND (h.host_name = '" . $host . "' OR h.host_address = '" . $host . "') ". 
+            " AND (h.host_name = ? OR h.host_address = ?) ". 
             " AND h.host_register = '1' AND hsr.service_service_id = s.service_id " .
-            " AND hsr.service_service_id IN (" . join(",", @list_services) . ")";
+            " AND hsr.service_service_id IN (?)";
         my $sth2 = $dbh->prepare($query_check);
         if (!defined($sth2)) {
             writeLogFile($DBI::errstr, "EE");
             return(0);
         }
-        if (!$sth2->execute()) {
+        if (!$sth2->execute($host, $host, join(",", @list_services))) {
             writeLogFile("Error when getting perfdata file : " . $sth2->errstr . "", "EE");
             return(0);
         }
@@ -833,12 +833,12 @@ sub getNagiosConfigurationField($$){
 sub checkLockState($$) {
     my ($host_name, $id) = @_;
     
-    my $request = "SELECT host_name, service_description, id FROM mod_dsm_locks WHERE host_name = '$host_name' AND id = '$id'";
+    my $request = "SELECT host_name, service_description, id FROM mod_dsm_locks WHERE host_name = ? AND id = ?";
     my $sth = $dbhS->prepare($request);
     if (!defined($sth)) {
         writeLogFile($DBI::errstr, "EE");
     } else {
-        if ($sth->execute()) {
+        if ($sth->execute($host_name, $id)) {
             my $row = $sth->fetchrow_hashref();
             if (defined($row) && $row->{'id'} eq $id) {
                 return 0;
@@ -925,12 +925,12 @@ sub getFreeSlotWithoutID($) {
     my ($host_name) = @_;
     
     my %lockCache2;
-    my $request = "SELECT host_name, service_description FROM mod_dsm_locks WHERE host_name = '$host_name'";
+    my $request = "SELECT host_name, service_description FROM mod_dsm_locks WHERE host_name = ?";
     my $sth = $dbhS->prepare($request);
     if (!defined($sth)) {
         writeLogFile($DBI::errstr, "EE");
     } else {
-        if ($sth->execute()) {
+        if ($sth->execute($host_name)) {
             while (my $row = $sth->fetchrow_hashref()) {
                 $lockCache2{$row->{'host_name'}.";".$row->{'service_description'}} = 1;
             }
@@ -939,15 +939,15 @@ sub getFreeSlotWithoutID($) {
 
     my $request = "";
     if ($DBType == 1) {
-        $request = "SELECT hosts.name AS host_name, services.description AS service_description FROM hosts, services WHERE hosts.host_id = services.host_id AND hosts.name LIKE '" . $host_name . "' AND services.state IN ('0', '4') AND description LIKE '" . $pool_prefix . "%' AND services.enabled = 1 ORDER BY services.description";
+        $request = "SELECT hosts.name AS host_name, services.description AS service_description FROM hosts, services WHERE hosts.host_id = services.host_id AND hosts.name LIKE ? AND services.state IN ('0', '4') AND description LIKE ? AND services.enabled = 1 ORDER BY services.description";
     } else {
         $request = "SELECT no.name1 AS host_name, no.name2 AS service_description ".
             "FROM ".$ndo_conf->{'db_prefix'}."servicestatus nss , ".$ndo_conf->{'db_prefix'}."objects no, ".$ndo_conf->{'db_prefix'}."services ns ".
-            "WHERE no.object_id = nss.service_object_id AND no.name1 like '" . $host_name . "' AND no.object_id = ns.service_object_id ".
-            "AND nss.current_state = 0 AND no.name2 LIKE '" . $pool_prefix . "%' ORDER BY service_description";
+            "WHERE no.object_id = nss.service_object_id AND no.name1 LIKE ? AND no.object_id = ns.service_object_id ".
+            "AND nss.current_state = 0 AND no.name2 LIKE ? ORDER BY service_description";
     }
     my $sth2 = $dbh2->prepare($request);
-    if (!$sth2->execute()){
+    if (!$sth2->execute($host_name, $pool_prefix."%")){
         writeLogFile("Error when getting info : " . $sth2->errstr . "", "EE");
     }
     while (my $row = $sth2->fetchrow_hashref()) {
@@ -965,12 +965,12 @@ sub getFreeSlotWithID($$) {
     my ($host_name, $id) = @_;
 
     my %lockCache;
-    my $request = "SELECT host_name, service_description, id FROM mod_dsm_locks WHERE host_name = '$host_name' AND id = '$id'";
+    my $request = "SELECT host_name, service_description, id FROM mod_dsm_locks WHERE host_name = ? AND id = ?";
     my $sth = $dbhS->prepare($request);
     if (!defined($sth)) {
         writeLogFile($DBI::errstr, "EE");
     } else {
-        if ($sth->execute()) {
+        if ($sth->execute($host_name, $id)) {
             while (my $row = $sth->fetchrow_hashref()) {
                 $lockCache{$row->{'host_name'}.";".$row->{'id'}} = $row->{'service_description'};
             }
@@ -978,12 +978,12 @@ sub getFreeSlotWithID($$) {
     }
 
     my %lockCache2;
-    $request = "SELECT host_name, service_description, id FROM mod_dsm_locks WHERE host_name = '$host_name'";
+    $request = "SELECT host_name, service_description, id FROM mod_dsm_locks WHERE host_name = ?";
     my $sth = $dbhS->prepare($request);
     if (!defined($sth)) {
         writeLogFile($DBI::errstr, "EE");
     } else {
-        if ($sth->execute()) {
+        if ($sth->execute($host_name)) {
             while (my $row = $sth->fetchrow_hashref()) {
                 $lockCache2{$row->{'host_name'}.";".$row->{'service_description'}} = 1;
             }
@@ -996,15 +996,15 @@ sub getFreeSlotWithID($$) {
 
     my $request = "";
     if ($DBType == 1) {
-        $request = "SELECT hosts.name AS host_name, services.description AS service_description FROM hosts, services WHERE hosts.host_id = services.host_id AND hosts.name LIKE '" . $host_name . "' AND services.state IN ('0', '4') AND description LIKE '" . $pool_prefix . "%' AND services.enabled = 1 ORDER BY services.description";
+        $request = "SELECT hosts.name AS host_name, services.description AS service_description FROM hosts, services WHERE hosts.host_id = services.host_id AND hosts.name LIKE ? AND services.state IN ('0', '4') AND description LIKE ? AND services.enabled = 1 ORDER BY services.description";
     } else {
         $request = "SELECT no.name1 AS host_name, no.name2 AS service_description ".
             "FROM ".$ndo_conf->{'db_prefix'}."servicestatus nss , ".$ndo_conf->{'db_prefix'}."objects no, ".$ndo_conf->{'db_prefix'}."services ns ".
-            "WHERE no.object_id = nss.service_object_id AND no.name1 like '" . $host_name . "' AND no.object_id = ns.service_object_id ".
-            "AND nss.current_state = 0 AND no.name2 LIKE '" . $pool_prefix . "%' ORDER BY service_description";
+            "WHERE no.object_id = nss.service_object_id AND no.name1 like ? AND no.object_id = ns.service_object_id ".
+            "AND nss.current_state = 0 AND no.name2 LIKE ? ORDER BY service_description";
     }
     my $sth2 = $dbh2->prepare($request);
-    if (!$sth2->execute()){
+    if (!$sth2->execute($host_name, $pool_prefix."%")){
         writeLogFile("Error when getting info : " . $sth2->errstr . "", "EE");
     }
     while (my $row = $sth2->fetchrow_hashref()) {
