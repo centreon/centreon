@@ -1,0 +1,22 @@
+<configs>
+        <title>Servicegroup Monitoring</title>
+        <author>Merethis</author>
+        <email>contact@merethis.com</email>
+        <website>http://www.merethis.com</website>
+        <description>Widget for displaying servicegroup monitoring information</description>
+        <version>1.1.0</version>
+        <keywords>centreon, widget, servicegroup, service, monitoring</keywords>
+        <screenshot></screenshot>
+        <thumbnail>./widgets/servicegroup-monitoring/resources/centreon-logo.png</thumbnail>
+        <url>./widgets/servicegroup-monitoring/index.php</url>
+        <autoRefresh>10</autoRefresh>
+        <preferences>
+            <preference label="Servicegroup Name Search" name="sg_name_search" defaultValue="" type="compare" header="Filters"/>
+            <preference label="Enable Detailed Mode" name="enable_detailed_mode" defaultValue="0" type="boolean"/>
+            <preference label="Results" name="entries" defaultValue="10" type="range" min="10" max="100" step="10"/>			
+            <preference label="Order By" name="order_by" defaultValue="" type="sort">
+                <option value="name" label="Hostgroup Name"/>	
+            </preference>			
+            <preference label="Refresh Interval (seconds)" name="refresh_interval" defaultValue="30" type="text" header="Misc"/>
+        </preferences>        
+</configs>
