@@ -1,0 +1,53 @@
+<configs>
+        <title>Host Monitoring</title>
+        <author>Merethis</author>
+        <email>contact@merethis.com</email>
+        <website>http://www.merethis.com</website>
+        <description>Widget for displaying host monitoring information</description>
+        <version>1.1.2</version>
+        <keywords>centreon, widget, host, monitoring</keywords>
+        <screenshot></screenshot>
+        <thumbnail>./widgets/host-monitoring/resources/centreon-logo.png</thumbnail>
+        <url>./widgets/host-monitoring/index.php</url>
+        <autoRefresh>10</autoRefresh>
+        <preferences>
+			<preference label="Host Name Search" name="host_name_search" defaultValue="" type="compare" header="Filters"/>
+			<preference label="Display Up" name="host_up" defaultValue="1" type="boolean"/>
+			<preference label="Display Down" name="host_down" defaultValue="1" type="boolean"/>
+			<preference label="Display Unreachable" name="host_unreachable" defaultValue="1" type="boolean"/>
+			<preference label="Acknowledgement Filter" name="acknowledgement_filter" type="list">
+				<option value="ack" label="Acknowledged"/>
+				<option value="nack" label="Not Acknowleged"/>
+			</preference>
+			<preference label="Downtime Filter" name="downtime_filter" type="list">
+				<option value="downtime" label="In downtime"/>
+				<option value="ndowntime" label="Not in downtime"/>
+			</preference>
+			<preference label="State Type" name="state_type_filter" type="list">
+				<option value="hardonly" label="Hard Only"/>
+				<option value="softonly" label="Soft Only"/>
+			</preference>
+			<preference label="Hostgroup" name="hostgroup" defaultValue="" type="hostgroup"/>
+			<preference label="Results" name="entries" defaultValue="50" type="range" min="10" max="100" step="10"/>
+			<preference label="Display Host Name" name="display_host_name" defaultValue="1" type="boolean" header="Columns"/>
+			<preference label="Display Output" name="display_output" defaultValue="1" type="boolean"/>
+                        <preference label="Output Length" name="output_length" defaultValue="50" type="range" min="50" max="500" step="50"/>
+			<preference label="Display Status" name="display_status" defaultValue="1" type="boolean"/>
+			<preference label="Display IP" name="display_ip" defaultValue="1" type="boolean"/>
+			<preference label="Display Last Check" name="display_last_check" defaultValue="1" type="boolean"/>
+			<preference label="Display Duration" name="display_duration" defaultValue="1" type="boolean"/>
+			<preference label="Display Hard State Duration" name="display_hard_state_duration" defaultValue="1" type="boolean"/>
+			<preference label="Display Tries" name="display_tries" defaultValue="1" type="boolean"/>
+			<preference label="Order By" name="order_by" defaultValue="" type="sort">
+            	<option value="name" label="Host Name"/>
+            	<option value="address" label="Address"/>
+            	<option value="state" label="Status"/>
+            	<option value="output" label="Output"/>
+            	<option value="check_attempt" label="Check attempt"/>
+            	<option value="last_check" label="Last Check"/>
+            	<option value="last_state_change" label="Duration"/>
+            	<option value="last_hard_state_change" label="Hard State Duration"/>
+			</preference>
+			<preference label="Refresh Interval (seconds)" name="refresh_interval" defaultValue="30" type="text" header="Misc"/>
+        </preferences>
+</configs>

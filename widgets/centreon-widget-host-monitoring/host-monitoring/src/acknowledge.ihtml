@@ -1,0 +1,40 @@
+<link href="../../../Themes/Centreon-2/style.css" rel="stylesheet" type="text/css"/>
+<link href="../../../Themes/Centreon-2/jquery-ui/jquery-ui.css" rel="stylesheet" type="text/css"/>
+<form id='Form'>
+	<div align=center>
+		 <table id="ListTable" style="width: 100%;">
+		 	<tr>
+		 		<th colspan="2">{$titleLabel}</th>
+		 	</tr>
+			<tr>
+	            <td>{$stickyLabel}</td>
+	            <td><input type='checkbox' name='sticky'/></td>
+	        </tr>
+			<tr>
+				<td>{$notifyLabel}</td>
+				<td><input type='checkbox' name='notify'/></td>
+			</tr>
+			<tr>
+				<td>{$persistentLabel}</td>
+				<td><input type='checkbox' name='persistent'/></td>
+			</tr>
+			<tr>
+				<td>{$authorLabel}</td>
+				<td><input type='text' value='{$author}' disabled /><input name='author' type='hidden' value='{$author}'/></td>
+			</tr>
+			<tr>
+				<td>{$commentLabel}<span style='color: red;'>*</span></td>
+				<td><textarea id='comment' name='comment' cols='30' rows='3'></textarea></td>
+			</tr>
+			<tr>
+	            <td>{$ackHostSvcLabel}</td>
+	            <td><input type='checkbox' name='processServices'/></td>
+	        </tr>			
+		</table>
+		<div id="validForm">
+			<input type='hidden' name='hosts' value='{$hosts}' />
+			<input type='hidden' name='cmdType' value='ack' />
+			<input type='button' id='submit' value='{$submitLabel}'/>
+		</div>
+	</div>
+</form>
