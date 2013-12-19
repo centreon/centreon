@@ -1,0 +1,59 @@
+<link href="../../../Themes/Centreon-2/style.css" rel="stylesheet" type="text/css"/>
+<link href="../../../Themes/Centreon-2/jquery-ui/jquery-ui.css" rel="stylesheet" type="text/css"/>
+<form id='Form'>
+	<div align=center>
+		 <table id="ListTable" style="width: 100%;">
+		 	<tr>
+		 		<th colspan="2">{$titleLabel}</th>
+		 	</tr>
+			<tr>
+	            <td>{$startLabel}<span style='color: red;'>*</span></td>
+	            <td>
+	            	<input type='text' id='downtimestart' name='start' value='{$defaultStart}' size='8' />
+	            	<input type='text' name='hourstart' value='{$defaultHourStart}' size='2' maxlength='2' />:
+	            	<input type='text' name='minutestart' value='{$defaultMinuteStart}' size='2' maxlength='2' />
+	            </td>
+	        </tr>
+			<tr>
+				<td>{$endLabel}<span style='color: red;'>*</span></td>
+				<td>
+					<input type='text' id='downtimeend' name='end' value='{$defaultEnd}' size='8' />
+					<input type='text' name='hourend' value='{$defaultHourEnd}' size='2' maxlength='2' />:
+	            	<input type='text' name='minuteend' value='{$defaultMinuteEnd}' size='2' maxlength='2' />
+				</td>
+			</tr>
+			<tr>
+				<td>{$durationLabel}</td>
+				<td>
+					<input type='text' name='dayduration' size='2' value='0' />&nbsp;{$daysLabel}
+					<input type='text' name='hourduration' value='{$defaultDuration}' size='2' />&nbsp;{$hoursLabel}
+					<input type='text' name='minuteduration' size='2' value='0' />&nbsp;{$minutesLabel}
+				</td>
+			</tr>
+			<tr>
+	            <td>{$fixedLabel}</td>
+	            <td><input type='checkbox' name='fixed'/></td>
+	        </tr>
+			<tr>
+				<td>{$authorLabel}</td>
+				<td><input type='text' value='{$author}' disabled /><input name='author' type='hidden' value='{$author}'/></td>
+			</tr>
+			<tr>
+				<td>{$commentLabel}<span style='color: red;'>*</span></td>
+				<td><textarea id='comment' name='comment' cols='30' rows='3'></textarea></td>
+			</tr>
+			{if $cmd == 75}
+			<tr>
+	            <td>{$downtimeHostSvcLabel}</td>
+	            <td><input type='checkbox' name='processServices'/></td>
+	        </tr>
+	        {/if}
+		</table>
+		<div id="validForm">
+			<input type='hidden' name='selection' value='{$selection}' />
+			<input type='hidden' name='cmd' value='{$cmd}' />
+			<input type='hidden' name='cmdType' value='downtime' />
+			<input type='button' id='submit' value='{$submitLabel}'/>
+		</div>
+	</div>
+</form>
