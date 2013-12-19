@@ -1,0 +1,36 @@
+<configs>
+        <title>Graph Monitoring</title>
+        <author>Merethis</author>
+        <email>contact@merethis.com</email>
+        <website>http://www.merethis.com</website>
+        <description>Widget for displaying RRD graphs</description>
+        <version>1.1.0</version>
+        <keywords>centreon, widget, rrd, monitoring</keywords>
+        <screenshot></screenshot>
+        <thumbnail>./widgets/graph-monitoring/resources/centreon-logo.png</thumbnail>
+        <url>./widgets/graph-monitoring/index.php</url>
+        <autoRefresh>10</autoRefresh>
+        <preferences>        	
+        	<preference label="Service" name="service" defaultValue="" type="service" header="Resource"/>
+        	<preference label="Graph period" name="graph_period" type="list" header="Filter">
+				<option value="10800" label="Last 3 hours"/>
+				<option value="21600" label="Last 6 hours"/>
+				<option value="43200" label="Last 12 hours"/>
+				<option value="86400" label="Last 24 hours"/>
+				<option value="172800" label="Last 2 days"/>
+				<option value="259200" label="Last 3 days"/>
+				<option value="302400" label="Last 4 days"/>
+				<option value="432000" label="Last 5 days"/>
+				<option value="604800" label="Last 7 days"/>
+				<option value="1209600" label="Last 14 days"/>
+				<option value="2419200" label="Last 28 days"/>
+				<option value="2592000" label="Last 30 days"/>
+				<option value="2678400" label="Last 31 days"/>
+				<option value="5184000" label="Last 2 months"/>
+				<option value="10368000" label="Last 4 months"/>
+				<option value="15552000" label="Last 6 months"/>
+				<option value="31104000" label="Last year"/>
+			</preference>
+			<preference label="Refresh Interval (seconds)" name="refresh_interval" defaultValue="60" type="text" header="Misc"/>			
+        </preferences>        
+</configs>
