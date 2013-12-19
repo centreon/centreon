@@ -1,0 +1,42 @@
+<form>
+	<table id='HostgroupTable' class='styleTable'>
+	<tr>		
+		<th class='ui-state-default' name='name'>Hostgroup</th>		
+		<th class='ui-state-default'>Host Status</th>
+		<th class='ui-state-default'>Service Status</th>		
+	</tr>
+	{foreach key=hgId item=elem from=$data}
+	<tr id="hg-{$hgId}">
+		<td class='ui-widget-content'>{$elem.name}</td>
+		{if $preferences.enable_detailed_mode == 0}
+		<td class='ui-widget-content'>
+			{foreach key=state item=counter from=$elem.host_state}
+				<span style='background-color: {$hostStateColors[$state]};'>{$counter}&nbsp;{$hostStateLabels[$state]}</span>&nbsp;				
+			{/foreach}
+		</td>
+		<td class='ui-widget-content'>
+			{foreach key=state item=counter from=$elem.service_state}
+				<span style='background-color: {$serviceStateColors[$state]};'>{$counter}&nbsp;{$serviceStateLabels[$state]}</span>&nbsp;				
+			{/foreach}		
+		</td>
+		{else}
+			<td></td>
+			<td></td>
+		{/if}
+	</tr>
+	{if $preferences.enable_detailed_mode == 1}
+		{foreach item=elem2 from=$elem.host_state}
+			<tr id="host-{$elem2.host_id}" class="child-of-hg-{$hgId}">
+				<td class='ui-widget-content'></td>
+				<td class='ui-widget-content'><span style='background-color: {$hostStateColors[$elem2.state]};'>{$elem2.name}</span></td>
+				<td class='ui-widget-content'>
+					{foreach item=elem3 from=$elem.service_state[$elem2.host_id]}						
+						<span style='background-color: {$serviceStateColors[$elem3.state]};'>{$elem3.description}</span>&nbsp;						
+					{/foreach}
+				</td>
+			</tr>
+		{/foreach}	
+	{/if}
+	{/foreach}	
+	</table>
+</form>
