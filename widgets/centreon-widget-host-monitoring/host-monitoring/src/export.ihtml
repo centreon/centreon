@@ -1,0 +1,6 @@
+{if $preferences.display_criticality}Criticality;{/if}{if $preferences.display_host_name}Hostname;{/if}{if $preferences.display_host_alias}Alias;{/if}{if $preferences.display_ip}Address;{/if}{if $preferences.display_status}Status;{/if}{if $preferences.display_duration}Duration;{/if}{if $preferences.display_hard_state_duration}Hard State Duration;{/if}{if $preferences.display_last_check}Last Check;{/if}{if $preferences.display_tries}Attempt;{/if}{if $preferences.display_output}Output;{/if}
+
+{foreach item=elem from=$data}
+{if $preferences.display_criticality}{$elem.criticality};{/if}{if $preferences.display_host_name}{$elem.name};{/if}{if $preferences.display_host_alias}{$elem.alias};{/if}{if $preferences.display_ip}{$elem.address};{/if}{if $preferences.display_status}{$elem.state};{/if}{if $preferences.display_duration}{$elem.last_state_change};{/if}{if $preferences.display_hard_state_duration}{$elem.last_hard_state_change};{/if}{if $preferences.display_last_check}{$elem.last_check};{/if}{if $preferences.display_tries}{$elem.check_attempt};{/if}{if $preferences.display_output}{$elem.output}{/if}
+
+{/foreach}

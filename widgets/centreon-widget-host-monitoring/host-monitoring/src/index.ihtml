@@ -2,7 +2,9 @@
     <table id='HostTable' class='styleTable'>
 	<tr>
 		<th class='ui-state-default' style='width:20px;text-align:center;'><input type='checkbox' id='selection_0' class='checkall selection'/></th>
+		{if $preferences.display_criticality}<th class='ui-state-default' name='name'>C.</th>{/if}
 		{if $preferences.display_host_name}<th class='ui-state-default' name='name' colspan='2'>Hostname</th>{/if}
+		{if $preferences.display_host_alias}<th class='ui-state-default' name='alias' colspan='2'>Alias</th>{/if}
 		{if $preferences.display_ip}<th class='ui-state-default' name='address'>Address</th>{/if}
 		{if $preferences.display_status}<th class='ui-state-default' name='state'>Status</th>{/if}
 		{if $preferences.display_duration}<th class='ui-state-default' name='last_state_change'>Duration</th>{/if}
@@ -14,12 +16,9 @@
 	{foreach item=elem from=$data}
 	<tr>
 		<td class='ui-widget-content' style='width:20px;text-align:center;'><input class='selection' id='selection_{$elem.host_id}' type='checkbox'/></td>
+		{if $preferences.display_criticality}<td class='ui-widget-content' style='text-align:center;'>{$elem.criticality}</td>{/if}
 		{if $preferences.display_host_name}
-			<td class='ui-widget-content'>
-				<div style='background-color: {$elem.color};'>
-					<a href='/{$centreon_web_path}/main.php?p=201&o=hd&host_name={$elem.name}' target=_blank>{$elem.name}</a>
-				</div>
-			</td>
+			<td class='ui-widget-content'><a href='/{$centreon_web_path}/main.php?p=201&o=hd&host_name={$elem.name}' target=_blank>{$elem.name}</a></td>
 			<td class='ui-widget-content'>
 				<div style='float: right;'>
 					{if $elem.scheduled_downtime_depth}<img src='/{$centreon_web_path}/img/icones/16x16/warning.gif'>{/if}
@@ -40,8 +39,9 @@
 				</div>
 			</td>
 		{/if}
+		{if $preferences.display_host_alias}<td class='ui-widget-content' style='text-align:center;'>{$elem.alias}</td>{/if}
 		{if $preferences.display_ip}<td class='ui-widget-content' style='text-align:center;'>{$elem.address}</td>{/if}
-		{if $preferences.display_status}<td class='ui-widget-content' style='text-align:center;'><div style='background-color: {$elem.color};font-weight:bold;'>{$elem.state}</div></td>{/if}
+		{if $preferences.display_status}<td class='ui-widget-content' style='text-align:center;'><div style='background-color:{$elem.color};font-weight:bold;padding:0px;margin:0px;'>{$elem.state}</div></td>{/if}
 		{if $preferences.display_duration}<td class='ui-widget-content' style='text-align:center;'>{$elem.last_state_change}</td>{/if}
 		{if $preferences.display_hard_state_duration}<td class='ui-widget-content' style='text-align:center;'>{$elem.last_hard_state_change}</td>{/if}
 		{if $preferences.display_last_check}<td class='ui-widget-content' style='text-align:center;'>{$elem.last_check}</td>{/if}

@@ -33,6 +33,9 @@
  *
  */
 
+header('Content-type: application/csv');
+header('Content-Disposition: attachment; filename="hosts-monitoring.csv"');
+
 require_once "../../require.php";
 require_once "./DB-Func.php";
 
@@ -51,7 +54,7 @@ require_once $centreon_path . 'www/class/centreonCriticality.class.php';
 require_once $centreon_path ."GPL_LIB/Smarty/libs/Smarty.class.php";
 
 session_start();
-if (!isset($_SESSION['centreon']) || !isset($_REQUEST['widgetId']) || !isset($_REQUEST['page'])) {
+if (!isset($_SESSION['centreon']) || !isset($_REQUEST['widgetId'])) {
     exit;
 }
 
@@ -63,7 +66,6 @@ $dbb = new CentreonDB("centstorage");
 
 /* Init Objects */
 $criticality = new CentreonCriticality($db);
-$media = new CentreonMedia($db);
 
 $path = $centreon_path . "www/widgets/host-monitoring/src/";
 $template = new Smarty();
@@ -71,7 +73,6 @@ $template = initSmartyTplForPopup($path, $template, "./", $centreon_path);
 
 $centreon = $_SESSION['centreon'];
 $widgetId = $_REQUEST['widgetId'];
-$page = $_REQUEST['page'];
 
 $widgetObj = new CentreonWidget($centreon, $db);
 $preferences = $widgetObj->getWidgetPreferences($widgetId);
@@ -134,6 +135,7 @@ if (isset($preferences['host_unreachable']) && $preferences['host_unreachable'])
 if (count($stateTab)) {
     $query = CentreonUtils::conditionBuilder($query, " state IN (" . implode(',', $stateTab) . ")");
 }
+
 if (isset($preferences['acknowledgement_filter']) && $preferences['acknowledgement_filter']) {
     if ($preferences['acknowledgement_filter'] == "ack") {
         $query = CentreonUtils::conditionBuilder($query, " acknowledged = 1");
@@ -141,6 +143,7 @@ if (isset($preferences['acknowledgement_filter']) && $preferences['acknowledgeme
         $query = CentreonUtils::conditionBuilder($query, " acknowledged = 0");
     }
 }
+
 if (isset($preferences['downtime_filter']) && $preferences['downtime_filter']) {
     if ($preferences['downtime_filter'] == "downtime") {
         $query = CentreonUtils::conditionBuilder($query, " scheduled_downtime_depth	> 0 ");
@@ -173,7 +176,7 @@ if (isset($preferences['order_by']) && $preferences['order_by'] != "") {
     $orderby = $preferences['order_by'];
 }
 $query .= " ORDER BY $orderby";
-$query .= " LIMIT ".($page * $preferences['entries']).",".$preferences['entries'];
+//$query .= " LIMIT ".($page * $preferences['entries']).",".$preferences['entries'];
 $res = $dbb->query($query);
 $nbRows = $dbb->numberRows();
 $data = array();
@@ -197,56 +200,12 @@ while ($row = $res->fetchRow()) {
             $value = $hostObj->replaceMacroInString($row['name'], $value);
         } elseif ($key == "criticality" && $value != '') {
             $critData = $criticality->getData($row["criticality_id"]);
-            $value = "<img src='../../img/media/".$media->getFilename($critData['icon_id'])."' title='".$critData["hc_name"]."'>";
+            $value = $critData["hc_name"];
         }
         $data[$row['host_id']][$key] = $value;
     }
 }
-$template->assign('centreon_web_path', trim($centreon->optGen['oreon_web_path'], "/"));
+
 $template->assign('preferences', $preferences);
 $template->assign('data', $data);
-$template->display('index.ihtml');
-
-?>
-<script type="text/javascript">
-	var nbRows = <?php echo $nbRows;?>;
-	var currentPage = <?php echo $page;?>;
-	var orderby = '<?php echo $orderby;?>';
-	var nbCurrentItems = <?php echo count($data);?>;
-
-	$(function () {
-		$("#HostTable").styleTable();
-		if (nbRows > itemsPerPage) {
-            $("#pagination").pagination(nbRows, {
-                							items_per_page	: itemsPerPage,
-                							current_page	: pageNumber,
-                							callback		: paginationCallback
-            							}).append("<br/>");
-		}
-
-		$("#nbRows").html(nbCurrentItems+"/"+nbRows);
-
-		$(".selection").each(function() {
-			var curId = $(this).attr('id');
-			if (typeof(clickedCb[curId]) != 'undefined') {
-				this.checked = clickedCb[curId];
-			}
-		});
-
-		var tmp = orderby.split(' ');
-		var icn = 'n';
-		if (tmp[1] == "DESC") {
-			icn = 's';
-		}
-		$("[name="+tmp[0]+"]").append('<span style="position: relative; float: right;" class="ui-icon ui-icon-triangle-1-'+icn+'"></span>');
-    });
-
-    function paginationCallback(page_index, jq)
-    {
-		if (page_index != pageNumber) {
-        	pageNumber = page_index;
-        	clickedCb = new Array();
-    		loadPage();
-		}
-    }
-</script>
+$template->display('export.ihtml');
