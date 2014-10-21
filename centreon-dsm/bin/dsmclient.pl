@@ -241,7 +241,7 @@ if ($id ne 'nil') {
     if (defined($host_name) && $host_name ne "" && checkClosedAlarm($host_name, $id, $status, $timeRequest)) {
         my $request = "INSERT INTO mod_dsm_cache (cache_id, entry_time, host_name, ctime, status, macros, id, output, finished) ";
         $request .= " VALUES (NULL, ?, ?, ?, ?, ?, ?, ?, '0')";
-        $sth = $dbh->prepare($request);
+        my $sth = $dbh->prepare($request);
         $sth->execute(time(), $host_name, $timeRequest, $status, $macros, $id, $output);
         
         writeLogFile("Insert Alarm for host '".$host_name."' at '".$timeRequest."' with id '".$id."' and output '".$output."'.");
@@ -252,7 +252,7 @@ if ($id ne 'nil') {
     if (defined($host_name) && $host_name ne "" && $status ne 0) {
         my $request = "INSERT INTO mod_dsm_cache (cache_id, entry_time, host_name, ctime, status, macros, id, output, finished) ";
         $request .= " VALUES (NULL, ?, ?, ?, ?, NULL, NULL, ?, '0')";
-        $sth = $dbh->prepare($request);
+        my $sth = $dbh->prepare($request);
         $sth->execute(time(), $host_name, $timeRequest, $status, $output);
         
         writeLogFile("Insert Alarm for host '".$host_name."' at '".$timeRequest."' with output '".$output."'.");
