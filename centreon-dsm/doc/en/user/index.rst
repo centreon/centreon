@@ -33,7 +33,7 @@ Configure Slots
 
 In Centreon WebUI, go on : 
 
- ::
+::
 
  Administration > Modules > Dynamic Services 
 
@@ -98,8 +98,8 @@ An example of passif service template is available below:
 
 When you validate the form, Centreon will create or update all slot. If you don't have changed any value, you don't have to do other action. Else you have to go to :
 
- ::
-
+::
+  
  Configuration > Monitoring Engine 
 
 in order to generate configuration of the poller who have been impacted by the changes. If you don't do that, you will not see your changes appears into Centreon Monitoring UI.
@@ -121,7 +121,8 @@ The last step is to configure traps that you want to redirected to you slots. Th
 Edit a SNMP trap that you want to redirect to slots systems. Go on :
 
 ::
- Configuration >  SNMP traps. 
+ 
+  Configuration >  SNMP traps. 
 
 You find the following form : 
 
