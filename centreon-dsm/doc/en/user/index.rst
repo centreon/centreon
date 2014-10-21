@@ -198,6 +198,12 @@ After saving the form, please generate the SNMP traps configuration file. Go on 
 
 Select your poller, select generate and validate the form. 
 
+You can now start the daemon on your server:
+
+::
+
+  /etc/init.d/dsmd start
+
 You should now have DSM activatedfor all traps you have configured.
 
 
