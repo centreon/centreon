@@ -52,9 +52,13 @@ In order to migrate the trap configuration, you have to change all
 specific commands configured on your specific traps. On each specific 
 commands rename the following path : 
 
+::
+
   /usr/share/centreon/bin/snmpTrapDyn.pl 
 
 by 
+
+::
 
   /usr/share/centreon/bin/dsmclient.pl
 
