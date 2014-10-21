@@ -17,15 +17,15 @@ The goal of this module is to overhead the basic trap management system of Centr
 Architecture
 ------------
 
-The event must be transmitted to the server via an SNMP trap.  The SNMP trap is thus collected by the snmptrapd daemon. If reception  parameters are valid (authorized community), then it sends snmptrapd trap SNMP binary SNMPTT. Otherwise, the event is deleted.
+The event must be transmitted to the server via an SNMP trap.  The SNMP trap is thus collected by the **snmptrapd daemon**. If reception  parameters are valid (authorized community), then it sends snmptrapd trap SNMP binary SNMPTT. Otherwise, the event is deleted.
 
-Once the SNMP trap has been received, it is sent to the ‘centreontrapdforward’ script which writes the information received in a buffer folder (by default: /var/spool/centreontrapd/).
+Once the SNMP trap has been received, it is sent to the **centreontrapdforward** script which writes the information received in a buffer folder (by default: /var/spool/centreontrapd/).
 
-The ‘centreontrapd’ service reads the information received in the buffer folder and interprets the traps received checking, in the centreon database, the actions necessary to process these events. In Centreon DSM we execute a **special command**.
+The **centreontrapd** service reads the information received in the buffer folder and interprets the traps received checking, in the centreon database, the actions necessary to process these events. In Centreon DSM we execute a **special command**.
 
-This special command is executing binary "dsmclient.pl" with arguments. This client will store the new trap in a slot queue that the daemon read every 5 seconds. 
+This special command is executing binary **dsmclient.pl** with arguments. This client will store the new trap in a slot queue that the daemon read every 5 seconds. 
 
-The daemon dsmd.pl will search in database "centreon" name slots (pool service liabilities) associated with the host. If no slot is created, the event is deleted. Otherwise, the binary will look if there is at least one free slot. If at least one slot is free, then it will transmit to monitoring engine external commands to change the state of the slot. Otherwise the data will be made no secret pending the release of a slot. A slot is releasable served by paying the liabilities. 
+The daemon **dsmd.pl** will search in database "centreon" name slots (pool service liabilities) associated with the host. If no slot is created, the event is deleted. Otherwise, the binary will look if there is at least one free slot. If at least one slot is free, then it will transmit to monitoring engine external commands to change the state of the slot. Otherwise the data will be made no secret pending the release of a slot. A slot is releasable served by paying the liabilities. 
 
 
 Configure Slots
@@ -36,6 +36,7 @@ In Centreon WebUI, go on :
  ::
 
  Administration > Modules > Dynamic Services 
+
 
 and click on the **add** link. In order to create or modify  a slot group, please follow the table bellow in order to understand the role of all parameters.
 
