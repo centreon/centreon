@@ -116,7 +116,9 @@ if ($canDoAction || $centreon->user->access->checkAction("host_checks")) {
     $actions .= "<option value='93'>"._("Host: Disable Host Check")."</option>";
 }
 
+$template->assign("widgetId", $_POST['widgetId']);
 $template->display('toolbar.ihtml');
+
 ?>
 <link href="../../include/common/javascript/jquery/plugins/colorbox/colorbox.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="../../include/common/javascript/jquery/plugins/colorbox/jquery.colorbox-min.js"></script>

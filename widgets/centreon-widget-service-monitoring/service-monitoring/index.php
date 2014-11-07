@@ -88,9 +88,9 @@ try {
     </head>
 	<body>
     <div id='actionBar' style='width:100%;'>
-        <span id='toolBar' style='float:left;width:30%;'></span>
+        <span id='toolBar' style='float:left;width:35%;'></span>
         <span id='pagination' class='pagination' style='float:left;width:45%;text-align:center;'> </span>
-        <span id='nbRows' style='float:left;width:24%;text-align:right;font-weight:bold;'></span>
+        <span id='nbRows' style='float:left;width:19%;text-align:right;font-weight:bold;'></span>
     </div>
     <br/><br/>
         <div id='hostMonitoringTable'></div>

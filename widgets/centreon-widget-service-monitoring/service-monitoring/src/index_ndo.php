@@ -146,7 +146,7 @@ $query .= " WHERE s.host_object_id = h.host_object_id ";
 $query .= " AND h.host_object_id = hs.host_object_id ";
 $query .= " AND ss.service_object_id = s.service_object_id";
 $query .= " AND h.display_name NOT LIKE '_Module_%' ";
-$query .= " AND s.config_type = '1' ";
+$query .= " AND s.config_type = 0 ";
 if (isset($preferences['host_name_search']) && $preferences['host_name_search'] != "") {
     $tab = split(" ", $preferences['host_name_search']);
     $op = $tab[0];

@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright 2005-2011 MERETHIS
+ * Copyright 2005-2014 MERETHIS
  * Centreon is developped by : Julien Mathis and Romain Le Merlus under
  * GPL Licence 2.0.
  *
@@ -44,6 +44,11 @@ require_once $centreon_path . 'www/class/centreonACL.class.php';
 require_once $centreon_path . 'www/class/centreonHost.class.php';
 require_once $centreon_path . 'www/class/centreonService.class.php';
 
+require_once $centreon_path . 'www/class/centreonMedia.class.php';
+require_once $centreon_path . 'www/class/centreonCriticality.class.php';
+
+require_once $centreon_path ."GPL_LIB/Smarty/libs/Smarty.class.php";
+
 session_start();
 if (!isset($_SESSION['centreon']) || !isset($_REQUEST['widgetId']) || !isset($_REQUEST['page'])) {
     exit;
@@ -51,13 +56,16 @@ if (!isset($_SESSION['centreon']) || !isset($_REQUEST['widgetId']) || !isset($_R
 
 $db = new CentreonDB();
 if (CentreonSession::checkSession(session_id(), $db) == 0) {
-    exit;
+  exit();
 }
 
-require_once $centreon_path ."GPL_LIB/Smarty/libs/Smarty.class.php";
-$path = $centreon_path . "www/widgets/service-monitoring/src/";
+// Init Smarty
 $template = new Smarty();
-$template = initSmartyTplForPopup($path, $template, "./", $centreon_path);
+$template = initSmartyTplForPopup($centreon_path . "www/widgets/service-monitoring/src/", $template, "./", $centreon_path);
+
+/* Init Objects */
+$criticality = new CentreonCriticality($db);
+$media = new CentreonMedia($db);
 
 $centreon = $_SESSION['centreon'];
 $widgetId = $_REQUEST['widgetId'];
@@ -67,24 +75,34 @@ $dbb = new CentreonDB("centstorage");
 $widgetObj = new CentreonWidget($centreon, $db);
 $preferences = $widgetObj->getWidgetPreferences($widgetId);
 
-
+// Set Colors Table
 $res = $db->query("SELECT `key`, `value` FROM `options` WHERE `key` LIKE 'color%'");
-$stateColors = array(0 => "#13EB3A",
+$stateSColors = array(0 => "#13EB3A",
                      1 => "#F8C706",
                      2 => "#F91D05",
                      3 => "#DCDADA",
                      4 => "#2AD1D4");
+$stateHColors = array(0 => "#13EB3A",
+                     1 => "#F91D05",
+                     2 => "#DCDADA",
+                     3 => "#2AD1D4");
 while ($row = $res->fetchRow()) {
     if ($row['key'] == "color_ok") {
-        $stateColors[0] = $row['value'];
+        $stateSColors[0] = $row['value'];
     } elseif ($row['key'] == "color_warning") {
-        $stateColors[1] = $row['value'];
+        $stateSColors[1] = $row['value'];
     } elseif ($row['key'] == "color_critical") {
-        $stateColors[2] = $row['value'];
+        $stateSColors[2] = $row['value'];
     } elseif ($row['key'] == "color_unknown") {
-        $stateColors[3] = $row['value'];
+        $stateSColors[3] = $row['value'];
     } elseif ($row['key'] == "color_pending") {
-        $stateColors[4] = $row['value'];
+        $stateSColors[4] = $row['value'];
+    } elseif ($row['key'] == "color_up") {
+        $stateHColors[4] = $row['value'];
+    } elseif ($row['key'] == "color_down") {
+        $stateHColors[4] = $row['value'];
+    } elseif ($row['key'] == "color_unreachable") {
+        $stateHColors[4] = $row['value'];
     }
 }
 
@@ -93,34 +111,40 @@ $stateLabels = array(0 => "Ok",
                      2 => "Critical",
                      3 => "Unknown",
                      4 => "Pending");
+// Build Query
 $query = "SELECT SQL_CALC_FOUND_ROWS h.host_id,
-				 h.name as hostname,
-				 h.state as h_state,
-				 s.service_id,
-				 s.description,
-				 s.state as s_state,
-				 s.last_hard_state,
-				 s.output,
-				 s.scheduled_downtime_depth as s_scheduled_downtime_depth,
-				 s.acknowledged as s_acknowledged,
-				 s.notify as s_notify,
-				 s.active_checks as s_active_checks,
-				 s.passive_checks as s_passive_checks,
-				 h.scheduled_downtime_depth as h_scheduled_downtime_depth,
-				 h.acknowledged as h_acknowledged,
-				 h.notify as h_notify,
-				 h.active_checks as h_active_checks,
-				 h.passive_checks as h_passive_checks,
-				 s.last_check,
-				 s.last_state_change,
-				 s.last_hard_state_change,
-				 s.check_attempt,
-				 s.max_check_attempts,
-				 h.action_url as h_action_url,
-				 h.notes_url as h_notes_url,
-				 s.action_url as s_action_url,
-				 s.notes_url as s_notes_url ";
+		h.name as hostname,
+		h.state as h_state,
+		s.service_id,
+		s.description,
+		s.state as s_state,
+		s.last_hard_state,
+		s.output,
+		s.scheduled_downtime_depth as s_scheduled_downtime_depth,
+		s.acknowledged as s_acknowledged,
+		s.notify as s_notify,
+		s.active_checks as s_active_checks,
+		s.passive_checks as s_passive_checks,
+		h.scheduled_downtime_depth as h_scheduled_downtime_depth,
+		h.acknowledged as h_acknowledged,
+		h.notify as h_notify,
+		h.active_checks as h_active_checks,
+		h.passive_checks as h_passive_checks,
+		s.last_check,
+		s.last_state_change,
+		s.last_hard_state_change,
+		s.check_attempt,
+		s.max_check_attempts,
+		h.action_url as h_action_url,
+		h.notes_url as h_notes_url,
+		s.action_url as s_action_url,
+		s.notes_url as s_notes_url, 
+		cv2.value AS criticality_id,
+		cv.value AS criticality_level
+";
 $query .= " FROM hosts h, services s ";
+$query .= " LEFT JOIN customvariables cv ON (s.service_id = cv.service_id AND s.host_id = cv.host_id AND cv.name = 'CRITICALITY_LEVEL') ";
+$query .= " LEFT JOIN customvariables cv2 ON (s.service_id = cv2.service_id AND s.host_id = cv2.host_id AND cv2.name = 'CRITICALITY_ID') ";
 if (!$centreon->user->admin) {
     $query .= " , centreon_acl acl ";
 }
@@ -193,29 +217,51 @@ if (isset($preferences['state_type_filter']) && $preferences['state_type_filter'
 }
 
 if (isset($preferences['hostgroup']) && $preferences['hostgroup']) {
-    $query = CentreonUtils::conditionBuilder($query, " s.host_id IN
-    												  (SELECT host_host_id
-    												   FROM ".$conf_centreon['db'].".hostgroup_relation
-    												   WHERE hostgroup_hg_id = ".$dbb->escape($preferences['hostgroup']).")");
+    $query = CentreonUtils::conditionBuilder($query, 
+    " s.host_id IN (
+      SELECT host_host_id
+      FROM ".$conf_centreon['db'].".hostgroup_relation
+      WHERE hostgroup_hg_id = ".$dbb->escape($preferences['hostgroup']).")");
 }
 if (isset($preferences['servicegroup']) && $preferences['servicegroup']) {
-    $query = CentreonUtils::conditionBuilder($query, " s.service_id IN
-    												  (SELECT service_service_id
-    												   FROM ".$conf_centreon['db'].".servicegroup_relation
-    												   WHERE servicegroup_sg_id = ".$dbb->escape($preferences['servicegroup'])."
-    												   UNION
-    												   SELECT sgr.service_service_id
-    												   FROM ".$conf_centreon['db'].".servicegroup_relation sgr, ".$conf_centreon['db'].".host_service_relation hsr
-    												   WHERE hsr.hostgroup_hg_id = sgr.hostgroup_hg_id
-    												   AND sgr.servicegroup_sg_id = ".$dbb->escape($preferences['servicegroup']).") ");
+    $query = CentreonUtils::conditionBuilder($query, 
+    " s.service_id IN (SELECT service_service_id
+      FROM ".$conf_centreon['db'].".servicegroup_relation
+      WHERE servicegroup_sg_id = ".$dbb->escape($preferences['servicegroup'])."
+      UNION
+      SELECT sgr.service_service_id
+      FROM ".$conf_centreon['db'].".servicegroup_relation sgr, ".$conf_centreon['db'].".host_service_relation hsr
+      WHERE hsr.hostgroup_hg_id = sgr.hostgroup_hg_id
+      AND sgr.servicegroup_sg_id = ".$dbb->escape($preferences['servicegroup']).") ");
+}
+if (isset($preferences["display_criticality"]) && $preferences["display_criticality"] 
+    && isset($preferences['criticality_filter']) && $preferences['criticality_filter'] != "") {
+  $tab = split(",", $preferences['criticality_filter']);
+  $labels = "";
+  foreach ($tab as $p) {
+    if ($labels != '') {
+      $labels .= ',';
+    }
+    $labels .= "'".trim($p)."'";
+  }
+  $query2 = "SELECT sc_id FROM service_categories WHERE sc_name IN (".$labels.")";
+  $RES = $db->query($query2);
+  $idC = "";
+  while ($d1 = $RES->fetchRow()) {
+    if ($idC != '') {
+      $idC .= ",";
+    }
+    $idC .= $d1['sc_id'];
+  }
+  $query .= " AND cv2.`value` IN ($idC) "; 
 }
 if (!$centreon->user->admin) {
     $pearDB = $db;
     $aclObj = new CentreonACL($centreon->user->user_id, $centreon->user->admin);
     $groupList = $aclObj->getAccessGroupsString();
     $query .= " AND h.host_id = acl.host_id
-    			AND acl.service_id = s.service_id
-    			AND acl.group_id IN ($groupList)";
+	AND acl.service_id = s.service_id
+	AND acl.group_id IN ($groupList)";
 }
 $orderby = "hostname ASC , description ASC";
 if (isset($preferences['order_by']) && $preferences['order_by'] != "") {
@@ -239,7 +285,10 @@ while ($row = $res->fetchRow()) {
         } elseif ($key == "check_attempt") {
             $value = $value . "/" . $row['max_check_attempts'];
         } elseif ($key == "s_state") {
-            $data[$row['host_id']."_".$row['service_id']]['color'] = $stateColors[$value];
+            $data[$row['host_id']."_".$row['service_id']]['color'] = $stateSColors[$value];
+            $value = $stateLabels[$value];
+        } elseif ($key == "h_state") {
+            $data[$row['host_id']."_".$row['service_id']]['hcolor'] = $stateHColors[$value];
             $value = $stateLabels[$value];
         } elseif ($key == "output") {
             $value = substr($value, 0, $outputLength);
@@ -248,7 +297,10 @@ while ($row = $res->fetchRow()) {
         } elseif (($key == "s_action_url" || $key == "s_notes_url") && $value) {
             $value = $hostObj->replaceMacroInString($row['hostname'], $value);
             $value = $svcObj->replaceMacroInString($service_id, $value);
-        }
+        } elseif ($key == "criticality_id" && $value != '') {
+	  $critData = $criticality->getData($row["criticality_id"], 1);
+	  $value = "<img src='../../img/media/".$media->getFilename($critData['icon_id'])."' title='".$critData["hc_name"]."'>";        
+	}
         $data[$row['host_id']."_".$row['service_id']][$key] = $value;
     }
 }
@@ -258,44 +310,45 @@ $template->assign('data', $data);
 $template->display('index.ihtml');
 ?>
 <script type="text/javascript">
-	var nbRows = <?php echo $nbRows;?>;
-	var currentPage = <?php echo $page;?>;
-	var orderby = '<?php echo $orderby;?>';
-	var nbCurrentItems = <?php echo count($data);?>;
+var nbRows = <?php echo $nbRows;?>;
+var currentPage = <?php echo $page;?>;
+var orderby = '<?php echo $orderby;?>';
+var nbCurrentItems = <?php echo count($data);?>;
 
-	$(function () {
-		$("#HostTable").styleTable();
-		if (nbRows > itemsPerPage) {
-            $("#pagination").pagination(nbRows, {
-                							items_per_page	: itemsPerPage,
-                							current_page	: pageNumber,
-                							callback		: paginationCallback
-            							}).append("<br/>");
-		}
-
-		$("#nbRows").html(nbCurrentItems+"/"+nbRows);
-
-		$(".selection").each(function() {
-			var curId = $(this).attr('id');
-			if (typeof(clickedCb[curId]) != 'undefined') {
-				this.checked = clickedCb[curId];
-			}
-		});
-
-		var tmp = orderby.split(' ');
-		var icn = 'n';
-		if (tmp[1] == "DESC") {
-			icn = 's';
-		}
-		$("[name="+tmp[0]+"]").append('<span style="position: relative; float: right;" class="ui-icon ui-icon-triangle-1-'+icn+'"></span>');
-    });
-
-    function paginationCallback(page_index, jq)
-    {
-		if (page_index != pageNumber) {
-        	pageNumber = page_index;
-        	clickedCb = new Array();
-    		loadPage();
-		}
+$(function () {
+    $("#HostTable").styleTable();
+    if (nbRows > itemsPerPage) {
+      $("#pagination").pagination(nbRows, {
+	items_per_page	: itemsPerPage,
+	    current_page : pageNumber,
+	    callback : paginationCallback
+	    }).append("<br/>");
     }
+    
+    $("#nbRows").html(nbCurrentItems+"/"+nbRows);
+    
+    $(".selection").each(function() {
+	var curId = $(this).attr('id');
+	if (typeof(clickedCb[curId]) != 'undefined') {
+	  this.checked = clickedCb[curId];
+	}
+      });
+    
+    var tmp = orderby.split(' ');
+    var icn = 'n';
+    if (tmp[1] == "DESC") {
+      icn = 's';
+    }
+    $("[name="+tmp[0]+"]").append('<span style="position: relative; float: right;" class="ui-icon ui-icon-triangle-1-'+icn+'"></span>');
+
+});
+
+function paginationCallback(page_index, jq)
+{
+  if (page_index != pageNumber) {
+    pageNumber = page_index;
+    clickedCb = new Array();
+    loadPage();
+  }
+}
 </script>
