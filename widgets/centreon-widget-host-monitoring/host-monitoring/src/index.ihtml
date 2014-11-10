@@ -2,7 +2,7 @@
     <table id='HostTable' class='styleTable'>
 	<tr>
 		<th class='ui-state-default' style='width:20px;text-align:center;'><input type='checkbox' id='selection_0' class='checkall selection'/></th>
-		{if $preferences.display_severities}<th class='ui-state-default' name='name'>S.</th>{/if}
+		{if $preferences.display_severities}<th class='ui-state-default' name='Severities'>S.</th>{/if}
 		{if $preferences.display_host_name}<th class='ui-state-default' name='name' colspan='2'>Hostname</th>{/if}
 		{if $preferences.display_host_alias}<th class='ui-state-default' name='alias' colspan='2'>Alias</th>{/if}
 		{if $preferences.display_ip}<th class='ui-state-default' name='address'>Address</th>{/if}
