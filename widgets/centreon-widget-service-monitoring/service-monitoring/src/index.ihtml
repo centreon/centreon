@@ -2,7 +2,7 @@
 	<table id='HostTable' class='styleTable'>
 	<tr>
 		<th class='ui-state-default'><input type='checkbox' id='selection_0;0' class='checkall selection'/></th>
-		{if $preferences.display_criticality}<th class='ui-state-default' name='criticality'>C.</th>{/if}
+		{if $preferences.display_severities}<th class='ui-state-default' name='Severities'>S.</th>{/if}
 		{if $preferences.display_host_name}<th class='ui-state-default' name='hostname' colspan='2'>Host</th>{/if}
 		{if $preferences.display_svc_description}<th class='ui-state-default' name='description' colspan='2'>Service</th>{/if}
 		{if $preferences.display_status}<th class='ui-state-default' name='s_state'>Status</th>{/if}
@@ -16,7 +16,7 @@
 	{foreach item=elem from=$data}	
 	<tr>
 		<td class='ui-widget-content'><input class='selection' id='selection_{$elem.host_id};{$elem.service_id}' type='checkbox'/></td>
-		{if $preferences.display_criticality}<td class='ui-widget-content'>{$elem.criticality_id}</td>{/if}
+		{if $preferences.display_severities}<td class='ui-widget-content'>{$elem.criticality_id}</td>{/if}
 		{if $preferences.display_host_name}
 			{if $elem.hostname != $previous}
 				<td class='ui-widget-content'>
