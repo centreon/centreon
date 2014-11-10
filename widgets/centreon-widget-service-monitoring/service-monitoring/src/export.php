@@ -33,6 +33,9 @@
  *
  */
 
+header('Content-type: application/csv');
+header('Content-Disposition: attachment; filename="services-monitoring.csv"');
+
 require_once "../../require.php";
 require_once $centreon_path . 'www/class/centreon.class.php';
 require_once $centreon_path . 'www/class/centreonSession.class.php';
@@ -50,7 +53,7 @@ require_once $centreon_path . 'www/class/centreonCriticality.class.php';
 require_once $centreon_path ."GPL_LIB/Smarty/libs/Smarty.class.php";
 
 session_start();
-if (!isset($_SESSION['centreon']) || !isset($_REQUEST['widgetId']) || !isset($_REQUEST['page'])) {
+if (!isset($_SESSION['centreon']) || !isset($_REQUEST['widgetId'])) {
     exit;
 }
 
@@ -268,7 +271,6 @@ if (isset($preferences['order_by']) && $preferences['order_by'] != "") {
     $orderby = $preferences['order_by'];
 }
 $query .= "ORDER BY $orderby";
-
 $res = $dbb->query($query);
 $nbRows = $dbb->numberRows();
 $data = array();
