@@ -197,7 +197,7 @@ while ($row = $res->fetchRow()) {
             $value = $hostObj->replaceMacroInString($row['name'], $value);
         } elseif ($key == "criticality" && $value != '') {
             $critData = $criticality->getData($row["criticality_id"]);
-            $value = "<img src='../../img/media/".$media->getFilename($critData['icon_id'])."' title='".$critData["hc_name"]."'>";
+            $value = "<img src='../../img/media/".$media->getFilename($critData['icon_id'])."' title='".$critData["hc_name"]."' width='16' height='16'>";
         }
         $data[$row['host_id']][$key] = $value;
     }

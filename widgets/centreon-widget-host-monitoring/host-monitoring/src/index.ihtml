@@ -2,7 +2,7 @@
     <table id='HostTable' class='styleTable'>
 	<tr>
 		<th class='ui-state-default' style='width:20px;text-align:center;'><input type='checkbox' id='selection_0' class='checkall selection'/></th>
-		{if $preferences.display_criticality}<th class='ui-state-default' name='name'>C.</th>{/if}
+		{if $preferences.display_severities}<th class='ui-state-default' name='Severities'>S.</th>{/if}
 		{if $preferences.display_host_name}<th class='ui-state-default' name='name' colspan='2'>Hostname</th>{/if}
 		{if $preferences.display_host_alias}<th class='ui-state-default' name='alias'>Alias</th>{/if}
 		{if $preferences.display_ip}<th class='ui-state-default' name='address'>Address</th>{/if}
@@ -16,7 +16,7 @@
 	{foreach item=elem from=$data}
 	<tr>
 		<td class='ui-widget-content' style='width:20px;text-align:center;'><input class='selection' id='selection_{$elem.host_id}' type='checkbox'/></td>
-		{if $preferences.display_criticality}<td class='ui-widget-content' style='text-align:center;'>{$elem.criticality}</td>{/if}
+		{if $preferences.display_severities}<td class='ui-widget-content' style='text-align:center;'>{$elem.criticality}</td>{/if}
 		{if $preferences.display_host_name}
 			<td class='ui-widget-content'><a href='/{$centreon_web_path}/main.php?p=201&o=hd&host_name={$elem.name}' target=_blank>{$elem.name}</a></td>
 			<td class='ui-widget-content'>
