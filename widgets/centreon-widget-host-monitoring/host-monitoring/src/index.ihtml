@@ -4,7 +4,7 @@
 		<th class='ui-state-default' style='width:20px;text-align:center;'><input type='checkbox' id='selection_0' class='checkall selection'/></th>
 		{if $preferences.display_criticality}<th class='ui-state-default' name='name'>C.</th>{/if}
 		{if $preferences.display_host_name}<th class='ui-state-default' name='name' colspan='2'>Hostname</th>{/if}
-		{if $preferences.display_host_alias}<th class='ui-state-default' name='alias' colspan='2'>Alias</th>{/if}
+		{if $preferences.display_host_alias}<th class='ui-state-default' name='alias'>Alias</th>{/if}
 		{if $preferences.display_ip}<th class='ui-state-default' name='address'>Address</th>{/if}
 		{if $preferences.display_status}<th class='ui-state-default' name='state'>Status</th>{/if}
 		{if $preferences.display_duration}<th class='ui-state-default' name='last_state_change'>Duration</th>{/if}
