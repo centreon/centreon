@@ -299,7 +299,7 @@ while ($row = $res->fetchRow()) {
             $value = $svcObj->replaceMacroInString($service_id, $value);
         } elseif ($key == "criticality_id" && $value != '') {
 	  $critData = $criticality->getData($row["criticality_id"], 1);
-	  $value = "<img src='../../img/media/".$media->getFilename($critData['icon_id'])."' title='".$critData["sc_name"]."'>";        
+	  $value = "<img src='../../img/media/".$media->getFilename($critData['icon_id'])."' title='".$critData["sc_name"]."' width='16' height='16'>";        
 	}
         $data[$row['host_id']."_".$row['service_id']][$key] = $value;
     }
