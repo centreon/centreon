@@ -82,7 +82,7 @@ $stateColors = getColors($db);
 $stateLabels = getLabels();
 
 $query = "SELECT SQL_CALC_FOUND_ROWS h.host_id,
-				 h.name,
+				 h.name AS host_name,
 				 h.alias,
 				 state,
 				 state_type,
@@ -168,7 +168,7 @@ if (!$centreon->user->admin) {
     $aclObj = new CentreonACL($centreon->user->user_id, $centreon->user->admin);
     $query .= $aclObj->queryBuilder("AND", "host_id", $aclObj->getHostsString("ID", $dbb));
 }
-$orderby = "h.name ASC";
+$orderby = "host_name ASC";
 if (isset($preferences['order_by']) && $preferences['order_by'] != "") {
     $orderby = $preferences['order_by'];
 }
