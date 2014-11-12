@@ -42,7 +42,7 @@
 		<preference label="Output Length" name="output_length" defaultValue="50" type="range" min="50" max="500" step="50"/>
 		<preference label="Order By" name="order_by" defaultValue="" type="sort">
             	  <option value="name" label="Host Name"/>
-		  <option value="criticality" label="Criticality"/>
+		  <option value="criticality" label="Severity"/>
             	  <option value="address" label="Address"/>
             	  <option value="state" label="Status"/>
             	  <option value="output" label="Output"/>
