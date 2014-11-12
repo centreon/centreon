@@ -49,7 +49,7 @@
       <option value="h_state" label="Host Status"/>
       <option value="description" label="Service Description"/>
       <option value="s_state" label="Service Status"/>
-      <option value="criticality_level" label="Service Severity Level"/>
+      <option value="criticality_level" label="Severity"/>
       <option value="output" label="Service Output"/>
       <option value="check_attempt" label="Check attempt"/>
       <option value="last_check" label="Last Check"/>
