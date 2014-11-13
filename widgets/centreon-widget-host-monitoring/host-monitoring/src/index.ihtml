@@ -22,7 +22,7 @@
 		{if $preferences.display_severities}<td class='ui-widget-content' style='text-align:center;'>{$elem.criticality}</td>{/if}
         {/if}
 		{if $preferences.display_host_name}
-			<td class='ui-widget-content'><a href='/{$centreon_web_path}/main.php?p=201&o=hd&host_name={$elem.name}' target=_blank>{$elem.name}</a></td>
+			<td class='ui-widget-content'><a href='/{$centreon_web_path}/main.php?p=201&o=hd&host_name={$elem.name}' target=_blank>{$elem.host_name}</a></td>
 			<td class='ui-widget-content'>
 				<div style='float: right;'>
 					{if $elem.scheduled_downtime_depth}<img src='/{$centreon_web_path}/img/icones/16x16/warning.gif'>{/if}
