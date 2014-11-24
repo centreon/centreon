@@ -158,7 +158,7 @@ if (isset($preferences['state_type_filter']) && $preferences['state_type_filter'
 }
 
 if (isset($preferences['hostgroup']) && $preferences['hostgroup']) {
-    $query = CentreonUtils::conditionBuilder($query, " host_id IN
+    $query = CentreonUtils::conditionBuilder($query, " h.host_id IN
     												   (SELECT host_host_id
     												   FROM ".$conf_centreon['db'].".hostgroup_relation
     												   WHERE hostgroup_hg_id = ".$dbb->escape($preferences['hostgroup']).") ");
