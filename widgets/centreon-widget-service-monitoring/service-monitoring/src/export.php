@@ -33,6 +33,9 @@
  *
  */
 
+header('Content-type: application/csv');
+header('Content-Disposition: attachment; filename="services-monitoring.csv"');
+
 require_once "../../require.php";
 require_once $centreon_path . 'www/class/centreon.class.php';
 require_once $centreon_path . 'www/class/centreonSession.class.php';
@@ -50,7 +53,7 @@ require_once $centreon_path . 'www/class/centreonCriticality.class.php';
 require_once $centreon_path ."GPL_LIB/Smarty/libs/Smarty.class.php";
 
 session_start();
-if (!isset($_SESSION['centreon']) || !isset($_REQUEST['widgetId']) || !isset($_REQUEST['page'])) {
+if (!isset($_SESSION['centreon']) || !isset($_REQUEST['widgetId'])) {
     exit;
 }
 
@@ -268,7 +271,6 @@ if (isset($preferences['order_by']) && $preferences['order_by'] != "") {
     $orderby = $preferences['order_by'];
 }
 $query .= "ORDER BY $orderby";
-$query .= " LIMIT ".($page * $preferences['entries']).",".$preferences['entries'];
 $res = $dbb->query($query);
 $nbRows = $dbb->numberRows();
 $data = array();
@@ -296,10 +298,10 @@ while ($row = $res->fetchRow()) {
             $value = $hostObj->replaceMacroInString($row['hostname'], $value);
         } elseif (($key == "s_action_url" || $key == "s_notes_url") && $value) {
             $value = $hostObj->replaceMacroInString($row['hostname'], $value);
-            $value = $svcObj->replaceMacroInString($row['service_id'], $value);
+            $value = $svcObj->replaceMacroInString($service_id, $value);
         } elseif ($key == "criticality_id" && $value != '') {
 	  $critData = $criticality->getData($row["criticality_id"], 1);
-	  $value = "<img src='../../img/media/".$media->getFilename($critData['icon_id'])."' title='".$critData["sc_name"]."' width='16' height='16'>";        
+	  $value = $critData["hc_name"];        
 	}
         $data[$row['host_id']."_".$row['service_id']][$key] = $value;
     }
@@ -307,48 +309,5 @@ while ($row = $res->fetchRow()) {
 $template->assign('centreon_web_path', trim($centreon->optGen['oreon_web_path'], "/"));
 $template->assign('preferences', $preferences);
 $template->assign('data', $data);
-$template->display('index.ihtml');
-?>
-<script type="text/javascript">
-var nbRows = <?php echo $nbRows;?>;
-var currentPage = <?php echo $page;?>;
-var orderby = '<?php echo $orderby;?>';
-var nbCurrentItems = <?php echo count($data);?>;
+$template->display('export.ihtml');
 
-$(function () {
-    $("#HostTable").styleTable();
-    if (nbRows > itemsPerPage) {
-      $("#pagination").pagination(nbRows, {
-	items_per_page	: itemsPerPage,
-	    current_page : pageNumber,
-	    callback : paginationCallback
-	    }).append("<br/>");
-    }
-    
-    $("#nbRows").html(nbCurrentItems+"/"+nbRows);
-    
-    $(".selection").each(function() {
-	var curId = $(this).attr('id');
-	if (typeof(clickedCb[curId]) != 'undefined') {
-	  this.checked = clickedCb[curId];
-	}
-      });
-    
-    var tmp = orderby.split(' ');
-    var icn = 'n';
-    if (tmp[1] == "DESC") {
-      icn = 's';
-    }
-    $("[name="+tmp[0]+"]").append('<span style="position: relative; float: right;" class="ui-icon ui-icon-triangle-1-'+icn+'"></span>');
-
-});
-
-function paginationCallback(page_index, jq)
-{
-  if (page_index != pageNumber) {
-    pageNumber = page_index;
-    clickedCb = new Array();
-    loadPage();
-  }
-}
-</script>
