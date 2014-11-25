@@ -4,7 +4,7 @@
   <email>contact@merethis.com</email>
   <website>http://www.merethis.com</website>
   <description>Widget for displaying service monitoring information</description>
-  <version>1.2.0</version>
+  <version>1.2.1</version>
   <keywords>centreon, widget, service, monitoring</keywords>
   <screenshot></screenshot>
   <thumbnail>./widgets/service-monitoring/resources/centreon-logo.png</thumbnail>
