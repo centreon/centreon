@@ -296,7 +296,7 @@ while ($row = $res->fetchRow()) {
             $value = $hostObj->replaceMacroInString($row['hostname'], $value);
         } elseif (($key == "s_action_url" || $key == "s_notes_url") && $value) {
             $value = $hostObj->replaceMacroInString($row['hostname'], $value);
-            $value = $svcObj->replaceMacroInString($service_id, $value);
+            $value = $svcObj->replaceMacroInString($row['service_id'], $value);
         } elseif ($key == "criticality_id" && $value != '') {
 	  $critData = $criticality->getData($row["criticality_id"], 1);
 	  $value = "<img src='../../img/media/".$media->getFilename($critData['icon_id'])."' title='".$critData["hc_name"]."'>";        
