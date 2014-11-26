@@ -23,11 +23,11 @@
         {/if}
 		{if $preferences.display_host_name}
 			<td class='ui-widget-content'>
-               	{if $preferences.display_status}
+               	{if $preferences.display_status == 0}
                 <div style='background-color:{$elem.color};'>
                 {/if}
                 <a href='/{$centreon_web_path}/main.php?p=201&o=hd&host_name={$elem.host_name}' target=_blank>{$elem.host_name}</a></td>
-                {if $preferences.display_status}
+                {if $preferences.display_status == 0}
                 </div>
                 {/if}
 			<td class='ui-widget-content'>
