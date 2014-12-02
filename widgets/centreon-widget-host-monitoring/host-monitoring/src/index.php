@@ -222,11 +222,21 @@ while ($row = $res->fetchRow()) {
         }
         $data[$row['host_id']][$key] = $value;
     }
+
+    // QGA : Not well optimize i think                                                                                                                                                                          
+    if (isset($preferences['display_last_comment']) && $preferences['display_last_comment']) {
+        $res2 = $dbb->query('SELECT data FROM comments where host_id = ' . $row['host_id'] . ' AND service_id IS NULL ORDER BY entry_time DESC LIMIT 1');
+        if ($row2 = $res2->fetchRow()) {
+            $data[$row['host_id']]['comment'] = substr($row2['data'], 0, $commentLength);
+        } else {
+            $data[$row['host_id']]['comment'] = '-';
+        }
+    }
 }
 $template->assign('centreon_web_path', trim($centreon->optGen['oreon_web_path'], "/"));
 $template->assign('preferences', $preferences);
 $template->assign('data', $data);
-$template->assign('broker', 1);
+$template->assign('broker', "broker");
 $template->display('index.ihtml');
 
 ?>

@@ -2,7 +2,7 @@
     <table id='HostTable' class='styleTable'>
 	<tr>
 		<th class='ui-state-default' style='width:20px;text-align:center;'><input type='checkbox' id='selection_0' class='checkall selection'/></th>
-        {if $broker == 1}
+        {if $broker == 'broker'}
 		{if $preferences.display_severities}<th class='ui-state-default' name='Severities'>S.</th>{/if}
         {/if}
 		{if $preferences.display_host_name}<th class='ui-state-default' name='name' colspan='2'>Hostname</th>{/if}
@@ -14,11 +14,14 @@
 		{if $preferences.display_last_check}<th class='ui-state-default' name='last_check'>Last Check</th>{/if}
 		{if $preferences.display_tries}<th class='ui-state-default' name='check_attempt'>Attempt</th>{/if}
 		{if $preferences.display_output}<th class='ui-state-default' name='output'>Output</th>{/if}
+        {if $broker == 'broker'}
+		{if $preferences.display_last_comment}<th class='ui-state-default' name='comment'>Comment</th>{/if}
+        {/if}
 	</tr>
 	{foreach item=elem from=$data}
 	<tr>
 		<td class='ui-widget-content' style='width:20px;text-align:center;'><input class='selection' id='selection_{$elem.host_id}' type='checkbox'/></td>
-        {if $broker == 1}
+        {if $broker == 'broker'}
 		{if $preferences.display_severities}<td class='ui-widget-content' style='text-align:center;'>{$elem.criticality}</td>{/if}
         {/if}
 		{if $preferences.display_host_name}
@@ -58,6 +61,9 @@
 		{if $preferences.display_last_check}<td class='ui-widget-content' style='text-align:center;'>{$elem.last_check}</td>{/if}
 		{if $preferences.display_tries}<td class='ui-widget-content' style='text-align:center;'>{$elem.check_attempt}</td>{/if}
 		{if $preferences.display_output}<td class='ui-widget-content'>{$elem.output}</td>{/if}
+        {if $broker == 'broker'}
+		{if $preferences.display_last_comment}<td class='ui-widget-content'>{$elem.comment}</td>{/if}
+        {/if}
 	</tr>
 	{/foreach}
 	</table>
