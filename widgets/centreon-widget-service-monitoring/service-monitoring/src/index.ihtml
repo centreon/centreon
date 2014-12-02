@@ -11,6 +11,9 @@
 		{if $preferences.display_last_check}<th class='ui-state-default' name='last_check'>Last Check</th>{/if}
 		{if $preferences.display_tries}<th class='ui-state-default' name='check_attempt'>Attempt</th>{/if}
 		{if $preferences.display_output}<th class='ui-state-default' name='output'>Output</th>{/if}
+        {if $broker == "broker"}
+       	{if $preferences.display_last_comment}<th class='ui-state-default' name='comment'>Comment</th>{/if}
+        {/if}
 	</tr>
 	{assign var='previous' value=''}
 	{foreach item=elem from=$data}	
@@ -85,6 +88,9 @@
 		{if $preferences.display_last_check}<td class='ui-widget-content' style='text-align:center;'>{$elem.last_check}</td>{/if}
 		{if $preferences.display_tries}<td class='ui-widget-content' style='text-align:center;'>{$elem.check_attempt}</td>{/if}
 		{if $preferences.display_output}<td class='ui-widget-content'>{$elem.output}</td>{/if}
+        {if $broker == "broker"}
+		{if $preferences.display_last_comment}<td class='ui-widget-content'>{$elem.comment}</td>{/if}
+        {/if}
 	</tr>
 	{assign var='previous' value=$elem.hostname}
 	{/foreach}

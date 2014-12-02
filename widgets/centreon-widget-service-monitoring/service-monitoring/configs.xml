@@ -44,6 +44,7 @@
     <preference label="Display Duration" name="display_duration" defaultValue="1" type="boolean"/>
     <preference label="Display Hard State Duration" name="display_hard_state_duration" defaultValue="1" type="boolean"/>
     <preference label="Display Tries" name="display_tries" defaultValue="1" type="boolean"/>
+    <preference label="Display Last Comment" name="display_last_comment" defaultValue="0" type="boolean"/>
     <preference label="Order By" name="order_by" defaultValue="" type="sort">
       <option value="hostname" label="Host Name"/>
       <option value="h_state" label="Host Status"/>

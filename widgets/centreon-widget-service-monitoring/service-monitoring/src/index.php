@@ -298,15 +298,26 @@ while ($row = $res->fetchRow()) {
             $value = $hostObj->replaceMacroInString($row['hostname'], $value);
             $value = $svcObj->replaceMacroInString($row['service_id'], $value);
         } elseif ($key == "criticality_id" && $value != '') {
-	  $critData = $criticality->getData($row["criticality_id"], 1);
-	  $value = "<img src='../../img/media/".$media->getFilename($critData['icon_id'])."' title='".$critData["sc_name"]."' width='16' height='16'>";        
-	}
+            $critData = $criticality->getData($row["criticality_id"], 1);
+            $value = "<img src='../../img/media/".$media->getFilename($critData['icon_id'])."' title='".$critData["sc_name"]."' width='16' height='16'>";        
+        }
         $data[$row['host_id']."_".$row['service_id']][$key] = $value;
+    }
+
+    // QGA : Not well optimize i think                                                                                                                                                                          
+    if (isset($preferences['display_last_comment']) && $preferences['display_last_comment']) {
+        $res2 = $dbb->query('SELECT data FROM comments where host_id = ' . $row['host_id'] . ' AND service_id = ' . $row['service_id'] . ' ORDER BY entry_time DESC LIMIT 1');
+        if ($row2 = $res2->fetchRow()) {
+            $data[$row['host_id']."_".$row['service_id']]['comment'] = substr($row2['data'], 0, $commentLength);
+        } else {
+            $data[$row['host_id']."_".$row['service_id']]['comment'] = '-';
+        }
     }
 }
 $template->assign('centreon_web_path', trim($centreon->optGen['oreon_web_path'], "/"));
 $template->assign('preferences', $preferences);
 $template->assign('data', $data);
+$template->assign('broker', "broker");
 $template->display('index.ihtml');
 ?>
 <script type="text/javascript">

@@ -277,6 +277,7 @@ while ($row = $res->fetchRow()) {
 $template->assign('centreon_web_path', trim($centreon->optGen['oreon_web_path'], "/"));
 $template->assign('preferences', $preferences);
 $template->assign('data', $data);
+$template->assign('broker', "ndo");
 $template->display('index.ihtml');
 ?>
 <script type="text/javascript">
