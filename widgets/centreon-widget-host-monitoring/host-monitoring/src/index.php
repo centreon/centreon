@@ -102,7 +102,7 @@ $query = "SELECT SQL_CALC_FOUND_ROWS h.host_id,
 				 action_url,
 				 notes_url, 
                  cv.value AS criticality,
-		 cv2.value AS criticality_id,
+		         cv2.value AS criticality_id,
                  cv.name IS NULL as isnull ";
 $query .= "FROM hosts h ";
 $query .= " LEFT JOIN `customvariables` cv ";
@@ -162,6 +162,27 @@ if (isset($preferences['hostgroup']) && $preferences['hostgroup']) {
     												   (SELECT host_host_id
     												   FROM ".$conf_centreon['db'].".hostgroup_relation
     												   WHERE hostgroup_hg_id = ".$dbb->escape($preferences['hostgroup']).") ");
+}
+if (isset($preferences["display_severities"]) && $preferences["display_severities"] 
+    && isset($preferences['criticality_filter']) && $preferences['criticality_filter'] != "") {
+  $tab = split(",", $preferences['criticality_filter']);
+  $labels = "";
+  foreach ($tab as $p) {
+    if ($labels != '') {
+      $labels .= ',';
+    }
+    $labels .= "'".trim($p)."'";
+  }
+  $query2 = "SELECT hc_id FROM hostcategories WHERE hc_name IN (".$labels.")";
+  $RES = $db->query($query2);
+  $idC = "";
+  while ($d1 = $RES->fetchRow()) {
+    if ($idC != '') {
+      $idC .= ",";
+    }
+    $idC .= $d1['hc_id'];
+  }
+  $query .= " AND cv2.`value` IN ($idC) "; 
 }
 if (!$centreon->user->admin) {
     $pearDB = $db;

@@ -4,7 +4,7 @@
         <email>contact@merethis.com</email>
         <website>http://www.merethis.com</website>
         <description>Widget for displaying host monitoring information</description>
-        <version>1.2.1</version>
+        <version>1.2.2</version>
         <keywords>centreon, widget, host, monitoring</keywords>
         <screenshot></screenshot>
         <thumbnail>./widgets/host-monitoring/resources/centreon-logo.png</thumbnail>
@@ -15,6 +15,7 @@
 		<preference label="Display Up" name="host_up" defaultValue="1" type="boolean"/>
 		<preference label="Display Down" name="host_down" defaultValue="1" type="boolean"/>
 		<preference label="Display Unreachable" name="host_unreachable" defaultValue="1" type="boolean"/>
+        <preference label="Criticities Filters (criticities name separated by ',')" name="criticality_filter" defaultValue="" type="text"/>
 		<preference label="Acknowledgement Filter" name="acknowledgement_filter" type="list">
 			<option value="ack" label="Acknowledged"/>
 			<option value="nack" label="Not Acknowleged"/>
@@ -42,7 +43,7 @@
 		<preference label="Output Length" name="output_length" defaultValue="50" type="range" min="50" max="500" step="50"/>
 		<preference label="Order By" name="order_by" defaultValue="" type="sort">
             	  <option value="name" label="Host Name"/>
-		  <option value="criticality" label="Severity"/>
+                  <option value="criticality" label="Severity"/>
             	  <option value="address" label="Address"/>
             	  <option value="state" label="Status"/>
             	  <option value="output" label="Output"/>
