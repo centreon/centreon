@@ -169,7 +169,7 @@ if (isset($preferences['hostgroup']) && $preferences['hostgroup']) {
 if (!$centreon->user->admin) {
     $pearDB = $db;
     $aclObj = new CentreonACL($centreon->user->user_id, $centreon->user->admin);
-    $query .= $aclObj->queryBuilder("AND", "host_id", $aclObj->getHostsString("ID", $dbb));
+    $query .= $aclObj->queryBuilder("AND", "h.host_id", $aclObj->getHostsString("ID", $dbb));
 }
 $orderby = "h.name ASC";
 if (isset($preferences['order_by']) && $preferences['order_by'] != "") {
