@@ -181,6 +181,8 @@ $res = $dbb->query($query);
 $nbRows = $dbb->numberRows();
 $data = array();
 $outputLength = $preferences['output_length'] ? $preferences['output_length'] : 50;
+$commentLength = $preferences['comment_length'] ? $preferences['comment_length'] : 50;
+
 $hostObj = new CentreonHost($db);
 while ($row = $res->fetchRow()) {
     foreach ($row as $key => $value) {
@@ -204,6 +206,16 @@ while ($row = $res->fetchRow()) {
         }
         $data[$row['host_id']][$key] = $value;
     }
+
+    if (isset($preferences['display_last_comment']) && $preferences['display_last_comment']) {
+        $res2 = $dbb->query('SELECT data FROM comments where host_id = ' . $row['host_id'] . ' AND service_id IS NULL ORDER BY entry_time DESC LIMIT 1');
+        if ($row2 = $res2->fetchRow()) {
+            $data[$row['host_id']]['comment'] = substr($row2['data'], 0, $commentLength);
+        } else {
+            $data[$row['host_id']]['comment'] = '-';
+        }
+    }
+
 }
 
 $template->assign('preferences', $preferences);

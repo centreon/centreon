@@ -200,6 +200,7 @@ $nbRows = $dbb->numberRows();
 $data = array();
 $outputLength = $preferences['output_length'] ? $preferences['output_length'] : 50;
 $commentLength = $preferences['comment_length'] ? $preferences['comment_length'] : 50;
+
 $hostObj = new CentreonHost($db);
 while ($row = $res->fetchRow()) {
     foreach ($row as $key => $value) {
@@ -224,7 +225,6 @@ while ($row = $res->fetchRow()) {
         $data[$row['host_id']][$key] = $value;
     }
 
-    // QGA : Not well optimize i think                                                                                                                                                                          
     if (isset($preferences['display_last_comment']) && $preferences['display_last_comment']) {
         $res2 = $dbb->query('SELECT data FROM comments where host_id = ' . $row['host_id'] . ' AND service_id IS NULL ORDER BY entry_time DESC LIMIT 1');
         if ($row2 = $res2->fetchRow()) {
