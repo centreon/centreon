@@ -199,6 +199,7 @@ $res = $dbb->query($query);
 $nbRows = $dbb->numberRows();
 $data = array();
 $outputLength = $preferences['output_length'] ? $preferences['output_length'] : 50;
+$commentLength = $preferences['comment_length'] ? $preferences['comment_length'] : 50;
 $hostObj = new CentreonHost($db);
 while ($row = $res->fetchRow()) {
     foreach ($row as $key => $value) {
