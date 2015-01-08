@@ -275,6 +275,8 @@ $res = $dbb->query($query);
 $nbRows = $dbb->numberRows();
 $data = array();
 $outputLength = $preferences['output_length'] ? $preferences['output_length'] : 50;
+$commentLength = $preferences['comment_length'] ? $preferences['comment_length'] : 50;
+
 $hostObj = new CentreonHost($db);
 $svcObj = new CentreonService($db);
 while ($row = $res->fetchRow()) {
@@ -300,10 +302,19 @@ while ($row = $res->fetchRow()) {
             $value = $hostObj->replaceMacroInString($row['hostname'], $value);
             $value = $svcObj->replaceMacroInString($service_id, $value);
         } elseif ($key == "criticality_id" && $value != '') {
-	  $critData = $criticality->getData($row["criticality_id"], 1);
-	  $value = $critData["hc_name"];        
-	}
+	      $critData = $criticality->getData($row["criticality_id"], 1);
+    	  $value = $critData["hc_name"];        
+	    }
         $data[$row['host_id']."_".$row['service_id']][$key] = $value;
+    }
+   
+    if (isset($preferences['display_last_comment']) && $preferences['display_last_comment']) {
+        $res2 = $dbb->query('SELECT data FROM comments where host_id = ' . $row['host_id'] . ' AND service_id = ' . $row['service_id'] . ' ORDER BY entry_time DESC LIMIT 1');
+        if ($row2 = $res2->fetchRow()) {
+            $data[$row['host_id']."_".$row['service_id']]['comment'] = substr($row2['data'], 0, $commentLength);
+        } else {
+            $data[$row['host_id']."_".$row['service_id']]['comment'] = '-';
+        }
     }
 }
 $template->assign('centreon_web_path', trim($centreon->optGen['oreon_web_path'], "/"));
