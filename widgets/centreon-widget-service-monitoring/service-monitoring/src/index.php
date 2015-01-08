@@ -306,7 +306,6 @@ while ($row = $res->fetchRow()) {
         $data[$row['host_id']."_".$row['service_id']][$key] = $value;
     }
 
-    // QGA : Not well optimize i think                                                                                                                                                                          
     if (isset($preferences['display_last_comment']) && $preferences['display_last_comment']) {
         $res2 = $dbb->query('SELECT data FROM comments where host_id = ' . $row['host_id'] . ' AND service_id = ' . $row['service_id'] . ' ORDER BY entry_time DESC LIMIT 1');
         if ($row2 = $res2->fetchRow()) {
