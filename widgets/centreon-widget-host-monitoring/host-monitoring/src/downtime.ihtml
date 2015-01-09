@@ -32,7 +32,7 @@
 			</tr>
 			<tr>
 	            <td>{$fixedLabel}</td>
-	            <td><input type='checkbox' name='fixed'/></td>
+	            <td><input type='checkbox' name='fixed' {$fixed_checked} /></td>
 	        </tr>
 			<tr>
 				<td>{$authorLabel}</td>
@@ -40,11 +40,11 @@
 			</tr>
 			<tr>
 				<td>{$commentLabel}<span style='color: red;'>*</span></td>
-				<td><textarea id='comment' name='comment' cols='30' rows='3'></textarea></td>
+				<td><textarea id='comment' name='comment' cols='30' rows='3'>{$defaultMessage}</textarea></td>
 			</tr>
 			<tr>
 	            <td>{$downtimeHostSvcLabel}</td>
-	            <td><input type='checkbox' name='processServices'/></td>
+	            <td><input type='checkbox' name='processServices' {$process_service_checked}/></td>
 	        </tr>
 		</table>
 		<div id="validForm">

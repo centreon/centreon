@@ -80,11 +80,40 @@ try {
         $template->assign('author', $centreon->user->name);
         if ($cmd == 72) {
             $template->assign('ackHostSvcLabel', _("Acknowledge services of hosts"));
+            $template->assign('defaultMessage', sprintf(_('Acknowledged by %s'), $centreon->user->alias));
             $template->assign('titleLabel', _("Host Acknowledgement"));
             $template->assign('submitLabel', _("Acknowledge"));
+
+            /* default ack options */
+            $persistent_checked = '';
+            if (isset($centreon->optGen['monitoring_ack_persistent']) && $centreon->optGen['monitoring_ack_persistent']) {
+                $persistent_checked = 'checked';
+            }
+            $template->assign('persistent_checked', $persistent_checked);
+
+            $sticky_checked = '';
+            if (isset($centreon->optGen['monitoring_ack_sticky']) && $centreon->optGen['monitoring_ack_sticky']) {
+                $sticky_checked = 'checked';
+            }
+            $template->assign('sticky_checked', $sticky_checked);
+
+            $notify_checked = '';
+            if (isset($centreon->optGen['monitoring_ack_notify']) && $centreon->optGen['monitoring_ack_notify']) {
+                $notify_checked = 'checked';
+            }
+            $template->assign('notify_checked', $notify_checked);
+
+            $process_service_checked = '';
+            if (isset($centreon->optGen['monitoring_ack_svc']) && $centreon->optGen['monitoring_ack_svc']) {
+                $process_service_checked = 'checked';
+            }
+            $template->assign('process_service_checked', $process_service_checked);
+
+
             $template->display('acknowledge.ihtml');
         } elseif ($cmd == 75) {
             $template->assign('downtimeHostSvcLabel', _("Set downtime on services of hosts"));
+            $template->assign('defaultMessage', sprintf(_('Downtime set by %s'), $centreon->user->alias));
             $template->assign('titleLabel', _("Host Downtime"));
             $template->assign('submitLabel', _("Set Downtime"));
             $template->assign('defaultDuration', 1);
@@ -98,6 +127,20 @@ try {
             $template->assign('defaultEnd', date('Y/m/d', $endTime));
             $template->assign('defaultHourEnd', date('H', $endTime));
             $template->assign('defaultMinuteEnd', date('i', $endTime));
+
+            /* default downtime options */
+            $fixed_checked = '';
+            if (isset($centreon->optGen['monitoring_dwt_fixed']) && $centreon->optGen['monitoring_dwt_fixed']) {
+                $fixed_checked = 'checked';
+            }
+            $template->assign('fixed_checked', $fixed_checked);
+
+            $process_service_checked = '';
+            if (isset($centreon->optGen['monitoring_dwt_svc']) && $centreon->optGen['monitoring_dwt_svc']) {
+                $process_service_checked = 'checked';
+            }
+            $template->assign('process_service_checked', $process_service_checked);
+
             $template->display('downtime.ihtml');
         }
     } else {

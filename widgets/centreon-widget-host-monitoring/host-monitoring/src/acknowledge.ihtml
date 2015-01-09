@@ -8,15 +8,15 @@
 		 	</tr>
 			<tr>
 	            <td>{$stickyLabel}</td>
-	            <td><input type='checkbox' name='sticky'/></td>
+	            <td><input type='checkbox' name='sticky' {$sticky_checked}/></td>
 	        </tr>
 			<tr>
 				<td>{$notifyLabel}</td>
-				<td><input type='checkbox' name='notify'/></td>
+				<td><input type='checkbox' name='notify' {$notify_checked}/></td>
 			</tr>
 			<tr>
 				<td>{$persistentLabel}</td>
-				<td><input type='checkbox' name='persistent'/></td>
+				<td><input type='checkbox' name='persistent' {$persistent_checked}/></td>
 			</tr>
 			<tr>
 				<td>{$authorLabel}</td>
@@ -24,11 +24,11 @@
 			</tr>
 			<tr>
 				<td>{$commentLabel}<span style='color: red;'>*</span></td>
-				<td><textarea id='comment' name='comment' cols='30' rows='3'></textarea></td>
+				<td><textarea id='comment' name='comment' cols='30' rows='3'>{$defaultMessage}</textarea></td>
 			</tr>
 			<tr>
 	            <td>{$ackHostSvcLabel}</td>
-	            <td><input type='checkbox' name='processServices'/></td>
+	            <td><input type='checkbox' name='processServices' {$process_service_checked} /></td>
 	        </tr>			
 		</table>
 		<div id="validForm">
