@@ -26,18 +26,16 @@
 				<td>{$commentLabel}<span style='color: red;'>*</span></td>
 				<td><textarea id='comment' name='comment' cols='30' rows='3'>{$defaultMessage}</textarea></td>
 			</tr>
-            {if $cmd == 70}
-            <tr>
-				<td>{$forceCheckLabel}</td>
-				<td><input type='checkbox' name='forcecheck' {$force_active_checked}/></td>
-			</tr>
-            {/if}
 			{if $cmd == 72}
 			<tr>
                 <td>{$ackHostSvcLabel}</td>
                 <td><input type='checkbox' name='processServices' {$process_service_checked}/></td>
             </tr>
             {/if}
+            <tr>
+				<td>{$forceCheckLabel}</td>
+				<td><input type='checkbox' name='forcecheck' {$force_active_checked}/></td>
+			</tr>
 		</table>
 		<div id="validForm">
 			<input type='hidden' name='selection' value='{$selection}' />

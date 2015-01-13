@@ -85,7 +85,8 @@ try {
         $command = "ACKNOWLEDGE_HOST_PROBLEM;%s;$sticky;$notify;$persistent;$author;$comment";
         $commandSvc = "ACKNOWLEDGE_SVC_PROBLEM;%s;%s;$sticky;$notify;$persistent;$author;$comment";
         if (isset($_POST['forcecheck'])) {
-            $forceCmd = "SCHEDULE_FORCED_SVC_CHECK;%s;%s;".time();
+            $forceCmd = "SCHEDULE_FORCED_HOST_CHECK;%s;".time(); 
+            $forceCmdSvc = "SCHEDULE_FORCED_SVC_CHECK;%s;%s;".time();
         }
     } elseif ($type == 'downtime') {
         $fixed = 0;
@@ -150,16 +151,22 @@ try {
             $pollerId = $hostObj->getHostPollerId($hostId);
             if ($cmd == 70 || $cmd == 74) {
                 $externalCmd->set_process_command(sprintf($commandSvc, $hostname, $svcDesc), $pollerId);
-                if (isset($forceCmd)) {
-                    $externalCmd->set_process_command(sprintf($forceCmd, $hostname, $svcDesc), $pollerId);
+                if (isset($forceCmdSvc)) {
+                    $externalCmd->set_process_command(sprintf($forceCmdSvc, $hostname, $svcDesc), $pollerId);
                 }
             } else {
                 $externalCmd->set_process_command(sprintf($command, $hostname), $pollerId);
+            }
+            if (isset($forceCmd)) {
+                $externalCmd->set_process_command(sprintf($forceCmd, $hostname), $pollerId);
             }
             if (isset($_POST['processServices'])) {
                 $services = $svcObj->getServiceId(null, $hostname);
                 foreach($services as $svcDesc => $svcId) {
                     $externalCmd->set_process_command(sprintf($commandSvc, $hostname, $svcDesc), $pollerId);
+                    if (isset($forceCmdSvc)) {
+                        $externalCmd->set_process_command(sprintf($forceCmdSvc, $hostname, $svcDesc), $pollerId);
+                    }
                 }
             }
         }
