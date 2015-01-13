@@ -29,7 +29,11 @@
 			<tr>
 	            <td>{$ackHostSvcLabel}</td>
 	            <td><input type='checkbox' name='processServices' {$process_service_checked} /></td>
-	        </tr>			
+	        </tr>
+			<tr>
+				<td>{$forceCheckLabel}</td>
+	            <td><input type='checkbox' name='forcecheck' {$force_active_checked} /></td>
+			</tr>
 		</table>
 		<div id="validForm">
 			<input type='hidden' name='hosts' value='{$hosts}' />

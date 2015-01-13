@@ -72,6 +72,7 @@ try {
         $template->assign('authorLabel', _("Author"));
         $template->assign('notifyLabel', _("Notify"));
         $template->assign('commentLabel', _("Comment"));
+        $template->assign('forceCheckLabel', _('Force active checks'));
         $template->assign('fixedLabel', _("Fixed"));
         $template->assign('durationLabel', _("Duration"));
         $template->assign('startLabel', _("Start"));
@@ -108,7 +109,12 @@ try {
                 $process_service_checked = 'checked';
             }
             $template->assign('process_service_checked', $process_service_checked);
-
+            
+            $force_active_checked = '';
+            if (isset($centreon->optGen['monitoring_ack_active_checks']) && $centreon->optGen['monitoring_ack_active_checks']) {
+                $force_active_checked = 'checked';
+            }
+            $template->assign('force_active_checked', $force_active_checked);
 
             $template->display('acknowledge.ihtml');
         } elseif ($cmd == 75) {
