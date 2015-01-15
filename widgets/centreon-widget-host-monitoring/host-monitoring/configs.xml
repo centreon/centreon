@@ -41,6 +41,7 @@
 		<preference label="Display Tries" name="display_tries" defaultValue="1" type="boolean"/>
 		<preference label="Display Output" name="display_output" defaultValue="1" type="boolean"/>
 		<preference label="Output Length" name="output_length" defaultValue="50" type="range" min="50" max="500" step="50"/>
+		<preference label="Comment Length" name="comment_length" defaultValue="50" type="range" min="50" max="500" step="50"/>
 		<preference label="Display Last Comment" name="display_last_comment" defaultValue="0" type="boolean"/>
 		<preference label="Order By" name="order_by" defaultValue="" type="sort">
             	  <option value="name" label="Host Name"/>
