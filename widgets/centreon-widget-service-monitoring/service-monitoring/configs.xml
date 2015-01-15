@@ -39,6 +39,7 @@
     <preference label="Display Service Description" name="display_svc_description" defaultValue="1" type="boolean"/>
     <preference label="Display Output" name="display_output" defaultValue="1" type="boolean"/>
     <preference label="Output Length" name="output_length" defaultValue="50" type="range" min="50" max="500" step="50"/>
+    <preference label="Comment Length" name="comment_length" defaultValue="50" type="range" min="50" max="500" step="50"/>
     <preference label="Display Status" name="display_status" defaultValue="1" type="boolean"/>			
     <preference label="Display Last Check" name="display_last_check" defaultValue="1" type="boolean"/>
     <preference label="Display Duration" name="display_duration" defaultValue="1" type="boolean"/>
