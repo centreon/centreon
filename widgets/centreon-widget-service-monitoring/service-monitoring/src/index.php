@@ -295,10 +295,10 @@ while ($row = $res->fetchRow()) {
         } elseif ($key == "output") {
             $value = substr($value, 0, $outputLength);
         } elseif (($key == "h_action_url" || $key == "h_notes_url") && $value) {
-            $value = $hostObj->replaceMacroInString($row['hostname'], $value);
+            $value = urlencode($hostObj->replaceMacroInString($row['hostname'], $value));
         } elseif (($key == "s_action_url" || $key == "s_notes_url") && $value) {
             $value = $hostObj->replaceMacroInString($row['hostname'], $value);
-            $value = $svcObj->replaceMacroInString($row['service_id'], $value);
+            $value = urlencode($svcObj->replaceMacroInString($row['service_id'], $value));
         } elseif ($key == "criticality_id" && $value != '') {
             $critData = $criticality->getData($row["criticality_id"], 1);
             $value = "<img src='../../img/media/".$media->getFilename($critData['icon_id'])."' title='".$critData["sc_name"]."' width='16' height='16'>";        
@@ -314,6 +314,14 @@ while ($row = $res->fetchRow()) {
             $data[$row['host_id']."_".$row['service_id']]['comment'] = '-';
         }
     }
+
+    $data[$row['host_id'].'_'.$row['service_id']]['encoded_description'] = urlencode(
+      $data[$row['host_id'].'_'.$row['service_id']]['description']
+    );
+
+    $data[$row['host_id'].'_'.$row['service_id']]['encoded_hostname'] = urlencode(
+      $data[$row['host_id'].'_'.$row['service_id']]['hostname']
+    );
 }
 $template->assign('centreon_web_path', trim($centreon->optGen['oreon_web_path'], "/"));
 $template->assign('preferences', $preferences);
