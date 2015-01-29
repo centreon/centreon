@@ -4,7 +4,7 @@
         <email>contact@merethis.com</email>
         <website>http://www.merethis.com</website>
         <description>Widget for displaying host monitoring information</description>
-        <version>1.3.2</version>
+        <version>1.3.3</version>
         <keywords>centreon, widget, host, monitoring</keywords>
         <screenshot></screenshot>
         <thumbnail>./widgets/host-monitoring/resources/centreon-logo.png</thumbnail>
