@@ -217,7 +217,7 @@ while ($row = $res->fetchRow()) {
         } elseif ($key == "output") {
             $value = substr($value, 0, $outputLength);
         } elseif (($key == "action_url" || $key == "notes_url") && $value) {
-            $value = $hostObj->replaceMacroInString($row['host_name'], $value);
+            $value = urlencode($hostObj->replaceMacroInString($row['host_name'], $value));
         } elseif ($key == "criticality" && $value != '') {
             $critData = $criticality->getData($row["criticality_id"]);
             $value = "<img src='../../img/media/".$media->getFilename($critData['icon_id'])."' title='".$critData["hc_name"]."' width='16' height='16'>";
@@ -233,6 +233,8 @@ while ($row = $res->fetchRow()) {
             $data[$row['host_id']]['comment'] = '-';
         }
     }
+
+    $data[$row['host_id']]['encoded_host_name'] = urlencode($data[$row['host_id']]['host_name']);
 }
 $template->assign('centreon_web_path', trim($centreon->optGen['oreon_web_path'], "/"));
 $template->assign('preferences', $preferences);
