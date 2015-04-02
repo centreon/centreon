@@ -1,10 +1,10 @@
 <configs>
         <title>Hostgroup Monitoring</title>
-        <author>Merethis</author>
-        <email>contact@merethis.com</email>
-        <website>http://www.merethis.com</website>
+        <author>Centreon</author>
+        <email>contact@centreon.com</email>
+        <website>http://www.centreon.com</website>
         <description>Widget for displaying hostgroup monitoring information</description>
-        <version>1.1.1</version>
+        <version>1.1.2</version>
         <keywords>centreon, widget, hostgroup, host, monitoring</keywords>
         <screenshot></screenshot>
         <thumbnail>./widgets/hostgroup-monitoring/resources/centreon-logo.png</thumbnail>
