@@ -81,7 +81,7 @@ try {
         $template->assign('startLabel', _("Start"));
         $template->assign('endLabel', _("End"));
         $template->assign('selection', $_REQUEST['selection']);
-        $template->assign('author', $centreon->user->name);
+        $template->assign('author', $centreon->user->alias);
         $template->assign('cmd', $cmd);
         if ($cmd == 72 || $cmd == 70) {
             $template->assign('ackHostSvcLabel', _("Acknowledge services of hosts"));
