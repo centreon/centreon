@@ -161,10 +161,17 @@ if (isset($preferences['state_type_filter']) && $preferences['state_type_filter'
 }
 
 if (isset($preferences['hostgroup']) && $preferences['hostgroup']) {
-    $query = CentreonUtils::conditionBuilder($query, " host_id IN
-    												   (SELECT host_host_id
-    												   FROM ".$conf_centreon['db'].".hostgroup_relation
-    												   WHERE hostgroup_hg_id = ".$dbb->escape($preferences['hostgroup']).") ");
+    
+    $queryTmp = "SELECT host_host_id
+                 FROM hostgroup_relation
+    			 WHERE hostgroup_hg_id = ".$dbb->escape($preferences['hostgroup']);
+    $restmp = $db->query($queryTmp);
+    $rowId[] = -1;
+    while ($row = $restmp->fetchRow()) {
+        $rowId[] = $row['host_host_id'];
+    }
+    $query = CentreonUtils::conditionBuilder($query, " h.host_id IN
+    												   (".implode(',',$rowId).") ");
 }
 if (!$centreon->user->admin) {
     $pearDB = $db;
