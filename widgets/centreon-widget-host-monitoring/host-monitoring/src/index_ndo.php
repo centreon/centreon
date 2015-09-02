@@ -100,10 +100,11 @@ while ($row = $res->fetchRow()) {
     $hostCache[strtolower($row['host_name'])] = $row['host_id'];
 }
 
-$query = "SELECT SQL_CALC_FOUND_ROWS h.display_name as name,
+$query = "SELECT SQL_CALC_FOUND_ROWS h.display_name as host_name,
 				 hs.current_state as state,
 				 hs.state_type,
 				 h.address,
+                 h.alias,
 				 hs.last_hard_state,
 				 hs.output,
 				 hs.scheduled_downtime_depth,
@@ -182,7 +183,7 @@ if (!$centreon->user->admin) {
     $aclObj = new CentreonACL($centreon->user->user_id, $centreon->user->admin);
     $query .= $aclObj->queryBuilder("AND", "display_name", $aclObj->getHostsString("NAME", $dbb));
 }
-$orderby = "name ASC";
+$orderby = "host_name ASC";
 if (isset($preferences['order_by']) && $preferences['order_by'] != "") {    
     $orderby = $preferences['order_by'];    
 }
@@ -194,8 +195,8 @@ $data = array();
 $outputLength = $preferences['output_length'] ? $preferences['output_length'] : 50;
 $hostObj = new CentreonHost($db);
 while ($row = $res->fetchRow()) {
-    if (isset($hostCache[strtolower($row['name'])])) {
-        $hid = $hostCache[strtolower($row['name'])];
+    if (isset($hostCache[strtolower($row['host_name'])])) {
+        $hid = $hostCache[strtolower($row['host_name'])];
         foreach ($row as $key => $value) {
             if ($key == "last_check") {
                 $value = date("Y-m-d H:i:s", $value);
@@ -210,7 +211,7 @@ while ($row = $res->fetchRow()) {
             } elseif ($key == "output") {
                 $value = substr($value, 0, $outputLength);
             } elseif (($key == "action_url" || $key == "notes_url") && $value) {
-                $value = $hostObj->replaceMacroInString($row['name'], $value);
+                $value = $hostObj->replaceMacroInString($row['host_name'], $value);
             }
             $data[$hid][$key] = $value;
         }
