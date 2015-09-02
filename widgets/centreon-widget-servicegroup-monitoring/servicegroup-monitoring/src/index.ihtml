@@ -31,7 +31,7 @@
 				<td class='ui-widget-content'><span style='background-color: {$hostStateColors[$elem2.state]};'>{$elem2.name}</span></td>
 				<td class='ui-widget-content'>
 					{foreach item=elem3 from=$elem.service_state[$elem2.host_id]}						
-						<a target="_blank" href="/centreon/main.php?p=20201&o=svcd&host_name={$elem2.name}&service_description={$elem3.description}" ><span style='background-color: {$serviceStateColors[$elem3.state]};'>{$elem3.description}</span></a>&nbsp;						
+						<a target="_blank" href="{$centreon_web_path}main.php?p=20201&o=svcd&host_name={$elem2.name}&service_description={$elem3.description}" ><span style='background-color: {$serviceStateColors[$elem3.state]};'>{$elem3.description}</span></a>&nbsp;						
 					{/foreach}
 				</td>
 			</tr>
