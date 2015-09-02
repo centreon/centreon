@@ -14,6 +14,7 @@
     <preference label="Host Name" name="host_name_search" defaultValue="" type="compare" header="Filters"/>
     <preference label="Service Description" name="service_description_search" defaultValue="" type="compare"/>
     <preference label="Display Ok" name="svc_ok" defaultValue="1" type="boolean"/>
+    <preference label="hide services with DOWN host" name="hide_down_host" defaultValue="0" type="boolean"/>
     <preference label="Display Warning" name="svc_warning" defaultValue="1" type="boolean"/>
     <preference label="Display Critical" name="svc_critical" defaultValue="1" type="boolean"/>
     <preference label="Display Unknown" name="svc_unknown" defaultValue="1" type="boolean"/>
@@ -34,6 +35,7 @@
     <preference label="Hostgroup" name="hostgroup" defaultValue="" type="hostgroup"/>
     <preference label="Servicegroup" name="servicegroup" defaultValue="" type="servicegroup"/>
     <preference label="Results" name="entries" defaultValue="50" type="range" min="10" max="100" step="10"/>
+    <preference label="Output" name="output_search" defaultValue="" type="compare" />
     <preference label="Display Severities" name="display_severities" defaultValue="1" type="boolean" header="Columns"/>
     <preference label="Display Host Name" name="display_host_name" defaultValue="1" type="boolean" />
     <preference label="Display Service Description" name="display_svc_description" defaultValue="1" type="boolean"/>
@@ -45,6 +47,8 @@
     <preference label="Display Hard State Duration" name="display_hard_state_duration" defaultValue="1" type="boolean"/>
     <preference label="Display Tries" name="display_tries" defaultValue="1" type="boolean"/>
     <preference label="Display Last Comment" name="display_last_comment" defaultValue="0" type="boolean"/>
+    <preference label="Display Latency" name="display_latency" defaultValue="0" type="boolean"/>
+    <preference label="Display Execution Time" name="display_execution_time" defaultValue="0" type="boolean"/>
     <preference label="Comment Length" name="comment_length" defaultValue="50" type="range" min="50" max="500" step="50"/>
     <preference label="Order By" name="order_by" defaultValue="" type="sort">
       <option value="hostname" label="Host Name"/>

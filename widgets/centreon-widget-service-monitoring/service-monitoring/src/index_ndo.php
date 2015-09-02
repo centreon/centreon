@@ -113,6 +113,8 @@ $stateLabels = array(0 => "Ok",
                      4 => "Pending");
 $query = "SELECT SQL_CALC_FOUND_ROWS h.host_id,
 				 h.display_name as hostname,
+                 s.latency,
+                 s.execution_time,
 				 hs.current_state as h_state,
 				 s.service_id,
 				 s.display_name as description,
@@ -188,6 +190,12 @@ if (count($stateTab)) {
     $query = CentreonUtils::conditionBuilder($query, " ss.current_state IN (" . implode(',', $stateTab) . ")");
 }
 
+
+if (isset($preferences['hide_down_host']) && $preferences['hide_down_host']) {
+    $query = CentreonUtils::conditionBuilder($query, " h.state != 1 ");
+}
+
+
 if (isset($preferences['acknowledgement_filter']) && $preferences['acknowledgement_filter']) {
     if ($preferences['acknowledgement_filter'] == "ack") {
         $query = CentreonUtils::conditionBuilder($query, " ss.problem_has_been_acknowledged = 1");
@@ -239,6 +247,19 @@ if (!$centreon->user->admin) {
     			AND acl.service_description = s.display_name
     			AND acl.group_id IN ($groupList)";
 }
+if (isset($preferences['output_search']) && $preferences['output_search'] != "") {
+    $tab = split(" ", $preferences['output_search']);
+    $op = $tab[0];
+    if (isset($tab[1])) {
+        $search = $tab[1];
+    }
+    if ($op && isset($search) && $search != "") {
+        $query = CentreonUtils::conditionBuilder($query, "ss.output ".CentreonUtils::operandToMysqlFormat($op)." '".$dbb->escape($search)."' ");
+    }
+}
+
+
+
 $orderby = "hostname ASC , description ASC";
 if (isset($preferences['order_by']) && $preferences['order_by'] != "") {
     $orderby = $preferences['order_by'];
@@ -254,7 +275,9 @@ while ($row = $res->fetchRow()) {
     $row['service_id'] = $objSvc->getServiceId($row['description'], $row['hostname']);
     foreach ($row as $key => $value) {
         if ($key == "last_check") {
-            $value = date("Y-m-d H:i:s", $value);
+            $gmt = new CentreonGMT($db);
+            $gmt->getMyGMTFromSession(session_id(), $db);
+            $value = $gmt->getDate("Y-m-d H:i:s", $value);
         } elseif ($key == "last_state_change" || $key == "last_hard_state_change") {
             $value = time() - $value;
             $value = CentreonDuration::toString($value);
@@ -274,7 +297,7 @@ while ($row = $res->fetchRow()) {
         $data[$row['host_id']."_".$row['service_id']][$key] = $value;
     }
 }
-$template->assign('centreon_web_path', trim($centreon->optGen['oreon_web_path'], "/"));
+$template->assign('centreon_web_path', $centreon->optGen['oreon_web_path']);
 $template->assign('preferences', $preferences);
 $template->assign('data', $data);
 $template->assign('broker', "ndo");
