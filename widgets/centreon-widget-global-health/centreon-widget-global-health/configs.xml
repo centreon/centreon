@@ -1,0 +1,20 @@
+<configs>
+        <title>Global Health</title>
+        <author>Centreon</author>
+        <email>contact@centreon.com</email>
+        <website>http://www.centreon.com</website>
+        <description>Widget for displaying Global Health</description>
+        <version>1.0.0</version>
+        <keywords>centreon, widget, global, health</keywords>
+        <screenshot></screenshot>
+        <thumbnail>./widgets/centreon-widget-global-health/resources/centreon-logo.png</thumbnail>
+        <url>./widgets/centreon-widget-global-health/index.php</url>
+        <autoRefresh>10</autoRefresh>
+        <preferences>
+            <preference label="Services/Hosts" name="hosts_services" defaultValue="hosts" type="list">
+                <option value="hosts" label="Show hosts"/>
+                <option value="services" label="Show Services"/>
+            </preference>			
+             <preference label="test" name="test" defaultValue="" type="boolean"/>
+        </preferences>        
+</configs>
