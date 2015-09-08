@@ -15,6 +15,5 @@
                 <option value="hosts" label="Show hosts"/>
                 <option value="services" label="Show Services"/>
             </preference>			
-             <preference label="test" name="test" defaultValue="" type="boolean"/>
         </preferences>        
 </configs>
