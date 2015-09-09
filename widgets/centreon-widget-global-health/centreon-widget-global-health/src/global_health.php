@@ -79,7 +79,6 @@ $template->assign("svc_label", _("Services"));
 
 $centreon = $_SESSION['centreon'];
 $widgetId = $_REQUEST['widgetId'];
-$page = $_REQUEST['page'];
 
 $widgetObj = new CentreonWidget($centreon, $db);
 $preferences = $widgetObj->getWidgetPreferences($widgetId);
@@ -126,23 +125,37 @@ if ($oreon->broker->getBroker() == "ndo") {
         $hostArray[$tabSatusHost[$key]]['downtime'] = 0;
         $hostArray[$tabSatusHost[$key]]['percent'] = 0;
     }
-    
-
 
 if(isset($preferences['hosts_services']) && $preferences['hosts_services'] == "hosts"){
         
+    $hgName = false;
+    if(!empty($preferences['hostgroup'])){
+        $sql = "select hg.hg_name from hostgroup hg where hg.hg_id = ".$dbb->escape($preferences['hostgroup'])."";
+        $DBRESULT = $db->query($sql);
+        $row = $DBRESULT->fetchRow();
+        $hgName = $row['hg_name'];
+    }
     
-	/**
+    
+    $innerjoingroup = "";
+    $wheregroup = "";
+    if($hgName){
+        $innerjoingroup =  " INNER JOIN hosts_hostgroups hhg ON  h.host_id = hhg.host_id " .
+                           " INNER JOIN hostgroups hg ON hhg.hostgroup_id = hg.hostgroup_id and hg.name = '".$hgName."' ";
+    }
+    
+	/**$obj->DBC->escape($instance)
 	 * Get DB informations for creating Flash
 	 */
 	if ($oreon->broker->getBroker() == "broker") {
-		$rq1 = 	" SELECT count(DISTINCT name) cnt, state, SUM(acknowledged) as acknowledged, SUM(CASE WHEN scheduled_downtime_depth >= 1 THEN 1 ELSE 0 END) AS downtime  " .
-				" FROM `hosts` " .
-				" WHERE enabled = 1 " .
-		        $oreon->user->access->queryBuilder("AND", "name", $oreon->user->access->getHostsString("NAME", $dbb)) .
-		        " AND name NOT LIKE '_Module_%' " .
-				" GROUP BY state " .
-				" ORDER BY state";
+		$rq1 = 	" SELECT count(DISTINCT h.name) cnt, h.state, SUM(h.acknowledged) as acknowledged, SUM(CASE WHEN h.scheduled_downtime_depth >= 1 THEN 1 ELSE 0 END) AS downtime  " .
+				" FROM `hosts` h " .
+                $innerjoingroup .
+				" WHERE h.enabled = 1 " .
+		        $oreon->user->access->queryBuilder("AND", "h.name", $oreon->user->access->getHostsString("NAME", $dbb)) .
+		        " AND h.name NOT LIKE '_Module_%' " .
+				" GROUP BY h.state " .
+				" ORDER BY h.state";
 		$DBRESULT = $dbb->query($rq1);
 	} else {
 		$rq1 = 	" SELECT count(DISTINCT o.name1) cnt, hs.current_state state, " .
@@ -186,7 +199,20 @@ if(isset($preferences['hosts_services']) && $preferences['hosts_services'] == "h
 
 }else if(isset($preferences['hosts_services']) && $preferences['hosts_services'] == "services"){
 
-
+    $sgName = false;
+    if(!empty($preferences['servicegroup'])){
+        $sql = "select sg.sg_name from servicegroup sg where sg.sg_id = ".$dbb->escape($preferences['servicegroup'])."";
+        $DBRESULT = $db->query($sql);
+        $row = $DBRESULT->fetchRow();
+        $sgName = $row['sg_name'];
+    }
+    
+    $innerjoingroup = "";
+    if($sgName){
+        $innerjoingroup =  " INNER JOIN services_servicegroups ssg ON ssg.service_id = s.service_id and ssg.host_id = s.host_id " .
+                           " INNER JOIN servicegroups sg ON ssg.servicegroup_id = sg.servicegroup_id and sg.name = '".$sgName."' ";
+    }
+    
 	global $is_admin;
 
 	$is_admin =  $oreon->user->admin;
@@ -197,26 +223,27 @@ if(isset($preferences['hosts_services']) && $preferences['hosts_services'] == "h
 	 */
 	if ($oreon->broker->getBroker() == "broker") {
 		if (!$is_admin) {
-			$rq2 = 	" SELECT count(DISTINCT services.state, services.host_id, services.service_id) count, services.state state, " .
-                    " SUM(services.acknowledged) as acknowledged, SUM(CASE WHEN services.scheduled_downtime_depth >= 1 THEN 1 ELSE 0 END) AS downtime  " .
+			$rq2 = 	" SELECT count(DISTINCT s.state, s.host_id, s.service_id) count, s.state state, " .
+                    " SUM(s.acknowledged) as acknowledged, SUM(CASE WHEN s.scheduled_downtime_depth >= 1 THEN 1 ELSE 0 END) AS downtime  " .
 					" FROM services, hosts, centreon_acl " .
-					" WHERE services.host_id = hosts.host_id ".
-					" AND hosts.name NOT LIKE '_Module_%' ".
-					" AND services.host_id = centreon_acl.host_id ".
-					" AND services.service_id = centreon_acl.service_id " .
-			        " AND hosts.enabled = 1 " .
-					" AND services.enabled = 1 " .
-					" AND centreon_acl.group_id IN (".$grouplistStr.") ".
-					" GROUP BY services.state ORDER by services.state";
+                    " INNER JOIN centreon_acl acl ON s.host_id  = acl.host_id AND s.service_id = acl.service_id  " . 
+                    " INNER JOIN hosts h ON s.host_id = h.host_id " .
+                    $innerjoingroup .
+					" WHERE h.name NOT LIKE '_Module_%' ".
+			        " AND h.enabled = 1 " .
+					" AND s.enabled = 1 " .
+					" AND acl.group_id IN (".$grouplistStr.") ".
+					" GROUP BY s.state ORDER by s.state";
 		} else {
-			$rq2 = 	" SELECT count(DISTINCT services.state, services.host_id, services.service_id) count, services.state state, " .
-                    " SUM(services.acknowledged) as acknowledged, SUM(CASE WHEN services.scheduled_downtime_depth >= 1 THEN 1 ELSE 0 END) AS downtime  " .
-					" FROM services, hosts " .
-					" WHERE services.host_id = hosts.host_id ".
-					" AND hosts.name NOT LIKE '_Module_%' ".
-			        " AND hosts.enabled = 1 ".
-					" AND services.enabled = 1 ".
-					" GROUP BY services.state ORDER by services.state";
+			$rq2 = 	" SELECT count(DISTINCT s.state, s.host_id, s.service_id) count, s.state state, " .
+                    " SUM(s.acknowledged) as acknowledged, SUM(CASE WHEN s.scheduled_downtime_depth >= 1 THEN 1 ELSE 0 END) AS downtime  " .
+					" FROM services s" .
+                    " INNER JOIN hosts h ON s.host_id = h.host_id " .
+                    $innerjoingroup .
+					" WHERE h.name NOT LIKE '_Module_%' ".
+			        " AND h.enabled = 1 ".
+					" AND s.enabled = 1 ".
+					" GROUP BY s.state ORDER by s.state";
 		}
 		$DBRESULT = $dbb->query($rq2);
 	} else {

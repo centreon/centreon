@@ -6,7 +6,6 @@
 }
 {/literal}
 </style>
-    
     <h3 style="text-align: center;"> Global health of Hosts </h3>
     <div id="global_health_host_div" style="text-align:center;display:inline-block;vertical-align: middle;"></div>
     <div class="global_health_div_tab" style="display:inline-block;vertical-align: middle;" >
@@ -29,7 +28,7 @@
             </thead>
             <tbody>
                 <tr>
-                    <td> <span class="ListColCenter state_badge" style="background:#88b917"></span> <b> OK </b> </td>
+                    <td> <span class="ListColCenter state_badge" style="background:#88b917"></span> <b> Ok </b> </td>
                     <td> {$hosts.UP.value} </td>
                     <td> {$hosts.UP.acknowledged} </td>
                     <td> {$hosts.UP.downtime} </td>
@@ -77,6 +76,12 @@ jQuery(function () {
                 ['Unreachable', {/literal}{$hosts.UNREACHABLE.percent}{literal}],
                 ['Pending', {/literal}{$hosts.PENDING.percent}{literal}]
             ],
+            link : [
+                ['Up','google.com'],
+                ['Down','google.com'],
+                ['Unreachable','google.com'],
+                ['Pending','google.com'],
+            ],
             type : 'pie',
             colors : {
                 'Up' : '#88b917',
@@ -90,7 +95,7 @@ jQuery(function () {
         },
         size: {
             height: 180,
-            width: 300
+            width: 290
         }
     });
 

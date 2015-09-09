@@ -14,6 +14,9 @@
             <preference label="Services/Hosts" name="hosts_services" defaultValue="hosts" type="list">
                 <option value="hosts" label="Show hosts"/>
                 <option value="services" label="Show Services"/>
-            </preference>			
+            </preference>	
+            <preference label="Hostgroup" name="hostgroup" defaultValue="" type="hostgroup"/>
+            <preference label="Servicegroup" name="servicegroup" defaultValue="" type="servicegroup"/>	
+            <preference label="Refresh Interval (seconds)" name="refresh_interval" defaultValue="30" type="text" header="Misc"/>	
         </preferences>        
 </configs>
