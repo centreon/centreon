@@ -70,7 +70,7 @@ $media = new CentreonMedia($db);
 /**
  * Displaying a Smarty Template
  */
-$path = $centreon_path . "www/widgets/centreon-widget-global-health/src/";
+$path = $centreon_path . "www/widgets/global-health/src/";
 $template = new Smarty();
 $template = initSmartyTplForPopup($path, $template, "./", $centreon_path);
 $template->assign("session", session_id());
