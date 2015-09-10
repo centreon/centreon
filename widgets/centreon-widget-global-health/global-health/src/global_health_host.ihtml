@@ -1,0 +1,106 @@
+<style>
+{literal}
+.global_health_div_tab td, .global_health_div_tab th
+{
+    padding:0 10px 0 10px;
+}
+{/literal}
+</style>
+    <h3 style="text-align: center;"> Global health of Hosts </h3>
+    <div id="global_health_host_div" style="text-align:center;display:inline-block;vertical-align: middle;"></div>
+    <div class="global_health_div_tab" style="display:inline-block;vertical-align: middle;" >
+        <table>
+            <thead>
+                <th>
+                </th>
+                <th>
+                    <small>Number</small>
+                </th>
+                <th>
+                    <small>Ack</small>
+                </th>
+                <th>
+                    <small>DT</small>
+                </th>
+                <th>
+                    <small>%</small>
+                </th>
+            </thead>
+            <tbody>
+                <tr>
+                    <td> <span class="ListColCenter state_badge" style="background:#88b917"></span> <b> Ok </b> </td>
+                    <td> {$hosts.UP.value} </td>
+                    <td> {$hosts.UP.acknowledged} </td>
+                    <td> {$hosts.UP.downtime} </td>
+                    <td> {$hosts.UP.percent} </td>
+                </tr>
+                <tr>
+
+                    <td> <span class="ListColCenter state_badge" style="background:#e00b3d"></span> <b> Down </b> </td>
+                    <td> {$hosts.DOWN.value} </td>
+                    <td> {$hosts.DOWN.acknowledged} </td>
+                    <td> {$hosts.DOWN.downtime} </td>
+                    <td> {$hosts.DOWN.percent} </td>
+                </tr>
+                <tr>
+
+                    <td> <span class="ListColCenter state_badge" style="background:#0072ce"></span> <b> Unreachable </b> </td>
+                    <td> {$hosts.UNREACHABLE.value} </td>
+                    <td> {$hosts.UNREACHABLE.acknowledged} </td>
+                    <td> {$hosts.UNREACHABLE.downtime} </td>
+                    <td> {$hosts.UNREACHABLE.percent} </td>
+                </tr>
+                <tr>
+                    <td> <span class="ListColCenter state_badge" style="background:#bcbdc0"></span> <b> Pending </b> </td>
+                    <td> {$hosts.PENDING.value} </td>
+                    <td> {$hosts.PENDING.acknowledged} </td>
+                    <td> {$hosts.PENDING.downtime} </td>
+                    <td> {$hosts.PENDING.percent} </td>
+                </tr>
+            </tbody>
+        </table>
+
+    </div>
+
+
+<script>
+{literal}
+jQuery(function () {
+    c3.generate({
+        bindto: d3.select('#global_health_host_div'),
+        data: {
+            // iris data from R
+            columns: [
+                ['Up', {/literal}{$hosts.UP.percent}{literal}],
+                ['Down', {/literal}{$hosts.DOWN.percent}{literal}],
+                ['Unreachable', {/literal}{$hosts.UNREACHABLE.percent}{literal}],
+                ['Pending', {/literal}{$hosts.PENDING.percent}{literal}]
+            ],
+            link : [
+                ['Up','google.com'],
+                ['Down','google.com'],
+                ['Unreachable','google.com'],
+                ['Pending','google.com'],
+            ],
+            type : 'pie',
+            colors : {
+                'Up' : '#88b917',
+                'Down' : '#e00b3d',
+                'Unreachable' : '#0072ce',
+                'Pending' : '#bcbdc0'
+            }
+        },
+        legend: {
+            show: false
+        },
+        size: {
+            height: 180,
+            width: 290
+        }
+    });
+
+});
+
+   {/literal}
+   
+</script>
