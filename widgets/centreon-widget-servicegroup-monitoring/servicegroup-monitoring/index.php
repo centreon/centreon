@@ -90,7 +90,7 @@ try {
     </head>
     <body>
         <div id='actionBar'>
-            <span style='float:left;width:35%'>&nbsp;</span>
+            <span style='float:left;width:35%'><a href='./src/export.php?widgetId=<?php echo $widgetId; ?>' >Export</a></span>
             <span id='pagination' class='pagination' style='float:left;width:50%'></span>
             <span id='nbRows' style='float:left;width:14%;text-align:right;font-weight: bold;'></span>
         </div><br/><br/>
