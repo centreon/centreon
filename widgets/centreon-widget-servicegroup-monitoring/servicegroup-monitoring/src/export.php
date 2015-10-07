@@ -34,7 +34,7 @@
  */
 
 header('Content-type: application/csv');
-header('Content-Disposition: attachment; filename="hostsgroups-monitoring.csv"');
+header('Content-Disposition: attachment; filename="servicegroups-monitoring.csv"');
 
 require_once "../../require.php";
 require_once $centreon_path . 'www/class/centreon.class.php';
