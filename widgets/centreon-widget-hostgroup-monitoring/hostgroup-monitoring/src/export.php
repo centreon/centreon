@@ -63,7 +63,7 @@ $template = initSmartyTplForPopup($path, $template, "./", $centreon_path);
 
 $centreon = $_SESSION['centreon'];
 $widgetId = $_REQUEST['widgetId'];
-$page = $_REQUEST['page'];
+//$page = $_REQUEST['page'];
 
 $dbb = new CentreonDB("centstorage");
 $widgetObj = new CentreonWidget($centreon, $db);
@@ -141,7 +141,7 @@ if (isset($preferences['order_by']) && $preferences['order_by'] != "") {
 }
 
 $query .= "ORDER BY $orderby";
-$query .= " LIMIT ".($page * $preferences['entries']).",".$preferences['entries'];
+//$query .= " LIMIT ".($page * $preferences['entries']).",".$preferences['entries'];
 $res = $dbb->query($query);
 $nbRows = $dbb->numberRows();
 $data = array();
