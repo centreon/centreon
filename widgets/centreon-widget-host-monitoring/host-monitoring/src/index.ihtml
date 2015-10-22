@@ -1,31 +1,31 @@
 <form>
-    <table id='HostTable' class='styleTable'>
-	<tr>
-		<th class='ui-state-default' style='width:20px;text-align:center;'><input type='checkbox' id='selection_0' class='checkall selection'/></th>
-        {if $broker == 'broker'}
-		{if $preferences.display_severities}<th class='ui-state-default' name='Severities'>S.</th>{/if}
-        {/if}
-		{if $preferences.display_host_name}<th class='ui-state-default' name='name' colspan='2'>Hostname</th>{/if}
-		{if $preferences.display_host_alias}<th class='ui-state-default' name='alias'>Alias</th>{/if}
-		{if $preferences.display_ip}<th class='ui-state-default' name='address'>Address</th>{/if}
-		{if $preferences.display_status}<th class='ui-state-default' name='state'>Status</th>{/if}
-		{if $preferences.display_duration}<th class='ui-state-default' name='last_state_change'>Duration</th>{/if}
-		{if $preferences.display_hard_state_duration}<th class='ui-state-default' name='last_hard_state_change'>Hard State Duration</th>{/if}
-		{if $preferences.display_last_check}<th class='ui-state-default' name='last_check'>Last Check</th>{/if}
-		{if $preferences.display_tries}<th class='ui-state-default' name='check_attempt'>Attempt</th>{/if}
-		{if $preferences.display_output}<th class='ui-state-default' name='output'>Output</th>{/if}
-        {if $broker == 'broker'}
-		{if $preferences.display_last_comment}<th class='ui-state-default' name='comment'>Comment</th>{/if}
-        {/if}
+    <table id='HostTable' class='ListTable'>
+	<tr class="ListHeader">
+		<td class='' style='width:20px;text-align:center;'><input type='checkbox' id='selection_0' class='checkall selection'/></td>
+            {if $broker == 'broker'}
+                    {if $preferences.display_severities}<td class='ListColLeft' name='Severities'>S.</td>{/if}
+            {/if}
+                    {if $preferences.display_host_name}<td class='ListColLeft' name='name' colspan='2'>Hostname</td>{/if}
+                    {if $preferences.display_host_alias}<td class='ListColLeft' name='alias'>Alias</td>{/if}
+                    {if $preferences.display_ip}<td class='ListColLeft' name='address'>Address</td>{/if}
+                    {if $preferences.display_status}<td class='ListColLeft' name='state'>Status</td>{/if}
+                    {if $preferences.display_duration}<td class='ListColLeft' name='last_state_change'>Duration</td>{/if}
+                    {if $preferences.display_hard_state_duration}<td class='ListColLeft' name='last_hard_state_change'>Hard State Duration</td>{/if}
+                    {if $preferences.display_last_check}<td class='ListColLeft' name='last_check'>Last Check</td>{/if}
+                    {if $preferences.display_tries}<td class='ListColLeft' name='check_attempt'>Attempt</td>{/if}
+                    {if $preferences.display_output}<td class='ListColLeft' name='output'>Output</td>{/if}
+            {if $broker == 'broker'}
+                    {if $preferences.display_last_comment}<td class='ListColLeft' name='comment'>Comment</td>{/if}
+            {/if}
 	</tr>
 	{foreach item=elem from=$data}
 	<tr>
-		<td class='ui-widget-content' style='width:20px;text-align:center;'><input class='selection' id='selection_{$elem.host_id}' type='checkbox'/></td>
+		<td class='ListColLeft' style='width:20px;text-align:center;'><input class='selection' id='selection_{$elem.host_id}' type='checkbox'/></td>
         {if $broker == 'broker'}
-		{if $preferences.display_severities}<td class='ui-widget-content' style='text-align:center;'>{$elem.criticality}</td>{/if}
+		{if $preferences.display_severities}<td class='ListColLeft' style='text-align:center;'>{$elem.criticality}</td>{/if}
         {/if}
 		{if $preferences.display_host_name}
-			<td class='ui-widget-content'>
+			<td class='ListColLeft'>
                	{if $preferences.display_status == 0}
                 <div style='background-color:{$elem.color};'>
                 {/if}
@@ -33,7 +33,7 @@
                 {if $preferences.display_status == 0}
                 </div>
                 {/if}
-			<td class='ui-widget-content'>
+			<td class='ListColLeft'>
 				<div style='float: right;'>
 					{if $elem.scheduled_downtime_depth}<img src='/{$centreon_web_path}/img/icones/16x16/warning.gif'>{/if}
 					{if $elem.acknowledged}<img src='/{$centreon_web_path}/img/icones/16x16/worker.gif'>{/if}
@@ -53,16 +53,16 @@
 				</div>
 			</td>
 		{/if}
-		{if $preferences.display_host_alias}<td class='ui-widget-content' style='text-align:center;'>{$elem.alias}</td>{/if}
-		{if $preferences.display_ip}<td class='ui-widget-content' style='text-align:center;'>{$elem.address}</td>{/if}
-		{if $preferences.display_status}<td class='ui-widget-content' style='text-align:center;'><div style='background-color:{$elem.color};font-weight:bold;padding:0px;margin:0px;'>{$elem.state}</div></td>{/if}
-		{if $preferences.display_duration}<td class='ui-widget-content' style='text-align:center;'>{$elem.last_state_change}</td>{/if}
-		{if $preferences.display_hard_state_duration}<td class='ui-widget-content' style='text-align:center;'>{$elem.last_hard_state_change}</td>{/if}
-		{if $preferences.display_last_check}<td class='ui-widget-content' style='text-align:center;'>{$elem.last_check}</td>{/if}
-		{if $preferences.display_tries}<td class='ui-widget-content' style='text-align:center;'>{$elem.check_attempt}</td>{/if}
-		{if $preferences.display_output}<td class='ui-widget-content'>{$elem.output}</td>{/if}
+		{if $preferences.display_host_alias}<td class='ListColLeft' style='text-align:center;'>{$elem.alias}</td>{/if}
+		{if $preferences.display_ip}<td class='ListColLeft' style='text-align:center;'>{$elem.address}</td>{/if}
+		{if $preferences.display_status}<td class='ListColLeft' style='text-align:center;'><div style='background-color:{$elem.color};font-weight:bold;padding:0px;margin:0px;'>{$elem.state}</div></td>{/if}
+		{if $preferences.display_duration}<td class='ListColLeft' style='text-align:center;'>{$elem.last_state_change}</td>{/if}
+		{if $preferences.display_hard_state_duration}<td class='ListColLeft' style='text-align:center;'>{$elem.last_hard_state_change}</td>{/if}
+		{if $preferences.display_last_check}<td class='ListColLeft' style='text-align:center;'>{$elem.last_check}</td>{/if}
+		{if $preferences.display_tries}<td class='ListColLeft' style='text-align:center;'>{$elem.check_attempt}</td>{/if}
+		{if $preferences.display_output}<td class='ListColLeft'>{$elem.output}</td>{/if}
         {if $broker == 'broker'}
-		{if $preferences.display_last_comment}<td class='ui-widget-content'>{$elem.comment}</td>{/if}
+		{if $preferences.display_last_comment}<td class='ListColLeft'>{$elem.comment}</td>{/if}
         {/if}
 	</tr>
 	{/foreach}
