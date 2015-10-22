@@ -18,8 +18,14 @@
                     {if $preferences.display_last_comment}<td class='ListColLeft' name='comment'>Comment</td>{/if}
             {/if}
 	</tr>
+        {assign var='classStyle' value='list_two'}
 	{foreach item=elem from=$data}
-	<tr>
+                {if $classStyle == 'list_two'}
+			{assign var='classStyle' value='list_one'}
+		{else}
+			{assign var='classStyle' value='list_two'}
+		{/if}
+	<tr class ='{$classStyle}'>
 		<td class='ListColLeft' style='width:20px;text-align:center;'><input class='selection' id='selection_{$elem.host_id}' type='checkbox'/></td>
         {if $broker == 'broker'}
 		{if $preferences.display_severities}<td class='ListColLeft' style='text-align:center;'>{$elem.criticality}</td>{/if}
@@ -53,13 +59,13 @@
 				</div>
 			</td>
 		{/if}
-		{if $preferences.display_host_alias}<td class='ListColLeft' style='text-align:center;'>{$elem.alias}</td>{/if}
-		{if $preferences.display_ip}<td class='ListColLeft' style='text-align:center;'>{$elem.address}</td>{/if}
-		{if $preferences.display_status}<td class='ListColLeft' style='text-align:center;'><div style='background-color:{$elem.color};font-weight:bold;padding:0px;margin:0px;'>{$elem.state}</div></td>{/if}
-		{if $preferences.display_duration}<td class='ListColLeft' style='text-align:center;'>{$elem.last_state_change}</td>{/if}
-		{if $preferences.display_hard_state_duration}<td class='ListColLeft' style='text-align:center;'>{$elem.last_hard_state_change}</td>{/if}
-		{if $preferences.display_last_check}<td class='ListColLeft' style='text-align:center;'>{$elem.last_check}</td>{/if}
-		{if $preferences.display_tries}<td class='ListColLeft' style='text-align:center;'>{$elem.check_attempt}</td>{/if}
+		{if $preferences.display_host_alias}<td class='ListColLeft' style='white-space:nowrap;'>{$elem.alias}</td>{/if}
+		{if $preferences.display_ip}<td class='ListColLeft' style='white-space:nowrap;'>{$elem.address}</td>{/if}
+		{if $preferences.display_status}<td class='ListColLeft' style='white-space:nowrap;'><div style='background-color:{$elem.color};font-weight:bold;padding:0px;margin:0px;'>{$elem.state}</div></td>{/if}
+		{if $preferences.display_duration}<td class='ListColLeft' style='white-space:nowrap;'>{$elem.last_state_change}</td>{/if}
+		{if $preferences.display_hard_state_duration}<td class='ListColLeft' style='white-space:nowrap;'>{$elem.last_hard_state_change}</td>{/if}
+		{if $preferences.display_last_check}<td class='ListColLeft' style='white-space:nowrap;'>{$elem.last_check}</td>{/if}
+		{if $preferences.display_tries}<td class='ListColLeft' style='white-space:nowrap;'>{$elem.check_attempt}</td>{/if}
 		{if $preferences.display_output}<td class='ListColLeft'>{$elem.output}</td>{/if}
         {if $broker == 'broker'}
 		{if $preferences.display_last_comment}<td class='ListColLeft'>{$elem.comment}</td>{/if}
