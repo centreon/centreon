@@ -40,7 +40,6 @@ require_once $centreon_path . 'www/class/centreon.class.php';
 require_once $centreon_path . 'www/class/centreonSession.class.php';
 require_once $centreon_path . 'www/class/centreonDB.class.php';
 require_once $centreon_path . 'www/class/centreonWidget.class.php';
-require_once $centreon_path . 'www/class/centreonACL.class.php';
 
 session_start();
 
@@ -55,7 +54,6 @@ try {
 
     $db = new CentreonDB();
     $db2 = new CentreonDB("centstorage");
-    $dbAcl = $centreon->broker->getBroker() == "ndo" ? new CentreonDB('ndo') : $db2;
     $pearDB = $db;
 
     if ($centreon->user->admin == 0) {
@@ -97,12 +95,8 @@ try {
      */
     $acl = 1;
     if (isset($tab[0]) && isset($tab[1]) && $centreon->user->admin == 0) {
-        $query = "SELECT host_id 
-            FROM centreon_acl 
-            WHERE host_id = ".$dbAcl->escape($tab[0])." 
-            AND service_id = ".$dbAcl->escape($tab[1])." 
-            AND group_id IN (".$grouplistStr.")";
-        $res = $dbAcl->query($query);
+        $query = "SELECT host_id FROM centreon_acl WHERE host_id = ".$db->escape($tab[0])." AND service_id = ".$db->escape($tab[1])." AND group_id IN (".$grouplistStr.")";
+        $res = $db2->query($query);
         if (!$res->numRows()) {
             $acl = 0;
         }
@@ -121,10 +115,9 @@ try {
     </style>
     <head>
     	<title>Graph Monitoring</title>
-
+    	<link href="../../Themes/Centreon-2/style.css" rel="stylesheet" type="text/css"/>
     	<link href="../../Themes/Centreon-2/jquery-ui/jquery-ui.css" rel="stylesheet" type="text/css"/>
     	<link href="../../Themes/Centreon-2/jquery-ui/jquery-ui-centreon.css" rel="stylesheet" type="text/css"/>
-    	<link href="../../Themes/Centreon-2/style.css" rel="stylesheet" type="text/css"/>
     	<script type="text/javascript" src="../../include/common/javascript/jquery/jquery.js"></script>
     	<script type="text/javascript" src="../../include/common/javascript/jquery/jquery-ui.js"></script>
         <script type="text/javascript" src="../../include/common/javascript/widgetUtils.js"></script>
@@ -152,6 +145,7 @@ jQuery(function() {
 	if (image) {
     	   image.onload = function() {
            	var h = this.height;
+                parent.iResize(window.name, h);
                 jQuery(window).resize(function() {
     	   	     reload();
     	        });
