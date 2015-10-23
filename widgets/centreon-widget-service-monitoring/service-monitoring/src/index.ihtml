@@ -19,8 +19,14 @@
         {/if}
 	</tr>
 	{assign var='previous' value=''}
-	{foreach item=elem from=$data}	
-	<tr>
+	{assign var='classStyle' value='list_two'}
+    	{foreach item=elem from=$data}
+                {if $classStyle == 'list_two'}
+                    {assign var='classStyle' value='list_one'}
+                {else}
+                    {assign var='classStyle' value='list_two'}
+                {/if}
+                <tr class ='{$classStyle}'>
 		<td>
 		<input class='selection' id='selection_{$elem.host_id};{$elem.service_id}' type='checkbox'/></td>
 		{if $preferences.display_severities}<td class=''>{$elem.criticality_id}</td>{/if}
