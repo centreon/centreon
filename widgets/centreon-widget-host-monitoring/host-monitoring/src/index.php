@@ -81,6 +81,8 @@ $stateColors = getColors($db);
 // Get status labels
 $stateLabels = getLabels();
 
+$aStateType = array("1" => "H", "0" => "S");
+
 $query = "SELECT SQL_CALC_FOUND_ROWS h.host_id,
 				 h.name AS host_name,
 				 h.alias,
@@ -101,7 +103,9 @@ $query = "SELECT SQL_CALC_FOUND_ROWS h.host_id,
 				 max_check_attempts,
 				 action_url,
 				 notes_url, 
-                 cv.value AS criticality,
+                                 cv.value AS criticality,
+                                 h.icon_image,
+                                 h.icon_image_alt, 
 		         cv2.value AS criticality_id,
                  cv.name IS NULL as isnull ";
 $query .= "FROM hosts h ";
@@ -210,7 +214,7 @@ while ($row = $res->fetchRow()) {
             $value = time() - $value;
             $value = CentreonDuration::toString($value);
         } elseif ($key == "check_attempt") {
-            $value = $value . "/" . $row['max_check_attempts'];
+            $value = $value . "/" . $row['max_check_attempts'] . ' ('.$aStateType[$row['state_type']].')';
         } elseif ($key == "state") {
             $data[$row['host_id']]['color'] = $stateColors[$value];
             $value = $stateLabels[$value];
@@ -235,6 +239,19 @@ while ($row = $res->fetchRow()) {
     }
 
     $data[$row['host_id']]['encoded_host_name'] = urlencode($data[$row['host_id']]['host_name']);
+        
+    $class = null;
+    if ($row["scheduled_downtime_depth"] > 0) {
+        $class = "line_downtime";
+    } else if ($row["state"] == 1) {
+        $row["acknowledged"] == 1 ? $class = "line_ack" : $class = "list_down";
+    } else {
+        if ($row["acknowledged"] == 1)
+            $class = "line_ack";
+    }
+    
+    $data[$row['host_id']]['class_tr'] = $class;
+
 }
 $template->assign('centreon_web_path', trim($centreon->optGen['oreon_web_path'], "/"));
 $template->assign('preferences', $preferences);

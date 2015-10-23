@@ -76,6 +76,12 @@ try {
         
     	<link href="../../include/common/javascript/jquery/plugins/pagination/pagination.css" rel="stylesheet" type="text/css"/>
         <link href="../../Themes/Centreon-2/style.css" rel="stylesheet" type="text/css"/>
+        <link href="<?php echo '../../Themes/Centreon-2/Color/blue_css.php';?>" rel="stylesheet" type="text/css"/>
+        <link href="<?php echo '../../Themes/Centreon-2/Color/green_css.php';?>" rel="stylesheet" type="text/css"/>
+        <link href="<?php echo '../../Themes/Centreon-2/Color/pink_css.php';?>" rel="stylesheet" type="text/css"/>
+        <link href="<?php echo '../../Themes/Centreon-2/Color/red_css.php';?>" rel="stylesheet" type="text/css"/>
+        <link href="<?php echo '../../Themes/Centreon-2/Color/yellow_css.php';?>" rel="stylesheet" type="text/css"/>
+        
     	<script type="text/javascript" src="../../include/common/javascript/jquery/jquery.js"></script>
     	<script type="text/javascript" src="../../include/common/javascript/jquery/jquery-ui.js"></script>
     	<script type="text/javascript" src="../../include/common/javascript/jquery/plugins/pagination/jquery.pagination.js"></script>
@@ -84,15 +90,15 @@ try {
         <style type="text/css">
          body{ margin:0; padding: 0; }
          .ListHeader {background: #cfedf9 none repeat scroll 0 0;}
-         div#actionBar { position:absolute; top:0; left:0; width:100%; height:25px; background-color: #FFFFFF; }
-         @media screen { body>div#actionBar { position: fixed; } }
+         .ListTable {font-size:11px;border-color: #BFD0E2;}
          * html body { overflow:hidden; }
          * html div#hostMonitoringTable { height:100%; overflow:auto; }
+         
     </style>
     </head>
     <body>
     <div id='actionBar' style='width:100%;'>
-	<span id='toolBar' style='float:left;width:30%;'></span>
+	<span id='toolBar'></span>
 	<span id='pagination' class='pagination' style='float:left;width:45%;text-align:center;'> </span>
         <span id='nbRows' style='float:left;width:24%;text-align:right;font-weight:bold;'></span>
     </div><br/><br/>
