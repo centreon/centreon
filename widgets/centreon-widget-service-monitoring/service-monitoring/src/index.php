@@ -106,6 +106,8 @@ while ($row = $res->fetchRow()) {
     }
 }
 
+$aStateType = array("1" => "H", "0" => "S");
+
 $stateLabels = array(0 => "Ok",
                      1 => "Warning",
                      2 => "Critical",
@@ -120,6 +122,7 @@ $query = "SELECT SQL_CALC_FOUND_ROWS h.host_id,
 		s.service_id,
 		s.description,
 		s.state as s_state,
+                h.state_type as state_type,
 		s.last_hard_state,
 		s.output,
 		s.scheduled_downtime_depth as s_scheduled_downtime_depth,
@@ -142,7 +145,8 @@ $query = "SELECT SQL_CALC_FOUND_ROWS h.host_id,
 		s.action_url as s_action_url,
 		s.notes_url as s_notes_url, 
 		cv2.value AS criticality_id,
-		cv.value AS criticality_level
+		cv.value AS criticality_level,
+                h.icon_image
 ";
 $query .= " FROM hosts h, services s ";
 $query .= " LEFT JOIN customvariables cv ON (s.service_id = cv.service_id AND s.host_id = cv.host_id AND cv.name = 'CRITICALITY_LEVEL') ";
@@ -288,8 +292,6 @@ if (isset($preferences['order_by']) && $preferences['order_by'] != "") {
 }
 
 
-
-
 $query .= "ORDER BY $orderby";
 $query .= " LIMIT ".($page * $preferences['entries']).",".$preferences['entries'];
 $res = $dbb->query($query);
@@ -311,7 +313,7 @@ while ($row = $res->fetchRow()) {
             $value = time() - $value;
             $value = CentreonDuration::toString($value);
         } elseif ($key == "check_attempt") {
-            $value = $value . "/" . $row['max_check_attempts'];
+            $value = $value . "/" . $row['max_check_attempts']. ' ('.$aStateType[$row['state_type']].')';
         } elseif ($key == "s_state") {
             $data[$row['host_id']."_".$row['service_id']]['color'] = $stateSColors[$value];
             $value = $stateLabels[$value];
