@@ -88,20 +88,20 @@ try {
     	<!--script type="text/javascript" src="../../include/common/javascript/widgetUtils.js"></script-->
         
         <style type="text/css">
-         body{ margin:0; padding: 0; }
-         .ListHeader {background: #cfedf9 none repeat scroll 0 0;}
-         .ListTable {font-size:11px;border-color: #BFD0E2;}
-         * html body { overflow:hidden; }
-         * html div#hostMonitoringTable { height:100%; overflow:auto; }
-         
-    </style>
+            body{ margin:0; padding: 0; }
+            .ListHeader {background: #cfedf9 none repeat scroll 0 0;}
+            .ListTable {font-size:11px;border-color: #BFD0E2;}
+            * html body { overflow:hidden; }
+            * html div#hostMonitoringTable { height:100%; overflow:auto; }
+
+        </style>
     </head>
     <body>
     <div id='actionBar' style='width:100%;'>
 	<span id='toolBar'></span>
 	<span id='pagination' class='pagination' style='float:left;width:45%;text-align:center;'> </span>
         <span id='nbRows' style='float:left;width:24%;text-align:right;font-weight:bold;'></span>
-    </div><br/><br/>
+    </div>
         <div id='hostMonitoringTable'></div>
     </body>
 <script type="text/javascript">

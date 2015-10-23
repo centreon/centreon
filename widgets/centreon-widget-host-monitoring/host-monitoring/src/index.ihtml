@@ -1,5 +1,5 @@
 <form>
-    <table id='HostTable' class='ListTable'>
+    <table id='HostTable' class='ListTable styleTable'>
 	<tr class="ListHeader">
             <td class='ListColHeaderPicker' style='width:20px;text-align:center;'><input type='checkbox' id='selection_0' class='checkall selection'/></td>
             {if $broker == 'broker'}
