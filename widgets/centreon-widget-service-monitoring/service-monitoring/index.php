@@ -89,7 +89,6 @@ try {
                  body{ margin:0; padding: 0; font-size: 11px;}
                  * html body { overflow:hidden; }
                  * html div#hostMonitoringTable { height:100%; overflow:auto; }
-                 .ToolbarTable {float:left;}
                  .ListTable {font-size:11px;border-color: #BFD0E2;}
                  .ListHeader {
                      background: #cfedf9;
@@ -103,7 +102,6 @@ try {
         <span id='pagination' class='pagination' style='float:left;width:35%;text-align:center;'> </span>
         <span id='nbRows' style='float:left;width:19%;text-align:right;font-weight:bold;'></span>
     </div>
-    <br/><br/>
         <div id='hostMonitoringTable'></div>
 	</body>
 <script type="text/javascript">
