@@ -1,62 +1,60 @@
 <form>
-	<table id='HostTable' class='styleTable'>
-	<tr>
-		<th class='ui-state-default'><input type='checkbox' id='selection_0;0' class='checkall selection'/></th>
-		{if $preferences.display_severities}<th class='ui-state-default' name='Severities'>S.</th>{/if}
-		{if $preferences.display_host_name}<th class='ui-state-default' name='hostname' colspan='2'>Host</th>{/if}
-		{if $preferences.display_svc_description}<th class='ui-state-default' name='description' colspan='2'>Service</th>{/if}
-		{if $preferences.display_status}<th class='ui-state-default' name='s_state'>Status</th>{/if}
-		{if $preferences.display_duration}<th class='ui-state-default' name='last_state_change'>Duration</th>{/if}
-		{if $preferences.display_hard_state_duration}<th class='ui-state-default' name='last_hard_state_change'>Hard State Duration</th>{/if}
-		{if $preferences.display_last_check}<th class='ui-state-default' name='last_check'>Last Check</th>{/if}
-		{if $preferences.display_tries}<th class='ui-state-default' name='check_attempt'>Attempt</th>{/if}
-                {if $preferences.display_latency}<th class='ui-state-default' name='latency'>Latency</th>{/if}
-                {if $preferences.display_execution_time}<th class='ui-state-default' name='execution_time'>Execution Time</th>{/if}
-		{if $preferences.display_output}<th class='ui-state-default' name='output'>Output</th>{/if}
+	<table id='HostTable' class='ListTable styleTable'>
+	<tr class="ListHeader">
+		<td class="ListColHeaderPicker"><input type='checkbox' id='selection_0;0' class='checkall selection'/></td>
+		{if $preferences.display_severities}<td  class="ListColHeaderCenter" style="white-space: nowrap; width: 17px;" name='Severities'>S</td>{/if}
+		{if $preferences.display_host_name}<td class='' name='hostname' colspan='2'>Host</td>{/if}
+		{if $preferences.display_svc_description}<td class='' name='description' colspan='2'>Service</td>{/if}
+		{if $preferences.display_status}<td class='' name='s_state'>Status</td>{/if}
+		{if $preferences.display_duration}<td class='' name='last_state_change'>Duration</td>{/if}
+		{if $preferences.display_hard_state_duration}<td class='' name='last_hard_state_change'>Hard State Duration</td>{/if}
+		{if $preferences.display_last_check}<td class='' name='last_check'>Last Check</td>{/if}
+		{if $preferences.display_tries}<td class='' name='check_attempt'>Attempt</td>{/if}
+                {if $preferences.display_latency}<td class='' name='latency'>Latency</td>{/if}
+                {if $preferences.display_execution_time}<td class='' name='execution_time'>Execution Time</td>{/if}
+		{if $preferences.display_output}<td class='' name='output'>Output</td>{/if}
 
         {if $broker == "broker"}
-       	{if $preferences.display_last_comment}<th class='ui-state-default' name='comment'>Comment</th>{/if}
+       	{if $preferences.display_last_comment}<td class='' name='comment'>Comment</td>{/if}
         {/if}
 	</tr>
 	{assign var='previous' value=''}
 	{foreach item=elem from=$data}	
 	<tr>
-		<td class='ui-widget-content'><input class='selection' id='selection_{$elem.host_id};{$elem.service_id}' type='checkbox'/></td>
-		{if $preferences.display_severities}<td class='ui-widget-content'>{$elem.criticality_id}</td>{/if}
+		<td>
+		<input class='selection' id='selection_{$elem.host_id};{$elem.service_id}' type='checkbox'/></td>
+		{if $preferences.display_severities}<td class=''>{$elem.criticality_id}</td>{/if}
 		{if $preferences.display_host_name}
 			{if $elem.hostname != $previous}
-				<td class='ui-widget-content'>
-					<div>
-						<div style='background-color: {$elem.hcolor};'>
-							<a href='{$centreon_web_path}main.php?p=201&o=hd&host_name={$elem.encoded_hostname}' target=_blank>{$elem.hostname}</a>
-						</div>
-					</div>
+				<td class=''>
+					<span class="state_badge" style='background-color: {$elem.hcolor};'></span>
+					<a href='{$centreon_web_path}main.php?p=201&o=hd&host_name={$elem.encoded_hostname}' target=_blank>{$elem.hostname}</a>
 				</td>
-				<td class='ui-widget-content'>
+				<td class=''>
 					<div style='float: right;'>
-						{if $elem.h_scheduled_downtime_depth}<img src='{$centreon_web_path}img/icones/16x16/warning.gif'>{/if}
-						{if $elem.h_acknowledged}<img src='{$centreon_web_path}img/icones/16x16/worker.gif'>{/if}
-						{if $elem.h_active_checks == 0}<img src='{$centreon_web_path}img/icones/14x14/gears_stop.gif'>{/if}
-						{if $elem.h_passive_checks}<img src='{$centreon_web_path}img/icones/14x14/gears_pause.gif'>{/if}
-						{if $elem.h_notify == 0}<img src='{$centreon_web_path}img/icones/14x14/noloudspeaker.gif'>{/if}
+						{if $elem.h_scheduled_downtime_depth}<img src='{$centreon_web_path}img/icons/warning.png' class="ico-18">{/if}
+						{if $elem.h_acknowledged}<img src='{$centreon_web_path}img/icones/16x16/worker.gif' class="ico-18">{/if}
+						{if $elem.h_active_checks == 0}<img src='{$centreon_web_path}img/icones/14x14/gears_stop.gif' class="ico-18">{/if}
+						{if $elem.h_passive_checks}<img src='{$centreon_web_path}img/icones/14x14/gears_pause.gif' class="ico-18">{/if}
+						{if $elem.h_notify == 0}<img src='{$centreon_web_path}img/icons/notifications_off.png' class="ico-18">{/if}
 						{if $elem.h_action_url}
 							<a target=_blank href='{$elem.h_action_url}'>
-								<img src='{$centreon_web_path}img/icones/16x16/star_yellow.gif'>
+								<img src='{$centreon_web_path}img/icons/star-full.png' class="ico-16">
 							</a>
 						{/if}
 						{if $elem.h_notes_url}
 							<a target=_blank href='{$elem.h_notes_url}'>
-								<img src='{$centreon_web_path}img/icones/15x7/weblink.gif'>
+								<img src='{$centreon_web_path}img/icons/link.png' class="ico-14">
 							</a>
 						{/if}
 					</div>
 				</td>
 			{else}
-				<td class='ui-widget-content' colspan='2'></td>
+				<td class='' colspan='2'></td>
 			{/if}
 		{/if}
 		{if $preferences.display_svc_description}
-			<td class='ui-widget-content'>
+			<td class=''>
             {if $preferences.display_status == 0}
                <div style='background-color: {$elem.color};'>
             {/if}
@@ -65,13 +63,13 @@
                 </div>
             {/if}
             </td>
-			<td class='ui-widget-content'>
+			<td class=''>
 				<div style='float: right;'>
 					{if $elem.s_scheduled_downtime_depth}<img src='{$centreon_web_path}img/icones/16x16/warning.gif'>{/if}
 					{if $elem.s_acknowledged}<img src='{$centreon_web_path}img/icones/16x16/worker.gif'>{/if}
 					{if $elem.s_active_checks == 0 && $elem.s_passive_checks == 0}<img src='{$centreon_web_path}img/icones/14x14/gears_stop.gif'>{/if}
 					{if $elem.s_passive_checks == 1 && $elem.s_active_checks == 0}<img src='{$centreon_web_path}img/icones/14x14/gears_pause.gif'>{/if}
-					{if $elem.s_notify == 0}<img src='{$centreon_web_path}img/icones/14x14/noloudspeaker.gif'>{/if}
+					{if $elem.s_notify == 0}<img src='{$centreon_web_path}img/icons/notifications_off.png' class="ico-18">{/if}
 					{if $elem.s_action_url}
 						<a target=_blank href='{$elem.s_action_url}'>
 							<img src='{$centreon_web_path}img/icones/16x16/star_yellow.gif'>
@@ -79,25 +77,29 @@
 					{/if}
 					{if $elem.s_notes_url}
 						<a target=_blank href='{$elem.s_notes_url}'>
-							<img src='{$centreon_web_path}img/icones/15x7/weblink.gif'>
+							<img src='{$centreon_web_path}img/icons/link.png' class="ico-14">
 						</a>
 					{/if}
 				</div>
 			</td>
 		{/if}
-		{if $preferences.display_status}<td class='ui-widget-content' style='text-align:center;'><div style='background-color: {$elem.color};font-weight:bold;'>{$elem.s_state}</div></td>{/if}
-		{if $preferences.display_duration}<td class='ui-widget-content' style='text-align:right;'>{$elem.last_state_change}</td>{/if}
-		{if $preferences.display_hard_state_duration}<td class='ui-widget-content' style='text-align:right;'>{$elem.last_hard_state_change}</td>{/if}
-		{if $preferences.display_last_check}<td class='ui-widget-content' style='text-align:center;'>{$elem.last_check}</td>{/if}
-		{if $preferences.display_tries}<td class='ui-widget-content' style='text-align:center;'>{$elem.check_attempt}</td>{/if}
-                {if $preferences.display_latency}<td class='ui-widget-content'>{$elem.latency}</td>{/if}
-                {if $preferences.display_execution_time}<td class='ui-widget-content'>{$elem.execution_time}</td>{/if}
-		{if $preferences.display_output}<td class='ui-widget-content'>{$elem.output}</td>{/if}
+		{if $preferences.display_status}
+		<td class='' style='text-align:center;'>
+			<span style='background-color: {$elem.color};font-weight:bold;' class="badge">{$elem.s_state}</span>
+		</td>
+		{/if}
+		{if $preferences.display_duration}<td class='' style='text-align:right;'>{$elem.last_state_change}</td>{/if}
+		{if $preferences.display_hard_state_duration}<td class='' style='text-align:right;'>{$elem.last_hard_state_change}</td>{/if}
+		{if $preferences.display_last_check}<td class='' style='text-align:center;'>{$elem.last_check}</td>{/if}
+		{if $preferences.display_tries}<td class='' style='text-align:center;'>{$elem.check_attempt}</td>{/if}
+                {if $preferences.display_latency}<td class=''>{$elem.latency}</td>{/if}
+                {if $preferences.display_execution_time}<td class=''>{$elem.execution_time}</td>{/if}
+		{if $preferences.display_output}<td class=''>{$elem.output}</td>{/if}
 
 
 
         {if $broker == "broker"}
-		{if $preferences.display_last_comment}<td class='ui-widget-content'>{$elem.comment}</td>{/if}
+		{if $preferences.display_last_comment}<td class=''>{$elem.comment}</td>{/if}
         {/if}
 	</tr>
 	{assign var='previous' value=$elem.hostname}
