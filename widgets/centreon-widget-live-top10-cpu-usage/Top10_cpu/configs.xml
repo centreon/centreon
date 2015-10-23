@@ -1,0 +1,20 @@
+<configs>
+        <title>Top10_cpu</title>
+        <author>Centreon</author>
+        <email>contact@centreon.com</email>
+        <website>http://www.centreon.com</website>
+        <description>Widget for top 10 hosts in function % cpu</description>
+        <version>1.0</version>
+        <keywords>centreon, widget, cpu</keywords>
+        <screenshot></screenshot>
+        <thumbnail>./widgets/Top10_cpu/resources/logo1.png</thumbnail>
+        <url>./widgets/Top10_cpu/index.php</url>
+        <autoRefresh>10</autoRefresh>
+	<preferences>
+	  <preference label="Titre" name="title" defaultValue="TOP-10 Most CPU consuming" type="text"/>
+	  <preference label="Service Description" name="service_description" defaultValue="cpu" type="text" header="Filter"/>
+	  <preference label="Metric Name" name="metric_name" defaultValue="cpu" type="text" header="Filter"/>
+	  <preference label="Nombre de ligne" name="nb_lin" defaultValue="10" type="text" header="Filter"/>
+	  <preference label="Name Host Group" name="host_group" defaultValue="" type="hostgroup" header="Resource"/>
+	 </preferences>
+</configs>

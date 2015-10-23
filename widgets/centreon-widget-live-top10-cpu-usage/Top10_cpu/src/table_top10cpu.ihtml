@@ -1,0 +1,32 @@
+<style type="text/css">
+ {literal}
+    @import url('src/top10_cpu.css');
+    @import url('../../Themes/Centreon-2/style.css');
+ {/literal}
+</style>
+
+<form>
+	<H3 class="title">{$title}</H3>
+	<table class="styleTable">
+	{foreach item=elem from=$data}
+	<tr>
+	<td class="index">#{$elem.numLin}</td>
+	<td class="ui-widget-content stat">
+		<div class="bar">
+                {if $elem.status == 0 }<span class="progress-ok"  style="width: {$elem.current_value}%;"></span>
+                                <span class="percent">{$elem.current_value}%</span>{/if}
+                {if $elem.status == 1 }<span class="progress-warning" style="width: {$elem.current_value}%;"></span>
+                                 <span class="percent">{$elem.current_value}%</span>{/if}
+                {if $elem.status == 2 }<span class="progress-critical" style="width: {$elem.current_value}%;"></span>
+                                       <span  class="percent" style="color: white;">{$elem.current_value}%</span>{/if}
+                {if $elem.status == 3 }<span class="progress-unknown" style="width: {$elem.current_value}%;" style="background-color: #bcbdc0;"></span>
+                <span class="percent">{$elem.current_value}%</span>{/if}
+		</div>
+	</td>
+        <td>
+	<a href="/centreon/main.php?p=20201&amp;o=svc&amp;host_name={$elem.host_name}&service_description=cpu" target="_blank">{$elem.host_name}</a>
+	</td>
+	{/foreach}
+	</tr>
+	</table>
+</form>
