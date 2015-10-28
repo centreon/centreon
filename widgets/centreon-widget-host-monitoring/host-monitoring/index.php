@@ -75,6 +75,7 @@ try {
     	<link href="../../Themes/Centreon-2/jquery-ui/jquery-ui-centreon.css" rel="stylesheet" type="text/css"/>
         
     	<link href="../../include/common/javascript/jquery/plugins/pagination/pagination.css" rel="stylesheet" type="text/css"/>
+        
         <link href="../../Themes/Centreon-2/style.css" rel="stylesheet" type="text/css"/>
         <link href="<?php echo '../../Themes/Centreon-2/Color/blue_css.php';?>" rel="stylesheet" type="text/css"/>
         <link href="<?php echo '../../Themes/Centreon-2/Color/green_css.php';?>" rel="stylesheet" type="text/css"/>
@@ -93,7 +94,6 @@ try {
             .ListTable {font-size:11px;border-color: #BFD0E2;}
             * html body { overflow:hidden; }
             * html div#hostMonitoringTable { height:100%; overflow:auto; }
-
         </style>
     </head>
     <body>
@@ -105,63 +105,63 @@ try {
         <div id='hostMonitoringTable'></div>
     </body>
 <script type="text/javascript">
-var widgetId = <?php echo $widgetId; ?>;
-var autoRefresh = <?php echo $autoRefresh;?>;
-var timeout;
-var itemsPerPage = <?php echo $preferences['entries'];?>;
-var pageNumber = 0;
-var clickedCb = new Array();
-var broker = '<?php echo $broker;?>';
+    var widgetId = <?php echo $widgetId; ?>;
+    var autoRefresh = <?php echo $autoRefresh;?>;
+    var timeout;
+    var itemsPerPage = <?php echo $preferences['entries'];?>;
+    var pageNumber = 0;
+    var clickedCb = new Array();
+    var broker = '<?php echo $broker;?>';
 
-jQuery(function() {
-	loadToolBar();
-	loadPage();
-	$('.checkall').live('click', function () {
-		var chck = this.checked;
-		$(this).parents().find(':checkbox').each(function() {
-			$(this).attr('checked', chck);
-			clickedCb[$(this).attr('id')] = chck;
-		});
-	});
-	$(".selection").live('click', function() {
-		clickedCb[$(this).attr('id')] = this.checked;
-	});
-});
+    jQuery(function() {
+            loadToolBar();
+            loadPage();
+            $('.checkall').live('click', function () {
+                var chck = this.checked;
+                $(this).parents().find(':checkbox').each(function() {
+                    $(this).attr('checked', chck);
+                    clickedCb[$(this).attr('id')] = chck;
+                });
+            });
+            $(".selection").live('click', function() {
+                clickedCb[$(this).attr('id')] = this.checked;
+            });
+    });
 
-/**
- * Load Page
- */
-function loadPage()
-{
-	var indexPage = "index";
+    /**
+     * Load Page
+     */
+    function loadPage()
+    {
+        var indexPage = "index";
         if (broker == 'ndo') {
             indexPage = 'index_ndo';
         }
         jQuery.ajax("./src/"+indexPage+".php?widgetId="+widgetId+"&page="+pageNumber, {        
         success : function(htmlData) {
-                jQuery("#hostMonitoringTable").html("");
-                jQuery("#hostMonitoringTable").html(htmlData);
-                var h = document.getElementById("hostMonitoringTable").scrollHeight + 30;
-                parent.iResize(window.name, h);
+            jQuery("#hostMonitoringTable").html("");
+            jQuery("#hostMonitoringTable").html(htmlData);
+            var h = document.getElementById("hostMonitoringTable").scrollHeight + 30;
+            parent.iResize(window.name, h);
         }
-	});
-	if (autoRefresh) {
-		if (timeout) {
-			clearTimeout(timeout);
-		}
-		timeout = setTimeout(loadPage, (autoRefresh * 1000));
-	}
-}
+        });
+        if (autoRefresh) {
+            if (timeout) {
+                clearTimeout(timeout);
+            }
+            timeout = setTimeout(loadPage, (autoRefresh * 1000));
+        }
+    }  
 
-/**
- * Load toolbar
- */
-function loadToolBar()
-{
-	jQuery("#toolBar").load("./src/toolbar.php",
-							{
-								widgetId :	widgetId
-							});
-}
+    /**
+     * Load toolbar
+     */
+    function loadToolBar()
+    {
+        jQuery("#toolBar").load("./src/toolbar.php",
+        {
+            widgetId :	widgetId
+        });
+    }
 </script>
 </html>
