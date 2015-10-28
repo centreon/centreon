@@ -42,7 +42,6 @@ require_once $centreon_path . 'www/class/centreonWidget.class.php';
 session_start();
 
 if (!isset($_SESSION['centreon']) || !isset($_REQUEST['widgetId'])) {
-  print "DDD";
     exit;
 }
 $centreon = $_SESSION['centreon'];
@@ -68,38 +67,6 @@ try {
         $autoRefresh = $preferences['refresh_interval'];
     }
     
-    /*
-     * Prepare URL
-     */
-    if (isset($preferences['service']) && $preferences['service']) {
-        $tab = split("-", $preferences['service']);
-        
-        $host_name = "";
-        $service_description = "";
-        
-        $res = $db2->query("SELECT host_name, service_description
-                                   FROM index_data
-                           WHERE host_id = ".$db->escape($tab[0])."
-                           AND service_id = ".$db->escape($tab[1])."
-                           LIMIT 1");
-        if ($res->numRows()) {
-            $row = $res->fetchRow();
-            $host_name = $row["host_name"];
-            $service_description = $row["service_description"]; 
-        } 
-    }
-    
-    /*
-     * Check ACL
-     */
-    $acl = 1;
-    if (isset($tab[0]) && isset($tab[1]) && $centreon->user->admin == 0) {
-        $query = "SELECT host_id FROM centreon_acl WHERE host_id = ".$db->escape($tab[0])." AND service_id = ".$db->escape($tab[1])." AND group_id IN (".$grouplistStr.")";
-        $res = $db2->query($query);
-        if (!$res->numRows()) {
-            $acl = 0;
-        }
-    }
 } catch (Exception $e) {
     echo $e->getMessage() . "<br/>";
     exit;
@@ -119,10 +86,10 @@ try {
   </head>
     <body>
 	<?php 
-        if (isset($preferences['host_group']) && $preferences['host_group']!='') {
+    if (/* isset($preferences['']) */ /* && */ $preferences['service_description'] != '' && $preferences['metric_name'] != '' && $preferences['nb_lin'] != '') {
             print "<div id=\"top10memory\"></div>";         
         } else {
-            print "<center><div class='update' style='text-align:center;width:350px;'>"._("Please select a Host group first")."</div></center>";
+            print "<center><div class='update' style='text-align:center;width:350px;'>"._("Please select a metric_name, nb_lin, service_description")."</div></center>";
         } 
 	?>
 

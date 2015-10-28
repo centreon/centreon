@@ -62,6 +62,7 @@ if (!isset($_SESSION['centreon']) || !isset($_REQUEST['widgetId'])) {
 
 
 $db_centreon = new CentreonDB("centreon");
+$pearDB = $db_centreon;
 if (CentreonSession::checkSession(session_id(), $db_centreon) == 0) {
     exit;
 }
@@ -90,6 +91,13 @@ if (isset($preferences['ba_id']) && $preferences['ba_id']!='') {
     $reportingPeriod= 0;
 }
 
+if ($centreon->user->admin == 0) {
+  $access = new CentreonACL($centreon->user->get_id());
+  $grouplist = $access->getAccessGroups();
+  $grouplistStr = $access->getAccessGroupsString();
+}
+
+
 
 // Get the right date regarding the parameter
 
@@ -101,18 +109,32 @@ $orderBy = 'start_time';
 $data = array();
 $db = new CentreonDB("centstorage");
 
+if ($preferences['host_group'] == ''){
+$query = "select DISTINCT T1.service_id, T1.host_id, T1.host_name, T1.service_description, current_value/Max as ratio, Max-current_value as remaining_space, lAst_hard_state as status 
+from index_data T1, metrics T2, services T3 " .($centreon->user->admin == 0 ? ", centreon_acl acl" : ""). " 
+where T1.service_description like '%".$preferences['service_description']."%'
+AND metric_name like '%".$preferences['metric_name']."%'
+and T2.index_id = id
+and T1.service_id = T3.service_id
+and T1.host_id = T3.host_id
+AND Max is not null 
+and T2.index_id = id
+" .($centreon->user->admin == 0 ? " AND T1.host_id = acl.host_id AND T1.service_id = acl.service_id AND acl.group_id IN (" .($grouplistStr != "" ? $grouplistStr : 0). ")" : ""). " 
+order by ratio desc limit ".$preferences['nb_lin'].";";
+
+} else {
 
 $query_name = "select hg_name from hostgroup where hg_id = ".$preferences['host_group'].";";
 error_log($query_name);
 $res = $db_centreon->query($query_name);
 
-while ($row = $res->fetchRow()) {
-  $name = $row['hg_name'];
-}
+  while ($row = $res->fetchRow()) {
+    $name = $row['hg_name']; 
+  }
 
-$query = "select T2.service_id, T2.host_id, host_name, service_description, current_value/Max as ratio, Max-current_value as place, last_hard_state as status 
-from services T1, index_data T2, metrics T3, hostgroups T4, hosts_hostgroups T5 
-where service_description like '%".$preferences['service_description']."%' 
+$query = "select T2.service_id, T2.host_id, T2.host_name, T2.service_description, current_value/Max as ratio, Max-current_value as remaining_space, last_hard_state as status 
+from services T1, index_data T2, metrics T3, hostgroups T4, hosts_hostgroups T5 " .($centreon->user->admin == 0 ? ", centreon_acl acl" : ""). "
+where T2.service_description like '%".$preferences['service_description']."%' 
 AND Max is not null 
 and T3.index_id = id 
 and T2.service_id = T1.service_id 
@@ -121,20 +143,53 @@ and metric_name like '%".$preferences['metric_name']."%'
 and T4.name like '%".$name."%'
 and T5.hostgroup_id = T4.hostgroup_id
 and T1.host_id = T5.host_id
+" .($centreon->user->admin == 0 ? " AND T1.host_id = acl.host_id AND T1.service_id = acl.service_id AND acl.group_id AND T4.hg_id AND T5.host_group_id IN (" .($grouplistStr != "" ? $grouplistStr : 0). ")" : ""). " 
 group by T2.host_id order by ratio desc limit ".$preferences['nb_lin'].";";
+}
 
 error_log($query);
 $title ="Default Title";
 $title= $preferences['title'];
 $numLine = 1;
+$in = 0;
+
+function getUnit($in)
+{
+  if ($in == 0) {
+    $return = "B";
+    return $return;
+  }
+  else if ($in == 1) {
+    $return = "KB";
+    return $return;
+  }
+  else if ($in == 2) {
+    $return = "MB";
+    return $return;
+  }
+  else if ($in == 3) {
+    $return = "GB";
+    return $return;
+  }
+  else if ($in == 4) {
+    $return = "TB";
+    return $return;
+  }
+}
 
 $res = $db->query($query);
 while ($row = $res->fetchRow()) {
 $row['numLin'] = $numLine;
-$row['place'] = $row['place'] * 1024;
+while ($row['remaining_space'] >= 1024) {
+  $row['remaining_space'] = $row['remaining_space'] / 1024;
+    $in = $in + 1;
+  }
+$row['unit'] = getUnit($in);
+$in = 0;
+$row['remaining_space'] = round($row['remaining_space']);
 $row['ratio'] = ceil($row['ratio'] * 100); 
 $data[] = $row;
- $numLine++;
+$numLine++;
 }
 error_log(json_encode($data));
 $template->assign('title', $title);
