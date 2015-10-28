@@ -84,7 +84,7 @@ $graphPeriod = isset($_GET['tp']) ? $_GET['tp'] : (60*60*48);
 $obj->setRRDOption("start", (time() - $graphPeriod));
 $obj->setRRDOption("end", time());
 
-$obj->GMT->getMyGMTFromSession($obj->session_id, $db);
+$obj->GMT->getMyGMTFromSession(session_id(), $db);
 
 /**
  * Template Management
