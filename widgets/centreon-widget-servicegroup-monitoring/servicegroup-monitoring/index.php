@@ -69,18 +69,25 @@ try {
 ?>
 <html>
     <style type="text/css">
-         body{ margin:0; padding:100px 0 0 0; }
-         div#actionBar { position:absolute; top:0; left:0; width:100%; height:25px; background-color: #FFFFFF; }
-         @media screen { body>div#actionBar { position: fixed; } }
-         * html body { overflow:hidden; }
-         * html div#sgMonitoringTable { height:100%; overflow:auto; }
+         body{ margin:0; padding: 0; }
+        .ListHeader {background: #cfedf9 none repeat scroll 0 0;}
+        .ListTable {font-size:11px;border-color: #BFD0E2;}
+        * html body { overflow:hidden; }
+        * html div#hostMonitoringTable { height:100%; overflow:auto; }
     </style>
     <head>
     	<title>Servicegroup Monitoring</title>
-    	<link href="../../Themes/Centreon-2/style.css" rel="stylesheet" type="text/css"/>
+    	
     	<link href="../../Themes/Centreon-2/jquery-ui/jquery-ui.css" rel="stylesheet" type="text/css"/>
     	<link href="../../Themes/Centreon-2/jquery-ui/jquery-ui-centreon.css" rel="stylesheet" type="text/css"/>
     	<link href="../../include/common/javascript/jquery/plugins/pagination/pagination.css" rel="stylesheet" type="text/css"/>
+        <link href="../../Themes/Centreon-2/style.css" rel="stylesheet" type="text/css"/>
+        <link href="<?php echo '../../Themes/Centreon-2/Color/blue_css.php';?>" rel="stylesheet" type="text/css"/>
+        <link href="<?php echo '../../Themes/Centreon-2/Color/green_css.php';?>" rel="stylesheet" type="text/css"/>
+        <link href="<?php echo '../../Themes/Centreon-2/Color/pink_css.php';?>" rel="stylesheet" type="text/css"/>
+        <link href="<?php echo '../../Themes/Centreon-2/Color/red_css.php';?>" rel="stylesheet" type="text/css"/>
+        <link href="<?php echo '../../Themes/Centreon-2/Color/yellow_css.php';?>" rel="stylesheet" type="text/css"/>
+        
     	<link href="../../include/common/javascript/jquery/plugins/treeTable/jquery.treeTable.css" rel="stylesheet" type="text/css"/>
     	<script type="text/javascript" src="../../include/common/javascript/jquery/jquery.js"></script>
     	<script type="text/javascript" src="../../include/common/javascript/jquery/jquery-ui.js"></script>

@@ -1,42 +1,54 @@
 <form>
-	<table id='ServicegroupTable' class='styleTable'>
-	<tr>		
-		<th class='ui-state-default' name='name'>Servicegroup</th>		
-		<th class='ui-state-default'>Host Status</th>
-		<th class='ui-state-default'>Service Status</th>		
+	<table id='ServicegroupTable' class='ListTable styleTable'>
+	<tr class="ListHeader">		
+            <td class='ListColHeaderLeft' name='name' colspan='2'>Servicegroups/Hosts</td>		
+            <td class='ListColHeaderCenter'>Status</td>
+            <td class='ListColHeaderLeft'>Service informations</td>		
 	</tr>
+        {assign var='classStyle' value='list_two'}
 	{foreach key=sgId item=elem from=$data}
-	<tr id="sg-{$sgId}">
-		<td class='ui-widget-content'>{$elem.name}</td>
+            {if $classStyle == 'list_two'}
+                {assign var='classStyle' value='list_one'}
+            {else}
+                {assign var='classStyle' value='list_two'}
+            {/if}
+            <tr id="sg-{$sgId}" class ='{$classStyle}'>
+		<td class='ListColLeft' colspan='4'>{$elem.name}</td>
+            </tr>
+            <tr id="sg-{$sgId}" class ='{$classStyle}'>
 		{if $preferences.enable_detailed_mode == 0}
-		<td class='ui-widget-content'>
-			{foreach key=state item=counter from=$elem.host_state}
-				<span style='background-color: {$hostStateColors[$state]};'>{$counter}&nbsp;{$hostStateLabels[$state]}</span>&nbsp;				
-			{/foreach}
-		</td>
-		<td class='ui-widget-content'>
-			{foreach key=state item=counter from=$elem.service_state}
-				<span style='background-color: {$serviceStateColors[$state]};'>{$counter}&nbsp;{$serviceStateLabels[$state]}</span></a>&nbsp;				
-			{/foreach}		
-		</td>
+                    <td class='ListColLeft'>
+                        {foreach key=state item=counter from=$elem.host_state}
+                            <span style='background-color: {$hostStateColors[$state]};'>{$counter}&nbsp;{$hostStateLabels[$state]}</span>&nbsp;				
+                        {/foreach}
+                    </td>
+                    <td class='ListColLeft'>
+                        {foreach key=state item=counter from=$elem.service_state}
+                            <span style='background-color: {$serviceStateColors[$state]};'>{$counter}&nbsp;{$serviceStateLabels[$state]}</span></a>&nbsp;				
+                        {/foreach}		
+                    </td>
 		{else}
-			<td></td>
-			<td></td>
+                    <td></td>
+                    <td></td>
 		{/if}
-	</tr>
-	{if $preferences.enable_detailed_mode == 1}
-		{foreach item=elem2 from=$elem.host_state}
-			<tr id="host-{$elem2.host_id}" class="child-of-sg-{$sgId}">
-				<td class='ui-widget-content'></td>
-				<td class='ui-widget-content'><span style='background-color: {$hostStateColors[$elem2.state]};'>{$elem2.name}</span></td>
-				<td class='ui-widget-content'>
-					{foreach item=elem3 from=$elem.service_state[$elem2.host_id]}						
-						<a target="_blank" href="{$centreon_web_path}main.php?p=20201&o=svcd&host_name={$elem2.name}&service_description={$elem3.description}" ><span style='background-color: {$serviceStateColors[$elem3.state]};'>{$elem3.description}</span></a>&nbsp;						
-					{/foreach}
-				</td>
-			</tr>
-		{/foreach}	
-	{/if}
+            </tr>
+            {if $preferences.enable_detailed_mode == 1}
+                {foreach item=elem2 from=$elem.host_state}
+                    <tr id="host-{$elem2.host_id}" class="child-of-sg-{$sgId}">
+                        <td class='ListColLeft' width='160'>{$elem2.name}</td>
+                        <td class='ListColLeft' style='white-space:nowrap;width:37px;'>
+                            <a href='/{$centreon_web_path}/main.php?o=hd&p=20201&host_search={$elem2.name}' target=_blank><img src='/{$centreon_web_path}/img/icons/view.png' class='ico-18' /></a>&nbsp;
+                            <a href='/{$centreon_web_path}/main.php?p=40201&mode=0&svc_id={$elem2.name}' target=_blank><img src='/{$centreon_web_path}/img/icons/chart.png' class='ico-18' /></a>
+                        </td>
+                        <td class='ListColCenter' style='white-space:nowrap;'><span class='badge' style='background-color: {$hostStateColors[$elem2.state]};'>{$hostStateLabels[$elem2.state]}</span></td>
+                        <td class='ListColLeft'>
+                            {foreach item=elem3 from=$elem.service_state[$elem2.host_id]}						
+                                <a target="_blank" href="/{$centreon_web_path}/main.php?p=202&o=svcd&host_name={$elem2.name}&service_description={$elem3.description}" ><span class='state_badge' style='background-color: {$serviceStateColors[$elem3.state]};'></span>&nbsp;{$elem3.description}</a>&nbsp;						
+                            {/foreach}
+                        </td>
+                    </tr>
+                {/foreach}	
+            {/if}
 	{/foreach}	
 	</table>
 </form>
