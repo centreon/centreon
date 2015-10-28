@@ -24,7 +24,7 @@
 		</div>
 	</td>
         <td>
-	<a href="/centreon/main.php?p=20201&amp;o=svc&amp;host_name={$elem.host_name}&service_description=cpu" target="_blank">{$elem.host_name}</a>
+	<a href="/centreon/main.php?p=20201&o=svcd&host_name={$elem.host_name}&service_description={$elem.service_description}" target="_blank">{$elem.host_name}</a>
 	</td>
 	{/foreach}
 	</tr>
