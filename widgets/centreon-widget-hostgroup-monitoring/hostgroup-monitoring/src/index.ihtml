@@ -56,10 +56,10 @@
                 {foreach item=elem2 from=$elem.host_state}
                     <tr id="host-{$elem2.host_id}" class="child-of-hg-{$hgId}">
                         <td class='ListColLeft'></td>
-                        <td class='ListColLeft'><a href='/{$centreon_web_path}/main.php?o=hd&p=20202&host_name={$elem2.name}' target=_blank><span class='state_badge' style='background-color: {$hostStateColors[$elem2.state]};'></span>{$elem2.name}</a></td>
+                        <td class='ListColLeft'><a href='/{$centreon_web_path}/main.php?o=hd&p=20202&host_name={$elem2.name}' target=_blank><span class='state_badge {$aColorHost[$elem2.state]}'></span>{$elem2.name}</a></td>
                         <td class='ListColLeft'>
                             {foreach item=elem3 from=$elem.service_state[$elem2.host_id]}						
-                                <a href='/{$centreon_web_path}/main.php?o=svcd&p=20201&amp;host_name={$elem2.name}&service_description={$elem3.description}' target=_blank><span class='state_badge' style='background-color: {$serviceStateColors[$elem3.state]};'></span>{$elem3.description}</a>&nbsp;						
+                                <a href='/{$centreon_web_path}/main.php?o=svcd&p=20201&amp;host_name={$elem2.name}&service_description={$elem3.description}' target=_blank><span class='state_badge {$aColorService[$elem3.state]}'></span>{$elem3.description}</a>&nbsp;						
                             {/foreach}
                         </td>
                     </tr>

@@ -54,14 +54,6 @@ try {
     if (isset($preferences['refresh_interval'])) {
         $autoRefresh = $preferences['refresh_interval'];
     }
-    $broker = "broker";
-    $res = $db->query("SELECT `value` FROM `options` WHERE `key` = 'broker'");
-    if ($res->numRows()) {
-        $row = $res->fetchRow();
-        $broker = strtolower($row['value']);
-    } else {
-        throw new Exception('Unknown broker module');
-    }
 } catch (Exception $e) {
     echo $e->getMessage() . "<br/>";
     exit;
@@ -107,7 +99,6 @@ try {
     var timeout;
     var itemsPerPage = <?php echo $preferences['entries'];?>;
     var pageNumber = 0;
-    var broker = '<?php echo $broker;?>';
 
     jQuery(function() {
         loadPage();
@@ -118,11 +109,7 @@ try {
      */
     function loadPage()
     {
-        var indexPage = "index";
-        if (broker == 'ndo') {
-            indexPage = 'index_ndo';
-        }
-        jQuery.ajax("./src/"+indexPage+".php?widgetId="+widgetId+"&page="+pageNumber, {        
+        jQuery.ajax("./src/index.php?widgetId="+widgetId+"&page="+pageNumber, {        
             success : function(htmlData) {
                 jQuery("#hgMonitoringTable").html("");
                 jQuery("#hgMonitoringTable").html(htmlData);
