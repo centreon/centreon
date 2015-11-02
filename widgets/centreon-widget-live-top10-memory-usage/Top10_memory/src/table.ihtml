@@ -14,11 +14,11 @@
 	<td class="ui-widget-content stat">
 		<div class="bar">
 		{if $elem.status == 0 }<span class="progress-ok"  style="width: {$elem.ratio}%;"></span>
-                		<span class="percent">{$elem.ratio}%</span>{/if}
+                		<span class="percent" style="color: #88b917;">{$elem.ratio}%</span>{/if}
 		{if $elem.status == 1 }<span class="progress-warning" style="width: {$elem.ratio}%;"></span>
-                		 <span class="percent">{$elem.ratio}%</span>{/if}
+                		 <span class="percent" style="color: #ff9a13;">{$elem.ratio}%</span>{/if}
 		{if $elem.status == 2 }<span class="progress-critical" style="width: {$elem.ratio}%;"></span>
-		    		       <span  class="percent" style="color: white;">{$elem.ratio}%</span>{/if}
+		    		       <span  class="percent" style="color: #e00b3d;">{$elem.ratio}%</span>{/if}
                 {if $elem.status == 3 }<span class="progress-unknown" style="width: {$elem.ratio}%;" style="background-color: #bcbdc0;"></span>
 		<span class="percent">{$elem.ratio}%</span>{/if}
 		</div>
