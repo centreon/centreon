@@ -68,12 +68,14 @@ $pearDB = $db;
 $aclObj = new CentreonACL($centreon->user->user_id, $centreon->user->admin);
 
 $res = $db->query("SELECT `key`, `value` FROM `options` WHERE `key` LIKE 'color%'");
-$hostStateColors = array(0 => "#19EE11",
+$hostStateColors = array(
+    0 => "#19EE11",
     1 => "#F91E05",
     2 => "#82CFD8",
     4 => "#2AD1D4");
 
-$serviceStateColors = array(0 => "#13EB3A",
+$serviceStateColors = array(
+    0 => "#13EB3A",
     1 => "#F8C706",
     2 => "#F91D05",
     3 => "#DCDADA",
@@ -101,6 +103,9 @@ while ($row = $res->fetchRow()) {
     }
 }
 
+
+$aColorHost = array(0 => 'host_up', 1 => 'host_down', 2 => 'host_unreachable', 4 => 'host_pending');
+$aColorService = array(0 => 'service_ok', 1 => 'service_warning', 2 => 'service_critical', 3 => 'service_unknown', 4 => 'pending');
 $hostStateLabels = array(0 => "Up",
     1 => "Down",
     2 => "Unreachable",
@@ -154,6 +159,8 @@ while ($row = $res->fetchRow()) {
         $data[$row['name']]['service_state'] = $sgMonObj->getServiceStates($row['name'], $detailMode, $centreon->user->admin, $aclObj, $preferences);
     }
 }
+$template->assign('aColorHost', $aColorHost);
+$template->assign('aColorService', $aColorService);
 $template->assign('preferences', $preferences);
 $template->assign('hostStateLabels', $hostStateLabels);
 $template->assign('hostStateColors', $hostStateColors);
