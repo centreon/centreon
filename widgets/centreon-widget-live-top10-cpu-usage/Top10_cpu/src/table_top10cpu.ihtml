@@ -13,12 +13,12 @@
 	<td class="index">#{$elem.numLin}</td>
 	<td class="ui-widget-content stat">
 		<div class="bar">
-                {if $elem.status == 0 }<span class="progress-ok"  style="width: {$elem.current_value}%;"></span>
-                                <span class="percent">{$elem.current_value}%</span>{/if}
+                {if $elem.status == 0 }<span class="progress-ok" style="width: {$elem.current_value}%;"></span>
+                                <span class="percent" style="color: #88b917;">{$elem.current_value}%</span>{/if}
                 {if $elem.status == 1 }<span class="progress-warning" style="width: {$elem.current_value}%;"></span>
-                                 <span class="percent">{$elem.current_value}%</span>{/if}
+                                 <span class="percent" style="color: #ff9a13;">{$elem.current_value}%</span>{/if}
                 {if $elem.status == 2 }<span class="progress-critical" style="width: {$elem.current_value}%;"></span>
-                                       <span  class="percent" style="color: white;">{$elem.current_value}%</span>{/if}
+                                       <span  class="percent" style="color: #e00b3d;">{$elem.current_value}%</span>{/if}
                 {if $elem.status == 3 }<span class="progress-unknown" style="width: {$elem.current_value}%;" style="background-color: #bcbdc0;"></span>
                 <span class="percent">{$elem.current_value}%</span>{/if}
 		</div>

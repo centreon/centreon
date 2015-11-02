@@ -4,26 +4,33 @@
   padding: 2px;
   height: 15px;
   text-align: center;
+  border: 1px grey solid;
+  border-radius: 4px;
   } 
   .bar .progress-ok {
-  background-color: #8FCF3C;                                                                                                                                                            
+  background-color: #caef74;                                                                                                                                                            
   height: 100%;
-  display: block;
+  display: block; 
+  border-radius: 4px;
   } 
   .bar .progress-warning {
-  background-color: #ff9a13;                                                                                                                                                            
+  background-color: #fdc67c;                                                                                                                                                            
   height: 100%;
   display: block;
+   border-radius: 4px;
   }
   .bar .progress-critical {
-  background-color: #f6b6c5;                                                                                                                                                  
+  background-color: #FF9194;                                                                                                                                                  
   height: 100%;
   display: block;
+  color: #e00b3d;
+  border-radius: 4px;
   }
   .bar .progress-unknown {
-  background-color:         #bcbdc0;                                                                                                                                                   
+  background-color: #bcbdc0;                                                         
   height: 100%;
   display: block;
+  border-radius: 4px;
   }
   .styleTable .stat {
    width : 30%;
@@ -32,10 +39,11 @@
   position: absolute;
   top: 3px;
   line-height: 15px;
+  border-radius: 4px;
   }
   .index {                                                                             
    width: 15px;
-     text-align: center;
+   text-align: center;
   }
   .title {
    text-align : center;
