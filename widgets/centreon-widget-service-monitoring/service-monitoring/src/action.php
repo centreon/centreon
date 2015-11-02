@@ -263,20 +263,20 @@ var result = <?php echo $result;?>;
 var successMsg = "<?php echo $successMsg;?>";
 
 $(function() {
-	if (result) {
-		$("#result").html(successMsg);
-		setTimeout('closeBox()', 2000);
-	}
-	$("#submit").click(function() {
-			sendCmd();
-	});
-	$("#ListTable").styleTable();
-	$("#submit").button();
-	toggleDurationField();
-	$("[name=fixed]").click(function() {
-		toggleDurationField();
-	});
-	$("#downtimestart,#downtimeend").datepicker({ dateFormat: 'yy/mm/dd' });
+    if (result) {
+        $("#result").html(successMsg);
+        setTimeout('closeBox()', 2000);
+    }
+    $("#submit").click(function() {
+        sendCmd();
+    });
+    $("#ListTable").styleTable();
+    $("#submit").button();
+    toggleDurationField();
+    $("[name=fixed]").click(function() {
+            toggleDurationField();
+    });
+    $("#downtimestart,#downtimeend").datepicker({ dateFormat: 'yy/mm/dd' });
 });
 
 function closeBox()

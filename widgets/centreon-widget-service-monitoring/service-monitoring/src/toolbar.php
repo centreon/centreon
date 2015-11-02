@@ -128,24 +128,24 @@ var sid = '<?php echo session_id();?>';
 var actions = "<?php echo $actions;?>";
 
 $(function() {
-	$(".toolbar").html(actions);
-	$(".toolbar").change(function() {
-		if (jQuery(this).val() != 0) {
-    		var checkValues = $("input:checked").map(function() {
-    			var tmp = $(this).attr('id').split("_");
-    			return tmp[1];
-    		}).get().join(",");
-    		parent.jQuery.colorbox({
-    							href		:	"./widgets/service-monitoring/src/action.php?sid="+sid+"&selection="+checkValues+"&cmd="+jQuery(this).val(),
-    							width		:	"50%",
-    							height		:	"40%",
-    							opacity		:	0.7,
-    							overlayClose:	false,
-    							iframe		: 	true
-    						});
+    $(".toolbar").html(actions);
+    $(".toolbar").change(function() {
+        if (jQuery(this).val() != 0) {
+            var checkValues = $("input:checked").map(function() {
+                var tmp = $(this).attr('id').split("_");
+                return tmp[1];
+            }).get().join(",");
+            parent.jQuery.colorbox({
+                href		:	"./widgets/service-monitoring/src/action.php?sid="+sid+"&selection="+checkValues+"&cmd="+jQuery(this).val(),
+                width		:	"50%",
+                height		:	"40%",
+                opacity		:	0.7,
+                overlayClose:	false,
+                iframe		: 	true
+            });
 
-    		$(".toolbar").val(0);
-		}
-	});
+            $(".toolbar").val(0);
+        }
+    });
 });
 </script>
