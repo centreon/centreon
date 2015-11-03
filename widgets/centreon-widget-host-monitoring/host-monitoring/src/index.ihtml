@@ -44,26 +44,32 @@
                 {/if}
                     <td class='ListColRight'>
                         <div style='float: right;'>
-                            {if $elem.scheduled_downtime_depth}<img src='/{$centreon_web_path}/img/icons/warning.png' class="ico-18">{/if}
-                            {if $elem.acknowledged}<img src='/{$centreon_web_path}/img/icones/16x16/worker.gif'>{/if}
-                            {if $elem.active_checks == 0}<img src='/{$centreon_web_path}/img/icones/14x14/gears_stop.gif'>{/if}
-                            {if $elem.passive_checks}<img src='/{$centreon_web_path}/img/icones/14x14/gears_pause.gif'>{/if}
+                            {if $elem.scheduled_downtime_depth != 0}<img src='/{$centreon_web_path}/img/icons/warning.png' class="ico-18">{/if}
+                            {if $elem.acknowledged == 1}<img src='/{$centreon_web_path}/img/icons/technician.png' class='ico-20'>{/if}
+                            {if ($elem.active_checks == 0 && $elem.passive_checks == 0) }<img src='/{$centreon_web_path}/img/icons/never_checked.png' class='ico-16'>{/if}
+                            {if ($elem.active_checks == 0 && $elem.passive_checks == 1) }<img src='/{$centreon_web_path}/img/icons/passive_check.png' class='ico-16'>{/if}
                             {if $elem.notify == 0}<img src='/{$centreon_web_path}/img/icons/notifications_off.png' class="ico-18">{/if}
                             {if $elem.action_url}
                                 <a target=_blank href='{$elem.action_url}'>
-                                    <img src='/{$centreon_web_path}/img/icones/16x16/star_yellow.gif'>
+                                    <img src='/{$centreon_web_path}/img/icons/star-full.png' class='ico-16'>
                                 </a>
+                            {/if}
+                            {if $elem.flapping}
+                                <img src='/{$centreon_web_path}/img/icones/16x16/flapping.gif' class="ico-18" title={$title_flapping}>
                             {/if}
                             {if $elem.notes_url}
                                 <a target=_blank href='{$elem.notes_url}'>
-                                        <img src='/{$centreon_web_path}/img/icones/15x7/weblink.gif'>
+                                        <img src='/{$centreon_web_path}/img/icons/link.png' class='ico-14'>
                                 </a>
                             {/if}
+                            <a target=_blank href='/{$centreon_web_path}/main.php?p=204&amp;mode=0&svc_id={$elem.encoded_host_name}'>
+                                <img src='/{$centreon_web_path}/img/icons/chart.png' class='ico-18' title='{$title_graph}' />
+                            </a>
                         </div>
                 </td>
 		{/if}
 		{if $preferences.display_host_alias}<td class='ListColLeft' style='white-space:nowrap;'>{$elem.alias}</td>{/if}
-		{if $preferences.display_status}<td class='ListColCenter' style='white-space:nowrap;'><span class='badge' style='background-color:{$elem.color}; '>{$elem.state}</span></td>{/if}
+		{if $preferences.display_status}<td class='ListColCenter' style='white-space:nowrap;'><span class='badge {$aColorHost[$elem.status]}'>{$elem.state}</span></td>{/if}
                 {if $preferences.display_ip}<td class='ListColRight' style='white-space:nowrap;'>{$elem.address}</td>{/if}
                 {if $preferences.display_last_check}<td class='ListColRight' style='white-space:nowrap;'>{$elem.last_check}</td>{/if}
 		{if $preferences.display_duration}<td class='ListColRight' style='white-space:nowrap;'>{$elem.last_state_change}</td>{/if}

@@ -86,6 +86,7 @@ $aStateType = array("1" => "H", "0" => "S");
 $query = "SELECT SQL_CALC_FOUND_ROWS h.host_id,
 				 h.name AS host_name,
 				 h.alias,
+                                 h.flapping, 
 				 state,
 				 state_type,
 				 address,
@@ -261,6 +262,8 @@ $template->assign('centreon_web_path', trim($centreon->optGen['oreon_web_path'],
 $template->assign('preferences', $preferences);
 $template->assign('data', $data);
 $template->assign('broker', "broker");
+$template->assign('title_graph', _('See Graphs of this host'));
+$template->assign('title_flapping', _('Host is flapping'));
 $template->display('index.ihtml');
 
 ?>
@@ -276,7 +279,7 @@ $template->display('index.ihtml');
             $("#pagination").pagination(nbRows, {
                 items_per_page	: itemsPerPage,
                 current_page	: pageNumber,
-                callback		: paginationCallback
+                callback	: paginationCallback
             }).append("<br/>");
         }
 
