@@ -69,7 +69,7 @@ try {
 ?>
 <html>
     <style type="text/css">
-         body{ margin:0; }
+         body{ margin:0;    height: auto; }
          @media screen { body>div#actionBar { position: fixed; } }
          * html body { overflow:hidden; }
          * html div#hostSumStatusTable { height:100%; overflow:auto; }
