@@ -1,0 +1,15 @@
+<configs>
+        <title>Host Status Summary</title>
+        <author>Centreon</author>
+        <email>contact@centreon.com</email>
+        <website>http://www.centreon.com</website>
+        <description>Widget for displaying Host Status Summary</description>
+        <version>1.0.0</version>
+        <keywords>centreon, widget, host, monitoring</keywords>
+        <screenshot></screenshot>
+        <thumbnail>./widgets/centreon-widget-host-status-summary/resources/centreon-logo.png</thumbnail>
+        <url>./widgets/centreon-widget-host-status-summary/index.php</url>
+        <autoRefresh>10</autoRefresh>
+        <preferences>
+        </preferences>
+</configs>
