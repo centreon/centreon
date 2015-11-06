@@ -1,0 +1,35 @@
+<style type="text/css">
+ {literal}
+    @import url('src/BBmap.css');
+    @import url('../../Themes/Centreon-2/style.css');
+ {/literal}
+</style>
+<form>
+  <table class="ListTable StyleTable">
+  <!-- Header : list of services filter by servicegroups -->
+  <tr class="ListHeader">
+    <td class="ListColHeaderCenter"></td>
+    {foreach item=ser from=$data_service}
+    <td class="ListColLeft">{$ser.description}</td>
+    {/foreach}
+  </tr>
+  <!-- Line by host -->
+  {foreach item=elem from=$data}
+  <tr class="List_one">
+  <td>
+    <a href="/centreon/main.php?p=20202&o=hd&host_name={$elem.name}" target="_blank">{$elem.name}</a>
+    </td>
+    {foreach item=servi from=$data_service}		 	
+      {if $elem.host_id|in_array:$servi.hosts}
+        <td class="ListColCenter">
+	<span style="background-color: {$servi.hostsStatus[$elem.host_id]};" class="state_badge">
+	</span> 
+	</td>
+      {else}
+        <td></td>
+       {/if}
+    {/foreach}	      
+  </tr>
+  {/foreach}
+  </table>
+</form>
