@@ -1,5 +1,5 @@
 <?php
-/*
+/**
  * Copyright 2005-2015 CENTREON
  * Centreon is developped by : Julien Mathis and Romain Le Merlus under
  * GPL Licence 2.0.
@@ -50,7 +50,6 @@ require_once $centreon_path . 'www/class/centreonACL.class.php';
 require_once $centreon_path . 'www/class/centreonHost.class.php';
 
  // Load specific Smarty class //
-
 require_once $centreon_path ."GPL_LIB/Smarty/libs/Smarty.class.php";
 
 error_log("Après require");
@@ -63,7 +62,6 @@ if (!isset($_SESSION['centreon']) || !isset($_REQUEST['widgetId'])) {
 
 
 $db_centreon = new CentreonDB("centreon");
-$pearDB = $db_centreon;
 if (CentreonSession::checkSession(session_id(), $db_centreon) == 0) {
     exit;
 }
@@ -71,7 +69,7 @@ if (CentreonSession::checkSession(session_id(), $db_centreon) == 0) {
 error_log("Debut widget claire");
 
 // Configure new smarty object
-$path = $centreon_path . "www/widgets/BBmap/src/";
+$path = $centreon_path . "www/widgets/Top10-modified/src/";
 $template = new Smarty();
 $template = initSmartyTplForPopup($path, $template, "./", $centreon_path);
 
@@ -92,12 +90,6 @@ if (isset($preferences['ba_id']) && $preferences['ba_id']!='') {
     $reportingPeriod= 0;
 }
 
-/*
-if ($centreon->user->admin == 0) {
-  $access = new CentreonACL($centreon->user->get_id());
-  $grouplist = $access->getAccessGroups();
-  $grouplistStr = $access->getAccessGroupsString();
-} */
 
 // Get the right date regarding the parameter
 
@@ -107,97 +99,25 @@ $periodName = "defaultName";
 $orderBy = 'start_time';
 
 $data = array();
-$data_service = array();
-$data_check = array();
 $db = new CentreonDB("centstorage");
-$inc = 0;
 
+$query = "SELECT host_name, service_description, service_id, host_id, cpu.current_value as current_value 
+            FROM index_data, metrics cpu 
+            WHERE service_description LIKE '%cpu%' AND cpu.index_id = id AND cpu.metric_name LIKE '%cpu%' ORDER BY current_value DESC LIMIT 10";
 
-$query1 = "select T1.name, T2.host_id
-from hosts T1, hosts_hostgroups T2
-where T1.host_id = T2.host_id
-and T2.hostgroup_id = ".$preferences['host_group'].";";
-
-error_log($query1);
-
-$services_pref = explode(",", $preferences['service']);
-$query2 = "select distinct T1.description
-From services T1 ";
-foreach ($services_pref as $elem) {
-  if ($inc == "O") {
-    $query2 .= "where T1.description like '";
-    $query2 .= "%";
-    $query2 .= $elem;
-    $query2 .= "%";
-    $query2 .= "'";
-    $inc = $inc + 1;
-  }
-  else {
-    $query2 .= " or T1.description like '";
-    $query2 .= "%";
-    $query2 .= $elem;
-    $query2 .= "%";
-    $query2 .= "'";
-    $inc = $inc + 1;
-  }
-}
-  $query2 .= ";";
-
- error_log($query2);
-
- $query3 = "SELECT distinct T1.service_id, T1.description, T1.state, T1.host_id
-           from services T1
-           where T1.enabled = 1 and (T1.description not like 'ba_%'
-           and T1.description not like 'meta_%'";
- foreach ($services_pref as $elem) {
-    $query3 .= " or T1.description like '";
-    $query3 .= "%";
-    $query3 .= $elem;
-    $query3 .= "%";
-    $query3 .= "'";
-}
-  $query3 .= ");";
-
-error_log($query3);
-
-
+error_log($query);
 $title ="Default Title";
 
-$res = $db->query($query1);
+$numLine = 1;
+
+$res = $db->query($query);
 while ($row = $res->fetchRow()) {
+$row['numLin'] = $numLine;  
  $data[] = $row;
+ $numLine++;
 }
-
-$res2 = $db->query($query2);
-while ($row = $res2->fetchRow()) {
-  $data_service[$row['description']] = array(
-    'description' => $row['description'],
-    'hosts' => array(),
-    'hostsStatus' => array()
-  );
-}
-
-
-$colors = array(
- 0 => '#8FCF3C',
- 1 => '#ff9a13',
- 2 => '#e00b3d',
- 3 => '#bcbdc0',
- 4 => 'lightblue'
-);
-
-$res3 = $db->query($query3);
-while ($row = $res3->fetchRow()) {
-  if (isset($data_service[$row['description']])) {
-    $data_service[$row['description']]['hosts'][] = $row['host_id'];
-    $data_service[$row['description']]['hostsStatus'][$row['host_id']] = $colors[$row['state']];
-  }
-}
-
-
 error_log(json_encode($data));
 $template->assign('title', $title);
 $template->assign('data', $data);
-$template->assign('data_service', $data_service);
 $template->display('table.ihtml');
 ?>

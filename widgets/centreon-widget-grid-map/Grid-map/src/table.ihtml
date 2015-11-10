@@ -1,22 +1,27 @@
 <style type="text/css">
  {literal}
-    @import url('src/BBmap.css');
     @import url('../../Themes/Centreon-2/style.css');
  {/literal}
 </style>
 <form>
-  <table class="ListTable StyleTable">
+  <table class="ListTable StyleTable body">
   <!-- Header : list of services filter by servicegroups -->
   <tr class="ListHeader">
     <td class="ListColHeaderCenter"></td>
     {foreach item=ser from=$data_service}
-    <td class="ListColLeft">{$ser.description}</td>
+    <td class="ListColCenter">{$ser.description}</td>
     {/foreach}
   </tr>
   <!-- Line by host -->
+  {assign var='classStyle' value='list_two'}
   {foreach item=elem from=$data}
-  <tr class="List_one">
-  <td>
+  {if $classStyle == 'list_two'}
+       {assign var='classStyle' value='list_one'}
+  {else}
+      {assign var='classStyle' value='list_two'}
+  {/if}
+  <tr class='{$classStyle}'>
+  <td class="ListColLeft">
     <a href="/centreon/main.php?p=20202&o=hd&host_name={$elem.name}" target="_blank">{$elem.name}</a>
     </td>
     {foreach item=servi from=$data_service}		 	
