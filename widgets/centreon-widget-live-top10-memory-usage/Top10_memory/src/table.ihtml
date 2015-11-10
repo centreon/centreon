@@ -7,10 +7,16 @@
 
 <form>
 	<H3 class="title">{$title}</H3>
-	<table class="styleTable">
+	<table class="styleTable ListTable">
+	{assign var='classStyle' value='list_two'}
 	{foreach item=elem from=$data}
-	<tr>
-	<td class="index">#{$elem.numLin}</td>
+	 {if $classStyle == 'list_two'}
+       	 {assign var='classStyle' value='list_one'}
+         {else}
+                {assign var='classStyle' value='list_two'}
+        {/if}
+	<tr class="{$classStyle}">
+	<td class="index ListColCenter">#{$elem.numLin}</td>
 	<td class="ui-widget-content stat">
 		<div class="bar">
 		{if $elem.status == 0 }<span class="progress-ok"  style="width: {$elem.ratio}%;"></span>
@@ -23,10 +29,10 @@
 		<span class="percent">{$elem.ratio}%</span>{/if}
 		</div>
 	</td>
-        <td>
+        <td class="ListColLeft">
 	 <a href="/centreon/main.php?p=20201&amp;o=svcd&amp;host_name={$elem.host_name}&service_description={$elem.service_description}" target="_blank">{$elem.host_name}</a>
 	 </td>	 
-	 <td>{$elem.remaining_space} {$elem.unit} remaining</td>
+	 <td class="ListColLeft">{$elem.remaining_space} {$elem.unit} remaining</td>
 	{/foreach}
 	</tr>
 	</table>
