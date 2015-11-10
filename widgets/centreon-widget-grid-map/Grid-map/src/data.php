@@ -75,29 +75,11 @@ $widgetId = $_REQUEST['widgetId'];
 $widgetObj = new CentreonWidget($centreon, $db_centreon);
 $preferences = $widgetObj->getWidgetPreferences($widgetId);
 
-// Beginning of the specific widget code
-
-if (isset($preferences['ba_id']) && $preferences['ba_id']!='') {
-    $baID = $preferences['ba_id'];
-    $reportingPeriod = $preferences['reporting_period'];
-}else{
-   $baID = 0;
-    $reportingPeriod= 0;
-}
-
-
 if ($centreon->user->admin == 0) {
   $access = new CentreonACL($centreon->user->get_id());
   $grouplist = $access->getAccessGroups();
   $grouplistStr = $access->getAccessGroupsString();
 }
-
-// Get the right date regarding the parameter
-
-$reportingPeriodStart = 0;
-$reportingPeriodEnd = 0;
-$periodName = "defaultName";
-$orderBy = 'start_time';
 
 $data = array();
 $data_service = array();
