@@ -9,7 +9,7 @@
   <tr class="ListHeader">
     <td class="ListColHeaderCenter"></td>
     {foreach item=ser from=$data_service}
-    <td class="ListColCenter">{$ser.description}</td>
+    <td class="ListColHeaderCenter">{$ser.description}</td>
     {/foreach}
   </tr>
   <!-- Line by host -->
