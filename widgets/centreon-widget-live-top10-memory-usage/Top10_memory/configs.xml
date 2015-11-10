@@ -11,7 +11,7 @@
         <url>./widgets/Top10_memory/index.php</url>
         <autoRefresh>10</autoRefresh>
 	<preferences>
-	  <preference label="Titre" name="title" defaultValue="TOP 10 - Most memory consuming resources" type="text"/>
+	  <preference label="Titre" name="title" defaultValue="TOP-10 Most memory consuming resources" type="text"/>
          <preference label="Name Host Group" name="host_group" defaultValue="" type="hostgroup" header="Resource"/>
 	 <preference label="Metric Name" name="metric_name" defaultValue="used" type="text"/>
          <preference label="Service Description" name="service_description" defaultValue="memory" type="text"/>
