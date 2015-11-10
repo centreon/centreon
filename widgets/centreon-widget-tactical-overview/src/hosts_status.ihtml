@@ -170,3 +170,40 @@
         </tr>
     </table>
 </div>
+<div id="global_health_host_div"></div>
+
+<script>
+{literal}
+jQuery(function () {
+    c3.generate({
+        bindto: d3.select('#global_health_host_div'),
+        data: {
+            // iris data from R
+            columns: [
+                ['Up', {/literal}{$hostUp}{literal}],
+                ['Down', {/literal}{$hostDown}{literal}],
+                ['Unreachable', {/literal}{$hostUnreach}{literal}],
+                ['Pending', {/literal}{$hostPending}{literal}]
+            ],
+            type : 'pie',
+            colors : {
+                'Up' : '#88b917',
+                'Down' : '#e00b3d',
+                'Unreachable' : '#0072ce',
+                'Pending' : '#bcbdc0'
+            }
+        },
+        legend: {
+            show: false
+        },
+        size: {
+            height: 180,
+            width: 290
+        }
+    });
+
+});
+
+   {/literal}
+   
+</script>

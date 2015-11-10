@@ -84,6 +84,9 @@ try {
     	<script type="text/javascript" src="../../include/common/javascript/jquery/jquery-ui.js"></script>
     	<script type="text/javascript" src="../../include/common/javascript/jquery/plugins/pagination/jquery.pagination.js"></script>
     	<script type="text/javascript" src="../../include/common/javascript/widgetUtils.js"></script>
+        <script src="../../include/common/javascript/charts/d3.min.js" language="javascript"></script>
+        <script src="../../include/common/javascript/charts/c3.min.js" language="javascript"></script>
+
     </head>
     <body>
         <div id='hostSumStatusTable'></div>

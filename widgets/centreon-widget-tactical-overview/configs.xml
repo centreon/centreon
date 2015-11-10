@@ -10,6 +10,10 @@
         <thumbnail>./widgets/centreon-widget-host-status-summary/resources/centreon-logo.png</thumbnail>
         <url>./widgets/centreon-widget-host-status-summary/index.php</url>
         <autoRefresh>10</autoRefresh>
-        <preferences>
+        <preferences>		
+            <preference label="Object" name="object_type" type="list">
+                <option value="hosts" label="Hosts"/>
+                <option value="services" label="Services"/>
+            </preference>
         </preferences>
 </configs>
