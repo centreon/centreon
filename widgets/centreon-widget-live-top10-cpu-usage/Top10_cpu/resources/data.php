@@ -1,5 +1,5 @@
 <?php
-/*
+/**
  * Copyright 2005-2015 CENTREON
  * Centreon is developped by : Julien Mathis and Romain Le Merlus under
  * GPL Licence 2.0.
@@ -39,7 +39,7 @@ ini_set("error_log", "/tmp/php-error.log");
 //require_once "../../require.php";
 require_once "/usr/share/centreon/www/widgets/require.php";
 require_once "./DB-Func.php";
-require_once "/etc/centreon/centreon.conf.php";
+
 require_once $centreon_path . 'www/class/centreon.class.php';
 require_once $centreon_path . 'www/class/centreonSession.class.php';
 require_once $centreon_path . 'www/class/centreonDB.class.php';
@@ -62,7 +62,6 @@ if (!isset($_SESSION['centreon']) || !isset($_REQUEST['widgetId'])) {
 
 
 $db_centreon = new CentreonDB("centreon");
-$pearDB = $db_centreon;
 if (CentreonSession::checkSession(session_id(), $db_centreon) == 0) {
     exit;
 }
@@ -70,7 +69,7 @@ if (CentreonSession::checkSession(session_id(), $db_centreon) == 0) {
 error_log("Debut widget claire");
 
 // Configure new smarty object
-$path = $centreon_path . "www/widgets/Top10_cpu/src/";
+$path = $centreon_path . "www/widgets/Top10-modified/src/";
 $template = new Smarty();
 $template = initSmartyTplForPopup($path, $template, "./", $centreon_path);
 
@@ -92,12 +91,6 @@ if (isset($preferences['ba_id']) && $preferences['ba_id']!='') {
 }
 
 
-if ($centreon->user->admin == 0) {
-  $access = new CentreonACL($centreon->user->get_id());
-  $grouplist = $access->getAccessGroups();
-  $grouplistStr = $access->getAccessGroupsString();
-}
-
 // Get the right date regarding the parameter
 
 $reportingPeriodStart = 0;
@@ -108,48 +101,23 @@ $orderBy = 'start_time';
 $data = array();
 $db = new CentreonDB("centstorage");
 
-if ($preferences['host_group'] == ''){
-  $query = "SELECT DISTINCT T2.host_name, T2.service_description, T2.service_id, T2.host_id, AVG(T3.current_value) as current_value, state as status
-FROM services T1, index_data T2, metrics T3 " .($centreon->user->admin == 0 ? ", centreon_acl acl" : ""). "
-WHERE T2.service_description LIKE '%".$preferences['service_description']."%'
-AND T3.index_id = T2.id
-AND T3.metric_name LIKE '%".$preferences['metric_name']."%'
-and T2.host_id = T1.host_id
-and T2.service_id = T1.service_id
-and current_value <= 100
-".($centreon->user->admin == 0 ? " AND T2.host_id = acl.host_id AND T2.service_id = acl.service_id AND acl.group_id IN (" .($grouplistStr != "" ? $grouplistStr : 0).")" : ""). "
-group by T2.host_id  ORDER BY current_value DESC LIMIT ".$preferences['nb_lin'].";";
-
-} else {
-
-$query = "SELECT T2.host_name, T2.service_description, T2.service_id, T2.host_id, AVG(T3.current_value) as current_value, state as status, T5.hostgroup_id 
-FROM services T1, index_data T2, metrics T3, hosts_hostgroups T5 " .($centreon->user->admin == 0 ? ", centreon_acl acl" : ""). "                                                               
-WHERE T2.service_description LIKE '%".$preferences['service_description']."%' 
-AND T3.index_id = id 
-AND T3.metric_name LIKE '%".$preferences['metric_name']."%' 
-and T2.host_id = T1.host_id 
-and T2.service_id = T1.service_id 
-and T5.hostgroup_id = ".$preferences['host_group']."
-and T1.host_id = T5.host_id 
-and current_value <= 100
-" .($centreon->user->admin == 0 ? " AND T2.host_id = acl.host_id AND T2.service_id = acl.service_id AND acl.group_id IN (" .($grouplistStr != "" ? $grouplistStr : 0). ")" : ""). "
-group by T2.host_id  ORDER BY current_value DESC LIMIT ".$preferences['nb_lin'].";";
-}
+$query = "SELECT host_name, service_description, service_id, host_id, cpu.current_value as current_value 
+            FROM index_data, metrics cpu 
+            WHERE service_description LIKE '%cpu%' AND cpu.index_id = id AND cpu.metric_name LIKE '%cpu%' ORDER BY current_value DESC LIMIT 10";
 
 error_log($query);
 $title ="Default Title";
-$title = $preferences['title'];
+
 $numLine = 1;
 
 $res = $db->query($query);
 while ($row = $res->fetchRow()) {
- $row['numLin'] = $numLine; 
- $row['current_value'] = ceil($row['current_value']); 
+$row['numLin'] = $numLine;  
  $data[] = $row;
  $numLine++;
 }
 error_log(json_encode($data));
 $template->assign('title', $title);
 $template->assign('data', $data);
-$template->display('table_top10cpu.ihtml');
+$template->display('table.ihtml');
 ?>
