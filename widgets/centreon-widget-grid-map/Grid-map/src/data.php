@@ -33,6 +33,8 @@
  *
  */
 
+ini_set("log_errors", 1);
+ini_set("error_log", "/tmp/php-error.log");
 
 //require_once "../../require.php";
 require_once "/usr/share/centreon/www/widgets/require.php";
@@ -51,17 +53,22 @@ require_once $centreon_path . 'www/class/centreonHost.class.php';
 
 require_once $centreon_path ."GPL_LIB/Smarty/libs/Smarty.class.php";
 
+error_log("Après require");
+
 // check if session is alive //
 session_start();
 if (!isset($_SESSION['centreon']) || !isset($_REQUEST['widgetId'])) {
     exit;
 }
 
+
 $db_centreon = new CentreonDB("centreon");
 $pearDB = $db_centreon;
 if (CentreonSession::checkSession(session_id(), $db_centreon) == 0) {
     exit;
 }
+
+error_log("Debut widget claire");
 
 // Configure new smarty object
 $path = $centreon_path . "www/widgets/Grid-map/src/";
@@ -75,11 +82,29 @@ $widgetId = $_REQUEST['widgetId'];
 $widgetObj = new CentreonWidget($centreon, $db_centreon);
 $preferences = $widgetObj->getWidgetPreferences($widgetId);
 
+// Beginning of the specific widget code
+
+if (isset($preferences['ba_id']) && $preferences['ba_id']!='') {
+    $baID = $preferences['ba_id'];
+    $reportingPeriod = $preferences['reporting_period'];
+}else{
+   $baID = 0;
+    $reportingPeriod= 0;
+}
+
+
 if ($centreon->user->admin == 0) {
   $access = new CentreonACL($centreon->user->get_id());
   $grouplist = $access->getAccessGroups();
   $grouplistStr = $access->getAccessGroupsString();
 }
+
+// Get the right date regarding the parameter
+
+$reportingPeriodStart = 0;
+$reportingPeriodEnd = 0;
+$periodName = "defaultName";
+$orderBy = 'start_time';
 
 $data = array();
 $data_service = array();
@@ -94,6 +119,7 @@ where T1.host_id = T2.host_id
 and T2.hostgroup_id = ".$preferences['host_group']."
 ".($centreon->user->admin == 0 ? " AND T1.host_id = acl.host_id AND T2.host_id = acl.host_id AND acl.group_id IN (" .($grouplistStr != "" ? $grouplistStr : 0).")" : ""). ";";
 
+error_log($query1);
 
 $services_pref = explode(",", $preferences['service']);
 $query2 = "select distinct T1.description
@@ -120,6 +146,8 @@ foreach ($services_pref as $elem) {
 }
   $query2 .= ";";
 
+ error_log($query2);
+
  $query3 = "SELECT distinct T1.service_id, T1.description, T1.state, T1.host_id
            from services T1 " .($centreon->user->admin == 0 ? ", centreon_acl acl" : ""). "
            where T1.enabled = 1 and (T1.description not like 'ba_%'
@@ -134,6 +162,9 @@ foreach ($services_pref as $elem) {
     $query3 .= "'";
 }
   $query3 .= ");";
+
+error_log($query3);
+
 
 $title ="Default Title";
 

@@ -9,7 +9,7 @@
   <tr class="ListHeader">
     <td class="ListColHeaderCenter"></td>
     {foreach item=ser from=$data_service}
-    <td class="ListColHeaderCenter">{$ser.description}</td>
+    <td class="ListColCenter">{$ser.description}</td>
     {/foreach}
   </tr>
   <!-- Line by host -->
@@ -24,14 +24,15 @@
   <td class="ListColLeft">
     <a href="/centreon/main.php?p=20202&o=hd&host_name={$elem.name}" target="_blank">{$elem.name}</a>
     </td>
-    {foreach item=servi from=$data_service}		 	
+    {foreach item=servi key=description from=$data_service}		 	
       {if $elem.host_id|in_array:$servi.hosts}
         <td class="ListColCenter">
-	<span style="background-color: {$servi.hostsStatus[$elem.host_id]};" class="state_badge">
+	<a href="/centreon/main.php?p=20201&o=svcd&host_name={$elem.name}&service_description={$description}" target="_blank">
+	<span style="background-color: {$servi.hostsStatus[$elem.host_id]}; margin-right: 1px;" class="state_badge"></a>
 	</span> 
 	</td>
       {else}
-        <td></td>
+        <td class="ListColCenter"><span style="border-left: 12px;">-</span></td>
        {/if}
     {/foreach}	      
   </tr>
