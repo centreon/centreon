@@ -113,7 +113,7 @@ $db = new CentreonDB("centstorage");
 $inc = 0;
 
 
-$query1 = "select T1.name, T2.host_id
+$query1 = "select distinct T1.name, T2.host_id
 from hosts T1, hosts_hostgroups T2 " .($centreon->user->admin == 0 ? ", centreon_acl acl" : ""). "
 where T1.host_id = T2.host_id
 and T2.hostgroup_id = ".$preferences['host_group']."
