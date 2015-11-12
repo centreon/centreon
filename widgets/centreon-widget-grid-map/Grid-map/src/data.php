@@ -128,12 +128,10 @@ From services T1  " .($centreon->user->admin == 0 ? ", centreon_acl acl" : ""). 
 
 foreach ($services_pref as $elem) {
   if ($inc == "O") {
-    if ($centreon->user->admin == 0)
-      {
-	$query2 .= "or T1.description like '";
+    if ($centreon->user->admin == 0) {
+	$query2 .= "and T1.description like '";
       }
-    else
-      {
+    else if ($centreon->user->admin != 0) {
 	$query2 .= "where T1.description like '";
       }
     $query2 .= "%";
