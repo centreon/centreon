@@ -124,11 +124,18 @@ error_log($query1);
 $services_pref = explode(",", $preferences['service']);
 $query2 = "select distinct T1.description
 From services T1  " .($centreon->user->admin == 0 ? ", centreon_acl acl" : ""). "
-".($centreon->user->admin == 0 ? " FROM T1.service_id = acl.service_id AND acl.group_id IN (" .($grouplistStr != "" ? $grouplistStr : 0).")" : ""). "";
+".($centreon->user->admin == 0 ? " WHERE  T1.service_id = acl.service_id AND acl.group_id IN (" .($grouplistStr != "" ? $grouplistStr : 0).")" : ""). "";
 
 foreach ($services_pref as $elem) {
   if ($inc == "O") {
-    $query2 .= "where T1.description like '";
+    if ($centreon->user->admin == 0)
+      {
+	$query2 .= "or T1.description like '";
+      }
+    else
+      {
+	$query2 .= "where T1.description like '";
+      }
     $query2 .= "%";
     $query2 .= $elem;
     $query2 .= "%";
