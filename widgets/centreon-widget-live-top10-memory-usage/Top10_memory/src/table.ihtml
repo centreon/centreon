@@ -6,8 +6,13 @@
 </style>
 
 <form>
-	<H3 class="title">{$title}</H3>
 	<table class="styleTable ListTable">
+	<tr class="ListHeader">
+	<td class="ListColHeaderCenter">#</td>
+	<td class="ListColHeaderCenter">%</td>
+	<td class="ListColHeaderLeft">Hosts</td>
+	<td></td>
+	</tr>
 	{assign var='classStyle' value='list_two'}
 	{foreach item=elem from=$data}
 	 {if $classStyle == 'list_two'}
