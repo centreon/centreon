@@ -129,7 +129,7 @@ if (!$centreon->user->admin) {
     $query = CentreonUtils::conditionBuilder($query, "name IN (".$aclObj->getServiceGroupsString("NAME").")");
 }
 
-$query = CentreonUtils::conditionBuilder($query, "enabled=1");
+//$query = CentreonUtils::conditionBuilder($query, "enabled=1");
 
 
 $orderby = "name ASC";
