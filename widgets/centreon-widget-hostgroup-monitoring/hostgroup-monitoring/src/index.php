@@ -117,7 +117,7 @@ $serviceStateLabels = array(0 => "Ok",
                             3 => "Unknown",
                             4 => "Pending");
 
-$query = "SELECT SQL_CALC_FOUND_ROWS DISTINCT name, alias, hostgroup_id ";
+$query = "SELECT SQL_CALC_FOUND_ROWS DISTINCT name, hostgroup_id ";
 $query .= "FROM hostgroups ";
 if (isset($preferences['hg_name_search']) && $preferences['hg_name_search'] != "") {
     $tab = split(" ", $preferences['hg_name_search']);
@@ -133,7 +133,7 @@ if (!$centreon->user->admin) {
     $query = CentreonUtils::conditionBuilder($query, "name IN (".$aclObj->getHostGroupsString("NAME").")");
 }
 
-$query = CentreonUtils::conditionBuilder($query, "enabled=1");
+//$query = CentreonUtils::conditionBuilder($query, "enabled=1");
 
 $orderby = "name ASC";
 if (isset($preferences['order_by']) && $preferences['order_by'] != "") {
@@ -151,7 +151,6 @@ if (isset($preferences['enable_detailed_mode']) && $preferences['enable_detailed
 }
 while ($row = $res->fetchRow()) {
     $data[$row['name']] = array('name'          => $row['name'],
-                                'alias'         => $row['alias'],
                                 'hg_id'         => $row['hostgroup_id'],
                                 'hgurl'         => "main.php?p=20201&o=svc&hg=" .$row['hostgroup_id'],
                                 "hgurlhost"     => "main.php?p=20202&o=h&hostgroups=" . $row['hostgroup_id'],

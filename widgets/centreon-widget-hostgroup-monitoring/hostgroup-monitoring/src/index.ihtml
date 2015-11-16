@@ -13,7 +13,7 @@
                 {assign var='classStyle' value='list_two'}
             {/if}
             <tr id="hg-{$hgId}" class ='{$classStyle}'>
-                <td class='ListColLeft'><a href='/{$centreon_web_path}/{$elem.hgurl}' target=_blank>{$elem.alias} ({$elem.name})</a></td>
+                <td class='ListColLeft'><a href='/{$centreon_web_path}/{$elem.hgurl}' target=_blank> ({$elem.name})</a></td>
                 {if $preferences.enable_detailed_mode == 0}
                     <td class='ListColLeft'>
                         {assign var='link' value=''}
