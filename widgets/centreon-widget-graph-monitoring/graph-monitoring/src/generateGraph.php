@@ -46,7 +46,7 @@ require_once $centreon_path.'/www/class/centreonDB.class.php';
 
 session_start();
 
-if (!isset($_GET['service']) || !isset($_GET['session_id'])) {
+if (!isset($_GET['service'])) {
     exit;
 }
 
@@ -69,11 +69,10 @@ if ($res->numRows()) {
 /**
  * Create XML Request Objects
  */
-$obj = new CentreonGraph($_GET["session_id"], $index, 0, 1);
 
-if (trim(session_id()) != trim($_GET['session_id'])) {
-    $obj->displayError();
-}
+$sid = session_id();
+
+$obj = new CentreonGraph($sid, $index, 0, 1);
 
 require_once $centreon_path."www/include/common/common-Func.php";
 

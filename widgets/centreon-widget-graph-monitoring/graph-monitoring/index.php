@@ -167,7 +167,7 @@ function reload() {
   w = jQuery(window).width();
 
   link.href='../../main.php?p=4&mode=0&svc_id=<?php echo $host_name.";".$service_description; ?>';
-  image.src = "./src/generateGraph.php?service=<?php echo $preferences['service'];?>&tp=<?php echo $preferences['graph_period'];?>&session_id=<?php echo session_id();?>&time=<?php echo time();?>&width="+w;
+  image.src = "./src/generateGraph.php?service=<?php echo $preferences['service'];?>&tp=<?php echo $preferences['graph_period'];?>&time=<?php echo time();?>&width="+w;
 
   if (autoRefresh) {
     if (timeout) {
