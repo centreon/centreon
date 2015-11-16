@@ -42,6 +42,7 @@ require_once $centreon_path . 'www/class/centreonDB.class.php';
 require_once $centreon_path . 'www/class/centreonWidget.class.php';
 require_once $centreon_path . 'www/class/centreonACL.class.php';
 
+
 session_start();
 
 if (!isset($_SESSION['centreon']) || !isset($_REQUEST['widgetId'])) {
@@ -97,12 +98,12 @@ try {
      */
     $acl = 1;
     if (isset($tab[0]) && isset($tab[1]) && $centreon->user->admin == 0) {
-        $query = "SELECT host_id 
+	$query = "SELECT host_id 
             FROM centreon_acl 
             WHERE host_id = ".$dbAcl->escape($tab[0])." 
             AND service_id = ".$dbAcl->escape($tab[1])." 
             AND group_id IN (".$grouplistStr.")";
-        $res = $dbAcl->query($query);
+        $res = $dbAcl->query($query);    
         if (!$res->numRows()) {
             $acl = 0;
         }
@@ -114,7 +115,7 @@ try {
 ?>
 <html>
     <style type="text/css">
-         body{ margin:0; padding:100px 0 0 0;}
+         body{ margin:0; padding:0;}
          div#actionBar { position:absolute; top:0; left:0; width:100%; height:25px; background-color: #FFFFFF; }
          @media screen { body>div#actionBar { position: fixed; } }
          * html body { overflow:hidden; text-align:center;}
@@ -151,6 +152,7 @@ jQuery(function() {
 	if (image) {
     	   image.onload = function() {
            	var h = this.height;
+                parent.iResize(window.name, h);
                 jQuery(window).resize(function() {
     	   	     reload();
     	        });
