@@ -38,7 +38,7 @@
                     {if $elem.icon_image != ''}
                        <img src ='/{$centreon_web_path}/img/media/{$elem.icon_image}' width='16' height='16' style ='padding-right:5px;' />
                     {/if}
-                <a href='/{$centreon_web_path}/main.php?p=20102&o=hd&host_name={$elem.encoded_host_name}' target=_blank>{$elem.host_name}</a></td>
+                <a href='/{$centreon_web_path}/main.php?p=20202&o=hd&host_name={$elem.encoded_host_name}' target=_blank>{$elem.host_name}</a></td>
                 {if $preferences.display_status == 0}
                     </div>
                 {/if}
