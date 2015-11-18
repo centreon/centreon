@@ -62,13 +62,10 @@ try {
 <html>
     <head>
     	<title>Host Monitoring</title>
-    	<!--<link href="../../Themes/Centreon-2/jquery-ui/jquery-ui.css" rel="stylesheet" type="text/css"/>-->
-    	<!--<link href="../../Themes/Centreon-2/jquery-ui/jquery-ui-centreon.css" rel="stylesheet" type="text/css"/>-->
     	<link href="../../include/common/javascript/jquery/plugins/pagination/pagination.css" rel="stylesheet" type="text/css"/>
     	<link href="../../Themes/Centreon-2/style.css" rel="stylesheet" type="text/css"/>
     	<link href="<?php echo '../../Themes/Centreon-2/Color/blue_css.php';?>" rel="stylesheet" type="text/css"/>
         <link href="<?php echo '../../Themes/Centreon-2/Color/green_css.php';?>" rel="stylesheet" type="text/css"/>
-        <link href="<?php echo '../../Themes/Centreon-2/Color/pink_css.php';?>" rel="stylesheet" type="text/css"/>
         <link href="<?php echo '../../Themes/Centreon-2/Color/red_css.php';?>" rel="stylesheet" type="text/css"/>
         <link href="<?php echo '../../Themes/Centreon-2/Color/yellow_css.php';?>" rel="stylesheet" type="text/css"/>
 

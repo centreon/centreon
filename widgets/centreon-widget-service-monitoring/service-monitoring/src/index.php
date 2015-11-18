@@ -86,6 +86,10 @@ $stateHColors = array(0 => "#13EB3A",
                      1 => "#F91D05",
                      2 => "#DCDADA",
                      3 => "#2AD1D4");
+
+$aColorHost = array(0 => 'host_up', 1 => 'host_down', 2 => 'host_unreachable', 4 => 'host_pending');
+$aColorService = array(0 => 'service_ok', 1 => 'service_warning', 2 => 'service_critical', 3 => 'service_unknown', 4 => 'pending');
+
 while ($row = $res->fetchRow()) {
     if ($row['key'] == "color_ok") {
         $stateSColors[0] = $row['value'];
@@ -315,9 +319,11 @@ while ($row = $res->fetchRow()) {
         } elseif ($key == "check_attempt") {
             $value = $value . "/" . $row['max_check_attempts']. ' ('.$aStateType[$row['state_type']].')';
         } elseif ($key == "s_state") {
+            $data[$row['host_id']."_".$row['service_id']]['s_state_val'] = $value;
             $data[$row['host_id']."_".$row['service_id']]['color'] = $stateSColors[$value];
             $value = $stateLabels[$value];
         } elseif ($key == "h_state") {
+            $data[$row['host_id']."_".$row['service_id']]['h_state_val'] = $value;
             $data[$row['host_id']."_".$row['service_id']]['hcolor'] = $stateHColors[$value];
             $value = $stateLabels[$value];
         } elseif ($key == "output") {
@@ -353,6 +359,8 @@ while ($row = $res->fetchRow()) {
 }
 $template->assign('centreon_web_path', $centreon->optGen['oreon_web_path']);
 $template->assign('preferences', $preferences);
+$template->assign('aColorHost', $aColorHost);
+$template->assign('aColorService', $aColorService);
 $template->assign('data', $data);
 $template->assign('broker', "broker");
 $template->display('index.ihtml');

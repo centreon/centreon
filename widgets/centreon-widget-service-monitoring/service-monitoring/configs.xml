@@ -1,8 +1,8 @@
 <configs>
   <title>Service Monitoring</title>
-  <author>Merethis</author>
-  <email>contact@merethis.com</email>
-  <website>http://www.merethis.com</website>
+  <author>Centreon</author>
+  <email>contact@centreon.com</email>
+  <website>http://www.centreon.com</website>
   <description>Widget for displaying service monitoring information</description>
   <version>1.3.3</version>
   <keywords>centreon, widget, service, monitoring</keywords>

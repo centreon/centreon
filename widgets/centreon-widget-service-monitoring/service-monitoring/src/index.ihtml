@@ -5,6 +5,7 @@
             {if $preferences.display_severities}<td class="ListColHeaderCenter" style="white-space: nowrap; width: 17px;" name='Severities'>S</td>{/if}
             {if $preferences.display_host_name}<td class='ListColHeaderCenter' name='hostname' colspan='2'>Host</td>{/if}
             {if $preferences.display_svc_description}<td class='ListColHeaderCenter' name='description' colspan='2'>Service</td>{/if}
+            <td class='ListColHeaderCenter></td>
             {if $preferences.display_status}<td class='ListColHeaderCenter' name='s_state'>Status</td>{/if}
             {if $preferences.display_duration}<td class='ListColHeaderCenter' name='last_state_change'>Duration</td>{/if}
             {if $preferences.display_last_check}<td class='ListColHeaderCenter' name='last_check'>Last Check</td>{/if}
@@ -33,15 +34,15 @@
                         {if $elem.icon_image != ''}
                             <img src ='{$centreon_web_path}img/media/{$elem.icon_image}' width='16' height='16' style ='padding-right:5px;' />
                         {/if}
-                        <span class="state_badge" style='background-color: {$elem.hcolor};'></span>
+                        <span class="state_badge {$aColorHost[$elem.h_state_val]}"></span>
                         <a href='{$centreon_web_path}main.php?p=20102&o=hd&host_name={$elem.encoded_hostname}' target=_blank>{$elem.hostname}</a>
                     </td>
                     <td class='ListColRight'>
                         <div style='float: right;'>
                             {if $elem.h_scheduled_downtime_depth}<img src='{$centreon_web_path}img/icons/warning.png' class="ico-18">{/if}
-                            {if $elem.h_acknowledged}<img src='{$centreon_web_path}img/icones/16x16/worker.gif' class="ico-18">{/if}
-                            {if $elem.h_active_checks == 0}<img src='{$centreon_web_path}img/icones/14x14/gears_stop.gif' class="ico-18">{/if}
-                            {if $elem.h_passive_checks}<img src='{$centreon_web_path}img/icones/14x14/gears_pause.gif' class="ico-18">{/if}
+                            {if $elem.h_acknowledged == 1}<img src='/{$centreon_web_path}/img/icons/technician.png' class='ico-20'>{/if}
+                            {if ($elem.h_active_checks == 0 && $elem.h_passive_checks == 0) }<img src='/{$centreon_web_path}/img/icons/never_checked.png' class='ico-16'>{/if}
+                            {if ($elem.h_active_checks == 0 && $elem.h_passive_checks == 1) }<img src='/{$centreon_web_path}/img/icons/passive_check.png' class='ico-16'>{/if}
                             {if $elem.h_notify == 0}<img src='{$centreon_web_path}img/icons/notifications_off.png' class="ico-18">{/if}
                             {if $elem.h_action_url}
                                 <a target=_blank href='{$elem.h_action_url}'>
@@ -71,19 +72,19 @@
             </td>
             <td class='ListColRight'>
                 <div style='float: right;'>
-                    {if $elem.s_scheduled_downtime_depth}<img src='{$centreon_web_path}img/icones/16x16/warning.gif'>{/if}
-                    {if $elem.s_acknowledged}<img src='{$centreon_web_path}img/icones/16x16/worker.gif'>{/if}
-                    {if $elem.s_active_checks == 0 && $elem.s_passive_checks == 0}<img src='{$centreon_web_path}img/icones/14x14/gears_stop.gif'>{/if}
-                    {if $elem.s_passive_checks == 1 && $elem.s_active_checks == 0}<img src='{$centreon_web_path}img/icones/14x14/gears_pause.gif'>{/if}
+                    {if $elem.s_scheduled_downtime_depth}<img src='/{$centreon_web_path}/img/icons/warning.png' class="ico-18">{/if}
+                    {if $elem.s_acknowledged}<img src='/{$centreon_web_path}/img/icons/technician.png' class='ico-20'>{/if}
+                    {if $elem.s_active_checks == 0 && $elem.s_passive_checks == 0}<img src='/{$centreon_web_path}/img/icons/never_checked.png' class='ico-16'>{/if}
+                    {if $elem.s_passive_checks == 1 && $elem.s_active_checks == 0}<img src='/{$centreon_web_path}/img/icons/passive_check.png' class='ico-16'>{/if}
                     {if $elem.s_notify == 0}<img src='{$centreon_web_path}img/icons/notifications_off.png' class="ico-18">{/if}
                     {if $elem.s_action_url}
                         <a target=_blank href='{$elem.s_action_url}'>
-                            <img src='{$centreon_web_path}img/icones/16x16/star_yellow.gif'>
+                            <img src='/{$centreon_web_path}/img/icons/star-full.png' class='ico-16'>
                         </a>
                     {/if}
                     {if $elem.s_notes_url}
                         <a target=_blank href='{$elem.s_notes_url}'>
-                            <img src='{$centreon_web_path}img/icons/link.png' class="ico-14">
+                            <img src='/{$centreon_web_path}/img/icons/link.png' class='ico-14'>
                         </a>
                     {/if}
                 </div>
@@ -91,7 +92,7 @@
             {/if}
 		{if $preferences.display_status}
 		<td class='ListColCenter' style='white-space:nowrap;'>
-                    <span style='background-color: {$elem.color};font-weight:bold;' class="badge">{$elem.s_state}</span>
+                    <span class="badge {$aColorService[$elem.s_state_val]}">{$elem.s_state}</span>
 		</td>
 		{/if}
 		{if $preferences.display_duration}<td class='ListColCenter' style='white-space:nowrap;'>{$elem.last_state_change}</td>{/if}
