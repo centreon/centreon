@@ -71,14 +71,12 @@ try {
         <link href="../../Themes/Centreon-2/style.css" rel="stylesheet" type="text/css"/>
         <link href="<?php echo '../../Themes/Centreon-2/Color/blue_css.php';?>" rel="stylesheet" type="text/css"/>
         <link href="<?php echo '../../Themes/Centreon-2/Color/green_css.php';?>" rel="stylesheet" type="text/css"/>
-        <link href="<?php echo '../../Themes/Centreon-2/Color/pink_css.php';?>" rel="stylesheet" type="text/css"/>
         <link href="<?php echo '../../Themes/Centreon-2/Color/red_css.php';?>" rel="stylesheet" type="text/css"/>
         <link href="<?php echo '../../Themes/Centreon-2/Color/yellow_css.php';?>" rel="stylesheet" type="text/css"/>
         
     	<script type="text/javascript" src="../../include/common/javascript/jquery/jquery.js"></script>
     	<script type="text/javascript" src="../../include/common/javascript/jquery/jquery-ui.js"></script>
     	<script type="text/javascript" src="../../include/common/javascript/jquery/plugins/pagination/jquery.pagination.js"></script>
-    	<!--script type="text/javascript" src="../../include/common/javascript/widgetUtils.js"></script-->
         
         <style type="text/css">
             body{ margin:0; padding: 0; }
