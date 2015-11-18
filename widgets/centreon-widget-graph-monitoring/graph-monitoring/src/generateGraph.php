@@ -70,9 +70,9 @@ if ($res->numRows()) {
  * Create XML Request Objects
  */
 
-$sid = session_id();
+$iIdUser = $_GET['user'];
 
-$obj = new CentreonGraph($sid, $index, 0, 1);
+$obj = new CentreonGraph($iIdUser, $index, 0, 1);
 
 require_once $centreon_path."www/include/common/common-Func.php";
 

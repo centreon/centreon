@@ -50,6 +50,8 @@ if (!isset($_SESSION['centreon']) || !isset($_REQUEST['widgetId'])) {
 }
 $centreon = $_SESSION['centreon'];
 $widgetId = $_REQUEST['widgetId'];
+$host_name = "";
+$service_description = "";
 
 try {
     global $pearDB;
@@ -77,10 +79,6 @@ try {
      */
     if (isset($preferences['service']) && $preferences['service']) {
         $tab = split("-", $preferences['service']);
-        
-        $host_name = "";
-        $service_description = "";
-        
         $res = $db2->query("SELECT host_name, service_description
                                    FROM index_data
                            WHERE host_id = ".$db->escape($tab[0])."
@@ -145,6 +143,7 @@ try {
 <script type="text/javascript">
 var widgetId = <?php echo $widgetId; ?>;
 var autoRefresh = <?php echo $autoRefresh;?>;
+var user = <?php echo $centreon->user->get_id();?>;
 var timeout;
 
 jQuery(function() {
@@ -169,7 +168,7 @@ function reload() {
   w = jQuery(window).width();
 
   link.href='../../main.php?p=204&mode=0&svc_id=<?php echo $host_name.";".$service_description; ?>';
-  image.src = "./src/generateGraph.php?service=<?php echo $preferences['service'];?>&tp=<?php echo $preferences['graph_period'];?>&time=<?php echo time();?>&width="+w;
+  image.src = "./src/generateGraph.php?service=<?php echo $preferences['service'];?>&tp=<?php echo $preferences['graph_period'];?>&time=<?php echo time();?>&width="+w+"&user="+user;
 
   if (autoRefresh) {
     if (timeout) {
