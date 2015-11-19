@@ -59,7 +59,7 @@ if (!isset($_SESSION['centreon'])) {
     exit();
 }
 
-$db	 	= new CentreonDB();
+$db	= new CentreonDB();
 $pearDB = $db;
 $dbb 	= new CentreonDB("centstorage");
 $centreon = $_SESSION['centreon'];
@@ -71,16 +71,13 @@ $instanceObj = new CentreonInstance($db);
 $centreonLang = new CentreonLang($centreon_path, $centreon);
 $centreonLang->bindLang();
 
-$acl_host_id_list = $centreon->user->access->getHostsString("ID", $dbb);
-$acl_access_group_list = $centreon->user->access->getAccessGroupsString();
-
 $is_admin = $centreon->user->access->admin;
 
 $widgetId = $_REQUEST['widgetId'];
 $widgetObj = new CentreonWidget($centreon, $db);
 $preferences = $widgetObj->getWidgetPreferences($widgetId);
 
-$path = $centreon_path . "www/widgets/centreon-widget-host-status-summary/src/";
+$path = $centreon_path . "www/widgets/host-status-summary/src/";
 $template = new Smarty();
 $template = initSmartyTplForPopup($path, $template, "./", $centreon_path);
 

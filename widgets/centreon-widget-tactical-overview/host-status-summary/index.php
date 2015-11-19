@@ -47,47 +47,42 @@ $centreon = $_SESSION['centreon'];
 $widgetId = $_REQUEST['widgetId'];
 
 try {
-    $db = new CentreonDB();
-    $widgetObj = new CentreonWidget($centreon, $db);
-    $preferences = $widgetObj->getWidgetPreferences($widgetId);
-    $autoRefresh = 0;
-    if (isset($preferences['refresh_interval'])) {
-        $autoRefresh = $preferences['refresh_interval'];
-    }
-    $broker = "broker";
-    $res = $db->query("SELECT `value` FROM `options` WHERE `key` = 'broker'");
-    if ($res->numRows()) {
-        $row = $res->fetchRow();
-        $broker = strtolower($row['value']);
-    } else {
-        throw new Exception('Unknown broker module');
-    }
+  global $pearDB;
+
+  $db = new CentreonDB();
+  $db2 = new CentreonDB("centstorage");
+  $pearDB = $db;
+
+  if ($centreon->user->admin == 0) {
+    $access = new CentreonACL($centreon->user->get_id());
+    $grouplist = $access->getAccessGroups();
+    $grouplistStr = $access->getAccessGroupsString();
+  }
+
+  $widgetObj = new CentreonWidget($centreon, $db);
+  $preferences = $widgetObj->getWidgetPreferences($widgetId);
+  $autoRefresh = 0;
+  if (isset($preferences['refresh_interval'])) {
+    $autoRefresh = $preferences['refresh_interval'];
+  }
 } catch (Exception $e) {
     echo $e->getMessage() . "<br/>";
     exit;
 }
 ?>
 <html>
-    <style type="text/css">
-         body{ margin:0;    height: auto; }
-         @media screen { body>div#actionBar { position: fixed; } }
-         * html body { overflow:hidden; }
-         * html div#hostSumStatusTable { height:100%; overflow:auto; }
-    </style>
     <head>
     	<title>Host Monitoring</title>
+	<link href="<?php echo '../../Themes/Centreon-2/Color/blue_css.php';?>" rel="stylesheet" type="text/css"/>
     	<link href="../../Themes/Centreon-2/style.css" rel="stylesheet" type="text/css"/>
-    	<link href="../../Themes/Centreon-2/jquery-ui/jquery-ui.css" rel="stylesheet" type="text/css"/>
-    	<link href="../../Themes/Centreon-2/jquery-ui/jquery-ui-centreon.css" rel="stylesheet" type="text/css"/>
-    	<link href="../../include/common/javascript/jquery/plugins/pagination/pagination.css" rel="stylesheet" type="text/css"/>
     	<script type="text/javascript" src="../../include/common/javascript/jquery/jquery.js"></script>
     	<script type="text/javascript" src="../../include/common/javascript/jquery/jquery-ui.js"></script>
-    	<script type="text/javascript" src="../../include/common/javascript/jquery/plugins/pagination/jquery.pagination.js"></script>
     	<script type="text/javascript" src="../../include/common/javascript/widgetUtils.js"></script>
-        <script src="../../include/common/javascript/charts/d3.min.js" language="javascript"></script>
-        <script src="../../include/common/javascript/charts/c3.min.js" language="javascript"></script>
 
-    </head>
+ <style type="text/css">
+    .ListTable {font-size:11px;border-color: #BFD0E2;}
+   </style>    
+</head>
     <body>
         <div id='hostSumStatusTable'></div>
     </body>
@@ -95,8 +90,6 @@ try {
 var widgetId = <?php echo $widgetId; ?>;
 var autoRefresh = <?php echo $autoRefresh;?>;
 var timeout;
-var clickedCb = new Array();
-var broker = '<?php echo $broker;?>';
 
 
 jQuery(function() {
@@ -108,8 +101,7 @@ jQuery(function() {
  */
 function loadPage()
 {
-	var indexPage = "index";
-        jQuery.ajax("./src/"+indexPage+".php?widgetId="+widgetId, {        
+        jQuery.ajax("./src/index.php?widgetId="+widgetId, {        
         success : function(htmlData) {
                 jQuery("#hostSumStatusTable").html("");
                 jQuery("#hostSumStatusTable").html(htmlData);

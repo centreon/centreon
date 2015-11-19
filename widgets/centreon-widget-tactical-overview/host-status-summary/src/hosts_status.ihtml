@@ -1,0 +1,35 @@
+<style type="text/css">
+ {literal}
+    @import url('../../Themes/Centreon-2/style.css');
+ {/literal}
+</style>
+
+<form>
+	<table class='StyleTable ListTable'>
+		<tr class="list_one">
+			<td class='ListColLeft'><span class="badge host_down">{$dataDO[0].statue}</span>DOWN</td>
+			<td class='ListColLeft'><span class="badge host_unreachable">{$dataUN[0].statue}</span>UNREACHABLE</td>
+			<td class='ListColLeft'><span class="badge host_up">{$dataUP[0].statue}</span>UP</td>
+			<td class='ListColLeft'><span class="badge pending">{$dataPEND[0].statue}</span>PENDING</td>
+               </tr>
+	       <tr class="line_ack">
+			<td class='ListColLeft'><span class="badge host_down">{$dataDO[0].ack}</span>ACKNOWLEDGE</td>
+			<td class='ListColLeft'><span class="badge host_unreachable">{$dataUN[0].ack}</span> ACKNOWLEDGE</td>
+			<td></td>
+			<td></td>	
+		</tr>
+		<tr class ="line_downtime">
+			<td class='ListColLeft'><span class="badge host_down">{$dataDO[0].down}</span>  DOWNTIMES</td>
+			<td class='ListColLeft'><span class="badge host_unreachable">{$dataUN[0].down}</span>DOWNTIMES</td>
+			<td></td>
+			<td></td>	
+		</tr>
+		<tr class="list_two">
+			<td class='ListColLeft'><span class="badge host_down">{$dataDO[0].un}</span>UNHANDLED</td>
+			<td class='ListColLeft'><span class="badge host_unreachable">{$dataUN[0].un}</span>UNHANDLED</td>
+			<td></td>
+			<td></td>
+		</tr>
+	</table>
+	<br></br>
+</form>

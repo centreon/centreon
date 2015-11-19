@@ -1,0 +1,47 @@
+<style type="text/css">
+ {literal}
+    @import url('../../Themes/Centreon-2/style.css');
+ {/literal}
+</style>
+
+<form>
+        <table class='StyleTable ListTable'>
+                <tr class="list_one">
+                        <td class='ListColLeft'>
+                        <span class="badge service_critical">{$dataCRI[0].statue}</span>CRITICAL</td>
+                        <td class='ListColLeft'><span class="badge service_warning">{$dataWA[0].statue}</span>WARNING</td>
+                        <td class='ListColLeft'><span class="badge service_ok">{$dataOK[0].statue}</span>OK</td>
+			<td class='ListColLeft'><span class="badge service_unknown">{$dataUNK[0].statue}</span>UNKNOWN</td>
+                        <td class='ListColLeft'><span class="badge pending">{$dataPEND[0].statue}</span>PENDING</td>
+               </tr>
+               <tr class="line_ack">
+                        <td class='ListColLeft'> <span class="badge service_critical">{$dataCRI[0].ack}</span> ACKNOWLEDGE</td>
+                        <td class='ListColLeft'><span class="badge service_warning">{$dataWA[0].ack}</span> ACKNOWLEDGE</td>
+                        <td></td>
+ 			<td class='ListColLeft'><span class="badge service_unknown">{$dataUNK[0].ack}</span> ACKNOWLEDGE</td>
+                        <td></td>
+                </tr>
+                <tr class ="line_downtime">
+                        <td class='ListColLeft'><span class="badge service_critical">{$dataCRI[0].down}</span>DOWNTIMES</td>
+                        <td class='ListColLeft'><span class="badge service_warning">{$dataWA[0].down}</span>DOWNTIMES</td>
+                        <td></td>
+                       	<td class='ListColLeft'><span class="badge service_unknown">{$dataUNK[0].down}</span>DOWNTIMES</td>
+                        <td></td>
+                </tr>
+                <tr class="list_two">
+                        <td class='ListColLeft'><span class="badge service_critical">{$dataCRI[0].un} </span>UNHANDLED</td>
+                        <td class='ListColLeft'><span class="badge service_warning">{$dataWA[0].un} </span>UNHANDLED</td>
+                        <td></td>
+           		<td class='ListColLeft'><span class="badge service_unknown">{$dataUNK[0].un} </span>UNHANDLED</td>	
+                        <td></td>
+                </tr>
+		<tr class="list_one">
+		    <td class="ListColLeft"><span class="badge service_critical">{$dataCRI[0].pb}</span>Problem_on_host</td>
+		    <td class="ListColLeft"><span class="badge service_warning">{$dataWA[0].pb}</span>Problem_on_host</td>
+		    <td></td>
+		    <td class="ListColLeft"><span class="badge service_unknown">{$dataUNK[0].pb}</span>Problem_on_host</td>
+		    <td></td>
+		</tr>
+        </table>
+
+</form>
