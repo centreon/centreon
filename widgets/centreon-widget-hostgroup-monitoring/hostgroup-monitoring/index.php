@@ -54,14 +54,6 @@ try {
     if (isset($preferences['refresh_interval'])) {
         $autoRefresh = $preferences['refresh_interval'];
     }
-    $broker = "broker";
-    $res = $db->query("SELECT `value` FROM `options` WHERE `key` = 'broker'");
-    if ($res->numRows()) {
-        $row = $res->fetchRow();
-        $broker = strtolower($row['value']);
-    } else {
-        throw new Exception('Unknown broker module');
-    }
 } catch (Exception $e) {
     echo $e->getMessage() . "<br/>";
     exit;
@@ -69,29 +61,31 @@ try {
 ?>
 <html>
 	<style type="text/css">
-         body{ margin:0; padding:100px 0 0 0; }
-         div#actionBar { position:absolute; top:0; left:0; width:100%; height:25px; background-color: #FFFFFF; }
-         @media screen { body>div#actionBar { position: fixed; } }
-         * html body { overflow:hidden; }
-         * html div#hgMonitoringTable { height:100%; overflow:auto; }
-    </style>
+            body{ margin:0; padding: 0; }
+            .ListHeader {background: #cfedf9 none repeat scroll 0 0;}
+            .ListTable {font-size:11px;border-color: #BFD0E2;}
+            * html body { overflow:hidden; }
+            * html div#hostMonitoringTable { height:100%; overflow:auto; }
+        </style>
     <head>
     	<title>Hostgroup Monitoring</title>
-    	<link href="../../Themes/Centreon-2/style.css" rel="stylesheet" type="text/css"/>
     	<link href="../../Themes/Centreon-2/jquery-ui/jquery-ui.css" rel="stylesheet" type="text/css"/>
     	<link href="../../Themes/Centreon-2/jquery-ui/jquery-ui-centreon.css" rel="stylesheet" type="text/css"/>
     	<link href="../../include/common/javascript/jquery/plugins/pagination/pagination.css" rel="stylesheet" type="text/css"/>
     	<link href="../../include/common/javascript/jquery/plugins/treeTable/jquery.treeTable.css" rel="stylesheet" type="text/css"/>
+        
+        <link href="../../Themes/Centreon-2/style.css" rel="stylesheet" type="text/css"/>
+        <link href="<?php echo '../../Themes/Centreon-2/Color/blue_css.php';?>" rel="stylesheet" type="text/css"/>
+        <link href="<?php echo '../../Themes/Centreon-2/Color/green_css.php';?>" rel="stylesheet" type="text/css"/>
+        <link href="<?php echo '../../Themes/Centreon-2/Color/red_css.php';?>" rel="stylesheet" type="text/css"/>
+        <link href="<?php echo '../../Themes/Centreon-2/Color/yellow_css.php';?>" rel="stylesheet" type="text/css"/>
     	<script type="text/javascript" src="../../include/common/javascript/jquery/jquery.js"></script>
     	<script type="text/javascript" src="../../include/common/javascript/jquery/jquery-ui.js"></script>
     	<script type="text/javascript" src="../../include/common/javascript/jquery/plugins/pagination/jquery.pagination.js"></script>
-		<script type="text/javascript" src="../../include/common/javascript/widgetUtils.js"></script>
-		<script type="text/javascript" src="../../include/common/javascript/jquery/plugins/treeTable/jquery.treeTable.min.js"></script>
+        <script type="text/javascript" src="../../include/common/javascript/jquery/plugins/treeTable/jquery.treeTable.min.js"></script>
     </head>
     <body>
         <div id='actionBar' style='width:100%;'>
-            
-            <span id='toolBar' style='float:left;width:30%;'><a href='./src/export.php?widgetId=<?php echo $widgetId; ?>' >Export</a></span>
             <span id='pagination' class='pagination' style='float:left;width:45%;text-align:center;'> </span>
             <span id='nbRows' style='float:left;width:24%;text-align:right;font-weight:bold;'></span>
         </div>
@@ -99,40 +93,35 @@ try {
         <div id='hgMonitoringTable'></div>
     </body>
 <script type="text/javascript">
-var widgetId = <?php echo $widgetId; ?>;
-var autoRefresh = <?php echo $autoRefresh;?>;
-var timeout;
-var itemsPerPage = <?php echo $preferences['entries'];?>;
-var pageNumber = 0;
-var broker = '<?php echo $broker;?>';
+    var widgetId = <?php echo $widgetId; ?>;
+    var autoRefresh = <?php echo $autoRefresh;?>;
+    var timeout;
+    var itemsPerPage = <?php echo $preferences['entries'];?>;
+    var pageNumber = 0;
 
-jQuery(function() {
-	loadPage();
-});
+    jQuery(function() {
+        loadPage();
+    });
 
-/**
- * Load page
- */
-function loadPage()
-{
-	var indexPage = "index";
-        if (broker == 'ndo') {
-            indexPage = 'index_ndo';
-        }
-        jQuery.ajax("./src/"+indexPage+".php?widgetId="+widgetId+"&page="+pageNumber, {        
+    /**
+     * Load page
+     */
+    function loadPage()
+    {
+        jQuery.ajax("./src/index.php?widgetId="+widgetId+"&page="+pageNumber, {        
             success : function(htmlData) {
                 jQuery("#hgMonitoringTable").html("");
                 jQuery("#hgMonitoringTable").html(htmlData);
                 var h = document.getElementById("hgMonitoringTable").scrollHeight + 30;
                 parent.iResize(window.name, h);
         }
-	});
-	if (autoRefresh) {
-		if (timeout) {
-			clearTimeout(timeout);
-		}
-		timeout = setTimeout(loadPage, (autoRefresh * 1000));
-	}
-}
+        });
+        if (autoRefresh) {
+            if (timeout) {
+                clearTimeout(timeout);
+            }
+            timeout = setTimeout(loadPage, (autoRefresh * 1000));
+        }
+    }
 </script>
 </html>

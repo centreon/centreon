@@ -69,6 +69,9 @@ $preferences = $widgetObj->getWidgetPreferences($widgetId);
 $pearDB = $db;
 $aclObj = new CentreonACL($centreon->user->user_id, $centreon->user->admin);
 
+$aColorHost = array(0 => 'host_up', 1 => 'host_down', 2 => 'host_unreachable', 4 => 'host_pending');
+$aColorService = array(0 => 'service_ok', 1 => 'service_warning', 2 => 'service_critical', 3 => 'service_unknown', 4 => 'pending');
+
 $res = $db->query("SELECT `key`, `value` FROM `options` WHERE `key` LIKE 'color%'");
 $hostStateColors = array(0 => "#19EE11",
                          1 => "#F91E05",
@@ -114,7 +117,7 @@ $serviceStateLabels = array(0 => "Ok",
                             3 => "Unknown",
                             4 => "Pending");
 
-$query = "SELECT SQL_CALC_FOUND_ROWS DISTINCT name ";
+$query = "SELECT SQL_CALC_FOUND_ROWS DISTINCT name, hostgroup_id ";
 $query .= "FROM hostgroups ";
 if (isset($preferences['hg_name_search']) && $preferences['hg_name_search'] != "") {
     $tab = split(" ", $preferences['hg_name_search']);
@@ -130,7 +133,7 @@ if (!$centreon->user->admin) {
     $query = CentreonUtils::conditionBuilder($query, "name IN (".$aclObj->getHostGroupsString("NAME").")");
 }
 
-$query = CentreonUtils::conditionBuilder($query, "enabled=1");
+//$query = CentreonUtils::conditionBuilder($query, "enabled=1");
 
 $orderby = "name ASC";
 if (isset($preferences['order_by']) && $preferences['order_by'] != "") {
@@ -148,12 +151,18 @@ if (isset($preferences['enable_detailed_mode']) && $preferences['enable_detailed
 }
 while ($row = $res->fetchRow()) {
     $data[$row['name']] = array('name'          => $row['name'],
+                                'hg_id'         => $row['hostgroup_id'],
+                                'hgurl'         => "main.php?p=20201&o=svc&hg=" .$row['hostgroup_id'],
+                                "hgurlhost"     => "main.php?p=20202&o=h&hostgroups=" . $row['hostgroup_id'],
                                 'host_state'    => array(),
                                 'service_state' => array());
 }
 $hgMonObj->getHostStates($data, $detailMode, $centreon->user->admin, $aclObj, $preferences);
 $hgMonObj->getServiceStates($data, $detailMode, $centreon->user->admin, $aclObj, $preferences);
 
+$template->assign('aColorHost', $aColorHost);
+$template->assign('aColorService', $aColorService);
+$template->assign('centreon_web_path', trim($centreon->optGen['oreon_web_path'], "/"));
 $template->assign('preferences', $preferences);
 $template->assign('hostStateLabels', $hostStateLabels);
 $template->assign('hostStateColors', $hostStateColors);
@@ -163,48 +172,48 @@ $template->assign('data', $data);
 $template->display('index.ihtml');
 ?>
 <script type="text/javascript">
-	var nbRows = <?php echo $nbRows;?>;
-	var currentPage = <?php echo $page;?>;
-	var orderby = '<?php echo $orderby;?>';
-	var nbCurrentItems = <?php echo count($data);?>;
+    var nbRows = <?php echo $nbRows;?>;
+    var currentPage = <?php echo $page;?>;
+    var orderby = '<?php echo $orderby;?>';
+    var nbCurrentItems = <?php echo count($data);?>;
 
-	$(function () {
-		$("#HostgroupTable").styleTable();
-		if (nbRows > itemsPerPage) {
+    $(function () {
+        $("#HostgroupTable").styleTable();
+        if (nbRows > itemsPerPage) {
             $("#pagination").pagination(nbRows, {
-                							items_per_page	: itemsPerPage,
-                							current_page	: pageNumber,
-                							callback		: paginationCallback
-            							}).append("<br/>");
-		}
+                items_per_page	: itemsPerPage,
+                current_page	: pageNumber,
+                callback	: paginationCallback
+            }).append("<br/>");
+        }
 
-		$("#nbRows").html(nbCurrentItems+"/"+nbRows);
+        $("#nbRows").html(nbCurrentItems+"/"+nbRows);
 
-		$(".selection").each(function() {
-			var curId = $(this).attr('id');
-			if (typeof(clickedCb[curId]) != 'undefined') {
-				this.checked = clickedCb[curId];
-			}
-		});
+        $(".selection").each(function() {
+            var curId = $(this).attr('id');
+            if (typeof(clickedCb[curId]) != 'undefined') {
+                this.checked = clickedCb[curId];
+            }
+        });
 
-		var tmp = orderby.split(' ');
-		var icn = 'n';
-		if (tmp[1] == "DESC") {
-			icn = 's';
-		}
-		$("[name="+tmp[0]+"]").append('<span style="position: relative; float: right;" class="ui-icon ui-icon-triangle-1-'+icn+'"></span>');
-		$("#HostgroupTable").treeTable({
-			treeColumn: 0,
-			expandable: false
-		});
+        var tmp = orderby.split(' ');
+        var icn = 'n';
+        if (tmp[1] == "DESC") {
+            icn = 's';
+        }
+        $("[name="+tmp[0]+"]").append('<span style="position: relative; float: right;" class="ui-icon ui-icon-triangle-1-'+icn+'"></span>');
+        $("#HostgroupTable").treeTable({
+            treeColumn: 0,
+            expandable: false
+        });
     });
 
     function paginationCallback(page_index, jq)
     {
-		if (page_index != pageNumber) {
-        	pageNumber = page_index;
-        	clickedCb = new Array();
-    		loadPage();
-		}
+        if (page_index != pageNumber) {
+            pageNumber = page_index;
+            clickedCb  = new Array();
+            loadPage();
+        }
     }
 </script>
