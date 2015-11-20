@@ -113,6 +113,8 @@ $db = new CentreonDB("centstorage");
 $inc = 0;
 
 
+
+if (isset($preferences['etendu']) && $preferences['etendu'] == "1") {
 $query1 = "select distinct T1.name, T2.host_id
 from hosts T1, hosts_hostgroups T2 " .($centreon->user->admin == 0 ? ", centreon_acl acl" : ""). "
 where T1.host_id = T2.host_id
@@ -167,6 +169,61 @@ foreach ($services_pref as $elem) {
     $query3 .= "'";
 }
   $query3 .= ");";
+
+} else {
+
+$query1 = "select distinct T1.name, T2.host_id
+from hosts T1, hosts_hostgroups T2 " .($centreon->user->admin == 0 ? ", centreon_acl acl" : ""). "
+where T1.host_id = T2.host_id
+and T2.hostgroup_id = ".$preferences['host_group']."
+".($centreon->user->admin == 0 ? " AND T1.host_id = acl.host_id AND T2.host_id = acl.host_id AND acl.group_id IN (" .($grouplistStr != "" ? $grouplistStr : 0).")" : ""). ";";
+
+error_log($query1);
+
+$services_pref = explode(",", $preferences['service']);
+$query2 = "select distinct T1.description
+From services T1  " .($centreon->user->admin == 0 ? ", centreon_acl acl" : ""). "
+".($centreon->user->admin == 0 ? " WHERE  T1.service_id = acl.service_id AND acl.group_id IN (" .($grouplistStr != "" ? $grouplistStr : 0).")" : ""). "";
+
+foreach ($services_pref as $elem) {
+  if ($inc == "O") {
+    if ($centreon->user->admin == 0) {
+	$query2 .= "and T1.description like '";
+      }
+    else if ($centreon->user->admin != 0) {
+	$query2 .= "where T1.description like '";
+      }
+    $query2 .= "%";
+    $query2 .= $elem;
+    $query2 .= "'";
+    $inc = $inc + 1;
+  }
+  else {
+    $query2 .= " or T1.description like '";
+    $query2 .= "%";
+    $query2 .= $elem;
+    $query2 .= "'";
+    $inc = $inc + 1;
+  }
+}
+  $query2 .= ";";
+
+ error_log($query2);
+
+ $query3 = "SELECT distinct T1.service_id, T1.description, T1.state, T1.host_id
+           from services T1 " .($centreon->user->admin == 0 ? ", centreon_acl acl" : ""). "
+           where T1.enabled = 1 and (T1.description not like 'ba_%'
+           and T1.description not like 'meta_%'
+   ".($centreon->user->admin == 0 ? " AND T1.service_id = acl.service_id AND acl.group_id IN (" .($grouplistStr != "" ? $grouplistStr : 0).")" : ""). "";
+
+ foreach ($services_pref as $elem) {
+    $query3 .= " or T1.description like '";
+    $query3 .= "%";
+    $query3 .= $elem;
+    $query3 .= "'";
+}
+  $query3 .= ");";
+}
 
 error_log($query3);
 

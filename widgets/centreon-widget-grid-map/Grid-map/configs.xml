@@ -13,5 +13,6 @@
 	<preferences>
 	  <preference label="Name Host Group" name="host_group" defaultValue="" type="hostgroup" header="Resource"/>
 	  <preference label="Name Services" name="service" defaultValue="" type="text"/>
+	  <preference label="Recherche etendue" name="etendu" defaultValue="" type="boolean"/>
 	  </preferences>
 </configs>
