@@ -54,8 +54,8 @@ try {
     	<script type="text/javascript" src="../../include/common/javascript/jquery/plugins/pagination/jquery.pagination.js"></script>
 		<script type="text/javascript" src="../../include/common/javascript/widgetUtils.js"></script>
 		<script type="text/javascript" src="../../include/common/javascript/jquery/plugins/treeTable/jquery.treeTable.min.js"></script>
-        <script src="../../include/common/javascript/d3.min.js" language="javascript"></script>
-        <script src="../../include/common/javascript/c3.min.js" language="javascript"></script>
+        <script src="../../include/common/javascript/charts/d3.min.js" language="javascript"></script>
+        <script src="../../include/common/javascript/charts/c3.min.js" language="javascript"></script>
         
         
 </head>
@@ -88,6 +88,11 @@ try {
                     //jQuery("#BaTable").styleTable();
                     var h = document.getElementById("global_health").scrollHeight + 30;
                     parent.iResize(window.name, h);
+                    jQuery("#global_health img, #global_health style, #global_health script, #global_health link").load(function(){
+                        var h = document.getElementById("global_health").scrollHeight + 30;
+                        parent.iResize(window.name, h);
+                    });
+                    
             }
         });
         if (autoRefresh) {
