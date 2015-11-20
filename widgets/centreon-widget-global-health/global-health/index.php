@@ -86,10 +86,10 @@ try {
                     jQuery("#global_health").html("");
                     jQuery("#global_health").html(htmlData);
                     //jQuery("#BaTable").styleTable();
-                    var h = document.getElementById("global_health").scrollHeight + 30;
+                    var h = document.getElementById("global_health").scrollHeight + 36;
                     parent.iResize(window.name, h);
                     jQuery("#global_health").find("img, style, script, link").load(function(){
-                        var h = document.getElementById("global_health").scrollHeight + 30;
+                        var h = document.getElementById("global_health").scrollHeight + 36;
                         parent.iResize(window.name, h);
                     });
                     
