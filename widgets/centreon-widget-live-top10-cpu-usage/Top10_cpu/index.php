@@ -76,6 +76,7 @@ try {
     <head>
     	<title>Graph Monitoring</title>
         <link href="../../Theme/Centreon-2/style.css" type="text/css" />
+        <link href="src/top10_memory.css" rel="styleheet" type="text/css"/>
     <link href="<?php echo '../../Themes/Centreon-2/Color/blue_css.php';?>" rel="stylesheet" type="text/css"/>
         <script type="text/javascript" src="../../include/common/javascript/jquery/jquery.js"></script>
     	<script type="text/javascript" src="../../include/common/javascript/jquery/jquery-ui.js"></script>
@@ -99,16 +100,19 @@ try {
     var timeout;
     
 jQuery(function() {
+    console.log("jQuery function");
         loadTop10();
 });
     
 function loadTop10() {
     jQuery.ajax("./src/data.php?widgetId="+widgetId, {
         success : function(htmlData) {
+             console.log("Success load");
             jQuery("#top10cpu").html("");
             jQuery("#top10cpu").html(htmlData);
             var h = document.getElementById("top10cpu").scrollHeight + 10;
             if(h){
+                console.log("h recupérée");
                 parent.iResize(window.name, h);
             }else{
                 parent.iResize(window.name, 200);
