@@ -115,6 +115,11 @@ try {
                 jQuery("#hgMonitoringTable").html(htmlData);
                 var h = document.getElementById("hgMonitoringTable").scrollHeight + 30;
                 parent.iResize(window.name, h);
+                jQuery("#hgMonitoringTable img, #hgMonitoringTable style, #hgMonitoringTable script, #hgMonitoringTable link").load(function(){
+                    var h = document.getElementById("hgMonitoringTable").scrollHeight + 30;
+                    parent.iResize(window.name, h);
+                }
+
         }
         });
         if (autoRefresh) {
