@@ -127,7 +127,7 @@ function loadPage()
                 jQuery("#hostMonitoringTable").html(htmlData);
                 var h = document.getElementById("hostMonitoringTable").scrollHeight + 30;
                 parent.iResize(window.name, h);
-                jQuery("#hostMonitoringTable img, #hostMonitoringTable style, #hostMonitoringTable script, #hostMonitoringTable link").load(function(){
+                jQuery("#hostMonitoringTable").find("img, style, script, link").load(function(){
                     var h = document.getElementById("hostMonitoringTable").scrollHeight + 30;
                     parent.iResize(window.name, h);
                 });
