@@ -86,6 +86,10 @@ $stateHColors = array(0 => "#13EB3A",
                      1 => "#F91D05",
                      2 => "#DCDADA",
                      3 => "#2AD1D4");
+
+$aColorHost = array(0 => 'host_up', 1 => 'host_down', 2 => 'host_unreachable', 4 => 'host_pending');
+$aColorService = array(0 => 'service_ok', 1 => 'service_warning', 2 => 'service_critical', 3 => 'service_unknown', 4 => 'pending');
+
 while ($row = $res->fetchRow()) {
     if ($row['key'] == "color_ok") {
         $stateSColors[0] = $row['value'];
@@ -106,6 +110,8 @@ while ($row = $res->fetchRow()) {
     }
 }
 
+$aStateType = array("1" => "H", "0" => "S");
+
 $stateLabels = array(0 => "Ok",
                      1 => "Warning",
                      2 => "Critical",
@@ -120,6 +126,7 @@ $query = "SELECT SQL_CALC_FOUND_ROWS h.host_id,
 		s.service_id,
 		s.description,
 		s.state as s_state,
+                h.state_type as state_type,
 		s.last_hard_state,
 		s.output,
 		s.scheduled_downtime_depth as s_scheduled_downtime_depth,
@@ -142,7 +149,8 @@ $query = "SELECT SQL_CALC_FOUND_ROWS h.host_id,
 		s.action_url as s_action_url,
 		s.notes_url as s_notes_url, 
 		cv2.value AS criticality_id,
-		cv.value AS criticality_level
+		cv.value AS criticality_level,
+                h.icon_image
 ";
 $query .= " FROM hosts h, services s ";
 $query .= " LEFT JOIN customvariables cv ON (s.service_id = cv.service_id AND s.host_id = cv.host_id AND cv.name = 'CRITICALITY_LEVEL') ";
@@ -288,8 +296,6 @@ if (isset($preferences['order_by']) && $preferences['order_by'] != "") {
 }
 
 
-
-
 $query .= "ORDER BY $orderby";
 $query .= " LIMIT ".($page * $preferences['entries']).",".$preferences['entries'];
 $res = $dbb->query($query);
@@ -311,11 +317,13 @@ while ($row = $res->fetchRow()) {
             $value = time() - $value;
             $value = CentreonDuration::toString($value);
         } elseif ($key == "check_attempt") {
-            $value = $value . "/" . $row['max_check_attempts'];
+            $value = $value . "/" . $row['max_check_attempts']. ' ('.$aStateType[$row['state_type']].')';
         } elseif ($key == "s_state") {
+            $data[$row['host_id']."_".$row['service_id']]['s_state_val'] = $value;
             $data[$row['host_id']."_".$row['service_id']]['color'] = $stateSColors[$value];
             $value = $stateLabels[$value];
         } elseif ($key == "h_state") {
+            $data[$row['host_id']."_".$row['service_id']]['h_state_val'] = $value;
             $data[$row['host_id']."_".$row['service_id']]['hcolor'] = $stateHColors[$value];
             $value = $stateLabels[$value];
         } elseif ($key == "output") {
@@ -351,50 +359,52 @@ while ($row = $res->fetchRow()) {
 }
 $template->assign('centreon_web_path', $centreon->optGen['oreon_web_path']);
 $template->assign('preferences', $preferences);
+$template->assign('aColorHost', $aColorHost);
+$template->assign('aColorService', $aColorService);
 $template->assign('data', $data);
 $template->assign('broker', "broker");
 $template->display('index.ihtml');
 ?>
 <script type="text/javascript">
-var nbRows = <?php echo $nbRows;?>;
-var currentPage = <?php echo $page;?>;
-var orderby = '<?php echo $orderby;?>';
-var nbCurrentItems = <?php echo count($data);?>;
+    var nbRows = <?php echo $nbRows;?>;
+    var currentPage = <?php echo $page;?>;
+    var orderby = '<?php echo $orderby;?>';
+    var nbCurrentItems = <?php echo count($data);?>;
 
-$(function () {
-    $("#HostTable").styleTable();
-    if (nbRows > itemsPerPage) {
-      $("#pagination").pagination(nbRows, {
-	items_per_page	: itemsPerPage,
-	    current_page : pageNumber,
-	    callback : paginationCallback
-	    }).append("<br/>");
+    $(function () {
+        $("#HostTable").styleTable();
+        if (nbRows > itemsPerPage) {
+            $("#pagination").pagination(nbRows, {
+                items_per_page	: itemsPerPage,
+                current_page : pageNumber,
+                callback : paginationCallback
+            }).append("<br/>");
+        }
+
+        $("#nbRows").html(nbCurrentItems+"/"+nbRows);
+
+        $(".selection").each(function() {
+            var curId = $(this).attr('id');
+            if (typeof(clickedCb[curId]) != 'undefined') {
+              this.checked = clickedCb[curId];
+            }
+          });
+
+        var tmp = orderby.split(' ');
+        var icn = 'n';
+        if (tmp[1] == "DESC") {
+          icn = 's';
+        }
+        $("[name="+tmp[0]+"]").append('<span style="position: relative; float: right;" class="ui-icon ui-icon-triangle-1-'+icn+'"></span>');
+
+    });
+
+    function paginationCallback(page_index, jq)
+    {
+      if (page_index != pageNumber) {
+        pageNumber = page_index;
+        clickedCb = new Array();
+        loadPage();
+      }
     }
-    
-    $("#nbRows").html(nbCurrentItems+"/"+nbRows);
-    
-    $(".selection").each(function() {
-	var curId = $(this).attr('id');
-	if (typeof(clickedCb[curId]) != 'undefined') {
-	  this.checked = clickedCb[curId];
-	}
-      });
-    
-    var tmp = orderby.split(' ');
-    var icn = 'n';
-    if (tmp[1] == "DESC") {
-      icn = 's';
-    }
-    $("[name="+tmp[0]+"]").append('<span style="position: relative; float: right;" class="ui-icon ui-icon-triangle-1-'+icn+'"></span>');
-
-});
-
-function paginationCallback(page_index, jq)
-{
-  if (page_index != pageNumber) {
-    pageNumber = page_index;
-    clickedCb = new Array();
-    loadPage();
-  }
-}
 </script>

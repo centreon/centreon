@@ -143,8 +143,8 @@ $(function() {
     							iframe		: 	true
     						});
 
-    		$(".toolbar").val(0);
-		}
-	});
+            $(".toolbar").val(0);
+        }
+    });
 });
 </script>
