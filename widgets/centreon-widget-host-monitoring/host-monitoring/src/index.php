@@ -81,9 +81,12 @@ $stateColors = getColors($db);
 // Get status labels
 $stateLabels = getLabels();
 
+$aStateType = array("1" => "H", "0" => "S");
+
 $query = "SELECT SQL_CALC_FOUND_ROWS h.host_id,
 				 h.name AS host_name,
 				 h.alias,
+                                 h.flapping, 
 				 state,
 				 state_type,
 				 address,
@@ -101,7 +104,9 @@ $query = "SELECT SQL_CALC_FOUND_ROWS h.host_id,
 				 max_check_attempts,
 				 action_url,
 				 notes_url, 
-                 cv.value AS criticality,
+                                 cv.value AS criticality,
+                                 h.icon_image,
+                                 h.icon_image_alt, 
 		         cv2.value AS criticality_id,
                  cv.name IS NULL as isnull ";
 $query .= "FROM hosts h ";
@@ -210,8 +215,9 @@ while ($row = $res->fetchRow()) {
             $value = time() - $value;
             $value = CentreonDuration::toString($value);
         } elseif ($key == "check_attempt") {
-            $value = $value . "/" . $row['max_check_attempts'];
+            $value = $value . "/" . $row['max_check_attempts'] . ' ('.$aStateType[$row['state_type']].')';
         } elseif ($key == "state") {
+            $data[$row['host_id']]['status'] = $value;
             $data[$row['host_id']]['color'] = $stateColors[$value];
             $value = $stateLabels[$value];
         } elseif ($key == "output") {
@@ -235,53 +241,71 @@ while ($row = $res->fetchRow()) {
     }
 
     $data[$row['host_id']]['encoded_host_name'] = urlencode($data[$row['host_id']]['host_name']);
+        
+    $class = null;
+    if ($row["scheduled_downtime_depth"] > 0) {
+        $class = "line_downtime";
+    } else if ($row["state"] == 1) {
+        $row["acknowledged"] == 1 ? $class = "line_ack" : $class = "list_down";
+    } else {
+        if ($row["acknowledged"] == 1)
+            $class = "line_ack";
+    }
+    
+    $data[$row['host_id']]['class_tr'] = $class;
+
 }
+
+$aColorHost = array(0 => 'host_up', 1 => 'host_down', 2 => 'host_unreachable', 4 => 'host_pending');
+$template->assign('aColorHost', $aColorHost);
 $template->assign('centreon_web_path', trim($centreon->optGen['oreon_web_path'], "/"));
 $template->assign('preferences', $preferences);
 $template->assign('data', $data);
 $template->assign('broker', "broker");
+$template->assign('title_graph', _('See Graphs of this host'));
+$template->assign('title_flapping', _('Host is flapping'));
 $template->display('index.ihtml');
 
 ?>
 <script type="text/javascript">
-	var nbRows = <?php echo $nbRows;?>;
-	var currentPage = <?php echo $page;?>;
-	var orderby = '<?php echo $orderby;?>';
-	var nbCurrentItems = <?php echo count($data);?>;
+    var nbRows = <?php echo $nbRows;?>;
+    var currentPage = <?php echo $page;?>;
+    var orderby = '<?php echo $orderby;?>';
+    var nbCurrentItems = <?php echo count($data);?>;
 
-	$(function () {
-		$("#HostTable").styleTable();
-		if (nbRows > itemsPerPage) {
+    $(function () {
+        $("#HostTable").styleTable();
+        if (nbRows > itemsPerPage) {
             $("#pagination").pagination(nbRows, {
-                							items_per_page	: itemsPerPage,
-                							current_page	: pageNumber,
-                							callback		: paginationCallback
-            							}).append("<br/>");
-		}
+                items_per_page	: itemsPerPage,
+                current_page	: pageNumber,
+                callback	: paginationCallback
+            }).append("<br/>");
+        }
 
-		$("#nbRows").html(nbCurrentItems+"/"+nbRows);
+        $("#nbRows").html(nbCurrentItems+"/"+nbRows);
 
-		$(".selection").each(function() {
-			var curId = $(this).attr('id');
-			if (typeof(clickedCb[curId]) != 'undefined') {
-				this.checked = clickedCb[curId];
-			}
-		});
+        $(".selection").each(function() {
+            var curId = $(this).attr('id');
+            if (typeof(clickedCb[curId]) != 'undefined') {
+                this.checked = clickedCb[curId];
+            }
+        });
 
-		var tmp = orderby.split(' ');
-		var icn = 'n';
-		if (tmp[1] == "DESC") {
-			icn = 's';
-		}
-		$("[name="+tmp[0]+"]").append('<span style="position: relative; float: right;" class="ui-icon ui-icon-triangle-1-'+icn+'"></span>');
+        var tmp = orderby.split(' ');
+        var icn = 'n';
+        if (tmp[1] == "DESC") {
+            icn = 's';
+        }
+        $("[name="+tmp[0]+"]").append('<span style="position: relative; float: right;" class="ui-icon ui-icon-triangle-1-'+icn+'"></span>');
     });
 
     function paginationCallback(page_index, jq)
     {
-		if (page_index != pageNumber) {
-        	pageNumber = page_index;
-        	clickedCb = new Array();
-    		loadPage();
-		}
+        if (page_index != pageNumber) {
+            pageNumber = page_index;
+            clickedCb = new Array();
+            loadPage();
+        }
     }
 </script>

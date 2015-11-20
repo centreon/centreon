@@ -192,6 +192,7 @@ try {
 <script type="text/javascript" src="../../../include/common/javascript/jquery/jquery.js"></script>
 <script type="text/javascript" src="../../../include/common/javascript/jquery/jquery-ui.js"></script>
 <script type="text/javascript" src="../../../include/common/javascript/widgetUtils.js"></script>
+
 <script type='text/javascript'>
 var result = <?php echo $result;?>;
 var successMsg = "<?php echo $successMsg;?>";
@@ -204,7 +205,7 @@ $(function() {
 	$("#submit").click(function() {
 			sendCmd();
 	});
-	$("#ListTable").styleTable();
+	//$("#ListTable").styleTable();
 	$("#submit").button();
 	toggleDurationField();
 	$("[name=fixed]").click(function() {

@@ -1,1 +1,8 @@
-<select class='toolbar'></select> <a href='./src/export.php?widgetId={$widgetId}'>Export</a>
+<table class="ToolbarTable table">
+<tr class="ToolbarTR">
+<td>
+<select class='toolbar'></select>
+</td>
+</tr>
+</table>
+<!--<a href='./src/export.php?widgetId={$widgetId}'>Export</a>-->
