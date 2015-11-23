@@ -46,7 +46,7 @@ require_once $centreon_path . 'www/class/centreonExternalCommand.class.php';
 session_start();
 
 try {
-    if (!isset($_SESSION['centreon']) || !isset($_REQUEST['cmd']) || !isset($_REQUEST['sid']) || !isset($_REQUEST['selection'])) {
+    if (!isset($_SESSION['centreon']) || !isset($_REQUEST['cmd']) || !isset($_REQUEST['selection'])) {
         throw new Exception('Missing data');
     }
     $db = new CentreonDB();

@@ -95,7 +95,6 @@ $template->display('toolbar.ihtml');
 <script type="text/javascript" src="../../include/common/javascript/jquery/plugins/colorbox/jquery.colorbox-min.js"></script>
 <script type='text/javascript'>
 var tab = new Array();
-var sid = '<?php echo session_id();?>';
 var actions = "<?php echo $actions;?>";
 
 $(function() {
@@ -108,7 +107,7 @@ $(function() {
     		}).get().join(",");
 
     		parent.jQuery.colorbox({
-    							href		:	"./widgets/host-monitoring/src/action.php?sid="+sid+"&selection="+checkValues+"&cmd="+jQuery(this).val(),
+    							href		:	"./widgets/host-monitoring/src/action.php?selection="+checkValues+"&cmd="+jQuery(this).val(),
     							width		:	"50%",
     							height		:	"40%",
     							opacity		:	0.7,
