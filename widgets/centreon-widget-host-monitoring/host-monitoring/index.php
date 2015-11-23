@@ -123,12 +123,13 @@ try {
     function loadPage()
     {
         jQuery.ajax("./src/index.php?widgetId="+widgetId+"&page="+pageNumber, {        
-        success : function(htmlData) {
-            jQuery("#hostMonitoringTable").html("");
-            jQuery("#hostMonitoringTable").html(htmlData);
-            var h = document.getElementById("hostMonitoringTable").scrollHeight + 30;
-            parent.iResize(window.name, h);
-        }
+            success : function(htmlData) {
+                jQuery("#hostMonitoringTable").empty().append(htmlData);
+                var hostMonitoringTable = jQuery("#hostMonitoringTable").find("img, style, script, link").load(function() {
+                    var h = document.getElementById("hostMonitoringTable").scrollHeight;
+                    parent.iResize(window.name, h + 36);
+                });
+            }
         });
         if (autoRefresh) {
             if (timeout) {
@@ -143,10 +144,12 @@ try {
      */
     function loadToolBar()
     {
-        jQuery("#toolBar").load("./src/toolbar.php",
-        {
-            widgetId :	widgetId
-        });
+        jQuery("#toolBar").load(
+            "./src/toolbar.php",
+            {
+                widgetId : widgetId
+            }
+        );
     }
 </script>
 </html>

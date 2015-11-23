@@ -274,7 +274,6 @@ $template->display('index.ihtml');
     var nbCurrentItems = <?php echo count($data);?>;
 
     $(function () {
-        $("#HostTable").styleTable();
         if (nbRows > itemsPerPage) {
             $("#pagination").pagination(nbRows, {
                 items_per_page	: itemsPerPage,
