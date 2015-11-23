@@ -7,26 +7,26 @@
 <form>
 	<table class='StyleTable ListTable'>
 		<tr class="list_one">
-			<td class='ListColLeft'><span class="badge host_down">{$dataDO[0].statue}</span>DOWN</td>
-			<td class='ListColLeft'><span class="badge host_unreachable">{$dataUN[0].statue}</span>UNREACHABLE</td>
-			<td class='ListColLeft'><span class="badge host_up">{$dataUP[0].statue}</span>UP</td>
-			<td class='ListColLeft'><span class="badge pending">{$dataPEND[0].statue}</span>PENDING</td>
+			<td class='ListColLeft'><span class="badge host_down">{$dataDO[0].statue}</span>Down</td>
+			<td class='ListColLeft'><span class="badge host_unreachable">{$dataUN[0].statue}</span>Unreachable</td>
+			<td class='ListColLeft'><span class="badge host_up">{$dataUP[0].statue}</span>Up</td>
+			<td class='ListColLeft'><span class="badge pending">{$dataPEND[0].statue}</span>Pending</td>
                </tr>
 	       <tr class="line_ack">
-			<td class='ListColLeft'><span class="badge host_down">{$dataDO[0].ack}</span>ACKNOWLEDGE</td>
-			<td class='ListColLeft'><span class="badge host_unreachable">{$dataUN[0].ack}</span> ACKNOWLEDGE</td>
+			<td class='ListColLeft'><span class="badge host_down">{$dataDO[0].ack}</span>Acknowledge</td>
+			<td class='ListColLeft'><span class="badge host_unreachable">{$dataUN[0].ack}</span>Acknowledge</td>
 			<td></td>
 			<td></td>	
 		</tr>
 		<tr class ="line_downtime">
-			<td class='ListColLeft'><span class="badge host_down">{$dataDO[0].down}</span>  DOWNTIMES</td>
-			<td class='ListColLeft'><span class="badge host_unreachable">{$dataUN[0].down}</span>DOWNTIMES</td>
+			<td class='ListColLeft'><span class="badge host_down">{$dataDO[0].down}</span>Downtimes</td>
+			<td class='ListColLeft'><span class="badge host_unreachable">{$dataUN[0].down}</span>Downtimes</td>
 			<td></td>
 			<td></td>	
 		</tr>
 		<tr class="list_two">
-			<td class='ListColLeft'><span class="badge host_down">{$dataDO[0].un}</span>UNHANDLED</td>
-			<td class='ListColLeft'><span class="badge host_unreachable">{$dataUN[0].un}</span>UNHANDLED</td>
+			<td class='ListColLeft'><span class="badge host_down">{$dataDO[0].un}</span>Unhandled</td>
+			<td class='ListColLeft'><span class="badge host_unreachable">{$dataUN[0].un}</span>Unhandled</td>
 			<td></td>
 			<td></td>
 		</tr>

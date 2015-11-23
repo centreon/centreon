@@ -8,31 +8,31 @@
         <table class='StyleTable ListTable'>
                 <tr class="list_one">
                         <td class='ListColLeft'>
-                        <span class="badge service_critical">{$dataCRI[0].statue}</span>CRITICAL</td>
-                        <td class='ListColLeft'><span class="badge service_warning">{$dataWA[0].statue}</span>WARNING</td>
-                        <td class='ListColLeft'><span class="badge service_ok">{$dataOK[0].statue}</span>OK</td>
-			<td class='ListColLeft'><span class="badge service_unknown">{$dataUNK[0].statue}</span>UNKNOWN</td>
-                        <td class='ListColLeft'><span class="badge pending">{$dataPEND[0].statue}</span>PENDING</td>
+                        <span class="badge service_critical">{$dataCRI[0].statue}</span>Critical</td>
+                        <td class='ListColLeft'><span class="badge service_warning">{$dataWA[0].statue}</span>Warning</td>
+                        <td class='ListColLeft'><span class="badge service_ok">{$dataOK[0].statue}</span>Ok</td>
+			<td class='ListColLeft'><span class="badge service_unknown">{$dataUNK[0].statue}</span>Unknown</td>
+                        <td class='ListColLeft'><span class="badge pending">{$dataPEND[0].statue}</span>Pending</td>
                </tr>
                <tr class="line_ack">
-                        <td class='ListColLeft'> <span class="badge service_critical">{$dataCRI[0].ack}</span> ACKNOWLEDGE</td>
-                        <td class='ListColLeft'><span class="badge service_warning">{$dataWA[0].ack}</span> ACKNOWLEDGE</td>
+                        <td class='ListColLeft'> <span class="badge service_critical">{$dataCRI[0].ack}</span>Acknowledge</td>
+                        <td class='ListColLeft'><span class="badge service_warning">{$dataWA[0].ack}</span>Acknowledge</td>
                         <td></td>
- 			<td class='ListColLeft'><span class="badge service_unknown">{$dataUNK[0].ack}</span> ACKNOWLEDGE</td>
+ 			<td class='ListColLeft'><span class="badge service_unknown">{$dataUNK[0].ack}</span>Acknowledge</td>
                         <td></td>
                 </tr>
                 <tr class ="line_downtime">
-                        <td class='ListColLeft'><span class="badge service_critical">{$dataCRI[0].down}</span>DOWNTIMES</td>
-                        <td class='ListColLeft'><span class="badge service_warning">{$dataWA[0].down}</span>DOWNTIMES</td>
+                        <td class='ListColLeft'><span class="badge service_critical">{$dataCRI[0].down}</span>Downtimes</td>
+                        <td class='ListColLeft'><span class="badge service_warning">{$dataWA[0].down}</span>Downtimes</td>
                         <td></td>
-                       	<td class='ListColLeft'><span class="badge service_unknown">{$dataUNK[0].down}</span>DOWNTIMES</td>
+                       	<td class='ListColLeft'><span class="badge service_unknown">{$dataUNK[0].down}</span>Downtimes</td>
                         <td></td>
                 </tr>
                 <tr class="list_two">
-                        <td class='ListColLeft'><span class="badge service_critical">{$dataCRI[0].un} </span>UNHANDLED</td>
-                        <td class='ListColLeft'><span class="badge service_warning">{$dataWA[0].un} </span>UNHANDLED</td>
+                        <td class='ListColLeft'><span class="badge service_critical">{$dataCRI[0].un} </span>Unhandled</td>
+                        <td class='ListColLeft'><span class="badge service_warning">{$dataWA[0].un} </span>Unhandled</td>
                         <td></td>
-           		<td class='ListColLeft'><span class="badge service_unknown">{$dataUNK[0].un} </span>UNHANDLED</td>	
+           		<td class='ListColLeft'><span class="badge service_unknown">{$dataUNK[0].un} </span>Unhandled</td>	
                         <td></td>
                 </tr>
 		<tr class="list_one">
