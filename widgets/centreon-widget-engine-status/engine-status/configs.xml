@@ -7,13 +7,13 @@
         <version>1.0</version>
         <keywords>centreon, widget, status, engine</keywords>
         <screenshot></screenshot>
-        <thumbnail>./widgets/widget-engine-status/resources/logo1.png</thumbnail>
-        <url>./widgets/widget-engine-status/index.php</url>
+        <thumbnail>./widgets/engine-status/resources/logo1.png</thumbnail>
+        <url>./widgets/engine-status/index.php</url>
         <autoRefresh>10</autoRefresh>
 	<preferences>
 	  <preference label="Name of Poller" name="poller" type="text" defaultValue="" header="Ressource"/>
-	  <preference label="AVG latency" name="avg-l" type="text" defaultValue="1"/>
-	  <preference label="Max latency" name="max-e" type="text" defaultValue="30"/>
+	  <preference label="Average latency" name="avg-l" type="text" defaultValue="1"/>
+	  <preference label="Max value latency" name="max-e" type="text" defaultValue="30"/>
 	  <preference label="Average execution time" name="avg-e" type="text" defaultValue="10"/>
 	</preferences>
 </configs>
