@@ -88,7 +88,7 @@ try {
     </head>
     <body>
     <div id='actionBar' style='width:100%;'>
-	<span id='toolBar'></span>
+	<div id='toolBar'></div>
 	<span id='pagination' class='pagination' style='float:left;width:45%;text-align:center;'> </span>
         <span id='nbRows' style='float:left;width:24%;text-align:right;font-weight:bold;'></span>
     </div>
