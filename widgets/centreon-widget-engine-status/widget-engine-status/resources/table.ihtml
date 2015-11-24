@@ -1,0 +1,24 @@
+<style type="text/css">
+ {literal}
+    @import url('src/top10.css');
+    @import url('../../Themes/Centreon-2/style.css');
+ {/literal}
+</style>
+
+<form>
+	<H4 ALIGN=CENTER>Top 10 des hosts en fonction de leur % de CPU </H4>
+	<table class="styleTable">
+	{foreach item=elem from=$data}
+	<tr>
+<td class="index">#{$elem.numLin}</td>
+        <td>{$elem.host_name}</td>
+	<td class="ui-widget-content stat">
+		<div class="bar">
+		<span class="progress"  style="width: ({$elem.ratio} * 100)%;"></span>
+		<span class="percent">({$elem.current_value} * 100) % </span>
+		</div>
+	</td>
+	{/foreach}
+	</tr>
+	</table>
+</form>
