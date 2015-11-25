@@ -85,4 +85,7 @@ if (isset($preferences['object_type']) && $preferences['object_type'] === "hosts
     require_once 'hosts_status.php';
 }else if (isset($preferences['object_type']) && $preferences['object_type'] === "services") {
     require_once 'services_status.php';
+}else if (isset($preferences['object_type']) &&	$preferences['object_type'] == "") {
+  require_once 'hosts_status.php';
 }
+
