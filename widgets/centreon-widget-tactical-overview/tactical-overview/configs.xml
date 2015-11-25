@@ -7,8 +7,8 @@
         <version>1.0.0</version>
         <keywords>centreon, widget, host, monitoring</keywords>
         <screenshot></screenshot>
-        <thumbnail>./widgets/host-status-summary/resources/centreon-logo.png</thumbnail>
-        <url>./widgets/host-status-summary/index.php</url>
+        <thumbnail>./widgets/tactical-overview/resources/centreon-logo.png</thumbnail>
+        <url>./widgets/tactical-overview/index.php</url>
         <autoRefresh>10</autoRefresh>
         <preferences>		
             <preference label="Object" name="object_type" type="list">

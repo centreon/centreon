@@ -77,7 +77,7 @@ $widgetId = $_REQUEST['widgetId'];
 $widgetObj = new CentreonWidget($centreon, $db);
 $preferences = $widgetObj->getWidgetPreferences($widgetId);
 
-$path = $centreon_path . "www/widgets/host-status-summary/src/";
+$path = $centreon_path . "www/widgets/tactical-overview/src/";
 $template = new Smarty();
 $template = initSmartyTplForPopup($path, $template, "./", $centreon_path);
 

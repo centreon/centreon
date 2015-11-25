@@ -33,7 +33,7 @@
  *
  */
 
-$path = $centreon_path . "www/widgets/host-status-summary/src/";
+$path = $centreon_path . "www/widgets/tactical-overview/src/";
 $template = new Smarty();
 $template = initSmartyTplForPopup($path, $template, "./", $centreon_path);
 
