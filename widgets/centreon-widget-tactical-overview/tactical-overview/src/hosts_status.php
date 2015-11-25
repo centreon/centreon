@@ -66,30 +66,23 @@ $db = new CentreonDB("centstorage");
 $queryDO = "SELECT SUM(CASE WHEN h.state = 1 and h.enabled = 1 and h.name not like '%Module%' THEN 1 ELSE 0 END) as statue,                                                                                                                
          SUM(CASE WHEN h.acknowledged = 1 AND h.state = 1 and h.enabled = 1 and h.name not like '%Module%' THEN 1 ELSE 0 END) as ack,                                                                                                      
          SUM(CASE WHEN h.scheduled_downtime_depth = 1 AND h.state = 1 and h.enabled = 1 and h.name not like '%Module%' THEN 1 ELSE 0 END) as down                                                                                          
-         FROM hosts h;";
+         FROM hosts h " .($centreon->user->admin == 0 ? ", centreon_acl acl" : ""). " ".($centreon->user->admin == 0 ? " where h.host_id = acl.host_id and IN (" .($grouplistStr != "" ? $grouplistStr : 0).")" : ""). ";";
 
 $queryUN = "SELECT SUM(CASE WHEN h.state = 2 and h.enabled = 1 and h.name not like '%Module%' THEN 1 ELSE 0 END) as statue,                                                                                                                
          SUM(CASE WHEN h.acknowledged = 1 AND h.state = 2 and h.enabled = 1 and h.name not like '%Module%' THEN 1 ELSE 0 END) as ack,                                                                                                      
          SUM(CASE WHEN h.scheduled_downtime_depth = 1 AND h.state = 1 and h.enabled = 1 and h.name not like '%Module%' THEN 1 ELSE 0 END) as down                                                                                          
-         FROM hosts h;";
+         FROM hosts h " .($centreon->user->admin == 0 ? ", centreon_acl acl" : ""). " ".($centreon->user->admin == 0 ? " where h.host_id = acl.host_id and IN (" .($grouplistStr != "" ? $grouplistStr : 0).")" : ""). ";";
 
 $queryUP = "SELECT SUM(CASE WHEN h.state = 0 and h.enabled = 1 and h.name not like '%Module%' THEN 1 ELSE 0 END) as statue                                                                                                                 
-            FROM hosts h;";
+            FROM hosts h " .($centreon->user->admin == 0 ? ", centreon_acl acl" : ""). " ".($centreon->user->admin == 0 ? " where h.host_id = acl.host_id and IN (" .($grouplistStr != "" ? $grouplistStr : 0).")" : ""). ";";
 
 $queryPEND = "SELECT SUM(CASE WHEN h.state = 4 and h.enabled = 1 and h.name not like '%Module%' THEN 1 ELSE 0 END) as statue                                                                                                               
-            FROM hosts h;";
+            FROM hosts h " .($centreon->user->admin == 0 ? ", centreon_acl acl" : ""). " ".($centreon->user->admin == 0 ? " where h.host_id = acl.host_id and IN (" .($grouplistStr != "" ? $grouplistStr : 0).")" : ""). ";";
 
-$queryList = "select name, state, address, last_check from hosts where acknowledged = 0 and scheduled_downtime_depth = 0 and (state = 1 or state = 2) and hosts.enabled = 1;";
 
 
 $title ="Default Title";
 $numLine = 1;
-
-$res = $db->query($queryList);
-while ($row = $res->fetchRow()) {
-  $row['last_check'] = gmdate("H:i:s", $row['last_check']);
-  $dataList[] = $row; 
-}
 
 $res = $db->query($queryDO);
 while ($row = $res->fetchRow()) {
@@ -118,6 +111,5 @@ $template->assign('dataPEND', $dataPEND);
 $template->assign('dataUP', $dataUP);
 $template->assign('dataUN', $dataUN);
 $template->assign('dataDO', $dataDO);
-$template->assign('dataLi', $dataList);
 $template->display('hosts_status.ihtml');
 ?>

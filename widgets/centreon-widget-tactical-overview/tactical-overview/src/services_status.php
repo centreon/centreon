@@ -67,25 +67,25 @@ $queryCRI = "SELECT SUM(CASE WHEN s.state = 2 and s.enabled = 1 and h.name not l
          SUM(CASE WHEN s.acknowledged = 1 AND s.state = 2 and s.enabled = 1 and h.name not like '%Module%' THEN 1 ELSE 0 END) as ack,                                                                                                      
          SUM(CASE WHEN s.scheduled_downtime_depth = 1 AND s.state = 2 and s.enabled = 1 and h.name not like '%Module%' THEN 1 ELSE 0 END) as down,
          SUM(CASE WHEN s.state = 2 and (h.state = 1 or h.state = 4 or h.state = 2) and s.enabled = 1 and h.name not like '%Module%' then 1 else 0 END) as pb
-         FROM services s, hosts h where h.host_id = s.host_id;";
+         FROM services s, hosts h " .($centreon->user->admin == 0 ? ", centreon_acl acl" : ""). " where h.host_id = s.host_id ".($centreon->user->admin == 0 ? " AND h.host_id = acl.host_id AND s.service_id = acl.service_id AND s.host_id = acl.host_id and acl.group_id IN (" .($grouplistStr != "" ? $grouplistStr : 0).")" : ""). ";";
 
 $queryWA = "SELECT SUM(CASE WHEN s.state = 1 and s.enabled = 1 and h.name not like '%Module%' THEN 1 ELSE 0 END) as statue,                                                                                                               
          SUM(CASE WHEN s.acknowledged = 1 AND s.state = 1 and s.enabled = 1 and h.name not like '%Module%' THEN 1 ELSE 0 END) as ack,                                                                                                     
          SUM(CASE WHEN s.scheduled_downtime_depth = 1 AND s.state = 1 and s.enabled = 1 and h.name not like '%Module%' THEN 1 ELSE 0 END) as down,
          SUM(CASE WHEN s.state = 1 and (h.state = 1 or h.state = 4 or h.state = 2) and s.enabled = 1 and h.name not like '%Module%' then 1 else 0 END) as pb                                                                               
-         FROM services s, hosts h where h.host_id = s.host_id;";
+         FROM services s, hosts h " .($centreon->user->admin == 0 ? ", centreon_acl acl" : ""). " where h.host_id = s.host_id ".($centreon->user->admin == 0 ? " AND h.host_id = acl.host_id AND s.service_id = acl.service_id AND s.host_id = acl.host_id and acl.group_id IN (" .($grouplistStr != "" ? $grouplistStr : 0).")" : ""). ";";
 
 $queryOK = "SELECT SUM(CASE WHEN s.state = 0 and s.enabled = 1 and h.name not like '%Module%' THEN 1 ELSE 0 END) as statue                                                                                                                
-            FROM services s, hosts h where h.host_id = s.host_id;";
+            FROM services s, hosts h " .($centreon->user->admin == 0 ? ", centreon_acl acl" : ""). " where h.host_id = s.host_id ".($centreon->user->admin == 0 ? " AND h.host_id = acl.host_id AND s.service_id = acl.service_id AND s.host_id = acl.host_id and acl.group_id IN (" .($grouplistStr != "" ? $grouplistStr : 0).")" : ""). ";";
 
 $queryPEND = "SELECT SUM(CASE WHEN s.state = 4 and s.enabled and h.name not like '%Module%' THEN 1 ELSE 0 END) as statue                                                                                                              
-            FROM services s, hosts h where h.host_id = s.host_id;";
+            FROM services s, hosts h " .($centreon->user->admin == 0 ? ", centreon_acl acl" : ""). " where h.host_id = s.host_id ".($centreon->user->admin == 0 ? " AND h.host_id = acl.host_id AND s.service_id = acl.service_id AND s.host_id = acl.host_id and acl.group_id IN (" .($grouplistStr != "" ? $grouplistStr : 0).")" : ""). ";";
 
 $queryUNK = "SELECT SUM(CASE WHEN s.state = 3 and s.enabled = 1 and h.name not like '%Module%' THEN 1 ELSE 0 END) as statue,
              SUM(CASE WHEN s.acknowledged = 1 AND s.state = 3 and s.enabled = 1 and h.name not like '%Module%' THEN 1 ELSE 0 END) as ack,                                                                                                  
              SUM(CASE WHEN s.scheduled_downtime_depth = 1 AND s.state = 3 and s.enabled = 1 and h.name not like '%Module%' THEN 1 ELSE 0 END) as down,
              SUM(CASE WHEN s.state = 3 and (h.state = 1 or h.state = 4 or h.state = 2) and s.enabled = 1 and h.name not like '%Module%' then 1 else 0 END) as pb
-             FROM services s, hosts h where h.host_id = s.service_id;";
+             FROM services s, hosts h " .($centreon->user->admin == 0 ? ", centreon_acl acl" : ""). " where h.host_id = s.service_id ".($centreon->user->admin == 0 ? " AND h.host_id = acl.host_id AND s.service_id = acl.service_id AND s.host_id = acl.host_id and acl.group_id IN (" .($grouplistStr != "" ? $grouplistStr : 0).")" : ""). ";";
 
 
 $title ="Default Title";
