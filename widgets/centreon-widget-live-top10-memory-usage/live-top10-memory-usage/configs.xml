@@ -1,5 +1,5 @@
 <configs>
-        <title>Top10_memory</title>
+        <title>Live Top 10 Memory Usage</title>
         <author>Centreon</author>
         <email>contact@centreon.com</email>
         <website>http://www.centreon.com</website>
@@ -7,8 +7,8 @@
         <version>1.0</version>
         <keywords>centreon, widget, memory</keywords>
         <screenshot></screenshot>
-        <thumbnail>./widgets/Top10_memory/resources/logo1.png</thumbnail>
-        <url>./widgets/Top10_memory/index.php</url>
+        <thumbnail>./widgets/live-top10-memory-usage/resources/logo1.png</thumbnail>
+        <url>./widgets/live-top10-memory-usage/index.php</url>
         <autoRefresh>10</autoRefresh>
 	<preferences>
 	 <preference label="Metric Name" name="metric_name" defaultValue="used" type="text" header="Filter"/>
