@@ -70,7 +70,7 @@ if (CentreonSession::checkSession(session_id(), $db_centreon) == 0) {
 error_log("Debut widget claire");
 
 // Configure new smarty object
-$path = $centreon_path . "www/widgets/Top10_cpu/src/";
+$path = $centreon_path . "www/widgets/live-top10-cpu-usage/src/";
 $template = new Smarty();
 $template = initSmartyTplForPopup($path, $template, "./", $centreon_path);
 

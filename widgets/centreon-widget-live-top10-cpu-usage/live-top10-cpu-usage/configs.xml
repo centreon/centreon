@@ -1,5 +1,5 @@
 <configs>
-        <title>Top10_cpu</title>
+        <title>Live Top 10 CPU Usage</title>
         <author>Centreon</author>
         <email>contact@centreon.com</email>
         <website>http://www.centreon.com</website>
@@ -7,8 +7,8 @@
         <version>1.0</version>
         <keywords>centreon, widget, cpu</keywords>
         <screenshot></screenshot>
-        <thumbnail>./widgets/Top10_cpu/resources/logo1.png</thumbnail>
-        <url>./widgets/Top10_cpu/index.php</url>
+        <thumbnail>./widgets/live-top10-cpu-usage/resources/logo1.png</thumbnail>
+        <url>./widgets/live-top10-cpu-usage/index.php</url>
         <autoRefresh>10</autoRefresh>
 	<preferences>
 	  <preference label="Service Description" name="service_description" defaultValue="cpu" type="text" header="Filter"/>
