@@ -7,15 +7,14 @@
 <form>
         <table class='StyleTable ListTable'>
                 <tr class="ListHeader">
-                        <td class='ListColHeaderLeft'>
-                        <span class="badge service_critical">{$dataCRI[0].statue}</span>Critical</td>
-                        <td class='ListColHeaderLeft'><span class="badge service_warning">{$dataWA[0].statue}</span>Warning</td>
-			<td class='ListColHeaderLeft'><span class="badge service_unknown">{$dataUNK[0].statue}</span>Unknown</td>
-                        <td class='ListColHeaderLeft'><span class="badge service_ok">{$dataOK[0].statue}</span>Ok</td>
-                        <td class='ListColHeaderLeft'><span class="badge pending">{$dataPEND[0].statue}</span>Pending</td>
+                        <td class='ListColHeaderLeft'><a href="/centreon/main.php?p=20201&o=svc_critical&search=" target="_blank"><span class="badge service_critical">{$dataCRI[0].statue}</span>Critical</a></td>
+                        <td class='ListColHeaderLeft'><a href="/centreon/main.php?p=20201&o=svc_warning&search=" target="_blank"><span class="badge service_warning">{$dataWA[0].statue}</span>Warning</a></td>
+			<td class='ListColHeaderLeft'><a href="/centreon/main.php?p=20201&o=svc_unknown&search=" target="_blank"><span class="badge service_unknown">{$dataUNK[0].statue}</span>Unknown</a></td>
+                        <td class='ListColHeaderLeft'><a href="/centreon/main.php?p=20201&o=svc_ok&search=" target="_blank"><span class="badge service_ok">{$dataOK[0].statue}</span>Ok</a></td>
+                        <td class='ListColHeaderLeft'><a href="/centreon/main.php?p=20201&o=svc_pending&search=" target="_blank"><span class="badge pending">{$dataPEND[0].statue}</span>Pending</a></td>
                </tr>
                <tr class="line_ack">
-                        <td class='ListColLeft'> <span class="badge service_critical">{$dataCRI[0].ack}</span>Acknowledge</td>
+                        <td class='ListColLeft'><span class="badge service_critical">{$dataCRI[0].ack}</span>Acknowledge</td>
                         <td class='ListColLeft'><span class="badge service_warning">{$dataWA[0].ack}</span>Acknowledge</td>
 			<td class='ListColLeft'><span class="badge service_unknown">{$dataUNK[0].ack}</span>Acknowledge</td> 
                        	<td></td>
@@ -29,9 +28,9 @@
                         <td></td>
                 </tr>
                 <tr class="list_two">
-                        <td class='ListColLeft'><span class="badge service_critical">{$dataCRI[0].un} </span>Unhandled</td>
-                        <td class='ListColLeft'><span class="badge service_warning">{$dataWA[0].un} </span>Unhandled</td>
-           		<td class='ListColLeft'><span class="badge service_unknown">{$dataUNK[0].un} </span>Unhandled</td>	
+                        <td class='ListColLeft'><a href="/centreon/main.php?p=20202&o=svc_unhandled&search=" target="_blank"><span class="badge service_critical">{$dataCRI[0].un}</span>Unhandled</a></td>
+                        <td class='ListColLeft'><a href="/centreon/main.php?p=20202&o=svc_unhandled&search=" target="_blank"><span class="badge service_warning">{$dataWA[0].un}</span>Unhandled</a></td>
+           		<td class='ListColLeft'><a href="/centreon/main.php?p=20202&o=svc_unhandled&search=" target="_blank"><span class="badge service_unknown">{$dataUNK[0].un}</span>Unhandled</a></td>
                         <td></td>
                         <td></td>
                 </tr>
