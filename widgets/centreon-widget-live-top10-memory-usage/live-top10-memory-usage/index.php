@@ -74,7 +74,7 @@ try {
 ?>
 <html>
     <head>
-    	<title>Graph Monitoring</title>
+    	<title>top10-memory</title>
         <link href="<?php echo '../../Themes/Centreon-2/Color/blue_css.php';?>" rel="stylesheet" type="text/css"/>
         <link href="../../Theme/Centreon-2/style.css" type="text/css" />
         <link href="src/top10.css" rel="styleheet" type="text/css"/>
