@@ -33,12 +33,8 @@
  *
  */
 
-ini_set("log_errors", 1);
-ini_set("error_log", "/tmp/php-error.log");
-
 //require_once "../../require.php";
 require_once "/usr/share/centreon/www/widgets/require.php";
-require_once "./DB-Func.php";
 require_once "/etc/centreon/centreon.conf.php";
 require_once $centreon_path . 'www/class/centreon.class.php';
 require_once $centreon_path . 'www/class/centreonSession.class.php';
@@ -52,7 +48,6 @@ require_once $centreon_path . 'www/class/centreonHost.class.php';
  // Load specific Smarty class //
 require_once $centreon_path ."GPL_LIB/Smarty/libs/Smarty.class.php";
 
-error_log("Après require");
 
 // check if session is alive //
 session_start();
@@ -67,7 +62,6 @@ if (CentreonSession::checkSession(session_id(), $db_centreon) == 0) {
     exit;
 }
 
-error_log("Debut widget claire");
 
 // Configure new smarty object
 $path = $centreon_path . "www/widgets/live-top10-cpu-usage/src/";
@@ -81,16 +75,6 @@ $widgetId = $_REQUEST['widgetId'];
 $widgetObj = new CentreonWidget($centreon, $db_centreon);
 $preferences = $widgetObj->getWidgetPreferences($widgetId);
 
-// Beginning of the specific widget code
-
-if (isset($preferences['ba_id']) && $preferences['ba_id']!='') {
-    $baID = $preferences['ba_id'];
-    $reportingPeriod = $preferences['reporting_period'];
-}else{
-   $baID = 0;
-    $reportingPeriod= 0;
-}
-
 
 if ($centreon->user->admin == 0) {
   $access = new CentreonACL($centreon->user->get_id());
@@ -99,11 +83,6 @@ if ($centreon->user->admin == 0) {
 }
 
 // Get the right date regarding the parameter
-
-$reportingPeriodStart = 0;
-$reportingPeriodEnd = 0;
-$periodName = "defaultName";
-$orderBy = 'start_time';
 
 $data = array();
 $db = new CentreonDB("centstorage");
@@ -141,7 +120,6 @@ and T6.host_id = T5.host_id
 group by T2.host_id  ORDER BY current_value DESC LIMIT ".$preferences['nb_lin'].";";
 }
 
-error_log($query);
 $title ="Default Title";
 $title = $preferences['title'];
 $numLine = 1;
@@ -153,7 +131,7 @@ while ($row = $res->fetchRow()) {
  $data[] = $row;
  $numLine++;
 }
-error_log(json_encode($data));
+
 $template->assign('title', $title);
 $template->assign('data', $data);
 $template->display('table_top10cpu.ihtml');
