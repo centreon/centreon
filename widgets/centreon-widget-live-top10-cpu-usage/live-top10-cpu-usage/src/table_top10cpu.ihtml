@@ -1,12 +1,22 @@
-<style type="text/css">
- {literal}
-    @import url('src/top10_cpu.css');
-    @import url('../../Themes/Centreon-2/style.css');
- {/literal}
-</style>
-
-<form>
-	<table class="styleTable ListTable">
+<html>
+<head>
+	<title>live-top10-cpu-usage</title>
+	<link href="../../Themes/Centreon-2/style.css" type="text/css"/>
+	<link href="../../Themes/Centreon-2/Color/blue_css.php" rel="stylesheet" text="text/css"/>
+	{literal}
+	<style type="text/css">
+	  .ListTable {font-size:11px;border-color: #BFD0E2;}                                                                                                                                     
+	</style>
+	<style>
+	  @import url('src/top10_cpu.css');
+	  @import url('../../Themes/Centreon-2/style.css');
+	</style>
+	{/literal}
+</head>
+<body>
+  {if $preferences.service_description != '' && $preferences.metric_name != '' && $preferences.nb_lin != ''}
+  <div id="top-10-cpu"></div>
+  <table class="styleTable ListTable">
 	<tr class="ListHeader">
 	    <td class="ListColHeaderCenter">#</td>
 	    <td class="ListColHeaderCenter">%</td>
@@ -39,4 +49,16 @@
 	{/foreach}
 	</tr>
 	</table>
-</form>
+	{else if $preferences.service_description == '' && $preferences.metric_name == '' && $preferences.nb_lin == ''}
+            <center><div class="update" style="text-align:center;width:360px;">Please select a metric_name, nb_lin, service_description</div></center>
+	 {/if}
+	    <script>
+	  var widgetId = "{$widgetId}";
+	  var autoRefresh = "{$autoRefresh}";
+	  </script>
+	<script type="text/javascript" src="../../include/common/javascript/jquery/jquery.js"></script>
+	<script type="text/javascript" src="../../include/common/javascript/jquery/jquery-ui.js"></script>
+	<script type="text/javascript" src="../../include/common/javascript/widgetUtils.js"></script>
+	<script type="text/javascript" src="src/data_js.js"></script>
+</body>
+</html>
