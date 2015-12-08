@@ -1,5 +1,3 @@
-var widgetId = '$widgetId';
-var autoRefresh = '$autoRefresh';
 var timeout;
 
 jQuery(function() {
