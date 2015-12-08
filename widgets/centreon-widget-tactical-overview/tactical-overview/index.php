@@ -38,6 +38,14 @@ require_once $centreon_path . 'www/class/centreon.class.php';
 require_once $centreon_path . 'www/class/centreonSession.class.php';
 require_once $centreon_path . 'www/class/centreonDB.class.php';
 require_once $centreon_path . 'www/class/centreonWidget.class.php';
+require_once "/etc/centreon/centreon.conf.php";
+require_once $centreon_path . 'www/class/centreonDuration.class.php';
+require_once $centreon_path . 'www/class/centreonUtils.class.php';
+require_once $centreon_path . 'www/class/centreonACL.class.php';
+require_once $centreon_path . 'www/class/centreonHost.class.php';
+
+//load Smarty
+require_once $centreon_path . 'GPL_LIB/Smarty/libs/Smarty.class.php';
 
 session_start();
 if (!isset($_SESSION['centreon']) || !isset($_REQUEST['widgetId'])) {
@@ -49,9 +57,9 @@ $widgetId = $_REQUEST['widgetId'];
 try {
   global $pearDB;
 
-  $db = new CentreonDB();
-  $db2 = new CentreonDB("centstorage");
-  $pearDB = $db;
+  $db_centreon = new CentreonDB();
+  $db = new CentreonDB("centstorage");
+  $pearDB = $db_centreon;
 
   if ($centreon->user->admin == 0) {
     $access = new CentreonACL($centreon->user->get_id());
@@ -59,7 +67,7 @@ try {
     $grouplistStr = $access->getAccessGroupsString();
   }
 
-  $widgetObj = new CentreonWidget($centreon, $db);
+  $widgetObj = new CentreonWidget($centreon, $db_centreon);
   $preferences = $widgetObj->getWidgetPreferences($widgetId);
   $autoRefresh = 0;
   if (isset($preferences['refresh_interval'])) {
@@ -69,54 +77,17 @@ try {
     echo $e->getMessage() . "<br/>";
     exit;
 }
-?>
-<html>
-    <head>
-    	<title>Host Monitoring</title>
-	<link href="<?php echo '../../Themes/Centreon-2/Color/blue_css.php';?>" rel="stylesheet" type="text/css"/>
-    	<link href="../../Themes/Centreon-2/style.css" rel="stylesheet" type="text/css"/>
-    	<script type="text/javascript" src="../../include/common/javascript/jquery/jquery.js"></script>
-    	<script type="text/javascript" src="../../include/common/javascript/jquery/jquery-ui.js"></script>
-    	<script type="text/javascript" src="../../include/common/javascript/widgetUtils.js"></script>
 
- <style type="text/css">
-    .ListTable {font-size:11px;border-color: #BFD0E2;}
-   </style>    
-</head>
-    <body>
-        <div id='hostSumStatusTable'></div>
-    </body>
-<script type="text/javascript">
-var widgetId = <?php echo $widgetId; ?>;
-var autoRefresh = <?php echo $autoRefresh;?>;
-var timeout;
+$path = $centreon_path . "www/widgets/tactical-overview/src/";
+$template = new Smarty();
+$template = initSmartyTplForPopup($path, $template, "./", $centreon_path);
 
-
-jQuery(function() {
-	loadPage();
-});
-
-/**
- * Load Page
- */
-function loadPage()
-{
-        jQuery.ajax("./src/index.php?widgetId="+widgetId, {        
-        success : function(htmlData) {
-                jQuery("#hostSumStatusTable").html("");
-                jQuery("#hostSumStatusTable").html(htmlData);
-                var h = document.getElementById("hostSumStatusTable").scrollHeight + 30;
-                parent.iResize(window.name, h);
-        }
-	});
-	if (autoRefresh) {
-		if (timeout) {
-			clearTimeout(timeout);
-		}
-		timeout = setTimeout(loadPage, (autoRefresh * 1000));
-	}
+if (isset($preferences['object_type']) && $preferences['object_type'] === "hosts") {
+  require_once 'src/hosts_status.php';
+}else if (isset($preferences['object_type']) && $preferences['object_type'] === "services") {
+  require_once 'src/services_status.php';
+}else if (isset($preferences['object_type']) && $preferences['object_type'] == "") {
+  require_once 'src/hosts_status.php';
 }
 
-
-</script>
-</html>
+?>

@@ -33,29 +33,6 @@
  *
  */
 
-$path = $centreon_path . "www/widgets/tactical-overview/src/";
-$template = new Smarty();
-$template = initSmartyTplForPopup($path, $template, "./", $centreon_path);
-
-$db_centreon = new CentreonDB("centreon");
-$pearDB = $db_centreon;
-if (CentreonSession::checkSession(session_id(), $db_centreon) == 0) {
-  exit;
-}
-
-$centreon = $_SESSION['centreon'];
-$widgetId = $_REQUEST['widgetId'];
-
-$widgetObj = new CentreonWidget($centreon, $db_centreon);
-$preferences = $widgetObj->getWidgetPreferences($widgetId);
-
-
-if ($centreon->user->admin == 0) {
-  $access = new CentreonACL($centreon->user->get_id());
-  $grouplist = $access->getAccessGroups();
-  $grouplistStr = $access->getAccessGroupsString();
-}
-
 $dataCRI = array();
 $dataWA = array();
 $dataOK = array();
@@ -88,7 +65,7 @@ $queryUNK = "SELECT SUM(CASE WHEN s.state = 3 and s.enabled = 1 and h.name not l
              FROM services s, hosts h " .($centreon->user->admin == 0 ? ", centreon_acl acl" : ""). " where h.host_id = s.host_id ".($centreon->user->admin == 0 ? " AND h.host_id = acl.host_id AND s.service_id = acl.service_id AND s.host_id = acl.host_id and acl.group_id IN (" .($grouplistStr != "" ? $grouplistStr : 0).")" : ""). ";";
 
 
-$title ="Default Title";
+
 $numLine = 1;
 
 $res = $db->query($queryCRI);
@@ -119,7 +96,9 @@ while ($row = $res->fetchRow()) {
   $dataUNK[] = $row;
 }
 
-$template->assign('title', $title);
+
+$template->assign('widgetId', $widgetId);
+$template->assign('autoRefresh', $autoRefresh);
 $template->assign('dataPEND', $dataPEND);
 $template->assign('dataOK', $dataOK);
 $template->assign('dataWA', $dataWA);
