@@ -62,7 +62,7 @@ try {
 
     $db_centreon = new CentreonDB();
     $db = new CentreonDB("centstorage");
-    $pearDB = $db;
+    $pearDB = $db_centreon;
 
     if ($centreon->user->admin == 0) {
         $access = new CentreonACL($centreon->user->get_id());
