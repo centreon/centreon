@@ -1,9 +1,20 @@
-<style type="text/css">
- {literal}
-    @import url('../../Themes/Centreon-2/style.css');
- {/literal}
-</style>
-
+<html>
+<head>
+	<title>engine-status</title>
+        <link href="../../Themes/Centreon-2/style.css" type="text/css"/>
+        <link href="../../Themes/Centreon-2/Color/blue_css.php" rel="stylesheet" text="text/css"/>
+        {literal}
+        <style type="text/css">
+          .ListTable {font-size:11px;border-color: #BFD0E2;}                                                                                                                               
+        </style>
+        <style>
+          @import url('../../Themes/Centreon-2/style.css');
+        </style>
+        {/literal}
+</head>
+<body>
+	{if $preferences.poller != ''}
+	<div id="engine-status"></div>
     <table class="styleTable ListTable">
 		   <h4>Status</h4>
 		    <tr class="ListHeader">
@@ -130,5 +141,19 @@
 	</td>
 	</tr>
 	</table>
+	{else if $preferences.engine-status == ''}
+	<center><div class="update" style="text-align:center;width:350px;">Please select a poller</div>
+	{/if}
+	   <script>
+          var widgetId = "{$widgetId}";
+          var autoRefresh = "{$autoRefresh}";
+          </script>
+        <script type="text/javascript" src="../../include/common/javascript/jquery/jquery.js"></script>
+        <script type="text/javascript" src="../../include/common/javascript/jquery/jquery-ui.js"></script>
+        <script type="text/javascript" src="../../include/common/javascript/widgetUtils.js"></script>
+        <script type="text/javascript" src="src/data_js.js"></script>
+</script>
+</body>
+</html>
 	 
 

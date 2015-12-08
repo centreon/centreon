@@ -33,16 +33,27 @@
  *
  */
 
+ini_set("log_errors",1);
+ini_set("error_log", "/tmp/php-error.log");
+
+
 require_once "../require.php";
 require_once $centreon_path . 'www/class/centreon.class.php';
 require_once $centreon_path . 'www/class/centreonSession.class.php';
 require_once $centreon_path . 'www/class/centreonDB.class.php';
 require_once $centreon_path . 'www/class/centreonWidget.class.php';
+require_once "/etc/centreon/centreon.conf.php";
+require_once $centreon_path . 'www/class/centreonDuration.class.php';
+require_once $centreon_path . 'www/class/centreonUtils.class.php';
+require_once $centreon_path . 'www/class/centreonACL.class.php';
+require_once $centreon_path . 'www/class/centreonHost.class.php';
+
+//load smarty
+require_once $centreon_path . 'GPL_LIB/Smarty/libs/Smarty.class.php';
 
 session_start();
 
 if (!isset($_SESSION['centreon']) || !isset($_REQUEST['widgetId'])) {
-  print "DDD";
     exit;
 }
 $centreon = $_SESSION['centreon'];
@@ -51,9 +62,9 @@ $widgetId = $_REQUEST['widgetId'];
 try {
     global $pearDB;
 
-    $db = new CentreonDB();
-    $db2 = new CentreonDB("centstorage");
-    $pearDB = $db;
+    $db_centreon = new CentreonDB();
+    $db = new CentreonDB("centstorage");
+    $pearDB = $db_centreon;
 
     if ($centreon->user->admin == 0) {
         $access = new CentreonACL($centreon->user->get_id());
@@ -61,7 +72,7 @@ try {
         $grouplistStr = $access->getAccessGroupsString();
     }
 
-    $widgetObj = new CentreonWidget($centreon, $db);
+    $widgetObj = new CentreonWidget($centreon, $db_centreon);
     $preferences = $widgetObj->getWidgetPreferences($widgetId);
     $autoRefresh = 0;
     if (isset($preferences['refresh_interval'])) {
@@ -71,60 +82,95 @@ try {
     echo $e->getMessage() . "<br/>";
     exit;
 }
-?>
-<html>
-    <head>
-    	<title>Engine-Status</title>
-        <link href="../../Theme/Centreon-2/style.css" type="text/css" />
-        <link href="src/top10_memory.css" rel="styleheet" type="text/css"/>
-        <link href="<?php echo '../../Themes/Centreon-2/Color/blue_css.php';?>" rel="stylesheet" type="text/css"/>
-        <script type="text/javascript" src="../../include/common/javascript/jquery/jquery.js"></script>
-    	<script type="text/javascript" src="../../include/common/javascript/jquery/jquery-ui.js"></script>
-  <style type="text/css">
-    .ListTable {font-size:11px;border-color: #BFD0E2;}                                                                                                                                                      
-   </style>        
-  </head>
-    <body>
-    <?php
-		if ($preferences['poller'] != '') {
-		  print "<div id=\"Engine-Status\"></div>";
-		} else {
-		  print "<center><div class='update' style='text-align:center;width:350px;'>"._("Please select a Poller")."</div></center>";
-		}
-      ?>
-    </body>
-<script type="text/javascript">
-    var widgetId = <?php echo $widgetId; ?>;
-    var autoRefresh = <?php echo $autoRefresh;?>;
-    var timeout;
-    
-jQuery(function() {
-    console.log("jQuery function");
-        loadTop10();
-});
-    
-function loadTop10() {
-    jQuery.ajax("./src/data.php?widgetId="+widgetId, {
-        success : function(htmlData) {
-             console.log("Success load");
-            jQuery("#Engine-Status").empty().html(htmlData);
-	    setTimeout(function() {
-            var h = document.getElementById("Engine-Status").scrollHeight + 10;
-            if(h){
-                console.log("h recupérée");
-                parent.iResize(window.name, h);
-            }else{
-                parent.iResize(window.name, 200);
-            }
-	    }, 3000);
-        }
-    });
-    if (autoRefresh) {
-        if (timeout) {
-            clearTimeout(timeout);
-        }
-        timeout = setTimeout(loadTop10, (autoRefresh * 1000));
-    }
+
+$path = $centreon_path . "www/widgets/engine-status/src/";
+$template = new Smarty();
+$template = initSmartyTplForPopup($path, $template, "./", $centreon_path);
+
+$dataLat = array();
+$dataEx = array();
+$dataSth = array();
+$dataSts = array();
+$db = new CentreonDB("centstorage");
+
+$queryName = "Select T1.name, T1.instance_id as instance, T2.instance_id
+             FROM instances T1, hosts T2
+             WHERE T1.name like '%".$preferences['poller']."%';";
+
+$res = $db->query($queryName);
+while ($row = $res->fetchRow()) {
+  $idP = $row['instance'];
 }
-</script>
-</html>
+
+$queryLat = "Select Max(T1.latency) as h_max, AVG(T1.latency) as h_moy, Max(T2.latency) as s_max, AVG(T2.latency) as s_moy 
+             from hosts T1, services T2  
+             where T1.instance_id = ".$idP." and T1.host_id = T2.host_id;";
+
+$res = $db->query($queryLat);
+while ($row = $res->fetchRow()) {
+  $row['h_max'] = round($row['h_max'], 3);
+  $row['h_moy'] = round($row['h_moy'], 3);
+  $row['s_max'] = round($row['s_max'], 3);
+  $row['s_moy'] = round($row['s_moy'], 3);
+  $dataLat[] = $row;
+}
+
+
+$queryEx = "Select Max(T1.execution_time) as h_max, AVG(T1.execution_time) as h_moy, Max(T2.execution_time) as s_max, AVG(T2.execution_time) as s_moy 
+            from hosts T1, services T2  
+            where T1.instance_id = ".$idP." and T1.host_id = T2.host_id;";
+
+$res = $db->query($queryEx);
+while ($row = $res->fetchRow()) {
+  $row['h_max'] = round($row['h_max'], 3);
+  $row['h_moy'] = round($row['h_moy'], 3);
+  $row['s_max'] = round($row['s_max'], 3);
+  $row['s_moy'] = round($row['s_moy'], 3);
+  $dataEx[] = $row;
+}
+
+$querySth = "Select SUM(CASE WHEN h.state = 1 and h.enabled = 1 and h.name not like '%Module%' then 1 else 0 end) as Dow,
+                   SUM(CASE WHEN h.state = 2 and h.enabled = 1 and h.name not like '%Module%' then 1 else 0 end) as Un,
+                   SUM(CASE WHEN h.state = 0 and h.enabled = 1 and h.name not like '%Module%' then 1 else 0 end) as Up,
+                   SUM(CASE WHEN h.state = 4 and h.enabled = 1 and h.name not like '%Module%' then 1 else 0 end) as Pend
+            From hosts h where h.instance_id = ".$idP.";";
+
+$querySts = "Select SUM(CASE WHEN s.state = 2 and s.enabled = 1 and h.name not like '%Module%' then 1 else 0 end) as Cri,
+                    SUM(CASE WHEN s.state = 1 and s.enabled = 1 and h.name not like '%Module%' then 1 else 0 end) as Wa, 
+                    SUM(CASE WHEN s.state = 0 and s.enabled = 1 and h.name not like '%Module%' then 1 else 0 end) as Ok,
+                    SUM(CASE WHEN s.state = 4 and s.enabled = 1 and h.name not like '%Module%' then 1 else 0 end) as Pend, 
+                    SUM(CASE WHEN s.state = 3 and s.enabled = 1 and h.name not like '%Module%' then 1 else 0 end) as Unk
+             From services s, hosts h where h.host_id = s.host_id and h.instance_id = ".$idP.";";
+
+error_log($querySts);
+error_log($querySth);
+
+$res = $db->query($querySth);
+while ($row = $res->fetchRow()) {
+  $dataSth[] = $row;
+}
+
+$res = $db->query($querySts);
+while ($row = $res->fetchRow()) {
+  $dataSts[] = $row;
+}
+
+$avg_l = $preferences['avg-l'];
+$avg_e = $preferences['avg-e'];
+$max_e = $preferences['max-e'];
+
+
+error_log(json_encode($dataEx));
+error_log(json_encode($dataLat));
+$template->assign('avg_l', $avg_l);
+$template->assign('avg_e', $avg_e);
+$template->assign('widgetId', $widgetId);
+$template->assign('autoRefresh', $autoRefresh);
+$template->assign('preferences', $preferences);
+$template->assign('max_e', $max_e);
+$template->assign('dataSth', $dataSth);
+$template->assign('dataSts', $dataSts);
+$template->assign('dataEx', $dataEx);
+$template->assign('dataLat', $dataLat);
+$template->display('engine-status.ihtml');
+?>
