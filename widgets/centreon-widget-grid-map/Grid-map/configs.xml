@@ -1,18 +1,18 @@
 <configs>
-  <title>Grid-map</title>
-  <author>Centreon</author>
-  <email>contact@centreon.com</email>
-  <website>http://www.centreon.com</website>
-  <description>Widget for displaying status' services</description>
+    <title>Grid-map</title>
+    <author>Centreon</author>
+    <email>contact@centreon.com</email>
+    <website>http://www.centreon.com</website>
+    <description>Widget for displaying status' services</description>
         <version>1.0.0</version>
         <keywords>centreon, widget, Grid-map</keywords>
         <screenshot></screenshot>
         <thumbnail>./widgets/Grid-map/resources/logo1.png</thumbnail>
         <url>./widgets/Grid-map/index.php</url>
         <autoRefresh>10</autoRefresh>
-	<preferences>
-	  <preference label="Name Host Group" name="host_group" defaultValue="" type="hostgroup" header="Resource"/>
-	  <preference label="Name Services" name="service" defaultValue="" type="text"/>
-	  <preference label="Recherche etendue" name="etendu" defaultValue="" type="boolean"/>
-	  </preferences>
+  	<preferences>
+  	    <preference label="Name Host Group" name="host_group" defaultValue="" type="hostgroup" header="Resource"/>
+  	    <preference label="Name Services" name="service" defaultValue="" type="text"/>
+  	    <preference label="Auto Refresh" name="autoRefresh" defaultValue="30" type="integer"/>
+  	</preferences>
 </configs>
