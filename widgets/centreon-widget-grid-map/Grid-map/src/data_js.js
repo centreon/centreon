@@ -11,7 +11,6 @@ function loadTop10() {
             jQuery("#infoAjax").html("");
             jQuery("#infoAjax").html(htmlData);
             var h = document.getElementById("Grid-map").scrollHeight + 10;
-            alert(window.name);
             if (h){
                 parent.iResize(window.name, h);
             } else { 
