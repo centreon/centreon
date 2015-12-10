@@ -67,7 +67,7 @@ $colors = array(
     2 => '#e00b3d',
     3 => '#bcbdc0',
     4 => '#2AD1D4'
-    );
+);
 
 try {
     global $pearDB;
