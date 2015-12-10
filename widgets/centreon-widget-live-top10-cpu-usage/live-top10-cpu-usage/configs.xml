@@ -1,19 +1,20 @@
 <configs>
-        <title>Live Top 10 CPU Usage</title>
+        <title>Live Top 10 Memory Usage</title>
         <author>Centreon</author>
         <email>contact@centreon.com</email>
         <website>http://www.centreon.com</website>
-        <description>Widget for top 10 hosts in function % cpu</description>
+        <description>Widget for top 10 hosts in function % memory</description>
         <version>1.0.0</version>
-        <keywords>centreon, widget, cpu</keywords>
+        <keywords>centreon, widget, memory</keywords>
         <screenshot></screenshot>
-        <thumbnail>./widgets/live-top10-cpu-usage/resources/logo1.png</thumbnail>
-        <url>./widgets/live-top10-cpu-usage/index.php</url>
+        <thumbnail>./widgets/live-top10-memory-usage/resources/logo1.png</thumbnail>
+        <url>./widgets/live-top10-memory-usage/index.php</url>
         <autoRefresh>10</autoRefresh>
 	<preferences>
-	  <preference label="Service Description" name="service_description" defaultValue="cpu" type="text" header="Filter"/>
-	  <preference label="Metric Name" name="metric_name" defaultValue="cpu" type="text"/>
+	 <preference label="Metric Name" name="metric_name" defaultValue="used" type="text" header="Filter"/>
+         <preference label="Service Description" name="service_description" defaultValue="memory" type="text"/>
 	  <preference label="Nombre de ligne" name="nb_lin" defaultValue="10" type="text"/>
-	  <preference label="Name Host Group" name="host_group" defaultValue="" type="hostgroup" header="Resource"/>
-	 </preferences>
+         <preference label="Name Host Group" name="host_group" defaultValue="" type="hostgroup" header="Resource"/>
+	 <preference label="Auto Refresh" name="autoRefresh" defaultValue="30" type="integer"/>
+	</preferences>
 </configs>
