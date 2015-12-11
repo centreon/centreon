@@ -15,7 +15,7 @@
 </head>
 <body>
   {if $preferences.service_description != '' && $preferences.metric_name != '' && $preferences.nb_lin != ''}
-  <div id="top-10-cpu"></div>
+  <div id="top-10-cpu">
   <table class="styleTable ListTable">
 	<tr class="ListHeader">
 	    <td class="ListColHeaderCenter">#</td>
@@ -49,6 +49,7 @@
 	{/foreach}
 	</tr>
 	</table>
+	</div>
 	{else if $preferences.service_description == '' && $preferences.metric_name == '' && $preferences.nb_lin == ''}
             <center><div class="update" style="text-align:center;width:360px;">Please select a metric_name, nb_lin, service_description</div></center>
 	 {/if}

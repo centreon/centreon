@@ -15,5 +15,6 @@
 	  <preference label="Metric Name" name="metric_name" defaultValue="cpu" type="text"/>
 	  <preference label="Nombre de ligne" name="nb_lin" defaultValue="10" type="text"/>
 	  <preference label="Name Host Group" name="host_group" defaultValue="" type="hostgroup" header="Resource"/>
+	  <preference label="Auto Refresh" name="autoRefresh" defaultValue="30" type="integer"/>
 	 </preferences>
 </configs>
