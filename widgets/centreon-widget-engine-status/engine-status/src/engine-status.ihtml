@@ -14,7 +14,7 @@
 </head>
 <body>
 	{if $preferences.poller != ''}
-	<div id="engine-status"></div>
+	<div id="engine-status">
     <table class="styleTable ListTable">
 		   <h4>Status</h4>
 		    <tr class="ListHeader">
@@ -141,6 +141,7 @@
 	</td>
 	</tr>
 	</table>
+	</div>
 	{else if $preferences.engine-status == ''}
 	<center><div class="update" style="text-align:center;width:350px;">Please select a poller</div>
 	{/if}
