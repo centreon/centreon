@@ -13,7 +13,7 @@
         {/literal}
 </head>
 <body>
-	<div id="tactical-overview"></div>
+	<div id="tactical-overview">
         <table class='StyleTable ListTable'>
                 <tr class="ListHeader">
                         <td class='ListColHeaderLeft'><a href="/centreon/main.php?p=20201&o=svc_critical&search=" target="_blank"><span class="badge service_critical">{$dataCRI[0].statue}</span>Critical</a></td>
@@ -51,6 +51,7 @@
 		    <td></td>
 		</tr>
         </table>
+	</div>
   <script>
           var widgetId = "{$widgetId}";
           var autoRefresh = "{$autoRefresh}";

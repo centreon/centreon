@@ -13,7 +13,7 @@
         {/literal}
 </head>
 <body>
-        <div id="tactical-overview"></div>
+        <div id="tactical-overview">
 	<table class='StyleTable ListTable'>
 		<tr class="listHeader">
 			<td class='ListColHeaderLeft'><a href="/centreon/main.php?p=20202&o=h_down&search=" target="_blank"><span class="badge host_down">{$dataDO[0].statue}</span>Down</a></td>
@@ -40,6 +40,7 @@
 			<td></td>
 		</tr>
 	</table>
+	</div>
 	<br></br>
 	<script>
           var widgetId = "{$widgetId}";
