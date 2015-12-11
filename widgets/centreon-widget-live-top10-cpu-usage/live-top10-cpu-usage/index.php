@@ -139,6 +139,9 @@ while ($row = $res->fetchRow()) {
   $data[] = $row;
   $numLine++;
 }
+
+$autoRefresh = $preferences['autoRefresh'];
+
 error_log(json_encode($data));
 $template->assign('preferences', $preferences);
 $template->assign('widgetID', $widgetId);
