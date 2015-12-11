@@ -159,6 +159,8 @@ $avg_l = $preferences['avg-l'];
 $avg_e = $preferences['avg-e'];
 $max_e = $preferences['max-e'];
 
+$autoRefresh = $preferences['autoRefresh'];
+
 
 error_log(json_encode($dataEx));
 error_log(json_encode($dataLat));

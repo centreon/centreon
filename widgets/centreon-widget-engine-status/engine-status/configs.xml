@@ -15,5 +15,6 @@
 	  <preference label="Average latency" name="avg-l" type="text" defaultValue="1"/>
 	  <preference label="Max value latency" name="max-e" type="text" defaultValue="30"/>
 	  <preference label="Average execution time" name="avg-e" type="text" defaultValue="10"/>
+	  <preference labem="Auto Refresh" name="autoRefresh" defaultValue="30" type="integer"/>
 	</preferences>
 </configs>
