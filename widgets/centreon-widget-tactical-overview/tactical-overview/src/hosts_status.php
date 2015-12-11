@@ -78,6 +78,9 @@ while ($row = $res->fetchRow()) {
   $dataPEND[] = $row;
 }
 
+$autoRefresh = $preferences['autoRefresh'];
+
+
 $template->assign('preferences', $preferences);
 $template->assign('widgetId', $widgetId);
 $template->assign('autoRefresh', $autoRefresh);

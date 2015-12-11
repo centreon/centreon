@@ -96,6 +96,8 @@ while ($row = $res->fetchRow()) {
   $dataUNK[] = $row;
 }
 
+$autoRefresh = $preferences['autoRefresh'];
+
 
 $template->assign('widgetId', $widgetId);
 $template->assign('autoRefresh', $autoRefresh);
