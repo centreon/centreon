@@ -41,7 +41,6 @@
 		</tr>
 	</table>
 	</div>
-	<br></br>
 	<script>
           var widgetId = "{$widgetId}";
           var autoRefresh = "{$autoRefresh}";
