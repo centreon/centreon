@@ -103,6 +103,8 @@ $data_service = array();
 $data_check = array();
 $inc = 0;
 
+if ($preferences['host_group']) {
+
 /* Query 1 */
 $query1 = "SELECT DISTINCT T1.name, T2.host_id " .
           "FROM hosts T1, hosts_hostgroups T2 " .($centreon->user->admin == 0 ? ", centreon_acl acl" : ""). 
@@ -171,6 +173,8 @@ while ($row = $res3->fetchRow()) {
         $data_service[$row['description']]['hosts'][] = $row['host_id'];
         $data_service[$row['description']]['hostsStatus'][$row['host_id']] = $colors[$row['state']];
     }
+}
+
 }
 
 $template->assign('autoRefresh', $autoRefresh);
