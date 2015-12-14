@@ -1,54 +1,92 @@
-<form>
+<html>
+<head>
+ <title>sgMonitoringTable</title>
+        <link href="../../Themes/Centreon-2/Color/blue_css.php" rel="stylesheet" type="text/css"/>
+        <link href="../../Themes/Centreon-2/style.css" type="text/css" rel="styleheet"/>
+        <link href="../../include/common/javascript/jquery/plugins/pagination/pagination.css" rel="stylesheet" type="text/css"/>
+           {literal}
+           <style type="text/css">
+           .ListTable{font-size:11px;border-color: #BFD0E2;}
+           </style>
+           <style> @import url('../../Themes/Centreon-2/style.css'); </style>
+           {/literal}
+</head>
+<body>
+	<div id="sgMonitoringTable">
 	<table id='ServicegroupTable' class='ListTable styleTable'>
-	<tr class="ListHeader">		
-            <td class='ListColHeaderLeft' name='name' colspan='2'>Servicegroups/Hosts</td>		
-            <td class='ListColHeaderCenter'>Status</td>
-            <td class='ListColHeaderLeft'>Service informations</td>		
-	</tr>
+	  <tr class="ListHeader">
+            <td class='ListColHeaderLeft' name='name' {if $preferences.enable_detailed_mode == 1} colspan='2' {/if}>Servicegroups  {if $preferences.enable_detailed_mode == 1}/Hosts{/if}</td>
+            <td {if $preferences.enable_detailed_mode == 1} class='ListColHeaderCenter'{/if} class="ListColHeaderLeft">Status</td>
+            <td class='ListColHeaderLeft'>Service informations</td>
+	    </tr>
         {assign var='classStyle' value='list_two'}
-	{foreach key=sgId item=elem from=$data}
+	  {foreach key=sgId item=elem from=$data}
             {if $classStyle == 'list_two'}
                 {assign var='classStyle' value='list_one'}
             {else}
                 {assign var='classStyle' value='list_two'}
             {/if}
-            <tr id="sg-{$sgId}" class ='{$classStyle}'>
-		<td class='ListColLeft' colspan='4'>{$elem.name}</td>
-            </tr>
-            <tr id="sg-{$sgId}" class ='{$classStyle}'>
-		{if $preferences.enable_detailed_mode == 0}
+            <tr id="sg-{$sgId}" class='{$classStyle}'>
+	      <td class='ListColLeft' {if $preferences.enable_detailed_mode == 1} colspan='4' {/if}>{$elem.name}</td>
+	      {if $preferences.enable_detailed_mode == 1}
+              </tr>
+	  <tr id="sg-{$sgId}" class='{$classStyle}'>
+	    {/if}
+	    {if $preferences.enable_detailed_mode == 0}
                     <td class='ListColLeft'>
                         {foreach key=state item=counter from=$elem.host_state}
-                            <span style='background-color: {$hostStateColors[$state]};'>{$counter}&nbsp;{$hostStateLabels[$state]}</span>&nbsp;				
+                        <span class="state_badge" style='background-color: {$hostStateColors[$state]};'></span>{$counter}
                         {/foreach}
                     </td>
                     <td class='ListColLeft'>
                         {foreach key=state item=counter from=$elem.service_state}
-                            <span style='background-color: {$serviceStateColors[$state]};'>{$counter}&nbsp;{$serviceStateLabels[$state]}</span></a>&nbsp;				
-                        {/foreach}		
+                        <span class="state_badge" style='background-color: {$serviceStateColors[$state]};'></span>{$counter}{/foreach}
                     </td>
-		{else}
+{else}
                     <td></td>
                     <td></td>
-		{/if}
-            </tr>
+		    {if $preferences.enable_detailed_mode != 1}
+		    </tr>
+	    {/if}
+   {/if}
             {if $preferences.enable_detailed_mode == 1}
                 {foreach item=elem2 from=$elem.host_state}
-                    <tr id="host-{$elem2.host_id}" class="child-of-sg-{$sgId}">
-                        <td class='ListColLeft' width='160'>{$elem2.name}</td>
+               {if $classStyle == 'list_two'}
+                {assign var='classStyle' value='list_one'}
+            {else}
+                {assign var='classStyle' value='list_two'}
+            {/if}      
+	  <tr id="host-{$elem2.host_id}" class="{$classStyle}">
+                        <td class='ListColLeft' width='160' style="padding-left: 19px;"> <img src="{$centreon_web_path}/centreon/img/icons/host.png" class="margin_right">{$elem2.name}</td>
                         <td class='ListColLeft' style='white-space:nowrap;width:37px;'>
-                            <a href='/{$centreon_web_path}/main.php?o=hd&p=20201&host_search={$elem2.name}' target=_blank><img src='/{$centreon_web_path}/img/icons/view.png' class='ico-18' /></a>&nbsp;
-                            <a href='/{$centreon_web_path}/main.php?p=40201&mode=0&svc_id={$elem2.name}' target=_blank><img src='/{$centreon_web_path}/img/icons/chart.png' class='ico-18' /></a>
+                            <a href='/{$centreon_web_path}/main.php?o=hd&p=20201&host_search={$elem2.name}' target=_blank><img src='{$centreon_web_path}/centreon/img/icons/view.png' class='ico-18' /></a>&nbsp;
+                            <a href='/{$centreon_web_path}/main.php?p=40201&mode=0&svc_id={$elem2.name}' target=_blank><img src='{$centreon_web_path}/centreon/img/icons/chart.png' class='ico-18' /></a>
                         </td>
                         <td class='ListColCenter' style='white-space:nowrap;'><span class='badge {$aColorHost[$elem2.state]}'>{$hostStateLabels[$elem2.state]}</span></td>
                         <td class='ListColLeft'>
-                            {foreach item=elem3 from=$elem.service_state[$elem2.host_id]}						
-                                <a target="_blank" href="/{$centreon_web_path}/main.php?p=202&o=svcd&host_name={$elem2.name}&service_description={$elem3.description}" ><span class='state_badge {$aColorService[$elem3.state]}'></span>&nbsp;{$elem3.description}</a>&nbsp;						
+                          {foreach item=elem3 from=$elem.service_state[$elem2.host_id]}
+                          <a target="_blank" href="/{$centreon_web_path}/main.php?p=202&o=svcd&host_name={$elem2.name}&service_description={$elem3.description}" ><span class='state_badge {$aColorService[$elem3.state]}'></span>&nbsp;{$elem3.description}</a>&nbsp;
                             {/foreach}
                         </td>
                     </tr>
-                {/foreach}	
+                    {/foreach}
             {/if}
 	{/foreach}	
 	</table>
-</form>
+	</div>
+	  <script>
+          var widgetId = "{$widgetId}";
+          var autoRefresh = "{$autoRefresh}";
+          var nbRows = "{$nbRows}";
+          var currentpage = "{$page}";
+          var orderby = "{$orderby}";
+          var nbCurrentItems = "{$dataJS}";
+     </script>
+        <script type="text/javascript" src="../../include/common/javascript/jquery/jquery.js"></script>
+        <script type="text/javascript" src="../../include/common/javascript/jquery/jquery-ui.js"></script>
+        <script type="text/javascript" src="../../include/common/javascript/widgetUtils.js"></script>
+        <script type="text/javascript" src="../../include/common/javascript/jquery/plugins/pagination/jquery.pagination.js"></script>
+	<script type="text/javascript" src="../../include/common/javascript/jquery/plugins/treeTable/jquery.treeTable.min.js"></script>
+        <script type="text/javascript" src="src/data_js.js"></script>
+</body>
+</html>

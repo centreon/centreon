@@ -39,6 +39,10 @@ require_once $centreon_path . 'www/class/centreonSession.class.php';
 require_once $centreon_path . 'www/class/centreonDB.class.php';
 require_once $centreon_path . 'www/class/centreonWidget.class.php';
 
+//load Smarty
+require_once $centreon_path . 'GPL_LIB/Smarty/libs/Smarty.class.php';
+
+
 session_start();
 if (!isset($_SESSION['centreon']) || !isset($_REQUEST['widgetId'])) {
     exit;
@@ -47,8 +51,12 @@ $centreon = $_SESSION['centreon'];
 $widgetId = $_REQUEST['widgetId'];
 
 try {
-    $db = new CentreonDB();
-    $widgetObj = new CentreonWidget($centreon, $db);
+  global $pearDB;
+
+    $db_centreon = new CentreonDB();
+    $db = new CentreonDB("centstorage");
+    $pearDB = $db_centreon;
+    $widgetObj = new CentreonWidget($centreon, $db_centreon);
     $preferences = $widgetObj->getWidgetPreferences($widgetId);
     $autoRefresh = 0;
     if (isset($preferences['refresh_interval'])) {
@@ -58,78 +66,13 @@ try {
     echo $e->getMessage() . "<br/>";
     exit;
 }
-?>
-<html>
-    <style type="text/css">
-         body{ margin:0; padding: 0; }
-        .ListHeader {background: #cfedf9 none repeat scroll 0 0;}
-        .ListTable {font-size:11px;border-color: #BFD0E2;}
-        * html body { overflow:hidden; }
-        * html div#hostMonitoringTable { height:100%; overflow:auto; }
-    </style>
-    <head>
-    	<title>Servicegroup Monitoring</title>
-    	
-    	<link href="../../Themes/Centreon-2/jquery-ui/jquery-ui.css" rel="stylesheet" type="text/css"/>
-    	<link href="../../Themes/Centreon-2/jquery-ui/jquery-ui-centreon.css" rel="stylesheet" type="text/css"/>
-    	<link href="../../include/common/javascript/jquery/plugins/pagination/pagination.css" rel="stylesheet" type="text/css"/>
-        <link href="../../Themes/Centreon-2/style.css" rel="stylesheet" type="text/css"/>
-        <link href="<?php echo '../../Themes/Centreon-2/Color/blue_css.php';?>" rel="stylesheet" type="text/css"/>
-        <link href="<?php echo '../../Themes/Centreon-2/Color/green_css.php';?>" rel="stylesheet" type="text/css"/>
-        <link href="<?php echo '../../Themes/Centreon-2/Color/red_css.php';?>" rel="stylesheet" type="text/css"/>
-        <link href="<?php echo '../../Themes/Centreon-2/Color/yellow_css.php';?>" rel="stylesheet" type="text/css"/>
-        
-    	<link href="../../include/common/javascript/jquery/plugins/treeTable/jquery.treeTable.css" rel="stylesheet" type="text/css"/>
-    	<script type="text/javascript" src="../../include/common/javascript/jquery/jquery.js"></script>
-    	<script type="text/javascript" src="../../include/common/javascript/jquery/jquery-ui.js"></script>
-    	<script type="text/javascript" src="../../include/common/javascript/jquery/plugins/pagination/jquery.pagination.js"></script>
-		<script type="text/javascript" src="../../include/common/javascript/widgetUtils.js"></script>
-		<script type="text/javascript" src="../../include/common/javascript/jquery/plugins/treeTable/jquery.treeTable.min.js"></script>
-    </head>
-    <body>
-        <div id='actionBar'>
-            <span id='toolBar'></span>
-            <span id='pagination' class='pagination' style='float:left;width:50%'></span>
-            <span id='nbRows' style='float:left;width:14%;text-align:right;font-weight: bold;'></span>
-        </div><br/><br/>
-        <div id='sgMonitoringTable'></div>
-    </body>
 
-<script type="text/javascript">
-var widgetId = <?php echo $widgetId; ?>;
-var autoRefresh = <?php echo $autoRefresh;?>;
-var timeout;
-var itemsPerPage = <?php echo $preferences['entries'];?>;
-var pageNumber = 0;
+       
+$path = $centreon_path . "www/widgets/logs/";
+$template = new Smarty();
+$template = initSmartyTplForPopup($path, $template, "./", $centreon_path);
 
-jQuery(function() {
-	loadPage();
-});
-
-/**
- * Load page
- */
-function loadPage()
-{
-    jQuery.ajax("./src/index.php?widgetId="+widgetId+"&page="+pageNumber, {        
-        success : function(htmlData) {
-            jQuery("#sgMonitoringTable").html("");
-            jQuery("#sgMonitoringTable").html(htmlData);
-            var h = document.getElementById("sgMonitoringTable").scrollHeight + 36;
-            parent.iResize(window.name, h);
-            jQuery("#sgMonitoringTable").find("img, style, script, link").load(function(){
-                var h = document.getElementById("sgMonitoringTable").scrollHeight + 36;
-                parent.iResize(window.name, h);
-            });
-
-        }
-    });
-    if (autoRefresh) {
-        if (timeout) {
-            clearTimeout(timeout);
-        }
-        timeout = setTimeout(loadPage, (autoRefresh * 1000));
-    }
-}
-</script>
-</html>
+$template->assign('widgetId', $widgetId);
+$template->assign('preferences', $preferences);
+$template->assign('autoRefresh', $autoRefresh);
+$template->display('table.ihtml');

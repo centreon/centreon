@@ -1,0 +1,38 @@
+<html>
+     <head>
+        <title>Servicegroup Monitoring</title>
+        <link href="../../Themes/Centreon-2/Color/blue_css.php" rel="stylesheet" type="text/css"/>
+        <link href="../../Themes/Centreon-2/style.css" type="text/css" rel="styleheet"/>
+    	{literal}
+	<style type="text/css">
+               .body{ margin:0; padding: 0;}
+               .ListHeader {background: #cfedf9 none repeat scroll 0 0;}                                                                                                                                            
+               .ListTable {font-size:11px;border-color: #BFD0E2;}                                                                                                                                                   
+        * html body { overflow:hidden; }
+        * html div#hostMonitoringTable { height:100%; overflow:auto; }                                                                                                                                      
+    	</style>
+    	{/literal}
+      </head>
+      <body>
+		<div id='actionBar'>
+            	<span id='toolBar'></span>
+            	<span id='pagination' class='pagination' style='float:left;width:50%;'></span>
+            	<span id='nbRows' style='float:left;width:14%;text-align:right;font-weight: bold;'></span>
+        	</div><br/><br/>
+        	<div id='sgMonitoringTable'></div>
+ 	
+        <script type="text/javascript">
+	  var widgetId = "{$widgetId}";
+	  var autoRefresh = "{$autoRefresh}";
+	  var timeout;
+	  var itemsPerPage = "{$preferences.entries}";
+	  var pageNumber = 0;
+	  var clickedCb = new Array();
+	</script>
+	<script type="text/javascript" src="../../include/common/javascript/jquery/jquery.js"></script>
+        <script type="text/javascript" src="../../include/common/javascript/jquery/jquery-ui.js"></script>
+        <script type="text/javascript" src="../../include/common/javascript/widgetUtils.js"></script>
+        <script type="text/javascript" src="../../include/common/javascript/jquery/plugins/pagination/jquery.pagination.js"></script>
+    	<script type="text/javascript" src="data.js"></script>
+    </body>
+</html>
