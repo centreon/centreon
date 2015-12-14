@@ -6,7 +6,7 @@ jQuery(function() {
     });
 
 function loadTop10() {
-    jQuery.ajax("./ajax.php", {
+    jQuery.ajax("./index.php", {
 	    success : function(htmlData) {
 		jQuery("#infoAjax").html("");
 		jQuery("#infoAjax").html(htmlData);
