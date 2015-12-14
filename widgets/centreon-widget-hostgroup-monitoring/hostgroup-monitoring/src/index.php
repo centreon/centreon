@@ -72,39 +72,18 @@ $aclObj = new CentreonACL($centreon->user->user_id, $centreon->user->admin);
 $aColorHost = array(0 => 'host_up', 1 => 'host_down', 2 => 'host_unreachable', 4 => 'host_pending');
 $aColorService = array(0 => 'service_ok', 1 => 'service_warning', 2 => 'service_critical', 3 => 'service_unknown', 4 => 'pending');
 
-$res = $db->query("SELECT `key`, `value` FROM `options` WHERE `key` LIKE 'color%'");
-$hostStateColors = array(0 => "#19EE11",
-                         1 => "#F91E05",
+
+$hostStateColors = array(0 => "#88b917",
+                         1 => "#e00b3d",
                          2 => "#82CFD8",
-                         4 => "#2AD1D4");
+                         4 => "#2ad1d4");
 
-$serviceStateColors = array(0 => "#13EB3A",
+$serviceStateColors = array(0 => "#88b917",
                             1 => "#F8C706",
-                            2 => "#F91D05",
+                            2 => "#e00b3d",
                             3 => "#DCDADA",
-                            4 => "#2AD1D4");
+                            4 => "#2ad1d4");
 
-while ($row = $res->fetchRow()) {
-    if ($row['key'] == "color_up") {
-        $hostStateColors[0] = $row['value'];
-    } elseif ($row['key'] == "color_down") {
-        $hostStateColors[1] = $row['value'];
-    } elseif ($row['key'] == "color_unreachable") {
-        $hostStateColors[2] = $row['value'];
-    } elseif ($row['key'] == "color_pending") {
-        $hostStateColors[4] = $row['value'];
-    } elseif ($row['key'] == "color_ok") {
-        $serviceStateColors[0] = $row['value'];
-    } elseif ($row['key'] == "color_warning") {
-        $serviceStateColors[1] = $row['value'];
-    } elseif ($row['key'] == "color_critical") {
-        $serviceStateColors[2] = $row['value'];
-    } elseif ($row['key'] == "color_unknown") {
-        $serviceStateColors[3] = $row['value'];
-    } elseif ($row['key'] == "color_pending") {
-        $serviceStateColors[4] = $row['value'];
-    }
-}
 
 $hostStateLabels = array(0 => "Up",
                          1 => "Down",
