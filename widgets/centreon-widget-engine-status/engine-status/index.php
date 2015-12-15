@@ -150,7 +150,7 @@ $avg_l = $preferences['avg-l'];
 $avg_e = $preferences['avg-e'];
 $max_e = $preferences['max-e'];
 
-$autoRefresh = $preferences['autoRefresh'];
+
 
 
 $template->assign('avg_l', $avg_l);
