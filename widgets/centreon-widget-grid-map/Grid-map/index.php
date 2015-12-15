@@ -107,7 +107,7 @@ if ($preferences['host_group']) {
 
 /* Query 1 */
 $query1 = "SELECT DISTINCT T1.name, T2.host_id " .
-          "FROM hosts T1, hosts_hostgroups T2 " .($centreon->user->admin == 0 ? ", centreon_acl acl" : ""). 
+          "FROM hosts T1, hosts_hostgroups T2 " .($centreon->user->admin == 0 ? ", centreon_acl acl " : ""). 
           "WHERE T1.host_id = T2.host_id ".
           "AND T1.enabled = 1 ".
           "AND T2.hostgroup_id = ".$preferences['host_group'].
@@ -115,9 +115,9 @@ $query1 = "SELECT DISTINCT T1.name, T2.host_id " .
 
 /* Query 2 */
 $query2 = "SELECT distinct T1.description ".
-          "FROM services T1 " .($centreon->user->admin == 0 ? ", centreon_acl acl" : "").
+          "FROM services T1 " .($centreon->user->admin == 0 ? ", centreon_acl acl " : "").
           "WHERE T1.enabled = 1 ".
-          ($centreon->user->admin == 0 ? " AND T1.service_id = acl.service_id AND acl.group_id IN (" .($grouplistStr != "" ? $grouplistStr : 0)." AND (" : " AND (");
+          ($centreon->user->admin == 0 ? " AND T1.service_id = acl.service_id AND acl.group_id IN (" .($grouplistStr != "" ? $grouplistStr : 0).") AND (" : " AND (");
 foreach (explode(",", $preferences['service']) as $elem) {
     if (!$inc) {
         $query2 .= "T1.description LIKE '$elem'";
@@ -126,14 +126,14 @@ foreach (explode(",", $preferences['service']) as $elem) {
     }
     $inc++;
 }
-$query2 .= ")";
+$query2 .= ");";
 
 /* Query 3 */
 $query3 = "SELECT DISTINCT T1.service_id, T1.description, T1.state, T1.host_id ".
-          "FROM services T1 " .($centreon->user->admin == 0 ? ", centreon_acl acl" : "").
+          "FROM services T1 " .($centreon->user->admin == 0 ? ", centreon_acl acl " : "").
           "WHERE T1.enabled = 1 " .
           "AND T1.description NOT LIKE 'ba_%' AND T1.description NOT LIKE 'meta_%' ".
-          ($centreon->user->admin == 0 ? " AND T1.service_id = acl.service_id AND acl.group_id IN (" .($grouplistStr != "" ? $grouplistStr : 0) : "");
+          ($centreon->user->admin == 0 ? " AND T1.service_id = acl.service_id AND acl.group_id IN (" .($grouplistStr != "" ? $grouplistStr : 0).")" : "");
 $inc = 0;
 
 $services = explode(",", $preferences['service']);
