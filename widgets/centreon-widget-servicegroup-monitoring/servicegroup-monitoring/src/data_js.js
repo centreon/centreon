@@ -1,4 +1,4 @@
-$(function () {
+jQuery(function () {
 
         if (nbRows > itemsPerPage) {
             $("#pagination").pagination(nbRows, {
@@ -8,7 +8,7 @@ $(function () {
 			}).append("<br/>");
 	}
 
-        $("#nbRows").html(nbCurrentItems + "/" + nbRows);
+        $("#nbRows").html(nbCurrentItems + " / " + nbRows);
 
 	$(".selection").each(function () {
 		var curId = $(this).attr('id');
@@ -27,13 +27,16 @@ $(function () {
 		treeColumn: 0,
 		    expandable: false
 		    });
-    });
 
-function paginationCallback(page_index, jq)
-{
-    if (page_index != pageNumber) {
-	pageNumber = page_index;
-	clickedCb = new Array();
-	loadPage();
-    }
-}
+	function paginationCallback(page_index, jq)
+	{
+		if (page_index != pageNumber) {
+			pageNumber = page_index;
+			clickedCb = new Array();
+			loadPage();
+		}
+	}
+
+});
+
+

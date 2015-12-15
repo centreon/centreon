@@ -11,10 +11,10 @@ function loadPage()
 	    success : function(htmlData) {
 		jQuery("#sgMonitoringTable").html("");
 		jQuery("#sgMonitoringTable").html(htmlData);
-		var h = document.getElementById("sgMonitoringTable").scrollHeight + 36;
+		var h = document.getElementById("sgMonitoringTable").scrollHeight + 5;
 		parent.iResize(window.name, h);
 		jQuery("#sgMonitoringTable").find("img, style, script, link").load(function(){
-			var h = document.getElementById("sgMonitoringTable").scrollHeight + 36;
+			var h = document.getElementById("sgMonitoringTable").scrollHeight + 5;
 			parent.iResize(window.name, h);
 		    });
 

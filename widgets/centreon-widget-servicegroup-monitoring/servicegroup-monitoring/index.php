@@ -42,7 +42,6 @@ require_once $centreon_path . 'www/class/centreonWidget.class.php';
 //load Smarty
 require_once $centreon_path . 'GPL_LIB/Smarty/libs/Smarty.class.php';
 
-
 session_start();
 if (!isset($_SESSION['centreon']) || !isset($_REQUEST['widgetId'])) {
     exit;
@@ -68,11 +67,12 @@ try {
 }
 
        
-$path = $centreon_path . "www/widgets/logs/";
+$path = $centreon_path . "www/widgets/servicegroup-monitoring/src/";
+
 $template = new Smarty();
 $template = initSmartyTplForPopup($path, $template, "./", $centreon_path);
 
 $template->assign('widgetId', $widgetId);
 $template->assign('preferences', $preferences);
 $template->assign('autoRefresh', $autoRefresh);
-$template->display('table.ihtml');
+$template->display('index.ihtml');

@@ -47,8 +47,6 @@ require_once $centreon_path . 'www/class/centreonUtils.class.php';
 require_once $centreon_path . 'www/class/centreonACL.class.php';
 require_once $centreon_path . 'www/widgets/servicegroup-monitoring/src/class/ServicegroupMonitoring.class.php';
 
-require_once $centreon_path ."GPL_LIB/Smarty/libs/Smarty.class.php";
-
 session_start();
 if (!isset($_SESSION['centreon']) || !isset($_REQUEST['widgetId']) || !isset($_REQUEST['page'])) {
     exit;
@@ -73,6 +71,8 @@ $sgMonObj = new ServicegroupMonitoring($dbb);
 $preferences = $widgetObj->getWidgetPreferences($widgetId);
 $pearDB = $db;
 $aclObj = new CentreonACL($centreon->user->user_id, $centreon->user->admin);
+$nbRows = $preferences['entries'];
+
 
 $hostStateColors = array(
     0 => "#88B917",
@@ -125,10 +125,9 @@ if (isset($preferences['order_by']) && $preferences['order_by'] != "") {
 }
 $query .= "ORDER BY $orderby";
 $query .= " LIMIT " . ($page * $preferences['entries']) . "," . $preferences['entries'];
-
-
-
 $res = $dbb->query($query);
+
+error_log($query);
 $nbRows = $dbb->numberRows();
 $data = array();
 $detailMode = false;
@@ -143,13 +142,14 @@ while ($row = $res->fetchRow()) {
     }
 }
 
-
+$autoRefresh = $preferences['refresh_interval'];
 $template->assign('widgetId', $widgetId);
 $template->assign('autoRefresh', $autoRefresh);
 $template->assign('preferences', $preferences);
 $template->assign('nbRows', $nbRows);
 $template->assign('page', $page);
 $template->assign('orderby', $orderby);
+$template->assign('data', $data);
 $template->assign('dataJS', count($data));
 $template->assign('aColorHost', $aColorHost);
 $template->assign('aColorService', $aColorService);
@@ -158,6 +158,6 @@ $template->assign('hostStateLabels', $hostStateLabels);
 $template->assign('hostStateColors', $hostStateColors);
 $template->assign('serviceStateLabels', $serviceStateLabels);
 $template->assign('serviceStateColors', $serviceStateColors);
-$template->assign('data', $data);
-$template->display('index.ihtml');
+
+$template->display('table.ihtml');
 ?>
