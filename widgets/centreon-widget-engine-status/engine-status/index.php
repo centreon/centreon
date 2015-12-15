@@ -33,10 +33,6 @@
  *
  */
 
-ini_set("log_errors",1);
-ini_set("error_log", "/tmp/php-error.log");
-
-
 require_once "../require.php";
 require_once $centreon_path . 'www/class/centreon.class.php';
 require_once $centreon_path . 'www/class/centreonSession.class.php';
@@ -75,9 +71,7 @@ try {
     $widgetObj = new CentreonWidget($centreon, $db_centreon);
     $preferences = $widgetObj->getWidgetPreferences($widgetId);
     $autoRefresh = 0;
-    if (isset($preferences['refresh_interval'])) {
-        $autoRefresh = $preferences['refresh_interval'];
-    }
+    $autoRefresh = $preferences['autoRefresh'];
 } catch (Exception $e) {
     echo $e->getMessage() . "<br/>";
     exit;
@@ -142,9 +136,6 @@ $querySts = "Select SUM(CASE WHEN s.state = 2 and s.enabled = 1 and h.name not l
                     SUM(CASE WHEN s.state = 3 and s.enabled = 1 and h.name not like '%Module%' then 1 else 0 end) as Unk
              From services s, hosts h where h.host_id = s.host_id and h.instance_id = ".$idP.";";
 
-error_log($querySts);
-error_log($querySth);
-
 $res = $db->query($querySth);
 while ($row = $res->fetchRow()) {
   $dataSth[] = $row;
@@ -162,8 +153,6 @@ $max_e = $preferences['max-e'];
 $autoRefresh = $preferences['autoRefresh'];
 
 
-error_log(json_encode($dataEx));
-error_log(json_encode($dataLat));
 $template->assign('avg_l', $avg_l);
 $template->assign('avg_e', $avg_e);
 $template->assign('widgetId', $widgetId);
