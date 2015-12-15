@@ -33,10 +33,6 @@
  *
  */
 
-ini_set("log_errors",1);
-ini_set("error_log", "/tmp/php-error.log");
-
-
 require_once "/usr/share/centreon/www/widgets/require.php";
 require_once $centreon_path . 'www/class/centreon.class.php';
 require_once $centreon_path . 'www/class/centreonSession.class.php';
@@ -78,7 +74,7 @@ try {
     exit;
 }
 
-error_log("blaaaaa");
+
 //configure smarty
 
 if ($centreon->user->admin == 0) {
@@ -93,7 +89,6 @@ $template = initSmartyTplForPopup($path, $template, "./", $centreon_path);
 
 $data = array();
 
-error_log("pas encore");
 
 if ($preferences['host_group'] == ''){
   $query = "SELECT DISTINCT T2.host_name, T2.service_description, T2.service_id, T2.host_id, AVG(T3.current_value) as current_value, T1.state as status
@@ -128,8 +123,7 @@ and T6.host_id = T5.host_id
 group by T2.host_id  ORDER BY current_value DESC LIMIT ".$preferences['nb_lin'].";";
 }
 
-error_log("ca yest");
-error_log($query);
+
 $numLine = 1;
 
 $res = $db->query($query);
@@ -142,7 +136,7 @@ while ($row = $res->fetchRow()) {
 
 $autoRefresh = $preferences['autoRefresh'];
 
-error_log(json_encode($data));
+
 $template->assign('preferences', $preferences);
 $template->assign('widgetID', $widgetId);
 $template->assign('autoRefresh', $autoRefresh);
