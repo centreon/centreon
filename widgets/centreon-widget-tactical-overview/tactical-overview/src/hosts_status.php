@@ -78,7 +78,7 @@ while ($row = $res->fetchRow()) {
   $dataPEND[] = $row;
 }
 
-$autoRefresh = $preferences['autoRefresh'];
+
 
 
 $template->assign('preferences', $preferences);
