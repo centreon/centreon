@@ -33,9 +33,6 @@
  *
  */
 
-ini_set("log_error",1);
-ini_set("error_log", "/tmp/php-error.log");
-
 require_once "../require.php";
 require_once $centreon_path . 'www/class/centreon.class.php';
 require_once $centreon_path . 'www/class/centreonSession.class.php';
@@ -92,40 +89,39 @@ $template = initSmartyTplForPopup($path, $template, "./", $centreon_path);
 $data = array();
 
 if ($preferences['host_group'] == ''){
-$query = "select DISTINCT T1.service_id, T1.host_id, T1.host_name, T1.service_description, current_value/max as ratio, max-current_value as remaining_space, T3.state as status           
-from index_data T1, metrics T2, services T3, hosts T4  " .($centreon->user->admin == 0 ? ", centreon_acl acl" : ""). "                                                                    
-where T1.service_description like '%".$preferences['service_description']."%'                                                                                                             
-AND metric_name like '%".$preferences['metric_name']."%'                                                                                                                                  
-and T2.index_id = id                                                                                                                                                                      
-and T1.service_id = T3.service_id                                                                                                                                                         
-and T1.host_id = T3.host_id                                                                                                                                                               
-AND Max is not null                                                                                                                                                                       
-and T2.index_id = id                                                                                                                                                                      
-and T1.host_name = T4.name                                                                                                                                                                
-and T4.enabled = 1                                                                                                                                                                        
-" .($centreon->user->admin == 0 ? " AND T1.host_id = acl.host_id AND T1.service_id = acl.service_id AND acl.group_id IN (" .($grouplistStr != "" ? $grouplistStr : 0). ")" : ""). "       
+$query = "select DISTINCT T1.service_id, T1.host_id, T1.host_name, T1.service_description, current_value/max as ratio, max-current_value as remaining_space, T3.state as status  
+from index_data T1, metrics T2, services T3, hosts T4  " .($centreon->user->admin == 0 ? ", centreon_acl acl" : ""). "
+where T1.service_description like '%".$preferences['service_description']."%'
+AND metric_name like '%".$preferences['metric_name']."%'
+and T2.index_id = id
+and T1.service_id = T3.service_id
+and T1.host_id = T3.host_id
+AND Max is not null
+and T2.index_id = id
+and T1.host_name = T4.name
+and T4.enabled = 1                                                                                                                                                                
+" .($centreon->user->admin == 0 ? " AND T1.host_id = acl.host_id AND T1.service_id = acl.service_id AND acl.group_id IN (" .($grouplistStr != "" ? $grouplistStr : 0). ")" : ""). "
 order by ratio desc limit ".$preferences['nb_lin'].";";
 
 } else {
 
-$query = "select T2.service_id, T2.host_id, T2.host_name, T2.service_description, current_value/Max as ratio, Max-current_value as remaining_space, T1.state as status                    
-from services T1, index_data T2, metrics T3, hosts_hostgroups T5, hosts T6 " .($centreon->user->admin == 0 ? ", centreon_acl acl" : ""). "                                                
-where T2.service_description like '%".$preferences['service_description']."%'                                                                                                             
-AND Max is not null                                                                                                                                                                       
-and T3.index_id = id                                                                                                                                                                      
-and T2.service_id = T1.service_id                                                                                                                                                         
-and T2.host_id = T1.host_id                                                                                                                                                               
-and metric_name like '%".$preferences['metric_name']."%'                                                                                                                                  
-and T5.hostgroup_id = ".$preferences['host_group']."                                                                                                                                      
-and T1.host_id = T5.host_id                                                                                                                                                               
-and T2.host_name = T6.name                                                                                                                                                                
-and T6.enabled = 1                                                                                                                                                                        
-and T6.host_id = T5.host_id                                                                                                                                                               
-" .($centreon->user->admin == 0 ? " AND T1.host_id = acl.host_id AND T1.service_id = acl.service_id AND acl.group_id AND T4.hg_id AND T5.hostgroup_id IN (" .($grouplistStr != "" ? $grouplistStr : 0). ")" : ""). " 
+$query = "select T2.service_id, T2.host_id, T2.host_name, T2.service_description, current_value/Max as ratio, Max-current_value as remaining_space, T1.state as status
+from services T1, index_data T2, metrics T3, hosts_hostgroups T5, hosts T6 " .($centreon->user->admin == 0 ? ", centreon_acl acl" : ""). "
+where T2.service_description like '%".$preferences['service_description']."%'
+AND Max is not null
+and T3.index_id = id
+and T2.service_id = T1.service_id
+and T2.host_id = T1.host_id                                                                                                                                                         
+and metric_name like '%".$preferences['metric_name']."%'
+and T5.hostgroup_id = ".$preferences['host_group']."                                                                                                                                  
+and T1.host_id = T5.host_id                                                                                                                                      
+and T2.host_name = T6.name
+and T6.enabled = 1                                                                                                                                                                
+and T6.host_id = T5.host_id
+" .($centreon->user->admin == 0 ? " AND T1.host_id = acl.host_id AND T1.service_id = acl.service_id AND acl.group_id AND T4.hg_id AND T5.hostgroup_id IN (" .($grouplistStr != "" ? $grouplistStr : 0). ")" : ""). "
 group by T2.host_id order by ratio desc limit ".$preferences['nb_lin'].";";
 }
 
-error_log($query);
 $numLine = 1;
 $in = 0;
 
@@ -153,14 +149,14 @@ function getUnit($in)
   }
 }
 
-error_log('ICI');
+
 $res = $db->query($query);
 while ($row = $res->fetchRow()) {
   $row['numLin'] = $numLine;
   while ($row['remaining_space'] >= 1024) {
     $row['remaining_space'] = $row['remaining_space'] / 1024;
     $in = $in + 1;
-  }
+    }
   $row['unit'] = getUnit($in);
   $in = 0;
   $row['remaining_space'] = round($row['remaining_space']);
