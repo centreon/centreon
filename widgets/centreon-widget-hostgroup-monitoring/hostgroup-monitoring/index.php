@@ -39,6 +39,9 @@ require_once $centreon_path . 'www/class/centreonSession.class.php';
 require_once $centreon_path . 'www/class/centreonDB.class.php';
 require_once $centreon_path . 'www/class/centreonWidget.class.php';
 
+//load Smarty
+require_once $centreon_path . 'GPL_LIB/Smarty/libs/Smarty.class.php';
+
 session_start();
 if (!isset($_SESSION['centreon']) || !isset($_REQUEST['widgetId'])) {
     exit;
@@ -58,75 +61,14 @@ try {
     echo $e->getMessage() . "<br/>";
     exit;
 }
+
+$path = $centreon_path . "www/widgets/hostgroup-monitoring/src/";
+$template = new Smarty();
+$template = initSmartyTplForPopup($path, $template, "./", $centreon_path);
+
+$template->assign('widgetId', $widgetId);
+$template->assign('preferences', $preferences);
+$template->assign('autoRefresh', $autoRefresh);
+$template->display('index.ihtml');
 ?>
-<html>
-	<style type="text/css">
-            body{ margin:0; padding: 0; }
-            .ListHeader {background: #cfedf9 none repeat scroll 0 0;}
-            .ListTable {font-size:11px;border-color: #BFD0E2;}
-            * html body { overflow:hidden; }
-            * html div#hostMonitoringTable { height:100%; overflow:auto; }
-        </style>
-    <head>
-    	<title>Hostgroup Monitoring</title>
-    	<link href="../../Themes/Centreon-2/jquery-ui/jquery-ui.css" rel="stylesheet" type="text/css"/>
-    	<link href="../../Themes/Centreon-2/jquery-ui/jquery-ui-centreon.css" rel="stylesheet" type="text/css"/>
-    	<link href="../../include/common/javascript/jquery/plugins/pagination/pagination.css" rel="stylesheet" type="text/css"/>
-    	<link href="../../include/common/javascript/jquery/plugins/treeTable/jquery.treeTable.css" rel="stylesheet" type="text/css"/>
-        
-        <link href="../../Themes/Centreon-2/style.css" rel="stylesheet" type="text/css"/>
-        <link href="<?php echo '../../Themes/Centreon-2/Color/blue_css.php';?>" rel="stylesheet" type="text/css"/>
-        <link href="<?php echo '../../Themes/Centreon-2/Color/green_css.php';?>" rel="stylesheet" type="text/css"/>
-        <link href="<?php echo '../../Themes/Centreon-2/Color/red_css.php';?>" rel="stylesheet" type="text/css"/>
-        <link href="<?php echo '../../Themes/Centreon-2/Color/yellow_css.php';?>" rel="stylesheet" type="text/css"/>
-    	<script type="text/javascript" src="../../include/common/javascript/jquery/jquery.js"></script>
-    	<script type="text/javascript" src="../../include/common/javascript/jquery/jquery-ui.js"></script>
-    	<script type="text/javascript" src="../../include/common/javascript/jquery/plugins/pagination/jquery.pagination.js"></script>
-        <script type="text/javascript" src="../../include/common/javascript/jquery/plugins/treeTable/jquery.treeTable.min.js"></script>
-    </head>
-    <body>
-        <div id='actionBar' style='width:100%;'>
-            <span id='pagination' class='pagination' style='float:left;width:45%;text-align:center;'> </span>
-            <span id='nbRows' style='float:left;width:24%;text-align:right;font-weight:bold;'></span>
-        </div>
-        <br/><br/>
-        <div id='hgMonitoringTable'></div>
-    </body>
-<script type="text/javascript">
-    var widgetId = <?php echo $widgetId; ?>;
-    var autoRefresh = <?php echo $autoRefresh;?>;
-    var timeout;
-    var itemsPerPage = <?php echo $preferences['entries'];?>;
-    var pageNumber = 0;
 
-    jQuery(function() {
-        loadPage();
-    });
-
-    /**
-     * Load page
-     */
-    function loadPage()
-    {
-        jQuery.ajax("./src/index.php?widgetId="+widgetId+"&page="+pageNumber, {        
-            success : function(htmlData) {
-                jQuery("#hgMonitoringTable").html("");
-                jQuery("#hgMonitoringTable").html(htmlData);
-                var h = document.getElementById("hgMonitoringTable").scrollHeight + 36;
-                parent.iResize(window.name, h);
-                jQuery("#hgMonitoringTable").find("img, style, script, link").load(function(){
-                    var h = document.getElementById("hgMonitoringTable").scrollHeight + 36;
-                    parent.iResize(window.name, h);
-                });
-
-        }
-        });
-        if (autoRefresh) {
-            if (timeout) {
-                clearTimeout(timeout);
-            }
-            timeout = setTimeout(loadPage, (autoRefresh * 1000));
-        }
-    }
-</script>
-</html>
