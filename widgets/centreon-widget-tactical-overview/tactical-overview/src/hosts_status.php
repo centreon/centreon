@@ -79,7 +79,7 @@ while ($row = $res->fetchRow()) {
 }
 
 
-
+$autoRefresh = $preferences['autoRefresh'];
 
 $template->assign('preferences', $preferences);
 $template->assign('widgetId', $widgetId);
