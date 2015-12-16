@@ -13,45 +13,44 @@
         {/literal}
 </head>
 <body>
-	<div id="tactical-overview">
+	<div id="tactical-overview"></div>
         <table class='StyleTable ListTable'>
                 <tr class="ListHeader">
-                        <td class='ListColHeaderLeft'><a href="/centreon/main.php?p=20201&o=svc_critical&search=" target="_blank"><span class="badge service_critical">{$dataCRI[0].statue}</span>Critical</a></td>
-                        <td class='ListColHeaderLeft'><a href="/centreon/main.php?p=20201&o=svc_warning&search=" target="_blank"><span class="badge service_warning">{$dataWA[0].statue}</span>Warning</a></td>
-			<td class='ListColHeaderLeft'><a href="/centreon/main.php?p=20201&o=svc_unknown&search=" target="_blank"><span class="badge service_unknown">{$dataUNK[0].statue}</span>Unknown</a></td>
-                        <td class='ListColHeaderLeft'><a href="/centreon/main.php?p=20201&o=svc_ok&search=" target="_blank"><span class="badge service_ok">{$dataOK[0].statue}</span>Ok</a></td>
-                        <td class='ListColHeaderLeft'><a href="/centreon/main.php?p=20201&o=svc_pending&search=" target="_blank"><span class="badge pending">{$dataPEND[0].statue}</span>Pending</a></td>
+                        <td class='ListColHeaderLeft'><a href="/centreon/main.php?p=20201&o=svc_critical&search=" target="_blank"><span class="badge service_critical margin_right">{$dataCRI[0].statue}</span>Critical</a></td>
+                        <td class='ListColHeaderLeft'><a href="/centreon/main.php?p=20201&o=svc_warning&search=" target="_blank"><span class="badge service_warning margin_right">{$dataWA[0].statue}</span>Warning</a></td>
+			<td class='ListColHeaderLeft'><a href="/centreon/main.php?p=20201&o=svc_unknown&search=" target="_blank"><span class="badge service_unknown margin_right">{$dataUNK[0].statue}</span>Unknown</a></td>
+                        <td class='ListColHeaderLeft'><a href="/centreon/main.php?p=20201&o=svc_ok&search=" target="_blank"><span class="badge service_ok margin_right">{$dataOK[0].statue}</span>Ok</a></td>
+                        <td class='ListColHeaderLeft'><a href="/centreon/main.php?p=20201&o=svc_pending&search=" target="_blank"><span class="badge pending margin_right">{$dataPEND[0].statue}</span>Pending</a></td>
                </tr>
                <tr class="line_ack">
-                        <td class='ListColLeft'><span class="badge service_critical">{$dataCRI[0].ack}</span>Acknowledge</td>
-                        <td class='ListColLeft'><span class="badge service_warning">{$dataWA[0].ack}</span>Acknowledge</td>
-			<td class='ListColLeft'><span class="badge service_unknown">{$dataUNK[0].ack}</span>Acknowledge</td> 
+                        <td class='ListColLeft'><span class="badge service_critical margin_right">{$dataCRI[0].ack}</span>Acknowledge</td>
+                        <td class='ListColLeft'><span class="badge service_warning margin_right">{$dataWA[0].ack}</span>Acknowledge</td>
+			<td class='ListColLeft'><span class="badge service_unknown margin_right">{$dataUNK[0].ack}</span>Acknowledge</td> 
                        	<td></td>
                         <td></td>
                 </tr>
                 <tr class ="line_downtime">
-                        <td class='ListColLeft'><span class="badge service_critical">{$dataCRI[0].down}</span>Downtimes</td>
-                        <td class='ListColLeft'><span class="badge service_warning">{$dataWA[0].down}</span>Downtimes</td>
-                       	<td class='ListColLeft'><span class="badge service_unknown">{$dataUNK[0].down}</span>Downtimes</td>
+                        <td class='ListColLeft'><span class="badge service_critical margin_right">{$dataCRI[0].down}</span>Downtimes</td>
+                        <td class='ListColLeft'><span class="badge service_warning margin_right">{$dataWA[0].down}</span>Downtimes</td>
+                       	<td class='ListColLeft'><span class="badge service_unknown margin_right">{$dataUNK[0].down}</span>Downtimes</td>
                         <td></td>
                         <td></td>
                 </tr>
                 <tr class="list_two">
-                        <td class='ListColLeft'><a href="/centreon/main.php?p=20202&o=svc_unhandled&search=" target="_blank"><span class="badge service_critical">{$dataCRI[0].un}</span>Unhandled</a></td>
-                        <td class='ListColLeft'><a href="/centreon/main.php?p=20202&o=svc_unhandled&search=" target="_blank"><span class="badge service_warning">{$dataWA[0].un}</span>Unhandled</a></td>
-           		<td class='ListColLeft'><a href="/centreon/main.php?p=20202&o=svc_unhandled&search=" target="_blank"><span class="badge service_unknown">{$dataUNK[0].un}</span>Unhandled</a></td>
+                        <td class='ListColLeft'><a href="/centreon/main.php?p=20202&o=svc_unhandled&search=" target="_blank"><span class="badge service_critical margin_right">{$dataCRI[0].un}</span>Unhandled</a></td>
+                        <td class='ListColLeft'><a href="/centreon/main.php?p=20202&o=svc_unhandled&search=" target="_blank"><span class="badge service_warning margin_right">{$dataWA[0].un}</span>Unhandled</a></td>
+           		<td class='ListColLeft'><a href="/centreon/main.php?p=20202&o=svc_unhandled&search=" target="_blank"><span class="badge service_unknown margin_right">{$dataUNK[0].un}</span>Unhandled</a></td>
                         <td></td>
                         <td></td>
                 </tr>
 		<tr class="list_one">
-		    <td class="ListColLeft"><span class="badge service_critical">{$dataCRI[0].pb}</span>Problem_on_host</td>
-		    <td class="ListColLeft"><span class="badge service_warning">{$dataWA[0].pb}</span>Problem_on_host</td>
-		    <td class="ListColLeft"><span class="badge service_unknown">{$dataUNK[0].pb}</span>Problem_on_host</td>
+		    <td class="ListColLeft"><span class="badge service_critical margin_right">{$dataCRI[0].pb}</span>Problem_on_host</td>
+		    <td class="ListColLeft"><span class="badge service_warning margin_right">{$dataWA[0].pb}</span>Problem_on_host</td>
+		    <td class="ListColLeft"><span class="badge service_unknown margin_right">{$dataUNK[0].pb}</span>Problem_on_host</td>
 		    <td></td>
 		    <td></td>
 		</tr>
         </table>
-	</div>
   <script>
           var widgetId = "{$widgetId}";
           var autoRefresh = "{$autoRefresh}";
