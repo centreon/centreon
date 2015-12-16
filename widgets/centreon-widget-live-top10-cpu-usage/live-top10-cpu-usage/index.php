@@ -33,6 +33,8 @@
  *
  */
 
+
+
 require_once "/usr/share/centreon/www/widgets/require.php";
 require_once $centreon_path . 'www/class/centreon.class.php';
 require_once $centreon_path . 'www/class/centreonSession.class.php';
@@ -73,7 +75,6 @@ try {
     echo $e->getMessage() . "<br/>";
     exit;
 }
-
 
 //configure smarty
 
@@ -123,7 +124,6 @@ and T6.host_id = T5.host_id
 group by T2.host_id  ORDER BY current_value DESC LIMIT ".$preferences['nb_lin'].";";
 }
 
-
 $numLine = 1;
 
 $res = $db->query($query);
@@ -133,6 +133,9 @@ while ($row = $res->fetchRow()) {
   $data[] = $row;
   $numLine++;
 }
+
+$autoRefresh = $preferences['autoRefresh'];
+
 
 $template->assign('preferences', $preferences);
 $template->assign('widgetID', $widgetId);
