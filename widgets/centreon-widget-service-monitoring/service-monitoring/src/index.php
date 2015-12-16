@@ -75,41 +75,15 @@ $dbb = new CentreonDB("centstorage");
 $widgetObj = new CentreonWidget($centreon, $db);
 $preferences = $widgetObj->getWidgetPreferences($widgetId);
 
-// Set Colors Table
-$res = $db->query("SELECT `key`, `value` FROM `options` WHERE `key` LIKE 'color%'");
-$stateSColors = array(0 => "#13EB3A",
-                     1 => "#F8C706",
-                     2 => "#F91D05",
-                     3 => "#DCDADA",
-                     4 => "#2AD1D4");
-$stateHColors = array(0 => "#13EB3A",
-                     1 => "#F91D05",
-                     2 => "#DCDADA",
-                     3 => "#2AD1D4");
-
-$aColorHost = array(0 => 'host_up', 1 => 'host_down', 2 => 'host_unreachable', 4 => 'host_pending');
-$aColorService = array(0 => 'service_ok', 1 => 'service_warning', 2 => 'service_critical', 3 => 'service_unknown', 4 => 'pending');
-
-while ($row = $res->fetchRow()) {
-    if ($row['key'] == "color_ok") {
-        $stateSColors[0] = $row['value'];
-    } elseif ($row['key'] == "color_warning") {
-        $stateSColors[1] = $row['value'];
-    } elseif ($row['key'] == "color_critical") {
-        $stateSColors[2] = $row['value'];
-    } elseif ($row['key'] == "color_unknown") {
-        $stateSColors[3] = $row['value'];
-    } elseif ($row['key'] == "color_pending") {
-        $stateSColors[4] = $row['value'];
-    } elseif ($row['key'] == "color_up") {
-        $stateHColors[4] = $row['value'];
-    } elseif ($row['key'] == "color_down") {
-        $stateHColors[4] = $row['value'];
-    } elseif ($row['key'] == "color_unreachable") {
-        $stateHColors[4] = $row['value'];
-    }
-}
-
+$stateSColors = array(0 => "#88b917",
+		      1 => "#F8C706",
+		      2 => "#e00b3d",
+		      3 => "#DCDADA",
+		      4 => "#2ad1d4");
+$stateHColors = array(0 => "#88b917",
+		      1 => "#e00b3d",
+		      2 => "#82CFD8",
+		      4 => "#2ad1d4");
 $aStateType = array("1" => "H", "0" => "S");
 
 $stateLabels = array(0 => "Ok",
@@ -319,11 +293,9 @@ while ($row = $res->fetchRow()) {
         } elseif ($key == "check_attempt") {
             $value = $value . "/" . $row['max_check_attempts']. ' ('.$aStateType[$row['state_type']].')';
         } elseif ($key == "s_state") {
-            $data[$row['host_id']."_".$row['service_id']]['s_state_val'] = $value;
             $data[$row['host_id']."_".$row['service_id']]['color'] = $stateSColors[$value];
             $value = $stateLabels[$value];
         } elseif ($key == "h_state") {
-            $data[$row['host_id']."_".$row['service_id']]['h_state_val'] = $value;
             $data[$row['host_id']."_".$row['service_id']]['hcolor'] = $stateHColors[$value];
             $value = $stateLabels[$value];
         } elseif ($key == "output") {
@@ -357,54 +329,19 @@ while ($row = $res->fetchRow()) {
       $data[$row['host_id'].'_'.$row['service_id']]['hostname']
     );
 }
+
+$autoRefresh = $preferences['refresh_interval'];
+$template->assign('widgetId', $widgetId);
+$template->assign('autoRefresh', $autoRefresh);
+$template->assign('preferences', $preferences);
+$template->assign('page', $page);
+$template->assign('dataJS', count($data));
+$template->assign('nbRows', $nbRows);
+$template->assign('StateHColors', $stateHColors);
+$template->assign('StateSColors', $stateSColors);
 $template->assign('centreon_web_path', $centreon->optGen['oreon_web_path']);
 $template->assign('preferences', $preferences);
-$template->assign('aColorHost', $aColorHost);
-$template->assign('aColorService', $aColorService);
 $template->assign('data', $data);
 $template->assign('broker', "broker");
-$template->display('index.ihtml');
+$template->display('table.ihtml');
 ?>
-<script type="text/javascript">
-    var nbRows = <?php echo $nbRows;?>;
-    var currentPage = <?php echo $page;?>;
-    var orderby = '<?php echo $orderby;?>';
-    var nbCurrentItems = <?php echo count($data);?>;
-
-    $(function () {
-        $("#HostTable").styleTable();
-        if (nbRows > itemsPerPage) {
-            $("#pagination").pagination(nbRows, {
-                items_per_page	: itemsPerPage,
-                current_page : pageNumber,
-                callback : paginationCallback
-            }).append("<br/>");
-        }
-
-        $("#nbRows").html(nbCurrentItems+"/"+nbRows);
-
-        $(".selection").each(function() {
-            var curId = $(this).attr('id');
-            if (typeof(clickedCb[curId]) != 'undefined') {
-              this.checked = clickedCb[curId];
-            }
-          });
-
-        var tmp = orderby.split(' ');
-        var icn = 'n';
-        if (tmp[1] == "DESC") {
-          icn = 's';
-        }
-        $("[name="+tmp[0]+"]").append('<span style="position: relative; float: right;" class="ui-icon ui-icon-triangle-1-'+icn+'"></span>');
-
-    });
-
-    function paginationCallback(page_index, jq)
-    {
-      if (page_index != pageNumber) {
-        pageNumber = page_index;
-        clickedCb = new Array();
-        loadPage();
-      }
-    }
-</script>
