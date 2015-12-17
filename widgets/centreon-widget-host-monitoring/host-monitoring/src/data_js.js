@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 jQuery(function () {
     if (nbRows > itemsPerPage) {
         $("#pagination").pagination(nbRows, {

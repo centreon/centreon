@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 jQuery(function() {
     loadPage();
 });
@@ -11,8 +12,8 @@ function loadPage()
         success : function(htmlData) {
             jQuery("#hostMonitoringTable").empty().append(htmlData);
             var hostMonitoringTable = jQuery("#hostMonitoringTable").find("img, style, script, link").load(function() {
-                var h = document.getElementById("hostMonitoringTable").scrollHeight;
-                parent.iResize(window.name, h + 40);
+                var h = document.getElementById("hostMonitoringTable").scrollHeight +50;
+                parent.iResize(window.name, h);
             });
         }
     });

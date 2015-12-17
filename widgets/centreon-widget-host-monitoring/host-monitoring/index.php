@@ -39,6 +39,10 @@ require_once $centreon_path . 'www/class/centreonSession.class.php';
 require_once $centreon_path . 'www/class/centreonDB.class.php';
 require_once $centreon_path . 'www/class/centreonWidget.class.php';
 
+
+//load Smarty
+require_once $centreon_path . 'GPL_LIB/Smarty/libs/Smarty.class.php';
+
 session_start();
 if (!isset($_SESSION['centreon']) || !isset($_REQUEST['widgetId'])) {
     exit;
@@ -58,98 +62,14 @@ try {
     echo $e->getMessage() . "<br/>";
     exit;
 }
-?>
-<html>
-    <head>
-    	<title>Host Monitoring</title>
-    	
-    	<link href="../../Themes/Centreon-2/jquery-ui/jquery-ui.css" rel="stylesheet" type="text/css"/>
-    	<link href="../../Themes/Centreon-2/jquery-ui/jquery-ui-centreon.css" rel="stylesheet" type="text/css"/>
-        
-    	<link href="../../include/common/javascript/jquery/plugins/pagination/pagination.css" rel="stylesheet" type="text/css"/>
-        
-        <link href="../../Themes/Centreon-2/style.css" rel="stylesheet" type="text/css"/>
-        <link href="<?php echo '../../Themes/Centreon-2/Color/blue_css.php';?>" rel="stylesheet" type="text/css"/>
-        <link href="<?php echo '../../Themes/Centreon-2/Color/green_css.php';?>" rel="stylesheet" type="text/css"/>
-        <link href="<?php echo '../../Themes/Centreon-2/Color/red_css.php';?>" rel="stylesheet" type="text/css"/>
-        <link href="<?php echo '../../Themes/Centreon-2/Color/yellow_css.php';?>" rel="stylesheet" type="text/css"/>
-        
-    	<script type="text/javascript" src="../../include/common/javascript/jquery/jquery.js"></script>
-    	<script type="text/javascript" src="../../include/common/javascript/jquery/jquery-ui.js"></script>
-    	<script type="text/javascript" src="../../include/common/javascript/jquery/plugins/pagination/jquery.pagination.js"></script>
-        
-        <style type="text/css">
-            body{ margin:0; padding: 0; }
-            .ListHeader {background: #cfedf9 none repeat scroll 0 0;}
-            .ListTable {font-size:11px;border-color: #BFD0E2;}
-            * html body { overflow:hidden; }
-            * html div#hostMonitoringTable { height:100%; overflow:auto; }
-        </style>
-    </head>
-    <body>
-    <div id='actionBar' style='width:100%;'>
-	<div id='toolBar'></div>
-	<span id='pagination' class='pagination' style='float:left;width:45%;text-align:center;'> </span>
-        <span id='nbRows' style='float:left;width:24%;text-align:right;font-weight:bold;'></span>
-    </div>
-        <div id='hostMonitoringTable'></div>
-    </body>
-<script type="text/javascript">
-    var widgetId = <?php echo $widgetId; ?>;
-    var autoRefresh = <?php echo $autoRefresh;?>;
-    var timeout;
-    var itemsPerPage = <?php echo $preferences['entries'];?>;
-    var pageNumber = 0;
-    var clickedCb = new Array();
 
-    jQuery(function() {
-            loadToolBar();
-            loadPage();
-            $('.checkall').live('click', function () {
-                var chck = this.checked;
-                $(this).parents().find(':checkbox').each(function() {
-                    $(this).attr('checked', chck);
-                    clickedCb[$(this).attr('id')] = chck;
-                });
-            });
-            $(".selection").live('click', function() {
-                clickedCb[$(this).attr('id')] = this.checked;
-            });
-    });
+$path = $centreon_path . "www/widgets/host-monitoring/src/";
 
-    /**
-     * Load Page
-     */
-    function loadPage()
-    {
-        jQuery.ajax("./src/index.php?widgetId="+widgetId+"&page="+pageNumber, {        
-            success : function(htmlData) {
-                jQuery("#hostMonitoringTable").empty().append(htmlData);
-                var hostMonitoringTable = jQuery("#hostMonitoringTable").find("img, style, script, link").load(function() {
-                    var h = document.getElementById("hostMonitoringTable").scrollHeight;
-                    parent.iResize(window.name, h + 36);
-                });
-            }
-        });
-        if (autoRefresh) {
-            if (timeout) {
-                clearTimeout(timeout);
-            }
-            timeout = setTimeout(loadPage, (autoRefresh * 1000));
-        }
-    }  
+$template = new Smarty();
+$template = initSmartyTplForPopup($path, $template, "./", $centreon_path);
 
-    /**
-     * Load toolbar
-     */
-    function loadToolBar()
-    {
-        jQuery("#toolBar").load(
-            "./src/toolbar.php",
-            {
-                widgetId : widgetId
-            }
-        );
-    }
-</script>
-</html>
+$template->assign('widgetId', $widgetId);
+$template->assign('preferences', $preferences);
+$template->assign('autoRefresh', $autoRefresh);
+$template->display('index.ihtml');
+

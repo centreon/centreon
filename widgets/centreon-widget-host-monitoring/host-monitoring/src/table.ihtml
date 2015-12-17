@@ -1,9 +1,11 @@
+<<<<<<< HEAD
 {literal}
     <style>
         @import url('../../Themes/Centreon-2/style.css');
+	@import url('../../Themes/Centreon-2/Color/blue_css.php');
     </style>
 {/literal}
-
+<div id="hostMonitoringTable">
     <table id='HostTable' class='ListTable styleTable'>
 	<tr class="ListHeader">
             <td class='ListColHeaderPicker' style='width:20px;text-align:center;'><input type='checkbox' id='selection_0' class='checkall selection'/></td>
@@ -86,7 +88,7 @@
 	</tr>
 	{/foreach}
 	</table>
-
+	</div>
 	<script type="text/javascript">
         var nbRows = {$nbRows};
         var currentpage = {$page};
