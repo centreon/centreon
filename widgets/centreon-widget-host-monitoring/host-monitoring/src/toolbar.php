@@ -91,7 +91,7 @@ if ($canDoAction || $centreon->user->access->checkAction("host_checks")) {
 $template->assign("widgetId", $_POST['widgetId']);
 $template->display('toolbar.ihtml');
 ?>
-<link href="../../include/common/javascript/jquery/plugins/colorbox/colorbox.css" rel="stylesheet" type="text/css"/>
+
 <script type="text/javascript" src="../../include/common/javascript/jquery/plugins/colorbox/jquery.colorbox-min.js"></script>
 <script type='text/javascript'>
 var tab = new Array();
@@ -110,8 +110,8 @@ $(function() {
     							href		:	"./widgets/host-monitoring/src/action.php?selection="+checkValues+"&cmd="+jQuery(this).val(),
     							width		:	"50%",
     							height		:	"40%",
-    							opacity		:	0.7,
-    							overlayClose:	false,
+    							opacity		:	0.2,
+    							overlayClose:	true,
     							iframe		: 	true
     						});
     		$(".toolbar").val(0);

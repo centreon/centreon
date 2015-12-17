@@ -1,4 +1,4 @@
-<<<<<<< HEAD
+
 jQuery(function() {
     loadPage();
 });
