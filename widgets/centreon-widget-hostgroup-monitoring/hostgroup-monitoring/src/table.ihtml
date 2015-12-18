@@ -1,84 +1,102 @@
+
 {literal}
-	<style>
-	@import url('../../Themes/Centreon-2/style.css');
+    <style>
+        @import url('../../Themes/Centreon-2/style.css');
+	@import url('../../Themes/Centreon-2/Color/blue_css.php');
     </style>
 {/literal}
-
-    <table id='HostgroupTable' class='ListTable styleTable'>
-	<tr class="ListHeader">		
-            <td class="ListColHeaderCenter" name='name'>Hostgroup</td>		
-            <td class="ListColHeaderCenter">Host Status</td>
-            <td class="ListColHeaderCenter">Service Status</td>		
+<div id="hostMonitoringTable">
+    <table id='HostTable' class='ListTable styleTable'>
+	<tr class="ListHeader">
+            <td class='ListColHeaderPicker' style='width:20px;text-align:center;'><input type='checkbox' id='selection_0' class='checkall selection'/></td>
+            {if $broker == 'broker'}
+                {if $preferences.display_severities}<td class='ListColHeaderCenter' name='Severities' style="white-space: nowrap; width: 17px;">S</td>{/if}
+            {/if}
+            {if $preferences.display_host_name}<td class='ListColHeaderCenter' name='name' colspan='2'>Hosts</td>{/if}
+            {if $preferences.display_host_alias}<td class='ListColHeaderCenter' name='alias'>Alias</td>{/if}
+            {if $preferences.display_status}<td class='ListColHeaderCenter' name='state'>Status</td>{/if}
+            {if $preferences.display_ip}<td class='ListColHeaderCenter' name='address'>IP Address</td>{/if}
+            {if $preferences.display_last_check}<td class='ListColHeaderCenter' name='last_check'>Last Check</td>{/if}
+            {if $preferences.display_duration}<td class='ListColHeaderCenter' name='last_state_change'>Duration</td>{/if}
+            
+            {if $preferences.display_tries}<td class='ListColHeaderCenter' name='check_attempt'>Tries</td>{/if}
+            {if $preferences.display_output}<td class='ListColHeaderCenter' name='output'>Status information</td>{/if}
+            {if $broker == 'broker'}
+                {if $preferences.display_last_comment}<td class='ListColHeaderCenter' name='comment'>Comment</td>{/if}
+            {/if}
 	</tr>
         {assign var='classStyle' value='list_two'}
-	{foreach key=hgId item=elem from=$data}
+	{foreach item=elem from=$data}
             {if $classStyle == 'list_two'}
                 {assign var='classStyle' value='list_one'}
             {else}
                 {assign var='classStyle' value='list_two'}
             {/if}
-            <tr id="hg-{$hgId}" class ='{$classStyle}'>
-                <td class='ListColLeft'><a href='/{$centreon_web_path}/{$elem.hgurl}' target=_blank> {$elem.name}</a></td>
-                {if $preferences.enable_detailed_mode == 0}
-                    <td class='ListColLeft'>
-                        {assign var='link' value=''}
-                        {foreach key=state item=counter from=$elem.host_state}
-                            {if $state == 0 }
-                                {assign var='link' value='&o=h_up'}
-                            {elseif $state == 1}
-                                {assign var='link' value='&o=h_down'}
-                            {elseif $state == 2}
-                                {assign var='link' value='&o=h_pending'}
-                            {elseif $state == 4}
-                                {assign var='link' value='&o=h_ok'}
-                            {/if}
-                            <a href='/{$centreon_web_path}/{$elem.hgurlhost}{$link}' target=_blank><span class='state_badge' style='background-color: {$hostStateColors[$state]};'>&nbsp;&nbsp;</span>{$counter}</a>&nbsp;				
-                        {/foreach}
-                    </td>
-                    <td class='ListColLeft'>
-                        {assign var='link' value=''}
-                        {foreach key=state item=counter from=$elem.service_state}
-                            {if $state == 0 }
-                                {assign var='link' value='&o=svc_ok'}
-                            {elseif $state == 1}
-                                {assign var='link' value='&o=svc_warning'}
-                            {elseif $state == 2}
-                                {assign var='link' value='&o=svc_critical'}
-                            {elseif $state == 3}
-                                {assign var='link' value='&o=svc_unknown'}
-                            {elseif $state == 4}
-                                {assign var='link' value='&o=svc_pending'}
-                            {/if}
-                            <a href='/{$centreon_web_path}/{$elem.hgurl}{$link}' target=_blank><span class='state_badge' style='background-color: {$serviceStateColors[$state]};'>&nbsp;&nbsp;</span>{$counter}</a>&nbsp;				
-                        {/foreach}		
-                    </td>
-                {else}
-                    <td></td>
-                    <td></td>
+            <tr class ='{$classStyle} {$elem.class_tr}'>
+		<td class='ListColLeft' style='width:20px;text-align:center;'><input class='selection' id='selection_{$elem.host_id}' type='checkbox'/></td>
+                {if $broker == 'broker'}
+                    {if $preferences.display_severities}<td class='ListColLeft' style='text-align:center;'>{$elem.criticality}</td>{/if}
                 {/if}
-            </tr>
-            {if $preferences.enable_detailed_mode == 1}
-                {foreach item=elem2 from=$elem.host_state}
-                    <tr id="host-{$elem2.host_id}" class="child-of-hg-{$hgId}">
-                        <td class='ListColLeft'></td>
-                        <td class='ListColLeft'><a href='/{$centreon_web_path}/main.php?o=hd&p=20202&host_name={$elem2.name}' target=_blank><span class='state_badge {$aColorHost[$elem2.state]}'></span>{$elem2.name}</a></td>
-                        <td class='ListColLeft'>
-                            {foreach item=elem3 from=$elem.service_state[$elem2.host_id]}						
-                                <a href='/{$centreon_web_path}/main.php?o=svcd&p=20201&amp;host_name={$elem2.name}&service_description={$elem3.description}' target=_blank><span class='state_badge {$aColorService[$elem3.state]}'></span>{$elem3.description}</a>&nbsp;						
-                            {/foreach}
-                        </td>
-                    </tr>
-                {/foreach}	
-            {/if}
-	{/foreach}	
-    </table>
-      <script>
-          var widgetId = {$widgetId};
-          var autoRefresh = {$autoRefresh};
-          var nbRows = {$nbRows};
-          var currentpage = {$page};
-          var orderby = "{$orderby}";
-          var nbCurrentItems = {$dataJS};
-     </script>
+		{if $preferences.display_host_name}
+			<td class='ListColLeft'>
+                    {if $preferences.display_status == 0}
+                        <div>
+			<span class="state_badge" style="background-color: {$elem.color};"></span>
+                    {/if}
+                    {if $elem.icon_image != ''}
+                       <img src ='/{$centreon_web_path}/img/media/{$elem.icon_image}' width='16' height='16' style ='padding-right:5px;' />
+                    {/if}
+                <a href='/{$centreon_web_path}/main.php?p=20202&o=hd&host_name={$elem.encoded_host_name}' target=_blank>{$elem.host_name}</a></td>
+                {if $preferences.display_status == 0}
+                    </div>
+                {/if}
+                    <td class='ListColRight'>
+                        <div style='float: right;'>
+                            {if $elem.scheduled_downtime_depth != 0}<img src='/{$centreon_web_path}/img/icons/warning.png' class="ico-18">{/if}
+                            {if $elem.acknowledged == 1}<img src='/{$centreon_web_path}/img/icons/technician.png' class='ico-20'>{/if}
+                            {if ($elem.active_checks == 0 && $elem.passive_checks == 0) }<img src='/{$centreon_web_path}/img/icons/never_checked.png' class='ico-16'>{/if}
+                            {if ($elem.active_checks == 0 && $elem.passive_checks == 1) }<img src='/{$centreon_web_path}/img/icons/passive_check.png' class='ico-16'>{/if}
+                            {if $elem.notify == 0}<img src='/{$centreon_web_path}/img/icons/notifications_off.png' class="ico-18">{/if}
+                            {if $elem.action_url}
+                                <a target=_blank href='{$elem.action_url}'>
+                                    <img src='/{$centreon_web_path}/img/icons/star-full.png' class='ico-16'>
+                                </a>
+                            {/if}
+                            {if $elem.flapping}
+                                <img src='/{$centreon_web_path}/img/icones/16x16/flapping.gif' class="ico-18" title={$title_flapping}>
+                            {/if}
+                            {if $elem.notes_url}
+                                <a target=_blank href='{$elem.notes_url}'>
+                                        <img src='/{$centreon_web_path}/img/icons/link.png' class='ico-14'>
+                                </a>
+                            {/if}
+                            <a target=_blank href='/{$centreon_web_path}/main.php?p=204&amp;mode=0&svc_id={$elem.encoded_host_name}'>
+                                <img src='/{$centreon_web_path}/img/icons/chart.png' class='ico-18' title='{$title_graph}' />
+                            </a>
+                        </div>
+                </td>
+		{/if}
+		{if $preferences.display_host_alias}<td class='ListColLeft' style='white-space:nowrap;'>{$elem.alias}</td>{/if}
+		{if $preferences.display_status}<td class='ListColCenter' style='white-space:nowrap;'><span class='badge {$aColorHost[$elem.status]}'>{$elem.state}</span></td>{/if}
+                {if $preferences.display_ip}<td class='ListColRight' style='white-space:nowrap;'>{$elem.address}</td>{/if}
+                {if $preferences.display_last_check}<td class='ListColRight' style='white-space:nowrap;'>{$elem.last_check}</td>{/if}
+		{if $preferences.display_duration}<td class='ListColRight' style='white-space:nowrap;'>{$elem.last_state_change}</td>{/if}
+		{if $preferences.display_tries}<td class='ListColCenter' style='white-space:nowrap;'>{$elem.check_attempt}</td>{/if}
+		{if $preferences.display_output}<td class='ListColNoWrap'>{$elem.output}</td>{/if}
+                {if $broker == 'broker'}
+                    {if $preferences.display_last_comment}<td class='ListColLeft'>{$elem.comment}</td>{/if}
+                {/if}
+	</tr>
+	{/foreach}
+	</table>
+	</div>
+	<script type="text/javascript">
+        var nbRows = {$nbRows};
+        var currentpage = {$page};
+        var orderby = "{$orderby}";
+        var nbCurrentItems = {$dataJS};
+        var widgetId = {$widgetId};
+        var autoRefresh = {$autoRefresh};
+    </script>
 
-     <script type="text/javascript" src="src/data_js.js"></script>
+    <script type="text/javascript" src="src/data_js.js"></script>
