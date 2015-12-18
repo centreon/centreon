@@ -68,8 +68,9 @@
 		{if $preferences.display_svc_description}
 			<td class=''>
                 {if $preferences.display_status == 0}
-                    <div style='background-color: {$elem.color};'>
-                {/if}
+                    <div>
+                    <span class="state_badge" style="background-color: {$elem.color}"></span>
+		{/if}
 		<a href='{$centreon_web_path}main.php?p=202&o=svcd&host_name={$elem.encoded_hostname}&service_description={$elem.encoded_description}' target=_blank>{$elem.description}</a>
 		{if $preferences.display_status == 0}
                     </div>

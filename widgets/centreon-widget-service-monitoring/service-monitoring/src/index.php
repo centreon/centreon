@@ -76,9 +76,9 @@ $widgetObj = new CentreonWidget($centreon, $db);
 $preferences = $widgetObj->getWidgetPreferences($widgetId);
 
 $stateSColors = array(0 => "#88b917",
-		      1 => "#F8C706",
+		      1 => "#ff9a13",
 		      2 => "#e00b3d",
-		      3 => "#DCDADA",
+		      3 => "##bcbdc0",
 		      4 => "#2ad1d4");
 $stateHColors = array(0 => "#88b917",
 		      1 => "#e00b3d",
