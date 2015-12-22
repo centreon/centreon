@@ -7,9 +7,9 @@ User guide
 Overview
 --------
 
-Centreon module, Dynamic Service Management (Centreon-DSM) is an extention to manage alarms with an eventlogs system. With DSM, Centreon can receive events such as SNMP traps resulting from the detection of a problem and assign events dynamicaly to a slot defined in Centreon, like a tray events.
+Centreon module, Dynamic Service Management (Centreon-DSM) is an extension to manage alarms with an eventlogs system. With DSM, Centreon can receive events such as SNMP traps resulting from the detection of a problem and assign events dynamically to a slot defined in Centreon, like a tray events.
 
-A resource has a set number of "slots" (containers) on which alerts will be  assigned (stored). While this event has not been taken into account by an human action, it will remain visible in the interface Centreon. When event is acknowledged, the slot becomes available for new events.
+A resource has a set number of "slots" (containers) on which alerts will be  assigned (stored). While this event has not been taken into account by a human action, it will remain visible in the interface Centreon. When event is acknowledged, the slot becomes available for new events.
 
 The goal of this module is to overhead the basic trap management system of Centreon. The basic function run with a single service and alarm crashed by successive alarms.
 
@@ -31,14 +31,14 @@ The daemon **dsmd.pl** will search in database "centreon" name slots (pool servi
 Configure Slots
 ---------------
 
-In Centreon WebUI, go on : 
+In Centreon WebUI, go on: 
 
 ::
 
  Administration > Modules > Dynamic Services 
 
 
-and click on the **add** link. In order to create or modify  a slot group, please follow the table bellow in order to understand the role of all parameters.
+and click on the **add** link. In order to create or modify  a slot group, please follow the table below in order to understand the role of all parameters.
 
 +------------------------------+--------------------------------+
 | Parameters                   | Descriptions                   |
@@ -55,7 +55,7 @@ and click on the **add** link. In order to create or modify  a slot group, pleas
 |                              | to create service slots on the |
 |                              | host. This template must have  |
 |                              | been a passive template. This  |
-|                              | template must be 100 % passif  |
+|                              | template must be 100 % passive |
 |                              | and a custom macro have to be  |
 |                              | created on it. The macro is    |
 |                              | named "ALARM_ID" and the       |
@@ -73,10 +73,10 @@ and click on the **add** link. In order to create or modify  a slot group, pleas
 |                              | number of slots.               |
 +------------------------------+--------------------------------+
 | Check command                | This check command is used     |
-|                              | when the servie have to be     |
+|                              | when the service have to be    |
 |                              | forced in order to free a      |
 |                              | slot. The check command must   |
-|                              | have to send a ok return code .|
+|                              | have to send a ok return code. |
 +------------------------------+--------------------------------+
 | Status                       | The status of the slot.        |
 +------------------------------+--------------------------------+
@@ -86,9 +86,9 @@ You can find in the following picture, an example of form.
 .. image:: /_static/use/form-slot.png
    :align: center
 
-An example of passif service template is available below:
+An example of passive service template is available below:
  
-.. image:: /_static/use/form-passif-service.png
+.. image:: /_static/use/form-passive-service.png
    :align: center
 
 
@@ -96,13 +96,13 @@ An example of passif service template is available below:
    The macro ALARM_ID is mandatory. The default empty is also necessary.
 
 
-When you validate the form, Centreon will create or update all slot. If you don't have changed any value, you don't have to do other action. Else you have to go to :
+When you validate the form, Centreon will create or update all slot. If you don't have changed any value, you don't have to do other action. Else you have to go to:
 
 ::
   
  Configuration > Monitoring Engine 
 
-in order to generate configuration of the poller who have been impacted by the changes. If you don't do that, you will not see your changes appears into Centreon Monitoring UI.
+In order to generate configuration of the poller who have been impacted by the changes. If you don't do that, you will not see your changes appears into Centreon Monitoring UI.
 
 .. image:: /_static/use/conf-test.png
    :align: center
@@ -116,15 +116,15 @@ Now the configuration has been generated and validated by Centreon Engine. You c
 Configure traps
 ---------------
 
-The last step is to configure traps that you want to redirected to you slots. This configuration is a little complexe for the moment but we will try to simplify it for the next versions of Centreon DSM.
+The last step is to configure traps that you want to redirect to you slots. This configuration is a little complexe for the moment but we will try to simplify it for the next versions of Centreon DSM.
 
-Edit a SNMP trap that you want to redirect to slots systems. Go on :
+Edit a SNMP trap that you want to redirect to slots systems. Go on:
 
 ::
  
-  Configuration >  SNMP traps. 
+  Configuration > SNMP traps. 
 
-You find the following form : 
+You find the following form: 
 
 .. image:: /_static/use/trap-form.png
    :align: center
@@ -137,27 +137,27 @@ In order to redirect alarms to slots, you have to enable **Execute special comma
 
 This command launch for each trap received this command in order to redirect alarms to dsmd daemon. 
 
-This command take some parameters. You can find in the foolowing table the list and the description of each parameter:
+This command take some parameters. You can find in the following table the list and the description of each parameter:
 
 +------------------------------+------------------------------------------+
 | Parameters                   | Description                              |
 +------------------------------+------------------------------------------+
 | -H                           | Host address (ip or name) in which you   |
 |                              | want to redirect the alarm. You can pass |
-|                              | the valure @HOSTADDRESS@ in order to keep|
+|                              | the value @HOSTADDRESS@ in order to keep |
 |                              | the same host or you can use whatever you|
-|                              | want in order to centralised all alarms  |
-|                              | on the same virtual host for exemple who |
+|                              | want in order to centralized all alarms  |
+|                              | on the same virtual host for example who |
 |                              | host all alarms.                         |
 +------------------------------+------------------------------------------+
 | -o                           | This is the output that dsm will put when|
-|                              | the command will submut the result in the|
-|                              | good slot. This output can be build will |
+|                              | the command will submit the result in the|
+|                              | good slot. This output can be built will |
 |                              | all $* value and with a specific string  |
 |                              | that you pass in parameter.              |
 +------------------------------+------------------------------------------+
 | -i                           | This is the id of the                    |
-|                              | alarm. The alarm id can be build with the|
+|                              | alarm. The alarm id can be built with the|
 |                              | concatenation of some variables like     |
 |                              | "$1-$4". The id enable the possibility to|
 |                              | use the option of auto-acknowledgement of|
@@ -177,20 +177,20 @@ This command take some parameters. You can find in the foolowing table the list 
 | -m                           | This is the list of macros and its values|
 |                              | that you want to update during the       |
 |                              | treatment of the alarm. Please follow the|
-|                              | syntax bellow :                          |
+|                              | syntax below:                            |
 |                              | macro1=value1|macro2=value2|macro3=value3|
-|                              | This fuction is used to update some      |
+|                              | This function is used to update some     |
 |                              | parameters in live on the nagios or      |
 |                              | Centreon-Engine core memory without a    |
 |                              | restart.                                 |
 +------------------------------+------------------------------------------+
 
-Your form should now be like that : 
+Your form should now be like that: 
 
 .. image:: /_static/use/trap-form-2.png
    :align: center
 
-After saving the form, please generate the SNMP traps configuration file. Go on :
+After saving the form, please generate the SNMP traps configuration file. Go on:
 
 ::
 
@@ -204,7 +204,7 @@ You can now start the daemon on your server:
 
   /etc/init.d/dsmd start
 
-You should now have DSM activatedfor all traps you have configured.
+You should now have DSM activated for all traps you have configured.
 
 
 Configure Traps links
