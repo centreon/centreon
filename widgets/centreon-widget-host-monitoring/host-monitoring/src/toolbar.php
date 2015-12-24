@@ -99,6 +99,7 @@ var actions = "<?php echo $actions;?>";
 
 $(function() {
 	$(".toolbar").html(actions);
+    
 	$(".toolbar").change(function() {
 		if (jQuery(this).val() != 0) {
     		var checkValues = $("input:checked").map(function() {
@@ -114,12 +115,12 @@ $(function() {
     							overlayClose:	true,
     							iframe		: 	true
     						});
-            } else {
-                alert("<?php echo _('Please select one or more items'); ?>"); 
-                return false;
-            }
-    		$(".toolbar").val(0);
-		}
-	});
+           } else {
+               alert("<?php echo _('Please select one or more items'); ?>"); 
+               return false;
+           }
+           $(".toolbar").val(0);
+        }
+    });
 });
 </script>

@@ -9,9 +9,6 @@ jQuery(function () {
             callback	: paginationCallback
         }).append("<br/>");
     }
-
-    $("#nbRows").html(nbCurrentItems+"/"+nbRows);
-
     $(".selection").each(function() {
         var curId = $(this).attr('id');
         if (typeof(clickedCb[curId]) != 'undefined') {

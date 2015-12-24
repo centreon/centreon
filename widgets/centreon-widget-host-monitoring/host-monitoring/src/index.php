@@ -86,7 +86,7 @@ $aStateType = array("1" => "H", "0" => "S");
 $query = "SELECT SQL_CALC_FOUND_ROWS h.host_id,
 				 h.name AS host_name,
 				 h.alias,
-                                 h.flapping, 
+                 h.flapping, 
 				 state,
 				 state_type,
 				 address,
@@ -104,9 +104,9 @@ $query = "SELECT SQL_CALC_FOUND_ROWS h.host_id,
 				 max_check_attempts,
 				 action_url,
 				 notes_url, 
-                                 cv.value AS criticality,
-                                 h.icon_image,
-                                 h.icon_image_alt, 
+                 cv.value AS criticality,
+                 h.icon_image,
+                 h.icon_image_alt, 
 		         cv2.value AS criticality_id,
                  cv.name IS NULL as isnull ";
 $query .= "FROM hosts h ";
@@ -223,7 +223,7 @@ while ($row = $res->fetchRow()) {
         } elseif ($key == "output") {
             $value = substr($value, 0, $outputLength);
         } elseif (($key == "action_url" || $key == "notes_url") && $value) {
-            $value = urlencode($hostObj->replaceMacroInString($row['host_name'], $value));
+            $value = 'http://'.urlencode($hostObj->replaceMacroInString($row['host_name'], $value));
         } elseif ($key == "criticality" && $value != '') {
             $critData = $criticality->getData($row["criticality_id"]);
             $value = "<img src='../../img/media/".$media->getFilename($critData['icon_id'])."' title='".$critData["hc_name"]."' width='16' height='16'>";
@@ -253,7 +253,6 @@ while ($row = $res->fetchRow()) {
     }
     
     $data[$row['host_id']]['class_tr'] = $class;
-
 }
 
 $aColorHost = array(0 => 'host_up', 1 => 'host_down', 2 => 'host_unreachable', 4 => 'host_pending');
