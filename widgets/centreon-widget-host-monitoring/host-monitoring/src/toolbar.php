@@ -105,8 +105,8 @@ $(function() {
     			var tmp = $(this).attr('id').split("_");
     			return tmp[1];
     		}).get().join(",");
-
-    		parent.jQuery.colorbox({
+            if (checkValues != '') {
+                parent.jQuery.colorbox({
     							href		:	"./widgets/host-monitoring/src/action.php?selection="+checkValues+"&cmd="+jQuery(this).val(),
     							width		:	"50%",
     							height		:	"40%",
@@ -114,6 +114,10 @@ $(function() {
     							overlayClose:	true,
     							iframe		: 	true
     						});
+            } else {
+                alert("<?php echo _('Please select one or more items'); ?>"); 
+                return false;
+            }
     		$(".toolbar").val(0);
 		}
 	});

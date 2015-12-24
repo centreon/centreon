@@ -2,8 +2,10 @@
 jQuery(function () {
     if (nbRows > itemsPerPage) {
         $("#pagination").pagination(nbRows, {
-            items_per_page	: itemsPerPage,
-            current_page	: pageNumber,
+            items_per_page: itemsPerPage,
+            current_page: pageNumber,
+            num_edge_entries : 1,
+            num_display_entries : 3,
             callback	: paginationCallback
         }).append("<br/>");
     }
