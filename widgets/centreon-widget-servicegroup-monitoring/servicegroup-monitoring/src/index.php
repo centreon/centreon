@@ -116,8 +116,6 @@ if (!$centreon->user->admin) {
     $query = CentreonUtils::conditionBuilder($query, "name IN (" . $aclObj->getServiceGroupsString("NAME") . ")");
 }
 
-//$query = CentreonUtils::conditionBuilder($query, "enabled=1");
-
 
 $orderby = "name ASC";
 if (isset($preferences['order_by']) && $preferences['order_by'] != "") {
@@ -158,6 +156,8 @@ $template->assign('hostStateLabels', $hostStateLabels);
 $template->assign('hostStateColors', $hostStateColors);
 $template->assign('serviceStateLabels', $serviceStateLabels);
 $template->assign('serviceStateColors', $serviceStateColors);
+$template->assign('centreon_web_path', trim($centreon->optGen['oreon_web_path'], "/"));
+$template->assign('centreon_path', $centreon_path);
 
 $template->display('table.ihtml');
 ?>
