@@ -9,9 +9,8 @@
     </head>
     <body>
         <div id='actionBar'>
-        <div id='toolBar' style='float:left;width:35%'></div>
-	<div id='pagination' class='pagination' style='float:left;width:45%;text-align:center;margin-left:10px;'></div>
-        <div id='nbRows' style='float:left;width:12%;text-align:right;'></div>
+            <div id='toolBar' style='float:left;width:35%'></div>
+            <div id='pagination' class='pagination' style='float:left;text-align:right;margin-left:10px;'></div>
         </div>
         <div id='serviceMonitoringTable'></div>
         <script type="text/javascript">

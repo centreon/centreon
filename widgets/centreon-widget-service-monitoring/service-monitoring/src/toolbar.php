@@ -134,15 +134,19 @@ $(function() {
     			var tmp = $(this).attr('id').split("_");
     			return tmp[1];
     		}).get().join(",");
-    		parent.jQuery.colorbox({
-    							href		:	"./widgets/service-monitoring/src/action.php?selection="+checkValues+"&cmd="+jQuery(this).val(),
-    							width		:	"50%",
-    							height		:	"40%",
-    							opacity		:	0.7,
-    							overlayClose:	false,
-    							iframe		: 	true
-    						});
-
+            if (checkValues != '') {
+                parent.jQuery.colorbox({
+                                    href		:	"./widgets/service-monitoring/src/action.php?selection="+checkValues+"&cmd="+jQuery(this).val(),
+                                    width		:	"50%",
+                                    height		:	"40%",
+                                    opacity		:	0.7,
+                                    overlayClose:	false,
+                                    iframe		: 	true
+                                });
+            } else {
+                alert("<?php echo _('Please select one or more items'); ?>"); 
+                return false;
+            }
             $(".toolbar").val(0);
         }
     });
