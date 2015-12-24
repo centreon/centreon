@@ -195,11 +195,24 @@ if (!$centreon->user->admin) {
     $query .= $aclObj->queryBuilder("AND", "h.host_id", $aclObj->getHostsString("ID", $dbb));
 }
 $orderby = "host_name ASC";
+
 if (isset($preferences['order_by']) && $preferences['order_by'] != "") {
-    $orderby = $preferences['order_by'];
+    
+    $aOrder = explode(" ", $preferences['order_by']);
+    if (in_array('last_state_change', $aOrder) || in_array('last_hard_state_change', $aOrder)) {
+        if ($aOrder[1] == 'DESC') {
+            $order = 'ASC';
+        } else {
+            $order = 'DESC';
+        }
+        $orderby = $aOrder[0] ." ". $order;
+    } else {
+        $orderby = $preferences['order_by'];
+    }
 }
 $query .= " ORDER BY $orderby";
 $query .= " LIMIT ".($page * $preferences['entries']).",".$preferences['entries'];
+
 $res = $dbb->query($query);
 $nbRows = $dbb->numberRows();
 $data = array();
