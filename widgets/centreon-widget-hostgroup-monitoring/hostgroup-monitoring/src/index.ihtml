@@ -4,34 +4,32 @@
         <link href="../../include/common/javascript/jquery/plugins/pagination/pagination.css" rel="stylesheet" type="text/css"/>
         <link href="../../Themes/Centreon-2/Color/blue_css.php" rel="stylesheet" type="text/css"/>
         <link href="../../Themes/Centreon-2/style.css" type="text/css" rel="styleheet"/>
-	  </head>
+    </head>
 
-      <body>
-	<div id='actionBar'  style='width:100%; float:left;'>
-             <div id='toolBar' style='float:left;width:40%;'></div>
-             <div id='pagination' class='pagination' style='float:left;width:50%;'></div>
-             <div id='nbRows' style='float:left;width:10%;margin-top: 3px;text-align:right;font-weight: bold;'></div>
+    <body>
+      <div id='actionBar'  style='width:100%; float:left;'>
+          <div id='toolBar' style='float:left;'></div>
+          <div id='pagination' style='float:left;text-align:right;margin:12px 0px 10px 12px;'></div>
+      </div>
+      <div id='hgMonitoringTable'></div>
 
-             </div>
-        <div id='hgMonitoringTable'></div>
+      <script type="text/javascript">
+      var widgetId = {$widgetId};
+      var autoRefresh = {$autoRefresh};
+      var timeout;
+      var itemsPerPage = {$preferences.entries};
+      var pageNumber = 0;
+      var _num_edge_entries = 1;
+      var _num_display_entries = 3;
 
-        <script type="text/javascript">
-	var widgetId = {$widgetId};
-	var autoRefresh = {$autoRefresh};
-        var timeout;
-	var itemsPerPage = {$preferences.entries};
-	var pageNumber = 0;
-	var _num_edge_entries = 1;
-	var _num_display_entries = 3;
+      var clickedCb = new Array();
+      </script>
 
-	var clickedCb = new Array();
-	</script>
-
-	<script type="text/javascript" src="../../include/common/javascript/jquery/jquery.js"></script>
-        <script type="text/javascript" src="../../include/common/javascript/jquery/jquery-ui.js"></script>
-        <script type="text/javascript" src="../../include/common/javascript/widgetUtils.js"></script>
-        <script type="text/javascript" src="../../include/common/javascript/jquery/plugins/pagination/jquery.pagination.js"></script>
-    	<script type="text/javascript" src="../../include/common/javascript/jquery/plugins/treeTable/jquery.treeTable.min.js"></script>
-    	<script type="text/javascript" src="data.js"></script>
+      <script type="text/javascript" src="../../include/common/javascript/jquery/jquery.js"></script>
+      <script type="text/javascript" src="../../include/common/javascript/jquery/jquery-ui.js"></script>
+      <script type="text/javascript" src="../../include/common/javascript/widgetUtils.js"></script>
+      <script type="text/javascript" src="../../include/common/javascript/jquery/plugins/pagination/jquery.pagination.js"></script>
+      <script type="text/javascript" src="../../include/common/javascript/jquery/plugins/treeTable/jquery.treeTable.min.js"></script>
+      <script type="text/javascript" src="data.js"></script>
     </body>
 </html>
