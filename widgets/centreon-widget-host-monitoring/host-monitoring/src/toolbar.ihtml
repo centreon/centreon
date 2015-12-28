@@ -1,6 +1,6 @@
 <table class="ToolbarTable table">
     <tr class="ToolbarTR">
-        <td>
+        <td style="width: auto;">
             <select class='toolbar'></select>
         </td>
     </tr>

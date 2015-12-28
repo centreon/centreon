@@ -9,8 +9,8 @@
     </head>
     <body>
         <div id='actionBar'>
-        <div id='toolBar' style='float:left;width:35%'></div>
-	<div id='pagination' class='pagination' style='float:left;width:45%;text-align:center;margin-left:10px;'></div>
+            <div id='toolBar' style='float:left;'></div>
+            <div id='pagination' style='float:left;text-align:right;margin:12px 0px 10px 12px;'></div>
         </div>
         <div id='hostMonitoringTable'></div>
         <script type="text/javascript">
@@ -20,6 +20,8 @@
             var itemsPerPage = {$preferences.entries};
             var pageNumber = 0;
             var clickedCb = new Array();
+            var _num_edge_entries = 1;
+            var _num_display_entries = 3;
         </script>
 
         <script type="text/javascript" src="../../include/common/javascript/jquery/jquery.js"></script>
