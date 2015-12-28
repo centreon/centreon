@@ -125,7 +125,8 @@ class HostgroupMonitoring
             return array();
         }
         if ($isNdo == false) {
-            $query = "SELECT DISTINCT h.host_id, s.state, h.name, s.service_id, s.description, hhg.hostgroup_id, hg.name as hgname ";
+            $query = "SELECT DISTINCT h.host_id, s.state, h.name, s.service_id, s.description, hhg.hostgroup_id, hg.name as hgname, ";
+            $query .= " (case s.state when 0 then 3 when 2 then 0 when 3 then 2  when 3 then 2 else s.state END) as tri ";
             $query .= "FROM hosts_hostgroups hhg, hosts h, services s, hostgroups hg ";
             if (!$admin) {
                 $query .= ", centreon_acl acl ";
@@ -140,10 +141,11 @@ class HostgroupMonitoring
                                                     AND acl.service_id = s.service_id
                                                     AND acl.group_id IN (".$aclObj->getAccessGroupsString().")";
             }
-            $query .= " ORDER BY h.name ";
+            $query .= " ORDER BY tri asc";
         } else {
             $query = "SELECT DISTINCT h.host_id, ss.current_state as state, s.service_id, o.name1 as hgname,
-                                      h.display_name as name, s.service_object_id, s.display_name as description, hhg.hostgroup_id ";
+                                      h.display_name as name, s.service_object_id, s.display_name as description, hhg.hostgroup_id, ";
+            $query .= " (case s.state when 0 then 3 when 2 then 0 when 3 then 2  when 3 then 2 else s.state END) as tri ";
             $query .= "FROM {$ndoPrefix}hostgroup_members hhg, {$ndoPrefix}hosts h, {$ndoPrefix}hostgroups hg, {$ndoPrefix}objects o,
                             {$ndoPrefix}services s, {$ndoPrefix}servicestatus ss ";
             if (!$admin) {
@@ -164,8 +166,9 @@ class HostgroupMonitoring
                             AND acl.service_description = s.display_name
                             AND acl.group_id IN (".$aclObj->getAccessGroupsString().")";
             }
-            $query .= " ORDER BY h.display_name ";
+            $query .= " ORDER BY tri asc";
         }
+
         $res = $this->dbb->query($query);
         while ($row = $res->fetchRow()) {
             $k = $row['hgname'];

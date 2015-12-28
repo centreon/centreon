@@ -21,6 +21,9 @@
         var timeout;
 	var itemsPerPage = {$preferences.entries};
 	var pageNumber = 0;
+	var _num_edge_entries = 1;
+	var _num_display_entries = 3;
+
 	var clickedCb = new Array();
 	</script>
 
