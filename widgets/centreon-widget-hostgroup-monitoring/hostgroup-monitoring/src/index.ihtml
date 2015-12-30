@@ -9,7 +9,7 @@
     <body>
       <div id='actionBar'  style='width:100%; float:left;'>
           <div id='toolBar' style='float:left;'></div>
-          <div id='pagination' style='float:left;text-align:right;margin:12px 0px 10px 12px;'></div>
+          <div id='pagination' class="pagination" style='float:left;text-align:right;margin:12px 0px 10px 12px;'></div>
       </div>
       <div id='hgMonitoringTable'></div>
 
