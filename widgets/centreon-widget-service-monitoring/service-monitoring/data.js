@@ -12,7 +12,7 @@ function loadPage()
 		jQuery("#serviceMonitoringTable").empty().append(htmlData);
 		var hostMonitoringTable = jQuery("#serviceMonitoringTable").find("img, style, script, link").load(function() {
 			var h = document.getElementById("serviceMonitoringTable").scrollHeight +50;
-			parent.iResize(window.name, h);
+			ResizeFrame(window.name, h);
 		    });
 	    }
 	});
@@ -51,3 +51,12 @@ jQuery(function() {
             clickedCb[$(this).attr('id')] = this.checked;
         });
 });
+
+
+function ResizeFrame(ifrm, height)
+{
+    if (height < 150) {
+        height = 150;
+    }
+    jQuery("[name=" + ifrm + "]").height(height);
+}
