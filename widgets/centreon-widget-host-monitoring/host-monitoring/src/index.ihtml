@@ -10,7 +10,7 @@
     <body>
         <div id='actionBar'>
             <div id='toolBar' style='float:left;'></div>
-            <div id='pagination' style='float:left;text-align:right;margin:12px 0px 10px 12px;'></div>
+            <div id='pagination' class="pagination" style='float:left;text-align:right;margin:12px 0px 10px 12px;'></div>
         </div>
         <div id='hostMonitoringTable'></div>
         <script type="text/javascript">
