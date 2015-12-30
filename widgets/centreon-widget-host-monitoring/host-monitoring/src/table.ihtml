@@ -92,12 +92,13 @@
 	</table>
 	</div>
 	<script type="text/javascript">
-        var nbRows = {$nbRows};
-        var currentpage = {$page};
-        var orderby = "{$orderby}";
-        var nbCurrentItems = {$dataJS};
-        var widgetId = {$widgetId};
-        var autoRefresh = {$autoRefresh};
-    </script>
+            var nbRows = {$nbRows};
+            var currentpage = {$page};
+            var orderby = "{$orderby}";
+            var nbCurrentItems = {$dataJS};
+            var widgetId = {$widgetId};
+            var autoRefresh = {$autoRefresh};
+            var more_views = {$preferences.more_views};
+        </script>
 
     <script type="text/javascript" src="src/data_js.js"></script>
