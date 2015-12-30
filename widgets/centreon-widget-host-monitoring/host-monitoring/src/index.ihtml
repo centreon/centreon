@@ -4,7 +4,6 @@
     	<link href="../../include/common/javascript/jquery/plugins/pagination/pagination.css" rel="stylesheet" type="text/css"/>
         <link href="../../Themes/Centreon-2/Color/blue_css.php" rel="stylesheet" type="text/css"/>
         <link href="../../Themes/Centreon-2/style.css" rel="stylesheet" type="text/css"/>
-        <link href="src/css/style.css" rel="stylesheet" type="text/css"/>
     </head>
     <body>
         <div id='actionBar'>
