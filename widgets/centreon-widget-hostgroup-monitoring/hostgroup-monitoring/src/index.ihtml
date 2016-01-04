@@ -5,12 +5,13 @@
         <link href="../../Themes/Centreon-2/Color/blue_css.php" rel="stylesheet" type="text/css"/>
         <link href="../../Themes/Centreon-2/style.css" type="text/css" rel="styleheet"/>
     </head>
-
     <body>
-      <div id='actionBar'  style='width:100%; float:left;'>
-          <div id='toolBar' style='float:left;'></div>
-          <div id='pagination' class="pagination" style='float:left;text-align:right;margin:12px 0px 10px 12px;'></div>
-      </div>
+      {if $preferences.more_views != 1}  
+        <div id='actionBar'  style='width:100%; float:left;'>
+            <div id='toolBar' style='float:left;'></div>
+            <div id='pagination' class="pagination" style='float:left;text-align:right;margin:12px 0px 10px 12px;'></div>
+        </div>
+      {/if}
       <div id='hgMonitoringTable'></div>
 
       <script type="text/javascript">
