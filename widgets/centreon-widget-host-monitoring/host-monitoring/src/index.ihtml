@@ -6,14 +6,12 @@
         <link href="../../Themes/Centreon-2/style.css" rel="stylesheet" type="text/css"/>
     </head>
     <body>
-        <div id='actionBar'>
-            {if $preferences.more_views}
-                <div class='manageMoreViews' style='float:left;'></div>
-            {/if}
-            <div id='toolBar' style='float:left;'></div>
-            <div id='pagination' class="pagination" style='float:left;text-align:right;margin:12px 0px 10px 12px;'></div>
-            <hidden id='manage' class='manage' value='{$preferences.more_views}'/>
-        </div>
+        {if $preferences.more_views != 1}
+            <div id='actionBar'>
+                <div id='toolBar' style='float:left;'></div>
+                <div id='pagination' class="pagination" style='float:left;text-align:right;margin:12px 0px 10px 12px;'></div>
+            </div>
+        {/if}
         <div id='hostMonitoringTable'></div>
         <script type="text/javascript">
             var widgetId = {$widgetId};
@@ -24,7 +22,6 @@
             var clickedCb = new Array();
             var _num_edge_entries = 1;
             var _num_display_entries = 3;
-            var more_views = {$preferences.more_views};
         </script>
 
         <script type="text/javascript" src="../../include/common/javascript/jquery/jquery.js"></script>

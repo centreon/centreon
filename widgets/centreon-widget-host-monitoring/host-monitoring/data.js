@@ -41,7 +41,6 @@ function loadToolBar()
 jQuery(function () {
     loadToolBar();
     loadPage();
-    ManageMoreView(0);
     $('.checkall').live('click', function () {
         var chck = this.checked;
         $(this).parents().find(':checkbox').each(function () {
@@ -52,10 +51,6 @@ jQuery(function () {
     $(".selection").live('click', function () {
         clickedCb[$(this).attr('id')] = this.checked;
     });
-
-    $(".manageMoreViews").live('click', function () {
-        ManageMoreView(1);
-    });
 });
 
 
@@ -65,30 +60,4 @@ function ResizeFrame(ifrm, height)
         height = 150;
     }
     jQuery("[name=" + ifrm + "]").height(height);
-}
-
-function ManageMoreView(click)
-{
-    if (click == 0) {
-        if (more_views == 0 || more_views == 1) {
-            jQuery('#manage').val(more_views);
-            jQuery('.manageMoreViews').show();
-            if (more_views == 0) {
-              jQuery('.manageMoreViews').addClass('more_views_disable').removeClass('more_views_enable');
-            } else {
-               jQuery('.manageMoreViews').addClass('more_views_enable').removeClass('more_views_disable');
-            }
-        }
-    } else {
-        if (jQuery('#manage').val() == 1) {
-           jQuery('#manage').val(0);
-           jQuery('.manageMoreViews').addClass('more_views_disable').removeClass('more_views_enable');
-           jQuery('#toolBar, #pagination').hide();
-        } else {
-            jQuery('#manage').val(1);
-            jQuery('.manageMoreViews').addClass('more_views_enable').removeClass('more_views_disable');
-           jQuery('#toolBar, #pagination').show();
-        }
-    }
-
 }
