@@ -159,5 +159,11 @@ $template->assign('serviceStateColors', $serviceStateColors);
 $template->assign('centreon_web_path', trim($centreon->optGen['oreon_web_path'], "/"));
 $template->assign('centreon_path', $centreon_path);
 
+$bMoreViews = 0;
+if ($preferences['more_views']) {
+    $bMoreViews = $preferences['more_views'];
+}
+$template->assign('more_views', $bMoreViews);
+
 $template->display('table.ihtml');
 ?>
