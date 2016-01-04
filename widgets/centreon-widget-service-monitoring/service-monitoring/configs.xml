@@ -62,6 +62,7 @@
       <option value="last_state_change" label="Duration"/>
       <option value="last_hard_state_change" label="Hard State Duration"/>
     </preference>
-    <preference label="Refresh Interval (seconds)" name="refresh_interval" defaultValue="30" type="text" header="Misc"/>			
+    <preference label="Refresh Interval (seconds)" name="refresh_interval" defaultValue="30" type="text" header="Misc"/>
+    <preference label="Display pagination and more actions" name="more_views" defaultValue="0" type="boolean"/>		
   </preferences>        
 </configs>
