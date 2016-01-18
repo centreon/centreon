@@ -302,8 +302,10 @@ while ($row = $res->fetchRow()) {
         } elseif ($key == "output") {
             $value = substr($value, 0, $outputLength);
         } elseif (($key == "h_action_url" || $key == "h_notes_url") && $value) {
+            $value = str_replace("http://", "", $value);
             $value = urlencode($hostObj->replaceMacroInString($row['hostname'], $value));
         } elseif (($key == "s_action_url" || $key == "s_notes_url") && $value) {
+            $value = str_replace("http://", "", $value);
             $value = $hostObj->replaceMacroInString($row['hostname'], $value);
             $value = urlencode($svcObj->replaceMacroInString($row['service_id'], $value));
         } elseif ($key == "criticality_id" && $value != '') {
