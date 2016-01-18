@@ -17,7 +17,7 @@
             {if $preferences.display_tries}<td class='ListColHeaderCenter' name='check_attempt'>Tries</td>{/if}
             {if $preferences.display_latency}<td class='ListColHeaderCenter' name='latency'>Latency</td>{/if}
             {if $preferences.display_execution_time}<td class='ListColHeaderCenter' name='execution_time'>Execution Time</td>{/if}
-            {if $preferences.display_output}<td class='ListColHeaderCenter' name='output'>Status information</td>{/if}
+            {if $preferences.display_output}<td class='ListColHeaderLeft' name='output'>Status information</td>{/if}
             {if $broker == "broker"}
                 {if $preferences.display_last_comment}<td class='' name='comment'>Comment</td>{/if}
             {/if}
