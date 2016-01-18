@@ -235,8 +235,9 @@ while ($row = $res->fetchRow()) {
             $value = $stateLabels[$value];
         } elseif ($key == "output") {
             $value = substr($value, 0, $outputLength);
-        } elseif (($key == "action_url" || $key == "notes_url") && $value) {
-            $value = 'http://'.urlencode($hostObj->replaceMacroInString($row['host_name'], $value));
+        } elseif (($key == "action_url" || $key == "notes_url") && !empty($value)) {
+            $value = str_replace("http://", "", $value);
+            $value = urlencode($hostObj->replaceMacroInString($row['host_name'], $value));
         } elseif ($key == "criticality" && $value != '') {
             $critData = $criticality->getData($row["criticality_id"]);
             $value = "<img src='../../img/media/".$media->getFilename($critData['icon_id'])."' title='".$critData["hc_name"]."' width='16' height='16'>";
