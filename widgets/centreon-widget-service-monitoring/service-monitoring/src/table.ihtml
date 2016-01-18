@@ -56,7 +56,7 @@
                                 </a>
                             {/if}
                             {if $elem.h_notes_url}
-                                <a target=_blank href='{$elem.h_notes_url}'>
+                                <a target=_blank href='http://{$elem.h_notes_url}'>
                                     <img src='{$centreon_web_path}img/icons/link.png' class="ico-14">
                                 </a>
                             {/if}
