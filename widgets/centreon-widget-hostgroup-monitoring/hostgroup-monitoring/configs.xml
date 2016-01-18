@@ -18,6 +18,6 @@
             <option value="name" label="Hostgroup Name"/>	
         </preference>			
         <preference label="Refresh Interval (seconds)" name="refresh_interval" defaultValue="30" type="text" header="Misc"/>
-        <preference label="Display pagination and more actions" name="more_views" defaultValue="0" type="boolean"/>	
+        <preference label="Enable pagination and more actions" name="more_views" defaultValue="0" type="boolean"/>	
     </preferences>        
 </configs>
