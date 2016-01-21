@@ -1,0 +1,72 @@
+<script type="text/javascript" src="./include/common/javascript/tool.js"></script>
+<form name='form' method='POST'>
+	<table class="ajaxOption">
+		<tr>
+			<td>{$searchLabel} : <input type='text' name='searchRule' value='{$search}' /></td>
+	        <td><input type='submit' name='SearchButton' value='{$searchLabel}' /></td>
+		</tr>
+	</table>
+	<br>
+	<table class="ToolbarTable">
+		<tr class="ToolbarTR">
+			<td class="Toolbar_TDSelectAction_Top">
+				{$msg.options} {$form.o1.html}
+				&nbsp;&nbsp;&nbsp;
+				<a href="{$msg.addL}"><img src={$msg.img}>&nbsp;{$msg.add}</a>
+			</td>
+			<input name="p" value="{$p}" type="hidden">
+			{php}
+		   		include('./include/common/pagination.php');
+			{/php}				
+		</tr>
+	</table>
+	<table class="ListTable">
+		<tr class="ListHeader">
+			<td class="ListColHeaderPicker"><input type="checkbox" name="checkall" onclick="checkUncheckAll(this);"></td>
+			<td class="ListColHeaderLeft">{$ruleLabel}</td>
+			<td class="ListColHeaderCenter">{$statusLabel}</td>
+			<td class="ListColHeaderCenter">{$optionLabel}</td>
+		</tr>
+		{if !$nbRule}
+			<tr><td colspan="4" align="center"><b>{$no_rule_defined}</b></td></tr>
+		{else}
+			{foreach item=elem from=$elemArr}
+				{if $elem.status == 'Disabled'}
+				<tr class="row_disabled">
+				{else}
+				<tr class="row_enabled">
+				{/if}
+					<td class="ListColPicker">
+						{$elem.select}
+					</td>					
+					<td class="ListColLeft">
+						<a href={$elem.url_edit}>
+							{$elem.name}
+						</a>		
+					</td>
+					<td class="ListColCenter">
+						{$elem.status}
+					</td>
+					<td class="ListColCenter">
+						{$elem.dup}
+					</td>
+				</tr>
+			{/foreach}
+		{/if}
+	</table>
+	<table class="ToolbarTable">
+		<tr class="ToolbarTR">
+			<td class="Toolbar_TDSelectAction_Top">
+				{$msg.options} {$form.o2.html}
+				&nbsp;&nbsp;&nbsp;
+				<a href="{$msg.addL}"><img src={$msg.img}>&nbsp;{$msg.add}</a>
+			</td>
+			<input name="p" value="{$p}" type="hidden">
+			{php}
+		   		include('./include/common/pagination.php');
+			{/php}		
+		</tr>
+	</table>	
+	<input type='hidden' id='limit' name='limit' value='{$limit}'>	
+	{$form.hidden}
+</form>
