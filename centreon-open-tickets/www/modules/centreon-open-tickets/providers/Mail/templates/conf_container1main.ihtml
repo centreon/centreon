@@ -1,0 +1,29 @@
+<tr class="list_lvl_1">
+    <td class="ListColLvl1_name" colspan="2">
+        <img src={$img_brick}>&nbsp;&nbsp;{$header.common}
+    </td>
+</tr>
+<tr class="list_one">
+    <td class="FormRowField">
+        {$form.url.label}
+    </td>
+    <td class="FormRowValue">
+        {$form.url.html}
+    </td>
+</tr>
+<tr class="list_two">
+    <td class="FormRowField">
+        {$form.message_confirm.label}
+    </td>
+    <td class="FormRowValue">
+        {$form.message_confirm.html}
+    </td>
+</tr>
+<tr class="list_one">
+    <td class="FormRowField">
+        {$form.ack.label}
+    </td>
+    <td class="FormRowValue">
+        {$form.ack.html}
+    </td>
+</tr>

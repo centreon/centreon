@@ -1,0 +1,37 @@
+<tr class="list_lvl_1">
+    <td class="ListColLvl1_name" colspan="2">
+        <img src={$img_brick}>&nbsp;&nbsp;{$header.mail}
+    </td>
+</tr>
+<tr class="list_one">
+    <td class="FormRowField">
+        {$form.from.label}
+    </td>
+    <td class="FormRowValue">
+        {$form.from.html}
+    </td>
+</tr>
+<tr class="list_two">
+    <td class="FormRowField">
+        {$form.subject.label}
+    </td>
+    <td class="FormRowValue">
+        {$form.subject.html}
+    </td>
+</tr>
+<tr class="list_one">
+    <td class="FormRowField">
+        {$form.header.label}
+    </td>
+    <td class="FormRowValue">
+		{include file="file:$centreon_open_tickets_path/providers/Mail/templates/clone.ihtml" cloneId="headerMail" cloneSet=$form.headerMail}
+	</td>
+</tr>
+<tr class="list_two">
+    <td class="FormRowField">
+        {$form.body.label}
+    </td>
+    <td class="FormRowValue">
+        {$form.body.html}
+    </td>
+</tr>

@@ -9,8 +9,8 @@
 	<li class="b" id='c2'><a href="#" onclick="javascript:montre('2');">{$sort2}</a></li>
 </ul>
 </div>
-<div id='tab1' class="tab">
-	<table class="ListTable">
+<div id="tab1" class="tab">
+	<table id="OTcontainer1" class="ListTable">
 	 	<tr class="ListHeader">
 	 		<td class="FormHeader" colspan="2">
 	 			&nbsp;<img src={$img_wrench}>&nbsp;&nbsp;{$header.title}
@@ -29,7 +29,7 @@
 				{$form.rule_alias.html}
 			</td>
 		</tr>
-        <tr class="list_two">
+        <tr id="OTFindcontainer1" class="list_two">
 			<td class="FormRowField">
 				{$form.rule_provider.label}
 			</td>
@@ -37,15 +37,13 @@
 				{$form.rule_provider.html}
 			</td>
 		</tr>
-        <tr>
-            <td style="padding: 0; margin: 0" colspan="2"><div id="OTcontainer1" style="padding: 0; margin: 0; width: 100%"></div></td>
-        </tr>
-		<tr class="list_lvl_2"><td class="ListColLvl2_name" colspan="2">{$form.required._note}</td></tr>
 	</table>
-</div>
-<div id='tab2' class="tab">
-    <div id="OTcontainer2">
+    
+    <div id="validForm">
+        <p class="oreonbutton"><input type="button" value="Save" onClick="saveForm()" /></p>
     </div>
+</div>
+<div id="tab2" class="tab">
 </div>
 
 </form>
@@ -54,17 +52,39 @@
 <script type="text/javascript">
 
 var $callback_OTLoadForm = function(res) {
-    jQuery("#rule_debug").html("Full response: " + res);
+    //jQuery("#rule_debug").html("Full response: " + res);
     var data_ret = JSON.parse(res);
     if (data_ret['code'] == 1) {
         jQuery("#rule_debug").html(data_ret['msg']);
     } else {
-        alert('ici');
+        jQuery("#OTFindcontainer1").after(data_ret['result']['container1_html']);
+        jQuery("#tab2").html(data_ret['result']['container2_html']);
+        
+        // Load macros if there are some
+        if (data_ret['result']['clones'] !== undefined) {
+            for (var key in data_ret['result']['clones']) {
+                jQuery("#clone-count-" + key).data("clone-count-" + key, data_ret['result']['clones'][key]['clone_count']);
+                jQuery("#clone-values-" + key).data("clone-values-" + key, JSON.parse(data_ret['result']['clones'][key]['clone_values']));
+                init_sheepit();
+            }
+        }
+    }
+};
+
+var $callback_OTSaveForm = function(res) {
+    //jQuery("#rule_debug").html("Full response: " + res);
+    var data_ret = JSON.parse(res);
+    if (data_ret['code'] == 1) {
+        jQuery("#rule_debug").html(data_ret['msg']);
+    } else {
     }
 };
 
 function OTLoadForm() {
     if (jQuery("#provider_id").val() === undefined || jQuery("#provider_id").val().length == 0) {
+        jQuery("#OTFindcontainer1").nextAll().empty();
+        jQuery("#tab2").empty();
+        delete_sheepit();
         return ;
     }
     
@@ -75,6 +95,17 @@ function OTLoadForm() {
     }
 
     call_ajax_sync(data, $callback_OTLoadForm);
+}
+
+function saveForm() {
+    var data = {
+        "action": "save-form-config",
+        "rule_id": jQuery("#rule_id").val(),
+        "provider_id": jQuery("#provider_id").val(),
+        "form": jQuery("#RuleForm").serializeObject()
+    }
+
+    call_ajax_sync(data, $callback_OTSaveForm);
 }
 
 jQuery(function() {

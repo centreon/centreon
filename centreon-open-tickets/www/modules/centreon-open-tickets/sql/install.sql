@@ -6,6 +6,7 @@ INSERT INTO `topology` (`topology_id`, `topology_name`, `topology_icone`, `topol
 ('', 'Open Tickets', NULL, '604', NULL, NULL, '8', NULL, NULL, '0', '1', '1'),
 ('', 'Rules', './modules/centreon-open-tickets/images/wrench.png', '604', '60420', '10', '8', './modules/centreon-open-tickets/views/rules/index.php', NULL, NULL, '1', '1');
 INSERT INTO `topology_JS` (`id_page`, `PathName_js`) VALUES ('60420', './modules/centreon-open-tickets/lib/jquery.sheepItPlugin.js');
+INSERT INTO `topology_JS` (`id_page`, `PathName_js`) VALUES ('60420', './modules/centreon-open-tickets/lib/jquery.serialize-object.min.js');
 INSERT INTO `topology_JS` (`id_page`, `PathName_js`) VALUES ('60420', './modules/centreon-open-tickets/lib/doClone.js');
 INSERT INTO `topology_JS` (`id_page`, `PathName_js`) VALUES ('60420', './modules/centreon-open-tickets/lib/commonFunc.js');
 
@@ -27,7 +28,8 @@ CREATE TABLE IF NOT EXISTS `mod_open_tickets_form_clone` (
 	`form_clone_id` int(11) NOT NULL AUTO_INCREMENT,
     `uniq_id` int(11) NOT NULL,
     `label` VARCHAR(521) NOT NULL,
-	`value` VARCHAR(512),
+	`value1` VARCHAR(512),
+    `value2` VARCHAR(512),
 	`rule_id` int(11) NOT NULL,
     `order` int(11) NOT NULL,
 	PRIMARY KEY (`form_clone_id`)

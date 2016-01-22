@@ -1,0 +1,30 @@
+<span class="data hide" id="clone-values-{$cloneId}" data-clone-values-change=""></span>
+<span class="data hide" id="clone-count-{$cloneId}" data-clone-count-change=""></span>
+
+<div id="{$cloneId}_controls">
+    <div id="{$cloneId}_add">
+        <span style="cursor:pointer;">
+            {t}Add a new entry{/t} <img src="./img/icones/16x16/navigate_plus.gif">
+        </span>
+    </div>
+</div>
+<ul id="{$cloneId}" class="clonable no-deco-list">
+    <li class="clone_template" id="{$cloneId}_template">
+        <hr style='margin:2;'/>
+        <div class="clone-cell">
+            {foreach from=$cloneSet item=v}
+            <span style="padding-right: 10px;">{$v.label} : {$v.html}</span>
+            {/foreach}
+            <span class="clonehandle">
+                <img src="./img/icones/16x16/move.png">
+            </span>
+            <a id="{$cloneId}_remove_current" class="cloneremove" style='padding-right:5px;'>
+                <img src="./img/icones/16x16/delete.gif">
+            </a>
+        </div>
+        <input type="hidden" name="clone_order_{$cloneId}_#index#" id="clone_order_#index#" />
+    </li>
+    <li id="{$cloneId}_noforms_template">
+        <p class="muted">{t}Nothing here, no macros finded{/t}</p>
+    </li>
+</ul>

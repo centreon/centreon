@@ -20,8 +20,8 @@ $required_field = '&nbsp;<font color="red" size="1">*</font>';
 $tpl->assign('host', array('label' => _("Hosts")));
 $tpl->assign('rule', array('label' => _("Rules")));
 
-$tpl->assign("img_wrench", _("./modules/centreon-autodiscovery-server/images/wrench.png"));
-$tpl->assign("img_info", _("./modules/centreon-autodiscovery-server/images/information.png"));
+$tpl->assign("img_wrench", "./modules/centreon-open-tickets/images/wrench.png");
+$tpl->assign("img_info", "./modules/centreon-open-tickets/images/information.png");
 
 $tpl->assign("sort1", _("General"));
 $tpl->assign("sort2", _("Advanced"));

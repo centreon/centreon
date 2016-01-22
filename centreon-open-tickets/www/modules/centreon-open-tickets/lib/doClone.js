@@ -1,6 +1,10 @@
 
 var $sheepit = new Array();
 
+function delete_sheepit() {
+    $sheepit = new Array();
+}
+
 function remove_sheepit(suffixid, count_add) {
     var i;
 
@@ -16,7 +20,7 @@ function reload_sheepit(suffixid) {
     var i = 0;
     
     if (count > 0) {
-   	$sheepit[suffixid].inject(jQuery("#clone-values-" + suffixid).data("clone-values-" + suffixid));
+        $sheepit[suffixid].inject(jQuery("#clone-values-" + suffixid).data("clone-values-" + suffixid));
     }
 }
 
@@ -29,23 +33,8 @@ function cloneResort(id) {
 function init_sheepit() {
     jQuery(".clonable").each(function(idx, el) {
        var suffixid = jQuery(el).attr('id');
-       
-       if ($sheepit[suffixid] === undefined && suffixid == 'macro') {
-            $sheepit[suffixid] = jQuery(el).sheepIt({
-               separator: '',
-               allowRemoveLast: false,
-               allowRemoveCurrent: false,
-               allowRemoveAll: false,
-               allowAdd: false,
-               allowAddN: false,
-               minFormsCount: 0,
-               maxFormsCount: 40,
-               continuousIndex: false, // Less buggy
-               iniFormsCount: jQuery("#clone-count-" + suffixid).data("clone-count-" + suffixid),
-               data: jQuery("#clone-values-" + suffixid).data("clone-values-" + suffixid)
-            });
-       }
-       if ($sheepit[suffixid] === undefined && (suffixid == 'exinc' || suffixid == 'change')) {
+
+       if ($sheepit[suffixid] === undefined) {
             $sheepit[suffixid] = jQuery(el).sheepIt({
                separator: '',
                allowRemoveLast: true,
@@ -78,7 +67,3 @@ function init_sheepit() {
 	}
    );
 }
-
-jQuery(function() {
-    init_sheepit();
-});
