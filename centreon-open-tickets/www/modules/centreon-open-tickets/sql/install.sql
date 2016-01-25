@@ -26,8 +26,8 @@ CREATE TABLE IF NOT EXISTS `mod_open_tickets_rule` (
 --
 CREATE TABLE IF NOT EXISTS `mod_open_tickets_form_clone` (
 	`form_clone_id` int(11) NOT NULL AUTO_INCREMENT,
-    `uniq_id` int(11) NOT NULL,
-    `label` VARCHAR(521) NOT NULL,
+    `uniq_id` VARCHAR(512) NOT NULL,
+    `label` VARCHAR(512) NOT NULL,
 	`value1` VARCHAR(512),
     `value2` VARCHAR(512),
 	`rule_id` int(11) NOT NULL,
@@ -43,7 +43,7 @@ ALTER TABLE `mod_open_tickets_form_clone`
 --
 CREATE TABLE IF NOT EXISTS `mod_open_tickets_form_value` (
 	`form_value_id` int(11) NOT NULL AUTO_INCREMENT,
-  	`uniq_id` int(11) NOT NULL,
+  	`uniq_id` VARCHAR(512) NOT NULL,
     `rule_id` int(11) NOT NULL,
     `value` TEXT,
 	PRIMARY KEY (`form_value_id`)

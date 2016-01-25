@@ -40,7 +40,7 @@
 	</table>
     
     <div id="validForm">
-        <p class="oreonbutton"><input type="button" value="Save" onClick="saveForm()" /></p>
+        <p class="oreonbutton"><input id="OTSave" type="button" value="Save" onClick="saveForm()" /></p>
     </div>
 </div>
 <div id="tab2" class="tab">
@@ -82,11 +82,14 @@ var $callback_OTSaveForm = function(res) {
 
 function OTLoadForm() {
     if (jQuery("#provider_id").val() === undefined || jQuery("#provider_id").val().length == 0) {
+        disableSave();
         jQuery("#OTFindcontainer1").nextAll().empty();
         jQuery("#tab2").empty();
         delete_sheepit();
         return ;
     }
+    
+    enableSave();
     
     var data = {
         "action": "get-form-config",
@@ -106,6 +109,16 @@ function saveForm() {
     }
 
     call_ajax_sync(data, $callback_OTSaveForm);
+}
+
+function disableSave() {
+    jQuery('#OTSave').prop('disabled', true);
+    jQuery('#OTSave').attr('style', 'color: #c4c0c0; border-color: #c4c0c0;');
+}
+
+function enableSave() {
+    jQuery('#OTSave').prop('disabled', false);
+    jQuery('#OTSave').removeAttr('style');	
 }
 
 jQuery(function() {

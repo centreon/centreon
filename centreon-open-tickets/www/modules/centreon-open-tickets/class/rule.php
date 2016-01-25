@@ -14,7 +14,6 @@
 class Centreon_OpenTickets_Rule
 {
     protected $_db;
-    protected $_request;
 
     /**
      * Constructor
@@ -24,7 +23,6 @@ class Centreon_OpenTickets_Rule
      */
     public function __construct($db) {
         $this->_db = $db;
-        $this->_request = new Centreon_OpenTickets_Request();
     }
 
     /**
@@ -35,7 +33,7 @@ class Centreon_OpenTickets_Rule
      * @return void
      */
     protected function _setActivate($select, $val) {
-        $query = "UPDATE mod_auto_disco_rule SET rule_activate = '$val' WHERE rule_id IN (";
+        $query = "UPDATE mod_open_tickets_rule SET `activate` = '$val' WHERE rule_id IN (";
         $ruleList = "";
         $ruleListAppend = "";
         foreach ($select as $key => $value) {
@@ -68,6 +66,21 @@ class Centreon_OpenTickets_Rule
         return $result;
     }
     
+    public function save($rule_id, $datas) {
+        // insert and update in same
+    }
+    
+    public function get($rule_id) {
+        $result = array();
+        if (is_null($rule_id)) {
+            return $result;
+        }
+        
+        // TODO
+        
+        return $result;
+    }
+    
     /**
      * Enable rules
      *
@@ -96,8 +109,9 @@ class Centreon_OpenTickets_Rule
      * @return void
      */
     public function duplicate($select = array(), $duplicateNb = array()) {
+        $this->_db->autocommit(1);
         foreach ($select as $ruleId => $val) {
-            $query = "SELECT * FROM mod_auto_disco_rule WHERE rule_id = '".$ruleId."' LIMIT 1";
+            $query = "SELECT * FROM mod_open_tickets_rule WHERE rule_id = '" . $ruleId . "' LIMIT 1";
             $res = $this->_db->query($query);
             if (!$res->numRows()) {
                 throw new Exception(sprintf('Rule ID: % not found', $ruleId));
@@ -107,100 +121,43 @@ class Centreon_OpenTickets_Rule
             $i = 1;
             if (isset($duplicateNb[$ruleId]) && $duplicateNb[$ruleId] > 0) {
                 for ($j = 1; $j <= $duplicateNb[$ruleId]; $j++) {
-                    $name = $row['rule_alias']."_".$j;
-                    $res2 = $this->_db->query("SELECT `rule_id` FROM `mod_auto_disco_rule` WHERE `rule_alias` = '".$name."'");
+                    $name = $row['alias'] . "_" . $j;
+                    $res2 = $this->_db->query("SELECT `rule_id` FROM `mod_open_tickets_rule` WHERE `alias` = '" . $this->_db->escape($name) . "'");
                     while ($res2->numRows()) {
                         $res2->free();
                         $i++;
-                        $name = $row['rule_alias']."_".$i;
-                        $res2 = $this->_db->query("SELECT `rule_id` FROM `mod_auto_disco_rule` WHERE `rule_alias` = '".$name."'");
+                        $name = $row['alias'] . "_" . $i;
+                        $res2 = $this->_db->query("SELECT `rule_id` FROM `mod_open_tickets_rule` WHERE `alias` = '" . $this->_db->escape($name) . "'");
                     }
-                    $query2 = <<<EOQ
-INSERT INTO mod_auto_disco_rule
-  (rule_alias, service_display_name, rule_activate, rule_disable,
-   rule_comment, command_command_id, service_template_model_id, command_command_id2)
-VALUES
-  ('$name', '{$row['service_display_name']}', '{$row['rule_activate']}',
-   '{$row['rule_disable']}', '{$row['rule_comment']}', '{$row['command_command_id']}',
-   '{$row['service_template_model_id']}', {$row['command_command_id2']})
-EOQ;
+                    $query2 = "INSERT INTO mod_open_tickets_rule
+  (`alias`, `provider_id`, `activate`) VALUES " . 
+  "('" . $this->_db->escape($name) . "', " . $row['provider_id'] . ", " . $row['activate'] . ")";
                     $this->_db->query($query2);
 
-                    $res2 = $this->_db->query("SELECT `rule_id` FROM mod_auto_disco_rule WHERE rule_alias='$name'");
-                    if (!$res2->numRows()) {
-                        throw new Exception(sprintf("Failed to retrieve newly duplicated rule '%s'", $name));
-                    }
-                    $row = $res2->fetchRow();
-                    $nrule_id = $row['rule_id'];
+                    $nrule_id = $this->_db->lastinsertId('mod_open_tickets_rule');
 
-                    // Duplicate host template relations
-                    $res2 = $this->_db->query("SELECT host_host_id FROM mod_auto_disco_ht_rule_relation WHERE rule_rule_id=$ruleId");
+                    // Duplicate form clone
+                    $res2 = $this->_db->query("SELECT * FROM mod_open_tickets_form_clone WHERE rule_id=$ruleId");
                     while (($row = $res2->fetchRow())) {
-                        $this->_db->query(<<<EOQ
-INSERT INTO mod_auto_disco_ht_rule_relation
-  (host_host_id, rule_rule_id)
-VALUES
-  ({$row['host_host_id']}, $nrule_id)
-EOQ
-                                          );
-                    }
-
-                    // Duplicate contact relations
-                    $res2 = $this->_db->query("SELECT contact_id, cg_id FROM mod_auto_disco_rule_contact_relation WHERE rule_id=$ruleId");
-                    while (($row = $res2->fetchRow())) {
-                        if (!$row['contact_id']) {
-                            $row['contact_id'] = 'NULL';
-                        }
-                        if (!$row['cg_id']) {
-                            $row['cg_id'] = 'NULL';
-                        }
-                        $this->_db->query(<<<EOQ
-INSERT INTO mod_auto_disco_rule_contact_relation
-  (rule_id, contact_id, cg_id)
-VALUES
-  ($nrule_id, {$row['contact_id']}, {$row['cg_id']})
-EOQ
-                                          );
-                    }
-
-                    // Duplicate inclusions/exclusions
-                    $res2 = $this->_db->query("SELECT * FROM mod_auto_disco_inclusion_exclusion WHERE rule_id=$ruleId");
-                    while (($row = $res2->fetchRow())) {
-                        $this->_db->query(<<<EOQ
-INSERT INTO mod_auto_disco_inclusion_exclusion
-  (exinc_type, exinc_str, exinc_regexp, exinc_order, rule_id)
-VALUES
-  ('{$row['exinc_type']}', '{$row['exinc_str']}', '{$row['exinc_regexp']}', '{$row['exinc_order']}', $nrule_id)
-EOQ
-                                          );
-                    }
-                    
-                    // Duplicate change
-                    $res2 = $this->_db->query("SELECT * FROM mod_auto_disco_change WHERE rule_id=$ruleId");
-                    while (($row = $res2->fetchRow())) {
-                        $this->_db->query(<<<EOQ
-INSERT INTO mod_auto_disco_change
-  (change_str, change_regexp, change_replace, change_order, rule_id)
-VALUES
-  ('{$row['change_str']}', '{$row['change_regexp']}', '{$row['change_replace']}', '{$row['change_order']}', $nrule_id)
-EOQ
-                                          );
+                        $query2 = "INSERT INTO mod_open_tickets_form_clone
+  (`uniq_id`, `label`, `value1`, `value2`, `rule_id`) VALUES " . 
+  "('" . $this->_db->escape($row['uniq_id']) . "', '" . $this->_db->escape($row['label']) . "', '" . $this->_db->escape($row['value1']) . "', '" . $this->_db->escape($row['value2']) . "', " . $ruleId . ")";
+                        $this->_db->query($query);
                     }
 
                     // Duplicate macros
-                    $res2 = $this->_db->query("SELECT * FROM mod_auto_disco_macro WHERE rule_id=$ruleId");
+                    $res2 = $this->_db->query("SELECT * FROM mod_open_tickets_form_value WHERE rule_id=$ruleId");
                     while (($row = $res2->fetchRow())) {
-                        $this->_db->query(<<<EOQ
-INSERT INTO mod_auto_disco_macro
-  (macro_name, macro_value, is_empty, rule_id)
-VALUES
-  ('{$row['macro_name']}', '{$row['macro_value']}', '{$row['is_empty']}', $nrule_id)
-EOQ
-                                          );
+                        $query2 = "INSERT INTO mod_open_tickets_form_value
+  (`uniq_id`, `value`, `rule_id`) VALUES " . 
+  "(" . $row['uniq_id'] . "', '" . $this->_db->escape($row['value']) . "', " . $ruleId . ")";
+                        $this->_db->query($query2);
                     }
                 }
             }
         }
+        
+        $this->_db->commit();
     }
 
     /**
@@ -210,7 +167,7 @@ EOQ
      * @return void
      */
     public function delete($select) {
-        $query = "DELETE FROM mod_auto_disco_rule WHERE rule_id IN (";
+        $query = "DELETE FROM mod_open_tickets_rule WHERE rule_id IN (";
         $ruleList = "";
         foreach ($select as $key => $value) {
             if ($ruleList) {
@@ -226,6 +183,10 @@ EOQ
         $this->_db->query($query);
     }
 
+    // 
+    // NOTHING GOOD BELOW
+    // 
+    
     /**
      * Delete inclusions and exclusions
      *

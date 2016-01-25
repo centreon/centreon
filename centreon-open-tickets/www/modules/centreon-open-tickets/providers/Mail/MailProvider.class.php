@@ -12,7 +12,7 @@
 */
 
 class MailProvider {
-    protected $_db;
+    protected $_rule;
     protected $_rule_id;
     protected $_centreon_path;
     protected $_centreon_open_tickets_path;
@@ -25,8 +25,8 @@ class MailProvider {
      *
      * @return void
      */
-    public function __construct($db, $centreon_path, $centreon_open_tickets_path, $rule_id, $submitted_config = null) {
-        $this->_db = $db;
+    public function __construct($rule, $centreon_path, $centreon_open_tickets_path, $rule_id, $submitted_config = null) {
+        $this->_rule = $rule;
         $this->_centreon_path = $centreon_path;
         $this->_centreon_open_tickets_path = $centreon_open_tickets_path;
         $this->_rule_id = $rule_id;

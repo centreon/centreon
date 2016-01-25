@@ -29,7 +29,7 @@ if (is_null($provider_name) || !file_exists($centreon_open_tickets_path . 'provi
 require_once $centreon_open_tickets_path . 'providers/' . $provider_name . '/' . $provider_name . 'Provider.class.php';
 
 $classname = $provider_name . 'Provider';
-$centreon_provider = new $classname($db, $centreon_path, $centreon_open_tickets_path, $get_information['rule_id'], $get_information['form']);
+$centreon_provider = new $classname($rule, $centreon_path, $centreon_open_tickets_path, $get_information['rule_id'], $get_information['form']);
 
 try {
     $resultat['result'] = $centreon_provider->saveConfig();
