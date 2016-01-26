@@ -51,5 +51,10 @@ CREATE TABLE IF NOT EXISTS `mod_open_tickets_form_value` (
 ALTER TABLE `mod_open_tickets_form_value`
   ADD CONSTRAINT `mod_open_tickets_form_value_fk_1` FOREIGN KEY (`rule_id`) REFERENCES `mod_open_tickets_rule` (`rule_id`) ON DELETE CASCADE;
 
--- Il y'aura une table d'historique des IDs ouverts
--- CREATE TABLE IF NOT EXISTS @DB_CENTSTORAGE@.`mod_dsm_cache` (
+-- Historic and tickets
+CREATE TABLE IF NOT EXISTS @DB_CENTSTORAGE@.`mod_open_tickets` (
+    `ticket_id` int(11) NOT NULL AUTO_INCREMENT,
+    `timestamp` int(11) NOT NULL,
+    `ticket_value` VARCHAR(2048),
+    PRIMARY KEY (`ticket_id`)
+} ENGINE=InnoDB DEFAULT CHARSET=utf8;

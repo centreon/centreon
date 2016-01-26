@@ -13,13 +13,21 @@
 </tr>
 <tr class="list_two">
     <td class="FormRowField">
+        {$form.to.label}
+    </td>
+    <td class="FormRowValue">
+        {$form.to.html}
+    </td>
+</tr>
+<tr class="list_one">
+    <td class="FormRowField">
         {$form.subject.label}
     </td>
     <td class="FormRowValue">
         {$form.subject.html}
     </td>
 </tr>
-<tr class="list_one">
+<tr class="list_two">
     <td class="FormRowField">
         {$form.header.label}
     </td>
@@ -27,7 +35,7 @@
 		{include file="file:$centreon_open_tickets_path/providers/Mail/templates/clone.ihtml" cloneId="headerMail" cloneSet=$form.headerMail}
 	</td>
 </tr>
-<tr class="list_two">
+<tr class="list_one">
     <td class="FormRowField">
         {$form.body.label}
     </td>

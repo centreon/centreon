@@ -227,6 +227,7 @@ class MailProvider {
         $this->_check_error_message_append = '';
         
         $this->_checkFormValue('from', "Please set 'From' value");
+        $this->_checkFormValue('to', "Please set 'To' value");
         $this->_checkFormValue('subject', "Please set 'Subject' value");
         $this->_checkFormValue('body', "Please set 'Body' value");
         $this->_checkFormValue('macro_ticket_id', "Please set 'Macro Ticket ID' value");
@@ -280,7 +281,7 @@ class MailProvider {
     }
     
     /**
-     * Build the specifc config: from, subject, body, headers
+     * Build the specifc config: from, to, subject, body, headers
      *
      * @return void
      */
@@ -294,11 +295,13 @@ class MailProvider {
         
         // Form
         $from_html = '<input size="50" name="from" type="text" value="' . $this->_getFormValue('from') . '" />';
+        $to_html = '<input size="50" name="to" type="text" value="' . $this->_getFormValue('to') . '" />';
         $subject_html = '<input size="50" name="subject" type="text" value="' . $this->_getFormValue('subject') . '" />';
         $body_html = '<textarea rows="8" cols="70" name="body">' . $this->_getFormValue('body') . '</textarea>';
 
         $array_form = array(
             'from' => array('label' => _("From") . $this->_required_field, 'html' => $from_html),
+            'to' => array('label' => _("To") . $this->_required_field, 'html' => $to_html),
             'subject' => array('label' => _("Subject") . $this->_required_field, 'html' => $subject_html),
             'header' => array('label' => _("Headers")),
             'body' => array('label' => _("Body") . $this->_required_field, 'html' => $body_html)
@@ -388,6 +391,7 @@ class MailProvider {
     protected function saveConfigExtra() {
         $this->_save_config['clones']['headerMail'] = $this->_getCloneSubmitted('headerMail', array('Name', 'Value'));
         $this->_save_config['simple']['from'] = $this->_submitted_config['from'];
+        $this->_save_config['simple']['to'] = $this->_submitted_config['to'];
         $this->_save_config['simple']['subject'] = $this->_submitted_config['subject'];
         $this->_save_config['simple']['body'] = $this->change_html_tags($this->_submitted_config['body']);
     }
