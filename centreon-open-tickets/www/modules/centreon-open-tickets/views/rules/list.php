@@ -22,7 +22,7 @@ $form = new HTML_QuickForm('select_form', 'POST', "?p=".$p);
 
 $query = "SELECT r.rule_id, r.activate, r.alias FROM mod_open_tickets_rule r";
 if ($search) {
-    $query .= "WHERE r.alias LIKE '%".$search."%' ";
+    $query .= " WHERE r.alias LIKE '%".$search."%' ";
 }
 $queryCount = $query;
 $query .= " ORDER BY r.alias";

@@ -8,7 +8,7 @@ $resultat = array(
 // Load provider class
 if (is_null($get_information['provider_id'])) {
     $resultat['code'] = 1;
-    $resultat['msg'] = 'please provide provider_id';
+    $resultat['msg'] = 'Please set provider_id';
     return ;
 }
 
@@ -22,7 +22,7 @@ foreach ($register_providers as $name => $id) {
 
 if (is_null($provider_name) || !file_exists($centreon_open_tickets_path . 'providers/' . $provider_name . '/' . $provider_name . 'Provider.class.php')) {
     $resultat['code'] = 1;
-    $resultat['msg'] = 'cannot find provider';
+    $resultat['msg'] = 'Please set a provider';
     return ;
 }
 
@@ -35,7 +35,7 @@ try {
     $resultat['result'] = $centreon_provider->getConfig();
 } catch (Exception $e) {
     $resultat['code'] = 1;
-    $resultat['message'] = $e->getMessage();
+    $resultat['msg'] = $e->getMessage();
 }
 
 ?>

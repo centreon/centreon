@@ -1,6 +1,7 @@
-DROP TABLE `mod_open_tickets_rule`;
+
 DROP TABLE `mod_open_tickets_form_clone`;
 DROP TABLE `mod_open_tickets_form_value`;
+DROP TABLE `mod_open_tickets_rule`;
 
 DELETE FROM topology WHERE topology_page = '60420' AND topology_name = 'Rules';
 DELETE FROM topology WHERE topology_parent = '604' AND topology_name = 'Open Tickets';

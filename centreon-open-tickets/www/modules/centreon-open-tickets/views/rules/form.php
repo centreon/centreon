@@ -30,6 +30,7 @@ $tpl->assign("header", array("title" => _("Rules"), "general" => _("General info
 
 $result_rule = $rule->getAliasAndProviderId($ruleId);
 
+$tpl->assign("page", $p);
 $tpl->assign('rule_id', $ruleId);
 
 $rule_alias_html = '<input size="30" name="rule_alias" type="text" value="' . (isset($result_rule['alias']) ? $result_rule['alias'] : '') . '" />';
@@ -39,7 +40,7 @@ foreach ($register_providers as $name => $value) {
     if (isset($result_rule['provider_id']) && $result_rule['provider_id'] == $value) {
         $selected = ' selected ';
     }
-    $provider_html .= '<option value="' . $value . '"$selected>' . $name . '</option>';
+    $provider_html .= '<option value="' . $value . '"' . $selected . '>' . $name . '</option>';
 }
 $provider_html .= '</select>';
 

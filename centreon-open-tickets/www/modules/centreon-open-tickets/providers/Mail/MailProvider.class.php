@@ -19,6 +19,8 @@ class MailProvider {
     protected $_config = array("container1_html" => '', "container2_html" => '', "clones" => array());
     protected $_required_field = '&nbsp;<font color="red" size="1">*</font>';
     protected $_submitted_config = null;
+    protected $_check_error_message = '';
+    protected $_save_config = array();
     
     /**
      * constructor
@@ -31,6 +33,107 @@ class MailProvider {
         $this->_centreon_open_tickets_path = $centreon_open_tickets_path;
         $this->_rule_id = $rule_id;
         $this->_submitted_config = $submitted_config;
+        $this->rule_data = $rule->get($rule_id);
+        $this->_setDefaultValue();
+    }
+    
+    /**
+     * Set default value 
+     *
+     * @return void
+     */
+    protected function _setDefaultValue() {
+        $this->default_data = array();
+        $this->default_data['from'] = 'admin@domain.com';
+        $this->default_data['subject'] = 'Open a ticket';
+        $this->default_data['body'] = 'issue open
+        test
+        ';
+        $this->default_data['macro_ticket_id'] = 'TICKET_ID';
+        $this->default_data['macro_ticket_time'] = 'TICKET_TIME';
+        $this->default_data['ack'] = 'yes';
+        
+        //$this->default_data['clones'] = array();
+        //$this->default_data['clones']['headerMail'] = array(
+        //    array('Name' => 'test', 'Value' => 'test'),
+        //    array('Name' => 'test2', 'Value' => 'test2')
+        //);
+    }
+    
+    /**
+     * Get a form clone value
+     *
+     * @return a array
+     */
+    protected function _getCloneValue($uniq_id) {
+        $format_values = array();
+        if (isset($this->rule_data['clones'][$uniq_id]) && is_array($this->rule_data['clones'][$uniq_id])) {
+            foreach ($this->rule_data['clones'][$uniq_id] as $values) {
+                $format = array();
+                foreach ($values as $label => $value) {
+                    $format[$uniq_id . $label . '_#index#'] = $value;
+                }
+                $format_values[] = $format;
+            }
+        } else if (isset($this->default_data['clones'][$uniq_id])) {
+            foreach ($this->default_data['clones'][$uniq_id] as $values) {
+                $format = array();
+                foreach ($values as $label => $value) {
+                    $format[$uniq_id . $label . '_#index#'] = $value;
+                }
+                $format_values[] = $format;
+            }
+        }
+        
+        $result = array(
+            'clone_values' => json_encode($format_values),
+            'clone_count' => count($format_values)
+        );
+        
+        return $result;
+    }
+    
+    /**
+     * Get a form value
+     *
+     * @return a string
+     */
+    protected function _getFormValue($uniq_id) {
+        $value = '';
+        if (isset($this->rule_data[$uniq_id]) && !is_null($this->rule_data[$uniq_id])) {
+            $value = $this->rule_data[$uniq_id];
+        } else if (isset($this->default_data[$uniq_id])) {
+            $value = $this->default_data[$uniq_id];
+        }
+        
+        return $value;
+    }
+    
+    protected function _checkFormValue($uniq_id, $error_msg) {
+        if (!isset($this->_submitted_config[$uniq_id]) || $this->_submitted_config[$uniq_id] == '') {
+            $this->_check_error_message .= $this->_check_error_message_append . $error_msg;
+            $this->_check_error_message_append = '<br/>';
+        }
+    }
+    
+    /**
+     * Check form
+     *
+     * @return a string
+     */
+    protected function _checkConfigForm() {
+        $this->_check_error_message = '';
+        $this->_check_error_message_append = '';
+        
+        $this->_checkFormValue('from', "Please set 'From' value");
+        $this->_checkFormValue('subject', "Please set 'Subject' value");
+        $this->_checkFormValue('body', "Please set 'Body' value");
+        $this->_checkFormValue('macro_ticket_id', "Please set 'Macro Ticket ID' value");
+        $this->_checkFormValue('macro_ticket_time', "Please set 'Macro Ticket Time' value");
+        
+        if ($this->_check_error_message != '') {
+            throw new Exception($this->_check_error_message);
+        }
     }
     
     /**
@@ -38,7 +141,7 @@ class MailProvider {
      *
      * @return a array
      */
-    public function getConfig() {
+    public function getConfig() {        
         $this->_getConfigContainer1Extra();
         $this->_getConfigContainer1Main();
         $this->_getConfigContainer2Main();
@@ -61,9 +164,9 @@ class MailProvider {
         $tpl->assign("header", array("common" => _("Common")));
         
         // Form
-        $url_html = '<input size="50" name="url" type="text" value="" />';
-        $message_confirm_html = '<textarea rows="5" cols="40" name="service_comment"></textarea>';
-        $ack_html = '<input type="checkbox" name="ack" value="yes" />';
+        $url_html = '<input size="50" name="url" type="text" value="' . $this->_getFormValue('url') . '" />';
+        $message_confirm_html = '<textarea rows="5" cols="40" name="message_confirm">' . $this->_getFormValue('message_confirm') . '</textarea>';
+        $ack_html = '<input type="checkbox" name="ack" value="yes" ' . ($this->_getFormValue('ack') == 'yes' ? 'checked' : '') . '/>';
 
         $array_form = array(
             'url' => array('label' => _("Url"), 'html' => $url_html),
@@ -89,15 +192,15 @@ class MailProvider {
         $tpl->assign("header", array("mail" => _("Mail")));
         
         // Form
-        $from_html = '<input size="50" name="from" type="text" value="" />';
-        $subject_html = '<input size="50" name="subject" type="text" value="" />';
-        $body_html = '<textarea rows="8" cols="40" name="body"></textarea>';
+        $from_html = '<input size="50" name="from" type="text" value="' . $this->_getFormValue('from') . '" />';
+        $subject_html = '<input size="50" name="subject" type="text" value="' . $this->_getFormValue('subject') . '" />';
+        $body_html = '<textarea rows="8" cols="40" name="body">' . $this->_getFormValue('body') . '</textarea>';
 
         $array_form = array(
-            'from' => array('label' => _("From"), 'html' => $from_html),
-            'subject' => array('label' => _("Subject"), 'html' => $subject_html),
+            'from' => array('label' => _("From") . $this->_required_field, 'html' => $from_html),
+            'subject' => array('label' => _("Subject") . $this->_required_field, 'html' => $subject_html),
             'header' => array('label' => _("Headers")),
-            'body' => array('label' => _("Body"), 'html' => $body_html)
+            'body' => array('label' => _("Body") . $this->_required_field, 'html' => $body_html)
         );
         
         // Clone part
@@ -112,15 +215,7 @@ class MailProvider {
         
         $this->_config['container1_html'] .= $tpl->fetch('conf_container1extra.ihtml');
         
-        // Test build clones
-        $headerMail_values = array(
-            array('headerMailName_#index#' => 'test', 'headerMailValue_#index#' => 'test'),
-            array('headerMailName_#index#' => 'test2', 'headerMailValue_#index#' => 'test2')
-        );
-        $this->_config['clones']['headerMail'] = array(
-            'clone_values' => json_encode($headerMail_values),
-            'clone_count' => count($headerMail_values)
-        );
+        $this->_config['clones']['headerMail'] = $this->_getCloneValue('headerMail');
     }
     
     /**
@@ -137,12 +232,14 @@ class MailProvider {
         $tpl->assign("header", array("title" => _("Rules"), "common" => _("Common")));
         
         // Form
-        $macro_name_html = '<input size="50" name="macro_name" type="text" value="" />';
-        $format_popup_html = '<textarea rows="5" cols="40" name="format_popup"></textarea>';
+        $macro_ticket_id_html = '<input size="50" name="macro_ticket_id" type="text" value="' . $this->_getFormValue('macro_ticket_id') . '" />';
+        $macro_ticket_time_html = '<input size="50" name="macro_ticket_time" type="text" value="' . $this->_getFormValue('macro_ticket_time') . '" />';
+        $format_popup_html = '<textarea rows="5" cols="40" name="format_popup">' . $this->_getFormValue('format_popup') . '</textarea>';
 
         $array_form = array(
-            'macro_name' => array('label' => _("Macro name") . $this->_required_field, 'html' => $macro_name_html),
-            'format_popup' => array('label' => _("Formatting popup") . $this->_required_field, 'html' => $format_popup_html)
+            'macro_ticket_id' => array('label' => _("Macro Ticket ID") . $this->_required_field, 'html' => $macro_ticket_id_html),
+            'macro_ticket_time' => array('label' => _("Macro Ticket Time") . $this->_required_field, 'html' => $macro_ticket_time_html),
+            'format_popup' => array('label' => _("Formatting popup"), 'html' => $format_popup_html)
         );
         $tpl->assign('form', $array_form);
         
@@ -175,11 +272,32 @@ class MailProvider {
         return $result;
     }
     
+    protected function saveConfigMain() {
+        $this->_save_config['provider_id'] = $this->_submitted_config['provider_id'];
+        $this->_save_config['rule_alias'] = $this->_submitted_config['rule_alias'];
+        $this->_save_config['simple']['macro_ticket_id'] = $this->_submitted_config['macro_ticket_id'];
+        $this->_save_config['simple']['macro_ticket_time'] = $this->_submitted_config['macro_ticket_time'];
+        $this->_save_config['simple']['ack'] = (isset($this->_submitted_config['ack']) && $this->_submitted_config['ack'] == 'yes') ? 
+            $this->_submitted_config['ack'] : '';
+        $this->_save_config['simple']['url'] = $this->_submitted_config['url'];
+        $this->_save_config['simple']['format_popup'] = $this->_submitted_config['format_popup'];
+        $this->_save_config['simple']['message_confirm'] = $this->_submitted_config['message_confirm'];
+    }
+    
+    protected function saveConfigExtra() {
+        $this->_save_config['clones']['headerMail'] = $this->_getCloneSubmitted('headerMail', array('Name', 'Value'));
+        $this->_save_config['simple']['from'] = $this->_submitted_config['from'];
+        $this->_save_config['simple']['subject'] = $this->_submitted_config['subject'];
+        $this->_save_config['simple']['body'] = $this->_submitted_config['body'];
+    }
+    
     public function saveConfig() {
-        $result = $this->_getCloneSubmitted('headerMail', array('Name', 'Value'));
-        $fp = fopen('/tmp/debug.txt', 'a+');
-        fwrite($fp, "=====\n");
-        fwrite($fp, print_r($result, true));
-        fwrite($fp, "=====\n");
+        $this->_checkConfigForm();
+        $this->_save_config = array('clones' => array(), 'simple' => array());
+        
+        $this->saveConfigMain();
+        $this->saveConfigExtra();
+        
+        $this->_rule->save($this->_rule_id, $this->_save_config);
     }
 }

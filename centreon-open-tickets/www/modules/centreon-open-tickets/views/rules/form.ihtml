@@ -1,7 +1,7 @@
 <script type="text/javascript" src="include/common/javascript/changetab.js"></script>
 {$form.javascript}{$javascript}
-<div id="rule_debug"></div>
-<form id="RuleForm">
+<div id="rule_error" style="color: red"></div>
+<form id="RuleForm" action="?p={$page}">
 <input type="hidden" id="rule_id" name="rule_id" value="{$rule_id}">
 <div>
 <ul id="mainnav">
@@ -38,12 +38,12 @@
 			</td>
 		</tr>
 	</table>
-    
-    <div id="validForm">
-        <p class="oreonbutton"><input id="OTSave" type="button" value="Save" onClick="saveForm()" /></p>
-    </div>
 </div>
 <div id="tab2" class="tab">
+</div>
+
+<div id="validForm">
+    <p class="oreonbutton"><input id="OTSave" type="button" value="Save" onClick="saveForm()" /></p>
 </div>
 
 </form>
@@ -52,10 +52,10 @@
 <script type="text/javascript">
 
 var $callback_OTLoadForm = function(res) {
-    //jQuery("#rule_debug").html("Full response: " + res);
+    //jQuery("#rule_error").html("Full response: " + res);
     var data_ret = JSON.parse(res);
     if (data_ret['code'] == 1) {
-        jQuery("#rule_debug").html(data_ret['msg']);
+        jQuery("#rule_error").html(data_ret['msg']);
     } else {
         jQuery("#OTFindcontainer1").after(data_ret['result']['container1_html']);
         jQuery("#tab2").html(data_ret['result']['container2_html']);
@@ -72,25 +72,25 @@ var $callback_OTLoadForm = function(res) {
 };
 
 var $callback_OTSaveForm = function(res) {
-    //jQuery("#rule_debug").html("Full response: " + res);
+    //jQuery("#rule_error").html("Full response: " + res);
     var data_ret = JSON.parse(res);
     if (data_ret['code'] == 1) {
-        jQuery("#rule_debug").html(data_ret['msg']);
+        jQuery("#rule_error").html(data_ret['msg']);
     } else {
+        location.href = jQuery("#RuleForm").attr('action');
     }
 };
 
 function OTLoadForm() {
+    jQuery("#rule_error").html('');
+    
     if (jQuery("#provider_id").val() === undefined || jQuery("#provider_id").val().length == 0) {
-        disableSave();
         jQuery("#OTFindcontainer1").nextAll().empty();
         jQuery("#tab2").empty();
         delete_sheepit();
         return ;
     }
-    
-    enableSave();
-    
+        
     var data = {
         "action": "get-form-config",
         "rule_id": jQuery("#rule_id").val(),
@@ -101,6 +101,8 @@ function OTLoadForm() {
 }
 
 function saveForm() {
+    jQuery("#rule_error").html('');
+    
     var data = {
         "action": "save-form-config",
         "rule_id": jQuery("#rule_id").val(),
@@ -109,16 +111,6 @@ function saveForm() {
     }
 
     call_ajax_sync(data, $callback_OTSaveForm);
-}
-
-function disableSave() {
-    jQuery('#OTSave').prop('disabled', true);
-    jQuery('#OTSave').attr('style', 'color: #c4c0c0; border-color: #c4c0c0;');
-}
-
-function enableSave() {
-    jQuery('#OTSave').prop('disabled', false);
-    jQuery('#OTSave').removeAttr('style');	
 }
 
 jQuery(function() {
