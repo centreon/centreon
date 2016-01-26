@@ -89,12 +89,20 @@ try {
 
     </head>
 	<body>
-    <div id='actionBar' style='width:100%;'>
+<?php
+if (!isset($preferences['rule']) || is_null($preferences['rule_id'])) {
+    print "<center><div class='update' style='text-align:center;width:350px;'>"._("Please select a rule first")."</div></center>";
+} else {
+?>
+     <div id='actionBar' style='width:100%;'>
         <span id='toolBar'></span>
         <span id='pagination' class='pagination' style='float:left;width:35%;text-align:center;'> </span>
         <span id='nbRows' style='float:left;width:19%;text-align:right;font-weight:bold;'></span>
     </div>
         <div id='openTicketsTable'></div>
+<?php
+}
+?>
 	</body>
 <script type="text/javascript">
 var widgetId = <?php echo $widgetId; ?>;

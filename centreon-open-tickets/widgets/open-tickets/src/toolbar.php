@@ -49,7 +49,7 @@ if (!isset($_SESSION['centreon']) || !isset($_POST['widgetId'])) {
 
 require_once $centreon_path ."GPL_LIB/Smarty/libs/Smarty.class.php";
 
-$path = $centreon_path . "www/widgets/service-monitoring/src/";
+$path = $centreon_path . "www/widgets/open-tickets/src/";
 $template = new Smarty();
 $template = initSmartyTplForPopup($path, $template, "./", $centreon_path);
 
@@ -61,59 +61,17 @@ $preferences = $widgetObj->getWidgetPreferences($widgetId);
 
 $pearDB = new CentreonDB();
 $admin = $centreon->user->admin;
-$canDoAction = false;
-if ($admin) {
-    $canDoAction = true;
-}
+$canDoAction = true;
+//if ($admin) {
+//    $canDoAction = true;
+//}
 $actions  = "<option value='0'>-- "._("More actions")." -- </option>";
-if ($canDoAction || $centreon->user->access->checkAction("service_schedule_check")) {
-    $actions .= "<option value='3'>"._("Service: Schedule Immediate Check")."</option>";
-}
-if ($canDoAction || $centreon->user->access->checkAction("service_schedule_forced_check")) {
-    $actions .= "<option value='4'>"._("Service: Schedule Immediate Forced Check")."</option>";
-}
-if ($canDoAction || $centreon->user->access->checkAction("service_acknowledgement")) {
-    $actions .= "<option value='70'>"._("Service: Acknowledge")."</option>";
-}
-if ($canDoAction || $centreon->user->access->checkAction("service_acknowledgement")) {
-    $actions .= "<option value='71'>"._("Service: Remove Acknowledgement")."</option>";
-}
-if ($canDoAction || $centreon->user->access->checkAction("service_schedule_downtime")) {
-    $actions .= "<option value='74'>"._("Service: Set Downtime")."</option>";
-}
-if ($canDoAction || $centreon->user->access->checkAction("service_notifications")) {
-    $actions .= "<option value='80'>"._("Service: Enable Notification")."</option>";
-}
-if ($canDoAction || $centreon->user->access->checkAction("service_notifications")) {
-    $actions .= "<option value='81'>"._("Service: Disable Notification")."</option>";
-}
-if ($canDoAction || $centreon->user->access->checkAction("service_checks")) {
-    $actions .= "<option value='90'>"._("Service: Enable Check")."</option>";
-}
-if ($canDoAction || $centreon->user->access->checkAction("service_checks")) {
-    $actions .= "<option value='91'>"._("Service: Disable Check")."</option>";
+if ($canDoAction) { // || $centreon->user->access->checkAction("service_schedule_check")) {
+    $actions .= "<option value='3'>"._("Service: Open ticket")."</option>";
 }
 
-if ($canDoAction || $centreon->user->access->checkAction("host_acknowledgement")) {
-    $actions .= "<option value='72'>"._("Host: Acknowledge")."</option>";
-}
-if ($canDoAction || $centreon->user->access->checkAction("host_acknowledgement")) {
-    $actions .= "<option value='73'>"._("Host: Remove Acknowledgement")."</option>";
-}
-if ($canDoAction || $centreon->user->access->checkAction("host_schedule_downtime")) {
-    $actions .= "<option value='75'>"._("Host: Set Downtime")."</option>";
-}
-if ($canDoAction || $centreon->user->access->checkAction("host_notifications")) {
-    $actions .= "<option value='82'>"._("Host: Enable Host Notification")."</option>";
-}
-if ($canDoAction || $centreon->user->access->checkAction("host_notifications")) {
-    $actions .= "<option value='83'>"._("Host: Disable Host Notification")."</option>";
-}
-if ($canDoAction || $centreon->user->access->checkAction("host_checks")) {
-    $actions .= "<option value='92'>"._("Host: Enable Host Check")."</option>";
-}
-if ($canDoAction || $centreon->user->access->checkAction("host_checks")) {
-    $actions .= "<option value='93'>"._("Host: Disable Host Check")."</option>";
+if ($canDoAction) { // || $centreon->user->access->checkAction("host_acknowledgement")) {
+    $actions .= "<option value='4'>"._("Host: Open ticket")."</option>";
 }
 
 $template->assign("widgetId", $_POST['widgetId']);
@@ -136,7 +94,7 @@ $(function() {
     			return tmp[1];
     		}).get().join(",");
     		parent.jQuery.colorbox({
-    							href		:	"./widgets/service-monitoring/src/action.php?sid="+sid+"&selection="+checkValues+"&cmd="+jQuery(this).val(),
+    							href		:	"./widgets/open-tickets/src/action.php?sid="+sid+"&selection="+checkValues+"&cmd="+jQuery(this).val(),
     							width		:	"50%",
     							height		:	"40%",
     							opacity		:	0.7,

@@ -34,7 +34,7 @@
  */
 
 header('Content-type: application/csv');
-header('Content-Disposition: attachment; filename="services-monitoring.csv"');
+header('Content-Disposition: attachment; filename="open-tickets.csv"');
 
 require_once "../../require.php";
 require_once $centreon_path . 'www/class/centreon.class.php';
@@ -64,7 +64,7 @@ if (CentreonSession::checkSession(session_id(), $db) == 0) {
 
 // Init Smarty
 $template = new Smarty();
-$template = initSmartyTplForPopup($centreon_path . "www/widgets/service-monitoring/src/", $template, "./", $centreon_path);
+$template = initSmartyTplForPopup($centreon_path . "www/widgets/open-tickets/src/", $template, "./", $centreon_path);
 
 /* Init Objects */
 $criticality = new CentreonCriticality($db);
