@@ -34,30 +34,116 @@ class MailProvider {
         $this->_rule_id = $rule_id;
         $this->_submitted_config = $submitted_config;
         $this->rule_data = $rule->get($rule_id);
-        $this->_setDefaultValue();
+        
+        $this->default_data = array();
+        $this->_setDefaultValueMain();
+        $this->_setDefaultValueExtra();
     }
     
-    /**
-     * Set default value 
-     *
-     * @return void
-     */
-    protected function _setDefaultValue() {
-        $this->default_data = array();
-        $this->default_data['from'] = 'admin@domain.com';
-        $this->default_data['subject'] = 'Open a ticket';
-        $this->default_data['body'] = 'issue open
-        test
-        ';
+    protected function change_html_tags($output) {
+        $output = str_replace('<', '&lt;', $output);
+        $output = str_replace('>', '&gt;', $output);
+        return $output;
+    }
+    
+    protected function _setDefaultValueMain() {
         $this->default_data['macro_ticket_id'] = 'TICKET_ID';
         $this->default_data['macro_ticket_time'] = 'TICKET_TIME';
         $this->default_data['ack'] = 'yes';
         
+        $this->default_data['format_popup'] = '
+<table id="ListTable" style="width: 100%;">
+<tr>
+    <th colspan="2">{$title}</th>
+</tr>
+<tr>
+    <td>{$custom_message.label}</td>
+    <td><textarea id="custom_message" name="custom_message" cols="30" rows="3"></textarea></td>
+</tr>
+</table>
+';
+        $this->default_data['message_confirm'] = '
+<table id="ListTable" style="width: 100%;">
+<tr>
+    <th>{$title}</th>
+</tr>
+{if $ticket_is_ok == 1}
+    <tr><td>New ticket opened: {$ticket_id}.</td></tr>
+{else}
+    <tr><td>Error to open the ticket: {$ticket_error_message}.</td></tr>
+{/if}
+</table>
+';
+        $this->default_data['format_popup'] = $this->change_html_tags($this->default_data['format_popup']);
+        $this->default_data['message_confirm'] = $this->change_html_tags($this->default_data['message_confirm']);
+                
         //$this->default_data['clones'] = array();
         //$this->default_data['clones']['headerMail'] = array(
         //    array('Name' => 'test', 'Value' => 'test'),
         //    array('Name' => 'test2', 'Value' => 'test2')
         //);
+    }
+    
+    /**
+     * Set default extra value 
+     *
+     * @return void
+     */
+    protected function _setDefaultValueExtra() {
+        $this->default_data['from'] = 'admin@domain.com';
+        $this->default_data['subject'] = 'Open a ticket';
+        $this->default_data['body'] = '
+{$user} open ticket at {$smarty.now|date_format:"%d/%m/%y %H:%M:%S"}
+
+{$custom_message}
+
+{assign var="table_style" value="border-collapse: collapse; border: 1px solid black;"}
+{assign var="cell_title_style" value="background-color: #D2F5BB; border: 1px solid black; text-align: center; padding: 10px; text-transform:uppercase; font-weight:bold;"}
+{assign var="cell_style" value="border-bottom: 1px solid black; padding: 5px;"}
+
+{if $host_selected|@count gt 0} 
+    <table cellpading="0" cellspacing="0" style="{$table_style}">
+        <tr>
+            <td style="{$cell_title_style}">Host</td>
+            <td style="{$cell_title_style}">State</td>
+            <td style="{$cell_title_style}">Duration</td>
+            <td style="{$cell_title_style}">Output</td>
+        </tr>
+        {foreach from=$host_selected item=host}
+        <tr>
+            <td style="{$cell_style}">{$host.name}</td>
+            <td style="{$cell_style}">{$host.state}</td>
+            <td style="{$cell_style}">{$host.duration}</td>
+            <td style="{$cell_style}">{$host.short_output}</td>
+        </tr>
+        {/foreach}
+    </table>
+{/if}
+
+{if $service_selected|@count gt 0} 
+    <table cellpading="0" cellspacing="0" style="{$table_style}">
+        <tr>
+            <td style="{$cell_title_style}">Host</td>
+            <td style="{$cell_title_style}">Service</td>
+            <td style="{$cell_title_style}">State</td>
+            <td style="{$cell_title_style}">Duration</td>
+            <td style="{$cell_title_style}">Output</td>
+        </tr>
+        {foreach from=$service_selected item=service}
+        <tr>
+            <td style="{$cell_style}">{$service.host_name}</td>
+            <td style="{$cell_style}">{$service.description}</td>
+            <td style="{$cell_style}">{$service.state}</td>
+            <td style="{$cell_style}">{$service.duration}</td>
+            <td style="{$cell_style}">{$service.short_output}</td>
+        </tr>
+        {/foreach}
+    </table>
+{/if}
+
+        ';
+        
+        $this->default_data['body'] = $this->change_html_tags($this->default_data['body']);
     }
     
     /**
@@ -165,7 +251,7 @@ class MailProvider {
         
         // Form
         $url_html = '<input size="50" name="url" type="text" value="' . $this->_getFormValue('url') . '" />';
-        $message_confirm_html = '<textarea rows="5" cols="40" name="message_confirm">' . $this->_getFormValue('message_confirm') . '</textarea>';
+        $message_confirm_html = '<textarea rows="8" cols="70" name="message_confirm">' . $this->_getFormValue('message_confirm') . '</textarea>';
         $ack_html = '<input type="checkbox" name="ack" value="yes" ' . ($this->_getFormValue('ack') == 'yes' ? 'checked' : '') . '/>';
 
         $array_form = array(
@@ -194,7 +280,7 @@ class MailProvider {
         // Form
         $from_html = '<input size="50" name="from" type="text" value="' . $this->_getFormValue('from') . '" />';
         $subject_html = '<input size="50" name="subject" type="text" value="' . $this->_getFormValue('subject') . '" />';
-        $body_html = '<textarea rows="8" cols="40" name="body">' . $this->_getFormValue('body') . '</textarea>';
+        $body_html = '<textarea rows="8" cols="70" name="body">' . $this->_getFormValue('body') . '</textarea>';
 
         $array_form = array(
             'from' => array('label' => _("From") . $this->_required_field, 'html' => $from_html),
@@ -234,7 +320,7 @@ class MailProvider {
         // Form
         $macro_ticket_id_html = '<input size="50" name="macro_ticket_id" type="text" value="' . $this->_getFormValue('macro_ticket_id') . '" />';
         $macro_ticket_time_html = '<input size="50" name="macro_ticket_time" type="text" value="' . $this->_getFormValue('macro_ticket_time') . '" />';
-        $format_popup_html = '<textarea rows="5" cols="40" name="format_popup">' . $this->_getFormValue('format_popup') . '</textarea>';
+        $format_popup_html = '<textarea rows="8" cols="70" name="format_popup">' . $this->_getFormValue('format_popup') . '</textarea>';
 
         $array_form = array(
             'macro_ticket_id' => array('label' => _("Macro Ticket ID") . $this->_required_field, 'html' => $macro_ticket_id_html),
@@ -280,15 +366,15 @@ class MailProvider {
         $this->_save_config['simple']['ack'] = (isset($this->_submitted_config['ack']) && $this->_submitted_config['ack'] == 'yes') ? 
             $this->_submitted_config['ack'] : '';
         $this->_save_config['simple']['url'] = $this->_submitted_config['url'];
-        $this->_save_config['simple']['format_popup'] = $this->_submitted_config['format_popup'];
-        $this->_save_config['simple']['message_confirm'] = $this->_submitted_config['message_confirm'];
+        $this->_save_config['simple']['format_popup'] = $this->change_html_tags($this->_submitted_config['format_popup']);
+        $this->_save_config['simple']['message_confirm'] = $this->change_html_tags($this->_submitted_config['message_confirm']);
     }
     
     protected function saveConfigExtra() {
         $this->_save_config['clones']['headerMail'] = $this->_getCloneSubmitted('headerMail', array('Name', 'Value'));
         $this->_save_config['simple']['from'] = $this->_submitted_config['from'];
         $this->_save_config['simple']['subject'] = $this->_submitted_config['subject'];
-        $this->_save_config['simple']['body'] = $this->_submitted_config['body'];
+        $this->_save_config['simple']['body'] = $this->change_html_tags($this->_submitted_config['body']);
     }
     
     public function saveConfig() {

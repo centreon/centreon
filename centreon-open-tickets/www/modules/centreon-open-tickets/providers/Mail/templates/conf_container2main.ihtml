@@ -1,36 +1,36 @@
 <table class="ListTable">
-	 	<tr class="ListHeader">
-	 		<td class="FormHeader" colspan="2">
-	 			&nbsp;<img src={$img_wrench}>&nbsp;&nbsp;{$header.title}
-	 		</td>
-	 	</tr>
-	 	<tr class="list_lvl_1">
-	 		<td class="ListColLvl1_name" colspan="2">
-	 			<img src={$img_brick}>&nbsp;&nbsp;{$header.common}
-	 		</td>
-	 	</tr>
-		<tr class="list_one">
-			<td class="FormRowField">
-				{$form.format_popup.label}
-			</td>
-			<td class="FormRowValue">
-				{$form.format_popup.html}
-			</td>
-		</tr>
-        <tr class="list_two">
-			<td class="FormRowField">
-				{$form.macro_ticket_id.label}
-			</td>
-			<td class="FormRowValue">
-				{$form.macro_ticket_id.html}
-			</td>
-		</tr>
-        <tr class="list_one">
-			<td class="FormRowField">
-				{$form.macro_ticket_time.label}
-			</td>
-			<td class="FormRowValue">
-				{$form.macro_ticket_time.html}
-			</td>
-		</tr>
+	<tr class="ListHeader">
+        <td class="FormHeader" colspan="2">
+            &nbsp;<img src={$img_wrench}>&nbsp;&nbsp;{$header.title}
+        </td>
+	</tr>
+	<tr class="list_lvl_1">
+        <td class="ListColLvl1_name" colspan="2">
+            <img src={$img_brick}>&nbsp;&nbsp;{$header.common}
+        </td>
+    </tr>
+	<tr class="list_one">
+        <td class="FormRowField">
+            {$form.format_popup.label}
+        </td>
+        <td class="FormRowValue">
+            {$form.format_popup.html}
+        </td>
+	</tr>
+    <tr class="list_two">
+        <td class="FormRowField">
+            {$form.macro_ticket_id.label}
+        </td>
+        <td class="FormRowValue">
+            {$form.macro_ticket_id.html}
+        </td>
+    </tr>
+    <tr class="list_one">
+        <td class="FormRowField">
+            {$form.macro_ticket_time.label}
+        </td>
+        <td class="FormRowValue">
+            {$form.macro_ticket_time.html}
+        </td>
+    </tr>
 </table>
