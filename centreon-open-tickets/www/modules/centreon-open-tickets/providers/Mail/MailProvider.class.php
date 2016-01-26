@@ -40,9 +40,14 @@ class MailProvider {
         $this->_setDefaultValueExtra();
     }
     
-    protected function change_html_tags($output) {
-        $output = str_replace('<', '&lt;', $output);
-        $output = str_replace('>', '&gt;', $output);
+    protected function change_html_tags($output, $change = 1) {
+        if ($change == 1) {
+            $output = str_replace('<', '&lt;', $output);
+            $output = str_replace('>', '&gt;', $output);
+        } else {
+            $output = str_replace('&lt;', '<', $output);
+            $output = str_replace('&gt;', '>', $output);
+        }
         return $output;
     }
     
@@ -144,6 +149,16 @@ class MailProvider {
         ';
         
         $this->default_data['body'] = $this->change_html_tags($this->default_data['body']);
+        
+        // Test eval
+        //$tpl = new Smarty();
+        //$tpl = initSmartyTplForPopup($this->_centreon_open_tickets_path, $tpl, 'providers/Mail/templates', $this->_centreon_path);
+        
+        //$tpl->assign('title', 'plop');
+        //$tpl->assign('string', $this->change_html_tags($this->default_data['message_confirm'], 0));
+        //$content = $tpl->fetch('eval.ihtml');
+        //$fp = fopen('/tmp/debug.txt', 'a+');
+        //fwrite($fp, "===\n" . $content . "===\n");
     }
     
     /**
