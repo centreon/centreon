@@ -58,3 +58,5 @@ CREATE TABLE IF NOT EXISTS @DB_CENTSTORAGE@.`mod_open_tickets` (
     `ticket_value` VARCHAR(2048),
     PRIMARY KEY (`ticket_id`)
 } ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+INSERT INTO widget_parameters_field_type (ft_typename, field_type_id) VALUES ('openTicketsRule', '100');
