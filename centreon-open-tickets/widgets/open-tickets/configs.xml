@@ -13,7 +13,6 @@
   <preferences>
     <preference label="Host Name" name="host_name_search" defaultValue="" type="compare" header="Filters"/>
     <preference label="Service Description" name="service_description_search" defaultValue="" type="compare"/>
-    <preference label="hide services with DOWN host" name="hide_down_host" defaultValue="0" type="boolean"/>
     <preference label="Display Warning" name="svc_warning" defaultValue="1" type="boolean"/>
     <preference label="Display Critical" name="svc_critical" defaultValue="1" type="boolean"/>
     <preference label="Display Unknown" name="svc_unknown" defaultValue="1" type="boolean"/>
@@ -44,7 +43,6 @@
     <preference label="Display Duration" name="display_duration" defaultValue="1" type="boolean"/>
     <preference label="Display Hard State Duration" name="display_hard_state_duration" defaultValue="1" type="boolean"/>
     <preference label="Display Tries" name="display_tries" defaultValue="1" type="boolean"/>
-    <preference label="Display Latency" name="display_latency" defaultValue="0" type="boolean"/>
     <preference label="Display Execution Time" name="display_execution_time" defaultValue="0" type="boolean"/>
     <preference label="Order By" name="order_by" defaultValue="" type="sort">
       <option value="hostname" label="Host Name"/>

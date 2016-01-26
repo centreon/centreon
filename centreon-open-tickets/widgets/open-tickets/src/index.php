@@ -189,12 +189,6 @@ if (isset($preferences['svc_unknown']) && $preferences['svc_unknown']) {
 }
 
 
-if (isset($preferences['hide_down_host']) && $preferences['hide_down_host']) {
-    $query = CentreonUtils::conditionBuilder($query, " h.state != 1 ");
-}
-
-
-
 if (count($stateTab)) {
     $query = CentreonUtils::conditionBuilder($query, " s.state IN (" . implode(',', $stateTab) . ")");
 }
