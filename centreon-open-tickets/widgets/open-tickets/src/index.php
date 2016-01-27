@@ -47,7 +47,9 @@ require_once $centreon_path . 'www/class/centreonService.class.php';
 require_once $centreon_path . 'www/class/centreonMedia.class.php';
 require_once $centreon_path . 'www/class/centreonCriticality.class.php';
 
-require_once $centreon_path ."GPL_LIB/Smarty/libs/Smarty.class.php";
+require_once $centreon_path . "GPL_LIB/Smarty/libs/Smarty.class.php";
+
+require_once $centreon_path . 'www/modules/centreon-open-tickets/class/rule.php';
 
 session_start();
 if (!isset($_SESSION['centreon']) || !isset($_REQUEST['widgetId']) || !isset($_REQUEST['page'])) {
@@ -66,6 +68,7 @@ $template = initSmartyTplForPopup($centreon_path . "www/widgets/open-tickets/src
 /* Init Objects */
 $criticality = new CentreonCriticality($db);
 $media = new CentreonMedia($db);
+$rule = new Centreon_OpenTickets_Rule($db);
 
 $centreon = $_SESSION['centreon'];
 $widgetId = $_REQUEST['widgetId'];
@@ -74,6 +77,8 @@ $page = $_REQUEST['page'];
 $dbb = new CentreonDB("centstorage");
 $widgetObj = new CentreonWidget($centreon, $db);
 $preferences = $widgetObj->getWidgetPreferences($widgetId);
+
+$macro_tickets = $rule->getMacroNames($preferences['rule']);
 
 // Set Colors Table
 $res = $db->query("SELECT `key`, `value` FROM `options` WHERE `key` LIKE 'color%'");
@@ -115,46 +120,54 @@ $stateLabels = array(0 => "Ok",
                      4 => "Pending");
 // Build Query
 $query = "SELECT SQL_CALC_FOUND_ROWS h.host_id,
-		h.name as hostname,
+        h.name as hostname,
         s.latency,
         s.execution_time,
-		h.state as h_state,
-		s.service_id,
-		s.description,
-		s.state as s_state,
-                h.state_type as state_type,
-		s.last_hard_state,
-		s.output,
-		s.scheduled_downtime_depth as s_scheduled_downtime_depth,
-		s.acknowledged as s_acknowledged,
-		s.notify as s_notify,
-		s.active_checks as s_active_checks,
-		s.passive_checks as s_passive_checks,
-		h.scheduled_downtime_depth as h_scheduled_downtime_depth,
-		h.acknowledged as h_acknowledged,
-		h.notify as h_notify,
-		h.active_checks as h_active_checks,
-		h.passive_checks as h_passive_checks,
-		s.last_check,
-		s.last_state_change,
-		s.last_hard_state_change,
-		s.check_attempt,
-		s.max_check_attempts,
-		h.action_url as h_action_url,
-		h.notes_url as h_notes_url,
-		s.action_url as s_action_url,
-		s.notes_url as s_notes_url, 
-		cv2.value AS criticality_id,
-		cv.value AS criticality_level,
-                h.icon_image
+        h.state as h_state,
+        s.service_id,
+        s.description,
+        s.state as s_state,
+        h.state_type as state_type,
+        s.last_hard_state,
+        s.output,
+        s.scheduled_downtime_depth as s_scheduled_downtime_depth,
+        s.acknowledged as s_acknowledged,
+        s.notify as s_notify,
+        s.active_checks as s_active_checks,
+        s.passive_checks as s_passive_checks,
+        h.scheduled_downtime_depth as h_scheduled_downtime_depth,
+        h.acknowledged as h_acknowledged,
+        h.notify as h_notify,
+        h.active_checks as h_active_checks,
+        h.passive_checks as h_passive_checks,
+        s.last_check,
+        s.last_state_change,
+        s.last_hard_state_change,
+        s.check_attempt,
+        s.max_check_attempts,
+        h.action_url as h_action_url,
+        h.notes_url as h_notes_url,
+        s.action_url as s_action_url,
+        s.notes_url as s_notes_url,
+        cv2.value AS criticality_id,
+        cv.value AS criticality_level,
+        h.icon_image
 ";
-$query .= " FROM hosts h, services s ";
+$query .= " FROM hosts h ";
+$query .= " LEFT JOIN customvariables cv5 ON (h.host_id = cv5.host_id AND cv5.service_id IS NULL AND cv5.name = '" . $macro_tickets['ticket_id'] . "') ";
+$query .= " LEFT JOIN customvariables cv6 ON (h.host_id = cv6.host_id AND cv6.service_id IS NULL AND cv6.name = '" . $macro_tickets['ticket_time'] . "') ";
+$query .= ", services s ";
 $query .= " LEFT JOIN customvariables cv ON (s.service_id = cv.service_id AND s.host_id = cv.host_id AND cv.name = 'CRITICALITY_LEVEL') ";
 $query .= " LEFT JOIN customvariables cv2 ON (s.service_id = cv2.service_id AND s.host_id = cv2.host_id AND cv2.name = 'CRITICALITY_ID') ";
+$query .= " LEFT JOIN customvariables cv3 ON (s.service_id = cv3.service_id AND s.host_id = cv3.host_id AND cv3.name = '" . $macro_tickets['ticket_id'] . "') ";
+$query .= " LEFT JOIN customvariables cv4 ON (s.service_id = cv4.service_id AND s.host_id = cv4.host_id AND cv4.name = '" . $macro_tickets['ticket_time'] . "') ";
 if (!$centreon->user->admin) {
     $query .= " , centreon_acl acl ";
 }
 $query .= " WHERE s.host_id = h.host_id ";
+# For Open Tickets
+$query .= " AND (NULLIF(cv5.value, '') IS NULL OR CAST(cv6.value AS UNSIGNED) < h.last_hard_state_change) ";
+$query .= " AND (NULLIF(cv3.value, '') IS NULL OR CAST(cv4.value AS UNSIGNED) < s.last_hard_state_change) ";
 $query .= " AND h.name NOT LIKE '_Module_%' ";
 $query .= " AND s.enabled = 1 ";
 if (isset($preferences['host_name_search']) && $preferences['host_name_search'] != "") {
@@ -187,7 +200,6 @@ if (isset($preferences['svc_critical']) && $preferences['svc_critical']) {
 if (isset($preferences['svc_unknown']) && $preferences['svc_unknown']) {
     $stateTab[] = 3;
 }
-
 
 if (count($stateTab)) {
     $query = CentreonUtils::conditionBuilder($query, " s.state IN (" . implode(',', $stateTab) . ")");
@@ -279,9 +291,9 @@ if (isset($preferences['order_by']) && $preferences['order_by'] != "") {
     $orderby = $preferences['order_by'];
 }
 
-
 $query .= "ORDER BY $orderby";
 $query .= " LIMIT ".($page * $preferences['entries']).",".$preferences['entries'];
+
 $res = $dbb->query($query);
 $nbRows = $dbb->numberRows();
 $data = array();
@@ -344,21 +356,21 @@ var nbCurrentItems = <?php echo count($data);?>;
 $(function () {
     $("#HostTable").styleTable();
     if (nbRows > itemsPerPage) {
-      $("#pagination").pagination(nbRows, {
-	items_per_page	: itemsPerPage,
-	    current_page : pageNumber,
-	    callback : paginationCallback
+        $("#pagination").pagination(nbRows, {
+            items_per_page	: itemsPerPage,
+            current_page : pageNumber,
+            callback : paginationCallback
 	    }).append("<br/>");
     }
     
     $("#nbRows").html(nbCurrentItems+"/"+nbRows);
     
     $(".selection").each(function() {
-	var curId = $(this).attr('id');
-	if (typeof(clickedCb[curId]) != 'undefined') {
-	  this.checked = clickedCb[curId];
-	}
-      });
+        var curId = $(this).attr('id');
+        if (typeof(clickedCb[curId]) != 'undefined') {
+            this.checked = clickedCb[curId];
+        }
+    });
     
     var tmp = orderby.split(' ');
     var icn = 'n';
@@ -366,7 +378,6 @@ $(function () {
       icn = 's';
     }
     $("[name="+tmp[0]+"]").append('<span style="position: relative; float: right;" class="ui-icon ui-icon-triangle-1-'+icn+'"></span>');
-
 });
 
 function paginationCallback(page_index, jq)

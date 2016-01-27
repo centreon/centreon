@@ -1,0 +1,54 @@
+<link href="../../../Themes/Centreon-2/style.css" rel="stylesheet" type="text/css"/>
+<link href="../../../Themes/Centreon-2/jquery-ui/jquery-ui.css" rel="stylesheet" type="text/css"/>
+<form id="Form">
+	<div align=center>
+        <div id="form_error" style="color: red"></div>
+
+		{$formatPopupProvider}
+		<div id="validForm">
+            <input type='hidden' id="rule_id" name='rule_id' value='{$rule_id}' />
+            <input type='hidden' id="provider_id" name='provider_id' value='{$provider_id}' />
+            <input type='hidden' name='widgetId' value='{$widgetId}' />
+			<input type='hidden' name='selection' value='{$selection}' />
+			<input type='hidden' name='cmd' value='{$cmd}' />
+			<input type='hidden' name='doSubmitTicket' value='yes' />
+			<input type='submit' id='submit' value='{$submitLabel}' onClick="validateFormatPopup()" />
+		</div>
+	</div>
+</form>
+
+{literal}
+<script type="text/javascript">
+var $callback_validateFormatPopup = function(res) {
+    //jQuery("#form_error").html("Full response: " + res);
+    var data_ret = JSON.parse(res);
+    if (data_ret['code'] == 1) {
+        jQuery("#form_error").html(data_ret['msg']);
+    } else {
+        if (data_ret['result']['code'] == 0) {
+            jQuery("#Form").submit();
+        } else {
+            jQuery("#form_error").html(data_ret['result']['message']);
+        }
+    }
+};
+
+function validateFormatPopup() {
+    jQuery("#form_error").html('');
+    
+    var data = {
+        "action": "validate-format-popup",
+        "rule_id": jQuery("#rule_id").val(),
+        "provider_id": jQuery("#provider_id").val(),
+        "form": jQuery("#Form").serializeObject()
+    }
+
+    call_ajax_sync(data, $callback_validateFormatPopup, 'ajax/callforwardmodule.php');
+}
+
+jQuery(function() {
+    jQuery("#ListTable").styleTable();
+    jQuery("#submit").button();
+});
+</script>
+{/literal}

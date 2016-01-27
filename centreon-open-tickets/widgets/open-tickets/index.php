@@ -90,7 +90,7 @@ try {
     </head>
 	<body>
 <?php
-if (!isset($preferences['rule']) || is_null($preferences['rule_id'])) {
+if (!isset($preferences['rule']) || is_null($preferences['rule']) || $preferences['rule'] == '') {
     print "<center><div class='update' style='text-align:center;width:350px;'>"._("Please select a rule first")."</div></center>";
 } else {
 ?>

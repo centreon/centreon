@@ -1,10 +1,10 @@
 
-function call_ajax_sync(data, call_ok_func) {
+function call_ajax_sync(data, call_ok_func, path_call) {
     var dataString = JSON.stringify(data);
     jQuery("body").css("cursor", "progress");
 
     jQuery.ajaxSetup({async:false});
-    jQuery.post('./modules/centreon-open-tickets/views/rules/ajax/call.php', {data: dataString}, call_ok_func)
+    jQuery.post(path_call, {data: dataString}, call_ok_func)
     .success(function() { jQuery("body").css("cursor", "auto"); })
     .error(function() {
         jQuery("body").css("cursor", "auto");

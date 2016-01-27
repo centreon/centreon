@@ -97,7 +97,7 @@ function OTLoadForm() {
         "provider_id": jQuery("#provider_id").val()
     }
 
-    call_ajax_sync(data, $callback_OTLoadForm);
+    call_ajax_sync(data, $callback_OTLoadForm, './modules/centreon-open-tickets/views/rules/ajax/call.php');
 }
 
 function saveForm() {
@@ -110,7 +110,7 @@ function saveForm() {
         "form": jQuery("#RuleForm").serializeObject()
     }
 
-    call_ajax_sync(data, $callback_OTSaveForm);
+    call_ajax_sync(data, $callback_OTSaveForm, './modules/centreon-open-tickets/views/rules/ajax/call.php');
 }
 
 jQuery(function() {

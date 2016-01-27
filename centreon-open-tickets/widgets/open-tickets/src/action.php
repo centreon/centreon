@@ -43,11 +43,85 @@ require_once $centreon_path . 'www/class/centreonACL.class.php';
 require_once $centreon_path . 'www/class/centreonHost.class.php';
 require_once $centreon_path . 'www/class/centreonService.class.php';
 require_once $centreon_path . 'www/class/centreonExternalCommand.class.php';
+require_once $centreon_path . "www/class/centreonXMLBGRequest.class.php";
+require_once $centreon_path . 'www/modules/centreon-open-tickets/class/rule.php';
+require_once $centreon_path . "GPL_LIB/Smarty/libs/Smarty.class.php";
 
 session_start();
+$centreon_bg = new CentreonXMLBGRequest(session_id(), 1, 1, 0, 1);
+
+?>
+
+<script type="text/javascript" src="../../../include/common/javascript/jquery/jquery.js"></script>
+<script type="text/javascript" src="../../../include/common/javascript/jquery/jquery-ui.js"></script>
+<script type="text/javascript" src="../../../include/common/javascript/widgetUtils.js"></script>
+<script type="text/javascript" src="../../../modules/centreon-open-tickets/lib/jquery.serialize-object.min.js"></script>
+<script type="text/javascript" src="../../../modules/centreon-open-tickets/lib/commonFunc.js"></script>
+
+<?php
+
+function format_popup() {
+    global $cmd, $widgetId, $rule, $preferences, $centreon, $centreon_path;
+    
+    if ($cmd == 3) {
+        $title = _("Open Service Ticket");
+    } else {
+        $title = _("Open Host Ticket");
+    }
+    
+    $result = $rule->getFormatPopupProvider($preferences['rule'], 
+                                            array('title' => $title,
+                                                  'user' => $centreon->user->alias,
+                                                 )
+                                            );
+    if (is_null($result)) {        
+        return 0;
+    }
+    
+    $path = $centreon_path . "www/widgets/open-tickets/src/";
+    $template = new Smarty();
+    $template = initSmartyTplForPopup($path, $template, "./", $centreon_path);
+    
+    $provider_infos = $rule->getAliasAndProviderId($preferences['rule']);
+    
+    $template->assign('provider_id', $provider_infos['provider_id']);
+    $template->assign('rule_id', $preferences['rule']);
+    $template->assign('widgetId', $widgetId);
+    $template->assign('cmd', $cmd);
+    $template->assign('selection', $_REQUEST['selection']);
+
+    $template->assign('formatPopupProvider', $result['format_popup']);
+    
+    $template->assign('submitLabel', _("Open"));
+     
+    $template->display('formatpopup.ihtml');
+    
+    return 1;
+}
+
+function submit_ticket() {
+    global $rule, $preferences, $db, $centreon;
+    
+    $fp = fopen('/tmp/debug.txt', 'a+');
+    fwrite($fp, "=== dans le submitTicket = Yes!!!");
+    
+    $hostObj = new CentreonHost($db);
+    $svcObj = new CentreonService($db);
+    
+    // Submit in ticket system
+    //    result: code, ticket ID, confirm_popup, ack it or not
+    $result = $rule->submitTicket($preferences['rule'],
+                                  array('request' => $_REQUEST,
+                                        'user' => $centreon->user->alias,
+                                        )
+                                  );
+    
+    // Push it custom var
+    $externalCmd = new CentreonExternalCommand($centreon);
+}
 
 try {
-    if (!isset($_SESSION['centreon']) || !isset($_REQUEST['cmd']) || !isset($_REQUEST['sid']) || !isset($_REQUEST['selection'])) {
+    if (!isset($_SESSION['centreon']) || !isset($_REQUEST['cmd']) || !isset($_REQUEST['selection'])) {
         throw new Exception('Missing data');
     }
     $db = new CentreonDB();
@@ -57,264 +131,25 @@ try {
     $centreon = $_SESSION['centreon'];
     $oreon = $centreon;
     $cmd = $_REQUEST['cmd'];
+    
+    $widgetId = $_REQUEST['widgetId'];
     $selections = explode(",", $_REQUEST['selection']);
-    $externalCmd = new CentreonExternalCommand($centreon);
-
-    $hostObj = new CentreonHost($db);
-    $svcObj = new CentreonService($db);
-    $successMsg = _("External Command successfully submitted... Exiting window...");
-    $result = 0;
-
-    if ($cmd == 72 || $cmd == 75 || $cmd == 70 || $cmd == 74) {
-        require_once $centreon_path ."GPL_LIB/Smarty/libs/Smarty.class.php";
-        $path = $centreon_path . "www/widgets/service-monitoring/src/";
-        $template = new Smarty();
-        $template = initSmartyTplForPopup($path, $template, "./", $centreon_path);
-        $template->assign('stickyLabel', _("Sticky"));
-        $template->assign('persistentLabel', _("Persistent"));
-        $template->assign('authorLabel', _("Author"));
-        $template->assign('notifyLabel', _("Notify"));
-        $template->assign('commentLabel', _("Comment"));
-        $template->assign('forceCheckLabel', _('Force active checks'));
-        $template->assign('fixedLabel', _("Fixed"));
-        $template->assign('durationLabel', _("Duration"));
-        $template->assign('startLabel', _("Start"));
-        $template->assign('endLabel', _("End"));
-        $template->assign('selection', $_REQUEST['selection']);
-        $template->assign('author', $centreon->user->alias);
-        $template->assign('cmd', $cmd);
-        if ($cmd == 72 || $cmd == 70) {
-            $template->assign('ackHostSvcLabel', _("Acknowledge services of hosts"));
-            if ($cmd == 72) {
-                $title = _("Host Acknowledgement");
-            } else {
-                $title = _("Service Acknowledgement");
-            }
-
-            $template->assign('defaultMessage', sprintf(_('Acknowledged by %s'), $centreon->user->alias));
-
-            /* Default ack options */
-            $persistent_checked = '';
-            if (isset($centreon->optGen['monitoring_ack_persistent']) && $centreon->optGen['monitoring_ack_persistent']) {
-                $persistent_checked = 'checked';
-            }
-            $template->assign('persistent_checked', $persistent_checked);
-
-            $sticky_checked = '';
-            if (isset($centreon->optGen['monitoring_ack_sticky']) && $centreon->optGen['monitoring_ack_sticky']) {
-                $sticky_checked = 'checked';
-            }
-            $template->assign('sticky_checked', $sticky_checked);
-
-            $notify_checked = '';
-            if (isset($centreon->optGen['monitoring_ack_notify']) && $centreon->optGen['monitoring_ack_notify']) {
-                $notify_checked = 'checked';
-            }
-            $template->assign('notify_checked', $notify_checked);
-
-            $process_service_checked = '';
-            if (isset($centreon->optGen['monitoring_ack_svc']) && $centreon->optGen['monitoring_ack_svc']) {
-                $process_service_checked = 'checked';
-            }
-            $template->assign('process_service_checked', $process_service_checked);
-
-            $force_active_checked = '';
-            if (isset($centreon->optGen['monitoring_ack_active_checks']) && $centreon->optGen['monitoring_ack_active_checks']) {
-                $force_active_checked = 'checked';
-            }
-            $template->assign('force_active_checked', $force_active_checked);
-
-            $template->assign('titleLabel', $title);
-            $template->assign('submitLabel', _("Acknowledge"));
-            $template->display('acknowledge.ihtml');
-        } elseif ($cmd == 75 || $cmd == 74) {
-            $template->assign('downtimeHostSvcLabel', _("Set downtime on services of hosts"));
-            if ($cmd == 75) {
-                $title = _("Host Downtime");
-            } else {
-                $title = _("Service Downtime");
-            }
-
-            /* Default downtime options */
-            $process_service_checked = '';
-            $fixed_checked = '';
-            if (isset($centreon->optGen['monitoring_dwt_fixed']) && $centreon->optGen['monitoring_dwt_fixed']) {
-                $fixed_checked = 'checked';
-            }
-            $template->assign('fixed_checked', $fixed_checked);
-
-            if (isset($centreon->optGen['monitoring_dwt_svc']) && $centreon->optGen['monitoring_dwt_svc']) {
-                $process_service_checked = 'checked';
-            }
-            $template->assign('process_service_checked', $process_service_checked);
-
-            $template->assign('defaultMessage', sprintf(_('Downtime set by %s'), $centreon->user->alias));
-
-            $template->assign('titleLabel', $title);
-            $template->assign('submitLabel', _("Set Downtime"));
-            $template->assign('defaultDuration', 1);
-            $template->assign('daysLabel', _("days"));
-            $template->assign('hoursLabel', _("hours"));
-            $template->assign('minutesLabel', _("minutes"));
-            $template->assign('defaultStart', date('Y/m/d'));
-            $template->assign('defaultHourStart', date('H'));
-            $template->assign('defaultMinuteStart', date('i'));
-            $endTime = time() + 7200;
-            $template->assign('defaultEnd', date('Y/m/d', $endTime));
-            $template->assign('defaultHourEnd', date('H', $endTime));
-            $template->assign('defaultMinuteEnd', date('i', $endTime));
-            $template->display('downtime.ihtml');
+    
+    $widgetObj = new CentreonWidget($centreon, $db);
+    $preferences = $widgetObj->getWidgetPreferences($widgetId);
+        
+    $rule = new Centreon_OpenTickets_Rule($db);
+    
+    if ($cmd == 3 || $cmd == 4) {
+        $value = 0;
+        if (!isset($_REQUEST['doSubmitTicket']) || $_REQUEST['doSubmitTicket'] != 'yes') {
+            $value = format_popup();
         }
-    } else {
-        $command = "";
-        $isSvcCommand = false;
-        switch ($cmd) {
-                /* service: schedule check */
-                case 3 :
-                    $command = "SCHEDULE_SVC_CHECK;%s;".time();
-                    $isSvcCommand = true;
-                    break;
-                /* service: schedule forced check */
-                case 4 :
-                    $command = "SCHEDULE_FORCED_SVC_CHECK;%s;".time();
-                    $isSvcCommand = true;
-                    break;
-                /* service: remove ack */
-                case 71 :
-                    $command = "REMOVE_SVC_ACKNOWLEDGEMENT;%s";
-                    $isSvcCommand = true;
-                    break;
-                /* service: enable notif */
-                case 80 :
-                    $command = "ENABLE_SVC_NOTIFICATIONS;%s";
-                    $isSvcCommand = true;
-                    break;
-                /* service: enable notif */
-                case 81 :
-                    $command = "DISABLE_SVC_NOTIFICATIONS;%s";
-                    $isSvcCommand = true;
-                    break;
-                /* service: enable check */
-                case 90 :
-                    $command = "ENABLE_SVC_CHECK;%s";
-                    $isSvcCommand = true;
-                    break;
-                /* service: disable check */
-                case 91 :
-                    $command = "DISABLE_SVC_CHECK;%s";
-                    $isSvcCommand = true;
-                    break;
-                /* host: remove ack */
-                case 73 :
-                    $command = "REMOVE_HOST_ACKNOWLEDGEMENT;%s";
-                    break;
-                /* host: enable notif */
-                case 82 :
-                    $command = "ENABLE_HOST_NOTIFICATIONS;%s";
-                    break;
-                /* host: disable notif */
-                case 83 :
-                    $command = "DISABLE_HOST_NOTIFICATIONS;%s";
-                    break;
-                /* host: enable check */
-                case 92 :
-                    $command = "ENABLE_HOST_CHECK;%s";
-                    break;
-                /* host: disable check */
-                case 93 :
-                    $command = "DISABLE_HOST_CHECK;%s";
-                    break;
-                default :
-                    throw new Exception('Unknown command');
-                    break;
+        if ($value == 0) {
+            submit_ticket();
         }
-        if ($command != "") {
-            $hostArray = array();
-            foreach ($selections as $selection) {
-                $tmp = explode(";", $selection);
-                if (count($tmp) != 2) {
-                    throw new Exception('Incorrect id format');
-                }
-                $hostId = $tmp[0];
-                $svcId = $tmp[1];
-                $hostname = $hostObj->getHostName($hostId);
-                $svcDesc = $svcObj->getServiceDesc($svcId);
-                if ($isSvcCommand === true) {
-                    $cmdParam = $hostname . ";" . $svcDesc;
-                } else {
-                    $cmdParam = $hostname;
-                }
-                $externalCmd->set_process_command(sprintf($command, $cmdParam), $hostObj->getHostPollerId($hostId));
-            }
-            $externalCmd->write();
-        }
-        $result = 1;
     }
 } catch (Exception $e) {
     echo $e->getMessage() . "<br/>";
 }
 ?>
-<div id='result'></div>
-<script type="text/javascript" src="../../../include/common/javascript/jquery/jquery.js"></script>
-<script type="text/javascript" src="../../../include/common/javascript/jquery/jquery-ui.js"></script>
-<script type="text/javascript" src="../../../include/common/javascript/widgetUtils.js"></script>
-<script type='text/javascript'>
-var result = <?php echo $result;?>;
-var successMsg = "<?php echo $successMsg;?>";
-
-$(function() {
-	if (result) {
-		$("#result").html(successMsg);
-		setTimeout('closeBox()', 2000);
-	}
-	$("#submit").click(function() {
-			sendCmd();
-	});
-	$("#ListTable").styleTable();
-	$("#submit").button();
-	toggleDurationField();
-	$("[name=fixed]").click(function() {
-		toggleDurationField();
-	});
-	$("#downtimestart,#downtimeend").datepicker({ dateFormat: 'yy/mm/dd' });
-});
-
-function closeBox()
-{
-	parent.jQuery.colorbox.close();
-}
-
-function sendCmd()
-{
-	fieldResult = true;
-	if ($("#comment") && !$("#comment").val()) {
-		fieldResult = false;
-	}
-	if (fieldResult == false) {
-		$("#result").html("<font color=red><b>Please fill all mandatory fields.</b></font>");
-		return false;
-	}
-	$.ajax({
-				type	:	"POST",
-				url		:	"sendCmd.php",
-				data	: 	$("#Form").serialize(),
-				success	:	function() {
-								$("#result").html(successMsg);
-								setTimeout('closeBox()', 2000);
-							}
-		   });
-}
-
-function toggleDurationField()
-{
-	if ($("[name=fixed]").is(':checked')) {
-		$("[name=dayduration]").attr('disabled', true);
-		$("[name=hourduration]").attr('disabled', true);
-		$("[name=minuteduration]").attr('disabled', true);
-	} else {
-		$("[name=dayduration]").removeAttr('disabled');
-		$("[name=hourduration]").removeAttr('disabled');
-		$("[name=minuteduration]").removeAttr('disabled');
-	}
-}
-</script>

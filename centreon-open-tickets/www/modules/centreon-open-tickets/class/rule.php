@@ -14,6 +14,7 @@
 class Centreon_OpenTickets_Rule
 {
     protected $_db;
+    protected $_provider = null;
 
     /**
      * Constructor
@@ -64,6 +65,58 @@ class Centreon_OpenTickets_Rule
         }
         
         return $result;
+    }
+    
+    protected function loadProvider($rule_id, $provider_id) {
+        global $centreon_path, $register_providers;
+        
+        if (!is_null($this->_provider)) {
+            return ;
+        }
+                
+        $centreon_open_tickets_path = $centreon_path . 'www/modules/centreon-open-tickets/';
+        require_once $centreon_open_tickets_path . 'providers/register.php';
+        
+        $provider_name = null;
+        foreach ($register_providers as $name => $id) {
+            if ($id == $provider_id) {
+                $provider_name = $name;
+                break;
+            }
+        }
+        
+        if (is_null($provider_name) || !file_exists($centreon_open_tickets_path . 'providers/' . $provider_name . '/' . $provider_name . 'Provider.class.php')) {
+            throw new Exception(sprintf('Cannot find provider'));
+        }
+        
+        require_once $centreon_open_tickets_path . 'providers/' . $provider_name . '/' . $provider_name . 'Provider.class.php';
+        $classname = $provider_name . 'Provider';
+        $this->_provider = new $classname($this, $centreon_path, $centreon_open_tickets_path, $rule_id);
+    }
+    
+    public function getMacroNames($rule_id) {
+        $result = array('ticket_id' => null, 'ticket_time' => null);
+        
+        $infos = $this->getAliasAndProviderId($rule_id);
+        $this->loadProvider($rule_id, $infos['provider_id']);
+        $result['ticket_id'] = $this->_provider->getMacroTicketId();
+        $result['ticket_time'] = $this->_provider->getMacroTicketTime();
+        
+        return $result;
+    }
+    
+    public function getFormatPopupProvider($rule_id, $args) {        
+        $infos = $this->getAliasAndProviderId($rule_id);
+        $this->loadProvider($rule_id, $infos['provider_id']);
+        
+        return $this->_provider->getFormatPopup($args);
+    }
+    
+    public function submitTicket($rule_id, $args) {
+        $infos = $this->getAliasAndProviderId($rule_id);
+        $this->loadProvider($rule_id, $infos['provider_id']);
+        
+        return $this->_provider->submitTicket($args);
     }
     
     public function save($rule_id, $datas) {

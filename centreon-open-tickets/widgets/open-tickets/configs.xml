@@ -11,6 +11,7 @@
   <url>./widgets/open-tickets/index.php</url>
   <autoRefresh>10</autoRefresh>
   <preferences>
+    <preference label="Rule" name="rule" defaultValue="" type="openTicketsRule" header="Ticket"/>
     <preference label="Host Name" name="host_name_search" defaultValue="" type="compare" header="Filters"/>
     <preference label="Service Description" name="service_description_search" defaultValue="" type="compare"/>
     <preference label="Display Warning" name="svc_warning" defaultValue="1" type="boolean"/>

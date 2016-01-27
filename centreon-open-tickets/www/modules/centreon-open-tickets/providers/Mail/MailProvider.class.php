@@ -40,7 +40,7 @@ class MailProvider {
         $this->_setDefaultValueExtra();
     }
     
-    protected function change_html_tags($output, $change = 1) {
+    protected function change_html_tags($output, $change=1) {
         if ($change == 1) {
             $output = str_replace('<', '&lt;', $output);
             $output = str_replace('>', '&gt;', $output);
@@ -149,16 +149,6 @@ class MailProvider {
         ';
         
         $this->default_data['body'] = $this->change_html_tags($this->default_data['body']);
-        
-        // Test eval
-        //$tpl = new Smarty();
-        //$tpl = initSmartyTplForPopup($this->_centreon_open_tickets_path, $tpl, 'providers/Mail/templates', $this->_centreon_path);
-        
-        //$tpl->assign('title', 'plop');
-        //$tpl->assign('string', $this->change_html_tags($this->default_data['message_confirm'], 0));
-        //$content = $tpl->fetch('eval.ihtml');
-        //$fp = fopen('/tmp/debug.txt', 'a+');
-        //fwrite($fp, "===\n" . $content . "===\n");
     }
     
     /**
@@ -250,6 +240,14 @@ class MailProvider {
         $this->_getConfigContainer2Extra();
         
         return $this->_config;
+    }
+    
+    public function getMacroTicketId() {
+        return $this->rule_data['macro_ticket_id'];
+    }
+    
+    public function getMacroTicketTime() {
+        return $this->rule_data['macro_ticket_time'];
     }
     
     /**
@@ -404,5 +402,39 @@ class MailProvider {
         $this->saveConfigExtra();
         
         $this->_rule->save($this->_rule_id, $this->_save_config);
+    }
+    
+    public function validateFormatPopup() {
+        $result = array('code' => 0, 'message' => 'ok');
+        
+        return $result;
+    }
+    
+    protected function assignFormatPopupTemplate($tpl, $args) {
+        foreach ($args as $label => $value) {
+            $tpl->assign($label, $value);
+        }
+        
+        $tpl->assign('custom_message', array('label' => _('Custom message')));
+    }
+    
+    public function getFormatPopup($args) {        
+        if (!isset($this->rule_data['format_popup']) || is_null($this->rule_data['format_popup']) || $this->rule_data['format_popup']  == '') {
+            return null;
+        }
+        
+        $result = array('format_popup' => null);
+        
+        $tpl = new Smarty();
+        $tpl = initSmartyTplForPopup($this->_centreon_open_tickets_path, $tpl, 'providers/Mail/templates', $this->_centreon_path);
+        
+        $this->assignFormatPopupTemplate($tpl, $args);
+        $tpl->assign('string', $this->change_html_tags($this->rule_data['format_popup'], 0));
+        $result['format_popup'] = $tpl->fetch('eval.ihtml');
+        return $result;
+    }
+    
+    public function submitTicket($args) {
+        
     }
 }

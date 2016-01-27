@@ -74,7 +74,7 @@ if ($canDoAction) { // || $centreon->user->access->checkAction("host_acknowledge
     $actions .= "<option value='4'>"._("Host: Open ticket")."</option>";
 }
 
-$template->assign("widgetId", $_POST['widgetId']);
+$template->assign("widgetId", $widgetId);
 $template->display('toolbar.ihtml');
 
 ?>
@@ -84,6 +84,7 @@ $template->display('toolbar.ihtml');
 var tab = new Array();
 var sid = '<?php echo session_id();?>';
 var actions = "<?php echo $actions;?>";
+var widget_id = "<?php echo $widgetId; ?>";
 
 $(function() {
 	$(".toolbar").html(actions);
@@ -94,7 +95,7 @@ $(function() {
     			return tmp[1];
     		}).get().join(",");
     		parent.jQuery.colorbox({
-    							href		:	"./widgets/open-tickets/src/action.php?sid="+sid+"&selection="+checkValues+"&cmd="+jQuery(this).val(),
+    							href		:	"./widgets/open-tickets/src/action.php?widgetId="+widget_id+"&sid="+sid+"&selection="+checkValues+"&cmd="+jQuery(this).val(),
     							width		:	"50%",
     							height		:	"40%",
     							opacity		:	0.7,
