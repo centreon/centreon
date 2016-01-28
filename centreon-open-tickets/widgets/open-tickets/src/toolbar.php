@@ -51,7 +51,7 @@ require_once $centreon_path ."GPL_LIB/Smarty/libs/Smarty.class.php";
 
 $path = $centreon_path . "www/widgets/open-tickets/src/";
 $template = new Smarty();
-$template = initSmartyTplForPopup($path, $template, "./", $centreon_path);
+$template = initSmartyTplForPopup($path . 'templates/', $template, "./", $centreon_path);
 
 $centreon = $_SESSION['centreon'];
 $widgetId = $_POST['widgetId'];

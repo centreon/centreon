@@ -36,7 +36,8 @@ require_once $centreon_path . 'www/include/common/common-Func.php';
 $resultat = array("code" => 0, "msg" => "");
 $actions = array("get-form-config" => dirname(__FILE__) . "/actions/getFormConfig.php",
                  "save-form-config" => dirname(__FILE__) . "/actions/saveFormConfig.php",
-                 "validate-format-popup" => dirname(__FILE__) . "/actions/validateFormatPopup.php");
+                 "validate-format-popup" => dirname(__FILE__) . "/actions/validateFormatPopup.php",
+                 "submit-ticket" => dirname(__FILE__) . "/actions/submitTicket.php");
 if (!isset($_POST['data'])) {
     $resultat = array("code" => 1, "msg" => "POST 'data' needed.");
 } else {

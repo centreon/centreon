@@ -55,8 +55,9 @@ ALTER TABLE `mod_open_tickets_form_value`
 CREATE TABLE IF NOT EXISTS @DB_CENTSTORAGE@.`mod_open_tickets` (
     `ticket_id` int(11) NOT NULL AUTO_INCREMENT,
     `timestamp` int(11) NOT NULL,
+    `user` VARCHAR(512) NOT NULL,
     `ticket_value` VARCHAR(2048),
     PRIMARY KEY (`ticket_id`)
-} ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 INSERT INTO widget_parameters_field_type (ft_typename, field_type_id, is_connector) VALUES ('openTicketsRule', '100', '1');

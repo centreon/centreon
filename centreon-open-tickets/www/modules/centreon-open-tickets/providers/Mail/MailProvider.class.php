@@ -82,11 +82,11 @@ class MailProvider {
         $this->default_data['format_popup'] = $this->change_html_tags($this->default_data['format_popup']);
         $this->default_data['message_confirm'] = $this->change_html_tags($this->default_data['message_confirm']);
                 
-        //$this->default_data['clones'] = array();
-        //$this->default_data['clones']['headerMail'] = array(
-        //    array('Name' => 'test', 'Value' => 'test'),
-        //    array('Name' => 'test2', 'Value' => 'test2')
-        //);
+        $this->default_data['clones'] = array();
+        $this->default_data['clones']['headerMail'] = array(
+            array('Name' => 'MIME-Version', 'Value' => '1.0'),
+            array('Name' => 'Content-Type', 'Value' => 'text/html; charset=utf8')
+        );
     }
     
     /**
@@ -98,9 +98,16 @@ class MailProvider {
         $this->default_data['from'] = 'admin@domain.com';
         $this->default_data['subject'] = 'Open a ticket';
         $this->default_data['body'] = '
-{$user} open ticket at {$smarty.now|date_format:"%d/%m/%y %H:%M:%S"}
+<html>
+<body>
 
+<div>
+{$user} open ticket at {$smarty.now|date_format:"%d/%m/%y %H:%M:%S"}
+</div>
+
+<div>
 {$custom_message}
+</div>
 
 {assign var="table_style" value="border-collapse: collapse; border: 1px solid black;"}
 {assign var="cell_title_style" value="background-color: #D2F5BB; border: 1px solid black; text-align: center; padding: 10px; text-transform:uppercase; font-weight:bold;"}
@@ -117,9 +124,9 @@ class MailProvider {
         {foreach from=$host_selected item=host}
         <tr>
             <td style="{$cell_style}">{$host.name}</td>
-            <td style="{$cell_style}">{$host.state}</td>
-            <td style="{$cell_style}">{$host.duration}</td>
-            <td style="{$cell_style}">{$host.short_output}</td>
+            <td style="{$cell_style}">{$host.state_str}</td>
+            <td style="{$cell_style}">{$host.last_hard_state_change_duration}</td>
+            <td style="{$cell_style}">{$host.output|substr:0:255}</td>
         </tr>
         {/foreach}
     </table>
@@ -138,14 +145,15 @@ class MailProvider {
         <tr>
             <td style="{$cell_style}">{$service.host_name}</td>
             <td style="{$cell_style}">{$service.description}</td>
-            <td style="{$cell_style}">{$service.state}</td>
-            <td style="{$cell_style}">{$service.duration}</td>
-            <td style="{$cell_style}">{$service.short_output}</td>
+            <td style="{$cell_style}">{$service.state_str}</td>
+            <td style="{$cell_style}">{$service.last_hard_state_change_duration}</td>
+            <td style="{$cell_style}">{$service.output|substr:0:255}</td>
         </tr>
         {/foreach}
     </table>
 {/if}
-
+</body>
+</html>
         ';
         
         $this->default_data['body'] = $this->change_html_tags($this->default_data['body']);
@@ -434,7 +442,84 @@ class MailProvider {
         return $result;
     }
     
-    public function submitTicket($args) {
+    public function doAck() {
+        if (isset($this->rule_data['ack']) && $this->rule_data['ack'] == 'yes') {
+            return 1;
+        }
         
+        return 0;
+    }
+    
+    protected function setConfirmMessage($host_problems, $service_problems, $submit_result) {
+        if (!isset($this->rule_data['format_popup']) || is_null($this->rule_data['format_popup']) || $this->rule_data['format_popup']  == '') {
+            return null;
+        }
+        
+        $tpl = new Smarty();
+        $tpl = initSmartyTplForPopup($this->_centreon_open_tickets_path, $tpl, 'providers/Mail/templates', $this->_centreon_path);
+        
+        $tpl->assign('host_selected', $host_problems);
+        $tpl->assign('service_selected', $service_problems);
+        
+        foreach ($submit_result as $label => $value) {
+            $tpl->assign($label, $value);
+        }
+        foreach ($this->_submitted_config as $label => $value) {
+            $tpl->assign($label, $value);
+        }
+        
+        $tpl->assign('string', $this->change_html_tags($this->rule_data['message_confirm'], 0));
+        return $tpl->fetch('eval.ihtml');
+    }
+    
+    protected function doSubmit($db_storage, $user, $host_problems, $service_problems) {
+        $result = array('ticket_id' => null, 'ticket_error_message' => null,
+                        'ticket_is_ok' => 0, 'ticket_time' => time());
+        
+        try {
+            $query = "INSERT INTO mod_open_tickets
+  (`timestamp`, `user`) VALUES ('" . $result['ticket_time'] . "', '" . $db_storage->escape($user) . "')";            
+            $db_storage->query($query);
+            $result['ticket_id'] = $db_storage->lastinsertId('mod_open_tickets');
+            $result['ticket_is_ok'] = 1;
+        } catch (Exception $e) {
+            $result['ticket_error_message'] = $e->getMessage();
+            return $result;
+        }
+        
+        $tpl = new Smarty();
+        $tpl = initSmartyTplForPopup($this->_centreon_open_tickets_path, $tpl, 'providers/Mail/templates', $this->_centreon_path);
+        
+        $tpl->assign('user', $user);
+        $tpl->assign('host_selected', $host_problems);
+        $tpl->assign('service_selected', $service_problems);
+        foreach ($this->_submitted_config as $label => $value) {
+            $tpl->assign($label, $value);
+        }
+        $tpl->assign('string', $this->change_html_tags($this->rule_data['body'], 0));
+        $body = $tpl->fetch('eval.ihtml');
+        
+        // We send the mail
+        $headers = "From: " . $this->rule_data['from'];
+        if (isset($this->rule_data['clones']['headerMail'])) {
+            foreach ($this->rule_data['clones']['headerMail'] as $values) {
+                $headers .= "\r\n" . $values['Name'] . ':' . $values['Value'];
+            }
+        }
+
+        mail($this->rule_data['to'], $this->rule_data['subject'], $body, $headers);
+        
+        return $result;
+    }
+    
+    public function submitTicket($db_storage, $user, $host_problems, $service_problems) {
+        $result = array('confirm_popup' => null);
+        
+        $submit_result = $this->doSubmit($db_storage, $user, $host_problems, $service_problems);
+        $result['confirm_message'] = $this->setConfirmMessage($host_problems, $service_problems, $submit_result);
+        $result['ticket_id'] = $submit_result['ticket_id'];
+        $result['ticket_is_ok'] = $submit_result['ticket_is_ok'];
+        $result['ticket_time'] = $submit_result['ticket_time'];
+        return $result;
     }
 }

@@ -39,10 +39,6 @@ require_once $centreon_path . 'www/class/centreonSession.class.php';
 require_once $centreon_path . 'www/class/centreonDB.class.php';
 require_once $centreon_path . 'www/class/centreonWidget.class.php';
 require_once $centreon_path . 'www/class/centreonUtils.class.php';
-require_once $centreon_path . 'www/class/centreonACL.class.php';
-require_once $centreon_path . 'www/class/centreonHost.class.php';
-require_once $centreon_path . 'www/class/centreonService.class.php';
-require_once $centreon_path . 'www/class/centreonExternalCommand.class.php';
 require_once $centreon_path . "www/class/centreonXMLBGRequest.class.php";
 require_once $centreon_path . 'www/modules/centreon-open-tickets/class/rule.php';
 require_once $centreon_path . "GPL_LIB/Smarty/libs/Smarty.class.php";
@@ -74,50 +70,26 @@ function format_popup() {
                                                   'user' => $centreon->user->alias,
                                                  )
                                             );
-    if (is_null($result)) {        
-        return 0;
-    }
     
     $path = $centreon_path . "www/widgets/open-tickets/src/";
     $template = new Smarty();
-    $template = initSmartyTplForPopup($path, $template, "./", $centreon_path);
+    $template = initSmartyTplForPopup($path . 'templates/', $template, "./", $centreon_path);
     
     $provider_infos = $rule->getAliasAndProviderId($preferences['rule']);
     
     $template->assign('provider_id', $provider_infos['provider_id']);
     $template->assign('rule_id', $preferences['rule']);
     $template->assign('widgetId', $widgetId);
+    $template->assign('title', $title);
     $template->assign('cmd', $cmd);
     $template->assign('selection', $_REQUEST['selection']);
+    $template->assign('continue', (!is_null($result) && isset($result['format_popup'])) ? 0 : 1);
 
-    $template->assign('formatPopupProvider', $result['format_popup']);
+    $template->assign('formatPopupProvider', (!is_null($result) && isset($result['format_popup'])) ? $result['format_popup'] : '');
     
     $template->assign('submitLabel', _("Open"));
      
-    $template->display('formatpopup.ihtml');
-    
-    return 1;
-}
-
-function submit_ticket() {
-    global $rule, $preferences, $db, $centreon;
-    
-    $fp = fopen('/tmp/debug.txt', 'a+');
-    fwrite($fp, "=== dans le submitTicket = Yes!!!");
-    
-    $hostObj = new CentreonHost($db);
-    $svcObj = new CentreonService($db);
-    
-    // Submit in ticket system
-    //    result: code, ticket ID, confirm_popup, ack it or not
-    $result = $rule->submitTicket($preferences['rule'],
-                                  array('request' => $_REQUEST,
-                                        'user' => $centreon->user->alias,
-                                        )
-                                  );
-    
-    // Push it custom var
-    $externalCmd = new CentreonExternalCommand($centreon);
+    $template->display('formatpopup.ihtml');    
 }
 
 try {
@@ -141,13 +113,7 @@ try {
     $rule = new Centreon_OpenTickets_Rule($db);
     
     if ($cmd == 3 || $cmd == 4) {
-        $value = 0;
-        if (!isset($_REQUEST['doSubmitTicket']) || $_REQUEST['doSubmitTicket'] != 'yes') {
-            $value = format_popup();
-        }
-        if ($value == 0) {
-            submit_ticket();
-        }
+        format_popup();
     }
 } catch (Exception $e) {
     echo $e->getMessage() . "<br/>";

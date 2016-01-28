@@ -63,7 +63,7 @@ if (CentreonSession::checkSession(session_id(), $db) == 0) {
 
 // Init Smarty
 $template = new Smarty();
-$template = initSmartyTplForPopup($centreon_path . "www/widgets/open-tickets/src/", $template, "./", $centreon_path);
+$template = initSmartyTplForPopup($centreon_path . "www/widgets/open-tickets/src/templates/", $template, "./", $centreon_path);
 
 /* Init Objects */
 $criticality = new CentreonCriticality($db);
