@@ -62,16 +62,18 @@ $preferences = $widgetObj->getWidgetPreferences($widgetId);
 $pearDB = new CentreonDB();
 $admin = $centreon->user->admin;
 $canDoAction = true;
-//if ($admin) {
-//    $canDoAction = true;
-//}
-$actions  = "<option value='0'>-- "._("More actions")." -- </option>";
-if ($canDoAction) { // || $centreon->user->access->checkAction("service_schedule_check")) {
-    $actions .= "<option value='3'>"._("Service: Open ticket")."</option>";
-}
 
-if ($canDoAction) { // || $centreon->user->access->checkAction("host_acknowledgement")) {
-    $actions .= "<option value='4'>"._("Host: Open ticket")."</option>";
+$actions  = "<option value='0'>-- "._("More actions")." -- </option>";
+
+if (!isset($preferences['opened_tickets']) || $preferences['opened_tickets'] == 0) {
+    if ($canDoAction) { // || $centreon->user->access->checkAction("service_schedule_check")) {
+        $actions .= "<option value='3'>"._("Service: Open ticket")."</option>";
+    }
+    if ($canDoAction) { // || $centreon->user->access->checkAction("host_acknowledgement")) {
+        $actions .= "<option value='4'>"._("Host: Open ticket")."</option>";
+    }
+} else {
+    $actions .= "<option value='10'>" . _("Remove Tickets") . "</option>";
 }
 
 $template->assign("widgetId", $widgetId);

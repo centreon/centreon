@@ -89,7 +89,60 @@ function format_popup() {
     
     $template->assign('submitLabel', _("Open"));
      
-    $template->display('formatpopup.ihtml');    
+    $template->display('formatpopup.ihtml');
+}
+
+function remove_tickets() {
+    global $cmd, $widgetId, $rule, $preferences, $centreon, $centreon_path, $centreon_bg;
+    
+    require_once $centreon_path . 'www/class/centreonExternalCommand.class.php';
+    $external_cmd = new CentreonExternalCommand($centreon);
+    
+    $db_storage = new CentreonDB('centstorage');
+    $macros = $rule->getMacroNames($preferences['rule']);
+    
+    $selected_values = explode(',', $_REQUEST['selection']);
+    $selected_str = '';
+    $selected_str_append = '';
+    foreach ($selected_values as $value) {
+        $str = explode(';', $value);
+        $selected_str .= $selected_str_append . 'services.host_id = ' . $str[0] . ' AND services.service_id = ' . $str[1];
+        $selected_str_append = ' OR ';
+    }
+    
+    $query = "SELECT services.host_id, services.description, hosts.name as host_name, hosts.instance_id FROM services, hosts";
+    $query_where = " WHERE (" . $selected_str . ') AND services.host_id = hosts.host_id';
+    if (!$centreon_bg->is_admin) {
+        $query .= ", centreon_acl";
+        $query_where .= " AND EXISTS(SELECT * FROM centreon_acl.group_id IN (" . $centreon_bg->grouplistStr . ") AND hosts.host_id = centreon_acl.host_id 
+        AND services.service_id = centreon_acl.service_id)";
+    }
+    $DBRESULT = $db_storage->query($query . $query_where);
+    
+    $host_done = array();
+    while (($row = $DBRESULT->fetchRow())) {
+        if (!isset($host_done[$row['host_id']])) {
+            $command = "CHANGE_CUSTOM_HOST_VAR;%s;%s;%s";
+            $external_cmd->set_process_command(sprintf($command, $row['host_name'], $macros['ticket_id'], ''), $row['instance_id']);
+            $command = "CHANGE_CUSTOM_HOST_VAR;%s;%s;%s";
+            $external_cmd->set_process_command(sprintf($command, $row['host_name'], $macros['ticket_time'], ''), $row['instance_id']);
+            $host_done[$row['host_id']] = 1;
+        }
+        
+        $command = "CHANGE_CUSTOM_SVC_VAR;%s;%s;%s;%s";
+        $external_cmd->set_process_command(sprintf($command, $row['host_name'], $row['description'], $macros['ticket_id'], ''), $row['instance_id']);
+        $command = "CHANGE_CUSTOM_SVC_VAR;%s;%s;%s;%s";
+        $external_cmd->set_process_command(sprintf($command, $row['host_name'], $row['description'], $macros['ticket_time'], ''), $row['instance_id']);
+    }
+    
+    $external_cmd->write();
+
+    $path = $centreon_path . "www/widgets/open-tickets/src/";
+    
+    $template = new Smarty();
+    $template = initSmartyTplForPopup($path . 'templates/', $template, "./", $centreon_path);
+    $template->assign('title', _('Remove Tickets'));
+    $template->display('removetickets.ihtml');
 }
 
 try {
@@ -114,6 +167,8 @@ try {
     
     if ($cmd == 3 || $cmd == 4) {
         format_popup();
+    } else if ($cmd == 10) {
+        remove_tickets();
     }
 } catch (Exception $e) {
     echo $e->getMessage() . "<br/>";

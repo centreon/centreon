@@ -78,6 +78,10 @@ $dbb = new CentreonDB("centstorage");
 $widgetObj = new CentreonWidget($centreon, $db);
 $preferences = $widgetObj->getWidgetPreferences($widgetId);
 
+if (!isset($preferences['rule'])) {
+    exit;
+}
+
 $macro_tickets = $rule->getMacroNames($preferences['rule']);
 
 // Set Colors Table
@@ -149,6 +153,11 @@ $query = "SELECT SQL_CALC_FOUND_ROWS h.host_id,
         h.notes_url as h_notes_url,
         s.action_url as s_action_url,
         s.notes_url as s_notes_url,
+        h.last_hard_state_change as host_last_hard_state_change,
+        CAST(cv6.value AS UNSIGNED) as host_ticket_time,
+        cv5.value as host_ticket_id,
+        CAST(cv4.value AS UNSIGNED) as service_ticket_time,
+        cv3.value as service_ticket_id,
         cv2.value AS criticality_id,
         cv.value AS criticality_level,
         h.icon_image
@@ -165,9 +174,16 @@ if (!$centreon->user->admin) {
     $query .= " , centreon_acl acl ";
 }
 $query .= " WHERE s.host_id = h.host_id ";
+
 # For Open Tickets
-$query .= " AND (NULLIF(cv5.value, '') IS NULL OR CAST(cv6.value AS UNSIGNED) < h.last_hard_state_change) ";
-$query .= " AND (NULLIF(cv3.value, '') IS NULL OR CAST(cv4.value AS UNSIGNED) < s.last_hard_state_change) ";
+if (!isset($preferences['opened_tickets']) || $preferences['opened_tickets'] == 0) {
+    $query .= " AND (NULLIF(cv5.value, '') IS NULL OR CAST(cv6.value AS UNSIGNED) < h.last_hard_state_change) ";
+    $query .= " AND (NULLIF(cv3.value, '') IS NULL OR CAST(cv4.value AS UNSIGNED) < s.last_hard_state_change) ";
+} else {
+    $query .= " AND ((NULLIF(cv5.value, '') IS NOT NULL AND CAST(cv6.value AS UNSIGNED) > h.last_hard_state_change) ";
+    $query .= "       OR (NULLIF(cv3.value, '') IS NOT NULL AND CAST(cv4.value AS UNSIGNED) > s.last_hard_state_change)) ";
+}
+
 $query .= " AND h.name NOT LIKE '_Module_%' ";
 $query .= " AND s.enabled = 1 ";
 if (isset($preferences['host_name_search']) && $preferences['host_name_search'] != "") {
@@ -301,11 +317,11 @@ $outputLength = $preferences['output_length'] ? $preferences['output_length'] : 
 
 $hostObj = new CentreonHost($db);
 $svcObj = new CentreonService($db);
+$gmt = new CentreonGMT($db);
+$gmt->getMyGMTFromSession(session_id(), $db);
 while ($row = $res->fetchRow()) {
     foreach ($row as $key => $value) {
         if ($key == "last_check") {
-            $gmt = new CentreonGMT($db);
-            $gmt->getMyGMTFromSession(session_id(), $db);
             $value = $gmt->getDate("Y-m-d H:i:s", $value);
             //$value = date("Y-m-d H:i:s", $value);
         } elseif ($key == "last_state_change" || $key == "last_hard_state_change") {
@@ -340,11 +356,20 @@ while ($row = $res->fetchRow()) {
     $data[$row['host_id'].'_'.$row['service_id']]['encoded_hostname'] = urlencode(
       $data[$row['host_id'].'_'.$row['service_id']]['hostname']
     );
+    
+    if ($row['host_ticket_time'] > $row['host_last_hard_state_change'] && 
+        isset($row['host_ticket_id']) && !is_null($row['host_ticket_id']) && $row['host_ticket_id'] != '') {
+        $data[$row['host_id']."_".$row['service_id']]['ticket_id'] = $row['host_ticket_id'];
+        $data[$row['host_id']."_".$row['service_id']]['ticket_time'] = $gmt->getDate("Y-m-d H:i:s", $row['host_ticket_time']);
+    } else if ($row['service_ticket_time'] > $row['last_hard_state_change'] && 
+               isset($row['service_ticket_id']) && !is_null($row['service_ticket_id']) && $row['service_ticket_id'] != '') {
+        $data[$row['host_id']."_".$row['service_id']]['ticket_id'] = $row['service_ticket_id'];
+        $data[$row['host_id']."_".$row['service_id']]['ticket_time'] = $gmt->getDate("Y-m-d H:i:s", $row['service_ticket_time']);
+    }
 }
 $template->assign('centreon_web_path', $centreon->optGen['oreon_web_path']);
 $template->assign('preferences', $preferences);
 $template->assign('data', $data);
-$template->assign('broker', "broker");
 $template->display('index.ihtml');
 ?>
 <script type="text/javascript">

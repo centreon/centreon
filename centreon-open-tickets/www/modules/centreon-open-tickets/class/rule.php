@@ -125,7 +125,7 @@ class Centreon_OpenTickets_Rule
         $nrule_id = $rule_id;
         $DBRESULT = $this->_db->query("SELECT * FROM mod_open_tickets_rule WHERE rule_id = '" . $this->_db->escape($rule_id) . "' LIMIT 1");
         if (!($row = $DBRESULT->fetchRow())) {
-            $query = "INSERT INTO mod_open_tickets
+            $query = "INSERT INTO mod_open_tickets_rule
   (`alias`, `provider_id`, `activate`) VALUES ('" . $this->_db->escape($datas['rule_alias']) . "', '" . $this->_db->escape($datas['provider_id']) . "', '1')";            
             $this->_db->query($query);
             $nrule_id = $this->_db->lastinsertId('mod_open_tickets_rule');
