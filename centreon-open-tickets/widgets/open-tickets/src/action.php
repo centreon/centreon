@@ -113,8 +113,7 @@ function remove_tickets() {
     $query = "SELECT services.host_id, services.description, hosts.name as host_name, hosts.instance_id FROM services, hosts";
     $query_where = " WHERE (" . $selected_str . ') AND services.host_id = hosts.host_id';
     if (!$centreon_bg->is_admin) {
-        $query .= ", centreon_acl";
-        $query_where .= " AND EXISTS(SELECT * FROM centreon_acl.group_id IN (" . $centreon_bg->grouplistStr . ") AND hosts.host_id = centreon_acl.host_id 
+        $query_where .= " AND EXISTS(SELECT * FROM centreon_acl WHERE centreon_acl.group_id IN (" . $centreon_bg->grouplistStr . ") AND hosts.host_id = centreon_acl.host_id 
         AND services.service_id = centreon_acl.service_id)";
     }
     $DBRESULT = $db_storage->query($query . $query_where);
