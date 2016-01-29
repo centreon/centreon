@@ -39,9 +39,10 @@
 RNAME="Centreon Open Tickets"
 NAME="centreon-open-tickets"
 VERSION="1.0.0"
-FORGE_URL="http://community.centreon.com/projects/centreon-myproject"
+FORGE_URL="https://github.com/centreon/centreon-open-tickets"
 CRON_FILE="myproject.cron"
 MODULE_DIR="www/modules/"$NAME
+WIDGET_DIR="www/widgets"
 MODULE=$RNAME.$VERSION
 
 # Define vars

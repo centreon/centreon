@@ -11,7 +11,7 @@
  *
 */
 
-require_once '/etc/centreon/centreon.conf.php';
+require_once '@CENTREON_ETC@/centreon.conf.php';
 require_once $centreon_path . 'www/modules/centreon-open-tickets/views/rules/ajax/call.php';
 
 ?>

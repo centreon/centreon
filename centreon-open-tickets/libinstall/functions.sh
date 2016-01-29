@@ -313,8 +313,8 @@ function get_centreon_parameters() {
 	MONITORINGENGINE_USER=`${CAT} $CENTREON_CONF/$FILE_CONF | ${GREP} "MONITORINGENGINE_USER" | cut -d '=' -f2`;
 	CENTREON_GROUP=`${CAT} $CENTREON_CONF/$FILE_CONF | ${GREP} "CENTREON_GROUP" | cut -d '=' -f2`;
 
-	PLUGIN_DIR=`${CAT} $CENTREON_CONF/$CENTPLUGINS_FILE_CONF | ${GREP} "PLUGIN_DIR" | cut -d '=' -f2`;
-	
+	PLUGIN_DIR=`${CAT} $CENTREON_CONF/$CENTPLUGINS_FILE_CONF | ${GREP} "PLUGIN_DIR" | cut -d '=' -f2`
+    
 	RESULT=0
 	# check centreon parameters
 	if [ "$CENTREON_DIR" != "" ] ; then
@@ -400,8 +400,7 @@ function get_centreon_configuration_location() {
 ## @Stderr Log into $LOG_FILE
 function install_module() {
 	install_module_web;
-	install_module_cron_files;
-	install_module_plugins;
+	install_module_widgets;
 	install_module_end;
 }
 
@@ -418,7 +417,7 @@ function install_module_web() {
 	echo "$line"
 	TEMP_D="/tmp/Install_module"
 	${MKDIR} -p $TEMP_D >> $LOG_FILE 2>> $LOG_FILE
-	${CP} -Rf www/modules/centreon-autodiscovery-server/* $TEMP_D/ >> $LOG_FILE 2>> $LOG_FILE
+	${CP} -Rf www/modules/centreon-open-tickets/* $TEMP_D/ >> $LOG_FILE 2>> $LOG_FILE
 	${RM} -Rf $TEMP_D/install $TEMP_D/*.log
 
 	${CHMOD} -R 755 $TEMP_D/* >> $LOG_FILE 2>> $LOG_FILE
@@ -443,17 +442,12 @@ function install_module_web() {
 	fi
 	
 	RESULT=0
-	FILE="centreon-autodiscovery.conf.php"
-	${SED} -i -e 's|@CENTREON_ETC@|'"$CENTREON_CONF"'|g' $TEMP_D/$FILE 2>> $LOG_FILE
+	find $TEMP_D -type f -exec ${SED} -i -e 's|@CENTREON_ETC@|'$CENTREON_CONF'|g' \{\} \; 2>> $LOG_FILE
 	if [ "$?" -eq 0 ] ; then
 		RESULT=`expr $RESULT + 1`
 	fi
-	${SED} -i -e 's|@CENTREON_AUTODISCO_PATH@|'"$INSTALL_DIR_MODULE"'|g' $TEMP_D/$FILE 2>> $LOG_FILE
-	if [ "$?" -eq 0 ] ; then
-		RESULT=`expr $RESULT + 1`
-	fi
-	
-	if [ "$RESULT" -eq 2 ] ; then
+
+	if [ "$RESULT" -eq 1 ] ; then
 		echo_success "Changing macro" "$ok"
 	else 
 		echo_failure "Changing macro" "$fail"
@@ -490,81 +484,18 @@ function install_module_web() {
 		echo_failure "Copying module" "$fail"
 		exit 1
 	fi
-
-	#${RM} -Rf $TEMP_D $TEMP >> $LOG_FILE 2>> $LOG_FILE
-	#if [ "$?" -eq 0 ] ; then
-	#	echo_success "Delete temp install directory" "$ok"
-	#else 
-	#	echo_failure "Delete temp install directory" "$fail"
-	#	exit 1
-	#fi
 }
 
-## {Install cron files of Module}
-##
-## @Stdout Actions realised by function
-## @Stderr Log into $LOG_FILE
-function install_module_cron_files() {
+function install_module_widgets() {
+	INSTALL_DIR_MODULE=$CENTREON_DIR/$WIDGET_DIR
+
 	echo ""
 	echo "$line"
-	echo -e "\tInstall $RNAME cron"
+	echo -e "\tInstall widgets $NAME"
 	echo "$line"
-	
-	CRON_NAME=centreon-auto-disco
-	if [ -f /etc/cron.d/$CRON_NAME ] ; then
-		${RM} -Rf "/etc/cron.d/$CRON_NAME"
-		if [ $? -eq 0 ]; then
-			echo_success "Removal of the old auto disco cron:" "$ok"
-		else
-			echo_failure "Removal of the old auto disco cron:" "$fail"
-			echo -e "Please delete cron file: /etc/cron.d/$CRON_NAME and reload install script"
-			exit 1
-		fi
-	fi
-
-	CRON_MODULE=$CENTREON_DIR/$MODULE_DIR
-
-	FILE="cron/centreon-auto-disco"
-
-	${SED} -i -e 's|@CENTREON_AUTODISCO_PATH@|'"$CRON_MODULE"'|g' $FILE 2>> $LOG_FILE	
-	${SED} -i -e 's|@CENTREON_LOG@|'"$CENTREON_LOG_DIR"'|g' $FILE 2>> $LOG_FILE
-    ${SED} -i -e 's|@INSTALL_DIR_CENTREON@|'"$CENTREON_CONF"'|g' $FILE 2>> $LOG_FILE		
-	if [ "$?" -eq 0 ] ; then
-		echo_success "Changing macro" "$ok"
-	else 
-		echo_failure "Changing macro" "$fail"
-		exit 1
-	fi
-
-    ${CP} -Rf www/modules/centreon-autodiscovery-server/cron/centreon_autodisco-conf.pm $CENTREON_CONF/centreon_autodisco.pm >> $LOG_FILE 2>> $LOG_FILE
-    
-	${CP} cron/centreon-auto-disco /etc/cron.d/$CRON_NAME >> $LOG_FILE 2>> $LOG_FILE
-	
-	${CHMOD} 644 /etc/cron.d/$CRON_NAME >> $LOG_FILE 2>> $LOG_FILE
-	${CHOWN} root:root /etc/cron.d/$CRON_NAME >> $LOG_FILE 2>> $LOG_FILE
-	if [ $? -eq 0 ]; then
-		echo_success "Copy cron in cron.d directory:" "$ok"
-	else
-		echo_failure "Copy cron in cron.d directory:" "$fail"
-		exit 1
-	fi
-	
-	echo_success "\n\nInstallation of $NAME is finished" "$ok"
-	echo -e  "See README and the log file for more details."
-}
-
-## {Install plugins of Module}
-##
-## @Stdout Actions realised by function
-## @Stderr Log into $LOG_FILE
-function install_module_plugins() {
-	echo ""
-	echo "$line"
-	echo -e "\tInstall $RNAME plugins"
-	echo "$line"
-	TEMP_D="/tmp/Install_module"
+	TEMP_D="/tmp/Install_module/widgets"
 	${MKDIR} -p $TEMP_D >> $LOG_FILE 2>> $LOG_FILE
-	${CP} -Rf plugins $TEMP_D/plugins >> $LOG_FILE 2>> $LOG_FILE
+	${CP} -Rf widgets/* $TEMP_D/ >> $LOG_FILE 2>> $LOG_FILE
 	${RM} -Rf $TEMP_D/install $TEMP_D/*.log
 
 	${CHMOD} -R 755 $TEMP_D/* >> $LOG_FILE 2>> $LOG_FILE
@@ -574,20 +505,36 @@ function install_module_plugins() {
 		echo_failure "Setting right" "$fail"
 		exit 1
 	fi
-
+	
+	RESULT=0
 	${CHOWN} -R $WEB_USER.$WEB_GROUP $TEMP_D/* >> $LOG_FILE 2>> $LOG_FILE
 	if [ "$?" -eq 0 ] ; then
+		RESULT=`expr $RESULT + 1`
+	fi
+	
+	if [ "$RESULT" -eq 1 ] ; then
 		echo_success "Setting owner/group" "$ok"
 	else 
 		echo_failure "Setting owner/group" "$fail"
 		exit 1
 	fi
 	
-	INSTALL_DIR_MODULE=$PLUGIN_DISCO_DIR
+	RESULT=0
+	find $TEMP_D -type f -exec ${SED} -i -e 's|@CENTREON_ETC@|'$CENTREON_CONF'|g' \{\} \; 2>> $LOG_FILE
+	if [ "$?" -eq 0 ] ; then
+		RESULT=`expr $RESULT + 1`
+	fi
 
+	if [ "$RESULT" -eq 1 ] ; then
+		echo_success "Changing macro" "$ok"
+	else 
+		echo_failure "Changing macro" "$fail"
+		exit 1
+	fi
+	
 	if [ ! -d $INSTALL_DIR_MODULE ] ; then
 		RESULT=0
-		${MKDIR} -p $INSTALL_DIR_MODULE >> $LOG_FILE 2>> $LOG_FILE
+		${MKDIR} $INSTALL_DIR_MODULE >> $LOG_FILE 2>> $LOG_FILE
 		if [ "$?" -eq 0 ] ; then
 			RESULT=`expr $RESULT + 1`
 		fi
@@ -595,20 +542,24 @@ function install_module_plugins() {
 		if [ "$?" -eq 0 ] ; then
 			RESULT=`expr $RESULT + 1`
 		fi
-
-		if [ "$RESULT" -eq 2 ] ; then
-			echo_success "Create plugins directory" "$ok"
+		${CHMOD} -R 755 $INSTALL_DIR_MODULE >> $LOG_FILE 2>> $LOG_FILE
+		if [ "$?" -eq 0 ] ; then
+			RESULT=`expr $RESULT + 1`
+		fi
+		
+		if [ "$RESULT" -eq 3 ] ; then
+			echo_success "Create widgets directory" "$ok"
 		else 
-			echo_failure "Create plugins directory" "$fail"
+			echo_failure "Create widgets directory" "$fail"
 			exit 1
 		fi
 	fi
 	
-	${CP} -Rf --preserve $TEMP_D/plugins/* $INSTALL_DIR_MODULE >> $LOG_FILE 2>> $LOG_FILE
+	${CP} -Rf --preserve $TEMP_D/* $INSTALL_DIR_MODULE >> $LOG_FILE 2>> $LOG_FILE
 	if [ "$?" -eq 0 ] ; then
-		echo_success "Copying plugins" "$ok"
+		echo_success "Copying widgets" "$ok"
 	else 
-		echo_failure "Copying plugins" "$fail"
+		echo_failure "Copying widgets" "$fail"
 		exit 1
 	fi
 }

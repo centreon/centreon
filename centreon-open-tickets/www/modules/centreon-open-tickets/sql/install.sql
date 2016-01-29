@@ -52,7 +52,7 @@ ALTER TABLE `mod_open_tickets_form_value`
   ADD CONSTRAINT `mod_open_tickets_form_value_fk_1` FOREIGN KEY (`rule_id`) REFERENCES `mod_open_tickets_rule` (`rule_id`) ON DELETE CASCADE;
 
 -- Historic and tickets
-CREATE TABLE IF NOT EXISTS @DB_CENTSTORAGE@.`mod_open_tickets` (
+CREATE TABLE IF NOT EXISTS centreon_storage.`mod_open_tickets` (
     `ticket_id` int(11) NOT NULL AUTO_INCREMENT,
     `timestamp` int(11) NOT NULL,
     `user` VARCHAR(512) NOT NULL,
