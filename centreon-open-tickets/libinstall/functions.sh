@@ -302,8 +302,8 @@ function print_footer() {
 function get_centreon_parameters() {
 	CENTREON_DIR=`${CAT} $CENTREON_CONF/$FILE_CONF | ${GREP} "INSTALL_DIR_CENTREON" | cut -d '=' -f2`;
 	CENTREON_LOG_DIR=`${CAT} $CENTREON_CONF/$FILE_CONF | ${GREP} "CENTREON_LOG" | cut -d '=' -f2`;
-	CENTREON_VARLIB=`${CAT} $CENTREON_CONF/$CENTSTORAGE_FILE_CONF | ${GREP} "CENTREON_VARLIB" | cut -d '=' -f2`;
-	CENTCORE_CMD=$CENTREON_VARLIB"/centcore.cmd"
+	#CENTREON_VARLIB=`${CAT} $CENTREON_CONF/$CENTSTORAGE_FILE_CONF | ${GREP} "CENTREON_VARLIB" | cut -d '=' -f2`;
+	#CENTCORE_CMD=$CENTREON_VARLIB"/centcore.cmd"
 
 	WEB_USER=`${CAT} $CENTREON_CONF/$FILE_CONF | ${GREP} "WEB_USER" | cut -d '=' -f2`;
 	WEB_GROUP=`${CAT} $CENTREON_CONF/$FILE_CONF | ${GREP} "WEB_GROUP" | cut -d '=' -f2`;
@@ -323,9 +323,9 @@ function get_centreon_parameters() {
 	if [ "$CENTREON_LOG_DIR" != "" ] ; then
 		RESULT=`expr $RESULT + 1`
 	fi
-	if [ "$CENTREON_VARLIB" != "" ] ; then
-		RESULT=`expr $RESULT + 1`
-	fi
+	#if [ "$CENTREON_VARLIB" != "" ] ; then
+	#	RESULT=`expr $RESULT + 1`
+	#fi
 
 
 	# check apache parameters
@@ -355,7 +355,8 @@ function get_centreon_parameters() {
 	fi
 
 
-	if [ "$RESULT" -eq 10 ]; then 
+	#if [ "$RESULT" -eq 10 ]; then 
+	if [ "$RESULT" -eq 9 ]; then 
 		return 1;
 	else
 		return 0;
