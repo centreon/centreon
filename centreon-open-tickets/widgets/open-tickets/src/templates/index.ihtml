@@ -40,7 +40,7 @@
                             {if $elem.h_acknowledged}<img src='{$centreon_web_path}img/icones/16x16/worker.gif' class="ico-18">{/if}
                             {if $elem.h_active_checks == 0}<img src='{$centreon_web_path}img/icones/14x14/gears_stop.gif' class="ico-18">{/if}
                             {if $elem.h_passive_checks}<img src='{$centreon_web_path}img/icones/14x14/gears_pause.gif' class="ico-18">{/if}
-                            {if $elem.h_notify == 0}<img src='{$centreon_web_path}img/icons/notifications_off.png' class="ico-18">{/if}
+                            {if $elem.h_notify == 0}<img src='{$centreon_web_path}img/icones/14x14/noloudspeaker.gif' class="ico-18">{/if}
                             {if $elem.h_action_url}
                                 <a target=_blank href='{$elem.h_action_url}'>
                                     <img src='{$centreon_web_path}img/icons/star-full.png' class="ico-16">
@@ -73,7 +73,7 @@
                     {if $elem.s_acknowledged}<img src='{$centreon_web_path}img/icones/16x16/worker.gif'>{/if}
                     {if $elem.s_active_checks == 0 && $elem.s_passive_checks == 0}<img src='{$centreon_web_path}img/icones/14x14/gears_stop.gif'>{/if}
                     {if $elem.s_passive_checks == 1 && $elem.s_active_checks == 0}<img src='{$centreon_web_path}img/icones/14x14/gears_pause.gif'>{/if}
-                    {if $elem.s_notify == 0}<img src='{$centreon_web_path}img/icons/notifications_off.png' class="ico-18">{/if}
+                    {if $elem.s_notify == 0}<img src='{$centreon_web_path}img/icones/14x14/noloudspeaker.gif' class="ico-18">{/if}
                     {if $elem.s_action_url}
                         <a target=_blank href='{$elem.s_action_url}'>
                             <img src='{$centreon_web_path}img/icones/16x16/star_yellow.gif'>
