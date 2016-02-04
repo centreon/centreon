@@ -1,12 +1,12 @@
-<table class="ListTable">
+<table class="formTable table">
 	<tr class="ListHeader">
         <td class="FormHeader" colspan="2">
-            &nbsp;<img src={$img_wrench}>&nbsp;&nbsp;{$header.title}
+            <h3>|{$header.title}</h3>
         </td>
 	</tr>
 	<tr class="list_lvl_1">
         <td class="ListColLvl1_name" colspan="2">
-            <img src={$img_brick}>&nbsp;&nbsp;{$header.common}
+            <h4>{$header.common}</h4>
         </td>
     </tr>
 	<tr class="list_one">

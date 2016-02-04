@@ -1,23 +1,31 @@
 <script type="text/javascript" src="./include/common/javascript/tool.js"></script>
 <form name='form' method='POST'>
-	<table class="ajaxOption">
+	<table class="ajaxOption table">
 		<tr>
-			<td>{$searchLabel} : <input type='text' name='searchRule' value='{$search}' /></td>
-	        <td><input type='submit' name='SearchButton' value='{$searchLabel}' /></td>
+			<th><h5>{t}Filters{/t}</h5></tr>
+		</tr>
+		<tr>
+			<td><h4>{$searchLabel}</h4></td>
+			<td></td>
+		</tr>
+		<tr>
+			<td><input type='text' name='searchRule' value='{$search}' /></td>
+	        <td><input type='submit' name='SearchButton' class='btc bt_success' value='{$searchLabel}' /></td>
 		</tr>
 	</table>
 	<br>
-	<table class="ToolbarTable">
+	<table class="ToolbarTable table">
 		<tr class="ToolbarTR">
-			<td class="Toolbar_TDSelectAction_Top">
+			<td>
 				{$msg.options} {$form.o1.html}
-				&nbsp;&nbsp;&nbsp;
-				<a href="{$msg.addL}"><img src={$msg.img}>&nbsp;{$msg.add}</a>
+				<a class='btc bt_success' href="{$msg.addL}">{$msg.add}</a>
 			</td>
 			<input name="p" value="{$p}" type="hidden">
-			{php}
-		   		include('./include/common/pagination.php');
-			{/php}				
+			<td class='toolbarPagination'>
+				{php}
+					include('./include/common/pagination.php');
+				{/php}
+			</td>
 		</tr>
 	</table>
 	<table class="ListTable">
@@ -54,17 +62,18 @@
 			{/foreach}
 		{/if}
 	</table>
-	<table class="ToolbarTable">
+	<table class="ToolbarTable table">
 		<tr class="ToolbarTR">
-			<td class="Toolbar_TDSelectAction_Top">
+			<td>
 				{$msg.options} {$form.o2.html}
-				&nbsp;&nbsp;&nbsp;
-				<a href="{$msg.addL}"><img src={$msg.img}>&nbsp;{$msg.add}</a>
+				<a class='btc bt_success' href="{$msg.addL}">{$msg.add}</a>
 			</td>
 			<input name="p" value="{$p}" type="hidden">
-			{php}
-		   		include('./include/common/pagination.php');
-			{/php}		
+			<td class='toolbarPagination'>
+				{php}
+					include('./include/common/pagination.php');
+				{/php}
+			</td>
 		</tr>
 	</table>	
 	<input type='hidden' id='limit' name='limit' value='{$limit}'>	

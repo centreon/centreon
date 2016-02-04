@@ -3,9 +3,7 @@
 
 <div id="{$cloneId}_controls">
     <div id="{$cloneId}_add">
-        <span style="cursor:pointer;">
-            {t}Add a new entry{/t} <img src="./img/icones/16x16/navigate_plus.gif">
-        </span>
+		<p style="cursor:pointer; color: #4ccaff;">{t}+ Add a new entry{/t}</p>
     </div>
 </div>
 <ul id="{$cloneId}" class="clonable no-deco-list">
@@ -15,11 +13,11 @@
             {foreach from=$cloneSet item=v}
             <span style="padding-right: 10px;">{$v.label} : {$v.html}</span>
             {/foreach}
-            <span class="clonehandle">
-                <img src="./img/icones/16x16/move.png">
+            <span class="clonehandle" style="cursor:pointer;">
+                <img class="ico-14" style="vertical-align:middle;" src="./img/icons/move.png">
             </span>
-            <a id="{$cloneId}_remove_current" class="cloneremove" style='padding-right:5px;'>
-                <img src="./img/icones/16x16/delete.gif">
+            <a id="{$cloneId}_remove_current" style="display: inline;">
+                <img class="ico-14" style="vertical-align:middle;" src="./img/icons/circle-cross.png">
             </a>
         </div>
         <input type="hidden" name="clone_order_{$cloneId}_#index#" id="clone_order_#index#" />

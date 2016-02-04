@@ -3,22 +3,27 @@
 <div id="rule_error" style="color: red"></div>
 <form id="RuleForm" action="?p={$page}">
 <input type="hidden" id="rule_id" name="rule_id" value="{$rule_id}">
-<div>
-<ul id="mainnav">
-	<li class="a" id='c1'><a href="#" onclick="javascript:montre('1');">{$sort1}</a></li>
-	<li class="b" id='c2'><a href="#" onclick="javascript:montre('2');">{$sort2}</a></li>
-</ul>
+<div class="headerTabContainer">
+	<ul id="mainnav">
+		<li class="a" id='c1'><a href="#" onclick="javascript:montre('1');">{$sort1}</a></li>
+		<li class="b" id='c2'><a href="#" onclick="javascript:montre('2');">{$sort2}</a></li>
+	</ul>
+	<div id="validFormTop">
+		<p class="oreonbutton">
+			<input id="OTSave" class="btc bt_success" type="button" value="Save" onClick="saveForm()" />
+		</p>
+	</div>
 </div>
 <div id="tab1" class="tab">
-	<table id="OTcontainer1" class="ListTable">
+	<table id="OTcontainer1" class="formTable table">
 	 	<tr class="ListHeader">
 	 		<td class="FormHeader" colspan="2">
-	 			&nbsp;<img src={$img_wrench}>&nbsp;&nbsp;{$header.title}
+	 			<h3>|{$header.title}</h3>
 	 		</td>
 	 	</tr>
 	 	<tr class="list_lvl_1">
 	 		<td class="ListColLvl1_name" colspan="2">
-	 			<img src={$img_info}>&nbsp;&nbsp;{$header.general}
+	 			<h4>{$header.general}</h4>
 	 		</td>
 	 	</tr>
 		<tr class="list_one">
@@ -43,7 +48,9 @@
 </div>
 
 <div id="validForm">
-    <p class="oreonbutton"><input id="OTSave" type="button" value="Save" onClick="saveForm()" /></p>
+    <p class="oreonbutton">
+		<input id="OTSave" class="btc bt_success" type="button" value="Save" onClick="saveForm()" />
+	</p>
 </div>
 
 </form>
