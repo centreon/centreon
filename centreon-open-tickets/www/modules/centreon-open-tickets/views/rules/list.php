@@ -45,9 +45,9 @@ while ($row = $res->fetchRow()) {
 	$dupElements = $form->addElement('text', 'duplicateNb['.$row['rule_id'].']', NULL, array("id" => "duplicateNb[".$row['rule_id']."]", "size" => "3", "value" => "1"));
     $moptions = "";
     if ($row['activate']) {
-        $moptions .= "<a href='main.php?p=".$p."&o=ds&rule_id=".$row['rule_id']."&limit=".$limit."&num=".$num."'><img src='img/icones/16x16/element_previous.gif' border='0' alt='"._("Disabled")."'></a>&nbsp;&nbsp;";
+        $moptions .= "<a href='main.php?p=".$p."&o=ds&rule_id=".$row['rule_id']."&limit=".$limit."&num=".$num."'><img class='ico-14' src='img/icons/disabled.png' border='0' alt='"._("Disabled")."'></a>";
     } else {
-        $moptions .= "<a href='main.php?p=".$p."&o=e&rule_id=".$row['rule_id']."&limit=".$limit."&num=".$num."'><img src='img/icones/16x16/element_next.gif' border='0' alt='"._("Enabled")."'></a>&nbsp;&nbsp;";
+        $moptions .= "<a href='main.php?p=".$p."&o=e&rule_id=".$row['rule_id']."&limit=".$limit."&num=".$num."'><img class='ico-14' src='img/icons/enabled.png' border='0' alt='"._("Enabled")."'></a>";
     }
 	$elemArr[$row['rule_id']]['dup'] = $moptions . "&nbsp;" . $dupElements->toHtml();
 	if ($tdStyle == "list_one") {
