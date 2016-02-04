@@ -238,33 +238,32 @@ class Centreon_OpenTickets_Rule
                         $res2 = $this->_db->query("SELECT `rule_id` FROM `mod_open_tickets_rule` WHERE `alias` = '" . $this->_db->escape($name) . "'");
                     }
                     $query = "INSERT INTO mod_open_tickets_rule
-  (`alias`, `provider_id`, `activate`) VALUES " . 
-  "('" . $this->_db->escape($name) . "', " . $row['provider_id'] . ", " . $row['activate'] . ")";
+							(`alias`, `provider_id`, `activate`) VALUES " . 
+							"('" . $this->_db->escape($name) . "', " . $row['provider_id'] . ", " . $row['activate'] . ")";
                     $this->_db->query($query);
 
                     $nrule_id = $this->_db->lastinsertId('mod_open_tickets_rule');
                     
                     // Duplicate form clone
                     $res2 = $this->_db->query("SELECT * FROM mod_open_tickets_form_clone WHERE rule_id=$ruleId");
-                    while (($row = $res2->fetchRow())) {
+                    while (($row2 = $res2->fetchRow())) {
                         $query = "INSERT INTO mod_open_tickets_form_clone
-  (`uniq_id`, `label`, `value`, `rule_id`) VALUES " . 
-  "('" . $this->_db->escape($row['uniq_id']) . "', '" . $this->_db->escape($row['label']) . "', '" . $this->_db->escape($row['value']) . "', " . $nrule_id . ")";
+								(`uniq_id`, `label`, `value`, `rule_id`) VALUES " . 
+								"('" . $this->_db->escape($row2['uniq_id']) . "', '" . $this->_db->escape($row2['label']) . "', '" . $this->_db->escape($row2['value']) . "', " . $nrule_id . ")";
                         $this->_db->query($query);
                     }
 
                     // Duplicate macros
                     $res2 = $this->_db->query("SELECT * FROM mod_open_tickets_form_value WHERE rule_id=$ruleId");
-                    while (($row = $res2->fetchRow())) {
+                    while (($row3 = $res2->fetchRow())) {
                         $query = "INSERT INTO mod_open_tickets_form_value
-  (`uniq_id`, `value`, `rule_id`) VALUES " . 
-  "('" . $row['uniq_id'] . "', '" . $this->_db->escape($row['value']) . "', " . $nrule_id . ")";
+								(`uniq_id`, `value`, `rule_id`) VALUES " . 
+								"('" . $row3['uniq_id'] . "', '" . $this->_db->escape($row3['value']) . "', " . $nrule_id . ")";
                         $this->_db->query($query);
                     }
                 }
             }
         }
-        
         $this->_db->commit();
     }
 
