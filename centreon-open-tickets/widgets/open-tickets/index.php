@@ -68,7 +68,6 @@ try {
     	<link href="../../Themes/Centreon-2/style.css" rel="stylesheet" type="text/css"/>
     	<link href="<?php echo '../../Themes/Centreon-2/Color/blue_css.php';?>" rel="stylesheet" type="text/css"/>
         <link href="<?php echo '../../Themes/Centreon-2/Color/green_css.php';?>" rel="stylesheet" type="text/css"/>
-        <link href="<?php echo '../../Themes/Centreon-2/Color/pink_css.php';?>" rel="stylesheet" type="text/css"/>
         <link href="<?php echo '../../Themes/Centreon-2/Color/red_css.php';?>" rel="stylesheet" type="text/css"/>
         <link href="<?php echo '../../Themes/Centreon-2/Color/yellow_css.php';?>" rel="stylesheet" type="text/css"/>
 
