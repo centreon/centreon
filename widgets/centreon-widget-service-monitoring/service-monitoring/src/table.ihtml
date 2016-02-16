@@ -90,7 +90,7 @@
                         </a>
                     {/if}
                     {if $elem.s_notes_url}
-                        <a target=_blank href='{$elem.s_notes_url}'>
+                        <a target=_blank href='http://{$elem.s_notes_url}'>
                             <img src='{$centreon_web_path}img/icons/link.png' class="ico-14">
                         </a>
                     {/if}
@@ -117,12 +117,12 @@
 	{/foreach}
     </table>
 </div>
-	<script type="text/javascript">
-	var nbRows = {$nbRows};
+    <script type="text/javascript">
+        var nbRows = {$nbRows};
         var currentpage = {$page};
         var orderby = "{$orderby}";
         var nbCurrentItems = {$dataJS};
         var widgetId = {$widgetId};
         var autoRefresh = {$autoRefresh};
-    	</script>
+    </script>
 <script  type="text/javascript" src="src/data_js.js"></script>
