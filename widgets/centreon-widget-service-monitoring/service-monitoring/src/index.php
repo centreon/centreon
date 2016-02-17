@@ -78,7 +78,7 @@ $preferences = $widgetObj->getWidgetPreferences($widgetId);
 $stateSColors = array(0 => "#88b917",
 		      1 => "#ff9a13",
 		      2 => "#e00b3d",
-		      3 => "##bcbdc0",
+		      3 => "#818285",
 		      4 => "#2ad1d4");
 $stateHColors = array(0 => "#88b917",
 		      1 => "#e00b3d",
@@ -266,8 +266,20 @@ if (isset($preferences['output_search']) && $preferences['output_search'] != "")
     }
 }
 $orderby = "hostname ASC , description ASC";
+
 if (isset($preferences['order_by']) && $preferences['order_by'] != "") {
-    $orderby = $preferences['order_by'];
+    
+    $aOrder = explode(" ", $preferences['order_by']);
+    if (in_array('last_state_change', $aOrder) || in_array('last_hard_state_change', $aOrder)) {
+        if ($aOrder[1] == 'DESC') {
+            $order = 'ASC';
+        } else {
+            $order = 'DESC';
+        }
+        $orderby = $aOrder[0] ." ". $order;
+    } else {
+        $orderby = $preferences['order_by'];
+    }
 }
 
 
