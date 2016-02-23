@@ -219,7 +219,7 @@ if (isset($preferences['servicegroup']) && $preferences['servicegroup']) {
     $queryHost = "SELECT DISTINCT h.host_id FROM servicegroups sg INNER JOIN services_servicegroups
     sgm ON sg.servicegroup_id = sgm.servicegroup_id INNER JOIN services s ON s.service_id = sgm.service_id
     INNER JOIN  hosts h ON sgm.host_id = h.host_id AND h.host_id = s.host_id WHERE  sg.servicegroup_id =
-    ".$dbb->escape($preferences['servicegroup'])." AND s.state != 0 AND s.state != 4";
+    ".$dbb->escape($preferences['servicegroup']);
     
     $resultHost = $dbb->query($queryHost);
     if (PEAR::isError($resultHost)) {
@@ -234,7 +234,7 @@ if (isset($preferences['servicegroup']) && $preferences['servicegroup']) {
       " s.service_id IN (
             SELECT DISTINCT s.service_id FROM servicegroups sg, services_servicegroups sgm, 
             services s, hosts h WHERE h.host_id = s.host_id AND s.host_id = sgm.host_id AND s.service_id = sgm.service_id 
-            AND sg.servicegroup_id = sgm.servicegroup_id  AND s.state != 0 AND s.state != 4 
+            AND sg.servicegroup_id = sgm.servicegroup_id
             AND sg.servicegroup_id = ".$dbb->escape($preferences['servicegroup'])." 
             AND h.host_id IN (".  implode(",", $Host).") 
       ) ");
