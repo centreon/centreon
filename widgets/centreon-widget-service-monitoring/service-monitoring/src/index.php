@@ -100,7 +100,7 @@ $query = "SELECT SQL_CALC_FOUND_ROWS h.host_id,
 		s.service_id,
 		s.description,
 		s.state as s_state,
-                h.state_type as state_type,
+        h.state_type as state_type,
 		s.last_hard_state,
 		s.output,
 		s.scheduled_downtime_depth as s_scheduled_downtime_depth,
@@ -124,7 +124,7 @@ $query = "SELECT SQL_CALC_FOUND_ROWS h.host_id,
 		s.notes_url as s_notes_url, 
 		cv2.value AS criticality_id,
 		cv.value AS criticality_level,
-                h.icon_image
+        h.icon_image
 ";
 $query .= " FROM hosts h, services s ";
 $query .= " LEFT JOIN customvariables cv ON (s.service_id = cv.service_id AND s.host_id = cv.host_id AND cv.name = 'CRITICALITY_LEVEL') ";
@@ -216,15 +216,28 @@ if (isset($preferences['hostgroup']) && $preferences['hostgroup']) {
       WHERE hostgroup_hg_id = ".$dbb->escape($preferences['hostgroup']).")");
 }
 if (isset($preferences['servicegroup']) && $preferences['servicegroup']) {
+    $queryHost = "SELECT DISTINCT h.host_id FROM servicegroups sg INNER JOIN services_servicegroups
+    sgm ON sg.servicegroup_id = sgm.servicegroup_id INNER JOIN services s ON s.service_id = sgm.service_id
+    INNER JOIN  hosts h ON sgm.host_id = h.host_id AND h.host_id = s.host_id WHERE  sg.servicegroup_id =
+    ".$dbb->escape($preferences['servicegroup'])." AND s.state != 0 AND s.state != 4";
+    
+    $resultHost = $dbb->query($queryHost);
+    if (PEAR::isError($resultHost)) {
+        print "DB Error : " . $resultHost->getDebugInfo() . "<br />";
+    }
+
+    while ($row = $resultHost->fetchRow()) {
+        $Host[] = $row['host_id'];
+    }
+    
     $query = CentreonUtils::conditionBuilder($query, 
-    " s.service_id IN (SELECT service_service_id
-      FROM ".$conf_centreon['db'].".servicegroup_relation
-      WHERE servicegroup_sg_id = ".$dbb->escape($preferences['servicegroup'])."
-      UNION
-      SELECT sgr.service_service_id
-      FROM ".$conf_centreon['db'].".servicegroup_relation sgr, ".$conf_centreon['db'].".host_service_relation hsr
-      WHERE hsr.hostgroup_hg_id = sgr.hostgroup_hg_id
-      AND sgr.servicegroup_sg_id = ".$dbb->escape($preferences['servicegroup']).") ");
+      " s.service_id IN (
+            SELECT DISTINCT s.service_id FROM servicegroups sg, services_servicegroups sgm, 
+            services s, hosts h WHERE h.host_id = s.host_id AND s.host_id = sgm.host_id AND s.service_id = sgm.service_id 
+            AND sg.servicegroup_id = sgm.servicegroup_id  AND s.state != 0 AND s.state != 4 
+            AND sg.servicegroup_id = ".$dbb->escape($preferences['servicegroup'])." 
+            AND h.host_id IN (".  implode(",", $Host).") 
+      ) ");
 }
 if (isset($preferences["display_severities"]) && $preferences["display_severities"] 
     && isset($preferences['criticality_filter']) && $preferences['criticality_filter'] != "") {
@@ -282,10 +295,12 @@ if (isset($preferences['order_by']) && $preferences['order_by'] != "") {
     }
 }
 
-
 $query .= "ORDER BY $orderby";
 $query .= " LIMIT ".($page * $preferences['entries']).",".$preferences['entries'];
 $res = $dbb->query($query);
+if (PEAR::isError($res)) {
+    print "DB Error : " . $res->getDebugInfo() . "<br />";
+}
 $nbRows = $dbb->numberRows();
 $data = array();
 $outputLength = $preferences['output_length'] ? $preferences['output_length'] : 50;
