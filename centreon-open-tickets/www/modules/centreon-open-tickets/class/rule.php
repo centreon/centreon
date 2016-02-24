@@ -299,6 +299,37 @@ class Centreon_OpenTickets_Rule
         $this->_db->query($query);
     }
 
+    public function getHostgroup($filter) {
+        $result = array();
+        $where = '';
+        if (!is_null($filter) && $filter != '') {
+            $where = " hg_name LIKE '" . $this->_db->escape($filter) . "' AND ";
+        }
+        $query = "SELECT hg_id, hg_name FROM hostgroup WHERE " . $where . " hg_activate = '1' ORDER BY hg_name ASC";
+        
+        $DBRESULT = $this->_db->query($query);
+        while (($row = $DBRESULT->fetchRow())) {
+            $result[$row['hg_id']] = $row['hg_name'];
+        }
+        
+        return $result;
+    }
+    
+    public function getContactgroup($filter) {
+        $result = array();
+        $where = '';
+        if (!is_null($filter) && $filter != '') {
+            $where = " cg_name LIKE '" . $this->_db->escape($filter) . "' AND ";
+        }
+        $query = "SELECT cg_id, cg_name FROM contactgroup WHERE " . $where . " cg_activate = '1' ORDER BY cg_name ASC";
+        
+        $DBRESULT = $this->_db->query($query);
+        while (($row = $DBRESULT->fetchRow())) {
+            $result[$row['cg_id']] = $row['cg_name'];
+        }
+        
+        return $result;
+    }
 }
 
 ?>

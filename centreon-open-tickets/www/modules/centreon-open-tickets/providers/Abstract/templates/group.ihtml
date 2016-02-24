@@ -1,0 +1,11 @@
+<tr>
+    <td class="FormRowField" style="padding-left:15px;">{$groups.$groupName.label}</td>
+    <td class="FormRowValue" style="padding-left:15px;">
+        <select id="{$groups.$groupName.label}" name="{$groups.$groupName.label}">
+        <option value="-1"> -- select -- </option>
+        {foreach from=$groups.$groupName.values key=k item=v}
+        <option>{$v}</option>
+        {/foreach}
+        </select>
+    </td>
+</tr>

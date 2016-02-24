@@ -82,6 +82,7 @@ abstract class AbstractProvider {
     <td class="FormRowField" style="padding-left:15px;">{$custom_message.label}</td>
     <td class="FormRowValue" style="padding-left:15px;"><textarea id="custom_message" name="custom_message" cols="30" rows="3"></textarea></td>
 </tr>
+{include file="file:$centreon_open_tickets_path/providers/Abstract/templates/groups.ihtml"}
 </table>
 ';
         $this->default_data['message_confirm'] = '
@@ -209,11 +210,12 @@ abstract class AbstractProvider {
         $groupListType_html = '<select id="groupListType_#index#" name="groupListType[#index#]" type="select-one">' .
         '<option value="0">Host group</options>' .
         '<option value="1">Host category</options>' .
-        '<option value="2">Service group</options>' .
-        '<option value="3">Service category</options>' .
-        '<option value="4">Severity</options>' .
-        '<option value="5">Contact group</options>' .
-        '<option value="6">Custom</options>' .
+        '<option value="2">Host severity</options>' .
+        '<option value="3">Service group</options>' .
+        '<option value="4">Service category</options>' .
+        '<option value="5">Service severity</options>' .
+        '<option value="6">Contact group</options>' .
+        '<option value="7">Custom</options>' .
         '</select>';
         $groupListFilter_html =  '<input id="groupListFilter_#index#" name="groupListFilter[#index#]" size="20"  type="text" />';
         $groupListMandatory_html =  '<input id="groupListMandatory_#index#" name="groupListMandatory[#index#]" type="checkbox" value="1" />';
@@ -311,12 +313,80 @@ abstract class AbstractProvider {
         $this->_rule->save($this->_rule_id, $this->_save_config);
     }
     
-    protected function assignFormatPopupTemplate($tpl, $args) {
+    protected function assignHostgroup($entry, &$groups_order, &$groups) {
+        $result = $this->_rule->getHostgroup($entry['Filter']);
+        $groups[$entry['Name']] = array('label' => _($entry['Name']) . 
+                                                        (isset($entry['Mandatory']) && $entry['Mandatory'] == 1 ? $this->_required_field : ''), 
+                                        'values' => $result);
+        $groups_order[] = $entry['Name'];
+    }
+    
+    protected function assignHostcategory($entry, &$groups_order, &$groups) {
+        
+    }
+    
+    protected function assignHostseverity($entry, &$groups_order, &$groups) {
+        
+    }
+    
+    protected function assignServicegroup($entry, &$groups_order, &$groups) {
+        
+    }
+    
+    protected function assignServicecategory($entry, &$groups_order, &$groups) {
+        
+    }
+    
+    protected function assignServiceseverity($entry, &$groups_order, &$groups) {
+        
+    }
+    
+    protected function assignContactgroup($entry, &$groups_order, &$groups) {
+        $result = $this->_rule->getContactgroup($entry['Filter']);
+        $groups[$entry['Name']] = array('label' => _($entry['Name']) . 
+                                                        (isset($entry['Mandatory']) && $entry['Mandatory'] == 1 ? $this->_required_field : ''), 
+                                        'values' => $result);
+        $groups_order[] = $entry['Name'];
+    }
+    
+    protected function assignCustom($entry, &$groups_order, &$groups) {
+        
+    }
+    
+    protected function assignFormatPopupTemplate(&$tpl, $args) {
         foreach ($args as $label => $value) {
             $tpl->assign($label, $value);
         }
         
+        $groups_order = array();
+        $groups = array();
         $tpl->assign('custom_message', array('label' => _('Custom message')));
+        $tpl->assign('centreon_open_tickets_path', $this->_centreon_open_tickets_path);
+        
+        if (isset($this->rule_data['clones']['groupList'])) {
+            foreach ($this->rule_data['clones']['groupList'] as $values) {
+                if ($values['Type'] == 0) {
+                    $this->assignHostgroup($values, $groups_order, $groups);
+                } else if ($values['Type'] == 1) {
+                    $this->assignHostcategory($values, $groups_order, $groups);
+                } else if ($values['Type'] == 2) {
+                    $this->assignHostseverity($values, $groups_order, $groups);
+                } else if ($values['Type'] == 3) {
+                    $this->assignServicegroup($values, $groups_order, $groups);
+                } else if ($values['Type'] == 4) {
+                    $this->assignServicecategory($values, $groups_order, $groups);
+                } else if ($values['Type'] == 5) {
+                    $this->assignServiceseverity($values, $groups_order, $groups);
+                } else if ($values['Type'] == 6) {
+                    $this->assignContactgroup($values, $groups_order, $groups);
+                } else if ($values['Type'] == 7) {
+                    $this->assignCustom($values, $groups_order, $groups);
+                }
+            }
+        }
+        
+        $tpl->assign('groups_order', $groups_order);
+        $tpl->assign('groups', $groups);
     }
     
     public function getFormatPopup($args) {        
