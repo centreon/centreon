@@ -197,7 +197,7 @@ class MailProvider extends AbstractProvider {
         }
         
         $tpl = new Smarty();
-        $tpl = initSmartyTplForPopup($this->_centreon_open_tickets_path, $tpl, 'providers/Mail/templates', $this->_centreon_path);
+        $tpl = initSmartyTplForPopup($this->_centreon_open_tickets_path, $tpl, 'providers/Abstract/templates', $this->_centreon_path);
         
         $tpl->assign('user', $user);
         $tpl->assign('host_selected', $host_problems);

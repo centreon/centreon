@@ -1,15 +1,13 @@
-<link href="../../../Themes/Centreon-2/style.css" rel="stylesheet" type="text/css"/>
-<link href="../../../Themes/Centreon-2/jquery-ui/jquery-ui.css" rel="stylesheet" type="text/css"/>
 <form id="Form">
 	<div align=center>
         <div id="form_error" style="color: red"></div>
 
-        <table id="ListTable" style="width: 100%;">
-        <tr>
-            <th>{$title}</th>
+        <table class="table">
+        <tr class="ListHeader">
+            <td class="FormHeader" colspan="2"><h3 style="color: #00bfb3;">{$title}</td>
         </tr>
         <tr>
-            <td>Tickets removed.</td>
+            <td class="FormRowField" style="padding-left:15px;">Tickets removed.</td>
         </tr>
         </table>
 	</div>
@@ -18,7 +16,6 @@
 {literal}
 <script type="text/javascript">
 jQuery(function() {
-    jQuery("#ListTable").styleTable();
 });
 </script>
 {/literal}

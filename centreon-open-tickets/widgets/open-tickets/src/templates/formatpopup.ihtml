@@ -1,5 +1,3 @@
-<link href="../../../Themes/Centreon-2/style.css" rel="stylesheet" type="text/css"/>
-<link href="../../../Themes/Centreon-2/jquery-ui/jquery-ui.css" rel="stylesheet" type="text/css"/>
 <form id="Form">
 	<div align=center>
         <div id="form_error" style="color: red"></div>
@@ -16,7 +14,7 @@
 			<input type='hidden' name='cmd' value='{$cmd}' />
             <input type='hidden' id="continue" name='continue' value='{$continue}' />
 			<input type='hidden' name='doSubmitTicket' value='yes' />
-			<input type='submit' id='submit' value='{$submitLabel}' onClick="validateFormatPopup()" />
+			<input class="btc bt_info" type='submit' id='submit' value='{$submitLabel}' onClick="return validateFormatPopup();" />
 		</div>
 	</div>
 </form>
@@ -31,7 +29,6 @@ var $callback_submitTicket = function(res) {
         jQuery("#form_error").html(data_ret['msg']);
     } else {
         jQuery("#OTcontainer").html(data_ret['result']['confirm_message']);
-        jQuery("#ListTable").styleTable();
     }
 };
 
@@ -60,9 +57,10 @@ function submitTicket() {
     }
     
     jQuery("#validForm").empty();
-    jQuery("#OTcontainer").html('<div style="margin-top: 50px; margin-bottom:10px">Please wait...</div><div><img src="../resources/ajax-waiting.gif" / ></div>');
+    jQuery("#OTcontainer").html('<div style="margin-top: 50px; margin-bottom:10px">Please wait...</div><div><img src="./widgets/open-tickets/resources/ajax-waiting.gif" / ></div>');
 
-    call_ajax_async(data, $callback_submitTicket, 'ajax/callforwardmodule.php');
+    call_ajax_async(data, $callback_submitTicket, './widgets/open-tickets/src/ajax/callforwardmodule.php');
+    return false;
 }
 
 function validateFormatPopup() {
@@ -75,7 +73,8 @@ function validateFormatPopup() {
         "form": jQuery("#Form").serializeObject()
     }
 
-    call_ajax_sync(data, $callback_validateFormatPopup, 'ajax/callforwardmodule.php');
+    call_ajax_sync(data, $callback_validateFormatPopup, './widgets/open-tickets/src/ajax/callforwardmodule.php');
+    return false;
 }
 
 jQuery(function() {
@@ -83,7 +82,6 @@ jQuery(function() {
     if (jQuery("#continue").val() == 1) {
         submitTicket();
     } else {
-        jQuery("#ListTable").styleTable();
         jQuery("#submit").button();
     }
 });

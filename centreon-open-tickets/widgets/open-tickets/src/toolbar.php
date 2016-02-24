@@ -65,9 +65,13 @@ if (!isset($preferences['opened_tickets']) || $preferences['opened_tickets'] == 
 $template->assign("widgetId", $widgetId);
 $template->display('toolbar.ihtml');
 
+//<link href="../../include/common/javascript/jquery/plugins/colorbox/colorbox.css" rel="stylesheet" type="text/css"/>
+//<script type="text/javascript" src="../../include/common/javascript/jquery/plugins/colorbox/jquery.colorbox-min.js"></script>
+
 ?>
-<link href="../../include/common/javascript/jquery/plugins/colorbox/colorbox.css" rel="stylesheet" type="text/css"/>
-<script type="text/javascript" src="../../include/common/javascript/jquery/plugins/colorbox/jquery.colorbox-min.js"></script>
+
+<script type="text/javascript" src="../../include/common/javascript/centreon/popin.js"></script>
+
 <script type='text/javascript'>
 var tab = new Array();
 var sid = '<?php echo session_id();?>';
@@ -82,14 +86,10 @@ $(function() {
     			var tmp = $(this).attr('id').split("_");
     			return tmp[1];
     		}).get().join(",");
-    		parent.jQuery.colorbox({
-    							href		:	"./widgets/open-tickets/src/action.php?widgetId="+widget_id+"&sid="+sid+"&selection="+checkValues+"&cmd="+jQuery(this).val(),
-    							width		:	"50%",
-    							height		:	"40%",
-    							opacity		:	0.7,
-    							overlayClose:	false,
-    							iframe		: 	true
-    						});
+    		
+            var url = "./widgets/open-tickets/src/action.php?widgetId="+widget_id+"&sid="+sid+"&selection="+checkValues+"&cmd="+jQuery(this).val();
+            var popin = parent.jQuery('<div>');
+            popin.centreonPopin({open:true,url:url});
 
     		$(".toolbar").val(0);
 		}

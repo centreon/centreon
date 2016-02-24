@@ -34,11 +34,8 @@ $centreon_bg = new CentreonXMLBGRequest(session_id(), 1, 1, 0, 1);
 
 ?>
 
-<script type="text/javascript" src="../../../include/common/javascript/jquery/jquery.js"></script>
-<script type="text/javascript" src="../../../include/common/javascript/jquery/jquery-ui.js"></script>
-<script type="text/javascript" src="../../../include/common/javascript/widgetUtils.js"></script>
-<script type="text/javascript" src="../../../modules/centreon-open-tickets/lib/jquery.serialize-object.min.js"></script>
-<script type="text/javascript" src="../../../modules/centreon-open-tickets/lib/commonFunc.js"></script>
+<script type="text/javascript" src="./modules/centreon-open-tickets/lib/jquery.serialize-object.min.js"></script>
+<script type="text/javascript" src="./modules/centreon-open-tickets/lib/commonFunc.js"></script>
 
 <?php
 

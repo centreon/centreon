@@ -74,25 +74,25 @@ abstract class AbstractProvider {
         $this->default_data['ack'] = 'yes';
         
         $this->default_data['format_popup'] = '
-<table id="ListTable" style="width: 100%;">
-<tr>
-    <th colspan="2">{$title}</th>
+<table class="table">
+<tr class="ListHeader">
+    <td class="FormHeader" colspan="2"><h3 style="color: #00bfb3;">{$title}</h3></td>
 </tr>
 <tr>
-    <td>{$custom_message.label}</td>
-    <td><textarea id="custom_message" name="custom_message" cols="30" rows="3"></textarea></td>
+    <td class="FormRowField" style="padding-left:15px;">{$custom_message.label}</td>
+    <td class="FormRowValue" style="padding-left:15px;"><textarea id="custom_message" name="custom_message" cols="30" rows="3"></textarea></td>
 </tr>
 </table>
 ';
         $this->default_data['message_confirm'] = '
-<table id="ListTable" style="width: 100%;">
-<tr>
-    <th>{$title}</th>
+<table class="table">
+<tr class="ListHeader">
+    <td class="FormHeader" colspan="2"><h3 style="color: #00bfb3;">{$title}</h3></td>
 </tr>
 {if $ticket_is_ok == 1}
-    <tr><td>New ticket opened: {$ticket_id}.</td></tr>
+    <tr><td class="FormRowField" style="padding-left:15px;">New ticket opened: {$ticket_id}.</td></tr>
 {else}
-    <tr><td>Error to open the ticket: {$ticket_error_message}.</td></tr>
+    <tr><td class="FormRowField" style="padding-left:15px;">Error to open the ticket: {$ticket_error_message}.</td></tr>
 {/if}
 </table>
 ';
