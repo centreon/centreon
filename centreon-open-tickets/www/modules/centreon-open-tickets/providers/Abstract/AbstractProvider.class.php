@@ -322,23 +322,43 @@ abstract class AbstractProvider {
     }
     
     protected function assignHostcategory($entry, &$groups_order, &$groups) {
-        
+        $result = $this->_rule->getHostcategory($entry['Filter']);
+        $groups[$entry['Name']] = array('label' => _($entry['Name']) . 
+                                                        (isset($entry['Mandatory']) && $entry['Mandatory'] == 1 ? $this->_required_field : ''), 
+                                        'values' => $result);
+        $groups_order[] = $entry['Name'];
     }
     
     protected function assignHostseverity($entry, &$groups_order, &$groups) {
-        
+        $result = $this->_rule->getHostseverity($entry['Filter']);
+        $groups[$entry['Name']] = array('label' => _($entry['Name']) . 
+                                                        (isset($entry['Mandatory']) && $entry['Mandatory'] == 1 ? $this->_required_field : ''), 
+                                        'values' => $result);
+        $groups_order[] = $entry['Name'];
     }
     
     protected function assignServicegroup($entry, &$groups_order, &$groups) {
-        
+        $result = $this->_rule->getServicegroup($entry['Filter']);
+        $groups[$entry['Name']] = array('label' => _($entry['Name']) . 
+                                                        (isset($entry['Mandatory']) && $entry['Mandatory'] == 1 ? $this->_required_field : ''), 
+                                        'values' => $result);
+        $groups_order[] = $entry['Name'];
     }
     
     protected function assignServicecategory($entry, &$groups_order, &$groups) {
-        
+        $result = $this->_rule->getServicecategory($entry['Filter']);
+        $groups[$entry['Name']] = array('label' => _($entry['Name']) . 
+                                                        (isset($entry['Mandatory']) && $entry['Mandatory'] == 1 ? $this->_required_field : ''), 
+                                        'values' => $result);
+        $groups_order[] = $entry['Name'];
     }
     
     protected function assignServiceseverity($entry, &$groups_order, &$groups) {
-        
+        $result = $this->_rule->getServiceseverity($entry['Filter']);
+        $groups[$entry['Name']] = array('label' => _($entry['Name']) . 
+                                                        (isset($entry['Mandatory']) && $entry['Mandatory'] == 1 ? $this->_required_field : ''), 
+                                        'values' => $result);
+        $groups_order[] = $entry['Name'];
     }
     
     protected function assignContactgroup($entry, &$groups_order, &$groups) {
@@ -350,7 +370,25 @@ abstract class AbstractProvider {
     }
     
     protected function assignCustom($entry, &$groups_order, &$groups) {
+        $result = array();
+        $default = '';
+        if (isset($this->rule_data['clones']['customList'])) {
+            foreach ($this->rule_data['clones']['customList'] as $values) {
+                if (isset($entry['Name']) && $entry['Name'] != '' &&
+                    isset($values['Name']) && $values['Name'] != '' && $values['Name'] == $entry['Name']) {
+                    $result[] = $values['Value'];
+                    if (isset($values['Default']) && $values['Default']) {
+                        $default = $values['Value'];
+                    }
+                }
+            }
+        }
         
+        $groups[$entry['Name']] = array('label' => _($entry['Name']) . 
+                                                        (isset($entry['Mandatory']) && $entry['Mandatory'] == 1 ? $this->_required_field : ''), 
+                                        'values' => $result,
+                                        'default' => $default);
+        $groups_order[] = $entry['Name'];
     }
     
     protected function assignFormatPopupTemplate(&$tpl, $args) {

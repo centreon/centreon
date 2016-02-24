@@ -4,7 +4,7 @@
         <select id="{$groups.$groupName.label}" name="{$groups.$groupName.label}">
         <option value="-1"> -- select -- </option>
         {foreach from=$groups.$groupName.values key=k item=v}
-        <option>{$v}</option>
+        <option value='{$k}_{$v}' {if $v eq $groups.$groupName.default}selected{/if}>{$v}</option>
         {/foreach}
         </select>
     </td>

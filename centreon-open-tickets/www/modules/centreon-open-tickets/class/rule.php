@@ -330,6 +330,86 @@ class Centreon_OpenTickets_Rule
         
         return $result;
     }
+    
+    public function getServicegroup($filter) {
+        $result = array();
+        $where = '';
+        if (!is_null($filter) && $filter != '') {
+            $where = " sg_name LIKE '" . $this->_db->escape($filter) . "' AND ";
+        }
+        $query = "SELECT sg_id, sg_name FROM servicegroup WHERE " . $where . " sg_activate = '1' ORDER BY sg_name ASC";
+        
+        $DBRESULT = $this->_db->query($query);
+        while (($row = $DBRESULT->fetchRow())) {
+            $result[$row['sg_id']] = $row['sg_name'];
+        }
+        
+        return $result;
+    }
+    
+    public function getHostcategory($filter) {
+        $result = array();
+        $where = '';
+        if (!is_null($filter) && $filter != '') {
+            $where = " hc_name LIKE '" . $this->_db->escape($filter) . "' AND ";
+        }
+        $query = "SELECT hc_id, hc_name FROM hostcategories WHERE " . $where . " hc_activate = '1' ORDER BY hc_name ASC";
+        
+        $DBRESULT = $this->_db->query($query);
+        while (($row = $DBRESULT->fetchRow())) {
+            $result[$row['hc_id']] = $row['hc_name'];
+        }
+        
+        return $result;
+    }
+    
+    public function getHostseverity($filter) {
+        $result = array();
+        $where = '';
+        if (!is_null($filter) && $filter != '') {
+            $where = " hc_name LIKE '" . $this->_db->escape($filter) . "' AND ";
+        }
+        $query = "SELECT hc_id, hc_name FROM hostcategories WHERE " . $where . " level IS NOT NULL AND hc_activate = '1' ORDER BY level ASC";
+        
+        $DBRESULT = $this->_db->query($query);
+        while (($row = $DBRESULT->fetchRow())) {
+            $result[$row['hc_id']] = $row['hc_name'];
+        }
+        
+        return $result;
+    }
+    
+    public function getServicecategory($filter) {
+        $result = array();
+        $where = '';
+        if (!is_null($filter) && $filter != '') {
+            $where = " sc_name LIKE '" . $this->_db->escape($filter) . "' AND ";
+        }
+        $query = "SELECT sc_id, sc_name FROM service_categories WHERE " . $where . " sc_activate = '1' ORDER BY sc_name ASC";
+        
+        $DBRESULT = $this->_db->query($query);
+        while (($row = $DBRESULT->fetchRow())) {
+            $result[$row['sc_id']] = $row['sc_name'];
+        }
+        
+        return $result;
+    }
+    
+    public function getServiceseverity($filter) {
+        $result = array();
+        $where = '';
+        if (!is_null($filter) && $filter != '') {
+            $where = " sc_name LIKE '" . $this->_db->escape($filter) . "' AND ";
+        }
+        $query = "SELECT sc_id, sc_name FROM service_categories WHERE " . $where . " level IS NOT NULL AND sc_activate = '1' ORDER BY level ASC";
+        
+        $DBRESULT = $this->_db->query($query);
+        while (($row = $DBRESULT->fetchRow())) {
+            $result[$row['sc_id']] = $row['sc_name'];
+        }
+        
+        return $result;
+    }
 }
 
 ?>
