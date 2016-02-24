@@ -150,6 +150,17 @@ abstract class AbstractProvider {
         return $value;
     }
     
+    protected function _checkLists() {
+        $groupList = $this->_getCloneSubmitted('groupList', array('Id', 'Label', 'Type', 'Filter', 'Mandatory'));
+        
+        foreach ($groupList as $values) {
+            if (preg_match('/[^A-Za-z0-9_]/', $values['Id'])) {
+                $this->_check_error_message .= $this->_check_error_message_append . "List id '" . $values['Id'] . "' must contains only alphanumerics or underscore characters";
+                $this->_check_error_message_append = '<br/>';
+            }
+        }
+    }
+    
     protected function _checkFormValue($uniq_id, $error_msg) {
         if (!isset($this->_submitted_config[$uniq_id]) || $this->_submitted_config[$uniq_id] == '') {
             $this->_check_error_message .= $this->_check_error_message_append . $error_msg;
@@ -206,7 +217,8 @@ abstract class AbstractProvider {
         );
         
         // Group list clone
-        $groupListName_html = '<input id="groupListName_#index#" name="groupListName[#index#]" size="20"  type="text" />';
+        $groupListId_html = '<input id="groupListId_#index#" name="groupListId[#index#]" size="20"  type="text" />';
+        $groupListLabel_html = '<input id="groupListLabel_#index#" name="groupListLabel[#index#]" size="20"  type="text" />';
         $groupListType_html = '<select id="groupListType_#index#" name="groupListType[#index#]" type="select-one">' .
         '<option value="0">Host group</options>' .
         '<option value="1">Host category</options>' .
@@ -220,18 +232,19 @@ abstract class AbstractProvider {
         $groupListFilter_html =  '<input id="groupListFilter_#index#" name="groupListFilter[#index#]" size="20"  type="text" />';
         $groupListMandatory_html =  '<input id="groupListMandatory_#index#" name="groupListMandatory[#index#]" type="checkbox" value="1" />';
         $array_form['groupList'] = array(
-            array('label' => _("Name"), 'html' => $groupListName_html),
+            array('label' => _("Id"), 'html' => $groupListId_html),
+            array('label' => _("Label"), 'html' => $groupListLabel_html),
             array('label' => _("Type"), 'html' => $groupListType_html),
             array('label' => _("Filter"), 'html' => $groupListFilter_html),
             array('label' => _("Mandatory"), 'html' => $groupListMandatory_html),
         );
 
         // Custom list clone
-        $customListName_html = '<input id="customListName_#index#" name="customListName[#index#]" size="20"  type="text" />';
+        $customListId_html = '<input id="customListId_#index#" name="customListId[#index#]" size="20"  type="text" />';
         $customListValue_html = '<input id="customListValue_#index#" name="customListValue[#index#]" size="20"  type="text" />';
         $customListDefault_html =  '<input id="customListDefault_#index#" name="customListDefault[#index#]" type="checkbox" value="1" />';
         $array_form['customList'] = array(
-            array('label' => _("Name"), 'html' => $customListName_html),
+            array('label' => _("Id"), 'html' => $customListId_html),
             array('label' => _("Value"), 'html' => $customListValue_html),
             array('label' => _("Default"), 'html' => $customListDefault_html),
         );
@@ -299,8 +312,8 @@ abstract class AbstractProvider {
         $this->_save_config['simple']['format_popup'] = $this->change_html_tags($this->_submitted_config['format_popup']);
         $this->_save_config['simple']['message_confirm'] = $this->change_html_tags($this->_submitted_config['message_confirm']);
         
-        $this->_save_config['clones']['groupList'] = $this->_getCloneSubmitted('groupList', array('Name', 'Type', 'Filter', 'Mandatory'));
-        $this->_save_config['clones']['customList'] = $this->_getCloneSubmitted('customList', array('Name', 'Value', 'Default'));
+        $this->_save_config['clones']['groupList'] = $this->_getCloneSubmitted('groupList', array('Id', 'Label', 'Type', 'Filter', 'Mandatory'));
+        $this->_save_config['clones']['customList'] = $this->_getCloneSubmitted('customList', array('Id', 'Value', 'Default'));
     }
     
     public function saveConfig() {
@@ -315,58 +328,58 @@ abstract class AbstractProvider {
     
     protected function assignHostgroup($entry, &$groups_order, &$groups) {
         $result = $this->_rule->getHostgroup($entry['Filter']);
-        $groups[$entry['Name']] = array('label' => _($entry['Name']) . 
+        $groups[$entry['Id']] = array('label' => _($entry['Label']) . 
                                                         (isset($entry['Mandatory']) && $entry['Mandatory'] == 1 ? $this->_required_field : ''), 
-                                        'values' => $result);
-        $groups_order[] = $entry['Name'];
+                                      'values' => $result);
+        $groups_order[] = $entry['Id'];
     }
     
     protected function assignHostcategory($entry, &$groups_order, &$groups) {
         $result = $this->_rule->getHostcategory($entry['Filter']);
-        $groups[$entry['Name']] = array('label' => _($entry['Name']) . 
+        $groups[$entry['Id']] = array('label' => _($entry['Label']) . 
                                                         (isset($entry['Mandatory']) && $entry['Mandatory'] == 1 ? $this->_required_field : ''), 
-                                        'values' => $result);
-        $groups_order[] = $entry['Name'];
+                                      'values' => $result);
+        $groups_order[] = $entry['Id'];
     }
     
     protected function assignHostseverity($entry, &$groups_order, &$groups) {
         $result = $this->_rule->getHostseverity($entry['Filter']);
-        $groups[$entry['Name']] = array('label' => _($entry['Name']) . 
+        $groups[$entry['Id']] = array('label' => _($entry['Label']) . 
                                                         (isset($entry['Mandatory']) && $entry['Mandatory'] == 1 ? $this->_required_field : ''), 
-                                        'values' => $result);
-        $groups_order[] = $entry['Name'];
+                                      'values' => $result);
+        $groups_order[] = $entry['Id'];
     }
     
     protected function assignServicegroup($entry, &$groups_order, &$groups) {
         $result = $this->_rule->getServicegroup($entry['Filter']);
-        $groups[$entry['Name']] = array('label' => _($entry['Name']) . 
+        $groups[$entry['Id']] = array('label' => _($entry['Label']) . 
                                                         (isset($entry['Mandatory']) && $entry['Mandatory'] == 1 ? $this->_required_field : ''), 
-                                        'values' => $result);
-        $groups_order[] = $entry['Name'];
+                                      'values' => $result);
+        $groups_order[] = $entry['Id'];
     }
     
     protected function assignServicecategory($entry, &$groups_order, &$groups) {
         $result = $this->_rule->getServicecategory($entry['Filter']);
-        $groups[$entry['Name']] = array('label' => _($entry['Name']) . 
+        $groups[$entry['Id']] = array('label' => _($entry['Label']) . 
                                                         (isset($entry['Mandatory']) && $entry['Mandatory'] == 1 ? $this->_required_field : ''), 
-                                        'values' => $result);
-        $groups_order[] = $entry['Name'];
+                                      'values' => $result);
+        $groups_order[] = $entry['Id'];
     }
     
     protected function assignServiceseverity($entry, &$groups_order, &$groups) {
         $result = $this->_rule->getServiceseverity($entry['Filter']);
-        $groups[$entry['Name']] = array('label' => _($entry['Name']) . 
+        $groups[$entry['Id']] = array('label' => _($entry['Label']) . 
                                                         (isset($entry['Mandatory']) && $entry['Mandatory'] == 1 ? $this->_required_field : ''), 
-                                        'values' => $result);
-        $groups_order[] = $entry['Name'];
+                                      'values' => $result);
+        $groups_order[] = $entry['Id'];
     }
     
     protected function assignContactgroup($entry, &$groups_order, &$groups) {
         $result = $this->_rule->getContactgroup($entry['Filter']);
-        $groups[$entry['Name']] = array('label' => _($entry['Name']) . 
+        $groups[$entry['Id']] = array('label' => _($entry['Label']) . 
                                                         (isset($entry['Mandatory']) && $entry['Mandatory'] == 1 ? $this->_required_field : ''), 
-                                        'values' => $result);
-        $groups_order[] = $entry['Name'];
+                                      'values' => $result);
+        $groups_order[] = $entry['Id'];
     }
     
     protected function assignCustom($entry, &$groups_order, &$groups) {
@@ -374,8 +387,8 @@ abstract class AbstractProvider {
         $default = '';
         if (isset($this->rule_data['clones']['customList'])) {
             foreach ($this->rule_data['clones']['customList'] as $values) {
-                if (isset($entry['Name']) && $entry['Name'] != '' &&
-                    isset($values['Name']) && $values['Name'] != '' && $values['Name'] == $entry['Name']) {
+                if (isset($entry['Id']) && $entry['Id'] != '' &&
+                    isset($values['Id']) && $values['Id'] != '' && $values['Id'] == $entry['Id']) {
                     $result[] = $values['Value'];
                     if (isset($values['Default']) && $values['Default']) {
                         $default = $values['Value'];
@@ -384,11 +397,11 @@ abstract class AbstractProvider {
             }
         }
         
-        $groups[$entry['Name']] = array('label' => _($entry['Name']) . 
+        $groups[$entry['Id']] = array('label' => _($entry['Label']) . 
                                                         (isset($entry['Mandatory']) && $entry['Mandatory'] == 1 ? $this->_required_field : ''), 
-                                        'values' => $result,
-                                        'default' => $default);
-        $groups_order[] = $entry['Name'];
+                                      'values' => $result,
+                                      'default' => $default);
+        $groups_order[] = $entry['Id'];
     }
     
     protected function assignFormatPopupTemplate(&$tpl, $args) {
@@ -425,6 +438,15 @@ abstract class AbstractProvider {
         
         $tpl->assign('groups_order', $groups_order);
         $tpl->assign('groups', $groups);
+    }
+    
+    protected function validateFormatPopupLists(&$result) {
+        //$fp = fopen('/tmp/debug.txt', 'a+');
+        //fwrite($fp, print_r($this->rule_data, true));
+        //fwrite($fp, "================\n");
+        //fwrite($fp, print_r($this->_submitted_config, true));
+        
+        $result['code'] = 1;
     }
     
     public function getFormatPopup($args) {        

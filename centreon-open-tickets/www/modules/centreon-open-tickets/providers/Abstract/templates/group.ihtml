@@ -1,10 +1,10 @@
 <tr>
-    <td class="FormRowField" style="padding-left:15px;">{$groups.$groupName.label}</td>
+    <td class="FormRowField" style="padding-left:15px;">{$groups.$groupId.label}</td>
     <td class="FormRowValue" style="padding-left:15px;">
-        <select id="{$groups.$groupName.label}" name="{$groups.$groupName.label}">
+        <select id="select_{$groupId}" name="select_{$groupId}">
         <option value="-1"> -- select -- </option>
-        {foreach from=$groups.$groupName.values key=k item=v}
-        <option value='{$k}_{$v}' {if $v eq $groups.$groupName.default}selected{/if}>{$v}</option>
+        {foreach from=$groups.$groupId.values key=k item=v}
+        <option value='{$k}_{$v}' {if $v eq $groups.$groupId.default}selected{/if}>{$v}</option>
         {/foreach}
         </select>
     </td>

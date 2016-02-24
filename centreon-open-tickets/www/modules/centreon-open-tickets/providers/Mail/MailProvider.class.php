@@ -111,6 +111,8 @@ class MailProvider extends AbstractProvider {
         $this->_checkFormValue('macro_ticket_id', "Please set 'Macro Ticket ID' value");
         $this->_checkFormValue('macro_ticket_time', "Please set 'Macro Ticket Time' value");
         
+        $this->_checkLists();
+        
         if ($this->_check_error_message != '') {
             throw new Exception($this->_check_error_message);
         }
@@ -178,6 +180,7 @@ class MailProvider extends AbstractProvider {
     public function validateFormatPopup() {
         $result = array('code' => 0, 'message' => 'ok');
         
+        $this->validateFormatPopupLists($result);
         return $result;
     }
     
