@@ -1084,8 +1084,15 @@
                 field.text(value);
                 return true;
             }
-            // checkbox, radio button
-            else if(type == 'checkbox' || type == 'radio') {
+            // checkbox
+            else if(type == 'checkbox') {
+                if (value !== undefined && value == 1) {
+                    field.attr("checked", "checked");
+                }
+                return true;
+            }
+            // radio button
+            else if (type == 'radio') {
                 field.attr("checked", "checked");
                 return true;
             }

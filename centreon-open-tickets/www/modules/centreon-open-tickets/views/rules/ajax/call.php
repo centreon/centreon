@@ -25,6 +25,7 @@ require_once $centreon_path . 'www/modules/centreon-open-tickets/class/rule.php'
 require_once $centreon_path . 'www/modules/centreon-open-tickets/providers/register.php';
 require_once $centreon_path . "www/class/centreonXMLBGRequest.class.php";
 $centreon_open_tickets_path = $centreon_path . "www/modules/centreon-open-tickets/";
+require_once $centreon_open_tickets_path . 'providers/Abstract/AbstractProvider.class.php';
 
 session_start();
 $centreon_bg = new CentreonXMLBGRequest(session_id(), 1, 1, 0, 1);

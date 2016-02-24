@@ -34,7 +34,7 @@ function init_sheepit() {
     jQuery(".clonable").each(function(idx, el) {
        var suffixid = jQuery(el).attr('id');
 
-       if ($sheepit[suffixid] === undefined) {
+       if ($sheepit[suffixid] === undefined) {            
             $sheepit[suffixid] = jQuery(el).sheepIt({
                separator: '',
                allowRemoveLast: true,
