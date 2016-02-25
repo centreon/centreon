@@ -103,6 +103,12 @@ class Centreon_OpenTickets_Rule
         $this->_provider = new $classname($this, $centreon_path, $centreon_open_tickets_path, $rule_id);
     }
     
+    public function getUrl($rule_id, $ticket_id, $data) {
+        $infos = $this->getAliasAndProviderId($rule_id);
+        $this->loadProvider($rule_id, $infos['provider_id']);
+        return $this->_provider->getUrl($ticket_id, $data);
+    }
+    
     public function getMacroNames($rule_id) {
         $result = array('ticket_id' => null, 'ticket_time' => null);
         

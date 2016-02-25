@@ -345,11 +345,21 @@ while ($row = $res->fetchRow()) {
     
     if ($row['host_ticket_time'] > $row['host_last_hard_state_change'] && 
         isset($row['host_ticket_id']) && !is_null($row['host_ticket_id']) && $row['host_ticket_id'] != '') {
-        $data[$row['host_id']."_".$row['service_id']]['ticket_id'] = $row['host_ticket_id'];
+        $ticket_id = $row['host_ticket_id'];
+        $url = $rule->getUrl($preferences['rule'], $ticket_id, $row);
+        if (!is_null($url) && $url != '') {
+            $ticket_id = '<a href="' . $url . '" target="_blank">' . $ticket_id . '</a>';
+        }
+        $data[$row['host_id']."_".$row['service_id']]['ticket_id'] = $ticket_id;
         $data[$row['host_id']."_".$row['service_id']]['ticket_time'] = $gmt->getDate("Y-m-d H:i:s", $row['host_ticket_time']);
     } else if ($row['service_ticket_time'] > $row['last_hard_state_change'] && 
                isset($row['service_ticket_id']) && !is_null($row['service_ticket_id']) && $row['service_ticket_id'] != '') {
-        $data[$row['host_id']."_".$row['service_id']]['ticket_id'] = $row['service_ticket_id'];
+        $ticket_id = $row['service_ticket_id'];
+        $url = $rule->getUrl($preferences['rule'], $ticket_id, $row);
+        if (!is_null($url) && $url != '') {
+            $ticket_id = '<a href="' . $url . '" target="_blank">' . $ticket_id . '</a>';
+        }
+        $data[$row['host_id']."_".$row['service_id']]['ticket_id'] = $ticket_id;
         $data[$row['host_id']."_".$row['service_id']]['ticket_time'] = $gmt->getDate("Y-m-d H:i:s", $row['service_ticket_time']);
     }
 }

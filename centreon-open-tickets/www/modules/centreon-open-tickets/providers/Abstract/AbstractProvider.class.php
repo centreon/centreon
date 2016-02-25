@@ -541,4 +541,15 @@ abstract class AbstractProvider {
         $result['ticket_time'] = $submit_result['ticket_time'];
         return $result;
     }
+    
+    public function getUrl($ticket_id, $data) {
+        $tpl = new Smarty();
+        $tpl = initSmartyTplForPopup($this->_centreon_open_tickets_path, $tpl, 'providers/Abstract/templates', $this->_centreon_path);
+        foreach ($data as $label => $value) {
+            $tpl->assign($label, $value);
+        }
+        $tpl->assign('ticket_id', $ticket_id);
+        $tpl->assign('string', $this->rule_data['url']);
+        return $tpl->fetch('eval.ihtml');
+    }
 }
