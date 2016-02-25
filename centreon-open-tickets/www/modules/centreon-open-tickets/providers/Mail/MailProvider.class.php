@@ -26,14 +26,14 @@ class MailProvider extends AbstractProvider {
      * @return void
      */
     protected function _setDefaultValueExtra() {
-        $this->default_data['from'] = 'admin@domain.com';
-        $this->default_data['subject'] = 'Open a ticket';
+        $this->default_data['from'] = '{$user.email}';
+        $this->default_data['subject'] = 'Open ticket {$ticket_id}';
         $this->default_data['body'] = '
 <html>
 <body>
 
 <p>
-{$user} open ticket at {$smarty.now|date_format:"%d/%m/%y %H:%M:%S"}
+{$user.alias} open ticket at {$smarty.now|date_format:"%d/%m/%y %H:%M:%S"}
 </p>
 
 <p>
@@ -188,7 +188,7 @@ class MailProvider extends AbstractProvider {
         return $result;
     }
     
-    protected function doSubmit($db_storage, $user, $host_problems, $service_problems) {
+    protected function doSubmit($db_storage, $contact, $host_problems, $service_problems) {
         $result = array('ticket_id' => null, 'ticket_error_message' => null,
                         'ticket_is_ok' => 0, 'ticket_time' => time());
         
@@ -207,21 +207,26 @@ class MailProvider extends AbstractProvider {
         $tpl = initSmartyTplForPopup($this->_centreon_open_tickets_path, $tpl, 'providers/Abstract/templates', $this->_centreon_path);
         
         $this->assignSubmittedValues($tpl);
-        $tpl->assign('user', $user);
+        $tpl->assign('user', $contact);
         $tpl->assign('host_selected', $host_problems);
         $tpl->assign('service_selected', $service_problems);
+        $tpl->assign('ticket_id', $result['ticket_id']);
         $tpl->assign('string', $this->change_html_tags($this->rule_data['body'], 0));
         $body = $tpl->fetch('eval.ihtml');
         
         // We send the mail
-        $headers = "From: " . $this->rule_data['from'];
+        $tpl->assign('string', $this->rule_data['from']);
+        $from = $tpl->fetch('eval.ihtml');
+        $headers = "From: " . $from;
         if (isset($this->rule_data['clones']['headerMail'])) {
             foreach ($this->rule_data['clones']['headerMail'] as $values) {
                 $headers .= "\r\n" . $values['Name'] . ':' . $values['Value'];
             }
         }
 
-        mail($this->rule_data['to'], $this->rule_data['subject'], $body, $headers);
+        $tpl->assign('string', $this->rule_data['subject']);
+        $subject = $tpl->fetch('eval.ihtml');
+        mail($this->rule_data['to'], $subject, $body, $headers);
         
         return $result;
     }

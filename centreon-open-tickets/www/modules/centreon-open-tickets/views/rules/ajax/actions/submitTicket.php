@@ -19,13 +19,13 @@
  * limitations under the License.
  */
 
-function get_contact_alias() {
+function get_contact_information() {
     global $db, $centreon_bg;
     
-    $result = '';
-    $DBRESULT = $db->query("SELECT contact_alias FROM contact WHERE contact_id = '" . $centreon_bg->user_id . "' LIMIT 1");
+    $result = array('alias' => '', 'email' => '', 'name' => '');
+    $DBRESULT = $db->query("SELECT contact_name as `name`, contact_alias as `alias`, contact_email as email FROM contact WHERE contact_id = '" . $centreon_bg->user_id . "' LIMIT 1");
     if (($row = $DBRESULT->fetchRow())) {
-        $result = $row['contact_alias'];
+        $result = $row;
     }
     
     return $result;
@@ -148,8 +148,8 @@ if ($get_information['form']['cmd'] == 3) {
 }
 
 try {
-    $contact_alias = get_contact_alias();
-    $resultat['result'] = $centreon_provider->submitTicket($db_storage, $contact_alias, $host_problems, $service_problems);
+    $contact_infos = get_contact_information();
+    $resultat['result'] = $centreon_provider->submitTicket($db_storage, $contact_infos, $host_problems, $service_problems);
     
     if ($resultat['result']['ticket_is_ok'] == 1) { 
         require_once $centreon_path . 'www/class/centreonExternalCommand.class.php';

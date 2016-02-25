@@ -26,7 +26,7 @@ abstract class AbstractProvider {
     abstract protected function _getConfigContainer2Extra();
     abstract protected function saveConfigExtra();
     abstract public function validateFormatPopup();
-    abstract protected function doSubmit($db_storage, $user, $host_problems, $service_problems);
+    abstract protected function doSubmit($db_storage, $contact, $host_problems, $service_problems);
     
     protected $_rule;
     protected $_rule_id;
@@ -531,10 +531,10 @@ abstract class AbstractProvider {
         return $tpl->fetch('eval.ihtml');
     }
     
-    public function submitTicket($db_storage, $user, $host_problems, $service_problems) {
+    public function submitTicket($db_storage, $contact, $host_problems, $service_problems) {
         $result = array('confirm_popup' => null);
         
-        $submit_result = $this->doSubmit($db_storage, $user, $host_problems, $service_problems);
+        $submit_result = $this->doSubmit($db_storage, $contact, $host_problems, $service_problems);
         $result['confirm_message'] = $this->setConfirmMessage($host_problems, $service_problems, $submit_result);
         $result['ticket_id'] = $submit_result['ticket_id'];
         $result['ticket_is_ok'] = $submit_result['ticket_is_ok'];

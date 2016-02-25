@@ -50,7 +50,9 @@ function format_popup() {
     
     $result = $rule->getFormatPopupProvider($preferences['rule'], 
                                             array('title' => $title,
-                                                  'user' => $centreon->user->alias,
+                                                  'user' => array(
+                                                                  'alias' => $centreon->user->alias, 
+                                                                  'email' => $centreon->user->email),
                                                  )
                                             );
     
