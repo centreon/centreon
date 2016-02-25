@@ -1,6 +1,6 @@
 <?php
 /*
- * Copyright 2015 Centreon (http://www.centreon.com/)
+ * Copyright 2016 Centreon (http://www.centreon.com/)
  *
  * Centreon is a full-fledged industry-strength solution that meets 
  * the needs in IT infrastructure and application monitoring for 
@@ -37,6 +37,15 @@ abstract class AbstractProvider {
     protected $_submitted_config = null;
     protected $_check_error_message = '';
     protected $_save_config = array();
+    
+    const HOSTGROUP_TYPE = 0;
+    const HOSTCATEGORY_TYPE = 1;
+    const HOSTSEVERITY_TYPE = 2;
+    const SERVICEGROUP_TYPE = 3;
+    const SERVICECATEGORY_TYPE = 4;
+    const SERVICESEVERITY_TYPE = 5;
+    const SERVICECONTACTGROUP_TYPE = 6;
+    const CUSTOM_TYPE = 7;
     
     /**
      * constructor
@@ -165,6 +174,14 @@ abstract class AbstractProvider {
             }
             
             $duplicate_id[$values['Id']] = 1;
+        }
+    }
+    
+    protected function _checkFormInteger($uniq_id, $error_msg) {
+        if (isset($this->_submitted_config[$uniq_id]) && $this->_submitted_config[$uniq_id] != '' &&
+            preg_match('/[^0-9]/', $this->_submitted_config[$uniq_id])) {
+            $this->_check_error_message .= $this->_check_error_message_append . $error_msg;
+            $this->_check_error_message_append = '<br/>';
         }
     }
     
@@ -423,21 +440,21 @@ abstract class AbstractProvider {
         
         if (isset($this->rule_data['clones']['groupList'])) {
             foreach ($this->rule_data['clones']['groupList'] as $values) {
-                if ($values['Type'] == 0) {
+                if ($values['Type'] == self::HOSTGROUP_TYPE) {
                     $this->assignHostgroup($values, $groups_order, $groups);
-                } else if ($values['Type'] == 1) {
+                } else if ($values['Type'] == self::HOSTCATEGORY_TYPE) {
                     $this->assignHostcategory($values, $groups_order, $groups);
-                } else if ($values['Type'] == 2) {
+                } else if ($values['Type'] == self::HOSTSEVERITY_TYPE) {
                     $this->assignHostseverity($values, $groups_order, $groups);
-                } else if ($values['Type'] == 3) {
+                } else if ($values['Type'] == self::SERVICEGROUP_TYPE) {
                     $this->assignServicegroup($values, $groups_order, $groups);
-                } else if ($values['Type'] == 4) {
+                } else if ($values['Type'] == self::SERVICECATEGORY_TYPE) {
                     $this->assignServicecategory($values, $groups_order, $groups);
-                } else if ($values['Type'] == 5) {
+                } else if ($values['Type'] == self::SERVICESEVERITY_TYPE) {
                     $this->assignServiceseverity($values, $groups_order, $groups);
-                } else if ($values['Type'] == 6) {
+                } else if ($values['Type'] == self::SERVICECONTACTGROUP_TYPE) {
                     $this->assignContactgroup($values, $groups_order, $groups);
-                } else if ($values['Type'] == 7) {
+                } else if ($values['Type'] == self::CUSTOM_TYPE) {
                     $this->assignCustom($values, $groups_order, $groups);
                 }
             }
