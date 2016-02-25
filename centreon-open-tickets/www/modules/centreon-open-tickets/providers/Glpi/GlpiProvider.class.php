@@ -29,7 +29,7 @@ class GlpiProvider extends AbstractProvider {
      * @return void
      */
     protected function _setDefaultValueExtra() {
-        $this->default_data['address'] = '10.0.0.0';
+        $this->default_data['address'] = '127.0.0.1';
         $this->default_data['path'] = '/glpi/plugins/webservices/xmlrpc.php';
         $this->default_data['https'] = 0;
         $this->default_data['timeout'] = 60;

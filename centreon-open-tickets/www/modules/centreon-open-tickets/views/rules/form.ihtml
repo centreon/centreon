@@ -92,10 +92,10 @@ var $callback_OTSaveForm = function(res) {
 function OTLoadForm() {
     jQuery("#rule_error").html('');
     
-    if (jQuery("#provider_id").val() === undefined || jQuery("#provider_id").val().length == 0) {
-        jQuery("#OTFindcontainer1").nextAll().empty();
-        jQuery("#tab2").empty();
-        delete_sheepit();
+    jQuery("#OTFindcontainer1").nextAll().empty();
+    jQuery("#tab2").empty();
+    delete_sheepit();
+    if (jQuery("#provider_id").val() === undefined || jQuery("#provider_id").val().length == 0) {    
         return ;
     }
         
