@@ -244,14 +244,14 @@ abstract class AbstractProvider {
         $groupListId_html = '<input id="groupListId_#index#" name="groupListId[#index#]" size="20"  type="text" />';
         $groupListLabel_html = '<input id="groupListLabel_#index#" name="groupListLabel[#index#]" size="20"  type="text" />';
         $groupListType_html = '<select id="groupListType_#index#" name="groupListType[#index#]" type="select-one">' .
-        '<option value="0">Host group</options>' .
-        '<option value="1">Host category</options>' .
-        '<option value="2">Host severity</options>' .
-        '<option value="3">Service group</options>' .
-        '<option value="4">Service category</options>' .
-        '<option value="5">Service severity</options>' .
-        '<option value="6">Contact group</options>' .
-        '<option value="7">Custom</options>' .
+        '<option value="' . self::HOSTGROUP_TYPE . '">Host group</options>' .
+        '<option value="' . self::HOSTCATEGORY_TYPE . '">Host category</options>' .
+        '<option value="' . self::HOSTSEVERITY_TYPE . '">Host severity</options>' .
+        '<option value="' . self::SERVICEGROUP_TYPE . '">Service group</options>' .
+        '<option value="' . self::SERVICECATEGORY_TYPE . '">Service category</options>' .
+        '<option value="' . self::SERVICESEVERITY_TYPE . '">Service severity</options>' .
+        '<option value="' . self::SERVICECONTACTGROUP_TYPE . '">Contact group</options>' .
+        '<option value="' . self::CUSTOM_TYPE . '">Custom</options>' .
         '</select>';
         $groupListFilter_html =  '<input id="groupListFilter_#index#" name="groupListFilter[#index#]" size="20"  type="text" />';
         $groupListMandatory_html =  '<input id="groupListMandatory_#index#" name="groupListMandatory[#index#]" type="checkbox" value="1" />';
