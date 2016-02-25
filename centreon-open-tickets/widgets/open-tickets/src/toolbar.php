@@ -88,7 +88,9 @@ $(function() {
     		}).get().join(",");
     		
             var url = "./widgets/open-tickets/src/action.php?widgetId="+widget_id+"&sid="+sid+"&selection="+checkValues+"&cmd="+jQuery(this).val();
-            var popin = parent.jQuery('<div>');
+            // We delete the old one (not really clean. Should be managed by popin itself. Like with a destroy parameters)
+            parent.jQuery('#OTWidgetPopin').parent().remove();
+            var popin = parent.jQuery('<div id="OTWidgetPopin">');
             popin.centreonPopin({open:true,url:url});
 
     		$(".toolbar").val(0);

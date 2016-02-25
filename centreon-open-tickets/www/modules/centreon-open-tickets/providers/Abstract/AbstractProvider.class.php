@@ -75,19 +75,19 @@ abstract class AbstractProvider {
         
         $this->default_data['format_popup'] = '
 <table class="table">
-<tr class="ListHeader">
+<tr>
     <td class="FormHeader" colspan="2"><h3 style="color: #00bfb3;">{$title}</h3></td>
 </tr>
 <tr>
     <td class="FormRowField" style="padding-left:15px;">{$custom_message.label}</td>
-    <td class="FormRowValue" style="padding-left:15px;"><textarea id="custom_message" name="custom_message" cols="30" rows="3"></textarea></td>
+    <td class="FormRowValue" style="padding-left:15px;"><textarea id="custom_message" name="custom_message" cols="50" rows="6"></textarea></td>
 </tr>
 {include file="file:$centreon_open_tickets_path/providers/Abstract/templates/groups.ihtml"}
 </table>
 ';
         $this->default_data['message_confirm'] = '
 <table class="table">
-<tr class="ListHeader">
+<tr>
     <td class="FormHeader" colspan="2"><h3 style="color: #00bfb3;">{$title}</h3></td>
 </tr>
 {if $ticket_is_ok == 1}
@@ -152,12 +152,19 @@ abstract class AbstractProvider {
     
     protected function _checkLists() {
         $groupList = $this->_getCloneSubmitted('groupList', array('Id', 'Label', 'Type', 'Filter', 'Mandatory'));
+        $duplicate_id = array();
         
         foreach ($groupList as $values) {
             if (preg_match('/[^A-Za-z0-9_]/', $values['Id'])) {
                 $this->_check_error_message .= $this->_check_error_message_append . "List id '" . $values['Id'] . "' must contains only alphanumerics or underscore characters";
                 $this->_check_error_message_append = '<br/>';
             }
+            if (isset($duplicate_id[$values['Id']])) {
+                $this->_check_error_message .= $this->_check_error_message_append . "List id '" . $values['Id'] . "' already exits";
+                $this->_check_error_message_append = '<br/>';
+            }
+            
+            $duplicate_id[$values['Id']] = 1;
         }
     }
     
@@ -440,13 +447,16 @@ abstract class AbstractProvider {
         $tpl->assign('groups', $groups);
     }
     
-    protected function validateFormatPopupLists(&$result) {
-        //$fp = fopen('/tmp/debug.txt', 'a+');
-        //fwrite($fp, print_r($this->rule_data, true));
-        //fwrite($fp, "================\n");
-        //fwrite($fp, print_r($this->_submitted_config, true));
-        
-        $result['code'] = 1;
+    protected function validateFormatPopupLists(&$result) {        
+        if (isset($this->rule_data['clones']['groupList'])) {
+            foreach ($this->rule_data['clones']['groupList'] as $values) {
+                if ($values['Mandatory'] == 1 && isset($this->_submitted_config['select_' . $values['Id']]) &&
+                    $this->_submitted_config['select_' . $values['Id']] == '-1') {
+                    $result['code'] = 1;
+                    $result['message'] = 'Please select ' . $values['Label'];
+                }
+            }
+        }
     }
     
     public function getFormatPopup($args) {        
@@ -471,6 +481,32 @@ abstract class AbstractProvider {
         }
         
         return 0;
+    }
+    
+    protected function assignSubmittedValues(&$tpl) {
+        $tpl->assign("centreon_open_tickets_path", $this->_centreon_open_tickets_path);
+        
+        foreach ($this->_submitted_config as $label => $value) {
+            if (!preg_match('/^select_/', $label)) {
+                $tpl->assign($label, $value);
+            }
+        }
+        
+        $select_lists = array();
+        if (isset($this->rule_data['clones']['groupList'])) {
+            foreach ($this->rule_data['clones']['groupList'] as $values) {
+                $id = '-1';
+                $value = '';
+                $matches = array();
+                if (preg_match('/^(.*?)_(.*)$/', $this->_submitted_config['select_' . $values['Id']], $matches)) {
+                    $id = $matches[1];
+                    $value = $matches[2];
+                }
+                $select_lists[$values['Id']] = array('label' => _($values['Label']), 'id' => $id, 'value' => $value);
+            }
+        }
+        
+        $tpl->assign('select', $select_lists);
     }
     
     protected function setConfirmMessage($host_problems, $service_problems, $submit_result) {

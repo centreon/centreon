@@ -32,13 +32,17 @@ class MailProvider extends AbstractProvider {
 <html>
 <body>
 
-<div>
+<p>
 {$user} open ticket at {$smarty.now|date_format:"%d/%m/%y %H:%M:%S"}
-</div>
+</p>
 
-<div>
+<p>
 {$custom_message}
-</div>
+</p>
+
+<p>
+{include file="file:$centreon_open_tickets_path/providers/Abstract/templates/display_selected_lists.ihtml" separator="<br/>"}
+</p>
 
 {assign var="table_style" value="border-collapse: collapse; border: 1px solid black;"}
 {assign var="cell_title_style" value="background-color: #D2F5BB; border: 1px solid black; text-align: center; padding: 10px; text-transform:uppercase; font-weight:bold;"}
@@ -202,12 +206,10 @@ class MailProvider extends AbstractProvider {
         $tpl = new Smarty();
         $tpl = initSmartyTplForPopup($this->_centreon_open_tickets_path, $tpl, 'providers/Abstract/templates', $this->_centreon_path);
         
+        $this->assignSubmittedValues($tpl);
         $tpl->assign('user', $user);
         $tpl->assign('host_selected', $host_problems);
         $tpl->assign('service_selected', $service_problems);
-        foreach ($this->_submitted_config as $label => $value) {
-            $tpl->assign($label, $value);
-        }
         $tpl->assign('string', $this->change_html_tags($this->rule_data['body'], 0));
         $body = $tpl->fetch('eval.ihtml');
         

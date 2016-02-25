@@ -3,7 +3,7 @@
         <div id="form_error" style="color: red"></div>
 
         <table class="table">
-        <tr class="ListHeader">
+        <tr>
             <td class="FormHeader" colspan="2"><h3 style="color: #00bfb3;">{$title}</td>
         </tr>
         <tr>
