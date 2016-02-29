@@ -51,12 +51,12 @@
                             {if $elem.h_passive_checks}<img src='{$centreon_web_path}img/icons/passive_check.png' class="ico-18">{/if}
                             {if $elem.h_notify == 0}<img src='{$centreon_web_path}img/icons/notifications_off.png' class="ico-18">{/if}
                             {if $elem.h_action_url}
-                                <a target=_blank href='http://{$elem.h_action_url}'>
+                                <a target=_blank href='{$elem.h_action_url}'>
                                     <img src='{$centreon_web_path}img/icons/star-full.png' class="ico-16">
                                 </a>
                             {/if}
                             {if $elem.h_notes_url}
-                                <a target=_blank href='http://{$elem.h_notes_url}'>
+                                <a target=_blank href='{$elem.h_notes_url}'>
                                     <img src='{$centreon_web_path}img/icons/link.png' class="ico-14">
                                 </a>
                             {/if}
@@ -85,12 +85,12 @@
                     {if $elem.s_passive_checks == 1 && $elem.s_active_checks == 0}<img src='{$centreon_web_path}img/icons/passive_check.png' class="ico-18">{/if}
                     {if $elem.s_notify == 0}<img src='{$centreon_web_path}img/icons/notifications_off.png' class="ico-18">{/if}
 		    {if $elem.s_action_url}
-                        <a target=_blank href='http://{$elem.s_action_url}'>
+                        <a target=_blank href='{$elem.s_action_url}'>
                             <img src='{$centreon_web_path}img/icons/star-full.png' class="ico-16">
                         </a>
                     {/if}
                     {if $elem.s_notes_url}
-                        <a target=_blank href='http://{$elem.s_notes_url}'>
+                        <a target=_blank href='{$elem.s_notes_url}'>
                             <img src='{$centreon_web_path}img/icons/link.png' class="ico-14">
                         </a>
                     {/if}
