@@ -58,7 +58,7 @@
                             {if ($elem.active_checks == 0 && $elem.passive_checks == 1) }<img src='/{$centreon_web_path}/img/icons/passive_check.png' class='ico-16'>{/if}
                             {if $elem.notify == 0}<img src='/{$centreon_web_path}/img/icons/notifications_off.png' class="ico-18">{/if}
                             {if $elem.action_url}
-                                <a target=_blank href='http://{$elem.action_url}'>
+                                <a target=_blank href='{$elem.action_url}'>
                                     <img src='/{$centreon_web_path}/img/icons/star-full.png' class='ico-16'>
                                 </a>
                             {/if}
@@ -66,7 +66,7 @@
                                 <img src='/{$centreon_web_path}/img/icones/16x16/flapping.gif' class="ico-18" title={$title_flapping}>
                             {/if}
                             {if $elem.notes_url}
-                                <a target=_blank href='http://{$elem.notes_url}'>
+                                <a target=_blank href='{$elem.notes_url}'>
                                         <img src='/{$centreon_web_path}/img/icons/link.png' class='ico-14'>
                                 </a>
                             {/if}
