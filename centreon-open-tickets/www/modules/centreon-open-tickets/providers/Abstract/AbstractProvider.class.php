@@ -37,6 +37,7 @@ abstract class AbstractProvider {
     protected $_submitted_config = null;
     protected $_check_error_message = '';
     protected $_save_config = array();
+    protected $_widget_id;
     
     const HOSTGROUP_TYPE = 0;
     const HOSTCATEGORY_TYPE = 1;
@@ -64,6 +65,34 @@ abstract class AbstractProvider {
         $this->default_data['clones'] = array();
         $this->_setDefaultValueMain();
         $this->_setDefaultValueExtra();
+        
+        $this->_widget_id = null;
+    }
+    
+    public function setWidgetId($widget_id) {
+        $this->_widget_id = $widget_id;
+    }
+    
+    protected function clearSession() {
+        if (!is_null($this->_widget_id) && isset($_SESSION['ot_save_' . $this->_widget_id])) {
+            unset($_SESSION['ot_save_' . $this->_widget_id]);
+        }
+    }
+    
+    protected function saveSession($key, $value) {
+        if (!is_null($this->_widget_id)) {
+            if (!isset($_SESSION['ot_save_' . $this->_widget_id])) {
+                $_SESSION['ot_save_' . $this->_widget_id] = array();
+            }
+            $_SESSION['ot_save_' . $this->_widget_id][$key] = $value;
+        }
+    }
+    
+    protected function getSession($key) {
+        if (!is_null($key) && !is_null($this->_widget_id) && isset($_SESSION['ot_save_' . $this->_widget_id][$key])) {
+            return $_SESSION['ot_save_' . $this->_widget_id][$key];
+        }
+        return null;
     }
     
     protected function change_html_tags($output, $change=1) {
@@ -240,10 +269,18 @@ abstract class AbstractProvider {
             'customlist' => array('label' => _("Custom list definition")),
         );
         
+        $extra_group_options = '';
+        
+        $method_name = 'getGroupListOptions';
+        if (method_exists($this, $method_name)) {
+            $extra_group_options = $this->{$method_name}();
+        }
+        
         // Group list clone
         $groupListId_html = '<input id="groupListId_#index#" name="groupListId[#index#]" size="20"  type="text" />';
         $groupListLabel_html = '<input id="groupListLabel_#index#" name="groupListLabel[#index#]" size="20"  type="text" />';
         $groupListType_html = '<select id="groupListType_#index#" name="groupListType[#index#]" type="select-one">' .
+            $extra_group_options .
         '<option value="' . self::HOSTGROUP_TYPE . '">Host group</options>' .
         '<option value="' . self::HOSTCATEGORY_TYPE . '">Host category</options>' .
         '<option value="' . self::HOSTSEVERITY_TYPE . '">Host severity</options>' .
@@ -316,7 +353,11 @@ abstract class AbstractProvider {
                 $index = $matches[1];
                 $array_values = array();
                 foreach ($values as $other) {
-                    $array_values[$other] = $this->_submitted_config[$clone_key . $other][$index];
+                    if (isset($this->_submitted_config[$clone_key . $other]) && isset($this->_submitted_config[$clone_key . $other][$index])) {
+                        $array_values[$other] = $this->_submitted_config[$clone_key . $other][$index];
+                    } else {
+                        $array_values[$other] = '';
+                    }
                 }
                 $result[] = $array_values;
             }
@@ -433,6 +474,8 @@ abstract class AbstractProvider {
             $tpl->assign($label, $value);
         }
         
+        $this->clearSession();
+
         $groups_order = array();
         $groups = array();
         $tpl->assign('custom_message', array('label' => _('Custom message')));
@@ -456,6 +499,11 @@ abstract class AbstractProvider {
                     $this->assignContactgroup($values, $groups_order, $groups);
                 } else if ($values['Type'] == self::CUSTOM_TYPE) {
                     $this->assignCustom($values, $groups_order, $groups);
+                } else {
+                    $method_name = 'assignOthers';
+                    if (method_exists($this, $method_name)) {
+                        $this->{$method_name}($values, $groups_order, $groups);
+                    }
                 }
             }
         }
@@ -509,6 +557,7 @@ abstract class AbstractProvider {
             }
         }
         
+        $method_name = 'assignSubmittedValuesSelectMore';
         $select_lists = array();
         if (isset($this->rule_data['clones']['groupList'])) {
             foreach ($this->rule_data['clones']['groupList'] as $values) {
@@ -519,7 +568,12 @@ abstract class AbstractProvider {
                     $id = $matches[1];
                     $value = $matches[2];
                 }
+                
                 $select_lists[$values['Id']] = array('label' => _($values['Label']), 'id' => $id, 'value' => $value);
+                if (method_exists($this, $method_name)) {
+                    $more_attributes = $this->{$method_name}($values['Id'], $id);
+                    $select_lists[$values['Id']] = array_merge($select_lists[$values['Id']], $more_attributes);
+                }
             }
         }
         
@@ -565,8 +619,13 @@ abstract class AbstractProvider {
         foreach ($data as $label => $value) {
             $tpl->assign($label, $value);
         }
+
+        foreach ($this->rule_data as $label => $value) {
+            $tpl->assign($label, $value);
+        }
         $tpl->assign('ticket_id', $ticket_id);
         $tpl->assign('string', $this->rule_data['url']);
+        
         return $tpl->fetch('eval.ihtml');
     }
 }

@@ -38,7 +38,7 @@
 # Define module information
 RNAME="Centreon Open Tickets"
 NAME="centreon-open-tickets"
-VERSION="1.0.0"
+VERSION="1.1.0"
 FORGE_URL="https://github.com/centreon/centreon-open-tickets"
 CRON_FILE="myproject.cron"
 MODULE_DIR="www/modules/"$NAME

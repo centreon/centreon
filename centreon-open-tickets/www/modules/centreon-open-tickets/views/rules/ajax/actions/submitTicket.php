@@ -86,11 +86,17 @@ if (is_null($provider_name) || !file_exists($centreon_open_tickets_path . 'provi
     $resultat['msg'] = 'Please set a provider';
     return ;
 }
+if (!isset($get_information['form']['widgetId']) || is_null($get_information['form']['widgetId']) || $get_information['form']['widgetId'] == '') {
+    $resultat['code'] = 1;
+    $resultat['msg'] = 'Please set widgetId';
+    return ;
+}
 
 require_once $centreon_open_tickets_path . 'providers/' . $provider_name . '/' . $provider_name . 'Provider.class.php';
 
 $classname = $provider_name . 'Provider';
 $centreon_provider = new $classname($rule, $centreon_path, $centreon_open_tickets_path, $get_information['rule_id'], $get_information['form']);
+$centreon_provider->setWidgetId($get_information['form']['widgetId']);
 
 // We get Host or Service
 require_once $centreon_path . 'www/class/centreonDuration.class.php';
@@ -163,7 +169,7 @@ try {
             $external_cmd->set_process_command(sprintf($command, $value['name'], $centreon_provider->getMacroTicketTime(), $resultat['result']['ticket_time']), $value['instance_id']);
             if ($centreon_provider->doAck()) {
                 $command = "ACKNOWLEDGE_HOST_PROBLEM;%s;%s;%s;%s;%s;%s;%";
-                $external_cmd->set_process_command(sprintf($command, $value['name'], 2, 0, 1, $contact_alias, 'open ticket: ' . $resultat['result']['ticket_id']), $value['instance_id']);
+                $external_cmd->set_process_command(sprintf($command, $value['name'], 2, 0, 1, $contact_infos['alias'], 'open ticket: ' . $resultat['result']['ticket_id']), $value['instance_id']);
             }
         }
         foreach ($service_problems as $value) {
@@ -173,7 +179,7 @@ try {
             $external_cmd->set_process_command(sprintf($command, $value['host_name'], $value['description'], $centreon_provider->getMacroTicketTime(), $resultat['result']['ticket_time']), $value['instance_id']);
             if ($centreon_provider->doAck()) {
                 $command = "ACKNOWLEDGE_SVC_PROBLEM;%s;%s;%s;%s;%s;%s;%s";
-                $external_cmd->set_process_command(sprintf($command, $value['host_name'], $value['description'], 2, 0, 1, $contact_alias, 'open ticket: ' . $resultat['result']['ticket_id']), $value['instance_id']);
+                $external_cmd->set_process_command(sprintf($command, $value['host_name'], $value['description'], 2, 0, 1, $contact_infos['alias'], 'open ticket: ' . $resultat['result']['ticket_id']), $value['instance_id']);
             }
         }
         

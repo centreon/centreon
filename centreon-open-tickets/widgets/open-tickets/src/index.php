@@ -68,7 +68,7 @@ if (!isset($preferences['rule'])) {
     exit;
 }
 
-$macro_tickets = $rule->getMacroNames($preferences['rule']);
+$macro_tickets = $rule->getMacroNames($preferences['rule'], $widgetId);
 
 // Set Colors Table
 $res = $db->query("SELECT `key`, `value` FROM `options` WHERE `key` LIKE 'color%'");
@@ -346,7 +346,7 @@ while ($row = $res->fetchRow()) {
     if ($row['host_ticket_time'] > $row['host_last_hard_state_change'] && 
         isset($row['host_ticket_id']) && !is_null($row['host_ticket_id']) && $row['host_ticket_id'] != '') {
         $ticket_id = $row['host_ticket_id'];
-        $url = $rule->getUrl($preferences['rule'], $ticket_id, $row);
+        $url = $rule->getUrl($preferences['rule'], $ticket_id, $row, $widgetId);
         if (!is_null($url) && $url != '') {
             $ticket_id = '<a href="' . $url . '" target="_blank">' . $ticket_id . '</a>';
         }
@@ -355,7 +355,7 @@ while ($row = $res->fetchRow()) {
     } else if ($row['service_ticket_time'] > $row['last_hard_state_change'] && 
                isset($row['service_ticket_id']) && !is_null($row['service_ticket_id']) && $row['service_ticket_id'] != '') {
         $ticket_id = $row['service_ticket_id'];
-        $url = $rule->getUrl($preferences['rule'], $ticket_id, $row);
+        $url = $rule->getUrl($preferences['rule'], $ticket_id, $row, $widgetId);
         if (!is_null($url) && $url != '') {
             $ticket_id = '<a href="' . $url . '" target="_blank">' . $ticket_id . '</a>';
         }

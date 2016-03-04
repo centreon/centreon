@@ -47,14 +47,14 @@ function format_popup() {
     } else {
         $title = _("Open Host Ticket");
     }
-    
+
     $result = $rule->getFormatPopupProvider($preferences['rule'], 
                                             array('title' => $title,
                                                   'user' => array(
                                                                   'alias' => $centreon->user->alias, 
                                                                   'email' => $centreon->user->email),
                                                  )
-                                            );
+                                            , $widgetId);
     
     $path = $centreon_path . "www/widgets/open-tickets/src/";
     $template = new Smarty();
@@ -84,7 +84,7 @@ function remove_tickets() {
     $external_cmd = new CentreonExternalCommand($centreon);
     
     $db_storage = new CentreonDB('centstorage');
-    $macros = $rule->getMacroNames($preferences['rule']);
+    $macros = $rule->getMacroNames($preferences['rule'], $widgetId);
     
     $selected_values = explode(',', $_REQUEST['selection']);
     $selected_str = '';
