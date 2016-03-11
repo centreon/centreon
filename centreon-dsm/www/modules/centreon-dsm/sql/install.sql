@@ -38,7 +38,7 @@ CREATE TABLE IF NOT EXISTS `mod_dsm_pool` (
   `pool_host_id` int(11) DEFAULT NULL,
   `pool_description` varchar(255) DEFAULT NULL,
   `pool_number` int(11) DEFAULT NULL,
-  `pool_prefix` varchar(10) DEFAULT NULL,
+  `pool_prefix` varchar(255) DEFAULT NULL,
   `pool_cmd_id` int(11) DEFAULT NULL,
   `pool_args` varchar(255) DEFAULT NULL,
   `pool_tp_id` int(11) DEFAULT NULL,
