@@ -1,2 +1,9 @@
+## Centreon Ticketting 1.1.0
+* Can link an url for the ticket_id (#9)
+* Add a timer to autoclose popup confirm (#1)
+* Add list system (#2)
+* Add GLPI Provider (#9)
+* Small fixes
+
 ## Centreon Ticketting 1.0.0
 * Initial version
