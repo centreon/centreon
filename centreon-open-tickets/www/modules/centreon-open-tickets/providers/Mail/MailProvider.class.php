@@ -114,6 +114,7 @@ class MailProvider extends AbstractProvider {
         $this->_checkFormValue('body', "Please set 'Body' value");
         $this->_checkFormValue('macro_ticket_id', "Please set 'Macro Ticket ID' value");
         $this->_checkFormValue('macro_ticket_time', "Please set 'Macro Ticket Time' value");
+        $this->_checkFormInteger('confirm_autoclose', "'Confirm popup autoclose' must be a number");
         
         $this->_checkLists();
         

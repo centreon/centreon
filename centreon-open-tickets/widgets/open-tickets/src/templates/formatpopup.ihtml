@@ -16,11 +16,25 @@
 			<input type='hidden' name='doSubmitTicket' value='yes' />
 			<input class="btc bt_info" type='submit' id='submit' value='{$submitLabel}' onClick="return validateFormatPopup();" />
 		</div>
+        <div id="OTcountdown" style="color: red"></div>
 	</div>
 </form>
 
 {literal}
 <script type="text/javascript">
+var $callback_confirm_autoclose = function() {
+    jQuery("#OTWidgetPopin > .close").trigger("click");
+};
+
+var $callback_countdown = function() {
+    var value = jQuery("#OTcountdown").text();
+    value = value - 1;
+    jQuery("#OTcountdown").html(value);
+    if (value > 1) {
+        setTimeout($callback_countdown, 1000);
+    }
+};
+
 var $callback_submitTicket = function(res) {
     //jQuery("#form_error").html("Full response: " + res);
     jQuery("#OTcontainer").html('');
@@ -29,6 +43,13 @@ var $callback_submitTicket = function(res) {
         jQuery("#form_error").html(data_ret['msg']);
     } else {
         jQuery("#OTcontainer").html(data_ret['result']['confirm_message']);
+        if (data_ret['result']['confirm_autoclose'] !== undefined && data_ret['result']['confirm_autoclose'] > 0) {
+            jQuery('#OTWidgetPopin > .close').hide();
+            jQuery('#centreonPopinOverlay').unbind('click');
+            jQuery("#OTcountdown").html(data_ret['result']['confirm_autoclose']);
+            setTimeout($callback_confirm_autoclose, data_ret['result']['confirm_autoclose'] * 1000);
+            setTimeout($callback_countdown, 1000);
+        }
     }
 };
 

@@ -331,6 +331,7 @@ abstract class AbstractProvider {
         $tpl->assign("header", array("title" => _("Rules"), "common" => _("Common")));
         
         // Form
+        $confirm_autoclose_html = '<input size="5" name="confirm_autoclose" type="text" value="' . $this->_getFormValue('confirm_autoclose') . '" />';
         $macro_ticket_id_html = '<input size="50" name="macro_ticket_id" type="text" value="' . $this->_getFormValue('macro_ticket_id') . '" />';
         $macro_ticket_time_html = '<input size="50" name="macro_ticket_time" type="text" value="' . $this->_getFormValue('macro_ticket_time') . '" />';
         $format_popup_html = '<textarea rows="8" cols="70" name="format_popup">' . $this->_getFormValue('format_popup') . '</textarea>';
@@ -338,7 +339,8 @@ abstract class AbstractProvider {
         $array_form = array(
             'macro_ticket_id' => array('label' => _("Macro Ticket ID") . $this->_required_field, 'html' => $macro_ticket_id_html),
             'macro_ticket_time' => array('label' => _("Macro Ticket Time") . $this->_required_field, 'html' => $macro_ticket_time_html),
-            'format_popup' => array('label' => _("Formatting popup"), 'html' => $format_popup_html)
+            'format_popup' => array('label' => _("Formatting popup"), 'html' => $format_popup_html),
+            'confirm_autoclose' => array('label' => _("Confirm popup autoclose"), 'html' => $confirm_autoclose_html)
         );
         $tpl->assign('form', $array_form);
         
@@ -371,6 +373,7 @@ abstract class AbstractProvider {
         $this->_save_config['rule_alias'] = $this->_submitted_config['rule_alias'];
         $this->_save_config['simple']['macro_ticket_id'] = $this->_submitted_config['macro_ticket_id'];
         $this->_save_config['simple']['macro_ticket_time'] = $this->_submitted_config['macro_ticket_time'];
+        $this->_save_config['simple']['confirm_autoclose'] = $this->_submitted_config['confirm_autoclose'];
         $this->_save_config['simple']['ack'] = (isset($this->_submitted_config['ack']) && $this->_submitted_config['ack'] == 'yes') ? 
             $this->_submitted_config['ack'] : '';
         $this->_save_config['simple']['url'] = $this->_submitted_config['url'];
@@ -610,6 +613,7 @@ abstract class AbstractProvider {
         $result['ticket_id'] = $submit_result['ticket_id'];
         $result['ticket_is_ok'] = $submit_result['ticket_is_ok'];
         $result['ticket_time'] = $submit_result['ticket_time'];
+        $result['confirm_autoclose'] = $this->rule_data['confirm_autoclose'];
         return $result;
     }
     

@@ -147,6 +147,7 @@ Output: {$service.output|substr:0:1024}
         $this->_checkFormValue('macro_ticket_id', "Please set 'Macro Ticket ID' value");
         $this->_checkFormValue('macro_ticket_time', "Please set 'Macro Ticket Time' value");
         $this->_checkFormInteger('timeout', "'Timeout' must be a number");
+        $this->_checkFormInteger('confirm_autoclose', "'Confirm popup autoclose' must be a number");
         
         $this->_checkLists();
         
