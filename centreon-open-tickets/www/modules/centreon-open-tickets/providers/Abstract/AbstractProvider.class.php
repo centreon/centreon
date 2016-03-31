@@ -96,7 +96,11 @@ abstract class AbstractProvider {
     }
     
     protected function to_utf8($value) {
-        $value = mb_convert_encoding($value, "UTF-8", mb_detect_encoding($value));
+        $encoding = mb_detect_encoding($value);
+        if ($encoding == 'UTF-8') {
+            return $value;
+        }
+        $value = mb_convert_encoding($value, "UTF-8", $encoding);
         return $value;
     }
     
