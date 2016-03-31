@@ -70,7 +70,7 @@ class GlpiProvider extends AbstractProvider {
 
 {$custom_message}
 
-{include file="file:$centreon_open_tickets_path/providers/Abstract/templates/display_selected_lists.ihtml" separator="<br/>"}
+{include file="file:$centreon_open_tickets_path/providers/Abstract/templates/display_selected_lists.ihtml" separator=""}
 
 {if $host_selected|@count gt 0}
 {foreach from=$host_selected item=host}
