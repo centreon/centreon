@@ -406,7 +406,12 @@ Output: {$service.output|substr:0:1024}
                 if ($result_str == '') {
                     $result_str = null;
                 }
+                
                 $ticket_arguments[$this->_internal_arg_name[$value['Arg']]] = $result_str;
+                // Old version of GLPI use 'recipient' depiste groupassign
+                if ($value['Arg'] == self::ARG_GROUP_ASSIGN) {
+                    $ticket_arguments['recipient'] = $result_str;
+                }
             }
         }
         
