@@ -45,9 +45,11 @@ class Centreon_OpenTickets_Rule
         $query = "UPDATE mod_open_tickets_rule SET `activate` = '$val' WHERE rule_id IN (";
         $ruleList = "";
         $ruleListAppend = "";
-        foreach ($select as $key => $value) {
-            $ruleList .= $ruleListAppend . "'" . $key . "'";
-            $ruleListAppend = ', ';
+        if (is_array($select)) {
+            foreach ($select as $key => $value) {
+                $ruleList .= $ruleListAppend . "'" . $key . "'";
+                $ruleListAppend = ', ';
+            }
         }
         if (isset($_REQUEST['rule_id'])) {
             $ruleList .= $ruleListAppend . "'" . $_REQUEST['rule_id'] . "'";
@@ -257,8 +259,8 @@ class Centreon_OpenTickets_Rule
                     $res2 = $this->_db->query("SELECT * FROM mod_open_tickets_form_clone WHERE rule_id=$ruleId");
                     while (($row2 = $res2->fetchRow())) {
                         $query = "INSERT INTO mod_open_tickets_form_clone
-								(`uniq_id`, `label`, `value`, `rule_id`) VALUES " . 
-								"('" . $this->_db->escape($row2['uniq_id']) . "', '" . $this->_db->escape($row2['label']) . "', '" . $this->_db->escape($row2['value']) . "', " . $nrule_id . ")";
+								(`uniq_id`, `label`, `value`, `rule_id`, `order`) VALUES " . 
+								"('" . $this->_db->escape($row2['uniq_id']) . "', '" . $this->_db->escape($row2['label']) . "', '" . $this->_db->escape($row2['value']) . "', " . $nrule_id . ", '" . $row2['order'] . "')";
                         $this->_db->query($query);
                     }
 

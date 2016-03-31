@@ -380,7 +380,7 @@ Output: {$service.output|substr:0:1024}
         return array();
     }
     
-    protected function doSubmit($db_storage, $contact, $host_problems, $service_problems) {
+    protected function doSubmit($db_storage, $contact, $host_problems, $service_problems, $extra_ticket_arguments=array()) {
         $result = array('ticket_id' => null, 'ticket_error_message' => null,
                         'ticket_is_ok' => 0, 'ticket_time' => time());
         
@@ -397,7 +397,7 @@ Output: {$service.output|substr:0:1024}
         
         $tpl->assign('body', $content);
         
-        $ticket_arguments = array();
+        $ticket_arguments = $extra_ticket_arguments;
         if (isset($this->rule_data['clones']['mappingTicket'])) {
             foreach ($this->rule_data['clones']['mappingTicket'] as $value) {
                 $tpl->assign('string', $value['Value']);
@@ -548,6 +548,21 @@ Output: {$service.output|substr:0:1024}
         }
         
         $this->glpi_call_response = $this->requestRpc('glpi.createTicket', $arguments);
+        if ($this->glpi_call_response['code'] == -1) {
+            return -1;
+        }
+        
+        return 0;
+    }
+    
+    protected function listObjects($arguments) {
+        if ($this->_glpi_connected == 0) {
+            if ($this->loginGlpi() == -1) {
+                return -1;
+            }
+        }
+        
+        $this->glpi_call_response = $this->requestRpc('glpi.listObjects', $arguments);
         if ($this->glpi_call_response['code'] == -1) {
             return -1;
         }
