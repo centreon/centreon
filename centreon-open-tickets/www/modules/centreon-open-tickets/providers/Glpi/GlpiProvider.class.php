@@ -261,12 +261,12 @@ Output: {$service.output|substr:0:1024}
         $result = array();
         foreach ($this->glpi_call_response['response'] as $row) {
             if (!isset($entry['Filter']) || is_null($entry['Filter']) || $entry['Filter'] == '') {
-                $result[$row['id']] = mb_convert_encoding($row['completename'], 'utf-8');
+                $result[$row['id']] = $this->to_utf8($row['completename']);
                 continue;
             }
             
             if (preg_match('/' . $entry['Filter'] . '/', $row['completename'])) {
-                $result[$row['id']] = mb_convert_encoding($row['completename'], 'utf-8');
+                $result[$row['id']] = $this->to_utf8($row['completename']);
             }
         }
         
@@ -293,7 +293,7 @@ Output: {$service.output|substr:0:1024}
         
         $result = array();
         foreach ($this->glpi_call_response['response'] as $row) {
-            $result[$row['id']] = mb_convert_encoding($row['completename'], 'utf-8');
+            $result[$row['id']] = $this->to_utf8($row['completename']);
         }
         
         $this->saveSession('glpi_groups', $this->glpi_call_response['response']);
@@ -319,7 +319,7 @@ Output: {$service.output|substr:0:1024}
         
         $result = array();
         foreach ($this->glpi_call_response['response'] as $row) {
-            $result[$row['id']] = mb_convert_encoding($row['name'], 'utf-8');
+            $result[$row['id']] = $this->to_utf8($row['name']);
         }
         
         $this->saveSession('glpi_itil_categories', $this->glpi_call_response['response']);
@@ -464,7 +464,7 @@ Output: {$service.output|substr:0:1024}
             $url .= '?session=' . $this->_glpi_session;
         }
         
-        $request = xmlrpc_encode_request($method, $args);
+        $request = xmlrpc_encode_request($method, $args, array('encoding' => 'utf-8', 'escaping' => 'markup'));
         $context = stream_context_create(array('http' => array('method'  => "POST",
                                                'header'  => 'Content-Type: text/xml',
                                                'timeout' => $this->rule_data['timeout'],
@@ -480,7 +480,7 @@ Output: {$service.output|substr:0:1024}
             return $array_result;
         }
         if (xmlrpc_is_fault($response)) {
-            $this->setRpcError("webservice '$method' error (" . $response['faultCode'] . "): " . mb_convert_encoding($response['faultString'], 'utf-8'));
+            $this->setRpcError("webservice '$method' error (" . $response['faultCode'] . "): " . $this->to_utf8($response['faultString']));
             return $array_result;
         }
         
@@ -527,7 +527,7 @@ Output: {$service.output|substr:0:1024}
         }
         
         $this->glpi_call_response = $this->requestRpc('glpi.listObjects', array('start' => 0, 'limit' => 100, 'name' => $filter, 
-                                                              'itemtype' => 'itilcategory', 'show_label' => 1));
+                                                      'itemtype' => 'itilcategory', 'show_label' => 1));
         if ($this->glpi_call_response['code'] == -1) {
             return -1;
         }

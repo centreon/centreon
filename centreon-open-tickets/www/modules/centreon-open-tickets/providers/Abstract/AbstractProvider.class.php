@@ -95,6 +95,11 @@ abstract class AbstractProvider {
         return null;
     }
     
+    protected function to_utf8($value) {
+        $value = mb_convert_encoding($value, "UTF-8", mb_detect_encoding($value));
+        return $value;
+    }
+    
     protected function change_html_tags($output, $change=1) {
         if ($change == 1) {
             $output = str_replace('<', '&lt;', $output);
