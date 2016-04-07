@@ -604,7 +604,7 @@ abstract class AbstractProvider {
     }
     
     protected function setConfirmMessage($host_problems, $service_problems, $submit_result) {
-        if (!isset($this->rule_data['format_popup']) || is_null($this->rule_data['format_popup']) || $this->rule_data['format_popup']  == '') {
+        if (!isset($this->rule_data['message_confirm']) || is_null($this->rule_data['message_confirm']) || $this->rule_data['message_confirm']  == '') {
             return null;
         }
         

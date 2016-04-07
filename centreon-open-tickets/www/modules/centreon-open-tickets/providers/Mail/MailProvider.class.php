@@ -195,7 +195,7 @@ class MailProvider extends AbstractProvider {
         
         try {
             $query = "INSERT INTO mod_open_tickets
-  (`timestamp`, `user`) VALUES ('" . $result['ticket_time'] . "', '" . $db_storage->escape($user) . "')";            
+  (`timestamp`, `user`) VALUES ('" . $result['ticket_time'] . "', '" . $db_storage->escape($contact['name']) . "')";            
             $db_storage->query($query);
             $result['ticket_id'] = $db_storage->lastinsertId('mod_open_tickets');
             $result['ticket_is_ok'] = 1;

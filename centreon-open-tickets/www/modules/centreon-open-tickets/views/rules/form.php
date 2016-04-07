@@ -43,6 +43,7 @@ $tpl->assign('rule_id', $ruleId);
 
 $rule_alias_html = '<input size="30" name="rule_alias" type="text" value="' . (isset($result_rule['alias']) ? $result_rule['alias'] : '') . '" />';
 $provider_html = '<select id="provider_id" name="provider_id"><option value=""></option>';
+ksort($register_providers);
 foreach ($register_providers as $name => $value) {
     $selected = '';
     if (isset($result_rule['provider_id']) && $result_rule['provider_id'] == $value) {
