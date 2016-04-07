@@ -27,6 +27,7 @@ class OtrsProvider extends AbstractProvider {
     const OTRS_PRIORITY_TYPE = 11;
     const OTRS_STATE_TYPE = 12;
     const OTRS_TYPE_TYPE = 13;
+    const OTRS_CUSTOMERUSER_TYPE = 14;
     
     const ARG_QUEUE = 1;
     const ARG_PRIORITY = 2;
@@ -95,11 +96,11 @@ Output: {$service.output|substr:0:1024}
             array('Arg' => self::ARG_SUBJECT, 'Value' => 'Centreon problem'),
             array('Arg' => self::ARG_BODY, 'Value' => '{$body}'),
             array('Arg' => self::ARG_FROM, 'Value' => '{$user.email}'),
-            array('Arg' => self::ARG_QUEUE, 'Value' => '{$select.orts_queue.id}'),
-            array('Arg' => self::ARG_PRIORITY, 'Value' => '{$select.otrs_priority.id}'),
-            array('Arg' => self::ARG_STATE, 'Value' => '{$select.otrs_state.id}'),
-            array('Arg' => self::ARG_TYPE, 'Value' => '{$select.otrs_type.id}'),
-            array('Arg' => self::ARG_CUSTOMERUSER, 'Value' => '{$select.otrs_customeruser.id}'),
+            array('Arg' => self::ARG_QUEUE, 'Value' => '{$select.otrs_queue.value}'),
+            array('Arg' => self::ARG_PRIORITY, 'Value' => '{$select.otrs_priority.value}'),
+            array('Arg' => self::ARG_STATE, 'Value' => '{$select.otrs_state.value}'),
+            array('Arg' => self::ARG_TYPE, 'Value' => '{$select.otrs_type.value}'),
+            array('Arg' => self::ARG_CUSTOMERUSER, 'Value' => '{$select.otrs_customeruser.value}'),
         );
     }
     
@@ -112,6 +113,7 @@ Output: {$service.output|substr:0:1024}
             array('Id' => 'otrs_priority', 'Label' => _('Otrs priority'), 'Type' => self::OTRS_PRIORITY_TYPE, 'Filter' => '', 'Mandatory' => 'yes'),
             array('Id' => 'otrs_state', 'Label' => _('Otrs state'), 'Type' => self::OTRS_STATE_TYPE, 'Filter' => '', 'Mandatory' => 'yes'),
             array('Id' => 'otrs_type', 'Label' => _('Otrs type'), 'Type' => self::OTRS_TYPE_TYPE, 'Filter' => '', 'Mandatory' => ''),
+            array('Id' => 'otrs_customeruser', 'Label' => _('Otrs customer user'), 'Type' => self::OTRS_CUSTOMERUSER_TYPE, 'Filter' => '', 'Mandatory' => 'yes'),
         );
     }
     
@@ -231,6 +233,7 @@ Output: {$service.output|substr:0:1024}
         $str = '<option value="' . self::OTRS_QUEUE_TYPE . '">Otrs queue</options>' .
         '<option value="' . self::OTRS_PRIORITY_TYPE . '">Otrs priority</options>' .
         '<option value="' . self::OTRS_STATE_TYPE . '">Otrs state</options>' .
+        '<option value="' . self::OTRS_CUSTOMERUSER_TYPE . '">Otrs customer user</options>' .
         '<option value="' . self::OTRS_TYPE_TYPE . '">Otrs type</options>';
         return $str;
     }
@@ -248,28 +251,154 @@ Output: {$service.output|substr:0:1024}
             $groups[$entry['Id']]['msg_error'] = $this->ws_error;
             return 0;
         }
-        
-        
-        // We'll need some change. Despite the code.
+
         $result = array();
-        foreach ($this->glpi_call_response['response'] as $row) {
+        foreach ($this->_otrs_call_response['response'] as $row) {
             if (!isset($entry['Filter']) || is_null($entry['Filter']) || $entry['Filter'] == '') {
-                $result[$row['id']] = $this->to_utf8($row['completename']);
+                $result[$row['id']] = $this->to_utf8($row['name']);
                 continue;
             }
             
-            if (preg_match('/' . $entry['Filter'] . '/', $row['completename'])) {
-                $result[$row['id']] = $this->to_utf8($row['completename']);
+            if (preg_match('/' . $entry['Filter'] . '/', $row['name'])) {
+                $result[$row['id']] = $this->to_utf8($row['name']);
             }
         }
         
-        $this->saveSession('otrs_queue', $this->glpi_call_response['response']);
+        $this->saveSession('otrs_queue', $this->_otrs_call_response['response']);
+        $groups[$entry['Id']]['values'] = $result;
+    }
+    
+    protected function assignOtrsPriority($entry, &$groups_order, &$groups) {
+        // no filter $entry['Filter']. preg_match used
+        $code = $this->listPriorityOtrs();
+        
+        $groups[$entry['Id']] = array('label' => _($entry['Label']) . 
+                                                        (isset($entry['Mandatory']) && $entry['Mandatory'] == 1 ? $this->_required_field : ''));
+        $groups_order[] = $entry['Id'];
+        
+        if ($code == -1) {
+            $groups[$entry['Id']]['code'] = -1;
+            $groups[$entry['Id']]['msg_error'] = $this->ws_error;
+            return 0;
+        }
+
+        $result = array();
+        foreach ($this->_otrs_call_response['response'] as $row) {
+            if (!isset($entry['Filter']) || is_null($entry['Filter']) || $entry['Filter'] == '') {
+                $result[$row['id']] = $this->to_utf8($row['name']);
+                continue;
+            }
+            
+            if (preg_match('/' . $entry['Filter'] . '/', $row['name'])) {
+                $result[$row['id']] = $this->to_utf8($row['name']);
+            }
+        }
+        
+        $this->saveSession('otrs_priority', $this->_otrs_call_response['response']);
+        $groups[$entry['Id']]['values'] = $result;
+    }
+    
+    protected function assignOtrsState($entry, &$groups_order, &$groups) {
+        // no filter $entry['Filter']. preg_match used
+        $code = $this->listStateOtrs();
+        
+        $groups[$entry['Id']] = array('label' => _($entry['Label']) . 
+                                                        (isset($entry['Mandatory']) && $entry['Mandatory'] == 1 ? $this->_required_field : ''));
+        $groups_order[] = $entry['Id'];
+        
+        if ($code == -1) {
+            $groups[$entry['Id']]['code'] = -1;
+            $groups[$entry['Id']]['msg_error'] = $this->ws_error;
+            return 0;
+        }
+
+        $result = array();
+        foreach ($this->_otrs_call_response['response'] as $row) {
+            if (!isset($entry['Filter']) || is_null($entry['Filter']) || $entry['Filter'] == '') {
+                $result[$row['id']] = $this->to_utf8($row['name']);
+                continue;
+            }
+            
+            if (preg_match('/' . $entry['Filter'] . '/', $row['name'])) {
+                $result[$row['id']] = $this->to_utf8($row['name']);
+            }
+        }
+        
+        $this->saveSession('otrs_state', $this->_otrs_call_response['response']);
+        $groups[$entry['Id']]['values'] = $result;
+    }
+    
+    protected function assignOtrsType($entry, &$groups_order, &$groups) {
+        // no filter $entry['Filter']. preg_match used
+        $code = $this->listTypeOtrs();
+        
+        $groups[$entry['Id']] = array('label' => _($entry['Label']) . 
+                                                        (isset($entry['Mandatory']) && $entry['Mandatory'] == 1 ? $this->_required_field : ''));
+        $groups_order[] = $entry['Id'];
+        
+        if ($code == -1) {
+            $groups[$entry['Id']]['code'] = -1;
+            $groups[$entry['Id']]['msg_error'] = $this->ws_error;
+            return 0;
+        }
+
+        $result = array();
+        foreach ($this->_otrs_call_response['response'] as $row) {
+            if (!isset($entry['Filter']) || is_null($entry['Filter']) || $entry['Filter'] == '') {
+                $result[$row['id']] = $this->to_utf8($row['name']);
+                continue;
+            }
+            
+            if (preg_match('/' . $entry['Filter'] . '/', $row['name'])) {
+                $result[$row['id']] = $this->to_utf8($row['name']);
+            }
+        }
+        
+        $this->saveSession('otrs_type', $this->_otrs_call_response['response']);
+        $groups[$entry['Id']]['values'] = $result;
+    }
+    
+    protected function assignOtrsCustomerUser($entry, &$groups_order, &$groups) {
+        // no filter $entry['Filter']. preg_match used
+        $code = $this->listCustomerUserOtrs();
+        
+        $groups[$entry['Id']] = array('label' => _($entry['Label']) . 
+                                                        (isset($entry['Mandatory']) && $entry['Mandatory'] == 1 ? $this->_required_field : ''));
+        $groups_order[] = $entry['Id'];
+        
+        if ($code == -1) {
+            $groups[$entry['Id']]['code'] = -1;
+            $groups[$entry['Id']]['msg_error'] = $this->ws_error;
+            return 0;
+        }
+
+        $result = array();
+        foreach ($this->_otrs_call_response['response'] as $row) {
+            if (!isset($entry['Filter']) || is_null($entry['Filter']) || $entry['Filter'] == '') {
+                $result[$row['id']] = $this->to_utf8($row['name']);
+                continue;
+            }
+            
+            if (preg_match('/' . $entry['Filter'] . '/', $row['name'])) {
+                $result[$row['id']] = $this->to_utf8($row['name']);
+            }
+        }
+        
+        $this->saveSession('otrs_customeruser', $this->_otrs_call_response['response']);
         $groups[$entry['Id']]['values'] = $result;
     }
         
     protected function assignOthers($entry, &$groups_order, &$groups) {
         if ($entry['Type'] == self::OTRS_QUEUE_TYPE) {
             $this->assignOtrsQueue($entry, $groups_order, $groups);
+        } elseif ($entry['Type'] == self::OTRS_PRIORITY_TYPE) {
+            $this->assignOtrsPriority($entry, $groups_order, $groups);
+        } elseif ($entry['Type'] == self::OTRS_STATE_TYPE) {
+            $this->assignOtrsState($entry, $groups_order, $groups);
+        } elseif ($entry['Type'] == self::OTRS_TYPE_TYPE) {
+            $this->assignOtrsType($entry, $groups_order, $groups);
+        } elseif ($entry['Type'] == self::OTRS_CUSTOMERUSER_TYPE) {
+            $this->assignOtrsCustomerUser($entry, $groups_order, $groups);
         }
     }
     
@@ -287,6 +416,14 @@ Output: {$service.output|substr:0:1024}
             if ($value['Id'] == $select_input_id) {                    
                 if ($value['Type'] == self::OTRS_QUEUE_TYPE) {
                     $session_name = 'otrs_queue';
+                } elseif ($value['Type'] == self::OTRS_PRIORITY_TYPE) {
+                    $session_name = 'otrs_priority';
+                } elseif ($value['Type'] == self::OTRS_STATE_TYPE) {
+                    $session_name = 'otrs_state';
+                } elseif ($value['Type'] == self::OTRS_TYPE_TYPE) {
+                    $session_name = 'otrs_type';
+                } elseif ($value['Type'] == self::OTRS_CUSTOMERUSER_TYPE) {
+                    $session_name = 'otrs_customeruser';
                 }
             }
         }
@@ -380,10 +517,70 @@ Output: {$service.output|substr:0:1024}
             }
         }
         
-        // No Queue Request yet!
-        $this->setWsError("no queue method");
-        return -1;
+        $argument = array('SessionID' => $this->_otrs_session);
+        if ($this->callRest('QueueGet', $argument) == 1) {
+            return -1;
+        }
         
+        return 0;
+    }
+    
+    protected function listPriorityOtrs() {
+        if ($this->_otrs_connected == 0) {
+            if ($this->loginOtrs() == -1) {
+                return -1;
+            }
+        }
+        
+        $argument = array('SessionID' => $this->_otrs_session);
+        if ($this->callRest('PriorityGet', $argument) == 1) {
+            return -1;
+        }        
+        
+        return 0;
+    }
+    
+    protected function listStateOtrs() {
+        if ($this->_otrs_connected == 0) {
+            if ($this->loginOtrs() == -1) {
+                return -1;
+            }
+        }
+        
+        $argument = array('SessionID' => $this->_otrs_session);
+        if ($this->callRest('StateGet', $argument) == 1) {
+            return -1;
+        }        
+        
+        return 0;
+    }
+    
+    protected function listTypeOtrs() {
+        if ($this->_otrs_connected == 0) {
+            if ($this->loginOtrs() == -1) {
+                return -1;
+            }
+        }
+        
+        $argument = array('SessionID' => $this->_otrs_session);
+        if ($this->callRest('TypeGet', $argument) == 1) {
+            return -1;
+        }        
+        
+        return 0;
+    }
+    
+    protected function listCustomerUserOtrs() {
+        if ($this->_otrs_connected == 0) {
+            if ($this->loginOtrs() == -1) {
+                return -1;
+            }
+        }
+        
+        $argument = array('SessionID' => $this->_otrs_session);
+        if ($this->callRest('CustomerUserGet', $argument) == 1) {
+            return -1;
+        }        
         
         return 0;
     }
@@ -400,18 +597,18 @@ Output: {$service.output|substr:0:1024}
             'Ticket' => array(
                 'Title' => $ticket_arguments['Subject'],
                 //'QueueID' => xxx,
-                'Queue' => 'Raw', // $ticket_arguments['Queue']
+                'Queue' => $ticket_arguments['Queue'],
                 //'StateID' => xxx,
-                'State' => 'open', // $ticket_arguments['State']
+                'State' => $ticket_arguments['State'],
                 //'PriorityID' => xxx,
-                'Priority' => '3 normal', // $ticket_arguments['Priority']
+                'Priority' => $ticket_arguments['Priority'],
                 //'TypeID' => 123, 
-                //'Type' => 'ppp', // $ticket_arguments['Type']
+                //'Type' => $ticket_arguments['Type'],
                 //'OwnerID'       => 123,
                 //'Owner'         => 'some user login',
                 //'ResponsibleID' => 123,
                 //'Responsible'   => 'some user login',
-                'CustomerUser'   => 'jd',
+                'CustomerUser'   => $ticket_arguments['CustomerUser'],
             ),
             'Article' => array(
                 'From' => 'toto@plop.fr', //$ticket_arguments['From'], // Must be an email
@@ -476,8 +673,8 @@ Output: {$service.output|substr:0:1024}
         );
         $result = curl_exec($ch);
         if ($result == false) {
+            $this->setWsError(curl_error($ch));
             curl_close($ch);
-            $this->setWsError(curl_error());
             return 1;
         }
                 
