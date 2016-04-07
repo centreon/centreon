@@ -24,6 +24,7 @@ require_once $centreon_path . 'www/class/centreon.class.php';
 require_once $centreon_path . 'www/class/centreonSession.class.php';
 require_once $centreon_path . 'www/class/centreonDB.class.php';
 require_once $centreon_path . 'www/class/centreonWidget.class.php';
+require_once $centreon_path . 'www/modules/centreon-open-tickets/class/rule.php';
 
 session_start();
 if (!isset($_SESSION['centreon']) || !isset($_REQUEST['widgetId'])) {
@@ -36,6 +37,7 @@ try {
     $db = new CentreonDB();
     $widgetObj = new CentreonWidget($centreon, $db);
     $preferences = $widgetObj->getWidgetPreferences($widgetId);
+    $rule = new Centreon_OpenTickets_Rule($db);
     $autoRefresh = 0;
     if (isset($preferences['refresh_interval'])) {
         $autoRefresh = $preferences['refresh_interval'];
@@ -75,7 +77,9 @@ try {
     </head>
 	<body>
 <?php
-if (!isset($preferences['rule']) || is_null($preferences['rule']) || $preferences['rule'] == '') {
+$result = $rule->getAliasAndProviderId($preferences['rule']);
+if (!isset($preferences['rule']) || is_null($preferences['rule']) || $preferences['rule'] == '' ||
+    !isset($result['provider_id'])) {
     print "<center><div class='update' style='text-align:center;width:350px;'>"._("Please select a rule first")."</div></center>";
 } else {
 ?>
