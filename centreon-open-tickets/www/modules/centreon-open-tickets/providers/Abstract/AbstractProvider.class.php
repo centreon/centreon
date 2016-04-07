@@ -53,7 +53,7 @@ abstract class AbstractProvider {
      *
      * @return void
      */
-    public function __construct($rule, $centreon_path, $centreon_open_tickets_path, $rule_id, $submitted_config = null) {
+    public function __construct($rule, $centreon_path, $centreon_open_tickets_path, $rule_id, $submitted_config = null, $provider_id) {
         $this->_rule = $rule;
         $this->_centreon_path = $centreon_path;
         $this->_centreon_open_tickets_path = $centreon_open_tickets_path;
@@ -61,10 +61,16 @@ abstract class AbstractProvider {
         $this->_submitted_config = $submitted_config;
         $this->rule_data = $rule->get($rule_id);
         
-        $this->default_data = array();
-        $this->default_data['clones'] = array();
-        $this->_setDefaultValueMain();
-        $this->_setDefaultValueExtra();
+        if (is_null($rule_id) || $provider_id != $this->rule_data['provider_id']) {
+            $this->default_data = array();
+            $this->default_data['clones'] = array();
+            $this->_setDefaultValueMain();
+            $this->_setDefaultValueExtra();
+        }
+        // We reset value. We have changed provider on same form
+        if ($provider_id != $this->rule_data['provider_id']) {
+            $this->rule_data = array();
+        }
         
         $this->_widget_id = null;
     }
@@ -573,6 +579,11 @@ abstract class AbstractProvider {
         $select_lists = array();
         if (isset($this->rule_data['clones']['groupList'])) {
             foreach ($this->rule_data['clones']['groupList'] as $values) {
+                // Maybe an error to get list
+                if (!isset($this->_submitted_config['select_' . $values['Id']])) {
+                    continue;
+                }
+                
                 $id = '-1';
                 $value = '';
                 $matches = array();

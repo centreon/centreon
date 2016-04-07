@@ -95,7 +95,7 @@ if (!isset($get_information['form']['widgetId']) || is_null($get_information['fo
 require_once $centreon_open_tickets_path . 'providers/' . $provider_name . '/' . $provider_name . 'Provider.class.php';
 
 $classname = $provider_name . 'Provider';
-$centreon_provider = new $classname($rule, $centreon_path, $centreon_open_tickets_path, $get_information['rule_id'], $get_information['form']);
+$centreon_provider = new $classname($rule, $centreon_path, $centreon_open_tickets_path, $get_information['rule_id'], $get_information['form'], $get_information['provider_id']);
 $centreon_provider->setWidgetId($get_information['form']['widgetId']);
 
 // We get Host or Service

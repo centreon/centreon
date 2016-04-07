@@ -24,5 +24,6 @@ $register_providers = array();
 // provider name and the ID. For specific use id > 1000.
 $register_providers['Mail'] = 1;
 $register_providers['Glpi'] = 2;
+$register_providers['Otrs'] = 3;
 
 ?>

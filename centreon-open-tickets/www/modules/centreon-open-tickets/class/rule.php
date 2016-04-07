@@ -102,7 +102,7 @@ class Centreon_OpenTickets_Rule
         
         require_once $centreon_open_tickets_path . 'providers/' . $provider_name . '/' . $provider_name . 'Provider.class.php';
         $classname = $provider_name . 'Provider';
-        $this->_provider = new $classname($this, $centreon_path, $centreon_open_tickets_path, $rule_id);
+        $this->_provider = new $classname($this, $centreon_path, $centreon_open_tickets_path, $rule_id, null, $provider_id);
         $this->_provider->setWidgetId($widget_id);
     }
     
@@ -178,6 +178,7 @@ class Centreon_OpenTickets_Rule
         if (!($row = $DBRESULT->fetchRow())) {
             return $result;
         }
+        $result['provider_id'] = $row['provider_id'];
         $result['rule_alias'] = $row['alias'];
 
         $result['clones'] = array();
