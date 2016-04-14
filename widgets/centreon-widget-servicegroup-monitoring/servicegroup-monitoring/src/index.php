@@ -100,7 +100,7 @@ $serviceStateLabels = array(0 => "Ok",
     3 => "Unknown",
     4 => "Pending");
 
-$query = "SELECT SQL_CALC_FOUND_ROWS DISTINCT name ";
+$query = "SELECT SQL_CALC_FOUND_ROWS DISTINCT name, servicegroup_id ";
 $query .= "FROM servicegroups ";
 if (isset($preferences['sg_name_search']) && $preferences['sg_name_search'] != "") {
     $tab = split(" ", $preferences['sg_name_search']);
@@ -133,11 +133,12 @@ if (isset($preferences['enable_detailed_mode']) && $preferences['enable_detailed
     $detailMode = true;
 }
 while ($row = $res->fetchRow()) {
-    foreach ($row as $key => $value) {
-        $data[$row['name']][$key] = $value;
-        $data[$row['name']]['host_state'] = $sgMonObj->getHostStates($row['name'], $detailMode, $centreon->user->admin, $aclObj, $preferences);
-        $data[$row['name']]['service_state'] = $sgMonObj->getServiceStates($row['name'], $detailMode, $centreon->user->admin, $aclObj, $preferences);
-    }
+    $data[$row['name']] = array('name'          => $row['name'],
+                                'svc_id'        => $row['servicegroup_id'],
+                                'sgurl'         => "main.php?p=20201&sg=" .$row['servicegroup_id'],
+                                'hosturl'       => "main.php?p=20202",
+                                'host_state'    => $sgMonObj->getHostStates($row['name'], $detailMode, $centreon->user->admin, $aclObj, $preferences),
+                                'service_state' => $sgMonObj->getServiceStates($row['name'], $detailMode, $centreon->user->admin, $aclObj, $preferences));
 }
 
 $autoRefresh = $preferences['refresh_interval'];
