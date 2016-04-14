@@ -8,8 +8,8 @@
 <table id='ServicegroupTable' class='ListTable styleTable'>
   <tr class="ListHeader">
     <td class='ListColHeaderLeft' name='name' {if $preferences.enable_detailed_mode == 1} colspan='2' {/if}>Servicegroups  {if $preferences.enable_detailed_mode == 1}/Hosts{/if}</td>
-    <td {if $preferences.enable_detailed_mode == 1} class='ListColHeaderCenter'{/if} class="ListColHeaderLeft">Status</td>
-    <td class='ListColHeaderLeft'>Service informations</td>
+    <td {if $preferences.enable_detailed_mode == 1} class='ListColHeaderCenter'{/if} class="ListColHeaderLeft">Host Status</td>
+    <td class='ListColHeaderLeft'>Service Status</td>
     </tr>
     {assign var='classStyle' value='list_two'}
     {foreach key=sgId item=elem from=$data}
