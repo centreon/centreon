@@ -31,7 +31,13 @@
             {else}
                 {assign var='classStyle' value='list_two'}
             {/if}
-            <tr class ='{$classStyle}'>
+ssign var='classStyle' value='
+			{if $elem.s_acknowledged}
+				{assign var='classStyle' value='line_ack'}
+			{elseif $elem.s_scheduled_downtime_depth}
+				{assign var='classStyle' value='line_downtime'}
+			{/if}
+				<tr class ='{$classStyle}'>
                 {if $preferences.more_views}<td class='ListColLeft'><input class='selection' id='selection_{$elem.host_id};{$elem.service_id}' type='checkbox'/></td>{/if}
                 {if $preferences.display_severities}<td class=''>{$elem.criticality_id}</td>{/if}
                 {if $preferences.display_host_name}
@@ -47,7 +53,7 @@
                         <div style='float: right;'>
                             {if $elem.h_scheduled_downtime_depth}<img src='{$centreon_web_path}img/icons/warning.png' class="ico-18">{/if}
                             {if $elem.h_acknowledged}<img src='{$centreon_web_path}img/icones/16x16/worker.gif' class="ico-18">{/if}
-                            {if $elem.h_active_checks == 0}<img src='{$centreon_web_path}img/icons/never_checked.png' class="ico-18">{/if}
+                            {if $elem.h_active_checks == 0}<img src='{$centreon_web_path}img/icons/never_chek.png' class="ico-18">{/if}
                             {if $elem.h_passive_checks}<img src='{$centreon_web_path}img/icons/passive_check.png' class="ico-18">{/if}
                             {if $elem.h_notify == 0}<img src='{$centreon_web_path}img/icons/notifications_off.png' class="ico-18">{/if}
                             {if $elem.h_action_url}
