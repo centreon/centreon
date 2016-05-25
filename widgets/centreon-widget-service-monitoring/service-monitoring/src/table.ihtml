@@ -52,7 +52,7 @@
                         <div style='float: right;'>
                             {if $elem.h_scheduled_downtime_depth}<img src='{$centreon_web_path}img/icons/warning.png' class="ico-18">{/if}
                             {if $elem.h_acknowledged}<img src='{$centreon_web_path}img/icones/16x16/worker.gif' class="ico-18">{/if}
-                            {if $elem.h_active_checks == 0}<img src='{$centreon_web_path}img/icons/never_chek.png' class="ico-18">{/if}
+                            {if $elem.h_active_checks == 0}<img src='{$centreon_web_path}img/icons/never_checked.png' class="ico-18">{/if}
                             {if $elem.h_passive_checks}<img src='{$centreon_web_path}img/icons/passive_check.png' class="ico-18">{/if}
                             {if $elem.h_notify == 0}<img src='{$centreon_web_path}img/icons/notifications_off.png' class="ico-18">{/if}
                             {if $elem.h_action_url}
