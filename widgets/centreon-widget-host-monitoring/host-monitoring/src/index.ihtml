@@ -23,7 +23,6 @@
             var _num_edge_entries = 1;
             var _num_display_entries = 3;
         </script>
-
         <script type="text/javascript" src="../../include/common/javascript/jquery/jquery.js"></script>
         <script type="text/javascript" src="../../include/common/javascript/jquery/jquery-ui.js"></script>
         <script type="text/javascript" src="../../include/common/javascript/widgetUtils.js"></script>

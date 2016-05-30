@@ -222,7 +222,6 @@ while ($row = $res->fetchRow()) {
             $data[$row['host_id']]['comment'] = '-';
         }
     }
-
 }
 
 $template->assign('preferences', $preferences);

@@ -34,6 +34,7 @@
  */
 
 require_once "../../require.php";
+
 require_once "./DB-Func.php";
 
 require_once $centreon_path . 'www/class/centreon.class.php';
@@ -294,5 +295,4 @@ if ($preferences['more_views']) {
 $template->assign('more_views', $bMoreViews);
 
 $template->display('table.ihtml');
-?>
 
