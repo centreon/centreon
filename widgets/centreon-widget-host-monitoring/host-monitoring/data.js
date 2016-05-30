@@ -43,9 +43,10 @@ function loadPage()
 {
     jQuery.ajax("./src/index.php?widgetId=" + widgetId + "&page=" + pageNumber, {
         success: function (htmlData) {
-            jQuery("#hostMonitoringTable").empty().append(htmlData);
-            var hostMonitoringTable = jQuery("#hostMonitoringTable").find("img, style, script, link").load(function () {
-                var h = document.getElementById("hostMonitoringTable").scrollHeight + 10;
+            jQuery("#hostMonitoringTable").html("")
+            jQuery("#hostMonitoringTable").html(htmlData);
+            jQuery("#hostMonitoringTable").find("img, style, script, link").load(function () {
+                var h = document.getElementById("hostMonitoringTable").scrollHeight + 50;
                 parent.iResize(window.name, h);
             });
         }

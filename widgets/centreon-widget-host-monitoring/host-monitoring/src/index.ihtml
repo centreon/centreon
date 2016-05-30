@@ -12,7 +12,7 @@
                 <div id='pagination' class="pagination" style='float:left;text-align:right;margin:12px 0px 10px 12px;'></div>
             </div>
         {/if}
-        <div id='hostMonitoringTable'></div>
+        <div id='hostMonitoringTable' style='float:left;width:100%'></div>
         <script type="text/javascript">
             var widgetId = {$widgetId};
             var autoRefresh = {$autoRefresh};
