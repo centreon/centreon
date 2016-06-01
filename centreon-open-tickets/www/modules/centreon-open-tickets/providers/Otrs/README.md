@@ -29,6 +29,11 @@ Here the procedure to install the webservice for centreon-open-tickets:
         'Controller' => 'CustomerUser',
         'Name' => 'CustomerUserGet'
     };
+    $Self->{'GenericInterface::Operation::Module'}->{'DynamicField::DynamicFieldGet'} =  {
+        'ConfigDialog' => 'AdminGenericInterfaceOperationDefault',
+        'Controller' => 'DynamicField',
+        'Name' => 'DynamicFieldGet'
+    };
 ```
 
 * Create a 'centreon' HTTP::REST webservice in otrs-ui

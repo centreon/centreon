@@ -2,7 +2,7 @@
 <otrs_config version="1.0" init="Application">
 	<ConfigItem Name="GenericInterface::Operation::Module###CustomerUser::CustomerUserGet" Required="0" Valid="1">
     		<Description Translatable="1">GenericInterface module registration for the operation layer.</Description>
-    		<Group>RestQueue</Group>
+    		<Group>RestCustomerUser</Group>
     		<SubGroup>GenericInterface::Operation::ModuleRegistration</SubGroup>
     		<Setting>
         		<Hash>

@@ -179,6 +179,7 @@ Output: {$service.output|substr:0:1024}
             'timeout' => array('label' => _("Timeout"), 'html' => $timeout_html),
             'body' => array('label' => _("Body") . $this->_required_field, 'html' => $body_html),
             'mappingticket' => array('label' => _("Mapping ticket arguments")),
+            'mappingticketdynamicfield' => array('label' => _("Mapping ticket dynamic field")),
         );
         
         // mapping Ticket clone
@@ -198,11 +199,20 @@ Output: {$service.output|substr:0:1024}
             array('label' => _("Value"), 'html' => $mappingTicketValue_html),
         );
         
+        // mapping Ticket DynamicField
+        $mappingTicketDynamicFieldName_html = '<input id="mappingTicketDynamicFieldName_#index#" name="mappingTicketDynamicFieldName[#index#]" size="20"  type="text" />';
+        $mappingTicketDynamicFieldValue_html = '<input id="mappingTicketDynamicFieldValue_#index#" name="mappingTicketDynamicFieldValue[#index#]" size="20"  type="text" />';
+        $array_form['mappingTicketDynamicField'] = array(
+            array('label' => _("Name"), 'html' => $mappingTicketDynamicFieldName_html),
+            array('label' => _("Value"), 'html' => $mappingTicketDynamicFieldValue_html),
+        );
+        
         $tpl->assign('form', $array_form);
         
         $this->_config['container1_html'] .= $tpl->fetch('conf_container1extra.ihtml');
         
         $this->_config['clones']['mappingTicket'] = $this->_getCloneValue('mappingTicket');
+        $this->_config['clones']['mappingTicketDynamicField'] = $this->_getCloneValue('mappingTicketDynamicField');
     }
     
     /**
@@ -227,6 +237,7 @@ Output: {$service.output|substr:0:1024}
         $this->_save_config['simple']['body'] = $this->change_html_tags($this->_submitted_config['body']);
         
         $this->_save_config['clones']['mappingTicket'] = $this->_getCloneSubmitted('mappingTicket', array('Arg', 'Value'));
+        $this->_save_config['clones']['mappingTicketDynamicField'] = $this->_getCloneSubmitted('mappingTicketDynamicField', array('Name', 'Value'));
     }
     
     protected function getGroupListOptions() {        
@@ -480,8 +491,24 @@ Output: {$service.output|substr:0:1024}
                 $ticket_arguments[$this->_internal_arg_name[$value['Arg']]] = $result_str;
             }
         }
+        $ticket_dynamic_fields = array();
+        if (isset($this->rule_data['clones']['mappingTicketDynamicField'])) {
+            foreach ($this->rule_data['clones']['mappingTicketDynamicField'] as $value) {
+                if ($value['Name'] == '' ||  $value['Value'] == '') {
+                    continue;
+                }
+                $array_tmp = array();
+                $tpl->assign('string', $value['Name']);
+                $array_tmp = array('Name' => $tpl->fetch('eval.ihtml'));
+                
+                $tpl->assign('string', $value['Value']);
+                $array_tmp['Value'] = $tpl->fetch('eval.ihtml');
+                
+                $ticket_dynamic_fields[] = $array_tmp;
+            }
+        }
         
-        $code = $this->createTicketOtrs($ticket_arguments);
+        $code = $this->createTicketOtrs($ticket_arguments, $ticket_dynamic_fields);
         if ($code == -1) {
             $result['ticket_error_message'] = $this->ws_error;
             return $result;
@@ -585,7 +612,7 @@ Output: {$service.output|substr:0:1024}
         return 0;
     }
     
-    protected function createTicketOtrs($ticket_arguments) {
+    protected function createTicketOtrs($ticket_arguments, $ticket_dynamic_fields) {
         if ($this->_otrs_connected == 0) {
             if ($this->loginOtrs() == -1) {
                 return -1;
@@ -615,7 +642,8 @@ Output: {$service.output|substr:0:1024}
                 'Subject' => $ticket_arguments['Subject'],
                 'Body' => $ticket_arguments['Body'],
                 'ContentType' => 'text/plain; charset=utf8', 
-            )
+            ),
+            'DynamicField' => $ticket_dynamic_fields
         );
 
         if ($this->callRest('TicketCreate', $argument) == 1) {
