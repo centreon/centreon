@@ -116,8 +116,8 @@ and T1.host_id = T5.host_id
 and T2.host_name = T6.name
 and T6.enabled = 1                                                                                                                                                                
 and T6.host_id = T5.host_id
-" .($centreon->user->admin == 0 ? " AND T1.host_id = acl.host_id AND T1.service_id = acl.service_id AND acl.group_id AND T4.hg_id AND T5.hostgroup_id IN (" .($grouplistStr != "" ? $grouplistStr : 0). ")" : ""). "
-group by T2.host_id order by ratio desc limit ".$preferences['nb_lin'].";";
+" .($centreon->user->admin == 0 ? " AND T2.host_id = acl.host_id AND T2.service_id = acl.service_id AND acl.group_id IN (" .($grouplistStr != "" ? $grouplistStr : 0). ")" : ""). " 
+group by T2.host_id  ORDER BY current_value DESC LIMIT ".$preferences['nb_lin'].";";
 }
 
 $numLine = 1;
