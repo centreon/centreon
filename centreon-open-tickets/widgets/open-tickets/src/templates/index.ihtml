@@ -37,7 +37,7 @@
                             <img src ='{$centreon_web_path}img/media/{$elem.icon_image}' width='16' height='16' style ='padding-right:5px;' />
                         {/if}
                         <span class="state_badge" style='background-color: {$elem.hcolor};'></span>
-                        <a href='{$centreon_web_path}main.php?p=20102&o=hd&host_name={$elem.encoded_hostname}' target=_blank>{$elem.hostname}</a>
+                        <a href='{$centreon_web_path}main.php?p=20202&o=hd&host_name={$elem.encoded_hostname}' target=_blank>{$elem.hostname}</a>
                     </td>
                     <td class='ListColRight'>
                         <div style='float: right;'>
