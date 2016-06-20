@@ -13,6 +13,7 @@
             {if $preferences.display_output}<td class='ListColHeaderCenter' name='output'>Status information</td>{/if}
             {if $preferences.display_ticket_id}<td class='ListColHeaderCenter' name='ticket_id'>Ticket ID</td>{/if}
             {if $preferences.display_ticket_time}<td class='ListColHeaderCenter' name='ticket_id'>Ticket Time</td>{/if}
+            {if $preferences.display_ticket_subject}<td class='ListColHeaderCenter' name='ticket_id'>Ticket Subject</td>{/if}
 	</tr>
 	{assign var='previous' value=''}
 	{assign var='classStyle' value='list_two'}
@@ -104,6 +105,7 @@
 		{if $preferences.display_output}<td class='ListColNoWrap' style='white-space:nowrap;'>{$elem.output}</td>{/if}
         {if $preferences.display_ticket_id}<td class='ListColCenter' style='white-space:nowrap;'>{$elem.ticket_id}</td>{/if}
         {if $preferences.display_ticket_time}<td class='ListColCenter' style='white-space:nowrap;'>{$elem.ticket_time}</td>{/if}
+        {if $preferences.display_ticket_subject}<td class='ListColNoWrap' style='white-space:nowrap;'>{$elem.ticket_subject}</td>{/if}
 	</tr>
 	{assign var='previous' value=$elem.hostname}
 	{/foreach}

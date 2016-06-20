@@ -48,6 +48,9 @@ abstract class AbstractProvider {
     const SERVICECONTACTGROUP_TYPE = 6;
     const CUSTOM_TYPE = 7;
     
+    const DATA_TYPE_JSON = 0;
+    const DATA_TYPE_XML = 1;
+    
     /**
      * constructor
      *
@@ -61,14 +64,14 @@ abstract class AbstractProvider {
         $this->_submitted_config = $submitted_config;
         $this->rule_data = $rule->get($rule_id);
         
-        if (is_null($rule_id) || $provider_id != $this->rule_data['provider_id']) {
+        if (is_null($rule_id) || !isset($this->rule_data['provider_id']) || $provider_id != $this->rule_data['provider_id']) {
             $this->default_data = array();
             $this->default_data['clones'] = array();
             $this->_setDefaultValueMain();
             $this->_setDefaultValueExtra();
         }
         // We reset value. We have changed provider on same form
-        if ($provider_id != $this->rule_data['provider_id']) {
+        if (isset($this->rule_data['provider_id']) && $provider_id != $this->rule_data['provider_id']) {
             $this->rule_data = array();
         }
         
@@ -123,7 +126,6 @@ abstract class AbstractProvider {
     
     protected function _setDefaultValueMain() {
         $this->default_data['macro_ticket_id'] = 'TICKET_ID';
-        $this->default_data['macro_ticket_time'] = 'TICKET_TIME';
         $this->default_data['ack'] = 'yes';
         
         $this->default_data['format_popup'] = '
@@ -254,10 +256,6 @@ abstract class AbstractProvider {
         return $this->rule_data['macro_ticket_id'];
     }
     
-    public function getMacroTicketTime() {
-        return $this->rule_data['macro_ticket_time'];
-    }
-    
     /**
      * Build the main config: url, ack, message confirm, lists
      *
@@ -348,12 +346,10 @@ abstract class AbstractProvider {
         // Form
         $confirm_autoclose_html = '<input size="5" name="confirm_autoclose" type="text" value="' . $this->_getFormValue('confirm_autoclose') . '" />';
         $macro_ticket_id_html = '<input size="50" name="macro_ticket_id" type="text" value="' . $this->_getFormValue('macro_ticket_id') . '" />';
-        $macro_ticket_time_html = '<input size="50" name="macro_ticket_time" type="text" value="' . $this->_getFormValue('macro_ticket_time') . '" />';
         $format_popup_html = '<textarea rows="8" cols="70" name="format_popup">' . $this->_getFormValue('format_popup') . '</textarea>';
 
         $array_form = array(
             'macro_ticket_id' => array('label' => _("Macro Ticket ID") . $this->_required_field, 'html' => $macro_ticket_id_html),
-            'macro_ticket_time' => array('label' => _("Macro Ticket Time") . $this->_required_field, 'html' => $macro_ticket_time_html),
             'format_popup' => array('label' => _("Formatting popup"), 'html' => $format_popup_html),
             'confirm_autoclose' => array('label' => _("Confirm popup autoclose"), 'html' => $confirm_autoclose_html)
         );
@@ -387,7 +383,6 @@ abstract class AbstractProvider {
         $this->_save_config['provider_id'] = $this->_submitted_config['provider_id'];
         $this->_save_config['rule_alias'] = $this->_submitted_config['rule_alias'];
         $this->_save_config['simple']['macro_ticket_id'] = $this->_submitted_config['macro_ticket_id'];
-        $this->_save_config['simple']['macro_ticket_time'] = $this->_submitted_config['macro_ticket_time'];
         $this->_save_config['simple']['confirm_autoclose'] = $this->_submitted_config['confirm_autoclose'];
         $this->_save_config['simple']['ack'] = (isset($this->_submitted_config['ack']) && $this->_submitted_config['ack'] == 'yes') ? 
             $this->_submitted_config['ack'] : '';
@@ -651,5 +646,57 @@ abstract class AbstractProvider {
         $tpl->assign('string', $this->rule_data['url']);
         
         return $tpl->fetch('eval.ihtml');
+    }
+    
+    protected function saveHistory($db_storage, &$result, 
+                                   $extra_args=array()) {
+        $default_values = array('contact' => '', 'host_problems' => array(), 'service_problems' => array(),
+                                'ticket_value' => null, 'subject' => null, 'data_type' => null, 'data' => null,
+                                'no_create_ticket_id' => false);
+        foreach ($default_values as $k => $v) {
+            if (!isset($extra_args[$k])) {
+                $extra_args[$k] = $v;
+            }
+        }
+        
+        try {
+            $db_storage->autocommit();
+            
+            if ($extra_args['no_create_ticket_id'] == false) {
+                $query = "INSERT INTO mod_open_tickets
+  (`timestamp`, `user`" . (is_null($extra_args['ticket_value']) ? "" : ", `ticket_value`") . ") 
+  VALUES ('" . $result['ticket_time'] . "', '" . $db_storage->escape($extra_args['contact']['name']) . "'" . (is_null($extra_args['ticket_value']) ? "" : ", '" . $db_storage->escape($extra_args['ticket_value']) . "'") . ")";
+                $db_storage->query($query);
+                $result['ticket_id'] = $db_storage->lastinsertId('mod_open_tickets');
+            }
+            
+            if (is_null($extra_args['ticket_value'])) {
+                $query = "UPDATE mod_open_tickets SET `ticket_value` = '" . $db_storage->escape($result['ticket_id']) . "' 
+    WHERE `ticket_id` = '" . $db_storage->escape($result['ticket_id']) . "'";
+                $db_storage->query($query);
+            }
+            
+            foreach ($extra_args['host_problems'] as $row) {
+                $db_storage->query("INSERT INTO mod_open_tickets_link (`ticket_id`, `host_id`, `hostname`) VALUES 
+    ('" . $db_storage->escape($result['ticket_id']) . "', '" . $db_storage->escape($row['host_id']) . "', '" . $db_storage->escape($row['name']) . "')");
+            }
+            foreach ($extra_args['service_problems'] as $row) {
+                $db_storage->query("INSERT INTO mod_open_tickets_link (`ticket_id`, `host_id`, `hostname`, `service_id`, `service_description`) VALUES 
+    ('" . $db_storage->escape($result['ticket_id']) . "', '" . $db_storage->escape($row['host_id']) . "', '" . $db_storage->escape($row['host_name']) . "', '" . $db_storage->escape($row['service_id']) . "', '" . $db_storage->escape($row['description']) . "')");
+            }
+            
+            if (!is_null($extra_args['data_type']) && !is_null($extra_args['data'])) {
+                $db_storage->query("INSERT INTO mod_open_tickets_data (`ticket_id`, `subject`, `data_type`, `data`) VALUES 
+    ('" . $db_storage->escape($result['ticket_id']) . "', '" . $db_storage->escape($extra_args['subject']) . "', '" . $db_storage->escape($extra_args['data_type']) . "', '" . $db_storage->escape($extra_args['data']) . "')");
+            }
+            
+            $result['ticket_id'] = is_null($extra_args['ticket_value']) ? $result['ticket_id'] : $extra_args['ticket_value'];
+            $result['ticket_is_ok'] = 1;
+            $db_storage->commit();
+        } catch (Exception $e) {
+            $db_storage->rollback();
+            $result['ticket_error_message'] = $e->getMessage();
+            return $result;
+        }
     }
 }

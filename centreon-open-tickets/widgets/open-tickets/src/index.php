@@ -140,35 +140,33 @@ $query = "SELECT SQL_CALC_FOUND_ROWS h.host_id,
         s.action_url as s_action_url,
         s.notes_url as s_notes_url,
         h.last_hard_state_change as host_last_hard_state_change,
-        CAST(cv6.value AS UNSIGNED) as host_ticket_time,
-        cv5.value as host_ticket_id,
-        CAST(cv4.value AS UNSIGNED) as service_ticket_time,
-        cv3.value as service_ticket_id,
+        CAST(mop1.timestamp AS UNSIGNED) as host_ticket_time,
+        mop1.ticket_value as host_ticket_id,
+        mopd1.subject as host_ticket_subject,
+        CAST(mop2.timestamp AS UNSIGNED) as service_ticket_time,
+        mopd2.subject as service_ticket_subject,
+        mop2.ticket_value as service_ticket_id,
+        CONCAT_WS('', mop1.ticket_value, mop2.ticket_value) as ticket_id,
         cv2.value AS criticality_id,
         cv.value AS criticality_level,
         h.icon_image
 ";
+
 $query .= " FROM hosts h ";
 $query .= " LEFT JOIN customvariables cv5 ON (h.host_id = cv5.host_id AND cv5.service_id IS NULL AND cv5.name = '" . $macro_tickets['ticket_id'] . "') ";
-$query .= " LEFT JOIN customvariables cv6 ON (h.host_id = cv6.host_id AND cv6.service_id IS NULL AND cv6.name = '" . $macro_tickets['ticket_time'] . "') ";
+$query .= " LEFT JOIN mod_open_tickets mop1 ON (cv5.value = mop1.ticket_value AND mop1.timestamp > h.last_hard_state_change) ";
+$query .= " LEFT JOIN mod_open_tickets_data mopd1 ON (mop1.ticket_id = mopd1.ticket_id) ";
 $query .= ", services s ";
 $query .= " LEFT JOIN customvariables cv ON (s.service_id = cv.service_id AND s.host_id = cv.host_id AND cv.name = 'CRITICALITY_LEVEL') ";
 $query .= " LEFT JOIN customvariables cv2 ON (s.service_id = cv2.service_id AND s.host_id = cv2.host_id AND cv2.name = 'CRITICALITY_ID') ";
 $query .= " LEFT JOIN customvariables cv3 ON (s.service_id = cv3.service_id AND s.host_id = cv3.host_id AND cv3.name = '" . $macro_tickets['ticket_id'] . "') ";
-$query .= " LEFT JOIN customvariables cv4 ON (s.service_id = cv4.service_id AND s.host_id = cv4.host_id AND cv4.name = '" . $macro_tickets['ticket_time'] . "') ";
+$query .= " LEFT JOIN mod_open_tickets mop2 ON (cv3.value = mop2.ticket_value AND mop2.timestamp > s.last_hard_state_change) ";
+$query .= " LEFT JOIN mod_open_tickets_data mopd2 ON (mop2.ticket_id = mopd2.ticket_id) ";
+
 if (!$centreon->user->admin) {
     $query .= " , centreon_acl acl ";
 }
 $query .= " WHERE s.host_id = h.host_id ";
-
-# For Open Tickets
-if (!isset($preferences['opened_tickets']) || $preferences['opened_tickets'] == 0) {
-    $query .= " AND (NULLIF(cv5.value, '') IS NULL OR CAST(cv6.value AS UNSIGNED) < h.last_hard_state_change) ";
-    $query .= " AND (NULLIF(cv3.value, '') IS NULL OR CAST(cv4.value AS UNSIGNED) < s.last_hard_state_change) ";
-} else {
-    $query .= " AND ((NULLIF(cv5.value, '') IS NOT NULL AND CAST(cv6.value AS UNSIGNED) > h.last_hard_state_change) ";
-    $query .= "       OR (NULLIF(cv3.value, '') IS NOT NULL AND CAST(cv4.value AS UNSIGNED) > s.last_hard_state_change)) ";
-}
 
 $query .= " AND h.name NOT LIKE '_Module_%' ";
 $query .= " AND s.enabled = 1 ";
@@ -205,6 +203,15 @@ if (isset($preferences['svc_unknown']) && $preferences['svc_unknown']) {
 
 if (count($stateTab)) {
     $query = CentreonUtils::conditionBuilder($query, " s.state IN (" . implode(',', $stateTab) . ")");
+}
+
+# For Open Tickets
+if (!isset($preferences['opened_tickets']) || $preferences['opened_tickets'] == 0) {
+    $query .= " AND mop1.timestamp IS NULL ";
+    $query .= " AND mop2.timestamp IS NULL ";
+} else {
+    $query .= " AND (mop1.timestamp IS NOT NULL ";
+    $query .= "       OR mop2.timestamp IS NOT NULL) ";
 }
 
 if (isset($preferences['acknowledgement_filter']) && $preferences['acknowledgement_filter']) {
@@ -288,6 +295,13 @@ if (isset($preferences['output_search']) && $preferences['output_search'] != "")
         $query = CentreonUtils::conditionBuilder($query, "s.output ".CentreonUtils::operandToMysqlFormat($op)." '".$dbb->escape($search)."' ");
     }
 }
+if (isset($preferences['ticket_id_search']) && $preferences['ticket_id_search'] != "") {
+    $query .= " AND (mop1.ticket_value LIKE '" . $dbb->escape($preferences['ticket_id_search']) . "' OR mop2.ticket_value LIKE '" . $dbb->escape($preferences['ticket_id_search']) . "') ";
+}
+if (isset($preferences['ticket_subject_search']) && $preferences['ticket_subject_search'] != "") {
+    $query .= " AND (mopd1.subject LIKE '" . $dbb->escape($preferences['ticket_subject_search']) . "' OR mopd2.subject LIKE '" . $dbb->escape($preferences['ticket_subject_search']) . "') ";
+}
+
 $orderby = "hostname ASC , description ASC";
 if (isset($preferences['order_by']) && $preferences['order_by'] != "") {
     $orderby = $preferences['order_by'];
@@ -296,6 +310,8 @@ if (isset($preferences['order_by']) && $preferences['order_by'] != "") {
 $query .= "ORDER BY $orderby";
 $query .= " LIMIT ".($page * $preferences['entries']).",".$preferences['entries'];
 
+$fp = fopen('/tmp/debug.txt', 'a+');
+fwrite($fp, "======$query===\n");
 $res = $dbb->query($query);
 $nbRows = $dbb->numberRows();
 $data = array();
@@ -352,6 +368,7 @@ while ($row = $res->fetchRow()) {
         }
         $data[$row['host_id']."_".$row['service_id']]['ticket_id'] = $ticket_id;
         $data[$row['host_id']."_".$row['service_id']]['ticket_time'] = $gmt->getDate("Y-m-d H:i:s", $row['host_ticket_time']);
+        $data[$row['host_id']."_".$row['service_id']]['ticket_subject'] = $row['host_ticket_subject'];
     } else if ($row['service_ticket_time'] > $row['last_hard_state_change'] && 
                isset($row['service_ticket_id']) && !is_null($row['service_ticket_id']) && $row['service_ticket_id'] != '') {
         $ticket_id = $row['service_ticket_id'];
@@ -361,6 +378,7 @@ while ($row = $res->fetchRow()) {
         }
         $data[$row['host_id']."_".$row['service_id']]['ticket_id'] = $ticket_id;
         $data[$row['host_id']."_".$row['service_id']]['ticket_time'] = $gmt->getDate("Y-m-d H:i:s", $row['service_ticket_time']);
+        $data[$row['host_id']."_".$row['service_id']]['ticket_subject'] = $row['service_ticket_subject'];
     }
 }
 $template->assign('centreon_web_path', $centreon->optGen['oreon_web_path']);

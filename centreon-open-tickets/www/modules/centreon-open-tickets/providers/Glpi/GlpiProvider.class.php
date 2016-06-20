@@ -145,7 +145,6 @@ Output: {$service.output|substr:0:1024}
         $this->_checkFormValue('username', "Please set 'Username' value");
         $this->_checkFormValue('password', "Please set 'Password' value");
         $this->_checkFormValue('macro_ticket_id', "Please set 'Macro Ticket ID' value");
-        $this->_checkFormValue('macro_ticket_time', "Please set 'Macro Ticket Time' value");
         $this->_checkFormInteger('timeout', "'Timeout' must be a number");
         $this->_checkFormInteger('confirm_autoclose', "'Confirm popup autoclose' must be a number");
         
@@ -421,17 +420,9 @@ Output: {$service.output|substr:0:1024}
             return $result;
         }
         
-        try {
-            $query = "INSERT INTO mod_open_tickets
-  (`timestamp`, `user`, `ticket_value`) VALUES ('" . $result['ticket_time'] . "', '" . $db_storage->escape($contact['name']) . "', '" . 
-                $db_storage->escape($this->glpi_call_response['response']['id']) . "')";            
-            $db_storage->query($query);
-            $result['ticket_id'] = $this->glpi_call_response['response']['id'];
-            $result['ticket_is_ok'] = 1;
-        } catch (Exception $e) {
-            $result['ticket_error_message'] = $e->getMessage();
-        }
-        
+        $this->saveHistory($db_storage, $result, array('contact' => $contact, 'host_problems' => $host_problems, 'service_problems' => $service_problems, 
+            'ticket_value' => $this->glpi_call_response['response']['id'], 'subject' => $ticket_arguments[self::ARG_TITLE], 
+            'data_type' => self::DATA_TYPE_JSON, 'data' => json_encode($ticket_arguments)));
         return $result;
     }
 

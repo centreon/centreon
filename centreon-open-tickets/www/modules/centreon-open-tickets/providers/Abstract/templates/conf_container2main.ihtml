@@ -33,12 +33,4 @@
             {$form.macro_ticket_id.html}
         </td>
     </tr>
-    <tr class="list_two">
-        <td class="FormRowField">
-            {$form.macro_ticket_time.label}
-        </td>
-        <td class="FormRowValue">
-            {$form.macro_ticket_time.html}
-        </td>
-    </tr>
 </table>

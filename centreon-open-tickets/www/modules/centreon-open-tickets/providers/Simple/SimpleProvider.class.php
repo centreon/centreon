@@ -40,7 +40,6 @@ class SimpleProvider extends AbstractProvider {
         $this->_check_error_message_append = '';
         
         $this->_checkFormValue('macro_ticket_id', "Please set 'Macro Ticket ID' value");
-        $this->_checkFormValue('macro_ticket_time', "Please set 'Macro Ticket Time' value");
         $this->_checkFormInteger('confirm_autoclose', "'Confirm popup autoclose' must be a number");
         
         $this->_checkLists();
@@ -81,17 +80,7 @@ class SimpleProvider extends AbstractProvider {
         $result = array('ticket_id' => null, 'ticket_error_message' => null,
                         'ticket_is_ok' => 0, 'ticket_time' => time());
         
-        try {
-            $query = "INSERT INTO mod_open_tickets
-  (`timestamp`, `user`) VALUES ('" . $result['ticket_time'] . "', '" . $db_storage->escape($contact['name']) . "')";            
-            $db_storage->query($query);
-            $result['ticket_id'] = $db_storage->lastinsertId('mod_open_tickets');
-            $result['ticket_is_ok'] = 1;
-        } catch (Exception $e) {
-            $result['ticket_error_message'] = $e->getMessage();
-            return $result;
-        }
-        
+        $this->saveHistory($db_storage, $result, array('contact' => $contact, 'host_problems' => $host_problems, 'service_problems' => $service_problems));
         return $result;
     }
 }

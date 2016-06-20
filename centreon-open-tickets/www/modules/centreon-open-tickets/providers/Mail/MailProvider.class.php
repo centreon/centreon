@@ -113,7 +113,6 @@ class MailProvider extends AbstractProvider {
         $this->_checkFormValue('subject', "Please set 'Subject' value");
         $this->_checkFormValue('body', "Please set 'Body' value");
         $this->_checkFormValue('macro_ticket_id', "Please set 'Macro Ticket ID' value");
-        $this->_checkFormValue('macro_ticket_time', "Please set 'Macro Ticket Time' value");
         $this->_checkFormInteger('confirm_autoclose', "'Confirm popup autoclose' must be a number");
         
         $this->_checkLists();
@@ -192,13 +191,12 @@ class MailProvider extends AbstractProvider {
     protected function doSubmit($db_storage, $contact, $host_problems, $service_problems) {
         $result = array('ticket_id' => null, 'ticket_error_message' => null,
                         'ticket_is_ok' => 0, 'ticket_time' => time());
-        
+
         try {
             $query = "INSERT INTO mod_open_tickets
   (`timestamp`, `user`) VALUES ('" . $result['ticket_time'] . "', '" . $db_storage->escape($contact['name']) . "')";            
             $db_storage->query($query);
             $result['ticket_id'] = $db_storage->lastinsertId('mod_open_tickets');
-            $result['ticket_is_ok'] = 1;
         } catch (Exception $e) {
             $result['ticket_error_message'] = $e->getMessage();
             return $result;
@@ -228,6 +226,12 @@ class MailProvider extends AbstractProvider {
         $tpl->assign('string', $this->rule_data['subject']);
         $subject = $tpl->fetch('eval.ihtml');
         mail($this->rule_data['to'], $subject, $body, $headers);
+        
+        $this->saveHistory($db_storage, $result, 
+            array('no_create_ticket_id' => true, 'contact' => $contact, 'host_problems' => $host_problems, 'service_problems' => $service_problems,
+                  'subject' => $subject, 
+                  'data_type' => self::DATA_TYPE_JSON, 'data' => json_encode(array('body' => $body, 'from' => $from, 'headers' => $headers, 'to' => $this->rule_data['to'])))
+        );
         
         return $result;
     }

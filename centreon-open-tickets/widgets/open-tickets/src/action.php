@@ -108,15 +108,11 @@ function remove_tickets() {
         if (!isset($host_done[$row['host_id']])) {
             $command = "CHANGE_CUSTOM_HOST_VAR;%s;%s;%s";
             $external_cmd->set_process_command(sprintf($command, $row['host_name'], $macros['ticket_id'], ''), $row['instance_id']);
-            $command = "CHANGE_CUSTOM_HOST_VAR;%s;%s;%s";
-            $external_cmd->set_process_command(sprintf($command, $row['host_name'], $macros['ticket_time'], ''), $row['instance_id']);
             $host_done[$row['host_id']] = 1;
         }
         
         $command = "CHANGE_CUSTOM_SVC_VAR;%s;%s;%s;%s";
         $external_cmd->set_process_command(sprintf($command, $row['host_name'], $row['description'], $macros['ticket_id'], ''), $row['instance_id']);
-        $command = "CHANGE_CUSTOM_SVC_VAR;%s;%s;%s;%s";
-        $external_cmd->set_process_command(sprintf($command, $row['host_name'], $row['description'], $macros['ticket_time'], ''), $row['instance_id']);
     }
     
     $external_cmd->write();
