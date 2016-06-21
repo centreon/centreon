@@ -127,6 +127,7 @@ abstract class AbstractProvider {
     protected function _setDefaultValueMain() {
         $this->default_data['macro_ticket_id'] = 'TICKET_ID';
         $this->default_data['ack'] = 'yes';
+        #$this->default_data['close_ticket'] = 'yes';
         
         $this->default_data['format_popup'] = '
 <table class="table">
@@ -273,11 +274,13 @@ abstract class AbstractProvider {
         $url_html = '<input size="50" name="url" type="text" value="' . $this->_getFormValue('url') . '" />';
         $message_confirm_html = '<textarea rows="8" cols="70" name="message_confirm">' . $this->_getFormValue('message_confirm') . '</textarea>';
         $ack_html = '<input type="checkbox" name="ack" value="yes" ' . ($this->_getFormValue('ack') == 'yes' ? 'checked' : '') . '/>';
+        $close_ticket_html = '<input type="checkbox" name="close_ticket" value="yes" ' . ($this->_getFormValue('close_ticket') == 'yes' ? 'checked' : '') . '/>';
 
         $array_form = array(
             'url' => array('label' => _("Url"), 'html' => $url_html),
             'message_confirm' => array('label' => _("Confirm message popup"), 'html' => $message_confirm_html),
             'ack' => array('label' => _("Acknowledge"), 'html' => $ack_html),
+            'close_ticket' => array('label' => _("Close ticket"), 'html' => $close_ticket_html),
             'grouplist' => array('label' => _("Lists")),
             'customlist' => array('label' => _("Custom list definition")),
         );
@@ -386,6 +389,8 @@ abstract class AbstractProvider {
         $this->_save_config['simple']['confirm_autoclose'] = $this->_submitted_config['confirm_autoclose'];
         $this->_save_config['simple']['ack'] = (isset($this->_submitted_config['ack']) && $this->_submitted_config['ack'] == 'yes') ? 
             $this->_submitted_config['ack'] : '';
+        $this->_save_config['simple']['close_ticket'] = (isset($this->_submitted_config['close_ticket']) && $this->_submitted_config['close_ticket'] == 'yes') ? 
+            $this->_submitted_config['close_ticket'] : '';
         $this->_save_config['simple']['url'] = $this->_submitted_config['url'];
         $this->_save_config['simple']['format_popup'] = $this->change_html_tags($this->_submitted_config['format_popup']);
         $this->_save_config['simple']['message_confirm'] = $this->change_html_tags($this->_submitted_config['message_confirm']);
@@ -561,6 +566,14 @@ abstract class AbstractProvider {
         return 0;
     }
     
+    public function doCloseTicket() {
+        if (isset($this->rule_data['close_ticket']) && $this->rule_data['close_ticket'] == 'yes') {
+            return 1;
+        }
+        
+        return 0;
+    }
+    
     protected function assignSubmittedValues(&$tpl) {
         $tpl->assign("centreon_open_tickets_path", $this->_centreon_open_tickets_path);
         
@@ -677,12 +690,12 @@ abstract class AbstractProvider {
             }
             
             foreach ($extra_args['host_problems'] as $row) {
-                $db_storage->query("INSERT INTO mod_open_tickets_link (`ticket_id`, `host_id`, `hostname`) VALUES 
-    ('" . $db_storage->escape($result['ticket_id']) . "', '" . $db_storage->escape($row['host_id']) . "', '" . $db_storage->escape($row['name']) . "')");
+                $db_storage->query("INSERT INTO mod_open_tickets_link (`ticket_id`, `host_id`, `host_state`, `hostname`) VALUES 
+    ('" . $db_storage->escape($result['ticket_id']) . "', '" . $db_storage->escape($row['host_id']) . "', '" . $db_storage->escape($row['host_state']) . "', '" . $db_storage->escape($row['name']) . "')");
             }
             foreach ($extra_args['service_problems'] as $row) {
-                $db_storage->query("INSERT INTO mod_open_tickets_link (`ticket_id`, `host_id`, `hostname`, `service_id`, `service_description`) VALUES 
-    ('" . $db_storage->escape($result['ticket_id']) . "', '" . $db_storage->escape($row['host_id']) . "', '" . $db_storage->escape($row['host_name']) . "', '" . $db_storage->escape($row['service_id']) . "', '" . $db_storage->escape($row['description']) . "')");
+                $db_storage->query("INSERT INTO mod_open_tickets_link (`ticket_id`, `host_id`, `host_state`, `hostname`, `service_id`, `service_state`, `service_description`) VALUES 
+    ('" . $db_storage->escape($result['ticket_id']) . "', '" . $db_storage->escape($row['host_id']) . "', '" . $db_storage->escape($row['host_state']) . "', '" . $db_storage->escape($row['host_name']) . "', '" . $db_storage->escape($row['service_id']) . "', '" . $db_storage->escape($row['service_state']) . "', '" . $db_storage->escape($row['description']) . "')");
             }
             
             if (!is_null($extra_args['data_type']) && !is_null($extra_args['data'])) {
@@ -697,6 +710,13 @@ abstract class AbstractProvider {
             $db_storage->rollback();
             $result['ticket_error_message'] = $e->getMessage();
             return $result;
+        }
+    }
+    
+    public function closeTicket(&$tickets) {
+        // By default, yes tickets are removed (even no). -1 means a error
+        foreach ($tickets as $k => $v) {
+            $tickets[$k]['status'] = 1;
         }
     }
 }

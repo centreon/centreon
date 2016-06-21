@@ -115,7 +115,7 @@ if ($get_information['form']['cmd'] == 3) {
         $selected_str_append = ' OR ';
     }
     
-    $query = "SELECT services.*, hosts.name as host_name, hosts.instance_id FROM services, hosts";
+    $query = "SELECT services.*, hosts.state as host_state, hosts.name as host_name, hosts.instance_id FROM services, hosts";
     $query_where = " WHERE (" . $selected_str . ') AND services.host_id = hosts.host_id';
     if (!$centreon_bg->is_admin) {
         $query_where .= " AND EXISTS(SELECT * FROM centreon_acl WHERE centreon_acl.group_id IN (" . $centreon_bg->grouplistStr . ") AND hosts.host_id = centreon_acl.host_id 
@@ -124,6 +124,7 @@ if ($get_information['form']['cmd'] == 3) {
     
     $DBRESULT = $db_storage->query($query . $query_where);
     while (($row = $DBRESULT->fetchRow())) {
+        $row['service_state'] = $row['state'];
         $row['state_str'] = get_service_state_str($row['state']);
         $row['last_state_change_duration'] = CentreonDuration::toString(time() - $row['last_state_change']);
         $row['last_hard_state_change_duration'] = CentreonDuration::toString(time() - $row['last_hard_state_change']);
@@ -146,6 +147,7 @@ if ($get_information['form']['cmd'] == 3) {
 
     $DBRESULT = $db_storage->query($query . $query_where);
     while (($row = $DBRESULT->fetchRow())) {
+        $row['host_state'] = $row['state'];
         $row['state_str'] = get_host_state_str($row['state']);
         $row['last_state_change_duration'] = CentreonDuration::toString(time() - $row['last_state_change']);
         $row['last_hard_state_change_duration'] = CentreonDuration::toString(time() - $row['last_hard_state_change']);

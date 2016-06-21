@@ -310,8 +310,8 @@ if (isset($preferences['order_by']) && $preferences['order_by'] != "") {
 $query .= "ORDER BY $orderby";
 $query .= " LIMIT ".($page * $preferences['entries']).",".$preferences['entries'];
 
-$fp = fopen('/tmp/debug.txt', 'a+');
-fwrite($fp, "======$query===\n");
+#$fp = fopen('/tmp/debug.txt', 'a+');
+#fwrite($fp, "======$query===\n");
 $res = $dbb->query($query);
 $nbRows = $dbb->numberRows();
 $data = array();

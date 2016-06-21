@@ -12,8 +12,8 @@
             {if $preferences.display_execution_time}<td class='ListColHeaderCenter' name='execution_time'>Execution Time</td>{/if}
             {if $preferences.display_output}<td class='ListColHeaderCenter' name='output'>Status information</td>{/if}
             {if $preferences.display_ticket_id}<td class='ListColHeaderCenter' name='ticket_id'>Ticket ID</td>{/if}
-            {if $preferences.display_ticket_time}<td class='ListColHeaderCenter' name='ticket_id'>Ticket Time</td>{/if}
-            {if $preferences.display_ticket_subject}<td class='ListColHeaderCenter' name='ticket_id'>Ticket Subject</td>{/if}
+            {if $preferences.display_ticket_time}<td class='ListColHeaderCenter' name='ticket_time'>Ticket Time</td>{/if}
+            {if $preferences.display_ticket_subject}<td class='ListColHeaderCenter' name='ticket_subject'>Ticket Subject</td>{/if}
 	</tr>
 	{assign var='previous' value=''}
 	{assign var='classStyle' value='list_two'}

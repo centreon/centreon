@@ -59,7 +59,7 @@ if (!isset($preferences['opened_tickets']) || $preferences['opened_tickets'] == 
         $actions .= "<option value='4'>"._("Host: Open ticket")."</option>";
     }
 } else {
-    $actions .= "<option value='10'>" . _("Remove Tickets") . "</option>";
+    $actions .= "<option value='10'>" . _("Close Tickets") . "</option>";
 }
 
 $template->assign("widgetId", $widgetId);

@@ -220,7 +220,6 @@ Output: {$service.output|substr:0:1024}
      * @return void
      */
     protected function _getConfigContainer2Extra() {
-        
     }
     
     protected function saveConfigExtra() {
@@ -604,6 +603,28 @@ Output: {$service.output|substr:0:1024}
         return 0;
     }
     
+    protected function closeTicketOtrs($ticket_number) {
+        if ($this->_otrs_connected == 0) {
+            if ($this->loginOtrs() == -1) {
+                return -1;
+            }
+        }
+        
+        $argument = array(
+            'SessionID' => $this->_otrs_session,
+            'TicketNumber' => $ticket_number,
+            'Ticket' => array(
+                'State' => 'closed successful',
+            ),
+        );
+
+        if ($this->callRest('TicketUpdate', $argument) == 1) {
+            return -1;
+        }
+        
+        return 0;
+    }
+    
     protected function createTicketOtrs($ticket_arguments, $ticket_dynamic_fields) {
         if ($this->_otrs_connected == 0) {
             if ($this->loginOtrs() == -1) {
@@ -715,5 +736,20 @@ Output: {$service.output|substr:0:1024}
         
         $this->_otrs_call_response = $decoded_result;
         return 0;
+    }
+    
+    public function closeTicket(&$tickets) {
+        if ($this->doCloseTicket()) {
+            foreach ($tickets as $k => $v) {
+                if ($this->closeTicketOtrs($k) == 0) {
+                    $tickets[$k]['status'] = 2;
+                } else {
+                    $tickets[$k]['status'] = -1;
+                    $tickets[$k]['msg_error'] = $this->ws_error;
+                }
+            }
+        } else {
+            parent::closeTicket($tickets);
+        }
     }
 }
