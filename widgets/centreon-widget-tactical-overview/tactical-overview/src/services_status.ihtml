@@ -16,11 +16,11 @@
 	<div id="tactical-overview"></div>
         <table class='StyleTable ListTable'>
                 <tr class="ListHeader">
-                        <td class='ListColHeaderLeft'><a href="/centreon/main.php?p=20201&o=svc_critical&search=" target="_blank"><span class="badge service_critical margin_right">{$dataCRI[0].statue}</span>Critical</a></td>
-                        <td class='ListColHeaderLeft'><a href="/centreon/main.php?p=20201&o=svc_warning&search=" target="_blank"><span class="badge service_warning margin_right">{$dataWA[0].statue}</span>Warning</a></td>
-			<td class='ListColHeaderLeft'><a href="/centreon/main.php?p=20201&o=svc_unknown&search=" target="_blank"><span class="badge service_unknown margin_right">{$dataUNK[0].statue}</span>Unknown</a></td>
-                        <td class='ListColHeaderLeft'><a href="/centreon/main.php?p=20201&o=svc_ok&search=" target="_blank"><span class="badge service_ok margin_right">{$dataOK[0].statue}</span>Ok</a></td>
-                        <td class='ListColHeaderLeft'><a href="/centreon/main.php?p=20201&o=svc_pending&search=" target="_blank"><span class="badge pending margin_right">{$dataPEND[0].statue}</span>Pending</a></td>
+                        <td class='ListColHeaderLeft'><a href="/centreon/main.php?p=20201&o=svc_critical&search=" target="_blank"><span class="badge service_critical margin_right">{$dataCRI[0].status}</span>Critical</a></td>
+                        <td class='ListColHeaderLeft'><a href="/centreon/main.php?p=20201&o=svc_warning&search=" target="_blank"><span class="badge service_warning margin_right">{$dataWA[0].status}</span>Warning</a></td>
+			<td class='ListColHeaderLeft'><a href="/centreon/main.php?p=20201&o=svc_unknown&search=" target="_blank"><span class="badge service_unknown margin_right">{$dataUNK[0].status}</span>Unknown</a></td>
+                        <td class='ListColHeaderLeft'><a href="/centreon/main.php?p=20201&o=svc_ok&search=" target="_blank"><span class="badge service_ok margin_right">{$dataOK[0].status}</span>Ok</a></td>
+                        <td class='ListColHeaderLeft'><a href="/centreon/main.php?p=20201&o=svc_pending&search=" target="_blank"><span class="badge pending margin_right">{$dataPEND[0].status}</span>Pending</a></td>
                </tr>
                <tr class="line_ack">
                         <td class='ListColLeft'><span class="badge service_critical margin_right">{$dataCRI[0].ack}</span>Acknowledge</td>
