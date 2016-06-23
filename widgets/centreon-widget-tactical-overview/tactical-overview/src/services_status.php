@@ -44,27 +44,40 @@ $queryCRI = "SELECT SUM(CASE WHEN s.state = 2 and s.enabled = 1 and h.name not l
          SUM(CASE WHEN s.acknowledged = 1 AND s.state = 2 and s.enabled = 1 and h.name not like '%Module%' THEN 1 ELSE 0 END) as ack,                                                                                                      
          SUM(CASE WHEN s.scheduled_downtime_depth = 1 AND s.state = 2 and s.enabled = 1 and h.name not like '%Module%' THEN 1 ELSE 0 END) as down,
          SUM(CASE WHEN s.state = 2 and (h.state = 1 or h.state = 4 or h.state = 2) and s.enabled = 1 and h.name not like '%Module%' then 1 else 0 END) as pb
-         FROM services s, hosts h " .($centreon->user->admin == 0 ? ", centreon_acl acl" : ""). " where h.host_id = s.host_id ".($centreon->user->admin == 0 ? " AND h.host_id = acl.host_id AND s.service_id = acl.service_id AND s.host_id = acl.host_id and acl.group_id IN (" .($grouplistStr != "" ? $grouplistStr : 0).")" : ""). ";";
+         FROM services AS s
+         LEFT JOIN hosts AS h ON h.host_id = s.host_id "
+         .($centreon->user->admin == 0 ? "JOIN (SELECT acl.host_id, acl.service_id FROM centreon_acl AS acl WHERE acl.group_id IN (" .($grouplistStr != "" ? $grouplistStr : 0). ") 
+         GROUP BY host_id,service_id) x ON x.host_id = h.host_id AND x.service_id = s.service_id" : "") . ";";
 
 $queryWA = "SELECT SUM(CASE WHEN s.state = 1 and s.enabled = 1 and h.name not like '%Module%' THEN 1 ELSE 0 END) as status,                                                                                                               
          SUM(CASE WHEN s.acknowledged = 1 AND s.state = 1 and s.enabled = 1 and h.name not like '%Module%' THEN 1 ELSE 0 END) as ack,                                                                                                     
          SUM(CASE WHEN s.scheduled_downtime_depth = 1 AND s.state = 1 and s.enabled = 1 and h.name not like '%Module%' THEN 1 ELSE 0 END) as down,
          SUM(CASE WHEN s.state = 1 and (h.state = 1 or h.state = 4 or h.state = 2) and s.enabled = 1 and h.name not like '%Module%' then 1 else 0 END) as pb                                                                               
-         FROM services s, hosts h " .($centreon->user->admin == 0 ? ", centreon_acl acl" : ""). " where h.host_id = s.host_id ".($centreon->user->admin == 0 ? " AND h.host_id = acl.host_id AND s.service_id = acl.service_id AND s.host_id = acl.host_id and acl.group_id IN (" .($grouplistStr != "" ? $grouplistStr : 0).")" : ""). ";";
+         FROM services AS s
+         LEFT JOIN hosts AS h ON h.host_id = s.host_id "
+         .($centreon->user->admin == 0 ? "JOIN (SELECT acl.host_id, acl.service_id FROM centreon_acl AS acl WHERE acl.group_id IN (" .($grouplistStr != "" ? $grouplistStr : 0). ")
+         GROUP BY host_id,service_id) x ON x.host_id = h.host_id AND x.service_id = s.service_id" : "") . ";";
 
-$queryOK = "SELECT SUM(CASE WHEN s.state = 0 and s.enabled = 1 and h.name not like '%Module%' THEN 1 ELSE 0 END) as status                                                                                                                
-            FROM services s, hosts h " .($centreon->user->admin == 0 ? ", centreon_acl acl" : ""). " where h.host_id = s.host_id ".($centreon->user->admin == 0 ? " AND h.host_id = acl.host_id AND s.service_id = acl.service_id AND s.host_id = acl.host_id and acl.group_id IN (" .($grouplistStr != "" ? $grouplistStr : 0).")" : ""). ";";
-
+$queryOK = "SELECT SUM(CASE WHEN s.state = 0 and s.enabled = 1 and h.name not like '%Module%' THEN 1 ELSE 0 END) as status 
+            FROM services AS s
+            LEFT JOIN hosts AS h ON h.host_id = s.host_id "
+            .($centreon->user->admin == 0 ? "JOIN (SELECT acl.host_id, acl.service_id FROM centreon_acl AS acl WHERE acl.group_id IN (" .($grouplistStr != "" ? $grouplistStr : 0). ")
+            GROUP BY host_id,service_id) x ON x.host_id = h.host_id AND x.service_id = s.service_id" : "") . ";";
+                                                                                                              
 $queryPEND = "SELECT SUM(CASE WHEN s.state = 4 and s.enabled and h.name not like '%Module%' THEN 1 ELSE 0 END) as status                                                                                                              
-            FROM services s, hosts h " .($centreon->user->admin == 0 ? ", centreon_acl acl" : ""). " where h.host_id = s.host_id ".($centreon->user->admin == 0 ? " AND h.host_id = acl.host_id AND s.service_id = acl.service_id AND s.host_id = acl.host_id and acl.group_id IN (" .($grouplistStr != "" ? $grouplistStr : 0).")" : ""). ";";
+              FROM services AS s
+              LEFT JOIN hosts AS h ON h.host_id = s.host_id "
+              .($centreon->user->admin == 0 ? "JOIN (SELECT acl.host_id, acl.service_id FROM centreon_acl AS acl WHERE acl.group_id IN (" .($grouplistStr != "" ? $grouplistStr : 0). ")
+              GROUP BY host_id,service_id) x ON x.host_id = h.host_id AND x.service_id = s.service_id" : "") . ";";
 
 $queryUNK = "SELECT SUM(CASE WHEN s.state = 3 and s.enabled = 1 and h.name not like '%Module%' THEN 1 ELSE 0 END) as status,
              SUM(CASE WHEN s.acknowledged = 1 AND s.state = 3 and s.enabled = 1 and h.name not like '%Module%' THEN 1 ELSE 0 END) as ack,                                                                                                  
              SUM(CASE WHEN s.state = 3 and s.enabled = 1 and h.name not like '%Module%' and (s.scheduled_downtime_depth = 1 or h.scheduled_downtime_depth = 1) THEN 1 ELSE 0 END) as down,
              SUM(CASE WHEN s.state = 3 and (h.state = 1 or h.state = 4 or h.state = 2) and s.enabled = 1 and h.name not like '%Module%' then 1 else 0 END) as pb
-             FROM services s, hosts h " .($centreon->user->admin == 0 ? ", centreon_acl acl" : ""). " where h.host_id = s.host_id ".($centreon->user->admin == 0 ? " AND h.host_id = acl.host_id AND s.service_id = acl.service_id AND s.host_id = acl.host_id and acl.group_id IN (" .($grouplistStr != "" ? $grouplistStr : 0).")" : ""). ";";
-
-
+             FROM services AS s
+             LEFT JOIN hosts AS h ON h.host_id = s.host_id "
+             .($centreon->user->admin == 0 ? "JOIN (SELECT acl.host_id, acl.service_id FROM centreon_acl AS acl WHERE acl.group_id IN (" .($grouplistStr != "" ? $grouplistStr : 0).")
+             GROUP BY host_id,service_id) x ON x.host_id = h.host_id AND x.service_id = s.service_id" : "") . ";";
 
 $numLine = 1;
 
@@ -97,7 +110,6 @@ while ($row = $res->fetchRow()) {
 }
 
 $autoRefresh = $preferences['autoRefresh'];
-
 
 $template->assign('widgetId', $widgetId);
 $template->assign('autoRefresh', $autoRefresh);
