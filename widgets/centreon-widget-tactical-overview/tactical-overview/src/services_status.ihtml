@@ -44,9 +44,9 @@
                         <td></td>
                 </tr>
 		<tr class="list_one">
-		    <td class="ListColLeft"><span class="badge service_critical margin_right">{$dataCRI[0].pb}</span>Problem_on_host</td>
-		    <td class="ListColLeft"><span class="badge service_warning margin_right">{$dataWA[0].pb}</span>Problem_on_host</td>
-		    <td class="ListColLeft"><span class="badge service_unknown margin_right">{$dataUNK[0].pb}</span>Problem_on_host</td>
+		    <td class="ListColLeft"><span class="badge service_critical margin_right">{$dataCRI[0].pb}</span>Problem on host</td>
+		    <td class="ListColLeft"><span class="badge service_warning margin_right">{$dataWA[0].pb}</span>Problem on host</td>
+		    <td class="ListColLeft"><span class="badge service_unknown margin_right">{$dataUNK[0].pb}</span>Problem on host</td>
 		    <td></td>
 		    <td></td>
 		</tr>
