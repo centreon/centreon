@@ -68,6 +68,8 @@ $resultat = array(
 //$fp = fopen('/tmp/debug.txt', 'a+');
 //fwrite($fp, print_r($get_information, true));
 
+$_SESSION['OT_form_logs'] = $get_information['form'];
+
 try {
     $tickets = $ticket_log->getLog($get_information['form'], $centreon_bg, $get_information['pagination'], $get_information['current_page']);
     //fwrite($fp, print_r($tickets, true));

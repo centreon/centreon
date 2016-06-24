@@ -57,13 +57,14 @@ $periods = array(""=>"",
 				"31104000"=>_("Last Year"));
 
 $form->addElement('select', 'period', _("Log Period"), $periods);
-$form->addElement('text', 'StartDate', '', array("id"=>"StartDate", "class" => "datepicker", "size"=>8));
-$form->addElement('text', 'StartTime', '', array("id"=>"StartTime", "class"=>"timepicker", "size"=>5));
-$form->addElement('text', 'EndDate', '', array("id"=>"EndDate", "class" => "datepicker", "size"=>8));
-$form->addElement('text', 'EndTime', '', array("id"=>"EndTime", "class"=>"timepicker", "size"=>5));
+$form->addElement('text', 'StartDate', '', array("id" => "StartDate", "class" => "datepicker", "size"=>8));
+$form->addElement('text', 'StartTime', '', array("id" => "StartTime", "class" => "timepicker", "size"=>5));
+$form->addElement('text', 'EndDate', '', array("id" => "EndDate", "class" => "datepicker", "size"=>8));
+$form->addElement('text', 'EndTime', '', array("id" => "EndTime", "class" => "timepicker", "size"=>5));
 $form->addElement('text', 'subject', _("Subject"), array("id" => "subject", "style" => "width: 203px;", "size" => 15, "value" => ''));
+$form->addElement('text', 'ticket_id', _("Ticket ID"), array("id" => "ticket_id", "style" => "width: 203px;", "size" => 15, "value" => ''));
 
-$form->addElement('button', 'graph', _("Apply"), array("onclick"=>"applyForm()","class"=>"btc bt_success"));
+$form->addElement('submit', 'graph', _("Apply"), array("onclick" => "return applyForm();", "class" => "btc bt_success"));
 
 $attrHosts = array(
     'datasourceOrigin' => 'ajax',
@@ -72,8 +73,8 @@ $attrHosts = array(
     'multiple' => true
 );
 $attrHost1 = array_merge(
-    $attrHosts,
-    array('defaultDatasetRoute' => './include/common/webServices/rest/internal.php?object=centreon_configuration_host&action=defaultValues&target=host&field=host_parents&id=')
+    $attrHosts/* ,
+   array('defaultDatasetRoute' => './include/common/webServices/rest/internal.php?object=centreon_configuration_host&action=defaultValues&target=host&field=host_parents&id=')*/
 );
 $form->addElement('select2', 'host_filter', _("Hosts"), array(), $attrHost1);
 
@@ -84,8 +85,8 @@ $attrService = array(
     'multiple' => true
 );
 $attrService1 = array_merge(
-    $attrService,
-    array('defaultDatasetRoute' => './include/common/webServices/rest/internal.php?object=centreon_configuration_service&action=defaultValues&target=service&field=service_sgs&id=')
+    $attrService /*,
+    array('defaultDatasetRoute' => './include/common/webServices/rest/internal.php?object=centreon_configuration_service&action=defaultValues&target=service&field=service_sgs&id=')*/
 );
 $form->addElement('select2', 'service_filter', _("Services"), array(), $attrService1);
 

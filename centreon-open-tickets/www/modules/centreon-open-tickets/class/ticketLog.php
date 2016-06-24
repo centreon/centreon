@@ -83,9 +83,10 @@ class Centreon_OpenTickets_Log
      *       [StartTime] => 10:20
      *       [EndDate] => 06/06/2016
      *       [EndTime] =>
+     *       [ticket_id] => XXXX
      *       [period] => 10800
      */
-    public function getLog($params, $centreon_bg, $pagination=30, $current_page=1) {
+    public function getLog($params, $centreon_bg, $pagination=30, $current_page=1, $all=false) {
         /* Get time */
         $range_time = $this->getTime($params['StartDate'], $params['StartTime'], $params['EndDate'], $params['EndTime'], $params['period']);
         
@@ -95,6 +96,9 @@ class Centreon_OpenTickets_Log
         }
         if (!is_null($range_time['end'])) {
             $query .= "mot.timestamp <= " . $range_time['end'] . " AND ";
+        }
+        if (!is_null($params['ticket_id']) && $params['ticket_id'] != '') {
+            $query .= "mot.ticket_value LIKE '%" . $this->_db->escape($params['ticket_id']) . "%' AND ";
         }
         if (!is_null($params['subject']) && $params['subject'] != '') {
             $query .= "motd.subject LIKE '%" . $this->_db->escape($params['subject']) . "%' AND ";
@@ -109,7 +113,7 @@ class Centreon_OpenTickets_Log
                 $build_services_filter_append = 'OR ';
             }
         }
-        if (count($params['host_filter']) > 0) {
+        if (isset($params['host_filter']) && count($params['host_filter']) > 0) {
             if ($build_services_filter != '') {
                $query .= "(motl.host_id IN (" . join(',', $params['host_filter']) . ") OR (" . $build_services_filter . ")) AND ";
             } else {
@@ -128,17 +132,22 @@ class Centreon_OpenTickets_Log
         $query .= "ORDER BY `timestamp` DESC ";
         
         /* Pagination */
-        if ($current_page <= 0) {
+        if (is_null($current_page) || $current_page <= 0) {
             $current_page = 1;
         }
-        if ($pagination <= 0) {
+        if (is_null($pagination) || $pagination <= 0) {
             $pagination = 30;
         }
-        $query .= "LIMIT " . (($current_page - 1) * $pagination) . ', ' . $pagination; 
+        
+        if ($all == false) {
+            $query .= "LIMIT " . (($current_page - 1) * $pagination) . ', ' . $pagination; 
+        }
         
         $result['tickets'] = $this->_db->getAll($query);
         $rows = $this->_db->numberRows();
         $result['rows'] = $rows;
+        $result['start'] = $range_time['start'];
+        $result['end'] = $range_time['end'];
         
         return $result;
     }

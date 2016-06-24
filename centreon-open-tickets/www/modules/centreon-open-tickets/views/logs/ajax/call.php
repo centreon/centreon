@@ -42,9 +42,15 @@ require_once SMARTY_DIR . "Smarty.class.php";
 require_once $centreon_path . 'www/include/common/common-Func.php';
 
 $resultat = array("code" => 0, "msg" => "");
-$actions = array("get-logs" => dirname(__FILE__) . "/actions/getLogs.php");
+$actions = array("get-logs" => dirname(__FILE__) . "/actions/getLogs.php",
+                 "export-csv" => dirname(__FILE__) . "/actions/exportCSV.php",
+                 "export-xml" => dirname(__FILE__) . "/actions/exportXML.php");
 if (!isset($_POST['data'])) {
-    $resultat = array("code" => 1, "msg" => "POST 'data' needed.");
+    if (!isset($_GET['action'])) {
+        $resultat = array("code" => 1, "msg" => "POST 'data' needed.");
+    } else {
+        include($actions[$_GET['action']]);
+    }
 } else {
     $get_information = json_decode($_POST['data'], true);
     if (!isset($get_information['action']) ||

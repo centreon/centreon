@@ -6,7 +6,7 @@
                 <div id="toolbar_{$position}"></div>
             </td>
             <td class="Toolbar_pagelimit">
-                <a href="javascript:log_4_host(this,%20'',%20'CSV')"><img title="{t}Export CSV{/t}" alt="Export CSV" class="ico-20" src="./img/icons/csv.png"></a><a href="javascript:log_4_host(this,%20'',%20'Xml')"><img title="{t}Export XML{/t}" alt="Export XML" class="ico-20" src="./img/icons/xml.png"></a>
+                <a href="./modules/centreon-open-tickets/views/logs/ajax/call.php?action=export-csv"><img title="{t}Export CSV{/t}" alt="Export CSV" class="ico-20" src="./img/icons/csv.png"></a><a href="./modules/centreon-open-tickets/views/logs/ajax/call.php?action=export-xml"><img title="{t}Export XML{/t}" alt="Export XML" class="ico-20" src="./img/icons/xml.png"></a>
                 <select id="num_pagination_{$position}" onchange="OTApplyPagination(this.value); return false;" name="l"><option value="10">10</option>
                     <option value="20">20</option>
                     <option value="30" selected>30</option>
@@ -29,6 +29,16 @@ function OTApplyPagination(value_select) {
     jQuery('#num_pagination_bottom').val(value_select);
     jQuery('#num_pagination_top').val(value_select);
     applyForm(1);
+}
+
+function exportCSV() {      
+    var data = {
+        "action": "export-csv",
+        "form": jQuery("#FormTicketLogs").serializeObject()
+    }
+    
+    call_ajax_async(data, undefined, './modules/centreon-open-tickets/views/logs/ajax/call.php');
+    return false;
 }
 </script>
 {/literal}

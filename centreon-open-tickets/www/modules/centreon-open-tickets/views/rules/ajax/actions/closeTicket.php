@@ -94,11 +94,11 @@ $query .= ") ORDER BY `host_name`, `description`, `timestamp` DESC";
 
 $hosts_done = array();
 
-$fp = fopen('/tmp/debug.txt', 'a+');
-#fwrite($fp, "===$query===\n");
-#fwrite($fp, print_r($selected_values, true) . "==\n");
+//$fp = fopen('/tmp/debug.txt', 'a+');
+//fwrite($fp, "===$query===\n");
+//fwrite($fp, print_r($selected_values, true) . "==\n");
 
-#It can display host tickets when i close. because in my database, i get the history for host also (if hard state had not changed).
+//It can display host tickets when i close. because in my database, i get the history for host also (if hard state had not changed).
 
 $DBRESULT = $db_storage->query($query);
 while (($row = $DBRESULT->fetchRow())) {

@@ -7,28 +7,29 @@
         <tr>
             <td class="checkbox"><h4>{$form.host_filter.label}</h4></td>
             <td class="checkbox"><h4>{$form.service_filter.label}</h4></td>
-            <td colspan='2'><h4>{$form.subject.label}</h4></td>
+            <td class="log-select"><h4>{$form.subject.label}</h4></td>
+            <td class="log-select" colspan="2"><h4>{$form.ticket_id.label}</h4></td>
         </tr>
         <tr>
             <td class="log-select">{$form.host_filter.html}</td>
             <td class="log-select">{$form.service_filter.html}</td>
-            <td class="log-select" colspan='2'>{$form.subject.html}</td>
+            <td class="log-select">{$form.subject.html}</td>
+            <td class="log-select" colspan="2">{$form.ticket_id.html}</td>
         </tr>
         <tr>
             <td><h4>{t}From{/t}</h4></td>
             <td><h4>{t}To{/t}</h4></td>
-    	    <td colspan='2'><h4>{$form.period.label}</h4></td>
+    	    <td colspan='3'><h4>{$form.period.label}</h4></td>
         </tr>
         <tr>
-            <td>{$form.StartDate.html}{$form.StartTime.html}</td>
-    	    <td>{$form.EndDate.html}{$form.EndTime.html}</td>
-            <td>{$form.period.html}</td>
-            <td>{$form.graph.html}</td>
+            <td>{$form.StartDate.html} {$form.StartTime.html}</td>
+    	    <td>{$form.EndDate.html} {$form.EndTime.html}</td>
+            <td colspan="2">{$form.period.html}</td>
+            <td align="right" style="padding-right: 100px">{$form.graph.html}</td>
         </tr>
     </table>
 </div>
 </form>
-<div id="logViewTicket">
 <div>
     {include file='toolbar.ihtml' position="top"}
     <div style="">
@@ -54,11 +55,10 @@
 <script type="text/javascript">
 
 var $callback_OTGetLogs = function(res) {
-    //jQuery("#rule_error").html("Full response: " + res);
     jQuery("#toolbar_top").empty();
     var data_ret = JSON.parse(res);
     if (data_ret['code'] == 1) {
-        jQuery("#rule_error").html(data_ret['msg']);
+        console.log(data_ret);
     } else {
         jQuery("#OTFindcontainer1").after(data_ret['data']);
         jQuery("#toolbar_top").html(data_ret['pagination']);
@@ -66,9 +66,7 @@ var $callback_OTGetLogs = function(res) {
     }
 };
 
-function applyForm(current_page) {
-    jQuery("#rule_error").html('');
-    
+function applyForm(current_page) {    
     current_page = typeof current_page !== 'undefined' ? current_page : 1;
     
     var data = {
