@@ -1,10 +1,10 @@
 var timeout;
 
 jQuery(function() {
-        releadWidget();
+        reloadWidget();
     });
 
-function releadWidget() {
+function reloadWidget() {
     jQuery.ajax("./index.php", {
             success : function(htmlData) {
                 jQuery("#infoAjax").html("");
@@ -21,6 +21,6 @@ function releadWidget() {
         if (timeout) {
             clearTimeout(timeout);
         }
-        timeout = setTimeout(releadWidget, (autoRefresh * 1000));
+        timeout = setTimeout(reloadWidget, (autoRefresh * 1000));
     }
 }
