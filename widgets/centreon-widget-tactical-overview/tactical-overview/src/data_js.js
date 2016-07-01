@@ -1,11 +1,10 @@
 var timeout;
 
 jQuery(function() {
-        console.log("jQuery function");
-        loadTop10();
+        releadWidget();
     });
 
-function loadTop10() {
+function releadWidget() {
     jQuery.ajax("./index.php", {
             success : function(htmlData) {
                 jQuery("#infoAjax").html("");
@@ -22,6 +21,6 @@ function loadTop10() {
         if (timeout) {
             clearTimeout(timeout);
         }
-        timeout = setTimeout(loadTop10, (autoRefresh * 1000));
+        timeout = setTimeout(releadWidget, (autoRefresh * 1000));
     }
 }
