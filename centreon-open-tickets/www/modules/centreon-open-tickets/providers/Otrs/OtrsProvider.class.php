@@ -643,7 +643,7 @@ Output: {$service.output|substr:0:1024}
                 //'PriorityID' => xxx,
                 'Priority' => $ticket_arguments['Priority'],
                 //'TypeID' => 123, 
-                //'Type' => $ticket_arguments['Type'],
+                'Type' => $ticket_arguments['Type'],
                 //'OwnerID'       => 123,
                 //'Owner'         => 'some user login',
                 //'ResponsibleID' => 123,
@@ -709,6 +709,7 @@ Output: {$service.output|substr:0:1024}
         curl_setopt($ch, CURLOPT_TIMEOUT, $this->rule_data['timeout']);
         curl_setopt($ch, CURLOPT_POSTFIELDS, $argument_json);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
         curl_setopt($ch, CURLOPT_HTTPHEADER, array(
             'Content-Type: application/json',
             'Accept: application/json',
