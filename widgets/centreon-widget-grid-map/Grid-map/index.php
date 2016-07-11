@@ -111,7 +111,8 @@ $query1 = "SELECT DISTINCT T1.name, T2.host_id " .
           "WHERE T1.host_id = T2.host_id ".
           "AND T1.enabled = 1 ".
           "AND T2.hostgroup_id = ".$preferences['host_group'].
-          ($centreon->user->admin == 0 ? " AND T1.host_id = acl.host_id AND T2.host_id = acl.host_id AND acl.group_id IN (" .($grouplistStr != "" ? $grouplistStr : 0).")" : "");
+          ($centreon->user->admin == 0 ? " AND T1.host_id = acl.host_id AND T2.host_id = acl.host_id AND acl.group_id IN (" .($grouplistStr != "" ? $grouplistStr : 0).")" : "").
+          " ORDER BY T1.name";
 
 /* Query 2 */
 $query2 = "SELECT distinct T1.description ".
