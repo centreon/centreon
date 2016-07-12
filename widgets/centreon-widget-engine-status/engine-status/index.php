@@ -98,7 +98,7 @@ while ($row = $res->fetchRow()) {
 
 $queryLat = "Select Max(T1.latency) as h_max, AVG(T1.latency) as h_moy, Max(T2.latency) as s_max, AVG(T2.latency) as s_moy 
              from hosts T1, services T2  
-             where T1.instance_id = ".$idP." and T1.host_id = T2.host_id;";
+             where T1.instance_id = ".$idP." and T1.host_id = T2.host_id and T2.enabled = '1';";
 
 $res = $db->query($queryLat);
 while ($row = $res->fetchRow()) {
@@ -112,7 +112,7 @@ while ($row = $res->fetchRow()) {
 
 $queryEx = "Select Max(T1.execution_time) as h_max, AVG(T1.execution_time) as h_moy, Max(T2.execution_time) as s_max, AVG(T2.execution_time) as s_moy 
             from hosts T1, services T2  
-            where T1.instance_id = ".$idP." and T1.host_id = T2.host_id;";
+            where T1.instance_id = ".$idP." and T1.host_id = T2.host_id and T2.enabled = '1';";
 
 $res = $db->query($queryEx);
 while ($row = $res->fetchRow()) {
