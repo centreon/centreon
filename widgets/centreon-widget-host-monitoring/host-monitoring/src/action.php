@@ -58,6 +58,7 @@ try {
     $cmd = $_REQUEST['cmd'];
     $hosts = explode(",", $_REQUEST['selection']);
     $externalCmd = new CentreonExternalCommand($centreon);
+
     $hostObj = new CentreonHost($db);
     $successMsg = _("External Command successfully submitted... Exiting window...");
     $result = 0;

@@ -1,6 +1,6 @@
 {literal}
     <style>
-        @import url('../../Themes/Centreon-2/style.css');
+    @import url('../../Themes/Centreon-2/style.css');
 	@import url('../../Themes/Centreon-2/Color/blue_css.php');
     </style>
 {/literal}
