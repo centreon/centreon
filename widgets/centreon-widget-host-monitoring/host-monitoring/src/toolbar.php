@@ -92,8 +92,6 @@ $template->assign("widgetId", $_POST['widgetId']);
 $template->display('toolbar.ihtml');
 ?>
 
-<!--<script type="text/javascript" src="../../include/common/javascript/jquery/plugins/colorbox/jquery.colorbox-min.js"></script>-->
-
 <script type="text/javascript" src="../../include/common/javascript/centreon/popin.js"></script>
 <script type='text/javascript'>
 
@@ -112,14 +110,6 @@ $(function() {
     			return tmp[1];
     		}).get().join(",");
             if (checkValues != '') {
-//                parent.jQuery.colorbox({
-//    							href		:	"./widgets/host-monitoring/src/action.php?selection="+checkValues+"&cmd="+jQuery(this).val(),
-//    							width		:	"50%",
-//    							height		:	"40%",
-//    							opacity		:	0.2,
-//    							overlayClose:	true,
-//    							iframe		: 	true
-//    						});
                 var url = "./widgets/host-monitoring/src/action.php?widgetId="+widgetId+"&sid="+sid+"&selection="+checkValues+"&cmd="+jQuery(this).val();
                 parent.jQuery('#WidgetDowntime').parent().remove();
                 var popin = parent.jQuery('<div id="WidgetDowntime">');
