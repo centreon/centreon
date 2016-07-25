@@ -293,6 +293,11 @@ if (isset($preferences['order_by']) && $preferences['order_by'] != "") {
     } else {
         $orderby = $preferences['order_by'];
     }
+
+    if (isset($preferences['order_by2']) && $preferences['order_by2'] != "") {
+        $aOrder = explode(" ", $preferences['order_by2']);
+        $orderby .= ", ".$aOrder[0]." ".$aOrder[1];
+    }
 }
 
 $query .= "ORDER BY $orderby";

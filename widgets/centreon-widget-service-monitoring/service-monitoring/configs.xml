@@ -4,7 +4,7 @@
   <email>contact@centreon.com</email>
   <website>http://www.centreon.com</website>
   <description>Widget for displaying service monitoring information</description>
-  <version>1.4.2</version>
+  <version>1.5.0</version>
   <keywords>centreon, widget, service, monitoring</keywords>
   <screenshot></screenshot>
   <thumbnail>./widgets/service-monitoring/resources/centreon-logo.png</thumbnail>
@@ -61,6 +61,10 @@
       <option value="last_check" label="Last Check"/>
       <option value="last_state_change" label="Duration"/>
       <option value="last_hard_state_change" label="Hard State Duration"/>
+    </preference>
+    <preference label="Order By status (second sort)" name="order_by2" defaultValue="" type="sort">
+      <option value="h_state" label="Host Status"/>
+      <option value="s_state" label="Service Status"/>
     </preference>
     <preference label="Refresh Interval (seconds)" name="refresh_interval" defaultValue="30" type="text" header="Misc"/>
     <preference label="Enable pagination and more actions" name="more_views" defaultValue="0" type="boolean"/>		
