@@ -2,17 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="ca8c952f-f588-4f75-a6a8-dabcece1addf" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/profiles_settings.xml" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/vcs.xml" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/hostgroup-monitoring/src/export.ihtml" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/hostgroup-monitoring/src/export.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/hostgroup-monitoring/data.js" afterPath="$PROJECT_DIR$/hostgroup-monitoring/data.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/hostgroup-monitoring/index.php" afterPath="$PROJECT_DIR$/hostgroup-monitoring/index.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/hostgroup-monitoring/src/data_js.js" afterPath="$PROJECT_DIR$/hostgroup-monitoring/src/data_js.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/hostgroup-monitoring/src/index.ihtml" afterPath="$PROJECT_DIR$/hostgroup-monitoring/src/index.ihtml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/hostgroup-monitoring/src/index.php" afterPath="$PROJECT_DIR$/hostgroup-monitoring/src/index.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/hostgroup-monitoring/src/table.ihtml" afterPath="$PROJECT_DIR$/hostgroup-monitoring/src/table.ihtml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/hostgroup-monitoring/src/export.php" afterPath="$PROJECT_DIR$/hostgroup-monitoring/src/export.php" />
     </list>
     <ignored path="centreon-widget-hostgroup-monitoring.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -34,100 +25,14 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="table.ihtml" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/hostgroup-monitoring/src/table.ihtml">
-          <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="-51.875">
-              <caret line="83" column="61" selection-start-line="83" selection-start-column="61" selection-end-line="83" selection-end-column="61" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="data.js" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/hostgroup-monitoring/data.js">
-          <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0">
-              <caret line="27" column="1" selection-start-line="27" selection-start-column="1" selection-end-line="27" selection-end-column="1" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="configs.xml" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/hostgroup-monitoring/configs.xml">
-          <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="-0.0">
-              <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="data_js.js" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/hostgroup-monitoring/src/data_js.js">
-          <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0">
-              <caret line="39" column="3" selection-start-line="39" selection-start-column="3" selection-end-line="39" selection-end-column="3" />
-              <folding>
-                <marker date="1469523284000" expanded="true" signature="671:704" placeholder="..." />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="index.php" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/hostgroup-monitoring/src/index.php">
-          <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="-23.083334">
-              <caret line="163" column="0" selection-start-line="163" selection-start-column="0" selection-end-line="163" selection-end-column="0" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="export.ihtml" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/hostgroup-monitoring/src/export.ihtml">
-          <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="-10.0">
-              <caret line="16" column="0" selection-start-line="16" selection-start-column="0" selection-end-line="16" selection-end-column="0" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="index.php" pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/hostgroup-monitoring/index.php">
-          <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.4919355">
-              <caret line="55" column="21" selection-start-line="55" selection-start-column="21" selection-end-line="55" selection-end-column="21" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="index.ihtml" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/hostgroup-monitoring/src/index.ihtml">
-          <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="-21.25">
-              <caret line="34" column="7" selection-start-line="34" selection-start-column="7" selection-end-line="34" selection-end-column="7" />
-              <folding>
-                <element signature="n#style#0;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
-                <element signature="n#style#0;n#div#1;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
-                <element signature="n#style#0;n#a#0;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="export.php" pinned="false" current-in-tab="false">
+      <file leaf-file-name="export.php" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/hostgroup-monitoring/src/export.php">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="-107.5">
-              <caret line="172" column="0" selection-start-line="172" selection-start-column="0" selection-end-line="172" selection-end-column="0" />
+            <state vertical-scroll-proportion="0.8548387">
+              <caret line="171" column="0" selection-start-line="171" selection-start-column="0" selection-end-line="171" selection-end-column="0" />
               <folding>
                 <element signature="e#6#1753#0#PHP" expanded="true" />
-                <marker date="1469520299000" expanded="true" signature="3320:3382" placeholder="SELECT `key`... options" />
+                <marker date="1469524757000" expanded="true" signature="3320:3382" placeholder="SELECT `key`... options" />
               </folding>
             </state>
           </provider>
@@ -143,12 +48,12 @@
       <list>
         <option value="$PROJECT_DIR$/hostgroup-monitoring/src/data_js.js" />
         <option value="$PROJECT_DIR$/hostgroup-monitoring/src/export.ihtml" />
-        <option value="$PROJECT_DIR$/hostgroup-monitoring/src/export.php" />
         <option value="$PROJECT_DIR$/hostgroup-monitoring/src/index.ihtml" />
         <option value="$PROJECT_DIR$/hostgroup-monitoring/src/index.php" />
         <option value="$PROJECT_DIR$/hostgroup-monitoring/src/table.ihtml" />
         <option value="$PROJECT_DIR$/hostgroup-monitoring/data.js" />
         <option value="$PROJECT_DIR$/hostgroup-monitoring/index.php" />
+        <option value="$PROJECT_DIR$/hostgroup-monitoring/src/export.php" />
       </list>
     </option>
   </component>
@@ -342,7 +247,7 @@
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
             <element signature="e#6#1753#0#PHP" expanded="true" />
-            <marker date="1469520299000" expanded="true" signature="3320:3382" placeholder="SELECT `key`... options" />
+            <marker date="1469524757000" expanded="true" signature="3320:3382" placeholder="SELECT `key`... options" />
           </folding>
         </state>
       </provider>
@@ -381,60 +286,37 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/hostgroup-monitoring/src/data_js.js">
+    <entry file="file://$PROJECT_DIR$/hostgroup-monitoring/index.php">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="39" column="3" selection-start-line="39" selection-start-column="3" selection-end-line="39" selection-end-column="3" />
-          <folding>
-            <marker date="1469523284000" expanded="true" signature="671:704" placeholder="..." />
-          </folding>
+        <state vertical-scroll-proportion="0.4919355">
+          <caret line="55" column="21" selection-start-line="55" selection-start-column="21" selection-end-line="55" selection-end-column="21" />
+          <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/hostgroup-monitoring/src/export.ihtml">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="-10.0">
+        <state vertical-scroll-proportion="0.38709676">
           <caret line="16" column="0" selection-start-line="16" selection-start-column="0" selection-end-line="16" selection-end-column="0" />
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/hostgroup-monitoring/src/export.php">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="-107.5">
-          <caret line="172" column="0" selection-start-line="172" selection-start-column="0" selection-end-line="172" selection-end-column="0" />
-          <folding>
-            <element signature="e#6#1753#0#PHP" expanded="true" />
-            <marker date="1469520299000" expanded="true" signature="3320:3382" placeholder="SELECT `key`... options" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/hostgroup-monitoring/src/index.ihtml">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="-21.25">
-          <caret line="34" column="7" selection-start-line="34" selection-start-column="7" selection-end-line="34" selection-end-column="7" />
-          <folding>
-            <element signature="n#style#0;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
-            <element signature="n#style#0;n#div#1;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
-            <element signature="n#style#0;n#a#0;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/hostgroup-monitoring/src/index.php">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="-23.083334">
+        <state vertical-scroll-proportion="0.89354837">
           <caret line="163" column="0" selection-start-line="163" selection-start-column="0" selection-end-line="163" selection-end-column="0" />
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/hostgroup-monitoring/src/table.ihtml">
+    <entry file="file://$PROJECT_DIR$/hostgroup-monitoring/src/data_js.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="-51.875">
-          <caret line="83" column="61" selection-start-line="83" selection-start-column="61" selection-end-line="83" selection-end-column="61" />
-          <folding />
+        <state vertical-scroll-proportion="0.9083851">
+          <caret line="39" column="3" selection-start-line="39" selection-start-column="3" selection-end-line="39" selection-end-column="3" />
+          <folding>
+            <marker date="1469523284000" expanded="true" signature="671:704" placeholder="..." />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -448,17 +330,40 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/hostgroup-monitoring/data.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
+        <state vertical-scroll-proportion="0.628882">
           <caret line="27" column="1" selection-start-line="27" selection-start-column="1" selection-end-line="27" selection-end-column="1" />
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/hostgroup-monitoring/index.php">
+    <entry file="file://$PROJECT_DIR$/hostgroup-monitoring/src/table.ihtml">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.4919355">
-          <caret line="55" column="21" selection-start-line="55" selection-start-column="21" selection-end-line="55" selection-end-column="21" />
+        <state vertical-scroll-proportion="2.0080645">
+          <caret line="83" column="61" selection-start-line="83" selection-start-column="61" selection-end-line="83" selection-end-column="61" />
           <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/hostgroup-monitoring/src/index.ihtml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.82258064">
+          <caret line="34" column="7" selection-start-line="34" selection-start-column="7" selection-end-line="34" selection-end-column="7" />
+          <folding>
+            <element signature="n#style#0;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#div#1;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#a#0;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/hostgroup-monitoring/src/export.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.8548387">
+          <caret line="171" column="0" selection-start-line="171" selection-start-column="0" selection-end-line="171" selection-end-column="0" />
+          <folding>
+            <element signature="e#6#1753#0#PHP" expanded="true" />
+            <marker date="1469524757000" expanded="true" signature="3320:3382" placeholder="SELECT `key`... options" />
+          </folding>
         </state>
       </provider>
     </entry>

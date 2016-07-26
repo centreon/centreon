@@ -160,7 +160,6 @@ while ($row = $res->fetchRow()) {
     }
     $data[] = $hostgroup;
 }
-var_dump($data);
 
 $template->assign('preferences', $preferences);
 $template->assign('hostStateLabels', $hostStateLabels);
