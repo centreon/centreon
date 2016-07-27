@@ -135,7 +135,7 @@ if (isset($preferences['enable_detailed_mode']) && $preferences['enable_detailed
 while ($row = $res->fetchRow()) {
     $data[$row['name']] = array('name'          => $row['name'],
                                 'svc_id'        => $row['servicegroup_id'],
-                                'sgurl'         => "main.php?p=20201&sg=" .$row['servicegroup_id'],
+                                'sgurl'         => "main.php?p=20201&search=0&host_search=0&output_search=0&hg=0&sg=" .$row['servicegroup_id'],
                                 'hosturl'       => "main.php?p=20202",
                                 'host_state'    => $sgMonObj->getHostStates($row['name'], $detailMode, $centreon->user->admin, $aclObj, $preferences),
                                 'service_state' => $sgMonObj->getServiceStates($row['name'], $detailMode, $centreon->user->admin, $aclObj, $preferences));
