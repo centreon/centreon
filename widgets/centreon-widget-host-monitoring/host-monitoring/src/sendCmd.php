@@ -153,6 +153,7 @@ try {
                     }
                 }
             }
+            var_dump($pollerId);
         }
         $externalCmd->write();
     }

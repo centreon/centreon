@@ -110,7 +110,7 @@ try {
                 $process_service_checked = 'checked';
             }
             $template->assign('process_service_checked', $process_service_checked);
-            
+
             $force_active_checked = '';
             if (isset($centreon->optGen['monitoring_ack_active_checks']) && $centreon->optGen['monitoring_ack_active_checks']) {
                 $force_active_checked = 'checked';

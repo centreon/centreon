@@ -4,7 +4,7 @@
     <email>contact@centreon.com</email>
     <website>http://www.centreon.com</website>
     <description>Widget for displaying host monitoring information</description>
-    <version>1.4.2</version>
+    <version>1.6.2</version>
     <keywords>centreon, widget, host, monitoring</keywords>
     <screenshot></screenshot>
     <thumbnail>./widgets/host-monitoring/resources/centreon-logo.png</thumbnail>
@@ -24,6 +24,10 @@
             <option value="downtime" label="In downtime"/>
             <option value="ndowntime" label="Not in downtime"/>
         </preference>
+
+        <!-- #14 Poller name -->
+        <preference label="Pollers Name Filter" name="poller_filter" type="poller"/>
+
         <preference label="State Type" name="state_type_filter" type="list">
             <option value="hardonly" label="Hard Only"/>
             <option value="softonly" label="Soft Only"/>

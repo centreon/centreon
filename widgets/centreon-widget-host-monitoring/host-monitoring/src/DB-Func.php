@@ -38,7 +38,7 @@ function getColors($db) {
 		       1 => "#F91E05",
 		       2 => "#82CFD8",
 		       4 => "#2AD1D4");
-  
+
   // Get configured colors
   $res = $db->query("SELECT `key`, `value` FROM `options` WHERE `key` LIKE 'color%'");
   while ($row = $res->fetchRow()) {

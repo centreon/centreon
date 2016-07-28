@@ -152,6 +152,19 @@ if (isset($preferences['downtime_filter']) && $preferences['downtime_filter']) {
     }
 }
 
+
+
+
+
+
+                            /* #14 Poller name */
+
+if (isset($preferences['poller_filter']) && $preferences['poller_filter']) {
+    $query = CentreonUtils::conditionBuilder($query, " instance_id = " . $preferences['poller_filter'] . " ");
+}
+
+
+
 if (isset($preferences['state_type_filter']) && $preferences['state_type_filter']) {
     if ($preferences['state_type_filter'] == "hardonly") {
         $query = CentreonUtils::conditionBuilder($query, " state_type = 1 ");
