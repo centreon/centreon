@@ -784,7 +784,10 @@ sub sendExternalCommad($$) {
 
     writeLogFile("Send external command : $externalCMD ($CMDFile)");    
     if (system("echo \"$externalCMD\" >> $CMDFile")) {
-        writeLogFile("Cannot Write external command for centcore", 'II');
+        sleep(1);
+        if (system("echo \"$externalCMD\" >> $CMDFile")) {
+            writeLogFile("Cannot Write external command for centcore", 'II');
+        }
         return 0;
     }
     return 1;
@@ -811,10 +814,13 @@ sub updateMacro($$$$$$) {
         $externalCMD = "EXTERNALCMD:".$poller.":".$externalCMD;
     }    
     
-	writeLogFile("Send external command : $externalCMD ($CMDFile)");
-	if (system("echo '$externalCMD' >> $CMDFile")) {
+    writeLogFile("Send external command : $externalCMD ($CMDFile)");
+    if (system("echo '$externalCMD' >> $CMDFile")) {
+        sleep(1);
+        if (system("echo '$externalCMD' >> $CMDFile")) {
 	    writeLogFile("Cannot Write external command for centcore", 'II');
-	}
+        }
+    }
 }
 
 sub getNagiosConfigurationField($$){
