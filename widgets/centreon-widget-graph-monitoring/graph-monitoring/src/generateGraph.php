@@ -39,10 +39,20 @@
 /**
  * Include config file
  */
-include "../../require.php";
 
-require_once $centreon_path.'/www/class/centreonGraph.class.php';
-require_once $centreon_path.'/www/class/centreonDB.class.php';
+require_once "../../require.php";
+
+require_once $centreon_path . 'www/class/centreon.class.php';
+require_once $centreon_path . 'www/class/centreonSession.class.php';
+require_once $centreon_path . 'www/class/centreonDB.class.php';
+require_once $centreon_path . 'www/class/centreonWidget.class.php';
+require_once $centreon_path . 'www/class/centreonUtils.class.php';
+require_once $centreon_path . 'www/class/centreonACL.class.php';
+require_once $centreon_path . 'www/class/centreonHost.class.php';
+require_once $centreon_path . 'www/class/centreonService.class.php';
+require_once $centreon_path . 'www/class/centreonExternalCommand.class.php';
+require_once $centreon_path . 'www/class/centreonDB.class.php';
+require_once $centreon_path . 'www/class/centreonGraph.class.php';
 
 session_start();
 
@@ -64,7 +74,6 @@ if ($res->numRows()) {
 } else {
     $index = 0;
 }
-
 
 /**
  * Create XML Request Objects
@@ -123,4 +132,3 @@ $obj->createLegend();
  * Display Images Binary Data
  */
 $obj->displayImageFlow();
-?>
