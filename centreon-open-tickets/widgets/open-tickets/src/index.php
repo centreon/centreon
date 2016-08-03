@@ -168,7 +168,7 @@ if (!$centreon->user->admin) {
 }
 $query .= " WHERE s.host_id = h.host_id ";
 
-$query .= " AND h.name NOT LIKE '_Module_%' ";
+$query .= " AND h.enabled = 1 AND h.name NOT LIKE '_Module_%' ";
 $query .= " AND s.enabled = 1 ";
 if (isset($preferences['host_name_search']) && $preferences['host_name_search'] != "") {
     $tab = split(" ", $preferences['host_name_search']);
