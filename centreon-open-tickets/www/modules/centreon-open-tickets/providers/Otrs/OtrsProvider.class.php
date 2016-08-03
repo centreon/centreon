@@ -93,7 +93,7 @@ Output: {$service.output|substr:0:1024}
 ';
         
         $this->default_data['clones']['mappingTicket'] = array(
-            array('Arg' => self::ARG_SUBJECT, 'Value' => 'Centreon problem'),
+            array('Arg' => self::ARG_SUBJECT, 'Value' => 'Issue {include file="file:$centreon_open_tickets_path/providers/Abstract/templates/display_title.ihtml"}'),
             array('Arg' => self::ARG_BODY, 'Value' => '{$body}'),
             array('Arg' => self::ARG_FROM, 'Value' => '{$user.email}'),
             array('Arg' => self::ARG_QUEUE, 'Value' => '{$select.otrs_queue.value}'),
@@ -467,6 +467,8 @@ Output: {$service.output|substr:0:1024}
         $tpl = initSmartyTplForPopup($this->_centreon_open_tickets_path, $tpl, 'providers/Abstract/templates', $this->_centreon_path);
         
         $this->assignSubmittedValues($tpl);
+        
+        $tpl->assign("centreon_open_tickets_path", $this->_centreon_open_tickets_path);
         $tpl->assign('user', $contact);
         $tpl->assign('host_selected', $host_problems);
         $tpl->assign('service_selected', $service_problems);

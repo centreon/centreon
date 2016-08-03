@@ -27,7 +27,7 @@ class MailProvider extends AbstractProvider {
      */
     protected function _setDefaultValueExtra() {
         $this->default_data['from'] = '{$user.email}';
-        $this->default_data['subject'] = 'Open ticket {$ticket_id}';
+        $this->default_data['subject'] = 'Issue {$ticket_id} - {include file="file:$centreon_open_tickets_path/providers/Abstract/templates/display_title.ihtml"}';
         $this->default_data['body'] = '
 <html>
 <body>
@@ -206,6 +206,7 @@ class MailProvider extends AbstractProvider {
         $tpl = initSmartyTplForPopup($this->_centreon_open_tickets_path, $tpl, 'providers/Abstract/templates', $this->_centreon_path);
         
         $this->assignSubmittedValues($tpl);
+        $tpl->assign("centreon_open_tickets_path", $this->_centreon_open_tickets_path);
         $tpl->assign('user', $contact);
         $tpl->assign('host_selected', $host_problems);
         $tpl->assign('service_selected', $service_problems);
