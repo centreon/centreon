@@ -281,7 +281,7 @@ Output: {$service.output|substr:0:1024}
             'z2Attachment_3_attachmentData', 'z2Attachment_3_attachmentOrigSize', 'zTmpEventGUID'
         );
         $data = "<?xml version=\"1.0\"?>
-<soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:urn=\"urn:FTV_HPD_IncidentInterface_Create_WS\">
+<soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:urn=\"urn:HPD_IncidentInterface_Create_WS\">
    <soapenv:Header>
       <urn:AuthenticationInfo>
          <urn:userName>" . $this->rule_data['username'] . "</urn:userName>
