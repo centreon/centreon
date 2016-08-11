@@ -26,5 +26,6 @@ $register_providers['Mail'] = 1;
 $register_providers['Glpi'] = 2;
 $register_providers['Otrs'] = 3;
 $register_providers['Simple'] = 4;
+$register_providers['BmcItsm'] = 5;
 
 ?>
