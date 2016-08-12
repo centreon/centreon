@@ -20,7 +20,7 @@
  */
 
 class BmcItsmProvider extends AbstractProvider {
-    
+    protected $_set_empty_xml = 1;
     protected $_internal_arguments = array(
         'Action' => array('id' => 1, 'soap' => 'z1D_Action'),
         'Service Type' => array('id' => 2, 'soap' => 'Service_Type'),
@@ -31,6 +31,10 @@ class BmcItsmProvider extends AbstractProvider {
         'First Name' => array('id' => 7, 'soap' => 'First_Name'),
         'Last Name' => array('id' => 8, 'soap' => 'Last_Name'),
         'Dataset ID' => array('id' => 9, 'soap' => 'DatasetId'),
+        'Status' => array('id' => 10, 'soap' => 'Status'),
+        'Source' => array('id' => 11, 'soap' => 'Reported_Source'),
+        'Type Service' => array('id' => 12, 'soap' => 'Service_Type'),
+        'Assigned Group' => array('id' => 13, 'soap' => 'Assigned_Group'),
     );
 
     function __destruct() {
@@ -77,13 +81,29 @@ Output: {$service.output|substr:0:1024}
             array('Arg' => $this->_internal_arguments['Subject']['id'], 'Value' => 'Issue {include file="file:$centreon_open_tickets_path/providers/Abstract/templates/display_title.ihtml"}'),
             array('Arg' => $this->_internal_arguments['Content']['id'], 'Value' => '{$body}'),
             array('Arg' => $this->_internal_arguments['Action']['id'], 'Value' => 'CREATE'),
+            array('Arg' => $this->_internal_arguments['Status']['id'], 'Value' => 'Assigned'),
+            array('Arg' => $this->_internal_arguments['Source']['id'], 'Value' => 'Supervision'),
+            array('Arg' => $this->_internal_arguments['Type Service']['id'], 'Value' => 'Infrastructure Event'),
         );
     }
     
     protected function _setDefaultValueMain() {
         parent::_setDefaultValueMain();
         
-        $this->default_data['url'] = 'http://{$address}/index.pl?Action=AgentTicketZoom;TicketNumber={$ticket_id}';        
+        $this->default_data['message_confirm'] = '
+<table class="table">
+<tr>
+    <td class="FormHeader" colspan="2"><h3 style="color: #00bfb3;">{$title}</h3></td>
+</tr>
+{if $ticket_is_ok == 1}
+    <tr><td class="FormRowField" style="padding-left:15px;">New ticket opened: {$ticket_id}.</td></tr>
+{else}
+    <tr><td class="FormRowField" style="padding-left:15px;">Error to open the ticket: <xmp>{$ticket_error_message}</xmp></td></tr>
+{/if}
+</table>
+';
+        $this->default_data['message_confirm'] = $this->change_html_tags($this->default_data['message_confirm']);
+        $this->default_data['url'] = 'http://{$address}/index.pl?Action=AgentTicketZoom;TicketNumber={$ticket_id}';   
     }
     
     /**
@@ -144,16 +164,12 @@ Output: {$service.output|substr:0:1024}
         
         // mapping Ticket clone
         $mappingTicketValue_html = '<input id="mappingTicketValue_#index#" name="mappingTicketValue[#index#]" size="20"  type="text" />';
-        $mappingTicketArg_html = '<select id="mappingTicketArg_#index#" name="mappingTicketArg[#index#]" type="select-one">' .
-        '<option value="' . self::ARG_QUEUE . '">' . _('Queue') . '</options>' .
-        '<option value="' . self::ARG_PRIORITY . '">' . _('Priority') . '</options>' .
-        '<option value="' . self::ARG_STATE . '">' . _('State') . '</options>' .
-        '<option value="' . self::ARG_TYPE . '">' . _('Type') . '</options>' .
-        '<option value="' . self::ARG_CUSTOMERUSER . '">' . _('Customer user') . '</options>' .
-        '<option value="' . self::ARG_FROM . '">' . _('From') . '</options>' .
-        '<option value="' . self::ARG_SUBJECT . '">' . _('Subject') . '</options>' .
-        '<option value="' . self::ARG_BODY . '">' . _('Body') . '</options>' .
-        '</select>';
+        $mappingTicketArg_html = '<select id="mappingTicketArg_#index#" name="mappingTicketArg[#index#]" type="select-one">';
+        ksort($this->_internal_arguments);
+        foreach ($this->_internal_arguments as $label => $array) {
+            $mappingTicketArg_html .= '<option value="' . $array['id'] . '">' . _($label) . '</options>';
+        }
+        $mappingTicketArg_html .= '</select>';
         $array_form['mappingTicket'] = array(
             array('label' => _("Argument"), 'html' => $mappingTicketArg_html),
             array('label' => _("Value"), 'html' => $mappingTicketValue_html),
@@ -222,7 +238,12 @@ Output: {$service.output|substr:0:1024}
                     $result_str = null;
                 }
                 
-                $ticket_arguments[$this->_internal_arg_name[$value['Arg']]] = $result_str;
+                foreach ($this->_internal_arguments as $arg) {
+                    if ($arg['id'] == $value['Arg']) {
+                        $ticket_arguments[$arg['soap']] = $result_str;
+                        break;
+                    }
+                }
             }
         }
         
@@ -271,7 +292,7 @@ Output: {$service.output|substr:0:1024}
             'first_name2', 'Generic_Categorization_Tier_1', 'Global_OR_Custom_Mapping', 'Impact_OR_Root', 'Incident_Number', 'Incident_Entry_ID', 'InstanceId',
             'Internet_E-mail', 'last_name2', 'Local_Business', 'Login_ID', 'Mail_Station', 'MaxRetries', 'mc_ueid', 'Middle_Initial', 'OptionForClosingIncident',
             'Organization', 'Person_ID', 'Phone_Number', 'policy_name', 'PortNumber', 'Priority', 'Priority_Weight', 'Protocol', 'ReconciliationIdentity',
-            'Region', 'Reported_Date', 'Required_Resolution_DateTime', 'Resolution_Method', 'root_component_id_list', 'Schema_Name', 'Short_Description',
+            'Region', 'Reported_Date', 'Required_Resolution_DateTime', 'Resolution_Method', 'root_component_id_list', 'root_incident_id_list', 'Schema_Name', 'Short_Description',
             'Site', 'Site_Group', 'Site_ID', 'SRID', 'SRInstanceID', 'SRMS_Registry_Instance_ID', 'SRMSAOIGuid', 'status_incident', 'Status_Reason', 'status_reason2',
             'Submitter', 'TemplateID', 'TemplateID2', 'Unavailability_Type', 'Unavailability_Priority', 'Unknown_User', 'use_case', 'Vendor_Group', 'Vendor_Group_ID',
             'Vendor_Name', 'Vendor_Organization', 'Vendor_Ticket_Number', 'VIP', 'z1D_Char01', 'z1D_Permission_Group_ID', 'z1D_Permission_Group_List',
@@ -281,7 +302,7 @@ Output: {$service.output|substr:0:1024}
             'z2Attachment_3_attachmentData', 'z2Attachment_3_attachmentOrigSize', 'zTmpEventGUID'
         );
         $data = "<?xml version=\"1.0\"?>
-<soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:urn=\"urn:HPD_IncidentInterface_Create_WS\">
+<soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:urn=\"urn:" . $this->rule_data['namespace'] . "\">
    <soapenv:Header>
       <urn:AuthenticationInfo>
          <urn:userName>" . $this->rule_data['username'] . "</urn:userName>
@@ -300,6 +321,8 @@ Output: {$service.output|substr:0:1024}
         foreach ($fields as $field) {
             if (isset($ticket_arguments[$field]) && $ticket_arguments[$field] != '') {
                 $data .= "<urn:" . $field . ">" . $ticket_arguments[$field] . "</urn:" . $field . ">"; 
+            } else if ($this->_set_empty_xml == 1) {
+                $data .= "<urn:" . $field . "></urn:" . $field . ">"; 
             }
         }
         $data .= "</urn:HelpDesk_Submit_Service>
@@ -332,7 +355,7 @@ Output: {$service.output|substr:0:1024}
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
         curl_setopt($ch, CURLOPT_HTTPHEADER, array(
             'Content-Type:  text/xml;charset=UTF-8',
-            'Accept: application/json',
+            'SOAPAction: urn:' . $this->rule_data['namespace'] . '/HelpDesk_Submit_Service',
             'Content-Length: ' . strlen($data))
         );
         $result = curl_exec($ch);
@@ -342,9 +365,6 @@ Output: {$service.output|substr:0:1024}
             $this->setWsError(curl_error($ch));    
             return 1;
         }
-        
-        $fp = fopen('/tmp/debug.txt', 'a+');
-        fwrite($fp, print_r($result, true));
         
         /*
         * OK:
@@ -361,7 +381,7 @@ Output: {$service.output|substr:0:1024}
             return 1;
         }
         
-        $this->_ticket_number = $matches[0];
+        $this->_ticket_number = $matches[1];
         return 0;
     }
 }
