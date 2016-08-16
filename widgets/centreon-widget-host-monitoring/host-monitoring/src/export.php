@@ -113,7 +113,7 @@ $query .= " ON (cv2.host_id = h.host_id AND cv2.service_id IS NULL AND cv2.name 
 $query .= " WHERE enabled = 1 ";
 $query .= " AND h.name NOT LIKE '_Module_%' ";
 if (isset($preferences['host_name_search']) && $preferences['host_name_search'] != "") {
-    $tab = split(" ", $preferences['host_name_search']);
+    $tab = explode(" ", $preferences['host_name_search']);
     $op = $tab[0];
     if (isset($tab[1])) {
         $search = $tab[1];
@@ -152,18 +152,9 @@ if (isset($preferences['downtime_filter']) && $preferences['downtime_filter']) {
     }
 }
 
-
-
-
-
-
-                            /* #14 Poller name */
-
 if (isset($preferences['poller_filter']) && $preferences['poller_filter']) {
     $query = CentreonUtils::conditionBuilder($query, " instance_id = " . $preferences['poller_filter'] . " ");
 }
-
-
 
 if (isset($preferences['state_type_filter']) && $preferences['state_type_filter']) {
     if ($preferences['state_type_filter'] == "hardonly") {

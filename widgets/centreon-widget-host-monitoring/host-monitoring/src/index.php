@@ -76,7 +76,6 @@ $page = $_REQUEST['page'];
 
 $widgetObj = new CentreonWidget($centreon, $db);
 $preferences = $widgetObj->getWidgetPreferences($widgetId);
-
 // Default colors
 $stateColors = getColors($db);
 // Get status labels
@@ -117,8 +116,9 @@ $query .= " LEFT JOIN `customvariables` cv2 ";
 $query .= " ON (cv2.host_id = h.host_id AND cv2.service_id IS NULL AND cv2.name = 'CRITICALITY_ID') ";
 $query .= " WHERE enabled = 1 ";
 $query .= " AND h.name NOT LIKE '_Module_%' ";
+
 if (isset($preferences['host_name_search']) && $preferences['host_name_search'] != "") {
-    $tab = split(" ", $preferences['host_name_search']);
+    $tab = explode(" ", $preferences['host_name_search']);
     $op = $tab[0];
     if (isset($tab[1])) {
         $search = $tab[1];
