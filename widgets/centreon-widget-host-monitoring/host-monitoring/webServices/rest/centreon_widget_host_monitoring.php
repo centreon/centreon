@@ -40,19 +40,24 @@ class CentreonWidgetHostMonitoring extends CentreonWebService
             $q = $this->arguments['q'];
         }
 
-        // Faire requête pour trouver id des hosts avec 'q'
-        // faire un pull de centreon pour reprendre le code de kevin
+//        $ids = "SELECT wpr.preference_value
+//                FROM widget_preferences AS wpr, widget_parameters AS wpa
+//                WHERE wpr.widget_id = $q
+//                AND wpa.parameter_code_name = 'host_name_search'
+//                AND wpr.parameter_id = wpa.parameter_id";
 
-        $ids = "SELECT wpr.preference_value
-                FROM widget_preferences AS wpr, widget_parameters AS wpa
-                WHERE wpr.widget_id = $q
-                AND wpa.parameter_code_name = 'host_name_search'
-                AND wpr.parameter_id = wpa.parameter_id";
+        $ids ="select wpr.preference_value
+               from widget_preferences wpr, widget_views wv, widget_parameters wpa
+               where wv.widget_id= $q
+               and wv.widget_view_id = wpr.widget_view_id
+               and wpr.parameter_id = wpa.parameter_id
+               and wpa.parameter_code_name = 'host_name_search'";
+
+        $test = implode(', ', $ids);
 
         $query = "SELECT SQL_CALC_FOUND_ROWS DISTINCT host_id, host_name"
                  . "FROM host"
-                 . "WHERE host_id IN ($ids)";
-
+                 . "WHERE host_id IN ($test)";
 
         $DBresult = $this->pearDBMonitoring->query($query);
 
