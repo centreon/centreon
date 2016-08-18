@@ -118,15 +118,9 @@ $query .= " WHERE enabled = 1 ";
 $query .= " AND h.name NOT LIKE '_Module_%' ";
 
 if (isset($preferences['host_name_search']) && $preferences['host_name_search'] != "") {
-    $tab = explode(" ", $preferences['host_name_search']);
-    $op = $tab[0];
-    if (isset($tab[1])) {
-        $search = $tab[1];
-    }
-    if ($op && isset($search) && $search != "") {
-        $query = CentreonUtils::conditionBuilder($query, "h.name ".CentreonUtils::operandToMysqlFormat($op)." '".$dbb->escape($search)."' ");
-    }
+    $query .= " AND h.host_id IN ($preferences[host_name_search])";
 }
+
 $stateTab = array();
 if (isset($preferences['host_up']) && $preferences['host_up']) {
     $stateTab[] = 0;
@@ -155,7 +149,6 @@ if (isset($preferences['downtime_filter']) && $preferences['downtime_filter']) {
         $query = CentreonUtils::conditionBuilder($query, " scheduled_downtime_depth	= 0 ");
     }
 }
-
 
 if (isset($preferences['poller_filter']) && $preferences['poller_filter']) {
 
