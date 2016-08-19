@@ -65,6 +65,7 @@
       <option value="last_hard_state_change" label="Hard State Duration"/>
       <option value="ticket_id" label="Ticket ID"/>
     </preference>
-    <preference label="Refresh Interval (seconds)" name="refresh_interval" defaultValue="30" type="text" header="Misc"/>			
+    <preference label="Refresh Interval (seconds)" name="refresh_interval" defaultValue="30" type="text" header="Misc"/>
+    <preference label="Enable pagination and more actions" name="more_views" defaultValue="1" type="boolean"/>    
   </preferences>        
 </configs>

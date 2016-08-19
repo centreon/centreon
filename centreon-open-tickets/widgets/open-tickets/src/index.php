@@ -310,8 +310,6 @@ if (isset($preferences['order_by']) && $preferences['order_by'] != "") {
 $query .= "ORDER BY $orderby";
 $query .= " LIMIT ".($page * $preferences['entries']).",".$preferences['entries'];
 
-#$fp = fopen('/tmp/debug.txt', 'a+');
-#fwrite($fp, "======$query===\n");
 $res = $dbb->query($query);
 $nbRows = $dbb->numberRows();
 $data = array();
@@ -381,49 +379,15 @@ while ($row = $res->fetchRow()) {
         $data[$row['host_id']."_".$row['service_id']]['ticket_subject'] = $row['service_ticket_subject'];
     }
 }
+
+$template->assign('widgetId', $widgetId);
+$template->assign('autoRefresh', $preferences['refresh_interval']);
+$template->assign('preferences', $preferences);
+$template->assign('page', $page);
+$template->assign('dataJS', count($data));
+$template->assign('nbRows', $nbRows);
 $template->assign('centreon_web_path', $centreon->optGen['oreon_web_path']);
 $template->assign('preferences', $preferences);
 $template->assign('data', $data);
-$template->display('index.ihtml');
+$template->display('table.ihtml');
 ?>
-<script type="text/javascript">
-var nbRows = <?php echo $nbRows;?>;
-var currentPage = <?php echo $page;?>;
-var orderby = '<?php echo $orderby;?>';
-var nbCurrentItems = <?php echo count($data);?>;
-
-$(function () {
-    if (nbRows > itemsPerPage) {
-        $("#pagination").pagination(nbRows, {
-            items_per_page	: itemsPerPage,
-            current_page : pageNumber,
-            callback : paginationCallback
-	    }).append("<br/>");
-    }
-    
-    $("#nbRows").html(nbCurrentItems+"/"+nbRows);
-    
-    $(".selection").each(function() {
-        var curId = $(this).attr('id');
-        if (typeof(clickedCb[curId]) != 'undefined') {
-            this.checked = clickedCb[curId];
-        }
-    });
-    
-    var tmp = orderby.split(' ');
-    var icn = 'n';
-    if (tmp[1] == "DESC") {
-      icn = 's';
-    }
-    $("[name="+tmp[0]+"]").append('<span style="position: relative; float: right;" class="ui-icon ui-icon-triangle-1-'+icn+'"></span>');
-});
-
-function paginationCallback(page_index, jq)
-{
-  if (page_index != pageNumber) {
-    pageNumber = page_index;
-    clickedCb = new Array();
-    loadPage();
-  }
-}
-</script>
