@@ -38,17 +38,27 @@ require_once $centreon_path . 'www/class/centreon.class.php';
 require_once $centreon_path . 'www/class/centreonSession.class.php';
 require_once $centreon_path . 'www/class/centreonDB.class.php';
 require_once $centreon_path . 'www/class/centreonWidget.class.php';
+require_once $centreon_path . 'www/class/centreonUser.class.php';
 require_once $centreon_path . 'www/class/centreonACL.class.php';
 
 //load Smarty
 require_once $centreon_path . 'GPL_LIB/Smarty/libs/Smarty.class.php';
 
-session_start();
+$pearDB = new CentreonDB();
 
-if (!isset($_SESSION['centreon']) || !isset($_REQUEST['widgetId'])) {
+if (!isset($_SESSION["centreon"])) {
+    CentreonSession::start();
+    if (!CentreonSession::checkSession(session_id(), $pearDB)) {
+        print "Bad Session";
+        exit();
+    }
+}
+
+if (!isset($_REQUEST['widgetId'])) {
     exit;
 }
 $centreon = $_SESSION['centreon'];
+
 $widgetId = $_REQUEST['widgetId'];
 
 try {
@@ -56,7 +66,7 @@ try {
 
     $db = new CentreonDB();
     $db2 = new CentreonDB("centstorage");
-    $dbAcl = $centreon->broker->getBroker() == "ndo" ? new CentreonDB('ndo') : $db2;
+    $dbAcl = $db;
     $pearDB = $db;
 
     $widgetObj = new CentreonWidget($centreon, $db);
