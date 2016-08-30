@@ -31,7 +31,7 @@
  * For more information : contact@centreon.com
  *
  */
- 
+
 jQuery(function () {
     if (nbRows > itemsPerPage) {
         $("#pagination").pagination(nbRows, {

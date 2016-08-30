@@ -4,14 +4,14 @@
     <email>contact@centreon.com</email>
     <website>http://www.centreon.com</website>
     <description>Widget for displaying host monitoring information</description>
-    <version>1.4.2</version>
+    <version>1.6.5</version>
     <keywords>centreon, widget, host, monitoring</keywords>
     <screenshot></screenshot>
     <thumbnail>./widgets/host-monitoring/resources/centreon-logo.png</thumbnail>
     <url>./widgets/host-monitoring/index.php</url>
     <autoRefresh>10</autoRefresh>
     <preferences>
-        <preference label="Host Name Search" name="host_name_search" defaultValue="" type="compare" header="Filters"/>
+        <preference label="Host Filter" name="host_name_search" defaultValue="" type="hostMulti"/>
         <preference label="Display Up" name="host_up" defaultValue="1" type="boolean"/>
         <preference label="Display Down" name="host_down" defaultValue="1" type="boolean"/>
         <preference label="Display Unreachable" name="host_unreachable" defaultValue="1" type="boolean"/>
@@ -24,6 +24,10 @@
             <option value="downtime" label="In downtime"/>
             <option value="ndowntime" label="Not in downtime"/>
         </preference>
+
+        <!-- #14 Poller name -->
+        <preference label="Pollers Name Filter" name="poller_filter" type="poller"/>
+
         <preference label="State Type" name="state_type_filter" type="list">
             <option value="hardonly" label="Hard Only"/>
             <option value="softonly" label="Soft Only"/>

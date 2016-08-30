@@ -76,7 +76,6 @@ $page = $_REQUEST['page'];
 
 $widgetObj = new CentreonWidget($centreon, $db);
 $preferences = $widgetObj->getWidgetPreferences($widgetId);
-
 // Default colors
 $stateColors = getColors($db);
 // Get status labels
@@ -87,7 +86,7 @@ $aStateType = array("1" => "H", "0" => "S");
 $query = "SELECT SQL_CALC_FOUND_ROWS h.host_id,
 				 h.name AS host_name,
 				 h.alias,
-                 h.flapping, 
+                 h.flapping,
 				 state,
 				 state_type,
 				 address,
@@ -104,10 +103,10 @@ $query = "SELECT SQL_CALC_FOUND_ROWS h.host_id,
 				 check_attempt,
 				 max_check_attempts,
 				 action_url,
-				 notes_url, 
+				 notes_url,
                  cv.value AS criticality,
                  h.icon_image,
-                 h.icon_image_alt, 
+                 h.icon_image_alt,
 		         cv2.value AS criticality_id,
                  cv.name IS NULL as isnull ";
 $query .= "FROM hosts h ";
@@ -117,16 +116,11 @@ $query .= " LEFT JOIN `customvariables` cv2 ";
 $query .= " ON (cv2.host_id = h.host_id AND cv2.service_id IS NULL AND cv2.name = 'CRITICALITY_ID') ";
 $query .= " WHERE enabled = 1 ";
 $query .= " AND h.name NOT LIKE '_Module_%' ";
+
 if (isset($preferences['host_name_search']) && $preferences['host_name_search'] != "") {
-    $tab = split(" ", $preferences['host_name_search']);
-    $op = $tab[0];
-    if (isset($tab[1])) {
-        $search = $tab[1];
-    }
-    if ($op && isset($search) && $search != "") {
-        $query = CentreonUtils::conditionBuilder($query, "h.name ".CentreonUtils::operandToMysqlFormat($op)." '".$dbb->escape($search)."' ");
-    }
+    $query .= " AND h.host_id IN ($preferences[host_name_search])";
 }
+
 $stateTab = array();
 if (isset($preferences['host_up']) && $preferences['host_up']) {
     $stateTab[] = 0;
@@ -147,12 +141,18 @@ if (isset($preferences['acknowledgement_filter']) && $preferences['acknowledgeme
         $query = CentreonUtils::conditionBuilder($query, " acknowledged = 0");
     }
 }
+
 if (isset($preferences['downtime_filter']) && $preferences['downtime_filter']) {
     if ($preferences['downtime_filter'] == "downtime") {
         $query = CentreonUtils::conditionBuilder($query, " scheduled_downtime_depth	> 0 ");
     } elseif ($preferences['downtime_filter'] == "ndowntime") {
         $query = CentreonUtils::conditionBuilder($query, " scheduled_downtime_depth	= 0 ");
     }
+}
+
+if (isset($preferences['poller_filter']) && $preferences['poller_filter']) {
+
+        $query = CentreonUtils::conditionBuilder($query, " instance_id = ".$preferences['poller_filter']." ");
 }
 
 if (isset($preferences['state_type_filter']) && $preferences['state_type_filter']) {
@@ -169,7 +169,7 @@ if (isset($preferences['hostgroup']) && $preferences['hostgroup']) {
     												   FROM ".$conf_centreon['db'].".hostgroup_relation
     												   WHERE hostgroup_hg_id = ".$dbb->escape($preferences['hostgroup']).") ");
 }
-if (isset($preferences["display_severities"]) && $preferences["display_severities"] 
+if (isset($preferences["display_severities"]) && $preferences["display_severities"]
     && isset($preferences['criticality_filter']) && $preferences['criticality_filter'] != "") {
   $tab = split(",", $preferences['criticality_filter']);
   $labels = "";
@@ -188,7 +188,7 @@ if (isset($preferences["display_severities"]) && $preferences["display_severitie
     }
     $idC .= $d1['hc_id'];
   }
-  $query .= " AND cv2.`value` IN ($idC) "; 
+  $query .= " AND cv2.`value` IN ($idC) ";
 }
 if (!$centreon->user->admin) {
     $pearDB = $db;
@@ -198,7 +198,7 @@ if (!$centreon->user->admin) {
 $orderby = "host_name ASC";
 
 if (isset($preferences['order_by']) && $preferences['order_by'] != "") {
-    
+
     $aOrder = explode(" ", $preferences['order_by']);
     if (in_array('last_state_change', $aOrder) || in_array('last_hard_state_change', $aOrder)) {
         if ($aOrder[1] == 'DESC') {
@@ -258,7 +258,7 @@ while ($row = $res->fetchRow()) {
     }
 
     $data[$row['host_id']]['encoded_host_name'] = urlencode($data[$row['host_id']]['host_name']);
-        
+
     $class = null;
     if ($row["scheduled_downtime_depth"] > 0) {
         $class = "line_downtime";
@@ -268,7 +268,7 @@ while ($row = $res->fetchRow()) {
         if ($row["acknowledged"] == 1)
             $class = "line_ack";
     }
-    
+
     $data[$row['host_id']]['class_tr'] = $class;
 }
 
