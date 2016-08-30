@@ -4,11 +4,11 @@ jQuery(function () {
         $("#pagination").pagination(nbRows, {
             items_per_page: itemsPerPage,
             current_page: pageNumber,
-            num_edge_entries : _num_edge_entries,
-            num_display_entries : _num_display_entries,
             callback: paginationCallback
         }).append("<br/>");
     }
+
+    $("#nbRows").html(nbCurrentItems + " / " + nbRows);
 
     $(".selection").each(function () {
         var curId = $(this).attr('id');

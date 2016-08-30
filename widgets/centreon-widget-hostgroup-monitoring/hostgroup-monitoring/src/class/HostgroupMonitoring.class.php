@@ -132,8 +132,9 @@ class HostgroupMonitoring
                 $query .= ", centreon_acl acl ";
             }
             $query .= "WHERE h.host_id = hhg.host_id
-                                    AND hhg.host_id = s.host_id
+                    AND hhg.host_id = s.host_id
                     AND s.enabled = 1
+                    AND h.enabled = 1
                     AND hhg.hostgroup_id = hg.hostgroup_id
                     AND hg.name IN ('".implode("', '", array_keys($data))."') ";
             if (!$admin) {

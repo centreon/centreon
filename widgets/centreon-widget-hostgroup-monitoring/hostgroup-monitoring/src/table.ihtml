@@ -1,84 +1,84 @@
 {literal}
-	<style>
-	@import url('../../Themes/Centreon-2/style.css');
-    </style>
+<style>
+    @import url('../../Themes/Centreon-2/style.css');
+</style>
 {/literal}
 
-    <table id='HostgroupTable' class='ListTable styleTable'>
-	<tr class="ListHeader">		
-            <td class="ListColHeaderCenter" name='name'>Hostgroup</td>		
-            <td class="ListColHeaderCenter">Host Status</td>
-            <td class="ListColHeaderCenter">Service Status</td>		
-	</tr>
-        {assign var='classStyle' value='list_two'}
-	{foreach key=hgId item=elem from=$data}
-            {if $classStyle == 'list_two'}
-                {assign var='classStyle' value='list_one'}
-            {else}
-                {assign var='classStyle' value='list_two'}
+<table id='HostgroupTable' class='ListTable styleTable'>
+    <tr class="ListHeader">
+        <td class="ListColHeaderCenter" name='name'>Hostgroup</td>
+        <td class="ListColHeaderCenter">Host Status</td>
+        <td class="ListColHeaderCenter">Service Status</td>
+    </tr>
+    {assign var='classStyle' value='list_two'}
+    {foreach key=hgId item=elem from=$data}
+    {if $classStyle == 'list_two'}
+    {assign var='classStyle' value='list_one'}
+    {else}
+    {assign var='classStyle' value='list_two'}
+    {/if}
+    <tr id="hg-{$hgId}" class ='{$classStyle}'>
+        <td class='ListColLeft'><a href='/{$centreon_web_path}/{$elem.hgurl}' target=_blank> {$elem.name}</a></td>
+        {if $preferences.enable_detailed_mode == 0}
+        <td class='ListColLeft'>
+            {assign var='link' value=''}
+            {foreach key=state item=counter from=$elem.host_state}
+            {if $state == 0 }
+            {assign var='link' value='&o=h_up'}
+            {elseif $state == 1}
+            {assign var='link' value='&o=h_down'}
+            {elseif $state == 2}
+            {assign var='link' value='&o=h_pending'}
+            {elseif $state == 4}
+            {assign var='link' value='&o=h_ok'}
             {/if}
-            <tr id="hg-{$hgId}" class ='{$classStyle}'>
-                <td class='ListColLeft'><a href='/{$centreon_web_path}/{$elem.hgurl}' target=_blank> {$elem.name}</a></td>
-                {if $preferences.enable_detailed_mode == 0}
-                    <td class='ListColLeft'>
-                        {assign var='link' value=''}
-                        {foreach key=state item=counter from=$elem.host_state}
-                            {if $state == 0 }
-                                {assign var='link' value='&o=h_up'}
-                            {elseif $state == 1}
-                                {assign var='link' value='&o=h_down'}
-                            {elseif $state == 2}
-                                {assign var='link' value='&o=h_pending'}
-                            {elseif $state == 4}
-                                {assign var='link' value='&o=h_ok'}
-                            {/if}
-                            <a href='/{$centreon_web_path}/{$elem.hgurlhost}{$link}' target=_blank><span class='state_badge' style='background-color: {$hostStateColors[$state]};'>&nbsp;&nbsp;</span>{$counter}</a>&nbsp;				
-                        {/foreach}
-                    </td>
-                    <td class='ListColLeft'>
-                        {assign var='link' value=''}
-                        {foreach key=state item=counter from=$elem.service_state}
-                            {if $state == 0 }
-                                {assign var='link' value='&o=svc_ok'}
-                            {elseif $state == 1}
-                                {assign var='link' value='&o=svc_warning'}
-                            {elseif $state == 2}
-                                {assign var='link' value='&o=svc_critical'}
-                            {elseif $state == 3}
-                                {assign var='link' value='&o=svc_unknown'}
-                            {elseif $state == 4}
-                                {assign var='link' value='&o=svc_pending'}
-                            {/if}
-                            <a href='/{$centreon_web_path}/{$elem.hgurl}{$link}' target=_blank><span class='state_badge' style='background-color: {$serviceStateColors[$state]};'>&nbsp;&nbsp;</span>{$counter}</a>&nbsp;				
-                        {/foreach}		
-                    </td>
-                {else}
-                    <td></td>
-                    <td></td>
-                {/if}
-            </tr>
-            {if $preferences.enable_detailed_mode == 1}
-                {foreach item=elem2 from=$elem.host_state}
-                    <tr id="host-{$elem2.host_id}" class="child-of-hg-{$hgId}">
-                        <td class='ListColLeft'></td>
-                        <td class='ListColLeft'><a href='/{$centreon_web_path}/main.php?o=hd&p=20202&host_name={$elem2.name}' target=_blank><span class='state_badge {$aColorHost[$elem2.state]}'></span>{$elem2.name}</a></td>
-                        <td class='ListColLeft'>
-                            {foreach item=elem3 from=$elem.service_state[$elem2.host_id]}						
-                                <a href='/{$centreon_web_path}/main.php?o=svcd&p=20201&amp;host_name={$elem2.name}&service_description={$elem3.description}' target=_blank><span class='state_badge {$aColorService[$elem3.state]}'></span>{$elem3.description}</a>&nbsp;						
-                            {/foreach}
-                        </td>
-                    </tr>
-                {/foreach}	
+            <a href='/{$centreon_web_path}/{$elem.hgurlhost}{$link}' target=_blank><span class='state_badge' style='background-color: {$hostStateColors[$state]};'>&nbsp;&nbsp;</span>{$counter}</a>&nbsp;
+            {/foreach}
+        </td>
+        <td class='ListColLeft'>
+            {assign var='link' value=''}
+            {foreach key=state item=counter from=$elem.service_state}
+            {if $state == 0 }
+            {assign var='link' value='&o=svc_ok'}
+            {elseif $state == 1}
+            {assign var='link' value='&o=svc_warning'}
+            {elseif $state == 2}
+            {assign var='link' value='&o=svc_critical'}
+            {elseif $state == 3}
+            {assign var='link' value='&o=svc_unknown'}
+            {elseif $state == 4}
+            {assign var='link' value='&o=svc_pending'}
             {/if}
-	{/foreach}	
-    </table>
-      <script>
-          var widgetId = {$widgetId};
-          var autoRefresh = {$autoRefresh};
-          var nbRows = {$nbRows};
-          var currentpage = {$page};
-          var orderby = "{$orderby}";
-          var nbCurrentItems = {$dataJS};
-     </script>
+            <a href='/{$centreon_web_path}/{$elem.hgurl}{$link}' target=_blank><span class='state_badge' style='background-color: {$serviceStateColors[$state]};'>&nbsp;&nbsp;</span>{$counter}</a>&nbsp;
+            {/foreach}
+        </td>
+        {else}
+        <td></td>
+        <td></td>
+        {/if}
+    </tr>
+    {if $preferences.enable_detailed_mode == 1}
+    {foreach item=elem2 from=$elem.host_state}
+    <tr id="host-{$elem2.host_id}" class="child-of-hg-{$hgId}">
+        <td class='ListColLeft'></td>
+        <td class='ListColLeft'><a href='/{$centreon_web_path}/main.php?o=hd&p=20202&host_name={$elem2.name}' target=_blank><span class='state_badge {$aColorHost[$elem2.state]}'></span>{$elem2.name}</a></td>
+        <td class='ListColLeft'>
+            {foreach item=elem3 from=$elem.service_state[$elem2.host_id]}
+            <a href='/{$centreon_web_path}/main.php?o=svcd&p=20201&amp;host_name={$elem2.name}&service_description={$elem3.description}' target=_blank><span class='state_badge {$aColorService[$elem3.state]}'></span>{$elem3.description}</a>&nbsp;
+            {/foreach}
+        </td>
+    </tr>
+    {/foreach}
+    {/if}
+    {/foreach}
+</table>
+<script>
+    var widgetId = {$widgetId};
+    var autoRefresh = {$autoRefresh};
+    var nbRows = {$nbRows};
+    var currentpage = {$page};
+    var orderby = "{$orderby}";
+    var nbCurrentItems = {$dataJS};
+</script>
 
-     <script type="text/javascript" src="src/data_js.js"></script>
+<script type="text/javascript" src="src/data_js.js"></script>

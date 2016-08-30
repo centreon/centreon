@@ -69,13 +69,4 @@ $template = initSmartyTplForPopup($path, $template, "./", $centreon_path);
 $template->assign('widgetId', $widgetId);
 $template->assign('preferences', $preferences);
 $template->assign('autoRefresh', $autoRefresh);
-
-$bMoreViews = 0;
-if ($preferences['more_views']) {
-    $bMoreViews = $preferences['more_views'];
-}
-$template->assign('more_views', $bMoreViews);
-
 $template->display('index.ihtml');
-?>
-
