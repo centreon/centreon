@@ -1,0 +1,22 @@
+<html>
+    <head>
+        <title>Graph Monitoring</title>
+        <link href="../../Themes/Centreon-2/style.css" rel="stylesheet" type="text/css"/>
+        <link href="../../Themes/Centreon-2/jquery-ui/jquery-ui.css" rel="stylesheet" type="text/css"/>
+        <link href="../../Themes/Centreon-2/jquery-ui/jquery-ui-centreon.css" rel="stylesheet" type="text/css"/>
+    </head>
+    <body>
+        {$servicePreferences}
+        <div id='graphMonitoringTable'></div>
+        <script type="text/javascript">
+            var widgetId = {$widgetId};
+            var autoRefresh = {$autoRefresh};
+            var timeout;
+        </script>
+
+        <script type="text/javascript" src="../../include/common/javascript/jquery/jquery.js"></script>
+        <script type="text/javascript" src="../../include/common/javascript/jquery/jquery-ui.js"></script>
+        <script type="text/javascript" src="../../include/common/javascript/widgetUtils.js"></script>
+        <script type="text/javascript" src="../../include/common/javascript/jquery/plugins/treeTable/jquery.treeTable.min.js"></script>
+        <script type="text/javascript" src="data.js"></script>
+    </body>

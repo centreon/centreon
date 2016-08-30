@@ -33,8 +33,6 @@
  *
  */
 
-ini_set("display_errors", "Off");
-
 require_once "../require.php";
 require_once $centreon_path . 'www/class/centreon.class.php';
 require_once $centreon_path . 'www/class/centreonSession.class.php';
@@ -42,6 +40,8 @@ require_once $centreon_path . 'www/class/centreonDB.class.php';
 require_once $centreon_path . 'www/class/centreonWidget.class.php';
 require_once $centreon_path . 'www/class/centreonACL.class.php';
 
+//load Smarty
+require_once $centreon_path . 'GPL_LIB/Smarty/libs/Smarty.class.php';
 
 session_start();
 
@@ -50,8 +50,6 @@ if (!isset($_SESSION['centreon']) || !isset($_REQUEST['widgetId'])) {
 }
 $centreon = $_SESSION['centreon'];
 $widgetId = $_REQUEST['widgetId'];
-$host_name = "";
-$service_description = "";
 
 try {
     global $pearDB;
@@ -61,121 +59,83 @@ try {
     $dbAcl = $centreon->broker->getBroker() == "ndo" ? new CentreonDB('ndo') : $db2;
     $pearDB = $db;
 
-    if ($centreon->user->admin == 0) {
-        $access = new CentreonACL($centreon->user->get_id());
-        $grouplist = $access->getAccessGroups();
-        $grouplistStr = $access->getAccessGroupsString();
-    }
-
     $widgetObj = new CentreonWidget($centreon, $db);
     $preferences = $widgetObj->getWidgetPreferences($widgetId);
     $autoRefresh = 0;
     if (isset($preferences['refresh_interval'])) {
         $autoRefresh = $preferences['refresh_interval'];
     }
-    
-    /*
-     * Prepare URL
-     */
+}    catch (Exception $e) {
+    echo $e->getMessage() . "<br/>";
+    exit;
+}
+
+    if ($centreon->user->admin == 0) {
+        $access = new CentreonACL($centreon->user->get_id());
+        $grouplist = $access->getAccessGroups();
+        $grouplistStr = $access->getAccessGroupsString();
+    }
+
+    $path = $centreon_path . 'www/widgets/graph-monitoring/src/';
+    $template = new Smarty();
+    $template = initSmartyTplForPopup($path, $template, "/", $centreon_path);
+
     if (isset($preferences['service']) && $preferences['service']) {
-        $tab = split("-", $preferences['service']);
+        $tab = explode("-", $preferences['service']);
         $res = $db2->query("SELECT host_name, service_description
-                                   FROM index_data
-                           WHERE host_id = ".$db->escape($tab[0])."
-                           AND service_id = ".$db->escape($tab[1])."
-                           LIMIT 1");
+                                FROM index_data
+                                WHERE host_id = ".$db->escape($tab[0])."
+                                AND service_id = ".$db->escape($tab[1])."
+                               LIMIT 1");
         if ($res->numRows()) {
             $row = $res->fetchRow();
             $host_name = $row["host_name"];
-            $service_description = $row["service_description"]; 
-        } 
+            $service_description = $row["service_description"];
+        }
     }
-    
+
     /*
-     * Check ACL
-     */
+    * Check ACL
+    */
+
     $acl = 1;
     if (isset($tab[0]) && isset($tab[1]) && $centreon->user->admin == 0) {
-	$query = "SELECT host_id 
-            FROM centreon_acl 
-            WHERE host_id = ".$dbAcl->escape($tab[0])." 
-            AND service_id = ".$dbAcl->escape($tab[1])." 
-            AND group_id IN (".$grouplistStr.")";
-        $res = $dbAcl->query($query);    
+        $query = "SELECT host_id
+                FROM centreon_acl
+                WHERE host_id = ".$dbAcl->escape($tab[0])."
+                AND service_id = ".$dbAcl->escape($tab[1])."
+                AND group_id IN (".$grouplistStr.")";
+        $res = $dbAcl->query($query);
         if (!$res->numRows()) {
             $acl = 0;
         }
     }
-} catch (Exception $e) {
-    echo $e->getMessage() . "<br/>";
-    exit;
-}
-?>
-<html>
-    <style type="text/css">
-         body{ margin:0; padding:0;}
-         div#actionBar { position:absolute; top:0; left:0; width:100%; height:25px; background-color: #FFFFFF; }
-         @media screen { body>div#actionBar { position: fixed; } }
-         * html body { overflow:hidden; text-align:center;}
-    </style>
-    <head>
-    	<title>Graph Monitoring</title>
-    	<link href="../../Themes/Centreon-2/style.css" rel="stylesheet" type="text/css"/>
-    	<link href="../../Themes/Centreon-2/jquery-ui/jquery-ui.css" rel="stylesheet" type="text/css"/>
-    	<link href="../../Themes/Centreon-2/jquery-ui/jquery-ui-centreon.css" rel="stylesheet" type="text/css"/>
-    	<script type="text/javascript" src="../../include/common/javascript/jquery/jquery.js"></script>
-    	<script type="text/javascript" src="../../include/common/javascript/jquery/jquery-ui.js"></script>
-        <script type="text/javascript" src="../../include/common/javascript/widgetUtils.js"></script>
-    </head>
-    <body>
-    <?php 
+
+    $servicePreferences = "";
     if ($acl == 1) {
         if (isset($preferences['service']) && $preferences['service']) {
-            print "<div style='overflow:hidden;'><a href='#' id='linkGraph' target='_parent'><img id='graph'/></a></div>";
+            $servicePreferences .= "<div style='overflow:hidden;'><a href='../../main.php?p=204&mode=0&svc_id=" .
+                $host_name . ";" . $service_description .
+                "' id='linkGraph' target='_parent'><img id='graph' data-src='./src/generateGraph.php?service=" .
+                $preferences['service'] . "&tp=" . $preferences['graph_period'] . "&user=" . $centreon->user->user_id .
+                "'/></a></div>";
         } else {
-            print "<center><div class='update' style='text-align:center;width:350px;'>"._("Please select a resource first")."</div></center>";
-        } 
+            $servicePreferences .= "<div class='update' style='text-align:center;width:350px;'>"._("Please select a resource first")."</div>";
+        }
     } else {
-        print "<center><div class='update' style='text-align:center;width:350px;'>"._("You are not allowed to reach this graph")."</div></center>";
+        $servicePreferences .= "<div class='update' style='text-align:center;width:350px;'>"._("You are not allowed to reach this graph")."</div>";
     }
-    ?>
-    </body>
-<script type="text/javascript">
-var widgetId = <?php echo $widgetId; ?>;
-var autoRefresh = <?php echo $autoRefresh;?>;
-var user = <?php echo $centreon->user->get_id();?>;
-var timeout;
 
-jQuery(function() {
-	var image = document.getElementById("graph");
-	if (image) {
-    	   image.onload = function() {
-           	var h = this.height;
-                parent.iResize(window.name, h);
-                jQuery(window).resize(function() {
-    	   	     reload();
-    	        });
-           }
-           reload();
-	}
-});
+    $autoRefresh = $preferences['refresh_interval'];
+    $template->assign('widgetId', $widgetId);
+    $template->assign('preferences', $preferences);
+    $template->assign('autoRefresh', $autoRefresh);
+    $template->assign('servicePreferences', $servicePreferences);
 
-function reload() {
-  var image = document.getElementById("graph");
-  var link = document.getElementById("linkGraph");
-  var w;
-  
-  w = jQuery(window).width();
-
-  link.href='../../main.php?p=204&mode=0&svc_id=<?php echo $host_name.";".$service_description; ?>';
-  image.src = "./src/generateGraph.php?service=<?php echo $preferences['service'];?>&tp=<?php echo $preferences['graph_period'];?>&time=<?php echo time();?>&width="+w+"&user="+user;
-
-  if (autoRefresh) {
-    if (timeout) {
-      clearTimeout(timeout);
+    $bMoreViews = 0;
+    if ($preferences['more_views']) {
+        $bMoreViews = $preferences['more_views'];
     }
-    timeout = setTimeout(reload, (autoRefresh * 1000));
-  }
-}
-</script>
-</html>
+    $template->assign('more_views', $bMoreViews);
+
+    $template->display('index.ihtml');
