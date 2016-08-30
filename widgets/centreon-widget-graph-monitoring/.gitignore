@@ -1,3 +1,4 @@
-graph-monitoring/.idea/
+graph-monitoring/
+.idea/
 /graph-monitoring/nbproject/private/
 graph-monitoring/nbproject/
