@@ -33,7 +33,7 @@ CREATE TABLE IF NOT EXISTS `mod_open_tickets_form_clone` (
 	`form_clone_id` int(11) NOT NULL AUTO_INCREMENT,
     `uniq_id` VARCHAR(512) NOT NULL,
     `label` VARCHAR(512) NOT NULL,
-	`value` VARCHAR(512),
+	`value` TEXT,
 	`rule_id` int(11) NOT NULL,
     `order` int(11) NOT NULL,
 	PRIMARY KEY (`form_clone_id`)

@@ -69,21 +69,13 @@
 </tr>
 <tr class="list_one">
     <td class="FormRowField">
-        {$form.body.label}
-    </td>
-    <td class="FormRowValue">
-        {$form.body.html}
-    </td>
-</tr>
-<tr class="list_two">
-    <td class="FormRowField">
         {$form.mappingticket.label}
     </td>
     <td class="FormRowValue">
 		{include file="file:$centreon_open_tickets_path/providers/Abstract/templates/clone.ihtml" cloneId="mappingTicket" cloneSet=$form.mappingTicket}
 	</td>
 </tr>
-<tr class="list_one">
+<tr class="list_two">
     <td class="FormRowField">
         {$form.mappingticketdynamicfield.label}
     </td>

@@ -82,33 +82,6 @@ class BmcItsmProvider extends AbstractProvider {
         $this->default_data['endpoint'] = 'http://127.0.0.1/arsys/services/ARService?server=XXXX&webService=HPD_IncidentInterface_Create_WS';
         $this->default_data['namespace'] = 'IncidentInterface_Create_WS';
         $this->default_data['timeout'] = 60;
-        $this->default_data['body'] = '
-{$user.alias} open ticket at {$smarty.now|date_format:"%d/%m/%y %H:%M:%S"}
-
-{$custom_message}
-
-{include file="file:$centreon_open_tickets_path/providers/Abstract/templates/display_selected_lists.ihtml" separator=""}
-
-{if $host_selected|@count gt 0}
-{foreach from=$host_selected item=host}
-Host: {$host.name}
-State: {$host.state_str}
-Duration: {$host.last_hard_state_change_duration}
-Output: {$host.output|substr:0:1024}
-
-{/foreach}
-{/if}
-
-{if $service_selected|@count gt 0} 
-{foreach from=$service_selected item=service}
-Host: {$service.host_name}
-Service: {$service.description}
-State: {$service.state_str}
-Duration: {$service.last_hard_state_change_duration}
-Output: {$service.output|substr:0:1024}
-{/foreach}
-{/if}
-';
         
         $this->default_data['clones']['mappingTicket'] = array(
             array('Arg' => $this->_internal_arguments['Subject']['id'], 'Value' => 'Issue {include file="file:$centreon_open_tickets_path/providers/Abstract/templates/display_title.ihtml"}'),
@@ -183,7 +156,6 @@ Output: {$service.output|substr:0:1024}
         $username_html = '<input size="50" name="username" type="text" value="' . $this->_getFormValue('username') . '" />';
         $password_html = '<input size="50" name="password" type="password" value="' . $this->_getFormValue('password') . '" autocomplete="off" />';
         $timeout_html = '<input size="2" name="timeout" type="text" value="' . $this->_getFormValue('timeout') . '" />';
-        $body_html = '<textarea rows="8" cols="70" name="body">' . $this->_getFormValue('body') . '</textarea>';
 
         $array_form = array(
             'endpoint' => array('label' => _("Endpoint") . $this->_required_field, 'html' => $endpoint_html),
@@ -191,7 +163,6 @@ Output: {$service.output|substr:0:1024}
             'username' => array('label' => _("Username") . $this->_required_field, 'html' => $username_html),
             'password' => array('label' => _("Password") . $this->_required_field, 'html' => $password_html),
             'timeout' => array('label' => _("Timeout"), 'html' => $timeout_html),
-            'body' => array('label' => _("Body") . $this->_required_field, 'html' => $body_html),
             'mappingticket' => array('label' => _("Mapping ticket arguments")),
         );
         
@@ -237,7 +208,6 @@ Output: {$service.output|substr:0:1024}
         $this->_save_config['simple']['username'] = $this->_submitted_config['username'];
         $this->_save_config['simple']['password'] = $this->_submitted_config['password'];
         $this->_save_config['simple']['timeout'] = $this->_submitted_config['timeout'];
-        $this->_save_config['simple']['body'] = $this->change_html_tags($this->_submitted_config['body']);
         
         $this->_save_config['clones']['mappingTicket'] = $this->_getCloneSubmitted('mappingTicket', array('Arg', 'Value'));
     }
@@ -248,18 +218,12 @@ Output: {$service.output|substr:0:1024}
         
         $tpl = new Smarty();
         $tpl = initSmartyTplForPopup($this->_centreon_open_tickets_path, $tpl, 'providers/Abstract/templates', $this->_centreon_path);
-        
-        $this->assignSubmittedValues($tpl);
-        
+                
         $tpl->assign("centreon_open_tickets_path", $this->_centreon_open_tickets_path);
         $tpl->assign('user', $contact);
         $tpl->assign('host_selected', $host_problems);
         $tpl->assign('service_selected', $service_problems);
- 
-        $tpl->assign('string', $this->change_html_tags($this->rule_data['body'], 0));
-        $content = $tpl->fetch('eval.ihtml');
-        
-        $tpl->assign('body', $content);
+        $this->assignSubmittedValues($tpl);
         
         $ticket_arguments = array();
         if (isset($this->rule_data['clones']['mappingTicket'])) {

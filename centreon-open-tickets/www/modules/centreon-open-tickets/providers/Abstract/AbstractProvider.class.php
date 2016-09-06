@@ -47,6 +47,7 @@ abstract class AbstractProvider {
     const SERVICESEVERITY_TYPE = 5;
     const SERVICECONTACTGROUP_TYPE = 6;
     const CUSTOM_TYPE = 7;
+    const BODY_TYPE = 8;
     
     const DATA_TYPE_JSON = 0;
     const DATA_TYPE_XML = 1;
@@ -155,6 +156,38 @@ abstract class AbstractProvider {
 ';
         $this->default_data['format_popup'] = $this->change_html_tags($this->default_data['format_popup']);
         $this->default_data['message_confirm'] = $this->change_html_tags($this->default_data['message_confirm']);
+        
+        $default_body = '
+{$user.alias} open ticket at {$smarty.now|date_format:"%d/%m/%y %H:%M:%S"}
+
+{$custom_message}
+
+{include file="file:$centreon_open_tickets_path/providers/Abstract/templates/display_selected_lists.ihtml" separator=""}
+
+{if $host_selected|@count gt 0}
+{foreach from=$host_selected item=host}
+Host: {$host.name}
+State: {$host.state_str}
+Duration: {$host.last_hard_state_change_duration}
+Output: {$host.output|substr:0:1024}
+
+{/foreach}
+{/if}
+
+{if $service_selected|@count gt 0} 
+{foreach from=$service_selected item=service}
+Host: {$service.host_name}
+Service: {$service.description}
+State: {$service.state_str}
+Duration: {$service.last_hard_state_change_duration}
+Output: {$service.output|substr:0:1024}
+{/foreach}
+{/if}
+'; 
+        
+        $this->default_data['clones']['bodyList'] = array(
+            array('Name' => 'Default', 'Value' => $default_body, 'Default' => '1'),
+        );
     }
     
     /**
@@ -283,6 +316,7 @@ abstract class AbstractProvider {
             'close_ticket' => array('label' => _("Close ticket"), 'html' => $close_ticket_html),
             'grouplist' => array('label' => _("Lists")),
             'customlist' => array('label' => _("Custom list definition")),
+            'bodylist' => array('label' => _("Body list definition")),
         );
         
         $extra_group_options = '';
@@ -304,6 +338,7 @@ abstract class AbstractProvider {
         '<option value="' . self::SERVICECATEGORY_TYPE . '">Service category</options>' .
         '<option value="' . self::SERVICESEVERITY_TYPE . '">Service severity</options>' .
         '<option value="' . self::SERVICECONTACTGROUP_TYPE . '">Contact group</options>' .
+        '<option value="' . self::BODY_TYPE . '">Body</options>' .
         '<option value="' . self::CUSTOM_TYPE . '">Custom</options>' .
         '</select>';
         $groupListFilter_html =  '<input id="groupListFilter_#index#" name="groupListFilter[#index#]" size="20"  type="text" />';
@@ -326,11 +361,22 @@ abstract class AbstractProvider {
             array('label' => _("Default"), 'html' => $customListDefault_html),
         );
         
+        // Body list clone
+        $bodyListName_html = '<input id="bodyListName_#index#" name="bodyListName[#index#]" size="20"  type="text" />';
+        $bodyListValue_html = '<textarea type="textarea" id="bodyListValue_#index#" rows="8" cols="70" name="bodyListValue[#index#]"></textarea>';
+        $bodyListDefault_html =  '<input id="bodyListDefault_#index#" name="bodyListDefault[#index#]" type="checkbox" value="1" />';
+        $array_form['bodyList'] = array(
+            array('label' => _("Name"), 'html' => $bodyListName_html),
+            array('label' => _("Value"), 'html' => $bodyListValue_html),
+            array('label' => _("Default"), 'html' => $bodyListDefault_html),
+        );
+        
         $tpl->assign('form', $array_form);
         $this->_config['container1_html'] .= $tpl->fetch('conf_container1main.ihtml');
         
         $this->_config['clones']['groupList'] = $this->_getCloneValue('groupList');
         $this->_config['clones']['customList'] = $this->_getCloneValue('customList');
+        $this->_config['clones']['bodyList'] = $this->_getCloneValue('bodyList');
     }
     
     /**
@@ -397,6 +443,7 @@ abstract class AbstractProvider {
         
         $this->_save_config['clones']['groupList'] = $this->_getCloneSubmitted('groupList', array('Id', 'Label', 'Type', 'Filter', 'Mandatory'));
         $this->_save_config['clones']['customList'] = $this->_getCloneSubmitted('customList', array('Id', 'Value', 'Default'));
+        $this->_save_config['clones']['bodyList'] = $this->_getCloneSubmitted('bodyList', array('Name', 'Value', 'Default'));
     }
     
     public function saveConfig() {
@@ -487,6 +534,28 @@ abstract class AbstractProvider {
         $groups_order[] = $entry['Id'];
     }
     
+    protected function assignBody($entry, &$groups_order, &$groups) {
+        $result = array();
+        $default = '';
+        if (isset($this->rule_data['clones']['bodyList'])) {
+            foreach ($this->rule_data['clones']['bodyList'] as $values) {
+                if (isset($entry['Id']) && $entry['Id'] != '' &&
+                    isset($values['Name']) && $values['Name'] != '') {
+                    $result[] = $values['Name'];
+                    if (isset($values['Default']) && $values['Default']) {
+                        $default = $values['Name'];
+                    }
+                }
+            }
+        }
+        
+        $groups[$entry['Id']] = array('label' => _($entry['Label']) . 
+                                                        (isset($entry['Mandatory']) && $entry['Mandatory'] == 1 ? $this->_required_field : ''), 
+                                      'values' => $result,
+                                      'default' => $default);
+        $groups_order[] = $entry['Id'];
+    }
+    
     protected function assignFormatPopupTemplate(&$tpl, $args) {
         foreach ($args as $label => $value) {
             $tpl->assign($label, $value);
@@ -517,6 +586,8 @@ abstract class AbstractProvider {
                     $this->assignContactgroup($values, $groups_order, $groups);
                 } else if ($values['Type'] == self::CUSTOM_TYPE) {
                     $this->assignCustom($values, $groups_order, $groups);
+                } else if ($values['Type'] == self::BODY_TYPE) {
+                    $this->assignBody($values, $groups_order, $groups);
                 } else {
                     $method_name = 'assignOthers';
                     if (method_exists($this, $method_name)) {
@@ -583,12 +654,13 @@ abstract class AbstractProvider {
             }
         }
         
+        $body = null;
         $method_name = 'assignSubmittedValuesSelectMore';
         $select_lists = array();
         if (isset($this->rule_data['clones']['groupList'])) {
             foreach ($this->rule_data['clones']['groupList'] as $values) {
                 // Maybe an error to get list
-                if (!isset($this->_submitted_config['select_' . $values['Id']])) {
+                if ($values['Type'] == self::BODY_TYPE || !isset($this->_submitted_config['select_' . $values['Id']])) {
                     continue;
                 }
                 
@@ -609,6 +681,58 @@ abstract class AbstractProvider {
         }
         
         $tpl->assign('select', $select_lists);
+        
+        # Manage body
+        $body_lists = array();
+        if (isset($this->rule_data['clones']['groupList'])) {
+            foreach ($this->rule_data['clones']['groupList'] as $values) {
+                if ($values['Type'] != self::BODY_TYPE || !isset($this->_submitted_config['select_' . $values['Id']])) {
+                    continue;
+                }
+                
+                $id = '-1';
+                $value = '';
+                $matches = array();
+                if (preg_match('/^(.*?)_(.*)$/', $this->_submitted_config['select_' . $values['Id']], $matches)) {
+                    $id = $matches[1];
+                    $value = $matches[2];
+                }
+                
+                // body list
+                $value_body = '';
+                foreach ($this->rule_data['clones']['bodyList'] as $body_entry) {
+                    if ($body_entry['Name'] == $value) {
+                        $value_body = $body_entry['Value'];
+                        $body = $body_entry['Value'];
+                        break;
+                    }
+                }
+                
+                $tpl->assign('string', $value_body);
+                $content = $tpl->fetch('eval.ihtml');
+                $body_lists[$values['Id']] = array('label' => _($values['Label']), 'id' => $id, 'name' => $value, 'value' => $content);
+            }
+        }
+        
+        # We reassign
+        $tpl->assign('list_body', $select_lists);
+
+        # if no submitted value, we set the default body (compatibility)
+        if (is_null($body)) {
+            $body = '';
+            foreach ($this->rule_data['clones']['bodyList'] as $body_entry) {
+                if ($body_entry['Default'] == 1) {
+                    $body = $body_entry['Value'];
+                    break;
+                }
+            }
+        }
+        
+        # We assign the default body
+        $tpl->assign('string', $body);
+        $content = $tpl->fetch('eval.ihtml');
+        $tpl->assign('body', $content);
+        $this->body = $content;
     }
     
     protected function setConfirmMessage($host_problems, $service_problems, $submit_result) {

@@ -19,16 +19,11 @@
  * limitations under the License.
  */
 
-class MailProvider extends AbstractProvider {    
-    /**
-     * Set default extra value 
-     *
-     * @return void
-     */
-    protected function _setDefaultValueExtra() {
-        $this->default_data['from'] = '{$user.email}';
-        $this->default_data['subject'] = 'Issue {$ticket_id} - {include file="file:$centreon_open_tickets_path/providers/Abstract/templates/display_title.ihtml"}';
-        $this->default_data['body'] = '
+class MailProvider extends AbstractProvider {
+    
+    protected function _setDefaultValueMain() {
+        parent::_setDefaultValueMain();
+        $default_body = '
 <html>
 <body>
 
@@ -90,8 +85,14 @@ class MailProvider extends AbstractProvider {
 </body>
 </html>
         ';
-        
-        $this->default_data['body'] = $this->change_html_tags($this->default_data['body']);
+        $this->default_data['clones']['bodyList'] = array(
+            array('Name' => 'Default', 'Value' => $default_body, 'Default' => '1'),
+        );
+    }
+     
+    protected function _setDefaultValueExtra() {
+        $this->default_data['from'] = '{$user.email}';
+        $this->default_data['subject'] = 'Issue {$ticket_id} - {include file="file:$centreon_open_tickets_path/providers/Abstract/templates/display_title.ihtml"}';
         
         $this->default_data['clones']['headerMail'] = array(
             array('Name' => 'MIME-Version', 'Value' => '1.0'),
@@ -111,7 +112,6 @@ class MailProvider extends AbstractProvider {
         $this->_checkFormValue('from', "Please set 'From' value");
         $this->_checkFormValue('to', "Please set 'To' value");
         $this->_checkFormValue('subject', "Please set 'Subject' value");
-        $this->_checkFormValue('body', "Please set 'Body' value");
         $this->_checkFormValue('macro_ticket_id', "Please set 'Macro Ticket ID' value");
         $this->_checkFormInteger('confirm_autoclose', "'Confirm popup autoclose' must be a number");
         
@@ -138,15 +138,13 @@ class MailProvider extends AbstractProvider {
         // Form
         $from_html = '<input size="50" name="from" type="text" value="' . $this->_getFormValue('from') . '" />';
         $to_html = '<input size="50" name="to" type="text" value="' . $this->_getFormValue('to') . '" />';
-        $subject_html = '<input size="50" name="subject" type="text" value="' . $this->_getFormValue('subject') . '" />';
-        $body_html = '<textarea rows="8" cols="70" name="body">' . $this->_getFormValue('body') . '</textarea>';
+        $subject_html = '<input size="50" name="subject" type="text" value="' . htmlentities($this->_getFormValue('subject')) . '" />';
 
         $array_form = array(
             'from' => array('label' => _("From") . $this->_required_field, 'html' => $from_html),
             'to' => array('label' => _("To") . $this->_required_field, 'html' => $to_html),
             'subject' => array('label' => _("Subject") . $this->_required_field, 'html' => $subject_html),
             'header' => array('label' => _("Headers")),
-            'body' => array('label' => _("Body") . $this->_required_field, 'html' => $body_html)
         );
         
         // Clone part
@@ -178,7 +176,6 @@ class MailProvider extends AbstractProvider {
         $this->_save_config['simple']['from'] = $this->_submitted_config['from'];
         $this->_save_config['simple']['to'] = $this->_submitted_config['to'];
         $this->_save_config['simple']['subject'] = $this->_submitted_config['subject'];
-        $this->_save_config['simple']['body'] = $this->change_html_tags($this->_submitted_config['body']);
     }
     
     public function validateFormatPopup() {
@@ -205,14 +202,12 @@ class MailProvider extends AbstractProvider {
         $tpl = new Smarty();
         $tpl = initSmartyTplForPopup($this->_centreon_open_tickets_path, $tpl, 'providers/Abstract/templates', $this->_centreon_path);
         
-        $this->assignSubmittedValues($tpl);
         $tpl->assign("centreon_open_tickets_path", $this->_centreon_open_tickets_path);
         $tpl->assign('user', $contact);
         $tpl->assign('host_selected', $host_problems);
         $tpl->assign('service_selected', $service_problems);
         $tpl->assign('ticket_id', $result['ticket_id']);
-        $tpl->assign('string', $this->change_html_tags($this->rule_data['body'], 0));
-        $body = $tpl->fetch('eval.ihtml');
+        $this->assignSubmittedValues($tpl);        
         
         // We send the mail
         $tpl->assign('string', $this->rule_data['from']);
@@ -226,12 +221,12 @@ class MailProvider extends AbstractProvider {
 
         $tpl->assign('string', $this->rule_data['subject']);
         $subject = $tpl->fetch('eval.ihtml');
-        mail($this->rule_data['to'], $subject, $body, $headers);
+        mail($this->rule_data['to'], $subject, $this->body, $headers);
         
         $this->saveHistory($db_storage, $result, 
             array('no_create_ticket_id' => true, 'contact' => $contact, 'host_problems' => $host_problems, 'service_problems' => $service_problems,
                   'subject' => $subject, 
-                  'data_type' => self::DATA_TYPE_JSON, 'data' => json_encode(array('body' => $body, 'from' => $from, 'headers' => $headers, 'to' => $this->rule_data['to'])))
+                  'data_type' => self::DATA_TYPE_JSON, 'data' => json_encode(array('body' => $this->body, 'from' => $from, 'headers' => $headers, 'to' => $this->rule_data['to'])))
         );
         
         return $result;
