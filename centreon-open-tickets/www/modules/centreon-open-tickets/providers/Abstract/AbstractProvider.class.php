@@ -715,7 +715,7 @@ Output: {$service.output|substr:0:1024}
         }
         
         # We reassign
-        $tpl->assign('list_body', $select_lists);
+        $tpl->assign('list_body', $body_lists);
 
         # if no submitted value, we set the default body (compatibility)
         if (is_null($body)) {
