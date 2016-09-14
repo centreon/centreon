@@ -103,6 +103,7 @@ $obj->init();
 /*
  * Set colors 
  */
+
 $obj->setColor("CANVAS","#FFFFFF");
 $obj->setColor("BACK","#FFFFFF");
 $obj->setColor("SHADEA","#FFFFFF");
