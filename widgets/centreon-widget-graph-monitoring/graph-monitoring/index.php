@@ -72,6 +72,7 @@ try {
     $widgetObj = new CentreonWidget($centreon, $db);
     $preferences = $widgetObj->getWidgetPreferences($widgetId);
     $autoRefresh = 0;
+
     if (isset($preferences['refresh_interval'])) {
         $autoRefresh = $preferences['refresh_interval'];
     }
@@ -90,20 +91,6 @@ try {
     $template = new Smarty();
     $template = initSmartyTplForPopup($path, $template, "/", $centreon_path);
 
-    if (isset($preferences['service']) && $preferences['service']) {
-        $tab = explode("-", $preferences['service']);
-        $res = $db2->query("SELECT host_name, service_description
-                                FROM index_data
-                                WHERE host_id = ".$db->escape($tab[0])."
-                                AND service_id = ".$db->escape($tab[1])."
-                               LIMIT 1");
-        if ($res->numRows()) {
-            $row = $res->fetchRow();
-            $host_name = $row["host_name"];
-            $service_description = $row["service_description"];
-        }
-    }
-
     /*
     * Check ACL
     */
@@ -121,26 +108,12 @@ try {
         }
     }
 
-    $servicePreferences = "";
-    if ($acl == 1) {
-        if (isset($preferences['service']) && $preferences['service']) {
-            $servicePreferences .= "<div style='overflow:hidden;'><a href='../../main.php?p=204&mode=0&svc_id=" .
-                $host_name . ";" . $service_description .
-                "' id='linkGraph' target='_parent'><img id='graph' data-src='./src/generateGraph.php?service=" .
-                $preferences['service'] . "&tp=" . $preferences['graph_period'] . "&user=" . $centreon->user->user_id .
-                "'/></a></div>";
-        } else {
-            $servicePreferences .= "<div class='update' style='text-align:center;width:350px;'>"._("Please select a resource first")."</div>";
-        }
-    } else {
-        $servicePreferences .= "<div class='update' style='text-align:center;width:350px;'>"._("You are not allowed to reach this graph")."</div>";
-    }
-
     $autoRefresh = $preferences['refresh_interval'];
     $template->assign('widgetId', $widgetId);
     $template->assign('preferences', $preferences);
+    $template->assign('interval', $preferences['graph_period']);
     $template->assign('autoRefresh', $autoRefresh);
-    $template->assign('servicePreferences', $servicePreferences);
+    $template->assign('graphId', str_replace('-', '_', $preferences['service']));
 
     $bMoreViews = 0;
     if ($preferences['more_views']) {
