@@ -9,7 +9,7 @@
     <body>
         {$servicePreferences}
         <!--<div id='graphMonitoringTable'></div>-->
-        <div class="graph" id="graph_wrapper_{$graphId}" data-graph-id="{$graphId}" data-graph-type="service"></div>
+        <div class="chart" data-graph-id="{$graphId}" data-graph-type="service"></div>
 
         <script type="text/javascript" src="../../include/common/javascript/jquery/jquery.js"></script>
         <script type="text/javascript" src="../../include/common/javascript/jquery/jquery-ui.js"></script>
@@ -34,6 +34,8 @@
                 refresh: autoRefresh
             };
             {/literal}
+
             jQuery(".chart").centreonGraph(parameters);
+            parent.iResize(window.name, 240);
         </script>
     </body>
