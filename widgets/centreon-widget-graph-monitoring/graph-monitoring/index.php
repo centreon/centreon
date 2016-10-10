@@ -58,7 +58,6 @@ if (!isset($_REQUEST['widgetId'])) {
     exit;
 }
 $centreon = $_SESSION['centreon'];
-
 $widgetId = $_REQUEST['widgetId'];
 
 try {
