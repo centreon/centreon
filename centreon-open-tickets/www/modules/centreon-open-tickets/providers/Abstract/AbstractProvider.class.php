@@ -125,7 +125,7 @@ abstract class AbstractProvider {
         return $output;
     }
     
-    protected function _setDefaultValueMain() {
+    protected function _setDefaultValueMain($body_html = 0) {
         $this->default_data['macro_ticket_id'] = 'TICKET_ID';
         $this->default_data['ack'] = 'yes';
         #$this->default_data['close_ticket'] = 'yes';
@@ -140,6 +140,10 @@ abstract class AbstractProvider {
     <td class="FormRowValue" style="padding-left:15px;"><textarea id="custom_message" name="custom_message" cols="50" rows="6"></textarea></td>
 </tr>
 {include file="file:$centreon_open_tickets_path/providers/Abstract/templates/groups.ihtml"}
+<!--<tr>
+    <td class="FormRowField" style="padding-left:15px;">Add graphs</td>
+    <td class="FormRowValue" style="padding-left:15px;"><input type="checkbox" name="add_graph" value="1" /></td>
+</tr>-->
 </table>
 ';
         $this->default_data['message_confirm'] = '
@@ -157,7 +161,81 @@ abstract class AbstractProvider {
         $this->default_data['format_popup'] = $this->change_html_tags($this->default_data['format_popup']);
         $this->default_data['message_confirm'] = $this->change_html_tags($this->default_data['message_confirm']);
         
-        $default_body = '
+        if ($body_html == 1) {
+            $default_body = '
+<html>
+<body>
+
+<p>{$user.alias} open ticket at {$smarty.now|date_format:"%d/%m/%y %H:%M:%S"}</p>
+
+<p>{$custom_message}</p>
+
+<p>
+{include file="file:$centreon_open_tickets_path/providers/Abstract/templates/display_selected_lists.ihtml" separator="<br/>"}
+</p>
+
+{assign var="table_style" value="border-collapse: collapse; border: 1px solid black;"}
+{assign var="cell_title_style" value="background-color: #D2F5BB; border: 1px solid black; text-align: center; padding: 10px; text-transform:uppercase; font-weight:bold;"}
+{assign var="cell_style" value="border-bottom: 1px solid black; padding: 5px;"}
+
+{if $host_selected|@count gt 0} 
+    <table cellpading="0" cellspacing="0" style="{$table_style}">
+        <tr>
+            <td style="{$cell_title_style}">Host</td>
+            <td style="{$cell_title_style}">State</td>
+            <td style="{$cell_title_style}">Duration</td>
+            <td style="{$cell_title_style}">Output</td>
+        </tr>
+        {foreach from=$host_selected item=host}
+        <tr>
+            <td style="{$cell_style}">{$host.name}</td>
+            <td style="{$cell_style}">{$host.state_str}</td>
+            <td style="{$cell_style}">{$host.last_hard_state_change_duration}</td>
+            <td style="{$cell_style}">{$host.output|substr:0:255}</td>
+        </tr>
+        {/foreach}
+    </table>
+{/if}
+
+{if $service_selected|@count gt 0} 
+    <table cellpading="0" cellspacing="0" style="{$table_style}">
+        <tr>
+            <td style="{$cell_title_style}">Host</td>
+            <td style="{$cell_title_style}">Service</td>
+            <td style="{$cell_title_style}">State</td>
+            <td style="{$cell_title_style}">Duration</td>
+            <td style="{$cell_title_style}">Output</td>
+        </tr>
+        {foreach from=$service_selected item=service}
+        <tr>
+            <td style="{$cell_style}">{$service.host_name}</td>
+            <td style="{$cell_style}">{$service.description}</td>
+            <td style="{$cell_style}">{$service.state_str}</td>
+            <td style="{$cell_style}">{$service.last_hard_state_change_duration}</td>
+            <td style="{$cell_style}">{$service.output|substr:0:255}</td>
+        </tr>
+        {/foreach}
+    </table>
+{/if}
+
+{assign var="centreon_url" value="localhost"}
+{assign var="centreon_username" value="admin"}
+{assign var="centreon_token" value="token"}
+{assign var="centreon_end" value="`$smarty.now`"}
+{assign var="centreon_start" value=$centreon_end-86400}
+
+{if isset($add_graph) && $add_graph == 1}
+    {if $service_selected|@count gt 0} 
+        {foreach from=$service_selected item=service}
+<br /><img src="http://{$centreon_url}/centreon/include/views/graphs/generateGraphs/generateImage.php?username={$centreon_username}&token={$centreon_token}&start={$centreon_start}&end={$centreon_end}&hostname={$service.host_name}&service={$service.description}" />
+        {/foreach}
+    {/if}
+{/if}
+
+</body>
+</html>';
+        } else {
+            $default_body = '
 {$user.alias} open ticket at {$smarty.now|date_format:"%d/%m/%y %H:%M:%S"}
 
 {$custom_message}
@@ -183,7 +261,8 @@ Duration: {$service.last_hard_state_change_duration}
 Output: {$service.output|substr:0:1024}
 {/foreach}
 {/if}
-'; 
+';
+        }
         
         $this->default_data['clones']['bodyList'] = array(
             array('Name' => 'Default', 'Value' => $default_body, 'Default' => '1'),

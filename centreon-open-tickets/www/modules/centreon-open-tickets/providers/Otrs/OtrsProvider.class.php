@@ -37,6 +37,7 @@ class OtrsProvider extends AbstractProvider {
     const ARG_SUBJECT = 6;
     const ARG_BODY = 7;
     const ARG_FROM = 8;
+    const ARG_CONTENTTYPE = 9;
     
     protected $_internal_arg_name = array(
         self::ARG_QUEUE => 'Queue',
@@ -47,6 +48,7 @@ class OtrsProvider extends AbstractProvider {
         self::ARG_SUBJECT => 'Subject',
         self::ARG_BODY => 'Body',
         self::ARG_FROM => 'From',
+        self::ARG_CONTENTTYPE => 'ContentType',
     );
 
     function __destruct() {
@@ -74,11 +76,12 @@ class OtrsProvider extends AbstractProvider {
             array('Arg' => self::ARG_STATE, 'Value' => '{$select.otrs_state.value}'),
             array('Arg' => self::ARG_TYPE, 'Value' => '{$select.otrs_type.value}'),
             array('Arg' => self::ARG_CUSTOMERUSER, 'Value' => '{$select.otrs_customeruser.value}'),
+            array('Arg' => self::ARG_CONTENTTYPE, 'Value' => 'text/html; charset=utf8'),
         );
     }
     
     protected function _setDefaultValueMain() {
-        parent::_setDefaultValueMain();
+        parent::_setDefaultValueMain(1);
         
         $this->default_data['url'] = 'http://{$address}/index.pl?Action=AgentTicketZoom;TicketNumber={$ticket_id}';        
         $this->default_data['clones']['groupList'] = array(
@@ -163,6 +166,7 @@ class OtrsProvider extends AbstractProvider {
         '<option value="' . self::ARG_FROM . '">' . _('From') . '</options>' .
         '<option value="' . self::ARG_SUBJECT . '">' . _('Subject') . '</options>' .
         '<option value="' . self::ARG_BODY . '">' . _('Body') . '</options>' .
+        '<option value="' . self::ARG_CONTENTTYPE . '">' . _('Content Type') . '</options>' .
         '</select>';
         $array_form['mappingTicket'] = array(
             array('label' => _("Argument"), 'html' => $mappingTicketArg_html),
@@ -621,7 +625,7 @@ class OtrsProvider extends AbstractProvider {
                 'From' => $ticket_arguments['From'], // Must be an email
                 'Subject' => $ticket_arguments['Subject'],
                 'Body' => $ticket_arguments['Body'],
-                'ContentType' => 'text/plain; charset=utf8', 
+                'ContentType' => $ticket_arguments['ContentType'],
             ),
         );
         if (count($ticket_dynamic_fields) > 0) {

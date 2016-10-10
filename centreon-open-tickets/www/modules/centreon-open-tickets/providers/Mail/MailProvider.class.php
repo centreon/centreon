@@ -22,72 +22,7 @@
 class MailProvider extends AbstractProvider {
     
     protected function _setDefaultValueMain() {
-        parent::_setDefaultValueMain();
-        $default_body = '
-<html>
-<body>
-
-<p>
-{$user.alias} open ticket at {$smarty.now|date_format:"%d/%m/%y %H:%M:%S"}
-</p>
-
-<p>
-{$custom_message}
-</p>
-
-<p>
-{include file="file:$centreon_open_tickets_path/providers/Abstract/templates/display_selected_lists.ihtml" separator="<br/>"}
-</p>
-
-{assign var="table_style" value="border-collapse: collapse; border: 1px solid black;"}
-{assign var="cell_title_style" value="background-color: #D2F5BB; border: 1px solid black; text-align: center; padding: 10px; text-transform:uppercase; font-weight:bold;"}
-{assign var="cell_style" value="border-bottom: 1px solid black; padding: 5px;"}
-
-{if $host_selected|@count gt 0} 
-    <table cellpading="0" cellspacing="0" style="{$table_style}">
-        <tr>
-            <td style="{$cell_title_style}">Host</td>
-            <td style="{$cell_title_style}">State</td>
-            <td style="{$cell_title_style}">Duration</td>
-            <td style="{$cell_title_style}">Output</td>
-        </tr>
-        {foreach from=$host_selected item=host}
-        <tr>
-            <td style="{$cell_style}">{$host.name}</td>
-            <td style="{$cell_style}">{$host.state_str}</td>
-            <td style="{$cell_style}">{$host.last_hard_state_change_duration}</td>
-            <td style="{$cell_style}">{$host.output|substr:0:255}</td>
-        </tr>
-        {/foreach}
-    </table>
-{/if}
-
-{if $service_selected|@count gt 0} 
-    <table cellpading="0" cellspacing="0" style="{$table_style}">
-        <tr>
-            <td style="{$cell_title_style}">Host</td>
-            <td style="{$cell_title_style}">Service</td>
-            <td style="{$cell_title_style}">State</td>
-            <td style="{$cell_title_style}">Duration</td>
-            <td style="{$cell_title_style}">Output</td>
-        </tr>
-        {foreach from=$service_selected item=service}
-        <tr>
-            <td style="{$cell_style}">{$service.host_name}</td>
-            <td style="{$cell_style}">{$service.description}</td>
-            <td style="{$cell_style}">{$service.state_str}</td>
-            <td style="{$cell_style}">{$service.last_hard_state_change_duration}</td>
-            <td style="{$cell_style}">{$service.output|substr:0:255}</td>
-        </tr>
-        {/foreach}
-    </table>
-{/if}
-</body>
-</html>
-        ';
-        $this->default_data['clones']['bodyList'] = array(
-            array('Name' => 'Default', 'Value' => $default_body, 'Default' => '1'),
-        );
+        parent::_setDefaultValueMain(1);
     }
      
     protected function _setDefaultValueExtra() {
