@@ -31,36 +31,6 @@ function get_contact_information() {
     return $result;
 }
 
-function get_service_state_str($state) {
-    $result = 'CRITICAL';
-    
-    if ($state == 0) {
-        $result = 'OK';
-    } else if ($result == 1) {
-        $result = 'WARNING';
-    } else if ($result == 2) {
-        $result = 'CRITICAL';
-    } else if ($result == 3) {
-        $result = 'UNKNOWN';
-    } else if ($result == 4) {
-        $result = 'PENDING';
-    } 
-    return $result;
-}
-
-function get_host_state_str($state) {
-    $result = 'DOWN';
-    
-    if ($state == 0) {
-        $result = 'UP';
-    } else if ($result == 1) {
-        $result = 'DOWN';
-    } else if ($result == 2) {
-        $result = 'UNREACHABLE';
-    }
-    return $result;
-}
-
 $resultat = array(
     "code" => 0,
     "msg" => 'ok'
@@ -103,68 +73,19 @@ require_once $centreon_path . 'www/class/centreonDuration.class.php';
 
 $selected_values = explode(',', $get_information['form']['selection']);
 $db_storage = new centreonDBManager('centstorage');
-$host_problems = array();
-$service_problems = array();
 
-if ($get_information['form']['cmd'] == 3) {
-    $selected_str = '';
-    $selected_str_append = '';
-    foreach ($selected_values as $value) {
-        $str = explode(';', $value);
-        $selected_str .= $selected_str_append . 'services.host_id = ' . $str[0] . ' AND services.service_id = ' . $str[1];
-        $selected_str_append = ' OR ';
-    }
-    
-    $query = "SELECT services.*, hosts.state as host_state, hosts.name as host_name, hosts.instance_id FROM services, hosts";
-    $query_where = " WHERE (" . $selected_str . ') AND services.host_id = hosts.host_id';
-    if (!$centreon_bg->is_admin) {
-        $query_where .= " AND EXISTS(SELECT * FROM centreon_acl WHERE centreon_acl.group_id IN (" . $centreon_bg->grouplistStr . ") AND hosts.host_id = centreon_acl.host_id 
-        AND services.service_id = centreon_acl.service_id)";
-    }
-    
-    $DBRESULT = $db_storage->query($query . $query_where);
-    while (($row = $DBRESULT->fetchRow())) {
-        $row['service_state'] = $row['state'];
-        $row['state_str'] = get_service_state_str($row['state']);
-        $row['last_state_change_duration'] = CentreonDuration::toString(time() - $row['last_state_change']);
-        $row['last_hard_state_change_duration'] = CentreonDuration::toString(time() - $row['last_hard_state_change']);
-        $service_problems[] = $row;
-    }
-} else if ($get_information['form']['cmd'] == 4) {
-    $hosts_selected_str = '';
-    $hosts_selected_str_append = '';
-    foreach ($selected_values as $value) {
-        $str = explode(';', $value);
-        $hosts_selected_str .= $hosts_selected_str_append . $str[0];
-        $hosts_selected_str_append = ', ';
-    }
-    
-    $query = "SELECT * FROM hosts";
-    $query_where = " WHERE host_id IN (" . $hosts_selected_str . ")";
-    if (!$centreon_bg->is_admin) {
-        $query_where .= " AND EXISTS(SELECT * FROM centreon_acl WHERE centreon_acl.group_id IN (" . $centreon_bg->grouplistStr . ") AND hosts.host_id = centreon_acl.host_id)";
-    }
-
-    $DBRESULT = $db_storage->query($query . $query_where);
-    while (($row = $DBRESULT->fetchRow())) {
-        $row['host_state'] = $row['state'];
-        $row['state_str'] = get_host_state_str($row['state']);
-        $row['last_state_change_duration'] = CentreonDuration::toString(time() - $row['last_state_change']);
-        $row['last_hard_state_change_duration'] = CentreonDuration::toString(time() - $row['last_hard_state_change']);
-        $host_problems[] = $row;
-    }   
-}
+$selected = $rule->loadSelection($db_storage, $get_information['form']['cmd'], $get_information['form']['selection']);
 
 try {
     $contact_infos = get_contact_information();
-    $resultat['result'] = $centreon_provider->submitTicket($db_storage, $contact_infos, $host_problems, $service_problems);
+    $resultat['result'] = $centreon_provider->submitTicket($db_storage, $contact_infos, $selected['host_selected'], $selected['service_selected']);
     
     if ($resultat['result']['ticket_is_ok'] == 1) { 
         require_once $centreon_path . 'www/class/centreonExternalCommand.class.php';
         $oreon = $_SESSION['centreon'];
         $external_cmd = new CentreonExternalCommand($oreon);
         
-        foreach ($host_problems as $value) {
+        foreach ($selected['host_selected'] as $value) {
             $command = "CHANGE_CUSTOM_HOST_VAR;%s;%s;%s";
             $external_cmd->set_process_command(sprintf($command, $value['name'], $centreon_provider->getMacroTicketId(), $resultat['result']['ticket_id']), $value['instance_id']);
             if ($centreon_provider->doAck()) {
@@ -172,7 +93,7 @@ try {
                 $external_cmd->set_process_command(sprintf($command, $value['name'], 2, 0, 1, $contact_infos['alias'], 'open ticket: ' . $resultat['result']['ticket_id']), $value['instance_id']);
             }
         }
-        foreach ($service_problems as $value) {
+        foreach ($selected['service_selected'] as $value) {
             $command = "CHANGE_CUSTOM_SVC_VAR;%s;%s;%s;%s";
             $external_cmd->set_process_command(sprintf($command, $value['host_name'], $value['description'], $centreon_provider->getMacroTicketId(), $resultat['result']['ticket_id']), $value['instance_id']);
             if ($centreon_provider->doAck()) {

@@ -122,9 +122,75 @@ class Centreon_OpenTickets_Rule
         return $result;
     }
     
-    public function getFormatPopupProvider($rule_id, $args, $widget_id) {        
+    public function loadSelection($db_storage=null, $cmd, $selection) {
+        global $centreon_bg;
+        
+        if (is_null($db_storage)) {
+            $db_storage = new CentreonDB('centstorage');
+        }
+        
+        $selected_values = explode(',', $selection);
+        $selected = array('host_selected' => array(), 'service_selected' => array());
+        
+        if ($cmd == 3) {
+            $selected_str = '';
+            $selected_str_append = '';
+            foreach ($selected_values as $value) {
+                $str = explode(';', $value);
+                $selected_str .= $selected_str_append . 'services.host_id = ' . $str[0] . ' AND services.service_id = ' . $str[1];
+                $selected_str_append = ' OR ';
+            }
+            
+            $query = "SELECT services.*, hosts.state as host_state, hosts.name as host_name, hosts.instance_id FROM services, hosts";
+            $query_where = " WHERE (" . $selected_str . ') AND services.host_id = hosts.host_id';
+            if (!$centreon_bg->is_admin) {
+                $query_where .= " AND EXISTS(SELECT * FROM centreon_acl WHERE centreon_acl.group_id IN (" . $centreon_bg->grouplistStr . ") AND hosts.host_id = centreon_acl.host_id 
+                AND services.service_id = centreon_acl.service_id)";
+            }
+            
+            $DBRESULT = $db_storage->query($query . $query_where);
+            while (($row = $DBRESULT->fetchRow())) {
+                $row['service_state'] = $row['state'];
+                $row['state_str'] = $this->getServiceStateStr($row['state']);
+                $row['last_state_change_duration'] = CentreonDuration::toString(time() - $row['last_state_change']);
+                $row['last_hard_state_change_duration'] = CentreonDuration::toString(time() - $row['last_hard_state_change']);
+                $selected['service_selected'][] = $row;
+            }
+        } else if ($cmd == 4) {
+            $hosts_selected_str = '';
+            $hosts_selected_str_append = '';
+            foreach ($selected_values as $value) {
+                $str = explode(';', $value);
+                $hosts_selected_str .= $hosts_selected_str_append . $str[0];
+                $hosts_selected_str_append = ', ';
+            }
+            
+            $query = "SELECT * FROM hosts";
+            $query_where = " WHERE host_id IN (" . $hosts_selected_str . ")";
+            if (!$centreon_bg->is_admin) {
+                $query_where .= " AND EXISTS(SELECT * FROM centreon_acl WHERE centreon_acl.group_id IN (" . $centreon_bg->grouplistStr . ") AND hosts.host_id = centreon_acl.host_id)";
+            }
+
+            $DBRESULT = $db_storage->query($query . $query_where);
+            while (($row = $DBRESULT->fetchRow())) {
+                $row['host_state'] = $row['state'];
+                $row['state_str'] = $this->getHostStateStr($row['state']);
+                $row['last_state_change_duration'] = CentreonDuration::toString(time() - $row['last_state_change']);
+                $row['last_hard_state_change_duration'] = CentreonDuration::toString(time() - $row['last_hard_state_change']);
+                $selected['host_selected'][] = $row;
+            }   
+        }
+        
+        return $selected;
+    }
+    
+    public function getFormatPopupProvider($rule_id, $args, $widget_id, $cmd, $selection) {        
         $infos = $this->getAliasAndProviderId($rule_id);
         $this->loadProvider($rule_id, $infos['provider_id'], $widget_id);
+        
+        $selected = $this->loadSelection(null, $cmd, $selection);
+        $args['host_selected'] = $selected['host_selected'];
+        $args['service_selected'] = $selected['service_selected'];
         
         return $this->_provider->getFormatPopup($args);
     }
@@ -410,6 +476,36 @@ class Centreon_OpenTickets_Rule
             $result[$row['sc_id']] = $row['sc_name'];
         }
         
+        return $result;
+    }
+    
+    private function getServiceStateStr($state) {
+        $result = 'CRITICAL';
+        
+        if ($state == 0) {
+            $result = 'OK';
+        } else if ($result == 1) {
+            $result = 'WARNING';
+        } else if ($result == 2) {
+            $result = 'CRITICAL';
+        } else if ($result == 3) {
+            $result = 'UNKNOWN';
+        } else if ($result == 4) {
+            $result = 'PENDING';
+        } 
+        return $result;
+    }
+
+    private function getHostStateStr($state) {
+        $result = 'DOWN';
+    
+        if ($state == 0) {
+            $result = 'UP';
+        } else if ($result == 1) {
+            $result = 'DOWN';
+        } else if ($result == 2) {
+            $result = 'UNREACHABLE';
+        }
         return $result;
     }
 }

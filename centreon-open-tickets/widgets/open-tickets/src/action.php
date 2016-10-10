@@ -54,7 +54,7 @@ function format_popup() {
                                                                   'alias' => $centreon->user->alias, 
                                                                   'email' => $centreon->user->email),
                                                  )
-                                            , $widgetId);
+                                            , $widgetId, $_REQUEST['cmd'], $_REQUEST['selection']);
     
     $path = $centreon_path . "www/widgets/open-tickets/src/";
     $template = new Smarty();
