@@ -114,10 +114,4 @@ try {
     $template->assign('autoRefresh', $autoRefresh);
     $template->assign('graphId', str_replace('-', '_', $preferences['service']));
 
-    $bMoreViews = 0;
-    if ($preferences['more_views']) {
-        $bMoreViews = $preferences['more_views'];
-    }
-    $template->assign('more_views', $bMoreViews);
-
     $template->display('index.ihtml');
