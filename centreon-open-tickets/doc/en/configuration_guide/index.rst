@@ -25,9 +25,9 @@ select **Mail** as provider. New fields appear linked to the provider.
 
 Define dedicated field linked to the provider:
 
-* **From** is the email address for the sender
+* **From** is the email address for the sender (By default, email of the user who create the ticket)
 * **To** is the email address of the receiver
-* **Subject** is the subject of the email. 
+* **Subject** is the subject of the email.
 
 .. note::
     Please read documentation of your ITSM to select correct text.

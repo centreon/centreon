@@ -25,21 +25,21 @@ Select objects disappear form the widget to open tickets:
 .. image:: /_static/user_guide/open_ticket_04.png
     :align: center
 
-Remove a ticket
----------------
+Close a ticket
+--------------
 
-To open a ticket, select object using checkbox and in the **-- More actions --**
+To close a ticket, select object using checkbox and in the **-- More actions --**
 menu select needed action:
 
-.. image:: /_static/user_guide/delete_ticket_01.png
+.. image:: /_static/user_guide/close_ticket_01.png
     :align: center
 
-The ticket is deleted:
+The ticket is closed (only for Centreon):
 
-.. image:: /_static/user_guide/delete_ticket_02.png
+.. image:: /_static/user_guide/close_ticket_02.png
     :align: center
 
 Select objects disappear form the opened tickets widget:
 
-.. image:: /_static/user_guide/delete_ticket_03.png
+.. image:: /_static/user_guide/close_ticket_03.png
     :align: center
