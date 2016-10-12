@@ -70,12 +70,12 @@ On your centreon-web server, php installation must have curl module.
 It will depends of your operating system (It's by default on Centos/Rhel 6).
 
 Configuration
--------------
+~~~~~~~~~~~~~
 
 Define **Rule name** and select **Otrs**. 
 A new form appear and define dedicated field linked to the provider:
 
-* **Address ** is OTRS server address
+* **Address** is OTRS server address
 * **Path** is the url path of OTRS server 
 * **Rest link** is the complete path for the webservice (shouldn't be changed)
 * **Webservice name** is the name of the webservice used (linked to the name from installation part)
@@ -87,4 +87,37 @@ A new form appear and define dedicated field linked to the provider:
 Configure a ``open-tickets`` widget to see if the configuration is well done. Try to open a ticket:
 
 .. image:: /_static/provider_guide/otrs/widget.png
+    :align: center
+
+GLPI
+----
+
+Introduction
+~~~~~~~~~~~~
+
+The provider had been tested with GLPI 0.80.x and 0.90.x. The GLPI plugin webservice 1.6.0 should be installed.
+
+Installation
+~~~~~~~~~~~~
+
+Configure the GLPI plugin webservice to accept connections from Centreon Web server.
+
+On your centreon-web server, php installation must have XML-RPC module.
+For Centos 6.x:
+::
+
+    # yum install php-xmlrpc.x86_64
+    # /etc/init.d/httpd reload
+
+Configuration
+~~~~~~~~~~~~~
+
+Define **Rule name** and select **Glpi**. 
+A new form appear and define dedicated field linked to the provider:
+
+* **Address** is GLPI server address
+* **Path** is the url path of the webservice 
+* **Username** and **Password** is the user used
+
+.. image:: /_static/provider_guide/glpi/configure.png
     :align: center
