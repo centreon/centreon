@@ -25,3 +25,4 @@ Contents:
    installation/index
    configuration_guide/index
    user_guide/index
+   provider_guide/index
