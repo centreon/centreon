@@ -112,3 +112,34 @@ On the second widget, to display opened tickets, click on the **configuration** 
 
 .. image:: /_static/configuration/add_widget.png
     :align: center
+
+
+Advanced Configuration
+######################
+
+List definition
+---------------
+
+Before opening a ticket, an user can choose some options in a popup.
+An option can be a select list. In the configuration provider, you can configure it 
+in ``Lists`` and ``Custom list definition``. For each entry in ``Lists``, you can define:
+
+* **Id** : alphanumeric value (must be unique) 
+* **Label** : displayed in the popup 
+* **Type** : which kind of list. There is 3 kinds of lists
+
+  * Provider lists (data from the ticketting software directly)
+  * Centreon lists (like ``Host group``)
+  * Custom lists (data from ``Custom list definition`` configuration. **Id** fields must be identical)
+
+* **Mandatory** : checked it if the user needs to set the option
+
+.. image:: /_static/configuration/advanced_list_01.png
+    :align: center
+
+The module stores the user list selection in an array (can be used in smarty section like ``body`` 
+or ``mapping ticket arguments``). There are 3 fields (**LIST_ID** must be replaced):
+
+* {$select.LIST_ID.id}
+* {$select.LIST_ID.value}
+* {$select.LIST_ID.label}
