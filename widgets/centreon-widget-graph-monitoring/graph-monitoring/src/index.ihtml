@@ -31,7 +31,8 @@
             {literal}
             var parameters = {
                 interval: interval,
-                refresh: autoRefresh
+                refresh: autoRefresh,
+                url: '../../api/internal.php?object=centreon_metric'
             };
             {/literal}
 
