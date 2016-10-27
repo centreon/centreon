@@ -51,12 +51,6 @@
 	}
 	$DBRESULT->free();
 
-	/*
-	 * start quickSearch form
-	 */
-	$advanced_search = 0;
-	include_once("./include/common/quickSearch.php");
-
 	if (isset($search))
 		$DBRESULT = & $pearDB->query("SELECT COUNT(*) FROM mod_dsm_pool WHERE (pool_name LIKE '%".htmlentities($search, ENT_QUOTES)."%' OR pool_description LIKE '%".htmlentities($search, ENT_QUOTES)."%')");
 	else
@@ -84,6 +78,9 @@
 	$tpl->assign("headerMenu_number", _("Number"));
 	$tpl->assign("headerMenu_status", _("Status"));
 	$tpl->assign("headerMenu_options", _("Options"));
+	$tpl->assign('searchLabel', _('Search'));
+	$tpl->assign('search', $search);
+	$tpl->assign('p', $p);
 
 	if ($search)
 		$rq = "SELECT pool_id, pool_prefix , pool_name, pool_description, pool_number, pool_activate FROM mod_dsm_pool WHERE (pool_name LIKE '%".htmlentities($search, ENT_QUOTES)."%' OR pool_description LIKE '%".htmlentities($search, ENT_QUOTES)."%') ORDER BY pool_name LIMIT ".$num * $limit.", ".$limit;

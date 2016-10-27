@@ -4,9 +4,7 @@
 Using packages
 ==============
 
-Merethis provides RPM for its products through Centreon Entreprise Server (CES). Open source products are freely available from our repository.
-
-These packages have been successfully tested with CES-2.2 and CES-3.0.
+Centreon provides RPM for its products through CES. Open source products are freely available from our repository.
 
 *********************
 Centreon installation
@@ -15,20 +13,18 @@ Centreon installation
 Install a central server
 ------------------------
 
-This part is to install a central server. DSM server and client will be installed on the main server.
+This part is to install **Centreon DSM** on a central server. Centreon DSM server and client will be installed on the main server.
 
-Run the commands::
+Run the command::
 
-  $ yum install centreon-dsm
+  $ yum install centreon-dsm-server centreon-dsm-client
 
-
-The meta package centreon-dsm will install centreon-dsm-client and centreon-dsm-server.
 
 After installing the rpm, you have to finish the module installation via the web frontend. Go on : 
 
 ::
 
- Administration > Modules
+ Administration > Extensions
 
 Install the Centreon-DSM module.
 
@@ -44,9 +40,9 @@ Your Centreon DSM Module is now installed.
 Install a poller
 ----------------
 
-This part is to install dsm on a poller. Only client will be installed
+This part is to install **Centreon DSM** on a poller. Only client will be installed
 
-Run the commands::
+Run the command::
 
   $ yum install centreon-dsm-client
 
@@ -58,5 +54,5 @@ Base configuration of pollers
 In Centreon DSM the communication between a poller and a central server is by MySQL. DSM Client need to have access to MySQL server in order to store new alarms.
 
 .. note::
-   Tne new trap system **centreontrapd** doesn't need an access to the database but Centreon-DSM does.
+   The new trap system **centreontrapd** doesn't need an access to the database but Centreon-DSM does.
 

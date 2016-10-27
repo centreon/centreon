@@ -52,6 +52,7 @@
 	isset($_POST["dupNbr"]) ? $cP = $_POST["dupNbr"] : $cP = NULL;
 	$cG ? $dupNbr = $cG : $dupNbr = $cP;
 
+	$search = htmlentities($_POST['searchSlot'], ENT_QUOTES);
 	/*
 	 * pear libraries
 	 */

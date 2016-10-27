@@ -225,18 +225,18 @@
 
 	if ($o == "w")	{
 		# Just watch a pool information
-		$form->addElement("button", "change", _("Modify"), array("onClick"=>"javascript:window.location.href='?p=".$p."&o=c&pool_id=".$pool_id."'"));
+		$form->addElement("button", "change", _("Modify"), array("class" => "btc bt_default", "onClick" => "javascript:window.location.href='?p=".$p."&o=c&pool_id=".$pool_id."'"));
 	    $form->setDefaults($pool);
 		$form->freeze();
 	} else if ($o == "c")	{
 		# Modify a pool information
-		$subC =& $form->addElement('submit', 'submitC', _("Save"));
-		$res =& $form->addElement('reset', 'reset', _("Reset"));
+		$subC =& $form->addElement('submit', 'submitC', _("Save"), array("class" => "btc bt_success"));
+		$res =& $form->addElement('reset', 'reset', _("Reset"), array("class" => "btc bt_default"));
 	    $form->setDefaults($pool);
 	} else if ($o == "a")	{
 		# Add a pool information
-		$subA =& $form->addElement('submit', 'submitA', _("Save"));
-		$res =& $form->addElement('reset', 'reset', _("Reset"));
+		$subA =& $form->addElement('submit', 'submitA', _("Save"), array("class" => "btc bt_success"));
+		$res =& $form->addElement('reset', 'reset', _("Reset"), array("class" => "btc bt_default"));
 	}
 
 	$valid = false;
@@ -261,7 +261,7 @@
 		    }
 		}
 		$o = NULL;
-		$form->addElement("button", "change", _("Modify"), array("onClick"=>"javascript:window.location.href='?p=".$p."&o=c&pool_id=".$poolObj->getValue()."'"));
+		$form->addElement("button", "change", _("Modify"), array("class" => "btc bt_default", "onClick"=>"javascript:window.location.href='?p=".$p."&o=c&pool_id=".$poolObj->getValue()."'"));
 		$form->freeze();
 	}
 	$action = $form->getSubmitValue("action");
