@@ -61,7 +61,7 @@ try {
 ?>
 <html>
 	<style type="text/css">
-         body{ margin:0; padding:100px 0 0 0;}
+         body{ margin:0; padding:0;}
          div#actionBar { position:absolute; top:0; left:0; width:100%; height:25px; background-color: #FFFFFF; }
          @media screen { body>div#actionBar { position: fixed; } }
          * html body { overflow:hidden; }
