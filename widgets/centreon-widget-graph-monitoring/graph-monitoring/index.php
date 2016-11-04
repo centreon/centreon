@@ -38,14 +38,23 @@ require_once $centreon_path . 'www/class/centreon.class.php';
 require_once $centreon_path . 'www/class/centreonSession.class.php';
 require_once $centreon_path . 'www/class/centreonDB.class.php';
 require_once $centreon_path . 'www/class/centreonWidget.class.php';
+require_once $centreon_path . 'www/class/centreonUser.class.php';
 require_once $centreon_path . 'www/class/centreonACL.class.php';
 
 //load Smarty
 require_once $centreon_path . 'GPL_LIB/Smarty/libs/Smarty.class.php';
 
-session_start();
+$pearDB = new CentreonDB();
 
-if (!isset($_SESSION['centreon']) || !isset($_REQUEST['widgetId'])) {
+if (!isset($_SESSION["centreon"])) {
+    CentreonSession::start();
+    if (!CentreonSession::checkSession(session_id(), $pearDB)) {
+        print "Bad Session";
+        exit();
+    }
+}
+
+if (!isset($_REQUEST['widgetId'])) {
     exit;
 }
 $centreon = $_SESSION['centreon'];
@@ -56,12 +65,13 @@ try {
 
     $db = new CentreonDB();
     $db2 = new CentreonDB("centstorage");
-    $dbAcl = $centreon->broker->getBroker() == "ndo" ? new CentreonDB('ndo') : $db2;
+    $dbAcl = $db;
     $pearDB = $db;
 
     $widgetObj = new CentreonWidget($centreon, $db);
     $preferences = $widgetObj->getWidgetPreferences($widgetId);
     $autoRefresh = 0;
+
     if (isset($preferences['refresh_interval'])) {
         $autoRefresh = $preferences['refresh_interval'];
     }
@@ -80,26 +90,12 @@ try {
     $template = new Smarty();
     $template = initSmartyTplForPopup($path, $template, "/", $centreon_path);
 
-    if (isset($preferences['service']) && $preferences['service']) {
-        $tab = explode("-", $preferences['service']);
-        $res = $db2->query("SELECT host_name, service_description
-                                FROM index_data
-                                WHERE host_id = ".$db->escape($tab[0])."
-                                AND service_id = ".$db->escape($tab[1])."
-                               LIMIT 1");
-        if ($res->numRows()) {
-            $row = $res->fetchRow();
-            $host_name = $row["host_name"];
-            $service_description = $row["service_description"];
-        }
-    }
-
     /*
     * Check ACL
     */
 
     $acl = 1;
-    if (isset($tab[0]) && isset($tab[1]) && $centreon->user->admin == 0) {
+    if (isset($tab[0]) && isset($tab[1]) && $centreon->user->admin == 0 ) {
         $query = "SELECT host_id
                 FROM centreon_acl
                 WHERE host_id = ".$dbAcl->escape($tab[0])."
@@ -111,31 +107,20 @@ try {
         }
     }
 
-    $servicePreferences = "";
-    if ($acl == 1) {
-        if (isset($preferences['service']) && $preferences['service']) {
-            $servicePreferences .= "<div style='overflow:hidden;'><a href='../../main.php?p=204&mode=0&svc_id=" .
-                $host_name . ";" . $service_description .
-                "' id='linkGraph' target='_parent'><img id='graph' data-src='./src/generateGraph.php?service=" .
-                $preferences['service'] . "&tp=" . $preferences['graph_period'] . "&user=" . $centreon->user->user_id .
-                "'/></a></div>";
-        } else {
-            $servicePreferences .= "<div class='update' style='text-align:center;width:350px;'>"._("Please select a resource first")."</div>";
-        }
-    } else {
-        $servicePreferences .= "<div class='update' style='text-align:center;width:350px;'>"._("You are not allowed to reach this graph")."</div>";
+    if ($acl === 0){
+        $servicePreferences = '';
+    } elseif (false === isset($preferences['service']) || trim($preferences['service']) === ''){
+        $servicePreferences = "<div class='update' style='text-align:center;margin-left: auto;margin-right: auto;width:350px;'>"._("Please select a resource first")."</div>";
+    } elseif(false === isset($preferences['graph_period'])|| trim($preferences['graph_period']) === ''){
+        $servicePreferences = "<div class='update' style='text-align:center;margin-left: auto;margin-right: auto;width:350px;'>"._("Please select a graph period")."</div>";
     }
 
     $autoRefresh = $preferences['refresh_interval'];
     $template->assign('widgetId', $widgetId);
     $template->assign('preferences', $preferences);
+    $template->assign('interval', $preferences['graph_period']);
     $template->assign('autoRefresh', $autoRefresh);
+    $template->assign('graphId', str_replace('-', '_', $preferences['service']));
     $template->assign('servicePreferences', $servicePreferences);
-
-    $bMoreViews = 0;
-    if ($preferences['more_views']) {
-        $bMoreViews = $preferences['more_views'];
-    }
-    $template->assign('more_views', $bMoreViews);
 
     $template->display('index.ihtml');
