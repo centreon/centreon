@@ -4,13 +4,13 @@
         <email>contact@centreon.com</email>
         <website>http://www.centreon.com</website>
         <description>Widget for displaying RRD graphs</description>
-        <version>1.4.0</version>
+        <version>1.5.0</version>
         <keywords>centreon, widget, rrd, monitoring</keywords>
         <screenshot></screenshot>
         <thumbnail>./widgets/graph-monitoring/resources/centreon-logo.png</thumbnail>
         <url>./widgets/graph-monitoring/index.php</url>
         <autoRefresh>10</autoRefresh>
-        <preferences>        	
+        <preferences>
         	<preference label="Service" name="service" defaultValue="" type="service" header="Resource"/>
         	<preference label="Graph period" name="graph_period" type="list" header="Filter">
 				<option value="10800" label="Last 3 hours"/>
@@ -31,6 +31,6 @@
 				<option value="15552000" label="Last 6 months"/>
 				<option value="31104000" label="Last year"/>
 			</preference>
-			<preference label="Refresh Interval (seconds)" name="refresh_interval" defaultValue="60" type="text" header="Misc"/>			
-        </preferences>        
+			<preference label="Refresh Interval (seconds)" name="refresh_interval" defaultValue="60" type="text" header="Misc"/>
+        </preferences>
 </configs>
