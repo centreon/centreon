@@ -8,7 +8,7 @@
         <keywords>centreon, widget, Grid-map</keywords>
         <screenshot></screenshot>
         <thumbnail>./widgets/Grid-map/resources/logo1.png</thumbnail>
-        <url>./widgets/Grid-map/index.php</url>
+        <url>./widgets/grid-map/index.php</url>
         <autoRefresh>10</autoRefresh>
   	<preferences>
   	    <preference label="Name Host Group" name="host_group" defaultValue="" type="hostgroup" header="Resource"/>
