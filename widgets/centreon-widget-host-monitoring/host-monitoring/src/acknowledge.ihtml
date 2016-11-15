@@ -1,5 +1,7 @@
+<!--
 <link href="../../../Themes/Centreon-2/jquery-ui/jquery-ui.css" rel="stylesheet" type="text/css"/>
 <link href="../../../Themes/Centreon-2/style.css" rel="stylesheet" type="text/css"/>
+-->
 <form id='Form'>
 	<div class="colorbox-popin">
 		 <table class="table" style="font-size: 11px;">

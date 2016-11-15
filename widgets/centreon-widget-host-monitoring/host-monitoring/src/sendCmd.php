@@ -102,29 +102,11 @@ try {
             $duration += ($_POST['minuteduration'] * 60);
         }
 
-        if (!isset($_POST['start']) || !isset($_POST['end'])) {
+        if (!isset($_POST['start_time']) || !isset($_POST['end_time'])) {
             throw new Exception ('Missing downtime start/end');
         }
-        if (isset($_POST['hourstart']) && $_POST['hourstart']) {
-            $tmpHstart = str_pad($_POST['hourstart'], 2, "0", STR_PAD_LEFT);
-        } else {
-            $tmpHstart = "00";
-        }
-        if (isset($_POST['minutestart']) && $_POST['minutestart']) {
-            $tmpMstart = str_pad($_POST['minutestart'], 2, "0", STR_PAD_LEFT);
-        } else {
-            $tmpMstart = "00";
-        }
-        if (isset($_POST['hourend']) && $_POST['hourend']) {
-            $tmpHend = str_pad($_POST['hourend'], 2, "0", STR_PAD_LEFT);
-        } else {
-            $tmpHend = "00";
-        }
-        if (isset($_POST['minuteend']) && $_POST['minuteend']) {
-            $tmpMend = str_pad($_POST['minuteend'], 2, "0", STR_PAD_LEFT);
-        } else {
-            $tmpMend = "00";
-        }
+        list($tmpHstart, $tmpMstart) = array_map('trim', explode(':', $_POST['start_time']));
+        list($tmpHend, $tmpMend) = array_map('trim', explode(':', $_POST['end_time']));
         $dateStart = $_POST['start'];
         $start = $dateStart . " " . $tmpHstart . ":" . $tmpMstart;
         $start = CentreonUtils::getDateTimeTimestamp($start);
@@ -140,20 +122,19 @@ try {
         foreach ($hosts as $hostId) {
             $hostname = $hostObj->getHostName($hostId);
             $pollerId = $hostObj->getHostPollerId($hostId);
-            $externalCmd->set_process_command(sprintf($command, $hostname), $pollerId);
+            $externalCmd->setProcessCommand(sprintf($command, $hostname), $pollerId);
             if (isset($forceCmd)) {
-                $externalCmd->set_process_command(sprintf($forceCmd, $hostname), $pollerId);
+                $externalCmd->setProcessCommand(sprintf($forceCmd, $hostname), $pollerId);
             }
             if (isset($_POST['processServices'])) {
                 $services = $svcObj->getServiceId(null, $hostname);
                 foreach($services as $svcDesc => $svcId) {
-                    $externalCmd->set_process_command(sprintf($commandSvc, $hostname, $svcDesc), $pollerId);
+                    $externalCmd->setProcessCommand(sprintf($commandSvc, $hostname, $svcDesc), $pollerId);
                     if (isset($forceCmdSvc)) {
-                        $externalCmd->set_process_command(sprintf($forceCmdSvc, $hostname, $svcDesc), $pollerId);
+                        $externalCmd->setProcessCommand(sprintf($forceCmdSvc, $hostname, $svcDesc), $pollerId);
                     }
                 }
             }
-            var_dump($pollerId);
         }
         $externalCmd->write();
     }

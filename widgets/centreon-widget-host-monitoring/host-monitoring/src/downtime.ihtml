@@ -1,4 +1,4 @@
-<form name="select_form" id="select_form">
+<form name="Form" id="Form">
 	<table class="table">
 		<tr>
 			<td style="color: #00bfb3;" class ="FormHeader" colspan="2">
@@ -18,7 +18,7 @@
 			<td class="FormRowField">{$endLabel}<span style='color: red;'> *</span></td>
 			<td class="FormRowValue">
 				<input class="datepicker hasDatepicker" type='text' id='downtimeend' name='end' value='{$defaultEnd}' size='9' />
-				<input id="end_time" size="5" class="timepicker hasTimepicker" name="start_time" type="text" value='{$defaultHourEnd} : {$defaultMinuteEnd}'>
+				<input id="end_time" size="5" class="timepicker hasTimepicker" name="end_time" type="text" value='{$defaultHourEnd} : {$defaultMinuteEnd}'>
 			</td>
 		</tr>
 
@@ -49,7 +49,7 @@
 		<tr>
 			<td class="FormRowField">{$commentLabel}<span style='color: red;'> *</span></td>
 			<td class="FormRowValue">
-				<textarea id='popupComment' name='comment' cols='30' rows='5'>{$defaultMessage}</textarea>
+				<textarea id='comment' name='comment' cols='30' rows='5'>{$defaultMessage}</textarea>
 			</td>
 		</tr>
 
