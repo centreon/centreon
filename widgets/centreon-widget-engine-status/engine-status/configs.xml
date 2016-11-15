@@ -1,5 +1,5 @@
 <configs>
-        <title>Widget-engine-status</title>
+        <title>Engine-status</title>
         <author>Centreon</author>
         <email>contact@centreon.com</email>
         <website>http://www.centreon.com</website>
