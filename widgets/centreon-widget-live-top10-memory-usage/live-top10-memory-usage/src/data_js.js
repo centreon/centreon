@@ -1,9 +1,8 @@
 var timeout;
 
 jQuery(function() {
-        console.log("jQuery function");
-        loadTop10();
-    });
+    loadTop10();
+});
 
 function loadTop10() {
     jQuery.ajax("./index.php", {
