@@ -100,7 +100,14 @@ $query = "SELECT SQL_CALC_FOUND_ROWS DISTINCT name, hostgroup_id ";
 $query .= "FROM hostgroups ";
 
 if (isset($preferences['hg_name_search']) && $preferences['hg_name_search'] != "") {
-    $query = CentreonUtils::conditionBuilder($query, "hostgroup_id IN (".$preferences['hg_name_search'].")");
+    $tab = split(" ", $preferences['hg_name_search']);
+    $op = $tab[0];
+    if (isset($tab[1])) {
+        $search = $tab[1];
+    }
+    if ($op && isset($search) && $search != "") {
+        $query = CentreonUtils::conditionBuilder($query, "name ".CentreonUtils::operandToMysqlFormat($op)." '".$dbb->escape($search)."' ");
+    }
 }
 
 if (!$centreon->user->admin) {
