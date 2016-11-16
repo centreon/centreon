@@ -11,7 +11,7 @@
     <url>./widgets/host-monitoring/index.php</url>
     <autoRefresh>10</autoRefresh>
     <preferences>
-        <preference label="Host Filter" name="host_name_search" defaultValue="" type="hostMulti"/>
+        <preference label="Host Name" name="host_name_search" defaultValue="" type="compare" header="Filters"/>
         <preference label="Display Up" name="host_up" defaultValue="1" type="boolean"/>
         <preference label="Display Down" name="host_down" defaultValue="1" type="boolean"/>
         <preference label="Display Unreachable" name="host_unreachable" defaultValue="1" type="boolean"/>
