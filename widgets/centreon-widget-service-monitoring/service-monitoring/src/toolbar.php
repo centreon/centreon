@@ -120,8 +120,7 @@ $template->assign("widgetId", $_POST['widgetId']);
 $template->display('toolbar.ihtml');
 
 ?>
-<link href="../../include/common/javascript/jquery/plugins/colorbox/colorbox.css" rel="stylesheet" type="text/css"/>
-<script type="text/javascript" src="../../include/common/javascript/jquery/plugins/colorbox/jquery.colorbox-min.js"></script>
+<script type="text/javascript" src="../../include/common/javascript/centreon/popin.js"></script>
 <script type='text/javascript'>
 var tab = new Array();
 var actions = "<?php echo $actions;?>";
@@ -135,6 +134,14 @@ $(function() {
     			return tmp[1];
     		}).get().join(",");
             if (checkValues != '') {
+                var url = "./widgets/service-monitoring/src/action.php?selection="+checkValues+"&cmd="+jQuery(this).val();
+                parent.jQuery('#widgetPopin').parent().remove();
+                var popin = parent.jQuery('<div id="widgetPopin">');
+                popin.centreonPopin({
+                    open:true,
+                    url:url
+                });
+/*
                 parent.jQuery.colorbox({
                                     href		:	"./widgets/service-monitoring/src/action.php?selection="+checkValues+"&cmd="+jQuery(this).val(),
                                     width		:	"50%",
@@ -143,6 +150,7 @@ $(function() {
                                     overlayClose:	false,
                                     iframe		: 	true
                                 });
+*/
             } else {
                 alert("<?php echo _('Please select one or more items'); ?>"); 
                 return false;
@@ -152,3 +160,4 @@ $(function() {
     });
 });
 </script>
+

@@ -2,10 +2,7 @@
     <head>
 	<title>Service Monitoring</title>
     	<link href="../../include/common/javascript/jquery/plugins/pagination/pagination.css" rel="stylesheet" type="text/css"/>
-        <link href="../../Themes/Centreon-2/Color/blue_css.php" rel="stylesheet" type="text/css"/>
         <link href="../../Themes/Centreon-2/style.css" rel="stylesheet" type="text/css"/>
-
-
     </head>
     <body>
         {if $preferences.more_views == 1}
@@ -28,9 +25,8 @@
 
         <script type="text/javascript" src="../../include/common/javascript/jquery/jquery.js"></script>
         <script type="text/javascript" src="../../include/common/javascript/jquery/jquery-ui.js"></script>
-        <script type="text/javascript" src="../../include/common/javascript/widgetUtils.js"></script>
         <script type="text/javascript" src="../../include/common/javascript/jquery/plugins/pagination/jquery.pagination.js"></script>
-        <script type="text/javascript" src="../../include/common/javascript/jquery/plugins/treeTable/jquery.treeTable.min.js"></script>
+        <script type="text/javascript" src="../../include/common/javascript/centreon/popin.js"></script>
         <script type="text/javascript" src="data.js"></script>
     </body>
 </html>

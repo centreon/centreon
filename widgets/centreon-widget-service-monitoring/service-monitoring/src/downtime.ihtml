@@ -1,59 +1,72 @@
 <link href="../../../Themes/Centreon-2/style.css" rel="stylesheet" type="text/css"/>
 <link href="../../../Themes/Centreon-2/jquery-ui/jquery-ui.css" rel="stylesheet" type="text/css"/>
 <form id='Form'>
-	<div align=center>
-		 <table id="ListTable table">
-		 	<tr>
-		 		<th colspan="2">{$titleLabel}</th>
-		 	</tr>
-			<tr>
-	            <td>{$startLabel}<span style='color: red;'>*</span></td>
-	            <td>
-	            	<input type='text' id='downtimestart' name='start' value='{$defaultStart}' size='8' />
-	            	<input type='text' name='hourstart' value='{$defaultHourStart}' size='2' maxlength='2' />:
-	            	<input type='text' name='minutestart' value='{$defaultMinuteStart}' size='2' maxlength='2' />
-	            </td>
-	        </tr>
-			<tr>
-				<td>{$endLabel}<span style='color: red;'>*</span></td>
-				<td>
-					<input type='text' id='downtimeend' name='end' value='{$defaultEnd}' size='8' />
-					<input type='text' name='hourend' value='{$defaultHourEnd}' size='2' maxlength='2' />:
-	            	<input type='text' name='minuteend' value='{$defaultMinuteEnd}' size='2' maxlength='2' />
-				</td>
-			</tr>
-			<tr>
-				<td>{$durationLabel}</td>
-				<td>
-					<input type='text' name='dayduration' size='2' value='0' />&nbsp;{$daysLabel}
-					<input type='text' name='hourduration' value='{$defaultDuration}' size='2' />&nbsp;{$hoursLabel}
-					<input type='text' name='minuteduration' size='2' value='0' />&nbsp;{$minutesLabel}
-				</td>
-			</tr>
-			<tr>
-	            <td>{$fixedLabel}</td>
-	            <td><input type='checkbox' name='fixed' {$fixed_checked} /></td>
-	        </tr>
-			<tr>
-				<td>{$authorLabel}</td>
-				<td><input type='text' value='{$author}' disabled /><input name='author' type='hidden' value='{$author}'/></td>
-			</tr>
-			<tr>
-				<td>{$commentLabel}<span style='color: red;'>*</span></td>
-				<td><textarea id='comment' name='comment' cols='30' rows='3'>{$defaultMessage}</textarea></td>
-			</tr>
-			{if $cmd == 75}
-			<tr>
-	            <td>{$downtimeHostSvcLabel}</td>
-	            <td><input type='checkbox' name='processServices' {$process_service_checked}/></td>
-	        </tr>
-	        {/if}
-		</table>
+	<table class="table">
+		<tr>
+			<td style="color: #00bfb3;" class ="FormHeader" colspan="2">
+				<h3>{$titleLabel}</h3>
+			</td>
+		</tr>
+
+		<tr>
+			<td class="FormRowField">{$startLabel}<span style='color: red;'> *</span></td>
+			<td class="FormRowValue">
+				<input type='text' class="datepicker hasDatepicker" id='downtimestart' name='start' value='{$defaultStart}' size='9' />
+				<input id="start_time" size="5" class="timepicker hasTimepicker" name="start_time" type="text" value='{$defaultHourStart} : {$defaultMinuteStart}'>
+			</td>
+		</tr>
+
+		<tr>
+			<td class="FormRowField">{$endLabel}<span style='color: red;'> *</span></td>
+			<td class="FormRowValue">
+				<input class="datepicker hasDatepicker" type='text' id='downtimeend' name='end' value='{$defaultEnd}' size='9' />
+				<input id="end_time" size="5" class="timepicker hasTimepicker" name="end_time" type="text" value='{$defaultHourEnd} : {$defaultMinuteEnd}'>
+			</td>
+		</tr>
+
+		<tr>
+			<td class="FormRowField">{$durationLabel}</td>
+			<td class="FormRowValue">
+				<input type='text' name='dayduration' size='2' value='0' />&nbsp;{$daysLabel}
+				<input type='text' name='hourduration' value='{$defaultDuration}' size='2' />&nbsp;{$hoursLabel}
+				<input type='text' name='minuteduration' size='2' value='0' />&nbsp;{$minutesLabel}
+			</td>
+		</tr>
+
+		<tr>
+			<td class="FormRowField">{$fixedLabel}</td>
+			<td class="FormRowValue">
+				<input type='checkbox' name='fixed' {$fixed_checked} />
+			</td>
+		</tr>
+
+		<tr>
+			<td class="FormRowField">{$authorLabel}</td>
+			<td class="FormRowValue">
+				<input type='text' value='{$author}' disabled />
+				<input name='author' type='hidden' value='{$author}'/>
+			</td>
+		</tr>
+
+		<tr>
+			<td class="FormRowField">{$commentLabel}<span style='color: red;'> *</span></td>
+			<td class="FormRowValue">
+				<textarea id='comment' name='comment' cols='30' rows='5'>{$defaultMessage}</textarea>
+			</td>
+		</tr>
+        {if $cmd == 75}
+                        <tr>
+                    <td class="FormRowField">{$downtimeHostSvcLabel}</td>
+                    <td class="FormRowField"><input type='checkbox' name='processServices' {$process_service_checked}/></td>
+                </tr>
+                {/if}
+
+	</table>
 		<div id="validForm">
 			<input type='hidden' name='selection' value='{$selection}' />
 			<input type='hidden' name='cmd' value='{$cmd}' />
 			<input type='hidden' name='cmdType' value='downtime' />
-			<input type='button' id='submit' value='{$submitLabel}'/>
+                        <input class="btc bt_info" type='button' id='submit' value='{$submitLabel}'/>
 		</div>
 	</div>
 </form>
