@@ -139,9 +139,6 @@ while ($row = $res->fetchRow()) {
 $hgMonObj->getHostStates($data, $detailMode, $centreon->user->admin, $aclObj, $preferences);
 $hgMonObj->getServiceStates($data, $detailMode, $centreon->user->admin, $aclObj, $preferences);
 
-
-
-
 $autoRefresh = $preferences['refresh_interval'];
 $template->assign('widgetId', $widgetId);
 $template->assign('autoRefresh', $autoRefresh);
@@ -160,5 +157,5 @@ $template->assign('hostStateColors', $hostStateColors);
 $template->assign('serviceStateLabels', $serviceStateLabels);
 $template->assign('serviceStateColors', $serviceStateColors);
 $template->assign('data', $data);
+
 $template->display('table.ihtml');
-?>

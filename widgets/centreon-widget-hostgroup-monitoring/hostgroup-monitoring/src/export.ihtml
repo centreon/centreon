@@ -1,12 +1,9 @@
 {if $preferences.enable_detailed_mode == 0}
 Hostgroup;{foreach item=label from=$hostStateLabels} Host {$label};{/foreach}{foreach item=label from=$serviceStateLabels}Services {$label};{/foreach}
-
 {foreach item=elem from=$data}
 {$elem.name};{foreach key=state item=label from=$hostStateLabels} {$elem.host_state[$state]};{/foreach}{foreach key=state item=label from=$serviceStateLabels} {$elem.service_state[$state]};{/foreach}
-
 {/foreach}
-{/if}
-{if $preferences.enable_detailed_mode == 1}
+{else}
 Hostgroup;Host;Host status; Service status;
 {foreach item=elem from=$data}
 {$elem.name};
