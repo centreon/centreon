@@ -87,11 +87,10 @@ if ($canDoAction || $centreon->user->access->checkAction("host_checks")) {
 if ($canDoAction || $centreon->user->access->checkAction("host_checks")) {
     $actions .= "<option value='93'>"._("Disable Host Check")."</option>";
 }
-
 $template->assign("widgetId", $_POST['widgetId']);
 $template->display('toolbar.ihtml');
-?>
 
+?>
 <script type="text/javascript" src="../../include/common/javascript/centreon/popin.js"></script>
 <script type='text/javascript'>
 
