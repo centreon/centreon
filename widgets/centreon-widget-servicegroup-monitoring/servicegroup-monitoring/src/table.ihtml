@@ -3,8 +3,6 @@
         @import url('../../Themes/Centreon-2/style.css');
     </style>
 {/literal}
-
-
 <table id='ServicegroupTable' class='ListTable styleTable'>
     <tr class="ListHeader">
         <td class='ListColHeaderLeft' name='name' 
