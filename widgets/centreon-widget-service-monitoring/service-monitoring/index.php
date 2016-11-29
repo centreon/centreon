@@ -1,6 +1,6 @@
 <?php
-/**
- * Copyright 2005-2011 MERETHIS
+/*
+ * Copyright 2005-2015 CENTREON
  * Centreon is developped by : Julien Mathis and Romain Le Merlus under
  * GPL Licence 2.0.
  *
@@ -19,11 +19,11 @@
  * combined work based on this program. Thus, the terms and conditions of the GNU
  * General Public License cover the whole combination.
  *
- * As a special exception, the copyright holders of this program give MERETHIS
+ * As a special exception, the copyright holders of this program give CENTREON
  * permission to link this program with independent modules to produce an executable,
  * regardless of the license terms of these independent modules, and to copy and
- * distribute the resulting executable under terms of MERETHIS choice, provided that
- * MERETHIS also meet, for each linked independent module, the terms  and conditions
+ * distribute the resulting executable under terms of CENTREON choice, provided that
+ * CENTREON also meet, for each linked independent module, the terms  and conditions
  * of the license of that module. An independent module is a module which is not
  * derived from this program. If you modify this program, you may extend this
  * exception to your version of the program, but you are not obliged to do so. If you
@@ -39,13 +39,12 @@ require_once $centreon_path . 'www/class/centreonSession.class.php';
 require_once $centreon_path . 'www/class/centreonDB.class.php';
 require_once $centreon_path . 'www/class/centreonWidget.class.php';
 
-
 //load Smarty
 require_once $centreon_path . 'GPL_LIB/Smarty/libs/Smarty.class.php';
 
 session_start();
 if (!isset($_SESSION['centreon']) || !isset($_REQUEST['widgetId'])) {
-    exit;
+    exit();
 }
 $centreon = $_SESSION['centreon'];
 $widgetId = $_REQUEST['widgetId'];
@@ -63,11 +62,10 @@ try {
     exit;
 }
 
-
 $path = $centreon_path . 'www/widgets/service-monitoring/src/';
+
 $template = new Smarty();
 $template = initSmartyTplForPopup($path, $template, "/", $centreon_path);
-
 
 $template->assign('widgetId', $widgetId);
 $template->assign('preferences', $preferences);
@@ -80,4 +78,3 @@ if ($preferences['more_views']) {
 $template->assign('more_views', $bMoreViews);
 
 $template->display('index.ihtml');
-?>

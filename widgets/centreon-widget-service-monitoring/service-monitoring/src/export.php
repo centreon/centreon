@@ -1,6 +1,6 @@
 <?php
-/*
- * Copyright 2005-2015 CENTREON
+/**
+ * Copyright 2005-2014 MERETHIS
  * Centreon is developped by : Julien Mathis and Romain Le Merlus under
  * GPL Licence 2.0.
  *
@@ -19,11 +19,11 @@
  * combined work based on this program. Thus, the terms and conditions of the GNU
  * General Public License cover the whole combination.
  *
- * As a special exception, the copyright holders of this program give CENTREON
+ * As a special exception, the copyright holders of this program give MERETHIS
  * permission to link this program with independent modules to produce an executable,
  * regardless of the license terms of these independent modules, and to copy and
- * distribute the resulting executable under terms of CENTREON choice, provided that
- * CENTREON also meet, for each linked independent module, the terms  and conditions
+ * distribute the resulting executable under terms of MERETHIS choice, provided that
+ * MERETHIS also meet, for each linked independent module, the terms  and conditions
  * of the license of that module. An independent module is a module which is not
  * derived from this program. If you modify this program, you may extend this
  * exception to your version of the program, but you are not obliged to do so. If you
@@ -78,7 +78,7 @@ $preferences = $widgetObj->getWidgetPreferences($widgetId);
 $stateSColors = array(0 => "#88b917",
 		      1 => "#ff9a13",
 		      2 => "#e00b3d",
-		      3 => "#818285",
+		      3 => "##bcbdc0",
 		      4 => "#2ad1d4");
 $stateHColors = array(0 => "#88b917",
 		      1 => "#e00b3d",
@@ -94,13 +94,13 @@ $stateLabels = array(0 => "Ok",
 // Build Query
 $query = "SELECT SQL_CALC_FOUND_ROWS h.host_id,
 		h.name as hostname,
-		s.latency,
-		s.execution_time,
+        s.latency,
+        s.execution_time,
 		h.state as h_state,
 		s.service_id,
 		s.description,
 		s.state as s_state,
-		h.state_type as state_type,
+                h.state_type as state_type,
 		s.last_hard_state,
 		s.output,
 		s.scheduled_downtime_depth as s_scheduled_downtime_depth,
@@ -124,10 +124,9 @@ $query = "SELECT SQL_CALC_FOUND_ROWS h.host_id,
 		s.notes_url as s_notes_url, 
 		cv2.value AS criticality_id,
 		cv.value AS criticality_level,
-		h.icon_image
+                h.icon_image
 ";
-$query .= " FROM hosts h JOIN instances i ON h.instance_id=i.instance_id, ";
-$query .= " services s ";
+$query .= " FROM hosts h, services s ";
 $query .= " LEFT JOIN customvariables cv ON (s.service_id = cv.service_id AND s.host_id = cv.host_id AND cv.name = 'CRITICALITY_LEVEL') ";
 $query .= " LEFT JOIN customvariables cv2 ON (s.service_id = cv2.service_id AND s.host_id = cv2.host_id AND cv2.name = 'CRITICALITY_ID') ";
 if (!$centreon->user->admin) {
@@ -209,11 +208,6 @@ if (isset($preferences['state_type_filter']) && $preferences['state_type_filter'
     }
 }
 
-if (isset($preferences['poller']) && $preferences['poller']) {
-    $query = CentreonUtils::conditionBuilder($query, 
-    " i.instance_id = ".$dbb->escape($preferences['poller'])."");
-}
-
 if (isset($preferences['hostgroup']) && $preferences['hostgroup']) {
     $query = CentreonUtils::conditionBuilder($query, 
     " s.host_id IN (
@@ -222,28 +216,15 @@ if (isset($preferences['hostgroup']) && $preferences['hostgroup']) {
       WHERE hostgroup_hg_id = ".$dbb->escape($preferences['hostgroup']).")");
 }
 if (isset($preferences['servicegroup']) && $preferences['servicegroup']) {
-    $queryHost = "SELECT DISTINCT h.host_id FROM servicegroups sg INNER JOIN services_servicegroups
-    sgm ON sg.servicegroup_id = sgm.servicegroup_id INNER JOIN services s ON s.service_id = sgm.service_id
-    INNER JOIN  hosts h ON sgm.host_id = h.host_id AND h.host_id = s.host_id WHERE  sg.servicegroup_id =
-    ".$dbb->escape($preferences['servicegroup']);
-    
-    $resultHost = $dbb->query($queryHost);
-    if (PEAR::isError($resultHost)) {
-        print "DB Error : " . $resultHost->getDebugInfo() . "<br />";
-    }
-
-    while ($row = $resultHost->fetchRow()) {
-        $Host[] = $row['host_id'];
-    }
-    
     $query = CentreonUtils::conditionBuilder($query, 
-      " s.service_id IN (
-            SELECT DISTINCT s.service_id FROM servicegroups sg, services_servicegroups sgm, 
-            services s, hosts h WHERE h.host_id = s.host_id AND s.host_id = sgm.host_id AND s.service_id = sgm.service_id 
-            AND sg.servicegroup_id = sgm.servicegroup_id
-            AND sg.servicegroup_id = ".$dbb->escape($preferences['servicegroup'])." 
-            AND h.host_id IN (".  implode(",", $Host).") 
-      ) ");
+    " s.service_id IN (SELECT service_service_id
+      FROM ".$conf_centreon['db'].".servicegroup_relation
+      WHERE servicegroup_sg_id = ".$dbb->escape($preferences['servicegroup'])."
+      UNION
+      SELECT sgr.service_service_id
+      FROM ".$conf_centreon['db'].".servicegroup_relation sgr, ".$conf_centreon['db'].".host_service_relation hsr
+      WHERE hsr.hostgroup_hg_id = sgr.hostgroup_hg_id
+      AND sgr.servicegroup_sg_id = ".$dbb->escape($preferences['servicegroup']).") ");
 }
 if (isset($preferences["display_severities"]) && $preferences["display_severities"] 
     && isset($preferences['criticality_filter']) && $preferences['criticality_filter'] != "") {
@@ -285,33 +266,14 @@ if (isset($preferences['output_search']) && $preferences['output_search'] != "")
     }
 }
 $orderby = "hostname ASC , description ASC";
-
 if (isset($preferences['order_by']) && $preferences['order_by'] != "") {
-    
-    $aOrder = explode(" ", $preferences['order_by']);
-    if (in_array('last_state_change', $aOrder) || in_array('last_hard_state_change', $aOrder)) {
-        if ($aOrder[1] == 'DESC') {
-            $order = 'ASC';
-        } else {
-            $order = 'DESC';
-        }
-        $orderby = $aOrder[0] ." ". $order;
-    } else {
-        $orderby = $preferences['order_by'];
-    }
-
-    if (isset($preferences['order_by2']) && $preferences['order_by2'] != "") {
-        $aOrder = explode(" ", $preferences['order_by2']);
-        $orderby .= ", ".$aOrder[0]." ".$aOrder[1];
-    }
+    $orderby = $preferences['order_by'];
 }
+
 
 $query .= "ORDER BY $orderby";
 $query .= " LIMIT ".($page * $preferences['entries']).",".$preferences['entries'];
 $res = $dbb->query($query);
-if (PEAR::isError($res)) {
-    print "DB Error : " . $res->getDebugInfo() . "<br />";
-}
 $nbRows = $dbb->numberRows();
 $data = array();
 $outputLength = $preferences['output_length'] ? $preferences['output_length'] : 50;
@@ -340,10 +302,10 @@ while ($row = $res->fetchRow()) {
         } elseif ($key == "output") {
             $value = substr($value, 0, $outputLength);
         } elseif (($key == "h_action_url" || $key == "h_notes_url") && $value) {
-            $value = CentreonUtils::escapeSecure($hostObj->replaceMacroInString($row['hostname'], $value));
+            $value = urlencode($hostObj->replaceMacroInString($row['hostname'], $value));
         } elseif (($key == "s_action_url" || $key == "s_notes_url") && $value) {
-            $value = CentreonUtils::escapeSecure($hostObj->replaceMacroInString($row['hostname'], $value));
-            $value = CentreonUtils::escapeSecure($svcObj->replaceMacroInString($row['service_id'], $value));
+            $value = $hostObj->replaceMacroInString($row['hostname'], $value);
+            $value = urlencode($svcObj->replaceMacroInString($row['service_id'], $value));
         } elseif ($key == "criticality_id" && $value != '') {
             $critData = $criticality->getData($row["criticality_id"], 1);
             $value = "<img src='../../img/media/".$media->getFilename($critData['icon_id'])."' title='".$critData["sc_name"]."' width='16' height='16'>";        

@@ -1,6 +1,6 @@
 <?php
-/**
- * Copyright 2005-2011 MERETHIS
+/*
+ * Copyright 2005-2015 CENTREON
  * Centreon is developped by : Julien Mathis and Romain Le Merlus under
  * GPL Licence 2.0.
  *
@@ -19,11 +19,11 @@
  * combined work based on this program. Thus, the terms and conditions of the GNU
  * General Public License cover the whole combination.
  *
- * As a special exception, the copyright holders of this program give MERETHIS
+ * As a special exception, the copyright holders of this program give CENTREON
  * permission to link this program with independent modules to produce an executable,
  * regardless of the license terms of these independent modules, and to copy and
- * distribute the resulting executable under terms of MERETHIS choice, provided that
- * MERETHIS also meet, for each linked independent module, the terms  and conditions
+ * distribute the resulting executable under terms of CENTREON choice, provided that
+ * CENTREON also meet, for each linked independent module, the terms  and conditions
  * of the license of that module. An independent module is a module which is not
  * derived from this program. If you modify this program, you may extend this
  * exception to your version of the program, but you are not obliged to do so. If you
@@ -41,13 +41,13 @@ require_once $centreon_path . 'www/class/centreonWidget.class.php';
 require_once $centreon_path . 'www/class/centreonDuration.class.php';
 require_once $centreon_path . 'www/class/centreonUtils.class.php';
 require_once $centreon_path . 'www/class/centreonACL.class.php';
+require_once $centreon_path ."GPL_LIB/Smarty/libs/Smarty.class.php";
 
 session_start();
 if (!isset($_SESSION['centreon']) || !isset($_POST['widgetId'])) {
+    print "Session Errors";
     exit;
 }
-
-require_once $centreon_path ."GPL_LIB/Smarty/libs/Smarty.class.php";
 
 $path = $centreon_path . "www/widgets/service-monitoring/src/";
 $template = new Smarty();
@@ -93,7 +93,6 @@ if ($canDoAction || $centreon->user->access->checkAction("service_checks")) {
 if ($canDoAction || $centreon->user->access->checkAction("service_checks")) {
     $actions .= "<option value='91'>"._("Service: Disable Check")."</option>";
 }
-
 if ($canDoAction || $centreon->user->access->checkAction("host_acknowledgement")) {
     $actions .= "<option value='72'>"._("Host: Acknowledge")."</option>";
 }
@@ -117,6 +116,7 @@ if ($canDoAction || $centreon->user->access->checkAction("host_checks")) {
 }
 
 $template->assign("widgetId", $_POST['widgetId']);
+$template->assign("actions", $actions);
 $template->display('toolbar.ihtml');
 
 ?>
@@ -124,9 +124,7 @@ $template->display('toolbar.ihtml');
 <script type='text/javascript'>
 var tab = new Array();
 var actions = "<?php echo $actions;?>";
-
 $(function() {
-	$(".toolbar").html(actions);
 	$(".toolbar").change(function() {
 		if (jQuery(this).val() != 0) {
     		var checkValues = $("input:checked").map(function() {
@@ -155,7 +153,7 @@ $(function() {
                 alert("<?php echo _('Please select one or more items'); ?>"); 
                 return false;
             }
-            $(".toolbar").val(0);
+            //$(".toolbar").val(0);
         }
     });
 });
