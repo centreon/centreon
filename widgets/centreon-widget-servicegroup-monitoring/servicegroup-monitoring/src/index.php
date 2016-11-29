@@ -36,7 +36,6 @@
 ini_set("log_errors",1);
 ini_set("error_log", "/tmp/php-error.log");
 
-
 require_once "../../require.php";
 require_once $centreon_path . 'www/class/centreon.class.php';
 require_once $centreon_path . 'www/class/centreonSession.class.php';
@@ -58,6 +57,7 @@ if (CentreonSession::checkSession(session_id(), $db) == 0) {
 
 require_once $centreon_path . "GPL_LIB/Smarty/libs/Smarty.class.php";
 $path = $centreon_path . "www/widgets/servicegroup-monitoring/src/";
+
 $template = new Smarty();
 $template = initSmartyTplForPopup($path, $template, "./", $centreon_path);
 
@@ -72,7 +72,6 @@ $preferences = $widgetObj->getWidgetPreferences($widgetId);
 $pearDB = $db;
 $aclObj = new CentreonACL($centreon->user->user_id, $centreon->user->admin);
 $nbRows = $preferences['entries'];
-
 
 $hostStateColors = array(
     0 => "#88B917",

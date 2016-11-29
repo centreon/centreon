@@ -69,7 +69,4 @@ jQuery(function () {
             loadPage();
         }
     }
-
 });
-
-

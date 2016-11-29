@@ -65,7 +65,6 @@ try {
     echo $e->getMessage() . "<br/>";
     exit;
 }
-
        
 $path = $centreon_path . "www/widgets/servicegroup-monitoring/src/";
 

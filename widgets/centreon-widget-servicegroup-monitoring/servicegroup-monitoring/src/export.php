@@ -62,7 +62,6 @@ $template = initSmartyTplForPopup($path, $template, "./", $centreon_path);
 
 $centreon = $_SESSION['centreon'];
 $widgetId = $_REQUEST['widgetId'];
-$page = $_REQUEST['page'];
 
 $dbb = new CentreonDB("centstorage");
 $widgetObj = new CentreonWidget($centreon, $db);
@@ -132,15 +131,12 @@ if (!$centreon->user->admin) {
     $query = CentreonUtils::conditionBuilder($query, "name IN (".$aclObj->getServiceGroupsString("NAME").")");
 }
 
-$query = CentreonUtils::conditionBuilder($query, "enabled=1");
-
-
 $orderby = "name ASC";
 if (isset($preferences['order_by']) && $preferences['order_by'] != "") {
     $orderby = $preferences['order_by'];
 }
 $query .= "ORDER BY $orderby";
-$query .= " LIMIT ".($page * $preferences['entries']).",".$preferences['entries'];
+file_put_contents("/tmp/log", $query);
 
 $res = $dbb->query($query);
 $nbRows = $dbb->numberRows();

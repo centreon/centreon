@@ -45,12 +45,10 @@ function loadPage()
         success: function (htmlData) {
             jQuery("#sgMonitoringTable").html("");
             jQuery("#sgMonitoringTable").html(htmlData);
-            var h = document.getElementById("sgMonitoringTable").scrollHeight + 10;
-            ResizeFrame(window.name, h);
-            jQuery("#sgMonitoringTable").find("img, style, script, link").load(function () {
-                var h = document.getElementById("sgMonitoringTable").scrollHeight + 10;
-                ResizeFrame(window.name, h);
-            });
+            //jQuery("#sgMonitoringTable").find("img, style, script, link").load(function () {
+                var h = document.getElementById("sgMonitoringTable").scrollHeight + 12;
+                parent.iResize(window.name, h);
+            //});
 
         }
     });
@@ -60,13 +58,4 @@ function loadPage()
         }
         timeout = setTimeout(loadPage, (autoRefresh * 1000));
     }
-}
-
-
-function ResizeFrame(ifrm, height)
-{
-    if (height < 50) {
-        height = 50;
-    }
-    jQuery("[name=" + ifrm + "]").height(height);
 }
