@@ -56,40 +56,21 @@ class ServicegroupMonitoring
      * @param int $admin
      * @param CentreonACL $aclObj
      * @param array $preferences
-     * @param bool $isNdo
-     * @param string $ndoPrefix
      * @return array
      */
-    public function getHostStates($sgName, $detailFlag = false, $admin, $aclObj, $preferences, $isNdo = false, $ndoPrefix = "nagios_")
+    public function getHostStates($sgName, $detailFlag = false, $admin, $aclObj, $preferences)
     {
-        if ($isNdo == false) {
-            $query = "SELECT DISTINCT h.host_id, h.state, h.name, ssg.servicegroup_id
-                      FROM `services_servicegroups` ssg, `hosts` h, `servicegroups` sg
-                      WHERE h.host_id = ssg.host_id
-                      AND h.name NOT LIKE '_Module_%'
-                      AND h.enabled = 1
-                      AND ssg.servicegroup_id = sg.servicegroup_id
-                      AND sg.name = '" . $this->dbb->escape($sgName)."' ";
-            if (!$admin) {
-                $query .= $aclObj->queryBuilder("AND", "h.host_id", $aclObj->getHostsString("ID", $this->dbb));
-            }
-            $query .= " ORDER BY h.name ";
-        } else {
-            $query = "SELECT DISTINCT h.host_id, hs.current_state as state, h.display_name as name, ssg.servicegroup_id
-                      FROM `{$ndoPrefix}servicegroup_members` ssg, `{$ndoPrefix}hosts` h, `{$ndoPrefix}services` s,
-                           `{$ndoPrefix}hoststatus` hs, `{$ndoPrefix}servicegroups` sg, `{$ndoPrefix}objects` o
-                      WHERE h.host_object_id = s.host_object_id
-                      AND s.host_object_id = hs.host_object_id
-                      AND s.service_object_id = ssg.service_object_id
-                      AND ssg.servicegroup_id = sg.servicegroup_id
-                      AND sg.servicegroup_object_id = o.object_id
-                      AND h.display_name NOT LIKE '_Module_%'                                            
-                      AND o.name1 = '" . $this->dbb->escape($sgName)."' ";
-            if (!$admin) {
-                $query .= $aclObj->queryBuilder("AND", "h.display_name", $aclObj->getHostsString("NAME", $this->dbb));
-            }
-            $query .= " ORDER BY h.display_name ";
+        $query = "SELECT DISTINCT h.host_id, h.state, h.name, ssg.servicegroup_id
+                  FROM `services_servicegroups` ssg, `hosts` h, `servicegroups` sg
+                  WHERE h.host_id = ssg.host_id
+                  AND h.name NOT LIKE '_Module_%'
+                  AND h.enabled = 1
+                  AND ssg.servicegroup_id = sg.servicegroup_id
+                  AND sg.name = '" . $this->dbb->escape($sgName)."' ";
+        if (!$admin) {
+            $query .= $aclObj->queryBuilder("AND", "h.host_id", $aclObj->getHostsString("ID", $this->dbb));
         }
+        $query .= " ORDER BY h.name ";
         $res = $this->dbb->query($query);
         $tab = array();
         $detailTab = array();
@@ -119,54 +100,28 @@ class ServicegroupMonitoring
      * @param int $admin
      * @param CentreonACL $aclObj
      * @param array $preferences
-     * @param bool $isNdo
-     * @param string $ndoPrefix
      * @return string
      */
-    public function getServiceStates($sgName, $detailFlag = false, $admin, $aclObj, $preferences, $isNdo = false, $ndoPrefix = "nagios_")
+    public function getServiceStates($sgName, $detailFlag = false, $admin, $aclObj, $preferences)
     {
-        if ($isNdo == false) {
-            $query = "SELECT DISTINCT h.host_id, s.state, h.name, s.service_id, s.description, ssg.servicegroup_id
-                      FROM `services_servicegroups` ssg, `services` s, `hosts` h, `servicegroups` sg ";
-            if (!$admin) {
-                $query .= ", centreon_acl acl ";
-            }
-            $query .= "WHERE h.host_id = s.host_id
-                       AND h.name NOT LIKE '_Module_%'
-                       AND s.enabled = 1
-                       AND s.host_id = ssg.host_id
-                       AND ssg.service_id = s.service_id
-                       AND ssg.servicegroup_id = sg.servicegroup_id
-                       AND sg.name = '".$this->dbb->escape($sgName) ."' ";
-            if (!$admin) {
-                $query .= " AND h.host_id = acl.host_id
-                            AND acl.service_id = s.service_id ";
-                $query .= " AND acl.group_id IN (" .$aclObj->getAccessGroupsString().") ";
-            }
-            $query .= " ORDER BY h.name ";
-        } else {
-            $query = "SELECT DISTINCT h.host_id, ss.current_state as state, h.display_name as name, 
-                                      s.service_id, s.display_name as description, ssg.servicegroup_id
-                      FROM `{$ndoPrefix}servicegroup_members` ssg, `{$ndoPrefix}hosts` h, `{$ndoPrefix}services` s,
-                           `{$ndoPrefix}servicestatus` ss, `{$ndoPrefix}servicegroups` sg, `{$ndoPrefix}objects` o ";
-            if (!$admin) {
-                $query .= ", centreon_acl acl ";
-            }
-            $query .= "WHERE h.host_object_id = s.host_object_id
-                       AND s.service_object_id = ss.service_object_id
-                       AND h.display_name NOT LIKE '_Module_%'                       
-                       AND s.service_object_id = ssg.service_object_id
-                       AND ssg.servicegroup_id = sg.servicegroup_id
-                       AND sg.servicegroup_object_id = o.object_id
-                       AND s.config_type = 0
-                       AND o.name1 = '".$this->dbb->escape($sgName) ."' ";
-            if (!$admin) {
-                $query .= " AND h.display_name = acl.host_name
-                            AND acl.service_description = s.display_name ";
-                $query .= " AND acl.group_id IN (" .$aclObj->getAccessGroupsString().") ";
-            }
-            $query .= " ORDER BY h.display_name ";
+        $query = "SELECT DISTINCT h.host_id, s.state, h.name, s.service_id, s.description, ssg.servicegroup_id
+                  FROM `services_servicegroups` ssg, `services` s, `hosts` h, `servicegroups` sg ";
+        if (!$admin) {
+            $query .= ", centreon_acl acl ";
         }
+        $query .= "WHERE h.host_id = s.host_id
+                   AND h.name NOT LIKE '_Module_%'
+                   AND s.enabled = 1
+                   AND s.host_id = ssg.host_id
+                   AND ssg.service_id = s.service_id
+                   AND ssg.servicegroup_id = sg.servicegroup_id
+                   AND sg.name = '".$this->dbb->escape($sgName) ."' ";
+        if (!$admin) {
+            $query .= " AND h.host_id = acl.host_id
+                        AND acl.service_id = s.service_id ";
+            $query .= " AND acl.group_id IN (" .$aclObj->getAccessGroupsString().") ";
+        }
+        $query .= " ORDER BY h.name ";
         $res = $this->dbb->query($query);
         $tab = array();
         $detailTab = array();
@@ -191,4 +146,3 @@ class ServicegroupMonitoring
         return $tab;
     }
 }
-?>
