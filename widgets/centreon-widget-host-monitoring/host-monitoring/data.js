@@ -45,8 +45,10 @@ function loadPage()
         success: function (htmlData) {
             jQuery("#hostMonitoringTable").html("")
             jQuery("#hostMonitoringTable").html(htmlData);
-            var h = document.getElementById("hostMonitoringTable").scrollHeight + 10;
-            parent.iResize(window.name, h);
+            var hostMonitoringTable = jQuery("#hostMonitoringTable").find("img, style, script, link").load(function () {
+                var h = document.getElementById("hostMonitoringTable").scrollHeight + 50;
+                parent.iResize(window.name, h);
+            });
         }
     });
     if (autoRefresh) {
@@ -57,7 +59,7 @@ function loadPage()
     }
 }
 
-/**
+/*
  * Load toolbar
  */
 function loadToolBar()

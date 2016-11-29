@@ -33,7 +33,7 @@
             <option value="softonly" label="Soft Only"/>
         </preference>
         <preference label="Hostgroup" name="hostgroup" defaultValue="" type="hostgroup"/>
-        <preference label="Results" name="entries" defaultValue="10" type="range" min="10" max="100" step="10"/>
+        <preference label="Results" name="entries" defaultValue="50" type="range" min="10" max="100" step="10"/>
         <preference label="Display Host Name" name="display_host_name" defaultValue="1" type="boolean" header="Columns"/>
         <preference label="Display Severities" name="display_severities" defaultValue="0" type="boolean"/>
         <preference label="Display Host Alias" name="display_host_alias" defaultValue="0" type="boolean"/>
