@@ -72,16 +72,18 @@ $pearDB = $db;
 $aclObj = new CentreonACL($centreon->user->user_id, $centreon->user->admin);
 
 $res = $db->query("SELECT `key`, `value` FROM `options` WHERE `key` LIKE 'color%'");
-$hostStateColors = array(0 => "#19EE11",
-    1 => "#F91E05",
-    2 => "#82CFD8",
-    4 => "#2AD1D4");
+$hostStateColors = array(
+			 0 => "#19EE11",
+			 1 => "#F91E05",
+			 2 => "#82CFD8",
+			 4 => "#2AD1D4");
 
-$serviceStateColors = array(0 => "#13EB3A",
-    1 => "#F8C706",
-    2 => "#F91D05",
-    3 => "#DCDADA",
-    4 => "#2AD1D4");
+$serviceStateColors = array(
+			    0 => "#13EB3A",
+			    1 => "#F8C706",
+			    2 => "#F91D05",
+			    3 => "#DCDADA",
+			    4 => "#2AD1D4");
 
 while ($row = $res->fetchRow()) {
     if ($row['key'] == "color_up") {
@@ -105,16 +107,18 @@ while ($row = $res->fetchRow()) {
     }
 }
 
-$hostStateLabels = array(0 => "Up",
-    1 => "Down",
-    2 => "Unreachable",
-    4 => "Pending");
+$hostStateLabels = array(
+			 0 => "Up",
+			 1 => "Down",
+			 2 => "Unreachable",
+			 4 => "Pending");
 
-$serviceStateLabels = array(0 => "Ok",
-    1 => "Warning",
-    2 => "Critical",
-    3 => "Unknown",
-    4 => "Pending");
+$serviceStateLabels = array(
+			    0 => "Ok",
+			    1 => "Warning",
+			    2 => "Critical",
+			    3 => "Unknown",
+			    4 => "Pending");
 
 $query = "SELECT SQL_CALC_FOUND_ROWS DISTINCT name ";
 $query .= "FROM hostgroups ";
@@ -131,8 +135,8 @@ if (isset($preferences['sg_name_search']) && $preferences['sg_name_search'] != "
 if (!$centreon->user->admin) {
     $query = CentreonUtils::conditionBuilder($query, "name IN (".$aclObj->getHostGroupsString("NAME").")");
 }
-
 $orderby = "name ASC";
+
 if (isset($preferences['order_by']) && $preferences['order_by'] != "") {
     $orderby = $preferences['order_by'];
 }
@@ -141,26 +145,25 @@ $query .= "ORDER BY $orderby";
 $res = $dbb->query($query);
 
 if (PEAR::isError($res)) {
-    die('Casse');
+    die('Error in SQL queries');
 }
 
 $nbRows = $dbb->numberRows();
-$data = array();
 $detailMode = false;
 if (isset($preferences['enable_detailed_mode']) && $preferences['enable_detailed_mode']) {
     $detailMode = true;
 }
+$data = array();
 while ($row = $res->fetchRow()) {
-    $hostgroup = array(
-        'host_state' => $sgMonObj->getHostStates($row['name'], $detailMode, $centreon->user->admin, $aclObj, $preferences),
-        'service_state' => $sgMonObj->getServiceStates($row['name'], $detailMode, $centreon->user->admin, $aclObj, $preferences)
-    );
     foreach ($row as $key => $value) {
         $hostgroup[$key] = $value;
     }
-    $data[] = $hostgroup;
+    $data[$row['name']] = $hostgroup;
 }
 
+$sgMonObj->getHostStates($data, $detailMode, $centreon->user->admin, $aclObj, $preferences);
+$sgMonObj->getServiceStates($data, $detailMode, $centreon->user->admin, $aclObj, $preferences);
+   
 $template->assign('preferences', $preferences);
 $template->assign('hostStateLabels', $hostStateLabels);
 $template->assign('hostStateColors', $hostStateColors);

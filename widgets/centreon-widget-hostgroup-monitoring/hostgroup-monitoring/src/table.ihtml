@@ -6,9 +6,9 @@
 
 <table id='HostgroupTable' class='ListTable styleTable'>
     <tr class="ListHeader">
-        <td class="ListColHeaderCenter" name='name'>Hostgroup</td>
-        <td class="ListColHeaderCenter">Host Status</td>
-        <td class="ListColHeaderCenter">Service Status</td>
+        <td class="ListColHeaderLeft" name='name'>Hostgroup</td>
+        <td class="ListColHeaderLeft">Host Status</td>
+        <td class="ListColHeaderLeft">Service Status</td>
     </tr>
     {assign var='classStyle' value='list_two'}
     {foreach key=hgId item=elem from=$data}

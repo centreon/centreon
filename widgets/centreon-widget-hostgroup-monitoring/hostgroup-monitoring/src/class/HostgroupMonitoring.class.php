@@ -59,36 +59,21 @@ class HostgroupMonitoring
      * @param bool $isNdo
      * @param string $ndoPrefix
      */
-    public function getHostStates(&$data, $detailFlag = false, $admin, $aclObj, $preferences, $isNdo = false, $ndoPrefix = "nagios_")
+    public function getHostStates(&$data, $detailFlag = false, $admin, $aclObj, $preferences, $isNdo = false)
     {
         if (!count($data)) {
             return array();
         }
-        if ($isNdo == false) {
-            $query = "SELECT h.host_id, h.state, h.name, hhg.hostgroup_id, hg.name as hgname
-                    FROM hosts_hostgroups hhg, hosts h, hostgroups hg
-                    WHERE h.host_id = hhg.host_id
-                    AND h.enabled = 1
-                    AND hhg.hostgroup_id = hg.hostgroup_id
-                    AND hg.name IN ('".implode("', '", array_keys($data))."') ";
-            if (!$admin) {
-                $query .= $aclObj->queryBuilder("AND", "h.host_id", $aclObj->getHostsString("ID", $this->dbb));
-            }
-            $query .= " ORDER BY h.name ";
-        } else {
-            $query = "SELECT h.host_id, hs.current_state as state, h.display_name as name, hhg.hostgroup_id, o.name1 as hgname
-                    FROM {$ndoPrefix}hostgroup_members hhg, {$ndoPrefix}hosts h, {$ndoPrefix}hostgroups hg, {$ndoPrefix}hoststatus hs, {$ndoPrefix}objects o
-                    WHERE h.host_object_id = hs.host_object_id
-                    AND h.config_type = 0
-                    AND hs.host_object_id = hhg.host_object_id
-                    AND hhg.hostgroup_id = hg.hostgroup_id
-                    AND hg.hostgroup_object_id = o.object_id
-                    AND o.name1 IN ('".implode("', '", array_keys($data))."') ";
-            if (!$admin) {
-                $query .= $aclObj->queryBuilder("AND", "h.display_name", $aclObj->getHostsString("NAME", $this->dbb));
-            }
-            $query .= " ORDER BY h.display_name ";
-        }
+	$query = "SELECT h.host_id, h.state, h.name, hhg.hostgroup_id, hg.name as hgname
+                  FROM hosts_hostgroups hhg, hosts h, hostgroups hg
+                  WHERE h.host_id = hhg.host_id
+                  AND h.enabled = 1
+                  AND hhg.hostgroup_id = hg.hostgroup_id
+                  AND hg.name IN ('".implode("', '", array_keys($data))."') ";
+	if (!$admin) {
+	  $query .= $aclObj->queryBuilder("AND", "h.host_id", $aclObj->getHostsString("ID", $this->dbb));
+	}
+	$query .= " ORDER BY h.name ";
         $res = $this->dbb->query($query);
         while ($row = $res->fetchRow()) {
             $k = $row['hgname'];
@@ -119,57 +104,29 @@ class HostgroupMonitoring
      * @param bool $isNdo
      * @param string $ndoPrefix
      */
-    public function getServiceStates(&$data, $detailFlag = false, $admin, $aclObj, $preferences, $isNdo = false, $ndoPrefix = "nagios_")
+    public function getServiceStates(&$data, $detailFlag = false, $admin, $aclObj, $preferences)
     {
         if (!count($data)) {
             return array();
         }
-        if ($isNdo == false) {
-            $query = "SELECT DISTINCT h.host_id, s.state, h.name, s.service_id, s.description, hhg.hostgroup_id, hg.name as hgname, ";
-            $query .= " (case s.state when 0 then 3 when 2 then 0 when 3 then 2  when 3 then 2 else s.state END) as tri ";
-            $query .= "FROM hosts_hostgroups hhg, hosts h, services s, hostgroups hg ";
-            if (!$admin) {
-                $query .= ", centreon_acl acl ";
-            }
-            $query .= "WHERE h.host_id = hhg.host_id
+	$query = "SELECT DISTINCT h.host_id, s.state, h.name, s.service_id, s.description, hhg.hostgroup_id, hg.name as hgname, ";
+	$query .= " (case s.state when 0 then 3 when 2 then 0 when 3 then 2  when 3 then 2 else s.state END) as tri ";
+	$query .= "FROM hosts_hostgroups hhg, hosts h, services s, hostgroups hg ";
+	if (!$admin) {
+	  $query .= ", centreon_acl acl ";
+	}
+	$query .= "WHERE h.host_id = hhg.host_id
                     AND hhg.host_id = s.host_id
                     AND s.enabled = 1
                     AND h.enabled = 1
                     AND hhg.hostgroup_id = hg.hostgroup_id
                     AND hg.name IN ('".implode("', '", array_keys($data))."') ";
-            if (!$admin) {
-                $query .= " AND h.host_id = acl.host_id
-                                                    AND acl.service_id = s.service_id
-                                                    AND acl.group_id IN (".$aclObj->getAccessGroupsString().")";
-            }
-            $query .= " ORDER BY tri asc";
-        } else {
-            $query = "SELECT DISTINCT h.host_id, ss.current_state as state, s.service_id, o.name1 as hgname,
-                                      h.display_name as name, s.service_object_id, s.display_name as description, hhg.hostgroup_id, ";
-            $query .= " (case s.state when 0 then 3 when 2 then 0 when 3 then 2  when 3 then 2 else s.state END) as tri ";
-            $query .= "FROM {$ndoPrefix}hostgroup_members hhg, {$ndoPrefix}hosts h, {$ndoPrefix}hostgroups hg, {$ndoPrefix}objects o,
-                            {$ndoPrefix}services s, {$ndoPrefix}servicestatus ss ";
-            if (!$admin) {
-                $query .= ", centreon_acl acl ";
-            }
-            $query .= "WHERE h.host_object_id = hhg.host_object_id
-                       AND h.config_type = 0
-                       AND hhg.hostgroup_id = hg.hostgroup_id
-                       AND hg.hostgroup_object_id = o.object_id
-                       AND o.objecttype_id = 3
-                       AND hhg.host_object_id = s.host_object_id
-                       AND s.service_object_id = ss.service_object_id
-                       AND s.host_object_id = h.host_object_id
-                       AND s.config_type = 0
-                       AND o.name1 IN ('".implode("', '", array_keys($data))."') ";
-            if (!$admin) {
-                $query .= " AND h.display_name = acl.host_name
-                            AND acl.service_description = s.display_name
-                            AND acl.group_id IN (".$aclObj->getAccessGroupsString().")";
-            }
-            $query .= " ORDER BY tri asc";
-        }
-
+	if (!$admin) {
+	  $query .= " AND h.host_id = acl.host_id
+                      AND acl.service_id = s.service_id
+                      AND acl.group_id IN (".$aclObj->getAccessGroupsString().")";
+	}
+	$query .= " ORDER BY tri, description ASC";	
         $res = $this->dbb->query($query);
         while ($row = $res->fetchRow()) {
             $k = $row['hgname'];
@@ -193,4 +150,3 @@ class HostgroupMonitoring
         }
     }
 }
-?>
