@@ -56,24 +56,22 @@ class HostgroupMonitoring
      * @param int $admin
      * @param CentreonACL $aclObj
      * @param array $preferences
-     * @param bool $isNdo
-     * @param string $ndoPrefix
      */
-    public function getHostStates(&$data, $detailFlag = false, $admin, $aclObj, $preferences, $isNdo = false)
+    public function getHostStates(&$data, $detailFlag = false, $admin, $aclObj, $preferences)
     {
         if (!count($data)) {
             return array();
         }
-	$query = "SELECT h.host_id, h.state, h.name, hhg.hostgroup_id, hg.name as hgname
+        $query = "SELECT h.host_id, h.state, h.name, hhg.hostgroup_id, hg.name as hgname
                   FROM hosts_hostgroups hhg, hosts h, hostgroups hg
                   WHERE h.host_id = hhg.host_id
                   AND h.enabled = 1
                   AND hhg.hostgroup_id = hg.hostgroup_id
                   AND hg.name IN ('".implode("', '", array_keys($data))."') ";
-	if (!$admin) {
-	  $query .= $aclObj->queryBuilder("AND", "h.host_id", $aclObj->getHostsString("ID", $this->dbb));
-	}
-	$query .= " ORDER BY h.name ";
+        if (!$admin) {
+            $query .= $aclObj->queryBuilder("AND", "h.host_id", $aclObj->getHostsString("ID", $this->dbb));
+        }
+        $query .= " ORDER BY h.name ";
         $res = $this->dbb->query($query);
         while ($row = $res->fetchRow()) {
             $k = $row['hgname'];
@@ -101,32 +99,30 @@ class HostgroupMonitoring
      * @param int $admin
      * @param CentreonACL $aclObj
      * @param array $preferences
-     * @param bool $isNdo
-     * @param string $ndoPrefix
      */
     public function getServiceStates(&$data, $detailFlag = false, $admin, $aclObj, $preferences)
     {
         if (!count($data)) {
             return array();
         }
-	$query = "SELECT DISTINCT h.host_id, s.state, h.name, s.service_id, s.description, hhg.hostgroup_id, hg.name as hgname, ";
-	$query .= " (case s.state when 0 then 3 when 2 then 0 when 3 then 2  when 3 then 2 else s.state END) as tri ";
-	$query .= "FROM hosts_hostgroups hhg, hosts h, services s, hostgroups hg ";
-	if (!$admin) {
-	  $query .= ", centreon_acl acl ";
-	}
-	$query .= "WHERE h.host_id = hhg.host_id
-                    AND hhg.host_id = s.host_id
-                    AND s.enabled = 1
-                    AND h.enabled = 1
-                    AND hhg.hostgroup_id = hg.hostgroup_id
-                    AND hg.name IN ('".implode("', '", array_keys($data))."') ";
-	if (!$admin) {
-	  $query .= " AND h.host_id = acl.host_id
-                      AND acl.service_id = s.service_id
-                      AND acl.group_id IN (".$aclObj->getAccessGroupsString().")";
-	}
-	$query .= " ORDER BY tri, description ASC";	
+        $query = "SELECT DISTINCT h.host_id, s.state, h.name, s.service_id, s.description, hhg.hostgroup_id, hg.name as hgname, ";
+        $query .= " (case s.state when 0 then 3 when 2 then 0 when 3 then 2  when 3 then 2 else s.state END) as tri ";
+        $query .= "FROM hosts_hostgroups hhg, hosts h, services s, hostgroups hg ";
+        if (!$admin) {
+          $query .= ", centreon_acl acl ";
+        }
+        $query .= "WHERE h.host_id = hhg.host_id
+                        AND hhg.host_id = s.host_id
+                        AND s.enabled = 1
+                        AND h.enabled = 1
+                        AND hhg.hostgroup_id = hg.hostgroup_id
+                        AND hg.name IN ('".implode("', '", array_keys($data))."') ";
+        if (!$admin) {
+            $query .= " AND h.host_id = acl.host_id
+                        AND acl.service_id = s.service_id
+                        AND acl.group_id IN (".$aclObj->getAccessGroupsString().")";
+        }
+        $query .= " ORDER BY tri, description ASC"; 
         $res = $this->dbb->query($query);
         while ($row = $res->fetchRow()) {
             $k = $row['hgname'];
