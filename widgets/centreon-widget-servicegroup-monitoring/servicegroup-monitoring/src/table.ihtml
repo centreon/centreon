@@ -41,7 +41,7 @@
                 {elseif $state == 4 }
                     {assign var='link' value='&o=svc_pending'}
                 {/if}
-            <span class="state_badge" style='background-color: {$serviceStateColors[$state]};'></span><span class='margin_right'><a href='/{$centreon_web_path}/{$elem.sgurl}{$link}' target=_blank>{$counter}</a></span>
+            <span class="state_badge" style='background-color: {$serviceStateColors[$state]};'></span><span class='margin_right'>{if $displayLink}<a href='/{$centreon_web_path}/{$elem.sgurl}{$link}' target=_blank>{/if}{$counter}{if $displayLink}</a>{/if}</span>
             {/foreach}
         </td>
     {else}

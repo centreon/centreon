@@ -33,9 +33,6 @@
  *
  */
 
-ini_set("log_errors",1);
-ini_set("error_log", "/tmp/php-error.log");
-
 require_once "../../require.php";
 require_once $centreon_path . 'www/class/centreon.class.php';
 require_once $centreon_path . 'www/class/centreonSession.class.php';
@@ -48,11 +45,11 @@ require_once $centreon_path . 'www/widgets/servicegroup-monitoring/src/class/Ser
 
 session_start();
 if (!isset($_SESSION['centreon']) || !isset($_REQUEST['widgetId']) || !isset($_REQUEST['page'])) {
-    exit;
+    exit();
 }
 $db = new CentreonDB();
 if (CentreonSession::checkSession(session_id(), $db) == 0) {
-    exit;
+    exit();
 }
 
 require_once $centreon_path . "GPL_LIB/Smarty/libs/Smarty.class.php";
@@ -72,6 +69,11 @@ $preferences = $widgetObj->getWidgetPreferences($widgetId);
 $pearDB = $db;
 $aclObj = new CentreonACL($centreon->user->user_id, $centreon->user->admin);
 $nbRows = $preferences['entries'];
+
+$query = "SELECT `value` FROM informations WHERE `key` = 'version'";
+$res = $db->query($query);
+$row = $res->fetchRow();
+$version = $row['value'];
 
 $hostStateColors = array(
     0 => "#88B917",
@@ -124,7 +126,6 @@ $query .= "ORDER BY $orderby";
 $query .= " LIMIT " . ($page * $preferences['entries']) . "," . $preferences['entries'];
 $res = $dbb->query($query);
 
-error_log($query);
 $nbRows = $dbb->numberRows();
 $data = array();
 $detailMode = false;
@@ -158,6 +159,7 @@ $template->assign('serviceStateLabels', $serviceStateLabels);
 $template->assign('serviceStateColors', $serviceStateColors);
 $template->assign('centreon_web_path', trim($centreon->optGen['oreon_web_path'], "/"));
 $template->assign('centreon_path', $centreon_path);
+$template->assign('displayLink', version_compare($version, "2.7.200", ">"));
 
 $bMoreViews = 0;
 if ($preferences['more_views']) {
