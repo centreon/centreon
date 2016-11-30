@@ -125,35 +125,24 @@ $template->display('toolbar.ihtml');
 var tab = new Array();
 var actions = "<?php echo $actions;?>";
 $(function() {
-	$(".toolbar").change(function() {
-		if (jQuery(this).val() != 0) {
-    		var checkValues = $("input:checked").map(function() {
-    			var tmp = $(this).attr('id').split("_");
-    			return tmp[1];
-    		}).get().join(",");
-            if (checkValues != '') {
-                var url = "./widgets/service-monitoring/src/action.php?selection="+checkValues+"&cmd="+jQuery(this).val();
-                parent.jQuery('#widgetPopin').parent().remove();
-                var popin = parent.jQuery('<div id="widgetPopin">');
-                popin.centreonPopin({
-                    open:true,
-                    url:url
-                });
-/*
-                parent.jQuery.colorbox({
-                                    href		:	"./widgets/service-monitoring/src/action.php?selection="+checkValues+"&cmd="+jQuery(this).val(),
-                                    width		:	"50%",
-                                    height		:	"40%",
-                                    opacity		:	0.7,
-                                    overlayClose:	false,
-                                    iframe		: 	true
-                                });
-*/
-            } else {
-                alert("<?php echo _('Please select one or more items'); ?>"); 
-                return false;
-            }
-            //$(".toolbar").val(0);
+    $(".toolbar").change(function() {
+	if (jQuery(this).val() != 0) {
+	  var checkValues = $("input:checked").map(function() {
+	      var tmp = $(this).attr('id').split("_");
+	      return tmp[1];
+	    }).get().join(",");
+	  if (checkValues != '') {
+	    var url = "./widgets/service-monitoring/src/action.php?selection="+checkValues+"&cmd="+jQuery(this).val();
+	    parent.jQuery('#widgetPopin').parent().remove();
+	    var popin = parent.jQuery('<div id="widgetPopin">');
+	    popin.centreonPopin({
+	      open:true,
+		  url:url
+		  });
+	  } else {
+	    alert("<?php echo _('Please select one or more items'); ?>"); 
+	    return false;
+	  }
         }
     });
 });
