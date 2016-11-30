@@ -87,7 +87,10 @@ if ($canDoAction || $centreon->user->access->checkAction("host_checks")) {
 if ($canDoAction || $centreon->user->access->checkAction("host_checks")) {
     $actions .= "<option value='93'>"._("Disable Host Check")."</option>";
 }
+file_put_contents("/tmp/toto", $actions);
+
 $template->assign("widgetId", $_POST['widgetId']);
+$template->assign("actions", $actions);
 $template->display('toolbar.ihtml');
 
 ?>
@@ -100,10 +103,8 @@ var widget_id = "<?php echo $widgetId; ?>";
 var sid = '<?php echo session_id();?>';
 
 $(function() {
-	$(".toolbar").html(actions);
-
 	$(".toolbar").change(function() {
-		if (jQuery(this).val() != 0) {
+	    if (jQuery(this).val() != 0) {
     		var checkValues = $("input:checked").map(function() {
     			var tmp = $(this).attr('id').split("_");
     			return tmp[1];
