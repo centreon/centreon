@@ -62,7 +62,6 @@ $template = initSmartyTplForPopup($path, $template, "./", $centreon_path);
 
 $centreon = $_SESSION['centreon'];
 $widgetId = $_REQUEST['widgetId'];
-//$page = $_REQUEST['page'];
 
 $dbb = new CentreonDB("centstorage");
 $widgetObj = new CentreonWidget($centreon, $db);
@@ -122,8 +121,8 @@ $serviceStateLabels = array(
 
 $query = "SELECT SQL_CALC_FOUND_ROWS DISTINCT name ";
 $query .= "FROM hostgroups ";
-if (isset($preferences['sg_name_search']) && $preferences['sg_name_search'] != "") {
-    $tab = explode(" ", $preferences['sg_name_search']);
+if (isset($preferences['hg_name_search']) && $preferences['hg_name_search'] != "") {
+    $tab = explode(" ", $preferences['hg_name_search']);
     $op = $tab[0];
     if (isset($tab[1])) {
         $search = $tab[1];
