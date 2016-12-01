@@ -83,27 +83,30 @@ $stateColors = getColors($db);
 $stateLabels = getLabels();
 
 $query = "SELECT SQL_CALC_FOUND_ROWS h.host_id,
-				 h.name,
-				 h.alias,
-				 state,
-				 state_type,
-				 address,
-				 last_hard_state,
-				 output,
-				 scheduled_downtime_depth,
-				 acknowledged,
-				 notify,
-				 active_checks,
-				 passive_checks,
-				 last_check,
-				 last_state_change,
-				 last_hard_state_change,
-				 check_attempt,
-				 max_check_attempts,
-				 action_url,
-				 notes_url, 
+                 h.name,
+                 h.alias,
+                 h.flapping,
+                 state,
+                 state_type,
+                 address,
+                 last_hard_state,
+                 output,
+                 scheduled_downtime_depth,
+                 acknowledged,
+                 notify,
+                 active_checks,
+                 passive_checks,
+                 last_check,
+                 last_state_change,
+                 last_hard_state_change,
+                 check_attempt,
+                 max_check_attempts,
+                 action_url,
+                 notes_url,
                  cv.value AS criticality,
-		 cv2.value AS criticality_id,
+                 h.icon_image,
+                 h.icon_image_alt,
+                 cv2.value AS criticality_id,
                  cv.name IS NULL as isnull ";
 $query .= "FROM hosts h ";
 $query .= " LEFT JOIN `customvariables` cv ";
@@ -114,7 +117,14 @@ $query .= " WHERE enabled = 1 ";
 $query .= " AND h.name NOT LIKE '_Module_%' ";
 
 if (isset($preferences['host_name_search']) && $preferences['host_name_search'] != "") {
-    $query .= " AND h.host_id IN ($preferences[host_name_search])";
+    $tab = split(" ", $preferences['host_name_search']);
+    $op = $tab[0];
+    if (isset($tab[1])) {
+        $search = $tab[1];
+    }
+    if ($op && isset($search) && $search != "") {
+        $query = CentreonUtils::conditionBuilder($query, "h.name ".CentreonUtils::operandToMysqlFormat($op)." '".$dbb->escape($search)."' ");
+    }
 }
 
 $stateTab = array();
@@ -160,17 +170,31 @@ if (isset($preferences['state_type_filter']) && $preferences['state_type_filter'
 }
 
 if (isset($preferences['hostgroup']) && $preferences['hostgroup']) {
-    
-    $queryTmp = "SELECT host_host_id
-                 FROM hostgroup_relation
-    			 WHERE hostgroup_hg_id = ".$dbb->escape($preferences['hostgroup']);
-    $restmp = $db->query($queryTmp);
-    $rowId[] = -1;
-    while ($row = $restmp->fetchRow()) {
-        $rowId[] = $row['host_host_id'];
-    }
     $query = CentreonUtils::conditionBuilder($query, " h.host_id IN
-    												   (".implode(',',$rowId).") ");
+                                                       (SELECT host_host_id
+                                                       FROM ".$conf_centreon['db'].".hostgroup_relation
+                                                       WHERE hostgroup_hg_id = ".$dbb->escape($preferences['hostgroup']).") ");
+}
+if (isset($preferences["display_severities"]) && $preferences["display_severities"]
+    && isset($preferences['criticality_filter']) && $preferences['criticality_filter'] != "") {
+  $tab = split(",", $preferences['criticality_filter']);
+  $labels = "";
+  foreach ($tab as $p) {
+    if ($labels != '') {
+      $labels .= ',';
+    }
+    $labels .= "'".trim($p)."'";
+  }
+  $query2 = "SELECT hc_id FROM hostcategories WHERE hc_name IN (".$labels.")";
+  $RES = $db->query($query2);
+  $idC = "";
+  while ($d1 = $RES->fetchRow()) {
+    if ($idC != '') {
+      $idC .= ",";
+    }
+    $idC .= $d1['hc_id'];
+  }
+  $query .= " AND cv2.`value` IN ($idC) ";
 }
 if (!$centreon->user->admin) {
     $pearDB = $db;
@@ -182,7 +206,7 @@ if (isset($preferences['order_by']) && $preferences['order_by'] != "") {
     $orderby = $preferences['order_by'];
 }
 $query .= " ORDER BY $orderby";
-//$query .= " LIMIT ".($page * $preferences['entries']).",".$preferences['entries'];
+
 $res = $dbb->query($query);
 $nbRows = $dbb->numberRows();
 $data = array();
@@ -193,7 +217,9 @@ $hostObj = new CentreonHost($db);
 while ($row = $res->fetchRow()) {
     foreach ($row as $key => $value) {
         if ($key == "last_check") {
-            $value = date("Y-m-d H:i:s", $value);
+            $gmt = new CentreonGMT($db);
+            $gmt->getMyGMTFromSession(session_id(), $db);
+            $value = $gmt->getDate("Y-m-d H:i:s", $value);
         } elseif ($key == "last_state_change" || $key == "last_hard_state_change") {
             $value = time() - $value;
             $value = CentreonDuration::toString($value);
@@ -205,10 +231,13 @@ while ($row = $res->fetchRow()) {
         } elseif ($key == "output") {
             $value = substr($value, 0, $outputLength);
         } elseif (($key == "action_url" || $key == "notes_url") && $value) {
-            $value = $hostObj->replaceMacroInString($row['name'], $value);
+            if (!preg_match("/(^http[s]?)|(^\/\/)/", $value)) {
+                $value = '//' . $value;
+            }
+            $value = CentreonUtils::escapeSecure($hostObj->replaceMacroInString($row['host_name'], $value));
         } elseif ($key == "criticality" && $value != '') {
             $critData = $criticality->getData($row["criticality_id"]);
-            $value = $critData["hc_name"];
+            $value = "<img src='../../img/media/".$media->getFilename($critData['icon_id'])."' title='".$critData["hc_name"]."' width='16' height='16'>";
         }
         $data[$row['host_id']][$key] = $value;
     }
