@@ -34,7 +34,6 @@
  */
 
 require_once "../../require.php";
-
 require_once "./DB-Func.php";
 
 require_once $centreon_path . 'www/class/centreon.class.php';
@@ -158,8 +157,7 @@ if (isset($preferences['downtime_filter']) && $preferences['downtime_filter']) {
 }
 
 if (isset($preferences['poller_filter']) && $preferences['poller_filter']) {
-
-        $query = CentreonUtils::conditionBuilder($query, " instance_id = ".$preferences['poller_filter']." ");
+    $query = CentreonUtils::conditionBuilder($query, " instance_id = ".$preferences['poller_filter']." ");
 }
 
 if (isset($preferences['state_type_filter']) && $preferences['state_type_filter']) {
