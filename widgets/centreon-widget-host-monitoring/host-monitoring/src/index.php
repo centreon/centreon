@@ -231,7 +231,9 @@ $hostObj = new CentreonHost($db);
 while ($row = $res->fetchRow()) {
     foreach ($row as $key => $value) {
         if ($key == "last_check") {
-            $value = date("Y-m-d H:i:s", $value);
+            $gmt = new CentreonGMT($db);
+            $gmt->getMyGMTFromSession(session_id(), $db);
+            $value = $gmt->getDate("Y-m-d H:i:s", $value);
         } elseif ($key == "last_state_change" || $key == "last_hard_state_change") {
             $value = time() - $value;
             $value = CentreonDuration::toString($value);
