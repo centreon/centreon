@@ -33,6 +33,10 @@
  *
  */
 
+
+header('Content-type: application/csv');
+header('Content-Disposition: attachment; filename="services-monitoring.csv"');
+
 require_once "../../require.php";
 require_once $centreon_path . 'www/class/centreon.class.php';
 require_once $centreon_path . 'www/class/centreonSession.class.php';
@@ -50,8 +54,8 @@ require_once $centreon_path . 'www/class/centreonCriticality.class.php';
 require_once $centreon_path ."GPL_LIB/Smarty/libs/Smarty.class.php";
 
 session_start();
-if (!isset($_SESSION['centreon']) || !isset($_REQUEST['widgetId']) || !isset($_REQUEST['page'])) {
-    exit;
+if (!isset($_SESSION['centreon']) || !isset($_REQUEST['widgetId'])) {
+    exit();
 }
 
 $db = new CentreonDB();
@@ -69,23 +73,12 @@ $media = new CentreonMedia($db);
 
 $centreon = $_SESSION['centreon'];
 $widgetId = $_REQUEST['widgetId'];
-$page = $_REQUEST['page'];
 
 $dbb = new CentreonDB("centstorage");
 $widgetObj = new CentreonWidget($centreon, $db);
 $preferences = $widgetObj->getWidgetPreferences($widgetId);
 
-$stateSColors = array(0 => "#88b917",
-		      1 => "#ff9a13",
-		      2 => "#e00b3d",
-		      3 => "##bcbdc0",
-		      4 => "#2ad1d4");
-$stateHColors = array(0 => "#88b917",
-		      1 => "#e00b3d",
-		      2 => "#82CFD8",
-		      4 => "#2ad1d4");
 $aStateType = array("1" => "H", "0" => "S");
-
 $stateLabels = array(0 => "Ok",
                      1 => "Warning",
                      2 => "Critical",
@@ -94,13 +87,13 @@ $stateLabels = array(0 => "Ok",
 // Build Query
 $query = "SELECT SQL_CALC_FOUND_ROWS h.host_id,
 		h.name as hostname,
-        s.latency,
-        s.execution_time,
+    s.latency,
+    s.execution_time,
 		h.state as h_state,
 		s.service_id,
 		s.description,
 		s.state as s_state,
-                h.state_type as state_type,
+    h.state_type as state_type,
 		s.last_hard_state,
 		s.output,
 		s.scheduled_downtime_depth as s_scheduled_downtime_depth,
@@ -123,8 +116,7 @@ $query = "SELECT SQL_CALC_FOUND_ROWS h.host_id,
 		s.action_url as s_action_url,
 		s.notes_url as s_notes_url, 
 		cv2.value AS criticality_id,
-		cv.value AS criticality_level,
-                h.icon_image
+		cv.value AS criticality_level
 ";
 $query .= " FROM hosts h, services s ";
 $query .= " LEFT JOIN customvariables cv ON (s.service_id = cv.service_id AND s.host_id = cv.host_id AND cv.name = 'CRITICALITY_LEVEL') ";
@@ -172,18 +164,12 @@ if (isset($preferences['svc_unknown']) && $preferences['svc_unknown']) {
 if (isset($preferences['svc_pending']) && $preferences['svc_pending']) {
     $stateTab[] = 4;
 }
-
-
 if (isset($preferences['hide_down_host']) && $preferences['hide_down_host']) {
     $query = CentreonUtils::conditionBuilder($query, " h.state != 1 ");
 }
-
-
-
 if (count($stateTab)) {
     $query = CentreonUtils::conditionBuilder($query, " s.state IN (" . implode(',', $stateTab) . ")");
 }
-
 if (isset($preferences['acknowledgement_filter']) && $preferences['acknowledgement_filter']) {
     if ($preferences['acknowledgement_filter'] == "ack") {
         $query = CentreonUtils::conditionBuilder($query, " s.acknowledged = 1");
@@ -191,7 +177,6 @@ if (isset($preferences['acknowledgement_filter']) && $preferences['acknowledgeme
         $query = CentreonUtils::conditionBuilder($query, " s.acknowledged = 0 AND h.acknowledged = 0 AND h.scheduled_downtime_depth = 0 ");
     }
 }
-
 if (isset($preferences['downtime_filter']) && $preferences['downtime_filter']) {
     if ($preferences['downtime_filter'] == "downtime") {
         $query = CentreonUtils::conditionBuilder($query, " s.scheduled_downtime_depth > 0 ");
@@ -199,7 +184,6 @@ if (isset($preferences['downtime_filter']) && $preferences['downtime_filter']) {
         $query = CentreonUtils::conditionBuilder($query, " s.scheduled_downtime_depth = 0 ");
     }
 }
-
 if (isset($preferences['state_type_filter']) && $preferences['state_type_filter']) {
     if ($preferences['state_type_filter'] == "hardonly") {
         $query = CentreonUtils::conditionBuilder($query, " s.state_type = 1 ");
@@ -207,7 +191,6 @@ if (isset($preferences['state_type_filter']) && $preferences['state_type_filter'
         $query = CentreonUtils::conditionBuilder($query, " s.state_type = 0 ");
     }
 }
-
 if (isset($preferences['hostgroup']) && $preferences['hostgroup']) {
     $query = CentreonUtils::conditionBuilder($query, 
     " s.host_id IN (
@@ -272,7 +255,6 @@ if (isset($preferences['order_by']) && $preferences['order_by'] != "") {
 
 
 $query .= "ORDER BY $orderby";
-$query .= " LIMIT ".($page * $preferences['entries']).",".$preferences['entries'];
 $res = $dbb->query($query);
 $nbRows = $dbb->numberRows();
 $data = array();
@@ -287,20 +269,13 @@ while ($row = $res->fetchRow()) {
             $gmt = new CentreonGMT($db);
             $gmt->getMyGMTFromSession(session_id(), $db);
             $value = $gmt->getDate("Y-m-d H:i:s", $value);
-            //$value = date("Y-m-d H:i:s", $value);
         } elseif ($key == "last_state_change" || $key == "last_hard_state_change") {
             $value = time() - $value;
             $value = CentreonDuration::toString($value);
+        } elseif ($key == "s_state") {
+            $value = $stateLabels[$value];
         } elseif ($key == "check_attempt") {
             $value = $value . "/" . $row['max_check_attempts']. ' ('.$aStateType[$row['state_type']].')';
-        } elseif ($key == "s_state") {
-            $data[$row['host_id']."_".$row['service_id']]['color'] = $stateSColors[$value];
-            $value = $stateLabels[$value];
-        } elseif ($key == "h_state") {
-            $data[$row['host_id']."_".$row['service_id']]['hcolor'] = $stateHColors[$value];
-            $value = $stateLabels[$value];
-        } elseif ($key == "output") {
-            $value = substr($value, 0, $outputLength);
         } elseif (($key == "h_action_url" || $key == "h_notes_url") && $value) {
             $value = urlencode($hostObj->replaceMacroInString($row['hostname'], $value));
         } elseif (($key == "s_action_url" || $key == "s_notes_url") && $value) {
@@ -312,7 +287,6 @@ while ($row = $res->fetchRow()) {
         }
         $data[$row['host_id']."_".$row['service_id']][$key] = $value;
     }
-
     if (isset($preferences['display_last_comment']) && $preferences['display_last_comment']) {
         $res2 = $dbb->query('SELECT data FROM comments where host_id = ' . $row['host_id'] . ' AND service_id = ' . $row['service_id'] . ' ORDER BY entry_time DESC LIMIT 1');
         if ($row2 = $res2->fetchRow()) {
@@ -321,11 +295,9 @@ while ($row = $res->fetchRow()) {
             $data[$row['host_id']."_".$row['service_id']]['comment'] = '-';
         }
     }
-
     $data[$row['host_id'].'_'.$row['service_id']]['encoded_description'] = urlencode(
       $data[$row['host_id'].'_'.$row['service_id']]['description']
     );
-
     $data[$row['host_id'].'_'.$row['service_id']]['encoded_hostname'] = urlencode(
       $data[$row['host_id'].'_'.$row['service_id']]['hostname']
     );
@@ -333,16 +305,6 @@ while ($row = $res->fetchRow()) {
 
 $autoRefresh = $preferences['refresh_interval'];
 $template->assign('widgetId', $widgetId);
-$template->assign('autoRefresh', $autoRefresh);
-$template->assign('preferences', $preferences);
-$template->assign('page', $page);
-$template->assign('dataJS', count($data));
-$template->assign('nbRows', $nbRows);
-$template->assign('StateHColors', $stateHColors);
-$template->assign('StateSColors', $stateSColors);
-$template->assign('centreon_web_path', $centreon->optGen['oreon_web_path']);
 $template->assign('preferences', $preferences);
 $template->assign('data', $data);
-$template->assign('broker', "broker");
-$template->display('table.ihtml');
-?>
+$template->display('export.ihtml');
