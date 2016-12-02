@@ -306,6 +306,7 @@ if (isset($preferences['order_by']) && $preferences['order_by'] != "") {
     }
 }
 
+$query .= "GROUP BY hostname, description ";
 $query .= "ORDER BY $orderby";
 $query .= " LIMIT ".($page * $preferences['entries']).",".$preferences['entries'];
 $res = $dbb->query($query);
