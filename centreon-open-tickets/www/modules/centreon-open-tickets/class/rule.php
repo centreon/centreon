@@ -134,14 +134,16 @@ class Centreon_OpenTickets_Rule
         
         if ($cmd == 3) {
             $selected_str = '';
+            $selected_str2 = '';
             $selected_str_append = '';
             foreach ($selected_values as $value) {
                 $str = explode(';', $value);
                 $selected_str .= $selected_str_append . 'services.host_id = ' . $str[0] . ' AND services.service_id = ' . $str[1];
+                $selected_str2 .= $selected_str_append . 'host_id = ' . $str[0] . ' AND service_id = ' . $str[1];
                 $selected_str_append = ' OR ';
             }
             
-            $query = "SELECT services.*, hosts.state as host_state, hosts.name as host_name, hosts.instance_id FROM services, hosts";
+            $query = "SELECT services.*, hosts.state as host_state, hosts.host_id, hosts.name as host_name, hosts.instance_id FROM services, hosts";
             $query_where = " WHERE (" . $selected_str . ') AND services.host_id = hosts.host_id';
             if (!$centreon_bg->is_admin) {
                 $query_where .= " AND EXISTS(SELECT * FROM centreon_acl WHERE centreon_acl.group_id IN (" . $centreon_bg->grouplistStr . ") AND hosts.host_id = centreon_acl.host_id 
@@ -149,11 +151,20 @@ class Centreon_OpenTickets_Rule
             }
             
             $DBRESULT = $db_storage->query($query . $query_where);
+            
+            $DBRESULT_graph = $db_storage->query("SELECT host_id, service_id, count(*) as num_metrics FROM index_data, metrics WHERE 
+                (" . $selected_str2 . ") AND index_data.id = metrics.index_id GROUP BY host_id, service_id");
+            $datas_graph = array();
+            while (($row = $DBRESULT_graph->fetchRow())) {
+                $datas_graph[$row['host_id'] . '.' . $row['service_id']] = $row['num_metrics'];
+            }
+            
             while (($row = $DBRESULT->fetchRow())) {
                 $row['service_state'] = $row['state'];
                 $row['state_str'] = $this->getServiceStateStr($row['state']);
                 $row['last_state_change_duration'] = CentreonDuration::toString(time() - $row['last_state_change']);
                 $row['last_hard_state_change_duration'] = CentreonDuration::toString(time() - $row['last_hard_state_change']);
+                $row['num_metrics'] = isset($datas_graph[$row['host_id'] . '.' . $row['service_id']]) ? $datas_graph[$row['host_id'] . '.' . $row['service_id']] : 0;
                 $selected['service_selected'][] = $row;
             }
         } else if ($cmd == 4) {

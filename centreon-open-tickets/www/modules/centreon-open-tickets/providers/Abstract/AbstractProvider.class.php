@@ -227,7 +227,9 @@ abstract class AbstractProvider {
 {if isset($add_graph) && $add_graph == 1}
     {if $service_selected|@count gt 0} 
         {foreach from=$service_selected item=service}
+            {if $service.num_metrics > 0}
 <br /><img src="http://{$centreon_url}/centreon/include/views/graphs/generateGraphs/generateImage.php?username={$centreon_username}&token={$centreon_token}&start={$centreon_start}&end={$centreon_end}&hostname={$service.host_name}&service={$service.description}" />
+            {/if}
         {/foreach}
     {/if}
 {/if}
