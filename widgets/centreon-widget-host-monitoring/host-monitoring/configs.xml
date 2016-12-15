@@ -4,7 +4,7 @@
     <email>contact@centreon.com</email>
     <website>http://www.centreon.com</website>
     <description>Widget for displaying host monitoring information</description>
-    <version>1.5.0</version>
+    <version>1.5.1</version>
     <keywords>centreon, widget, host, monitoring</keywords>
     <screenshot></screenshot>
     <thumbnail>./widgets/host-monitoring/resources/centreon-logo.png</thumbnail>
