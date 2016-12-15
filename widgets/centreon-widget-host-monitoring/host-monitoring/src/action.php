@@ -178,8 +178,12 @@ try {
                     break;
         }
         if ($command != "") {
+            $externalCommandMethod = 'set_process_command';
+            if (method_exists($externalCmd, 'setProcessCommand')) {
+                $externalCommandMethod = 'setProcessCommand';
+            }
             foreach ($hosts as $hostId) {
-                $externalCmd->setProcessCommand(sprintf($command, $hostObj->getHostName($hostId)), $hostObj->getHostPollerId($hostId));
+                $externalCmd->$externalCommandMethod(sprintf($command, $hostObj->getHostName($hostId)), $hostObj->getHostPollerId($hostId));
             }
             $externalCmd->write();
         }
