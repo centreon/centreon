@@ -77,8 +77,6 @@ $widgetId = $_REQUEST['widgetId'];
 $widgetObj = new CentreonWidget($centreon, $db);
 $preferences = $widgetObj->getWidgetPreferences($widgetId);
 
-// Default colors
-$stateColors = getColors($db);
 // Get status labels
 $stateLabels = getLabels();
 
@@ -226,7 +224,6 @@ while ($row = $res->fetchRow()) {
         } elseif ($key == "check_attempt") {
             $value = $value . "/" . $row['max_check_attempts'];
         } elseif ($key == "state") {
-            $data[$row['host_id']]['color'] = $stateColors[$value];
             $value = $stateLabels[$value];
         } elseif ($key == "output") {
             $value = substr($value, 0, $outputLength);
@@ -237,7 +234,7 @@ while ($row = $res->fetchRow()) {
             $value = CentreonUtils::escapeSecure($hostObj->replaceMacroInString($row['host_name'], $value));
         } elseif ($key == "criticality" && $value != '') {
             $critData = $criticality->getData($row["criticality_id"]);
-            $value = "<img src='../../img/media/".$media->getFilename($critData['icon_id'])."' title='".$critData["hc_name"]."' width='16' height='16'>";
+            $value = $critData["hc_name"];
         }
         $data[$row['host_id']][$key] = $value;
     }
