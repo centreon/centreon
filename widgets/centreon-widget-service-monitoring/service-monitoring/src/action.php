@@ -229,6 +229,10 @@ try {
                     break;
         }
         if ($command != "") {
+            $externalCommandMethod = 'set_process_command';
+            if (method_exists($externalCmd, 'setProcessCommand')) {
+                $externalCommandMethod = 'setProcessCommand';
+            }
             $hostArray = array();
             foreach ($selections as $selection) {
                 $tmp = explode(";", $selection);
@@ -244,7 +248,7 @@ try {
                 } else {
                     $cmdParam = $hostname;
                 }
-                $externalCmd->setProcessCommand(sprintf($command, $cmdParam), $hostObj->getHostPollerId($hostId));
+                $externalCmd->$externalCommandMethod(sprintf($command, $cmdParam), $hostObj->getHostPollerId($hostId));
             }
             $externalCmd->write();
         }

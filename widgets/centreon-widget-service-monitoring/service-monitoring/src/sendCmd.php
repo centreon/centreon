@@ -121,6 +121,10 @@ try {
         throw new Exception('Unknown command');
     }
     if ($command != "") {
+        $externalCommandMethod = 'set_process_command';
+        if (method_exists($externalCmd, 'setProcessCommand')) {
+            $externalCommandMethod = 'setProcessCommand';
+        }
         foreach ($selections as $selection) {
             $tmp = explode(";", $selection);
             if (count($tmp) != 2) {
@@ -132,22 +136,22 @@ try {
             $svcDesc = $svcObj->getServiceDesc($svcId);
             $pollerId = $hostObj->getHostPollerId($hostId);
             if ($cmd == 70 || $cmd == 74) {
-                $externalCmd->setProcessCommand(sprintf($commandSvc, $hostname, $svcDesc), $pollerId);
+                $externalCmd->$externalCommandMethod(sprintf($commandSvc, $hostname, $svcDesc), $pollerId);
                 if (isset($forceCmdSvc)) {
-                    $externalCmd->setProcessCommand(sprintf($forceCmdSvc, $hostname, $svcDesc), $pollerId);
+                    $externalCmd->$externalCommandMethod(sprintf($forceCmdSvc, $hostname, $svcDesc), $pollerId);
                 }
             } else {
-                $externalCmd->setProcessCommand(sprintf($command, $hostname), $pollerId);
+                $externalCmd->$externalCommandMethod(sprintf($command, $hostname), $pollerId);
             }
             if (isset($forceCmd)) {
-                $externalCmd->setProcessCommand(sprintf($forceCmd, $hostname), $pollerId);
+                $externalCmd->$externalCommandMethod(sprintf($forceCmd, $hostname), $pollerId);
             }
             if (isset($_POST['processServices'])) {
                 $services = $svcObj->getServiceId(null, $hostname);
                 foreach($services as $svcDesc => $svcId) {
-                    $externalCmd->setProcessCommand(sprintf($commandSvc, $hostname, $svcDesc), $pollerId);
+                    $externalCmd->$externalCommandMethod(sprintf($commandSvc, $hostname, $svcDesc), $pollerId);
                     if (isset($forceCmdSvc)) {
-                        $externalCmd->setProcessCommand(sprintf($forceCmdSvc, $hostname, $svcDesc), $pollerId);
+                        $externalCmd->$externalCommandMethod(sprintf($forceCmdSvc, $hostname, $svcDesc), $pollerId);
                     }
                 }
             }
