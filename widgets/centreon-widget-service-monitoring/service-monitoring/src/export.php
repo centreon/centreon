@@ -253,7 +253,6 @@ if (isset($preferences['order_by']) && $preferences['order_by'] != "") {
     $orderby = $preferences['order_by'];
 }
 
-
 $query .= "ORDER BY $orderby";
 $res = $dbb->query($query);
 $nbRows = $dbb->numberRows();
@@ -283,7 +282,7 @@ while ($row = $res->fetchRow()) {
             $value = urlencode($svcObj->replaceMacroInString($row['service_id'], $value));
         } elseif ($key == "criticality_id" && $value != '') {
             $critData = $criticality->getData($row["criticality_id"], 1);
-            $value = "<img src='../../img/media/".$media->getFilename($critData['icon_id'])."' title='".$critData["sc_name"]."' width='16' height='16'>";        
+            $value = $critData["sc_name"];        
         }
         $data[$row['host_id']."_".$row['service_id']][$key] = $value;
     }
