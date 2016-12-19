@@ -128,6 +128,15 @@ try {
             $template->assign('submitLabel', _("Acknowledge"));
             $template->display('acknowledge.ihtml');
         } elseif ($cmd == 75 || $cmd == 74) {
+
+            $dateStart = $centreon->CentreonGMT->getDate("Y/m/d", time(), $centreon->user->getMyGMT());
+            $hourStart = $centreon->CentreonGMT->getDate("H", time(), $centreon->user->getMyGMT());
+            $minuteStart = $centreon->CentreonGMT->getDate("i", time(), $centreon->user->getMyGMT());
+
+            $dateEnd = $centreon->CentreonGMT->getDate("Y/m/d", time() + 7200, $centreon->user->getMyGMT());
+            $hourEnd = $centreon->CentreonGMT->getDate("H", time() + 7200, $centreon->user->getMyGMT());
+            $minuteEnd = $centreon->CentreonGMT->getDate("i", time() + 7200, $centreon->user->getMyGMT());
+
             $template->assign('downtimeHostSvcLabel', _("Set downtime on services of hosts"));
             if ($cmd == 75) {
                 $title = _("Host Downtime");
@@ -156,13 +165,12 @@ try {
             $template->assign('daysLabel', _("days"));
             $template->assign('hoursLabel', _("hours"));
             $template->assign('minutesLabel', _("minutes"));
-            $template->assign('defaultStart', date('Y/m/d'));
-            $template->assign('defaultHourStart', date('H'));
-            $template->assign('defaultMinuteStart', date('i'));
-            $endTime = time() + 7200;
-            $template->assign('defaultEnd', date('Y/m/d', $endTime));
-            $template->assign('defaultHourEnd', date('H', $endTime));
-            $template->assign('defaultMinuteEnd', date('i', $endTime));
+            $template->assign('defaultStart', $dateStart);
+            $template->assign('defaultHourStart',$hourStart);
+            $template->assign('defaultMinuteStart', $minuteStart);
+            $template->assign('defaultEnd', $dateEnd);
+            $template->assign('defaultHourEnd', $hourEnd);
+            $template->assign('defaultMinuteEnd', $minuteEnd);
             $template->display('downtime.ihtml');
         }
     } else {
