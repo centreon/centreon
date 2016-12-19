@@ -124,25 +124,34 @@ $template->display('toolbar.ihtml');
 <script type='text/javascript'>
 var tab = new Array();
 var actions = "<?php echo $actions;?>";
-$(function() {
-    $(".toolbar").change(function() {
-	if (jQuery(this).val() != 0) {
-	  var checkValues = $("input:checked").map(function() {
-	      var tmp = $(this).attr('id').split("_");
-	      return tmp[1];
-	    }).get().join(",");
-	  if (checkValues != '') {
-	    var url = "./widgets/service-monitoring/src/action.php?selection="+checkValues+"&cmd="+jQuery(this).val();
-	    parent.jQuery('#widgetPopin').parent().remove();
-	    var popin = parent.jQuery('<div id="widgetPopin">');
-	    popin.centreonPopin({
-	      open:true,
-		  url:url
-		  });
-	  } else {
-	    alert("<?php echo _('Please select one or more items'); ?>"); 
-	    return false;
-	  }
+
+
+jQuery( function() {
+    jQuery(".toolbar").change( function() {
+        
+        if (jQuery(this).val() != 0) {
+            var checkValues = jQuery("input:checked")
+                .map( function() {
+                      var tmp = jQuery(this).attr('id').split("_");
+                      return tmp[1];
+                })
+                .get().join(",");
+
+            if (checkValues != '') {
+                var url = "./widgets/service-monitoring/src/action.php?selection="+checkValues+"&cmd="+jQuery(this).val();
+                parent.jQuery('#widgetPopin').parent().remove();
+                var popin = parent.jQuery('<div id="widgetPopin">');
+
+                popin.centreonPopin({
+                  open:true,
+                  url:url
+                  });
+
+            } else {
+                alert("<?php echo _('Please select one or more items'); ?>");
+            }
+
+            jQuery(this).val(0);
         }
     });
 });
