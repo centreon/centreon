@@ -102,24 +102,32 @@ var actions = "<?php echo $actions;?>";
 var widget_id = "<?php echo $widgetId; ?>";
 var sid = '<?php echo session_id();?>';
 
-$(function() {
-	$(".toolbar").change(function() {
+jQuery( function() {
+    jQuery(".toolbar").change( function() {
+
 	    if (jQuery(this).val() != 0) {
-    		var checkValues = $("input:checked").map(function() {
-    			var tmp = $(this).attr('id').split("_");
-    			return tmp[1];
-    		}).get().join(",");
+    		var checkValues = jQuery("input:checked")
+                .map( function() {
+                    var tmp = jQuery(this).attr('id').split("_");
+                    return tmp[1];
+    		    })
+                .get().join(",");
+
             if (checkValues != '') {
                 var url = "./widgets/host-monitoring/src/action.php?widgetId="+widgetId+"&sid="+sid+"&selection="+checkValues+"&cmd="+jQuery(this).val();
                 parent.jQuery('#WidgetDowntime').parent().remove();
                 var popin = parent.jQuery('<div id="WidgetDowntime">');
-                popin.centreonPopin({open:true,url:url});
+
+                popin.centreonPopin({
+                    open:true,
+                    url:url
+                });
 
            } else {
                alert("<?php echo _('Please select one or more items'); ?>");
-               return false;
            }
-           $(".toolbar").val(0);
+
+            jQuery(this).val(0);
         }
     });
 });
