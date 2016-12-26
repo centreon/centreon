@@ -285,6 +285,7 @@ jQuery(function() {
             toggleDurationField();
     });
     jQuery("#downtimestart,#downtimeend").datepicker({ dateFormat: 'yy/mm/dd' });
+    jQuery("#start_time,#end_time").timepicker();
 });
 
 function closeBox()

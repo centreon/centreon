@@ -11,16 +11,16 @@
 		<tr>
 			<td class="FormRowField">{$startLabel}<span style='color: red;'> *</span></td>
 			<td class="FormRowValue">
-				<input type='text' class="datepicker hasDatepicker" id='downtimestart' name='start' value='{$defaultStart}' size='9' />
-				<input id="start_time" size="5" class="timepicker hasTimepicker" name="start_time" type="text" value='{$defaultHourStart} : {$defaultMinuteStart}'>
+				<input type='text' class="datepicker" id='downtimestart' name='start' value='{$defaultStart}' size='9' />
+				<input id="start_time" size="5" class="timepicker" name="start_time" type="text" value='{$defaultHourStart} : {$defaultMinuteStart}'>
 			</td>
 		</tr>
 
 		<tr>
 			<td class="FormRowField">{$endLabel}<span style='color: red;'> *</span></td>
 			<td class="FormRowValue">
-				<input class="datepicker hasDatepicker" type='text' id='downtimeend' name='end' value='{$defaultEnd}' size='9' />
-				<input id="end_time" size="5" class="timepicker hasTimepicker" name="end_time" type="text" value='{$defaultHourEnd} : {$defaultMinuteEnd}'>
+				<input class="datepicker" type='text' id='downtimeend' name='end' value='{$defaultEnd}' size='9' />
+				<input id="end_time" size="5" class="timepicker" name="end_time" type="text" value='{$defaultHourEnd} : {$defaultMinuteEnd}'>
 			</td>
 		</tr>
 
