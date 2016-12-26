@@ -202,11 +202,6 @@ try {
 }
 ?>
 <div id='result'></div>
-<!--
-<script type="text/javascript" src="../../include/common/javascript/jquery/jquery.js"></script>
-<script type="text/javascript" src="../../include/common/javascript/jquery/jquery-ui.js"></script>
-<script type="text/javascript" src="../../include/common/javascript/widgetUtils.js"></script>
--->
 
 <script type='text/javascript'>
 var result = <?php echo $result;?>;
@@ -227,6 +222,7 @@ jQuery(function() {
 		toggleDurationField();
 	});
 	jQuery("#downtimestart,#downtimeend").datepicker({ dateFormat: 'yy/mm/dd' });
+	jQuery("#start_time,#end_time").timepicker();
 });
 
 function closeBox()
