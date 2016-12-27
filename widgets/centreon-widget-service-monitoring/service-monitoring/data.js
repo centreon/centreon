@@ -74,14 +74,14 @@ function loadToolBar()
 jQuery(function () {
     loadToolBar();
     loadPage();
-    $('.checkall').live('click', function () {
+    jQuery('.checkall').live('click', function () {
         var chck = this.checked;
-        $(this).parents().find(':checkbox').each(function () {
-            $(this).attr('checked', chck);
-            clickedCb[$(this).attr('id')] = chck;
+        jQuery(this).parents().find(':checkbox').each(function () {
+            jQuery(this).attr('checked', chck);
+            clickedCb[jquery(this).attr('id')] = chck;
         });
     });
-    $(".selection").live('click', function () {
-        clickedCb[$(this).attr('id')] = this.checked;
+    jQuery(".selection").live('click', function () {
+        clickedCb[jQuery(this).attr('id')] = this.checked;
     });
 });
