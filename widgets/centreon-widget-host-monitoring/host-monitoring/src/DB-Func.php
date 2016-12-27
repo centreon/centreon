@@ -34,10 +34,10 @@
  */
 
 function getColors($db) {
-  $stateColors = array(0 => "#19EE11",
-		       1 => "#F91E05",
+  $stateColors = array(0 => "#88b917",
+		       1 => "#e00b3d",
 		       2 => "#82CFD8",
-		       4 => "#2AD1D4");
+		       4 => "#2ad1d4");
 
   // Get configured colors
   $res = $db->query("SELECT `key`, `value` FROM `options` WHERE `key` LIKE 'color%'");
