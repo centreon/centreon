@@ -1,10 +1,10 @@
 <configs>
-        <title>Widget-engine-status</title>
+        <title>Engine-status</title>
         <author>Centreon</author>
         <email>contact@centreon.com</email>
         <website>http://www.centreon.com</website>
         <description> Widget for displaying Engine statistics</description>
-        <version>1.0.0</version>
+        <version>1.0.1</version>
         <keywords>centreon, widget, status, engine</keywords>
         <screenshot></screenshot>
         <thumbnail>./widgets/engine-status/resources/logo1.png</thumbnail>
@@ -12,9 +12,9 @@
         <autoRefresh>10</autoRefresh>
 	<preferences>
 	  <preference label="Name of Poller" name="poller" type="text" defaultValue="" header="Ressource"/>
-	  <preference label="Average latency" name="avg-l" type="text" defaultValue="1"/>
-	  <preference label="Max value latency" name="max-e" type="text" defaultValue="30"/>
-	  <preference label="Average execution time" name="avg-e" type="text" defaultValue="10"/>
+	  <preference label="Threshold for average latency (in second)" name="avg-l" type="text" defaultValue="1"/>
+	  <preference label="Threshold for max value latency (in second)" name="max-e" type="text" defaultValue="30"/>
+	  <preference label="Threshold for average execution time (in second)" name="avg-e" type="text" defaultValue="10"/>
 	  <preference labem="Auto Refresh" name="autoRefresh" defaultValue="30" type="integer"/>
 	</preferences>
 </configs>
