@@ -89,20 +89,20 @@
 	       	   		  <tr class="list_down">
 				      <td class="ListColLeft">services</td>
 				      <td class="ListColCenter">{$dataLat[0].s_moy}s 
-				  {if $dataLat[0].h_max > $max_e}
+				  {if $dataLat[0].s_max > $max_e}
  			    	      <span style="background-color: #ffaec1;">(Max : {$dataLat[0].s_max}s)</span></td>
 			    	  {else}
-					(Max : {$dataLat[0].h_max}s)</td>
+					(Max : {$dataLat[0].s_max}s)</td>
 			          {/if}
                    		  </tr>
 				  {else}
 	      			  <tr class="list_two">
 				      <td class="ListColLeft">services</td>
 				      <td class="ListColCenter">{$dataLat[0].s_moy}s 
-			 	      {if $dataLat[0].h_max > $max_e}
+			 	      {if $dataLat[0].s_max > $max_e}
  			    	      	  <span style="background-color: #ffaec1;">(Max : {$dataLat[0].s_max}s)</span></td>
 			              {else}
-					(Max : {$dataLat[0].h_max}s)</td>
+					(Max : {$dataLat[0].s_max}s)</td>
 			              {/if}
               			 </tr>
 				      {/if}
