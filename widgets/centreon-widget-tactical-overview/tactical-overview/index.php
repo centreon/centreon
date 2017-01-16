@@ -46,7 +46,8 @@ require_once $centreon_path . 'www/class/centreonHost.class.php';
 //load Smarty
 require_once $centreon_path . 'GPL_LIB/Smarty/libs/Smarty.class.php';
 
-session_start();
+CentreonSession::session_start(1);
+
 if (!isset($_SESSION['centreon']) || !isset($_REQUEST['widgetId'])) {
     exit;
 }
@@ -54,24 +55,24 @@ $centreon = $_SESSION['centreon'];
 $widgetId = $_REQUEST['widgetId'];
 
 try {
-  global $pearDB;
+    global $pearDB;
 
-  $db_centreon = new CentreonDB();
-  $db = new CentreonDB("centstorage");
-  $pearDB = $db_centreon;
+    $db_centreon = new CentreonDB();
+    $db = new CentreonDB("centstorage");
+    $pearDB = $db_centreon;
 
-  if ($centreon->user->admin == 0) {
-    $access = new CentreonACL($centreon->user->get_id());
-    $grouplist = $access->getAccessGroups();
-    $grouplistStr = $access->getAccessGroupsString();
-  }
+    if ($centreon->user->admin == 0) {
+        $access = new CentreonACL($centreon->user->get_id());
+        $grouplist = $access->getAccessGroups();
+        $grouplistStr = $access->getAccessGroupsString();
+    }
 
-  $widgetObj = new CentreonWidget($centreon, $db_centreon);
-  $preferences = $widgetObj->getWidgetPreferences($widgetId);
-  $autoRefresh = 0;
-  if (isset($preferences['refresh_interval'])) {
-    $autoRefresh = $preferences['refresh_interval'];
-  }
+    $widgetObj = new CentreonWidget($centreon, $db_centreon);
+    $preferences = $widgetObj->getWidgetPreferences($widgetId);
+    $autoRefresh = 0;
+    if (isset($preferences['refresh_interval'])) {
+        $autoRefresh = $preferences['refresh_interval'];
+    }
 } catch (Exception $e) {
     echo $e->getMessage() . "<br/>";
     exit;
@@ -82,11 +83,9 @@ $template = new Smarty();
 $template = initSmartyTplForPopup($path, $template, "./", $centreon_path);
 
 if (isset($preferences['object_type']) && $preferences['object_type'] === "hosts") {
-  require_once 'src/hosts_status.php';
+    require_once 'src/hosts_status.php';
 }else if (isset($preferences['object_type']) && $preferences['object_type'] === "services") {
-  require_once 'src/services_status.php';
+    require_once 'src/services_status.php';
 }else if (isset($preferences['object_type']) && $preferences['object_type'] == "") {
-  require_once 'src/hosts_status.php';
+    require_once 'src/hosts_status.php';
 }
-
-?>

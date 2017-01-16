@@ -85,7 +85,6 @@ while ($row = $res->fetchRow()) {
   $dataPEND[] = $row;
 }
 
-
 $autoRefresh = $preferences['autoRefresh'];
 
 $template->assign('preferences', $preferences);
@@ -95,5 +94,5 @@ $template->assign('dataPEND', $dataPEND);
 $template->assign('dataUP', $dataUP);
 $template->assign('dataUN', $dataUN);
 $template->assign('dataDO', $dataDO);
+
 $template->display('hosts_status.ihtml');
-?>

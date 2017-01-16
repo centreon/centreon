@@ -118,5 +118,5 @@ $template->assign('dataOK', $dataOK);
 $template->assign('dataWA', $dataWA);
 $template->assign('dataCRI', $dataCRI);
 $template->assign('dataUNK', $dataUNK);
+
 $template->display('services_status.ihtml');
-?>
