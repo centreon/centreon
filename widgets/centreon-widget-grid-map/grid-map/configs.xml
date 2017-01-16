@@ -4,7 +4,7 @@
     <email>contact@centreon.com</email>
     <website>http://www.centreon.com</website>
     <description>Widget for displaying status' services</description>
-        <version>1.1.0</version>
+        <version>1.1.1</version>
         <keywords>centreon, widget, Grid-map</keywords>
         <screenshot></screenshot>
         <thumbnail>./widgets/Grid-map/resources/logo1.png</thumbnail>

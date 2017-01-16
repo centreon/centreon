@@ -50,7 +50,7 @@ require_once $centreon_path . 'www/class/centreonHost.class.php';
 /* load smarty Class */
 require_once $centreon_path . 'GPL_LIB/Smarty/libs/Smarty.class.php';
 
-session_start();
+CentreonSession::start(1);
 
 if (!isset($_SESSION['centreon']) || !isset($_REQUEST['widgetId'])) {
     exit;
@@ -104,77 +104,76 @@ $data_check = array();
 $inc = 0;
 
 if ($preferences['host_group']) {
+    /* Query 1 */
+    $query1 = "SELECT DISTINCT T1.name, T2.host_id " .
+              "FROM hosts T1, hosts_hostgroups T2 " .($centreon->user->admin == 0 ? ", centreon_acl acl " : ""). 
+              "WHERE T1.host_id = T2.host_id ".
+              "AND T1.enabled = 1 ".
+              "AND T2.hostgroup_id = ".$preferences['host_group'].
+              ($centreon->user->admin == 0 ? " AND T1.host_id = acl.host_id AND T2.host_id = acl.host_id AND acl.group_id IN (" .($grouplistStr != "" ? $grouplistStr : 0).")" : "").
+              " ORDER BY T1.name";
 
-/* Query 1 */
-$query1 = "SELECT DISTINCT T1.name, T2.host_id " .
-          "FROM hosts T1, hosts_hostgroups T2 " .($centreon->user->admin == 0 ? ", centreon_acl acl " : ""). 
-          "WHERE T1.host_id = T2.host_id ".
-          "AND T1.enabled = 1 ".
-          "AND T2.hostgroup_id = ".$preferences['host_group'].
-          ($centreon->user->admin == 0 ? " AND T1.host_id = acl.host_id AND T2.host_id = acl.host_id AND acl.group_id IN (" .($grouplistStr != "" ? $grouplistStr : 0).")" : "").
-          " ORDER BY T1.name";
-
-/* Query 2 */
-$query2 = "SELECT distinct T1.description ".
-          "FROM services T1 " .($centreon->user->admin == 0 ? ", centreon_acl acl " : "").
-          "WHERE T1.enabled = 1 ".
-          ($centreon->user->admin == 0 ? " AND T1.service_id = acl.service_id AND acl.group_id IN (" .($grouplistStr != "" ? $grouplistStr : 0).") AND (" : " AND (");
-foreach (explode(",", $preferences['service']) as $elem) {
-    if (!$inc) {
-        $query2 .= "T1.description LIKE '$elem'";
-    } else {
-        $query2 .= " OR T1.description like '$elem'";
-    }
-    $inc++;
-}
-$query2 .= ");";
-
-/* Query 3 */
-$query3 = "SELECT DISTINCT T1.service_id, T1.description, T1.state, T1.host_id ".
-          "FROM services T1 " .($centreon->user->admin == 0 ? ", centreon_acl acl " : "").
-          "WHERE T1.enabled = 1 " .
-          "AND T1.description NOT LIKE 'ba_%' AND T1.description NOT LIKE 'meta_%' ".
-          ($centreon->user->admin == 0 ? " AND T1.service_id = acl.service_id AND acl.group_id IN (" .($grouplistStr != "" ? $grouplistStr : 0).")" : "");
-$inc = 0;
-
-$services = explode(",", $preferences['service']);
-if (count($services)) {
-    $query3 .= " AND (";
-    foreach ($services as $elem) {
+    /* Query 2 */
+    $query2 = "SELECT distinct T1.description ".
+              "FROM services T1 " .($centreon->user->admin == 0 ? ", centreon_acl acl " : "").
+              "WHERE T1.enabled = 1 ".
+              ($centreon->user->admin == 0 ? " AND T1.service_id = acl.service_id AND acl.group_id IN (" .($grouplistStr != "" ? $grouplistStr : 0).") AND (" : " AND (");
+    foreach (explode(",", $preferences['service']) as $elem) {
         if (!$inc) {
-            $query3 .= "T1.description LIKE '$elem'";
+            $query2 .= "T1.description LIKE '$elem'";
         } else {
-            $query3 .= " OR T1.description like '$elem'";
+            $query2 .= " OR T1.description like '$elem'";
         }
         $inc++;
     }
-    $query3 .= ")";
-}
+    $query2 .= ");";
 
-/* Get host listing */
-$res = $db->query($query1);
-while ($row = $res->fetchRow()) {
-    $data[] = $row;
-}
+    /* Query 3 */
+    $query3 = "SELECT DISTINCT T1.service_id, T1.description, T1.state, T1.host_id ".
+              "FROM services T1 " .($centreon->user->admin == 0 ? ", centreon_acl acl " : "").
+              "WHERE T1.enabled = 1 " .
+              "AND T1.description NOT LIKE 'ba_%' AND T1.description NOT LIKE 'meta_%' ".
+              ($centreon->user->admin == 0 ? " AND T1.service_id = acl.service_id AND acl.group_id IN (" .($grouplistStr != "" ? $grouplistStr : 0).")" : "");
+    $inc = 0;
 
-/* Get service listing */
-$res2 = $db->query($query2);
-while ($row = $res2->fetchRow()) {
-    $data_service[$row['description']] = array(
-					     'description' => $row['description'],
-					     'hosts' => array(),
-					     'hostsStatus' => array()
-					     );
-}
-
-/* Get host service statuses */
-$res3 = $db->query($query3);
-while ($row = $res3->fetchRow()) {
-    if (isset($data_service[$row['description']])) {
-        $data_service[$row['description']]['hosts'][] = $row['host_id'];
-        $data_service[$row['description']]['hostsStatus'][$row['host_id']] = $colors[$row['state']];
+    $services = explode(",", $preferences['service']);
+    if (count($services)) {
+        $query3 .= " AND (";
+        foreach ($services as $elem) {
+            if (!$inc) {
+                $query3 .= "T1.description LIKE '$elem'";
+            } else {
+                $query3 .= " OR T1.description like '$elem'";
+            }
+            $inc++;
+        }
+        $query3 .= ")";
     }
-}
+
+    /* Get host listing */
+    $res = $db->query($query1);
+    while ($row = $res->fetchRow()) {
+        $data[] = $row;
+    }
+
+    /* Get service listing */
+    $res2 = $db->query($query2);
+    while ($row = $res2->fetchRow()) {
+        $data_service[$row['description']] = array(
+                             'description' => $row['description'],
+                             'hosts' => array(),
+                             'hostsStatus' => array()
+                             );
+    }
+
+    /* Get host service statuses */
+    $res3 = $db->query($query3);
+    while ($row = $res3->fetchRow()) {
+        if (isset($data_service[$row['description']])) {
+            $data_service[$row['description']]['hosts'][] = $row['host_id'];
+            $data_service[$row['description']]['hostsStatus'][$row['host_id']] = $colors[$row['state']];
+        }
+    }
 
 }
 
