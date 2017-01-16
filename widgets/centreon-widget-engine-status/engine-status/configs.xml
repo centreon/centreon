@@ -4,7 +4,7 @@
         <email>contact@centreon.com</email>
         <website>http://www.centreon.com</website>
         <description> Widget for displaying Engine statistics</description>
-        <version>1.0.1</version>
+        <version>1.0.2</version>
         <keywords>centreon, widget, status, engine</keywords>
         <screenshot></screenshot>
         <thumbnail>./widgets/engine-status/resources/logo1.png</thumbnail>

@@ -46,7 +46,7 @@ require_once $centreon_path . 'www/class/centreonHost.class.php';
 //load smarty
 require_once $centreon_path . 'GPL_LIB/Smarty/libs/Smarty.class.php';
 
-session_start();
+CentreonSession::session_start(1);
 
 if (!isset($_SESSION['centreon']) || !isset($_REQUEST['widgetId'])) {
     exit;
@@ -108,7 +108,6 @@ while ($row = $res->fetchRow()) {
   $dataLat[] = $row;
 }
 
-
 $queryEx = "Select Max(T1.execution_time) as h_max, AVG(T1.execution_time) as h_moy, Max(T2.execution_time) as s_max, AVG(T2.execution_time) as s_moy 
             from hosts T1, services T2  
             where T1.instance_id = ".$idP." and T1.host_id = T2.host_id and T2.enabled = '1';";
@@ -149,9 +148,6 @@ $avg_l = $preferences['avg-l'];
 $avg_e = $preferences['avg-e'];
 $max_e = $preferences['max-e'];
 
-
-
-
 $template->assign('avg_l', $avg_l);
 $template->assign('avg_e', $avg_e);
 $template->assign('widgetId', $widgetId);
@@ -163,4 +159,3 @@ $template->assign('dataSts', $dataSts);
 $template->assign('dataEx', $dataEx);
 $template->assign('dataLat', $dataLat);
 $template->display('engine-status.ihtml');
-?>
