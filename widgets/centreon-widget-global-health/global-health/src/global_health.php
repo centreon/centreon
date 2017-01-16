@@ -31,9 +31,6 @@
  *
  * For more information : contact@centreon.com
  *
- * SVN : $URL$
- * SVN : $Id$
- *
  */
 
 require_once "../../require.php";
@@ -52,7 +49,7 @@ require_once $centreon_path . 'www/class/centreonCriticality.class.php';
 
 require_once $centreon_path ."GPL_LIB/Smarty/libs/Smarty.class.php";
 
-session_start();
+CentreonSession::session_start(1);
 if (!isset($_SESSION['centreon']) || !isset($_REQUEST['widgetId'])) {
     exit;
 }
@@ -240,8 +237,6 @@ if(isset($preferences['hosts_services']) && $preferences['hosts_services'] == "h
 	/**
 	 *  create the dataset
 	 */
-    
-
 	foreach ($info as $key => $value) {
         $serviceArray[$tabSatusService[$key]]['value'] = $value['count'];
 		$valuePercent = round($value['count'] / $counter * 100, 2);
@@ -249,10 +244,8 @@ if(isset($preferences['hosts_services']) && $preferences['hosts_services'] == "h
         $serviceArray[$tabSatusService[$key]]['percent'] = $valuePercent;
         $serviceArray[$tabSatusService[$key]]['acknowledged'] = $value['acknowledged'];
         $serviceArray[$tabSatusService[$key]]['downtime'] = $value['downtime'];
-        
-        
-//        $serviceArray[$tabSatusService[$key]]['color'] = $oreon->optGen["color_".strtolower($tabSatusService[$key])];
-	}
+ 	}
+ 
     $template->assign("services", $serviceArray);
     
     /**
@@ -260,7 +253,3 @@ if(isset($preferences['hosts_services']) && $preferences['hosts_services'] == "h
 	 */
 	$template->display("global_health_service.ihtml");
 }
-
-
-	
-?>
