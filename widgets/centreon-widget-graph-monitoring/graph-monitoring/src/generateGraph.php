@@ -31,9 +31,6 @@
  *
  * For more information : contact@centreon.com
  *
- * SVN : $URL: http://svn.centreon.com/branches/centreon-2.3.x/www/include/views/graphs/generateGraphs/generateImage.php $
- * SVN : $Id: generateImage.php 12494 2011-09-15 07:28:16Z shotamchay $
- *
  */
 
 /**
@@ -54,7 +51,7 @@ require_once $centreon_path . 'www/class/centreonExternalCommand.class.php';
 require_once $centreon_path . 'www/class/centreonDB.class.php';
 require_once $centreon_path . 'www/class/centreonGraph.class.php';
 
-session_start();
+CentreonSession::session_start(1);
 
 if (!isset($_GET['service'])) {
     exit;

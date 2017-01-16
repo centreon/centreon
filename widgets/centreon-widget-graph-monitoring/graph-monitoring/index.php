@@ -46,12 +46,10 @@ require_once $centreon_path . 'GPL_LIB/Smarty/libs/Smarty.class.php';
 
 $pearDB = new CentreonDB();
 
-if (!isset($_SESSION["centreon"])) {
-    CentreonSession::start();
-    if (!CentreonSession::checkSession(session_id(), $pearDB)) {
-        print "Bad Session";
-        exit();
-    }
+CentreonSession::session_start(1);
+if (!CentreonSession::checkSession(session_id(), $pearDB)) {
+    print "Bad Session";
+    exit();
 }
 
 if (!isset($_REQUEST['widgetId'])) {
@@ -80,47 +78,47 @@ try {
     exit;
 }
 
-    if ($centreon->user->admin == 0) {
-        $access = new CentreonACL($centreon->user->get_id());
-        $grouplist = $access->getAccessGroups();
-        $grouplistStr = $access->getAccessGroupsString();
+if ($centreon->user->admin == 0) {
+    $access = new CentreonACL($centreon->user->get_id());
+    $grouplist = $access->getAccessGroups();
+    $grouplistStr = $access->getAccessGroupsString();
+}
+
+$path = $centreon_path . 'www/widgets/graph-monitoring/src/';
+$template = new Smarty();
+$template = initSmartyTplForPopup($path, $template, "/", $centreon_path);
+
+/*
+* Check ACL
+*/
+
+$acl = 1;
+if (isset($tab[0]) && isset($tab[1]) && $centreon->user->admin == 0 ) {
+    $query = "SELECT host_id
+            FROM centreon_acl
+            WHERE host_id = ".$dbAcl->escape($tab[0])."
+            AND service_id = ".$dbAcl->escape($tab[1])."
+            AND group_id IN (".$grouplistStr.")";
+    $res = $dbAcl->query($query);
+    if (!$res->numRows()) {
+        $acl = 0;
     }
+}
 
-    $path = $centreon_path . 'www/widgets/graph-monitoring/src/';
-    $template = new Smarty();
-    $template = initSmartyTplForPopup($path, $template, "/", $centreon_path);
+if ($acl === 0){
+    $servicePreferences = '';
+} elseif (false === isset($preferences['service']) || trim($preferences['service']) === ''){
+    $servicePreferences = "<div class='update' style='text-align:center;margin-left: auto;margin-right: auto;width:350px;'>"._("Please select a resource first")."</div>";
+} elseif(false === isset($preferences['graph_period'])|| trim($preferences['graph_period']) === ''){
+    $servicePreferences = "<div class='update' style='text-align:center;margin-left: auto;margin-right: auto;width:350px;'>"._("Please select a graph period")."</div>";
+}
 
-    /*
-    * Check ACL
-    */
+$autoRefresh = $preferences['refresh_interval'];
+$template->assign('widgetId', $widgetId);
+$template->assign('preferences', $preferences);
+$template->assign('interval', $preferences['graph_period']);
+$template->assign('autoRefresh', $autoRefresh);
+$template->assign('graphId', str_replace('-', '_', $preferences['service']));
+$template->assign('servicePreferences', $servicePreferences);
 
-    $acl = 1;
-    if (isset($tab[0]) && isset($tab[1]) && $centreon->user->admin == 0 ) {
-        $query = "SELECT host_id
-                FROM centreon_acl
-                WHERE host_id = ".$dbAcl->escape($tab[0])."
-                AND service_id = ".$dbAcl->escape($tab[1])."
-                AND group_id IN (".$grouplistStr.")";
-        $res = $dbAcl->query($query);
-        if (!$res->numRows()) {
-            $acl = 0;
-        }
-    }
-
-    if ($acl === 0){
-        $servicePreferences = '';
-    } elseif (false === isset($preferences['service']) || trim($preferences['service']) === ''){
-        $servicePreferences = "<div class='update' style='text-align:center;margin-left: auto;margin-right: auto;width:350px;'>"._("Please select a resource first")."</div>";
-    } elseif(false === isset($preferences['graph_period'])|| trim($preferences['graph_period']) === ''){
-        $servicePreferences = "<div class='update' style='text-align:center;margin-left: auto;margin-right: auto;width:350px;'>"._("Please select a graph period")."</div>";
-    }
-
-    $autoRefresh = $preferences['refresh_interval'];
-    $template->assign('widgetId', $widgetId);
-    $template->assign('preferences', $preferences);
-    $template->assign('interval', $preferences['graph_period']);
-    $template->assign('autoRefresh', $autoRefresh);
-    $template->assign('graphId', str_replace('-', '_', $preferences['service']));
-    $template->assign('servicePreferences', $servicePreferences);
-
-    $template->display('index.ihtml');
+$template->display('index.ihtml');
