@@ -46,7 +46,7 @@ require_once $centreon_path . 'GPL_LIB/Smarty/libs/Smarty.class.php';
 
 $pearDB = new CentreonDB();
 
-CentreonSession::session_start(1);
+CentreonSession::start(1);
 if (!CentreonSession::checkSession(session_id(), $pearDB)) {
     print "Bad Session";
     exit();

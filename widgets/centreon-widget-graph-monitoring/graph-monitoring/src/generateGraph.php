@@ -51,7 +51,7 @@ require_once $centreon_path . 'www/class/centreonExternalCommand.class.php';
 require_once $centreon_path . 'www/class/centreonDB.class.php';
 require_once $centreon_path . 'www/class/centreonGraph.class.php';
 
-CentreonSession::session_start(1);
+CentreonSession::start(1);
 
 if (!isset($_GET['service'])) {
     exit;
