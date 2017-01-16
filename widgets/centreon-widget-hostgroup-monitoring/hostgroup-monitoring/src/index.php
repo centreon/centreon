@@ -43,7 +43,8 @@ require_once $centreon_path . 'www/class/centreonUtils.class.php';
 require_once $centreon_path . 'www/class/centreonACL.class.php';
 require_once $centreon_path . 'www/widgets/hostgroup-monitoring/src/class/HostgroupMonitoring.class.php';
 
-session_start();
+CentreonSession::session_start(1);
+
 if (!isset($_SESSION['centreon']) || !isset($_REQUEST['widgetId']) || !isset($_REQUEST['page'])) {
     exit;
 }
