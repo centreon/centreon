@@ -60,7 +60,7 @@ try {
 }
 ?>
 <html>
-	<style type="text/css">
+    <style type="text/css">
          body{ margin:0; padding:0;}
          div#actionBar { position:absolute; top:0; left:0; width:100%; height:25px; background-color: #FFFFFF; }
          @media screen { body>div#actionBar { position: fixed; } }
@@ -74,7 +74,7 @@ try {
     	<link href="../../Themes/Centreon-2/jquery-ui/jquery-ui-centreon.css" rel="stylesheet" type="text/css"/>
     	<script type="text/javascript" src="../../include/common/javascript/jquery/jquery.js"></script>
     	<script type="text/javascript" src="../../include/common/javascript/jquery/jquery-ui.js"></script>
-		<script type="text/javascript" src="../../include/common/javascript/widgetUtils.js"></script>
+        <script type="text/javascript" src="../../include/common/javascript/widgetUtils.js"></script>
     </head>
     <body>
 	<iframe id="test" width="100%" height="900px"></iframe>
@@ -83,10 +83,22 @@ try {
 var widgetId = <?php echo $widgetId; ?>;
 var website = '<?php echo $preferences['website'];?>';
 var frameheight = '<?php echo $preferences['frameheight'];?>';
+var autoRefresh = '<?php echo $preferences['refresh_interval'];?>';
+var timeout;
 
+function loadPage() {
+    jQuery("#test").attr('src', website);
+    parent.iResize(window.name, frameheight);
+
+    if (autoRefresh) {
+        if (timeout) {
+            clearTimeout(timeout);
+        }
+        timeout = setTimeout(loadPage, (autoRefresh * 1000));
+    }
+}
 jQuery(function() {
-    	jQuery("#test").attr('src', website);
-	parent.iResize(window.name, frameheight);
+    loadPage();
 });
 </script>
 </html>
