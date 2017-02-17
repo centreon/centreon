@@ -1,6 +1,6 @@
 <?php
 /*
- * Copyright 2005-2010 MERETHIS
+ * Copyright 2005-2015 Centreon
  * Centreon is developped by : Julien Mathis and Romain Le Merlus under
  * GPL Licence 2.0.
  *
@@ -19,20 +19,17 @@
  * combined work based on this program. Thus, the terms and conditions of the GNU
  * General Public License cover the whole combination.
  *
- * As a special exception, the copyright holders of this program give MERETHIS
+ * As a special exception, the copyright holders of this program give Centreon
  * permission to link this program with independent modules to produce an executable,
  * regardless of the license terms of these independent modules, and to copy and
- * distribute the resulting executable under terms of MERETHIS choice, provided that
- * MERETHIS also meet, for each linked independent module, the terms  and conditions
+ * distribute the resulting executable under terms of Centreon choice, provided that
+ * Centreon also meet, for each linked independent module, the terms  and conditions
  * of the license of that module. An independent module is a module which is not
  * derived from this program. If you modify this program, you may extend this
  * exception to your version of the program, but you are not obliged to do so. If you
  * do not wish to do so, delete this exception statement from your version.
  *
  * For more information : contact@centreon.com
- *
- * SVN : $URL:$
- * SVN : $Id:$
  *
  */
 
@@ -90,22 +87,19 @@
 	 * Return if a host is already use in DSM
 	 *
 	 * @param int $hostId The host id
-	 * @param int $poolId The pool id or null if not poll id
+	 * @param string $poolPrefix The pool prefix
 	 * @return bool
 	 */
-	function hostUsed($hostId, $poolId = null)
+	function hostPoolPrefixUsed($hostId, $poolPrefix, $poolId=null)
 	{
 	    global $pearDB;
 
-	    $query = 'SELECT COUNT(pool_id) as nb FROM mod_dsm_pool WHERE pool_host_id = ' . $hostId;
-	    if (!is_null($poolId)) {
-	        $query .= ' AND pool_id != ' . $poolId;
-	    }
+	    $query = "SELECT COUNT(pool_id) as nb FROM mod_dsm_pool WHERE pool_prefix = '" . $poolPrefix . "'";
+        if (!is_null($poolId)) {
+            $query .= " AND pool_id != " . $poolId;
+        }
 	    $res = $pearDB->query($query);
 	    if (PEAR::isError($res)) {
-	        /*
-	         * For integrity
-	         */
 	        return true;
 	    }
 	    $row = $res->fetchRow();
@@ -407,8 +401,8 @@
 			$ret = $form->getSubmitValues();
 		}
 
-		if (hostUsed($ret['pool_host_id'])) {
-		    throw new Exception(_('Hosts is already use by another pool'));
+		if (hostPoolPrefixUsed($ret['pool_host_id'], $ret['pool_prefix'])) {
+		    throw new Exception(_('Hosts is already use that pool prefix'));
 		}
 
 		$rq = "INSERT INTO `mod_dsm_pool` ( " .
@@ -416,13 +410,13 @@
 				"`pool_activate`,`pool_service_template_id`) " .
 				"VALUES ( ";
 		$rq .= "NULL, ";
-		isset($ret["pool_name"]) && $ret["pool_name"] != NULL ? $rq .= "'".$ret["pool_name"]."', ": $rq .= "NULL, ";
+		isset($ret["pool_name"]) && $ret["pool_name"] != NULL ? $rq .= "'". $pearDB->escape($ret["pool_name"]) ."', ": $rq .= "NULL, ";
 		isset($ret["pool_host_id"]) && $ret["pool_host_id"] != NULL ? $rq .= "'".$ret["pool_host_id"]."', ": $rq .= "NULL, ";
-		isset($ret["pool_description"]) && $ret["pool_description"] != NULL ? $rq .= "'".htmlentities($ret["pool_description"], ENT_QUOTES)."', ": $rq .= "NULL, ";
-		isset($ret["pool_number"]) && $ret["pool_number"] != NULL ? $rq .= "'".htmlentities($ret["pool_number"], ENT_QUOTES)."', ": $rq .= "NULL, ";
-		isset($ret["pool_prefix"]) && $ret["pool_prefix"] != NULL ? $rq .= "'".htmlentities($ret["pool_prefix"], ENT_QUOTES)."', ": $rq .= "NULL, ";
-		isset($ret["pool_cmd_id"]) && $ret["pool_cmd_id"] != NULL ? $rq .= "'".htmlentities($ret["pool_cmd_id"], ENT_QUOTES)."', ": $rq .= "NULL, ";
-		isset($ret["pool_args"]) && $ret["pool_args"] != NULL ? $rq .= "'".htmlentities($ret["pool_args"], ENT_QUOTES)."', ": $rq .= "NULL, ";
+		isset($ret["pool_description"]) && $ret["pool_description"] != NULL ? $rq .= "'". $pearDB->escape($ret["pool_description"]) ."', ": $rq .= "NULL, ";
+		isset($ret["pool_number"]) && $ret["pool_number"] != NULL ? $rq .= "'". $ret["pool_number"] ."', ": $rq .= "NULL, ";
+		isset($ret["pool_prefix"]) && $ret["pool_prefix"] != NULL ? $rq .= "'". $ret["pool_prefix"] ."', ": $rq .= "NULL, ";
+		isset($ret["pool_cmd_id"]) && $ret["pool_cmd_id"] != NULL ? $rq .= "'". $ret["pool_cmd_id"] ."', ": $rq .= "NULL, ";
+		isset($ret["pool_args"]) && $ret["pool_args"] != NULL ? $rq .= "'". $pearDB->escape($ret["pool_args"]) ."', ": $rq .= "NULL, ";
 		isset($ret["pool_activate"]["pool_activate"]) && $ret["pool_activate"]["pool_activate"] != NULL ? $rq .= "'".$ret["pool_activate"]["pool_activate"]."', ": $rq .= "NULL, ";
 		isset($ret["pool_service_template_id"]) && $ret["pool_service_template_id"] != NULL ? $rq .= "'".$ret["pool_service_template_id"]."' ": $rq .= "NULL ";
 		$rq .= ")";
@@ -471,29 +465,29 @@
 		/*
 		 * Validate if host is not already use
 		 */
-		if (hostUsed($ret['pool_host_id'], $pool_id)) {
-		    throw new Exception(_('Hosts is already use by another pool'));
+		if (hostPoolPrefixUsed($ret['pool_host_id'], $ret['pool_prefix'], $pool_id)) {
+		    throw new Exception(_('Hosts is already use that pool prefix'));
 		}
 
 		$rq = "UPDATE mod_dsm_pool SET ";
 		$rq .=	"pool_name = ";
-		isset($ret["pool_name"]) && $ret["pool_name"] != NULL ? $rq .= "'".htmlentities($ret["pool_name"], ENT_QUOTES)."', ": $rq .= "NULL, ";
+		isset($ret["pool_name"]) && $ret["pool_name"] != NULL ? $rq .= "'". $pearDB->escape($ret["pool_name"]) ."', ": $rq .= "NULL, ";
 		$rq .=	"pool_description = ";
-		isset($ret["pool_description"]) && $ret["pool_description"] != NULL ? $rq .= "'".htmlentities($ret["pool_description"], ENT_QUOTES)."', ": $rq .= "NULL, ";
+		isset($ret["pool_description"]) && $ret["pool_description"] != NULL ? $rq .= "'". $pearDB->escape($ret["pool_description"]) ."', ": $rq .= "NULL, ";
 		$rq .=	"pool_host_id = ";
-		isset($ret["pool_host_id"]) && $ret["pool_host_id"] != NULL ? $rq .= "'".htmlentities($ret["pool_host_id"], ENT_QUOTES)."', ": $rq .= "NULL, ";
+		isset($ret["pool_host_id"]) && $ret["pool_host_id"] != NULL ? $rq .= "'". $ret["pool_host_id"] ."', ": $rq .= "NULL, ";
 		$rq .=	"pool_number = ";
-		isset($ret["pool_number"]) && $ret["pool_number"] != NULL ? $rq .= "'".htmlentities($ret["pool_number"], ENT_QUOTES)."', ": $rq .= "NULL, ";
+		isset($ret["pool_number"]) && $ret["pool_number"] != NULL ? $rq .= "'". $ret["pool_number"] ."', ": $rq .= "NULL, ";
 		$rq .=	"pool_prefix = ";
-		isset($ret["pool_prefix"]) && $ret["pool_prefix"] != NULL ? $rq .= "'".htmlentities($ret["pool_prefix"], ENT_QUOTES)."', ": $rq .= "NULL, ";
+		isset($ret["pool_prefix"]) && $ret["pool_prefix"] != NULL ? $rq .= "'". $ret["pool_prefix"] ."', ": $rq .= "NULL, ";
 		$rq .=	"pool_cmd_id = ";
-		isset($ret["pool_cmd_id"]) && $ret["pool_cmd_id"] != NULL ? $rq .= "'".htmlentities($ret["pool_cmd_id"], ENT_QUOTES)."', ": $rq .= "NULL, ";
+		isset($ret["pool_cmd_id"]) && $ret["pool_cmd_id"] != NULL ? $rq .= "'". $ret["pool_cmd_id"] ."', ": $rq .= "NULL, ";
 		$rq .=	"pool_args = ";
-		isset($ret["pool_args"]) && $ret["pool_args"] != NULL ? $rq .= "'".htmlentities($ret["pool_args"], ENT_QUOTES)."', ": $rq .= "NULL, ";
+		isset($ret["pool_args"]) && $ret["pool_args"] != NULL ? $rq .= "'". $pearDB->escape($ret["pool_args"]) ."', ": $rq .= "NULL, ";
 		$rq .=	"pool_activate = ";
-		isset($ret["pool_activate"]["pool_activate"]) && $ret["pool_activate"]["pool_activate"] != NULL ? $rq .= "'".htmlentities($ret["pool_activate"]["pool_activate"], ENT_QUOTES)."', ": $rq .= "NULL, ";
+		isset($ret["pool_activate"]["pool_activate"]) && $ret["pool_activate"]["pool_activate"] != NULL ? $rq .= "'". $ret["pool_activate"]["pool_activate"] ."', ": $rq .= "NULL, ";
 		$rq .=	"pool_service_template_id = ";
-		isset($ret["pool_service_template_id"]) && $ret["pool_service_template_id"] != NULL ? $rq .= "'".htmlentities($ret["pool_service_template_id"], ENT_QUOTES)."' ": $rq .= "NULL ";
+		isset($ret["pool_service_template_id"]) && $ret["pool_service_template_id"] != NULL ? $rq .= "'". $ret["pool_service_template_id"] ."' ": $rq .= "NULL ";
 		$rq .= "WHERE pool_id = '".$pool_id."'";
 		$DBRESULT =& $pearDB->query($rq);
 
