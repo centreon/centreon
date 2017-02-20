@@ -18,6 +18,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+ 
+require_once(dirname(__FILE__) . '/CentreonCommon.php'); 
 
 abstract class AbstractProvider {
     abstract protected function _setDefaultValueExtra(); 
@@ -77,6 +79,14 @@ abstract class AbstractProvider {
         }
         
         $this->_widget_id = null;
+    }
+    
+    protected function initSmartyTemplate($path="providers/Abstract/templates") {
+        $tpl = new Smarty();
+        $tpl->register_function('host_get_hostgroups', 'smarty_function_host_get_hostgroups');
+        $tpl->register_function('host_get_severity', 'smarty_function_host_get_severity');
+        $tpl = initSmartyTplForPopup($this->_centreon_open_tickets_path, $tpl, $path, $this->_centreon_path);
+        return $tpl;
     }
     
     public function setWidgetId($widget_id) {
@@ -377,9 +387,8 @@ Output: {$service.output|substr:0:1024}
      * @return void
      */
     protected function _getConfigContainer1Main() {
-        $tpl = new Smarty();
-        $tpl = initSmartyTplForPopup($this->_centreon_open_tickets_path, $tpl, 'providers/Abstract/templates', $this->_centreon_path);
-        
+        $tpl = $this->initSmartyTemplate();
+
         $tpl->assign("centreon_open_tickets_path", $this->_centreon_open_tickets_path);
         $tpl->assign("img_brick", "./modules/centreon-open-tickets/images/brick.png");
         $tpl->assign("header", array("common" => _("Common")));
@@ -466,8 +475,7 @@ Output: {$service.output|substr:0:1024}
      * @return void
      */
     protected function _getConfigContainer2Main() {
-        $tpl = new Smarty();
-        $tpl = initSmartyTplForPopup($this->_centreon_open_tickets_path, $tpl, 'providers/Abstract/templates', $this->_centreon_path);
+        $tpl = $this->initSmartyTemplate();
         
         $tpl->assign("img_wrench", "./modules/centreon-open-tickets/images/wrench.png");
         $tpl->assign("img_brick", "./modules/centreon-open-tickets/images/brick.png");
@@ -701,8 +709,7 @@ Output: {$service.output|substr:0:1024}
         
         $result = array('format_popup' => null);
         
-        $tpl = new Smarty();
-        $tpl = initSmartyTplForPopup($this->_centreon_open_tickets_path, $tpl, 'providers/Abstract/templates', $this->_centreon_path);
+        $tpl = $this->initSmartyTemplate();
         
         $this->assignFormatPopupTemplate($tpl, $args);
         $tpl->assign('string', $this->change_html_tags($this->rule_data['format_popup'], 0));
@@ -821,8 +828,7 @@ Output: {$service.output|substr:0:1024}
             return null;
         }
         
-        $tpl = new Smarty();
-        $tpl = initSmartyTplForPopup($this->_centreon_open_tickets_path, $tpl, 'providers/Abstract/templates', $this->_centreon_path);
+        $tpl = $this->initSmartyTemplate();
         
         $tpl->assign("centreon_open_tickets_path", $this->_centreon_open_tickets_path);
         $tpl->assign('host_selected', $host_problems);
@@ -852,8 +858,7 @@ Output: {$service.output|substr:0:1024}
     }
     
     public function getUrl($ticket_id, $data) {
-        $tpl = new Smarty();
-        $tpl = initSmartyTplForPopup($this->_centreon_open_tickets_path, $tpl, 'providers/Abstract/templates', $this->_centreon_path);
+        $tpl = $this->initSmartyTemplate();
         foreach ($data as $label => $value) {
             $tpl->assign($label, $value);
         }
