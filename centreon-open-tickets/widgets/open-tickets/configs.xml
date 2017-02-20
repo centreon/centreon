@@ -65,6 +65,10 @@
       <option value="last_hard_state_change" label="Hard State Duration"/>
       <option value="ticket_id" label="Ticket ID"/>
     </preference>
+    <preference label="Order By status (second sort)" name="order_by2" defaultValue="" type="sort">
+      <option value="h_state" label="Host Status"/>
+      <option value="s_state" label="Service Status"/>
+    </preference>
     <preference label="Refresh Interval (seconds)" name="refresh_interval" defaultValue="30" type="text" header="Misc"/>
     <preference label="Enable pagination and more actions" name="more_views" defaultValue="1" type="boolean"/>    
   </preferences>        

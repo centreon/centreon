@@ -304,7 +304,22 @@ if (isset($preferences['ticket_subject_search']) && $preferences['ticket_subject
 
 $orderby = "hostname ASC , description ASC";
 if (isset($preferences['order_by']) && $preferences['order_by'] != "") {
-    $orderby = $preferences['order_by'];
+    $aOrder = explode(" ", $preferences['order_by']);
+    if (in_array('last_state_change', $aOrder) || in_array('last_hard_state_change', $aOrder)) {
+        if ($aOrder[1] == 'DESC') {
+            $order = 'ASC';
+        } else {
+            $order = 'DESC';
+        }
+        $orderby = $aOrder[0] ." ". $order;
+    } else {
+        $orderby = $preferences['order_by'];
+    }
+    
+    if (isset($preferences['order_by2']) && $preferences['order_by2'] != "") {
+        $aOrder = explode(" ", $preferences['order_by2']);
+        $orderby .= ", ".$aOrder[0]." ".$aOrder[1];
+    }
 }
 
 $query .= "ORDER BY $orderby";
