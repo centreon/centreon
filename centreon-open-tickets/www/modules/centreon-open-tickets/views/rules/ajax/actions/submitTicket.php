@@ -85,7 +85,7 @@ try {
         $oreon = $_SESSION['centreon'];
         $external_cmd = new CentreonExternalCommand($oreon);
         $method_external_name = 'set_process_command';
-        if (!method_exists($external_cmd, $method_external_name)) {
+        if (method_exists($external_cmd, $method_external_name) == false) {
             $method_external_name = 'setProcessCommand';
         }
         
@@ -94,7 +94,7 @@ try {
             call_user_func_array(array($external_cmd, $method_external_name), array(sprintf($command, $value['name'], $centreon_provider->getMacroTicketId(), $resultat['result']['ticket_id']), $value['instance_id']));
             if ($centreon_provider->doAck()) {
                 $command = "ACKNOWLEDGE_HOST_PROBLEM;%s;%s;%s;%s;%s;%s";
-                $external_cmd->set_process_command(sprintf($command, $value['name'], 2, 0, 1, $contact_infos['alias'], 'open ticket: ' . $resultat['result']['ticket_id']), $value['instance_id']);
+                call_user_func_array(array($external_cmd, $method_external_name), array(sprintf($command, $value['name'], 2, 0, 1, $contact_infos['alias'], 'open ticket: ' . $resultat['result']['ticket_id']), $value['instance_id']));
             }
         }
         foreach ($selected['service_selected'] as $value) {
@@ -102,7 +102,7 @@ try {
             call_user_func_array(array($external_cmd, $method_external_name), array(sprintf($command, $value['host_name'], $value['description'], $centreon_provider->getMacroTicketId(), $resultat['result']['ticket_id']), $value['instance_id']));
             if ($centreon_provider->doAck()) {
                 $command = "ACKNOWLEDGE_SVC_PROBLEM;%s;%s;%s;%s;%s;%s;%s";
-                $external_cmd->set_process_command(sprintf($command, $value['host_name'], $value['description'], 2, 0, 1, $contact_infos['alias'], 'open ticket: ' . $resultat['result']['ticket_id']), $value['instance_id']);
+                call_user_func_array(array($external_cmd, $method_external_name), array(sprintf($command, $value['host_name'], $value['description'], 2, 0, 1, $contact_infos['alias'], 'open ticket: ' . $resultat['result']['ticket_id']), $value['instance_id']));
             }
         }
         

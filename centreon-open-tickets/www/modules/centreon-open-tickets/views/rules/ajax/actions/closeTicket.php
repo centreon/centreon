@@ -120,6 +120,11 @@ try {
     require_once $centreon_path . 'www/class/centreonExternalCommand.class.php';
     $oreon = $_SESSION['centreon'];
     $external_cmd = new CentreonExternalCommand($oreon);
+    $method_external_name = 'set_process_command';
+    if (method_exists($external_cmd, $method_external_name) == false) {
+       $method_external_name = 'setProcessCommand';
+    }
+
     $removed_tickets = array();
     $error_msg = array();
       
@@ -136,17 +141,17 @@ try {
         }
         if (is_null($row['description']) || $row['description'] == '') {
             $command = "CHANGE_CUSTOM_HOST_VAR;%s;%s;%s";
-            $external_cmd->set_process_command(sprintf($command, $row['host_name'], $centreon_provider->getMacroTicketId(), ''), $row['instance_id']);
+            call_user_func_array(array($external_cmd, $method_external_name), array(sprintf($command, $row['host_name'], $centreon_provider->getMacroTicketId(), ''), $row['instance_id']));
             $command = "REMOVE_HOST_ACKNOWLEDGEMENT;%s";
-            $external_cmd->set_process_command(sprintf($command, $row['host_name']), $row['instance_id']);
+            call_user_func_array(array($external_cmd, $method_external_name), array(sprintf($command, $row['host_name']), $row['instance_id']));
             continue;
         }
 
         $command = "CHANGE_CUSTOM_SVC_VAR;%s;%s;%s;%s";
-        $external_cmd->set_process_command(sprintf($command, $row['host_name'], $row['description'], $centreon_provider->getMacroTicketId(), ''), $row['instance_id']);
+        call_user_func_array(array($external_cmd, $method_external_name), array(sprintf($command, $row['host_name'], $row['description'], $centreon_provider->getMacroTicketId(), ''), $row['instance_id']));
         if ($centreon_provider->doAck()) {
             $command = "REMOVE_SVC_ACKNOWLEDGEMENT;%s;%s";
-            $external_cmd->set_process_command(sprintf($command, $row['host_name'], $row['description']), $row['instance_id']);
+            call_user_func_array(array($external_cmd, $method_external_name), array(sprintf($command, $row['host_name'], $row['description']), $row['instance_id']));
         }
     }
     
