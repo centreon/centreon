@@ -47,7 +47,8 @@ $actions = array("get-form-config" => dirname(__FILE__) . "/actions/getFormConfi
                  "save-form-config" => dirname(__FILE__) . "/actions/saveFormConfig.php",
                  "validate-format-popup" => dirname(__FILE__) . "/actions/validateFormatPopup.php",
                  "submit-ticket" => dirname(__FILE__) . "/actions/submitTicket.php",
-                 "close-ticket" => dirname(__FILE__) . "/actions/closeTicket.php");
+                 "close-ticket" => dirname(__FILE__) . "/actions/closeTicket.php",
+                 "service-ack" => dirname(__FILE__) . "/actions/serviceAck.php",);
 if (!isset($_POST['data'])) {
     $resultat = array("code" => 1, "msg" => "POST 'data' needed.");
 } else {

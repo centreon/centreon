@@ -39,6 +39,58 @@ $centreon_bg = new CentreonXMLBGRequest(session_id(), 1, 1, 0, 1);
 
 <?php
 
+function service_ack() {
+    global $cmd, $centreon, $centreon_path;
+    
+    $path = $centreon_path . "www/widgets/open-tickets/src/";
+    $template = new Smarty();
+    $template = initSmartyTplForPopup($path . 'templates/', $template, "./", $centreon_path);
+    $template->assign('stickyLabel', _("Sticky"));
+    $template->assign('persistentLabel', _("Persistent"));
+    $template->assign('authorLabel', _("Author"));
+    $template->assign('notifyLabel', _("Notify"));
+    $template->assign('commentLabel', _("Comment"));
+    $template->assign('forceCheckLabel', _('Force active checks'));
+    $template->assign('fixedLabel', _("Fixed"));
+    $template->assign('durationLabel', _("Duration"));
+    $template->assign('startLabel', _("Start"));
+    $template->assign('endLabel', _("End"));
+    $template->assign('selection', $_REQUEST['selection']);
+    $template->assign('author', $centreon->user->alias);
+    $template->assign('cmd', $cmd);
+    
+    $title = _("Service Acknowledgement");
+    $template->assign('defaultMessage', sprintf(_('Acknowledged by %s'), $centreon->user->alias));
+    $persistent_checked = '';
+    if (isset($centreon->optGen['monitoring_ack_persistent']) && $centreon->optGen['monitoring_ack_persistent']) {
+        $persistent_checked = 'checked';
+    }
+    $template->assign('persistent_checked', $persistent_checked);
+    $sticky_checked = '';
+    if (isset($centreon->optGen['monitoring_ack_sticky']) && $centreon->optGen['monitoring_ack_sticky']) {
+        $sticky_checked = 'checked';
+    }
+    $template->assign('sticky_checked', $sticky_checked);
+    $notify_checked = '';
+    if (isset($centreon->optGen['monitoring_ack_notify']) && $centreon->optGen['monitoring_ack_notify']) {
+        $notify_checked = 'checked';
+    }
+    $template->assign('notify_checked', $notify_checked);
+    $process_service_checked = '';
+    if (isset($centreon->optGen['monitoring_ack_svc']) && $centreon->optGen['monitoring_ack_svc']) {
+        $process_service_checked = 'checked';
+    }
+    $template->assign('process_service_checked', $process_service_checked);
+    $force_active_checked = '';
+    if (isset($centreon->optGen['monitoring_ack_active_checks']) && $centreon->optGen['monitoring_ack_active_checks']) {
+        $force_active_checked = 'checked';
+    }
+    $template->assign('force_active_checked', $force_active_checked);
+    $template->assign('titleLabel', $title);
+    $template->assign('submitLabel', _("Acknowledge"));
+    $template->display('acknowledge.ihtml');
+}
+
 function format_popup() {
     global $cmd, $widgetId, $rule, $preferences, $centreon, $centreon_path;
     
@@ -117,6 +169,8 @@ try {
         format_popup();
     } else if ($cmd == 10) {
         remove_tickets();
+    } else if ($cmd == 70) {
+        service_ack();
     }
 } catch (Exception $e) {
     echo $e->getMessage() . "<br/>";
