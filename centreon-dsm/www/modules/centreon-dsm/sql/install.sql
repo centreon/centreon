@@ -58,6 +58,7 @@ CREATE TABLE IF NOT EXISTS centreon_storage.`mod_dsm_locks` (
   `lock_id` int(11) NOT NULL AUTO_INCREMENT,
   `host_id` int(11) DEFAULT NULL,
   `service_id` int(11) DEFAULT NULL,
+  `ctime` int(11) DEFAULT NULL,
   `internal_id` int(11) DEFAULT NULL,
   `id` varchar(1024) DEFAULT NULL,
   PRIMARY KEY (`lock_id`)
