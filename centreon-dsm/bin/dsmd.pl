@@ -203,11 +203,11 @@ sub load_slot_locks {
     $self->{cache_locks} = {};
     my $rows = [];
     while (1) {
-        my ($status, $sth) = $self->{db_centstorage}->query("SELECT `lock_id`, `host_id`, `service_id`, `internal_id`, `id`, `ctime` FROM mod_dsm_locks");
+        my ($status, $sth) = $self->{db_centstorage}->query("SELECT `lock_id`, `host_id`, `service_id`, `internal_id`, `id`, `ctime`, `status` FROM mod_dsm_locks");
         if ($status != -1) {
             while (my $row = ( shift(@$rows) || # get row from cache, or reload cache:
                        shift(@{$rows = $sth->fetchall_arrayref(undef, $self->{dsmd_config}->{sql_fetch})||[]})) ) {
-                $self->{cache_locks}->{$$row[1] . '.' . $$row[2]} = [$$row[0], $$row[3], $$row[4], $$row[5]];
+                $self->{cache_locks}->{$$row[1] . '.' . $$row[2]} = [$$row[0], $$row[3], $$row[4], $$row[5], $$row[6]];
             }
             last;
         }
@@ -281,7 +281,9 @@ sub find_slot {
             my $cache_alarm_id = $self->{cache_locks}->{$options{host_id} . '.' . $self->{current_pools_status}->{$options{host_id}}->{$service_description}->{service_id}}->[1] . 
                 '##' . (defined($self->{cache_locks}->{$options{host_id} . '.' . $self->{current_pools_status}->{$options{host_id}}->{$service_description}->{service_id}}->[2]) ? $self->{cache_locks}->{$options{host_id} . '.' . $self->{current_pools_status}->{$options{host_id}}->{$service_description}->{service_id}}->[2] : '');
             
-            if ($cache_alarm_id eq $self->{current_pools_status}->{$options{host_id}}->{$service_description}->{alarm_id}) {
+            # The custom ALARM_ID can happen before the service status change. So we need to check the status.
+            if ($cache_alarm_id eq $self->{current_pools_status}->{$options{host_id}}->{$service_description}->{alarm_id} &&
+                $self->{current_pools_status}->{$options{host_id}}->{$service_description}->{state} == $self->{cache_locks}->{$options{host_id} . '.' . $self->{current_pools_status}->{$options{host_id}}->{$service_description}->{service_id}}->[4]) {
                 $self->{logger}->writeLogInfo("[find_slot_id] delete lock entry [host id = $options{host_id}] [service = $service_description]");
                 $self->delete_locks(id => $options{host_id} . '.' . $self->{current_pools_status}->{$options{host_id}}->{$service_description}->{service_id}, 
                                     lock_id => $self->{cache_locks}->{$options{host_id} . '.' . $self->{current_pools_status}->{$options{host_id}}->{$service_description}->{service_id}}->[0]);
@@ -357,13 +359,25 @@ sub insert_locks {
     my ($self, %options) = @_;
     
     my $ctime = time();
-    $self->{db_centstorage}->query("INSERT INTO mod_dsm_locks (host_id, service_id, internal_id, id, ctime) VALUES (" . 
+    $self->{db_centstorage}->query("INSERT INTO mod_dsm_locks (host_id, service_id, internal_id, `id`, ctime, `status`) VALUES (" . 
         $self->{db_centstorage}->quote($options{alarm}->[1]) . ',' . $self->{db_centstorage}->quote($options{service_id}) . ',' . 
         $self->{db_centstorage}->quote($options{alarm}->[0]) . ',' . $self->{db_centstorage}->quote($options{alarm}->[5]) . ',' .
-        $ctime .
+        $ctime . ',' . $self->{db_centstorage}->quote($options{alarm}->[3]) .
     ')');
     $self->{cache_locks}->{$options{alarm}->[1] . '.' . $options{service_id}} = 
-        [$self->{db_centstorage}->last_insert_id(), $options{alarm}->[0], $options{alarm}->[5], $ctime];
+        [$self->{db_centstorage}->last_insert_id(), $options{alarm}->[0], $options{alarm}->[5], $ctime, $options{alarm}->[3]];
+}
+
+sub custom_macros {
+    my ($self, %options) = @_;
+    
+    return if (!defined($options{macros}) || $options{macros} eq '');
+    foreach (split /\|/, $options{macros}) {
+        if (/^(.*?)=(.*)/) {
+            $self->add_command(instance_id => $options{instance_id}, time => $options{time},
+                command => "CHANGE_CUSTOM_SVC_VAR;$options{host_name};$options{service_description};$1;$2");
+        }
+    }
 }
 
 sub manage_alarm_ok {
@@ -402,6 +416,8 @@ sub manage_alarm_ok {
     my $output = defined($options{alarm}->[7]) ? $options{alarm}->[7] : 'Free Slot';
     $self->add_command(instance_id => $data->{instance_id}, time => $options{alarm}->[2], command => "PROCESS_SERVICE_CHECK_RESULT;$data->{host_name};$service_description;0;$output");
     $self->add_command(instance_id => $data->{instance_id}, time => $options{alarm}->[2], command => "CHANGE_CUSTOM_SVC_VAR;$data->{host_name};$service_description;$self->{dsmd_config}->{macro_config};$options{alarm_id}");
+    $self->custom_macros(instance_id => $data->{instance_id}, time => $options{alarm}->[2], 
+        host_name => $data->{host_name}, service_description => $service_description, macros => $options{alarm}->[6]);
 }
 
 sub manage_alarm_error {
@@ -426,6 +442,8 @@ sub manage_alarm_error {
     my $output = defined($options{alarm}->[7]) ? $options{alarm}->[7] : '';
     $self->add_command(instance_id => $data2->{instance_id}, time => $options{alarm}->[2], command => "PROCESS_SERVICE_CHECK_RESULT;$data2->{host_name};$service2;$options{alarm}->[3];$output");
     $self->add_command(instance_id => $data2->{instance_id}, time => $options{alarm}->[2], command => "CHANGE_CUSTOM_SVC_VAR;$data2->{host_name};$service2;$self->{dsmd_config}->{macro_config};$options{alarm_id}");
+    $self->custom_macros(instance_id => $data->{instance_id}, time => $options{alarm}->[2], 
+        host_name => $data2->{host_name}, service_description => $service2, macros => $options{alarm}->[6]);
 }
 
 sub manage_alarms {

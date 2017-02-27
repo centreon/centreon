@@ -23,12 +23,19 @@ sub new {
 
     $self->add_options(
         "host-id:s"     => \$self->{host_id},
+        "Host:s"        => \$self->{host},
+        "H:s"           => \$self->{host}, 
         "id:s"          => \$self->{id},
+        "i:s"           => \$self->{id},
         "status:s"      => \$self->{status},
+        "s:s"           => \$self->{status},
         "time:s"        => \$self->{time},
+        "t:s"           => \$self->{time},
         "output:s"      => \$self->{output},
+        "o:s"           => \$self->{output},
         "macro:s"       => \$self->{macro},
-        "pool-prefix:s" => \$self->{pool_prefix},
+        "m:s"           => \$self->{macro},
+        "pool-prefix:s" => \$self->{pool_prefix},   
     );
     
     return $self;
