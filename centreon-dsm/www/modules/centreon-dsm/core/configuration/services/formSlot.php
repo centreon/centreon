@@ -1,6 +1,6 @@
 <?php
 /*
- * Copyright 2005-2010 MERETHIS
+ * Copyright 2005-2015 Centreon
  * Centreon is developped by : Julien Mathis and Romain Le Merlus under
  * GPL Licence 2.0.
  *
@@ -19,88 +19,47 @@
  * combined work based on this program. Thus, the terms and conditions of the GNU
  * General Public License cover the whole combination.
  *
- * As a special exception, the copyright holders of this program give MERETHIS
+ * As a special exception, the copyright holders of this program give Centreon
  * permission to link this program with independent modules to produce an executable,
  * regardless of the license terms of these independent modules, and to copy and
- * distribute the resulting executable under terms of MERETHIS choice, provided that
- * MERETHIS also meet, for each linked independent module, the terms  and conditions
+ * distribute the resulting executable under terms of Centreon choice, provided that
+ * Centreon also meet, for each linked independent module, the terms  and conditions
  * of the license of that module. An independent module is a module which is not
  * derived from this program. If you modify this program, you may extend this
  * exception to your version of the program, but you are not obliged to do so. If you
  * do not wish to do so, delete this exception statement from your version.
  *
- * For more information : pool@centreon.com
- *
- * SVN : $URL:$
- * SVN : $Id:$
+ * For more information : contact@centreon.com
  *
  */
 
 	if (!isset($oreon))
 		exit();
 
-	ini_set("display_errors", "Off");
-
 	$pool = array();
 	if (($o == "c" || $o == "w") && $slot_id)	{
 		$DBRESULT =& $pearDB->query("SELECT * FROM mod_dsm_pool WHERE pool_id = '".$slot_id."' LIMIT 1");
-		$pool = array_map("myDecode", $DBRESULT->fetchRow());
+		$pool = $DBRESULT->fetchRow();
 	}
-
-	/*
-	 * Get Langs
-	 */
-	$langs = array();
-	$langs = getLangs();
-
-	/*
-	 * Timeperiods comes from DB -> Store in $notifsTps Array
-	 * When we make a massive change, give the possibility to not crush value
-	 */
-	$notifTps = array(NULL => NULL);
-	$DBRESULT =& $pearDB->query("SELECT tp_id, tp_name FROM timeperiod ORDER BY tp_name");
-	while($notifTp =& $DBRESULT->fetchRow())
-		$notifTps[$notifTp["tp_id"]] = $notifTp["tp_name"];
-	$DBRESULT->free();
 
 	/*
 	 * Commands
 	 */
 	$Cmds = array();
 	$DBRESULT =& $pearDB->query("SELECT command_id, command_name FROM command WHERE command_type = '2' ORDER BY command_name");
-	while ($Cmd =& $DBRESULT->fetchRow())
+	while ($Cmd =& $DBRESULT->fetchRow()) {
 		$Cmds[$Cmd["command_id"]] = $Cmd["command_name"];
-	$DBRESULT->free();
-	unset($Cmd);
-
-	/*
-	 * pool contactgroups
-	 */
-	$notifCgs = array();
-	$DBRESULT =& $pearDB->query("SELECT cg_id, cg_name FROM contactgroup ORDER BY cg_name");
-	while ($notifCg =& $DBRESULT->fetchRow())
-		$notifCgs[$notifCg["cg_id"]] = $notifCg["cg_name"];
-	$DBRESULT->free();
-
-	/*
-	 * pool contacts
-	 */
-	$notifCcts = array();
-	$DBRESULT =& $pearDB->query("SELECT contact_id, contact_name FROM contact ORDER BY contact_name");
-	while($data =& $DBRESULT->fetchRow())
-		$notifCcts[$data["contact_id"]] = $data["contact_name"];
-	$DBRESULT->free();
-	unset($data);
+    }
 
 	/*
 	 * pool hosts
 	 */
 	$poolHost = array();
 	$DBRESULT =& $pearDB->query("SELECT host_id, host_name FROM host WHERE host_register = '1' ORDER BY host_name");
-	while ($data =& $DBRESULT->fetchRow())
+	while ($data =& $DBRESULT->fetchRow()) {
 		$poolHost[$data["host_id"]] = $data["host_name"];
-	$DBRESULT->free();
-
+    }
+    
 	/*
 	 * pool service_template
 	 */
@@ -111,7 +70,6 @@
 		$data["service_description"] = str_replace("#BS#", "\\", $data["service_description"]);
 		$poolST[$data["service_id"]] = $data["service_description"];
 	}
-	$DBRESULT->free();
 
 	/*
 	 * Template / Style for Quickform input
@@ -153,16 +111,6 @@
 	$form->addElement('select', 'pool_cmd_id', _("Check commands"), $Cmds);
 	$form->addElement('text', 'pool_args', _("arguments"), $attrsText2);
  	$form->addElement('select', 'pool_service_template_id', _("Service template based"), $poolST);
-
-	/*
-	 * pool Oreon information
-	 */
-	$form->addElement('header', 'oreon', _("Centreon"));
-
-	/*
-	 * Notification informations
-	 */
-	$form->addElement('header', 'notification', _("Notification Type"));
 
     	/*
 	 * Further informations
@@ -207,7 +155,6 @@
 		$form->addRule('pool_host_id', _("Compulsory Alias"), 'required');
 		$form->addRule('pool_prefix', _("Compulsory Alias"), 'required');
 		$form->addRule('pool_number', _("Compulsory Alias"), 'required');
-		$form->addRule('pool_tp_id', _("Compulsory Alias"), 'required');
 	} else if ($o == "mc")	{
 		if ($form->getSubmitValue("submitMC"))
 			$from_list_menu = false;

@@ -207,16 +207,13 @@ function get_centreon_parameters() {
 	INSTALL_DIR_CENTREON=`${CAT} $CENTREON_CONF/$FILE_CONF | ${GREP} "INSTALL_DIR_CENTREON" | cut -d '=' -f2`;
 	WEB_USER=`${CAT} $CENTREON_CONF/$FILE_CONF | ${GREP} "WEB_USER" | cut -d '=' -f2`;
 	WEB_GROUP=`${CAT} $CENTREON_CONF/$FILE_CONF | ${GREP} "WEB_GROUP" | cut -d '=' -f2`;
-	NAGIOS_PLUGIN=`${CAT} $CENTREON_CONF/$FILE_CONF_CENTPLUGIN | ${GREP} "NAGIOS_PLUGIN" | cut -d '=' -f2`;
-	NAGIOS_USER=`${CAT} $CENTREON_CONF/$FILE_CONF_CENTPLUGIN | ${GREP} "NAGIOS_USER" | cut -d '=' -f2`;
-	NAGIOS_GROUP=`${CAT} $CENTREON_CONF/$FILE_CONF_CENTPLUGIN | ${GREP} "NAGIOS_GROUP" | cut -d '=' -f2`;
-	NAGIOS_VAR=`${CAT} $CENTREON_CONF/$FILE_CONF | ${GREP} "NAGIOS_VAR" | cut -d '=' -f2`;
 	CENTREON_LOG=`${CAT} $CENTREON_CONF/$FILE_CONF | ${GREP} "CENTREON_LOG" | cut -d '=' -f2`;
-	CENTREON_VARLIB=`${CAT} $CENTREON_CONF/instCentCore.conf | ${GREP} "CENTREON_VARLIB" | cut -d '=' -f2`;
-	CENTREON_BINDIR=`${CAT} $CENTREON_CONF/instCentCore.conf | ${GREP} "CENTREON_BINDIR" | cut -d '=' -f2`;
 	CENTREON_USER=`${CAT} $CENTREON_CONF/$FILE_CONF | ${GREP} "CENTREON_USER" | cut -d '=' -f2`;
 	CENTREON_GROUP=`${CAT} $CENTREON_CONF/$FILE_CONF | ${GREP} "CENTREON_GROUP" | cut -d '=' -f2`;
-
+    CENTREON_RUNDIR=`${CAT} $CENTREON_CONF/$FILE_CONF_CORE | ${GREP} "CENTREON_RUNDIR" | cut -d '=' -f2`;
+  	CENTREON_VARLIB=`${CAT} $CENTREON_CONF/$FILE_CONF_CORE | ${GREP} "CENTREON_VARLIB" | cut -d '=' -f2`;
+	CENTREON_BINDIR=`${CAT} $CENTREON_CONF/$FILE_CONF_CORE | ${GREP} "CENTREON_BINDIR" | cut -d '=' -f2`;
+    
 	RESULT=0
 	if [ "$INSTALL_DIR_CENTREON" != "" ] ; then
 		RESULT=`expr $RESULT + 1`
@@ -227,26 +224,17 @@ function get_centreon_parameters() {
 	if [ "$WEB_GROUP" != "" ] ; then
 		RESULT=`expr $RESULT + 1`
 	fi
-	if [ "$NAGIOS_PLUGIN" != "" ] ; then
-		RESULT=`expr $RESULT + 1`
-	fi
-	if [ "$NAGIOS_USER" != "" ] ; then
-		RESULT=`expr $RESULT + 1`
-	fi
-	if [ "$NAGIOS_GROUP" != "" ] ; then
-		RESULT=`expr $RESULT + 1`
-	fi
-	if [ "$NAGIOS_VAR" != "" ] ; then
-		RESULT=`expr $RESULT + 1`
-	fi
 	if [ "$CENTREON_LOG" != "" ] ; then
 		RESULT=`expr $RESULT + 1`
 	fi
 	if [ "$CENTREON_VARLIB" != "" ] ; then
 		RESULT=`expr $RESULT + 1`
 	fi
+    if [ "$CENTREON_RUNDIR" != "" ] ; then
+		RESULT=`expr $RESULT + 1`
+	fi
 	
-	if [ "$RESULT" -eq 9 ]; then 
+	if [ "$RESULT" -eq 6 ]; then 
 		return 1;
 	else
 		return 0;
@@ -366,12 +354,10 @@ function install_module() {
 	TEMP_D="/tmp/Install_module"
 	
 	${MKDIR} -p $TEMP_D/bin >> $LOG_FILE 2>> $LOG_FILE
-	${MKDIR} -p $TEMP_D/etc >> $LOG_FILE 2>> $LOG_FILE
-	${MKDIR} -p $TEMP_D/init.d >> $LOG_FILE 2>> $LOG_FILE
+	${MKDIR} -p $TEMP_D/libinstall >> $LOG_FILE 2>> $LOG_FILE
 
 	${CP} -Rf bin/* $TEMP_D/bin >> $LOG_FILE 2>> $LOG_FILE
-	${CP} -Rf etc/* $TEMP_D/etc >> $LOG_FILE 2>> $LOG_FILE
-	${CP} -Rf etc/* $TEMP_D/init.d >> $LOG_FILE 2>> $LOG_FILE
+	${CP} -Rf libinstall/init.d.dsmd $TEMP_D/libinstall/ >> $LOG_FILE 2>> $LOG_FILE
 
 	################################################################
 	## DSMD client
@@ -386,7 +372,6 @@ function install_module() {
 	################################################################
 	## DSMD daemon
 	#
-	RESULT=0
 	FILE="bin/dsmd.pl"
 	${SED} -i -e 's|@CENTREON_ETC@|'"$CENTREON_CONF"'|g' $TEMP_D/$FILE 2>> $LOG_FILE
 	if [ "$?" -eq 0 ] ; then
@@ -424,38 +409,11 @@ function install_module() {
 	if [ "$?" -eq 0 ] ; then
 		RESULT=`expr $RESULT + 1`
 	fi
-	${CP} -Rf --preserve $TEMP_D/etc/* $CENTREON_CONF/ >> $LOG_FILE 2>> $LOG_FILE
-	if [ "$?" -eq 0 ] ; then
-		RESULT=`expr $RESULT + 1`
-	fi
 	
-	if [ "$RESULT" -eq 2 ] ; then
+	if [ "$RESULT" -eq 1 ] ; then
 		echo_success "Copying module" "$ok"
 	else 
 		echo_failure "Copying module" "$fail"
-		exit 1
-	fi
-
-	${RM} -Rf $TEMP_D >> $LOG_FILE 2>> $LOG_FILE
-
-	################################################################
-	## DSMD config file
-	#
-	RESULT=0
-	FILE="etc/conf_dsm.pm"
-	${SED} -i -e 's|@CENTREON_LOG@|'"$CENTREON_LOG"'|g' $TEMP_D/$FILE 2>> $LOG_FILE
-	if [ "$?" -eq 0 ] ; then
-		RESULT=`expr $RESULT + 1`
-	fi
-	${SED} -i -e 's|@CENTREON_VARLIB@|'"$CENTREON_VARLIB"'|g' $TEMP_D/$FILE 2>> $LOG_FILE
-	if [ "$?" -eq 0 ] ; then
-		RESULT=`expr $RESULT + 1`
-	fi
-
-	if [ "$RESULT" -eq 2 ] ; then
-		echo_success "Changing macros for dsm config file" "$ok"
-	else 
-		echo_failure "Changing macros for dsm config file" "$fail"
 		exit 1
 	fi
 	
@@ -472,8 +430,12 @@ function install_module() {
 	if [ "$?" -eq 0 ] ; then
 		RESULT=`expr $RESULT + 1`
 	fi
+    ${SED} -i -e 's|@CENTREON_RUNDIR@|'"$CENTREON_RUNDIR"'|g' $TEMP_D/$FILE 2>> $LOG_FILE
+	if [ "$?" -eq 0 ] ; then
+		RESULT=`expr $RESULT + 1`
+	fi
 
-	if [ "$RESULT" -eq 2 ] ; then
+	if [ "$RESULT" -eq 3 ] ; then
 		echo_success "Changing macros for init script" "$ok"
 	else 
 		echo_failure "Changing macros for init script" "$fail"
