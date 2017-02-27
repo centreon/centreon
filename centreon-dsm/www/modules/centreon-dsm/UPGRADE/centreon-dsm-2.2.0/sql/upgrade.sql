@@ -40,5 +40,3 @@ CREATE TABLE IF NOT EXISTS centreon_storage.`mod_dsm_history` (
   PRIMARY KEY (`history_id`),
   KEY `ctime` (`ctime`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
-
-ALTER TABLE mod_dsm_pool MODIFY COLUMN `pool_prefix` varchar(255) DEFAULT NULL;
