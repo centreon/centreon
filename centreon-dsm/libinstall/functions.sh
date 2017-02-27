@@ -272,6 +272,54 @@ function get_centreon_configuration_location() {
 	done
 }
 
+function install_module_cron_files() {
+	echo ""
+	echo "$line"
+	echo -e "\tInstall $NAME cron"
+	echo "$line"
+	
+	CRON_NAME=centreon-dsm
+	if [ -f /etc/cron.d/$CRON_NAME ] ; then
+		${RM} -Rf "/etc/cron.d/$CRON_NAME"
+		if [ $? -eq 0 ]; then
+			echo_success "Removal of the old dsm cron:" "$ok"
+		else
+			echo_failure "Removal of the old dsm cron:" "$fail"
+			echo -e "Please delete cron file: /etc/cron.d/$CRON_NAME and reload install script"
+			exit 1
+		fi
+	fi
+
+	CRON_MODULE=$INSTALL_DIR_CENTREON/$MODULE_DIR
+
+	FILE="cron/centreon-dsm"
+
+	${SED} -i -e 's|@CENTREON_DSM_PATH@|'"$CRON_MODULE"'|g' $FILE 2>> $LOG_FILE	
+	${SED} -i -e 's|@CENTREON_LOG@|'"$CENTREON_LOG"'|g' $FILE 2>> $LOG_FILE
+    ${SED} -i -e 's|@INSTALL_DIR_CENTREON@|'"$CENTREON_CONF"'|g' $FILE 2>> $LOG_FILE		
+	if [ "$?" -eq 0 ] ; then
+		echo_success "Changing macro" "$ok"
+	else 
+		echo_failure "Changing macro" "$fail"
+		exit 1
+	fi
+
+    ${CP} -Rf www/modules/centreon-dsm/cron/centreon_dsm_purge.pm $CENTREON_CONF/centreon_dsm_purge.pm >> $LOG_FILE 2>> $LOG_FILE
+    
+	${CP} cron/centreon-dsm /etc/cron.d/$CRON_NAME >> $LOG_FILE 2>> $LOG_FILE
+	
+	${CHMOD} 644 /etc/cron.d/$CRON_NAME >> $LOG_FILE 2>> $LOG_FILE
+	${CHOWN} root:root /etc/cron.d/$CRON_NAME >> $LOG_FILE 2>> $LOG_FILE
+	if [ $? -eq 0 ]; then
+		echo_success "Copy cron in cron.d directory:" "$ok"
+	else
+		echo_failure "Copy cron in cron.d directory:" "$fail"
+		exit 1
+	fi
+    
+    ${RM} -Rf $INSTALL_DIR_CENTREON/$MODULE_DIR/cron/centreon_dsm_purge.pm >> $LOG_FILE 2>> $LOG_FILE
+}
+
 #---
 ## {Install centreon-es Module}
 ##
@@ -347,6 +395,8 @@ function install_module() {
 		exit 1
 	fi
 
+    install_module_cron_files
+    
 	echo ""
 	echo "$line"
 	echo -e "\tInstall $NAME binaries"
