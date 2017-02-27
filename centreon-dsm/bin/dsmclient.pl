@@ -88,7 +88,7 @@ sub run {
     my $pool_prefix = $self->get_pool_prefix();
     $self->{csdb}->connect();
     my $query = sprintf("INSERT INTO mod_dsm_cache (`host_id`, `ctime`, `status`, `pool_prefix`, `id`, `macros`, `output`) VALUES (%s, %s, %s, %s, %s, %s, %s)",
-        $self->{csdb}->quote($self->{host_id}), $self->{csdb}->quote($self->{ctime}), $self->{csdb}->quote($self->{status}),
+        $self->{csdb}->quote($self->{host_id}), $self->{csdb}->quote($self->{time}), $self->{csdb}->quote($self->{status}),
         $self->{csdb}->quote($pool_prefix), $self->{csdb}->quote($self->{id}), $self->{csdb}->quote($self->{macros}),
         $self->{csdb}->quote($self->{output}));
     my ($status, $sth) = $self->{csdb}->query($query);

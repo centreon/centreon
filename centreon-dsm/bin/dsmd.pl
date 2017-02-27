@@ -14,6 +14,8 @@ use centreon::common::misc;
 
 use base qw(centreon::script);
 
+use vars qw(%dsmd_config);
+
 my %handlers = (TERM => {}, DIE => {}, HUP => {});
 
 sub new {
@@ -25,14 +27,20 @@ sub new {
     bless $self, $class;
 
     $self->add_options(
+        "config-extra=s" => \$self->{opt_extra},
     );
     
     $self->{whoami} = getpwuid($<);
-    $self->{centreon_user} = 'centreon';
-    $self->{submit_command_timeout} = 5;
-    $self->{macro_config} = 'ALARM_ID';
-    $self->{sql_fetch} = 1000;
+    
+    %{$self->{dsmd_default_config}} = (
+       centreon_user => 'centreon',
+       submit_command_timeout => 5,
+       macro_config => 'ALARM_ID',
+       sql_fetch => 1000,
+    );
+    
     $self->{reload} = 0;
+    $self->{stop} = 0;
     $self->set_signal_handlers();
     return $self;
 }
@@ -52,7 +60,6 @@ sub class_handle_TERM {
     foreach (keys %{$handlers{TERM}}) {
         &{$handlers{TERM}->{$_}}();
     }
-    exit(0);
 }
 
 sub class_handle_DIE {
@@ -72,19 +79,47 @@ sub class_handle_HUP {
 sub handle_DIE {
     my ($self, $msg) = @_;
 
-    $self->{logger}->writeLogError($msg);    
-    exit(1);
+    $self->{logger}->writeLogError($msg);
+    $self->{stop} = 1;
 }
 
 sub handle_TERM {
-    my $self = shift;
+    my ($self) = @_;
+    
     $self->{logger}->writeLogInfo("$$ Receiving order to stop...");
-    exit(0);
+    $self->{stop} = 1;
 }
 
 sub handle_HUP {
-    my $self = shift;
+    my ($self) = @_;
     $self->{reload} = 1;
+}
+
+sub do_reload {
+    my ($self, %options) = @_;
+    
+    $self->{logger}->writeLogInfo("Reload in progress...");
+    # reopen file
+    if ($self->{logger}->is_file_mode()) {
+        $self->{logger}->file_mode($self->{logger}->{file_name});
+    }
+    $self->{logger}->redirect_output();
+    
+    centreon::common::misc::reload_db_config($self->{logger}, $self->{config_file}, undef, $self->{db_centstorage});
+    
+    $self->{reload} = 0;
+}
+
+sub check_signals {
+    my ($self, %options) = @_;
+
+    if ($self->{reload} == 1) {
+        $self->do_reload();
+    }
+    if ($self->{stop} == 1) {
+        $self->{logger}->writeLogInfo("Quit dsmd");
+        exit(0);
+    }
 }
 
 sub init {
@@ -92,6 +127,16 @@ sub init {
     $self->SUPER::init();
 
     $self->{logger}->writeLogInfo("server launched");
+
+    if (!defined($self->{opt_extra})) {
+        $self->{opt_extra} = "/etc/centreon/centreon_dsmd.pm";
+    }
+    if (-f $self->{opt_extra}) {
+        require $self->{opt_extra};
+    } else {
+        $self->{logger}->writeLogInfo("Can't find extra config file $self->{opt_extra}");
+    }
+    $self->{dsmd_config} = {%{$self->{dsmd_default_config}}, %dsmd_config};
 }
 
 sub add_command {
@@ -99,7 +144,7 @@ sub add_command {
     my $datetime = time();
     
     my $prefix = "EXTERNALCMD:$options{instance_id}:";
-    push @{$self->{submit_cmds}}, $prefix . "[$datetime] $options{command}";
+    push @{$self->{submit_cmds}}, $prefix . "[$options{time}] $options{command}";
 }
 
 sub submit_split {
@@ -108,17 +153,17 @@ sub submit_split {
     return if ($options{cmd} eq '');
 
     my $submit;
-    if ($self->{whoami} eq $self->{centreon_user}) {
+    if ($self->{whoami} eq $self->{dsmd_config}->{centreon_user}) {
         $options{cmd} =~ s/"/\\"/g;
         $submit = '/bin/echo "' . $options{cmd} . '" >> ' . $self->{cmdFile};
     } else {
         $options{cmd} =~ s/'/'\\''/g;
         $options{cmd} =~ s/"/\\"/g;
-        $submit = "su -l " . $self->{centreon_user} . " -c '/bin/echo \"$options{cmd}\" >> " . $self->{cmdFile} . "' 2>&1";
+        $submit = "su -l " . $self->{dsmd_config}->{centreon_user} . " -c '/bin/echo \"$options{cmd}\" >> " . $self->{cmdFile} . "' 2>&1";
     }
     my ($lerror, $stdout) = centreon::common::misc::backtick(command => $submit,
                                                              logger => $self->{logger},
-                                                             timeout => $self->{submit_command_timeout}
+                                                             timeout => $self->{dsmd_config}->{submit_command_timeout}
                                                              );
     
     $self->{logger}->writeLogInfo("SUBMIT: Force service status via passive check update");
@@ -158,13 +203,14 @@ sub load_slot_locks {
         my ($status, $sth) = $self->{db_centstorage}->query("SELECT `lock_id`, `host_id`, `service_id`, `internal_id`, `id`, `ctime` FROM mod_dsm_locks");
         if ($status != -1) {
             while (my $row = ( shift(@$rows) || # get row from cache, or reload cache:
-                       shift(@{$rows = $sth->fetchall_arrayref(undef, $self->{sql_fetch})||[]})) ) {
+                       shift(@{$rows = $sth->fetchall_arrayref(undef, $self->{dsmd_config}->{sql_fetch})||[]})) ) {
                 $self->{cache_locks}->{$$row[1] . '.' . $$row[2]} = [$$row[0], $$row[3], $$row[4], $$row[5]];
             }
             last;
         }
         
         $self->{logger}->writeLogError("Cannot load locks table");
+        $self->check_signals();
         sleep(1);
     }
 }
@@ -184,15 +230,15 @@ sub get_alarms {
     my $rows = [];
     my @sql_where = ();
     while (my $row = ( shift(@$rows) || # get row from cache, or reload cache:
-                       shift(@{$rows = $sth->fetchall_arrayref(undef, $self->{sql_fetch})||[]})) ) {
+                       shift(@{$rows = $sth->fetchall_arrayref(undef, $self->{dsmd_config}->{sql_fetch})||[]})) ) {
         push @{$self->{current_alarms}}, $row;
         push @sql_where, "(services.host_id = $$row[1] AND services.description LIKE " . $self->{db_centstorage}->quote($$row[4] . '%') . ")";
     }
     
     return 1 if (scalar(@{$self->{current_alarms}}) == 0);
     
-    ($status, $sth) = $self->{db_centstorage}->query("SELECT hosts.`name`, hosts.`instance_id`, services.`host_id`, services.`service_id`, services.`description`, services.`last_update`, services.`state`, cv.`value` FROM services " .
-        "LEFT JOIN customvariables cv ON cv.host_id = services.host_id AND cv.service_id = services.service_id AND cv.name = '" . $self->{macro_config} . "', hosts " . 
+    ($status, $sth) = $self->{db_centstorage}->query("SELECT hosts.`name`, hosts.`instance_id`, services.`host_id`, services.`service_id`, services.`description`, services.`last_check`, services.`state`, cv.`value` FROM services " .
+        "LEFT JOIN customvariables cv ON cv.host_id = services.host_id AND cv.service_id = services.service_id AND cv.name = '" . $self->{dsmd_config}->{macro_config} . "', hosts " . 
         "WHERE (" . join('OR', @sql_where) . ") AND services.host_id = hosts.host_id");
     if ($status == -1) {
         $self->{logger}->writeLogError("Cannot get alarms");
@@ -201,11 +247,11 @@ sub get_alarms {
     
     $rows = [];
     while (my $row = ( shift(@$rows) || # get row from cache, or reload cache:
-                       shift(@{$rows = $sth->fetchall_arrayref(undef, $self->{sql_fetch})||[]})) ) {
+                       shift(@{$rows = $sth->fetchall_arrayref(undef, $self->{dsmd_config}->{sql_fetch})||[]})) ) {
         $self->{current_pools_status}->{$$row[2]} = {} if (!defined($self->{current_pools_status}->{$$row[2]}));
         $self->{current_pools_status}->{$$row[2]}->{$$row[4]} = { 
             host_name => $$row[0], instance_id => $$row[1], service_id => $$row[3], 
-            last_update => $$row[5], state => $$row[6], alarm_id => $$row[7] 
+            last_check => $$row[5], state => $$row[6], alarm_id => $$row[7] 
         };
     }
     
@@ -221,6 +267,8 @@ sub find_slot {
         return (-2);
     }
     
+    my $alarm_id = '';
+    $alarm_id = $1 if ($options{alarm_id} =~ /^\d+##(.+)/);
     my ($free_slot_service, $free_slot_data) = (undef, undef);
     foreach my $service_description (sort keys %{$self->{current_pools_status}->{$options{host_id}}}) {
         next if ($service_description !~ /^$options{pool_prefix}.*/);
@@ -229,6 +277,7 @@ sub find_slot {
             # Look if it's the alarm is on database now
             my $cache_alarm_id = $self->{cache_locks}->{$options{host_id} . '.' . $self->{current_pools_status}->{$options{host_id}}->{$service_description}->{service_id}}->[1] . 
                 '##' . (defined($self->{cache_locks}->{$options{host_id} . '.' . $self->{current_pools_status}->{$options{host_id}}->{$service_description}->{service_id}}->[2]) ? $self->{cache_locks}->{$options{host_id} . '.' . $self->{current_pools_status}->{$options{host_id}}->{$service_description}->{service_id}}->[2] : '');
+            
             if ($cache_alarm_id eq $self->{current_pools_status}->{$options{host_id}}->{$service_description}->{alarm_id}) {
                 $self->{logger}->writeLogInfo("[find_slot_id] delete lock entry [host id = $options{host_id}] [service = $service_description]");
                 $self->delete_locks(id => $options{host_id} . '.' . $self->{current_pools_status}->{$options{host_id}}->{$service_description}->{service_id}, 
@@ -238,14 +287,9 @@ sub find_slot {
                     $free_slot_service = $service_description;
                     $free_slot_data = $self->{current_pools_status}->{$options{host_id}}->{$service_description};
                 }
-            }
-            
-            # Look if there is a entry waiting
-            if ($cache_alarm_id eq $options{alarm_id}) {
+            } elsif ($alarm_id ne '' && $cache_alarm_id =~ /##$alarm_id$/) {
                 return (1, $service_description, $self->{current_pools_status}->{$options{host_id}}->{$service_description});
-            }
-            
-            
+            }            
         } elsif ($free_slot == 1 && !defined($free_slot_data) &
                  ($self->{current_pools_status}->{$options{host_id}}->{$service_description}->{state} == 0 || 
                   $self->{current_pools_status}->{$options{host_id}}->{$service_description}->{state} == 4)) { # slot is not in lock table and status is OK/PENDING
@@ -253,7 +297,7 @@ sub find_slot {
             $free_slot_data = $self->{current_pools_status}->{$options{host_id}}->{$service_description};
         }
         
-        if ($self->{current_pools_status}->{$options{host_id}}->{$service_description}->{alarm_id} eq $options{alarm_id}) {
+        if ($alarm_id ne '' && $self->{current_pools_status}->{$options{host_id}}->{$service_description}->{alarm_id} =~ /##$alarm_id$/) {
             return (0, $service_description, $self->{current_pools_status}->{$options{host_id}}->{$service_description});
         }
     }
@@ -330,15 +374,15 @@ sub manage_alarm_ok {
         return ;
     }
     
-    if ($data->{last_update} > $options{alarm}->[2]) {
+    if ($data->{last_check} > $options{alarm}->[2]) {
         $self->{logger}->writeLogInfo("find slot id [alarm id = $options{alarm_id}] [host id = $options{alarm}->[1]] [service = $service_description]: update time is too old");
         return ;
     }
     
     $self->insert_locks(alarm => $options{alarm}, service_id => $data->{service_id});
     my $output = defined($options{alarm}->[7]) ? $options{alarm}->[7] : 'Free Slot';
-    $self->add_command(instance_id => $data->{instance_id}, command => "PROCESS_SERVICE_CHECK_RESULT;$data->{host_name};$service_description;0;$output");
-    $self->add_command(instance_id => $data->{instance_id}, command => "CHANGE_CUSTOM_SVC_VAR;$data->{host_name};$service_description;$self->{macro_config};");
+    $self->add_command(instance_id => $data->{instance_id}, time => $options{alarm}->[2], command => "PROCESS_SERVICE_CHECK_RESULT;$data->{host_name};$service_description;0;$output");
+    $self->add_command(instance_id => $data->{instance_id}, time => $options{alarm}->[2], command => "CHANGE_CUSTOM_SVC_VAR;$data->{host_name};$service_description;$self->{dsmd_config}->{macro_config};$options{alarm_id}");
 }
 
 sub manage_alarm_error {
@@ -358,17 +402,11 @@ sub manage_alarm_error {
     my $service2 = defined($service_description) ? $service_description : $free_slot_service;
     return if (!defined($data2));
     
-    print "=========\n";
-    use Data::Dumper;
-    print Data::Dumper::Dumper($data);
-    print "========= free slot\n";
-    print Data::Dumper::Dumper($free_slot_data);
-    
     $self->insert_locks(alarm => $options{alarm}, service_id => $data2->{service_id});
     $self->delete_alarms(alarm => $options{alarm});
     my $output = defined($options{alarm}->[7]) ? $options{alarm}->[7] : '';
-    $self->add_command(instance_id => $data2->{instance_id}, command => "PROCESS_SERVICE_CHECK_RESULT;$data2->{host_name};$service2;$options{alarm}->[3];$output");
-    $self->add_command(instance_id => $data2->{instance_id}, command => "CHANGE_CUSTOM_SVC_VAR;$data2->{host_name};$service2;$self->{macro_config};$options{alarm_id}");
+    $self->add_command(instance_id => $data2->{instance_id}, time => $options{alarm}->[2], command => "PROCESS_SERVICE_CHECK_RESULT;$data2->{host_name};$service2;$options{alarm}->[3];$output");
+    $self->add_command(instance_id => $data2->{instance_id}, time => $options{alarm}->[2], command => "CHANGE_CUSTOM_SVC_VAR;$data2->{host_name};$service2;$self->{dsmd_config}->{macro_config};$options{alarm_id}");
 }
 
 sub manage_alarms {
@@ -421,9 +459,11 @@ sub run {
 
     $self->load_slot_locks();
     while (1) {
+        $self->check_signals();
         if ($self->get_alarms() == 0) {
             $self->manage_alarms();
         }
+        
         sleep(1);
     }
 }
