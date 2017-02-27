@@ -52,10 +52,6 @@ sub init {
             defined($self->{output}) ? $self->{output} : '-', defined($self->{macro}) ? $self->{macro} : '-', 
             defined($self->{pool_prefix}) ? $self->{pool_prefix} : '-')
     );
-    if (!defined($self->{host_id}) || $self->{host_id} eq '') {
-        $self->{logger}->writeLogError("Please set --host-id option");
-        exit(1);
-    }
     if (!defined($self->{status}) || $self->{status} !~ /^[0123]$/) {
         $self->{logger}->writeLogError("Please set --status option with good value");
         exit(1);
@@ -68,7 +64,7 @@ sub init {
 sub get_pool_prefix {
     my ($self, %options) = @_;
     
-    my $query = "SELECT pool_prefix FROM mod_dsm_pool WHERE pool_host_id = " . $self->{cdb}->quote($self->{host_id}) . " AND pool_activate = '1'";
+    my $query = "SELECT pool_prefix FROM mod_dsm_pool WHERE pool_host_id = " . $self->{cdb}->quote($options{host_id}) . " AND pool_activate = '1'";
     if (defined($self->{pool_prefix}) && $self->{pool_prefix} ne '') {
         $query .= "AND pool_prefix = " . $self->{cdb}->quote($self->{pool_prefix});
     }
@@ -79,7 +75,7 @@ sub get_pool_prefix {
     }
     
     if ((my $row = $sth->fetchrow_hashref())) {
-        $self->{logger}->writeLogInfo("find pool '" . $row->{pool_prefix}  . "' for host id '" . $self->{host_id} . "'");
+        $self->{logger}->writeLogInfo("find pool '" . $row->{pool_prefix}  . "' for host id '" . $options{host_id} . "'");
         return $row->{pool_prefix};
     }
     
@@ -87,15 +83,48 @@ sub get_pool_prefix {
     exit(1);
 }
 
+sub get_hosts {
+    my ($self, %options) = @_;
+    
+    my $host_id = $self->{host_id};
+    if (defined($self->{host}) && $self->{host} ne '') {
+        my $query = "SELECT host_id FROM host WHERE host_name = " . $self->{cdb}->quote($self->{host}) . " OR host_address = " . $self->{cdb}->quote($self->{host});
+        my ($status, $sth) = $self->{cdb}->query($query);
+        if ($status == -1) {
+            $self->{logger}->writeLogError("Cannot get host ID from database");
+            exit 1;
+        }
+        my $i = 0;
+        while ((my $row = $sth->fetchrow_hashref())) {
+            $host_id = $row->{host_id};
+            $i++;
+        }
+        if ($i == 0) {
+            $self->{logger}->writeLogError("Cannot find host id for host '" . $self->{host} . "'");
+            exit(1);
+        }
+        if ($i > 1) {
+            $self->{logger}->writeLogError("Find too many hosts ($i) for host '" . $self->{host} . "'. Need only one!");
+            exit(1);
+        }
+    } elsif (!defined($self->{host_id}) || $self->{host_id} eq '') {
+        $self->{logger}->writeLogError("Please set --host-id option");
+        exit(1);
+    }
+    
+    return $host_id;
+}
+
 sub run {
     my ($self, %options) = @_;
 
     $self->SUPER::run();
-   
-    my $pool_prefix = $self->get_pool_prefix();
+
+    my $host_id = $self->get_hosts();
+    my $pool_prefix = $self->get_pool_prefix(host_id => $host_id);
     $self->{csdb}->connect();
     my $query = sprintf("INSERT INTO mod_dsm_cache (`host_id`, `ctime`, `status`, `pool_prefix`, `id`, `macros`, `output`) VALUES (%s, %s, %s, %s, %s, %s, %s)",
-        $self->{csdb}->quote($self->{host_id}), $self->{csdb}->quote($self->{time}), $self->{csdb}->quote($self->{status}),
+        $self->{csdb}->quote($host_id), $self->{csdb}->quote($self->{time}), $self->{csdb}->quote($self->{status}),
         $self->{csdb}->quote($pool_prefix), $self->{csdb}->quote($self->{id}), $self->{csdb}->quote($self->{macros}),
         $self->{csdb}->quote($self->{output}));
     my ($status, $sth) = $self->{csdb}->query($query);
