@@ -37,10 +37,13 @@ sub new {
        submit_command_timeout => 5,
        macro_config => 'ALARM_ID',
        sql_fetch => 1000,
+       clean_locks_time => 3600, # each hours
+       clean_locks_keep_stored => 3600,
     );
     
     $self->{reload} = 0;
     $self->{stop} = 0;
+    $self->{last_clean_locks_time} = time();
     $self->set_signal_handlers();
     return $self;
 }
@@ -320,6 +323,21 @@ sub insert_history {
     ')');
 }
 
+sub clean_locks {
+    my ($self, %options) = @_;
+    
+    return if ((time() - $self->{last_clean_locks_time}) < $self->{dsmd_config}->{clean_locks_time});
+    my $current_time = time();
+    $self->{logger}->writeLogInfo("clean locks checked");
+    foreach (keys %{$self->{cache_locks}}) {
+        if (($current_time - $self->{cache_locks}->{$_}->[0]) > $self->{dsmd_config}->{clean_locks_keep_stored}) {
+            $self->delete_locks(id => $_, 
+                                lock_id => $self->{cache_locks}->{$_}->[3]);
+        }
+    }
+    $self->{last_clean_locks_time} = time();
+}
+
 sub delete_alarms {
     my ($self, %options) = @_;
     
@@ -330,7 +348,8 @@ sub delete_alarms {
 sub delete_locks {
     my ($self, %options) = @_;
     
-    $self->{db_centstorage}->query("DELETE FROM mod_dsm_locks WHERE lock_id = " . $options{lock_id});
+    my ($status) = $self->{db_centstorage}->query("DELETE FROM mod_dsm_locks WHERE lock_id = " . $options{lock_id});
+    return if ($status == -1);
     delete $self->{cache_locks}->{$options{id}};
 }
 
@@ -460,6 +479,7 @@ sub run {
     $self->load_slot_locks();
     while (1) {
         $self->check_signals();
+        $self->clean_locks();
         if ($self->get_alarms() == 0) {
             $self->manage_alarms();
         }
