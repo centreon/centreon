@@ -204,15 +204,16 @@ function yes_no_default() {
 ## {Get Centreon install dir and user/group for apache}
 #----
 function get_centreon_parameters() {
-	INSTALL_DIR_CENTREON=`${CAT} $CENTREON_CONF/$FILE_CONF | ${GREP} "INSTALL_DIR_CENTREON" | cut -d '=' -f2`;
-	WEB_USER=`${CAT} $CENTREON_CONF/$FILE_CONF | ${GREP} "WEB_USER" | cut -d '=' -f2`;
-	WEB_GROUP=`${CAT} $CENTREON_CONF/$FILE_CONF | ${GREP} "WEB_GROUP" | cut -d '=' -f2`;
-	CENTREON_LOG=`${CAT} $CENTREON_CONF/$FILE_CONF | ${GREP} "CENTREON_LOG" | cut -d '=' -f2`;
-	CENTREON_USER=`${CAT} $CENTREON_CONF/$FILE_CONF | ${GREP} "CENTREON_USER" | cut -d '=' -f2`;
-	CENTREON_GROUP=`${CAT} $CENTREON_CONF/$FILE_CONF | ${GREP} "CENTREON_GROUP" | cut -d '=' -f2`;
-    CENTREON_RUNDIR=`${CAT} $CENTREON_CONF/$FILE_CONF_CORE | ${GREP} "CENTREON_RUNDIR" | cut -d '=' -f2`;
-  	CENTREON_VARLIB=`${CAT} $CENTREON_CONF/$FILE_CONF_CORE | ${GREP} "CENTREON_VARLIB" | cut -d '=' -f2`;
-	CENTREON_BINDIR=`${CAT} $CENTREON_CONF/$FILE_CONF_CORE | ${GREP} "CENTREON_BINDIR" | cut -d '=' -f2`;
+	INSTALL_DIR_CENTREON=`${CAT} $CENTREON_CONF/$FILE_CONF | ${GREP} "INSTALL_DIR_CENTREON" | cut -d '=' -f2`
+	WEB_USER=`${CAT} $CENTREON_CONF/$FILE_CONF | ${GREP} "WEB_USER" | cut -d '=' -f2`
+	WEB_GROUP=`${CAT} $CENTREON_CONF/$FILE_CONF | ${GREP} "WEB_GROUP" | cut -d '=' -f2`
+	CENTREON_LOG=`${CAT} $CENTREON_CONF/$FILE_CONF | ${GREP} "CENTREON_LOG" | cut -d '=' -f2`
+	CENTREON_USER=`${CAT} $CENTREON_CONF/$FILE_CONF | ${GREP} "CENTREON_USER" | cut -d '=' -f2`
+	CENTREON_GROUP=`${CAT} $CENTREON_CONF/$FILE_CONF | ${GREP} "CENTREON_GROUP" | cut -d '=' -f2`
+    CENTREON_RUNDIR=`${CAT} $CENTREON_CONF/$FILE_CONF_CORE | ${GREP} "CENTREON_RUNDIR" | cut -d '=' -f2`
+  	CENTREON_VARLIB=`${CAT} $CENTREON_CONF/$FILE_CONF_CORE | ${GREP} "CENTREON_VARLIB" | cut -d '=' -f2`
+	CENTREON_BINDIR=`${CAT} $CENTREON_CONF/$FILE_CONF_CORE | ${GREP} "CENTREON_BINDIR" | cut -d '=' -f2`
+    CENTREON_ETC=`${CAT} $CENTREON_CONF/$FILE_CONF_CORE | ${GREP} "CENTREON_ETC" | cut -d '=' -f2`
     
 	RESULT=0
 	if [ "$INSTALL_DIR_CENTREON" != "" ] ; then
@@ -233,8 +234,11 @@ function get_centreon_parameters() {
     if [ "$CENTREON_RUNDIR" != "" ] ; then
 		RESULT=`expr $RESULT + 1`
 	fi
+    if [ "$CENTREON_ETC" != "" ] ; then
+		RESULT=`expr $RESULT + 1`
+	fi
 	
-	if [ "$RESULT" -eq 6 ]; then 
+	if [ "$RESULT" -eq 7 ]; then 
 		return 1;
 	else
 		return 0;
@@ -296,7 +300,7 @@ function install_module_cron_files() {
 
 	${SED} -i -e 's|@CENTREON_DSM_PATH@|'"$CRON_MODULE"'|g' $FILE 2>> $LOG_FILE	
 	${SED} -i -e 's|@CENTREON_LOG@|'"$CENTREON_LOG"'|g' $FILE 2>> $LOG_FILE
-    ${SED} -i -e 's|@INSTALL_DIR_CENTREON@|'"$CENTREON_CONF"'|g' $FILE 2>> $LOG_FILE		
+    ${SED} -i -e 's|@CENTREON_ETC@|'"$CENTREON_CONF"'|g' $FILE 2>> $LOG_FILE		
 	if [ "$?" -eq 0 ] ; then
 		echo_success "Changing macro" "$ok"
 	else 
@@ -408,6 +412,7 @@ function install_module() {
 
 	${CP} -Rf bin/* $TEMP_D/bin >> $LOG_FILE 2>> $LOG_FILE
 	${CP} -Rf libinstall/init.d.dsmd $TEMP_D/libinstall/ >> $LOG_FILE 2>> $LOG_FILE
+ 	${CP} -Rf libinstall/dsmd.sysconfig $TEMP_D/libinstall/ >> $LOG_FILE 2>> $LOG_FILE
 
 	################################################################
 	## DSMD client
@@ -476,7 +481,7 @@ function install_module() {
 	if [ "$?" -eq 0 ] ; then
 		RESULT=`expr $RESULT + 1`
 	fi
-	${SED} -i -e 's|@CENTREON_BINDIR@|'"$CENTREON_BINDIR"'|g' $TEMP_D/$FILE 2>> $LOG_FILE
+	${SED} -i -e 's|@INSTALL_DIR_CENTREON@|'"$INSTALL_DIR_CENTREON"'|g' $TEMP_D/$FILE 2>> $LOG_FILE
 	if [ "$?" -eq 0 ] ; then
 		RESULT=`expr $RESULT + 1`
 	fi
@@ -512,6 +517,50 @@ function install_module() {
 		echo_success "Copying init script" "$ok"
 	else 
 		echo_failure "Copying init script" "$fail"
+		exit 1
+	fi
+    
+    ################################################################
+	## DSMD sysconfig script
+	#
+	RESULT=0
+	FILE="libinstall/dsmd.sysconfig"
+	${SED} -i -e 's|@CENTREON_LOG@|'"$CENTREON_LOG"'|g' $TEMP_D/$FILE 2>> $LOG_FILE
+	if [ "$?" -eq 0 ] ; then
+		RESULT=`expr $RESULT + 1`
+	fi
+	${SED} -i -e 's|@CENTREON_ETC@|'"$CENTREON_ETC"'|g' $TEMP_D/$FILE 2>> $LOG_FILE
+	if [ "$?" -eq 0 ] ; then
+		RESULT=`expr $RESULT + 1`
+	fi
+    
+	if [ "$RESULT" -eq 2 ] ; then
+		echo_success "Changing macros for sysconfig script" "$ok"
+	else 
+		echo_failure "Changing macros for sysconfig script" "$fail"
+		exit 1
+	fi
+
+	${CHMOD} -R 644 $TEMP_D/$FILE >> $LOG_FILE 2>> $LOG_FILE
+	if [ "$?" -eq 0 ] ; then
+		echo_success "Set owner for sysconfig script" "$ok"
+	else 
+		echo_failure "Set owner for sysconfig script" "$fail"
+		exit 1
+	fi
+	${CHOWN} root $TEMP_D/$FILE >> $LOG_FILE 2>> $LOG_FILE
+	if [ "$?" -eq 0 ] ; then
+		echo_success "Set mod for sysconfig script" "$ok"
+	else 
+		echo_failure "Set mod for sysconfig script" "$fail"
+		exit 1
+	fi
+	
+	${CP} -Rf --preserve $TEMP_D/$FILE /etc/sysconfig/dsmd >> $LOG_FILE 2>> $LOG_FILE
+	if [ "$?" -eq 0 ] ; then
+		echo_success "Copying sysconfig script" "$ok"
+	else 
+		echo_failure "Copying sysconfig script" "$fail"
 		exit 1
 	fi
 
