@@ -4,7 +4,7 @@
         <email>contact@centreon.com</email>
         <website>http://www.centreon.com</website>
         <description>Widget for top 10 hosts in function % cpu</description>
-        <version>1.0.2</version>
+        <version>1.1.0</version>
         <keywords>centreon, widget, cpu</keywords>
         <screenshot></screenshot>
         <thumbnail>./widgets/live-top10-cpu-usage/resources/logo1.png</thumbnail>
