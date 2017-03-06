@@ -15,6 +15,6 @@
         <preference label="Service Description" name="service_description" defaultValue="memory" type="text"/>
 	    <preference label="Metric Name" name="metric_name" defaultValue="used" type="text" header="Filter"/>
 	    <preference label="Results" name="nb_lin" defaultValue="10" type="text"/>
-	 <preference label="Auto Refresh" name="autoRefresh" defaultValue="30" type="integer"/>
+            <preference label="Refresh Interval (seconds)" name="refresh_interval" defaultValue="30" type="text" header="Misc"/>
 	</preferences>
 </configs>

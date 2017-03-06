@@ -146,6 +146,7 @@ while ($row = $res->fetchRow()) {
 $template->assign('preferences', $preferences);
 $template->assign('widgetID', $widgetId);
 $template->assign('preferences', $preferences);
+$template->assign('autoRefresh', $autoRefresh);
 $template->assign('data', $data);
 $template->display('table_top10memory.ihtml');
 ?>
