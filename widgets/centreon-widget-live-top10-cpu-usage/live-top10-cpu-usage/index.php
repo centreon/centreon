@@ -120,8 +120,6 @@ while ($row = $res->fetchRow()) {
   $numLine++;
 }
 
-$autoRefresh = $preferences['autoRefresh'];
-
 $template->assign('preferences', $preferences);
 $template->assign('widgetID', $widgetId);
 $template->assign('autoRefresh', $autoRefresh);

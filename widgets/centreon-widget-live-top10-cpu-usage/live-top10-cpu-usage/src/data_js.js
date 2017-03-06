@@ -1,7 +1,6 @@
 var timeout;
 
 jQuery(function() {
-	console.log("jQuery function");
         loadTop10();
     });
 
