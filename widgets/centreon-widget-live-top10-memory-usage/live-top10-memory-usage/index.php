@@ -43,7 +43,7 @@ require_once $centreon_path . 'www/class/centreonUtils.class.php';
 require_once $centreon_path . 'www/class/centreonACL.class.php';
 require_once $centreon_path . 'www/class/centreonHost.class.php';
 
-CentreonSession::start(1);
+session_start();
 
 //load smarty
 require_once $centreon_path . 'GPL_LIB/Smarty/libs/Smarty.class.php';
@@ -75,10 +75,10 @@ try {
 }
 
  if ($centreon->user->admin == 0) {
-        $access = new CentreonACL($centreon->user->get_id());
-        $grouplist = $access->getAccessGroups();
-        $grouplistStr = $access->getAccessGroupsString();
-    }
+    $access = new CentreonACL($centreon->user->get_id());
+    $grouplist = $access->getAccessGroups();
+    $grouplistStr = $access->getAccessGroupsString();
+}
 
 $path = $centreon_path . "www/widgets/live-top10-memory-usage/src/";
 $template = new Smarty();
@@ -86,79 +86,61 @@ $template = initSmartyTplForPopup($path, $template, "./", $centreon_path);
 
 $data = array();
 
-if ($preferences['host_group'] == '') {
-    $query = "select DISTINCT T1.service_id, T1.host_id, T1.host_name, T1.service_description, current_value/max as ratio, max-current_value as remaining_space, T3.state as status  
-    from index_data T1, metrics T2, services T3, hosts T4  " .($centreon->user->admin == 0 ? ", centreon_acl acl" : ""). "
-    where T1.service_description like '%".$preferences['service_description']."%'
-    AND metric_name like '%".$preferences['metric_name']."%'
-    and T2.index_id = id
-    and T1.service_id = T3.service_id
-    and T1.host_id = T3.host_id
-    AND Max is not null
-    and T2.index_id = id
-    and T1.host_name = T4.name
-    and T4.enabled = 1                                                                                                                                                                
-    " .($centreon->user->admin == 0 ? " AND T1.host_id = acl.host_id AND T1.service_id = acl.service_id AND acl.group_id IN (" .($grouplistStr != "" ? $grouplistStr : 0). ")" : ""). "
-    order by ratio desc limit ".$preferences['nb_lin'].";";
-} else {
-
-$query = "select T2.service_id, T2.host_id, T2.host_name, T2.service_description, current_value/Max as ratio, Max-current_value as remaining_space, T1.state as status
-    from services T1, index_data T2, metrics T3, hosts_hostgroups T5, hosts T6 " .($centreon->user->admin == 0 ? ", centreon_acl acl" : ""). "
-    where T2.service_description like '%".$preferences['service_description']."%'
-    AND Max is not null
-    and T3.index_id = id
-    and T2.service_id = T1.service_id
-    and T2.host_id = T1.host_id                                                                                                                                                         
-    and metric_name like '%".$preferences['metric_name']."%'
-    and T5.hostgroup_id = ".$preferences['host_group']."                                                                                                                                  
-    and T1.host_id = T5.host_id                                                                                                                                      
-    and T2.host_name = T6.name
-    and T6.enabled = 1                                                                                                                                                                
-    and T6.host_id = T5.host_id
-    " .($centreon->user->admin == 0 ? " AND T2.host_id = acl.host_id AND T2.service_id = acl.service_id AND acl.group_id IN (" .($grouplistStr != "" ? $grouplistStr : 0). ")" : ""). " 
-    group by T2.host_id  ORDER BY ratio DESC LIMIT ".$preferences['nb_lin'].";";
+$query = "SELECT i.host_name, i.service_description, i.service_id, i.host_id, m.current_value/max as ratio, max-current_value as remaining_space, s.state AS status "
+        ."FROM metrics m, hosts h "
+        .($preferences['host_group'] ? ", hosts_hostgroups hg " : "")
+        .($centreon->user->admin == 0 ? ", centreon_acl acl " : "")
+        ." , index_data i "
+        ."LEFT JOIN services s ON s.service_id  = i.service_id AND s.enabled = 1 "
+        ."WHERE i.service_description LIKE '%".$preferences['service_description']."%' "
+        ."AND i.id = m.index_id "
+        ."AND m.metric_name LIKE '%".$preferences['metric_name']."%' "
+        ."AND i.host_id = h.host_id "
+        .($preferences['host_group'] ? "AND hg.hostgroup_id = ".$preferences['host_group']." " : "");
+if ($centreon->user->admin == 0) {
+$query .="AND i.host_id = acl.host_id "
+        ."AND i.service_id = acl.service_id "
+        ."AND acl.group_id IN (" .($grouplistStr != "" ? $grouplistStr : 0). ")";
 }
+$query .="AND s.enabled = 1 "
+        ."AND h.enabled = 1 "
+        ."GROUP BY i.host_id "
+        ."ORDER BY ratio DESC "
+        ."LIMIT ".$preferences['nb_lin'].";";
 
 $numLine = 1;
 $in = 0;
 
 function getUnit($in)
 {
-  if ($in == 0) {
-    $return = "B";
+    if ($in == 0) {
+        $return = "B";
+    } else if ($in == 1) {
+        $return = "KB";
+    } else if ($in == 2) {
+        $return = "MB";
+    } else if ($in == 3) {
+        $return = "GB";
+    } else if ($in == 4) {
+        $return = "TB";
+    }
     return $return;
-  }
-  else if ($in == 1) {
-    $return = "KB";
-    return $return;
-  }
-  else if ($in == 2) {
-    $return = "MB";
-    return $return;
-  }
-  else if ($in == 3) {
-    $return = "GB";
-    return $return;
-  }
-  else if ($in == 4) {
-    $return = "TB";
-    return $return;
-  }
 }
+
 
 $res = $db->query($query);
 while ($row = $res->fetchRow()) {
-  $row['numLin'] = $numLine;
-  while ($row['remaining_space'] >= 1024) {
-    $row['remaining_space'] = $row['remaining_space'] / 1024;
-    $in = $in + 1;
+    $row['numLin'] = $numLine;
+    while ($row['remaining_space'] >= 1024) {
+        $row['remaining_space'] = $row['remaining_space'] / 1024;
+        $in = $in + 1;
     }
-  $row['unit'] = getUnit($in);
-  $in = 0;
-  $row['remaining_space'] = round($row['remaining_space']);
-  $row['ratio'] = ceil($row['ratio'] * 100);
-  $data[] = $row;
-  $numLine++;
+    $row['unit'] = getUnit($in);
+    $in = 0;
+    $row['remaining_space'] = round($row['remaining_space']);
+    $row['ratio'] = ceil($row['ratio'] * 100);
+    $data[] = $row;
+    $numLine++;
 }
 
 $template->assign('preferences', $preferences);
@@ -166,3 +148,5 @@ $template->assign('widgetID', $widgetId);
 $template->assign('preferences', $preferences);
 $template->assign('data', $data);
 $template->display('table_top10memory.ihtml');
+?>
+
