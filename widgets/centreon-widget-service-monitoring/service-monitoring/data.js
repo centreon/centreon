@@ -77,7 +77,7 @@ jQuery(function () {
         var chck = this.checked;
         jQuery(this).parents().find(':checkbox').each(function () {
             jQuery(this).attr('checked', chck);
-            clickedCb[jquery(this).attr('id')] = chck;
+            clickedCb[jQuery(this).attr('id')] = chck;
         });
     });
     jQuery(".selection").live('click', function () {
