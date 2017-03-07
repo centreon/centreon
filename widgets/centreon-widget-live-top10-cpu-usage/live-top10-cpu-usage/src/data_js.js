@@ -17,7 +17,7 @@ function loadTop10() {
 		}
 	    }
 	});
-    if (autoRefresh) {
+    if (autoRefresh && autoRefresh != "") {
         if (timeout) {
             clearTimeout(timeout);
         }
