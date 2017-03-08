@@ -1,0 +1,126 @@
+#! /bin/sh
+### BEGIN INIT INFO
+# Provides:             dsmd
+# Required-Start:       $local_fs $network
+# Required-Stop:        $local_fs $network
+# Default-Start:        2 3 4 5
+# Default-Stop:         0 1 6
+# Short-Description:    Start daemon dsmd at boot
+# Description:          dsmd is the centreon-dsm daemon
+### END INIT INFO
+# config: /etc/centreon
+# pidfile: ${RunDir}/dsmd.pid
+
+# Source function library.
+. /lib/lsb/init-functions
+  
+binary=@INSTALL_DIR_CENTREON@/bin/dsmd.pl
+servicename=$(basename "$0")
+user=@CENTREON_USER@
+timeout=60
+
+pidfile=@CENTREON_RUNDIR@/dsmd.pid
+
+# Check if we can find the binary.
+if [ ! -x $binary ]; then
+    echo -n $"Starting $servicename.";
+    log_failure_msg $"Executable file $binary not found. Exiting."
+    echo
+    exit 2
+fi
+
+start() {
+	echo -n $"Starting $servicename: "
+        if [ -e "$pidfile" ] && [ -n "$(cat $pidfile)" ] && [ -e "/proc/`cat $pidfile`" ]; then
+                echo -n $"cannot start $servicename: $servicename is already running.";
+                log_failure_msg $"cannot start $servicename: $servicename already running.";
+                echo
+                return 1
+        fi
+        if [ ! -e "$pidfile" ] ; then
+                pid=$(pidofproc $binary)
+                if [ -n "$pid" ] ; then
+                        echo -n $"cannot start $servicename: $servicename is already running.";
+                        log_failure_msg $"cannot start $servicename: $servicename already running.";
+                        echo
+                        return 1
+                fi
+        fi
+
+	if [ "$(id -u -n)" = "$user" ] ; then
+	        start-stop-daemon --start --background --quiet --pidfile ${pidfile} --exec ${DAEMON} 
+	else
+                start-stop-daemon --start --background --quiet --pidfile ${pidfile} --exec ${binary} \
+        --chuid ${user} --user ${user}
+	fi
+	sleep 2
+	pid=$(pidofproc $binary)
+	RETVAL=$?
+	echo $pid > $pidfile
+	log_success_msg $"service launched"
+	echo
+	return $RETVAL
+}
+
+stop() {
+    if [ ! -f "$pidfile" ] || ! kill -0 $(cat "$pidfile"); then
+    echo "Service $servicename not running" >&2
+        return 1
+    fi
+    echo "Stopping service $servicename…" >&2
+    kill -15 $(cat "$pidfile") && rm -f "$pidfile"
+    echo "Service $servicename stopped" >&2
+}	
+
+rhstatus() {
+    printf "%-50s" "Checking $servicename..."
+	if [ -f $pidfile ]; then
+		PID=`cat $pidfile`
+	    if [ -z "`ps axf | grep ${PID} | grep -v grep`" ]; then
+	        printf "%s\n" "Process dead but pidfile exists"
+	    else
+	        echo "Running"
+	    fi
+	else
+	    printf "%s\n" "Service not running"
+	fi
+}	
+
+restart() {
+  	stop
+	start
+}	
+
+reload() {
+	echo -n $"Reloading $servicename daemon configuration: "
+    killproc -p "$pidfile" "$binary" -HUP
+    RETVAL=$?
+    echo
+    return $RETVAL
+}	
+
+case "$1" in
+  start)
+  	start
+	;;
+  stop)
+  	stop
+	;;
+  restart)
+  	restart
+	;;
+  reload)
+  	reload
+	;;
+  status)
+  	rhstatus
+	;;
+  condrestart)
+  	[ -f /var/lock/subsys/centcore ] && restart || :
+	;;
+  *)
+	echo $"Usage: $0 {start|stop|status|reload|restart|condrestart}"
+	exit 1
+esac
+
+

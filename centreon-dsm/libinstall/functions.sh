@@ -176,6 +176,67 @@ function pathfind_ret() {
 }
 
 #----
+## Define OS
+## check on etc to find a specific file <p>
+## Debian, Suse, Redhat, FreeBSD
+## @param	variable to set a result
+## @return 0	OS found
+## @return 1	OS not found
+#----
+function find_OS() {
+	local distrib=$1
+	local dist_found=""
+	local system=""
+	local lsb_release=""
+	system="$(uname -s)"
+	if [ "$system" = "Linux" ] ; then
+		if [ "$(pathfind lsb_release; echo $?)" -eq "0" ] ; then
+			lsb_release="$(lsb_release -i -s)"
+		else
+			lsb_release="NOT_FOUND"
+		fi
+		if [ "$lsb_release" = "Debian" ] || \
+			[ "$lsb_release" = "Ubuntu" ] || \
+			[ -e "/etc/debian_version" ] ; then 
+			dist_found="DEBIAN"
+			log "INFO" "$(gettext "GNU/Linux Debian Distribution")"
+		elif [ "$lsb_release" = "SUSE LINUX" ] || \
+			[ -e "/etc/SuSE-release" ] ; then
+			dist_found="SUSE"
+			log "INFO" "$(gettext "GNU/Linux Suse Distribution")"
+                elif [ "$lsb_release" = "openSUSE project" ] || \
+			[ -e "/etc/SuSE-release" ] ; then
+			dist_found="SUSE"
+			log "INFO" "$(gettext "GNU/openSUSE Distribution")"
+		elif [ "$lsb_release" = "RedHatEnterpriseES" ] || \
+			[ "$lsb_release" = "Fedora" ] || \
+			[ -e "/etc/redhat-release" ] ; then
+			dist_found="REDHAT"
+			log "INFO" "$(gettext "GNU/Linux Redhat Distribution")"
+		else
+			dist_found="NOT_FOUND"
+			log "INFO" "$(gettext "GNU/Linux distribution not found")"
+			return 1
+		fi
+	elif [ "$system" = "FreeBSD" ] ; then
+		dist_found="FREEBSD"
+		log "INFO" "$(gettext "FreeBSD System")"
+	elif [ "$system" = "AIX" ] ; then
+		dist_found="AIX"
+		log "INFO" "$(gettext "AIX System")"
+	elif [ "$system" = "SunOS" ] ; then
+		dist_found="SUNOS"
+		log "INFO" "$(gettext "SunOS System")"
+	else
+		dist_found="NOT_FOUND"
+		log "INFO" "$(gettext "System not found")"
+	fi
+
+	eval $distrib=$dist_found
+	return 0
+}
+
+#----
 ## make a question with yes/no possiblity
 ## use "no" response by default
 ## @param	message to print
@@ -411,8 +472,17 @@ function install_module() {
 	${MKDIR} -p $TEMP_D/libinstall >> $LOG_FILE 2>> $LOG_FILE
 
 	${CP} -Rf bin/* $TEMP_D/bin >> $LOG_FILE 2>> $LOG_FILE
-	${CP} -Rf libinstall/init.d.dsmd $TEMP_D/libinstall/ >> $LOG_FILE 2>> $LOG_FILE
- 	${CP} -Rf libinstall/dsmd.sysconfig $TEMP_D/libinstall/ >> $LOG_FILE 2>> $LOG_FILE
+	# Prepare init.d and default-sysconfig/dsmd
+    DISTRIB=""
+    find_OS "DISTRIB"
+    if [ "$DISTRIB" = "DEBIAN" ]; then
+	   ${CP} -Rf libinstall/debian/init.d.dsmd $TEMP_D/libinstall/ >> $LOG_FILE 2>> $LOG_FILE
+ 	   ${CP} -Rf libinstall/debian/dsmd.default $TEMP_D/libinstall/ >> $LOG_FILE 2>> $LOG_FILE
+    else
+	   ${CP} -Rf libinstall/redhat/init.d.dsmd $TEMP_D/libinstall/ >> $LOG_FILE 2>> $LOG_FILE
+ 	   ${CP} -Rf libinstall/redhat/dsmd.sysconfig $TEMP_D/libinstall/ >> $LOG_FILE 2>> $LOG_FILE
+    fi
+
 
 	################################################################
 	## DSMD client
@@ -475,6 +545,7 @@ function install_module() {
 	################################################################
 	## DSMD init script
 	#
+
 	RESULT=0
 	FILE="libinstall/init.d.dsmd"
 	${SED} -i -e 's|@CENTREON_USER@|'"$CENTREON_USER"'|g' $TEMP_D/$FILE 2>> $LOG_FILE
@@ -521,48 +592,94 @@ function install_module() {
 	fi
     
     ################################################################
-	## DSMD sysconfig script
+	## DSMD sysconfig/default script
 	#
 	RESULT=0
-	FILE="libinstall/dsmd.sysconfig"
-	${SED} -i -e 's|@CENTREON_LOG@|'"$CENTREON_LOG"'|g' $TEMP_D/$FILE 2>> $LOG_FILE
-	if [ "$?" -eq 0 ] ; then
-		RESULT=`expr $RESULT + 1`
-	fi
-	${SED} -i -e 's|@CENTREON_ETC@|'"$CENTREON_ETC"'|g' $TEMP_D/$FILE 2>> $LOG_FILE
-	if [ "$?" -eq 0 ] ; then
-		RESULT=`expr $RESULT + 1`
-	fi
-    
-	if [ "$RESULT" -eq 2 ] ; then
-		echo_success "Changing macros for sysconfig script" "$ok"
-	else 
-		echo_failure "Changing macros for sysconfig script" "$fail"
-		exit 1
-	fi
+	# Prepare init.d and default/dsmd
+    DISTRIB=""
+    find_OS "DISTRIB"
+    if [ "$DISTRIB" = "DEBIAN" ]; then
+  	   FILE="libinstall/dsmd.default"
 
-	${CHMOD} -R 644 $TEMP_D/$FILE >> $LOG_FILE 2>> $LOG_FILE
-	if [ "$?" -eq 0 ] ; then
-		echo_success "Set owner for sysconfig script" "$ok"
-	else 
-		echo_failure "Set owner for sysconfig script" "$fail"
-		exit 1
-	fi
-	${CHOWN} root $TEMP_D/$FILE >> $LOG_FILE 2>> $LOG_FILE
-	if [ "$?" -eq 0 ] ; then
-		echo_success "Set mod for sysconfig script" "$ok"
-	else 
-		echo_failure "Set mod for sysconfig script" "$fail"
-		exit 1
-	fi
+	   ${SED} -i -e 's|@CENTREON_LOG@|'"$CENTREON_LOG"'|g' $TEMP_D/$FILE 2>> $LOG_FILE
+	   if [ "$?" -eq 0 ] ; then
+		  RESULT=`expr $RESULT + 1`
+	   fi
+	   ${SED} -i -e 's|@CENTREON_ETC@|'"$CENTREON_ETC"'|g' $TEMP_D/$FILE 2>> $LOG_FILE
+	   if [ "$?" -eq 0 ] ; then
+		  RESULT=`expr $RESULT + 1`
+	   fi
+    
+	   if [ "$RESULT" -eq 2 ] ; then
+		  echo_success "Changing macros for default script" "$ok"
+	   else 
+		  echo_failure "Changing macros for default script" "$fail"
+		  exit 1
+	   fi
+
+	   ${CHMOD} -R 644 $TEMP_D/$FILE >> $LOG_FILE 2>> $LOG_FILE
+	   if [ "$?" -eq 0 ] ; then
+		  echo_success "Set owner for default script" "$ok"
+	   else 
+		  echo_failure "Set owner for default script" "$fail"
+		  exit 1
+	   fi
+	   ${CHOWN} root $TEMP_D/$FILE >> $LOG_FILE 2>> $LOG_FILE
+	   if [ "$?" -eq 0 ] ; then
+		  echo_success "Set mod for default script" "$ok"
+	   else 
+		  echo_failure "Set mod for default script" "$fail"
+		  exit 1
+	   fi
 	
-	${CP} -Rf --preserve $TEMP_D/$FILE /etc/sysconfig/dsmd >> $LOG_FILE 2>> $LOG_FILE
-	if [ "$?" -eq 0 ] ; then
-		echo_success "Copying sysconfig script" "$ok"
-	else 
-		echo_failure "Copying sysconfig script" "$fail"
-		exit 1
-	fi
+	   ${CP} -Rf --preserve $TEMP_D/$FILE /etc/default/dsmd >> $LOG_FILE 2>> $LOG_FILE
+	   if [ "$?" -eq 0 ] ; then
+		  echo_success "Copying default script" "$ok"
+	   else 
+		  echo_failure "Copying default script" "$fail"
+		  exit 1
+	   fi
+    else
+	   FILE="libinstall/dsmd.sysconfig"
+	   ${SED} -i -e 's|@CENTREON_LOG@|'"$CENTREON_LOG"'|g' $TEMP_D/$FILE 2>> $LOG_FILE
+	   if [ "$?" -eq 0 ] ; then
+		  RESULT=`expr $RESULT + 1`
+	   fi
+	   ${SED} -i -e 's|@CENTREON_ETC@|'"$CENTREON_ETC"'|g' $TEMP_D/$FILE 2>> $LOG_FILE
+	   if [ "$?" -eq 0 ] ; then
+		  RESULT=`expr $RESULT + 1`
+	   fi
+    
+	   if [ "$RESULT" -eq 2 ] ; then
+		  echo_success "Changing macros for sysconfig script" "$ok"
+	   else 
+		  echo_failure "Changing macros for sysconfig script" "$fail"
+		  exit 1
+	   fi
+
+	   ${CHMOD} -R 644 $TEMP_D/$FILE >> $LOG_FILE 2>> $LOG_FILE
+	   if [ "$?" -eq 0 ] ; then
+		  echo_success "Set owner for sysconfig script" "$ok"
+	   else 
+		  echo_failure "Set owner for sysconfig script" "$fail"
+		  exit 1
+	   fi
+	   ${CHOWN} root $TEMP_D/$FILE >> $LOG_FILE 2>> $LOG_FILE
+	   if [ "$?" -eq 0 ] ; then
+		  echo_success "Set mod for sysconfig script" "$ok"
+	   else 
+		  echo_failure "Set mod for sysconfig script" "$fail"
+		  exit 1
+	   fi
+	
+	   ${CP} -Rf --preserve $TEMP_D/$FILE /etc/sysconfig/dsmd >> $LOG_FILE 2>> $LOG_FILE
+	   if [ "$?" -eq 0 ] ; then
+		  echo_success "Copying sysconfig script" "$ok"
+	   else 
+		  echo_failure "Copying sysconfig script" "$fail"
+		  exit 1
+	   fi
+    fi
 
 	${RM} -Rf $TEMP_D >> $LOG_FILE 2>> $LOG_FILE
 	
