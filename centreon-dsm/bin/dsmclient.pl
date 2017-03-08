@@ -16,7 +16,7 @@ use base qw(centreon::script);
 sub new {
     my $class = shift;
     my $self = $class->SUPER::new("dsmclient",
-        centreon_db_conn => 1,
+        centreon_db_conn => 0, # use my connection because i don't need lock!!
         centstorage_db_conn => 1,
     );
     bless $self, $class;
@@ -64,11 +64,11 @@ sub init {
 sub get_pool_prefix {
     my ($self, %options) = @_;
     
-    my $query = "SELECT pool_prefix FROM mod_dsm_pool WHERE pool_host_id = " . $self->{cdb}->quote($options{host_id}) . " AND pool_activate = '1'";
+    my $query = "SELECT pool_prefix FROM mod_dsm_pool WHERE pool_host_id = " . $self->{centreon_db_centreon}->quote($options{host_id}) . " AND pool_activate = '1'";
     if (defined($self->{pool_prefix}) && $self->{pool_prefix} ne '') {
-        $query .= "AND pool_prefix = " . $self->{cdb}->quote($self->{pool_prefix});
+        $query .= "AND pool_prefix = " . $self->{centreon_db_centreon}->quote($self->{pool_prefix});
     }
-    my ($status, $sth) = $self->{cdb}->query($query);
+    my ($status, $sth) = $self->{centreon_db_centreon}->query($query);
     if ($status == -1) {
         $self->{logger}->writeLogError("Cannot get pool prefix from database");
         exit 1;
@@ -88,8 +88,8 @@ sub get_hosts {
     
     my $host_id = $self->{host_id};
     if (defined($self->{host}) && $self->{host} ne '') {
-        my $query = "SELECT host_id FROM host WHERE host_name = " . $self->{cdb}->quote($self->{host}) . " OR host_address = " . $self->{cdb}->quote($self->{host});
-        my ($status, $sth) = $self->{cdb}->query($query);
+        my $query = "SELECT host_id FROM host WHERE host_name = " . $self->{centreon_db_centreon}->quote($self->{host}) . " OR host_address = " . $self->{centreon_db_centreon}->quote($self->{host});
+        my ($status, $sth) = $self->{centreon_db_centreon}->query($query);
         if ($status == -1) {
             $self->{logger}->writeLogError("Cannot get host ID from database");
             exit 1;
@@ -119,6 +119,15 @@ sub run {
     my ($self, %options) = @_;
 
     $self->SUPER::run();
+    
+    $self->{centreon_db_centreon} = centreon::common::db->new(db => $self->{centreon_config}->{centreon_db},
+                                                     host => $self->{centreon_config}->{db_host},
+                                                     port => $self->{centreon_config}->{db_port},
+                                                     user => $self->{centreon_config}->{db_user},
+                                                     password => $self->{centreon_config}->{db_passwd},
+                                                     force => 1,
+                                                     logger => $self->{logger});
+    $self->{centreon_db_centreon}->connect();
 
     my $host_id = $self->get_hosts();
     my $pool_prefix = $self->get_pool_prefix(host_id => $host_id);
