@@ -21,6 +21,8 @@ timeout=60
 
 pidfile=@CENTREON_RUNDIR@/dsmd.pid
 
+[ -e /etc/default/$servicename ] && . /etc/default/$servicename
+
 # Check if we can find the binary.
 if [ ! -x $binary ]; then
     echo -n $"Starting $servicename.";
@@ -48,10 +50,10 @@ start() {
         fi
 
 	if [ "$(id -u -n)" = "$user" ] ; then
-	        start-stop-daemon --start --background --quiet --pidfile ${pidfile} --exec ${DAEMON} 
+	        start-stop-daemon --start --background --quiet --pidfile ${pidfile} --exec ${DAEMON} -- $OPTIONS
 	else
                 start-stop-daemon --start --background --quiet --pidfile ${pidfile} --exec ${binary} \
-        --chuid ${user} --user ${user}
+        --chuid ${user} --user ${user} -- $OPTIONS
 	fi
 	sleep 2
 	pid=$(pidofproc $binary)
