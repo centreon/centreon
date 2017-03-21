@@ -120,9 +120,10 @@ $selected = $rule->loadSelection($db_storage, $get_information['form']['cmd'], $
 try {
     $contact_infos = get_contact_information();
     $resultat['result'] = $centreon_provider->submitTicket($db_storage, $contact_infos, $selected['host_selected'], $selected['service_selected']);
-    do_chain_rules($centreon_provider->getChainRuleList(), $db_storage, $contact_infos, $selected);
     
-    if ($resultat['result']['ticket_is_ok'] == 1) { 
+    if ($resultat['result']['ticket_is_ok'] == 1) {
+        do_chain_rules($centreon_provider->getChainRuleList(), $db_storage, $contact_infos, $selected);
+
         require_once $centreon_path . 'www/class/centreonExternalCommand.class.php';
         $oreon = $_SESSION['centreon'];
         $external_cmd = new CentreonExternalCommand($oreon);
