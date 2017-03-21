@@ -31,6 +31,47 @@ function get_contact_information() {
     return $result;
 }
 
+function get_provider_class($rule_id) {
+    global $register_providers, $centreon_open_tickets_path, $rule, $centreon_path, $get_information;
+    
+    $provider = $rule->getAliasAndProviderId($rule_id);
+    $provider_name = null;
+    foreach ($register_providers as $name => $id) {
+        if (isset($provider['provider_id']) && $id == $provider['provider_id']) {
+            $provider_name = $name;
+            break;
+        }
+    }
+    
+    if (is_null($provider_name)) {
+        return null;
+    }
+    
+    require_once $centreon_open_tickets_path . 'providers/' . $provider_name . '/' . $provider_name . 'Provider.class.php';
+    $classname = $provider_name . 'Provider';
+    $provider_class = new $classname($rule, $centreon_path, $centreon_open_tickets_path, $rule_id, $get_information['form'], 
+        $provider['provider_id']);
+    return $provider_class;
+}
+
+function do_chain_rules($rule_list, $db_storage, $contact_infos, $selected) {
+    $loop_check = array();
+    
+    while (($provider = array_shift($rule_list))) {
+        $provider_class = get_provider_class($provider['Provider']);
+        if (is_null($provider_class)) {
+            continue;
+        }
+        if (isset($loop_check[$provider['Provider']])) {
+            continue;
+        }
+        
+        $loop_check[$provider['Provider']] = 1;
+        $provider_class->submitTicket($db_storage, $contact_infos, $selected['host_selected'], $selected['service_selected']);  
+        array_unshift($rule_list, $provider_class->getChainRuleList());
+    }
+}
+
 $resultat = array(
     "code" => 0,
     "msg" => 'ok'
@@ -79,6 +120,7 @@ $selected = $rule->loadSelection($db_storage, $get_information['form']['cmd'], $
 try {
     $contact_infos = get_contact_information();
     $resultat['result'] = $centreon_provider->submitTicket($db_storage, $contact_infos, $selected['host_selected'], $selected['service_selected']);
+    do_chain_rules($centreon_provider->getChainRuleList(), $db_storage, $contact_infos, $selected);
     
     if ($resultat['result']['ticket_is_ok'] == 1) { 
         require_once $centreon_path . 'www/class/centreonExternalCommand.class.php';

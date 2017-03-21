@@ -244,6 +244,16 @@ class Centreon_OpenTickets_Rule
         $this->_db->commit();
     }
     
+    public function getRuleList() {
+        $result = array();
+        $DBRESULT = $this->_db->query("SELECT r.rule_id, r.activate, r.alias FROM mod_open_tickets_rule r ORDER BY r.alias");
+        while (($row = $DBRESULT->fetchRow())) {
+            $result[$row['rule_id']] = $row['alias'];
+        }
+        
+        return $result;
+    }
+    
     public function get($rule_id) {
         $result = array();
         if (is_null($rule_id)) {

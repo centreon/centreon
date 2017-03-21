@@ -33,4 +33,12 @@
             {$form.macro_ticket_id.html}
         </td>
     </tr>
+    <tr class="list_two">
+        <td class="FormRowField">
+            {$form.chainrule.label}
+        </td>
+        <td class="FormRowValue">
+            {include file="file:$centreon_open_tickets_path/providers/Abstract/templates/clone.ihtml" cloneId="chainruleList" cloneSet=$form.chainruleList}
+        </td>
+    </tr>
 </table>

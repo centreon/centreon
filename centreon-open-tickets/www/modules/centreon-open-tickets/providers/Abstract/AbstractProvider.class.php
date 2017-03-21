@@ -19,7 +19,7 @@
  * limitations under the License.
  */
  
-require_once(dirname(__FILE__) . '/CentreonCommon.php'); 
+require_once(dirname(__FILE__) . '/CentreonCommon.php');
 
 abstract class AbstractProvider {
     abstract protected function _setDefaultValueExtra(); 
@@ -66,6 +66,7 @@ abstract class AbstractProvider {
         $this->_rule_id = $rule_id;
         $this->_submitted_config = $submitted_config;
         $this->rule_data = $rule->get($rule_id);
+        $this->rule_list = $rule->getRuleList();
         
         if (is_null($rule_id) || !isset($this->rule_data['provider_id']) || $provider_id != $this->rule_data['provider_id']) {
             $this->default_data = array();
@@ -377,6 +378,14 @@ Output: {$service.output|substr:0:1024}
         return $this->_config;
     }
     
+    public function getChainRuleList() {
+        $result = array();
+        if (isset($this->rule_data['clones']['chainruleList'])) {
+            $result = $this->rule_data['clones']['chainruleList'];
+        }
+        return $result;
+    }
+    
     public function getMacroTicketId() {
         return $this->rule_data['macro_ticket_id'];
     }
@@ -475,8 +484,10 @@ Output: {$service.output|substr:0:1024}
      * @return void
      */
     protected function _getConfigContainer2Main() {
+        global $register_providers;
         $tpl = $this->initSmartyTemplate();
         
+        $tpl->assign("centreon_open_tickets_path", $this->_centreon_open_tickets_path);
         $tpl->assign("img_wrench", "./modules/centreon-open-tickets/images/wrench.png");
         $tpl->assign("img_brick", "./modules/centreon-open-tickets/images/brick.png");
         $tpl->assign("header", array("title" => _("Rules"), "common" => _("Common")));
@@ -489,11 +500,28 @@ Output: {$service.output|substr:0:1024}
         $array_form = array(
             'macro_ticket_id' => array('label' => _("Macro Ticket ID") . $this->_required_field, 'html' => $macro_ticket_id_html),
             'format_popup' => array('label' => _("Formatting popup"), 'html' => $format_popup_html),
-            'confirm_autoclose' => array('label' => _("Confirm popup autoclose"), 'html' => $confirm_autoclose_html)
+            'confirm_autoclose' => array('label' => _("Confirm popup autoclose"), 'html' => $confirm_autoclose_html),
+            'chainrule' => array('label' => _("Chain rules")),
         );
+        
+        // Chain rule list clone
+        $chainruleListProvider_html = '<select id="chainruleListProvider_#index#" name="chainruleListProvider[#index#]" type="select-one">';
+        $chainruleListProvider_html .=  '<option value="-1">-- ' . _('Choose provider') . ' --</options>';
+        foreach ($this->rule_list as $id => $name) {
+            if ($id != $this->_rule_id) {
+                $chainruleListProvider_html .=  '<option value="' . $id . '">' . $name . '</options>';
+            }
+        }
+        $chainruleListProvider_html .= '</select>';
+        $array_form['chainruleList'] = array(
+            array('label' => _("Provider"), 'html' => $chainruleListProvider_html)
+        );
+        
         $tpl->assign('form', $array_form);
         
         $this->_config['container2_html'] .= $tpl->fetch('conf_container2main.ihtml');
+        
+        $this->_config['clones']['chainruleList'] = $this->_getCloneValue('chainruleList');
     }
     
     protected function _getCloneSubmitted($clone_key, $values) {
@@ -533,6 +561,7 @@ Output: {$service.output|substr:0:1024}
         $this->_save_config['clones']['groupList'] = $this->_getCloneSubmitted('groupList', array('Id', 'Label', 'Type', 'Filter', 'Mandatory'));
         $this->_save_config['clones']['customList'] = $this->_getCloneSubmitted('customList', array('Id', 'Value', 'Default'));
         $this->_save_config['clones']['bodyList'] = $this->_getCloneSubmitted('bodyList', array('Name', 'Value', 'Default'));
+        $this->_save_config['clones']['chainruleList'] = $this->_getCloneSubmitted('chainruleList', array('Provider'));
     }
     
     public function saveConfig() {
