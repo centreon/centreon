@@ -155,3 +155,12 @@ After opening a ticket, you may need to send an email. The chaining rules system
 
 .. image:: /_static/configuration/advanced_chain_01.png
     :align: center
+
+    
+Commands
+--------
+
+After opening a ticket, you can also configure some commands to be executed. 
+
+.. image:: /_static/configuration/advanced_cmd_01.png
+    :align: center
