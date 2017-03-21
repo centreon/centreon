@@ -143,3 +143,15 @@ or ``mapping ticket arguments``). There are 3 fields (**LIST_ID** must be replac
 * {$select.LIST_ID.id}
 * {$select.LIST_ID.value}
 * {$select.LIST_ID.label}
+
+
+Chaining rules
+--------------
+
+After opening a ticket, you may need to send an email. The chaining rules system is designed to do it:
+
+* Create a new rule with the name ``emailme`` and the provider ``Mail``
+* Configure the ``emailme`` in the rule of your opening system
+
+.. image:: /_static/configuration/advanced_chain_01.png
+    :align: center
