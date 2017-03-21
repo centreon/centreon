@@ -502,6 +502,7 @@ Output: {$service.output|substr:0:1024}
             'format_popup' => array('label' => _("Formatting popup"), 'html' => $format_popup_html),
             'confirm_autoclose' => array('label' => _("Confirm popup autoclose"), 'html' => $confirm_autoclose_html),
             'chainrule' => array('label' => _("Chain rules")),
+            'command' => array('label' => _("Commands")),
         );
         
         // Chain rule list clone
@@ -517,11 +518,18 @@ Output: {$service.output|substr:0:1024}
             array('label' => _("Provider"), 'html' => $chainruleListProvider_html)
         );
         
+        // Command list clone
+        $commandListCmd_html = '<input id="commandListCmd_#index#" name="commandListCmd[#index#]" size="60"  type="text" />';
+        $array_form['commandList'] = array(
+            array('label' => _("Command"), 'html' => $commandListCmd_html)
+        );
+        
         $tpl->assign('form', $array_form);
         
         $this->_config['container2_html'] .= $tpl->fetch('conf_container2main.ihtml');
         
         $this->_config['clones']['chainruleList'] = $this->_getCloneValue('chainruleList');
+        $this->_config['clones']['commandList'] = $this->_getCloneValue('commandList');
     }
     
     protected function _getCloneSubmitted($clone_key, $values) {
@@ -562,6 +570,7 @@ Output: {$service.output|substr:0:1024}
         $this->_save_config['clones']['customList'] = $this->_getCloneSubmitted('customList', array('Id', 'Value', 'Default'));
         $this->_save_config['clones']['bodyList'] = $this->_getCloneSubmitted('bodyList', array('Name', 'Value', 'Default'));
         $this->_save_config['clones']['chainruleList'] = $this->_getCloneSubmitted('chainruleList', array('Provider'));
+        $this->_save_config['clones']['commandList'] = $this->_getCloneSubmitted('commandList', array('Cmd'));
     }
     
     public function saveConfig() {
@@ -874,15 +883,85 @@ Output: {$service.output|substr:0:1024}
         return $tpl->fetch('eval.ihtml');
     }
     
+    private function ExecWaitTimeout($cmd, $timeout=10) {
+        $descriptorspec = array(
+            0 => array("pipe", "r"),
+            1 => array("pipe", "w"),
+            2 => array("pipe", "w")
+        );
+        $pipes = array();
+     
+        $timeout += time();
+        $process = proc_open($cmd, $descriptorspec, $pipes);
+        if (!is_resource($process)) {
+            throw new Exception("proc_open failed on: " . $cmd);
+        }
+     
+        $output = '';
+        do {
+            $timeleft = $timeout - time();
+            $read = array($pipes[1]);
+            stream_select($read, $write = NULL, $exeptions = NULL, $timeleft, NULL);
+     
+            if (!empty($read)) {
+                $output .= fread($pipes[1], 8192);
+            }
+        } while (!feof($pipes[1]) && $timeleft > 0);
+     
+        if ($timeleft <= 0) {
+            proc_terminate($process);
+            throw new Exception("command timeout on: " . $cmd);
+        } else {
+            return $output;
+        }
+    }
+    
+    protected function executeCmd($host_problems, $service_problems, &$submit_result) {
+        $submit_result['commands'] = array();
+
+        if (!isset($this->rule_data['clones']['commandList'])) {
+            return 0;
+        }
+        
+        $tpl = $this->initSmartyTemplate();
+        $tpl->assign("centreon_open_tickets_path", $this->_centreon_open_tickets_path);
+        $tpl->assign('host_selected', $host_problems);
+        $tpl->assign('service_selected', $service_problems);
+        foreach ($submit_result as $label => $value) {
+            $tpl->assign($label, $value);
+        }
+        foreach ($this->_submitted_config as $label => $value) {
+            $tpl->assign($label, $value);
+        }
+        
+        foreach ($this->rule_data['clones']['commandList'] as $cmd) {
+            $output = '';
+            $error = '';
+            try {
+                $tpl->assign('string', $cmd['Cmd']);
+                $cmd_exec = $tpl->fetch('eval.ihtml');
+                $output = $this->ExecWaitTimeout($cmd_exec);
+            } catch (Exception $e) {
+                $error = $e->getMessage();
+            }
+            
+            $submit_result['commands'][] = array('output' => $output, 'error' => $error);
+        }
+    }
+    
     public function submitTicket($db_storage, $contact, $host_problems, $service_problems) {
         $result = array('confirm_popup' => null);
         
         $submit_result = $this->doSubmit($db_storage, $contact, $host_problems, $service_problems);
+        if ($submit_result['ticket_is_ok'] == 1) {
+            $this->executeCmd($host_problems, $service_problems, $submit_result);
+        }
         $result['confirm_message'] = $this->setConfirmMessage($host_problems, $service_problems, $submit_result);
         $result['ticket_id'] = $submit_result['ticket_id'];
         $result['ticket_is_ok'] = $submit_result['ticket_is_ok'];
         $result['ticket_time'] = $submit_result['ticket_time'];
         $result['confirm_autoclose'] = $this->rule_data['confirm_autoclose'];
+
         return $result;
     }
     
