@@ -68,6 +68,7 @@ $template = new Smarty();
 $template = initSmartyTplForPopup($path, $template, "./", $centreon_path);
 
 $centreon = $_SESSION['centreon'];
+$centreonWebPath = trim($centreon->optGen['oreon_web_path'], "/");
 $widgetId = $_REQUEST['widgetId'];
 $page = $_REQUEST['page'];
 
@@ -242,7 +243,9 @@ while ($row = $res->fetchRow()) {
         } elseif ($key == "output") {
             $value = substr($value, 0, $outputLength);
         } elseif (($key == "action_url" || $key == "notes_url") && !empty($value)) {
-            if (!preg_match("/(^http[s]?)|(^\/\/)/", $value)) {
+            if (preg_match('#^\./(.+)#', $value, $matches)) {
+                $value = '/' . $centreonWebPath . '/' . $matches[1];
+            } elseif (!preg_match("#(^http[s]?)|(^//)#", $value)) {
                 $value = '//' . $value;
             }
             $value = CentreonUtils::escapeSecure($hostObj->replaceMacroInString($row['host_name'], $value));
@@ -287,7 +290,7 @@ $template->assign('page', $page);
 $template->assign('dataJS', count($data));
 $template->assign('nbRows', $nbRows);
 $template->assign('aColorHost', $aColorHost);
-$template->assign('centreon_web_path', trim($centreon->optGen['oreon_web_path'], "/"));
+$template->assign('centreon_web_path', $centreonWebPath);
 $template->assign('preferences', $preferences);
 $template->assign('data', $data);
 $template->assign('broker', "broker");
