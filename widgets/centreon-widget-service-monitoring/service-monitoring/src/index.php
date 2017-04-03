@@ -66,6 +66,7 @@ $criticality = new CentreonCriticality($db);
 $media = new CentreonMedia($db);
 
 $centreon = $_SESSION['centreon'];
+$centreonWebPath = trim($centreon->optGen['oreon_web_path'], "/");
 $widgetId = $_REQUEST['widgetId'];
 $page = $_REQUEST['page'];
 
@@ -339,8 +340,18 @@ while ($row = $res->fetchRow()) {
         } elseif ($key == "output") {
             $value = substr($value, 0, $outputLength);
         } elseif (($key == "h_action_url" || $key == "h_notes_url") && $value) {
+            if (preg_match('#^\./(.+)#', $value, $matches)) {
+                $value = '/' . $centreonWebPath . '/' . $matches[1];
+            } elseif (!preg_match("#(^http[s]?)|(^//)#", $value)) {
+                $value = '//' . $value;
+            }
             $value = CentreonUtils::escapeSecure($hostObj->replaceMacroInString($row['hostname'], $value));
         } elseif (($key == "s_action_url" || $key == "s_notes_url") && $value) {
+            if (preg_match('#^\./(.+)#', $value, $matches)) {
+                $value = '/' . $centreonWebPath . '/' . $matches[1];
+            } elseif (!preg_match("#(^http[s]?)|(^//)#", $value)) {
+                $value = '//' . $value;
+            }
             $value = CentreonUtils::escapeSecure($hostObj->replaceMacroInString($row['hostname'], $value));
             $value = CentreonUtils::escapeSecure($svcObj->replaceMacroInString($row['service_id'], $value));
         } elseif ($key == "criticality_id" && $value != '') {
