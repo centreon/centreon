@@ -292,7 +292,7 @@ sub find_slot {
                     $free_slot_service = $service_description;
                     $free_slot_data = $self->{current_pools_status}->{$options{host_id}}->{$service_description};
                 }
-            } elsif ($alarm_id ne '' && $cache_alarm_id =~ /##$alarm_id$/) {
+            } elsif ($alarm_id ne '' && $cache_alarm_id =~ /##\Q$alarm_id\E$/) {
                 return (1, $service_description, $self->{current_pools_status}->{$options{host_id}}->{$service_description});
             }            
         } elsif ($free_slot == 1 && !defined($free_slot_data) &
@@ -302,7 +302,7 @@ sub find_slot {
             $free_slot_data = $self->{current_pools_status}->{$options{host_id}}->{$service_description};
         }
         
-        if ($alarm_id ne '' && $self->{current_pools_status}->{$options{host_id}}->{$service_description}->{alarm_id} =~ /##$alarm_id$/) {
+        if ($alarm_id ne '' && $self->{current_pools_status}->{$options{host_id}}->{$service_description}->{alarm_id} =~ /##\Q$alarm_id\E$/) {
             return (0, $service_description, $self->{current_pools_status}->{$options{host_id}}->{$service_description});
         }
     }
