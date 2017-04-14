@@ -32,7 +32,9 @@
             var parameters = {
                 interval: interval,
                 refresh: autoRefresh,
-                url: '../../api/internal.php?object=centreon_metric'
+                url: '../../api/internal.php?object=centreon_metric',
+                buttonToggleCurves: false,
+                extraLegend: false
             };
             {/literal}
 
