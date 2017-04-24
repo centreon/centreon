@@ -98,7 +98,7 @@ $query = "SELECT i.host_name, i.service_description, i.service_id, i.host_id, AV
         ."AND m.metric_name LIKE '%".$preferences['metric_name']."%' "
         ."AND current_value <= 100 "
         ."AND i.host_id = h.host_id "
-        .($preferences['host_group'] ? "AND hg.hostgroup_id = ".$preferences['host_group']." " : "");
+        .($preferences['host_group'] ? "AND hg.hostgroup_id = ".$preferences['host_group']." AND i.host_id = hg.host_id " : "");
 if ($centreon->user->admin == 0) {
 $query .="AND i.host_id = acl.host_id "
         ."AND i.service_id = acl.service_id "
