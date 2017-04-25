@@ -242,7 +242,7 @@ sub get_alarms {
     
     ($status, $sth) = $self->{db_centstorage}->query("SELECT hosts.`name`, hosts.`instance_id`, services.`host_id`, services.`service_id`, services.`description`, services.`last_check`, services.`state`, cv.`value` FROM services " .
         "LEFT JOIN customvariables cv ON cv.host_id = services.host_id AND cv.service_id = services.service_id AND cv.name = '" . $self->{dsmd_config}->{macro_config} . "', hosts " . 
-        "WHERE (" . join('OR', @sql_where) . ") AND services.host_id = hosts.host_id");
+        "WHERE (" . join('OR', @sql_where) . ") AND services.enabled = '1' AND services.host_id = hosts.host_id");
     if ($status == -1) {
         $self->{logger}->writeLogError("Cannot get alarms");
         return 1;
