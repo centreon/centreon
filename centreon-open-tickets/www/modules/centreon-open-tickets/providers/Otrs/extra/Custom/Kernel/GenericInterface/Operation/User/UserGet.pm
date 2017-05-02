@@ -1,5 +1,5 @@
 
-package Kernel::GenericInterface::Operation::CustomerUser::CustomerUserGet;
+package Kernel::GenericInterface::Operation::User::UserGet;
 
 use strict;
 use warnings;
@@ -40,16 +40,16 @@ sub Run {
     # check needed stuff
     if (!$Param{Data}->{UserLogin} && !$Param{Data}->{CustomerUserLogin} && !$Param{Data}->{SessionID}) {
         return $Self->ReturnError(
-            ErrorCode    => 'CustomerUserGet.MissingParameter',
-            ErrorMessage => "CustomerUserGet: UserLogin, CustomerUserLogin or SessionID is required!",
+            ErrorCode    => 'UserGet.MissingParameter',
+            ErrorMessage => "UserGet: UserLogin, CustomerUserLogin or SessionID is required!",
         );
     }
 
     if ($Param{Data}->{UserLogin} || $Param{Data}->{CustomerUserLogin}) {
         if (!$Param{Data}->{Password}) {
             return $Self->ReturnError(
-                ErrorCode    => 'CustomerUserGet.MissingParameter',
-                ErrorMessage => "CustomerUserGet: Password or SessionID is required!",
+                ErrorCode    => 'UserGet.MissingParameter',
+                ErrorMessage => "UserGet: Password or SessionID is required!",
             );
         }
     }
@@ -66,28 +66,26 @@ sub Run {
     my ($UserID, $UserType) = $Self->Auth(%Param);
     if (!$UserID) {
         return $Self->ReturnError(
-            ErrorCode    => 'CustomerUserGet.AuthFail',
-            ErrorMessage => "CustomerUserGet: User could not be authenticated!",
+            ErrorCode    => 'UserGet.AuthFail',
+            ErrorMessage => "UserGet: User could not be authenticated!",
         );
     }
     
     $Kernel::OM = Kernel::System::ObjectManager->new();
-    my $CustomerUserObject = $Kernel::OM->Get('Kernel::System::CustomerUser');
-    my %List = $CustomerUserObject->CustomerUserList(valid => 1);
+    my $UserObject = $Kernel::OM->Get('Kernel::System::User');
+    my %List = $UserObject->UserList(Type => 'Long', valid => 1);
     if (!%List) {
         return {
             Success      => 0,
-            ErrorMessage => "Cannot get customer user list",
+            ErrorMessage => "Cannot get user list",
             Data         => {
             },
         };
     }
     
     my $data = { response => [] };
-    my $i = 1;
-    foreach my $login (sort keys %List) {
-        push @{$data->{response}}, { id => $i, name => $login };
-        $i++;
+    foreach my $id (sort keys %List) {
+        push @{$data->{response}}, { id => $id , name => $List{$id} };
     }
 
     return {

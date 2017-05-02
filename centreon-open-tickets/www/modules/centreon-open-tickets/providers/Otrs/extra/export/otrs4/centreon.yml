@@ -46,6 +46,11 @@ Provider:
       MappingInbound: {}
       MappingOutbound: {}
       Type: Type::TypeGet
+    /UserGet/:
+      Description: ''
+      MappingInbound: {}
+      MappingOutbound: {}
+      Type: User::UserGet
   Transport:
     Config:
       KeepAlive: ''
@@ -67,6 +72,8 @@ Provider:
           Route: /TicketUpdate/
         /TypeGet/:
           Route: /TypeGet/
+        /UserGet/:
+          Route: /UserGet/
     Type: HTTP::REST
 RemoteSystem: ''
 Requester:

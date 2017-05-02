@@ -28,6 +28,8 @@ class OtrsProvider extends AbstractProvider {
     const OTRS_STATE_TYPE = 12;
     const OTRS_TYPE_TYPE = 13;
     const OTRS_CUSTOMERUSER_TYPE = 14;
+    const OTRS_OWNER_TYPE = 15;
+    const OTRS_RESPONSIBLE_TYPE = 16;
     
     const ARG_QUEUE = 1;
     const ARG_PRIORITY = 2;
@@ -38,6 +40,8 @@ class OtrsProvider extends AbstractProvider {
     const ARG_BODY = 7;
     const ARG_FROM = 8;
     const ARG_CONTENTTYPE = 9;
+    const ARG_OWNER = 17;
+    const ARG_RESPONSIBLE = 18;
     
     protected $_internal_arg_name = array(
         self::ARG_QUEUE => 'Queue',
@@ -49,6 +53,8 @@ class OtrsProvider extends AbstractProvider {
         self::ARG_BODY => 'Body',
         self::ARG_FROM => 'From',
         self::ARG_CONTENTTYPE => 'ContentType',
+        self::ARG_OWNER => 'Owner',
+        self::ARG_RESPONSIBLE => 'Responsible',
     );
 
     function __destruct() {
@@ -162,6 +168,8 @@ class OtrsProvider extends AbstractProvider {
         '<option value="' . self::ARG_STATE . '">' . _('State') . '</options>' .
         '<option value="' . self::ARG_TYPE . '">' . _('Type') . '</options>' .
         '<option value="' . self::ARG_CUSTOMERUSER . '">' . _('Customer user') . '</options>' .
+        '<option value="' . self::ARG_OWNER . '">' . _('Owner') . '</options>' .
+        '<option value="' . self::ARG_RESPONSIBLE . '">' . _('Responsible') . '</options>' .
         '<option value="' . self::ARG_FROM . '">' . _('From') . '</options>' .
         '<option value="' . self::ARG_SUBJECT . '">' . _('Subject') . '</options>' .
         '<option value="' . self::ARG_BODY . '">' . _('Body') . '</options>' .
@@ -216,7 +224,9 @@ class OtrsProvider extends AbstractProvider {
         '<option value="' . self::OTRS_PRIORITY_TYPE . '">Otrs priority</options>' .
         '<option value="' . self::OTRS_STATE_TYPE . '">Otrs state</options>' .
         '<option value="' . self::OTRS_CUSTOMERUSER_TYPE . '">Otrs customer user</options>' .
-        '<option value="' . self::OTRS_TYPE_TYPE . '">Otrs type</options>';
+        '<option value="' . self::OTRS_TYPE_TYPE . '">Otrs type</options>' .
+        '<option value="' . self::OTRS_OWNER_TYPE . '">Otrs owner</options>' .
+        '<option value="' . self::OTRS_RESPONSIBLE_TYPE . '">Otrs responsible</options>';
         return $str;
     }
     
@@ -369,6 +379,36 @@ class OtrsProvider extends AbstractProvider {
         $this->saveSession('otrs_customeruser', $this->_otrs_call_response['response']);
         $groups[$entry['Id']]['values'] = $result;
     }
+    
+    protected function assignOtrsUser($entry, &$groups_order, &$groups, $label_session) {
+        // no filter $entry['Filter']. preg_match used
+        $code = $this->listUserOtrs();
+        
+        $groups[$entry['Id']] = array('label' => _($entry['Label']) . 
+                                                        (isset($entry['Mandatory']) && $entry['Mandatory'] == 1 ? $this->_required_field : ''));
+        $groups_order[] = $entry['Id'];
+        
+        if ($code == -1) {
+            $groups[$entry['Id']]['code'] = -1;
+            $groups[$entry['Id']]['msg_error'] = $this->ws_error;
+            return 0;
+        }
+
+        $result = array();
+        foreach ($this->_otrs_call_response['response'] as $row) {
+            if (!isset($entry['Filter']) || is_null($entry['Filter']) || $entry['Filter'] == '') {
+                $result[$row['id']] = $this->to_utf8($row['name']);
+                continue;
+            }
+            
+            if (preg_match('/' . $entry['Filter'] . '/', $row['name'])) {
+                $result[$row['id']] = $this->to_utf8($row['name']);
+            }
+        }
+        
+        $this->saveSession($label_session, $this->_otrs_call_response['response']);
+        $groups[$entry['Id']]['values'] = $result;
+    }
         
     protected function assignOthers($entry, &$groups_order, &$groups) {
         if ($entry['Type'] == self::OTRS_QUEUE_TYPE) {
@@ -381,6 +421,10 @@ class OtrsProvider extends AbstractProvider {
             $this->assignOtrsType($entry, $groups_order, $groups);
         } elseif ($entry['Type'] == self::OTRS_CUSTOMERUSER_TYPE) {
             $this->assignOtrsCustomerUser($entry, $groups_order, $groups);
+        } elseif ($entry['Type'] == self::OTRS_OWNER_TYPE) {
+            $this->assignOtrsUser($entry, $groups_order, $groups, 'otrs_owner');
+        } elseif ($entry['Type'] == self::OTRS_RESPONSIBLE_TYPE) {
+            $this->assignOtrsUser($entry, $groups_order, $groups, 'otrs_responsible');
         }
     }
     
@@ -406,6 +450,10 @@ class OtrsProvider extends AbstractProvider {
                     $session_name = 'otrs_type';
                 } elseif ($value['Type'] == self::OTRS_CUSTOMERUSER_TYPE) {
                     $session_name = 'otrs_customeruser';
+                } elseif ($value['Type'] == self::OTRS_OWNER_TYPE) {
+                    $session_name = 'otrs_owner';
+                } elseif ($value['Type'] == self::OTRS_RESPONSIBLE_TYPE) {
+                    $session_name = 'otrs_responsible';
                 }
             }
         }
@@ -572,6 +620,21 @@ class OtrsProvider extends AbstractProvider {
         return 0;
     }
     
+    protected function listUserOtrs() {
+        if ($this->_otrs_connected == 0) {
+            if ($this->loginOtrs() == -1) {
+                return -1;
+            }
+        }
+        
+        $argument = array('SessionID' => $this->_otrs_session);
+        if ($this->callRest('UserGet', $argument) == 1) {
+            return -1;
+        }        
+        
+        return 0;
+    }
+    
     protected function closeTicketOtrs($ticket_number) {
         if ($this->_otrs_connected == 0) {
             if ($this->loginOtrs() == -1) {
@@ -604,20 +667,20 @@ class OtrsProvider extends AbstractProvider {
         $argument = array(
             'SessionID' => $this->_otrs_session, 
             'Ticket' => array(
-                'Title' => $ticket_arguments['Subject'],
-                //'QueueID' => xxx,
-                'Queue' => $ticket_arguments['Queue'],
-                //'StateID' => xxx,
-                'State' => $ticket_arguments['State'],
-                //'PriorityID' => xxx,
-                'Priority' => $ticket_arguments['Priority'],
-                //'TypeID' => 123, 
-                'Type' => $ticket_arguments['Type'],
-                //'OwnerID'       => 123,
-                //'Owner'         => 'some user login',
-                //'ResponsibleID' => 123,
-                //'Responsible'   => 'some user login',
-                'CustomerUser'   => $ticket_arguments['CustomerUser'],
+                'Title'             => $ticket_arguments['Subject'],
+                //'QueueID'         => xxx,
+                'Queue'             => $ticket_arguments['Queue'],
+                //'StateID'         => xxx,
+                'State'             => $ticket_arguments['State'],
+                //'PriorityID'      => xxx,
+                'Priority'          => $ticket_arguments['Priority'],
+                //'TypeID'          => 123, 
+                'Type'              => $ticket_arguments['Type'],
+                //'OwnerID'         => 123,
+                'Owner'             => $ticket_arguments['Owner'],
+                //'ResponsibleID'   => 123,
+                'Responsible'       => $ticket_arguments['Responsible'],
+                'CustomerUser'      => $ticket_arguments['CustomerUser'],
             ),
             'Article' => array(
                 'From' => $ticket_arguments['From'], // Must be an email
