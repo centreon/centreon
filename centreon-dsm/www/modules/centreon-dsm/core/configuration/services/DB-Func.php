@@ -94,7 +94,7 @@
 	{
 	    global $pearDB;
 
-	    $query = "SELECT COUNT(pool_id) as nb FROM mod_dsm_pool WHERE pool_prefix = '" . $poolPrefix . "'";
+	    $query = "SELECT COUNT(pool_id) as nb FROM mod_dsm_pool WHERE pool_host_id = '" . $hostId . "' AND pool_prefix = '" . $poolPrefix . "'";
         if (!is_null($poolId)) {
             $query .= " AND pool_id != " . $poolId;
         }
