@@ -15,6 +15,6 @@
 	  <preference label="Threshold for average latency (in second)" name="avg-l" type="text" defaultValue="1"/>
 	  <preference label="Threshold for max value latency (in second)" name="max-e" type="text" defaultValue="30"/>
 	  <preference label="Threshold for average execution time (in second)" name="avg-e" type="text" defaultValue="10"/>
-	  <preference labem="Auto Refresh" name="autoRefresh" defaultValue="30" type="integer"/>
+	  <preference label="Auto Refresh" name="autoRefresh" defaultValue="30" type="integer"/>
 	</preferences>
 </configs>
