@@ -105,6 +105,8 @@ if (isset($tab[0]) && isset($tab[1]) && $centreon->user->admin == 0 ) {
     }
 }
 
+$servicePreferences = '';
+
 if ($acl === 0){
     $servicePreferences = '';
 } elseif (false === isset($preferences['service']) || trim($preferences['service']) === ''){
