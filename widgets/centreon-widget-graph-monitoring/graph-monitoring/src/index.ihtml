@@ -41,6 +41,6 @@
             {/literal}
 
             jQuery(".chart").centreonGraph(parameters);
-            parent.iResize(window.name, 240);
+            parent.iResize(window.name, 250);
         </script>
     </body>
