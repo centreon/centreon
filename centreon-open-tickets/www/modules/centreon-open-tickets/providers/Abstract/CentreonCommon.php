@@ -65,3 +65,92 @@ function smarty_function_host_get_severity($params, &$smarty) {
     }
     $smarty->assign('host_get_severity_result', $result);
 }
+
+/*
+ * Smarty example:
+ *      {host_get_hostcategories host_id="104"}
+ *      host categories linked:
+ *      {foreach from=$host_get_hostcategories_result key=hc_id item=i}
+ *          id: {$hc_id} name = {$i.name}
+ *      {/foreach}
+ * 
+ */
+function smarty_function_host_get_hostcategories($params, &$smarty) {
+    require_once(dirname(__FILE__) . '/../../centreon-open-tickets.conf.php');
+    require_once(dirname(__FILE__) . '/../../class/centreonDBManager.class.php'); 
+    
+    if (!isset($params['host_id'])) {
+        $smarty->assign('host_get_hostcategories_result', array());
+        return ;
+    }
+    $db = new CentreonDBManager();
+    
+    $loop = array();
+    $array_stack = array($params['host_id']);
+    $result = array();
+    while ($host_id = array_shift($array_stack)) {
+        if (isset($loop[$host_id])) {
+            continue;
+        }
+        $loop[$host_id] = 1;
+        $query = "SELECT htr.host_tpl_id, hcr.hostcategories_hc_id, hostcategories.hc_name FROM host
+            LEFT JOIN host_template_relation htr ON host.host_id = htr.host_host_id
+            LEFT JOIN hostcategories_relation hcr ON htr.host_host_id = hcr.host_host_id 
+            LEFT JOIN hostcategories ON hostcategories.hc_id = hcr.hostcategories_hc_id
+            WHERE host.host_id = " . $host_id . " ORDER BY `order` ASC";
+        $DBRESULT = $db->query($query);
+        while (($row = $DBRESULT->fetchRow())) {
+            if (!is_null($row['host_tpl_id']) && $row['host_tpl_id'] != '') {
+                array_unshift($array_stack, $row['host_tpl_id']);
+            }
+            if (!is_null($row['hostcategories_hc_id']) && $row['hostcategories_hc_id'] != '') {
+                $result[$row['hostcategories_hc_id']] = array('name' => $row['hc_name']);
+            }
+        }
+    }
+    $smarty->assign('host_get_hostcategories_result', $result);
+}
+
+/*
+ *  Smarty example:
+ *      {service_get_servicecategories service_id="1928"}
+ *      service categories linked:
+ *      {foreach from=$service_get_servicecategories_result key=sc_id item=i}
+ *         id: {$sc_id} name = {$i.name}, description = {$i.description}
+ *      {/foreach}
+ *
+ */
+function smarty_function_service_get_servicecategories($params, &$smarty) {
+    require_once(dirname(__FILE__) . '/../../centreon-open-tickets.conf.php');
+    require_once(dirname(__FILE__) . '/../../class/centreonDBManager.class.php'); 
+    
+    if (!isset($params['service_id'])) {
+        $smarty->assign('service_get_servicecategories_result', array());
+        return ;
+    }
+    $db = new CentreonDBManager();
+    
+    $loop = array();
+    $array_stack = array($params['service_id']);
+    $result = array();
+    while ($service_id = array_shift($array_stack)) {
+        if (isset($loop[$service_id])) {
+            continue;
+        }
+        $loop[$service_id] = 1;
+        $query = "SELECT service.service_template_model_stm_id, sc.sc_id, sc.sc_name, sc.sc_description FROM service
+            LEFT JOIN service_categories_relation scr ON service.service_id = scr.service_service_id 
+            LEFT JOIN service_categories sc ON sc.sc_id = scr.sc_id
+            WHERE service.service_id = " . $service_id;
+        $DBRESULT = $db->query($query);
+        while (($row = $DBRESULT->fetchRow())) {
+            if (!is_null($row['service_template_model_stm_id']) && $row['service_template_model_stm_id'] != '') {
+                array_unshift($array_stack, $row['service_template_model_stm_id']);
+            }
+            if (!is_null($row['sc_id']) && $row['sc_id'] != '') {
+                $result[$row['sc_id']] = array('name' => $row['sc_name'], 'description' => $row['sc_description']);
+            }
+        }
+    }
+    $smarty->assign('service_get_servicecategories_result', $result);
+}
