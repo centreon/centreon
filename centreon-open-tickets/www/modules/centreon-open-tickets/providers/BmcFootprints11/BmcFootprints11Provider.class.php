@@ -46,7 +46,8 @@ class BmcFootprints11Provider extends AbstractProvider {
      */
     protected function _setDefaultValueExtra() {
         $this->default_data['address'] = '127.0.0.1';
-        $this->default_data['path'] = '/MRWebServices';
+        $this->default_data['wspath'] = '/MRcgi/MRWebServices.pl';
+        $this->default_data['action'] = '/MRWebServices';
         $this->default_data['https'] = 0;
         $this->default_data['timeout'] = 60;
         
@@ -60,7 +61,7 @@ class BmcFootprints11Provider extends AbstractProvider {
     }
     
     protected function _setDefaultValueMain() {
-        parent::_setDefaultValueMain(1);
+        parent::_setDefaultValueMain();
         
         $this->default_data['url'] = 'http://{$address}/TicketNumber={$ticket_id}';        
     }
@@ -75,6 +76,8 @@ class BmcFootprints11Provider extends AbstractProvider {
         $this->_check_error_message_append = '';
         
         $this->_checkFormValue('address', "Please set 'Address' value");
+        $this->_checkFormValue('wspath', "Please set 'Webservice Path' value");
+        $this->_checkFormValue('action', "Please set 'Action' value");
         $this->_checkFormValue('timeout', "Please set 'Timeout' value");
         $this->_checkFormValue('username', "Please set 'Username' value");
         $this->_checkFormValue('password', "Please set 'Password' value");
@@ -103,7 +106,8 @@ class BmcFootprints11Provider extends AbstractProvider {
         
         // Form
         $address_html = '<input size="50" name="address" type="text" value="' . $this->_getFormValue('address') . '" />';
-        $path_html = '<input size="50" name="path" type="text" value="' . $this->_getFormValue('path') . '" />';
+        $wspath_html = '<input size="50" name="wspath" type="text" value="' . $this->_getFormValue('wspath') . '" />';
+        $action_html = '<input size="50" name="action" type="text" value="' . $this->_getFormValue('action') . '" />';
         $username_html = '<input size="50" name="username" type="text" value="' . $this->_getFormValue('username') . '" />';
         $password_html = '<input size="50" name="password" type="password" value="' . $this->_getFormValue('password') . '" autocomplete="off" />';
         $https_html = '<input type="checkbox" name="https" value="yes" ' . ($this->_getFormValue('https') == 'yes' ? 'checked' : '') . '/>';
@@ -111,7 +115,8 @@ class BmcFootprints11Provider extends AbstractProvider {
 
         $array_form = array(
             'address' => array('label' => _("Address") . $this->_required_field, 'html' => $address_html),
-            'path' => array('label' => _("Path"), 'html' => $path_html),
+            'wspath' => array('label' => _("Webservice Path") . $this->_required_field, 'html' => $wspath_html),
+            'action' => array('label' => _("Action") . $this->_required_field, 'html' => $action_html),
             'username' => array('label' => _("Username") . $this->_required_field, 'html' => $username_html),
             'password' => array('label' => _("Password") . $this->_required_field, 'html' => $password_html),
             'https' => array('label' => _("Use https"), 'html' => $https_html),
@@ -161,7 +166,8 @@ class BmcFootprints11Provider extends AbstractProvider {
     
     protected function saveConfigExtra() {
         $this->_save_config['simple']['address'] = $this->_submitted_config['address'];
-        $this->_save_config['simple']['path'] = $this->_submitted_config['path'];
+        $this->_save_config['simple']['wspath'] = $this->_submitted_config['wspath'];
+        $this->_save_config['simple']['action'] = $this->_submitted_config['action'];
         $this->_save_config['simple']['username'] = $this->_submitted_config['username'];
         $this->_save_config['simple']['password'] = $this->_submitted_config['password'];
         $this->_save_config['simple']['https'] = (isset($this->_submitted_config['https']) && $this->_submitted_config['https'] == 'yes') ? 
@@ -264,13 +270,13 @@ class BmcFootprints11Provider extends AbstractProvider {
         if (isset($this->rule_data['https']) && $this->rule_data['https'] == 'yes') {
             $proto = 'https';
         }
-        $url = $proto . '://' . $this->rule_data['address'] . $this->rule_data['path'];
+        $url = $proto . '://' . $this->rule_data['address'] . $this->rule_data['action'];
         
         $data = '<?xml version="1.0" encoding="UTF-8"?>
 <soap:Envelope
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/"
-    xmlns:xsd="http://www.w3.org/2001/XMLSchema\"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema"
     soap:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"
     xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
 <soap:Body>
@@ -304,9 +310,14 @@ class BmcFootprints11Provider extends AbstractProvider {
         return 0;
     }
     
-    protected function callSOAP($data, $url) {        
-        $base_url = $this->rule_data['address'];
-        $ch = curl_init($base_url);
+    protected function callSOAP($data, $url) {
+        
+        $proto = 'http';
+        if (isset($this->rule_data['https']) && $this->rule_data['https'] == 'yes') {
+            $proto = 'https';
+        }
+        $endpoint = $proto . '://' . $this->rule_data['address'] . $this->rule_data['wspath'];           
+        $ch = curl_init($endpoint);
         if ($ch == false) {
             $this->setWsError("cannot init curl object");
             return 1;

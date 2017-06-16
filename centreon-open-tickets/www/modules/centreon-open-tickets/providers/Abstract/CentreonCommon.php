@@ -96,7 +96,7 @@ function smarty_function_host_get_hostcategories($params, &$smarty) {
         $query = "SELECT htr.host_tpl_id, hcr.hostcategories_hc_id, hostcategories.hc_name FROM host
             LEFT JOIN host_template_relation htr ON host.host_id = htr.host_host_id
             LEFT JOIN hostcategories_relation hcr ON htr.host_host_id = hcr.host_host_id 
-            LEFT JOIN hostcategories ON hostcategories.hc_id = hcr.hostcategories_hc_id
+            LEFT JOIN hostcategories ON hostcategories.hc_id = hcr.hostcategories_hc_id AND hostcategories.hc_activate = '1'
             WHERE host.host_id = " . $host_id . " ORDER BY `order` ASC";
         $DBRESULT = $db->query($query);
         while (($row = $DBRESULT->fetchRow())) {
@@ -140,7 +140,7 @@ function smarty_function_service_get_servicecategories($params, &$smarty) {
         $loop[$service_id] = 1;
         $query = "SELECT service.service_template_model_stm_id, sc.sc_id, sc.sc_name, sc.sc_description FROM service
             LEFT JOIN service_categories_relation scr ON service.service_id = scr.service_service_id 
-            LEFT JOIN service_categories sc ON sc.sc_id = scr.sc_id
+            LEFT JOIN service_categories sc ON sc.sc_id = scr.sc_id AND sc.sc_activate = '1'
             WHERE service.service_id = " . $service_id;
         $DBRESULT = $db->query($query);
         while (($row = $DBRESULT->fetchRow())) {
@@ -154,3 +154,61 @@ function smarty_function_service_get_servicecategories($params, &$smarty) {
     }
     $smarty->assign('service_get_servicecategories_result', $result);
 }
+
+/*
+ *  Smarty example:
+ *      {service_get_servicegroups host_id="104" service_id="1928"}
+ *      service groups linked:
+ *      {foreach from=$service_get_servicegroups_result key=sg_id item=i}
+ *         id: {$sg_id} name = {$i.name}, alias = {$i.alias}
+ *      {/foreach}
+ *
+ */
+function smarty_function_service_get_servicegroups($params, &$smarty) {
+    require_once(dirname(__FILE__) . '/../../centreon-open-tickets.conf.php');
+    require_once(dirname(__FILE__) . '/../../class/centreonDBManager.class.php'); 
+    
+    if (!isset($params['service_id'])) {
+        $smarty->assign('service_get_servicegroups_result', array());
+        return ;
+    }
+    $db = new CentreonDBManager();
+    
+    $result = array();
+    $service_id_tpl = $params['service_id'];
+    if (isset($params['host_id'])) {
+        $query = "SELECT service.service_template_model_stm_id, sg.sg_id, sg.sg_name, sg.sg_alias FROM servicegroup_relation sgr
+            LEFT JOIN servicegroup sg ON sgr.servicegroup_sg_id = sg.sg_id AND sg.sg_activate = '1'
+            LEFT JOIN service ON service.service_id = sgr.service_service_id
+            WHERE sgr.host_host_id = " . $params['host_id'] . " AND sgr.service_service_id = " . $params['service_id'];
+        $DBRESULT = $db->query($query);
+        while (($row = $DBRESULT->fetchRow())) {
+            $service_id_tpl = $row['service_template_model_stm_id'];
+            if (!is_null($row['sg_id']) && $row['sg_id'] != '') {
+                $result[$row['sg_id']] = array('name' => $row['sg_name'], 'alias' => $row['sg_alias']);
+            }
+        }
+    }
+    
+    $loop_array = array();
+    while (!is_null($service_id_tpl) && $service_id_tpl != '') {
+        if (isset($loop_array[$service_id_tpl])) {
+            break;
+        }
+        $loop_array[$service_id_tpl] = 1;
+        $query = "SELECT service.service_template_model_stm_id, sg.sg_id, sg.sg_name, sg.sg_alias FROM servicegroup_relation sgr
+            LEFT JOIN servicegroup sg ON sgr.servicegroup_sg_id = sg.sg_id AND sg.sg_activate = '1'
+            LEFT JOIN service ON service.service_id = sgr.service_service_id
+            WHERE sgr.service_service_id = " . $service_id_tpl;
+        $DBRESULT = $db->query($query);
+        while (($row = $DBRESULT->fetchRow())) {
+            $service_id_tpl = $row['service_template_model_stm_id'];
+            if (!is_null($row['sg_id']) && $row['sg_id'] != '') {
+                $result[$row['sg_id']] = array('name' => $row['sg_name'], 'alias' => $row['sg_alias']);
+            }
+        }
+    }
+
+    $smarty->assign('service_get_servicegroups_result', $result);
+}
+
