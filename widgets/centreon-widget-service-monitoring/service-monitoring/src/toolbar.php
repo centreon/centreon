@@ -124,6 +124,7 @@ $template->display('toolbar.ihtml');
 <script type='text/javascript'>
 var tab = new Array();
 var actions = "<?php echo $actions;?>";
+var wid = "<?php echo $widgetId;?>";
 
 
 jQuery( function() {
@@ -138,7 +139,8 @@ jQuery( function() {
                 .get().join(",");
 
             if (checkValues != '') {
-                var url = "./widgets/service-monitoring/src/action.php?selection="+checkValues+"&cmd="+jQuery(this).val();
+                var url = "./widgets/service-monitoring/src/action.php?selection="+checkValues+
+                    "&cmd=" + jQuery(this).val() + "&wid=" + wid;
                 parent.jQuery('#widgetPopin').parent().remove();
                 var popin = parent.jQuery('<div id="widgetPopin">');
 
