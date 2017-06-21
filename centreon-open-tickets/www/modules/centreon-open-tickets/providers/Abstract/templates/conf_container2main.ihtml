@@ -49,4 +49,14 @@
             {include file="file:$centreon_open_tickets_path/providers/Abstract/templates/clone.ihtml" cloneId="commandList" cloneSet=$form.commandList}
         </td>
     </tr>
+    {if $form.attach_files.enable}
+    <tr class="list_two">
+        <td class="FormRowField">
+            {$form.attach_files.label}
+        </td>
+        <td class="FormRowValue">
+            {$form.attach_files.html}
+        </td>
+    </tr>
+    {/if}
 </table>

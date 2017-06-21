@@ -36,6 +36,8 @@ $centreon_bg = new CentreonXMLBGRequest(session_id(), 1, 1, 0, 1);
 
 <script type="text/javascript" src="./modules/centreon-open-tickets/lib/jquery.serialize-object.min.js"></script>
 <script type="text/javascript" src="./modules/centreon-open-tickets/lib/commonFunc.js"></script>
+<script type="text/javascript" src="./modules/centreon-open-tickets/lib/dropzone.js"></script>
+<link href="./modules/centreon-open-tickets/lib/dropzone.css" rel="stylesheet" type="text/css"/>
 
 <?php
 
@@ -94,6 +96,7 @@ function service_ack() {
 function format_popup() {
     global $cmd, $widgetId, $rule, $preferences, $centreon, $centreon_path;
     
+    $uniq_id = uniqid();
     if ($cmd == 3) {
         $title = _("Open Service Ticket");
     } else {
@@ -106,7 +109,7 @@ function format_popup() {
                                                                   'alias' => $centreon->user->alias, 
                                                                   'email' => $centreon->user->email),
                                                  )
-                                            , $widgetId, $_REQUEST['cmd'], $_REQUEST['selection']);
+                                            , $widgetId, $uniq_id, $_REQUEST['cmd'], $_REQUEST['selection']);
     
     $path = $centreon_path . "www/widgets/open-tickets/src/";
     $template = new Smarty();
@@ -117,10 +120,12 @@ function format_popup() {
     $template->assign('provider_id', $provider_infos['provider_id']);
     $template->assign('rule_id', $preferences['rule']);
     $template->assign('widgetId', $widgetId);
+    $template->assign('uniqId', $uniq_id);
     $template->assign('title', $title);
     $template->assign('cmd', $cmd);
     $template->assign('selection', $_REQUEST['selection']);
     $template->assign('continue', (!is_null($result) && isset($result['format_popup'])) ? 0 : 1);
+    $template->assign('attach_files_enable', (!is_null($result) && isset($result['attach_files_enable']) && $result['attach_files_enable'] == 'yes') ? 1 : 0);
 
     $template->assign('formatPopupProvider', (!is_null($result) && isset($result['format_popup'])) ? $result['format_popup'] : '');
     

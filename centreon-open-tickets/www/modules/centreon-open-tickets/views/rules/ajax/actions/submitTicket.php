@@ -108,6 +108,7 @@ require_once $centreon_open_tickets_path . 'providers/' . $provider_name . '/' .
 $classname = $provider_name . 'Provider';
 $centreon_provider = new $classname($rule, $centreon_path, $centreon_open_tickets_path, $get_information['rule_id'], $get_information['form'], $get_information['provider_id']);
 $centreon_provider->setWidgetId($get_information['form']['widgetId']);
+$centreon_provider->setUniqId($get_information['form']['uniqId']);
 
 // We get Host or Service
 require_once $centreon_path . 'www/class/centreonDuration.class.php';
@@ -151,6 +152,8 @@ try {
         
         $external_cmd->write();
     }
+    
+    $centreon_provider->clearUploadFiles();
 } catch (Exception $e) {
     $resultat['code'] = 1;
     $resultat['msg'] = $e->getMessage();

@@ -48,16 +48,19 @@ $actions = array("get-form-config" => dirname(__FILE__) . "/actions/getFormConfi
                  "validate-format-popup" => dirname(__FILE__) . "/actions/validateFormatPopup.php",
                  "submit-ticket" => dirname(__FILE__) . "/actions/submitTicket.php",
                  "close-ticket" => dirname(__FILE__) . "/actions/closeTicket.php",
-                 "service-ack" => dirname(__FILE__) . "/actions/serviceAck.php",);
-if (!isset($_POST['data'])) {
+                 "service-ack" => dirname(__FILE__) . "/actions/serviceAck.php",
+                 "upload-file" => dirname(__FILE__) . "/actions/uploadFile.php",
+                 "remove-file" => dirname(__FILE__) . "/actions/removeFile.php");
+if (!isset($_POST['data']) && !isset($_REQUEST['action'])) {
     $resultat = array("code" => 1, "msg" => "POST 'data' needed.");
 } else {
-    $get_information = json_decode($_POST['data'], true);
-    if (!isset($get_information['action']) ||
-        !isset($actions[$get_information['action']])) {
+    $get_information = isset($_POST['data']) ? json_decode($_POST['data'], true): null;
+    $action = !is_null($get_information) && isset($get_information['action']) ? 
+        $get_information['action'] : (isset($_REQUEST['action']) ? $_REQUEST['action'] : 'none');
+    if (!isset($actions[$action])) {
         $resultat = array("code" => 1, "msg" => "Action not good.");
     } else {
-        include($actions[$get_information['action']]);
+        include($actions[$action]);
     }
 }
 

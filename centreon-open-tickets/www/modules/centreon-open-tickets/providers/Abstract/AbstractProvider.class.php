@@ -40,6 +40,8 @@ abstract class AbstractProvider {
     protected $_check_error_message = '';
     protected $_save_config = array();
     protected $_widget_id;
+    protected $_uniq_id;
+    protected $_attach_files = 0;
     
     const HOSTGROUP_TYPE = 0;
     const HOSTCATEGORY_TYPE = 1;
@@ -80,6 +82,7 @@ abstract class AbstractProvider {
         }
         
         $this->_widget_id = null;
+        $this->_uniq_id = null;
     }
     
     protected function initSmartyTemplate($path="providers/Abstract/templates") {
@@ -97,24 +100,46 @@ abstract class AbstractProvider {
         $this->_widget_id = $widget_id;
     }
     
+    public function setUniqId($uniq_id) {
+        $this->_uniq_id = $uniq_id;
+    }
+    
     protected function clearSession() {
-        if (!is_null($this->_widget_id) && isset($_SESSION['ot_save_' . $this->_widget_id])) {
-            unset($_SESSION['ot_save_' . $this->_widget_id]);
+        if (!is_null($this->_uniq_id) && isset($_SESSION['ot_save_' . $this->_uniq_id])) {
+            unset($_SESSION['ot_save_' . $this->_uniq_id]);
         }
     }
     
     protected function saveSession($key, $value) {
-        if (!is_null($this->_widget_id)) {
-            if (!isset($_SESSION['ot_save_' . $this->_widget_id])) {
-                $_SESSION['ot_save_' . $this->_widget_id] = array();
+        if (!is_null($this->_uniq_id)) {
+            if (!isset($_SESSION['ot_save_' . $this->_uniq_id])) {
+                $_SESSION['ot_save_' . $this->_uniq_id] = array();
             }
-            $_SESSION['ot_save_' . $this->_widget_id][$key] = $value;
+            $_SESSION['ot_save_' . $this->_uniq_id][$key] = $value;
         }
     }
     
+    protected function getUploadFiles() {
+        $upload_files = array();
+        if (isset($_SESSION['ot_upload_files'][$this->_uniq_id])) {
+            $upload_files = array_keys($_SESSION['ot_upload_files'][$this->_uniq_id]);
+        }
+        
+        return $upload_files;
+    }
+    
+    public function clearUploadFiles() {
+        $upload_files = $this->getUploadFiles();
+        foreach ($upload_files as $file) {
+            unlink($file);
+        }
+        
+        unset($_SESSION['ot_upload_files'][$this->_uniq_id]);
+    }
+    
     protected function getSession($key) {
-        if (!is_null($key) && !is_null($this->_widget_id) && isset($_SESSION['ot_save_' . $this->_widget_id][$key])) {
-            return $_SESSION['ot_save_' . $this->_widget_id][$key];
+        if (!is_null($key) && !is_null($this->_uniq_id) && isset($_SESSION['ot_save_' . $this->_uniq_id][$key])) {
+            return $_SESSION['ot_save_' . $this->_uniq_id][$key];
         }
         return null;
     }
@@ -499,6 +524,7 @@ Output: {$service.output|substr:0:1024}
         $confirm_autoclose_html = '<input size="5" name="confirm_autoclose" type="text" value="' . $this->_getFormValue('confirm_autoclose') . '" />';
         $macro_ticket_id_html = '<input size="50" name="macro_ticket_id" type="text" value="' . $this->_getFormValue('macro_ticket_id') . '" />';
         $format_popup_html = '<textarea rows="8" cols="70" name="format_popup">' . $this->_getFormValue('format_popup') . '</textarea>';
+        $attach_files_html = '<input type="checkbox" name="attach_files" value="yes" ' . ($this->_getFormValue('attach_files') == 'yes' ? 'checked' : '') . '/>';
 
         $array_form = array(
             'macro_ticket_id' => array('label' => _("Macro Ticket ID") . $this->_required_field, 'html' => $macro_ticket_id_html),
@@ -506,6 +532,7 @@ Output: {$service.output|substr:0:1024}
             'confirm_autoclose' => array('label' => _("Confirm popup autoclose"), 'html' => $confirm_autoclose_html),
             'chainrule' => array('label' => _("Chain rules")),
             'command' => array('label' => _("Commands")),
+            'attach_files' => array('label' => _("Attach Files"), "enable" => $this->_attach_files, 'html' => $attach_files_html),
         );
         
         // Chain rule list clone
@@ -563,6 +590,8 @@ Output: {$service.output|substr:0:1024}
         $this->_save_config['simple']['confirm_autoclose'] = $this->_submitted_config['confirm_autoclose'];
         $this->_save_config['simple']['ack'] = (isset($this->_submitted_config['ack']) && $this->_submitted_config['ack'] == 'yes') ? 
             $this->_submitted_config['ack'] : '';
+        $this->_save_config['simple']['attach_files'] = (isset($this->_submitted_config['attach_files']) && $this->_submitted_config['attach_files'] == 'yes') ? 
+            $this->_submitted_config['attach_files'] : '';
         $this->_save_config['simple']['close_ticket'] = (isset($this->_submitted_config['close_ticket']) && $this->_submitted_config['close_ticket'] == 'yes') ? 
             $this->_submitted_config['close_ticket'] : '';
         $this->_save_config['simple']['url'] = $this->_submitted_config['url'];
@@ -755,6 +784,7 @@ Output: {$service.output|substr:0:1024}
         $this->assignFormatPopupTemplate($tpl, $args);
         $tpl->assign('string', $this->change_html_tags($this->rule_data['format_popup'], 0));
         $result['format_popup'] = $tpl->fetch('eval.ihtml');
+        $result['attach_files_enable'] = isset($this->rule_data['attach_files']) ? $this->rule_data['attach_files'] : 0;
         return $result;
     }
     
@@ -871,7 +901,7 @@ Output: {$service.output|substr:0:1024}
         
         $tpl = $this->initSmartyTemplate();
         
-        $tpl->assign("centreon_open_tickets_path", $this->_centreon_open_tickets_path);
+        $tpl->assign('centreon_open_tickets_path', $this->_centreon_open_tickets_path);
         $tpl->assign('host_selected', $host_problems);
         $tpl->assign('service_selected', $service_problems);
         

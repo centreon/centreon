@@ -77,7 +77,7 @@ class Centreon_OpenTickets_Rule
         return $result;
     }
     
-    protected function loadProvider($rule_id, $provider_id, $widget_id) {
+    protected function loadProvider($rule_id, $provider_id, $widget_id, $uniq_id=null) {
         global $centreon_path, $register_providers;
         
         if (!is_null($this->_provider)) {
@@ -104,6 +104,7 @@ class Centreon_OpenTickets_Rule
         $classname = $provider_name . 'Provider';
         $this->_provider = new $classname($this, $centreon_path, $centreon_open_tickets_path, $rule_id, null, $provider_id);
         $this->_provider->setWidgetId($widget_id);
+        $this->_provider->setUniqId($uniq_id);
     }
     
     public function getUrl($rule_id, $ticket_id, $data, $widget_id) {
@@ -195,9 +196,9 @@ class Centreon_OpenTickets_Rule
         return $selected;
     }
     
-    public function getFormatPopupProvider($rule_id, $args, $widget_id, $cmd, $selection) {        
+    public function getFormatPopupProvider($rule_id, $args, $widget_id, $uniq_id, $cmd, $selection) {        
         $infos = $this->getAliasAndProviderId($rule_id);
-        $this->loadProvider($rule_id, $infos['provider_id'], $widget_id);
+        $this->loadProvider($rule_id, $infos['provider_id'], $widget_id, $uniq_id);
         
         $selected = $this->loadSelection(null, $cmd, $selection);
         $args['host_selected'] = $selected['host_selected'];
