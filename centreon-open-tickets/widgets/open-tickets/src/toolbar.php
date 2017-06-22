@@ -53,16 +53,31 @@ if ($admin) {
 }
 $service_ack_enable = 0;
 
-$actions  = "<option value='0'>-- "._("More actions")." -- </option>";
-
-if (!isset($preferences['opened_tickets']) || $preferences['opened_tickets'] == 0) {
-    if ($service_ack_enable == 1 && ($canDoAction || $centreon->user->access->checkAction("service_acknowledgement"))) {
-        $actions .= "<option value='70'>"._("Service: Acknowledge")."</option>";
+$toolbar = '';
+if ($preferences['toolbar_buttons']) {
+    if (!isset($preferences['opened_tickets']) || $preferences['opened_tickets'] == 0) {
+        if ($service_ack_enable == 1 && ($canDoAction || $centreon->user->access->checkAction("service_acknowledgement"))) {
+            $toolbar .= "<input type='button' alt='" . _("Service: Acknowledge") . "' class='button' id='buttontoolbar_70' style='background: url(" . $centreon->optGen['oreon_web_path'] . "modules/centreon-open-tickets/images/wrench.png) no-repeat center center; height: 40px; width: 40px; cursor:pointer;' /> ";
+        }
+        $toolbar .= "<input type='button' alt='" . _("Service: Open ticket") . "' class='button' id='buttontoolbar_3' style='background: url(" . $centreon->optGen['oreon_web_path'] . "modules/centreon-open-tickets/images/wrench.png) no-repeat center center; height: 40px; width: 40px; cursor:pointer;' /> ";
+        $toolbar .= "<input type='button' alt='" . _("Host: Open ticket") . "' class='button' id='buttontoolbar_4' style='background: url(" . $centreon->optGen['oreon_web_path'] . "modules/centreon-open-tickets/images/brick.png) no-repeat center center; height: 40px; width: 40px; cursor:pointer;' /> ";
+    } else {
+        $toolbar .= "<input type='button' alt='" . _("Close Tickets") . "' class='button' id='buttontoolbar_10' style='background: url(" . $centreon->optGen['oreon_web_path'] . "modules/centreon-open-tickets/images/information.png) no-repeat center center; height: 40px; width: 40px; cursor:pointer;' />";
     }
-    $actions .= "<option value='3'>"._("Service: Open ticket")."</option>";
-    $actions .= "<option value='4'>"._("Host: Open ticket")."</option>";
 } else {
-    $actions .= "<option value='10'>" . _("Close Tickets") . "</option>";
+    $toolbar .= "<select class='toolbar'>";
+    $toolbar .= "<option value='0'>-- "._("More actions")." -- </option>";
+
+    if (!isset($preferences['opened_tickets']) || $preferences['opened_tickets'] == 0) {
+        if ($service_ack_enable == 1 && ($canDoAction || $centreon->user->access->checkAction("service_acknowledgement"))) {
+            $toolbar .= "<option value='70'>"._("Service: Acknowledge")."</option>";
+        }
+        $toolbar .= "<option value='3'>"._("Service: Open ticket")."</option>";
+        $toolbar .= "<option value='4'>"._("Host: Open ticket")."</option>";
+    } else {
+        $toolbar .= "<option value='10'>" . _("Close Tickets") . "</option>";
+    }
+    $toolbar .= "</select>";
 }
 
 $template->assign("widgetId", $widgetId);
@@ -78,12 +93,12 @@ $template->display('toolbar.ihtml');
 <script type='text/javascript'>
 var tab = new Array();
 var sid = '<?php echo session_id();?>';
-var actions = "<?php echo $actions;?>";
+var toolbar = "<?php echo $toolbar;?>";
 var widget_id = "<?php echo $widgetId; ?>";
 
 $(function() {
-	$(".toolbar").html(actions);
-	$(".toolbar").change(function() {
+    $("#toolbar_container").html(toolbar);
+    $(".toolbar").change(function() {
 		if (jQuery(this).val() != 0) {
     		var checkValues = $("input:checked").map(function() {
     			var tmp = $(this).attr('id').split("_");
@@ -103,5 +118,23 @@ $(function() {
     		$(".toolbar").val(0);
 		}
 	});
+    
+    $("[id^=buttontoolbar_]").click(function() {
+        var checkValues = $("input:checked").map(function() {
+    			var tmp = $(this).attr('id').split("_");
+    			return tmp[1];
+    		}).get().join(",");
+            
+         if (checkValues != '') {
+             var tmp = $(this).attr('id').split("_");
+             var url = "./widgets/open-tickets/src/action.php?widgetId="+widget_id+"&sid="+sid+"&selection="+checkValues+"&cmd="+tmp[1];
+             // We delete the old one (not really clean. Should be managed by popin itself. Like with a destroy parameters)
+             parent.jQuery('#OTWidgetPopin').parent().remove();
+             var popin = parent.jQuery('<div id="OTWidgetPopin">');
+             popin.centreonPopin({open:true,url:url});
+         } else {
+             alert("<?php echo _('Please select one or more items'); ?>");
+         }
+    });
 });
 </script>

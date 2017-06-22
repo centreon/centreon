@@ -70,6 +70,7 @@
       <option value="s_state" label="Service Status"/>
     </preference>
     <preference label="Refresh Interval (seconds)" name="refresh_interval" defaultValue="30" type="text" header="Misc"/>
-    <preference label="Enable pagination and more actions" name="more_views" defaultValue="1" type="boolean"/>    
+    <preference label="Enable pagination and more actions" name="more_views" defaultValue="1" type="boolean"/>
+    <preference label="Enable toolbar buttons" name="toolbar_buttons" defaultValue="0" type="boolean"/>  
   </preferences>        
 </configs>
