@@ -164,7 +164,7 @@ class MailProvider extends AbstractProvider {
         }
         $attach_files = $this->getUploadFiles();
         foreach ($attach_files as $file) {
-            $mail->addAttachment($file);
+            $mail->addAttachment($file['filepath'], $file['filename']);
         }
         if (isset($this->rule_data['clones']['headerMail'])) {
             foreach ($this->rule_data['clones']['headerMail'] as $values) {

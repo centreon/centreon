@@ -122,7 +122,12 @@ abstract class AbstractProvider {
     protected function getUploadFiles() {
         $upload_files = array();
         if (isset($_SESSION['ot_upload_files'][$this->_uniq_id])) {
-            $upload_files = array_keys($_SESSION['ot_upload_files'][$this->_uniq_id]);
+            foreach (array_keys($_SESSION['ot_upload_files'][$this->_uniq_id]) as $filepath) {
+                $filename = basename($filepath);
+                if (preg_match('/^.*?__(.*)/', $filename, $matches)) {
+                    $upload_files[] = array('filepath' => $filepath, 'filename' => $matches[1]);
+                }
+            }
         }
         
         return $upload_files;
