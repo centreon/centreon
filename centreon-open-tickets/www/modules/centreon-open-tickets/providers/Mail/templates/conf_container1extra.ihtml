@@ -35,3 +35,11 @@
 		{include file="file:$centreon_open_tickets_path/providers/Abstract/templates/clone.ihtml" cloneId="headerMail" cloneSet=$form.headerMail}
 	</td>
 </tr>
+<tr class="list_one">
+    <td class="FormRowField">
+        {$form.ishtml.label}
+    </td>
+    <td class="FormRowValue">
+        {$form.ishtml.html}
+    </td>
+</tr>

@@ -18,8 +18,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+ 
+require_once dirname(__FILE__) . '/library/class.phpmailer.php';
 
 class MailProvider extends AbstractProvider {
+    protected $_attach_files = 1;
     
     protected function _setDefaultValueMain() {
         parent::_setDefaultValueMain(1);
@@ -29,10 +32,8 @@ class MailProvider extends AbstractProvider {
         $this->default_data['from'] = '{$user.email}';
         $this->default_data['subject'] = 'Issue {$ticket_id} - {include file="file:$centreon_open_tickets_path/providers/Abstract/templates/display_title.ihtml"}';
         
-        $this->default_data['clones']['headerMail'] = array(
-            array('Name' => 'MIME-Version', 'Value' => '1.0'),
-            array('Name' => 'Content-Type', 'Value' => 'text/html; charset=utf8')
-        );
+        $this->default_data['clones']['headerMail'] = array();
+        $this->default_data['ishtml'] = 'yes';
     }
     
     /**
@@ -74,12 +75,14 @@ class MailProvider extends AbstractProvider {
         $from_html = '<input size="50" name="from" type="text" value="' . $this->_getFormValue('from') . '" />';
         $to_html = '<input size="50" name="to" type="text" value="' . $this->_getFormValue('to') . '" />';
         $subject_html = '<input size="50" name="subject" type="text" value="' . htmlentities($this->_getFormValue('subject')) . '" />';
+        $ishtml_html = '<input type="checkbox" name="ishtml" value="yes" ' . ($this->_getFormValue('ishtml') == 'yes' ? 'checked' : '') . '/>';
 
         $array_form = array(
             'from' => array('label' => _("From") . $this->_required_field, 'html' => $from_html),
             'to' => array('label' => _("To") . $this->_required_field, 'html' => $to_html),
             'subject' => array('label' => _("Subject") . $this->_required_field, 'html' => $subject_html),
             'header' => array('label' => _("Headers")),
+            'ishtml' => array('label' => _("Use html"), 'html' => $ishtml_html),
         );
         
         // Clone part
@@ -111,6 +114,8 @@ class MailProvider extends AbstractProvider {
         $this->_save_config['simple']['from'] = $this->_submitted_config['from'];
         $this->_save_config['simple']['to'] = $this->_submitted_config['to'];
         $this->_save_config['simple']['subject'] = $this->_submitted_config['subject'];
+        $this->_save_config['simple']['ishtml'] = (isset($this->_submitted_config['ishtml']) && $this->_submitted_config['ishtml'] == 'yes') ? 
+            $this->_submitted_config['ishtml'] : '';
     }
     
     public function validateFormatPopup() {
@@ -147,22 +152,38 @@ class MailProvider extends AbstractProvider {
         // We send the mail
         $tpl->assign('string', $this->rule_data['from']);
         $from = $tpl->fetch('eval.ihtml');
-        $headers = "From: " . $from;
-        if (isset($this->rule_data['clones']['headerMail'])) {
-            foreach ($this->rule_data['clones']['headerMail'] as $values) {
-                $headers .= "\r\n" . $values['Name'] . ':' . $values['Value'];
-            }
-        }
 
         $tpl->assign('string', $this->rule_data['subject']);
         $subject = $tpl->fetch('eval.ihtml');
-        mail($this->rule_data['to'], $subject, $this->body, $headers);
         
-        $this->saveHistory($db_storage, $result, 
-            array('no_create_ticket_id' => true, 'contact' => $contact, 'host_problems' => $host_problems, 'service_problems' => $service_problems,
-                  'subject' => $subject, 
-                  'data_type' => self::DATA_TYPE_JSON, 'data' => json_encode(array('body' => $this->body, 'from' => $from, 'headers' => $headers, 'to' => $this->rule_data['to'])))
-        );
+        $mail = new PHPMailer();
+        $mail->setFrom($from);
+        $mail->addAddress($this->rule_data['to']);
+        if (isset($this->rule_data['ishtml']) && $this->rule_data['ishtml'] == 'yes') {
+            $mail->isHTML(true);
+        }
+        $attach_files = $this->getUploadFiles();
+        foreach ($attach_files as $file) {
+            $mail->addAttachment($file);
+        }
+        if (isset($this->rule_data['clones']['headerMail'])) {
+            foreach ($this->rule_data['clones']['headerMail'] as $values) {
+                $mail->addCustomHeader($values['Name'], $values['Value']);
+            }
+        }
+        
+        $mail->Subject = $subject;
+        $mail->Body = $this->body;
+        if ($mail->send()) {
+            $this->saveHistory($db_storage, $result, 
+                array('no_create_ticket_id' => true, 'contact' => $contact, 'host_problems' => $host_problems, 'service_problems' => $service_problems,
+                      'subject' => $subject, 
+                      'data_type' => self::DATA_TYPE_JSON, 'data' => json_encode(array('body' => $this->body, 'from' => $from, 'headers' => $headers, 'to' => $this->rule_data['to'])))
+            );
+        } else {
+            $result['ticket_error_message'] = 'Mailer Error: ' . $mail->ErrorInfo;
+            $result['ticket_is_ok'] = 1;
+        }
         
         return $result;
     }
