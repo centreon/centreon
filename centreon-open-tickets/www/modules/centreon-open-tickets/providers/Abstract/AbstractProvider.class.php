@@ -136,7 +136,7 @@ abstract class AbstractProvider {
     public function clearUploadFiles() {
         $upload_files = $this->getUploadFiles();
         foreach ($upload_files as $file) {
-            unlink($file);
+            unlink($file['filepath']);
         }
         
         unset($_SESSION['ot_upload_files'][$this->_uniq_id]);
