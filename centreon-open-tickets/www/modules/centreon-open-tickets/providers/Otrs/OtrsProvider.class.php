@@ -22,6 +22,7 @@
 class OtrsProvider extends AbstractProvider {
     protected $_otrs_connected = 0;
     protected $_otrs_session = null;
+    protected $_attach_files = 1;
     
     const OTRS_QUEUE_TYPE = 10;
     const OTRS_PRIORITY_TYPE = 11;
@@ -689,8 +690,19 @@ class OtrsProvider extends AbstractProvider {
                 'ContentType' => $ticket_arguments['ContentType'],
             ),
         );
+        
+        $files = array();
+        $attach_files = $this->getUploadFiles();
+        foreach ($attach_files as $file) {
+            $base64_content = base64_encode(file_get_contents($file['filepath']));
+            $files[] = array('Content' => $base64_content, 'Filename' => $file['filename'], 'ContentType' => mime_content_type($file['filepath']));
+        }
+        if (count($files) > 0) {
+            $argument['Attachment'] = $files;
+        }
+        
         if (count($ticket_dynamic_fields) > 0) {
-            $arguments['DynamicField'] = $ticket_dynamic_fields;
+            $argument['DynamicField'] = $ticket_dynamic_fields;
         }
 
         if ($this->callRest('TicketCreate', $argument) == 1) {
