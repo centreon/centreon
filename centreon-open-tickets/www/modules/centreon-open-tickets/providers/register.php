@@ -29,5 +29,6 @@ $register_providers['Simple'] = 4;
 $register_providers['BmcItsm'] = 5;
 $register_providers['Serena'] = 6;
 $register_providers['BmcFootprints11'] = 7;
+$register_providers['Easyvista'] = 8;
 
 ?>
