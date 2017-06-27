@@ -29,21 +29,13 @@
 </tr>
 <tr class="list_two">
     <td class="FormRowField">
-        {$form.close_ticket.label}
-    </td>
-    <td class="FormRowValue">
-        {$form.close_ticket.html}
-    </td>
-</tr>
-<tr class="list_one">
-    <td class="FormRowField">
         {$form.grouplist.label}
     </td>
     <td class="FormRowValue">
 		{include file="file:$centreon_open_tickets_path/providers/Abstract/templates/clone.ihtml" cloneId="groupList" cloneSet=$form.groupList}
 	</td>
 </tr>
-<tr class="list_two">
+<tr class="list_one">
     <td class="FormRowField">
         {$form.customlist.label}
     </td>
@@ -51,7 +43,7 @@
 		{include file="file:$centreon_open_tickets_path/providers/Abstract/templates/clone.ihtml" cloneId="customList" cloneSet=$form.customList}
 	</td>
 </tr>
-<tr class="list_one">
+<tr class="list_two">
     <td class="FormRowField">
         {$form.bodylist.label}
     </td>
@@ -59,3 +51,26 @@
 		{include file="file:$centreon_open_tickets_path/providers/Abstract/templates/clone.ihtml" cloneId="bodyList" cloneSet=$form.bodyList}
 	</td>
 </tr>
+{if $form.close_ticket_enable.enable}
+<tr class="list_lvl_1">
+    <td class="ListColLvl1_name" colspan="2">
+        <h4>{$header.close_ticket}</h4>
+    </td>
+</tr>
+<tr class="list_one">
+    <td class="FormRowField">
+        {$form.close_ticket_enable.label}
+    </td>
+    <td class="FormRowValue">
+        {$form.close_ticket_enable.html}
+    </td>
+</tr>
+<tr class="list_two">
+    <td class="FormRowField">
+        {$form.error_close_centreon.label}
+    </td>
+    <td class="FormRowValue">
+        {$form.error_close_centreon.html}
+    </td>
+</tr>
+{/if}

@@ -26,5 +26,6 @@ $resultat = array(
 
 $temp_dir = sys_get_temp_dir();
 unlink($temp_dir . '/opentickets/' . $get_information['uniqId'] . '__' . $get_information['filename']);
+unset($_SESSION['ot_upload_files'][$get_information['uniqId']]);
 
 ?>

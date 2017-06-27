@@ -113,9 +113,6 @@ while (($row = $DBRESULT->fetchRow())) {
 
 try {
     $centreon_provider->closeTicket($tickets);
-   
-    #fwrite($fp, print_r($problems, true) . "===\n");
-    #fwrite($fp, print_r($tickets, true) . "===\n");
 
     require_once $centreon_path . 'www/class/centreonExternalCommand.class.php';
     $oreon = $_SESSION['centreon'];
@@ -132,7 +129,11 @@ try {
         # an error in ticket close
         if (isset($tickets[$row['ticket_value']]) && $tickets[$row['ticket_value']]['status'] == -1) {
             $error_msg[] = $tickets[$row['ticket_value']]['msg_error'];
-            continue;
+            # We close in centreon if ContinueOnError is ok
+            if ($centreon_provider->doCloseTicket() && 
+                $centreon_provider->doCloseTicketContinueOnError() == 0) {
+                continue;
+            }
         }
         
         # ticket is really closed

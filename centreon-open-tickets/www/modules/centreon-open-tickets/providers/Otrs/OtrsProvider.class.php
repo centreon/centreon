@@ -23,6 +23,7 @@ class OtrsProvider extends AbstractProvider {
     protected $_otrs_connected = 0;
     protected $_otrs_session = null;
     protected $_attach_files = 1;
+    protected $_close_advanced = 1;
     
     const OTRS_QUEUE_TYPE = 10;
     const OTRS_PRIORITY_TYPE = 11;

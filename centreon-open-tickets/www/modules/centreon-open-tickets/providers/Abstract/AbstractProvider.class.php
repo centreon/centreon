@@ -42,6 +42,7 @@ abstract class AbstractProvider {
     protected $_widget_id;
     protected $_uniq_id;
     protected $_attach_files = 0;
+    protected $_close_advanced = 0;
     
     const HOSTGROUP_TYPE = 0;
     const HOSTCATEGORY_TYPE = 1;
@@ -172,7 +173,7 @@ abstract class AbstractProvider {
     protected function _setDefaultValueMain($body_html = 0) {
         $this->default_data['macro_ticket_id'] = 'TICKET_ID';
         $this->default_data['ack'] = 'yes';
-        #$this->default_data['close_ticket'] = 'yes';
+        #$this->default_data['close_ticket_enable'] = 'yes';
         
         $this->default_data['format_popup'] = '
 <table class="table">
@@ -434,18 +435,21 @@ Output: {$service.output|substr:0:1024}
         $tpl->assign("centreon_open_tickets_path", $this->_centreon_open_tickets_path);
         $tpl->assign("img_brick", "./modules/centreon-open-tickets/images/brick.png");
         $tpl->assign("header", array("common" => _("Common")));
+        $tpl->assign("header", array("close_ticket" => _("Close Ticket")));
         
         // Form
         $url_html = '<input size="50" name="url" type="text" value="' . $this->_getFormValue('url') . '" />';
         $message_confirm_html = '<textarea rows="8" cols="70" name="message_confirm">' . $this->_getFormValue('message_confirm') . '</textarea>';
         $ack_html = '<input type="checkbox" name="ack" value="yes" ' . ($this->_getFormValue('ack') == 'yes' ? 'checked' : '') . '/>';
-        $close_ticket_html = '<input type="checkbox" name="close_ticket" value="yes" ' . ($this->_getFormValue('close_ticket') == 'yes' ? 'checked' : '') . '/>';
+        $close_ticket_enable_html = '<input type="checkbox" name="close_ticket_enable" value="yes" ' . ($this->_getFormValue('close_ticket_enable') == 'yes' ? 'checked' : '') . '/>';
+        $error_close_centreon_html = '<input type="checkbox" name="error_close_centreon" value="yes" ' . ($this->_getFormValue('error_close_centreon') == 'yes' ? 'checked' : '') . '/>';
 
         $array_form = array(
             'url' => array('label' => _("Url"), 'html' => $url_html),
             'message_confirm' => array('label' => _("Confirm message popup"), 'html' => $message_confirm_html),
             'ack' => array('label' => _("Acknowledge"), 'html' => $ack_html),
-            'close_ticket' => array('label' => _("Close ticket"), 'html' => $close_ticket_html),
+            'close_ticket_enable' => array('label' => _("Enable"), 'enable' => $this->_close_advanced, 'html' => $close_ticket_enable_html),
+            'error_close_centreon' => array('label' => _("On error continue close Centreon"), 'html' => $error_close_centreon_html),
             'grouplist' => array('label' => _("Lists")),
             'customlist' => array('label' => _("Custom list definition")),
             'bodylist' => array('label' => _("Body list definition")),
@@ -597,8 +601,10 @@ Output: {$service.output|substr:0:1024}
             $this->_submitted_config['ack'] : '';
         $this->_save_config['simple']['attach_files'] = (isset($this->_submitted_config['attach_files']) && $this->_submitted_config['attach_files'] == 'yes') ? 
             $this->_submitted_config['attach_files'] : '';
-        $this->_save_config['simple']['close_ticket'] = (isset($this->_submitted_config['close_ticket']) && $this->_submitted_config['close_ticket'] == 'yes') ? 
-            $this->_submitted_config['close_ticket'] : '';
+        $this->_save_config['simple']['close_ticket_enable'] = (isset($this->_submitted_config['close_ticket_enable']) && $this->_submitted_config['close_ticket_enable'] == 'yes') ? 
+            $this->_submitted_config['close_ticket_enable'] : '';
+        $this->_save_config['simple']['error_close_centreon'] = (isset($this->_submitted_config['error_close_centreon']) && $this->_submitted_config['error_close_centreon'] == 'yes') ? 
+            $this->_submitted_config['error_close_centreon'] : '';
         $this->_save_config['simple']['url'] = $this->_submitted_config['url'];
         $this->_save_config['simple']['format_popup'] = $this->change_html_tags($this->_submitted_config['format_popup']);
         $this->_save_config['simple']['message_confirm'] = $this->change_html_tags($this->_submitted_config['message_confirm']);
@@ -802,7 +808,15 @@ Output: {$service.output|substr:0:1024}
     }
     
     public function doCloseTicket() {
-        if (isset($this->rule_data['close_ticket']) && $this->rule_data['close_ticket'] == 'yes') {
+        if (isset($this->rule_data['close_ticket_enable']) && $this->rule_data['close_ticket_enable'] == 'yes') {
+            return 1;
+        }
+        
+        return 0;
+    }
+    
+    public function doCloseTicketContinueOnError() {
+        if (isset($this->rule_data['error_close_centreon']) && $this->rule_data['error_close_centreon'] == 'yes') {
             return 1;
         }
         
