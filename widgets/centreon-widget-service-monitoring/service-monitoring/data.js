@@ -32,10 +32,6 @@
  *
  */
 
-jQuery(function () {
-    loadPage();
-});
-
 /**
  * Load Page
  */
