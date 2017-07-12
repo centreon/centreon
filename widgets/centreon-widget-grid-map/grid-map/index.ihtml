@@ -1,0 +1,23 @@
+<html>
+    <head>
+        <title>Grid-map</title>
+        <link href="../../Themes/Centreon-2/style.css" type="text/css"/>
+        <link href="../../Themes/Centreon-2/Color/blue_css.php" rel="stylesheet" text="text/css"/>
+        {literal}
+        <style>
+            @import url('../../Themes/Centreon-2/style.css');
+        </style>
+        {/literal}
+    </head>
+    <body>
+        <div id="Grid-map"></div>
+        <script type="text/javascript">
+            var widgetId = "{$widgetId}";
+            var autoRefresh = "{$autoRefresh}";
+            var timeout;
+        </script>
+        <script type="text/javascript" src="../../include/common/javascript/jquery/jquery.js"></script>
+        <script type="text/javascript" src="../../include/common/javascript/jquery/jquery-ui.js"></script>
+        <script type="text/javascript" src="src/data_js.js"></script>
+    </body>
+</html>

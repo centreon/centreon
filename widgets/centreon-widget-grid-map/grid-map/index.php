@@ -42,10 +42,7 @@ require_once $centreon_path . 'www/class/centreon.class.php';
 require_once $centreon_path . 'www/class/centreonSession.class.php';
 require_once $centreon_path . 'www/class/centreonDB.class.php';
 require_once $centreon_path . 'www/class/centreonWidget.class.php';
-require_once $centreon_path . 'www/class/centreonDuration.class.php';
 require_once $centreon_path . 'www/class/centreonUtils.class.php';
-require_once $centreon_path . 'www/class/centreonACL.class.php';
-require_once $centreon_path . 'www/class/centreonHost.class.php';
 
 /* load smarty Class */
 require_once $centreon_path . 'GPL_LIB/Smarty/libs/Smarty.class.php';
@@ -59,28 +56,12 @@ if (!isset($_SESSION['centreon']) || !isset($_REQUEST['widgetId'])) {
 $centreon = $_SESSION['centreon'];
 $widgetId = $_REQUEST['widgetId'];
 
-/* INIT */
-
-$colors = array(
-    0 => '#8FCF3C',
-    1 => '#ff9a13',
-    2 => '#e00b3d',
-    3 => '#bcbdc0',
-    4 => '#2AD1D4'
-);
-
 try {
     global $pearDB;
 
     $db_centreon = new CentreonDB();
     $db = new CentreonDB("centstorage");
     $pearDB = $db_centreon;
-
-    if ($centreon->user->admin == 0) {
-        $access = new CentreonACL($centreon->user->get_id());
-        $grouplist = $access->getAccessGroups();
-        $grouplistStr = $access->getAccessGroupsString();
-    }
 
     $widgetObj = new CentreonWidget($centreon, $db_centreon);
     $preferences = $widgetObj->getWidgetPreferences($widgetId);
@@ -96,92 +77,10 @@ try {
 
 /* Start Smarty Init */
 $template = new Smarty();
-$template = initSmartyTplForPopup(getcwd()."/src/", $template, "./", $centreon_path);
-
-$data = array();
-$data_service = array();
-$data_check = array();
-$inc = 0;
-
-if ($preferences['host_group']) {
-    /* Query 1 */
-    $query1 = "SELECT DISTINCT T1.name, T2.host_id " .
-              "FROM hosts T1, hosts_hostgroups T2 " .($centreon->user->admin == 0 ? ", centreon_acl acl " : ""). 
-              "WHERE T1.host_id = T2.host_id ".
-              "AND T1.enabled = 1 ".
-              "AND T2.hostgroup_id = ".$preferences['host_group'].
-              ($centreon->user->admin == 0 ? " AND T1.host_id = acl.host_id AND T2.host_id = acl.host_id AND acl.group_id IN (" .($grouplistStr != "" ? $grouplistStr : 0).")" : "").
-              " ORDER BY T1.name";
-
-    /* Query 2 */
-    $query2 = "SELECT distinct T1.description ".
-              "FROM services T1 " .($centreon->user->admin == 0 ? ", centreon_acl acl " : "").
-              "WHERE T1.enabled = 1 ".
-              ($centreon->user->admin == 0 ? " AND T1.service_id = acl.service_id AND acl.group_id IN (" .($grouplistStr != "" ? $grouplistStr : 0).") AND (" : " AND (");
-    foreach (explode(",", $preferences['service']) as $elem) {
-        if (!$inc) {
-            $query2 .= "T1.description LIKE '$elem'";
-        } else {
-            $query2 .= " OR T1.description like '$elem'";
-        }
-        $inc++;
-    }
-    $query2 .= ");";
-
-    /* Query 3 */
-    $query3 = "SELECT DISTINCT T1.service_id, T1.description, T1.state, T1.host_id ".
-              "FROM services T1 " .($centreon->user->admin == 0 ? ", centreon_acl acl " : "").
-              "WHERE T1.enabled = 1 " .
-              "AND T1.description NOT LIKE 'ba_%' AND T1.description NOT LIKE 'meta_%' ".
-              ($centreon->user->admin == 0 ? " AND T1.service_id = acl.service_id AND acl.group_id IN (" .($grouplistStr != "" ? $grouplistStr : 0).")" : "");
-    $inc = 0;
-
-    $services = explode(",", $preferences['service']);
-    if (count($services)) {
-        $query3 .= " AND (";
-        foreach ($services as $elem) {
-            if (!$inc) {
-                $query3 .= "T1.description LIKE '$elem'";
-            } else {
-                $query3 .= " OR T1.description like '$elem'";
-            }
-            $inc++;
-        }
-        $query3 .= ")";
-    }
-
-    /* Get host listing */
-    $res = $db->query($query1);
-    while ($row = $res->fetchRow()) {
-        $data[] = $row;
-    }
-
-    /* Get service listing */
-    $res2 = $db->query($query2);
-    while ($row = $res2->fetchRow()) {
-        $data_service[$row['description']] = array(
-                             'description' => $row['description'],
-                             'hosts' => array(),
-                             'hostsStatus' => array()
-                             );
-    }
-
-    /* Get host service statuses */
-    $res3 = $db->query($query3);
-    while ($row = $res3->fetchRow()) {
-        if (isset($data_service[$row['description']])) {
-            $data_service[$row['description']]['hosts'][] = $row['host_id'];
-            $data_service[$row['description']]['hostsStatus'][$row['host_id']] = $colors[$row['state']];
-        }
-    }
-
-}
+$template = initSmartyTplForPopup(getcwd()."/", $template, "./", $centreon_path);
 
 $template->assign('autoRefresh', $autoRefresh);
-$template->assign('preferences', $preferences);
 $template->assign('widgetId', $widgetId);
-$template->assign('data', $data);
-$template->assign('data_service', $data_service);
 
 /* Display */
-$template->display('table.ihtml');
+$template->display('index.ihtml');

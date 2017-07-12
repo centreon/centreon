@@ -13,6 +13,6 @@
   	<preferences>
   	    <preference label="Name Host Group" name="host_group" defaultValue="" type="hostgroup" header="Resource"/>
   	    <preference label="Name Services" name="service" defaultValue="" type="text"/>
-  	    <preference label="Auto Refresh" name="autoRefresh" defaultValue="30" type="integer"/>
+        <preference label="Refresh Interval (seconds)" name="refresh_interval" defaultValue="30" type="text" header="Misc"/>
   	</preferences>
 </configs>
