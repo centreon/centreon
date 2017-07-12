@@ -43,13 +43,10 @@ function loadPage()
 {
     jQuery.ajax("./src/index.php?widgetId=" + widgetId + "&page=" + pageNumber, {
         success: function (htmlData) {
-            jQuery("#sgMonitoringTable").html("");
-            jQuery("#sgMonitoringTable").html(htmlData);
-            //jQuery("#sgMonitoringTable").find("img, style, script, link").load(function () {
-                var h = document.getElementById("sgMonitoringTable").scrollHeight + 12;
+            jQuery("#sgMonitoringTable").empty().append(htmlData).append(function() {
+                var h = document.getElementById("sgMonitoringTable").scrollHeight;
                 parent.iResize(window.name, h);
-            //});
-
+            });
         }
     });
     if (autoRefresh) {

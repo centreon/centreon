@@ -8,7 +8,7 @@
     <body>
         {if $preferences.more_views == 1}
         <div id='actionBar' style='width:100%; float:left; height:30px;'>
-            <a href='./src/export.php?widgetId={$widgetId}' target='_blank' class="btc bt_success" style="float:right; margin-top: 0px;">Export</a>
+            <a href='./src/export.php?widgetId={$widgetId}' class="btc bt_success" style="float:right; margin-bottom: 20px;">Export</a>
             <div id='pagination' class="pagination" style='float:left;text-align:right;margin:12px 0px 10px 12px;'></div>
         </div>
         {/if}
@@ -27,7 +27,6 @@
         <script type="text/javascript" src="../../include/common/javascript/jquery/jquery-ui.js"></script>
         <script type="text/javascript" src="../../include/common/javascript/widgetUtils.js"></script>
         <script type="text/javascript" src="../../include/common/javascript/jquery/plugins/pagination/jquery.pagination.js"></script>
-        <script type="text/javascript" src="../../include/common/javascript/jquery/plugins/treeTable/jquery.treeTable.min.js"></script>
         <script type="text/javascript" src="data.js"></script>
     </body>
 </html>
