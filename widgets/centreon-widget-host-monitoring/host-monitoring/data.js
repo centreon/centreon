@@ -39,10 +39,8 @@ function loadPage()
 {
     jQuery.ajax("./src/index.php?widgetId=" + widgetId + "&page=" + pageNumber, {
         success: function (htmlData) {
-            jQuery("#hostMonitoringTable").html("")
-            jQuery("#hostMonitoringTable").html(htmlData);
-            var hostMonitoringTable = jQuery("#hostMonitoringTable").find("img, style, script, link").load(function () {
-                var h = document.getElementById("hostMonitoringTable").scrollHeight + 50;
+            jQuery("#hostMonitoringTable").empty().append(htmlData).append(function() {
+                var h = document.getElementById("hostMonitoringTable").scrollHeight;
                 parent.iResize(window.name, h);
             });
         }
