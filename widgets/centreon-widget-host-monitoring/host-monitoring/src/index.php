@@ -232,8 +232,12 @@ while ($row = $res->fetchRow()) {
             $gmt->getMyGMTFromSession(session_id(), $db);
             $value = $gmt->getDate("Y-m-d H:i:s", $value);
         } elseif ($key == "last_state_change" || $key == "last_hard_state_change") {
-            $value = time() - $value;
-            $value = CentreonDuration::toString($value);
+            if ($value > 0){
+                $value = time() - $value;
+                $value = CentreonDuration::toString($value);
+            }else{
+                $value = 'N/A';
+            }
         } elseif ($key == "check_attempt") {
             $value = $value . "/" . $row['max_check_attempts'] . ' ('.$aStateType[$row['state_type']].')';
         } elseif ($key == "state") {
