@@ -23,17 +23,63 @@ class EasyvistaProvider extends AbstractProvider {
     protected $_attach_files = 1;
     
     const ARG_ACCOUNT = 1;    
-    const ARG_DESCRIPTION = 2;
-    const ARG_CATALOG_GUID = 3;
-    const ARG_URGENCY_ID = 4;
-    const ARG_SEVERITY_ID = 5;
+    const ARG_CATALOG_GUID = 2;
+    const ARG_CATALOG_CODE = 3;
+    const ARG_ASSET_ID = 4;
+    const ARG_ASSET_TAG = 5;
+    const ARG_ASSET_NAME = 6;
+    const ARG_URGENCY_ID = 7;
+    const ARG_SEVERITY_ID = 8;
+    const ARG_EXTERNAL_REFERENCE = 9;
+    const ARG_PHONE = 10;
+    const ARG_REQUESTOR_IDENTIFICATION = 11;
+    const ARG_REQUESTOR_MAIL = 12;
+    const ARG_REQUESTOR_NAME = 13;
+    const ARG_LOCATION_ID = 14;
+    const ARG_LOCATION_CODE = 15;
+    const ARG_DEPARTMENT_ID = 16;
+    const ARG_DEPARTMENT_CODE = 17;
+    const ARG_RECIPIENT_ID = 18;
+    const ARG_RECIPIENT_IDENTIFICATION = 19;
+    const ARG_RECIPIENT_MAIL = 20;
+    const ARG_RECIPIENT_NAME= 21;
+    const ARG_ORIGIN = 22;
+    const ARG_DESCRIPTION = 23;
+    const ARG_PARENT_REQUEST = 24;
+    const ARG_CI_ID = 25;
+    const ARG_CI_ASSET_TAG = 26;
+    const ARG_CI_NAME = 27;
+    const ARG_SUBMIT_DATE = 28;
     
     protected $_internal_arg_name = array(
-        self::ARG_ACCOUNT => 'Account',
-        self::ARG_DESCRIPTION => 'Description',
-        self::ARG_CATALOG_GUID => 'CatalogGUID',
-        self::ARG_URGENCY_ID => 'UrgencyId',
-        self::ARG_SEVERITY_ID => 'SeverityId',
+        self::ARG_ACCOUNT => array('formid' => 'Account', 'soapname' => 'Account'),
+        self::ARG_CATALOG_GUID => array('formid' => 'CatalogGUID', 'soapname' => 'Catalog_GUID'),
+        self::ARG_CATALOG_CODE => array('formid' => 'CatalogCode', 'soapname' => 'Catalog_Code'),
+        self::ARG_ASSET_ID => array('formid' => 'AssetID', 'soapname' => 'AssetID'),
+        self::ARG_ASSET_TAG => array('formid' => 'AssetTag', 'soapname' => 'AssetTag'),
+        self::ARG_ASSET_NAME => array('formid' => 'AssetName', 'soapname' => 'ASSET_NAME'),        
+        self::ARG_URGENCY_ID => array('formid' => 'UrgencyId', 'soapname' => 'Urgency_ID'),
+        self::ARG_SEVERITY_ID => array('formid' => 'SeverityId', 'soapname' => 'Severity_ID'),
+        self::ARG_EXTERNAL_REFERENCE => array('formid' => 'ExternalReference', 'soapname' => 'External_reference'),
+        self::ARG_PHONE => array('formid' => 'Phone', 'soapname' => 'Phone'),
+        self::ARG_REQUESTOR_IDENTIFICATION => array('formid' => 'RequestorIdentification', 'soapname' => 'Requestor_Identification'),
+        self::ARG_REQUESTOR_MAIL => array('formid' => 'RequestorMail', 'soapname' => 'Requestor_Mail'),
+        self::ARG_REQUESTOR_NAME => array('formid' => 'RequestorName', 'soapname' => 'Requestor_Name'),
+        self::ARG_LOCATION_ID => array('formid' => 'LocationID', 'soapname' => 'Location_ID'),
+        self::ARG_LOCATION_CODE => array('formid' => 'LocationCode', 'soapname' => 'Location_Code'),
+        self::ARG_DEPARTMENT_ID => array('formid' => 'DepartmentID', 'soapname' => 'Department_ID'),
+        self::ARG_DEPARTMENT_CODE => array('formid' => 'DepartmentCode', 'soapname' => 'Department_Code'),
+        self::ARG_RECIPIENT_ID => array('formid' => 'RecipientID', 'soapname' => 'Recipient_ID'),
+        self::ARG_RECIPIENT_IDENTIFICATION => array('formid' => 'RecipientIdentification', 'soapname' => 'Recipient_Identification'),
+        self::ARG_RECIPIENT_MAIL => array('formid' => 'RecipientMail', 'soapname' => 'Recipient_Mail'),
+        self::ARG_RECIPIENT_NAME => array('formid' => 'RecipientName', 'soapname' => 'Recipient_Name'),
+        self::ARG_ORIGIN => array('formid' => 'Origin', 'soapname' => 'Origin'),
+        self::ARG_DESCRIPTION => array('formid' => 'Description', 'soapname' => 'Description'),
+        self::ARG_PARENT_REQUEST => array('formid' => 'ParentRequest', 'soapname' => 'ParentRequest'),
+        self::ARG_CI_ID => array('formid' => 'CiID', 'soapname' => 'CI_ID'),
+        self::ARG_CI_ASSET_TAG => array('formid' => 'CiAssetTag', 'soapname' => 'CI_ASSET_TAG'),
+        self::ARG_CI_NAME => array('formid' => 'CiName', 'soapname' => 'CI_NAME'),
+        self::ARG_SUBMIT_DATE => array('formid' => 'SubmitDate', 'soapname' => 'SUBMIT_DATE'),
     );
 
     function __destruct() {
@@ -124,8 +170,31 @@ class EasyvistaProvider extends AbstractProvider {
         '<option value="' . self::ARG_ACCOUNT . '">' . _('Account') . '</options>' .
         '<option value="' . self::ARG_DESCRIPTION . '">' . _('Description') . '</options>' .
         '<option value="' . self::ARG_CATALOG_GUID . '">' . _('Catalog GUID') . '</options>' .
+        '<option value="' . self::ARG_CATALOG_CODE . '">' . _('Catalog Code') . '</options>' .
         '<option value="' . self::ARG_URGENCY_ID . '">' . _('Urgency ID') . '</options>' .
         '<option value="' . self::ARG_SEVERITY_ID . '">' . _('Severity ID') . '</options>' .
+        '<option value="' . self::ARG_ASSET_ID . '">' . _('Asset ID') . '</options>' .
+        '<option value="' . self::ARG_ASSET_TAG . '">' . _('Asset Tag') . '</options>' .
+        '<option value="' . self::ARG_ASSET_NAME . '">' . _('Asset Name') . '</options>' .
+        '<option value="' . self::ARG_EXTERNAL_REFERENCE . '">' . _('External Reference') . '</options>' .
+        '<option value="' . self::ARG_PHONE . '">' . _('Phone') . '</options>' .
+        '<option value="' . self::ARG_REQUESTOR_IDENTIFICATION . '">' . _('Requestor Identification') . '</options>' .
+        '<option value="' . self::ARG_REQUESTOR_MAIL . '">' . _('Requestor Mail') . '</options>' .
+        '<option value="' . self::ARG_REQUESTOR_NAME . '">' . _('Requestor Name') . '</options>' .
+        '<option value="' . self::ARG_LOCATION_ID . '">' . _('Location ID') . '</options>' .
+        '<option value="' . self::ARG_LOCATION_CODE . '">' . _('Location Code') . '</options>' .
+        '<option value="' . self::ARG_DEPARTMENT_ID . '">' . _('Department ID') . '</options>' .
+        '<option value="' . self::ARG_DEPARTMENT_CODE . '">' . _('Department Code') . '</options>' .
+        '<option value="' . self::ARG_RECIPIENT_ID . '">' . _('Recipient ID') . '</options>' .
+        '<option value="' . self::ARG_RECIPIENT_IDENTIFICATION . '">' . _('Recipient Identification') . '</options>' .
+        '<option value="' . self::ARG_RECIPIENT_MAIL . '">' . _('Recipient Mail') . '</options>' .
+        '<option value="' . self::ARG_RECIPIENT_NAME . '">' . _('Recipient Name') . '</options>' .
+        '<option value="' . self::ARG_ORIGIN . '">' . _('Origin') . '</options>' .
+        '<option value="' . self::ARG_PARENT_REQUEST . '">' . _('Parent Request') . '</options>' .
+        '<option value="' . self::ARG_CI_ID . '">' . _('CI ID') . '</options>' .
+        '<option value="' . self::ARG_CI_ASSET_TAG . '">' . _('CI Asset Tag') . '</options>' .
+        '<option value="' . self::ARG_CI_NAME . '">' . _('CI Name') . '</options>' .
+        '<option value="' . self::ARG_SUBMIT_DATE . '">' . _('Submit Date') . '</options>' .
         '</select>';
         $array_form['mappingTicket'] = array(
             array('label' => _("Argument"), 'html' => $mappingTicketArg_html),
@@ -190,7 +259,7 @@ class EasyvistaProvider extends AbstractProvider {
                     $result_str = null;
                 }
                 
-                $ticket_arguments[$this->_internal_arg_name[$value['Arg']]] = $result_str;
+                $ticket_arguments[$this->_internal_arg_name[$value['Arg']]['formid']] = $result_str;
             }
         }
         
@@ -227,7 +296,7 @@ class EasyvistaProvider extends AbstractProvider {
   xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
 <soap:Body>
 <tns:EZV_AttachDocToRequest xmlns:tns="https://na1.easyvista.com/WebService">
-    <tns:Account><![CDATA[' . $ticket_arguments[$this->_internal_arg_name[self::ARG_ACCOUNT]] . ']]></tns:Account>
+    <tns:Account><![CDATA[' . $ticket_arguments[$this->_internal_arg_name[self::ARG_ACCOUNT]['formid']] . ']]></tns:Account>
     <tns:Login><![CDATA[' . $this->rule_data['username'] . ']]></tns:Login>
     <tns:Password><![CDATA[' . $this->rule_data['password'] . ']]></tns:Password>
     <tns:RFC_Number><![CDATA[' . $this->_ticket_number . ']]></tns:RFC_Number>
@@ -243,28 +312,26 @@ class EasyvistaProvider extends AbstractProvider {
     }
     
     protected function createTicket($ticket_arguments) {
+        $attributes = '';
+        foreach ($this->_internal_arg_name as $key => $value) {
+            $attributes .= (isset($ticket_arguments[$value['formid']]) ? 
+                '<tns:' . $value['soapname'] . '><![CDATA[' . $ticket_arguments[$value['formid']] . ']]></tns:' . $value['soapname'] . '>' :  '<tns:' . $value['soapname'] . '/>');
+        }
+        
         $data = '<?xml version="1.0"?>
 <soap:Envelope
   soap:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"
   xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
 <soap:Body>
 <tns:EZV_CreateRequest xmlns:tns="https://na1.easyvista.com/WebService">
-    <tns:Account><![CDATA[' . $ticket_arguments[$this->_internal_arg_name[self::ARG_ACCOUNT]] . ']]></tns:Account>
     <tns:Login><![CDATA[' . $this->rule_data['username'] . ']]></tns:Login>
     <tns:Password><![CDATA[' . $this->rule_data['password'] . ']]></tns:Password>' .
-    ((isset($ticket_arguments[$this->_internal_arg_name[self::ARG_CATALOG_GUID]])) ? 
-        '<tns:Catalog_GUID>' . $ticket_arguments[$this->_internal_arg_name[self::ARG_CATALOG_GUID]] . '</tns:Catalog_GUID>' :  '') .
-    ((isset($ticket_arguments[$this->_internal_arg_name[self::ARG_SEVERITY_ID]])) ? 
-        '<tns:Severity_ID>' . $ticket_arguments[$this->_internal_arg_name[self::ARG_SEVERITY_ID]] . '</tns:Severity_ID>' :  '') .
-    ((isset($ticket_arguments[$this->_internal_arg_name[self::ARG_URGENCY_ID]])) ? 
-        '<tns:Urgency_ID>' . $ticket_arguments[$this->_internal_arg_name[self::ARG_URGENCY_ID]] . '</tns:Urgency_ID>' :  '') .
-    ((isset($ticket_arguments[$this->_internal_arg_name[self::ARG_URGENCY_ID]])) ? 
-        '<tns:Description><![CDATA[' . $ticket_arguments[$this->_internal_arg_name[self::ARG_DESCRIPTION]] . ']]></tns:Description>' :  '') .
+    $attributes .
 '</tns:EZV_CreateRequest>
 </soap:Body>
 </soap:Envelope>
 ';
-                
+
         if ($this->callSOAP($data, 'tns:EZV_CreateRequest') == 1) {
             return -1;
         }
@@ -274,14 +341,34 @@ class EasyvistaProvider extends AbstractProvider {
         *    TODO
         *
         * NOK:
-        *    TODO
+        *    <?xml version="1.0" encoding="UTF-8"?>
+        *    <SOAP-ENV:Envelope SOAP-ENV:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"  xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/"  
+        *                       xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+        *                       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        *                       xmlns:SOAP-ENC="http://schemas.xmlsoap.org/soap/encoding/"
+        *                       xmlns:si="http://soapinterop.org/xsd"><SOAP-ENV:Body>
+        *   <ns1:EZV_CreateRequestResponse xmlns:ns1="https://na1.easyvista.com/WebService">
+        *       <return xsi:type="xsd:string">-1</return>
+        *   </ns1:EZV_CreateRequestResponse>
+        *   </SOAP-ENV:Body></SOAP-ENV:Envelope>
         */
         if (!preg_match('/<return.*?>(.*?)<\/return>/msi', $this->soap_result, $matches)) {
             $this->setWsError($result);
             return -1;
         }
+        $return_value = $matches[1];
+        if (preg_match('/^-[0-9]+/', $return_value)) {
+            $map_error = array('-1' => 'invalid Account value', '-2' => 'Login/Password invalid', 
+                '-3' => 'invalid parameter', -4 => 'workflow not found');
+            $msg_error = 'unknown error';
+            if (isset($map_error[$return_value])) {
+                $msg_error = $map_error[$return_value];
+            }
+            $this->setWsError($msg_error);
+            return -1;
+        }        
         
-        $this->_ticket_number = $matches[1];
+        $this->_ticket_number = $return_value;
         return 0;
     }
     
