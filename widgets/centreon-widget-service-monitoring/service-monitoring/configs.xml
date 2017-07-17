@@ -24,6 +24,10 @@
       <option value="ack" label="Acknowledged"/>
       <option value="nack" label="Not Acknowleged"/>
     </preference>
+    <preference label="Notification Filter" name="notification_filter" defaultValue="all" type="list">
+      <option value="enabled" label="Notification Enabled"/>
+      <option value="disabled" label="Notification Disabled"/>
+    </preference>
     <preference label="Downtime Filter" name="downtime_filter" defaultValue="all" type="list">
       <option value="downtime" label="In downtime"/>
       <option value="ndowntime" label="Not in downtime"/>
