@@ -299,11 +299,11 @@ class EasyvistaProvider extends AbstractProvider {
     <tns:Account><![CDATA[' . $ticket_arguments[$this->_internal_arg_name[self::ARG_ACCOUNT]['formid']] . ']]></tns:Account>
     <tns:Login><![CDATA[' . $this->rule_data['username'] . ']]></tns:Login>
     <tns:Password><![CDATA[' . $this->rule_data['password'] . ']]></tns:Password>
-    <tns:RFC_Number><![CDATA[' . $this->_ticket_number . ']]></tns:RFC_Number>
     <tns:path_docname><![CDATA[' . $file['filename'] . ']]></tns:path_docname>
-    <tns:RFC_Number />
-    <tns:External_reference />
     <tns:BinaryStream><![CDATA[' . $base64_content . ']]></tns:BinaryStream>
+    <tns:RFC_Number><![CDATA[' . $this->_ticket_number . ']]></tns:RFC_Number>
+    <tns:External_reference />
+    <tns:Description />
 </tns:EZV_AttachDocToRequest>
 </soap:Body>
 </soap:Envelope>
