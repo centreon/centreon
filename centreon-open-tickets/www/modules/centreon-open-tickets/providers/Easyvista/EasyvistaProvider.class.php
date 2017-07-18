@@ -313,7 +313,12 @@ class EasyvistaProvider extends AbstractProvider {
     
     protected function createTicket($ticket_arguments) {
         $attributes = '';
+        $account = '';
         foreach ($this->_internal_arg_name as $key => $value) {
+            if ($value['soapname'] == 'Account') {
+                $account = '<tns:Account><![CDATA[' . $ticket_arguments[$value['formid']] . ']]></tns:Account>';
+                continue;
+            }
             $attributes .= (isset($ticket_arguments[$value['formid']]) ? 
                 '<tns:' . $value['soapname'] . '><![CDATA[' . $ticket_arguments[$value['formid']] . ']]></tns:' . $value['soapname'] . '>' :  '<tns:' . $value['soapname'] . '/>');
         }
@@ -323,7 +328,8 @@ class EasyvistaProvider extends AbstractProvider {
   soap:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"
   xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
 <soap:Body>
-<tns:EZV_CreateRequest xmlns:tns="https://na1.easyvista.com/WebService">
+<tns:EZV_CreateRequest xmlns:tns="https://na1.easyvista.com/WebService">' .
+    $account . '
     <tns:Login><![CDATA[' . $this->rule_data['username'] . ']]></tns:Login>
     <tns:Password><![CDATA[' . $this->rule_data['password'] . ']]></tns:Password>' .
     $attributes .
