@@ -301,8 +301,10 @@ class EasyvistaProvider extends AbstractProvider {
     <tns:Password><![CDATA[' . $this->rule_data['password'] . ']]></tns:Password>
     <tns:RFC_Number><![CDATA[' . $this->_ticket_number . ']]></tns:RFC_Number>
     <tns:path_docname><![CDATA[' . $file['filename'] . ']]></tns:path_docname>
+    <tns:RFC_Number />
+    <tns:External_reference />
     <tns:BinaryStream><![CDATA[' . $base64_content . ']]></tns:BinaryStream>
-</tns:EZV_CreateRequest>
+</tns:EZV_AttachDocToRequest>
 </soap:Body>
 </soap:Envelope>
 ';
