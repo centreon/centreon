@@ -282,6 +282,7 @@ jQuery(function() {
     }
     jQuery("#submit").click(function() {
         sendCmd();
+        setTimeout('reloadFrame(widgetName)', 2500);
     });
     jQuery("#submit").button();
     toggleDurationField();
