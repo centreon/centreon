@@ -2,8 +2,16 @@
     <tr class="ListHeader">
         <td class='ListColHeaderPicker' style='width:20px;text-align:center;'><input type='checkbox' id='selection_0' class='checkall selection'/></td>
         {if $preferences.display_severities}<td class='ListColHeaderCenter' name='Severities' style="white-space: nowrap; width: 17px;">S</td>{/if}
-        {if $preferences.display_host_name}<td class='ListColHeaderCenter' name='name' colspan='2'>Hosts</td>{/if}
-        {if $preferences.display_host_alias}<td class='ListColHeaderCenter' name='alias'>Alias</td>{/if}
+        {if $preferences.display_host_name || $preferences.display_host_alias}
+            {if $preferences.display_host_name && $preferences.display_host_alias}
+                {assign var='host_label' value="Host Name - Host Alias"}
+            {elseif $preferences.display_host_alias}
+                {assign var='host_label' value="Host Alias"}
+            {else}
+                {assign var='host_label' value="Host Name"}
+            {/if}   
+        <td class='ListColHeaderCenter' name='name' colspan='2'>{$host_label}</td>
+        {/if}
         {if $preferences.display_status}<td class='ListColHeaderCenter' name='state'>Status</td>{/if}
         {if $preferences.display_ip}<td class='ListColHeaderCenter' name='address'>IP Address</td>{/if}
         {if $preferences.display_last_check}<td class='ListColHeaderCenter' name='last_check'>Last Check</td>{/if}
@@ -23,7 +31,7 @@
     <tr class ='{$classStyle} {$elem.class_tr}'>
         <td class='ListColLeft' style='width:20px;text-align:center;'><input class='selection' id='selection_{$elem.host_id}' type='checkbox'/></td>
         {if $preferences.display_severities}<td class='ListColLeft' style='text-align:center;'>{$elem.criticality}</td>{/if}
-        {if $preferences.display_host_name}
+        {if $preferences.display_host_name || $preferences.display_host_alias}
         <td class='ListColLeft'>
         {if $preferences.display_status == 0}
         <div>
@@ -32,7 +40,14 @@
         {if $elem.icon_image != ''}
            <img src ='/{$centreon_web_path}/img/media/{$elem.icon_image}' width='16' height='16' style ='padding-right:5px;' />
         {/if}
-        <a href='/{$centreon_web_path}/main.php?p=20202&o=hd&host_name={$elem.encoded_host_name}' target=_blank>{$elem.host_name}</a></td>
+        {if $preferences.display_host_name && $preferences.display_host_alias}
+            {assign var='host_name' value=$elem.host_name|cat:" - "|cat:$elem.alias}
+        {elseif $preferences.display_host_alias}
+            {assign var='host_name' value=$elem.alias}
+        {else}
+            {assign var='host_name' value=$elem.host_name}
+        {/if}
+        <a href='/{$centreon_web_path}/main.php?p=20202&o=hd&host_name={$elem.encoded_host_name}' target=_blank>{$host_name}</a></td>
         {if $preferences.display_status == 0}
             </div>
         {/if}
@@ -62,7 +77,6 @@
                 </div>
         </td>
         {/if}
-        {if $preferences.display_host_alias}<td class='ListColLeft' style='white-space:nowrap;'>{$elem.alias}</td>{/if}
         {if $preferences.display_status}<td class='ListColCenter' style='white-space:nowrap;'><span class='badge {$aColorHost[$elem.status]}'>{$elem.state}</span></td>{/if}
         {if $preferences.display_ip}<td class='ListColRight' style='white-space:nowrap;'>{$elem.address}</td>{/if}
         {if $preferences.display_last_check}<td class='ListColRight' style='white-space:nowrap;'>{$elem.last_check}</td>{/if}

@@ -34,8 +34,8 @@
         </preference>
         <preference label="Hostgroup" name="hostgroup" defaultValue="" type="hostgroup"/>
         <preference label="Results" name="entries" defaultValue="10" type="range" min="10" max="100" step="10"/>
-        <preference label="Display Host Name" name="display_host_name" defaultValue="1" type="boolean" header="Columns"/>
-        <preference label="Display Severities" name="display_severities" defaultValue="0" type="boolean"/>
+        <preference label="Display Severities" name="display_severities" defaultValue="0" type="boolean" header="Columns"/>
+        <preference label="Display Host Name" name="display_host_name" defaultValue="1" type="boolean"/>
         <preference label="Display Host Alias" name="display_host_alias" defaultValue="0" type="boolean"/>
         <preference label="Display Status" name="display_status" defaultValue="1" type="boolean"/>
         <preference label="Display IP" name="display_ip" defaultValue="0" type="boolean"/>
@@ -49,6 +49,7 @@
         <preference label="Comment Length" name="comment_length" defaultValue="50" type="range" min="50" max="500" step="50"/>
         <preference label="Order By" name="order_by" defaultValue="" type="sort">
             <option value="h.name" label="Host Name"/>
+            <option value="h.alias" label="Host Alias"/>
             <option value="criticality" label="Severity"/>
             <option value="address" label="Address"/>
             <option value="state" label="Status"/>
