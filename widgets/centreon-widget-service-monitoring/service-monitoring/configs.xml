@@ -43,6 +43,7 @@
     <preference label="Output" name="output_search" defaultValue="" type="compare" />
     <preference label="Display Severities" name="display_severities" defaultValue="1" type="boolean" header="Columns"/>
     <preference label="Display Host Name" name="display_host_name" defaultValue="1" type="boolean" />
+    <preference label="Display Host Alias" name="display_host_alias" defaultValue="1" type="boolean" />
     <preference label="Display Service Description" name="display_svc_description" defaultValue="1" type="boolean"/>
     <preference label="Display Output" name="display_output" defaultValue="1" type="boolean"/>
     <preference label="Output Length" name="output_length" defaultValue="50" type="range" min="50" max="500" step="50"/>
@@ -57,6 +58,7 @@
     <preference label="Comment Length" name="comment_length" defaultValue="50" type="range" min="50" max="500" step="50"/>
     <preference label="Order By" name="order_by" defaultValue="" type="sort">
       <option value="hostname" label="Host Name"/>
+      <option value="hostalias" label="Host Alias"/>
       <option value="h_state" label="Host Status"/>
       <option value="description" label="Service Description"/>
       <option value="s_state" label="Service Status"/>

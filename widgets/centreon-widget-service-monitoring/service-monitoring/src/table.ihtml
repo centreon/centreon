@@ -3,7 +3,16 @@
 	    <tr class="ListHeader">
             {if $preferences.more_views}<td class="ListColHeaderPicker"><input type='checkbox' id='selection_0;0' class='checkall selection'/></td>{/if}
             {if $preferences.display_severities}<td class="ListColHeaderCenter" style="white-space: nowrap; width: 17px;" name='Severities'>S</td>{/if}
-            {if $preferences.display_host_name}<td class='ListColHeaderCenter' name='hostname' colspan='2'>Host</td>{/if}
+            {if $preferences.display_host_name || $preferences.display_host_alias}
+                {if $preferences.display_host_name && $preferences.display_host_alias}
+                    {assign var='host_label' value="Host Name - Host Alias"}
+                {elseif $preferences.display_host_alias}
+                    {assign var='host_label' value="Host Alias"}
+                {else}
+                    {assign var='host_label' value="Host Name"}
+                {/if}   
+                <td class='ListColHeaderCenter' name='hostname' colspan='2'>{$host_label}</td>
+            {/if}
             {if $preferences.display_svc_description}<td class='ListColHeaderCenter' name='description' colspan='2'>Service</td>{/if}
             {if $preferences.display_status}<td class='ListColHeaderCenter' name='s_state'>Status</td>{/if}
             {if $preferences.display_duration}<td class='ListColHeaderCenter' name='last_state_change'>Duration</td>{/if}
@@ -31,7 +40,14 @@
                 <tr class ='{$classStyle}'>
                 {if $preferences.more_views}<td class='ListColLeft'><input class='selection' id='selection_{$elem.host_id};{$elem.service_id}' type='checkbox'/></td>{/if}
                 {if $preferences.display_severities}<td class=''>{$elem.criticality_id}</td>{/if}
-                {if $preferences.display_host_name}
+                {if $preferences.display_host_name || $preferences.display_host_alias}
+                    {if $preferences.display_host_name && $preferences.display_host_alias}
+                        {assign var='host_name' value=$elem.hostname|cat:" - "|cat:$elem.hostalias}
+                    {elseif $preferences.display_host_alias}
+                        {assign var='host_name' value=$elem.hostalias}
+                    {else}
+                        {assign var='host_name' value=$elem.hostname}
+                    {/if}
                 {if $elem.hostname != $previous}
                     <td class='ListColLeft'>
                         {if $elem.icon_image != ''}
@@ -40,7 +56,7 @@
                             <img src='{$centreon_web_path}img/icones/1x1/blank.gif' width='16' height='16' style ='padding-right:3px;' />
                         {/if}
                         <span class="state_badge" style='background-color: {$elem.hcolor};'></span>
-                        <a href='{$centreon_web_path}main.php?p=20202&o=hd&host_name={$elem.encoded_hostname}' target=_blank>{$elem.hostname}</a>
+                        <a href='{$centreon_web_path}main.php?p=20202&o=hd&host_name={$elem.encoded_hostname}' target=_blank>{$host_name}</a>
                     </td>
                     <td class='ListColRight'>
                         <div style='float: right;'>

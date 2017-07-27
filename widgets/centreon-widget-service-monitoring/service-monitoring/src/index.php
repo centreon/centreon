@@ -93,6 +93,7 @@ $stateLabels = array(0 => "Ok",
 // Build Query
 $query = "SELECT SQL_CALC_FOUND_ROWS h.host_id,
 		h.name as hostname,
+		h.alias as hostalias,
 		s.latency,
 		s.execution_time,
 		h.state as h_state,
