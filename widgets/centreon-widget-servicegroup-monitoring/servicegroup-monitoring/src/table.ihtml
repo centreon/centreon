@@ -53,6 +53,11 @@
     {/if}
     {if $preferences.enable_detailed_mode == 1}
     {foreach item=elem2 from=$elem.host_state}
+        {if $preferences.display_host_alias}
+            {assign var='host_name' value=$elem2.alias}
+        {else}
+            {assign var='host_name' value=$elem2.name}
+        {/if}
         {if $classStyle == 'list_two'}
             {assign var='classStyle' value='list_one'}
         {else}
@@ -61,7 +66,7 @@
     <tr id="host-{$elem2.host_id}" class="{$classStyle}">
         <td class='ListColLeft' width='160' style="padding-left: 19px;">
             <img src="/{$centreon_web_path}/img/icons/host.png" class="margin_right ico-18">
-            <a href='/{$centreon_web_path}/{$elem.hosturl}&host_search={$elem2.name}' target=_blank>{$elem2.name}</a>
+            <a href='/{$centreon_web_path}/{$elem.hosturl}&host_search={$elem2.name}' target=_blank>{$host_name}</a>
         </td>
         <td class='ListColLeft' style='white-space:nowrap;width:37px;'>
             <a href='/{$centreon_web_path}/main.php?o=hd&p=20201&host_search={$elem2.name}' target=_blank><img src='/{$centreon_web_path}/img/icons/view.png' class='ico-18' /></a>&nbsp;

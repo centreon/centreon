@@ -60,7 +60,7 @@ class ServicegroupMonitoring
      */
     public function getHostStates($sgName, $detailFlag = false, $admin, $aclObj, $preferences)
     {
-        $query = "SELECT DISTINCT h.host_id, h.state, h.name, ssg.servicegroup_id
+        $query = "SELECT DISTINCT h.host_id, h.state, h.name, h.alias, ssg.servicegroup_id
                   FROM `services_servicegroups` ssg, `hosts` h, `servicegroups` sg
                   WHERE h.host_id = ssg.host_id
                   AND h.name NOT LIKE '_Module_%'
