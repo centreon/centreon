@@ -62,7 +62,7 @@ class HostgroupMonitoring
         if (!count($data)) {
             return array();
         }
-        $query = "SELECT h.host_id, h.state, h.name, hhg.hostgroup_id, hg.name as hgname
+        $query = "SELECT h.host_id, h.state, h.name, h.alias, hhg.hostgroup_id, hg.name as hgname
                   FROM hosts_hostgroups hhg, hosts h, hostgroups hg
                   WHERE h.host_id = hhg.host_id
                   AND h.enabled = 1
