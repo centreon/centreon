@@ -178,7 +178,9 @@ if (isset($preferences['svc_pending']) && $preferences['svc_pending']) {
 if (isset($preferences['hide_down_host']) && $preferences['hide_down_host']) {
     $query = CentreonUtils::conditionBuilder($query, " h.state != 1 ");
 }
-
+if (isset($preferences['hide_unreachable_host']) && $preferences['hide_unreachable_host']) {
+    $query = CentreonUtils::conditionBuilder($query, " h.state != 2 ");
+}
 
 
 if (count($stateTab)) {
