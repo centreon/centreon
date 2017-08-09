@@ -19,4 +19,24 @@
  * limitations under the License.
  */
 
-require_once '@CENTREON_ETC@/centreon.conf.php';
+$currentPath = dirname(__FILE__);
+
+if (!defined('_MODULE_PATH_')) {
+    define('_MODULE_PATH_', _CENTREON_PATH_ . '/www/modules/api-web-import-export/');
+}
+
+// Autoload
+$sAppPath = _MODULE_PATH_ . '/core/class/';
+spl_autoload_register(function ($sClass) use ($sAppPath) {
+    $sFilePath = '';
+
+    $explodedClassname = explode('\\', $sClass);
+    $sCentreonExport = array_shift($explodedClassname);
+
+    $sFilePath .= $sAppPath . implode('/', $explodedClassname);
+    $sFilePath .= '.php';
+
+    if (file_exists($sFilePath)) {
+        require_once $sFilePath;
+    }
+});

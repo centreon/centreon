@@ -1,6 +1,6 @@
 <?php
 /*
- * Copyright 2005-2015 MERETHIS
+ * Copyright 2005-2017 Centreon
  * Centreon is developped by : Julien Mathis and Romain Le Merlus under
  * GPL Licence 2.0.
  *
@@ -19,11 +19,11 @@
  * combined work based on this program. Thus, the terms and conditions of the GNU
  * General Public License cover the whole combination.
  *
- * As a special exception, the copyright holders of this program give MERETHIS
+ * As a special exception, the copyright holders of this program give Centreon
  * permission to link this program with independent modules to produce an executable,
  * regardless of the license terms of these independent modules, and to copy and
- * distribute the resulting executable under terms of MERETHIS choice, provided that
- * MERETHIS also meet, for each linked independent module, the terms  and conditions
+ * distribute the resulting executable under terms of Centreon choice, provided that
+ * Centreon also meet, for each linked independent module, the terms  and conditions
  * of the license of that module. An independent module is a module which is not
  * derived from this program. If you modify this program, you may extend this
  * exception to your version of the program, but you are not obliged to do so. If you
@@ -32,3 +32,53 @@
  * For more information : contact@centreon.com
  *
  */
+
+if (!isset($oreon)) {
+    exit();
+}
+
+require_once _CENTREON_PATH_ . '/www/modules/api-web-import-export/api-web-import-export.conf.php';
+require_once _CENTREON_PATH_ . '/www/lib/HTML/QuickForm.php';
+require_once _CENTREON_PATH_ . '/www/lib/HTML/QuickForm/Renderer/ArraySmarty.php';
+//require_once _MODULE_PATH_ . 'core/help.php';
+
+$import = realpath(dirname(__FILE__));
+// Smarty template Init
+$path = _MODULE_PATH_ . "/core/template/";
+$tpl = new Smarty();
+$tpl = initSmartyTpl($path, $tpl);
+$form = new HTML_QuickForm('Form', 'post', "?p=" . $p);
+
+$valid = false;
+if ($form->validate()) {
+    $valid = true;
+    $form->freeze();
+}
+
+$form->addElement('header', 'title', _("Api Web Import"));
+
+
+$subC = $form->addElement('submit', 'submitC', _("Import"), array("class" => "btc bt_success"));
+$res = $form->addElement('reset', 'reset', _("Reset"));
+
+if ($valid) {
+    $form->freeze();
+}
+
+
+$renderer = new HTML_QuickForm_Renderer_ArraySmarty($tpl, true);
+$form->accept($renderer);
+
+/*
+$helpText = "";
+foreach ($help as $key => $text) {
+    $helpText .= '<span style="display:none" id="help:' . $key . '">' . $text . '</span>' . "\n";
+}
+$tpl->assign("helpText", $helpText);
+*/
+
+$tpl->assign('form', $renderer->toArray());
+$tpl->assign('valid', $valid);
+
+
+$tpl->display($import . "/templates/formExport.tpl");
