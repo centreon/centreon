@@ -22,7 +22,7 @@
 $currentPath = dirname(__FILE__);
 
 if (!defined('_MODULE_PATH_')) {
-    define('_MODULE_PATH_', _CENTREON_PATH_ . '/www/modules/api-web-import-export/');
+    define('_MODULE_PATH_', _CENTREON_PATH_ . '/www/modules/centreon-awie/');
 }
 
 // Autoload

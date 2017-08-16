@@ -1,0 +1,64 @@
+##
+## Copyright 2016 Centreon
+##
+## All rights reserved.
+##
+
+%define debug_package %{nil}
+%if 0%{centos} == 6
+%define phpversion php53
+%else
+%define phpversion php54
+%endif
+%define centreon_www %{_datadir}/centreon/www
+
+Name:           centreon-awie
+Version:        @VERSION@
+Release:        @RELEASE@%{?dist}
+Summary:        Centreon API Web Import Export
+
+Group:          Applications/System
+License:        Proprietary
+URL:            https://www.centreon.com
+Source0:        %{name}-%{version}-%{phpversion}.tar.gz
+BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
+
+Requires:       centreon-web >= 2.8.11
+Requires:       php-zend-guard-loader
+BuildArch:      noarch
+
+%description
+UI to export/import centreon configuration.
+
+%prep
+%setup -q -n %{name}-%{version}-%{phpversion}
+
+find .          \
+        -type f \
+        -exec %{__grep} -qE '(@@CENTREON_ETC@@)|(@@BIN_DIR@@)|(CENTREON_DIR)|(CENTREON_LOG)|(CENTREON_VARLIB)|(MODULE_NAME)|(DB_CENTSTORAGE)' {} ';'   \
+        -exec %{__sed} -i -e "s|@@CENTREON_ETC@@|%{centreon_etc}|g" \
+                          -e "s|@@BIN_DIR@@|%{_bindir}|g" \
+                          -e "s|@@CENTREON_DIR@@|%{centreon_dir}|g" \
+                          -e "s|@@CENTREON_LOG@@|%{centreon_log}|g" \
+                          -e "s|@@CENTREON_VARLIB@@|%{centreon_varlib}|g" \
+                          -e "s|@@MODULE_NAME@@|%{name}|g" \
+			  -e "s|@@DB_CENTSTORAGE@@|centreon_storage|g" \
+                       {} ';'
+
+%build
+
+%install
+rm -rf $RPM_BUILD_ROOT
+%{__install} -d $RPM_BUILD_ROOT%{centreon_www}/modules/%{name}
+%{__cp} -rp www/modules/%{name}/* $RPM_BUILD_ROOT%{centreon_www}/modules/%{name}
+
+%clean
+rm -rf $RPM_BUILD_ROOT
+
+%files
+%defattr(-,root,root,-)
+%attr(-,apache,apache) %{centreon_www}/modules/%{name}
+
+%changelog
+* Wed Aug 16 2017 Loic Laurent <llaurent@centreon.com> 1.0.0-1
+- Centreon AWIE 1.0.
