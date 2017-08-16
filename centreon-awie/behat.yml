@@ -1,0 +1,11 @@
+default:
+  extensions:
+    Behat\MinkExtension:
+      base_url: http://127.0.0.1/centreon
+      sessions:
+        default:
+          selenium2: ~
+    Centreon\Test\Behat\Extensions\ContainerExtension:
+  gherkin:
+    cache: ~
+  suites:
