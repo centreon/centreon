@@ -37,7 +37,7 @@ if (!isset($oreon)) {
     exit();
 }
 
-require_once _CENTREON_PATH_ . '/www/modules/api-web-import-export/api-web-import-export.conf.php';
+require_once _CENTREON_PATH_ . '/www/modules/centreon-awie/centreon-awie.conf.php';
 require_once _CENTREON_PATH_ . '/www/lib/HTML/QuickForm.php';
 require_once _CENTREON_PATH_ . '/www/lib/HTML/QuickForm/Renderer/ArraySmarty.php';
 //require_once _MODULE_PATH_ . 'core/help.php';
