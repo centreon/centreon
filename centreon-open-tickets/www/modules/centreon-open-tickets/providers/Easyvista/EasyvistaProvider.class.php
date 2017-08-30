@@ -404,12 +404,14 @@ class EasyvistaProvider extends AbstractProvider {
             'Content-Length: ' . strlen($data))
         );
         $this->soap_result = curl_exec($ch);
-        curl_close($ch);
         
         if ($this->soap_result == false) {
-            $this->setWsError(curl_error($ch));    
+            $this->setWsError(curl_error($ch));
+            curl_close($ch);
             return 1;
         }
+        
+        curl_close($ch);
         
         return 0;
     }
