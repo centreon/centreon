@@ -25,7 +25,7 @@ echo ""
 
 # Version 2.8.x
 
-#response=$(curl --data "username=superadmin&password=centreon" $url/centreon/api/index.phpaction=authenticate)
+#response=$(curl --data "username=superadmin&password=centreon" $url/centreon/api/index.php?action=authenticate)
 
 #token=$(echo "$response" | cut -d: -f 2 | sed 's/"\(.*\)".*/\1/')
 
