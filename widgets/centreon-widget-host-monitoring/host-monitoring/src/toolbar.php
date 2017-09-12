@@ -69,7 +69,7 @@ $actions  = "<option value='0'>-- "._("More actions")." -- </option>";
 if ($canDoAction || $centreon->user->access->checkAction("host_acknowledgement")) {
     $actions .= "<option value='72'>"._("Acknowledge")."</option>";
 }
-if ($canDoAction || $centreon->user->access->checkAction("host_acknowledgement")) {
+if ($canDoAction || $centreon->user->access->checkAction("host_disacknowledgement")) {
     $actions .= "<option value='73'>"._("Remove Acknowledgement")."</option>";
 }
 if ($canDoAction || $centreon->user->access->checkAction("host_schedule_downtime")) {
@@ -77,16 +77,13 @@ if ($canDoAction || $centreon->user->access->checkAction("host_schedule_downtime
 }
 if ($canDoAction || $centreon->user->access->checkAction("host_notifications")) {
     $actions .= "<option value='82'>"._("Enable Host Notification")."</option>";
-}
-if ($canDoAction || $centreon->user->access->checkAction("host_notifications")) {
     $actions .= "<option value='83'>"._("Disable Host Notification")."</option>";
 }
 if ($canDoAction || $centreon->user->access->checkAction("host_checks")) {
     $actions .= "<option value='92'>"._("Enable Host Check")."</option>";
-}
-if ($canDoAction || $centreon->user->access->checkAction("host_checks")) {
     $actions .= "<option value='93'>"._("Disable Host Check")."</option>";
 }
+
 file_put_contents("/tmp/toto", $actions);
 
 $template->assign("widgetId", $_POST['widgetId']);
