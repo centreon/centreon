@@ -216,6 +216,7 @@ try {
                 /* host: remove ack */
                 case 73 :
                     $command = "REMOVE_HOST_ACKNOWLEDGEMENT;%s";
+                    $isSvcCommand = true;
                     break;
                 /* host: enable notif */
                 case 82 :
