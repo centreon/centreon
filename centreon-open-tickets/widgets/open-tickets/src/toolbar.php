@@ -56,24 +56,24 @@ $service_ack_enable = 0;
 $toolbar = '';
 if ($preferences['toolbar_buttons']) {
     if (!isset($preferences['opened_tickets']) || $preferences['opened_tickets'] == 0) {
+        $toolbar .= "<input type='button' alt='" . _("Host: Open ticket") . "' class='button' id='buttontoolbar_4' style='background: url(" . $centreon->optGen['oreon_web_path'] . "modules/centreon-open-tickets/images/host_open_ticket.png) no-repeat center center; height: 40px; width: 40px; cursor:pointer; border: none;' /> ";
+        $toolbar .= "<input type='button' alt='" . _("Service: Open ticket") . "' class='button' id='buttontoolbar_3' style='background: url(" . $centreon->optGen['oreon_web_path'] . "modules/centreon-open-tickets/images/service_open_ticket.png) no-repeat center center; height: 40px; width: 40px; cursor:pointer; border: none;' /> ";
         if ($service_ack_enable == 1 && ($canDoAction || $centreon->user->access->checkAction("service_acknowledgement"))) {
-            $toolbar .= "<input type='button' alt='" . _("Service: Acknowledge") . "' class='button' id='buttontoolbar_70' style='background: url(" . $centreon->optGen['oreon_web_path'] . "modules/centreon-open-tickets/images/wrench.png) no-repeat center center; height: 40px; width: 40px; cursor:pointer;' /> ";
+            $toolbar .= "<input type='button' alt='" . _("Service: Acknowledge") . "' class='button' id='buttontoolbar_70' style='background: url(" . $centreon->optGen['oreon_web_path'] . "modules/centreon-open-tickets/images/acknowledge.png) no-repeat center center; height: 40px; width: 40px; cursor:pointer; border: none;' /> ";
         }
-        $toolbar .= "<input type='button' alt='" . _("Service: Open ticket") . "' class='button' id='buttontoolbar_3' style='background: url(" . $centreon->optGen['oreon_web_path'] . "modules/centreon-open-tickets/images/wrench.png) no-repeat center center; height: 40px; width: 40px; cursor:pointer;' /> ";
-        $toolbar .= "<input type='button' alt='" . _("Host: Open ticket") . "' class='button' id='buttontoolbar_4' style='background: url(" . $centreon->optGen['oreon_web_path'] . "modules/centreon-open-tickets/images/brick.png) no-repeat center center; height: 40px; width: 40px; cursor:pointer;' /> ";
     } else {
-        $toolbar .= "<input type='button' alt='" . _("Close Tickets") . "' class='button' id='buttontoolbar_10' style='background: url(" . $centreon->optGen['oreon_web_path'] . "modules/centreon-open-tickets/images/information.png) no-repeat center center; height: 40px; width: 40px; cursor:pointer;' />";
+        $toolbar .= "<input type='button' alt='" . _("Close Tickets") . "' class='button' id='buttontoolbar_10' style='background: url(" . $centreon->optGen['oreon_web_path'] . "modules/centreon-open-tickets/images/close_ticket.png) no-repeat center center; height: 40px; width: 40px; cursor:pointer; border: none;' />";
     }
 } else {
     $toolbar .= "<select class='toolbar'>";
     $toolbar .= "<option value='0'>-- "._("More actions")." -- </option>";
 
     if (!isset($preferences['opened_tickets']) || $preferences['opened_tickets'] == 0) {
+        $toolbar .= "<option value='4'>"._("Host: Open ticket")."</option>";
+        $toolbar .= "<option value='3'>"._("Service: Open ticket")."</option>";
         if ($service_ack_enable == 1 && ($canDoAction || $centreon->user->access->checkAction("service_acknowledgement"))) {
             $toolbar .= "<option value='70'>"._("Service: Acknowledge")."</option>";
         }
-        $toolbar .= "<option value='3'>"._("Service: Open ticket")."</option>";
-        $toolbar .= "<option value='4'>"._("Host: Open ticket")."</option>";
     } else {
         $toolbar .= "<option value='10'>" . _("Close Tickets") . "</option>";
     }
