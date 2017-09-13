@@ -140,11 +140,11 @@ class EasyvistaProvider extends AbstractProvider {
      * @return void
      */
     protected function _getConfigContainer1Extra() {
-        $tpl = $this->initSmartyTemplate('providers/BmcFootprints11/templates');
+        $tpl = $this->initSmartyTemplate('providers/Easyvista/templates');
         
         $tpl->assign("centreon_open_tickets_path", $this->_centreon_open_tickets_path);
         $tpl->assign("img_brick", "./modules/centreon-open-tickets/images/brick.png");
-        $tpl->assign("header", array("bmc" => _("BMC Footprints 11")));
+        $tpl->assign("header", array("easyvista" => _("Easyvista")));
         
         // Form
         $address_html = '<input size="50" name="address" type="text" value="' . $this->_getFormValue('address') . '" />';
