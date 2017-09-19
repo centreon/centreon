@@ -18,4 +18,5 @@
     {assign var='host_name' value=$elem.name|cat:";"}
 {/if}
 {if $preferences.display_severities}{$elem.criticality};{/if}{$host_name}{if $preferences.display_ip}{$elem.address};{/if}{if $preferences.display_status}{$elem.state};{/if}{if $preferences.display_duration}{$elem.last_state_change};{/if}{if $preferences.display_hard_state_duration}{$elem.last_hard_state_change};{/if}{if $preferences.display_last_check}{$elem.last_check};{/if}{if $preferences.display_tries}{$elem.check_attempt};{/if}{if $preferences.display_output}{$elem.output};{/if}{if $preferences.display_last_comment}{$elem.comment}{/if}
+
 {/foreach}
