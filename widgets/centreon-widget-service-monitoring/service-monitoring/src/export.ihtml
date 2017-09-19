@@ -7,6 +7,7 @@
     {assign var='host_label' value="Host Name;"}
 {/if}
 {if $preferences.display_severities}Severity;{/if}{$host_label}{if $preferences.display_svc_description}Service;{/if}{if $preferences.display_status}Status;{/if}{if $preferences.display_duration}Duration;{/if}{if $preferences.display_last_check}Last Check;{/if}{if $preferences.display_tries}Tries;{/if}{if $preferences.display_latency}Latency;{/if}{if $preferences.display_execution_time}Execution Time;{/if}{if $preferences.display_output}Status information;{/if}{if $preferences.display_last_comment}Last comment{/if}
+
 {foreach item=elem from=$data}
 {assign var='host_name' value=""}
 {if $preferences.display_host_name && $preferences.display_host_alias}
