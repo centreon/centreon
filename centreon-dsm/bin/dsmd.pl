@@ -332,9 +332,9 @@ sub clean_locks {
     my $current_time = time();
     $self->{logger}->writeLogInfo("clean locks checked");
     foreach (keys %{$self->{cache_locks}}) {
-        if (($current_time - $self->{cache_locks}->{$_}->[0]) > $self->{dsmd_config}->{clean_locks_keep_stored}) {
+        if (($current_time - $self->{cache_locks}->{$_}->[3]) > $self->{dsmd_config}->{clean_locks_keep_stored}) {
             $self->delete_locks(id => $_, 
-                                lock_id => $self->{cache_locks}->{$_}->[3]);
+                                lock_id => $self->{cache_locks}->{$_}->[0]);
         }
     }
     $self->{last_clean_locks_time} = time();
