@@ -199,7 +199,7 @@ if(isset($preferences['hosts_services']) && $preferences['hosts_services'] == "h
 	if (!$is_admin) {
 		$rq2 = 	" SELECT count(DISTINCT s.state, s.host_id, s.service_id) count, s.state state, " .
 				" SUM(s.acknowledged) as acknowledged, SUM(CASE WHEN s.scheduled_downtime_depth >= 1 THEN 1 ELSE 0 END) AS downtime  " .
-				" FROM services, hosts, centreon_acl " .
+				" FROM services s " .
 				" INNER JOIN centreon_acl acl ON s.host_id  = acl.host_id AND s.service_id = acl.service_id  " .
 				" INNER JOIN hosts h ON s.host_id = h.host_id " .
 				$innerjoingroup .
