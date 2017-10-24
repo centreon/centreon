@@ -55,6 +55,7 @@ if (!isset($_SESSION['centreon']) || !isset($_REQUEST['widgetId'])) {
 }
 
 $db = new CentreonDB();
+$pearDB = $db;
 if (CentreonSession::checkSession(session_id(), $db) == 0) {
     exit;
 }
