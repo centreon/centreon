@@ -125,7 +125,7 @@ function format_popup() {
     $template->assign('cmd', $cmd);
     $template->assign('selection', $_REQUEST['selection']);
     $template->assign('continue', (!is_null($result) && isset($result['format_popup'])) ? 0 : 1);
-    $template->assign('attach_files_enable', (!is_null($result) && isset($result['attach_files_enable']) && $result['attach_files_enable'] == 'yes') ? 1 : 0);
+    $template->assign('attach_files_enable', (!is_null($result) && isset($result['attach_files_enable']) && $result['attach_files_enable'] === 'yes') ? 1 : 0);
 
     $template->assign('formatPopupProvider', (!is_null($result) && isset($result['format_popup'])) ? $result['format_popup'] : '');
     
