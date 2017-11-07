@@ -204,6 +204,11 @@ if (isset($preferences['svc_unknown']) && $preferences['svc_unknown']) {
 if (count($stateTab)) {
     $query = CentreonUtils::conditionBuilder($query, " s.state IN (" . implode(',', $stateTab) . ")");
 }
+if (isset($preferences['hide_down_host']) && $preferences['hide_down_host']) {
+    $query = CentreonUtils::conditionBuilder($query, " h.state != 1 ");
+}
+if (isset($preferences['hide_unreachable_host']) && $preferences['hide_unreachable_host']) {
+    $query = CentreonUtils::conditionBuilder($query, " h.state != 2 ");}
 
 # For Open Tickets
 if (!isset($preferences['opened_tickets']) || $preferences['opened_tickets'] == 0) {

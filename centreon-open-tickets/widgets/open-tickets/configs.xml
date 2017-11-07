@@ -15,6 +15,8 @@
     <preference label="Opened Tickets" name="opened_tickets" defaultValue="0" type="boolean"/>
     <preference label="Host Name" name="host_name_search" defaultValue="" type="compare" header="Filters"/>
     <preference label="Service Description" name="service_description_search" defaultValue="" type="compare"/>
+    <preference label="Hide services with DOWN host" name="hide_down_host" defaultValue="0" type="boolean"/>
+    <preference label="Hide services with UNREACHABLE host" name="hide_unreachable_host" defaultValue="0" type="boolean"/>
     <preference label="Display Warning" name="svc_warning" defaultValue="1" type="boolean"/>
     <preference label="Display Critical" name="svc_critical" defaultValue="1" type="boolean"/>
     <preference label="Display Unknown" name="svc_unknown" defaultValue="1" type="boolean"/>
