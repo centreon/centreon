@@ -347,6 +347,22 @@ sub delete_alarms {
     $self->insert_history(alarm => $options{alarm});
 }
 
+sub check_cache {
+    my ($self, %options) = @_;
+
+    foreach my $alarm (@{$self->{current_alarms}}) {
+        # 0 = cache_id, 1 = host_id, 2 = ctime, 3 = status, 4 = pool_prefix, 5 = id, 6 = macros, 7 = output
+        if ($alarm->[0] < $options{alarm}->[0] && $alarm->[5] =~ /^$options{alarm}->[5]$/ &&
+            $alarm->[1] == $options{alarm}->[1] && $alarm->[4] =~ /^$options{alarm}->[4]$/ &&
+            $alarm->[3] != $options{alarm}->[3]) {
+            return 0;
+        } elsif ($alarm->[0] >= $options{alarm}->[0]) {
+            last;
+        }
+    }
+    return 1;
+}
+
 sub delete_locks {
     my ($self, %options) = @_;
     
@@ -383,6 +399,9 @@ sub custom_macros {
 sub manage_alarm_ok {
     my ($self, %options) = @_;
     
+    # if we use an ID for the alarms, there is the table mod_dsm_locks. 
+    # If an user forces the slot to OK (submit result), locks are cleaned each hour (by default). So the slot could be used only after the cleaning.
+    
     # Ok without ID, we ignore it
     if (!defined($options{alarm}->[5]) || $options{alarm}->[5] eq '') {
         $self->delete_alarms(alarm => $options{alarm});
@@ -391,12 +410,15 @@ sub manage_alarm_ok {
     
     my ($status, $service_description, $data) = 
         $self->find_slot(alarm_id => $options{alarm_id}, host_id => $options{alarm}->[1], pool_prefix => $options{alarm}->[4]);
+    $self->{logger}->writeLogDebug("find slot result ok [alarm id = $options{alarm_id}] [host id = $options{alarm}->[1]] [service = $service_description] -> [status = $status] [service desc: $service_description] [data: $data]");
     if ($status == 1) {
         $self->{logger}->writeLogInfo("find slot id [alarm id = $options{alarm_id}] [host id = $options{alarm}->[1]] [service = $service_description]: already an alarm in locks. Need to wait.");
         return ;
     }
     if ($status < 0) {
-        $self->delete_alarms(alarm => $options{alarm});
+        if ($self->check_cache(alarm => $options{alarm})) {
+            $self->delete_alarms(alarm => $options{alarm});
+        }
         return ;
     }
     
@@ -425,6 +447,7 @@ sub manage_alarm_error {
     
     my ($status, $service_description, $data, $free_slot_service, $free_slot_data) = 
         $self->find_slot(alarm_id => $options{alarm_id}, host_id => $options{alarm}->[1], pool_prefix => $options{alarm}->[4], free_slot => 1);
+    $self->{logger}->writeLogDebug("find slot result error [alarm id = $options{alarm_id}] [host id = $options{alarm}->[1]] [service = $service_description] -> [status = $status] [service desc: $service_description] [data: $data] [free slot service: $free_slot_service] [free slot data: $free_slot_data]");
     if ($status == 1) {
         $self->{logger}->writeLogInfo("find slot id [alarm id = $options{alarm_id}] [host id = $options{alarm}->[1]] [service = $service_description]: already an alarm in locks. Need to wait.");
         return ;
