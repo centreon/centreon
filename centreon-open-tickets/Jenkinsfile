@@ -13,13 +13,13 @@ stage('Source') {
 
 stage('Package') {
   parallel 'centos6': {
-    node: {
+    node {
       sh 'cd /opt/centreon-build && git pull && cd -'
       sh '/opt/centreon-build/jobs/open-tickets/all/mon-open-tickets-package.sh centos6'
     }
   },
   'centos7': {
-    node: {
+    node {
       sh 'cd /opt/centreon-build && git pull && cd -'
       sh '/opt/centreon-build/jobs/open-tickets/all/mon-open-tickets-package.sh centos7'
     }
