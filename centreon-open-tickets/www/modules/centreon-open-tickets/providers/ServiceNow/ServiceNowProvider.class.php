@@ -626,16 +626,20 @@ class ServiceNowProvider extends AbstractProvider {
     );
 
     if ($params['select_servicenow_catergory'] !== -1) {
-      $data['category'] = $params['select_servicenow_catergory'];
+      $category = explode('_', $params['select_servicenow_catergory'], 2);
+      $data['category'] = $category[0];
     }
     if ($params['select_servicenow_subcatergory'] !== -1) {
-      $data['subcategory'] = $params['select_servicenow_subcatergory'];
+      $subcategory = explode('_', $params['select_servicenow_subcatergory'], 2);
+      $data['subcategory'] = $subcategory[0];
     }
     if ($params['select_servicenow_assign_to'] !== -1) {
-      $data['assigned_to'] = $params['select_servicenow_assign_to'];
+      $assignedTo = explode('_', $params['select_servicenow_assign_to'], 2);
+      $data['assigned_to'] = $assignedTo[0];
     }
     if ($params['select_servicenow_assignment_group'] !== -1) {
-      $data['assignment_group'] = $params['select_servicenow_assignment_group'];
+      $assignmentGroup = explode('_', $params['select_servicenow_assignment_group'], 2);
+      $data['assignment_group'] = $assignmentGroup[0];
     }
     if ($params['custom_message'] !== '') {
       $data['comments'] = $params['body'];
