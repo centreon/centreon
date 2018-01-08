@@ -616,9 +616,12 @@ class ServiceNowProvider extends AbstractProvider {
   protected function createTicket($params, $accessToken) {
     $uri = '/api/now/v1/table/incident';
 
+    $impacts = explode('_', $params['select_servicenow_impact'], 2);
+    $urgencies = explode('_', $params['select_servicenow_urgency'], 2);
+
     $data = array(
-      'impact' => explode('_', $params['select_servicenow_impact'], 2)[0],
-      'urgency' => explode('_', $params['select_servicenow_urgency'], 2)[0],
+      'impact' => $impacts[0],
+      'urgency' => $urgencies[0],
       'short_description' => $params['title']
     );
 
