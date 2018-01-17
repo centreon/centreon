@@ -157,7 +157,7 @@ sub run {
     my $pool_prefix = $self->get_pool_prefix(host_id => $host_id);
     my $query = sprintf("INSERT INTO mod_dsm_cache (`host_id`, `ctime`, `status`, `pool_prefix`, `id`, `macros`, `output`) VALUES (%s, %s, %s, %s, %s, %s, %s)",
         $self->{db_centstorage}->quote($host_id), $self->{db_centstorage}->quote($self->{time}), $self->{db_centstorage}->quote($self->{status}),
-        $self->{db_centstorage}->quote($pool_prefix), $self->{db_centstorage}->quote($self->{id}), $self->{db_centstorage}->quote($self->{macros}),
+        $self->{db_centstorage}->quote($pool_prefix), $self->{db_centstorage}->quote($self->{id}), $self->{db_centstorage}->quote($self->{macro}),
         $self->{db_centstorage}->quote($self->{output}));
     my ($status, $sth) = $self->{db_centstorage}->query($query);
     if ($status == -1) {
