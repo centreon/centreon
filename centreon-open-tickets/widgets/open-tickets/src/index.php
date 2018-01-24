@@ -2,15 +2,15 @@
 /*
  * Copyright 2016 Centreon (http://www.centreon.com/)
  *
- * Centreon is a full-fledged industry-strength solution that meets 
- * the needs in IT infrastructure and application monitoring for 
+ * Centreon is a full-fledged industry-strength solution that meets
+ * the needs in IT infrastructure and application monitoring for
  * service performance.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0  
+ *    http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,*
@@ -154,13 +154,13 @@ $query = "SELECT SQL_CALC_FOUND_ROWS h.host_id,
 
 $query .= " FROM hosts h ";
 $query .= " LEFT JOIN customvariables cv5 ON (h.host_id = cv5.host_id AND cv5.service_id IS NULL AND cv5.name = '" . $macro_tickets['ticket_id'] . "') ";
-$query .= " LEFT JOIN mod_open_tickets mop1 ON (cv5.value = mop1.ticket_value AND mop1.timestamp > h.last_hard_state_change) ";
+$query .= " LEFT JOIN mod_open_tickets mop1 ON (cv5.value = mop1.ticket_value AND mop1.timestamp > h.last_time_up) ";
 $query .= " LEFT JOIN mod_open_tickets_data mopd1 ON (mop1.ticket_id = mopd1.ticket_id) ";
 $query .= ", services s ";
 $query .= " LEFT JOIN customvariables cv ON (s.service_id = cv.service_id AND s.host_id = cv.host_id AND cv.name = 'CRITICALITY_LEVEL') ";
 $query .= " LEFT JOIN customvariables cv2 ON (s.service_id = cv2.service_id AND s.host_id = cv2.host_id AND cv2.name = 'CRITICALITY_ID') ";
 $query .= " LEFT JOIN customvariables cv3 ON (s.service_id = cv3.service_id AND s.host_id = cv3.host_id AND cv3.name = '" . $macro_tickets['ticket_id'] . "') ";
-$query .= " LEFT JOIN mod_open_tickets mop2 ON (cv3.value = mop2.ticket_value AND mop2.timestamp > s.last_hard_state_change) ";
+$query .= " LEFT JOIN mod_open_tickets mop2 ON (cv3.value = mop2.ticket_value AND mop2.timestamp > s.last_time_ok) ";
 $query .= " LEFT JOIN mod_open_tickets_data mopd2 ON (mop2.ticket_id = mopd2.ticket_id) ";
 
 if (!$centreon->user->admin) {
@@ -244,14 +244,14 @@ if (isset($preferences['state_type_filter']) && $preferences['state_type_filter'
 }
 
 if (isset($preferences['hostgroup']) && $preferences['hostgroup']) {
-    $query = CentreonUtils::conditionBuilder($query, 
+    $query = CentreonUtils::conditionBuilder($query,
     " s.host_id IN (
       SELECT host_host_id
       FROM ".$conf_centreon['db'].".hostgroup_relation
       WHERE hostgroup_hg_id = ".$dbb->escape($preferences['hostgroup']).")");
 }
 if (isset($preferences['servicegroup']) && $preferences['servicegroup']) {
-    $query = CentreonUtils::conditionBuilder($query, 
+    $query = CentreonUtils::conditionBuilder($query,
     " s.service_id IN (SELECT service_service_id
       FROM ".$conf_centreon['db'].".servicegroup_relation
       WHERE servicegroup_sg_id = ".$dbb->escape($preferences['servicegroup'])."
@@ -261,7 +261,7 @@ if (isset($preferences['servicegroup']) && $preferences['servicegroup']) {
       WHERE hsr.hostgroup_hg_id = sgr.hostgroup_hg_id
       AND sgr.servicegroup_sg_id = ".$dbb->escape($preferences['servicegroup']).") ");
 }
-if (isset($preferences["display_severities"]) && $preferences["display_severities"] 
+if (isset($preferences["display_severities"]) && $preferences["display_severities"]
     && isset($preferences['criticality_filter']) && $preferences['criticality_filter'] != "") {
   $tab = split(",", $preferences['criticality_filter']);
   $labels = "";
@@ -280,7 +280,7 @@ if (isset($preferences["display_severities"]) && $preferences["display_severitie
     }
     $idC .= $d1['sc_id'];
   }
-  $query .= " AND cv2.`value` IN ($idC) "; 
+  $query .= " AND cv2.`value` IN ($idC) ";
 }
 if (!$centreon->user->admin) {
     $pearDB = $db;
@@ -320,7 +320,7 @@ if (isset($preferences['order_by']) && $preferences['order_by'] != "") {
     } else {
         $orderby = $preferences['order_by'];
     }
-    
+
     if (isset($preferences['order_by2']) && $preferences['order_by2'] != "") {
         $aOrder = explode(" ", $preferences['order_by2']);
         $orderby .= ", ".$aOrder[0]." ".$aOrder[1];
@@ -364,7 +364,7 @@ while ($row = $res->fetchRow()) {
             $value = CentreonUtils::escapeSecure($svcObj->replaceMacroInString($row['service_id'], $value));
         } elseif ($key == "criticality_id" && $value != '') {
             $critData = $criticality->getData($row["criticality_id"], 1);
-            $value = "<img src='../../img/media/".$media->getFilename($critData['icon_id'])."' title='".$critData["sc_name"]."' width='16' height='16'>";        
+            $value = "<img src='../../img/media/".$media->getFilename($critData['icon_id'])."' title='".$critData["sc_name"]."' width='16' height='16'>";
         }
         $data[$row['host_id']."_".$row['service_id']][$key] = $value;
     }
@@ -376,8 +376,8 @@ while ($row = $res->fetchRow()) {
     $data[$row['host_id'].'_'.$row['service_id']]['encoded_hostname'] = urlencode(
       $data[$row['host_id'].'_'.$row['service_id']]['hostname']
     );
-    
-    if ($row['host_ticket_time'] > $row['host_last_hard_state_change'] && 
+
+    if ($row['host_ticket_time'] > $row['host_last_hard_state_change'] &&
         isset($row['host_ticket_id']) && !is_null($row['host_ticket_id']) && $row['host_ticket_id'] != '') {
         $ticket_id = $row['host_ticket_id'];
         $url = $rule->getUrl($preferences['rule'], $ticket_id, $row, $widgetId);
@@ -387,7 +387,7 @@ while ($row = $res->fetchRow()) {
         $data[$row['host_id']."_".$row['service_id']]['ticket_id'] = $ticket_id;
         $data[$row['host_id']."_".$row['service_id']]['ticket_time'] = $gmt->getDate("Y-m-d H:i:s", $row['host_ticket_time']);
         $data[$row['host_id']."_".$row['service_id']]['ticket_subject'] = $row['host_ticket_subject'];
-    } else if ($row['service_ticket_time'] > $row['last_hard_state_change'] && 
+    } else if ($row['service_ticket_time'] > $row['last_hard_state_change'] &&
                isset($row['service_ticket_id']) && !is_null($row['service_ticket_id']) && $row['service_ticket_id'] != '') {
         $ticket_id = $row['service_ticket_id'];
         $url = $rule->getUrl($preferences['rule'], $ticket_id, $row, $widgetId);
