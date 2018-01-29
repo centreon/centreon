@@ -133,6 +133,7 @@ $query = "SELECT SQL_CALC_FOUND_ROWS h.host_id,
         s.last_check,
         s.last_state_change,
         s.last_hard_state_change,
+        s.last_time_ok,
         s.check_attempt,
         s.max_check_attempts,
         h.action_url as h_action_url,
@@ -140,6 +141,7 @@ $query = "SELECT SQL_CALC_FOUND_ROWS h.host_id,
         s.action_url as s_action_url,
         s.notes_url as s_notes_url,
         h.last_hard_state_change as host_last_hard_state_change,
+        h.last_time_up as host_last_time_up,
         CAST(mop1.timestamp AS UNSIGNED) as host_ticket_time,
         mop1.ticket_value as host_ticket_id,
         mopd1.subject as host_ticket_subject,
@@ -377,7 +379,7 @@ while ($row = $res->fetchRow()) {
       $data[$row['host_id'].'_'.$row['service_id']]['hostname']
     );
 
-    if ($row['host_ticket_time'] > $row['host_last_hard_state_change'] &&
+    if ($row['host_ticket_time'] > $row['host_last_time_up'] &&
         isset($row['host_ticket_id']) && !is_null($row['host_ticket_id']) && $row['host_ticket_id'] != '') {
         $ticket_id = $row['host_ticket_id'];
         $url = $rule->getUrl($preferences['rule'], $ticket_id, $row, $widgetId);
@@ -387,7 +389,7 @@ while ($row = $res->fetchRow()) {
         $data[$row['host_id']."_".$row['service_id']]['ticket_id'] = $ticket_id;
         $data[$row['host_id']."_".$row['service_id']]['ticket_time'] = $gmt->getDate("Y-m-d H:i:s", $row['host_ticket_time']);
         $data[$row['host_id']."_".$row['service_id']]['ticket_subject'] = $row['host_ticket_subject'];
-    } else if ($row['service_ticket_time'] > $row['last_hard_state_change'] &&
+    } else if ($row['service_ticket_time'] > $row['last_time_ok'] &&
                isset($row['service_ticket_id']) && !is_null($row['service_ticket_id']) && $row['service_ticket_id'] != '') {
         $ticket_id = $row['service_ticket_id'];
         $url = $rule->getUrl($preferences['rule'], $ticket_id, $row, $widgetId);
