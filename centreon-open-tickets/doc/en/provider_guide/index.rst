@@ -5,7 +5,7 @@ Some providers had been developed to use API provided by the ticketting software
 It can happen you need to get/set a value not managed by the provider. So you can:
 
 * open an issue/pull-request on github for the provider
-* extend the provider and do your own development 
+* extend the provider and do your own development
 
 OTRS
 ----
@@ -19,7 +19,7 @@ To enhance the user experience, OTRS API had been extended.
 Installation
 ~~~~~~~~~~~~
 
-Copy directories ``providers/Otrs/extra/Custom`` and ``providers/Otrs/extra/Kernel`` 
+Copy directories ``providers/Otrs/extra/Custom`` and ``providers/Otrs/extra/Kernel``
 (can be found on your centreon-web server) on your OTRS Server.
 
 Then copy it:
@@ -63,7 +63,7 @@ Add following lines in ``/opt/otrs/Kernel/Config.pm`` file:
         'Name' => 'CustomerUserGet'
     };
 
-Eventually, create ``centreon`` webservice. Connect on your OTRS web interface and 
+Eventually, create ``centreon`` webservice. Connect on your OTRS web interface and
 use ``Import web service`` button. Choose the file ``providers/Otrs/extra/export/otrs4/centreon.yml``.
 
 On your centreon-web server, php installation must have curl module.
@@ -72,11 +72,11 @@ It will depends of your operating system (It's by default on Centos/Rhel 6).
 Configuration
 ~~~~~~~~~~~~~
 
-Define **Rule name** and select **Otrs**. 
+Define **Rule name** and select **Otrs**.
 A new form appear and define dedicated field linked to the provider:
 
 * **Address** is OTRS server address
-* **Path** is the url path of OTRS server 
+* **Path** is the url path of OTRS server
 * **Rest link** is the complete path for the webservice (shouldn't be changed)
 * **Webservice name** is the name of the webservice used (linked to the name from installation part)
 * **Username** and **Password** is the user used
@@ -112,12 +112,34 @@ For Centos 6.x:
 Configuration
 ~~~~~~~~~~~~~
 
-Define **Rule name** and select **Glpi**. 
+Define **Rule name** and select **Glpi**.
 A new form appear and define dedicated field linked to the provider:
 
 * **Address** is GLPI server address
-* **Path** is the url path of the webservice 
+* **Path** is the url path of the webservice
 * **Username** and **Password** is the user used
 
 .. image:: /_static/provider_guide/glpi/configure.png
+    :align: center
+
+
+ServiceNow
+----------
+
+Introduction
+~~~~~~~~~~~~
+
+This provider allows to create a ticket to ServiceNow Incidents.
+
+Configuration
+~~~~~~~~~~~~~
+
+Define **Rule name** and select **ServiceNow**.
+A new form appear and define dedicated field linked to the provider:
+
+* **Instance name** is ServiceNow instance name
+* **OAuth client ID** and **OAuth client secret** is the OAuth client information, you can get the tutorial to create it https://docs.servicenow.com/bundle/jakarta-servicenow-platform/page/administer/security/task/t_SettingUpOAuth.html?title=OAuth_Setup
+* **OAuth username** and **OAuth password** is the user used
+
+.. image:: /_static/provider_guide/servicenow/configure.png
     :align: center
