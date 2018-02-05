@@ -57,6 +57,48 @@ if ($form->validate()) {
 
 $form->addElement('header', 'title', _("Api Web Exporter"));
 
+$exportAllOpt[] = HTML_QuickForm::createElement(
+    'checkbox',
+    'all',
+    '&nbsp;',
+    _("All"),
+    array('id' => 'all', 'onClick' => 'selectAll(this);')
+);
+$form->addGroup($exportAllOpt, 'export_all', _("Export resources"), '&nbsp;&nbsp;');
+
+$exportCmd[] = HTML_QuickForm::createElement('checkbox', 'c_cmd', '&nbsp;', _("Check CMD"));
+$exportCmd[] = HTML_QuickForm::createElement('checkbox', 'n_cmd', '&nbsp;', _("Notification CMD"));
+$exportCmd[] = HTML_QuickForm::createElement('checkbox', 'm_cmd', '&nbsp;', _("Misc CMD"));
+$exportCmd[] = HTML_QuickForm::createElement('checkbox', 'd_cmd', '&nbsp;', _("Discovery CMD"));
+$form->addGroup($exportCmd, 'export_cmd', '', '&nbsp;');
+
+$exportOpt[] = HTML_QuickForm::createElement('checkbox', 'tp', '&nbsp;', _("Timeperiods"));
+$exportOpt[] = HTML_QuickForm::createElement('checkbox', 'c', '&nbsp;', _("Contacts"));
+$exportOpt[] = HTML_QuickForm::createElement('checkbox', 'cg', '&nbsp;', _("Contactgroups"));
+$form->addGroup($exportOpt, 'simple_export', '', '&nbsp;');
+
+$form->addElement('checkbox', 'host', '&nbsp;', _("Host"));
+$form->addElement('text', 'host_filter', '', 120);
+
+$form->addElement('checkbox', 'htpl', '&nbsp;', _("HTPL"));
+$form->addElement('text', 'htpl_filter', '', 120);
+
+$form->addElement('checkbox', 'host_c', '&nbsp;', _("Host Categories"));
+
+$form->addElement('checkbox', 'svc', '&nbsp;', _("Services"));
+$form->addElement('text', 'svc_filter', '', 120);
+
+$form->addElement('checkbox', 'stpl', '&nbsp;', _("STPL"));
+$form->addElement('text', 'stpl_filter', '', 120);
+
+$form->addElement('checkbox', 'svc_c', '&nbsp;', _("Service Categories"));
+
+$exportConnect[] = HTML_QuickForm::createElement('checkbox', 'acl', '&nbsp;', _("ACL"));
+$exportConnect[] = HTML_QuickForm::createElement('checkbox', 'ldap', '&nbsp;', _("LDAP"));
+$form->addGroup($exportConnect, 'export_connect', '', '&nbsp;');
+
+$form->addElement('checkbox', 'poller', '&nbsp;', _("Poller"));
+$form->addElement('text', 'poller_filter', '', 120);
 
 $subC = $form->addElement('submit', 'submitC', _("Export"), array("class" => "btc bt_success"));
 $res = $form->addElement('reset', 'reset', _("Reset"));
