@@ -132,6 +132,7 @@ try {
             }
             $hostId = $tmp[0];
             $svcId = $tmp[1];
+            if ($hostId == 0 && $svcId == 0) continue;
             $hostname = $hostObj->getHostName($hostId);
             $svcDesc = $svcObj->getServiceDesc($svcId);
             $pollerId = $hostObj->getHostPollerId($hostId);
