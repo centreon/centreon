@@ -124,6 +124,7 @@ try {
             $externalCommandMethod = 'setProcessCommand';
         }
         foreach ($hosts as $hostId) {
+            if ($hostId == 0) continue;
             $hostname = $hostObj->getHostName($hostId);
             $pollerId = $hostObj->getHostPollerId($hostId);
             $externalCmd->$externalCommandMethod(sprintf($command, $hostname), $pollerId);
