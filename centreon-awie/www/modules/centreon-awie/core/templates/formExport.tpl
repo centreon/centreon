@@ -1,63 +1,148 @@
-<form {$form.attributes}>
-    <table class="formTable table">
+<script type='text/javascript' src="./modules/centreon-awie/core/js/Export.js"></script>
+
+
+
+<form name="exportForm" id="exportForm" enctype="multipart/form-data">
+
+    <div class="loadingWrapper" style="display: none">
+        {include file='loading.tpl'}
+    </div>
+
+    <table id="exportTab" class="formTable table">
+        <tr class="ListHeader">
+            <td class="FormHeader">
+                <h3>| Export objects:</h3>
+            </td>
+        </tr>
         <tr class="list_lvl_1">
             <td class="ListColLvl1_name" colspan="2">
-                <h4>{$form.header.title}</h4>
+                <h4>Pollers</h4>
             </td>
         </tr>
         <tr class="list_one">
-            <td class="FormRowField"><img class="helpTooltip" name="notification_options"> {$form.export_all.label}
+            <td class="FormRowField">Pollers</td>
+            <td class="FormRowValue">
+                <input onclick="selectFilter('INSTANCE');" name="export_INSTANCE[INSTANCE]" type="checkbox"
+                       id="poller"/>
+                <label for="poller">All</label>
+                <span style="margin: 0 15px;vertical-align: middle;">or</span>
+                <label for="poller1">Filter </label>
+                <input type="text" id="poller1" placeholder="Ex: name" name="export_INSTANCE[INSTANCE_filter]" />
             </td>
-            <td class="FormRowValue">{$form.export_all.html}</td>
+        </tr>
+        <tr class="list_lvl_1">
+            <td class="ListColLvl1_name" colspan="2">
+                <h4>Hosts</h4>
+            </td>
         </tr>
         <tr class="list_two">
-            <td class="FormRowField"></td>
-            <td class="FormRowValue">{$form.export_cmd.html}</td>
+            <td class="FormRowField">Hosts</td>
+            <td class="FormRowValue">
+                <input onclick="selectFilter('HOST');" name="export_HOST[HOST]" type="checkbox" id="host"/>
+                <label for="host">All</label>
+                <span style="margin: 0 15px;vertical-align: middle;">or</span>
+                <label for="host1">Filter </label>
+                <input id="host1" placeholder="Ex: name" name="export_HOST[HOST_filter]" type="text"/>
+            </td>
         </tr>
         <tr class="list_one">
-            <td class="FormRowField"></td>
-            <td class="FormRowValue">{$form.simple_export.html}</td>
+            <td class="FormRowField">Host templates</td>
+            <td class="FormRowValue">
+                <input onclick="selectFilter('HTPL');" name="export_HTPL[HTPL]" type="checkbox" id="htpl"/>
+                <label for="htpl">All</label>
+                <span style="margin: 0 15px;vertical-align: middle;">or</span>
+                <label for="htpl1">Filter </label>
+                <input id="htpl1" placeholder="Ex: name" name="export_HTPL[HTPL_filter]" type="text"/>
+            </td>
         </tr>
         <tr class="list_two">
-            <td class="FormRowField"></td>
-            <td class="FormRowValue">{$form.host.html} {$form.host_filter.html}</td>
+            <td class="FormRowField">Host categories</td>
+            <td class="FormRowValue">
+                <input name="HC" type="checkbox" id="host_c"/>
+                <label for="host_c">Host Categories</label>
+            </td>
+        </tr>
+        <tr class="list_lvl_1">
+            <td class="ListColLvl1_name" colspan="2">
+                <h4>Services</h4>
+            </td>
         </tr>
         <tr class="list_one">
-            <td class="FormRowField"></td>
-            <td class="FormRowValue">{$form.htpl.html} {$form.htpl_filter.html}</td>
+            <td class="FormRowField">Services</td>
+            <td class="FormRowValue">
+                <input onclick="selectFilter('SERVICE');" name="export_SERVICE[SERVICE]" type="checkbox" id="svc"/>
+                <label for="svc">All</label>
+                <span style="margin: 0 15px;vertical-align: middle;">or</span>
+                <label for="service1">Filter </label>
+                <input id="service1" placeholder="Ex: name" name="export_SERVICE[SERVICE_filter]" type="text"/>
+            </td>
         </tr>
         <tr class="list_two">
-            <td class="FormRowField"></td>
-            <td class="FormRowValue">{$form.host_c.html} </td>
+            <td class="FormRowField">Service templates</td>
+            <td class="FormRowValue">
+                <input onclick="selectFilter('STPL');" name="export_STPL[STPL]" type="checkbox" id="stpl"/>
+                <label for="stpl">All</label>
+                <span style="margin: 0 15px;vertical-align: middle;">or</span>
+                <label for="stpl1">Filter </label>
+                <input id="stpl1" placeholder="Ex: name" name="export_STPL[STPL_filter]" type="text"/>
+            </td>
         </tr>
         <tr class="list_one">
-            <td class="FormRowField"></td>
-            <td class="FormRowValue">{$form.svc.html} {$form.svc_filter.html}</td>
+            <td class="FormRowField">Service categories</td>
+            <td class="FormRowValue">
+                <input name="SC" type="checkbox" id="svc_c"/>
+                <label for="svc_c">Service Categories</label>
+            </td>
         </tr>
-        <tr class="list_two">
-            <td class="FormRowField"></td>
-            <td class="FormRowValue">{$form.stpl.html} {$form.stpl_filter.html}</td>
+        <tr class="list_lvl_1">
+            <td class="ListColLvl1_name" >
+                <h4>Contacts</h4>
+            </td>
+            <td class="FormRowValue" >
+                <input name="CONTACT" type="checkbox" id="contact"/>
+                <label for="contact">Contacts</label>
+                <input name="CG" type="checkbox" id="cgroup"/>
+                <label for="cgroup">Contactgroups</label>
+            </td>
+        </tr>
+        <tr class="list_lvl_1">
+            <td class="ListColLvl1_name" >
+                <h4>Commands</h4>
+            </td>
+            <td class="FormRowValue">
+                <input name="export_cmd[c_cmd]" type="checkbox" id="c_cmd"/>
+                <label for="c_cmd">Check CMD</label>
+                <input name="export_cmd[n_cmd]" type="checkbox" id="n_cmd"/>
+                <label for="n_cmd">Notification CMD</label>
+                <input name="export_cmd[m_cmd]" type="checkbox" id="m_cmd"/>
+                <label for="m_cmd">Misc CMD</label>
+                <input name="export_cmd[d_cmd]" type="checkbox" id="d_cmd"/>
+                <label for="d_cmd">Discovery CMD</label>
+            </td>
         </tr>
         <tr class="list_one">
-            <td class="FormRowField"></td>
-            <td class="FormRowValue">{$form.export_connect.html}</td>
+
         </tr>
-        <tr class="list_two">
-            <td class="FormRowField"></td>
-            <td class="FormRowValue">{$form.poller.html} {$form.poller_filter.html}</td>
+        <tr class="list_lvl_1">
+            <td class="ListColLvl1_name" >
+                <h4>Resources</h4>
+            </td>
+            <td class="FormRowValue">
+                <input name="ACL" type="checkbox" id="acl"/>
+                <label for="acl">ACL</label>
+                <input name="LDAP" type="checkbox" id="ldap"/>
+                <label for="ldap">LDAP</label>
+                <input name="TP" type="checkbox" id="tp"/>
+                <label for="tp">Timeperiods</label>
+            </td>
         </tr>
     </table>
 
-    {if !$valid}
-        <div id="validForm">
-            <p>{$form.submitC.html}{$form.submitA.html}</p>
-        </div>
-    {else}
-        <div id="validForm">
-            <p>{$form.change.html}</p>
-        </div>
-    {/if}
-
-    {$form.hidden}
+    <div id="validForm">
+        <p><input onclick="submitForm();" class="btc bt_success" name="submitC" value="Export" type="button"/></p>
+    </div>
 </form>
-{$helpText}
+
+<form name="downloadForm" id="downloadForm" method="post" action="{$formPath}" enctype="multipart/form-data">
+    <input name="pathFile" id="pathFile" type="hidden"/>
+</form>

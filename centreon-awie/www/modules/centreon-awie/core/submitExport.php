@@ -15,18 +15,6 @@
  * limitations under the License.
  */
 
-if (!isset($oreon)) {
-    exit();
-}
-
-require_once _CENTREON_PATH_ . '/www/modules/centreon-awie/centreon-awie.conf.php';
-require_once _CENTREON_PATH_ . '/www/modules/centreon-awie/core/DB-Func.php';
-require_once _CENTREON_PATH_ . '/www/class/centreon-clapi/centreonAPI.class.php';
-
-$export = './modules/centreon-awie/core/submitExport.php';
-// Smarty template Init
-$path = _MODULE_PATH_ . "/core/templates/";
-$tpl = new Smarty();
-$tpl = initSmartyTpl($path, $tpl);
-$tpl->assign('formPath', $export);
-$tpl->display('formExport.tpl');
+require_once __DIR__ . '/../../../../config/centreon.config.php';
+require_once _CENTREON_PATH_ . '/www/modules/centreon-awie/class/ZipAndDownload.class.php';
+$oExport = new \ZipAndDownload($_POST['pathFile']);
