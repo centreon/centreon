@@ -16,12 +16,11 @@
  */
 
 require_once dirname(__FILE__) . '/../../../../config/centreon.config.php';
-require_once _CENTREON_PATH_ . '/www/modules/centreon-awie/class/Export.class.php';
+require_once _CENTREON_PATH_ . '/www/modules/centreon-awie/centreon-awie.conf.php';
 require_once _CENTREON_PATH_ . '/www/modules/centreon-awie/class/ClapiObject.class.php';
 require_once _CENTREON_PATH_ . '/www/class/centreon.class.php';
 require_once _CENTREON_PATH_ . '/www/class/centreonUser.class.php';
 require_once _CENTREON_PATH_ . '/www/class/centreonSession.class.php';
-require_once _CENTREON_PATH_ . '/www/modules/centreon-awie/centreon-awie.conf.php';
 
 define('_CLAPI_LIB_', _CENTREON_PATH_ . "/lib");
 define('_CLAPI_CLASS_', _CENTREON_PATH_ . "/www/class/centreon-clapi");
@@ -34,23 +33,6 @@ set_include_path(implode(PATH_SEPARATOR, array(
 require_once _CLAPI_LIB_ . "/Centreon/Db/Manager/Manager.php";
 require_once _CLAPI_CLASS_ . "/centreonUtils.class.php";
 require_once _CLAPI_CLASS_ . "/centreonAPI.class.php";
-
-
-$formValue = array(
-    'export_cmd',
-    'TP',
-    'CONTACT',
-    'CG',
-    'export_HOST',
-    'export_HTPL',
-    'HC',
-    'export_SERVICE',
-    'export_STPL',
-    'SC',
-    'ACL',
-    'LDAP',
-    'export_INSTANCE'
-);
 
 $dbConfig['host'] = $conf_centreon['hostCentreon'];
 $dbConfig['username'] = $conf_centreon['user'];
@@ -70,42 +52,67 @@ $centreonSession = new CentreonSession();
 $centreonSession->start();
 $username = $_SESSION['centreon']->user->alias;
 $clapiConnector = new \ClapiObject($dbConfig, array('username' => $username));
+$importReturn = array();
 
-/*
-* Set log_contact
-*/
-\CentreonClapi\CentreonUtils::setUserName($username);
+$uploadDir = '/usr/share/centreon/filesUpload/';
+$uploadFile = $uploadDir . basename($_FILES['clapiImport']['name']);
+$tmpLogFile = $uploadDir . 'log' . time() . '.htm';
 
-$scriptContent = array();
-$ajaxReturn = array();
 
-$oExport = new \Export($clapiConnector);
+/**
+ * Upload file
+ */
 
-foreach ($_POST as $object => $value) {
-
-    if (in_array($object, $formValue)) {
-        $type = explode('_', $object);
-        if ($type[0] == 'export') {
-            $generateContent = $oExport->generateGroup($type[1], $value);
-            if (isset($generateContent['error'])) {
-                $ajaxReturn['error'][] = $generateContent['error'];
-            } else {
-                $scriptContent[] = $generateContent['result'];
-            }
-        } elseif ($type[0] != 'submitC') {
-            $generateContent = $oExport->generateObject($type[0]);
-            if (isset($generateContent['error'])) {
-                $ajaxReturn['error'][] = $generateContent['error'];
-            } else {
-                $scriptContent[] = $generateContent['result'];
-            }
-        }
-    } else {
-        $ajaxReturn['error'][] = 'Unknown object : ' . $object;
-    }
-
+if (is_null($_FILES['clapiImport'])) {
+    $importReturn['error'] = "File is empty";
+    echo json_encode($importReturn);
+    exit;
 }
 
-$ajaxReturn['fileGenerate'] = $oExport->clapiExport($scriptContent);
-echo json_encode($ajaxReturn);
+$moveFile = move_uploaded_file($_FILES['clapiImport']['tmp_name'], $uploadFile);
+if (!$moveFile) {
+    $importReturn['error'] = "Upload failed";
+    echo json_encode($importReturn);
+    exit;
+}
+
+
+/**
+ * Dezippe file
+ */
+$zip = new ZipArchive;
+$confPath = '/usr/share/centreon/filesUpload/';
+
+if ($zip->open($uploadFile) === true) {
+    $zip->extractTo($confPath);
+    $zip->close();
+} else {
+    if ($zip->open($uploadFile) === false) {
+        $importReturn['error'] = "Unzip failed";
+        echo json_encode($importReturn);
+        exit;
+    }
+}
+
+/**
+ * Set log_contact
+ */
+\CentreonClapi\CentreonUtils::setUserName($username);
+
+/**
+ * Using CLAPI command to import configuration
+ * Exemple -> "./centreon -u admin -p centreon -i /tmp/clapi-export.txt"
+ */
+$finalFile = $confPath . basename($uploadFile, '.zip') . '.txt';
+
+try {
+    ob_start();
+    $clapiConnector->import($finalFile, $tmpLogFile);
+    ob_end_clean();
+    $importReturn['response'] = 'Import successfully';
+} catch (\Exception $e) {
+    $importReturn['error'] = $e->getMessage();
+}
+
+echo json_encode($importReturn);
 exit;

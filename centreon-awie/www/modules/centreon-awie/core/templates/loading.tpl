@@ -8,6 +8,6 @@
             <path class= "color color-5" d="M22.26 27.3v0l-7.84 7.84c3.92 3.92 8.96 5.88 14.14 5.88v-11.060c-2.24 0-4.48-0.84-6.3-2.66z"></path>
             <path class= "color color-6" d="M41.16 33.6l-5.040-5.040c-0.84-0.84-1.96-0.7-2.8-0.14v0c-1.4 0.98-3.22 1.4-4.9 1.4v11.060c4.48 0 9.1-1.54 12.74-4.62 1.12-0.7 0.98-1.68 0-2.66z"></path>
         </svg>
-        <p>Please Wait...</p>
+        <p>Please Wait... This process can take several minutes</p>
     </div>
 </div>

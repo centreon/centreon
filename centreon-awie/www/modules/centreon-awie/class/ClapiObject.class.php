@@ -111,4 +111,14 @@ class ClapiObject
         return $export;
     }
 
+    /**
+     * @return mixed
+     */
+    public function import($fileName)
+    {
+        $import = $this->clapiConnector->import($fileName);
+        return $import;
+    }
+
+
 }

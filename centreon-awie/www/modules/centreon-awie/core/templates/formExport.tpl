@@ -1,7 +1,5 @@
 <script type='text/javascript' src="./modules/centreon-awie/core/js/Export.js"></script>
 
-
-
 <form name="exportForm" id="exportForm" enctype="multipart/form-data">
 
     <div class="loadingWrapper" style="display: none">

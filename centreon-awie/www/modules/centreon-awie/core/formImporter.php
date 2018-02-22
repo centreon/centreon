@@ -15,52 +15,12 @@
  * limitations under the License.
  */
 
-if (!isset($oreon)) {
-    exit();
-}
-
 require_once _CENTREON_PATH_ . '/www/modules/centreon-awie/centreon-awie.conf.php';
-require_once _CENTREON_PATH_ . '/www/lib/HTML/QuickForm.php';
-require_once _CENTREON_PATH_ . '/www/lib/HTML/QuickForm/Renderer/ArraySmarty.php';
-//require_once _MODULE_PATH_ . 'core/help.php';
 
 $import = realpath(dirname(__FILE__));
 // Smarty template Init
-$path = _MODULE_PATH_ . "/core/template/";
+$path = _MODULE_PATH_ . "/core/templates/";
 $tpl = new Smarty();
 $tpl = initSmartyTpl($path, $tpl);
-$form = new HTML_QuickForm('Form', 'post', "?p=" . $p);
-
-$valid = false;
-if ($form->validate()) {
-    $valid = true;
-    $form->freeze();
-}
-
-$form->addElement('header', 'title', _("Api Web Import"));
-
-
-$subC = $form->addElement('submit', 'submitC', _("Import"), array("class" => "btc bt_success"));
-$res = $form->addElement('reset', 'reset', _("Reset"));
-
-if ($valid) {
-    $form->freeze();
-}
-
-
-$renderer = new HTML_QuickForm_Renderer_ArraySmarty($tpl, true);
-$form->accept($renderer);
-
-/*
-$helpText = "";
-foreach ($help as $key => $text) {
-    $helpText .= '<span style="display:none" id="help:' . $key . '">' . $text . '</span>' . "\n";
-}
-$tpl->assign("helpText", $helpText);
-*/
-
-$tpl->assign('form', $renderer->toArray());
-$tpl->assign('valid', $valid);
-
-
-$tpl->display($import . "/templates/formExport.tpl");
+$tpl->assign('formPath', $export);
+$tpl->display('formImport.tpl');
