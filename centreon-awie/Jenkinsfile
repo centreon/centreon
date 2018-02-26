@@ -99,39 +99,39 @@ try {
   }
 
   stage('Acceptance tests') {
-    parallel 'centos6': {
-      node {
-        sh 'cd /opt/centreon-build && git pull && cd -'
-        sh '/opt/centreon-build/jobs/awie/3.4/mon-awie-acceptance.sh centos6'
-        step([
-          $class: 'XUnitBuilder',
-          thresholds: [
-            [$class: 'FailedThreshold', failureThreshold: '0'],
-            [$class: 'SkippedThreshold', failureThreshold: '0']
-          ],
-          tools: [[$class: 'JUnitType', pattern: 'xunit-reports/**/*.xml']]
-        ])
-        archiveArtifacts allowEmptyArchive: true, artifacts: 'acceptance-logs/*.txt, acceptance-logs/*.png'
-      }
-    },
-    'centos7': {
-      node {
-        sh 'cd /opt/centreon-build && git pull && cd -'
-        sh '/opt/centreon-build/jobs/awie/3.4/mon-awie-acceptance.sh centos7'
-        step([
-          $class: 'XUnitBuilder',
-          thresholds: [
-            [$class: 'FailedThreshold', failureThreshold: '0'],
-            [$class: 'SkippedThreshold', failureThreshold: '0']
-          ],
-          tools: [[$class: 'JUnitType', pattern: 'xunit-reports/**/*.xml']]
-        ])
-        archiveArtifacts allowEmptyArchive: true, artifacts: 'acceptance-logs/*.txt, acceptance-logs/*.png'
-      }
-    }
-    if ((currentBuild.result ?: 'SUCCESS') != 'SUCCESS') {
-      error('Acceptance tests stage failure.');
-    }
+//    parallel 'centos6': {
+//      node {
+//        sh 'cd /opt/centreon-build && git pull && cd -'
+//        sh '/opt/centreon-build/jobs/awie/3.4/mon-awie-acceptance.sh centos6'
+//        step([
+//          $class: 'XUnitBuilder',
+//          thresholds: [
+//            [$class: 'FailedThreshold', failureThreshold: '0'],
+//            [$class: 'SkippedThreshold', failureThreshold: '0']
+//          ],
+//          tools: [[$class: 'JUnitType', pattern: 'xunit-reports/**/*.xml']]
+//        ])
+//        archiveArtifacts allowEmptyArchive: true, artifacts: 'acceptance-logs/*.txt, acceptance-logs/*.png'
+//      }
+//    },
+//    'centos7': {
+//      node {
+//        sh 'cd /opt/centreon-build && git pull && cd -'
+//        sh '/opt/centreon-build/jobs/awie/3.4/mon-awie-acceptance.sh centos7'
+//        step([
+//          $class: 'XUnitBuilder',
+//          thresholds: [
+//            [$class: 'FailedThreshold', failureThreshold: '0'],
+//            [$class: 'SkippedThreshold', failureThreshold: '0']
+//          ],
+//          tools: [[$class: 'JUnitType', pattern: 'xunit-reports/**/*.xml']]
+//        ])
+//        archiveArtifacts allowEmptyArchive: true, artifacts: 'acceptance-logs/*.txt, acceptance-logs/*.png'
+//      }
+//    }
+//    if ((currentBuild.result ?: 'SUCCESS') != 'SUCCESS') {
+//      error('Acceptance tests stage failure.');
+//    }
   }
 
   if (env.BRANCH_NAME == 'master') {
