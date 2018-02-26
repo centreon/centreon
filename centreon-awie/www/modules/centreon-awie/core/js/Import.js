@@ -31,7 +31,7 @@ function checkSize(uploadField) {
             .show()
             .html('<span class="error-msg">File is empty</span>');
         uploadField.value = "";
-    } else if (uploadField.files[0].type !== 'application/zip') {
+    } else if (uploadField.files[0].name.split('.').pop() !== 'zip') {
         messageWrapper
             .show()
             .html('<span class="error-msg">Please update a .zip archive</span>');
