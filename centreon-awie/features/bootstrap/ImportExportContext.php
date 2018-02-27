@@ -21,11 +21,18 @@ class ImportExportContext extends CentreonAwieContext
     public function iHaveAFile()
     {
         $mythis = $this;
+
         $this->spin(
             function ($context) use ($mythis) {
-                return !$context->assertFind('css', '.loadingWrapper')->isVisible();
+                if($context->assertFind('css', '.loadingWrapper')){
+                    return !$context->assertFind('css', '.loadingWrapper')->isVisible();
+                } else {
+                    return true;
+                }
+
             }
         );
+
         $cmd = 'ls /tmp';
         $output = $this->container->execute(
             $cmd,
