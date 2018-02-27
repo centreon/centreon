@@ -24,7 +24,7 @@ class ImportExportContext extends CentreonAwieContext
 
         $this->spin(
             function ($context) use ($mythis) {
-                if($context->assertFind('css', '.loadingWrapper')){
+                if($context->getSession()->getPage()->has('css', '.loadingWrapper')){
                     return !$context->assertFind('css', '.loadingWrapper')->isVisible();
                 } else {
                     return true;
