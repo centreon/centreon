@@ -109,7 +109,7 @@ try {
     ob_start();
     $clapiConnector->import($finalFile, $tmpLogFile);
     ob_end_clean();
-    $importReturn['response'] = 'Import successfully';
+    $importReturn['response'] = 'Import successful';
 } catch (\Exception $e) {
     $importReturn['error'] = $e->getMessage();
 }
