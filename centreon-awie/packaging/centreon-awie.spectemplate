@@ -5,11 +5,6 @@
 ##
 
 %define debug_package %{nil}
-%if 0%{centos} == 6
-%define phpversion php53
-%else
-%define phpversion php54
-%endif
 %define centreon_www %{_datadir}/centreon/www
 
 Name:           centreon-awie
@@ -20,18 +15,17 @@ Summary:        Centreon API Web Import Export
 Group:          Applications/System
 License:        Proprietary
 URL:            https://www.centreon.com
-Source0:        %{name}-%{version}-%{phpversion}.tar.gz
+Source0:        %{name}-%{version}.tar.gz
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 Requires:       centreon-web >= 2.8.11
-Requires:       php-zend-guard-loader
 BuildArch:      noarch
 
 %description
 UI to export/import centreon configuration.
 
 %prep
-%setup -q -n %{name}-%{version}-%{phpversion}
+%setup -q -n %{name}-%{version}
 
 find .          \
         -type f \
