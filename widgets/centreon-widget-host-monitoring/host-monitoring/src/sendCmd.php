@@ -124,21 +124,23 @@ try {
             $externalCommandMethod = 'setProcessCommand';
         }
         foreach ($hosts as $hostId) {
-            if ($hostId == 0) continue;
-            $hostname = $hostObj->getHostName($hostId);
-            $pollerId = $hostObj->getHostPollerId($hostId);
-            $externalCmd->$externalCommandMethod(sprintf($command, $hostname), $pollerId);
-            if (isset($forceCmd)) {
-                $externalCmd->$externalCommandMethod(sprintf($forceCmd, $hostname), $pollerId);
-            }
-            if (isset($_POST['processServices'])) {
-                $services = $svcObj->getServiceId(null, $hostname);
-                foreach($services as $svcDesc => $svcId) {
-                    $externalCmd->$externalCommandMethod(sprintf($commandSvc, $hostname, $svcDesc), $pollerId);
-                    if (isset($forceCmdSvc)) {
-                        $externalCmd->$externalCommandMethod(sprintf($forceCmdSvc, $hostname, $svcDesc), $pollerId);
-                    }
-                }
+            if ($hostId != 0) {
+              $hostname = $hostObj->getHostName($hostId);
+              $pollerId = $hostObj->getHostPollerId($hostId);
+              $externalCmd->$externalCommandMethod(sprintf($command, $hostname), $pollerId);
+            
+              if (isset($forceCmd)) {
+                  $externalCmd->$externalCommandMethod(sprintf($forceCmd, $hostname), $pollerId);
+              }
+              if (isset($_POST['processServices'])) {
+                  $services = $svcObj->getServiceId(null, $hostname);
+                  foreach($services as $svcDesc => $svcId) {
+                      $externalCmd->$externalCommandMethod(sprintf($commandSvc, $hostname, $svcDesc), $pollerId);
+                      if (isset($forceCmdSvc)) {
+                          $externalCmd->$externalCommandMethod(sprintf($forceCmdSvc, $hostname, $svcDesc), $pollerId);
+                      }
+                  }
+              }
             }
         }
         $externalCmd->write();

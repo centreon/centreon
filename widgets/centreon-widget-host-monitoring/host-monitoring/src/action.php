@@ -191,8 +191,9 @@ try {
                 $externalCommandMethod = 'setProcessCommand';
             }
             foreach ($hosts as $hostId) {
-                if ($hostId == 0) continue;
-                $externalCmd->$externalCommandMethod(sprintf($command, $hostObj->getHostName($hostId)), $hostObj->getHostPollerId($hostId));
+                if ($hostId != 0) {
+                  $externalCmd->$externalCommandMethod(sprintf($command, $hostObj->getHostName($hostId)), $hostObj->getHostPollerId($hostId));
+                }
             }
             $externalCmd->write();
         }
