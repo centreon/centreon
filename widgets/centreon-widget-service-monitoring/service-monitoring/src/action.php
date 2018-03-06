@@ -250,15 +250,16 @@ try {
                 }
                 $hostId = $tmp[0];
                 $svcId = $tmp[1];
-                if ($hostId == 0 && $svcId == 0) continue;
-                $hostname = $hostObj->getHostName($hostId);
-                $svcDesc = $svcObj->getServiceDesc($svcId);
-                if ($isSvcCommand === true) {
-                    $cmdParam = $hostname . ";" . $svcDesc;
-                } else {
-                    $cmdParam = $hostname;
+                if ($hostId != 0 && $svcId != 0) {
+                    $hostname = $hostObj->getHostName($hostId);
+                    $svcDesc = $svcObj->getServiceDesc($svcId);
+                    if ($isSvcCommand === true) {
+                        $cmdParam = $hostname . ";" . $svcDesc;
+                    } else {
+                        $cmdParam = $hostname;
+                    }
+                    $externalCmd->$externalCommandMethod(sprintf($command, $cmdParam), $hostObj->getHostPollerId($hostId));
                 }
-                $externalCmd->$externalCommandMethod(sprintf($command, $cmdParam), $hostObj->getHostPollerId($hostId));
             }
             $externalCmd->write();
         }

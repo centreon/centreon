@@ -132,27 +132,28 @@ try {
             }
             $hostId = $tmp[0];
             $svcId = $tmp[1];
-            if ($hostId == 0 && $svcId == 0) continue;
-            $hostname = $hostObj->getHostName($hostId);
-            $svcDesc = $svcObj->getServiceDesc($svcId);
-            $pollerId = $hostObj->getHostPollerId($hostId);
-            if ($cmd == 70 || $cmd == 74) {
-                $externalCmd->$externalCommandMethod(sprintf($commandSvc, $hostname, $svcDesc), $pollerId);
-                if (isset($forceCmdSvc)) {
-                    $externalCmd->$externalCommandMethod(sprintf($forceCmdSvc, $hostname, $svcDesc), $pollerId);
-                }
-            } else {
-                $externalCmd->$externalCommandMethod(sprintf($command, $hostname), $pollerId);
-            }
-            if (isset($forceCmd)) {
-                $externalCmd->$externalCommandMethod(sprintf($forceCmd, $hostname), $pollerId);
-            }
-            if (isset($_POST['processServices'])) {
-                $services = $svcObj->getServiceId(null, $hostname);
-                foreach($services as $svcDesc => $svcId) {
+            if ($hostId != 0 && $svcId != 0) {
+                $hostname = $hostObj->getHostName($hostId);
+                $svcDesc = $svcObj->getServiceDesc($svcId);
+                $pollerId = $hostObj->getHostPollerId($hostId);
+                if ($cmd == 70 || $cmd == 74) {
                     $externalCmd->$externalCommandMethod(sprintf($commandSvc, $hostname, $svcDesc), $pollerId);
                     if (isset($forceCmdSvc)) {
                         $externalCmd->$externalCommandMethod(sprintf($forceCmdSvc, $hostname, $svcDesc), $pollerId);
+                    }
+                } else {
+                    $externalCmd->$externalCommandMethod(sprintf($command, $hostname), $pollerId);
+                }
+                if (isset($forceCmd)) {
+                    $externalCmd->$externalCommandMethod(sprintf($forceCmd, $hostname), $pollerId);
+                }
+                if (isset($_POST['processServices'])) {
+                    $services = $svcObj->getServiceId(null, $hostname);
+                    foreach($services as $svcDesc => $svcId) {
+                        $externalCmd->$externalCommandMethod(sprintf($commandSvc, $hostname, $svcDesc), $pollerId);
+                        if (isset($forceCmdSvc)) {
+                            $externalCmd->$externalCommandMethod(sprintf($forceCmdSvc, $hostname, $svcDesc), $pollerId);
+                        }
                     }
                 }
             }
