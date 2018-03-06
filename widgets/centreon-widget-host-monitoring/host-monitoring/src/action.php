@@ -192,7 +192,7 @@ try {
             }
             foreach ($hosts as $hostId) {
                 if ($hostId != 0) {
-                  $externalCmd->$externalCommandMethod(sprintf($command, $hostObj->getHostName($hostId)), $hostObj->getHostPollerId($hostId));
+                    $externalCmd->$externalCommandMethod(sprintf($command, $hostObj->getHostName($hostId)), $hostObj->getHostPollerId($hostId));
                 }
             }
             $externalCmd->write();
