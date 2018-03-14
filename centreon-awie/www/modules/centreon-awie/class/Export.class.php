@@ -42,11 +42,11 @@ class Export
 
     /**
      * @param $type
-     * @return string
+     * @return array
      */
     private function generateCmd($type)
     {
-        $cmdScript = '';
+        $cmdScript = array();
         $cmdTypeRelation = array(
             'n' => 1,
             'c' => 2,
@@ -57,15 +57,99 @@ class Export
         $res = $this->db->query($query);
 
         while ($row = $res->fetchRow()) {
-            $cmdScript .= $this->generateObject('CMD', ';' . $row['command_name']);
+            $result = $this->generateObject('CMD', ';' . $row['command_name']);
+            $cmdScript['result'] .= $result['result'];
+            $cmdScript['error'] .= $result['error'];
         }
+        return $cmdScript;
+    }
+
+
+    /**
+     * @param $value
+     * @return array
+     */
+    private function generateInstance($value)
+    {
+        $cmdScript = array();
+
+        if (isset($value['INSTANCE'])) {
+            //export instance
+            $result = $this->generateObject('INSTANCE');
+            $cmdScript['result'] .= $result['result'];
+            $cmdScript['error'] .= $result['error'];
+
+            //export resource cfg
+            $result = $this->generateObject('RESOURCECFG');
+            $cmdScript['result'] .= $result['result'];
+            $cmdScript['error'] .= $result['error'];
+
+            //export broker cfg
+            $result = $this->generateObject('CENTBROKERCFG');
+            $cmdScript['result'] .= $result['result'];
+            $cmdScript['error'] .= $result['error'];
+
+            //export engine cfg
+            $result = $this->generateObject('ENGINECFG');
+            $cmdScript['result'] .= $result['result'];
+            $cmdScript['error'] .= $result['error'];
+
+
+        } elseif (!empty($value['INSTANCE_filter'])) {
+
+            $query = 'SELECT `id` FROM `nagios_server` WHERE `name` = "' . $value['INSTANCE_filter'] . '"';
+            $res = $this->db->query($query);
+            while ($row = $res->fetchRow()) {
+                $pollerId = $row['id'];
+            }
+
+            //export instance
+            $filter = ';' . $value['INSTANCE_filter'];
+            $result = $this->generateObject('INSTANCE', $filter);
+            $cmdScript['result'] .= $result['result'];
+            $cmdScript['error'] .= $result['error'];
+
+            //export resource cfg
+            $query = 'SELECT r.resource_name FROM cfg_resource r, cfg_resource_instance_relations cr '
+                . 'WHERE cr.instance_id =' . $pollerId
+                . ' AND cr.resource_id = r.resource_id';
+
+            $res = $this->db->query($query);
+            while ($row = $res->fetchRow()) {
+                $filter = ';' . $row['resource_name'];
+                $result = $this->generateObject('RESOURCECFG', $filter);
+                $cmdScript['result'] .= $result['result'];
+                $cmdScript['error'] .= $result['error'];
+            }
+
+            //export broker cfg
+            $query = 'SELECT b.config_name FROM cfg_centreonbroker b WHERE b.ns_nagios_server =' . $pollerId;
+            $res = $this->db->query($query);
+            while ($row = $res->fetchRow()) {
+                $filter = ';' . $row['config_name'];
+                $result = $this->generateObject('CENTBROKERCFG', $filter);
+                $cmdScript['result'] .= $result['result'];
+                $cmdScript['error'] .= $result['error'];
+            }
+
+            //export engine cfg
+            $query = 'SELECT n.nagios_name FROM cfg_nagios n WHERE n.nagios_server_id =' . $pollerId;
+            $res = $this->db->query($query);
+            while ($row = $res->fetchRow()) {
+                $filter = ';' . $row['nagios_name'];
+                $result = $this->generateObject('ENGINECFG', $filter);
+                $cmdScript['result'] .= $result['result'];
+                $cmdScript['error'] .= $result['error'];
+            }
+        }
+
         return $cmdScript;
     }
 
     /**
      * @param $object
      * @param $value
-     * @return string
+     * @return array
      */
     public function generateGroup($object, $value)
     {
@@ -74,6 +158,8 @@ class Export
                 $type = explode('_', $cmdType);
                 return $this->generateCmd($type[0]);
             }
+        } elseif ($object == 'INSTANCE') {
+            return $this->generateInstance($value);
         } else {
             if (isset($value[$object])) {
                 return $this->generateObject($object);
@@ -87,7 +173,7 @@ class Export
     /**
      * @param $object
      * @param string $filter
-     * @return string
+     * @return array
      */
     public function generateObject($object, $filter = '')
     {
