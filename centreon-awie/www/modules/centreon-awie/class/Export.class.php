@@ -46,7 +46,7 @@ class Export
      */
     private function generateCmd($type)
     {
-        $cmdScript = array();
+        $cmdScript = array('result' => '', 'error' => '');
         $cmdTypeRelation = array(
             'n' => 1,
             'c' => 2,
@@ -177,11 +177,11 @@ class Export
      */
     public function generateObject($object, $filter = '')
     {
-        $content = array();
+        $content = array('result' => '', 'error' => '');
         $result = '';
         if ($object == 'ACL') {
             $acl = $this->generateAcl();
-            $result = $acl['result'];
+            $result .= $acl['result'];
         } else {
             ob_start();
             $option = $object . $filter;

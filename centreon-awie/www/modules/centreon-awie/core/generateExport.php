@@ -86,19 +86,23 @@ foreach ($_POST as $object => $value) {
         $type = explode('_', $object);
         if ($type[0] == 'export') {
             $generateContent = $oExport->generateGroup($type[1], $value);
-            if (!empty($generateContent['error'])) {
-                $ajaxReturn['error'][] = $generateContent['error'];
-            }
-            if (!is_null($generateContent['result'])) {
-                $scriptContent[] = $generateContent['result'];
+            if (!empty($generateContent)) {
+                if (!empty($generateContent['error'])) {
+                    $ajaxReturn['error'][] = $generateContent['error'];
+                }
+                if (!is_null($generateContent['result'])) {
+                    $scriptContent[] = $generateContent['result'];
+                }
             }
         } elseif ($type[0] != 'submitC') {
             $generateContent = $oExport->generateObject($type[0]);
-            if (!empty($generateContent['error'])) {
-                $ajaxReturn['error'][] = $generateContent['error'];
-            }
-            if (!is_null($generateContent['result'])) {
-                $scriptContent[] = $generateContent['result'];
+            if (!empty($generateContent)) {
+                if (!empty($generateContent['error'])) {
+                    $ajaxReturn['error'][] = $generateContent['error'];
+                }
+                if (!is_null($generateContent['result'])) {
+                    $scriptContent[] = $generateContent['result'];
+                }
             }
         }
     } else {
