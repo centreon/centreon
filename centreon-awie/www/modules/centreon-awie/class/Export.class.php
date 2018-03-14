@@ -180,7 +180,8 @@ class Export
         $content = array();
         $result = '';
         if ($object == 'ACL') {
-            $this->generateAcl();
+            $acl = $this->generateAcl();
+            $result = $acl['result'];
         } else {
             ob_start();
             $option = $object . $filter;
@@ -205,15 +206,18 @@ class Export
     }
 
     /**
-     * @return string
+     * @return array
      */
     private function generateAcl()
     {
-        $aclScript = '';
+        $aclScript = array();
         $oAcl = array('ACLMENU', 'ACLACTION', 'ACLRESOURCE', 'ACLGROUP');
         foreach ($oAcl as $acl) {
-            $aclScript .= $this->generateObject($acl);
+            $result = $this->generateObject($acl);
+            $aclScript['result'] .= $result['result'];
+            $aclScript['error'] .= $result['error'];
         }
+
         return $aclScript;
     }
 
