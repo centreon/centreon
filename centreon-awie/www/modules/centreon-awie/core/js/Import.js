@@ -34,7 +34,7 @@ function checkSize(uploadField) {
     } else if (uploadField.files[0].name.split('.').pop() !== 'zip') {
         messageWrapper
             .show()
-            .html('<span class="error-msg">Please update a .zip archive</span>');
+            .html('<span class="error-msg">Please upload a .zip archive</span>');
         uploadField.value = "";
     }
 }
