@@ -18,12 +18,12 @@ Exécutez les commandes suivantes en tant qu'utilisateur avec des droits suffisa
 
 Pour CentOS 6::
 
-  $ yum install centreon-awie-1.0.0.el6.noarch.rpm
+  $ yum install centreon-awie-1.0.0-1.el6.noarch.rpm
 
 Pour CentOS 7::
 
-  $ yum install centreon-awie-1.0.0.el7.noarch.rpm
-
+  $ yum install centreon-awie-1.0.0-1.el7.noarch.rpm
+                
 Toutes les dépendances seront automatiquement installées à partir des dépôts Centreon.
 
 Installation de l'interface graphique utilisateur

@@ -17,11 +17,11 @@ Run the following commands as privileged user.
 
 For CentOS 6::
 
-  $ yum install centreon-awie-1.0.0.el6.noarch.rpm
+  $ yum install centreon-awie-1.0.0-1.el6.noarch.rpm
 
 For CentOS 7::
 
-  $ yum install centreon-awie-1.0.0.el7.noarch.rpm
+  $ yum install centreon-awie-1.0.0-1.el7.noarch.rpm
 
 All dependencies are automatically installed from Centreon repositories.
 
