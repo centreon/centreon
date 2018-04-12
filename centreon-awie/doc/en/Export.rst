@@ -103,7 +103,7 @@ Commands Export
 Check the check-box corresponding to the type of command you want to export (Check, Notification, Miscellaneous or Discovery). No *Filter*.
 
 .. note:: 
-    Commands lines for Discovery commands are not exported entirely (known issue).
+    Commands lines for Notification commands are not exported entirely (known issue).
 
 Resources Export
 ================

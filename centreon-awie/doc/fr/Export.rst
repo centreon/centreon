@@ -103,7 +103,7 @@ Export des commandes
 Cochez la case correspondant au type de commande que vous souhaitez exporter (Contrôle, Notification, Divers, Découverte). Pas de filtre.
 
 .. note:: 
-    Les lignes de commandes de découverte ne sont exportées que partiellement - bug connu.
+    Les lignes de commandes de Notification ne sont exportées que partiellement - bug connu.
 
 Export des ressources
 =====================
