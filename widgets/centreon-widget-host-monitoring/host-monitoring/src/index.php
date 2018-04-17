@@ -36,9 +36,9 @@
 require_once "../../require.php";
 require_once "./DB-Func.php";
 
+require_once $centreon_path . 'bootstrap.php';
 require_once $centreon_path . 'www/class/centreon.class.php';
 require_once $centreon_path . 'www/class/centreonSession.class.php';
-require_once $centreon_path . 'www/class/centreonDB.class.php';
 require_once $centreon_path . 'www/class/centreonWidget.class.php';
 require_once $centreon_path . 'www/class/centreonDuration.class.php';
 require_once $centreon_path . 'www/class/centreonUtils.class.php';
@@ -53,11 +53,11 @@ if (!isset($_SESSION['centreon']) || !isset($_REQUEST['widgetId']) || !isset($_R
     exit;
 }
 
-$db = new CentreonDB();
+$db = $dependencyInjector['configuration_db'];
 if (CentreonSession::checkSession(session_id(), $db) == 0) {
     exit;
 }
-$dbb = new CentreonDB("centstorage");
+$dbb = $dependencyInjector['realtime_db'];
 
 /* Init Objects */
 $criticality = new CentreonCriticality($db);
@@ -74,6 +74,7 @@ $page = $_REQUEST['page'];
 
 $widgetObj = new CentreonWidget($centreon, $db);
 $preferences = $widgetObj->getWidgetPreferences($widgetId);
+
 // Default colors
 $stateColors = getColors($db);
 // Get status labels
@@ -201,7 +202,7 @@ if (!$centreon->user->admin) {
 }
 $orderby = "host_name ASC";
 
-if (isset($preferences['order_by']) && $preferences['order_by'] != "") {
+if (isset($preferences['order_by']) && trim($preferences['order_by']) != "") {
 
     $aOrder = explode(" ", $preferences['order_by']);
     if (in_array('last_state_change', $aOrder) || in_array('last_hard_state_change', $aOrder)) {
@@ -210,16 +211,16 @@ if (isset($preferences['order_by']) && $preferences['order_by'] != "") {
         } else {
             $order = 'DESC';
         }
-        $orderby = $aOrder[0] ." ". $order;
+        $orderby = $aOrder[0] . " " . $order;
     } else {
-        $orderby = $preferences['order_by'];
+        $orderby = 'h.' . $preferences['order_by'];
     }
 }
 $query .= " ORDER BY $orderby";
-$query .= " LIMIT ".($page * $preferences['entries']).",".$preferences['entries'];
+$query .= " LIMIT " . ($page * $preferences['entries']) . "," . $preferences['entries'];
 
 $res = $dbb->query($query);
-$nbRows = $dbb->numberRows();
+$nbRows = $res->rowCount();
 $data = array();
 $outputLength = $preferences['output_length'] ? $preferences['output_length'] : 50;
 $commentLength = $preferences['comment_length'] ? $preferences['comment_length'] : 50;

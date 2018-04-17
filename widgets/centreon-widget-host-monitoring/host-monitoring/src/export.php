@@ -39,9 +39,9 @@ header('Content-Disposition: attachment; filename="hosts-monitoring.csv"');
 require_once "../../require.php";
 require_once "./DB-Func.php";
 
+require_once $centreon_path . 'bootstrap.php';
 require_once $centreon_path . 'www/class/centreon.class.php';
 require_once $centreon_path . 'www/class/centreonSession.class.php';
-require_once $centreon_path . 'www/class/centreonDB.class.php';
 require_once $centreon_path . 'www/class/centreonWidget.class.php';
 require_once $centreon_path . 'www/class/centreonDuration.class.php';
 require_once $centreon_path . 'www/class/centreonUtils.class.php';
@@ -58,11 +58,11 @@ if (!isset($_SESSION['centreon']) || !isset($_REQUEST['widgetId'])) {
     exit;
 }
 
-$db = new CentreonDB();
+$db = $dependencyInjector['configuration_db'];
 if (CentreonSession::checkSession(session_id(), $db) == 0) {
     exit;
 }
-$dbb = new CentreonDB("centstorage");
+$dbb = $dependencyInjector['realtime_db'];
 
 /* Init Objects */
 $criticality = new CentreonCriticality($db);
@@ -206,7 +206,7 @@ if (isset($preferences['order_by']) && $preferences['order_by'] != "") {
 $query .= " ORDER BY $orderby";
 
 $res = $dbb->query($query);
-$nbRows = $dbb->numberRows();
+$nbRows = $res->rowCount();
 $data = array();
 $outputLength = $preferences['output_length'] ? $preferences['output_length'] : 50;
 $commentLength = $preferences['comment_length'] ? $preferences['comment_length'] : 50;
