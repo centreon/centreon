@@ -2,7 +2,7 @@
 Export configured Centreon Web objects
 **************************************
 
-Once you have configured properly all Centreon Web objects you need (Poller, Hosts, Services, Contacts, Time Periods... ) then you can export them forward another Centreon Web platform by going to:
+Once you have properly configured all Centreon Web objects you need (Poller, Hosts, Services, Contacts, Time Periods... ) then you can export them towards another Centreon Web platform by going to:
 
 Configuration > Import/Export
 
@@ -34,7 +34,7 @@ Hosts Export
 
 Same principle as Poller export but :
 
-If you choose to export all hosts, then hosts configurations, linked hosts templates and linked services templates will be exported but hosts will be created in target environment without their services.
+If you choose to export all hosts, then host configurations, linked host templates and linked services templates will be exported but hosts will be created in target environment without their services.
 However, you will be able to create services by selecting value "Yes" for the *Create Services linked to the Template too* radio-button in Configuration > Hosts page, for each host. Save host configuration and export configuration.
 
 If you export a specific host by using the *Filter* field (only one host at the same time) then the host will be created in the new platform with all its services.
@@ -44,7 +44,7 @@ If you export a specific host by using the *Filter* field (only one host at the 
 .. image:: _static/images/hoststemplates.png
    :align: center
 
-Check the *Hosts templates* check-box if you want to export all hosts templates. 
+Check the *Host templates* check-box if you want to export all hosts templates. 
 
 Use the *Filter* field for one single value if you want to export one specific host template.
 
@@ -68,9 +68,9 @@ Services Export
 
 Same principle as Poller export but :
 
-If you use the *Filter* field for a specific service, Import/Export process will create ALL services linked to first host linked to the filtered service.
+If you use the *Filter* field for a specific service, Import/Export process will create ALL services linked to the first host linked to the filtered service.
 
-**Services templates**
+**Service templates**
 
 .. image:: _static/images/servicestemplates.png
    :align: center
@@ -92,7 +92,7 @@ Contacts Export
 .. image:: _static/images/contacts.png
    :align: center
 
-You can export all Contacts (without linked contacts groups) or all Contacts groups (with linked users). No *Filter*.
+You can export all Contacts (without linked contact groups) or all Contact groups (with linked users). No *Filter*.
 
 Commands Export
 ===============
@@ -103,7 +103,7 @@ Commands Export
 Check the check-box corresponding to the type of command you want to export (Check, Notification, Miscellaneous or Discovery). No *Filter*.
 
 .. note:: 
-    Commands lines for Notification commands are not exported entirely (known issue).
+    Command line notification commands are not exported entirely (known issue).
 
 Resources Export
 ================

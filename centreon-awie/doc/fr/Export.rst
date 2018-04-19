@@ -44,7 +44,7 @@ Si vous exportez un hôte en particulier en utilisant le champ *Filter* (un seul
 .. image:: _static/images/hoststemplates.png
    :align: center
 
-Cochez la case *Hosts templates* si vous désirez exporter tous les modèles d'hôtes.
+Cochez la case *Host templates* si vous désirez exporter tous les modèles d'hôtes.
 
 Utilisez le champ *Filter* pour une seule valeur si vous souhaitez exporter un modèle d'hôte en particulier.
 

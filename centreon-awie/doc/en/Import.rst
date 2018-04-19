@@ -2,9 +2,9 @@
 Import configured Centreon Web Objects
 ======================================
 
-In Export page, each time that Export button is pressed, a zip archive file is created and downloaded.
+In the Export page, each time that the Export button is pressed, a zip archive file is created and downloaded.
 
-This is that file that you will upload in the Import Page of another Centreon Web platform.
+This is the file that you will upload in the Import Page of another Centreon Web platform.
 
 Go to **Configuration > Import/Export > Import** menu:
 
@@ -16,7 +16,7 @@ Select the centreon-clapi-export zip file you want to import then click on the *
 .. image:: _static/images/zipfileuploaded.png
    :align: center
 
-You should get "Import succesful" message at the end of the process:
+You should get "Import successful" message at the end of the process:
 
 .. image:: _static/images/success.png
    :align: center
