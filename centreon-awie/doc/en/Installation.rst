@@ -25,6 +25,15 @@ For CentOS 7::
 
 All dependencies are automatically installed from Centreon repositories.
 
+Installation via sources
+============================
+
+Run the following commands as privileged user.::
+
+  $ tar xzf centreon-awie-1.0.0.tar.gz
+  $ mv www/modules/centreon-awie /usr/share/centreon/www/modules
+  $ chown -R apache:apache /usr/share/centreon/www/modules/centreon-awie
+
 UI installation
 ===============
 
