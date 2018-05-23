@@ -6,14 +6,14 @@ Centreon recommends using its official packages.
 
 **Using packages**
 
-Centreon provides RPM for its products through Centreon Entreprise Server (CES). Open source products are freely available from our repository.
+Centreon provides RPMs for its products through Centreon Entreprise Server (CES). Open source products are freely available from our repository.
 
 These packages are available for CentOS 6 and CentOS 7.
 
-Install package
-===============
+Installing packages
+===================
 
-Run the following commands as privileged user.
+Run the following commands as a privileged user.
 
 For CentOS 6::
 
@@ -41,7 +41,7 @@ Log into your Centreon Web platforms (source and target).
 
 Go to Administration > Extensions > Modules.
 
-Click on "Install module" wheel icon at the end of the centreon-awie line: 
+Click on "Install module" gear icon at the end of the centreon-awie line: 
 
 .. image:: _static/images/Install_awie.png
    :align: center
