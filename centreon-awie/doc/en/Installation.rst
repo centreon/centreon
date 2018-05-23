@@ -30,9 +30,9 @@ Installation via sources
 
 Run the following commands as privileged user.::
 
-  $ tar xzf centreon-awie-1.0.0.tar.gz
-  $ mv www/modules/centreon-awie /usr/share/centreon/www/modules
-  $ chown -R apache:apache /usr/share/centreon/www/modules/centreon-awie
+  $ tar xzf centreon-awie-1.0.1.tar.gz
+  $ cd centreon-awie-1.0.1
+  $ bash install.sh -u /etc/centreon/
 
 UI installation
 ===============

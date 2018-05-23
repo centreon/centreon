@@ -31,9 +31,9 @@ Installation via les sources
 
 Exécutez les commandes suivantes en tant qu'utilisateur avec des droits suffisants.::
 
-  $ tar xzf centreon-awie-1.0.0.tar.gz
-  $ mv www/modules/centreon-awie /usr/share/centreon/www/modules
-  $ chown -R apache:apache /usr/share/centreon/www/modules/centreon-awie
+  $ tar xzf centreon-awie-1.0.1.tar.gz
+  $ cd centreon-awie-1.0.1
+  $ bash install.sh -u /etc/centreon/
 
 Installation de l'interface graphique utilisateur
 =================================================
