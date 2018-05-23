@@ -23,3 +23,6 @@ A la fin du traitement vous devriez obtenir le message "Import successful".
 
 Afin de vérifier que tous les objets ont été correctement importés, veuillez consulter les pages habituelles du menu Configuration.
 
+.. note::
+    Il est nécessaire de regénérer, tester et exporter la configuration
+

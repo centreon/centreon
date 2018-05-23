@@ -21,4 +21,7 @@ You should get "Import successful" message at the end of the process:
 .. image:: _static/images/success.png
    :align: center
 
-To check that objects have been properly imported, go to Configuration pages as usual. 
+To check that objects have been properly imported, go to Configuration pages as usual.
+
+.. note::
+    It is necessary to generate, test and export configuration.
