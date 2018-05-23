@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Copyright 2005-2015 CENTREON
+# Copyright 2005-2018 CENTREON
 # Centreon is developped by : Julien Mathis and Romain Le Merlus under
 # GPL Licence 2.0.
 # 
@@ -31,14 +31,11 @@
 # 
 # For more information : contact@centreon.com
 # 
-# SVN : $URL
-# SVN : $Id$
-# 
 
 # Define module information
 RNAME="Centreon Web Import/Export"
 NAME="centreon-awie"
-VERSION="1.0.0"
+VERSION="1.0.1"
 FORGE_URL="https://github.com/centreon/centreon-awie"
 CRON_FILE="myproject.cron"
 MODULE_DIR="www/modules/"$NAME
