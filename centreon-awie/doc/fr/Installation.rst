@@ -2,6 +2,15 @@
 Installation
 ############
 
+Prérequis
+=========
+
++==============+==================+
+| Software     | Version requise  |
++==============+==================+
+| Centreon Web | >= 2.8.21        |
++--------------+------------------+
+
 Centreon recommande d'utiliser ses paquets officiels.
 
 **Utiliser les paquets**

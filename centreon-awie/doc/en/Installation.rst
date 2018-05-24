@@ -2,6 +2,15 @@
 Installation
 ############
 
+Prerequisites
+=============
+
++==============+==================+
+| Software     | Required version |
++==============+==================+
+| Centreon Web | >= 2.8.21        |
++--------------+------------------+
+
 Centreon recommends using its official packages.
 
 **Using packages**
