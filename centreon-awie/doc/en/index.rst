@@ -5,7 +5,7 @@ The Centreon AWIE module has been designed to help users configure several Centr
 
 From a properly configured source environment, you can use the AWIE module to export chosen objects towards a target environment. Those objects will be replicated.
 
-Centreon AWIE is based on CLAPI commands but its added value is to allow using Centreon Web UI instead of commands lines. But, exactly like CLAPI, AWIE shouldn't be used to export changes on existing Centreon Web objects in the target platform. It is efficient only in creating new objects.  
+Centreon AWIE is based on CLAPI commands but its added value is to allow using Centreon Web UI instead of commands lines.
 
 Contents:
 
