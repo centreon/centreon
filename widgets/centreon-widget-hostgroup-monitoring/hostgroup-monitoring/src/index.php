@@ -53,7 +53,6 @@ if (CentreonSession::checkSession(session_id(), $db) == 0) {
     exit;
 }
 
-require_once $centreon_path . "GPL_LIB/Smarty/libs/Smarty.class.php";
 $path = $centreon_path . "www/widgets/hostgroup-monitoring/src/";
 $template = new Smarty();
 $template = initSmartyTplForPopup($path, $template, "./", $centreon_path);
@@ -113,7 +112,7 @@ $query = "SELECT SQL_CALC_FOUND_ROWS DISTINCT name, hostgroup_id ";
 $query .= "FROM hostgroups ";
 
 if (isset($preferences['hg_name_search']) && $preferences['hg_name_search'] != "") {
-    $tab = split(" ", $preferences['hg_name_search']);
+    $tab = explode(" ", $preferences['hg_name_search']);
     $op = $tab[0];
     if (isset($tab[1])) {
         $search = $tab[1];
