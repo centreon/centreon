@@ -43,7 +43,6 @@ require_once $centreon_path . 'www/class/centreonACL.class.php';
 require_once $centreon_path . 'www/class/centreonHost.class.php';
 require_once $centreon_path . 'bootstrap.php';
 
-
 CentreonSession::start(1);
 
 if (!isset($_SESSION['centreon']) || !isset($_REQUEST['widgetId'])) {
