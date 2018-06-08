@@ -11,10 +11,12 @@ function loadTop10() {
             });
         }
     });
-    if (autoRefresh) {
+
+    if (Number(autoRefresh)) {
         if (timeout) {
             clearTimeout(timeout);
         }
+
         timeout = setTimeout(loadTop10, (autoRefresh * 1000));
     }
 }
