@@ -76,8 +76,8 @@ class Export
         if (isset($value['INSTANCE'])) {
             //export instance
             $result = $this->generateObject('INSTANCE');
-            $cmdScript['result'] .= $result['result'];
-            $cmdScript['error'] .= $result['error'];
+            $cmdScript['result'] = $result['result'];
+            $cmdScript['error'] = $result['error'];
 
             //export resource cfg
             $result = $this->generateObject('RESOURCECFG');
@@ -210,7 +210,10 @@ class Export
      */
     private function generateAcl()
     {
-        $aclScript = array();
+        $aclScript = array(
+            'result' => '',
+            'error' => '',
+        );
         $oAcl = array('ACLMENU', 'ACLACTION', 'ACLRESOURCE', 'ACLGROUP');
         foreach ($oAcl as $acl) {
             $result = $this->generateObject($acl);

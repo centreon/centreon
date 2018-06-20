@@ -41,20 +41,19 @@ $username = $_SESSION['centreon']->user->alias;
 $clapiConnector = new \ClapiObject($dependencyInjector, array('username' => $username));
 $importReturn = array();
 
-$uploadDir = '/usr/share/centreon/filesUpload/';
-$uploadFile = $uploadDir . basename($_FILES['clapiImport']['name']);
-$tmpLogFile = $uploadDir . 'log' . time() . '.htm';
-
-
 /**
  * Upload file
  */
 
-if (is_null($_FILES['clapiImport'])) {
+if (!isset($_FILES['clapiImport']) || is_null($_FILES['clapiImport'])) {
     $importReturn['error'] = "File is empty";
     echo json_encode($importReturn);
     exit;
 }
+
+$uploadDir = '/usr/share/centreon/filesUpload/';
+$uploadFile = $uploadDir . basename($_FILES['clapiImport']['name']);
+$tmpLogFile = $uploadDir . 'log' . time() . '.htm';
 
 $moveFile = move_uploaded_file($_FILES['clapiImport']['tmp_name'], $uploadFile);
 if (!$moveFile) {
