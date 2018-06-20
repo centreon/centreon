@@ -40,10 +40,6 @@ $num = $request->getParam('num');
 $limit = $request->getParam('limit');
 $search = $request->getParam('searchRule');
 
-require_once "HTML/QuickForm.php";
-require_once 'HTML/QuickForm/advmultiselect.php';
-require_once 'HTML/QuickForm/Renderer/ArraySmarty.php';
-
 try {
     switch ($o) {
         case 'a':

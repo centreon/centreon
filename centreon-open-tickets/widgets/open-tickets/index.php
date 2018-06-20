@@ -26,8 +26,8 @@ require_once $centreon_path . 'www/class/centreonDB.class.php';
 require_once $centreon_path . 'www/class/centreonWidget.class.php';
 require_once $centreon_path . 'www/modules/centreon-open-tickets/class/rule.php';
 
-//load Smarty
-require_once $centreon_path . 'GPL_LIB/Smarty/libs/Smarty.class.php';
+$smartyDir = __DIR__ . '/../../../vendor/smarty/smarty/';
+require_once $smartyDir . 'libs/Smarty.class.php';
 
 session_start();
 if (!isset($_SESSION['centreon']) || !isset($_REQUEST['widgetId'])) {
@@ -41,15 +41,19 @@ $template = new Smarty();
 $template = initSmartyTplForPopup($path, $template, "/", $centreon_path);
 
 try {
+
     $db = new CentreonDB();
     $widgetObj = new CentreonWidget($centreon, $db);
     $preferences = $widgetObj->getWidgetPreferences($widgetId);
+
     $autoRefresh = 0;
     if (isset($preferences['refresh_interval'])) {
         $autoRefresh = $preferences['refresh_interval'];
     }
+    $preferences['rule'] = (!empty($preferences['rule']) ?: null);
     $rule = new Centreon_OpenTickets_Rule($db);
     $result = $rule->getAliasAndProviderId($preferences['rule']);
+
     if (!isset($preferences['rule']) || is_null($preferences['rule']) || $preferences['rule'] == '' ||
     !isset($result['provider_id'])) {
         $template->assign('error', "<center><div class='update' style='text-align:center;width:350px;'>"._("Please select a rule first")."</div></center>");

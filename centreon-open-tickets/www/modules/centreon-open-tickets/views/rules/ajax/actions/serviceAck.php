@@ -70,7 +70,7 @@ $hosts_done = array();
 //fwrite($fp, print_r($selected_values, true) . "==\n");
 
 $DBRESULT = $db_storage->query($query);
-while (($row = $DBRESULT->fetchRow())) {
+while (($row = $DBRESULT->fetch())) {
     if (isset($hosts_done[$row['host_name'] . ';' . $row['description']])) {
         continue;
     }

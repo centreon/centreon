@@ -27,10 +27,9 @@ require_once $centreon_path . 'www/class/centreonWidget.class.php';
 require_once $centreon_path . 'www/class/centreonUtils.class.php';
 require_once $centreon_path . "www/class/centreonXMLBGRequest.class.php";
 require_once $centreon_path . 'www/modules/centreon-open-tickets/class/rule.php';
-require_once $centreon_path . "GPL_LIB/Smarty/libs/Smarty.class.php";
 
 session_start();
-$centreon_bg = new CentreonXMLBGRequest(session_id(), 1, 1, 0, 1);
+$centreon_bg = new CentreonXMLBGRequest($dependencyInjector, session_id(), 1, 1, 0, 1);
 
 ?>
 

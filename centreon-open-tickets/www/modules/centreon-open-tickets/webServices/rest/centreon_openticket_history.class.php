@@ -92,12 +92,12 @@ class CentreonOpenticketHistory extends CentreonWebService {
         foreach ($this->arguments['links'] as $link) {
             if (isset($link['hostname']) && isset($link['service_description'])) {
                 $res = $this->pearDBMonitoring->execute($stmt_service, array($link['hostname'], $link['service_description']));
-                if ($row = $res->fetchRow()) {
+                if ($row = $res->fetch()) {
                     $links_ok[] = array_merge($link, array('service_id' => $row['service_id'], 'host_id' => $row['host_id']));
                 }
             } else if (isset($link['hostname'])) {
                 $res = $this->pearDBMonitoring->execute($stmt_host, array($link['hostname']));
-                if ($row = $res->fetchRow()) {
+                if ($row = $res->fetch()) {
                     $links_ok[] = array_merge($link, array('host_id' => $row['host_id']));
                 }
             }
@@ -109,7 +109,7 @@ class CentreonOpenticketHistory extends CentreonWebService {
         }
         
         /* Insert data */
-        $this->pearDBMonitoring->autocommit(0);
+        $this->pearDBMonitoring->beginTransaction();
         $res = $this->pearDBMonitoring->query("INSERT INTO mod_open_tickets (`timestamp`, `user`, `ticket_value`) VALUES (" . 
             $this->pearDBMonitoring->quote($timestamp) . ", " .
             $this->pearDBMonitoring->quote($this->arguments['user']) . ", " .
@@ -122,7 +122,7 @@ class CentreonOpenticketHistory extends CentreonWebService {
         
         /* Get Autoincrement */
         $res = $this->pearDBMonitoring->query("SELECT LAST_INSERT_ID() as last_id");
-        if (true === PEAR::isError($res) || !($row = $res->fetchRow())) {
+        if (true === PEAR::isError($res) || !($row = $res->fetch())) {
             $result = array('code' => 1, 'message' => 'database issue');
             return $result;
         }

@@ -26,7 +26,7 @@ $rows = 0;
 $nbRule = 0;
 include("./include/common/autoNumLimit.php");
 
-$form = new HTML_QuickForm('select_form', 'POST', "?p=".$p);
+$form = new HTML_QuickFormCustom('select_form', 'POST', "?p=".$p);
 
 $query = "SELECT r.rule_id, r.activate, r.alias FROM mod_open_tickets_rule r";
 if ($search) {
@@ -37,13 +37,13 @@ $query .= " ORDER BY r.alias";
 $query .= " LIMIT ".$num * $limit.", ".$limit;
 
 $resCount = $db->query($queryCount);
-$rows = $resCount->numRows();
+$rows = $resCount->rowCount();
 
 $res = $db->query($query);
 $elemArr = array();
 $tdStyle = "list_one";
 $ruleStr = "";
-while ($row = $res->fetchRow()) {
+while ($row = $res->fetch()) {
     $selectedElements = $form->addElement('checkbox', "select[".$row['rule_id']."]");
 	$elemArr[$row['rule_id']]['select'] = $selectedElements->toHtml();
 	$elemArr[$row['rule_id']]['url_edit'] = "./main.php?p=".$p."&o=c&rule_id=".$row['rule_id'];

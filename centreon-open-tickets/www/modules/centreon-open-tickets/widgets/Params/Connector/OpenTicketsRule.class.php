@@ -19,7 +19,7 @@
  * limitations under the License.
  */
 
-require_once "class/centreonWidget/Params/List.class.php";
+require_once dirname(__FILE__) . "/../../../../../class/centreonWidget/Params/List.class.php";
 
 class CentreonWidgetParamsConnectorOpenTicketsRule extends CentreonWidgetParamsList
 {
@@ -39,7 +39,7 @@ class CentreonWidgetParamsConnectorOpenTicketsRule extends CentreonWidgetParamsL
             $query .= " ORDER BY `alias`";
             $res = $this->db->query($query);
             $tab = array(null => null);
-            while ($row = $res->fetchRow()) {
+            while ($row = $res->fetch()) {
                 $tab[$row['rule_id']] = $row['alias'];
             }
         }

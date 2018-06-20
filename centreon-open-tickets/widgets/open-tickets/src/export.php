@@ -36,7 +36,8 @@ require_once $centreon_path . 'www/class/centreonService.class.php';
 require_once $centreon_path . 'www/class/centreonMedia.class.php';
 require_once $centreon_path . 'www/class/centreonCriticality.class.php';
 
-require_once $centreon_path ."GPL_LIB/Smarty/libs/Smarty.class.php";
+$smartyDir = __DIR__ . '/../../../../vendor/smarty/smarty/';
+require_once $smartyDir . 'libs/Smarty.class.php';
 
 session_start();
 if (!isset($_SESSION['centreon']) || !isset($_REQUEST['widgetId'])) {
@@ -75,7 +76,7 @@ $stateHColors = array(0 => "#13EB3A",
                      1 => "#F91D05",
                      2 => "#DCDADA",
                      3 => "#2AD1D4");
-while ($row = $res->fetchRow()) {
+while ($row = $res->fetch()) {
     if ($row['key'] == "color_ok") {
         $stateSColors[0] = $row['value'];
     } elseif ($row['key'] == "color_warning") {
@@ -236,7 +237,7 @@ if (isset($preferences["display_severities"]) && $preferences["display_severitie
   $query2 = "SELECT sc_id FROM service_categories WHERE sc_name IN (".$labels.")";
   $RES = $db->query($query2);
   $idC = "";
-  while ($d1 = $RES->fetchRow()) {
+  while ($d1 = $RES->fetch()) {
     if ($idC != '') {
       $idC .= ",";
     }
@@ -265,7 +266,7 @@ $commentLength = $preferences['comment_length'] ? $preferences['comment_length']
 
 $hostObj = new CentreonHost($db);
 $svcObj = new CentreonService($db);
-while ($row = $res->fetchRow()) {
+while ($row = $res->fetch()) {
     foreach ($row as $key => $value) {
         if ($key == "last_check") {
             $value = date("Y-m-d H:i:s", $value);
@@ -296,7 +297,7 @@ while ($row = $res->fetchRow()) {
    
     if (isset($preferences['display_last_comment']) && $preferences['display_last_comment']) {
         $res2 = $dbb->query('SELECT data FROM comments where host_id = ' . $row['host_id'] . ' AND service_id = ' . $row['service_id'] . ' ORDER BY entry_time DESC LIMIT 1');
-        if ($row2 = $res2->fetchRow()) {
+        if ($row2 = $res2->fetch()) {
             $data[$row['host_id']."_".$row['service_id']]['comment'] = substr($row2['data'], 0, $commentLength);
         } else {
             $data[$row['host_id']."_".$row['service_id']]['comment'] = '-';

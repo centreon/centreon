@@ -33,7 +33,8 @@ require_once $centreon_path . 'www/class/centreonService.class.php';
 require_once $centreon_path . 'www/class/centreonMedia.class.php';
 require_once $centreon_path . 'www/class/centreonCriticality.class.php';
 
-require_once $centreon_path . "GPL_LIB/Smarty/libs/Smarty.class.php";
+$smartyDir = __DIR__ . '/../../../../vendor/smarty/smarty/';
+require_once $smartyDir . 'libs/Smarty.class.php';
 
 require_once $centreon_path . 'www/modules/centreon-open-tickets/class/rule.php';
 
@@ -81,7 +82,7 @@ $stateHColors = array(0 => "#13EB3A",
                      1 => "#F91D05",
                      2 => "#DCDADA",
                      3 => "#2AD1D4");
-while ($row = $res->fetchRow()) {
+while ($row = $res->fetch()) {
     if ($row['key'] == "color_ok") {
         $stateSColors[0] = $row['value'];
     } elseif ($row['key'] == "color_warning") {
@@ -276,7 +277,7 @@ if (isset($preferences["display_severities"]) && $preferences["display_severitie
   $query2 = "SELECT sc_id FROM service_categories WHERE sc_name IN (".$labels.")";
   $RES = $db->query($query2);
   $idC = "";
-  while ($d1 = $RES->fetchRow()) {
+  while ($d1 = $RES->fetch()) {
     if ($idC != '') {
       $idC .= ",";
     }
@@ -341,7 +342,7 @@ $hostObj = new CentreonHost($db);
 $svcObj = new CentreonService($db);
 $gmt = new CentreonGMT($db);
 $gmt->getMyGMTFromSession(session_id(), $db);
-while ($row = $res->fetchRow()) {
+while ($row = $res->fetch()) {
     foreach ($row as $key => $value) {
         if ($key == "last_check") {
             $value = $gmt->getDate("Y-m-d H:i:s", $value);

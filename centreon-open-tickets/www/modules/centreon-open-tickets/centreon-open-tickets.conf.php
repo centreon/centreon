@@ -19,11 +19,9 @@
  * limitations under the License.
  */
 
-require_once '@CENTREON_ETC@/centreon.conf.php';
+require_once realpath(dirname(__FILE__) . '/../../../bootstrap.php');;
 
 require_once $centreon_path . 'www/modules/centreon-open-tickets/class/request.php';
 require_once $centreon_path . 'www/modules/centreon-open-tickets/class/rule.php';
 require_once $centreon_path . 'www/modules/centreon-open-tickets/class/centreonDBManager.class.php';
 require_once $centreon_path . 'www/modules/centreon-open-tickets/providers/register.php';
-
-?>

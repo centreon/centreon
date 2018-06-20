@@ -33,7 +33,8 @@ if (!isset($_SESSION['centreon']) || !isset($_POST['widgetId'])) {
     exit;
 }
 
-require_once $centreon_path ."GPL_LIB/Smarty/libs/Smarty.class.php";
+$smartyDir = __DIR__ . '/../../../../vendor/smarty/smarty/';
+require_once $smartyDir . 'libs/Smarty.class.php';
 
 $path = $centreon_path . "www/widgets/open-tickets/src/";
 $template = new Smarty();
@@ -111,7 +112,7 @@ $(function() {
     			var tmp = $(this).attr('id').split("_");
     			return tmp[1];
     		}).get().join(",");
-    		
+
             if (checkValues != '') {
                 var url = "./widgets/open-tickets/src/action.php?widgetId="+widget_id+"&sid="+sid+"&selection="+checkValues+"&cmd="+jQuery(this).val();
                 // We delete the old one (not really clean. Should be managed by popin itself. Like with a destroy parameters)

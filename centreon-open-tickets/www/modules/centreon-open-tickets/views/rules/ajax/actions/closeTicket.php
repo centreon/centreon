@@ -101,7 +101,7 @@ $hosts_done = array();
 //It can display host tickets when i close. because in my database, i get the history for host also (if hard state had not changed).
 
 $DBRESULT = $db_storage->query($query);
-while (($row = $DBRESULT->fetchRow())) {
+while (($row = $DBRESULT->fetch())) {
     if (isset($hosts_done[$row['host_name'] . ';' . $row['description']])) {
         continue;
     }

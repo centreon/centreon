@@ -19,13 +19,7 @@
  * limitations under the License.
  */
 
-
-
 require_once './modules/centreon-open-tickets/centreon-open-tickets.conf.php';
-
-require_once "HTML/QuickForm.php";
-require_once 'HTML/QuickForm/select2.php';
-require_once 'HTML/QuickForm/Renderer/ArraySmarty.php';
 
 /*
  * Smarty template Init
@@ -37,7 +31,7 @@ $tpl = initSmartyTpl($path, $tpl);
 /*
  * Form begin
  */
-$form = new HTML_QuickForm('FormTicketLogs', 'get', "?p=".$p);
+$form = new HTML_QuickFormCustom('FormTicketLogs', 'get', "?p=".$p);
 
 $periods = array(""=>"",
 				"10800"=>_("Last 3 Hours"),

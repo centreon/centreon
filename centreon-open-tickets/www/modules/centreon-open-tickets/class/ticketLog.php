@@ -1,16 +1,16 @@
 <?php
 /*
- * Copyright 2016 Centreon (http://www.centreon.com/)
+ * Copyright 2018 Centreon (http://www.centreon.com/)
  *
- * Centreon is a full-fledged industry-strength solution that meets 
- * the needs in IT infrastructure and application monitoring for 
+ * Centreon is a full-fledged industry-strength solution that meets
+ * the needs in IT infrastructure and application monitoring for
  * service performance.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0  
+ *    http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,*
@@ -32,8 +32,8 @@ class Centreon_OpenTickets_Log
     public function __construct($db) {
         $this->_db = $db;
     }
-    
-    protected function getTime($start_date, $start_time, $end_date, $end_time, $period) {        
+
+    protected function getTime($start_date, $start_time, $end_date, $end_time, $period) {
         $start = null;
         $end = null;
         $auto_period = 1;
@@ -42,7 +42,7 @@ class Centreon_OpenTickets_Log
             if ($start_time == "") {
                 $start_time = "00:00";
             }
-           
+
             preg_match("/^([0-9]*)\/([0-9]*)\/([0-9]*)/", $start_date, $matchesD);
             preg_match("/^([0-9]*):([0-9]*)/", $start_time, $matchesT);
             $start = mktime($matchesT[1], $matchesT[2], "0", $matchesD[1], $matchesD[2], $matchesD[3], -1);
@@ -62,10 +62,10 @@ class Centreon_OpenTickets_Log
             $start = time() - ($period);
             $end = time();
         }
-        
+
         return array('start' => $start, 'end' => $end);
     }
-    
+
     /*
      * Params example:
      *       [host_filter] => Array
@@ -88,9 +88,17 @@ class Centreon_OpenTickets_Log
      */
     public function getLog($params, $centreon_bg, $pagination=30, $current_page=1, $all=false) {
         /* Get time */
-        $range_time = $this->getTime($params['StartDate'], $params['StartTime'], $params['EndDate'], $params['EndTime'], $params['period']);
-        
-        $query = "SELECT SQL_CALC_FOUND_ROWS mot.ticket_value as ticket_id, mot.timestamp, mot.user, motl.hostname as host_name, motl.service_description, motd.subject FROM mod_open_tickets_link motl, mod_open_tickets_data motd, mod_open_tickets mot WHERE ";
+        $range_time = $this->getTime(
+            $params['StartDate'],
+            $params['StartTime'],
+            $params['EndDate'],
+            $params['EndTime'],
+            $params['period']
+        );
+
+        $query = "SELECT SQL_CALC_FOUND_ROWS mot.ticket_value as ticket_id, mot.timestamp, mot.user, " .
+            "motl.hostname as host_name, motl.service_description, motd.subject " .
+            "FROM mod_open_tickets_link motl, mod_open_tickets_data motd, mod_open_tickets mot WHERE ";
         if (!is_null($range_time['start'])) {
             $query .= "mot.timestamp >= " . $range_time['start'] . " AND ";
         }
@@ -103,19 +111,21 @@ class Centreon_OpenTickets_Log
         if (!is_null($params['subject']) && $params['subject'] != '') {
             $query .= "motd.subject LIKE '%" . $this->_db->escape($params['subject']) . "%' AND ";
         }
-        
+
         $build_services_filter = '';
         $build_services_filter_append = '';
         if (isset($params['service_filter']) && is_array($params['service_filter'])) {
             foreach ($params['service_filter'] as $val) {
                 $tmp = split('-', $val);
-                $build_services_filter .= $build_services_filter_append . '(motl.host_id = ' . $tmp[0] . ' AND motl.service_id = ' . $tmp[1] . ') ';
+                $build_services_filter .= $build_services_filter_append . '(motl.host_id = ' . $tmp[0] .
+                    ' AND motl.service_id = ' . $tmp[1] . ') ';
                 $build_services_filter_append = 'OR ';
             }
         }
         if (isset($params['host_filter']) && count($params['host_filter']) > 0) {
             if ($build_services_filter != '') {
-               $query .= "(motl.host_id IN (" . join(',', $params['host_filter']) . ") OR (" . $build_services_filter . ")) AND ";
+               $query .= "(motl.host_id IN (" . join(',', $params['host_filter']) . ") " .
+                   "OR (" . $build_services_filter . ")) AND ";
             } else {
                 $query .= "motl.host_id IN (" . join(',', $params['host_filter']) . ") AND ";
             }
@@ -124,13 +134,16 @@ class Centreon_OpenTickets_Log
                 $query .= '(' . $build_services_filter . ') AND ';
             }
         }
-        
+
         if (!$centreon_bg->is_admin) {
-            $query .= "EXISTS(SELECT 1 FROM centreon_acl WHERE centreon_acl.group_id IN (" . $centreon_bg->grouplistStr . ") AND motl.host_id = centreon_acl.host_id AND (motl.service_id IS NULL OR motl.service_id = centreon_acl.service_id)) AND ";
+            $query .= "EXISTS(SELECT 1 FROM centreon_acl WHERE centreon_acl.group_id IN (" .
+                $centreon_bg->grouplistStr .
+                ") AND motl.host_id = centreon_acl.host_id " .
+                "AND (motl.service_id IS NULL OR motl.service_id = centreon_acl.service_id)) AND ";
         }
         $query .= "motl.ticket_id = motd.ticket_id AND motd.ticket_id = mot.ticket_id ";
         $query .= "ORDER BY `timestamp` DESC ";
-        
+
         /* Pagination */
         if (is_null($current_page) || $current_page <= 0) {
             $current_page = 1;
@@ -138,19 +151,20 @@ class Centreon_OpenTickets_Log
         if (is_null($pagination) || $pagination <= 0) {
             $pagination = 30;
         }
-        
+
         if ($all == false) {
-            $query .= "LIMIT " . (($current_page - 1) * $pagination) . ', ' . $pagination; 
+            $query .= "LIMIT " . (($current_page - 1) * $pagination) . ', ' . $pagination;
         }
-        
-        $result['tickets'] = $this->_db->getAll($query);
-        $rows = $this->_db->numberRows();
+
+
+        $stmt = $this->db->prepare($query);
+        $stmt->execute();
+        $result['tickets'] = $stmt->fetchAll();
+        $rows = $stmt->rowCount();
         $result['rows'] = $rows;
         $result['start'] = $range_time['start'];
         $result['end'] = $range_time['end'];
-        
+
         return $result;
     }
 }
-
-?>

@@ -28,8 +28,8 @@ $centreon_open_tickets_path = $centreon_path . "www/modules/centreon-open-ticket
 require_once $centreon_open_tickets_path . 'providers/Abstract/AbstractProvider.class.php';
 
 session_start();
-$centreon_bg = new CentreonXMLBGRequest(session_id(), 1, 1, 0, 1);
-$db = new centreonDBManager();
+$centreon_bg = new CentreonXMLBGRequest($dependencyInjector, session_id(), 1, 1, 0, 1);
+$db = $dependencyInjector['configuration_db'];
 $rule = new Centreon_OpenTickets_Rule($db);
 
 if (isset($_SESSION['centreon'])) {
@@ -38,24 +38,24 @@ if (isset($_SESSION['centreon'])) {
     exit;
 }
 
-define('SMARTY_DIR', "$centreon_path/GPL_LIB/Smarty/libs/");
-require_once SMARTY_DIR . "Smarty.class.php";
 require_once $centreon_path . 'www/include/common/common-Func.php';
 
 $resultat = array("code" => 0, "msg" => "");
-$actions = array("get-form-config" => dirname(__FILE__) . "/actions/getFormConfig.php",
-                 "save-form-config" => dirname(__FILE__) . "/actions/saveFormConfig.php",
-                 "validate-format-popup" => dirname(__FILE__) . "/actions/validateFormatPopup.php",
-                 "submit-ticket" => dirname(__FILE__) . "/actions/submitTicket.php",
-                 "close-ticket" => dirname(__FILE__) . "/actions/closeTicket.php",
-                 "service-ack" => dirname(__FILE__) . "/actions/serviceAck.php",
-                 "upload-file" => dirname(__FILE__) . "/actions/uploadFile.php",
-                 "remove-file" => dirname(__FILE__) . "/actions/removeFile.php");
+$actions = array(
+    "get-form-config" => dirname(__FILE__) . "/actions/getFormConfig.php",
+    "save-form-config" => dirname(__FILE__) . "/actions/saveFormConfig.php",
+    "validate-format-popup" => dirname(__FILE__) . "/actions/validateFormatPopup.php",
+    "submit-ticket" => dirname(__FILE__) . "/actions/submitTicket.php",
+    "close-ticket" => dirname(__FILE__) . "/actions/closeTicket.php",
+    "service-ack" => dirname(__FILE__) . "/actions/serviceAck.php",
+    "upload-file" => dirname(__FILE__) . "/actions/uploadFile.php",
+    "remove-file" => dirname(__FILE__) . "/actions/removeFile.php"
+);
 if (!isset($_POST['data']) && !isset($_REQUEST['action'])) {
     $resultat = array("code" => 1, "msg" => "POST 'data' needed.");
 } else {
     $get_information = isset($_POST['data']) ? json_decode($_POST['data'], true): null;
-    $action = !is_null($get_information) && isset($get_information['action']) ? 
+    $action = !is_null($get_information) && isset($get_information['action']) ?
         $get_information['action'] : (isset($_REQUEST['action']) ? $_REQUEST['action'] : 'none');
     if (!isset($actions[$action])) {
         $resultat = array("code" => 1, "msg" => "Action not good.");
@@ -66,5 +66,3 @@ if (!isset($_POST['data']) && !isset($_REQUEST['action'])) {
 
 header("Content-type: text/plain");
 echo json_encode($resultat);
-
-?>

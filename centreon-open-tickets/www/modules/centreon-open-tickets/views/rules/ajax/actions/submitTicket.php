@@ -24,7 +24,7 @@ function get_contact_information() {
     
     $result = array('alias' => '', 'email' => '', 'name' => '');
     $DBRESULT = $db->query("SELECT contact_name as `name`, contact_alias as `alias`, contact_email as email FROM contact WHERE contact_id = '" . $centreon_bg->user_id . "' LIMIT 1");
-    if (($row = $DBRESULT->fetchRow())) {
+    if (($row = $DBRESULT->fetch())) {
         $result = $row;
     }
     

@@ -24,7 +24,7 @@ require_once dirname(__FILE__) . '/library/class.phpmailer.php';
 class MailProvider extends AbstractProvider {
     protected $_attach_files = 1;
     
-    protected function _setDefaultValueMain() {
+    protected function _setDefaultValueMain($body_html = 0) {
         parent::_setDefaultValueMain(1);
     }
      
