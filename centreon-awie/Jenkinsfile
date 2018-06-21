@@ -4,7 +4,7 @@ stage('Source') {
     dir('centreon-awie') {
       checkout scm
     }
-    sh './centreon-build/jobs/awie/3.5/mon-awie-source.sh'
+    sh './centreon-build/jobs/awie/18.9/mon-awie-source.sh'
     source = readProperties file: 'source.properties'
     env.VERSION = "${source.VERSION}"
     env.RELEASE = "${source.RELEASE}"
@@ -17,7 +17,7 @@ try {
       /*
       node {
         sh 'setup_centreon_build.sh'
-        sh './centreon-build/jobs/awie/3.5/mon-awie-unittest.sh centos7'
+        sh './centreon-build/jobs/awie/18.9/mon-awie-unittest.sh centos7'
         step([
           $class: 'XUnitBuilder',
           thresholds: [
@@ -50,7 +50,7 @@ try {
     parallel 'centos7': {
       node {
         sh 'setup_centreon_build.sh'
-        sh './centreon-build/jobs/awie/3.5/mon-awie-package.sh centos7'
+        sh './centreon-build/jobs/awie/18.9/mon-awie-package.sh centos7'
       }
     }
     if ((currentBuild.result ?: 'SUCCESS') != 'SUCCESS') {
@@ -62,7 +62,7 @@ try {
     parallel 'centos7': {
       node {
         sh 'setup_centreon_build.sh'
-        sh './centreon-build/jobs/awie/3.5/mon-awie-bundle.sh centos7'
+        sh './centreon-build/jobs/awie/18.9/mon-awie-bundle.sh centos7'
       }
     }
     if ((currentBuild.result ?: 'SUCCESS') != 'SUCCESS') {
@@ -74,7 +74,7 @@ try {
     parallel 'centos7': {
       node {
         sh 'setup_centreon_build.sh'
-        sh './centreon-build/jobs/awie/3.5/mon-awie-acceptance.sh centos7'
+        sh './centreon-build/jobs/awie/18.9/mon-awie-acceptance.sh centos7'
         step([
           $class: 'XUnitBuilder',
           thresholds: [
@@ -95,7 +95,7 @@ try {
     stage('Delivery') {
       node {
         sh 'setup_centreon_build.sh'
-        sh './centreon-build/jobs/awie/3.5/mon-awie-delivery.sh'
+        sh './centreon-build/jobs/awie/18.9/mon-awie-delivery.sh'
       }
       if ((currentBuild.result ?: 'SUCCESS') != 'SUCCESS') {
         error('Delivery stage failure.');
