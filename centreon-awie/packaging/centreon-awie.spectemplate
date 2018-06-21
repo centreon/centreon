@@ -1,5 +1,5 @@
 ##
-## Copyright 2016 Centreon
+## Copyright 2016-2018 Centreon
 ##
 ## All rights reserved.
 ##
@@ -11,6 +11,8 @@ Name:           centreon-awie
 Version:        @VERSION@
 Release:        @RELEASE@%{?dist}
 Summary:        Centreon API Web Import Export
+%define thismajor 18.9.0
+%define nextmajor 18.10.0
 
 Group:          Applications/System
 License:        Proprietary
@@ -18,7 +20,8 @@ URL:            https://www.centreon.com
 Source0:        %{name}-%{version}.tar.gz
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
-Requires:       centreon-web >= 2.9.0
+Requires:       centreon-web >= %{thismajor}
+Requires:       centreon-web < %{nextmajor}
 BuildArch:      noarch
 
 %description
