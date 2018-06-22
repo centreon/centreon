@@ -1,7 +1,7 @@
 <?php
 /**
- * Copyright 2005-2015 CENTREON
- * Centreon is developped by : Julien Mathis and Romain Le Merlus under
+ * Copyright 2005-2018 CENTREON
+ * Centreon is developed by : Julien Mathis and Romain Le Merlus under
  * GPL Licence 2.0.
  *
  * This program is free software; you can redistribute it and/or modify it under
@@ -32,7 +32,6 @@
  * For more information : contact@centreon.com
  *
  */
-
 require_once "../../require.php";
 require_once $centreon_path . 'www/class/centreon.class.php';
 require_once $centreon_path . 'www/class/centreonSession.class.php';
@@ -67,7 +66,6 @@ try {
     $result = 0;
 
     if ($cmd == 72 || $cmd == 75 || $cmd == 70 || $cmd == 74) {
-        require_once $centreon_path ."GPL_LIB/Smarty/libs/Smarty.class.php";
         $path = $centreon_path . "www/widgets/service-monitoring/src/";
         $template = new Smarty();
         $template = initSmartyTplForPopup($path, $template, "./", $centreon_path);
@@ -167,7 +165,7 @@ try {
             $template->assign('hoursLabel', _("hours"));
             $template->assign('minutesLabel', _("minutes"));
             $template->assign('defaultStart', $dateStart);
-            $template->assign('defaultHourStart',$hourStart);
+            $template->assign('defaultHourStart', $hourStart);
             $template->assign('defaultMinuteStart', $minuteStart);
             $template->assign('defaultEnd', $dateEnd);
             $template->assign('defaultHourEnd', $hourEnd);
@@ -178,64 +176,64 @@ try {
         $command = "";
         $isSvcCommand = false;
         switch ($cmd) {
-                /* service: schedule check */
-                case 3 :
-                    $command = "SCHEDULE_SVC_CHECK;%s;".time();
-                    $isSvcCommand = true;
-                    break;
-                /* service: schedule forced check */
-                case 4 :
-                    $command = "SCHEDULE_FORCED_SVC_CHECK;%s;".time();
-                    $isSvcCommand = true;
-                    break;
-                /* service: remove ack */
-                case 71 :
-                    $command = "REMOVE_SVC_ACKNOWLEDGEMENT;%s";
-                    $isSvcCommand = true;
-                    break;
-                /* service: enable notif */
-                case 80 :
-                    $command = "ENABLE_SVC_NOTIFICATIONS;%s";
-                    $isSvcCommand = true;
-                    break;
-                /* service: enable notif */
-                case 81 :
-                    $command = "DISABLE_SVC_NOTIFICATIONS;%s";
-                    $isSvcCommand = true;
-                    break;
-                /* service: enable check */
-                case 90 :
-                    $command = "ENABLE_SVC_CHECK;%s";
-                    $isSvcCommand = true;
-                    break;
-                /* service: disable check */
-                case 91 :
-                    $command = "DISABLE_SVC_CHECK;%s";
-                    $isSvcCommand = true;
-                    break;
-                /* host: remove ack */
-                case 73 :
-                    $command = "REMOVE_HOST_ACKNOWLEDGEMENT;%s";
-                    break;
-                /* host: enable notif */
-                case 82 :
-                    $command = "ENABLE_HOST_NOTIFICATIONS;%s";
-                    break;
-                /* host: disable notif */
-                case 83 :
-                    $command = "DISABLE_HOST_NOTIFICATIONS;%s";
-                    break;
-                /* host: enable check */
-                case 92 :
-                    $command = "ENABLE_HOST_CHECK;%s";
-                    break;
-                /* host: disable check */
-                case 93 :
-                    $command = "DISABLE_HOST_CHECK;%s";
-                    break;
-                default :
-                    throw new Exception('Unknown command');
-                    break;
+            /* service: schedule check */
+            case 3 :
+                $command = "SCHEDULE_SVC_CHECK;%s;" . time();
+                $isSvcCommand = true;
+                break;
+            /* service: schedule forced check */
+            case 4 :
+                $command = "SCHEDULE_FORCED_SVC_CHECK;%s;" . time();
+                $isSvcCommand = true;
+                break;
+            /* service: remove ack */
+            case 71 :
+                $command = "REMOVE_SVC_ACKNOWLEDGEMENT;%s";
+                $isSvcCommand = true;
+                break;
+            /* service: enable notif */
+            case 80 :
+                $command = "ENABLE_SVC_NOTIFICATIONS;%s";
+                $isSvcCommand = true;
+                break;
+            /* service: enable notif */
+            case 81 :
+                $command = "DISABLE_SVC_NOTIFICATIONS;%s";
+                $isSvcCommand = true;
+                break;
+            /* service: enable check */
+            case 90 :
+                $command = "ENABLE_SVC_CHECK;%s";
+                $isSvcCommand = true;
+                break;
+            /* service: disable check */
+            case 91 :
+                $command = "DISABLE_SVC_CHECK;%s";
+                $isSvcCommand = true;
+                break;
+            /* host: remove ack */
+            case 73 :
+                $command = "REMOVE_HOST_ACKNOWLEDGEMENT;%s";
+                break;
+            /* host: enable notif */
+            case 82 :
+                $command = "ENABLE_HOST_NOTIFICATIONS;%s";
+                break;
+            /* host: disable notif */
+            case 83 :
+                $command = "DISABLE_HOST_NOTIFICATIONS;%s";
+                break;
+            /* host: enable check */
+            case 92 :
+                $command = "ENABLE_HOST_CHECK;%s";
+                break;
+            /* host: disable check */
+            case 93 :
+                $command = "DISABLE_HOST_CHECK;%s";
+                break;
+            default :
+                throw new Exception('Unknown command');
+                break;
         }
         if ($command != "") {
             $externalCommandMethod = 'set_process_command';
@@ -268,73 +266,74 @@ try {
 } catch (Exception $e) {
     echo $e->getMessage() . "<br/>";
 }
+
 ?>
 <div id='result'></div>
 <script type='text/javascript'>
-var result = <?php echo $result;?>;
-var successMsg = "<?php echo $successMsg;?>";
-var wId = "<?php echo $wId;?>";
-var widgetName = 'widget_' + viewId + '_' + wId;
+    var result = <?php echo $result; ?>;
+    var successMsg = "<?php echo $successMsg; ?>";
+    var wId = "<?php echo $wId; ?>";
+    var widgetName = 'widget_' + viewId + '_' + wId;
 
-jQuery(function() {
-    if (result) {
-        jQuery("#result").html(successMsg);
-        setTimeout('closeBox()', 2000);
-        setTimeout('reloadFrame(widgetName)', 2500);
-    }
-    jQuery("#submit").click(function() {
-        sendCmd();
-        setTimeout('reloadFrame(widgetName)', 2500);
-    });
-    jQuery("#submit").button();
-    toggleDurationField();
-    jQuery("[name=fixed]").click(function() {
+    jQuery(function () {
+        if (result) {
+            jQuery("#result").html(successMsg);
+            setTimeout('closeBox()', 2000);
+            setTimeout('reloadFrame(widgetName)', 2500);
+        }
+        jQuery("#submit").click(function () {
+            sendCmd();
+            setTimeout('reloadFrame(widgetName)', 2500);
+        });
+        jQuery("#submit").button();
+        toggleDurationField();
+        jQuery("[name=fixed]").click(function () {
             toggleDurationField();
+        });
+        jQuery("#downtimestart,#downtimeend").datepicker({dateFormat: 'yy/mm/dd'});
+        jQuery("#start_time,#end_time").timepicker();
     });
-    jQuery("#downtimestart,#downtimeend").datepicker({ dateFormat: 'yy/mm/dd' });
-    jQuery("#start_time,#end_time").timepicker();
-});
 
-function closeBox()
-{
-    parent.jQuery('#widgetPopin').centreonPopin('close');
-}
+    function closeBox()
+    {
+        parent.jQuery('#widgetPopin').centreonPopin('close');
+    }
 
-function reloadFrame(widgetName) {
-    document.getElementsByName(widgetName)[0].contentWindow.location.reload(true);
-}
+    function reloadFrame(widgetName) {
+        document.getElementsByName(widgetName)[0].contentWindow.location.reload(true);
+    }
 
-function sendCmd()
-{
-	fieldResult = true;
-	if (jQuery("#comment") && !jQuery("#comment").val()) {
-		fieldResult = false;
-	}
-	if (fieldResult == false) {
-		jQuery("#result").html("<font color=red><b>Please fill all mandatory fields.</b></font>");
-		return false;
-	}
-	jQuery.ajax({
-            type : "POST",
-            url : "./widgets/service-monitoring/src/sendCmd.php",
-            data : jQuery("#Form").serialize(),
-            success : function() {
+    function sendCmd()
+    {
+        fieldResult = true;
+        if (jQuery("#comment") && !jQuery("#comment").val()) {
+            fieldResult = false;
+        }
+        if (fieldResult == false) {
+            jQuery("#result").html("<font color=red><b>Please fill all mandatory fields.</b></font>");
+            return false;
+        }
+        jQuery.ajax({
+            type: "POST",
+            url: "./widgets/service-monitoring/src/sendCmd.php",
+            data: jQuery("#Form").serialize(),
+            success: function () {
                 jQuery("#result").html(successMsg);
                 setTimeout('closeBox()', 2000);
             }
         });
-}
+    }
 
-function toggleDurationField()
-{
-	if (jQuery("[name=fixed]").is(':checked')) {
-		jQuery("[name=dayduration]").attr('disabled', true);
-		jQuery("[name=hourduration]").attr('disabled', true);
-		jQuery("[name=minuteduration]").attr('disabled', true);
-	} else {
-		jQuery("[name=dayduration]").removeAttr('disabled');
-		jQuery("[name=hourduration]").removeAttr('disabled');
-		jQuery("[name=minuteduration]").removeAttr('disabled');
-	}
-}
+    function toggleDurationField()
+    {
+        if (jQuery("[name=fixed]").is(':checked')) {
+            jQuery("[name=dayduration]").attr('disabled', true);
+            jQuery("[name=hourduration]").attr('disabled', true);
+            jQuery("[name=minuteduration]").attr('disabled', true);
+        } else {
+            jQuery("[name=dayduration]").removeAttr('disabled');
+            jQuery("[name=hourduration]").removeAttr('disabled');
+            jQuery("[name=minuteduration]").removeAttr('disabled');
+        }
+    }
 </script>
