@@ -64,7 +64,6 @@ try {
     $result = 0;
 
     if ($cmd == 72 || $cmd == 75) {
-        require_once $centreon_path ."GPL_LIB/Smarty/libs/Smarty.class.php";
         $path = $centreon_path . "www/widgets/host-monitoring/src/";
         $template = new Smarty();
         $template = initSmartyTplForPopup($path, $template, "./", $centreon_path);

@@ -47,8 +47,6 @@ if (!isset($_SESSION['centreon']) || !isset($_POST['widgetId'])) {
     exit;
 }
 
-require_once $centreon_path ."GPL_LIB/Smarty/libs/Smarty.class.php";
-
 $path = $centreon_path . "www/widgets/host-monitoring/src/";
 $template = new Smarty();
 $template = initSmartyTplForPopup($path, $template, "./", $centreon_path);
