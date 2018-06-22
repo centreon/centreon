@@ -4,7 +4,7 @@
         <email>contact@centreon.com</email>
         <website>http://www.centreon.com</website>
         <description>Widget for top 10 hosts in function % cpu</description>
-        <version>1.1.1</version>
+        <version>18.9.0</version>
         <keywords>centreon, widget, cpu</keywords>
         <screenshot></screenshot>
         <thumbnail>./widgets/live-top10-cpu-usage/resources/logo1.png</thumbnail>
@@ -15,6 +15,6 @@
 	    <preference label="Service Description" name="service_description" defaultValue="cpu" type="text" header="Filter"/>
 	    <preference label="Metric Name" name="metric_name" defaultValue="cpu" type="text"/>
 	    <preference label="Results" name="nb_lin" defaultValue="10" type="text"/>
-           <preference label="Refresh Interval (seconds)" name="refresh_interval" defaultValue="30" type="text" header="Misc"/> 
+           <preference label="Refresh Interval (seconds)" name="refresh_interval" defaultValue="30" type="text" header="Misc"/>
 	 </preferences>
 </configs>
