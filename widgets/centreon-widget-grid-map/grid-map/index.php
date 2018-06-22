@@ -40,9 +40,9 @@ require_once "../../../config/centreon.config.php";
 
 require_once $centreon_path . 'www/class/centreon.class.php';
 require_once $centreon_path . 'www/class/centreonSession.class.php';
-require_once $centreon_path . 'www/class/centreonDB.class.php';
 require_once $centreon_path . 'www/class/centreonWidget.class.php';
 require_once $centreon_path . 'www/class/centreonUtils.class.php';
+require_once $centreon_path . 'bootstrap.php';
 
 /* load smarty Class */
 require_once $centreon_path . 'GPL_LIB/Smarty/libs/Smarty.class.php';
@@ -57,11 +57,9 @@ $centreon = $_SESSION['centreon'];
 $widgetId = $_REQUEST['widgetId'];
 
 try {
-    global $pearDB;
 
-    $db_centreon = new CentreonDB();
-    $db = new CentreonDB("centstorage");
-    $pearDB = $db_centreon;
+    $db_centreon = $dependencyInjector['configuration_db'];
+    $db = $dependencyInjector['realtime_db'];
 
     $widgetObj = new CentreonWidget($centreon, $db_centreon);
     $preferences = $widgetObj->getWidgetPreferences($widgetId);
