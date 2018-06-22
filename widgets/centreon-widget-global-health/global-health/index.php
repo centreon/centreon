@@ -34,9 +34,9 @@
  */
 
 require_once "../require.php";
+require_once $centreon_path . 'bootstrap.php';
 require_once $centreon_path . 'www/class/centreon.class.php';
 require_once $centreon_path . 'www/class/centreonSession.class.php';
-require_once $centreon_path . 'www/class/centreonDB.class.php';
 require_once $centreon_path . 'www/class/centreonWidget.class.php';
 
 CentreonSession::start(1);
@@ -47,7 +47,7 @@ $centreon = $_SESSION['centreon'];
 $widgetId = $_REQUEST['widgetId'];
 
 try {
-    $db = new CentreonDB();
+    $db = $dependencyInjector['configuration_db'];
     $widgetObj = new CentreonWidget($centreon, $db);
     $preferences = $widgetObj->getWidgetPreferences($widgetId);
     $autoRefresh = 0;
@@ -56,7 +56,7 @@ try {
     }
     $broker = "broker";
     $res = $db->query("SELECT `value` FROM `options` WHERE `key` = 'broker'");
-    if ($res->numRows()) {
+    if ($res->rowCount()) {
         $row = $res->fetchRow();
         $broker = strtolower($row['value']);
     } else {
@@ -70,52 +70,57 @@ try {
 ?>
 <html>
 <head>
-    	<title></title>
-    	<link href="../../Themes/Centreon-2/style.css" rel="stylesheet" type="text/css"/>
-    	<link href="../../Themes/Centreon-2/jquery-ui/jquery-ui.css" rel="stylesheet" type="text/css"/>
-    	<link href="../../Themes/Centreon-2/jquery-ui/jquery-ui-centreon.css" rel="stylesheet" type="text/css"/>
-    	<script type="text/javascript" src="../../include/common/javascript/jquery/jquery.js"></script>
-    	<script type="text/javascript" src="../../include/common/javascript/jquery/jquery-ui.js"></script>
-    	<script type="text/javascript" src="../../include/common/javascript/jquery/plugins/pagination/jquery.pagination.js"></script>
-		<script type="text/javascript" src="../../include/common/javascript/widgetUtils.js"></script>
-		<script type="text/javascript" src="../../include/common/javascript/jquery/plugins/treeTable/jquery.treeTable.min.js"></script>
-        <script src="../../include/common/javascript/charts/d3.min.js" language="javascript"></script>
-        <script src="../../include/common/javascript/charts/c3.min.js" language="javascript"></script>  
+    <title></title>
+    <link href="../../Themes/Centreon-2/style.css" rel="stylesheet" type="text/css"/>
+    <link href="../../Themes/Centreon-2/jquery-ui/jquery-ui.css" rel="stylesheet" type="text/css"/>
+    <link href="../../Themes/Centreon-2/jquery-ui/jquery-ui-centreon.css" rel="stylesheet" type="text/css"/>
+    <script type="text/javascript" src="../../include/common/javascript/jquery/jquery.js"></script>
+    <script type="text/javascript" src="../../include/common/javascript/jquery/jquery-ui.js"></script>
+    <script type="text/javascript"
+            src="../../include/common/javascript/jquery/plugins/pagination/jquery.pagination.js"></script>
+    <script type="text/javascript" src="../../include/common/javascript/widgetUtils.js"></script>
+    <script type="text/javascript"
+            src="../../include/common/javascript/jquery/plugins/treeTable/jquery.treeTable.min.js"></script>
+    <script src="../../include/common/javascript/charts/d3.min.js" language="javascript"></script>
+    <script src="../../include/common/javascript/charts/c3.min.js" language="javascript"></script>
 </head>
-    <body>
-        <div id='global_health'></div>
-    </body>    
+<body>
+<div id='global_health'></div>
+</body>
 
-    <script type="text/javascript">
+<script type="text/javascript">
     var widgetId = <?php echo $widgetId; ?>;
     var autoRefresh = <?php echo $autoRefresh;?>;
     var timeout;
-    var itemsPerPage = <?php if(!empty($preferences['entries'])){ echo $preferences['entries']; }else{ echo '50'; }?>;
+    var itemsPerPage = <?php if (!empty($preferences['entries'])) {
+        echo $preferences['entries'];
+    } else {
+        echo '50';
+    }?>;
     var pageNumber = 0;
     var broker = '<?php echo $broker;?>';
 
-    jQuery(function() {
+    jQuery(function () {
         loadPage();
     });
 
     /**
      * Load page
      */
-    function loadPage()
-    {
+    function loadPage() {
         var indexPage = "global_health";
-            jQuery.ajax("./src/"+indexPage+".php?widgetId="+widgetId, {        
-                success : function(htmlData) {
-                    jQuery("#global_health").html("");
-                    jQuery("#global_health").html(htmlData);
-                    //jQuery("#BaTable").styleTable();
+        jQuery.ajax("./src/" + indexPage + ".php?widgetId=" + widgetId, {
+            success: function (htmlData) {
+                jQuery("#global_health").html("");
+                jQuery("#global_health").html(htmlData);
+                //jQuery("#BaTable").styleTable();
+                var h = document.getElementById("global_health").scrollHeight + 36;
+                parent.iResize(window.name, h);
+                jQuery("#global_health").find("img, style, script, link").load(function () {
                     var h = document.getElementById("global_health").scrollHeight + 36;
                     parent.iResize(window.name, h);
-                    jQuery("#global_health").find("img, style, script, link").load(function(){
-                        var h = document.getElementById("global_health").scrollHeight + 36;
-                        parent.iResize(window.name, h);
-                    });
-                    
+                });
+
             }
         });
         if (autoRefresh) {
@@ -125,5 +130,5 @@ try {
             timeout = setTimeout(loadPage, (autoRefresh * 1000));
         }
     }
-    </script>
+</script>
 </html>
