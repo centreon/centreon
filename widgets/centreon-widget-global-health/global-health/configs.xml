@@ -4,7 +4,7 @@
         <email>contact@centreon.com</email>
         <website>http://www.centreon.com</website>
         <description>Widget for displaying Global Health</description>
-        <version>1.0.1</version>
+        <version>18.9.0</version>
         <keywords>centreon, widget, global, health</keywords>
         <screenshot></screenshot>
         <thumbnail>./widgets/global-health/resources/centreon-logo.png</thumbnail>
@@ -14,9 +14,9 @@
             <preference label="Services/Hosts" name="hosts_services" defaultValue="hosts" type="list">
                 <option value="hosts" label="Show hosts"/>
                 <option value="services" label="Show Services"/>
-            </preference>	
+            </preference>
             <preference label="Hostgroup" name="hostgroup" defaultValue="" type="hostgroup"/>
-            <preference label="Servicegroup" name="servicegroup" defaultValue="" type="servicegroup"/>	
-            <preference label="Refresh Interval (seconds)" name="refresh_interval" defaultValue="30" type="text" header="Misc"/>	
-        </preferences>        
+            <preference label="Servicegroup" name="servicegroup" defaultValue="" type="servicegroup"/>
+            <preference label="Refresh Interval (seconds)" name="refresh_interval" defaultValue="30" type="text" header="Misc"/>
+        </preferences>
 </configs>
