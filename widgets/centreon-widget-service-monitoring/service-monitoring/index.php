@@ -34,9 +34,9 @@
  */
 
 require_once "../require.php";
+require_once $centreon_path . 'bootstrap.php';
 require_once $centreon_path . 'www/class/centreon.class.php';
 require_once $centreon_path . 'www/class/centreonSession.class.php';
-require_once $centreon_path . 'www/class/centreonDB.class.php';
 require_once $centreon_path . 'www/class/centreonWidget.class.php';
 
 //load Smarty
@@ -50,7 +50,7 @@ $centreon = $_SESSION['centreon'];
 $widgetId = $_REQUEST['widgetId'];
 
 try {
-    $db = new CentreonDB();
+    $db = $dependencyInjector['configuration_db'];
     $widgetObj = new CentreonWidget($centreon, $db);
     $preferences = $widgetObj->getWidgetPreferences($widgetId);
     $autoRefresh = 0;

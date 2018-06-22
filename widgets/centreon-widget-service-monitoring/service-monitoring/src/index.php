@@ -34,9 +34,9 @@
  */
 
 require_once "../../require.php";
+require_once $centreon_path . 'bootstrap.php';
 require_once $centreon_path . 'www/class/centreon.class.php';
 require_once $centreon_path . 'www/class/centreonSession.class.php';
-require_once $centreon_path . 'www/class/centreonDB.class.php';
 require_once $centreon_path . 'www/class/centreonWidget.class.php';
 require_once $centreon_path . 'www/class/centreonDuration.class.php';
 require_once $centreon_path . 'www/class/centreonUtils.class.php';
@@ -52,7 +52,7 @@ if (!isset($_SESSION['centreon']) || !isset($_REQUEST['widgetId']) || !isset($_R
     exit;
 }
 
-$db = new CentreonDB();
+$db = $dependencyInjector['configuration_db'];
 if (CentreonSession::checkSession(session_id(), $db) == 0) {
   exit();
 }
@@ -70,7 +70,7 @@ $centreonWebPath = trim($centreon->optGen['oreon_web_path'], "/");
 $widgetId = $_REQUEST['widgetId'];
 $page = $_REQUEST['page'];
 
-$dbb = new CentreonDB("centstorage");
+$dbb = $dependencyInjector['realtime_db'];
 $widgetObj = new CentreonWidget($centreon, $db);
 $preferences = $widgetObj->getWidgetPreferences($widgetId);
 
@@ -238,9 +238,6 @@ if (isset($preferences['servicegroup']) && $preferences['servicegroup']) {
     ".$dbb->escape($preferences['servicegroup']);
     
     $resultHost = $dbb->query($queryHost);
-    if (PEAR::isError($resultHost)) {
-        print "DB Error : " . $resultHost->getDebugInfo() . "<br />";
-    }
 
     while ($row = $resultHost->fetchRow()) {
         $Host[] = $row['host_id'];
@@ -296,7 +293,7 @@ if (isset($preferences['output_search']) && $preferences['output_search'] != "")
 }
 $orderby = "hostname ASC , description ASC";
 
-if (isset($preferences['order_by']) && $preferences['order_by'] != "") {
+if (isset($preferences['order_by']) && trim($preferences['order_by']) != "") {
     
     $aOrder = explode(" ", $preferences['order_by']);
     if (in_array('last_state_change', $aOrder) || in_array('last_hard_state_change', $aOrder)) {
@@ -310,7 +307,7 @@ if (isset($preferences['order_by']) && $preferences['order_by'] != "") {
         $orderby = $preferences['order_by'];
     }
 
-    if (isset($preferences['order_by2']) && $preferences['order_by2'] != "") {
+    if (isset($preferences['order_by2']) && trim($preferences['order_by2']) != "") {
         $aOrder = explode(" ", $preferences['order_by2']);
         $orderby .= ", ".$aOrder[0]." ".$aOrder[1];
     }
@@ -320,10 +317,8 @@ $query .= "GROUP BY hostname, description ";
 $query .= "ORDER BY $orderby";
 $query .= " LIMIT ".($page * $preferences['entries']).",".$preferences['entries'];
 $res = $dbb->query($query);
-if (PEAR::isError($res)) {
-    print "DB Error : " . $res->getDebugInfo() . "<br />";
-}
-$nbRows = $dbb->numberRows();
+
+$nbRows = $res->rowCount();
 $data = array();
 $outputLength = $preferences['output_length'] ? $preferences['output_length'] : 50;
 $commentLength = $preferences['comment_length'] ? $preferences['comment_length'] : 50;
