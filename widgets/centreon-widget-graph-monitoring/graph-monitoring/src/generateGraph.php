@@ -39,16 +39,15 @@
 
 require_once "../../require.php";
 
+require_once $centreon_path . 'bootstrap.php';
 require_once $centreon_path . 'www/class/centreon.class.php';
 require_once $centreon_path . 'www/class/centreonSession.class.php';
-require_once $centreon_path . 'www/class/centreonDB.class.php';
 require_once $centreon_path . 'www/class/centreonWidget.class.php';
 require_once $centreon_path . 'www/class/centreonUtils.class.php';
 require_once $centreon_path . 'www/class/centreonACL.class.php';
 require_once $centreon_path . 'www/class/centreonHost.class.php';
 require_once $centreon_path . 'www/class/centreonService.class.php';
 require_once $centreon_path . 'www/class/centreonExternalCommand.class.php';
-require_once $centreon_path . 'www/class/centreonDB.class.php';
 require_once $centreon_path . 'www/class/centreonGraph.class.php';
 
 CentreonSession::start(1);
@@ -59,13 +58,13 @@ if (!isset($_GET['service'])) {
 
 list($hostId, $serviceId) = explode('-', $_GET['service']);
 
-$db = new CentreonDB("centstorage");
+$db = $dependencyInjector['realtime_db'];
 $res = $db->query("SELECT `id`
 				   FROM index_data
     			   WHERE host_id = ".$db->escape($hostId)."
     			   AND service_id = ".$db->escape($serviceId)."
     			   LIMIT 1");
-if ($res->numRows()) {
+if ($res->rowCount()) {
     $row = $res->fetchRow();
     $index = $row["id"];
 } else {

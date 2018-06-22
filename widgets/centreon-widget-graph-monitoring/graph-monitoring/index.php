@@ -34,9 +34,9 @@
  */
 
 require_once "../require.php";
+require_once $centreon_path . 'bootstrap.php';
 require_once $centreon_path . 'www/class/centreon.class.php';
 require_once $centreon_path . 'www/class/centreonSession.class.php';
-require_once $centreon_path . 'www/class/centreonDB.class.php';
 require_once $centreon_path . 'www/class/centreonWidget.class.php';
 require_once $centreon_path . 'www/class/centreonUser.class.php';
 require_once $centreon_path . 'www/class/centreonACL.class.php';
@@ -44,7 +44,7 @@ require_once $centreon_path . 'www/class/centreonACL.class.php';
 //load Smarty
 require_once $centreon_path . 'GPL_LIB/Smarty/libs/Smarty.class.php';
 
-$pearDB = new CentreonDB();
+$pearDB = $dependencyInjector['configuration_db'];
 
 CentreonSession::start(1);
 if (!CentreonSession::checkSession(session_id(), $pearDB)) {
@@ -61,10 +61,8 @@ $widgetId = $_REQUEST['widgetId'];
 try {
     global $pearDB;
 
-    $db = new CentreonDB();
-    $db2 = new CentreonDB("centstorage");
-    $dbAcl = $db;
-    $pearDB = $db;
+    $pearDB = $dbAcl = $db = $dependencyInjector['configuration_db'];
+    $db2 = $dependencyInjector['realtime_db'];
 
     $widgetObj = new CentreonWidget($centreon, $db);
     $preferences = $widgetObj->getWidgetPreferences($widgetId);
@@ -100,7 +98,7 @@ if (isset($tab[0]) && isset($tab[1]) && $centreon->user->admin == 0 ) {
             AND service_id = ".$dbAcl->escape($tab[1])."
             AND group_id IN (".$grouplistStr.")";
     $res = $dbAcl->query($query);
-    if (!$res->numRows()) {
+    if (!$res->rowCount()) {
         $acl = 0;
     }
 }
