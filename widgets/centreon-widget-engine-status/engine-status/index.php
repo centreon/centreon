@@ -43,9 +43,6 @@ require_once $centreon_path . 'www/class/centreonACL.class.php';
 require_once $centreon_path . 'www/class/centreonHost.class.php';
 require_once $centreon_path . 'bootstrap.php';
 
-//load smarty
-require_once $centreon_path . 'GPL_LIB/Smarty/libs/Smarty.class.php';
-
 CentreonSession::start(1);
 
 if (!isset($_SESSION['centreon']) || !isset($_REQUEST['widgetId'])) {
@@ -89,6 +86,8 @@ $queryName = "Select T1.name, T1.instance_id as instance, T2.instance_id
              WHERE T1.name like '".$preferences['poller']."';";
 
 $res = $db->query($queryName);
+$idP = 0;
+
 while ($row = $res->fetchRow()) {
   $idP = $row['instance'];
 }
