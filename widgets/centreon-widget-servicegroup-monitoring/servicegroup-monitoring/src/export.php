@@ -37,9 +37,9 @@ header('Content-type: application/csv');
 header('Content-Disposition: attachment; filename="servicegroups-monitoring.csv"');
 
 require_once "../../require.php";
+require_once $centreon_path . 'bootstrap.php';
 require_once $centreon_path . 'www/class/centreon.class.php';
 require_once $centreon_path . 'www/class/centreonSession.class.php';
-require_once $centreon_path . 'www/class/centreonDB.class.php';
 require_once $centreon_path . 'www/class/centreonWidget.class.php';
 require_once $centreon_path . 'www/class/centreonDuration.class.php';
 require_once $centreon_path . 'www/class/centreonUtils.class.php';
@@ -50,7 +50,7 @@ session_start();
 if (!isset($_SESSION['centreon']) || !isset($_REQUEST['widgetId'])) {
     exit;
 }
-$db = new CentreonDB();
+$db = $dependencyInjector['configuration_db'];
 if (CentreonSession::checkSession(session_id(), $db) == 0) {
     exit;
 }
@@ -62,8 +62,7 @@ $template = initSmartyTplForPopup($path, $template, "./", $centreon_path);
 
 $centreon = $_SESSION['centreon'];
 $widgetId = $_REQUEST['widgetId'];
-
-$dbb = new CentreonDB("centstorage");
+$dbb = $dependencyInjector['realtime_db'];
 $widgetObj = new CentreonWidget($centreon, $db);
 $sgMonObj = new ServicegroupMonitoring($dbb);
 $preferences = $widgetObj->getWidgetPreferences($widgetId);
@@ -139,7 +138,7 @@ $query .= "ORDER BY $orderby";
 file_put_contents("/tmp/log", $query);
 
 $res = $dbb->query($query);
-$nbRows = $dbb->numberRows();
+$nbRows = $res->rowCount();
 $data = array();
 $detailMode = false;
 if (isset($preferences['enable_detailed_mode']) && $preferences['enable_detailed_mode']) {

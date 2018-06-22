@@ -34,9 +34,9 @@
  */
 
 require_once "../../require.php";
+require_once $centreon_path . 'bootstrap.php';
 require_once $centreon_path . 'www/class/centreon.class.php';
 require_once $centreon_path . 'www/class/centreonSession.class.php';
-require_once $centreon_path . 'www/class/centreonDB.class.php';
 require_once $centreon_path . 'www/class/centreonWidget.class.php';
 require_once $centreon_path . 'www/class/centreonDuration.class.php';
 require_once $centreon_path . 'www/class/centreonUtils.class.php';
@@ -48,7 +48,7 @@ CentreonSession::start(1);
 if (!isset($_SESSION['centreon']) || !isset($_REQUEST['widgetId']) || !isset($_REQUEST['page'])) {
     exit();
 }
-$db = new CentreonDB();
+$db = $dependencyInjector['configuration_db'];
 if (CentreonSession::checkSession(session_id(), $db) == 0) {
     exit();
 }
@@ -63,14 +63,13 @@ $centreon = $_SESSION['centreon'];
 $widgetId = $_REQUEST['widgetId'];
 $page = $_REQUEST['page'];
 
-$dbb = new CentreonDB("centstorage");
+$dbb = $dependencyInjector['realtime_db'];
 $widgetObj = new CentreonWidget($centreon, $db);
 $sgMonObj = new ServicegroupMonitoring($dbb);
 $preferences = $widgetObj->getWidgetPreferences($widgetId);
 $pearDB = $db;
 $aclObj = new CentreonACL($centreon->user->user_id, $centreon->user->admin);
 $nbRows = $preferences['entries'];
-
 $query = "SELECT `value` FROM informations WHERE `key` = 'version'";
 $res = $db->query($query);
 $row = $res->fetchRow();
@@ -120,14 +119,15 @@ if (!$centreon->user->admin) {
 
 
 $orderby = "name ASC";
-if (isset($preferences['order_by']) && $preferences['order_by'] != "") {
+if (isset($preferences['order_by']) && trim($preferences['order_by']) != "") {
     $orderby = $preferences['order_by'];
 }
+
 $query .= "ORDER BY $orderby";
 $query .= " LIMIT " . ($page * $preferences['entries']) . "," . $preferences['entries'];
 $res = $dbb->query($query);
+$nbRows = $res->rowCount();
 
-$nbRows = $dbb->numberRows();
 $data = array();
 $detailMode = false;
 if (isset($preferences['enable_detailed_mode']) && $preferences['enable_detailed_mode']) {
