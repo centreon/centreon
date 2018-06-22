@@ -41,9 +41,6 @@ require_once $centreon_path . 'www/class/centreonWidget.class.php';
 require_once $centreon_path . 'www/class/centreonUser.class.php';
 require_once $centreon_path . 'www/class/centreonACL.class.php';
 
-//load Smarty
-require_once $centreon_path . 'GPL_LIB/Smarty/libs/Smarty.class.php';
-
 $pearDB = $dependencyInjector['configuration_db'];
 
 CentreonSession::start(1);
