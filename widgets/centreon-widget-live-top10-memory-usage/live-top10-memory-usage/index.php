@@ -45,15 +45,13 @@ require_once $centreon_path . 'bootstrap.php';
 
 session_start();
 
-//load smarty
-require_once $centreon_path . 'GPL_LIB/Smarty/libs/Smarty.class.php';
-
 if (!isset($_SESSION['centreon']) || !isset($_REQUEST['widgetId'])) {
     exit;
 }
 
 $centreon = $_SESSION['centreon'];
 $widgetId = $_REQUEST['widgetId'];
+$grouplistStr = '';
 
 try {
     $db_centreon = $dependencyInjector['configuration_db'];
@@ -65,13 +63,13 @@ try {
     if (isset($preferences['refresh_interval'])) {
         $autoRefresh = $preferences['refresh_interval'];
     }
-    
+
 } catch (Exception $e) {
     echo $e->getMessage() . "<br/>";
     exit;
 }
 
- if ($centreon->user->admin == 0) {
+if ($centreon->user->admin == 0) {
     $access = new CentreonACL($centreon->user->get_id());
     $grouplist = $access->getAccessGroups();
     $grouplistStr = $access->getAccessGroupsString();
@@ -110,6 +108,8 @@ $in = 0;
 
 function getUnit($in)
 {
+    $return = null;
+
     if ($in == 0) {
         $return = "B";
     } else if ($in == 1) {
@@ -121,11 +121,12 @@ function getUnit($in)
     } else if ($in == 4) {
         $return = "TB";
     }
+
     return $return;
 }
 
-
 $res = $db->query($query);
+
 while ($row = $res->fetchRow()) {
     $row['numLin'] = $numLine;
     while ($row['remaining_space'] >= 1024) {
@@ -141,7 +142,7 @@ while ($row = $res->fetchRow()) {
 }
 
 $template->assign('preferences', $preferences);
-$template->assign('widgetID', $widgetId);
+$template->assign('widgetId', $widgetId);
 $template->assign('preferences', $preferences);
 $template->assign('autoRefresh', $autoRefresh);
 $template->assign('data', $data);
