@@ -4,7 +4,7 @@
     <email>contact@centreon.com</email>
     <website>http://www.centreon.com</website>
     <description>Widget for loading any website</description>
-    <version>1.1.2</version>
+    <version>18.9.0</version>
     <keywords>centreon, widget, url, http</keywords>
     <screenshot></screenshot>
     <thumbnail>./widgets/httploader/resources/centreon-logo.png</thumbnail>
@@ -14,5 +14,5 @@
         <preference label="Website" name="website" defaultValue="http://www.centreon.com" type="text"/>
         <preference label="Frame Height (pixels)" name="frameheight" defaultValue="900" type="text"/>
         <preference label="Refresh Interval (seconds)" name="refresh_interval" defaultValue="30" type="text" header="Misc"/>
-    </preferences>        
+    </preferences>
 </configs>
