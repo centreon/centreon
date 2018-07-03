@@ -15,8 +15,11 @@
  * limitations under the License.
  */
 
-require_once dirname(__FILE__) . '/../../../../config/centreon.config.php';
-require_once _CENTREON_PATH_ . 'bootstrap.php';
+require_once dirname(__FILE__) . '/../../../../bootstrap.php';
+
+error_reporting(E_ALL & ~E_STRICT);
+ini_set('display_errors', false);
+
 require_once _CENTREON_PATH_ . '/www/modules/centreon-awie/class/Export.class.php';
 require_once _CENTREON_PATH_ . '/www/modules/centreon-awie/class/ClapiObject.class.php';
 require_once _CENTREON_PATH_ . '/www/class/centreon.class.php';

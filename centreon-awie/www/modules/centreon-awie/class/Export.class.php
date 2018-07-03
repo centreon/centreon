@@ -39,7 +39,7 @@ class Export
         $this->tmpName = 'centreon-clapi-export-' . time();
         $this->tmpFile = '/tmp/' . $this->tmpName . '.txt';
     }
-
+    
     /**
      * @param $type
      * @return array
@@ -99,6 +99,7 @@ class Export
 
             $query = 'SELECT `id` FROM `nagios_server` WHERE `name` = "' . $value['INSTANCE_filter'] . '"';
             $res = $this->db->query($query);
+            $pollerId = null;
             while ($row = $res->fetch()) {
                 $pollerId = $row['id'];
             }
@@ -106,8 +107,13 @@ class Export
             //export instance
             $filter = ';' . $value['INSTANCE_filter'];
             $result = $this->generateObject('INSTANCE', $filter);
-            $cmdScript['result'] .= $result['result'];
-            $cmdScript['error'] .= $result['error'];
+            $cmdScript['result'] = $result['result'];
+            $cmdScript['error'] = $result['error'];
+            
+            // check is missed pollerId
+            if ($pollerId === null) {
+                return $cmdScript;
+            }
 
             //export resource cfg
             $query = 'SELECT r.resource_name FROM cfg_resource r, cfg_resource_instance_relations cr '
@@ -169,7 +175,7 @@ class Export
             }
         }
     }
-
+    
     /**
      * @param $object
      * @param string $filter
@@ -187,7 +193,7 @@ class Export
             $option = $object . $filter;
             $this->clapiConnector->addClapiParameter('select', $option);
             try {
-                $this->clapiConnector->export();
+                $this->clapiConnector->export(true);
                 $result .= ob_get_contents();
                 ob_end_clean();
             } catch (\Exception $e) {

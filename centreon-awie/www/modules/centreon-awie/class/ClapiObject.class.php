@@ -62,13 +62,16 @@ class ClapiObject
     }
 
     /**
+     * Export
+     * 
+     * @param $withoutClose disable using of PHP exit function (default: false)
      * @return mixed
      */
-    public function export()
+    public function export($withoutClose = false)
     {
 
         $this->clapiConnector->setOption($this->clapiParameters);
-        $export = $this->clapiConnector->export();
+        $export = $this->clapiConnector->export($withoutClose);
         return $export;
     }
 
