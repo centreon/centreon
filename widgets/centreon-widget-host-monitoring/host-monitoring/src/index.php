@@ -131,6 +131,14 @@ if (isset($preferences['host_name_search']) && $preferences['host_name_search'] 
     }
 }
 
+if (isset($preferences['notification_filter']) && $preferences['notification_filter']) {
+    if ($preferences['notification_filter'] == "enabled") {
+        $query = CentreonUtils::conditionBuilder($query, " notify = 1");
+    } elseif ($preferences['notification_filter'] == "disabled") {
+        $query = CentreonUtils::conditionBuilder($query, " notify = 0");
+    }
+}
+
 if (isset($preferences['host_up']) && $preferences['host_up']) {
     $stateTab[] = 0;
 }

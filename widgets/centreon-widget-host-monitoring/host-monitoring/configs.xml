@@ -24,6 +24,10 @@
             <option value="downtime" label="In downtime"/>
             <option value="ndowntime" label="Not in downtime"/>
         </preference>
+        <preference label="Notification Filter" name="notification_filter" defaultValue="all" type="list">
+            <option value="enabled" label="Notification Enabled"/>
+            <option value="disabled" label="Notification Disabled"/>
+        </preference>
 
         <!-- #14 Poller name -->
         <preference label="Pollers Name Filter" name="poller_filter" type="poller"/>
