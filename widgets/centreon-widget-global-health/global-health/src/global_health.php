@@ -93,18 +93,18 @@ $tabStatusService = [0 => 'OK', 1 => 'WARNING', 2 => 'CRITICAL', 3 => 'UNKNOWN',
 $serviceArray = [];
 $hostArray = [];
 
-foreach ($tabSatusService as $key => $statusService) {
-    $serviceArray[$tabSatusService[$key]]['value'] = 0;
-    $serviceArray[$tabSatusService[$key]]['acknowledged'] = 0;
-    $serviceArray[$tabSatusService[$key]]['downtime'] = 0;
-    $serviceArray[$tabSatusService[$key]]['percent'] = 0;
+foreach ($tabStatusService as $key => $statusService) {
+    $serviceArray[$tabStatusService[$key]]['value'] = 0;
+    $serviceArray[$tabStatusService[$key]]['acknowledged'] = 0;
+    $serviceArray[$tabStatusService[$key]]['downtime'] = 0;
+    $serviceArray[$tabStatusService[$key]]['percent'] = 0;
 }
 
-foreach ($tabSatusHost as $key => $statusHost) {
-    $hostArray[$tabSatusHost[$key]]['value'] = 0;
-    $hostArray[$tabSatusHost[$key]]['acknowledged'] = 0;
-    $hostArray[$tabSatusHost[$key]]['downtime'] = 0;
-    $hostArray[$tabSatusHost[$key]]['percent'] = 0;
+foreach ($tabStatusHost as $key => $statusHost) {
+    $hostArray[$tabStatusHost[$key]]['value'] = 0;
+    $hostArray[$tabStatusHost[$key]]['acknowledged'] = 0;
+    $hostArray[$tabStatusHost[$key]]['downtime'] = 0;
+    $hostArray[$tabStatusHost[$key]]['percent'] = 0;
 }
 
 if (isset($preferences['hosts_services']) && $preferences['hosts_services'] == 'hosts') {
@@ -146,20 +146,20 @@ if (isset($preferences['hosts_services']) && $preferences['hosts_services'] == '
         $data[$ndo['state']]['acknowledged'] = $ndo['acknowledged'];
         $data[$ndo['state']]['downtime'] = $ndo['downtime'];
         //$data[] = $ndo['cnt'];
-        //$legend[] = $tabSatusHost[$ndo['state']];
-        //$color[] = $oreon->optGen['color_'.strtolower($tabSatusHost[$ndo['state']])];
+        //$legend[] = $tabStatusHost[$ndo['state']];
+        //$color[] = $oreon->optGen['color_'.strtolower($tabStatusHost[$ndo['state']])];
         $counter += $ndo['cnt'];
     }
     $dbResult->closeCursor();
 
     foreach ($data as $key => $value) {
-        $hostArray[$tabSatusHost[$key]]['value'] = $value['count'];
+        $hostArray[$tabStatusHost[$key]]['value'] = $value['count'];
         $valuePercent = round($value['count'] / $counter * 100, 2);
         $valuePercent = str_replace(',', '.', $valuePercent);
-        $hostArray[$tabSatusHost[$key]]['percent'] = $valuePercent;
-        $hostArray[$tabSatusHost[$key]]['acknowledged'] = $value['acknowledged'];
-        $hostArray[$tabSatusHost[$key]]['downtime'] = $value['downtime'];
-        //$hostArray[$tabSatusHost[$key]]['color'] = $oreon->optGen['color_'.strtolower($tabSatusHost[$key])];
+        $hostArray[$tabStatusHost[$key]]['percent'] = $valuePercent;
+        $hostArray[$tabStatusHost[$key]]['acknowledged'] = $value['acknowledged'];
+        $hostArray[$tabStatusHost[$key]]['downtime'] = $value['downtime'];
+        //$hostArray[$tabStatusHost[$key]]['color'] = $oreon->optGen['color_'.strtolower($tabStatusHost[$key])];
     }
 
     $template->assign('hosts', $hostArray);
