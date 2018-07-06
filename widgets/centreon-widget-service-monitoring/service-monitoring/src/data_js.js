@@ -33,37 +33,30 @@
  */
 
 jQuery(function () {
-	if (nbRows > itemsPerPage) {
-	    jQuery("#pagination").pagination(nbRows, {
+    if (nbRows > itemsPerPage) {
+        jQuery("#pagination").pagination(
+            nbRows, {
                 items_per_page: itemsPerPage,
                 current_page: pageNumber,
-                num_edge_entries : _num_edge_entries,
-                num_display_entries : _num_display_entries,
+                num_edge_entries: _num_edge_entries,
+                num_display_entries: _num_display_entries,
                 callback: paginationCallback
-            }).append("<br/>");
-	}
+            }
+        ).append("<br/>");
+    }
 
-	jQuery(".selection").each(function() {
-		var curId = jQuery(this).attr('id');
-		if (typeof(clickedCb[curId]) != 'undefined') {
-		    this.checked = clickedCb[curId];
-		}
-	    });
+    jQuery(".selection").each(function() {
+        var curId = jQuery(this).attr('id');
+        if (typeof(clickedCb[curId]) != 'undefined') {
+            this.checked = clickedCb[curId];
+        }
+    });
 
-	var tmp = orderby.split(' ');
-	var icn = 'n';
-	if (tmp[1] == "DESC") {
-	    icn = 's';
-	}
-        
-	jQuery("[name="+tmp[0]+"]").append('<span style="position: relative; float: right;" class="ui-icon ui-icon-triangle-1-'+icn+'"></span>');
-
-	function paginationCallback(page_index, jq)
-	{
-	    if (page_index != pageNumber) {
-		pageNumber = page_index;
-		clickedCb = new Array();
-		loadPage();
-	    }
-	}
+    function paginationCallback(page_index, jq) {
+        if (page_index != pageNumber) {
+            pageNumber = page_index;
+            clickedCb = new Array();
+            loadPage();
+        }
+    }
 });
