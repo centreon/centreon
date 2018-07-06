@@ -49,13 +49,6 @@ jQuery(function () {
         }
     });
 
-    var tmp = orderby.split(' ');
-    var icn = 'n';
-    if (tmp[1] == "DESC") {
-        icn = 's';
-    }
-    $("[name="+tmp[0]+"]").append('<span style="position: relative; float: right;" class="ui-icon ui-icon-triangle-1-'+icn+'"></span>');
-
     function paginationCallback(page_index, jq)
     {
         if (page_index != pageNumber) {

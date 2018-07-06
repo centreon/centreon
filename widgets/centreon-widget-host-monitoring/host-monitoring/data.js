@@ -43,6 +43,13 @@ function loadPage()
                 var h = document.getElementById("hostMonitoringTable").scrollHeight;
                 parent.iResize(window.name, h);
             });
+            jQuery('.checkall').on('change', function() {
+                var chck = this.checked;
+                $(this).parents().find(':checkbox').each(function () {
+                    $(this).prop('checked', chck);
+                    clickedCb[$(this).attr('id')] = chck;
+                });
+            });
         }
     });
     if (autoRefresh) {
@@ -64,14 +71,4 @@ function loadToolBar()
 jQuery(function () {
     loadToolBar();
     loadPage();
-    $('.checkall').live('click', function () {
-        var chck = this.checked;
-        $(this).parents().find(':checkbox').each(function () {
-            $(this).attr('checked', chck);
-            clickedCb[$(this).attr('id')] = chck;
-        });
-    });
-    $(".selection").live('click', function () {
-        clickedCb[$(this).attr('id')] = this.checked;
-    });
 });
