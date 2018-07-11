@@ -1,6 +1,10 @@
 Installation
 ############
 
+.. note::
+    The 'master' branch is aligned to the master branch of Centreon. For Centreon
+    3.4.6, please use '1.2.x' branch.
+
 Download sources
 ----------------
 
