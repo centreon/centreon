@@ -8,13 +8,14 @@ Use git to download the module on your Centreon web server::
 
     # cd /tmp
     # git clone https://github.com/centreon/centreon-open-tickets.git
+    # cd centreon-open-tickets
+    # git checkout 1.2.x
 
 Shell installation
 ------------------
 
 Start the installation script using following commands::
 
-    # cd centreon-open-tickets
     # bash install.sh -u /etc/centreon
 
 The module is now installed on your platform.
