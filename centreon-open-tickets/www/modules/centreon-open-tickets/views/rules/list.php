@@ -1,15 +1,23 @@
 <?php
 /*
- * CENTREON
+ * Copyright 2015 Centreon (http://www.centreon.com/)
  *
- * Source Copyright 2005-2015 CENTREON
+ * Centreon is a full-fledged industry-strength solution that meets 
+ * the needs in IT infrastructure and application monitoring for 
+ * service performance.
  *
- * Unauthorized reproduction, copy and distribution
- * are not allowed.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * For more information : contact@centreon.com
+ *    http://www.apache.org/licenses/LICENSE-2.0  
  *
-*/
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,*
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 $path = "./modules/centreon-open-tickets/views/rules/";
 $tpl = new Smarty();
@@ -18,7 +26,7 @@ $rows = 0;
 $nbRule = 0;
 include("./include/common/autoNumLimit.php");
 
-$form = new HTML_QuickForm('select_form', 'POST', "?p=".$p);
+$form = new HTML_QuickFormCustom('select_form', 'POST', "?p=".$p);
 
 $query = "SELECT r.rule_id, r.activate, r.alias FROM mod_open_tickets_rule r";
 if ($search) {
@@ -29,13 +37,13 @@ $query .= " ORDER BY r.alias";
 $query .= " LIMIT ".$num * $limit.", ".$limit;
 
 $resCount = $db->query($queryCount);
-$rows = $resCount->numRows();
+$rows = $resCount->rowCount();
 
 $res = $db->query($query);
 $elemArr = array();
 $tdStyle = "list_one";
 $ruleStr = "";
-while ($row = $res->fetchRow()) {
+while ($row = $res->fetch()) {
     $selectedElements = $form->addElement('checkbox', "select[".$row['rule_id']."]");
 	$elemArr[$row['rule_id']]['select'] = $selectedElements->toHtml();
 	$elemArr[$row['rule_id']]['url_edit'] = "./main.php?p=".$p."&o=c&rule_id=".$row['rule_id'];

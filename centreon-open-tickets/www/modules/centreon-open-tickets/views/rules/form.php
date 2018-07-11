@@ -1,15 +1,23 @@
 <?php
 /*
- * CENTREON
+ * Copyright 2016 Centreon (http://www.centreon.com/)
  *
- * Source Copyright 2005-2015 CENTREON
+ * Centreon is a full-fledged industry-strength solution that meets 
+ * the needs in IT infrastructure and application monitoring for 
+ * service performance.
  *
- * Unauthorized reproduction, copy and distribution
- * are not allowed.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * For more information : contact@centreon.com
+ *    http://www.apache.org/licenses/LICENSE-2.0  
  *
-*/
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,*
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 $path = "./modules/centreon-open-tickets/views/rules/";
 $tpl = new Smarty();
@@ -35,6 +43,7 @@ $tpl->assign('rule_id', $ruleId);
 
 $rule_alias_html = '<input size="30" name="rule_alias" type="text" value="' . (isset($result_rule['alias']) ? $result_rule['alias'] : '') . '" />';
 $provider_html = '<select id="provider_id" name="provider_id"><option value=""></option>';
+ksort($register_providers);
 foreach ($register_providers as $name => $value) {
     $selected = '';
     if (isset($result_rule['provider_id']) && $result_rule['provider_id'] == $value) {

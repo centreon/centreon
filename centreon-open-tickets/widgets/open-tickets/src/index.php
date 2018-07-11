@@ -1,36 +1,22 @@
 <?php
-/**
- * Copyright 2005-2014 MERETHIS
- * Centreon is developped by : Julien Mathis and Romain Le Merlus under
- * GPL Licence 2.0.
+/*
+ * Copyright 2016 Centreon (http://www.centreon.com/)
  *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation ; either version 2 of the License.
+ * Centreon is a full-fledged industry-strength solution that meets
+ * the needs in IT infrastructure and application monitoring for
+ * service performance.
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
- * PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, see <http://www.gnu.org/licenses>.
+ *    http://www.apache.org/licenses/LICENSE-2.0
  *
- * Linking this program statically or dynamically with other modules is making a
- * combined work based on this program. Thus, the terms and conditions of the GNU
- * General Public License cover the whole combination.
- *
- * As a special exception, the copyright holders of this program give MERETHIS
- * permission to link this program with independent modules to produce an executable,
- * regardless of the license terms of these independent modules, and to copy and
- * distribute the resulting executable under terms of MERETHIS choice, provided that
- * MERETHIS also meet, for each linked independent module, the terms  and conditions
- * of the license of that module. An independent module is a module which is not
- * derived from this program. If you modify this program, you may extend this
- * exception to your version of the program, but you are not obliged to do so. If you
- * do not wish to do so, delete this exception statement from your version.
- *
- * For more information : contact@centreon.com
- *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,*
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 require_once "../../require.php";
@@ -47,7 +33,8 @@ require_once $centreon_path . 'www/class/centreonService.class.php';
 require_once $centreon_path . 'www/class/centreonMedia.class.php';
 require_once $centreon_path . 'www/class/centreonCriticality.class.php';
 
-require_once $centreon_path . "GPL_LIB/Smarty/libs/Smarty.class.php";
+$smartyDir = __DIR__ . '/../../../../vendor/smarty/smarty/';
+require_once $smartyDir . 'libs/Smarty.class.php';
 
 require_once $centreon_path . 'www/modules/centreon-open-tickets/class/rule.php';
 
@@ -82,7 +69,7 @@ if (!isset($preferences['rule'])) {
     exit;
 }
 
-$macro_tickets = $rule->getMacroNames($preferences['rule']);
+$macro_tickets = $rule->getMacroNames($preferences['rule'], $widgetId);
 
 // Set Colors Table
 $res = $db->query("SELECT `key`, `value` FROM `options` WHERE `key` LIKE 'color%'");
@@ -95,7 +82,7 @@ $stateHColors = array(0 => "#13EB3A",
                      1 => "#F91D05",
                      2 => "#DCDADA",
                      3 => "#2AD1D4");
-while ($row = $res->fetchRow()) {
+while ($row = $res->fetch()) {
     if ($row['key'] == "color_ok") {
         $stateSColors[0] = $row['value'];
     } elseif ($row['key'] == "color_warning") {
@@ -147,6 +134,7 @@ $query = "SELECT SQL_CALC_FOUND_ROWS h.host_id,
         s.last_check,
         s.last_state_change,
         s.last_hard_state_change,
+        s.last_time_ok,
         s.check_attempt,
         s.max_check_attempts,
         h.action_url as h_action_url,
@@ -154,37 +142,36 @@ $query = "SELECT SQL_CALC_FOUND_ROWS h.host_id,
         s.action_url as s_action_url,
         s.notes_url as s_notes_url,
         h.last_hard_state_change as host_last_hard_state_change,
-        CAST(cv6.value AS UNSIGNED) as host_ticket_time,
-        cv5.value as host_ticket_id,
-        CAST(cv4.value AS UNSIGNED) as service_ticket_time,
-        cv3.value as service_ticket_id,
+        h.last_time_up as host_last_time_up,
+        CAST(mop1.timestamp AS UNSIGNED) as host_ticket_time,
+        mop1.ticket_value as host_ticket_id,
+        mopd1.subject as host_ticket_subject,
+        CAST(mop2.timestamp AS UNSIGNED) as service_ticket_time,
+        mopd2.subject as service_ticket_subject,
+        mop2.ticket_value as service_ticket_id,
+        CONCAT_WS('', mop1.ticket_value, mop2.ticket_value) as ticket_id,
         cv2.value AS criticality_id,
         cv.value AS criticality_level,
         h.icon_image
 ";
+
 $query .= " FROM hosts h ";
 $query .= " LEFT JOIN customvariables cv5 ON (h.host_id = cv5.host_id AND cv5.service_id IS NULL AND cv5.name = '" . $macro_tickets['ticket_id'] . "') ";
-$query .= " LEFT JOIN customvariables cv6 ON (h.host_id = cv6.host_id AND cv6.service_id IS NULL AND cv6.name = '" . $macro_tickets['ticket_time'] . "') ";
+$query .= " LEFT JOIN mod_open_tickets mop1 ON (cv5.value = mop1.ticket_value AND mop1.timestamp > h.last_time_up) ";
+$query .= " LEFT JOIN mod_open_tickets_data mopd1 ON (mop1.ticket_id = mopd1.ticket_id) ";
 $query .= ", services s ";
 $query .= " LEFT JOIN customvariables cv ON (s.service_id = cv.service_id AND s.host_id = cv.host_id AND cv.name = 'CRITICALITY_LEVEL') ";
 $query .= " LEFT JOIN customvariables cv2 ON (s.service_id = cv2.service_id AND s.host_id = cv2.host_id AND cv2.name = 'CRITICALITY_ID') ";
 $query .= " LEFT JOIN customvariables cv3 ON (s.service_id = cv3.service_id AND s.host_id = cv3.host_id AND cv3.name = '" . $macro_tickets['ticket_id'] . "') ";
-$query .= " LEFT JOIN customvariables cv4 ON (s.service_id = cv4.service_id AND s.host_id = cv4.host_id AND cv4.name = '" . $macro_tickets['ticket_time'] . "') ";
+$query .= " LEFT JOIN mod_open_tickets mop2 ON (cv3.value = mop2.ticket_value AND mop2.timestamp > s.last_time_ok) ";
+$query .= " LEFT JOIN mod_open_tickets_data mopd2 ON (mop2.ticket_id = mopd2.ticket_id) ";
+
 if (!$centreon->user->admin) {
     $query .= " , centreon_acl acl ";
 }
 $query .= " WHERE s.host_id = h.host_id ";
 
-# For Open Tickets
-if (!isset($preferences['opened_tickets']) || $preferences['opened_tickets'] == 0) {
-    $query .= " AND (NULLIF(cv5.value, '') IS NULL OR CAST(cv6.value AS UNSIGNED) < h.last_hard_state_change) ";
-    $query .= " AND (NULLIF(cv3.value, '') IS NULL OR CAST(cv4.value AS UNSIGNED) < s.last_hard_state_change) ";
-} else {
-    $query .= " AND ((NULLIF(cv5.value, '') IS NOT NULL AND CAST(cv6.value AS UNSIGNED) > h.last_hard_state_change) ";
-    $query .= "       OR (NULLIF(cv3.value, '') IS NOT NULL AND CAST(cv4.value AS UNSIGNED) > s.last_hard_state_change)) ";
-}
-
-$query .= " AND h.name NOT LIKE '_Module_%' ";
+$query .= " AND h.enabled = 1 AND h.name NOT LIKE '_Module_%' ";
 $query .= " AND s.enabled = 1 ";
 if (isset($preferences['host_name_search']) && $preferences['host_name_search'] != "") {
     $tab = split(" ", $preferences['host_name_search']);
@@ -220,6 +207,20 @@ if (isset($preferences['svc_unknown']) && $preferences['svc_unknown']) {
 if (count($stateTab)) {
     $query = CentreonUtils::conditionBuilder($query, " s.state IN (" . implode(',', $stateTab) . ")");
 }
+if (isset($preferences['hide_down_host']) && $preferences['hide_down_host']) {
+    $query = CentreonUtils::conditionBuilder($query, " h.state != 1 ");
+}
+if (isset($preferences['hide_unreachable_host']) && $preferences['hide_unreachable_host']) {
+    $query = CentreonUtils::conditionBuilder($query, " h.state != 2 ");}
+
+# For Open Tickets
+if (!isset($preferences['opened_tickets']) || $preferences['opened_tickets'] == 0) {
+    $query .= " AND mop1.timestamp IS NULL ";
+    $query .= " AND mop2.timestamp IS NULL ";
+} else {
+    $query .= " AND (mop1.timestamp IS NOT NULL ";
+    $query .= "       OR mop2.timestamp IS NOT NULL) ";
+}
 
 if (isset($preferences['acknowledgement_filter']) && $preferences['acknowledgement_filter']) {
     if ($preferences['acknowledgement_filter'] == "ack") {
@@ -246,14 +247,14 @@ if (isset($preferences['state_type_filter']) && $preferences['state_type_filter'
 }
 
 if (isset($preferences['hostgroup']) && $preferences['hostgroup']) {
-    $query = CentreonUtils::conditionBuilder($query, 
+    $query = CentreonUtils::conditionBuilder($query,
     " s.host_id IN (
       SELECT host_host_id
       FROM ".$conf_centreon['db'].".hostgroup_relation
       WHERE hostgroup_hg_id = ".$dbb->escape($preferences['hostgroup']).")");
 }
 if (isset($preferences['servicegroup']) && $preferences['servicegroup']) {
-    $query = CentreonUtils::conditionBuilder($query, 
+    $query = CentreonUtils::conditionBuilder($query,
     " s.service_id IN (SELECT service_service_id
       FROM ".$conf_centreon['db'].".servicegroup_relation
       WHERE servicegroup_sg_id = ".$dbb->escape($preferences['servicegroup'])."
@@ -263,7 +264,7 @@ if (isset($preferences['servicegroup']) && $preferences['servicegroup']) {
       WHERE hsr.hostgroup_hg_id = sgr.hostgroup_hg_id
       AND sgr.servicegroup_sg_id = ".$dbb->escape($preferences['servicegroup']).") ");
 }
-if (isset($preferences["display_severities"]) && $preferences["display_severities"] 
+if (isset($preferences["display_severities"]) && $preferences["display_severities"]
     && isset($preferences['criticality_filter']) && $preferences['criticality_filter'] != "") {
   $tab = split(",", $preferences['criticality_filter']);
   $labels = "";
@@ -276,13 +277,13 @@ if (isset($preferences["display_severities"]) && $preferences["display_severitie
   $query2 = "SELECT sc_id FROM service_categories WHERE sc_name IN (".$labels.")";
   $RES = $db->query($query2);
   $idC = "";
-  while ($d1 = $RES->fetchRow()) {
+  while ($d1 = $RES->fetch()) {
     if ($idC != '') {
       $idC .= ",";
     }
     $idC .= $d1['sc_id'];
   }
-  $query .= " AND cv2.`value` IN ($idC) "; 
+  $query .= " AND cv2.`value` IN ($idC) ";
 }
 if (!$centreon->user->admin) {
     $pearDB = $db;
@@ -302,9 +303,31 @@ if (isset($preferences['output_search']) && $preferences['output_search'] != "")
         $query = CentreonUtils::conditionBuilder($query, "s.output ".CentreonUtils::operandToMysqlFormat($op)." '".$dbb->escape($search)."' ");
     }
 }
+if (isset($preferences['ticket_id_search']) && $preferences['ticket_id_search'] != "") {
+    $query .= " AND (mop1.ticket_value LIKE '" . $dbb->escape($preferences['ticket_id_search']) . "' OR mop2.ticket_value LIKE '" . $dbb->escape($preferences['ticket_id_search']) . "') ";
+}
+if (isset($preferences['ticket_subject_search']) && $preferences['ticket_subject_search'] != "") {
+    $query .= " AND (mopd1.subject LIKE '" . $dbb->escape($preferences['ticket_subject_search']) . "' OR mopd2.subject LIKE '" . $dbb->escape($preferences['ticket_subject_search']) . "') ";
+}
+
 $orderby = "hostname ASC , description ASC";
 if (isset($preferences['order_by']) && $preferences['order_by'] != "") {
-    $orderby = $preferences['order_by'];
+    $aOrder = explode(" ", $preferences['order_by']);
+    if (in_array('last_state_change', $aOrder) || in_array('last_hard_state_change', $aOrder)) {
+        if ($aOrder[1] == 'DESC') {
+            $order = 'ASC';
+        } else {
+            $order = 'DESC';
+        }
+        $orderby = $aOrder[0] ." ". $order;
+    } else {
+        $orderby = $preferences['order_by'];
+    }
+
+    if (isset($preferences['order_by2']) && $preferences['order_by2'] != "") {
+        $aOrder = explode(" ", $preferences['order_by2']);
+        $orderby .= ", ".$aOrder[0]." ".$aOrder[1];
+    }
 }
 
 $query .= "ORDER BY $orderby";
@@ -319,7 +342,7 @@ $hostObj = new CentreonHost($db);
 $svcObj = new CentreonService($db);
 $gmt = new CentreonGMT($db);
 $gmt->getMyGMTFromSession(session_id(), $db);
-while ($row = $res->fetchRow()) {
+while ($row = $res->fetch()) {
     foreach ($row as $key => $value) {
         if ($key == "last_check") {
             $value = $gmt->getDate("Y-m-d H:i:s", $value);
@@ -338,13 +361,13 @@ while ($row = $res->fetchRow()) {
         } elseif ($key == "output") {
             $value = substr($value, 0, $outputLength);
         } elseif (($key == "h_action_url" || $key == "h_notes_url") && $value) {
-            $value = urlencode($hostObj->replaceMacroInString($row['hostname'], $value));
+            $value = CentreonUtils::escapeSecure($hostObj->replaceMacroInString($row['hostname'], $value));
         } elseif (($key == "s_action_url" || $key == "s_notes_url") && $value) {
             $value = $hostObj->replaceMacroInString($row['hostname'], $value);
-            $value = urlencode($svcObj->replaceMacroInString($row['service_id'], $value));
+            $value = CentreonUtils::escapeSecure($svcObj->replaceMacroInString($row['service_id'], $value));
         } elseif ($key == "criticality_id" && $value != '') {
             $critData = $criticality->getData($row["criticality_id"], 1);
-            $value = "<img src='../../img/media/".$media->getFilename($critData['icon_id'])."' title='".$critData["sc_name"]."' width='16' height='16'>";        
+            $value = "<img src='../../img/media/".$media->getFilename($critData['icon_id'])."' title='".$critData["sc_name"]."' width='16' height='16'>";
         }
         $data[$row['host_id']."_".$row['service_id']][$key] = $value;
     }
@@ -356,61 +379,38 @@ while ($row = $res->fetchRow()) {
     $data[$row['host_id'].'_'.$row['service_id']]['encoded_hostname'] = urlencode(
       $data[$row['host_id'].'_'.$row['service_id']]['hostname']
     );
-    
-    if ($row['host_ticket_time'] > $row['host_last_hard_state_change'] && 
+
+    if ($row['host_ticket_time'] > $row['host_last_time_up'] &&
         isset($row['host_ticket_id']) && !is_null($row['host_ticket_id']) && $row['host_ticket_id'] != '') {
-        $data[$row['host_id']."_".$row['service_id']]['ticket_id'] = $row['host_ticket_id'];
+        $ticket_id = $row['host_ticket_id'];
+        $url = $rule->getUrl($preferences['rule'], $ticket_id, $row, $widgetId);
+        if (!is_null($url) && $url != '') {
+            $ticket_id = '<a href="' . $url . '" target="_blank">' . $ticket_id . '</a>';
+        }
+        $data[$row['host_id']."_".$row['service_id']]['ticket_id'] = $ticket_id;
         $data[$row['host_id']."_".$row['service_id']]['ticket_time'] = $gmt->getDate("Y-m-d H:i:s", $row['host_ticket_time']);
-    } else if ($row['service_ticket_time'] > $row['last_hard_state_change'] && 
+        $data[$row['host_id']."_".$row['service_id']]['ticket_subject'] = $row['host_ticket_subject'];
+    } else if ($row['service_ticket_time'] > $row['last_time_ok'] &&
                isset($row['service_ticket_id']) && !is_null($row['service_ticket_id']) && $row['service_ticket_id'] != '') {
-        $data[$row['host_id']."_".$row['service_id']]['ticket_id'] = $row['service_ticket_id'];
+        $ticket_id = $row['service_ticket_id'];
+        $url = $rule->getUrl($preferences['rule'], $ticket_id, $row, $widgetId);
+        if (!is_null($url) && $url != '') {
+            $ticket_id = '<a href="' . $url . '" target="_blank">' . $ticket_id . '</a>';
+        }
+        $data[$row['host_id']."_".$row['service_id']]['ticket_id'] = $ticket_id;
         $data[$row['host_id']."_".$row['service_id']]['ticket_time'] = $gmt->getDate("Y-m-d H:i:s", $row['service_ticket_time']);
+        $data[$row['host_id']."_".$row['service_id']]['ticket_subject'] = $row['service_ticket_subject'];
     }
 }
+
+$template->assign('widgetId', $widgetId);
+$template->assign('autoRefresh', $preferences['refresh_interval']);
+$template->assign('preferences', $preferences);
+$template->assign('page', $page);
+$template->assign('dataJS', count($data));
+$template->assign('nbRows', $nbRows);
 $template->assign('centreon_web_path', $centreon->optGen['oreon_web_path']);
 $template->assign('preferences', $preferences);
 $template->assign('data', $data);
-$template->display('index.ihtml');
+$template->display('table.ihtml');
 ?>
-<script type="text/javascript">
-var nbRows = <?php echo $nbRows;?>;
-var currentPage = <?php echo $page;?>;
-var orderby = '<?php echo $orderby;?>';
-var nbCurrentItems = <?php echo count($data);?>;
-
-$(function () {
-    $("#HostTable").styleTable();
-    if (nbRows > itemsPerPage) {
-        $("#pagination").pagination(nbRows, {
-            items_per_page	: itemsPerPage,
-            current_page : pageNumber,
-            callback : paginationCallback
-	    }).append("<br/>");
-    }
-    
-    $("#nbRows").html(nbCurrentItems+"/"+nbRows);
-    
-    $(".selection").each(function() {
-        var curId = $(this).attr('id');
-        if (typeof(clickedCb[curId]) != 'undefined') {
-            this.checked = clickedCb[curId];
-        }
-    });
-    
-    var tmp = orderby.split(' ');
-    var icn = 'n';
-    if (tmp[1] == "DESC") {
-      icn = 's';
-    }
-    $("[name="+tmp[0]+"]").append('<span style="position: relative; float: right;" class="ui-icon ui-icon-triangle-1-'+icn+'"></span>');
-});
-
-function paginationCallback(page_index, jq)
-{
-  if (page_index != pageNumber) {
-    pageNumber = page_index;
-    clickedCb = new Array();
-    loadPage();
-  }
-}
-</script>

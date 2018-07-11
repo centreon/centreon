@@ -25,9 +25,9 @@ select **Mail** as provider. New fields appear linked to the provider.
 
 Define dedicated field linked to the provider:
 
-* **From** is the email address for the sender
+* **From** is the email address for the sender (By default, email of the user who create the ticket)
 * **To** is the email address of the receiver
-* **Subject** is the subject of the email. 
+* **Subject** is the subject of the email.
 
 .. note::
     Please read documentation of your ITSM to select correct text.
@@ -111,4 +111,56 @@ On the second widget, to display opened tickets, click on the **configuration** 
 * Check the boxes **Display Ticket ID** and **Display Ticket Time**
 
 .. image:: /_static/configuration/add_widget.png
+    :align: center
+
+
+Advanced Configuration
+######################
+
+List definition
+---------------
+
+Before opening a ticket, an user can choose some options in a popup.
+An option can be a select list. In the configuration provider, you can configure it 
+in ``Lists`` and ``Custom list definition``. For each entry in ``Lists``, you can define:
+
+* **Id** : alphanumeric value (must be unique) 
+* **Label** : displayed in the popup 
+* **Type** : which kind of list. There is 3 kinds of lists
+
+  * Provider lists (data from the ticketting software directly)
+  * Centreon lists (like ``Host group``)
+  * Custom lists (data from ``Custom list definition`` configuration. **Id** fields must be identical)
+
+* **Mandatory** : checked it if the user needs to set the option
+
+.. image:: /_static/configuration/advanced_list_01.png
+    :align: center
+
+The module stores the user list selection in an array (can be used in smarty section like ``body`` 
+or ``mapping ticket arguments``). There are 3 fields (**LIST_ID** must be replaced):
+
+* {$select.LIST_ID.id}
+* {$select.LIST_ID.value}
+* {$select.LIST_ID.label}
+
+
+Chaining rules
+--------------
+
+After opening a ticket, you may need to send an email. The chaining rules system is designed to do it:
+
+* Create a new rule with the name ``emailme`` and the provider ``Mail``
+* Configure the ``emailme`` in the rule of your opening system
+
+.. image:: /_static/configuration/advanced_chain_01.png
+    :align: center
+
+    
+Commands
+--------
+
+After opening a ticket, you can also configure some commands to be executed. 
+
+.. image:: /_static/configuration/advanced_cmd_01.png
     :align: center

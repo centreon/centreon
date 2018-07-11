@@ -1,7 +1,7 @@
 <table class="ToolbarTable table">
     <tr class="ToolbarTR">
         <td>
-            <select class='toolbar'></select>
+            <div id="toolbar_container"></div>
         </td>
     </tr>
 </table>

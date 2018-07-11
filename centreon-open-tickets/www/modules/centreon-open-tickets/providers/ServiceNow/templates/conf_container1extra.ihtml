@@ -1,0 +1,122 @@
+<tr class="list_lvl_1">
+  <td class="ListColLvl1_name" colspan="2">
+    <h4>ServiceNow</h4>
+  </td>
+</tr>
+<tr class="list_one">
+  <td class="FormRowField">
+    {t}Instance name{/t}&nbsp;<font color="red" size="1">*</font>
+  </td>
+  <td class="FormRowValue">
+    <input type="text" name="servicenow_instance" value="{$values.instance}" size="50">
+    <span style="display: none; color: red;" class="error_msg" id="err-servicenow_instance"></span>
+  </td>
+</tr>
+<tr class="list_two">
+  <td class="FormRowField">
+    {t}OAuth client ID{/t}&nbsp;<font color="red" size="1">*</font>
+  </td>
+  <td class="FormRowValue">
+    <input type="text" name="servicenow_clientid" value="{$values.clientid}" size="50">
+    <span style="display: none; color: red;" class="error_msg" id="err-servicenow_clientid"></span>
+  </td>
+</tr>
+<tr class="list_one">
+  <td class="FormRowField">
+    {t}OAuth client secret{/t}&nbsp;<font color="red" size="1">*</font>
+  </td>
+  <td class="FormRowValue">
+    <input type="password" name="servicenow_clientsecret" value="{$values.clientsecret}" size="50">
+    <span style="display: none; color: red;" class="error_msg" id="err-servicenow_clientsecret"></span>
+  </td>
+</tr>
+<tr class="list_two">
+  <td class="FormRowField">
+    {t}OAuth username{/t}&nbsp;<font color="red" size="1">*</font>
+  </td>
+  <td class="FormRowValue">
+    <input type="text" name="servicenow_username" value="{$values.username}" size="50">
+    <span style="display: none; color: red;" class="error_msg" id="err-servicenow_username"></span>
+  </td>
+</tr>
+<tr class="list_one">
+  <td class="FormRowField">
+    {t}OAuth password{/t}&nbsp;<font color="red" size="1">*</font>
+  </td>
+  <td class="FormRowValue">
+    <input type="password" name="servicenow_password" value="{$values.password}" size="50">
+    <span style="display: none; color: red;" class="error_msg" id="err-servicenow_password"></span>
+  </td>
+</tr>
+<tr class="list_two">
+  <td class="FormRowField">
+    {t}Test authentication{/t}
+  </td>
+  <td class="FormRowValue">
+    <button class="btc bt_action" id="test-servicenow">{t}Test{/t}</button>
+    <span id="test-error" class="error_msg" style="display: none; color: red;"></span>
+    <span id="test-ok" class="error_msg" style="display: none; color: green;">Ok</span>
+  </td>
+</tr>
+<script>
+var webServiceUrl = '{$webServiceUrl}';
+</script>
+{literal}
+<script>
+jQuery('#test-servicenow').on('click', function (e) {
+  e.preventDefault();
+  jQuery('.error_msg').hide();
+
+  /* Valid required field */
+  var fields = [
+    'servicenow_instance',
+    'servicenow_clientid',
+    'servicenow_clientsecret',
+    'servicenow_username',
+    'servicenow_password'
+  ];
+  var i;
+  var inError = false;
+  for (i = 0; i < fields.length; i++) {
+    var field = 'input[name="' + fields[i] + '"]';
+    if (jQuery(field).val().trim() === '') {
+      jQuery('#test-error').text('A required field is empty.');
+      jQuery('#test-error').show();
+      jQuery('#err-' + fields[i]).text('This field is required.').show()
+      inError = true;
+    }
+  }
+  if (inError) {
+    return;
+  }
+
+  jQuery.ajax({
+    url: webServiceUrl + '?object=centreon_openticket&action=testProvider',
+    method: 'POST',
+    type: 'POST',
+    contentType: 'application/json; charset=utf-8',
+    dataType: 'json',
+    data: JSON.stringify({
+      service: 'ServiceNow',
+      instance: jQuery('input[name="servicenow_instance"]').val(),
+      clientId: jQuery('input[name="servicenow_clientid"]').val(),
+      clientSecret: jQuery('input[name="servicenow_clientsecret"]').val(),
+      username: jQuery('input[name="servicenow_username"]').val(),
+      password: jQuery('input[name="servicenow_password"]').val()
+    }),
+    success: function (data) {
+      if (data === true) {
+        jQuery('#test-ok').show();
+      } else {
+        jQuery('#test-error').text('Fail');
+        jQuery('#test-error').show();
+      }
+    },
+    error: function (error) {
+      jQuery('#test-error').show();
+      jQuery('#test-error').text(error.responseText);
+    }
+  });
+});
+</script>
+{/literal}

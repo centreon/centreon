@@ -1,36 +1,22 @@
 <?php
-/**
- * Copyright 2005-2011 MERETHIS
- * Centreon is developped by : Julien Mathis and Romain Le Merlus under
- * GPL Licence 2.0.
+/*
+ * Copyright 2015 Centreon (http://www.centreon.com/)
  *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation ; either version 2 of the License.
+ * Centreon is a full-fledged industry-strength solution that meets 
+ * the needs in IT infrastructure and application monitoring for 
+ * service performance.
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
- * PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, see <http://www.gnu.org/licenses>.
+ *    http://www.apache.org/licenses/LICENSE-2.0  
  *
- * Linking this program statically or dynamically with other modules is making a
- * combined work based on this program. Thus, the terms and conditions of the GNU
- * General Public License cover the whole combination.
- *
- * As a special exception, the copyright holders of this program give MERETHIS
- * permission to link this program with independent modules to produce an executable,
- * regardless of the license terms of these independent modules, and to copy and
- * distribute the resulting executable under terms of MERETHIS choice, provided that
- * MERETHIS also meet, for each linked independent module, the terms  and conditions
- * of the license of that module. An independent module is a module which is not
- * derived from this program. If you modify this program, you may extend this
- * exception to your version of the program, but you are not obliged to do so. If you
- * do not wish to do so, delete this exception statement from your version.
- *
- * For more information : contact@centreon.com
- *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,*
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 require_once "../../require.php";
@@ -41,35 +27,88 @@ require_once $centreon_path . 'www/class/centreonWidget.class.php';
 require_once $centreon_path . 'www/class/centreonUtils.class.php';
 require_once $centreon_path . "www/class/centreonXMLBGRequest.class.php";
 require_once $centreon_path . 'www/modules/centreon-open-tickets/class/rule.php';
-require_once $centreon_path . "GPL_LIB/Smarty/libs/Smarty.class.php";
 
 session_start();
-$centreon_bg = new CentreonXMLBGRequest(session_id(), 1, 1, 0, 1);
+$centreon_bg = new CentreonXMLBGRequest($dependencyInjector, session_id(), 1, 1, 0, 1);
 
 ?>
 
-<script type="text/javascript" src="../../../include/common/javascript/jquery/jquery.js"></script>
-<script type="text/javascript" src="../../../include/common/javascript/jquery/jquery-ui.js"></script>
-<script type="text/javascript" src="../../../include/common/javascript/widgetUtils.js"></script>
-<script type="text/javascript" src="../../../modules/centreon-open-tickets/lib/jquery.serialize-object.min.js"></script>
-<script type="text/javascript" src="../../../modules/centreon-open-tickets/lib/commonFunc.js"></script>
+<script type="text/javascript" src="./modules/centreon-open-tickets/lib/jquery.serialize-object.min.js"></script>
+<script type="text/javascript" src="./modules/centreon-open-tickets/lib/commonFunc.js"></script>
+<script type="text/javascript" src="./modules/centreon-open-tickets/lib/dropzone.js"></script>
+<link href="./modules/centreon-open-tickets/lib/dropzone.css" rel="stylesheet" type="text/css"/>
 
 <?php
+
+function service_ack() {
+    global $cmd, $centreon, $centreon_path;
+    
+    $path = $centreon_path . "www/widgets/open-tickets/src/";
+    $template = new Smarty();
+    $template = initSmartyTplForPopup($path . 'templates/', $template, "./", $centreon_path);
+    $template->assign('stickyLabel', _("Sticky"));
+    $template->assign('persistentLabel', _("Persistent"));
+    $template->assign('authorLabel', _("Author"));
+    $template->assign('notifyLabel', _("Notify"));
+    $template->assign('commentLabel', _("Comment"));
+    $template->assign('forceCheckLabel', _('Force active checks'));
+    $template->assign('fixedLabel', _("Fixed"));
+    $template->assign('durationLabel', _("Duration"));
+    $template->assign('startLabel', _("Start"));
+    $template->assign('endLabel', _("End"));
+    $template->assign('selection', $_REQUEST['selection']);
+    $template->assign('author', $centreon->user->alias);
+    $template->assign('cmd', $cmd);
+    
+    $title = _("Service Acknowledgement");
+    $template->assign('defaultMessage', sprintf(_('Acknowledged by %s'), $centreon->user->alias));
+    $persistent_checked = '';
+    if (isset($centreon->optGen['monitoring_ack_persistent']) && $centreon->optGen['monitoring_ack_persistent']) {
+        $persistent_checked = 'checked';
+    }
+    $template->assign('persistent_checked', $persistent_checked);
+    $sticky_checked = '';
+    if (isset($centreon->optGen['monitoring_ack_sticky']) && $centreon->optGen['monitoring_ack_sticky']) {
+        $sticky_checked = 'checked';
+    }
+    $template->assign('sticky_checked', $sticky_checked);
+    $notify_checked = '';
+    if (isset($centreon->optGen['monitoring_ack_notify']) && $centreon->optGen['monitoring_ack_notify']) {
+        $notify_checked = 'checked';
+    }
+    $template->assign('notify_checked', $notify_checked);
+    $process_service_checked = '';
+    if (isset($centreon->optGen['monitoring_ack_svc']) && $centreon->optGen['monitoring_ack_svc']) {
+        $process_service_checked = 'checked';
+    }
+    $template->assign('process_service_checked', $process_service_checked);
+    $force_active_checked = '';
+    if (isset($centreon->optGen['monitoring_ack_active_checks']) && $centreon->optGen['monitoring_ack_active_checks']) {
+        $force_active_checked = 'checked';
+    }
+    $template->assign('force_active_checked', $force_active_checked);
+    $template->assign('titleLabel', $title);
+    $template->assign('submitLabel', _("Acknowledge"));
+    $template->display('acknowledge.ihtml');
+}
 
 function format_popup() {
     global $cmd, $widgetId, $rule, $preferences, $centreon, $centreon_path;
     
+    $uniq_id = uniqid();
     if ($cmd == 3) {
         $title = _("Open Service Ticket");
     } else {
         $title = _("Open Host Ticket");
     }
-    
+
     $result = $rule->getFormatPopupProvider($preferences['rule'], 
                                             array('title' => $title,
-                                                  'user' => $centreon->user->alias,
+                                                  'user' => array(
+                                                                  'alias' => $centreon->user->alias, 
+                                                                  'email' => $centreon->user->email),
                                                  )
-                                            );
+                                            , $widgetId, $uniq_id, $_REQUEST['cmd'], $_REQUEST['selection']);
     
     $path = $centreon_path . "www/widgets/open-tickets/src/";
     $template = new Smarty();
@@ -80,10 +119,12 @@ function format_popup() {
     $template->assign('provider_id', $provider_infos['provider_id']);
     $template->assign('rule_id', $preferences['rule']);
     $template->assign('widgetId', $widgetId);
+    $template->assign('uniqId', $uniq_id);
     $template->assign('title', $title);
     $template->assign('cmd', $cmd);
     $template->assign('selection', $_REQUEST['selection']);
     $template->assign('continue', (!is_null($result) && isset($result['format_popup'])) ? 0 : 1);
+    $template->assign('attach_files_enable', (!is_null($result) && isset($result['attach_files_enable']) && $result['attach_files_enable'] === 'yes') ? 1 : 0);
 
     $template->assign('formatPopupProvider', (!is_null($result) && isset($result['format_popup'])) ? $result['format_popup'] : '');
     
@@ -94,53 +135,17 @@ function format_popup() {
 
 function remove_tickets() {
     global $cmd, $widgetId, $rule, $preferences, $centreon, $centreon_path, $centreon_bg;
-    
-    require_once $centreon_path . 'www/class/centreonExternalCommand.class.php';
-    $external_cmd = new CentreonExternalCommand($centreon);
-    
-    $db_storage = new CentreonDB('centstorage');
-    $macros = $rule->getMacroNames($preferences['rule']);
-    
-    $selected_values = explode(',', $_REQUEST['selection']);
-    $selected_str = '';
-    $selected_str_append = '';
-    foreach ($selected_values as $value) {
-        $str = explode(';', $value);
-        $selected_str .= $selected_str_append . 'services.host_id = ' . $str[0] . ' AND services.service_id = ' . $str[1];
-        $selected_str_append = ' OR ';
-    }
-    
-    $query = "SELECT services.host_id, services.description, hosts.name as host_name, hosts.instance_id FROM services, hosts";
-    $query_where = " WHERE (" . $selected_str . ') AND services.host_id = hosts.host_id';
-    if (!$centreon_bg->is_admin) {
-        $query_where .= " AND EXISTS(SELECT * FROM centreon_acl WHERE centreon_acl.group_id IN (" . $centreon_bg->grouplistStr . ") AND hosts.host_id = centreon_acl.host_id 
-        AND services.service_id = centreon_acl.service_id)";
-    }
-    $DBRESULT = $db_storage->query($query . $query_where);
-    
-    $host_done = array();
-    while (($row = $DBRESULT->fetchRow())) {
-        if (!isset($host_done[$row['host_id']])) {
-            $command = "CHANGE_CUSTOM_HOST_VAR;%s;%s;%s";
-            $external_cmd->set_process_command(sprintf($command, $row['host_name'], $macros['ticket_id'], ''), $row['instance_id']);
-            $command = "CHANGE_CUSTOM_HOST_VAR;%s;%s;%s";
-            $external_cmd->set_process_command(sprintf($command, $row['host_name'], $macros['ticket_time'], ''), $row['instance_id']);
-            $host_done[$row['host_id']] = 1;
-        }
-        
-        $command = "CHANGE_CUSTOM_SVC_VAR;%s;%s;%s;%s";
-        $external_cmd->set_process_command(sprintf($command, $row['host_name'], $row['description'], $macros['ticket_id'], ''), $row['instance_id']);
-        $command = "CHANGE_CUSTOM_SVC_VAR;%s;%s;%s;%s";
-        $external_cmd->set_process_command(sprintf($command, $row['host_name'], $row['description'], $macros['ticket_time'], ''), $row['instance_id']);
-    }
-    
-    $external_cmd->write();
 
     $path = $centreon_path . "www/widgets/open-tickets/src/";
+    $provider_infos = $rule->getAliasAndProviderId($preferences['rule']);
     
     $template = new Smarty();
     $template = initSmartyTplForPopup($path . 'templates/', $template, "./", $centreon_path);
-    $template->assign('title', _('Remove Tickets'));
+    $template->assign('title', _('Close Tickets'));
+    $template->assign('selection', $_REQUEST['selection']);
+    $template->assign('provider_id', $provider_infos['provider_id']);
+    $template->assign('rule_id', $preferences['rule']);
+    
     $template->display('removetickets.ihtml');
 }
 
@@ -168,6 +173,8 @@ try {
         format_popup();
     } else if ($cmd == 10) {
         remove_tickets();
+    } else if ($cmd == 70) {
+        service_ack();
     }
 } catch (Exception $e) {
     echo $e->getMessage() . "<br/>";

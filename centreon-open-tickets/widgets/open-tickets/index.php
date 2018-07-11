@@ -1,36 +1,22 @@
 <?php
-/**
- * Copyright 2005-2011 MERETHIS
- * Centreon is developped by : Julien Mathis and Romain Le Merlus under
- * GPL Licence 2.0.
+/*
+ * Copyright 2015 Centreon (http://www.centreon.com/)
  *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation ; either version 2 of the License.
+ * Centreon is a full-fledged industry-strength solution that meets 
+ * the needs in IT infrastructure and application monitoring for 
+ * service performance.
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
- * PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, see <http://www.gnu.org/licenses>.
+ *    http://www.apache.org/licenses/LICENSE-2.0  
  *
- * Linking this program statically or dynamically with other modules is making a
- * combined work based on this program. Thus, the terms and conditions of the GNU
- * General Public License cover the whole combination.
- *
- * As a special exception, the copyright holders of this program give MERETHIS
- * permission to link this program with independent modules to produce an executable,
- * regardless of the license terms of these independent modules, and to copy and
- * distribute the resulting executable under terms of MERETHIS choice, provided that
- * MERETHIS also meet, for each linked independent module, the terms  and conditions
- * of the license of that module. An independent module is a module which is not
- * derived from this program. If you modify this program, you may extend this
- * exception to your version of the program, but you are not obliged to do so. If you
- * do not wish to do so, delete this exception statement from your version.
- *
- * For more information : contact@centreon.com
- *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,*
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 require_once "../require.php";
@@ -38,6 +24,10 @@ require_once $centreon_path . 'www/class/centreon.class.php';
 require_once $centreon_path . 'www/class/centreonSession.class.php';
 require_once $centreon_path . 'www/class/centreonDB.class.php';
 require_once $centreon_path . 'www/class/centreonWidget.class.php';
+require_once $centreon_path . 'www/modules/centreon-open-tickets/class/rule.php';
+
+$smartyDir = __DIR__ . '/../../../vendor/smarty/smarty/';
+require_once $smartyDir . 'libs/Smarty.class.php';
 
 session_start();
 if (!isset($_SESSION['centreon']) || !isset($_REQUEST['widgetId'])) {
@@ -46,117 +36,40 @@ if (!isset($_SESSION['centreon']) || !isset($_REQUEST['widgetId'])) {
 $centreon = $_SESSION['centreon'];
 $widgetId = $_REQUEST['widgetId'];
 
+$path = $centreon_path . 'www/widgets/open-tickets/src/templates/';
+$template = new Smarty();
+$template = initSmartyTplForPopup($path, $template, "/", $centreon_path);
+
 try {
+
     $db = new CentreonDB();
     $widgetObj = new CentreonWidget($centreon, $db);
     $preferences = $widgetObj->getWidgetPreferences($widgetId);
+
     $autoRefresh = 0;
     if (isset($preferences['refresh_interval'])) {
         $autoRefresh = $preferences['refresh_interval'];
     }
+    $preferences['rule'] = (!empty($preferences['rule']) ?: null);
+    $rule = new Centreon_OpenTickets_Rule($db);
+    $result = $rule->getAliasAndProviderId($preferences['rule']);
+
+    if (!isset($preferences['rule']) || is_null($preferences['rule']) || $preferences['rule'] == '' ||
+    !isset($result['provider_id'])) {
+        $template->assign('error', "<center><div class='update' style='text-align:center;width:350px;'>"._("Please select a rule first")."</div></center>");
+    }
 } catch (Exception $e) {
-    echo $e->getMessage() . "<br/>";
-    exit;
+    $template->assign('error', "<center><div class='update' style='text-align:center;width:350px;'>" . $e->getMessage() . "</div></center>");
 }
+
+$template->assign('widgetId', $widgetId);
+$template->assign('preferences', $preferences);
+$template->assign('autoRefresh', $autoRefresh);
+$bMoreViews = 0;
+if ($preferences['more_views']) {
+    $bMoreViews = $preferences['more_views'];
+}
+$template->assign('more_views', $bMoreViews);
+
+$template->display('index.ihtml');
 ?>
-<html>
-    <head>
-    	<title>Open Tickets</title>
-    	<!--<link href="../../Themes/Centreon-2/jquery-ui/jquery-ui.css" rel="stylesheet" type="text/css"/>-->
-    	<!--<link href="../../Themes/Centreon-2/jquery-ui/jquery-ui-centreon.css" rel="stylesheet" type="text/css"/>-->
-    	<link href="../../include/common/javascript/jquery/plugins/pagination/pagination.css" rel="stylesheet" type="text/css"/>
-    	<link href="../../Themes/Centreon-2/style.css" rel="stylesheet" type="text/css"/>
-    	<link href="<?php echo '../../Themes/Centreon-2/Color/blue_css.php';?>" rel="stylesheet" type="text/css"/>
-        <link href="<?php echo '../../Themes/Centreon-2/Color/green_css.php';?>" rel="stylesheet" type="text/css"/>
-        <link href="<?php echo '../../Themes/Centreon-2/Color/red_css.php';?>" rel="stylesheet" type="text/css"/>
-        <link href="<?php echo '../../Themes/Centreon-2/Color/yellow_css.php';?>" rel="stylesheet" type="text/css"/>
-
-    	<script type="text/javascript" src="../../include/common/javascript/jquery/jquery.js"></script>
-    	<script type="text/javascript" src="../../include/common/javascript/jquery/jquery-ui.js"></script>
-    	<script type="text/javascript" src="../../include/common/javascript/jquery/plugins/pagination/jquery.pagination.js"></script>
-    	<!--<script type="text/javascript" src="../../include/common/javascript/widgetUtils.js"></script>-->
-
-    	<style type="text/css">
-                 body{ margin:0; padding: 0; font-size: 11px;}
-                 * html body { overflow:hidden; }
-                 * html div#openTicketsTable { height:100%; overflow:auto; }
-                 .ListTable {font-size:11px;border-color: #BFD0E2;}
-                 .ListHeader {
-                     background: #cfedf9;
-                 }
-            </style>
-
-    </head>
-	<body>
-<?php
-if (!isset($preferences['rule']) || is_null($preferences['rule']) || $preferences['rule'] == '') {
-    print "<center><div class='update' style='text-align:center;width:350px;'>"._("Please select a rule first")."</div></center>";
-} else {
-?>
-     <div id='actionBar' style='width:100%;'>
-        <span id='toolBar'></span>
-        <span id='pagination' class='pagination' style='float:left;width:35%;text-align:center;'> </span>
-        <span id='nbRows' style='float:left;width:19%;text-align:right;font-weight:bold;'></span>
-    </div>
-        <div id='openTicketsTable'></div>
-<?php
-}
-?>
-	</body>
-<script type="text/javascript">
-var widgetId = <?php echo $widgetId; ?>;
-var autoRefresh = <?php echo $autoRefresh;?>;
-var timeout;
-var itemsPerPage = <?php echo $preferences['entries'];?>;
-var pageNumber = 0;
-var clickedCb = new Array();
-
-jQuery(function() {
-	loadToolBar();
-	loadPage();
-	$('.checkall').live('click', function () {
-		var chck = this.checked;
-		$(this).parents().find(':checkbox').each(function() {
-			$(this).attr('checked', chck);
-			clickedCb[$(this).attr('id')] = chck;
-		});
-	});
-	$(".selection").live('click', function() {
-		clickedCb[$(this).attr('id')] = this.checked;
-	});
-});
-
-/**
- * Load page
- */
-function loadPage()
-{
-    var indexPage = "index";
-    jQuery.ajax("./src/"+indexPage+".php?widgetId="+widgetId+"&page="+pageNumber, {
-            success : function(htmlData) {
-                jQuery("#openTicketsTable").html("");
-                jQuery("#openTicketsTable").html(htmlData);
-                var h = document.getElementById("openTicketsTable").scrollHeight + 30;
-                parent.iResize(window.name, h);
-        }
-	});
-	if (autoRefresh) {
-		if (timeout) {
-			clearTimeout(timeout);
-		}
-		timeout = setTimeout(loadPage, (autoRefresh * 1000));
-	}
-}
-
-/**
- * Load toolbar
- */
-function loadToolBar()
-{
-	jQuery("#toolBar").load("./src/toolbar.php",
-							{
-								widgetId : widgetId
-							});
-}
-</script>
-</html>

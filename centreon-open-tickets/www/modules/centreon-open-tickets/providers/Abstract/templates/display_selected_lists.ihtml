@@ -1,0 +1,5 @@
+{foreach from=$select item=v}
+{if $v.id ne "-1"}
+{$v.label}: {$v.value}{$separator}
+{/if}
+{/foreach}

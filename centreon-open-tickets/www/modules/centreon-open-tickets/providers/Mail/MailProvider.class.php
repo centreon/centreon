@@ -1,218 +1,39 @@
 <?php
 /*
- * CENTREON
+ * Copyright 2016 Centreon (http://www.centreon.com/)
  *
- * Source Copyright 2005-2015 CENTREON
+ * Centreon is a full-fledged industry-strength solution that meets 
+ * the needs in IT infrastructure and application monitoring for 
+ * service performance.
  *
- * Unauthorized reproduction, copy and distribution
- * are not allowed.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * For more information : contact@centreon.com
+ *    http://www.apache.org/licenses/LICENSE-2.0  
  *
-*/
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,*
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+ 
+require_once dirname(__FILE__) . '/library/class.phpmailer.php';
 
-class MailProvider {
-    protected $_rule;
-    protected $_rule_id;
-    protected $_centreon_path;
-    protected $_centreon_open_tickets_path;
-    protected $_config = array("container1_html" => '', "container2_html" => '', "clones" => array());
-    protected $_required_field = '&nbsp;<font color="red" size="1">*</font>';
-    protected $_submitted_config = null;
-    protected $_check_error_message = '';
-    protected $_save_config = array();
+class MailProvider extends AbstractProvider {
+    protected $_attach_files = 1;
     
-    /**
-     * constructor
-     *
-     * @return void
-     */
-    public function __construct($rule, $centreon_path, $centreon_open_tickets_path, $rule_id, $submitted_config = null) {
-        $this->_rule = $rule;
-        $this->_centreon_path = $centreon_path;
-        $this->_centreon_open_tickets_path = $centreon_open_tickets_path;
-        $this->_rule_id = $rule_id;
-        $this->_submitted_config = $submitted_config;
-        $this->rule_data = $rule->get($rule_id);
-        
-        $this->default_data = array();
-        $this->_setDefaultValueMain();
-        $this->_setDefaultValueExtra();
+    protected function _setDefaultValueMain($body_html = 0) {
+        parent::_setDefaultValueMain(1);
     }
-    
-    protected function change_html_tags($output, $change=1) {
-        if ($change == 1) {
-            $output = str_replace('<', '&lt;', $output);
-            $output = str_replace('>', '&gt;', $output);
-        } else {
-            $output = str_replace('&lt;', '<', $output);
-            $output = str_replace('&gt;', '>', $output);
-        }
-        return $output;
-    }
-    
-    protected function _setDefaultValueMain() {
-        $this->default_data['macro_ticket_id'] = 'TICKET_ID';
-        $this->default_data['macro_ticket_time'] = 'TICKET_TIME';
-        $this->default_data['ack'] = 'yes';
-        
-        $this->default_data['format_popup'] = '
-<table id="ListTable" style="width: 100%;">
-<tr>
-    <th colspan="2">{$title}</th>
-</tr>
-<tr>
-    <td>{$custom_message.label}</td>
-    <td><textarea id="custom_message" name="custom_message" cols="30" rows="3"></textarea></td>
-</tr>
-</table>
-';
-        $this->default_data['message_confirm'] = '
-<table id="ListTable" style="width: 100%;">
-<tr>
-    <th>{$title}</th>
-</tr>
-{if $ticket_is_ok == 1}
-    <tr><td>New ticket opened: {$ticket_id}.</td></tr>
-{else}
-    <tr><td>Error to open the ticket: {$ticket_error_message}.</td></tr>
-{/if}
-</table>
-';
-        $this->default_data['format_popup'] = $this->change_html_tags($this->default_data['format_popup']);
-        $this->default_data['message_confirm'] = $this->change_html_tags($this->default_data['message_confirm']);
-                
-        $this->default_data['clones'] = array();
-        $this->default_data['clones']['headerMail'] = array(
-            array('Name' => 'MIME-Version', 'Value' => '1.0'),
-            array('Name' => 'Content-Type', 'Value' => 'text/html; charset=utf8')
-        );
-    }
-    
-    /**
-     * Set default extra value 
-     *
-     * @return void
-     */
+     
     protected function _setDefaultValueExtra() {
-        $this->default_data['from'] = 'admin@domain.com';
-        $this->default_data['subject'] = 'Open a ticket';
-        $this->default_data['body'] = '
-<html>
-<body>
-
-<div>
-{$user} open ticket at {$smarty.now|date_format:"%d/%m/%y %H:%M:%S"}
-</div>
-
-<div>
-{$custom_message}
-</div>
-
-{assign var="table_style" value="border-collapse: collapse; border: 1px solid black;"}
-{assign var="cell_title_style" value="background-color: #D2F5BB; border: 1px solid black; text-align: center; padding: 10px; text-transform:uppercase; font-weight:bold;"}
-{assign var="cell_style" value="border-bottom: 1px solid black; padding: 5px;"}
-
-{if $host_selected|@count gt 0} 
-    <table cellpading="0" cellspacing="0" style="{$table_style}">
-        <tr>
-            <td style="{$cell_title_style}">Host</td>
-            <td style="{$cell_title_style}">State</td>
-            <td style="{$cell_title_style}">Duration</td>
-            <td style="{$cell_title_style}">Output</td>
-        </tr>
-        {foreach from=$host_selected item=host}
-        <tr>
-            <td style="{$cell_style}">{$host.name}</td>
-            <td style="{$cell_style}">{$host.state_str}</td>
-            <td style="{$cell_style}">{$host.last_hard_state_change_duration}</td>
-            <td style="{$cell_style}">{$host.output|substr:0:255}</td>
-        </tr>
-        {/foreach}
-    </table>
-{/if}
-
-{if $service_selected|@count gt 0} 
-    <table cellpading="0" cellspacing="0" style="{$table_style}">
-        <tr>
-            <td style="{$cell_title_style}">Host</td>
-            <td style="{$cell_title_style}">Service</td>
-            <td style="{$cell_title_style}">State</td>
-            <td style="{$cell_title_style}">Duration</td>
-            <td style="{$cell_title_style}">Output</td>
-        </tr>
-        {foreach from=$service_selected item=service}
-        <tr>
-            <td style="{$cell_style}">{$service.host_name}</td>
-            <td style="{$cell_style}">{$service.description}</td>
-            <td style="{$cell_style}">{$service.state_str}</td>
-            <td style="{$cell_style}">{$service.last_hard_state_change_duration}</td>
-            <td style="{$cell_style}">{$service.output|substr:0:255}</td>
-        </tr>
-        {/foreach}
-    </table>
-{/if}
-</body>
-</html>
-        ';
+        $this->default_data['from'] = '{$user.email}';
+        $this->default_data['subject'] = 'Issue {$ticket_id} - {include file="file:$centreon_open_tickets_path/providers/Abstract/templates/display_title.ihtml"}';
         
-        $this->default_data['body'] = $this->change_html_tags($this->default_data['body']);
-    }
-    
-    /**
-     * Get a form clone value
-     *
-     * @return a array
-     */
-    protected function _getCloneValue($uniq_id) {
-        $format_values = array();
-        if (isset($this->rule_data['clones'][$uniq_id]) && is_array($this->rule_data['clones'][$uniq_id])) {
-            foreach ($this->rule_data['clones'][$uniq_id] as $values) {
-                $format = array();
-                foreach ($values as $label => $value) {
-                    $format[$uniq_id . $label . '_#index#'] = $value;
-                }
-                $format_values[] = $format;
-            }
-        } else if (isset($this->default_data['clones'][$uniq_id])) {
-            foreach ($this->default_data['clones'][$uniq_id] as $values) {
-                $format = array();
-                foreach ($values as $label => $value) {
-                    $format[$uniq_id . $label . '_#index#'] = $value;
-                }
-                $format_values[] = $format;
-            }
-        }
-        
-        $result = array(
-            'clone_values' => json_encode($format_values),
-            'clone_count' => count($format_values)
-        );
-        
-        return $result;
-    }
-    
-    /**
-     * Get a form value
-     *
-     * @return a string
-     */
-    protected function _getFormValue($uniq_id) {
-        $value = '';
-        if (isset($this->rule_data[$uniq_id]) && !is_null($this->rule_data[$uniq_id])) {
-            $value = $this->rule_data[$uniq_id];
-        } else if (isset($this->default_data[$uniq_id])) {
-            $value = $this->default_data[$uniq_id];
-        }
-        
-        return $value;
-    }
-    
-    protected function _checkFormValue($uniq_id, $error_msg) {
-        if (!isset($this->_submitted_config[$uniq_id]) || $this->_submitted_config[$uniq_id] == '') {
-            $this->_check_error_message .= $this->_check_error_message_append . $error_msg;
-            $this->_check_error_message_append = '<br/>';
-        }
+        $this->default_data['clones']['headerMail'] = array();
+        $this->default_data['ishtml'] = 'yes';
     }
     
     /**
@@ -227,63 +48,14 @@ class MailProvider {
         $this->_checkFormValue('from', "Please set 'From' value");
         $this->_checkFormValue('to', "Please set 'To' value");
         $this->_checkFormValue('subject', "Please set 'Subject' value");
-        $this->_checkFormValue('body', "Please set 'Body' value");
         $this->_checkFormValue('macro_ticket_id', "Please set 'Macro Ticket ID' value");
-        $this->_checkFormValue('macro_ticket_time', "Please set 'Macro Ticket Time' value");
+        $this->_checkFormInteger('confirm_autoclose', "'Confirm popup autoclose' must be a number");
+        
+        $this->_checkLists();
         
         if ($this->_check_error_message != '') {
             throw new Exception($this->_check_error_message);
         }
-    }
-    
-    /**
-     * Build the config form
-     *
-     * @return a array
-     */
-    public function getConfig() {        
-        $this->_getConfigContainer1Extra();
-        $this->_getConfigContainer1Main();
-        $this->_getConfigContainer2Main();
-        $this->_getConfigContainer2Extra();
-        
-        return $this->_config;
-    }
-    
-    public function getMacroTicketId() {
-        return $this->rule_data['macro_ticket_id'];
-    }
-    
-    public function getMacroTicketTime() {
-        return $this->rule_data['macro_ticket_time'];
-    }
-    
-    /**
-     * Build the main config: url, ack, message confirm, lists
-     *
-     * @return void
-     */
-    protected function _getConfigContainer1Main() {
-        $tpl = new Smarty();
-        $tpl = initSmartyTplForPopup($this->_centreon_open_tickets_path, $tpl, 'providers/Mail/templates', $this->_centreon_path);
-        
-        $tpl->assign("centreon_open_tickets_path", $this->_centreon_open_tickets_path);
-        $tpl->assign("img_brick", "./modules/centreon-open-tickets/images/brick.png");
-        $tpl->assign("header", array("common" => _("Common")));
-        
-        // Form
-        $url_html = '<input size="50" name="url" type="text" value="' . $this->_getFormValue('url') . '" />';
-        $message_confirm_html = '<textarea rows="8" cols="70" name="message_confirm">' . $this->_getFormValue('message_confirm') . '</textarea>';
-        $ack_html = '<input type="checkbox" name="ack" value="yes" ' . ($this->_getFormValue('ack') == 'yes' ? 'checked' : '') . '/>';
-
-        $array_form = array(
-            'url' => array('label' => _("Url"), 'html' => $url_html),
-            'message_confirm' => array('label' => _("Confirm message popup"), 'html' => $message_confirm_html),
-            'ack' => array('label' => _("Acknowledge"), 'html' => $ack_html)
-        );
-        $tpl->assign('form', $array_form);
-        
-        $this->_config['container1_html'] .= $tpl->fetch('conf_container1main.ihtml');
     }
     
     /**
@@ -302,15 +74,15 @@ class MailProvider {
         // Form
         $from_html = '<input size="50" name="from" type="text" value="' . $this->_getFormValue('from') . '" />';
         $to_html = '<input size="50" name="to" type="text" value="' . $this->_getFormValue('to') . '" />';
-        $subject_html = '<input size="50" name="subject" type="text" value="' . $this->_getFormValue('subject') . '" />';
-        $body_html = '<textarea rows="8" cols="70" name="body">' . $this->_getFormValue('body') . '</textarea>';
+        $subject_html = '<input size="50" name="subject" type="text" value="' . htmlentities($this->_getFormValue('subject')) . '" />';
+        $ishtml_html = '<input type="checkbox" name="ishtml" value="yes" ' . ($this->_getFormValue('ishtml') == 'yes' ? 'checked' : '') . '/>';
 
         $array_form = array(
             'from' => array('label' => _("From") . $this->_required_field, 'html' => $from_html),
             'to' => array('label' => _("To") . $this->_required_field, 'html' => $to_html),
             'subject' => array('label' => _("Subject") . $this->_required_field, 'html' => $subject_html),
             'header' => array('label' => _("Headers")),
-            'body' => array('label' => _("Body") . $this->_required_field, 'html' => $body_html)
+            'ishtml' => array('label' => _("Use html"), 'html' => $ishtml_html),
         );
         
         // Clone part
@@ -329,34 +101,6 @@ class MailProvider {
     }
     
     /**
-     * Build the advanced config: Popup format, Macro name
-     *
-     * @return void
-     */
-    protected function _getConfigContainer2Main() {
-        $tpl = new Smarty();
-        $tpl = initSmartyTplForPopup($this->_centreon_open_tickets_path, $tpl, 'providers/Mail/templates', $this->_centreon_path);
-        
-        $tpl->assign("img_wrench", "./modules/centreon-open-tickets/images/wrench.png");
-        $tpl->assign("img_brick", "./modules/centreon-open-tickets/images/brick.png");
-        $tpl->assign("header", array("title" => _("Rules"), "common" => _("Common")));
-        
-        // Form
-        $macro_ticket_id_html = '<input size="50" name="macro_ticket_id" type="text" value="' . $this->_getFormValue('macro_ticket_id') . '" />';
-        $macro_ticket_time_html = '<input size="50" name="macro_ticket_time" type="text" value="' . $this->_getFormValue('macro_ticket_time') . '" />';
-        $format_popup_html = '<textarea rows="8" cols="70" name="format_popup">' . $this->_getFormValue('format_popup') . '</textarea>';
-
-        $array_form = array(
-            'macro_ticket_id' => array('label' => _("Macro Ticket ID") . $this->_required_field, 'html' => $macro_ticket_id_html),
-            'macro_ticket_time' => array('label' => _("Macro Ticket Time") . $this->_required_field, 'html' => $macro_ticket_time_html),
-            'format_popup' => array('label' => _("Formatting popup"), 'html' => $format_popup_html)
-        );
-        $tpl->assign('form', $array_form);
-        
-        $this->_config['container2_html'] .= $tpl->fetch('conf_container2main.ihtml');
-    }
-    
-    /**
      * Build the specific advanced config: -
      *
      * @return void
@@ -365,161 +109,82 @@ class MailProvider {
         
     }
     
-    protected function _getCloneSubmitted($clone_key, $values) {
-        $result = array();
-        
-        foreach ($this->_submitted_config as $key => $value) {   
-            if (preg_match('/^clone_order_' . $clone_key . '_(\d+)/', $key, $matches)) {
-                $index = $matches[1];
-                $array_values = array();
-                foreach ($values as $other) {
-                    $array_values[$other] = $this->_submitted_config[$clone_key . $other][$index];
-                }
-                $result[] = $array_values;
-            }
-        }
-        
-        return $result;
-    }
-    
-    protected function saveConfigMain() {
-        $this->_save_config['provider_id'] = $this->_submitted_config['provider_id'];
-        $this->_save_config['rule_alias'] = $this->_submitted_config['rule_alias'];
-        $this->_save_config['simple']['macro_ticket_id'] = $this->_submitted_config['macro_ticket_id'];
-        $this->_save_config['simple']['macro_ticket_time'] = $this->_submitted_config['macro_ticket_time'];
-        $this->_save_config['simple']['ack'] = (isset($this->_submitted_config['ack']) && $this->_submitted_config['ack'] == 'yes') ? 
-            $this->_submitted_config['ack'] : '';
-        $this->_save_config['simple']['url'] = $this->_submitted_config['url'];
-        $this->_save_config['simple']['format_popup'] = $this->change_html_tags($this->_submitted_config['format_popup']);
-        $this->_save_config['simple']['message_confirm'] = $this->change_html_tags($this->_submitted_config['message_confirm']);
-    }
-    
     protected function saveConfigExtra() {
         $this->_save_config['clones']['headerMail'] = $this->_getCloneSubmitted('headerMail', array('Name', 'Value'));
         $this->_save_config['simple']['from'] = $this->_submitted_config['from'];
         $this->_save_config['simple']['to'] = $this->_submitted_config['to'];
         $this->_save_config['simple']['subject'] = $this->_submitted_config['subject'];
-        $this->_save_config['simple']['body'] = $this->change_html_tags($this->_submitted_config['body']);
-    }
-    
-    public function saveConfig() {
-        $this->_checkConfigForm();
-        $this->_save_config = array('clones' => array(), 'simple' => array());
-        
-        $this->saveConfigMain();
-        $this->saveConfigExtra();
-        
-        $this->_rule->save($this->_rule_id, $this->_save_config);
+        $this->_save_config['simple']['ishtml'] = (isset($this->_submitted_config['ishtml']) && $this->_submitted_config['ishtml'] == 'yes') ? 
+            $this->_submitted_config['ishtml'] : '';
     }
     
     public function validateFormatPopup() {
         $result = array('code' => 0, 'message' => 'ok');
         
+        $this->validateFormatPopupLists($result);
         return $result;
     }
     
-    protected function assignFormatPopupTemplate($tpl, $args) {
-        foreach ($args as $label => $value) {
-            $tpl->assign($label, $value);
-        }
-        
-        $tpl->assign('custom_message', array('label' => _('Custom message')));
-    }
-    
-    public function getFormatPopup($args) {        
-        if (!isset($this->rule_data['format_popup']) || is_null($this->rule_data['format_popup']) || $this->rule_data['format_popup']  == '') {
-            return null;
-        }
-        
-        $result = array('format_popup' => null);
-        
-        $tpl = new Smarty();
-        $tpl = initSmartyTplForPopup($this->_centreon_open_tickets_path, $tpl, 'providers/Mail/templates', $this->_centreon_path);
-        
-        $this->assignFormatPopupTemplate($tpl, $args);
-        $tpl->assign('string', $this->change_html_tags($this->rule_data['format_popup'], 0));
-        $result['format_popup'] = $tpl->fetch('eval.ihtml');
-        return $result;
-    }
-    
-    public function doAck() {
-        if (isset($this->rule_data['ack']) && $this->rule_data['ack'] == 'yes') {
-            return 1;
-        }
-        
-        return 0;
-    }
-    
-    protected function setConfirmMessage($host_problems, $service_problems, $submit_result) {
-        if (!isset($this->rule_data['format_popup']) || is_null($this->rule_data['format_popup']) || $this->rule_data['format_popup']  == '') {
-            return null;
-        }
-        
-        $tpl = new Smarty();
-        $tpl = initSmartyTplForPopup($this->_centreon_open_tickets_path, $tpl, 'providers/Mail/templates', $this->_centreon_path);
-        
-        $tpl->assign('host_selected', $host_problems);
-        $tpl->assign('service_selected', $service_problems);
-        
-        foreach ($submit_result as $label => $value) {
-            $tpl->assign($label, $value);
-        }
-        foreach ($this->_submitted_config as $label => $value) {
-            $tpl->assign($label, $value);
-        }
-        
-        $tpl->assign('string', $this->change_html_tags($this->rule_data['message_confirm'], 0));
-        return $tpl->fetch('eval.ihtml');
-    }
-    
-    protected function doSubmit($db_storage, $user, $host_problems, $service_problems) {
+    protected function doSubmit($db_storage, $contact, $host_problems, $service_problems) {
         $result = array('ticket_id' => null, 'ticket_error_message' => null,
                         'ticket_is_ok' => 0, 'ticket_time' => time());
-        
+
         try {
             $query = "INSERT INTO mod_open_tickets
-  (`timestamp`, `user`) VALUES ('" . $result['ticket_time'] . "', '" . $db_storage->escape($user) . "')";            
+  (`timestamp`, `user`) VALUES ('" . $result['ticket_time'] . "', '" . $db_storage->escape($contact['name']) . "')";            
             $db_storage->query($query);
             $result['ticket_id'] = $db_storage->lastinsertId('mod_open_tickets');
-            $result['ticket_is_ok'] = 1;
         } catch (Exception $e) {
             $result['ticket_error_message'] = $e->getMessage();
             return $result;
         }
         
         $tpl = new Smarty();
-        $tpl = initSmartyTplForPopup($this->_centreon_open_tickets_path, $tpl, 'providers/Mail/templates', $this->_centreon_path);
+        $tpl = initSmartyTplForPopup($this->_centreon_open_tickets_path, $tpl, 'providers/Abstract/templates', $this->_centreon_path);
         
-        $tpl->assign('user', $user);
+        $tpl->assign("centreon_open_tickets_path", $this->_centreon_open_tickets_path);
+        $tpl->assign('user', $contact);
         $tpl->assign('host_selected', $host_problems);
         $tpl->assign('service_selected', $service_problems);
-        foreach ($this->_submitted_config as $label => $value) {
-            $tpl->assign($label, $value);
-        }
-        $tpl->assign('string', $this->change_html_tags($this->rule_data['body'], 0));
-        $body = $tpl->fetch('eval.ihtml');
+        $tpl->assign('ticket_id', $result['ticket_id']);
+        $this->assignSubmittedValues($tpl);        
         
         // We send the mail
-        $headers = "From: " . $this->rule_data['from'];
+        $tpl->assign('string', $this->rule_data['from']);
+        $from = $tpl->fetch('eval.ihtml');
+
+        $tpl->assign('string', $this->rule_data['subject']);
+        $subject = $tpl->fetch('eval.ihtml');
+        
+        $mail = new PHPMailer();
+        $mail->setFrom($from);
+        $mail->addAddress($this->rule_data['to']);
+        if (isset($this->rule_data['ishtml']) && $this->rule_data['ishtml'] == 'yes') {
+            $mail->isHTML(true);
+        }
+        $attach_files = $this->getUploadFiles();
+        foreach ($attach_files as $file) {
+            $mail->addAttachment($file['filepath'], $file['filename']);
+        }
         if (isset($this->rule_data['clones']['headerMail'])) {
             foreach ($this->rule_data['clones']['headerMail'] as $values) {
-                $headers .= "\r\n" . $values['Name'] . ':' . $values['Value'];
+                $mail->addCustomHeader($values['Name'], $values['Value']);
             }
         }
-
-        mail($this->rule_data['to'], $this->rule_data['subject'], $body, $headers);
         
-        return $result;
-    }
-    
-    public function submitTicket($db_storage, $user, $host_problems, $service_problems) {
-        $result = array('confirm_popup' => null);
+        $mail->Subject = $subject;
+        $mail->Body = $this->body;
+        if ($mail->send()) {
+            $this->saveHistory($db_storage, $result, 
+                array('no_create_ticket_id' => true, 'contact' => $contact, 'host_problems' => $host_problems, 'service_problems' => $service_problems,
+                      'subject' => $subject, 
+                      'data_type' => self::DATA_TYPE_JSON, 'data' => json_encode(array('body' => $this->body, 'from' => $from, 'headers' => $headers, 'to' => $this->rule_data['to'])))
+            );
+        } else {
+            $result['ticket_error_message'] = 'Mailer Error: ' . $mail->ErrorInfo;
+            $result['ticket_is_ok'] = 1;
+        }
         
-        $submit_result = $this->doSubmit($db_storage, $user, $host_problems, $service_problems);
-        $result['confirm_message'] = $this->setConfirmMessage($host_problems, $service_problems, $submit_result);
-        $result['ticket_id'] = $submit_result['ticket_id'];
-        $result['ticket_is_ok'] = $submit_result['ticket_is_ok'];
-        $result['ticket_time'] = $submit_result['ticket_time'];
         return $result;
     }
 }

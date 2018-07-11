@@ -1,0 +1,15 @@
+<tr>
+    <td class="FormRowField" style="padding-left:15px;">{$groups.$groupId.label}</td>
+    <td class="FormRowValue" style="padding-left:15px;">
+    {if isset($groups.$groupId.code) and $groups.$groupId.code == -1}
+        <span style="color: red">{$groups.$groupId.msg_error}</span>
+    {else}
+        <select id="select_{$groupId}" name="select_{$groupId}">
+        <option value="-1"> -- select -- </option>
+        {foreach from=$groups.$groupId.values key=k item=v}
+        <option value='{$k}_{$v}' {if $v eq $groups.$groupId.default}selected{/if}>{$v}</option>
+        {/foreach}
+        </select>
+    {/if}
+    </td>
+</tr>

@@ -1,36 +1,22 @@
 <?php
-/**
- * Copyright 2005-2011 MERETHIS
- * Centreon is developped by : Julien Mathis and Romain Le Merlus under
- * GPL Licence 2.0.
+/*
+ * Copyright 2015 Centreon (http://www.centreon.com/)
  *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation ; either version 2 of the License.
+ * Centreon is a full-fledged industry-strength solution that meets 
+ * the needs in IT infrastructure and application monitoring for 
+ * service performance.
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
- * PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, see <http://www.gnu.org/licenses>.
+ *    http://www.apache.org/licenses/LICENSE-2.0  
  *
- * Linking this program statically or dynamically with other modules is making a
- * combined work based on this program. Thus, the terms and conditions of the GNU
- * General Public License cover the whole combination.
- *
- * As a special exception, the copyright holders of this program give MERETHIS
- * permission to link this program with independent modules to produce an executable,
- * regardless of the license terms of these independent modules, and to copy and
- * distribute the resulting executable under terms of MERETHIS choice, provided that
- * MERETHIS also meet, for each linked independent module, the terms  and conditions
- * of the license of that module. An independent module is a module which is not
- * derived from this program. If you modify this program, you may extend this
- * exception to your version of the program, but you are not obliged to do so. If you
- * do not wish to do so, delete this exception statement from your version.
- *
- * For more information : contact@centreon.com
- *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,*
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 require_once "../../require.php";
@@ -47,7 +33,8 @@ if (!isset($_SESSION['centreon']) || !isset($_POST['widgetId'])) {
     exit;
 }
 
-require_once $centreon_path ."GPL_LIB/Smarty/libs/Smarty.class.php";
+$smartyDir = __DIR__ . '/../../../../vendor/smarty/smarty/';
+require_once $smartyDir . 'libs/Smarty.class.php';
 
 $path = $centreon_path . "www/widgets/open-tickets/src/";
 $template = new Smarty();
@@ -61,52 +48,101 @@ $preferences = $widgetObj->getWidgetPreferences($widgetId);
 
 $pearDB = new CentreonDB();
 $admin = $centreon->user->admin;
-$canDoAction = true;
+$canDoAction = false;
+if ($admin) {
+    $canDoAction = true;
+}
 
-$actions  = "<option value='0'>-- "._("More actions")." -- </option>";
-
-if (!isset($preferences['opened_tickets']) || $preferences['opened_tickets'] == 0) {
-    if ($canDoAction) { // || $centreon->user->access->checkAction("service_schedule_check")) {
-        $actions .= "<option value='3'>"._("Service: Open ticket")."</option>";
-    }
-    if ($canDoAction) { // || $centreon->user->access->checkAction("host_acknowledgement")) {
-        $actions .= "<option value='4'>"._("Host: Open ticket")."</option>";
+$toolbar = '';
+if ($preferences['toolbar_buttons']) {
+    if (!isset($preferences['opened_tickets']) || $preferences['opened_tickets'] == 0) {
+        if ($preferences['action_open_hosts']) {
+            $toolbar .= "<label id='buttontoolbar_4' style='font-size: 13px; font-weight: bold; cursor:pointer;' for='host-ticket'>Host <input type='image' title='" . _("Host: Open ticket") . "' alt='" . _("Host: Open ticket") . "' src='" . $centreon->optGen['oreon_web_path'] . "/modules/centreon-open-tickets/images/open-ticket.svg' name='host-ticket' style='border: none; width: 24px; height: 24px; vertical-align: middle;'/> </label> | ";
+        }
+        if ($preferences['action_open_services']) {
+            $toolbar .= "<label id='buttontoolbar_3' style='font-size: 13px; font-weight: bold; cursor:pointer;'  for='service-ticket'> Service <input type='image' title='" . _("Service: Open ticket") . "' alt='" . _("Service: Open ticket") . "' src='" . $centreon->optGen['oreon_web_path'] . "/modules/centreon-open-tickets/images/open-ticket.svg' name='service-ticket' style='border: none; width: 24px; height: 24px; vertical-align: middle;' /> </label> | ";
+        }
+        if ($preferences['action_ack'] && ($canDoAction || $centreon->user->access->checkAction("service_acknowledgement"))) {
+            $toolbar .= "<label id='buttontoolbar_70' style='font-size: 13px; font-weight: bold; cursor:pointer;'' for='ack-ticket'>Acknowledge <input type='image' title='" . _("Service: Acknowledge") . "' alt='" . _("Service: Acknowledge") . "' src='" . $centreon->optGen['oreon_web_path'] . "/modules/centreon-open-tickets/images/acknowledge.png' name='ack-ticket' style='border: none; height: 22px; vertical-align: middle;' /> ";
+        }
+    } else {
+        $toolbar .= "<input type='image' title='" . _("Close Tickets") . "' alt='" . _("Close Tickets") . "' src='" . $centreon->optGen['oreon_web_path'] . "/modules/centreon-open-tickets/images/close-ticket.svg' id='buttontoolbar_10' style='cursor:pointer; border: none;width: 24px; height: 24px;' />";
     }
 } else {
-    $actions .= "<option value='10'>" . _("Remove Tickets") . "</option>";
+    $toolbar .= "<select class='toolbar'>";
+    $toolbar .= "<option value='0'>-- "._("More actions")." -- </option>";
+
+    if (!isset($preferences['opened_tickets']) || $preferences['opened_tickets'] == 0) {
+        if ($preferences['action_open_hosts']) {
+            $toolbar .= "<option value='4'>"._("Host: Open ticket")."</option>";
+        }
+        if ($preferences['action_open_services']) {
+            $toolbar .= "<option value='3'>"._("Service: Open ticket")."</option>";
+        }
+        if ($preferences['action_ack'] && ($canDoAction || $centreon->user->access->checkAction("service_acknowledgement"))) {
+            $toolbar .= "<option value='70'>"._("Service: Acknowledge")."</option>";
+        }
+    } else {
+        $toolbar .= "<option value='10'>" . _("Close Tickets") . "</option>";
+    }
+    $toolbar .= "</select>";
 }
 
 $template->assign("widgetId", $widgetId);
 $template->display('toolbar.ihtml');
 
+//<link href="../../include/common/javascript/jquery/plugins/colorbox/colorbox.css" rel="stylesheet" type="text/css"/>
+//<script type="text/javascript" src="../../include/common/javascript/jquery/plugins/colorbox/jquery.colorbox-min.js"></script>
+
 ?>
-<link href="../../include/common/javascript/jquery/plugins/colorbox/colorbox.css" rel="stylesheet" type="text/css"/>
-<script type="text/javascript" src="../../include/common/javascript/jquery/plugins/colorbox/jquery.colorbox-min.js"></script>
+
+<script type="text/javascript" src="../../include/common/javascript/centreon/popin.js"></script>
+
 <script type='text/javascript'>
 var tab = new Array();
 var sid = '<?php echo session_id();?>';
-var actions = "<?php echo $actions;?>";
+var toolbar = "<?php echo $toolbar;?>";
 var widget_id = "<?php echo $widgetId; ?>";
 
 $(function() {
-	$(".toolbar").html(actions);
-	$(".toolbar").change(function() {
+    $("#toolbar_container").html(toolbar);
+    $(".toolbar").change(function() {
 		if (jQuery(this).val() != 0) {
     		var checkValues = $("input:checked").map(function() {
     			var tmp = $(this).attr('id').split("_");
     			return tmp[1];
     		}).get().join(",");
-    		parent.jQuery.colorbox({
-    							href		:	"./widgets/open-tickets/src/action.php?widgetId="+widget_id+"&sid="+sid+"&selection="+checkValues+"&cmd="+jQuery(this).val(),
-    							width		:	"50%",
-    							height		:	"40%",
-    							opacity		:	0.7,
-    							overlayClose:	false,
-    							iframe		: 	true
-    						});
 
+            if (checkValues != '') {
+                var url = "./widgets/open-tickets/src/action.php?widgetId="+widget_id+"&sid="+sid+"&selection="+checkValues+"&cmd="+jQuery(this).val();
+                // We delete the old one (not really clean. Should be managed by popin itself. Like with a destroy parameters)
+                parent.jQuery('#OTWidgetPopin').parent().remove();
+                var popin = parent.jQuery('<div id="OTWidgetPopin">');
+                popin.centreonPopin({open:true,url:url});
+            } else {
+                alert("<?php echo _('Please select one or more items'); ?>");
+                return false;
+            }
     		$(".toolbar").val(0);
 		}
 	});
+    
+    $("[id^=buttontoolbar_]").click(function() {
+        var checkValues = $("input:checked").map(function() {
+    			var tmp = $(this).attr('id').split("_");
+    			return tmp[1];
+    		}).get().join(",");
+            
+         if (checkValues != '') {
+             var tmp = $(this).attr('id').split("_");
+             var url = "./widgets/open-tickets/src/action.php?widgetId="+widget_id+"&sid="+sid+"&selection="+checkValues+"&cmd="+tmp[1];
+             // We delete the old one (not really clean. Should be managed by popin itself. Like with a destroy parameters)
+             parent.jQuery('#OTWidgetPopin').parent().remove();
+             var popin = parent.jQuery('<div id="OTWidgetPopin">');
+             popin.centreonPopin({open:true,url:url});
+         } else {
+             alert("<?php echo _('Please select one or more items'); ?>");
+         }
+    });
 });
 </script>

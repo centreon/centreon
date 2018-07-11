@@ -59,7 +59,7 @@
 <script type="text/javascript">
 
 var $callback_OTLoadForm = function(res) {
-    //jQuery("#rule_error").html("Full response: " + res);
+    //console.log("Full response: " + res);
     var data_ret = JSON.parse(res);
     if (data_ret['code'] == 1) {
         jQuery("#rule_error").html(data_ret['msg']);
@@ -72,8 +72,9 @@ var $callback_OTLoadForm = function(res) {
             for (var key in data_ret['result']['clones']) {
                 jQuery("#clone-count-" + key).data("clone-count-" + key, data_ret['result']['clones'][key]['clone_count']);
                 jQuery("#clone-values-" + key).data("clone-values-" + key, JSON.parse(data_ret['result']['clones'][key]['clone_values']));
-                init_sheepit();
             }
+            
+            init_sheepit();
         }
     }
 };
@@ -91,10 +92,10 @@ var $callback_OTSaveForm = function(res) {
 function OTLoadForm() {
     jQuery("#rule_error").html('');
     
-    if (jQuery("#provider_id").val() === undefined || jQuery("#provider_id").val().length == 0) {
-        jQuery("#OTFindcontainer1").nextAll().empty();
-        jQuery("#tab2").empty();
-        delete_sheepit();
+    jQuery("#OTFindcontainer1").nextAll().empty();
+    jQuery("#tab2").empty();
+    delete_sheepit();
+    if (jQuery("#provider_id").val() === undefined || jQuery("#provider_id").val().length == 0) {    
         return ;
     }
         
