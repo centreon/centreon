@@ -56,8 +56,8 @@ class SerenaProvider extends AbstractProvider {
         );
     }
     
-    protected function _setDefaultValueMain() {
-        parent::_setDefaultValueMain();
+    protected function _setDefaultValueMain($body_html = 0) {
+        parent::_setDefaultValueMain($body_html);
         
         $this->default_data['message_confirm'] = '
 <table class="table">

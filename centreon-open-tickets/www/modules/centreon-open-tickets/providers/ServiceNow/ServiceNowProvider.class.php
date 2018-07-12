@@ -35,8 +35,8 @@ class ServiceNowProvider extends AbstractProvider {
   /**
    * Add default data
    */
-  protected function _setDefaultValueMain() {
-    parent::_setDefaultValueMain();
+  protected function _setDefaultValueMain($body_html = 0) {
+    parent::_setDefaultValueMain($body_html);
 
     $this->default_data['url'] = 'https://{$servicenow_instance}.service-now.com/nav_to.do?uri=incident.do?sys_id={$ticket_id}';
 
