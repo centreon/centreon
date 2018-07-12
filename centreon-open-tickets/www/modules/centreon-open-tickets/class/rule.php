@@ -114,12 +114,18 @@ class Centreon_OpenTickets_Rule
     }
     
     public function getMacroNames($rule_id, $widget_id) {
-        $result = array('ticket_id' => null);
-        
+        $result = array(
+            'ticket_id' => null
+        );
+
+        if ($rule_id) {
+            return $result;
+        }
+
         $infos = $this->getAliasAndProviderId($rule_id);
         $this->loadProvider($rule_id, $infos['provider_id'], $widget_id);
         $result['ticket_id'] = $this->_provider->getMacroTicketId();
-        
+
         return $result;
     }
     
