@@ -29,7 +29,8 @@ $centreon_open_tickets_path = $centreon_path . "www/modules/centreon-open-ticket
 session_start();
 $centreon_bg = new CentreonXMLBGRequest($dependencyInjector, session_id(), 1, 1, 0, 1);
 $db = $dependencyInjector['configuration_db'];
-$ticket_log = new Centreon_OpenTickets_Log($db);
+$dbStorage = $dependencyInjector['realtime_db'];
+$ticket_log = new Centreon_OpenTickets_Log($db, $dbStorage);
 
 if (isset($_SESSION['centreon'])) {
     $centreon = $_SESSION['centreon'];
