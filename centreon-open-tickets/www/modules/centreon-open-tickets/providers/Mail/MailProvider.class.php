@@ -166,9 +166,13 @@ class MailProvider extends AbstractProvider {
         foreach ($attach_files as $file) {
             $mail->addAttachment($file['filepath'], $file['filename']);
         }
+        
+        $headers = "From: " . $from;
+
         if (isset($this->rule_data['clones']['headerMail'])) {
             foreach ($this->rule_data['clones']['headerMail'] as $values) {
                 $mail->addCustomHeader($values['Name'], $values['Value']);
+                $headers .= "\r\n" . $values['Name'] . ':' . $values['Value'];
             }
         }
         

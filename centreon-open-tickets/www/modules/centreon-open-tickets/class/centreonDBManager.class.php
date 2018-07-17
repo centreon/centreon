@@ -30,12 +30,4 @@ class CentreonDBManager extends CentreonDB {
         }
         return $row['last_id'];
     }
-
-    public function commit() {
-        $this->db->commit();
-    }
-
-    public function rollback() {
-        $this->db->rollback();
-    }
 }
