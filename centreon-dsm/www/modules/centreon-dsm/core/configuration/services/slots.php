@@ -49,15 +49,9 @@
 	isset($_POST["dupNbr"]) ? $cP = $_POST["dupNbr"] : $cP = NULL;
 	$cG ? $dupNbr = $cG : $dupNbr = $cP;
 
-	$search = htmlentities($_POST['searchSlot'], ENT_QUOTES);
-	/*
-	 * pear libraries
-	 */
-	require_once "HTML/QuickForm.php";
-	require_once 'HTML/QuickForm/advmultiselect.php';
-	require_once 'HTML/QuickForm/Renderer/ArraySmarty.php';
+	$search = isset($_POST['searchSlot']) ? htmlentities($_POST['searchSlot'], ENT_QUOTES) : NULL;
 
-	/*
+    /*
 	 * Path to the configuration dir
 	 */
 	$path = "./modules/centreon-dsm/core/configuration/services/";

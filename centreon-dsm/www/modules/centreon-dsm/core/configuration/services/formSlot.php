@@ -38,7 +38,7 @@
 
 	$pool = array();
 	if (($o == "c" || $o == "w") && $slot_id)	{
-		$DBRESULT =& $pearDB->query("SELECT * FROM mod_dsm_pool WHERE pool_id = '".$slot_id."' LIMIT 1");
+		$DBRESULT = $pearDB->query("SELECT * FROM mod_dsm_pool WHERE pool_id = '".$slot_id."' LIMIT 1");
 		$pool = $DBRESULT->fetchRow();
 	}
 
@@ -46,8 +46,8 @@
 	 * Commands
 	 */
 	$Cmds = array();
-	$DBRESULT =& $pearDB->query("SELECT command_id, command_name FROM command WHERE command_type = '2' ORDER BY command_name");
-	while ($Cmd =& $DBRESULT->fetchRow()) {
+	$DBRESULT = $pearDB->query("SELECT command_id, command_name FROM command WHERE command_type = '2' ORDER BY command_name");
+	while ($Cmd = $DBRESULT->fetchRow()) {
 		$Cmds[$Cmd["command_id"]] = $Cmd["command_name"];
     }
 
@@ -55,8 +55,8 @@
 	 * pool hosts
 	 */
 	$poolHost = array();
-	$DBRESULT =& $pearDB->query("SELECT host_id, host_name FROM host WHERE host_register = '1' ORDER BY host_name");
-	while ($data =& $DBRESULT->fetchRow()) {
+	$DBRESULT = $pearDB->query("SELECT host_id, host_name FROM host WHERE host_register = '1' ORDER BY host_name");
+	while ($data = $DBRESULT->fetchRow()) {
 		$poolHost[$data["host_id"]] = $data["host_name"];
     }
     
@@ -64,8 +64,8 @@
 	 * pool service_template
 	 */
 	$poolST = array(NULL => NULL);
-	$DBRESULT =& $pearDB->query("SELECT service_id, service_description FROM service WHERE service_register = '0' ORDER BY service_description");
-	while ($data =& $DBRESULT->fetchRow()) {
+	$DBRESULT = $pearDB->query("SELECT service_id, service_description FROM service WHERE service_register = '0' ORDER BY service_description");
+	while ($data = $DBRESULT->fetchRow()) {
 		$data["service_description"] = str_replace("#S#", "/", $data["service_description"]);
 		$data["service_description"] = str_replace("#BS#", "\\", $data["service_description"]);
 		$poolST[$data["service_id"]] = $data["service_description"];
@@ -84,7 +84,7 @@
 	/*
 	 * Form begin
 	 */
-	$form = new HTML_QuickForm('Form', 'post', "?p=".$p);
+	$form = new HTML_QuickFormCustom('Form', 'post', "?p=".$p);
 	if ($o == "a")
 		$form->addElement('header', 'title', _("Add a pool of services"));
 	else if ($o == "c")
@@ -116,26 +116,26 @@
 	 * Further informations
 	 */
 	$form->addElement('header', 'furtherInfos', _("Additional Information"));
-	$poolActivation[] = &HTML_QuickForm::createElement('radio', 'pool_activate', null, _("Enabled"), '1');
-	$poolActivation[] = &HTML_QuickForm::createElement('radio', 'pool_activate', null, _("Disabled"), '0');
+	$poolActivation[] = $form->createElement('radio', 'pool_activate', null, _("Enabled"), '1');
+	$poolActivation[] = $form->createElement('radio', 'pool_activate', null, _("Disabled"), '0');
 	$form->addGroup($poolActivation, 'pool_activate', _("Status"), '&nbsp;');
 	$form->setDefaults(array('pool_activate' => '1'));
 
 	$tab = array();
-	$tab[] = &HTML_QuickForm::createElement('radio', 'action', null, _("List"), '1');
-	$tab[] = &HTML_QuickForm::createElement('radio', 'action', null, _("Form"), '0');
+	$tab[] = $form->createElement('radio', 'action', null, _("List"), '1');
+	$tab[] = $form->createElement('radio', 'action', null, _("Form"), '0');
 	$form->addGroup($tab, 'action', _("Post Validation"), '&nbsp;');
 	$form->setDefaults(array('action'=>'1'));
 
 	$form->addElement('hidden', 'pool_id');
-	$redirect =& $form->addElement('hidden', 'o');
+	$redirect = $form->addElement('hidden', 'o');
 	$redirect->setValue($o);
 	if (is_array($select))	{
 		$select_str = NULL;
 		foreach ($select as $key => $value) {
 			$select_str .= $key.",";
 		}
-		$select_pear =& $form->addElement('hidden', 'select');
+		$select_pear = $form->addElement('hidden', 'select');
 		$select_pear->setValue($select_str);
 	}
 
@@ -177,19 +177,19 @@
 		$form->freeze();
 	} else if ($o == "c")	{
 		# Modify a pool information
-		$subC =& $form->addElement('submit', 'submitC', _("Save"), array("class" => "btc bt_success"));
-		$res =& $form->addElement('reset', 'reset', _("Reset"), array("class" => "btc bt_default"));
+		$subC = $form->addElement('submit', 'submitC', _("Save"), array("class" => "btc bt_success"));
+		$res = $form->addElement('reset', 'reset', _("Reset"), array("class" => "btc bt_default"));
 	    $form->setDefaults($pool);
 	} else if ($o == "a")	{
 		# Add a pool information
-		$subA =& $form->addElement('submit', 'submitA', _("Save"), array("class" => "btc bt_success"));
-		$res =& $form->addElement('reset', 'reset', _("Reset"), array("class" => "btc bt_default"));
+		$subA = $form->addElement('submit', 'submitA', _("Save"), array("class" => "btc bt_success"));
+		$res = $form->addElement('reset', 'reset', _("Reset"), array("class" => "btc bt_default"));
 	}
 
 	$valid = false;
 	$msgErr = "";
 	if ($form->validate() && $from_list_menu == false)	{
-		$poolObj =& $form->getElement('pool_id');
+		$poolObj = $form->getElement('pool_id');
 		if ($form->getSubmitValue("submitA")) {
 		    try {
 		        $pId = insertpoolInDB();
@@ -218,7 +218,7 @@
 		/*
 		 * Apply a template definition
 		 */
-		$renderer =& new HTML_QuickForm_Renderer_ArraySmarty($tpl);
+		$renderer = new HTML_QuickForm_Renderer_ArraySmarty($tpl);
 		$renderer->setRequiredTemplate('{$label}&nbsp;<font color="red" size="1">*</font>');
 		$renderer->setErrorTemplate('<font color="red">{$error}</font><br />{$html}');
 		$form->accept($renderer);
