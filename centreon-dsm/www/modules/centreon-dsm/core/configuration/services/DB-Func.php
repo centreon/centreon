@@ -52,11 +52,8 @@
 		 */
 		$queryGetInfo = 'SELECT pool_host_id, pool_prefix FROM mod_dsm_pool WHERE pool_id = ' . $poolId;
 		$res = $pearDB->query($queryGetInfo);
-		if (PEAR::isError($res)) {
-		    return array();
-		}
 		$row = $res->fetchRow();
-		$res->free();
+		$res->closeCursor();
 
 		if (is_null($row['pool_host_id']) || $row['pool_host_id'] == '') {
 		    return array();
@@ -70,16 +67,13 @@
 				AND service_id = service_service_id
 				AND service_description LIKE "' . $poolPrefix . '%"';
 		$res = $pearDB->query($queryListService);
-		if (PEAR::isError($res)) {
-		    return array();
-		}
 		$listServices = array();
 		while ($row = $res->fetchRow()) {
 		    if (preg_match('/^' . $poolPrefix . '(\d{4})$/', $row['service_description'])) {
 		        $listServices[] = $row['service_id'];
 		    }
 		}
-		$res->free();
+		$res->closeCursor();
 		return $listServices;
 	}
 
@@ -99,9 +93,6 @@
             $query .= " AND pool_id != " . $poolId;
         }
 	    $res = $pearDB->query($query);
-	    if (PEAR::isError($res)) {
-	        return true;
-	    }
 	    $row = $res->fetchRow();
 	    if ($row['nb'] > 0) {
 	        return true;
@@ -185,13 +176,10 @@
 		    $listServices = getListServiceForPool($key);
 		    if (count($listServices) > 0) {
 		        $queryDeleteServices = 'DELETE FROM service WHERE service_id IN (' . join(', ', $listServices) . ')';
-		        $res = $pearDB->query($queryDeleteServices);
-		        if (PEAR::isError($res)) {
-		            return;
-		        }
-		    }
+		        $pearDB->query($queryDeleteServices);
 
-			$DBRESULT = $pearDB->query("DELETE FROM mod_dsm_pool WHERE pool_id = '".$key."'");
+		    }
+			$pearDB->query("DELETE FROM mod_dsm_pool WHERE pool_id = '".$key."'");
 		}
 	}
 
@@ -236,7 +224,7 @@
          global $pearDB;
 
 	    $DBRESULT = $pearDB->query("SELECT * FROM `mod_dsm_pool` WHERE `pool_name` = '".$pool_name."'");
-        if ($DBRESULT->numRows() == 0) {
+        if ($DBRESULT->rowCount() == 0) {
             return 0;
         } else {
             return 1;
@@ -310,7 +298,7 @@
 										"WHERE hsr.host_host_id = '$host_id' " .
 											"AND service_id = service_service_id " .
 											"AND service_description LIKE '$oldPrefix%' ORDER BY service_description ASC");
-		$currentNumber = $DBRESULT->numRows();
+		$currentNumber = $DBRESULT->rowCount();
 		if ($currentNumber == 0) {
 			for ($i = 1 ; $i <= $number ; $i++) {
 				$suffix = "";
