@@ -123,8 +123,11 @@ class Centreon_OpenTickets_Rule
         }
 
         $infos = $this->getAliasAndProviderId($rule_id);
-        $this->loadProvider($rule_id, $infos['provider_id'], $widget_id);
-        $result['ticket_id'] = $this->_provider->getMacroTicketId();
+
+        if ($infos) {
+            $this->loadProvider($rule_id, $infos['provider_id'], $widget_id);
+            $result['ticket_id'] = $this->_provider->getMacroTicketId();
+        }
 
         return $result;
     }
