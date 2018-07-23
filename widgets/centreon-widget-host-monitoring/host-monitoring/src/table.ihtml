@@ -96,9 +96,6 @@
     var widgetId = {$widgetId};
     var autoRefresh = {$autoRefresh};
     var more_views = {$preferences.more_views};
-
-    // //formatting the tags containing a class isTimestamp
-    // formatDateMoment();
 </script>
 
 {literal}

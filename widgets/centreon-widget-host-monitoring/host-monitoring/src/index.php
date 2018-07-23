@@ -264,8 +264,8 @@ while ($row = $res->fetch()) {
     }
 
     // last_check
-//    $valueLastCheck = $row['last_check'];
-//    $valueLastCheckTimestamp = time() - strtotime($valueLastCheck);
+    $valueLastCheck = $row['last_check'];
+    $valueLastCheckTimestamp = time() - strtotime($valueLastCheck);
     if ($valueLastCheckTimestamp < 3600) {
         $valueLastCheck = CentreonDuration::toString($valueLastCheckTimestamp) . ' ago';
     } else {
