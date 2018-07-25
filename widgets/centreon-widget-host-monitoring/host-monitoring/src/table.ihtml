@@ -79,9 +79,25 @@
         {/if}
         {if $preferences.display_status}<td class='ListColCenter' style='white-space:nowrap;'><span class='badge {$aColorHost[$elem.status]}'>{$elem.state}</span></td>{/if}
         {if $preferences.display_ip}<td class='ListColRight' style='white-space:nowrap;'>{$elem.address}</td>{/if}
-        {if $preferences.display_last_check}<td class='ListColCenter isTimestamp' style='white-space:nowrap;'>{$elem.last_check}</td>{/if}
-        {if $preferences.display_duration}<td class='ListColCenter isTimestamp' style='white-space:nowrap;'>{$elem.last_state_change}</td>{/if}
-        {if $preferences.display_hard_state_duration}<td class='ListColCenter isTimestamp' style='white-space:nowrap;'>{$elem.last_hard_state_change}</td>{/if}
+
+        {if $preferences.display_last_check}
+            {if is_string($elem.last_check)}<td class='ListColCenter' style='white-space:nowrap;'>{$elem.last_check}</td>
+        {else}
+            <td class='ListColCenter isTimestamp' style='white-space:nowrap;'>{$elem.last_check}</td>{/if}
+        {/if}
+
+        {if $preferences.display_duration}
+            {if is_string($elem.last_state_change)}<td class='ListColCenter' style='white-space:nowrap;'>{$elem.last_state_change}</td>
+        {else}
+            <td class='ListColCenter isTimestamp' style='white-space:nowrap;'>{$elem.last_state_change}</td>{/if}
+        {/if}
+
+        {if $preferences.display_hard_state_duration}
+            {if is_string($elem.last_hard_state_change)}<td class='ListColCenter' style='white-space:nowrap;'>{$elem.last_hard_state_change}</td>
+        {else}
+            <td class='ListColCenter isTimestamp' style='white-space:nowrap;'>{$elem.last_hard_state_change}</td>{/if}
+        {/if}
+
         {if $preferences.display_tries}<td class='ListColCenter' style='white-space:nowrap;'>{$elem.check_attempt}</td>{/if}
         {if $preferences.display_output}<td class='ListColNoWrap ListColCenter'>{$elem.output}</td>{/if}
         {if $preferences.display_last_comment}<td class='ListColLeft'>{$elem.comment}</td>{/if}
