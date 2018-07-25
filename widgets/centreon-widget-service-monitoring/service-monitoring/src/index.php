@@ -405,7 +405,9 @@ while ($row = $res->fetch()) {
     if ($valueLastCheckTimestamp < 3600) {
         $valueLastCheck = CentreonDuration::toString($valueLastCheckTimestamp) . ' ago';
     } else {
-        $valueLastCheck = $gmt->getDate('Y-m-d H:i:s', $valueLastCheck);
+//        $valueLastCheck = $gmt->getDate('Y-m-d H:i:s', $valueLastCheck);
+        $valueLastCheck = (int)$row['last_check'];
+
     }
     $data[$row['host_id'] . '_' . $row['service_id']]['last_check'] = $valueLastCheck;
 
@@ -415,7 +417,7 @@ while ($row = $res->fetch()) {
     if ($valueLastStateTimestamp < 3600) {
         $valueLastState = CentreonDuration::toString($valueLastStateTimestamp) . ' ago';
     } else {
-        $valueLastState = $gmt->getDate('Y-m-d H:i:s', $valueLastState);
+        $valueLastState = (int)$row['last_state_change'];
     }
     $data[$row['host_id'] . '_' . $row['service_id']]['last_state_change'] = $valueLastState;
 
@@ -425,7 +427,7 @@ while ($row = $res->fetch()) {
     if ($valueLastHardStateTimestamp < 3600) {
         $valueLastHardState = CentreonDuration::toString($valueLastHardStateTimestamp) . ' ago';
     } else {
-        $valueLastHardState = $gmt->getDate('Y-m-d H:i:s', $valueLastHardState);
+        $valueLastHardState = (int)$row['last_hard_state_change'];
     }
     $data[$row['host_id'] . '_' . $row['service_id']]['last_hard_state_change'] = $valueLastHardState;
 

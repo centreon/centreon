@@ -114,15 +114,31 @@
             {/if}
 		{if $preferences.display_status}
 		<td class='ListColCenter' style='white-space:nowrap;'>
-                    <span style='background-color: {$elem.color};font-weight:bold;' class="badge">{$elem.s_state}</span>
+            <span style='background-color: {$elem.color};font-weight:bold;' class="badge">{$elem.s_state}</span>
 		</td>
 		{/if}
-		{if $preferences.display_duration}<td class='ListColCenter' style='white-space:nowrap;'>{$elem.last_state_change}</td>{/if}
-                {if $preferences.display_hard_state_duration}<td class='ListColRight' style='white-space:nowrap;'>{$elem.last_hard_state_change}</td>{/if}
-		{if $preferences.display_last_check}<td class='ListColCenter' style='white-space:nowrap;''>{$elem.last_check}</td>{/if}
+
+        {if $preferences.display_duration}
+        {if is_string($elem.last_state_change)}<td class='ListColCenter' style='white-space:nowrap;'>{$elem.last_state_change}</td>
+        {else}
+            <td class='ListColCenter isTimestamp' style='white-space:nowrap;'>{$elem.last_state_change}</td>{/if}
+        {/if}
+
+        {if $preferences.display_hard_state_duration}
+        {if is_string($elem.last_hard_state_change)}<td class='ListColCenter' style='white-space:nowrap;'>{$elem.last_hard_state_change}</td>
+        {else}
+            <td class='ListColCenter isTimestamp' style='white-space:nowrap;'>{$elem.last_hard_state_change}</td>{/if}
+        {/if}
+
+        {if $preferences.display_last_check}
+            {if is_string($elem.last_check)}<td class='ListColCenter' style='white-space:nowrap;'>{$elem.last_check}</td>
+        {else}
+            <td class='ListColCenter isTimestamp' style='white-space:nowrap;'>{$elem.last_check}</td>{/if}
+        {/if}
+
 		{if $preferences.display_tries}<td class='ListColCenter' style='white-space:nowrap;'>{$elem.check_attempt}</td>{/if}
-                {if $preferences.display_latency}<td class='ListColRight' style='white-space:nowrap;'>{$elem.latency}</td>{/if}
-                {if $preferences.display_execution_time}<td class='' style='white-space:nowrap;'>{$elem.execution_time}</td>{/if}
+        {if $preferences.display_latency}<td class='ListColRight' style='white-space:nowrap;'>{$elem.latency}</td>{/if}
+        {if $preferences.display_execution_time}<td class='' style='white-space:nowrap;'>{$elem.execution_time}</td>{/if}
 		{if $preferences.display_output}<td class='ListColNoWrap' style='white-space:nowrap;'>{$elem.output}</td>{/if}
         {if $broker == "broker"}
             {if $preferences.display_last_comment}<td class=''>{$elem.comment}</td>{/if}
@@ -140,4 +156,12 @@
     var widgetId = {$widgetId};
     var autoRefresh = {$autoRefresh};
 </script>
+
+{literal}
+<script>
+    //formatting the tags containing a class isTimestamp
+    formatDateMoment();
+</script>
+{/literal}
+
 <script  type="text/javascript" src="src/data_js.js"></script>

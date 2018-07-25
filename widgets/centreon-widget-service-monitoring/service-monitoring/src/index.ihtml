@@ -28,6 +28,9 @@
         <script type="text/javascript" src="../../include/common/javascript/jquery/jquery-ui.js"></script>
         <script type="text/javascript" src="../../include/common/javascript/jquery/plugins/pagination/jquery.pagination.js"></script>
         <script type="text/javascript" src="../../include/common/javascript/centreon/popin.js"></script>
+        <script type="text/javascript" src="../../include/common/javascript/moment-with-locales.js"></script>
+        <script type="text/javascript" src="../../include/common/javascript/moment-timezone-with-data.min.js"></script>
+        <script type="text/javascript" src="../../include/core/autologout/autologout.php"></script>
         <script type="text/javascript" src="data.js"></script>
     </body>
 </html>
