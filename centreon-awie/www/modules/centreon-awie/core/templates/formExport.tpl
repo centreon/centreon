@@ -54,6 +54,16 @@
             </td>
         </tr>
         <tr class="list_two">
+            <td class="FormRowField">Host groups</td>
+            <td class="FormRowValue">
+                <input onclick="selectFilter('HG');" name="export_HG[HG]" type="checkbox" id="hg"/>
+                <label for="hg">All</label>
+                <span style="margin: 0 15px;vertical-align: middle;">or</span>
+                <label for="hg1">Filter </label>
+                <input id="hg1" placeholder="Ex: name" name="export_HG[HG_filter]" type="text"/>
+            </td>
+        </tr>
+        <tr class="list_one">
             <td class="FormRowField">Host categories</td>
             <td class="FormRowValue">
                 <input name="HC" type="checkbox" id="host_c"/>
@@ -86,6 +96,16 @@
             </td>
         </tr>
         <tr class="list_one">
+            <td class="FormRowField">Service groups</td>
+            <td class="FormRowValue">
+                <input onclick="selectFilter('SG');" name="export_SG[SG]" type="checkbox" id="sg"/>
+                <label for="sg">All</label>
+                <span style="margin: 0 15px;vertical-align: middle;">or</span>
+                <label for="sg1">Filter </label>
+                <input id="sg1" placeholder="Ex: name" name="export_SG[SG_filter]" type="text"/>
+            </td>
+        </tr>
+        <tr class="list_two">
             <td class="FormRowField">Service categories</td>
             <td class="FormRowValue">
                 <input name="SC" type="checkbox" id="svc_c"/>

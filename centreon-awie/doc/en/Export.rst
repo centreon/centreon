@@ -48,6 +48,15 @@ Check the *Host templates* check-box if you want to export all hosts templates.
 
 Use the *Filter* field for one single value if you want to export one specific host template.
 
+**Host groups**
+
+.. image:: _static/images/hostgroups.png
+   :align: center
+
+Check the *Host groups* check-box if you want to export all host groups.
+
+Use the *Filter* field for one single value if you want to export one specific host groups.
+
 **Host categories**  
 
 .. image:: _static/images/hostscat.png
@@ -78,6 +87,15 @@ If you use the *Filter* field for a specific service, Import/Export process will
 Check the *Service templates* check-box if you want to export all service templates.
 
 Use the *Filter* field for one single value if you want to export one specific service template.
+
+**Service groups**
+
+.. image:: _static/images/servicegroups.png
+   :align: center
+
+Check the *Service groups* check-box if you want to export all service groups.
+
+Use the *Filter* field for one single value if you want to export one specific service groups.
 
 **Service categories**
 

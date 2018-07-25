@@ -48,6 +48,15 @@ Cochez la case *Host templates* si vous désirez exporter tous les modèles d'h�
 
 Utilisez le champ *Filter* pour une seule valeur si vous souhaitez exporter un modèle d'hôte en particulier.
 
+**Groupe d'hôte**
+
+.. image:: _static/images/hostgroups.png
+   :align: center
+
+Cochez la case *Host groups* si vous désirez exporter tous les groupes d'hôtes.
+
+Utilisez le champ *Filter* pour une seule valeur si vous souhaitez exporter un groupe d'hôte en particulier.
+
 **Catégories d'hôte**  
 
 .. image:: _static/images/hostscat.png
@@ -78,6 +87,15 @@ Si vous utilisez le champ *Filter* pour un service spécifique, le processus d'I
 Cochez la case *Service templates* si vous souhaitez exporter tous les modèles de service.
  
 Utilisez le champ *Filter* pour une seule valeur si vous voulez exporter un modèle de service spécifique.
+
+**Groupes de service**
+
+.. image:: _static/images/servicegroups.png
+   :align: center
+
+Cochez la case *Service groups* si vous souhaitez exporter tous les groupes de service.
+
+Utilisez le champ *Filter* pour une seule valeur si vous voulez exporter un groupe de service spécifique.
 
 **Catégories de service**
 
