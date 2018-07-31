@@ -168,7 +168,7 @@ if (isset($preferences['downtime_filter']) && $preferences['downtime_filter']) {
 }
 
 if (isset($preferences['poller_filter']) && $preferences['poller_filter']) {
-    $query = CentreonUtils::conditionBuilder($query, ' instance_id = '.$preferences['poller_filter'].' ');
+    $query = CentreonUtils::conditionBuilder($query, ' instance_id = ' . $preferences['poller_filter'] . ' ');
 }
 
 if (isset($preferences['state_type_filter']) && $preferences['state_type_filter']) {
@@ -180,7 +180,11 @@ if (isset($preferences['state_type_filter']) && $preferences['state_type_filter'
 }
 
 if (isset($preferences['hostgroup']) && $preferences['hostgroup']) {
-    $mainQueryParameters[] = ['parameter' => ':host_group_id', 'value' => $preferences['hostgroup'], 'type' => PDO::PARAM_INT];
+    $mainQueryParameters[] = [
+        'parameter' => ':host_group_id',
+        'value' => $preferences['hostgroup'],
+        'type' => PDO::PARAM_INT
+    ];
     $hostGroupCondition = ' h.host_id IN (SELECT host_host_id FROM ' .
         $conf_centreon['db'] .
         '.hostgroup_relation WHERE hostgroup_hg_id = :host_group_id)';
@@ -222,7 +226,6 @@ if (!$centreon->user->admin) {
 $orderBy = 'host_name ASC';
 
 if (isset($preferences['order_by']) && trim($preferences['order_by']) != '') {
-
     $aOrder = explode(' ', $preferences['order_by']);
     if (in_array('last_state_change', $aOrder) || in_array('last_hard_state_change', $aOrder)) {
         if ($aOrder[1] == 'DESC') {
@@ -244,7 +247,6 @@ foreach ($mainQueryParameters as $parameter) {
 }
 
 unset($parameter);
-
 $res->execute();
 
 $nbRows = $res->rowCount();
@@ -256,7 +258,8 @@ $hostObj = new CentreonHost($db);
 $gmt = new CentreonGMT($db);
 $gmt->getMyGMTFromSession(session_id(), $db);
 $allowedActionProtocols = ['http[s]?', '//', 'ssh', 'rdp', 'ftp', 'sftp'];
-$allowedProtocolsRegex = '#(^'. implode(')|(^', $allowedActionProtocols) .')#'; // String starting with one of these protocols
+$allowedProtocolsRegex = '#(^' . implode(')|(^', $allowedActionProtocols) . ')#';
+// String starting with one of these protocols
 
 while ($row = $res->fetch()) {
     foreach ($row as $key => $value) {
@@ -264,23 +267,19 @@ while ($row = $res->fetch()) {
     }
 
     // last_check
-    $valueLastCheck = $row['last_check'];
+    $valueLastCheck = (int)$row['last_check'];
     $valueLastCheckTimestamp = time() - strtotime($valueLastCheck);
     if ($valueLastCheckTimestamp < 3600) {
         $valueLastCheck = CentreonDuration::toString($valueLastCheckTimestamp) . ' ago';
-    } else {
-        $valueLastCheck = (int)$row['last_check'];
     }
     $data[$row['host_id']]['last_check'] = $valueLastCheck;
 
     // last_state_change
-    $valueLastState = $row['last_state_change'];
+    $valueLastState = (int)$row['last_state_change'];
     if ($valueLastState > 0) {
         $valueLastStateTimestamp = time() - strtotime($valueLastState);
         if ($valueLastStateTimestamp < 3600) {
             $valueLastState = CentreonDuration::toString($valueLastStateTimestamp) . ' ago';
-        } else {
-            $valueLastState = (int)$row['last_state_change'];
         }
     } else {
         $valueLastState = 'N/A';
@@ -288,13 +287,11 @@ while ($row = $res->fetch()) {
     $data[$row['host_id']]['last_state_change'] = $valueLastState;
 
     // last_hard_state_change
-    $valueLastHardState = $row['last_hard_state_change'];
+    $valueLastHardState = (int)$row['last_hard_state_change'];
     if ($valueLastState) {
         $valueLastHardStateTimestamp = time() - strtotime($valueLastState);
         if ($valueLastHardStateTimestamp < 3600) {
             $valueLastHardState = CentreonDuration::toString($valueLastHardStateTimestamp) . ' ago';
-        } else {
-            $valueLastHardState = (int)$row['last_hard_state_change'];
         }
     } else {
         $valueLastHardState = 'N/A';
@@ -323,7 +320,8 @@ while ($row = $res->fetch()) {
             $valueActionUrl = '//' . $valueActionUrl;
         }
 
-        $valueActionUrl = CentreonUtils::escapeSecure($hostObj->replaceMacroInString($row['host_name'], $valueActionUrl));
+        $valueActionUrl = CentreonUtils::escapeSecure($hostObj->replaceMacroInString($row['host_name'],
+            $valueActionUrl));
         $data[$row['host_id']]['action_url'] = $valueActionUrl;
     }
 
@@ -344,12 +342,15 @@ while ($row = $res->fetch()) {
     $valueCriticality = $row['criticality'];
     if ($valueCriticality != '') {
         $critData = $criticality->getData($row["criticality_id"]);
-        $valueCriticality = "<img src='../../img/media/" . $media->getFilename($critData['icon_id']) . "' title='" . $critData["hc_name"] . "' width='16' height='16'>";
+        $valueCriticality = "<img src='../../img/media/" . $media->getFilename($critData['icon_id']) .
+            "' title='" . $critData["hc_name"] . "' width='16' height='16'>";
         $data[$row['host_id']]['criticality'] = $valueCriticality;
     }
 
     if (isset($preferences['display_last_comment']) && $preferences['display_last_comment']) {
-        $res2 = $dbb->query('SELECT data FROM comments where host_id = ' . $row['host_id'] . ' AND service_id IS NULL ORDER BY entry_time DESC LIMIT 1');
+        $query = 'SELECT data FROM comments where host_id = ' . $row['host_id'] .
+            ' AND service_id IS NULL ORDER BY entry_time DESC LIMIT 1';
+        $res2 = $dbb->query($query);
         if ($row2 = $res2->fetch()) {
             $data[$row['host_id']]['comment'] = substr($row2['data'], 0, $commentLength);
         } else {
@@ -362,11 +363,12 @@ while ($row = $res->fetch()) {
     $class = null;
     if ($row['scheduled_downtime_depth'] > 0) {
         $class = 'line_downtime';
-    } else if ($row['state'] == 1) {
+    } elseif ($row['state'] == 1) {
         $row['acknowledged'] == 1 ? $class = 'line_ack' : $class = 'list_down';
     } else {
-        if ($row['acknowledged'] == 1)
+        if ($row['acknowledged'] == 1) {
             $class = 'line_ack';
+        }
     }
 
     $data[$row['host_id']]['class_tr'] = $class;
