@@ -30,7 +30,8 @@
         <script type="text/javascript" src="../../include/common/javascript/centreon/popin.js"></script>
         <script type="text/javascript" src="../../include/common/javascript/moment-with-locales.js"></script>
         <script type="text/javascript" src="../../include/common/javascript/moment-timezone-with-data.min.js"></script>
-        <script type="text/javascript" src="../../include/core/autologout/autologout.php"></script>
+        <script type="text/javascript" src="../../include/common/javascript/centreon/dateMoment.js"></script>
+        <script type="text/javascript" src="../../include/common/javascript/centreon/centreon-localStorage.js"></script>
         <script type="text/javascript" src="data.js"></script>
     </body>
 </html>
