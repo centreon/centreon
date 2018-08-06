@@ -6,6 +6,7 @@
 
 %define debug_package %{nil}
 %define centreon_www %{_datadir}/centreon/www
+%define phpversion php71
 
 Name:           centreon-awie
 Version:        @VERSION@
@@ -17,7 +18,7 @@ Summary:        Centreon API Web Import Export
 Group:          Applications/System
 License:        Proprietary
 URL:            https://www.centreon.com
-Source0:        %{name}-%{version}.tar.gz
+Source0:        %{name}-%{version}-%{phpversion}.tar.gz
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 Requires:       centreon-web >= %{thismajor}
@@ -28,7 +29,7 @@ BuildArch:      noarch
 UI to export/import centreon configuration.
 
 %prep
-%setup -q -n %{name}-%{version}
+%setup -q -n %{name}-%{version}-%{phpversion}
 
 find .          \
         -type f \
