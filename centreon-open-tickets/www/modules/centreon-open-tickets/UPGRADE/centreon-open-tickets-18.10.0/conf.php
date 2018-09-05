@@ -22,7 +22,7 @@
 $upgrade_conf['centreon-open-tickets']["rname"] = "Centreon Open Tickets";
 $upgrade_conf['centreon-open-tickets']["name"] = "centreon-open-tickets";
 $upgrade_conf['centreon-open-tickets']["release_from"] = "1.2.0";
-$upgrade_conf['centreon-open-tickets']["release_to"] = "18.9.0";
+$upgrade_conf['centreon-open-tickets']["release_to"] = "18.10.0";
 $upgrade_conf['centreon-open-tickets']["is_removeable"] = "1";
 $upgrade_conf['centreon-open-tickets']["author"] = "Centreon Team";
 $upgrade_conf['centreon-open-tickets']["infos"] = "Open Tickets Module";
