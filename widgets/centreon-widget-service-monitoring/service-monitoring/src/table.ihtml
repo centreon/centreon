@@ -1,8 +1,12 @@
 <div id="serviceMonitoringTable">
     <table id='HostTable' class='ListTable styleTable'>
 	    <tr class="ListHeader">
-            {if $preferences.more_views}<td class="ListColHeaderPicker"><input type='checkbox' id='selection_0;0' class='checkall selection'/></td>{/if}
-            {if $preferences.display_severities}<td class="ListColHeaderCenter" style="white-space: nowrap; width: 17px;" name='Severities'>S</td>{/if}
+            {if $preferences.more_views}
+                <td class="ListColHeaderPicker"><input type='checkbox' id='selection_0;0' class='checkall selection'/></td>
+            {/if}
+            {if $preferences.display_severities}
+                <td class="ListColHeaderCenter" style="white-space: nowrap; width: 17px;" name='Severities'>S</td>
+            {/if}
             {if $preferences.display_host_name || $preferences.display_host_alias}
                 {if $preferences.display_host_name && $preferences.display_host_alias}
                     {assign var='host_label' value="Host Name - Host Alias"}
@@ -10,7 +14,7 @@
                     {assign var='host_label' value="Host Alias"}
                 {else}
                     {assign var='host_label' value="Host Name"}
-                {/if}   
+                {/if}
                 <td class='ListColHeaderCenter' name='hostname' colspan='2'>{$host_label}</td>
             {/if}
             {if $preferences.display_svc_description}<td class='ListColHeaderCenter' name='description' colspan='2'>Service</td>{/if}
@@ -37,9 +41,13 @@
 			{elseif $elem.s_scheduled_downtime_depth}
 				{assign var='classStyle' value='line_downtime'}
 			{/if}
-                <tr class ='{$classStyle}'>
-                {if $preferences.more_views}<td class='ListColLeft'><input class='selection' id='selection_{$elem.host_id};{$elem.service_id}' type='checkbox'/></td>{/if}
-                {if $preferences.display_severities}<td class=''>{$elem.criticality_id}</td>{/if}
+            <tr class ='{$classStyle}'>
+                {if $preferences.more_views}
+                    <td class='ListColLeft'><input class='selection' id='selection_{$elem.host_id};{$elem.service_id}' type='checkbox'/></td>
+                {/if}
+                {if $preferences.display_severities}
+                    <td class=''>{$elem.criticality_id}</td>
+                {/if}
                 {if $preferences.display_host_name || $preferences.display_host_alias}
                     {if $preferences.display_host_name && $preferences.display_host_alias}
                         {assign var='host_name' value=$elem.hostname|cat:" - "|cat:$elem.hostalias}
@@ -48,104 +56,113 @@
                     {else}
                         {assign var='host_name' value=$elem.hostname}
                     {/if}
-                {if $elem.hostname != $previous}
-                    <td class='ListColLeft'>
-                        {if $elem.icon_image != ''}
-                            <img src='{$centreon_web_path}img/media/{$elem.icon_image}' width='16' height='16' style ='padding-right:3px;' />
-                        {else}
-                            <img src='{$centreon_web_path}img/icones/1x1/blank.gif' width='16' height='16' style ='padding-right:3px;' />
+                    {if $elem.hostname != $previous}
+                        <td class='ListColLeft'>
+                            {if $elem.icon_image != ''}
+                                <img src='{$centreon_web_path}img/media/{$elem.icon_image}' width='16' height='16' style ='padding-right:3px;' />
+                            {else}
+                                <img src='{$centreon_web_path}img/icones/1x1/blank.gif' width='16' height='16' style ='padding-right:3px;' />
+                            {/if}
+                            <span class="state_badge" style='background-color: {$elem.hcolor};'></span>
+                            <a href='{$centreon_web_path}main.php?p=20202&o=hd&host_name={$elem.encoded_hostname}' target=_blank>{$host_name}</a>
+                        </td>
+                        <td class='ListColRight'>
+                            <div style='float: right;'>
+                                {if $elem.h_scheduled_downtime_depth}<img src='{$centreon_web_path}img/icons/warning.png' class="ico-18">{/if}
+                                {if $elem.h_acknowledged}<img src='{$centreon_web_path}img/icones/16x16/worker.gif' class="ico-18">{/if}
+                                {if $elem.h_active_checks == 0}<img src='{$centreon_web_path}img/icons/never_checked.png' class="ico-18">{/if}
+                                {if $elem.h_passive_checks}<img src='{$centreon_web_path}img/icons/passive_check.png' class="ico-18">{/if}
+                                {if $elem.h_notify == 0}<img src='{$centreon_web_path}img/icons/notifications_off.png' class="ico-18">{/if}
+                                {if $elem.h_action_url}
+                                    <a target=_blank href='{$elem.h_action_url}'>
+                                        <img src='{$centreon_web_path}img/icons/star-full.png' class="ico-16">
+                                    </a>
+                                {/if}
+                                {if $elem.h_notes_url}
+                                    <a target=_blank href='{$elem.h_notes_url}'>
+                                        <img src='{$centreon_web_path}img/icons/link.png' class="ico-14">
+                                    </a>
+                                {/if}
+                            </div>
+                        </td>
+                    {else}
+                        <td class='' colspan='2'></td>
+                    {/if}
+		        {/if}
+		        {if $preferences.display_svc_description}
+	                <td class=''>
+                        {if $preferences.display_status == 0}
+                            <div>
+                                <span class="state_badge" style="background-color: {$elem.color}"></span>
                         {/if}
-                        <span class="state_badge" style='background-color: {$elem.hcolor};'></span>
-                        <a href='{$centreon_web_path}main.php?p=20202&o=hd&host_name={$elem.encoded_hostname}' target=_blank>{$host_name}</a>
+		                <a href='{$centreon_web_path}main.php?p=202&o=svcd&host_name={$elem.encoded_hostname}&service_description={$elem.encoded_description}' target=_blank>
+                            {$elem.description}</a>
+		                {if $preferences.display_status == 0}
+                            </div>
+                        {/if}
                     </td>
                     <td class='ListColRight'>
                         <div style='float: right;'>
-                            {if $elem.h_scheduled_downtime_depth}<img src='{$centreon_web_path}img/icons/warning.png' class="ico-18">{/if}
-                            {if $elem.h_acknowledged}<img src='{$centreon_web_path}img/icones/16x16/worker.gif' class="ico-18">{/if}
-                            {if $elem.h_active_checks == 0}<img src='{$centreon_web_path}img/icons/never_checked.png' class="ico-18">{/if}
-                            {if $elem.h_passive_checks}<img src='{$centreon_web_path}img/icons/passive_check.png' class="ico-18">{/if}
-                            {if $elem.h_notify == 0}<img src='{$centreon_web_path}img/icons/notifications_off.png' class="ico-18">{/if}
-                            {if $elem.h_action_url}
-                                <a target=_blank href='{$elem.h_action_url}'>
+                            {if $elem.s_scheduled_downtime_depth}<img src='{$centreon_web_path}img/icons/warning.png' class="ico-18">{/if}
+                            {if $elem.s_acknowledged}<img src='{$centreon_web_path}img/icons/technician.png' class="ico-18">{/if}
+                            {if $elem.s_active_checks == 0 && $elem.s_passive_checks == 0}<img src='{$centreon_web_path}img/icons/never_checked.png' class="ico-18">{/if}
+                            {if $elem.s_passive_checks == 1 && $elem.s_active_checks == 0}<img src='{$centreon_web_path}img/icons/passive_check.png' class="ico-18">{/if}
+                            {if $elem.s_notify == 0}<img src='{$centreon_web_path}img/icons/notifications_off.png' class="ico-18">{/if}
+		                    {if $elem.s_action_url}
+                                <a target=_blank href='{$elem.s_action_url}'>
                                     <img src='{$centreon_web_path}img/icons/star-full.png' class="ico-16">
                                 </a>
                             {/if}
-                            {if $elem.h_notes_url}
-                                <a target=_blank href='{$elem.h_notes_url}'>
+                            {if $elem.s_notes_url}
+                                <a target=_blank href='{$elem.s_notes_url}'>
                                     <img src='{$centreon_web_path}img/icons/link.png' class="ico-14">
                                 </a>
                             {/if}
                         </div>
                     </td>
-                {else}
-                    <td class='' colspan='2'></td>
                 {/if}
-		{/if}
-		{if $preferences.display_svc_description}
-	    <td class=''>
-                {if $preferences.display_status == 0}
-                    <div>
-                    <span class="state_badge" style="background-color: {$elem.color}"></span>
-		{/if}
-		<a href='{$centreon_web_path}main.php?p=202&o=svcd&host_name={$elem.encoded_hostname}&service_description={$elem.encoded_description}' target=_blank>{$elem.description}</a>
-		{if $preferences.display_status == 0}
-                    </div>
+                {if $preferences.display_status}
+                    <td class='ListColCenter' style='white-space:nowrap;'>
+                        <span style='background-color: {$elem.color};font-weight:bold;' class="badge">{$elem.s_state}</span>
+                    </td>
                 {/if}
-            </td>
-            <td class='ListColRight'>
-                <div style='float: right;'>
-                    {if $elem.s_scheduled_downtime_depth}<img src='{$centreon_web_path}img/icons/warning.png' class="ico-18">{/if}
-                    {if $elem.s_acknowledged}<img src='{$centreon_web_path}img/icons/technician.png' class="ico-18">{/if}
-                    {if $elem.s_active_checks == 0 && $elem.s_passive_checks == 0}<img src='{$centreon_web_path}img/icons/never_checked.png' class="ico-18">{/if}
-                    {if $elem.s_passive_checks == 1 && $elem.s_active_checks == 0}<img src='{$centreon_web_path}img/icons/passive_check.png' class="ico-18">{/if}
-                    {if $elem.s_notify == 0}<img src='{$centreon_web_path}img/icons/notifications_off.png' class="ico-18">{/if}
-		    {if $elem.s_action_url}
-                        <a target=_blank href='{$elem.s_action_url}'>
-                            <img src='{$centreon_web_path}img/icons/star-full.png' class="ico-16">
-                        </a>
+
+                {if $preferences.display_duration}
+                    {if is_string($elem.last_state_change)}
+                        <td class='ListColCenter' style='white-space:nowrap;'>{$elem.last_state_change}</td>
+                    {else}
+                        <td class='ListColCenter isTimestamp' style='white-space:nowrap;'>{$elem.last_state_change}</td>
                     {/if}
-                    {if $elem.s_notes_url}
-                        <a target=_blank href='{$elem.s_notes_url}'>
-                            <img src='{$centreon_web_path}img/icons/link.png' class="ico-14">
-                        </a>
+                {/if}
+
+                {if $preferences.display_hard_state_duration}
+                    {if is_string($elem.last_hard_state_change)}
+                        <td class='ListColCenter' style='white-space:nowrap;'>{$elem.last_hard_state_change}</td>
+                    {else}
+                        <td class='ListColCenter isTimestamp' style='white-space:nowrap;'>{$elem.last_hard_state_change}</td>
                     {/if}
-                </div>
-            </td>
-            {/if}
-		{if $preferences.display_status}
-		<td class='ListColCenter' style='white-space:nowrap;'>
-            <span style='background-color: {$elem.color};font-weight:bold;' class="badge">{$elem.s_state}</span>
-		</td>
-		{/if}
+                {/if}
 
-        {if $preferences.display_duration}
-        {if is_string($elem.last_state_change)}<td class='ListColCenter' style='white-space:nowrap;'>{$elem.last_state_change}</td>
-        {else}
-            <td class='ListColCenter isTimestamp' style='white-space:nowrap;'>{$elem.last_state_change}</td>{/if}
-        {/if}
+                {if $preferences.display_last_check}
+                    {if is_string($elem.last_check)}
+                        <td class='ListColCenter' style='white-space:nowrap;'>{$elem.last_check}</td>
+                    {else}
+                        <td class='ListColCenter isTimestamp' style='white-space:nowrap;'>{$elem.last_check}</td>
+                    {/if}
+                {/if}
 
-        {if $preferences.display_hard_state_duration}
-        {if is_string($elem.last_hard_state_change)}<td class='ListColCenter' style='white-space:nowrap;'>{$elem.last_hard_state_change}</td>
-        {else}
-            <td class='ListColCenter isTimestamp' style='white-space:nowrap;'>{$elem.last_hard_state_change}</td>{/if}
-        {/if}
-
-        {if $preferences.display_last_check}
-            {if is_string($elem.last_check)}<td class='ListColCenter' style='white-space:nowrap;'>{$elem.last_check}</td>
-        {else}
-            <td class='ListColCenter isTimestamp' style='white-space:nowrap;'>{$elem.last_check}</td>{/if}
-        {/if}
-
-		{if $preferences.display_tries}<td class='ListColCenter' style='white-space:nowrap;'>{$elem.check_attempt}</td>{/if}
-        {if $preferences.display_latency}<td class='ListColRight' style='white-space:nowrap;'>{$elem.latency}</td>{/if}
-        {if $preferences.display_execution_time}<td class='' style='white-space:nowrap;'>{$elem.execution_time}</td>{/if}
-		{if $preferences.display_output}<td class='ListColNoWrap' style='white-space:nowrap;'>{$elem.output}</td>{/if}
-        {if $broker == "broker"}
-            {if $preferences.display_last_comment}<td class=''>{$elem.comment}</td>{/if}
-        {/if}
-	</tr>
-	{assign var='previous' value=$elem.hostname}
-	{/foreach}
+		        {if $preferences.display_tries}<td class='ListColCenter' style='white-space:nowrap;'>{$elem.check_attempt}</td>{/if}
+                {if $preferences.display_latency}<td class='ListColRight' style='white-space:nowrap;'>{$elem.latency}</td>{/if}
+                {if $preferences.display_execution_time}<td class='' style='white-space:nowrap;'>{$elem.execution_time}</td>{/if}
+                {if $preferences.display_output}<td class='ListColNoWrap' style='white-space:nowrap;'>{$elem.output}</td>{/if}
+                {if $broker == "broker"}
+                    {if $preferences.display_last_comment}
+                        <td class=''>{$elem.comment}</td>
+                    {/if}
+                {/if}
+	        </tr>
+	        {assign var='previous' value=$elem.hostname}
+	    {/foreach}
     </table>
 </div>
 <script type="text/javascript">
