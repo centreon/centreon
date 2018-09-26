@@ -77,7 +77,7 @@ try {
             $persistent = 1;
         }
         if (isset($_POST['sticky'])) {
-            $sticky = 1;
+            $sticky = 2;
         }
         if (isset($_POST['notify'])) {
             $notify = 1;
