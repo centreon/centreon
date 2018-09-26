@@ -106,7 +106,8 @@ jQuery( function() {
                 .get().join(",");
 
             if (checkValues != '') {
-                var url = "./widgets/host-monitoring/src/action.php?widgetId="+widgetId+"&sid="+sid+"&selection="+checkValues+"&cmd="+jQuery(this).val();
+                var url = "./widgets/host-monitoring/src/action.php?widgetId=" + widgetId + "&sid=" + sid +
+                    "&selection=" + checkValues + "&cmd=" + jQuery(this).val();
                 parent.jQuery('#WidgetDowntime').parent().remove();
                 var popin = parent.jQuery('<div id="WidgetDowntime">');
 
