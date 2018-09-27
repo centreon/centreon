@@ -41,10 +41,10 @@ function loadPage()
         success: function (htmlData) {
             jQuery("#serviceMonitoringTable").empty().append(htmlData).append(function() {
                 var horizontalScrollHeight = 0;
-                if ( $("#serviceMonitoringTable").outerWidth() < $("#serviceMonitoringTable").get(0).scrollWidth ) {
+                if ( jQuery("#serviceMonitoringTable").outerWidth() < jQuery("#serviceMonitoringTable").get(0).scrollWidth) {
                     horizontalScrollHeight = 20;
                 }
-                var h = document.getElementById("serviceMonitoringTable").scrollHeight + horizontalScrollHeight;
+                var h = jQuery("#serviceMonitoringTable").prop("scrollHeight") + horizontalScrollHeight;
                 parent.iResize(window.name, h);
             });
             jQuery('.checkall').on('change', function () {
