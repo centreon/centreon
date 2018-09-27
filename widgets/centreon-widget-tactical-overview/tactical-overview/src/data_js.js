@@ -9,7 +9,7 @@ function reloadWidget() {
             success : function(htmlData) {
                 jQuery("#infoAjax").html("");
                 jQuery("#infoAjax").html(htmlData);
-                var h = document.getElementById("tactical-overview").scrollHeight + 10;
+                var h = jQuery("#tactical-overview").prop("scrollHeight") + 10;
                 if(h){
                     parent.iResize(window.name, h);
                 }else{
