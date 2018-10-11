@@ -520,8 +520,14 @@ while ($row = $res->fetch()) {
     // criticality_id
     if ($value != '') {
         $critData = $criticality->getData($row['criticality_id'], 1);
-        $valueCriticalityId = "<img src='../../img/media/" . $media->getFilename($critData['icon_id']) .
-            "' title='" . $critData["sc_name"] . "' width='16' height='16'>";
+
+        // get criticality icon path
+        $valueCriticalityId = "";
+        if (isset($critData['icon_id'])) {
+            $valueCriticalityId = "<img src='../../img/media/" . $media->getFilename($critData['icon_id']) .
+                "' title='" . $critData["sc_name"] . "' width='16' height='16'>";
+        }
+
         $data[$row['host_id'] . '_' . $row['service_id']]['criticality_id'] = $valueCriticalityId;
     }
 
