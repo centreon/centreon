@@ -158,11 +158,11 @@ sub submit_split {
     my $submit;
     if ($self->{whoami} eq $self->{dsmd_config}->{centreon_user}) {
         $options{cmd} =~ s/"/\\"/g;
-        $submit = '/bin/echo "' . $options{cmd} . '" >> ' . $self->{cmdFile};
+        $submit = '/bin/echo "' . $options{cmd} . '" >> ' . $self->{cmdDir} . "/" . $datetime . "-dsm";;
     } else {
         $options{cmd} =~ s/'/'\\''/g;
         $options{cmd} =~ s/"/\\"/g;
-        $submit = "su -l " . $self->{dsmd_config}->{centreon_user} . " -c '/bin/echo \"$options{cmd}\" >> " . $self->{cmdFile} . "' 2>&1";
+        $submit = "su -l " . $self->{dsmd_config}->{centreon_user} . " -c '/bin/echo \"$options{cmd}\" >> " . $self->{cmdDir} . "/" . $datetime . "-traps' 2>&1";
     }
     my ($lerror, $stdout) = centreon::common::misc::backtick(command => $submit,
                                                              logger => $self->{logger},
@@ -504,7 +504,7 @@ sub run {
     my ($self, %options) = @_;
 
     $self->SUPER::run();
-    $self->{cmdFile} = $self->{centreon_config}->{VarLib} . "/centcore.cmd";
+    $self->{cmdDir} = $self->{centreon_config}->{VarLib} . "/centcore";
     
     $self->{db_centstorage} = centreon::common::db->new(
         db => $self->{centreon_config}->{centstorage_db},
