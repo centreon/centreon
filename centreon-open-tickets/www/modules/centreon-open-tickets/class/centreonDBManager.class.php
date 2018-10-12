@@ -23,19 +23,11 @@ require_once $centreon_path . "/www/class/centreonDB.class.php";
 
 class CentreonDBManager extends CentreonDB {
 
-    public function lastinsertId($table) {
-        $DBRESULT = $this->query("SELECT LAST_INSERT_ID() as last_id FROM " . $table);
+    public function lastinsertId($name = null) {
+        $DBRESULT = $this->query("SELECT LAST_INSERT_ID() as last_id FROM " . $name);
         if (!($row = $DBRESULT->fetch())) {
             throw new Exception('Cannot get last id');
         }
         return $row['last_id'];
-    }
-
-    public function commit() {
-        $this->db->commit();
-    }
-
-    public function rollback() {
-        $this->db->rollback();
     }
 }

@@ -88,7 +88,7 @@ class OtrsProvider extends AbstractProvider {
         );
     }
     
-    protected function _setDefaultValueMain() {
+    protected function _setDefaultValueMain($body_html = 0) {
         parent::_setDefaultValueMain(1);
         
         $this->default_data['url'] = 'http://{$address}/index.pl?Action=AgentTicketZoom;TicketNumber={$ticket_id}';        

@@ -75,5 +75,9 @@ try {
 } catch (Exception $e) {
     $resultat['code'] = 1;
     $resultat['msg'] = $e->getMessage();
-    $db->rollback();
+
+    // rollback if transaction started
+    if ($db->inTransaction()) {
+        $db->rollback();
+    }
 }
