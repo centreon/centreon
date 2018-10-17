@@ -13,7 +13,7 @@ function loadTop10() {
                 if(h){
                     parent.iResize(window.name, h);
                 }else{
-                    parent.iResize(window.name, 200);
+                    parent.iResize(window.name, 260);
                 }
             }
         });
