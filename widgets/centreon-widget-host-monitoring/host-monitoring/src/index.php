@@ -55,6 +55,9 @@ $db = $dependencyInjector['configuration_db'];
 if (CentreonSession::checkSession(session_id(), $db) == 0) {
     exit;
 }
+/**
+ * @var $dbb CentreonDB
+ */
 $dbb = $dependencyInjector['realtime_db'];
 
 /* Init Objects */
@@ -249,7 +252,7 @@ foreach ($mainQueryParameters as $parameter) {
 unset($parameter);
 $res->execute();
 
-$nbRows = $res->rowCount();
+$nbRows = $dbb->numberRows();
 $data = array();
 $outputLength = $preferences['output_length'] ? $preferences['output_length'] : 50;
 $commentLength = $preferences['comment_length'] ? $preferences['comment_length'] : 50;
