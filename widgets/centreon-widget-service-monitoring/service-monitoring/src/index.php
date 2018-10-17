@@ -72,6 +72,9 @@ $centreonWebPath = trim($centreon->optGen['oreon_web_path'], '/');
 $widgetId = $_REQUEST['widgetId'];
 $page = $_REQUEST['page'];
 
+/**
+ * @var $dbb CentreonDB
+ */
 $dbb = $dependencyInjector['realtime_db'];
 $widgetObj = new CentreonWidget($centreon, $db);
 $preferences = $widgetObj->getWidgetPreferences($widgetId);
@@ -394,7 +397,7 @@ unset($parameter, $mainQueryParameters);
 
 $res->execute();
 
-$nbRows = $res->rowCount();
+$nbRows = $dbb->numberRows();
 $data = [];
 $outputLength = $preferences['output_length'] ? $preferences['output_length'] : 50;
 $commentLength = $preferences['comment_length'] ? $preferences['comment_length'] : 50;
