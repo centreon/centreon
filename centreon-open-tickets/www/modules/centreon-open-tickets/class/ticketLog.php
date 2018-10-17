@@ -48,7 +48,7 @@ class Centreon_OpenTickets_Log
 
             preg_match("/^([0-9]*)\/([0-9]*)\/([0-9]*)/", $start_date, $matchesD);
             preg_match("/^([0-9]*):([0-9]*)/", $start_time, $matchesT);
-            $start = mktime($matchesT[1], $matchesT[2], "0", $matchesD[1], $matchesD[2], $matchesD[3], -1);
+            $start = mktime($matchesT[1], $matchesT[2], "0", $matchesD[1], $matchesD[2], $matchesD[3]);
         }
         if (!is_null($end_date) && $end_date != '') {
             $auto_period = 0;
@@ -58,7 +58,7 @@ class Centreon_OpenTickets_Log
 
             preg_match("/^([0-9]*)\/([0-9]*)\/([0-9]*)/", $end_date, $matchesD);
             preg_match("/^([0-9]*):([0-9]*)/", $end_time, $matchesT);
-            $end = mktime($matchesT[1], $matchesT[2], "0", $matchesD[1], $matchesD[2], $matchesD[3], -1) ;
+            $end = mktime($matchesT[1], $matchesT[2], "0", $matchesD[1], $matchesD[2], $matchesD[3]) ;
         }
 
         if ($auto_period == 1 && !is_null($period) && $period > 0) {
@@ -119,7 +119,7 @@ class Centreon_OpenTickets_Log
         $build_services_filter_append = '';
         if (isset($params['service_filter']) && is_array($params['service_filter'])) {
             foreach ($params['service_filter'] as $val) {
-                $tmp = split('-', $val);
+                $tmp = explode('-', $val);
                 $build_services_filter .= $build_services_filter_append . '(motl.host_id = ' . $tmp[0] .
                     ' AND motl.service_id = ' . $tmp[1] . ') ';
                 $build_services_filter_append = 'OR ';
