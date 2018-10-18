@@ -61,6 +61,9 @@ $centreon = $_SESSION['centreon'];
 $widgetId = $_REQUEST['widgetId'];
 $page = $_REQUEST['page'];
 
+/**
+ * @var $dbb CentreonDB
+ */
 $dbb = $dependencyInjector['realtime_db'];
 $widgetObj = new CentreonWidget($centreon, $db);
 $hgMonObj = new HostgroupMonitoring($dbb);
@@ -137,7 +140,7 @@ if (isset($preferences['order_by']) && trim($preferences['order_by']) != "") {
 $query .= "ORDER BY $orderby";
 $query .= " LIMIT " . ($page * $preferences['entries']) . "," . $preferences['entries'];
 $res = $dbb->query($query);
-$nbRows = $res->rowCount();
+$nbRows = $dbb->query('SELECT FOUND_ROWS()')->fetchColumn();
 $data = array();
 $detailMode = false;
 if (isset($preferences['enable_detailed_mode']) && $preferences['enable_detailed_mode']) {
