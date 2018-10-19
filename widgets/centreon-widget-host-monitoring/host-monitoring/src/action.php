@@ -228,7 +228,7 @@ jQuery(function() {
 
 function closeBox()
 {
-	parent.jQuery('#WidgetDowntime').centreonPopin('close');
+	jQuery('#WidgetDowntime').centreonPopin('close');
 }
 
 function sendCmd()
