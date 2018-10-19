@@ -296,7 +296,7 @@ try {
 
     function closeBox()
     {
-        parent.jQuery('#widgetPopin').centreonPopin('close');
+        jQuery('#widgetPopin').centreonPopin('close');
     }
 
     function reloadFrame(widgetName) {
