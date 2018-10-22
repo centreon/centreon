@@ -1,7 +1,7 @@
 <?php
-/**
- * Copyright 2005-2011 MERETHIS
- * Centreon is developped by : Julien Mathis and Romain Le Merlus under
+/*
+ * Copyright 2005-2018 Centreon
+ * Centreon is developed by : Julien Mathis and Romain Le Merlus under
  * GPL Licence 2.0.
  *
  * This program is free software; you can redistribute it and/or modify it under
@@ -19,11 +19,11 @@
  * combined work based on this program. Thus, the terms and conditions of the GNU
  * General Public License cover the whole combination.
  *
- * As a special exception, the copyright holders of this program give MERETHIS
+ * As a special exception, the copyright holders of this program give Centreon
  * permission to link this program with independent modules to produce an executable,
  * regardless of the license terms of these independent modules, and to copy and
- * distribute the resulting executable under terms of MERETHIS choice, provided that
- * MERETHIS also meet, for each linked independent module, the terms  and conditions
+ * distribute the resulting executable under terms of Centreon choice, provided that
+ * Centreon also meet, for each linked independent module, the terms  and conditions
  * of the license of that module. An independent module is a module which is not
  * derived from this program. If you modify this program, you may extend this
  * exception to your version of the program, but you are not obliged to do so. If you
@@ -46,7 +46,10 @@ require_once $centreon_path . 'www/class/centreonExternalCommand.class.php';
 session_start();
 
 try {
-    if (!isset($_SESSION['centreon']) || !isset($_REQUEST['cmd']) || !isset($_REQUEST['selection'])) {
+    if (!isset($_SESSION['centreon']) ||
+        !isset($_REQUEST['cmd']) ||
+        !isset($_REQUEST['selection'])
+    ) {
         throw new Exception('Missing data');
     }
     $db = new CentreonDB();
@@ -87,7 +90,9 @@ try {
 
             /* default ack options */
             $persistent_checked = '';
-            if (isset($centreon->optGen['monitoring_ack_persistent']) && $centreon->optGen['monitoring_ack_persistent']) {
+            if (isset($centreon->optGen['monitoring_ack_persistent']) &&
+                $centreon->optGen['monitoring_ack_persistent']
+            ) {
                 $persistent_checked = 'checked';
             }
             $template->assign('persistent_checked', $persistent_checked);
@@ -111,7 +116,9 @@ try {
             $template->assign('process_service_checked', $process_service_checked);
 
             $force_active_checked = '';
-            if (isset($centreon->optGen['monitoring_ack_active_checks']) && $centreon->optGen['monitoring_ack_active_checks']) {
+            if (isset($centreon->optGen['monitoring_ack_active_checks']) &&
+                $centreon->optGen['monitoring_ack_active_checks']
+            ) {
                 $force_active_checked = 'checked';
             }
             $template->assign('force_active_checked', $force_active_checked);
@@ -119,11 +126,11 @@ try {
             $template->display('acknowledge.ihtml');
         } elseif ($cmd == 75) {
 
-            $dateStart = $centreon->CentreonGMT->getDate("Y/m/d", time(), $centreon->user->getMyGMT());
+            //$dateStart = $centreon->CentreonGMT->getDate("Y/m/d", time(), $centreon->user->getMyGMT());
             $hourStart = $centreon->CentreonGMT->getDate("H", time(), $centreon->user->getMyGMT());
             $minuteStart = $centreon->CentreonGMT->getDate("i", time(), $centreon->user->getMyGMT());
 
-            $dateEnd = $centreon->CentreonGMT->getDate("Y/m/d", time() + 7200, $centreon->user->getMyGMT());
+            //$dateEnd = $centreon->CentreonGMT->getDate("Y/m/d", time() + 7200, $centreon->user->getMyGMT());
             $hourEnd = $centreon->CentreonGMT->getDate("H", time() + 7200, $centreon->user->getMyGMT());
             $minuteEnd = $centreon->CentreonGMT->getDate("i", time() + 7200, $centreon->user->getMyGMT());
             
@@ -191,7 +198,10 @@ try {
             }
             foreach ($hosts as $hostId) {
                 if ($hostId != 0) {
-                    $externalCmd->$externalCommandMethod(sprintf($command, $hostObj->getHostName($hostId)), $hostObj->getHostPollerId($hostId));
+                    $externalCmd->$externalCommandMethod(sprintf(
+                        $command, $hostObj->getHostName($hostId)),
+                        $hostObj->getHostPollerId($hostId)
+                    );
                 }
             }
             $externalCmd->write();
