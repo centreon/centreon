@@ -40,7 +40,7 @@ function loadPage()
     jQuery.ajax("./src/index.php?widgetId=" + widgetId + "&page=" + pageNumber, {
         success: function (htmlData) {
             jQuery("#hostMonitoringTable").empty().append(htmlData).append(function() {
-                var h = jQuery("hostMonitoringTable").prop("scrollHeight");
+                var h = jQuery("#hostMonitoringTable").prop("scrollHeight");
                 parent.iResize(window.name, h);
             });
             jQuery('.checkall').on('change', function() {
