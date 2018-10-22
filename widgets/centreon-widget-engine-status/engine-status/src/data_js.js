@@ -6,14 +6,12 @@ jQuery(function() {
 
 function loadTop10() {
     jQuery.ajax("./index.php", {
-            success : function(htmlData) {
-                jQuery("#infoAjax").html("");
-                jQuery("#infoAjax").html(htmlData);
-                var h = jQuery("engine-status").prop("scrollHeight") + 10;
+            success : function() {
+                var h = jQuery("#engine-status").prop("scrollHeight") + 10;
                 if(h){
                     parent.iResize(window.name, h);
                 }else{
-                    parent.iResize(window.name, 260);
+                    parent.iResize(window.name, 280);
                 }
             }
         });
