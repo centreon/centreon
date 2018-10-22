@@ -46,8 +46,12 @@ require_once $centreon_path . 'www/class/centreonUtils.class.php';
 session_start();
 
 try {
-    if (!isset($_SESSION['centreon']) || !isset($_POST['cmdType']) || !isset($_POST['selection']) ||
-        !isset($_POST['author']) || !isset($_POST['cmd'])) {
+    if (!isset($_SESSION['centreon']) ||
+        !isset($_POST['cmdType']) ||
+        !isset($_POST['selection']) ||
+        !isset($_POST['author']) ||
+        !isset($_POST['cmd'])
+    ) {
         throw new Exception('Missing data');
     }
     $db = new CentreonDB();
@@ -109,10 +113,10 @@ try {
         }
         list($tmpHstart, $tmpMstart) = array_map('trim', explode(':', $_POST['start_time']));
         list($tmpHend, $tmpMend) = array_map('trim', explode(':', $_POST['end_time']));
-        $dateStart = $_POST['start'];
+        $dateStart = $_POST['alternativeDateStart'];
         $start = $dateStart . " " . $tmpHstart . ":" . $tmpMstart;
         $start = CentreonUtils::getDateTimeTimestamp($start);
-        $dateEnd = $_POST['end'];
+        $dateEnd = $_POST['alternativeDateEnd'];
         $end = $dateEnd . " " . $tmpHend . ":" . $tmpMend;
         $end = CentreonUtils::getDateTimeTimestamp($end);
         $command = "SCHEDULE_HOST_DOWNTIME;%s;$start;$end;$fixed;0;$duration;$author;$comment";

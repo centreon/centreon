@@ -46,7 +46,10 @@ require_once $centreon_path . 'www/class/centreonExternalCommand.class.php';
 session_start();
 
 try {
-    if (!isset($_SESSION['centreon']) || !isset($_REQUEST['cmd']) || !isset($_REQUEST['selection'])) {
+    if (!isset($_SESSION['centreon']) ||
+        !isset($_REQUEST['cmd']) ||
+        !isset($_REQUEST['selection'])
+    ) {
         throw new Exception('Missing data');
     }
     $db = new CentreonDB();
@@ -64,6 +67,12 @@ try {
     $svcObj = new CentreonService($db);
     $successMsg = _("External Command successfully submitted... Exiting window...");
     $result = 0;
+
+    //retrieving the default timezone is the user didn't choose one
+    $gmt = $centreon->user->getMyGMT();
+    if (!$gmt) {
+        $gmt = date_default_timezone_get();
+    }
 
     if ($cmd == 72 || $cmd == 75 || $cmd == 70 || $cmd == 74) {
         $path = $centreon_path . "www/widgets/service-monitoring/src/";
@@ -128,13 +137,11 @@ try {
             $template->display('acknowledge.ihtml');
         } elseif ($cmd == 75 || $cmd == 74) {
 
-            $dateStart = $centreon->CentreonGMT->getDate("Y/m/d", time(), $centreon->user->getMyGMT());
-            $hourStart = $centreon->CentreonGMT->getDate("H", time(), $centreon->user->getMyGMT());
-            $minuteStart = $centreon->CentreonGMT->getDate("i", time(), $centreon->user->getMyGMT());
+            $hourStart = $centreon->CentreonGMT->getDate("H", time(), $gmt);
+            $minuteStart = $centreon->CentreonGMT->getDate("i", time(), $gmt);
 
-            $dateEnd = $centreon->CentreonGMT->getDate("Y/m/d", time() + 7200, $centreon->user->getMyGMT());
-            $hourEnd = $centreon->CentreonGMT->getDate("H", time() + 7200, $centreon->user->getMyGMT());
-            $minuteEnd = $centreon->CentreonGMT->getDate("i", time() + 7200, $centreon->user->getMyGMT());
+            $hourEnd = $centreon->CentreonGMT->getDate("H", time() + 7200, $gmt);
+            $minuteEnd = $centreon->CentreonGMT->getDate("i", time() + 7200, $gmt);
 
             $template->assign('downtimeHostSvcLabel', _("Set downtime on services of hosts"));
             if ($cmd == 75) {
@@ -160,7 +167,7 @@ try {
 
             $template->assign('titleLabel', $title);
             $template->assign('submitLabel', _("Set Downtime"));
-            $template->assign('defaultDuration', 1);
+            $template->assign('defaultDuration', 2);
             $template->assign('daysLabel', _("days"));
             $template->assign('hoursLabel', _("hours"));
             $template->assign('minutesLabel', _("minutes"));
@@ -256,7 +263,11 @@ try {
                     } else {
                         $cmdParam = $hostname;
                     }
-                    $externalCmd->$externalCommandMethod(sprintf($command, $cmdParam), $hostObj->getHostPollerId($hostId));
+                    $externalCmd->$externalCommandMethod(sprintf(
+                        $command,
+                        $cmdParam),
+                        $hostObj->getHostPollerId($hostId)
+                    );
                 }
             }
             $externalCmd->write();
@@ -290,7 +301,9 @@ try {
         jQuery("[name=fixed]").click(function () {
             toggleDurationField();
         });
-        jQuery("#downtimestart,#downtimeend").datepicker({dateFormat: 'yy/mm/dd'});
+
+        //initializing datepicker and timepicker
+        initDatepicker("datepicker", "yy/mm/dd", "0");
         jQuery("#start_time,#end_time").timepicker();
     });
 
