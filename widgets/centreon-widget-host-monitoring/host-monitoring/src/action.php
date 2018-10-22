@@ -238,7 +238,9 @@ jQuery(function() {
 	jQuery("[name=fixed]").click(function() {
 		toggleDurationField();
 	});
-	jQuery("#downtimestart,#downtimeend").datepicker({ dateFormat: 'yy/mm/dd' });
+
+	//initializing datepicker and timepicker
+	initDatepicker("datepicker", "mm/dd/yy", "0");
 	jQuery("#start_time,#end_time").timepicker();
 });
 
