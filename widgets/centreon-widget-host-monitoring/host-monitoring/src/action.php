@@ -66,7 +66,7 @@ try {
     $successMsg = _("External Command successfully submitted... Exiting window...");
     $result = 0;
 
-    //retieving the default timezone is the user didn't choose one
+    //retrieving the default timezone is the user didn't choose one
     $gmt = $centreon->user->getMyGMT();
     if (!$gmt) {
         $gmt = date_default_timezone_get();
@@ -132,11 +132,9 @@ try {
             $template->display('acknowledge.ihtml');
         } elseif ($cmd == 75) {
 
-            //$dateStart = $centreon->CentreonGMT->getDate("Y/m/d", time(), $centreon->user->getMyGMT());
             $hourStart = $centreon->CentreonGMT->getDate("H", time(), $gmt);
             $minuteStart = $centreon->CentreonGMT->getDate("i", time(), $gmt);
 
-            //$dateEnd = $centreon->CentreonGMT->getDate("Y/m/d", time() + 7200, $centreon->user->getMyGMT());
             $hourEnd = $centreon->CentreonGMT->getDate("H", time() + 7200, $gmt);
             $minuteEnd = $centreon->CentreonGMT->getDate("i", time() + 7200, $gmt);
             
@@ -240,7 +238,7 @@ jQuery(function() {
 	});
 
 	//initializing datepicker and timepicker
-	initDatepicker("datepicker", "mm/dd/yy", "0");
+	initDatepicker("datepicker", "yy/mm/dd", "0");
 	jQuery("#start_time,#end_time").timepicker();
 });
 

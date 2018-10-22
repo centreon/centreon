@@ -46,8 +46,11 @@ require_once $centreon_path . 'www/class/centreonUtils.class.php';
 session_start();
 
 try {
-    if (!isset($_SESSION['centreon']) || !isset($_POST['cmdType']) || !isset($_POST['hosts']) ||
-        !isset($_POST['author'])) {
+    if (!isset($_SESSION['centreon']) ||
+        !isset($_POST['cmdType']) ||
+        !isset($_POST['hosts']) ||
+        !isset($_POST['author'])
+    ) {
         throw new Exception('Missing data');
     }
     $db = new CentreonDB();
@@ -83,8 +86,8 @@ try {
         $command = "ACKNOWLEDGE_HOST_PROBLEM;%s;$sticky;$notify;$persistent;$author;$comment";
         $commandSvc = "ACKNOWLEDGE_SVC_PROBLEM;%s;%s;$sticky;$notify;$persistent;$author;$comment";
         if (isset($_POST['forcecheck'])) {
-            $forceCmd = "SCHEDULE_FORCED_HOST_CHECK;%s;".time();
-            $forceCmdSvc = "SCHEDULE_FORCED_SVC_CHECK;%s;%s;".time();
+            $forceCmd = "SCHEDULE_FORCED_HOST_CHECK;%s;" . time();
+            $forceCmdSvc = "SCHEDULE_FORCED_SVC_CHECK;%s;%s;" . time();
         }
     } elseif ($type == 'downtime') {
         $fixed = 0;
@@ -107,10 +110,10 @@ try {
         }
         list($tmpHstart, $tmpMstart) = array_map('trim', explode(':', $_POST['start_time']));
         list($tmpHend, $tmpMend) = array_map('trim', explode(':', $_POST['end_time']));
-        $dateStart = $_POST['start'];
+        $dateStart = $_POST['alternativeDateStart'];
         $start = $dateStart . " " . $tmpHstart . ":" . $tmpMstart;
         $start = CentreonUtils::getDateTimeTimestamp($start);
-        $dateEnd = $_POST['end'];
+        $dateEnd = $_POST['alternativeDateEnd'];
         $end = $dateEnd . " " . $tmpHend . ":" . $tmpMend;
         $end = CentreonUtils::getDateTimeTimestamp($end);
         $command = "SCHEDULE_HOST_DOWNTIME;%s;$start;$end;$fixed;0;$duration;$author;$comment";
