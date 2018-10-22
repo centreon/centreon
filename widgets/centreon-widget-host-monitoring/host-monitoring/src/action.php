@@ -66,6 +66,12 @@ try {
     $successMsg = _("External Command successfully submitted... Exiting window...");
     $result = 0;
 
+    //retieving the default timezone is the user didn't choose one
+    $gmt = $centreon->user->getMyGMT();
+    if (!$gmt) {
+        $gmt = date_default_timezone_get();
+    }
+
     if ($cmd == 72 || $cmd == 75) {
         $path = $centreon_path . "www/widgets/host-monitoring/src/";
         $template = new Smarty();
@@ -127,18 +133,18 @@ try {
         } elseif ($cmd == 75) {
 
             //$dateStart = $centreon->CentreonGMT->getDate("Y/m/d", time(), $centreon->user->getMyGMT());
-            $hourStart = $centreon->CentreonGMT->getDate("H", time(), $centreon->user->getMyGMT());
-            $minuteStart = $centreon->CentreonGMT->getDate("i", time(), $centreon->user->getMyGMT());
+            $hourStart = $centreon->CentreonGMT->getDate("H", time(), $gmt);
+            $minuteStart = $centreon->CentreonGMT->getDate("i", time(), $gmt);
 
             //$dateEnd = $centreon->CentreonGMT->getDate("Y/m/d", time() + 7200, $centreon->user->getMyGMT());
-            $hourEnd = $centreon->CentreonGMT->getDate("H", time() + 7200, $centreon->user->getMyGMT());
-            $minuteEnd = $centreon->CentreonGMT->getDate("i", time() + 7200, $centreon->user->getMyGMT());
+            $hourEnd = $centreon->CentreonGMT->getDate("H", time() + 7200, $gmt);
+            $minuteEnd = $centreon->CentreonGMT->getDate("i", time() + 7200, $gmt);
             
             $template->assign('downtimeHostSvcLabel', _("Set downtime on services of hosts"));
             $template->assign('defaultMessage', sprintf(_('Downtime set by %s'), $centreon->user->alias));
             $template->assign('titleLabel', _("Host Downtime"));
             $template->assign('submitLabel', _("Set Downtime"));
-            $template->assign('defaultDuration', 1);
+            $template->assign('defaultDuration', 2);
             $template->assign('daysLabel', _("days"));
             $template->assign('hoursLabel', _("hours"));
             $template->assign('minutesLabel', _("minutes"));
