@@ -171,10 +171,8 @@ try {
             $template->assign('daysLabel', _("days"));
             $template->assign('hoursLabel', _("hours"));
             $template->assign('minutesLabel', _("minutes"));
-            $template->assign('defaultStart', $dateStart);
             $template->assign('defaultHourStart', $hourStart);
             $template->assign('defaultMinuteStart', $minuteStart);
-            $template->assign('defaultEnd', $dateEnd);
             $template->assign('defaultHourEnd', $hourEnd);
             $template->assign('defaultMinuteEnd', $minuteEnd);
             $template->display('downtime.ihtml');
