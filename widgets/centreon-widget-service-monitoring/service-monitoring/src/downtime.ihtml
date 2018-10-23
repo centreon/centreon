@@ -49,9 +49,8 @@
 				<input name='author' type='hidden' value='{$author}'/>
 			</td>
 		</tr>
-		<td class="FormRowField">{$commentLabel}<span style='color: red;'> *</span></td>
-
 		<tr>
+			<td class="FormRowField">{$commentLabel}<span style='color: red;'> *</span></td>
 			<td class="FormRowValue">
 				<textarea id='comment' name='comment' cols='30' rows='5'>{$defaultMessage}</textarea>
 			</td>
