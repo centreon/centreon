@@ -9,8 +9,8 @@
 		<tr>
 			<td class="FormRowField">{$startLabel}<span style='color: red;'> *</span></td>
 			<td class="FormRowValue">
-				<input type='text' class="datepicker" id='downtimestart' name='start' value='{$defaultStart}' size='9' />
-				<input id="start_time" size="5" class="timepicker" name="start_time" type="text" value='{$defaultHourStart} : {$defaultMinuteStart}'>
+				<input type='text' class="datepicker" id='downtimestart' name='start' value='' size='9' />
+				<input id="start_time" size="5" class="timepicker" name="start_time" type="text" value='{$defaultHourStart}:{$defaultMinuteStart}'>
 				<input type='hidden' class='alternativeDate' id='altDateStart' size='10' name="alternativeDateStart" />
 			</td>
 		</tr>
@@ -18,8 +18,8 @@
 		<tr>
 			<td class="FormRowField">{$endLabel}<span style='color: red;'> *</span></td>
 			<td class="FormRowValue">
-				<input class="datepicker" type='text' id='downtimeend' name='end' value='{$defaultEnd}' size='9' />
-				<input id="end_time" size="5" class="timepicker" name="end_time" type="text" value='{$defaultHourEnd} : {$defaultMinuteEnd}'>
+				<input class="datepicker" type='text' id='downtimeend' name='end' value='' size='9' />
+				<input id="end_time" size="5" class="timepicker" name="end_time" type="text" value='{$defaultHourEnd}:{$defaultMinuteEnd}'>
 				<input type='hidden' class='alternativeDate' id='altDateEnd' size='10' name="alternativeDateEnd" />
 			</td>
 		</tr>
