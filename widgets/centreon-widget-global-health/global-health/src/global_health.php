@@ -230,7 +230,7 @@ if (isset($preferences['hosts_services']) && $preferences['hosts_services'] == '
         $info[$data['state']]['acknowledged'] = $data['acknowledged'];
         $info[$data['state']]['downtime'] = $data['downtime'];
         $counter += $data['count'];
-        $legend[] = $tabSatusService[$data['state']];
+        $legend[] = $tabStatusService[$data['state']];
     }
     $dbResult->closeCursor();
 
@@ -238,12 +238,12 @@ if (isset($preferences['hosts_services']) && $preferences['hosts_services'] == '
      *  create the dataset
      */
     foreach ($info as $key => $value) {
-        $serviceArray[$tabSatusService[$key]]['value'] = $value['count'];
+        $serviceArray[$tabStatusService[$key]]['value'] = $value['count'];
         $valuePercent = round($value['count'] / $counter * 100, 2);
         $valuePercent = str_replace(',', '.', $valuePercent);
-        $serviceArray[$tabSatusService[$key]]['percent'] = $valuePercent;
-        $serviceArray[$tabSatusService[$key]]['acknowledged'] = $value['acknowledged'];
-        $serviceArray[$tabSatusService[$key]]['downtime'] = $value['downtime'];
+        $serviceArray[$tabStatusService[$key]]['percent'] = $valuePercent;
+        $serviceArray[$tabStatusService[$key]]['acknowledged'] = $value['acknowledged'];
+        $serviceArray[$tabStatusService[$key]]['downtime'] = $value['downtime'];
     }
 
     $template->assign('services', $serviceArray);
