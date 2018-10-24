@@ -11,6 +11,11 @@ Default page is Export one.
 .. image:: _static/images/exportdefault.png
    :align: center
 
+Exported Archive Name
+=====================
+
+Be aware that if you change the name of the created archive, you will not be able to import it until the name of the archive is identical to the name of the file contained in the archive.
+
 Poller Export 
 =============
 

@@ -11,6 +11,11 @@ La page s'affichant par défaut est celle de l'export.
 .. image:: _static/images/exportdefault.png
    :align: center
 
+Nom de l'archive exportée
+=========================
+
+Sachez que si vous modifiez le nom de l'archive créée, vous ne pourrez pas l'importer tant que le nom de l'archive ne sera pas identique au nom du fichier contenu dans l'archive.
+
 Export des collecteurs de supervision 
 =====================================
 
