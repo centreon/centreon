@@ -1,3 +1,13 @@
-import React from 'react';
-import './Button';
-import './Card';
+import React from "react";
+import "./Button";
+import "./Card";
+import "./Description";
+import "./FileUpload";
+import "./HorizontalLines";
+import "./Icon";
+import "./Popup";
+import "./Search";
+import "./Slider";
+import "./Subtitle";
+import "./Switcher";
+import "./Title";

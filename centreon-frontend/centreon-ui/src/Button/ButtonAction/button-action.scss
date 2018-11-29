@@ -1,0 +1,21 @@
+@import '../../global-sass-files/mixins';
+// Button action
+.button {
+  &-action {
+    position: relative;
+    cursor: pointer;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    border: 1px solid #cdcdcd;
+    @include center(both);
+    &-icon {
+      &-delete {
+        width: 13px;
+        height: 20px;
+        background: url('../../../img/icons/icon-button-delete.png') no-repeat 50%;
+        display: inline-block;
+      }
+    }
+  }
+}
