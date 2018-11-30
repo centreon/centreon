@@ -8,7 +8,15 @@ storiesOf("Icon", module).add(
   { notes: "A very simple component" }
 );
 
-storiesOf("Icon", module).add("Icon - close", () => <IconClose />, {
+storiesOf("Icon", module).add("Icon - close small", () => <IconClose iconType="small" />, {
+  notes: "A very simple component"
+});
+
+storiesOf("Icon", module).add("Icon - close middle", () => <IconClose iconType="middle" />, {
+  notes: "A very simple component"
+});
+
+storiesOf("Icon", module).add("Icon - close big", () => <IconClose iconType="big" />, {
   notes: "A very simple component"
 });
 

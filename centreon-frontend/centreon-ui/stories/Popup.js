@@ -1,6 +1,6 @@
 import React from "react";
 import { storiesOf } from "@storybook/react";
-import { Popup } from "../src";
+import { Popup, IconClose } from "../src";
 
 storiesOf("Popup", module).add(
   "Popup - small",
@@ -15,6 +15,7 @@ storiesOf("Popup", module).add(
       <div className="popup-footer">
         <p>Popup footer</p>
       </div>
+      <IconClose iconType="middle" />
     </Popup>
   ),
   { notes: "A very simple component" }
@@ -33,6 +34,7 @@ storiesOf("Popup", module).add(
       <div className="popup-footer">
         <p>Popup footer</p>
       </div>
+      <IconClose iconType="big" />
     </Popup>
   ),
   { notes: "A very simple component" }
