@@ -14,9 +14,9 @@ stage('Source') {
 try {
   stage('Unit tests') {
     parallel 'centos7': {
-      /*
       node {
         sh 'setup_centreon_build.sh'
+        /*
         sh './centreon-build/jobs/awie/18.10/mon-awie-unittest.sh centos7'
         step([
           $class: 'XUnitBuilder',
@@ -38,8 +38,13 @@ try {
           useDeltaValues: true,
           failedNewAll: '0'
         ])
+        */
+        if (env.BRANCH_NAME == 'master') {
+          withSonarQubeEnv('SonarQube') {
+            sh './centreon-build/jobs/web/18.10/mon-web-analysis.sh'
+          }
+        }
       }
-      */
     }
     if ((currentBuild.result ?: 'SUCCESS') != 'SUCCESS') {
       error('Unit tests stage failure.');
