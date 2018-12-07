@@ -41,7 +41,7 @@ try {
         */
         if (env.BRANCH_NAME == 'master') {
           withSonarQubeEnv('SonarQube') {
-            sh './centreon-build/jobs/web/18.10/mon-web-analysis.sh'
+            sh './centreon-build/jobs/awie/18.10/mon-awie-analysis.sh'
           }
         }
       }
