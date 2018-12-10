@@ -22,7 +22,7 @@ var Switcher = function Switcher(_ref) {
     _react2.default.createElement(
       "span",
       { className: "switcher-title" },
-      switcherTitle
+      switcherTitle ? switcherTitle : " "
     ),
     _react2.default.createElement(
       "span",
