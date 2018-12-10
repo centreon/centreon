@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "main": "lib",
   "scripts": {
-    "bundle": "babel ./src --out-dir ./lib",
+    "bundle": "babel ./src --out-dir ./lib --copy-files",
     "dev": "docz dev",
     "build": "docz build",
     "storybook": "start-storybook -p 9001 -c .storybook"
