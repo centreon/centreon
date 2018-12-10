@@ -14,25 +14,26 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 var Switcher = function Switcher(_ref) {
   var switcherTitle = _ref.switcherTitle,
-      switcherStatus = _ref.switcherStatus;
+      switcherStatus = _ref.switcherStatus,
+      customClass = _ref.customClass;
   return _react2.default.createElement(
     "div",
-    { "class": "switcher" },
+    { className: "switcher " + customClass },
     _react2.default.createElement(
       "span",
-      { "class": "switcher-title" },
+      { className: "switcher-title" },
       switcherTitle
     ),
     _react2.default.createElement(
       "span",
-      { "class": "switcher-status" },
+      { className: "switcher-status" },
       switcherStatus
     ),
     _react2.default.createElement(
       "label",
-      { "class": "switch" },
+      { className: "switch" },
       _react2.default.createElement("input", { type: "checkbox" }),
-      _react2.default.createElement("span", { "class": "switch-slider switch-round" })
+      _react2.default.createElement("span", { className: "switch-slider switch-round" })
     )
   );
 };

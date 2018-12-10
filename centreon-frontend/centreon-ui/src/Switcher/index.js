@@ -1,13 +1,13 @@
 import React from "react";
 import "./switcher.scss";
 
-const Switcher = ({ switcherTitle, switcherStatus }) => (
-  <div class="switcher">
-    <span class="switcher-title">{switcherTitle}</span>
-    <span class="switcher-status">{switcherStatus}</span>
-    <label class="switch">
+const Switcher = ({ switcherTitle, switcherStatus, customClass }) => (
+  <div className={`switcher ${customClass}`}>
+    <span className="switcher-title">{switcherTitle}</span>
+    <span className="switcher-status">{switcherStatus}</span>
+    <label className="switch">
       <input type="checkbox" />
-      <span class="switch-slider switch-round" />
+      <span className="switch-slider switch-round" />
     </label>
   </div>
 );

@@ -1,6 +1,7 @@
 export { default as Button } from "./Button/ButtonRegular";
 export { default as ButtonAction } from "./Button/ButtonAction";
 export { default as Card } from "./Card";
+export { default as CardItem } from "./Card/CardItem";
 export { default as Description } from "./Description";
 export { default as FileUpload } from "./FileUpload";
 export {
@@ -19,3 +20,4 @@ export { default as Slider } from "./Slider/SliderContent";
 export { default as Subtitle } from "./Subtitle";
 export { default as Switcher } from "./Switcher";
 export { default as Title } from "./Title";
+export { default as Wrapper } from "./Wrapper";
