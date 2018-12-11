@@ -32,11 +32,7 @@ var Card = function (_Component) {
   _createClass(Card, [{
     key: "render",
     value: function render() {
-      var _props = this.props,
-          children = _props.children,
-          itemBorderColor = _props.itemBorderColor,
-          itemFooterColor = _props.itemFooterColor,
-          itemFooterLabel = _props.itemFooterLabel;
+      var children = this.props.children;
 
       return _react2.default.createElement(
         "div",
@@ -44,23 +40,7 @@ var Card = function (_Component) {
         _react2.default.createElement(
           "div",
           { className: "card-items" },
-          _react2.default.createElement(
-            "div",
-            {
-              className: "card-item card-item-bordered-" + itemBorderColor,
-              style: {
-                width: "250px"
-              }
-            },
-            children,
-            _react2.default.createElement(
-              "span",
-              {
-                className: "card-item-footer card-item-footer-" + itemFooterColor
-              },
-              itemFooterLabel
-            )
-          )
+          children
         )
       );
     }

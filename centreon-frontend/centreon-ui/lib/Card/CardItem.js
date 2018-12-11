@@ -34,15 +34,20 @@ var CardItem = function (_Component) {
           children = _props.children,
           itemBorderColor = _props.itemBorderColor,
           itemFooterColor = _props.itemFooterColor,
-          itemFooterLabel = _props.itemFooterLabel;
+          itemFooterLabel = _props.itemFooterLabel,
+          customClass = _props.customClass;
 
       return _react2.default.createElement(
         'div',
-        { className: 'card-item card-item-bordered-' + itemBorderColor },
+        {
+          className: 'card-item card-item-bordered-' + itemBorderColor + ' ' + customClass
+        },
         children,
         _react2.default.createElement(
           'span',
-          { className: 'card-item-footer card-item-footer-' + itemFooterColor },
+          {
+            className: 'card-item-footer card-item-footer-' + itemFooterColor
+          },
           itemFooterLabel
         )
       );
