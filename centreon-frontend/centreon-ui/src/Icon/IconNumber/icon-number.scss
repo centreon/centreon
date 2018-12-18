@@ -16,6 +16,7 @@
     box-sizing: border-box;
     text-decoration: none;
     cursor: pointer;
+    display: inline-block;
     &.bordered {
       &.red {
         border: 2px solid #ed1c24;

@@ -3,9 +3,9 @@ import './header.scss';
 
 class Header extends Component {
   render() {
-    const {children} = this.props;
+    const {children, style} = this.props;
     return (
-      <header className="header">
+      <header className="header" style={style}>
         <div className="header-inner">
           {children}
         </div>
