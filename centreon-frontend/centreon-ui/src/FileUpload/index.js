@@ -8,7 +8,7 @@ const FileUpload = () => {
   return (
     <React.Fragment>
       <Popup popupType="small">
-        <div class="popup-header blue-background-decorater">
+        <div class="popup-header blue-background-decorator">
           <div class="container__row">
             <div class="container__col-xs-6 center-vertical">
               <div class="file file-upload">

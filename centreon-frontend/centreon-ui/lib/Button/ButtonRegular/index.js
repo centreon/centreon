@@ -27,7 +27,7 @@ var Button = function Button(_ref) {
   return _react2.default.createElement(
     "button",
     {
-      className: "button button-" + buttonType + "-" + color + " linear " + customClass,
+      className: "button button-" + buttonType + "-" + color + " linear " + (customClass ? customClass : null),
       onClick: onClick
     },
     iconActionType ? _react2.default.createElement(_IconAction2.default, { iconActionType: iconActionType }) : null,

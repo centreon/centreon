@@ -14,10 +14,14 @@
   &.linear {
     @include border-radius(15px);
   }
+  &.squared {
+    border-radius: 3px;
+    padding: 6px;
+  }
   &.small {
 
   }
-  &.middle {
+  &.medium {
 
   }
   &.big {
@@ -62,6 +66,10 @@
       color: $content-green-color;
       border: 1px solid $content-green-color;
       background-color: transparent;
+      &:hover {
+        color: $white-color;
+        background-color: #88b917;
+      }
     }
     &-blue {
       color: $content-blue-color;

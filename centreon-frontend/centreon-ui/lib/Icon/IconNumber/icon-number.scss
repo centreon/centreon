@@ -1,0 +1,72 @@
+@import '../../global-sass-files/variables';
+
+.icons {
+  &-number {
+    font-size: .875rem;
+    padding: 0px 5px;
+    position: relative;
+    color: $white-color;
+    font-family: $primary-font-bold;
+    overflow: hidden;
+    text-align: center;
+    min-width: 32px;
+    height: 32px;
+    border-radius: 50px;
+    margin: 0 6px;
+    box-sizing: border-box;
+    text-decoration: none;
+    cursor: pointer;
+    &.bordered {
+      &.red {
+        border: 2px solid #ed1c24;
+      }
+      &.gray-dark {
+        border: 2px solid #818185;
+      }
+      &.gray-light {
+        border: 2px solid #cdcdcd;
+      }
+      &.green {
+        border: 2px solid #87bd23;
+      }
+      &.orange {
+        border: 2px solid #ff9913;
+      }
+      &.blue {
+        border: 2px solid #2ad1d4;
+      }
+    }
+    &.colored {
+      &.red {
+        background-color: #ed1c24;
+      }
+      &.gray-dark {
+        background-color: #818185;
+      }
+      &.gray-light {
+        background-color: #cdcdcd;
+      }
+      &.green {
+        background-color: #87bd23;
+      }
+      &.orange {
+        background-color: #ff9913;
+      }
+      &.blue {
+        background-color: #2ad1d4;
+      }
+    }
+  }
+  .number {
+    &-wrap {
+      font-size: 0.875rem;
+      font-family: $primary-font-bold;
+      position: relative;
+      text-decoration: none;
+    }
+    &-count {
+      line-height: 30px;
+      color: $white-color;
+    }
+  }
+}

@@ -33,7 +33,7 @@ var FileUpload = function FileUpload() {
       { popupType: "small" },
       _react2.default.createElement(
         "div",
-        { "class": "popup-header blue-background-decorater" },
+        { "class": "popup-header blue-background-decorator" },
         _react2.default.createElement(
           "div",
           { "class": "container__row" },
