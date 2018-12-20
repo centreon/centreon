@@ -3,7 +3,7 @@ import './icon-toggle-submenu.scss';
 
 const IconToggleSubmenu = ({iconType}) => {
   return (
-    <span class={`icons-toggle-${iconType}`}></span>
+    <span className={`icons-toggle-${iconType}`}></span>
   )
 }
 

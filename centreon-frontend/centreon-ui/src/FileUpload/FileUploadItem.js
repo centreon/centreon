@@ -14,15 +14,15 @@ class FileUploadItem extends Component {
     } = this.props;
     return (
       <React.Fragment>
-        <div class="file-upload-item">
-          <span class={`file-upload-item-icon ${icon} ${iconStatus}`} />
-          <span class={`file-upload-item-title ${titleStatus}`}>{title}</span>
-          <span class={`file-upload-item-info ${infoStatus}`}>
+        <div className="file-upload-item">
+          <span className={`file-upload-item-icon ${icon} ${iconStatus}`} />
+          <span className={`file-upload-item-title ${titleStatus}`}>{title}</span>
+          <span className={`file-upload-item-info ${infoStatus}`}>
             {infoStatusLabel}
             {info}
           </span>
-          <span class="icon-close icon-close-small" />
-          <span class={`file-upload-item-progress ${progressBar}`} />
+          <span className="icon-close icon-close-small" />
+          <span className={`file-upload-item-progress ${progressBar}`} />
         </div>
       </React.Fragment>
     );

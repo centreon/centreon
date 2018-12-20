@@ -2,9 +2,9 @@ import React from "react";
 import "./custom-title.scss";
 
 const Title = ({ icon, label }) => (
-  <h2 class="custom-title">
+  <h2 className="custom-title">
     {icon ? (
-      <span class={`custom-title-icon custom-title-icon-${icon}`} />
+      <span className={`custom-title-icon custom-title-icon-${icon}`} />
     ) : null}
     {label}
   </h2>

@@ -3,7 +3,7 @@ import IconAction from "../../Icon/IconAction";
 import "./button-action.scss";
 
 const ButtonAction = ({ buttonActionType, buttonIconType }) => (
-  <span class={`button-action button-action-${buttonActionType}`}>
+  <span className={`button-action button-action-${buttonActionType}`}>
     <IconAction iconActionType={buttonIconType} />
   </span>
 );

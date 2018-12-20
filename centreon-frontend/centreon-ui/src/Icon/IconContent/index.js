@@ -3,7 +3,7 @@ import "./content-icons.scss";
 
 const IconContent = ({ iconContentType, iconContentColor }) => (
   <span
-    class={`content-icon content-icon-${iconContentType} content-icon-add-${iconContentColor}`}
+    className={`content-icon content-icon-${iconContentType} content-icon-add-${iconContentColor}`}
   />
 );
 

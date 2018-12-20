@@ -1,6 +1,6 @@
 import React from "react";
 import "./regular-horizontal-line.scss";
 
-const HorizontalLineRegular = () => <span class="hr" />;
+const HorizontalLineRegular = () => <span className="hr" />;
 
 export default HorizontalLineRegular;

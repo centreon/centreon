@@ -3,9 +3,9 @@ import './icon-header.scss';
 
 const IconHeader = ({iconType, iconName, style}) => {
   return (
-    <span class="icons-wrap" style={style}>
-      <span class={`iconmoon icon-${iconType}`}></span>
-      <span class="icon__name">{iconName}</span>
+    <span className="icons-wrap" style={style}>
+      <span className={`iconmoon icon-${iconType}`}></span>
+      <span className="icon__name">{iconName}</span>
     </span>
   )
 }

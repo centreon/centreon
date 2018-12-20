@@ -3,8 +3,8 @@ import './icon-round.scss';
 
 const IconRound = ({iconColor, iconType, iconTitle}) => {
   return (
-    <span class={`icons icons-round ${iconColor}`}>
-      <span class={`iconmoon icon-${iconType}`} title={iconTitle}></span>
+    <span className={`icons icons-round ${iconColor}`}>
+      <span className={`iconmoon icon-${iconType}`} title={iconTitle}></span>
     </span>
   )
 }

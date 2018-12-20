@@ -8,24 +8,24 @@ const FileUpload = () => {
   return (
     <React.Fragment>
       <Popup popupType="small">
-        <div class="popup-header blue-background-decorator">
-          <div class="container__row">
-            <div class="container__col-xs-6 center-vertical">
-              <div class="file file-upload">
-                <span class="file-upload-title">
-                  <span class="file-upload-icon" />File Upload
+        <div className="popup-header blue-background-decorator">
+          <div className="container__row">
+            <div className="container__col-xs-6 center-vertical">
+              <div className="file file-upload">
+                <span className="file-upload-title">
+                  <span className="file-upload-icon" />File Upload
                 </span>
               </div>
             </div>
-            <div class="container__col-xs-6 text-right">
+            <div className="container__col-xs-6 text-right">
               <Button buttonType="bordered" color="white" label="BROWSE" />
             </div>
           </div>
-          <span class="icon-close icon-close-middle" />
+          <span className="icon-close icon-close-middle" />
         </div>
-        <div class="popup-body">
-          <div class="file file-upload">
-            <div class="file-upload-items">
+        <div className="popup-body">
+          <div className="file file-upload">
+            <div className="file-upload-items">
               <FileUploadItem
                 icon="file"
                 iconStatus="success"

@@ -5,7 +5,7 @@ class SubmenuHeader extends Component {
   render() {
     const {submenuType, children} = this.props;
     return (
-      <div class={`submenu-${submenuType}`}>
+      <div className={`submenu-${submenuType}`}>
         {children}
       </div>
     );
