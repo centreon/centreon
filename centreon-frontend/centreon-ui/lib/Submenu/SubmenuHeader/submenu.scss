@@ -1,6 +1,9 @@
 @import '../../global-sass-files/variables';
 
 .submenu {
+  &-header {
+    
+  }
   &-top, &-bottom {
     display: flex;
   }
@@ -9,10 +12,14 @@
     padding: 6px 20px;
     flex-wrap: wrap;
     align-items: center;
+    background-color: #232f39;
+    .icons-toggle-arrow {
+      position: absolute;
+    }
   }
-  // &-toggle {
-  //   display: none;
-  // }
+  &-toggle {
+    display: none;
+  }
   &-items {
     list-style: none;
     padding: 0;
@@ -74,7 +81,7 @@
     top: 100%;
     z-index: 9;
     box-sizing: border-box;
-    display: none;
+    // display: none;
     text-align: left;
     width: 100%;
   }

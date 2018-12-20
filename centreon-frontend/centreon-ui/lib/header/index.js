@@ -32,11 +32,13 @@ var Header = function (_Component) {
   _createClass(Header, [{
     key: 'render',
     value: function render() {
-      var children = this.props.children;
+      var _props = this.props,
+          children = _props.children,
+          style = _props.style;
 
       return _react2.default.createElement(
         'header',
-        { className: 'header' },
+        { className: 'header', style: style },
         _react2.default.createElement(
           'div',
           { className: 'header-inner' },

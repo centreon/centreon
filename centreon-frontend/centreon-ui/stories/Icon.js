@@ -43,6 +43,9 @@ storiesOf("Icon", module).add("Icon - header", () => {
       <IconHeader iconType="user" style={{
         display: "inline-block"
       }}/>
+      <IconHeader iconType="top-counter" style={{
+        display: "inline-block"
+      }}/>
     </div>
   )
 }, {notes: "A very simple component"});

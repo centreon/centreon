@@ -102,6 +102,11 @@
   color: $white-color;
 }
 
+.icon-top-counter:before {
+  content: "\e90e";
+  color: $white-color;
+}
+
 .icon-user:before {
   content: "\e90b";
   color: $white-color;
