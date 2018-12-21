@@ -16,7 +16,7 @@ var IconContent = function IconContent(_ref) {
   var iconContentType = _ref.iconContentType,
       iconContentColor = _ref.iconContentColor;
   return _react2.default.createElement("span", {
-    "class": "content-icon content-icon-" + iconContentType + " content-icon-add-" + iconContentColor
+    className: "content-icon content-icon-" + iconContentType + " content-icon-add-" + iconContentColor
   });
 };
 

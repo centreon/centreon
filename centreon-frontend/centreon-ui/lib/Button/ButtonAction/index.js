@@ -21,7 +21,7 @@ var ButtonAction = function ButtonAction(_ref) {
       buttonIconType = _ref.buttonIconType;
   return _react2.default.createElement(
     "span",
-    { "class": "button-action button-action-" + buttonActionType },
+    { className: "button-action button-action-" + buttonActionType },
     _react2.default.createElement(_IconAction2.default, { iconActionType: buttonIconType })
   );
 };

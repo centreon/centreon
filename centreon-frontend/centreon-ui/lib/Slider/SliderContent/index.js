@@ -23,31 +23,31 @@ var SliderContent = function SliderContent(_ref) {
 
   return _react2.default.createElement(
     "div",
-    { "class": "content-slider" },
+    { className: "content-slider" },
     _react2.default.createElement(
       "div",
-      { "class": "content-slider-indicators" },
+      { className: "content-slider-indicators" },
       _react2.default.createElement("span", null),
-      _react2.default.createElement("span", { "class": "active" }),
+      _react2.default.createElement("span", { className: "active" }),
       _react2.default.createElement("span", null)
     ),
     _react2.default.createElement(
       "div",
-      { "class": "content-slider-items" },
+      { className: "content-slider-items" },
       _react2.default.createElement(_ContentSliderItem2.default, { sliderImage: "https://static.centreon.com/wp-content/uploads/2018/09/plugin-banner-it-operations-management.png" })
     ),
     _react2.default.createElement(
       "div",
-      { "class": "content-slider-controls" },
+      { className: "content-slider-controls" },
       _react2.default.createElement(
         "span",
-        { "class": "content-slider-prev" },
-        _react2.default.createElement("span", { "class": "content-slider-prev-icon" })
+        { className: "content-slider-prev" },
+        _react2.default.createElement("span", { className: "content-slider-prev-icon" })
       ),
       _react2.default.createElement(
         "span",
-        { "class": "content-slider-next" },
-        _react2.default.createElement("span", { "class": "content-slider-next-icon" })
+        { className: "content-slider-next" },
+        _react2.default.createElement("span", { className: "content-slider-next-icon" })
       )
     )
   );

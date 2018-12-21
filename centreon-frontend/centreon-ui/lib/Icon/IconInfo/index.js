@@ -14,7 +14,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 var IconInfo = function IconInfo(_ref) {
   var iconName = _ref.iconName;
-  return _react2.default.createElement("span", { "class": "info info-" + iconName });
+  return _react2.default.createElement("span", { className: "info info-" + iconName });
 };
 
 exports.default = IconInfo;

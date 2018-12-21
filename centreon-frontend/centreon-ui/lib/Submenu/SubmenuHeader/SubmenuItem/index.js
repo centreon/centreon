@@ -38,19 +38,19 @@ var SubmenuItem = function (_Component) {
 
       return _react2.default.createElement(
         "li",
-        { "class": "submenu-item" },
+        { className: "submenu-item" },
         _react2.default.createElement(
           "a",
-          { "class": "submenu-item-link", href: submenuLink },
+          { className: "submenu-item-link", href: submenuLink },
           _react2.default.createElement(
             "span",
-            { "class": "submenu-item-title" },
+            { className: "submenu-item-title" },
             _react2.default.createElement("span", { className: "submenu-item-dot dot-" + dotColored }),
             submenuTitle
           ),
           _react2.default.createElement(
             "span",
-            { "class": "submenu-item-count" },
+            { className: "submenu-item-count" },
             submenuCount
           )
         )

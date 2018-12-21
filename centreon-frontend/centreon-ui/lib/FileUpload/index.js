@@ -33,41 +33,41 @@ var FileUpload = function FileUpload() {
       { popupType: "small" },
       _react2.default.createElement(
         "div",
-        { "class": "popup-header blue-background-decorator" },
+        { className: "popup-header blue-background-decorator" },
         _react2.default.createElement(
           "div",
-          { "class": "container__row" },
+          { className: "container__row" },
           _react2.default.createElement(
             "div",
-            { "class": "container__col-xs-6 center-vertical" },
+            { className: "container__col-xs-6 center-vertical" },
             _react2.default.createElement(
               "div",
-              { "class": "file file-upload" },
+              { className: "file file-upload" },
               _react2.default.createElement(
                 "span",
-                { "class": "file-upload-title" },
-                _react2.default.createElement("span", { "class": "file-upload-icon" }),
+                { className: "file-upload-title" },
+                _react2.default.createElement("span", { className: "file-upload-icon" }),
                 "File Upload"
               )
             )
           ),
           _react2.default.createElement(
             "div",
-            { "class": "container__col-xs-6 text-right" },
+            { className: "container__col-xs-6 text-right" },
             _react2.default.createElement(_ButtonRegular2.default, { buttonType: "bordered", color: "white", label: "BROWSE" })
           )
         ),
-        _react2.default.createElement("span", { "class": "icon-close icon-close-middle" })
+        _react2.default.createElement("span", { className: "icon-close icon-close-middle" })
       ),
       _react2.default.createElement(
         "div",
-        { "class": "popup-body" },
+        { className: "popup-body" },
         _react2.default.createElement(
           "div",
-          { "class": "file file-upload" },
+          { className: "file file-upload" },
           _react2.default.createElement(
             "div",
-            { "class": "file-upload-items" },
+            { className: "file-upload-items" },
             _react2.default.createElement(_FileUploadItem2.default, {
               icon: "file",
               iconStatus: "success",

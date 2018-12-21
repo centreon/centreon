@@ -38,7 +38,7 @@ var SubmenuHeader = function (_Component) {
 
       return _react2.default.createElement(
         'div',
-        { 'class': 'submenu-' + submenuType },
+        { className: 'submenu-' + submenuType },
         children
       );
     }

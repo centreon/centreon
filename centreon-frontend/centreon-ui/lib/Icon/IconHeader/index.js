@@ -19,11 +19,11 @@ var IconHeader = function IconHeader(_ref) {
 
   return _react2.default.createElement(
     'span',
-    { 'class': 'icons-wrap', style: style },
-    _react2.default.createElement('span', { 'class': 'iconmoon icon-' + iconType }),
+    { className: 'icons-wrap', style: style },
+    _react2.default.createElement('span', { className: 'iconmoon icon-' + iconType }),
     _react2.default.createElement(
       'span',
-      { 'class': 'icon__name' },
+      { className: 'icon__name' },
       iconName
     )
   );

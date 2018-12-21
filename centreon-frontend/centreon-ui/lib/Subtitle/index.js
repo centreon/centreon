@@ -16,7 +16,7 @@ var Subtitle = function Subtitle(_ref) {
   var label = _ref.label;
   return _react2.default.createElement(
     "h4",
-    { "class": "custom-subtitle" },
+    { className: "custom-subtitle" },
     label
   );
 };

@@ -16,7 +16,7 @@ var SearchLive = function SearchLive(_ref) {
   var label = _ref.label;
   return _react2.default.createElement(
     "div",
-    { "class": "search-live" },
+    { className: "search-live" },
     _react2.default.createElement(
       "label",
       { "for": "search-live" },

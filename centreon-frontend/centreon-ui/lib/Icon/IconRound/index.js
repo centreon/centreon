@@ -19,8 +19,8 @@ var IconRound = function IconRound(_ref) {
 
   return _react2.default.createElement(
     'span',
-    { 'class': 'icons icons-round ' + iconColor },
-    _react2.default.createElement('span', { 'class': 'iconmoon icon-' + iconType, title: iconTitle })
+    { className: 'icons icons-round ' + iconColor },
+    _react2.default.createElement('span', { className: 'iconmoon icon-' + iconType, title: iconTitle })
   );
 };
 

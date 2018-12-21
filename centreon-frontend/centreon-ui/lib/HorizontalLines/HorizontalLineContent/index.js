@@ -16,10 +16,10 @@ var HorizontalLineContent = function HorizontalLineContent(_ref) {
   var hrTitle = _ref.hrTitle;
   return _react2.default.createElement(
     "div",
-    { "class": "content-hr" },
+    { className: "content-hr" },
     _react2.default.createElement(
       "span",
-      { "class": "content-hr-title" },
+      { className: "content-hr-title" },
       hrTitle
     )
   );

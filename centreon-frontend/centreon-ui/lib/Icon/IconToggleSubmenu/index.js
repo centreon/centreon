@@ -15,7 +15,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 var IconToggleSubmenu = function IconToggleSubmenu(_ref) {
   var iconType = _ref.iconType;
 
-  return _react2.default.createElement('span', { 'class': 'icons-toggle-' + iconType });
+  return _react2.default.createElement('span', { className: 'icons-toggle-' + iconType });
 };
 
 exports.default = IconToggleSubmenu;

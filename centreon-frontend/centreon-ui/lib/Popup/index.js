@@ -21,18 +21,18 @@ var Popup = function Popup(_ref) {
     null,
     _react2.default.createElement(
       "div",
-      { "class": "popup popup-" + popupType },
+      { className: "popup popup-" + popupType },
       _react2.default.createElement(
         "div",
-        { "class": "popup-dialog" },
+        { className: "popup-dialog" },
         _react2.default.createElement(
           "div",
-          { "class": "popup-content" },
+          { className: "popup-content" },
           children
         )
       )
     ),
-    _react2.default.createElement("div", { "class": "popup-overlay" })
+    _react2.default.createElement("div", { className: "popup-overlay" })
   );
 };
 

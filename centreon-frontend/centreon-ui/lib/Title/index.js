@@ -17,8 +17,8 @@ var Title = function Title(_ref) {
       label = _ref.label;
   return _react2.default.createElement(
     "h2",
-    { "class": "custom-title" },
-    icon ? _react2.default.createElement("span", { "class": "custom-title-icon custom-title-icon-" + icon }) : null,
+    { className: "custom-title" },
+    icon ? _react2.default.createElement("span", { className: "custom-title-icon custom-title-icon-" + icon }) : null,
     label
   );
 };

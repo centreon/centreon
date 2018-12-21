@@ -14,7 +14,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 var IconClose = function IconClose(_ref) {
   var iconType = _ref.iconType;
-  return _react2.default.createElement("span", { "class": "icon-close icon-close-" + iconType });
+  return _react2.default.createElement("span", { className: "icon-close icon-close-" + iconType });
 };
 
 exports.default = IconClose;

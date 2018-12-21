@@ -22,22 +22,22 @@ var DescriptionContent = function DescriptionContent(_ref) {
     null,
     date ? _react2.default.createElement(
       "span",
-      { "class": "content-description-date" },
+      { className: "content-description-date" },
       date
     ) : null,
     title ? _react2.default.createElement(
       "h3",
-      { "class": "content-description-title" },
+      { className: "content-description-title" },
       title
     ) : null,
     text ? _react2.default.createElement(
       "p",
-      { "class": "content-description-text" },
+      { className: "content-description-text" },
       text
     ) : null,
     note ? _react2.default.createElement(
       "span",
-      { "class": "content-description-release-note" },
+      { className: "content-description-release-note" },
       note
     ) : null
   );

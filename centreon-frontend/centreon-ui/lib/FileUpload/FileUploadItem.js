@@ -45,21 +45,21 @@ var FileUploadItem = function (_Component) {
         null,
         _react2.default.createElement(
           "div",
-          { "class": "file-upload-item" },
-          _react2.default.createElement("span", { "class": "file-upload-item-icon " + icon + " " + iconStatus }),
+          { className: "file-upload-item" },
+          _react2.default.createElement("span", { className: "file-upload-item-icon " + icon + " " + iconStatus }),
           _react2.default.createElement(
             "span",
-            { "class": "file-upload-item-title " + titleStatus },
+            { className: "file-upload-item-title " + titleStatus },
             title
           ),
           _react2.default.createElement(
             "span",
-            { "class": "file-upload-item-info " + infoStatus },
+            { className: "file-upload-item-info " + infoStatus },
             infoStatusLabel,
             info
           ),
-          _react2.default.createElement("span", { "class": "icon-close icon-close-small" }),
-          _react2.default.createElement("span", { "class": "file-upload-item-progress " + progressBar })
+          _react2.default.createElement("span", { className: "icon-close icon-close-small" }),
+          _react2.default.createElement("span", { className: "file-upload-item-progress " + progressBar })
         )
       );
     }

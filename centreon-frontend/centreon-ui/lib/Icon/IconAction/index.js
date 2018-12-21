@@ -14,7 +14,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 var IconAction = function IconAction(_ref) {
   var iconActionType = _ref.iconActionType;
-  return _react2.default.createElement("span", { "class": "icon-action icon-action-" + iconActionType });
+  return _react2.default.createElement("span", { className: "icon-action icon-action-" + iconActionType });
 };
 
 exports.default = IconAction;
