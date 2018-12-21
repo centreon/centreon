@@ -1,0 +1,83 @@
+@import '../../global-sass-files/variables';
+@import '../../global-sass-files/mixins';
+// Content slider
+.content-slider {
+  position: relative;
+  &-item {
+    position: relative;
+  }
+  &-prev, &-next {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    @include center(both);
+    width: 12%;
+    color: #fff;
+    text-align: center;
+    &-icon {
+      display: inline-block;
+      width: 27px;
+      height: 43px;
+      background: transparent no-repeat center center;
+      background-size: 100% 100%;
+      cursor: pointer;
+      @media (max-width: 576px){
+        width: 18px;
+        height: 29px;
+        background-size: cover !important;
+      }
+    }
+  }
+  &-prev {
+    left: 0;
+    &-icon {
+      background: url('../../../img/icons/slider-arrow-left.png');
+    }
+  }
+  &-next {
+    right: 0;
+    &-icon {
+      background: url('../../../img/icons/slider-arrow-right.png');
+    }
+  }
+  &-indicators {
+    position: absolute;
+    bottom: 20px;
+    z-index: 99;
+    text-align: center;
+    left: 0;
+    right: 0;
+    @media (max-width: 576px){
+      bottom: 7px;
+    }
+    span {
+      width: 12px;
+      height: 12px;
+      background-color: #606060;
+      display: inline-block;
+      border-radius: 50%;
+      cursor: pointer;
+      margin-right: 15px;
+      border: 1px solid #ccc;
+      &.active {
+        background-color: $white-color;
+      }
+    }
+  }
+  .content-icon {
+    &-add {
+      &-green {
+        position: absolute;
+        right: 100px;
+        bottom: -22px;
+        @media (max-width: 576px){
+          width: 40px;
+          height: 40px;
+          background-size: 20px;
+          bottom: -15px;
+          right: 20px;
+        }
+      }
+    }
+  }
+}

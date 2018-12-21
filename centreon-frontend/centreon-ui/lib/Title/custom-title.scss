@@ -1,0 +1,40 @@
+@import '../global-sass-files/variables';
+@import '../global-sass-files/fonts';
+// Custom title
+.custom-title {
+  font-size: 20px;
+  margin: 0;
+  margin-bottom: 5px;
+  color: $content-blue-color;
+  font-family: $primary-font-light;
+  position: relative;
+  &-blue {
+    color: #0072aa;
+  }
+  &-heading {
+    padding-left: 60px;
+    .custom-title-icon {
+      position: absolute;
+      left: -60px;
+    }
+  }
+  &-icon {
+    width: 51px;
+    height: 51px;
+    display: inline-block;
+    vertical-align: top;
+    margin-right: 7px;
+    &-puzzle {
+      background: url('../../img/icons/icon-title-puzzle.png') no-repeat 50%;
+    }
+    &-object {
+      background: url('../../img/icons/icon-title-object.png') no-repeat 50%;
+    }
+  }
+  &.image {
+    padding-left: 65px;
+    .custom-title-icon {
+      left: 0;
+    }
+  }
+}

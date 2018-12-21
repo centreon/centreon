@@ -1,0 +1,11 @@
+[Settings]
+ID = "react-uikit"
+
+[build]
+  publish = ".docz/dist/"
+  command = "rm -rf .docz && npm run build"
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200

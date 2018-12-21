@@ -1,0 +1,21 @@
+// Action icons
+.icon {
+  &-action {
+    display: inline-block;
+    right: 6px;
+    width: 21px;
+    height: 20px;
+    &-update {
+      background: url('../../../img/icons/icon-button-update.png') no-repeat 50%;
+    }
+    &-add {
+      background: url('../../../img/icons/icon-add.png') no-repeat 50%;
+    }
+    &-delete {
+      background: url('../../../img/icons/icon-button-delete.png') no-repeat 50%;
+    }
+    &-delete-white {
+      background: url('../../../img/icons/icon-button-delete-white.png') no-repeat 50%;
+    }
+  }
+}

@@ -1,0 +1,31 @@
+@import '../../global-sass-files/variables';
+
+.icons {
+  &-normal {
+    font-size: .875rem;
+    padding: 0px 5px;
+    font-family: $primary-font-bold;
+    position: relative;
+    color: $white-color;
+    overflow: hidden;
+    text-align: center;
+    min-width: 32px;
+    height: 32px;
+    border-radius: 50px;
+    margin: 0 6px;
+    box-sizing: border-box;
+    text-decoration: none;
+    &.red {
+      background-color: #ed1c24;
+    }
+    &.orange {
+      background-color: #ff9913;
+    }
+    &.green {
+      background-color: #87bd23;
+    }
+  }
+  &-bordered {
+
+  }
+}

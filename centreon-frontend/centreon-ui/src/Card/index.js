@@ -1,10 +1,15 @@
-import React, { Component } from 'react';
+import React, {Component, Children} from "react";
+import "./card.scss";
 
 class Card extends Component {
   render() {
-    const { content } = this.props;
+    const {children} = this.props;
     return (
-      <div>{content}</div>
+      <div className="card">
+        <div className="card-items">
+          {children}
+        </div>
+      </div>
     );
   }
 }
