@@ -29,3 +29,4 @@ export { default as Subtitle } from "./Subtitle";
 export { default as Switcher } from "./Switcher";
 export { default as Title } from "./Title";
 export { default as Wrapper } from "./Wrapper";
+export { default as DynamicComponentLoader } from "./DynamicComponentLoader";
