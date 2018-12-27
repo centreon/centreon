@@ -4,7 +4,7 @@
   "description": "Hello world of compiler for dynamic components",
   "main": "index.js",
   "scripts": {
-    "compile": "cross-env PUBLIC_URL=\"./\" COMPONENT_BUILD_PATH=\"/../compiled-components/components/\" COMPONENT_NAME=\"Example1\" COMPONENT_SOURCE_PATH=\"./example1\" webpack --mode production"
+    "compile": "cross-env PUBLIC_URL=\"./\" COMPONENT_BUILD_PATH=\"/../compiled-components/components/\" COMPONENT_NAME=\"Example2\" COMPONENT_SOURCE_PATH=\"./example2\" webpack --mode production"
   },
   "author": "Danijel Halupka",
   "license": "ISC",

@@ -1,71 +1,33 @@
 import React, { Component } from 'react';
 import axios from "axios";
+import DynamicComponent from '../DynamicComponent';
 
 class DynamicComponentLoader extends Component {
 
   state = {
-    is_react: null,
-    comp: null,
-    is_comp: false,
-    reactUrl: ""
+    topologyUrl:"",
+    componentName:false
   }
 
   componentWillMount = () => {
 
-    const { topologyApiUrl } = this.props;
+    const { topologyInfoApiUrl } = this.props;
 
-    axios.get(topologyApiUrl).then((response) => {
-      if (response.data.is_react == 0) {
+    axios.get(topologyInfoApiUrl).then((response) => {
         this.setState({
-          is_react: false
-        })
-      } else {
-
-        this.setState({
-          is_react: true,
-          is_comp: false,
-          reactUrl: response.data.topology_url,
+          topologyUrl: response.data.topology_url,
           componentName: response.data.topology_name
-        },
-          () => {
-
-            document.addEventListener(`component${response.data.topology_name}Loaded`, (e) => {
-              this.setState({
-                is_react: true,
-                is_comp: true
-              })
-            })
-
-          })
-      }
+        })
     })
 
   }
 
   render() {
-    const { is_react, reactUrl, is_comp, componentName } = this.state;
-
-    let Comp = componentName ? window[componentName] : <div></div>;
+    const { topologyUrl, componentName } = this.state;
 
     return (
       <React.Fragment>
-        {
-          is_react ?
-            (
-              is_comp ? <Comp /> :
-                <iframe
-                  src={reactUrl}
-                  style={
-                    {
-                      width: 0,
-                      height: 0,
-                      border: '0',
-                      border: 'none'
-                    }
-                  } />
-            )
-            : null
-        }
+        <DynamicComponent componentName={componentName} componentUrl={topologyUrl}/>
       </React.Fragment>
     );
   }
