@@ -1,9 +1,9 @@
 import React from 'react';
 import './icon-toggle-submenu.scss';
 
-const IconToggleSubmenu = ({iconType}) => {
+const IconToggleSubmenu = ({iconType, ...rest}) => {
   return (
-    <span className={`icons-toggle-${iconType}`}></span>
+    <span className={`icons-toggle-${iconType}`} {...rest} ></span>
   )
 }
 

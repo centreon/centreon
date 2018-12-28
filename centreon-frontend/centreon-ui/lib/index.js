@@ -247,12 +247,12 @@ Object.defineProperty(exports, "Wrapper", {
   }
 });
 
-var _DynamicComponent = require("./DynamicComponent");
+var _DynamicComponentPosition = require("./DynamicComponentPosition");
 
-Object.defineProperty(exports, "DynamicComponent", {
+Object.defineProperty(exports, "DynamicComponentPosition", {
   enumerable: true,
   get: function get() {
-    return _interopRequireDefault(_DynamicComponent).default;
+    return _interopRequireDefault(_DynamicComponentPosition).default;
   }
 });
 
@@ -262,6 +262,24 @@ Object.defineProperty(exports, "DynamicComponentLoader", {
   enumerable: true,
   get: function get() {
     return _interopRequireDefault(_DynamicComponentLoader).default;
+  }
+});
+
+var _DynamicComponentBundle = require("./DynamicComponentBundle");
+
+Object.defineProperty(exports, "DynamicComponentBundle", {
+  enumerable: true,
+  get: function get() {
+    return _interopRequireDefault(_DynamicComponentBundle).default;
+  }
+});
+
+var _CentreonDynamicComponentGetter = require("./CentreonDynamicComponentGetter");
+
+Object.defineProperty(exports, "CentreonDynamicComponentGetter", {
+  enumerable: true,
+  get: function get() {
+    return _interopRequireDefault(_CentreonDynamicComponentGetter).default;
   }
 });
 
