@@ -29,5 +29,7 @@ export { default as Subtitle } from "./Subtitle";
 export { default as Switcher } from "./Switcher";
 export { default as Title } from "./Title";
 export { default as Wrapper } from "./Wrapper";
-export { default as DynamicComponent } from "./DynamicComponent";
+export { default as DynamicComponentPosition } from "./DynamicComponentPosition";
 export { default as DynamicComponentLoader } from "./DynamicComponentLoader";
+export { default as DynamicComponentBundle } from "./DynamicComponentBundle";
+export { default as CentreonDynamicComponentGetter } from "./CentreonDynamicComponentGetter";

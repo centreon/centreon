@@ -1,36 +1,58 @@
 import React, { Component } from 'react';
-import axios from "axios";
-import DynamicComponent from '../DynamicComponent';
 
 class DynamicComponentLoader extends Component {
 
-  state = {
-    topologyUrl:"",
-    componentName:false
-  }
+    state = {
+        componentLoaded:false
+    }
 
-  componentWillMount = () => {
+    componentWillReceiveProps = (nextProps) => {
+        const {componentName} = nextProps;
+        if(componentName != this.props.componentName){
+          document.removeEventListener(`component${this.props.componentName}Loaded`, this.setComponentLoaded);
+          document.addEventListener(`component${componentName}Loaded`, this.setComponentLoaded)
+        }
+    }
 
-    const { topologyInfoApiUrl } = this.props;
+    componentWillMount = () => {
+        if (this.props.componentName) {
+            document.addEventListener(`component${this.props.componentName}Loaded`, this.setComponentLoaded)
+        }
+    }
 
-    axios.get(topologyInfoApiUrl).then((response) => {
+    setComponentLoaded = () => {
         this.setState({
-          topologyUrl: response.data.topology_url,
-          componentName: response.data.topology_name
+            componentLoaded: true
         })
-    })
+    }
 
-  }
+    componentWillUnmount = () => {
+        const { componentName } = this.props;
+        document.removeEventListener(`component${componentName}Loaded`, this.setComponentLoaded);
+    }
 
-  render() {
-    const { topologyUrl, componentName } = this.state;
+    render() {
+        const { componentLoaded } = this.state;
+        const { componentUrl } = this.props;
 
-    return (
-      <React.Fragment>
-        <DynamicComponent componentName={componentName} componentUrl={topologyUrl}/>
-      </React.Fragment>
-    );
-  }
+        return (
+            <React.Fragment>
+                {
+                    componentLoaded ? null :
+                    <iframe
+                        src={componentUrl}
+                        style={
+                            {
+                                width: 0,
+                                height: 0,
+                                border: '0',
+                                border: 'none'
+                            }
+                        } />
+                }
+            </React.Fragment>
+        );
+    }
 }
 
 export default DynamicComponentLoader;

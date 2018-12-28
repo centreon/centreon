@@ -1,8 +1,9 @@
 import React, { Component } from 'react';
 
-class DynamicComponent extends Component {
+class DynamicComponentPosition extends Component {
 
   state = {
+    comp:false,
     componentLoaded: false
   }
 
@@ -21,7 +22,9 @@ class DynamicComponent extends Component {
   }
 
   setComponentLoaded = () => {
+    const { componentName } = this.props;
     this.setState({
+        comp: window[componentName],
         componentLoaded: true
       })
   }
@@ -32,30 +35,10 @@ class DynamicComponent extends Component {
   }
 
   render() {
-    const { componentLoaded } = this.state;
-    const { componentUrl, componentName } = this.props;
-
-    let Comp = componentName ? window[componentName] : <div></div>;
-
-    return (
-      <React.Fragment>
-        {
-          
-              componentLoaded ? <Comp /> :
-                <iframe
-                  src={componentUrl}
-                  style={
-                    {
-                      width: 0,
-                      height: 0,
-                      border: '0',
-                      border: 'none'
-                    }
-                  } />
-        }
-      </React.Fragment>
-    );
+    const { comp } = this.state;
+    let Comp = comp ? comp : React.Fragment;
+    return <Comp />
   }
 }
 
-export default DynamicComponent;
+export default DynamicComponentPosition;
