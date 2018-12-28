@@ -15,12 +15,13 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 var IconHeader = function IconHeader(_ref) {
   var iconType = _ref.iconType,
       iconName = _ref.iconName,
-      style = _ref.style;
+      style = _ref.style,
+      onClick = _ref.onClick;
 
   return _react2.default.createElement(
     'span',
     { className: 'icons-wrap', style: style },
-    _react2.default.createElement('span', { className: 'iconmoon icon-' + iconType }),
+    _react2.default.createElement('span', { onClick: onClick, className: 'iconmoon icon-' + iconType }),
     _react2.default.createElement(
       'span',
       { className: 'icon__name' },

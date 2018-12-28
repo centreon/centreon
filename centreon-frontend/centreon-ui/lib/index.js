@@ -247,4 +247,22 @@ Object.defineProperty(exports, "Wrapper", {
   }
 });
 
+var _DynamicComponent = require("./DynamicComponent");
+
+Object.defineProperty(exports, "DynamicComponent", {
+  enumerable: true,
+  get: function get() {
+    return _interopRequireDefault(_DynamicComponent).default;
+  }
+});
+
+var _DynamicComponentLoader = require("./DynamicComponentLoader");
+
+Object.defineProperty(exports, "DynamicComponentLoader", {
+  enumerable: true,
+  get: function get() {
+    return _interopRequireDefault(_DynamicComponentLoader).default;
+  }
+});
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }

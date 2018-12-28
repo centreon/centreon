@@ -6,7 +6,7 @@
     "bundle": "babel ./src --out-dir ./lib --copy-files",
     "dev": "docz dev",
     "build": "docz build",
-    "storybook": "start-storybook -p 9001 -c .storybook"
+    "storybook": "start-storybook -p 9001 -c .storybook -s ./dynamic/compiled-components/components"
   },
   "peerDependencies": {
     "react": "^16.0.0",
@@ -16,7 +16,8 @@
   "dependencies": {
     "classnames": "latest",
     "lodash": "^4.17.10",
-    "react-portal": "^4.1.5"
+    "react-portal": "^4.1.5",
+    "axios": "^0.18.0"
   },
   "devDependencies": {
     "@storybook/addon-actions": "^4.0.9",
