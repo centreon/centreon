@@ -55,6 +55,7 @@ $db = $dependencyInjector['configuration_db'];
 if (CentreonSession::checkSession(session_id(), $db) == 0) {
     exit;
 }
+
 /**
  * @var $dbb CentreonDB
  */
@@ -227,20 +228,10 @@ if (!$centreon->user->admin) {
 }
 
 $orderBy = 'host_name ASC';
-
 if (isset($preferences['order_by']) && trim($preferences['order_by']) != '') {
-    $aOrder = explode(' ', $preferences['order_by']);
-    if (in_array('last_state_change', $aOrder) || in_array('last_hard_state_change', $aOrder)) {
-        if ($aOrder[1] == 'DESC') {
-            $order = 'ASC';
-        } else {
-            $order = 'DESC';
-        }
-        $orderBy = $aOrder[0] . ' ' . $order;
-    } else {
-        $orderBy = 'h.' . $preferences['order_by'];
-    }
+    $orderBy = $preferences['order_by'];
 }
+
 $query .= " ORDER BY {$orderBy}";
 $query .= ' LIMIT ' . ($page * $preferences['entries']) . ',' . $preferences['entries'];
 $res = $dbb->prepare($query);
@@ -373,7 +364,6 @@ while ($row = $res->fetch()) {
             $class = 'line_ack';
         }
     }
-
     $data[$row['host_id']]['class_tr'] = $class;
 }
 
