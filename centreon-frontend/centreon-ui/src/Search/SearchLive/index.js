@@ -1,11 +1,23 @@
 import React from "react";
 import "./search-live.scss";
 
-const SearchLive = ({ label }) => (
-  <div className="search-live">
-    <label for="search-live">{label}</label>
-    <input type="text" id="search-live" name="search-live" />
-  </div>
-);
+class SearchLive extends React.Component {
+
+  onChange = (e) => {
+    const {onChange} = this.props;
+    onChange(e.target.value);
+  }
+
+  render() {
+    const { label } = this.props;
+    
+    return (
+      <div className="search-live">
+        <label>{label}</label>
+        <input type="text" onChange={this.onChange.bind(this)} />
+      </div>
+    )
+  }
+}
 
 export default SearchLive;

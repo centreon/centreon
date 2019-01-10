@@ -283,4 +283,13 @@ Object.defineProperty(exports, "CentreonDynamicComponentGetter", {
   }
 });
 
+var _TopFilters = require("./TopFilters");
+
+Object.defineProperty(exports, "TopFilters", {
+  enumerable: true,
+  get: function get() {
+    return _interopRequireDefault(_TopFilters).default;
+  }
+});
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }

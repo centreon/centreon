@@ -33,3 +33,4 @@ export { default as DynamicComponentPosition } from "./DynamicComponentPosition"
 export { default as DynamicComponentLoader } from "./DynamicComponentLoader";
 export { default as DynamicComponentBundle } from "./DynamicComponentBundle";
 export { default as CentreonDynamicComponentGetter } from "./CentreonDynamicComponentGetter";
+export { default as TopFilters } from "./TopFilters";
