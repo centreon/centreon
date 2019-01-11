@@ -46,7 +46,9 @@ var SearchLive = function (_React$Component) {
   _createClass(SearchLive, [{
     key: "render",
     value: function render() {
-      var label = this.props.label;
+      var _props = this.props,
+          label = _props.label,
+          value = _props.value;
 
 
       return _react2.default.createElement(
@@ -57,7 +59,7 @@ var SearchLive = function (_React$Component) {
           null,
           label
         ),
-        _react2.default.createElement("input", { type: "text", onChange: this.onChange.bind(this) })
+        _react2.default.createElement("input", { type: "text", value: value, onChange: this.onChange.bind(this) })
       );
     }
   }]);

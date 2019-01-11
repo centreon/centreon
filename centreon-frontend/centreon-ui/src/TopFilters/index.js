@@ -17,7 +17,7 @@ class TopFilters extends Component {
                     {
                         fullText ? (
                             <div className="container__col-md-3 container__col-xs-12">
-                                <Centreon.SearchLive onChange={onChange} label={fullText.label} filterKey={fullText.filterKey} />
+                                <Centreon.SearchLive onChange={onChange} label={fullText.label} value={fullText.value} filterKey={fullText.filterKey} />
                             </div>
                         ) : null
                     }
@@ -38,7 +38,8 @@ class TopFilters extends Component {
                                                     buttonType,
                                                     color,
                                                     onClick,
-                                                    filterKey
+                                                    filterKey,
+                                                    value
                                                 }, i) => (
 
                                                         !button ?
@@ -49,6 +50,7 @@ class TopFilters extends Component {
                                                                 switcherStatus={switcherStatus}
                                                                 filterKey={filterKey} 
                                                                 onChange={onChange}
+                                                                value={value}
                                                                 />) :
                                                             (
                                                                 <div

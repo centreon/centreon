@@ -35,13 +35,21 @@ var Switcher = function (_React$Component) {
     }
 
     return _ret = (_temp = (_this = _possibleConstructorReturn(this, (_ref = Switcher.__proto__ || Object.getPrototypeOf(Switcher)).call.apply(_ref, [this].concat(args))), _this), _this.state = {
-      value: false
+      value: true
     }, _this.UNSAFE_componentDidMount = function () {
-      var defaultValue = _this.props.defaultValue;
+      var value = _this.props.value;
 
-      if (defaultValue) {
+      if (value) {
         _this.setState({
-          value: defaultValue
+          value: value
+        });
+      }
+    }, _this.UNSAFE_componentWillReceiveProps = function (nextProps) {
+      var value = nextProps.value;
+
+      if (_this.state.value != value) {
+        _this.setState({
+          value: value
         });
       }
     }, _this.onChange = function () {
@@ -66,6 +74,7 @@ var Switcher = function (_React$Component) {
           switcherTitle = _props.switcherTitle,
           switcherStatus = _props.switcherStatus,
           customClass = _props.customClass;
+      var value = this.state.value;
 
       return _react2.default.createElement(
         "div",
@@ -83,7 +92,7 @@ var Switcher = function (_React$Component) {
         _react2.default.createElement(
           "label",
           { className: "switch" },
-          _react2.default.createElement("input", { type: "checkbox", onClick: this.onChange.bind(this) }),
+          _react2.default.createElement("input", { type: "checkbox", checked: value, onClick: this.onChange.bind(this) }),
           _react2.default.createElement("span", { className: "switch-slider switch-round" })
         )
       );

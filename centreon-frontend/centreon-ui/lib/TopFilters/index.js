@@ -56,7 +56,7 @@ var TopFilters = function (_Component) {
                         fullText ? _react2.default.createElement(
                             'div',
                             { className: 'container__col-md-3 container__col-xs-12' },
-                            _react2.default.createElement(Centreon.SearchLive, { onChange: onChange, label: fullText.label, filterKey: fullText.filterKey })
+                            _react2.default.createElement(Centreon.SearchLive, { onChange: onChange, label: fullText.label, value: fullText.value, filterKey: fullText.filterKey })
                         ) : null,
                         _react2.default.createElement(
                             'div',
@@ -80,14 +80,16 @@ var TopFilters = function (_Component) {
                                                     buttonType = _ref.buttonType,
                                                     color = _ref.color,
                                                     onClick = _ref.onClick,
-                                                    filterKey = _ref.filterKey;
+                                                    filterKey = _ref.filterKey,
+                                                    value = _ref.value;
                                                 return !button ? _react2.default.createElement(Centreon.Switcher, _extends({
                                                     key: 'switcher' + index + i,
                                                     customClass: customClass
                                                 }, switcherTitle ? { switcherTitle: switcherTitle } : {}, {
                                                     switcherStatus: switcherStatus,
                                                     filterKey: filterKey,
-                                                    onChange: onChange
+                                                    onChange: onChange,
+                                                    value: value
                                                 })) : _react2.default.createElement(
                                                     'div',
                                                     {
