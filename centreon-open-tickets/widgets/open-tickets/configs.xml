@@ -4,7 +4,7 @@
   <email>contact@centreon.com</email>
   <website>http://www.centreon.com</website>
   <description>Widget for opening tickets</description>
-  <version>1.2.0</version>
+  <version>18.10.0</version>
   <keywords>centreon, widget, tickets</keywords>
   <screenshot></screenshot>
   <thumbnail>./widgets/open-tickets/resources/centreon-logo.png</thumbnail>
