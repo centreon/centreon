@@ -7,10 +7,9 @@ class TopFilters extends Component {
 
         const {
             fullText,
-            switchers
+            switchers,
+            onChange,
         } = this.props;
-
-        console.log(switchers)
 
         return (<div className="container container-gray">
             <Centreon.Wrapper>
@@ -18,7 +17,7 @@ class TopFilters extends Component {
                     {
                         fullText ? (
                             <div className="container__col-md-3 container__col-xs-12">
-                                <Centreon.SearchLive onChange={fullText.onChange} label={fullText.label} />
+                                <Centreon.SearchLive onChange={onChange} label={fullText.label} filterKey={fullText.filterKey} />
                             </div>
                         ) : null
                     }
@@ -39,7 +38,7 @@ class TopFilters extends Component {
                                                     buttonType,
                                                     color,
                                                     onClick,
-                                                    onChange
+                                                    filterKey
                                                 }, i) => (
 
                                                         !button ?
@@ -47,7 +46,8 @@ class TopFilters extends Component {
                                                                 key={`switcher${index}${i}`}
                                                                 customClass={customClass}
                                                                 {...(switcherTitle ? { switcherTitle } : {})}
-                                                                switcherStatus={switcherStatus} 
+                                                                switcherStatus={switcherStatus}
+                                                                filterKey={filterKey} 
                                                                 onChange={onChange}
                                                                 />) :
                                                             (

@@ -292,4 +292,13 @@ Object.defineProperty(exports, "TopFilters", {
   }
 });
 
+var _ExtensionsHolder = require("./ExtensionsHolder");
+
+Object.defineProperty(exports, "ExtensionsHolder", {
+  enumerable: true,
+  get: function get() {
+    return _interopRequireDefault(_ExtensionsHolder).default;
+  }
+});
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }

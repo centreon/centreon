@@ -17,13 +17,13 @@ class Switcher extends React.Component{
   }
 
   onChange = () => {
-    const {onChange} = this.props;
+    const {onChange, filterKey} = this.props;
     const {value} = this.state;
     this.setState({
       value:!value
     });
     if(onChange){
-      onChange(!value);
+      onChange(!value,filterKey);
     }
   }
 
