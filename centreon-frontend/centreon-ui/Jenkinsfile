@@ -4,7 +4,7 @@ stage('Source') {
     dir('centreon-react-components') {
       checkout scm
     }
-    sh './centreon-build/jobs/react-components/18.10/react-components-source.sh'
+    sh './centreon-build/jobs/react-components/react-components-source.sh'
     source = readProperties file: 'source.properties'
     env.VERSION = "${source.VERSION}"
     env.RELEASE = "${source.RELEASE}"
