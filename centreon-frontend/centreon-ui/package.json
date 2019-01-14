@@ -1,7 +1,7 @@
 {
   "name": "@centreon/react-components",
   "version": "0.1.0",
-  "license": "GPL-2.0",
+  "description": "react components used by centreon web frontend",
   "main": "lib",
   "scripts": {
     "bundle": "babel ./src --out-dir ./lib --copy-files",
@@ -9,6 +9,20 @@
     "build": "docz build",
     "storybook": "start-storybook -p 9001 -c .storybook -s ./dynamic/compiled-components/components"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/centreon/centreon-react-components.git"
+  },
+  "keywords": [
+    "centreon",
+    "react"
+  ],
+  "author": "centreon@centreon.com",
+  "license": "GPL-2.0",
+  "bugs": {
+    "url": "https://github.com/centreon/centreon-react-components/issues"
+  },
+  "homepage": "https://github.com/centreon/centreon-react-components#readme",
   "peerDependencies": {
     "react": "^16.0.0",
     "react-dom": "^16.0.0",
