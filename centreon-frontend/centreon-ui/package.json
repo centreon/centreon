@@ -1,6 +1,7 @@
 {
   "name": "@centreon/react-components",
   "version": "0.1.0",
+  "license": "GPL-2.0",
   "main": "lib",
   "scripts": {
     "bundle": "babel ./src --out-dir ./lib --copy-files",
