@@ -12,24 +12,22 @@ stage('Source') {
 }
 
 try {
-  if (env.BRANCH_NAME == 'npm-publish') {
-    stage('Delivery') {
-      node {
-        sh 'setup_centreon_build.sh'
-        sh './centreon-build/jobs/react-components/react-components-delivery.sh'
-      }
-      if ((currentBuild.result ?: 'SUCCESS') != 'SUCCESS') {
-        error('Delivery stage failure.');
-      }
+  stage('Delivery') {
+    node {
+      sh 'setup_centreon_build.sh'
+      sh './centreon-build/jobs/react-components/react-components-delivery.sh'
+    }
+    if ((currentBuild.result ?: 'SUCCESS') != 'SUCCESS') {
+      error('Delivery stage failure.');
     }
   }
 } catch(e) {
-  if (env.BRANCH_NAME == 'npm-publish') {
+  if (env.BRANCH_NAME == 'master') {
     slackSend channel: "#monitoring-metrology",
-        color: "#F30031",
-        message: "*FAILURE*: `CENTREON REACT COMPONENTS` <${env.BUILD_URL}|build #${env.BUILD_NUMBER}> on branch ${env.BRANCH_NAME}\n" +
-            "*COMMIT*: <https://github.com/centreon/centreon-react-components/commit/${source.COMMIT}|here> by ${source.COMMITTER}\n" +
-            "*INFO*: ${e}"
+      color: "#F30031",
+      message: "*FAILURE*: `CENTREON REACT COMPONENTS` <${env.BUILD_URL}|build #${env.BUILD_NUMBER}> on branch ${env.BRANCH_NAME}\n" +
+        "*COMMIT*: <https://github.com/centreon/centreon-react-components/commit/${source.COMMIT}|here> by ${source.COMMITTER}\n" +
+        "*INFO*: ${e}"
   }
 
   currentBuild.result = 'FAILURE'
