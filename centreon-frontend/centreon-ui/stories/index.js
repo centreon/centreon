@@ -13,3 +13,5 @@ import "./Submenu";
 import "./Subtitle";
 import "./Switcher";
 import "./Title";
+import "./CentreonDynamicComponent";
+import './TopFilters';

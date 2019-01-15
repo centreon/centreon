@@ -247,4 +247,58 @@ Object.defineProperty(exports, "Wrapper", {
   }
 });
 
+var _DynamicComponentPosition = require("./DynamicComponentPosition");
+
+Object.defineProperty(exports, "DynamicComponentPosition", {
+  enumerable: true,
+  get: function get() {
+    return _interopRequireDefault(_DynamicComponentPosition).default;
+  }
+});
+
+var _DynamicComponentLoader = require("./DynamicComponentLoader");
+
+Object.defineProperty(exports, "DynamicComponentLoader", {
+  enumerable: true,
+  get: function get() {
+    return _interopRequireDefault(_DynamicComponentLoader).default;
+  }
+});
+
+var _DynamicComponentBundle = require("./DynamicComponentBundle");
+
+Object.defineProperty(exports, "DynamicComponentBundle", {
+  enumerable: true,
+  get: function get() {
+    return _interopRequireDefault(_DynamicComponentBundle).default;
+  }
+});
+
+var _CentreonDynamicComponentGetter = require("./CentreonDynamicComponentGetter");
+
+Object.defineProperty(exports, "CentreonDynamicComponentGetter", {
+  enumerable: true,
+  get: function get() {
+    return _interopRequireDefault(_CentreonDynamicComponentGetter).default;
+  }
+});
+
+var _TopFilters = require("./TopFilters");
+
+Object.defineProperty(exports, "TopFilters", {
+  enumerable: true,
+  get: function get() {
+    return _interopRequireDefault(_TopFilters).default;
+  }
+});
+
+var _ExtensionsHolder = require("./ExtensionsHolder");
+
+Object.defineProperty(exports, "ExtensionsHolder", {
+  enumerable: true,
+  get: function get() {
+    return _interopRequireDefault(_ExtensionsHolder).default;
+  }
+});
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }

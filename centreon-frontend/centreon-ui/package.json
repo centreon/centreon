@@ -1,13 +1,28 @@
 {
   "name": "@centreon/react-components",
-  "version": "0.1.0",
+  "version": "0.0.0-alpha.1",
+  "description": "react components used by centreon web frontend",
   "main": "lib",
   "scripts": {
     "bundle": "babel ./src --out-dir ./lib --copy-files",
     "dev": "docz dev",
     "build": "docz build",
-    "storybook": "start-storybook -p 9001 -c .storybook"
+    "storybook": "start-storybook -p 9001 -c .storybook -s ./dynamic/compiled-components/components"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/centreon/centreon-react-components.git"
+  },
+  "keywords": [
+    "centreon",
+    "react"
+  ],
+  "author": "centreon@centreon.com",
+  "license": "GPL-2.0",
+  "bugs": {
+    "url": "https://github.com/centreon/centreon-react-components/issues"
+  },
+  "homepage": "https://github.com/centreon/centreon-react-components#readme",
   "peerDependencies": {
     "react": "^16.0.0",
     "react-dom": "^16.0.0",
@@ -16,7 +31,8 @@
   "dependencies": {
     "classnames": "latest",
     "lodash": "^4.17.10",
-    "react-portal": "^4.1.5"
+    "react-portal": "^4.1.5",
+    "axios": "^0.18.0"
   },
   "devDependencies": {
     "@storybook/addon-actions": "^4.0.9",

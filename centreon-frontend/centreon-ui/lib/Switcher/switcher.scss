@@ -42,7 +42,7 @@
     }
   }
   input + .switch-slider:after {
-    content: "off";
+    content: "hide";
     height: 21px;
     display: block;
     box-sizing: border-box;
@@ -58,7 +58,7 @@
     transition: .75s;
   }
   input:checked + .switch-slider:after {
-    content: "on";
+    content: "show";
     padding-left: 15px;
     text-align: left;
     background: $content-green-color;

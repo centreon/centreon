@@ -1,0 +1,10 @@
+{
+    "components":[
+        {
+            "id":"1",
+            "is_react":"1",
+            "topology_url":"./example1/index.html",
+            "topology_name":"Example1"
+        }
+    ]
+}
