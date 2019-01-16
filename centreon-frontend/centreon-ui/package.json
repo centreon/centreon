@@ -4,7 +4,7 @@
   "description": "react components used by centreon web frontend",
   "main": "lib",
   "scripts": {
-    "install": "npm install && npm run bundle",
+    "install": "npm run bundle",
     "bundle": "babel ./src --out-dir ./lib --copy-files",
     "storybook": "start-storybook -p 9001 -c .storybook -s ./dynamic/compiled-components/components"
   },
