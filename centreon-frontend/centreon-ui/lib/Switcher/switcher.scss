@@ -1,0 +1,98 @@
+@import '../global-sass-files/variables';
+@import '../global-sass-files/fonts';
+// Switcher
+.switcher {
+  .switch {
+    position: relative;
+    display: inline-block;
+    width: 67px;
+    height: 21px;
+    input {
+      display:none;
+    }
+    &-slider {
+      width: 67px;
+      height: 21px;
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #f4f4f4;
+      border: 1px solid #dcdcdc;
+      -webkit-transition: .4s;
+      transition: .4s;
+      cursor: pointer;
+    }
+    &-slider:before {
+      content: "";
+      position: absolute;
+      height: 19px;
+      width: 19px;
+      text-align: center;
+      color: #373737;
+      font-size: 12px;
+      line-height: 14px;
+      font-family: $primary-font-regular;
+      line-height: 19px;
+      background-color: $white-color;
+      border: 1px solid #dcdcdc;
+      -webkit-transition: .75s;
+      transition: .75s;
+    }
+  }
+  input + .switch-slider:after {
+    content: "hide";
+    height: 21px;
+    display: block;
+    box-sizing: border-box;
+    width: 100%;
+    padding-right: 15px;
+    color: #373737;
+    font-size: 12px;
+    line-height: 20px;
+    font-family: $primary-font-regular;
+    padding-left: 26px;
+    line-height: 18px;
+    -webkit-transition: .75s;
+    transition: .75s;
+  }
+  input:checked + .switch-slider:after {
+    content: "show";
+    padding-left: 15px;
+    text-align: left;
+    background: $content-green-color;
+    width: 67px;
+    height: 21px;
+    border-radius: 21px;
+    color: $white-color;
+  }
+  input:checked + .switch-slider:before {
+    -webkit-transform: translateX(46px);
+    -ms-transform: translateX(46px);
+    transform: translateX(46px);
+  }
+  
+  /* Rounded sliders */
+  .switch-slider.switch-round {
+    border-radius: 11px;
+  }
+  .switch-slider.switch-round:before {
+    width: 19px;
+    border-radius: 19px;
+  }
+  &-title, &-status {
+    display: block;
+    color: #4e4d4d;
+    font-size: 12px;
+    line-height: 14px;
+    font-family: $primary-font-regular;
+  }
+  &-title {
+    margin-bottom: 10px;
+    min-height: 14px;
+  }
+  &-status {
+    margin-bottom: 5px;
+  }
+}
