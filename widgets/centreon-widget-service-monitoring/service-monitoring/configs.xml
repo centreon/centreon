@@ -4,7 +4,7 @@
   <email>contact@centreon.com</email>
   <website>http://www.centreon.com</website>
   <description>Widget for displaying service monitoring information</description>
-  <version>18.10.0</version>
+  <version>18.10.1</version>
   <keywords>centreon, widget, service, monitoring</keywords>
   <screenshot></screenshot>
   <thumbnail>./widgets/service-monitoring/resources/centreon-logo.png</thumbnail>
@@ -38,7 +38,7 @@
       <option value="softonly" label="Soft Only"/>
     </preference>
     <preference label="Poller" name="poller" defaultValue="" type="poller"/>
-    <preference label="Hostgroup" name="hostgroup" defaultValue="" type="hostgroup"/>
+    <preference label="Hostgroup" name="hostgroup" defaultValue="" type="hostGroupMulti"/>
     <preference label="Servicegroup" name="servicegroup" defaultValue="" type="servicegroup"/>
     <preference label="Results" name="entries" defaultValue="10" type="range" min="10" max="100" step="10"/>
     <preference label="Output" name="output_search" defaultValue="" type="compare" />
