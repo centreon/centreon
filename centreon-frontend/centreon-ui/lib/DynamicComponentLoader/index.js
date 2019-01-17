@@ -68,7 +68,7 @@ var DynamicComponentLoader = function (_Component) {
             return _react2.default.createElement(
                 _react2.default.Fragment,
                 null,
-                componentLoaded ? null : _react2.default.createElement('iframe', {
+                componentLoaded && !(!!window.MSInputMethodContext && !!document.documentMode) ? null : _react2.default.createElement('iframe', {
                     src: componentUrl,
                     style: _defineProperty({
                         width: 0,

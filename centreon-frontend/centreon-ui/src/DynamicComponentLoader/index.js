@@ -38,7 +38,7 @@ class DynamicComponentLoader extends Component {
         return (
             <React.Fragment>
                 {
-                    componentLoaded ? null :
+                    componentLoaded && !(!!window.MSInputMethodContext && !!document.documentMode) ? null :
                     <iframe
                         src={componentUrl}
                         style={
