@@ -2,7 +2,7 @@
 @import '../global-sass-files/fonts';
 // Custom title
 .custom-title {
-  font-size: 20px;
+  font-size: 15px;
   margin: 0;
   margin-bottom: 5px;
   color: $content-blue-color;
@@ -12,10 +12,10 @@
     color: #0072aa;
   }
   &-heading {
-    padding-left: 60px;
+    padding-left: 50px;
     .custom-title-icon {
       position: absolute;
-      left: -60px;
+      left: -55px;
     }
   }
   &-icon {
