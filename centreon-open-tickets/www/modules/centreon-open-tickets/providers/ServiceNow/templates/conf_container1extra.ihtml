@@ -44,6 +44,38 @@
     </td>
 </tr>
 <tr class="list_two">
+    <td class="FormRowField">
+        {$form.proxy_address.label}
+    </td>
+    <td class="FormRowValue">
+        {$form.proxy_address.html}
+    </td>
+</tr>
+<tr class="list_one">
+    <td class="FormRowField">
+        {$form.proxy_port.label}
+    </td>
+    <td class="FormRowValue">
+        {$form.proxy_port.html}
+    </td>
+</tr>
+<tr class="list_two">
+    <td class="FormRowField">
+        {$form.proxy_username.label}
+    </td>
+    <td class="FormRowValue">
+        {$form.proxy_username.html}
+    </td>
+</tr>
+<tr class="list_one">
+    <td class="FormRowField">
+        {$form.proxy_password.label}
+    </td>
+    <td class="FormRowValue">
+        {$form.proxy_password.html}
+    </td>
+</tr>
+<tr class="list_two">
   <td class="FormRowField">
     {t}Test authentication{/t}
   </td>
@@ -105,7 +137,11 @@ jQuery('#test-servicenow').on('click', function (e) {
       clientId: jQuery('input[name="client_id"]').val(),
       clientSecret: jQuery('input[name="client_secret"]').val(),
       username: jQuery('input[name="username"]').val(),
-      password: jQuery('input[name="password"]').val()
+      password: jQuery('input[name="password"]').val(),
+      proxyAddress: jQuery('input[name="proxy_address"]').val(),
+      proxyPort: jQuery('input[name="proxy_port"]').val(),
+      proxyUsername: jQuery('input[name="proxy_username"]').val(),
+      proxyPassword: jQuery('input[name="proxy_password"]').val()
     }),
     success: function (data) {
       if (data === true) {

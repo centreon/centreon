@@ -97,6 +97,7 @@ class ServiceNowProvider extends AbstractProvider {
         $this->_checkFormValue('client_secret', 'Please set a OAuth2 client secret.');
         $this->_checkFormValue('username', 'Please set a OAuth2 username.');
         $this->_checkFormValue('password', 'Please set a OAuth2 password.');
+        $this->_checkFormInteger('proxy_port', "'Proxy port' must be a number");
 
         $this->_checkLists();
 
@@ -123,6 +124,10 @@ class ServiceNowProvider extends AbstractProvider {
         $client_secret_html = '<input size="50" name="client_secret" type="password" value="' . $this->_getFormValue('client_secret') . '" autocomplete="off" />';
         $username_html = '<input size="50" name="username" type="text" value="' . $this->_getFormValue('username') . '" />';
         $password_html = '<input size="50" name="password" type="password" value="' . $this->_getFormValue('password') . '" autocomplete="off" />';
+        $proxy_address_html = '<input size="50" name="proxy_address" type="text" value="' . $this->_getFormValue('proxy_address') . '" />';
+        $proxy_port_html = '<input size="10" name="proxy_port" type="text" value="' . $this->_getFormValue('proxy_port') . '" />';
+        $proxy_username_html = '<input size="50" name="proxy_username" type="text" value="' . $this->_getFormValue('proxy_username') . '" />';
+        $proxy_password_html = '<input size="50" name="proxy_password" type="password" value="' . $this->_getFormValue('proxy_password') . '" autocomplete="off" />';
 
         $array_form = array(
             'instance_name' => array('label' => _("Instance name") . $this->_required_field, 'html' => $instance_name_html),
@@ -130,6 +135,10 @@ class ServiceNowProvider extends AbstractProvider {
             'client_secret' => array('label' => _("OAuth client secret") . $this->_required_field, 'html' => $client_secret_html),
             'username' => array('label' => _("OAuth username") . $this->_required_field, 'html' => $username_html),
             'password' => array('label' => _("OAuth password") . $this->_required_field, 'html' => $password_html),
+            'proxy_address' => array('label' => _("Proxy address"), 'html' => $proxy_address_html),
+            'proxy_port' => array('label' => _("Proxy port"), 'html' => $proxy_port_html),
+            'proxy_username' => array('label' => _("Proxy username"), 'html' => $proxy_username_html),
+            'proxy_password' => array('label' => _("Proxy password"), 'html' => $proxy_password_html),
             'mappingticket' => array('label' => _("Mapping ticket arguments")),
         );
         
@@ -168,6 +177,10 @@ class ServiceNowProvider extends AbstractProvider {
         $this->_save_config['simple']['client_secret'] = $this->_submitted_config['client_secret'];
         $this->_save_config['simple']['username'] = $this->_submitted_config['username'];
         $this->_save_config['simple']['password'] = $this->_submitted_config['password'];
+        $this->_save_config['simple']['proxy_address'] = $this->_submitted_config['proxy_address'];
+        $this->_save_config['simple']['proxy_port'] = $this->_submitted_config['proxy_port'];
+        $this->_save_config['simple']['proxy_username'] = $this->_submitted_config['proxy_username'];
+        $this->_save_config['simple']['proxy_password'] = $this->_submitted_config['proxy_password'];
         
         $this->_save_config['clones']['mappingTicket'] = $this->_getCloneSubmitted('mappingTicket', array('Arg', 'Value'));
     }
@@ -269,14 +282,15 @@ class ServiceNowProvider extends AbstractProvider {
         /* Create ticket */
         try {
             $data = $this->_submitted_config;
+            $data['ticket_arguments'] = $ticket_arguments;
             $resultInfo = $this->callServiceNow('createTicket', $data);
         } catch (\Exception $e) {
             $result['ticket_error_message'] = 'Error during create ServiceNow ticket';
         }
         
         $this->saveHistory($db_storage, $result, array('contact' => $contact, 'host_problems' => $host_problems, 'service_problems' => $service_problems, 
-            'ticket_value' => $resultInfo['sysTicketId'], 'subject' => $ticket_arguments[self::ARG_SHORT_DESCRIPTION], 
-            'data_type' => self::DATA_TYPE_JSON, 'data' => json_encode(array('arguments' => $ticket_arguments, 'dynamic_fields' => $ticket_dynamic_fields))));
+            'ticket_value' => $resultInfo['sysTicketId'], 'subject' => $ticket_arguments[$this->_internal_arg_name[self::ARG_SHORT_DESCRIPTION]], 
+            'data_type' => self::DATA_TYPE_JSON, 'data' => json_encode($data)));
         
         return $result;
     }
@@ -290,6 +304,22 @@ class ServiceNowProvider extends AbstractProvider {
         $this->validateFormatPopupLists($result);
         return $result;
     }
+    
+    static protected function setProxy(&$ch, $info) {
+        if (is_null($info['proxy_address']) || !isset($info['proxy_address']) || $info['proxy_address'] == '') {
+            return 1;
+        }
+        
+        curl_setopt($ch, CURLOPT_PROXY, $info['proxy_address']);
+        if (!is_null($info['proxy_port']) && isset($info['proxy_port']) && $info['proxy_port'] != '') {
+            curl_setopt($ch, CURLOPT_PROXYPORT, $info['proxy_port']);
+        }
+        if (!is_null($info['proxy_username']) && isset($info['proxy_username']) && $info['proxy_username'] != '') {
+            curl_setopt($ch, CURLOPT_PROXYUSERPWD, $info['proxy_username'] . ':' . $info['proxy_password']);
+        }
+        
+        return 0;
+    }
 
     /**
      * Get a a access token
@@ -301,13 +331,13 @@ class ServiceNowProvider extends AbstractProvider {
      * @param string $password The ServiceName OAuth password
      * @return array The tokens
      */
-    static protected function getAccessToken($instance, $clientId, $clientSecret, $username, $password) {
-        $url = 'https://' . $instance . '.service-now.com/oauth_token.do';
+    static protected function getAccessToken($info) {
+        $url = 'https://' . $info['instance'] . '.service-now.com/oauth_token.do';
         $postfields = 'grant_type=password';
-        $postfields .= '&client_id=' . urlencode($clientId);
-        $postfields .= '&client_secret=' . urlencode($clientSecret);
-        $postfields .= '&username=' . urlencode($username);
-        $postfields .= '&password=' . urlencode($password);
+        $postfields .= '&client_id=' . urlencode($info['client_id']);
+        $postfields .= '&client_secret=' . urlencode($info['client_secret']);
+        $postfields .= '&username=' . urlencode($info['username']);
+        $postfields .= '&password=' . urlencode($info['password']);
 
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $url);
@@ -316,7 +346,7 @@ class ServiceNowProvider extends AbstractProvider {
         curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/x-www-form-urlencoded'));
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 
-        /* @todo proxy */
+        self::setProxy($ch, $info);
 
         $returnJson = curl_exec($ch);
         if ($returnJson === false) {
@@ -353,11 +383,12 @@ class ServiceNowProvider extends AbstractProvider {
 
         try {
             $tokens = self::getAccessToken(
-                $info['instance'],
-                $info['clientId'],
-                $info['clientSecret'],
-                $info['username'],
-                $info['password']
+                array('instance' => $info['instance'], 'client_id' => $info['clientId'],
+                      'client_secret' => $info['clientSecret'], 'username' => $info['username'],
+                      'password' => $info['password'], 'proxy_address' => $info['proxyAddress'],
+                      'proxy_port' => $info['proxyPort'], 'proxy_username' => $info['proxyUsername'],
+                      'proxy_password' => $info['proxyPassword'],
+                )
             );
             return true;
         } catch (\Exception $e) {
@@ -385,8 +416,14 @@ class ServiceNowProvider extends AbstractProvider {
         curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/x-www-form-urlencoded'));
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 
-        /* @todo proxy */
-
+        self::setProxy($ch, array(
+                'proxy_address' => $this->_getFormValue('proxy_address'),
+                'proxy_port' => $this->_getFormValue('proxy_port'),
+                'proxy_username' => $this->_getFormValue('proxy_username'),
+                'proxy_password' => $this->_getFormValue('proxy_password'),
+            )
+        );
+        
         $returnJson = curl_exec($ch);
         if ($returnJson === false) {
             throw new \Exception(curl_error($ch));
@@ -408,14 +445,15 @@ class ServiceNowProvider extends AbstractProvider {
     protected function callServiceNow($methodName, $params = array()) {
         if (is_null($this->refreshToken)) {
             $tokens = self::getAccessToken(
-                $this->_getFormValue('instance_name'),
-                $this->_getFormValue('client_id'),
-                $this->_getFormValue('client_secret'),
-                $this->_getFormValue('username'),
-                $this->_getFormValue('password')
+                 array('instance' => $this->_getFormValue('instance_name'), 'client_id' => $this->_getFormValue('client_id'),
+                       'client_secret' => $this->_getFormValue('client_secret'), 'username' => $this->_getFormValue('username'),
+                       'password' => $this->_getFormValue('password'), 'proxy_address' => $this->_getFormValue('proxy_address'),
+                       'proxy_port' => $this->_getFormValue('proxy_port'), 'proxy_username' => $this->_getFormValue('proxy_username'),
+                       'proxy_password' => $this->_getFormValue('proxy_password'),
+                )                
             );
-            $this->accessToken = $tokens['access_token'];
-            $this->refreshToken = $tokens['refresh_token'];
+            $this->accessToken = $tokens['accessToken'];
+            $this->refreshToken = $tokens['refreshToken'];
         } elseif (is_null($this->accessToken)) {
             $this->refreshToken();
         }
@@ -441,6 +479,13 @@ class ServiceNowProvider extends AbstractProvider {
             'Content-Type: application/json',
             'Authorization: Bearer ' . $accessToken
         ));
+        self::setProxy($ch, array(
+                'proxy_address' => $this->_getFormValue('proxy_address'),
+                'proxy_port' => $this->_getFormValue('proxy_port'),
+                'proxy_username' => $this->_getFormValue('proxy_username'),
+                'proxy_password' => $this->_getFormValue('proxy_password'),
+            )
+        );
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 
         if ($method !== 'GET') {
@@ -470,17 +515,17 @@ class ServiceNowProvider extends AbstractProvider {
      * @param string $accessToken The access token
      * @return array The list of user
      */
-    protected function getListSysUser($param, $accessToken) {
+    protected function getListSysUser($params, $accessToken) {
         $uri = '/api/now/table/sys_user';
         $result = $this->runHttpRequest($uri, $accessToken);
 
         $selected = array();
         foreach ($result['result'] as $entry) {
             if ($entry['active'] === 'true') {
-                if (!isset($param['Filter']) || is_null($param['Filter']) || $param['Filter'] == '') {
+                if (!isset($params['Filter']) || is_null($params['Filter']) || $params['Filter'] == '') {
                     $selected[$entry['sys_id']] = $entry['name'];
                 }
-                if (preg_match('/' . $param['Filter'] . '/', $entry['name'])) {
+                if (preg_match('/' . $params['Filter'] . '/', $entry['name'])) {
                     $selected[$entry['sys_id']] = $entry['name'];
                 }
             }
@@ -496,17 +541,17 @@ class ServiceNowProvider extends AbstractProvider {
      * @param string $accessToken The access token
      * @return array The list of user group
      */
-    protected function getListSysUserGroup($param, $accessToken) {
+    protected function getListSysUserGroup($params, $accessToken) {
         $uri = '/api/now/table/sys_user_group';
         $result = $this->runHttpRequest($uri, $accessToken);
 
         $selected = array();
         foreach ($result['result'] as $entry) {
             if ($entry['active'] === 'true') {
-                if (!isset($param['Filter']) || is_null($param['Filter']) || $param['Filter'] == '') {
+                if (!isset($params['Filter']) || is_null($params['Filter']) || $params['Filter'] == '') {
                     $selected[$entry['sys_id']] = $entry['name'];
                 }
-                if (preg_match('/' . $param['Filter'] . '/', $entry['name'])) {
+                if (preg_match('/' . $params['Filter'] . '/', $entry['name'])) {
                     $selected[$entry['sys_id']] = $entry['name'];
                 }
             }
@@ -523,16 +568,16 @@ class ServiceNowProvider extends AbstractProvider {
      * @return array The list of impact
      */
     protected function getListImpact($params, $accessToken) {
-        $uri = '/api/now/table/sys_choice?sysparm_query=nameSTARTSWITHtask%5EelementSTARTSWITHimpact';
+        $uri = '/api/now/table/sys_choice?sysparm_fields=value,label,inactive&sysparm_query=nameSTARTSWITHtask%5EelementSTARTSWITHimpact';
         $result = $this->runHttpRequest($uri, $accessToken);
 
         $selected = array();
         foreach ($result['result'] as $entry) {
             if ($entry['inactive'] === 'false') {
-                if (!isset($param['Filter']) || is_null($param['Filter']) || $param['Filter'] == '') {
+                if (!isset($params['Filter']) || is_null($params['Filter']) || $params['Filter'] == '') {
                     $selected[$entry['value']] = $entry['label'];
                 }
-                if (preg_match('/' . $param['Filter'] . '/', $entry['label'])) {
+                if (preg_match('/' . $params['Filter'] . '/', $entry['label'])) {
                     $selected[$entry['value']] = $entry['label'];
                 }
             }
@@ -549,16 +594,16 @@ class ServiceNowProvider extends AbstractProvider {
      * @return array The list of urgency
      */
     protected function getListUrgency($params, $accessToken) {
-        $uri = '/api/now/table/sys_choice?sysparm_query=nameSTARTSWITHincident%5EelementSTARTSWITHseverity';
+        $uri = '/api/now/table/sys_choice?sysparm_fields=value,label,inactive&sysparm_query=nameSTARTSWITHincident%5EelementSTARTSWITHseverity';
         $result = $this->runHttpRequest($uri, $accessToken);
         
         $selected = array();
         foreach ($result['result'] as $entry) {
             if ($entry['inactive'] === 'false') {
-                if (!isset($param['Filter']) || is_null($param['Filter']) || $param['Filter'] == '') {
+                if (!isset($params['Filter']) || is_null($params['Filter']) || $params['Filter'] == '') {
                     $selected[$entry['value']] = $entry['label'];
                 }
-                if (preg_match('/' . $param['Filter'] . '/', $entry['label'])) {
+                if (preg_match('/' . $params['Filter'] . '/', $entry['label'])) {
                     $selected[$entry['value']] = $entry['label'];
                 }
             }
@@ -575,16 +620,16 @@ class ServiceNowProvider extends AbstractProvider {
      * @return array The list of category
      */
     protected function getListCategory($params, $accessToken) {
-        $uri = '/api/now/table/sys_choice?sysparm_query=nameSTARTSWITHincident%5EelementSTARTSWITHcategory';
+        $uri = '/api/now/table/sys_choice?sysparm_fields=value,label,inactive&sysparm_query=nameSTARTSWITHincident%5EelementSTARTSWITHcategory';
         $result = $this->runHttpRequest($uri, $accessToken);
 
         $selected = array();
         foreach ($result['result'] as $entry) {
             if ($entry['inactive'] === 'false') {
-                if (!isset($param['Filter']) || is_null($param['Filter']) || $param['Filter'] == '') {
+                if (!isset($params['Filter']) || is_null($params['Filter']) || $params['Filter'] == '') {
                     $selected[$entry['value']] = $entry['label'];
                 }
-                if (preg_match('/' . $param['Filter'] . '/', $entry['label'])) {
+                if (preg_match('/' . $params['Filter'] . '/', $entry['label'])) {
                     $selected[$entry['value']] = $entry['label'];
                 }
             }
@@ -601,16 +646,16 @@ class ServiceNowProvider extends AbstractProvider {
      * @return array The list of subcategory
      */
     protected function getListSubcategory($params, $accessToken) {
-        $uri = '/api/now/table/sys_choice?sysparm_query=nameSTARTSWITHincident%5EelementSTARTSWITHsubcategory';
+        $uri = '/api/now/table/sys_choice?sysparm_fields=value,label,inactive&sysparm_query=nameSTARTSWITHincident%5EelementSTARTSWITHsubcategory';
         $result = $this->runHttpRequest($uri, $accessToken);
 
         $selected = array();
         foreach ($result['result'] as $entry) {
             if ($entry['inactive'] === 'false') {
-                if (!isset($param['Filter']) || is_null($param['Filter']) || $param['Filter'] == '') {
+                if (!isset($params['Filter']) || is_null($params['Filter']) || $params['Filter'] == '') {
                     $selected[$entry['value']] = $entry['label'];
                 }
-                if (preg_match('/' . $param['Filter'] . '/', $entry['label'])) {
+                if (preg_match('/' . $params['Filter'] . '/', $entry['label'])) {
                     $selected[$entry['value']] = $entry['label'];
                 }
             }
@@ -621,31 +666,31 @@ class ServiceNowProvider extends AbstractProvider {
 
     protected function createTicket($params, $accessToken) {
         $uri = '/api/now/v1/table/incident';
-        $impacts = explode('_', $ticket_arguments[self::ARG_IMPACT], 2);
-        $urgencies = explode('_', $ticket_arguments[self::ARG_URGENCY], 2);
+        $impacts = explode('_', $params['ticket_arguments'][$this->_internal_arg_name[self::ARG_IMPACT]], 2);
+        $urgencies = explode('_', $params['ticket_arguments'][$this->_internal_arg_name[self::ARG_URGENCY]], 2);
         $data = array(
             'impact' => $impacts[0],
             'urgency' => $urgencies[0],
-            'short_description' => $ticket_arguments[self::ARG_SHORT_DESCRIPTION]
+            'short_description' => $params['ticket_arguments'][$this->_internal_arg_name[self::ARG_SHORT_DESCRIPTION]]
         );
-        if (isset($ticket_arguments[self::ARG_CATEGORY])) {
-            $category = explode('_', $ticket_arguments[self::ARG_CATEGORY], 2);
+        if (isset($params['ticket_arguments'][$this->_internal_arg_name[self::ARG_CATEGORY]])) {
+            $category = explode('_', $params['ticket_arguments'][$this->_internal_arg_name[self::ARG_CATEGORY]], 2);
             $data['category'] = $category[0];
         }
-        if (isset($ticket_arguments[self::ARG_SUBCATEGORY])) {
-            $subcategory = explode('_', $ticket_arguments[self::ARG_SUBCATEGORY], 2);
+        if (isset($params['ticket_arguments'][$this->_internal_arg_name[self::ARG_SUBCATEGORY]])) {
+            $subcategory = explode('_', $params['ticket_arguments'][$this->_internal_arg_name[self::ARG_SUBCATEGORY]], 2);
             $data['subcategory'] = $subcategory[0];
         }
-        if (isset($ticket_arguments[self::ARG_ASSIGNED_TO])) {
-            $assignedTo = explode('_', $ticket_arguments[self::ARG_ASSIGNED_TO], 2);
+        if (isset($params['ticket_arguments'][$this->_internal_arg_name[self::ARG_ASSIGNED_TO]])) {
+            $assignedTo = explode('_', $params['ticket_arguments'][$this->_internal_arg_name[self::ARG_ASSIGNED_TO]], 2);
             $data['assigned_to'] = $assignedTo[0];
         }
-        if (isset($ticket_arguments[self::ARG_ASSIGNMENT_GROUP])) {
-            $assignmentGroup = explode('_', $ticket_arguments[self::ARG_ASSIGNMENT_GROUP], 2);
+        if (isset($params['ticket_arguments'][$this->_internal_arg_name[self::ARG_ASSIGNMENT_GROUP]])) {
+            $assignmentGroup = explode('_', $params['ticket_arguments'][$this->_internal_arg_name[self::ARG_ASSIGNMENT_GROUP]], 2);
             $data['assignment_group'] = $assignmentGroup[0];
         }
-        if (isset($ticket_arguments[self::ARG_BODY])) {
-            $data['comments'] = $ticket_arguments[self::ARG_BODY];
+        if (isset($params['ticket_arguments'][$this->_internal_arg_name[self::ARG_COMMENTS]])) {
+            $data['comments'] = $params['ticket_arguments'][$this->_internal_arg_name[self::ARG_COMMENTS]];
         }
         $result = $this->runHttpRequest($uri, $accessToken, 'POST', $data);
         return array(
