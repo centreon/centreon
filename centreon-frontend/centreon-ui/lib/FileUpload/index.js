@@ -20,6 +20,10 @@ var _FileUploadItem = require("./FileUploadItem");
 
 var _FileUploadItem2 = _interopRequireDefault(_FileUploadItem);
 
+var _FileUploadProgress = require("./FileUploadProgress");
+
+var _FileUploadProgress2 = _interopRequireDefault(_FileUploadProgress);
+
 require("./file-upload.scss");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
@@ -74,24 +78,21 @@ var FileUpload = function FileUpload() {
               title: "file-1.licence",
               titleStatus: "success",
               info: "0.3mb",
-              progressBar: "success"
-            }),
+              progressBar: "success" }),
             _react2.default.createElement(_FileUploadItem2.default, {
               icon: "file",
               iconStatus: "success",
               title: "file-1.licence",
               titleStatus: "success",
               info: "0.3mb",
-              progressBar: "success"
-            }),
+              progressBar: "success" }),
             _react2.default.createElement(_FileUploadItem2.default, {
               icon: "zip",
               iconStatus: "success",
               title: "file-1.licence",
               titleStatus: "success",
               info: "0.3mb",
-              progressBar: "success"
-            }),
+              progressBar: "success" }),
             _react2.default.createElement(_FileUploadItem2.default, {
               icon: "file",
               iconStatus: "error",
@@ -99,15 +100,18 @@ var FileUpload = function FileUpload() {
               title: "file-1.licence",
               infoStatus: "error",
               infoStatusLabel: "upload failed",
-              progressBar: "error"
-            }),
+              progressBar: "error" }),
             _react2.default.createElement(_FileUploadItem2.default, {
               icon: "file",
               iconStatus: "warning",
               title: "file-1.licence",
               titleStatus: "warning",
-              progressBar: "warning"
-            })
+              progressBar: "warning" }),
+            _react2.default.createElement(_FileUploadProgress2.default, {
+              title: "Progress",
+              titleStatus: "percentage",
+              progressBar: "percentage",
+              uploadedPercentage: "70" })
           )
         )
       )
