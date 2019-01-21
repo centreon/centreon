@@ -530,7 +530,7 @@ class ServiceNowProvider extends AbstractProvider {
         foreach ($result['result'] as $entry) {
             if ($entry['inactive'] === 'false') {
                 if (!isset($param['Filter']) || is_null($param['Filter']) || $param['Filter'] == '') {
-                    $selected[$entry['sys_id']] = $entry['label'];
+                    $selected[$entry['value']] = $entry['label'];
                 }
                 if (preg_match('/' . $param['Filter'] . '/', $entry['label'])) {
                     $selected[$entry['value']] = $entry['label'];
@@ -556,7 +556,7 @@ class ServiceNowProvider extends AbstractProvider {
         foreach ($result['result'] as $entry) {
             if ($entry['inactive'] === 'false') {
                 if (!isset($param['Filter']) || is_null($param['Filter']) || $param['Filter'] == '') {
-                    $selected[$entry['sys_id']] = $entry['label'];
+                    $selected[$entry['value']] = $entry['label'];
                 }
                 if (preg_match('/' . $param['Filter'] . '/', $entry['label'])) {
                     $selected[$entry['value']] = $entry['label'];
@@ -582,7 +582,7 @@ class ServiceNowProvider extends AbstractProvider {
         foreach ($result['result'] as $entry) {
             if ($entry['inactive'] === 'false') {
                 if (!isset($param['Filter']) || is_null($param['Filter']) || $param['Filter'] == '') {
-                    $selected[$entry['sys_id']] = $entry['label'];
+                    $selected[$entry['value']] = $entry['label'];
                 }
                 if (preg_match('/' . $param['Filter'] . '/', $entry['label'])) {
                     $selected[$entry['value']] = $entry['label'];
@@ -608,7 +608,7 @@ class ServiceNowProvider extends AbstractProvider {
         foreach ($result['result'] as $entry) {
             if ($entry['inactive'] === 'false') {
                 if (!isset($param['Filter']) || is_null($param['Filter']) || $param['Filter'] == '') {
-                    $selected[$entry['sys_id']] = $entry['label'];
+                    $selected[$entry['value']] = $entry['label'];
                 }
                 if (preg_match('/' . $param['Filter'] . '/', $entry['label'])) {
                     $selected[$entry['value']] = $entry['label'];
