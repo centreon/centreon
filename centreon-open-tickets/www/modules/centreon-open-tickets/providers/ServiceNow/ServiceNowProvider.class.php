@@ -73,7 +73,7 @@ class ServiceNowProvider extends AbstractProvider {
     protected function _setDefaultValueMain($body_html = 0) {
         parent::_setDefaultValueMain($body_html);
 
-        $this->default_data['url'] = 'https://{$servicenow_instance}.service-now.com/nav_to.do?uri=incident.do?sys_id={$ticket_id}';
+        $this->default_data['url'] = 'https://{$instance_name}.service-now.com/nav_to.do?uri=incident.do?sys_id={$ticket_id}';
 
         $this->default_data['clones']['groupList'] = array(
             array('Id' => 'servicenow_category', 'Label' => _('Category'), 'Type' => self::SERVICENOW_LIST_CATEGORY, 'Filter' => '', 'Mandatory' => ''),
@@ -432,7 +432,7 @@ class ServiceNowProvider extends AbstractProvider {
      * @param string $data The data to send, used in method POST, PUT, PATCH
      */
     protected function runHttpRequest($uri, $accessToken, $method = 'GET', $data = null) {
-        $instance = $this->_getFormValue('servicenow_instance');
+        $instance = $this->_getFormValue('instance_name');
         $url = 'https://' . $instance . '.service-now.com' . $uri;
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $url);
