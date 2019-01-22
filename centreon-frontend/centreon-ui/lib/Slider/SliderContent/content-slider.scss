@@ -3,8 +3,21 @@
 // Content slider
 .content-slider {
   position: relative;
-  &-item {
+  width: 100%;
+  margin: 0 auto;
+  height: 100vh;
+  overflow: hidden;
+  white-space: nowrap;
+  &-items {
     position: relative;
+    height: 100%;
+    width: 100%;
+    transition: transform ease-out 0.45s;
+  }
+  &-item {
+    display: inline-block;
+    height: 100%;
+    width: 100%;
   }
   &-prev, &-next {
     position: absolute;
@@ -14,6 +27,8 @@
     width: 12%;
     color: #fff;
     text-align: center;
+    z-index: 99;
+    cursor: pointer;
     &-icon {
       display: inline-block;
       width: 27px;
