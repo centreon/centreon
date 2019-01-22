@@ -126,6 +126,8 @@ abstract class AbstractProvider {
         $tpl->register_function('host_get_hostgroups', 'smarty_function_host_get_hostgroups');
         $tpl->register_function('host_get_severity', 'smarty_function_host_get_severity');
         $tpl->register_function('host_get_hostcategories', 'smarty_function_host_get_hostcategories');
+        $tpl->register_function('host_get_macro_value_in_config', 'smarty_function_host_get_macro_value_in_config');
+        $tpl->register_function('host_get_macro_values_in_config', 'smarty_function_host_get_macro_values_in_config');
         $tpl->register_function('service_get_servicecategories', 'smarty_function_service_get_servicecategories');
         $tpl->register_function('service_get_servicegroups', 'smarty_function_service_get_servicegroups');
         $tpl = initSmartyTplForPopup($this->_centreon_open_tickets_path, $tpl, $path, $this->_centreon_path);

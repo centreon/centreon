@@ -153,7 +153,7 @@ class Centreon_OpenTickets_Rule
                 $selected_str_append = ' OR ';
             }
 
-            $query = "SELECT services.*, hosts.state as host_state, hosts.host_id, hosts.name as host_name, hosts.instance_id FROM services, hosts";
+            $query = "SELECT services.*, hosts.address, hosts.state as host_state, hosts.host_id, hosts.name as host_name, hosts.instance_id FROM services, hosts";
             $query_where = " WHERE (" . $selected_str . ') AND services.host_id = hosts.host_id';
             if (!$centreon_bg->is_admin) {
                 $query_where .= " AND EXISTS(SELECT * FROM centreon_acl WHERE centreon_acl.group_id IN (" . $centreon_bg->grouplistStr . ") AND hosts.host_id = centreon_acl.host_id
