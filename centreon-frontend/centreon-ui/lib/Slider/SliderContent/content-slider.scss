@@ -19,6 +19,25 @@
     height: 100%;
     width: 100%;
   }
+  &-wrapper {
+    position: relative;
+    .content-icon {
+      &-add {
+        &-green {
+          position: absolute;
+          right: 100px;
+          bottom: -22px;
+          @media (max-width: 576px){
+            width: 40px;
+            height: 40px;
+            background-size: 20px;
+            bottom: -15px;
+            right: 20px;
+          }
+        }
+      }
+    }
+  }
   &-prev, &-next {
     position: absolute;
     top: 0;
@@ -76,22 +95,6 @@
       border: 1px solid #ccc;
       &.active {
         background-color: $white-color;
-      }
-    }
-  }
-  .content-icon {
-    &-add {
-      &-green {
-        position: absolute;
-        right: 100px;
-        bottom: -22px;
-        @media (max-width: 576px){
-          width: 40px;
-          height: 40px;
-          background-size: 20px;
-          bottom: -15px;
-          right: 20px;
-        }
       }
     }
   }

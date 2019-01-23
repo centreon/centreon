@@ -31,6 +31,9 @@
     .popup-header, .popup-body, .popup-footer {
       padding: 25px;
     }
+    .popup-body {
+      padding: 5px 25px;
+    }
     @media (min-width: 576px) {
       .popup-dialog {
         max-width: 300px;
@@ -71,16 +74,6 @@
     outline: 0;
     box-sizing: border-box;
   }
-  &-message {
-    font-family: $primary-font-regular;
-    display: block;
-    font-size: 13px;
-    line-height: 17px;
-    &.red {
-      color: $content-red-color;
-      font-size: 14px;
-    }
-  }
   &-overlay {
     position: fixed;
     top: 0;
@@ -100,5 +93,8 @@
     position: absolute;
     right: -40px;
     top: 1px;
+  }
+  .custom-title {
+    font-size: 20px;
   }
 }

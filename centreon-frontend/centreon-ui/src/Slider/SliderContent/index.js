@@ -3,6 +3,7 @@ import ContentSliderItem from "./ContentSliderItem";
 import ContentSliderLeftArrow from './ContentSliderLeftArrow';
 import ContentSliderRightArrow from './ContentSliderRightArrow';
 import ContentSliderIndicators from './ContentSliderIndicators';
+import IconContent from '../../Icon/IconContent';
 import "./content-slider.scss";
 
 class SliderContent extends Component {
@@ -91,22 +92,25 @@ class SliderContent extends Component {
     const {images, currentIndex, translateValue} = this.state;
 
     return (
-      <div className="content-slider">
-        <div
-          className="content-slider-items"
-          style={{
-          transform: `translateX(${translateValue}px)`
-        }}>
-          {this.renderSlides()}
+      <div className="content-slider-wrapper">
+        <div className="content-slider">
+          <div
+            className="content-slider-items"
+            style={{
+            transform: `translateX(${translateValue}px)`
+          }}>
+            {this.renderSlides()}
+          </div>
+          <div className="content-slider-controls">
+            <ContentSliderLeftArrow goToPrevSlide={this.goToPrevSlide}/>
+            <ContentSliderRightArrow goToNextSlide={this.goToNextSlide}/>
+          </div>
+          <ContentSliderIndicators
+            images={images}
+            currentIndex={currentIndex}
+            handleDotClick={this.handleDotClick}/>
         </div>
-        <div className="content-slider-controls">
-          <ContentSliderLeftArrow goToPrevSlide={this.goToPrevSlide}/>
-          <ContentSliderRightArrow goToNextSlide={this.goToNextSlide}/>
-        </div>
-        <ContentSliderIndicators
-          images={images}
-          currentIndex={currentIndex}
-          handleDotClick={this.handleDotClick}/>
+        <IconContent iconContentType="add" iconContentColor="green" />
       </div>
     )
   }
