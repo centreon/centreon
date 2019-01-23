@@ -38,9 +38,13 @@ var ExtensionsHolder = function (_React$Component) {
     _createClass(ExtensionsHolder, [{
         key: "render",
         value: function render() {
+            var _this2 = this;
+
             var _props = this.props,
                 title = _props.title,
-                entities = _props.entities;
+                titleIcon = _props.titleIcon,
+                entities = _props.entities,
+                onCardClicked = _props.onCardClicked;
 
             return _react2.default.createElement(
                 Centreon.Wrapper,
@@ -51,33 +55,36 @@ var ExtensionsHolder = function (_React$Component) {
                     null,
                     _react2.default.createElement(
                         "div",
-                        { className: "container__row" },
+                        { className: "container__row fghjdfgh" },
                         entities.map(function (entity) {
                             return _react2.default.createElement(
                                 "div",
-                                { className: "container__col-md-3 container__col-sm-6 container__col-xs-12" },
+                                { onClick: onCardClicked.bind(_this2, entity.id), className: "container__col-md-3 container__col-sm-6 container__col-xs-12" },
                                 _react2.default.createElement(
                                     Centreon.CardItem,
                                     _extends({
-                                        itemBorderColor: entity.installed ? entity.licence && entity.licence != 'N/A' ? "green" : "orange" : "gray"
+                                        itemBorderColor: entity.version.installed ? !entity.version.outdated ? "green" : "orange" : "gray"
                                     }, entity.licence && entity.licence != 'N/A' ? { itemFooterColor: 'red' } : {}, entity.licence && entity.licence != 'N/A' ? { itemFooterLabel: entity.licence } : {}),
-                                    _react2.default.createElement(Centreon.IconInfo, { iconName: "state" }),
+                                    entity.version.installed ? _react2.default.createElement(Centreon.IconInfo, { iconName: "state" }) : null,
                                     _react2.default.createElement(
                                         "div",
                                         { className: "custom-title-heading" },
-                                        _react2.default.createElement(Centreon.Title, { icon: "object", label: entity.description }),
+                                        _react2.default.createElement(Centreon.Title, { icon: titleIcon, label: entity.description }),
                                         _react2.default.createElement(Centreon.Subtitle, { label: "by " + entity.label })
                                     ),
                                     _react2.default.createElement(
                                         Centreon.Button,
                                         _extends({
-                                            buttonType: entity.version.outdated ? "regular" : "bordered",
-                                            color: entity.version.outdated ? "orange" : "blue",
+                                            onClick: function onClick(e) {
+                                                e.preventDefault();e.stopPropagation();
+                                            },
+                                            buttonType: entity.version.installed ? entity.version.outdated ? "regular" : "bordered" : "regular",
+                                            color: entity.version.installed ? entity.version.outdated ? "orange" : "blue" : "green",
                                             label: "Available " + entity.version.available
                                         }, entity.version.outdated ? { iconActionType: "update" } : {}),
-                                        entity.installed === false ? _react2.default.createElement(Centreon.IconContent, { iconContentType: "add" }) : null
+                                        !entity.version.installed ? _react2.default.createElement(Centreon.IconContent, { iconContentType: "add" }) : null
                                     ),
-                                    entity.installed ? _react2.default.createElement(Centreon.ButtonAction, { buttonActionType: "delete", buttonIconType: "delete" }) : null
+                                    entity.version.installed ? _react2.default.createElement(Centreon.ButtonAction, { buttonActionType: "delete", buttonIconType: "delete" }) : null
                                 )
                             );
                         })

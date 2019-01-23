@@ -37,9 +37,7 @@ class DynamicComponentLoader extends Component {
 
         return (
             <React.Fragment>
-                {
-                    componentLoaded && !(!!window.MSInputMethodContext && !!document.documentMode) ? null :
-                    <iframe
+               <iframe
                         src={componentUrl}
                         style={
                             {
@@ -49,7 +47,6 @@ class DynamicComponentLoader extends Component {
                                 border: 'none'
                             }
                         } />
-                }
             </React.Fragment>
         );
     }

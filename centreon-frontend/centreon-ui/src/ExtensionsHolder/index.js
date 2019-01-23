@@ -5,37 +5,41 @@ class ExtensionsHolder extends React.Component {
 
 
     render() {
-        const { title, entities } = this.props;
+        const { title, titleIcon, entities, onCardClicked } = this.props;
         return (
             <Centreon.Wrapper>
                 <Centreon.HorizontalLineContent hrTitle={title} />
                 <Centreon.Card>
-                    <div className="container__row">
+                    <div className="container__row fghjdfgh">
                         {
                             entities.map(entity => {
                                 return (
-                                    <div className="container__col-md-3 container__col-sm-6 container__col-xs-12">
+                                    <div onClick={onCardClicked.bind(this,entity.id)} className="container__col-md-3 container__col-sm-6 container__col-xs-12" >
                                         <Centreon.CardItem
-                                            itemBorderColor={entity.installed ? (entity.licence && entity.licence != 'N/A' ? "green" : "orange") : "gray"}
+                                            itemBorderColor={entity.version.installed ? (!entity.version.outdated ? "green" : "orange") : "gray"}
                                             {...(entity.licence && entity.licence != 'N/A' ? {itemFooterColor:'red'} : {})}
                                             {...(entity.licence && entity.licence != 'N/A' ? {itemFooterLabel:entity.licence} : {})}
                                             >
-                                            <Centreon.IconInfo iconName="state" />
+                                            {
+                                                entity.version.installed ? <Centreon.IconInfo iconName="state" /> : null
+                                            }
+                                            
                                             <div className="custom-title-heading">
-                                                <Centreon.Title icon="object" label={entity.description} />
+                                                <Centreon.Title icon={titleIcon} label={entity.description} />
                                                 <Centreon.Subtitle label={`by ${entity.label}`} />
                                             </div>
                                             <Centreon.Button
-                                                buttonType={entity.version.outdated ? "regular" : "bordered"}
-                                                color={entity.version.outdated ? "orange" : "blue"}
+                                                onClick={(e)=>{e.preventDefault(); e.stopPropagation();}}
+                                                buttonType={(entity.version.installed ? (entity.version.outdated ? "regular" : "bordered") : "regular") }
+                                                color={(entity.version.installed ? (entity.version.outdated ? "orange" : "blue") : "green")}
                                                 label={`Available ${entity.version.available}`}
                                                 {...(entity.version.outdated ? {iconActionType:"update"} : {})} >
                                                 {
-                                                    entity.installed === false ? <Centreon.IconContent iconContentType="add" /> : null
+                                                    !entity.version.installed ? <Centreon.IconContent iconContentType="add" /> : null
                                                 }
                                             </Centreon.Button>
                                             {
-                                                entity.installed ?
+                                                entity.version.installed ?
                                                 <Centreon.ButtonAction buttonActionType="delete" buttonIconType="delete" /> : null
                                             }
                                         </Centreon.CardItem>
