@@ -1127,4 +1127,42 @@ Output: {$service.output|substr:0:1024}
             $tickets[$k]['status'] = 1;
         }
     }
+    
+    /**
+    * Add a value to the cache
+    *
+    * @param string $key The cache key name
+    * @param mixed $value The value to cache
+    * @param int|null $ttl The ttl of expire this cache, if it's null no expire
+    */
+    protected function setCache($key, $value, $ttl = null) {
+        $_SESSION['ot_cache_' . $this->_rule_id][$key] =  array(
+            'value' => $value,
+            'ttl' => $ttl,
+            'created' => time()
+        );
+    }
+    
+    /**
+     * Get a cache value
+     *
+     * @param string $key The cache key name
+     * @return mixed The cache value or null if not found or expired
+     */
+    protected function getCache($key) {        
+        if (!isset($_SESSION['ot_cache_' . $this->_rule_id][$key])) {
+            return null;
+        }
+        if (!is_null())
+        $cacheJson = file_get_contents($cacheFile);
+        $cache = json_decode($cacheJson, true);
+        if (!is_null($_SESSION['ot_cache_' . $this->_rule_id][$key]['ttl'])) {
+            $timeTtl = $_SESSION['ot_cache_' . $this->_rule_id][$key]['ttl'] + $_SESSION['ot_cache_' . $this->_rule_id][$key]['created'];
+            if ($timeTtl < time()) {
+                unlink($_SESSION['ot_cache_' . $this->_rule_id][$key]);
+                return null;
+            }
+        }
+        return $_SESSION['ot_cache_' . $this->_rule_id][$key]['value'];
+    }
 }

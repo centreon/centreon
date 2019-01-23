@@ -20,9 +20,6 @@
  */
 
 class ServiceNowProvider extends AbstractProvider {
-    protected $accessToken = null;
-    protected $refreshToken = null;
-    
     const SERVICENOW_LIST_CATEGORY = 20;
     const SERVICENOW_LIST_SUBCATEGORY = 21;
     const SERVICENOW_LIST_IMPACT = 22;
@@ -205,18 +202,20 @@ class ServiceNowProvider extends AbstractProvider {
         $groups[$entry['Id']] = array('label' => _($entry['Label']) . 
                                      (isset($entry['Mandatory']) && $entry['Mandatory'] == 1 ? $this->_required_field : ''));
         $groups_order[] = $entry['Id'];
-        
+                
         try {
-            $listValues = $this->callServiceNow($method, array('Filter' => $entry['Filter']));
+            $listValues = $this->getCache($entry['Id']);
+            if (is_null($listValues)) {
+                $listValues = $this->callServiceNow($method, array('Filter' => $entry['Filter']));
+                $this->setCache($entry['Id'], $listValues, 8 * 3600);
+            }
         } catch (Exception $e) {
             $groups[$entry['Id']]['code'] = -1;
             $groups[$entry['Id']]['msg_error'] = $e->getMessage();;
             return 0;
         }
         
-        $this->saveSession($entry['Id'], $listValues);
-        $groups[$entry['Id']]['values'] = $listValues;
-        
+        $groups[$entry['Id']]['values'] = $listValues;        
         return $listValues;
     }
 
@@ -401,13 +400,13 @@ class ServiceNowProvider extends AbstractProvider {
      *
      * @return string The access token
      */
-    protected function refreshToken() {
+    protected function refreshToken($refreshToken) {
         $instance = $this->_getFormValue('instance_name');
         $url = 'https://' . $instance . '.service-now.com/oauth_token.do';
         $postfields = 'grant_type=refresh_token';
         $postfields .= '&client_id=' . urlencode($this->_getFormValue('client_id'));
         $postfields .= '&client_secret=' . urlencode($this->_getFormValue('client_secret'));
-        $postfields .= '&refresh_token=' . $this->refreshToken;
+        $postfields .= '&refresh_token=' . $refreshToken;
 
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $url);
@@ -435,15 +434,19 @@ class ServiceNowProvider extends AbstractProvider {
         curl_close($ch);
 
         $return = json_decode($returnJson, true);
-        $this->accessToken = $return['access_token'];
-        $this->refreshToken = $return['refresh_token'];
+        return array(
+            'accessToken' => $return['access_token'],
+            'refreshToken' => $return['refresh_token']
+        );
     }
 
     /**
      * Call a service now Rest webservices
      */
     protected function callServiceNow($methodName, $params = array()) {
-        if (is_null($this->refreshToken)) {
+        $accessToken = $this->getCache('accessToken');
+        $refreshToken = $this->getCache('refreshToken');
+        if (is_null($refreshToken)) {
             $tokens = self::getAccessToken(
                  array('instance' => $this->_getFormValue('instance_name'), 'client_id' => $this->_getFormValue('client_id'),
                        'client_secret' => $this->_getFormValue('client_secret'), 'username' => $this->_getFormValue('username'),
@@ -452,13 +455,17 @@ class ServiceNowProvider extends AbstractProvider {
                        'proxy_password' => $this->_getFormValue('proxy_password'),
                 )                
             );
-            $this->accessToken = $tokens['accessToken'];
-            $this->refreshToken = $tokens['refreshToken'];
-        } elseif (is_null($this->accessToken)) {
-            $this->refreshToken();
+            $accessToken = $tokens['accessToken'];
+            $this->setCache('accessToken', $tokens['accessToken'], 1600);
+            $this->setCache('refreshToken', $tokens['refreshToken'], 8400);
+        } elseif (is_null($accessToken)) {
+            $tokens = $this->refreshToken($refreshToken);
+            $accessToken = $tokens['accessToken'];
+            $this->setCache('accessToken', $tokens['accessToken'], 1600);
+            $this->setCache('refreshToken', $tokens['refreshToken'], 8400);
         }
 
-        return $this->$methodName($params, $this->accessToken);
+        return $this->$methodName($params, $accessToken);
     }
 
     /**
@@ -507,7 +514,13 @@ class ServiceNowProvider extends AbstractProvider {
 
         return json_decode($returnJson, true);
     }
-
+    
+    protected function getServiceNowVersion() {
+        ///xmlstats.do
+        //<instance_assigned_version>glide-jakarta-05-03-2017__patch10-08-24-2018_09-05-2018_1933.zip</instance_assigned_version>
+        //<instance_assigned_version>glide-london-06-27-2018__patch4-11-21-2018_12-04-2018_1527.zip
+    }
+    
     /**
      * Get the list of user from ServiceNow for Assigned to
      *
@@ -516,7 +529,7 @@ class ServiceNowProvider extends AbstractProvider {
      * @return array The list of user
      */
     protected function getListSysUser($params, $accessToken) {
-        $uri = '/api/now/table/sys_user';
+        $uri = '/api/now/table/sys_user?sysparm_fields=sys_id,active,name';
         $result = $this->runHttpRequest($uri, $accessToken);
 
         $selected = array();
@@ -542,7 +555,7 @@ class ServiceNowProvider extends AbstractProvider {
      * @return array The list of user group
      */
     protected function getListSysUserGroup($params, $accessToken) {
-        $uri = '/api/now/table/sys_user_group';
+        $uri = '/api/now/table/sys_user_group?sysparm_fields=sys_id,active,name';
         $result = $this->runHttpRequest($uri, $accessToken);
 
         $selected = array();
