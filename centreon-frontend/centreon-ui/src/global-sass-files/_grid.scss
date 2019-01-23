@@ -39,6 +39,7 @@ $map-grid-props: (
         -ms-flex: 0 0 (100 / ($grid-cols / $i) ) * 1%;
         flex: 0 0 (100 / ($grid-cols / $i) ) * 1%;
         max-width: (100 / ($grid-cols / $i) ) * 1%;
+        margin-bottom: 10px;
       }
       &__col#{$modifier}-offset-#{$i} {
         margin-left: (100 / ($grid-cols / $i) ) * 1%;

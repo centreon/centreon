@@ -157,6 +157,15 @@ Object.defineProperty(exports, "IconToggleSubmenu", {
   }
 });
 
+var _MessageInfo = require("./Message/MessageInfo");
+
+Object.defineProperty(exports, "MessageInfo", {
+  enumerable: true,
+  get: function get() {
+    return _interopRequireDefault(_MessageInfo).default;
+  }
+});
+
 var _Popup = require("./Popup");
 
 Object.defineProperty(exports, "Popup", {

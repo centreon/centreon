@@ -19,6 +19,7 @@ export { default as IconInfo } from "./Icon/IconInfo";
 export { default as IconNumber } from "./Icon/IconNumber";
 export { default as IconRound } from "./Icon/IconRound";
 export { default as IconToggleSubmenu } from "./Icon/IconToggleSubmenu";
+export { default as MessageInfo} from './Message/MessageInfo';
 export { default as Popup } from "./Popup";
 export { default as SearchLive } from "./Search/SearchLive";
 export { default as Slider } from "./Slider/SliderContent";

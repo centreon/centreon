@@ -3,11 +3,12 @@
 // Extensions card
 .card {
   &-item {
-    padding: 15px 15px 20px 15px;
+    padding: 15px 15px 60px 15px;
     position: relative;
     border-radius: 5px;
     min-height: 185px;
     box-sizing: border-box;
+    width: 100%;
     @media (max-width: 767px) { 
       margin-bottom: 12px;
     }
@@ -63,5 +64,11 @@
     .info {
       position: absolute;
     }
+  }
+  .container__col-md-3 {
+    display: flex;
+  }
+  .custom-title {
+    font-size: 15px;
   }
 }

@@ -31,14 +31,10 @@ var FileUploadItem = function (_Component) {
     key: "render",
     value: function render() {
       var _props = this.props,
-          icon = _props.icon,
-          iconStatus = _props.iconStatus,
           title = _props.title,
           titleStatus = _props.titleStatus,
-          info = _props.info,
-          infoStatus = _props.infoStatus,
-          infoStatusLabel = _props.infoStatusLabel,
-          progressBar = _props.progressBar;
+          progressBar = _props.progressBar,
+          uploadedPercentage = _props.uploadedPercentage;
 
       return _react2.default.createElement(
         _react2.default.Fragment,
@@ -46,23 +42,20 @@ var FileUploadItem = function (_Component) {
         _react2.default.createElement(
           "div",
           { className: "file-upload-item" },
-          icon ? _react2.default.createElement("span", { className: "file-upload-item-icon " + icon + " " + iconStatus }) : null,
           _react2.default.createElement(
             "span",
             { className: "file-upload-item-title " + titleStatus },
             title
           ),
-          info ? _react2.default.createElement(
-            "span",
-            { className: "file-upload-item-info " + infoStatus },
-            infoStatusLabel,
-            info
-          ) : null,
-          _react2.default.createElement("span", { className: "icon-close icon-close-small" }),
           _react2.default.createElement(
             "div",
             { className: "progress" },
             _react2.default.createElement("span", { className: "progress-bar " + progressBar })
+          ),
+          _react2.default.createElement(
+            "span",
+            { className: "file-upload-item-info percentage" },
+            uploadedPercentage + "%/100%"
           )
         )
       );

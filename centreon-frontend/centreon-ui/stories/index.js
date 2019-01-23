@@ -6,6 +6,7 @@ import "./FileUpload";
 import "./Header";
 import "./HorizontalLines";
 import "./Icon";
+import "./Message";
 import "./Popup";
 import "./Search";
 import "./Slider";
