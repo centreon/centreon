@@ -515,12 +515,6 @@ class ServiceNowProvider extends AbstractProvider {
         return json_decode($returnJson, true);
     }
     
-    protected function getServiceNowVersion() {
-        ///xmlstats.do
-        //<instance_assigned_version>glide-jakarta-05-03-2017__patch10-08-24-2018_09-05-2018_1933.zip</instance_assigned_version>
-        //<instance_assigned_version>glide-london-06-27-2018__patch4-11-21-2018_12-04-2018_1527.zip
-    }
-    
     /**
      * Get the list of user from ServiceNow for Assigned to
      *
