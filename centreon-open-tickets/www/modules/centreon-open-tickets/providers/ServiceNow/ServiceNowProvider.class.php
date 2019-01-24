@@ -26,6 +26,7 @@ class ServiceNowProvider extends AbstractProvider {
     const SERVICENOW_LIST_URGENCY = 23;
     const SERVICENOW_LIST_ASSIGNMENT_GROUP = 24;
     const SERVICENOW_LIST_ASSIGNED_TO = 25;
+    const SERVICENOW_LIST_SEVERITY = 26;
     
     const ARG_SHORT_DESCRIPTION = 1;
     const ARG_COMMENTS = 2;
@@ -35,6 +36,7 @@ class ServiceNowProvider extends AbstractProvider {
     const ARG_SUBCATEGORY = 6;
     const ARG_ASSIGNED_TO = 7;
     const ARG_ASSIGNMENT_GROUP = 8;
+    const ARG_SEVERITY = 9;
     
     protected $_internal_arg_name = array(
         self::ARG_SHORT_DESCRIPTION => 'ShortDescription',
@@ -42,6 +44,7 @@ class ServiceNowProvider extends AbstractProvider {
         self::ARG_IMPACT => 'Impact',
         self::ARG_URGENCY => 'Urgency',
         self::ARG_CATEGORY => 'Category',
+        self::ARG_SEVERITY => 'Severity',
         self::ARG_SUBCATEGORY => 'Subcategory',
         self::ARG_ASSIGNED_TO => 'AssignedTo',
         self::ARG_ASSIGNMENT_GROUP => 'AssignmentGroup',
@@ -59,6 +62,7 @@ class ServiceNowProvider extends AbstractProvider {
             array('Arg' => self::ARG_ASSIGNMENT_GROUP, 'Value' => '{$select.servicenow_assignment_group.value}'),
             array('Arg' => self::ARG_IMPACT, 'Value' => '{$select.servicenow_impact.value}'),
             array('Arg' => self::ARG_URGENCY, 'Value' => '{$select.servicenow_urgency.value}'),
+            array('Arg' => self::ARG_SEVERITY, 'Value' => '{$select.servicenow_severity.value}'),
             array('Arg' => self::ARG_CATEGORY, 'Value' => '{$select.servicenow_category.value}'),
             array('Arg' => self::ARG_SUBCATEGORY, 'Value' => '{$select.servicenow_subcategory.value}'),
         );
@@ -77,6 +81,7 @@ class ServiceNowProvider extends AbstractProvider {
             array('Id' => 'servicenow_subcategory', 'Label' => _('Subcategory'), 'Type' => self::SERVICENOW_LIST_SUBCATEGORY, 'Filter' => '', 'Mandatory' => ''),
             array('Id' => 'servicenow_impact', 'Label' => _('Impact'), 'Type' => self::SERVICENOW_LIST_IMPACT, 'Filter' => '', 'Mandatory' => true),
             array('Id' => 'servicenow_urgency', 'Label' => _('Urgency'), 'Type' => self::SERVICENOW_LIST_URGENCY, 'Filter' => '', 'Mandatory' => true),
+            array('Id' => 'servicenow_severity', 'Label' => _('Severity'), 'Type' => self::SERVICENOW_LIST_SEVERITY, 'Filter' => '', 'Mandatory' => ''),
             array('Id' => 'servicenow_assignment_group', 'Label' => _('Assignment group'), 'Type' => self::SERVICENOW_LIST_ASSIGNMENT_GROUP, 'Filter' => '', 'Mandatory' => ''),
             array('Id' => 'servicenow_assigned_to', 'Label' => _('Assigned to'), 'Type' => self::SERVICENOW_LIST_ASSIGNED_TO, 'Filter' => '', 'Mandatory' => '')
         );
@@ -146,6 +151,7 @@ class ServiceNowProvider extends AbstractProvider {
         '<option value="' . self::ARG_COMMENTS . '">' . _('Comments') . '</options>' .
         '<option value="' . self::ARG_IMPACT . '">' . _('Impact') . '</options>' .
         '<option value="' . self::ARG_URGENCY . '">' . _('Urgency') . '</options>' .
+        '<option value="' . self::ARG_SEVERITY . '">' . _('Severity') . '</options>' .
         '<option value="' . self::ARG_CATEGORY . '">' . _('Category') . '</options>' .
         '<option value="' . self::ARG_SUBCATEGORY . '">' . _('Subcategory') . '</options>' .
         '<option value="' . self::ARG_ASSIGNED_TO . '">' . _('Assigned To') . '</options>' .
@@ -192,6 +198,7 @@ class ServiceNowProvider extends AbstractProvider {
           '<option value="' . self::SERVICENOW_LIST_SUBCATEGORY . '">ServiceNow subcategory</options>' .
           '<option value="' . self::SERVICENOW_LIST_IMPACT . '">ServiceNow impact</options>' .
           '<option value="' . self::SERVICENOW_LIST_URGENCY . '">ServiceNow urgency</options>' .
+          '<option value="' . self::SERVICENOW_LIST_SEVERITY . '">ServiceNow severity</options>' .
           '<option value="' . self::SERVICENOW_LIST_ASSIGNMENT_GROUP . '">ServiceNow assignment group</options>' .
           '<option value="' . self::SERVICENOW_LIST_ASSIGNED_TO . '">ServiceNow assigned to</options>';
 
@@ -231,6 +238,8 @@ class ServiceNowProvider extends AbstractProvider {
             $listValues = $this->assignOtherServiceNow($entry, 'getListImpact', $groups_order, $groups);
         } else if ($entry['Type'] == self::SERVICENOW_LIST_URGENCY) {
             $listValues = $this->assignOtherServiceNow($entry, 'getListUrgency', $groups_order, $groups);
+        } else if ($entry['Type'] == self::SERVICENOW_LIST_SEVERITY) {
+            $listValues = $this->assignOtherServiceNow($entry, 'getListSeverity', $groups_order, $groups);
         } else if ($entry['Type'] == self::SERVICENOW_LIST_CATEGORY) {
             $listValues = $this->assignOtherServiceNow($entry, 'getListCategory', $groups_order, $groups);
         } else if ($entry['Type'] == self::SERVICENOW_LIST_SUBCATEGORY) {
@@ -601,6 +610,32 @@ class ServiceNowProvider extends AbstractProvider {
      * @return array The list of urgency
      */
     protected function getListUrgency($params, $accessToken) {
+        $uri = '/api/now/table/sys_choice?sysparm_fields=value,label,inactive&sysparm_query=nameSTARTSWITHincident%5EelementSTARTSWITHurgency';
+        $result = $this->runHttpRequest($uri, $accessToken);
+        
+        $selected = array();
+        foreach ($result['result'] as $entry) {
+            if ($entry['inactive'] === 'false') {
+                if (!isset($params['Filter']) || is_null($params['Filter']) || $params['Filter'] == '') {
+                    $selected[$entry['value']] = $entry['label'];
+                }
+                if (preg_match('/' . $params['Filter'] . '/', $entry['label'])) {
+                    $selected[$entry['value']] = $entry['label'];
+                }
+            }
+        }
+        
+        return $selected;
+    }
+    
+    /**
+     * Getting the list of severity from ServiceNow
+     *
+     * @param array $param The parameters for filter (no used)
+     * @param string $accessToken The access token
+     * @return array The list of urgency
+     */
+    protected function getListSeverity($params, $accessToken) {
         $uri = '/api/now/table/sys_choice?sysparm_fields=value,label,inactive&sysparm_query=nameSTARTSWITHincident%5EelementSTARTSWITHseverity';
         $result = $this->runHttpRequest($uri, $accessToken);
         
@@ -675,9 +710,11 @@ class ServiceNowProvider extends AbstractProvider {
         $uri = '/api/now/v1/table/incident';
         $impacts = explode('_', $params['ticket_arguments'][$this->_internal_arg_name[self::ARG_IMPACT]], 2);
         $urgencies = explode('_', $params['ticket_arguments'][$this->_internal_arg_name[self::ARG_URGENCY]], 2);
+        $severities = explode('_', $params['ticket_arguments'][$this->_internal_arg_name[self::ARG_SEVERITY]], 2);
         $data = array(
             'impact' => $impacts[0],
             'urgency' => $urgencies[0],
+            'severity' => $severities[0],
             'short_description' => $params['ticket_arguments'][$this->_internal_arg_name[self::ARG_SHORT_DESCRIPTION]]
         );
         if (isset($params['ticket_arguments'][$this->_internal_arg_name[self::ARG_CATEGORY]])) {
