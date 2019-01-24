@@ -4,11 +4,5 @@
     "description": "Dynamic component generator centreon-compgen --help",
     "main": "index.js",
     "author": "centreon@centreon.com",
-    "license": "GPL-2.0",
-    "dependencies": {
-        "cli-color": "^1.4.0",
-        "commander": "^2.19.0",
-        "fs-extra": "^7.0.1",
-        "replace-in-files": "^1.1.4"
-    }
+    "license": "GPL-2.0"
 }
