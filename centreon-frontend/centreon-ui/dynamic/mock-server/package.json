@@ -6,8 +6,8 @@
   "scripts": {
     "start": "json-server ./mocks/main.json"
   },
-  "author": "Danijel Halupka",
-  "license": "ISC",
+  "author": "centreon@centreon.com",
+  "license": "GPL-2.0",
   "dependencies": {
     "json-server": "^0.14.2"
   }

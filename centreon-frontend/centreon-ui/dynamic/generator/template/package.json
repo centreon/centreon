@@ -1,10 +1,10 @@
 {
-  "name": "dynamic-components-compiler-hello-world",
+  "name": "dynamic-external-component-COMPONENT_FUNCTIONAL_NAME",
   "version": "1.0.0",
-  "description": "Hello world of compiler for dynamic components",
+  "description": "Dynamic external component COMPONENT_CAPITALIZED_NAME",
   "main": "index.js",
   "scripts": {
-    "compile": "cross-env PUBLIC_URL=\"./\" COMPONENT_BUILD_PATH=\"/../compiled-components/components/\" COMPONENT_NAME=\"Example2\" COMPONENT_SOURCE_PATH=\"./example2\" webpack --mode production"
+    "compile": "cross-env PUBLIC_URL=\"./\" COMPONENT_BUILD_PATH=\"/../compiled-components/components/\" COMPONENT_NAME=\"COMPONENT_CAPITALIZED_NAME\" COMPONENT_SOURCE_PATH=\"./COMPONENT_FUNCTIONAL_NAME\" webpack --mode production"
   },
   "author": "centreon@centreon.com",
   "license": "GPL-2.0",

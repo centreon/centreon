@@ -26,6 +26,9 @@
     "react-dom": "^16.0.0",
     "uikit": "^3.*"
   },
+  "bin": {
+    "centreon-compgen":"./dynamic/generator/index.js"
+  },
   "dependencies": {
     "classnames": "latest",
     "lodash": "^4.17.10",
