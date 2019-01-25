@@ -59,4 +59,43 @@
         </td>
     </tr>
     {/if}
+    {if $proxy_enabled}
+    <tr class="list_lvl_1">
+        <td class="ListColLvl1_name" colspan="2">
+            <h4>{$header.proxy_settings}</h4>
+        </td>
+    </tr>
+    <tr class="list_one">
+        <td class="FormRowField">
+            {$form.proxy_address.label}
+        </td>
+        <td class="FormRowValue">
+            {$form.proxy_address.html}
+        </td>
+    </tr>
+    <tr class="list_two">
+        <td class="FormRowField">
+            {$form.proxy_port.label}
+        </td>
+        <td class="FormRowValue">
+            {$form.proxy_port.html}
+        </td>
+    </tr>
+    <tr class="list_one">
+        <td class="FormRowField">
+            {$form.proxy_username.label}
+        </td>
+        <td class="FormRowValue">
+            {$form.proxy_username.html}
+        </td>
+    </tr>
+    <tr class="list_two">
+        <td class="FormRowField">
+            {$form.proxy_password.label}
+        </td>
+        <td class="FormRowValue">
+            {$form.proxy_password.html}
+        </td>
+    </tr>
+    {/if}
 </table>

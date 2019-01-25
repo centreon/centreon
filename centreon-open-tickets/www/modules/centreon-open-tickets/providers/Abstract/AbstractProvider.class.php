@@ -78,6 +78,7 @@ abstract class AbstractProvider {
     protected $_uniq_id;
     protected $_attach_files = 0;
     protected $_close_advanced = 0;
+    protected $_proxy_enabled = 0;
 
     const HOSTGROUP_TYPE = 0;
     const HOSTCATEGORY_TYPE = 1;
@@ -564,13 +565,20 @@ Output: {$service.output|substr:0:1024}
         $tpl->assign("centreon_open_tickets_path", $this->_centreon_open_tickets_path);
         $tpl->assign("img_wrench", "./modules/centreon-open-tickets/images/wrench.png");
         $tpl->assign("img_brick", "./modules/centreon-open-tickets/images/brick.png");
-        $tpl->assign("header", array("title" => _("Rules"), "common" => _("Common")));
+        $tpl->assign("header", array("proxy_settings" => _("Proxy settings"), "title" => _("Rules"), "common" => _("Common")));
+        $tpl->assign("proxy_enabled", $this->_proxy_enabled);
 
         // Form
         $confirm_autoclose_html = '<input size="5" name="confirm_autoclose" type="text" value="' . $this->_getFormValue('confirm_autoclose') . '" />';
         $macro_ticket_id_html = '<input size="50" name="macro_ticket_id" type="text" value="' . $this->_getFormValue('macro_ticket_id') . '" />';
         $format_popup_html = '<textarea rows="8" cols="70" name="format_popup">' . $this->_getFormValue('format_popup') . '</textarea>';
         $attach_files_html = '<input type="checkbox" name="attach_files" value="yes" ' . ($this->_getFormValue('attach_files') == 'yes' ? 'checked' : '') . '/>';
+
+        //Proxy
+        $proxy_address_html = '<input size="50" name="proxy_address" type="text" value="' . $this->_getFormValue('proxy_address') . '" />';
+        $proxy_port_html = '<input size="10" name="proxy_port" type="text" value="' . $this->_getFormValue('proxy_port') . '" />';
+        $proxy_username_html = '<input size="50" name="proxy_username" type="text" value="' . $this->_getFormValue('proxy_username') . '" />';
+        $proxy_password_html = '<input size="50" name="proxy_password" type="password" value="' . $this->_getFormValue('proxy_password') . '" autocomplete="off" />';
 
         $array_form = array(
             'macro_ticket_id' => array('label' => _("Macro Ticket ID") . $this->_required_field, 'html' => $macro_ticket_id_html),
@@ -579,6 +587,10 @@ Output: {$service.output|substr:0:1024}
             'chainrule' => array('label' => _("Chain rules")),
             'command' => array('label' => _("Commands")),
             'attach_files' => array('label' => _("Attach Files"), "enable" => $this->_attach_files, 'html' => $attach_files_html),
+            'proxy_address' => array('label' => _("Proxy address"), 'html' => $proxy_address_html),
+            'proxy_port' => array('label' => _("Proxy port"), 'html' => $proxy_port_html),
+            'proxy_username' => array('label' => _("Proxy username"), 'html' => $proxy_username_html),
+            'proxy_password' => array('label' => _("Proxy password"), 'html' => $proxy_password_html),
         );
 
         // Chain rule list clone
@@ -651,6 +663,11 @@ Output: {$service.output|substr:0:1024}
         $this->_save_config['clones']['bodyList'] = $this->_getCloneSubmitted('bodyList', array('Name', 'Value', 'Default'));
         $this->_save_config['clones']['chainruleList'] = $this->_getCloneSubmitted('chainruleList', array('Provider'));
         $this->_save_config['clones']['commandList'] = $this->_getCloneSubmitted('commandList', array('Cmd'));
+        
+        $this->_save_config['simple']['proxy_address'] = isset($this->_submitted_config['proxy_address']) ? $this->_submitted_config['proxy_address'] : '';
+        $this->_save_config['simple']['proxy_port'] = isset($this->_submitted_config['proxy_port']) ? $this->_submitted_config['proxy_port'] : '';
+        $this->_save_config['simple']['proxy_username'] = isset($this->_submitted_config['proxy_username']) ? $this->_submitted_config['proxy_username'] : '';
+        $this->_save_config['simple']['proxy_password'] = isset($this->_submitted_config['proxy_password']) ? $this->_submitted_config['proxy_password'] : '';
     }
 
     public function saveConfig() {
@@ -1164,5 +1181,21 @@ Output: {$service.output|substr:0:1024}
             }
         }
         return $_SESSION['ot_cache_' . $this->_rule_id][$key]['value'];
+    }
+    
+    static protected function setProxy(&$ch, $info) {
+        if (is_null($info['proxy_address']) || !isset($info['proxy_address']) || $info['proxy_address'] == '') {
+            return 1;
+        }
+        
+        curl_setopt($ch, CURLOPT_PROXY, $info['proxy_address']);
+        if (!is_null($info['proxy_port']) && isset($info['proxy_port']) && $info['proxy_port'] != '') {
+            curl_setopt($ch, CURLOPT_PROXYPORT, $info['proxy_port']);
+        }
+        if (!is_null($info['proxy_username']) && isset($info['proxy_username']) && $info['proxy_username'] != '') {
+            curl_setopt($ch, CURLOPT_PROXYUSERPWD, $info['proxy_username'] . ':' . $info['proxy_password']);
+        }
+        
+        return 0;
     }
 }

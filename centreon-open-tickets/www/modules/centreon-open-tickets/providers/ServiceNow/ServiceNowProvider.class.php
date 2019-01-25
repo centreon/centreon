@@ -20,6 +20,8 @@
  */
 
 class ServiceNowProvider extends AbstractProvider {
+    protected $_proxy_enabled = 1;
+    
     const SERVICENOW_LIST_CATEGORY = 20;
     const SERVICENOW_LIST_SUBCATEGORY = 21;
     const SERVICENOW_LIST_IMPACT = 22;
@@ -126,21 +128,13 @@ class ServiceNowProvider extends AbstractProvider {
         $client_secret_html = '<input size="50" name="client_secret" type="password" value="' . $this->_getFormValue('client_secret') . '" autocomplete="off" />';
         $username_html = '<input size="50" name="username" type="text" value="' . $this->_getFormValue('username') . '" />';
         $password_html = '<input size="50" name="password" type="password" value="' . $this->_getFormValue('password') . '" autocomplete="off" />';
-        $proxy_address_html = '<input size="50" name="proxy_address" type="text" value="' . $this->_getFormValue('proxy_address') . '" />';
-        $proxy_port_html = '<input size="10" name="proxy_port" type="text" value="' . $this->_getFormValue('proxy_port') . '" />';
-        $proxy_username_html = '<input size="50" name="proxy_username" type="text" value="' . $this->_getFormValue('proxy_username') . '" />';
-        $proxy_password_html = '<input size="50" name="proxy_password" type="password" value="' . $this->_getFormValue('proxy_password') . '" autocomplete="off" />';
-
+    
         $array_form = array(
             'instance_name' => array('label' => _("Instance name") . $this->_required_field, 'html' => $instance_name_html),
             'client_id' => array('label' => _("OAuth Client ID") . $this->_required_field, 'html' => $client_id_html),
             'client_secret' => array('label' => _("OAuth client secret") . $this->_required_field, 'html' => $client_secret_html),
             'username' => array('label' => _("OAuth username") . $this->_required_field, 'html' => $username_html),
             'password' => array('label' => _("OAuth password") . $this->_required_field, 'html' => $password_html),
-            'proxy_address' => array('label' => _("Proxy address"), 'html' => $proxy_address_html),
-            'proxy_port' => array('label' => _("Proxy port"), 'html' => $proxy_port_html),
-            'proxy_username' => array('label' => _("Proxy username"), 'html' => $proxy_username_html),
-            'proxy_password' => array('label' => _("Proxy password"), 'html' => $proxy_password_html),
             'mappingticket' => array('label' => _("Mapping ticket arguments")),
         );
         
@@ -180,10 +174,6 @@ class ServiceNowProvider extends AbstractProvider {
         $this->_save_config['simple']['client_secret'] = $this->_submitted_config['client_secret'];
         $this->_save_config['simple']['username'] = $this->_submitted_config['username'];
         $this->_save_config['simple']['password'] = $this->_submitted_config['password'];
-        $this->_save_config['simple']['proxy_address'] = $this->_submitted_config['proxy_address'];
-        $this->_save_config['simple']['proxy_port'] = $this->_submitted_config['proxy_port'];
-        $this->_save_config['simple']['proxy_username'] = $this->_submitted_config['proxy_username'];
-        $this->_save_config['simple']['proxy_password'] = $this->_submitted_config['proxy_password'];
         
         $this->_save_config['clones']['mappingTicket'] = $this->_getCloneSubmitted('mappingTicket', array('Arg', 'Value'));
     }
@@ -311,22 +301,6 @@ class ServiceNowProvider extends AbstractProvider {
 
         $this->validateFormatPopupLists($result);
         return $result;
-    }
-    
-    static protected function setProxy(&$ch, $info) {
-        if (is_null($info['proxy_address']) || !isset($info['proxy_address']) || $info['proxy_address'] == '') {
-            return 1;
-        }
-        
-        curl_setopt($ch, CURLOPT_PROXY, $info['proxy_address']);
-        if (!is_null($info['proxy_port']) && isset($info['proxy_port']) && $info['proxy_port'] != '') {
-            curl_setopt($ch, CURLOPT_PROXYPORT, $info['proxy_port']);
-        }
-        if (!is_null($info['proxy_username']) && isset($info['proxy_username']) && $info['proxy_username'] != '') {
-            curl_setopt($ch, CURLOPT_PROXYUSERPWD, $info['proxy_username'] . ':' . $info['proxy_password']);
-        }
-        
-        return 0;
     }
 
     /**
