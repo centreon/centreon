@@ -310,4 +310,13 @@ Object.defineProperty(exports, "ExtensionsHolder", {
   }
 });
 
+var _ExtensionDetailsPopup = require("./ExtensionDetailsPopup");
+
+Object.defineProperty(exports, "ExtensionDetailsPopup", {
+  enumerable: true,
+  get: function get() {
+    return _interopRequireDefault(_ExtensionDetailsPopup).default;
+  }
+});
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }

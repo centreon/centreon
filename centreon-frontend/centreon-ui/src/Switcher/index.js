@@ -21,6 +21,7 @@ class Switcher extends React.Component{
     const {value} = nextProps;
     if(this.state.value != value){
       this.setState({
+        toggled:!value,
         value
       })
     }
@@ -52,11 +53,11 @@ class Switcher extends React.Component{
       <div className={`switcher ${customClass}`}>
       <span className="switcher-title">{switcherTitle ? switcherTitle : " "}</span>
       <span className="switcher-status">{switcherStatus}</span>
-      <label className={"switch" + (!toggled ? " switch-active" : " switch-hide")}>
-        <input type="checkbox" checked={value} onClick={this.onChange.bind(this)}/>
+      <label className={"switch" + (toggled ? " switch-active" : " switch-hide")}>
+        <input type="checkbox" checked={!value} onClick={this.onChange.bind(this)}/>
         <span className="switch-slider switch-round" />
-        <span className="switch-status switch-status-show">show</span>
-        <span className="switch-status switch-status-hide">hide</span>
+        <span className="switch-status switch-status-show">on</span>
+        <span className="switch-status switch-status-hide">off</span>
       </label>
     </div>
     )

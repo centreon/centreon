@@ -36,3 +36,4 @@ export { default as DynamicComponentBundle } from "./DynamicComponentBundle";
 export { default as CentreonDynamicComponentGetter } from "./CentreonDynamicComponentGetter";
 export { default as TopFilters } from "./TopFilters";
 export { default as ExtensionsHolder } from './ExtensionsHolder';
+export { default as ExtensionDetailsPopup } from './ExtensionDetailsPopup';
