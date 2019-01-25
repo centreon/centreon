@@ -5,8 +5,9 @@
   .switch {
     position: relative;
     display: inline-block;
-    width: 67px;
-    height: 21px;
+    width: 69px;
+    height: 23px;
+    overflow: hidden;
     input {
       display:none;
     }
@@ -37,12 +38,42 @@
       line-height: 19px;
       background-color: $white-color;
       border: 1px solid #dcdcdc;
-      -webkit-transition: .75s;
-      transition: .75s;
+      -webkit-transition: .4s;
+      transition: .4s;
+    }
+    &-status {
+      font-family: $primary-font-regular;
+      line-height: 19px;
+      font-size: 12px;
+      position: absolute;
+      cursor: pointer;
+      -webkit-transition: .4s;
+      transition: .4s;
+      &-show {
+        color: $white-color;
+        left: -30px;
+        top: 1px;
+        visibility: hidden;
+      }
+      &-hide {
+        color: #373737;
+        right: 15px;
+        top: 1px;
+      }
+    }
+  }
+  .switch-active {
+    .switch-status-hide {
+      visibility: hidden;
+      right: -40px;
+    }
+    .switch-status-show {
+      visibility: visible;
+      left: 11px;
     }
   }
   input + .switch-slider:after {
-    content: "hide";
+    content: "";
     height: 21px;
     display: block;
     box-sizing: border-box;
@@ -58,7 +89,7 @@
     transition: .75s;
   }
   input:checked + .switch-slider:after {
-    content: "show";
+    content: "";
     padding-left: 15px;
     text-align: left;
     background: $content-green-color;

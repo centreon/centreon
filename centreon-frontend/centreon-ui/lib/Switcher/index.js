@@ -35,7 +35,8 @@ var Switcher = function (_React$Component) {
     }
 
     return _ret = (_temp = (_this = _possibleConstructorReturn(this, (_ref = Switcher.__proto__ || Object.getPrototypeOf(Switcher)).call.apply(_ref, [this].concat(args))), _this), _this.state = {
-      value: true
+      value: true,
+      toggled: false
     }, _this.UNSAFE_componentDidMount = function () {
       var value = _this.props.value;
 
@@ -56,14 +57,23 @@ var Switcher = function (_React$Component) {
       var _this$props = _this.props,
           onChange = _this$props.onChange,
           filterKey = _this$props.filterKey;
-      var value = _this.state.value;
+      var _this$state = _this.state,
+          value = _this$state.value,
+          toggled = _this$state.toggled;
 
       _this.setState({
-        value: !value
+        value: !value,
+        toggled: !toggled
       });
       if (onChange) {
         onChange(!value, filterKey);
       }
+    }, _this.toggled = function () {
+      var toggled = _this.state.toggled;
+
+      _this.setState({
+        toggled: !toggled
+      });
     }, _temp), _possibleConstructorReturn(_this, _ret);
   }
 
@@ -74,7 +84,9 @@ var Switcher = function (_React$Component) {
           switcherTitle = _props.switcherTitle,
           switcherStatus = _props.switcherStatus,
           customClass = _props.customClass;
-      var value = this.state.value;
+      var _state = this.state,
+          value = _state.value,
+          toggled = _state.toggled;
 
       return _react2.default.createElement(
         "div",
@@ -91,9 +103,19 @@ var Switcher = function (_React$Component) {
         ),
         _react2.default.createElement(
           "label",
-          { className: "switch" },
+          { className: "switch" + (!toggled ? " switch-active" : " switch-hide") },
           _react2.default.createElement("input", { type: "checkbox", checked: value, onClick: this.onChange.bind(this) }),
-          _react2.default.createElement("span", { className: "switch-slider switch-round" })
+          _react2.default.createElement("span", { className: "switch-slider switch-round" }),
+          _react2.default.createElement(
+            "span",
+            { className: "switch-status switch-status-show" },
+            "show"
+          ),
+          _react2.default.createElement(
+            "span",
+            { className: "switch-status switch-status-hide" },
+            "hide"
+          )
         )
       );
     }
