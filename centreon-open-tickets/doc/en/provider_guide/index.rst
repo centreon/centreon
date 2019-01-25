@@ -139,7 +139,7 @@ A new form appear and define dedicated field linked to the provider:
 
 * **Instance name** is ServiceNow instance name
 * **OAuth client ID** and **OAuth client secret** is the OAuth client information, you can get the tutorial to create it https://docs.servicenow.com/bundle/jakarta-servicenow-platform/page/administer/security/task/t_SettingUpOAuth.html?title=OAuth_Setup
-* **OAuth username** and **OAuth password** is the user used
+* **OAuth username** and **OAuth password** is the user used (with ServiceNow role **personalize_choices** and **catalog**).
 
 .. image:: /_static/provider_guide/servicenow/configure.png
     :align: center
