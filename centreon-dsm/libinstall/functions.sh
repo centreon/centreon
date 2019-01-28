@@ -479,7 +479,7 @@ function install_module() {
 	   ${CP} -Rf libinstall/debian/init.d.dsmd $TEMP_D/libinstall/ >> $LOG_FILE 2>> $LOG_FILE
  	   ${CP} -Rf libinstall/debian/dsmd.default $TEMP_D/libinstall/ >> $LOG_FILE 2>> $LOG_FILE
     else
-	   ${CP} -Rf libinstall/redhat/init.d.dsmd $TEMP_D/libinstall/ >> $LOG_FILE 2>> $LOG_FILE
+	   ${CP} -Rf libinstall/redhat/dsmd.systemd $TEMP_D/libinstall/ >> $LOG_FILE 2>> $LOG_FILE
  	   ${CP} -Rf libinstall/redhat/dsmd.sysconfig $TEMP_D/libinstall/ >> $LOG_FILE 2>> $LOG_FILE
     fi
 
@@ -547,7 +547,7 @@ function install_module() {
 	#
 
 	RESULT=0
-	FILE="libinstall/init.d.dsmd"
+	FILE="libinstall/dsmd.systemd"
 	${SED} -i -e 's|@CENTREON_USER@|'"$CENTREON_USER"'|g' $TEMP_D/$FILE 2>> $LOG_FILE
 	if [ "$?" -eq 0 ] ; then
 		RESULT=`expr $RESULT + 1`
@@ -568,14 +568,14 @@ function install_module() {
 		exit 1
 	fi
 
-	${CHMOD} -R 755 $TEMP_D/libinstall/init.d.dsmd >> $LOG_FILE 2>> $LOG_FILE
+	${CHMOD} -R 755 $TEMP_D/libinstall/dsmd.systemd >> $LOG_FILE 2>> $LOG_FILE
 	if [ "$?" -eq 0 ] ; then
 		echo_success "Set owner for init script" "$ok"
 	else 
 		echo_failure "Set owner for init script" "$fail"
 		exit 1
 	fi
-	${CHOWN} $CENTREON_USER $TEMP_D/libinstall/init.d.dsmd >> $LOG_FILE 2>> $LOG_FILE
+	${CHOWN} $CENTREON_USER $TEMP_D/libinstall/dsmd.systemd >> $LOG_FILE 2>> $LOG_FILE
 	if [ "$?" -eq 0 ] ; then
 		echo_success "Set mod for init script" "$ok"
 	else 
@@ -583,7 +583,7 @@ function install_module() {
 		exit 1
 	fi
 	
-	${CP} -Rf --preserve $TEMP_D/libinstall/init.d.dsmd /etc/init.d/dsmd >> $LOG_FILE 2>> $LOG_FILE
+	${CP} -Rf --preserve $TEMP_D/libinstall/dsmd.systemd /etc/systemd/system/dsmd.service >> $LOG_FILE 2>> $LOG_FILE
 	if [ "$?" -eq 0 ] ; then
 		echo_success "Copying init script" "$ok"
 	else 
