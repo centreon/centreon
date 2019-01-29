@@ -50,7 +50,7 @@
 // Loading animation
 .loading-animation{
   -webkit-animation: spinner 1s infinite linear;
-  top: 20%;
+  top: 20% !important;
 }
 
 @-webkit-keyframes spinner {
