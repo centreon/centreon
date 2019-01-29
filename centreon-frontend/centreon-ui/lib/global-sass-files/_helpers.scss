@@ -50,6 +50,7 @@
 // Loading animation
 .loading-animation{
   -webkit-animation: spinner 1s infinite linear;
+  top: 20%;
 }
 
 @-webkit-keyframes spinner {
@@ -71,4 +72,9 @@
      -o-transform: rotate3d(0, 0, 1, 360deg);
      transform: rotate3d(0, 0, 1, 360deg);
   }
+}
+
+// Opacity
+.half-opacity {
+  opacity: .5;
 }

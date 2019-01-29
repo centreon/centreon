@@ -8,6 +8,8 @@
   color: $content-blue-color;
   font-family: $primary-font-light;
   position: relative;
+  padding-left: 60px;
+  min-height: 51px;
   &-blue {
     color: #0072aa;
   }
@@ -21,9 +23,9 @@
   &-icon {
     width: 51px;
     height: 51px;
-    display: inline-block;
-    vertical-align: top;
-    margin-right: 7px;
+    position: absolute;
+    left: 0;
+    top: 0;
     &-puzzle {
       background: url('../../img/icons/icon-title-puzzle.png') no-repeat 50%;
     }
