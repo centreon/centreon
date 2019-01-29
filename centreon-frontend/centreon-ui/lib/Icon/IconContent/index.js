@@ -14,9 +14,11 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 var IconContent = function IconContent(_ref) {
   var iconContentType = _ref.iconContentType,
-      iconContentColor = _ref.iconContentColor;
+      iconContentColor = _ref.iconContentColor,
+      loading = _ref.loading;
   return _react2.default.createElement("span", {
-    className: "content-icon content-icon-" + iconContentType + " content-icon-add-" + iconContentColor
+    style: loading ? { top: '20%' } : {},
+    className: "content-icon content-icon-" + iconContentType + " " + (iconContentColor ? "content-icon-" + iconContentType + "-" + iconContentColor : '') + " " + (loading ? 'loading-animation' : '')
   });
 };
 
