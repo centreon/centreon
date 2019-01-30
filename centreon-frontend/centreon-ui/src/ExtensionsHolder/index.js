@@ -45,7 +45,7 @@ class ExtensionsHolder extends React.Component {
                                                 style={
                                                     installing[entity.id] || updating[entity.id] ?
                                                         {
-                                                            opacity:'0.5'
+                                                            opacity: '0.5'
                                                         } : {}
                                                 }
                                                 buttonType={(entity.version.installed ? (entity.version.outdated ? "regular" : "bordered") : "regular")}
@@ -65,7 +65,8 @@ class ExtensionsHolder extends React.Component {
                                                                 e.stopPropagation();
                                                                 onDelete(entity);
                                                             }
-                                                        } /> : null
+                                                        }
+                                                    /> : null
                                             }
                                         </Centreon.CardItem>
                                     </div>
