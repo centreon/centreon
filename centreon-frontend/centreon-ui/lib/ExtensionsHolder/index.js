@@ -49,7 +49,8 @@ var ExtensionsHolder = function (_React$Component) {
                 onInstall = _props.onInstall,
                 onUpdate = _props.onUpdate,
                 updating = _props.updating,
-                installing = _props.installing;
+                installing = _props.installing,
+                type = _props.type;
 
             return _react2.default.createElement(
                 Centreon.Wrapper,
@@ -86,10 +87,10 @@ var ExtensionsHolder = function (_React$Component) {
                                                 var id = entity.id;
                                                 var version = entity.version;
 
-                                                if (version.outdated) {
-                                                    onUpdate(id);
-                                                } else if (!version.installed) {
-                                                    onInstall(id);
+                                                if (version.outdated && !updating[entity.id]) {
+                                                    onUpdate(id, type);
+                                                } else if (!version.installed && !installing[entity.id]) {
+                                                    onInstall(id, type);
                                                 } else {
                                                     onCardClicked(id);
                                                 }
@@ -106,7 +107,8 @@ var ExtensionsHolder = function (_React$Component) {
                                         onClick: function onClick(e) {
                                             e.preventDefault();
                                             e.stopPropagation();
-                                            onDelete(entity);
+
+                                            onDelete(entity, type);
                                         } }) : null
                                 )
                             );

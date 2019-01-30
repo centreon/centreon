@@ -2,10 +2,10 @@ import React from "react";
 import * as Centreon from '../index';
 
 class ExtensionsHolder extends React.Component {
-
+    
 
     render() {
-        const { title, titleIcon, entities, onCardClicked, onDelete, onInstall, onUpdate, updating, installing } = this.props;
+        const { title, titleIcon, entities, onCardClicked, onDelete, onInstall, onUpdate, updating, installing, type } = this.props;
         return (
             <Centreon.Wrapper>
                 <Centreon.HorizontalLineContent hrTitle={title} />
@@ -34,10 +34,10 @@ class ExtensionsHolder extends React.Component {
                                                     e.stopPropagation();
                                                     const { id } = entity;
                                                     const { version } = entity;
-                                                    if (version.outdated) {
-                                                        onUpdate(id)
-                                                    } else if (!version.installed) {
-                                                        onInstall(id)
+                                                    if (version.outdated && !updating[entity.id]) {
+                                                        onUpdate(id, type)
+                                                    } else if (!version.installed && !installing[entity.id]) {
+                                                        onInstall(id, type)
                                                     } else {
                                                         onCardClicked(id)
                                                     }
@@ -45,7 +45,7 @@ class ExtensionsHolder extends React.Component {
                                                 style={
                                                     installing[entity.id] || updating[entity.id] ?
                                                         {
-                                                            opacity: '0.5'
+                                                            opacity:'0.5'
                                                         } : {}
                                                 }
                                                 buttonType={(entity.version.installed ? (entity.version.outdated ? "regular" : "bordered") : "regular")}
@@ -63,10 +63,10 @@ class ExtensionsHolder extends React.Component {
                                                             (e) => {
                                                                 e.preventDefault();
                                                                 e.stopPropagation();
-                                                                onDelete(entity);
+
+                                                                onDelete(entity, type);
                                                             }
-                                                        }
-                                                    /> : null
+                                                        } /> : null
                                             }
                                         </Centreon.CardItem>
                                     </div>

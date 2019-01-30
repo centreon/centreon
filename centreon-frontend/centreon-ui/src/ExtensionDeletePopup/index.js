@@ -10,7 +10,7 @@ class ExtensionDeletePopup extends React.Component {
         return (
             <Centreon.Popup popupType="small">
                 <div class="popup-header">
-                    <Centreon.Title label={deletingEntity.description} icon="object" />
+                    <Centreon.Title label={deletingEntity.description} icon={deletingEntity.type === 'module' ? 'object' : 'puzzle'} />
                 </div>
                 <div class="popup-body">
                     <Centreon.MessageInfo messageInfo="red" text="Do you want to delete this extension. This, action will remove all associated data." />
@@ -27,7 +27,7 @@ class ExtensionDeletePopup extends React.Component {
                                     (e) => {
                                         e.preventDefault();
                                         e.stopPropagation();
-                                        onConfirm(deletingEntity.id);
+                                        onConfirm(deletingEntity.id, deletingEntity.type);
                                     }
                                 }
                             />
