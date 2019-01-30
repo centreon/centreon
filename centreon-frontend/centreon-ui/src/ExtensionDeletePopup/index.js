@@ -27,7 +27,7 @@ class ExtensionDeletePopup extends React.Component {
                                     (e) => {
                                         e.preventDefault();
                                         e.stopPropagation();
-                                        onConfirm(deletingEntity.id);
+                                        onConfirm(deletingEntity.id, deletingEntity.type);
                                     }
                                 }
                             />
