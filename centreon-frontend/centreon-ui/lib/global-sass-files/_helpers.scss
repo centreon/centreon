@@ -49,10 +49,7 @@
 
 // Loading animation
 .loading-animation{
-   animation: spinner 1s infinite linear;
   -webkit-animation: spinner 1s infinite linear;
-  -moz-animation: spinner 1s infinite linear;
-  -o-animation: spinner 1s infinite linear;
 }
 
 @-webkit-keyframes spinner {

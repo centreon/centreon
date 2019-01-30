@@ -328,4 +328,13 @@ Object.defineProperty(exports, "ExtensionDeletePopup", {
   }
 });
 
+var _Axios = require("./Axios");
+
+Object.defineProperty(exports, "Axios", {
+  enumerable: true,
+  get: function get() {
+    return _interopRequireDefault(_Axios).default;
+  }
+});
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }

@@ -72,7 +72,7 @@ var ExtensionDeletePopup = function (_React$Component) {
                                 onClick: function onClick(e) {
                                     e.preventDefault();
                                     e.stopPropagation();
-                                    onConfirm(deletingEntity.id);
+                                    onConfirm(deletingEntity.id, deletingEntity.type);
                                 }
                             })
                         ),
