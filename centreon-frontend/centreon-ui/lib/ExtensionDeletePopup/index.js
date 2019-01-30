@@ -48,7 +48,7 @@ var ExtensionDeletePopup = function (_React$Component) {
                 _react2.default.createElement(
                     "div",
                     { "class": "popup-header" },
-                    _react2.default.createElement(Centreon.Title, { label: deletingEntity.description, icon: "object" })
+                    _react2.default.createElement(Centreon.Title, { label: deletingEntity.description, icon: deletingEntity.type === 'module' ? 'object' : 'puzzle' })
                 ),
                 _react2.default.createElement(
                     "div",
