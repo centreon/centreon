@@ -319,4 +319,13 @@ Object.defineProperty(exports, "ExtensionDetailsPopup", {
   }
 });
 
+var _ExtensionDeletePopup = require("./ExtensionDeletePopup");
+
+Object.defineProperty(exports, "ExtensionDeletePopup", {
+  enumerable: true,
+  get: function get() {
+    return _interopRequireDefault(_ExtensionDeletePopup).default;
+  }
+});
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
