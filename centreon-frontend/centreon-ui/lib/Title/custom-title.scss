@@ -8,8 +8,6 @@
   color: $content-blue-color;
   font-family: $primary-font-light;
   position: relative;
-  padding-left: 60px;
-  min-height: 51px;
   &-blue {
     color: #0072aa;
   }
@@ -31,6 +29,11 @@
     }
     &-object {
       background: url('../../img/icons/icon-title-object.png') no-repeat 50%;
+    }
+    & + .custom-title-label {
+      padding-left: 56px;
+      min-height: 51px;
+      display: inline-block;
     }
   }
   &.image {

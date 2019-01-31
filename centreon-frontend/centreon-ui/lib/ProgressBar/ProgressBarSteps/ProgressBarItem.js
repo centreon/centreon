@@ -8,23 +8,21 @@ var _react = require("react");
 
 var _react2 = _interopRequireDefault(_react);
 
-require("./custom-title.scss");
-
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var Title = function Title(_ref) {
-  var icon = _ref.icon,
-      label = _ref.label;
+var ProgressBarItem = function ProgressBarItem(_ref) {
+  var classActive = _ref.classActive,
+      number = _ref.number;
+
   return _react2.default.createElement(
-    "h2",
-    { className: "custom-title" },
-    icon ? _react2.default.createElement("span", { className: "custom-title-icon custom-title-icon-" + icon }) : null,
+    "li",
+    { className: "progress-bar-item" },
     _react2.default.createElement(
       "span",
-      { className: "custom-title-label" },
-      label
+      { className: "progress-bar-link " + classActive },
+      number
     )
   );
 };
 
-exports.default = Title;
+exports.default = ProgressBarItem;
