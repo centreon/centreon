@@ -44,7 +44,13 @@ var ExtensionsHolder = function (_React$Component) {
                 title = _props.title,
                 titleIcon = _props.titleIcon,
                 entities = _props.entities,
-                onCardClicked = _props.onCardClicked;
+                onCardClicked = _props.onCardClicked,
+                onDelete = _props.onDelete,
+                onInstall = _props.onInstall,
+                onUpdate = _props.onUpdate,
+                updating = _props.updating,
+                installing = _props.installing,
+                type = _props.type;
 
             return _react2.default.createElement(
                 Centreon.Wrapper,
@@ -55,7 +61,7 @@ var ExtensionsHolder = function (_React$Component) {
                     null,
                     _react2.default.createElement(
                         "div",
-                        { className: "container__row fghjdfgh" },
+                        { className: "container__row" },
                         entities.map(function (entity) {
                             return _react2.default.createElement(
                                 "div",
@@ -74,17 +80,36 @@ var ExtensionsHolder = function (_React$Component) {
                                     ),
                                     _react2.default.createElement(
                                         Centreon.Button,
-                                        _extends({
+                                        {
                                             onClick: function onClick(e) {
-                                                e.preventDefault();e.stopPropagation();
+                                                e.preventDefault();
+                                                e.stopPropagation();
+                                                var id = entity.id;
+                                                var version = entity.version;
+
+                                                if (version.outdated && !updating[entity.id]) {
+                                                    onUpdate(id, type);
+                                                } else if (!version.installed && !installing[entity.id]) {
+                                                    onInstall(id, type);
+                                                } else {
+                                                    onCardClicked(id);
+                                                }
                                             },
+                                            style: installing[entity.id] || updating[entity.id] ? {
+                                                opacity: '0.5'
+                                            } : {},
                                             buttonType: entity.version.installed ? entity.version.outdated ? "regular" : "bordered" : "regular",
                                             color: entity.version.installed ? entity.version.outdated ? "orange" : "blue" : "green",
-                                            label: "Available " + entity.version.available
-                                        }, entity.version.outdated ? { iconActionType: "update" } : {}),
-                                        !entity.version.installed ? _react2.default.createElement(Centreon.IconContent, { iconContentType: "add" }) : null
+                                            label: "Available " + entity.version.available },
+                                        !entity.version.installed ? _react2.default.createElement(Centreon.IconContent, { iconContentType: "" + (installing[entity.id] ? 'update' : 'add'), loading: installing[entity.id] }) : entity.version.outdated ? _react2.default.createElement(Centreon.IconContent, { iconContentType: "update", loading: updating[entity.id] }) : null
                                     ),
-                                    entity.version.installed ? _react2.default.createElement(Centreon.ButtonAction, { buttonActionType: "delete", buttonIconType: "delete" }) : null
+                                    entity.version.installed ? _react2.default.createElement(Centreon.ButtonAction, { buttonActionType: "delete", buttonIconType: "delete",
+                                        onClick: function onClick(e) {
+                                            e.preventDefault();
+                                            e.stopPropagation();
+
+                                            onDelete(entity, type);
+                                        } }) : null
                                 )
                             );
                         })

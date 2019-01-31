@@ -364,4 +364,22 @@ Object.defineProperty(exports, "ExtensionDetailsPopup", {
   }
 });
 
+var _ExtensionDeletePopup = require("./ExtensionDeletePopup");
+
+Object.defineProperty(exports, "ExtensionDeletePopup", {
+  enumerable: true,
+  get: function get() {
+    return _interopRequireDefault(_ExtensionDeletePopup).default;
+  }
+});
+
+var _Axios = require("./Axios");
+
+Object.defineProperty(exports, "Axios", {
+  enumerable: true,
+  get: function get() {
+    return _interopRequireDefault(_Axios).default;
+  }
+});
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }

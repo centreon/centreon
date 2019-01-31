@@ -10,7 +10,9 @@ class FileUploadItem extends Component {
       info,
       infoStatus,
       infoStatusLabel,
-      progressBar
+      progressBar,
+      uploading,
+      onDeleteFile
     } = this.props;
     return (
       <React.Fragment>
@@ -21,10 +23,17 @@ class FileUploadItem extends Component {
             {infoStatusLabel}
             {info}
           </span> : null}
-          <span className="icon-close icon-close-small" />
-          <div className="progress">
-            <span className={`progress-bar ${progressBar}`} />
-          </div>
+          {
+            !uploading ? (<span className="icon-close icon-close-small" onClick={onDeleteFile} />) : null
+          }
+          {
+            progressBar ? (
+              <div className="progress">
+                <span className={`progress-bar ${progressBar}`} />
+              </div>
+            ) : null
+          }
+
         </div>
       </React.Fragment>
     );
