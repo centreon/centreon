@@ -39,7 +39,9 @@ var FileUploadItem = function (_Component) {
           infoStatus = _props.infoStatus,
           infoStatusLabel = _props.infoStatusLabel,
           progressBar = _props.progressBar,
+          progressPercentage = _props.progressPercentage,
           uploading = _props.uploading,
+          message = _props.message,
           onDeleteFile = _props.onDeleteFile;
 
       return _react2.default.createElement(
@@ -60,11 +62,21 @@ var FileUploadItem = function (_Component) {
             infoStatusLabel,
             info
           ) : null,
-          !uploading ? _react2.default.createElement("span", { className: "icon-close icon-close-small", onClick: onDeleteFile }) : null,
-          progressBar ? _react2.default.createElement(
+          !uploading ? _react2.default.createElement("span", {
+            className: "icon-close icon-close-small",
+            onClick: onDeleteFile
+          }) : null,
+          _react2.default.createElement(
             "div",
             { className: "progress" },
-            _react2.default.createElement("span", { className: "progress-bar " + progressBar })
+            _react2.default.createElement("span", { className: "progress-bar " + progressBar, style: {
+                width: progressPercentage + "%"
+              } })
+          ),
+          message ? _react2.default.createElement(
+            "span",
+            { "class": "file-upload-message" },
+            message
           ) : null
         )
       );

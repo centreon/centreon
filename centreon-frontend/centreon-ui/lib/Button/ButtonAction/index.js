@@ -22,7 +22,10 @@ var ButtonAction = function ButtonAction(_ref) {
       onClick = _ref.onClick;
   return _react2.default.createElement(
     "span",
-    { className: "button-action button-action-" + buttonActionType, onClick: onClick },
+    {
+      className: "button-action button-action-" + buttonActionType,
+      onClick: onClick
+    },
     _react2.default.createElement(_IconAction2.default, { iconActionType: buttonIconType })
   );
 };

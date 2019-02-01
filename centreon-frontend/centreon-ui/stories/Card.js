@@ -1,5 +1,5 @@
 import React from "react";
-import {storiesOf} from "@storybook/react";
+import { storiesOf } from "@storybook/react";
 import {
   Card,
   Button,
@@ -17,19 +17,21 @@ storiesOf("Card", module).add("Card - with content", () => (
       itemFooterColor="orange"
       itemFooterLabel="Some label for the footer"
       style={{
-      width: "250px"
-    }}>
-      <IconInfo iconName="state"/>
+        width: "250px"
+      }}
+    >
+      <IconInfo iconName="state" />
       <div className="custom-title-heading">
-        <Title icon="object" label="Test Title"/>
-        <Subtitle label="Test Subtitle"/>
+        <Title icon="object" label="Test Title" />
+        <Subtitle label="Test Subtitle" />
       </div>
       <Button
         buttonType="regular"
         color="orange"
         label="Button example"
-        iconActionType="update"/>
-      <ButtonAction buttonActionType="delete" buttonIconType="delete"/>
+        iconActionType="update"
+      />
+      <ButtonAction buttonActionType="delete" buttonIconType="delete" />
     </CardItem>
   </Card>
 ));
@@ -41,7 +43,8 @@ storiesOf("Card", module).add("Card - without content", () => (
       itemFooterColor="orange"
       itemFooterLabel="Some label for the footer"
       style={{
-      width: "250px"
-    }}/>
+        width: "250px"
+      }}
+    />
   </Card>
 ));

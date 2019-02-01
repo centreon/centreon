@@ -54,7 +54,9 @@ var FileUploadItem = function (_Component) {
           ),
           _react2.default.createElement(
             "span",
-            { className: "file-upload-item-info percentage" },
+            {
+              className: "file-upload-item-info percentage"
+            },
             uploadedPercentage + "%/100%"
           )
         )

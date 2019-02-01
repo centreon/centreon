@@ -82,7 +82,7 @@ var SliderContent = function (_Component) {
     };
 
     _this.slideWidth = function () {
-      return document.querySelector('.content-slider-item').clientWidth;
+      return document.querySelector(".content-slider-item").clientWidth;
     };
 
     _this.renderSlides = function () {
@@ -105,7 +105,7 @@ var SliderContent = function (_Component) {
           translateValue = _this$state3.translateValue;
 
 
-      var dotIndex = parseInt(e.target.getAttribute('data-index'));
+      var dotIndex = parseInt(e.target.getAttribute("data-index"));
 
       // Go back
       if (dotIndex < currentIndex) {
@@ -151,7 +151,8 @@ var SliderContent = function (_Component) {
               className: "content-slider-items",
               style: {
                 transform: "translateX(" + translateValue + "px)"
-              } },
+              }
+            },
             this.renderSlides()
           ),
           _react2.default.createElement(
@@ -163,7 +164,8 @@ var SliderContent = function (_Component) {
           _react2.default.createElement(_ContentSliderIndicators2.default, {
             images: images,
             currentIndex: currentIndex,
-            handleDotClick: this.handleDotClick })
+            handleDotClick: this.handleDotClick
+          })
         ),
         _react2.default.createElement(_IconContent2.default, { iconContentType: "add", iconContentColor: "green" })
       );

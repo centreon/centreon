@@ -1,4 +1,4 @@
-'use strict';
+"use strict";
 
 Object.defineProperty(exports, "__esModule", {
   value: true
@@ -6,15 +6,15 @@ Object.defineProperty(exports, "__esModule", {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _react = require('react');
+var _react = require("react");
 
 var _react2 = _interopRequireDefault(_react);
 
-var _axios = require('axios');
+var _axios = require("axios");
 
 var _axios2 = _interopRequireDefault(_axios);
 
-var _DynamicComponentBundle = require('../DynamicComponentBundle');
+var _DynamicComponentBundle = require("../DynamicComponentBundle");
 
 var _DynamicComponentBundle2 = _interopRequireDefault(_DynamicComponentBundle);
 
@@ -57,7 +57,7 @@ var CentreonDynamicComponentGetter = function (_Component) {
   }
 
   _createClass(CentreonDynamicComponentGetter, [{
-    key: 'render',
+    key: "render",
     value: function render() {
       var _state = this.state,
           topologyUrl = _state.topologyUrl,
@@ -67,7 +67,10 @@ var CentreonDynamicComponentGetter = function (_Component) {
       return _react2.default.createElement(
         _react2.default.Fragment,
         null,
-        _react2.default.createElement(_DynamicComponentBundle2.default, { componentName: componentName, topologyUrl: topologyUrl })
+        _react2.default.createElement(_DynamicComponentBundle2.default, {
+          componentName: componentName,
+          topologyUrl: topologyUrl
+        })
       );
     }
   }]);

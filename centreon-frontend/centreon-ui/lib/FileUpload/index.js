@@ -22,10 +22,6 @@ var _FileUploadItem = require("./FileUploadItem");
 
 var _FileUploadItem2 = _interopRequireDefault(_FileUploadItem);
 
-var _FileUploadProgress = require("./FileUploadProgress");
-
-var _FileUploadProgress2 = _interopRequireDefault(_FileUploadProgress);
-
 require("./file-upload.scss");
 
 var _reactFiles = require("react-files");
@@ -55,14 +51,13 @@ var FileUpload = function (_Component) {
     }
 
     return _ret = (_temp = (_this = _possibleConstructorReturn(this, (_ref = FileUpload.__proto__ || Object.getPrototypeOf(FileUpload)).call.apply(_ref, [this].concat(args))), _this), _this.state = {
-      uploading: false,
       files: []
     }, _this.onFilesChange = function (files) {
       _this.setState({
         files: files
       });
-    }, _this.onFilesError = function (error, file) {
-      console.log('error code ' + error.code + ': ' + error.message);
+    }, _this.onFilesError = function (error) {
+      console.log("error code " + error.code + ": " + error.message);
     }, _this.onRemoveFile = function (idx) {
       var files = _this.state.files;
 
@@ -78,11 +73,21 @@ var FileUpload = function (_Component) {
     value: function render() {
       var _this2 = this;
 
-      var _state = this.state,
-          files = _state.files,
-          uploading = _state.uploading;
-      var onClose = this.props.onClose;
+      var files = this.state.files;
+      var _props = this.props,
+          uploadingProgress = _props.uploadingProgress,
+          uploadStatus = _props.uploadStatus,
+          onClose = _props.onClose,
+          uploading = _props.uploading,
+          onApply = _props.onApply,
+          finished = _props.finished;
 
+      var isSuccessfull = true;
+      if (uploadStatus) {
+        if (!uploadStatus.status) {
+          isSuccessfull = false;
+        }
+      }
       return _react2.default.createElement(
         _react2.default.Fragment,
         null,
@@ -91,7 +96,9 @@ var FileUpload = function (_Component) {
           { popupType: "small" },
           _react2.default.createElement(
             "div",
-            { className: "popup-header blue-background-decorator" },
+            {
+              className: "popup-header " + (isSuccessfull ? "blue" : "red") + "-background-decorator"
+            },
             _react2.default.createElement(
               "div",
               { className: "container__row" },
@@ -105,7 +112,7 @@ var FileUpload = function (_Component) {
                     "span",
                     { className: "file-upload-title" },
                     _react2.default.createElement("span", { className: "file-upload-icon" }),
-                    "File Upload"
+                    isSuccessfull ? "File Upload" : "No valid file uploaded."
                   )
                 )
               ),
@@ -114,12 +121,12 @@ var FileUpload = function (_Component) {
                 {
                   onChange: this.onFilesChange,
                   onError: this.onFilesError,
-                  accepts: ['.zip', '.license'],
+                  accepts: [".zip", ".license"],
                   multiple: true,
                   maxFiles: 5,
                   maxFileSize: 1048576,
                   minFileSize: 0,
-                  clickable: true
+                  clickable: !uploading
                 },
                 _react2.default.createElement(
                   "div",
@@ -130,34 +137,78 @@ var FileUpload = function (_Component) {
             ),
             _react2.default.createElement("span", { className: "icon-close icon-close-middle", onClick: onClose })
           ),
-          files.length > 0 ? _react2.default.createElement(
+          files.length > 0 && isSuccessfull ? _react2.default.createElement(
             "div",
             { className: "popup-body" },
             _react2.default.createElement(
               "div",
-              { className: "file file-upload" },
+              { className: "file file-upload file-upload-body-container" },
               _react2.default.createElement(
                 "div",
                 { className: "file-upload-items" },
-                files.map(function (file, idx) {
+                !uploadStatus ? files.map(function (file, idx) {
                   return _react2.default.createElement(_FileUploadItem2.default, {
-                    icon: "file",
-                    iconStatus: "warning",
+                    icon: file.extension === "zip" ? "zip" : "file",
+                    iconStatus: uploading ? "percentage" : "warning",
                     title: file.name,
-                    titleStatus: "warning",
+                    titleStatus: uploading ? "percentage" : "warning",
+                    infoStatus: uploading ? "percentage" : "warning",
+                    progressBar: uploading ? "percentage" : "",
+                    progressPercentage: uploadingProgress[idx] ? uploadingProgress[idx] : 0,
                     info: file.sizeReadable,
                     onDeleteFile: function onDeleteFile() {
                       _this2.onRemoveFile(idx);
                     },
                     uploading: uploading
                   });
-                }),
-                uploading ? _react2.default.createElement(_FileUploadProgress2.default, {
-                  title: "Progress",
-                  titleStatus: "percentage",
-                  progressBar: "percentage",
-                  uploadedPercentage: "70" }) : null
-              )
+                }) : isSuccessfull ? _react2.default.createElement(
+                  _react2.default.Fragment,
+                  null,
+                  uploadStatus.result.successed.map(function (_ref2) {
+                    var license = _ref2.license;
+                    return _react2.default.createElement(_FileUploadItem2.default, {
+                      icon: "file",
+                      iconStatus: "success",
+                      title: license,
+                      titleStatus: "success",
+                      infoStatus: "success",
+                      progressBar: "success",
+                      progressPercentage: 100,
+                      uploading: true
+                    });
+                  }),
+                  uploadStatus.result.errors.map(function (_ref3) {
+                    var license = _ref3.license,
+                        message = _ref3.message;
+                    return _react2.default.createElement(_FileUploadItem2.default, {
+                      icon: "file",
+                      iconStatus: "error",
+                      title: license,
+                      titleStatus: "error",
+                      infoStatus: "error",
+                      progressBar: "error",
+                      progressPercentage: 100,
+                      message: message,
+                      uploading: true
+                    });
+                  })
+                ) : null
+              ),
+              !finished ? _react2.default.createElement(_ButtonRegular2.default, {
+                label: "Apply",
+                buttonType: uploading ? "bordered" : "regular",
+                color: uploading ? "gray" : "blue",
+                onClick: function onClick() {
+                  if (!uploading) {
+                    onApply(files);
+                  }
+                }
+              }) : _react2.default.createElement(_ButtonRegular2.default, {
+                label: "Ok",
+                buttonType: "regular",
+                color: "green",
+                onClick: onClose
+              })
             )
           ) : null
         )
@@ -167,7 +218,5 @@ var FileUpload = function (_Component) {
 
   return FileUpload;
 }(_react.Component);
-
-;
 
 exports.default = FileUpload;
