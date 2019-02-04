@@ -1,0 +1,47 @@
+@import '../global-sass-files/variables';
+
+// Checkbox
+.custom-control {
+  position: relative;
+  display: block;
+  min-height: 24px;
+  padding-left: 15px;
+  .form-check-input,
+  .custom-control-input {
+    position: absolute;
+    z-index: -1;
+    opacity: 0;
+    &:focus~ {
+      .custom-control-label::before {
+        box-shadow: none;
+      }
+    }
+  }
+  &.custom-checkbox {
+    .custom-control-label {
+      padding-left: 5px;
+      &::before, &:after {
+        position: absolute;
+        top: -1px;
+        left: -1px;
+        display: block;
+        width: 15px;
+        height: 15px;
+        border-radius: 0;
+        content: "";
+      } 
+      &:before {
+        background: url("../../img/icons/checkbox-buttons-stripe.png") no-repeat;
+        background-position: -8px -16px;
+      }
+    }
+  }
+}
+
+input[type=checkbox]:checked~.custom-control-label::after {
+  background: url("../../img/icons/checkbox-buttons-stripe.png") no-repeat;
+  background-position: -8px -72px;
+}
+input[type=checkbox]:checked~.custom-control-label::before {
+  background: none;
+}

@@ -1,0 +1,20 @@
+@import '../global-sass-files/variables';
+.form {
+  &-group {
+    margin-bottom: 15px;
+    label {
+      font-size: 10px;
+      font-family: $primary-font-light;
+      color: rgb(36,47,58);
+      display: block;
+      margin-bottom: 5px;
+    }
+    .form-control {
+      width: 100%;
+      border-radius: 2px;
+      border: 1px solid #cdcdcd;
+      padding: 4px 10px;
+      box-sizing: border-box;
+    }
+  }
+}

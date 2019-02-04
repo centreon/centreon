@@ -27,16 +27,17 @@
     "uikit": "^3.*"
   },
   "bin": {
-    "centreon-compgen":"./dynamic/generator/index.js"
+    "centreon-compgen": "./dynamic/generator/index.js"
   },
   "dependencies": {
-    "classnames": "latest",
-    "lodash": "^4.17.10",
-    "react-portal": "^4.1.5",
     "axios": "^0.18.0",
+    "classnames": "latest",
     "cli-color": "^1.4.0",
     "commander": "^2.19.0",
     "fs-extra": "^7.0.1",
+    "lodash": "^4.17.10",
+    "react-files": "^2.4.8",
+    "react-portal": "^4.1.5",
     "replace-in-files": "^1.1.4"
   },
   "devDependencies": {

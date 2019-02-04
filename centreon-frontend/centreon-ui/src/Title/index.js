@@ -6,7 +6,7 @@ const Title = ({ icon, label }) => (
     {icon ? (
       <span className={`custom-title-icon custom-title-icon-${icon}`} />
     ) : null}
-    {label}
+    <span className="custom-title-label">{label}</span>
   </h2>
 );
 

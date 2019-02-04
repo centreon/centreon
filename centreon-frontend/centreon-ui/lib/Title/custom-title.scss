@@ -21,14 +21,19 @@
   &-icon {
     width: 51px;
     height: 51px;
-    display: inline-block;
-    vertical-align: top;
-    margin-right: 7px;
+    position: absolute;
+    left: 0;
+    top: 0;
     &-puzzle {
       background: url('../../img/icons/icon-title-puzzle.png') no-repeat 50%;
     }
     &-object {
       background: url('../../img/icons/icon-title-object.png') no-repeat 50%;
+    }
+    & + .custom-title-label {
+      padding-left: 56px;
+      min-height: 51px;
+      display: inline-block;
     }
   }
   &.image {

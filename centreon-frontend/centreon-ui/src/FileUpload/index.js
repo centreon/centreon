@@ -61,20 +61,23 @@ class FileUpload extends Component {
                   </span>
                 </div>
               </div>
-              <Files
-                onChange={this.onFilesChange}
-                onError={this.onFilesError}
-                accepts={[".zip", ".license"]}
-                multiple
-                maxFiles={5}
-                maxFileSize={1048576}
-                minFileSize={0}
-                clickable={!uploading}
-              >
+              <div className="container__col-xs-6 center-vertical">
+                <Files
+                  className="test"
+                  onChange={this.onFilesChange}
+                  onError={this.onFilesError}
+                  accepts={['.zip', '.license']}
+                  multiple
+                  maxFiles={5}
+                  maxFileSize={1048576}
+                  minFileSize={0}
+                  clickable
+                >
                 <div className="container__col-xs-6 text-right">
                   <Button buttonType="bordered" color="white" label="BROWSE" />
                 </div>
               </Files>
+              </div>
             </div>
             <span className="icon-close icon-close-middle" onClick={onClose} />
           </div>
