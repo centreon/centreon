@@ -1,8 +1,15 @@
-import React, {Component} from 'react';
+import React, { Component } from "react";
 
 class CardItem extends Component {
   render() {
-    const {children, itemBorderColor, itemFooterColor, itemFooterLabel, customClass, style} = this.props;
+    const {
+      children,
+      itemBorderColor,
+      itemFooterColor,
+      itemFooterLabel,
+      customClass,
+      style
+    } = this.props;
     return (
       <div
         className={`card-item card-item-bordered-${itemBorderColor} ${customClass}`}

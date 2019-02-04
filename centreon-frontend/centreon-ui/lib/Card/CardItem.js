@@ -1,4 +1,4 @@
-'use strict';
+"use strict";
 
 Object.defineProperty(exports, "__esModule", {
   value: true
@@ -6,7 +6,7 @@ Object.defineProperty(exports, "__esModule", {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _react = require('react');
+var _react = require("react");
 
 var _react2 = _interopRequireDefault(_react);
 
@@ -28,7 +28,7 @@ var CardItem = function (_Component) {
   }
 
   _createClass(CardItem, [{
-    key: 'render',
+    key: "render",
     value: function render() {
       var _props = this.props,
           children = _props.children,
@@ -39,16 +39,16 @@ var CardItem = function (_Component) {
           style = _props.style;
 
       return _react2.default.createElement(
-        'div',
+        "div",
         {
-          className: 'card-item card-item-bordered-' + itemBorderColor + ' ' + customClass,
+          className: "card-item card-item-bordered-" + itemBorderColor + " " + customClass,
           style: style
         },
         children,
         _react2.default.createElement(
-          'span',
+          "span",
           {
-            className: 'card-item-footer card-item-footer-' + itemFooterColor
+            className: "card-item-footer card-item-footer-" + itemFooterColor
           },
           itemFooterLabel
         )

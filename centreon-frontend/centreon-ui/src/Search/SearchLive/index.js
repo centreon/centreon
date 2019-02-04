@@ -2,13 +2,10 @@ import React from "react";
 import "./search-live.scss";
 
 class SearchLive extends React.Component {
-
-  
-  
-  onChange = (e) => {
+  onChange = e => {
     const { onChange, filterKey } = this.props;
     onChange(e.target.value, filterKey);
-  } 
+  };
 
   render() {
     const { label, value } = this.props;
@@ -18,7 +15,7 @@ class SearchLive extends React.Component {
         <label>{label}</label>
         <input type="text" value={value} onChange={this.onChange.bind(this)} />
       </div>
-    )
+    );
   }
 }
 

@@ -104,8 +104,14 @@ var Switcher = function (_React$Component) {
         ),
         _react2.default.createElement(
           "label",
-          { className: "switch" + (toggled ? " switch-active" : " switch-hide") },
-          _react2.default.createElement("input", { type: "checkbox", checked: !value, onClick: this.onChange.bind(this) }),
+          {
+            className: "switch" + (toggled ? " switch-active" : " switch-hide")
+          },
+          _react2.default.createElement("input", {
+            type: "checkbox",
+            checked: !value,
+            onClick: this.onChange.bind(this)
+          }),
           _react2.default.createElement("span", { className: "switch-slider switch-round" }),
           _react2.default.createElement(
             "span",

@@ -2,6 +2,27 @@
 // File Upload
 .file {
   &-upload {
+    overflow:hidden;
+    &-body-container {
+      padding-bottom: 32px;
+    }
+    &-items {
+      padding-top: 17px;
+      padding-bottom: 12px;
+    }
+    button {
+      float:right;
+    }
+    &-message {
+      font-size: 12px;
+      line-height: 15px;
+      font-family: Roboto Regular;
+      color: $content-red-color;
+      text-align: justify;
+      float: left;
+      opacity: 0.5;
+      padding-top: 6px;
+    }
     &-title {
       color: $white-color;
       font-size: 13px;
@@ -23,6 +44,7 @@
     &-item {
       margin-bottom: 15px;
       position: relative;
+      overflow: hidden;
       &-icon {
         display: inline-block;
         margin-right: 10px;
@@ -36,10 +58,13 @@
             background-position: 0 0;
           }
           &.warning {
-            background-position: 0 -60px;
+            background-position: 0 -64px;
           }
           &.error {
-            background-position: 0px -129px;
+            background-position: 0px -136px;
+          }
+          &.percentage {
+            background-position: 0px -197px;
           }
         }
         &.zip {
@@ -52,6 +77,9 @@
           }
           &.error {
             background-position: 0px -129px;
+          }
+          &.percentage {
+            background-position: 0px -197px;
           }
         }
       }
@@ -112,6 +140,7 @@
         width: 100%;
         height: 100%;
         float: left;
+        padding: 0;
         transition: width .6s ease;
         &.success {
           background-color: $content-green-color;

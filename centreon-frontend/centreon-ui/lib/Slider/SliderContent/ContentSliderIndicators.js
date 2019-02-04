@@ -1,10 +1,10 @@
-'use strict';
+"use strict";
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var _react = require('react');
+var _react = require("react");
 
 var _react2 = _interopRequireDefault(_react);
 
@@ -16,13 +16,13 @@ var ContentSliderIndicators = function ContentSliderIndicators(_ref) {
       handleDotClick = _ref.handleDotClick;
 
   return _react2.default.createElement(
-    'div',
-    { className: 'content-slider-indicators' },
+    "div",
+    { className: "content-slider-indicators" },
     images.map(function (image, i) {
-      return _react2.default.createElement('span', {
-        className: '' + (i === currentIndex ? 'active' : 'dot'),
+      return _react2.default.createElement("span", {
+        className: "" + (i === currentIndex ? "active" : "dot"),
         onClick: handleDotClick,
-        'data-index': i,
+        "data-index": i,
         key: i
       });
     })

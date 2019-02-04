@@ -1,14 +1,14 @@
-'use strict';
+"use strict";
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var _react = require('react');
+var _react = require("react");
 
 var _react2 = _interopRequireDefault(_react);
 
-require('./icon-round.scss');
+require("./icon-round.scss");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -18,9 +18,9 @@ var IconRound = function IconRound(_ref) {
       iconTitle = _ref.iconTitle;
 
   return _react2.default.createElement(
-    'span',
-    { className: 'icons icons-round ' + iconColor },
-    _react2.default.createElement('span', { className: 'iconmoon icon-' + iconType, title: iconTitle })
+    "span",
+    { className: "icons icons-round " + iconColor },
+    _react2.default.createElement("span", { className: "iconmoon icon-" + iconType, title: iconTitle })
   );
 };
 

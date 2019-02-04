@@ -1,14 +1,10 @@
-import React, {Component} from 'react';
-import './submenu.scss';
+import React, { Component } from "react";
+import "./submenu.scss";
 
 class SubmenuHeader extends Component {
   render() {
-    const {submenuType, children} = this.props;
-    return (
-      <div className={`submenu-${submenuType}`}>
-        {children}
-      </div>
-    );
+    const { submenuType, children } = this.props;
+    return <div className={`submenu-${submenuType}`}>{children}</div>;
   }
 }
 

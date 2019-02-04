@@ -1,10 +1,12 @@
-import React, { Component } from 'react';
+import React, { Component } from "react";
 
 class Button extends Component {
   render() {
-    const { label, onClick, color} = this.props;
+    const { label, onClick, color } = this.props;
     return (
-      <button onClick={onClick} style={{color:color}}>{label}</button>
+      <button onClick={onClick} style={{ color: color }}>
+        {label}
+      </button>
     );
   }
 }

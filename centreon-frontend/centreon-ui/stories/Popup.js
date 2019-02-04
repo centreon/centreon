@@ -1,6 +1,16 @@
 import React from "react";
 import { storiesOf } from "@storybook/react";
-import { Popup, IconClose, Slider, MessageInfo, Title, Subtitle, Button, HorizontalLine, Description } from "../src";
+import {
+  Popup,
+  IconClose,
+  Slider,
+  MessageInfo,
+  Title,
+  Subtitle,
+  Button,
+  HorizontalLine,
+  Description
+} from "../src";
 
 storiesOf("Popup", module).add(
   "Popup - small",
@@ -48,16 +58,12 @@ storiesOf("Popup Extensions Info", module).add(
       <div class="popup-header">
         <Title label="Nom de Module" />
         <Subtitle label="by Centreon" />
-        <Button
-          label={"Available 3.1.5"}
-          buttonType="regular"
-          color="blue"
-        />
+        <Button label={"Available 3.1.5"} buttonType="regular" color="blue" />
         <Button
           label="Stable"
           buttonType="bordered"
           color="gray"
-          style={{margin: '15px'}}
+          style={{ margin: "15px" }}
         />
         <Button
           label="Expire 12/08/2018"
@@ -91,7 +97,10 @@ storiesOf("Popup Extensions Delete", module).add(
         <Title label="Engine-status" icon="object" />
       </div>
       <div class="popup-body">
-        <MessageInfo messageInfo="red" text="Do you want to delete this extension. This, action will remove all associated data." />
+        <MessageInfo
+          messageInfo="red"
+          text="Do you want to delete this extension. This, action will remove all associated data."
+        />
       </div>
       <div className="popup-footer">
         <div class="container__row">
@@ -104,11 +113,7 @@ storiesOf("Popup Extensions Delete", module).add(
             />
           </div>
           <div class="container__col-xs-6 text-right">
-          <Button
-            label="Cancel"
-            buttonType="regular"
-            color="gray"
-          />
+            <Button label="Cancel" buttonType="regular" color="gray" />
           </div>
         </div>
       </div>

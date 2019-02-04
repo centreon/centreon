@@ -1,20 +1,20 @@
-'use strict';
+"use strict";
 
 Object.defineProperty(exports, "__esModule", {
-    value: true
+  value: true
 });
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _react = require('react');
+var _react = require("react");
 
 var _react2 = _interopRequireDefault(_react);
 
-var _DynamicComponentPosition = require('../DynamicComponentPosition');
+var _DynamicComponentPosition = require("../DynamicComponentPosition");
 
 var _DynamicComponentPosition2 = _interopRequireDefault(_DynamicComponentPosition);
 
-var _DynamicComponentLoader = require('../DynamicComponentLoader');
+var _DynamicComponentLoader = require("../DynamicComponentLoader");
 
 var _DynamicComponentLoader2 = _interopRequireDefault(_DynamicComponentLoader);
 
@@ -27,32 +27,35 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
 var DynamicComponentBundle = function (_Component) {
-    _inherits(DynamicComponentBundle, _Component);
+  _inherits(DynamicComponentBundle, _Component);
 
-    function DynamicComponentBundle() {
-        _classCallCheck(this, DynamicComponentBundle);
+  function DynamicComponentBundle() {
+    _classCallCheck(this, DynamicComponentBundle);
 
-        return _possibleConstructorReturn(this, (DynamicComponentBundle.__proto__ || Object.getPrototypeOf(DynamicComponentBundle)).apply(this, arguments));
+    return _possibleConstructorReturn(this, (DynamicComponentBundle.__proto__ || Object.getPrototypeOf(DynamicComponentBundle)).apply(this, arguments));
+  }
+
+  _createClass(DynamicComponentBundle, [{
+    key: "render",
+    value: function render() {
+      var _props = this.props,
+          topologyUrl = _props.topologyUrl,
+          componentName = _props.componentName;
+
+
+      return _react2.default.createElement(
+        _react2.default.Fragment,
+        null,
+        _react2.default.createElement(_DynamicComponentPosition2.default, { componentName: componentName }),
+        _react2.default.createElement(_DynamicComponentLoader2.default, {
+          componentName: componentName,
+          componentUrl: topologyUrl
+        })
+      );
     }
+  }]);
 
-    _createClass(DynamicComponentBundle, [{
-        key: 'render',
-        value: function render() {
-            var _props = this.props,
-                topologyUrl = _props.topologyUrl,
-                componentName = _props.componentName;
-
-
-            return _react2.default.createElement(
-                _react2.default.Fragment,
-                null,
-                _react2.default.createElement(_DynamicComponentPosition2.default, { componentName: componentName }),
-                _react2.default.createElement(_DynamicComponentLoader2.default, { componentName: componentName, componentUrl: topologyUrl })
-            );
-        }
-    }]);
-
-    return DynamicComponentBundle;
+  return DynamicComponentBundle;
 }(_react.Component);
 
 exports.default = DynamicComponentBundle;
