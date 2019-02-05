@@ -4,7 +4,7 @@
         <email>contact@centreon.com</email>
         <website>http://www.centreon.com</website>
         <description>Widget for top 10 hosts in function % memory</description>
-        <version>18.10.0</version>
+        <version>19.04.0</version>
         <keywords>centreon, widget, memory</keywords>
         <screenshot></screenshot>
         <thumbnail>./widgets/live-top10-memory-usage/resources/logo1.png</thumbnail>
