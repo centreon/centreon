@@ -1,13 +1,17 @@
+@import '../../global-sass-files/mixins';
+
 .icons-toggle {
   &-arrow {
-    background: url("../../../img/icons/submenu-arrows-stripe.png") no-repeat center center;
+    @include iconmoon();
+    &:after {
+      content: "\e90f";
+      color: #dcdcdc;
+    }
     display: inline-block;
-    width: 28px;
-    height: 37px;
-    background-position: 7px -40px;
+    font-size: 28px;
     vertical-align: middle;
     cursor: pointer;
     right: 0;
-    top: 8px;
+    top: 13px;
   }
 }

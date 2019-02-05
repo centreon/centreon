@@ -158,8 +158,8 @@ var SliderContent = function (_Component) {
           _react2.default.createElement(
             "div",
             { className: "content-slider-controls" },
-            _react2.default.createElement(_ContentSliderLeftArrow2.default, { goToPrevSlide: this.goToPrevSlide }),
-            _react2.default.createElement(_ContentSliderRightArrow2.default, { goToNextSlide: this.goToNextSlide })
+            _react2.default.createElement(_ContentSliderLeftArrow2.default, { goToPrevSlide: this.goToPrevSlide, iconColor: "gray" }),
+            _react2.default.createElement(_ContentSliderRightArrow2.default, { goToNextSlide: this.goToNextSlide, iconColor: "gray" })
           ),
           _react2.default.createElement(_ContentSliderIndicators2.default, {
             images: images,
@@ -167,7 +167,7 @@ var SliderContent = function (_Component) {
             handleDotClick: this.handleDotClick
           })
         ),
-        _react2.default.createElement(_IconContent2.default, { iconContentType: "add", iconContentColor: "green" })
+        _react2.default.createElement(_IconContent2.default, { iconContentType: "add", iconContentColor: "green white" })
       );
     }
   }]);

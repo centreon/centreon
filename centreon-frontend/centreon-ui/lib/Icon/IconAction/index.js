@@ -13,8 +13,9 @@ require("./action-icons.scss");
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var IconAction = function IconAction(_ref) {
-  var iconActionType = _ref.iconActionType;
-  return _react2.default.createElement("span", { className: "icon-action icon-action-" + iconActionType });
+  var iconActionType = _ref.iconActionType,
+      iconColor = _ref.iconColor;
+  return _react2.default.createElement("span", { className: "icon-action icon-action-" + iconActionType + " " + (iconColor ? iconColor : '') });
 };
 
 exports.default = IconAction;

@@ -2,6 +2,7 @@
 // Content Horizontal line
 .content-hr {
   background: url('../../../img/content-horizontal-line.png') no-repeat 50%;
+  background-size: contain;
   &-title {
     background-color: $white-color;
     padding-right: 10px;

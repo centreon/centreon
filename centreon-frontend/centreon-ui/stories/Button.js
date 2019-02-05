@@ -100,9 +100,10 @@ storiesOf("Button", module).add("Button - with icon", () => (
     buttonType="regular"
     color="orange"
     iconActionType="update"
+    iconColor="white"
   />
 ));
 
 storiesOf("Button", module).add("Button - action", () => (
-  <ButtonAction buttonActionType="delete" buttonIconType="delete" />
+  <ButtonAction iconColor="gray" buttonActionType="delete" buttonIconType="delete" />
 ));

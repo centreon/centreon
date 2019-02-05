@@ -20,7 +20,7 @@ storiesOf("Card", module).add("Card - with content", () => (
         width: "250px"
       }}
     >
-      <IconInfo iconName="state" />
+      <IconInfo iconName="state green" />
       <div className="custom-title-heading">
         <Title icon="object" label="Test Title" />
         <Subtitle label="Test Subtitle" />
@@ -30,8 +30,9 @@ storiesOf("Card", module).add("Card - with content", () => (
         color="orange"
         label="Button example"
         iconActionType="update"
+        iconColor='white'
       />
-      <ButtonAction buttonActionType="delete" buttonIconType="delete" />
+      <ButtonAction iconColor='gray' buttonActionType="delete" buttonIconType="delete" />
     </CardItem>
   </Card>
 ));

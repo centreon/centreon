@@ -80,7 +80,8 @@ var FileUpload = function (_Component) {
           onClose = _props.onClose,
           uploading = _props.uploading,
           onApply = _props.onApply,
-          finished = _props.finished;
+          finished = _props.finished,
+          iconColor = _props.iconColor;
 
       var isSuccessfull = true;
       if (uploadStatus) {
@@ -111,7 +112,7 @@ var FileUpload = function (_Component) {
                   _react2.default.createElement(
                     "span",
                     { className: "file-upload-title" },
-                    _react2.default.createElement("span", { className: "file-upload-icon" }),
+                    _react2.default.createElement("span", { className: "file-upload-icon white" }),
                     isSuccessfull ? "File Upload" : "No valid file uploaded."
                   )
                 )
