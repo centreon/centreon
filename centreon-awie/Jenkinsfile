@@ -18,14 +18,9 @@ try {
         sh 'setup_centreon_build.sh'
         /*
         sh './centreon-build/jobs/awie/19.04/mon-awie-unittest.sh centos7'
-        step([
-          $class: 'XUnitBuilder',
-          thresholds: [
-            [$class: 'FailedThreshold', failureThreshold: '0'],
-            [$class: 'SkippedThreshold', failureThreshold: '0']
-          ],
-          tools: [[$class: 'PHPUnitJunitHudsonTestType', pattern: 'ut.xml']]
-        ])
+        junit 'ut.xml'
+        if (currentBuild.result == 'UNSTABLE')
+          currentBuild.result = 'FAILURE'
         step([
           $class: 'CloverPublisher',
           cloverReportDir: '.',
@@ -80,14 +75,9 @@ try {
       node {
         sh 'setup_centreon_build.sh'
         sh './centreon-build/jobs/awie/19.04/mon-awie-acceptance.sh centos7'
-        step([
-          $class: 'XUnitBuilder',
-          thresholds: [
-            [$class: 'FailedThreshold', failureThreshold: '0'],
-            [$class: 'SkippedThreshold', failureThreshold: '0']
-          ],
-          tools: [[$class: 'JUnitType', pattern: 'xunit-reports/**/*.xml']]
-        ])
+        junit 'xunit-reports/**/*.xml'
+        if (currentBuild.result == 'UNSTABLE')
+          currentBuild.result = 'FAILURE'
         archiveArtifacts allowEmptyArchive: true, artifacts: 'acceptance-logs/*.txt, acceptance-logs/*.png'
       }
     }
