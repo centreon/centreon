@@ -29,7 +29,7 @@
   }
   &.popup-small {
     .popup-header, .popup-body, .popup-footer {
-      padding: 25px;
+      padding: 20px;
     }
     .popup-body {
       padding: 5px 25px;
@@ -96,5 +96,8 @@
   }
   .custom-title {
     font-size: 20px;
+  }
+  .container__col-xs-6 {
+    margin-bottom: 0;
   }
 }

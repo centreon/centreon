@@ -10,3 +10,9 @@ storiesOf("Title", module).add(
   () => <Title label="Test" icon="object" />,
   { notes: "A very simple component" }
 );
+storiesOf("Title", module).add(
+  "Title - custom blue title with icon",
+  () => <Title label="Test" icon="puzzle" titleColor="blue" />,
+  { notes: "A very simple component" }
+);
+
