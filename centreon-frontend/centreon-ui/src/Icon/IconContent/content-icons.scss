@@ -12,7 +12,7 @@
     position: relative;
     &:after {
       content: "\e921";
-      color: #cdcdcd;
+      color: #ffffff;
       @include centerAbsolute();
     }
     &.gray {

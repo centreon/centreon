@@ -10,31 +10,41 @@ storiesOf("Button", module).add(
         label={"Button Regular"}
         buttonType="regular"
         color="orange"
-        onClick={() => {}}
+        onClick={() => {
+          alert("Button clicked");
+        }}
       />
       <Button
         label={"Button Regular"}
         buttonType="regular"
         color="blue"
-        onClick={() => {}}
+        onClick={() => {
+          alert("Button clicked");
+        }}
       />
       <Button
         label={"Button Regular"}
         buttonType="regular"
         color="green"
-        onClick={() => {}}
+        onClick={() => {
+          alert("Button clicked");
+        }}
       />
       <Button
         label={"Button Regular"}
         buttonType="regular"
         color="red"
-        onClick={() => {}}
+        onClick={() => {
+          alert("Button clicked");
+        }}
       />
       <Button
         label={"Button Regular"}
         buttonType="regular"
         color="gray"
-        onClick={() => {}}
+        onClick={() => {
+          alert("Button clicked");
+        }}
       />
     </React.Fragment>
   ),
@@ -48,7 +58,7 @@ storiesOf("Button", module).add("Button - bordered", () => (
       buttonType="bordered"
       color="orange"
       onClick={() => {
-        alert("Hey");
+        alert("Button clicked");
       }}
     />
     <Button
@@ -56,7 +66,7 @@ storiesOf("Button", module).add("Button - bordered", () => (
       buttonType="bordered"
       color="blue"
       onClick={() => {
-        alert("Hey");
+        alert("Button clicked");
       }}
     />
     <Button
@@ -64,7 +74,7 @@ storiesOf("Button", module).add("Button - bordered", () => (
       buttonType="bordered"
       color="green"
       onClick={() => {
-        alert("Hey");
+        alert("Button clicked");
       }}
     />
     <Button
@@ -72,7 +82,7 @@ storiesOf("Button", module).add("Button - bordered", () => (
       buttonType="bordered"
       color="red"
       onClick={() => {
-        alert("Hey");
+        alert("Button clicked");
       }}
     />
     <Button
@@ -80,7 +90,7 @@ storiesOf("Button", module).add("Button - bordered", () => (
       buttonType="bordered"
       color="gray"
       onClick={() => {
-        alert("Hey");
+        alert("Button clicked");
       }}
     />
     <Button
@@ -88,22 +98,44 @@ storiesOf("Button", module).add("Button - bordered", () => (
       buttonType="bordered"
       color="black"
       onClick={() => {
-        alert("Hey");
+        alert("Button clicked");
       }}
     />
   </React.Fragment>
 ));
 
 storiesOf("Button", module).add("Button - with icon", () => (
-  <Button
-    label="Button with icon"
-    buttonType="regular"
-    color="orange"
-    iconActionType="update"
-    iconColor="white"
-  />
+  <React.Fragment>
+    <Button
+      label="Button with icon"
+      buttonType="regular"
+      color="orange"
+      iconActionType="update"
+      iconColor="white"
+      onClick={() => {
+        alert("Button clicked");
+      }}
+    />
+    <Button
+      label="Button with icon"
+      buttonType="regular"
+      color="green"
+      iconActionType="update"
+      iconColor="white"
+      onClick={() => {
+        alert("Button clicked");
+      }}
+    />
+  </React.Fragment>
 ));
 
 storiesOf("Button", module).add("Button - action", () => (
-  <ButtonAction iconColor="gray" buttonActionType="delete" buttonIconType="delete" />
+  <ButtonAction
+    iconColor="gray"
+    buttonActionType="delete"
+    buttonIconType="delete"
+    onClick={() => {
+      alert("Trash button clicked");
+    }}
+  />
 ));
