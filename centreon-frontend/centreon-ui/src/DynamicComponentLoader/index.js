@@ -27,7 +27,8 @@ class DynamicComponentLoader extends Component {
     const { componentUrl, xhr } = this.props;
     xhr({
       requestType: "GET",
-      url: componentUrl
+      url: componentUrl,
+      check:true
     })
       .then(() => {
         this.setState({

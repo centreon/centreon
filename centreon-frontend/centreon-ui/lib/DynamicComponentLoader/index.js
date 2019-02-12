@@ -58,7 +58,8 @@ var DynamicComponentLoader = function (_Component) {
 
       xhr({
         requestType: "GET",
-        url: componentUrl
+        url: componentUrl,
+        check: true
       }).then(function () {
         _this.setState({
           componentExists: true
