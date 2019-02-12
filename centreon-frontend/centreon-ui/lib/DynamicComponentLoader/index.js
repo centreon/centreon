@@ -10,6 +10,12 @@ var _react = require("react");
 
 var _react2 = _interopRequireDefault(_react);
 
+var _reactRedux = require("react-redux");
+
+var _Axios = require("../Axios");
+
+var _Axios2 = _interopRequireDefault(_Axios);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
@@ -35,17 +41,37 @@ var DynamicComponentLoader = function (_Component) {
     }
 
     return _ret = (_temp = (_this = _possibleConstructorReturn(this, (_ref = DynamicComponentLoader.__proto__ || Object.getPrototypeOf(DynamicComponentLoader)).call.apply(_ref, [this].concat(args))), _this), _this.state = {
-      componentLoaded: false
+      componentLoaded: false,
+      componentExists: false
     }, _this.componentWillReceiveProps = function (nextProps) {
       var componentName = nextProps.componentName;
 
       if (componentName != _this.props.componentName) {
         document.removeEventListener("component" + _this.props.componentName + "Loaded", _this.setComponentLoaded);
         document.addEventListener("component" + componentName + "Loaded", _this.setComponentLoaded);
+        _this.checkFileExists();
       }
+    }, _this.checkFileExists = function () {
+      var _this$props = _this.props,
+          componentUrl = _this$props.componentUrl,
+          xhr = _this$props.xhr;
+
+      xhr({
+        requestType: "GET",
+        url: componentUrl
+      }).then(function () {
+        _this.setState({
+          componentExists: true
+        });
+      }).catch(function (err) {
+        _this.setState({
+          componentExists: false
+        });
+      });
     }, _this.componentWillMount = function () {
       if (_this.props.componentName) {
         document.addEventListener("component" + _this.props.componentName + "Loaded", _this.setComponentLoaded);
+        _this.checkFileExists();
       }
     }, _this.setComponentLoaded = function () {
       _this.setState({
@@ -61,21 +87,23 @@ var DynamicComponentLoader = function (_Component) {
   _createClass(DynamicComponentLoader, [{
     key: "render",
     value: function render() {
-      var componentLoaded = this.state.componentLoaded;
+      var _state = this.state,
+          componentLoaded = _state.componentLoaded,
+          componentExists = _state.componentExists;
       var componentUrl = this.props.componentUrl;
 
 
       return _react2.default.createElement(
         _react2.default.Fragment,
         null,
-        _react2.default.createElement("iframe", {
+        componentExists ? _react2.default.createElement("iframe", {
           src: componentUrl,
           style: _defineProperty({
             width: 0,
             height: 0,
             border: "0"
           }, "border", "none")
-        })
+        }) : null
       );
     }
   }]);
@@ -83,4 +111,14 @@ var DynamicComponentLoader = function (_Component) {
   return DynamicComponentLoader;
 }(_react.Component);
 
-exports.default = DynamicComponentLoader;
+var mapDispatchToProps = function mapDispatchToProps(dispatch) {
+  return {
+    xhr: function xhr(data) {
+      var requestType = data.requestType;
+
+      return (0, _Axios2.default)(data, dispatch, requestType);
+    }
+  };
+};
+
+exports.default = (0, _reactRedux.connect)(null, mapDispatchToProps)(DynamicComponentLoader);

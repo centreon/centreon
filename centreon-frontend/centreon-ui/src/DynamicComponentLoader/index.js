@@ -1,8 +1,11 @@
 import React, { Component } from "react";
+import { connect } from "react-redux";
+import Axios from '../Axios';
 
 class DynamicComponentLoader extends Component {
   state = {
-    componentLoaded: false
+    componentLoaded: false,
+    componentExists: false
   };
 
   componentWillReceiveProps = nextProps => {
@@ -16,8 +19,27 @@ class DynamicComponentLoader extends Component {
         `component${componentName}Loaded`,
         this.setComponentLoaded
       );
+      this.checkFileExists();
     }
   };
+
+  checkFileExists = () => {
+    const { componentUrl, xhr } = this.props;
+    xhr({
+      requestType: "GET",
+      url: componentUrl
+    })
+      .then(() => {
+        this.setState({
+          componentExists: true
+        })
+      })
+      .catch(err => {
+        this.setState({
+          componentExists: false
+        })
+      });
+  }
 
   componentWillMount = () => {
     if (this.props.componentName) {
@@ -25,6 +47,7 @@ class DynamicComponentLoader extends Component {
         `component${this.props.componentName}Loaded`,
         this.setComponentLoaded
       );
+      this.checkFileExists();
     }
   };
 
@@ -43,23 +66,37 @@ class DynamicComponentLoader extends Component {
   };
 
   render() {
-    const { componentLoaded } = this.state;
+    const { componentLoaded, componentExists } = this.state;
     const { componentUrl } = this.props;
 
     return (
       <React.Fragment>
-        <iframe
-          src={componentUrl}
-          style={{
-            width: 0,
-            height: 0,
-            border: "0",
-            border: "none"
-          }}
-        />
+        {
+          componentExists ?
+            <iframe
+              src={componentUrl}
+              style={{
+                width: 0,
+                height: 0,
+                border: "0",
+                border: "none"
+              }}
+            />
+            : null
+        }
       </React.Fragment>
     );
   }
 }
 
-export default DynamicComponentLoader;
+const mapDispatchToProps = dispatch => ({
+  xhr: data => {
+    const { requestType } = data;
+    return Axios(data, dispatch, requestType);
+  }
+});
+
+export default connect(
+  null,
+  mapDispatchToProps
+)(DynamicComponentLoader);
