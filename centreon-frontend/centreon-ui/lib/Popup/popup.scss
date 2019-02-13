@@ -29,7 +29,7 @@
   }
   &.popup-small {
     .popup-header, .popup-body, .popup-footer {
-      padding: 25px;
+      padding: 20px;
     }
     .popup-body {
       padding: 5px 25px;
@@ -92,9 +92,12 @@
   .icon-close-big {
     position: absolute;
     right: -40px;
-    top: 1px;
+    top: -6px;
   }
   .custom-title {
     font-size: 20px;
+  }
+  .container__col-xs-6 {
+    margin-bottom: 0;
   }
 }

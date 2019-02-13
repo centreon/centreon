@@ -36,7 +36,8 @@ class FileUpload extends Component {
       onClose,
       uploading,
       onApply,
-      finished
+      finished,
+      iconColor
     } = this.props;
     let isSuccessfull = true;
     if (uploadStatus) {
@@ -56,7 +57,7 @@ class FileUpload extends Component {
               <div className="container__col-xs-6 center-vertical">
                 <div className="file file-upload">
                   <span className="file-upload-title">
-                    <span className="file-upload-icon" />
+                    <span className={`file-upload-icon white`} />
                     {isSuccessfull ? "File Upload" : "No valid file uploaded."}
                   </span>
                 </div>
@@ -74,8 +75,8 @@ class FileUpload extends Component {
                   clickable
                 >
                 <div className="container__col-xs-6 text-right">
-                  <Button buttonType="bordered" color="white" label="BROWSE" />
-                </div>
+                <Button buttonType="bordered" color="white" label="BROWSE" />
+              </div>
               </Files>
               </div>
             </div>

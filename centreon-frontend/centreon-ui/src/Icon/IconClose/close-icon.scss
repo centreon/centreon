@@ -1,26 +1,35 @@
+@import '../../global-sass-files/variables';
+
 // Close icon big
 .icon {
   &-close {
     display: inline-block;
-    top: 0;
-    right: 0;
-    width: 31px;
-    height: 31px;
     cursor: pointer;
+    &:after {
+      content: "\e915";
+      color: #dcdcdc;
+    }
+    &.white {
+      &:after {
+        color: $white-color;
+      }
+    }
+    &.gray {
+      &:after {
+        color: #cdcdcd;
+      }
+    }
     &-small {
       top: -10px;
-      background: url('../../../img/icons/icon-close-small-stripe.png') no-repeat 0 0;
-      width: 12px;
-      height: 12px;
       &.error {
         background-position: 0 -77px;
       }
     }
     &-middle {
-      background: url('../../../img/icons/icon-close-middle.png') no-repeat 50%;
+      font-size: 28px;
     }
     &-big {
-      background: url('../../../img/icons/icon-close-big.png') no-repeat 50%;
+      font-size: 40px;
     }
   }
 }

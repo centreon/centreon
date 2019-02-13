@@ -8,6 +8,7 @@ import "./HorizontalLines";
 import "./Icon";
 import './InputField';
 import "./Message";
+import "./Pages";
 import "./Popup";
 import "./ProgressBar";
 import "./RadioButton";

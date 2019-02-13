@@ -19,14 +19,15 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 var ButtonAction = function ButtonAction(_ref) {
   var buttonActionType = _ref.buttonActionType,
       buttonIconType = _ref.buttonIconType,
-      onClick = _ref.onClick;
+      onClick = _ref.onClick,
+      iconColor = _ref.iconColor;
   return _react2.default.createElement(
     "span",
     {
-      className: "button-action button-action-" + buttonActionType,
+      className: "button-action button-action-" + buttonActionType + " " + iconColor,
       onClick: onClick
     },
-    _react2.default.createElement(_IconAction2.default, { iconActionType: buttonIconType })
+    _react2.default.createElement(_IconAction2.default, { iconColor: iconColor ? iconColor : '', iconActionType: buttonIconType })
   );
 };
 

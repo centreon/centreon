@@ -123,7 +123,7 @@ var SliderContent = function (_Component) {
     };
 
     _this.state = {
-      images: ["https://static.centreon.com/wp-content/uploads/2018/09/plugin-banner-it-operatio" + "ns-management.png", "https://s3.us-east-2.amazonaws.com/dzuz14/thumbnails/canyon.jpg", "https://s3.us-east-2.amazonaws.com/dzuz14/thumbnails/city.jpg", "https://s3.us-east-2.amazonaws.com/dzuz14/thumbnails/desert.jpg"],
+      images: ["https://res.cloudinary.com/dezez0fsn/image/upload/v1549874437/slider-default-image.png", "https://static.centreon.com/wp-content/uploads/2018/09/plugin-banner-it-operatio" + "ns-management.png", "https://s3.us-east-2.amazonaws.com/dzuz14/thumbnails/canyon.jpg", "https://s3.us-east-2.amazonaws.com/dzuz14/thumbnails/city.jpg", "https://s3.us-east-2.amazonaws.com/dzuz14/thumbnails/desert.jpg"],
       currentIndex: 0,
       translateValue: 0
     };
@@ -158,8 +158,8 @@ var SliderContent = function (_Component) {
           _react2.default.createElement(
             "div",
             { className: "content-slider-controls" },
-            _react2.default.createElement(_ContentSliderLeftArrow2.default, { goToPrevSlide: this.goToPrevSlide }),
-            _react2.default.createElement(_ContentSliderRightArrow2.default, { goToNextSlide: this.goToNextSlide })
+            _react2.default.createElement(_ContentSliderLeftArrow2.default, { goToPrevSlide: this.goToPrevSlide, iconColor: "gray" }),
+            _react2.default.createElement(_ContentSliderRightArrow2.default, { goToNextSlide: this.goToNextSlide, iconColor: "gray" })
           ),
           _react2.default.createElement(_ContentSliderIndicators2.default, {
             images: images,
@@ -167,7 +167,7 @@ var SliderContent = function (_Component) {
             handleDotClick: this.handleDotClick
           })
         ),
-        _react2.default.createElement(_IconContent2.default, { iconContentType: "add", iconContentColor: "green" })
+        _react2.default.createElement(_IconContent2.default, { iconContentType: "add", iconContentColor: "green white" })
       );
     }
   }]);

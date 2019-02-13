@@ -11,10 +11,13 @@
     @include center(both);
     &-icon {
       &-delete {
-        width: 13px;
-        height: 20px;
-        background: url('../../../img/icons/icon-button-delete.png') no-repeat 50%;
-        display: inline-block;
+        &:after {
+          content: "\e903";
+          color: #cdcdcd;
+        }
+        &.gray {
+          color: #dcdcdc;
+        }
       }
     }
   }

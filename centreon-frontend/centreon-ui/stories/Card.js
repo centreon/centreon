@@ -19,19 +19,44 @@ storiesOf("Card", module).add("Card - with content", () => (
       style={{
         width: "250px"
       }}
+      onClick={() => {
+        alert("Card clicked- open popin");
+      }}
     >
-      <IconInfo iconName="state" />
+      <IconInfo iconName="state green" />
       <div className="custom-title-heading">
-        <Title icon="object" label="Test Title" />
-        <Subtitle label="Test Subtitle" />
+        <Title
+          icon="object"
+          label="Test Title"
+          onClick={() => {
+            alert("Card clicked- open popin");
+          }}
+        />
+        <Subtitle
+          label="Test Subtitle"
+          onClick={() => {
+            alert("Card clicked- open popin");
+          }}
+       />
       </div>
       <Button
         buttonType="regular"
         color="orange"
         label="Button example"
         iconActionType="update"
+        iconColor='white'
+        onClick={() => {
+          alert("Button clicked");
+        }}
       />
-      <ButtonAction buttonActionType="delete" buttonIconType="delete" />
+      <ButtonAction
+        iconColor='gray'
+        buttonActionType="delete"
+        buttonIconType="delete"
+        onClick={() => {
+          alert("Button delete clicked");
+        }}
+      />
     </CardItem>
   </Card>
 ));

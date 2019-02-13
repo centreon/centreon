@@ -10,7 +10,8 @@ const Button = ({
   color,
   iconActionType,
   customClass,
-  style
+  style,
+  iconColor
 }) => (
   <button
     className={`button button-${buttonType}-${color} linear ${
@@ -19,7 +20,7 @@ const Button = ({
     onClick={onClick}
     style={style}
   >
-    {iconActionType ? <IconAction iconActionType={iconActionType} /> : null}
+    {iconActionType ? <IconAction iconColor={iconColor} iconActionType={iconActionType} /> : null}
     {label}
     {children}
   </button>

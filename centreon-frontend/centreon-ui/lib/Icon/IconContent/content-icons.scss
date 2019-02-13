@@ -1,11 +1,30 @@
 @import '../../global-sass-files/variables';
+@import '../../global-sass-files/mixins';
+
 // Add icons
 .content-icon {
   display: inline-block;
   width: 30px;
   height: 30px;
   &-add {
-    background: url('../../../img/icons/icon-add.png') no-repeat 50%;
+    @include iconmoon();
+    font-size: 40px;
+    position: relative;
+    &:after {
+      content: "\e921";
+      color: #ffffff;
+      @include centerAbsolute();
+    }
+    &.gray {
+      &:after {
+        color: #606060;
+      }
+    }
+    &.white {
+      &:after {
+        color: $white-color;
+      }
+    }
     &-green {
       width: 55px;
       height: 55px;
@@ -14,7 +33,7 @@
       background-size: 25px;
       cursor: pointer;
       display: block;
-      z-index: 9;
+      z-index: 99;
     }
   }
   

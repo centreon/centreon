@@ -1,11 +1,22 @@
+@import '../../global-sass-files/variables';
+@import '../../global-sass-files/mixins';
+
 // Info state icon
 .info {
   display: inline-block;
-  top: 2px;
-  right: 2px;
+  top: 8px;
+  right: 8px;
   width: 16px;
   height: 16px;
+  font-size: 15px;
+  @include iconmoon();
   &-state {
-    background: url('../../../img/icons/icon-info-checked.png') no-repeat 50%;
+    &:after {
+      content: "\e912";
+      color: #dcdcdc;
+    }
+    &.green:after {
+      color: $green-centreon-primary;
+    }
   }
 }

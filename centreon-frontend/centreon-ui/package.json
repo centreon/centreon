@@ -38,6 +38,7 @@
     "lodash": "^4.17.10",
     "react-files": "^2.4.8",
     "react-portal": "^4.1.5",
+    "react-redux": "^6.0.0",
     "replace-in-files": "^1.1.4"
   },
   "devDependencies": {

@@ -12,6 +12,7 @@ class SliderContent extends Component {
 
     this.state = {
       images: [
+        "https://res.cloudinary.com/dezez0fsn/image/upload/v1549874437/slider-default-image.png",
         "https://static.centreon.com/wp-content/uploads/2018/09/plugin-banner-it-operatio" +
           "ns-management.png",
         "https://s3.us-east-2.amazonaws.com/dzuz14/thumbnails/canyon.jpg",
@@ -101,8 +102,8 @@ class SliderContent extends Component {
             {this.renderSlides()}
           </div>
           <div className="content-slider-controls">
-            <ContentSliderLeftArrow goToPrevSlide={this.goToPrevSlide} />
-            <ContentSliderRightArrow goToNextSlide={this.goToNextSlide} />
+            <ContentSliderLeftArrow goToPrevSlide={this.goToPrevSlide} iconColor='gray' />
+            <ContentSliderRightArrow goToNextSlide={this.goToNextSlide} iconColor='gray' />
           </div>
           <ContentSliderIndicators
             images={images}
@@ -110,7 +111,7 @@ class SliderContent extends Component {
             handleDotClick={this.handleDotClick}
           />
         </div>
-        <IconContent iconContentType="add" iconContentColor="green" />
+        <IconContent iconContentType="add" iconContentColor="green white" />
       </div>
     );
   }

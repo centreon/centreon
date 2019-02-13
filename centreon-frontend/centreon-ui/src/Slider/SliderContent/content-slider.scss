@@ -21,12 +21,14 @@
   }
   &-wrapper {
     position: relative;
+    max-width: 900px;
+    margin: 0 auto;
     .content-icon {
       &-add {
         &-green {
           position: absolute;
           right: 100px;
-          bottom: -22px;
+          bottom: -28px;
           @media (max-width: 576px){
             width: 40px;
             height: 40px;
@@ -49,11 +51,7 @@
     z-index: 99;
     cursor: pointer;
     &-icon {
-      display: inline-block;
-      width: 27px;
-      height: 43px;
-      background: transparent no-repeat center center;
-      background-size: 100% 100%;
+      font-size: 40px;
       cursor: pointer;
       @media (max-width: 576px){
         width: 18px;
@@ -63,15 +61,44 @@
     }
   }
   &-prev {
+    @include iconmoon;
     left: 0;
     &-icon {
-      background: url('../../../img/icons/slider-arrow-left.png');
+      &:after {
+        content: "\e917";
+        color: #dcdcdc;
+      }
+      &.white {
+        &:after {
+          color: $white-color;
+        }
+      }
+      &.gray {
+        &:after {
+          color: #606060;
+        }
+      }
     }
   }
   &-next {
+    @include iconmoon;
     right: 0;
+    transform: rotate(180deg);
     &-icon {
-      background: url('../../../img/icons/slider-arrow-right.png');
+      &:after {
+        content: "\e917";
+        color: #dcdcdc;
+      }
+      &.white {
+        &:after {
+          color: $white-color;
+        }
+      }
+      &.gray {
+        &:after {
+          color: #606060;
+        }
+      }
     }
   }
   &-indicators {
@@ -92,7 +119,6 @@
       border-radius: 50%;
       cursor: pointer;
       margin-right: 15px;
-      border: 1px solid #ccc;
       &.active {
         background-color: $white-color;
       }
