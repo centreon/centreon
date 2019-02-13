@@ -11,6 +11,7 @@
   font-family: $primary-font-regular;
   padding: 8px 34px;
   cursor: pointer;
+  line-height: 17px;
   &.linear {
     @include border-radius(15px);
   }
@@ -96,6 +97,6 @@
     top: 50%;
     transform: translateY(-50%);
     position: absolute;
-    right: 4px;
+    right: 5px;
   }
 }

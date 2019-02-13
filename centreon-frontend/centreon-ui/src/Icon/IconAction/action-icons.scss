@@ -22,7 +22,20 @@
       }
     }
     &-add {
-      background: url('../../../img/icons/icon-add.png') no-repeat 50%;
+      &:after {
+        content: "\e921";
+        color: #dcdcdc;
+      }
+      &.white {
+        &:after {
+          color: $white-color;
+        }
+      }
+      &.gray {
+        &:after {
+          color: #cdcdcd;
+        }
+      }
     }
     &-delete {
       &:after {

@@ -2,6 +2,12 @@
 .container {
   &-gray {
     background-color: $gray-centreon-light;
+    .container__col-md-3,
+    .container__col-md-4,
+    .container__col-sm-6,
+    .container__col-md-9 {
+      margin: 0;
+    }
   }
   &-blue {
     background-color: $content-blue-color;
@@ -12,7 +18,7 @@
 }
 .content {
   &-wrapper {
-    padding: 20px;
+    padding: 12px 20px 0 20px;
     box-sizing: border-box;
     max-width: 1280px;
     margin: 0 auto;
