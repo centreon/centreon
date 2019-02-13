@@ -42,10 +42,26 @@ jQuery(function () {
             callback	: paginationCallback
         }).append("<br/>");
     }
+    
     $(".selection").each(function() {
         var curId = $(this).attr('id');
-        if (typeof(clickedCb[curId]) != 'undefined') {
-            this.checked = clickedCb[curId];
+        if (localStorage.getItem('w_hm_' + curId)) {
+            jQuery(this).prop('checked', true);
+        }
+    });
+
+    jQuery(".selection").on('click', function() {
+        var curId = jQuery(this).attr('id');
+        var state = jQuery(this).prop('checked');
+        /**
+         key = w_hm_[ID]
+         w = widget
+         hm = host monitoring
+         */
+        if (state == true) {
+            localStorage.setItem('w_hm_' + curId, '1');
+        } else {
+            localStorage.removeItem('w_hm_' + curId);
         }
     });
 
