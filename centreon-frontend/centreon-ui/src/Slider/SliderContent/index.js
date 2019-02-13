@@ -111,7 +111,7 @@ class SliderContent extends Component {
             handleDotClick={this.handleDotClick}
           />
         </div>
-        <IconContent iconContentType="add" iconContentColor="white" />
+        <IconContent iconContentType="add" iconContentColor="green white" />
       </div>
     );
   }

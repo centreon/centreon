@@ -167,7 +167,7 @@ var SliderContent = function (_Component) {
             handleDotClick: this.handleDotClick
           })
         ),
-        _react2.default.createElement(_IconContent2.default, { iconContentType: "add", iconContentColor: "white" })
+        _react2.default.createElement(_IconContent2.default, { iconContentType: "add", iconContentColor: "green white" })
       );
     }
   }]);
