@@ -75,8 +75,8 @@ class FileUpload extends Component {
                   clickable
                 >
                 <div className="container__col-xs-6 text-right">
-                  <Button buttonType="bordered" color="white" label="BROWSE" />
-                </div>
+                <Button buttonType="bordered" color="white" label="BROWSE" />
+              </div>
               </Files>
               </div>
             </div>

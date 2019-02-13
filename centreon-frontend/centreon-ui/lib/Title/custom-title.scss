@@ -1,48 +1,49 @@
 @import '../global-sass-files/variables';
 @import '../global-sass-files/fonts';
+
 // Custom title
 .custom-title {
-	font-size: 22px;
-	margin: 0;
-	margin-bottom: 5px;
-	color: #06a096;
-	font-family: $primary-font-light;
-	position: relative;
-	cursor: pointer;
-	&-heading {
+  font-size: 22px;
+  margin: 0;
+  margin-bottom: 5px;
+  color: #06a096;
+  font-family: $primary-font-light;
+  position: relative;
+  cursor: pointer;
+  &-heading {
     padding-left: 55px;
     max-width: 150px;
-		.custom-title-icon {
-			position: absolute;
-			left: -58px;
-		}
-		.custom-title-label {
+    .custom-title-icon {
+      position: absolute;
+      left: -58px;
+    }
+    .custom-title-label {
       padding-left: 0 !important;
-		}
-	}
-	&-icon {
-		width: 51px;
-		height: 51px;
-		position: absolute;
-		left: 0;
-		top: 0;
-		&-puzzle {
-			background: url('../../img/icons/icon-title-puzzle.png') no-repeat 50%;
-		}
-		&-object {
-			background: url('../../img/icons/icon-title-object.png') no-repeat 50%;
-		}
-		& + .custom-title-label {
+    }
+  }
+  &-icon {
+    width: 51px;
+    height: 51px;
+    position: absolute;
+    left: 0;
+    top: 0;
+    &-puzzle {
+      background: url('../../img/icons/icon-title-puzzle.png') no-repeat 50%;
+    }
+    &-object {
+      background: url('../../img/icons/icon-title-object.png') no-repeat 50%;
+    }
+    & +.custom-title-label {
       padding-left: 56px;
       min-height: 51px;
-			display: inline-block;
-		}
-	}
-	&.image {
-		padding-left: 65px;
-		.custom-title-icon {
-			left: 0;
-		}
+      display: inline-block;
+    }
+  }
+  &.image {
+    padding-left: 65px;
+    .custom-title-icon {
+      left: 0;
+    }
   }
   &-label {
     &.blue {
