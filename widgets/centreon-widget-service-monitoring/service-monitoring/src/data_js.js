@@ -45,10 +45,25 @@ jQuery(function () {
         ).append("<br/>");
     }
 
+    jQuery(".selection").on('click', function() {
+        var curId = jQuery(this).attr('id');
+        var state = jQuery(this).prop('checked');
+        /**
+        key = w_sm_[ID]
+        w = widget
+        sm = service monitoring
+       */
+        if( state == true) {
+            localStorage.setItem('w_sm_' + curId, '1');
+        } else {
+            localStorage.removeItem('w_sm_' + curId);
+        }
+    });
+
     jQuery(".selection").each(function() {
         var curId = jQuery(this).attr('id');
-        if (typeof(clickedCb[curId]) != 'undefined') {
-            this.checked = clickedCb[curId];
+        if (localStorage.getItem('w_sm_' + curId)) {
+            jQuery(this).prop('checked', true);
         }
     });
 
