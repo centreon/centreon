@@ -42,11 +42,12 @@ class ExtensionsHolder extends React.Component {
                       : {})}
                   >
                     {entity.version.installed ? (
-                      <Centreon.IconInfo iconName="state" />
+                      <Centreon.IconInfo iconName="state green" />
                     ) : null}
 
                     <div className="custom-title-heading">
                       <Centreon.Title
+                        titleColor={titleColor}
                         icon={titleIcon}
                         label={entity.description}
                       />
@@ -94,6 +95,7 @@ class ExtensionsHolder extends React.Component {
                     >
                       {!entity.version.installed ? (
                         <Centreon.IconContent
+                          iconContentColor="white"
                           iconContentType={`${
                             installing[entity.id] ? "update" : "add"
                           }`}
@@ -101,6 +103,7 @@ class ExtensionsHolder extends React.Component {
                         />
                       ) : entity.version.outdated ? (
                         <Centreon.IconContent
+                          iconContentColor="white"
                           iconContentType="update"
                           loading={updating[entity.id]}
                         />
@@ -110,6 +113,7 @@ class ExtensionsHolder extends React.Component {
                       <Centreon.ButtonAction
                         buttonActionType="delete"
                         buttonIconType="delete"
+                        iconColor="gray"
                         onClick={e => {
                           e.preventDefault();
                           e.stopPropagation();

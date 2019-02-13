@@ -74,11 +74,12 @@ var ExtensionsHolder = function (_React$Component) {
                   _extends({
                     itemBorderColor: entity.version.installed ? !entity.version.outdated ? "green" : "orange" : "gray"
                   }, entity.licence && entity.licence != "N/A" ? { itemFooterColor: "red" } : {}, entity.licence && entity.licence != "N/A" ? { itemFooterLabel: entity.licence } : {}),
-                  entity.version.installed ? _react2.default.createElement(Centreon.IconInfo, { iconName: "state" }) : null,
+                  entity.version.installed ? _react2.default.createElement(Centreon.IconInfo, { iconName: "state green" }) : null,
                   _react2.default.createElement(
                     "div",
                     { className: "custom-title-heading" },
                     _react2.default.createElement(Centreon.Title, {
+                      titleColor: titleColor,
                       icon: titleIcon,
                       label: entity.description
                     }),
@@ -109,9 +110,11 @@ var ExtensionsHolder = function (_React$Component) {
                       label: "Available " + entity.version.available
                     },
                     !entity.version.installed ? _react2.default.createElement(Centreon.IconContent, {
+                      iconContentColor: "white",
                       iconContentType: "" + (installing[entity.id] ? "update" : "add"),
                       loading: installing[entity.id]
                     }) : entity.version.outdated ? _react2.default.createElement(Centreon.IconContent, {
+                      iconContentColor: "white",
                       iconContentType: "update",
                       loading: updating[entity.id]
                     }) : null
@@ -119,6 +122,7 @@ var ExtensionsHolder = function (_React$Component) {
                   entity.version.installed ? _react2.default.createElement(Centreon.ButtonAction, {
                     buttonActionType: "delete",
                     buttonIconType: "delete",
+                    iconColor: "gray",
                     onClick: function onClick(e) {
                       e.preventDefault();
                       e.stopPropagation();
