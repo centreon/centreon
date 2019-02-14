@@ -5,20 +5,13 @@ import ContentSliderRightArrow from "./ContentSliderRightArrow";
 import ContentSliderIndicators from "./ContentSliderIndicators";
 import IconContent from "../../Icon/IconContent";
 import "./content-slider.scss";
+import defaultSliderImage from "./slider-default-image.png";
 
 class SliderContent extends Component {
   constructor(props) {
     super(props);
 
     this.state = {
-      images: [
-        "https://res.cloudinary.com/dezez0fsn/image/upload/v1549874437/slider-default-image.png",
-        "https://static.centreon.com/wp-content/uploads/2018/09/plugin-banner-it-operatio" +
-          "ns-management.png",
-        "https://s3.us-east-2.amazonaws.com/dzuz14/thumbnails/canyon.jpg",
-        "https://s3.us-east-2.amazonaws.com/dzuz14/thumbnails/city.jpg",
-        "https://s3.us-east-2.amazonaws.com/dzuz14/thumbnails/desert.jpg"
-      ],
       currentIndex: 0,
       translateValue: 0
     };
@@ -36,8 +29,8 @@ class SliderContent extends Component {
   };
 
   goToNextSlide = () => {
-    const { currentIndex, images } = this.state;
-
+    const { currentIndex } = this.state;
+    const { images } = this.props;
     if (currentIndex === images.length - 1) {
       return this.setState({ currentIndex: 0, translateValue: 0 });
     }
@@ -50,11 +43,14 @@ class SliderContent extends Component {
   };
 
   slideWidth = () => {
-    return document.querySelector(".content-slider-item").clientWidth;
+    return document.querySelector(".content-slider-wrapper")
+      ? document.querySelector(".content-slider-wrapper").clientWidth
+      : 780;
   };
 
   renderSlides = () => {
-    const { images, currentIndex } = this.state;
+    const { currentIndex } = this.state;
+    const { images } = this.props;
 
     const slides = images.map((image, index) => {
       let isActive = currentIndex === index ? true : false;
@@ -62,6 +58,10 @@ class SliderContent extends Component {
         <ContentSliderItem key={index} image={image} isActive={isActive} />
       );
     });
+
+    if (images.length === 0) {
+      return [<ContentSliderItem image={defaultSliderImage} isActive={true} />];
+    }
 
     return slides;
   };
@@ -88,7 +88,8 @@ class SliderContent extends Component {
   };
 
   render() {
-    const { images, currentIndex, translateValue } = this.state;
+    const { currentIndex, translateValue } = this.state;
+    const { images, children } = this.props;
 
     return (
       <div className="content-slider-wrapper">
@@ -102,8 +103,18 @@ class SliderContent extends Component {
             {this.renderSlides()}
           </div>
           <div className="content-slider-controls">
-            <ContentSliderLeftArrow goToPrevSlide={this.goToPrevSlide} iconColor='gray' />
-            <ContentSliderRightArrow goToNextSlide={this.goToNextSlide} iconColor='gray' />
+            {currentIndex === 0 ? null : (
+              <ContentSliderLeftArrow
+                goToPrevSlide={this.goToPrevSlide}
+                iconColor="gray"
+              />
+            )}
+            {images.length === 0 ? null : (
+              <ContentSliderRightArrow
+                goToNextSlide={this.goToNextSlide}
+                iconColor="gray"
+              />
+            )}
           </div>
           <ContentSliderIndicators
             images={images}
@@ -111,7 +122,8 @@ class SliderContent extends Component {
             handleDotClick={this.handleDotClick}
           />
         </div>
-        <IconContent iconContentType="add" iconContentColor="green white" />
+        {children}
+        
       </div>
     );
   }

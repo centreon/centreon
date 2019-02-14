@@ -48,3 +48,4 @@ export { default as ExtensionsHolder } from "./ExtensionsHolder";
 export { default as ExtensionDetailsPopup } from "./ExtensionDetailsPopup";
 export { default as ExtensionDeletePopup } from "./ExtensionDeletePopup";
 export { default as Axios } from "./Axios";
+export { default as Loader } from "./Loader";
