@@ -39,7 +39,9 @@ var ExtensionDetailPopup = function (_React$Component) {
       var _props = this.props,
           onCloseClicked = _props.onCloseClicked,
           modalDetails = _props.modalDetails,
-          onVersionClicked = _props.onVersionClicked;
+          onVersionClicked = _props.onVersionClicked,
+          onInstallClicked = _props.onInstallClicked,
+          loading = _props.loading;
 
       if (modalDetails === null) {
         return null;
@@ -47,7 +49,18 @@ var ExtensionDetailPopup = function (_React$Component) {
       return _react2.default.createElement(
         Centreon.Popup,
         { popupType: "big" },
-        _react2.default.createElement(Centreon.Slider, null),
+        loading ? _react2.default.createElement(Centreon.Loader, { fullContent: true }) : null,
+        _react2.default.createElement(
+          Centreon.Slider,
+          { images: modalDetails.images || [] },
+          modalDetails.version.installed ? null : _react2.default.createElement(Centreon.IconContent, {
+            iconContentType: "add",
+            iconContentColor: "green white",
+            onClick: function onClick() {
+              onInstallClicked(modalDetails.id, modalDetails.type);
+            }
+          })
+        ),
         _react2.default.createElement(
           "div",
           { "class": "popup-header" },

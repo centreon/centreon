@@ -32,6 +32,10 @@ var _IconContent2 = _interopRequireDefault(_IconContent);
 
 require("./content-slider.scss");
 
+var _sliderDefaultImage = require("./slider-default-image.png");
+
+var _sliderDefaultImage2 = _interopRequireDefault(_sliderDefaultImage);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -63,10 +67,8 @@ var SliderContent = function (_Component) {
     };
 
     _this.goToNextSlide = function () {
-      var _this$state = _this.state,
-          currentIndex = _this$state.currentIndex,
-          images = _this$state.images;
-
+      var currentIndex = _this.state.currentIndex;
+      var images = _this.props.images;
 
       if (currentIndex === images.length - 1) {
         return _this.setState({ currentIndex: 0, translateValue: 0 });
@@ -82,13 +84,12 @@ var SliderContent = function (_Component) {
     };
 
     _this.slideWidth = function () {
-      return document.querySelector(".content-slider-item").clientWidth;
+      return document.querySelector(".content-slider-wrapper") ? document.querySelector(".content-slider-wrapper").clientWidth : 780;
     };
 
     _this.renderSlides = function () {
-      var _this$state2 = _this.state,
-          images = _this$state2.images,
-          currentIndex = _this$state2.currentIndex;
+      var currentIndex = _this.state.currentIndex;
+      var images = _this.props.images;
 
 
       var slides = images.map(function (image, index) {
@@ -96,13 +97,17 @@ var SliderContent = function (_Component) {
         return _react2.default.createElement(_ContentSliderItem2.default, { key: index, image: image, isActive: isActive });
       });
 
+      if (images.length === 0) {
+        return [_react2.default.createElement(_ContentSliderItem2.default, { image: _sliderDefaultImage2.default, isActive: true })];
+      }
+
       return slides;
     };
 
     _this.handleDotClick = function (e) {
-      var _this$state3 = _this.state,
-          currentIndex = _this$state3.currentIndex,
-          translateValue = _this$state3.translateValue;
+      var _this$state = _this.state,
+          currentIndex = _this$state.currentIndex,
+          translateValue = _this$state.translateValue;
 
 
       var dotIndex = parseInt(e.target.getAttribute("data-index"));
@@ -123,7 +128,6 @@ var SliderContent = function (_Component) {
     };
 
     _this.state = {
-      images: ["https://res.cloudinary.com/dezez0fsn/image/upload/v1549874437/slider-default-image.png", "https://static.centreon.com/wp-content/uploads/2018/09/plugin-banner-it-operatio" + "ns-management.png", "https://s3.us-east-2.amazonaws.com/dzuz14/thumbnails/canyon.jpg", "https://s3.us-east-2.amazonaws.com/dzuz14/thumbnails/city.jpg", "https://s3.us-east-2.amazonaws.com/dzuz14/thumbnails/desert.jpg"],
       currentIndex: 0,
       translateValue: 0
     };
@@ -134,9 +138,11 @@ var SliderContent = function (_Component) {
     key: "render",
     value: function render() {
       var _state = this.state,
-          images = _state.images,
           currentIndex = _state.currentIndex,
           translateValue = _state.translateValue;
+      var _props = this.props,
+          images = _props.images,
+          children = _props.children;
 
 
       return _react2.default.createElement(
@@ -158,8 +164,14 @@ var SliderContent = function (_Component) {
           _react2.default.createElement(
             "div",
             { className: "content-slider-controls" },
-            _react2.default.createElement(_ContentSliderLeftArrow2.default, { goToPrevSlide: this.goToPrevSlide, iconColor: "gray" }),
-            _react2.default.createElement(_ContentSliderRightArrow2.default, { goToNextSlide: this.goToNextSlide, iconColor: "gray" })
+            currentIndex === 0 ? null : _react2.default.createElement(_ContentSliderLeftArrow2.default, {
+              goToPrevSlide: this.goToPrevSlide,
+              iconColor: "gray"
+            }),
+            images.length === 0 ? null : _react2.default.createElement(_ContentSliderRightArrow2.default, {
+              goToNextSlide: this.goToNextSlide,
+              iconColor: "gray"
+            })
           ),
           _react2.default.createElement(_ContentSliderIndicators2.default, {
             images: images,
@@ -167,7 +179,7 @@ var SliderContent = function (_Component) {
             handleDotClick: this.handleDotClick
           })
         ),
-        _react2.default.createElement(_IconContent2.default, { iconContentType: "add", iconContentColor: "green white" })
+        children
       );
     }
   }]);

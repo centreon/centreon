@@ -33,7 +33,14 @@ var DescriptionContent = function DescriptionContent(_ref) {
     text ? _react2.default.createElement(
       "p",
       { className: "content-description-text" },
-      text
+      text.split("\n").map(function (i) {
+        return _react2.default.createElement(
+          "span",
+          null,
+          i,
+          _react2.default.createElement("br", null)
+        );
+      })
     ) : null,
     note ? _react2.default.createElement(
       "span",
