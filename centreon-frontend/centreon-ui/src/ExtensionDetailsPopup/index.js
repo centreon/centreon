@@ -3,13 +3,30 @@ import * as Centreon from "../index";
 
 class ExtensionDetailPopup extends React.Component {
   render() {
-    const { onCloseClicked, modalDetails, onVersionClicked } = this.props;
+    const {
+      onCloseClicked,
+      modalDetails,
+      onVersionClicked,
+      onInstallClicked,
+      loading
+    } = this.props;
     if (modalDetails === null) {
       return null;
     }
     return (
       <Centreon.Popup popupType="big">
-        <Centreon.Slider />
+        {loading ? <Centreon.Loader fullContent={true}/> : null}
+        <Centreon.Slider images={modalDetails.images || []}>
+          {modalDetails.version.installed ? null : (
+            <Centreon.IconContent
+              iconContentType="add"
+              iconContentColor="green white"
+              onClick={() => {
+                onInstallClicked(modalDetails.id, modalDetails.type);
+              }}
+            />
+          )}
+        </Centreon.Slider>
         <div class="popup-header">
           <Centreon.Title label={modalDetails.title} />
           <Centreon.Subtitle label={modalDetails.label} />

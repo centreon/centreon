@@ -46,6 +46,7 @@ var ExtensionsHolder = function (_React$Component) {
           entities = _props.entities,
           onCardClicked = _props.onCardClicked,
           onDelete = _props.onDelete,
+          titleColor = _props.titleColor,
           onInstall = _props.onInstall,
           onUpdate = _props.onUpdate,
           updating = _props.updating,

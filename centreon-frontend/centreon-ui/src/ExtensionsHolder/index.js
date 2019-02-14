@@ -9,6 +9,7 @@ class ExtensionsHolder extends React.Component {
       entities,
       onCardClicked,
       onDelete,
+      titleColor,
       onInstall,
       onUpdate,
       updating,
