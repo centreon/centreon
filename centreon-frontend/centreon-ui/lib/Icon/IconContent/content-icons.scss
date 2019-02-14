@@ -6,10 +6,28 @@
   display: inline-block;
   width: 30px;
   height: 30px;
+  @include iconmoon();
+  font-size: 25px;
+  position: relative;
+  &-green, &-red, &-orange {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background-size: 25px;
+    cursor: pointer;
+    display: block;
+    z-index: 99;
+  }
+  &-green {
+    background-color: $content-green-color;
+  }
+  &-red {
+    background-color: $content-red-color;
+  }
+  &-orange {
+    background-color: $content-orange-color;
+  }
   &-add {
-    @include iconmoon();
-    font-size: 40px;
-    position: relative;
     &:after {
       content: "\e921";
       color: #ffffff;
@@ -25,20 +43,39 @@
         color: $white-color;
       }
     }
-    &-green {
-      width: 55px;
-      height: 55px;
-      border-radius: 50%;
-      background-color: $content-green-color;
-      background-size: 25px;
-      cursor: pointer;
-      display: block;
-      z-index: 99;
+  }
+  &-update {
+    &:after {
+      content: "\e911";
+      color: #ffffff;
+      @include centerAbsolute();
+    }
+    &.gray {
+      &:after {
+        color: #606060;
+      }
+    }
+    &.white {
+      &:after {
+        color: $white-color;
+      }
     }
   }
-  
-  &-update {
-    background: url('../../../img/icons/icon-button-update.png') no-repeat 50%;
+  &-delete {
+    &:after {
+      content: "\e910";
+      color: #ffffff;
+      @include centerAbsolute();
+    }
+    &.gray {
+      &:after {
+        color: #606060;
+      }
+    }
+    &.white {
+      &:after {
+        color: $white-color;
+      }
+    }
   }
-  
 }

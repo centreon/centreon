@@ -18,7 +18,7 @@ var IconContent = function IconContent(_ref) {
       loading = _ref.loading;
   return _react2.default.createElement("span", {
     style: loading ? { top: "20%" } : {},
-    className: "content-icon content-icon-" + iconContentType + " " + (iconContentColor ? "content-icon-" + iconContentType + "-" + iconContentColor : "") + " " + (loading ? "loading-animation" : "")
+    className: "content-icon content-icon-" + iconContentType + " " + (iconContentColor ? "content-icon-" + iconContentColor : "") + " " + (loading ? "loading-animation" : "")
   });
 };
 
