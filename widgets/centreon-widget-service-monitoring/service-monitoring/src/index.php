@@ -426,24 +426,30 @@ while ($row = $res->fetch()) {
     // last_check
     $valueLastCheck = (int)$row['last_check'];
     $valueLastCheckTimestamp = time() - $valueLastCheck;
-    if ($valueLastCheckTimestamp < 3600) {
+    if ($valueLastCheckTimestamp > 0
+        && $valueLastCheckTimestamp < 3600
+    ) {
         $valueLastCheck = CentreonDuration::toString($valueLastCheckTimestamp) . ' ago';
     }
     $data[$row['host_id'] . '_' . $row['service_id']]['last_check'] = $valueLastCheck;
 
     // last_state_change
     $valueLastState = (int)$row['last_state_change'];
-    $valueLastStateTimestamp = time() - $valueLastState;
-    if ($valueLastStateTimestamp < 3600) {
+    if ($valueLastState > 0) {
+        $valueLastStateTimestamp = time() - $valueLastState;
         $valueLastState = CentreonDuration::toString($valueLastStateTimestamp) . ' ago';
+    } else {
+        $valueLastState = 'N/A';
     }
     $data[$row['host_id'] . '_' . $row['service_id']]['last_state_change'] = $valueLastState;
 
     // last_hard_state_change
     $valueLastHardState = (int)$row['last_hard_state_change'];
-    $valueLastHardStateTimestamp = time() - $valueLastHardState;
-    if ($valueLastHardStateTimestamp < 3600) {
+    if ($valueLastHardState > 0) {
+        $valueLastHardStateTimestamp = time() - $valueLastHardState;
         $valueLastHardState = CentreonDuration::toString($valueLastHardStateTimestamp) . ' ago';
+    } else {
+        $valueLastHardState = 'N/A';
     }
     $data[$row['host_id'] . '_' . $row['service_id']]['last_hard_state_change'] = $valueLastHardState;
 

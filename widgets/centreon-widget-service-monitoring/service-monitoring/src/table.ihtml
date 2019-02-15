@@ -131,7 +131,7 @@
                     {if is_string($elem.last_state_change)}
                         <td class='ListColCenter' style='white-space:nowrap;'>{$elem.last_state_change}</td>
                     {else}
-                        <td class='ListColCenter isTimestamp' style='white-space:nowrap;'>{$elem.last_state_change}</td>
+                        <td class='ListColCenter' style='white-space:nowrap;'>{$elem.last_state_change}</td>
                     {/if}
                 {/if}
 
@@ -139,7 +139,7 @@
                     {if is_string($elem.last_hard_state_change)}
                         <td class='ListColCenter' style='white-space:nowrap;'>{$elem.last_hard_state_change}</td>
                     {else}
-                        <td class='ListColCenter isTimestamp' style='white-space:nowrap;'>{$elem.last_hard_state_change}</td>
+                        <td class='ListColCenter' style='white-space:nowrap;'>{$elem.last_hard_state_change}</td>
                     {/if}
                 {/if}
 
