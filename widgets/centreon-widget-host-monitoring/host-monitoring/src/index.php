@@ -262,8 +262,10 @@ while ($row = $res->fetch()) {
 
     // last_check
     $valueLastCheck = (int)$row['last_check'];
-    $valueLastCheckTimestamp = time() - strtotime($valueLastCheck);
-    if ($valueLastCheckTimestamp < 3600) {
+    $valueLastCheckTimestamp = time() - $valueLastCheck;
+    if ($valueLastCheckTimestamp > 0
+        && $valueLastCheckTimestamp < 3600
+    ) {
         $valueLastCheck = CentreonDuration::toString($valueLastCheckTimestamp) . ' ago';
     }
     $data[$row['host_id']]['last_check'] = $valueLastCheck;
@@ -271,10 +273,8 @@ while ($row = $res->fetch()) {
     // last_state_change
     $valueLastState = (int)$row['last_state_change'];
     if ($valueLastState > 0) {
-        $valueLastStateTimestamp = time() - strtotime($valueLastState);
-        if ($valueLastStateTimestamp < 3600) {
-            $valueLastState = CentreonDuration::toString($valueLastStateTimestamp) . ' ago';
-        }
+        $valueLastStateTimestamp = time() - $valueLastState;
+        $valueLastState = CentreonDuration::toString($valueLastStateTimestamp) . ' ago';
     } else {
         $valueLastState = 'N/A';
     }
@@ -282,19 +282,17 @@ while ($row = $res->fetch()) {
 
     // last_hard_state_change
     $valueLastHardState = (int)$row['last_hard_state_change'];
-    if ($valueLastState) {
-        $valueLastHardStateTimestamp = time() - strtotime($valueLastState);
-        if ($valueLastHardStateTimestamp < 3600) {
-            $valueLastHardState = CentreonDuration::toString($valueLastHardStateTimestamp) . ' ago';
-        }
+    if ($valueLastHardState > 0) {
+        $valueLastHardStateTimestamp = time() - $valueLastHardState;
+        $valueLastHardState = CentreonDuration::toString($valueLastHardStateTimestamp) . ' ago';
     } else {
         $valueLastHardState = 'N/A';
     }
     $data[$row['host_id']]['last_hard_state_change'] = $valueLastHardState;
 
     // check_attempt
-    $valueCheckAttemp = "{$row['check_attempt']}/{$row['max_check_attempts']} ({$aStateType[$row['state_type']]})";
-    $data[$row['host_id']]['check_attempt'] = $valueCheckAttemp;
+    $valueCheckAttempt = "{$row['check_attempt']}/{$row['max_check_attempts']} ({$aStateType[$row['state_type']]})";
+    $data[$row['host_id']]['check_attempt'] = $valueCheckAttempt;
 
     // state
     $valueState = $row['state'];
@@ -314,8 +312,10 @@ while ($row = $res->fetch()) {
             $valueActionUrl = '//' . $valueActionUrl;
         }
 
-        $valueActionUrl = CentreonUtils::escapeSecure($hostObj->replaceMacroInString($row['host_name'],
-            $valueActionUrl));
+        $valueActionUrl = CentreonUtils::escapeSecure(
+            $hostObj->replaceMacroInString($row['host_name'],
+            $valueActionUrl)
+        );
         $data[$row['host_id']]['action_url'] = $valueActionUrl;
     }
 

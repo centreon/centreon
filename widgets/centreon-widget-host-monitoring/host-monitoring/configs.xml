@@ -29,9 +29,7 @@
             <option value="disabled" label="Notification Disabled"/>
         </preference>
 
-        <!-- #14 Poller name -->
         <preference label="Pollers Name Filter" name="poller_filter" type="poller"/>
-
         <preference label="State Type" name="state_type_filter" type="list">
             <option value="hardonly" label="Hard Only"/>
             <option value="softonly" label="Soft Only"/>
