@@ -3,7 +3,7 @@ import React from 'react';
 const ProgressBarItem = ({classActive, number}) => {
   return (
     <li className="progress-bar-item">
-      <span className={`progress-bar-link ${classActive}`}>
+      <span className={`progress-bar-link ${classActive ? classActive : ''}`}>
         {number}
       </span>
     </li>

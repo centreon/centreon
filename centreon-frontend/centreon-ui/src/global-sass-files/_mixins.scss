@@ -86,3 +86,12 @@
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+
+// The opacity @for directive 
+@for $i from 1 through 10 {
+  @for $j from 1 through 10 {
+    .opacity-#{$i}-#{$j} {
+      opacity: $i/$j
+    }
+  }
+}

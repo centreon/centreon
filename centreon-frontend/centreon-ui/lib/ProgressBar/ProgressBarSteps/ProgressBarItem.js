@@ -1,10 +1,10 @@
-"use strict";
+'use strict';
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var _react = require("react");
+var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
 
@@ -15,11 +15,11 @@ var ProgressBarItem = function ProgressBarItem(_ref) {
       number = _ref.number;
 
   return _react2.default.createElement(
-    "li",
-    { className: "progress-bar-item" },
+    'li',
+    { className: 'progress-bar-item' },
     _react2.default.createElement(
-      "span",
-      { className: "progress-bar-link " + classActive },
+      'span',
+      { className: 'progress-bar-link ' + (classActive ? classActive : '') },
       number
     )
   );

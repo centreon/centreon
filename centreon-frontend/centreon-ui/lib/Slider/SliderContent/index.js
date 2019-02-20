@@ -179,7 +179,8 @@ var SliderContent = function (_Component) {
             handleDotClick: this.handleDotClick
           })
         ),
-        children
+        children,
+        _react2.default.createElement(_IconContent2.default, { iconContentType: "add", iconContentColor: "green" })
       );
     }
   }]);
