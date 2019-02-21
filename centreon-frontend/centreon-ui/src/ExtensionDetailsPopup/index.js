@@ -7,6 +7,8 @@ class ExtensionDetailPopup extends React.Component {
       onCloseClicked,
       modalDetails,
       onVersionClicked,
+      onDeleteClicked,
+      onUpdateClicked,
       onInstallClicked,
       loading
     } = this.props;
@@ -15,9 +17,26 @@ class ExtensionDetailPopup extends React.Component {
     }
     return (
       <Centreon.Popup popupType="big">
-        {loading ? <Centreon.Loader fullContent={true}/> : null}
+        {loading ? <Centreon.Loader fullContent={true} /> : null}
         <Centreon.Slider images={modalDetails.images || []}>
-          {modalDetails.version.installed ? null : (
+          {modalDetails.version.installed && modalDetails.version.outdated ? (
+            <Centreon.IconContent
+              iconContentType="update"
+              iconContentColor="orange white"
+              onClick={() => {
+                onUpdateClicked(modalDetails.id, modalDetails.type);
+              }}
+            />
+          ) : null}
+          {modalDetails.version.installed ? (
+            <Centreon.IconContent
+              iconContentType="delete"
+              iconContentColor="red white"
+              onClick={() => {
+                onDeleteClicked(modalDetails.id, modalDetails.type);
+              }}
+            />
+          ) : (
             <Centreon.IconContent
               iconContentType="add"
               iconContentColor="green white"

@@ -40,6 +40,8 @@ var ExtensionDetailPopup = function (_React$Component) {
           onCloseClicked = _props.onCloseClicked,
           modalDetails = _props.modalDetails,
           onVersionClicked = _props.onVersionClicked,
+          onDeleteClicked = _props.onDeleteClicked,
+          onUpdateClicked = _props.onUpdateClicked,
           onInstallClicked = _props.onInstallClicked,
           loading = _props.loading;
 
@@ -53,7 +55,20 @@ var ExtensionDetailPopup = function (_React$Component) {
         _react2.default.createElement(
           Centreon.Slider,
           { images: modalDetails.images || [] },
-          modalDetails.version.installed ? null : _react2.default.createElement(Centreon.IconContent, {
+          modalDetails.version.installed && modalDetails.version.outdated ? _react2.default.createElement(Centreon.IconContent, {
+            iconContentType: "update",
+            iconContentColor: "orange white",
+            onClick: function onClick() {
+              onUpdateClicked(modalDetails.id, modalDetails.type);
+            }
+          }) : null,
+          modalDetails.version.installed ? _react2.default.createElement(Centreon.IconContent, {
+            iconContentType: "delete",
+            iconContentColor: "red white",
+            onClick: function onClick() {
+              onDeleteClicked(modalDetails.id, modalDetails.type);
+            }
+          }) : _react2.default.createElement(Centreon.IconContent, {
             iconContentType: "add",
             iconContentColor: "green white",
             onClick: function onClick() {

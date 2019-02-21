@@ -123,7 +123,6 @@ class SliderContent extends Component {
           />
         </div>
         {children}
-        <IconContent iconContentType='add' iconContentColor='green' />
       </div>
     );
   }
