@@ -20,14 +20,20 @@ var ButtonAction = function ButtonAction(_ref) {
   var buttonActionType = _ref.buttonActionType,
       buttonIconType = _ref.buttonIconType,
       onClick = _ref.onClick,
-      iconColor = _ref.iconColor;
+      iconColor = _ref.iconColor,
+      title = _ref.title;
   return _react2.default.createElement(
     "span",
     {
       className: "button-action button-action-" + buttonActionType + " " + iconColor,
       onClick: onClick
     },
-    _react2.default.createElement(_IconAction2.default, { iconColor: iconColor ? iconColor : '', iconActionType: buttonIconType })
+    _react2.default.createElement(_IconAction2.default, { iconColor: iconColor ? iconColor : '', iconActionType: buttonIconType }),
+    title && _react2.default.createElement(
+      "span",
+      { className: "button-action-title" },
+      title
+    )
   );
 };
 

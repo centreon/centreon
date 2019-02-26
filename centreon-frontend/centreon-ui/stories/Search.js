@@ -1,9 +1,16 @@
 import React from "react";
 import { storiesOf } from "@storybook/react";
-import { SearchLive } from "../src";
+import { SearchLive, SearchWithArrow } from "../src";
 
 storiesOf("Search", module).add(
   "Search - live",
   () => <SearchLive label="name" />,
   { notes: "A very simple component" }
 );
+
+storiesOf("Search", module).add(
+  "Search - with arrow",
+  () => <SearchWithArrow label="name" />,
+  { notes: "A very simple component" }
+);
+

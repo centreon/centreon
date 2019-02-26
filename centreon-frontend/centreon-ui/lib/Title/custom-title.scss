@@ -49,5 +49,12 @@
     &.blue {
       color: #0072aa;
     }
+    &.host {
+      font-size: 16px;
+      line-height: 20px;
+      font-family: $primary-font-regular;
+      color: #009fdf;
+      cursor: text;
+    }
   }
 }

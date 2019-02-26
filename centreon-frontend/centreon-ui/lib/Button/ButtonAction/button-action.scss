@@ -1,4 +1,5 @@
 @import '../../global-sass-files/mixins';
+@import '../../global-sass-files/variables';
 // Button action
 .button {
   &-action {
@@ -19,6 +20,15 @@
           color: #dcdcdc;
         }
       }
+    }
+    &-title {
+      font-size: 10px;
+      color: #cdcdcd;
+      font-family: $primary-font-light;
+      position: absolute;
+      padding-left: 38px;
+      line-height: 32px;
+      left: 0;
     }
   }
   .content-icon {

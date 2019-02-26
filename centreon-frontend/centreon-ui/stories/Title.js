@@ -5,6 +5,9 @@ import { Title } from "../src";
 storiesOf("Title", module).add("Title - custom", () => <Title label="Test" />, {
   notes: "A very simple component"
 });
+storiesOf("Title", module).add("Title - custom host", () => <Title titleColor="host" label="Host" />, {
+  notes: "A very simple component"
+});
 storiesOf("Title", module).add(
   "Title - custom with icon",
   () => <Title label="Test" icon="object" />,
@@ -15,4 +18,5 @@ storiesOf("Title", module).add(
   () => <Title label="Test" icon="puzzle" titleColor="blue" />,
   { notes: "A very simple component" }
 );
+
 

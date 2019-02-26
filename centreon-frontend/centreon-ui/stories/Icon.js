@@ -13,7 +13,15 @@ import {
 
 storiesOf("Icon", module).add(
   "Icon - action",
-  () => <IconAction iconActionType="update" />,
+() => {
+  return (
+  <React.Fragment>
+    <IconAction iconActionType="update" />
+    <IconAction iconActionType="clock" />
+    <IconAction iconActionType="check" />
+    <IconAction iconActionType="warning" />
+    <IconAction iconActionType="arrow-right" />
+  </React.Fragment>)},
   { notes: "A very simple component" }
 );
 
@@ -89,7 +97,14 @@ storiesOf("Icon", module).add(
 
 storiesOf("Icon", module).add(
   "Icon - info",
-  () => <IconInfo iconName="state" />,
+  () => {
+    return (
+      <React.Fragment>
+        <IconInfo iconName="state" />
+        <IconInfo iconName="question" />
+    </React.Fragment>
+  )
+},
   { notes: "A very simple component" }
 );
 

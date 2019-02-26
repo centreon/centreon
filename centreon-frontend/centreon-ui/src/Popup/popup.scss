@@ -1,5 +1,4 @@
 @import '../global-sass-files/variables';
-@import '../global-sass-files/fonts';
 @import '../global-sass-files/mixins';
 @import '../global-sass-files/helpers';
 @import '../global-sass-files/grid';
@@ -65,6 +64,18 @@
         background-size: cover;
       }
     }
+    &.blue {
+      background-color: #009fe0;
+      text-align: center;
+      color: $white-color;
+      font-family: $primary-font-light;
+      h3 {
+        margin: 10px 0;
+      }
+    }
+    &.red {
+      background-color: #eb1c24;
+    }
   }
   &-content {
     position: relative;
@@ -99,5 +110,8 @@
   }
   .container__col-xs-6 {
     margin-bottom: 0;
+  }
+  .message-error {
+    margin: -20px;
   }
 }

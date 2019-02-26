@@ -15,12 +15,12 @@ const Button = ({
 }) => (
   <button
     className={`button button-${buttonType}-${color} linear ${
-      customClass ? customClass : null
+      customClass ? customClass : ''
     }`}
     onClick={onClick}
     style={style}
   >
-    {iconActionType ? <IconAction iconColor={iconColor} iconActionType={iconActionType} /> : null}
+    {iconActionType ? <IconAction iconColor={iconColor} iconActionType={iconActionType} /> : ''}
     {label}
     {children}
   </button>

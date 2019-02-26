@@ -19,4 +19,13 @@
       color: $green-centreon-primary;
     }
   }
+  &-question {
+    &:after {
+      content: "\e922";
+      color: #dcdcdc;
+    }
+    &.green:after {
+      color: $green-centreon-primary;
+    }
+  }
 }

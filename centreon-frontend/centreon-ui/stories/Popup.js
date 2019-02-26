@@ -9,7 +9,8 @@ import {
   Subtitle,
   Button,
   HorizontalLine,
-  Description
+  Description,
+  MessageError
 } from "../src";
 
 storiesOf("Popup", module).add(
@@ -24,6 +25,28 @@ storiesOf("Popup", module).add(
       </div>
       <div className="popup-footer">
         <p>Popup footer</p>
+      </div>
+      <IconClose iconType="middle" />
+    </Popup>
+  ),
+  { notes: "A very simple component" }
+);
+
+storiesOf("Popup", module).add(
+  "Popup - small with header and footer colored",
+  () => (
+    <Popup popupType="small">
+      <div class="popup-header blue">
+        <h3>Popup Header</h3>
+      </div>
+      <div class="popup-body">
+        <p>Popup body</p>
+      </div>
+      <div className="popup-footer">
+        <MessageError
+          messageError="red"
+          text="Generation of configuration has failed, please try again."
+        />
       </div>
       <IconClose iconType="middle" />
     </Popup>

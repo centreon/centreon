@@ -29,11 +29,11 @@ var Button = function Button(_ref) {
   return _react2.default.createElement(
     "button",
     {
-      className: "button button-" + buttonType + "-" + color + " linear " + (customClass ? customClass : null),
+      className: "button button-" + buttonType + "-" + color + " linear " + (customClass ? customClass : ''),
       onClick: onClick,
       style: style
     },
-    iconActionType ? _react2.default.createElement(_IconAction2.default, { iconColor: iconColor, iconActionType: iconActionType }) : null,
+    iconActionType ? _react2.default.createElement(_IconAction2.default, { iconColor: iconColor, iconActionType: iconActionType }) : '',
     label,
     children
   );

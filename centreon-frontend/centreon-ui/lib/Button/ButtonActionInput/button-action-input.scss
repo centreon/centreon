@@ -1,0 +1,23 @@
+@import '../../global-sass-files/variables';
+@import '../../global-sass-files/mixins';
+// Button action
+.button-action {
+  &-input {
+    position: relative;
+    cursor: pointer;
+    padding: 6px 7px 7px 7px;
+    display: inline-block;
+    &.green {
+      background-color: $lime-centreon-primary;
+    }
+  }
+  .content-icon {
+    display: inline-block;
+    position: absolute;
+    right: 6px;
+    width: 21px;
+    height: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+  }
+}
