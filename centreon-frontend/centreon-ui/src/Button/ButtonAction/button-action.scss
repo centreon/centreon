@@ -30,6 +30,13 @@
       line-height: 32px;
       left: 0;
     }
+    &.custom {
+      display: inline-block;
+      margin-right: 48px;
+      .icon-action {
+        @include centerAbsolute();
+      }
+    }
   }
   .content-icon {
     display: inline-block;

@@ -1,0 +1,60 @@
+@import '../../global-sass-files/variables';
+// Table
+.table-dynamic {
+  width: 100%;
+  max-width: 100%;
+  margin-bottom: 1rem;
+  background-color: transparent;
+  border-collapse: collapse;
+  border: 1px solid #e6e6e6;
+  td, th {
+    padding: 2px 15px;
+    vertical-align: middle;
+    font-size: 13px;
+    font-family: $primary-font-regular;
+  }
+  thead {
+    background-color: #009fdf;
+    th {
+      vertical-align: middle;
+      padding: .15rem;
+      color: $white-color;
+      text-transform: uppercase;
+      width: 50%;
+      &:first-child {
+        border-right: 1px solid #e6e6e6;
+      }
+    }
+  }
+  tbody {
+    tr {
+      &:nth-of-type(even) {
+        background-color: #f5f8fd;
+      }
+      td {
+        &:first-child {
+          border-right: 1px solid #e6e6e6;
+        }
+      }
+    }
+    td {
+      text-align: center;
+      position: relative;
+    }
+  }
+  .icon-action {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
+  .form-group {
+    margin: 0;
+  }
+  .custom-control {
+    min-height: 0;
+  }
+  .container__col-md-3, .container__col-md-6 {
+    margin-bottom: 0;
+  }
+}

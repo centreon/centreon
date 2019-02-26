@@ -1,6 +1,6 @@
 import React from "react";
 import { storiesOf } from "@storybook/react";
-import { MessageInfo, MessageError } from "../src";
+import { MessageInfo, MessageError, MessageStatus } from "../src";
 
 storiesOf("Message", module).add(
   "Message info - red",
@@ -24,3 +24,22 @@ storiesOf("Message", module).add(
   { notes: "A very simple component" }
 );
 
+storiesOf("Message", module).add(
+  "Message status",
+  () => (
+    <React.Fragment>
+      <MessageStatus
+        messageStatus="ok"
+        messageText="Insertion 4/4 hosts"
+        messageInfo="[OK]"
+      />
+      <br />
+      <MessageStatus
+        messageStatus="failed"
+        messageText="Generation of configuration"
+        messageInfo="[FAILED]"
+      />
+    </React.Fragment>
+  ),
+  { notes: "A very simple component" }
+);

@@ -20,6 +20,7 @@
   &.custom-checkbox {
     .custom-control-label {
       padding-left: 5px;
+      text-align: left;
       &::before, &:after {
         position: absolute;
         top: -1px;

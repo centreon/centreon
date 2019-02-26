@@ -1,0 +1,17 @@
+@import '../global-sass-files/variables';
+// Pagination
+.pagination {
+  display: inline-block;
+  a {
+    color: #242f3a;
+    float: left;
+    padding: 8px 15px;
+    text-decoration: none;
+    font-family: $primary-font-light;
+    font-size: 12px;
+    &.active, &:hover {
+      color: #17387b;
+      font-family: $primary-font-bold;
+    }
+  }
+}

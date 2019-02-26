@@ -29,6 +29,8 @@ export { default as InputField } from "./InputField";
 export { default as LoaderContent } from "./LoaderContent";
 export { default as MessageError} from './Message/MessageError';
 export { default as MessageInfo} from './Message/MessageInfo';
+export { default as MessageStatus } from "./Message/MessageStatus";
+export { default as Pagination } from "./Pagination";
 export { default as Popup } from "./Popup";
 export { default as ProgressBar } from "./ProgressBar/ProgressBarSteps";
 export { default as ProgressBarItem } from "./ProgressBar/ProgressBarSteps/ProgressBarItem";
@@ -45,6 +47,7 @@ export { default as Subtitle } from "./Subtitle";
 export { default as Switcher } from "./Switcher";
 export { default as Tab } from "./Tab";
 export { default as Table } from "./Table";
+export { default as TableDynamic } from "./Table/TableDynamic";
 export { default as Title } from "./Title";
 export { default as Wrapper } from "./Wrapper";
 export {

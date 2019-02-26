@@ -10,6 +10,7 @@ import './InputField';
 import './Loader';
 import "./Message";
 import "./Pages";
+import "./Pagination";
 import "./Popup";
 import "./ProgressBar";
 import "./RadioButton";

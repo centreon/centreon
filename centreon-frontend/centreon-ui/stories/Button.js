@@ -144,6 +144,19 @@ storiesOf("Button", module).add("Button - with icon", () => (
   </React.Fragment>
 ));
 
+storiesOf("Button", module).add("Button - with icon left", () => (
+  <Button
+    label="Button with icon"
+    buttonType="bordered"
+    color="orange"
+    iconActionType="clock icon-left"
+    iconColor="orange"
+    onClick={() => {
+      alert("Button clicked");
+    }}
+  />
+));
+
 storiesOf("Button", module).add("Button - action", () => (
   <React.Fragment>
     <ButtonAction
@@ -154,9 +167,41 @@ storiesOf("Button", module).add("Button - action", () => (
         alert("Trash button clicked");
       }}
     />
+    <br />
     <ButtonAction
       iconColor="gray"
       buttonActionType="clock"
+      buttonIconType="clock"
+      onClick={() => {
+        alert("Clock button clicked");
+      }}
+    />
+    <br />
+    <ButtonAction
+      iconColor="green"
+      buttonActionType="check"
+      buttonIconType="check"
+      onClick={() => {
+        alert("Check button clicked");
+      }}
+    />
+    <br />
+    <ButtonAction
+      iconColor="red"
+      buttonActionType="warning"
+      buttonIconType="warning"
+      onClick={() => {
+        alert("Warning button clicked");
+      }}
+    />
+  </React.Fragment>
+));
+
+storiesOf("Button", module).add("Button - action with title", () => (
+  <React.Fragment>
+    <ButtonAction
+      iconColor="gray"
+      buttonActionType="clock custom"
       buttonIconType="clock"
       title="runing"
       onClick={() => {
@@ -165,7 +210,7 @@ storiesOf("Button", module).add("Button - action", () => (
     />
     <ButtonAction
       iconColor="green"
-      buttonActionType="check"
+      buttonActionType="check custom"
       buttonIconType="check"
       title="failed"
       onClick={() => {
@@ -174,7 +219,7 @@ storiesOf("Button", module).add("Button - action", () => (
     />
     <ButtonAction
       iconColor="red"
-      buttonActionType="warning"
+      buttonActionType="warning custom"
       buttonIconType="warning"
       title="finished"
       onClick={() => {
@@ -182,7 +227,6 @@ storiesOf("Button", module).add("Button - action", () => (
       }}
     />
   </React.Fragment>
-  
 ));
 
 storiesOf("Button", module).add("Button - action input", () => (

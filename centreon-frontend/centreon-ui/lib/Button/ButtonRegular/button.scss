@@ -102,6 +102,10 @@
     transform: translateY(-50%);
     position: absolute;
     right: 5px;
+    &.icon-left {
+      right: auto;
+      left: 5px;
+    }
   }
   &-validate {
     &-blue {
