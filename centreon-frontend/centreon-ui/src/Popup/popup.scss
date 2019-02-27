@@ -33,11 +33,10 @@
     .popup-body {
       padding: 5px 25px;
     }
-    &.host {
+    &.scroll {
       .popup-body {
         max-height: 350px;
         overflow-y: auto;
-        padding: 50px 0;
         &::-webkit-scrollbar {
           width: 5px;
         }
@@ -53,8 +52,12 @@
           background: linear-gradient(left, #8391A6, #536175);
         }
       }
+      &.host {
+        .popup-body {
+          padding: 50px 25px;
+        }
+      }
     }
-    
     @media (min-width: 576px) {
       .popup-dialog {
         max-width: 300px;
@@ -89,14 +92,14 @@
     &.blue {
       background-color: #009fe0;
       text-align: center;
-      color: $white-color;
-      font-family: $primary-font-light;
+      .popup-header-title {
+        color: $white-color;
+      }
     }
     &.red {
       background-color: #eb1c24;
     }
     &-title {
-      color: $white-color;
       font-size: 16px;
       line-height: 18px;
       font-family: $primary-font-regular;
@@ -138,5 +141,11 @@
   }
   .message-error {
     margin: -20px;
+  }
+  .description-text {
+    font-size: 14px;
+    line-height: 16px;
+    font-family: $primary-font-regular;
+    color: #b6b5b5;
   }
 }

@@ -7,13 +7,11 @@
     font-size: 12px;
     color: #242f3a;
     &.ok {
-      color: #88bd23;
       .message-status-info {
         color: #88bd23;
       }
     }
     &.failed {
-      color: $content-red-color;
       .message-status-info {
         color: $content-red-color;
       }
