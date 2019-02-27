@@ -36,13 +36,55 @@
         background-position: -8px -16px;
       }
     }
+    &.white {
+      min-height: 0;
+      .custom-control-label {
+        line-height: 17px;
+        margin-left: 5px;
+        color: $white-color;
+        &:before {
+          background: url("../../img/icons/checkbox-buttons-stripe-white.png") no-repeat;
+          background-position: 0px -3px;
+          width: 20px;
+          height: 20px;
+        }
+      }
+    }
+    &.blue {
+      min-height: 0;
+      .custom-control-label {
+        line-height: 17px;
+        margin-left: 3px;
+        &:before {
+          background: url("../../img/icons/checkbox-buttons-stripe-blue.png") no-repeat;
+          background-position: -1px -4px;
+          width: 20px;
+          height: 20px;
+        }
+      }
+    }
+    input[type=checkbox]:checked~.custom-control-label::after {
+      background: url("../../img/icons/checkbox-buttons-stripe.png") no-repeat;
+      background-position: -8px -72px;
+    }
+    input[type=checkbox]:checked~.custom-control-label::before {
+      background: none;
+    }
+    &.white {
+      input[type=checkbox]:checked~.custom-control-label::after {
+        background: url("../../img/icons/checkbox-buttons-stripe-white.png") no-repeat;
+        background-position: 0px -83px;
+        width: 20px;
+        height: 20px;
+      }
+    }
+    &.blue {
+      input[type=checkbox]:checked~.custom-control-label::after {
+        background: url("../../img/icons/checkbox-buttons-stripe-blue.png") no-repeat;
+        background-position: -1px -92px;
+        width: 20px;
+        height: 20px;
+      }
+    }
   }
-}
-
-input[type=checkbox]:checked~.custom-control-label::after {
-  background: url("../../img/icons/checkbox-buttons-stripe.png") no-repeat;
-  background-position: -8px -72px;
-}
-input[type=checkbox]:checked~.custom-control-label::before {
-  background: none;
 }

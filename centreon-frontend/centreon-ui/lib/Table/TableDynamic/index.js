@@ -61,8 +61,8 @@ var TableDynamic = function (_Component) {
                 { className: 'container__row' },
                 _react2.default.createElement(
                   'div',
-                  { className: 'container__col-md-3 center-vertical' },
-                  _react2.default.createElement(_Checkbox2.default, { label: 'ALL HOSTS', name: 'all-hosts' })
+                  { className: 'container__col-md-3 center-vertical ml-1' },
+                  _react2.default.createElement(_Checkbox2.default, { label: 'ALL HOSTS', name: 'all-hosts', iconColor: 'white' })
                 ),
                 _react2.default.createElement(
                   'div',
@@ -89,7 +89,8 @@ var TableDynamic = function (_Component) {
               null,
               _react2.default.createElement(_Checkbox2.default, {
                 label: 'Host 1 lorem ipsum dolor sit amet',
-                name: 'host1'
+                name: 'host1',
+                iconColor: 'blue'
               })
             ),
             _react2.default.createElement(
@@ -106,7 +107,8 @@ var TableDynamic = function (_Component) {
               null,
               _react2.default.createElement(_Checkbox2.default, {
                 label: 'Host 1 lorem ipsum dolor sit amet',
-                name: 'host1'
+                name: 'host1',
+                iconColor: 'blue'
               })
             ),
             _react2.default.createElement(
@@ -123,7 +125,8 @@ var TableDynamic = function (_Component) {
               null,
               _react2.default.createElement(_Checkbox2.default, {
                 label: 'Host 1 lorem ipsum dolor sit amet',
-                name: 'host1'
+                name: 'host1',
+                iconColor: 'blue'
               })
             ),
             _react2.default.createElement(
@@ -140,7 +143,8 @@ var TableDynamic = function (_Component) {
               null,
               _react2.default.createElement(_Checkbox2.default, {
                 label: 'Host 1 lorem ipsum dolor sit amet',
-                name: 'host1'
+                name: 'host1',
+                iconColor: 'blue'
               })
             ),
             _react2.default.createElement(

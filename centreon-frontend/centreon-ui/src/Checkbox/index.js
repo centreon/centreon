@@ -2,6 +2,7 @@ import React from "react";
 import './checkbox.scss';
 
 const Checkbox = ({
+  iconColor,
   checked,
   label,
   value,
@@ -10,7 +11,7 @@ const Checkbox = ({
   ...rest
 }) => (
   <div className="form-group">
-    <div className="custom-control custom-checkbox">
+    <div className={`custom-control custom-checkbox ${iconColor ? iconColor : ''}`}>
       <input
         name={name}
         aria-checked={checked}

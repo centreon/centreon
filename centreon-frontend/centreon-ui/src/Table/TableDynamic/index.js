@@ -12,8 +12,8 @@ class TableDynamic extends Component {
           <tr>
             <th scope="col">
             <div className="container__row">
-              <div className="container__col-md-3 center-vertical">
-                <Checkbox label="ALL HOSTS" name="all-hosts" />
+              <div className="container__col-md-3 center-vertical ml-1">
+                <Checkbox label="ALL HOSTS" name="all-hosts" iconColor="white" />
               </div>
               <div className="container__col-md-6 center-vertical">
                 <SearchLive />
@@ -29,6 +29,7 @@ class TableDynamic extends Component {
               <Checkbox
                 label="Host 1 lorem ipsum dolor sit amet"
                 name="host1"
+                iconColor="blue"
               />
             </td>
             <td>
@@ -40,6 +41,7 @@ class TableDynamic extends Component {
               <Checkbox
                 label="Host 1 lorem ipsum dolor sit amet"
                 name="host1"
+                iconColor="blue"
               />
             </td>
             <td>
@@ -51,6 +53,7 @@ class TableDynamic extends Component {
               <Checkbox
                 label="Host 1 lorem ipsum dolor sit amet"
                 name="host1"
+                iconColor="blue"
               />
             </td>
             <td>
@@ -62,6 +65,7 @@ class TableDynamic extends Component {
               <Checkbox
                 label="Host 1 lorem ipsum dolor sit amet"
                 name="host1"
+                iconColor="blue"
               />
             </td>
             <td>
