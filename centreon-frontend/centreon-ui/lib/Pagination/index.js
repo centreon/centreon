@@ -8,6 +8,10 @@ var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
 
+var _IconAction = require('../Icon/IconAction');
+
+var _IconAction2 = _interopRequireDefault(_IconAction);
+
 require('./pagination.scss');
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
@@ -21,6 +25,7 @@ var Pagination = function Pagination() {
       { href: '#' },
       'First'
     ),
+    _react2.default.createElement(_IconAction2.default, { iconActionType: 'arrow-right' }),
     _react2.default.createElement(
       'a',
       { href: '#' },
@@ -36,6 +41,7 @@ var Pagination = function Pagination() {
       { href: '#' },
       '3'
     ),
+    _react2.default.createElement(_IconAction2.default, { iconActionType: 'arrow-right' }),
     _react2.default.createElement(
       'a',
       { href: '#' },

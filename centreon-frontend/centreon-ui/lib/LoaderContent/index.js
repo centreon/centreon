@@ -10,6 +10,10 @@ var _react = require("react");
 
 var _react2 = _interopRequireDefault(_react);
 
+require("./loader-content.scss");
+
+require("loaders.css/loaders.min.css");
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -32,7 +36,7 @@ var Loader = function (_Component) {
     value: function render() {
       return _react2.default.createElement(
         "div",
-        { className: "loader" },
+        { className: "loader content" },
         _react2.default.createElement(
           "div",
           { className: "loader-inner ball-grid-pulse" },

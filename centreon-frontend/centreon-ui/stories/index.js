@@ -21,6 +21,7 @@ import "./Subtitle";
 import "./Switcher";
 import "./Tabs";
 import "./Table";
+import "./TableCounter";
 import "./Title";
 import "./Tooltip";
 import "./CentreonDynamicComponent";

@@ -48,6 +48,7 @@ export { default as Switcher } from "./Switcher";
 export { default as Tab } from "./Tab";
 export { default as Table } from "./Table";
 export { default as TableDynamic } from "./Table/TableDynamic";
+export { default as TableCounter } from "./Table/TableCounter";
 export { default as Title } from "./Title";
 export { default as Wrapper } from "./Wrapper";
 export {

@@ -1,5 +1,6 @@
 import React, {Component} from 'react';
 import IconAction from '../Icon/IconAction';
+import TableCounter from './TableCounter';
 import './table.scss';
 
 class Table extends Component {
@@ -13,8 +14,7 @@ class Table extends Component {
             <th scope="col">Start time</th>
             <th scope="col">Duration</th>
             <th scope="col">Discovered items</th>
-            {/* TO DO - arrow down */}
-            <th>30</th>
+            <th><TableCounter number="30" /></th>
           </tr>
         </thead>
         <tbody>

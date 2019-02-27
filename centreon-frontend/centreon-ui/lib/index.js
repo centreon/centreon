@@ -400,6 +400,15 @@ Object.defineProperty(exports, "TableDynamic", {
   }
 });
 
+var _TableCounter = require("./Table/TableCounter");
+
+Object.defineProperty(exports, "TableCounter", {
+  enumerable: true,
+  get: function get() {
+    return _interopRequireDefault(_TableCounter).default;
+  }
+});
+
 var _Title = require("./Title");
 
 Object.defineProperty(exports, "Title", {

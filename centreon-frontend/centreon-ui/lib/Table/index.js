@@ -14,6 +14,10 @@ var _IconAction = require('../Icon/IconAction');
 
 var _IconAction2 = _interopRequireDefault(_IconAction);
 
+var _TableCounter = require('./TableCounter');
+
+var _TableCounter2 = _interopRequireDefault(_TableCounter);
+
 require('./table.scss');
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
@@ -73,7 +77,7 @@ var Table = function (_Component) {
             _react2.default.createElement(
               'th',
               null,
-              '30'
+              _react2.default.createElement(_TableCounter2.default, { number: '30' })
             )
           )
         ),

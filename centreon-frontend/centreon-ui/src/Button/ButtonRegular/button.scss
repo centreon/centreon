@@ -115,4 +115,16 @@
       background-color: $content-red-color;
     }
   }
+  .icon-action-clock {
+    &:before {
+      content: '';
+      position: absolute;
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background-color: #88bd23;
+      bottom: 2px;
+      left: 4px;
+    }
+  }
 }

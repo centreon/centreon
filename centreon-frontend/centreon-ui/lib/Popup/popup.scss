@@ -33,6 +33,28 @@
     .popup-body {
       padding: 5px 25px;
     }
+    &.host {
+      .popup-body {
+        max-height: 350px;
+        overflow-y: auto;
+        padding: 50px 0;
+        &::-webkit-scrollbar {
+          width: 5px;
+        }
+        &::-webkit-scrollbar-thumb {
+          border-radius: 5px;
+          background: #949494;
+        }
+        &::-webkit-scrollbar-track {
+          border-radius: 5px;
+          background: #d1d1d1;
+        }
+        &::-webkit-scrollbar-thumb:hover {
+          background: linear-gradient(left, #8391A6, #536175);
+        }
+      }
+    }
+    
     @media (min-width: 576px) {
       .popup-dialog {
         max-width: 300px;
@@ -69,12 +91,15 @@
       text-align: center;
       color: $white-color;
       font-family: $primary-font-light;
-      h3 {
-        margin: 10px 0;
-      }
     }
     &.red {
       background-color: #eb1c24;
+    }
+    &-title {
+      color: $white-color;
+      font-size: 16px;
+      line-height: 18px;
+      font-family: $primary-font-regular;
     }
   }
   &-content {

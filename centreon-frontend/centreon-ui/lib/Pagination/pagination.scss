@@ -3,15 +3,30 @@
 .pagination {
   display: inline-block;
   a {
-    color: #242f3a;
-    float: left;
+    color: #232f39;
+    display: inline-block;
+    vertical-align: middle;
     padding: 8px 15px;
     text-decoration: none;
     font-family: $primary-font-light;
     font-size: 12px;
     &.active, &:hover {
       color: #17387b;
-      font-family: $primary-font-bold;
+      font-family: $primary-font-medium;
+    }
+    &:first-child {
+      & + .icon-action {
+        transform: rotate(180deg);
+      }
+    }
+  }
+  .icon-action {
+    display: inline-block;
+    vertical-align: middle;
+    cursor: pointer;
+    font-size: 20px;
+    &:after {
+      color: #232f39;
     }
   }
 }

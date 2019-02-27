@@ -1,9 +1,11 @@
 import React, { Component } from "react";
+import "./loader-content.scss";
+import "loaders.css/loaders.min.css";
 
 class Loader extends Component {
   render() {
     return (
-      <div className="loader">
+      <div className="loader content">
         <div className="loader-inner ball-grid-pulse">
           <div />
           <div />
