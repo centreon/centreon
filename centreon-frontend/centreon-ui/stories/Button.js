@@ -209,21 +209,21 @@ storiesOf("Button", module).add("Button - action with title", () => (
       }}
     />
     <ButtonAction
-      iconColor="green"
-      buttonActionType="check custom"
-      buttonIconType="check"
-      title="failed"
-      onClick={() => {
-        alert("Check button clicked");
-      }}
-    />
-    <ButtonAction
       iconColor="red"
       buttonActionType="warning custom"
       buttonIconType="warning"
-      title="finished"
+      title="failed"
       onClick={() => {
         alert("Warning button clicked");
+      }}
+    />
+    <ButtonAction
+      iconColor="green"
+      buttonActionType="check custom"
+      buttonIconType="check"
+      title="finished"
+      onClick={() => {
+        alert("Check button clicked");
       }}
     />
   </React.Fragment>
