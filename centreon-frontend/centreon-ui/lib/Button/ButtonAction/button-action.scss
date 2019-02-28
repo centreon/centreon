@@ -21,44 +21,6 @@
         }
       }
     }
-    &-title {
-      font-size: 10px;
-      color: #cdcdcd;
-      font-family: $primary-font-light;
-      position: absolute;
-      padding-left: 38px;
-      line-height: 32px;
-      left: 0;
-    }
-    &.custom {
-      display: inline-block;
-      margin-right: 48px;
-      .icon-action {
-        @include centerAbsolute();
-      }
-    }
-    &-clock {
-      .icon-action {
-        &:before {
-          content: '';
-          position: absolute;
-          width: 7px;
-          height: 7px;
-          border-radius: 50%;
-          background-color: #88bd23;
-          bottom: 5px;
-          left: 6px;
-        }
-      }
-      &.custom {
-        .icon-action {
-          &:before {
-            bottom: 3px;
-            left: 3px;
-          }
-        }
-      }
-    }
   }
   .content-icon {
     display: inline-block;

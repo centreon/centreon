@@ -157,6 +157,15 @@ Object.defineProperty(exports, "IconInfo", {
   }
 });
 
+var _IconLegend = require("./Icon/IconLegend");
+
+Object.defineProperty(exports, "IconLegend", {
+  enumerable: true,
+  get: function get() {
+    return _interopRequireDefault(_IconLegend).default;
+  }
+});
+
 var _IconNumber = require("./Icon/IconNumber");
 
 Object.defineProperty(exports, "IconNumber", {
@@ -190,6 +199,15 @@ Object.defineProperty(exports, "InfoTooltip", {
   enumerable: true,
   get: function get() {
     return _interopRequireDefault(_InfoTooltip).default;
+  }
+});
+
+var _InfoLoading = require("./Info/InfoLoading");
+
+Object.defineProperty(exports, "InfoLoading", {
+  enumerable: true,
+  get: function get() {
+    return _interopRequireDefault(_InfoLoading).default;
   }
 });
 

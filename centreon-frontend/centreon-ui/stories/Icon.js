@@ -8,7 +8,8 @@ import {
   IconHeader,
   IconNumber,
   IconRound,
-  IconToggleSubmenu
+  IconToggleSubmenu,
+  IconLegend
 } from "../src";
 
 storiesOf("Icon", module).add(
@@ -184,3 +185,62 @@ storiesOf("Icon", module).add(
   },
   { notes: "A very simple component" }
 );
+
+storiesOf("Icon", module).add(
+  "Icon - legend",
+  () => {
+    return (
+      <React.Fragment>
+        <IconLegend
+          iconColor="gray"
+          buttonActionType="clock"
+          buttonIconType="clock"
+        />
+        <IconLegend
+          iconColor="red"
+          buttonActionType="warning mr-2"
+          buttonIconType="warning"
+        />
+        <IconLegend
+          iconColor="green"
+          buttonActionType="check"
+          buttonIconType="check"
+        />
+      </React.Fragment>
+    );
+  },
+  { notes: "A very simple component" }
+);
+
+storiesOf("Icon", module).add(
+  "Icon - legend with title",
+  () => {
+    return (
+      <React.Fragment>
+        <IconLegend
+          iconColor="gray"
+          buttonActionType="clock"
+          buttonIconType="clock"
+          title="runing"
+          legendType="title"
+        />
+        <IconLegend
+          iconColor="red"
+          buttonActionType="warning"
+          buttonIconType="warning"
+          title="failed"
+          legendType="title"
+        />
+        <IconLegend
+          iconColor="green"
+          buttonActionType="check"
+          buttonIconType="check"
+          title="finished"
+          legendType="title"
+        />
+      </React.Fragment>
+    );
+  },
+  { notes: "A very simple component" }
+);
+
