@@ -9,11 +9,13 @@
     &.ok {
       .message-status-info {
         color: #88bd23;
+        font-family: $primary-font-bold;
       }
     }
     &.failed {
       .message-status-info {
         color: $content-red-color;
+        font-family: $primary-font-bold;
       }
     }
     &-info {
