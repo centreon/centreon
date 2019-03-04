@@ -214,6 +214,19 @@ class EasyvistaProvider extends AbstractProvider {
      * @return void
      */
     protected function _getConfigContainer2Extra() {
+        $tpl = $this->initSmartyTemplate('providers/Easyvista/templates');
+        
+        $tpl->assign("centreon_open_tickets_path", $this->_centreon_open_tickets_path);
+        $tpl->assign("img_brick", "./modules/centreon-open-tickets/images/brick.png");
+        $tpl->assign("header", array("easyvista" => _("Easyvista")));
+        
+        $updatefields_html = '<input size="50" name="ez_updatefields" type="text" value="' . $this->_getFormValue('ez_updatefields') . '" />';
+        $array_form = array(
+            'ez_updatefields' => array('label' => _("Update fields"), 'html' => $updatefields_html),
+        );
+        
+        $tpl->assign('form', $array_form);
+        $this->_config['container2_html'] .= $tpl->fetch('conf_container2extra.ihtml');
     }
     
     protected function saveConfigExtra() {
@@ -224,6 +237,7 @@ class EasyvistaProvider extends AbstractProvider {
         $this->_save_config['simple']['https'] = (isset($this->_submitted_config['https']) && $this->_submitted_config['https'] == 'yes') ? 
             $this->_submitted_config['https'] : '';
         $this->_save_config['simple']['timeout'] = $this->_submitted_config['timeout'];
+        $this->_save_config['simple']['ez_updatefields'] = $this->_submitted_config['ez_updatefields'];
         
         $this->_save_config['clones']['mappingTicket'] = $this->_getCloneSubmitted('mappingTicket', array('Arg', 'Value'));
     }
@@ -270,6 +284,12 @@ class EasyvistaProvider extends AbstractProvider {
         }
         $this->attachFiles($ticket_arguments);
         
+        if (isset($this->rule_data['ez_updatefields']) && $this->rule_data['ez_updatefields'] != '') {
+            $tpl->assign('string', $this->rule_data['ez_updatefields']);
+            $this->rule_data['ez_updatefields'] = $tpl->fetch('eval.ihtml');
+            $this->updateTicket($ticket_arguments);
+        }
+        
         $this->saveHistory($db_storage, $result, array('contact' => $contact, 'host_problems' => $host_problems, 'service_problems' => $service_problems, 
             'ticket_value' => $this->_ticket_number, 'subject' => $ticket_arguments['CatalogGUID'], 
             'data_type' => self::DATA_TYPE_JSON, 'data' => json_encode(array('arguments' => $ticket_arguments))));
@@ -286,6 +306,28 @@ class EasyvistaProvider extends AbstractProvider {
         $this->ws_error = $error;
     }
     
+    protected function updateTicket($ticket_arguments) {
+        $data = '<?xml version="1.0"?>
+<soap:Envelope
+  soap:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"
+  xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+<soap:Body>
+<tns:EZV_UpdateRequest xmlns:tns="https://na1.easyvista.com/WebService">
+    <tns:Account><![CDATA[' . $ticket_arguments[$this->_internal_arg_name[self::ARG_ACCOUNT]['formid']] . ']]></tns:Account>
+    <tns:Login><![CDATA[' . $this->rule_data['username'] . ']]></tns:Login>
+    <tns:Password><![CDATA[' . $this->rule_data['password'] . ']]></tns:Password>
+    <tns:RFC_Number><![CDATA[' . $this->_ticket_number . ']]></tns:RFC_Number>
+    <tns:fields_to_update><![CDATA[' . $this->rule_data['ez_updatefields'] . ']]></tns:fields_to_update>
+    <tns:Request_id />
+    <tns:External_reference />
+</tns:EZV_UpdateRequest>
+</soap:Body>
+</soap:Envelope>
+';
+                
+        $this->callSOAP($data, 'tns:EZV_UpdateRequest');
+    }
+
     protected function attachFiles($ticket_arguments) {
         $attach_files = $this->getUploadFiles();
         foreach ($attach_files as $file) {

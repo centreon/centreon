@@ -559,7 +559,6 @@ Output: {$service.output|substr:0:1024}
      * @return void
      */
     protected function _getConfigContainer2Main() {
-        global $register_providers;
         $tpl = $this->initSmartyTemplate();
 
         $tpl->assign("centreon_open_tickets_path", $this->_centreon_open_tickets_path);

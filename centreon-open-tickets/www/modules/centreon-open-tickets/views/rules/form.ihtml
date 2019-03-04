@@ -45,6 +45,13 @@
 	</table>
 </div>
 <div id="tab2" class="tab">
+    <table class="formTable table">
+        <tr id="OTFindcontainer2" class="ListHeader">
+            <td class="FormHeader" colspan="2">
+                <h3>|{$header.title}</h3>
+            </td>
+        </tr>
+    </table>
 </div>
 
 <div id="validForm">
@@ -65,7 +72,8 @@ var $callback_OTLoadForm = function(res) {
         jQuery("#rule_error").html(data_ret['msg']);
     } else {
         jQuery("#OTFindcontainer1").after(data_ret['result']['container1_html']);
-        jQuery("#tab2").html(data_ret['result']['container2_html']);
+        console.log(data_ret['result']['container2_html']);
+        jQuery("#OTFindcontainer2").after(data_ret['result']['container2_html']);
         
         // Load macros if there are some
         if (data_ret['result']['clones'] !== undefined) {
@@ -93,7 +101,7 @@ function OTLoadForm() {
     jQuery("#rule_error").html('');
     
     jQuery("#OTFindcontainer1").nextAll().empty();
-    jQuery("#tab2").empty();
+    jQuery("#OTFindcontainer2").nextAll().empty();
     delete_sheepit();
     if (jQuery("#provider_id").val() === undefined || jQuery("#provider_id").val().length == 0) {    
         return ;
