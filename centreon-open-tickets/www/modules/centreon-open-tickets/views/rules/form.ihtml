@@ -72,7 +72,6 @@ var $callback_OTLoadForm = function(res) {
         jQuery("#rule_error").html(data_ret['msg']);
     } else {
         jQuery("#OTFindcontainer1").after(data_ret['result']['container1_html']);
-        console.log(data_ret['result']['container2_html']);
         jQuery("#OTFindcontainer2").after(data_ret['result']['container2_html']);
         
         // Load macros if there are some
