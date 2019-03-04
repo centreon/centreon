@@ -169,7 +169,7 @@ $query = "SELECT SQL_CALC_FOUND_ROWS h.host_id,
 $query .= " FROM hosts h ";
 $query .= " LEFT JOIN customvariables cv5 ON (h.host_id = cv5.host_id AND cv5.service_id IS NULL AND cv5.name = '" .
     $macro_tickets['ticket_id'] . "') ";
-$query .= " LEFT JOIN mod_open_tickets mop1 ON (cv5.value = mop1.ticket_value AND mop1.timestamp > h.last_time_up) ";
+$query .= " LEFT JOIN mod_open_tickets mop1 ON (cv5.value = mop1.ticket_value AND (mop1.timestamp > h.last_time_up OR h.last_time_up is NULL)) ";
 $query .= " LEFT JOIN mod_open_tickets_data mopd1 ON (mop1.ticket_id = mopd1.ticket_id) ";
 $query .= ", services s ";
 $query .= " LEFT JOIN customvariables cv ON (s.service_id = cv.service_id AND s.host_id = cv.host_id " .
@@ -178,7 +178,7 @@ $query .= " LEFT JOIN customvariables cv2 ON (s.service_id = cv2.service_id AND 
     "AND cv2.name = 'CRITICALITY_ID') ";
 $query .= " LEFT JOIN customvariables cv3 ON (s.service_id = cv3.service_id AND s.host_id = cv3.host_id " .
     "AND cv3.name = '" . $macro_tickets['ticket_id'] . "') ";
-$query .= " LEFT JOIN mod_open_tickets mop2 ON (cv3.value = mop2.ticket_value AND mop2.timestamp > s.last_time_ok) ";
+$query .= " LEFT JOIN mod_open_tickets mop2 ON (cv3.value = mop2.ticket_value AND (mop2.timestamp > s.last_time_ok OR s.last_time_ok IS NULL)) ";
 $query .= " LEFT JOIN mod_open_tickets_data mopd2 ON (mop2.ticket_id = mopd2.ticket_id) ";
 
 if (!$centreon->user->admin) {
