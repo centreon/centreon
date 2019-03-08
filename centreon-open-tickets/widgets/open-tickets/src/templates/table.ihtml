@@ -24,10 +24,10 @@
             {else}
                 {assign var='classStyle' value='list_two'}
             {/if}
-            {if $elem.s_acknowledged}
-                {assign var='classStyle' value='line_ack'}
-            {elseif $elem.s_scheduled_downtime_depth}
+            {if $elem.s_scheduled_downtime_depth}
                 {assign var='classStyle' value='line_downtime'}
+            {elseif $elem.s_acknowledged}
+                {assign var='classStyle' value='line_ack'}
             {/if}
             <tr class ='{$classStyle}'>
                 <td class='ListColLeft'><input class='selection' id='selection_{$elem.host_id};{$elem.service_id}' type='checkbox'/></td>
