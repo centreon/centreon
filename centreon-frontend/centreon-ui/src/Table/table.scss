@@ -1,0 +1,41 @@
+@import '../global-sass-files/variables';
+// Table
+.table {
+  width: 100%;
+  max-width: 100%;
+  margin-bottom: 1rem;
+  background-color: transparent;
+  border-collapse: collapse;
+  td, th {
+    padding: .75rem;
+    vertical-align: top;
+    font-size: 13px;
+    font-family: $primary-font-regular;
+  }
+  thead {
+    background-color: $darkblue-centreon-darken;
+    th {
+      vertical-align: middle;
+      padding: .45rem;
+      color: $white-color;
+      text-transform: uppercase;
+    }
+  }
+  tbody {
+    tr {
+      &:nth-of-type(even) {
+        background-color: #f5f8fd;
+      }
+    }
+    td {
+      text-align: center;
+      position: relative;
+    }
+  }
+  .icon-action {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
+}

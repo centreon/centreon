@@ -1,6 +1,6 @@
 import React from "react";
 import { storiesOf } from "@storybook/react";
-import { Button, ButtonAction } from "../src";
+import { Button, ButtonAction, ButtonActionInput } from "../src";
 
 storiesOf("Button", module).add(
   "Button - regular",
@@ -104,6 +104,21 @@ storiesOf("Button", module).add("Button - bordered", () => (
   </React.Fragment>
 ));
 
+storiesOf("Button", module).add("Button - validate", () => (
+  <React.Fragment>
+    <Button
+      label="Button Validate"
+      buttonType="validate"
+      color="blue normal mr-2"
+    />
+    <Button
+      label="Button Validate"
+      buttonType="validate"
+      color="red normal"
+    />
+  </React.Fragment>
+));
+
 storiesOf("Button", module).add("Button - with icon", () => (
   <React.Fragment>
     <Button
@@ -130,12 +145,23 @@ storiesOf("Button", module).add("Button - with icon", () => (
 ));
 
 storiesOf("Button", module).add("Button - action", () => (
-  <ButtonAction
-    iconColor="gray"
+  <React.Fragment>
+    <ButtonAction
+      iconColor="gray"
+      buttonActionType="delete"
+      buttonIconType="delete"
+      onClick={() => {
+        alert("Trash button clicked");
+      }}
+    />
+  </React.Fragment>
+));
+
+storiesOf("Button", module).add("Button - action input", () => (
+  <ButtonActionInput
+    buttonColor="green"
+    iconColor="white"
     buttonActionType="delete"
-    buttonIconType="delete"
-    onClick={() => {
-      alert("Trash button clicked");
-    }}
+    buttonIconType="arrow-right"
   />
 ));

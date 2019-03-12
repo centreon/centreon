@@ -1,6 +1,6 @@
 import React from "react";
 import { storiesOf } from "@storybook/react";
-import { InputField } from "../src";
+import { InputField, InputFieldSwitcher } from "../src";
 
 storiesOf("Input Field", module).add(
   

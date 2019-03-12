@@ -1,0 +1,76 @@
+@import '../../global-sass-files/variables';
+// Table counter
+.table {
+  &-counter {
+    display: inline-block;
+    background-color: $white-color;
+    text-align-last: left;
+    position: relative;
+    > .table-counter-number {
+      background-color: #17377b;
+      position: relative;
+      width: 40px;
+      padding: 5px;
+      box-sizing: border-box;
+      display: block;
+      .icon-action {
+        position: absolute;
+        transform: rotate(90deg);
+        right: 0;
+        top: 1px;
+        cursor: pointer;
+        &:after {
+          font-size: 20px;
+          color: $white-color;
+        }
+      }
+    }
+    &-number {
+      color: $white-color;
+      font-family: $primary-font-regular;
+      font-size: 11px;
+      position: relative;
+    }
+    &.active {
+      > span {
+        background-color: transparent;
+        border: 1px solid #d2d2d2;
+        border-bottom: none;
+        color: #242f3a;
+      }
+      .table-counter-number {
+        color: #242f3a;
+      }
+      .table-counter-dropdown {
+        display: block;
+      }
+      .icon-action {
+        transform: rotate(270deg);
+        right: 3px;
+        &:after {
+          color: #d2d2d2;
+        }
+      }
+    }
+    &-dropdown {
+      display: none;
+      position: absolute;
+      top: 100%;
+      width: 100%;
+      box-sizing: border-box;
+      border: 1px solid #d2d2d2;
+      border-top: none;
+      background-color: $white-color;
+      z-index: 10;
+      .table-counter-number {
+        display: block;
+        padding: 5px;
+        cursor: pointer;
+        &:hover, &.active {
+          background-color: #20357e;
+          color: $white-color;
+        }
+      }
+    }
+  }
+}

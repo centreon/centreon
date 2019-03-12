@@ -19,6 +19,10 @@
     border-radius: 3px;
     padding: 6px;
   }
+  &.normal {
+    border-radius: 0;
+    padding: 5px 25px;
+  }
   &.small {
 
   }
@@ -98,5 +102,29 @@
     transform: translateY(-50%);
     position: absolute;
     right: 5px;
+    &.icon-left {
+      right: auto;
+      left: 5px;
+    }
+  }
+  &-validate {
+    &-blue {
+      background-color: #009fdf;
+    }
+    &-red {
+      background-color: $content-red-color;
+    }
+  }
+  .icon-action-clock {
+    &:before {
+      content: '';
+      position: absolute;
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background-color: #88bd23;
+      bottom: 2px;
+      left: 4px;
+    }
   }
 }

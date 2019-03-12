@@ -4,9 +4,24 @@ module.exports = {
   module: {
     rules: [
       {
+        test: /\.css$/,
+        include: path.resolve(__dirname, ".."),
+        use: [
+          {
+            loader: 'style-loader',
+          },
+          {
+            loader: 'css-loader',
+            options: {
+              sourceMap: true,
+            },
+          },
+        ],
+      },
+      {
         test: /\.scss$/,
         loaders: ["style-loader", "css-loader", "sass-loader"],
-        include: path.resolve(__dirname, "../")
+        include: path.resolve(__dirname, "..")
       },
       {
         test: /\.(woff|woff2|eot|ttf|otf)$/,

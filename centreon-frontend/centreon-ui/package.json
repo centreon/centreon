@@ -35,6 +35,7 @@
     "cli-color": "^1.4.0",
     "commander": "^2.19.0",
     "fs-extra": "^7.0.1",
+    "loaders.css": "^0.1.2",
     "lodash": "^4.17.10",
     "react-files": "^2.4.8",
     "react-portal": "^4.1.5",
@@ -44,11 +45,6 @@
     "@storybook/addon-actions": "^4.0.9",
     "@storybook/addon-notes": "^4.0.8",
     "@storybook/react": "^4.0.9",
-    "html-webpack-plugin": "^3.2.0",
-    "node-sass": "^4.10.0",
-    "sass-loader": "^7.1.0",
-    "webpack": "^4.12.0",
-    "webpack-cli": "^3.0.8",
     "@svgr/cli": "^2.1.0",
     "babel-cli": "^6.26.0",
     "babel-core": "^6.26.3",
@@ -68,9 +64,14 @@
     "docz": "^0.5.2",
     "docz-core": "^0.5.2",
     "docz-plugin-babel6": "latest",
+    "html-webpack-plugin": "^3.2.0",
+    "node-sass": "^4.10.0",
     "prop-types": "^15.6.2",
     "react": "^16.4.2",
     "react-dom": "^16.4.2",
-    "uikit": "^3.0.0-rc.11"
+    "sass-loader": "^7.1.0",
+    "uikit": "^3.0.0-rc.11",
+    "webpack": "^4.12.0",
+    "webpack-cli": "^3.0.8"
   }
 }

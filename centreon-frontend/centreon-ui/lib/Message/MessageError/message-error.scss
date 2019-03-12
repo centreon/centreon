@@ -1,0 +1,13 @@
+@import '../../global-sass-files/variables';
+
+.message-error {
+  font-family: $primary-font-regular;
+  display: block;
+  font-size: 12px;
+  line-height: 15px;
+  padding: 20px;
+  &.red {
+    color: $white-color;
+    background-color: $content-red-color;
+  }
+}

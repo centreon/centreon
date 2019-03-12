@@ -59,5 +59,89 @@
         color: $white-color;
       }
     }
+    &-clock {
+      &:after {
+        content: "\e914";
+        color: #dcdcdc;
+      }
+      &.white {
+        &:after {
+          color: $white-color;
+        }
+      }
+      &.gray {
+        &:after {
+          color: #cdcdcd;
+        }
+      }
+      &.orange {
+        &:after {
+          color: $content-orange-color;
+        }
+      }
+    }
+    &-check {
+      &:after {
+        content: "\e913";
+        color: #dcdcdc;
+      }
+      &.white {
+        &:after {
+          color: $white-color;
+        }
+      }
+      &.gray {
+        &:after {
+          color: #cdcdcd;
+        }
+      }
+      &.green {
+        &:after {
+          color: $green-centreon-primary;
+        }
+      }
+    }
+    &-warning {
+      &:after {
+        content: "\e920";
+        color: #dcdcdc;
+      }
+      &.white {
+        &:after {
+          color: $white-color;
+        }
+      }
+      &.gray {
+        &:after {
+          color: #cdcdcd;
+        }
+      }
+      &.red {
+        &:after {
+          color: $content-red-color;
+        }
+      }
+    }
+    &-arrow-right {
+      &:after {
+        content: "\e923";
+        color: #dcdcdc;
+      }
+      &.white {
+        &:after {
+          color: $white-color;
+        }
+      }
+      &.gray {
+        &:after {
+          color: #cdcdcd;
+        }
+      }
+      &.red {
+        &:after {
+          color: $content-red-color;
+        }
+      }
+    }
   }
 }

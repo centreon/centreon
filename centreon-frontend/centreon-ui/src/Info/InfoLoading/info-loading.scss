@@ -1,0 +1,86 @@
+@import '../../global-sass-files/variables';
+@import '../../global-sass-files/mixins';
+
+// Info Loading
+.info {
+  &-loading {
+    position: relative;
+    display: inline-block;
+    font-size: 12px;
+    line-height: 17px;
+    color: $white-color;
+    text-align: center;
+    font-family: $primary-font-regular;
+    padding: 6px 35px;
+    padding-right: 20px;
+    &.linear {
+      @include border-radius(15px);
+    }
+    &-bordered {
+      background-color: transparent;
+      padding: 7px 28px;
+      @media (max-width: 576px) {
+        padding: 6px 22px;
+      }
+      &-black {
+        color: #373737;
+        border: 1px solid #3e3e3e;
+        background-color: transparent;
+      }
+      &-orange {
+        color: $content-orange-color;
+        border: 1px solid $content-orange-color;
+        background-color: transparent;
+      }
+      &-green {
+        color: $content-green-color;
+        border: 1px solid $content-green-color;
+        background-color: transparent;
+
+        &:hover {
+          color: $white-color;
+          background-color: #88b917;
+        }
+      }
+      &-blue {
+        color: $content-blue-color;
+        border: 1px solid $content-blue-color;
+        color: $content-blue-color;
+        background-color: transparent;
+      }
+      &-red {
+        color: $content-red-color;
+        border: 1px solid $content-red-color;
+        background-color: transparent;
+      }
+      &-gray {
+        color: $content-gray-color;
+        border: 1px solid $content-gray-color;
+        background-color: transparent;
+      }
+      &-white {
+        border: 1px solid $white-color;
+        background-color: transparent;
+      }
+    }
+    .icon-action {
+      top: 50%;
+      transform: translateY(-50%);
+      position: absolute;
+      left: 2px;
+      font-size: 30px;
+      &-clock {
+        &:before {
+          content: '';
+          position: absolute;
+          width: 7px;
+          height: 7px;
+          border-radius: 50%;
+          background-color: #88bd23;
+          bottom: 5px;
+          left: 4px;
+        }
+      }
+    }
+  }
+}

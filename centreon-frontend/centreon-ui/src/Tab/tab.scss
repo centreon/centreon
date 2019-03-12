@@ -1,0 +1,38 @@
+ @import '../global-sass-files/variables';
+
+// /* Style the tab */
+.tab {
+  .tab-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    background-color: $lime-centreon-primary;
+    display: flex;
+    &-item {
+      font-size: 14px;
+      font-family: $primary-font-light;
+      background-color: inherit;
+      display: inline-block;
+      border: none;
+      outline: none;
+      cursor: pointer;
+      padding: 14px 20px;
+      text-align: center;
+      transition: 0.3s;
+      border-bottom: 4px solid transparent;
+      box-sizing: border-box;
+      color: $white-color;
+      text-transform: uppercase;
+      width: 20%;
+    }
+    &-active {
+      border-bottom: 4px solid $green-centreon-darken;
+      font-family: $primary-font-bold;
+    }
+  }
+  &-content {
+    padding: 20px;
+    font-size: 12px;
+    font-family: $primary-font-light;
+  }
+}

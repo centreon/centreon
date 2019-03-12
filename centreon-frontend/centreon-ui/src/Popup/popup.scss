@@ -1,5 +1,4 @@
 @import '../global-sass-files/variables';
-@import '../global-sass-files/fonts';
 @import '../global-sass-files/mixins';
 @import '../global-sass-files/helpers';
 @import '../global-sass-files/grid';
@@ -34,6 +33,31 @@
     .popup-body {
       padding: 5px 25px;
     }
+    &.scroll {
+      .popup-body {
+        max-height: 350px;
+        overflow-y: auto;
+        &::-webkit-scrollbar {
+          width: 5px;
+        }
+        &::-webkit-scrollbar-thumb {
+          border-radius: 5px;
+          background: #949494;
+        }
+        &::-webkit-scrollbar-track {
+          border-radius: 5px;
+          background: #d1d1d1;
+        }
+        &::-webkit-scrollbar-thumb:hover {
+          background: linear-gradient(left, #8391A6, #536175);
+        }
+      }
+      &.host {
+        .popup-body {
+          padding: 50px 25px;
+        }
+      }
+    }
     @media (min-width: 576px) {
       .popup-dialog {
         max-width: 300px;
@@ -64,6 +88,21 @@
         right: -25px;
         background-size: cover;
       }
+    }
+    &.blue {
+      background-color: #009fe0;
+      text-align: center;
+      .popup-header-title {
+        color: $white-color;
+      }
+    }
+    &.red {
+      background-color: #eb1c24;
+    }
+    &-title {
+      font-size: 16px;
+      line-height: 18px;
+      font-family: $primary-font-regular;
     }
   }
   &-content {
@@ -99,5 +138,14 @@
   }
   .container__col-xs-6 {
     margin-bottom: 0;
+  }
+  .message-error {
+    margin: -20px;
+  }
+  .description-text {
+    font-size: 14px;
+    line-height: 16px;
+    font-family: $primary-font-regular;
+    color: #b6b5b5;
   }
 }
