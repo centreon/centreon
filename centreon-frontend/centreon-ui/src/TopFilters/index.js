@@ -1,5 +1,8 @@
 import React, { Component } from "react";
-import * as Centreon from "../index";
+import Wrapper from "../Wrapper";
+import SearchLive from "../Search/SearchLive";
+import Switcher from "../Switcher";
+import Button from "../Button";
 
 class TopFilters extends Component {
   render() {
@@ -7,11 +10,11 @@ class TopFilters extends Component {
 
     return (
       <div className="container container-gray">
-        <Centreon.Wrapper>
+        <Wrapper>
           <div className="container__row">
             {fullText ? (
               <div className="container__col-md-3 container__col-xs-12">
-                <Centreon.SearchLive
+                <SearchLive
                   onChange={onChange}
                   label={fullText.label}
                   value={fullText.value}
@@ -49,7 +52,7 @@ class TopFilters extends Component {
                               i
                             ) =>
                               !button ? (
-                                <Centreon.Switcher
+                                <Switcher
                                   key={`switcher${index}${i}`}
                                   customClass={customClass}
                                   {...(switcherTitle ? { switcherTitle } : {})}
@@ -63,7 +66,7 @@ class TopFilters extends Component {
                                   key={`switcher${index}${i}`}
                                   className="container__col-sm-6 container__col-xs-4 center-vertical mt-1"
                                 >
-                                  <Centreon.Button
+                                  <Button
                                     key={`switcherButton${index}${i}`}
                                     label={label}
                                     buttonType={buttonType}
@@ -80,7 +83,7 @@ class TopFilters extends Component {
               </div>
             </div>
           </div>
-        </Centreon.Wrapper>
+        </Wrapper>
       </div>
     );
   }

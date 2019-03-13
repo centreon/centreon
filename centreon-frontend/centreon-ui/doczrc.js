@@ -1,9 +1,7 @@
-import { babel } from "docz-plugin-babel6";
-
 export default {
   title: "react-uikit",
   indexHtml: "./docs/index.html",
-  plugins: [babel()],
+  plugins: [],
   themeConfig: {
     logo: {
       src: "https://cdn-std.dprcdn.net/files/acc_649651/giLUIa?download",

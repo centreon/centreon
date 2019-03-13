@@ -1,5 +1,14 @@
 import React from "react";
-import * as Centreon from "../index";
+import Wrapper from "../Wrapper";
+import HorizontalLineContent from "../HorizontalLines/HorizontalLineContent";
+import Card from "../Card";
+import CardItem from "../Card/CardItem";
+import IconInfo from "../Icon/IconInfo";
+import Title from "../Title";
+import Subtitle from "../Subtitle";
+import Button from "../Button";
+import IconContent from "../Icon/IconContent";
+import ButtonAction from "../Button/ButtonAction";
 
 class ExtensionsHolder extends React.Component {
   render() {
@@ -17,9 +26,9 @@ class ExtensionsHolder extends React.Component {
       type
     } = this.props;
     return (
-      <Centreon.Wrapper>
-        <Centreon.HorizontalLineContent hrTitle={title} />
-        <Centreon.Card>
+      <Wrapper>
+        <HorizontalLineContent hrTitle={title} />
+        <Card>
           <div className="container__row">
             {entities.map(entity => {
               return (
@@ -27,7 +36,7 @@ class ExtensionsHolder extends React.Component {
                   onClick={onCardClicked.bind(this, entity.id)}
                   className="container__col-md-3 container__col-sm-6 container__col-xs-12"
                 >
-                  <Centreon.CardItem
+                  <CardItem
                     itemBorderColor={
                       entity.version.installed
                         ? !entity.version.outdated
@@ -43,18 +52,18 @@ class ExtensionsHolder extends React.Component {
                       : {})}
                   >
                     {entity.version.installed ? (
-                      <Centreon.IconInfo iconName="state green" />
+                      <IconInfo iconName="state green" />
                     ) : null}
 
                     <div className="custom-title-heading">
-                      <Centreon.Title
+                      <Title
                         titleColor={titleColor}
                         icon={titleIcon}
                         label={entity.description}
                       />
-                      <Centreon.Subtitle label={`by ${entity.label}`} />
+                      <Subtitle label={`by ${entity.label}`} />
                     </div>
-                    <Centreon.Button
+                    <Button
                       onClick={e => {
                         e.preventDefault();
                         e.stopPropagation();
@@ -95,7 +104,7 @@ class ExtensionsHolder extends React.Component {
                       label={`Available ${entity.version.available}`}
                     >
                       {!entity.version.installed ? (
-                        <Centreon.IconContent
+                        <IconContent
                           iconContentColor="white"
                           iconContentType={`${
                             installing[entity.id] ? "update" : "add"
@@ -103,15 +112,15 @@ class ExtensionsHolder extends React.Component {
                           loading={installing[entity.id]}
                         />
                       ) : entity.version.outdated ? (
-                        <Centreon.IconContent
+                        <IconContent
                           iconContentColor="white"
                           iconContentType="update"
                           loading={updating[entity.id]}
                         />
                       ) : null}
-                    </Centreon.Button>
+                    </Button>
                     {entity.version.installed ? (
-                      <Centreon.ButtonAction
+                      <ButtonAction
                         buttonActionType="delete"
                         buttonIconType="delete"
                         iconColor="gray"
@@ -123,13 +132,13 @@ class ExtensionsHolder extends React.Component {
                         }}
                       />
                     ) : null}
-                  </Centreon.CardItem>
+                  </CardItem>
                 </div>
               );
             })}
           </div>
-        </Centreon.Card>
-      </Centreon.Wrapper>
+        </Card>
+      </Wrapper>
     );
   }
 }

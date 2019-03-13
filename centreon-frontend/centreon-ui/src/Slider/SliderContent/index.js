@@ -3,7 +3,6 @@ import ContentSliderItem from "./ContentSliderItem";
 import ContentSliderLeftArrow from "./ContentSliderLeftArrow";
 import ContentSliderRightArrow from "./ContentSliderRightArrow";
 import ContentSliderIndicators from "./ContentSliderIndicators";
-import IconContent from "../../Icon/IconContent";
 import "./content-slider.scss";
 import defaultSliderImage from "./slider-default-image.png";
 

@@ -1,5 +1,14 @@
 import React from "react";
-import * as Centreon from "../index";
+import Popup from "../Popup";
+import Loader from "../Loader";
+import Slider from "../Slider/SliderContent";
+import IconContent from "../Icon/IconContent";
+import Title from "../Title";
+import Subtitle from "../Subtitle";
+import Button from "../Button";
+import HorizontalLine from "../HorizontalLines/HorizontalLineRegular";
+import Description from "../Description";
+import IconClose from "../Icon/IconClose";
 
 class ExtensionDetailPopup extends React.Component {
   render() {
@@ -16,11 +25,11 @@ class ExtensionDetailPopup extends React.Component {
       return null;
     }
     return (
-      <Centreon.Popup popupType="big">
-        {loading ? <Centreon.Loader fullContent={true} /> : null}
-        <Centreon.Slider images={modalDetails.images || []}>
+      <Popup popupType="big">
+        {loading ? <Loader fullContent={true} /> : null}
+        <Slider images={modalDetails.images || []}>
           {modalDetails.version.installed && modalDetails.version.outdated ? (
-            <Centreon.IconContent
+            <IconContent
               iconContentType="update"
               iconContentColor="orange white"
               onClick={() => {
@@ -29,7 +38,7 @@ class ExtensionDetailPopup extends React.Component {
             />
           ) : null}
           {modalDetails.version.installed ? (
-            <Centreon.IconContent
+            <IconContent
               iconContentType="delete"
               iconContentColor="red white"
               onClick={() => {
@@ -37,7 +46,7 @@ class ExtensionDetailPopup extends React.Component {
               }}
             />
           ) : (
-            <Centreon.IconContent
+            <IconContent
               iconContentType="add"
               iconContentColor="green white"
               onClick={() => {
@@ -45,11 +54,11 @@ class ExtensionDetailPopup extends React.Component {
               }}
             />
           )}
-        </Centreon.Slider>
+        </Slider>
         <div class="popup-header">
-          <Centreon.Title label={modalDetails.title} />
-          <Centreon.Subtitle label={modalDetails.label} />
-          <Centreon.Button
+          <Title label={modalDetails.title} />
+          <Subtitle label={modalDetails.label} />
+          <Button
             onClick={() => {
               onVersionClicked(modalDetails.id);
             }}
@@ -57,32 +66,32 @@ class ExtensionDetailPopup extends React.Component {
             buttonType="regular"
             color="blue"
           />
-          <Centreon.Button
+          <Button
             label={modalDetails.stability}
             buttonType="bordered"
             color="gray"
             style={{ margin: "15px" }}
           />
-          <Centreon.Button
+          <Button
             label={modalDetails.license}
             buttonType="bordered"
             color="orange"
           />
         </div>
-        <Centreon.HorizontalLine />
+        <HorizontalLine />
         <div class="popup-body">
-          <Centreon.Description
+          <Description
             date={`Last update ${modalDetails.last_update}`}
           />
-          <Centreon.Description title="Description:" />
-          <Centreon.Description text={modalDetails.description} />
+          <Description title="Description:" />
+          <Description text={modalDetails.description} />
         </div>
-        <Centreon.HorizontalLine />
+        <HorizontalLine />
         <div className="popup-footer">
-          <Centreon.Description note={modalDetails.release_note} />
+          <Description note={modalDetails.release_note} />
         </div>
-        <Centreon.IconClose iconType="big" onClick={onCloseClicked} />
-      </Centreon.Popup>
+        <IconClose iconType="big" onClick={onCloseClicked} />
+      </Popup>
     );
   }
 }

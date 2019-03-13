@@ -2,7 +2,6 @@
 
 .submenu {
   &-header {
-    
   }
   &-top, &-bottom {
     display: flex;
@@ -24,21 +23,19 @@
     list-style: none;
     padding: 0;
     margin: 0;
-  }
-  &-item {
-    &:not(:first-of-type) {
-      .submenu-item-title {
-        padding-left: 20px;
-      }
-    }
-    &-link {
+    a {
       display: block;
       padding: 10px;
       font-family: $primary-font-light;
       color: $white-color;
       font-size: .8rem;
-      padding-left: 15px;
+      text-decoration: none;
+      &:not(:first-of-type) .submenu-item-title {
+        padding-left: 15px;
+      }
     }
+  }
+  &-item {
     &-count {
       float: right;
     }
@@ -87,6 +84,9 @@
   }
   &-active {
     background-color: #000915;
+    .icons-toggle-arrow {
+      transform: rotateZ(180deg);
+    }
     .submenu-toggle {
       display: block;
     }

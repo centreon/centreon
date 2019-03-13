@@ -1,20 +1,24 @@
 import React from "react";
-import * as Centreon from "../index";
+import Popup from "../Popup";
+import Title from "../Title";
+import MessageInfo from "../Message/MessageInfo";
+import Button from "../Button";
+import IconClose from "../Icon/IconClose";
 
 class ExtensionDeletePopup extends React.Component {
   render() {
     const { deletingEntity, onConfirm, onCancel } = this.props;
 
     return (
-      <Centreon.Popup popupType="small">
+      <Popup popupType="small">
         <div class="popup-header">
-          <Centreon.Title
+          <Title
             label={deletingEntity.description}
             icon={deletingEntity.type === "module" ? "object" : "puzzle"}
           />
         </div>
         <div class="popup-body">
-          <Centreon.MessageInfo
+          <MessageInfo
             messageInfo="red"
             text="Do you want to delete this extension. This, action will remove all associated data."
           />
@@ -22,7 +26,7 @@ class ExtensionDeletePopup extends React.Component {
         <div className="popup-footer">
           <div class="container__row">
             <div class="container__col-xs-6">
-              <Centreon.Button
+              <Button
                 label="Delete"
                 buttonType="regular"
                 color="red"
@@ -35,7 +39,7 @@ class ExtensionDeletePopup extends React.Component {
               />
             </div>
             <div class="container__col-xs-6 text-right">
-              <Centreon.Button
+              <Button
                 label="Cancel"
                 buttonType="regular"
                 color="gray"
@@ -48,7 +52,7 @@ class ExtensionDeletePopup extends React.Component {
             </div>
           </div>
         </div>
-        <Centreon.IconClose
+        <IconClose
           iconType="middle"
           onClick={e => {
             e.preventDefault();
@@ -56,7 +60,7 @@ class ExtensionDeletePopup extends React.Component {
             onCancel();
           }}
         />
-      </Centreon.Popup>
+      </Popup>
     );
   }
 }
