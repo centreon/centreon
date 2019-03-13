@@ -400,6 +400,7 @@ Output: {$service.output|substr:0:1024}
             $value = $this->default_data[$uniq_id];
         }
 
+        $value = htmlentities($value, ENT_QUOTES);
         return $value;
     }
 
