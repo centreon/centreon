@@ -27,5 +27,5 @@ $upgrade_conf['centreon-open-tickets']["is_removeable"] = "1";
 $upgrade_conf['centreon-open-tickets']["author"] = "Centreon";
 $upgrade_conf['centreon-open-tickets']["infos"] = "Open Tickets Module";
 $upgrade_conf['centreon-open-tickets']["lang_files"] = "0";
-$upgrade_conf['centreon-open-tickets']["sql_files"] = "0";
+$upgrade_conf['centreon-open-tickets']["sql_files"] = "1";
 $upgrade_conf['centreon-open-tickets']["php_files"] = "0";

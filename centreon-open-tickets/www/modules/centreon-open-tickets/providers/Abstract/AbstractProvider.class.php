@@ -197,17 +197,6 @@ abstract class AbstractProvider {
         return $value;
     }
 
-    protected function change_html_tags($output, $change=1) {
-        if ($change == 1) {
-            $output = str_replace('<', '&lt;', $output);
-            $output = str_replace('>', '&gt;', $output);
-        } else {
-            $output = str_replace('&lt;', '<', $output);
-            $output = str_replace('&gt;', '>', $output);
-        }
-        return $output;
-    }
-
     protected function _setDefaultValueMain($body_html = 0) {
         $this->default_data['macro_ticket_id'] = 'TICKET_ID';
         $this->default_data['ack'] = 'yes';
@@ -241,8 +230,8 @@ abstract class AbstractProvider {
 {/if}
 </table>
 ';
-        $this->default_data['format_popup'] = $this->change_html_tags($this->default_data['format_popup']);
-        $this->default_data['message_confirm'] = $this->change_html_tags($this->default_data['message_confirm']);
+        $this->default_data['format_popup'] = $this->default_data['format_popup'];
+        $this->default_data['message_confirm'] = $this->default_data['message_confirm'];
 
         if ($body_html == 1) {
             $default_body = '
@@ -655,8 +644,8 @@ Output: {$service.output|substr:0:1024}
         $this->_save_config['simple']['error_close_centreon'] = (isset($this->_submitted_config['error_close_centreon']) && $this->_submitted_config['error_close_centreon'] == 'yes') ?
             $this->_submitted_config['error_close_centreon'] : '';
         $this->_save_config['simple']['url'] = $this->_submitted_config['url'];
-        $this->_save_config['simple']['format_popup'] = $this->change_html_tags($this->_submitted_config['format_popup']);
-        $this->_save_config['simple']['message_confirm'] = $this->change_html_tags($this->_submitted_config['message_confirm']);
+        $this->_save_config['simple']['format_popup'] = $this->_submitted_config['format_popup'];
+        $this->_save_config['simple']['message_confirm'] = $this->_submitted_config['message_confirm'];
 
         $this->_save_config['clones']['groupList'] = $this->_getCloneSubmitted('groupList', array('Id', 'Label', 'Type', 'Filter', 'Mandatory'));
         $this->_save_config['clones']['customList'] = $this->_getCloneSubmitted('customList', array('Id', 'Value', 'Default'));
@@ -847,7 +836,7 @@ Output: {$service.output|substr:0:1024}
         $tpl = $this->initSmartyTemplate();
 
         $this->assignFormatPopupTemplate($tpl, $args);
-        $tpl->assign('string', $this->change_html_tags($this->rule_data['format_popup'], 0));
+        $tpl->assign('string', $this->rule_data['format_popup']);
         $result['format_popup'] = $tpl->fetch('eval.ihtml');
         $result['attach_files_enable'] = isset($this->rule_data['attach_files']) ? $this->rule_data['attach_files'] : 0;
         return $result;
@@ -985,7 +974,7 @@ Output: {$service.output|substr:0:1024}
             $tpl->assign($label, $value);
         }
 
-        $tpl->assign('string', $this->change_html_tags($this->rule_data['message_confirm'], 0));
+        $tpl->assign('string', $this->rule_data['message_confirm']);
         return $tpl->fetch('eval.ihtml');
     }
 

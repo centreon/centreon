@@ -71,7 +71,7 @@ class SerenaProvider extends AbstractProvider {
 {/if}
 </table>
 ';
-        $this->default_data['message_confirm'] = $this->change_html_tags($this->default_data['message_confirm']);
+        $this->default_data['message_confirm'] = $this->default_data['message_confirm'];
         $this->default_data['url'] = '';   
     }
     
