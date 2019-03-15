@@ -72,17 +72,21 @@ class ExtensionDetailPopup extends React.Component {
             color="gray"
             style={{ margin: "15px" }}
           />
-          <Button
-            label={modalDetails.license}
-            buttonType="bordered"
-            color="orange"
-          />
+          {modalDetails.license ? (
+            <Button
+              label={modalDetails.license}
+              buttonType="bordered"
+              color="orange"
+            />
+          ) : null}
         </div>
         <HorizontalLine />
         <div class="popup-body">
-          <Description
-            date={`Last update ${modalDetails.last_update}`}
-          />
+          {modalDetails.last_update ? (
+            <Description
+              date={`Last update ${modalDetails.last_update}`}
+            />
+          ) : null}
           <Description title="Description:" />
           <Description text={modalDetails.description} />
         </div>
