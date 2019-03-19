@@ -10,7 +10,7 @@ storiesOf("Search", module).add(
 
 storiesOf("Search", module).add(
   "Search - with arrow",
-  () => <SearchWithArrow label="name" />,
+  () => <SearchWithArrow />,
   { notes: "A very simple component" }
 );
 

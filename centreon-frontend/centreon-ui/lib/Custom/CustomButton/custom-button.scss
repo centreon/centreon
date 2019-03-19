@@ -1,0 +1,30 @@
+@import '../../global-sass-files/variables';
+@import '../../global-sass-files/mixins';
+
+// Button
+.custom {
+  &-button {
+    border: none;
+    outline: none;
+    font-size: 12px;
+    color: $white-color;
+    text-align: center;
+    font-family: $primary-font-medium;
+    padding: 5px 25px;
+    border-radius: 17px;
+    line-height: 17px;
+    cursor: pointer;
+    &-orange {
+      background-color: #ff9913;
+    }
+    &-green {
+      background-color: $content-green-color;
+    }
+    &-red {
+      background-color: #ed1b23;
+    }
+    &-gray {
+      background-color: $content-gray-color;
+    }
+  }
+}

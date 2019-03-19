@@ -1,8 +1,8 @@
-import React from "react";
+import React, {Component} from "react";
 import ButtonActionInput from '../../Button/ButtonActionInput';
 import "./search-with-arrow.scss";
 
-class SearchLive extends React.Component {
+class SearchLive extends Component {
   onChange = e => {
     const { onChange, filterKey } = this.props;
     onChange(e.target.value, filterKey);
@@ -13,7 +13,7 @@ class SearchLive extends React.Component {
 
     return (
       <div className="search-live custom">
-        <label>{label}</label>
+        {label && <label>{label}</label>}
         <input type="text" value={value} onChange={this.onChange.bind(this)} />
         <ButtonActionInput
           buttonColor="green"

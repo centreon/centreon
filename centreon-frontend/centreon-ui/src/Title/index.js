@@ -9,7 +9,6 @@ const Title = ({ icon, label, titleColor , onClick}) => (
       <span className={`custom-title-icon custom-title-icon-${icon}`} />
     ) : null}
     <span className={`custom-title-label ${titleColor ? titleColor : ''}`}>{label}</span>
-    
   </h2>
 );
 

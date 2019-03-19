@@ -4,7 +4,7 @@ import './pagination.scss';
 
 const Pagination = () => {
   return (
-    <div class="pagination">
+    <div className="pagination">
       <a href="#">First</a>
       <IconAction iconActionType="arrow-right" />
       <a href="#">1</a>

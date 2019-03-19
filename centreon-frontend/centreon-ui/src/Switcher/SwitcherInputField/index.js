@@ -1,0 +1,73 @@
+import React from "react";
+import "./swithcer-input-field.scss";
+import IconClose from "../../Icon/IconClose";
+import IconAction from "../../Icon/IconAction";
+
+class SwitcherInputField extends React.Component {
+  state = {
+    value: true,
+    toggled: false
+  };
+
+  UNSAFE_componentDidMount = () => {
+    const { value } = this.props;
+    if (value) {
+      this.setState({
+        value
+      });
+    }
+  };
+
+  UNSAFE_componentWillReceiveProps = nextProps => {
+    const { value } = nextProps;
+    if (this.state.value != value) {
+      this.setState({
+        toggled: !value,
+        value
+      });
+    }
+  };
+
+  onChange = () => {
+    const { onChange, filterKey } = this.props;
+    const { value, toggled } = this.state;
+    this.setState({
+      value: !value,
+      toggled: !toggled
+    });
+    if (onChange) {
+      onChange(!value, filterKey);
+    }
+  };
+
+  toggled = () => {
+    const { toggled } = this.state;
+    this.setState({
+      toggled: !toggled
+    });
+  };
+
+  render() {
+    const { customClass } = this.props;
+    const { value, toggled } = this.state;
+    return (
+      <div className={`switcher-input ${customClass}`}>
+        <label
+          className={"switch" + (toggled ? " switch-active" : " switch-hide")}
+        >
+          <input
+            type="checkbox"
+            checked={!value}
+            onClick={this.onChange.bind(this)}
+          />
+          <span className="switch-slider switch-round">
+            <IconClose iconType="small" />
+            <IconAction iconActionType="check" />
+          </span>
+        </label>
+      </div>
+    );
+  }
+}
+
+export default SwitcherInputField;

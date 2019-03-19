@@ -41,7 +41,17 @@
     "react": "^16.4.2",
     "react-dom": "^16.4.2",
     "react-files": "^2.4.8",
-    "replace-in-files": "^1.1.4"
+    "react-perfect-scrollbar": "^1.4.4",
+    "react-portal": "^4.1.5",
+    "react-redux": "^6.0.1",
+    "react-select": "^2.4.1",
+    "redux": "^4.0.1",
+    "redux-devtools-extension": "^2.13.8",
+    "redux-form": "^8.1.0",
+    "redux-saga": "^1.0.2",
+    "redux-thunk": "^2.3.0",
+    "replace-in-files": "^1.1.4",
+    "sass-loader": "^7.1.0"
   },
   "devDependencies": {
     "@babel/cli": "^7.2.3",

@@ -110,6 +110,18 @@ storiesOf("Icon", module).add(
 );
 
 storiesOf("Icon", module).add(
+  "Icon - info with text",
+  () => {
+    return (
+      <React.Fragment>
+        <IconInfo iconName="question" iconText="Test" />
+    </React.Fragment>
+  )
+},
+  { notes: "A very simple component" }
+);
+
+storiesOf("Icon", module).add(
   "Icon - number bordered",
   () => {
     return (

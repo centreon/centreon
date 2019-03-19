@@ -33,3 +33,19 @@ storiesOf("Radio Button", module).add(
   <RadioButton checked={true} name="test" />,
   { notes: "A very simple component" }
 );
+
+storiesOf("Radio Button", module).add(
+  
+  "Radio Button green - without title",
+  () => 
+  <RadioButton name="test" iconColor="green"  />,
+  { notes: "A very simple component" }
+);
+
+storiesOf("Radio Button", module).add(
+  
+  "Radio Button Checked green - without title",
+  () => 
+  <RadioButton name="test" checked={true} iconColor="green"  />,
+  { notes: "A very simple component" }
+);

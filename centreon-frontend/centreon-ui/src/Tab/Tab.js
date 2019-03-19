@@ -6,22 +6,21 @@ class Tab extends Component {
     const { label, onClick } = this.props;
     onClick(label);
   }
-
+  
   render() {
     const { 
       onClick,
       props: {
         activeTab,
         label,
+        error
       },
     } = this;
-
-    let className = 'tab-list-item';
+    let className = `tab-list-item ` + (error ? 'has-error ' : '');
 
     if (activeTab === label) {
-      className += ' tab-list-active';
+      className += 'tab-list-active';
     }
-
     return (
       <li 
         className={className}
@@ -32,6 +31,5 @@ class Tab extends Component {
     );
   }
 }
-
 
 export default Tab;

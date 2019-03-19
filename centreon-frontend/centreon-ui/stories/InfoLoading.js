@@ -4,12 +4,23 @@ import { InfoLoading } from "../src";
 
 storiesOf("Info", module).add(
   "Info - loading",
-  () => <InfoLoading
-    label="Loading job may take some while"
-    infoType="bordered"
-    color="orange"
-    iconActionType="clock"
-    iconColor="orange"
-  />,
+  () => 
+    <React.Fragment>
+      <InfoLoading
+        label="Loading job may take some while"
+        infoType="bordered"
+        color="orange"
+        iconActionType="clock"
+        iconColor="orange"
+      />
+      <InfoLoading
+        label="Loading job may take some while"
+        infoType="bordered"
+        color="orange"
+        iconActionType="warning"
+        iconColor="orange"
+      />
+    </React.Fragment>
+  ,
   { notes: "A very simple component" }
 );

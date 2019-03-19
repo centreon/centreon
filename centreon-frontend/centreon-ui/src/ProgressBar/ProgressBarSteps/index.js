@@ -3,7 +3,7 @@ import './progress-bar-steps.scss';
 
 class ProgressBarSteps extends Component {
   render() {
-    const { classActive, number, children } = this.props;
+    const { children } = this.props;
     return (
       <div className="progress-bar">
         <div className="progress-bar-wrapper">

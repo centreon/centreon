@@ -4,9 +4,9 @@ import "./tab.scss";
 
 class Tab extends Component {
   render() {
-    const {children} = this.props;
+    const {children, error} = this.props;
     return (
-      <Tabs>
+      <Tabs error={error}>
         {children}
       </Tabs>
     );

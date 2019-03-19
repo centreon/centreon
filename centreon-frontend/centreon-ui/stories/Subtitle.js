@@ -7,3 +7,9 @@ storiesOf("Subtitle", module).add(
   () => <Subtitle label="Test" />,
   { notes: "A very simple component" }
 );
+
+storiesOf("Subtitle", module).add(
+  "Subtitle - bam",
+  () => <Subtitle label="Test" subtitleType="bam" />,
+  { notes: "A very simple component" }
+);

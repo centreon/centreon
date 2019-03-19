@@ -1,0 +1,101 @@
+@import '../../global-sass-files/variables';
+
+// Switcher input field
+.switcher {
+  &-input {
+    .switch {
+      position: relative;
+      display: inline-block;
+      width: 52px;
+      height: 23px;
+      overflow: hidden;
+      input {
+        display:none;
+      }
+      &-slider {
+        width: 50px;
+        height: 21px;
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #f4f4f4;
+        border: 1px solid #dcdcdc;
+        -webkit-transition: .4s;
+        transition: .4s;
+        cursor: pointer;
+      }
+      &-slider:before {
+        content: "";
+        position: absolute;
+        height: 17px;
+        width: 17px;
+        top: 1px;
+        left: 2px;
+        text-align: center;
+        color: #373737;
+        background-color: $white-color;
+        border: 1px solid #dcdcdc;
+      }
+      .icon-close {
+        position: absolute;
+        left: 4px;
+        top: 4px;
+        font-size: 14px;
+      }
+    }
+    .switch-hide {
+      .icon-action {
+        position: absolute;
+        right: -20px;
+      }
+    }
+    .switch-active {
+      .icon-close {
+        left: -15px;
+      }
+      .icon-action {
+        right: 0;
+        z-index: 9;
+        position: absolute;
+        font-size: 22px;
+        &:after {
+          color: $content-green-color;
+        }
+      }
+    }
+    input + .switch-slider:after {
+      content: "";
+      height: 21px;
+      display: block;
+      box-sizing: border-box;
+      width: 100%;
+      color: #373737;
+      -webkit-transition: .75s;
+      transition: .75s;
+    }
+    input:checked + .switch-slider:after {
+      content: "";
+      background: $content-green-color;
+      width: 50px;
+      height: 21px;
+      border-radius: 21px;
+      color: $white-color;
+    }
+    input:checked + .switch-slider:before {
+      -webkit-transform: translateX(27px);
+      -ms-transform: translateX(27px);
+      transform: translateX(27px);
+    }
+    
+    /* Rounded sliders */
+    .switch-slider.switch-round {
+      border-radius: 12px;
+    }
+    .switch-slider.switch-round:before {
+      width: 17px;
+      border-radius: 17px;
+    }
+  }
+}

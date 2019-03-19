@@ -2,7 +2,7 @@ import React from 'react';
 import IconAction from '../../Icon/IconAction';
 import './table-counter.scss';
 
-const TableCounter = ({activeClass, number}) => {
+const TableCounter = ({ activeClass, number }) => {
   return (
     <div className={`table-counter ${activeClass ? activeClass : ''}`}>
       <span className="table-counter-number">

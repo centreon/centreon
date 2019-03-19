@@ -49,7 +49,7 @@ class Switcher extends React.Component {
     const { switcherTitle, switcherStatus, customClass } = this.props;
     const { value, toggled } = this.state;
     return (
-      <div className={`switcher ${customClass}`}>
+      <div className={`switcher ${customClass ? customClass : ''}`}>
         <span className="switcher-title">
           {switcherTitle ? switcherTitle : " "}
         </span>

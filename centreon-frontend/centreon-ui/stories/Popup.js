@@ -11,7 +11,13 @@ import {
   HorizontalLine,
   Description,
   MessageError,
-  LoaderContent
+  LoaderContent,
+  ScrollBar,
+  ProgressBar,
+  ProgressBarItem,
+  RadioButton,
+  InputField,
+  MessageStatus
 } from "../src";
 
 storiesOf("Popup", module).add(
@@ -34,7 +40,7 @@ storiesOf("Popup", module).add(
 );
 
 storiesOf("Popup", module).add(
-  "Popup - small with header and footer colored",
+  "Popup - small with header and footer colored (with message status)",
   () => (
     <Popup popupType="small scroll host">
       <div className="popup-header blue">
@@ -42,8 +48,51 @@ storiesOf("Popup", module).add(
       </div>
       <div className="popup-body">
         <LoaderContent />
+        <br />
+        <br />
+        <MessageStatus
+          messageStatus="ok"
+          messageText="Insertion 4/4 hosts"
+          messageInfo="[OK]"
+        />
+        <br />
+        <MessageStatus
+          messageStatus="failed"
+          messageText="Generation of configuration"
+          messageInfo="[FAILED]"
+        />
       </div>
-      <div className="popup-footer">
+      <div className="popup-footer m-0"></div>
+      <IconClose iconType="middle" />
+    </Popup>
+  ),
+  { notes: "A very simple component" }
+);
+
+storiesOf("Popup", module).add(
+  "Popup - small with header and footer colored (with message status error)",
+  () => (
+    <Popup popupType="small scroll host">
+      <div className="popup-header blue">
+        <h3 className="popup-header-title">Popup Header</h3>
+      </div>
+      <div className="popup-body">
+        <LoaderContent />
+        <br />
+        <br />
+        <MessageStatus
+          messageStatus="ok"
+          messageText="Insertion 4/4 hosts"
+          messageInfo="[OK]"
+        />
+        <br />
+        <MessageStatus
+          messageStatus="failed"
+          messageText="Generation of configuration"
+          messageInfo="[FAILED]"
+        />
+      </div>
+      <div className="popup-footer m-0">
         <MessageError
           messageError="red"
           text="Generation of configuration has failed, please try again."
@@ -58,15 +107,178 @@ storiesOf("Popup", module).add(
 storiesOf("Popup", module).add(
   "Popup - with scroll",
   () => (
-    <Popup popupType="small scroll">
+    <Popup popupType="small">
       <div class="popup-header blue">
         <h3 className="popup-header-title">Popup Header</h3>
       </div>
-      <div class="popup-body">
-        <p className="description-text">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam lobortis faucibus tellus. Phasellus in felis sed elit hendrerit facilisis eget sollicitudin ante. Mauris suscipit porttitor semper. Aenean laoreet risus diam, in aliquam ante laoreet in. Nulla mollis velit dolor, vitae sagittis eros auctor in. Phasellus id tincidunt lacus, et elementum eros. Phasellus id commodo risus. Quisque sagittis cursus eros et ornare.
-        Aenean at magna arcu. Curabitur fringilla eu quam et aliquet. Nam sed libero semper, pellentesque justo sit amet, tempus sapien. Donec viverra nisi at sapien semper hendrerit. Nunc sed fermentum dolor, at varius leo. Donec ullamcorper dui at tincidunt facilisis. Praesent a pretium nisi. Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
+      <ScrollBar>
+        <div class="popup-body">
+          <p className="description-text">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam lobortis faucibus tellus. Phasellus in felis sed elit hendrerit facilisis eget sollicitudin ante. Mauris suscipit porttitor semper. Aenean laoreet risus diam, in aliquam ante laoreet in. Nulla mollis velit dolor, vitae sagittis eros auctor in. Phasellus id tincidunt lacus, et elementum eros. Phasellus id commodo risus. Quisque sagittis cursus eros et ornare.
+          Aenean at magna arcu. Curabitur fringilla eu quam et aliquet. Nam sed libero semper, pellentesque justo sit amet, tempus sapien. Donec viverra nisi at sapien semper hendrerit. Nunc sed fermentum dolor, at varius leo. Donec ullamcorper dui at tincidunt facilisis. Praesent a pretium nisi. Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
+        </div>
+      </ScrollBar>
+      <div className="popup-footer m-0">
+        <MessageError
+          messageError="red"
+          text="Generation of configuration has failed, please try again."
+        />
       </div>
+      <IconClose iconType="middle" />
+    </Popup>
+  ),
+  { notes: "A very simple component" }
+);
+
+storiesOf("Popup", module).add(
+  "Popup - dynamic list of sources",
+  () => (
+    <Popup popupType="small">
+      <div class="popup-header light-blue">
+        <ProgressBar>
+          <ProgressBarItem classActive='active' number='1' />
+          <ProgressBarItem number='2' />
+        </ProgressBar>
+      </div>
+      <ScrollBar>
+        <div class="popup-body">
+          <Title titleColor="host" label="Resource Discover Wizard" />
+          <Subtitle label="Choose a discovery source:" />
+          <br/>
+          <RadioButton checked={true} label="WMware infrastructure servers" name="test" />
+          <RadioButton label="WMware VM" name="test2" />
+          <RadioButton label="Microsoft Azure VM" name="test3" />
+          <RadioButton label="Azure EC2" name="test4" />
+        </div>
+      </ScrollBar>
+      <div className="popup-footer text-center">
+        <Button
+          label="CANCEL"
+          buttonType="validate"
+          color="red normal mr-2"
+        />
+        <Button
+          label="NEXT"
+          buttonType="validate"
+          color="blue normal"
+        />
+      </div>
+      <IconClose iconType="middle" />
+    </Popup>
+  ),
+  { notes: "A very simple component" }
+);
+
+storiesOf("Popup", module).add(
+  "Popup - dynamic list of sources form",
+  () => (
+    <Popup popupType="small">
+      <div class="popup-header light-blue">
+        <ProgressBar>
+          <ProgressBarItem classActive='active' number='1' />
+          <ProgressBarItem classActive='active' number='2' />
+        </ProgressBar>
+      </div>
+      <ScrollBar>
+        <div class="popup-body">
+          <Title titleColor="host" label="Resource Discover Wizard" />
+          <br />
+          <InputField type="text" name="test1" inputSize="big" label="Login Endpoint" />
+          <InputField type="number" name="test2" inputSize="big" label="Talend ID" />
+          <InputField type="number" name="test3" inputSize="big" label="Client ID" />
+          <InputField type="password" name="test4" inputSize="big" label="Client Secret" />
+          <InputField type="number" name="test5" inputSize="big" label="Subscription:" />
+          <InputField type="text" name="test5" inputSize="big" label="Management Endpoint" />
+        </div>
+      </ScrollBar>
       <div className="popup-footer">
+        <Button
+          label="BACK"
+          buttonType="validate"
+          color="blue normal"
+        />
+        <Button
+          label="START"
+          buttonType="validate"
+          color="blue normal f-r"
+        />
+      </div>
+      <IconClose iconType="middle" />
+    </Popup>
+  ),
+  { notes: "A very simple component" }
+);
+
+storiesOf("Popup", module).add(
+  "Popup - dynamic list of sources form (with loader)",
+  () => (
+    <Popup popupType="small">
+      <div class="popup-header light-blue">
+        <ProgressBar>
+          <ProgressBarItem classActive='active' number='1' />
+          <ProgressBarItem classActive='active' number='2' />
+        </ProgressBar>
+      </div>
+      <ScrollBar>
+        <div class="popup-body">
+          <Title titleColor="host" label="Resource Discover Wizard" />
+          <br />
+          <InputField type="text" name="test1" inputSize="big" label="Login Endpoint" />
+          <InputField type="number" name="test2" inputSize="big" label="Talend ID" />
+          <InputField type="number" name="test3" inputSize="big" label="Client ID" />
+          <InputField type="password" name="test4" inputSize="big" label="Client Secret" />
+          <InputField type="number" name="test5" inputSize="big" label="Subscription:" />
+          <InputField type="text" name="test5" inputSize="big" label="Management Endpoint" />
+        </div>
+      </ScrollBar>
+      <div className="popup-footer">
+        <Button
+          label="BACK"
+          buttonType="validate"
+          color="blue normal"
+        />
+        <LoaderContent className="f-r" />
+      </div>
+      <IconClose iconType="middle" />
+    </Popup>
+  ),
+  { notes: "A very simple component" }
+);
+
+storiesOf("Popup", module).add(
+  "Popup - dynamic list of sources form (with error)",
+  () => (
+    <Popup popupType="small">
+      <div class="popup-header light-blue">
+        <ProgressBar>
+          <ProgressBarItem classActive='active' number='1' />
+          <ProgressBarItem classActive='active' number='2' />
+        </ProgressBar>
+      </div>
+      <ScrollBar>
+        <div class="popup-body">
+          <Title titleColor="host" label="Resource Discover Wizard" />
+          <br />
+          <InputField type="text" name="test1" inputSize="big" label="Login Endpoint" />
+          <InputField type="number" name="test2" inputSize="big" label="Talend ID" />
+          <InputField type="number" name="test3" inputSize="big" label="Client ID" />
+          <InputField type="password" name="test4" inputSize="big" label="Client Secret" />
+          <InputField type="number" name="test5" inputSize="big" label="Subscription:" />
+          <InputField type="text" name="test5" inputSize="big" label="Management Endpoint" />
+        </div>
+      </ScrollBar>
+      <div className="popup-footer">
+        <div>
+          <Button
+            label="BACK"
+            buttonType="validate"
+            color="blue normal"
+          />
+          <Button
+            label="START"
+            buttonType="validate"
+            color="blue normal f-r"
+          />
+        </div>
         <MessageError
           messageError="red"
           text="Generation of configuration has failed, please try again."

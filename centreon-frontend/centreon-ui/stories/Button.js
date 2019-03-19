@@ -114,9 +114,18 @@ storiesOf("Button", module).add("Button - validate", () => (
     <Button
       label="Button Validate"
       buttonType="validate"
-      color="red normal"
+      color="red normal mr-2"
     />
   </React.Fragment>
+));
+
+storiesOf("Button", module).add("Button - icon", () => (
+  <Button
+    buttonType="validate"
+    color="green normal icon"
+    iconActionType="arrow-left"
+    iconColor="white"
+  />
 ));
 
 storiesOf("Button", module).add("Button - with icon", () => (

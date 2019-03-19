@@ -1,7 +1,7 @@
 import React from 'react';
 import './message-status.scss';
 
-const ContentMessage = ({messageStatus, messageText, messageInfo}) => {
+const ContentMessage = ({ messageStatus, messageText, messageInfo }) => {
   return (
     <span className={`message-status ${messageStatus}`}>
       {messageText}

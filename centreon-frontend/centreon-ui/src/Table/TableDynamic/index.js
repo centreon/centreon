@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
-import RadioButton from '../../RadioButton';
-import SearchLive from '../../Search/SearchLive';
+import InputFieldSelect from '../../InputField/InputFieldSelect';
 import Checkbox from '../../Checkbox';
+import SearchLive from '../../Search/SearchLive';
 import './table-dynamic.scss';
 
 class TableDynamic extends Component {
@@ -20,7 +20,7 @@ class TableDynamic extends Component {
               </div>
             </div>
             </th>
-            <th scope="col"><SearchLive /></th>
+            <th scope="col"><InputFieldSelect customClass="medium" /></th>
           </tr>
         </thead>
         <tbody>
@@ -29,11 +29,11 @@ class TableDynamic extends Component {
               <Checkbox
                 label="Host 1 lorem ipsum dolor sit amet"
                 name="host1"
-                iconColor="blue"
+                iconColor="light-blue"
               />
             </td>
             <td>
-              <SearchLive />
+              <InputFieldSelect customClass="medium" />
             </td>
           </tr>
           <tr>
@@ -41,11 +41,11 @@ class TableDynamic extends Component {
               <Checkbox
                 label="Host 1 lorem ipsum dolor sit amet"
                 name="host1"
-                iconColor="blue"
+                iconColor="light-blue"
               />
             </td>
             <td>
-              <SearchLive />
+              <InputFieldSelect customClass="medium" />
             </td>
           </tr>
           <tr>
@@ -53,11 +53,11 @@ class TableDynamic extends Component {
               <Checkbox
                 label="Host 1 lorem ipsum dolor sit amet"
                 name="host1"
-                iconColor="blue"
+                iconColor="light-blue"
               />
             </td>
             <td>
-              <SearchLive />
+              <InputFieldSelect customClass="medium" />
             </td>
           </tr>
           <tr>
@@ -65,11 +65,11 @@ class TableDynamic extends Component {
               <Checkbox
                 label="Host 1 lorem ipsum dolor sit amet"
                 name="host1"
-                iconColor="blue"
+                iconColor="light-blue"
               />
             </td>
             <td>
-              <SearchLive />
+              <InputFieldSelect customClass="medium" />
             </td>
           </tr>
         </tbody>

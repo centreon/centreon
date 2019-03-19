@@ -1,5 +1,6 @@
 import React from "react";
 import './input-text.scss';
+import IconInfo from '../Icon/IconInfo';
 
 const InputField = ({
   type,
@@ -7,12 +8,16 @@ const InputField = ({
   placeholder,
   topRightLabel,
   name,
+  inputSize,
+  error,
+  iconName,
+  iconColor,
   ...rest
 }) => {
   return (
-    <div className="form-group" style={{width: '200px'}}>
+    <div className={`form-group ${inputSize}` + (error ? ' has-danger' : '')}>
       <label htmlFor={rest.id}>
-        <span>{label}</span>
+        <span>{iconName ? <IconInfo iconName={iconName} iconColor={iconColor}/> : null } {label}</span>
         <span className="label-option required">
           {topRightLabel ? topRightLabel : null}
         </span>
@@ -23,6 +28,11 @@ const InputField = ({
         placeholder={placeholder}
         className="form-control"
       />
+      {error ? (
+        <div class="form-error">
+          {error}
+        </div>
+      ) : null}
     </div>
   );
 };
