@@ -6,7 +6,7 @@ import Button from "../Button";
 
 class TopFilters extends Component {
   render() {
-    const { fullText, switchers, onChange } = this.props;
+    const { fullText, switchers, onChange, icon } = this.props;
 
     return (
       <div className="container container-gray">
@@ -15,6 +15,7 @@ class TopFilters extends Component {
             {fullText ? (
               <div className="container__col-md-3 container__col-xs-12">
                 <SearchLive
+                  icon={fullText.icon}
                   onChange={onChange}
                   label={fullText.label}
                   value={fullText.value}

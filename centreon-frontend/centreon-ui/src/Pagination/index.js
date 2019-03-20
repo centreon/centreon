@@ -1,19 +1,83 @@
-import React from 'react';
-import IconAction from '../Icon/IconAction';
-import './pagination.scss';
+import React, { Component } from "react";
+import IconAction from "../Icon/IconAction";
+import "./pagination.scss";
 
-const Pagination = () => {
-  return (
-    <div className="pagination">
-      <a href="#">First</a>
-      <IconAction iconActionType="arrow-right" />
-      <a href="#">1</a>
-      <a href="#" className="active">2</a>
-      <a href="#">3</a>
-      <IconAction iconActionType="arrow-right" />
-      <a href="#">Last</a>
-    </div>
-  )
+class Pagination extends Component {
+  state = {
+    currentPage: 0
+  };
+
+  previousPage = () => {
+    const { currentPage } = this.state;
+    console.log(currentPage)
+    if (currentPage > 0) {
+      this.pageChanged(currentPage - 1);
+    }
+  };
+
+  nextPage = () => {
+    const { pageCount } = this.props;
+    const { currentPage } = this.state;
+    console.log(pageCount,currentPage)
+    if (currentPage < pageCount - 1) {
+      this.pageChanged(currentPage + 1);
+    }
+  };
+
+  pageChanged = page => {
+    const { onPageChange } = this.props;
+    this.setState(
+      {
+        currentPage: page
+      },
+      () => {
+        onPageChange(page);
+      }
+    );
+  };
+
+  renderPages = count => {
+    const { currentPage } = this.state;
+    let pages = [];
+    for (let i = 0; i < count; i++) {
+      pages.push(
+        <a
+          key={'paginationPage'+i}
+          onClick={this.pageChanged.bind(this, i)}
+          className={i === currentPage ? "active" : ""}
+        >
+          {i + 1}
+        </a>
+      );
+    }
+
+    return (
+      <React.Fragment>{pages}</React.Fragment>
+    )
+  };
+
+  render() {
+    const { pageCount, onPageChange } = this.props;
+    const { currentPage } = this.state;
+    if (!onPageChange || !pageCount) {
+      return null;
+    }
+    return (
+      <div className="pagination">
+        <a onClick={this.pageChanged.bind(this, 0)}>First</a>
+        <IconAction
+          iconActionType="arrow-right"
+          onClick={this.previousPage.bind(this)}
+        />
+        {this.renderPages(pageCount)}
+        <IconAction
+          iconActionType="arrow-right"
+          onClick={this.nextPage.bind(this)}
+        />
+        <a onClick={this.pageChanged.bind(this, pageCount - 1)}>Last</a>
+      </div>
+    );
+  }
 }
 
 export default Pagination;
