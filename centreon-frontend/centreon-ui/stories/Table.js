@@ -2,11 +2,11 @@ import React from "react";
 import {storiesOf} from "@storybook/react";
 import {Table, TableDynamic, Title, Button} from "../src";
 
-storiesOf("Table", module).add("Table - custom", () => <Table/>, {notes: "A very simple component"});
+storiesOf("Table", module).add("Table - custom", () => <Table />, {notes: "A very simple component"});
 storiesOf("Table", module).add("Table Dynamic - custom", () => <React.Fragment>
   <Title titleColor="host" label="Resource discovry wizard" />
   <TableDynamic/>
-  <div className="text-right">
+  <div className="text-right mt-1">
     <Button
       label="SAVE"
       buttonType="validate"
@@ -19,3 +19,5 @@ storiesOf("Table", module).add("Table Dynamic - custom", () => <React.Fragment>
     />
   </div>
 </React.Fragment>, {notes: "A very simple component"});
+
+storiesOf("Table", module).add("Table - with scroll", () => <Table tableScroll={true}/>, {notes: "A very simple component"});

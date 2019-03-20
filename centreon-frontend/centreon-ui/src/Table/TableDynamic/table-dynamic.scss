@@ -2,9 +2,10 @@
 
 // Table dynamic
 .table-dynamic {
+  display: flex;
+  flex-flow: column;
+  height: 100%;
   width: 100%;
-  max-width: 100%;
-  margin-bottom: 1rem;
   background-color: transparent;
   border-collapse: collapse;
   border: 1px solid #e6e6e6;
@@ -16,6 +17,10 @@
   }
   thead {
     background-color: #009fdf;
+    flex: 0 0 auto;
+    width: 100%;
+    display: table;
+    table-layout: fixed;
     th {
       vertical-align: middle;
       padding: 5px;
@@ -28,7 +33,12 @@
     }
   }
   tbody {
+    flex: 1 1 auto;
+    display: block;
     tr {
+      display: table;
+      table-layout: fixed;
+      width: 100%;
       &:nth-of-type(odd) {
         background-color: #e5f5fc;
       }

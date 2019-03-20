@@ -2,11 +2,10 @@
 
 // Table
 .table {
+  display: flex;
+  flex-flow: column;
+  height: 100%;
   width: 100%;
-  max-width: 100%;
-  margin-bottom: 1rem;
-  background-color: transparent;
-  border-collapse: collapse;
   td, th {
     padding: .75rem;
     vertical-align: top;
@@ -15,6 +14,10 @@
   }
   thead {
     background-color: $darkblue-centreon-darken;
+    flex: 0 0 auto;
+    width: 100%;
+    display: table;
+    table-layout: fixed;
     th {
       vertical-align: middle;
       padding: .45rem;
@@ -23,7 +26,12 @@
     }
   }
   tbody {
+    flex: 1 1 auto;
+    display: block;
     tr {
+      display: table;
+      table-layout: fixed;
+      width: 100%;
       &:nth-of-type(even) {
         background-color: #f5f8fd;
       }
