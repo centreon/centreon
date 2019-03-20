@@ -6,7 +6,7 @@ import CardItem from "../Card/CardItem";
 import IconInfo from "../Icon/IconInfo";
 import Title from "../Title";
 import Subtitle from "../Subtitle";
-import Button from "../Button";
+import Button from "../Button/ButtonRegular";
 import IconContent from "../Icon/IconContent";
 import ButtonAction from "../Button/ButtonAction";
 

@@ -2,7 +2,7 @@ import React from "react";
 import Popup from "../Popup";
 import Title from "../Title";
 import MessageInfo from "../Message/MessageInfo";
-import Button from "../Button";
+import Button from "../Button/ButtonRegular";
 import IconClose from "../Icon/IconClose";
 
 class ExtensionDeletePopup extends React.Component {

@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import Wrapper from "../Wrapper";
 import SearchLive from "../Search/SearchLive";
 import Switcher from "../Switcher";
-import Button from "../Button";
+import Button from "../Button/ButtonRegular";
 
 class TopFilters extends Component {
   render() {

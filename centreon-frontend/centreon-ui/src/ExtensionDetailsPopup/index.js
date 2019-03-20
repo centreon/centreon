@@ -5,7 +5,7 @@ import Slider from "../Slider/SliderContent";
 import IconContent from "../Icon/IconContent";
 import Title from "../Title";
 import Subtitle from "../Subtitle";
-import Button from "../Button";
+import Button from "../Button/ButtonRegular";
 import HorizontalLine from "../HorizontalLines/HorizontalLineRegular";
 import Description from "../Description";
 import IconClose from "../Icon/IconClose";
