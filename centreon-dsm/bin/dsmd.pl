@@ -152,6 +152,7 @@ sub add_command {
 
 sub submit_split {
     my ($self, %options) = @_;
+    my $datetime = time();
 
     return if ($options{cmd} eq '');
 
