@@ -1,10 +1,26 @@
+/*
+** Variables.
+*/
+def serie = '19.04'
+def maintenanceBranch = "${serie}.x"
+if (env.BRANCH_NAME.startsWith('release-')) {
+  env.BUILD = 'RELEASE'
+} else if ((env.BRANCH_NAME == 'master') || (env.BRANCH_NAME == maintenanceBranch)) {
+  env.BUILD = 'REFERENCE'
+} else {
+  env.BUILD = 'CI'
+}
+
+/*
+** Pipeline code.
+*/
 stage('Source') {
   node {
     sh 'setup_centreon_build.sh'
     dir('centreon-awie') {
       checkout scm
     }
-    sh './centreon-build/jobs/awie/19.04/mon-awie-source.sh'
+    sh "./centreon-build/jobs/awie/${serie}/mon-awie-source.sh"
     source = readProperties file: 'source.properties'
     env.VERSION = "${source.VERSION}"
     env.RELEASE = "${source.RELEASE}"
@@ -17,7 +33,7 @@ try {
       node {
         sh 'setup_centreon_build.sh'
         /*
-        sh './centreon-build/jobs/awie/19.04/mon-awie-unittest.sh centos7'
+        sh "./centreon-build/jobs/awie/${serie}/mon-awie-unittest.sh centos7"
         junit 'ut.xml'
         if (currentBuild.result == 'UNSTABLE')
           currentBuild.result = 'FAILURE'
@@ -34,9 +50,9 @@ try {
           failedNewAll: '0'
         ])
         */
-        if (env.BRANCH_NAME == '19.04.x' || env.BRANCH_NAME == 'master') {
+        if ((env.BUILD == 'RELEASE') || (env.BUILD == 'REFERENCE')) {
           withSonarQubeEnv('SonarQube') {
-            sh './centreon-build/jobs/awie/19.04/mon-awie-analysis.sh'
+            sh "./centreon-build/jobs/awie/${serie}/mon-awie-analysis.sh"
           }
         }
       }
@@ -50,7 +66,7 @@ try {
     parallel 'centos7': {
       node {
         sh 'setup_centreon_build.sh'
-        sh './centreon-build/jobs/awie/19.04/mon-awie-package.sh centos7'
+        sh "./centreon-build/jobs/awie/${serie}/mon-awie-package.sh centos7"
       }
     }
     if ((currentBuild.result ?: 'SUCCESS') != 'SUCCESS') {
@@ -62,7 +78,7 @@ try {
     parallel 'centos7': {
       node {
         sh 'setup_centreon_build.sh'
-        sh './centreon-build/jobs/awie/19.04/mon-awie-bundle.sh centos7'
+        sh "./centreon-build/jobs/awie/${serie}/mon-awie-bundle.sh centos7"
       }
     }
     if ((currentBuild.result ?: 'SUCCESS') != 'SUCCESS') {
@@ -74,7 +90,7 @@ try {
     parallel 'centos7': {
       node {
         sh 'setup_centreon_build.sh'
-        sh './centreon-build/jobs/awie/19.04/mon-awie-acceptance.sh centos7'
+        sh "./centreon-build/jobs/awie/${serie}/mon-awie-acceptance.sh centos7"
         junit 'xunit-reports/**/*.xml'
         if (currentBuild.result == 'UNSTABLE')
           currentBuild.result = 'FAILURE'
@@ -86,11 +102,11 @@ try {
     }
   }
 
-  if (env.BRANCH_NAME == '19.04.x' || env.BRANCH_NAME == 'master') {
+  if ((env.BUILD == 'RELEASE') || (env.BUILD == 'REFERENCE')) {
     stage('Delivery') {
       node {
         sh 'setup_centreon_build.sh'
-        sh './centreon-build/jobs/awie/19.04/mon-awie-delivery.sh'
+        sh "./centreon-build/jobs/awie/${serie}/mon-awie-delivery.sh"
       }
       if ((currentBuild.result ?: 'SUCCESS') != 'SUCCESS') {
         error('Delivery stage failure.');
@@ -98,7 +114,8 @@ try {
     }
   }
 } catch(e) {
-  if (env.BRANCH_NAME == '19.04.x' || env.BRANCH_NAME == 'master') {
+  if ((env.BUILD == 'RELEASE') || (env.BUILD == 'REFERENCE')) {
     slackSend channel: "#monitoring-metrology", color: "#F30031", message: "*FAILURE*: `CENTREON AWIE` <${env.BUILD_URL}|build #${env.BUILD_NUMBER}> on branch ${env.BRANCH_NAME}\n*COMMIT*: <https://github.com/centreon/centreon-awie/commit/${source.COMMIT}|here> by ${source.COMMITTER}\n*INFO*: ${e}"
   }
+  currentBuild.result = 'FAILURE'
 }
