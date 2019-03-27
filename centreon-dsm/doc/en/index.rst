@@ -13,5 +13,4 @@ Contents:
    installation/index
    upgrade/index
    user/index
-
-
+   administration
