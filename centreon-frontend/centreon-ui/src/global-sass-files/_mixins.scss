@@ -75,6 +75,13 @@
 .center-none {
   @include center(none);
 }
+.display-flex {
+  display: -webkit-box;
+  display: -moz-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+}
 
 // Import iconmoon
 @mixin iconmoon(){

@@ -1,8 +1,9 @@
 import React from "react";
-import "./close-icon.scss";
+import classnames from 'classnames';
+import styles from "./close-icon.scss";
 
-const IconClose = ({ iconType, onClick }) => (
-  <span onClick={onClick} className={`icon-close icon-close-${iconType}`} />
+const IconClose = ({ iconType, iconPosition, onClick, customStyle }) => (
+  <span onClick={onClick} className={classnames(styles["icon-close"], {[styles[`icon-close-${iconType}`]]: true}, styles[iconPosition ? iconPosition : ''], styles[customStyle ? customStyle : ''])} />
 );
 
 export default IconClose;

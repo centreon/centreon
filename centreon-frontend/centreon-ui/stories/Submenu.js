@@ -1,5 +1,7 @@
 import React from "react";
 import { storiesOf } from "@storybook/react";
+import styles from '../src/Submenu/SubmenuHeader/submenu.scss';
+import classnames from 'classnames';
 import {
   SubmenuHeader,
   IconHeader,
@@ -12,13 +14,13 @@ import {
 storiesOf("Submenu", module).add("Submenu - toggled without items", () => (
   <SubmenuHeader submenuType="header">
     <div
-      className="submenu-top submenu-active"
+      className={classnames(styles["submenu-top"], styles["submenu-active"])}
       style={{
         width: "220px",
         minHeight: "53px"
       }}
     >
-      <div className="submenu-toggle" style={{ minHeight: "200px" }}>
+      <div className={classnames(styles["submenu-toggle"])} style={{ minHeight: "200px" }}>
         <SubmenuItems />
       </div>
     </div>
@@ -30,7 +32,7 @@ storiesOf("Submenu", module).add(
   () => (
     <SubmenuHeader submenuType="header">
       <div
-        className="submenu-top submenu-active"
+        className={classnames(styles["submenu-top"], styles["submenu-active"])}
         style={{
           width: "200px"
         }}
@@ -39,8 +41,8 @@ storiesOf("Submenu", module).add(
         <IconNumber iconType="bordered" iconColor="red" iconNumber="3" />
         <IconNumber iconType="bordered" iconColor="gray-dark" iconNumber="5" />
         <IconNumber iconType="colored" iconColor="green" iconNumber="10" />
-        <IconToggleSubmenu iconType="arrow" />
-        <div className="submenu-toggle">
+        <IconToggleSubmenu iconPosition="icons-toggle-position-right" iconType="arrow" />
+        <div className={classnames(styles["submenu-toggle"])}>
           <SubmenuItems>
             <SubmenuItem submenuTitle="All" submenuCount="151" />
             <SubmenuItem
@@ -74,13 +76,13 @@ storiesOf("Submenu", module).add(
 storiesOf("Submenu", module).add("Submenu - toggled with bottom items", () => (
   <SubmenuHeader submenuType="header">
     <div
-      className="submenu-top submenu-active"
+      className={classnames(styles["submenu-top"], styles["submenu-active"])}
       style={{
         width: "200px",
         minHeight: "40px"
       }}
     >
-      <div className="submenu-toggle">
+      <div className={classnames(styles["submenu-toggle"])}>
         <SubmenuItems>
           <SubmenuItem submenuTitle="All" submenuCount="151" />
           <SubmenuItem

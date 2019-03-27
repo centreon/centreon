@@ -98,16 +98,6 @@
       background-color: transparent;
     }
   }
-  .icon-action {
-    top: 50%;
-    transform: translateY(-50%);
-    position: absolute;
-    right: 5px;
-    &.icon-left {
-      right: auto;
-      left: 5px;
-    }
-  }
   &-validate {
     &-blue {
       background-color: #009fdf;
@@ -132,12 +122,15 @@
     }
   }
   &.icon {
-    height: 27px;
-    padding: 9px 20px;
+    padding: 2px 6px;
     border-radius: 2px;
     .icon-action {
       left: 0;
       right: 0;
     }
+  }
+  &-card-position {
+    position: absolute;
+    bottom: 20px;
   }
 }

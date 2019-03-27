@@ -1,21 +1,22 @@
 import React, {Component} from 'react';
+import classnames from 'classnames';
+import styles from "./table-dynamic.scss";
 import InputFieldSelect from '../../InputField/InputFieldSelect';
 import Checkbox from '../../Checkbox';
 import SearchLive from '../../Search/SearchLive';
-import './table-dynamic.scss';
 
 class TableDynamic extends Component {
   render() {
     return (
-      <table class="table-dynamic">
+      <table className={classnames(styles["table-dynamic"])}>
         <thead>
           <tr>
-            <th scope="col">
-            <div className="container__row">
-              <div className="container__col-md-3 center-vertical ml-1">
+            <th scope={classnames(styles["col"])}>
+            <div className={classnames(styles["container__row"])}>
+              <div className={classnames(styles["container__col-md-3"], styles["center-vertical"], styles["ml-1"])}>
                 <Checkbox label="ALL HOSTS" name="all-hosts" iconColor="white" />
               </div>
-              <div className="container__col-md-6 center-vertical">
+              <div className={classnames(styles["container__col-md-6"], styles["center-vertical"])}>
                 <SearchLive />
               </div>
             </div>

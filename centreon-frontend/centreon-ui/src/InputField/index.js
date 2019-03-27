@@ -1,5 +1,6 @@
 import React from "react";
-import './input-text.scss';
+import classnames from 'classnames';
+import styles from './input-text.scss';
 import IconInfo from '../Icon/IconInfo';
 
 const InputField = ({
@@ -15,21 +16,21 @@ const InputField = ({
   ...rest
 }) => {
   return (
-    <div className={`form-group ${inputSize}` + (error ? ' has-danger' : '')}>
-      <label htmlFor={rest.id}>
+    <div className={classnames(styles["form-group"], styles[inputSize ? inputSize : ''], error ? styles['has-danger'] : '')}>
+      {label && <label htmlFor={rest.id}>
         <span>{iconName ? <IconInfo iconName={iconName} iconColor={iconColor}/> : null } {label}</span>
-        <span className="label-option required">
+        <span className={classnames(styles["label-option"], styles["required"])}>
           {topRightLabel ? topRightLabel : null}
         </span>
-      </label>
+      </label>}
       <input
         name={name}
         type={type}
         placeholder={placeholder}
-        className="form-control"
+        className={classnames(styles["form-control"])}
       />
       {error ? (
-        <div class="form-error">
+        <div className={classnames(styles["form-error"])}>
           {error}
         </div>
       ) : null}

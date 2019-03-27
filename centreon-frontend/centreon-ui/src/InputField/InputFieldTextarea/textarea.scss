@@ -4,11 +4,30 @@
 .form {
   &-group {
     &.textarea {
+      label {
+        font-size: 10px;
+        font-family: $primary-font-light;
+        color: rgb(36,47,58);
+        display: block;
+        margin-bottom: 5px;
+      }
       .form-control {
         resize: none;
         outline: none;
+        padding: 5px 7px;
+        box-sizing: border-box;
+        font-size: 10px;
+        font-family: $primary-font-light;
+        color: rgb(36,47,58);
+        width: 100%;
       }
       &.small {
+        width: 300px;
+      }
+      &.middle {
+        width: 300px;
+      }
+      &.big {
         width: 300px;
       }
     }

@@ -74,3 +74,8 @@ export { default as ExtensionDetailsPopup } from "./ExtensionDetailsPopup";
 export { default as ExtensionDeletePopup } from "./ExtensionDeletePopup";
 export { default as Axios } from "./Axios";
 export { default as Loader } from "./Loader";
+
+export {default as MaterialTabs} from "./MaterialComponents/Tabs";
+export {default as MaterialTable} from "./MaterialComponents/Table";
+export {default as MaterialProgressBar} from "./MaterialComponents/ProgressBar";
+export {default as MaterialButton} from "./MaterialComponents/Button";

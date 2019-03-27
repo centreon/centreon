@@ -18,9 +18,27 @@ module.exports = {
           },
         ],
       },
+      // {
+      //   test: /\.scss$/,
+      //   loaders: ["style-loader", "css-loader", "sass-loader"],
+      //   include: path.resolve(__dirname, ".."),
+      // },
       {
         test: /\.scss$/,
-        loaders: ["style-loader", "css-loader", "sass-loader"],
+        use: [
+          "style-loader", // creates style nodes from JS strings
+          {
+            "loader": "css-loader",
+            "options": {
+              "modules": true,
+              // "localIdentName": "[local]",
+              "localIdentName": "[local]__[hash:base64:5]",
+              "importLoaders": 1,
+              "sourceMap": false
+            }
+          },
+          "sass-loader", // compiles Sass to CSS, using Node Sass by default
+        ],
         include: path.resolve(__dirname, "..")
       },
       {

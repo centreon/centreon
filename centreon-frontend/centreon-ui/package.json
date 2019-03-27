@@ -31,8 +31,10 @@
     "centreon-compgen": "./dynamic/generator/index.js"
   },
   "dependencies": {
+    "@material-ui/core": "^3.9.2",
+    "@material-ui/icons": "^3.0.2",
     "axios": "^0.18.0",
-    "classnames": "latest",
+    "classnames": "^2.2.6",
     "cli-color": "^1.4.0",
     "commander": "^2.19.0",
     "fs-extra": "^7.0.1",

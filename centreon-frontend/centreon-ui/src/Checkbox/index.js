@@ -1,5 +1,7 @@
 import React from "react";
 import './checkbox.scss';
+import classnames from 'classnames';
+import styles from './checkbox.scss';
 
 const Checkbox = ({
   iconColor,
@@ -9,23 +11,26 @@ const Checkbox = ({
   info,
   name,
   ...rest
-}) => (
-  <div className="form-group">
-    <div className={`custom-control custom-checkbox ${iconColor ? iconColor : ''}`}>
-      <input
-        name={name}
-        aria-checked={checked}
-        checked={checked}
-        className="custom-control-input"
-        type="checkbox"
-      />
-      <label htmlFor={rest.id} className="custom-control-label">
-        {label}
-        {info}
-      </label>
+}) => {
+  const cnCustomControl = classnames(styles["custom-control"], {[styles["custom-checkbox"]]: true}, styles[iconColor ? iconColor : '']);
+  return (
+    <div className={classnames(styles["form-group"])}>
+      <div className={cnCustomControl}>
+        <input
+          name={name}
+          aria-checked={checked}
+          checked={checked}
+          className={classnames(styles["custom-control-input"])}
+          type="checkbox"
+        />
+        <label htmlFor={rest.id} className={classnames(styles["custom-control-label"])}>
+          {label}
+          {info}
+        </label>
+      </div>
     </div>
-  </div>
-);
+  )
+};
 
 export { Checkbox };
 

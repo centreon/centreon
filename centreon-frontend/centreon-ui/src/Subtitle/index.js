@@ -1,6 +1,12 @@
 import React from "react";
-import "./custom-subtitles.scss";
+import classnames from 'classnames';
+import styles from "./custom-subtitles.scss";
 
-const Subtitle = ({ label, subtitleType }) => <h4 className={`custom-subtitle ${subtitleType}`}>{label}</h4>;
+const Subtitle = ({ label, subtitleType, customSubtitleStyles }) => {
+  const cn = classnames(styles["custom-subtitle"], styles[subtitleType], styles[customSubtitleStyles ? customSubtitleStyles : '']);
+  return (
+    <h4 className={cn}>{label}</h4>
+  )
+}
 
 export default Subtitle;

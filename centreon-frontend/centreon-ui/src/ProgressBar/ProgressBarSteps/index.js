@@ -1,13 +1,14 @@
 import React, { Component } from "react";
-import './progress-bar-steps.scss';
+import classnames from 'classnames';
+import styles from './progress-bar-steps.scss';
 
 class ProgressBarSteps extends Component {
   render() {
-    const { children } = this.props;
+    const { children, customStyles } = this.props;
     return (
-      <div className="progress-bar">
-        <div className="progress-bar-wrapper">
-          <ul className="progress-bar-items">
+      <div className={classnames(styles["progress-bar"], customStyles ? styles["progress-bar-custom-styles"] : '')}>
+        <div className={classnames(styles["progress-bar-wrapper"])}>
+          <ul className={classnames(styles["progress-bar-items"])}>
             {children}
           </ul>
         </div>

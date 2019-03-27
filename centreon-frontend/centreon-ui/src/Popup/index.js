@@ -1,15 +1,16 @@
 import React from "react";
-import "./popup.scss";
+import classnames from 'classnames';
+import styles from './popup.scss';
 
-const Popup = ({ popupType, children }) => {
+const Popup = ({ popupType, children, customClass }) => {
   return (
     <React.Fragment>
-      <div className={`popup popup-${popupType}`}>
-        <div className="popup-dialog">
-          <div className="popup-content">{children}</div>
+      <div className={classnames(styles.popup, {[styles[`popup-${popupType}`]]: true}, styles[customClass ? customClass : ''])}>
+        <div className={classnames(styles["popup-dialog"])}>
+          <div className={classnames(styles["popup-content"])}>{children}</div>
         </div>
       </div>
-      <div className="popup-overlay" />
+      <div className={classnames(styles["popup-overlay"])} />
     </React.Fragment>
   );
 };

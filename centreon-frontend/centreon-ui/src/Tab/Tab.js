@@ -1,4 +1,6 @@
 import React, { Component } from 'react';
+import classnames from 'classnames';
+import styles from "./tab.scss";
 
 class Tab extends Component {
 
@@ -16,10 +18,13 @@ class Tab extends Component {
         error
       },
     } = this;
-    let className = `tab-list-item ` + (error ? 'has-error ' : '');
+    let className = classnames(styles["tab-list-item"],  error ? styles["has-error"] : "")
+
+    //let className = `tab-list-item ` + (error ? 'has-error ' : '');
 
     if (activeTab === label) {
-      className += 'tab-list-active';
+      //className += 'tab-list-active';
+      className += classnames(" " + styles["tab-list-active"])
     }
     return (
       <li 

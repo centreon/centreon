@@ -1,14 +1,15 @@
 import React from "react";
-import "./custom-title.scss";
+import classnames from 'classnames';
+import styles from './custom-title.scss';
 
-const Title = ({ icon, label, titleColor , onClick}) => (
-  <h2 className="custom-title"
+const Title = ({ icon, label, titleColor, customTitleStyles, onClick}) => (
+  <h2 className={classnames(styles["custom-title"], customTitleStyles ? styles["custom-title-styles"] : '')}
     onClick={onClick}
   >
     {icon ? (
-      <span className={`custom-title-icon custom-title-icon-${icon}`} />
+      <span className={classnames(styles["custom-title-icon"], {[styles[`custom-title-icon-${icon}`]]: true})}/>
     ) : null}
-    <span className={`custom-title-label ${titleColor ? titleColor : ''}`}>{label}</span>
+    <span className={classnames(styles["custom-title-label"], styles[titleColor ? titleColor : ''])}>{label}</span>
   </h2>
 );
 

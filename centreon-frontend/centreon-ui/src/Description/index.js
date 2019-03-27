@@ -1,12 +1,13 @@
 import React from "react";
-import "./content-description.scss";
+import classnames from 'classnames';
+import styles from './content-description.scss';
 
 const DescriptionContent = ({ date, title, text, note }) => (
   <React.Fragment>
-    {date ? <span className="content-description-date">{date}</span> : null}
-    {title ? <h3 className="content-description-title">{title}</h3> : null}
+    {date ? <span className={classnames(styles["content-description-date"])}>{date}</span> : null}
+    {title ? <h3 className={classnames(styles["content-description-title"])}>{title}</h3> : null}
     {text ? (
-      <p className="content-description-text">
+      <p className={classnames(styles["content-description-text"])}>
         {text.split("\n").map(i => {
           return (
             <span>
@@ -18,7 +19,7 @@ const DescriptionContent = ({ date, title, text, note }) => (
       </p>
     ) : null}
     {note ? (
-      <span className="content-description-release-note">{note}</span>
+      <span className={classnames(styles["content-description-release-note"])}>{note}</span>
     ) : null}
   </React.Fragment>
 );

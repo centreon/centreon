@@ -1,5 +1,6 @@
 import React from "react";
-import "./switcher.scss";
+import classnames from 'classnames';
+import styles from './switcher.scss';
 
 class Switcher extends React.Component {
   state = {
@@ -49,22 +50,20 @@ class Switcher extends React.Component {
     const { switcherTitle, switcherStatus, customClass } = this.props;
     const { value, toggled } = this.state;
     return (
-      <div className={`switcher ${customClass ? customClass : ''}`}>
-        <span className="switcher-title">
+      <div className={classnames(styles.switcher, styles[customClass])}>
+        <span className={classnames(styles["switcher-title"])}>
           {switcherTitle ? switcherTitle : " "}
         </span>
-        <span className="switcher-status">{switcherStatus}</span>
-        <label
-          className={"switch" + (toggled ? " switch-active" : " switch-hide")}
-        >
+        <span className={classnames(styles["switcher-status"])}>{switcherStatus}</span>
+        <label className={classnames(styles.switch, styles[toggled ? "switch-active" : "switch-hide"])}>
           <input
             type="checkbox"
             checked={!value}
             onClick={this.onChange.bind(this)}
           />
-          <span className="switch-slider switch-round" />
-          <span className="switch-status switch-status-show">on</span>
-          <span className="switch-status switch-status-hide">off</span>
+          <span className={classnames(styles["switch-slider"], styles["switch-round"] )}/>
+          <span className={classnames(styles["switch-status"], styles["switch-status-show"])}>on</span>
+          <span className={classnames(styles["switch-status"], styles["switch-status-hide"])}>off</span>
         </label>
       </div>
     );

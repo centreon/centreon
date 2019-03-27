@@ -1,5 +1,7 @@
 import React from "react";
 import { storiesOf } from "@storybook/react";
+import styles from '../src/Popup/popup.scss';
+import  classnames from 'classnames';
 import {
   Popup,
   IconClose,
@@ -24,16 +26,16 @@ storiesOf("Popup", module).add(
   "Popup - small",
   () => (
     <Popup popupType="small">
-      <div class="popup-header">
+      <div className={classnames(styles["popup-header"])}>
         <h3>Popup Header</h3>
       </div>
-      <div class="popup-body">
+      <div className={classnames(styles["popup-body"])}>
         <p>Popup body</p>
       </div>
-      <div className="popup-footer">
+      <div className={classnames(styles["popup-footer"])}>
         <p>Popup footer</p>
       </div>
-      <IconClose iconType="middle" />
+      <IconClose iconPosition="icon-close-position-small" iconType="middle" />
     </Popup>
   ),
   { notes: "A very simple component" }
@@ -42,11 +44,13 @@ storiesOf("Popup", module).add(
 storiesOf("Popup", module).add(
   "Popup - small with header and footer colored (with message status)",
   () => (
-    <Popup popupType="small scroll host">
-      <div className="popup-header blue">
-        <h3 className="popup-header-title">Popup Header</h3>
+    <Popup popupType="small" customClass="scroll">
+      <div className={classnames(styles["popup-header"], styles["blue"])}>
+        <h3 className={classnames(styles["popup-header-title"])}>Popup Header</h3>
       </div>
-      <div className="popup-body">
+      <div className={classnames(styles["popup-body"])}>
+        <br />
+        <br />
         <LoaderContent />
         <br />
         <br />
@@ -62,8 +66,8 @@ storiesOf("Popup", module).add(
           messageInfo="[FAILED]"
         />
       </div>
-      <div className="popup-footer m-0"></div>
-      <IconClose iconType="middle" />
+      <div className={classnames(styles["popup-footer"])}></div>
+      <IconClose iconPosition="icon-close-position-small" iconType="middle" />
     </Popup>
   ),
   { notes: "A very simple component" }
@@ -72,11 +76,13 @@ storiesOf("Popup", module).add(
 storiesOf("Popup", module).add(
   "Popup - small with header and footer colored (with message status error)",
   () => (
-    <Popup popupType="small scroll host">
-      <div className="popup-header blue">
-        <h3 className="popup-header-title">Popup Header</h3>
+    <Popup popupType="small" customClass="scroll host">
+      <div className={classnames(styles["popup-header"], styles["blue"])}>
+        <h3 className={classnames(styles["popup-header-title"])}>Popup Header</h3>
       </div>
-      <div className="popup-body">
+      <div className={classnames(styles["popup-body"])}>
+        <br />
+        <br />
         <LoaderContent />
         <br />
         <br />
@@ -92,13 +98,14 @@ storiesOf("Popup", module).add(
           messageInfo="[FAILED]"
         />
       </div>
-      <div className="popup-footer m-0">
+      <div className={classnames(styles["popup-footer"], styles["m-0"])}>
         <MessageError
           messageError="red"
           text="Generation of configuration has failed, please try again."
+          messageErrorPosition="message-error-popup-position"
         />
       </div>
-      <IconClose iconType="middle" />
+      <IconClose iconPosition="icon-close-position-small" iconType="middle" />
     </Popup>
   ),
   { notes: "A very simple component" }
@@ -108,22 +115,23 @@ storiesOf("Popup", module).add(
   "Popup - with scroll",
   () => (
     <Popup popupType="small">
-      <div class="popup-header blue">
-        <h3 className="popup-header-title">Popup Header</h3>
+      <div className={classnames(styles["popup-header"], styles["blue"])}>
+        <h3 className={classnames(styles["popup-header-title"])}>Popup Header</h3>
       </div>
       <ScrollBar>
-        <div class="popup-body">
-          <p className="description-text">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam lobortis faucibus tellus. Phasellus in felis sed elit hendrerit facilisis eget sollicitudin ante. Mauris suscipit porttitor semper. Aenean laoreet risus diam, in aliquam ante laoreet in. Nulla mollis velit dolor, vitae sagittis eros auctor in. Phasellus id tincidunt lacus, et elementum eros. Phasellus id commodo risus. Quisque sagittis cursus eros et ornare.
+        <div className={classnames(styles["popup-body"])}>
+          <p className={classnames(styles["description-text"])}>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam lobortis faucibus tellus. Phasellus in felis sed elit hendrerit facilisis eget sollicitudin ante. Mauris suscipit porttitor semper. Aenean laoreet risus diam, in aliquam ante laoreet in. Nulla mollis velit dolor, vitae sagittis eros auctor in. Phasellus id tincidunt lacus, et elementum eros. Phasellus id commodo risus. Quisque sagittis cursus eros et ornare.
           Aenean at magna arcu. Curabitur fringilla eu quam et aliquet. Nam sed libero semper, pellentesque justo sit amet, tempus sapien. Donec viverra nisi at sapien semper hendrerit. Nunc sed fermentum dolor, at varius leo. Donec ullamcorper dui at tincidunt facilisis. Praesent a pretium nisi. Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
         </div>
       </ScrollBar>
-      <div className="popup-footer m-0">
+      <div className={classnames(styles["popup-footer"], styles["m-0"])}>
         <MessageError
           messageError="red"
           text="Generation of configuration has failed, please try again."
+          messageErrorPosition="message-error-popup-position"
         />
       </div>
-      <IconClose iconType="middle" />
+      <IconClose iconPosition="icon-close-position-small" iconType="middle" />
     </Popup>
   ),
   { notes: "A very simple component" }
@@ -133,14 +141,14 @@ storiesOf("Popup", module).add(
   "Popup - dynamic list of sources",
   () => (
     <Popup popupType="small">
-      <div class="popup-header light-blue">
-        <ProgressBar>
+      <div className={classnames(styles["popup-header"], styles["light-blue"])}>
+        <ProgressBar customStyles="progress-bar-custom-styles">
           <ProgressBarItem classActive='active' number='1' />
           <ProgressBarItem number='2' />
         </ProgressBar>
       </div>
       <ScrollBar>
-        <div class="popup-body">
+        <div className={classnames(styles["popup-body"])}>
           <Title titleColor="host" label="Resource Discover Wizard" />
           <Subtitle label="Choose a discovery source:" />
           <br/>
@@ -150,19 +158,21 @@ storiesOf("Popup", module).add(
           <RadioButton label="Azure EC2" name="test4" />
         </div>
       </ScrollBar>
-      <div className="popup-footer text-center">
+      <div className={classnames(styles["popup-footer"], styles["text-center"])}>
         <Button
           label="CANCEL"
           buttonType="validate"
-          color="red normal mr-2"
+          color="red"
+          customClass="normal"
         />
         <Button
           label="NEXT"
           buttonType="validate"
-          color="blue normal"
+          color="blue"
+          customClass="normal"
         />
       </div>
-      <IconClose iconType="middle" />
+      <IconClose iconPosition="icon-close-position-small" iconType="middle" />
     </Popup>
   ),
   { notes: "A very simple component" }
@@ -172,14 +182,14 @@ storiesOf("Popup", module).add(
   "Popup - dynamic list of sources form",
   () => (
     <Popup popupType="small">
-      <div class="popup-header light-blue">
-        <ProgressBar>
+      <div className={classnames(styles["popup-header"], styles["light-blue"])}>
+        <ProgressBar customStyles="progress-bar-custom-styles">
           <ProgressBarItem classActive='active' number='1' />
-          <ProgressBarItem classActive='active' number='2' />
+          <ProgressBarItem number='2' />
         </ProgressBar>
       </div>
       <ScrollBar>
-        <div class="popup-body">
+        <div className={classnames(styles["popup-body"])}>
           <Title titleColor="host" label="Resource Discover Wizard" />
           <br />
           <InputField type="text" name="test1" inputSize="big" label="Login Endpoint" />
@@ -190,19 +200,23 @@ storiesOf("Popup", module).add(
           <InputField type="text" name="test5" inputSize="big" label="Management Endpoint" />
         </div>
       </ScrollBar>
-      <div className="popup-footer">
+      <div className={classnames(styles["popup-footer"])}>
         <Button
           label="BACK"
           buttonType="validate"
-          color="blue normal"
+          color="blue"
+          customClass="normal"
         />
-        <Button
-          label="START"
-          buttonType="validate"
-          color="blue normal f-r"
-        />
+        <div className={classnames(styles["f-r"])}>
+          <Button
+            label="START"
+            buttonType="validate"
+            color="blue"
+            customClass="normal"
+          />
+        </div>
       </div>
-      <IconClose iconType="middle" />
+      <IconClose iconPosition="icon-close-position-small" iconType="middle" />
     </Popup>
   ),
   { notes: "A very simple component" }
@@ -212,14 +226,14 @@ storiesOf("Popup", module).add(
   "Popup - dynamic list of sources form (with loader)",
   () => (
     <Popup popupType="small">
-      <div class="popup-header light-blue">
+      <div className={classnames(styles["popup-header"], styles["blue"])}>
         <ProgressBar>
           <ProgressBarItem classActive='active' number='1' />
           <ProgressBarItem classActive='active' number='2' />
         </ProgressBar>
       </div>
       <ScrollBar>
-        <div class="popup-body">
+        <div className={classnames(styles["popup-body"])}>
           <Title titleColor="host" label="Resource Discover Wizard" />
           <br />
           <InputField type="text" name="test1" inputSize="big" label="Login Endpoint" />
@@ -230,15 +244,18 @@ storiesOf("Popup", module).add(
           <InputField type="text" name="test5" inputSize="big" label="Management Endpoint" />
         </div>
       </ScrollBar>
-      <div className="popup-footer">
+      <div className={classnames(styles["popup-footer"])}>
         <Button
           label="BACK"
           buttonType="validate"
-          color="blue normal"
+          color="blue"
+          customClass="normal"
         />
-        <LoaderContent className="f-r" />
+        <div className={classnames(styles["f-r"])}>
+          <LoaderContent />
+        </div>
       </div>
-      <IconClose iconType="middle" />
+      <IconClose iconPosition="icon-close-position-small" iconType="middle" />
     </Popup>
   ),
   { notes: "A very simple component" }
@@ -248,14 +265,14 @@ storiesOf("Popup", module).add(
   "Popup - dynamic list of sources form (with error)",
   () => (
     <Popup popupType="small">
-      <div class="popup-header light-blue">
+      <div className={classnames(styles["popup-header"], styles["blue"])}>
         <ProgressBar>
           <ProgressBarItem classActive='active' number='1' />
           <ProgressBarItem classActive='active' number='2' />
         </ProgressBar>
       </div>
       <ScrollBar>
-        <div class="popup-body">
+        <div className={classnames(styles["popup-body"])}>
           <Title titleColor="host" label="Resource Discover Wizard" />
           <br />
           <InputField type="text" name="test1" inputSize="big" label="Login Endpoint" />
@@ -266,25 +283,30 @@ storiesOf("Popup", module).add(
           <InputField type="text" name="test5" inputSize="big" label="Management Endpoint" />
         </div>
       </ScrollBar>
-      <div className="popup-footer">
+      <div className={classnames(styles["popup-footer"])}>
         <div>
           <Button
             label="BACK"
             buttonType="validate"
-            color="blue normal"
+            color="blue"
+            customClass="normal"
           />
-          <Button
-            label="START"
-            buttonType="validate"
-            color="blue normal f-r"
-          />
+          <div className={classnames(styles["f-r"])}>
+            <Button
+              label="START"
+              buttonType="validate"
+              color="blue"
+              customClass="normal"
+            />
+          </div>
         </div>
         <MessageError
           messageError="red"
           text="Generation of configuration has failed, please try again."
+          messageErrorPosition="message-error-popup-position"
         />
       </div>
-      <IconClose iconType="middle" />
+      <IconClose iconPosition="icon-close-position-small" iconType="middle" />
     </Popup>
   ),
   { notes: "A very simple component" }
@@ -294,16 +316,16 @@ storiesOf("Popup", module).add(
   "Popup - big",
   () => (
     <Popup popupType="big">
-      <div className="popup-header">
+      <div className={classnames(styles["popup-header"])}>
         <h3>Popup Header</h3>
       </div>
-      <div className="popup-body">
+      <div className={classnames(styles["popup-body"])}>
         <p>Popup body</p>
       </div>
-      <div className="popup-footer">
+      <div className={classnames(styles["popup-footer"])}>
         <p>Popup footer</p>
       </div>
-      <IconClose iconType="big" />
+      <IconClose iconPosition="icon-close-position-big" iconType="big" />
     </Popup>
   ),
   { notes: "A very simple component" }
@@ -314,7 +336,7 @@ storiesOf("Popup Extensions Info", module).add(
   () => (
     <Popup popupType="big">
       <Slider images={["https://res.cloudinary.com/dezez0fsn/image/upload/v1549874437/slider-default-image.png", "https://static.centreon.com/wp-content/uploads/2018/09/plugin-banner-it-operatio" + "ns-management.png", "https://s3.us-east-2.amazonaws.com/dzuz14/thumbnails/canyon.jpg", "https://s3.us-east-2.amazonaws.com/dzuz14/thumbnails/city.jpg", "https://s3.us-east-2.amazonaws.com/dzuz14/thumbnails/desert.jpg"]} />
-      <div className="popup-header">
+      <div className={classnames(styles["popup-header"])}>
         <Title label="Nom de Module" />
         <Subtitle label="by Centreon" />
         <Button label={"Available 3.1.5"} buttonType="regular" color="blue" />
@@ -331,7 +353,7 @@ storiesOf("Popup Extensions Info", module).add(
         />
       </div>
       <HorizontalLine />
-      <div className="popup-body">
+      <div className={classnames(styles["popup-body"])}>
         <Description date="Last update 12/7/2018" />
         <Description title="Description:" />
         <Description text="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum." />
@@ -339,10 +361,10 @@ storiesOf("Popup Extensions Info", module).add(
         <Description text="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum." />
       </div>
       <HorizontalLine />
-      <div className="popup-footer">
+      <div className={classnames(styles["popup-footer"])}>
         <Description note="Release note of v 3.11.5 available here >" />
       </div>
-      <IconClose iconType="big" />
+      <IconClose iconPosition="icon-close-position-big" iconType="big" />
     </Popup>
   ),
   { notes: "A very simple component" }
@@ -352,18 +374,18 @@ storiesOf("Popup Extensions Delete", module).add(
   "Popup - small",
   () => (
     <Popup popupType="small">
-      <div className="popup-header">
+      <div className={classnames(styles["popup-header"])}>
         <Title label="Engine-status" icon="object" />
       </div>
-      <div className="popup-body">
+      <div className={classnames(styles["popup-body"])}>
         <MessageInfo
           messageInfo="red"
           text="Do you want to delete this extension. This, action will remove all associated data."
         />
       </div>
-      <div className="popup-footer">
-        <div className="container__row">
-          <div className="container__col-xs-6">
+      <div className={classnames(styles["popup-footer"])}>
+        <div className={classnames(styles["container__row"])}>
+          <div className={classnames(styles["container__col-xs-6"])}>
             <Button
               label="Delete"
               buttonType="regular"
@@ -371,12 +393,12 @@ storiesOf("Popup Extensions Delete", module).add(
               iconActionType="delete-white"
             />
           </div>
-          <div className="container__col-xs-6 text-right">
+          <div className={classnames(styles["container__col-xs-6"], styles["text-right"])}>
             <Button label="Cancel" buttonType="regular" color="gray" />
           </div>
         </div>
       </div>
-      <IconClose iconType="middle" />
+      <IconClose iconPosition="icon-close-position-small" iconType="middle" />
     </Popup>
   ),
   { notes: "A very simple component" }

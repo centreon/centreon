@@ -1,4 +1,6 @@
 import React from "react";
+import classnames from 'classnames';
+import styles from '../Popup/popup.scss';
 import Popup from "../Popup";
 import Title from "../Title";
 import MessageInfo from "../Message/MessageInfo";
@@ -11,21 +13,21 @@ class ExtensionDeletePopup extends React.Component {
 
     return (
       <Popup popupType="small">
-        <div class="popup-header">
+        <div className={classnames(styles["popup-header"])}>
           <Title
             label={deletingEntity.description}
             icon={deletingEntity.type === "module" ? "object" : "puzzle"}
           />
         </div>
-        <div class="popup-body">
+        <div className={classnames(styles["popup-body"])}>
           <MessageInfo
             messageInfo="red"
             text="Do you want to delete this extension. This, action will remove all associated data."
           />
         </div>
-        <div className="popup-footer">
-          <div class="container__row">
-            <div class="container__col-xs-6">
+        <div className={classnames(styles["popup-footer"])}>
+          <div className={classnames(styles["container__row"])}>
+            <div className={classnames(styles["container__col-xs-6"])}>
               <Button
                 label="Delete"
                 buttonType="regular"
@@ -38,7 +40,7 @@ class ExtensionDeletePopup extends React.Component {
                 }}
               />
             </div>
-            <div class="container__col-xs-6 text-right">
+            <div className={classnames(styles["container__col-xs-6"], ["text-left"])}>
               <Button
                 label="Cancel"
                 buttonType="regular"

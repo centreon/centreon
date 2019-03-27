@@ -1,4 +1,5 @@
 import React from "react";
+import classnames from 'classnames';
 import Wrapper from "../Wrapper";
 import HorizontalLineContent from "../HorizontalLines/HorizontalLineContent";
 import Card from "../Card";
@@ -29,12 +30,12 @@ class ExtensionsHolder extends React.Component {
       <Wrapper>
         <HorizontalLineContent hrTitle={title} />
         <Card>
-          <div className="container__row">
+          <div className={classnames("container__row")}>
             {entities.map(entity => {
               return (
                 <div
                   onClick={onCardClicked.bind(this, entity.id, type)}
-                  className="container__col-md-3 container__col-sm-6 container__col-xs-12"
+                  className={classnames("container__col-md-3" , "container__col-sm-6" , "container__col-xs-12")}
                 >
                   <CardItem
                     itemBorderColor={
@@ -55,7 +56,7 @@ class ExtensionsHolder extends React.Component {
                       <IconInfo iconName="state green" />
                     ) : null}
 
-                    <div className="custom-title-heading">
+                    <div className={classnames("custom-title-heading")}>
                       <Title
                         titleColor={titleColor}
                         icon={titleIcon}

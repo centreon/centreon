@@ -22,6 +22,11 @@
         }
       }
     }
+    &-card-position {
+      position: absolute;
+      bottom: 20px;
+      right: 15px;
+    }
   }
   .content-icon {
     display: inline-block;

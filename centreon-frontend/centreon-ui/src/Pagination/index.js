@@ -1,6 +1,7 @@
 import React, { Component } from "react";
+import classnames from 'classnames';
+import styles from './pagination.scss';
 import IconAction from "../Icon/IconAction";
-import "./pagination.scss";
 
 class Pagination extends Component {
   state = {
@@ -44,7 +45,7 @@ class Pagination extends Component {
         <a
           key={'paginationPage'+i}
           onClick={this.pageChanged.bind(this, i)}
-          className={i === currentPage ? "active" : ""}
+          className={classnames(i === currentPage ? styles["active"] : "")}
         >
           {i + 1}
         </a>
@@ -63,7 +64,7 @@ class Pagination extends Component {
       return null;
     }
     return (
-      <div className="pagination">
+      <div className={classnames(style.pagination)}>
         <a onClick={this.pageChanged.bind(this, 0)}>First</a>
         <IconAction
           iconActionType="arrow-right"

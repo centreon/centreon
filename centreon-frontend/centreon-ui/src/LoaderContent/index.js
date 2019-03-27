@@ -1,13 +1,15 @@
 import React, { Component } from "react";
-import "./loader-content.scss";
+import classnames from 'classnames';
 import "loaders.css/loaders.min.css";
+import styles from './loader-content.scss';
 
 class Loader extends Component {
   render() {
     const {className} = this.props;
+    const cn = classnames(styles.loader, styles.content, styles[className ? className : '']);
     return (
-      <div className={`loader content ${className}`}>
-        <div className="loader-inner ball-grid-pulse">
+      <div className={cn}>
+        <div className={classnames(styles["loader-inner"], "ball-grid-pulse")}>
           <div />
           <div />
           <div />

@@ -1,14 +1,16 @@
 import React from 'react';
-import './textarea.scss';
+import classnames from 'classnames';
+import styles from './textarea.scss';
 import IconInfo from '../../Icon/IconInfo';
 
 const InputFieldTextarea = ({error, label, textareaType, iconName, iconColor}) => {
   return (
-    <div className={`form-group textarea ${textareaType}` + (error ? ' has-danger' : '')}>
-      <label>{iconName ? <IconInfo iconName={iconName} iconColor={iconColor} /> : null } {label} </label>
-      <textarea className="form-control" rows="3" />
+    <div 
+      className={classnames(styles["form-group"], styles.textarea, styles[textareaType ? textareaType : ''], error ? styles['has-danger'] : '')}>
+      {label && <label>{iconName ? <IconInfo iconName={iconName} iconColor={iconColor} /> : null } {label} </label>}
+      <textarea className={classnames(styles["form-control"])} rows="3" />
       {error ? (
-        <div className="form-error">
+        <div className={classnames("form-error")}>
           {error}
         </div>
       ) : null}

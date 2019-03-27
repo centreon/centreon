@@ -10,6 +10,7 @@ storiesOf("Button", module).add(
         label={"Button Regular"}
         buttonType="regular"
         color="orange"
+        customClass="test123"
         onClick={() => {
           alert("Button clicked");
         }}
@@ -109,12 +110,14 @@ storiesOf("Button", module).add("Button - validate", () => (
     <Button
       label="Button Validate"
       buttonType="validate"
-      color="blue normal mr-2"
+      color="blue"
+      customClass="normal"
     />
     <Button
       label="Button Validate"
       buttonType="validate"
-      color="red normal mr-2"
+      color="red"
+      customClass="normal"
     />
   </React.Fragment>
 ));
@@ -122,7 +125,9 @@ storiesOf("Button", module).add("Button - validate", () => (
 storiesOf("Button", module).add("Button - icon", () => (
   <Button
     buttonType="validate"
-    color="green normal icon"
+    color="green"
+    customClass="normal"
+    customSecond="icon"
     iconActionType="arrow-left"
     iconColor="white"
   />

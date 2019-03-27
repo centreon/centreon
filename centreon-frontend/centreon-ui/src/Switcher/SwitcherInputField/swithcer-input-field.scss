@@ -38,31 +38,24 @@
         background-color: $white-color;
         border: 1px solid #dcdcdc;
       }
-      .icon-close {
-        position: absolute;
-        left: 4px;
-        top: 4px;
-        font-size: 14px;
-      }
     }
     .switch-hide {
-      .icon-action {
+      .switcher-icon-left {
+        display: inline-block;
         position: absolute;
-        right: -20px;
+      }
+      .switcher-icon-right {
+        display: none;
       }
     }
     .switch-active {
-      .icon-close {
-        left: -15px;
+      .switcher-icon-left {
+        display: none;
       }
-      .icon-action {
-        right: 0;
-        z-index: 9;
+      .switcher-icon-right {
+        display: inline-block;
         position: absolute;
-        font-size: 22px;
-        &:after {
-          color: $content-green-color;
-        }
+        right: 0;
       }
     }
     input + .switch-slider:after {

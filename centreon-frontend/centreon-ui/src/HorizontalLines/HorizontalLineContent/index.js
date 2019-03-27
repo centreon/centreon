@@ -1,9 +1,10 @@
 import React from "react";
-import "./content-horizontal-line.scss";
+import classnames from 'classnames';
+import styles from './content-horizontal-line.scss';
 
 const HorizontalLineContent = ({ hrTitle }) => (
-  <div className="content-hr">
-    <span className="content-hr-title">{hrTitle}</span>
+  <div className={classnames(styles["content-hr"])}>
+    <span className={classnames(styles["content-hr-title"])}>{hrTitle}</span>
   </div>
 );
 

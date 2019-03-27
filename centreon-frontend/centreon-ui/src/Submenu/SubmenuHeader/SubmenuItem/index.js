@@ -1,15 +1,17 @@
 import React, { Component } from "react";
+import classnames from 'classnames';
+import styles from "../submenu.scss";
 
 class SubmenuItem extends Component {
   render() {
     const { dotColored, submenuTitle, submenuCount } = this.props;
     return (
-      <li className="submenu-item">
-        <span className="submenu-item-title">
-          <span className={`submenu-item-dot dot-${dotColored}`} />
+      <li className={classnames(styles["submenu-item"])}>
+        <span className={classnames(styles["submenu-item-title"])}>
+          <span className={classnames(styles["submenu-item-dot"], styles[`dot-${dotColored}`])}/>
           {submenuTitle}
         </span>
-        <span className="submenu-item-count">{submenuCount}</span>
+        <span className={classnames(styles["submenu-item-count"])}>{submenuCount}</span>
       </li>
     );
   }
