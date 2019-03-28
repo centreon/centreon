@@ -18,12 +18,10 @@ class Tab extends Component {
         error
       },
     } = this;
+    
     let className = classnames(styles["tab-list-item"],  error ? styles["has-error"] : "")
 
-    //let className = `tab-list-item ` + (error ? 'has-error ' : '');
-
     if (activeTab === label) {
-      //className += 'tab-list-active';
       className += classnames(" " + styles["tab-list-active"])
     }
     return (
