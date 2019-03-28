@@ -53,6 +53,10 @@
   @else if $position == 'horizontal' {
     justify-content: center;
   }
+
+  @else if $position == 'baseline' {
+    align-items: baseline;
+  }
   
   @else if $position == 'none' {
     align-items: stretch;
@@ -72,15 +76,12 @@
   @include center(horizontal);
 }
 // Clear both horizontal & vertical
+.center-baseline {
+  @include center(baseline);
+}
+// Clear both horizontal & vertical
 .center-none {
   @include center(none);
-}
-.display-flex {
-  display: -webkit-box;
-  display: -moz-box;
-  display: -webkit-flex;
-  display: -ms-flexbox;
-  display: flex;
 }
 
 // Import iconmoon

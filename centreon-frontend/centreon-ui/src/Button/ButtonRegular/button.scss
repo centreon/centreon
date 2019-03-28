@@ -1,5 +1,6 @@
 @import '../../global-sass-files/variables';
 @import '../../global-sass-files/mixins';
+@import '../../global-sass-files/grid';
 
 // Button
 .button {
@@ -122,11 +123,12 @@
     }
   }
   &.icon {
-    padding: 2px 6px;
+    padding: 2px 14px;
     border-radius: 2px;
-    .icon-action {
-      left: 0;
-      right: 0;
+    > span {
+     position: static;
+     transform: none;
+     font-size: 20px;
     }
   }
   &-card-position {

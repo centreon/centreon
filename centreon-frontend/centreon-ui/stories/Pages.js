@@ -41,7 +41,7 @@ storiesOf("Pages", module).add("Extensions page", () => (
       switchers={[
       [
         {
-          customClass: classnames(styles["container__col-md-4"] , styles["container__col-xs-4"]),
+          customClass: classnames(styles["container__col-md-3"] , styles["container__col-xs-4"]),
           switcherTitle: "Status:",
           switcherStatus: "Not installed",
           defaultValue: false,
@@ -49,14 +49,14 @@ storiesOf("Pages", module).add("Extensions page", () => (
             console.log(value);
           }
         }, {
-          customClass: classnames(styles["container__col-md-4"] , styles["container__col-xs-4"]),
+          customClass: classnames(styles["container__col-md-3"] , styles["container__col-xs-4"]),
           switcherStatus: "Installed",
           defaultValue: false,
           onChange: value => {
             console.log(value);
           }
         }, {
-          customClass: classnames(styles["container__col-md-4"] , styles["container__col-xs-4"]),
+          customClass: classnames(styles["container__col-md-3"] , styles["container__col-xs-4"]),
           switcherStatus: "Update",
           defaultValue: false,
           onChange: value => {
@@ -363,11 +363,13 @@ storiesOf("Pages", module).add("Extensions page", () => (
                   icon="puzzle"
                   label="Plugin pack manager"
                   titleColor="blue"
+                  customTitleStyles="custom-title-styles"
                   onClick={() => {
                   alert("Card clicked- open popin");
                 }}/>
                 <Subtitle
                   label="by Centreon"
+                  customSubtitleStyles="custom-subtitle-styles"
                   onClick={() => {
                   alert("Card clicked- open popin");
                 }}/>
@@ -378,6 +380,7 @@ storiesOf("Pages", module).add("Extensions page", () => (
                 label="Available 3.1.5"
                 iconActionType="add"
                 iconColor='white'
+                position='button-card-position'
                 onClick={() => {
                 alert("Button clicked");
               }}/>
@@ -394,11 +397,13 @@ storiesOf("Pages", module).add("Extensions page", () => (
                   icon="puzzle"
                   label="Plugin pack manager"
                   titleColor="blue"
+                  customTitleStyles="custom-title-styles"
                   onClick={() => {
                   alert("Card clicked- open popin");
                 }}/>
                 <Subtitle
                   label="by Centreon"
+                  customSubtitleStyles="custom-subtitle-styles"
                   onClick={() => {
                   alert("Card clicked- open popin");
                 }}/>
@@ -409,6 +414,7 @@ storiesOf("Pages", module).add("Extensions page", () => (
                 label="Available 3.1.5"
                 iconActionType="add"
                 iconColor='white'
+                position='button-card-position'
                 onClick={() => {
                 alert("Button clicked");
               }}/>
@@ -426,7 +432,7 @@ storiesOf("Pages", module).add("Corelations Capabilities page", () => (
   <React.Fragment>
     <Title titleColor="bam" label="BAM Corelations Capabilities" />
     <br />
-    <div className={classnames(styles["container"], styles["container-gray"])}>
+    <div className={classnames(styles["container"], styles["container-gray"], styles["p-0"])}>
       <Tabs>
         <Tab label="Configuration">
           <div className={classnames(styles["container__row"])}>
@@ -505,7 +511,7 @@ storiesOf("Pages", module).add("Corelations Capabilities page", () => (
               </div>
             </div>
           </div>
-          <div className={classnames(styles["container__row"])}>
+          <div className={classnames(styles["container__row"], styles["mt-2"])}>
             <div className={classnames(styles["container__col-xs-12"])}>
               <HorizontalLineSeparator />
             </div>
@@ -551,30 +557,30 @@ storiesOf("Pages", module).add("Corelations Capabilities page", () => (
             </div>
             <div className={classnames(styles["container__col-md-4"])}>
               <div className={classnames(styles["container__row"])}>
-                <div className={classnames(styles["container__col-md-6"], styles["center-vertical"], styles["m-0"])}>
+                <div className={classnames(styles["container__col-md-5"], styles["center-vertical"], styles["m-0"])}>
                   <InfoTooltip 
                     iconColor="gray" 
                     tooltipText="This is the an example of tooltip" 
                     iconText="Notification time period" 
                   />
                 </div>
-                <div className={classnames(styles["container__col-md-6"], styles["m-0"])}>
+                <div className={classnames(styles["container__col-md-7"], styles["m-0"])}>
                   <InputFieldMultiSelect size="big" />
                 </div>
               </div>
               <br />
               <div className={classnames(styles["container__row"])}>
-              <div className={classnames(styles["container__col-md-6"], styles["center-vertical"], styles["m-0"])}>
+              <div className={classnames(styles["container__col-md-5"], styles["center-vertical"], styles["m-0"])}>
                   <InfoTooltip 
                     iconColor="gray" 
                     tooltipText="This is the an example of tooltip" 
                     iconText="Notification interval" 
                   />
                 </div>
-                <div className={classnames(styles["container__col-md-6"], styles["center-vertical"], styles["m-0"])}>
+                <div className={classnames(styles["container__col-md-7"], styles["center-baseline"], styles["m-0"])}>
                   <InputField 
                     type="text"
-                    inputSize="smallest m-0" 
+                    inputSize="smallest" 
                   />
                   <IconInfo iconText="*60 seconds" />
                 </div>
@@ -629,7 +635,8 @@ storiesOf("Pages", module).add("Corelations Capabilities page", () => (
             <Button
               label="SAVE"
               buttonType="validate"
-              color="green normal"
+              color="green"
+              customClass="normal"
             />
           </div>
         </Tab>
@@ -644,7 +651,7 @@ storiesOf("Pages", module).add("Corelations Capabilities page", () => (
             <div className={classnames(styles["container__col-md-1"], styles["m-0"])}>
               <CustomButton label="Warning" color="orange" />
             </div>
-            <div className={classnames(styles["container__col-md-1"], styles["p-0"], styles["m-0"], styles["center-both"])}>
+            <div className={classnames(styles["container__col-md-1"], styles["p-0"], styles["center-both"])}>
               <IconInfo iconText="Treshold" />
             </div>
             <div className={classnames(styles["container__col-md-1"], styles["p-0"], styles["m-0"], styles["center-vertical"])}>
@@ -656,7 +663,7 @@ storiesOf("Pages", module).add("Corelations Capabilities page", () => (
             <div className={classnames(styles["container__col-md-1"], styles["m-0"])}>
               <CustomButton label="Critical" color="red" />
             </div>
-            <div className={classnames(styles["container__col-md-1"], styles["p-0"], styles["m-0"], styles["center-both"])}>
+            <div className={classnames(styles["container__col-md-1"], styles["p-0"], styles["center-both"])}>
               <IconInfo iconText="Treshold" />
             </div>
             <div className={classnames(styles["container__col-md-1"], styles["p-0"], styles["m-0"], styles["center-vertical"])}>
@@ -672,11 +679,11 @@ storiesOf("Pages", module).add("Corelations Capabilities page", () => (
             </div>
           </div>
           <div className={classnames(styles["container__row"], styles["mb-2"])}>
-            <div className={classnames(styles["container__col-md-3"], styles["center-vertical m-0"])}>
+            <div className={classnames(styles["container__col-md-3"], styles["center-vertical"], styles[ "m-0"])}>
               <IconInfo iconText="Type of objects you want to calculate the result on" />
             </div>
-            <div className={classnames(styles["container__col-md-2"], styles["m-0"])}>
-              <InputFieldMultiSelect size="medium" />
+            <div className={classnames(styles["container__col-md-2"], styles["m-0"], styles["center-vertical"])}>
+              <InputFieldMultiSelect size="small" />
             </div>
           </div>
           <br />
@@ -686,9 +693,17 @@ storiesOf("Pages", module).add("Corelations Capabilities page", () => (
             </div>
           </div>
           <div className={classnames(styles["container__row mt-1"])}>
-            <div className={classnames(styles["container__col-md-12"], styles["m-0"])}>
+            <div className={classnames(styles["container__col-md-12"], styles["m-0"], styles["p-0"])}>
               <ListSortable />
             </div>
+          </div>
+          <div className={classnames(styles["text-right"])}>
+            <Button
+              label="SAVE"
+              buttonType="validate"
+              color="green"
+              customClass="normal"
+            />
           </div>
         </Tab>
         <Tab label="Reporting">
@@ -702,20 +717,20 @@ storiesOf("Pages", module).add("Corelations Capabilities page", () => (
               iconText="Extra reporting time periods used in Centreon BI reports" 
             />
           </div>
-          <div className={classnames(styles["container__row mt-1"], styles["mb-2"])}>
+          <div className={classnames(styles["container__row"], styles["mt-1"], styles["mb-2"])}>
             <InputFieldMultiSelect size="medium" />
           </div>
           <div className={classnames(styles["container__row"])}>
             <div className={classnames(styles["container__col-md-5"], styles["p-0"])}>
               <div className={classnames(styles["container__row"])}>
-                <div className={classnames(styles["container__col-md-5"], styles["center-vertical"], styles["m-0"])}>
+                <div className={classnames(styles["container__col-md-5"], styles["center-baseline"], styles["m-0"])}>
                   <InfoTooltip 
                     iconColor="gray" 
                     tooltipText="This is the an example of tooltip" 
                     iconText="SLA warning percentage treshold" 
                   />
                 </div>
-                <div className={classnames(styles["container__col-md-7"], styles["m-0"], styles["center-vertical"])}>
+                <div className={classnames(styles["container__col-md-7"], styles["m-0"], styles["center-baseline"])}>
                   <InputField 
                     type="text"
                     inputSize="smallest m-0" 
@@ -728,14 +743,14 @@ storiesOf("Pages", module).add("Corelations Capabilities page", () => (
           <div className={classnames(styles["container__row"])}>
             <div className={classnames(styles["container__col-md-5"], styles["p-0"])}>
               <div className={classnames(styles["container__row"])}>
-                <div className={classnames(styles["container__col-md-5"], styles["center-vertical"], styles["m-0"])}>
+                <div className={classnames(styles["container__col-md-5"], styles["center-baseline"], styles["m-0"])}>
                   <InfoTooltip 
                     iconColor="gray" 
                     tooltipText="This is the an example of tooltip" 
                     iconText="SLA control percentage treshold" 
                   />
                 </div>
-                <div className={classnames(styles["container__col-md-7"], styles["m-0"], styles["center-vertical"])}>
+                <div className={classnames(styles["container__col-md-7"], styles["m-0"], styles["center-baseline"])}>
                   <InputField 
                     type="text"
                     inputSize="smallest m-0" 
@@ -748,14 +763,14 @@ storiesOf("Pages", module).add("Corelations Capabilities page", () => (
           <div className={classnames(styles["container__row"])}>
             <div className={classnames(styles["container__col-md-5"], styles["p-0"])}>
               <div className={classnames(styles["container__row"])}>
-                <div className={classnames(styles["container__col-md-5"], styles["center-vertical"], styles["m-0"])}>
+                <div className={classnames(styles["container__col-md-5"], styles["center-baseline"], styles["m-0"])}>
                   <InfoTooltip 
                     iconColor="gray" 
                     tooltipText="This is the an example of tooltip" 
                     iconText="SLA warning duration treshold" 
                   />
                 </div>
-                <div className={classnames(styles["container__col-md-7"], styles["m-0"], styles["center-vertical"])}>
+                <div className={classnames(styles["container__col-md-7"], styles["m-0"], styles["center-baseline"])}>
                   <InputField 
                     type="text"
                     inputSize="smallest m-0" 
@@ -768,14 +783,14 @@ storiesOf("Pages", module).add("Corelations Capabilities page", () => (
           <div className={classnames(styles["container__row"])}>
             <div className={classnames(styles["container__col-md-5"], styles["p-0"])}>
               <div className={classnames(styles["container__row"])}>
-                <div className={classnames(styles["container__col-md-5"], styles["center-vertical"], styles["m-0"])}>
+                <div className={classnames(styles["container__col-md-5"], styles["center-baseline"], styles["m-0"])}>
                   <InfoTooltip 
                     iconColor="gray" 
                     tooltipText="This is the an example of tooltip" 
                     iconText="SLA warning percentage treshold" 
                   />
                 </div>
-                <div className={classnames(styles["container__col-md-7"], styles["m-0"], styles["center-vertical"])}>
+                <div className={classnames(styles["container__col-md-7"], styles["m-0"], styles["center-baseline"])}>
                   <InputField 
                     type="text"
                     inputSize="smallest m-0" 
@@ -789,7 +804,8 @@ storiesOf("Pages", module).add("Corelations Capabilities page", () => (
             <Button
               label="SAVE"
               buttonType="validate"
-              color="green normal"
+              color="green"
+              customClass="normal"
             />
           </div>
         </Tab>
@@ -810,14 +826,14 @@ storiesOf("Pages", module).add("Corelations Capabilities page", () => (
           <div className={classnames(styles["container__row"])}>
             <div className={classnames(styles["container__col-md-5"], styles["p-0"])}>
               <div className={classnames(styles["container__row"])}>
-                <div className={classnames(styles["container__col-md-5"], styles["center-vertical"], styles["m-0"])}>
+                <div className={classnames(styles["container__col-md-5"], styles["center-baseline"], styles["m-0"])}>
                   <InfoTooltip 
                     iconColor="gray" 
                     tooltipText="This is the an example of tooltip" 
                     iconText="SLA warning percentage treshold" 
                   />
                 </div>
-                <div className={classnames(styles["container__col-md-7"], styles["m-0"], styles["center-vertical"])}>
+                <div className={classnames(styles["container__col-md-7"], styles["m-0"], styles["center-baseline"])}>
                   <InputField 
                     type="text"
                     inputSize="smallest m-0" 
@@ -830,14 +846,14 @@ storiesOf("Pages", module).add("Corelations Capabilities page", () => (
           <div className={classnames(styles["container__row"])}>
             <div className={classnames(styles["container__col-md-5"], styles["p-0"])}>
               <div className={classnames(styles["container__row"])}>
-                <div className={classnames(styles["container__col-md-5"], styles["center-vertical"], styles["m-0"])}>
+                <div className={classnames(styles["container__col-md-5"], styles["center-baseline"], styles["m-0"])}>
                   <InfoTooltip 
                     iconColor="gray" 
                     tooltipText="This is the an example of tooltip" 
                     iconText="SLA control percentage treshold" 
                   />
                 </div>
-                <div className={classnames(styles["container__col-md-7"], styles["m-0"], styles["center-vertical"])}>
+                <div className={classnames(styles["container__col-md-7"], styles["m-0"], styles["center-baseline"])}>
                   <InputField 
                     type="text"
                     inputSize="smallest m-0" 
@@ -850,14 +866,14 @@ storiesOf("Pages", module).add("Corelations Capabilities page", () => (
           <div className={classnames(styles["container__row"])}>
             <div className={classnames(styles["container__col-md-5"], styles["p-0"])}>
               <div className={classnames(styles["container__row"])}>
-                <div className={classnames(styles["container__col-md-5"], styles["center-vertical"], styles["m-0"])}>
+                <div className={classnames(styles["container__col-md-5"], styles["center-baseline"], styles["m-0"])}>
                   <InfoTooltip 
                     iconColor="gray" 
                     tooltipText="This is the an example of tooltip" 
                     iconText="SLA warning duration treshold" 
                   />
                 </div>
-                <div className={classnames(styles["container__col-md-7"], styles["m-0"], styles["center-vertical"])}>
+                <div className={classnames(styles["container__col-md-7"], styles["m-0"], styles["center-baseline"])}>
                   <InputField 
                     type="text"
                     inputSize="smallest m-0" 
@@ -870,14 +886,14 @@ storiesOf("Pages", module).add("Corelations Capabilities page", () => (
           <div className={classnames(styles["container__row"])}>
             <div className={classnames(styles["container__col-md-5"], styles["p-0"])}>
               <div className={classnames(styles["container__row"])}>
-                <div className={classnames(styles["container__col-md-5"], styles["center-vertical"], styles["m-0"])}>
+                <div className={classnames(styles["container__col-md-5"], styles["center-baseline"], styles["m-0"])}>
                   <InfoTooltip 
                     iconColor="gray" 
                     tooltipText="This is the an example of tooltip" 
                     iconText="SLA warning percentage treshold" 
                   />
                 </div>
-                <div className={classnames(styles["container__col-md-7"], styles["m-0"], styles["center-vertical"])}>
+                <div className={classnames(styles["container__col-md-7"], styles["m-0"], styles["center-baseline"])}>
                   <InputField 
                     type="text"
                     inputSize="smallest m-0" 
@@ -891,12 +907,13 @@ storiesOf("Pages", module).add("Corelations Capabilities page", () => (
             <Button
               label="SAVE"
               buttonType="validate"
-              color="green normal"
+              color="green"
+              customClass="normal"
             />
           </div>
         </Tab>
         <Tab label="Event Handler">
-          <div className={classnames(styles["container__row mt-2"])}>
+          <div className={classnames(styles["container__row"], styles["mt-2"])}>
             <Subtitle label="Event handler configuration" subtitleType="bam" />
           </div>
           <div className={classnames(styles["container__row"])}>
@@ -938,21 +955,23 @@ storiesOf("Pages", module).add("Corelations Capabilities page", () => (
                 iconText="Args" 
               />
             </div>
-            <div className={classnames(styles["container__col-md-2"], styles["m-0"])}>
+            <div className={classnames(styles["container__col-md-2"], styles["m-0"], styles["center-vertical"])}>
               <InputField 
                 type="text" 
                 inputSize="big m-0" 
               />
             </div>
-            <div className={classnames(styles["container__col-md-1"], styles["m-0"], styles["center-both"])}>
+            <div className={classnames(styles["container__col-md-1"], styles["center-both"])}>
               <Button
                 buttonType="validate"
-                color="green normal icon"
+                color="green"
+                customClass="normal"
+                customSecond="icon"
                 iconActionType="arrow-left"
                 iconColor="white"
               />
             </div>
-            <div className={classnames(styles["container__col-md-2"], styles["m-0"])}>
+            <div className={classnames(styles["container__col-md-2"], styles["m-0"], styles["center-vertical"])}>
               <InputField 
                 type="text" 
                 inputSize="big m-0" 
@@ -963,7 +982,8 @@ storiesOf("Pages", module).add("Corelations Capabilities page", () => (
             <Button
               label="SAVE"
               buttonType="validate"
-              color="green normal"
+              color="green"
+              customClass="normal"
             />
           </div>
         </Tab>

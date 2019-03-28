@@ -17,7 +17,7 @@ storiesOf("Top Filters", module).add(
       switchers={[
         [
           {
-            customClass: classnames(styles["container__col-md-4"], styles["container__col-xs-4"]),
+            customClass: classnames(styles["container__col-md-3"], styles["container__col-xs-4"]),
             switcherTitle: "Status:",
             switcherStatus: "Not installed",
             defaultValue: false,
@@ -26,7 +26,7 @@ storiesOf("Top Filters", module).add(
             }
           },
           {
-            customClass: classnames(styles["container__col-md-4"], styles["container__col-xs-4"]),
+            customClass: classnames(styles["container__col-md-3"], styles["container__col-xs-4"]),
             switcherStatus: "Installed",
             defaultValue: false,
             onChange: value => {
@@ -34,7 +34,7 @@ storiesOf("Top Filters", module).add(
             }
           },
           {
-            customClass: classnames(styles["container__col-md-4"], styles["container__col-xs-4"]),
+            customClass: classnames(styles["container__col-md-3"], styles["container__col-xs-4"]),
             switcherStatus: "Update",
             defaultValue: false,
             onChange: value => {

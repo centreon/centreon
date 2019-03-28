@@ -1,5 +1,7 @@
 import React from "react";
 import { storiesOf } from "@storybook/react";
+import classnames from 'classnames';
+import styles from '../src/InputField/InputFieldSelect/input-field-select.scss';
 import { InputField, InputFieldSelect, InputFieldTextarea, InputFieldMultiSelect } from "../src";
 
 storiesOf("Input Field", module).add(
@@ -38,7 +40,7 @@ storiesOf("Input Field", module).add(
   
   "Input Field - select",
   () => 
-  <InputFieldSelect />,
+  <InputFieldSelect customClass={classnames(styles["select-option-custom"])} />,
   { notes: "A very simple component" }
 );
 

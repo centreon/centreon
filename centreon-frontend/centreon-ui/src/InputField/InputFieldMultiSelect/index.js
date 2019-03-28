@@ -15,12 +15,10 @@ class InputFieldMultiSelect extends Component {
           <IconToggleSubmenu iconPosition="icons-toggle-position-multiselect" iconType="arrow" />
         </div>
           <div className={classnames(styles["multi-select-dropdown"])}>
-            <ScrollBar>
               <Checkbox label="Test" name="test" id='test' iconColor="green" checked={true} />
               <Checkbox label="Test 2" name="test2" id='test2' iconColor="green" checked={true} />
               <Checkbox label="Test 3" name="test3" id='test3' iconColor="green"/>
               <Checkbox label="Test 4" name="test4" id='test4' iconColor="green"/>
-            </ScrollBar>
           </div>
         {error ? (
           <div className={classnames(styles["form-error"])}>

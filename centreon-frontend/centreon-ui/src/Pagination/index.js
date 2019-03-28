@@ -64,7 +64,7 @@ class Pagination extends Component {
       return null;
     }
     return (
-      <div className={classnames(style.pagination)}>
+      <div className={classnames(styles.pagination)}>
         <a onClick={this.pageChanged.bind(this, 0)}>First</a>
         <IconAction
           iconActionType="arrow-right"

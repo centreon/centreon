@@ -8,12 +8,12 @@ storiesOf("Mixed Components", module).add(
   "Mixed Component - BAM",
   () => (
     <div className={classnames(styles["container__row"])}>
-      <div className={classnames(styles["container__col-md-3"])}>
+      <div className={classnames(styles["container__col-md-5"])}>
         <div className={classnames(styles["container__row"])}>
-          <div className={classnames(styles["container__col-md-4"], styles["m-0"])}>
+          <div className={classnames(styles["container__col-md-4"], styles["m-0"], styles["center-baseline"])}>
             <IconInfo iconColor="gray" iconName="question" iconText="Notification interval" />
           </div>
-          <div className={classnames(styles["container__col-md-8"], styles["center-vertical"], styles["m-0"])}>
+          <div className={classnames(styles["container__col-md-8"], styles["center-baseline"], styles["m-0"])}>
             <InputField 
               type="text"
               inputSize="smallest m-0" 

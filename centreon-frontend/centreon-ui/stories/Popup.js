@@ -164,6 +164,7 @@ storiesOf("Popup", module).add(
           buttonType="validate"
           color="red"
           customClass="normal"
+          customSecond="mr-2"
         />
         <Button
           label="NEXT"
@@ -227,9 +228,9 @@ storiesOf("Popup", module).add(
   () => (
     <Popup popupType="small">
       <div className={classnames(styles["popup-header"], styles["blue"])}>
-        <ProgressBar>
+        <ProgressBar customStyles="progress-bar-custom-styles">
           <ProgressBarItem classActive='active' number='1' />
-          <ProgressBarItem classActive='active' number='2' />
+          <ProgressBarItem number='2' />
         </ProgressBar>
       </div>
       <ScrollBar>
@@ -266,9 +267,9 @@ storiesOf("Popup", module).add(
   () => (
     <Popup popupType="small">
       <div className={classnames(styles["popup-header"], styles["blue"])}>
-        <ProgressBar>
+        <ProgressBar customStyles="progress-bar-custom-styles">
           <ProgressBarItem classActive='active' number='1' />
-          <ProgressBarItem classActive='active' number='2' />
+          <ProgressBarItem number='2' />
         </ProgressBar>
       </div>
       <ScrollBar>

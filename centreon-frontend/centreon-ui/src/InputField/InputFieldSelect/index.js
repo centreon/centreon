@@ -22,7 +22,7 @@ class InputFieldSelect extends Component {
     const { selectedOption } = this.state;
     return (
       <Select
-        className={classnames(styles["select-option"], styles[customClass ? customClass : ''])}
+        className={classnames(styles["select-option"], styles[customClass ? customClass : ""])}
         value={selectedOption}
         onChange={this.handleChange}
         options={options}
