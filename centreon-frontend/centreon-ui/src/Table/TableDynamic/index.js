@@ -5,7 +5,6 @@ import InputFieldSelect from '../../InputField/InputFieldSelect';
 import Checkbox from '../../Checkbox';
 import SearchLive from '../../Search/SearchLive';
 import ScrollBar from '../../ScrollBar';
-import './table-dynamic.scss';
 
 class TableDynamic extends Component {
   render() {
