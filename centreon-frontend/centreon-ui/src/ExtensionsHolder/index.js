@@ -1,5 +1,6 @@
 import React from "react";
 import classnames from 'classnames';
+import styles from '../global-sass-files/_grid.scss';
 import Wrapper from "../Wrapper";
 import HorizontalLineContent from "../HorizontalLines/HorizontalLineContent";
 import Card from "../Card";
@@ -30,13 +31,13 @@ class ExtensionsHolder extends React.Component {
       <Wrapper>
         <HorizontalLineContent hrTitle={title} />
         <Card>
-          <div className={classnames("container__row")}>
+          <div className={classnames(styles["container__row"])}>
             {entities.map(entity => {
               return (
                 <div
                   id={`${type}-${entity.id}`}
                   onClick={() => { onCardClicked(entity.id, type)} }
-                  className={classnames("container__col-md-3" , "container__col-sm-6" , "container__col-xs-12")}
+                  className={classnames(styles["container__col-md-3"], styles["container__col-sm-6"], styles["container__col-xs-12"])}
                 >
                   <CardItem
                     itemBorderColor={

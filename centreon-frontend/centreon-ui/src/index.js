@@ -32,6 +32,7 @@ export { default as InputField } from "./InputField";
 export { default as InputFieldSelect } from "./InputField/InputFieldSelect";
 export { default as InputFieldTextarea } from "./InputField/InputFieldTextarea";
 export { default as InputFieldMultiSelect } from "./InputField/InputFieldMultiSelect";
+export { default as InputFieldSelectCustom } from "./InputField/InputFieldSelectCustom";
 export { default as ListSortable } from "./List/ListSortable";
 export { default as LoaderContent } from "./LoaderContent";
 export { default as MessageError} from './Message/MessageError';
