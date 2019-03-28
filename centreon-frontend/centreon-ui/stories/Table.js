@@ -4,7 +4,7 @@ import  classnames from 'classnames';
 import {storiesOf} from "@storybook/react";
 import {Table, TableDynamic, Title, Button} from "../src";
 
-storiesOf("Table", module).add("Table - custom", () => <Table/>, {notes: "A very simple component"});
+storiesOf("Table", module).add("Table - custom", () => <Table />, {notes: "A very simple component"});
 storiesOf("Table", module).add("Table Dynamic - custom", () => <React.Fragment>
   <Title titleColor="host" label="Resource discovry wizard" />
   <TableDynamic/>
@@ -25,3 +25,5 @@ storiesOf("Table", module).add("Table Dynamic - custom", () => <React.Fragment>
     </div>
   </div>
 </React.Fragment>, {notes: "A very simple component"});
+
+storiesOf("Table", module).add("Table - with scroll", () => <Table tableScroll={true}/>, {notes: "A very simple component"});

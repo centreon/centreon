@@ -4,6 +4,7 @@ import styles from "./table-dynamic.scss";
 import InputFieldSelect from '../../InputField/InputFieldSelect';
 import Checkbox from '../../Checkbox';
 import SearchLive from '../../Search/SearchLive';
+import ScrollBar from '../../ScrollBar';
 
 class TableDynamic extends Component {
   render() {
@@ -25,54 +26,200 @@ class TableDynamic extends Component {
           </tr>
         </thead>
         <tbody>
-          <tr>
-            <td>
-              <Checkbox
-                label="Host 1 lorem ipsum dolor sit amet"
-                name="host1"
-                iconColor="light-blue"
-              />
-            </td>
-            <td>
-              <InputFieldSelect customClass="medium" />
-            </td>
-          </tr>
-          <tr>
-            <td>
-              <Checkbox
-                label="Host 1 lorem ipsum dolor sit amet"
-                name="host1"
-                iconColor="light-blue"
-              />
-            </td>
-            <td>
-              <InputFieldSelect customClass="medium" />
-            </td>
-          </tr>
-          <tr>
-            <td>
-              <Checkbox
-                label="Host 1 lorem ipsum dolor sit amet"
-                name="host1"
-                iconColor="light-blue"
-              />
-            </td>
-            <td>
-              <InputFieldSelect customClass="medium" />
-            </td>
-          </tr>
-          <tr>
-            <td>
-              <Checkbox
-                label="Host 1 lorem ipsum dolor sit amet"
-                name="host1"
-                iconColor="light-blue"
-              />
-            </td>
-            <td>
-              <InputFieldSelect customClass="medium" />
-            </td>
-          </tr>
+          <ScrollBar scrollType="big">
+            <tr>
+              <td>
+                <Checkbox
+                  label="Host 1 lorem ipsum dolor sit amet"
+                  name="host1"
+                  iconColor="light-blue"
+                />
+              </td>
+              <td>
+                <InputFieldSelect customClass="medium" />
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <Checkbox
+                  label="Host 1 lorem ipsum dolor sit amet"
+                  name="host1"
+                  iconColor="light-blue"
+                />
+              </td>
+              <td>
+                <InputFieldSelect customClass="medium" />
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <Checkbox
+                  label="Host 1 lorem ipsum dolor sit amet"
+                  name="host1"
+                  iconColor="light-blue"
+                />
+              </td>
+              <td>
+                <InputFieldSelect customClass="medium" />
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <Checkbox
+                  label="Host 1 lorem ipsum dolor sit amet"
+                  name="host1"
+                  iconColor="light-blue"
+                />
+              </td>
+              <td>
+                <InputFieldSelect customClass="medium" />
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <Checkbox
+                  label="Host 1 lorem ipsum dolor sit amet"
+                  name="host1"
+                  iconColor="light-blue"
+                />
+              </td>
+              <td>
+                <InputFieldSelect customClass="medium" />
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <Checkbox
+                  label="Host 1 lorem ipsum dolor sit amet"
+                  name="host1"
+                  iconColor="light-blue"
+                />
+              </td>
+              <td>
+                <InputFieldSelect customClass="medium" />
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <Checkbox
+                  label="Host 1 lorem ipsum dolor sit amet"
+                  name="host1"
+                  iconColor="light-blue"
+                />
+              </td>
+              <td>
+                <InputFieldSelect customClass="medium" />
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <Checkbox
+                  label="Host 1 lorem ipsum dolor sit amet"
+                  name="host1"
+                  iconColor="light-blue"
+                />
+              </td>
+              <td>
+                <InputFieldSelect customClass="medium" />
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <Checkbox
+                  label="Host 1 lorem ipsum dolor sit amet"
+                  name="host1"
+                  iconColor="light-blue"
+                />
+              </td>
+              <td>
+                <InputFieldSelect customClass="medium" />
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <Checkbox
+                  label="Host 1 lorem ipsum dolor sit amet"
+                  name="host1"
+                  iconColor="light-blue"
+                />
+              </td>
+              <td>
+                <InputFieldSelect customClass="medium" />
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <Checkbox
+                  label="Host 1 lorem ipsum dolor sit amet"
+                  name="host1"
+                  iconColor="light-blue"
+                />
+              </td>
+              <td>
+                <InputFieldSelect customClass="medium" />
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <Checkbox
+                  label="Host 1 lorem ipsum dolor sit amet"
+                  name="host1"
+                  iconColor="light-blue"
+                />
+              </td>
+              <td>
+                <InputFieldSelect customClass="medium" />
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <Checkbox
+                  label="Host 1 lorem ipsum dolor sit amet"
+                  name="host1"
+                  iconColor="light-blue"
+                />
+              </td>
+              <td>
+                <InputFieldSelect customClass="medium" />
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <Checkbox
+                  label="Host 1 lorem ipsum dolor sit amet"
+                  name="host1"
+                  iconColor="light-blue"
+                />
+              </td>
+              <td>
+                <InputFieldSelect customClass="medium" />
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <Checkbox
+                  label="Host 1 lorem ipsum dolor sit amet"
+                  name="host1"
+                  iconColor="light-blue"
+                />
+              </td>
+              <td>
+                <InputFieldSelect customClass="medium" />
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <Checkbox
+                  label="Host 1 lorem ipsum dolor sit amet"
+                  name="host1"
+                  iconColor="light-blue"
+                />
+              </td>
+              <td>
+                <InputFieldSelect customClass="medium" />
+              </td>
+            </tr>
+          </ScrollBar>
         </tbody>
       </table>
     );

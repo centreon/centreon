@@ -34,7 +34,8 @@ class ExtensionsHolder extends React.Component {
             {entities.map(entity => {
               return (
                 <div
-                  onClick={onCardClicked.bind(this, entity.id, type)}
+                  id={`${type}-${entity.id}`}
+                  onClick={() => { onCardClicked(entity.id, type)} }
                   className={classnames("container__col-md-3" , "container__col-sm-6" , "container__col-xs-12")}
                 >
                   <CardItem
@@ -72,10 +73,7 @@ class ExtensionsHolder extends React.Component {
                         const { version } = entity;
                         if (version.outdated && !updating[entity.id]) {
                           onUpdate(id, type);
-                        } else if (
-                          !version.installed &&
-                          !installing[entity.id]
-                        ) {
+                        } else if (!version.installed && !installing[entity.id]) {
                           onInstall(id, type);
                         } else {
                           onCardClicked(id);

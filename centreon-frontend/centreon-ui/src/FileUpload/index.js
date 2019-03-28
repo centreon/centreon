@@ -79,7 +79,7 @@ class FileUpload extends Component {
           </div>
           <span className={classnames(styles["icon-close"], styles["icon-close-middle"])} onClick={onClose} />
           </div>
-          {files.length > 0 && isSuccessfull ? (
+          {files.length > 0 ? (
             <div className={classnames(styles["popup-body"])}>
               <div className={classnames(styles.file, styles["file-upload"], styles["file-upload-body-container"])}>
                 <div className={classnames(styles["file-upload-items"])}>
@@ -102,7 +102,7 @@ class FileUpload extends Component {
                         uploading={uploading}
                       />
                     ))
-                  ) : isSuccessfull ? (
+                  ) : (
                     <>
                       {uploadStatus.result.successed.map(({ license }) => (
                         <FileUploadItem
@@ -132,7 +132,7 @@ class FileUpload extends Component {
                         )
                       )}
                     </>
-                  ) : null}
+                  )}
                 </div>
                 {!finished ? (
                   <Button

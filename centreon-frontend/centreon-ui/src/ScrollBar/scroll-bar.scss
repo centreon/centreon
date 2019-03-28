@@ -18,5 +18,9 @@
         }
       }
     }
+    &.big {
+      width: 100% !important;
+      max-height: 368px;
+    }
   }
 }
