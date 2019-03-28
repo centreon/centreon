@@ -21,18 +21,17 @@ module.exports = {
       {
         test: /\.scss$/,
         use: [
-          "style-loader", // creates style nodes from JS strings
+          "style-loader",
           {
             "loader": "css-loader",
             "options": {
               "modules": true,
-              // "localIdentName": "[local]",
               "localIdentName": "[local]__[hash:base64:5]",
               "importLoaders": 1,
               "sourceMap": false
             }
           },
-          "sass-loader", // compiles Sass to CSS, using Node Sass by default
+          "sass-loader",
         ],
         include: path.resolve(__dirname, "..")
       },
