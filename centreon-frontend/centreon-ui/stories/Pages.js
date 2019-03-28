@@ -810,7 +810,7 @@ storiesOf("Pages", module).add("Corelations Capabilities page", () => (
           </div>
         </Tab>
         <Tab label="Escalation">
-          <div className={classnames(styles["container__row mt-2"])}>
+          <div className={classnames(styles["container__row"], styles["mt-2"])}>
             <Subtitle label="Escalations" subtitleType="bam" />
           </div>
           <div className={classnames(styles["container__row"])}>
