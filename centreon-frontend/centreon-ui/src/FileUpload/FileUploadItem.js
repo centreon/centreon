@@ -1,4 +1,6 @@
 import React, { Component } from "react";
+import classnames from 'classnames';
+import styles from './file-upload.scss';
 
 class FileUploadItem extends Component {
   render() {
@@ -16,29 +18,34 @@ class FileUploadItem extends Component {
       message,
       onDeleteFile
     } = this.props;
+    const cnFileUploadIcon = classnames(styles["file-upload-item-icon"], styles[icon ? icon : ''], styles[iconStatus ? iconStatus : ''] );
+    const cnFileUploadTitle = classnames(styles["file-upload-item-title"], styles[titleStatus ? titleStatus : '']);
+    const cnFileUploadInfo = classnames(styles["file-upload-item-info"], styles[infoStatus ? infoStatus : '']);
     return (
       <React.Fragment>
-        <div className="file-upload-item">
+        <div className={classnames(styles["file-upload-item"])}>
           {icon ? (
-            <span className={`file-upload-item-icon ${icon} ${iconStatus}`} />
+            <span className={cnFileUploadIcon}/>
           ) : null}
-          <span className={`file-upload-item-title ${titleStatus}`}>
+          <span className={cnFileUploadTitle}>
             {title}
           </span>
           {info ? (
-            <span className={`file-upload-item-info ${infoStatus}`}>
+            <span className={cnFileUploadInfo}>
               {infoStatusLabel}
               {info}
             </span>
           ) : null}
           {!uploading ? (
             <span
-              className="icon-close icon-close-small"
+              className={classnames(styles["icon-close"], styles["icon-close-small"])}
               onClick={onDeleteFile}
             />
           ) : null}
-          <div className="progress">
-            <span className={`progress-bar ${progressBar}`} style={
+          <div className={classnames(styles["progress"])}>
+            <span 
+            className={classnames(styles["progress-bar"], styles[progressBar])}
+            style={
               {
                 width: `${progressPercentage}%`
               }
@@ -46,7 +53,7 @@ class FileUploadItem extends Component {
           </div>
           {
             message ? (
-              <span class="file-upload-message">{message}</span>
+              <span className={classnames(styles["file-upload-message"])}>{message}</span>
             ) : null
           }      
         </div>

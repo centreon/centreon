@@ -1,7 +1,8 @@
 import React, { Component } from "react";
 import IconAction from "../Icon/IconAction";
 import TableCounter from "./TableCounter";
-import "./table.scss";
+import styles from "./table.scss";
+import classnames from 'classnames';
 import Pagination from "../Pagination";
 
 class Table extends Component {
@@ -12,7 +13,7 @@ class Table extends Component {
     const { fields, type, data, pagination } = this.props;
     return (
       <React.Fragment>
-        <table className="table table-striped">
+        <table className={classnames(styles["table"], styles["table-striped"])}>
           <thead>
             <tr>
               {fields.map((field, index) => (
@@ -68,7 +69,7 @@ class Table extends Component {
             ))}
           </tbody>
         </table>
-        <div class="text-center">
+        <div class={classnames(styles["text-center"])}>
           <Pagination
             pageCount={14}
             onPageChange={page => {

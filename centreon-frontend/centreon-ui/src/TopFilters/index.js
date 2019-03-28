@@ -1,4 +1,6 @@
 import React, { Component } from "react";
+import classnames from 'classnames';
+import styles from '../global-sass-files/_grid.scss';
 import Wrapper from "../Wrapper";
 import SearchLive from "../Search/SearchLive";
 import Switcher from "../Switcher";
@@ -9,11 +11,11 @@ class TopFilters extends Component {
     const { fullText, switchers, onChange, icon } = this.props;
 
     return (
-      <div className="container container-gray">
+      <div className={classnames(styles["container"], styles["container-gray"])}>
         <Wrapper>
-          <div className="container__row">
+          <div className={classnames(styles["container__row"])}>
             {fullText ? (
-              <div className="container__col-md-3 container__col-xs-12">
+              <div className={classnames(styles["container__col-md-3"], styles["container__col-xs-12"])}>
                 <SearchLive
                   icon={fullText.icon}
                   onChange={onChange}
@@ -24,17 +26,17 @@ class TopFilters extends Component {
               </div>
             ) : null}
 
-            <div className="container__col-md-9 container__col-xs-12">
-              <div className="container__row">
+            <div className={classnames(styles["container__col-md-9"], styles["container__col-xs-12"])}>
+              <div className={classnames(styles["container__row"])}>
                 {switchers
                   ? switchers.map((switcherColumn, index) => (
                       <div
                         key={`switcherColumn${index}`}
-                        className="container__col-sm-6 container__col-xs-12"
+                        className={classnames(styles["container__col-sm-6"], styles["container__col-xs-12"])}
                       >
                         <div
                           key={`switcherSubColumn${index}`}
-                          className="container__row"
+                          className={classnames(styles["container__row"])}
                         >
                           {switcherColumn.map(
                             (
@@ -65,7 +67,7 @@ class TopFilters extends Component {
                               ) : (
                                 <div
                                   key={`switcher${index}${i}`}
-                                  className="container__col-sm-6 container__col-xs-4 center-vertical mt-1"
+                                  className={classnames(styles["container__col-sm-6"], styles["container__col-xs-4"], styles["center-vertical"], styles["mt-1"])}
                                 >
                                   <Button
                                     key={`switcherButton${index}${i}`}

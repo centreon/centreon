@@ -31,5 +31,49 @@
     &-big {
       font-size: 40px;
     }
+    &-position {
+      &-small {
+        right: -45px;
+        position: absolute;
+        right: -33px;
+        top: -5px;
+      }
+      &-middle {
+        position: absolute;
+        right: -33px;
+        top: -5px;
+      }
+      &-big {
+        position: absolute;
+        right: -40px;
+        top: -6px;
+      }
+    }
+  }
+}
+.icon-close-custom {
+  position: absolute;
+  left: 4px;
+  top: 4px;
+  font-size: 14px;
+}
+.switch-hide {
+  .icon-action-custom {
+    position: absolute;
+    right: -20px;
+  }
+}
+.switch-active {
+  .icon-close-custom {
+    left: -15px;
+  }
+  .icon-action-custom {
+    right: 0;
+    z-index: 9;
+    position: absolute;
+    font-size: 22px;
+    &:after {
+      color: $content-green-color;
+    }
   }
 }

@@ -1,9 +1,10 @@
 import React, { Component } from "react";
+import classnames from 'classnames';
+import styles from './content-slider.scss';
 import ContentSliderItem from "./ContentSliderItem";
 import ContentSliderLeftArrow from "./ContentSliderLeftArrow";
 import ContentSliderRightArrow from "./ContentSliderRightArrow";
 import ContentSliderIndicators from "./ContentSliderIndicators";
-import "./content-slider.scss";
 import defaultSliderImage from "./slider-default-image.png";
 
 class SliderContent extends Component {
@@ -91,17 +92,17 @@ class SliderContent extends Component {
     const { images, children } = this.props;
 
     return (
-      <div className="content-slider-wrapper">
-        <div className="content-slider">
+      <div className={classnames(styles["content-slider-wrapper"])}>
+        <div className={classnames(styles["content-slider"])}>
           <div
-            className="content-slider-items"
+            className={classnames(styles["content-slider-items"])}
             style={{
               transform: `translateX(${translateValue}px)`
             }}
           >
             {this.renderSlides()}
           </div>
-          <div className="content-slider-controls">
+          <div className={classnames(styles["content-slider-controls"])}>
             {currentIndex === 0 ? null : (
               <ContentSliderLeftArrow
                 goToPrevSlide={this.goToPrevSlide}

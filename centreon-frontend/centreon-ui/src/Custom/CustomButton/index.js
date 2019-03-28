@@ -1,9 +1,11 @@
 import React from 'react';
-import './custom-button.scss';
+import classnames from 'classnames';
+import styles from './custom-button.scss';
 
-const CustomButton = ({ color, label }) => { 
+const CustomButton = ({ color, label }) => {
+  const cn = classnames(styles["custom-button"], {[styles[`custom-button-${color ? color : ""}`]]: true});
   return (
-    <button className={`custom-button custom-button-${color}`}>
+    <button className={cn}>
       {label}
     </button>
   )

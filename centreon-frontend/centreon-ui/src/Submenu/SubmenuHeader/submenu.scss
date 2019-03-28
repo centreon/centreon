@@ -9,7 +9,7 @@
   }
   &-top {
     position: relative;
-    padding: 6px 20px;
+    padding: 6px 20px 7px 20px;
     flex-wrap: wrap;
     align-items: center;
     background-color: #232f39;
@@ -24,28 +24,37 @@
     list-style: none;
     padding: 0;
     margin: 0;
-    a {
-      display: block;
+  }
+  &-item {
+    position: relative;
+    &-count {
+      float: right;
       padding: 10px;
       font-family: $primary-font-light;
       color: $white-color;
       font-size: .8rem;
       text-decoration: none;
-      &:not(:first-of-type) .submenu-item-title {
-        padding-left: 15px;
-      }
-    }
-  }
-  &-item {
-    &-count {
-      float: right;
+      position: absolute;
+      right: 0;
     }
     &-title {
       position: relative;
+      padding: 10px;
+      font-family: $primary-font-light;
+      color: $white-color;
+      font-size: .8rem;
+      text-decoration: none;
+      display: block;
+      padding-left: 22px;
+    }
+    &:first-child {
+      .submenu-item-title {
+        padding-left: 10px;
+      }
     }
     &-dot {
       position: absolute;
-      left: 0;
+      left: 10px;
       width: 8px;
       height: 8px;
       border-radius: 50%;

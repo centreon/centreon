@@ -10,10 +10,11 @@
     color: #232f39;
     display: inline-block;
     vertical-align: middle;
-    padding: 8px 15px;
+    padding: 10px 15px;
     text-decoration: none;
     font-family: $primary-font-light;
     font-size: 12px;
+    cursor: pointer;
     &.active, &:hover {
       color: #17387b;
       font-family: $primary-font-medium;
@@ -21,7 +22,7 @@
     &:first-child {
       position: absolute;
       left: 0;
-      & + .icon-action {
+      & + span {
         transform: rotate(180deg);
       }
     }
@@ -38,5 +39,10 @@
     &:after {
       color: #232f39;
     }
+  }
+  span {
+    position: relative;
+    top: 7px;
+    cursor: pointer;
   }
 }

@@ -1,5 +1,6 @@
 @import '../../global-sass-files/variables';
 @import '../../global-sass-files/mixins';
+@import '../../Icon//IconAction/action-icons.scss';
 
 // Button action
 .button-action {
@@ -20,5 +21,9 @@
     height: 20px;
     top: 50%;
     transform: translateY(-50%);
+  }
+  &-icon-custom {
+    position: absolute;
+    right: -39px;
   }
 }

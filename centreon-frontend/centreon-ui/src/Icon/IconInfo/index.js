@@ -1,11 +1,13 @@
 import React from "react";
-import "./info-state-icon.scss";
+import classnames from 'classnames';
+import styles from "./info-state-icon.scss";
 
-const IconInfo = ({ iconName, iconText, iconColor }) => {
+const IconInfo = ({ iconName, iconText, iconColor, iconPosition }) => {
+  const cn = classnames(styles.info, {[styles[`info-${iconName}`]]: true}, styles[iconPosition ? iconPosition : ''], styles[iconColor ? iconColor : '']);
   return (
     <React.Fragment>
-      {iconName && <span className={`info info-${iconName} ${iconColor ? iconColor : ''}`} />}
-      {iconText && <span className="info-text">{iconText}</span>}
+      {iconName && <span className={cn} />}
+      {iconText && <span className={classnames(styles["info-text"])}>{iconText}</span>}
     </React.Fragment>
   )
 };

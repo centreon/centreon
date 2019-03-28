@@ -200,4 +200,42 @@
       }
     }
   }
+  &-position {
+    &-left, &-right, &-center {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+    }
+    &-left {
+      left: 5px;
+    }
+    &-right {
+      right: 5px;
+    }
+    &-center {
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+    &-reset {
+      position: static;
+      transform: none;
+    }
+    &-counter {
+      position: absolute;
+      transform: rotate(90deg);
+      right: 1px;
+      top: 3px;
+      font-size: 20px;
+      cursor: pointer;
+    }
+  }
+}
+.icon-action-custom {
+  right: 0;
+  z-index: 9;
+  position: absolute;
+  font-size: 22px;
+  &:after {
+    color: $content-green-color;
+  }
 }

@@ -1,5 +1,6 @@
 @import '../../global-sass-files/variables';
 @import '../../global-sass-files/mixins';
+@import '../../global-sass-files/grid';
 
 // Button
 .button {
@@ -98,16 +99,6 @@
       background-color: transparent;
     }
   }
-  .icon-action {
-    top: 50%;
-    transform: translateY(-50%);
-    position: absolute;
-    right: 5px;
-    &.icon-left {
-      right: auto;
-      left: 5px;
-    }
-  }
   &-validate {
     &-blue {
       background-color: #009fdf;
@@ -132,12 +123,16 @@
     }
   }
   &.icon {
-    height: 27px;
-    padding: 9px 20px;
+    padding: 2px 14px;
     border-radius: 2px;
-    .icon-action {
-      left: 0;
-      right: 0;
+    > span {
+     position: static;
+     transform: none;
+     font-size: 20px;
     }
+  }
+  &-card-position {
+    position: absolute;
+    bottom: 20px;
   }
 }

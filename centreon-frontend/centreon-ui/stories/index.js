@@ -11,6 +11,7 @@ import "./InfoLoading";
 import './List';
 import './InputField';
 import './Loader';
+import './Material';
 import "./Message";
 import "./MixedComponents";
 import "./Pages";

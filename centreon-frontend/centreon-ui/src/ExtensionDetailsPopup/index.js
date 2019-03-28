@@ -1,4 +1,6 @@
 import React from "react";
+import classnames from 'classnames';
+import styles from '../Popup/popup.scss'
 import Popup from "../Popup";
 import Loader from "../Loader";
 import Slider from "../Slider/SliderContent";
@@ -55,7 +57,7 @@ class ExtensionDetailPopup extends React.Component {
             />
           )}
         </Slider>
-        <div class="popup-header">
+        <div className={classnames(styles["popup-header"])}>
           <Title label={modalDetails.title} />
           <Subtitle label={modalDetails.label} />
           <Button
@@ -81,7 +83,7 @@ class ExtensionDetailPopup extends React.Component {
           ) : null}
         </div>
         <HorizontalLine />
-        <div class="popup-body">
+        <div className={classnames(styles["popup-body"])}>
           {modalDetails.last_update ? (
             <Description
               date={`Last update ${modalDetails.last_update}`}
@@ -91,7 +93,7 @@ class ExtensionDetailPopup extends React.Component {
           <Description text={modalDetails.description} />
         </div>
         <HorizontalLine />
-        <div className="popup-footer">
+        <div className={classnames(styles["popup-footer"])}>
           <Description note={modalDetails.release_note} />
         </div>
         <IconClose iconType="big" onClick={onCloseClicked} />

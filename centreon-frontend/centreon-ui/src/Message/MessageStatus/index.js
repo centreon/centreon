@@ -1,11 +1,12 @@
 import React from 'react';
-import './message-status.scss';
+import classnames from 'classnames';
+import styles from './message-status.scss';
 
 const ContentMessage = ({ messageStatus, messageText, messageInfo }) => {
   return (
-    <span className={`message-status ${messageStatus}`}>
+    <span className={classnames(styles["message-status"], styles[messageStatus ? messageStatus : ''])}>
       {messageText}
-      <span className={`message-status-info`}>{messageInfo}</span>
+      <span className={classnames(styles["message-status-info"])}>{messageInfo}</span>
     </span>
   )
 }

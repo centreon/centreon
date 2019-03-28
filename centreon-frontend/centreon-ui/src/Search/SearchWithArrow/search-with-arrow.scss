@@ -25,13 +25,9 @@
         max-width: 250px;
       }
     }
-    &.custom {
+    &-custom {
       display: inline-block;
       position: relative;
-      .button-action-input {
-        position: absolute;
-        right: -39px;
-      }
     }
   }
 }

@@ -1,4 +1,5 @@
 @import '../../global-sass-files/variables';
+@import '../../global-sass-files/grid';
 
 // Table dynamic
 .table-dynamic {
@@ -80,5 +81,8 @@
   }
   .custom-control-label {
     margin-bottom: 0;
+  }
+  input {
+    margin: 0;
   }
 }

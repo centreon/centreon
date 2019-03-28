@@ -1,4 +1,6 @@
 import React, { Component } from 'react';
+import classnames from 'classnames';
+import styles from "./tab.scss";
 import Tab from './Tab';
 
 class Tabs extends Component {
@@ -27,8 +29,8 @@ class Tabs extends Component {
     } = this;
     const {error} = this.props
     return (
-      <div className="tab">
-        <ol className="tab-list">
+      <div className={classnames(styles["tab"])}>
+        <ol className={classnames(styles["tab-list"])}>
           {children.map((child) => {
             const { label, error } = child.props;
             return (
@@ -42,8 +44,8 @@ class Tabs extends Component {
             );
           })}
         </ol>
-        <div className="tab-content">
-          {error && <div className="has-error">{error}</div>}
+        <div className={classnames(styles["tab-content"])}>
+          {error && <div className={classnames(styles["has-error"])}>{error}</div>}
           {children.map((child) => {
             if (child.props.label !== activeTab) return undefined;
             return child.props.children;

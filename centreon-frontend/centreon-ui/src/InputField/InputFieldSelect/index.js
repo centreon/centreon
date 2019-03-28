@@ -1,6 +1,7 @@
 import React, {Component} from 'react';
+import classnames from 'classnames';
+import styles from './input-field-select.scss';
 import Select from 'react-select';
-import './input-field-select.scss';
 
 const options = [
   { value: 'remote1', label: 'Remote Server 1' },
@@ -21,7 +22,7 @@ class InputFieldSelect extends Component {
     const { selectedOption } = this.state;
     return (
       <Select
-        className={`select-option ${customClass ? customClass : ''}`}
+        className={classnames(styles["select-option"], styles[customClass ? customClass : ""])}
         value={selectedOption}
         onChange={this.handleChange}
         options={options}

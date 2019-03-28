@@ -1,14 +1,11 @@
 import React from "react";
-import "./content-icons.scss";
+import classnames from 'classnames';
+import styles from "./content-icons.scss";
 
 const IconContent = ({ iconContentType, iconContentColor, loading, onClick }) => (
   <span
     style={loading ? { top: "20%" } : {}}
-    className={`content-icon content-icon-${iconContentType} ${
-      iconContentColor
-        ? `content-icon-${iconContentColor}`
-        : ""
-    } ${loading ? "loading-animation" : ""}`}
+    className={classnames(styles["content-icon"], {[styles[`content-icon-${iconContentType}`]]: true}, styles[iconContentColor ? `content-icon-${iconContentColor}` : ""], styles[loading ? "loading-animation" : ""])}
     onClick={onClick}
   />
 );

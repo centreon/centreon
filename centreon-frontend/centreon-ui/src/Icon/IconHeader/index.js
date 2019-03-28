@@ -1,11 +1,12 @@
 import React from "react";
-import "./icon-header.scss";
+import classnames from 'classnames';
+import styles from "./icon-header.scss";
 
 const IconHeader = ({ iconType, iconName, style, onClick }) => {
   return (
-    <span className="icons-wrap" style={style}>
-      <span onClick={onClick} className={`iconmoon icon-${iconType}`} />
-      <span className="icon__name">{iconName}</span>
+    <span className={classnames(styles["icons-wrap"])} style={style}>
+      <span onClick={onClick} className={classnames(styles.iconmoon, {[styles[`icon-${iconType}`]]: true})}/>
+      <span className={classnames(styles["icon__name"])}>{iconName}</span>
     </span>
   );
 };

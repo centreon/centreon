@@ -1,13 +1,14 @@
 import React, {Component} from 'react';
+import classnames from 'classnames';
+import styles from './list-sortable.scss';
 import Checkbox from '../../Checkbox';
-import InputFieldSelect from '../../InputField/InputFieldSelect';
-import './list-sortable.scss';
+import InputFieldMultiSelect from '../../InputField/InputFieldMultiSelect';
 import { SwitcherMode } from '../..';
 
 class ListSortable extends Component {
   render() {
     return (
-      <table class="list list-sortable">
+      <table className={classnames(styles.list, styles["list-sortable"])}>
         <thead>
           <tr>
             <th scope="col">INDICATORS</th>
@@ -30,13 +31,13 @@ class ListSortable extends Component {
               <SwitcherMode />
             </td>
             <td>
-              <InputFieldSelect customClass="small" />
+              <InputFieldMultiSelect size="small" />
             </td>
             <td>
-              <InputFieldSelect customClass="small" />
+              <InputFieldMultiSelect size="small" />
             </td>
             <td>
-              <InputFieldSelect customClass="small" />
+              <InputFieldMultiSelect size="small" />
             </td>
           </tr>
           <tr>
@@ -50,13 +51,13 @@ class ListSortable extends Component {
               <SwitcherMode />
             </td>
             <td>
-              <InputFieldSelect customClass="small" />
+              <InputFieldMultiSelect size="small" />
             </td>
             <td>
-              <InputFieldSelect customClass="small" />
+              <InputFieldMultiSelect size="small" />
             </td>
             <td>
-              <InputFieldSelect customClass="small" />
+              <InputFieldMultiSelect size="small" />
             </td>
           </tr>
           <tr>
@@ -70,13 +71,13 @@ class ListSortable extends Component {
               <SwitcherMode />
             </td>
             <td>
-              <InputFieldSelect customClass="small" />
+              <InputFieldMultiSelect size="small" />
             </td>
             <td>
-              <InputFieldSelect customClass="small" />
+              <InputFieldMultiSelect size="small" />
             </td>
             <td>
-              <InputFieldSelect customClass="small" />
+              <InputFieldMultiSelect size="small" />
             </td>
           </tr>
         </tbody>

@@ -21,6 +21,11 @@
     .custom-control-label {
       padding-left: 5px;
       text-align: left;
+      font-size: 10px;
+      font-family: $primary-font-light;
+      color: rgb(36,47,58);
+      display: block;
+      margin-bottom: 5px;
       &::before, &:after {
         position: absolute;
         top: -1px;

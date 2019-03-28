@@ -168,11 +168,13 @@ storiesOf("Icon", module).add(
         <IconRound
           iconType="database"
           iconColor="green"
+          iconPosition="icon-round-position"
           iconTitle="OK: all database poller updates are active"
         />
         <IconRound
           iconType="clock"
           iconColor="green"
+          iconPosition="icon-round-position"
           iconTitle="OK: all database poller updates are active"
         />
       </div>

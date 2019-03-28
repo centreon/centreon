@@ -1,6 +1,7 @@
 import React, {Component} from "react";
+import classnames from 'classnames';
+import styles from './search-with-arrow.scss';
 import ButtonActionInput from '../../Button/ButtonActionInput';
-import "./search-with-arrow.scss";
 
 class SearchLive extends Component {
   onChange = e => {
@@ -9,10 +10,10 @@ class SearchLive extends Component {
   };
 
   render() {
-    const { label, value } = this.props;
+    const { label, value, searchLiveCustom } = this.props;
 
     return (
-      <div className="search-live custom">
+      <div className={classnames(styles["search-live"], styles.custom, searchLiveCustom ? styles['search-live-custom'] : '')}>
         {label && <label>{label}</label>}
         <input type="text" value={value} onChange={this.onChange.bind(this)} />
         <ButtonActionInput
@@ -20,6 +21,7 @@ class SearchLive extends Component {
           iconColor="white"
           buttonActionType="delete"
           buttonIconType="arrow-right"
+          buttonPosition="button-action-icon-custom"
         />
       </div>
     );

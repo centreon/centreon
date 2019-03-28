@@ -1,5 +1,8 @@
 @import '../global-sass-files/variables';
 @import '../global-sass-files/fonts';
+@import '../Button/ButtonRegular/button.scss';
+@import '../Title/custom-title.scss';
+
 // Extensions card
 .card {
   &-item {
@@ -49,21 +52,6 @@
         border: 1px solid #dadada;
       }
     }
-    .icon-action {
-      position: absolute;
-    }
-    .button-action {
-      position: absolute;
-      bottom: 20px;
-      right: 15px;
-    }
-    .button {
-      position: absolute;
-      bottom: 20px;
-    }
-    .info {
-      position: absolute;
-    }
   }
   .container__col-md-3 {
     display: flex;
@@ -72,5 +60,8 @@
     &-label {
       min-height: 0 !important;
     }
+  }
+  .info {
+    position: absolute;
   }
 }

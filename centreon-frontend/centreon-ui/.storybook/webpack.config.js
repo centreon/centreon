@@ -20,7 +20,19 @@ module.exports = {
       },
       {
         test: /\.scss$/,
-        loaders: ["style-loader", "css-loader", "sass-loader"],
+        use: [
+          "style-loader",
+          {
+            "loader": "css-loader",
+            "options": {
+              "modules": true,
+              "localIdentName": "[local]__[hash:base64:5]",
+              "importLoaders": 1,
+              "sourceMap": false
+            }
+          },
+          "sass-loader",
+        ],
         include: path.resolve(__dirname, "..")
       },
       {

@@ -1,5 +1,8 @@
 @import '../global-sass-files/variables';
 @import '../global-sass-files/mixins';
+@import '../Popup/popup.scss';
+@import '../global-sass-files/grid';
+@import '../Icon/IconClose/close-icon.scss';
 
 // File Upload
 .file {

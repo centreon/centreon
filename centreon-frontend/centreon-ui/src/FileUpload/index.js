@@ -1,8 +1,10 @@
 import React, { Component } from "react";
+import classnames from 'classnames';
+import styles from './file-upload.scss';
 import Button from "../Button/ButtonRegular";
 import Popup from "../Popup";
 import FileUploadItem from "./FileUploadItem";
-import "./file-upload.scss";
+
 import Files from "react-files";
 
 class FileUpload extends Component {
@@ -45,24 +47,20 @@ class FileUpload extends Component {
     return (
       <>
         <Popup popupType="small">
-          <div
-            className={`popup-header ${
-              isSuccessfull ? "blue" : "red"
-            }-background-decorator`}
-          >
-            <div className="container__row">
-              <div className="container__col-xs-6 center-vertical">
-                <div className="file file-upload">
-                  <span className="file-upload-title">
-                    <span className={`file-upload-icon white`} />
+          <div className={classnames(styles["popup-header"], styles[isSuccessfull ? "blue-background-decorator" : "red-background-decorator"])}>
+            <div className={classnames(styles["container__row"])}>
+              <div className={classnames(styles["container__col-xs-6"], styles["center-vertical"], styles["m-0"])}>
+                <div className={classnames(styles.file, styles["file-upload"])}>
+                  <span className={classnames(styles["file-upload-title"])}>
+                    <span className={classnames(styles["file-upload-icon"], styles.white)}/>
                     {isSuccessfull ? "File Upload" : "No valid file uploaded."}
                   </span>
                 </div>
               </div>
               {!finished ? (
-                <div className="container__col-xs-6 center-vertical">
+                <div className={classnames(styles["container__col-xs-6"], styles["center-vertical"], styles["m-0"])}>
                   <Files
-                    className="test"
+                    className={classnames("test")}
                     onChange={this.onFilesChange}
                     onError={this.onFilesError}
                     accepts={['.zip', '.license']}
@@ -72,19 +70,19 @@ class FileUpload extends Component {
                     minFileSize={0}
                     clickable
                   >
-                  <div className="container__col-xs-6 text-right">
+                  <div className={classnames(styles["container__col-xs-6"], styles["text-right"])}>
                     <Button buttonType="bordered" color="white" label="BROWSE" />
                   </div>
                 </Files>
               </div>
             ) : null}
           </div>
-          <span className="icon-close icon-close-middle" onClick={onClose} />
+          <span className={classnames(styles["icon-close"], styles["icon-close-middle"])} onClick={onClose} />
           </div>
           {files.length > 0 ? (
-            <div className="popup-body">
-              <div className="file file-upload file-upload-body-container">
-                <div className="file-upload-items">
+            <div className={classnames(styles["popup-body"])}>
+              <div className={classnames(styles.file, styles["file-upload"], styles["file-upload-body-container"])}>
+                <div className={classnames(styles["file-upload-items"])}>
                   {!uploadStatus ? (
                     files.map((file, idx) => (
                       <FileUploadItem

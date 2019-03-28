@@ -1,5 +1,6 @@
 import React from "react";
-import "./swithcer-input-field.scss";
+import classnames from 'classnames';
+import styles from './swithcer-input-field.scss';
 import IconClose from "../../Icon/IconClose";
 import IconAction from "../../Icon/IconAction";
 
@@ -51,18 +52,20 @@ class SwitcherInputField extends React.Component {
     const { customClass } = this.props;
     const { value, toggled } = this.state;
     return (
-      <div className={`switcher-input ${customClass}`}>
-        <label
-          className={"switch" + (toggled ? " switch-active" : " switch-hide")}
-        >
+      <div className={classnames(styles["switcher-input"], styles[customClass ? customClass : ''])}>
+        <label className={classnames(styles.switch, styles[toggled ? "switch-active" : "switch-hide"])}>
           <input
             type="checkbox"
             checked={!value}
             onClick={this.onChange.bind(this)}
           />
-          <span className="switch-slider switch-round">
-            <IconClose iconType="small" />
-            <IconAction iconActionType="check" />
+          <span className={classnames(styles["switch-slider"], styles["switch-round"] )}>
+            <span className={classnames(styles["switcher-icon-left"])}>
+              <IconClose customStyle="icon-close-custom" iconType="small" />
+            </span>
+            <span className={classnames(styles["switcher-icon-right"])}>
+              <IconAction customStyle="icon-action-custom" iconActionType="check" />
+            </span>
           </span>
         </label>
       </div>

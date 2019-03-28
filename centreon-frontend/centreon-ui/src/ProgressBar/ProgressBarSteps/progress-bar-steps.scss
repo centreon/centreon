@@ -56,4 +56,21 @@
       }
     }
   }
+  &-custom-styles {
+    .progress-bar-link {
+      background-color: #009fdf;
+      color: $white-color;
+      border: 1px solid $white-color;
+      &.active {
+        border: 1px solid $white-color;
+        background-color: $white-color;
+        color: #009fdf;
+      }
+    }
+    .progress-bar-items {
+      &:after {
+        background-color: $white-color;
+      }
+    }
+  }
 }

@@ -1,4 +1,6 @@
 import React from "react";
+import classnames from 'classnames';
+import styles from '../src/Card/card.scss';
 import { storiesOf } from "@storybook/react";
 import {
   Card,
@@ -23,17 +25,19 @@ storiesOf("Card", module).add("Card - with content", () => (
         alert("Card clicked- open popin");
       }}
     >
-      <IconInfo iconName="state green" />
-      <div className="custom-title-heading">
+      <IconInfo iconName="state" iconColor="green" iconPosition="info-icon-position" />
+      <div className={classnames(styles["custom-title-heading"])}>
         <Title
           icon="object"
           label="Test Title"
+          customTitleStyles="custom-title-styles"
           onClick={() => {
             alert("Card clicked- open popin");
           }}
         />
         <Subtitle
           label="Test Subtitle"
+          customSubtitleStyles="custom-subtitle-styles"
           onClick={() => {
             alert("Card clicked- open popin");
           }}
@@ -45,6 +49,8 @@ storiesOf("Card", module).add("Card - with content", () => (
         label="Button example"
         iconActionType="update"
         iconColor='white'
+        iconPosition='icon-right'
+        position='button-card-position'
         onClick={() => {
           alert("Button clicked");
         }}
@@ -53,6 +59,8 @@ storiesOf("Card", module).add("Card - with content", () => (
         iconColor='gray'
         buttonActionType="delete"
         buttonIconType="delete"
+        iconPosition='icon-right'
+        customPosition="button-action-card-position"
         onClick={() => {
           alert("Button delete clicked");
         }}

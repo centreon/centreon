@@ -1,13 +1,15 @@
 import React, {Component} from 'react';
+import classnames from 'classnames';
+import styles from './info-tooltip.scss';
 import IconInfo from '../../Icon/IconInfo';
-import './info-tooltip.scss';
 
 class Tooltip extends Component {
   render() { 
     const {iconText, tooltipText, iconColor} = this.props;
     return ( 
-      <div class="tooltip"><IconInfo iconName="question" iconText={iconText} iconColor={iconColor} />
-        <span class="tooltiptext">{tooltipText}</span>
+      <div className={classnames(styles.tooltip)}>
+        <IconInfo iconName="question" iconText={iconText} iconColor={iconColor} />
+        <span className={classnames(styles.tooltiptext)}>{tooltipText}</span>
       </div>
     );
   }

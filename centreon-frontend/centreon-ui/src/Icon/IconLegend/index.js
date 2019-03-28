@@ -1,12 +1,15 @@
 import React from 'react';
+import classnames from 'classnames';
+import styles from "./icon-legend.scss";
 import IconAction from "../IconAction";
-import './icon-legend.scss';
+
 
 const IconLegend = ({iconColor, buttonIconType, title, legendType}) => {
+  const cn = classnames(styles["icon-legend"], styles[legendType ? legendType : '']);
   return (
-    <span className={`icon-legend ${legendType ? legendType : ''}`}>
-      <IconAction iconColor={iconColor ? iconColor : ''} iconActionType={buttonIconType} />
-      {title && <span className="icon-legend-title">{title}</span>}
+    <span className={cn}>
+      <IconAction iconDirection="icon-position-center" iconColor={iconColor ? iconColor : ''} iconActionType={buttonIconType} />
+      {title && <span className={classnames(styles["icon-legend-title"])}>{title}</span>}
     </span>
   )
 }

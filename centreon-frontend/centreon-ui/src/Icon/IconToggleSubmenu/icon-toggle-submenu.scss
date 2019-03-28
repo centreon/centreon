@@ -15,4 +15,14 @@
     right: 0;
     top: 13px;
   }
+  &-position-right {
+    position: absolute;
+    top: 11px;
+    right: 3px;
+  }
+  &-position-multiselect {
+    position: absolute;
+    top: 1px;
+    right: 3px;
+  }
 }

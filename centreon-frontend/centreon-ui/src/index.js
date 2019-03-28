@@ -32,6 +32,7 @@ export { default as InputField } from "./InputField";
 export { default as InputFieldSelect } from "./InputField/InputFieldSelect";
 export { default as InputFieldTextarea } from "./InputField/InputFieldTextarea";
 export { default as InputFieldMultiSelect } from "./InputField/InputFieldMultiSelect";
+export { default as InputFieldSelectCustom } from "./InputField/InputFieldSelectCustom";
 export { default as ListSortable } from "./List/ListSortable";
 export { default as LoaderContent } from "./LoaderContent";
 export { default as MessageError} from './Message/MessageError';
@@ -74,3 +75,8 @@ export { default as ExtensionDetailsPopup } from "./ExtensionDetailsPopup";
 export { default as ExtensionDeletePopup } from "./ExtensionDeletePopup";
 export { default as Axios } from "./Axios";
 export { default as Loader } from "./Loader";
+
+export {default as MaterialTabs} from "./MaterialComponents/Tabs";
+export {default as MaterialTable} from "./MaterialComponents/Table";
+export {default as MaterialProgressBar} from "./MaterialComponents/ProgressBar";
+export {default as MaterialButton} from "./MaterialComponents/Button";
