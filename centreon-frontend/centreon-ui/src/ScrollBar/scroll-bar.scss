@@ -22,5 +22,9 @@
       width: 100% !important;
       max-height: 368px;
     }
+    div:last-child {
+      left: auto !important;
+      right: 0 !important;
+    }
   }
 }

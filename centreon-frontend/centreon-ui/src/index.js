@@ -20,6 +20,7 @@ export { default as Header } from "./Header";
 export { default as IconAction } from "./Icon/IconAction";
 export { default as IconClose } from "./Icon/IconClose";
 export { default as IconContent } from "./Icon/IconContent";
+export { default as IconCustomDot } from "./Icon/IconCustomDot";
 export { default as IconHeader } from "./Icon/IconHeader";
 export { default as IconInfo } from "./Icon/IconInfo";
 export { default as IconLegend } from "./Icon/IconLegend";

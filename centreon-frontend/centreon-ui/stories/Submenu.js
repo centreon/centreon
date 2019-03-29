@@ -8,7 +8,8 @@ import {
   IconNumber,
   SubmenuItems,
   SubmenuItem,
-  IconToggleSubmenu
+  IconToggleSubmenu,
+  IconCustomDot
 } from "../src";
 
 storiesOf("Submenu", module).add("Submenu - toggled without items", () => (
@@ -37,7 +38,9 @@ storiesOf("Submenu", module).add(
           width: "200px"
         }}
       >
-        <IconHeader iconType="services" iconName="services" />
+        <IconHeader iconType="services" iconName="services">
+          <IconCustomDot />
+        </IconHeader>
         <IconNumber iconType="bordered" iconColor="red" iconNumber="3" />
         <IconNumber iconType="bordered" iconColor="gray-dark" iconNumber="5" />
         <IconNumber iconType="colored" iconColor="green" iconNumber="10" />
