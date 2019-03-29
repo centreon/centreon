@@ -8,7 +8,7 @@ storiesOf("Table", module).add("Table - custom", () => <Table />, {notes: "A ver
 storiesOf("Table", module).add("Table Dynamic - custom", () => <React.Fragment>
   <Title titleColor="host" label="Resource discovry wizard" />
   <TableDynamic/>
-  <div className={classnames(styles["text-right"])}>
+  <div className={classnames(styles["text-right"], styles["mt-2"])}>
     <Button
       label="SAVE"
       buttonType="validate"
