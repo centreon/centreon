@@ -5,6 +5,9 @@ export { default as Card } from "./Card";
 export { default as CardItem } from "./Card/CardItem";
 export { default as Checkbox } from "./Checkbox";
 export { default as CustomButton } from "./Custom/CustomButton";
+export { default as CustomColumn } from "./Custom/CustomColumn";
+export { default as CustomRow } from "./Custom/CustomRow";
+export { default as CustomStyles } from "./Custom/CustomStyles";
 export { default as Description } from "./Description";
 export { default as FileUpload } from "./FileUpload";
 export {
@@ -20,6 +23,7 @@ export { default as Header } from "./Header";
 export { default as IconAction } from "./Icon/IconAction";
 export { default as IconClose } from "./Icon/IconClose";
 export { default as IconContent } from "./Icon/IconContent";
+export { default as IconCustomDot } from "./Icon/IconCustomDot";
 export { default as IconHeader } from "./Icon/IconHeader";
 export { default as IconInfo } from "./Icon/IconInfo";
 export { default as IconLegend } from "./Icon/IconLegend";

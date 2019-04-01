@@ -231,6 +231,7 @@ storiesOf("Popup", module).add(
         <ProgressBar customStyles="progress-bar-custom-styles">
           <ProgressBarItem classActive='active' number='1' />
           <ProgressBarItem number='2' />
+          <ProgressBarItem number='3' />
         </ProgressBar>
       </div>
       <ScrollBar>
