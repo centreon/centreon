@@ -3,7 +3,7 @@
         <author>Centreon</author>
         <email>contact@centreon.com</email>
         <website>http://www.centreon.com</website>
-        <description>Widget for displaying Global Health</description>
+        <description>This pie chart widget displays the resource distribution by status (percentage), also indicating the total number of resources by status or by acknowledged and downtime state. This widget is available for hosts or for services. It is also possible to filter for a subset of resources.</description>
         <version>19.04.0</version>
         <keywords>centreon, widget, global, health</keywords>
         <screenshot></screenshot>
