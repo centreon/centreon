@@ -25,7 +25,10 @@ import {
   InputFieldMultiSelect,
   CustomButton,
   SearchLive,
-  ListSortable
+  ListSortable,
+  CustomRow,
+  CustomColumn,
+  CustomStyles
 } from "../src";
 
 // Extensions Page
@@ -108,8 +111,8 @@ storiesOf("Pages", module).add("Extensions page", () => (
       <HorizontalLineContent hrTitle="Modules"/>
       <Card>
         <div className={classnames(styles["container__row"])}>
-          <div className={classnames(styles["container__col-md-3"], styles["display-flex"], styles["container__col-xs-12"])}>
-            <CardItem
+          <CustomColumn customColumn="md-3" additionalStyles={["display-flex", "container__col-xs-12"]}>
+          <CardItem
               itemBorderColor="orange"
               itemFooterColor="red"
               itemFooterLabel="Licence expire at 12/08/2019"
@@ -143,7 +146,7 @@ storiesOf("Pages", module).add("Extensions page", () => (
                 alert("Button clicked");
               }}/>
             </CardItem>
-          </div>
+          </CustomColumn>
           <div className={classnames(styles["container__col-md-3"], styles["display-flex"], styles["container__col-xs-12"])}>
             <CardItem
               itemBorderColor="green"
@@ -432,20 +435,22 @@ storiesOf("Pages", module).add("Corelations Capabilities page", () => (
   <React.Fragment>
     <Title titleColor="bam" label="BAM Corelations Capabilities" />
     <br />
-    <div className={classnames(styles["container"], styles["container-gray"], styles["p-0"])}>
+    
+    <CustomStyles additionalStyles={["container", "container-gray", "p-0"]}>
       <Tabs>
         <Tab label="Configuration">
-          <div className={classnames(styles["container__row"])}>
-            <div className={classnames(styles["container__col-md-2"], styles["center-vertical"])}>
+          <CustomRow>
+            <CustomColumn customColumn="md-2" additionalStyles={["center-vertical"]}>
               <Subtitle label="Enable business activity" subtitleType="bam" />
-            </div>
-            <div className={classnames(styles["container__col-md-2"])}>
+            </CustomColumn>
+            <CustomColumn customColumn="md-2">
               <SwitcherInputField />
-            </div>
-          </div>
+            </CustomColumn>
+          </CustomRow>
           <Subtitle label="Information" subtitleType="bam" />
-          <div className={classnames(styles["container__row"])}>
-            <div className={classnames(styles["container__col-md-4"])}>
+
+          <CustomRow>
+            <CustomColumn customColumn="md-4">
               <InfoTooltip 
                 iconColor="gray" 
                 tooltipText="This is the an example of tooltip" 
@@ -463,66 +468,76 @@ storiesOf("Pages", module).add("Corelations Capabilities page", () => (
               <InputFieldTextarea 
                 textareaType="middle" 
               />
-            </div>
-            <div className={classnames(styles["container__col-md-4"])}>
-              <div className={classnames(styles["container__row"])}>
-                <div className={classnames(styles["container__col-md-6"], styles["center-vertical"], styles["m-0"])}>
+            </CustomColumn>
+
+            <CustomColumn customColumn="md-4">
+
+              <CustomRow>
+                <CustomColumn customColumn="md-6" additionalStyles={["center-vertical", "m-0"]}>
                   <InfoTooltip 
                     iconColor="gray" 
                     tooltipText="This is the an example of tooltip" 
                     iconText="Icon" 
                   />
-                </div>
-                <div className={classnames(styles["container__col-md-6"])}>
+                </CustomColumn>
+                <CustomColumn customColumn="md-6">
                   <InputFieldMultiSelect customClass="medium" />
-                </div>
-              </div>
+                </CustomColumn>
+              </CustomRow>
+
               <br />
-              <div className={classnames(styles["container__row"])}>
-                <div className={classnames(styles["container__col-md-7"], styles["m-0"])}>
+              <CustomRow>
+
+                <CustomColumn customColumn="md-7" additionalStyles={["m-0"]}>
                   <InfoTooltip 
                     iconColor="gray" 
                     tooltipText="This is the an example of tooltip" 
                     iconText="Automatically inherit KPI downtime" 
                   />
-                </div>
-                <div className={classnames(styles["container__col-md-5"])}>
-                  <div className={classnames(styles["container__row"])}>
-                    <div className={classnames(styles["container__col-md-4"])}>
+                </CustomColumn>
+
+                <CustomColumn customColumn="md-5">
+                  <CustomRow>
+                    <CustomColumn customColumn="md-4">
                       <RadioButton name="test" iconColor="green" checked={true} label="YES" />
-                    </div>
-                    <div className={classnames(styles["container__col-md-4"])}>
+                    </CustomColumn>
+                    <CustomColumn customColumn="md-4">
                       <RadioButton name="test" iconColor="green" label="NO" />
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div className={classnames(styles["container__row"])}>
-                <div className={classnames(styles["container__col-md-6"], styles["center-vertical"], styles["m-0"])}>
+                    </CustomColumn>
+                  </CustomRow>
+                </CustomColumn>
+
+              </CustomRow>
+
+              <CustomRow>
+                <CustomColumn customColumn="md-6" additionalStyles={["center-vertical", "m-0"]}>
                   <InfoTooltip 
                     iconColor="gray" 
                     tooltipText="This is the an example of tooltip" 
                     iconText="Display on remote server" 
                   />
-                </div>
-                <div className={classnames(styles["container__col-md-6"])}>
+                </CustomColumn>
+                <CustomColumn customColumn="md-6">
                   <InputFieldMultiSelect customClass="medium" />
-                </div>
-              </div>
-            </div>
-          </div>
-          <div className={classnames(styles["container__row"], styles["mt-2"])}>
-            <div className={classnames(styles["container__col-xs-12"])}>
+                </CustomColumn>
+              </CustomRow>
+            </CustomColumn>
+
+          </CustomRow>
+          
+          <CustomRow additionalStyles={["mt-2"]}>
+            <CustomColumn customColumn="xs-12">
               <HorizontalLineSeparator />
-            </div>
-          </div>
-          <div className={classnames(styles["container__row"])}>
-            <div className={classnames(styles["container__col-xs-12"])}>
+            </CustomColumn>
+          </CustomRow>
+          <CustomRow>
+            <CustomColumn customColumn="xs-12">
               <Subtitle label="Business View" subtitleType="bam" />
-            </div>
-          </div>
-          <div className={classnames(styles["container__row"])}>
-            <div className={classnames(styles["container__col-md-4"])}>
+            </CustomColumn>
+          </CustomRow>
+
+          <CustomRow>
+            <CustomColumn customColumn="md-4">
               <div>
                 <InfoTooltip 
                   iconColor="gray" 
@@ -531,21 +546,24 @@ storiesOf("Pages", module).add("Corelations Capabilities page", () => (
                 />
               </div>
               <InputFieldMultiSelect size="medium" />
-            </div>
-          </div>
+            </CustomColumn>
+          </CustomRow>
+
           <br />
-          <div className={classnames(styles["container__row"])}>
-            <div className={classnames(styles["container__col-xs-12"])}>
+          <CustomRow>
+            <CustomColumn customColumn="xs-12">
               <HorizontalLineSeparator />
-            </div>
-          </div>
-          <div className={classnames(styles["container__row"])}>
-            <div className={classnames(styles["container__col-md-1"], styles["center-vertical"])}>
+            </CustomColumn>
+          </CustomRow>
+
+          <CustomRow>
+            <CustomColumn customColumn="md-1" additionalStyles={["center-vertical"]}>
               <Subtitle label="Notification" subtitleType="bam" />
-            </div>
-          </div>
-          <div className={classnames(styles["container__row"])}>
-            <div className={classnames(styles["container__col-md-4"])}>
+            </CustomColumn>
+          </CustomRow>
+
+          <CustomRow>
+            <CustomColumn customColumn="md-4">
               <div>
                 <InfoTooltip 
                   iconColor="gray" 
@@ -554,414 +572,481 @@ storiesOf("Pages", module).add("Corelations Capabilities page", () => (
                 />
               </div>
               <InputFieldMultiSelect size="medium" />
-            </div>
-            <div className={classnames(styles["container__col-md-4"])}>
-              <div className={classnames(styles["container__row"])}>
-                <div className={classnames(styles["container__col-md-5"], styles["center-vertical"], styles["m-0"])}>
+            </CustomColumn>
+
+            <CustomColumn customColumn="md-4">
+
+              <CustomRow>
+                <CustomColumn customColumn="md-5" additionalStyles={["center-vertical", "m-0"]}>
                   <InfoTooltip 
                     iconColor="gray" 
                     tooltipText="This is the an example of tooltip" 
                     iconText="Notification time period" 
                   />
-                </div>
-                <div className={classnames(styles["container__col-md-7"], styles["m-0"])}>
+                </CustomColumn>
+                <CustomColumn customColumn="md-7" additionalStyles={["m-0"]}>
                   <InputFieldMultiSelect size="big" />
-                </div>
-              </div>
+                </CustomColumn>
+              </CustomRow>
+
               <br />
-              <div className={classnames(styles["container__row"])}>
-              <div className={classnames(styles["container__col-md-5"], styles["center-vertical"], styles["m-0"])}>
+              <CustomRow>
+
+                <CustomColumn customColumn="md-5" additionalStyles={["center-vertical", "m-0"]}>
                   <InfoTooltip 
                     iconColor="gray" 
                     tooltipText="This is the an example of tooltip" 
                     iconText="Notification interval" 
                   />
-                </div>
-                <div className={classnames(styles["container__col-md-7"], styles["center-baseline"], styles["m-0"])}>
+                </CustomColumn>
+
+                <CustomColumn customColumn="md-7" additionalStyles={["center-baseline", "m-0"]}>
                   <InputField 
                     type="text"
                     inputSize="smallest" 
                   />
                   <IconInfo iconText="*60 seconds" />
-                </div>
-              </div>
-            </div>
-            <div className={classnames(styles["container__col-md-4"])}>
-              <div className={classnames(styles["container__row"], styles["mb-1"])}>
-                <div className={classnames(styles["container__col-md-8"])}>
+                </CustomColumn>
+
+              </CustomRow>
+
+            </CustomColumn>
+
+            <CustomColumn customColumn="md-4">
+              <CustomRow additionalStyles={["mb-1"]}>
+                <CustomColumn customColumn="md-8">
                   <InfoTooltip 
                     iconColor="gray" 
                     tooltipText="This is the an example of tooltip" 
                     iconText="Notification option" 
                   />
-                </div>
-              </div>
-              <div className={classnames(styles["container__row"])}>
-                <div className={classnames(styles["container__col-md-3"], styles["m-0"])}>
+                </CustomColumn>
+              </CustomRow>
+
+              <CustomRow>
+                <CustomColumn customColumn="md-3" additionalStyles={["m-0"]}>
                   <Checkbox name="test" iconColor="green" checked={true} label="Recovery" />
-                </div>
-                <div className={classnames(styles["container__col-md-3"], styles["m-0"])}>
+                </CustomColumn>
+                <CustomColumn customColumn="md-3" additionalStyles={["m-0"]}>
                   <Checkbox name="test" iconColor="green" checked={true} label="Warning" />
-                </div>
-                <div className={classnames(styles["container__col-md-3"], styles["m-0"])}>
+                </CustomColumn>
+                <CustomColumn customColumn="md-3" additionalStyles={["m-0"]}>
                   <Checkbox name="test" iconColor="green" checked={true} label="Critical" />
-                </div>
-                <div className={classnames(styles["container__col-md-3"], styles["m-0"])}>
+                </CustomColumn>
+                <CustomColumn customColumn="md-3" additionalStyles={["m-0"]}>
                   <Checkbox name="test" iconColor="green" checked={true} label="Flapping" />
-                </div>
-              </div>
-              <div className={classnames(styles["container__row"])}>
-                <div className={classnames(styles["container__col-md-5"], styles["m-0"])}>
+                </CustomColumn>
+              </CustomRow>
+
+              <CustomRow>
+
+                <CustomColumn customColumn="md-5" additionalStyles={["m-0"]}>
                   <InfoTooltip 
                     iconColor="gray" 
                     tooltipText="This is the an example of tooltip" 
                     iconText="Enable notification" 
                   />
-                </div>
-                <div className={classnames(styles["container__col-md-5"])}>
-                  <div className={classnames(styles["container__row"])}>
-                    <div className={classnames(styles["container__col-md-4"])}>
+                </CustomColumn>
+
+                <CustomColumn customColumn="md-5">
+                  <CustomRow>
+                    <CustomColumn customColumn="md-4">
                       <RadioButton name="test" iconColor="green" checked={true} label="YES" />
-                    </div>
-                    <div className={classnames(styles["container__col-md-4"])}>
+                    </CustomColumn>
+                    <CustomColumn customColumn="md-4">
                       <RadioButton name="test" iconColor="green" label="NO" />
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div className={classnames(styles["text-right"])}>
+                    </CustomColumn>
+                  </CustomRow>
+                </CustomColumn>
+              </CustomRow>
+
+            </CustomColumn>
+          </CustomRow>
+
+          <CustomStyles customStyles="text-right">
             <Button
               label="SAVE"
               buttonType="validate"
               color="green"
               customClass="normal"
             />
-          </div>
+          </CustomStyles>
+
         </Tab>
+
         <Tab label="Indicators">
-          <div className={classnames(styles["container__row"])}>
-            <div className={classnames(styles["container__col-md-2"], styles["center-vertical"], styles["m-0"])}>
+          <CustomRow>
+
+            <CustomColumn customColumn="md-2" additionalStyles={["center-vertical", "m-0"]}>
               <Subtitle label="Select status calculation method" subtitleType="bam" />
-            </div>
-            <div className={classnames(styles["container__col-md-2"], styles["m-0"])}>
+            </CustomColumn>
+
+            <CustomColumn customColumn="md-2" additionalStyles={["m-0"]}>
               <InputFieldMultiSelect size="middle" />
-            </div>
-            <div className={classnames(styles["container__col-md-1"], styles["m-0"])}>
+            </CustomColumn>
+
+            <CustomColumn customColumn="md-1" additionalStyles={["m-0"]}>
               <CustomButton label="Warning" color="orange" />
-            </div>
-            <div className={classnames(styles["container__col-md-1"], styles["p-0"], styles["center-both"])}>
+            </CustomColumn>
+
+            <CustomColumn customColumn="md-1" additionalStyles={["m-0", "p-0", "center-both"]}>
               <IconInfo iconText="Treshold" />
-            </div>
-            <div className={classnames(styles["container__col-md-1"], styles["p-0"], styles["m-0"], styles["center-vertical"])}>
+            </CustomColumn>
+
+            <CustomColumn customColumn="md-1" additionalStyles={["m-0", "p-0", "center-vertical"]}>
               <InputField 
                 type="text"
                 inputSize="smallest m-0" 
               />
-            </div>
-            <div className={classnames(styles["container__col-md-1"], styles["m-0"])}>
+            </CustomColumn>
+
+            <CustomColumn customColumn="md-1" additionalStyles={["m-0"]}>
               <CustomButton label="Critical" color="red" />
-            </div>
-            <div className={classnames(styles["container__col-md-1"], styles["p-0"], styles["center-both"])}>
+            </CustomColumn>
+
+            <CustomColumn customColumn="md-1" additionalStyles={["p-0", "center-both"]}>
               <IconInfo iconText="Treshold" />
-            </div>
-            <div className={classnames(styles["container__col-md-1"], styles["p-0"], styles["m-0"], styles["center-vertical"])}>
+            </CustomColumn>
+
+            <CustomColumn customColumn="md-1" additionalStyles={["m-0", "p-0", "center-vertical"]}>
               <InputField 
                 type="text"
                 inputSize="smallest m-0" 
               />
-            </div>
-          </div>
-          <div className={classnames(styles["container__row"])}>
-            <div className={classnames(styles["container__col-md-12"], styles["m-0"])}>
+            </CustomColumn>
+          </CustomRow>
+
+          <CustomRow>
+            <CustomColumn customColumn="md-12" additionalStyles={["m-0"]}>
               <Subtitle label="Linked Resources" subtitleType="bam" />
-            </div>
-          </div>
-          <div className={classnames(styles["container__row"], styles["mb-2"])}>
-            <div className={classnames(styles["container__col-md-3"], styles["center-vertical"], styles[ "m-0"])}>
+            </CustomColumn>
+          </CustomRow>
+
+          <CustomRow additionalStyles={["mb-2"]}>
+            <CustomColumn customColumn="md-3" additionalStyles={["center-vertical", "m-0"]}>
               <IconInfo iconText="Type of objects you want to calculate the result on" />
-            </div>
-            <div className={classnames(styles["container__col-md-2"], styles["m-0"], styles["center-vertical"])}>
+            </CustomColumn>
+            <CustomColumn customColumn="md-2" additionalStyles={["center-vertical", "m-0"]}>
               <InputFieldMultiSelect size="small" />
-            </div>
-          </div>
+            </CustomColumn>
+          </CustomRow>
           <br />
-          <div className={classnames(styles["container__row"])}>
-            <div className={classnames(styles["container__col-md-12"], styles["m-0"])}>
+
+          <CustomRow>
+            <CustomColumn customColumn="md-12" additionalStyles={["m-0"]}>
               <SearchLive />
-            </div>
-          </div>
-          <div className={classnames(styles["container__row mt-1"])}>
-            <div className={classnames(styles["container__col-md-12"], styles["m-0"], styles["p-0"])}>
+            </CustomColumn>
+          </CustomRow>
+
+          <CustomRow additionalStyles={["mt-1"]}>
+            <CustomColumn customColumn="md-12" additionalStyles={["m-0", "p-0"]}>
               <ListSortable />
-            </div>
-          </div>
-          <div className={classnames(styles["text-right"])}>
+            </CustomColumn>
+          </CustomRow>
+
+          <CustomStyles customStyles="text-right">
             <Button
               label="SAVE"
               buttonType="validate"
               color="green"
               customClass="normal"
             />
-          </div>
+          </CustomStyles>
         </Tab>
+
         <Tab label="Reporting">
-          <div className={classnames(styles["container__row"], styles["mt-2"])}>
+          <CustomRow additionalStyles={["mt-2"]}>
             <Subtitle label="Reporting" subtitleType="bam" />
-          </div>
-          <div className={classnames(styles["container__row"])}>
-            <InfoTooltip 
-              iconColor="gray" 
-              tooltipText="This is the an example of tooltip" 
-              iconText="Extra reporting time periods used in Centreon BI reports" 
-            />
-          </div>
-          <div className={classnames(styles["container__row"], styles["mt-1"], styles["mb-2"])}>
-            <InputFieldMultiSelect size="medium" />
-          </div>
-          <div className={classnames(styles["container__row"])}>
-            <div className={classnames(styles["container__col-md-5"], styles["p-0"])}>
-              <div className={classnames(styles["container__row"])}>
-                <div className={classnames(styles["container__col-md-5"], styles["center-baseline"], styles["m-0"])}>
-                  <InfoTooltip 
-                    iconColor="gray" 
-                    tooltipText="This is the an example of tooltip" 
-                    iconText="SLA warning percentage treshold" 
-                  />
-                </div>
-                <div className={classnames(styles["container__col-md-7"], styles["m-0"], styles["center-baseline"])}>
-                  <InputField 
-                    type="text"
-                    inputSize="smallest m-0" 
-                  />
-                  <IconInfo iconText="(0-100%)" />
-                </div>
-              </div>
-            </div>
-          </div>
-          <div className={classnames(styles["container__row"])}>
-            <div className={classnames(styles["container__col-md-5"], styles["p-0"])}>
-              <div className={classnames(styles["container__row"])}>
-                <div className={classnames(styles["container__col-md-5"], styles["center-baseline"], styles["m-0"])}>
-                  <InfoTooltip 
-                    iconColor="gray" 
-                    tooltipText="This is the an example of tooltip" 
-                    iconText="SLA control percentage treshold" 
-                  />
-                </div>
-                <div className={classnames(styles["container__col-md-7"], styles["m-0"], styles["center-baseline"])}>
-                  <InputField 
-                    type="text"
-                    inputSize="smallest m-0" 
-                  />
-                  <IconInfo iconText="(0-100%)" />
-                </div>
-              </div>
-            </div>
-          </div>
-          <div className={classnames(styles["container__row"])}>
-            <div className={classnames(styles["container__col-md-5"], styles["p-0"])}>
-              <div className={classnames(styles["container__row"])}>
-                <div className={classnames(styles["container__col-md-5"], styles["center-baseline"], styles["m-0"])}>
-                  <InfoTooltip 
-                    iconColor="gray" 
-                    tooltipText="This is the an example of tooltip" 
-                    iconText="SLA warning duration treshold" 
-                  />
-                </div>
-                <div className={classnames(styles["container__col-md-7"], styles["m-0"], styles["center-baseline"])}>
-                  <InputField 
-                    type="text"
-                    inputSize="smallest m-0" 
-                  />
-                  <IconInfo iconText="minutes" />
-                </div>
-              </div>
-            </div>
-          </div>
-          <div className={classnames(styles["container__row"])}>
-            <div className={classnames(styles["container__col-md-5"], styles["p-0"])}>
-              <div className={classnames(styles["container__row"])}>
-                <div className={classnames(styles["container__col-md-5"], styles["center-baseline"], styles["m-0"])}>
-                  <InfoTooltip 
-                    iconColor="gray" 
-                    tooltipText="This is the an example of tooltip" 
-                    iconText="SLA warning percentage treshold" 
-                  />
-                </div>
-                <div className={classnames(styles["container__col-md-7"], styles["m-0"], styles["center-baseline"])}>
-                  <InputField 
-                    type="text"
-                    inputSize="smallest m-0" 
-                  />
-                  <IconInfo iconText="minutes" />
-                </div>
-              </div>
-            </div>
-          </div>
-          <div className={classnames(styles["text-right"])}>
-            <Button
-              label="SAVE"
-              buttonType="validate"
-              color="green"
-              customClass="normal"
-            />
-          </div>
-        </Tab>
-        <Tab label="Escalation">
-          <div className={classnames(styles["container__row"], styles["mt-2"])}>
-            <Subtitle label="Escalations" subtitleType="bam" />
-          </div>
-          <div className={classnames(styles["container__row"])}>
+          </CustomRow>
+
+          <CustomRow>
             <InfoTooltip 
               iconColor="gray" 
               tooltipText="This is the an example of tooltip" 
               iconText="Select escalation that applied to this Business Activity" 
             />
-          </div>
-          <div className={classnames(styles["container__row"], styles["mt-1"], styles["mb-2"])}>
+          </CustomRow>
+
+          <CustomRow additionalStyles={["mt-1", "mb-2"]}>
             <InputFieldMultiSelect size="medium" />
-          </div>
-          <div className={classnames(styles["container__row"])}>
-            <div className={classnames(styles["container__col-md-5"], styles["p-0"])}>
-              <div className={classnames(styles["container__row"])}>
-                <div className={classnames(styles["container__col-md-5"], styles["center-baseline"], styles["m-0"])}>
+          </CustomRow>
+
+          <CustomRow>
+            <CustomColumn customColumn="md-5" additionalStyles={["p-0"]}>
+
+              <CustomRow>
+                <CustomColumn customColumn="md-5" additionalStyles={["m-0", "center-baseline"]}>
                   <InfoTooltip 
                     iconColor="gray" 
                     tooltipText="This is the an example of tooltip" 
                     iconText="SLA warning percentage treshold" 
                   />
-                </div>
-                <div className={classnames(styles["container__col-md-7"], styles["m-0"], styles["center-baseline"])}>
+                </CustomColumn>
+                <CustomColumn customColumn="md-7" additionalStyles={["m-0", "center-baseline"]}>
                   <InputField 
                     type="text"
                     inputSize="smallest m-0" 
                   />
                   <IconInfo iconText="(0-100%)" />
-                </div>
-              </div>
-            </div>
-          </div>
-          <div className={classnames(styles["container__row"])}>
-            <div className={classnames(styles["container__col-md-5"], styles["p-0"])}>
-              <div className={classnames(styles["container__row"])}>
-                <div className={classnames(styles["container__col-md-5"], styles["center-baseline"], styles["m-0"])}>
+                </CustomColumn>
+              </CustomRow>
+
+            </CustomColumn>
+          </CustomRow>
+
+          <CustomRow >
+            <CustomColumn customColumn="md-5" additionalStyles={["p-0"]}>
+              
+              <CustomRow>
+                <CustomColumn customColumn="md-5" additionalStyles={["m-0", "center-baseline"]}>
                   <InfoTooltip 
                     iconColor="gray" 
                     tooltipText="This is the an example of tooltip" 
                     iconText="SLA control percentage treshold" 
                   />
-                </div>
-                <div className={classnames(styles["container__col-md-7"], styles["m-0"], styles["center-baseline"])}>
+                </CustomColumn>
+                <CustomColumn customColumn="md-7" additionalStyles={["m-0", "center-baseline"]}>
                   <InputField 
                     type="text"
                     inputSize="smallest m-0" 
                   />
                   <IconInfo iconText="(0-100%)" />
-                </div>
-              </div>
-            </div>
-          </div>
-          <div className={classnames(styles["container__row"])}>
-            <div className={classnames(styles["container__col-md-5"], styles["p-0"])}>
-              <div className={classnames(styles["container__row"])}>
-                <div className={classnames(styles["container__col-md-5"], styles["center-baseline"], styles["m-0"])}>
+                </CustomColumn>
+              </CustomRow>
+
+            </CustomColumn>
+          </CustomRow>
+
+          <CustomRow>
+            <CustomColumn customColumn="md-5" additionalStyles={["p-0"]}>
+
+              <CustomRow>
+                <CustomColumn customColumn="md-5" additionalStyles={["m-0", "center-baseline"]}>
                   <InfoTooltip 
                     iconColor="gray" 
                     tooltipText="This is the an example of tooltip" 
                     iconText="SLA warning duration treshold" 
                   />
-                </div>
-                <div className={classnames(styles["container__col-md-7"], styles["m-0"], styles["center-baseline"])}>
+                </CustomColumn>
+                <CustomColumn customColumn="md-7" additionalStyles={["m-0", "center-baseline"]}>
                   <InputField 
                     type="text"
                     inputSize="smallest m-0" 
                   />
                   <IconInfo iconText="minutes" />
-                </div>
-              </div>
-            </div>
-          </div>
-          <div className={classnames(styles["container__row"])}>
-            <div className={classnames(styles["container__col-md-5"], styles["p-0"])}>
-              <div className={classnames(styles["container__row"])}>
-                <div className={classnames(styles["container__col-md-5"], styles["center-baseline"], styles["m-0"])}>
+                </CustomColumn>
+              </CustomRow>
+
+            </CustomColumn>
+          </CustomRow>
+
+          <CustomRow>
+            <CustomColumn customColumn="md-5" additionalStyles={["p-0"]}>
+
+              <CustomRow>
+                <CustomColumn customColumn="md-5" additionalStyles={["m-0", "center-baseline"]}>
                   <InfoTooltip 
                     iconColor="gray" 
                     tooltipText="This is the an example of tooltip" 
                     iconText="SLA warning percentage treshold" 
                   />
-                </div>
-                <div className={classnames(styles["container__col-md-7"], styles["m-0"], styles["center-baseline"])}>
+                </CustomColumn>
+                <CustomColumn customColumn="md-7" additionalStyles={["m-0", "center-baseline"]}>
                   <InputField 
                     type="text"
                     inputSize="smallest m-0" 
                   />
                   <IconInfo iconText="minutes" />
-                </div>
-              </div>
-            </div>
-          </div>
-          <div className={classnames(styles["text-right"])}>
+                </CustomColumn>
+              </CustomRow>
+
+            </CustomColumn>
+          </CustomRow>
+
+          <CustomStyles customStyles="text-right">
             <Button
               label="SAVE"
               buttonType="validate"
               color="green"
               customClass="normal"
             />
-          </div>
+          </CustomStyles>
+        </Tab>
+
+        <Tab label="Escalation">
+          <CustomRow additionalStyles={["mt-2"]}>
+            <Subtitle label="Escalation" subtitleType="bam" />
+          </CustomRow>
+
+          <CustomRow>
+            <InfoTooltip 
+              iconColor="gray" 
+              tooltipText="This is the an example of tooltip" 
+              iconText="Extra reporting time periods used in Centreon BI reports" 
+            />
+          </CustomRow>
+
+          <CustomRow additionalStyles={["mt-1", "mb-2"]}>
+            <InputFieldMultiSelect size="medium" />
+          </CustomRow>
+
+          <CustomRow>
+            <CustomColumn customColumn="md-5" additionalStyles={["p-0"]}>
+
+              <CustomRow>
+                <CustomColumn customColumn="md-5" additionalStyles={["m-0", "center-baseline"]}>
+                  <InfoTooltip 
+                    iconColor="gray" 
+                    tooltipText="This is the an example of tooltip" 
+                    iconText="SLA warning percentage treshold" 
+                  />
+                </CustomColumn>
+                <CustomColumn customColumn="md-7" additionalStyles={["m-0", "center-baseline"]}>
+                  <InputField 
+                    type="text"
+                    inputSize="smallest m-0" 
+                  />
+                  <IconInfo iconText="(0-100%)" />
+                </CustomColumn>
+              </CustomRow>
+
+            </CustomColumn>
+          </CustomRow>
+
+          <CustomRow >
+            <CustomColumn customColumn="md-5" additionalStyles={["p-0"]}>
+              
+              <CustomRow>
+                <CustomColumn customColumn="md-5" additionalStyles={["m-0", "center-baseline"]}>
+                  <InfoTooltip 
+                    iconColor="gray" 
+                    tooltipText="This is the an example of tooltip" 
+                    iconText="SLA control percentage treshold" 
+                  />
+                </CustomColumn>
+                <CustomColumn customColumn="md-7" additionalStyles={["m-0", "center-baseline"]}>
+                  <InputField 
+                    type="text"
+                    inputSize="smallest m-0" 
+                  />
+                  <IconInfo iconText="(0-100%)" />
+                </CustomColumn>
+              </CustomRow>
+
+            </CustomColumn>
+          </CustomRow>
+
+          <CustomRow>
+            <CustomColumn customColumn="md-5" additionalStyles={["p-0"]}>
+
+              <CustomRow>
+                <CustomColumn customColumn="md-5" additionalStyles={["m-0", "center-baseline"]}>
+                  <InfoTooltip 
+                    iconColor="gray" 
+                    tooltipText="This is the an example of tooltip" 
+                    iconText="SLA warning duration treshold" 
+                  />
+                </CustomColumn>
+                <CustomColumn customColumn="md-7" additionalStyles={["m-0", "center-baseline"]}>
+                  <InputField 
+                    type="text"
+                    inputSize="smallest m-0" 
+                  />
+                  <IconInfo iconText="minutes" />
+                </CustomColumn>
+              </CustomRow>
+
+            </CustomColumn>
+          </CustomRow>
+
+          <CustomRow>
+            <CustomColumn customColumn="md-5" additionalStyles={["p-0"]}>
+
+              <CustomRow>
+                <CustomColumn customColumn="md-5" additionalStyles={["m-0", "center-baseline"]}>
+                  <InfoTooltip 
+                    iconColor="gray" 
+                    tooltipText="This is the an example of tooltip" 
+                    iconText="SLA warning percentage treshold" 
+                  />
+                </CustomColumn>
+                <CustomColumn customColumn="md-7" additionalStyles={["m-0", "center-baseline"]}>
+                  <InputField 
+                    type="text"
+                    inputSize="smallest m-0" 
+                  />
+                  <IconInfo iconText="minutes" />
+                </CustomColumn>
+              </CustomRow>
+
+            </CustomColumn>
+          </CustomRow>
+
+          <CustomStyles customStyles="text-right">
+            <Button
+              label="SAVE"
+              buttonType="validate"
+              color="green"
+              customClass="normal"
+            />
+          </CustomStyles>
         </Tab>
         <Tab label="Event Handler">
-          <div className={classnames(styles["container__row"], styles["mt-2"])}>
+
+          <CustomRow additionalStyles={["mt-2"]}>
             <Subtitle label="Event handler configuration" subtitleType="bam" />
-          </div>
-          <div className={classnames(styles["container__row"])}>
-            <div className={classnames(styles["container__col-md-2"], styles["p-0"], styles["m-0"])}>
+          </CustomRow>
+
+          <CustomRow>
+
+            <CustomColumn customColumn="md-2" additionalStyles={["m-0", "p-0"]}>
               <InfoTooltip 
                 iconColor="gray" 
                 tooltipText="This is the an example of tooltip" 
                 iconText="Enable event handler" 
               />
-            </div>
-            <div className={classnames(styles["container__col-md-2"], styles["m-0"])}>
-              <div className={classnames(styles["container__row"])}>
-                <div className={classnames(styles["container__col-md-4"], styles["m-0"])}>
+            </CustomColumn>
+
+            <CustomColumn customColumn="md-2" additionalStyles={["m-0"]}>
+              <div>
+                <CustomColumn customColumn="md-4" additionalStyles={["m-0"]}>
                   <RadioButton name="test" iconColor="green" checked={true} label="YES" />
-                </div>
-                <div className={classnames(styles["container__col-md-4"], styles["m-0"])}>
+                </CustomColumn>
+                <CustomColumn customColumn="md-4" additionalStyles={["m-0"]}>
                   <RadioButton name="test" iconColor="green" label="NO" />
-                </div>
+                </CustomColumn>
               </div>
-            </div>
-          </div>
-          <div className={classnames(styles["container__row"])}>
-            <div className={classnames(styles["container__col-md-2"], styles["center-vertical"], styles["m-0"], styles["p-0"])}>
+            </CustomColumn>
+          </CustomRow>
+
+          <CustomRow>
+            <CustomColumn customColumn="md-2" additionalStyles={["m-0", "center-vertical", "p-0"]}>
               <InfoTooltip 
                 iconColor="gray" 
                 tooltipText="This is the an example of tooltip" 
                 iconText="Event handler command" 
               />
-            </div>
-            <div className={classnames(styles["container__col-md-2"], styles["m-0"])}>
+            </CustomColumn>
+            <CustomColumn customColumn="md-2" additionalStyles={["m-0"]}>
               <InputFieldMultiSelect />
-            </div>
-          </div>
-          <div className={classnames(styles["container__row"], styles["mt-1"])}>
-            <div className={classnames(styles["container__col-md-2"], styles["center-vertical"], styles["m-0"], styles["p-0"])}>
+            </CustomColumn>
+          </CustomRow>
+
+          <CustomRow additionalStyles={["mt-1"]}>
+            <CustomColumn customColumn="md-2" additionalStyles={["m-0", "p-0", "center-vertical"]}>
               <InfoTooltip 
                 iconColor="gray" 
                 tooltipText="This is the an example of tooltip" 
                 iconText="Args" 
               />
-            </div>
-            <div className={classnames(styles["container__col-md-2"], styles["m-0"], styles["center-vertical"])}>
+            </CustomColumn>
+            <CustomColumn customColumn="md-2" additionalStyles={["m-0", "center-vertical"]}>
               <InputField 
                 type="text" 
                 inputSize="big m-0" 
               />
-            </div>
-            <div className={classnames(styles["container__col-md-1"], styles["center-both"])}>
+            </CustomColumn>
+            <CustomColumn customColumn="md-1" additionalStyles={["center-both"]}>
               <Button
                 buttonType="validate"
                 color="green"
@@ -970,24 +1055,25 @@ storiesOf("Pages", module).add("Corelations Capabilities page", () => (
                 iconActionType="arrow-left"
                 iconColor="white"
               />
-            </div>
-            <div className={classnames(styles["container__col-md-2"], styles["m-0"], styles["center-vertical"])}>
+            </CustomColumn>
+            <CustomColumn customColumn="md-2" additionalStyles={["m-0", "center-vertical"]}>
               <InputField 
                 type="text" 
                 inputSize="big m-0" 
               />
-            </div>
-          </div>
-          <div className={classnames(styles["text-right"])}>
+            </CustomColumn>
+          </CustomRow>
+
+          <CustomStyles customStyles="text-right">
             <Button
               label="SAVE"
               buttonType="validate"
               color="green"
               customClass="normal"
             />
-          </div>
+          </CustomStyles>
         </Tab>
       </Tabs>
-    </div>
+    </CustomStyles>
   </React.Fragment>
 ), {notes: "A very simple component"});

@@ -7,6 +7,7 @@ export { default as Checkbox } from "./Checkbox";
 export { default as CustomButton } from "./Custom/CustomButton";
 export { default as CustomColumn } from "./Custom/CustomColumn";
 export { default as CustomRow } from "./Custom/CustomRow";
+export { default as CustomStyles } from "./Custom/CustomStyles";
 export { default as Description } from "./Description";
 export { default as FileUpload } from "./FileUpload";
 export {
