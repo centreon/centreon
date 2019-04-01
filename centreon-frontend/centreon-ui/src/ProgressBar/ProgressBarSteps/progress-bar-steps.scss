@@ -1,4 +1,5 @@
 @import '../../global-sass-files/variables';
+@import '../../global-sass-files/mixins';
 
 // Progress bar steps
 .progress-bar {
@@ -11,7 +12,7 @@
     list-style: none;
     padding: 0;
     position: relative;
-    display: flex;
+    @include flexbox();
     margin-bottom: 0;
     justify-content: space-between;
     &:after {
