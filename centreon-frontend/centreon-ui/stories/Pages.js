@@ -786,7 +786,7 @@ storiesOf("Pages", module).add("Corelations Capabilities page", () => (
                 <CustomColumn customColumn="md-7" additionalStyles={["m-0", "center-baseline"]}>
                   <InputField 
                     type="text"
-                    inputSize="smallest m-0" 
+                    inputSize="smallest" 
                   />
                   <IconInfo iconText="(0-100%)" />
                 </CustomColumn>
@@ -809,7 +809,7 @@ storiesOf("Pages", module).add("Corelations Capabilities page", () => (
                 <CustomColumn customColumn="md-7" additionalStyles={["m-0", "center-baseline"]}>
                   <InputField 
                     type="text"
-                    inputSize="smallest m-0" 
+                    inputSize="smallest" 
                   />
                   <IconInfo iconText="(0-100%)" />
                 </CustomColumn>
@@ -832,7 +832,7 @@ storiesOf("Pages", module).add("Corelations Capabilities page", () => (
                 <CustomColumn customColumn="md-7" additionalStyles={["m-0", "center-baseline"]}>
                   <InputField 
                     type="text"
-                    inputSize="smallest m-0" 
+                    inputSize="smallest" 
                   />
                   <IconInfo iconText="minutes" />
                 </CustomColumn>
@@ -855,7 +855,7 @@ storiesOf("Pages", module).add("Corelations Capabilities page", () => (
                 <CustomColumn customColumn="md-7" additionalStyles={["m-0", "center-baseline"]}>
                   <InputField 
                     type="text"
-                    inputSize="smallest m-0" 
+                    inputSize="smallest" 
                   />
                   <IconInfo iconText="minutes" />
                 </CustomColumn>
@@ -905,7 +905,7 @@ storiesOf("Pages", module).add("Corelations Capabilities page", () => (
                 <CustomColumn customColumn="md-7" additionalStyles={["m-0", "center-baseline"]}>
                   <InputField 
                     type="text"
-                    inputSize="smallest m-0" 
+                    inputSize="smallest" 
                   />
                   <IconInfo iconText="(0-100%)" />
                 </CustomColumn>
@@ -928,7 +928,7 @@ storiesOf("Pages", module).add("Corelations Capabilities page", () => (
                 <CustomColumn customColumn="md-7" additionalStyles={["m-0", "center-baseline"]}>
                   <InputField 
                     type="text"
-                    inputSize="smallest m-0" 
+                    inputSize="smallest" 
                   />
                   <IconInfo iconText="(0-100%)" />
                 </CustomColumn>
@@ -951,7 +951,7 @@ storiesOf("Pages", module).add("Corelations Capabilities page", () => (
                 <CustomColumn customColumn="md-7" additionalStyles={["m-0", "center-baseline"]}>
                   <InputField 
                     type="text"
-                    inputSize="smallest m-0" 
+                    inputSize="smallest" 
                   />
                   <IconInfo iconText="minutes" />
                 </CustomColumn>
@@ -974,7 +974,7 @@ storiesOf("Pages", module).add("Corelations Capabilities page", () => (
                 <CustomColumn customColumn="md-7" additionalStyles={["m-0", "center-baseline"]}>
                   <InputField 
                     type="text"
-                    inputSize="smallest m-0" 
+                    inputSize="smallest" 
                   />
                   <IconInfo iconText="minutes" />
                 </CustomColumn>
@@ -1044,7 +1044,7 @@ storiesOf("Pages", module).add("Corelations Capabilities page", () => (
             <CustomColumn customColumn="md-2" additionalStyles={["m-0", "center-vertical"]}>
               <InputField 
                 type="text" 
-                inputSize="big m-0" 
+                inputSize="big" 
               />
             </CustomColumn>
             <CustomColumn customColumn="md-1" additionalStyles={["center-both"]}>
