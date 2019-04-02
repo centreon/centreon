@@ -1009,14 +1009,14 @@ storiesOf("Pages", module).add("Corelations Capabilities page", () => (
             </CustomColumn>
 
             <CustomColumn customColumn="md-2" additionalStyles={["m-0"]}>
-              <div>
-                <CustomColumn customColumn="md-4" additionalStyles={["m-0"]}>
+              <CustomRow>
+                <CustomColumn customColumn="md-3" additionalStyles={["m-0"]}>
                   <RadioButton name="test" iconColor="green" checked={true} label="YES" />
                 </CustomColumn>
-                <CustomColumn customColumn="md-4" additionalStyles={["m-0"]}>
+                <CustomColumn customColumn="md-3" additionalStyles={["m-0"]}>
                   <RadioButton name="test" iconColor="green" label="NO" />
                 </CustomColumn>
-              </div>
+              </CustomRow>
             </CustomColumn>
           </CustomRow>
 
