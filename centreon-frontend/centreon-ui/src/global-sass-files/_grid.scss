@@ -84,3 +84,7 @@ $map-grid-props: (
     @include create-col-classes($modifier, $grid__cols, $breakpoint);
   }
 }
+
+.custom-title-heading {
+  display: block;
+}

@@ -110,7 +110,7 @@ storiesOf("Pages", module).add("Extensions page", () => (
     <Wrapper>
       <HorizontalLineContent hrTitle="Modules"/>
       <Card>
-        <div className={classnames(styles["container__row"])}>
+        <CustomRow>
           <CustomColumn customColumn="md-3" additionalStyles={["display-flex", "container__col-xs-12"]}>
           <CardItem
               itemBorderColor="orange"
@@ -120,7 +120,7 @@ storiesOf("Pages", module).add("Extensions page", () => (
               alert("Card clicked- open popin");
             }}>
               <IconInfo iconName="state" iconColor="green" iconPosition="info-icon-position" />
-              <div className={classnames(styles["custom-title-heading"])}>
+              <CustomStyles customStyles={["custom-title-heading"]}>
                 <Title
                   icon="object"
                   label="Engine-status"
@@ -134,7 +134,7 @@ storiesOf("Pages", module).add("Extensions page", () => (
                   onClick={() => {
                   alert("Card clicked- open popin");
                 }}/>
-              </div>
+              </CustomStyles>
               <Button
                 buttonType="regular"
                 color="orange"
@@ -147,7 +147,7 @@ storiesOf("Pages", module).add("Extensions page", () => (
               }}/>
             </CardItem>
           </CustomColumn>
-          <div className={classnames(styles["container__col-md-3"], styles["display-flex"], styles["container__col-xs-12"])}>
+          <CustomColumn customColumn="md-3" additionalStyles={["display-flex", "container__col-xs-12"]}>
             <CardItem
               itemBorderColor="green"
               itemFooterColor="orange"
@@ -156,7 +156,7 @@ storiesOf("Pages", module).add("Extensions page", () => (
               alert("Card clicked- open popin");
             }}>
               <IconInfo iconName="state" iconColor="green" iconPosition="info-icon-position" />
-              <div className={classnames(styles["custom-title-heading"])}>
+              <CustomStyles customStyles={["custom-title-heading"]}>
                 <Title
                   icon="object"
                   label="Engine-status"
@@ -170,7 +170,7 @@ storiesOf("Pages", module).add("Extensions page", () => (
                   onClick={() => {
                   alert("Card clicked- open popin");
                 }}/>
-              </div>
+              </CustomStyles>
               <Button
                 buttonType="bordered"
                 color="blue"
@@ -190,14 +190,14 @@ storiesOf("Pages", module).add("Extensions page", () => (
                 alert("Button delete clicked");
               }}/>
             </CardItem>
-          </div>
-          <div className={classnames(styles["container__col-md-3"], styles["display-flex"], styles["container__col-xs-12"])}>
+          </CustomColumn>
+          <CustomColumn customColumn="md-3" additionalStyles={["display-flex", "container__col-xs-12"]}>
             <CardItem
               itemBorderColor="gray"
               onClick={() => {
               alert("Card clicked- open popin");
             }}>
-              <div className={classnames(styles["custom-title-heading"])}>
+              <CustomStyles customStyles={["custom-title-heading"]}>
                 <Title
                   icon="object"
                   label="Engine-status"
@@ -211,7 +211,7 @@ storiesOf("Pages", module).add("Extensions page", () => (
                   onClick={() => {
                   alert("Card clicked- open popin");
                 }}/>
-              </div>
+              </CustomStyles>
               <Button
                 buttonType="regular"
                 color="green"
@@ -223,14 +223,14 @@ storiesOf("Pages", module).add("Extensions page", () => (
                 alert("Button clicked");
               }}/>
             </CardItem>
-          </div>
-          <div className={classnames(styles["container__col-md-3"], styles["display-flex"], styles["container__col-xs-12"])}>
+          </CustomColumn>
+          <CustomColumn customColumn="md-3" additionalStyles={["display-flex", "container__col-xs-12"]}>
             <CardItem
               itemBorderColor="gray"
               onClick={() => {
               alert("Card clicked- open popin");
             }}>
-              <div className={classnames(styles["custom-title-heading"])}>
+              <CustomStyles customStyles={["custom-title-heading"]}>
                 <Title
                   icon="object"
                   label="Engine-status"
@@ -244,7 +244,7 @@ storiesOf("Pages", module).add("Extensions page", () => (
                   onClick={() => {
                   alert("Card clicked- open popin");
                 }}/>
-              </div>
+              </CustomStyles>
               <Button
                 buttonType="regular"
                 color="green"
@@ -256,15 +256,16 @@ storiesOf("Pages", module).add("Extensions page", () => (
                 alert("Button clicked");
               }}/>
             </CardItem>
-          </div>
-        </div>
+          </CustomColumn>
+        </CustomRow>
+
       </Card>
     </Wrapper>
     <Wrapper>
       <HorizontalLineContent hrTitle="Widgets"/>
       <Card>
-        <div className={classnames(styles["container__row"])}>
-          <div className={classnames(styles["container__col-md-3"], styles["display-flex"], styles["container__col-xs-12"])}>
+        <CustomRow>
+          <CustomColumn customColumn="md-3" additionalStyles={["display-flex", "container__col-xs-12"]}>
             <CardItem
               itemBorderColor="orange"
               itemFooterColor="blue"
@@ -273,7 +274,7 @@ storiesOf("Pages", module).add("Extensions page", () => (
               alert("Card clicked- open popin");
             }}>
               <IconInfo iconName="state green"/>
-              <div className={classnames(styles["custom-title-heading"])}>
+              <CustomStyles customStyles={["custom-title-heading"]}>
                 <Title
                   icon="puzzle"
                   label="Plugin pack manager"
@@ -288,7 +289,7 @@ storiesOf("Pages", module).add("Extensions page", () => (
                   onClick={() => {
                   alert("Card clicked- open popin");
                 }}/>
-              </div>
+              </CustomStyles>
               <Button
                 buttonType="regular"
                 color="orange"
@@ -308,8 +309,8 @@ storiesOf("Pages", module).add("Extensions page", () => (
                 alert("Button delete clicked");
               }}/>
             </CardItem>
-          </div>
-          <div className={classnames(styles["container__col-md-3"], styles["display-flex"], styles["container__col-xs-12"])}>
+          </CustomColumn>
+          <CustomColumn customColumn="md-3" additionalStyles={["display-flex", "container__col-xs-12"]}>
             <CardItem
               itemBorderColor="green"
               itemFooterColor="red"
@@ -318,7 +319,7 @@ storiesOf("Pages", module).add("Extensions page", () => (
               alert("Card clicked- open popin");
             }}>
               <IconInfo iconName="state green"/>
-              <div className={classnames(styles["custom-title-heading"])}>
+              <CustomStyles customStyles={["custom-title-heading"]}>
                 <Title
                   icon="puzzle"
                   label="Plugin pack manager"
@@ -333,7 +334,7 @@ storiesOf("Pages", module).add("Extensions page", () => (
                   onClick={() => {
                   alert("Card clicked- open popin");
                 }}/>
-              </div>
+              </CustomStyles>
               <Button
                 buttonType="bordered"
                 color="blue"
@@ -354,14 +355,14 @@ storiesOf("Pages", module).add("Extensions page", () => (
               }}/>
             </CardItem>
 
-          </div>
-          <div className={classnames(styles["container__col-md-3"], styles["display-flex"], styles["container__col-xs-12"])}>
+          </CustomColumn>
+          <CustomColumn customColumn="md-3" additionalStyles={["display-flex", "container__col-xs-12"]}>
             <CardItem
               itemBorderColor="gray"
               onClick={() => {
               alert("Card clicked- open popin");
             }}>
-              <div className={classnames(styles["custom-title-heading"])}>
+              <CustomStyles customStyles={["custom-title-heading"]}>
                 <Title
                   icon="puzzle"
                   label="Plugin pack manager"
@@ -376,7 +377,7 @@ storiesOf("Pages", module).add("Extensions page", () => (
                   onClick={() => {
                   alert("Card clicked- open popin");
                 }}/>
-              </div>
+              </CustomStyles>
               <Button
                 buttonType="regular"
                 color="green"
@@ -388,14 +389,14 @@ storiesOf("Pages", module).add("Extensions page", () => (
                 alert("Button clicked");
               }}/>
             </CardItem>
-          </div>
-          <div className={classnames(styles["container__col-md-3"], styles["display-flex"], styles["container__col-xs-12"])}>
+          </CustomColumn>
+          <CustomColumn customColumn="md-3" additionalStyles={["display-flex", "container__col-xs-12"]}>
             <CardItem
               itemBorderColor="gray"
               onClick={() => {
               alert("Card clicked- open popin");
             }}>
-              <div className={classnames(styles["custom-title-heading"])}>
+              <CustomStyles customStyles={["custom-title-heading"]}>
                 <Title
                   icon="puzzle"
                   label="Plugin pack manager"
@@ -410,7 +411,7 @@ storiesOf("Pages", module).add("Extensions page", () => (
                   onClick={() => {
                   alert("Card clicked- open popin");
                 }}/>
-              </div>
+              </CustomStyles>
               <Button
                 buttonType="regular"
                 color="green"
@@ -422,8 +423,8 @@ storiesOf("Pages", module).add("Extensions page", () => (
                 alert("Button clicked");
               }}/>
             </CardItem>
-          </div>
-        </div>
+          </CustomColumn>
+        </CustomRow>
       </Card>
     </Wrapper>
   </React.Fragment>
