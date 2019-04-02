@@ -3,7 +3,7 @@
         <author>Centreon</author>
         <email>contact@centreon.com</email>
         <website>http://www.centreon.com</website>
-        <description>Widget for displaying RRD graphs</description>
+        <description>This graph widget displays the evolution of metrics over time. It is possible to select the time window.</description>
         <version>19.04.0</version>
         <keywords>centreon, widget, rrd, monitoring</keywords>
         <screenshot></screenshot>
