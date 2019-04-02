@@ -3,7 +3,7 @@
     <author>Centreon</author>
     <email>contact@centreon.com</email>
     <website>http://www.centreon.com</website>
-    <description>Widget for displaying hostgroup monitoring information</description>
+    <description>This widget displays for all host groups or a subset of groups the number of hosts and services in each status.</description>
     <version>19.04.0</version>
     <keywords>centreon, widget, hostgroup, host, monitoring</keywords>
     <screenshot></screenshot>
