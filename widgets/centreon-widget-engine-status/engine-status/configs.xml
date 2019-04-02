@@ -3,7 +3,7 @@
         <author>Centreon</author>
         <email>contact@centreon.com</email>
         <website>http://www.centreon.com</website>
-        <description> Widget for displaying Engine statistics</description>
+        <description>This widget displays operational metrics of a monitoring engine (latency and execution time of the checks) as well as the number of hosts and services per status.</description>
         <version>19.04.0</version>
         <keywords>centreon, widget, status, engine</keywords>
         <screenshot></screenshot>
