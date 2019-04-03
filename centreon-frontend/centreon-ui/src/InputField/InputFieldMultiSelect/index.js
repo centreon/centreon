@@ -62,7 +62,7 @@ class InputFieldMultiSelect extends Component {
     return (
       <div className={classnames(styles["multi-select"], styles[size ? size : ''], styles[active ? 'active' : ''], error ? styles['has-danger'] : '')}>
         <div className={classnames(styles["multi-select-wrap"])}>
-          <input onBlur={this.toggleSelect.bind(this)} onChange={this.searchTextChanged} className={classnames(styles["multi-select-input"])} type="text" placeholder="Search" />
+          <input onChange={this.searchTextChanged} className={classnames(styles["multi-select-input"])} type="text" placeholder="Search" />
           <IconToggleSubmenu iconPosition="icons-toggle-position-multiselect" iconType="arrow" onClick={this.toggleSelect.bind(this)} />
         </div>
         {
