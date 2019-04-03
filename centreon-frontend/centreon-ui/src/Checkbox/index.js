@@ -5,23 +5,23 @@ import styles from './checkbox.scss';
 
 const Checkbox = ({
   iconColor,
-  checked,
   label,
-  value,
   info,
   name,
+  onClick,
   ...rest
 }) => {
   const cnCustomControl = classnames(styles["custom-control"], {[styles["custom-checkbox"]]: true}, styles[iconColor ? iconColor : '']);
   return (
-    <div className={classnames(styles["form-group"])}>
+    <div className={classnames(styles["form-group"])} 
+    onClick={onClick}>
       <div className={cnCustomControl}>
         <input
           name={name}
-          aria-checked={checked}
-          checked={checked}
+          aria-checked={rest.checked}
           className={classnames(styles["custom-control-input"])}
           type="checkbox"
+          {...rest}
         />
         <label htmlFor={rest.id} className={classnames(styles["custom-control-label"])}>
           {label}
