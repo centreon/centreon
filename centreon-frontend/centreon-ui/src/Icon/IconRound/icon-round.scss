@@ -13,6 +13,7 @@
     display: inline-block;
     font-size: 25px;
     position: relative;
+    @include iconmoon();
     &.red {
       background-color: #ed1c24;
     }
