@@ -56,7 +56,15 @@ storiesOf("Input Field", module).add(
   
   "Input Field - multiselect custom",
   () => 
-  <InputFieldMultiSelect active="active" size="medium"  />,
+  <InputFieldMultiSelect options={[
+    {id:"1",name:"24x7",alias:"Always"}
+    ,
+    {id:"2",name:"none",alias:"Never"}
+    ,
+    {id:"3",name:"nonworkhours",alias:"Non-Work Hours"}
+    ,
+    {id:"4",name:"workhours",alias:"Work hours"}
+    ]} size="medium"  />,
   { notes: "A very simple component" }
 );
 

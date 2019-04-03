@@ -1,4 +1,4 @@
-import React, {Component} from 'react';
+import React, { Component } from 'react';
 import classnames from 'classnames';
 import styles from './input-multi-select.scss';
 import Checkbox from '../../Checkbox';
@@ -6,20 +6,83 @@ import ScrollBar from '../../ScrollBar';
 import IconToggleSubmenu from '../../Icon/IconToggleSubmenu';
 
 class InputFieldMultiSelect extends Component {
+
+  state = {
+    active: false,
+    allOptions: [],
+    options: [],
+    activeOptions: {}
+  }
+
+  componentWillReceiveProps = (nextProps) => {
+    const { options } = nextProps;
+    this.setState({
+      options,
+      allOptions: options
+    })
+  }
+
+  componentWillMount = () => {
+    const { options } = this.props;
+    this.setState({
+      options,
+      allOptions: options
+    })
+  }
+
+  searchTextChanged = (e) => {
+    let searchString = e.target.value;
+    let { allOptions } = this.state;
+    this.setState({
+      options: allOptions.filter(option => {
+        return option.name.indexOf(searchString) > -1
+      })
+    })
+  }
+
+  toggleSelect = () => {
+    const { active } = this.state;
+    this.setState({
+      active: !active
+    })
+  }
+
+  optionChecked = (option) => {
+    console.log(option)
+    let { activeOptions } = this.state;
+    activeOptions[option.id] = activeOptions[option.id] ? false : true;
+    this.setState({
+      activeOptions
+    })
+  }
+
   render() {
-    const {size, active, error} = this.props;
+    const { active, options, activeOptions } = this.state;
+    const { size, error } = this.props;
     return (
-      <div className={classnames(styles["multi-select"], styles[size ? size : ''], styles[active ? active : ''], error ? styles['has-danger'] : '')}>
+      <div className={classnames(styles["multi-select"], styles[size ? size : ''], styles[active ? 'active' : ''], error ? styles['has-danger'] : '')}>
         <div className={classnames(styles["multi-select-wrap"])}>
-          <input className={classnames(styles["multi-select-input"])} type="text" placeholder="Search" />
-          <IconToggleSubmenu iconPosition="icons-toggle-position-multiselect" iconType="arrow" />
+          <input onBlur={this.toggleSelect.bind(this)} onChange={this.searchTextChanged} className={classnames(styles["multi-select-input"])} type="text" placeholder="Search" />
+          <IconToggleSubmenu iconPosition="icons-toggle-position-multiselect" iconType="arrow" onClick={this.toggleSelect.bind(this)} />
         </div>
-          <div className={classnames(styles["multi-select-dropdown"])}>
-              <Checkbox label="Test" name="test" id='test' iconColor="green" checked={true} />
-              <Checkbox label="Test 2" name="test2" id='test2' iconColor="green" checked={true} />
-              <Checkbox label="Test 3" name="test3" id='test3' iconColor="green"/>
-              <Checkbox label="Test 4" name="test4" id='test4' iconColor="green"/>
-          </div>
+        {
+          active ?
+            <div className={classnames(styles["multi-select-dropdown"])}>
+              {
+                options.map((option, index) => (
+                  <Checkbox 
+                  key={`multiselect-checkbox-${index}`} 
+                  label={option.name} 
+                  onClick={this.optionChecked.bind(this, option)} 
+                  iconColor="green" 
+                  onChange={()=>{}}
+                  checked={activeOptions[option.id] || false} />
+                ))
+              }
+            </div>
+            : null
+        }
+
         {error ? (
           <div className={classnames(styles["form-error"])}>
             {error}
