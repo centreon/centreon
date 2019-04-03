@@ -1,9 +1,22 @@
 @import '../../global-sass-files/mixins';
 @import '../../global-sass-files/variables';
 
+// Icons generated
+@font-face {
+  font-family: 'icomoon';
+  src:  url('../../global-sass-files/fonts/icomoon.eot');
+  src:  url('../../global-sass-files/fonts/icomoon.eot') format('embedded-opentype'),
+    url('../../global-sass-files/fonts/icomoon.ttf') format('truetype'),
+    url('../../global-sass-files/fonts/icomoon.woff') format('woff'),
+    url('../../global-sass-files/fonts/icomoon.svg') format('svg');
+  font-weight: normal;
+  font-style: normal;
+}
+
 // Button action
 .icon {
   &-legend {
+    @include iconmoon();
     position: relative;
     width: 30px;
     height: 30px;

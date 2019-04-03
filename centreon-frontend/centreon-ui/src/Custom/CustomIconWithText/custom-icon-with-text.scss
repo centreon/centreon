@@ -1,0 +1,20 @@
+@import '../../global-sass-files/variables';
+
+.custom-multiple {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  margin-bottom: 8px;
+  margin-left: -3px;
+  &-icon {
+    background: url("../../../img/icons/small-logo.png") no-repeat;
+    width: 28px;
+    height: 28px;
+  }
+  &-text {
+    font-size: 11px;
+    line-height: 12px;
+    color: #242f3a;
+    font-family: $primary-font-light;
+  }
+}
