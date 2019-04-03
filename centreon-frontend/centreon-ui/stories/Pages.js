@@ -756,23 +756,29 @@ storiesOf("Pages", module).add("Corelations Capabilities page", () => (
 
           <Tab label="Reporting">
             <CustomRow additionalStyles={["mt-2"]}>
-              <Subtitle label="Reporting" subtitleType="bam" />
+              <CustomColumn customColumn="xs-12">
+                <Subtitle label="Reporting" subtitleType="bam" />
+              </CustomColumn>
             </CustomRow>
 
             <CustomRow>
-              <InfoTooltip 
-                iconColor="gray" 
-                tooltipText="Those time periods will be used by Centreon BI reports." 
-                iconText="Extra reporting time periods used in Centreon BI reports" 
-              />
+              <CustomColumn customColumn="xs-12">
+                <InfoTooltip 
+                  iconColor="gray" 
+                  tooltipText="Those time periods will be used by Centreon BI reports." 
+                  iconText="Extra reporting time periods used in Centreon BI reports" 
+                />
+              </CustomColumn>
             </CustomRow>
 
             <CustomRow additionalStyles={["mt-1", "mb-2"]}>
-              <InputFieldMultiSelect size="medium" />
+              <CustomColumn customColumn="xs-12">
+                <InputFieldMultiSelect size="medium" />
+              </CustomColumn>
             </CustomRow>
 
             <CustomRow>
-              <CustomColumn customColumn="md-5" additionalStyles={["p-0"]}>
+              <CustomColumn customColumn="md-5">
 
                 <CustomRow>
                   <CustomColumn customColumn="md-5" additionalStyles={["m-0", "center-baseline"]}>
@@ -795,7 +801,7 @@ storiesOf("Pages", module).add("Corelations Capabilities page", () => (
             </CustomRow>
 
             <CustomRow >
-              <CustomColumn customColumn="md-5" additionalStyles={["p-0"]}>
+              <CustomColumn customColumn="md-5">
                 
                 <CustomRow>
                   <CustomColumn customColumn="md-5" additionalStyles={["m-0", "center-baseline"]}>
@@ -818,7 +824,7 @@ storiesOf("Pages", module).add("Corelations Capabilities page", () => (
             </CustomRow>
 
             <CustomRow>
-              <CustomColumn customColumn="md-5" additionalStyles={["p-0"]}>
+              <CustomColumn customColumn="md-5">
 
                 <CustomRow>
                   <CustomColumn customColumn="md-5" additionalStyles={["m-0", "center-baseline"]}>
@@ -841,7 +847,7 @@ storiesOf("Pages", module).add("Corelations Capabilities page", () => (
             </CustomRow>
 
             <CustomRow>
-              <CustomColumn customColumn="md-5" additionalStyles={["p-0"]}>
+              <CustomColumn customColumn="md-5">
 
                 <CustomRow>
                   <CustomColumn customColumn="md-5" additionalStyles={["m-0", "center-baseline"]}>
@@ -875,23 +881,29 @@ storiesOf("Pages", module).add("Corelations Capabilities page", () => (
 
           <Tab label="Escalation">
             <CustomRow additionalStyles={["mt-2"]}>
-              <Subtitle label="Escalation" subtitleType="bam" />
+              <CustomColumn customColumn="xs-12">
+                <Subtitle label="Escalation" subtitleType="bam" />
+              </CustomColumn>
             </CustomRow>
 
             <CustomRow>
-              <InfoTooltip 
-                iconColor="gray" 
-                tooltipText="Escalations rules that are applied to this business activity" 
-                iconText="Select escalation rules that are applied to this Business Activity" 
-              />
+              <CustomColumn customColumn="xs-12">
+                <InfoTooltip 
+                  iconColor="gray" 
+                  tooltipText="Escalations rules that are applied to this business activity" 
+                  iconText="Select escalation rules that are applied to this Business Activity" 
+                />
+              </CustomColumn>
             </CustomRow>
 
             <CustomRow additionalStyles={["mt-1", "mb-2"]}>
-              <InputFieldMultiSelect size="medium" />
+              <CustomColumn customColumn="xs-12">
+                <InputFieldMultiSelect size="medium" />
+              </CustomColumn>
             </CustomRow>
 
             <CustomRow>
-              <CustomColumn customColumn="md-5" additionalStyles={["p-0"]}>
+              <CustomColumn customColumn="md-5">
 
                 <CustomRow>
                   <CustomColumn customColumn="md-5" additionalStyles={["m-0", "center-baseline"]}>
@@ -914,7 +926,7 @@ storiesOf("Pages", module).add("Corelations Capabilities page", () => (
             </CustomRow>
 
             <CustomRow >
-              <CustomColumn customColumn="md-5" additionalStyles={["p-0"]}>
+              <CustomColumn customColumn="md-5">
                 
                 <CustomRow>
                   <CustomColumn customColumn="md-5" additionalStyles={["m-0", "center-baseline"]}>
@@ -937,7 +949,7 @@ storiesOf("Pages", module).add("Corelations Capabilities page", () => (
             </CustomRow>
 
             <CustomRow>
-              <CustomColumn customColumn="md-5" additionalStyles={["p-0"]}>
+              <CustomColumn customColumn="md-5">
 
                 <CustomRow>
                   <CustomColumn customColumn="md-5" additionalStyles={["m-0", "center-baseline"]}>
@@ -960,7 +972,7 @@ storiesOf("Pages", module).add("Corelations Capabilities page", () => (
             </CustomRow>
 
             <CustomRow>
-              <CustomColumn customColumn="md-5" additionalStyles={["p-0"]}>
+              <CustomColumn customColumn="md-5">
 
                 <CustomRow>
                   <CustomColumn customColumn="md-5" additionalStyles={["m-0", "center-baseline"]}>
@@ -994,17 +1006,21 @@ storiesOf("Pages", module).add("Corelations Capabilities page", () => (
           <Tab label="Event Handler">
 
             <CustomRow additionalStyles={["mt-2"]}>
-              <Subtitle label="Event handler configuration" subtitleType="bam" />
+              <CustomColumn customColumn="xs-12">
+                <Subtitle label="Event handler configuration" subtitleType="bam" />
+              </CustomColumn>
             </CustomRow>
 
             <CustomRow>
 
               <CustomColumn customColumn="md-2" additionalStyles={["m-0", "p-0"]}>
-                <InfoTooltip 
-                  iconColor="gray" 
-                  tooltipText="Enable event handler" 
-                  iconText="Enable event handler" 
-                />
+                <CustomColumn customColumn="xs-12">
+                  <InfoTooltip 
+                    iconColor="gray" 
+                    tooltipText="Enable event handler" 
+                    iconText="Enable event handler" 
+                  />
+                </CustomColumn>
               </CustomColumn>
 
               <CustomColumn customColumn="md-2" additionalStyles={["m-0"]}>
@@ -1020,7 +1036,7 @@ storiesOf("Pages", module).add("Corelations Capabilities page", () => (
             </CustomRow>
 
             <CustomRow>
-              <CustomColumn customColumn="md-2" additionalStyles={["m-0", "center-vertical", "p-0"]}>
+              <CustomColumn customColumn="md-2" additionalStyles={["m-0", "center-vertical"]}>
                 <InfoTooltip 
                   iconColor="gray" 
                   tooltipText="Event handler command" 
@@ -1033,7 +1049,7 @@ storiesOf("Pages", module).add("Corelations Capabilities page", () => (
             </CustomRow>
 
             <CustomRow additionalStyles={["mt-1"]}>
-              <CustomColumn customColumn="md-2" additionalStyles={["m-0", "p-0", "center-vertical"]}>
+              <CustomColumn customColumn="md-2" additionalStyles={["m-0", "center-vertical"]}>
                 <InfoTooltip 
                   iconColor="gray" 
                   tooltipText="Args" 
