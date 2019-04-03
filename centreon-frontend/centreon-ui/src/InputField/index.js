@@ -28,6 +28,7 @@ const InputField = ({
         type={type}
         placeholder={placeholder}
         className={classnames(styles["form-control"])}
+        {...rest}
       />
       {error ? (
         <div className={classnames(styles["form-error"])}>
