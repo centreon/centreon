@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import classnames from 'classnames';
 import styles from './input-multi-select.scss';
 import Checkbox from '../../Checkbox';
-import ScrollBar from '../../ScrollBar';
 import IconToggleSubmenu from '../../Icon/IconToggleSubmenu';
 
 class InputFieldMultiSelect extends Component {

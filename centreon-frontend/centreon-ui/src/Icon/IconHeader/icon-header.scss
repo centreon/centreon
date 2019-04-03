@@ -1,4 +1,5 @@
 @import '../../global-sass-files/variables';
+@import '../../global-sass-files/mixins';
 
 // Icons generated
 @font-face {
@@ -116,6 +117,7 @@
 .iconmoon {
   display: block;
   text-align: center;
+  @include iconmoon();
   &:before {
     font-size: 24px;
   }
