@@ -638,25 +638,14 @@ storiesOf("Pages", module).add("Corelations Capabilities page", () => (
                   </CustomColumn>
                 </CustomRow>
 
-                <CustomRow>
+                <CustomRow additionalStyles={["mt-1"]}>
 
-                  <CustomColumn customColumn="md-5" additionalStyles={["m-0"]}>
-                    <InfoTooltip 
-                      iconColor="gray" 
-                      tooltipText="Whether or not notification is enabled" 
-                      iconText="Enable notification" 
-                    />
+                  <CustomColumn customColumn="md-5" additionalStyles={["center-vertical"]}>
+                    <Subtitle label="Enable notification" subtitleType="bam" />
                   </CustomColumn>
 
-                  <CustomColumn customColumn="md-5">
-                    <CustomRow>
-                      <CustomColumn customColumn="md-4">
-                        <RadioButton name="test" iconColor="green" checked={true} label="YES" />
-                      </CustomColumn>
-                      <CustomColumn customColumn="md-4">
-                        <RadioButton name="test" iconColor="green" label="NO" />
-                      </CustomColumn>
-                    </CustomRow>
+                  <CustomColumn customColumn="md-6"  additionalStyles={["m-0", "center-baseline"]}>
+                    <SwitcherInputField />
                   </CustomColumn>
                 </CustomRow>
 
