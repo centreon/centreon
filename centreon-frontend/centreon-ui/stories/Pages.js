@@ -433,656 +433,656 @@ storiesOf("Pages", module).add("Extensions page", () => (
 
 // BAM Corelations Capabilities Page
 storiesOf("Pages", module).add("Corelations Capabilities page", () => (
-  <CustomStyles additionalStyles={["content-wrap"]}>
-  <CustomStyles additionalStyles={["content-inner"]}>
-  <CustomStyles additionalStyles={["content-overflow"]}>
-    <Title style={{padding: '10px'}} titleColor="bam" label="BAM Corelations Capabilities" />
-    <CustomStyles additionalStyles={["p-1"]}>
-      <CustomStyles additionalStyles={["container", "container-gray", "p-0"]}>
-        <Tabs>
-          <Tab label="Configuration">
-            <CustomRow>
-              <CustomColumn customColumn="md-2" additionalStyles={["center-vertical"]}>
-                <Subtitle label="Enable business activity" subtitleType="bam" />
-              </CustomColumn>
-              <CustomColumn customColumn="md-2">
-                <SwitcherInputField />
-              </CustomColumn>
-            </CustomRow>
-            <Subtitle label="Information" subtitleType="bam" />
-
-            <CustomRow>
-              <CustomColumn customColumn="md-4">
-                <InfoTooltip 
-                  iconColor="gray" 
-                  tooltipText="Name of business activity" 
-                  iconText="Name" 
-                />
-                <InputField 
-                  error="The field is mandatory" 
-                  inputSize="middle" 
-                />
-                <InfoTooltip 
-                  iconColor="gray" 
-                  tooltipText="Description of business activity" 
-                  iconText="Description" 
-                />
-                <InputFieldTextarea 
-                  textareaType="middle" 
-                />
-              </CustomColumn>
-
-              <CustomColumn customColumn="md-4">
-
+  <CustomStyles additionalStyles={["content-wrapper"]}>
+    <CustomStyles additionalStyles={["content-inner"]}>
+      <CustomStyles additionalStyles={["content-overflow"]}>
+        <Title style={{padding: '10px'}} titleColor="bam" label="BAM Corelations Capabilities" />
+        <CustomStyles additionalStyles={["p-1"]}>
+          <CustomStyles additionalStyles={["container", "container-gray", "p-0"]}>
+            <Tabs>
+              <Tab label="Configuration">
                 <CustomRow>
-                  <CustomColumn customColumn="md-6" additionalStyles={["center-vertical", "m-0"]}>
-                    <InfoTooltip 
-                      iconColor="gray" 
-                      tooltipText="Icon that represents the business activity" 
-                      iconText="Icon" 
-                    />
+                  <CustomColumn customColumn="md-2" additionalStyles={["center-vertical"]}>
+                    <Subtitle label="Enable business activity" subtitleType="bam" />
                   </CustomColumn>
-                  <CustomColumn customColumn="md-6">
-                    <InputFieldMultiSelect customClass="medium" />
+                  <CustomColumn customColumn="md-2">
+                    <SwitcherInputField />
                   </CustomColumn>
                 </CustomRow>
+                <Subtitle label="Information" subtitleType="bam" />
 
-                <br />
                 <CustomRow>
-
-                  <CustomColumn customColumn="md-7" additionalStyles={["m-0"]}>
+                  <CustomColumn customColumn="md-4">
                     <InfoTooltip 
                       iconColor="gray" 
-                      tooltipText="(Broker >= 3) Whether or not the business activity has to inherit planned downtimes from its KPI. See documentation for more information on the feature." 
-                      iconText="Automatically inherit KPI downtime" 
+                      tooltipText="Name of business activity" 
+                      iconText="Name" 
+                    />
+                    <InputField 
+                      error="The field is mandatory" 
+                      inputSize="middle" 
+                    />
+                    <InfoTooltip 
+                      iconColor="gray" 
+                      tooltipText="Description of business activity" 
+                      iconText="Description" 
+                    />
+                    <InputFieldTextarea 
+                      textareaType="middle" 
                     />
                   </CustomColumn>
 
-                  <CustomColumn customColumn="md-5">
+                  <CustomColumn customColumn="md-4">
+
                     <CustomRow>
-                      <CustomColumn customColumn="md-4">
-                        <RadioButton name="test" iconColor="green" checked={true} label="YES" />
+                      <CustomColumn customColumn="md-6" additionalStyles={["center-vertical", "m-0"]}>
+                        <InfoTooltip 
+                          iconColor="gray" 
+                          tooltipText="Icon that represents the business activity" 
+                          iconText="Icon" 
+                        />
                       </CustomColumn>
-                      <CustomColumn customColumn="md-4">
-                        <RadioButton name="test" iconColor="green" label="NO" />
+                      <CustomColumn customColumn="md-6">
+                        <InputFieldMultiSelect customClass="medium" />
+                      </CustomColumn>
+                    </CustomRow>
+
+                    <br />
+                    <CustomRow>
+
+                      <CustomColumn customColumn="md-7" additionalStyles={["m-0"]}>
+                        <InfoTooltip 
+                          iconColor="gray" 
+                          tooltipText="(Broker >= 3) Whether or not the business activity has to inherit planned downtimes from its KPI. See documentation for more information on the feature." 
+                          iconText="Automatically inherit KPI downtime" 
+                        />
+                      </CustomColumn>
+
+                      <CustomColumn customColumn="md-5">
+                        <CustomRow>
+                          <CustomColumn customColumn="md-4">
+                            <RadioButton name="test" iconColor="green" checked={true} label="YES" />
+                          </CustomColumn>
+                          <CustomColumn customColumn="md-4">
+                            <RadioButton name="test" iconColor="green" label="NO" />
+                          </CustomColumn>
+                        </CustomRow>
+                      </CustomColumn>
+
+                    </CustomRow>
+
+                    <CustomRow>
+                      <CustomColumn customColumn="md-6" additionalStyles={["center-vertical", "m-0"]}>
+                        <InfoTooltip 
+                          iconColor="gray" 
+                          tooltipText="Possibility to display this Business Activity on a Remote Server which have Centreon BAM module installed" 
+                          iconText="Display on remote server         " 
+                        />
+                      </CustomColumn>
+                      <CustomColumn customColumn="md-6">
+                        <InputFieldMultiSelect customClass="medium" />
                       </CustomColumn>
                     </CustomRow>
                   </CustomColumn>
 
                 </CustomRow>
-
-                <CustomRow>
-                  <CustomColumn customColumn="md-6" additionalStyles={["center-vertical", "m-0"]}>
-                    <InfoTooltip 
-                      iconColor="gray" 
-                      tooltipText="Possibility to display this Business Activity on a Remote Server which have Centreon BAM module installed" 
-                      iconText="Display on remote server         " 
-                    />
-                  </CustomColumn>
-                  <CustomColumn customColumn="md-6">
-                    <InputFieldMultiSelect customClass="medium" />
+                
+                <CustomRow additionalStyles={["mt-2"]}>
+                  <CustomColumn customColumn="xs-12">
+                    <HorizontalLineSeparator />
                   </CustomColumn>
                 </CustomRow>
-              </CustomColumn>
-
-            </CustomRow>
-            
-            <CustomRow additionalStyles={["mt-2"]}>
-              <CustomColumn customColumn="xs-12">
-                <HorizontalLineSeparator />
-              </CustomColumn>
-            </CustomRow>
-            <CustomRow>
-              <CustomColumn customColumn="xs-12">
-                <Subtitle label="Business View" subtitleType="bam" />
-              </CustomColumn>
-            </CustomRow>
-
-            <CustomRow>
-              <CustomColumn customColumn="md-4">
-                <div>
-                  <InfoTooltip 
-                    iconColor="gray" 
-                    tooltipText="Business view(s) of this business activity" 
-                    iconText="Link to Business View(s)" 
-                  />
-                </div>
-                <InputFieldMultiSelect size="medium" />
-              </CustomColumn>
-            </CustomRow>
-
-            <br />
-            <CustomRow>
-              <CustomColumn customColumn="xs-12">
-                <HorizontalLineSeparator />
-              </CustomColumn>
-            </CustomRow>
-
-            <CustomRow>
-              <CustomColumn customColumn="md-1" additionalStyles={["center-vertical"]}>
-                <Subtitle label="Notification" subtitleType="bam" />
-              </CustomColumn>
-            </CustomRow>
-
-            <CustomRow>
-              <CustomColumn customColumn="md-4">
-                <div>
-                  <InfoTooltip 
-                    iconColor="gray" 
-                    tooltipText="Contact groups authorized to receive notifications from this Business Activity" 
-                    iconText="Contact groups authorized to receive notifications from this Business Activity" 
-                  />
-                </div>
-                <InputFieldMultiSelect size="medium" />
-              </CustomColumn>
-
-              <CustomColumn customColumn="md-4">
+                <CustomRow>
+                  <CustomColumn customColumn="xs-12">
+                    <Subtitle label="Business View" subtitleType="bam" />
+                  </CustomColumn>
+                </CustomRow>
 
                 <CustomRow>
-                  <CustomColumn customColumn="md-5" additionalStyles={["center-vertical", "m-0"]}>
-                    <InfoTooltip 
-                      iconColor="gray" 
-                      tooltipText="Time period during which notification can take place" 
-                      iconText="Notification time period" 
-                    />
-                  </CustomColumn>
-                  <CustomColumn customColumn="md-7" additionalStyles={["m-0"]}>
-                    <InputFieldMultiSelect size="big" />
+                  <CustomColumn customColumn="md-4">
+                    <div>
+                      <InfoTooltip 
+                        iconColor="gray" 
+                        tooltipText="Business view(s) of this business activity" 
+                        iconText="Link to Business View(s)" 
+                      />
+                    </div>
+                    <InputFieldMultiSelect size="medium" />
                   </CustomColumn>
                 </CustomRow>
 
                 <br />
                 <CustomRow>
-
-                  <CustomColumn customColumn="md-5" additionalStyles={["center-vertical", "m-0"]}>
-                    <InfoTooltip 
-                      iconColor="gray" 
-                      tooltipText="Notification interval length" 
-                      iconText="Notification interval" 
-                    />
+                  <CustomColumn customColumn="xs-12">
+                    <HorizontalLineSeparator />
                   </CustomColumn>
-
-                  <CustomColumn customColumn="md-7" additionalStyles={["center-baseline", "m-0"]}>
-                    <InputField 
-                      type="text"
-                      inputSize="smallest" 
-                    />
-                    <IconInfo iconText="*60 seconds" />
-                  </CustomColumn>
-
                 </CustomRow>
 
-              </CustomColumn>
+                <CustomRow>
+                  <CustomColumn customColumn="md-1" additionalStyles={["center-vertical"]}>
+                    <Subtitle label="Notification" subtitleType="bam" />
+                  </CustomColumn>
+                </CustomRow>
 
-              <CustomColumn customColumn="md-4">
-                <CustomRow additionalStyles={["mb-1"]}>
-                  <CustomColumn customColumn="md-8">
-                    <InfoTooltip 
-                      iconColor="gray" 
-                      tooltipText="States for which notifications will be sent out" 
-                      iconText="Notification options" 
+                <CustomRow>
+                  <CustomColumn customColumn="md-4">
+                    <div>
+                      <InfoTooltip 
+                        iconColor="gray" 
+                        tooltipText="Contact groups authorized to receive notifications from this Business Activity" 
+                        iconText="Contact groups authorized to receive notifications from this Business Activity" 
+                      />
+                    </div>
+                    <InputFieldMultiSelect size="medium" />
+                  </CustomColumn>
+
+                  <CustomColumn customColumn="md-4">
+
+                    <CustomRow>
+                      <CustomColumn customColumn="md-5" additionalStyles={["center-vertical", "m-0"]}>
+                        <InfoTooltip 
+                          iconColor="gray" 
+                          tooltipText="Time period during which notification can take place" 
+                          iconText="Notification time period" 
+                        />
+                      </CustomColumn>
+                      <CustomColumn customColumn="md-7" additionalStyles={["m-0"]}>
+                        <InputFieldMultiSelect size="big" />
+                      </CustomColumn>
+                    </CustomRow>
+
+                    <br />
+                    <CustomRow>
+
+                      <CustomColumn customColumn="md-5" additionalStyles={["center-vertical", "m-0"]}>
+                        <InfoTooltip 
+                          iconColor="gray" 
+                          tooltipText="Notification interval length" 
+                          iconText="Notification interval" 
+                        />
+                      </CustomColumn>
+
+                      <CustomColumn customColumn="md-7" additionalStyles={["center-baseline", "m-0"]}>
+                        <InputField 
+                          type="text"
+                          inputSize="smallest" 
+                        />
+                        <IconInfo iconText="*60 seconds" />
+                      </CustomColumn>
+
+                    </CustomRow>
+
+                  </CustomColumn>
+
+                  <CustomColumn customColumn="md-4">
+                    <CustomRow additionalStyles={["mb-1"]}>
+                      <CustomColumn customColumn="md-8">
+                        <InfoTooltip 
+                          iconColor="gray" 
+                          tooltipText="States for which notifications will be sent out" 
+                          iconText="Notification options" 
+                        />
+                      </CustomColumn>
+                    </CustomRow>
+
+                    <CustomRow>
+                      <CustomColumn customColumn="md-3" additionalStyles={["m-0"]}>
+                        <Checkbox name="test" iconColor="green" checked={true} label="Recovery" />
+                      </CustomColumn>
+                      <CustomColumn customColumn="md-3" additionalStyles={["m-0"]}>
+                        <Checkbox name="test" iconColor="green" checked={true} label="Warning" />
+                      </CustomColumn>
+                      <CustomColumn customColumn="md-3" additionalStyles={["m-0"]}>
+                        <Checkbox name="test" iconColor="green" checked={true} label="Critical" />
+                      </CustomColumn>
+                      <CustomColumn customColumn="md-3" additionalStyles={["m-0"]}>
+                        <Checkbox name="test" iconColor="green" checked={true} label="Flapping" />
+                      </CustomColumn>
+                    </CustomRow>
+
+                    <CustomRow additionalStyles={["mt-1"]}>
+
+                      <CustomColumn customColumn="md-5" additionalStyles={["center-vertical"]}>
+                        <Subtitle label="Enable notification" subtitleType="bam" />
+                      </CustomColumn>
+
+                      <CustomColumn customColumn="md-6"  additionalStyles={["m-0", "center-baseline"]}>
+                        <SwitcherInputField />
+                      </CustomColumn>
+                    </CustomRow>
+
+                  </CustomColumn>
+                </CustomRow>
+
+                <CustomStyles customStyles="text-right">
+                  <Button
+                    label="SAVE"
+                    buttonType="validate"
+                    color="green"
+                    customClass="normal"
+                  />
+                </CustomStyles>
+
+              </Tab>
+
+              <Tab label="Indicators">
+                <CustomRow>
+
+                  <CustomColumn customColumn="md-2" additionalStyles={["center-vertical", "m-0"]}>
+                    <Subtitle label="Select status calculation method" subtitleType="bam" />
+                  </CustomColumn>
+
+                  <CustomColumn customColumn="md-2" additionalStyles={["m-0"]}>
+                    <InputFieldMultiSelect size="middle" />
+                  </CustomColumn>
+
+                  <CustomColumn customColumn="md-1" additionalStyles={["m-0"]}>
+                    <CustomButton label="Warning" color="orange" />
+                  </CustomColumn>
+
+                  <CustomColumn customColumn="md-1" additionalStyles={["m-0", "p-0", "center-both"]}>
+                    <IconInfo iconText="Treshold" />
+                  </CustomColumn>
+
+                  <CustomColumn customColumn="md-1" additionalStyles={["m-0", "p-0", "center-vertical"]}>
+                    <InputField 
+                      type="text"
+                      inputSize="smallest m-0" 
+                    />
+                  </CustomColumn>
+
+                  <CustomColumn customColumn="md-1" additionalStyles={["m-0"]}>
+                    <CustomButton label="Critical" color="red" />
+                  </CustomColumn>
+
+                  <CustomColumn customColumn="md-1" additionalStyles={["p-0", "center-both"]}>
+                    <IconInfo iconText="Treshold" />
+                  </CustomColumn>
+
+                  <CustomColumn customColumn="md-1" additionalStyles={["m-0", "p-0", "center-vertical"]}>
+                    <InputField 
+                      type="text"
+                      inputSize="smallest m-0" 
                     />
                   </CustomColumn>
                 </CustomRow>
 
                 <CustomRow>
-                  <CustomColumn customColumn="md-3" additionalStyles={["m-0"]}>
-                    <Checkbox name="test" iconColor="green" checked={true} label="Recovery" />
+                  <CustomColumn customColumn="md-12" additionalStyles={["m-0"]}>
+                    <Subtitle label="Linked Resources" subtitleType="bam" />
                   </CustomColumn>
-                  <CustomColumn customColumn="md-3" additionalStyles={["m-0"]}>
-                    <Checkbox name="test" iconColor="green" checked={true} label="Warning" />
+                </CustomRow>
+
+                <CustomRow additionalStyles={["mb-2"]}>
+                  <CustomColumn customColumn="md-3" additionalStyles={["center-vertical", "m-0"]}>
+                    <IconInfo iconText="Type of objects you want to calculate the result on" />
                   </CustomColumn>
-                  <CustomColumn customColumn="md-3" additionalStyles={["m-0"]}>
-                    <Checkbox name="test" iconColor="green" checked={true} label="Critical" />
+                  <CustomColumn customColumn="md-2" additionalStyles={["center-vertical", "m-0"]}>
+                    <InputFieldMultiSelect size="small" />
                   </CustomColumn>
-                  <CustomColumn customColumn="md-3" additionalStyles={["m-0"]}>
-                    <Checkbox name="test" iconColor="green" checked={true} label="Flapping" />
+                </CustomRow>
+                <br />
+
+                <CustomRow>
+                  <CustomColumn customColumn="md-12" additionalStyles={["m-0"]}>
+                    <SearchLive />
                   </CustomColumn>
                 </CustomRow>
 
                 <CustomRow additionalStyles={["mt-1"]}>
-
-                  <CustomColumn customColumn="md-5" additionalStyles={["center-vertical"]}>
-                    <Subtitle label="Enable notification" subtitleType="bam" />
-                  </CustomColumn>
-
-                  <CustomColumn customColumn="md-6"  additionalStyles={["m-0", "center-baseline"]}>
-                    <SwitcherInputField />
+                  <CustomColumn customColumn="md-12" additionalStyles={["m-0", "p-0"]}>
+                    <ListSortable />
                   </CustomColumn>
                 </CustomRow>
 
-              </CustomColumn>
-            </CustomRow>
-
-            <CustomStyles customStyles="text-right">
-              <Button
-                label="SAVE"
-                buttonType="validate"
-                color="green"
-                customClass="normal"
-              />
-            </CustomStyles>
-
-          </Tab>
-
-          <Tab label="Indicators">
-            <CustomRow>
-
-              <CustomColumn customColumn="md-2" additionalStyles={["center-vertical", "m-0"]}>
-                <Subtitle label="Select status calculation method" subtitleType="bam" />
-              </CustomColumn>
-
-              <CustomColumn customColumn="md-2" additionalStyles={["m-0"]}>
-                <InputFieldMultiSelect size="middle" />
-              </CustomColumn>
-
-              <CustomColumn customColumn="md-1" additionalStyles={["m-0"]}>
-                <CustomButton label="Warning" color="orange" />
-              </CustomColumn>
-
-              <CustomColumn customColumn="md-1" additionalStyles={["m-0", "p-0", "center-both"]}>
-                <IconInfo iconText="Treshold" />
-              </CustomColumn>
-
-              <CustomColumn customColumn="md-1" additionalStyles={["m-0", "p-0", "center-vertical"]}>
-                <InputField 
-                  type="text"
-                  inputSize="smallest m-0" 
-                />
-              </CustomColumn>
-
-              <CustomColumn customColumn="md-1" additionalStyles={["m-0"]}>
-                <CustomButton label="Critical" color="red" />
-              </CustomColumn>
-
-              <CustomColumn customColumn="md-1" additionalStyles={["p-0", "center-both"]}>
-                <IconInfo iconText="Treshold" />
-              </CustomColumn>
-
-              <CustomColumn customColumn="md-1" additionalStyles={["m-0", "p-0", "center-vertical"]}>
-                <InputField 
-                  type="text"
-                  inputSize="smallest m-0" 
-                />
-              </CustomColumn>
-            </CustomRow>
-
-            <CustomRow>
-              <CustomColumn customColumn="md-12" additionalStyles={["m-0"]}>
-                <Subtitle label="Linked Resources" subtitleType="bam" />
-              </CustomColumn>
-            </CustomRow>
-
-            <CustomRow additionalStyles={["mb-2"]}>
-              <CustomColumn customColumn="md-3" additionalStyles={["center-vertical", "m-0"]}>
-                <IconInfo iconText="Type of objects you want to calculate the result on" />
-              </CustomColumn>
-              <CustomColumn customColumn="md-2" additionalStyles={["center-vertical", "m-0"]}>
-                <InputFieldMultiSelect size="small" />
-              </CustomColumn>
-            </CustomRow>
-            <br />
-
-            <CustomRow>
-              <CustomColumn customColumn="md-12" additionalStyles={["m-0"]}>
-                <SearchLive />
-              </CustomColumn>
-            </CustomRow>
-
-            <CustomRow additionalStyles={["mt-1"]}>
-              <CustomColumn customColumn="md-12" additionalStyles={["m-0", "p-0"]}>
-                <ListSortable />
-              </CustomColumn>
-            </CustomRow>
-
-            <CustomStyles customStyles="text-right">
-              <Button
-                label="SAVE"
-                buttonType="validate"
-                color="green"
-                customClass="normal"
-              />
-            </CustomStyles>
-          </Tab>
-
-          <Tab label="Reporting">
-            <CustomRow additionalStyles={["mt-2"]}>
-              <CustomColumn customColumn="xs-12">
-                <Subtitle label="Reporting" subtitleType="bam" />
-              </CustomColumn>
-            </CustomRow>
-
-            <CustomRow>
-              <CustomColumn customColumn="xs-12">
-                <InfoTooltip 
-                  iconColor="gray" 
-                  tooltipText="Those time periods will be used by Centreon BI reports." 
-                  iconText="Extra reporting time periods used in Centreon BI reports" 
-                />
-              </CustomColumn>
-            </CustomRow>
-
-            <CustomRow additionalStyles={["mt-1", "mb-2"]}>
-              <CustomColumn customColumn="xs-12">
-                <InputFieldMultiSelect size="medium" />
-              </CustomColumn>
-            </CustomRow>
-
-            <CustomRow>
-              <CustomColumn customColumn="md-5">
-
-                <CustomRow>
-                  <CustomColumn customColumn="md-5" additionalStyles={["m-0", "center-baseline"]}>
-                    <InfoTooltip 
-                      iconColor="gray" 
-                      tooltipText="SLA warning percentage threshold" 
-                      iconText="SLA warning percentage treshold" 
-                    />
-                  </CustomColumn>
-                  <CustomColumn customColumn="md-7" additionalStyles={["m-0", "center-baseline"]}>
-                    <InputField 
-                      type="text"
-                      inputSize="smallest" 
-                    />
-                    <IconInfo iconText="(0-100%)" />
-                  </CustomColumn>
-                </CustomRow>
-
-              </CustomColumn>
-            </CustomRow>
-
-            <CustomRow >
-              <CustomColumn customColumn="md-5">
-                
-                <CustomRow>
-                  <CustomColumn customColumn="md-5" additionalStyles={["m-0", "center-baseline"]}>
-                    <InfoTooltip 
-                      iconColor="gray" 
-                      tooltipText="Percentage of time during which the BA was in a Critical status on a monthly basis" 
-                      iconText="SLA critical percentage treshold" 
-                    />
-                  </CustomColumn>
-                  <CustomColumn customColumn="md-7" additionalStyles={["m-0", "center-baseline"]}>
-                    <InputField 
-                      type="text"
-                      inputSize="smallest" 
-                    />
-                    <IconInfo iconText="(0-100%)" />
-                  </CustomColumn>
-                </CustomRow>
-
-              </CustomColumn>
-            </CustomRow>
-
-            <CustomRow>
-              <CustomColumn customColumn="md-5">
-
-                <CustomRow>
-                  <CustomColumn customColumn="md-5" additionalStyles={["m-0", "center-baseline"]}>
-                    <InfoTooltip 
-                      iconColor="gray" 
-                      tooltipText="Amount of time during which the BA was in a Warning status on a monthly basis" 
-                      iconText="SLA warning duration treshold" 
-                    />
-                  </CustomColumn>
-                  <CustomColumn customColumn="md-7" additionalStyles={["m-0", "center-baseline"]}>
-                    <InputField 
-                      type="text"
-                      inputSize="smallest" 
-                    />
-                    <IconInfo iconText="minutes" />
-                  </CustomColumn>
-                </CustomRow>
-
-              </CustomColumn>
-            </CustomRow>
-
-            <CustomRow>
-              <CustomColumn customColumn="md-5">
-
-                <CustomRow>
-                  <CustomColumn customColumn="md-5" additionalStyles={["m-0", "center-baseline"]}>
-                    <InfoTooltip 
-                      iconColor="gray" 
-                      tooltipText="SLA critical duration threshold" 
-                      iconText="SLA critical duration threshold" 
-                    />
-                  </CustomColumn>
-                  <CustomColumn customColumn="md-7" additionalStyles={["m-0", "center-baseline"]}>
-                    <InputField 
-                      type="text"
-                      inputSize="smallest" 
-                    />
-                    <IconInfo iconText="minutes" />
-                  </CustomColumn>
-                </CustomRow>
-
-              </CustomColumn>
-            </CustomRow>
-
-            <CustomStyles customStyles="text-right">
-              <Button
-                label="SAVE"
-                buttonType="validate"
-                color="green"
-                customClass="normal"
-              />
-            </CustomStyles>
-          </Tab>
-
-          <Tab label="Escalation">
-            <CustomRow additionalStyles={["mt-2"]}>
-              <CustomColumn customColumn="xs-12">
-                <Subtitle label="Escalation" subtitleType="bam" />
-              </CustomColumn>
-            </CustomRow>
-
-            <CustomRow>
-              <CustomColumn customColumn="xs-12">
-                <InfoTooltip 
-                  iconColor="gray" 
-                  tooltipText="Escalations rules that are applied to this business activity" 
-                  iconText="Select escalation rules that are applied to this Business Activity" 
-                />
-              </CustomColumn>
-            </CustomRow>
-
-            <CustomRow additionalStyles={["mt-1", "mb-2"]}>
-              <CustomColumn customColumn="xs-12">
-                <InputFieldMultiSelect size="medium" />
-              </CustomColumn>
-            </CustomRow>
-
-            <CustomRow>
-              <CustomColumn customColumn="md-5">
-
-                <CustomRow>
-                  <CustomColumn customColumn="md-5" additionalStyles={["m-0", "center-baseline"]}>
-                    <InfoTooltip 
-                      iconColor="gray" 
-                      tooltipText="SLA warning percentage threshold" 
-                      iconText="SLA warning percentage treshold" 
-                    />
-                  </CustomColumn>
-                  <CustomColumn customColumn="md-7" additionalStyles={["m-0", "center-baseline"]}>
-                    <InputField 
-                      type="text"
-                      inputSize="smallest" 
-                    />
-                    <IconInfo iconText="(0-100%)" />
-                  </CustomColumn>
-                </CustomRow>
-
-              </CustomColumn>
-            </CustomRow>
-
-            <CustomRow >
-              <CustomColumn customColumn="md-5">
-                
-                <CustomRow>
-                  <CustomColumn customColumn="md-5" additionalStyles={["m-0", "center-baseline"]}>
-                    <InfoTooltip 
-                      iconColor="gray" 
-                      tooltipText="Percentage of time during which the BA was in a Critical status on a monthly basis" 
-                      iconText="SLA control percentage treshold" 
-                    />
-                  </CustomColumn>
-                  <CustomColumn customColumn="md-7" additionalStyles={["m-0", "center-baseline"]}>
-                    <InputField 
-                      type="text"
-                      inputSize="smallest" 
-                    />
-                    <IconInfo iconText="(0-100%)" />
-                  </CustomColumn>
-                </CustomRow>
-
-              </CustomColumn>
-            </CustomRow>
-
-            <CustomRow>
-              <CustomColumn customColumn="md-5">
-
-                <CustomRow>
-                  <CustomColumn customColumn="md-5" additionalStyles={["m-0", "center-baseline"]}>
-                    <InfoTooltip 
-                      iconColor="gray" 
-                      tooltipText="Amount of time during which the BA was in a Warning status on a monthly basis" 
-                      iconText="SLA warning duration treshold" 
-                    />
-                  </CustomColumn>
-                  <CustomColumn customColumn="md-7" additionalStyles={["m-0", "center-baseline"]}>
-                    <InputField 
-                      type="text"
-                      inputSize="smallest" 
-                    />
-                    <IconInfo iconText="minutes" />
-                  </CustomColumn>
-                </CustomRow>
-
-              </CustomColumn>
-            </CustomRow>
-
-            <CustomRow>
-              <CustomColumn customColumn="md-5">
-
-                <CustomRow>
-                  <CustomColumn customColumn="md-5" additionalStyles={["m-0", "center-baseline"]}>
-                    <InfoTooltip 
-                      iconColor="gray" 
-                      tooltipText="SLA critical duration threshold" 
-                      iconText="SLA critical percentage treshold" 
-                    />
-                  </CustomColumn>
-                  <CustomColumn customColumn="md-7" additionalStyles={["m-0", "center-baseline"]}>
-                    <InputField 
-                      type="text"
-                      inputSize="smallest" 
-                    />
-                    <IconInfo iconText="minutes" />
-                  </CustomColumn>
-                </CustomRow>
-
-              </CustomColumn>
-            </CustomRow>
-
-            <CustomStyles customStyles="text-right">
-              <Button
-                label="SAVE"
-                buttonType="validate"
-                color="green"
-                customClass="normal"
-              />
-            </CustomStyles>
-          </Tab>
-          <Tab label="Event Handler">
-
-            <CustomRow additionalStyles={["mt-2"]}>
-              <CustomColumn customColumn="xs-12">
-                <Subtitle label="Event handler configuration" subtitleType="bam" />
-              </CustomColumn>
-            </CustomRow>
-
-            <CustomRow>
-
-              <CustomColumn customColumn="md-2" additionalStyles={["m-0", "p-0"]}>
-                <CustomColumn customColumn="xs-12">
-                  <InfoTooltip 
-                    iconColor="gray" 
-                    tooltipText="Enable event handler" 
-                    iconText="Enable event handler" 
+                <CustomStyles customStyles="text-right">
+                  <Button
+                    label="SAVE"
+                    buttonType="validate"
+                    color="green"
+                    customClass="normal"
                   />
-                </CustomColumn>
-              </CustomColumn>
+                </CustomStyles>
+              </Tab>
 
-              <CustomColumn customColumn="md-2" additionalStyles={["m-0"]}>
-                <CustomRow>
-                  <CustomColumn customColumn="md-3" additionalStyles={["m-0"]}>
-                    <RadioButton name="test" iconColor="green" checked={true} label="YES" />
-                  </CustomColumn>
-                  <CustomColumn customColumn="md-3" additionalStyles={["m-0"]}>
-                    <RadioButton name="test" iconColor="green" label="NO" />
+              <Tab label="Reporting">
+                <CustomRow additionalStyles={["mt-2"]}>
+                  <CustomColumn customColumn="xs-12">
+                    <Subtitle label="Reporting" subtitleType="bam" />
                   </CustomColumn>
                 </CustomRow>
-              </CustomColumn>
-            </CustomRow>
 
-            <CustomRow>
-              <CustomColumn customColumn="md-2" additionalStyles={["m-0", "center-vertical"]}>
-                <InfoTooltip 
-                  iconColor="gray" 
-                  tooltipText="Event handler command" 
-                  iconText="Event handler command" 
-                />
-              </CustomColumn>
-              <CustomColumn customColumn="md-2" additionalStyles={["m-0"]}>
-                <InputFieldMultiSelect />
-              </CustomColumn>
-            </CustomRow>
+                <CustomRow>
+                  <CustomColumn customColumn="xs-12">
+                    <InfoTooltip 
+                      iconColor="gray" 
+                      tooltipText="Those time periods will be used by Centreon BI reports." 
+                      iconText="Extra reporting time periods used in Centreon BI reports" 
+                    />
+                  </CustomColumn>
+                </CustomRow>
 
-            <CustomRow additionalStyles={["mt-1"]}>
-              <CustomColumn customColumn="md-2" additionalStyles={["m-0", "center-vertical"]}>
-                <InfoTooltip 
-                  iconColor="gray" 
-                  tooltipText="Args" 
-                  iconText="Args" 
-                />
-              </CustomColumn>
-              <CustomColumn customColumn="md-2" additionalStyles={["m-0", "center-vertical"]}>
-                <InputField 
-                  type="text" 
-                  inputSize="big" 
-                />
-              </CustomColumn>
-              <CustomColumn customColumn="md-1" additionalStyles={["center-both"]}>
-                <Button
-                  buttonType="validate"
-                  color="green"
-                  customClass="normal"
-                  customSecond="icon"
-                  iconActionType="arrow-left"
-                  iconColor="white"
-                />
-              </CustomColumn>
-              <CustomColumn customColumn="md-2" additionalStyles={["m-0", "center-vertical"]}>
-                <InputField 
-                  type="text" 
-                  inputSize="big m-0" 
-                />
-              </CustomColumn>
-            </CustomRow>
+                <CustomRow additionalStyles={["mt-1", "mb-2"]}>
+                  <CustomColumn customColumn="xs-12">
+                    <InputFieldMultiSelect size="medium" />
+                  </CustomColumn>
+                </CustomRow>
 
-            <CustomStyles customStyles="text-right">
-              <Button
-                label="SAVE"
-                buttonType="validate"
-                color="green"
-                customClass="normal"
-              />
+                <CustomRow>
+                  <CustomColumn customColumn="md-5">
+
+                    <CustomRow>
+                      <CustomColumn customColumn="md-5" additionalStyles={["m-0", "center-baseline"]}>
+                        <InfoTooltip 
+                          iconColor="gray" 
+                          tooltipText="SLA warning percentage threshold" 
+                          iconText="SLA warning percentage treshold" 
+                        />
+                      </CustomColumn>
+                      <CustomColumn customColumn="md-7" additionalStyles={["m-0", "center-baseline"]}>
+                        <InputField 
+                          type="text"
+                          inputSize="smallest" 
+                        />
+                        <IconInfo iconText="(0-100%)" />
+                      </CustomColumn>
+                    </CustomRow>
+
+                  </CustomColumn>
+                </CustomRow>
+
+                <CustomRow >
+                  <CustomColumn customColumn="md-5">
+                    
+                    <CustomRow>
+                      <CustomColumn customColumn="md-5" additionalStyles={["m-0", "center-baseline"]}>
+                        <InfoTooltip 
+                          iconColor="gray" 
+                          tooltipText="Percentage of time during which the BA was in a Critical status on a monthly basis" 
+                          iconText="SLA critical percentage treshold" 
+                        />
+                      </CustomColumn>
+                      <CustomColumn customColumn="md-7" additionalStyles={["m-0", "center-baseline"]}>
+                        <InputField 
+                          type="text"
+                          inputSize="smallest" 
+                        />
+                        <IconInfo iconText="(0-100%)" />
+                      </CustomColumn>
+                    </CustomRow>
+
+                  </CustomColumn>
+                </CustomRow>
+
+                <CustomRow>
+                  <CustomColumn customColumn="md-5">
+
+                    <CustomRow>
+                      <CustomColumn customColumn="md-5" additionalStyles={["m-0", "center-baseline"]}>
+                        <InfoTooltip 
+                          iconColor="gray" 
+                          tooltipText="Amount of time during which the BA was in a Warning status on a monthly basis" 
+                          iconText="SLA warning duration treshold" 
+                        />
+                      </CustomColumn>
+                      <CustomColumn customColumn="md-7" additionalStyles={["m-0", "center-baseline"]}>
+                        <InputField 
+                          type="text"
+                          inputSize="smallest" 
+                        />
+                        <IconInfo iconText="minutes" />
+                      </CustomColumn>
+                    </CustomRow>
+
+                  </CustomColumn>
+                </CustomRow>
+
+                <CustomRow>
+                  <CustomColumn customColumn="md-5">
+
+                    <CustomRow>
+                      <CustomColumn customColumn="md-5" additionalStyles={["m-0", "center-baseline"]}>
+                        <InfoTooltip 
+                          iconColor="gray" 
+                          tooltipText="SLA critical duration threshold" 
+                          iconText="SLA critical duration threshold" 
+                        />
+                      </CustomColumn>
+                      <CustomColumn customColumn="md-7" additionalStyles={["m-0", "center-baseline"]}>
+                        <InputField 
+                          type="text"
+                          inputSize="smallest" 
+                        />
+                        <IconInfo iconText="minutes" />
+                      </CustomColumn>
+                    </CustomRow>
+
+                  </CustomColumn>
+                </CustomRow>
+
+                <CustomStyles customStyles="text-right">
+                  <Button
+                    label="SAVE"
+                    buttonType="validate"
+                    color="green"
+                    customClass="normal"
+                  />
+                </CustomStyles>
+              </Tab>
+
+              <Tab label="Escalation">
+                <CustomRow additionalStyles={["mt-2"]}>
+                  <CustomColumn customColumn="xs-12">
+                    <Subtitle label="Escalation" subtitleType="bam" />
+                  </CustomColumn>
+                </CustomRow>
+
+                <CustomRow>
+                  <CustomColumn customColumn="xs-12">
+                    <InfoTooltip 
+                      iconColor="gray" 
+                      tooltipText="Escalations rules that are applied to this business activity" 
+                      iconText="Select escalation rules that are applied to this Business Activity" 
+                    />
+                  </CustomColumn>
+                </CustomRow>
+
+                <CustomRow additionalStyles={["mt-1", "mb-2"]}>
+                  <CustomColumn customColumn="xs-12">
+                    <InputFieldMultiSelect size="medium" />
+                  </CustomColumn>
+                </CustomRow>
+
+                <CustomRow>
+                  <CustomColumn customColumn="md-5">
+
+                    <CustomRow>
+                      <CustomColumn customColumn="md-5" additionalStyles={["m-0", "center-baseline"]}>
+                        <InfoTooltip 
+                          iconColor="gray" 
+                          tooltipText="SLA warning percentage threshold" 
+                          iconText="SLA warning percentage treshold" 
+                        />
+                      </CustomColumn>
+                      <CustomColumn customColumn="md-7" additionalStyles={["m-0", "center-baseline"]}>
+                        <InputField 
+                          type="text"
+                          inputSize="smallest" 
+                        />
+                        <IconInfo iconText="(0-100%)" />
+                      </CustomColumn>
+                    </CustomRow>
+
+                  </CustomColumn>
+                </CustomRow>
+
+                <CustomRow >
+                  <CustomColumn customColumn="md-5">
+                    
+                    <CustomRow>
+                      <CustomColumn customColumn="md-5" additionalStyles={["m-0", "center-baseline"]}>
+                        <InfoTooltip 
+                          iconColor="gray" 
+                          tooltipText="Percentage of time during which the BA was in a Critical status on a monthly basis" 
+                          iconText="SLA control percentage treshold" 
+                        />
+                      </CustomColumn>
+                      <CustomColumn customColumn="md-7" additionalStyles={["m-0", "center-baseline"]}>
+                        <InputField 
+                          type="text"
+                          inputSize="smallest" 
+                        />
+                        <IconInfo iconText="(0-100%)" />
+                      </CustomColumn>
+                    </CustomRow>
+
+                  </CustomColumn>
+                </CustomRow>
+
+                <CustomRow>
+                  <CustomColumn customColumn="md-5">
+
+                    <CustomRow>
+                      <CustomColumn customColumn="md-5" additionalStyles={["m-0", "center-baseline"]}>
+                        <InfoTooltip 
+                          iconColor="gray" 
+                          tooltipText="Amount of time during which the BA was in a Warning status on a monthly basis" 
+                          iconText="SLA warning duration treshold" 
+                        />
+                      </CustomColumn>
+                      <CustomColumn customColumn="md-7" additionalStyles={["m-0", "center-baseline"]}>
+                        <InputField 
+                          type="text"
+                          inputSize="smallest" 
+                        />
+                        <IconInfo iconText="minutes" />
+                      </CustomColumn>
+                    </CustomRow>
+
+                  </CustomColumn>
+                </CustomRow>
+
+                <CustomRow>
+                  <CustomColumn customColumn="md-5">
+
+                    <CustomRow>
+                      <CustomColumn customColumn="md-5" additionalStyles={["m-0", "center-baseline"]}>
+                        <InfoTooltip 
+                          iconColor="gray" 
+                          tooltipText="SLA critical duration threshold" 
+                          iconText="SLA critical percentage treshold" 
+                        />
+                      </CustomColumn>
+                      <CustomColumn customColumn="md-7" additionalStyles={["m-0", "center-baseline"]}>
+                        <InputField 
+                          type="text"
+                          inputSize="smallest" 
+                        />
+                        <IconInfo iconText="minutes" />
+                      </CustomColumn>
+                    </CustomRow>
+
+                  </CustomColumn>
+                </CustomRow>
+
+                <CustomStyles customStyles="text-right">
+                  <Button
+                    label="SAVE"
+                    buttonType="validate"
+                    color="green"
+                    customClass="normal"
+                  />
+                </CustomStyles>
+              </Tab>
+              <Tab label="Event Handler">
+
+                <CustomRow additionalStyles={["mt-2"]}>
+                  <CustomColumn customColumn="xs-12">
+                    <Subtitle label="Event handler configuration" subtitleType="bam" />
+                  </CustomColumn>
+                </CustomRow>
+
+                <CustomRow>
+
+                  <CustomColumn customColumn="md-2" additionalStyles={["m-0", "p-0"]}>
+                    <CustomColumn customColumn="xs-12">
+                      <InfoTooltip 
+                        iconColor="gray" 
+                        tooltipText="Enable event handler" 
+                        iconText="Enable event handler" 
+                      />
+                    </CustomColumn>
+                  </CustomColumn>
+
+                  <CustomColumn customColumn="md-2" additionalStyles={["m-0"]}>
+                    <CustomRow>
+                      <CustomColumn customColumn="md-3" additionalStyles={["m-0"]}>
+                        <RadioButton name="test" iconColor="green" checked={true} label="YES" />
+                      </CustomColumn>
+                      <CustomColumn customColumn="md-3" additionalStyles={["m-0"]}>
+                        <RadioButton name="test" iconColor="green" label="NO" />
+                      </CustomColumn>
+                    </CustomRow>
+                  </CustomColumn>
+                </CustomRow>
+
+                <CustomRow>
+                  <CustomColumn customColumn="md-2" additionalStyles={["m-0", "center-vertical"]}>
+                    <InfoTooltip 
+                      iconColor="gray" 
+                      tooltipText="Event handler command" 
+                      iconText="Event handler command" 
+                    />
+                  </CustomColumn>
+                  <CustomColumn customColumn="md-2" additionalStyles={["m-0"]}>
+                    <InputFieldMultiSelect />
+                  </CustomColumn>
+                </CustomRow>
+
+                <CustomRow additionalStyles={["mt-1"]}>
+                  <CustomColumn customColumn="md-2" additionalStyles={["m-0", "center-vertical"]}>
+                    <InfoTooltip 
+                      iconColor="gray" 
+                      tooltipText="Args" 
+                      iconText="Args" 
+                    />
+                  </CustomColumn>
+                  <CustomColumn customColumn="md-2" additionalStyles={["m-0", "center-vertical"]}>
+                    <InputField 
+                      type="text" 
+                      inputSize="big" 
+                    />
+                  </CustomColumn>
+                  <CustomColumn customColumn="md-1" additionalStyles={["center-both"]}>
+                    <Button
+                      buttonType="validate"
+                      color="green"
+                      customClass="normal"
+                      customSecond="icon"
+                      iconActionType="arrow-left"
+                      iconColor="white"
+                    />
+                  </CustomColumn>
+                  <CustomColumn customColumn="md-2" additionalStyles={["m-0", "center-vertical"]}>
+                    <InputField 
+                      type="text" 
+                      inputSize="big m-0" 
+                    />
+                  </CustomColumn>
+                </CustomRow>
+
+                <CustomStyles customStyles="text-right">
+                  <Button
+                    label="SAVE"
+                    buttonType="validate"
+                    color="green"
+                    customClass="normal"
+                  />
+                </CustomStyles>
+              </Tab>
+            </Tabs>
             </CustomStyles>
-          </Tab>
-        </Tabs>
-        </CustomStyles>
-        </CustomStyles>
+          </CustomStyles>
       </CustomStyles>
     </CustomStyles>
   </CustomStyles>
