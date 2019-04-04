@@ -1,5 +1,8 @@
 @import '../global-sass-files/variables';
 
+.no-bottom-margin {
+  margin-bottom:0 !important;
+}
 // Text field
 .form {
   &-group {
