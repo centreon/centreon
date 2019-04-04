@@ -6,9 +6,6 @@ storiesOf("Tabs", module).add("Tabs - custom", () => <Tabs>
   <Tab label="Configuration">
     Lorem Ipsum dolor sit amet Configuration
   </Tab>
-  <Tab label="Indicators">
-    Lorem Ipsum dolor sit amet Indicators
-  </Tab>
   <Tab label="Reporting">
     Lorem Ipsum dolor sit amet Reporting
   </Tab>

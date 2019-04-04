@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
 import classnames from 'classnames';
 import styles from './input-field.scss';
+import ScrollBar from '../../ScrollBar';
+import CustomIconWithText from '../../Custom/CustomIconWithText';
 import IconToggleSubmenu from '../../Icon/IconToggleSubmenu';
 
 class InputFieldSelectCustom extends Component {
@@ -35,15 +37,16 @@ class InputFieldSelectCustom extends Component {
         {
           active ?
             <div className={classnames(styles["input-select-dropdown"])}>
+            <ScrollBar scrollBarCustom="scrollbar-container-custom">
               {
                 options ? options.map((option) => (
                   <span onClick={this.optionChecked.bind(this, option)} className={classnames(styles["input-select-label"])}>{option.name}</span>
                 )) : null
               }
+              </ScrollBar>
             </div>
             : null
         }
-
         {error ? (
           <div className={classnames(styles["form-error"])}>
             {error}

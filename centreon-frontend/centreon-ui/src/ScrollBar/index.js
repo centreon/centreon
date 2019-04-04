@@ -6,10 +6,10 @@ import PerfectScrollbar from 'react-perfect-scrollbar';
 
 class ScrollBar extends Component {
   render(){
-    const {children, scrollType} = this.props;
+    const {children, scrollType, scrollBarCustom} = this.props;
     return (
       <PerfectScrollbar
-        className={classnames(styles["scrollbar-container"])}
+        className={classnames(styles["scrollbar-container"], scrollBarCustom ?styles[scrollBarCustom] : '')}
         onScrollRight={true}
         >
         {children}
