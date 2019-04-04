@@ -15,10 +15,8 @@ class InputFieldMultiSelect extends Component {
 
   componentWillReceiveProps = (nextProps) => {
     const { options } = nextProps;
-    const {initialized} = this.state;
-    if(options && !initialized){
+    if(options){
       this.setState({
-        initialized:true,
         options,
         allOptions: options
       })
@@ -29,7 +27,6 @@ class InputFieldMultiSelect extends Component {
     const { options } = this.props;
     if(options){
       this.setState({
-        initialized:true,
         options,
         allOptions: options
       })

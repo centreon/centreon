@@ -1,23 +1,49 @@
-import React, {Component} from 'react';
+import React, { Component } from 'react';
 import classnames from 'classnames';
 import styles from './input-field.scss';
 import IconToggleSubmenu from '../../Icon/IconToggleSubmenu';
 
 class InputFieldSelectCustom extends Component {
+
+  state = {
+    active: false,
+    selected: {}
+  }
+
+  toggleSelect = () => {
+    const { active } = this.state;
+    this.setState({
+      active: !active
+    })
+  }
+
+  optionChecked = (option) => {
+    this.setState({
+      selectedOption: option
+    })
+  }
+
   render() {
-    const {size, active, label, error} = this.props;
+    const { active, selected } = this.state;
+    const { size, label, error, options } = this.props;
     return (
-      <div className={classnames(styles["input-select"], styles[size ? size : ''], styles[active ? active : ''], error ? styles['has-danger'] : '')}>
+      <div className={classnames(styles["input-select"], styles[size ? size : ''], styles[active ? "active" : ''], error ? styles['has-danger'] : '')}>
         <div className={classnames(styles["input-select-wrap"])}>
-          <input className={classnames(styles["input-select-field"])} type="text" placeholder="Search" />
-          <IconToggleSubmenu iconPosition="icons-toggle-position-multiselect" iconType="arrow" />
+          <span className={classnames(styles["input-select-field"])}>{selected.name}</span>
+          <IconToggleSubmenu iconPosition="icons-toggle-position-multiselect" iconType="arrow" onClick={this.toggleSelect.bind(this)} />
         </div>
-          <div className={classnames(styles["input-select-dropdown"])}>
-            <span className={classnames(styles["input-select-label"])}>Test 1</span>
-            <span className={classnames(styles["input-select-label"])}>Test 2</span>
-            <span className={classnames(styles["input-select-label"])}>Test 3</span>
-            <span className={classnames(styles["input-select-label"])}>Test 4</span>
-          </div>
+        {
+          active ?
+            <div className={classnames(styles["input-select-dropdown"])}>
+              {
+                options ? options.map((option) => (
+                  <span onClick={this.optionChecked.bind(this, option)} className={classnames(styles["input-select-label"])}>{option.name}</span>
+                )) : null
+              }
+            </div>
+            : null
+        }
+
         {error ? (
           <div className={classnames(styles["form-error"])}>
             {error}

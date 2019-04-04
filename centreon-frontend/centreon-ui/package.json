@@ -5,7 +5,7 @@
   "main": "lib",
   "scripts": {
     "prepublishOnly": "npm run bundle",
-    "bundle": "babel ./src --out-dir ./lib --copy-files",
+    "bundle": "babel ./src --out-dir ../centreon-docker/centreon-bam/www/modules/centreon-bam-server/react/pages/configuration/bam/ba/_id/node_modules/@centreon/react-components/lib --copy-files",
     "storybook": "start-storybook -p 9001 -c .storybook -s ./dynamic/compiled-components/components"
   },
   "repository": {
