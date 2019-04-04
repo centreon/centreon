@@ -26,5 +26,11 @@
       left: auto !important;
       right: 0 !important;
     }
+    &-custom {
+      box-sizing: border-box;
+      padding-top: 10px;
+      bottom: 10px;
+      padding-left: 1px;
+    }
   }
 }
