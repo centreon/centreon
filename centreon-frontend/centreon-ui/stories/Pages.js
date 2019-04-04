@@ -433,7 +433,7 @@ storiesOf("Pages", module).add("Extensions page", () => (
 
 // BAM Corelations Capabilities Page
 storiesOf("Pages", module).add("Corelations Capabilities page", () => (
-  <CustomStyles additionalStyles={["content-wrapper"]}>
+  <CustomStyles additionalStyles={["content-wrap"]}>
     <CustomStyles additionalStyles={["content-inner"]}>
       <CustomStyles additionalStyles={["content-overflow"]}>
         <Title style={{padding: '10px'}} titleColor="bam" label="BAM Corelations Capabilities" />
