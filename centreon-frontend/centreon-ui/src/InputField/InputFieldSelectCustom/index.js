@@ -19,9 +19,38 @@ class InputFieldSelectCustom extends Component {
     })
   }
 
+  componentWillMount = () => {
+    const {value, options} = this.props;
+    for(let i = 0; i < options.length;i++){
+      if(options[i].id == value) {
+        this.setState({
+          selected:options[i]
+        })
+      }
+    }
+  }
+
+  componentWillReceiveProps = (nextProps) => {
+    const {value} = nextProps;
+    const {options} = this.props;
+    for(let i = 0; i < options.length;i++){
+      if(options[i].id == value) {
+        this.setState({
+          selected:options[i]
+        })
+      }
+    }
+  }
+
   optionChecked = (option) => {
+    const {onChange} = this.props;
     this.setState({
-      selectedOption: option
+      selected: option,
+      active:false
+    },()=> {
+      if(onChange){
+        onChange(option.id)
+      }
     })
   }
 

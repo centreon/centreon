@@ -3,6 +3,7 @@ import classnames from 'classnames';
 import styles from './input-multi-select.scss';
 import Checkbox from '../../Checkbox';
 import IconToggleSubmenu from '../../Icon/IconToggleSubmenu';
+import ScrollBar from '../../ScrollBar';
 
 class InputFieldMultiSelect extends Component {
 
@@ -14,21 +15,35 @@ class InputFieldMultiSelect extends Component {
   }
 
   componentWillReceiveProps = (nextProps) => {
-    const { options } = nextProps;
+    const { options, value } = nextProps;
+    let activeOptions = {};
+    if(value){
+      for(let val of value){
+        activeOptions[val] = true;
+      }
+    }
     if(options){
       this.setState({
         options,
-        allOptions: options
+        allOptions: options,
+        activeOptions
       })
     }
   }
 
   componentWillMount = () => {
-    const { options } = this.props;
+    const { options, value } = this.props;
+    let activeOptions = {};
+    if(value){
+      for(let val of value){
+        activeOptions[val] = true;
+      }
+    }
     if(options){
       this.setState({
         options,
-        allOptions: options
+        allOptions: options,
+        activeOptions
       })
     }
   }
@@ -52,9 +67,20 @@ class InputFieldMultiSelect extends Component {
 
   optionChecked = (option) => {
     let { activeOptions } = this.state;
+    const {onChange} = this.props;
     activeOptions[option.id] = activeOptions[option.id] ? false : true;
     this.setState({
       activeOptions
+    }, () => {
+      if(onChange) {
+        let activeIds = [];
+        for(let key in activeOptions){
+          if(activeOptions[key]){
+            activeIds.push(key)
+          }
+        }
+        onChange(activeIds)
+      }
     })
   }
 
