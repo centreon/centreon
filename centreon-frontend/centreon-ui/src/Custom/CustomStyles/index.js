@@ -13,7 +13,7 @@ class CustomStyles extends Component{
     }
     
     return (
-      <div className={classnames({[styles[`${customStyles}`]]: true}, additionalClasses)}>
+      <div className={classnames(customStyles ? {[styles[`${customStyles}`]]: true} : '', additionalClasses)}>
         {children}
       </div>
     );

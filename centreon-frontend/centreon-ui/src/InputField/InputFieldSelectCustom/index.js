@@ -66,13 +66,11 @@ class InputFieldSelectCustom extends Component {
         {
           active ?
             <div className={classnames(styles["input-select-dropdown"])}>
-            <ScrollBar scrollBarCustom="scrollbar-container-custom">
               {
                 options ? options.map((option) => (
                   <span onClick={this.optionChecked.bind(this, option)} className={classnames(styles["input-select-label"])}>{option.name}</span>
                 )) : null
               }
-              </ScrollBar>
             </div>
             : null
         }

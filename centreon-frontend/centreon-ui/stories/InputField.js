@@ -80,7 +80,15 @@ storiesOf("Input Field", module).add(
   
   "Input Field - select custom",
   () => 
-  <InputFieldSelectCustom active="active" size="medium"  />,
+  <InputFieldSelectCustom  options={[
+    {id:"1",name:"24x7",alias:"Always"}
+    ,
+    {id:"2",name:"none",alias:"Never"}
+    ,
+    {id:"3",name:"nonworkhours",alias:"Non-Work Hours"}
+    ,
+    {id:"4",name:"workhours",alias:"Work hours"},
+    ]} active="active" size="medium"  />,
   { notes: "A very simple component" }
 );
 
