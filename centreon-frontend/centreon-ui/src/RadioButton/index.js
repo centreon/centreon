@@ -2,14 +2,13 @@ import React from "react";
 import classnames from 'classnames';
 import styles from './radio-button.scss';
 
-const RadioField = ({ checked, error, label, info, iconColor, ...rest }) => (
+const RadioField = ({ error, label, info, iconColor, ...rest }) => (
   <div className={classnames(styles["custom-control"], styles["custom-radio"], styles["form-group"], styles[iconColor ? iconColor : ''])}>
     <input
       className={classnames(styles["form-check-input"])}
       type="radio"
-      aria-checked={checked}
-      checked={checked}
       info
+      {...rest}
     />
     <label htmlFor={rest.id} className={classnames(styles["custom-control-label"])}>
       {label}

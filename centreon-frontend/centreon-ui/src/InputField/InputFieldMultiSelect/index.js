@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import classnames from 'classnames';
 import styles from './input-multi-select.scss';
 import Checkbox from '../../Checkbox';
-import ScrollBar from '../../ScrollBar';
 import IconToggleSubmenu from '../../Icon/IconToggleSubmenu';
 
 class InputFieldMultiSelect extends Component {
@@ -16,18 +15,25 @@ class InputFieldMultiSelect extends Component {
 
   componentWillReceiveProps = (nextProps) => {
     const { options } = nextProps;
-    this.setState({
-      options,
-      allOptions: options
-    })
+    const {initialized} = this.state;
+    if(options && !initialized){
+      this.setState({
+        initialized:true,
+        options,
+        allOptions: options
+      })
+    }
   }
 
   componentWillMount = () => {
     const { options } = this.props;
-    this.setState({
-      options,
-      allOptions: options
-    })
+    if(options){
+      this.setState({
+        initialized:true,
+        options,
+        allOptions: options
+      })
+    }
   }
 
   searchTextChanged = (e) => {
@@ -48,7 +54,6 @@ class InputFieldMultiSelect extends Component {
   }
 
   optionChecked = (option) => {
-    console.log(option)
     let { activeOptions } = this.state;
     activeOptions[option.id] = activeOptions[option.id] ? false : true;
     this.setState({
