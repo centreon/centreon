@@ -9,6 +9,7 @@ Please find here the releases notes of the last major versions:
 .. toctree::
    :maxdepth: 2
 
+   centreon-open-tickets-19.04/index
    centreon-open-tickets-18.10/index
    centreon-open-tickets-1.0.0/index 
 
