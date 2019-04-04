@@ -22,9 +22,22 @@
 $module_conf['centreon-open-tickets']["rname"] = "Centreon Open Tickets";
 $module_conf['centreon-open-tickets']["name"] = "centreon-open-tickets";
 $module_conf['centreon-open-tickets']["mod_release"] = "19.04.0";
-$module_conf['centreon-open-tickets']["infos"] = "Open Tickets Module";
+$module_conf['centreon-open-tickets']["infos"] = "Centreon Open Tickets is a community module developed to create tickets to your favorite ITSM tools using API.
+
+Once done provider configuration, the module allows for an operator to create tickets for hosts and services in a non-ok state using a dedicated widget. Indeed, a button associated with each host or service allows you to connect to the API and create the ticket while offering the possibility to acknowledge at the same time the object.
+
+Regarding the widget configuration, it is possible to see the created tickets by presenting tickets ID and date of creation of these.
+";
 $module_conf['centreon-open-tickets']["is_removeable"] = "1";
 $module_conf['centreon-open-tickets']["author"] = "Centreon";
 $module_conf['centreon-open-tickets']["lang_files"] = "0";
 $module_conf['centreon-open-tickets']["sql_files"] = "1";
 $module_conf['centreon-open-tickets']["php_files"] = "0";
+$module_conf['centreon-open-tickets']["stability"] = "stable";
+$module_conf['centreon-open-tickets']["last_update"] = "2019-04-04";
+$module_conf['centreon-open-tickets']["release_note"] = "https://documentation.centreon.com/docs/centreon-open-tickets/en/latest/release_notes/index.html";
+$module_conf['centreon-open-tickets']["images"] = [
+    'images/image1.png',
+    'images/image2.png',
+    'images/image3.png'
+];
