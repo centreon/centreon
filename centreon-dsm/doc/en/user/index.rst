@@ -66,14 +66,14 @@ and click on the **add** link. In order to create or modify  a slot group, pleas
 |                              | selected host when the form    |
 |                              | will be validated.             |
 +------------------------------+--------------------------------+
-| Slot name prefix             | The prefix is user to give the |
+| Slot name prefix             | The prefix is used to give the |
 |                              | name of slots. The name will   |
 |                              | be follow by a number          |
 |                              | incremented from 0 to the      |
 |                              | number of slots.               |
 +------------------------------+--------------------------------+
 | Check command                | This check command is used     |
-|                              | when the service have to be    |
+|                              | when the service has to be     |
 |                              | forced in order to free a      |
 |                              | slot. The check command must   |
 |                              | have to send a ok return code. |
