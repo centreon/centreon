@@ -433,7 +433,9 @@ storiesOf("Pages", module).add("Extensions page", () => (
 
 // BAM Corelations Capabilities Page
 storiesOf("Pages", module).add("Corelations Capabilities page", () => (
-  <React.Fragment>
+  <CustomStyles additionalStyles={["content-wrap"]}>
+  <CustomStyles additionalStyles={["content-inner"]}>
+  <CustomStyles additionalStyles={["content-overflow"]}>
     <Title style={{padding: '10px'}} titleColor="bam" label="BAM Corelations Capabilities" />
     <CustomStyles additionalStyles={["p-1"]}>
       <CustomStyles additionalStyles={["container", "container-gray", "p-0"]}>
@@ -1079,7 +1081,9 @@ storiesOf("Pages", module).add("Corelations Capabilities page", () => (
             </CustomStyles>
           </Tab>
         </Tabs>
+        </CustomStyles>
+        </CustomStyles>
       </CustomStyles>
     </CustomStyles>
-  </React.Fragment>
+  </CustomStyles>
 ), {notes: "A very simple component"});

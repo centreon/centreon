@@ -33,6 +33,15 @@
       font-family: $primary-font-bold;
     }
   }
+  &-wrapper {
+    display: flex;
+    flex: 1;
+    min-height: 0px;
+  }
+  &-overflow {
+    flex: 1;
+    overflow: auto;
+  }
   &-content {
     padding: 20px;
     font-size: 12px;

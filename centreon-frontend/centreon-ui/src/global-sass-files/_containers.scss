@@ -36,3 +36,19 @@
   margin-bottom: 30px;
   height: 100%;
 }
+
+.content {
+  &-wrap {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+  &-inner {
+    flex: 1;
+    overflow: auto;
+  }
+  &-overflow {
+    flex: 1;
+    min-height: 0px;
+  }
+}

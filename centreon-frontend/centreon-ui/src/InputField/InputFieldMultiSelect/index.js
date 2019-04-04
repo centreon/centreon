@@ -96,20 +96,18 @@ class InputFieldMultiSelect extends Component {
         {
           active ?
             <div className={classnames(styles["multi-select-dropdown"])}>
-              <ScrollBar scrollBarCustom="scrollbar-container-custom">
-                {
-                  options ?
-                  options.map((option, index) => (
-                    <Checkbox 
-                    key={`multiselect-checkbox-${index}`} 
-                    label={option.name} 
-                    onClick={this.optionChecked.bind(this, option)} 
-                    iconColor="green" 
-                    onChange={()=>{}}
-                    checked={activeOptions[option.id] || false} />
-                  )) : null
-                }
-              </ScrollBar>
+              {
+                options ?
+                options.map((option, index) => (
+                  <Checkbox 
+                  key={`multiselect-checkbox-${index}`} 
+                  label={option.name} 
+                  onClick={this.optionChecked.bind(this, option)} 
+                  iconColor="green" 
+                  onChange={()=>{}}
+                  checked={activeOptions[option.id] || false} />
+                )) : null
+              }
             </div>
             : null
         }
