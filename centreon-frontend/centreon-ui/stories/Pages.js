@@ -436,8 +436,8 @@ storiesOf("Pages", module).add("Corelations Capabilities page", () => (
   <CustomStyles additionalStyles={["content-wrap"]}>
     <CustomStyles additionalStyles={["content-inner"]}>
       <CustomStyles additionalStyles={["content-overflow"]}>
-        <Title style={{padding: '10px'}} titleColor="bam" label="BAM Corelations Capabilities" />
-        <CustomStyles additionalStyles={["p-1"]}>
+        {/* <Title style={{padding: '10px'}} titleColor="bam" label="BAM Corelations Capabilities" /> */}
+        <CustomStyles>
           <CustomStyles additionalStyles={["container", "container-gray", "p-0"]}>
             <Tabs>
               <Tab label="Configuration">
