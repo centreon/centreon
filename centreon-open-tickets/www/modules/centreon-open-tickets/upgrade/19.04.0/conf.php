@@ -1,6 +1,6 @@
 <?php
 /*
- * Copyright 2016-2018 Centreon (http://www.centreon.com/)
+ * Copyright 2016-2019 Centreon (http://www.centreon.com/)
  *
  * Centreon is a full-fledged industry-strength solution that meets
  * the needs in IT infrastructure and application monitoring for
@@ -21,11 +21,10 @@
 
 $upgrade_conf['centreon-open-tickets']["rname"] = "Centreon Open Tickets";
 $upgrade_conf['centreon-open-tickets']["name"] = "centreon-open-tickets";
-$upgrade_conf['centreon-open-tickets']["release_from"] = "1.2.0";
-$upgrade_conf['centreon-open-tickets']["release_to"] = "18.10.0";
+$upgrade_conf['centreon-open-tickets']["mod_release"] = "19.04.0";
 $upgrade_conf['centreon-open-tickets']["is_removeable"] = "1";
 $upgrade_conf['centreon-open-tickets']["author"] = "Centreon";
 $upgrade_conf['centreon-open-tickets']["infos"] = "Open Tickets Module";
 $upgrade_conf['centreon-open-tickets']["lang_files"] = "0";
-$upgrade_conf['centreon-open-tickets']["sql_files"] = "0";
+$upgrade_conf['centreon-open-tickets']["sql_files"] = "1";
 $upgrade_conf['centreon-open-tickets']["php_files"] = "0";
