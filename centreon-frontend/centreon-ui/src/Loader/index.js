@@ -4,7 +4,7 @@ import styles from './loader-additions.scss';
 
 export default ({ fullContent }) => (
   <div 
-    className={classnames(style.loader, fullContent ? 'full-relative-content' : '')}>
+    className={classnames(styles.loader, fullContent ? 'full-relative-content' : '')}>
     <div className={classnames(styles["loader-inner"], styles["ball-grid-pulse"])}>
       <div />
       <div />
