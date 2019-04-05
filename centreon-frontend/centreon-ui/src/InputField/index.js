@@ -13,10 +13,11 @@ const InputField = ({
   error,
   iconName,
   iconColor,
+  noMargin,
   ...rest
 }) => {
   return (
-    <div className={classnames(styles["form-group"], styles[inputSize ? inputSize : ''], error ? styles['has-danger'] : '')}>
+    <div className={classnames(styles["form-group"], styles[inputSize ? inputSize : ''], error ? styles['has-danger'] : '', noMargin ? styles['no-bottom-margin'] : '')}>
       {label && <label htmlFor={rest.id}>
         <span>{iconName ? <IconInfo iconName={iconName} iconColor={iconColor}/> : null } {label}</span>
         <span className={classnames(styles["label-option"], styles["required"])}>

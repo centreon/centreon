@@ -46,7 +46,7 @@ class InputFieldMultiSelect extends Component {
         activeOptions
       })
     }
-  }
+  } 
 
   searchTextChanged = (e) => {
     let searchString = e.target.value;
