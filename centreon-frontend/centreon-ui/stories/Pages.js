@@ -579,14 +579,14 @@ storiesOf("Pages", module).add("Corelations Capabilities page", () => (
                   <CustomColumn customColumn="md-4">
 
                     <CustomRow>
-                      <CustomColumn customColumn="md-5" additionalStyles={["center-vertical", "m-0"]}>
+                      <CustomColumn customColumn="md-6" additionalStyles={["center-vertical", "m-0"]}>
                         <InfoTooltip 
                           iconColor="gray" 
                           tooltipText="Time period during which notification can take place" 
                           iconText="Notification time period" 
                         />
                       </CustomColumn>
-                      <CustomColumn customColumn="md-7" additionalStyles={["m-0"]}>
+                      <CustomColumn customColumn="md-6" additionalStyles={["m-0"]}>
                         <InputFieldMultiSelect size="big" />
                       </CustomColumn>
                     </CustomRow>
@@ -594,7 +594,7 @@ storiesOf("Pages", module).add("Corelations Capabilities page", () => (
                     <br />
                     <CustomRow>
 
-                      <CustomColumn customColumn="md-5" additionalStyles={["center-vertical", "m-0"]}>
+                      <CustomColumn customColumn="md-6" additionalStyles={["center-vertical", "m-0"]}>
                         <InfoTooltip 
                           iconColor="gray" 
                           tooltipText="Notification interval length" 
@@ -602,7 +602,7 @@ storiesOf("Pages", module).add("Corelations Capabilities page", () => (
                         />
                       </CustomColumn>
 
-                      <CustomColumn customColumn="md-7" additionalStyles={["center-baseline", "m-0"]}>
+                      <CustomColumn customColumn="md-6" additionalStyles={["center-baseline", "m-0"]}>
                         <InputField 
                           type="text"
                           inputSize="smallest" 
