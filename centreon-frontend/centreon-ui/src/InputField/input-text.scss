@@ -7,6 +7,7 @@
 .form {
   &-group {
     margin-bottom: 15px;
+    position: relative;
     label {
       font-size: 10px;
       font-family: $primary-font-light;
@@ -39,6 +40,8 @@
         color: $content-red-color;
         font-family: $primary-font-bold;
         font-size: 10px;
+        position: absolute;
+        top: 100%;
       }
     }
     &.smallest {

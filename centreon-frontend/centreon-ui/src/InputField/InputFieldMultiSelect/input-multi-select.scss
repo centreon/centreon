@@ -117,6 +117,8 @@
         color: $content-red-color;
         font-family: $primary-font-bold;
         font-size: 10px;
+        position: absolute;
+        top: 100%;
       }
       .multi-select-wrap {
         &:after {
