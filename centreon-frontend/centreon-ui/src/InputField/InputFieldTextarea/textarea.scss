@@ -26,9 +26,12 @@
       }
       &.middle {
         width: 300px;
+        @media screen and(max-width: 1300px) {
+          width: 100%;
+        }
       }
       &.big {
-        width: 300px;
+        width: 100%;
       }
     }
   }

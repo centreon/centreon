@@ -452,7 +452,7 @@ storiesOf("Pages", module).add("Corelations Capabilities page", () => (
                 <Subtitle label="Information" subtitleType="bam" />
 
                 <CustomRow>
-                  <CustomColumn customColumn="md-4">
+                  <CustomColumn customColumn="xl-3" additionalColumns={["lg-4"]}>
                     <InfoTooltip 
                       iconColor="gray" 
                       tooltipText="Name of business activity" 
@@ -472,10 +472,45 @@ storiesOf("Pages", module).add("Corelations Capabilities page", () => (
                     />
                   </CustomColumn>
 
-                  <CustomColumn customColumn="md-4">
+                  <CustomColumn customColumn="xxl-4" additionalColumns={["xl-5"]}>
+
+                  <CustomRow additionalStyles={["mb-2"]}>
+
+                    <CustomColumn customColumn="xl-2" additionalColumns={["md-2"]} additionalStyles={["m-0", "center-vertical"]}>
+                      <CustomButton label="Warning" color="orange" />
+                    </CustomColumn>
+
+                    <CustomColumn customColumn="xl-2" additionalColumns={["md-2"]} additionalStyles={["m-0", "p-0", "center-both"]}>
+                      <IconInfo iconText="Treshold" />
+                    </CustomColumn>
+
+                    <CustomColumn customColumn="xl-2" additionalColumns={["md-2"]} additionalStyles={["m-0", "p-0", "center-vertical"]}>
+                      <InputField 
+                        type="text"
+                        inputSize="smallest"
+                        noMargin="no-bottom-margin"
+                      />
+                    </CustomColumn>
+
+                    <CustomColumn customColumn="xl-2" additionalColumns={["md-2"]} additionalStyles={["m-0", "center-vertical"]}>
+                      <CustomButton label="Critical" color="red" />
+                    </CustomColumn>
+
+                    <CustomColumn customColumn="xl-2" additionalColumns={["md-2"]} additionalStyles={["p-0", "m-0", "center-both"]}>
+                      <IconInfo iconText="Treshold" />
+                    </CustomColumn>
+
+                    <CustomColumn customColumn="xl-2" additionalColumns={["md-2"]} additionalStyles={["m-0", "p-0", "center-vertical"]}>
+                      <InputField 
+                        type="text"
+                        inputSize="smallest"
+                        noMargin="no-bottom-margin"
+                      />
+                    </CustomColumn>
+                  </CustomRow>
 
                     <CustomRow>
-                      <CustomColumn customColumn="md-6" additionalStyles={["center-vertical", "m-0"]}>
+                      <CustomColumn customColumn="xl-4" additionalColumns={["md-3"]} additionalStyles={["center-vertical", "m-0"]}>
                         <InfoTooltip 
                           iconColor="gray" 
                           tooltipText="Icon that represents the business activity" 
@@ -490,7 +525,7 @@ storiesOf("Pages", module).add("Corelations Capabilities page", () => (
                     <br />
                     <CustomRow>
 
-                      <CustomColumn customColumn="md-7" additionalStyles={["m-0"]}>
+                      <CustomColumn customColumn="xl-5" additionalColumns={["md-4"]} additionalStyles={["m-0"]}>
                         <InfoTooltip 
                           iconColor="gray" 
                           tooltipText="(Broker >= 3) Whether or not the business activity has to inherit planned downtimes from its KPI. See documentation for more information on the feature." 
@@ -500,11 +535,11 @@ storiesOf("Pages", module).add("Corelations Capabilities page", () => (
 
                       <CustomColumn customColumn="md-5">
                         <CustomRow>
-                          <CustomColumn customColumn="md-4">
-                            <RadioButton name="test" iconColor="green" checked={true} label="YES" />
+                          <CustomColumn customColumn="xl-4" additionalColumns={["md-4"]}>
+                            <RadioButton name="test" iconColor="blue" checked={true} label="YES" />
                           </CustomColumn>
-                          <CustomColumn customColumn="md-4">
-                            <RadioButton name="test" iconColor="green" label="NO" />
+                          <CustomColumn customColumn="xl-4" additionalColumns={["md-4"]}>
+                            <RadioButton name="test" iconColor="blue" label="NO" />
                           </CustomColumn>
                         </CustomRow>
                       </CustomColumn>
@@ -512,7 +547,7 @@ storiesOf("Pages", module).add("Corelations Capabilities page", () => (
                     </CustomRow>
 
                     <CustomRow>
-                      <CustomColumn customColumn="md-6" additionalStyles={["center-vertical", "m-0"]}>
+                      <CustomColumn customColumn="xl-4" additionalColumns={["md-3"]} additionalStyles={["center-vertical", "m-0"]}>
                         <InfoTooltip 
                           iconColor="gray" 
                           tooltipText="Possibility to display this Business Activity on a Remote Server which have Centreon BAM module installed" 
@@ -547,7 +582,11 @@ storiesOf("Pages", module).add("Corelations Capabilities page", () => (
                         iconText="Link to Business View(s)" 
                       />
                     </div>
-                    <InputFieldMultiSelect size="medium" />
+                    <CustomRow>
+                      <CustomColumn customColumn="xs-11">
+                        <InputFieldMultiSelect size="medium" />
+                      </CustomColumn>
+                    </CustomRow>
                   </CustomColumn>
                 </CustomRow>
 
@@ -565,7 +604,7 @@ storiesOf("Pages", module).add("Corelations Capabilities page", () => (
                 </CustomRow>
 
                 <CustomRow>
-                  <CustomColumn customColumn="md-4">
+                  <CustomColumn customColumn="xl-3" additionalColumns={["md-4"]}>
                     <div>
                       <InfoTooltip 
                         iconColor="gray" 
@@ -576,10 +615,10 @@ storiesOf("Pages", module).add("Corelations Capabilities page", () => (
                     <InputFieldMultiSelect size="medium" />
                   </CustomColumn>
 
-                  <CustomColumn customColumn="md-4">
+                  <CustomColumn customColumn="xl-4">
 
                     <CustomRow>
-                      <CustomColumn customColumn="md-6" additionalStyles={["center-vertical", "m-0"]}>
+                      <CustomColumn customColumn="xl-4" additionalColumns={["md-6"]} additionalStyles={["center-vertical", "m-0"]}>
                         <InfoTooltip 
                           iconColor="gray" 
                           tooltipText="Time period during which notification can take place" 
@@ -594,7 +633,7 @@ storiesOf("Pages", module).add("Corelations Capabilities page", () => (
                     <br />
                     <CustomRow>
 
-                      <CustomColumn customColumn="md-6" additionalStyles={["center-vertical", "m-0"]}>
+                      <CustomColumn customColumn="xl-4"  additionalColumns={["md-6"]} additionalStyles={["center-vertical", "m-0"]}>
                         <InfoTooltip 
                           iconColor="gray" 
                           tooltipText="Notification interval length" 
@@ -626,23 +665,23 @@ storiesOf("Pages", module).add("Corelations Capabilities page", () => (
                     </CustomRow>
 
                     <CustomRow>
-                      <CustomColumn customColumn="md-3" additionalStyles={["m-0"]}>
-                        <Checkbox name="test" iconColor="green" checked={true} label="Recovery" />
+                      <CustomColumn customColumn="xl-2" additionalColumns={["md-3"]} additionalStyles={["m-0"]}>
+                        <Checkbox name="test" iconColor="light-blue" checked={true} label="Recovery" />
                       </CustomColumn>
-                      <CustomColumn customColumn="md-3" additionalStyles={["m-0"]}>
-                        <Checkbox name="test" iconColor="green" checked={true} label="Warning" />
+                      <CustomColumn customColumn="xl-2" additionalColumns={["md-3"]} additionalStyles={["m-0"]}>
+                        <Checkbox name="test" iconColor="light-blue" checked={true} label="Warning" />
                       </CustomColumn>
-                      <CustomColumn customColumn="md-3" additionalStyles={["m-0"]}>
-                        <Checkbox name="test" iconColor="green" checked={true} label="Critical" />
+                      <CustomColumn customColumn="xl-2" additionalColumns={["md-3"]} additionalStyles={["m-0"]}>
+                        <Checkbox name="test" iconColor="light-blue" checked={true} label="Critical" />
                       </CustomColumn>
-                      <CustomColumn customColumn="md-3" additionalStyles={["m-0"]}>
-                        <Checkbox name="test" iconColor="green" checked={true} label="Flapping" />
+                      <CustomColumn customColumn="xl-2" additionalColumns={["md-3"]} additionalStyles={["m-0"]}>
+                        <Checkbox name="test" iconColor="light-blue" checked={true} label="Flapping" />
                       </CustomColumn>
                     </CustomRow>
 
                     <CustomRow additionalStyles={["mt-1"]}>
 
-                      <CustomColumn customColumn="md-5" additionalStyles={["center-vertical"]}>
+                      <CustomColumn customColumn="xl-3" additionalColumns={["md-5"]} additionalStyles={["center-vertical"]}>
                         <Subtitle label="Enable notification" subtitleType="bam" />
                       </CustomColumn>
 
@@ -654,13 +693,17 @@ storiesOf("Pages", module).add("Corelations Capabilities page", () => (
                   </CustomColumn>
                 </CustomRow>
 
-                <CustomStyles customStyles="text-right">
-                  <Button
-                    label="SAVE"
-                    buttonType="validate"
-                    color="green"
-                    customClass="normal"
-                  />
+                <CustomStyles>
+                  <CustomRow additionalStyles={["text-right"]}>
+                    <CustomColumn customColumn="xl-10" additionalColumns={["md-11"]}>
+                      <Button
+                        label="SAVE"
+                        buttonType="validate"
+                        color="blue"
+                        customClass="normal"
+                      />
+                    </CustomColumn>
+                  </CustomRow>
                 </CustomStyles>
 
               </Tab>
@@ -735,13 +778,17 @@ storiesOf("Pages", module).add("Corelations Capabilities page", () => (
                   </CustomColumn>
                 </CustomRow>
 
-                <CustomStyles customStyles="text-right">
-                  <Button
-                    label="SAVE"
-                    buttonType="validate"
-                    color="green"
-                    customClass="normal"
-                  />
+                <CustomStyles>
+                  <CustomRow additionalStyles={["text-right"]}>
+                    <CustomColumn customColumn="md-12">
+                      <Button
+                        label="SAVE"
+                        buttonType="validate"
+                        color="blue"
+                        customClass="normal"
+                      />
+                    </CustomColumn>
+                  </CustomRow>
                 </CustomStyles>
               </Tab>
 
@@ -772,7 +819,7 @@ storiesOf("Pages", module).add("Corelations Capabilities page", () => (
                   <CustomColumn customColumn="md-5">
 
                     <CustomRow>
-                      <CustomColumn customColumn="md-5" additionalStyles={["m-0", "center-baseline"]}>
+                      <CustomColumn customColumn="xl-4" additionalColumns={["md-5"]} additionalStyles={["m-0", "center-baseline"]}>
                         <InfoTooltip 
                           iconColor="gray" 
                           tooltipText="SLA warning percentage threshold" 
@@ -795,7 +842,7 @@ storiesOf("Pages", module).add("Corelations Capabilities page", () => (
                   <CustomColumn customColumn="md-5">
                     
                     <CustomRow>
-                      <CustomColumn customColumn="md-5" additionalStyles={["m-0", "center-baseline"]}>
+                      <CustomColumn customColumn="xl-4" additionalColumns={["md-5"]} additionalStyles={["m-0", "center-baseline"]}>
                         <InfoTooltip 
                           iconColor="gray" 
                           tooltipText="Percentage of time during which the BA was in a Critical status on a monthly basis" 
@@ -818,7 +865,7 @@ storiesOf("Pages", module).add("Corelations Capabilities page", () => (
                   <CustomColumn customColumn="md-5">
 
                     <CustomRow>
-                      <CustomColumn customColumn="md-5" additionalStyles={["m-0", "center-baseline"]}>
+                      <CustomColumn customColumn="xl-4" additionalColumns={["md-5"]} additionalStyles={["m-0", "center-baseline"]}>
                         <InfoTooltip 
                           iconColor="gray" 
                           tooltipText="Amount of time during which the BA was in a Warning status on a monthly basis" 
@@ -841,7 +888,7 @@ storiesOf("Pages", module).add("Corelations Capabilities page", () => (
                   <CustomColumn customColumn="md-5">
 
                     <CustomRow>
-                      <CustomColumn customColumn="md-5" additionalStyles={["m-0", "center-baseline"]}>
+                      <CustomColumn customColumn="xl-4" additionalColumns={["md-5"]} additionalStyles={["m-0", "center-baseline"]}>
                         <InfoTooltip 
                           iconColor="gray" 
                           tooltipText="SLA critical duration threshold" 
@@ -860,13 +907,17 @@ storiesOf("Pages", module).add("Corelations Capabilities page", () => (
                   </CustomColumn>
                 </CustomRow>
 
-                <CustomStyles customStyles="text-right">
-                  <Button
-                    label="SAVE"
-                    buttonType="validate"
-                    color="green"
-                    customClass="normal"
-                  />
+                <CustomStyles>
+                  <CustomRow additionalStyles={["text-right"]}>
+                    <CustomColumn customColumn="xl-3" additionalColumns={["md-4"]}>
+                      <Button
+                        label="SAVE"
+                        buttonType="validate"
+                        color="blue"
+                        customClass="normal"
+                      />
+                    </CustomColumn>
+                  </CustomRow>
                 </CustomStyles>
               </Tab>
 
@@ -897,7 +948,7 @@ storiesOf("Pages", module).add("Corelations Capabilities page", () => (
                   <CustomColumn customColumn="md-5">
 
                     <CustomRow>
-                      <CustomColumn customColumn="md-5" additionalStyles={["m-0", "center-baseline"]}>
+                      <CustomColumn customColumn="xl-4" additionalColumns={["md-5"]} additionalStyles={["m-0", "center-baseline"]}>
                         <InfoTooltip 
                           iconColor="gray" 
                           tooltipText="SLA warning percentage threshold" 
@@ -920,7 +971,7 @@ storiesOf("Pages", module).add("Corelations Capabilities page", () => (
                   <CustomColumn customColumn="md-5">
                     
                     <CustomRow>
-                      <CustomColumn customColumn="md-5" additionalStyles={["m-0", "center-baseline"]}>
+                      <CustomColumn customColumn="xl-4" additionalColumns={["md-5"]} additionalStyles={["m-0", "center-baseline"]}>
                         <InfoTooltip 
                           iconColor="gray" 
                           tooltipText="Percentage of time during which the BA was in a Critical status on a monthly basis" 
@@ -943,7 +994,7 @@ storiesOf("Pages", module).add("Corelations Capabilities page", () => (
                   <CustomColumn customColumn="md-5">
 
                     <CustomRow>
-                      <CustomColumn customColumn="md-5" additionalStyles={["m-0", "center-baseline"]}>
+                      <CustomColumn customColumn="xl-4" additionalColumns={["md-5"]} additionalStyles={["m-0", "center-baseline"]}>
                         <InfoTooltip 
                           iconColor="gray" 
                           tooltipText="Amount of time during which the BA was in a Warning status on a monthly basis" 
@@ -966,7 +1017,7 @@ storiesOf("Pages", module).add("Corelations Capabilities page", () => (
                   <CustomColumn customColumn="md-5">
 
                     <CustomRow>
-                      <CustomColumn customColumn="md-5" additionalStyles={["m-0", "center-baseline"]}>
+                      <CustomColumn customColumn="xl-4" additionalColumns={["md-5"]} additionalStyles={["m-0", "center-baseline"]}>
                         <InfoTooltip 
                           iconColor="gray" 
                           tooltipText="SLA critical duration threshold" 
@@ -985,13 +1036,17 @@ storiesOf("Pages", module).add("Corelations Capabilities page", () => (
                   </CustomColumn>
                 </CustomRow>
 
-                <CustomStyles customStyles="text-right">
-                  <Button
-                    label="SAVE"
-                    buttonType="validate"
-                    color="green"
-                    customClass="normal"
-                  />
+                <CustomStyles>
+                  <CustomRow additionalStyles={["text-right"]}>
+                    <CustomColumn customColumn="xl-3" additionalColumns={["md-4"]}>
+                      <Button
+                        label="SAVE"
+                        buttonType="validate"
+                        color="blue"
+                        customClass="normal"
+                      />
+                    </CustomColumn>
+                  </CustomRow>
                 </CustomStyles>
               </Tab>
               <Tab label="Event Handler">
@@ -1004,7 +1059,7 @@ storiesOf("Pages", module).add("Corelations Capabilities page", () => (
 
                 <CustomRow>
 
-                  <CustomColumn customColumn="md-2" additionalStyles={["m-0", "p-0"]}>
+                  <CustomColumn customColumn="xl-1" additionalColumns={["md-2"]} additionalStyles={["m-0", "p-0"]}>
                     <CustomColumn customColumn="xs-12">
                       <InfoTooltip 
                         iconColor="gray" 
@@ -1014,20 +1069,20 @@ storiesOf("Pages", module).add("Corelations Capabilities page", () => (
                     </CustomColumn>
                   </CustomColumn>
 
-                  <CustomColumn customColumn="md-2" additionalStyles={["m-0"]}>
+                  <CustomColumn customColumn="xl-5" additionalColumns={["md-3"]} additionalStyles={["m-0"]}>
                     <CustomRow>
-                      <CustomColumn customColumn="md-3" additionalStyles={["m-0"]}>
-                        <RadioButton name="test" iconColor="green" checked={true} label="YES" />
+                      <CustomColumn customColumn="xl-1" additionalColumns={["md-2"]} additionalStyles={["m-0"]}>
+                        <RadioButton name="test" iconColor="light-blue" checked={true} label="YES" />
                       </CustomColumn>
-                      <CustomColumn customColumn="md-3" additionalStyles={["m-0"]}>
-                        <RadioButton name="test" iconColor="green" label="NO" />
+                      <CustomColumn customColumn="md-1" additionalColumns={["md-2"]} additionalStyles={["m-0"]}>
+                        <RadioButton name="test" iconColor="light-blue" label="NO" />
                       </CustomColumn>
                     </CustomRow>
                   </CustomColumn>
                 </CustomRow>
 
                 <CustomRow>
-                  <CustomColumn customColumn="md-2" additionalStyles={["m-0", "center-vertical"]}>
+                  <CustomColumn customColumn="xl-1" additionalColumns={["md-2"]} additionalStyles={["m-0", "center-vertical"]}>
                     <InfoTooltip 
                       iconColor="gray" 
                       tooltipText="Event handler command" 
@@ -1040,7 +1095,7 @@ storiesOf("Pages", module).add("Corelations Capabilities page", () => (
                 </CustomRow>
 
                 <CustomRow additionalStyles={["mt-1"]}>
-                  <CustomColumn customColumn="md-2" additionalStyles={["m-0", "center-vertical"]}>
+                  <CustomColumn customColumn="xl-1" additionalColumns={["md-2"]} additionalStyles={["m-0", "center-vertical"]}>
                     <InfoTooltip 
                       iconColor="gray" 
                       tooltipText="Args" 
@@ -1071,13 +1126,17 @@ storiesOf("Pages", module).add("Corelations Capabilities page", () => (
                   </CustomColumn>
                 </CustomRow>
 
-                <CustomStyles customStyles="text-right">
-                  <Button
-                    label="SAVE"
-                    buttonType="validate"
-                    color="green"
-                    customClass="normal"
-                  />
+                <CustomStyles>
+                  <CustomRow additionalStyles={["text-right"]}>
+                    <CustomColumn customColumn="xl-6" additionalColumns={["md-7"]}>
+                      <Button
+                        label="SAVE"
+                        buttonType="validate"
+                        color="blue"
+                        customClass="normal"
+                      />
+                    </CustomColumn>
+                  </CustomRow>
                 </CustomStyles>
               </Tab>
             </Tabs>

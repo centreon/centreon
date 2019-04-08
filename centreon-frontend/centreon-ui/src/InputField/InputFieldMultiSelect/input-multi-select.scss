@@ -46,7 +46,7 @@
         position: absolute;
         height: 1px;
         width: 95%;
-        background-color: #84bd00;
+        background-color: #009fdf;
         left: 50%;
         right: 0;
         bottom: 1px;
@@ -92,6 +92,9 @@
     }
     &.medium {
       width: 300px;
+      @media screen and(max-width: 1300px) {
+        width: 100%;
+      }
     }
     &.large {
       width: 100%;

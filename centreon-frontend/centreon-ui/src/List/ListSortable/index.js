@@ -22,7 +22,7 @@ class ListSortable extends Component {
         <tbody>
           <tr>
             <td>
-              <Checkbox label="Lorem Ipsum dolor sit amet" name="all-hosts" iconColor="green" />
+              <Checkbox label="Lorem Ipsum dolor sit amet" name="all-hosts" iconColor="light-blue" />
             </td>
             <td>
               Type 1
@@ -42,7 +42,7 @@ class ListSortable extends Component {
           </tr>
           <tr>
             <td>
-              <Checkbox label="Lorem Ipsum dolor sit amet" name="all-hosts" iconColor="green" />
+              <Checkbox label="Lorem Ipsum dolor sit amet" name="all-hosts" iconColor="light-blue" />
             </td>
             <td>
               Type 2
@@ -62,7 +62,7 @@ class ListSortable extends Component {
           </tr>
           <tr>
             <td>
-              <Checkbox label="Lorem Ipsum dolor sit amet" name="all-hosts" iconColor="green" />
+              <Checkbox label="Lorem Ipsum dolor sit amet" name="all-hosts" iconColor="light-blue" />
             </td>
             <td>
               Type 3
