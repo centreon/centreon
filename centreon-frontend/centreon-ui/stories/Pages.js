@@ -438,7 +438,7 @@ storiesOf("Pages", module).add("Corelations Capabilities page", () => (
       <CustomStyles additionalStyles={["content-overflow"]}>
         {/* <Title style={{padding: '10px'}} titleColor="bam" label="BAM Corelations Capabilities" /> */}
         <CustomStyles>
-          <CustomStyles additionalStyles={["container", "container-gray", "p-0"]}>
+          <CustomStyles additionalStyles={["container", "p-0"]}>
             <Tabs>
               <Tab label="Configuration">
                 <CustomRow>
@@ -716,7 +716,7 @@ storiesOf("Pages", module).add("Corelations Capabilities page", () => (
                   </CustomColumn>
 
                   <CustomColumn customColumn="md-2" additionalStyles={["m-0"]}>
-                    <InputFieldMultiSelect size="middle" />
+                    <InputFieldMultiSelect size="medium" />
                   </CustomColumn>
 
                   <CustomColumn customColumn="md-1" additionalStyles={["m-0"]}>
@@ -811,7 +811,7 @@ storiesOf("Pages", module).add("Corelations Capabilities page", () => (
 
                 <CustomRow additionalStyles={["mt-1", "mb-2"]}>
                   <CustomColumn customColumn="xs-12">
-                    <InputFieldMultiSelect size="medium" />
+                    <InputFieldMultiSelect size="middle" />
                   </CustomColumn>
                 </CustomRow>
 
@@ -940,7 +940,7 @@ storiesOf("Pages", module).add("Corelations Capabilities page", () => (
 
                 <CustomRow additionalStyles={["mt-1", "mb-2"]}>
                   <CustomColumn customColumn="xs-12">
-                    <InputFieldMultiSelect size="medium" />
+                    <InputFieldMultiSelect size="middle" />
                   </CustomColumn>
                 </CustomRow>
 
