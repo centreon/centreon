@@ -481,7 +481,7 @@ storiesOf("Pages", module).add("Corelations Capabilities page", () => (
                     </CustomColumn>
 
                     <CustomColumn customColumn="xl-2" additionalColumns={["md-2"]} additionalStyles={["m-0", "p-0", "center-both"]}>
-                      <IconInfo iconText="Treshold" />
+                      <IconInfo iconText="Threshold" />
                     </CustomColumn>
 
                     <CustomColumn customColumn="xl-2" additionalColumns={["md-2"]} additionalStyles={["m-0", "p-0", "center-vertical"]}>
@@ -497,7 +497,7 @@ storiesOf("Pages", module).add("Corelations Capabilities page", () => (
                     </CustomColumn>
 
                     <CustomColumn customColumn="xl-2" additionalColumns={["md-2"]} additionalStyles={["p-0", "m-0", "center-both"]}>
-                      <IconInfo iconText="Treshold" />
+                      <IconInfo iconText="Threshold" />
                     </CustomColumn>
 
                     <CustomColumn customColumn="xl-2" additionalColumns={["md-2"]} additionalStyles={["m-0", "p-0", "center-vertical"]}>
@@ -694,7 +694,7 @@ storiesOf("Pages", module).add("Corelations Capabilities page", () => (
                 </CustomRow>
 
                 <CustomStyles>
-                  <CustomRow additionalStyles={["text-right"]}>
+                  <CustomRow>
                     <CustomColumn customColumn="xl-10" additionalColumns={["md-11"]}>
                       <Button
                         label="SAVE"
@@ -726,7 +726,7 @@ storiesOf("Pages", module).add("Corelations Capabilities page", () => (
                     </CustomColumn>
 
                     <CustomColumn customColumn="md-2" additionalColumns={["md-2"]} additionalStyles={["m-0", "center-both"]}>
-                      <IconInfo iconText="Treshold" />
+                      <IconInfo iconText="Threshold" />
                     </CustomColumn>
 
                     <CustomColumn customColumn="md-2" additionalStyles={["m-0", "center-vertical"]}>
@@ -742,7 +742,7 @@ storiesOf("Pages", module).add("Corelations Capabilities page", () => (
                     </CustomColumn>
 
                     <CustomColumn customColumn="md-2" additionalStyles={["m-0", "center-both"]}>
-                      <IconInfo iconText="Treshold" />
+                      <IconInfo iconText="Threshold" />
                     </CustomColumn>
 
                     <CustomColumn customColumn="md-2" additionalStyles={["m-0", "p-0", "center-vertical"]}>
@@ -784,7 +784,7 @@ storiesOf("Pages", module).add("Corelations Capabilities page", () => (
                 </CustomRow>
 
                 <CustomStyles>
-                  <CustomRow additionalStyles={["text-right"]}>
+                  <CustomRow>
                     <CustomColumn customColumn="md-12">
                       <Button
                         label="SAVE"
@@ -828,7 +828,7 @@ storiesOf("Pages", module).add("Corelations Capabilities page", () => (
                         <InfoTooltip 
                           iconColor="gray" 
                           tooltipText="SLA warning percentage threshold" 
-                          iconText="SLA warning percentage treshold" 
+                          iconText="SLA warning percentage threshold" 
                         />
                       </CustomColumn>
                       <CustomColumn customColumn="md-7" additionalStyles={["m-0", "center-baseline"]}>
@@ -851,7 +851,7 @@ storiesOf("Pages", module).add("Corelations Capabilities page", () => (
                         <InfoTooltip 
                           iconColor="gray" 
                           tooltipText="Percentage of time during which the BA was in a Critical status on a monthly basis" 
-                          iconText="SLA critical percentage treshold" 
+                          iconText="SLA critical percentage threshold" 
                         />
                       </CustomColumn>
                       <CustomColumn customColumn="md-7" additionalStyles={["m-0", "center-baseline"]}>
@@ -874,7 +874,7 @@ storiesOf("Pages", module).add("Corelations Capabilities page", () => (
                         <InfoTooltip 
                           iconColor="gray" 
                           tooltipText="Amount of time during which the BA was in a Warning status on a monthly basis" 
-                          iconText="SLA warning duration treshold" 
+                          iconText="SLA warning duration threshold" 
                         />
                       </CustomColumn>
                       <CustomColumn customColumn="md-7" additionalStyles={["m-0", "center-baseline"]}>
@@ -913,7 +913,7 @@ storiesOf("Pages", module).add("Corelations Capabilities page", () => (
                 </CustomRow>
 
                 <CustomStyles>
-                  <CustomRow additionalStyles={["text-right"]}>
+                  <CustomRow>
                     <CustomColumn customColumn="xl-3" additionalColumns={["md-4"]}>
                       <Button
                         label="SAVE"
@@ -957,7 +957,7 @@ storiesOf("Pages", module).add("Corelations Capabilities page", () => (
                         <InfoTooltip 
                           iconColor="gray" 
                           tooltipText="SLA warning percentage threshold" 
-                          iconText="SLA warning percentage treshold" 
+                          iconText="SLA warning percentage threshold" 
                         />
                       </CustomColumn>
                       <CustomColumn customColumn="md-7" additionalStyles={["m-0", "center-baseline"]}>
@@ -980,7 +980,7 @@ storiesOf("Pages", module).add("Corelations Capabilities page", () => (
                         <InfoTooltip 
                           iconColor="gray" 
                           tooltipText="Percentage of time during which the BA was in a Critical status on a monthly basis" 
-                          iconText="SLA control percentage treshold" 
+                          iconText="SLA control percentage threshold" 
                         />
                       </CustomColumn>
                       <CustomColumn customColumn="md-7" additionalStyles={["m-0", "center-baseline"]}>
@@ -1003,7 +1003,7 @@ storiesOf("Pages", module).add("Corelations Capabilities page", () => (
                         <InfoTooltip 
                           iconColor="gray" 
                           tooltipText="Amount of time during which the BA was in a Warning status on a monthly basis" 
-                          iconText="SLA warning duration treshold" 
+                          iconText="SLA warning duration threshold" 
                         />
                       </CustomColumn>
                       <CustomColumn customColumn="md-7" additionalStyles={["m-0", "center-baseline"]}>
@@ -1026,7 +1026,7 @@ storiesOf("Pages", module).add("Corelations Capabilities page", () => (
                         <InfoTooltip 
                           iconColor="gray" 
                           tooltipText="SLA critical duration threshold" 
-                          iconText="SLA critical percentage treshold" 
+                          iconText="SLA critical percentage threshold" 
                         />
                       </CustomColumn>
                       <CustomColumn customColumn="md-7" additionalStyles={["m-0", "center-baseline"]}>
@@ -1042,7 +1042,7 @@ storiesOf("Pages", module).add("Corelations Capabilities page", () => (
                 </CustomRow>
 
                 <CustomStyles>
-                  <CustomRow additionalStyles={["text-right"]}>
+                  <CustomRow>
                     <CustomColumn customColumn="xl-3" additionalColumns={["md-4"]}>
                       <Button
                         label="SAVE"
@@ -1132,7 +1132,7 @@ storiesOf("Pages", module).add("Corelations Capabilities page", () => (
                 </CustomRow>
 
                 <CustomStyles>
-                  <CustomRow additionalStyles={["text-right"]}>
+                  <CustomRow>
                     <CustomColumn customColumn="xl-6" additionalColumns={["md-7"]}>
                       <Button
                         label="SAVE"
