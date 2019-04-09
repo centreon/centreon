@@ -34,6 +34,31 @@
       &.big {
         width: 100%;
       }
+      &.has-danger {
+        textarea {
+          border: 1px solid #ad353b;
+          color: #ad353b;
+          &:hover, &:focus {
+            border: 1px solid #ad353b;
+            outline: #ad353b;
+          }
+          &:focus {
+            box-shadow: 0 0 0 .4px #ad353b;
+          }
+        }
+        .form-error {
+          padding: 1px 0;
+          box-sizing: border-box;
+          color: $content-red-color;
+          font-family: $primary-font-bold;
+          font-size: 10px;
+        }
+        .input-select-wrap {
+          &:after {
+            background-color: #ad353b;
+          }
+        }
+      }
     }
   }
 }
