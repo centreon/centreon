@@ -2,12 +2,16 @@
 
 // Tab
 .tab {
+  margin: 20px;
+  background-color: $gray-centreon-light;
   .tab-list {
     list-style: none;
     margin: 0;
     padding: 0;
-    background-color: $lime-centreon-primary;
+    background-color: #009fdf;
     display: flex;
+    -webkit-box-shadow: 1px 1px 5px 2px rgba(70,75,82,0.2);
+    box-shadow: 1px 1px 5px 2px rgba(70,75,82,0.2);
     &-item {
       font-size: 14px;
       font-family: $primary-font-light;
@@ -16,20 +20,19 @@
       border: none;
       outline: none;
       cursor: pointer;
-      padding: 10px 20px;
+      padding: 8px 20px;
       text-align: center;
       transition: 0.3s;
       border-bottom: 4px solid transparent;
       box-sizing: border-box;
       color: $white-color;
       text-transform: uppercase;
-      width: 25%;
       &.has-error {
         border-bottom: 4px solid $content-red-color;
       }
     }
     &-active {
-      border-bottom: 4px solid $green-centreon-darken;
+      border-bottom: 4px solid $blue-centreon-darken;
       font-family: $primary-font-bold;
     }
   }

@@ -4,7 +4,7 @@ import styles from '../../global-sass-files/_grid.scss';
 
 class CustomColumn extends Component{
   render(){
-    const {children, customColumn, additionalStyles} = this.props;
+    const {children, customColumn, additionalStyles, additionalColumns} = this.props;
     let additionalClasses = [];
     if(additionalStyles){
       for(let i = 0; i < additionalStyles.length;i++){
@@ -13,7 +13,7 @@ class CustomColumn extends Component{
     }
     
     return (
-      <div className={classnames({[styles[`container__col-${customColumn}`]]: true}, additionalClasses)}>
+      <div className={classnames({[styles[`container__col-${customColumn}`]]: true}, additionalClasses, additionalColumns ? {[styles[`container__col-${additionalColumns}`]]: true} : '')}>
         {children}
       </div>
     );

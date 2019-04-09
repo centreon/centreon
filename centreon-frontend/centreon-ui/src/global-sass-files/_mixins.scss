@@ -84,6 +84,12 @@
   @include center(none);
 }
 
+// Flex none
+.flex-none {
+  flex: none !important;
+  max-width: none !important;
+}
+
 // Import iconmoon
 @mixin iconmoon(){
   font-family: 'icomoon' !important;

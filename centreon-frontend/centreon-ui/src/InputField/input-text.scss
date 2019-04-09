@@ -7,6 +7,7 @@
 .form {
   &-group {
     margin-bottom: 15px;
+    position: relative;
     label {
       font-size: 10px;
       font-family: $primary-font-light;
@@ -44,11 +45,17 @@
     &.smallest {
       width: 100px;
     }
+    &.smaller {
+      width: 45px;
+    }
     &.small {
       width: 200px;
     }
     &.middle {
       width: 300px;
+      @media screen and(max-width: 1300px) {
+        width: 100%;
+      }
     }
     &.big {
       width: 100%;

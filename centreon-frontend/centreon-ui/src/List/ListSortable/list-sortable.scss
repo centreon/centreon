@@ -2,58 +2,59 @@
 
 // Table
 .list {
-  &-sortable {
-    width: 100%;
-    max-width: 100%;
-    margin-bottom: 1rem;
-    background-color: transparent;
-    border-collapse: collapse;
-    td, th {
-      padding: 8px 15px;
-      vertical-align: middle;
-      font-size: 13px;
-      font-family: $primary-font-regular;
-    }
-    thead {
-      background-color: $lime-centreon-primary;
-      th {
-        vertical-align: middle;
-        padding: .45rem;
-        color: $white-color;
-        text-transform: uppercase;
-        width: 42%;
-        &:first-child {
-          width: 47%;
-        }
-      }
-    }
-    tbody {
-      tr {
-        &:nth-of-type(even) {
-          background-color: #f3f8e9;
-        }
-      }
-      td {
-        text-align: center;
-        position: relative;
-        font-size: 12px;
-        font-family: $primary-font-regular;
-      }
-    }
-    // .icon-action {
-    //   position: absolute;
-    //   top: 50%;
-    //   left: 50%;
-    //   transform: translate(-50%, -50%);
-    // }
-    .form-group {
-      margin: 0;
-    }
-    .custom-control {
-      min-height: 0;
-      &-label {
-        margin-bottom: 0;
-      }
-    }
-  }
+	&-sortable {
+		width: 100%;
+		max-width: 100%;
+		margin-bottom: 1rem;
+		background-color: transparent;
+		border-collapse: collapse;
+		td,
+		th {
+			padding: 8px 15px;
+			vertical-align: middle;
+			font-size: 13px;
+			font-family: $primary-font-regular;
+		}
+		thead {
+			background-color: #009fdf;
+			th {
+				vertical-align: middle;
+				padding: 0.45rem;
+				color: $white-color;
+				text-transform: uppercase;
+				width: 42%;
+				&:first-child {
+					width: 47%;
+				}
+			}
+		}
+		tbody {
+			tr {
+				&:nth-of-type(even) {
+					background-color: #e5f5fc;
+				}
+			}
+			td {
+				text-align: center;
+				position: relative;
+				font-size: 12px;
+				font-family: $primary-font-regular;
+			}
+		}
+		// .icon-action {
+		//   position: absolute;
+		//   top: 50%;
+		//   left: 50%;
+		//   transform: translate(-50%, -50%);
+		// }
+		.form-group {
+			margin: 0;
+		}
+		.custom-control {
+			min-height: 0;
+			&-label {
+				margin-bottom: 0;
+			}
+		}
+	}
 }
