@@ -711,43 +711,48 @@ storiesOf("Pages", module).add("Corelations Capabilities page", () => (
               <Tab label="Indicators">
                 <CustomRow>
 
-                  <CustomColumn customColumn="md-2" additionalStyles={["center-vertical", "m-0"]}>
+                  <CustomColumn customColumn="xxl-1" additionalColumns={["xl-2"]} additionalStyles={["center-vertical", "m-0"]}>
                     <Subtitle label="Select status calculation method" subtitleType="bam" />
                   </CustomColumn>
 
-                  <CustomColumn customColumn="md-2" additionalStyles={["m-0"]}>
-                    <InputFieldMultiSelect size="medium" />
+                  <CustomColumn customColumn="md-2" additionalStyles={["m-0", "center-vertical"]}>
+                    <InputFieldMultiSelect />
                   </CustomColumn>
 
-                  <CustomColumn customColumn="md-1" additionalStyles={["m-0"]}>
-                    <CustomButton label="Warning" color="orange" />
-                  </CustomColumn>
+                  <CustomRow>
 
-                  <CustomColumn customColumn="md-1" additionalStyles={["m-0", "p-0", "center-both"]}>
-                    <IconInfo iconText="Treshold" />
-                  </CustomColumn>
+                    <CustomColumn customColumn="md-2" additionalStyles={["m-0", "center-vertical"]}>
+                      <CustomButton label="Warning" color="orange" />
+                    </CustomColumn>
 
-                  <CustomColumn customColumn="md-1" additionalStyles={["m-0", "p-0", "center-vertical"]}>
-                    <InputField 
-                      type="text"
-                      inputSize="smallest m-0" 
-                    />
-                  </CustomColumn>
+                    <CustomColumn customColumn="md-2" additionalColumns={["md-2"]} additionalStyles={["m-0", "center-both"]}>
+                      <IconInfo iconText="Treshold" />
+                    </CustomColumn>
 
-                  <CustomColumn customColumn="md-1" additionalStyles={["m-0"]}>
-                    <CustomButton label="Critical" color="red" />
-                  </CustomColumn>
+                    <CustomColumn customColumn="md-2" additionalStyles={["m-0", "center-vertical"]}>
+                      <InputField 
+                        type="text"
+                        inputSize="smallest"
+                        noMargin="no-bottom-margin" 
+                      />
+                    </CustomColumn>
 
-                  <CustomColumn customColumn="md-1" additionalStyles={["p-0", "center-both"]}>
-                    <IconInfo iconText="Treshold" />
-                  </CustomColumn>
+                    <CustomColumn customColumn="md-2" additionalStyles={["m-0", "center-vertical"]}>
+                      <CustomButton label="Critical" color="red" />
+                    </CustomColumn>
 
-                  <CustomColumn customColumn="md-1" additionalStyles={["m-0", "p-0", "center-vertical"]}>
-                    <InputField 
-                      type="text"
-                      inputSize="smallest m-0" 
-                    />
-                  </CustomColumn>
+                    <CustomColumn customColumn="md-2" additionalStyles={["m-0", "center-both"]}>
+                      <IconInfo iconText="Treshold" />
+                    </CustomColumn>
+
+                    <CustomColumn customColumn="md-2" additionalStyles={["m-0", "p-0", "center-vertical"]}>
+                      <InputField 
+                        type="text"
+                        inputSize="smallest"
+                        noMargin="no-bottom-margin"
+                      />
+                    </CustomColumn>
+                  </CustomRow>
                 </CustomRow>
 
                 <CustomRow>
