@@ -10,7 +10,7 @@ const InputFieldTextarea = ({error, label, textareaType, iconName, iconColor, ..
       {label && <label>{iconName ? <IconInfo iconName={iconName} iconColor={iconColor} /> : null } {label} </label>}
       <textarea className={classnames(styles["form-control"])} rows="3" {...rest}/>
       {error ? (
-        <div className={classnames("form-error")}>
+        <div className={classnames(styles["form-error"])}>
           {error}
         </div>
       ) : null}
