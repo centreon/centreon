@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import {findDOMNode} from "react-dom";
+import { findDOMNode } from "react-dom";
 import classnames from "classnames";
 import styles from "./input-field.scss";
 import ScrollBar from "../../ScrollBar";
@@ -102,7 +102,11 @@ class InputFieldSelectCustom extends Component {
   };
 
   focusInput = component => {
+    const { allOptions } = this.state;
     if (component) {
+      this.setState({
+        options: allOptions
+      });
       findDOMNode(component).focus();
     }
   };
