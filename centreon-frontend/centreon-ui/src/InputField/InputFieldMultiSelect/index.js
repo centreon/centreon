@@ -84,13 +84,33 @@ class InputFieldMultiSelect extends Component {
     })
   }
 
+  UNSAFE_componentWillMount() {
+    window.addEventListener('mousedown', this.handleClickOutside, false);
+  };
+
+  componentWillUnmount() {
+    window.removeEventListener('mousedown', this.handleClickOutside, false);
+  };
+
+  handleClickOutside = (e) => {
+    if (!this.multiselect || this.multiselect.contains(e.target)) {
+      return;
+    }
+    this.setState({
+      active: false
+    });
+  };
+
   render() {
     const { active, options, activeOptions } = this.state;
     const { size, error } = this.props;
     return (
-      <div className={classnames(styles["multi-select"], styles[size ? size : ''], styles[active ? 'active' : ''], error ? styles['has-danger'] : '')}>
+      <div className={classnames(styles["multi-select"], styles[size ? size : ''], styles[active ? 'active' : ''], error ? styles['has-danger'] : '')} 
+      ref={multiselect => this.multiselect = multiselect}>
         <div className={classnames(styles["multi-select-wrap"])}>
-          <input onChange={this.searchTextChanged} className={classnames(styles["multi-select-input"])} type="text" placeholder="Search" />
+          <input onChange={this.searchTextChanged} className={classnames(styles["multi-select-input"])} type="text" placeholder="Search" onFocus={()=>{this.setState({
+            active:true
+          })}}/>
           <IconToggleSubmenu iconPosition="icons-toggle-position-multiselect" iconType="arrow" onClick={this.toggleSelect.bind(this)} />
         </div>
         {

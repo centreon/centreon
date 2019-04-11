@@ -56,6 +56,24 @@ class InputFieldSelectCustom extends Component {
     );
   };
 
+  
+  UNSAFE_componentWillMount() {
+    window.addEventListener('mousedown', this.handleClickOutside, false);
+  };
+
+  componentWillUnmount() {
+    window.removeEventListener('mousedown', this.handleClickOutside, false);
+  };
+
+  handleClickOutside = (e) => {
+    if (!this.select || this.select.contains(e.target)) {
+      return;
+    }
+    this.setState({
+      active: false
+    });
+  };
+
   render() {
     const { active, selected } = this.state;
     const { size, label, error, options, icons, domainPath } = this.props;
@@ -67,6 +85,7 @@ class InputFieldSelectCustom extends Component {
           styles[active ? "active" : ""],
           error ? styles["has-danger"] : ""
         )}
+        ref={select => this.select = select}
       >
         <div className={classnames(styles["input-select-wrap"])}>
           <span className={classnames(styles["input-select-field"])}>
