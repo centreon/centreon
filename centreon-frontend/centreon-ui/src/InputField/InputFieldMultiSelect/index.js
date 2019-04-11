@@ -53,7 +53,7 @@ class InputFieldMultiSelect extends Component {
     let { allOptions } = this.state;
     this.setState({
       options: allOptions.filter(option => {
-        return option.name.indexOf(searchString) > -1
+        return String(option.name).toLowerCase().indexOf(String(searchString).toLowerCase()) > -1
       })
     })
   }

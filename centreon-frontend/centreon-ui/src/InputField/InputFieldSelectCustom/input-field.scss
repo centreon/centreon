@@ -6,6 +6,40 @@
     width: 100%;
     border-top: 0;
     position: relative;
+    &-input {
+      -webkit-align-items: center;
+      -webkit-box-align: center;
+      -ms-flex-align: center;
+      align-items: center;
+      background-color: hsl(0,0%,100%);
+      border-color: hsl(0,0%,80%);
+      border-radius: 2px;
+      border-style: solid;
+      border-width: 1px;
+      cursor: default;
+      display: -webkit-box;
+      display: -webkit-flex;
+      display: -ms-flexbox;
+      display: flex;
+      -webkit-flex-wrap: wrap;
+      -ms-flex-wrap: wrap;
+      flex-wrap: wrap;
+      -webkit-box-pack: justify;
+      -webkit-justify-content: space-between;
+      -ms-flex-pack: justify;
+      justify-content: space-between;
+      min-height: 30px;
+      outline: 0 !important;
+      position: relative;
+      -webkit-transition: all 100ms;
+      transition: all 100ms;
+      box-sizing: border-box;
+      width: 100%;
+      padding-left: 7px;
+      color: #242f3a;
+      font-family: $primary-font-regular;
+      font-size: 12px;
+    }
     &-field {
       -webkit-align-items: center;
       -webkit-box-align: center;

@@ -1,4 +1,5 @@
 import React, { Component } from "react";
+import {findDOMNode} from "react-dom";
 import classnames from "classnames";
 import styles from "./input-field.scss";
 import ScrollBar from "../../ScrollBar";
@@ -8,6 +9,8 @@ import IconToggleSubmenu from "../../Icon/IconToggleSubmenu";
 class InputFieldSelectCustom extends Component {
   state = {
     active: false,
+    allOptions: [],
+    options: [],
     selected: {}
   };
 
@@ -27,11 +30,16 @@ class InputFieldSelectCustom extends Component {
         });
       }
     }
+    if (options) {
+      this.setState({
+        options,
+        allOptions: options
+      });
+    }
   };
 
   componentWillReceiveProps = nextProps => {
-    const { value } = nextProps;
-    const { options } = this.props;
+    const { value, options } = nextProps;
     for (let i = 0; i < options.length; i++) {
       if (options[i].id == value) {
         this.setState({
@@ -39,6 +47,26 @@ class InputFieldSelectCustom extends Component {
         });
       }
     }
+    if (options) {
+      this.setState({
+        options,
+        allOptions: options
+      });
+    }
+  };
+
+  searchTextChanged = e => {
+    let searchString = e.target.value;
+    let { allOptions } = this.state;
+    this.setState({
+      options: allOptions.filter(option => {
+        return (
+          String(option.name)
+            .toLowerCase()
+            .indexOf(String(searchString).toLowerCase()) > -1
+        );
+      })
+    });
   };
 
   optionChecked = option => {
@@ -56,16 +84,15 @@ class InputFieldSelectCustom extends Component {
     );
   };
 
-  
   UNSAFE_componentWillMount() {
-    window.addEventListener('mousedown', this.handleClickOutside, false);
-  };
+    window.addEventListener("mousedown", this.handleClickOutside, false);
+  }
 
   componentWillUnmount() {
-    window.removeEventListener('mousedown', this.handleClickOutside, false);
-  };
+    window.removeEventListener("mousedown", this.handleClickOutside, false);
+  }
 
-  handleClickOutside = (e) => {
+  handleClickOutside = e => {
     if (!this.select || this.select.contains(e.target)) {
       return;
     }
@@ -74,9 +101,15 @@ class InputFieldSelectCustom extends Component {
     });
   };
 
+  focusInput = component => {
+    if (component) {
+      findDOMNode(component).focus();
+    }
+  };
+
   render() {
-    const { active, selected } = this.state;
-    const { size, label, error, options, icons, domainPath } = this.props;
+    const { active, selected, options } = this.state;
+    const { size, label, error, icons, domainPath } = this.props;
     return (
       <div
         className={classnames(
@@ -85,12 +118,25 @@ class InputFieldSelectCustom extends Component {
           styles[active ? "active" : ""],
           error ? styles["has-danger"] : ""
         )}
-        ref={select => this.select = select}
+        ref={select => (this.select = select)}
       >
         <div className={classnames(styles["input-select-wrap"])}>
-          <span className={classnames(styles["input-select-field"])}>
-            {selected.name}
-          </span>
+          {active ? (
+            <input
+              ref={this.focusInput}
+              onChange={this.searchTextChanged}
+              className={classnames(styles["input-select-input"])}
+              type="text"
+              placeholder="Search"
+            />
+          ) : (
+            <span
+              className={classnames(styles["input-select-field"])}
+              onClick={this.toggleSelect.bind(this)}
+            >
+              {selected.name}
+            </span>
+          )}
           <IconToggleSubmenu
             iconPosition="icons-toggle-position-multiselect"
             iconType="arrow"
