@@ -4,7 +4,6 @@
 .custom-control {
   position: relative;
   display: block;
-  min-height: 24px;
   padding-left: 15px;
   .form-check-input,
   .custom-control-input {
@@ -18,6 +17,7 @@
     }
   }
   &.custom-checkbox {
+    margin-bottom: 10px;
     .custom-control-label {
       padding-left: 5px;
       text-align: left;
