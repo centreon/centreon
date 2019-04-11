@@ -4,8 +4,8 @@
 .custom-control {
   position: relative;
   display: block;
-  min-height: 24px;
   padding-left: 15px;
+  min-height: 16px;
   .form-check-input,
   .custom-control-input {
     position: absolute;
@@ -18,10 +18,12 @@
     }
   }
   &.custom-checkbox {
+    margin-bottom: 10px;
     .custom-control-label {
       padding-left: 5px;
       text-align: left;
       font-size: 12px;
+      line-height: 12px;
       font-family: $primary-font-regular;
       color: rgb(36,47,58);
       display: block;
@@ -84,7 +86,6 @@
     }
     &.green {
       .custom-control-label {
-        line-height: 14px;
         &:before {
           background: url("../../img/icons/checkbox-buttons-stripe-green.png") no-repeat;
           background-position: -1px -4px;

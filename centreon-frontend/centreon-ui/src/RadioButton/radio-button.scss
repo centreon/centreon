@@ -4,7 +4,8 @@
 .custom-control {
   position: relative;
   display: block;
-  min-height: 24px;
+  line-height: 12px;
+  min-height: 15px;
   padding-left: 15px;
   .form-check-input,
   .custom-control-input {

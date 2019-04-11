@@ -4,12 +4,13 @@
   display: flex;
   flex-direction: row;
   align-items: center;
-  margin-bottom: 2px;
+  margin-bottom: 10px;
   cursor: pointer;
   &-icon {
     background: url("../../../img/icons/small-logo.png") no-repeat;
     width: 28px;
     height: 28px;
+    background-size: cover;
   }
   &-text {
     font-size: 11px;
