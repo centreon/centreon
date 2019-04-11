@@ -9,9 +9,9 @@ class SwitcherInputField extends React.Component {
     value: false
   };
 
-  UNSAFE_componentDidMount = () => {
+  componentDidMount = () => {
     const { value } = this.props;
-    if (value) {
+    if (typeof value != 'undefined') {
       this.setState({
         value
       });
@@ -20,7 +20,7 @@ class SwitcherInputField extends React.Component {
 
   UNSAFE_componentWillReceiveProps = nextProps => {
     const { value } = nextProps;
-    if (this.state.value != value) {
+    if (this.state.value != value && typeof value != 'undefined') {
       this.setState({
         value
       });
