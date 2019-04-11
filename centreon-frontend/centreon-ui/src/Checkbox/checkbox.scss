@@ -5,6 +5,7 @@
   position: relative;
   display: block;
   padding-left: 15px;
+  min-height: 16px;
   .form-check-input,
   .custom-control-input {
     position: absolute;
@@ -22,6 +23,7 @@
       padding-left: 5px;
       text-align: left;
       font-size: 12px;
+      line-height: 12px;
       font-family: $primary-font-regular;
       color: rgb(36,47,58);
       display: block;
