@@ -4,14 +4,14 @@ import classnames from 'classnames';
 import styles from './button-action.scss';
 
 const ButtonAction = ({ buttonActionType, buttonIconType, onClick, iconColor, title, customPosition }) => {
-  const cn = classnames(styles["button-action"], {[styles[`button-action-${buttonActionType ? buttonActionType : ''}`]]: false}, styles[customPosition ? customPosition : ''], styles[iconColor]);
+  const cn = classnames(styles["button-action"], {[styles[`button-action-${buttonActionType ? buttonActionType : ''}`]]: true}, styles[customPosition ? customPosition : ''], styles[iconColor]);
   return (
     <span
       className={cn}
       onClick={onClick}
     >
       <IconAction iconColor={iconColor ? iconColor : ''} iconActionType={buttonIconType} />
-      {title && <span className="button-action-title">{title}</span>}
+      {title && <span className={styles["button-action-title"]}>{title}</span>}
     </span>
   )
 };

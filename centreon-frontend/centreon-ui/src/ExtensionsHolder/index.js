@@ -37,7 +37,14 @@ class ExtensionsHolder extends React.Component {
                 <div
                   id={`${type}-${entity.id}`}
                   onClick={() => { onCardClicked(entity.id, type)} }
-                  className={classnames(styles["container__col-md-3"], styles["container__col-sm-6"], styles["container__col-xs-12"])}
+                  className={classnames(
+                    styles["container__col-md-3"],
+                    styles["container__col-sm-6"],
+                    styles["container__col-xs-12"]
+                  )}
+                  style={{
+                    display: "flex"
+                  }}
                 >
                   <CardItem
                     itemBorderColor={
@@ -55,14 +62,17 @@ class ExtensionsHolder extends React.Component {
                       : {})}
                   >
                     {entity.version.installed ? (
-                      <IconInfo iconName="state green" />
+                      <IconInfo iconPosition="info-icon-position" iconName="state" iconColor="green" />
                     ) : null}
 
-                    <div className={classnames("custom-title-heading")}>
+                    <div className={classnames(styles["custom-title-heading"])}>
                       <Title
                         titleColor={titleColor}
                         icon={titleIcon}
                         label={entity.description}
+                        labelStyle={{
+                          "padding-left": 0
+                        }}
                       />
                       <Subtitle label={`by ${entity.label}`} />
                     </div>
@@ -80,6 +90,7 @@ class ExtensionsHolder extends React.Component {
                           onCardClicked(id);
                         }
                       }}
+                      customClass="button-card-position"
                       style={
                         installing[entity.id] || updating[entity.id]
                           ? {
@@ -110,12 +121,14 @@ class ExtensionsHolder extends React.Component {
                             installing[entity.id] ? "update" : "add"
                           }`}
                           loading={installing[entity.id]}
+                          customClass="content-icon-button"
                         />
                       ) : entity.version.outdated ? (
                         <IconContent
                           iconContentColor="white"
                           iconContentType="update"
                           loading={updating[entity.id]}
+                          customClass="content-icon-button"
                         />
                       ) : null}
                     </Button>
@@ -123,6 +136,7 @@ class ExtensionsHolder extends React.Component {
                       <ButtonAction
                         buttonActionType="delete"
                         buttonIconType="delete"
+                        customPosition="button-action-card-position"
                         iconColor="gray"
                         onClick={e => {
                           e.preventDefault();

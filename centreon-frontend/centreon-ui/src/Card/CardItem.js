@@ -12,8 +12,9 @@ class CardItem extends Component {
       customClass,
       style
     } = this.props;
-    const cnCardItem = classnames(styles["card-item"], {[styles[`card-item-bordered-${itemBorderColor ? itemBorderColor : ''}`]]: true}, customClass);
-    const cnCardItemFooter = classnames(styles["card-item-footer"], {[styles[`card-item-footer-${itemFooterColor ? itemBorderColor : ''}`]]: true});
+    const cnCardItem = classnames(styles["card-item"], {[styles[`card-item-bordered-${itemBorderColor ? itemBorderColor : ''}`]]: true}, styles[customClass ? customClass : '']);
+    const cnCardItemFooter = classnames(styles["card-item-footer"], {[styles[`card-item-footer-${itemFooterColor ? itemFooterColor : ''}`]]: true});
+
     return (
       <div
         className={cnCardItem}

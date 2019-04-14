@@ -55,6 +55,7 @@ class ExtensionDeletePopup extends React.Component {
           </div>
         </div>
         <IconClose
+          iconPosition="icon-close-position-middle"
           iconType="middle"
           onClick={e => {
             e.preventDefault();

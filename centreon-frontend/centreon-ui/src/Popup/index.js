@@ -7,7 +7,9 @@ const Popup = ({ popupType, children, customClass }) => {
     <React.Fragment>
       <div className={classnames(styles.popup, {[styles[`popup-${popupType}`]]: true}, styles[customClass ? customClass : ''])}>
         <div className={classnames(styles["popup-dialog"])}>
-          <div className={classnames(styles["popup-content"])}>{children}</div>
+          <div className={classnames(styles["popup-content"])}>
+            {children}
+          </div>
         </div>
       </div>
       <div className={classnames(styles["popup-overlay"])} />

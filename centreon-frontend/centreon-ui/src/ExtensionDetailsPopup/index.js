@@ -96,7 +96,7 @@ class ExtensionDetailPopup extends React.Component {
         <div className={classnames(styles["popup-footer"])}>
           <Description note={modalDetails.release_note} />
         </div>
-        <IconClose iconType="big" onClick={onCloseClicked} />
+        <IconClose iconPosition="icon-close-position-big" iconType="big" onClick={onCloseClicked} />
       </Popup>
     );
   }
