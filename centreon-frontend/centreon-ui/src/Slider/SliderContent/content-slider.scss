@@ -24,21 +24,6 @@
     position: relative;
     max-width: 900px;
     margin: 0 auto;
-    .content-icon {
-      position: absolute;
-      right: 100px;
-      bottom: -25px;
-      @media (max-width: 576px){
-        width: 40px;
-        height: 40px;
-        background-size: 20px;
-        bottom: -15px;
-        right: 20px;
-      }
-      & + .content-icon {
-        right: 180px;
-      }
-    }
   }
   &-prev, &-next {
     position: absolute;

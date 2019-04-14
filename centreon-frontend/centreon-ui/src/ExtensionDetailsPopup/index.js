@@ -32,8 +32,9 @@ class ExtensionDetailPopup extends React.Component {
         <Slider images={modalDetails.images || []}>
           {modalDetails.version.installed && modalDetails.version.outdated ? (
             <IconContent
+              customClass="content-icon-popup-wrapper"
               iconContentType="update"
-              iconContentColor="orange white"
+              iconContentColor="orange"
               onClick={() => {
                 onUpdateClicked(modalDetails.id, modalDetails.type);
               }}
@@ -41,16 +42,18 @@ class ExtensionDetailPopup extends React.Component {
           ) : null}
           {modalDetails.version.installed ? (
             <IconContent
+            customClass="content-icon-popup-wrapper"
               iconContentType="delete"
-              iconContentColor="red white"
+              iconContentColor="red"
               onClick={() => {
                 onDeleteClicked(modalDetails.id, modalDetails.type);
               }}
             />
           ) : (
             <IconContent
+              customClass="content-icon-popup-wrapper"
               iconContentType="add"
-              iconContentColor="green white"
+              iconContentColor="green"
               onClick={() => {
                 onInstallClicked(modalDetails.id, modalDetails.type);
               }}

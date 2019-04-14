@@ -88,4 +88,16 @@
     top: 50%;
     transform: translateY(-50%);
   }
+  &-popup-wrapper {
+    position: absolute;
+    right: 100px;
+    bottom: -25px;
+    @media (max-width: 576px){
+      width: 40px;
+      height: 40px;
+      background-size: 20px;
+      bottom: -15px;
+      right: 20px;
+    }
+  }
 }
