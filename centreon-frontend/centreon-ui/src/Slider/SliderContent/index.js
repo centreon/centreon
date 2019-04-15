@@ -5,6 +5,8 @@ import ContentSliderItem from "./ContentSliderItem";
 import ContentSliderLeftArrow from "./ContentSliderLeftArrow";
 import ContentSliderRightArrow from "./ContentSliderRightArrow";
 import ContentSliderIndicators from "./ContentSliderIndicators";
+import defaultImageModule from "../../../img/slider-default-image-module.png";
+import defaultImageWidget from "../../../img/slider-default-image-widget.png";
 
 class SliderContent extends Component {
   constructor(props) {
@@ -59,9 +61,11 @@ class SliderContent extends Component {
     });
 
     if (images.length === 0) {
+      const defaultImage = (type === "widget") ? defaultImageWidget : defaultImageModule;
+
       return [
         <ContentSliderItem
-          cssImage={type}
+          image={defaultImage}
           isActive={true}
         />
       ];
