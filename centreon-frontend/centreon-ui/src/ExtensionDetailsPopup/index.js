@@ -15,6 +15,7 @@ import IconClose from "../Icon/IconClose";
 class ExtensionDetailPopup extends React.Component {
   render() {
     const {
+      type,
       onCloseClicked,
       modalDetails,
       onVersionClicked,
@@ -30,7 +31,7 @@ class ExtensionDetailPopup extends React.Component {
     return (
       <Popup popupType="big">
         {loading ? <Loader fullContent={true} /> : null}
-        <Slider images={modalDetails.images || []}>
+        <Slider type={type} images={modalDetails.images || []}>
           {modalDetails.version.installed && modalDetails.version.outdated ? (
             <IconContent
               customClass="content-icon-popup-wrapper"
@@ -43,7 +44,7 @@ class ExtensionDetailPopup extends React.Component {
           ) : null}
           {modalDetails.version.installed ? (
             <IconContent
-            customClass="content-icon-popup-wrapper"
+              customClass="content-icon-popup-wrapper"
               iconContentType="delete"
               iconContentColor="red"
               onClick={() => {

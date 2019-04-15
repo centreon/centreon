@@ -5,7 +5,6 @@ import ContentSliderItem from "./ContentSliderItem";
 import ContentSliderLeftArrow from "./ContentSliderLeftArrow";
 import ContentSliderRightArrow from "./ContentSliderRightArrow";
 import ContentSliderIndicators from "./ContentSliderIndicators";
-import defaultSliderImage from "./slider-default-image-second.png";
 
 class SliderContent extends Component {
   constructor(props) {
@@ -50,7 +49,7 @@ class SliderContent extends Component {
 
   renderSlides = () => {
     const { currentIndex } = this.state;
-    const { images } = this.props;
+    const { type, images } = this.props;
 
     const slides = images.map((image, index) => {
       let isActive = currentIndex === index ? true : false;
@@ -60,7 +59,12 @@ class SliderContent extends Component {
     });
 
     if (images.length === 0) {
-      return [<ContentSliderItem image={defaultSliderImage} isActive={true} />];
+      return [
+        <ContentSliderItem
+          cssImage={type}
+          isActive={true}
+        />
+      ];
     }
 
     return slides;
@@ -109,7 +113,7 @@ class SliderContent extends Component {
                 iconColor="gray"
               />
             )}
-            {images.length === 0 ? null : (
+            {images.length <= 1 ? null : (
               <ContentSliderRightArrow
                 goToNextSlide={this.goToNextSlide}
                 iconColor="gray"

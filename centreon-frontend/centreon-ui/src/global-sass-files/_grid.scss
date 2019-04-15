@@ -86,8 +86,3 @@ $map-grid-props: (
     @include create-col-classes($modifier, $grid__cols, $breakpoint);
   }
 }
-
-.custom-title-heading {
-  padding-left: 55px;
-  max-width: 150px;
-}

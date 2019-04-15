@@ -9,6 +9,17 @@
   height: 400px;
   overflow: hidden;
   white-space: nowrap;
+  &-icon {
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: 50% 60%;
+    &-module {
+      background: url("../../../img/slider-default-image-second.png") no-repeat;
+    }
+    &-widget {
+      background: url("../../../img/slider-default-image.png") no-repeat;
+    }
+  }
   &-items {
     position: relative;
     height: 100%;

@@ -65,16 +65,16 @@ class ExtensionsHolder extends React.Component {
                       <IconInfo iconPosition="info-icon-position" iconName="state" iconColor="green" />
                     ) : null}
 
-                    <div className={classnames(styles["custom-title-heading"])}>
+                    <div>
                       <Title
                         titleColor={titleColor}
                         icon={titleIcon}
                         label={entity.description}
-                        labelStyle={{
-                          "padding-left": 0
-                        }}
                       />
-                      <Subtitle label={`by ${entity.label}`} />
+                      <Subtitle
+                        customSubtitleStyles="custom-subtitle-styles"
+                        label={`by ${entity.label}`}
+                      />
                     </div>
                     <Button
                       onClick={e => {
