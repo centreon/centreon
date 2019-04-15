@@ -1,6 +1,6 @@
 import React from "react";
 import classnames from 'classnames';
-import styles from '../Popup/popup.scss'
+import styles from '../Popup/popup.scss';
 import Popup from "../Popup";
 import Loader from "../Loader";
 import Slider from "../Slider/SliderContent";
@@ -23,6 +23,7 @@ class ExtensionDetailPopup extends React.Component {
       onInstallClicked,
       loading
     } = this.props;
+
     if (modalDetails === null) {
       return null;
     }
