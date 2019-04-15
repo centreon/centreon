@@ -5,7 +5,7 @@ import ContentSliderItem from "./ContentSliderItem";
 import ContentSliderLeftArrow from "./ContentSliderLeftArrow";
 import ContentSliderRightArrow from "./ContentSliderRightArrow";
 import ContentSliderIndicators from "./ContentSliderIndicators";
-import defaultSliderImage from "./slider-default-image.png";
+import defaultSliderImage from "./slider-default-image-second.png";
 
 class SliderContent extends Component {
   constructor(props) {
