@@ -24,6 +24,7 @@
     position: relative;
     max-width: 900px;
     margin: 0 auto;
+    box-shadow: 1px 1px 5px 2px rgba(70, 75, 82, 0.2);
   }
   &-prev, &-next {
     position: absolute;
@@ -106,6 +107,7 @@
       margin-right: 15px;
       &.active {
         background-color: $white-color;
+        box-shadow: 1px 1px 4px 2px rgba(70, 75, 82, 0.5);
       }
     }
   }
