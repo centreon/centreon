@@ -54,11 +54,11 @@ class ExtensionsHolder extends React.Component {
                           : "orange"
                         : "gray"
                     }
-                    {...(entity.licence && entity.licence != "N/A"
+                    {...(entity.license && entity.license != "N/A"
                       ? { itemFooterColor: "red" }
                       : {})}
-                    {...(entity.licence && entity.licence != "N/A"
-                      ? { itemFooterLabel: entity.licence }
+                    {...(entity.license && entity.license != "N/A"
+                      ? { itemFooterLabel: entity.license }
                       : {})}
                   >
                     {entity.version.installed ? (
