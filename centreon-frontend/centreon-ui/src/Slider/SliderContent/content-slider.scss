@@ -19,6 +19,8 @@
     display: inline-block;
     height: 100%;
     width: 100%;
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
   }
   &-wrapper {
     position: relative;
