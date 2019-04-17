@@ -12,7 +12,8 @@
   cursor: pointer;
   &-styles {
     padding-left: 55px;
-    max-width: 150px;
+    max-width: 190px;
+    word-break: break-word;
     .custom-title-icon {
       position: absolute;
       left: 0;
