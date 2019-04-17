@@ -66,9 +66,7 @@ class ExtensionDetailPopup extends React.Component {
           <Title label={modalDetails.title} />
           <Subtitle label={modalDetails.label} />
           <Button
-            onClick={() => {
-              onVersionClicked(modalDetails.id);
-            }}
+            style={{cursor:'default'}}
             label={`Available ${modalDetails.version.available}`}
             buttonType="regular"
             color="blue"
@@ -77,10 +75,11 @@ class ExtensionDetailPopup extends React.Component {
             label={modalDetails.stability}
             buttonType="bordered"
             color="gray"
-            style={{ margin: "15px" }}
+            style={{ margin: "15px", cursor:'default' }}
           />
           {modalDetails.license ? (
             <Button
+              style={{cursor:'default'}}
               label={modalDetails.license}
               buttonType="bordered"
               color="orange"
