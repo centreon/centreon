@@ -22,22 +22,11 @@
   &-wrapper {
     padding: 12px 20px 0 20px;
     box-sizing: border-box;
-    max-width: 1280px;
     margin: 0 auto;
     @media (max-width: 767px) {
       padding: 12px;
     }
   }
-}
-
-#content #fullscreen-wrapper {
-  overflow: auto;
-  padding-bottom: 30px;
-  margin-bottom: 30px;
-  height: 100%;
-}
-
-.content {
   &-wrap {
     height: 100vh;
     display: flex;

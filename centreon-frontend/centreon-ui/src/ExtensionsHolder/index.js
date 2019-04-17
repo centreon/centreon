@@ -1,6 +1,5 @@
 import React from "react";
-import classnames from 'classnames';
-import styles from '../global-sass-files/_grid.scss';
+import cardStyles from "../Card/card.scss";
 import Wrapper from "../Wrapper";
 import HorizontalLineContent from "../HorizontalLines/HorizontalLineContent";
 import Card from "../Card";
@@ -31,20 +30,13 @@ class ExtensionsHolder extends React.Component {
       <Wrapper>
         <HorizontalLineContent hrTitle={title} />
         <Card>
-          <div className={classnames(styles["container__row"])}>
+          <div>
             {entities.map(entity => {
               return (
                 <div
                   id={`${type}-${entity.id}`}
                   onClick={() => { onCardClicked(entity.id, type)} }
-                  className={classnames(
-                    styles["container__col-md-3"],
-                    styles["container__col-sm-6"],
-                    styles["container__col-xs-12"]
-                  )}
-                  style={{
-                    display: "flex"
-                  }}
+                  className={cardStyles["card-inline"]}
                 >
                   <CardItem
                     itemBorderColor={
@@ -65,17 +57,14 @@ class ExtensionsHolder extends React.Component {
                       <IconInfo iconPosition="info-icon-position" iconName="state" iconColor="green" />
                     ) : null}
 
-                    <div>
-                      <Title
-                        titleColor={titleColor}
-                        icon={titleIcon}
-                        label={entity.description}
-                      />
-                      <Subtitle
-                        customSubtitleStyles="custom-subtitle-styles"
-                        label={`by ${entity.label}`}
-                      />
-                    </div>
+                    <Title
+                      labelStyle={{fontSize: "16px"}}
+                      titleColor={titleColor}
+                      icon={titleIcon}
+                      label={entity.description}
+                    >
+                      <Subtitle label={`by ${entity.label}`} />
+                    </Title>
                     <Button
                       onClick={e => {
                         e.preventDefault();
@@ -86,18 +75,13 @@ class ExtensionsHolder extends React.Component {
                           onUpdate(id, type);
                         } else if (!version.installed && !installing[entity.id]) {
                           onInstall(id, type);
-                        } else {
-                          onCardClicked(id);
                         }
                       }}
                       customClass="button-card-position"
-                      style={
-                        installing[entity.id] || updating[entity.id]
-                          ? {
-                              opacity: "0.5"
-                            }
-                          : {}
-                      }
+                      style={{
+                        opacity: (installing[entity.id] || updating[entity.id]) ? "0.5" : "inherit",
+                        cursor: entity.version.installed ? "default" : "pointer"
+                      }}
                       buttonType={
                         entity.version.installed
                           ? entity.version.outdated
@@ -112,7 +96,7 @@ class ExtensionsHolder extends React.Component {
                             : "blue"
                           : "green"
                       }
-                      label={`Available ${entity.version.available}`}
+                      label={(!entity.version.installed ? 'Available ' : '') + entity.version.available}
                     >
                       {!entity.version.installed ? (
                         <IconContent

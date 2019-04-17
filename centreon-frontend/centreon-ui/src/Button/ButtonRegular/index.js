@@ -18,7 +18,16 @@ const Button = ({
   position,
   ...rest
 }) => {
-  const cn = classnames(styles.button, {[styles[`button-${buttonType}-${color}`]]: true}, styles.linear, styles[customClass ? customClass : ''], styles[customSecond ? customSecond : ''], styles[`button-${iconPosition}`], styles[position ? position : '']);
+  const cn = classnames(
+    styles.button,
+    {[styles[`button-${buttonType}-${color}`]]: true},
+    styles.linear,
+    styles[customClass ? customClass : ''],
+    styles[customSecond ? customSecond : ''],
+    styles[`button-${iconPosition}`],
+    styles[position ? position : '']
+  );
+
   return (
     <button
       className={cn}

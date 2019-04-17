@@ -64,10 +64,9 @@ class ExtensionDetailPopup extends React.Component {
         </Slider>
         <div className={classnames(styles["popup-header"])}>
           <Title label={modalDetails.title} />
-          <Subtitle label={modalDetails.label} />
           <Button
             style={{cursor:'default'}}
-            label={`Available ${modalDetails.version.available}`}
+            label={(!modalDetails.version.installed ? 'Available ' : '') + modalDetails.version.available}
             buttonType="regular"
             color="blue"
           />

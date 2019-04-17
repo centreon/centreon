@@ -1,8 +1,10 @@
 @import '../global-sass-files/variables';
 @import '../global-sass-files/fonts';
+@import '../global-sass-files/grid';
 
 // Switcher
 .switcher {
+  padding: 0px 10px;
   .switch {
     position: relative;
     display: inline-block;
@@ -104,7 +106,7 @@
     -ms-transform: translateX(46px);
     transform: translateX(46px);
   }
-  
+
   /* Rounded sliders */
   .switch-slider.switch-round {
     border-radius: 11px;
@@ -123,6 +125,7 @@
   &-title {
     margin-bottom: 10px;
     min-height: 14px;
+    font-weight: bold;
   }
   &-status {
     margin-bottom: 5px;

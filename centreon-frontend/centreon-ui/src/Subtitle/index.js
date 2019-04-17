@@ -5,7 +5,7 @@ import styles from "./custom-subtitles.scss";
 const Subtitle = ({ label, subtitleType, customSubtitleStyles }) => {
   const cn = classnames(styles["custom-subtitle"], styles[subtitleType], styles[customSubtitleStyles ? customSubtitleStyles : '']);
   return (
-    <h4 className={cn}>{label}</h4>
+    <span className={cn}>{label}</span>
   )
 }
 

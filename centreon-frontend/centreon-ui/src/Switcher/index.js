@@ -51,7 +51,7 @@ class Switcher extends React.Component {
     const { value, toggled } = this.state;
 
     return (
-      <div className={classnames(styles.switcher, customClass)}>
+      <div className={classnames(styles.switcher, styles[customClass])}>
         <span className={classnames(styles["switcher-title"])}>
           {switcherTitle ? switcherTitle : " "}
         </span>
@@ -63,8 +63,6 @@ class Switcher extends React.Component {
             onClick={this.onChange.bind(this)}
           />
           <span className={classnames(styles["switch-slider"], styles["switch-round"] )}/>
-          <span className={classnames(styles["switch-status"], styles["switch-status-show"])}>on</span>
-          <span className={classnames(styles["switch-status"], styles["switch-status-hide"])}>off</span>
         </label>
       </div>
     );
