@@ -86,3 +86,7 @@ $map-grid-props: (
     @include create-col-classes($modifier, $grid__cols, $breakpoint);
   }
 }
+
+.display-flex {
+  display: flex;
+}
