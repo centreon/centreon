@@ -14,7 +14,6 @@
   &-styles {
     padding-left: 55px;
     max-width: 190px;
-    word-break: break-word;
     .custom-title-icon {
       position: absolute;
       left: 0;
@@ -49,6 +48,9 @@
     }
   }
   &-label {
+    text-overflow: ellipsis;
+    max-height: 87px;
+    overflow: hidden;
     &.blue {
       color: #0072aa;
     }
