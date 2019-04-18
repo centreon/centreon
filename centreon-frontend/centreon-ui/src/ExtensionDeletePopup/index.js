@@ -22,7 +22,7 @@ class ExtensionDeletePopup extends React.Component {
         <div className={classnames(styles["popup-body"])}>
           <MessageInfo
             messageInfo="red"
-            text="Do you want to delete this extension. This, action will remove all associated data."
+            text="Do you want to delete this extension? This action will remove all associated data."
           />
         </div>
         <div className={classnames(styles["popup-footer"])}>
@@ -32,7 +32,6 @@ class ExtensionDeletePopup extends React.Component {
                 label="Delete"
                 buttonType="regular"
                 color="red"
-                iconActionType="delete-white"
                 onClick={e => {
                   e.preventDefault();
                   e.stopPropagation();
