@@ -70,8 +70,9 @@
       text-decoration: none;
     }
     &-count {
-      line-height: 28px;
+      line-height: 32px;
       color: $white-color;
+      font-family: $primary-font-bold !important;
     }
   }
 }

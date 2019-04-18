@@ -2,8 +2,6 @@
 
 // Submenu
 .submenu {
-  &-header {
-  }
   &-top, &-bottom {
     display: flex;
   }
@@ -45,12 +43,10 @@
       font-size: .8rem;
       text-decoration: none;
       display: block;
-      padding-left: 22px;
+      padding-left: 10px;
     }
-    &:first-child {
-      .submenu-item-title {
-        padding-left: 10px;
-      }
+    &-dotted {
+      padding-left: 22px;
     }
     &-dot {
       position: absolute;

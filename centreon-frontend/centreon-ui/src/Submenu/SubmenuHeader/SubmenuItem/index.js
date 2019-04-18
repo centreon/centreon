@@ -7,7 +7,12 @@ class SubmenuItem extends Component {
     const { dotColored, submenuTitle, submenuCount } = this.props;
     return (
       <li className={classnames(styles["submenu-item"])}>
-        <span className={classnames(styles["submenu-item-title"])}>
+        <span
+          className={classnames(
+            styles["submenu-item-title"],
+            {[styles["submenu-item-dotted"]]: !!dotColored}
+          )}
+        >
           <span className={classnames(styles["submenu-item-dot"], styles[`dot-${dotColored}`])}/>
           {submenuTitle}
         </span>

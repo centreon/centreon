@@ -117,6 +117,7 @@
 .iconmoon {
   display: block;
   text-align: center;
+  height: 28px;
   @include iconmoon();
   &:before {
     font-size: 24px;
@@ -129,12 +130,12 @@
     position: relative;
   }
 }
-.icon {
+.icons {
   &__name {
     display: block;
     font-size: .6875rem;
     color: $white-color;
-    font-family: $primary-font-light;
+    font-family: $primary-font-light !important;
     text-transform: lowercase;
   }
 }

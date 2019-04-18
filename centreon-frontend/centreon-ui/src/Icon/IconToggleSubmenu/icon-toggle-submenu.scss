@@ -37,4 +37,7 @@
     top: 1px;
     right: 3px;
   }
+  &-rotate {
+    transform: rotate(180deg);
+  }
 }
