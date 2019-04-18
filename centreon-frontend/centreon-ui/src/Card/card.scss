@@ -13,8 +13,12 @@
     height: 100%;
     box-sizing: border-box;
     width: 100%;
+    cursor: pointer;
     @media (max-width: 767px) {
       margin-bottom: 12px;
+    }
+    &:hover {
+      background-color: #F9F9F9;
     }
     &-footer {
       display: block;
