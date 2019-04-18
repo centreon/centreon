@@ -14,6 +14,7 @@ const Title = ({ icon, label, titleColor, customTitleStyles, onClick, style, lab
       <span
         className={classnames(styles["custom-title-label"], styles[titleColor ? titleColor : ''])}
         style={labelStyle}
+        title={label}
       >
         {label}
       </span>
