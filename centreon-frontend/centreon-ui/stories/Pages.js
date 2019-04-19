@@ -262,7 +262,7 @@ storiesOf("Pages", module).add("Extensions page", () => (
       </Card>
     </Wrapper>
     <Wrapper>
-      <HorizontalLineContent hrColor="blue" titleColor="blue" hrTitle="Widgets"/>
+      <HorizontalLineContent hrColor="blue" hrTitleColor="blue" hrTitle="Widgets"/>
       <Card>
         <CustomRow>
           <CustomColumn customColumn="md-3" additionalStyles={["display-flex", "container__col-xs-12"]}>
