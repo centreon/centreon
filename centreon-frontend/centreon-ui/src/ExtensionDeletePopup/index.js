@@ -16,7 +16,6 @@ class ExtensionDeletePopup extends React.Component {
         <div className={classnames(styles["popup-header"])}>
           <Title
             label={deletingEntity.description}
-            icon={deletingEntity.type === "module" ? "object" : "puzzle"}
           />
         </div>
         <div className={classnames(styles["popup-body"])}>
