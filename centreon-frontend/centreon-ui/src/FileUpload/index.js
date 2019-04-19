@@ -4,6 +4,7 @@ import styles from './file-upload.scss';
 import Button from "../Button/ButtonRegular";
 import Popup from "../Popup";
 import FileUploadItem from "./FileUploadItem";
+import IconClose from "../Icon/IconClose";
 
 import Files from "react-files";
 
@@ -156,6 +157,7 @@ class FileUpload extends Component {
               </div>
             </div>
           ) : null}
+          <IconClose iconPosition="icon-close-position-small" iconType="middle" onClick={onClose}/>
         </Popup>
       </>
     );
