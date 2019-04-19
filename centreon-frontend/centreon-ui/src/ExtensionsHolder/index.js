@@ -12,6 +12,12 @@ import IconContent from "../Icon/IconContent";
 import ButtonAction from "../Button/ButtonAction";
 
 class ExtensionsHolder extends React.Component {
+
+  // remove "centreon" word from the begin of the module/widget description
+  parseDescription = description => {
+    return description.replace(/^centreon\s+(\w+)/i, (_, $1) => $1);
+  }
+
   render() {
     const {
       title,
@@ -60,8 +66,8 @@ class ExtensionsHolder extends React.Component {
                     <Title
                       labelStyle={{fontSize: "16px"}}
                       titleColor={titleColor}
-                      icon={titleIcon}
-                      label={entity.description}
+                      label={this.parseDescription(entity.description)}
+                      title={entity.description}
                     >
                       <Subtitle label={`by ${entity.label}`} />
                     </Title>
