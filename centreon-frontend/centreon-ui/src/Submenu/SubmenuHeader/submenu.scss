@@ -24,7 +24,10 @@
     margin: 0;
   }
   &-item {
-    position: relative;
+    position: relative;    
+    width: 100%;
+    float: left;
+    display: block;
     &-count {
       float: right;
       padding: 10px;
@@ -37,6 +40,7 @@
     }
     &-title {
       position: relative;
+      float: left;
       padding: 10px;
       font-family: $primary-font-light;
       color: $white-color;
