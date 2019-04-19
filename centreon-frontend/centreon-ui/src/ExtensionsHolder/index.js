@@ -26,6 +26,8 @@ class ExtensionsHolder extends React.Component {
       onCardClicked,
       onDelete,
       titleColor,
+      hrColor,
+      hrTitleColor,
       onInstall,
       onUpdate,
       updating,
@@ -34,7 +36,7 @@ class ExtensionsHolder extends React.Component {
     } = this.props;
     return (
       <Wrapper>
-        <HorizontalLineContent hrTitle={title} />
+        <HorizontalLineContent hrColor={hrColor} hrTitleColor={hrTitleColor} hrTitle={title}/>
         <Card>
           <div>
             {entities.map(entity => {
