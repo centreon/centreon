@@ -76,14 +76,6 @@ class ExtensionDetailPopup extends React.Component {
             color="gray"
             style={{ margin: "15px", cursor:'default' }}
           />
-          {modalDetails.license ? (
-            <Button
-              style={{cursor:'default'}}
-              label={modalDetails.license}
-              buttonType="bordered"
-              color="orange"
-            />
-          ) : null}
         </div>
         <HorizontalLine />
         <div className={classnames(styles["popup-body"])}>
