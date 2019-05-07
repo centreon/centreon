@@ -188,20 +188,20 @@
       box-shadow: 3px 3px 3px 0 rgba(70,75,82,.5);
       box-sizing: border-box;
       z-index: 99;
-      &.border-turquoise {
+      &.border-2B9E93 {
         border-left: 5px solid $turquoise-centreon-primary;
       }
-      &.border-lime {
+      &.border-85B446 {
         border-left: 5px solid $lime-centreon-primary;
       }
-      &.border-orange {
+      &.border-E4932C {
         border-left: 5px solid $orange-centreon-primary;
       }
-      &.border-lightblue {
-        border-left: 5px solid $lightblue-centreon-primary;
-      }
-      &.border-darkblue {
+      &.border-17387B {
         border-left: 5px solid $darkblue-centreon-primary;
+      }
+      &.border-319ED5 {
+        border-left: 5px solid $lightblue-centreon-primary;
       }
     }
     .collapsed {
