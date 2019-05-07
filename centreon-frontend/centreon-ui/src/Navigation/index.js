@@ -7,6 +7,25 @@ class Navigation extends Component {
     const {customStyle} = this.props;
     return (
       <ul className={classnames(styles["menu"], styles["menu-items"], styles["list-unstyled"], styles[customStyle ? customStyle : ''])}>
+
+        <li className={classnames(styles["menu-item"], styles["color-2B9E93"])}>
+          <span className={classnames(styles["menu-item-link"])}>
+            <span className={classnames(styles["iconmoon"], styles["icon-home "])}>
+              <span className={classnames(styles["menu-item-name"])}>
+                Home
+              </span>
+            </span>
+          </span>
+
+          <ul className={classnames(styles["collapse"], styles["collapsed-items"], styles["list-unstyled"], styles["border-2B9E93"])}>
+            <li className={classnames(styles["collapsed-item"])}>
+              <span className={classnames(styles["collapsed-item-level-link"], styles["color-2B9E93"])}>
+                Custom Views
+              </span>
+            </li>
+          </ul>
+        </li>
+
         <li className={classnames(styles["menu-item"], styles["color-85B446"])}>
           <span className={classnames(styles["menu-item-link"])}>
             <span className={classnames(styles["iconmoon"], styles["icon-monitoring"])}>
