@@ -7,7 +7,7 @@ class Navigation extends Component {
     const {customStyle} = this.props;
     return (
       <ul className={classnames(styles["menu"], styles["menu-items"], styles["list-unstyled"], styles[customStyle ? customStyle : ''])}>
-        <li className={classnames(styles["menu-item"], styles["color-lime"])}>
+        <li className={classnames(styles["menu-item"], styles["color-85B446"])}>
           <span className={classnames(styles["menu-item-link"])}>
             <span className={classnames(styles["iconmoon"], styles["icon-monitoring"])}>
               <span className={classnames(styles["menu-item-name"])}>
@@ -16,32 +16,32 @@ class Navigation extends Component {
             </span>
           </span>
 
-          <ul className={classnames(styles["collapse"], styles["collapsed-items"], styles["list-unstyled"], styles["border-lime"])}>
+          <ul className={classnames(styles["collapse"], styles["collapsed-items"], styles["list-unstyled"], styles["border-85B446"])}>
             <li className={classnames(styles["collapsed-item"])}>
-              <span className={classnames(styles["collapsed-item-level-link"], styles["color-lime"])}>
+              <span className={classnames(styles["collapsed-item-level-link"], styles["color-85B446"])}>
                 Status Details
               </span>
 
-              <ul className={classnames(styles["collapse-level"], styles["collapsed-level-items"], styles["first-level"], styles["towards-down"], styles["list-unstyled"])}>
+              <ul className={classnames(styles["collapse-level"], styles["collapsed-level-items"], styles["first-level"], styles["list-unstyled"])}>
                 <li className={classnames(styles["collapsed-level-item"])}>
-                  <a href="#" className={classnames(styles["collapsed-item-level-link"], styles["color-lime"])}>
+                  <a href="#" className={classnames(styles["collapsed-item-level-link"], styles["color-85B446"])}>
                     <span>Services</span>
                   </a>
                 </li>
                 <li className={classnames(styles["collapsed-level-item"])}>
-                  <a href="#" className={classnames(styles["collapsed-item-level-link"], styles["color-lime"])}>
+                  <a href="#" className={classnames(styles["collapsed-item-level-link"], styles["color-85B446"])}>
                     <span>Hosts</span>
                   </a>
                 </li>
                 <li className={classnames(styles["collapsed-level-item"])}>
-                  <a href="#" className={classnames(styles["collapsed-item-level-link"], styles["color-lime"])}>
+                  <a href="#" className={classnames(styles["collapsed-item-level-link"], styles["color-85B446"])}>
                     <span>Services Grid</span>
                   </a>
                 </li>
               </ul>
             </li>
             <li className={classnames(styles["collapsed-item"])}>
-              <span className={classnames(styles["collapsed-item-level-link"], styles["color-lime"])}>
+              <span className={classnames(styles["collapsed-item-level-link"], styles["color-85B446"])}>
                 Performance
               </span>
 
@@ -50,7 +50,7 @@ class Navigation extends Component {
                   <span>Main Menu</span>
                 </span>
                 <li className={classnames(styles["collapsed-level-item"])}>
-                  <a href="#" className={classnames(styles["collapsed-item-level-link"], styles["color-lime"])}>
+                  <a href="#" className={classnames(styles["collapsed-item-level-link"], styles["color-85B446"])}>
                     <span>Graphs</span>
                   </a>
                 </li>
@@ -58,17 +58,17 @@ class Navigation extends Component {
                   <span>Parameters</span>
                 </span>
                 <li className={classnames(styles["collapsed-level-item"])}>
-                  <a href="#" className={classnames(styles["collapsed-item-level-link"], styles["color-lime"])}>
+                  <a href="#" className={classnames(styles["collapsed-item-level-link"], styles["color-85B446"])}>
                     <span>Templates</span>
                   </a>
                 </li>
                 <li className={classnames(styles["collapsed-level-item"])}>
-                  <a href="#" className={classnames(styles["collapsed-item-level-link"], styles["color-lime"])}>
+                  <a href="#" className={classnames(styles["collapsed-item-level-link"], styles["color-85B446"])}>
                     <span>Curves</span>
                   </a>
                 </li>
                 <li className={classnames(styles["collapsed-level-item"])}>
-                  <a href="#" className={classnames(styles["collapsed-item-level-link"], styles["color-lime"])}>
+                  <a href="#" className={classnames(styles["collapsed-item-level-link"], styles["color-85B446"])}>
                     <span>Virtual Metrics</span>
                   </a>
                 </li>
@@ -77,7 +77,7 @@ class Navigation extends Component {
           </ul>
         </li>
 
-        <li className={classnames(styles["menu-item"], styles["active"], styles["color-orange"])}>
+        <li className={classnames(styles["menu-item"], styles["active"], styles["color-E4932C"])}>
           <span className={classnames(styles["menu-item-link"])}>
             <span className={classnames(styles["iconmoon"], styles["icon-reporting"])}>
               <span className={classnames(styles["menu-item-name"])}>
@@ -86,32 +86,32 @@ class Navigation extends Component {
             </span>
           </span>
 
-          <ul className={classnames(styles["collapse"], styles["collapsed-items"], styles["list-unstyled"], styles["border-orange"])}>
+          <ul className={classnames(styles["collapse"], styles["collapsed-items"], styles["list-unstyled"], styles["border-E4932C"])}>
             <li className={classnames(styles["collapsed-item"], styles["active"])}>
-              <span className={classnames(styles["collapsed-item-level-link"], styles["color-orange"])}>
+              <span className={classnames(styles["collapsed-item-level-link"], styles["color-E4932C"])}>
                 Status Details
               </span>
 
               <ul className={classnames(styles["collapse-level"], styles["collapsed-level-items"], styles["first-level"], styles["list-unstyled"])}>
                 <li className={classnames(styles["collapsed-level-item"])}>
-                  <a href="#" className={classnames(styles["collapsed-item-level-link"], styles["color-orange"])}>
+                  <a href="#" className={classnames(styles["collapsed-item-level-link"], styles["color-E4932C"])}>
                     <span>Services</span>
                   </a>
                 </li>
                 <li className={classnames(styles["collapsed-level-item"])}>
-                  <a href="#" className={classnames(styles["collapsed-item-level-link"], styles["color-orange"])}>
+                  <a href="#" className={classnames(styles["collapsed-item-level-link"], styles["color-E4932C"])}>
                     <span>Hosts</span>
                   </a>
                 </li>
                 <li className={classnames(styles["collapsed-level-item"])}>
-                  <a href="#" className={classnames(styles["collapsed-item-level-link"], styles["color-orange"])}>
+                  <a href="#" className={classnames(styles["collapsed-item-level-link"], styles["color-E4932C"])}>
                     <span>Services Grid</span>
                   </a>
                 </li>
               </ul>
             </li>
             <li className={classnames(styles["collapsed-item"])}>
-              <span className={classnames(styles["collapsed-item-level-link"], styles["color-orange"])}>
+              <span className={classnames(styles["collapsed-item-level-link"], styles["color-E4932C"])}>
                 Performance
               </span>
 
@@ -120,7 +120,7 @@ class Navigation extends Component {
                   <span>Main Menu</span>
                 </span>
                 <li className={classnames(styles["collapsed-level-item"])}>
-                  <a href="#" className={classnames(styles["collapsed-item-level-link"], styles["color-orange"])}>
+                  <a href="#" className={classnames(styles["collapsed-item-level-link"], styles["color-E4932C"])}>
                     <span>Graphs</span>
                   </a>
                 </li>
@@ -128,17 +128,17 @@ class Navigation extends Component {
                   <span>Parameters</span>
                 </span>
                 <li className={classnames(styles["collapsed-level-item"])}>
-                  <a href="#" className={classnames(styles["collapsed-item-level-link"], styles["color-orange"])}>
+                  <a href="#" className={classnames(styles["collapsed-item-level-link"], styles["color-E4932C"])}>
                     <span>Templates</span>
                   </a>
                 </li>
                 <li className={classnames(styles["collapsed-level-item"])}>
-                  <a href="#" className={classnames(styles["collapsed-item-level-link"], styles["color-orange"])}>
+                  <a href="#" className={classnames(styles["collapsed-item-level-link"], styles["color-E4932C"])}>
                     <span>Curves</span>
                   </a>
                 </li>
                 <li className={classnames(styles["collapsed-level-item"])}>
-                  <a href="#" className={classnames(styles["collapsed-item-level-link"], styles["color-orange"])}>
+                  <a href="#" className={classnames(styles["collapsed-item-level-link"], styles["color-E4932C"])}>
                     <span>Virtual Metrics</span>
                   </a>
                 </li>
