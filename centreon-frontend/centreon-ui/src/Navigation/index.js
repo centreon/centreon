@@ -10,7 +10,7 @@ class Navigation extends Component {
 
         <li className={classnames(styles["menu-item"], styles["color-2B9E93"])}>
           <span className={classnames(styles["menu-item-link"])}>
-            <span className={classnames(styles["iconmoon"], styles["icon-home "])}>
+            <span className={classnames(styles["iconmoon"], styles["icon-home"])}>
               <span className={classnames(styles["menu-item-name"])}>
                 Home
               </span>
