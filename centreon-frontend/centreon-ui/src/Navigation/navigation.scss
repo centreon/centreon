@@ -110,6 +110,33 @@
         }
       }
     }
+    &.active {
+      &.color-2B9E93 {
+        .menu-item-link {
+          background-color: $turquoise-centreon-primary;
+        }
+      }
+      &.color-85B446 {
+        .menu-item-link {
+          background-color: $lime-centreon-primary;
+        }
+      }
+      &.color-E4932C {
+        .menu-item-link {
+          background-color: $orange-centreon-primary;
+        }
+      }
+      &.color-17387B {
+        .menu-item-link {
+          background-color: $darkblue-centreon-primary;
+        }
+      }
+      &.color-319ED5 {
+        .menu-item-link {
+          background-color: $lightblue-centreon-primary;
+        }
+      }
+    }
     &:hover {
       .menu-item-name {
         color: $white-color;
@@ -145,33 +172,6 @@
       &.color-319ED5 {
         .menu-item-link {
           background-color: $lightblue-centreon-darken;
-        }
-      }
-    }
-    &.active {
-      &.color-turquoise {
-        .menu-item-link {
-          background-color: $turquoise-centreon-primary;
-        }
-      }
-      &.color-lime {
-        .menu-item-link {
-          background-color: $lime-centreon-primary;
-        }
-      }
-      &.color-orange {
-        .menu-item-link {
-          background-color: $orange-centreon-primary;
-        }
-      }
-      &.color-lightblue {
-        .menu-item-link {
-          background-color: $lightblue-centreon-primary;
-        }
-      }
-      &.color-darkblue {
-        .menu-item-link {
-          background-color: $darkblue-centreon-primary;
         }
       }
     }
@@ -219,49 +219,39 @@
           letter-spacing: -0.4px;
           cursor: pointer;
           &.active {
-            &.color-turquoise {
+            &.color-2B9E93 {
               background-color: $turquoise-centreon-primary;
             }
-            &.color-lime {
+            &.color-85B446 {
               background-color: $lime-centreon-primary;
             }
-            &.color-orange {
+            &.color-E4932C {
               background-color: $orange-centreon-primary;
             }
-            &.color-lightblue {
-              background-color: $lightblue-centreon-primary;
-            }
-            &.color-darkblue {
+            &.color-17387B {
               background-color: $darkblue-centreon-primary;
+            }
+            &.color-319ED5 {
+              background-color: $lightblue-centreon-primary;
             }
           }
           &:hover {
             color: $white-color;
             background-image: none !important;
             &.color-2B9E93 {
-              .menu-item-link {
-                background-color: $turquoise-centreon-darken;
-              }
+              background-color: $turquoise-centreon-darken;
             }
             &.color-85B446 {
-              .menu-item-link {
-                background-color: $lime-centreon-darken;
-              }
+              background-color: $lime-centreon-darken;
             }
             &.color-E4932C {
-              .menu-item-link {
-                background-color: $orange-centreon-darken;
-              }
+              background-color: $orange-centreon-darken;
             }
             &.color-17387B {
-              .menu-item-link {
-                background-color: $darkblue-centreon-darken;
-              }
+              background-color: $darkblue-centreon-darken;
             }
             &.color-319ED5 {
-              .menu-item-link {
-                background-color: $lightblue-centreon-darken;
-              }
+              background-color: $lightblue-centreon-darken;
             }
           }
         }
