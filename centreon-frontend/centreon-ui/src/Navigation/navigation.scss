@@ -260,6 +260,9 @@
           background-repeat: no-repeat;
           background-position: 12px 9px;
           background-color: $grey-classic;
+          &.img-none {
+            background-image: none;
+          }
         }
         &:hover {
           .collapsed-level-items {
