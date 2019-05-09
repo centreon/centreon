@@ -4,6 +4,7 @@ import styles from './sidebar.scss';
 import Logo from '../Logo';
 import LogoMini from '../Logo/LogoMini';
 import Navigation from '../Navigation';
+import mock from './navigationMock';
 
 class Sidebar extends Component {
   
@@ -27,7 +28,7 @@ class Sidebar extends Component {
             <Logo onClick={this.toggleNavigation} /> : 
             <LogoMini onClick={this.toggleNavigation} />
           }
-          <Navigation customStyle={active ? "menu-big" : 'menu-small'} />
+          <Navigation customStyle={active ? "menu-big" : 'menu-small'} navigationData={mock}/>
           <div className={classnames(styles["sidebar-toggle-wrap"])} onClick={this.toggleNavigation} >
             <span className={classnames(styles["sidebar-toggle-icon"])}></span>
           </div>
