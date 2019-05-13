@@ -21,7 +21,7 @@
 
 $module_conf['centreon-open-tickets']["rname"] = "Centreon Open Tickets";
 $module_conf['centreon-open-tickets']["name"] = "centreon-open-tickets";
-$module_conf['centreon-open-tickets']["mod_release"] = "19.04.0";
+$module_conf['centreon-open-tickets']["mod_release"] = "19.10.0";
 $module_conf['centreon-open-tickets']["infos"] = "Centreon Open Tickets is a community module developed to create tickets to your favorite ITSM tools using API.
 
 Once done provider configuration, the module allows for an operator to create tickets for hosts and services in a non-ok state using a dedicated widget. Indeed, a button associated with each host or service allows you to connect to the API and create the ticket while offering the possibility to acknowledge at the same time the object.

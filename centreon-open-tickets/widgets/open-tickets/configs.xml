@@ -4,7 +4,7 @@
   <email>contact@centreon.com</email>
   <website>http://www.centreon.com</website>
   <description>This widget is associated to the Open Tickets Module and allows for selecting hosts or services events for which to create tickets in your favorite ITSM tools. This widget can also list already created tickets with their ID and datetime.</description>
-  <version>19.04.0</version>
+  <version>19.10.0</version>
   <keywords>centreon, widget, tickets</keywords>
   <screenshot></screenshot>
   <thumbnail>./widgets/open-tickets/resources/centreon-logo.png</thumbnail>
@@ -39,13 +39,13 @@
     <preference label="Output" name="output_search" defaultValue="" type="compare" />
     <preference label="Ticket ID" name="ticket_id_search" defaultValue="" type="text"/>
     <preference label="Ticket Subject" name="ticket_subject_search" defaultValue="" type="text"/>
-    
+
     <preference label="Display Severities" name="display_severities" defaultValue="1" type="boolean" header="Columns"/>
     <preference label="Display Host Name" name="display_host_name" defaultValue="1" type="boolean" />
     <preference label="Display Service Description" name="display_svc_description" defaultValue="1" type="boolean"/>
     <preference label="Display Output" name="display_output" defaultValue="1" type="boolean"/>
     <preference label="Output Length" name="output_length" defaultValue="50" type="range" min="50" max="500" step="50"/>
-    <preference label="Display Status" name="display_status" defaultValue="1" type="boolean"/>			
+    <preference label="Display Status" name="display_status" defaultValue="1" type="boolean"/>
     <preference label="Display Last Check" name="display_last_check" defaultValue="1" type="boolean"/>
     <preference label="Display Duration" name="display_duration" defaultValue="1" type="boolean"/>
     <preference label="Display Hard State Duration" name="display_hard_state_duration" defaultValue="1" type="boolean"/>
@@ -77,5 +77,5 @@
     <preference label="Enable action tickets for hosts" name="action_open_hosts" defaultValue="1" type="boolean"/>
     <preference label="Enable action tickets for services" name="action_open_services" defaultValue="1" type="boolean"/>
     <preference label="Enable action acknowledgement" name="action_ack" defaultValue="0" type="boolean"/>
-  </preferences>        
+  </preferences>
 </configs>
