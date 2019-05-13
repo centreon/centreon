@@ -20,6 +20,7 @@ class Sidebar extends Component {
   };
 
   render() { 
+    const {navigationData} = this.props;
     const {active} = this.state;
     return ( 
       <nav className={classnames(styles["sidebar"], styles[active ? "active" : "mini"])} id="sidebar">
@@ -28,7 +29,7 @@ class Sidebar extends Component {
             <Logo onClick={this.toggleNavigation} /> : 
             <LogoMini onClick={this.toggleNavigation} />
           }
-          <Navigation customStyle={active ? "menu-big" : 'menu-small'} navigationData={mock}/>
+          <Navigation customStyle={active ? "menu-big" : 'menu-small'} navigationData={navigationData || []}/>
           <div className={classnames(styles["sidebar-toggle-wrap"])} onClick={this.toggleNavigation} >
             <span className={classnames(styles["sidebar-toggle-icon"])}></span>
           </div>
