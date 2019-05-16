@@ -91,6 +91,11 @@
 		        {/if}
 		        {if $preferences.display_svc_description}
 	                <td class=''>
+			{if $elem.perfdata != ""}
+			    <a target=_blank href='{$centreon_web_path}main.php?p=204&amp;mode=0&svc_id={$elem.encoded_hostname};{$elem.encoded_description}'>
+                                <img src='{$centreon_web_path}img/icons/chart.png' class='ico-18' title='{$title_graph}' />
+                            </a>
+			{/if}
                         {if $preferences.display_status == 0}
                             <div>
                                 <span class="state_badge" style="background-color: {$elem.color}"></span>
