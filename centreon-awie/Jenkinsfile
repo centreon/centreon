@@ -24,6 +24,14 @@ stage('Source') {
     source = readProperties file: 'source.properties'
     env.VERSION = "${source.VERSION}"
     env.RELEASE = "${source.RELEASE}"
+    publishHTML([
+      allowMissing: false,
+      keepAll: true,
+      reportDir: 'summary',
+      reportFiles: 'index.html',
+      reportName: 'Centreon AWIE Build Artifacts',
+      reportTitles: ''
+    ])
   }
 }
 
