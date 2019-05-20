@@ -24,6 +24,14 @@ stage('Source') {
     source = readProperties file: 'source.properties'
     env.VERSION = "${source.VERSION}"
     env.RELEASE = "${source.RELEASE}"
+    publishHTML([
+      allowMissing: false,
+      keepAll: true,
+      reportDir: 'summary',
+      reportFiles: 'index.html',
+      reportName: 'Centreon DSM Build Artifacts',
+      reportTitles: ''
+    ])
     if ((env.BUILD == 'RELEASE') || (env.BUILD == 'REFERENCE')) {
       withSonarQubeEnv('SonarQube') {
         sh "./centreon-build/jobs/dsm/${serie}/dsm-analysis.sh"
