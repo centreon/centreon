@@ -1,13 +1,11 @@
-import React, {Component} from 'react';
-import classnames from 'classnames';
-import styles from './sidebar.scss';
-import Logo from '../Logo';
-import LogoMini from '../Logo/LogoMini';
-import Navigation from '../Navigation';
-import mock from './navigationMock';
+import React, { Component } from "react";
+import classnames from "classnames";
+import styles from "./sidebar.scss";
+import Logo from "../Logo";
+import LogoMini from "../Logo/LogoMini";
+import Navigation from "../Navigation";
 
 class Sidebar extends Component {
-  
   state = {
     active: false
   };
@@ -19,24 +17,41 @@ class Sidebar extends Component {
     });
   };
 
-  render() { 
-    const {navigationData} = this.props;
-    const {active} = this.state;
-    return ( 
-      <nav className={classnames(styles["sidebar"], styles[active ? "active" : "mini"])} id="sidebar">
+  render() {
+    const { navigationData, reactRoutes, handleDirectClick, onNavigate } = this.props;
+    const { active } = this.state;
+    return (
+      <nav
+        className={classnames(
+          styles["sidebar"],
+          styles[active ? "active" : "mini"]
+        )}
+        id="sidebar"
+      >
         <div className={classnames(styles["sidebar-inner"])}>
-          {active ? 
-            <Logo onClick={this.toggleNavigation} /> : 
+          {active ? (
+            <Logo onClick={this.toggleNavigation} />
+          ) : (
             <LogoMini onClick={this.toggleNavigation} />
-          }
-          <Navigation customStyle={active ? "menu-big" : 'menu-small'} navigationData={navigationData || []}/>
-          <div className={classnames(styles["sidebar-toggle-wrap"])} onClick={this.toggleNavigation} >
-            <span className={classnames(styles["sidebar-toggle-icon"])}></span>
+          )}
+          <Navigation
+            customStyle={active ? "menu-big" : "menu-small"}
+            navigationData={navigationData || []}
+            reactRoutes={reactRoutes || {}}
+            sidebarActive={active}
+            onNavigate={onNavigate}
+            handleDirectClick={handleDirectClick}
+          />
+          <div
+            className={classnames(styles["sidebar-toggle-wrap"])}
+            onClick={this.toggleNavigation}
+          >
+            <span className={classnames(styles["sidebar-toggle-icon"])} />
           </div>
         </div>
       </nav>
     );
   }
 }
- 
+
 export default Sidebar;
