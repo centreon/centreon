@@ -5,7 +5,8 @@ import BoundingBox from "../BoundingBox";
     
 class Navigation extends Component { 
   state = {
-    activeSecondLevel: null
+    activeSecondLevel: null,
+    navigatedPageId: false
   };
 
   getUrlFromEntry = entryProps => {
@@ -37,20 +38,35 @@ class Navigation extends Component {
     return index;
   }
 
+  onNavigate = (id, url) => {
+    const {onNavigate} = this.props;
+    this.setState({
+      navigatedPageId:id
+    })
+    onNavigate(id,url);
+  }
+
   render() {
-    const { customStyle, navigationData, sidebarActive, handleDirectClick, onNavigate, externalHistory, reactRoutes } = this.props;
-    const { activeSecondLevel } = this.state;
+    const { customStyle, navigationData, sidebarActive, handleDirectClick, externalHistory, reactRoutes } = this.props;
+    const { activeSecondLevel, navigatedPageId } = this.state;
     if(!externalHistory){
       return null;
     }
     const { pathname, search } = externalHistory.location;
     let pageId = "";
-    if (search.match(/p=/)) {
-      pageId = search.split("p=")[1];
-    } else { 
-      pageId = reactRoutes[pathname] || pathname;
+    
+    if(navigatedPageId){
+      pageId = navigatedPageId;
+    }else{
+      if (search.match(/p=/)) {
+        pageId = search.split("p=")[1];
+      } else { 
+        pageId = reactRoutes[pathname] || pathname;
+      }
     }
+
     const activeIndex = this.getActiveTopLevelIndex(pageId);
+
 
     return (
       <ul
@@ -123,7 +139,7 @@ class Navigation extends Component {
                     })}
                     onClick={() => {
                       if(secondLevel.groups.length < 1){
-                        onNavigate(secondLevel.page,secondLevelUrl)
+                        this.onNavigate(secondLevel.page,secondLevelUrl)
                       }else if (
                           !isNaN(pageId) &&
                           String(pageId).charAt(0) == firstLevel.page
@@ -208,7 +224,7 @@ class Navigation extends Component {
                                     >
                                       <a
                                         onClick={() => {
-                                            onNavigate(thirdLevel.page,thirdLevelUrl)
+                                            this.onNavigate(thirdLevel.page,thirdLevelUrl)
                                         }}
                                         className={classnames(
                                           styles["collapsed-item-level-link"],
