@@ -18,7 +18,7 @@ class Sidebar extends Component {
   };
 
   render() {
-    const { navigationData, reactRoutes, handleDirectClick, onNavigate } = this.props;
+    const { navigationData, reactRoutes, handleDirectClick, onNavigate, externalHistory } = this.props;
     const { active } = this.state;
     return (
       <nav
@@ -41,6 +41,7 @@ class Sidebar extends Component {
             sidebarActive={active}
             onNavigate={onNavigate}
             handleDirectClick={handleDirectClick}
+            externalHistory={externalHistory}
           />
           <div
             className={classnames(styles["sidebar-toggle-wrap"])}

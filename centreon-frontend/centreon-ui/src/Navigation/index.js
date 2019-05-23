@@ -7,18 +7,6 @@ class Navigation extends Component {
   state = {
     activeSecondLevel: null
   };
- 
-  getPageId = () => {
-    const { pathname, search } = window.location;
-    let pageId = "";
-    if (search.match(/p=/)) {
-      pageId = search.split("p=")[1];
-    } else { 
-      const { reactRoutes } = this.props;
-      pageId = reactRoutes[pathname] || pathname;
-    }
-    return pageId;
-  };
 
   getUrlFromEntry = entryProps => {
     const urlOptions =
@@ -50,9 +38,18 @@ class Navigation extends Component {
   }
 
   render() {
-    const { customStyle, navigationData, sidebarActive, handleDirectClick, onNavigate } = this.props;
+    const { customStyle, navigationData, sidebarActive, handleDirectClick, onNavigate, externalHistory, reactRoutes } = this.props;
     const { activeSecondLevel } = this.state;
-    const pageId = this.getPageId();
+    if(!externalHistory){
+      return null;
+    }
+    const { pathname, search } = externalHistory.location;
+    let pageId = "";
+    if (search.match(/p=/)) {
+      pageId = search.split("p=")[1];
+    } else { 
+      pageId = reactRoutes[pathname] || pathname;
+    }
     const activeIndex = this.getActiveTopLevelIndex(pageId);
 
     return (
