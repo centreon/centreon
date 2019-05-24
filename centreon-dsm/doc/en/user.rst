@@ -212,4 +212,4 @@ Configure Traps links
 
 One thing is different compared to Centreon Trap system is that you cannot link directly the service template of the slot to the trap in order to not received x time the trap (x represent here the number of slots). 
 
-You have to create dummy service completely passive. This service will be link to the trap that you want to redirect to slots. You can call this service trap-link. This service can stay disable in order to not show it in the monitoring page. 
+You have to link traps to an active service of the resource, for example the Ping service.

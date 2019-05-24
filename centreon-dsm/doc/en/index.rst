@@ -10,7 +10,7 @@ Contents:
 .. toctree::
    :maxdepth: 2
 
-   installation/index
+   installation
    upgrade/index
-   user/index
+   user
    administration
