@@ -12,6 +12,16 @@ stage('Source') {
 }
 
 try {
+  stage('Bundle') {
+    node {
+      sh 'setup_centreon_build.sh'
+      sh "./centreon-build/jobs/react-components/react-components-bundle.sh"
+    }
+    if ((currentBuild.result ?: 'SUCCESS') != 'SUCCESS') {
+      error('Bundle stage failure.');
+    }
+  }
+
   stage('Delivery') {
     node {
       sh 'setup_centreon_build.sh'
