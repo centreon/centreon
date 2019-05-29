@@ -1159,16 +1159,15 @@ Output: {$service.output|substr:0:1024}
         if (!isset($_SESSION['ot_cache_' . $this->_rule_id][$key])) {
             return null;
         }
-        if (!is_null())
-        $cacheJson = file_get_contents($cacheFile);
-        $cache = json_decode($cacheJson, true);
+
         if (!is_null($_SESSION['ot_cache_' . $this->_rule_id][$key]['ttl'])) {
             $timeTtl = $_SESSION['ot_cache_' . $this->_rule_id][$key]['ttl'] + $_SESSION['ot_cache_' . $this->_rule_id][$key]['created'];
             if ($timeTtl < time()) {
-                unlink($_SESSION['ot_cache_' . $this->_rule_id][$key]);
+                unset($_SESSION['ot_cache_' . $this->_rule_id][$key]);
                 return null;
             }
         }
+
         return $_SESSION['ot_cache_' . $this->_rule_id][$key]['value'];
     }
     
