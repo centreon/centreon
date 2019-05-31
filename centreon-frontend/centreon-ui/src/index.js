@@ -67,6 +67,7 @@ export { default as SwitcherMode } from "./Switcher/SwitcherMode";
 export { default as Tabs } from "./Tab";
 export { default as Tab } from "./Tab/Tab";
 export { default as Table } from "./Table";
+export {default as TableDefault} from "./Table/TableDefault";
 export { default as TableDynamic } from "./Table/TableDynamic";
 export { default as TableCounter } from "./Table/TableCounter";
 export { default as Title } from "./Title";

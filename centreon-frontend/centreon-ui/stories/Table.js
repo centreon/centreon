@@ -2,9 +2,10 @@ import React from "react";
 import styles from '../src/global-sass-files/_helpers.scss';
 import  classnames from 'classnames';
 import {storiesOf} from "@storybook/react";
-import {Table, TableDynamic, Title, Button} from "../src";
+import {Table, TableDefault, TableDynamic, Title, Button} from "../src";
 
-storiesOf("Table", module).add("Table - custom", () => <Table />, {notes: "A very simple component"});
+storiesOf("Table", module).add("Table - default", () => <TableDefault fields={[]} />, {notes: "A very simple component"});
+storiesOf("Table", module).add("Table - custom", () => <Table fields={[]} />, {notes: "A very simple component"});
 storiesOf("Table", module).add("Table Dynamic - custom", () => <React.Fragment>
   <Title titleColor="host" label="Resource discovry wizard" />
   <TableDynamic/>
