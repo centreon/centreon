@@ -164,6 +164,7 @@ const StyledTableRow = withStyles({
     '&:nth-of-type(odd)': {
       backgroundColor: "#e3f2fd",
     },
+    cursor: 'pointer'
   }
 })(TableRow);
 
