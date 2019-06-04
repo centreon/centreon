@@ -477,6 +477,9 @@
           &-items {
             display: block !important;
             position: static !important;
+            max-height: 446px;
+            overflow-y: auto;
+            overflow-x: hidden;
           }
           &-item {
             &:hover {
