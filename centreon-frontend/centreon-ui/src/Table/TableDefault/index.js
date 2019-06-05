@@ -65,6 +65,7 @@ const headRows = [
   { id: 'activate', numeric: true, disablePadding: false, label: 'Activate' },
   { id: 'calculation', numeric: true, disablePadding: false, label: 'Calculation method' },
   { id: 'description', numeric: true, disablePadding: false, label: 'Description' },
+  { id: '#', numeric: true, disablePadding: false, label: '' },
 ];
 
 function EnhancedTableHead(props) {
@@ -145,7 +146,6 @@ EnhancedTableHead.propTypes = {
 const useStyles = makeStyles(theme => ({
   root: {
     width: '100%',
-    marginTop: theme.spacing(3),
   },
   paper: {
     width: '100%',
@@ -355,6 +355,8 @@ function EnhancedTable() {
                       <StyledTableCell2 align="left">{row.activate}</StyledTableCell2>
                       <StyledTableCell2 align="left">{row.calculation}</StyledTableCell2>
                       <StyledTableCell2 align="left">{row.description}</StyledTableCell2>
+
+                      <StyledTableCell2 align="left">Icons</StyledTableCell2>
                     </StyledTableRow>
                   );
                 })}

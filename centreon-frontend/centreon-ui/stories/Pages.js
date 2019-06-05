@@ -28,8 +28,21 @@ import {
   ListSortable,
   CustomRow,
   CustomColumn,
-  CustomStyles
+  CustomStyles,
+  Breadcrumb,
+  Divider,
+  InputFieldSearch,
+  ButtonCustom,
+  TableDefault,
+  IconDelete,
+  IconLibraryAdd,
+  IconPowerSettings,
+  IconInsertChart
 } from "../src";
+import clsx from 'clsx';
+import { makeStyles } from '@material-ui/core/styles';
+import Typography from '@material-ui/core/Typography';
+import Paper from '@material-ui/core/Paper';
 
 // Extensions Page
 storiesOf("Pages", module).add("Extensions page", () => (
@@ -1151,3 +1164,43 @@ storiesOf("Pages", module).add("Corelations Capabilities page", () => (
     </CustomStyles>
   </CustomStyles>
 ), {notes: "A very simple component"});
+
+storiesOf("Pages", module).add("BAM page", 
+() => {
+  return (
+  <React.Fragment>
+    <Breadcrumb />
+    <Divider />
+    <Paper elevation={0} style={{overflow: 'hidden'}}>
+      <CustomRow>
+        <CustomColumn customColumn="md-4" additionalStyles={["flex-none", "container__col-xs-12", "m-0", "mr-2"]}>
+          <InputFieldSearch />
+        </CustomColumn>
+        <CustomColumn customColumn="md-4" additionalStyles={["flex-none", "container__col-xs-12", "m-0"]}>
+        <ButtonCustom label="ADD" />
+        </CustomColumn>
+      </CustomRow>
+    </Paper>
+    <Divider />
+    <Paper elevation={0} style={{padding: '8px 16px'}}>
+      <CustomRow>
+        <CustomColumn customColumn="md-3" additionalStyles={["flex-none", "container__col-xs-12"]}>
+          <IconDelete />
+        </CustomColumn>
+        <CustomColumn customColumn="md-3" additionalStyles={["flex-none", "container__col-xs-12"]}>
+          <IconLibraryAdd />
+        </CustomColumn>
+        <CustomColumn customColumn="md-3" additionalStyles={["flex-none", "container__col-xs-12"]}>
+          <IconInsertChart />
+        </CustomColumn>
+        <CustomColumn customColumn="md-3" additionalStyles={["flex-none", "container__col-xs-12"]}>
+          <IconPowerSettings />
+        </CustomColumn>
+      </CustomRow>
+    </Paper>
+    <Paper elevation={0} style={{padding: '8px 16px', paddingTop: 0}}>
+      <TableDefault />
+    </Paper>
+  </React.Fragment>)},
+  {notes: "A very simple component"}
+);
