@@ -892,12 +892,19 @@ Output: {$service.output|substr:0:1024}
                 $id = '-1';
                 $value = '';
                 $matches = array();
-                if (preg_match('/^(.*?)_(.*)$/', $this->_submitted_config['select_' . $values['Id']], $matches)) {
+                if (preg_match('/^(.*?)___(.*?)___(.*)$/', $this->_submitted_config['select_' . $values['Id']], $matches)) {
+                    $id = $matches[1];
+                    $value = $matches[2];
+                    $placeholder = $matches[3];
+                } elseif (preg_match('/^(.*?)_(.*)$/', $this->_submitted_config['select_' . $values['Id']], $matches)) {
                     $id = $matches[1];
                     $value = $matches[2];
                 }
-
-                $select_lists[$values['Id']] = array('label' => _($values['Label']), 'id' => $id, 'value' => $value);
+                if (!empty($placeholder) && isset($placeholder)) {
+                    $select_lists[$values['Id']] = array('label' => _($values['Label']), 'id' => $id, 'value' => $value, 'placeholder' => $placeholder);
+                } else {
+                    $select_lists[$values['Id']] = array('label' => _($values['Label']), 'id' => $id, 'value' => $value);
+                }
                 if (method_exists($this, $method_name)) {
                     $more_attributes = $this->{$method_name}($values['Id'], $id);
                     $select_lists[$values['Id']] = array_merge($select_lists[$values['Id']], $more_attributes);
