@@ -897,7 +897,7 @@ Output: {$service.output|substr:0:1024}
                     $id = $matches[1];
                     $value = $matches[2];
                     $placeholder = $matches[3];
-                } elseif (preg_match('/^(.*?)_(.*)$/', $this->_submitted_config['select_' . $values['Id']], $matches)) {
+                } elseif (preg_match('/^(.*?)___(.*)$/', $this->_submitted_config['select_' . $values['Id']], $matches)) {
                     $id = $matches[1];
                     $value = $matches[2];
                 }
