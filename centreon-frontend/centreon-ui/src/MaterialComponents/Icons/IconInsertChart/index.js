@@ -28,10 +28,10 @@ function IconInsertChart() {
   const classes = useStyles();
 
   return (
-    <div className={classes.root}>
+    <React.Fragment>
       <InsertChart className={classes.icon} />
       <span className={classes.iconLabel}>Massive change</span>
-    </div>
+    </React.Fragment>
   );
 }
 

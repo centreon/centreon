@@ -15,26 +15,28 @@ import KeyboardArrowLeft from '@material-ui/icons/KeyboardArrowLeft';
 import KeyboardArrowRight from '@material-ui/icons/KeyboardArrowRight';
 import LastPageIcon from '@material-ui/icons/LastPage';
 import Checkbox from '@material-ui/core/Checkbox';
-import IconPowerSettings from '../../MaterialComponents/Icons/IconPowerSettings'
+import IconPowerSettings from '../../MaterialComponents/Icons/IconPowerSettings';
+import IconDelete from '../../MaterialComponents/Icons/IconDelete';
+import IconLibraryAdd from '../../MaterialComponents/Icons/IconLibraryAdd';
 
 function createData(name, activate, calculation, description) {
   return { name, activate, calculation, description };
 }
 
 const rows = [
-  createData('Cupcake', 332, 3.7, 67, 4.3),
-  createData('Donut', 332, 25.0, 51, 4.9),
-  createData('Eclair', 332, 16.0, 24, 6.0),
-  createData('Frozen yoghurt', 332, 6.0, 24, 4.0),
-  createData('Gingerbread', 332, 16.0, 49, 3.9),
-  createData('Honeycomb', 332, 3.2, 87, 6.5),
-  createData('Ice cream sandwich', 332, 9.0, 37, 4.3),
-  createData('Jelly Bean', 332, 0.0, 94, 0.0),
-  createData('KitKat', 332, 26.0, 65, 7.0),
-  createData('Lollipop', 332, 0.2, 98, 0.0),
-  createData('Marshmallow', 332, 0, 81, 2.0),
-  createData('Nougat', 332, 19.0, 9, 37.0),
-  createData('Oreo', 332, 18.0, 63, 4.0),
+  createData('Long text Test long test test test test long text test test test', <IconPowerSettings active={true}/>, 3.7, 67, 4.3),
+  createData('Donut', <IconPowerSettings />, 25.0, 51, 4.9),
+  createData('Eclair', <IconPowerSettings />, 16.0, 24, 6.0),
+  createData('Frozen yoghurt', <IconPowerSettings />, 6.0, 24, 4.0),
+  createData('Gingerbread', <IconPowerSettings />, 16.0, 49, 3.9),
+  createData('Honeycomb', <IconPowerSettings />, 3.2, 87, 6.5),
+  createData('Ice cream sandwich', <IconPowerSettings />, 9.0, 37, 4.3),
+  createData('Jelly Bean', <IconPowerSettings />, 0.0, 94, 0.0),
+  createData('KitKat', <IconPowerSettings />, 26.0, 65, 7.0),
+  createData('Lollipop', <IconPowerSettings />, 0.2, 98, 0.0),
+  createData('Marshmallow', <IconPowerSettings />, 0, 81, 2.0),
+  createData('Nougat', <IconPowerSettings />, 19.0, 9, 37.0),
+  createData('Oreo', <IconPowerSettings />, 18.0, 63, 4.0),
 ];
 
 function desc(a, b, orderBy) {
@@ -63,6 +65,7 @@ function getSorting(order, orderBy) {
 
 const headRows = [
   { id: 'name', numeric: false, disablePadding: true, label: 'Name' },
+  { id: '#', numeric: true, disablePadding: false, label: '' },
   { id: 'activate', numeric: true, disablePadding: false, label: 'Activate' },
   { id: 'calculation', numeric: true, disablePadding: false, label: 'Calculation method' },
   { id: 'description', numeric: true, disablePadding: false, label: 'Description' },
@@ -167,7 +170,7 @@ const StyledTableRow = withStyles({
     '&:hover': {
       backgroundColor: '#cae6f1 !important',
     },
-    cursor: 'pointer'
+    cursor: 'pointer',
   }
 })(TableRow);
 
@@ -176,6 +179,17 @@ const StyledTableCell2 = withStyles({
     padding: '3px 24px 3px 16px',
     fontSize: '13px',
   }
+})(TableCell);
+
+const TableCellCustom = withStyles({
+  root: {
+    maxWidth: 90,
+    whiteSpace: 'nowrap',
+    textOverflow: 'ellipsis',
+    overflow: 'hidden',
+    fontSize: 13,
+    padding: '3px 24px 3px 16px',
+  },
 })(TableCell);
 
 const StyledCheckbox = withStyles({
@@ -194,7 +208,7 @@ const StyledPagination = withStyles({
   }
 })(TablePagination);
 
-function EnhancedTable() {
+function TableCustom() {
 
   const classes = useStyles();
   const [order, setOrder] = React.useState('asc');
@@ -352,8 +366,12 @@ function EnhancedTable() {
                       <StyledTableCell2 align="left" className={classes.tableCell} padding="checkbox">
                         <StyledCheckbox checked={isItemSelected} color="primary"/>
                       </StyledTableCell2>
-                      <StyledTableCell2 align="left">
+                      <TableCellCustom align="left" className={classes.tableCellCustom}>
                         {row.name}
+                      </TableCellCustom>
+                      <StyledTableCell2 hover>
+                        <IconDelete customStyle={{color: '#707070', fontSize: 20}} />
+                        <IconLibraryAdd customStyle={{color: '#707070', marginLeft: '14px', fontSize: 20}} />
                       </StyledTableCell2>
                       <StyledTableCell2 align="left">{row.activate}</StyledTableCell2>
                       <StyledTableCell2 align="left">{row.calculation}</StyledTableCell2>
@@ -362,7 +380,7 @@ function EnhancedTable() {
                   );
                 })}
               {emptyRows > 0 && (
-                <StyledTableRow style={{ height: 49 * emptyRows }}>
+                <StyledTableRow>
                   <StyledTableCell2 align="left" colSpan={6} />
                 </StyledTableRow>
               )}
@@ -388,4 +406,4 @@ function EnhancedTable() {
   );
 }
 
-export default EnhancedTable;
+export default TableCustom;

@@ -37,12 +37,12 @@ const useStyles = makeStyles(theme => ({
   bottomLine: {
     content: '""',
     position: 'absolute',
-    height: 1,
+    height: 2,
     width: '100%',
     backgroundColor: '#009fdf',
     left: '50%',
     right: 0,
-    bottom: 0,
+    bottom: -1,
     transform: 'translateX(-50%)',
   }
 }));

@@ -33,7 +33,7 @@ import {
   Divider,
   InputFieldSearch,
   ButtonCustom,
-  TableDefault,
+  TableCustom,
   IconDelete,
   IconLibraryAdd,
   IconPowerSettings,
@@ -1182,21 +1182,21 @@ storiesOf("Pages", module).add("BAM page",
     <Paper elevation={0} style={{padding: '8px 16px'}}>
       <CustomRow>
         <CustomColumn customColumn="md-3" additionalStyles={["flex-none", "container__col-xs-12"]}>
-          <IconDelete />
+          <IconDelete label="Delete" />
         </CustomColumn>
         <CustomColumn customColumn="md-3" additionalStyles={["flex-none", "container__col-xs-12"]}>
-          <IconLibraryAdd />
+          <IconLibraryAdd label="Duplicate" />
         </CustomColumn>
         <CustomColumn customColumn="md-3" additionalStyles={["flex-none", "container__col-xs-12"]}>
           <IconInsertChart />
         </CustomColumn>
         <CustomColumn customColumn="md-3" additionalStyles={["flex-none", "container__col-xs-12"]}>
-          <IconPowerSettings customStyle={{backgroundColor: '#009fdf'}} label="Enable/Disable"/>
+          <IconPowerSettings customStyle={{backgroundColor: '#009fdf', marginTop: 2}} label="Enable/Disable"/>
         </CustomColumn>
       </CustomRow>
     </Paper>
     <Paper elevation={0} style={{padding: '8px 16px', paddingTop: 0}}>
-      <TableDefault />
+      <TableCustom />
     </Paper>
   </React.Fragment>)},
   {notes: "A very simple component"}

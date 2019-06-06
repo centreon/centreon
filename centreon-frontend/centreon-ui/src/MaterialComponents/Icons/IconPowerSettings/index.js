@@ -48,10 +48,10 @@ function IconPowerSettings({label, active, customStyle}) {
   const classes = useStyles();
 
   return (
-    <div className={classes.root}>
+    <React.Fragment>
       <PowerSettings style={customStyle} className={active ? classes.iconActive : classes.iconNormal} />
       {label && <span className={classes.iconLabel}>{label}</span>}
-    </div>
+    </React.Fragment>
   );
 }
 

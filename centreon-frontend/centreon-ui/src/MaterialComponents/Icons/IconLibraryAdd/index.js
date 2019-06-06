@@ -24,14 +24,14 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
-function IconLibraryAdd() {
+function IconLibraryAdd({label, customStyle}) {
   const classes = useStyles();
 
   return (
-    <div className={classes.root}>
-      <LibraryAdd className={classes.icon} />
-      <span className={classes.iconLabel}>Duplicate</span>
-    </div>
+    <React.Fragment>
+      <LibraryAdd style={customStyle} className={classes.icon} />
+      {label && <span className={classes.iconLabel}>{label}</span>}
+    </React.Fragment>
   );
 }
 

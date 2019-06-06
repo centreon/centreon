@@ -24,14 +24,14 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-function IconDelete() {
+function IconDelete({label, customStyle}) {
   const classes = useStyles();
 
   return (
-    <div className={classes.root}>
-      <Delete className={classes.icon} />
-      <span className={classes.iconLabel}>Delete</span>
-    </div>
+    <React.Fragment>
+      <Delete style={customStyle} className={classes.icon} />
+      {label && <span className={classes.iconLabel}>{label}</span>}
+    </React.Fragment>
   );
 }
 
