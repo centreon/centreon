@@ -39,9 +39,6 @@ import {
   IconPowerSettings,
   IconInsertChart
 } from "../src";
-import clsx from 'clsx';
-import { makeStyles } from '@material-ui/core/styles';
-import Typography from '@material-ui/core/Typography';
 import Paper from '@material-ui/core/Paper';
 
 // Extensions Page
@@ -1194,7 +1191,7 @@ storiesOf("Pages", module).add("BAM page",
           <IconInsertChart />
         </CustomColumn>
         <CustomColumn customColumn="md-3" additionalStyles={["flex-none", "container__col-xs-12"]}>
-          <IconPowerSettings />
+          <IconPowerSettings customStyle={{backgroundColor: '#009fdf'}} label="Enable/Disable"/>
         </CustomColumn>
       </CustomRow>
     </Paper>

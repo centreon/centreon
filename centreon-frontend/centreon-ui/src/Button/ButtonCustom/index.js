@@ -26,7 +26,7 @@ function ButtonCusom({label}) {
 
   return (
     <Button variant="contained" color="secondary" className={classes.button}>
-      <AddIcon className={classes.leftIcon} iconSize="small" />
+      <AddIcon className={classes.leftIcon} iconsize="small" />
       {label}
     </Button>
   );

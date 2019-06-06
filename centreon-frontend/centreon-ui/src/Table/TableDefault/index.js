@@ -15,25 +15,26 @@ import KeyboardArrowLeft from '@material-ui/icons/KeyboardArrowLeft';
 import KeyboardArrowRight from '@material-ui/icons/KeyboardArrowRight';
 import LastPageIcon from '@material-ui/icons/LastPage';
 import Checkbox from '@material-ui/core/Checkbox';
+import IconPowerSettings from '../../MaterialComponents/Icons/IconPowerSettings'
 
 function createData(name, activate, calculation, description) {
   return { name, activate, calculation, description };
 }
 
 const rows = [
-  createData('Cupcake', 305, 3.7, 67, 4.3),
-  createData('Donut', 452, 25.0, 51, 4.9),
-  createData('Eclair', 262, 16.0, 24, 6.0),
-  createData('Frozen yoghurt', 159, 6.0, 24, 4.0),
-  createData('Gingerbread', 356, 16.0, 49, 3.9),
-  createData('Honeycomb', 408, 3.2, 87, 6.5),
-  createData('Ice cream sandwich', 237, 9.0, 37, 4.3),
-  createData('Jelly Bean', 375, 0.0, 94, 0.0),
-  createData('KitKat', 518, 26.0, 65, 7.0),
-  createData('Lollipop', 392, 0.2, 98, 0.0),
-  createData('Marshmallow', 318, 0, 81, 2.0),
-  createData('Nougat', 360, 19.0, 9, 37.0),
-  createData('Oreo', 437, 18.0, 63, 4.0),
+  createData('Cupcake', <IconPowerSettings active={true}/>, 3.7, 67, 4.3),
+  createData('Donut', <IconPowerSettings />, 25.0, 51, 4.9),
+  createData('Eclair', <IconPowerSettings />, 16.0, 24, 6.0),
+  createData('Frozen yoghurt', <IconPowerSettings />, 6.0, 24, 4.0),
+  createData('Gingerbread', <IconPowerSettings />, 16.0, 49, 3.9),
+  createData('Honeycomb', <IconPowerSettings />, 3.2, 87, 6.5),
+  createData('Ice cream sandwich', <IconPowerSettings />, 9.0, 37, 4.3),
+  createData('Jelly Bean', <IconPowerSettings />, 0.0, 94, 0.0),
+  createData('KitKat', <IconPowerSettings />, 26.0, 65, 7.0),
+  createData('Lollipop', <IconPowerSettings />, 0.2, 98, 0.0),
+  createData('Marshmallow', <IconPowerSettings />, 0, 81, 2.0),
+  createData('Nougat', <IconPowerSettings />, 19.0, 9, 37.0),
+  createData('Oreo', <IconPowerSettings />, 18.0, 63, 4.0),
 ];
 
 function desc(a, b, orderBy) {
@@ -105,7 +106,7 @@ const StyledTableSortLabel = withStyles({
   return (
     <TableHead>
       <TableRow>
-        <StyledTableCell padding="checkbox">
+        <StyledTableCell align="left" padding="checkbox">
           <StyledCheckbox
             indeterminate={numSelected > 0 && numSelected < rowCount}
             checked={numSelected === rowCount}
@@ -171,7 +172,7 @@ const StyledTableRow = withStyles({
 const StyledTableCell2 = withStyles({
   root: {
     padding: '3px 24px 3px 16px',
-    fontSize: '13px'
+    fontSize: '13px',
   }
 })(TableCell);
 
@@ -346,10 +347,10 @@ function EnhancedTable() {
                       key={row.name}
                       selected={isItemSelected}
                     >
-                      <StyledTableCell2 className={classes.tableCell} padding="checkbox">
+                      <StyledTableCell2 align="left" className={classes.tableCell} padding="checkbox">
                         <StyledCheckbox checked={isItemSelected} color="primary"/>
                       </StyledTableCell2>
-                      <StyledTableCell2>
+                      <StyledTableCell2 align="left">
                         {row.name}
                       </StyledTableCell2>
                       <StyledTableCell2 align="left">{row.activate}</StyledTableCell2>
@@ -362,7 +363,7 @@ function EnhancedTable() {
                 })}
               {emptyRows > 0 && (
                 <StyledTableRow style={{ height: 49 * emptyRows }}>
-                  <StyledTableCell2 colSpan={6} />
+                  <StyledTableCell2 align="left" colSpan={6} />
                 </StyledTableRow>
               )}
             </TableBody>
