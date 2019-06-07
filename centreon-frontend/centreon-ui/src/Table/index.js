@@ -33,7 +33,7 @@ class Table extends Component {
             </tr>
           </thead>
           <tbody>
-            {data.map((row, rowIndex) => (
+            {data ? data.map((row, rowIndex) => (
               <tr key={"tableRow" + rowIndex}>
                 {fields.map(({ type, key, values }, index) => {
                   let subComponent = (
@@ -66,7 +66,7 @@ class Table extends Component {
                 })}
                 {pagination ? <td key={"tablePagination" + rowIndex} /> : null}
               </tr>
-            ))}
+            )) : []}
           </tbody>
         </table>
         <div class={classnames(styles["text-center"])}>
