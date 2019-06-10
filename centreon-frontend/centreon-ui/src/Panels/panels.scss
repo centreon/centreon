@@ -1,0 +1,118 @@
+@import '../global-sass-files/variables';
+@import '../global-sass-files/mixins';
+@import '../global-sass-files/helpers';
+@import '../global-sass-files/grid';
+
+// Extensions panel
+.panels {
+  position: fixed;
+  top: 56px;
+  right: 0;
+  bottom: 0;
+  max-width: 1100px;
+  z-index: 33;
+  display: none;
+  &-dialog {
+    position: relative;
+    height: 100%;
+  }
+  &-body {
+    display: flex;
+    justify-content: flex-end;
+    position: relative;
+    height: 100%;
+  }
+  &.panels-small {
+    .panel-header, .panel-body, .panel-footer {
+      padding: 20px;
+    }
+    .panel-body {
+      padding: 5px 25px;
+    }
+    @media (min-width: 576px) {
+      .panel-dialog {
+        max-width: 300px;
+        width: 100%;
+        @include centerAbsolute();
+      }
+    }
+    .panel-footer {
+      &.m-0 {
+        .message-error {
+          margin-top: 0;
+        }
+      }
+    }
+  }
+  &.panels-big {
+    .panel-header, .panel-body, .panel-footer {
+      padding: 25px 80px;
+      @media (max-width: 700px) {
+        padding: 10px 20px;
+      }
+    }
+    @media (min-width: 576px) {
+      .panel-dialog {
+        max-width: 780px;
+      }
+    }
+  }
+  &-header {
+    padding: 14px 15px 10px;
+    background-color: #ededed;
+  }
+  &-content {
+    position: relative;
+    width: 100%;
+    pointer-events: auto;
+    background-color: #fff;
+    outline: 0;
+    box-sizing: border-box;
+  }
+  &-overlay {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 1040;
+    background-color: #000;
+    opacity: .7;
+  }
+  &-item-inner {
+    overflow-y: auto;
+    max-height: 700px;
+    margin-right: 20px;
+  }
+  &-arrow {
+    background-color: #ededed;
+    border: 1px solid #D6D6D8;
+    border-top: none;
+    border-bottom: none;
+    width: 20px;
+    height: 100%;
+    display: block;
+    position: absolute;
+    right: 0;
+    top: 1px;
+    box-sizing: border-box;
+    cursor: pointer;
+    svg {
+      position: absolute;
+      width: 20px;
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      cursor: pointer;
+      font-size: 15px;
+    }
+  }
+  &-second-active {
+    .panels-arrow {
+      right: 500px;
+    }
+  }
+  &-active {
+    display: block;
+  }
+}

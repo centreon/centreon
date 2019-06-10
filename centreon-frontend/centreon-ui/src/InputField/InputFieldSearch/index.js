@@ -23,9 +23,7 @@ const useStyles = makeStyles(theme => ({
     boxShadow: 'none',
     borderRadius: 0,
     position: 'relative',
-  },
-  paper: {
-    padding: theme.spacing(1, 2),
+    boxSizing: 'border-box',
   },
   input: {
     marginLeft: 8,
@@ -47,12 +45,12 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-export default function InputFieldSearch() {
+export default function InputFieldSearch({customStyle}) {
   const classes = useStyles();
 
   return (
-    <Paper elevation={0} className={classes.paper}>
-      <Paper className={classes.root}>
+    <Paper elevation={0}>
+      <Paper className={classes.root} style={customStyle}>
         <IconButton className={classes.iconButton} aria-label="Search">
           <SearchIcon fontSize='small' />
         </IconButton>

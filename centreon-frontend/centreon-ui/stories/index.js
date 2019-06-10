@@ -17,6 +17,7 @@ import "./MixedComponents";
 import "./Navigation";
 import "./Pages";
 import "./Pagination";
+import './Panels';
 import "./Popup";
 import "./ProgressBar";
 import "./RadioButton";

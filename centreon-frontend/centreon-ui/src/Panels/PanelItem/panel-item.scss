@@ -1,0 +1,31 @@
+@import '../../global-sass-files/variables';
+
+.panel-item {
+  position: relative;
+  overflow-y: auto;
+  overflow-x: hidden;
+  box-sizing: border-box;
+  max-height: 650px;
+  &-small {
+    width: 500px;
+    padding: 20px;
+    background-color: #c7c8c9;
+    display: none;
+    .panel-item-title {
+      text-align: center;
+      font-family: $primary-font-regular;
+      font-size: 16px;
+      line-height: 18px;
+      padding-bottom: 20px;
+      margin-bottom: 30px;
+      border-bottom: 1px solid;
+    }
+  }
+  &-big {
+    width: 580px;
+    margin-right: 20px;
+  }
+  &-show {
+    display: block;
+  }
+}

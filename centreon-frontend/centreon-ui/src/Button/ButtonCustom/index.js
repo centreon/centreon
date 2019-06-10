@@ -12,6 +12,7 @@ const useStyles = makeStyles(theme => ({
     color: '#fff',
     fontSize: 12,
     padding: '5px 10px',
+    marginTop: 0,
     '&:hover': {
       backgroundColor: '#1e68a9'
     }
@@ -21,11 +22,11 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
-function ButtonCusom({label}) {
+function ButtonCusom({label, onClick}) {
   const classes = useStyles();
 
   return (
-    <Button variant="contained" color="secondary" className={classes.button}>
+    <Button onClick={onClick} variant="contained" color="secondary" className={classes.button}>
       <AddIcon className={classes.leftIcon} iconsize="small" />
       {label}
     </Button>

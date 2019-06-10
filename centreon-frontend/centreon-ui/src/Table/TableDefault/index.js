@@ -64,7 +64,7 @@ function getSorting(order, orderBy) {
 const headRows = [
   { id: 'name', numeric: false, disablePadding: true, label: 'Name' },
   { id: 'activate', numeric: true, disablePadding: false, label: 'Activate' },
-  { id: 'calculation', numeric: true, disablePadding: false, label: 'Calculation method' },
+  { id: 'calculation', numeric: true, disablePadding: false, label: 'Calculation' },
   { id: 'description', numeric: true, disablePadding: false, label: 'Description' },
 ];
 
@@ -79,7 +79,7 @@ const StyledTableCell = withStyles({
     backgroundColor: "#009fdf",
     color: "#fff",
     height: '24px',
-    padding: '6px 24px 6px 16px',
+    padding: '6px 8px 6px 8px !important',
     '&:hover': {
       color: "#fff",
    },
@@ -151,9 +151,6 @@ const useStyles = makeStyles(theme => ({
     width: '100%',
     marginBottom: theme.spacing(2),
   },
-  table: {
-    minWidth: 750,
-  },
   tableWrapper: {
     overflowX: 'auto',
   }
@@ -173,7 +170,7 @@ const StyledTableRow = withStyles({
 
 const StyledTableCell2 = withStyles({
   root: {
-    padding: '3px 24px 3px 16px',
+    padding: '3px 24px 3px 8px !important',
     fontSize: '13px',
   }
 })(TableCell);
