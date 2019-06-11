@@ -6,8 +6,8 @@
 // Extensions panel
 .panels {
   position: fixed;
-  top: 56px;
-  right: 0;
+  top: 64px;
+  right: 8px;
   bottom: 0;
   max-width: 1100px;
   z-index: 33;
@@ -60,6 +60,11 @@
   &-header {
     padding: 14px 15px 10px;
     background-color: #ededed;
+    z-index: 9;
+    position: relative;
+    box-shadow: 0px 3px 4px 0px rgba(0,0,0,0.15);
+    -webkit-box-shadow: 0px 3px 4px 0px rgba(0,0,0,0.15);
+    -moz-box-shadow: 0px 3px 4px 0px rgba(0,0,0,0.15);
   }
   &-content {
     position: relative;
@@ -82,7 +87,7 @@
   &-item-inner {
     overflow-y: auto;
     max-height: 700px;
-    margin-right: 20px;
+    padding: 20px;
   }
   &-arrow {
     background-color: #ededed;

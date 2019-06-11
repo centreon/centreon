@@ -1,11 +1,50 @@
 import React from "react";
 import { storiesOf } from "@storybook/react";
-import {Panels} from "../src";
+import {
+  Panels,
+  Wrapper,
+  Header,
+  SubmenuHeader,
+  Sidebar
+} from "../src";
+import mock from "../src/Sidebar/mock2";
+import reactMock from "../src/Sidebar/reactRoutesMock";
+
+storiesOf("Panels", module).add("Panels", () => <Panels panelTtype="small" />, {
+  notes: "A very simple component"
+});
 
 storiesOf("Panels", module).add(
-  "Panels",
+  "Panels - with header and menu",
   () => (
-    <Panels panelTtype="small" />
+    <React.Fragment>
+      <Wrapper style={{ alignItems: "stretch", display: "flex", padding: 0}}>
+        <Sidebar
+          navigationData={mock}
+          externalHistory={window}
+          reactRoutes={reactMock}
+          onNavigate={(id, url) => {
+            window.location =
+              "/iframe.hqtml" +
+              replaceQueryParam("p", id, window.location.search);
+          }}
+          handleDirectClick={(id, url) => {
+            console.log(id, url);
+          }}
+        />
+        <div
+          className="content"
+          style={{ display: "flex", flexDirection: "column", width: "100%" }}
+        >
+          <Header style={{ height: "56px", width: "100%", marginBottom: 20 }}>
+            <SubmenuHeader submenuType="header" />
+            <SubmenuHeader submenuType="header" />
+            <SubmenuHeader submenuType="header" />
+          </Header>
+          <Panels panelTtype="small" />
+        </div>
+      </Wrapper>
+    </React.Fragment>
   ),
   { notes: "A very simple component" }
 );

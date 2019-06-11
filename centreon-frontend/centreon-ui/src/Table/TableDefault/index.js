@@ -170,7 +170,7 @@ const StyledTableRow = withStyles({
 
 const StyledTableCell2 = withStyles({
   root: {
-    padding: '3px 24px 3px 8px !important',
+    padding: '3px 15px 3px 8px !important',
     fontSize: '13px',
   }
 })(TableCell);
@@ -187,7 +187,8 @@ const StyledCheckbox = withStyles({
 const StyledPagination = withStyles({
   toolbar: {
     height: '32px',
-    minHeight: 'auto'
+    minHeight: 'auto',
+    paddingLeft: 4,
   }
 })(TablePagination);
 

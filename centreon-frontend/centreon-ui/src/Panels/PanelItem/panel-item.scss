@@ -2,13 +2,8 @@
 
 .panel-item {
   position: relative;
-  overflow-y: auto;
-  overflow-x: hidden;
-  box-sizing: border-box;
-  max-height: 650px;
   &-small {
     width: 500px;
-    padding: 20px;
     background-color: #c7c8c9;
     display: none;
     .panel-item-title {
@@ -22,8 +17,9 @@
     }
   }
   &-big {
-    width: 580px;
+    width: 540px;
     margin-right: 20px;
+    background-color: #ededed;
   }
   &-show {
     display: block;

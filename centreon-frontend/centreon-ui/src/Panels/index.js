@@ -57,9 +57,11 @@ class Panels extends React.Component {
                 </div>
               </PanelItem>
               <PanelItem panelItemType="small" panelItemShow={panelItemActive ? "panel-item-show" : ''}>
-                <h3 className={classnames(styles2["panel-item-title"])}>Manage Business View</h3>
-                <InputFieldSearch customStyle={{width: '100%', marginBottom: 15}} />
-                <TableDefault />
+                <div className={classnames(styles["panels-item-inner"])}>
+                  <h3 className={classnames(styles2["panel-item-title"])}>Manage Business View</h3>
+                  <InputFieldSearch customStyle={{width: '100%', marginBottom: 15}} />
+                  <TableDefault />
+                </div>
               </PanelItem>
               <span className={classnames(styles["panels-arrow"], panelItemActive ? styles["panels-arrow-right"] : '')} onClick={this.toggleSecondPanel.bind(this)}>
                 {panelItemActive ? 
@@ -70,7 +72,9 @@ class Panels extends React.Component {
             </div>
           </div>
         </div>
-        <ButtonCustom label="ADD" onClick={this.togglePanel.bind(this)} />
+        <div>
+          <ButtonCustom label="ADD" onClick={this.togglePanel.bind(this)} />
+        </div>
       </React.Fragment>
     )
   }
