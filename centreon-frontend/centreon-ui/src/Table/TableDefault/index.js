@@ -15,7 +15,6 @@ import KeyboardArrowLeft from '@material-ui/icons/KeyboardArrowLeft';
 import KeyboardArrowRight from '@material-ui/icons/KeyboardArrowRight';
 import LastPageIcon from '@material-ui/icons/LastPage';
 import Checkbox from '@material-ui/core/Checkbox';
-import IconPowerSettings from '../../MaterialComponents/Icons/IconPowerSettings'
 
 function createData(name, activate, calculation, description) {
   return { name, activate, calculation, description };
@@ -69,6 +68,7 @@ const headRows = [
 ];
 
 function EnhancedTableHead(props) {
+  const classes = useStyles();
   const { onSelectAllClick, order, orderBy, numSelected, rowCount, onRequestSort } = props;
   const createSortHandler = property => event => {
     onRequestSort(event, property);
@@ -79,14 +79,15 @@ const StyledTableCell = withStyles({
     backgroundColor: "#009fdf",
     color: "#fff",
     height: '24px',
+    zIndex: 4,
     padding: '6px 8px 6px 8px !important',
     '&:hover': {
       color: "#fff",
-   },
+    }
   },
   body: {
     fontSize: 12,
-    textAlign: "left"
+    textAlign: "left",
   }
 })(TableCell);
 
@@ -105,7 +106,7 @@ const StyledTableSortLabel = withStyles({
   return (
     <TableHead>
       <TableRow>
-        <StyledTableCell align="left" padding="checkbox">
+        <StyledTableCell align="left" padding="checkbox" className={classes.header}>
           <StyledCheckbox
             indeterminate={numSelected > 0 && numSelected < rowCount}
             checked={numSelected === rowCount}
@@ -114,6 +115,7 @@ const StyledTableSortLabel = withStyles({
         </StyledTableCell>
         {headRows.map(row => (
           <StyledTableCell
+            className={classes.header}
             key={row.id}
             align={row.numeric ? 'left' : ''}
             padding={row.disablePadding ? 'none' : 'default'}
@@ -153,6 +155,11 @@ const useStyles = makeStyles(theme => ({
   },
   tableWrapper: {
     overflowX: 'auto',
+  },
+  header: {
+    backgroundColor: '#fff',
+    position: 'sticky',
+    top: 0,
   }
 }));
 

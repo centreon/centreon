@@ -4,11 +4,11 @@ import {
   Panels,
   Wrapper,
   Header,
-  SubmenuHeader,
   Sidebar
 } from "../src";
 import mock from "../src/Sidebar/mock2";
 import reactMock from "../src/Sidebar/reactRoutesMock";
+import SubmenuHeader from '../src/Submenu/SubmenuHeader/Mocked-Submenu';
 
 storiesOf("Panels", module).add("Panels", () => <Panels panelTtype="small" />, {
   notes: "A very simple component"

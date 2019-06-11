@@ -1199,7 +1199,6 @@ storiesOf("Pages", module).add("BAM page",
     <Paper elevation={0} style={{padding: '8px 16px', paddingTop: 0}}>
       <TableCustom />
     </Paper>
-    <Panels panelTtype="small" />
   </React.Fragment>)},
   {notes: "A very simple component"}
 );

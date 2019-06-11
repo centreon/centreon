@@ -17,6 +17,9 @@ const useStyles = makeStyles(theme => ({
   },
   customStyle: {
     margin: '0 !important',
+    backgroundColor: 'transparent',
+    boxShadow: 'none',
+    borderBottom: '1px solid #bcbdc0',
   }
 }));
 
