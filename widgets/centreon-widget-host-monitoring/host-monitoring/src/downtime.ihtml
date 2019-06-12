@@ -1,4 +1,6 @@
 <form name="Form" id="Form">
+    <input type="hidden" id="duration_scale" value="s" />
+    <input type="hidden" id="duration" value="{$duration}" />
 	<table class="table">
 		<tr>
 			<td style="color: #00bfb3;" class ="FormHeader" colspan="2">
@@ -27,9 +29,10 @@
 		<tr>
 			<td class="FormRowField">{$durationLabel}</td>
 			<td class="FormRowValue">
-				<input type='text' name='dayduration' size='2' value='0' />&nbsp;{$daysLabel}
-				<input type='text' name='hourduration' value='{$defaultDuration}' size='2' />&nbsp;{$hoursLabel}
-				<input type='text' name='minuteduration' size='2' value='0' />&nbsp;{$minutesLabel}
+				<input type='text' name='dayduration' size='2' value='{$defaultDayDuration}' />&nbsp;{$daysLabel}
+				<input type='text' name='hourduration' size='2' value='{$defaultHourDuration}' />&nbsp;{$hoursLabel}
+				<input type='text' name='minuteduration' size='2' value='{$defaultMinuteDuration}' />&nbsp;{$minutesLabel}
+                <input type='text' name='secondduration' size='5' value='{$defaultSecondDuration}' />&nbsp;{$secondsLabel}
 			</td>
 		</tr>
 
