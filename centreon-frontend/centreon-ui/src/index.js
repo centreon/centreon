@@ -95,12 +95,14 @@ export { default as ExtensionDeletePopup } from "./ExtensionDeletePopup";
 export { default as Axios } from "./Axios";
 export { default as Loader } from "./Loader";
 
+// Material Components
 export {default as Accordion} from "./MaterialComponents/Accordion";
 export {default as IconDelete} from "./MaterialComponents/Icons/IconDelete";
 export {default as IconCloseNew} from "./MaterialComponents/Icons/IconClose";
 export {default as IconInsertChart} from "./MaterialComponents/Icons/IconInsertChart";
 export {default as IconLibraryAdd} from "./MaterialComponents/Icons/IconLibraryAdd";
 export {default as IconPowerSettings} from "./MaterialComponents/Icons/IconPowerSettings";
+export {default as MaterialSwtich} from './MaterialComponents/Switch';
 
 export {default as MaterialTabs} from "./MaterialComponents/Tabs";
 export {default as MaterialTable} from "./MaterialComponents/Table";

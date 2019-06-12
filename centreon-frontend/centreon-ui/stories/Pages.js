@@ -134,7 +134,7 @@ storiesOf("Pages", module).add("Extensions page", () => (
               <CustomStyles customStyles={["custom-title-heading"]}>
                 <Title
                   icon="object"
-                  label="Engine-status"
+                  label="Plugin Packs Manager"
                   customTitleStyles="custom-title-styles"
                   onClick={() => {
                   alert("Card clicked- open popin");
@@ -170,7 +170,7 @@ storiesOf("Pages", module).add("Extensions page", () => (
               <CustomStyles customStyles={["custom-title-heading"]}>
                 <Title
                   icon="object"
-                  label="Engine-status"
+                  label="Plugin Packs Manager"
                   customTitleStyles="custom-title-styles"
                   onClick={() => {
                   alert("Card clicked- open popin");
@@ -211,7 +211,7 @@ storiesOf("Pages", module).add("Extensions page", () => (
               <CustomStyles customStyles={["custom-title-heading"]}>
                 <Title
                   icon="object"
-                  label="Engine-status"
+                  label="Plugin Packs Manager"
                   customTitleStyles="custom-title-styles"
                   onClick={() => {
                   alert("Card clicked- open popin");
@@ -244,7 +244,7 @@ storiesOf("Pages", module).add("Extensions page", () => (
               <CustomStyles customStyles={["custom-title-heading"]}>
                 <Title
                   icon="object"
-                  label="Engine-status"
+                  label="Plugin Packs Manager"
                   customTitleStyles="custom-title-styles"
                   onClick={() => {
                   alert("Card clicked- open popin");
@@ -1169,7 +1169,7 @@ storiesOf("Pages", module).add("BAM page",
   <React.Fragment>
     <Breadcrumb />
     <Divider />
-    <Paper elevation={0} style={{overflow: 'hidden'}}>
+    <Paper elevation={0} style={{overflow: 'hidden', padding: '8px 16px'}}>
       <CustomRow>
         <CustomColumn customColumn="md-4" additionalStyles={["flex-none", "container__col-xs-12", "m-0", "mr-2"]}>
           <InputFieldSearch />

@@ -52,12 +52,12 @@ class Panels extends React.Component {
             </div>
             <div className={classnames(styles["panels-body"])}>
               <PanelItem panelItemType="big">
-                <div className={classnames(styles["panels-item-inner"])}>
+                <div className={classnames(styles2["panel-item-inner"])}>
                   <Accordion />
                 </div>
               </PanelItem>
               <PanelItem panelItemType="small" panelItemShow={panelItemActive ? "panel-item-show" : ''}>
-                <div className={classnames(styles["panels-item-inner"])}>
+                <div className={classnames(styles2["panel-item-inner"])}>
                   <h3 className={classnames(styles2["panel-item-title"])}>Manage Business View</h3>
                   <InputFieldSearch customStyle={{width: '100%', marginBottom: 15}} />
                   <TableDefault />

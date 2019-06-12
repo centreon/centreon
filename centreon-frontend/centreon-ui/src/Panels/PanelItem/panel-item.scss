@@ -15,6 +15,9 @@
       margin-bottom: 30px;
       border-bottom: 1px solid;
     }
+    .panel-item-inner {
+      padding: 20px;
+    }
   }
   &-big {
     width: 540px;
@@ -23,5 +26,9 @@
   }
   &-show {
     display: block;
+  }
+  &-inner {
+    overflow-y: auto;
+    max-height: 700px;
   }
 }
