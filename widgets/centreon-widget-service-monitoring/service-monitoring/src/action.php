@@ -74,6 +74,17 @@ try {
         $gmt = date_default_timezone_get();
     }
 
+    $defaultDuration = 7200;
+    $defaultScale = 's';
+    $duration = $defaultDuration;
+    if ($defaultScale == 'm') {
+        $duration *= 60;
+    } elseif ($defaultScale == 'h') {
+        $duration *= 3600;
+    } elseif ($defaultScale == 'd') {
+        $duration *= 86400;
+    }
+
     if ($cmd == 72 || $cmd == 75 || $cmd == 70 || $cmd == 74) {
         $path = $centreon_path . "www/widgets/service-monitoring/src/";
         $template = new Smarty();
@@ -140,8 +151,8 @@ try {
             $hourStart = $centreon->CentreonGMT->getDate("H", time(), $gmt);
             $minuteStart = $centreon->CentreonGMT->getDate("i", time(), $gmt);
 
-            $hourEnd = $centreon->CentreonGMT->getDate("H", time() + 7200, $gmt);
-            $minuteEnd = $centreon->CentreonGMT->getDate("i", time() + 7200, $gmt);
+            $hourEnd = $centreon->CentreonGMT->getDate("H", time() + $duration, $gmt);
+            $minuteEnd = $centreon->CentreonGMT->getDate("i", time() + $duration, $gmt);
 
             $template->assign('downtimeHostSvcLabel', _("Set downtime on services of hosts"));
             if ($cmd == 75) {
@@ -167,7 +178,12 @@ try {
 
             $template->assign('titleLabel', $title);
             $template->assign('submitLabel', _("Set Downtime"));
-            $template->assign('defaultDuration', 2);
+            $template->assign('defaultSecondDuration', $defaultScale == 's' ? $defaultDuration : '0');
+            $template->assign('defaultHourDuration', $defaultScale == 'h' ? $defaultDuration : '0');
+            $template->assign('defaultMinuteDuration', $defaultScale == 'm' ? $defaultDuration : '0');
+            $template->assign('defaultDayDuration',  $defaultScale == 'd' ? $defaultDuration : '0');
+            $template->assign('duration', $duration); // In seconds
+            $template->assign('secondsLabel', _("seconds"));
             $template->assign('daysLabel', _("days"));
             $template->assign('hoursLabel', _("hours"));
             $template->assign('minutesLabel', _("minutes"));
@@ -302,7 +318,9 @@ try {
 
         //initializing datepicker and timepicker
         initDatepicker("datepicker", "yy/mm/dd", "0");
-        jQuery("#start_time,#end_time").timepicker();
+        jQuery("#start_time, #end_time").timepicker();
+
+        turnOnEvents();
     });
 
     function closeBox()
@@ -341,10 +359,12 @@ try {
             jQuery("[name=dayduration]").attr('disabled', true);
             jQuery("[name=hourduration]").attr('disabled', true);
             jQuery("[name=minuteduration]").attr('disabled', true);
+            jQuery("[name=secondduration]").attr('disabled', true);
         } else {
             jQuery("[name=dayduration]").removeAttr('disabled');
             jQuery("[name=hourduration]").removeAttr('disabled');
             jQuery("[name=minuteduration]").removeAttr('disabled');
+            jQuery("[name=secondduration]").removeAttr('disabled');
         }
     }
 </script>
