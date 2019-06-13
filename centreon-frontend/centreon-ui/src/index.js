@@ -40,6 +40,7 @@ export { default as InputField } from "./InputField";
 export { default as InputFieldSelect } from "./InputField/InputFieldSelect";
 export { default as InputFieldTextarea } from "./InputField/InputFieldTextarea";
 export { default as InputFieldMultiSelect } from "./InputField/InputFieldMultiSelect";
+export { default as InputFieldMultiSelectNew } from "./InputField/InputFieldMultiSelectNew";
 export { default as InputFieldSearch } from "./InputField/InputFieldSearch";
 export { default as InputFieldSelectCustom } from "./InputField/InputFieldSelectCustom";
 export { default as ListSortable } from "./List/ListSortable";

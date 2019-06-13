@@ -1,0 +1,17 @@
+@import '../../global-sass-files/variables';
+
+.multi-select {
+  display: block;
+  &-input {
+    border: none;
+    background-color: #dfdfdf;
+    padding: 5px 20px;
+    border-radius: 20px;
+    width: 100%;
+    box-sizing: border-box;
+    cursor: pointer;
+    &:focus {
+      outline: none;
+    }
+  }
+}

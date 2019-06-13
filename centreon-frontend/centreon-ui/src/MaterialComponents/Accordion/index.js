@@ -9,6 +9,7 @@ import FormControlLabel from '@material-ui/core/FormControlLabel';
 import IconWarning from '@material-ui/icons/Warning';
 import IconError from '@material-ui/icons/Error';
 import InputField from '../../InputField';
+import InputFieldMultiSelectNew from '../../InputField/InputFieldMultiSelectNew';
 import InputFieldMultiSelect from '../../InputField/InputFieldSelectCustom';
 import CustomRow from '../../Custom/CustomRow';
 import CustomColumn from '../../Custom/CustomColumn';
@@ -18,7 +19,6 @@ import MaterialSwitch from '../Switch';
 const useStyles = makeStyles(theme => ({
   root: {
     width: '100%',
-    overflow: 'hidden',
   },
   heading: {
     fontSize: theme.typography.pxToRem(15),
@@ -29,6 +29,12 @@ const useStyles = makeStyles(theme => ({
     backgroundColor: 'transparent',
     boxShadow: 'none',
     borderBottom: '1px solid #bcbdc0',
+  },
+  activeStyle: {
+    backgroundColor: '#c7c8c9',
+  },
+  additionalStyles: {
+    display: 'block',
   }
 }));
 
@@ -98,7 +104,7 @@ function Accordion() {
         >
           <Typography className={classes.heading}>Indicator</Typography>
         </ExpansionPanelSummary>
-        <ExpansionPanelDetails>
+        <ExpansionPanelDetails className={classes.additionalStyles}>
           <CustomRow>
             <CustomColumn customColumn="md-6">
               <IconInfo iconText="Status calculation method" />
@@ -136,6 +142,29 @@ function Accordion() {
               </CustomRow>
             </CustomColumn>
           </CustomRow>
+          <CustomRow>
+            <CustomColumn customColumn="md-12" additionalStyles={["mb-1"]}>
+              <IconInfo iconText="Number of indicators (5)" />
+            </CustomColumn>
+            <CustomColumn customColumn="md-6">
+              <InputFieldMultiSelectNew placeholder="BA-CIO-Indicator 1" />
+            </CustomColumn>
+            <CustomColumn customColumn="md-6">
+              <InputFieldMultiSelectNew placeholder="BA-CIO-Indicator 2" />
+            </CustomColumn>
+            <CustomColumn customColumn="md-6">
+              <InputFieldMultiSelectNew placeholder="BA-CIO-Indicator 3" />
+            </CustomColumn>
+            <CustomColumn customColumn="md-6">
+              <InputFieldMultiSelectNew placeholder="BA-CIO-Indicator 4" />
+            </CustomColumn>
+            <CustomColumn customColumn="md-6">
+              <InputFieldMultiSelectNew placeholder="BA-CIO-Indicator 5" />
+            </CustomColumn>
+            <CustomColumn customColumn="md-6">
+              <InputFieldMultiSelectNew />
+            </CustomColumn>
+          </CustomRow>
         </ExpansionPanelDetails>
       </ExpansionPanel>
       <ExpansionPanel className={classes.customStyle}>
@@ -146,11 +175,30 @@ function Accordion() {
         >
           <Typography className={classes.heading}>Busniness View</Typography>
         </ExpansionPanelSummary>
-        <ExpansionPanelDetails>
-          <Typography>
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse malesuada lacus ex,
-            sit amet blandit leo lobortis eget.
-          </Typography>
+        <ExpansionPanelDetails className={classes.activeStyle}>
+          <CustomRow>
+            <CustomColumn customColumn="md-12" additionalStyles={["mb-1"]}>
+              <IconInfo iconText="Number of views (5)" />
+            </CustomColumn>
+            <CustomColumn customColumn="md-6">
+              <InputFieldMultiSelectNew placeholder="BA-CIO-Indicator 1" />
+            </CustomColumn>
+            <CustomColumn customColumn="md-6">
+              <InputFieldMultiSelectNew placeholder="BA-CIO-Indicator 2" />
+            </CustomColumn>
+            <CustomColumn customColumn="md-6">
+              <InputFieldMultiSelectNew placeholder="BA-CIO-Indicator 3" />
+            </CustomColumn>
+            <CustomColumn customColumn="md-6">
+              <InputFieldMultiSelectNew placeholder="BA-CIO-Indicator 4" />
+            </CustomColumn>
+            <CustomColumn customColumn="md-6">
+              <InputFieldMultiSelectNew placeholder="BA-CIO-Indicator 5" />
+            </CustomColumn>
+            <CustomColumn customColumn="md-6">
+              <InputFieldMultiSelectNew />
+            </CustomColumn>
+          </CustomRow>
         </ExpansionPanelDetails>
       </ExpansionPanel>
       <ExpansionPanel className={classes.customStyle}>
