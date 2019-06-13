@@ -1,7 +1,7 @@
 <?php
 /**
- * Copyright 2005-2015 CENTREON
- * Centreon is developped by : Julien Mathis and Romain Le Merlus under
+ * Copyright 2005-2019 Centreon
+ * Centreon is developed by : Julien Mathis and Romain Le Merlus under
  * GPL Licence 2.0.
  *
  * This program is free software; you can redistribute it and/or modify it under
@@ -84,7 +84,7 @@ $serviceStateColors = array(
     4 => "#2AD1D4"
 );
 
-while ($row = $res->fetchRow()) {
+while ($row = $res->fetch()) {
     if ($row['key'] == "color_up") {
         $hostStateColors[0] = $row['value'];
     } elseif ($row['key'] == "color_down") {
@@ -153,7 +153,7 @@ if (isset($preferences['enable_detailed_mode']) && $preferences['enable_detailed
     $detailMode = true;
 }
 $data = array();
-while ($row = $res->fetchRow()) {
+while ($row = $res->fetch()) {
     foreach ($row as $key => $value) {
         $hostgroup[$key] = $value;
     }

@@ -1,7 +1,7 @@
 <?php
 /**
- * Copyright 2005-2015 CENTREON
- * Centreon is developped by : Julien Mathis and Romain Le Merlus under
+ * Copyright 2005-2019 Centreon
+ * Centreon is developed by : Julien Mathis and Romain Le Merlus under
  * GPL Licence 2.0.
  *
  * This program is free software; you can redistribute it and/or modify it under
@@ -73,7 +73,7 @@ class HostgroupMonitoring
         }
         $query .= " ORDER BY h.name ";
         $res = $this->dbb->query($query);
-        while ($row = $res->fetchRow()) {
+        while ($row = $res->fetch()) {
             $k = $row['hgname'];
             if ($detailFlag == true) {
                 if (!isset($data[$k]['host_state'][$row['name']])) {
@@ -105,33 +105,35 @@ class HostgroupMonitoring
         if (!count($data)) {
             return array();
         }
-        $query = "SELECT DISTINCT h.host_id, s.state, h.name, s.service_id, s.description, hhg.hostgroup_id, hg.name as hgname, ";
-        $query .= " (case s.state when 0 then 3 when 2 then 0 when 3 then 2  when 3 then 2 else s.state END) as tri ";
-        $query .= "FROM hosts_hostgroups hhg, hosts h, services s, hostgroups hg ";
+        $query = "SELECT DISTINCT
+                h.host_id, s.state, h.name, s.service_id, s.description, hhg.hostgroup_id, hg.name as hgname,
+                (case s.state when 0 then 3 when 2 then 0 when 3 then 2  when 3 then 2 else s.state END) as tri
+            FROM hosts_hostgroups hhg, hosts h, services s, hostgroups hg ";
         if (!$admin) {
-          $query .= ", centreon_acl acl ";
+            $query .= ", centreon_acl acl ";
         }
         $query .= "WHERE h.host_id = hhg.host_id
-                        AND hhg.host_id = s.host_id
-                        AND s.enabled = 1
-                        AND h.enabled = 1
-                        AND hhg.hostgroup_id = hg.hostgroup_id
-                        AND hg.name IN ('".implode("', '", array_keys($data))."') ";
+            AND hhg.host_id = s.host_id
+            AND s.enabled = 1
+            AND h.enabled = 1
+            AND hhg.hostgroup_id = hg.hostgroup_id
+            AND hg.name IN ('".implode("', '", array_keys($data))."') ";
         if (!$admin) {
             $query .= " AND h.host_id = acl.host_id
-                        AND acl.service_id = s.service_id
-                        AND acl.group_id IN (".$aclObj->getAccessGroupsString().")";
+                AND acl.service_id = s.service_id
+                AND acl.group_id IN (".$aclObj->getAccessGroupsString().")";
         }
-        $query .= " ORDER BY tri, description ASC"; 
+        $query .= " ORDER BY tri, description ASC";
         $res = $this->dbb->query($query);
-        while ($row = $res->fetchRow()) {
+        while ($row = $res->fetch()) {
             $k = $row['hgname'];
             if ($detailFlag == true) {
                 if (!isset($data[$k]['service_state'][$row['host_id']])) {
                     $data[$k]['service_state'][$row['host_id']] = array();
                 }
-                if (isset($data[$k]['service_state'][$row['host_id']]) 
-                        && !isset($data[$k]['service_state'][$row['host_id']][$row['service_id']])) {
+                if (isset($data[$k]['service_state'][$row['host_id']])
+                    && !isset($data[$k]['service_state'][$row['host_id']][$row['service_id']])
+                ) {
                     $data[$k]['service_state'][$row['host_id']][$row['service_id']] = array();
                 }
                 foreach ($row as $key => $val) {
