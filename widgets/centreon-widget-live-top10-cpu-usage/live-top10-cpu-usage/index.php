@@ -1,7 +1,7 @@
 <?php
 /**
- * Copyright 2005-2011 MERETHIS
- * Centreon is developped by : Julien Mathis and Romain Le Merlus under
+ * Copyright 2005-2019 Centreon
+ * Centreon is developed by : Julien Mathis and Romain Le Merlus under
  * GPL Licence 2.0.
  *
  * This program is free software; you can redistribute it and/or modify it under
@@ -71,9 +71,9 @@ try {
 //configure smarty
 
 if ($centreon->user->admin == 0) {
-  $access = new CentreonACL($centreon->user->get_id());
-  $grouplist = $access->getAccessGroups();
-  $grouplistStr = $access->getAccessGroupsString();
+    $access = new CentreonACL($centreon->user->get_id());
+    $grouplist = $access->getAccessGroups();
+    $grouplistStr = $access->getAccessGroupsString();
 }
 
 $path = $centreon_path . "www/widgets/live-top10-cpu-usage/src/";
@@ -82,37 +82,46 @@ $template = initSmartyTplForPopup($path, $template, "./", $centreon_path);
 
 $data = array();
 
-$query = "SELECT i.host_name, i.service_description, i.service_id, i.host_id, AVG(m.current_value) AS current_value, s.state AS status "
-        ."FROM metrics m, hosts h "
-        .($preferences['host_group'] ? ", hosts_hostgroups hg " : "")
-        .($centreon->user->admin == 0 ? ", centreon_acl acl " : "")
-        ." , index_data i "
-        ."LEFT JOIN services s ON s.service_id  = i.service_id AND s.enabled = 1 "
-        ."WHERE i.service_description LIKE '%".$preferences['service_description']."%' "
-        ."AND i.id = m.index_id "
-        ."AND m.metric_name LIKE '%".$preferences['metric_name']."%' "
-        ."AND current_value <= 100 "
-        ."AND i.host_id = h.host_id "
-        .($preferences['host_group'] ? "AND hg.hostgroup_id = ".$preferences['host_group']." AND i.host_id = hg.host_id " : "");
+$query = "SELECT
+        i.host_name,
+        i.service_description,
+        i.service_id,
+        i.host_id,
+        AVG(m.current_value) AS current_value,
+        s.state AS status
+    FROM
+        metrics m,
+        hosts h "
+        . ($preferences['host_group'] ? ", hosts_hostgroups hg " : "")
+        . ($centreon->user->admin == 0 ? ", centreon_acl acl " : "")
+        . " , index_data i
+    LEFT JOIN services s ON s.service_id  = i.service_id AND s.enabled = 1
+    WHERE i.service_description LIKE '%" . $preferences['service_description'] . "%'
+    AND i.id = m.index_id
+    AND m.metric_name LIKE '%" . $preferences['metric_name'] . "%'
+    AND current_value <= 100
+    AND i.host_id = h.host_id "
+    . ($preferences['host_group']
+        ? "AND hg.hostgroup_id = " . $preferences['host_group'] . " AND i.host_id = hg.host_id " : "");
 if ($centreon->user->admin == 0) {
-$query .="AND i.host_id = acl.host_id "
-        ."AND i.service_id = acl.service_id "
-        ."AND acl.group_id IN (" .($grouplistStr != "" ? $grouplistStr : 0). ")";
+    $query .= "AND i.host_id = acl.host_id
+        AND i.service_id = acl.service_id
+        AND acl.group_id IN (" . ($grouplistStr != "" ? $grouplistStr : 0) . ")";
 }
-$query .="AND s.enabled = 1 "
-        ."AND h.enabled = 1 "
-        ."GROUP BY i.host_id "
-        ."ORDER BY current_value DESC "
-        ."LIMIT ".$preferences['nb_lin'].";";
+$query .= "AND s.enabled = 1
+        AND h.enabled = 1
+    GROUP BY i.host_id
+    ORDER BY current_value DESC
+    LIMIT " . $preferences['nb_lin'] . ";";
 
 $numLine = 1;
 
 $res = $db->query($query);
-while ($row = $res->fetchRow()) {
-  $row['numLin'] = $numLine;
-  $row['current_value'] = ceil($row['current_value']);
-  $data[] = $row;
-  $numLine++;
+while ($row = $res->fetch()) {
+    $row['numLin'] = $numLine;
+    $row['current_value'] = ceil($row['current_value']);
+    $data[] = $row;
+    $numLine++;
 }
 
 $template->assign('preferences', $preferences);
