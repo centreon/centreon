@@ -17,6 +17,7 @@
     }
     .panel-item-inner {
       padding: 20px;
+      box-sizing: border-box;
     }
   }
   &-big {
@@ -29,6 +30,6 @@
   }
   &-inner {
     overflow-y: auto;
-    max-height: 700px;
+    height: calc(100vh - 104px);
   }
 }

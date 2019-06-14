@@ -31,7 +31,7 @@ storiesOf("Panels", module).add(
           handleDirectClick={(id, url) => {
             console.log(id, url);
           }}
-          style={{height: '100vh'}}
+           
         />
         <div
           className="content"

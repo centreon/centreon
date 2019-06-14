@@ -99,6 +99,7 @@ export { default as Loader } from "./Loader";
 // Material Components
 export {default as Accordion} from "./MaterialComponents/Accordion";
 export {default as IconDelete} from "./MaterialComponents/Icons/IconDelete";
+export {default as IconEdit} from "./MaterialComponents/Icons/IconEdit";
 export {default as IconCloseNew} from "./MaterialComponents/Icons/IconClose";
 export {default as IconInsertChart} from "./MaterialComponents/Icons/IconInsertChart";
 export {default as IconLibraryAdd} from "./MaterialComponents/Icons/IconLibraryAdd";

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useRef, useState, useEffect} from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import ExpansionPanel from '@material-ui/core/ExpansionPanel';
 import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary';
@@ -8,13 +8,16 @@ import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import IconWarning from '@material-ui/icons/Warning';
 import IconError from '@material-ui/icons/Error';
+import classnames from 'classnames';
 import InputField from '../../InputField';
 import InputFieldMultiSelectNew from '../../InputField/InputFieldMultiSelectNew';
 import InputFieldMultiSelect from '../../InputField/InputFieldSelectCustom';
 import CustomRow from '../../Custom/CustomRow';
 import CustomColumn from '../../Custom/CustomColumn';
 import IconInfo from '../../Icon/IconInfo';
+import IconEdit from '../../MaterialComponents/Icons/IconEdit';
 import MaterialSwitch from '../Switch';
+import { node } from 'prop-types';
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -29,20 +32,76 @@ const useStyles = makeStyles(theme => ({
     backgroundColor: 'transparent',
     boxShadow: 'none',
     borderBottom: '1px solid #bcbdc0',
+    borderRadius: '0 !important',
   },
   activeStyle: {
-    backgroundColor: '#c7c8c9',
+    cursor: 'pointer',
+    '&:hover': {
+      backgroundColor: '#c7c8c9',
+    }
   },
   additionalStyles: {
     display: 'block',
+  },
+  helperStyles: {
+    paddingBottom: 0,
   }
 }));
 
+// Hook
+function useHover() {
+  const [value, setValue] = useState(false);
+
+  const ref = useRef(null);
+
+  const handleMouseOver = () => setValue(true);
+  const handleMouseOut = () => setValue(false);
+
+  useEffect(
+    () => {
+      const node = ref.current;
+      if (node) {
+        node.addEventListener('mouseover', handleMouseOver);
+        node.addEventListener('mouseleave', handleMouseOut);
+
+        return () => {
+          node.removeEventListener('mouseover', handleMouseOver);
+          node.removeEventListener('mouseleave', handleMouseOut);
+        };
+      }
+    },
+    [node] // Recall only if ref changes
+  );
+  return [ref, value];
+  
+}
+
 function Accordion() {
+  const [hoverRef, isHovered] = useHover();
+
   const classes = useStyles();
 
   return (
     <div className={classes.root}>
+      <ExpansionPanel className={classes.customStyle} defaultExpanded={true}>
+        <ExpansionPanelSummary
+          expandIcon={<ExpandMoreIcon />}
+          aria-controls="panel1a-content"
+          id="panel1a-header"
+        >
+          <Typography className={classes.heading}>Information</Typography>
+        </ExpansionPanelSummary>
+        <ExpansionPanelDetails className={classes.additionalStyles}>
+          <CustomRow>
+            <CustomColumn customColumn="md-6">
+              <InputField label="Name" placeholder="Name" type="text" name="test"noMargin={true} />
+            </CustomColumn>
+            <CustomColumn customColumn="md-6">
+              <InputField label="Name" placeholder="Name" type="text" name="test" noMargin={true} />
+            </CustomColumn>
+          </CustomRow>
+        </ExpansionPanelDetails>
+      </ExpansionPanel>
       <ExpansionPanel className={classes.customStyle}>
         <ExpansionPanelSummary
           expandIcon={<ExpandMoreIcon />}
@@ -104,9 +163,9 @@ function Accordion() {
         >
           <Typography className={classes.heading}>Indicator</Typography>
         </ExpansionPanelSummary>
-        <ExpansionPanelDetails className={classes.additionalStyles}>
-          <CustomRow>
-            <CustomColumn customColumn="md-6">
+        <ExpansionPanelDetails className={classnames(classes.additionalStyles, classes.helperStyles)}>
+          <CustomRow additionalStyles={["mb-0"]}>
+            <CustomColumn customColumn="md-6" additionalStyles={["mb-0"]}>
               <IconInfo iconText="Status calculation method" />
               <InputFieldMultiSelect options={[
                 {id:"1", name:"24x7", alias:"Always"}
@@ -119,9 +178,9 @@ function Accordion() {
                 ]}
               />
             </CustomColumn>
-            <CustomColumn customColumn="md-3">
+            <CustomColumn customColumn="md-3" additionalStyles={["mb-0"]}>
             <IconInfo iconText="Warning threshold" />
-            <CustomRow additionalStyles={["mt-05"]}>
+            <CustomRow additionalStyles={["mt-05", "mb-0"]}>
               <CustomColumn customColumn="md-3" additionalStyles={["mt-03"]}>
                 <IconWarning style={{ color: '#FF9913' }} />
               </CustomColumn>
@@ -130,7 +189,7 @@ function Accordion() {
               </CustomColumn>
             </CustomRow>
             </CustomColumn>
-            <CustomColumn customColumn="md-3">
+            <CustomColumn customColumn="md-3" additionalStyles={["mb-0"]}>
               <IconInfo iconText="Critical threshold" />
               <CustomRow additionalStyles={["mt-05"]}>
                 <CustomColumn customColumn="md-3" additionalStyles={["mt-03"]}>
@@ -142,30 +201,33 @@ function Accordion() {
               </CustomRow>
             </CustomColumn>
           </CustomRow>
-          <CustomRow>
-            <CustomColumn customColumn="md-12" additionalStyles={["mb-1"]}>
-              <IconInfo iconText="Number of indicators (5)" />
-            </CustomColumn>
-            <CustomColumn customColumn="md-6">
-              <InputFieldMultiSelectNew placeholder="BA-CIO-Indicator 1" />
-            </CustomColumn>
-            <CustomColumn customColumn="md-6">
-              <InputFieldMultiSelectNew placeholder="BA-CIO-Indicator 2" />
-            </CustomColumn>
-            <CustomColumn customColumn="md-6">
-              <InputFieldMultiSelectNew placeholder="BA-CIO-Indicator 3" />
-            </CustomColumn>
-            <CustomColumn customColumn="md-6">
-              <InputFieldMultiSelectNew placeholder="BA-CIO-Indicator 4" />
-            </CustomColumn>
-            <CustomColumn customColumn="md-6">
-              <InputFieldMultiSelectNew placeholder="BA-CIO-Indicator 5" />
-            </CustomColumn>
-            <CustomColumn customColumn="md-6">
-              <InputFieldMultiSelectNew />
-            </CustomColumn>
-          </CustomRow>
-        </ExpansionPanelDetails>
+          </ExpansionPanelDetails>
+          <ExpansionPanelDetails className={classes.activeStyle} ref={hoverRef}>
+            <CustomRow additionalStyles={["mb-0"]}>
+              <CustomColumn customColumn="md-12" additionalStyles={["mb-1"]}>
+                <IconInfo iconText="Number of indicators (5)" />
+              </CustomColumn>
+              <CustomColumn customColumn="md-6">
+                <InputFieldMultiSelectNew placeholder="BA-CIO-Indicator 1" />
+              </CustomColumn>
+              <CustomColumn customColumn="md-6">
+                <InputFieldMultiSelectNew placeholder="BA-CIO-Indicator 2" />
+              </CustomColumn>
+              <CustomColumn customColumn="md-6">
+                <InputFieldMultiSelectNew placeholder="BA-CIO-Indicator 3" />
+              </CustomColumn>
+              <CustomColumn customColumn="md-6">
+                <InputFieldMultiSelectNew placeholder="BA-CIO-Indicator 4" />
+              </CustomColumn>
+              <CustomColumn customColumn="md-6">
+                <InputFieldMultiSelectNew placeholder="BA-CIO-Indicator 5" />
+              </CustomColumn>
+              <CustomColumn customColumn="md-6">
+                <InputFieldMultiSelectNew />
+              </CustomColumn>
+            </CustomRow>
+            {isHovered ? <IconEdit /> : null} 
+          </ExpansionPanelDetails>
       </ExpansionPanel>
       <ExpansionPanel className={classes.customStyle}>
         <ExpansionPanelSummary
