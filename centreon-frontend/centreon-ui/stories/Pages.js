@@ -1175,7 +1175,7 @@ storiesOf("Pages", module).add("BAM page",
           <InputFieldSearch />
         </CustomColumn>
         <CustomColumn customColumn="md-4" additionalStyles={["flex-none", "container__col-xs-12", "m-0"]}>
-        <ButtonCustom label="ADD" />
+          <ButtonCustom label="ADD" />
         </CustomColumn>
       </CustomRow>
     </Paper>

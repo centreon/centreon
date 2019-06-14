@@ -6,13 +6,11 @@ import AddIcon from '@material-ui/icons/Add';
 
 const useStyles = makeStyles(theme => ({
   button: {
-    margin: theme.spacing(1),
     display: 'flex',
     backgroundColor: '#1174cb',
     color: '#fff',
     fontSize: 12,
     padding: '5px 10px',
-    marginTop: 0,
     '&:hover': {
       backgroundColor: '#1e68a9'
     }
