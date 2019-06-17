@@ -50,7 +50,7 @@ try {
     if (isset($preferences['refresh_interval'])) {
         $autoRefresh = $preferences['refresh_interval'];
     }
-    $preferences['rule'] = (!empty($preferences['rule']) ?: null);
+    $preferences['rule'] = (!empty($preferences['rule']) ? $preferences['rule'] : null);
     $rule = new Centreon_OpenTickets_Rule($db);
     $result = $rule->getAliasAndProviderId($preferences['rule']);
 
