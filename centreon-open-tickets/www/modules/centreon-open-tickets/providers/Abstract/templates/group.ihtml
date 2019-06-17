@@ -7,7 +7,11 @@
         <select id="select_{$groupId}" name="select_{$groupId}">
         <option value="-1"> -- select -- </option>
         {foreach from=$groups.$groupId.values key=k item=v}
-        <option value='{$k}_{$v}' {if $v eq $groups.$groupId.default}selected{/if}>{$v}</option>
+        {if $groups.$groupId.placeholder.$k != ""}
+            <option value='{$k}___{$v}___{$groups.$groupId.placeholder.$k}' {if $v eq $groups.$groupId.default}selected{/if}>{$groups.$groupId.placeholder.$k}</option>
+        {else}
+            <option value='{$k}___{$v}' {if $v eq $groups.$groupId.default}selected{/if}>{$v}</option>
+        {/if}
         {/foreach}
         </select>
     {/if}
