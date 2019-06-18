@@ -322,3 +322,8 @@ function smarty_function_host_get_macro_values_in_config($params, &$smarty) {
     
     $smarty->assign('host_get_macro_values_in_config_result', $result);
 }
+
+function smarty_function_sortgroup($params, &$smarty) {
+    asort($params['group']);
+    $smarty->assign('sortgroup_result', $params['group']);
+}

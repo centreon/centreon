@@ -216,8 +216,10 @@ class GlpiProvider extends AbstractProvider {
         // no filter $entry['Filter']. preg_match used
         $code = $this->listEntitiesGlpi();
         
-        $groups[$entry['Id']] = array('label' => _($entry['Label']) . 
-                                                        (isset($entry['Mandatory']) && $entry['Mandatory'] == 1 ? $this->_required_field : ''));
+        $groups[$entry['Id']] = array(
+            'label' => _($entry['Label']) . (isset($entry['Mandatory']) && $entry['Mandatory'] == 1 ? $this->_required_field : ''),
+            'sort' => (isset($entry['Sort']) && $entry['Sort'] == 1 ? 1 : 0)
+        );
         $groups_order[] = $entry['Id'];
         
         if ($code == -1) {
@@ -249,8 +251,10 @@ class GlpiProvider extends AbstractProvider {
         }
         $code = $this->listGroupsGlpi($filter);
         
-        $groups[$entry['Id']] = array('label' => _($entry['Label']) . 
-                                                        (isset($entry['Mandatory']) && $entry['Mandatory'] == 1 ? $this->_required_field : ''));
+        $groups[$entry['Id']] = array(
+            'label' => _($entry['Label']) . (isset($entry['Mandatory']) && $entry['Mandatory'] == 1 ? $this->_required_field : ''),
+            'sort' => (isset($entry['Sort']) && $entry['Sort'] == 1 ? 1 : 0)
+        );
         $groups_order[] = $entry['Id'];
         
         if ($code == -1) {
@@ -275,8 +279,10 @@ class GlpiProvider extends AbstractProvider {
         }
         $code = $this->listItilCategoriesGlpi($filter);
         
-        $groups[$entry['Id']] = array('label' => _($entry['Label']) . 
-                                                        (isset($entry['Mandatory']) && $entry['Mandatory'] == 1 ? $this->_required_field : ''));
+        $groups[$entry['Id']] = array(
+            'label' => _($entry['Label']) . (isset($entry['Mandatory']) && $entry['Mandatory'] == 1 ? $this->_required_field : ''),
+            'sort' => (isset($entry['Sort']) && $entry['Sort'] == 1 ? 1 : 0)
+        );
         $groups_order[] = $entry['Id'];
         
         if ($code == -1) {

@@ -236,8 +236,10 @@ class OtrsProvider extends AbstractProvider {
         // no filter $entry['Filter']. preg_match used
         $code = $this->listQueueOtrs();
         
-        $groups[$entry['Id']] = array('label' => _($entry['Label']) . 
-                                                        (isset($entry['Mandatory']) && $entry['Mandatory'] == 1 ? $this->_required_field : ''));
+        $groups[$entry['Id']] = array(
+            'label' => _($entry['Label']) . (isset($entry['Mandatory']) && $entry['Mandatory'] == 1 ? $this->_required_field : ''),
+            'sort' => (isset($entry['Sort']) && $entry['Sort'] == 1 ? 1 : 0)
+        );
         $groups_order[] = $entry['Id'];
         
         if ($code == -1) {
@@ -266,8 +268,10 @@ class OtrsProvider extends AbstractProvider {
         // no filter $entry['Filter']. preg_match used
         $code = $this->listPriorityOtrs();
         
-        $groups[$entry['Id']] = array('label' => _($entry['Label']) . 
-                                                        (isset($entry['Mandatory']) && $entry['Mandatory'] == 1 ? $this->_required_field : ''));
+        $groups[$entry['Id']] = array(
+            'label' => _($entry['Label']) . (isset($entry['Mandatory']) && $entry['Mandatory'] == 1 ? $this->_required_field : ''),
+            'sort' => (isset($entry['Sort']) && $entry['Sort'] == 1 ? 1 : 0)
+        );
         $groups_order[] = $entry['Id'];
         
         if ($code == -1) {
@@ -296,8 +300,10 @@ class OtrsProvider extends AbstractProvider {
         // no filter $entry['Filter']. preg_match used
         $code = $this->listStateOtrs();
         
-        $groups[$entry['Id']] = array('label' => _($entry['Label']) . 
-                                                        (isset($entry['Mandatory']) && $entry['Mandatory'] == 1 ? $this->_required_field : ''));
+        $groups[$entry['Id']] = array(
+            'label' => _($entry['Label']) . (isset($entry['Mandatory']) && $entry['Mandatory'] == 1 ? $this->_required_field : ''),
+            'sort' => (isset($entry['Sort']) && $entry['Sort'] == 1 ? 1 : 0)
+        );
         $groups_order[] = $entry['Id'];
         
         if ($code == -1) {
@@ -326,8 +332,10 @@ class OtrsProvider extends AbstractProvider {
         // no filter $entry['Filter']. preg_match used
         $code = $this->listTypeOtrs();
         
-        $groups[$entry['Id']] = array('label' => _($entry['Label']) . 
-                                                        (isset($entry['Mandatory']) && $entry['Mandatory'] == 1 ? $this->_required_field : ''));
+        $groups[$entry['Id']] = array(
+            'label' => _($entry['Label']) . (isset($entry['Mandatory']) && $entry['Mandatory'] == 1 ? $this->_required_field : ''),
+            'sort' => (isset($entry['Sort']) && $entry['Sort'] == 1 ? 1 : 0)
+        );
         $groups_order[] = $entry['Id'];
         
         if ($code == -1) {
@@ -356,8 +364,10 @@ class OtrsProvider extends AbstractProvider {
         // no filter $entry['Filter']. preg_match used
         $code = $this->listCustomerUserOtrs();
         
-        $groups[$entry['Id']] = array('label' => _($entry['Label']) . 
-                                                        (isset($entry['Mandatory']) && $entry['Mandatory'] == 1 ? $this->_required_field : ''));
+        $groups[$entry['Id']] = array(
+            'label' => _($entry['Label']) . (isset($entry['Mandatory']) && $entry['Mandatory'] == 1 ? $this->_required_field : ''),
+            'sort' => (isset($entry['Sort']) && $entry['Sort'] == 1 ? 1 : 0)
+        );
         $groups_order[] = $entry['Id'];
         
         if ($code == -1) {
@@ -386,8 +396,10 @@ class OtrsProvider extends AbstractProvider {
         // no filter $entry['Filter']. preg_match used
         $code = $this->listUserOtrs();
         
-        $groups[$entry['Id']] = array('label' => _($entry['Label']) . 
-                                                        (isset($entry['Mandatory']) && $entry['Mandatory'] == 1 ? $this->_required_field : ''));
+        $groups[$entry['Id']] = array(
+            'label' => _($entry['Label']) . (isset($entry['Mandatory']) && $entry['Mandatory'] == 1 ? $this->_required_field : ''),
+            'sort' => (isset($entry['Sort']) && $entry['Sort'] == 1 ? 1 : 0)
+        );
         $groups_order[] = $entry['Id'];
         
         if ($code == -1) {

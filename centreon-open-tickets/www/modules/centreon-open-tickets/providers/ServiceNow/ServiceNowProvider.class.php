@@ -196,8 +196,10 @@ class ServiceNowProvider extends AbstractProvider {
     }
     
     protected function assignOtherServiceNow($entry, $method, &$groups_order, &$groups) {
-        $groups[$entry['Id']] = array('label' => _($entry['Label']) . 
-                                     (isset($entry['Mandatory']) && $entry['Mandatory'] == 1 ? $this->_required_field : ''));
+        $groups[$entry['Id']] = array(
+            'label' => _($entry['Label']) . (isset($entry['Mandatory']) && $entry['Mandatory'] == 1 ? $this->_required_field : ''),
+            'sort' => (isset($entry['Sort']) && $entry['Sort'] == 1 ? 1 : 0)
+        );
         $groups_order[] = $entry['Id'];
                 
         try {
