@@ -67,7 +67,7 @@ class JiraProvider extends AbstractProvider {
     }
     
     protected function _setDefaultValueMain($body_html = 0) {
-        parent::_setDefaultValueMain(1);
+        parent::_setDefaultValueMain($body_html);
         
         #$this->default_data['url'] = 'http://{$address}/index.pl?Action=AgentTicketZoom;TicketNumber={$ticket_id}';        
         $this->default_data['clones']['groupList'] = array(
