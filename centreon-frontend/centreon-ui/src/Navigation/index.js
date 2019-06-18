@@ -19,9 +19,11 @@ class Navigation extends Component {
   }
 
   watchHrefChange = event => {
-    this.setState({
-      hrefOfIframe: event.detail.href
-    });
+    if(event.detail.href.match(/p=/)){
+      this.setState({
+        hrefOfIframe: event.detail.href
+      });
+    }
   };
 
   getUrlFromEntry = entryProps => {
