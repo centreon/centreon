@@ -94,7 +94,7 @@ class Navigation extends Component {
       }
     } else {
       if (search.match(/p=/)) {
-        pageId = search.split("p=")[1];
+        pageId = search.split("p=")[1].split("&")[0];
       } else {
         pageId = reactRoutes[pathname] || pathname;
       }
