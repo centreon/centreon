@@ -85,7 +85,10 @@ class Navigation extends Component {
       pageId = navigatedPageId;
     } else if (hrefOfIframe) {
       if (hrefOfIframe.match(/p=/)) {
-        pageId = hrefOfIframe.split("p=")[1];
+        pageId = hrefOfIframe.split("p=")[1]
+        if(pageId){
+          pageId = pageId.split("&")[0];
+        }
       } else {
         pageId = reactRoutes[hrefOfIframe] || hrefOfIframe;
       }
