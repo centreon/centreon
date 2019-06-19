@@ -2,10 +2,13 @@
 
 .panel-item {
   position: relative;
+  transition: .5s ease-in-out;
   &-small {
     width: 500px;
     background-color: #c7c8c9;
-    display: none;
+    position: absolute;
+    right: -45%;
+    z-index: 1;
     .panel-item-title {
       text-align: center;
       font-family: $primary-font-regular;
@@ -22,11 +25,17 @@
   }
   &-big {
     width: 540px;
-    margin-right: 20px;
     background-color: #ededed;
+    position: absolute;
+    right: 0;
+    margin-right: 20px;
+    z-index: 9;
   }
   &-show {
-    display: block;
+    right: 0;
+    &-big {
+      right: 500px;
+    }
   }
   &-inner {
     overflow-y: auto;

@@ -15,12 +15,13 @@ const useStyles = makeStyles(theme => ({
     borderRadius: '50%',
     fontSize: 15,
     padding: 3,
+    verticalAlign: 'middle',
   },
   iconLabel: {
     color: '#009fdf',
     fontSize: 12, 
     display: 'inline-block',
-    verticalAlign: 'super',
+    verticalAlign: 'sub',
     fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
     fontWeight: 'bold',
     cursor: 'pointer',
@@ -33,6 +34,7 @@ const useStyles = makeStyles(theme => ({
     borderRadius: '50%',
     fontSize: 15,
     padding: 3,
+    verticalAlign: 'middle',
   },
   iconActive: {
     color: '#fff',
@@ -41,6 +43,7 @@ const useStyles = makeStyles(theme => ({
     borderRadius: '50%',
     fontSize: 15,
     padding: 3,
+    verticalAlign: 'middle',
   }
 }));
 

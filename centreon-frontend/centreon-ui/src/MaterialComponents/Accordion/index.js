@@ -81,7 +81,6 @@ function useHover() {
 
 function Accordion() {
   const [hoverRef, isHovered] = useHover();
-
   const classes = useStyles();
 
   return (
@@ -193,7 +192,7 @@ function Accordion() {
               <InputFieldMultiSelectNew placeholder="BA-CIO-Indicator 5" />
             </CustomColumn>
             <CustomColumn customColumn="md-6">
-              <InputFieldMultiSelectNew />
+              <InputFieldMultiSelectNew multiSelectType={true} />
             </CustomColumn>
           </CustomRow>
           {isHovered ? <IconEdit /> : null}
@@ -228,7 +227,7 @@ function Accordion() {
               <InputFieldMultiSelectNew placeholder="BA-CIO-Indicator 5" />
             </CustomColumn>
             <CustomColumn customColumn="md-6">
-              <InputFieldMultiSelectNew />
+              <InputFieldMultiSelectNew multiSelectType={true} />
             </CustomColumn>
           </CustomRow>
         </ExpansionPanelDetails>
@@ -276,19 +275,19 @@ function Accordion() {
               />
             </CustomColumn>
           </CustomRow>
-          </ExpansionPanelDetails>
-          <ExpansionPanelDetails className={classes.activeStyle}>
-            <CustomRow additionalStyles={["mb-0"]}>
-              <CustomColumn customColumn="md-12" additionalStyles={["mb-1"]}>
-                <IconInfo iconText="Number of notifications (2)" />
-              </CustomColumn>
-              <CustomColumn customColumn="md-6">
-                <InputFieldMultiSelectNew placeholder="BA-CIO-Indicator 1" />
-              </CustomColumn>
-              <CustomColumn customColumn="md-6">
-                <InputFieldMultiSelectNew placeholder="BA-CIO-Indicator 2" />
-              </CustomColumn>
-            </CustomRow>
+        </ExpansionPanelDetails>
+        <ExpansionPanelDetails className={classes.activeStyle}>
+          <CustomRow additionalStyles={["mb-0"]}>
+            <CustomColumn customColumn="md-12" additionalStyles={["mb-1"]}>
+              <IconInfo iconText="Number of notifications (2)" />
+            </CustomColumn>
+            <CustomColumn customColumn="md-6">
+              <InputFieldMultiSelectNew placeholder="BA-CIO-Indicator 1" />
+            </CustomColumn>
+            <CustomColumn customColumn="md-6">
+              <InputFieldMultiSelectNew placeholder="BA-CIO-Indicator 2" />
+            </CustomColumn>
+          </CustomRow>
         </ExpansionPanelDetails>
       </ExpansionPanel>
       <ExpansionPanel className={classes.customStyle}>
@@ -317,8 +316,10 @@ function Accordion() {
               <IconInfo iconText="SLA critical duration threshold" />
               <InputField placeholder="minutes" type="text" name="test" />
             </CustomColumn>
-            <CustomColumn customColumn="md-12">
+            <CustomColumn customColumn="md-12" additionalStyles={["mb-1"]}>
               <IconInfo iconText="Extra reporting time periods used in Centreon BI reports (0)" />
+            </CustomColumn>
+            <CustomColumn customColumn="md-12">
               <ButtonCustom label="ADD" />
             </CustomColumn>
           </CustomRow>
@@ -342,6 +343,36 @@ function Accordion() {
             </CustomColumn>
             <CustomColumn customColumn="md-6">
               <InputFieldMultiSelectNew placeholder="BA-CIO-Indicator 2" />
+            </CustomColumn>
+          </CustomRow>
+        </ExpansionPanelDetails>
+      </ExpansionPanel>
+      <ExpansionPanel className={classes.customStyle}>
+        <ExpansionPanelSummary
+          expandIcon={<ExpandMoreIcon />}
+          aria-controls="panel6a-content"
+          id="panel6a-header"
+        >
+          <Typography className={classes.heading}>Event handler</Typography>
+        </ExpansionPanelSummary>
+        <ExpansionPanelDetails>
+          <CustomRow additionalStyles={["w-100"]}>
+            <CustomColumn customColumn="md-6">
+              <CustomColumn customColumn="md-12" additionalStyles={["p-0"]}>
+                <IconInfo iconText="View event handler" />
+              </CustomColumn>
+              <FormControlLabel control={<MaterialSwitch />} label="Enable" />
+            </CustomColumn>
+            <CustomColumn customColumn="md-6">
+              <IconInfo iconText="Event handler command" />
+              <InputFieldMultiSelect
+                options={[
+                  { id: "1", name: "24x7", alias: "Always" },
+                  { id: "2", name: "none", alias: "Never" },
+                  { id: "3", name: "nonworkhours", alias: "Non-Work Hours" },
+                  { id: "4", name: "workhours", alias: "Work hours" }
+                ]}
+              />
             </CustomColumn>
           </CustomRow>
         </ExpansionPanelDetails>
