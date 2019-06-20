@@ -10,7 +10,7 @@ const useStyles = makeStyles(theme => ({
   },
   icon: {
     color: '#009fdf',
-    cursor: 'pointer'
+    cursor: 'pointer',
   },
   iconLabel: {
     color: '#009fdf',

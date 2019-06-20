@@ -6,11 +6,11 @@ const useStyles = makeStyles(theme => ({
   root: {
     display: "flex",
     justifyContent: "center",
-    alignItems: "center"
+    alignItems: "center",
   },
   icon: {
     color: "#009fdf",
-    cursor: "pointer"
+    cursor: "pointer",
   },
   iconLabel: {
     color: "#009fdf",
@@ -20,7 +20,7 @@ const useStyles = makeStyles(theme => ({
     fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
     fontWeight: "bold",
     cursor: "pointer",
-    paddingLeft: 5
+    paddingLeft: 5,
   },
   iconWrap: {
     display: 'inline-block',
