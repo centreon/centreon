@@ -503,9 +503,9 @@
     .collapsed-item {
       &.active {
         > .collapsed-item-level-link {
-          color: #242f3b !important;
-          background-color: #f6f6f6 !important;
-          background-image: url("../../img/icons/aside-menu-arrows.png") !important;
+          color: #242f3b;
+          background-color: #f6f6f6;
+          background-image: url("../../img/icons/aside-menu-arrows.png");
           background-repeat: no-repeat;
           background-position: 10px -93px;
           &:hover {
