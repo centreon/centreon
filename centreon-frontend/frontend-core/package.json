@@ -1,7 +1,22 @@
 {
-  "name": "eslint-config-centreon",
+  "name": "@centreon/eslint-config-centreon",
+  "description": "centreon eslint configuration",
   "version": "1.0.0",
   "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/centreon/eslint-config-centreon.git"
+  },
+  "keywords": [
+    "centreon",
+    "eslint"
+  ],
+  "author": "centreon@centreon.com",
+  "license": "GPL-2.0",
+  "bugs": {
+    "url": "https://github.com/centreon/eslint-config-centreon/issues"
+  },
+  "homepage": "https://github.com/centreon/eslint-config-centreon#readme",
   "peerDependencies": {
     "eslint": "5.x",
     "prettier": "1.x",
