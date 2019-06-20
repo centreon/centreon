@@ -5,6 +5,7 @@
   "main": "lib",
   "scripts": {
     "eslint": "npx eslint .",
+    "eslint:fix": "npm run eslint -- --fix",
     "prepublishOnly": "npm run bundle",
     "bundle": "babel ./src --out-dir ./lib --copy-files",
     "storybook": "start-storybook -p 9001 -c .storybook -s ./dynamic/compiled-components/components"
@@ -54,7 +55,10 @@
     "redux-saga": "^1.0.2",
     "redux-thunk": "^2.3.0",
     "replace-in-files": "^1.1.4",
-    "sass-loader": "^7.1.0"
+    "sass-loader": "^7.1.0",
+    "@storybook/addon-actions": "^4.0.9",
+    "@storybook/addon-notes": "^4.0.8",
+    "@storybook/react": "^4.0.9"
   },
   "devDependencies": {
     "@babel/cli": "^7.2.3",
@@ -66,9 +70,6 @@
     "@babel/polyfill": "^7.0.0",
     "@babel/preset-env": "^7.3.4",
     "@babel/preset-react": "^7.0.0",
-    "@storybook/addon-actions": "^4.0.9",
-    "@storybook/addon-notes": "^4.0.8",
-    "@storybook/react": "^4.0.9",
     "@svgr/cli": "^2.1.0",
     "docz": "^0.5.2",
     "docz-core": "^0.5.2",

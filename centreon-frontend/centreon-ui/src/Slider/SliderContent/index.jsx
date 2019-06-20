@@ -1,0 +1,142 @@
+/* eslint-disable react/prop-types */
+/* eslint-disable react/no-array-index-key */
+
+import React, { Component } from 'react';
+import classnames from 'classnames';
+import styles from './content-slider.scss';
+import ContentSliderItem from './ContentSliderItem';
+import ContentSliderLeftArrow from './ContentSliderLeftArrow';
+import ContentSliderRightArrow from './ContentSliderRightArrow';
+import ContentSliderIndicators from './ContentSliderIndicators';
+import defaultImageModule from '../../../img/slider-default-image-module.png';
+import defaultImageWidget from '../../../img/slider-default-image-widget.png';
+
+class SliderContent extends Component {
+  static slideWidth() {
+    return document.querySelector('.content-slider-wrapper')
+      ? document.querySelector('.content-slider-wrapper').clientWidth
+      : 780;
+  }
+
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      currentIndex: 0,
+      translateValue: 0,
+    };
+  }
+
+  goToPrevSlide() {
+    const { currentIndex } = this.state;
+
+    if (currentIndex === 0) return;
+
+    this.setState((prevState) => ({
+      currentIndex: prevState.currentIndex - 1,
+      translateValue: prevState.translateValue + SliderContent.slideWidth(),
+    }));
+  }
+
+  goToNextSlide() {
+    const { currentIndex } = this.state;
+    const { images } = this.props;
+    if (currentIndex === images.length - 1) {
+      return this.setState({ currentIndex: 0, translateValue: 0 });
+    }
+
+    // This will not run if we met the if condition above
+    this.setState((prevState) => ({
+      currentIndex: prevState.currentIndex + 1,
+      translateValue: prevState.translateValue - SliderContent.slideWidth(),
+    }));
+
+    return undefined;
+  }
+
+  handleDotClick(e) {
+    const { currentIndex, translateValue } = this.state;
+
+    const dotIndex = parseInt(e.target.getAttribute('data-index'), 10);
+
+    // Go back
+    if (dotIndex < currentIndex) {
+      return this.setState({
+        currentIndex: dotIndex,
+        translateValue: -dotIndex * SliderContent.slideWidth(),
+      });
+    }
+
+    // Go forward
+    this.setState({
+      currentIndex: dotIndex,
+      translateValue:
+        translateValue + (currentIndex - dotIndex) * SliderContent.slideWidth(),
+    });
+
+    return undefined;
+  }
+
+  renderSlides() {
+    const { currentIndex } = this.state;
+    const { type, images } = this.props;
+
+    const slides = images.map((image, index) => {
+      const isActive = currentIndex === index;
+      return (
+        <ContentSliderItem key={index} image={image} isActive={isActive} />
+      );
+    });
+
+    if (images.length === 0) {
+      const defaultImage =
+        type === 'widget' ? defaultImageWidget : defaultImageModule;
+
+      return [<ContentSliderItem image={defaultImage} isActive />];
+    }
+
+    return slides;
+  }
+
+  render() {
+    const { currentIndex, translateValue } = this.state;
+    const { images, children } = this.props;
+
+    return (
+      <div className={classnames(styles['content-slider-wrapper'])}>
+        <div className={classnames(styles['content-slider'])}>
+          <div
+            className={classnames(styles['content-slider-items'])}
+            style={{
+              transform: `translateX(${translateValue}px)`,
+            }}
+          >
+            {this.renderSlides()}
+          </div>
+          <div className={classnames(styles['content-slider-controls'])}>
+            {currentIndex === 0 ? null : (
+              <ContentSliderLeftArrow
+                goToPrevSlide={this.goToPrevSlide}
+                iconColor="gray"
+              />
+            )}
+            {images.length <= 1 ? null : (
+              <ContentSliderRightArrow
+                goToNextSlide={this.goToNextSlide}
+                iconColor="gray"
+              />
+            )}
+          </div>
+          <ContentSliderIndicators
+            images={images}
+            currentIndex={currentIndex}
+            handleDotClick={this.handleDotClick}
+          />
+        </div>
+        {children}
+      </div>
+    );
+  }
+}
+
+export default SliderContent;
