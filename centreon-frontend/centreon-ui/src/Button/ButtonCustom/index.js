@@ -21,7 +21,7 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-function ButtonCusom({ label, onClick }) {
+function ButtonCustom({ label, onClick }) {
   const classes = useStyles();
 
   return (
@@ -37,4 +37,4 @@ function ButtonCusom({ label, onClick }) {
   );
 }
 
-export default ButtonCusom;
+export default ButtonCustom;
