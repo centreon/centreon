@@ -1,8 +1,8 @@
-import React from 'react';
+import React, { Component } from 'react';
 import { withStyles } from '@material-ui/core/styles';
 import Switch from '@material-ui/core/Switch';
 
-const CustomSwitch = withStyles({
+const styles = () => ({
   switchBase: {
     color: '#c7c8c9',
     '&$checked': {
@@ -15,23 +15,19 @@ const CustomSwitch = withStyles({
   },
   checked: {},
   track: {},
-})(Switch);
+});
 
-export default function Switches() {
-  const [state, setState] = React.useState({
-    checkedB: true,
-  });
-
-  const handleChange = name => event => {
-    setState({ ...state, [name]: event.target.checked });
-  };
-
-  return (
-    <CustomSwitch
-      checked={state.checkedB}
-      onChange={handleChange('checkedB')}
-      value="checkedB"
-      color="primary"
-    />
-  );
+class CustomSwitch extends Component {
+  render(){
+    const {classes} = this.props;
+    return(
+      <Switch
+        value="checkedB"
+        color="primary"
+        className={classes.switchBase}
+      />
+    )
+  }
 }
+
+export default withStyles(styles)(CustomSwitch)
