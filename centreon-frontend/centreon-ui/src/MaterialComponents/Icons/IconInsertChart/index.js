@@ -10,7 +10,7 @@ const useStyles = makeStyles(theme => ({
   },
   icon: {
     color: '#009fdf',
-    cursor: 'pointer'
+    cursor: 'pointer',
   },
   iconLabel: {
     color: '#009fdf',
@@ -21,6 +21,10 @@ const useStyles = makeStyles(theme => ({
     fontWeight: 'bold',
     cursor: 'pointer',
     paddingLeft: 5,
+  },
+  iconWrap: {
+    display: 'inline-block',
+    verticalAlign: 'middle',
   }
 }));
 
@@ -28,10 +32,10 @@ function IconInsertChart({label,...rest}) {
   const classes = useStyles();
 
   return (
-    <div {...rest}>
+    <span {...rest} className={classes.iconWrap}>
       <InsertChart className={classes.icon} />
       {label && <span className={classes.iconLabel}>{label}</span>}
-    </div>
+    </span>
   );
 }
 
