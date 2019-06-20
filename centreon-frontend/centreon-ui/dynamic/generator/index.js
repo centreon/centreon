@@ -1,54 +1,54 @@
 #!/usr/bin/env node
 
-const program = require('commander');
+var program = require("commander");
 
 program
-  .version('0.0.1')
+  .version("0.0.1")
   .option(
-    '-t, --topology [name]',
-    'Component topology name, if not defined, capitalized functional name will be used',
+    "-t, --topology [name]",
+    "Component topology name, if not defined, capitalized functional name will be used"
   )
-  .option('-n, --fname [name]', 'Component functional name ( required )')
+  .option("-n, --fname [name]", "Component functional name ( required )")
   .parse(process.argv);
 
-const clc = require('cli-color');
-const fs = require('fs-extra');
-const replaceInFiles = require('replace-in-files');
+var clc = require("cli-color");
+var fs = require("fs-extra");
+var replaceInFiles = require("replace-in-files");
 
 if (program.fname) {
-  fs.copy(`${__dirname}/template`, `${process.cwd()}/template`, function(err) {
+  fs.copy(__dirname + "/template", process.cwd() + "/template", function(err) {
     if (err) {
-      console.log(clc.red.bgBlack('An error occured while copying template.'));
+      console.log(clc.red.bgBlack("An error occured while copying template."));
       return console.error(err);
     }
-    console.log(clc.green.bgBlack('Component template initialized.'));
-    console.log(clc.blueBright.bgBlack('Running generation...'));
+    console.log(clc.green.bgBlack("Component template initialized."));
+    console.log(clc.blueBright.bgBlack("Running generation..."));
     replaceNames();
   });
 } else {
-  console.log(clc.red.bgBlack('Component name is required!'));
+  console.log(clc.red.bgBlack("Component name is required!"));
   console.log(
-    clc.blueBright.bgBlack('Run centreon-compgen --help for more info.'),
+    clc.blueBright.bgBlack("Run centreon-compgen --help for more info.")
   );
 }
 
 async function replaceNames() {
-  const replaceOptions = {
+  var replaceOptions = {
     files: `${process.cwd()}/template/**/*`,
 
     from: /COMPONENT_FUNCTIONAL_NAME/g,
     to: `${program.fname}`,
 
     saveOldFile: false,
-    encoding: 'utf8',
+    encoding: "utf8",
     onlyFindPathsWithoutReplace: false,
     returnPaths: true,
-    returnCountOfMatchesByPaths: true,
+    returnCountOfMatchesByPaths: true
   };
 
   try {
-    const from = /COMPONENT_CAPITALIZED_NAME/g;
-    let to = '';
+    var from = /COMPONENT_CAPITALIZED_NAME/g;
+    var to = "";
     if (program.topology) {
       to = program.topology;
     } else {
@@ -58,32 +58,32 @@ async function replaceNames() {
     const {
       changedFiles,
       countOfMatchesByPaths,
-      replaceInFilesOptions,
-    } = await replaceInFiles(replaceOptions).pipe({ from, to });
+      replaceInFilesOptions
+    } = await replaceInFiles(replaceOptions).pipe({ from: from, to: to });
     fs.renameSync(
       `${process.cwd()}/template/`,
-      `${process.cwd()}/${program.fname}Compiler/`,
+      `${process.cwd()}/${program.fname}Compiler/`
     );
     fs.renameSync(
       `${process.cwd()}/${program.fname}Compiler/src/componentName`,
-      `${process.cwd()}/${program.fname}Compiler/src/${program.fname}`,
+      `${process.cwd()}/${program.fname}Compiler/src/${program.fname}`
     );
     console.log(
       clc.green.bgBlack(
-        `${program.topology} external component compiler generated.`,
-      ),
+        `${program.topology} external component compiler generated.`
+      )
     );
     console.log(
       clc.white.bgBlack(
-        'To use, replace COMPONENT_BUILD_PATH in package.json with the desired output folder.',
-      ),
+        `To use, replace COMPONENT_BUILD_PATH in package.json with the desired output folder.`
+      )
     );
     console.log(
       clc.white.bgBlack(
-        'To run compiler, run "npm run install" and you can use "npm run compile"',
-      ),
+        `To run compiler, run "npm run install" and you can use "npm run compile"`
+      )
     );
   } catch (error) {
-    console.log('Error occurred:', error);
+    console.log("Error occurred:", error);
   }
 }

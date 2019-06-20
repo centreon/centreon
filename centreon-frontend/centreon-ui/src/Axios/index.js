@@ -4,7 +4,7 @@ export default (data, dispatch, requestType) => {
       type: `@axios/${requestType}_DATA`,
       ...data,
       resolve,
-      reject,
+      reject
     });
   });
 };
