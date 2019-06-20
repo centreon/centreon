@@ -24,14 +24,14 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-function IconInsertChart() {
+function IconInsertChart({label,...rest}) {
   const classes = useStyles();
 
   return (
-    <React.Fragment>
+    <div {...rest}>
       <InsertChart className={classes.icon} />
-      <span className={classes.iconLabel}>Massive change</span>
-    </React.Fragment>
+      {label && <span className={classes.iconLabel}>{label}</span>}
+    </div>
   );
 }
 

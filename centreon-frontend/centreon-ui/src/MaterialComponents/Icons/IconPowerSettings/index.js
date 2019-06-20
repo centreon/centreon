@@ -44,14 +44,14 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-function IconPowerSettings({label, active, customStyle}) {
+function IconPowerSettings({label, active, customStyle, ...rest}) {
   const classes = useStyles();
 
   return (
-    <React.Fragment>
+    <div {...rest}>
       <PowerSettings style={customStyle} className={active ? classes.iconActive : classes.iconNormal} />
       {label && <span className={classes.iconLabel}>{label}</span>}
-    </React.Fragment>
+    </div>
   );
 }
 
