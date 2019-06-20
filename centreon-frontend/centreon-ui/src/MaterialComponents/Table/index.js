@@ -153,7 +153,7 @@ class CustomPaginationActionsTable extends React.Component {
             <TableBody>
               {rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map(row => (
                 <TableRow key={row.id}>
-                  <TableCell component="th" scope="row">
+                  <TableCell align="right" component="th" scope="row">
                     {row.name}
                   </TableCell>
                   <TableCell align="right">{row.calories}</TableCell>
@@ -162,7 +162,7 @@ class CustomPaginationActionsTable extends React.Component {
               ))}
               {emptyRows > 0 && (
                 <TableRow style={{ height: 48 * emptyRows }}>
-                  <TableCell colSpan={6} />
+                  <TableCell align="right" colSpan={6} />
                 </TableRow>
               )}
             </TableBody>

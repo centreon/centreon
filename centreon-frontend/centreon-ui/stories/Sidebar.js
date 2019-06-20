@@ -16,6 +16,7 @@ storiesOf("Sidebar", module).add(
   () => (
     <Sidebar
       navigationData={mock}
+      externalHistory={window}
       reactRoutes={reactMock}
       externalHistory={window}
       onNavigate={(id, url) => {

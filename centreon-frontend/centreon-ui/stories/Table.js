@@ -2,12 +2,13 @@ import React from "react";
 import styles from '../src/global-sass-files/_helpers.scss';
 import  classnames from 'classnames';
 import {storiesOf} from "@storybook/react";
-import {Table, TableDynamic, Title, Button} from "../src";
+import {Table, TableDefault, TableDynamic, TableCustom, Title, Button} from "../src";
 
-storiesOf("Table", module).add("Table - custom", () => <Table />, {notes: "A very simple component"});
+storiesOf("Table", module).add("Table - default", () => <TableDefault data={[]} />, {notes: "A very simple component"});
+storiesOf("Table", module).add("Table - custom", () => <TableCustom />, {notes: "A very simple component"});
 storiesOf("Table", module).add("Table Dynamic - custom", () => <React.Fragment>
   <Title titleColor="host" label="Resource discovry wizard" />
-  <TableDynamic/>
+  <TableDynamic />
   <div className={classnames(styles["text-right"], styles["mt-2"])}>
     <Button
       label="SAVE"
@@ -25,5 +26,3 @@ storiesOf("Table", module).add("Table Dynamic - custom", () => <React.Fragment>
     </div>
   </div>
 </React.Fragment>, {notes: "A very simple component"});
-
-storiesOf("Table", module).add("Table - with scroll", () => <Table tableScroll={true}/>, {notes: "A very simple component"});
