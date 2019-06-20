@@ -1,0 +1,15 @@
+{
+  "name": "eslint-config-centreon",
+  "version": "1.0.0",
+  "main": "index.js",
+  "peerDependencies": {
+    "eslint": "5.x",
+    "prettier": "1.x",
+    "eslint-config-airbnb": "17.x",
+    "eslint-config-prettier": "4.x",
+    "eslint-plugin-import": "2.x",
+    "eslint-plugin-jsx-a11y": "6.x",
+    "eslint-plugin-prettier": "3.x",
+    "eslint-plugin-react": "7.x"
+  }
+}

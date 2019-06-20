@@ -2,11 +2,28 @@ import React, { Component } from "react";
 import classnames from "classnames";
 import styles from "./navigation.scss";
 import BoundingBox from "../BoundingBox";
-    
-class Navigation extends Component { 
+
+class Navigation extends Component {
   state = {
     activeSecondLevel: null,
-    navigatedPageId: false
+    navigatedPageId: false,
+    hrefOfIframe: false
+  };
+
+  componentDidMount() {
+    window.addEventListener("react.href.update", this.watchHrefChange, false);
+  }
+
+  componentWillUnmount() {
+    window.removeEventListener("react.href.update", this.watchHrefChange);
+  }
+
+  watchHrefChange = event => {
+    if(event.detail.href.match(/p=/)){
+      this.setState({
+        hrefOfIframe: event.detail.href
+      });
+    }
   };
 
   getUrlFromEntry = entryProps => {
@@ -27,46 +44,65 @@ class Navigation extends Component {
     });
   };
 
-  getActiveTopLevelIndex = (pageId) => {
+  getActiveTopLevelIndex = pageId => {
     const { navigationData } = this.props;
     let index = -1;
-    for(let i = 0; i < navigationData.length;i++){
-      if(!isNaN(pageId) && String(pageId).charAt(0) == navigationData[i].page){
+    for (let i = 0; i < navigationData.length; i++) {
+      if (
+        !isNaN(pageId) &&
+        String(pageId).charAt(0) == navigationData[i].page
+      ) {
         index = i;
       }
     }
     return index;
-  }
+  };
 
   onNavigate = (id, url) => {
-    const {onNavigate} = this.props;
+    const { onNavigate } = this.props;
     this.setState({
-      navigatedPageId:id
-    })
-    onNavigate(id,url);
-  }
+      navigatedPageId: id,
+      hrefOfIframe: false
+    });
+    onNavigate(id, url);
+  };
 
   render() {
-    const { customStyle, navigationData, sidebarActive, handleDirectClick, externalHistory, reactRoutes } = this.props;
-    const { activeSecondLevel, navigatedPageId } = this.state;
-    if(!externalHistory){
+    const {
+      customStyle,
+      navigationData,
+      sidebarActive,
+      handleDirectClick,
+      externalHistory,
+      reactRoutes
+    } = this.props;
+    const { activeSecondLevel, navigatedPageId, hrefOfIframe } = this.state;
+    if (!externalHistory) {
       return null;
     }
     const { pathname, search } = externalHistory.location;
     let pageId = "";
-    
-    if(navigatedPageId){
+
+    if (navigatedPageId && !hrefOfIframe) {
       pageId = navigatedPageId;
-    }else{
+    } else if (hrefOfIframe) {
+      if (hrefOfIframe.match(/p=/)) {
+        pageId = hrefOfIframe.split("p=")[1]
+        if(pageId){
+          pageId = pageId.split("&")[0];
+        }
+      } else {
+        pageId = reactRoutes[hrefOfIframe] || hrefOfIframe;
+      }
+    } else {
       if (search.match(/p=/)) {
-        pageId = search.split("p=")[1];
-      } else { 
+        pageId = search.split("p=")[1].split("&")[0];
+      } else {
         pageId = reactRoutes[pathname] || pathname;
       }
     }
 
     const activeIndex = this.getActiveTopLevelIndex(pageId);
-
 
     return (
       <ul
@@ -99,6 +135,9 @@ class Navigation extends Component {
             <span
               className={classnames(styles["menu-item-link"])}
               onDoubleClick={() => {
+                this.setState({
+                  hrefOfIframe:false
+                })
                 handleDirectClick(firstLevel.page, firstLevel);
               }}
             >
@@ -117,9 +156,16 @@ class Navigation extends Component {
                 styles["collapse"],
                 styles["collapsed-items"],
                 styles["list-unstyled"],
-                { 
+                {
                   [styles[`border-${firstLevel.color}`]]: true,
-                  [styles[activeIndex !== -1 && firstLevelIndex > activeIndex && sidebarActive && navigationData[activeIndex].children.length >=5  ? 'towards-down' : 'towards-up']]: true,
+                  [styles[
+                    activeIndex !== -1 &&
+                    firstLevelIndex > activeIndex &&
+                    sidebarActive &&
+                    navigationData[activeIndex].children.length >= 5
+                      ? "towards-down"
+                      : "towards-up"
+                  ]]: true
                 }
               )}
             >
@@ -138,14 +184,14 @@ class Navigation extends Component {
                       ]]: true
                     })}
                     onClick={() => {
-                      if(secondLevel.groups.length < 1){
-                        this.onNavigate(secondLevel.page,secondLevelUrl)
-                      }else if (
-                          !isNaN(pageId) &&
-                          String(pageId).charAt(0) == firstLevel.page
-                        ) {
-                          this.activateSecondLevel(secondLevel.page);
-                        }
+                      if (secondLevel.groups.length < 1) {
+                        this.onNavigate(secondLevel.page, secondLevelUrl);
+                      } else if (
+                        !isNaN(pageId) &&
+                        String(pageId).charAt(0) == firstLevel.page
+                      ) {
+                        this.activateSecondLevel(secondLevel.page);
+                      }
                     }}
                     key={`secondLevel-${secondLevel.page}`}
                   >
@@ -224,7 +270,10 @@ class Navigation extends Component {
                                     >
                                       <a
                                         onClick={() => {
-                                            this.onNavigate(thirdLevel.page,thirdLevelUrl)
+                                          this.onNavigate(
+                                            thirdLevel.page,
+                                            thirdLevelUrl
+                                          );
                                         }}
                                         className={classnames(
                                           styles["collapsed-item-level-link"],
