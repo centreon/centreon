@@ -2,8 +2,7 @@ import React, {Component} from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import Paper from "@material-ui/core/Paper";
 import Breadcrumbs from "@material-ui/core/Breadcrumbs";
-import Typography from "@material-ui/core/Typography";
-import Link from "@material-ui/core/Link";
+import BreadcrumbLink from './Link';
 import NavigateNextIcon from "@material-ui/icons/NavigateNext";
 
 const useStyles = makeStyles(theme => ({
@@ -31,19 +30,7 @@ function Breadcrumb( props ) {
             aria-label="Breadcrumb"
           >
             {breadcrumbs ? breadcrumbs.map((breadcrumb, index) =>
-              index === breadcrumbs.length-1 ? (
-                <Link
-                  color="inherit"
-                  className={classes.item}
-                  href={breadcrumb.link}
-                >
-                  {breadcrumb.label}
-                </Link>
-              ) : (
-                <Typography className={classes.item} color="textPrimary">
-                  {breadcrumb.label}
-                </Typography>
-              )
+              <BreadcrumbLink breadcrumb={breadcrumb} index={index} count={breadcrumbs.length} classes={classes}/>
             ) : null}
           </Breadcrumbs>
         </Paper>

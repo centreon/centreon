@@ -153,6 +153,7 @@ class TableCustom extends Component {
               <EnhancedTableHead
                 numSelected={selected.length}
                 order={order}
+                checkable={checkable}
                 orderBy={orderBy}
                 onSelectAllClick={this.handleSelectAllClick}
                 onRequestSort={onSort}
@@ -186,20 +187,6 @@ class TableCustom extends Component {
                         </StyledTableCell2>
                       ) : null}
 
-                      <StyledTableCell2 hover>
-                        <IconDelete
-                          customStyle={{ color: "#707070", fontSize: 20 }}
-                          onClick={onDelete}
-                        />
-                        <IconLibraryAdd
-                          customStyle={{
-                            color: "#707070",
-                            marginLeft: "14px",
-                            fontSize: 20
-                          }}
-                          onClick={onDuplicate}
-                        />
-                      </StyledTableCell2>
                       {columnConfiguration.map(column => {
                         switch (column.type) {
                           case TABLE_COLUMN_TYPES.number:
@@ -230,6 +217,27 @@ class TableCustom extends Component {
                                     onToggle([row.id]);
                                   }}
                                   active={row[column.id] || false}
+                                />
+                              </StyledTableCell2>
+                            );
+                            break;
+                          case TABLE_COLUMN_TYPES.hoverActions:
+                            return (
+                              <StyledTableCell2 hover>
+                                <IconDelete
+                                  customStyle={{
+                                    color: "#707070",
+                                    fontSize: 20
+                                  }}
+                                  onClick={onDelete}
+                                />
+                                <IconLibraryAdd
+                                  customStyle={{
+                                    color: "#707070",
+                                    marginLeft: "14px",
+                                    fontSize: 20
+                                  }}
+                                  onClick={onDuplicate}
                                 />
                               </StyledTableCell2>
                             );

@@ -33,13 +33,19 @@ const breadcrumbs = [
 ];
 
 const tableConfiguration = [
-  { id: "#", numeric: true, disablePadding: false, label: "" },
   {
     id: "name",
     numeric: false,
     disablePadding: true,
     label: "Name",
     type: TABLE_COLUMN_TYPES.string
+  },
+  {
+    id: "#",
+    numeric: true,
+    disablePadding: false,
+    label: "",
+    type: TABLE_COLUMN_TYPES.hoverActions
   },
   {
     id: "activate",
@@ -156,10 +162,10 @@ class BAMListingPage extends Component {
             limit={paginationLimit}
             currentPage={currentPage}
             totalRows={totalRows}
-            checkable ={true}
+            checkable={true}
             onToggle={onToggle}
           />
-        </Paper> 
+        </Paper>
       </React.Fragment>
     );
   }

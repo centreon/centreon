@@ -18,18 +18,22 @@ class EnhancedTableHead extends Component {
       orderBy,
       numSelected,
       rowCount,
-      headRows
+      headRows,
+      checkable
     } = this.props;
     return (
       <TableHead>
         <TableRow>
-          <StyledTableCell align="left" padding="checkbox">
-            <StyledCheckbox
-              indeterminate={numSelected > 0 && numSelected < rowCount}
-              checked={numSelected === rowCount}
-              onChange={onSelectAllClick}
-            />
-          </StyledTableCell>
+          {checkable ? (
+            <StyledTableCell align="left" padding="checkbox">
+              <StyledCheckbox
+                indeterminate={numSelected > 0 && numSelected < rowCount}
+                checked={numSelected === rowCount}
+                onChange={onSelectAllClick}
+              />
+            </StyledTableCell>
+          ) : null}
+
           {headRows.map(row => (
             <StyledTableCell
               key={row.id}
