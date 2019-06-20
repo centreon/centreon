@@ -41,6 +41,10 @@ const useStyles = makeStyles(theme => ({
     borderRadius: '50%',
     fontSize: 15,
     padding: 3,
+  },
+  iconWrap: {
+    display: 'inline-block',
+    verticalAlign: 'middle',
   }
 }));
 
@@ -48,10 +52,10 @@ function IconPowerSettings({label, active, customStyle, ...rest}) {
   const classes = useStyles();
 
   return (
-    <div {...rest}>
+    <span {...rest} className={classes.iconWrap}>
       <PowerSettings style={customStyle} className={active ? classes.iconActive : classes.iconNormal} />
       {label && <span className={classes.iconLabel}>{label}</span>}
-    </div>
+    </span>
   );
 }
 
