@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React from "react";
 import { withStyles } from "@material-ui/core/styles";
 import ExpansionPanel from "@material-ui/core/ExpansionPanel";
 import ExpansionPanelSummary from "@material-ui/core/ExpansionPanelSummary";
@@ -15,13 +15,13 @@ import InputFieldMultiSelect from "../../InputField/InputFieldSelectCustom";
 import CustomRow from "../../Custom/CustomRow";
 import CustomColumn from "../../Custom/CustomColumn";
 import IconInfo from "../../Icon/IconInfo";
-import IconEdit from "../../MaterialComponents/Icons/IconEdit";
 import MaterialSwitch from "../Switch";
 import ButtonCustom from "../../Button/ButtonCustom";
+import { MultiSelectHolder } from "../..";
 
 const styles = theme => ({
   root: {
-    width: "100%"
+    width: "100%",
   },
   heading: {
     fontSize: theme.typography.pxToRem(15),
@@ -34,12 +34,6 @@ const styles = theme => ({
     borderBottom: "1px solid #bcbdc0",
     borderRadius: "0 !important"
   },
-  hoverStyle: {
-    cursor: "pointer",
-    "&:hover": {
-      backgroundColor: "#c7c8c9"
-    }
-  },
   additionalStyles: {
     display: "block"
   },
@@ -51,21 +45,9 @@ const styles = theme => ({
   }
 });
 
-class Accordion extends Component {
-  state = {
-    isHovered: false
-  };
-
-  toggleHover = () => {
-    const { isHovered } = this.state;
-    this.setState({
-      isHovered: !isHovered
-    });
-  };
-
+class Accordion extends React.Component {
   render() {
     const { classes } = this.props;
-    const { isHovered } = this.state;
     return (
       <div className={classes.root}>
         <div className={classes.containerStyles}>
@@ -163,35 +145,32 @@ class Accordion extends Component {
               </CustomColumn>
             </CustomRow>
           </ExpansionPanelDetails>
-          <ExpansionPanelDetails
-            className={classes.hoverStyle}
-            onMouseEnter={this.toggleHover.bind(this)}
-            onMouseLeave={this.toggleHover.bind(this)}
-          >
-            <CustomRow additionalStyles={["mb-0"]}>
-              <CustomColumn customColumn="md-12" additionalStyles={["mb-1"]}>
-                <IconInfo iconText="Number of indicators (5)" />
-              </CustomColumn>
-              <CustomColumn customColumn="md-6">
-                <InputFieldMultiSelectNew placeholder="BA-CIO-Indicator 1" />
-              </CustomColumn>
-              <CustomColumn customColumn="md-6">
-                <InputFieldMultiSelectNew placeholder="BA-CIO-Indicator 2" />
-              </CustomColumn>
-              <CustomColumn customColumn="md-6">
-                <InputFieldMultiSelectNew placeholder="BA-CIO-Indicator 3" />
-              </CustomColumn>
-              <CustomColumn customColumn="md-6">
-                <InputFieldMultiSelectNew placeholder="BA-CIO-Indicator 4" />
-              </CustomColumn>
-              <CustomColumn customColumn="md-6">
-                <InputFieldMultiSelectNew placeholder="BA-CIO-Indicator 5" />
-              </CustomColumn>
-              <CustomColumn customColumn="md-6">
-                <InputFieldMultiSelectNew multiSelectType={true} />
-              </CustomColumn>
-            </CustomRow>
-            {isHovered ? <IconEdit /> : null}
+          <ExpansionPanelDetails className={classes.additionalStyles}>
+            <MultiSelectHolder>
+              <CustomRow additionalStyles={["mb-0"]}>
+                <CustomColumn customColumn="md-12" additionalStyles={["mb-1"]}>
+                  <IconInfo iconText="Number of indicators (5)" />
+                </CustomColumn>
+                <CustomColumn customColumn="md-6">
+                  <InputFieldMultiSelectNew placeholder="BA-CIO-Indicator 1" />
+                </CustomColumn>
+                <CustomColumn customColumn="md-6">
+                  <InputFieldMultiSelectNew placeholder="BA-CIO-Indicator 2" />
+                </CustomColumn>
+                <CustomColumn customColumn="md-6">
+                  <InputFieldMultiSelectNew placeholder="BA-CIO-Indicator 3" />
+                </CustomColumn>
+                <CustomColumn customColumn="md-6">
+                  <InputFieldMultiSelectNew placeholder="BA-CIO-Indicator 4" />
+                </CustomColumn>
+                <CustomColumn customColumn="md-6">
+                  <InputFieldMultiSelectNew placeholder="BA-CIO-Indicator 5" />
+                </CustomColumn>
+                <CustomColumn customColumn="md-6">
+                  <InputFieldMultiSelectNew multiSelectType={true} />
+                </CustomColumn>
+              </CustomRow>
+            </MultiSelectHolder>
           </ExpansionPanelDetails>
         </ExpansionPanel>
         <ExpansionPanel className={classes.customStyle}>
@@ -202,30 +181,32 @@ class Accordion extends Component {
           >
             <Typography className={classes.heading}>Business View</Typography>
           </ExpansionPanelSummary>
-          <ExpansionPanelDetails className={classes.hoverStyle}>
-            <CustomRow>
-              <CustomColumn customColumn="md-12" additionalStyles={["mb-1"]}>
-                <IconInfo iconText="Number of views (5)" />
-              </CustomColumn>
-              <CustomColumn customColumn="md-6">
-                <InputFieldMultiSelectNew placeholder="BA-CIO-Indicator 1" />
-              </CustomColumn>
-              <CustomColumn customColumn="md-6">
-                <InputFieldMultiSelectNew placeholder="BA-CIO-Indicator 2" />
-              </CustomColumn>
-              <CustomColumn customColumn="md-6">
-                <InputFieldMultiSelectNew placeholder="BA-CIO-Indicator 3" />
-              </CustomColumn>
-              <CustomColumn customColumn="md-6">
-                <InputFieldMultiSelectNew placeholder="BA-CIO-Indicator 4" />
-              </CustomColumn>
-              <CustomColumn customColumn="md-6">
-                <InputFieldMultiSelectNew placeholder="BA-CIO-Indicator 5" />
-              </CustomColumn>
-              <CustomColumn customColumn="md-6">
-                <InputFieldMultiSelectNew multiSelectType={true} />
-              </CustomColumn>
-            </CustomRow>
+          <ExpansionPanelDetails className={classes.additionalStyles}>
+            <MultiSelectHolder>
+              <CustomRow>
+                <CustomColumn customColumn="md-12" additionalStyles={["mb-1"]}>
+                  <IconInfo iconText="Number of views (5)" />
+                </CustomColumn>
+                <CustomColumn customColumn="md-6">
+                  <InputFieldMultiSelectNew placeholder="BA-CIO-Indicator 1" />
+                </CustomColumn>
+                <CustomColumn customColumn="md-6">
+                  <InputFieldMultiSelectNew placeholder="BA-CIO-Indicator 2" />
+                </CustomColumn>
+                <CustomColumn customColumn="md-6">
+                  <InputFieldMultiSelectNew placeholder="BA-CIO-Indicator 3" />
+                </CustomColumn>
+                <CustomColumn customColumn="md-6">
+                  <InputFieldMultiSelectNew placeholder="BA-CIO-Indicator 4" />
+                </CustomColumn>
+                <CustomColumn customColumn="md-6">
+                  <InputFieldMultiSelectNew placeholder="BA-CIO-Indicator 5" />
+                </CustomColumn>
+                <CustomColumn customColumn="md-6">
+                  <InputFieldMultiSelectNew multiSelectType={true} />
+                </CustomColumn>
+              </CustomRow>
+            </MultiSelectHolder>
           </ExpansionPanelDetails>
         </ExpansionPanel>
         <ExpansionPanel className={classes.customStyle}>
@@ -245,7 +226,12 @@ class Accordion extends Component {
                 <FormControlLabel control={<MaterialSwitch />} label="Enable" />
               </CustomColumn>
               <CustomColumn customColumn="md-6">
-                <InputField placeholder="*60 seconds" type="text" name="test" label="Interval" />
+                <InputField
+                  placeholder="*60 seconds"
+                  type="text"
+                  name="test"
+                  label="Interval"
+                />
               </CustomColumn>
               <CustomColumn customColumn="md-6">
                 <IconInfo iconText="Options" />
@@ -271,18 +257,20 @@ class Accordion extends Component {
               </CustomColumn>
             </CustomRow>
           </ExpansionPanelDetails>
-          <ExpansionPanelDetails className={classes.hoverStyle}>
-            <CustomRow additionalStyles={["mb-0"]}>
-              <CustomColumn customColumn="md-12" additionalStyles={["mb-1"]}>
-                <IconInfo iconText="Number of notifications (2)" />
-              </CustomColumn>
-              <CustomColumn customColumn="md-6">
-                <InputFieldMultiSelectNew placeholder="BA-CIO-Indicator 1" />
-              </CustomColumn>
-              <CustomColumn customColumn="md-6">
-                <InputFieldMultiSelectNew placeholder="BA-CIO-Indicator 2" />
-              </CustomColumn>
-            </CustomRow>
+          <ExpansionPanelDetails className={classes.additionalStyles}>
+            <MultiSelectHolder>
+              <CustomRow additionalStyles={["mb-0"]}>
+                <CustomColumn customColumn="md-12" additionalStyles={["mb-1"]}>
+                  <IconInfo iconText="Number of notifications (2)" />
+                </CustomColumn>
+                <CustomColumn customColumn="md-6">
+                  <InputFieldMultiSelectNew placeholder="BA-CIO-Indicator 1" />
+                </CustomColumn>
+                <CustomColumn customColumn="md-6">
+                  <InputFieldMultiSelectNew placeholder="BA-CIO-Indicator 2" />
+                </CustomColumn>
+              </CustomRow>
+            </MultiSelectHolder>
           </ExpansionPanelDetails>
         </ExpansionPanel>
         <ExpansionPanel className={classes.customStyle}>
@@ -293,19 +281,39 @@ class Accordion extends Component {
           >
             <Typography className={classes.heading}>Reporting</Typography>
           </ExpansionPanelSummary>
-          <ExpansionPanelDetails>
+          <ExpansionPanelDetails className={classes.additionalStyles}>
             <CustomRow>
               <CustomColumn customColumn="md-6">
-                <InputField placeholder="(0-100%)" type="text" name="test" label="SLA warning percentage thresholds" />
+                <InputField
+                  placeholder="(0-100%)"
+                  type="text"
+                  name="test"
+                  label="SLA warning percentage thresholds"
+                />
               </CustomColumn>
               <CustomColumn customColumn="md-6">
-                <InputField placeholder="minutes" type="text" name="test" label="SLA warning duration threshold" />
+                <InputField
+                  placeholder="minutes"
+                  type="text"
+                  name="test"
+                  label="SLA warning duration threshold"
+                />
               </CustomColumn>
               <CustomColumn customColumn="md-6">
-                <InputField placeholder="(0-100%)" type="text" name="test" label="SLA critical percentage thresholds" />
+                <InputField
+                  placeholder="(0-100%)"
+                  type="text"
+                  name="test"
+                  label="SLA critical percentage thresholds"
+                />
               </CustomColumn>
               <CustomColumn customColumn="md-6">
-                <InputField placeholder="minutes" type="text" name="test" label="SLA critical duration threshold" />
+                <InputField
+                  placeholder="minutes"
+                  type="text"
+                  name="test"
+                  label="SLA critical duration threshold"
+                />
               </CustomColumn>
               <CustomColumn customColumn="md-12" additionalStyles={["mb-1"]}>
                 <IconInfo iconText="Extra reporting time periods used in Centreon BI reports (0)" />
@@ -324,18 +332,20 @@ class Accordion extends Component {
           >
             <Typography className={classes.heading}>Escalation</Typography>
           </ExpansionPanelSummary>
-          <ExpansionPanelDetails className={classes.hoverStyle}>
-            <CustomRow>
-              <CustomColumn customColumn="md-12" additionalStyles={["mb-1"]}>
-                <IconInfo iconText="Number of escalations (2)" />
-              </CustomColumn>
-              <CustomColumn customColumn="md-6">
-                <InputFieldMultiSelectNew placeholder="BA-CIO-Indicator 1" />
-              </CustomColumn>
-              <CustomColumn customColumn="md-6">
-                <InputFieldMultiSelectNew placeholder="BA-CIO-Indicator 2" />
-              </CustomColumn>
-            </CustomRow>
+          <ExpansionPanelDetails className={classes.additionalStyles}>
+            <MultiSelectHolder>
+              <CustomRow>
+                <CustomColumn customColumn="md-12" additionalStyles={["mb-1"]}>
+                  <IconInfo iconText="Number of escalations (2)" />
+                </CustomColumn>
+                <CustomColumn customColumn="md-6">
+                  <InputFieldMultiSelectNew placeholder="BA-CIO-Indicator 1" />
+                </CustomColumn>
+                <CustomColumn customColumn="md-6">
+                  <InputFieldMultiSelectNew placeholder="BA-CIO-Indicator 2" />
+                </CustomColumn>
+              </CustomRow>
+            </MultiSelectHolder>
           </ExpansionPanelDetails>
         </ExpansionPanel>
         <ExpansionPanel className={classes.customStyle}>
@@ -346,7 +356,7 @@ class Accordion extends Component {
           >
             <Typography className={classes.heading}>Event handler</Typography>
           </ExpansionPanelSummary>
-          <ExpansionPanelDetails>
+          <ExpansionPanelDetails className={classes.additionalStyles}>
             <CustomRow additionalStyles={["w-100"]}>
               <CustomColumn customColumn="md-6">
                 <CustomColumn customColumn="md-12" additionalStyles={["p-0"]}>
@@ -366,6 +376,7 @@ class Accordion extends Component {
                 />
               </CustomColumn>
             </CustomRow>
+            <MultiSelectHolder isEmpty={true} indicatorsCount="0" />
           </ExpansionPanelDetails>
         </ExpansionPanel>
       </div>

@@ -50,6 +50,7 @@ export { default as LogoMini } from "./Logo/LogoMini";
 export { default as MessageError} from './Message/MessageError';
 export { default as MessageInfo} from './Message/MessageInfo';
 export { default as MessageStatus } from "./Message/MessageStatus";
+export { default as MultiSelectHolder } from "./MultiSelectHolder";
 export { default as Navigation } from "./Navigation";
 export { default as Pagination } from "./Pagination";
 export { default as Panels } from "./Panels";
