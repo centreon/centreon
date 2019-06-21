@@ -25,6 +25,7 @@ const useStyles = makeStyles(theme => ({
   iconWrap: {
     display: 'inline-block',
     verticalAlign: 'middle',
+    height: 24,
   }
 }));
 
