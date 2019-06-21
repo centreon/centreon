@@ -37,11 +37,13 @@ import {
   IconDelete,
   IconLibraryAdd,
   IconPowerSettings,
-  IconInsertChart,
-  BAMListingPage
+  IconInsertChart,  
+  Panels
 } from "../src";
 import Paper from "@material-ui/core/Paper";
 import BAMTableData from "../src/Pages/BAMListingMock";
+
+import Paper from '@material-ui/core/Paper';
 
 // Extensions Page
 storiesOf("Pages", module).add(
@@ -244,6 +246,7 @@ storiesOf("Pages", module).add(
                   buttonActionType="delete"
                   buttonIconType="delete"
                   customPosition="button-action-card-position"
+
                   onClick={() => {
                     alert("Button delete clicked");
                   }}

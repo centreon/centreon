@@ -1,0 +1,12 @@
+@import '../../global-sass-files/variables';
+
+.panel-header-title {
+  margin: 0;
+  display: inline-block;
+  vertical-align: middle;
+  margin-left: 7px;
+  font-family: $primary-font-regular;
+  font-size: 20px;
+  line-height: 49px;
+  margin-top: 0;
+}

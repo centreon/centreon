@@ -87,6 +87,7 @@ const StyledTableCell = withStyles({
   body: {
     fontSize: 12,
     textAlign: "left"
+
   }
 })(TableCell);
 

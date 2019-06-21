@@ -1,0 +1,43 @@
+@import '../global-sass-files/variables';
+
+.multi-select {
+  &-holder {
+    padding: 8px 24px 24px;
+    margin: -8px -24px -24px;
+    position: relative;
+    box-sizing: border-box;
+    &-empty {
+      border: 2px dashed #999;
+      min-height: 80px;
+      &-label {
+        position: absolute;
+        top: 12px;
+        left: 24px;
+        font-family: $primary-font-regular;
+        color: #797979;
+        font-size: 13px;
+        line-height: 14px;
+      }
+    }
+    &-add {
+      position: absolute;
+      bottom: 15px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-family: $primary-font-regular;
+      color: #1576cb;
+      font-size: 13px;
+      line-height: 14px;
+      font-style: italic;
+    }
+    &:hover {
+      background-color: #c7c8c9;
+      cursor: pointer;
+    }
+    svg {
+      position: absolute;
+      top: 5px;
+      right: 5px;
+    }
+  }
+}
