@@ -21,7 +21,7 @@ import { MultiSelectHolder } from "../..";
 
 const styles = theme => ({
   root: {
-    width: "100%",
+    width: "100%"
   },
   heading: {
     fontSize: theme.typography.pxToRem(15),
@@ -376,7 +376,11 @@ class Accordion extends React.Component {
                 />
               </CustomColumn>
             </CustomRow>
-            <MultiSelectHolder isEmpty={true} indicatorsCount="0" />
+            <MultiSelectHolder
+              isEmpty={true}
+              multiSelectLabel="Indicators"
+              multiSelectCount="0"
+            />
           </ExpansionPanelDetails>
         </ExpansionPanel>
       </div>

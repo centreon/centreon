@@ -7,6 +7,9 @@ const styles = () => ({
     color: '#c7c8c9',
     '&$checked': {
       color: '#0072CE',
+      '&:hover': {
+        backgroundColor: 'rgba(0, 114, 206, 0.08)',
+      },
     },
     '&$checked + $track': {
       backgroundColor: '#0072CE',
@@ -30,4 +33,4 @@ class CustomSwitch extends Component {
   }
 }
 
-export default withStyles(styles)(CustomSwitch)
+export default withStyles(styles)(Switch)

@@ -16,7 +16,7 @@ class InputFieldMultiSelectEmpty extends React.Component {
   };
 
   render() {
-    const { isEmpty, indicatorsCount, children } = this.props;
+    const { isEmpty, multiSelectCount, multiSelectLabel, children } = this.props;
     const { isHovered } = this.state;
     return (
       <div
@@ -30,7 +30,7 @@ class InputFieldMultiSelectEmpty extends React.Component {
         {isEmpty && (
           <span
             className={classnames(styles["multi-select-holder-empty-label"])}
-          >{`Indicators (${indicatorsCount})`}</span>
+          >{`${multiSelectLabel} (${multiSelectCount})`}</span>
         )}
         {isEmpty && (
           <span className={classnames(styles["multi-select-holder-add"])}>
