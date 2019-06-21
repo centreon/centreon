@@ -16,29 +16,44 @@ const styles = theme => ({
 });
 
 class TablePaginationActions extends Component {
+  handleFirstPageButtonClick = (event) => {
+    const {onChangePage} = this.props;
+    onChangePage(event, 0);
+  }
+
+  handleBackButtonClick = (event) => {
+    const {onChangePage, page} = this.props;
+    onChangePage(event, page - 1);
+  }
+
+  handleNextButtonClick = (event) => {
+    const {onChangePage, page} = this.props;
+    onChangePage(event, page + 1);
+  }
+
+  handleLastPageButtonClick = (event) => {
+    const { count,rowsPerPage,onChangePage} = this.props;
+    onChangePage(event, Math.max(0, Math.ceil(count / rowsPerPage) - 1));
+  }
   render() {
     const {
       classes,
       count,
-	  page,
-	  theme,
-      rowsPerPage,
-      handleFirstPageButtonClick,
-      handleBackButtonClick,
-      handleNextButtonClick,
-      handleLastPageButtonClick
+      page,
+      theme,
+      rowsPerPage
     } = this.props;
     return (
       <div className={classes.root}>
         <IconButton
-          onClick={handleFirstPageButtonClick}
+          onClick={this.handleFirstPageButtonClick}
           disabled={page === 0}
           aria-label="First Page"
         >
           {theme.direction === "rtl" ? <LastPageIcon /> : <FirstPageIcon />}
         </IconButton>
         <IconButton
-          onClick={handleBackButtonClick}
+          onClick={this.handleBackButtonClick}
           disabled={page === 0}
           aria-label="Previous Page"
         >
@@ -49,7 +64,7 @@ class TablePaginationActions extends Component {
           )}
         </IconButton>
         <IconButton
-          onClick={handleNextButtonClick}
+          onClick={this.handleNextButtonClick}
           disabled={page >= Math.ceil(count / rowsPerPage) - 1}
           aria-label="Next Page"
         >
@@ -60,7 +75,7 @@ class TablePaginationActions extends Component {
           )}
         </IconButton>
         <IconButton
-          onClick={handleLastPageButtonClick}
+          onClick={this.handleLastPageButtonClick}
           disabled={page >= Math.ceil(count / rowsPerPage) - 1}
           aria-label="Last Page"
         >
