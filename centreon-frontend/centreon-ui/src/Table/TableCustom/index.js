@@ -44,8 +44,8 @@ const styles = theme => ({
 
 class TableCustom extends Component {
   state = {
-    order: "asc",
-    orderBy: "activate",
+    order: "",
+    orderBy: "",
     selected: []
   };
 
@@ -125,7 +125,6 @@ class TableCustom extends Component {
       tableData,
       onDelete,
       onPaginate,
-      onSort,
       onDuplicate,
       onPaginationLimitChanged,
       limit,
@@ -156,7 +155,7 @@ class TableCustom extends Component {
                 checkable={checkable}
                 orderBy={orderBy}
                 onSelectAllClick={this.handleSelectAllClick}
-                onRequestSort={onSort}
+                onRequestSort={this.handleRequestSort}
                 rowCount={totalRows}
                 className={classes.tableWrapper}
                 headRows={columnConfiguration}

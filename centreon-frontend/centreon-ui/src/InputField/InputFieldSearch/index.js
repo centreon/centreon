@@ -7,7 +7,6 @@ import IconButton from "@material-ui/core/IconButton";
 import CloseIcon from "@material-ui/icons/Close";
 import SearchIcon from "@material-ui/icons/Search";
 
-
 const useStyles = theme => ({
   root: {
     padding: "0px 4px",
@@ -93,7 +92,6 @@ class InputFieldSearch extends Component {
               <CloseIcon fontSize="small" />
             </IconButton>
           ) : null}
-
           <span className={classes.bottomLine} />
         </Paper>
       </Paper>

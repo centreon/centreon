@@ -105,32 +105,32 @@ class BAMListingPage extends Component {
             >
               <InputFieldSearch onChange={onSearch} />
             </CustomColumn>
+          </CustomRow>
+        </Paper>
+        <Divider />
+        <Paper elevation={0} style={{ padding: "8px 16px" }}>
+          <CustomRow additionalStyles={["center-vertical"]}>
             <CustomColumn
               customColumn="md-4"
               additionalStyles={["flex-none", "container__col-xs-12", "m-0"]}
             >
               <ButtonCustom label="ADD" onClick={onAddClicked} />
             </CustomColumn>
-          </CustomRow>
-        </Paper>
-        <Divider />
-        <Paper elevation={0} style={{ padding: "8px 16px" }}>
-          <CustomRow>
             <CustomColumn
               customColumn="md-3"
-              additionalStyles={["flex-none", "container__col-xs-12"]}
+              additionalStyles={["flex-none", "container__col-xs-12", "m-0"]}
             >
               <IconDelete label="Delete" onClick={onDelete} />
             </CustomColumn>
             <CustomColumn
               customColumn="md-3"
-              additionalStyles={["flex-none", "container__col-xs-12"]}
+              additionalStyles={["flex-none", "container__col-xs-12", "m-0"]}
             >
               <IconLibraryAdd label="Duplicate" onClick={onDuplicate} />
             </CustomColumn>
             <CustomColumn
               customColumn="md-3"
-              additionalStyles={["flex-none", "container__col-xs-12"]}
+              additionalStyles={["flex-none", "container__col-xs-12", "m-0"]}
             >
               <IconInsertChart
                 label="Massive change"
@@ -139,7 +139,7 @@ class BAMListingPage extends Component {
             </CustomColumn>
             <CustomColumn
               customColumn="md-3"
-              additionalStyles={["flex-none", "container__col-xs-12"]}
+              additionalStyles={["flex-none", "container__col-xs-12", "m-0"]}
             >
               <IconPowerSettings
                 customStyle={{ backgroundColor: "#009fdf", marginTop: 2 }}

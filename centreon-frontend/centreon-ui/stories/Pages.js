@@ -38,9 +38,9 @@ import {
   IconLibraryAdd,
   IconPowerSettings,
   IconInsertChart,  
-  Panels
+  Panels,
+  BAMListingPage
 } from "../src";
-import Paper from "@material-ui/core/Paper";
 import BAMTableData from "../src/Pages/BAMListingMock";
 
 import Paper from '@material-ui/core/Paper';
@@ -246,7 +246,6 @@ storiesOf("Pages", module).add(
                   buttonActionType="delete"
                   buttonIconType="delete"
                   customPosition="button-action-card-position"
-
                   onClick={() => {
                     alert("Button delete clicked");
                   }}
@@ -1162,7 +1161,6 @@ storiesOf("Pages", module).add(
                       </CustomRow>
                     </CustomColumn>
                   </CustomRow>
-
                   <CustomRow>
                     <CustomColumn customColumn="md-5">
                       <CustomRow>
@@ -1204,7 +1202,6 @@ storiesOf("Pages", module).add(
                     </CustomRow>
                   </CustomStyles>
                 </Tab>
-
                 <Tab label="Escalation">
                   <CustomRow additionalStyles={["mt-2"]}>
                     <CustomColumn customColumn="xs-12">
