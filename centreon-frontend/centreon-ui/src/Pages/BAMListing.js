@@ -10,7 +10,8 @@ import {
   IconDelete,
   IconLibraryAdd,
   IconPowerSettings,
-  IconInsertChart
+  IconInsertChart,
+  Panels
 } from "../index";
 
 import TABLE_COLUMN_TYPES from "../Table/ColumnTypes";
@@ -71,6 +72,7 @@ const tableConfiguration = [
 ];
 
 class BAMListingPage extends Component {
+
   render() {
     const {
       onAddClicked,
@@ -86,7 +88,8 @@ class BAMListingPage extends Component {
       onPaginationLimitChanged,
       paginationLimit,
       totalRows,
-      currentPage
+      currentPage,
+      panelActive
     } = this.props;
     return (
       <React.Fragment>
@@ -166,6 +169,7 @@ class BAMListingPage extends Component {
             onToggle={onToggle}
           />
         </Paper>
+        <Panels panelTtype="small" togglePanel={panelActive}/>
       </React.Fragment>
     );
   }

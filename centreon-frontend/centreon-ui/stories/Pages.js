@@ -39,7 +39,7 @@ import {
   IconPowerSettings,
   IconInsertChart,  
   Panels,
-  BAMListingPage
+  BAMListingPageStory
 } from "../src";
 import BAMTableData from "../src/Pages/BAMListingMock";
 
@@ -1488,47 +1488,7 @@ storiesOf("Pages", module).add(
   "BAM page",
   () => {
     return (
-      <BAMListingPage
-        onAddClicked={() => {
-          console.log("Add clicked");
-        }}
-        onSearch={() => {
-          console.log("onSearch clicked");
-        }}
-        onDelete={() => {
-          console.log("onDelete clicked");
-        }}
-        onDuplicate={() => {
-          console.log("onDuplicate clicked");
-        }}
-        onMassiveChange={() => {
-          console.log("onMassiveChange clicked");
-        }}
-        onToggle={() => {
-          console.log("onToggle clicked");
-        }}
-        onPaginate={() => {
-          console.log("onPaginate clicked");
-        }}
-        onSort={() => {
-          console.log("onSort clicked");
-        }}
-        tableData={BAMTableData.result.entities}
-        onTableSelectionChanged={() => {
-          console.log("onTableSelectionChanged");
-        }}
-        onPaginationLimitChanged={() => {
-          console.log("onPaginationLimitChanged");
-        }}
-        paginationLimit={BAMTableData.result.pagination.limit}
-        currentPage={
-          BAMTableData.result.pagination.offset != 0
-            ? BAMTableData.result.pagination.offset /
-              BAMTableData.result.pagination.limit
-            : 0
-        }
-        totalRows={BAMTableData.result.pagination.total}
-      />
+      <BAMListingPageStory BAMTableData={BAMTableData}/>
     );
   },
   { notes: "A very simple component" }

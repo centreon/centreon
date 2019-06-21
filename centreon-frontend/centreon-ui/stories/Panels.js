@@ -10,7 +10,7 @@ import mock from "../src/Sidebar/mock2";
 import reactMock from "../src/Sidebar/reactRoutesMock";
 import SubmenuHeader from '../src/Submenu/SubmenuHeader/Mocked-Submenu';
 
-storiesOf("Panels", module).add("Panels", () => <Panels panelTtype="small" />, {
+storiesOf("Panels", module).add("Panels", () => <Panels panelTtype="small" togglePanel={true}/>, {
   notes: "A very simple component"
 });
 
@@ -42,7 +42,7 @@ storiesOf("Panels", module).add(
             <SubmenuHeader submenuType="header" />
             <SubmenuHeader submenuType="header" />
           </Header>
-          <Panels panelTtype="small" />
+          <Panels panelTtype="small" togglePanel={true}/>
         </div>
       </Wrapper>
     </React.Fragment>

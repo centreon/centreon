@@ -113,4 +113,5 @@ export {default as MaterialTable} from "./MaterialComponents/Table";
 export {default as MaterialProgressBar} from "./MaterialComponents/ProgressBar";
 export {default as MaterialButton} from "./MaterialComponents/Button";
 export {default as BAMListingPage} from "./Pages/BAMListing";
+export {default as BAMListingPageStory} from "./Pages/BAMListingPageStory";
 export {default as TABLE_COLUMN_TYPES} from "./Table/ColumnTypes";

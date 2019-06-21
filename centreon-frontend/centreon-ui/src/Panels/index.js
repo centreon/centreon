@@ -17,14 +17,11 @@ import ButtonCustom from "../Button/ButtonCustom";
 
 class Panels extends React.Component {
   state = {
-    togglePanel: false,
     panelItemActive: false
   };
 
   togglePanel = () => {
-    const { togglePanel } = this.state;
     this.setState({
-      togglePanel: !togglePanel,
       panelItemActive: false
     });
   };
@@ -37,10 +34,9 @@ class Panels extends React.Component {
   };
 
   render() {
-    const { customClass } = this.props;
-    const { panelItemActive, togglePanel } = this.state;
+    const { customClass, togglePanel } = this.props;
+    const { panelItemActive  } = this.state;
     return (
-      <React.Fragment>
         <div
           className={classnames(
             styles.panels,
@@ -106,10 +102,6 @@ class Panels extends React.Component {
             </div>
           </div>
         </div>
-        <div>
-          <ButtonCustom label="ADD" onClick={this.togglePanel.bind(this)} />
-        </div>
-      </React.Fragment>
     );
   }
 }
