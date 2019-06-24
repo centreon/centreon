@@ -93,7 +93,7 @@ class Panels extends React.Component {
                       Manage Business View
                     </h3>
                     <InputFieldSearch
-                      customStyle={{ width: "100%", marginBottom: 15 }}
+                      style={{ width: "100%", marginBottom: 15, boxSizing: 'border-box' }}
                     />
                     <TableDefault />
                   </div>

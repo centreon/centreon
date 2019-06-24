@@ -25,7 +25,7 @@ const useStyles = theme => ({
     position: "relative"
   },
   paper: {
-    padding: theme.spacing(1, 2)
+    padding: 0,
   },
   input: {
     marginLeft: 8,
@@ -66,11 +66,11 @@ class InputFieldSearch extends Component {
   };
 
   render() {
-    const { classes } = this.props;
+    const { classes, style } = this.props;
     const { searchText } = this.state;
     return (
       <Paper elevation={0} className={classes.paper}>
-        <Paper className={classes.root}>
+        <Paper className={classes.root} style={style}>
           <IconButton className={classes.iconButton} aria-label="Search">
             <SearchIcon fontSize="small" />
           </IconButton>

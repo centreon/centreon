@@ -101,6 +101,7 @@ export {default as IconDelete} from "./MaterialComponents/Icons/IconDelete";
 export {default as IconInsertChart} from "./MaterialComponents/Icons/IconInsertChart";
 export {default as IconLibraryAdd} from "./MaterialComponents/Icons/IconLibraryAdd";
 export {default as IconPowerSettings} from "./MaterialComponents/Icons/IconPowerSettings";
+export {default as IconPowerSettingsDisable} from "./MaterialComponents/Icons/IconPowerSettingsDisable";
 // Material Components
 export {default as Accordion} from "./MaterialComponents/Accordion";
 export {default as IconAttach} from "./MaterialComponents/Icons/IconAttach";
@@ -115,3 +116,4 @@ export {default as MaterialButton} from "./MaterialComponents/Button";
 export {default as BAMListingPage} from "./Pages/BAMListing";
 export {default as BAMListingPageStory} from "./Pages/BAMListingPageStory";
 export {default as TABLE_COLUMN_TYPES} from "./Table/ColumnTypes";
+export {default as Tooltip} from "./MaterialComponents/Tooltip";

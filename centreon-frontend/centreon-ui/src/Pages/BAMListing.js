@@ -10,8 +10,10 @@ import {
   IconDelete,
   IconLibraryAdd,
   IconPowerSettings,
+  IconPowerSettingsDisable,
   IconInsertChart,
-  Panels
+  Panels,
+  Tooltip
 } from "../index";
 
 import TABLE_COLUMN_TYPES from "../Table/ColumnTypes";
@@ -95,7 +97,7 @@ class BAMListingPage extends Component {
       <React.Fragment>
         <Breadcrumb breadcrumbs={breadcrumbs} />
         <Divider />
-        <Paper elevation={0} style={{ overflow: "hidden" }}>
+        <Paper elevation={0} style={{ padding: "8px 16px" }}>
           <CustomRow>
             <CustomColumn
               customColumn="md-4"
@@ -112,7 +114,7 @@ class BAMListingPage extends Component {
         </Paper>
         <Divider />
         <Paper elevation={0} style={{ padding: "8px 16px" }}>
-          <CustomRow additionalStyles={["center-vertical"]}>
+          <CustomRow>
             <CustomColumn
               customColumn="md-4"
               additionalStyles={["flex-none", "container__col-xs-12", "m-0"]}
@@ -121,34 +123,54 @@ class BAMListingPage extends Component {
             </CustomColumn>
             <CustomColumn
               customColumn="md-3"
-              additionalStyles={["flex-none", "container__col-xs-12", "m-0"]}
+              additionalStyles={["flex-none", "container__col-xs-12", "m-0", "pr-2"]}
             >
-              <IconDelete label="Delete" onClick={onDelete} />
+              <Tooltip label="Delete">
+                <IconDelete label="Delete" onClick={onDelete} />
+              </Tooltip>
             </CustomColumn>
             <CustomColumn
               customColumn="md-3"
-              additionalStyles={["flex-none", "container__col-xs-12", "m-0"]}
+              additionalStyles={["flex-none", "container__col-xs-12", "m-0", "pr-0", "pl-05"]}
             >
-              <IconLibraryAdd label="Duplicate" onClick={onDuplicate} />
+              <Tooltip label="Duplicate">
+                <IconLibraryAdd label="Duplicate" onClick={onDuplicate} />
+              </Tooltip>
             </CustomColumn>
             <CustomColumn
               customColumn="md-3"
-              additionalStyles={["flex-none", "container__col-xs-12", "m-0"]}
+              additionalStyles={["flex-none", "container__col-xs-12", "m-0", "pr-0", "pl-05"]}
             >
-              <IconInsertChart
-                label="Massive change"
-                onClick={onMassiveChange}
-              />
+              <Tooltip label="Enable">
+                <IconPowerSettings
+                  active={true}
+                  label="Enable"
+                  onClick={onToggle}
+                />
+              </Tooltip>
             </CustomColumn>
             <CustomColumn
               customColumn="md-3"
-              additionalStyles={["flex-none", "container__col-xs-12", "m-0"]}
+              additionalStyles={["flex-none", "container__col-xs-12", "m-0", "pl-05", "border-right"]}
             >
-              <IconPowerSettings
-                customStyle={{ backgroundColor: "#009fdf", marginTop: 2 }}
-                label="Enable/Disable"
-                onClick={onToggle}
-              />
+              <Tooltip label="Disable">
+                <IconPowerSettingsDisable
+                  active={true}
+                  label="Disable"
+                  onClick={onToggle} 
+                />
+              </Tooltip>
+            </CustomColumn>
+            <CustomColumn
+              customColumn="md-3"
+              additionalStyles={["flex-none", "container__col-xs-12", "m-0", "pr-0"]}
+            >
+              <Tooltip label="Massive change">
+                <IconInsertChart
+                  label="Massive change"
+                  onClick={onMassiveChange}
+                />
+              </Tooltip>
             </CustomColumn>
           </CustomRow>
         </Paper>

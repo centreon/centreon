@@ -6,7 +6,7 @@ const useStyles = makeStyles(theme => ({
   root: {
     display: "flex",
     alignItems: "center",
-    textAlign: "left"
+    textAlign: "left",
   },
   icon: {
     color: "#fff",
@@ -22,13 +22,34 @@ const useStyles = makeStyles(theme => ({
     backgroundColor: "#707070",
     borderRadius: "50%",
     fontSize: 15,
-    padding: 3
+    padding: 3,
   },
   iconWrap: {
     display: "inline-block",
     verticalAlign: "middle",
     height: 23,
-    width: 23
+    width: 23,
+    position: 'relative',
+    '&::after': {
+      content: "''",
+      position: "absolute",
+      width: 2,
+      height: 30,
+      background: "#7f7f7f",
+      transform: "rotate(140deg)",
+      left: 9,
+      top: -2,
+    },
+    '&::before': {
+      content: "''",
+      position: "absolute",
+      width: 4,
+      height: 30,
+      background: "#fff",
+      transform: "rotate(140deg)",
+      left: 9,
+      top: -3,
+    }
   }
 }));
 

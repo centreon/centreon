@@ -40,5 +40,7 @@
   &-inner {
     overflow-y: auto;
     height: calc(100vh - 104px);
+    padding-bottom: 20px;
+    box-sizing: border-box;
   }
 }
