@@ -169,7 +169,6 @@ class BAMListingPage extends Component {
             onToggle={onToggle}
           />
         </Paper>
-        <Panels panelTtype="small" togglePanel={panelActive}/>
       </React.Fragment>
     );
   }
