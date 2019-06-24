@@ -119,6 +119,12 @@ class TableCustom extends Component {
     );
   };
 
+  rowHovered = (id, value) => {
+    this.setState({
+      hovered: value ? id : null
+    });
+  };
+
   render() {
     const {
       columnConfiguration,
@@ -134,7 +140,7 @@ class TableCustom extends Component {
       totalRows,
       onToggle
     } = this.props;
-    const { order, orderBy, selected } = this.state;
+    const { order, orderBy, selected, hovered } = this.state;
 
     const isSelected = name => selected.indexOf(name) !== -1;
 
@@ -160,7 +166,7 @@ class TableCustom extends Component {
                 className={classes.tableWrapper}
                 headRows={columnConfiguration}
               />
-              <TableBody>
+              <TableBody onMouseLeave={this.rowHovered.bind(this, "", false)}>
                 {tableData.map(row => {
                   const isItemSelected = isSelected(row.id);
                   return (
@@ -172,6 +178,7 @@ class TableCustom extends Component {
                       tabIndex={-1}
                       key={row.id}
                       selected={isItemSelected}
+                      onMouseEnter={this.rowHovered.bind(this, row.id, true)}
                     >
                       {checkable ? (
                         <StyledTableCell2
@@ -222,22 +229,28 @@ class TableCustom extends Component {
                             break;
                           case TABLE_COLUMN_TYPES.hoverActions:
                             return (
-                              <StyledTableCell2 hover>
-                                <IconDelete
-                                  customStyle={{
-                                    color: "#707070",
-                                    fontSize: 20
-                                  }}
-                                  onClick={onDelete}
-                                />
-                                <IconLibraryAdd
-                                  customStyle={{
-                                    color: "#707070",
-                                    marginLeft: "14px",
-                                    fontSize: 20
-                                  }}
-                                  onClick={onDuplicate}
-                                />
+                              <StyledTableCell2>
+                                {hovered == row.id ? (
+                                  <React.Fragment>
+                                    <IconDelete
+                                      customStyle={{
+                                        color: "#707070",
+                                        fontSize: 20
+                                      }}
+                                      onClick={onDelete}
+                                    />
+                                    <IconLibraryAdd
+                                      customStyle={{
+                                        color: "#707070",
+                                        marginLeft: "14px",
+                                        fontSize: 20
+                                      }}
+                                      onClick={onDuplicate}
+                                    />
+                                  </React.Fragment>
+                                ) : (
+                                  " "
+                                )}
                               </StyledTableCell2>
                             );
                             break;
