@@ -242,7 +242,7 @@ class TableCustom extends Component {
                             break;
                           case TABLE_COLUMN_TYPES.hoverActions:
                             return (
-                              <StyledTableCell2>
+                              <StyledTableCell2 style={{paddingTop: 0, paddingBottom: 0}}>
                                 {hovered == row.id ? (
                                   <React.Fragment>
                                     <IconDelete
