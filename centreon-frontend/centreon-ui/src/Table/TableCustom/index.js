@@ -248,7 +248,10 @@ class TableCustom extends Component {
                                     <IconDelete
                                       customStyle={{
                                         color: "#707070",
-                                        fontSize: 20
+                                        fontSize: 20,
+                                        position: 'absolute',
+                                        left: 15,
+                                        top: 5,
                                       }}
                                       onClick={onDelete}
                                     />
@@ -256,7 +259,10 @@ class TableCustom extends Component {
                                       customStyle={{
                                         color: "#707070",
                                         marginLeft: "14px",
-                                        fontSize: 20
+                                        fontSize: 20,
+                                        position: 'absolute',
+                                        left: 30,
+                                        top: 5,
                                       }}
                                       onClick={onDuplicate}
                                     />
