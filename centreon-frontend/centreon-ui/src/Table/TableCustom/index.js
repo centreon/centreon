@@ -16,6 +16,7 @@ import KeyboardArrowRight from "@material-ui/icons/KeyboardArrowRight";
 import LastPageIcon from "@material-ui/icons/LastPage";
 import Checkbox from "@material-ui/core/Checkbox";
 import IconPowerSettings from "../../MaterialComponents/Icons/IconPowerSettings";
+import IconPowerSettingsDisable from "../../MaterialComponents/Icons/IconPowerSettingsDisable";
 import StyledCheckbox from "./StyledCheckbox";
 import IconDelete from "../../MaterialComponents/Icons/IconDelete";
 import IconLibraryAdd from "../../MaterialComponents/Icons/IconLibraryAdd";
@@ -92,6 +93,8 @@ class TableCustom extends Component {
   };
 
   handleClick = (event, name) => {
+    event.preventDefault();
+    event.stopPropagation();
     const { selected } = this.state;
     const { onTableSelectionChanged } = this.props;
     const selectedIndex = selected.indexOf(name);
@@ -138,7 +141,8 @@ class TableCustom extends Component {
       currentPage,
       classes,
       totalRows,
-      onToggle
+      onToggle,
+      onRowClick
     } = this.props;
     const { order, orderBy, selected, hovered } = this.state;
 
@@ -162,7 +166,8 @@ class TableCustom extends Component {
                 orderBy={orderBy}
                 onSelectAllClick={this.handleSelectAllClick}
                 onRequestSort={this.handleRequestSort}
-                rowCount={totalRows}
+                rowCount={limit - emptyRows}
+                onClick={onRowClick}
                 className={classes.tableWrapper}
                 headRows={columnConfiguration}
               />
@@ -172,7 +177,6 @@ class TableCustom extends Component {
                   return (
                     <StyledTableRow
                       hover
-                      onClick={event => this.handleClick(event, row.id)}
                       role="checkbox"
                       aria-checked={isItemSelected}
                       tabIndex={-1}
@@ -183,6 +187,7 @@ class TableCustom extends Component {
                       {checkable ? (
                         <StyledTableCell2
                           align="left"
+                          onClick={event => this.handleClick(event, row.id)}
                           className={classes.tableCell}
                           padding="checkbox"
                         >
@@ -218,12 +223,20 @@ class TableCustom extends Component {
                           case TABLE_COLUMN_TYPES.toggler:
                             return (
                               <StyledTableCell2 align="left">
-                                <IconPowerSettings
-                                  onClick={() => {
-                                    onToggle([row.id]);
-                                  }}
-                                  active={row[column.id] || false}
-                                />
+                                {row[column.id] ? (
+                                  <IconPowerSettings
+                                    onClick={() => {
+                                      onToggle([row.id]);
+                                    }}
+                                    active={true}
+                                  />
+                                ) : (
+                                  <IconPowerSettingsDisable
+                                    active={true}
+                                    label="Disable"
+                                    onClick={onToggle}
+                                  />
+                                )}
                               </StyledTableCell2>
                             );
                             break;
