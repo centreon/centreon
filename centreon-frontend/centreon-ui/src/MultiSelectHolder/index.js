@@ -28,14 +28,14 @@ class InputFieldMultiSelectEmpty extends React.Component {
         onMouseLeave={this.toggleHover.bind(this)}
       >
         {isEmpty && (
-          <span
-            className={classnames(styles["multi-select-holder-empty-label"])}
-          >{`${multiSelectLabel} (${multiSelectCount})`}</span>
-        )}
-        {isEmpty && (
-          <span className={classnames(styles["multi-select-holder-add"])}>
-            + Click to link indicators
-          </span>
+          <React.Fragment>
+            <span
+              className={classnames(styles["multi-select-holder-empty-label"])}
+            >{`${multiSelectLabel} (${multiSelectCount})`}</span>
+            <span className={classnames(styles["multi-select-holder-add"])}>
+              + Click to link indicators
+            </span>
+          </React.Fragment>
         )}
         {children}
         {isHovered ? <IconEdit /> : null}

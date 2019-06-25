@@ -21,9 +21,7 @@ function IconEdit({customStyle, onClick}) {
   const classes = useStyles();
 
   return (
-    <React.Fragment>
-      <Edit onClick={onClick} style={customStyle} className={classes.icon} />
-    </React.Fragment>
+    <Edit onClick={onClick} style={customStyle} className={classes.icon} />
   );
 }
 
