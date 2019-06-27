@@ -140,7 +140,7 @@ class BAMListingPage extends Component {
                     "flex-none",
                     "container__col-xs-12",
                     "m-0",
-                    "pr-05"
+                    "pr-09"
                   ]}
                 >
                   <Tooltip label="Delete">
@@ -153,7 +153,7 @@ class BAMListingPage extends Component {
                     "flex-none",
                     "container__col-xs-12",
                     "m-0",
-                    "pr-05",
+                    "pr-10",
                     "pl-05"
                   ]}
                 >
@@ -167,7 +167,7 @@ class BAMListingPage extends Component {
                     "flex-none",
                     "container__col-xs-12",
                     "m-0",
-                    "pr-05",
+                    "pr-10",
                     "pl-05"
                   ]}
                 >
@@ -186,7 +186,7 @@ class BAMListingPage extends Component {
                     "container__col-xs-12",
                     "m-0",
                     "pl-05",
-                    "pr-2",
+                    "pr-24",
                     "border-right"
                   ]}
                 >
@@ -204,7 +204,7 @@ class BAMListingPage extends Component {
                     "flex-none",
                     "container__col-xs-12",
                     "m-0",
-                    "pl-2"
+                    "pl-22"
                   ]}
                 >
                   <Tooltip label="Massive change">

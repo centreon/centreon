@@ -57,6 +57,7 @@ export { default as Panels } from "./Panels";
 export { default as PanelHeaderTitle } from "./Panels/PanelHeaderTitle";
 export { default as PanelItem } from "./Panels/PanelItem";
 export { default as Popup } from "./Popup";
+export { default as PopupNew } from "./Popup/PopupNew";
 export { default as ProgressBar } from "./ProgressBar/ProgressBarSteps";
 export { default as ProgressBarItem } from "./ProgressBar/ProgressBarSteps/ProgressBarItem";
 export { default as RadioButton } from "./RadioButton";

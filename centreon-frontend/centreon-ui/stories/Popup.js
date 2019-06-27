@@ -1,9 +1,13 @@
 import React from "react";
 import { storiesOf } from "@storybook/react";
 import styles from '../src/Popup/popup.scss';
+import styles2 from '../src/Popup/PopupNew/popup.scss';
 import  classnames from 'classnames';
+import ButtonCustom from "@material-ui/core/Button";
+import IconCloseNew from "../src/MaterialComponents/Icons/IconClose";
 import {
   Popup,
+  PopupNew,
   IconClose,
   Slider,
   MessageInfo,
@@ -402,6 +406,34 @@ storiesOf("Popup Extensions Delete", module).add(
       </div>
       <IconClose iconPosition="icon-close-position-small" iconType="middle" />
     </Popup>
+  ),
+  { notes: "A very simple component" }
+);
+
+storiesOf("Popup", module).add(
+  "Popup - new",
+  () => (
+    <PopupNew popupType="small">
+      <div className={classnames(styles2["popup-header"])}>
+        <h3 className={classnames(styles2["popup-title"])}>Warning</h3>
+      </div>
+      <div className={classnames(styles2["popup-body"])}>
+        <p className={classnames(styles2["popup-info"])}>Mandatory fields are not filled!</p>
+        <ButtonCustom
+          variant="contained"
+          color="primary"
+          style={{
+            backgroundColor: "#0072CE",
+            fontSize: 11,
+            textAlign: "center",
+            padding: "5px 25px"
+          }}
+        >
+          COMPLETE
+        </ButtonCustom>
+      </div>
+      <IconCloseNew />
+    </PopupNew>
   ),
   { notes: "A very simple component" }
 );
