@@ -7,7 +7,8 @@
     "eslint": "npx eslint .",
     "prepublishOnly": "npm run bundle",
     "bundle": "babel ./src --out-dir ./lib --copy-files",
-    "storybook": "start-storybook -p 9001 -c .storybook -s ./dynamic/compiled-components/components"
+    "storybook": "start-storybook -p 9001 -c .storybook -s ./dynamic/compiled-components/components",
+    "test": "npx jest"
   },
   "repository": {
     "type": "git",
@@ -71,8 +72,11 @@
     "@storybook/addon-notes": "^4.0.8",
     "@storybook/react": "^4.0.9",
     "@svgr/cli": "^2.1.0",
+    "babel-jest": "^24.8.0",
     "docz": "^0.5.2",
     "docz-core": "^0.5.2",
+    "enzyme": "^3.10.0",
+    "enzyme-adapter-react-16": "^1.14.0",
     "eslint": "^5.16.0",
     "eslint-config-airbnb": "^17.1.0",
     "eslint-config-centreon": "file:./eslint-config-centreon",
@@ -81,6 +85,9 @@
     "eslint-plugin-jsx-a11y": "^6.2.1",
     "eslint-plugin-prettier": "^3.1.0",
     "eslint-plugin-react": "^7.13.0",
+    "identity-obj-proxy": "^3.0.0",
+    "jest": "^24.8.0",
+    "jest-enzyme": "^7.0.2",
     "node-sass": "^4.10.0",
     "prettier": "^1.18.2",
     "uikit": "^3.0.0-rc.11"
