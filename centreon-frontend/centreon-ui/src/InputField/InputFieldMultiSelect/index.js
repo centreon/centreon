@@ -3,7 +3,6 @@ import classnames from 'classnames';
 import styles from './input-multi-select.scss';
 import Checkbox from '../../Checkbox';
 import IconToggleSubmenu from '../../Icon/IconToggleSubmenu';
-import ScrollBar from '../../ScrollBar';
 
 class InputFieldMultiSelect extends Component {
 

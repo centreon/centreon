@@ -5,8 +5,9 @@ import { withStyles } from "@material-ui/core/styles";
 const styles = {
     toolbar: {
 		height: '32px',
-		minHeight: 'auto'
-	  }
+    minHeight: 'auto',
+    paddingLeft: 5,
+    }
 };
 
 export default withStyles(styles)(TablePagination);

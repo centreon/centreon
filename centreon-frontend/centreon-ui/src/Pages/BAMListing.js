@@ -10,7 +10,10 @@ import {
   IconDelete,
   IconLibraryAdd,
   IconPowerSettings,
-  IconInsertChart
+  IconPowerSettingsDisable,
+  IconInsertChart,
+  Panels,
+  Tooltip
 } from "../index";
 
 import TABLE_COLUMN_TYPES from "../Table/ColumnTypes";
@@ -71,6 +74,19 @@ const tableConfiguration = [
 ];
 
 class BAMListingPage extends Component {
+  state = {
+    selectedElementsCount:0
+  }
+
+  onTableSelection = (selected) => {
+    const {onTableSelectionChanged} = this.props;
+    this.setState({
+      selectedElementsCount:selected.length
+    },()=>{
+      onTableSelectionChanged(selected)
+    })
+  }
+
   render() {
     const {
       onAddClicked,
@@ -82,17 +98,17 @@ class BAMListingPage extends Component {
       onPaginate,
       onSort,
       tableData,
-      onTableSelectionChanged,
       onPaginationLimitChanged,
       paginationLimit,
       totalRows,
       currentPage
     } = this.props;
+    const {selectedElementsCount} = this.state;
     return (
       <React.Fragment>
         <Breadcrumb breadcrumbs={breadcrumbs} />
         <Divider />
-        <Paper elevation={0} style={{ overflow: "hidden" }}>
+        <Paper elevation={0} style={{ padding: "8px 16px" }}>
           <CustomRow>
             <CustomColumn
               customColumn="md-4"
@@ -105,55 +121,108 @@ class BAMListingPage extends Component {
             >
               <InputFieldSearch onChange={onSearch} />
             </CustomColumn>
-            <CustomColumn
-              customColumn="md-4"
-              additionalStyles={["flex-none", "container__col-xs-12", "m-0"]}
-            >
-              <ButtonCustom label="ADD" onClick={onAddClicked} />
-            </CustomColumn>
           </CustomRow>
         </Paper>
         <Divider />
         <Paper elevation={0} style={{ padding: "8px 16px" }}>
           <CustomRow>
             <CustomColumn
-              customColumn="md-3"
-              additionalStyles={["flex-none", "container__col-xs-12"]}
+              customColumn="md-4"
+              additionalStyles={["flex-none", "container__col-xs-12", "m-0"]}
             >
-              <IconDelete label="Delete" onClick={onDelete} />
+              <ButtonCustom label="ADD" onClick={onAddClicked} />
             </CustomColumn>
-            <CustomColumn
-              customColumn="md-3"
-              additionalStyles={["flex-none", "container__col-xs-12"]}
-            >
-              <IconLibraryAdd label="Duplicate" onClick={onDuplicate} />
-            </CustomColumn>
-            <CustomColumn
-              customColumn="md-3"
-              additionalStyles={["flex-none", "container__col-xs-12"]}
-            >
-              <IconInsertChart
-                label="Massive change"
-                onClick={onMassiveChange}
-              />
-            </CustomColumn>
-            <CustomColumn
-              customColumn="md-3"
-              additionalStyles={["flex-none", "container__col-xs-12"]}
-            >
-              <IconPowerSettings
-                customStyle={{ backgroundColor: "#009fdf", marginTop: 2 }}
-                label="Enable/Disable"
-                onClick={onToggle}
-              />
-            </CustomColumn>
+            {selectedElementsCount > 0 ? (
+              <React.Fragment>
+                <CustomColumn
+                  customColumn="md-3"
+                  additionalStyles={[
+                    "flex-none",
+                    "container__col-xs-12",
+                    "m-0",
+                    "pr-05"
+                  ]}
+                >
+                  <Tooltip label="Delete">
+                    <IconDelete label="Delete" onClick={onDelete} />
+                  </Tooltip>
+                </CustomColumn>
+                <CustomColumn
+                  customColumn="md-3"
+                  additionalStyles={[
+                    "flex-none",
+                    "container__col-xs-12",
+                    "m-0",
+                    "pr-05",
+                    "pl-05"
+                  ]}
+                >
+                  <Tooltip label="Duplicate">
+                    <IconLibraryAdd label="Duplicate" onClick={onDuplicate} />
+                  </Tooltip>
+                </CustomColumn>
+                <CustomColumn
+                  customColumn="md-3"
+                  additionalStyles={[
+                    "flex-none",
+                    "container__col-xs-12",
+                    "m-0",
+                    "pr-05",
+                    "pl-05"
+                  ]}
+                >
+                  <Tooltip label="Enable">
+                    <IconPowerSettings
+                      active={true}
+                      label="Enable"
+                      onClick={onToggle}
+                    />
+                  </Tooltip>
+                </CustomColumn>
+                <CustomColumn
+                  customColumn="md-3"
+                  additionalStyles={[
+                    "flex-none",
+                    "container__col-xs-12",
+                    "m-0",
+                    "pl-05",
+                    "pr-2",
+                    "border-right"
+                  ]}
+                >
+                  <Tooltip label="Disable">
+                    <IconPowerSettingsDisable
+                      active={true}
+                      label="Disable"
+                      onClick={onToggle}
+                    />
+                  </Tooltip>
+                </CustomColumn>
+                <CustomColumn
+                  customColumn="md-3"
+                  additionalStyles={[
+                    "flex-none",
+                    "container__col-xs-12",
+                    "m-0",
+                    "pl-2"
+                  ]}
+                >
+                  <Tooltip label="Massive change">
+                    <IconInsertChart
+                      label="Massive change"
+                      onClick={onMassiveChange}
+                    />
+                  </Tooltip>
+                </CustomColumn>
+              </React.Fragment>
+            ) : null}
           </CustomRow>
         </Paper>
         <Paper elevation={0} style={{ padding: "8px 16px", paddingTop: 0 }}>
           <TableCustom
             columnConfiguration={tableConfiguration}
             tableData={tableData}
-            onTableSelectionChanged={onTableSelectionChanged}
+            onTableSelectionChanged={this.onTableSelection}
             onDelete={onDelete}
             onPaginate={onPaginate}
             onSort={onSort}

@@ -37,11 +37,13 @@ import {
   IconDelete,
   IconLibraryAdd,
   IconPowerSettings,
-  IconInsertChart,
-  BAMListingPage
+  IconInsertChart,  
+  Panels,
+  BAMListingPageStory
 } from "../src";
-import Paper from "@material-ui/core/Paper";
 import BAMTableData from "../src/Pages/BAMListingMock";
+
+import Paper from '@material-ui/core/Paper';
 
 // Extensions Page
 storiesOf("Pages", module).add(
@@ -1159,7 +1161,6 @@ storiesOf("Pages", module).add(
                       </CustomRow>
                     </CustomColumn>
                   </CustomRow>
-
                   <CustomRow>
                     <CustomColumn customColumn="md-5">
                       <CustomRow>
@@ -1201,7 +1202,6 @@ storiesOf("Pages", module).add(
                     </CustomRow>
                   </CustomStyles>
                 </Tab>
-
                 <Tab label="Escalation">
                   <CustomRow additionalStyles={["mt-2"]}>
                     <CustomColumn customColumn="xs-12">
@@ -1488,47 +1488,7 @@ storiesOf("Pages", module).add(
   "BAM page",
   () => {
     return (
-      <BAMListingPage
-        onAddClicked={() => {
-          console.log("Add clicked");
-        }}
-        onSearch={() => {
-          console.log("onSearch clicked");
-        }}
-        onDelete={() => {
-          console.log("onDelete clicked");
-        }}
-        onDuplicate={() => {
-          console.log("onDuplicate clicked");
-        }}
-        onMassiveChange={() => {
-          console.log("onMassiveChange clicked");
-        }}
-        onToggle={() => {
-          console.log("onToggle clicked");
-        }}
-        onPaginate={() => {
-          console.log("onPaginate clicked");
-        }}
-        onSort={() => {
-          console.log("onSort clicked");
-        }}
-        tableData={BAMTableData.result.entities}
-        onTableSelectionChanged={() => {
-          console.log("onTableSelectionChanged");
-        }}
-        onPaginationLimitChanged={() => {
-          console.log("onPaginationLimitChanged");
-        }}
-        paginationLimit={BAMTableData.result.pagination.limit}
-        currentPage={
-          BAMTableData.result.pagination.offset != 0
-            ? BAMTableData.result.pagination.offset /
-              BAMTableData.result.pagination.limit
-            : 0
-        }
-        totalRows={BAMTableData.result.pagination.total}
-      />
+      <BAMListingPageStory BAMTableData={BAMTableData}/>
     );
   },
   { notes: "A very simple component" }

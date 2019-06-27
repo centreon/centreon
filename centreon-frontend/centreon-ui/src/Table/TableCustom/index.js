@@ -1,21 +1,12 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
-import { makeStyles, withStyles, useTheme } from "@material-ui/core/styles";
+import { withStyles } from "@material-ui/core/styles";
 import Table from "@material-ui/core/Table";
 import TableBody from "@material-ui/core/TableBody";
-import TableCell from "@material-ui/core/TableCell";
-import TableHead from "@material-ui/core/TableHead";
-import TablePagination from "@material-ui/core/TablePagination";
 import StyledTableRow from "./StyledTableRow";
-import TableSortLabel from "@material-ui/core/TableSortLabel";
 import Paper from "@material-ui/core/Paper";
-import IconButton from "@material-ui/core/IconButton";
-import FirstPageIcon from "@material-ui/icons/FirstPage";
-import KeyboardArrowLeft from "@material-ui/icons/KeyboardArrowLeft";
-import KeyboardArrowRight from "@material-ui/icons/KeyboardArrowRight";
-import LastPageIcon from "@material-ui/icons/LastPage";
-import Checkbox from "@material-ui/core/Checkbox";
 import IconPowerSettings from "../../MaterialComponents/Icons/IconPowerSettings";
+import IconPowerSettingsDisable from "../../MaterialComponents/Icons/IconPowerSettingsDisable";
 import StyledCheckbox from "./StyledCheckbox";
 import IconDelete from "../../MaterialComponents/Icons/IconDelete";
 import IconLibraryAdd from "../../MaterialComponents/Icons/IconLibraryAdd";
@@ -44,8 +35,8 @@ const styles = theme => ({
 
 class TableCustom extends Component {
   state = {
-    order: "asc",
-    orderBy: "activate",
+    order: "",
+    orderBy: "",
     selected: []
   };
 
@@ -92,6 +83,8 @@ class TableCustom extends Component {
   };
 
   handleClick = (event, name) => {
+    event.preventDefault();
+    event.stopPropagation();
     const { selected } = this.state;
     const { onTableSelectionChanged } = this.props;
     const selectedIndex = selected.indexOf(name);
@@ -119,13 +112,18 @@ class TableCustom extends Component {
     );
   };
 
+  rowHovered = (id, value) => {
+    this.setState({
+      hovered: value ? id : null
+    });
+  };
+
   render() {
     const {
       columnConfiguration,
       tableData,
       onDelete,
       onPaginate,
-      onSort,
       onDuplicate,
       onPaginationLimitChanged,
       limit,
@@ -133,9 +131,10 @@ class TableCustom extends Component {
       currentPage,
       classes,
       totalRows,
-      onToggle
+      onToggle,
+      onRowClick
     } = this.props;
-    const { order, orderBy, selected } = this.state;
+    const { order, orderBy, selected, hovered } = this.state;
 
     const isSelected = name => selected.indexOf(name) !== -1;
 
@@ -156,27 +155,29 @@ class TableCustom extends Component {
                 checkable={checkable}
                 orderBy={orderBy}
                 onSelectAllClick={this.handleSelectAllClick}
-                onRequestSort={onSort}
-                rowCount={totalRows}
+                onRequestSort={this.handleRequestSort}
+                rowCount={limit - emptyRows}
+                onClick={onRowClick}
                 className={classes.tableWrapper}
                 headRows={columnConfiguration}
               />
-              <TableBody>
+              <TableBody onMouseLeave={this.rowHovered.bind(this, "", false)}>
                 {tableData.map(row => {
                   const isItemSelected = isSelected(row.id);
                   return (
                     <StyledTableRow
                       hover
-                      onClick={event => this.handleClick(event, row.id)}
                       role="checkbox"
                       aria-checked={isItemSelected}
                       tabIndex={-1}
                       key={row.id}
                       selected={isItemSelected}
+                      onMouseEnter={this.rowHovered.bind(this, row.id, true)}
                     >
                       {checkable ? (
                         <StyledTableCell2
                           align="left"
+                          onClick={event => this.handleClick(event, row.id)}
                           className={classes.tableCell}
                           padding="checkbox"
                         >
@@ -212,33 +213,53 @@ class TableCustom extends Component {
                           case TABLE_COLUMN_TYPES.toggler:
                             return (
                               <StyledTableCell2 align="left">
-                                <IconPowerSettings
-                                  onClick={() => {
-                                    onToggle([row.id]);
-                                  }}
-                                  active={row[column.id] || false}
-                                />
+                                {row[column.id] ? (
+                                  <IconPowerSettings
+                                    onClick={() => {
+                                      onToggle([row.id]);
+                                    }}
+                                    active={true}
+                                  />
+                                ) : (
+                                  <IconPowerSettingsDisable
+                                    active={true}
+                                    label="Disable"
+                                    onClick={onToggle}
+                                  />
+                                )}
                               </StyledTableCell2>
                             );
                             break;
                           case TABLE_COLUMN_TYPES.hoverActions:
                             return (
-                              <StyledTableCell2 hover>
-                                <IconDelete
-                                  customStyle={{
-                                    color: "#707070",
-                                    fontSize: 20
-                                  }}
-                                  onClick={onDelete}
-                                />
-                                <IconLibraryAdd
-                                  customStyle={{
-                                    color: "#707070",
-                                    marginLeft: "14px",
-                                    fontSize: 20
-                                  }}
-                                  onClick={onDuplicate}
-                                />
+                              <StyledTableCell2 style={{paddingTop: 0, paddingBottom: 0}}>
+                                {hovered == row.id ? (
+                                  <React.Fragment>
+                                    <IconDelete
+                                      customStyle={{
+                                        color: "#707070",
+                                        fontSize: 20,
+                                        position: 'absolute',
+                                        left: 15,
+                                        top: 5,
+                                      }}
+                                      onClick={onDelete}
+                                    />
+                                    <IconLibraryAdd
+                                      customStyle={{
+                                        color: "#707070",
+                                        marginLeft: "14px",
+                                        fontSize: 20,
+                                        position: 'absolute',
+                                        left: 30,
+                                        top: 5,
+                                      }}
+                                      onClick={onDuplicate}
+                                    />
+                                  </React.Fragment>
+                                ) : (
+                                  " "
+                                )}
                               </StyledTableCell2>
                             );
                             break;

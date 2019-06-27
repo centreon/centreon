@@ -6,6 +6,7 @@
     width: 100%;
     border-top: 0;
     position: relative;
+    margin-top: 6px;
     &-input {
       -webkit-align-items: center;
       -webkit-box-align: center;
@@ -126,6 +127,9 @@
     &.small {
       width: 150px;
     }
+    &.middle {
+      width: 200px;
+    }
     &.medium {
       width: 300px;
       @media screen and(max-width: 1300px) {
@@ -169,6 +173,9 @@
       display: block;
       margin-bottom: 7px;
       cursor: pointer;
+    }
+    &.no-margin {
+      margin: 0;
     }
   }
 }

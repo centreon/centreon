@@ -1,40 +1,30 @@
-import React from 'react';
-import { makeStyles } from '@material-ui/core/styles';
-import InsertChart from '@material-ui/icons/InsertChart';
+import React from "react";
+import { makeStyles } from "@material-ui/core/styles";
+import InsertChart from "@material-ui/icons/InsertChart";
 
 const useStyles = makeStyles(theme => ({
   root: {
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center"
   },
   icon: {
-    color: '#009fdf',
-    cursor: 'pointer',
-  },
-  iconLabel: {
-    color: '#009fdf',
-    fontSize: 12, 
-    display: 'inline-block',
-    verticalAlign: 'super',
-    fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
-    fontWeight: 'bold',
-    cursor: 'pointer',
-    paddingLeft: 5,
+    color: "#707070",
+    cursor: "pointer"
   },
   iconWrap: {
-    display: 'inline-block',
-    verticalAlign: 'middle',
+    display: "inline-block",
+    verticalAlign: "middle",
+    height: 24
   }
 }));
 
-function IconInsertChart({label,...rest}) {
+function IconInsertChart({ ...rest }) {
   const classes = useStyles();
 
   return (
     <span {...rest} className={classes.iconWrap}>
       <InsertChart className={classes.icon} />
-      {label && <span className={classes.iconLabel}>{label}</span>}
     </span>
   );
 }
