@@ -16,7 +16,7 @@ import TablePaginationActions from "./TablePaginationActions";
 import StyledTableCell2 from "./StyledTableCell2";
 import TableCellCustom from "./TableCellCustom";
 import StyledPagination from "./StyledPagination";
-import Tooltip from '../../MaterialComponents/Tooltip';
+import Tooltip from "../../MaterialComponents/Tooltip";
 
 const styles = theme => ({
   root: {
@@ -230,31 +230,53 @@ class TableCustom extends Component {
                             break;
                           case TABLE_COLUMN_TYPES.hoverActions:
                             return (
-                              <StyledTableCell2 style={{paddingTop: 0, paddingBottom: 0, minWidth: 94, boxSizing: 'border-box'}}>
+                              <StyledTableCell2
+                                style={{
+                                  paddingTop: 0,
+                                  paddingBottom: 0,
+                                  minWidth: 94,
+                                  boxSizing: "border-box"
+                                }}
+                              >
                                 {hovered == row.id ? (
                                   <React.Fragment>
-
-                                  
-                                  <Tooltip label="More action" position={{left: '50px'}} customStyle={{position: 'absolute', left: 0, top: 0, padding: '3px 5px'}}>
-                                    <IconDelete
+                                    <Tooltip
+                                      label="More action"
+                                      position={{ left: "50px" }}
                                       customStyle={{
-                                        color: "#707070",
-                                        fontSize: 20,
+                                        position: "absolute",
+                                        left: 0,
+                                        top: 0,
+                                        padding: "3px 5px"
                                       }}
-                                      onClick={onDelete}
-                                    />
+                                    >
+                                      <IconDelete
+                                        customStyle={{
+                                          color: "#707070",
+                                          fontSize: 20
+                                        }}
+                                        onClick={onDelete}
+                                      />
                                     </Tooltip>
-                                    <Tooltip label="More action" position={{left: '50px'}} customStyle={{position: 'absolute', left: 35, top: 0, padding: '3px 5px'}}>
+                                    <Tooltip
+                                      label="More action"
+                                      position={{ left: "50px" }}
+                                      customStyle={{
+                                        position: "absolute",
+                                        left: 35,
+                                        top: 0,
+                                        padding: "3px 5px"
+                                      }}
+                                    >
                                       <IconLibraryAdd
                                         customStyle={{
                                           color: "#707070",
-                                          fontSize: 20,
+                                          fontSize: 20
                                         }}
                                         onClick={onDuplicate}
                                       />
                                     </Tooltip>
                                   </React.Fragment>
-                                  
                                 ) : (
                                   " "
                                 )}
