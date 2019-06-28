@@ -437,3 +437,47 @@ storiesOf("Popup", module).add(
   ),
   { notes: "A very simple component" }
 );
+
+storiesOf("Popup", module).add(
+  "Popup - new validate",
+  () => (
+    <PopupNew popupType="small">
+      <div className={classnames(styles2["popup-header"])}>
+        <h3 className={classnames(styles2["popup-title"])}>Changes have been made</h3>
+      </div>
+      <div className={classnames(styles2["popup-body"])}>
+        <p className={classnames(styles2["popup-info"])}>Would you like to save before closing?</p>
+        <ButtonCustom
+          variant="contained"
+          color="primary"
+          style={{
+            backgroundColor: "#0072CE",
+            fontSize: 11,
+            textAlign: "center",
+            border: '1px solid #0072CE'
+          }}
+        >
+          SAVE
+        </ButtonCustom>
+        <ButtonCustom
+          variant="contained"
+          color="primary"
+          style={{
+            backgroundColor: "#0072CE",
+            fontSize: 11,
+            textAlign: "center",
+            marginLeft: 30,
+            backgroundColor: 'transparent',
+            color: '#0072CE',
+            border: '1px solid #0072CE',
+            boxSizing: 'border-box'
+          }}
+        >
+          DON'T SAVE
+        </ButtonCustom>
+      </div>
+      <IconCloseNew />
+    </PopupNew>
+  ),
+  { notes: "A very simple component" }
+);
