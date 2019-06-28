@@ -48,6 +48,42 @@ storiesOf("Panels", module).add(
           </Header>
           <Panels panelTtype="small" togglePanel={true} />
         </div>
+      </Wrapper>
+    </React.Fragment>
+  ),
+  { notes: "A very simple component" }
+);
+
+storiesOf("Panels", module).add(
+  "Panels - with header, menu and validation popup",
+  () => (
+    <React.Fragment>
+      <Wrapper style={{ alignItems: "stretch", display: "flex", padding: 0 }}>
+        <Sidebar
+          navigationData={mock}
+          externalHistory={window}
+          reactRoutes={reactMock}
+          onNavigate={(id, url) => {
+            window.location =
+              "/iframe.hqtml" +
+              replaceQueryParam("p", id, window.location.search);
+          }}
+          handleDirectClick={(id, url) => {
+            console.log(id, url);
+          }}
+          style={{ height: "100vh" }}
+        />
+        <div
+          className="content"
+          style={{ display: "flex", flexDirection: "column", width: "100%" }}
+        >
+          <Header style={{ height: "56px", width: "100%", marginBottom: 20 }}>
+            <SubmenuHeader submenuType="header" />
+            <SubmenuHeader submenuType="header" />
+            <SubmenuHeader submenuType="header" />
+          </Header>
+          <Panels panelTtype="small" togglePanel={true} />
+        </div>
         <PopupNew popupType="small">
           <div className={classnames(styles2["popup-header"])}>
             <h3 className={classnames(styles2["popup-title"])}>
