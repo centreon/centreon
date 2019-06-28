@@ -11,8 +11,8 @@ const Popup = ({ popupType, children, customClass }) => {
             {children}
           </div>
         </div>
+        <div className={classnames(styles["popup-overlay"])} />
       </div>
-      <div className={classnames(styles["popup-overlay"])} />
     </React.Fragment>
   );
 };

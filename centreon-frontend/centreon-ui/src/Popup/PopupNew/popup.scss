@@ -5,13 +5,13 @@
 
 // Extensions popup
 .popup { 
-  // display: none; /* Hidden by default */
+  display: none; /* Hidden by default */
   position: fixed;
   top: 0;
   right: 0;
   bottom: 0;
   left: 0;
-  z-index: 1050;
+  z-index: 98;
   overflow: hidden;
   outline: 0;
   overflow-x: hidden;
@@ -20,6 +20,7 @@
     margin: 20px;
     position: relative;
     width: auto;
+    z-index: 98;
     @media (min-width: 840px) {
       margin: 20px auto;
     }
@@ -146,7 +147,7 @@
     right: 0;
     bottom: 0;
     left: 0;
-    z-index: 1040;
+    z-index: 97;
     background-color: #233039;
     opacity: .6;
   }
