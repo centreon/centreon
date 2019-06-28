@@ -26,7 +26,7 @@ class ExtensionsHolder extends React.Component {
       if (!licenseInfo.expiration_date) {
         licenseProps = {
           itemFooterColor: "red",
-          itemFooterLabel: "License is not valid",
+          itemFooterLabel: "License required",
         };
       } else if (!isNaN(Date.parse(licenseInfo.expiration_date))) {
         // @todo move this logic to centreon. Furthermore, it will facilitate translation
@@ -34,12 +34,12 @@ class ExtensionsHolder extends React.Component {
         const expirationDate = new Date(licenseInfo.expiration_date);
         licenseProps = {
           itemFooterColor: "green",
-          itemFooterLabel: `License is valid until : ${expirationDate.toISOString().slice(0,10)}`,
+          itemFooterLabel: `License expires ${expirationDate.toISOString().slice(0,10)}`,
         };
       } else {
         licenseProps = {
           itemFooterColor: "red",
-          itemFooterLabel: "Cannot get license expiration date",
+          itemFooterLabel: "License not valid",
         };
       }
     }
