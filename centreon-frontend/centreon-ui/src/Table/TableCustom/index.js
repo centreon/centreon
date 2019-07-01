@@ -217,12 +217,14 @@ class TableCustom extends Component {
                                       onToggle([row.id]);
                                     }}
                                     active={true}
+                                    customStyle={{fontSize: 19, boxSizing: 'border-box', marginTop: 2}}
                                   />
                                 ) : (
                                   <IconPowerSettingsDisable
                                     active={true}
                                     label="Disable"
                                     onClick={onToggle}
+                                    customStyle={{fontSize: 18, boxSizing: 'border-box', marginTop: 2}}
                                   />
                                 )}
                               </StyledTableCell2>
@@ -253,7 +255,7 @@ class TableCustom extends Component {
                                       <IconDelete
                                         customStyle={{
                                           color: "#707070",
-                                          fontSize: 20
+                                          fontSize: 21
                                         }}
                                         onClick={onDelete}
                                       />
