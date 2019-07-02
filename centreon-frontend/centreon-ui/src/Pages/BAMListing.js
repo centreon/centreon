@@ -152,7 +152,8 @@ class BAMListingPage extends Component {
       onPaginationLimitChanged,
       paginationLimit,
       totalRows,
-      currentPage
+      currentPage,
+      currentlySelected
     } = this.props;
     const {
       selectedElementsCount,
@@ -290,6 +291,7 @@ class BAMListingPage extends Component {
             checkable={true}
             onEnable={onEnable}
             onDisable={onDisable}
+            selected={currentlySelected}
           />
         </Paper>
         <MassiveChangeDialog

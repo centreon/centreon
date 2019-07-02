@@ -34,8 +34,7 @@ const styles = theme => ({
 class TableCustom extends Component {
   state = {
     order: "",
-    orderBy: "",
-    selected: []
+    orderBy: ""
   };
 
   handleRequestSort = (event, property) => {
@@ -60,31 +59,17 @@ class TableCustom extends Component {
     const { onTableSelectionChanged, tableData } = this.props;
     if (event.target.checked) {
       const newSelecteds = tableData.map(n => n.id);
-      this.setState(
-        {
-          selected: newSelecteds
-        },
-        () => {
-          onTableSelectionChanged(newSelecteds);
-        }
-      );
+      onTableSelectionChanged(newSelecteds);
       return;
     }
-    this.setState(
-      {
-        selected: []
-      },
-      () => {
-        onTableSelectionChanged([]);
-      }
-    );
+
+    onTableSelectionChanged([]);
   };
 
   handleClick = (event, name) => {
     event.preventDefault();
     event.stopPropagation();
-    const { selected } = this.state;
-    const { onTableSelectionChanged } = this.props;
+    const { onTableSelectionChanged, selected } = this.props;
     const selectedIndex = selected.indexOf(name);
     let newSelected = [];
 
@@ -100,14 +85,7 @@ class TableCustom extends Component {
         selected.slice(selectedIndex + 1)
       );
     }
-    this.setState(
-      {
-        selected: newSelected
-      },
-      () => {
-        onTableSelectionChanged(newSelected);
-      }
-    );
+    onTableSelectionChanged(newSelected);
   };
 
   rowHovered = (id, value) => {
@@ -131,9 +109,10 @@ class TableCustom extends Component {
       totalRows,
       onEnable,
       onDisable,
-      onRowClick
+      onRowClick,
+      selected
     } = this.props;
-    const { order, orderBy, selected, hovered } = this.state;
+    const { order, orderBy, hovered } = this.state;
 
     const isSelected = name => selected.indexOf(name) !== -1;
 
@@ -225,19 +204,19 @@ class TableCustom extends Component {
                                     }}
                                   />
                                 ) : (
-                                  <IconPowerSettingsDisable
-                                    active={true}
-                                    label="Disable"
-                                    onClick={() => {
-                                      onEnable([row.id]);
-                                    }}
-                                    customStyle={{
-                                      fontSize: 18,
-                                      boxSizing: "border-box",
-                                      marginTop: 2
-                                    }}
-                                  />
-                                )}
+                                    <IconPowerSettingsDisable
+                                      active={true}
+                                      label="Disable"
+                                      onClick={() => {
+                                        onEnable([row.id]);
+                                      }}
+                                      customStyle={{
+                                        fontSize: 18,
+                                        boxSizing: "border-box",
+                                        marginTop: 2
+                                      }}
+                                    />
+                                  )}
                               </StyledTableCell2>
                             );
                             break;
@@ -313,8 +292,8 @@ class TableCustom extends Component {
                                     </Tooltip>
                                   </React.Fragment>
                                 ) : (
-                                  " "
-                                )}
+                                    " "
+                                  )}
                               </StyledTableCell2>
                             );
                             break;

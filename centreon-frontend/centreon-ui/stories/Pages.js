@@ -1488,7 +1488,9 @@ storiesOf("Pages", module).add(
   "BAM page",
   () => {
     return (
-      <BAMListingPageStory BAMTableData={BAMTableData}/>
+      <BAMListingPageStory 
+        BAMTableData={BAMTableData}
+      />
     );
   },
   { notes: "A very simple component" }
