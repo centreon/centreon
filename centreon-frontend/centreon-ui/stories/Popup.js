@@ -1,9 +1,13 @@
 import React from "react";
 import { storiesOf } from "@storybook/react";
 import styles from '../src/Popup/popup.scss';
+import styles2 from '../src/Popup/PopupNew/popup.scss';
 import  classnames from 'classnames';
+import ButtonCustom from "@material-ui/core/Button";
+import IconCloseNew from "../src/MaterialComponents/Icons/IconClose";
 import {
   Popup,
+  PopupNew,
   IconClose,
   Slider,
   MessageInfo,
@@ -19,7 +23,10 @@ import {
   ProgressBarItem,
   RadioButton,
   InputField,
-  MessageStatus
+  MessageStatus,
+  ConfirmationDialog,
+  PromptDialog,
+  MassiveChangeDialog
 } from "../src";
 
 storiesOf("Popup", module).add(
@@ -402,6 +409,109 @@ storiesOf("Popup Extensions Delete", module).add(
       </div>
       <IconClose iconPosition="icon-close-position-small" iconType="middle" />
     </Popup>
+  ),
+  { notes: "A very simple component" }
+);
+
+storiesOf("Popup", module).add(
+  "Popup - new",
+  () => (
+    <PopupNew popupType="small">
+      <div className={classnames(styles2["popup-header"])}>
+        <h3 className={classnames(styles2["popup-title"])}>Warning</h3>
+      </div>
+      <div className={classnames(styles2["popup-body"])}>
+        <p className={classnames(styles2["popup-info"])}>Mandatory fields are not filled!</p>
+        <ButtonCustom
+          variant="contained"
+          color="primary"
+          style={{
+            backgroundColor: "#0072CE",
+            fontSize: 11,
+            textAlign: "center",
+            padding: "5px 25px"
+          }}
+        >
+          COMPLETE
+        </ButtonCustom>
+      </div>
+      <IconCloseNew />
+    </PopupNew>
+  ),
+  { notes: "A very simple component" }
+);
+
+storiesOf("Popup",module).add(
+  "Dialog - Confirmation",
+  () => (
+    <ConfirmationDialog 
+    active={true}
+    info={"Delete selected business activities?"}/>
+  ),
+  { notes: "Confirmation dialog component" }
+)
+
+storiesOf("Popup",module).add(
+  "Dialog - Promt",
+  () => (
+    <PromptDialog 
+    active={true}
+    info={"How many times would you like to duplicate selected BAs?"}/>
+  ),
+  { notes: "Promt dialog with input" }
+)
+
+storiesOf("Popup",module).add(
+  "Dialog - Massive change",
+  () => (
+    <MassiveChangeDialog 
+    active={true}
+    header={"Massive calculation method change"}
+    info={"Input value of critical and warning threshold for selected BAs"}/>
+  ),
+  { notes: "Massive change dialog with two inputs" }
+)
+
+storiesOf("Popup", module).add(
+  "Popup - new validate",
+  () => (
+    <PopupNew popupType="small">
+      <div className={classnames(styles2["popup-header"])}>
+        <h3 className={classnames(styles2["popup-title"])}>Changes have been made</h3>
+      </div>
+      <div className={classnames(styles2["popup-body"])}>
+        <p className={classnames(styles2["popup-info"])}>Would you like to save before closing?</p>
+        <ButtonCustom
+          variant="contained"
+          color="primary"
+          style={{
+            backgroundColor: "#0072CE",
+            fontSize: 11,
+            textAlign: "center",
+            border: '1px solid #0072CE'
+          }}
+        >
+          SAVE
+        </ButtonCustom>
+        <ButtonCustom
+          variant="contained"
+          color="primary"
+          style={{
+            backgroundColor: "#0072CE",
+            fontSize: 11,
+            textAlign: "center",
+            marginLeft: 30,
+            backgroundColor: 'transparent',
+            color: '#0072CE',
+            border: '1px solid #0072CE',
+            boxSizing: 'border-box'
+          }}
+        >
+          DON'T SAVE
+        </ButtonCustom>
+      </div>
+      <IconCloseNew />
+    </PopupNew>
   ),
   { notes: "A very simple component" }
 );

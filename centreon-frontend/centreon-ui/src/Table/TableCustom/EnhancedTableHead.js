@@ -5,6 +5,7 @@ import StyledCheckbox from "./StyledCheckbox";
 import TableHead from "@material-ui/core/TableHead";
 import TableRow from "@material-ui/core/TableRow";
 import PropTypes from "prop-types";
+import TABLE_COLUMN_TYPES from '../ColumnTypes';
 
 class EnhancedTableHead extends Component {
   createSortHandler = property => event => {
@@ -41,14 +42,18 @@ class EnhancedTableHead extends Component {
               padding={row.disablePadding ? "none" : "default"}
               sortDirection={orderBy === row.id ? order : false}
             >
-              <StyledTableSortLabel
-                active={orderBy === row.id}
-                direction={order}
-                onClick={this.createSortHandler(row.id)}
-                icon={{ color: "red" }}
-              >
-                {row.label}
-              </StyledTableSortLabel>
+              {row.type === TABLE_COLUMN_TYPES.multicolumn ? (
+                row.label
+              ) : (
+                <StyledTableSortLabel
+                  active={orderBy === row.id}
+                  direction={order}
+                  onClick={this.createSortHandler(row.id)}
+                  icon={{ color: "red" }}
+                >
+                  {row.label}
+                </StyledTableSortLabel>
+              )}
             </StyledTableCell>
           ))}
         </TableRow>

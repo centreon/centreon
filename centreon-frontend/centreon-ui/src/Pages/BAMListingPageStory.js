@@ -3,7 +3,8 @@ import BAMListingPage from "./BAMListing";
 
 class BAMListingPageStory extends Component {
   state = {
-    panelActive: false
+    panelActive: false,
+    currentlySelected:[]
   };
   togglePanel = () => {
     const { panelActive } = this.state;
@@ -14,7 +15,7 @@ class BAMListingPageStory extends Component {
 
   render() {
     const { BAMTableData } = this.props;
-    const { panelActive } = this.state;
+    const { panelActive,currentlySelected } = this.state;
     return (
       <BAMListingPage
         onAddClicked={() => {
@@ -23,17 +24,20 @@ class BAMListingPageStory extends Component {
         onSearch={() => {
           console.log("onSearch clicked");
         }}
-        onDelete={() => {
-          console.log("onDelete clicked");
+        onDelete={(a,b,c)=>{
+          console.log("onDelete clicked",a,b,c,currentlySelected);
         }}
-        onDuplicate={() => {
-          console.log("onDuplicate clicked");
+        onDuplicate={(a,b,c) => {
+          console.log("onDuplicate clicked",a,b,c,currentlySelected);
         }}
-        onMassiveChange={() => {
-          console.log("onMassiveChange clicked");
+        onMassiveChange={(a,b,c) => {
+          console.log("onMassiveChange clicked",a,b,c,currentlySelected);
         }}
-        onToggle={() => {
-          console.log("onToggle clicked");
+        onEnable={(a,b,c) => {
+          console.log("onEnable clicked",a,b,c,currentlySelected);
+        }} 
+        onDisable={(a,b,c) => {
+          console.log("onDisable clicked",a,b,c,currentlySelected);
         }}
         onPaginate={() => {
           console.log("onPaginate clicked");
@@ -42,9 +46,12 @@ class BAMListingPageStory extends Component {
           console.log("onSort clicked");
         }}
         tableData={BAMTableData.result.entities}
-        onTableSelectionChanged={() => {
-          console.log("onTableSelectionChanged");
+        onTableSelectionChanged={currentlySelected => {
+          this.setState({
+            currentlySelected
+          });
         }}
+        currentlySelected={currentlySelected}
         onPaginationLimitChanged={() => {
           console.log("onPaginationLimitChanged");
         }}

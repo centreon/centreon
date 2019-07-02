@@ -12,10 +12,10 @@ const styles = () => ({
 
 class TooltipMaterial extends React.Component {
   render() {
-    const { label, classes, children } = this.props;
+    const { label, classes, children, customStyle } = this.props;
     return (
       <Tooltip title={label} className={classes.tooltipStyle}>
-        <IconButton aria-label={label} className={classes.iconButtonStyle}>
+        <IconButton style={customStyle} aria-label={label} className={classes.iconButtonStyle}>
           {children}
         </IconButton>
       </Tooltip>

@@ -7,37 +7,66 @@
     position: relative;
     box-sizing: border-box;
     &-empty {
-      border: 2px dashed #999;
-      min-height: 80px;
-      &-label {
-        position: absolute;
-        top: 12px;
-        left: 24px;
-        font-family: $primary-font-regular;
-        color: #797979;
-        font-size: 13px;
-        line-height: 14px;
+      .multi-select-holder-inner {
+        border: 2px dashed #c2c3c6;
+        text-align: center;
+        margin: 0;
+        padding: 5px 24px;
+      }
+      &:hover {
+        .multi-select-holder-inner {
+          border: 2px dashed #1576cb;
+        }
+        .multi-select-holder-add {
+          color: #1576cb;
+          font-family: $primary-font-bold;
+        }
       }
     }
-    &-add {
-      position: absolute;
-      bottom: 15px;
-      left: 50%;
-      transform: translateX(-50%);
+    &-label {
       font-family: $primary-font-regular;
-      color: #1576cb;
+      color: #797979;
       font-size: 13px;
       line-height: 14px;
-      font-style: italic;
+      margin-bottom: 10px;
+      display: block;
     }
-    &:hover {
-      background-color: #c7c8c9;
-      cursor: pointer;
+    &-add {
+      font-family: $primary-font-regular;
+      color: #c2c3c6;
+      font-size: 12px;
+      line-height: 14px;
     }
     svg {
       position: absolute;
       top: 5px;
       right: 5px;
+    }
+    &:hover {
+      background-color: #c2c3c6;
+      cursor: pointer;
+    }
+    &.has-danger {
+      .multi-select-holder-inner {
+        border: 2px dashed #e22954;
+        padding: 5px 24px;
+      }
+      &:hover {
+        .multi-select-holder-inner {
+          background-color: transparent;
+        }
+      }
+      .multi-select-holder-add {
+        color: #e22954;
+        font-family: $primary-font-bold;
+      }
+    }
+    .form-error {
+      color: #e22954;
+      font-family: $primary-font-bold;
+      font-size: 10px;
+      line-height: 14px;
+      padding-left: 20px;
     }
   }
 }

@@ -95,7 +95,7 @@ class Panels extends React.Component {
                     <InputFieldSearch
                       style={{ width: "100%", marginBottom: 15, boxSizing: 'border-box' }}
                     />
-                    <TableDefault />
+                    <TableDefault style={{minWidth: 'auto'}} />
                   </div>
                 </PanelItem>
               </div>
