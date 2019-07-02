@@ -90,7 +90,6 @@ const tableConfiguration = [
 
 class BAMListingPage extends Component {
   state = {
-    selectedElementsCount: 0,
     massiveChangeActive: false,
     deleteActive: false,
     duplicateActive: false,
@@ -127,14 +126,7 @@ class BAMListingPage extends Component {
 
   onTableSelection = selected => {
     const { onTableSelectionChanged } = this.props;
-    this.setState(
-      {
-        selectedElementsCount: selected.length
-      },
-      () => {
-        onTableSelectionChanged(selected);
-      }
-    );
+    onTableSelectionChanged(selected);
   };
 
   render() {
@@ -156,7 +148,6 @@ class BAMListingPage extends Component {
       currentlySelected
     } = this.props;
     const {
-      selectedElementsCount,
       massiveChangeActive,
       deleteActive,
       duplicateActive
@@ -189,7 +180,7 @@ class BAMListingPage extends Component {
             >
               <ButtonCustom label="ADD" onClick={onAddClicked} />
             </CustomColumn>
-            {selectedElementsCount > 0 ? (
+            {currentlySelected.length > 0 ? (
               <React.Fragment>
                 <CustomColumn
                   customColumn="md-3"
