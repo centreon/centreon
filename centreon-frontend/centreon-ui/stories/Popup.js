@@ -23,7 +23,10 @@ import {
   ProgressBarItem,
   RadioButton,
   InputField,
-  MessageStatus
+  MessageStatus,
+  ConfirmationDialog,
+  PromptDialog,
+  MassiveChangeDialog
 } from "../src";
 
 storiesOf("Popup", module).add(
@@ -437,6 +440,37 @@ storiesOf("Popup", module).add(
   ),
   { notes: "A very simple component" }
 );
+
+storiesOf("Popup",module).add(
+  "Dialog - Confirmation",
+  () => (
+    <ConfirmationDialog 
+    active={true}
+    info={"Delete selected business activities?"}/>
+  ),
+  { notes: "Confirmation dialog component" }
+)
+
+storiesOf("Popup",module).add(
+  "Dialog - Promt",
+  () => (
+    <PromptDialog 
+    active={true}
+    info={"How many times would you like to duplicate selected BAs?"}/>
+  ),
+  { notes: "Promt dialog with input" }
+)
+
+storiesOf("Popup",module).add(
+  "Dialog - Massive change",
+  () => (
+    <MassiveChangeDialog 
+    active={true}
+    header={"Massive calculation method change"}
+    info={"Input value of critical and warning threshold for selected BAs"}/>
+  ),
+  { notes: "Massive change dialog with two inputs" }
+)
 
 storiesOf("Popup", module).add(
   "Popup - new validate",

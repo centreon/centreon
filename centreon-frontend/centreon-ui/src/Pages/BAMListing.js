@@ -13,7 +13,10 @@ import {
   IconPowerSettingsDisable,
   IconInsertChart,
   Panels,
-  Tooltip
+  Tooltip,
+  MassiveChangeDialog,
+  ConfirmationDialog,
+  PromptDialog
 } from "../index";
 
 import TABLE_COLUMN_TYPES from "../Table/ColumnTypes";
@@ -58,11 +61,23 @@ const tableConfiguration = [
     type: TABLE_COLUMN_TYPES.toggler
   },
   {
-    id: "level_c",
+    id: "level_w & level_c",
     numeric: true,
     disablePadding: false,
+    columns: [
+      {
+        id: "level_w",
+        label: "Warning:",
+        type: "percentage"
+      },
+      {
+        id: "level_c",
+        label: "Critical:",
+        type: "percentage"
+      }
+    ],
     label: "Calculation method",
-    type: TABLE_COLUMN_TYPES.number
+    type: TABLE_COLUMN_TYPES.multicolumn
   },
   {
     id: "description",
@@ -75,17 +90,52 @@ const tableConfiguration = [
 
 class BAMListingPage extends Component {
   state = {
-    selectedElementsCount:0
+    selectedElementsCount: 0,
+    massiveChangeActive: false,
+    deleteActive: false,
+    duplicateActive: false,
+  };
+
+  toggleDeleteModal = (selected) => {
+    const {deleteActive} = this.state;
+    const { onTableSelectionChanged } = this.props;
+    this.setState({
+      deleteActive:!deleteActive
+    })
+    if(selected[0]){
+      onTableSelectionChanged(selected);
+    }
   }
 
-  onTableSelection = (selected) => {
-    const {onTableSelectionChanged} = this.props;
+  toggleMassiveChangeModal = () => {
+    const {massiveChangeActive} = this.state;
     this.setState({
-      selectedElementsCount:selected.length
-    },()=>{
-      onTableSelectionChanged(selected)
+      massiveChangeActive:!massiveChangeActive
     })
   }
+
+  toggleDuplicateModal = (selected) => {
+    const {duplicateActive} = this.state;
+    const { onTableSelectionChanged } = this.props;
+    this.setState({
+      duplicateActive:!duplicateActive
+    })
+    if(selected[0]){
+      onTableSelectionChanged(selected);
+    }
+  }
+
+  onTableSelection = selected => {
+    const { onTableSelectionChanged } = this.props;
+    this.setState(
+      {
+        selectedElementsCount: selected.length
+      },
+      () => {
+        onTableSelectionChanged(selected);
+      }
+    );
+  };
 
   render() {
     const {
@@ -94,7 +144,8 @@ class BAMListingPage extends Component {
       onDelete,
       onDuplicate,
       onMassiveChange,
-      onToggle,
+      onEnable,
+      onDisable,
       onPaginate,
       onSort,
       tableData,
@@ -103,7 +154,12 @@ class BAMListingPage extends Component {
       totalRows,
       currentPage
     } = this.props;
-    const {selectedElementsCount} = this.state;
+    const {
+      selectedElementsCount,
+      massiveChangeActive,
+      deleteActive,
+      duplicateActive
+    } = this.state;
     return (
       <React.Fragment>
         <Breadcrumb breadcrumbs={breadcrumbs} />
@@ -144,7 +200,7 @@ class BAMListingPage extends Component {
                   ]}
                 >
                   <Tooltip label="Delete">
-                    <IconDelete label="Delete" onClick={onDelete} />
+                    <IconDelete label="Delete" onClick={this.toggleDeleteModal} />
                   </Tooltip>
                 </CustomColumn>
                 <CustomColumn
@@ -158,7 +214,7 @@ class BAMListingPage extends Component {
                   ]}
                 >
                   <Tooltip label="Duplicate">
-                    <IconLibraryAdd label="Duplicate" onClick={onDuplicate} />
+                    <IconLibraryAdd label="Duplicate" onClick={this.toggleDuplicateModal} />
                   </Tooltip>
                 </CustomColumn>
                 <CustomColumn
@@ -175,7 +231,7 @@ class BAMListingPage extends Component {
                     <IconPowerSettings
                       active={true}
                       label="Enable"
-                      onClick={onToggle}
+                      onClick={onEnable}
                     />
                   </Tooltip>
                 </CustomColumn>
@@ -194,7 +250,7 @@ class BAMListingPage extends Component {
                     <IconPowerSettingsDisable
                       active={true}
                       label="Disable"
-                      onClick={onToggle}
+                      onClick={onDisable}
                     />
                   </Tooltip>
                 </CustomColumn>
@@ -210,7 +266,7 @@ class BAMListingPage extends Component {
                   <Tooltip label="Massive change">
                     <IconInsertChart
                       label="Massive change"
-                      onClick={onMassiveChange}
+                      onClick={this.toggleMassiveChangeModal}
                     />
                   </Tooltip>
                 </CustomColumn>
@@ -223,18 +279,44 @@ class BAMListingPage extends Component {
             columnConfiguration={tableConfiguration}
             tableData={tableData}
             onTableSelectionChanged={this.onTableSelection}
-            onDelete={onDelete}
+            onDelete={this.toggleDeleteModal}
             onPaginate={onPaginate}
             onSort={onSort}
-            onDuplicate={onDuplicate}
+            onDuplicate={this.toggleDuplicateModal}
             onPaginationLimitChanged={onPaginationLimitChanged}
             limit={paginationLimit}
             currentPage={currentPage}
             totalRows={totalRows}
             checkable={true}
-            onToggle={onToggle}
+            onEnable={onEnable}
+            onDisable={onDisable}
           />
         </Paper>
+        <MassiveChangeDialog
+          header={"Massive calculation method change"}
+          info={
+            "Input value of critical and warning threshold for selected BAs"
+          }
+          active={massiveChangeActive}
+          onNoClicked={this.toggleMassiveChangeModal}
+          onClose={this.toggleMassiveChangeModal}
+          onYesClicked={onMassiveChange}
+        />
+        <ConfirmationDialog
+          active={deleteActive}
+          info={"Delete selected business activities?"}
+          onNoClicked={this.toggleDeleteModal}
+          onClose={this.toggleDeleteModal}
+          onYesClicked={onDelete}
+
+        />
+        <PromptDialog
+          info={"How many times would you like to duplicate selected BAs?"}
+          active={duplicateActive}
+          onNoClicked={this.toggleDuplicateModal}
+          onClose={this.toggleDuplicateModal}
+          onYesClicked={onDuplicate}
+        />
       </React.Fragment>
     );
   }
