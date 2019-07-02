@@ -97,30 +97,30 @@ class BAMListingPage extends Component {
   };
 
   toggleDeleteModal = (selected) => {
-    const {deleteActive} = this.state;
+    const { deleteActive } = this.state;
     const { onTableSelectionChanged } = this.props;
     this.setState({
-      deleteActive:!deleteActive
+      deleteActive: !deleteActive
     })
-    if(selected[0]){
+    if (selected[0]) {
       onTableSelectionChanged(selected);
     }
   }
 
   toggleMassiveChangeModal = () => {
-    const {massiveChangeActive} = this.state;
+    const { massiveChangeActive } = this.state;
     this.setState({
-      massiveChangeActive:!massiveChangeActive
+      massiveChangeActive: !massiveChangeActive
     })
   }
 
   toggleDuplicateModal = (selected) => {
-    const {duplicateActive} = this.state;
+    const { duplicateActive } = this.state;
     const { onTableSelectionChanged } = this.props;
     this.setState({
-      duplicateActive:!duplicateActive
+      duplicateActive: !duplicateActive
     })
-    if(selected[0]){
+    if (selected[0]) {
       onTableSelectionChanged(selected);
     }
   }
@@ -302,23 +302,34 @@ class BAMListingPage extends Component {
           active={massiveChangeActive}
           onNoClicked={this.toggleMassiveChangeModal}
           onClose={this.toggleMassiveChangeModal}
-          onYesClicked={onMassiveChange}
+          onYesClicked={() => {
+            this.setState({
+              massiveChangeActive: false
+            }, onMassiveChange)
+          }}
         />
         <ConfirmationDialog
           active={deleteActive}
           info={"Delete selected business activities?"}
           onNoClicked={this.toggleDeleteModal}
           onClose={this.toggleDeleteModal}
-          onYesClicked={onDelete}
-
+          onYesClicked={() => {
+            this.setState({
+              deleteActive: false
+            }, onDelete)
+          }}
         />
         <PromptDialog
-          customStyle={{padding: "25px 20px"}}
+          customStyle={{ padding: "25px 20px" }}
           info={"How many times would you like to duplicate selected BAs?"}
           active={duplicateActive}
           onNoClicked={this.toggleDuplicateModal}
           onClose={this.toggleDuplicateModal}
-          onYesClicked={onDuplicate}
+          onYesClicked={() => {
+            this.setState({
+              duplicateActive: false
+            }, onDuplicate)
+          }}
         />
       </React.Fragment>
     );

@@ -304,11 +304,6 @@ class TableCustom extends Component {
                     </StyledTableRow>
                   );
                 })}
-                {emptyRows > 0 && (
-                  <StyledTableRow>
-                    <StyledTableCell2 align="left" colSpan={6} />
-                  </StyledTableRow>
-                )}
               </TableBody>
             </Table>
           </div>
