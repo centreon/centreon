@@ -311,6 +311,7 @@ class BAMListingPage extends Component {
 
         />
         <PromptDialog
+          customStyle={{padding: "25px 20px"}}
           info={"How many times would you like to duplicate selected BAs?"}
           active={duplicateActive}
           onNoClicked={this.toggleDuplicateModal}

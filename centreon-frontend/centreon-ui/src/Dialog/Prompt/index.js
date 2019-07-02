@@ -24,14 +24,15 @@ class PromptDialog extends Component {
       onYesClicked,
       info,
       onNoClicked,
-      header
+      header,
+      customStyle
     } = this.props;
     const {
       prompt
     } = this.state;
     return active ? (
       <PopupNew popupType="small">
-        <div className={classnames(styles2["popup-header"])}>
+        <div style={customStyle} className={classnames(styles2["popup-header"])}>
           {header ? (
             <h3 className={classnames(styles2["popup-title"])}>{header}</h3>
           ) : null}
