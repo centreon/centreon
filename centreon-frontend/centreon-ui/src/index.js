@@ -118,3 +118,7 @@ export {default as BAMListingPage} from "./Pages/BAMListing";
 export {default as BAMListingPageStory} from "./Pages/BAMListingPageStory";
 export {default as TABLE_COLUMN_TYPES} from "./Table/ColumnTypes";
 export {default as Tooltip} from "./MaterialComponents/Tooltip";
+export {default as ConfirmationDialog} from "./Dialog/Confirmation";
+export {default as PromptDialog} from "./Dialog/Prompt";
+export {default as MassiveChangeDialog} from "./Dialog/MassiveChange";
+export {default as Dialog} from "./Dialog";

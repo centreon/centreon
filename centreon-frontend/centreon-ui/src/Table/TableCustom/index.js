@@ -129,7 +129,8 @@ class TableCustom extends Component {
       currentPage,
       classes,
       totalRows,
-      onToggle,
+      onEnable,
+      onDisable,
       onRowClick
     } = this.props;
     const { order, orderBy, selected, hovered } = this.state;
@@ -214,20 +215,48 @@ class TableCustom extends Component {
                                 {row[column.id] ? (
                                   <IconPowerSettings
                                     onClick={() => {
-                                      onToggle([row.id]);
+                                      onDisable([row.id]);
                                     }}
                                     active={true}
-                                    customStyle={{fontSize: 19, boxSizing: 'border-box', marginTop: 2}}
+                                    customStyle={{
+                                      fontSize: 19,
+                                      boxSizing: "border-box",
+                                      marginTop: 2
+                                    }}
                                   />
                                 ) : (
                                   <IconPowerSettingsDisable
                                     active={true}
                                     label="Disable"
-                                    onClick={onToggle}
-                                    customStyle={{fontSize: 18, boxSizing: 'border-box', marginTop: 2}}
+                                    onClick={() => {
+                                      onEnable([row.id]);
+                                    }}
+                                    customStyle={{
+                                      fontSize: 18,
+                                      boxSizing: "border-box",
+                                      marginTop: 2
+                                    }}
                                   />
                                 )}
                               </StyledTableCell2>
+                            );
+                            break;
+                          case TABLE_COLUMN_TYPES.multicolumn:
+                            return (
+                              <TableCellCustom
+                                align="left"
+                                className={classes.tableCellCustom}
+                              >
+                                {column.columns.map(subColumn => (
+                                  <React.Fragment>
+                                    {subColumn.label} {row[subColumn.id]}
+                                    {subColumn.type == "percentage"
+                                      ? "%"
+                                      : null}
+                                    {"   "}
+                                  </React.Fragment>
+                                ))}
+                              </TableCellCustom>
                             );
                             break;
                           case TABLE_COLUMN_TYPES.hoverActions:
@@ -257,7 +286,9 @@ class TableCustom extends Component {
                                           color: "#707070",
                                           fontSize: 21
                                         }}
-                                        onClick={onDelete}
+                                        onClick={() => {
+                                          onDelete([row.id]);
+                                        }}
                                       />
                                     </Tooltip>
                                     <Tooltip
@@ -275,7 +306,9 @@ class TableCustom extends Component {
                                           color: "#707070",
                                           fontSize: 20
                                         }}
-                                        onClick={onDuplicate}
+                                        onClick={() => {
+                                          onDuplicate([row.id]);
+                                        }}
                                       />
                                     </Tooltip>
                                   </React.Fragment>
