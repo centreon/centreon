@@ -92,37 +92,37 @@ class BAMListingPage extends Component {
   state = {
     massiveChangeActive: false,
     deleteActive: false,
-    duplicateActive: false,
+    duplicateActive: false
   };
 
-  toggleDeleteModal = (selected) => {
+  toggleDeleteModal = selected => {
     const { deleteActive } = this.state;
     const { onTableSelectionChanged } = this.props;
     this.setState({
       deleteActive: !deleteActive
-    })
+    });
     if (selected[0]) {
       onTableSelectionChanged(selected);
     }
-  }
+  };
 
   toggleMassiveChangeModal = () => {
     const { massiveChangeActive } = this.state;
     this.setState({
       massiveChangeActive: !massiveChangeActive
-    })
-  }
+    });
+  };
 
-  toggleDuplicateModal = (selected) => {
+  toggleDuplicateModal = selected => {
     const { duplicateActive } = this.state;
     const { onTableSelectionChanged } = this.props;
     this.setState({
       duplicateActive: !duplicateActive
-    })
+    });
     if (selected[0]) {
       onTableSelectionChanged(selected);
     }
-  }
+  };
 
   onTableSelection = selected => {
     const { onTableSelectionChanged } = this.props;
@@ -147,11 +147,7 @@ class BAMListingPage extends Component {
       currentPage,
       currentlySelected
     } = this.props;
-    const {
-      massiveChangeActive,
-      deleteActive,
-      duplicateActive
-    } = this.state;
+    const { massiveChangeActive, deleteActive, duplicateActive } = this.state;
     return (
       <React.Fragment>
         <Breadcrumb breadcrumbs={breadcrumbs} />
@@ -192,7 +188,10 @@ class BAMListingPage extends Component {
                   ]}
                 >
                   <Tooltip label="Delete">
-                    <IconDelete label="Delete" onClick={this.toggleDeleteModal} />
+                    <IconDelete
+                      label="Delete"
+                      onClick={this.toggleDeleteModal}
+                    />
                   </Tooltip>
                 </CustomColumn>
                 <CustomColumn
@@ -206,7 +205,10 @@ class BAMListingPage extends Component {
                   ]}
                 >
                   <Tooltip label="Duplicate">
-                    <IconLibraryAdd label="Duplicate" onClick={this.toggleDuplicateModal} />
+                    <IconLibraryAdd
+                      label="Duplicate"
+                      onClick={this.toggleDuplicateModal}
+                    />
                   </Tooltip>
                 </CustomColumn>
                 <CustomColumn
@@ -293,10 +295,15 @@ class BAMListingPage extends Component {
           active={massiveChangeActive}
           onNoClicked={this.toggleMassiveChangeModal}
           onClose={this.toggleMassiveChangeModal}
-          onYesClicked={() => {
-            this.setState({
-              massiveChangeActive: false
-            }, onMassiveChange)
+          onYesClicked={thresholds => {
+            this.setState(
+              {
+                massiveChangeActive: false
+              },
+              () => {
+                onMassiveChange(thresholds);
+              }
+            );
           }}
         />
         <ConfirmationDialog
@@ -305,9 +312,12 @@ class BAMListingPage extends Component {
           onNoClicked={this.toggleDeleteModal}
           onClose={this.toggleDeleteModal}
           onYesClicked={() => {
-            this.setState({
-              deleteActive: false
-            }, onDelete)
+            this.setState(
+              {
+                deleteActive: false
+              },
+              onDelete
+            );
           }}
         />
         <PromptDialog
@@ -317,9 +327,12 @@ class BAMListingPage extends Component {
           onNoClicked={this.toggleDuplicateModal}
           onClose={this.toggleDuplicateModal}
           onYesClicked={() => {
-            this.setState({
-              duplicateActive: false
-            }, onDuplicate)
+            this.setState(
+              {
+                duplicateActive: false
+              },
+              onDuplicate
+            );
           }}
         />
       </React.Fragment>
