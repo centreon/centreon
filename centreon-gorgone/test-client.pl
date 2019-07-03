@@ -26,8 +26,8 @@ use ZMQ::Constants qw(:all);
 use UUID;
 use Data::Dumper;
 use Sys::Hostname;
-use centreon::centreond::clientzmq;
-use centreon::centreond::common;
+use centreon::gorgone::clientzmq;
+use centreon::gorgone::common;
 
 my ($client, $client2);
 my $identities_token = {};
@@ -107,7 +107,7 @@ my $uuid;
 #$uuid = 'toto';
 UUID::generate($uuid);
 
-$client = centreon::centreond::clientzmq->new(
+$client = centreon::gorgone::clientzmq->new(
     identity => 'toto', 
     cipher => 'Cipher::AES', 
     vector => '0123456789012345',
@@ -117,7 +117,7 @@ $client = centreon::centreond::clientzmq->new(
     ping => 60,
 );
 $client->init(callback => \&read_response);
-$client2 = centreon::centreond::clientzmq->new(
+$client2 = centreon::gorgone::clientzmq->new(
     identity => 'tata', 
     cipher => 'Cipher::AES', 
     vector => '0123456789012345',

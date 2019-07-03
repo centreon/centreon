@@ -18,7 +18,7 @@
 # limitations under the License.
 #
 
-package centreon::centreond::common;
+package centreon::gorgone::common;
 
 use strict;
 use warnings;
@@ -129,7 +129,7 @@ sub zmq_core_response {
     }
 
     my $data = json_encode(data => { code => $options{code}, data => $options{data} });
-    # We add 'target' for 'PONG', 'CONSTATUS'. Like that 'centreond-proxy can get it
+    # We add 'target' for 'PONG', 'CONSTATUS'. Like that 'gorgone-proxy can get it
     $msg = '[' . $response_type . '] [' . (defined($options{token}) ? $options{token} : '') . '] ' . ($response_type eq 'PONG' ? '[] ' : '') . $data;
     
     if (defined($options{cipher})) {
@@ -242,7 +242,7 @@ sub is_client_can_connect {
 sub is_handshake_done {
     my (%options) = @_;
     
-    my ($status, $sth) = $options{dbh}->query("SELECT `key` FROM centreond_identity WHERE identity = " . $options{dbh}->quote($options{identity}) . " ORDER BY id DESC");
+    my ($status, $sth) = $options{dbh}->query("SELECT `key` FROM gorgone_identity WHERE identity = " . $options{dbh}->quote($options{identity}) . " ORDER BY id DESC");
     return if ($status == -1);
     if (my $row = $sth->fetchrow_hashref()) {
         return (1, pack('H*', $row->{key}));
@@ -257,8 +257,8 @@ sub is_handshake_done {
 sub constatus {
     my (%options) = @_;
     
-    if (defined($options{centreond}->{modules_register}->{ $options{centreond}->{modules_id}->{$options{centreond_config}->{centreondcore}{proxy_name}} })) {
-        my $name = $options{centreond_config}->{$options{centreond_config}->{centreondcore}{proxy_name}}{module};
+    if (defined($options{gorgone}->{modules_register}->{ $options{gorgone}->{modules_id}->{$options{gorgone_config}->{gorgonecore}{proxy_name}} })) {
+        my $name = $options{gorgone_config}->{$options{gorgone_config}->{gorgonecore}{proxy_name}}{module};
         my $method;
         if (defined($name) && ($method = $name->can('get_constatus_result'))) {
             return (0, { action => 'constatus', mesage => 'ok', data => $method->() }, 'CONSTATUS');
@@ -271,7 +271,7 @@ sub constatus {
 sub ping {
     my (%options) = @_;
 
-    #my $status = add_history(dbh => $options{centreond}->{db_centreond}, 
+    #my $status = add_history(dbh => $options{gorgone}->{db_gorgone}, 
     #                         token => $options{token}, logger => $options{logger}, code => 0);
     return (0, { action => 'ping', mesage => 'ping ok', id => $options{id} }, 'PONG');
 }
@@ -287,7 +287,7 @@ sub putlog {
         return (1, { mesage => 'request not well formatted' });
     }
     
-    my $status = add_history(dbh => $options{centreond}->{db_centreond}, 
+    my $status = add_history(dbh => $options{gorgone}->{db_gorgone}, 
                              etime => $data->{etime}, token => $data->{token}, data => json_encode(data => $data->{data}, logger => $options{logger}), code => $data->{code});
     if ($status == -1) {
         return (1, { mesage => 'database issue' });
@@ -311,7 +311,7 @@ sub getlog {
     
     foreach ((['id', '>'], ['token', '='], ['ctime', '>='], ['etime', '>'], ['code', '='])) {
         if (defined($data->{${$_}[0]}) && $data->{${$_}[0]} ne '') {
-            $filter .= $filter_append . ${$_}[0] . ' ' . ${$_}[1] . ' ' . $options{centreond}->{db_centreond}->quote($data->{${$_}[0]});
+            $filter .= $filter_append . ${$_}[0] . ' ' . ${$_}[1] . ' ' . $options{gorgone}->{db_gorgone}->quote($data->{${$_}[0]});
             $filter_append = ' AND ';
         }
     }
@@ -320,12 +320,12 @@ sub getlog {
         return (1, { mesage => 'need at least one filter' });
     }
     
-    my ($status, $sth) = $options{centreond}->{db_centreond}->query("SELECT * FROM centreond_history WHERE " . $filter);
+    my ($status, $sth) = $options{gorgone}->{db_gorgone}->query("SELECT * FROM gorgone_history WHERE " . $filter);
     if ($status == -1) {
         return (1, { mesage => 'database issue' });
     }
     
-    return (0, { action => 'getlog', result => $sth->fetchall_hashref('id'), id => $options{centreond}->{id} });
+    return (0, { action => 'getlog', result => $sth->fetchall_hashref('id'), id => $options{gorgone}->{id} });
 }
 
 sub kill {
@@ -340,14 +340,14 @@ sub kill {
 sub update_identity {
     my (%options) = @_;
 
-    my ($status, $sth) = $options{dbh}->query("UPDATE centreond_identity SET `ctime` = " . $options{dbh}->quote(time()) . " WHERE `identity` = " . $options{dbh}->quote($options{identity}));
+    my ($status, $sth) = $options{dbh}->query("UPDATE gorgone_identity SET `ctime` = " . $options{dbh}->quote(time()) . " WHERE `identity` = " . $options{dbh}->quote($options{identity}));
     return $status;
 }
 
 sub add_identity {
     my (%options) = @_;
 
-    my ($status, $sth) = $options{dbh}->query("INSERT INTO centreond_identity (`ctime`, `identity`, `key`) VALUES (" . 
+    my ($status, $sth) = $options{dbh}->query("INSERT INTO gorgone_identity (`ctime`, `identity`, `key`) VALUES (" . 
                   $options{dbh}->quote(time()) . ", " . $options{dbh}->quote($options{identity}) . ", " . $options{dbh}->quote(unpack('H*', $options{symkey})) . ")");
     return $status;
 }
@@ -373,7 +373,7 @@ sub add_history {
             push @values, $options{dbh}->quote($options{$_});
         }
     }
-    my ($status, $sth) = $options{dbh}->query("INSERT INTO centreond_history (" . join(',', @names) . ") VALUES (" . 
+    my ($status, $sth) = $options{dbh}->query("INSERT INTO gorgone_history (" . join(',', @names) . ") VALUES (" . 
                  join(',', @values) . ")");
     return $status;
 }

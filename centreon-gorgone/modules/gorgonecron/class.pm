@@ -18,11 +18,11 @@
 # limitations under the License.
 #
 
-package modules::centreondcron::class;
+package modules::gorgonecron::class;
 
 use strict;
 use warnings;
-use centreon::centreond::common;
+use centreon::gorgone::common;
 use ZMQ::LibZMQ4;
 use ZMQ::Constants qw(:all);
 use Schedule::Cron;
@@ -59,7 +59,7 @@ sub handle_HUP {
 
 sub handle_TERM {
     my $self = shift;
-    $self->{logger}->writeLogInfo("centreond-action $$ Receiving order to stop...");
+    $self->{logger}->writeLogInfo("gorgone-action $$ Receiving order to stop...");
     $self->{stop} = 1;
 }
 
@@ -77,18 +77,18 @@ sub class_handle_HUP {
 
 sub event {
     while (1) {
-        my $message = centreon::centreond::common::zmq_dealer_read_message(socket => $socket);
+        my $message = centreon::gorgone::common::zmq_dealer_read_message(socket => $socket);
         
-        $connector->{logger}->writeLogDebug("centreondcron: class: $message");
+        $connector->{logger}->writeLogDebug("gorgonecron: class: $message");
         
-        last unless (centreon::centreond::common::zmq_still_read(socket => $socket));
+        last unless (centreon::gorgone::common::zmq_still_read(socket => $socket));
     }
 }
 
 sub cron_sleep {
     my $rev = zmq_poll($connector->{poll}, 1000);
     if ($rev == 0 && $connector->{stop} == 1) {
-        $connector->{logger}->writeLogInfo("centreond-cron $$ has quit");
+        $connector->{logger}->writeLogInfo("gorgone-cron $$ has quit");
         zmq_close($socket);
         exit(0);
     }
@@ -104,13 +104,13 @@ sub run {
     my ($self, %options) = @_;
 
     # Connect internal
-    $socket = centreon::centreond::common::connect_com(
-        zmq_type => 'ZMQ_DEALER', name => 'centreondcron',
+    $socket = centreon::gorgone::common::connect_com(
+        zmq_type => 'ZMQ_DEALER', name => 'gorgonecron',
         logger => $self->{logger},
         type => $self->{config_core}{internal_com_type},
         path => $self->{config_core}{internal_com_path}
     );
-    centreon::centreond::common::zmq_send_message(
+    centreon::gorgone::common::zmq_send_message(
         socket => $socket,
         action => 'CRONREADY', data => { },
         json_encode => 1

@@ -18,11 +18,11 @@
 # limitations under the License.
 #
 
-package centreon::centreond::clientzmq;
+package centreon::gorgone::clientzmq;
 
 use strict;
 use warnings;
-use centreon::centreond::common;
+use centreon::gorgone::common;
 use ZMQ::LibZMQ4;
 use ZMQ::Constants qw(:all);
 
@@ -39,7 +39,7 @@ sub new {
     $connector->{cipher} = $options{cipher};
     $connector->{vector} = $options{vector};
     $connector->{symkey} = undef;
-    $connector->{pubkey} = centreon::centreond::common::loadpubkey(pubkey => $options{pubkey});
+    $connector->{pubkey} = centreon::gorgone::common::loadpubkey(pubkey => $options{pubkey});
     $connector->{target_type} = $options{target_type};
     $connector->{target_path} = $options{target_path};
     $connector->{ping} = defined($options{ping}) ? $options{ping} : -1;
@@ -57,10 +57,12 @@ sub init {
     my ($self, %options) = @_;
     
     $self->{handshake} = 0;
-    $sockets->{$self->{identity}} = centreon::centreond::common::connect_com(zmq_type => 'ZMQ_DEALER', name => $self->{identity},
-                                                                             logger => $self->{logger},
-                                                                             type => $self->{target_type},
-                                                                             path => $self->{target_path});
+    $sockets->{$self->{identity}} = centreon::gorgone::common::connect_com(
+        zmq_type => 'ZMQ_DEALER', name => $self->{identity},
+        logger => $self->{logger},
+        type => $self->{target_type},
+        path => $self->{target_path}
+    );
     $callbacks->{$self->{identity}} = $options{callback} if (defined($options{callback}));
 }
 
@@ -128,11 +130,11 @@ sub event {
     }
     $connectors->{$options{identity}}->{ping_time} = time();
     while (1) {
-        my $message = centreon::centreond::common::zmq_dealer_read_message(socket => $sockets->{$options{identity}});
+        my $message = centreon::gorgone::common::zmq_dealer_read_message(socket => $sockets->{$options{identity}});
         
         # in progress
         if ($connectors->{$options{identity}}->{handshake} == 0 || $connectors->{$options{identity}}->{handshake} == 1) {
-            my ($status, $symkey, $hostname) = centreon::centreond::common::client_get_secret(pubkey => $connectors->{$options{identity}}->{pubkey},
+            my ($status, $symkey, $hostname) = centreon::gorgone::common::client_get_secret(pubkey => $connectors->{$options{identity}}->{pubkey},
                                                                                               message => $message);
             if ($status == -1) {
                 $connectors->{$options{identity}}->{handshake} = 0;
@@ -144,7 +146,7 @@ sub event {
                 $connectors->{$options{identity}}->{logger}->writeLogInfo("Client connected successfuly to '" . $connectors->{$options{identity}}->{target_type} . '//' . $connectors->{$options{identity}}->{target_path});
             }
         } else {
-            my ($status, $data) = centreon::centreond::common::uncrypt_message(
+            my ($status, $data) = centreon::gorgone::common::uncrypt_message(
                 message => $message, 
                 cipher => $connectors->{$options{identity}}->{cipher}, 
                 vector => $connectors->{$options{identity}}->{vector},
@@ -161,7 +163,7 @@ sub event {
             }
         }
         
-        last unless (centreon::centreond::common::zmq_still_read(socket => $sockets->{$options{identity}}));
+        last unless (centreon::gorgone::common::zmq_still_read(socket => $sockets->{$options{identity}}));
     }
 }
 
@@ -170,7 +172,7 @@ sub send_message {
     
     if ($self->{handshake} == 0) {
         my $message = '[HELO] [' . $self->{identity} . ']';
-        my ($status, $ciphertext) = centreon::centreond::common::client_helo_encrypt(
+        my ($status, $ciphertext) = centreon::gorgone::common::client_helo_encrypt(
             pubkey => $self->{pubkey},
             message => $message
         );
@@ -191,7 +193,7 @@ sub send_message {
         return (-1, 'Handshake issue');
     }
     
-    centreon::centreond::common::zmq_send_message(
+    centreon::gorgone::common::zmq_send_message(
         socket => $sockets->{$self->{identity}},
         cipher => $self->{cipher},
         symkey => $self->{symkey},

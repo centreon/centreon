@@ -18,15 +18,15 @@
 # limitations under the License.
 #
 
-package modules::centreondpull::hooks;
+package modules::gorgonepull::hooks;
 
 use warnings;
 use strict;
-use centreon::centreond::clientzmq;
+use centreon::gorgone::clientzmq;
 
 my $config_core;
 my $config;
-my $module_id = 'centreondpull';
+my $module_id = 'gorgonepull';
 my $events = [
 ];
 my $stop = 0;
@@ -47,27 +47,29 @@ sub init {
 
     $logger = $options{logger};
     # Connect internal
-    $socket_to_internal = centreon::centreond::common::connect_com(zmq_type => 'ZMQ_DEALER', name => 'centreondpull',
-                                                                   logger => $options{logger},
-                                                                   type => $config_core->{internal_com_type},
-                                                                   path => $config_core->{internal_com_path},
-                                                                   linger => $config->{linger}
-                                                                   );
-    $client = centreon::centreond::clientzmq->new(identity => $config_core->{id}, 
-                                                  cipher => $config->{cipher}, 
-                                                  vector => $config->{vector},
-                                                  pubkey => $config->{pubkey},
-                                                  target_type => $config->{target_type},
-                                                  target_path => $config->{target_path},
-                                                  logger => $options{logger},
-                                                  ping => $config->{ping},
-                                                  ping_timeout => $config->{ping_timeout}
-                                                  );
+    $socket_to_internal = centreon::gorgone::common::connect_com(
+        zmq_type => 'ZMQ_DEALER', name => 'gorgonepull',
+        logger => $options{logger},
+        type => $config_core->{internal_com_type},
+        path => $config_core->{internal_com_path},
+        linger => $config->{linger}
+    );
+    $client = centreon::gorgone::clientzmq->new(
+        identity => $config_core->{id}, 
+        cipher => $config->{cipher}, 
+        vector => $config->{vector},
+        pubkey => $config->{pubkey},
+        target_type => $config->{target_type},
+        target_path => $config->{target_path},
+        logger => $options{logger},
+        ping => $config->{ping},
+        ping_timeout => $config->{ping_timeout}
+    );
     $client->init(callback => \&read_message);
     
     $client->send_message(action => 'REGISTERNODE', data => { id => $config_core->{id} }, 
                           json_encode => 1);
-    centreon::centreond::common::add_zmq_pollin(socket => $socket_to_internal,
+    centreon::gorgone::common::add_zmq_pollin(socket => $socket_to_internal,
                                                 callback => \&from_router,
                                                 poll => $options{poll});
 }
@@ -136,26 +138,26 @@ sub transmit_back {
 
 sub from_router {
     while (1) {        
-        my $message = transmit_back(message => centreon::centreond::common::zmq_dealer_read_message(socket => $socket_to_internal));
+        my $message = transmit_back(message => centreon::gorgone::common::zmq_dealer_read_message(socket => $socket_to_internal));
         # Only send back SETLOGS and PONG
         if (defined($message)) {
-            $logger->writeLogDebug("centreond-pull: hook: read message from internal: $message");
+            $logger->writeLogDebug("gorgone-pull: hook: read message from internal: $message");
             $client->send_message(message => $message);
         }
-        last unless (centreon::centreond::common::zmq_still_read(socket => $socket_to_internal));
+        last unless (centreon::gorgone::common::zmq_still_read(socket => $socket_to_internal));
     }
 }
 
 sub read_message {
     my (%options) = @_;
 
-    # We skip. Dont need to send it in centreond-core
+    # We skip. Dont need to send it in gorgone-core
     if ($options{data} =~ /^\[ACK\]/) {
         return undef;
     }
     
-    $logger->writeLogDebug("centreond-pull: hook: read message from external: $options{data}");
-    centreon::centreond::common::zmq_send_message(socket => $socket_to_internal,
+    $logger->writeLogDebug("gorgone-pull: hook: read message from external: $options{data}");
+    centreon::gorgone::common::zmq_send_message(socket => $socket_to_internal,
                                                   message => $options{data});
 }
 

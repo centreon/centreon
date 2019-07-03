@@ -18,17 +18,17 @@
 # limitations under the License.
 #
 
-package modules::centreondacl::hooks;
+package modules::gorgoneacl::hooks;
 
 use warnings;
 use strict;
-use centreon::script::centreondcore;
-use modules::centreondacl::class;
+use centreon::script::gorgonecore;
+use modules::gorgoneacl::class;
 use centreon::misc::db;
 
 my ($config_core, $config);
 my $config_db_centreon;
-my $module_id = 'centreondacl';
+my $module_id = 'gorgoneacl';
 my $events = [
     'ACLREADY', 
     'ACLPURGEORGANIZATION', 'ACLRESYNC',
@@ -82,9 +82,9 @@ sub routing {
     };
     if ($@) {
         $options{logger}->writeLogError("Cannot decode json data: $@");
-        centreon::centreond::common::add_history(dbh => $options{dbh},
+        centreon::gorgone::common::add_history(dbh => $options{dbh},
                                                  code => 100, token => $options{token},
-                                                 data => { message => 'centreondacl: cannot decode json' },
+                                                 data => { message => 'gorgoneacl: cannot decode json' },
                                                  json_encode => 1);
         return undef;
     }
@@ -95,9 +95,9 @@ sub routing {
     }
     
     if (!defined($data->{organization_id}) || !defined($last_organizations->{$data->{organization_id}})) {
-        centreon::centreond::common::add_history(dbh => $options{dbh},
+        centreon::gorgone::common::add_history(dbh => $options{dbh},
                                                  code => 100, token => $options{token},
-                                                 data => { message => 'centreondacl: need a valid organization id' },
+                                                 data => { message => 'gorgoneacl: need a valid organization id' },
                                                  json_encode => 1);
         return undef;
     }
@@ -108,15 +108,15 @@ sub routing {
         }
     }
     
-    if (centreon::script::centreondcore::waiting_ready(ready => \$organizations->{$data->{organization_id}}->{ready}) == 0) {
-        centreon::centreond::common::add_history(dbh => $options{dbh},
+    if (centreon::script::gorgonecore::waiting_ready(ready => \$organizations->{$data->{organization_id}}->{ready}) == 0) {
+        centreon::gorgone::common::add_history(dbh => $options{dbh},
                                                  code => 100, token => $options{token},
-                                                 data => { message => 'centreondacl: still no ready' },
+                                                 data => { message => 'gorgoneacl: still no ready' },
                                                  json_encode => 1);
         return undef;
     }
     
-    centreon::centreond::common::zmq_send_message(socket => $options{socket}, identity => 'centreondacl-' . $data->{organization_id},
+    centreon::gorgone::common::zmq_send_message(socket => $options{socket}, identity => 'gorgoneacl-' . $data->{organization_id},
                                                   action => $options{action}, data => $options{data}, token => $options{token},
                                                   );
 }
@@ -128,7 +128,7 @@ sub gently {
     # They stop from themself in 'on_demand' mode
     return if ($on_demand == 1);
     foreach my $organization_id (keys %{$organizations}) {
-        $options{logger}->writeLogInfo("centreond-acl: Send TERM signal for organization '" . $organization_id . "'");
+        $options{logger}->writeLogInfo("gorgone-acl: Send TERM signal for organization '" . $organization_id . "'");
         if ($organizations->{$organization_id}->{running} == 1) {
             CORE::kill('TERM', $organizations->{$organization_id}->{pid});
         }
@@ -140,7 +140,7 @@ sub kill_internal {
 
     foreach (keys %{$organizations}) {
         if ($organizations->{$_}->{running} == 1) {
-            $options{logger}->writeLogInfo("centreond-acl: Send KILL signal for organization '" . $_ . "'");
+            $options{logger}->writeLogInfo("gorgone-acl: Send KILL signal for organization '" . $_ . "'");
             CORE::kill('KILL', $organizations->{$_}->{pid});
         }
     }
@@ -226,10 +226,10 @@ sub sync_organization_childs {
 sub create_child {
     my (%options) = @_;
     
-    $options{logger}->writeLogInfo("Create centreondacl for organization id '" . $options{organization_id} . "'");
+    $options{logger}->writeLogInfo("Create gorgoneacl for organization id '" . $options{organization_id} . "'");
     my $child_pid = fork();
     if ($child_pid == 0) {
-        my $module = modules::centreondacl::class->new(logger => $options{logger},
+        my $module = modules::gorgoneacl::class->new(logger => $options{logger},
                                                        config_core => $config_core,
                                                        config => $config,
                                                        config_db_centreon => $config_db_centreon,
@@ -238,7 +238,7 @@ sub create_child {
         $module->run(on_demand => $options{on_demand});
         exit(0);
     }
-    $options{logger}->writeLogInfo("PID $child_pid for centreondacl for organization id '" . $options{organization_id} . "'");
+    $options{logger}->writeLogInfo("PID $child_pid for gorgoneacl for organization id '" . $options{organization_id} . "'");
     $organizations->{$options{organization_id}} = { pid => $child_pid, ready => 0, running => 1 };
     $organizations_pid->{$child_pid} = $options{organization_id};
 }

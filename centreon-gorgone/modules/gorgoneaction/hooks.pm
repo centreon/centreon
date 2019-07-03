@@ -18,16 +18,16 @@
 # limitations under the License.
 #
 
-package modules::centreondaction::hooks;
+package modules::gorgoneaction::hooks;
 
 use warnings;
 use strict;
-use centreon::script::centreondcore;
-use modules::centreondaction::class;
+use centreon::script::gorgonecore;
+use modules::gorgoneaction::class;
 
 my $config_core;
 my $config;
-my $module_id = 'centreondaction';
+my $module_id = 'gorgoneaction';
 my $events = [
     'ACTIONREADY',
 ];
@@ -63,9 +63,9 @@ sub routing {
     };
     if ($@) {
         $options{logger}->writeLogError("Cannot decode json data: $@");
-        centreon::centreond::common::add_history(dbh => $options{dbh},
+        centreon::gorgone::common::add_history(dbh => $options{dbh},
                                                  code => 30, token => $options{token},
-                                                 data => { msg => 'centreondaction: cannot decode json' },
+                                                 data => { msg => 'gorgoneaction: cannot decode json' },
                                                  json_encode => 1);
         return undef;
     }
@@ -75,15 +75,15 @@ sub routing {
         return undef;
     }
     
-    if (centreon::script::centreondcore::waiting_ready(ready => \$action->{ready}) == 0) {
-        centreon::centreond::common::add_history(dbh => $options{dbh},
+    if (centreon::script::gorgonecore::waiting_ready(ready => \$action->{ready}) == 0) {
+        centreon::gorgone::common::add_history(dbh => $options{dbh},
                                                  code => 30, token => $options{token},
-                                                 data => { msg => 'centreondaction: still no ready' },
+                                                 data => { msg => 'gorgoneaction: still no ready' },
                                                  json_encode => 1);
         return undef;
     }
     
-    centreon::centreond::common::zmq_send_message(socket => $options{socket}, identity => 'centreondaction',
+    centreon::gorgone::common::zmq_send_message(socket => $options{socket}, identity => 'gorgoneaction',
                                                   action => $options{action}, data => $options{data}, token => $options{token},
                                                   );
 }
@@ -92,7 +92,7 @@ sub gently {
     my (%options) = @_;
 
     $stop = 1;
-    $options{logger}->writeLogInfo("centreond-action: Send TERM signal");
+    $options{logger}->writeLogInfo("gorgone-action: Send TERM signal");
     if ($action->{running} == 1) {
         CORE::kill('TERM', $action->{pid});
     }
@@ -102,7 +102,7 @@ sub kill {
     my (%options) = @_;
 
     if ($action->{running} == 1) {
-        $options{logger}->writeLogInfo("centreond-action: Send KILL signal for pool");
+        $options{logger}->writeLogInfo("gorgone-action: Send KILL signal for pool");
         CORE::kill('KILL', $action->{pid});
     }
 }
@@ -136,18 +136,18 @@ sub check {
 sub create_child {
     my (%options) = @_;
     
-    $options{logger}->writeLogInfo("Create centreondaction process");
+    $options{logger}->writeLogInfo("Create gorgoneaction process");
     my $child_pid = fork();
     if ($child_pid == 0) {
-        $0 = 'centreond-action';
-        my $module = modules::centreondaction::class->new(logger => $options{logger},
+        $0 = 'gorgone-action';
+        my $module = modules::gorgoneaction::class->new(logger => $options{logger},
                                                           config_core => $config_core,
                                                           config => $config,
                                                           );
         $module->run();
         exit(0);
     }
-    $options{logger}->writeLogInfo("PID $child_pid centreondaction");
+    $options{logger}->writeLogInfo("PID $child_pid gorgoneaction");
     $action = { pid => $child_pid, ready => 0, running => 1 };
 }
 

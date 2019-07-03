@@ -18,16 +18,16 @@
 # limitations under the License.
 #
 
-package modules::scom::hooks;
+package modules::gorgonescom::hooks;
 
 use warnings;
 use strict;
-use centreon::script::centreondcore;
-use modules::scom::class;
+use centreon::script::gorgonecore;
+use modules::gorgonescom::class;
 
 my ($config_core, $config);
 my $config_db_centstorage;
-my $module_id = 'scom';
+my $module_id = 'gorgonescom';
 my $events = [
     'SCOMREADY', 
     'SCOMRESYNC',
@@ -68,10 +68,10 @@ sub routing {
     };
     if ($@) {
         $options{logger}->writeLogError("Cannot decode json data: $@");
-        centreon::centreond::common::add_history(
+        centreon::gorgone::common::add_history(
             dbh => $options{dbh},
             code => 200, token => $options{token},
-            data => { message => 'scom: cannot decode json' },
+            data => { message => 'gorgone-scom: cannot decode json' },
             json_encode => 1
         );
         return undef;
@@ -83,27 +83,27 @@ sub routing {
     }
     
     if (!defined($data->{container_id}) || !defined($last_containers->{$data->{container_id}})) {
-        centreon::centreond::common::add_history(
+        centreon::gorgone::common::add_history(
             dbh => $options{dbh},
             code => 200, token => $options{token},
-            data => { message => 'scom: need a valid container id' },
+            data => { message => 'gorgone-scom: need a valid container id' },
             json_encode => 1
         );
         return undef;
     }
     
-    if (centreon::script::centreondcore::waiting_ready(ready => \$containers->{$data->{container_id}}->{ready}) == 0) {
-        centreon::centreond::common::add_history(
+    if (centreon::script::gorgonecore::waiting_ready(ready => \$containers->{$data->{container_id}}->{ready}) == 0) {
+        centreon::gorgone::common::add_history(
             dbh => $options{dbh},
              code => 200, token => $options{token},
-             data => { message => 'scom: still no ready' },
+             data => { message => 'gorgone-scom: still no ready' },
              json_encode => 1
         );
         return undef;
     }
     
-    centreon::centreond::common::zmq_send_message(
-        socket => $options{socket}, identity => 'scom-' . $data->{container_id},
+    centreon::gorgone::common::zmq_send_message(
+        socket => $options{socket}, identity => 'gorgonescom-' . $data->{container_id},
         action => $options{action}, data => $options{data}, token => $options{token},
     );
 }
@@ -113,7 +113,7 @@ sub gently {
 
     $stop = 1;
     foreach my $container_id (keys %$containers) {
-        $options{logger}->writeLogInfo("scom: Send TERM signal for container '" . $container_id . "'");
+        $options{logger}->writeLogInfo("gorgonescom: Send TERM signal for container '" . $container_id . "'");
         if ($containers->{$container_id}->{running} == 1) {
             CORE::kill('TERM', $containers->{$container_id}->{pid});
         }
@@ -125,7 +125,7 @@ sub kill_internal {
 
     foreach (keys %$containers) {
         if ($containers->{$_}->{running} == 1) {
-            $options{logger}->writeLogInfo("scom: Send KILL signal for container '" . $_ . "'");
+            $options{logger}->writeLogInfo("gorgonescom: Send KILL signal for container '" . $_ . "'");
             CORE::kill('KILL', $containers->{$_}->{pid});
         }
     }
@@ -173,11 +173,11 @@ sub get_containers {
         next if ($container_id eq '' || !defined($config->{$container_id . '_url'}));
 
         if (!defined($config->{$container_id . '_dsmhost'}) ||  $config->{$container_id . '_dsmhost'} eq '') {
-            $options{logger}->writeLogError("scom: cannot load container '" . $container_id . "' - please set dsmhost option");
+            $options{logger}->writeLogError("gorgonescom: cannot load container '" . $container_id . "' - please set dsmhost option");
             next;
         }
         if (!defined($config->{$container_id . '_dsmslot'}) ||  $config->{$container_id . '_dsmslot'} eq '') {
-            $options{logger}->writeLogError("scom: cannot load container '" . $container_id . "' - please set dsmslot option");
+            $options{logger}->writeLogError("gorgonescom: cannot load container '" . $container_id . "' - please set dsmslot option");
             next;
         }
 
@@ -215,7 +215,7 @@ sub sync_container_childs {
         next if (defined($last_containers->{$container_id}));
 
         if ($containers->{$container_id}->{running} == 1) {
-            $options{logger}->writeLogInfo("scom: Send KILL signal for container '" . $container_id . "'");
+            $options{logger}->writeLogInfo("gorgonescom: Send KILL signal for container '" . $container_id . "'");
             CORE::kill('KILL', $containers->{$container_id}->{pid});
         }
         
@@ -227,10 +227,10 @@ sub sync_container_childs {
 sub create_child {
     my (%options) = @_;
     
-    $options{logger}->writeLogInfo("Create scom for container '" . $options{container_id} . "'");
+    $options{logger}->writeLogInfo("Create gorgonescom for container '" . $options{container_id} . "'");
     my $child_pid = fork();
     if ($child_pid == 0) {
-        $0 = 'centreond-scom';
+        $0 = 'gorgone-scom';
         my $module = modules::scom::class->new(
             logger => $options{logger},
             config_core => $config_core,
@@ -242,7 +242,7 @@ sub create_child {
         $module->run();
         exit(0);
     }
-    $options{logger}->writeLogInfo("PID $child_pid scom for container '" . $options{container_id} . "'");
+    $options{logger}->writeLogInfo("PID $child_pid gorgonescom for container '" . $options{container_id} . "'");
     $containers->{$options{container_id}} = { pid => $child_pid, ready => 0, running => 1 };
     $containers_pid->{$child_pid} = $options{container_id};
 }

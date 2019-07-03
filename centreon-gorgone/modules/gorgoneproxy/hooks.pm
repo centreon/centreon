@@ -18,17 +18,17 @@
 # limitations under the License.
 #
 
-package modules::centreondproxy::hooks;
+package modules::gorgoneproxy::hooks;
 
 use warnings;
 use strict;
-use centreon::script::centreondcore;
-use centreon::centreond::common;
-use modules::centreondproxy::class;
+use centreon::script::gorgonecore;
+use centreon::gorgone::common;
+use modules::gorgoneproxy::class;
 
 my $config_core;
 my $config;
-my $module_id = 'centreondproxy';
+my $module_id = 'gorgoneproxy';
 my $events = [
     'PROXYREADY', 'SETLOGS', 'PONG', 'REGISTERNODE', 'UNREGISTERNODE', # internal. Shouldn't be used by third party clients
     'ADDPOLLER', 
@@ -86,22 +86,24 @@ sub routing {
     };
     if ($@) {
         $options{logger}->writeLogError("Cannot decode json data: $@");
-        centreon::centreond::common::add_history(dbh => $options{dbh},
-                                                 code => 20, token => $options{token},
-                                                 data => { message => 'centreondproxy: cannot decode json' },
-                                                 json_encode => 1);
+        centreon::gorgone::common::add_history(
+            dbh => $options{dbh},
+            code => 20, token => $options{token},
+            data => { message => 'gorgoneproxy: cannot decode json' },
+            json_encode => 1
+        );
         return undef;
     }
     
     if ($options{action} eq 'PONG') {
         return undef if (!defined($data->{data}->{id}) || $data->{data}->{id} eq '');
         $last_pong->{$data->{data}->{id}} = time();
-        $options{logger}->writeLogInfo("centreond-proxy: pong received from '" . $data->{data}->{id} . "'");
+        $options{logger}->writeLogInfo("gorgone-proxy: pong received from '" . $data->{data}->{id} . "'");
         return undef;
     }
     
     if ($options{action} eq 'UNREGISTERNODE') {
-        $options{logger}->writeLogInfo("centreond-proxy: poller '" . $data->{id} . "' is unregistered");
+        $options{logger}->writeLogInfo("gorgone-proxy: poller '" . $data->{id} . "' is unregistered");
         if (defined($register_pollers->{$data->{id}})) {
             delete $register_pollers->{$data->{id}};
             delete $synctime_pollers->{$data->{id}};
@@ -110,7 +112,7 @@ sub routing {
     }
     
     if ($options{action} eq 'REGISTERNODE') {
-        $options{logger}->writeLogInfo("centreond-proxy: poller '" . $data->{id} . "' is registered");
+        $options{logger}->writeLogInfo("gorgone-proxy: poller '" . $data->{id} . "' is registered");
         $register_pollers->{$data->{id}} = 1;
         $last_pong->{$data->{id}} = 0 if (!defined($last_pong->{$data->{id}}));
         if ($synctime_error == 0 && !defined($synctime_pollers->{$options{target}}) &&
@@ -132,41 +134,49 @@ sub routing {
     
     if (!defined($options{target}) || 
         (!defined($last_pollers->{$options{target}}) && !defined($register_pollers->{$options{target}}))) {
-        centreon::centreond::common::add_history(dbh => $options{dbh},
-                                                 code => 20, token => $options{token},
-                                                 data => { message => 'centreondproxy: need a valid poller id' },
-                                                 json_encode => 1);
+        centreon::gorgone::common::add_history(
+            dbh => $options{dbh},
+            code => 20, token => $options{token},
+            data => { message => 'gorgoneproxy: need a valid poller id' },
+            json_encode => 1
+        );
         return undef;
     }
     
     if ($options{action} eq 'GETLOG') {
         if ($synctime_error == -1 || get_sync_time(dbh => $options{dbh}) == -1) {
-            centreon::centreond::common::add_history(dbh => $options{dbh},
-                                                     code => 20, token => $options{token},
-                                                     data => { message => 'centreondproxy: problem to getlog' },
-                                                     json_encode => 1);
+            centreon::gorgone::common::add_history(
+                dbh => $options{dbh},
+                code => 20, token => $options{token},
+                data => { message => 'gorgoneproxy: problem to getlog' },
+                json_encode => 1
+            );
             return undef;
         }
                
         if ($synctime_pollers->{$options{target}}->{in_progress} == 1) {
-            centreon::centreond::common::add_history(dbh => $options{dbh},
-                                                     code => 20, token => $options{token},
-                                                     data => { message => 'centreondproxy: getlog already in progress' },
-                                                     json_encode => 1);
+            centreon::gorgone::common::add_history(
+                dbh => $options{dbh},
+                code => 20, token => $options{token},
+                data => { message => 'gorgoneproxy: getlog already in progress' },
+                json_encode => 1
+            );
             return undef;
         }
         if (defined($last_pollers->{$options{target}}) && $last_pollers->{$options{target}}->{type} == 2) {
-            centreon::centreond::common::add_history(dbh => $options{dbh},
-                                                     code => 20, token => $options{token},
-                                                     data => { message => "centreondproxy: can't get log a ssh target" },
-                                                     json_encode => 1);
+            centreon::gorgone::common::add_history(
+                dbh => $options{dbh},
+                code => 20, token => $options{token},
+                data => { message => "gorgoneproxy: can't get log a ssh target" },
+                json_encode => 1
+            );
             return undef;
         }
         
         # We put the good time to get        
         my $ctime = $synctime_pollers->{$options{target}}->{ctime};
         my $last_id = $synctime_pollers->{$options{target}}->{last_id};
-        $options{data} = centreon::centreond::common::json_encode(data => { ctime => $ctime, id => $last_id });
+        $options{data} = centreon::gorgone::common::json_encode(data => { ctime => $ctime, id => $last_id });
         $synctime_pollers->{$options{target}}->{in_progress} = 1;
         $synctime_pollers->{$options{target}}->{in_progress_time} = time();
     }
@@ -177,11 +187,13 @@ sub routing {
         return undef;
     }
     
-    if (centreon::script::centreondcore::waiting_ready_pool(pool => $pools) == 0) {
-        centreon::centreond::common::add_history(dbh => $options{dbh},
-                                                 code => 20, token => $options{token},
-                                                 data => { message => 'centreondproxy: still none ready' },
-                                                 json_encode => 1);
+    if (centreon::script::gorgonecore::waiting_ready_pool(pool => $pools) == 0) {
+        centreon::gorgone::common::add_history(
+            dbh => $options{dbh},
+            code => 20, token => $options{token},
+            data => { message => 'gorgoneproxy: still none ready' },
+            json_encode => 1
+        );
         return undef;
     }
     
@@ -193,10 +205,11 @@ sub routing {
         $poller_pool->{$options{target}} = $identity;
     }
     
-    centreon::centreond::common::zmq_send_message(socket => $options{socket}, identity => 'centreondproxy-' . $identity,
-                                                  action => $options{action}, data => $options{data}, token => $options{token},
-                                                  target => $options{target}
-                                                  );
+    centreon::gorgone::common::zmq_send_message(
+        socket => $options{socket}, identity => 'gorgoneproxy-' . $identity,
+        action => $options{action}, data => $options{data}, token => $options{token},
+        target => $options{target}
+    );
 }
 
 sub gently {
@@ -204,7 +217,7 @@ sub gently {
 
     $stop = 1;
     foreach my $pool_id (keys %{$pools}) {
-        $options{logger}->writeLogInfo("centreond-proxy: Send TERM signal for pool '" . $pool_id . "'");
+        $options{logger}->writeLogInfo("gorgone-proxy: Send TERM signal for pool '" . $pool_id . "'");
         if ($pools->{$pool_id}->{running} == 1) {
             CORE::kill('TERM', $pools->{$pool_id}->{pid});
         }
@@ -216,7 +229,7 @@ sub kill {
 
     foreach (keys %{$pools}) {
         if ($pools->{$_}->{running} == 1) {
-            $options{logger}->writeLogInfo("centreond-proxy: Send KILL signal for pool '" . $_ . "'");
+            $options{logger}->writeLogInfo("gorgone-proxy: Send KILL signal for pool '" . $_ . "'");
             CORE::kill('KILL', $pools->{$_}->{pid});
         }
     }
@@ -253,10 +266,12 @@ sub check {
     foreach (keys %{$synctime_pollers}) {
         if ($synctime_pollers->{$_}->{in_progress} == 1 && 
             time() - $synctime_pollers->{$_}->{in_progress_time} > $synctimeout_option) {
-            centreon::centreond::common::add_history(dbh => $options{dbh},
-                                                     code => 20,
-                                                     data => { message => "centreondproxy: getlog in timeout for '$_'" },
-                                                     json_encode => 1);
+            centreon::gorgone::common::add_history(
+                dbh => $options{dbh},
+                code => 20,
+                data => { message => "gorgoneproxy: getlog in timeout for '$_'" },
+                json_encode => 1
+            );
             $synctime_pollers->{$_}->{in_progress} = 0;
         }
     }
@@ -271,7 +286,7 @@ sub check {
     
     if ($stop == 0 &&
         time() - $ping_time > $ping_option) {
-        $options{logger}->writeLogInfo("centreond-proxy: send pings");
+        $options{logger}->writeLogInfo("gorgone-proxy: send pings");
         $ping_time = time();
         ping_send(dbh => $options{dbh});
     }
@@ -284,21 +299,25 @@ sub setlogs {
     my (%options) = @_;
     
     if (!defined($options{data}->{data}->{id}) || $options{data}->{data}->{id} eq '') {
-        centreon::centreond::common::add_history(dbh => $options{dbh},
-                                                 code => 20, token => $options{token},
-                                                 data => { message => 'centreondproxy: need a id to setlogs' },
-                                                 json_encode => 1);
+        centreon::gorgone::common::add_history(
+            dbh => $options{dbh},
+            code => 20, token => $options{token},
+            data => { message => 'gorgoneproxy: need a id to setlogs' },
+            json_encode => 1
+        );
         return undef;
     }
     if ($synctime_pollers->{$options{data}->{data}->{id}}->{in_progress} == 0) {
-        centreon::centreond::common::add_history(dbh => $options{dbh},
-                                                 code => 20, token => $options{token},
-                                                 data => { message => 'centreondproxy: skip setlogs response. Maybe too much time to get response. Retry' },
-                                                 json_encode => 1);
+        centreon::gorgone::common::add_history(
+            dbh => $options{dbh},
+            code => 20, token => $options{token},
+            data => { message => 'gorgoneproxy: skip setlogs response. Maybe too much time to get response. Retry' },
+            json_encode => 1
+        );
         return undef;
     }
     
-    $options{logger}->writeLogInfo("centreondproxy: hooks: received setlogs for '$options{data}->{data}->{id}'");
+    $options{logger}->writeLogInfo("gorgoneproxy: hooks: received setlogs for '$options{data}->{data}->{id}'");
     
     $synctime_pollers->{$options{data}->{data}->{id}}->{in_progress} = 0;
     
@@ -308,11 +327,13 @@ sub setlogs {
     $options{dbh}->transaction_mode(1);
     my $status = 0;
     foreach (keys %{$options{data}->{data}->{result}}) {
-        $status = centreon::centreond::common::add_history(dbh => $options{dbh},
-                                                           etime => $options{data}->{data}->{result}->{$_}->{etime}, 
-                                                           code => $options{data}->{data}->{result}->{$_}->{code}, 
-                                                           token => $options{data}->{data}->{result}->{$_}->{token},
-                                                           data => $options{data}->{data}->{result}->{$_}->{data});
+        $status = centreon::gorgone::common::add_history(
+            dbh => $options{dbh},
+            etime => $options{data}->{data}->{result}->{$_}->{etime}, 
+            code => $options{data}->{data}->{result}->{$_}->{code}, 
+            token => $options{data}->{data}->{result}->{$_}->{token},
+            data => $options{data}->{data}->{result}->{$_}->{data}
+        );
         last if ($status == -1);
         $ctime_recent = $options{data}->{data}->{result}->{$_}->{ctime} if ($ctime_recent < $options{data}->{data}->{result}->{$_}->{ctime});
         $last_id = $options{data}->{data}->{result}->{$_}->{id} if ($last_id < $options{data}->{data}->{result}->{$_}->{id});
@@ -363,9 +384,9 @@ sub update_sync_time {
     
     my $status;
     if ($synctime_pollers->{$options{id}}->{last_id} == 0) {
-        ($status) = $options{dbh}->query("INSERT INTO centreond_synchistory (`id`, `ctime`, `last_id`) VALUES (" . $options{dbh}->quote($options{id}) . ", " . $options{dbh}->quote($options{ctime}) . ", " . $options{dbh}->quote($options{last_id}) . ")");
+        ($status) = $options{dbh}->query("INSERT INTO gorgone_synchistory (`id`, `ctime`, `last_id`) VALUES (" . $options{dbh}->quote($options{id}) . ", " . $options{dbh}->quote($options{ctime}) . ", " . $options{dbh}->quote($options{last_id}) . ")");
     } else {
-        ($status) = $options{dbh}->query("UPDATE centreond_synchistory SET `ctime` = " . $options{dbh}->quote($options{ctime}) . ", `last_id` = " . $options{dbh}->quote($options{last_id}) . " WHERE `id` = " . $options{dbh}->quote($options{id}));
+        ($status) = $options{dbh}->query("UPDATE gorgone_synchistory SET `ctime` = " . $options{dbh}->quote($options{ctime}) . ", `last_id` = " . $options{dbh}->quote($options{last_id}) . " WHERE `id` = " . $options{dbh}->quote($options{id}));
     }
     return $status;
 }
@@ -373,7 +394,7 @@ sub update_sync_time {
 sub get_sync_time {
     my (%options) = @_;
     
-    my ($status, $sth) = $options{dbh}->query("SELECT * FROM centreond_synchistory");
+    my ($status, $sth) = $options{dbh}->query("SELECT * FROM gorgone_synchistory");
     if ($status == -1) {
         $synctime_error = -1;
         return -1;
@@ -419,20 +440,21 @@ sub rr_pool {
 sub create_child {
     my (%options) = @_;
     
-    $options{logger}->writeLogInfo("Create centreondproxy for pool id '" . $options{pool_id} . "'");
+    $options{logger}->writeLogInfo("Create gorgoneproxy for pool id '" . $options{pool_id} . "'");
     my $child_pid = fork();
     if ($child_pid == 0) {
-        $0 = 'centreond-proxy';
-        my $module = modules::centreondproxy::class->new(logger => $options{logger},
-                                                         config_core => $config_core,
-                                                         config => $config,
-                                                         pool_id => $options{pool_id},
-                                                         core_id => $core_id
-                                                        );
+        $0 = 'gorgone-proxy';
+        my $module = modules::gorgone::class->new(
+            logger => $options{logger},
+            config_core => $config_core,
+            config => $config,
+            pool_id => $options{pool_id},
+            core_id => $core_id
+        );
         $module->run();
         exit(0);
     }
-    $options{logger}->writeLogInfo("PID $child_pid centreondproxy for pool id '" . $options{pool_id} . "'");
+    $options{logger}->writeLogInfo("PID $child_pid gorgoneproxy for pool id '" . $options{pool_id} . "'");
     $pools->{$options{pool_id}} = { pid => $child_pid, ready => 0, running => 1 };
     $pools_pid->{$child_pid} = $options{pool_id};
 }
@@ -441,15 +463,18 @@ sub pull_request {
     my (%options) = @_;
 
     # No target anymore. We remove it.
-    my $message = centreon::centreond::common::build_protocol(action => $options{action}, data => $options{data}, token => $options{token},
-                                                              target => ''
-                                                              );
-    my ($status, $key) = centreon::centreond::common::is_handshake_done(dbh => $options{dbh}, identity => unpack('H*', $options{target}));
+    my $message = centreon::gorgone::common::build_protocol(
+        action => $options{action}, data => $options{data}, token => $options{token},
+        target => ''
+    );
+    my ($status, $key) = centreon::gorgone::common::is_handshake_done(dbh => $options{dbh}, identity => unpack('H*', $options{target}));
     if ($status == 0) {
-        centreon::centreond::common::add_history(dbh => $options{dbh},
-                                                 code => 20, token => $options{token},
-                                                 data => { message => "centreondproxy: node '" . $options{target} . "' had never been connected" },
-                                                 json_encode => 1);
+        centreon::gorgone::common::add_history(
+            dbh => $options{dbh},
+            code => 20, token => $options{token},
+            data => { message => "gorgoneproxy: node '" . $options{target} . "' had never been connected" },
+            json_encode => 1
+        );
         return undef;
     }
     
@@ -457,12 +482,14 @@ sub pull_request {
     # Catch some actions call and do some transformation (on file copy)
     # TODO
     
-    centreon::centreond::common::zmq_send_message(socket => $external_socket,
-                                                  cipher => $config_core->{cipher},
-                                                  vector => $config_core->{vector},
-                                                  symkey => $key,
-                                                  identity => $options{target},
-                                                  message => $message);
+    centreon::gorgone::common::zmq_send_message(
+        socket => $external_socket,
+        cipher => $config_core->{cipher},
+        vector => $config_core->{vector},
+        symkey => $key,
+        identity => $options{target},
+        message => $message
+    );
 }
 
 sub get_constatus_result {

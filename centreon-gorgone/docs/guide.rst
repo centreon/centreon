@@ -2,12 +2,12 @@
 Description
 ***********
 
-"centreond" is a daemon which handles some tasks. You can plug-in some modules:
+"gorgoned" is a daemon which handles some tasks. You can plug-in some modules:
 
-* centreond-action: execute commands, send files/directories
-* centreond-cron: schedule tasks
-* centreond-acl: manage centreon ACL
-* centreond-proxy: push tasks (to another "centreond" instance) or execute (through SSH)
+* gorgone-action: execute commands, send files/directories
+* gorgone-cron: schedule tasks
+* gorgone-acl: manage centreon ACL
+* gorgone-proxy: push tasks (to another "gorgoned" instance) or execute (through SSH)
 
 The daemon is installed on centreon central server and also poller server.
 It uses zeromq library.
@@ -40,19 +40,19 @@ Create sqlite database:
 
   ::
   
-    # sqlite3 -init schema/centreond_database.sql /tmp/centreond.sdb
+    # sqlite3 -init schema/gorgone_database.sql /tmp/gorgone.sdb
 
 To execute the daemon:
 
   ::
   
-    # perl centreond --config-extra=centreond.ini --severity=debug
+    # perl gorgoned --config-extra=config/gorgoned.ini --severity=debug
 
-******************
-centreond protocol 
-******************
+****************
+gorgone protocol 
+****************
 
-"centreond-core" (main mandatory module) can have 2 interfaces:
+"gorgone-core" (main mandatory module) can have 2 interfaces:
 
 * internal: uncrypted dialog (used by internal modules. Commonly in ipc)
 * external: crypted dialog (used by third-party clients. Commonly in tcp)
@@ -106,7 +106,7 @@ After a successful handshake, client requests uses the following syntax:
 
 * ACTION: the request. For example: COMMAND, ENGINECOMMAND,... It depends of the target server capabilites
 * TOKEN: Can be used to create some "sessions". If empty, the server creates an uniq token for each requests
-* TARGET: which "centreond" must execute the request. With the following option, you can execute a command to a specific server through another. The poller id is needed. If empty, the server (which is connected with the client) is the target.
+* TARGET: which "gorgoned" must execute the request. With the following option, you can execute a command to a specific server through another. The poller id is needed. If empty, the server (which is connected with the client) is the target.
 * DATA: json stream. It depends of the request
 
 For each client requests, the server get an immediate response:
@@ -130,7 +130,7 @@ Core requests
 CONSTATUS
 ---------
 
-The following request gives you a table with the last ping response of "centreond" nodes connected to the server.
+The following request gives you a table with the last ping response of "gorgoned" nodes connected to the server.
 The command is useful to know if some pollers are disconnected.
 
 The client request:
@@ -169,7 +169,7 @@ An example of the json stream:
 GETLOG
 ------
 
-The following request gives you the capability to follow your requests. "centreond" protocol is asynchronous. 
+The following request gives you the capability to follow your requests. "gorgone" protocol is asynchronous. 
 An example: when you request a command execution, the server gives you a direct response and a token. These token can be used to know what happened to your command.
 
 The client request:
@@ -222,7 +222,7 @@ An example of the json stream:
               } 
   }
 
-Each 'centreond' nodes store its logs. But every 5 minutes (by default), the central server gets the new logs of its connected nodes and stores it. 
+Each 'gorgoned' nodes store its logs. But every 5 minutes (by default), the central server gets the new logs of its connected nodes and stores it. 
 A client can force a synchronization with the following request:
 ::
 
@@ -244,9 +244,9 @@ The client request:
 module requests
 ===============
 
--------------
-centreond-acl
--------------
+-----------
+gorgone-acl
+-----------
 
 Common code responses:
 
@@ -394,9 +394,9 @@ Example:
 The following action should be used when you want to rebuild an entire organization.
 You can rebuild a specific 'acl_resource' group if you set it.
 
-----------------
-centreond-action
-----------------
+--------------
+gorgone-action
+--------------
 
 COMMAND
 ^^^^^^^
@@ -449,17 +449,17 @@ FAQ
 Which modules should i enable ?
 ===============================
 
-A poller with centreond should have the following modules:
+A poller with gorgoned should have the following modules:
 
-* centreond-action
-* centreond-pull: if the connection to the central should be opened by the poller 
+* gorgone-action
+* gorgone-pull: if the connection to the central should be opened by the poller 
 
-A central with centreond should have the following modules:
+A central with gorgoned should have the following modules:
 
-* centreond-acl
-* centreond-action
-* centreond-proxy
-* centreond-cron
+* gorgone-acl
+* gorgone-action
+* gorgone-proxy
+* gorgone-cron
 
 =================================================
 I want to create a client. How should i proceed ?
@@ -488,16 +488,16 @@ Database scheme
 
 ::
 
-  CREATE TABLE IF NOT EXISTS `centreond_identity` (
+  CREATE TABLE IF NOT EXISTS `gorgone_identity` (
     `id` INTEGER PRIMARY KEY,
     `ctime` int(11) DEFAULT NULL,
     `identity` varchar(2048) DEFAULT NULL,
     `key` varchar(4096) DEFAULT NULL
   );
   
-  CREATE INDEX IF NOT EXISTS idx_centreond_identity_identity ON centreond_identity (identity);
+  CREATE INDEX IF NOT EXISTS idx_gorgone_identity_identity ON gorgone_identity (identity);
   
-  CREATE TABLE IF NOT EXISTS `centreond_history` (
+  CREATE TABLE IF NOT EXISTS `gorgone_history` (
     `id` INTEGER PRIMARY KEY,
     `token` varchar(255) DEFAULT NULL,
     `code` int(11) DEFAULT NULL,
@@ -506,16 +506,16 @@ Database scheme
     `data` TEXT DEFAULT NULL
   );
   
-  CREATE INDEX IF NOT EXISTS idx_centreond_history_id ON centreond_history (id);
-  CREATE INDEX IF NOT EXISTS idx_centreond_history_token ON centreond_history (token);
-  CREATE INDEX IF NOT EXISTS idx_centreond_history_etime ON centreond_history (etime);
-  CREATE INDEX IF NOT EXISTS idx_centreond_history_code ON centreond_history (code);
-  CREATE INDEX IF NOT EXISTS idx_centreond_history_ctime ON centreond_history (ctime);
+  CREATE INDEX IF NOT EXISTS idx_gorgone_history_id ON gorgone_history (id);
+  CREATE INDEX IF NOT EXISTS idx_gorgone_history_token ON gorgone_history (token);
+  CREATE INDEX IF NOT EXISTS idx_gorgone_history_etime ON gorgone_history (etime);
+  CREATE INDEX IF NOT EXISTS idx_gorgone_history_code ON gorgone_history (code);
+  CREATE INDEX IF NOT EXISTS idx_gorgone_history_ctime ON gorgone_history (ctime);
   
-  CREATE TABLE IF NOT EXISTS `centreond_synchistory` (
+  CREATE TABLE IF NOT EXISTS `gorgone_synchistory` (
     `id` int(11) DEFAULT NULL,
     `ctime` int(11) DEFAULT NULL,
     `last_id` int(11) DEFAULT NULL
   );
 
-  CREATE INDEX IF NOT EXISTS idx_centreond_synchistory_id ON centreond_synchistory (id);
+  CREATE INDEX IF NOT EXISTS idx_gorgone_synchistory_id ON gorgone_synchistory (id);

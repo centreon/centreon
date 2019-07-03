@@ -18,7 +18,7 @@
 # limitations under the License.
 #
 
-package centreon::script::centreondcore;
+package centreon::script::gorgonecore;
 
 use strict;
 use warnings;
@@ -26,11 +26,11 @@ use POSIX ":sys_wait_h";
 use Sys::Hostname;
 use ZMQ::LibZMQ4;
 use ZMQ::Constants qw(:all);
-use centreon::centreond::common;
+use centreon::gorgone::common;
 use centreon::misc::db;
 use centreon::script;
 
-my ($centreond, $centreond_config);
+my ($gorgone, $gorgone_config);
 
 use base qw(centreon::script);
 
@@ -39,7 +39,7 @@ my %handlers = (TERM => {}, HUP => {}, CHLD => {});
 
 sub new {
     my $class = shift;
-    my $self = $class->SUPER::new('centreond',
+    my $self = $class->SUPER::new('gorgoned',
         centreon_db_conn => 0,
         centstorage_db_conn => 0,
         noconfig => 1
@@ -75,36 +75,38 @@ sub init {
         $self->{logger}->writeLogError("Can't find extra config file '$self->{opt_extra}'");
         exit(1);
     }
-    $centreond_config = centreon::centreond::common::read_config(config_file => $self->{opt_extra},
-                                                                 logger => $self->{logger});
-    if (defined($centreond_config->{centreondcore}{external_com_type}) && $centreond_config->{centreondcore}{external_com_type} ne '') {
-        centreon::centreond::common::loadprivkey(logger => $self->{logger}, privkey => $centreond_config->{centreondcore}{privkey});
+    $gorgone_config = centreon::gorgone::common::read_config(
+        config_file => $self->{opt_extra},
+        logger => $self->{logger}
+    );
+    if (defined($gorgone_config->{gorgonecore}{external_com_type}) && $gorgone_config->{gorgonecore}{external_com_type} ne '') {
+        centreon::gorgone::common::loadprivkey(logger => $self->{logger}, privkey => $gorgone_config->{gorgonecore}{privkey});
     }
     
     # Database connections:
-    #    We add in centreond database
-    $centreond->{db_centreond} = centreon::misc::db->new(
-        type => $centreond_config->{centreondcore}{centreond_db_type},
-        db => $centreond_config->{centreondcore}{centreond_db_name},
-        host => $centreond_config->{centreondcore}{centreond_db_host},
-        port => $centreond_config->{centreondcore}{centreond_db_port},
-        user => $centreond_config->{centreondcore}{centreond_db_user},
-        password => $centreond_config->{centreondcore}{centreond_db_password},
+    #    We add in gorgone database
+    $gorgone->{db_gorgone} = centreon::misc::db->new(
+        type => $gorgone_config->{gorgonecore}{gorgone_db_type},
+        db => $gorgone_config->{gorgonecore}{gorgone_db_name},
+        host => $gorgone_config->{gorgonecore}{gorgone_db_host},
+        port => $gorgone_config->{gorgonecore}{gorgone_db_port},
+        user => $gorgone_config->{gorgonecore}{gorgone_db_user},
+        password => $gorgone_config->{gorgonecore}{gorgone_db_password},
         force => 2,
-        logger => $centreond->{logger}
+        logger => $gorgone->{logger}
     );
-    $centreond->{db_centreond}->set_inactive_destroy();
-    if ($centreond->{db_centreond}->connect() == -1) {
-        $centreond->{logger}->writeLogInfo("Cannot connect. We quit!!");
+    $gorgone->{db_gorgone}->set_inactive_destroy();
+    if ($gorgone->{db_gorgone}->connect() == -1) {
+        $gorgone->{logger}->writeLogInfo("Cannot connect. We quit!!");
         exit(1);
     }
     
-    $self->{hostname} = $centreond_config->{centreondcore}{hostname};
+    $self->{hostname} = $gorgone_config->{gorgonecore}{hostname};
     if (!defined($self->{hostname}) || $self->{hostname} eq '') {
         $self->{hostname} = hostname();
     }
     
-    $self->{id} = $centreond_config->{centreondcore}{id};
+    $self->{id} = $gorgone_config->{gorgonecore}{id};
     if (!defined($self->{hostname}) || $self->{hostname} eq '') {
         #$self->{id} = get_poller_id(dbh => $dbh, name => $self->{hostname});
     }
@@ -174,10 +176,10 @@ sub handle_CHLD {
 sub load_modules {
     my $self = shift;
 
-    foreach my $section (keys %{$centreond_config}) {
-        next if (!defined($centreond_config->{$section}{module}));
+    foreach my $section (keys %{$gorgone_config}) {
+        next if (!defined($gorgone_config->{$section}{module}));
         
-        my $name = $centreond_config->{$section}{module};
+        my $name = $gorgone_config->{$section}{module};
         (my $file = "$name.pm") =~ s{::}{/}g;
         require $file;
         $self->{logger}->writeLogInfo("Module '$section' is loading");
@@ -191,10 +193,10 @@ sub load_modules {
         }
 
         my ($events, $id) = $self->{modules_register}->{$name}->{register}->(
-            config => $centreond_config->{$section},
-            config_core => $centreond_config->{centreondcore},
-            config_db_centreon => $centreond_config->{db_centreon},
-            config_db_centstorage => $centreond_config->{db_centstorage}
+            config => $gorgone_config->{$section},
+            config_core => $gorgone_config->{gorgonecore},
+            config_db_centreon => $gorgone_config->{db_centreon},
+            config_db_centstorage => $gorgone_config->{db_centstorage}
         );
         $self->{modules_id}->{$id} = $name;
         foreach my $event (@{$events}) {
@@ -207,7 +209,7 @@ sub load_modules {
     
     # Load internal functions
     foreach my $method_name (('putlog', 'getlog', 'kill', 'ping', 'constatus')) {
-        unless ($self->{internal_register}->{$method_name} = centreon::centreond::common->can($method_name)) {
+        unless ($self->{internal_register}->{$method_name} = centreon::gorgone::common->can($method_name)) {
             $self->{logger}->writeLogError("No function '$method_name'");
             exit(1);
         }
@@ -222,8 +224,8 @@ sub message_run {
     }
     my ($action, $token, $target, $data) = ($1, $2, $3, $4);
     if ($action !~ /^(PUTLOG|GETLOG|KILL|PING|CONSTATUS)$/ && !defined($self->{modules_events}->{$action})) {
-        centreon::centreond::common::add_history(
-            dbh => $self->{db_centreond},
+        centreon::gorgone::common::add_history(
+            dbh => $self->{db_gorgone},
             code => 1, token => $token,
             data => { msg => "action '$action' is not known" },
             json_encode => 1
@@ -231,25 +233,25 @@ sub message_run {
         return (undef, 1, { message => "action '$action' is not known" });
     }
     if (!defined($token) || $token eq '') {
-        $token = centreon::centreond::common::generate_token();
+        $token = centreon::gorgone::common::generate_token();
     }
 
     if ($self->{stop} == 1) {
-        centreon::centreond::common::add_history(
-            dbh => $self->{db_centreond},
+        centreon::gorgone::common::add_history(
+            dbh => $self->{db_gorgone},
             code => 1, token => $token,
-            data => { msg => 'centreond is stopping/restarting. Not proceed request.' },
+            data => { msg => 'gorgone is stopping/restarting. Not proceed request.' },
             json_encode => 1
         );
-        return ($token, 1, { message => "centreond is stopping/restarting. Not proceed request." });
+        return ($token, 1, { message => "gorgone is stopping/restarting. Not proceed request." });
     }
     
     # Check Routing
     if (defined($target) && $target ne '') {
         # Check if not myself ;)
         if ($target ne $self->{id}) {
-            $self->{modules_register}->{ $self->{modules_id}->{$centreond_config->{centreondcore}{proxy_name}}  }->{routing}->(
-                socket => $self->{internal_socket}, dbh => $self->{db_centreond}, logger => $self->{logger}, 
+            $self->{modules_register}->{ $self->{modules_id}->{$gorgone_config->{gorgonecore}{proxy_name}}  }->{routing}->(
+                socket => $self->{internal_socket}, dbh => $self->{db_gorgone}, logger => $self->{logger}, 
                 action => $1, token => $token, target => $target, data => $data,
                 hostname => $self->{hostname}
             );
@@ -259,8 +261,8 @@ sub message_run {
     
     if ($action =~ /^(PUTLOG|GETLOG|KILL|PING|CONSTATUS)$/) {
         my ($code, $response, $response_type) = $self->{internal_register}->{lc($action)}->(
-            centreond => $self,
-            centreond_config => $centreond_config,
+            gorgone => $self,
+            gorgone_config => $gorgone_config,
             id => $self->{id},
             data => $data,
             token => $token,
@@ -271,7 +273,7 @@ sub message_run {
         foreach (@{$self->{modules_events}->{$action}}) {
             $self->{modules_register}->{$_}->{routing}->(
                 socket => $self->{internal_socket}, 
-                dbh => $self->{db_centreond}, logger => $self->{logger},
+                dbh => $self->{db_gorgone}, logger => $self->{logger},
                 action => $1, token => $token, target => $target, data => $data,
                 hostname => $self->{hostname}
             );
@@ -282,33 +284,33 @@ sub message_run {
 
 sub router_internal_event {
     while (1) {
-        my ($identity, $message) = centreon::centreond::common::zmq_read_message(socket => $centreond->{internal_socket});
-        my ($token, $code, $response, $response_type) = $centreond->message_run(message => $message);
-        centreon::centreond::common::zmq_core_response(
-            socket => $centreond->{internal_socket},
+        my ($identity, $message) = centreon::gorgone::common::zmq_read_message(socket => $gorgone->{internal_socket});
+        my ($token, $code, $response, $response_type) = $gorgone->message_run(message => $message);
+        centreon::gorgone::common::zmq_core_response(
+            socket => $gorgone->{internal_socket},
             identity => $identity, response_type => $response_type,
             data => $response, code => $code,
             token => $token
         );
-        last unless (centreon::centreond::common::zmq_still_read(socket => $centreond->{internal_socket}));
+        last unless (centreon::gorgone::common::zmq_still_read(socket => $gorgone->{internal_socket}));
     }
 }
 
 sub handshake {
     my ($self, %options) = @_;
 
-    my ($identity, $message) = centreon::centreond::common::zmq_read_message(socket => $self->{external_socket});
-    my ($status, $key) = centreon::centreond::common::is_handshake_done(dbh => $self->{db_centreond}, identity => $identity);
+    my ($identity, $message) = centreon::gorgone::common::zmq_read_message(socket => $self->{external_socket});
+    my ($status, $key) = centreon::gorgone::common::is_handshake_done(dbh => $self->{db_gorgone}, identity => $identity);
 
     if ($status == 1) {
-        ($status, my $response) = centreon::centreond::common::uncrypt_message(
-            cipher => $centreond_config->{centreondcore}{cipher}, 
+        ($status, my $response) = centreon::gorgone::common::uncrypt_message(
+            cipher => $gorgone_config->{gorgonecore}{cipher}, 
             message => $message,
             symkey => $key,
-            vector => $centreond_config->{centreondcore}{vector}
+            vector => $gorgone_config->{gorgonecore}{vector}
         );
         if ($status == 0 && $response =~ /^\[.*\]/) {
-            centreon::centreond::common::update_identity(dbh => $self->{db_centreond}, identity => $identity);
+            centreon::gorgone::common::update_identity(dbh => $self->{db_gorgone}, identity => $identity);
             return ($identity, $key, $response);
         }
         
@@ -317,7 +319,7 @@ sub handshake {
     }
     
     if ($status == -1) {
-        centreon::centreond::common::zmq_core_response(
+        centreon::gorgone::common::zmq_core_response(
             socket => $self->{external_socket}, 
             identity => $identity,
             code => 1,
@@ -326,34 +328,34 @@ sub handshake {
         return undef;
     } elsif ($status == 0) {
         # We try to uncrypt
-        if (centreon::centreond::common::is_client_can_connect(message => $message,
+        if (centreon::gorgone::common::is_client_can_connect(message => $message,
                                                                logger => $self->{logger}) == -1) {
-            centreon::centreond::common::zmq_core_response(
+            centreon::gorgone::common::zmq_core_response(
                 socket => $self->{external_socket}, identity => $identity,
                 code => 1, data => { message => 'handshake issue' }
             );
         }
-        my ($status, $symkey) = centreon::centreond::common::generate_symkey(
+        my ($status, $symkey) = centreon::gorgone::common::generate_symkey(
             logger => $self->{logger},
-            cipher => $centreond_config->{centreondcore}{cipher},
-            keysize => $centreond_config->{centreondcore}{keysize}
+            cipher => $gorgone_config->{gorgonecore}{cipher},
+            keysize => $gorgone_config->{gorgonecore}{keysize}
         );
         if ($status == -1) {
-            centreon::centreond::common::zmq_core_response(
+            centreon::gorgone::common::zmq_core_response(
                 socket => $self->{external_socket}, identity => $identity,
                 code => 1, data => { message => 'handshake issue' }
             );
         }
-        if (centreon::centreond::common::add_identity(dbh => $self->{db_centreond}, identity => $identity, symkey => $symkey) == -1) {
-            centreon::centreond::common::zmq_core_response(
+        if (centreon::gorgone::common::add_identity(dbh => $self->{db_gorgone}, identity => $identity, symkey => $symkey) == -1) {
+            centreon::gorgone::common::zmq_core_response(
                 socket => $self->{external_socket}, identity => $identity,
                 code => 1, data => { message => 'handshake issue' }
             );
         }
         
-        if (centreon::centreond::common::zmq_core_key_response(logger => $self->{logger}, socket => $self->{external_socket}, identity => $identity,
+        if (centreon::gorgone::common::zmq_core_key_response(logger => $self->{logger}, socket => $self->{external_socket}, identity => $identity,
                                                                hostname => $self->{hostname}, symkey => $symkey) == -1) {
-            centreon::centreond::common::zmq_core_response(
+            centreon::gorgone::common::zmq_core_response(
                 socket => $self->{external_socket}, identity => $identity,
                 code => 1, data => { message => 'handshake issue' }
             );
@@ -364,20 +366,20 @@ sub handshake {
 
 sub router_external_event {
     while (1) {
-        my ($identity, $key, $message) = $centreond->handshake();
+        my ($identity, $key, $message) = $gorgone->handshake();
         if (defined($message)) {
-            my ($token, $code, $response, $response_type) = $centreond->message_run(message => $message);
-            centreon::centreond::common::zmq_core_response(
-                socket => $centreond->{external_socket},
+            my ($token, $code, $response, $response_type) = $gorgone->message_run(message => $message);
+            centreon::gorgone::common::zmq_core_response(
+                socket => $gorgone->{external_socket},
                 identity => $identity, response_type => $response_type,
-                cipher => $centreond_config->{centreondcore}{cipher},
-                vector => $centreond_config->{centreondcore}{vector},
+                cipher => $gorgone_config->{gorgonecore}{cipher},
+                vector => $gorgone_config->{gorgonecore}{vector},
                 symkey => $key,
                 token => $token, code => $code,
                 data => $response
             );
         }
-        last unless (centreon::centreond::common::zmq_still_read(socket => $centreond->{external_socket}));
+        last unless (centreon::gorgone::common::zmq_still_read(socket => $gorgone->{external_socket}));
     }
 }
 
@@ -390,7 +392,7 @@ sub waiting_ready_pool {
         foreach my $pool_id (keys %{$options{pool}})  {
             return 1 if ($options{pool}->{$pool_id}->{ready} == 1);
         }
-        zmq_poll($centreond->{poll}, 5000);
+        zmq_poll($gorgone->{poll}, 5000);
     }
     foreach my $pool_id (keys %{$options{pool}})  {
         return 1 if ($options{pool}->{$pool_id}->{ready} == 1);
@@ -408,7 +410,7 @@ sub waiting_ready {
     # We wait 10 seconds
     while (${$options{ready}} == 0 && 
            time() - $time < 10) {
-        zmq_poll($centreond->{poll}, 5000);
+        zmq_poll($gorgone->{poll}, 5000);
     }
     
     if (${$options{ready}} == 0) {
@@ -421,9 +423,9 @@ sub waiting_ready {
 sub clean_sessions {
     my ($self, %options) = @_;
     
-    if ($self->{sessions_timer} - time() > $centreond_config->{centreondcore}{purge_sessions_time}) {
+    if ($self->{sessions_timer} - time() > $gorgone_config->{gorgonecore}{purge_sessions_time}) {
         $self->{logger}->writeLogInfo("purge sessions in progress...");
-        $self->{db_centreond}->query("DELETE FROM centreond_identity WHERE `ctime` <  " . $self->{db_centreond}->quote(time() - $centreond_config->{centreondcore}{sessions_time}));
+        $self->{db_gorgone}->query("DELETE FROM gorgone_identity WHERE `ctime` <  " . $self->{db_gorgone}->quote(time() - $gorgone_config->{gorgonecore}{sessions_time}));
         $self->{sessions_timer} = time();
     }
 }
@@ -433,107 +435,107 @@ sub quit {
     
     $self->{logger}->writeLogInfo("Quit main process");
     zmq_close($self->{internal_socket});
-    if (defined($centreond_config->{centreondcore}{external_com_type}) && $centreond_config->{centreondcore}{external_com_type} ne '') {
+    if (defined($gorgone_config->{gorgonecore}{external_com_type}) && $gorgone_config->{gorgonecore}{external_com_type} ne '') {
         zmq_close($self->{external_socket});
     }
     exit(0);
 }
 
 sub run {
-    $centreond = shift;
+    $gorgone = shift;
 
-    $centreond->SUPER::run();
-    $centreond->{logger}->redirect_output();
+    $gorgone->SUPER::run();
+    $gorgone->{logger}->redirect_output();
 
-    $centreond->{logger}->writeLogDebug("centreond launched....");
-    $centreond->{logger}->writeLogDebug("PID: $$");
+    $gorgone->{logger}->writeLogDebug("gorgoned launched....");
+    $gorgone->{logger}->writeLogDebug("PID: $$");
 
-    if (centreon::centreond::common::add_history(dbh => $centreond->{db_centreond},
+    if (centreon::gorgone::common::add_history(dbh => $gorgone->{db_gorgone},
                                                  code => 0,
-                                                 data => { msg => 'centreond is starting...' },
+                                                 data => { msg => 'gorgoned is starting...' },
                                                  json_encode => 1) == -1) {
-        $centreond->{logger}->writeLogInfo("Cannot write in history. We quit!!");
+        $gorgone->{logger}->writeLogInfo("Cannot write in history. We quit!!");
         exit(1);
     }
     
-    $centreond->{internal_socket} = centreon::centreond::common::create_com(
-        type => $centreond_config->{centreondcore}{internal_com_type},
-        path => $centreond_config->{centreondcore}{internal_com_path},
+    $gorgone->{internal_socket} = centreon::gorgone::common::create_com(
+        type => $gorgone_config->{gorgonecore}{internal_com_type},
+        path => $gorgone_config->{gorgonecore}{internal_com_path},
         zmq_type => 'ZMQ_ROUTER', name => 'router-internal',
-        logger => $centreond->{logger}
+        logger => $gorgone->{logger}
     );
-    if (defined($centreond_config->{centreondcore}{external_com_type}) && $centreond_config->{centreondcore}{external_com_type} ne '') {
-        $centreond->{external_socket} = centreon::centreond::common::create_com(
-            type => $centreond_config->{centreondcore}{external_com_type},
-            path => $centreond_config->{centreondcore}{external_com_path},
+    if (defined($gorgone_config->{gorgonecore}{external_com_type}) && $gorgone_config->{gorgonecore}{external_com_type} ne '') {
+        $gorgone->{external_socket} = centreon::gorgone::common::create_com(
+            type => $gorgone_config->{gorgonecore}{external_com_type},
+            path => $gorgone_config->{gorgonecore}{external_com_path},
             zmq_type => 'ZMQ_ROUTER', name => 'router-external',
-            logger => $centreond->{logger}
+            logger => $gorgone->{logger}
         );
     }
 
     # Initialize poll set
-    $centreond->{poll} = [
+    $gorgone->{poll} = [
         {
-            socket  => $centreond->{internal_socket},
+            socket  => $gorgone->{internal_socket},
             events  => ZMQ_POLLIN,
             callback => \&router_internal_event,
         }
     ];
     
-    if (defined($centreond->{external_socket})) {
-        push @{$centreond->{poll}}, {
-            socket  => $centreond->{external_socket},
+    if (defined($gorgone->{external_socket})) {
+        push @{$gorgone->{poll}}, {
+            socket  => $gorgone->{external_socket},
             events  => ZMQ_POLLIN,
             callback => \&router_external_event,
         };
     }
     
     # init all modules
-    foreach my $name (keys %{$centreond->{modules_register}}) {
-        $centreond->{logger}->writeLogInfo("Call init function from module '$name'");
-        $centreond->{modules_register}->{$name}->{init}->(
-            logger => $centreond->{logger}, id => $centreond->{id},
-            poll => $centreond->{poll},
-            external_socket => $centreond->{external_socket},
-            internal_socket => $centreond->{internal_socket},
-            dbh => $centreond->{db_centreond}
+    foreach my $name (keys %{$gorgone->{modules_register}}) {
+        $gorgone->{logger}->writeLogInfo("Call init function from module '$name'");
+        $gorgone->{modules_register}->{$name}->{init}->(
+            logger => $gorgone->{logger}, id => $gorgone->{id},
+            poll => $gorgone->{poll},
+            external_socket => $gorgone->{external_socket},
+            internal_socket => $gorgone->{internal_socket},
+            dbh => $gorgone->{db_gorgone}
         );
     }
     
-    $centreond->{logger}->writeLogInfo("[Server accepting clients]");
+    $gorgone->{logger}->writeLogInfo("[Server accepting clients]");
 
     while (1) {
         my $count = 0;
-        my $poll = [@{$centreond->{poll}}];
+        my $poll = [@{$gorgone->{poll}}];
         
-        foreach my $name (keys %{$centreond->{modules_register}}) {
-            $count += $centreond->{modules_register}->{$name}->{check}->(
-                logger => $centreond->{logger},
-                dead_childs => $centreond->{return_child},
-                internal_socket => $centreond->{internal_socket},
-                dbh => $centreond->{db_centreond},
+        foreach my $name (keys %{$gorgone->{modules_register}}) {
+            $count += $gorgone->{modules_register}->{$name}->{check}->(
+                logger => $gorgone->{logger},
+                dead_childs => $gorgone->{return_child},
+                internal_socket => $gorgone->{internal_socket},
+                dbh => $gorgone->{db_gorgone},
                 poll => $poll
             );
         }
         
-        if ($centreond->{stop} == 1) {
+        if ($gorgone->{stop} == 1) {
             # No childs
             if ($count == 0) {
-                $centreond->quit();
+                $gorgone->quit();
             }
             
             # Send KILL
-            if (time() - $centreond->{kill_timer} > $centreond_config->{centreondcore}{timeout}) {
-                foreach my $name (keys %{$centreond->{modules_register}}) {
-                    $centreond->{modules_register}->{$name}->{kill_internal}->(logger => $centreond->{logger});
+            if (time() - $gorgone->{kill_timer} > $gorgone_config->{gorgonecore}{timeout}) {
+                foreach my $name (keys %{$gorgone->{modules_register}}) {
+                    $gorgone->{modules_register}->{$name}->{kill_internal}->(logger => $gorgone->{logger});
                 }
-                $centreond->quit();
+                $gorgone->quit();
             }
         }
 
         zmq_poll($poll, 5000);
 
-        $centreond->clean_sessions();
+        $gorgone->clean_sessions();
     }
 }
 

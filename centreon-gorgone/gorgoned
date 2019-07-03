@@ -20,21 +20,21 @@
 #
 
 use warnings;
-use centreon::script::centreondcore;
+use centreon::script::gorgonecore;
 use FindBin;
 use lib "$FindBin::Bin";
 
-centreon::script::centreondcore->new()->run();
+centreon::script::gorgonecore->new()->run();
 
 __END__
 
 =head1 NAME
 
-centreond - a daemon to handle so many things.
+gorgoned - a daemon to handle so many things.
 
 =head1 SYNOPSIS
 
-centreond [options]
+gorgoned [options]
 
 =head1 OPTIONS
 
@@ -52,6 +52,6 @@ Print a brief help message and exits.
 
 =head1 DESCRIPTION
 
-B<centreond> will 
+B<gorgoned> will 
 
 =cut

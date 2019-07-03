@@ -18,11 +18,11 @@
 # limitations under the License.
 #
 
-package modules::centreondacl::class;
+package modules::gorgoneacl::class;
 
 use strict;
 use warnings;
-use centreon::centreond::common;
+use centreon::gorgone::common;
 use ZMQ::LibZMQ4;
 use ZMQ::Constants qw(:all);
 use JSON;
@@ -65,7 +65,7 @@ sub handle_HUP {
 
 sub handle_TERM {
     my $self = shift;
-    $self->{logger}->writeLogInfo("centreond-acl $$ Receiving order to stop...");
+    $self->{logger}->writeLogInfo("gorgone-acl $$ Receiving order to stop...");
     $self->{stop} = 1;
 }
 
@@ -151,7 +151,7 @@ sub acl_resource_list_hs {
                         $filters->{hosts} . ')';
     }
     
-    $self->{logger}->writeLogDebug("centreondacl: request: " . join(' UNION ALL ', @{$requests}));
+    $self->{logger}->writeLogDebug("gorgoneacl: request: " . join(' UNION ALL ', @{$requests}));
     return 2 if (scalar(@{$requests}) == 0);
     return $self->{class_object}->custom_execute(request => join(' UNION ALL ', @{$requests}), mode => 0);
 }
@@ -324,21 +324,21 @@ sub action_aclresync {
     my ($self, %options) = @_;
     my ($status, $sth, $resource_configs);
     
-    $self->{logger}->writeLogDebug("centreondacl: organization $self->{organization_id} : begin resync");
+    $self->{logger}->writeLogDebug("gorgoneacl: organization $self->{organization_id} : begin resync");
     ($status, $resource_configs) = $self->acl_get_resources_config();
     if ($status) {
         return 1;
     }
     
     foreach my $acl_resource_id (sort keys %{$resource_configs}) {
-        $self->{logger}->writeLogDebug("centreondacl: organization $self->{organization_id} acl resource $acl_resource_id : begin resync");
+        $self->{logger}->writeLogDebug("gorgoneacl: organization $self->{organization_id} acl resource $acl_resource_id : begin resync");
         ($status, $sth) = $self->acl_resource_list_hs(resource_config => $resource_configs->{$acl_resource_id});
         if ($status == -1) {
             return 1;
         }
 
         $status = $self->insert_result(acl_resource_id => $acl_resource_id, hs_sth => $sth, first_request => "DELETE FROM cfg_acl_resources_cache WHERE organization_id = '" . $self->{organization_id} . "' AND acl_resource_id = " . $acl_resource_id);
-        $self->{logger}->writeLogDebug("centreondacl: organization $self->{organization_id} acl resource $acl_resource_id : finished resync (status: $status)");
+        $self->{logger}->writeLogDebug("gorgoneacl: organization $self->{organization_id} acl resource $acl_resource_id : finished resync (status: $status)");
         if ($status == 1) {
             return 1;
         }
@@ -349,9 +349,9 @@ sub action_aclresync {
 
 sub event {
     while (1) {
-        my $message = centreon::centreond::common::zmq_dealer_read_message(socket => $socket);
+        my $message = centreon::gorgone::common::zmq_dealer_read_message(socket => $socket);
         
-        $connector->{logger}->writeLogDebug("centreondacl: class: $message");
+        $connector->{logger}->writeLogDebug("gorgoneacl: class: $message");
         if ($message =~ /^\[(.*?)\]/) {
             if ((my $method = $connector->can('action_' . lc($1)))) {
                 $message =~ /^\[(.*?)\]\s+\[(.*?)\]\s+\[.*?\]\s+(.*)$/m;
@@ -376,7 +376,7 @@ sub event {
         # print Data::Dumper::Dumper($connector->{class_host}->get_hosts_by_organization(organization_id => $connector->{organization_id}, with_services => 1,
         #                                                                                mode => 1, keys => ['host_id', 'service_id'], fields => ['host_id', 'host_name', 'service_id']));
         
-        last unless (centreon::centreond::common::zmq_still_read(socket => $socket));
+        last unless (centreon::gorgone::common::zmq_still_read(socket => $socket));
     }
 }
 
@@ -399,13 +399,13 @@ sub run {
     $self->{class_object} = centreon::misc::objects::object->new(logger => $self->{logger}, db_centreon => $self->{db_centreon});
     
     # Connect internal
-    $socket = centreon::centreond::common::connect_com(
-        zmq_type => 'ZMQ_DEALER', name => 'centreondacl-' . $self->{organization_id},
+    $socket = centreon::gorgone::common::connect_com(
+        zmq_type => 'ZMQ_DEALER', name => 'gorgoneacl-' . $self->{organization_id},
         logger => $self->{logger},
         type => $self->{config_core}{internal_com_type},
         path => $self->{config_core}{internal_com_path}
     );
-    centreon::centreond::common::zmq_send_message(socket => $socket,
+    centreon::gorgone::common::zmq_send_message(socket => $socket,
                                                   action => 'ACLREADY', data => { organization_id => $self->{organization_id} },
                                                   json_encode => 1);
     $self->{poll} = [
@@ -419,7 +419,7 @@ sub run {
         # we try to do all we can
         my $rev = zmq_poll($self->{poll}, 5000);
         if (defined($rev) && $rev == 0 && $self->{stop} == 1) {
-            $self->{logger}->writeLogInfo("centreond-acl $$ has quit");
+            $self->{logger}->writeLogInfo("gorgone-acl $$ has quit");
             zmq_close($socket);
             exit(0);
         }
@@ -428,7 +428,7 @@ sub run {
         if ($on_demand == 1) {
             if (defined($rev) && $rev == 0) {
                 if (time() - $on_demand_time > $self->{config}{on_demand_time}) {
-                    $self->{logger}->writeLogInfo("centreond-acl $$ has quit");
+                    $self->{logger}->writeLogInfo("gorgone-acl $$ has quit");
                     zmq_close($socket);
                     exit(0);
                 }

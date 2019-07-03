@@ -22,7 +22,7 @@ package modules::scom::class;
 
 use strict;
 use warnings;
-use centreon::centreond::common;
+use centreon::gorgone::common;
 use centreon::misc::objects::object;
 use centreon::misc::http::http;
 use ZMQ::LibZMQ4;
@@ -81,7 +81,7 @@ sub handle_HUP {
 
 sub handle_TERM {
     my $self = shift;
-    $self->{logger}->writeLogInfo("scom $$ Receiving order to stop...");
+    $self->{logger}->writeLogInfo("gorgonescom $$ Receiving order to stop...");
     $self->{stop} = 1;
 }
 
@@ -105,7 +105,7 @@ sub json_encode {
         $encoded_arguments = JSON::XS->new->utf8->encode($options{argument});
     };
     if ($@) {
-        $self->{logger}->writeLogError("scom: container $self->{container_id}: scom $options{method} - cannot encode json: $@");
+        $self->{logger}->writeLogError("gorgonescom: container $self->{container_id}: scom $options{method} - cannot encode json: $@");
         return 1;
     }
 
@@ -116,13 +116,13 @@ sub http_check_error {
     my ($self, %options) = @_;
 
     if ($options{status} == 1) {
-        $self->{logger}->writeLogError("scom: container $self->{container_id}: scom $options{method} issue");
+        $self->{logger}->writeLogError("gorgonescom: container $self->{container_id}: scom $options{method} issue");
         return 1;
     }
 
     my $code = $self->{http}->get_code();
     if ($code !~ /^2/) {
-        $self->{logger}->writeLogError("scom: container $self->{container_id}: scom $options{method} issue - " . $self->{http}->get_message());
+        $self->{logger}->writeLogError("gorgonescom: container $self->{container_id}: scom $options{method} issue - " . $self->{http}->get_message());
         return 1;
     }
 
@@ -149,7 +149,7 @@ sub scom_authenticate {
     if (defined($header) && $header =~ /SCOMSessionId=([^;]+);/i) {
         $connector->{scom_session_id} = $1;
     } else {
-        $self->{logger}->writeLogError("scom: container $self->{container_id}: scom authenticate issue - error retrieving cookie");
+        $self->{logger}->writeLogError("gorgonescom: container $self->{container_id}: scom authenticate issue - error retrieving cookie");
         return 1;
     }
 
@@ -222,16 +222,16 @@ sub action_scomresync {
     my ($self, %options) = @_;
     my ($status, $sth, $resource_configs);
     
-    $self->{logger}->writeLogDebug("scom: container $self->{container_id}: begin resync");
+    $self->{logger}->writeLogDebug("gorgonescom: container $self->{container_id}: begin resync");
 
     $self->get_realtime_slots();
     if (scalar(@{$self->{realtime_slots}}) <= 0) {
-        $self->{logger}->writeLogError("scom: container $self->{container_id}: cannot find realtime slots");
+        $self->{logger}->writeLogError("gorgonescom: container $self->{container_id}: cannot find realtime slots");
         return 1;
     }
 
     if ($self->get_realtime_scom_alerts() == 0) {
-        $self->{logger}->writeLogError("scom: container $self->{container_id}: cannot get scom realtime alerts");
+        $self->{logger}->writeLogError("gorgonescom: container $self->{container_id}: cannot get scom realtime alerts");
         return 1;
     }
 
@@ -240,9 +240,9 @@ sub action_scomresync {
 
 sub event {
     while (1) {
-        my $message = centreon::centreond::common::zmq_dealer_read_message(socket => $socket);
+        my $message = centreon::gorgone::common::zmq_dealer_read_message(socket => $socket);
         
-        $connector->{logger}->writeLogDebug("scom: class: $message");
+        $connector->{logger}->writeLogDebug("gorgonescom: class: $message");
         if ($message =~ /^\[(.*?)\]/) {
             if ((my $method = $connector->can('action_' . lc($1)))) {
                 $message =~ /^\[(.*?)\]\s+\[(.*?)\]\s+\[.*?\]\s+(.*)$/m;
@@ -255,7 +255,7 @@ sub event {
             }
         }
 
-        last unless (centreon::centreond::common::zmq_still_read(socket => $socket));
+        last unless (centreon::gorgone::common::zmq_still_read(socket => $socket));
     }
 }
 
@@ -275,13 +275,13 @@ sub run {
     $self->{http} = centreon::misc::http::http->new(logger => $self->{logger});
 
     # Connect internal
-    $socket = centreon::centreond::common::connect_com(
-        zmq_type => 'ZMQ_DEALER', name => 'scom-' . $self->{container_id},
+    $socket = centreon::gorgone::common::connect_com(
+        zmq_type => 'ZMQ_DEALER', name => 'gorgonescom-' . $self->{container_id},
         logger => $self->{logger},
         type => $self->{config_core}{internal_com_type},
         path => $self->{config_core}{internal_com_path}
     );
-    centreon::centreond::common::zmq_send_message(
+    centreon::gorgone::common::zmq_send_message(
         socket => $socket,
         action => 'SCOMREADY', data => { container_id => $self->{container_id} },
         json_encode => 1
@@ -297,7 +297,7 @@ sub run {
         # we try to do all we can
         my $rev = zmq_poll($self->{poll}, 5000);
         if (defined($rev) && $rev == 0 && $self->{stop} == 1) {
-            $self->{logger}->writeLogInfo("scom $$ has quit");
+            $self->{logger}->writeLogInfo("gorgonescom $$ has quit");
             zmq_close($socket);
             exit(0);
         }
