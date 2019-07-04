@@ -329,7 +329,7 @@ class BAMListingPage extends Component {
               {
                 duplicateActive: false,
               },
-              onDuplicate,
+              ()=>{onDuplicate(times)},
             );
           }}
         />
