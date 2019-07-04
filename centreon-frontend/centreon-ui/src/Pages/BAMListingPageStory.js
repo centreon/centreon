@@ -1,15 +1,16 @@
-import React, { Component } from "react";
-import BAMListingPage from "./BAMListing";
+import React, { Component } from 'react';
+import BAMListingPage from './BAMListing';
 
 class BAMListingPageStory extends Component {
   state = {
     panelActive: false,
-    currentlySelected: []
+    currentlySelected: [],
   };
+
   togglePanel = () => {
     const { panelActive } = this.state;
     this.setState({
-      panelActive: !panelActive
+      panelActive: !panelActive,
     });
   };
 
@@ -22,38 +23,38 @@ class BAMListingPageStory extends Component {
           this.togglePanel();
         }}
         onSearch={() => {
-          console.log("onSearch clicked");
+          console.log('onSearch clicked');
         }}
         onDelete={(a, b, c) => {
-          console.log("onDelete clicked", a, b, c, currentlySelected);
+          console.log('onDelete clicked', a, b, c, currentlySelected);
         }}
         onDuplicate={(a, b, c) => {
-          console.log("onDuplicate clicked", a, b, c, currentlySelected);
+          console.log('onDuplicate clicked', a, b, c, currentlySelected);
         }}
         onMassiveChange={(a, b, c) => {
-          console.log("onMassiveChange clicked", a, b, c, currentlySelected);
+          console.log('onMassiveChange clicked', a, b, c, currentlySelected);
         }}
         onEnable={(a, b, c) => {
-          console.log("onEnable clicked", a, b, c, currentlySelected);
+          console.log('onEnable clicked', a, b, c, currentlySelected);
         }}
         onDisable={(a, b, c) => {
-          console.log("onDisable clicked", a, b, c, currentlySelected);
+          console.log('onDisable clicked', a, b, c, currentlySelected);
         }}
         onPaginate={() => {
-          console.log("onPaginate clicked");
+          console.log('onPaginate clicked');
         }}
         onSort={() => {
-          console.log("onSort clicked");
+          console.log('onSort clicked');
         }}
         tableData={BAMTableData.result.entities}
-        onTableSelectionChanged={currentlySelected => {
+        onTableSelectionChanged={(currentlySelected) => {
           this.setState({
-            currentlySelected
+            currentlySelected,
           });
         }}
         currentlySelected={currentlySelected}
         onPaginationLimitChanged={() => {
-          console.log("onPaginationLimitChanged");
+          console.log('onPaginationLimitChanged');
         }}
         paginationLimit={BAMTableData.result.pagination.limit}
         currentPage={

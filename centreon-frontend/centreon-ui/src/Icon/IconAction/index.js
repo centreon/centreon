@@ -1,6 +1,6 @@
-import React from "react";
-import classnames from "classnames";
-import styles from "./action-icons.scss";
+import React from 'react';
+import classnames from 'classnames';
+import styles from './action-icons.scss';
 
 const IconAction = ({
   iconActionType,
@@ -11,12 +11,12 @@ const IconAction = ({
   ...rest
 }) => {
   const cn = classnames(
-    styles["icon-action"],
+    styles['icon-action'],
     { [styles[`icon-action-${iconActionType}`]]: true },
-    styles[iconColor ? iconColor : ""],
-    styles[iconDirection ? iconDirection : ""],
-    styles[customStyle ? customStyle : ""],
-    styles[iconReset ? iconReset : ""]
+    styles[iconColor || ''],
+    styles[iconDirection || ''],
+    styles[customStyle || ''],
+    styles[iconReset || ''],
   );
   return <span className={cn} {...rest} />;
 };

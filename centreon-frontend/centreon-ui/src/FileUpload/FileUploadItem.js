@@ -1,6 +1,6 @@
-import React, { Component } from "react";
-import classnames from "classnames";
-import styles from "./file-upload.scss";
+import React, { Component } from 'react';
+import classnames from 'classnames';
+import styles from './file-upload.scss';
 
 class FileUploadItem extends Component {
   render() {
@@ -16,24 +16,24 @@ class FileUploadItem extends Component {
       progressPercentage,
       uploading,
       message,
-      onDeleteFile
+      onDeleteFile,
     } = this.props;
     const cnFileUploadIcon = classnames(
-      styles["file-upload-item-icon"],
-      styles[icon ? icon : ""],
-      styles[iconStatus ? iconStatus : ""]
+      styles['file-upload-item-icon'],
+      styles[icon || ''],
+      styles[iconStatus || ''],
     );
     const cnFileUploadTitle = classnames(
-      styles["file-upload-item-title"],
-      styles[titleStatus ? titleStatus : ""]
+      styles['file-upload-item-title'],
+      styles[titleStatus || ''],
     );
     const cnFileUploadInfo = classnames(
-      styles["file-upload-item-info"],
-      styles[infoStatus ? infoStatus : ""]
+      styles['file-upload-item-info'],
+      styles[infoStatus || ''],
     );
     return (
       <React.Fragment>
-        <div className={classnames(styles["file-upload-item"])}>
+        <div className={classnames(styles['file-upload-item'])}>
           {icon ? <span className={cnFileUploadIcon} /> : null}
           <span className={cnFileUploadTitle}>{title}</span>
           {info ? (
@@ -45,25 +45,25 @@ class FileUploadItem extends Component {
           {!uploading ? (
             <span
               className={classnames(
-                styles["icon-close"],
-                styles["icon-close-small"]
+                styles['icon-close'],
+                styles['icon-close-small'],
               )}
               onClick={onDeleteFile}
             />
           ) : null}
-          <div className={classnames(styles["progress"])}>
+          <div className={classnames(styles.progress)}>
             <span
               className={classnames(
-                styles["progress-bar"],
-                styles[progressBar]
+                styles['progress-bar'],
+                styles[progressBar],
               )}
               style={{
-                width: `${progressPercentage}%`
+                width: `${progressPercentage}%`,
               }}
             />
           </div>
           {message ? (
-            <span className={classnames(styles["file-upload-message"])}>
+            <span className={classnames(styles['file-upload-message'])}>
               {message}
             </span>
           ) : null}

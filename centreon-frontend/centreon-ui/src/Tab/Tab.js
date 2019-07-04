@@ -1,6 +1,6 @@
-import React, { Component } from "react";
-import classnames from "classnames";
-import styles from "./tab.scss";
+import React, { Component } from 'react';
+import classnames from 'classnames';
+import styles from './tab.scss';
 
 class Tab extends Component {
   onClick = () => {
@@ -11,16 +11,16 @@ class Tab extends Component {
   render() {
     const {
       onClick,
-      props: { activeTab, label, error }
+      props: { activeTab, label, error },
     } = this;
 
     let className = classnames(
-      styles["tab-list-item"],
-      error ? styles["has-error"] : ""
+      styles['tab-list-item'],
+      error ? styles['has-error'] : '',
     );
 
     if (activeTab === label) {
-      className += classnames(" " + styles["tab-list-active"]);
+      className += classnames(` ${styles['tab-list-active']}`);
     }
     return (
       <li className={className} onClick={onClick}>

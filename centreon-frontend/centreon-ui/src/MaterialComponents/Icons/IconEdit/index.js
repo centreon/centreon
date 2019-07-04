@@ -1,20 +1,20 @@
-import React from "react";
-import { makeStyles } from "@material-ui/core/styles";
-import Edit from "@material-ui/icons/Edit";
+import React from 'react';
+import { makeStyles } from '@material-ui/core/styles';
+import Edit from '@material-ui/icons/Edit';
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles((theme) => ({
   root: {
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center"
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   icon: {
-    color: "#0072CE",
-    cursor: "pointer",
+    color: '#0072CE',
+    cursor: 'pointer',
     fontSize: 21,
-    position: "absolute",
-    right: 3
-  }
+    position: 'absolute',
+    right: 3,
+  },
 }));
 
 function IconEdit({ customStyle, onClick }) {

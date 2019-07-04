@@ -1,7 +1,7 @@
-import React from "react";
-import classnames from "classnames";
-import styles from "./info-loading.scss";
-import IconAction from "../../Icon/IconAction";
+import React from 'react';
+import classnames from 'classnames';
+import styles from './info-loading.scss';
+import IconAction from '../../Icon/IconAction';
 
 const InfoLoading = ({
   infoType,
@@ -9,17 +9,15 @@ const InfoLoading = ({
   customClass,
   label,
   iconActionType,
-  iconColor
+  iconColor,
 }) => {
   const cn = classnames(
-    styles["info-loading"],
+    styles['info-loading'],
     {
-      [styles[
-        `info-loading-${infoType ? infoType : ""}-${color ? color : null}`
-      ]]: true
+      [styles[`info-loading-${infoType || ''}-${color || null}`]]: true,
     },
     styles.linear,
-    customClass ? customClass : ""
+    customClass || '',
   );
   return (
     <span className={cn}>
@@ -30,10 +28,10 @@ const InfoLoading = ({
           iconActionType={iconActionType}
         />
       ) : (
-        ""
+        ''
       )}
       {label}
-      <span className={classnames(styles["info-loading-icon"])} />
+      <span className={classnames(styles['info-loading-icon'])} />
     </span>
   );
 };

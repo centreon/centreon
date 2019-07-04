@@ -1,6 +1,6 @@
-import React, { Component } from "react";
-import classnames from "classnames";
-import styles from "../../global-sass-files/_grid.scss";
+import React, { Component } from 'react';
+import classnames from 'classnames';
+import styles from '../../global-sass-files/_grid.scss';
 
 class CustomColumn extends Component {
   render() {
@@ -8,9 +8,9 @@ class CustomColumn extends Component {
       children,
       customColumn,
       additionalStyles,
-      additionalColumns
+      additionalColumns,
     } = this.props;
-    let additionalClasses = [];
+    const additionalClasses = [];
     if (additionalStyles) {
       for (let i = 0; i < additionalStyles.length; i++) {
         additionalClasses.push(styles[additionalStyles[i]]);
@@ -24,7 +24,7 @@ class CustomColumn extends Component {
           additionalClasses,
           additionalColumns
             ? { [styles[`container__col-${additionalColumns}`]]: true }
-            : ""
+            : '',
         )}
       >
         {children}

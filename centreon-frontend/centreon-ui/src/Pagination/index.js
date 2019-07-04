@@ -1,11 +1,11 @@
-import React, { Component } from "react";
-import classnames from "classnames";
-import styles from "./pagination.scss";
-import IconAction from "../Icon/IconAction";
+import React, { Component } from 'react';
+import classnames from 'classnames';
+import styles from './pagination.scss';
+import IconAction from '../Icon/IconAction';
 
 class Pagination extends Component {
   state = {
-    currentPage: 0
+    currentPage: 0,
   };
 
   previousPage = () => {
@@ -25,30 +25,30 @@ class Pagination extends Component {
     }
   };
 
-  pageChanged = page => {
+  pageChanged = (page) => {
     const { onPageChange } = this.props;
     this.setState(
       {
-        currentPage: page
+        currentPage: page,
       },
       () => {
         onPageChange(page);
-      }
+      },
     );
   };
 
-  renderPages = count => {
+  renderPages = (count) => {
     const { currentPage } = this.state;
-    let pages = [];
+    const pages = [];
     for (let i = 0; i < count; i++) {
       pages.push(
         <a
-          key={"paginationPage" + i}
+          key={`paginationPage${i}`}
           onClick={this.pageChanged.bind(this, i)}
-          className={classnames(i === currentPage ? styles["active"] : "")}
+          className={classnames(i === currentPage ? styles.active : '')}
         >
           {i + 1}
-        </a>
+        </a>,
       );
     }
 

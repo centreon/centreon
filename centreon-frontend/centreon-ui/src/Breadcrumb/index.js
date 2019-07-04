@@ -1,21 +1,21 @@
-import React, { Component } from "react";
-import { makeStyles } from "@material-ui/core/styles";
-import Paper from "@material-ui/core/Paper";
-import Breadcrumbs from "@material-ui/core/Breadcrumbs";
-import BreadcrumbLink from "./Link";
-import NavigateNextIcon from "@material-ui/icons/NavigateNext";
+import React, { Component } from 'react';
+import { makeStyles } from '@material-ui/core/styles';
+import Paper from '@material-ui/core/Paper';
+import Breadcrumbs from '@material-ui/core/Breadcrumbs';
+import NavigateNextIcon from '@material-ui/icons/NavigateNext';
+import BreadcrumbLink from './Link';
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles((theme) => ({
   root: {
-    justifyContent: "center",
-    flexWrap: "wrap"
+    justifyContent: 'center',
+    flexWrap: 'wrap',
   },
   paper: {
-    padding: theme.spacing(1, 2)
+    padding: theme.spacing(1, 2),
   },
   item: {
-    fontSize: "12px"
-  }
+    fontSize: '12px',
+  },
 }));
 
 function Breadcrumb(props) {
@@ -31,11 +31,11 @@ function Breadcrumb(props) {
           {breadcrumbs
             ? breadcrumbs.map((breadcrumb, index) => (
                 <BreadcrumbLink
-                  breadcrumb={breadcrumb}
-                  index={index}
-                  count={breadcrumbs.length}
-                  classes={classes}
-                />
+                breadcrumb={breadcrumb}
+                index={index}
+                count={breadcrumbs.length}
+                classes={classes}
+              />
               ))
             : null}
         </Breadcrumbs>

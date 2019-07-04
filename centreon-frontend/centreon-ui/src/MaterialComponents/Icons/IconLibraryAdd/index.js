@@ -1,22 +1,22 @@
-import React from "react";
-import { makeStyles } from "@material-ui/core/styles";
-import LibraryAdd from "@material-ui/icons/LibraryAdd";
+import React from 'react';
+import { makeStyles } from '@material-ui/core/styles';
+import LibraryAdd from '@material-ui/icons/LibraryAdd';
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles((theme) => ({
   root: {
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center"
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   icon: {
-    color: "#707070",
-    cursor: "pointer"
+    color: '#707070',
+    cursor: 'pointer',
   },
   iconWrap: {
-    display: "inline-block",
-    verticalAlign: "middle",
-    height: 24
-  }
+    display: 'inline-block',
+    verticalAlign: 'middle',
+    height: 24,
+  },
 }));
 
 function IconLibraryAdd({ customStyle, ...rest }) {

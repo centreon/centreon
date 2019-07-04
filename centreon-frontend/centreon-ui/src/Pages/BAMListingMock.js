@@ -4,14 +4,14 @@ export default {
     pagination: {
       total: 2,
       offset: 0,
-      limit: 2
+      limit: 2,
     },
     entities: [
       {
         id: 1,
         activate: true,
-        name: "Named BA 1",
-        description: "Description BA 1",
+        name: 'Named BA 1',
+        description: 'Description BA 1',
         icon: null,
         inherit_kpi_downtimes: null,
         additional_poller: null,
@@ -32,13 +32,13 @@ export default {
         bam_esc: null,
         event_handler_enabled: false,
         event_handler_command: null,
-        event_handler_args: null
+        event_handler_args: null,
       },
       {
         id: 2,
         activate: true,
-        name: "Named BA 2",
-        description: "Description BA 2",
+        name: 'Named BA 2',
+        description: 'Description BA 2',
         icon: null,
         inherit_kpi_downtimes: null,
         additional_poller: null,
@@ -59,8 +59,8 @@ export default {
         bam_esc: null,
         event_handler_enabled: false,
         event_handler_command: null,
-        event_handler_args: null
-      }
-    ]
-  }
+        event_handler_args: null,
+      },
+    ],
+  },
 };

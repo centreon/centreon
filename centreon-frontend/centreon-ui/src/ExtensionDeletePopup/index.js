@@ -1,11 +1,11 @@
-import React from "react";
-import classnames from "classnames";
-import styles from "../Popup/popup.scss";
-import Popup from "../Popup";
-import Title from "../Title";
-import MessageInfo from "../Message/MessageInfo";
-import Button from "../Button/ButtonRegular";
-import IconClose from "../Icon/IconClose";
+import React from 'react';
+import classnames from 'classnames';
+import styles from '../Popup/popup.scss';
+import Popup from '../Popup';
+import Title from '../Title';
+import MessageInfo from '../Message/MessageInfo';
+import Button from '../Button/ButtonRegular';
+import IconClose from '../Icon/IconClose';
 
 class ExtensionDeletePopup extends React.Component {
   render() {
@@ -13,23 +13,23 @@ class ExtensionDeletePopup extends React.Component {
 
     return (
       <Popup popupType="small">
-        <div className={classnames(styles["popup-header"])}>
+        <div className={classnames(styles['popup-header'])}>
           <Title label={deletingEntity.description} />
         </div>
-        <div className={classnames(styles["popup-body"])}>
+        <div className={classnames(styles['popup-body'])}>
           <MessageInfo
             messageInfo="red"
             text="Do you want to delete this extension? This action will remove all associated data."
           />
         </div>
-        <div className={classnames(styles["popup-footer"])}>
-          <div className={classnames(styles["container__row"])}>
-            <div className={classnames(styles["container__col-xs-6"])}>
+        <div className={classnames(styles['popup-footer'])}>
+          <div className={classnames(styles.container__row)}>
+            <div className={classnames(styles['container__col-xs-6'])}>
               <Button
                 label="Delete"
                 buttonType="regular"
                 color="red"
-                onClick={e => {
+                onClick={(e) => {
                   e.preventDefault();
                   e.stopPropagation();
                   onConfirm(deletingEntity.id, deletingEntity.type);
@@ -37,15 +37,15 @@ class ExtensionDeletePopup extends React.Component {
               />
             </div>
             <div
-              className={classnames(styles["container__col-xs-6"], [
-                "text-left"
+              className={classnames(styles['container__col-xs-6'], [
+                'text-left',
               ])}
             >
               <Button
                 label="Cancel"
                 buttonType="regular"
                 color="gray"
-                onClick={e => {
+                onClick={(e) => {
                   e.preventDefault();
                   e.stopPropagation();
                   onCancel();
@@ -57,7 +57,7 @@ class ExtensionDeletePopup extends React.Component {
         <IconClose
           iconPosition="icon-close-position-middle"
           iconType="middle"
-          onClick={e => {
+          onClick={(e) => {
             e.preventDefault();
             e.stopPropagation();
             onCancel();

@@ -1,40 +1,40 @@
-import React from "react";
-import PropTypes from "prop-types";
-import { makeStyles, withStyles, useTheme } from "@material-ui/core/styles";
-import Table from "@material-ui/core/Table";
-import TableBody from "@material-ui/core/TableBody";
-import TableCell from "@material-ui/core/TableCell";
-import TableHead from "@material-ui/core/TableHead";
-import TablePagination from "@material-ui/core/TablePagination";
-import TableRow from "@material-ui/core/TableRow";
-import TableSortLabel from "@material-ui/core/TableSortLabel";
-import Paper from "@material-ui/core/Paper";
-import IconButton from "@material-ui/core/IconButton";
-import FirstPageIcon from "@material-ui/icons/FirstPage";
-import KeyboardArrowLeft from "@material-ui/icons/KeyboardArrowLeft";
-import KeyboardArrowRight from "@material-ui/icons/KeyboardArrowRight";
-import LastPageIcon from "@material-ui/icons/LastPage";
-import Checkbox from "@material-ui/core/Checkbox";
-import IconPowerSettings from "../../MaterialComponents/Icons/IconPowerSettings";
+import React from 'react';
+import PropTypes from 'prop-types';
+import { makeStyles, withStyles, useTheme } from '@material-ui/core/styles';
+import Table from '@material-ui/core/Table';
+import TableBody from '@material-ui/core/TableBody';
+import TableCell from '@material-ui/core/TableCell';
+import TableHead from '@material-ui/core/TableHead';
+import TablePagination from '@material-ui/core/TablePagination';
+import TableRow from '@material-ui/core/TableRow';
+import TableSortLabel from '@material-ui/core/TableSortLabel';
+import Paper from '@material-ui/core/Paper';
+import IconButton from '@material-ui/core/IconButton';
+import FirstPageIcon from '@material-ui/icons/FirstPage';
+import KeyboardArrowLeft from '@material-ui/icons/KeyboardArrowLeft';
+import KeyboardArrowRight from '@material-ui/icons/KeyboardArrowRight';
+import LastPageIcon from '@material-ui/icons/LastPage';
+import Checkbox from '@material-ui/core/Checkbox';
+import IconPowerSettings from '../../MaterialComponents/Icons/IconPowerSettings';
 
 function createData(name, activate, calculation, description) {
   return { name, activate, calculation, description };
 }
 
 const rows = [
-  createData("Cupcake", 332, 3.7, 67, 4.3),
-  createData("Donut", 332, 25.0, 51, 4.9),
-  createData("Eclair", 332, 16.0, 24, 6.0),
-  createData("Frozen yoghurt", 332, 6.0, 24, 4.0),
-  createData("Gingerbread", 332, 16.0, 49, 3.9),
-  createData("Honeycomb", 332, 3.2, 87, 6.5),
-  createData("Ice cream sandwich", 332, 9.0, 37, 4.3),
-  createData("Jelly Bean", 332, 0.0, 94, 0.0),
-  createData("KitKat", 332, 26.0, 65, 7.0),
-  createData("Lollipop", 332, 0.2, 98, 0.0),
-  createData("Marshmallow", 332, 0, 81, 2.0),
-  createData("Nougat", 332, 19.0, 9, 37.0),
-  createData("Oreo", 332, 18.0, 63, 4.0)
+  createData('Cupcake', 332, 3.7, 67, 4.3),
+  createData('Donut', 332, 25.0, 51, 4.9),
+  createData('Eclair', 332, 16.0, 24, 6.0),
+  createData('Frozen yoghurt', 332, 6.0, 24, 4.0),
+  createData('Gingerbread', 332, 16.0, 49, 3.9),
+  createData('Honeycomb', 332, 3.2, 87, 6.5),
+  createData('Ice cream sandwich', 332, 9.0, 37, 4.3),
+  createData('Jelly Bean', 332, 0.0, 94, 0.0),
+  createData('KitKat', 332, 26.0, 65, 7.0),
+  createData('Lollipop', 332, 0.2, 98, 0.0),
+  createData('Marshmallow', 332, 0, 81, 2.0),
+  createData('Nougat', 332, 19.0, 9, 37.0),
+  createData('Oreo', 332, 18.0, 63, 4.0),
 ];
 
 function desc(a, b, orderBy) {
@@ -54,30 +54,30 @@ function stableSort(array, cmp) {
     if (order !== 0) return order;
     return a[1] - b[1];
   });
-  return stabilizedThis.map(el => el[0]);
+  return stabilizedThis.map((el) => el[0]);
 }
 
 function getSorting(order, orderBy) {
-  return order === "desc"
+  return order === 'desc'
     ? (a, b) => desc(a, b, orderBy)
     : (a, b) => -desc(a, b, orderBy);
 }
 
 const headRows = [
-  { id: "name", numeric: false, disablePadding: true, label: "Name" },
-  { id: "activate", numeric: true, disablePadding: false, label: "Activate" },
+  { id: 'name', numeric: false, disablePadding: true, label: 'Name' },
+  { id: 'activate', numeric: true, disablePadding: false, label: 'Activate' },
   {
-    id: "calculation",
+    id: 'calculation',
     numeric: true,
     disablePadding: false,
-    label: "Calculation method"
+    label: 'Calculation method',
   },
   {
-    id: "description",
+    id: 'description',
     numeric: true,
     disablePadding: false,
-    label: "Description"
-  }
+    label: 'Description',
+  },
 ];
 
 function EnhancedTableHead(props) {
@@ -87,38 +87,38 @@ function EnhancedTableHead(props) {
     orderBy,
     numSelected,
     rowCount,
-    onRequestSort
+    onRequestSort,
   } = props;
-  const createSortHandler = property => event => {
+  const createSortHandler = (property) => (event) => {
     onRequestSort(event, property);
   };
 
   const StyledTableCell = withStyles({
     head: {
-      backgroundColor: "#009fdf",
-      color: "#fff",
-      height: "24px",
-      padding: "6px 24px 6px 16px",
-      "&:hover": {
-        color: "#fff"
-      }
+      backgroundColor: '#009fdf',
+      color: '#fff',
+      height: '24px',
+      padding: '6px 24px 6px 16px',
+      '&:hover': {
+        color: '#fff',
+      },
     },
     body: {
       fontSize: 12,
-      textAlign: "left"
-    }
+      textAlign: 'left',
+    },
   })(TableCell);
 
   const StyledTableSortLabel = withStyles({
     root: {
-      color: "#fff !important"
+      color: '#fff !important',
     },
     icon: {
-      color: "#fff !important"
+      color: '#fff !important',
     },
     active: {
-      color: "#fff !important"
-    }
+      color: '#fff !important',
+    },
   })(TableSortLabel);
 
   return (
@@ -131,18 +131,18 @@ function EnhancedTableHead(props) {
             onChange={onSelectAllClick}
           />
         </StyledTableCell>
-        {headRows.map(row => (
+        {headRows.map((row) => (
           <StyledTableCell
             key={row.id}
-            align={row.numeric ? "left" : ""}
-            padding={row.disablePadding ? "none" : "default"}
+            align={row.numeric ? 'left' : ''}
+            padding={row.disablePadding ? 'none' : 'default'}
             sortDirection={orderBy === row.id ? order : false}
           >
             <StyledTableSortLabel
               active={orderBy === row.id}
               direction={order}
               onClick={createSortHandler(row.id)}
-              icon={{ color: "red" }}
+              icon={{ color: 'red' }}
             >
               {row.label}
             </StyledTableSortLabel>
@@ -159,74 +159,74 @@ EnhancedTableHead.propTypes = {
   onSelectAllClick: PropTypes.func.isRequired,
   order: PropTypes.string.isRequired,
   orderBy: PropTypes.string.isRequired,
-  rowCount: PropTypes.number.isRequired
+  rowCount: PropTypes.number.isRequired,
 };
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles((theme) => ({
   root: {
-    width: "100%"
+    width: '100%',
   },
   paper: {
-    width: "100%",
-    marginBottom: theme.spacing(2)
+    width: '100%',
+    marginBottom: theme.spacing(2),
   },
   tableWrapper: {
-    overflowX: "auto"
-  }
+    overflowX: 'auto',
+  },
 }));
 
 const StyledTableRow = withStyles({
   root: {
-    "&:nth-of-type(odd)": {
-      backgroundColor: "#e3f2fd"
+    '&:nth-of-type(odd)': {
+      backgroundColor: '#e3f2fd',
     },
-    "&:hover": {
-      backgroundColor: "#cae6f1 !important"
+    '&:hover': {
+      backgroundColor: '#cae6f1 !important',
     },
-    cursor: "pointer"
-  }
+    cursor: 'pointer',
+  },
 })(TableRow);
 
 const StyledTableCell2 = withStyles({
   root: {
-    padding: "3px 24px 3px 16px",
-    fontSize: "13px"
-  }
+    padding: '3px 24px 3px 16px',
+    fontSize: '13px',
+  },
 })(TableCell);
 
 const StyledCheckbox = withStyles({
   root: {
-    "&$checked": {
-      color: "#232f39"
-    }
+    '&$checked': {
+      color: '#232f39',
+    },
   },
-  checked: {}
+  checked: {},
 })(Checkbox);
 
 const StyledPagination = withStyles({
   toolbar: {
-    height: "32px",
-    minHeight: "auto"
-  }
+    height: '32px',
+    minHeight: 'auto',
+  },
 })(TablePagination);
 
 function EnhancedTable() {
   const classes = useStyles();
-  const [order, setOrder] = React.useState("asc");
-  const [orderBy, setOrderBy] = React.useState("activate");
+  const [order, setOrder] = React.useState('asc');
+  const [orderBy, setOrderBy] = React.useState('activate');
   const [selected, setSelected] = React.useState([]);
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(5);
 
   function handleRequestSort(event, property) {
-    const isDesc = orderBy === property && order === "desc";
-    setOrder(isDesc ? "asc" : "desc");
+    const isDesc = orderBy === property && order === 'desc';
+    setOrder(isDesc ? 'asc' : 'desc');
     setOrderBy(property);
   }
 
   function handleSelectAllClick(event) {
     if (event.target.checked) {
-      const newSelecteds = rows.map(n => n.name);
+      const newSelecteds = rows.map((n) => n.name);
       setSelected(newSelecteds);
       return;
     }
@@ -246,7 +246,7 @@ function EnhancedTable() {
     } else if (selectedIndex > 0) {
       newSelected = newSelected.concat(
         selected.slice(0, selectedIndex),
-        selected.slice(selectedIndex + 1)
+        selected.slice(selectedIndex + 1),
       );
     }
 
@@ -261,12 +261,12 @@ function EnhancedTable() {
     setRowsPerPage(+event.target.value);
   }
 
-  const useStyles1 = makeStyles(theme => ({
+  const useStyles1 = makeStyles((theme) => ({
     root: {
       flexShrink: 0,
       color: theme.palette.text.secondary,
-      marginLeft: theme.spacing(2.5)
-    }
+      marginLeft: theme.spacing(2.5),
+    },
   }));
 
   function TablePaginationActions(props) {
@@ -297,14 +297,14 @@ function EnhancedTable() {
           disabled={page === 0}
           aria-label="First Page"
         >
-          {theme.direction === "rtl" ? <LastPageIcon /> : <FirstPageIcon />}
+          {theme.direction === 'rtl' ? <LastPageIcon /> : <FirstPageIcon />}
         </IconButton>
         <IconButton
           onClick={handleBackButtonClick}
           disabled={page === 0}
           aria-label="Previous Page"
         >
-          {theme.direction === "rtl" ? (
+          {theme.direction === 'rtl' ? (
             <KeyboardArrowRight />
           ) : (
             <KeyboardArrowLeft />
@@ -315,7 +315,7 @@ function EnhancedTable() {
           disabled={page >= Math.ceil(count / rowsPerPage) - 1}
           aria-label="Next Page"
         >
-          {theme.direction === "rtl" ? (
+          {theme.direction === 'rtl' ? (
             <KeyboardArrowLeft />
           ) : (
             <KeyboardArrowRight />
@@ -326,7 +326,7 @@ function EnhancedTable() {
           disabled={page >= Math.ceil(count / rowsPerPage) - 1}
           aria-label="Last Page"
         >
-          {theme.direction === "rtl" ? <FirstPageIcon /> : <LastPageIcon />}
+          {theme.direction === 'rtl' ? <FirstPageIcon /> : <LastPageIcon />}
         </IconButton>
       </div>
     );
@@ -336,10 +336,10 @@ function EnhancedTable() {
     count: PropTypes.number.isRequired,
     onChangePage: PropTypes.func.isRequired,
     page: PropTypes.number.isRequired,
-    rowsPerPage: PropTypes.number.isRequired
+    rowsPerPage: PropTypes.number.isRequired,
   };
 
-  const isSelected = name => selected.indexOf(name) !== -1;
+  const isSelected = (name) => selected.indexOf(name) !== -1;
 
   const emptyRows =
     rowsPerPage - Math.min(rowsPerPage, rows.length - page * rowsPerPage);
@@ -365,12 +365,12 @@ function EnhancedTable() {
             <TableBody>
               {stableSort(rows, getSorting(order, orderBy))
                 .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                .map(row => {
+                .map((row) => {
                   const isItemSelected = isSelected(row.name);
                   return (
                     <StyledTableRow
                       hover
-                      onClick={event => handleClick(event, row.name)}
+                      onClick={(event) => handleClick(event, row.name)}
                       role="checkbox"
                       aria-checked={isItemSelected}
                       tabIndex={-1}
@@ -416,9 +416,9 @@ function EnhancedTable() {
           count={rows.length}
           rowsPerPage={rowsPerPage}
           page={page}
-          style={{ display: "flex", flexDirection: "row-reverse" }}
+          style={{ display: 'flex', flexDirection: 'row-reverse' }}
           SelectProps={{
-            native: true
+            native: true,
           }}
           onChangePage={handleChangePage}
           onChangeRowsPerPage={handleChangeRowsPerPage}

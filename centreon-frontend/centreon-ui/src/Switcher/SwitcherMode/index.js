@@ -1,28 +1,28 @@
-import React from "react";
-import classnames from "classnames";
-import styles from "./switcher-mode.scss";
+import React from 'react';
+import classnames from 'classnames';
+import styles from './switcher-mode.scss';
 
 class SwitcherMode extends React.Component {
   state = {
     value: true,
-    toggled: false
+    toggled: false,
   };
 
   UNSAFE_componentDidMount = () => {
     const { value } = this.props;
     if (value) {
       this.setState({
-        value
+        value,
       });
     }
   };
 
-  UNSAFE_componentWillReceiveProps = nextProps => {
+  UNSAFE_componentWillReceiveProps = (nextProps) => {
     const { value } = nextProps;
     if (this.state.value != value) {
       this.setState({
         toggled: !value,
-        value
+        value,
       });
     }
   };
@@ -32,7 +32,7 @@ class SwitcherMode extends React.Component {
     const { value, toggled } = this.state;
     this.setState({
       value: !value,
-      toggled: !toggled
+      toggled: !toggled,
     });
     if (onChange) {
       onChange(!value, filterKey);
@@ -42,7 +42,7 @@ class SwitcherMode extends React.Component {
   toggled = () => {
     const { toggled } = this.state;
     this.setState({
-      toggled: !toggled
+      toggled: !toggled,
     });
   };
 
@@ -52,14 +52,14 @@ class SwitcherMode extends React.Component {
     return (
       <div
         className={classnames(
-          styles["switcher-mode"],
-          styles[customClass ? customClass : ""]
+          styles['switcher-mode'],
+          styles[customClass || ''],
         )}
       >
         <label
           className={classnames(
             styles.switch,
-            styles[toggled ? "switch-mode-active" : "switch-mode-hide"]
+            styles[toggled ? 'switch-mode-active' : 'switch-mode-hide'],
           )}
         >
           <input
@@ -69,22 +69,22 @@ class SwitcherMode extends React.Component {
           />
           <span
             className={classnames(
-              styles["switch-slider"],
-              styles["switch-round"]
+              styles['switch-slider'],
+              styles['switch-round'],
             )}
           >
             <span
               className={classnames(
-                styles["switch-status"],
-                styles["switch-status-show"]
+                styles['switch-status'],
+                styles['switch-status-show'],
               )}
             >
               keywords mode
             </span>
             <span
               className={classnames(
-                styles["switch-status"],
-                styles["switch-status-hide"]
+                styles['switch-status'],
+                styles['switch-status-hide'],
               )}
             >
               value

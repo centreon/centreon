@@ -1,7 +1,7 @@
-import React, { Component } from "react";
-import classnames from "classnames";
-import loaderStyles from "loaders.css/loaders.min.css";
-import styles from "./loader-content.scss";
+import React, { Component } from 'react';
+import classnames from 'classnames';
+import loaderStyles from 'loaders.css/loaders.min.css';
+import styles from './loader-content.scss';
 
 class Loader extends Component {
   render() {
@@ -9,14 +9,14 @@ class Loader extends Component {
     const cn = classnames(
       styles.loader,
       styles.content,
-      styles[className ? className : ""]
+      styles[className || ''],
     );
     return (
       <div className={cn}>
         <div
           className={classnames(
-            styles["loader-inner"],
-            loaderStyles["ball-grid-pulse"]
+            styles['loader-inner'],
+            loaderStyles['ball-grid-pulse'],
           )}
         >
           <div />

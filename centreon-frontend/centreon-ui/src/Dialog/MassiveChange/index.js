@@ -1,21 +1,21 @@
-import React, { Component } from "react";
-import PopupNew from "../../Popup/PopupNew";
-import classnames from "classnames";
-import IconCloseNew from "../../MaterialComponents/Icons/IconClose";
-import styles2 from "../../Popup/PopupNew/popup.scss";
-import ButtonCustom from "@material-ui/core/Button";
-import InputField from "../../InputField";
+import React, { Component } from 'react';
+import classnames from 'classnames';
+import ButtonCustom from '@material-ui/core/Button';
+import PopupNew from '../../Popup/PopupNew';
+import IconCloseNew from '../../MaterialComponents/Icons/IconClose';
+import styles2 from '../../Popup/PopupNew/popup.scss';
+import InputField from '../../InputField';
 
 class MassiveChangeDialog extends Component {
   state = {
     warning: 0,
-    critical: 0
+    critical: 0,
   };
 
   onWarningChanged = ({ target }) => {
     if (target.value <= 100 && target.value >= 0) {
       this.setState({
-        warning: target.value
+        warning: target.value,
       });
     }
   };
@@ -23,7 +23,7 @@ class MassiveChangeDialog extends Component {
   onCriticalChanged = ({ target }) => {
     if (target.value <= 100 && target.value >= 0) {
       this.setState({
-        critical: target.value
+        critical: target.value,
       });
     }
   };
@@ -35,18 +35,18 @@ class MassiveChangeDialog extends Component {
       onYesClicked,
       info,
       onNoClicked,
-      header
+      header,
     } = this.props;
     const { critical, warning } = this.state;
     return active ? (
       <PopupNew popupType="small">
-        <div className={classnames(styles2["popup-header"])}>
+        <div className={classnames(styles2['popup-header'])}>
           {header ? (
-            <h3 className={classnames(styles2["popup-title"])}>{header}</h3>
+            <h3 className={classnames(styles2['popup-title'])}>{header}</h3>
           ) : null}
         </div>
-        <div className={classnames(styles2["popup-body"])}>
-          <p className={classnames(styles2["popup-info"])}>{info}</p>
+        <div className={classnames(styles2['popup-body'])}>
+          <p className={classnames(styles2['popup-info'])}>{info}</p>
           <InputField
             type="number"
             label="Warning threshold"
@@ -67,15 +67,15 @@ class MassiveChangeDialog extends Component {
             variant="contained"
             color="primary"
             style={{
-              backgroundColor: "#0072CE",
+              backgroundColor: '#0072CE',
               fontSize: 11,
-              textAlign: "center",
-              border: "1px solid #0072CE"
+              textAlign: 'center',
+              border: '1px solid #0072CE',
             }}
             onClick={() => {
               onYesClicked({
                 critical,
-                warning
+                warning,
               });
             }}
           >
@@ -85,14 +85,14 @@ class MassiveChangeDialog extends Component {
             variant="contained"
             color="primary"
             style={{
-              backgroundColor: "#0072CE",
+              backgroundColor: '#0072CE',
               fontSize: 11,
-              textAlign: "center",
+              textAlign: 'center',
               marginLeft: 30,
-              backgroundColor: "transparent",
-              color: "#0072CE",
-              border: "1px solid #0072CE",
-              boxSizing: "border-box"
+              backgroundColor: 'transparent',
+              color: '#0072CE',
+              border: '1px solid #0072CE',
+              boxSizing: 'border-box',
             }}
             onClick={onNoClicked}
           >

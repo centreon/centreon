@@ -3,5 +3,5 @@ export default {
   toggler: 2,
   number: 3,
   hoverActions: 4,
-  multicolumn: 5
+  multicolumn: 5,
 };

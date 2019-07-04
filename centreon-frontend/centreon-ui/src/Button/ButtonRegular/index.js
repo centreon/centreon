@@ -1,7 +1,7 @@
-import React from "react";
-import IconAction from "../../Icon/IconAction";
-import classnames from "classnames";
-import styles from "./button.scss";
+import React from 'react';
+import classnames from 'classnames';
+import IconAction from '../../Icon/IconAction';
+import styles from './button.scss';
 
 const Button = ({
   children,
@@ -22,10 +22,10 @@ const Button = ({
     styles.button,
     { [styles[`button-${buttonType}-${color}`]]: true },
     styles.linear,
-    styles[customClass ? customClass : ""],
-    styles[customSecond ? customSecond : ""],
+    styles[customClass || ''],
+    styles[customSecond || ''],
     styles[`button-${iconPosition}`],
-    styles[position ? position : ""]
+    styles[position || ''],
   );
 
   return (

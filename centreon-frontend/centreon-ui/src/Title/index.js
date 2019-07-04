@@ -1,6 +1,6 @@
-import React from "react";
-import classnames from "classnames";
-import styles from "./custom-title.scss";
+import React from 'react';
+import classnames from 'classnames';
+import styles from './custom-title.scss';
 
 const Title = ({
   icon,
@@ -11,31 +11,31 @@ const Title = ({
   onClick,
   style,
   labelStyle,
-  children
+  children,
 }) => (
   <div
     className={classnames(
-      styles["custom-title"],
-      customTitleStyles ? styles["custom-title-styles"] : ""
+      styles['custom-title'],
+      customTitleStyles ? styles['custom-title-styles'] : '',
     )}
     onClick={onClick}
     style={style}
   >
     {icon ? (
       <span
-        className={classnames(styles["custom-title-icon"], {
-          [styles[`custom-title-icon-${icon}`]]: true
+        className={classnames(styles['custom-title-icon'], {
+          [styles[`custom-title-icon-${icon}`]]: true,
         })}
       />
     ) : null}
-    <div className={styles["custom-title-label-container"]}>
+    <div className={styles['custom-title-label-container']}>
       <span
         className={classnames(
-          styles["custom-title-label"],
-          styles[titleColor ? titleColor : ""]
+          styles['custom-title-label'],
+          styles[titleColor || ''],
         )}
         style={labelStyle}
-        title={title ? title : label}
+        title={title || label}
       >
         {label}
       </span>

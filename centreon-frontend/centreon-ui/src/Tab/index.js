@@ -1,5 +1,5 @@
-import React, { Component } from "react";
-import Tabs from "./Tabs";
+import React, { Component } from 'react';
+import Tabs from './Tabs';
 
 class Tab extends Component {
   render() {

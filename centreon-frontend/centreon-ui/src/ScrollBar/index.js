@@ -1,8 +1,8 @@
-import React, { Component } from "react";
-import "react-perfect-scrollbar/dist/css/styles.css";
-import classnames from "classnames";
-import styles from "./scroll-bar.scss";
-import PerfectScrollbar from "react-perfect-scrollbar";
+import React, { Component } from 'react';
+import 'react-perfect-scrollbar/dist/css/styles.css';
+import classnames from 'classnames';
+import PerfectScrollbar from 'react-perfect-scrollbar';
+import styles from './scroll-bar.scss';
 
 class ScrollBar extends Component {
   render() {
@@ -10,10 +10,10 @@ class ScrollBar extends Component {
     return (
       <PerfectScrollbar
         className={classnames(
-          styles["scrollbar-container"],
-          scrollBarCustom ? styles[scrollBarCustom] : ""
+          styles['scrollbar-container'],
+          scrollBarCustom ? styles[scrollBarCustom] : '',
         )}
-        onScrollRight={true}
+        onScrollRight
       >
         {children}
       </PerfectScrollbar>

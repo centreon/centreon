@@ -1,22 +1,22 @@
-import React, { Component } from "react";
-import classnames from "classnames";
-import styles from "./input-multi-select.scss";
-import Checkbox from "../../Checkbox";
-import IconToggleSubmenu from "../../Icon/IconToggleSubmenu";
+import React, { Component } from 'react';
+import classnames from 'classnames';
+import styles from './input-multi-select.scss';
+import Checkbox from '../../Checkbox';
+import IconToggleSubmenu from '../../Icon/IconToggleSubmenu';
 
 class InputFieldMultiSelect extends Component {
   state = {
     active: false,
     allOptions: [],
     options: [],
-    activeOptions: {}
+    activeOptions: {},
   };
 
-  componentWillReceiveProps = nextProps => {
+  componentWillReceiveProps = (nextProps) => {
     const { options, value } = nextProps;
-    let activeOptions = {};
+    const activeOptions = {};
     if (value) {
-      for (let val of value) {
+      for (const val of value) {
         activeOptions[val] = true;
       }
     }
@@ -24,16 +24,16 @@ class InputFieldMultiSelect extends Component {
       this.setState({
         options,
         allOptions: options,
-        activeOptions
+        activeOptions,
       });
     }
   };
 
   componentWillMount = () => {
     const { options, value } = this.props;
-    let activeOptions = {};
+    const activeOptions = {};
     if (value) {
-      for (let val of value) {
+      for (const val of value) {
         activeOptions[val] = true;
       }
     }
@@ -41,68 +41,68 @@ class InputFieldMultiSelect extends Component {
       this.setState({
         options,
         allOptions: options,
-        activeOptions
+        activeOptions,
       });
     }
   };
 
-  searchTextChanged = e => {
-    let searchString = e.target.value;
-    let { allOptions } = this.state;
+  searchTextChanged = (e) => {
+    const searchString = e.target.value;
+    const { allOptions } = this.state;
     this.setState({
-      options: allOptions.filter(option => {
+      options: allOptions.filter((option) => {
         return (
           String(option.name)
             .toLowerCase()
             .indexOf(String(searchString).toLowerCase()) > -1
         );
-      })
+      }),
     });
   };
 
   toggleSelect = () => {
     const { active } = this.state;
     this.setState({
-      active: !active
+      active: !active,
     });
   };
 
-  optionChecked = option => {
-    let { activeOptions } = this.state;
+  optionChecked = (option) => {
+    const { activeOptions } = this.state;
     const { onChange } = this.props;
-    activeOptions[option.id] = activeOptions[option.id] ? false : true;
+    activeOptions[option.id] = !activeOptions[option.id];
     this.setState(
       {
-        activeOptions
+        activeOptions,
       },
       () => {
         if (onChange) {
-          let activeIds = [];
-          for (let key in activeOptions) {
+          const activeIds = [];
+          for (const key in activeOptions) {
             if (activeOptions[key]) {
               activeIds.push(key);
             }
           }
           onChange(activeIds);
         }
-      }
+      },
     );
   };
 
   UNSAFE_componentWillMount() {
-    window.addEventListener("mousedown", this.handleClickOutside, false);
+    window.addEventListener('mousedown', this.handleClickOutside, false);
   }
 
   componentWillUnmount() {
-    window.removeEventListener("mousedown", this.handleClickOutside, false);
+    window.removeEventListener('mousedown', this.handleClickOutside, false);
   }
 
-  handleClickOutside = e => {
+  handleClickOutside = (e) => {
     if (!this.multiselect || this.multiselect.contains(e.target)) {
       return;
     }
     this.setState({
-      active: false
+      active: false,
     });
   };
 
@@ -112,22 +112,22 @@ class InputFieldMultiSelect extends Component {
     return (
       <div
         className={classnames(
-          styles["multi-select"],
-          styles[size ? size : ""],
-          styles[active ? "active" : ""],
-          error ? styles["has-danger"] : ""
+          styles['multi-select'],
+          styles[size || ''],
+          styles[active ? 'active' : ''],
+          error ? styles['has-danger'] : '',
         )}
-        ref={multiselect => (this.multiselect = multiselect)}
+        ref={(multiselect) => (this.multiselect = multiselect)}
       >
-        <div className={classnames(styles["multi-select-wrap"])}>
+        <div className={classnames(styles['multi-select-wrap'])}>
           <input
             onChange={this.searchTextChanged}
-            className={classnames(styles["multi-select-input"])}
+            className={classnames(styles['multi-select-input'])}
             type="text"
             placeholder="Search"
             onFocus={() => {
               this.setState({
-                active: true
+                active: true,
               });
             }}
           />
@@ -138,24 +138,24 @@ class InputFieldMultiSelect extends Component {
           />
         </div>
         {active ? (
-          <div className={classnames(styles["multi-select-dropdown"])}>
+          <div className={classnames(styles['multi-select-dropdown'])}>
             {options
               ? options.map((option, index) => (
                   <Checkbox
-                    key={`multiselect-checkbox-${index}`}
-                    label={option.name}
-                    onClick={this.optionChecked.bind(this, option)}
-                    iconColor="green"
-                    onChange={() => {}}
-                    checked={activeOptions[option.id] || false}
-                  />
+                  key={`multiselect-checkbox-${index}`}
+                  label={option.name}
+                  onClick={this.optionChecked.bind(this, option)}
+                  iconColor="green"
+                  onChange={() => {}}
+                  checked={activeOptions[option.id] || false}
+                />
                 ))
               : null}
           </div>
         ) : null}
 
         {error ? (
-          <div className={classnames(styles["form-error"])}>{error}</div>
+          <div className={classnames(styles['form-error'])}>{error}</div>
         ) : null}
       </div>
     );

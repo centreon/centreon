@@ -1,13 +1,13 @@
-import React from "react";
-import { withStyles } from "@material-ui/core/styles";
-import IconButton from "@material-ui/core/IconButton";
-import Tooltip from "@material-ui/core/Tooltip";
+import React from 'react';
+import { withStyles } from '@material-ui/core/styles';
+import IconButton from '@material-ui/core/IconButton';
+import Tooltip from '@material-ui/core/Tooltip';
 
 const styles = () => ({
   tooltipStyle: {},
   iconButtonStyle: {
-    padding: 5
-  }
+    padding: 5,
+  },
 });
 
 class TooltipMaterial extends React.Component {

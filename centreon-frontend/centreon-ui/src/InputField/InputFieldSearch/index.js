@@ -1,67 +1,67 @@
-import React, { Component } from "react";
-import PropTypes from "prop-types";
-import { makeStyles, withStyles } from "@material-ui/core/styles";
-import Paper from "@material-ui/core/Paper";
-import InputBase from "@material-ui/core/InputBase";
-import IconButton from "@material-ui/core/IconButton";
-import CloseIcon from "@material-ui/icons/Close";
-import SearchIcon from "@material-ui/icons/Search";
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
+import { makeStyles, withStyles } from '@material-ui/core/styles';
+import Paper from '@material-ui/core/Paper';
+import InputBase from '@material-ui/core/InputBase';
+import IconButton from '@material-ui/core/IconButton';
+import CloseIcon from '@material-ui/icons/Close';
+import SearchIcon from '@material-ui/icons/Search';
 
-const useStyles = theme => ({
+const useStyles = (theme) => ({
   root: {
-    padding: "0px 4px",
-    display: "flex",
-    alignItems: "center",
+    padding: '0px 4px',
+    display: 'flex',
+    alignItems: 'center',
     width: 300,
-    borderColor: "#ccc",
+    borderColor: '#ccc',
     borderRadius: 2,
-    borderStyle: "solid",
+    borderStyle: 'solid',
     borderWidth: 1,
-    color: "#242f3a",
-    fontFamily: "Roboto Regular",
+    color: '#242f3a',
+    fontFamily: 'Roboto Regular',
     fontSize: 12,
-    boxShadow: "none",
+    boxShadow: 'none',
     borderRadius: 0,
-    position: "relative"
+    position: 'relative',
   },
   paper: {
-    padding: 0
+    padding: 0,
   },
   input: {
     marginLeft: 8,
-    flex: 1
+    flex: 1,
   },
   iconButton: {
-    padding: 3
+    padding: 3,
   },
   bottomLine: {
     content: '""',
-    position: "absolute",
+    position: 'absolute',
     height: 2,
-    width: "100%",
-    backgroundColor: "#009fdf",
-    left: "50%",
+    width: '100%',
+    backgroundColor: '#009fdf',
+    left: '50%',
     right: 0,
     bottom: -1,
-    transform: "translateX(-50%)"
-  }
+    transform: 'translateX(-50%)',
+  },
 });
 
 class InputFieldSearch extends Component {
   state = {
-    searchText: ""
+    searchText: '',
   };
 
-  onSearchInputChanged = event => {
+  onSearchInputChanged = (event) => {
     const { onChange } = this.props;
     const searchText = event.target.value;
     this.setState(
       {
-        searchText
+        searchText,
       },
       () => {
         onChange(searchText);
-      }
+      },
     );
   };
 
@@ -77,7 +77,7 @@ class InputFieldSearch extends Component {
           <InputBase
             className={classes.input}
             placeholder="Search"
-            inputProps={{ "aria-label": "Search" }}
+            inputProps={{ 'aria-label': 'Search' }}
             onChange={this.onSearchInputChanged}
             value={searchText}
           />
@@ -86,7 +86,7 @@ class InputFieldSearch extends Component {
               className={classes.iconButton}
               aria-label="Remove"
               onClick={this.onSearchInputChanged.bind(this, {
-                target: { value: "" }
+                target: { value: '' },
               })}
             >
               <CloseIcon fontSize="small" />
@@ -100,7 +100,7 @@ class InputFieldSearch extends Component {
 }
 
 InputFieldSearch.propTypes = {
-  classes: PropTypes.object.isRequired
+  classes: PropTypes.object.isRequired,
 };
 
 export default withStyles(useStyles)(InputFieldSearch);

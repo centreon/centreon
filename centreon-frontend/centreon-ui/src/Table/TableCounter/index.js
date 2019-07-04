@@ -1,39 +1,33 @@
-import React from "react";
-import IconAction from "../../Icon/IconAction";
-import styles from "./table-counter.scss";
-import classnames from "classnames";
+import React from 'react';
+import classnames from 'classnames';
+import IconAction from '../../Icon/IconAction';
+import styles from './table-counter.scss';
 
 const TableCounter = ({ activeClass, number }) => {
   return (
     <div
-      className={classnames(
-        styles["table-counter"],
-        styles[activeClass ? activeClass : ""]
-      )}
+      className={classnames(styles['table-counter'], styles[activeClass || ''])}
     >
-      <span className={classnames(styles["table-counter-number"])}>
+      <span className={classnames(styles['table-counter-number'])}>
         {number}
         <IconAction
           iconDirection="icon-position-counter"
           iconActionType="arrow-right"
         />
       </span>
-      <div className={classnames(styles["table-counter-dropdown"])}>
-        <span className={classnames(styles["table-counter-number"])}>
+      <div className={classnames(styles['table-counter-dropdown'])}>
+        <span className={classnames(styles['table-counter-number'])}>
           {number}
         </span>
         <span
-          className={classnames(
-            styles["table-counter-number"],
-            styles["active"]
-          )}
+          className={classnames(styles['table-counter-number'], styles.active)}
         >
           {number}
         </span>
-        <span className={classnames(styles["table-counter-number"])}>
+        <span className={classnames(styles['table-counter-number'])}>
           {number}
         </span>
-        <span className={classnames(styles["table-counter-number"])}>
+        <span className={classnames(styles['table-counter-number'])}>
           {number}
         </span>
       </div>

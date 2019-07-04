@@ -1,27 +1,27 @@
-import React from "react";
-import clsx from "clsx";
-import Button from "@material-ui/core/Button";
-import { makeStyles } from "@material-ui/core/styles";
-import AddIcon from "@material-ui/icons/Add";
+import React from 'react';
+import clsx from 'clsx';
+import Button from '@material-ui/core/Button';
+import { makeStyles } from '@material-ui/core/styles';
+import AddIcon from '@material-ui/icons/Add';
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles((theme) => ({
   button: {
     margin: theme.spacing(1),
-    display: "flex",
-    backgroundColor: "#1174cb",
-    color: "#fff",
+    display: 'flex',
+    backgroundColor: '#1174cb',
+    color: '#fff',
     fontSize: 12,
     margin: 0,
-    padding: "7px 10px",
-    "&:hover": {
-      backgroundColor: "#1e68a9"
-    }
+    padding: '7px 10px',
+    '&:hover': {
+      backgroundColor: '#1e68a9',
+    },
   },
   leftIcon: {
     marginRight: theme.spacing(1),
-    width: "0.8em",
-    height: "0.8em"
-  }
+    width: '0.8em',
+    height: '0.8em',
+  },
 }));
 
 function ButtonCustom({ label, onClick }) {

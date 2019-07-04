@@ -1,4 +1,4 @@
-const normalize = rectangle => {
+const normalize = (rectangle) => {
   if (rectangle.width === undefined) {
     rectangle.width = rectangle.right - rectangle.left;
   }

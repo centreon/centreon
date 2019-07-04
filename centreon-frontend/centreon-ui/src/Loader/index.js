@@ -1,20 +1,20 @@
-import React from "react";
-import classnames from "classnames";
-import loaderStyles from "loaders.css/loaders.min.css";
-import styles from "./loader-additions.scss";
+import React from 'react';
+import classnames from 'classnames';
+import loaderStyles from 'loaders.css/loaders.min.css';
+import styles from './loader-additions.scss';
 
 export default ({ fullContent }) => (
   <div
     className={classnames(
       styles.loader,
       styles.content,
-      styles[fullContent ? "full-relative-content" : ""]
+      styles[fullContent ? 'full-relative-content' : ''],
     )}
   >
     <div
       className={classnames(
-        styles["loader-inner"],
-        loaderStyles["ball-grid-pulse"]
+        styles['loader-inner'],
+        loaderStyles['ball-grid-pulse'],
       )}
     >
       <div />

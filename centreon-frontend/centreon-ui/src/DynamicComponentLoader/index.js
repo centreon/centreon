@@ -1,23 +1,23 @@
-import React, { Component } from "react";
-import { connect } from "react-redux";
-import Axios from "../Axios";
+import React, { Component } from 'react';
+import { connect } from 'react-redux';
+import Axios from '../Axios';
 
 class DynamicComponentLoader extends Component {
   state = {
     componentLoaded: false,
-    componentExists: false
+    componentExists: false,
   };
 
-  componentWillReceiveProps = nextProps => {
+  componentWillReceiveProps = (nextProps) => {
     const { componentName } = nextProps;
     if (componentName != this.props.componentName) {
       document.removeEventListener(
         `component${this.props.componentName}Loaded`,
-        this.setComponentLoaded
+        this.setComponentLoaded,
       );
       document.addEventListener(
         `component${componentName}Loaded`,
-        this.setComponentLoaded
+        this.setComponentLoaded,
       );
       this.checkFileExists();
     }
@@ -26,18 +26,18 @@ class DynamicComponentLoader extends Component {
   checkFileExists = () => {
     const { componentUrl, xhr } = this.props;
     xhr({
-      requestType: "GET",
+      requestType: 'GET',
       url: componentUrl,
-      check: true
+      check: true,
     })
       .then(() => {
         this.setState({
-          componentExists: true
+          componentExists: true,
         });
       })
-      .catch(err => {
+      .catch((err) => {
         this.setState({
-          componentExists: false
+          componentExists: false,
         });
       });
   };
@@ -46,7 +46,7 @@ class DynamicComponentLoader extends Component {
     if (this.props.componentName) {
       document.addEventListener(
         `component${this.props.componentName}Loaded`,
-        this.setComponentLoaded
+        this.setComponentLoaded,
       );
       this.checkFileExists();
     }
@@ -54,7 +54,7 @@ class DynamicComponentLoader extends Component {
 
   setComponentLoaded = () => {
     this.setState({
-      componentLoaded: true
+      componentLoaded: true,
     });
   };
 
@@ -62,7 +62,7 @@ class DynamicComponentLoader extends Component {
     const { componentName } = this.props;
     document.removeEventListener(
       `component${componentName}Loaded`,
-      this.setComponentLoaded
+      this.setComponentLoaded,
     );
   };
 
@@ -78,8 +78,8 @@ class DynamicComponentLoader extends Component {
             style={{
               width: 0,
               height: 0,
-              border: "0",
-              border: "none"
+              border: '0',
+              border: 'none',
             }}
           />
         ) : null}
@@ -88,14 +88,14 @@ class DynamicComponentLoader extends Component {
   }
 }
 
-const mapDispatchToProps = dispatch => ({
-  xhr: data => {
+const mapDispatchToProps = (dispatch) => ({
+  xhr: (data) => {
     const { requestType } = data;
     return Axios(data, dispatch, requestType);
-  }
+  },
 });
 
 export default connect(
   null,
-  mapDispatchToProps
+  mapDispatchToProps,
 )(DynamicComponentLoader);

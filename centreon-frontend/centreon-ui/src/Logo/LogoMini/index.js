@@ -1,7 +1,7 @@
-import React, { Component } from "react";
-import classnames from "classnames";
-import styles from "./logo-mini.scss";
-import miniLogo from "../../../img/centreon-logo-mini.svg";
+import React, { Component } from 'react';
+import classnames from 'classnames';
+import styles from './logo-mini.scss';
+import miniLogo from '../../../img/centreon-logo-mini.svg';
 
 class LogoMini extends Component {
   render() {
@@ -9,14 +9,11 @@ class LogoMini extends Component {
     return (
       <div
         onClick={onClick}
-        className={classnames(
-          styles["logo-mini"],
-          styles[customClass ? customClass : ""]
-        )}
+        className={classnames(styles['logo-mini'], styles[customClass || ''])}
       >
         <span>
           <img
-            className={classnames(styles["logo-mini-image"])}
+            className={classnames(styles['logo-mini-image'])}
             src={miniLogo}
             width="23"
             height="21"

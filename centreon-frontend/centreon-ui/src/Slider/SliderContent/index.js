@@ -1,12 +1,12 @@
-import React, { Component } from "react";
-import classnames from "classnames";
-import styles from "./content-slider.scss";
-import ContentSliderItem from "./ContentSliderItem";
-import ContentSliderLeftArrow from "./ContentSliderLeftArrow";
-import ContentSliderRightArrow from "./ContentSliderRightArrow";
-import ContentSliderIndicators from "./ContentSliderIndicators";
-import defaultImageModule from "../../../img/slider-default-image-module.png";
-import defaultImageWidget from "../../../img/slider-default-image-widget.png";
+import React, { Component } from 'react';
+import classnames from 'classnames';
+import styles from './content-slider.scss';
+import ContentSliderItem from './ContentSliderItem';
+import ContentSliderLeftArrow from './ContentSliderLeftArrow';
+import ContentSliderRightArrow from './ContentSliderRightArrow';
+import ContentSliderIndicators from './ContentSliderIndicators';
+import defaultImageModule from '../../../img/slider-default-image-module.png';
+import defaultImageWidget from '../../../img/slider-default-image-widget.png';
 
 class SliderContent extends Component {
   constructor(props) {
@@ -14,7 +14,7 @@ class SliderContent extends Component {
 
     this.state = {
       currentIndex: 0,
-      translateValue: 0
+      translateValue: 0,
     };
   }
 
@@ -23,9 +23,9 @@ class SliderContent extends Component {
 
     if (currentIndex === 0) return;
 
-    this.setState(prevState => ({
+    this.setState((prevState) => ({
       currentIndex: prevState.currentIndex - 1,
-      translateValue: prevState.translateValue + this.slideWidth()
+      translateValue: prevState.translateValue + this.slideWidth(),
     }));
   };
 
@@ -37,15 +37,15 @@ class SliderContent extends Component {
     }
 
     // This will not run if we met the if condition above
-    this.setState(prevState => ({
+    this.setState((prevState) => ({
       currentIndex: prevState.currentIndex + 1,
-      translateValue: prevState.translateValue - this.slideWidth()
+      translateValue: prevState.translateValue - this.slideWidth(),
     }));
   };
 
   slideWidth = () => {
-    return document.querySelector(".content-slider-wrapper")
-      ? document.querySelector(".content-slider-wrapper").clientWidth
+    return document.querySelector('.content-slider-wrapper')
+      ? document.querySelector('.content-slider-wrapper').clientWidth
       : 780;
   };
 
@@ -54,7 +54,7 @@ class SliderContent extends Component {
     const { type, images } = this.props;
 
     const slides = images.map((image, index) => {
-      let isActive = currentIndex === index ? true : false;
+      const isActive = currentIndex === index;
       return (
         <ContentSliderItem key={index} image={image} isActive={isActive} />
       );
@@ -62,24 +62,24 @@ class SliderContent extends Component {
 
     if (images.length === 0) {
       const defaultImage =
-        type === "widget" ? defaultImageWidget : defaultImageModule;
+        type === 'widget' ? defaultImageWidget : defaultImageModule;
 
-      return [<ContentSliderItem image={defaultImage} isActive={true} />];
+      return [<ContentSliderItem image={defaultImage} isActive />];
     }
 
     return slides;
   };
 
-  handleDotClick = e => {
+  handleDotClick = (e) => {
     const { currentIndex, translateValue } = this.state;
 
-    const dotIndex = parseInt(e.target.getAttribute("data-index"));
+    const dotIndex = parseInt(e.target.getAttribute('data-index'));
 
     // Go back
     if (dotIndex < currentIndex) {
       return this.setState({
         currentIndex: dotIndex,
-        translateValue: -dotIndex * this.slideWidth()
+        translateValue: -dotIndex * this.slideWidth(),
       });
     }
 
@@ -87,7 +87,7 @@ class SliderContent extends Component {
     this.setState({
       currentIndex: dotIndex,
       translateValue:
-        translateValue + (currentIndex - dotIndex) * this.slideWidth()
+        translateValue + (currentIndex - dotIndex) * this.slideWidth(),
     });
   };
 
@@ -96,17 +96,17 @@ class SliderContent extends Component {
     const { images, children } = this.props;
 
     return (
-      <div className={classnames(styles["content-slider-wrapper"])}>
-        <div className={classnames(styles["content-slider"])}>
+      <div className={classnames(styles['content-slider-wrapper'])}>
+        <div className={classnames(styles['content-slider'])}>
           <div
-            className={classnames(styles["content-slider-items"])}
+            className={classnames(styles['content-slider-items'])}
             style={{
-              transform: `translateX(${translateValue}px)`
+              transform: `translateX(${translateValue}px)`,
             }}
           >
             {this.renderSlides()}
           </div>
-          <div className={classnames(styles["content-slider-controls"])}>
+          <div className={classnames(styles['content-slider-controls'])}>
             {currentIndex === 0 ? null : (
               <ContentSliderLeftArrow
                 goToPrevSlide={this.goToPrevSlide}

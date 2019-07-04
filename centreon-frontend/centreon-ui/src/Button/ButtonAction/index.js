@@ -1,7 +1,7 @@
-import React from "react";
-import IconAction from "../../Icon/IconAction";
-import classnames from "classnames";
-import styles from "./button-action.scss";
+import React from 'react';
+import classnames from 'classnames';
+import IconAction from '../../Icon/IconAction';
+import styles from './button-action.scss';
 
 const ButtonAction = ({
   buttonActionType,
@@ -9,25 +9,20 @@ const ButtonAction = ({
   onClick,
   iconColor,
   title,
-  customPosition
+  customPosition,
 }) => {
   const cn = classnames(
-    styles["button-action"],
+    styles['button-action'],
     {
-      [styles[
-        `button-action-${buttonActionType ? buttonActionType : ""}`
-      ]]: true
+      [styles[`button-action-${buttonActionType || ''}`]]: true,
     },
-    styles[customPosition ? customPosition : ""],
-    styles[iconColor]
+    styles[customPosition || ''],
+    styles[iconColor],
   );
   return (
     <span className={cn} onClick={onClick}>
-      <IconAction
-        iconColor={iconColor ? iconColor : ""}
-        iconActionType={buttonIconType}
-      />
-      {title && <span className={styles["button-action-title"]}>{title}</span>}
+      <IconAction iconColor={iconColor || ''} iconActionType={buttonIconType} />
+      {title && <span className={styles['button-action-title']}>{title}</span>}
     </span>
   );
 };

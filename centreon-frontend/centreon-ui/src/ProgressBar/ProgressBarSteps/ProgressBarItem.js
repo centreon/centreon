@@ -1,14 +1,14 @@
-import React from "react";
-import classnames from "classnames";
-import styles from "./progress-bar-steps.scss";
+import React from 'react';
+import classnames from 'classnames';
+import styles from './progress-bar-steps.scss';
 
 const ProgressBarItem = ({ classActive, number }) => {
   return (
-    <li className={classnames(styles["progress-bar-item"])}>
+    <li className={classnames(styles['progress-bar-item'])}>
       <span
         className={classnames(
-          styles["progress-bar-link"],
-          styles[classActive ? classActive : ""]
+          styles['progress-bar-link'],
+          styles[classActive || ''],
         )}
       >
         {number}

@@ -1,11 +1,11 @@
-import React, { Component } from "react";
-import classnames from "classnames";
-import styles from "./search-live.scss";
-import ButtonActionInput from "../../Button/ButtonActionInput";
-import "../SearchWithArrow/search-with-arrow.scss";
+import React, { Component } from 'react';
+import classnames from 'classnames';
+import styles from './search-live.scss';
+import ButtonActionInput from '../../Button/ButtonActionInput';
+import '../SearchWithArrow/search-with-arrow.scss';
 
 class SearchLive extends Component {
-  onChange = e => {
+  onChange = (e) => {
     const { onChange, filterKey } = this.props;
     onChange(e.target.value, filterKey);
   };
@@ -15,8 +15,8 @@ class SearchLive extends Component {
     return (
       <div
         className={classnames(
-          styles["search-live"],
-          styles[icon ? "custom" : ""]
+          styles['search-live'],
+          styles[icon ? 'custom' : ''],
         )}
       >
         {label && <label>{label}</label>}

@@ -1,7 +1,7 @@
-import React from "react";
-import classnames from "classnames";
-import styles from "./textarea.scss";
-import IconInfo from "../../Icon/IconInfo";
+import React from 'react';
+import classnames from 'classnames';
+import styles from './textarea.scss';
+import IconInfo from '../../Icon/IconInfo';
 
 const InputFieldTextarea = ({
   error,
@@ -14,27 +14,27 @@ const InputFieldTextarea = ({
   return (
     <div
       className={classnames(
-        styles["form-group"],
+        styles['form-group'],
         styles.textarea,
-        styles[textareaType ? textareaType : ""],
-        error ? styles["has-danger"] : ""
+        styles[textareaType || ''],
+        error ? styles['has-danger'] : '',
       )}
     >
       {label && (
         <label>
           {iconName ? (
             <IconInfo iconName={iconName} iconColor={iconColor} />
-          ) : null}{" "}
-          {label}{" "}
+          ) : null}{' '}
+          {label}{' '}
         </label>
       )}
       <textarea
-        className={classnames(styles["form-control"])}
+        className={classnames(styles['form-control'])}
         rows="3"
         {...rest}
       />
       {error ? (
-        <div className={classnames(styles["form-error"])}>{error}</div>
+        <div className={classnames(styles['form-error'])}>{error}</div>
       ) : null}
     </div>
   );

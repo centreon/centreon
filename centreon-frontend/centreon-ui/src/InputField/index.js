@@ -1,7 +1,7 @@
-import React from "react";
-import classnames from "classnames";
-import styles from "./input-text.scss";
-import IconInfo from "../Icon/IconInfo";
+import React from 'react';
+import classnames from 'classnames';
+import styles from './input-text.scss';
+import IconInfo from '../Icon/IconInfo';
 
 const InputField = ({
   type,
@@ -19,10 +19,10 @@ const InputField = ({
   return (
     <div
       className={classnames(
-        styles["form-group"],
-        styles[inputSize ? inputSize : ""],
-        error ? styles["has-danger"] : "",
-        noMargin ? styles["no-bottom-margin"] : ""
+        styles['form-group'],
+        styles[inputSize || ''],
+        error ? styles['has-danger'] : '',
+        noMargin ? styles['no-bottom-margin'] : '',
       )}
     >
       {label && (
@@ -30,13 +30,11 @@ const InputField = ({
           <span>
             {iconName ? (
               <IconInfo iconName={iconName} iconColor={iconColor} />
-            ) : null}{" "}
+            ) : null}{' '}
             {label}
           </span>
-          <span
-            className={classnames(styles["label-option"], styles["required"])}
-          >
-            {topRightLabel ? topRightLabel : null}
+          <span className={classnames(styles['label-option'], styles.required)}>
+            {topRightLabel || null}
           </span>
         </label>
       )}
@@ -44,11 +42,11 @@ const InputField = ({
         name={name}
         type={type}
         placeholder={placeholder}
-        className={classnames(styles["form-control"])}
+        className={classnames(styles['form-control'])}
         {...rest}
       />
       {error ? (
-        <div className={classnames(styles["form-error"])}>{error}</div>
+        <div className={classnames(styles['form-error'])}>{error}</div>
       ) : null}
     </div>
   );

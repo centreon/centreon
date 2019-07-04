@@ -1,35 +1,37 @@
-import React, { Component } from "react";
-import classnames from "classnames";
-import styles from "./input-field-select.scss";
-import Select from "react-select";
+import React, { Component } from 'react';
+import classnames from 'classnames';
+import Select from 'react-select';
+import styles from './input-field-select.scss';
 
 const options = [
-  { value: "remote1", label: "Remote Server 1" },
-  { value: "remote2", label: "Remote Server 2" },
-  { value: "remote3", label: "Remote Server 3" }
+  { value: 'remote1', label: 'Remote Server 1' },
+  { value: 'remote2', label: 'Remote Server 2' },
+  { value: 'remote3', label: 'Remote Server 3' },
 ];
 
 class InputFieldSelect extends Component {
   state = {
-    selectedOption: null
+    selectedOption: null,
   };
-  handleChange = selectedOption => {
+
+  handleChange = (selectedOption) => {
     this.setState({ selectedOption });
     console.log(`Option selected:`, selectedOption);
   };
+
   render() {
     const { customClass } = this.props;
     const { selectedOption } = this.state;
     return (
       <Select
         className={classnames(
-          styles["select-option"],
-          styles[customClass ? customClass : ""]
+          styles['select-option'],
+          styles[customClass || ''],
         )}
         value={selectedOption}
         onChange={this.handleChange}
         options={options}
-        isMulti={true}
+        isMulti
         placeholder="Search here"
       />
     );

@@ -1,7 +1,7 @@
-import React, { Component } from "react";
-import classnames from "classnames";
-import styles from "./logo.scss";
-import logo from "../../img/centreon.png";
+import React, { Component } from 'react';
+import classnames from 'classnames';
+import styles from './logo.scss';
+import logo from '../../img/centreon.png';
 
 class Logo extends Component {
   render() {
@@ -10,14 +10,11 @@ class Logo extends Component {
     return (
       <div
         onClick={onClick}
-        className={classnames(
-          styles["logo"],
-          styles[customClass ? customClass : ""]
-        )}
+        className={classnames(styles.logo, styles[customClass || ''])}
       >
         <span>
           <img
-            className={classnames(styles["logo-image"])}
+            className={classnames(styles['logo-image'])}
             src={logo}
             width="254"
             height="57"

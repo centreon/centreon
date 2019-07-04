@@ -1,44 +1,44 @@
-import React from "react";
-import PropTypes from "prop-types";
-import { withStyles } from "@material-ui/core/styles";
-import Table from "@material-ui/core/Table";
-import TableBody from "@material-ui/core/TableBody";
-import TableCell from "@material-ui/core/TableCell";
-import TableFooter from "@material-ui/core/TableFooter";
-import TablePagination from "@material-ui/core/TablePagination";
-import TableRow from "@material-ui/core/TableRow";
-import Paper from "@material-ui/core/Paper";
-import IconButton from "@material-ui/core/IconButton";
-import FirstPageIcon from "@material-ui/icons/FirstPage";
-import KeyboardArrowLeft from "@material-ui/icons/KeyboardArrowLeft";
-import KeyboardArrowRight from "@material-ui/icons/KeyboardArrowRight";
-import LastPageIcon from "@material-ui/icons/LastPage";
+import React from 'react';
+import PropTypes from 'prop-types';
+import { withStyles } from '@material-ui/core/styles';
+import Table from '@material-ui/core/Table';
+import TableBody from '@material-ui/core/TableBody';
+import TableCell from '@material-ui/core/TableCell';
+import TableFooter from '@material-ui/core/TableFooter';
+import TablePagination from '@material-ui/core/TablePagination';
+import TableRow from '@material-ui/core/TableRow';
+import Paper from '@material-ui/core/Paper';
+import IconButton from '@material-ui/core/IconButton';
+import FirstPageIcon from '@material-ui/icons/FirstPage';
+import KeyboardArrowLeft from '@material-ui/icons/KeyboardArrowLeft';
+import KeyboardArrowRight from '@material-ui/icons/KeyboardArrowRight';
+import LastPageIcon from '@material-ui/icons/LastPage';
 
-const actionsStyles = theme => ({
+const actionsStyles = (theme) => ({
   root: {
     flexShrink: 0,
     color: theme.palette.text.secondary,
-    marginLeft: theme.spacing.unit * 2.5
-  }
+    marginLeft: theme.spacing.unit * 2.5,
+  },
 });
 
 class TablePaginationActions extends React.Component {
-  handleFirstPageButtonClick = event => {
+  handleFirstPageButtonClick = (event) => {
     this.props.onChangePage(event, 0);
   };
 
-  handleBackButtonClick = event => {
+  handleBackButtonClick = (event) => {
     this.props.onChangePage(event, this.props.page - 1);
   };
 
-  handleNextButtonClick = event => {
+  handleNextButtonClick = (event) => {
     this.props.onChangePage(event, this.props.page + 1);
   };
 
-  handleLastPageButtonClick = event => {
+  handleLastPageButtonClick = (event) => {
     this.props.onChangePage(
       event,
-      Math.max(0, Math.ceil(this.props.count / this.props.rowsPerPage) - 1)
+      Math.max(0, Math.ceil(this.props.count / this.props.rowsPerPage) - 1),
     );
   };
 
@@ -52,14 +52,14 @@ class TablePaginationActions extends React.Component {
           disabled={page === 0}
           aria-label="First Page"
         >
-          {theme.direction === "rtl" ? <LastPageIcon /> : <FirstPageIcon />}
+          {theme.direction === 'rtl' ? <LastPageIcon /> : <FirstPageIcon />}
         </IconButton>
         <IconButton
           onClick={this.handleBackButtonClick}
           disabled={page === 0}
           aria-label="Previous Page"
         >
-          {theme.direction === "rtl" ? (
+          {theme.direction === 'rtl' ? (
             <KeyboardArrowRight />
           ) : (
             <KeyboardArrowLeft />
@@ -70,7 +70,7 @@ class TablePaginationActions extends React.Component {
           disabled={page >= Math.ceil(count / rowsPerPage) - 1}
           aria-label="Next Page"
         >
-          {theme.direction === "rtl" ? (
+          {theme.direction === 'rtl' ? (
             <KeyboardArrowLeft />
           ) : (
             <KeyboardArrowRight />
@@ -81,7 +81,7 @@ class TablePaginationActions extends React.Component {
           disabled={page >= Math.ceil(count / rowsPerPage) - 1}
           aria-label="Last Page"
         >
-          {theme.direction === "rtl" ? <FirstPageIcon /> : <LastPageIcon />}
+          {theme.direction === 'rtl' ? <FirstPageIcon /> : <LastPageIcon />}
         </IconButton>
       </div>
     );
@@ -94,11 +94,11 @@ TablePaginationActions.propTypes = {
   onChangePage: PropTypes.func.isRequired,
   page: PropTypes.number.isRequired,
   rowsPerPage: PropTypes.number.isRequired,
-  theme: PropTypes.object.isRequired
+  theme: PropTypes.object.isRequired,
 };
 
 const TablePaginationActionsWrapped = withStyles(actionsStyles, {
-  withTheme: true
+  withTheme: true,
 })(TablePaginationActions);
 
 let counter = 0;
@@ -107,45 +107,45 @@ function createData(name, calories, fat) {
   return { id: counter, name, calories, fat };
 }
 
-const styles = theme => ({
+const styles = (theme) => ({
   root: {
-    width: "100%",
-    marginTop: theme.spacing.unit * 3
+    width: '100%',
+    marginTop: theme.spacing.unit * 3,
   },
   table: {
-    minWidth: 500
+    minWidth: 500,
   },
   tableWrapper: {
-    overflowX: "auto"
-  }
+    overflowX: 'auto',
+  },
 });
 
 class CustomPaginationActionsTable extends React.Component {
   state = {
     rows: [
-      createData("Cupcake", 305, 3.7),
-      createData("Donut", 452, 25.0),
-      createData("Eclair", 262, 16.0),
-      createData("Frozen yoghurt", 159, 6.0),
-      createData("Gingerbread", 356, 16.0),
-      createData("Honeycomb", 408, 3.2),
-      createData("Ice cream sandwich", 237, 9.0),
-      createData("Jelly Bean", 375, 0.0),
-      createData("KitKat", 518, 26.0),
-      createData("Lollipop", 392, 0.2),
-      createData("Marshmallow", 318, 0),
-      createData("Nougat", 360, 19.0),
-      createData("Oreo", 437, 18.0)
+      createData('Cupcake', 305, 3.7),
+      createData('Donut', 452, 25.0),
+      createData('Eclair', 262, 16.0),
+      createData('Frozen yoghurt', 159, 6.0),
+      createData('Gingerbread', 356, 16.0),
+      createData('Honeycomb', 408, 3.2),
+      createData('Ice cream sandwich', 237, 9.0),
+      createData('Jelly Bean', 375, 0.0),
+      createData('KitKat', 518, 26.0),
+      createData('Lollipop', 392, 0.2),
+      createData('Marshmallow', 318, 0),
+      createData('Nougat', 360, 19.0),
+      createData('Oreo', 437, 18.0),
     ].sort((a, b) => (a.calories < b.calories ? -1 : 1)),
     page: 0,
-    rowsPerPage: 5
+    rowsPerPage: 5,
   };
 
   handleChangePage = (event, page) => {
     this.setState({ page });
   };
 
-  handleChangeRowsPerPage = event => {
+  handleChangeRowsPerPage = (event) => {
     this.setState({ page: 0, rowsPerPage: event.target.value });
   };
 
@@ -162,7 +162,7 @@ class CustomPaginationActionsTable extends React.Component {
             <TableBody>
               {rows
                 .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                .map(row => (
+                .map((row) => (
                   <TableRow key={row.id}>
                     <TableCell align="right" component="th" scope="row">
                       {row.name}
@@ -186,7 +186,7 @@ class CustomPaginationActionsTable extends React.Component {
                   rowsPerPage={rowsPerPage}
                   page={page}
                   SelectProps={{
-                    native: true
+                    native: true,
                   }}
                   onChangePage={this.handleChangePage}
                   onChangeRowsPerPage={this.handleChangeRowsPerPage}
@@ -202,7 +202,7 @@ class CustomPaginationActionsTable extends React.Component {
 }
 
 CustomPaginationActionsTable.propTypes = {
-  classes: PropTypes.object.isRequired
+  classes: PropTypes.object.isRequired,
 };
 
 export default withStyles(styles)(CustomPaginationActionsTable);

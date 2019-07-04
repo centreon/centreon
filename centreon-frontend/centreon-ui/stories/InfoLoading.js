@@ -1,10 +1,10 @@
-import React from "react";
-import { storiesOf } from "@storybook/react";
-import { InfoLoading } from "../src";
+import React from 'react';
+import { storiesOf } from '@storybook/react';
+import { InfoLoading } from '../src';
 
-storiesOf("Info", module).add(
-  "Info - loading",
-  () => 
+storiesOf('Info', module).add(
+  'Info - loading',
+  () => (
     <React.Fragment>
       <InfoLoading
         label="Loading job may take some while"
@@ -21,6 +21,6 @@ storiesOf("Info", module).add(
         iconColor="orange"
       />
     </React.Fragment>
-  ,
-  { notes: "A very simple component" }
+  ),
+  { notes: 'A very simple component' },
 );
