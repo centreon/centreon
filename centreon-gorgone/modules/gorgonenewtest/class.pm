@@ -107,6 +107,28 @@ sub class_handle_HUP {
     }
 }
 
+sub send_log {
+    my ($self, %options) = @_;
+
+    return if (!defined($options{token}));
+
+    if (!defined($self->{socket_log})) {
+        $self->{socket_log} = centreon::gorgone::common::connect_com(
+            zmq_type => 'ZMQ_DEALER', name => 'gorgonenewtest-'. $self->{container_id},
+            logger => $self->{logger}, linger => 5000,
+            type => $self->{config_core}{internal_com_type},
+            path => $self->{config_core}{internal_com_path}
+        );
+    }
+
+    centreon::gorgone::common::zmq_send_message(
+        socket => $self->{socket_log},
+        action => 'PUTLOG', 
+        data => { code => $options{code}, etime => time(), token => $options{token}, data => $options{data} },
+        json_encode => 1
+    );
+}
+
 my %map_scenario_status = (
     Available => 0, Warning => 1, Failed => 2, Suspended => 2,
     Canceled => 2, Unknown => 3, OutOfRange => 3,
@@ -133,7 +155,6 @@ sub newtestresync_init {
     $self->{perfdatas} = [];
     $self->{cache_robot_list_results} = undef;
 }
-
 
 sub perfdata_add {
     my ($self, %options) = @_;
@@ -546,17 +567,31 @@ sub action_newtestresync {
     my ($self, %options) = @_;
 
     $self->{logger}->writeLogDebug("gorgone-newtest: container $self->{container_id}: begin resync");
+    $self->send_log(code => 301, token => $options{token}, data => { message => 'action newtestresync proceed' });
     $self->newtestresync_init();
     
-    return -1 if ($self->get_poller_id());
-    return -1 if ($self->get_centreondb_cache());
-    return -1 if ($self->get_centstoragedb_cache());
+    if ($self->get_poller_id()) {
+        $self->send_log(code => 305, token => $options{token}, data => { message => 'cannot get poller id' });
+        return -1;
+    }
+    if ($self->get_centreondb_cache()) {
+        $self->send_log(code => 305, token => $options{token}, data => { message => 'cannot get centreon config cache' });
+        return -1;
+    }
+    if ($self->get_centstoragedb_cache()) {
+        $self->send_log(code => 305, token => $options{token}, data => { message => 'cannot get centreon storage cache' });
+        return -1;
+    }
     
-    return -1 if ($self->get_newtest_scenarios(%options));   
+    if ($self->get_newtest_scenarios(%options)) {
+        $self->send_log(code => 305, token => $options{token}, data => { message => 'cannot get newtest scenarios' });
+        return -1;
+    }   
 
     $self->push_config();
     $self->submit_external_cmd();
 
+    $self->send_log(code => 306, token => $options{token}, data => { message => 'action newtestresync finished' });
     return 0;
 }
 
@@ -630,6 +665,7 @@ sub run {
         if (defined($rev) && $rev == 0 && $self->{stop} == 1) {
             $self->{logger}->writeLogInfo("gorgone-newtest $$ has quit");
             zmq_close($socket);
+            zmq_close($self->{socket_log}) if (defined($self->{socket_log}));
             exit(0);
         }
 

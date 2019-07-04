@@ -97,7 +97,7 @@ sub cron_sleep {
 sub dispatcher {
     my ($options) = @_;
 
-    $options->{logger}->writeLogInfo("Job is starting");    
+    $options->{logger}->writeLogInfo('gorgone-cron Job is starting');    
 }
 
 sub run {
@@ -116,11 +116,11 @@ sub run {
         json_encode => 1
     );
     $self->{poll} = [
-            {
+        {
             socket  => $socket,
             events  => ZMQ_POLLIN,
             callback => \&event,
-            }
+        }
     ];
     my $cron = new Schedule::Cron(\&dispatcher, nostatus => 1, nofork => 1);
     $cron->add_entry('* * * * *', \&dispatcher, { logger => $self->{logger}, plop => 1 });
