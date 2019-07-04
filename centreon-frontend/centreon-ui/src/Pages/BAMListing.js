@@ -324,7 +324,7 @@ class BAMListingPage extends Component {
           active={duplicateActive}
           onNoClicked={this.toggleDuplicateModal}
           onClose={this.toggleDuplicateModal}
-          onYesClicked={() => {
+          onYesClicked={(times) => {
             this.setState(
               {
                 duplicateActive: false,
