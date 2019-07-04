@@ -79,4 +79,10 @@ sub execute {
     return $self->do(request => $request, %options);
 }
 
+sub quote {
+    my ($self, %options) = @_;
+
+    return $self->{db_centreon}->quote($options{value});
+}
+
 1;
