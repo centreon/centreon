@@ -118,7 +118,6 @@ class BAMListingPage extends Component {
     this.setState({
       duplicateActive: !duplicateActive,
     });
-    aster;
     if (selected[0]) {
       onTableSelectionChanged(selected);
     }
