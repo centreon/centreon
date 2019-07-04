@@ -7,14 +7,19 @@ import ButtonCustom from "@material-ui/core/Button";
 
 class ConfirmationDialog extends Component {
   render() {
-    const { active, onClose, onYesClicked, info, onNoClicked, header } = this.props;
+    const {
+      active,
+      onClose,
+      onYesClicked,
+      info,
+      onNoClicked,
+      header
+    } = this.props;
     return active ? (
       <PopupNew popupType="small">
         <div className={classnames(styles2["popup-header"])}>
           {header ? (
-            <h3 className={classnames(styles2["popup-title"])}>
-              {header}
-            </h3>
+            <h3 className={classnames(styles2["popup-title"])}>{header}</h3>
           ) : null}
         </div>
         <div className={classnames(styles2["popup-body"])}>

@@ -1,6 +1,6 @@
 import React, { Component } from "react";
-import classnames from 'classnames';
-import styles from './card.scss';
+import classnames from "classnames";
+import styles from "./card.scss";
 
 class Card extends Component {
   render() {

@@ -20,7 +20,7 @@ const useStyles = makeStyles(theme => ({
   leftIcon: {
     marginRight: theme.spacing(1),
     width: "0.8em",
-    height: "0.8em",
+    height: "0.8em"
   }
 }));
 

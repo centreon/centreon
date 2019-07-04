@@ -4,7 +4,7 @@ import BAMListingPage from "./BAMListing";
 class BAMListingPageStory extends Component {
   state = {
     panelActive: false,
-    currentlySelected:[]
+    currentlySelected: []
   };
   togglePanel = () => {
     const { panelActive } = this.state;
@@ -15,7 +15,7 @@ class BAMListingPageStory extends Component {
 
   render() {
     const { BAMTableData } = this.props;
-    const { panelActive,currentlySelected } = this.state;
+    const { panelActive, currentlySelected } = this.state;
     return (
       <BAMListingPage
         onAddClicked={() => {
@@ -24,20 +24,20 @@ class BAMListingPageStory extends Component {
         onSearch={() => {
           console.log("onSearch clicked");
         }}
-        onDelete={(a,b,c)=>{
-          console.log("onDelete clicked",a,b,c,currentlySelected);
+        onDelete={(a, b, c) => {
+          console.log("onDelete clicked", a, b, c, currentlySelected);
         }}
-        onDuplicate={(a,b,c) => {
-          console.log("onDuplicate clicked",a,b,c,currentlySelected);
+        onDuplicate={(a, b, c) => {
+          console.log("onDuplicate clicked", a, b, c, currentlySelected);
         }}
-        onMassiveChange={(a,b,c) => {
-          console.log("onMassiveChange clicked",a,b,c,currentlySelected);
+        onMassiveChange={(a, b, c) => {
+          console.log("onMassiveChange clicked", a, b, c, currentlySelected);
         }}
-        onEnable={(a,b,c) => {
-          console.log("onEnable clicked",a,b,c,currentlySelected);
-        }} 
-        onDisable={(a,b,c) => {
-          console.log("onDisable clicked",a,b,c,currentlySelected);
+        onEnable={(a, b, c) => {
+          console.log("onEnable clicked", a, b, c, currentlySelected);
+        }}
+        onDisable={(a, b, c) => {
+          console.log("onDisable clicked", a, b, c, currentlySelected);
         }}
         onPaginate={() => {
           console.log("onPaginate clicked");

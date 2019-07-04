@@ -121,7 +121,7 @@ class InputFieldSelectCustom extends Component {
           styles[size ? size : ""],
           styles[active ? "active" : ""],
           error ? styles["has-danger"] : "",
-          customStyle ? styles[customStyle] : "",
+          customStyle ? styles[customStyle] : ""
         )}
         ref={select => (this.select = select)}
       >

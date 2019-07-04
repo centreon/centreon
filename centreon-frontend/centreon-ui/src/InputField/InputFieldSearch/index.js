@@ -25,7 +25,7 @@ const useStyles = theme => ({
     position: "relative"
   },
   paper: {
-    padding: 0,
+    padding: 0
   },
   input: {
     marginLeft: 8,

@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import Axios from '../Axios';
+import Axios from "../Axios";
 
 class DynamicComponentLoader extends Component {
   state = {
@@ -28,19 +28,19 @@ class DynamicComponentLoader extends Component {
     xhr({
       requestType: "GET",
       url: componentUrl,
-      check:true
+      check: true
     })
       .then(() => {
         this.setState({
           componentExists: true
-        })
+        });
       })
       .catch(err => {
         this.setState({
           componentExists: false
-        })
+        });
       });
-  }
+  };
 
   componentWillMount = () => {
     if (this.props.componentName) {
@@ -72,19 +72,17 @@ class DynamicComponentLoader extends Component {
 
     return (
       <React.Fragment>
-        {
-          componentExists ?
-            <iframe
-              src={componentUrl}
-              style={{
-                width: 0,
-                height: 0,
-                border: "0",
-                border: "none"
-              }}
-            />
-            : null
-        }
+        {componentExists ? (
+          <iframe
+            src={componentUrl}
+            style={{
+              width: 0,
+              height: 0,
+              border: "0",
+              border: "none"
+            }}
+          />
+        ) : null}
       </React.Fragment>
     );
   }

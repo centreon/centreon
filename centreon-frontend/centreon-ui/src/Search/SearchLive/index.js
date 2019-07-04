@@ -1,6 +1,6 @@
 import React, { Component } from "react";
-import classnames from 'classnames';
-import styles from './search-live.scss';
+import classnames from "classnames";
+import styles from "./search-live.scss";
 import ButtonActionInput from "../../Button/ButtonActionInput";
 import "../SearchWithArrow/search-with-arrow.scss";
 
@@ -13,7 +13,12 @@ class SearchLive extends Component {
   render() {
     const { label, value, icon } = this.props;
     return (
-      <div className={classnames(styles["search-live"], styles[icon ? "custom" : ""])}>
+      <div
+        className={classnames(
+          styles["search-live"],
+          styles[icon ? "custom" : ""]
+        )}
+      >
         {label && <label>{label}</label>}
         <input type="text" value={value} onChange={this.onChange.bind(this)} />
         {icon ? (

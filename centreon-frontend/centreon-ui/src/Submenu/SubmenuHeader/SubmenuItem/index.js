@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import classnames from 'classnames';
+import classnames from "classnames";
 import styles from "../submenu.scss";
 
 class SubmenuItem extends Component {
@@ -8,15 +8,21 @@ class SubmenuItem extends Component {
     return (
       <li className={classnames(styles["submenu-item"])}>
         <span
-          className={classnames(
-            styles["submenu-item-title"],
-            {[styles["submenu-item-dotted"]]: !!dotColored}
-          )}
+          className={classnames(styles["submenu-item-title"], {
+            [styles["submenu-item-dotted"]]: !!dotColored
+          })}
         >
-          <span className={classnames(styles["submenu-item-dot"], styles[`dot-${dotColored}`])}/>
+          <span
+            className={classnames(
+              styles["submenu-item-dot"],
+              styles[`dot-${dotColored}`]
+            )}
+          />
           {submenuTitle}
         </span>
-        <span className={classnames(styles["submenu-item-count"])}>{submenuCount}</span>
+        <span className={classnames(styles["submenu-item-count"])}>
+          {submenuCount}
+        </span>
       </li>
     );
   }

@@ -37,10 +37,7 @@ function IconPowerSettings({ active, customStyle, ...rest }) {
 
   return (
     <span {...rest} className={classes.iconWrap}>
-      <PowerSettings
-        style={customStyle}
-        className={classes.iconNormal}
-      />
+      <PowerSettings style={customStyle} className={classes.iconNormal} />
     </span>
   );
 }

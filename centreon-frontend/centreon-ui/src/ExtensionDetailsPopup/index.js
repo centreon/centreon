@@ -1,6 +1,6 @@
 import React from "react";
-import classnames from 'classnames';
-import styles from '../Popup/popup.scss';
+import classnames from "classnames";
+import styles from "../Popup/popup.scss";
 import Popup from "../Popup";
 import Loader from "../Loader";
 import Slider from "../Slider/SliderContent";
@@ -65,8 +65,11 @@ class ExtensionDetailPopup extends React.Component {
         <div className={classnames(styles["popup-header"])}>
           <Title label={modalDetails.title} />
           <Button
-            style={{cursor:'default'}}
-            label={(!modalDetails.version.installed ? 'Available ' : '') + modalDetails.version.available}
+            style={{ cursor: "default" }}
+            label={
+              (!modalDetails.version.installed ? "Available " : "") +
+              modalDetails.version.available
+            }
             buttonType="regular"
             color="blue"
           />
@@ -74,24 +77,26 @@ class ExtensionDetailPopup extends React.Component {
             label={modalDetails.stability}
             buttonType="bordered"
             color="gray"
-            style={{ margin: "15px", cursor:'default' }}
+            style={{ margin: "15px", cursor: "default" }}
           />
         </div>
         <HorizontalLine />
         <div className={classnames(styles["popup-body"])}>
           {modalDetails.last_update ? (
-            <Description
-              date={`Last update ${modalDetails.last_update}`}
-            />
+            <Description date={`Last update ${modalDetails.last_update}`} />
           ) : null}
           <Description title="Description:" />
           <Description text={modalDetails.description} />
         </div>
         <HorizontalLine />
         <div className={classnames(styles["popup-footer"])}>
-          <Description note={modalDetails.release_note} link={true}/>
+          <Description note={modalDetails.release_note} link={true} />
         </div>
-        <IconClose iconPosition="icon-close-position-big" iconType="big" onClick={onCloseClicked} />
+        <IconClose
+          iconPosition="icon-close-position-big"
+          iconType="big"
+          onClick={onCloseClicked}
+        />
       </Popup>
     );
   }

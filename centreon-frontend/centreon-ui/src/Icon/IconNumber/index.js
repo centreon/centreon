@@ -1,6 +1,6 @@
 import React from "react";
-import classnames from 'classnames';
-import styles from './icon-number.scss';
+import classnames from "classnames";
+import styles from "./icon-number.scss";
 
 const IconNumber = ({ iconColor, iconType, iconNumber }) => {
   return (

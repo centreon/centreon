@@ -35,13 +35,17 @@ class SubmenuHeader extends Component {
         <div
           className={classnames(
             styles["submenu-top"],
-            styles[ active ? "submenu-active" : ""]
+            styles[active ? "submenu-active" : ""]
           )}
           style={{
             width: "200px"
           }}
         >
-          <IconHeader iconType="services" iconName="services" onClick={this.toggleSubmenu.bind(this)}>
+          <IconHeader
+            iconType="services"
+            iconName="services"
+            onClick={this.toggleSubmenu.bind(this)}
+          >
             <IconCustomDot />
           </IconHeader>
           <IconNumber iconType="bordered" iconColor="red" iconNumber="3" />

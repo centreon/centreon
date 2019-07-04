@@ -1,6 +1,6 @@
 import React, { Component } from "react";
-import classnames from 'classnames';
-import styles from '../submenu.scss';
+import classnames from "classnames";
+import styles from "../submenu.scss";
 
 class SubmenuItems extends Component {
   render() {

@@ -146,7 +146,10 @@ class Accordion extends React.Component {
             </CustomRow>
           </ExpansionPanelDetails>
           <ExpansionPanelDetails className={classes.additionalStyles}>
-            <MultiSelectHolder multiSelectLabel="Number of indicators" multiSelectCount="5">
+            <MultiSelectHolder
+              multiSelectLabel="Number of indicators"
+              multiSelectCount="5"
+            >
               <CustomRow additionalStyles={["mb-0"]}>
                 <CustomColumn customColumn="md-6">
                   <InputFieldMultiSelectNew placeholder="BA-CIO-Indicator 1" />
@@ -179,7 +182,10 @@ class Accordion extends React.Component {
             <Typography className={classes.heading}>Business View</Typography>
           </ExpansionPanelSummary>
           <ExpansionPanelDetails className={classes.additionalStyles}>
-            <MultiSelectHolder multiSelectLabel="Number of views" multiSelectCount="5">
+            <MultiSelectHolder
+              multiSelectLabel="Number of views"
+              multiSelectCount="5"
+            >
               <CustomRow>
                 <CustomColumn customColumn="md-6">
                   <InputFieldMultiSelectNew placeholder="BA-CIO-Indicator 1" />
@@ -252,7 +258,10 @@ class Accordion extends React.Component {
             </CustomRow>
           </ExpansionPanelDetails>
           <ExpansionPanelDetails className={classes.additionalStyles}>
-            <MultiSelectHolder multiSelectLabel="Number of notifications" multiSelectCount="2">
+            <MultiSelectHolder
+              multiSelectLabel="Number of notifications"
+              multiSelectCount="2"
+            >
               <CustomRow additionalStyles={["mb-0"]}>
                 <CustomColumn customColumn="md-6">
                   <InputFieldMultiSelectNew placeholder="BA-CIO-Indicator 1" />
@@ -324,7 +333,10 @@ class Accordion extends React.Component {
             <Typography className={classes.heading}>Escalation</Typography>
           </ExpansionPanelSummary>
           <ExpansionPanelDetails className={classes.additionalStyles}>
-            <MultiSelectHolder multiSelectLabel="Number of escalations" multiSelectCount="2">
+            <MultiSelectHolder
+              multiSelectLabel="Number of escalations"
+              multiSelectCount="2"
+            >
               <CustomRow>
                 <CustomColumn customColumn="md-6">
                   <InputFieldMultiSelectNew placeholder="BA-CIO-Indicator 1" />

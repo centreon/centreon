@@ -34,9 +34,12 @@ class InputFieldMultiSelectEmpty extends React.Component {
         onMouseEnter={this.toggleHover.bind(this)}
         onMouseLeave={this.toggleHover.bind(this)}
       >
-        {(multiSelectLabel && multiSelectCount) && <span
-          className={classnames(styles["multi-select-holder-label"])}
-        >{`${multiSelectLabel} (${multiSelectCount})`}</span>}
+        {multiSelectLabel &&
+          multiSelectCount && (
+            <span
+              className={classnames(styles["multi-select-holder-label"])}
+            >{`${multiSelectLabel} (${multiSelectCount})`}</span>
+          )}
         <div className={classnames(styles["multi-select-holder-inner"])}>
           {isEmpty && (
             <React.Fragment>

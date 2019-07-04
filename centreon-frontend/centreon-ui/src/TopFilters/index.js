@@ -1,7 +1,7 @@
 import React, { Component } from "react";
-import classnames from 'classnames';
-import styles from '../global-sass-files/_grid.scss';
-import filterStyles from './top-filters.scss';
+import classnames from "classnames";
+import styles from "../global-sass-files/_grid.scss";
+import filterStyles from "./top-filters.scss";
 import Wrapper from "../Wrapper";
 import SearchLive from "../Search/SearchLive";
 import Switcher from "../Switcher";
@@ -17,7 +17,12 @@ class TopFilters extends Component {
           <Wrapper>
             <div className={classnames(styles["container__row"])}>
               {fullText ? (
-                <div className={classnames(styles["container__col-md-3"], styles["container__col-xs-12"])}>
+                <div
+                  className={classnames(
+                    styles["container__col-md-3"],
+                    styles["container__col-xs-12"]
+                  )}
+                >
                   <SearchLive
                     icon={fullText.icon}
                     onChange={onChange}
@@ -28,9 +33,9 @@ class TopFilters extends Component {
                 </div>
               ) : null}
 
-                <div className={classnames(styles["container__row"])}>
-                  {switchers
-                    ? switchers.map((switcherColumn, index) => (
+              <div className={classnames(styles["container__row"])}>
+                {switchers
+                  ? switchers.map((switcherColumn, index) => (
                       <div
                         key={`switcherSubColumn${index}`}
                         className={filterStyles["switch-wrapper"]}

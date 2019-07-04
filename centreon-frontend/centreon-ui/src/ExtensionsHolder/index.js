@@ -12,11 +12,10 @@ import IconContent from "../Icon/IconContent";
 import ButtonAction from "../Button/ButtonAction";
 
 class ExtensionsHolder extends React.Component {
-
   // remove "centreon" word from the begin of the module/widget description
   parseDescription = description => {
     return description.replace(/^centreon\s+(\w+)/i, (_, $1) => $1);
-  }
+  };
 
   // get CardItem props to display license information in footer
   getPropsFromLicense = licenseInfo => {
@@ -26,7 +25,7 @@ class ExtensionsHolder extends React.Component {
       if (!licenseInfo.expiration_date) {
         licenseProps = {
           itemFooterColor: "red",
-          itemFooterLabel: "License required",
+          itemFooterLabel: "License required"
         };
       } else if (!isNaN(Date.parse(licenseInfo.expiration_date))) {
         // @todo move this logic to centreon. Furthermore, it will facilitate translation
@@ -34,18 +33,20 @@ class ExtensionsHolder extends React.Component {
         const expirationDate = new Date(licenseInfo.expiration_date);
         licenseProps = {
           itemFooterColor: "green",
-          itemFooterLabel: `License expires ${expirationDate.toISOString().slice(0,10)}`,
+          itemFooterLabel: `License expires ${expirationDate
+            .toISOString()
+            .slice(0, 10)}`
         };
       } else {
         licenseProps = {
           itemFooterColor: "red",
-          itemFooterLabel: "License not valid",
+          itemFooterLabel: "License not valid"
         };
       }
     }
 
     return licenseProps;
-  }
+  };
 
   render() {
     const {
@@ -65,14 +66,20 @@ class ExtensionsHolder extends React.Component {
 
     return (
       <Wrapper>
-        <HorizontalLineContent hrColor={hrColor} hrTitleColor={hrTitleColor} hrTitle={title}/>
+        <HorizontalLineContent
+          hrColor={hrColor}
+          hrTitleColor={hrTitleColor}
+          hrTitle={title}
+        />
         <Card>
           <div>
             {entities.map(entity => {
               return (
                 <div
                   id={`${type}-${entity.id}`}
-                  onClick={() => { onCardClicked(entity.id, type)} }
+                  onClick={() => {
+                    onCardClicked(entity.id, type);
+                  }}
                   className={cardStyles["card-inline"]}
                 >
                   <CardItem
@@ -86,11 +93,15 @@ class ExtensionsHolder extends React.Component {
                     {...this.getPropsFromLicense(entity.license)}
                   >
                     {entity.version.installed ? (
-                      <IconInfo iconPosition="info-icon-position" iconName="state" iconColor="green" />
+                      <IconInfo
+                        iconPosition="info-icon-position"
+                        iconName="state"
+                        iconColor="green"
+                      />
                     ) : null}
 
                     <Title
-                      labelStyle={{fontSize: "16px"}}
+                      labelStyle={{ fontSize: "16px" }}
                       titleColor={titleColor}
                       label={this.parseDescription(entity.description)}
                       title={entity.description}
@@ -105,13 +116,19 @@ class ExtensionsHolder extends React.Component {
                         const { version } = entity;
                         if (version.outdated && !updating[entity.id]) {
                           onUpdate(id, type);
-                        } else if (!version.installed && !installing[entity.id]) {
+                        } else if (
+                          !version.installed &&
+                          !installing[entity.id]
+                        ) {
                           onInstall(id, type);
                         }
                       }}
                       customClass="button-card-position"
                       style={{
-                        opacity: (installing[entity.id] || updating[entity.id]) ? "0.5" : "inherit",
+                        opacity:
+                          installing[entity.id] || updating[entity.id]
+                            ? "0.5"
+                            : "inherit",
                         cursor: entity.version.installed ? "default" : "pointer"
                       }}
                       buttonType={
@@ -128,7 +145,10 @@ class ExtensionsHolder extends React.Component {
                             : "blue"
                           : "green"
                       }
-                      label={(!entity.version.installed ? 'Available ' : '') + entity.version.available}
+                      label={
+                        (!entity.version.installed ? "Available " : "") +
+                        entity.version.available
+                      }
                     >
                       {!entity.version.installed ? (
                         <IconContent

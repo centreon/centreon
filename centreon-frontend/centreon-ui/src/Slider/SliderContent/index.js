@@ -1,6 +1,6 @@
 import React, { Component } from "react";
-import classnames from 'classnames';
-import styles from './content-slider.scss';
+import classnames from "classnames";
+import styles from "./content-slider.scss";
 import ContentSliderItem from "./ContentSliderItem";
 import ContentSliderLeftArrow from "./ContentSliderLeftArrow";
 import ContentSliderRightArrow from "./ContentSliderRightArrow";
@@ -61,14 +61,10 @@ class SliderContent extends Component {
     });
 
     if (images.length === 0) {
-      const defaultImage = (type === "widget") ? defaultImageWidget : defaultImageModule;
+      const defaultImage =
+        type === "widget" ? defaultImageWidget : defaultImageModule;
 
-      return [
-        <ContentSliderItem
-          image={defaultImage}
-          isActive={true}
-        />
-      ];
+      return [<ContentSliderItem image={defaultImage} isActive={true} />];
     }
 
     return slides;

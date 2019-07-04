@@ -1,6 +1,6 @@
 import React from "react";
-import classnames from 'classnames';
-import styles from '../Popup/popup.scss';
+import classnames from "classnames";
+import styles from "../Popup/popup.scss";
 import Popup from "../Popup";
 import Title from "../Title";
 import MessageInfo from "../Message/MessageInfo";
@@ -14,9 +14,7 @@ class ExtensionDeletePopup extends React.Component {
     return (
       <Popup popupType="small">
         <div className={classnames(styles["popup-header"])}>
-          <Title
-            label={deletingEntity.description}
-          />
+          <Title label={deletingEntity.description} />
         </div>
         <div className={classnames(styles["popup-body"])}>
           <MessageInfo
@@ -38,7 +36,11 @@ class ExtensionDeletePopup extends React.Component {
                 }}
               />
             </div>
-            <div className={classnames(styles["container__col-xs-6"], ["text-left"])}>
+            <div
+              className={classnames(styles["container__col-xs-6"], [
+                "text-left"
+              ])}
+            >
               <Button
                 label="Cancel"
                 buttonType="regular"

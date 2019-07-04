@@ -1,6 +1,6 @@
 import React, { Component } from "react";
-import classnames from 'classnames';
-import styles from './file-upload.scss';
+import classnames from "classnames";
+import styles from "./file-upload.scss";
 import Button from "../Button/ButtonRegular";
 import Popup from "../Popup";
 import FileUploadItem from "./FileUploadItem";
@@ -48,41 +48,88 @@ class FileUpload extends Component {
     return (
       <>
         <Popup popupType="small">
-          <div className={classnames(styles["popup-header"], styles[isSuccessfull ? "blue-background-decorator" : "red-background-decorator"])}>
+          <div
+            className={classnames(
+              styles["popup-header"],
+              styles[
+                isSuccessfull
+                  ? "blue-background-decorator"
+                  : "red-background-decorator"
+              ]
+            )}
+          >
             <div className={classnames(styles["container__row"])}>
-              <div className={classnames(styles["container__col-xs-6"], styles["center-vertical"], styles["m-0"])}>
+              <div
+                className={classnames(
+                  styles["container__col-xs-6"],
+                  styles["center-vertical"],
+                  styles["m-0"]
+                )}
+              >
                 <div className={classnames(styles.file, styles["file-upload"])}>
                   <span className={classnames(styles["file-upload-title"])}>
-                    <span className={classnames(styles["file-upload-icon"], styles.white)}/>
+                    <span
+                      className={classnames(
+                        styles["file-upload-icon"],
+                        styles.white
+                      )}
+                    />
                     {isSuccessfull ? "File Upload" : "No valid file uploaded."}
                   </span>
                 </div>
               </div>
               {!finished ? (
-                <div className={classnames(styles["container__col-xs-6"], styles["center-vertical"], styles["m-0"])}>
+                <div
+                  className={classnames(
+                    styles["container__col-xs-6"],
+                    styles["center-vertical"],
+                    styles["m-0"]
+                  )}
+                >
                   <Files
                     className={classnames("test")}
                     onChange={this.onFilesChange}
                     onError={this.onFilesError}
-                    accepts={['.zip', '.license']}
+                    accepts={[".zip", ".license"]}
                     multiple
                     maxFiles={5}
                     maxFileSize={1048576}
                     minFileSize={0}
                     clickable
                   >
-                  <div className={classnames(styles["container__col-xs-6"], styles["text-right"])}>
-                    <Button buttonType="bordered" color="white" label="BROWSE" />
-                  </div>
-                </Files>
-              </div>
-            ) : null}
-          </div>
-          <span className={classnames(styles["icon-close"], styles["icon-close-middle"])} onClick={onClose} />
+                    <div
+                      className={classnames(
+                        styles["container__col-xs-6"],
+                        styles["text-right"]
+                      )}
+                    >
+                      <Button
+                        buttonType="bordered"
+                        color="white"
+                        label="BROWSE"
+                      />
+                    </div>
+                  </Files>
+                </div>
+              ) : null}
+            </div>
+            <span
+              className={classnames(
+                styles["icon-close"],
+                styles["icon-close-middle"]
+              )}
+              onClick={onClose}
+            />
           </div>
           {files.length > 0 ? (
             <div className={classnames(styles["popup-body"])}>
-              <div className={classnames(styles.file, styles["file-upload"], styles["file-upload-body-container"])}>
+              <div
+                className={classnames(
+                  styles.file,
+                  styles["file-upload"],
+                  styles["file-upload-body-container"]
+                )}
+              >
                 <div className={classnames(styles["file-upload-items"])}>
                   {!uploadStatus ? (
                     files.map((file, idx) => (
@@ -157,7 +204,11 @@ class FileUpload extends Component {
               </div>
             </div>
           ) : null}
-          <IconClose iconPosition="icon-close-position-small" iconType="middle" onClick={onClose}/>
+          <IconClose
+            iconPosition="icon-close-position-small"
+            iconType="middle"
+            onClick={onClose}
+          />
         </Popup>
       </>
     );

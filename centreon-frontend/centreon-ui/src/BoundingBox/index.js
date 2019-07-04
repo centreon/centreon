@@ -1,10 +1,9 @@
 import React, { Component, Children } from "react";
-import {findDOMNode} from "react-dom";
+import { findDOMNode } from "react-dom";
 import PropTypes from "prop-types";
 import { normalize } from "./helpers";
 
 export default class BoundingBox extends Component {
-
   state = {
     isInViewport: null
   };
@@ -37,12 +36,11 @@ export default class BoundingBox extends Component {
     } else if (!this.props.active) {
       this.stopWatching();
     }
-  } 
+  }
 
   getContainer = () => {
     return window;
   };
-
 
   startWatching = () => {
     if (this.interval) {
@@ -76,12 +74,11 @@ export default class BoundingBox extends Component {
 
     const rect = normalize(this.roundRectDown(element.getBoundingClientRect()));
 
-
     const windowRect = {
-        top: 0,
-        left: 0,
-        bottom: window.innerHeight || document.documentElement.clientHeight,
-        right: window.innerWidth || document.documentElement.clientWidth
+      top: 0,
+      left: 0,
+      bottom: window.innerHeight || document.documentElement.clientHeight,
+      right: window.innerWidth || document.documentElement.clientWidth
     };
 
     const rectBox = {

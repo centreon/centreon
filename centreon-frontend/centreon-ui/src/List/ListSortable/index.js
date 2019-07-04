@@ -1,9 +1,9 @@
-import React, {Component} from 'react';
-import classnames from 'classnames';
-import styles from './list-sortable.scss';
-import Checkbox from '../../Checkbox';
-import InputFieldMultiSelect from '../../InputField/InputFieldMultiSelect';
-import { SwitcherMode } from '../..';
+import React, { Component } from "react";
+import classnames from "classnames";
+import styles from "./list-sortable.scss";
+import Checkbox from "../../Checkbox";
+import InputFieldMultiSelect from "../../InputField/InputFieldMultiSelect";
+import { SwitcherMode } from "../..";
 
 class ListSortable extends Component {
   render() {
@@ -22,31 +22,13 @@ class ListSortable extends Component {
         <tbody>
           <tr>
             <td>
-              <Checkbox label="Lorem Ipsum dolor sit amet" name="all-hosts" iconColor="light-blue" />
+              <Checkbox
+                label="Lorem Ipsum dolor sit amet"
+                name="all-hosts"
+                iconColor="light-blue"
+              />
             </td>
-            <td>
-              Type 1
-            </td>
-            <td>
-              <SwitcherMode />
-            </td>
-            <td>
-              <InputFieldMultiSelect size="small" />
-            </td>
-            <td>
-              <InputFieldMultiSelect size="small" />
-            </td>
-            <td>
-              <InputFieldMultiSelect size="small" />
-            </td>
-          </tr>
-          <tr>
-            <td>
-              <Checkbox label="Lorem Ipsum dolor sit amet" name="all-hosts" iconColor="light-blue" />
-            </td>
-            <td>
-              Type 2
-            </td>
+            <td>Type 1</td>
             <td>
               <SwitcherMode />
             </td>
@@ -62,11 +44,35 @@ class ListSortable extends Component {
           </tr>
           <tr>
             <td>
-              <Checkbox label="Lorem Ipsum dolor sit amet" name="all-hosts" iconColor="light-blue" />
+              <Checkbox
+                label="Lorem Ipsum dolor sit amet"
+                name="all-hosts"
+                iconColor="light-blue"
+              />
+            </td>
+            <td>Type 2</td>
+            <td>
+              <SwitcherMode />
             </td>
             <td>
-              Type 3
+              <InputFieldMultiSelect size="small" />
             </td>
+            <td>
+              <InputFieldMultiSelect size="small" />
+            </td>
+            <td>
+              <InputFieldMultiSelect size="small" />
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <Checkbox
+                label="Lorem Ipsum dolor sit amet"
+                name="all-hosts"
+                iconColor="light-blue"
+              />
+            </td>
+            <td>Type 3</td>
             <td>
               <SwitcherMode />
             </td>

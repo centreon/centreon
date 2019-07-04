@@ -5,7 +5,7 @@ import StyledCheckbox from "./StyledCheckbox";
 import TableHead from "@material-ui/core/TableHead";
 import TableRow from "@material-ui/core/TableRow";
 import PropTypes from "prop-types";
-import TABLE_COLUMN_TYPES from '../ColumnTypes';
+import TABLE_COLUMN_TYPES from "../ColumnTypes";
 
 class EnhancedTableHead extends Component {
   createSortHandler = property => event => {

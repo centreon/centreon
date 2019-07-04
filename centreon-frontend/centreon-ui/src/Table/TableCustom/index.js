@@ -204,19 +204,19 @@ class TableCustom extends Component {
                                     }}
                                   />
                                 ) : (
-                                    <IconPowerSettingsDisable
-                                      active={true}
-                                      label="Disable"
-                                      onClick={() => {
-                                        onEnable([row.id]);
-                                      }}
-                                      customStyle={{
-                                        fontSize: 18,
-                                        boxSizing: "border-box",
-                                        marginTop: 2
-                                      }}
-                                    />
-                                  )}
+                                  <IconPowerSettingsDisable
+                                    active={true}
+                                    label="Disable"
+                                    onClick={() => {
+                                      onEnable([row.id]);
+                                    }}
+                                    customStyle={{
+                                      fontSize: 18,
+                                      boxSizing: "border-box",
+                                      marginTop: 2
+                                    }}
+                                  />
+                                )}
                               </StyledTableCell2>
                             );
                             break;
@@ -292,8 +292,8 @@ class TableCustom extends Component {
                                     </Tooltip>
                                   </React.Fragment>
                                 ) : (
-                                    " "
-                                  )}
+                                  " "
+                                )}
                               </StyledTableCell2>
                             );
                             break;

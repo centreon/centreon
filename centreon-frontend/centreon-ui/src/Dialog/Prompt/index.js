@@ -27,12 +27,13 @@ class PromptDialog extends Component {
       header,
       customStyle
     } = this.props;
-    const {
-      prompt
-    } = this.state;
+    const { prompt } = this.state;
     return active ? (
       <PopupNew popupType="small">
-        <div style={customStyle} className={classnames(styles2["popup-header"])}>
+        <div
+          style={customStyle}
+          className={classnames(styles2["popup-header"])}
+        >
           {header ? (
             <h3 className={classnames(styles2["popup-title"])}>{header}</h3>
           ) : null}
@@ -54,8 +55,8 @@ class PromptDialog extends Component {
               textAlign: "center",
               border: "1px solid #0072CE"
             }}
-            onClick={()=>{
-              onYesClicked(prompt)
+            onClick={() => {
+              onYesClicked(prompt);
             }}
           >
             Appy

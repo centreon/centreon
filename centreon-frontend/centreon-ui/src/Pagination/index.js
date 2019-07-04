@@ -1,6 +1,6 @@
 import React, { Component } from "react";
-import classnames from 'classnames';
-import styles from './pagination.scss';
+import classnames from "classnames";
+import styles from "./pagination.scss";
 import IconAction from "../Icon/IconAction";
 
 class Pagination extends Component {
@@ -10,7 +10,7 @@ class Pagination extends Component {
 
   previousPage = () => {
     const { currentPage } = this.state;
-    console.log(currentPage)
+    console.log(currentPage);
     if (currentPage > 0) {
       this.pageChanged(currentPage - 1);
     }
@@ -19,7 +19,7 @@ class Pagination extends Component {
   nextPage = () => {
     const { pageCount } = this.props;
     const { currentPage } = this.state;
-    console.log(pageCount,currentPage)
+    console.log(pageCount, currentPage);
     if (currentPage < pageCount - 1) {
       this.pageChanged(currentPage + 1);
     }
@@ -43,7 +43,7 @@ class Pagination extends Component {
     for (let i = 0; i < count; i++) {
       pages.push(
         <a
-          key={'paginationPage'+i}
+          key={"paginationPage" + i}
           onClick={this.pageChanged.bind(this, i)}
           className={classnames(i === currentPage ? styles["active"] : "")}
         >
@@ -52,9 +52,7 @@ class Pagination extends Component {
       );
     }
 
-    return (
-      <React.Fragment>{pages}</React.Fragment>
-    )
+    return <React.Fragment>{pages}</React.Fragment>;
   };
 
   render() {

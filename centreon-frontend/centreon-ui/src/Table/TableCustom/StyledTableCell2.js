@@ -6,7 +6,7 @@ const styles = {
   root: {
     padding: "3px 24px 3px 16px",
     fontSize: "13px",
-    position: 'relative',
+    position: "relative"
   }
 };
 

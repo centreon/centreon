@@ -1,6 +1,6 @@
 import React from "react";
-import classnames from 'classnames';
-import styles from './content-slider.scss';
+import classnames from "classnames";
+import styles from "./content-slider.scss";
 
 const ContentSliderIndicators = ({ images, currentIndex, handleDotClick }) => {
   return (

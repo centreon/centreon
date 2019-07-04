@@ -18,7 +18,14 @@ class Sidebar extends Component {
   };
 
   render() {
-    const { navigationData, reactRoutes, handleDirectClick, onNavigate, externalHistory, style } = this.props;
+    const {
+      navigationData,
+      reactRoutes,
+      handleDirectClick,
+      onNavigate,
+      externalHistory,
+      style
+    } = this.props;
     const { active } = this.state;
     return (
       <nav

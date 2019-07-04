@@ -1,6 +1,6 @@
 import React from "react";
-import classnames from 'classnames';
-import styles from './switcher.scss';
+import classnames from "classnames";
+import styles from "./switcher.scss";
 
 class Switcher extends React.Component {
   state = {
@@ -55,14 +55,26 @@ class Switcher extends React.Component {
         <span className={classnames(styles["switcher-title"])}>
           {switcherTitle ? switcherTitle : " "}
         </span>
-        <span className={classnames(styles["switcher-status"])}>{switcherStatus}</span>
-        <label className={classnames(styles.switch, styles[toggled ? "switch-active" : "switch-hide"])}>
+        <span className={classnames(styles["switcher-status"])}>
+          {switcherStatus}
+        </span>
+        <label
+          className={classnames(
+            styles.switch,
+            styles[toggled ? "switch-active" : "switch-hide"]
+          )}
+        >
           <input
             type="checkbox"
             checked={!value}
             onClick={this.onChange.bind(this)}
           />
-          <span className={classnames(styles["switch-slider"], styles["switch-round"] )}/>
+          <span
+            className={classnames(
+              styles["switch-slider"],
+              styles["switch-round"]
+            )}
+          />
         </label>
       </div>
     );
