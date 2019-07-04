@@ -18,7 +18,7 @@ TabContainer.propTypes = {
   children: PropTypes.node.isRequired,
 };
 
-const styles = theme => ({
+const styles = (theme) => ({
   root: {
     flexGrow: 1,
     backgroundColor: theme.palette.background.paper,

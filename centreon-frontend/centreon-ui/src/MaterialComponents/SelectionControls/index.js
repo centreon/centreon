@@ -8,7 +8,7 @@ import FormControlLabel from '@material-ui/core/FormControlLabel';
 import FormControl from '@material-ui/core/FormControl';
 import FormLabel from '@material-ui/core/FormLabel';
 
-const styles = theme => ({
+const styles = (theme) => ({
   root: {
     display: 'flex',
   },
@@ -25,7 +25,7 @@ class RadioButtonsGroup extends React.Component {
     value: 'female',
   };
 
-  handleChange = event => {
+  handleChange = (event) => {
     this.setState({ value: event.target.value });
   };
 
@@ -43,7 +43,11 @@ class RadioButtonsGroup extends React.Component {
             value={this.state.value}
             onChange={this.handleChange}
           >
-            <FormControlLabel value="female" control={<Radio />} label="Female" />
+            <FormControlLabel
+              value="female"
+              control={<Radio />}
+              label="Female"
+            />
             <FormControlLabel value="male" control={<Radio />} label="Male" />
             <FormControlLabel value="other" control={<Radio />} label="Other" />
             <FormControlLabel

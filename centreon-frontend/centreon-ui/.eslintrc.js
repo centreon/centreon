@@ -1,1 +1,1 @@
-module.exports = require("eslint-config-centreon");
+module.exports = require("@centreon/eslint-config-centreon");

@@ -2,7 +2,7 @@ import React from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import Attach from '@material-ui/icons/AttachFile';
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles((theme) => ({
   root: {
     display: 'flex',
     justifyContent: 'center',
@@ -27,21 +27,21 @@ const useStyles = makeStyles(theme => ({
     marginLeft: -20,
   },
   iconAttachLabel: {
-    fontSize: 12, 
+    fontSize: 12,
     color: '#707070',
     display: 'inline-block',
     verticalAlign: 'middle',
     fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
     marginLeft: 3,
-  }
+  },
 }));
 
-function IconAttach({customStyle, onClick}) {
+function IconAttach({ customStyle, onClick }) {
   const classes = useStyles();
 
   return (
     <React.Fragment>
-      <span  onClick={onClick} className={classes.iconAttach}>
+      <span onClick={onClick} className={classes.iconAttach}>
         <Attach style={customStyle} className={classes.icon} />
         <span className={classes.iconAttachLabel}>ICON</span>
       </span>

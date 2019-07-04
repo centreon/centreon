@@ -13,7 +13,7 @@ const styles = () => ({
     },
     '&$checked + $track': {
       backgroundColor: '#0072CE',
-      opacity: '.4'
+      opacity: '.4',
     },
   },
   checked: {},
@@ -21,16 +21,12 @@ const styles = () => ({
 });
 
 class CustomSwitch extends Component {
-  render(){
-    const {classes} = this.props;
-    return(
-      <Switch
-        value="checkedB"
-        color="primary"
-        className={classes.switchBase}
-      />
-    )
+  render() {
+    const { classes } = this.props;
+    return (
+      <Switch value="checkedB" color="primary" className={classes.switchBase} />
+    );
   }
 }
 
-export default withStyles(styles)(Switch)
+export default withStyles(styles)(Switch);

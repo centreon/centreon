@@ -2,7 +2,7 @@ import React from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import Edit from '@material-ui/icons/Edit';
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles((theme) => ({
   root: {
     display: 'flex',
     justifyContent: 'center',
@@ -17,7 +17,7 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
-function IconEdit({customStyle, onClick}) {
+function IconEdit({ customStyle, onClick }) {
   const classes = useStyles();
 
   return (

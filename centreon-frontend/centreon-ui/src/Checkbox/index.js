@@ -1,35 +1,33 @@
-import React from "react";
-import './checkbox.scss';
+import React from 'react';
 import classnames from 'classnames';
 import styles from './checkbox.scss';
 
-const Checkbox = ({
-  iconColor,
-  label,
-  info,
-  name,
-  onClick,
-  ...rest
-}) => {
-  const cnCustomControl = classnames(styles["custom-control"], {[styles["custom-checkbox"]]: true}, styles[iconColor ? iconColor : '']);
+const Checkbox = ({ iconColor, label, info, name, onClick, ...rest }) => {
+  const cnCustomControl = classnames(
+    styles['custom-control'],
+    { [styles['custom-checkbox']]: true },
+    styles[iconColor || ''],
+  );
   return (
-    <div className={classnames(styles["form-group"])} 
-    onClick={onClick}>
+    <div className={classnames(styles['form-group'])} onClick={onClick}>
       <div className={cnCustomControl}>
         <input
           name={name}
           aria-checked={rest.checked}
-          className={classnames(styles["custom-control-input"])}
+          className={classnames(styles['custom-control-input'])}
           type="checkbox"
           {...rest}
         />
-        <label htmlFor={rest.id} className={classnames(styles["custom-control-label"])}>
+        <label
+          htmlFor={rest.id}
+          className={classnames(styles['custom-control-label'])}
+        >
           {label}
           {info}
         </label>
       </div>
     </div>
-  )
+  );
 };
 
 export { Checkbox };

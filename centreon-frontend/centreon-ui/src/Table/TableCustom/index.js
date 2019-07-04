@@ -1,64 +1,64 @@
-import React, { Component } from "react";
-import PropTypes from "prop-types";
-import { withStyles } from "@material-ui/core/styles";
-import Table from "@material-ui/core/Table";
-import TableBody from "@material-ui/core/TableBody";
-import StyledTableRow from "./StyledTableRow";
-import Paper from "@material-ui/core/Paper";
-import IconPowerSettings from "../../MaterialComponents/Icons/IconPowerSettings";
-import IconPowerSettingsDisable from "../../MaterialComponents/Icons/IconPowerSettingsDisable";
-import StyledCheckbox from "./StyledCheckbox";
-import IconDelete from "../../MaterialComponents/Icons/IconDelete";
-import IconLibraryAdd from "../../MaterialComponents/Icons/IconLibraryAdd";
-import EnhancedTableHead from "./EnhancedTableHead";
-import TABLE_COLUMN_TYPES from "../ColumnTypes";
-import TablePaginationActions from "./TablePaginationActions";
-import StyledTableCell2 from "./StyledTableCell2";
-import TableCellCustom from "./TableCellCustom";
-import StyledPagination from "./StyledPagination";
-import Tooltip from "../../MaterialComponents/Tooltip";
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
+import { withStyles } from '@material-ui/core/styles';
+import Table from '@material-ui/core/Table';
+import TableBody from '@material-ui/core/TableBody';
+import Paper from '@material-ui/core/Paper';
+import StyledTableRow from './StyledTableRow';
+import IconPowerSettings from '../../MaterialComponents/Icons/IconPowerSettings';
+import IconPowerSettingsDisable from '../../MaterialComponents/Icons/IconPowerSettingsDisable';
+import StyledCheckbox from './StyledCheckbox';
+import IconDelete from '../../MaterialComponents/Icons/IconDelete';
+import IconLibraryAdd from '../../MaterialComponents/Icons/IconLibraryAdd';
+import EnhancedTableHead from './EnhancedTableHead';
+import TABLE_COLUMN_TYPES from '../ColumnTypes';
+import TablePaginationActions from './TablePaginationActions';
+import StyledTableCell2 from './StyledTableCell2';
+import TableCellCustom from './TableCellCustom';
+import StyledPagination from './StyledPagination';
+import Tooltip from '../../MaterialComponents/Tooltip';
 
-const styles = theme => ({
+const styles = (theme) => ({
   root: {
-    width: "100%"
+    width: '100%',
   },
   paper: {
-    width: "100%",
-    marginBottom: theme.spacing(2)
+    width: '100%',
+    marginBottom: theme.spacing(2),
   },
   tableWrapper: {
-    overflowX: "auto"
-  }
+    overflowX: 'auto',
+  },
 });
 
 class TableCustom extends Component {
   state = {
-    order: "",
-    orderBy: ""
+    order: '',
+    orderBy: '',
   };
 
   handleRequestSort = (event, property) => {
     const { onSort } = this.props;
     const { orderBy, order } = this.state;
-    const isDesc = orderBy === property && order === "desc";
+    const isDesc = orderBy === property && order === 'desc';
     this.setState(
       {
-        order: isDesc ? "asc" : "desc",
-        orderBy: property
+        order: isDesc ? 'asc' : 'desc',
+        orderBy: property,
       },
       () => {
         onSort({
-          order: isDesc ? "asc" : "desc",
-          orderBy: property
+          order: isDesc ? 'asc' : 'desc',
+          orderBy: property,
         });
-      }
+      },
     );
   };
 
-  handleSelectAllClick = event => {
+  handleSelectAllClick = (event) => {
     const { onTableSelectionChanged, tableData } = this.props;
     if (event.target.checked) {
-      const newSelecteds = tableData.map(n => n.id);
+      const newSelecteds = tableData.map((n) => n.id);
       onTableSelectionChanged(newSelecteds);
       return;
     }
@@ -82,7 +82,7 @@ class TableCustom extends Component {
     } else if (selectedIndex > 0) {
       newSelected = newSelected.concat(
         selected.slice(0, selectedIndex),
-        selected.slice(selectedIndex + 1)
+        selected.slice(selectedIndex + 1),
       );
     }
     onTableSelectionChanged(newSelected);
@@ -90,7 +90,7 @@ class TableCustom extends Component {
 
   rowHovered = (id, value) => {
     this.setState({
-      hovered: value ? id : null
+      hovered: value ? id : null,
     });
   };
 
@@ -110,11 +110,11 @@ class TableCustom extends Component {
       onEnable,
       onDisable,
       onRowClick,
-      selected
+      selected,
     } = this.props;
     const { order, orderBy, hovered } = this.state;
 
-    const isSelected = name => selected.indexOf(name) !== -1;
+    const isSelected = (name) => selected.indexOf(name) !== -1;
 
     const emptyRows = limit - Math.min(limit, totalRows - currentPage * limit);
 
@@ -139,8 +139,8 @@ class TableCustom extends Component {
                 className={classes.tableWrapper}
                 headRows={columnConfiguration}
               />
-              <TableBody onMouseLeave={this.rowHovered.bind(this, "", false)}>
-                {tableData.map(row => {
+              <TableBody onMouseLeave={this.rowHovered.bind(this, '', false)}>
+                {tableData.map((row) => {
                   const isItemSelected = isSelected(row.id);
                   return (
                     <StyledTableRow
@@ -155,7 +155,7 @@ class TableCustom extends Component {
                       {checkable ? (
                         <StyledTableCell2
                           align="left"
-                          onClick={event => this.handleClick(event, row.id)}
+                          onClick={(event) => this.handleClick(event, row.id)}
                           className={classes.tableCell}
                           padding="checkbox"
                         >
@@ -166,7 +166,7 @@ class TableCustom extends Component {
                         </StyledTableCell2>
                       ) : null}
 
-                      {columnConfiguration.map(column => {
+                      {columnConfiguration.map((column) => {
                         switch (column.type) {
                           case TABLE_COLUMN_TYPES.number:
                             return (
@@ -174,7 +174,7 @@ class TableCustom extends Component {
                                 align="left"
                                 className={classes.tableCellCustom}
                               >
-                                {row[column.id] || ""}
+                                {row[column.id] || ''}
                               </TableCellCustom>
                             );
                             break;
@@ -184,7 +184,7 @@ class TableCustom extends Component {
                                 align="left"
                                 className={classes.tableCellCustom}
                               >
-                                {row[column.id] || ""}
+                                {row[column.id] || ''}
                               </TableCellCustom>
                             );
                             break;
@@ -196,27 +196,27 @@ class TableCustom extends Component {
                                     onClick={() => {
                                       onDisable([row.id]);
                                     }}
-                                    active={true}
+                                    active
                                     customStyle={{
                                       fontSize: 19,
-                                      boxSizing: "border-box",
-                                      marginTop: 2
+                                      boxSizing: 'border-box',
+                                      marginTop: 2,
                                     }}
                                   />
                                 ) : (
-                                    <IconPowerSettingsDisable
-                                      active={true}
-                                      label="Disable"
-                                      onClick={() => {
-                                        onEnable([row.id]);
-                                      }}
-                                      customStyle={{
-                                        fontSize: 18,
-                                        boxSizing: "border-box",
-                                        marginTop: 2
-                                      }}
-                                    />
-                                  )}
+                                  <IconPowerSettingsDisable
+                                    active
+                                    label="Disable"
+                                    onClick={() => {
+                                      onEnable([row.id]);
+                                    }}
+                                    customStyle={{
+                                      fontSize: 18,
+                                      boxSizing: 'border-box',
+                                      marginTop: 2,
+                                    }}
+                                  />
+                                )}
                               </StyledTableCell2>
                             );
                             break;
@@ -226,13 +226,13 @@ class TableCustom extends Component {
                                 align="left"
                                 className={classes.tableCellCustom}
                               >
-                                {column.columns.map(subColumn => (
+                                {column.columns.map((subColumn) => (
                                   <React.Fragment>
                                     {subColumn.label} {row[subColumn.id]}
-                                    {subColumn.type == "percentage"
-                                      ? "%"
+                                    {subColumn.type == 'percentage'
+                                      ? '%'
                                       : null}
-                                    {"   "}
+                                    {'   '}
                                   </React.Fragment>
                                 ))}
                               </TableCellCustom>
@@ -245,25 +245,25 @@ class TableCustom extends Component {
                                   paddingTop: 0,
                                   paddingBottom: 0,
                                   minWidth: 94,
-                                  boxSizing: "border-box"
+                                  boxSizing: 'border-box',
                                 }}
                               >
                                 {hovered == row.id ? (
                                   <React.Fragment>
                                     <Tooltip
                                       label="More action"
-                                      position={{ left: "50px" }}
+                                      position={{ left: '50px' }}
                                       customStyle={{
-                                        position: "absolute",
+                                        position: 'absolute',
                                         left: 0,
                                         top: 0,
-                                        padding: "3px 5px"
+                                        padding: '3px 5px',
                                       }}
                                     >
                                       <IconDelete
                                         customStyle={{
-                                          color: "#707070",
-                                          fontSize: 21
+                                          color: '#707070',
+                                          fontSize: 21,
                                         }}
                                         onClick={() => {
                                           onDelete([row.id]);
@@ -272,18 +272,18 @@ class TableCustom extends Component {
                                     </Tooltip>
                                     <Tooltip
                                       label="More action"
-                                      position={{ left: "50px" }}
+                                      position={{ left: '50px' }}
                                       customStyle={{
-                                        position: "absolute",
+                                        position: 'absolute',
                                         left: 35,
                                         top: 0,
-                                        padding: "3px 5px"
+                                        padding: '3px 5px',
                                       }}
                                     >
                                       <IconLibraryAdd
                                         customStyle={{
-                                          color: "#707070",
-                                          fontSize: 20
+                                          color: '#707070',
+                                          fontSize: 20,
                                         }}
                                         onClick={() => {
                                           onDuplicate([row.id]);
@@ -292,8 +292,8 @@ class TableCustom extends Component {
                                     </Tooltip>
                                   </React.Fragment>
                                 ) : (
-                                    " "
-                                  )}
+                                  ' '
+                                )}
                               </StyledTableCell2>
                             );
                             break;
@@ -313,9 +313,9 @@ class TableCustom extends Component {
             count={totalRows}
             rowsPerPage={limit}
             page={currentPage}
-            style={{ display: "flex", flexDirection: "row-reverse" }}
+            style={{ display: 'flex', flexDirection: 'row-reverse' }}
             SelectProps={{
-              native: true
+              native: true,
             }}
             onChangePage={onPaginate}
             onChangeRowsPerPage={onPaginationLimitChanged}
@@ -328,7 +328,7 @@ class TableCustom extends Component {
 }
 
 TableCustom.propTypes = {
-  classes: PropTypes.object.isRequired
+  classes: PropTypes.object.isRequired,
 };
 
 export default withStyles(styles, { withTheme: true })(TableCustom);

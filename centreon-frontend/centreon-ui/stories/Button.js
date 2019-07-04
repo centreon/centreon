@@ -1,65 +1,65 @@
-import React from "react";
-import { storiesOf } from "@storybook/react";
-import { Button, ButtonAction, ButtonActionInput } from "../src";
+import React from 'react';
+import { storiesOf } from '@storybook/react';
+import { Button, ButtonAction, ButtonActionInput } from '../src';
 
-storiesOf("Button", module).add(
-  "Button - regular",
+storiesOf('Button', module).add(
+  'Button - regular',
   () => (
     <React.Fragment>
       <Button
-        label={"Button Regular"}
+        label="Button Regular"
         buttonType="regular"
         color="orange"
         customClass="test123"
         onClick={() => {
-          alert("Button clicked");
+          alert('Button clicked');
         }}
       />
       <Button
-        label={"Button Regular"}
+        label="Button Regular"
         buttonType="regular"
         color="blue"
         onClick={() => {
-          alert("Button clicked");
+          alert('Button clicked');
         }}
       />
       <Button
-        label={"Button Regular"}
+        label="Button Regular"
         buttonType="regular"
         color="green"
         onClick={() => {
-          alert("Button clicked");
+          alert('Button clicked');
         }}
       />
       <Button
-        label={"Button Regular"}
+        label="Button Regular"
         buttonType="regular"
         color="red"
         onClick={() => {
-          alert("Button clicked");
+          alert('Button clicked');
         }}
       />
       <Button
-        label={"Button Regular"}
+        label="Button Regular"
         buttonType="regular"
         color="gray"
         onClick={() => {
-          alert("Button clicked");
+          alert('Button clicked');
         }}
       />
     </React.Fragment>
   ),
-  { notes: "A very simple component" }
+  { notes: 'A very simple component' },
 );
 
-storiesOf("Button", module).add("Button - bordered", () => (
+storiesOf('Button', module).add('Button - bordered', () => (
   <React.Fragment>
     <Button
       label="Button Bordered"
       buttonType="bordered"
       color="orange"
       onClick={() => {
-        alert("Button clicked");
+        alert('Button clicked');
       }}
     />
     <Button
@@ -67,7 +67,7 @@ storiesOf("Button", module).add("Button - bordered", () => (
       buttonType="bordered"
       color="blue"
       onClick={() => {
-        alert("Button clicked");
+        alert('Button clicked');
       }}
     />
     <Button
@@ -75,7 +75,7 @@ storiesOf("Button", module).add("Button - bordered", () => (
       buttonType="bordered"
       color="green"
       onClick={() => {
-        alert("Button clicked");
+        alert('Button clicked');
       }}
     />
     <Button
@@ -83,7 +83,7 @@ storiesOf("Button", module).add("Button - bordered", () => (
       buttonType="bordered"
       color="red"
       onClick={() => {
-        alert("Button clicked");
+        alert('Button clicked');
       }}
     />
     <Button
@@ -91,7 +91,7 @@ storiesOf("Button", module).add("Button - bordered", () => (
       buttonType="bordered"
       color="gray"
       onClick={() => {
-        alert("Button clicked");
+        alert('Button clicked');
       }}
     />
     <Button
@@ -99,13 +99,13 @@ storiesOf("Button", module).add("Button - bordered", () => (
       buttonType="bordered"
       color="black"
       onClick={() => {
-        alert("Button clicked");
+        alert('Button clicked');
       }}
     />
   </React.Fragment>
 ));
 
-storiesOf("Button", module).add("Button - validate", () => (
+storiesOf('Button', module).add('Button - validate', () => (
   <React.Fragment>
     <Button
       label="Button Validate"
@@ -122,7 +122,7 @@ storiesOf("Button", module).add("Button - validate", () => (
   </React.Fragment>
 ));
 
-storiesOf("Button", module).add("Button - icon", () => (
+storiesOf('Button', module).add('Button - icon', () => (
   <Button
     buttonType="validate"
     color="green"
@@ -133,7 +133,7 @@ storiesOf("Button", module).add("Button - icon", () => (
   />
 ));
 
-storiesOf("Button", module).add("Button - with icon", () => (
+storiesOf('Button', module).add('Button - with icon', () => (
   <React.Fragment>
     <Button
       label="Button with icon"
@@ -142,7 +142,7 @@ storiesOf("Button", module).add("Button - with icon", () => (
       iconActionType="update"
       iconColor="white"
       onClick={() => {
-        alert("Button clicked");
+        alert('Button clicked');
       }}
     />
     <Button
@@ -152,26 +152,26 @@ storiesOf("Button", module).add("Button - with icon", () => (
       iconActionType="update"
       iconColor="white"
       onClick={() => {
-        alert("Button clicked");
+        alert('Button clicked');
       }}
     />
   </React.Fragment>
 ));
 
-storiesOf("Button", module).add("Button - action", () => (
+storiesOf('Button', module).add('Button - action', () => (
   <React.Fragment>
     <ButtonAction
       iconColor="gray"
       buttonActionType="delete"
       buttonIconType="delete"
       onClick={() => {
-        alert("Trash button clicked");
+        alert('Trash button clicked');
       }}
     />
   </React.Fragment>
 ));
 
-storiesOf("Button", module).add("Button - action input", () => (
+storiesOf('Button', module).add('Button - action input', () => (
   <ButtonActionInput
     buttonColor="green"
     iconColor="white"

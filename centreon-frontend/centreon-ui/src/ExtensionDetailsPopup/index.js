@@ -1,16 +1,16 @@
-import React from "react";
+import React from 'react';
 import classnames from 'classnames';
 import styles from '../Popup/popup.scss';
-import Popup from "../Popup";
-import Loader from "../Loader";
-import Slider from "../Slider/SliderContent";
-import IconContent from "../Icon/IconContent";
-import Title from "../Title";
-import Subtitle from "../Subtitle";
-import Button from "../Button/ButtonRegular";
-import HorizontalLine from "../HorizontalLines/HorizontalLineRegular";
-import Description from "../Description";
-import IconClose from "../Icon/IconClose";
+import Popup from '../Popup';
+import Loader from '../Loader';
+import Slider from '../Slider/SliderContent';
+import IconContent from '../Icon/IconContent';
+import Title from '../Title';
+import Subtitle from '../Subtitle';
+import Button from '../Button/ButtonRegular';
+import HorizontalLine from '../HorizontalLines/HorizontalLineRegular';
+import Description from '../Description';
+import IconClose from '../Icon/IconClose';
 
 class ExtensionDetailPopup extends React.Component {
   render() {
@@ -22,7 +22,7 @@ class ExtensionDetailPopup extends React.Component {
       onDeleteClicked,
       onUpdateClicked,
       onInstallClicked,
-      loading
+      loading,
     } = this.props;
 
     if (modalDetails === null) {
@@ -30,7 +30,7 @@ class ExtensionDetailPopup extends React.Component {
     }
     return (
       <Popup popupType="big">
-        {loading ? <Loader fullContent={true} /> : null}
+        {loading ? <Loader fullContent /> : null}
         <Slider type={type} images={modalDetails.images || []}>
           {modalDetails.version.installed && modalDetails.version.outdated ? (
             <IconContent
@@ -62,11 +62,14 @@ class ExtensionDetailPopup extends React.Component {
             />
           )}
         </Slider>
-        <div className={classnames(styles["popup-header"])}>
+        <div className={classnames(styles['popup-header'])}>
           <Title label={modalDetails.title} />
           <Button
-            style={{cursor:'default'}}
-            label={(!modalDetails.version.installed ? 'Available ' : '') + modalDetails.version.available}
+            style={{ cursor: 'default' }}
+            label={
+              (!modalDetails.version.installed ? 'Available ' : '') +
+              modalDetails.version.available
+            }
             buttonType="regular"
             color="blue"
           />
@@ -74,24 +77,26 @@ class ExtensionDetailPopup extends React.Component {
             label={modalDetails.stability}
             buttonType="bordered"
             color="gray"
-            style={{ margin: "15px", cursor:'default' }}
+            style={{ margin: '15px', cursor: 'default' }}
           />
         </div>
         <HorizontalLine />
-        <div className={classnames(styles["popup-body"])}>
+        <div className={classnames(styles['popup-body'])}>
           {modalDetails.last_update ? (
-            <Description
-              date={`Last update ${modalDetails.last_update}`}
-            />
+            <Description date={`Last update ${modalDetails.last_update}`} />
           ) : null}
           <Description title="Description:" />
           <Description text={modalDetails.description} />
         </div>
         <HorizontalLine />
-        <div className={classnames(styles["popup-footer"])}>
-          <Description note={modalDetails.release_note} link={true}/>
+        <div className={classnames(styles['popup-footer'])}>
+          <Description note={modalDetails.release_note} link />
         </div>
-        <IconClose iconPosition="icon-close-position-big" iconType="big" onClick={onCloseClicked} />
+        <IconClose
+          iconPosition="icon-close-position-big"
+          iconType="big"
+          onClick={onCloseClicked}
+        />
       </Popup>
     );
   }

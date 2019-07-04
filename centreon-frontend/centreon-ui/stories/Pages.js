@@ -1,7 +1,8 @@
-import React from "react";
-import classnames from "classnames";
-import styles from "../src/global-sass-files/_grid.scss";
-import { storiesOf } from "@storybook/react";
+import React from 'react';
+import classnames from 'classnames';
+import { storiesOf } from '@storybook/react';
+import Paper from '@material-ui/core/Paper';
+import styles from '../src/global-sass-files/_grid.scss';
 import {
   Wrapper,
   TopFilters,
@@ -37,113 +38,111 @@ import {
   IconDelete,
   IconLibraryAdd,
   IconPowerSettings,
-  IconInsertChart,  
+  IconInsertChart,
   Panels,
-  BAMListingPageStory
-} from "../src";
-import BAMTableData from "../src/Pages/BAMListingMock";
-
-import Paper from '@material-ui/core/Paper';
+  BAMListingPageStory,
+} from '../src';
+import BAMTableData from '../src/Pages/BAMListingMock';
 
 // Extensions Page
-storiesOf("Pages", module).add(
-  "Extensions page",
+storiesOf('Pages', module).add(
+  'Extensions page',
   () => (
     <React.Fragment>
       <TopFilters
         fullText={{
-          label: "Search:",
-          onChange: a => {
+          label: 'Search:',
+          onChange: (a) => {
             console.log(a);
-          }
+          },
         }}
         switchers={[
           [
             {
               customClass: classnames(
-                styles["container__col-md-3"],
-                styles["container__col-xs-4"]
+                styles['container__col-md-3'],
+                styles['container__col-xs-4'],
               ),
-              switcherTitle: "Status:",
-              switcherStatus: "Not installed",
+              switcherTitle: 'Status:',
+              switcherStatus: 'Not installed',
               defaultValue: false,
-              onChange: value => {
+              onChange: (value) => {
                 console.log(value);
-              }
+              },
             },
             {
               customClass: classnames(
-                styles["container__col-md-3"],
-                styles["container__col-xs-4"]
+                styles['container__col-md-3'],
+                styles['container__col-xs-4'],
               ),
-              switcherStatus: "Installed",
+              switcherStatus: 'Installed',
               defaultValue: false,
-              onChange: value => {
+              onChange: (value) => {
                 console.log(value);
-              }
+              },
             },
             {
               customClass: classnames(
-                styles["container__col-md-3"],
-                styles["container__col-xs-4"]
+                styles['container__col-md-3'],
+                styles['container__col-xs-4'],
               ),
-              switcherStatus: "Update",
+              switcherStatus: 'Update',
               defaultValue: false,
-              onChange: value => {
+              onChange: (value) => {
                 console.log(value);
-              }
-            }
+              },
+            },
           ],
           [
             {
               customClass: classnames(
-                styles["container__col-sm-3"],
-                styles["container__col-xs-4"]
+                styles['container__col-sm-3'],
+                styles['container__col-xs-4'],
               ),
-              switcherTitle: "Type:",
-              switcherStatus: "Module",
+              switcherTitle: 'Type:',
+              switcherStatus: 'Module',
               defaultValue: false,
-              onChange: value => {
+              onChange: (value) => {
                 console.log(value);
-              }
+              },
             },
             {
               customClass: classnames(
-                styles["container__col-sm-3"],
-                styles["container__col-xs-4"]
+                styles['container__col-sm-3'],
+                styles['container__col-xs-4'],
               ),
-              switcherStatus: "Update",
+              switcherStatus: 'Update',
               defaultValue: false,
-              onChange: value => {
+              onChange: (value) => {
                 console.log(value);
-              }
+              },
             },
             {
               button: true,
-              label: "Clear Filters",
-              color: "black",
-              buttonType: "bordered",
+              label: 'Clear Filters',
+              color: 'black',
+              buttonType: 'bordered',
               onClick: () => {
-                console.log("Clear filters clicked");
-              }
-            }
-          ]
+                console.log('Clear filters clicked');
+              },
+            },
+          ],
         ]}
       />
       <Wrapper>
         <Button
-          label={"update all"}
+          label="update all"
           buttonType="regular"
           color="orange"
           customClass="mr-2"
         />
         <Button
-          label={"install all"}
+          label="install all"
           buttonType="regular"
           color="green"
           customClass="mr-2"
         />
-        <Button label={"upload license"} buttonType="regular" color="blue" />
+        <Button label="upload license" buttonType="regular" color="blue" />
       </Wrapper>
       <Wrapper>
         <HorizontalLineContent hrTitle="Modules" />
@@ -151,14 +150,14 @@ storiesOf("Pages", module).add(
           <CustomRow>
             <CustomColumn
               customColumn="md-3"
-              additionalStyles={["display-flex", "container__col-xs-12"]}
+              additionalStyles={['display-flex', 'container__col-xs-12']}
             >
               <CardItem
                 itemBorderColor="orange"
                 itemFooterColor="red"
                 itemFooterLabel="Licence expire at 12/08/2019"
                 onClick={() => {
-                  alert("Card clicked- open popin");
+                  alert('Card clicked- open popin');
                 }}
               >
                 <IconInfo
@@ -166,20 +165,20 @@ storiesOf("Pages", module).add(
                   iconColor="green"
                   iconPosition="info-icon-position"
                 />
-                <CustomStyles customStyles={["custom-title-heading"]}>
+                <CustomStyles customStyles={['custom-title-heading']}>
                   <Title
                     icon="object"
                     label="Engine-status"
                     customTitleStyles="custom-title-styles"
                     onClick={() => {
-                      alert("Card clicked- open popin");
+                      alert('Card clicked- open popin');
                     }}
                   />
                   <Subtitle
                     label="by Centreon"
                     customSubtitleStyles="custom-subtitle-styles"
                     onClick={() => {
-                      alert("Card clicked- open popin");
+                      alert('Card clicked- open popin');
                     }}
                   />
                 </CustomStyles>
@@ -191,21 +190,21 @@ storiesOf("Pages", module).add(
                   iconColor="white"
                   position="button-card-position"
                   onClick={() => {
-                    alert("Button clicked");
+                    alert('Button clicked');
                   }}
                 />
               </CardItem>
             </CustomColumn>
             <CustomColumn
               customColumn="md-3"
-              additionalStyles={["display-flex", "container__col-xs-12"]}
+              additionalStyles={['display-flex', 'container__col-xs-12']}
             >
               <CardItem
                 itemBorderColor="green"
                 itemFooterColor="orange"
                 itemFooterLabel="Licence expire at 12/08/2019"
                 onClick={() => {
-                  alert("Card clicked- open popin");
+                  alert('Card clicked- open popin');
                 }}
               >
                 <IconInfo
@@ -213,20 +212,20 @@ storiesOf("Pages", module).add(
                   iconColor="green"
                   iconPosition="info-icon-position"
                 />
-                <CustomStyles customStyles={["custom-title-heading"]}>
+                <CustomStyles customStyles={['custom-title-heading']}>
                   <Title
                     icon="object"
                     label="Engine-status"
                     customTitleStyles="custom-title-styles"
                     onClick={() => {
-                      alert("Card clicked- open popin");
+                      alert('Card clicked- open popin');
                     }}
                   />
                   <Subtitle
                     label="by Centreon"
                     customSubtitleStyles="custom-subtitle-styles"
                     onClick={() => {
-                      alert("Card clicked- open popin");
+                      alert('Card clicked- open popin');
                     }}
                   />
                 </CustomStyles>
@@ -238,7 +237,7 @@ storiesOf("Pages", module).add(
                   iconColor="white"
                   position="button-card-position"
                   onClick={() => {
-                    alert("Button clicked");
+                    alert('Button clicked');
                   }}
                 />
                 <ButtonAction
@@ -247,35 +246,35 @@ storiesOf("Pages", module).add(
                   buttonIconType="delete"
                   customPosition="button-action-card-position"
                   onClick={() => {
-                    alert("Button delete clicked");
+                    alert('Button delete clicked');
                   }}
                 />
               </CardItem>
             </CustomColumn>
             <CustomColumn
               customColumn="md-3"
-              additionalStyles={["display-flex", "container__col-xs-12"]}
+              additionalStyles={['display-flex', 'container__col-xs-12']}
             >
               <CardItem
                 itemBorderColor="gray"
                 onClick={() => {
-                  alert("Card clicked- open popin");
+                  alert('Card clicked- open popin');
                 }}
               >
-                <CustomStyles customStyles={["custom-title-heading"]}>
+                <CustomStyles customStyles={['custom-title-heading']}>
                   <Title
                     icon="object"
                     label="Engine-status"
                     customTitleStyles="custom-title-styles"
                     onClick={() => {
-                      alert("Card clicked- open popin");
+                      alert('Card clicked- open popin');
                     }}
                   />
                   <Subtitle
                     label="by Centreon"
                     customSubtitleStyles="custom-subtitle-styles"
                     onClick={() => {
-                      alert("Card clicked- open popin");
+                      alert('Card clicked- open popin');
                     }}
                   />
                 </CustomStyles>
@@ -287,35 +286,35 @@ storiesOf("Pages", module).add(
                   iconColor="white"
                   position="button-card-position"
                   onClick={() => {
-                    alert("Button clicked");
+                    alert('Button clicked');
                   }}
                 />
               </CardItem>
             </CustomColumn>
             <CustomColumn
               customColumn="md-3"
-              additionalStyles={["display-flex", "container__col-xs-12"]}
+              additionalStyles={['display-flex', 'container__col-xs-12']}
             >
               <CardItem
                 itemBorderColor="gray"
                 onClick={() => {
-                  alert("Card clicked- open popin");
+                  alert('Card clicked- open popin');
                 }}
               >
-                <CustomStyles customStyles={["custom-title-heading"]}>
+                <CustomStyles customStyles={['custom-title-heading']}>
                   <Title
                     icon="object"
                     label="Engine-status"
                     customTitleStyles="custom-title-styles"
                     onClick={() => {
-                      alert("Card clicked- open popin");
+                      alert('Card clicked- open popin');
                     }}
                   />
                   <Subtitle
                     label="by Centreon"
                     customSubtitleStyles="custom-subtitle-styles"
                     onClick={() => {
-                      alert("Card clicked- open popin");
+                      alert('Card clicked- open popin');
                     }}
                   />
                 </CustomStyles>
@@ -327,7 +326,7 @@ storiesOf("Pages", module).add(
                   iconColor="white"
                   position="button-card-position"
                   onClick={() => {
-                    alert("Button clicked");
+                    alert('Button clicked');
                   }}
                 />
               </CardItem>
@@ -345,32 +344,32 @@ storiesOf("Pages", module).add(
           <CustomRow>
             <CustomColumn
               customColumn="md-3"
-              additionalStyles={["display-flex", "container__col-xs-12"]}
+              additionalStyles={['display-flex', 'container__col-xs-12']}
             >
               <CardItem
                 itemBorderColor="orange"
                 itemFooterColor="blue"
                 itemFooterLabel="Licence 5 hosts"
                 onClick={() => {
-                  alert("Card clicked- open popin");
+                  alert('Card clicked- open popin');
                 }}
               >
                 <IconInfo iconName="state green" />
-                <CustomStyles customStyles={["custom-title-heading"]}>
+                <CustomStyles customStyles={['custom-title-heading']}>
                   <Title
                     icon="puzzle"
                     label="Plugin pack manager"
                     titleColor="blue"
                     customTitleStyles="custom-title-styles"
                     onClick={() => {
-                      alert("Card clicked- open popin");
+                      alert('Card clicked- open popin');
                     }}
                   />
                   <Subtitle
                     label="by Centreon"
                     customSubtitleStyles="custom-subtitle-styles"
                     onClick={() => {
-                      alert("Card clicked- open popin");
+                      alert('Card clicked- open popin');
                     }}
                   />
                 </CustomStyles>
@@ -382,7 +381,7 @@ storiesOf("Pages", module).add(
                   iconColor="white"
                   position="button-card-position"
                   onClick={() => {
-                    alert("Button clicked");
+                    alert('Button clicked');
                   }}
                 />
                 <ButtonAction
@@ -391,39 +390,39 @@ storiesOf("Pages", module).add(
                   buttonIconType="delete"
                   customPosition="button-action-card-position"
                   onClick={() => {
-                    alert("Button delete clicked");
+                    alert('Button delete clicked');
                   }}
                 />
               </CardItem>
             </CustomColumn>
             <CustomColumn
               customColumn="md-3"
-              additionalStyles={["display-flex", "container__col-xs-12"]}
+              additionalStyles={['display-flex', 'container__col-xs-12']}
             >
               <CardItem
                 itemBorderColor="green"
                 itemFooterColor="red"
                 itemFooterLabel="Licence expire at 12/08/2019"
                 onClick={() => {
-                  alert("Card clicked- open popin");
+                  alert('Card clicked- open popin');
                 }}
               >
                 <IconInfo iconName="state green" />
-                <CustomStyles customStyles={["custom-title-heading"]}>
+                <CustomStyles customStyles={['custom-title-heading']}>
                   <Title
                     icon="puzzle"
                     label="Plugin pack manager"
                     titleColor="blue"
                     customTitleStyles="custom-title-styles"
                     onClick={() => {
-                      alert("Card clicked- open popin");
+                      alert('Card clicked- open popin');
                     }}
                   />
                   <Subtitle
                     label="by Centreon"
                     customSubtitleStyles="custom-subtitle-styles"
                     onClick={() => {
-                      alert("Card clicked- open popin");
+                      alert('Card clicked- open popin');
                     }}
                   />
                 </CustomStyles>
@@ -435,7 +434,7 @@ storiesOf("Pages", module).add(
                   iconColor="white"
                   position="button-card-position"
                   onClick={() => {
-                    alert("Button clicked");
+                    alert('Button clicked');
                   }}
                 />
                 <ButtonAction
@@ -444,36 +443,36 @@ storiesOf("Pages", module).add(
                   buttonIconType="delete"
                   customPosition="button-action-card-position"
                   onClick={() => {
-                    alert("Button delete clicked");
+                    alert('Button delete clicked');
                   }}
                 />
               </CardItem>
             </CustomColumn>
             <CustomColumn
               customColumn="md-3"
-              additionalStyles={["display-flex", "container__col-xs-12"]}
+              additionalStyles={['display-flex', 'container__col-xs-12']}
             >
               <CardItem
                 itemBorderColor="gray"
                 onClick={() => {
-                  alert("Card clicked- open popin");
+                  alert('Card clicked- open popin');
                 }}
               >
-                <CustomStyles customStyles={["custom-title-heading"]}>
+                <CustomStyles customStyles={['custom-title-heading']}>
                   <Title
                     icon="puzzle"
                     label="Plugin pack manager"
                     titleColor="blue"
                     customTitleStyles="custom-title-styles"
                     onClick={() => {
-                      alert("Card clicked- open popin");
+                      alert('Card clicked- open popin');
                     }}
                   />
                   <Subtitle
                     label="by Centreon"
                     customSubtitleStyles="custom-subtitle-styles"
                     onClick={() => {
-                      alert("Card clicked- open popin");
+                      alert('Card clicked- open popin');
                     }}
                   />
                 </CustomStyles>
@@ -485,36 +484,36 @@ storiesOf("Pages", module).add(
                   iconColor="white"
                   position="button-card-position"
                   onClick={() => {
-                    alert("Button clicked");
+                    alert('Button clicked');
                   }}
                 />
               </CardItem>
             </CustomColumn>
             <CustomColumn
               customColumn="md-3"
-              additionalStyles={["display-flex", "container__col-xs-12"]}
+              additionalStyles={['display-flex', 'container__col-xs-12']}
             >
               <CardItem
                 itemBorderColor="gray"
                 onClick={() => {
-                  alert("Card clicked- open popin");
+                  alert('Card clicked- open popin');
                 }}
               >
-                <CustomStyles customStyles={["custom-title-heading"]}>
+                <CustomStyles customStyles={['custom-title-heading']}>
                   <Title
                     icon="puzzle"
                     label="Plugin pack manager"
                     titleColor="blue"
                     customTitleStyles="custom-title-styles"
                     onClick={() => {
-                      alert("Card clicked- open popin");
+                      alert('Card clicked- open popin');
                     }}
                   />
                   <Subtitle
                     label="by Centreon"
                     customSubtitleStyles="custom-subtitle-styles"
                     onClick={() => {
-                      alert("Card clicked- open popin");
+                      alert('Card clicked- open popin');
                     }}
                   />
                 </CustomStyles>
@@ -526,7 +525,7 @@ storiesOf("Pages", module).add(
                   iconColor="white"
                   position="button-card-position"
                   onClick={() => {
-                    alert("Button clicked");
+                    alert('Button clicked');
                   }}
                 />
               </CardItem>
@@ -536,25 +535,25 @@ storiesOf("Pages", module).add(
       </Wrapper>
     </React.Fragment>
   ),
-  { notes: "A very simple component" }
+  { notes: 'A very simple component' },
 );
 
 // BAM Corelations Capabilities Page
-storiesOf("Pages", module).add(
-  "Corelations Capabilities page",
+storiesOf('Pages', module).add(
+  'Corelations Capabilities page',
   () => (
-    <CustomStyles additionalStyles={["content-wrap"]}>
-      <CustomStyles additionalStyles={["content-inner"]}>
-        <CustomStyles additionalStyles={["content-overflow"]}>
+    <CustomStyles additionalStyles={['content-wrap']}>
+      <CustomStyles additionalStyles={['content-inner']}>
+        <CustomStyles additionalStyles={['content-overflow']}>
           {/* <Title style={{padding: '10px'}} titleColor="bam" label="BAM Corelations Capabilities" /> */}
           <CustomStyles>
-            <CustomStyles additionalStyles={["container", "p-0"]}>
+            <CustomStyles additionalStyles={['container', 'p-0']}>
               <Tabs>
                 <Tab label="Configuration">
                   <CustomRow>
                     <CustomColumn
                       customColumn="md-2"
-                      additionalStyles={["center-vertical"]}
+                      additionalStyles={['center-vertical']}
                     >
                       <Subtitle
                         label="Enable business activity"
@@ -570,7 +569,7 @@ storiesOf("Pages", module).add(
                   <CustomRow>
                     <CustomColumn
                       customColumn="xl-3"
-                      additionalColumns={["lg-4"]}
+                      additionalColumns={['lg-4']}
                     >
                       <InfoTooltip
                         iconColor="gray"
@@ -591,29 +590,29 @@ storiesOf("Pages", module).add(
 
                     <CustomColumn
                       customColumn="xxl-4"
-                      additionalColumns={["xl-5"]}
+                      additionalColumns={['xl-5']}
                     >
-                      <CustomRow additionalStyles={["mb-2"]}>
+                      <CustomRow additionalStyles={['mb-2']}>
                         <CustomColumn
                           customColumn="xl-2"
-                          additionalColumns={["md-2"]}
-                          additionalStyles={["m-0", "center-vertical"]}
+                          additionalColumns={['md-2']}
+                          additionalStyles={['m-0', 'center-vertical']}
                         >
                           <CustomButton label="Warning" color="orange" />
                         </CustomColumn>
 
                         <CustomColumn
                           customColumn="xl-2"
-                          additionalColumns={["md-2"]}
-                          additionalStyles={["m-0", "p-0", "center-both"]}
+                          additionalColumns={['md-2']}
+                          additionalStyles={['m-0', 'p-0', 'center-both']}
                         >
                           <IconInfo iconText="Threshold" />
                         </CustomColumn>
 
                         <CustomColumn
                           customColumn="xl-2"
-                          additionalColumns={["md-2"]}
-                          additionalStyles={["m-0", "p-0", "center-vertical"]}
+                          additionalColumns={['md-2']}
+                          additionalStyles={['m-0', 'p-0', 'center-vertical']}
                         >
                           <InputField
                             type="text"
@@ -624,24 +623,24 @@ storiesOf("Pages", module).add(
 
                         <CustomColumn
                           customColumn="xl-2"
-                          additionalColumns={["md-2"]}
-                          additionalStyles={["m-0", "center-vertical"]}
+                          additionalColumns={['md-2']}
+                          additionalStyles={['m-0', 'center-vertical']}
                         >
                           <CustomButton label="Critical" color="red" />
                         </CustomColumn>
 
                         <CustomColumn
                           customColumn="xl-2"
-                          additionalColumns={["md-2"]}
-                          additionalStyles={["p-0", "m-0", "center-both"]}
+                          additionalColumns={['md-2']}
+                          additionalStyles={['p-0', 'm-0', 'center-both']}
                         >
                           <IconInfo iconText="Threshold" />
                         </CustomColumn>
 
                         <CustomColumn
                           customColumn="xl-2"
-                          additionalColumns={["md-2"]}
-                          additionalStyles={["m-0", "p-0", "center-vertical"]}
+                          additionalColumns={['md-2']}
+                          additionalStyles={['m-0', 'p-0', 'center-vertical']}
                         >
                           <InputField
                             type="text"
@@ -654,8 +653,8 @@ storiesOf("Pages", module).add(
                       <CustomRow>
                         <CustomColumn
                           customColumn="xl-4"
-                          additionalColumns={["md-3"]}
-                          additionalStyles={["center-vertical", "m-0"]}
+                          additionalColumns={['md-3']}
+                          additionalStyles={['center-vertical', 'm-0']}
                         >
                           <InfoTooltip
                             iconColor="gray"
@@ -672,8 +671,8 @@ storiesOf("Pages", module).add(
                       <CustomRow>
                         <CustomColumn
                           customColumn="xl-5"
-                          additionalColumns={["md-4"]}
-                          additionalStyles={["m-0"]}
+                          additionalColumns={['md-4']}
+                          additionalStyles={['m-0']}
                         >
                           <InfoTooltip
                             iconColor="gray"
@@ -686,18 +685,18 @@ storiesOf("Pages", module).add(
                           <CustomRow>
                             <CustomColumn
                               customColumn="xl-4"
-                              additionalColumns={["md-4"]}
+                              additionalColumns={['md-4']}
                             >
                               <RadioButton
                                 name="test"
                                 iconColor="blue"
-                                checked={true}
+                                checked
                                 label="YES"
                               />
                             </CustomColumn>
                             <CustomColumn
                               customColumn="xl-4"
-                              additionalColumns={["md-4"]}
+                              additionalColumns={['md-4']}
                             >
                               <RadioButton
                                 name="test"
@@ -712,8 +711,8 @@ storiesOf("Pages", module).add(
                       <CustomRow>
                         <CustomColumn
                           customColumn="xl-4"
-                          additionalColumns={["md-3"]}
-                          additionalStyles={["center-vertical", "m-0"]}
+                          additionalColumns={['md-3']}
+                          additionalStyles={['center-vertical', 'm-0']}
                         >
                           <InfoTooltip
                             iconColor="gray"
@@ -728,7 +727,7 @@ storiesOf("Pages", module).add(
                     </CustomColumn>
                   </CustomRow>
 
-                  <CustomRow additionalStyles={["mt-2"]}>
+                  <CustomRow additionalStyles={['mt-2']}>
                     <CustomColumn customColumn="xs-12">
                       <HorizontalLineSeparator />
                     </CustomColumn>
@@ -766,7 +765,7 @@ storiesOf("Pages", module).add(
                   <CustomRow>
                     <CustomColumn
                       customColumn="md-1"
-                      additionalStyles={["center-vertical"]}
+                      additionalStyles={['center-vertical']}
                     >
                       <Subtitle label="Notification" subtitleType="bam" />
                     </CustomColumn>
@@ -775,7 +774,7 @@ storiesOf("Pages", module).add(
                   <CustomRow>
                     <CustomColumn
                       customColumn="xl-3"
-                      additionalColumns={["md-4"]}
+                      additionalColumns={['md-4']}
                     >
                       <div>
                         <InfoTooltip
@@ -791,8 +790,8 @@ storiesOf("Pages", module).add(
                       <CustomRow>
                         <CustomColumn
                           customColumn="xl-4"
-                          additionalColumns={["md-6"]}
-                          additionalStyles={["center-vertical", "m-0"]}
+                          additionalColumns={['md-6']}
+                          additionalStyles={['center-vertical', 'm-0']}
                         >
                           <InfoTooltip
                             iconColor="gray"
@@ -802,7 +801,7 @@ storiesOf("Pages", module).add(
                         </CustomColumn>
                         <CustomColumn
                           customColumn="md-6"
-                          additionalStyles={["m-0"]}
+                          additionalStyles={['m-0']}
                         >
                           <InputFieldMultiSelect size="big" />
                         </CustomColumn>
@@ -812,8 +811,8 @@ storiesOf("Pages", module).add(
                       <CustomRow>
                         <CustomColumn
                           customColumn="xl-4"
-                          additionalColumns={["md-6"]}
-                          additionalStyles={["center-vertical", "m-0"]}
+                          additionalColumns={['md-6']}
+                          additionalStyles={['center-vertical', 'm-0']}
                         >
                           <InfoTooltip
                             iconColor="gray"
@@ -824,7 +823,7 @@ storiesOf("Pages", module).add(
 
                         <CustomColumn
                           customColumn="md-6"
-                          additionalStyles={["center-baseline", "m-0"]}
+                          additionalStyles={['center-baseline', 'm-0']}
                         >
                           <InputField type="text" inputSize="smallest" />
                           <IconInfo iconText="*60 seconds" />
@@ -833,7 +832,7 @@ storiesOf("Pages", module).add(
                     </CustomColumn>
 
                     <CustomColumn customColumn="md-4">
-                      <CustomRow additionalStyles={["mb-1"]}>
+                      <CustomRow additionalStyles={['mb-1']}>
                         <CustomColumn customColumn="md-8">
                           <InfoTooltip
                             iconColor="gray"
@@ -846,59 +845,59 @@ storiesOf("Pages", module).add(
                       <CustomRow>
                         <CustomColumn
                           customColumn="xl-2"
-                          additionalColumns={["md-3"]}
-                          additionalStyles={["m-0"]}
+                          additionalColumns={['md-3']}
+                          additionalStyles={['m-0']}
                         >
                           <Checkbox
                             name="test"
                             iconColor="light-blue"
-                            checked={true}
+                            checked
                             label="Recovery"
                           />
                         </CustomColumn>
                         <CustomColumn
                           customColumn="xl-2"
-                          additionalColumns={["md-3"]}
-                          additionalStyles={["m-0"]}
+                          additionalColumns={['md-3']}
+                          additionalStyles={['m-0']}
                         >
                           <Checkbox
                             name="test"
                             iconColor="light-blue"
-                            checked={true}
+                            checked
                             label="Warning"
                           />
                         </CustomColumn>
                         <CustomColumn
                           customColumn="xl-2"
-                          additionalColumns={["md-3"]}
-                          additionalStyles={["m-0"]}
+                          additionalColumns={['md-3']}
+                          additionalStyles={['m-0']}
                         >
                           <Checkbox
                             name="test"
                             iconColor="light-blue"
-                            checked={true}
+                            checked
                             label="Critical"
                           />
                         </CustomColumn>
                         <CustomColumn
                           customColumn="xl-2"
-                          additionalColumns={["md-3"]}
-                          additionalStyles={["m-0"]}
+                          additionalColumns={['md-3']}
+                          additionalStyles={['m-0']}
                         >
                           <Checkbox
                             name="test"
                             iconColor="light-blue"
-                            checked={true}
+                            checked
                             label="Flapping"
                           />
                         </CustomColumn>
                       </CustomRow>
 
-                      <CustomRow additionalStyles={["mt-1"]}>
+                      <CustomRow additionalStyles={['mt-1']}>
                         <CustomColumn
                           customColumn="xl-3"
-                          additionalColumns={["md-5"]}
-                          additionalStyles={["center-vertical"]}
+                          additionalColumns={['md-5']}
+                          additionalStyles={['center-vertical']}
                         >
                           <Subtitle
                             label="Enable notification"
@@ -908,7 +907,7 @@ storiesOf("Pages", module).add(
 
                         <CustomColumn
                           customColumn="md-6"
-                          additionalStyles={["m-0", "center-baseline"]}
+                          additionalStyles={['m-0', 'center-baseline']}
                         >
                           <SwitcherInputField />
                         </CustomColumn>
@@ -920,7 +919,7 @@ storiesOf("Pages", module).add(
                     <CustomRow>
                       <CustomColumn
                         customColumn="xl-10"
-                        additionalColumns={["md-11"]}
+                        additionalColumns={['md-11']}
                       >
                         <Button
                           label="SAVE"
@@ -937,8 +936,8 @@ storiesOf("Pages", module).add(
                   <CustomRow>
                     <CustomColumn
                       customColumn="xxl-1"
-                      additionalColumns={["xl-2"]}
-                      additionalStyles={["center-vertical", "m-0"]}
+                      additionalColumns={['xl-2']}
+                      additionalStyles={['center-vertical', 'm-0']}
                     >
                       <Subtitle
                         label="Select status calculation method"
@@ -948,7 +947,7 @@ storiesOf("Pages", module).add(
 
                     <CustomColumn
                       customColumn="md-2"
-                      additionalStyles={["m-0", "center-vertical"]}
+                      additionalStyles={['m-0', 'center-vertical']}
                     >
                       <InputFieldMultiSelect />
                     </CustomColumn>
@@ -956,22 +955,22 @@ storiesOf("Pages", module).add(
                     <CustomRow>
                       <CustomColumn
                         customColumn="md-2"
-                        additionalStyles={["m-0", "center-vertical"]}
+                        additionalStyles={['m-0', 'center-vertical']}
                       >
                         <CustomButton label="Warning" color="orange" />
                       </CustomColumn>
 
                       <CustomColumn
                         customColumn="md-2"
-                        additionalColumns={["md-2"]}
-                        additionalStyles={["m-0", "center-both"]}
+                        additionalColumns={['md-2']}
+                        additionalStyles={['m-0', 'center-both']}
                       >
                         <IconInfo iconText="Threshold" />
                       </CustomColumn>
 
                       <CustomColumn
                         customColumn="md-2"
-                        additionalStyles={["m-0", "center-vertical"]}
+                        additionalStyles={['m-0', 'center-vertical']}
                       >
                         <InputField
                           type="text"
@@ -982,21 +981,21 @@ storiesOf("Pages", module).add(
 
                       <CustomColumn
                         customColumn="md-2"
-                        additionalStyles={["m-0", "center-vertical"]}
+                        additionalStyles={['m-0', 'center-vertical']}
                       >
                         <CustomButton label="Critical" color="red" />
                       </CustomColumn>
 
                       <CustomColumn
                         customColumn="md-2"
-                        additionalStyles={["m-0", "center-both"]}
+                        additionalStyles={['m-0', 'center-both']}
                       >
                         <IconInfo iconText="Threshold" />
                       </CustomColumn>
 
                       <CustomColumn
                         customColumn="md-2"
-                        additionalStyles={["m-0", "p-0", "center-vertical"]}
+                        additionalStyles={['m-0', 'p-0', 'center-vertical']}
                       >
                         <InputField
                           type="text"
@@ -1010,22 +1009,22 @@ storiesOf("Pages", module).add(
                   <CustomRow>
                     <CustomColumn
                       customColumn="md-12"
-                      additionalStyles={["m-0"]}
+                      additionalStyles={['m-0']}
                     >
                       <Subtitle label="Linked Resources" subtitleType="bam" />
                     </CustomColumn>
                   </CustomRow>
 
-                  <CustomRow additionalStyles={["mb-2"]}>
+                  <CustomRow additionalStyles={['mb-2']}>
                     <CustomColumn
                       customColumn="md-3"
-                      additionalStyles={["center-vertical", "m-0"]}
+                      additionalStyles={['center-vertical', 'm-0']}
                     >
                       <IconInfo iconText="Type of objects you want to calculate the result on" />
                     </CustomColumn>
                     <CustomColumn
                       customColumn="md-2"
-                      additionalStyles={["center-vertical", "m-0"]}
+                      additionalStyles={['center-vertical', 'm-0']}
                     >
                       <InputFieldMultiSelect size="small" />
                     </CustomColumn>
@@ -1035,16 +1034,16 @@ storiesOf("Pages", module).add(
                   <CustomRow>
                     <CustomColumn
                       customColumn="md-12"
-                      additionalStyles={["m-0"]}
+                      additionalStyles={['m-0']}
                     >
                       <SearchLive />
                     </CustomColumn>
                   </CustomRow>
 
-                  <CustomRow additionalStyles={["mt-1"]}>
+                  <CustomRow additionalStyles={['mt-1']}>
                     <CustomColumn
                       customColumn="md-12"
-                      additionalStyles={["m-0", "p-0"]}
+                      additionalStyles={['m-0', 'p-0']}
                     >
                       <ListSortable />
                     </CustomColumn>
@@ -1065,7 +1064,7 @@ storiesOf("Pages", module).add(
                 </Tab>
 
                 <Tab label="Reporting">
-                  <CustomRow additionalStyles={["mt-2"]}>
+                  <CustomRow additionalStyles={['mt-2']}>
                     <CustomColumn customColumn="xs-12">
                       <Subtitle label="Reporting" subtitleType="bam" />
                     </CustomColumn>
@@ -1081,7 +1080,7 @@ storiesOf("Pages", module).add(
                     </CustomColumn>
                   </CustomRow>
 
-                  <CustomRow additionalStyles={["mt-1", "mb-2"]}>
+                  <CustomRow additionalStyles={['mt-1', 'mb-2']}>
                     <CustomColumn customColumn="xs-12">
                       <InputFieldMultiSelect size="middle" />
                     </CustomColumn>
@@ -1092,8 +1091,8 @@ storiesOf("Pages", module).add(
                       <CustomRow>
                         <CustomColumn
                           customColumn="xl-4"
-                          additionalColumns={["md-5"]}
-                          additionalStyles={["m-0", "center-baseline"]}
+                          additionalColumns={['md-5']}
+                          additionalStyles={['m-0', 'center-baseline']}
                         >
                           <InfoTooltip
                             iconColor="gray"
@@ -1103,7 +1102,7 @@ storiesOf("Pages", module).add(
                         </CustomColumn>
                         <CustomColumn
                           customColumn="md-7"
-                          additionalStyles={["m-0", "center-baseline"]}
+                          additionalStyles={['m-0', 'center-baseline']}
                         >
                           <InputField type="text" inputSize="smallest" />
                           <IconInfo iconText="(0-100%)" />
@@ -1117,8 +1116,8 @@ storiesOf("Pages", module).add(
                       <CustomRow>
                         <CustomColumn
                           customColumn="xl-4"
-                          additionalColumns={["md-5"]}
-                          additionalStyles={["m-0", "center-baseline"]}
+                          additionalColumns={['md-5']}
+                          additionalStyles={['m-0', 'center-baseline']}
                         >
                           <InfoTooltip
                             iconColor="gray"
@@ -1128,7 +1127,7 @@ storiesOf("Pages", module).add(
                         </CustomColumn>
                         <CustomColumn
                           customColumn="md-7"
-                          additionalStyles={["m-0", "center-baseline"]}
+                          additionalStyles={['m-0', 'center-baseline']}
                         >
                           <InputField type="text" inputSize="smallest" />
                           <IconInfo iconText="(0-100%)" />
@@ -1142,8 +1141,8 @@ storiesOf("Pages", module).add(
                       <CustomRow>
                         <CustomColumn
                           customColumn="xl-4"
-                          additionalColumns={["md-5"]}
-                          additionalStyles={["m-0", "center-baseline"]}
+                          additionalColumns={['md-5']}
+                          additionalStyles={['m-0', 'center-baseline']}
                         >
                           <InfoTooltip
                             iconColor="gray"
@@ -1153,7 +1152,7 @@ storiesOf("Pages", module).add(
                         </CustomColumn>
                         <CustomColumn
                           customColumn="md-7"
-                          additionalStyles={["m-0", "center-baseline"]}
+                          additionalStyles={['m-0', 'center-baseline']}
                         >
                           <InputField type="text" inputSize="smallest" />
                           <IconInfo iconText="minutes" />
@@ -1166,8 +1165,8 @@ storiesOf("Pages", module).add(
                       <CustomRow>
                         <CustomColumn
                           customColumn="xl-4"
-                          additionalColumns={["md-5"]}
-                          additionalStyles={["m-0", "center-baseline"]}
+                          additionalColumns={['md-5']}
+                          additionalStyles={['m-0', 'center-baseline']}
                         >
                           <InfoTooltip
                             iconColor="gray"
@@ -1177,7 +1176,7 @@ storiesOf("Pages", module).add(
                         </CustomColumn>
                         <CustomColumn
                           customColumn="md-7"
-                          additionalStyles={["m-0", "center-baseline"]}
+                          additionalStyles={['m-0', 'center-baseline']}
                         >
                           <InputField type="text" inputSize="smallest" />
                           <IconInfo iconText="minutes" />
@@ -1190,7 +1189,7 @@ storiesOf("Pages", module).add(
                     <CustomRow>
                       <CustomColumn
                         customColumn="xl-3"
-                        additionalColumns={["md-4"]}
+                        additionalColumns={['md-4']}
                       >
                         <Button
                           label="SAVE"
@@ -1203,7 +1202,7 @@ storiesOf("Pages", module).add(
                   </CustomStyles>
                 </Tab>
                 <Tab label="Escalation">
-                  <CustomRow additionalStyles={["mt-2"]}>
+                  <CustomRow additionalStyles={['mt-2']}>
                     <CustomColumn customColumn="xs-12">
                       <Subtitle label="Escalation" subtitleType="bam" />
                     </CustomColumn>
@@ -1219,7 +1218,7 @@ storiesOf("Pages", module).add(
                     </CustomColumn>
                   </CustomRow>
 
-                  <CustomRow additionalStyles={["mt-1", "mb-2"]}>
+                  <CustomRow additionalStyles={['mt-1', 'mb-2']}>
                     <CustomColumn customColumn="xs-12">
                       <InputFieldMultiSelect size="middle" />
                     </CustomColumn>
@@ -1230,8 +1229,8 @@ storiesOf("Pages", module).add(
                       <CustomRow>
                         <CustomColumn
                           customColumn="xl-4"
-                          additionalColumns={["md-5"]}
-                          additionalStyles={["m-0", "center-baseline"]}
+                          additionalColumns={['md-5']}
+                          additionalStyles={['m-0', 'center-baseline']}
                         >
                           <InfoTooltip
                             iconColor="gray"
@@ -1241,7 +1240,7 @@ storiesOf("Pages", module).add(
                         </CustomColumn>
                         <CustomColumn
                           customColumn="md-7"
-                          additionalStyles={["m-0", "center-baseline"]}
+                          additionalStyles={['m-0', 'center-baseline']}
                         >
                           <InputField type="text" inputSize="smallest" />
                           <IconInfo iconText="(0-100%)" />
@@ -1255,8 +1254,8 @@ storiesOf("Pages", module).add(
                       <CustomRow>
                         <CustomColumn
                           customColumn="xl-4"
-                          additionalColumns={["md-5"]}
-                          additionalStyles={["m-0", "center-baseline"]}
+                          additionalColumns={['md-5']}
+                          additionalStyles={['m-0', 'center-baseline']}
                         >
                           <InfoTooltip
                             iconColor="gray"
@@ -1266,7 +1265,7 @@ storiesOf("Pages", module).add(
                         </CustomColumn>
                         <CustomColumn
                           customColumn="md-7"
-                          additionalStyles={["m-0", "center-baseline"]}
+                          additionalStyles={['m-0', 'center-baseline']}
                         >
                           <InputField type="text" inputSize="smallest" />
                           <IconInfo iconText="(0-100%)" />
@@ -1280,8 +1279,8 @@ storiesOf("Pages", module).add(
                       <CustomRow>
                         <CustomColumn
                           customColumn="xl-4"
-                          additionalColumns={["md-5"]}
-                          additionalStyles={["m-0", "center-baseline"]}
+                          additionalColumns={['md-5']}
+                          additionalStyles={['m-0', 'center-baseline']}
                         >
                           <InfoTooltip
                             iconColor="gray"
@@ -1291,7 +1290,7 @@ storiesOf("Pages", module).add(
                         </CustomColumn>
                         <CustomColumn
                           customColumn="md-7"
-                          additionalStyles={["m-0", "center-baseline"]}
+                          additionalStyles={['m-0', 'center-baseline']}
                         >
                           <InputField type="text" inputSize="smallest" />
                           <IconInfo iconText="minutes" />
@@ -1305,8 +1304,8 @@ storiesOf("Pages", module).add(
                       <CustomRow>
                         <CustomColumn
                           customColumn="xl-4"
-                          additionalColumns={["md-5"]}
-                          additionalStyles={["m-0", "center-baseline"]}
+                          additionalColumns={['md-5']}
+                          additionalStyles={['m-0', 'center-baseline']}
                         >
                           <InfoTooltip
                             iconColor="gray"
@@ -1316,7 +1315,7 @@ storiesOf("Pages", module).add(
                         </CustomColumn>
                         <CustomColumn
                           customColumn="md-7"
-                          additionalStyles={["m-0", "center-baseline"]}
+                          additionalStyles={['m-0', 'center-baseline']}
                         >
                           <InputField type="text" inputSize="smallest" />
                           <IconInfo iconText="minutes" />
@@ -1329,7 +1328,7 @@ storiesOf("Pages", module).add(
                     <CustomRow>
                       <CustomColumn
                         customColumn="xl-3"
-                        additionalColumns={["md-4"]}
+                        additionalColumns={['md-4']}
                       >
                         <Button
                           label="SAVE"
@@ -1342,7 +1341,7 @@ storiesOf("Pages", module).add(
                   </CustomStyles>
                 </Tab>
                 <Tab label="Event Handler">
-                  <CustomRow additionalStyles={["mt-2"]}>
+                  <CustomRow additionalStyles={['mt-2']}>
                     <CustomColumn customColumn="xs-12">
                       <Subtitle
                         label="Event handler configuration"
@@ -1354,8 +1353,8 @@ storiesOf("Pages", module).add(
                   <CustomRow>
                     <CustomColumn
                       customColumn="xl-1"
-                      additionalColumns={["md-2"]}
-                      additionalStyles={["m-0", "p-0"]}
+                      additionalColumns={['md-2']}
+                      additionalStyles={['m-0', 'p-0']}
                     >
                       <CustomColumn customColumn="xs-12">
                         <InfoTooltip
@@ -1368,26 +1367,26 @@ storiesOf("Pages", module).add(
 
                     <CustomColumn
                       customColumn="xl-5"
-                      additionalColumns={["md-3"]}
-                      additionalStyles={["m-0"]}
+                      additionalColumns={['md-3']}
+                      additionalStyles={['m-0']}
                     >
                       <CustomRow>
                         <CustomColumn
                           customColumn="xl-1"
-                          additionalColumns={["md-2"]}
-                          additionalStyles={["m-0"]}
+                          additionalColumns={['md-2']}
+                          additionalStyles={['m-0']}
                         >
                           <RadioButton
                             name="test"
                             iconColor="light-blue"
-                            checked={true}
+                            checked
                             label="YES"
                           />
                         </CustomColumn>
                         <CustomColumn
                           customColumn="md-1"
-                          additionalColumns={["md-2"]}
-                          additionalStyles={["m-0"]}
+                          additionalColumns={['md-2']}
+                          additionalStyles={['m-0']}
                         >
                           <RadioButton
                             name="test"
@@ -1402,8 +1401,8 @@ storiesOf("Pages", module).add(
                   <CustomRow>
                     <CustomColumn
                       customColumn="xl-1"
-                      additionalColumns={["md-2"]}
-                      additionalStyles={["m-0", "center-vertical"]}
+                      additionalColumns={['md-2']}
+                      additionalStyles={['m-0', 'center-vertical']}
                     >
                       <InfoTooltip
                         iconColor="gray"
@@ -1413,17 +1412,17 @@ storiesOf("Pages", module).add(
                     </CustomColumn>
                     <CustomColumn
                       customColumn="md-2"
-                      additionalStyles={["m-0"]}
+                      additionalStyles={['m-0']}
                     >
                       <InputFieldMultiSelect />
                     </CustomColumn>
                   </CustomRow>
 
-                  <CustomRow additionalStyles={["mt-1"]}>
+                  <CustomRow additionalStyles={['mt-1']}>
                     <CustomColumn
                       customColumn="xl-1"
-                      additionalColumns={["md-2"]}
-                      additionalStyles={["m-0", "center-vertical"]}
+                      additionalColumns={['md-2']}
+                      additionalStyles={['m-0', 'center-vertical']}
                     >
                       <InfoTooltip
                         iconColor="gray"
@@ -1433,13 +1432,13 @@ storiesOf("Pages", module).add(
                     </CustomColumn>
                     <CustomColumn
                       customColumn="md-2"
-                      additionalStyles={["m-0", "center-vertical"]}
+                      additionalStyles={['m-0', 'center-vertical']}
                     >
                       <InputField type="text" inputSize="big" />
                     </CustomColumn>
                     <CustomColumn
                       customColumn="md-1"
-                      additionalStyles={["center-both"]}
+                      additionalStyles={['center-both']}
                     >
                       <Button
                         buttonType="validate"
@@ -1452,7 +1451,7 @@ storiesOf("Pages", module).add(
                     </CustomColumn>
                     <CustomColumn
                       customColumn="md-2"
-                      additionalStyles={["m-0", "center-vertical"]}
+                      additionalStyles={['m-0', 'center-vertical']}
                     >
                       <InputField type="text" inputSize="big m-0" />
                     </CustomColumn>
@@ -1462,7 +1461,7 @@ storiesOf("Pages", module).add(
                     <CustomRow>
                       <CustomColumn
                         customColumn="xl-6"
-                        additionalColumns={["md-7"]}
+                        additionalColumns={['md-7']}
                       >
                         <Button
                           label="SAVE"
@@ -1481,17 +1480,13 @@ storiesOf("Pages", module).add(
       </CustomStyles>
     </CustomStyles>
   ),
-  { notes: "A very simple component" }
+  { notes: 'A very simple component' },
 );
 
-storiesOf("Pages", module).add(
-  "BAM page",
+storiesOf('Pages', module).add(
+  'BAM page',
   () => {
-    return (
-      <BAMListingPageStory 
-        BAMTableData={BAMTableData}
-      />
-    );
+    return <BAMListingPageStory BAMTableData={BAMTableData} />;
   },
-  { notes: "A very simple component" }
+  { notes: 'A very simple component' },
 );

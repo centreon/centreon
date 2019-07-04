@@ -4,12 +4,17 @@ import styles from './progress-bar-steps.scss';
 
 const ProgressBarItem = ({ classActive, number }) => {
   return (
-    <li className={classnames(styles["progress-bar-item"])}>
-      <span className={classnames(styles["progress-bar-link"], styles[classActive ? classActive : ''])}>
+    <li className={classnames(styles['progress-bar-item'])}>
+      <span
+        className={classnames(
+          styles['progress-bar-link'],
+          styles[classActive || ''],
+        )}
+      >
         {number}
       </span>
     </li>
-  )
-}
+  );
+};
 
 export default ProgressBarItem;

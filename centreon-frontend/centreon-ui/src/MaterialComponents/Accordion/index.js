@@ -1,48 +1,48 @@
-import React from "react";
-import { withStyles } from "@material-ui/core/styles";
-import ExpansionPanel from "@material-ui/core/ExpansionPanel";
-import ExpansionPanelSummary from "@material-ui/core/ExpansionPanelSummary";
-import ExpansionPanelDetails from "@material-ui/core/ExpansionPanelDetails";
-import Typography from "@material-ui/core/Typography";
-import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
-import FormControlLabel from "@material-ui/core/FormControlLabel";
-import IconWarning from "@material-ui/icons/Warning";
-import IconError from "@material-ui/icons/Error";
-import classnames from "classnames";
-import InputField from "../../InputField";
-import InputFieldMultiSelectNew from "../../InputField/InputFieldMultiSelectNew";
-import InputFieldMultiSelect from "../../InputField/InputFieldSelectCustom";
-import CustomRow from "../../Custom/CustomRow";
-import CustomColumn from "../../Custom/CustomColumn";
-import IconInfo from "../../Icon/IconInfo";
-import MaterialSwitch from "../Switch";
-import ButtonCustom from "../../Button/ButtonCustom";
-import { MultiSelectHolder } from "../..";
+import React from 'react';
+import { withStyles } from '@material-ui/core/styles';
+import ExpansionPanel from '@material-ui/core/ExpansionPanel';
+import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary';
+import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
+import Typography from '@material-ui/core/Typography';
+import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
+import FormControlLabel from '@material-ui/core/FormControlLabel';
+import IconWarning from '@material-ui/icons/Warning';
+import IconError from '@material-ui/icons/Error';
+import classnames from 'classnames';
+import InputField from '../../InputField';
+import InputFieldMultiSelectNew from '../../InputField/InputFieldMultiSelectNew';
+import InputFieldMultiSelect from '../../InputField/InputFieldSelectCustom';
+import CustomRow from '../../Custom/CustomRow';
+import CustomColumn from '../../Custom/CustomColumn';
+import IconInfo from '../../Icon/IconInfo';
+import MaterialSwitch from '../Switch';
+import ButtonCustom from '../../Button/ButtonCustom';
+import { MultiSelectHolder } from '../..';
 
-const styles = theme => ({
+const styles = (theme) => ({
   root: {
-    width: "100%"
+    width: '100%',
   },
   heading: {
     fontSize: theme.typography.pxToRem(15),
-    fontWeight: "700"
+    fontWeight: '700',
   },
   customStyle: {
-    margin: "0 !important",
-    backgroundColor: "transparent",
-    boxShadow: "none",
-    borderBottom: "1px solid #bcbdc0",
-    borderRadius: "0 !important"
+    margin: '0 !important',
+    backgroundColor: 'transparent',
+    boxShadow: 'none',
+    borderBottom: '1px solid #bcbdc0',
+    borderRadius: '0 !important',
   },
   additionalStyles: {
-    display: "block"
+    display: 'block',
   },
   helperStyles: {
-    paddingBottom: 0
+    paddingBottom: 0,
   },
   containerStyles: {
-    padding: "10px 24px 10px 24px"
-  }
+    padding: '10px 24px 10px 24px',
+  },
 });
 
 class Accordion extends React.Component {
@@ -62,16 +62,16 @@ class Accordion extends React.Component {
             <CustomColumn customColumn="md-6">
               <InputFieldMultiSelect
                 options={[
-                  { id: "1", name: "24x7", alias: "Always" },
-                  { id: "2", name: "none", alias: "Never" },
-                  { id: "3", name: "nonworkhours", alias: "Non-Work Hours" },
-                  { id: "4", name: "workhours", alias: "Work hours" }
+                  { id: '1', name: '24x7', alias: 'Always' },
+                  { id: '2', name: 'none', alias: 'Never' },
+                  { id: '3', name: 'nonworkhours', alias: 'Non-Work Hours' },
+                  { id: '4', name: 'workhours', alias: 'Work hours' },
                 ]}
                 customStyle="no-margin"
               />
             </CustomColumn>
             <CustomColumn customColumn="md-6">
-              <CustomColumn customColumn="md-12" additionalStyles={["p-0"]}>
+              <CustomColumn customColumn="md-12" additionalStyles={['p-0']}>
                 <IconInfo iconText="Automatically inherit KPI downtimes" />
               </CustomColumn>
               <FormControlLabel control={<MaterialSwitch />} label="Enable" />
@@ -80,10 +80,10 @@ class Accordion extends React.Component {
               <IconInfo iconText="Display on remote server" />
               <InputFieldMultiSelect
                 options={[
-                  { id: "1", name: "24x7", alias: "Always" },
-                  { id: "2", name: "none", alias: "Never" },
-                  { id: "3", name: "nonworkhours", alias: "Non-Work Hours" },
-                  { id: "4", name: "workhours", alias: "Work hours" }
+                  { id: '1', name: '24x7', alias: 'Always' },
+                  { id: '2', name: 'none', alias: 'Never' },
+                  { id: '3', name: 'nonworkhours', alias: 'Non-Work Hours' },
+                  { id: '4', name: 'workhours', alias: 'Work hours' },
                 ]}
               />
             </CustomColumn>
@@ -100,43 +100,43 @@ class Accordion extends React.Component {
           <ExpansionPanelDetails
             className={classnames(
               classes.additionalStyles,
-              classes.helperStyles
+              classes.helperStyles,
             )}
           >
-            <CustomRow additionalStyles={["mb-0"]}>
-              <CustomColumn customColumn="md-6" additionalStyles={["mb-0"]}>
+            <CustomRow additionalStyles={['mb-0']}>
+              <CustomColumn customColumn="md-6" additionalStyles={['mb-0']}>
                 <IconInfo iconText="Status calculation method" />
                 <InputFieldMultiSelect
                   options={[
-                    { id: "1", name: "24x7", alias: "Always" },
-                    { id: "2", name: "none", alias: "Never" },
-                    { id: "3", name: "nonworkhours", alias: "Non-Work Hours" },
-                    { id: "4", name: "workhours", alias: "Work hours" }
+                    { id: '1', name: '24x7', alias: 'Always' },
+                    { id: '2', name: 'none', alias: 'Never' },
+                    { id: '3', name: 'nonworkhours', alias: 'Non-Work Hours' },
+                    { id: '4', name: 'workhours', alias: 'Work hours' },
                   ]}
                 />
               </CustomColumn>
-              <CustomColumn customColumn="md-3" additionalStyles={["mb-0"]}>
+              <CustomColumn customColumn="md-3" additionalStyles={['mb-0']}>
                 <IconInfo iconText="Warning threshold" />
-                <CustomRow additionalStyles={["mt-05", "mb-0"]}>
+                <CustomRow additionalStyles={['mt-05', 'mb-0']}>
                   <CustomColumn
                     customColumn="md-3"
-                    additionalStyles={["mt-03"]}
+                    additionalStyles={['mt-03']}
                   >
-                    <IconWarning style={{ color: "#FF9913" }} />
+                    <IconWarning style={{ color: '#FF9913' }} />
                   </CustomColumn>
                   <CustomColumn customColumn="md-9">
                     <InputField type="text" name="test" />
                   </CustomColumn>
                 </CustomRow>
               </CustomColumn>
-              <CustomColumn customColumn="md-3" additionalStyles={["mb-0"]}>
+              <CustomColumn customColumn="md-3" additionalStyles={['mb-0']}>
                 <IconInfo iconText="Critical threshold" />
-                <CustomRow additionalStyles={["mt-05"]}>
+                <CustomRow additionalStyles={['mt-05']}>
                   <CustomColumn
                     customColumn="md-3"
-                    additionalStyles={["mt-03"]}
+                    additionalStyles={['mt-03']}
                   >
-                    <IconError style={{ color: "#E00B3D" }} />
+                    <IconError style={{ color: '#E00B3D' }} />
                   </CustomColumn>
                   <CustomColumn customColumn="md-9">
                     <InputField type="text" name="test" />
@@ -146,8 +146,11 @@ class Accordion extends React.Component {
             </CustomRow>
           </ExpansionPanelDetails>
           <ExpansionPanelDetails className={classes.additionalStyles}>
-            <MultiSelectHolder multiSelectLabel="Number of indicators" multiSelectCount="5">
-              <CustomRow additionalStyles={["mb-0"]}>
+            <MultiSelectHolder
+              multiSelectLabel="Number of indicators"
+              multiSelectCount="5"
+            >
+              <CustomRow additionalStyles={['mb-0']}>
                 <CustomColumn customColumn="md-6">
                   <InputFieldMultiSelectNew placeholder="BA-CIO-Indicator 1" />
                 </CustomColumn>
@@ -164,7 +167,7 @@ class Accordion extends React.Component {
                   <InputFieldMultiSelectNew placeholder="BA-CIO-Indicator 5" />
                 </CustomColumn>
                 <CustomColumn customColumn="md-6">
-                  <InputFieldMultiSelectNew multiSelectType={true} />
+                  <InputFieldMultiSelectNew multiSelectType />
                 </CustomColumn>
               </CustomRow>
             </MultiSelectHolder>
@@ -179,7 +182,10 @@ class Accordion extends React.Component {
             <Typography className={classes.heading}>Business View</Typography>
           </ExpansionPanelSummary>
           <ExpansionPanelDetails className={classes.additionalStyles}>
-            <MultiSelectHolder multiSelectLabel="Number of views" multiSelectCount="5">
+            <MultiSelectHolder
+              multiSelectLabel="Number of views"
+              multiSelectCount="5"
+            >
               <CustomRow>
                 <CustomColumn customColumn="md-6">
                   <InputFieldMultiSelectNew placeholder="BA-CIO-Indicator 1" />
@@ -197,7 +203,7 @@ class Accordion extends React.Component {
                   <InputFieldMultiSelectNew placeholder="BA-CIO-Indicator 5" />
                 </CustomColumn>
                 <CustomColumn customColumn="md-6">
-                  <InputFieldMultiSelectNew multiSelectType={true} />
+                  <InputFieldMultiSelectNew multiSelectType />
                 </CustomColumn>
               </CustomRow>
             </MultiSelectHolder>
@@ -214,7 +220,7 @@ class Accordion extends React.Component {
           <ExpansionPanelDetails className={classes.additionalStyles}>
             <CustomRow>
               <CustomColumn customColumn="md-6">
-                <CustomColumn customColumn="md-12" additionalStyles={["p-0"]}>
+                <CustomColumn customColumn="md-12" additionalStyles={['p-0']}>
                   <IconInfo iconText="View notifications" />
                 </CustomColumn>
                 <FormControlLabel control={<MaterialSwitch />} label="Enable" />
@@ -231,10 +237,10 @@ class Accordion extends React.Component {
                 <IconInfo iconText="Options" />
                 <InputFieldMultiSelect
                   options={[
-                    { id: "1", name: "24x7", alias: "Always" },
-                    { id: "2", name: "none", alias: "Never" },
-                    { id: "3", name: "nonworkhours", alias: "Non-Work Hours" },
-                    { id: "4", name: "workhours", alias: "Work hours" }
+                    { id: '1', name: '24x7', alias: 'Always' },
+                    { id: '2', name: 'none', alias: 'Never' },
+                    { id: '3', name: 'nonworkhours', alias: 'Non-Work Hours' },
+                    { id: '4', name: 'workhours', alias: 'Work hours' },
                   ]}
                 />
               </CustomColumn>
@@ -242,18 +248,21 @@ class Accordion extends React.Component {
                 <IconInfo iconText="Time period" />
                 <InputFieldMultiSelect
                   options={[
-                    { id: "1", name: "24x7", alias: "Always" },
-                    { id: "2", name: "none", alias: "Never" },
-                    { id: "3", name: "nonworkhours", alias: "Non-Work Hours" },
-                    { id: "4", name: "workhours", alias: "Work hours" }
+                    { id: '1', name: '24x7', alias: 'Always' },
+                    { id: '2', name: 'none', alias: 'Never' },
+                    { id: '3', name: 'nonworkhours', alias: 'Non-Work Hours' },
+                    { id: '4', name: 'workhours', alias: 'Work hours' },
                   ]}
                 />
               </CustomColumn>
             </CustomRow>
           </ExpansionPanelDetails>
           <ExpansionPanelDetails className={classes.additionalStyles}>
-            <MultiSelectHolder multiSelectLabel="Number of notifications" multiSelectCount="2">
-              <CustomRow additionalStyles={["mb-0"]}>
+            <MultiSelectHolder
+              multiSelectLabel="Number of notifications"
+              multiSelectCount="2"
+            >
+              <CustomRow additionalStyles={['mb-0']}>
                 <CustomColumn customColumn="md-6">
                   <InputFieldMultiSelectNew placeholder="BA-CIO-Indicator 1" />
                 </CustomColumn>
@@ -306,7 +315,7 @@ class Accordion extends React.Component {
                   label="SLA critical duration threshold"
                 />
               </CustomColumn>
-              <CustomColumn customColumn="md-12" additionalStyles={["mb-1"]}>
+              <CustomColumn customColumn="md-12" additionalStyles={['mb-1']}>
                 <IconInfo iconText="Extra reporting time periods used in Centreon BI reports (0)" />
               </CustomColumn>
               <CustomColumn customColumn="md-12">
@@ -324,7 +333,10 @@ class Accordion extends React.Component {
             <Typography className={classes.heading}>Escalation</Typography>
           </ExpansionPanelSummary>
           <ExpansionPanelDetails className={classes.additionalStyles}>
-            <MultiSelectHolder multiSelectLabel="Number of escalations" multiSelectCount="2">
+            <MultiSelectHolder
+              multiSelectLabel="Number of escalations"
+              multiSelectCount="2"
+            >
               <CustomRow>
                 <CustomColumn customColumn="md-6">
                   <InputFieldMultiSelectNew placeholder="BA-CIO-Indicator 1" />
@@ -345,9 +357,9 @@ class Accordion extends React.Component {
             <Typography className={classes.heading}>Event handler</Typography>
           </ExpansionPanelSummary>
           <ExpansionPanelDetails className={classes.additionalStyles}>
-            <CustomRow additionalStyles={["w-100"]}>
+            <CustomRow additionalStyles={['w-100']}>
               <CustomColumn customColumn="md-6">
-                <CustomColumn customColumn="md-12" additionalStyles={["p-0"]}>
+                <CustomColumn customColumn="md-12" additionalStyles={['p-0']}>
                   <IconInfo iconText="View event handler" />
                 </CustomColumn>
                 <FormControlLabel control={<MaterialSwitch />} label="Enable" />
@@ -356,16 +368,16 @@ class Accordion extends React.Component {
                 <IconInfo iconText="Event handler command" />
                 <InputFieldMultiSelect
                   options={[
-                    { id: "1", name: "24x7", alias: "Always" },
-                    { id: "2", name: "none", alias: "Never" },
-                    { id: "3", name: "nonworkhours", alias: "Non-Work Hours" },
-                    { id: "4", name: "workhours", alias: "Work hours" }
+                    { id: '1', name: '24x7', alias: 'Always' },
+                    { id: '2', name: 'none', alias: 'Never' },
+                    { id: '3', name: 'nonworkhours', alias: 'Non-Work Hours' },
+                    { id: '4', name: 'workhours', alias: 'Work hours' },
                   ]}
                 />
               </CustomColumn>
             </CustomRow>
             <MultiSelectHolder
-              isEmpty={true}
+              isEmpty
               multiSelectLabel="Extra reporting time periods used in Centreon BI indicators"
               multiSelectCount="0"
             />

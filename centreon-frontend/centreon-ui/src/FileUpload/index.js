@@ -1,33 +1,32 @@
-import React, { Component } from "react";
+import React, { Component } from 'react';
 import classnames from 'classnames';
+import Files from 'react-files';
 import styles from './file-upload.scss';
-import Button from "../Button/ButtonRegular";
-import Popup from "../Popup";
-import FileUploadItem from "./FileUploadItem";
-import IconClose from "../Icon/IconClose";
-
-import Files from "react-files";
+import Button from '../Button/ButtonRegular';
+import Popup from '../Popup';
+import FileUploadItem from './FileUploadItem';
+import IconClose from '../Icon/IconClose';
 
 class FileUpload extends Component {
   state = {
-    files: []
+    files: [],
   };
 
-  onFilesChange = files => {
+  onFilesChange = (files) => {
     this.setState({
-      files
+      files,
     });
   };
 
-  onFilesError = error => {
-    console.log("error code " + error.code + ": " + error.message);
+  onFilesError = (error) => {
+    console.log(`error code ${error.code}: ${error.message}`);
   };
 
-  onRemoveFile = idx => {
-    let { files } = this.state;
+  onRemoveFile = (idx) => {
+    const { files } = this.state;
     files.splice(idx, 1);
     this.setState({
-      files
+      files,
     });
   };
 
@@ -39,7 +38,7 @@ class FileUpload extends Component {
       onClose,
       uploading,
       onApply,
-      finished
+      finished,
     } = this.props;
     let isSuccessfull = true;
     if (uploadStatus && !uploadStatus.status) {
@@ -48,20 +47,46 @@ class FileUpload extends Component {
     return (
       <>
         <Popup popupType="small">
-          <div className={classnames(styles["popup-header"], styles[isSuccessfull ? "blue-background-decorator" : "red-background-decorator"])}>
-            <div className={classnames(styles["container__row"])}>
-              <div className={classnames(styles["container__col-xs-6"], styles["center-vertical"], styles["m-0"])}>
-                <div className={classnames(styles.file, styles["file-upload"])}>
-                  <span className={classnames(styles["file-upload-title"])}>
-                    <span className={classnames(styles["file-upload-icon"], styles.white)}/>
-                    {isSuccessfull ? "File Upload" : "No valid file uploaded."}
+          <div
+            className={classnames(
+              styles['popup-header'],
+              styles[
+                isSuccessfull
+                  ? 'blue-background-decorator'
+                  : 'red-background-decorator'
+              ],
+            )}
+          >
+            <div className={classnames(styles.container__row)}>
+              <div
+                className={classnames(
+                  styles['container__col-xs-6'],
+                  styles['center-vertical'],
+                  styles['m-0'],
+                )}
+              >
+                <div className={classnames(styles.file, styles['file-upload'])}>
+                  <span className={classnames(styles['file-upload-title'])}>
+                    <span
+                      className={classnames(
+                        styles['file-upload-icon'],
+                        styles.white,
+                      )}
+                    />
+                    {isSuccessfull ? 'File Upload' : 'No valid file uploaded.'}
                   </span>
                 </div>
               </div>
               {!finished ? (
-                <div className={classnames(styles["container__col-xs-6"], styles["center-vertical"], styles["m-0"])}>
+                <div
+                  className={classnames(
+                    styles['container__col-xs-6'],
+                    styles['center-vertical'],
+                    styles['m-0'],
+                  )}
+                >
                   <Files
-                    className={classnames("test")}
+                    className={classnames('test')}
                     onChange={this.onFilesChange}
                     onError={this.onFilesError}
                     accepts={['.zip', '.license']}
@@ -71,28 +96,49 @@ class FileUpload extends Component {
                     minFileSize={0}
                     clickable
                   >
-                  <div className={classnames(styles["container__col-xs-6"], styles["text-right"])}>
-                    <Button buttonType="bordered" color="white" label="BROWSE" />
-                  </div>
-                </Files>
-              </div>
-            ) : null}
-          </div>
-          <span className={classnames(styles["icon-close"], styles["icon-close-middle"])} onClick={onClose} />
+                    <div
+                      className={classnames(
+                        styles['container__col-xs-6'],
+                        styles['text-right'],
+                      )}
+                    >
+                      <Button
+                        buttonType="bordered"
+                        color="white"
+                        label="BROWSE"
+                      />
+                    </div>
+                  </Files>
+                </div>
+              ) : null}
+            </div>
+            <span
+              className={classnames(
+                styles['icon-close'],
+                styles['icon-close-middle'],
+              )}
+              onClick={onClose}
+            />
           </div>
           {files.length > 0 ? (
-            <div className={classnames(styles["popup-body"])}>
-              <div className={classnames(styles.file, styles["file-upload"], styles["file-upload-body-container"])}>
-                <div className={classnames(styles["file-upload-items"])}>
+            <div className={classnames(styles['popup-body'])}>
+              <div
+                className={classnames(
+                  styles.file,
+                  styles['file-upload'],
+                  styles['file-upload-body-container'],
+                )}
+              >
+                <div className={classnames(styles['file-upload-items'])}>
                   {!uploadStatus ? (
                     files.map((file, idx) => (
                       <FileUploadItem
-                        icon={file.extension === "zip" ? "zip" : "file"}
-                        iconStatus={uploading ? "percentage" : "warning"}
+                        icon={file.extension === 'zip' ? 'zip' : 'file'}
+                        iconStatus={uploading ? 'percentage' : 'warning'}
                         title={file.name}
-                        titleStatus={uploading ? "percentage" : "warning"}
-                        infoStatus={uploading ? "percentage" : "warning"}
-                        progressBar={uploading ? "percentage" : ""}
+                        titleStatus={uploading ? 'percentage' : 'warning'}
+                        infoStatus={uploading ? 'percentage' : 'warning'}
+                        progressBar={uploading ? 'percentage' : ''}
                         progressPercentage={
                           uploadingProgress[idx] ? uploadingProgress[idx] : 0
                         }
@@ -107,39 +153,39 @@ class FileUpload extends Component {
                     <>
                       {uploadStatus.result.successed.map(({ license }) => (
                         <FileUploadItem
-                          icon={"file"}
-                          iconStatus={"success"}
+                          icon="file"
+                          iconStatus="success"
                           title={license}
-                          titleStatus={"success"}
-                          infoStatus={"success"}
-                          progressBar={"success"}
+                          titleStatus="success"
+                          infoStatus="success"
+                          progressBar="success"
                           progressPercentage={100}
-                          uploading={true}
+                          uploading
                         />
                       ))}
                       {uploadStatus.result.errors.map(
                         ({ license, message }) => (
                           <FileUploadItem
-                            icon={"file"}
-                            iconStatus={"error"}
+                            icon="file"
+                            iconStatus="error"
                             title={license}
-                            titleStatus={"error"}
-                            infoStatus={"error"}
-                            progressBar={"error"}
+                            titleStatus="error"
+                            infoStatus="error"
+                            progressBar="error"
                             progressPercentage={100}
                             message={message}
-                            uploading={true}
+                            uploading
                           />
-                        )
+                        ),
                       )}
                     </>
                   )}
                 </div>
                 {!finished ? (
                   <Button
-                    label={"Apply"}
-                    buttonType={uploading ? "bordered" : "regular"}
-                    color={uploading ? "gray" : "blue"}
+                    label="Apply"
+                    buttonType={uploading ? 'bordered' : 'regular'}
+                    color={uploading ? 'gray' : 'blue'}
                     onClick={() => {
                       if (!uploading) {
                         onApply(files);
@@ -148,7 +194,7 @@ class FileUpload extends Component {
                   />
                 ) : (
                   <Button
-                    label={"Ok"}
+                    label="Ok"
                     buttonType="regular"
                     color="green"
                     onClick={onClose}
@@ -157,7 +203,11 @@ class FileUpload extends Component {
               </div>
             </div>
           ) : null}
-          <IconClose iconPosition="icon-close-position-small" iconType="middle" onClick={onClose}/>
+          <IconClose
+            iconPosition="icon-close-position-small"
+            iconType="middle"
+            onClick={onClose}
+          />
         </Popup>
       </>
     );

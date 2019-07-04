@@ -1,6 +1,6 @@
-import React, { Component } from "react";
-import DynamicComponentPosition from "../DynamicComponentPosition";
-import DynamicComponentLoader from "../DynamicComponentLoader";
+import React, { Component } from 'react';
+import DynamicComponentPosition from '../DynamicComponentPosition';
+import DynamicComponentLoader from '../DynamicComponentLoader';
 
 class DynamicComponentBundle extends Component {
   render() {

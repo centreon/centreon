@@ -1,7 +1,7 @@
-import React from "react";
-import { storiesOf } from "@storybook/react";
-import styles from '../src/Submenu/SubmenuHeader/submenu.scss';
+import React from 'react';
+import { storiesOf } from '@storybook/react';
 import classnames from 'classnames';
+import styles from '../src/Submenu/SubmenuHeader/submenu.scss';
 import {
   SubmenuHeader,
   IconHeader,
@@ -9,33 +9,36 @@ import {
   SubmenuItems,
   SubmenuItem,
   IconToggleSubmenu,
-  IconCustomDot
-} from "../src";
+  IconCustomDot,
+} from '../src';
 
-storiesOf("Submenu", module).add("Submenu - toggled without items", () => (
+storiesOf('Submenu', module).add('Submenu - toggled without items', () => (
   <SubmenuHeader submenuType="header">
     <div
-      className={classnames(styles["submenu-top"], styles["submenu-active"])}
+      className={classnames(styles['submenu-top'], styles['submenu-active'])}
       style={{
-        width: "220px",
-        minHeight: "53px"
+        width: '220px',
+        minHeight: '53px',
       }}
     >
-      <div className={classnames(styles["submenu-toggle"])} style={{ minHeight: "200px" }}>
+      <div
+        className={classnames(styles['submenu-toggle'])}
+        style={{ minHeight: '200px' }}
+      >
         <SubmenuItems />
       </div>
     </div>
   </SubmenuHeader>
 ));
 
-storiesOf("Submenu", module).add(
-  "Submenu - toggled with top and bottom items",
+storiesOf('Submenu', module).add(
+  'Submenu - toggled with top and bottom items',
   () => (
     <SubmenuHeader submenuType="header">
       <div
-        className={classnames(styles["submenu-top"], styles["submenu-active"])}
+        className={classnames(styles['submenu-top'], styles['submenu-active'])}
         style={{
-          width: "200px"
+          width: '200px',
         }}
       >
         <IconHeader iconType="services" iconName="services">
@@ -44,8 +47,11 @@ storiesOf("Submenu", module).add(
         <IconNumber iconType="bordered" iconColor="red" iconNumber="3" />
         <IconNumber iconType="bordered" iconColor="gray-dark" iconNumber="5" />
         <IconNumber iconType="colored" iconColor="green" iconNumber="10" />
-        <IconToggleSubmenu iconPosition="icons-toggle-position-right" iconType="arrow" />
-        <div className={classnames(styles["submenu-toggle"])}>
+        <IconToggleSubmenu
+          iconPosition="icons-toggle-position-right"
+          iconType="arrow"
+        />
+        <div className={classnames(styles['submenu-toggle'])}>
           <SubmenuItems>
             <SubmenuItem submenuTitle="All" submenuCount="151" />
             <SubmenuItem
@@ -73,19 +79,19 @@ storiesOf("Submenu", module).add(
         </div>
       </div>
     </SubmenuHeader>
-  )
+  ),
 );
 
-storiesOf("Submenu", module).add("Submenu - toggled with bottom items", () => (
+storiesOf('Submenu', module).add('Submenu - toggled with bottom items', () => (
   <SubmenuHeader submenuType="header">
     <div
-      className={classnames(styles["submenu-top"], styles["submenu-active"])}
+      className={classnames(styles['submenu-top'], styles['submenu-active'])}
       style={{
-        width: "200px",
-        minHeight: "40px"
+        width: '200px',
+        minHeight: '40px',
       }}
     >
-      <div className={classnames(styles["submenu-toggle"])}>
+      <div className={classnames(styles['submenu-toggle'])}>
         <SubmenuItems>
           <SubmenuItem submenuTitle="All" submenuCount="151" />
           <SubmenuItem

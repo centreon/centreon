@@ -1,22 +1,22 @@
-import React from "react";
-import { makeStyles } from "@material-ui/core/styles";
-import Delete from "@material-ui/icons/Delete";
+import React from 'react';
+import { makeStyles } from '@material-ui/core/styles';
+import Delete from '@material-ui/icons/Delete';
 
 const useStyles = makeStyles(() => ({
   root: {
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center"
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   icon: {
-    color: "#707070",
-    cursor: "pointer"
+    color: '#707070',
+    cursor: 'pointer',
   },
   iconWrap: {
-    display: "inline-block",
-    verticalAlign: "middle",
-    height: 24
-  }
+    display: 'inline-block',
+    verticalAlign: 'middle',
+    height: 24,
+  },
 }));
 
 function IconDelete({ customStyle, ...rest }) {

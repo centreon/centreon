@@ -1,6 +1,6 @@
-import React from "react";
-import IconAction from "../../Icon/IconAction";
+import React from 'react';
 import classnames from 'classnames';
+import IconAction from '../../Icon/IconAction';
 import styles from './button.scss';
 
 const Button = ({
@@ -20,25 +20,27 @@ const Button = ({
 }) => {
   const cn = classnames(
     styles.button,
-    {[styles[`button-${buttonType}-${color}`]]: true},
+    { [styles[`button-${buttonType}-${color}`]]: true },
     styles.linear,
-    styles[customClass ? customClass : ''],
-    styles[customSecond ? customSecond : ''],
+    styles[customClass || ''],
+    styles[customSecond || ''],
     styles[`button-${iconPosition}`],
-    styles[position ? position : '']
+    styles[position || ''],
   );
 
   return (
-    <button
-      className={cn}
-      onClick={onClick}
-      style={style}
-      {...rest}
-    >
-      {iconActionType ? <IconAction iconDirection="icon-position-right" iconColor={iconColor} iconActionType={iconActionType} /> : null}
+    <button className={cn} onClick={onClick} style={style} {...rest}>
+      {iconActionType ? (
+        <IconAction
+          iconDirection="icon-position-right"
+          iconColor={iconColor}
+          iconActionType={iconActionType}
+        />
+      ) : null}
       {label}
       {children}
     </button>
-);}
+  );
+};
 
 export default Button;

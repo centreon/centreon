@@ -1,23 +1,23 @@
-import React, { Component } from "react";
-import classnames from "classnames";
-import styles from "./submenu.scss";
-import IconHeader from "../../Icon/IconHeader";
-import IconToggleSubmenu from "../../Icon/IconToggleSubmenu";
-import IconCustomDot from "../../Icon/IconCustomDot";
-import IconNumber from "../../Icon/IconNumber";
-import SubmenuItems from "../../Submenu/SubmenuHeader/SubmenuItems";
-import SubmenuItem from "../../Submenu/SubmenuHeader/SubmenuItem";
+import React, { Component } from 'react';
+import classnames from 'classnames';
+import styles from './submenu.scss';
+import IconHeader from '../../Icon/IconHeader';
+import IconToggleSubmenu from '../../Icon/IconToggleSubmenu';
+import IconCustomDot from '../../Icon/IconCustomDot';
+import IconNumber from '../../Icon/IconNumber';
+import SubmenuItems from './SubmenuItems';
+import SubmenuItem from './SubmenuItem';
 
 class SubmenuHeader extends Component {
   state = {
-    active: false
+    active: false,
   };
 
   toggleSubmenu = () => {
     const { active } = this.state;
 
     this.setState({
-      active: !active
+      active: !active,
     });
   };
 
@@ -28,20 +28,24 @@ class SubmenuHeader extends Component {
     return (
       <div
         className={classnames(styles[`submenu-${submenuType}`], {
-          [styles["submenu-active"]]: !!active
+          [styles['submenu-active']]: !!active,
         })}
         {...props}
       >
         <div
           className={classnames(
-            styles["submenu-top"],
-            styles[ active ? "submenu-active" : ""]
+            styles['submenu-top'],
+            styles[active ? 'submenu-active' : ''],
           )}
           style={{
-            width: "200px"
+            width: '200px',
           }}
         >
-          <IconHeader iconType="services" iconName="services" onClick={this.toggleSubmenu.bind(this)}>
+          <IconHeader
+            iconType="services"
+            iconName="services"
+            onClick={this.toggleSubmenu.bind(this)}
+          >
             <IconCustomDot />
           </IconHeader>
           <IconNumber iconType="bordered" iconColor="red" iconNumber="3" />
@@ -56,7 +60,7 @@ class SubmenuHeader extends Component {
             iconType="arrow"
             onClick={this.toggleSubmenu.bind(this)}
           />
-          <div className={classnames(styles["submenu-toggle"])}>
+          <div className={classnames(styles['submenu-toggle'])}>
             <SubmenuItems>
               <SubmenuItem submenuTitle="All" submenuCount="151" />
               <SubmenuItem

@@ -7,7 +7,7 @@ import StepButton from '@material-ui/core/StepButton';
 import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
 
-const styles = theme => ({
+const styles = (theme) => ({
   root: {
     width: '90%',
   },
@@ -65,12 +65,12 @@ class HorizontalNonLinearStepper extends React.Component {
   };
 
   handleBack = () => {
-    this.setState(state => ({
+    this.setState((state) => ({
       activeStep: state.activeStep - 1,
     }));
   };
 
-  handleStep = step => () => {
+  handleStep = (step) => () => {
     this.setState({
       activeStep: step,
     });
@@ -114,7 +114,10 @@ class HorizontalNonLinearStepper extends React.Component {
         <Stepper nonLinear activeStep={activeStep}>
           {steps.map((label, index) => (
             <Step key={label}>
-              <StepButton onClick={this.handleStep(index)} completed={this.state.completed[index]}>
+              <StepButton
+                onClick={this.handleStep(index)}
+                completed={this.state.completed[index]}
+              >
                 {label}
               </StepButton>
             </Step>
@@ -130,7 +133,9 @@ class HorizontalNonLinearStepper extends React.Component {
             </div>
           ) : (
             <div>
-              <Typography className={classes.instructions}>{getStepContent(activeStep)}</Typography>
+              <Typography className={classes.instructions}>
+                {getStepContent(activeStep)}
+              </Typography>
               <div>
                 <Button
                   disabled={activeStep === 0}
@@ -150,11 +155,19 @@ class HorizontalNonLinearStepper extends React.Component {
                 {activeStep !== steps.length &&
                   (this.state.completed[this.state.activeStep] ? (
                     <Typography variant="caption" className={classes.completed}>
-                      Step {activeStep + 1} already completed
-                    </Typography>
+                      Step {activeStep + 1}
+{' '}
+already completed
+</Typography>
                   ) : (
-                    <Button variant="contained" color="primary" onClick={this.handleComplete}>
-                      {this.completedSteps() === this.totalSteps() - 1 ? 'Finish' : 'Complete Step'}
+                    <Button
+                      variant="contained"
+                      color="primary"
+                      onClick={this.handleComplete}
+                    >
+                      {this.completedSteps() === this.totalSteps() - 1
+                        ? 'Finish'
+                        : 'Complete Step'}
                     </Button>
                   ))}
               </div>

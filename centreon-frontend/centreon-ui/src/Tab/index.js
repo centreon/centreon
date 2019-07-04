@@ -1,14 +1,10 @@
-import React, { Component } from "react";
-import Tabs from './Tabs'
+import React, { Component } from 'react';
+import Tabs from './Tabs';
 
 class Tab extends Component {
   render() {
-    const {children, error} = this.props;
-    return (
-      <Tabs error={error}>
-        {children}
-      </Tabs>
-    );
+    const { children, error } = this.props;
+    return <Tabs error={error}>{children}</Tabs>;
   }
 }
 

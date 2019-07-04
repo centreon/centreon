@@ -1,6 +1,6 @@
-import React, { Component } from "react";
-import classnames from "classnames";
-import styles from "./input-field-multi-select.scss";
+import React, { Component } from 'react';
+import classnames from 'classnames';
+import styles from './input-field-multi-select.scss';
 
 class InputFieldMultiSelect extends Component {
   render() {
@@ -16,8 +16,8 @@ class InputFieldMultiSelect extends Component {
       <React.Fragment>
         <div
           className={classnames(
-            styles["multi-select"],
-            multiSelectType ? styles["multi-select-empty"] : ""
+            styles['multi-select'],
+            multiSelectType ? styles['multi-select-empty'] : '',
           )}
         >
           {!multiSelectType && (
@@ -25,12 +25,12 @@ class InputFieldMultiSelect extends Component {
               name={name}
               type={type}
               placeholder={placeholder}
-              className={classnames(styles["multi-select-input"])}
+              className={classnames(styles['multi-select-input'])}
               {...rest}
             />
           )}
           {error ? (
-            <div className={classnames(styles["form-error"])}>{error}</div>
+            <div className={classnames(styles['form-error'])}>{error}</div>
           ) : null}
         </div>
       </React.Fragment>

@@ -2,7 +2,7 @@ import React from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import Close from '@material-ui/icons/Close';
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles((theme) => ({
   root: {
     display: 'flex',
     justifyContent: 'center',
@@ -20,7 +20,7 @@ const useStyles = makeStyles(theme => ({
   },
   iconLabel: {
     color: '#009fdf',
-    fontSize: 12, 
+    fontSize: 12,
     display: 'inline-block',
     verticalAlign: 'middle',
     fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
@@ -40,12 +40,12 @@ const useStyles = makeStyles(theme => ({
       background: '#707070',
       '& svg': {
         color: '#fff',
-      }
-    }
-  }
+      },
+    },
+  },
 }));
 
-function IconClose({label, customStyle, onClick}) {
+function IconClose({ label, customStyle, onClick }) {
   const classes = useStyles();
 
   return (

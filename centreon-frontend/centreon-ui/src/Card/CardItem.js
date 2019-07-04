@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React, { Component } from 'react';
 import classnames from 'classnames';
 import styles from './card.scss';
 
@@ -10,22 +10,23 @@ class CardItem extends Component {
       itemFooterColor,
       itemFooterLabel,
       customClass,
-      style
+      style,
     } = this.props;
-    const cnCardItem = classnames(styles["card-item"], {[styles[`card-item-bordered-${itemBorderColor ? itemBorderColor : ''}`]]: true}, styles[customClass ? customClass : '']);
-    const cnCardItemFooter = classnames(styles["card-item-footer"], {[styles[`card-item-footer-${itemFooterColor ? itemFooterColor : ''}`]]: true});
+    const cnCardItem = classnames(
+      styles['card-item'],
+      {
+        [styles[`card-item-bordered-${itemBorderColor || ''}`]]: true,
+      },
+      styles[customClass || ''],
+    );
+    const cnCardItemFooter = classnames(styles['card-item-footer'], {
+      [styles[`card-item-footer-${itemFooterColor || ''}`]]: true,
+    });
 
     return (
-      <div
-        className={cnCardItem}
-        style={style}
-      >
+      <div className={cnCardItem} style={style}>
         {children}
-        <span
-          className={cnCardItemFooter}
-        >
-          {itemFooterLabel}
-        </span>
+        <span className={cnCardItemFooter}>{itemFooterLabel}</span>
       </div>
     );
   }

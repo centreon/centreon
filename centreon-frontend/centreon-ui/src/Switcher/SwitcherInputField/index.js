@@ -1,30 +1,30 @@
-import React from "react";
+import React from 'react';
 import classnames from 'classnames';
 import styles from './swithcer-input-field.scss';
-import IconClose from "../../Icon/IconClose";
-import IconAction from "../../Icon/IconAction";
+import IconClose from '../../Icon/IconClose';
+import IconAction from '../../Icon/IconAction';
 
 class SwitcherInputField extends React.Component {
   state = {
     value: true,
-    toggled: false
+    toggled: false,
   };
 
   UNSAFE_componentDidMount = () => {
     const { value } = this.props;
     if (value) {
       this.setState({
-        value
+        value,
       });
     }
   };
 
-  UNSAFE_componentWillReceiveProps = nextProps => {
+  UNSAFE_componentWillReceiveProps = (nextProps) => {
     const { value } = nextProps;
     if (this.state.value != value) {
       this.setState({
         toggled: !value,
-        value
+        value,
       });
     }
   };
@@ -34,7 +34,7 @@ class SwitcherInputField extends React.Component {
     const { value, toggled } = this.state;
     this.setState({
       value: !value,
-      toggled: !toggled
+      toggled: !toggled,
     });
     if (onChange) {
       onChange(!value, filterKey);
@@ -44,7 +44,7 @@ class SwitcherInputField extends React.Component {
   toggled = () => {
     const { toggled } = this.state;
     this.setState({
-      toggled: !toggled
+      toggled: !toggled,
     });
   };
 
@@ -52,19 +52,37 @@ class SwitcherInputField extends React.Component {
     const { customClass } = this.props;
     const { value, toggled } = this.state;
     return (
-      <div className={classnames(styles["switcher-input"], styles[customClass ? customClass : ''])}>
-        <label className={classnames(styles.switch, styles[toggled ? "switch-active" : "switch-hide"])}>
+      <div
+        className={classnames(
+          styles['switcher-input'],
+          styles[customClass || ''],
+        )}
+      >
+        <label
+          className={classnames(
+            styles.switch,
+            styles[toggled ? 'switch-active' : 'switch-hide'],
+          )}
+        >
           <input
             type="checkbox"
             checked={!value}
             onClick={this.onChange.bind(this)}
           />
-          <span className={classnames(styles["switch-slider"], styles["switch-round"] )}>
-            <span className={classnames(styles["switcher-icon-left"])}>
+          <span
+            className={classnames(
+              styles['switch-slider'],
+              styles['switch-round'],
+            )}
+          >
+            <span className={classnames(styles['switcher-icon-left'])}>
               <IconClose customStyle="icon-close-custom" iconType="small" />
             </span>
-            <span className={classnames(styles["switcher-icon-right"])}>
-              <IconAction customStyle="icon-action-custom" iconActionType="check" />
+            <span className={classnames(styles['switcher-icon-right'])}>
+              <IconAction
+                customStyle="icon-action-custom"
+                iconActionType="check"
+              />
             </span>
           </span>
         </label>

@@ -14,7 +14,7 @@ import KeyboardArrowLeft from '@material-ui/icons/KeyboardArrowLeft';
 import KeyboardArrowRight from '@material-ui/icons/KeyboardArrowRight';
 import LastPageIcon from '@material-ui/icons/LastPage';
 
-const actionsStyles = theme => ({
+const actionsStyles = (theme) => ({
   root: {
     flexShrink: 0,
     color: theme.palette.text.secondary,
@@ -23,19 +23,19 @@ const actionsStyles = theme => ({
 });
 
 class TablePaginationActions extends React.Component {
-  handleFirstPageButtonClick = event => {
+  handleFirstPageButtonClick = (event) => {
     this.props.onChangePage(event, 0);
   };
 
-  handleBackButtonClick = event => {
+  handleBackButtonClick = (event) => {
     this.props.onChangePage(event, this.props.page - 1);
   };
 
-  handleNextButtonClick = event => {
+  handleNextButtonClick = (event) => {
     this.props.onChangePage(event, this.props.page + 1);
   };
 
-  handleLastPageButtonClick = event => {
+  handleLastPageButtonClick = (event) => {
     this.props.onChangePage(
       event,
       Math.max(0, Math.ceil(this.props.count / this.props.rowsPerPage) - 1),
@@ -59,14 +59,22 @@ class TablePaginationActions extends React.Component {
           disabled={page === 0}
           aria-label="Previous Page"
         >
-          {theme.direction === 'rtl' ? <KeyboardArrowRight /> : <KeyboardArrowLeft />}
+          {theme.direction === 'rtl' ? (
+            <KeyboardArrowRight />
+          ) : (
+            <KeyboardArrowLeft />
+          )}
         </IconButton>
         <IconButton
           onClick={this.handleNextButtonClick}
           disabled={page >= Math.ceil(count / rowsPerPage) - 1}
           aria-label="Next Page"
         >
-          {theme.direction === 'rtl' ? <KeyboardArrowLeft /> : <KeyboardArrowRight />}
+          {theme.direction === 'rtl' ? (
+            <KeyboardArrowLeft />
+          ) : (
+            <KeyboardArrowRight />
+          )}
         </IconButton>
         <IconButton
           onClick={this.handleLastPageButtonClick}
@@ -89,9 +97,9 @@ TablePaginationActions.propTypes = {
   theme: PropTypes.object.isRequired,
 };
 
-const TablePaginationActionsWrapped = withStyles(actionsStyles, { withTheme: true })(
-  TablePaginationActions,
-);
+const TablePaginationActionsWrapped = withStyles(actionsStyles, {
+  withTheme: true,
+})(TablePaginationActions);
 
 let counter = 0;
 function createData(name, calories, fat) {
@@ -99,7 +107,7 @@ function createData(name, calories, fat) {
   return { id: counter, name, calories, fat };
 }
 
-const styles = theme => ({
+const styles = (theme) => ({
   root: {
     width: '100%',
     marginTop: theme.spacing.unit * 3,
@@ -137,29 +145,32 @@ class CustomPaginationActionsTable extends React.Component {
     this.setState({ page });
   };
 
-  handleChangeRowsPerPage = event => {
+  handleChangeRowsPerPage = (event) => {
     this.setState({ page: 0, rowsPerPage: event.target.value });
   };
 
   render() {
     const { classes } = this.props;
     const { rows, rowsPerPage, page } = this.state;
-    const emptyRows = rowsPerPage - Math.min(rowsPerPage, rows.length - page * rowsPerPage);
+    const emptyRows =
+      rowsPerPage - Math.min(rowsPerPage, rows.length - page * rowsPerPage);
 
     return (
       <Paper className={classes.root}>
         <div className={classes.tableWrapper}>
           <Table className={classes.table}>
             <TableBody>
-              {rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map(row => (
-                <TableRow key={row.id}>
-                  <TableCell align="right" component="th" scope="row">
-                    {row.name}
-                  </TableCell>
-                  <TableCell align="right">{row.calories}</TableCell>
-                  <TableCell align="right">{row.fat}</TableCell>
-                </TableRow>
-              ))}
+              {rows
+                .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                .map((row) => (
+                  <TableRow key={row.id}>
+                    <TableCell align="right" component="th" scope="row">
+                      {row.name}
+                    </TableCell>
+                    <TableCell align="right">{row.calories}</TableCell>
+                    <TableCell align="right">{row.fat}</TableCell>
+                  </TableRow>
+                ))}
               {emptyRows > 0 && (
                 <TableRow style={{ height: 48 * emptyRows }}>
                   <TableCell align="right" colSpan={6} />
