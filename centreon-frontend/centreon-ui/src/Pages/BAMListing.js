@@ -25,11 +25,11 @@ import TABLE_COLUMN_TYPES from '../Table/ColumnTypes';
 const breadcrumbs = [
   {
     label: 'Configuration',
-    link: '',
+    link: './main.php?p=6',
   },
   {
     label: 'Business Activity',
-    link: '',
+    link: './main.php?p=626',
   },
   {
     label: 'Activities',
