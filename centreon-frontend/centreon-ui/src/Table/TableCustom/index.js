@@ -251,7 +251,7 @@ class TableCustom extends Component {
                                 {hovered == row.id ? (
                                   <React.Fragment>
                                     <Tooltip
-                                      label="More action"
+                                      label="Delete"
                                       position={{ left: '50px' }}
                                       customStyle={{
                                         position: 'absolute',
@@ -271,7 +271,7 @@ class TableCustom extends Component {
                                       />
                                     </Tooltip>
                                     <Tooltip
-                                      label="More action"
+                                      label="Duplicate"
                                       position={{ left: '50px' }}
                                       customStyle={{
                                         position: 'absolute',
