@@ -1,7 +1,9 @@
+/* eslint-disable react/jsx-filename-extension */
+/* eslint-disable import/no-extraneous-dependencies */
+
 import React from 'react';
 import classnames from 'classnames';
 import { storiesOf } from '@storybook/react';
-import Paper from '@material-ui/core/Paper';
 import styles from '../src/global-sass-files/_grid.scss';
 import {
   Wrapper,
@@ -30,16 +32,6 @@ import {
   CustomRow,
   CustomColumn,
   CustomStyles,
-  Breadcrumb,
-  Divider,
-  InputFieldSearch,
-  ButtonCustom,
-  TableCustom,
-  IconDelete,
-  IconLibraryAdd,
-  IconPowerSettings,
-  IconInsertChart,
-  Panels,
   BAMListingPageStory,
 } from '../src';
 import BAMTableData from '../src/Pages/BAMListingMock';

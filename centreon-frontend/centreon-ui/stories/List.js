@@ -1,3 +1,7 @@
+/* eslint-disable react/jsx-filename-extension */
+/* eslint-disable import/extensions */
+/* eslint-disable import/no-extraneous-dependencies */
+
 import React from 'react';
 import { storiesOf } from '@storybook/react';
 import { ListSortable } from '../src';

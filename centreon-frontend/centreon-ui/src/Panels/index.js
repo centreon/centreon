@@ -1,3 +1,9 @@
+/* eslint-disable jsx-a11y/no-static-element-interactions */
+/* eslint-disable jsx-a11y/click-events-have-key-events */
+/* eslint-disable react/jsx-no-bind */
+/* eslint-disable react/jsx-filename-extension */
+/* eslint-disable react/prop-types */
+
 import React from 'react';
 import classnames from 'classnames';
 import Button from '@material-ui/core/Button';
@@ -13,7 +19,6 @@ import Accordion from '../MaterialComponents/Accordion';
 import IconCloseNew from '../MaterialComponents/Icons/IconClose';
 import InputFieldSearch from '../InputField/InputFieldSearch';
 import TableDefault from '../Table/TableDefault';
-import ButtonCustom from '../Button/ButtonCustom';
 
 class Panels extends React.Component {
   state = {

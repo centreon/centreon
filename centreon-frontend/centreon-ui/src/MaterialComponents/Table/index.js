@@ -1,3 +1,8 @@
+/* eslint-disable react/no-multi-comp */
+/* eslint-disable react/forbid-prop-types */
+/* eslint-disable react/jsx-filename-extension */
+/* eslint-disable react/destructuring-assignment */
+
 import React from 'react';
 import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';

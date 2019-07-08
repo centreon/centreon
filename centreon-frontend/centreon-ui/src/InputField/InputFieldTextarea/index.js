@@ -1,3 +1,8 @@
+/* eslint-disable jsx-a11y/label-has-for */
+/* eslint-disable jsx-a11y/label-has-associated-control */
+/* eslint-disable react/jsx-filename-extension */
+/* eslint-disable react/prop-types */
+
 import React from 'react';
 import classnames from 'classnames';
 import styles from './textarea.scss';
@@ -24,8 +29,8 @@ const InputFieldTextarea = ({
         <label>
           {iconName ? (
             <IconInfo iconName={iconName} iconColor={iconColor} />
-          ) : null}{' '}
-          {label}{' '}
+          ) : null}
+          {label}
         </label>
       )}
       <textarea

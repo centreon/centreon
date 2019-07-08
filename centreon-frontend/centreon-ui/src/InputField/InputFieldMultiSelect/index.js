@@ -1,3 +1,14 @@
+/* eslint-disable react/no-array-index-key */
+/* eslint-disable prettier/prettier */
+/* eslint-disable react/jsx-no-bind */
+/* eslint-disable no-return-assign */
+/* eslint-disable react/jsx-filename-extension */
+/* eslint-disable camelcase */
+/* eslint-disable react/sort-comp */
+/* eslint-disable react/prop-types */
+/* eslint-disable no-restricted-syntax */
+/* eslint-disable import/no-named-as-default */
+
 import React, { Component } from 'react';
 import classnames from 'classnames';
 import styles from './input-multi-select.scss';
@@ -141,7 +152,7 @@ class InputFieldMultiSelect extends Component {
           <div className={classnames(styles['multi-select-dropdown'])}>
             {options
               ? options.map((option, index) => (
-                  <Checkbox
+                <Checkbox
                   key={`multiselect-checkbox-${index}`}
                   label={option.name}
                   onClick={this.optionChecked.bind(this, option)}

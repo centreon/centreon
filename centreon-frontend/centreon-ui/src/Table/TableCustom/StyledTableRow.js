@@ -1,3 +1,5 @@
+/* eslint-disable no-unused-vars */
+
 import React, { Component } from 'react';
 import TableRow from '@material-ui/core/TableRow';
 import PropTypes from 'prop-types';

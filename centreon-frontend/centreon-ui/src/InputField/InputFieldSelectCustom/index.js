@@ -1,8 +1,19 @@
+/* eslint-disable react/jsx-indent */
+/* eslint-disable react/jsx-no-bind */
+/* eslint-disable jsx-a11y/click-events-have-key-events */
+/* eslint-disable jsx-a11y/no-static-element-interactions */
+/* eslint-disable no-return-assign */
+/* eslint-disable react/jsx-filename-extension */
+/* eslint-disable react/no-find-dom-node */
+/* eslint-disable camelcase */
+/* eslint-disable no-plusplus */
+/* eslint-disable react/prop-types */
+/* eslint-disable react/sort-comp */
+
 import React, { Component } from 'react';
 import { findDOMNode } from 'react-dom';
 import classnames from 'classnames';
 import styles from './input-field.scss';
-import ScrollBar from '../../ScrollBar';
 import CustomIconWithText from '../../Custom/CustomIconWithText';
 import IconToggleSubmenu from '../../Icon/IconToggleSubmenu';
 
@@ -24,7 +35,7 @@ class InputFieldSelectCustom extends Component {
   componentWillMount = () => {
     const { value, options } = this.props;
     for (let i = 0; i < options.length; i++) {
-      if (options[i].id == value) {
+      if (options[i].id === value) {
         this.setState({
           selected: options[i],
         });
@@ -41,7 +52,7 @@ class InputFieldSelectCustom extends Component {
   componentWillReceiveProps = (nextProps) => {
     const { value, options } = nextProps;
     for (let i = 0; i < options.length; i++) {
-      if (options[i].id == value) {
+      if (options[i].id === value) {
         this.setState({
           selected: options[i],
         });
@@ -113,7 +124,7 @@ class InputFieldSelectCustom extends Component {
 
   render() {
     const { active, selected, options } = this.state;
-    const { size, label, error, icons, domainPath, customStyle } = this.props;
+    const { size, error, icons, domainPath, customStyle } = this.props;
     return (
       <div
         className={classnames(
@@ -153,12 +164,12 @@ class InputFieldSelectCustom extends Component {
             {options
               ? options.map((option) => (
                   <React.Fragment>
-                  {icons ? (
+                    {icons ? (
                       <CustomIconWithText
-                      label={option.name}
-                      onClick={this.optionChecked.bind(this, option)}
-                      image={`${domainPath}/${option.preview}`}
-                    />
+                        label={option.name}
+                        onClick={this.optionChecked.bind(this, option)}
+                        image={`${domainPath}/${option.preview}`}
+                      />
                     ) : (
                       <span
                         onClick={this.optionChecked.bind(this, option)}
@@ -167,7 +178,7 @@ class InputFieldSelectCustom extends Component {
                         {option.name}
                       </span>
                     )}
-                </React.Fragment>
+                  </React.Fragment>
                 ))
               : null}
           </div>

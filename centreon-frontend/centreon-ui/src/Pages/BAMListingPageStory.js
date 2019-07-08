@@ -1,3 +1,7 @@
+/* eslint-disable no-shadow */
+/* eslint-disable react/jsx-filename-extension */
+/* eslint-disable react/prop-types */
+
 import React, { Component } from 'react';
 import BAMListingPage from './BAMListing';
 
@@ -58,7 +62,7 @@ class BAMListingPageStory extends Component {
         }}
         paginationLimit={BAMTableData.result.pagination.limit}
         currentPage={
-          BAMTableData.result.pagination.offset != 0
+          BAMTableData.result.pagination.offset !== 0
             ? BAMTableData.result.pagination.offset /
               BAMTableData.result.pagination.limit
             : 0

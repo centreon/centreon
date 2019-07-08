@@ -1,3 +1,8 @@
+/* eslint-disable react/jsx-indent */
+/* eslint-disable react/jsx-filename-extension */
+/* eslint-disable react/prop-types */
+/* eslint-disable no-unused-vars */
+
 import React, { Component } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import Paper from '@material-ui/core/Paper';
@@ -31,11 +36,11 @@ function Breadcrumb(props) {
           {breadcrumbs
             ? breadcrumbs.map((breadcrumb, index) => (
                 <BreadcrumbLink
-                breadcrumb={breadcrumb}
-                index={index}
-                count={breadcrumbs.length}
-                classes={classes}
-              />
+                  breadcrumb={breadcrumb}
+                  index={index}
+                  count={breadcrumbs.length}
+                  classes={classes}
+                />
               ))
             : null}
         </Breadcrumbs>

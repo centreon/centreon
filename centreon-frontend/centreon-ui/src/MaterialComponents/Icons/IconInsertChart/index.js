@@ -1,8 +1,10 @@
+/* eslint-disable react/jsx-filename-extension */
+
 import React from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import InsertChart from '@material-ui/icons/InsertChart';
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles(() => ({
   root: {
     display: 'flex',
     justifyContent: 'center',

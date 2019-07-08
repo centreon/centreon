@@ -1,3 +1,9 @@
+/* eslint-disable react/no-array-index-key */
+/* eslint-disable prettier/prettier */
+/* eslint-disable react/jsx-filename-extension */
+/* eslint-disable react/prop-types */
+/* eslint-disable react/prefer-stateless-function */
+
 import React, { Component } from 'react';
 import classnames from 'classnames';
 import styles from '../global-sass-files/_grid.scss';
@@ -9,7 +15,7 @@ import Button from '../Button/ButtonRegular';
 
 class TopFilters extends Component {
   render() {
-    const { fullText, switchers, onChange, icon } = this.props;
+    const { fullText, switchers, onChange } = this.props;
 
     return (
       <div className={styles['container-gray']}>
@@ -36,7 +42,7 @@ class TopFilters extends Component {
               <div className={classnames(styles.container__row)}>
                 {switchers
                   ? switchers.map((switcherColumn, index) => (
-                      <div
+                    <div
                       key={`switcherSubColumn${index}`}
                       className={filterStyles['switch-wrapper']}
                     >

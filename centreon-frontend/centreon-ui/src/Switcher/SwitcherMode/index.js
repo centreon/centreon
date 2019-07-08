@@ -1,3 +1,9 @@
+/* eslint-disable jsx-a11y/label-has-for */
+/* eslint-disable jsx-a11y/label-has-associated-control */
+/* eslint-disable react/jsx-filename-extension */
+/* eslint-disable react/destructuring-assignment */
+/* eslint-disable react/prop-types */
+/* eslint-disable camelcase */
 import React from 'react';
 import classnames from 'classnames';
 import styles from './switcher-mode.scss';
@@ -19,7 +25,7 @@ class SwitcherMode extends React.Component {
 
   UNSAFE_componentWillReceiveProps = (nextProps) => {
     const { value } = nextProps;
-    if (this.state.value != value) {
+    if (this.state.value !== value) {
       this.setState({
         toggled: !value,
         value,

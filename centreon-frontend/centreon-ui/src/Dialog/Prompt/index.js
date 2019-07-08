@@ -1,3 +1,8 @@
+/* eslint-disable no-dupe-keys */
+/* eslint-disable react/jsx-filename-extension */
+/* eslint-disable react/prop-types */
+/* eslint-disable import/no-named-as-default */
+
 import React, { Component } from 'react';
 import classnames from 'classnames';
 import ButtonCustom from '@material-ui/core/Button';

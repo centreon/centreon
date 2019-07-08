@@ -1,3 +1,9 @@
+/* eslint-disable prettier/prettier */
+/* eslint-disable no-case-declarations */
+/* eslint-disable react/no-array-index-key */
+/* eslint-disable react/jsx-filename-extension */
+/* eslint-disable react/prop-types */
+
 import React, { Component } from 'react';
 import classnames from 'classnames';
 import IconAction from '../Icon/IconAction';
@@ -11,7 +17,7 @@ class Table extends Component {
   };
 
   render() {
-    const { fields, type, data, pagination } = this.props;
+    const { fields, data, pagination } = this.props;
     return (
       <React.Fragment>
         <table className={classnames(styles.table, styles['table-striped'])}>
@@ -36,7 +42,7 @@ class Table extends Component {
           <tbody>
             {data
               ? data.map((row, rowIndex) => (
-                  <tr key={`tableRow${rowIndex}`}>
+                <tr key={`tableRow${rowIndex}`}>
                   {fields.map(({ type, key, values }, index) => {
                       let subComponent = (
                         <td key={`tableRow${rowIndex}Cell${index}`} />
@@ -67,7 +73,7 @@ class Table extends Component {
                       return subComponent;
                     })}
                   {pagination ? (
-                      <td key={`tablePagination${rowIndex}`} />
+                    <td key={`tablePagination${rowIndex}`} />
                     ) : null}
                 </tr>
                 ))

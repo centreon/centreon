@@ -1,8 +1,11 @@
+/* eslint-disable react/jsx-filename-extension */
+/* eslint-disable react/prop-types */
+
 import React from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import LibraryAdd from '@material-ui/icons/LibraryAdd';
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles(() => ({
   root: {
     display: 'flex',
     justifyContent: 'center',

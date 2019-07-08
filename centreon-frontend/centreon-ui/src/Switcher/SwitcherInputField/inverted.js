@@ -1,3 +1,10 @@
+/* eslint-disable jsx-a11y/label-has-for */
+/* eslint-disable jsx-a11y/label-has-associated-control */
+/* eslint-disable react/jsx-filename-extension */
+/* eslint-disable react/destructuring-assignment */
+/* eslint-disable camelcase */
+/* eslint-disable react/prop-types */
+
 import React from 'react';
 import classnames from 'classnames';
 import styles from './swithcer-input-field.scss';
@@ -20,7 +27,7 @@ class SwitcherInputField extends React.Component {
 
   UNSAFE_componentWillReceiveProps = (nextProps) => {
     const { value } = nextProps;
-    if (this.state.value != value && typeof value !== 'undefined') {
+    if (this.state.value !== value && typeof value !== 'undefined') {
       this.setState({
         value,
       });

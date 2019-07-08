@@ -1,3 +1,9 @@
+/* eslint-disable no-dupe-keys */
+/* eslint-disable jsx-a11y/iframe-has-title */
+/* eslint-disable react/jsx-filename-extension */
+/* eslint-disable react/prop-types */
+/* eslint-disable react/destructuring-assignment */
+
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import Axios from '../Axios';
@@ -10,7 +16,7 @@ class DynamicComponentLoader extends Component {
 
   componentWillReceiveProps = (nextProps) => {
     const { componentName } = nextProps;
-    if (componentName != this.props.componentName) {
+    if (componentName !== this.props.componentName) {
       document.removeEventListener(
         `component${this.props.componentName}Loaded`,
         this.setComponentLoaded,
@@ -35,7 +41,7 @@ class DynamicComponentLoader extends Component {
           componentExists: true,
         });
       })
-      .catch((err) => {
+      .catch(() => {
         this.setState({
           componentExists: false,
         });
@@ -67,6 +73,7 @@ class DynamicComponentLoader extends Component {
   };
 
   render() {
+    // eslint-disable-next-line no-unused-vars
     const { componentLoaded, componentExists } = this.state;
     const { componentUrl } = this.props;
 

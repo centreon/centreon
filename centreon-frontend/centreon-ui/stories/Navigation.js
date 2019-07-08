@@ -1,3 +1,6 @@
+/* eslint-disable react/jsx-filename-extension */
+/* eslint-disable import/no-extraneous-dependencies */
+
 import React from 'react';
 import { storiesOf } from '@storybook/react';
 import { Navigation } from '../src';
@@ -22,7 +25,7 @@ storiesOf('Navigation', module).add(
         navigationData={mock}
         externalHistory={window}
         reactRoutes={reactMock}
-        onNavigate={(id, url) => {
+        onNavigate={(id) => {
           window.location = `/iframe.html${replaceQueryParam(
             'p',
             id,

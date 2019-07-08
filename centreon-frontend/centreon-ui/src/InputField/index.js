@@ -1,3 +1,7 @@
+/* eslint-disable jsx-a11y/label-has-for */
+/* eslint-disable react/jsx-filename-extension */
+/* eslint-disable react/prop-types */
+
 import React from 'react';
 import classnames from 'classnames';
 import styles from './input-text.scss';
@@ -30,7 +34,7 @@ const InputField = ({
           <span>
             {iconName ? (
               <IconInfo iconName={iconName} iconColor={iconColor} />
-            ) : null}{' '}
+            ) : null}
             {label}
           </span>
           <span className={classnames(styles['label-option'], styles.required)}>

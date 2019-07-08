@@ -1,3 +1,6 @@
+/* eslint-disable react/jsx-filename-extension */
+/* eslint-disable react/prop-types */
+
 import React, { Component } from 'react';
 import Paper from '@material-ui/core/Paper';
 import {
@@ -13,7 +16,6 @@ import {
   IconPowerSettings,
   IconPowerSettingsDisable,
   IconInsertChart,
-  Panels,
   Tooltip,
   MassiveChangeDialog,
   ConfirmationDialog,
@@ -328,7 +330,9 @@ class BAMListingPage extends Component {
               {
                 duplicateActive: false,
               },
-              ()=>{onDuplicate(times)},
+              () => {
+                onDuplicate(times);
+              },
             );
           }}
         />

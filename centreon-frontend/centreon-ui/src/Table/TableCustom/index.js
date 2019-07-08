@@ -1,3 +1,9 @@
+/* eslint-disable react/forbid-prop-types */
+/* eslint-disable react/jsx-one-expression-per-line */
+/* eslint-disable react/jsx-no-bind */
+/* eslint-disable react/jsx-filename-extension */
+/* eslint-disable react/prop-types */
+
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
@@ -177,7 +183,6 @@ class TableCustom extends Component {
                                 {row[column.id] || ''}
                               </TableCellCustom>
                             );
-                            break;
                           case TABLE_COLUMN_TYPES.string:
                             return (
                               <TableCellCustom
@@ -187,7 +192,6 @@ class TableCustom extends Component {
                                 {row[column.id] || ''}
                               </TableCellCustom>
                             );
-                            break;
                           case TABLE_COLUMN_TYPES.toggler:
                             return (
                               <StyledTableCell2 align="left">
@@ -219,7 +223,6 @@ class TableCustom extends Component {
                                 )}
                               </StyledTableCell2>
                             );
-                            break;
                           case TABLE_COLUMN_TYPES.multicolumn:
                             return (
                               <TableCellCustom
@@ -229,7 +232,7 @@ class TableCustom extends Component {
                                 {column.columns.map((subColumn) => (
                                   <React.Fragment>
                                     {subColumn.label} {row[subColumn.id]}
-                                    {subColumn.type == 'percentage'
+                                    {subColumn.type === 'percentage'
                                       ? '%'
                                       : null}
                                     {'   '}
@@ -237,7 +240,6 @@ class TableCustom extends Component {
                                 ))}
                               </TableCellCustom>
                             );
-                            break;
                           case TABLE_COLUMN_TYPES.hoverActions:
                             return (
                               <StyledTableCell2
@@ -248,7 +250,7 @@ class TableCustom extends Component {
                                   boxSizing: 'border-box',
                                 }}
                               >
-                                {hovered == row.id ? (
+                                {hovered === row.id ? (
                                   <React.Fragment>
                                     <Tooltip
                                       label="Delete"
@@ -296,7 +298,6 @@ class TableCustom extends Component {
                                 )}
                               </StyledTableCell2>
                             );
-                            break;
                           default:
                             return null;
                         }

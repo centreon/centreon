@@ -1,3 +1,12 @@
+/* eslint-disable class-methods-use-this */
+/* eslint-disable react/no-did-update-set-state */
+/* eslint-disable react/prop-types */
+/* eslint-disable react/destructuring-assignment */
+/* eslint-disable react/sort-comp */
+/* eslint-disable react/no-find-dom-node */
+/* eslint-disable react/require-default-props */
+/* eslint-disable no-unused-vars */
+
 import React, { Component, Children } from 'react';
 import { findDOMNode } from 'react-dom';
 import PropTypes from 'prop-types';

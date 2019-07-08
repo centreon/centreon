@@ -1,3 +1,6 @@
+/* eslint-disable prettier/prettier */
+/* eslint-disable react/jsx-filename-extension */
+/* eslint-disable import/no-extraneous-dependencies */
 import React from 'react';
 import { storiesOf } from '@storybook/react';
 import classnames from 'classnames';
@@ -14,13 +17,13 @@ storiesOf('Input Field', module).add(
   'Input Field - with title',
   () => (
     <InputField
-        type="text"
-        label="Input field with title"
-        name="test"
-        inputSize="small"
-      />
-    ),
-    { notes: 'A very simple component' },
+      type="text"
+      label="Input field with title"
+      name="test"
+      inputSize="small"
+    />
+  ),
+  { notes: 'A very simple component' },
 );
 
 storiesOf('Input Field', module).add(

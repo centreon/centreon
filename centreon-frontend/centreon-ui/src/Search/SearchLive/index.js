@@ -1,3 +1,8 @@
+/* eslint-disable jsx-a11y/label-has-for */
+/* eslint-disable jsx-a11y/label-has-associated-control */
+/* eslint-disable react/jsx-filename-extension */
+/* eslint-disable react/prop-types */
+
 import React, { Component } from 'react';
 import classnames from 'classnames';
 import styles from './search-live.scss';

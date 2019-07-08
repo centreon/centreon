@@ -1,6 +1,7 @@
+/* eslint-disable no-unused-vars */
+
 import React, { Component } from 'react';
 import TableSortLabel from '@material-ui/core/TableSortLabel';
-import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
 
 const styles = {

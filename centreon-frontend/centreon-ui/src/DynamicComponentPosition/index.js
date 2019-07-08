@@ -1,3 +1,8 @@
+/* eslint-disable react/jsx-filename-extension */
+/* eslint-disable react/prop-types */
+/* eslint-disable react/destructuring-assignment */
+/* eslint-disable react/no-unused-state */
+
 import React, { Component } from 'react';
 
 class DynamicComponentPosition extends Component {
@@ -8,7 +13,7 @@ class DynamicComponentPosition extends Component {
 
   componentWillReceiveProps = (nextProps) => {
     const { componentName } = nextProps;
-    if (componentName != this.props.componentName) {
+    if (componentName !== this.props.componentName) {
       document.removeEventListener(
         `component${this.props.componentName}Loaded`,
         this.setComponentLoaded,

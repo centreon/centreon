@@ -1,3 +1,7 @@
+/* eslint-disable react/jsx-no-duplicate-props */
+/* eslint-disable react/jsx-filename-extension */
+/* eslint-disable import/no-extraneous-dependencies */
+
 import React from 'react';
 import { storiesOf } from '@storybook/react';
 import { Sidebar } from '../src';
@@ -22,7 +26,7 @@ storiesOf('Sidebar', module).add(
       externalHistory={window}
       reactRoutes={reactMock}
       externalHistory={window}
-      onNavigate={(id, url) => {
+      onNavigate={(id) => {
         window.location = `/iframe.html${replaceQueryParam(
           'p',
           id,

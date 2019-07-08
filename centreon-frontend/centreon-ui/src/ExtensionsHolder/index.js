@@ -1,3 +1,10 @@
+/* eslint-disable no-nested-ternary */
+/* eslint-disable jsx-a11y/no-static-element-interactions */
+/* eslint-disable jsx-a11y/click-events-have-key-events */
+/* eslint-disable react/jsx-filename-extension */
+/* eslint-disable react/prop-types */
+/* eslint-disable no-restricted-globals */
+
 import React from 'react';
 import cardStyles from '../Card/card.scss';
 import Wrapper from '../Wrapper';

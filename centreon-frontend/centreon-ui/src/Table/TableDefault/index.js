@@ -1,3 +1,6 @@
+/* eslint-disable no-shadow */
+/* eslint-disable react/jsx-filename-extension */
+
 import React from 'react';
 import PropTypes from 'prop-types';
 import { makeStyles, withStyles, useTheme } from '@material-ui/core/styles';
@@ -15,7 +18,6 @@ import KeyboardArrowLeft from '@material-ui/icons/KeyboardArrowLeft';
 import KeyboardArrowRight from '@material-ui/icons/KeyboardArrowRight';
 import LastPageIcon from '@material-ui/icons/LastPage';
 import Checkbox from '@material-ui/core/Checkbox';
-import IconPowerSettings from '../../MaterialComponents/Icons/IconPowerSettings';
 
 function createData(name, activate, calculation, description) {
   return { name, activate, calculation, description };
