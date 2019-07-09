@@ -1,15 +1,11 @@
+/* eslint-disable react/jsx-filename-extension */
+/* eslint-disable import/no-extraneous-dependencies */
+
 import React from 'react';
 import classnames from 'classnames';
 import { storiesOf } from '@storybook/react';
 import styles from '../src/global-sass-files/_helpers.scss';
-import {
-  Table,
-  TableDefault,
-  TableDynamic,
-  TableCustom,
-  Title,
-  Button,
-} from '../src';
+import { TableDefault, TableDynamic, TableCustom, Title, Button } from '../src';
 
 storiesOf('Table', module).add(
   'Table - default',

@@ -1,3 +1,14 @@
+/* eslint-disable no-useless-concat */
+/* eslint-disable jsx-a11y/no-static-element-interactions */
+/* eslint-disable jsx-a11y/anchor-is-valid */
+/* eslint-disable jsx-a11y/click-events-have-key-events */
+/* eslint-disable jsx-a11y/no-noninteractive-element-interactions */
+/* eslint-disable react/jsx-filename-extension */
+/* eslint-disable prefer-destructuring */
+/* eslint-disable no-restricted-globals */
+/* eslint-disable no-plusplus */
+/* eslint-disable react/prop-types */
+
 import React, { Component } from 'react';
 import classnames from 'classnames';
 import styles from './navigation.scss';
@@ -40,7 +51,7 @@ class Navigation extends Component {
 
     this.setState({
       activeSecondLevel:
-        activeSecondLevel == secondLevelPage ? true : secondLevelPage,
+        activeSecondLevel === secondLevelPage ? true : secondLevelPage,
     });
   };
 
@@ -50,7 +61,7 @@ class Navigation extends Component {
     for (let i = 0; i < navigationData.length; i++) {
       if (
         !isNaN(pageId) &&
-        String(pageId).charAt(0) == navigationData[i].page
+        String(pageId).charAt(0) === navigationData[i].page
       ) {
         index = i;
       }
@@ -69,8 +80,8 @@ class Navigation extends Component {
 
   areSamePage = (page, level, imersion) => {
     return imersion
-      ? !isNaN(page) && String(page).substring(0, imersion) == level.page
-      : !isNaN(page) && page == level.page;
+      ? !isNaN(page) && String(page).substring(0, imersion) === level.page
+      : !isNaN(page) && page === level.page;
   };
 
   render() {
@@ -177,7 +188,7 @@ class Navigation extends Component {
                   <li
                     className={classnames(styles['collapsed-item'], {
                       [styles[
-                        activeSecondLevel == secondLevel.page ||
+                        activeSecondLevel === secondLevel.page ||
                         (!activeSecondLevel &&
                           this.areSamePage(pageId, secondLevel, 3))
                           ? `active`

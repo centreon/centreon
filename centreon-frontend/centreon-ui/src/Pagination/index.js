@@ -1,3 +1,11 @@
+/* eslint-disable react/jsx-no-bind */
+/* eslint-disable jsx-a11y/click-events-have-key-events */
+/* eslint-disable react/jsx-filename-extension */
+/* eslint-disable jsx-a11y/anchor-is-valid */
+/* eslint-disable jsx-a11y/no-static-element-interactions */
+/* eslint-disable no-plusplus */
+/* eslint-disable react/prop-types */
+
 import React, { Component } from 'react';
 import classnames from 'classnames';
 import styles from './pagination.scss';
@@ -57,7 +65,6 @@ class Pagination extends Component {
 
   render() {
     const { pageCount, onPageChange } = this.props;
-    const { currentPage } = this.state;
     if (!onPageChange || !pageCount) {
       return null;
     }

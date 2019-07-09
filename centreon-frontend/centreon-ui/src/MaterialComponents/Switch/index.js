@@ -1,3 +1,7 @@
+/* eslint-disable react/jsx-filename-extension */
+/* eslint-disable react/prop-types */
+/* eslint-disable react/prefer-stateless-function */
+
 import React, { Component } from 'react';
 import { withStyles } from '@material-ui/core/styles';
 import Switch from '@material-ui/core/Switch';
@@ -20,6 +24,7 @@ const styles = () => ({
   track: {},
 });
 
+// eslint-disable-next-line no-unused-vars
 class CustomSwitch extends Component {
   render() {
     const { classes } = this.props;

@@ -1,3 +1,7 @@
+/* eslint-disable react/jsx-filename-extension */
+/* eslint-disable react/prefer-stateless-function */
+/* eslint-disable import/no-named-as-default */
+
 import React, { Component } from 'react';
 import classnames from 'classnames';
 import styles from './table-dynamic.scss';

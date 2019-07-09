@@ -1,3 +1,7 @@
+/* eslint-disable react/jsx-filename-extension */
+/* eslint-disable react/prop-types */
+/* eslint-disable react/prefer-stateless-function */
+
 import React from 'react';
 import classnames from 'classnames';
 import styles from '../Popup/popup.scss';
@@ -6,7 +10,6 @@ import Loader from '../Loader';
 import Slider from '../Slider/SliderContent';
 import IconContent from '../Icon/IconContent';
 import Title from '../Title';
-import Subtitle from '../Subtitle';
 import Button from '../Button/ButtonRegular';
 import HorizontalLine from '../HorizontalLines/HorizontalLineRegular';
 import Description from '../Description';
@@ -18,7 +21,6 @@ class ExtensionDetailPopup extends React.Component {
       type,
       onCloseClicked,
       modalDetails,
-      onVersionClicked,
       onDeleteClicked,
       onUpdateClicked,
       onInstallClicked,

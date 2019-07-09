@@ -1,3 +1,9 @@
+/* eslint-disable react/require-default-props */
+/* eslint-disable react/forbid-prop-types */
+/* eslint-disable react/jsx-one-expression-per-line */
+/* eslint-disable react/jsx-filename-extension */
+/* eslint-disable react/destructuring-assignment */
+
 import React from 'react';
 import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
@@ -155,10 +161,8 @@ class HorizontalNonLinearStepper extends React.Component {
                 {activeStep !== steps.length &&
                   (this.state.completed[this.state.activeStep] ? (
                     <Typography variant="caption" className={classes.completed}>
-                      Step {activeStep + 1}
-{' '}
-already completed
-</Typography>
+                      Step {activeStep + 1} already completed
+                    </Typography>
                   ) : (
                     <Button
                       variant="contained"

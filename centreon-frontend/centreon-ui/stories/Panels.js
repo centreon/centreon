@@ -1,3 +1,9 @@
+/* eslint-disable react/no-unescaped-entities */
+/* eslint-disable no-dupe-keys */
+/* eslint-disable no-undef */
+/* eslint-disable react/jsx-filename-extension */
+/* eslint-disable import/no-extraneous-dependencies */
+
 import React from 'react';
 import { storiesOf } from '@storybook/react';
 import classnames from 'classnames';
@@ -27,7 +33,7 @@ storiesOf('Panels', module).add(
           navigationData={mock}
           externalHistory={window}
           reactRoutes={reactMock}
-          onNavigate={(id, url) => {
+          onNavigate={(id) => {
             window.location = `/iframe.hqtml${replaceQueryParam(
               'p',
               id,
@@ -65,7 +71,7 @@ storiesOf('Panels', module).add(
           navigationData={mock}
           externalHistory={window}
           reactRoutes={reactMock}
-          onNavigate={(id, url) => {
+          onNavigate={(id) => {
             window.location = `/iframe.hqtml${replaceQueryParam(
               'p',
               id,

@@ -1,5 +1,8 @@
-import React from "react";
-import Link from "@material-ui/core/Link";
+/* eslint-disable react/jsx-filename-extension */
+/* eslint-disable react/prop-types */
+
+import React from 'react';
+import Link from '@material-ui/core/Link';
 
 const BreadcrumbLink = ({ index, count, breadcrumb, classes }) => {
   return index !== count - 1 ? (

@@ -1,3 +1,6 @@
+/* eslint-disable react/jsx-filename-extension */
+/* eslint-disable react/prop-types */
+
 import React from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import Delete from '@material-ui/icons/Delete';

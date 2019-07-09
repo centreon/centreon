@@ -1,58 +1,61 @@
-import React from "react";
-import { makeStyles } from "@material-ui/core/styles";
-import PowerSettings from "@material-ui/icons/PowerSettingsNew";
+/* eslint-disable react/jsx-filename-extension */
+/* eslint-disable react/prop-types */
 
-const useStyles = makeStyles(theme => ({
+import React from 'react';
+import { makeStyles } from '@material-ui/core/styles';
+import PowerSettings from '@material-ui/icons/PowerSettingsNew';
+
+const useStyles = makeStyles(() => ({
   root: {
-    display: "flex",
-    alignItems: "center",
-    textAlign: "left"
+    display: 'flex',
+    alignItems: 'center',
+    textAlign: 'left',
   },
   icon: {
-    color: "#fff",
-    cursor: "pointer",
-    backgroundColor: "#707070",
-    borderRadius: "50%",
+    color: '#fff',
+    cursor: 'pointer',
+    backgroundColor: '#707070',
+    borderRadius: '50%',
     fontSize: 15,
-    padding: 3
+    padding: 3,
   },
   iconNormal: {
-    color: "#fff",
-    cursor: "pointer",
-    backgroundColor: "#707070",
-    borderRadius: "50%",
+    color: '#fff',
+    cursor: 'pointer',
+    backgroundColor: '#707070',
+    borderRadius: '50%',
     fontSize: 15,
-    padding: 3
+    padding: 3,
   },
   iconWrap: {
-    display: "inline-block",
-    verticalAlign: "middle",
+    display: 'inline-block',
+    verticalAlign: 'middle',
     height: 23,
     width: 23,
-    position: "relative",
-    "&::after": {
+    position: 'relative',
+    '&::after': {
       content: "''",
-      position: "absolute",
+      position: 'absolute',
       width: 2,
       height: 30,
-      background: "#7f7f7f",
-      transform: "rotate(140deg)",
+      background: '#7f7f7f',
+      transform: 'rotate(140deg)',
       left: 9,
       top: -2,
-      zIndex: 1
+      zIndex: 1,
     },
-    "&::before": {
+    '&::before': {
       content: "''",
-      position: "absolute",
+      position: 'absolute',
       width: 4,
       height: 30,
-      background: "#fff",
-      transform: "rotate(140deg)",
+      background: '#fff',
+      transform: 'rotate(140deg)',
       left: 9,
       top: -3,
-      zIndex: 1
-    }
-  }
+      zIndex: 1,
+    },
+  },
 }));
 
 function IconPowerSettings({ active, customStyle, ...rest }) {
