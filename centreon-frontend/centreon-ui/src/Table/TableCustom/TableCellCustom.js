@@ -6,12 +6,12 @@ import { withStyles } from '@material-ui/core/styles';
 
 const styles = {
   root: {
-    maxWidth: 90,
+    maxWidth: 400,
     whiteSpace: 'nowrap',
     textOverflow: 'ellipsis',
     overflow: 'hidden',
     fontSize: 13,
-    padding: '3px 24px 3px 16px',
+    padding: '6px 24px 6px 16px',
   },
 };
 

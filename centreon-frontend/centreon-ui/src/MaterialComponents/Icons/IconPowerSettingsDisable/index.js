@@ -42,6 +42,7 @@ const useStyles = makeStyles(() => ({
       transform: 'rotate(140deg)',
       left: 9,
       top: -2,
+      zIndex: 1,
     },
     '&::before': {
       content: "''",
@@ -52,6 +53,7 @@ const useStyles = makeStyles(() => ({
       transform: 'rotate(140deg)',
       left: 9,
       top: -3,
+      zIndex: 1,
     },
   },
 }));

@@ -35,6 +35,9 @@ const styles = (theme) => ({
   tableWrapper: {
     overflowX: 'auto',
   },
+  rowDisabled: {
+    backgroundColor: 'rgba(0, 0, 0, 0.07) !important',
+  },
 });
 
 class TableCustom extends Component {
@@ -117,6 +120,7 @@ class TableCustom extends Component {
       onDisable,
       onRowClick,
       selected,
+      enabledColumn,
     } = this.props;
     const { order, orderBy, hovered } = this.state;
 
@@ -157,6 +161,11 @@ class TableCustom extends Component {
                       key={row.id}
                       selected={isItemSelected}
                       onMouseEnter={this.rowHovered.bind(this, row.id, true)}
+                      {...(enabledColumn && {
+                        className: !row[enabledColumn]
+                          ? classes.rowDisabled
+                          : '',
+                      })}
                     >
                       {checkable ? (
                         <StyledTableCell2
@@ -196,30 +205,53 @@ class TableCustom extends Component {
                             return (
                               <StyledTableCell2 align="left">
                                 {row[column.id] ? (
-                                  <IconPowerSettings
-                                    onClick={() => {
-                                      onDisable([row.id]);
-                                    }}
-                                    active
+                                  <Tooltip
+                                    label="Enable/Disable"
                                     customStyle={{
-                                      fontSize: 19,
-                                      boxSizing: 'border-box',
-                                      marginTop: 2,
+                                      position: 'absolute',
+                                      top: -1,
+                                      width: 31,
+                                      height: 31,
                                     }}
-                                  />
+                                  >
+                                    <IconPowerSettings
+                                      label="Disable"
+                                      onClick={() => {
+                                        onDisable([row.id]);
+                                      }}
+                                      active
+                                      customStyle={{
+                                        fontSize: 18,
+                                        boxSizing: 'border-box',
+                                        position: 'relative',
+                                        top: -2,
+                                      }}
+                                    />
+                                  </Tooltip>
                                 ) : (
-                                  <IconPowerSettingsDisable
-                                    active
-                                    label="Disable"
-                                    onClick={() => {
-                                      onEnable([row.id]);
-                                    }}
+                                  <Tooltip
+                                    label="Enable/Disable"
                                     customStyle={{
-                                      fontSize: 18,
-                                      boxSizing: 'border-box',
-                                      marginTop: 2,
+                                      position: 'absolute',
+                                      top: -1,
+                                      width: 31,
+                                      height: 31,
                                     }}
-                                  />
+                                  >
+                                    <IconPowerSettingsDisable
+                                      active
+                                      label="Disable"
+                                      onClick={() => {
+                                        onEnable([row.id]);
+                                      }}
+                                      customStyle={{
+                                        fontSize: 18,
+                                        boxSizing: 'border-box',
+                                        position: 'relative',
+                                        top: -2,
+                                      }}
+                                    />
+                                  </Tooltip>
                                 )}
                               </StyledTableCell2>
                             );
@@ -246,8 +278,9 @@ class TableCustom extends Component {
                                 style={{
                                   paddingTop: 0,
                                   paddingBottom: 0,
-                                  minWidth: 94,
+                                  width: 60,
                                   boxSizing: 'border-box',
+                                  padding: '0 !important',
                                 }}
                               >
                                 {hovered === row.id ? (
@@ -257,7 +290,7 @@ class TableCustom extends Component {
                                       position={{ left: '50px' }}
                                       customStyle={{
                                         position: 'absolute',
-                                        left: 0,
+                                        right: 28,
                                         top: 0,
                                         padding: '3px 5px',
                                       }}
@@ -277,7 +310,7 @@ class TableCustom extends Component {
                                       position={{ left: '50px' }}
                                       customStyle={{
                                         position: 'absolute',
-                                        left: 35,
+                                        right: -5,
                                         top: 0,
                                         padding: '3px 5px',
                                       }}
@@ -309,7 +342,7 @@ class TableCustom extends Component {
             </Table>
           </div>
           <StyledPagination
-            rowsPerPageOptions={[5, 10, 25, 50, 100]}
+            rowsPerPageOptions={[10, 20, 30, 40, 50, 60, 70, 80, 90, 100]}
             colSpan={3}
             count={totalRows}
             rowsPerPage={limit}

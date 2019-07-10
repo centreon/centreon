@@ -286,6 +286,7 @@ class BAMListingPage extends Component {
             onEnable={onEnable}
             onDisable={onDisable}
             selected={currentlySelected}
+            enabledColumn="activate"
           />
         </Paper>
         <MassiveChangeDialog

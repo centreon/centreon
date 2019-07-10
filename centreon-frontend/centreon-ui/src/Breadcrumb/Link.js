@@ -2,7 +2,6 @@
 /* eslint-disable react/prop-types */
 
 import React from 'react';
-import Typography from '@material-ui/core/Typography';
 import Link from '@material-ui/core/Link';
 
 const BreadcrumbLink = ({ index, count, breadcrumb, classes }) => {
@@ -11,9 +10,9 @@ const BreadcrumbLink = ({ index, count, breadcrumb, classes }) => {
       {breadcrumb.label}
     </Link>
   ) : (
-    <Typography className={classes.item} color="textPrimary">
+    <Link className={classes.item} href={breadcrumb.link} color="textPrimary">
       {breadcrumb.label}
-    </Typography>
+    </Link>
   );
 };
 

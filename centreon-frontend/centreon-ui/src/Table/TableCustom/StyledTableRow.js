@@ -8,7 +8,7 @@ import { withStyles } from '@material-ui/core/styles';
 const styles = {
   root: {
     '&:nth-of-type(odd)': {
-      backgroundColor: '#e3f2fd',
+      backgroundColor: '#f0fbff',
     },
     '&:hover': {
       backgroundColor: '#cae6f1 !important',
