@@ -7,7 +7,8 @@
     "eslint": "npx eslint . --ext .js,.jsx",
     "eslint:fix": "npm run eslint -- --fix",
     "prepublishOnly": "npm run bundle",
-    "bundle": "babel ./src --out-dir ./lib --copy-files",
+    "clean:testfiles": "find lib -type f -name '*.test.*' -delete",
+    "bundle": "babel ./src --out-dir ./lib --copy-files && npm run clean:testfiles",
     "start:dev": "npm run bundle -- --watch --source-maps",
     "storybook": "start-storybook -p 9001 -c .storybook -s ./dynamic/compiled-components/components",
     "test": "npx jest"

@@ -15,6 +15,9 @@ jobs:
           paths:
             - /home/circleci/.npm
       - run:
+          name: Build
+          command: npm run bundle
+      - run:
           name: Check Linting
           command: npm run eslint
       - run:
