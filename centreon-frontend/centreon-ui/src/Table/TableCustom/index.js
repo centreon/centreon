@@ -37,7 +37,7 @@ const styles = (theme) => ({
     overflowY: 'hidden',
   },
   rowDisabled: {
-    backgroundColor: 'rgba(0, 0, 0, 0.07)',
+    backgroundColor: 'rgba(0, 0, 0, 0.07) !important',
   },
 });
 
