@@ -68,5 +68,21 @@
       line-height: 14px;
       padding-left: 20px;
     }
+    &-selected {
+      background: #c2c3c6;
+      &:after {
+        position: absolute;
+        content: "";
+        width: 0;
+        height: 0;
+        border-top: 80px solid transparent;
+        border-left: 23px solid #c2c3c6;
+        border-bottom: 81px solid transparent;
+        top: 0;
+        right: 0;
+        z-index: 99;
+        background: #ededed;
+      }
+    }
   }
 }
