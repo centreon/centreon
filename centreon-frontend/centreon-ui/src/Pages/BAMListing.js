@@ -35,7 +35,7 @@ const breadcrumbs = [
   },
   {
     label: 'Activities',
-    link: '',
+    link: './configuration/bam/bas',
   },
 ];
 
