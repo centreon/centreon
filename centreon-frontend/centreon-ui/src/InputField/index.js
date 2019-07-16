@@ -18,6 +18,7 @@ const InputField = ({
   iconName,
   iconColor,
   noMargin,
+  reference = () => {},
   ...rest
 }) => {
   return (
@@ -47,6 +48,7 @@ const InputField = ({
         type={type}
         placeholder={placeholder}
         className={classnames(styles['form-control'])}
+        ref={reference}
         {...rest}
       />
       {error ? (

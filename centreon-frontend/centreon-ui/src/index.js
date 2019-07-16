@@ -124,7 +124,7 @@ export {
   default as IconPowerSettingsDisable,
 } from './MaterialComponents/Icons/IconPowerSettingsDisable';
 // Material Components
-export { default as Accordion } from './MaterialComponents/Accordion';
+export { default as BAForm } from './Forms/BAForm';
 export { default as IconAttach } from './MaterialComponents/Icons/IconAttach';
 export { default as IconEdit } from './MaterialComponents/Icons/IconEdit';
 export { default as IconCloseNew } from './MaterialComponents/Icons/IconClose';

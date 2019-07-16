@@ -1,0 +1,29 @@
+{
+  "status": true,
+  "result": {
+    "id": 1,
+    "activate": true,
+    "name": "New BA",
+    "description": "Description",
+    "icon": "1",
+    "inherit_kpi_downtimes": true,
+    "additional_poller": [],
+    "groups": [],
+    "notifications_enabled": true,
+    "bam_contact": [3, 5],
+    "notification_period": 3,
+    "notification_interval": 1,
+    "notification_options": ["r", "c"],
+    "level_w": 54,
+    "level_c": 43,
+    "reporting_timeperiods": [2, 4],
+    "sla_month_percent_warn": 0,
+    "sla_month_percent_crit": 0,
+    "sla_month_duration_warn": 0,
+    "sla_month_duration_crit": 0,
+    "bam_esc": [2, 3],
+    "event_handler_enabled": false,
+    "event_handler_command": null,
+    "event_handler_args": null
+  }
+}

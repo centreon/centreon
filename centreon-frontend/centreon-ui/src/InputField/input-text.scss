@@ -60,5 +60,12 @@
     &.big {
       width: 100%;
     }
+    &.header {
+      display: inline-block;
+      padding-left: 15px;
+    }
+    &.hidden {
+      display: none;
+    }
   }
 }

@@ -14,15 +14,16 @@ import FormControlLabel from '@material-ui/core/FormControlLabel';
 import IconWarning from '@material-ui/icons/Warning';
 import IconError from '@material-ui/icons/Error';
 import classnames from 'classnames';
-import InputField from '../../InputField';
-import InputFieldMultiSelectNew from '../../InputField/InputFieldMultiSelectNew';
-import InputFieldMultiSelect from '../../InputField/InputFieldSelectCustom';
-import CustomRow from '../../Custom/CustomRow';
-import CustomColumn from '../../Custom/CustomColumn';
-import IconInfo from '../../Icon/IconInfo';
-import MaterialSwitch from '../Switch';
-import ButtonCustom from '../../Button/ButtonCustom';
-import { MultiSelectHolder } from '../..';
+import InputField from '../InputField';
+import InputFieldMultiSelectNew from '../InputField/InputFieldMultiSelectNew';
+import InputFieldSelect from '../InputField/InputFieldSelectCustom';
+import CustomRow from '../Custom/CustomRow';
+import CustomColumn from '../Custom/CustomColumn';
+import IconInfo from '../Icon/IconInfo';
+import MaterialSwitch from '../MaterialComponents/Switch';
+import ButtonCustom from '../Button/ButtonCustom';
+import { MultiSelectHolder } from '../';
+import imagesMock from '../Mocks/images.json';
 
 const styles = (theme) => ({
   root: {
@@ -50,9 +51,9 @@ const styles = (theme) => ({
   },
 });
 
-class Accordion extends React.Component {
+class BAForm extends React.Component {
   render() {
-    const { classes } = this.props;
+    const { classes, values, centreonImages = imagesMock.result.entities } = this.props;
     return (
       <div className={classes.root}>
         <div className={classes.containerStyles}>
@@ -62,16 +63,14 @@ class Accordion extends React.Component {
                 placeholder="Add a description"
                 type="text"
                 name="test"
+                value={values.description}
               />
             </CustomColumn>
             <CustomColumn customColumn="md-6">
-              <InputFieldMultiSelect
-                options={[
-                  { id: '1', name: '24x7', alias: 'Always' },
-                  { id: '2', name: 'none', alias: 'Never' },
-                  { id: '3', name: 'nonworkhours', alias: 'Non-Work Hours' },
-                  { id: '4', name: 'workhours', alias: 'Work hours' },
-                ]}
+              <InputFieldSelect
+                icons={true}
+                options={centreonImages}
+                value={values.icon}
                 customStyle="no-margin"
               />
             </CustomColumn>
@@ -79,17 +78,18 @@ class Accordion extends React.Component {
               <CustomColumn customColumn="md-12" additionalStyles={['p-0']}>
                 <IconInfo iconText="Automatically inherit KPI downtimes" />
               </CustomColumn>
-              <FormControlLabel control={<MaterialSwitch />} label="Enable" />
+              <FormControlLabel control={<MaterialSwitch value={values.inherit_kpi_downtimes}/>} label="Enable" />
             </CustomColumn>
             <CustomColumn customColumn="md-6">
               <IconInfo iconText="Display on remote server" />
-              <InputFieldMultiSelect
+              <InputFieldSelect
                 options={[
                   { id: '1', name: '24x7', alias: 'Always' },
                   { id: '2', name: 'none', alias: 'Never' },
                   { id: '3', name: 'nonworkhours', alias: 'Non-Work Hours' },
                   { id: '4', name: 'workhours', alias: 'Work hours' },
                 ]}
+                value={values.additional_poller}
               />
             </CustomColumn>
           </CustomRow>
@@ -111,7 +111,7 @@ class Accordion extends React.Component {
             <CustomRow additionalStyles={['mb-0']}>
               <CustomColumn customColumn="md-6" additionalStyles={['mb-0']}>
                 <IconInfo iconText="Status calculation method" />
-                <InputFieldMultiSelect
+                <InputFieldSelect
                   options={[
                     { id: '1', name: '24x7', alias: 'Always' },
                     { id: '2', name: 'none', alias: 'Never' },
@@ -130,7 +130,7 @@ class Accordion extends React.Component {
                     <IconWarning style={{ color: '#FF9913' }} />
                   </CustomColumn>
                   <CustomColumn customColumn="md-9">
-                    <InputField type="text" name="test" />
+                    <InputField type="number" name="test" value={values.level_w}/>
                   </CustomColumn>
                 </CustomRow>
               </CustomColumn>
@@ -144,7 +144,7 @@ class Accordion extends React.Component {
                     <IconError style={{ color: '#E00B3D' }} />
                   </CustomColumn>
                   <CustomColumn customColumn="md-9">
-                    <InputField type="text" name="test" />
+                    <InputField type="text" name="test" value={values.level_c}/>
                   </CustomColumn>
                 </CustomRow>
               </CustomColumn>
@@ -240,7 +240,7 @@ class Accordion extends React.Component {
               </CustomColumn>
               <CustomColumn customColumn="md-6">
                 <IconInfo iconText="Options" />
-                <InputFieldMultiSelect
+                <InputFieldSelect
                   options={[
                     { id: '1', name: '24x7', alias: 'Always' },
                     { id: '2', name: 'none', alias: 'Never' },
@@ -251,7 +251,7 @@ class Accordion extends React.Component {
               </CustomColumn>
               <CustomColumn customColumn="md-6">
                 <IconInfo iconText="Time period" />
-                <InputFieldMultiSelect
+                <InputFieldSelect
                   options={[
                     { id: '1', name: '24x7', alias: 'Always' },
                     { id: '2', name: 'none', alias: 'Never' },
@@ -294,6 +294,7 @@ class Accordion extends React.Component {
                   type="text"
                   name="test"
                   label="SLA warning percentage thresholds"
+                  value={values.sla_month_percent_warn}
                 />
               </CustomColumn>
               <CustomColumn customColumn="md-6">
@@ -302,6 +303,7 @@ class Accordion extends React.Component {
                   type="text"
                   name="test"
                   label="SLA warning duration threshold"
+                  value={values.sla_month_duration_warn}
                 />
               </CustomColumn>
               <CustomColumn customColumn="md-6">
@@ -310,6 +312,7 @@ class Accordion extends React.Component {
                   type="text"
                   name="test"
                   label="SLA critical percentage thresholds"
+                  value={values.sla_month_percent_crit}
                 />
               </CustomColumn>
               <CustomColumn customColumn="md-6">
@@ -318,6 +321,7 @@ class Accordion extends React.Component {
                   type="text"
                   name="test"
                   label="SLA critical duration threshold"
+                  value={values.sla_month_duration_crit}
                 />
               </CustomColumn>
               <CustomColumn customColumn="md-12" additionalStyles={['mb-1']}>
@@ -371,7 +375,7 @@ class Accordion extends React.Component {
               </CustomColumn>
               <CustomColumn customColumn="md-6">
                 <IconInfo iconText="Event handler command" />
-                <InputFieldMultiSelect
+                <InputFieldSelect
                   options={[
                     { id: '1', name: '24x7', alias: 'Always' },
                     { id: '2', name: 'none', alias: 'Never' },
@@ -393,4 +397,4 @@ class Accordion extends React.Component {
   }
 }
 
-export default withStyles(styles)(Accordion);
+export default withStyles(styles)(BAForm);

@@ -27,9 +27,9 @@ const styles = () => ({
 // eslint-disable-next-line no-unused-vars
 class CustomSwitch extends Component {
   render() {
-    const { classes } = this.props;
+    const { classes, ...rest } = this.props;
     return (
-      <Switch value="checkedB" color="primary" className={classes.switchBase} />
+      <Switch color="primary" className={classes.switchBase} {...rest}/>
     );
   }
 }
