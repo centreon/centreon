@@ -239,11 +239,21 @@ class BAForm extends React.Component {
                   label="Interval"
                 />
               </CustomColumn>
-              <CustomColumn customColumn="md-6">
-                <CheckboxDefault label="Recovery" />
-                <CheckboxDefault label="Warning" />
-                <CheckboxDefault label="Critical" />
-                <CheckboxDefault label="Flapping" />
+              <CustomColumn customColumn="md-6" additionalStyles={['pr-0']}>
+                <CustomRow additionalStyles={['m-0']}>
+                  <CustomColumn customColumn="md-6">
+                    <CheckboxDefault label="Recovery" />
+                  </CustomColumn>
+                  <CustomColumn customColumn="md-6">
+                    <CheckboxDefault label="Warning" />
+                  </CustomColumn>
+                  <CustomColumn customColumn="md-6">
+                    <CheckboxDefault label="Critical" />
+                  </CustomColumn>
+                  <CustomColumn customColumn="md-6">
+                    <CheckboxDefault label="Flapping" />
+                  </CustomColumn>
+                </CustomRow>
               </CustomColumn>
               <CustomColumn customColumn="md-6">
                 <IconInfo iconText="Time period" />

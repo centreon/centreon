@@ -23,6 +23,7 @@ import InputField from "../InputField";
 import TableDefault from "../Table/TableDefault";
 import MultiSelectPanel from "../MultiSelectPanel";
 import BAModel from "../Mocks/oneBa.json";
+import logo from '../../img/centreon.png';
 
 class BAPanel extends React.Component {
   state = {
@@ -61,7 +62,9 @@ class BAPanel extends React.Component {
       onClose,
       values = BAModel.result,
       errors,
-      multiselectsConfiguration
+      multiselectsConfiguration,
+      defaultImage,
+      uploadedImage
     } = this.props;
     const { multiselectActive, nameEditingToggled } = this.state;
     return (
@@ -77,9 +80,13 @@ class BAPanel extends React.Component {
           <div className={classnames(styles["panels-inner"])}>
             <div className={classnames(styles["panels-header"])}>
               {values.icon ? (
-                <IconAttach onClick={onIconClick} />
+                <IconAttach
+                  onClick={onIconClick}
+                  uploadedImage
+                  imgSource={logo}
+                />
               ) : (
-                <IconAttach onClick={onIconClick} />
+                <IconAttach onClick={onIconClick} defaultImage />
               )}
               {values.activate ? (
                 <IconPowerSettings />

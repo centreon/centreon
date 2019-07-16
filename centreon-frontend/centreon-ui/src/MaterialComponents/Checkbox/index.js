@@ -14,18 +14,22 @@ const CustomCheckbox = withStyles({
       color: '#0072CE',
     },
     fontSize: 10,
+    padding: 0,
   },
   checked: {},
-  label: {
-    fontSize: 10,
-  },
 })((props) => <Checkbox color="default" {...props} />);
+
+const CustomLabel = withStyles({
+  label: {
+    fontSize: 12,
+  },
+})(FormControlLabel);
 
 // eslint-disable-next-line no-unused-vars
 class CheckboxDefault extends Component {
   render() {
     const { label } = this.props;
-    return <FormControlLabel control={<CustomCheckbox />} label={label} />;
+    return <CustomLabel control={<CustomCheckbox />} label={label} />;
   }
 }
 
