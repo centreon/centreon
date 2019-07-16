@@ -4,4 +4,5 @@ export default {
   number: 3,
   hoverActions: 4,
   multicolumn: 5,
+  boolean: 6
 };

@@ -8,7 +8,7 @@
     "icon": 1,
     "inherit_kpi_downtimes": true,
     "additional_poller": [],
-    "groups": [],
+    "groups": [1],
     "notifications_enabled": true,
     "bam_contact": [3, 5],
     "bam_kpi":[1,2],

@@ -25,7 +25,6 @@ import CheckboxDefault from "../MaterialComponents/Checkbox";
 import ButtonCustom from "../Button/ButtonCustom";
 import { MultiSelectHolder } from "../";
 import MultiSelectContainer from "../MultiSelectHolder/MultiSelectContainer";
-import imagesMock from "../Mocks/images.json";
 import commandsMock from "../Mocks/command.json";
 import timeperiodsMock from "../Mocks/timeperiod.json";
 import kpiMock from "../Mocks/kpi.json";
@@ -64,17 +63,19 @@ class BAForm extends React.Component {
     const {
       classes,
       values,
-      centreonImages = imagesMock.result.entities,
+      centreonImages,
       valueChanged = () => {},
       notificationOptionChanged = () => {},
       errors,
       toggleMultiselect = () => {},
-      eventHandlerCommands = commandsMock.result.entities,
-      escalations = escalationMock.result.entities,
-      timeperiods = timeperiodsMock.result.entities,
-      kpis = kpiMock.result.entities,
-      contactGroups = contactGroupsMock.result.entities,
-      businessViews = businessViewsMock.result.entities
+      eventHandlerCommands,
+      escalations,
+      timeperiods,
+      kpis,
+      contactGroups,
+      businessViews,
+      remoteServers,
+      selectedMultiselect
     } = this.props;
     return (
       <div className={classes.root}>
@@ -122,7 +123,7 @@ class BAForm extends React.Component {
             <CustomColumn customColumn="md-6">
               <IconInfo iconText="Display on remote server" />
               <InputFieldSelect
-                options={timeperiods}
+                options={remoteServers}
                 value={values.additional_poller}
                 onChange={event => {
                   valueChanged("additional_poller", event);
@@ -203,6 +204,7 @@ class BAForm extends React.Component {
               label={"Number of indicators"}
               values={values.bam_kpi}
               options={kpis}
+              selected={selectedMultiselect == "bam_kpi"}
               onEdit={() => {
                 toggleMultiselect("bam_kpi");
               }}
@@ -225,6 +227,7 @@ class BAForm extends React.Component {
               label={"Number of views"}
               values={values.groups}
               options={businessViews}
+              selected={selectedMultiselect == "groups"}
               onEdit={() => {
                 toggleMultiselect("groups");
               }}
@@ -273,42 +276,49 @@ class BAForm extends React.Component {
                   }}
                 />
               </CustomColumn>
-              <CustomColumn customColumn="md-6">
-                <CheckboxDefault
-                  label="Recovery"
-                  checked={values.notification_options.indexOf("r") > -1}
-                  onChange={() => {
-                    notificationOptionChanged("r");
-                  }}
-                  error={errors.notification_options}
-                />
-                <CheckboxDefault
-                  label="Warning"
-                  checked={values.notification_options.indexOf("w") > -1}
-                  onChange={() => {
-                    notificationOptionChanged("w");
-                  }}
-                  error={errors.notification_options}
-                />
-                />
-                <CheckboxDefault
-                  label="Critical"
-                  checked={values.notification_options.indexOf("c") > -1}
-                  onChange={() => {
-                    notificationOptionChanged("c");
-                  }}
-                  error={errors.notification_options}
-                />
-                />
-                <CheckboxDefault
-                  label="Flapping"
-                  checked={values.notification_options.indexOf("f") > -1}
-                  onChange={() => {
-                    notificationOptionChanged("f");
-                  }}
-                  error={errors.notification_options}
-                />
-                />
+              <CustomColumn customColumn="md-6" additionalStyles={["pr-0"]}>
+                <CustomRow additionalStyles={["m-0"]}>
+                  <CustomColumn customColumn="md-6">
+                    <CheckboxDefault
+                      label="Recovery"
+                      checked={values.notification_options.indexOf("r") > -1}
+                      onChange={() => {
+                        notificationOptionChanged("r");
+                      }}
+                      error={errors.notification_options}
+                    />
+                  </CustomColumn>
+                  <CustomColumn customColumn="md-6">
+                    <CheckboxDefault
+                      label="Warning"
+                      checked={values.notification_options.indexOf("w") > -1}
+                      onChange={() => {
+                        notificationOptionChanged("w");
+                      }}
+                      error={errors.notification_options}
+                    />
+                  </CustomColumn>
+                  <CustomColumn customColumn="md-6">
+                    <CheckboxDefault
+                      label="Critical"
+                      checked={values.notification_options.indexOf("c") > -1}
+                      onChange={() => {
+                        notificationOptionChanged("c");
+                      }}
+                      error={errors.notification_options}
+                    />
+                  </CustomColumn>
+                  <CustomColumn customColumn="md-6">
+                    <CheckboxDefault
+                      label="Flapping"
+                      checked={values.notification_options.indexOf("f") > -1}
+                      onChange={() => {
+                        notificationOptionChanged("f");
+                      }}
+                      error={errors.notification_options}
+                    />
+                  </CustomColumn>
+                </CustomRow>
               </CustomColumn>
               <CustomColumn customColumn="md-6">
                 <IconInfo iconText="Time period" />
@@ -327,6 +337,7 @@ class BAForm extends React.Component {
               label={"Contact groups"}
               values={values.bam_contact}
               options={contactGroups}
+              selected={selectedMultiselect == "bam_contact"}
               onEdit={() => {
                 toggleMultiselect("bam_contact");
               }}
@@ -401,6 +412,7 @@ class BAForm extends React.Component {
               }
               values={values.reporting_timeperiods}
               options={timeperiods}
+              selected={selectedMultiselect == "reporting_timeperiods"}
               onEdit={() => {
                 toggleMultiselect("reporting_timeperiods");
               }}
@@ -423,6 +435,7 @@ class BAForm extends React.Component {
               label={"Number of escalations"}
               values={values.bam_esc}
               options={escalations}
+              selected={selectedMultiselect == "bam_esc"}
               onEdit={() => {
                 toggleMultiselect("bam_esc");
               }}

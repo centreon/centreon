@@ -2,64 +2,91 @@
 /* eslint-disable react/jsx-filename-extension */
 /* eslint-disable react/prop-types */
 
-import React, { Component } from 'react';
-import BAMListingPage from './BAMListing';
-import Panels from '../Panels';
+import React, { Component } from "react";
+import BAMListingPage from "./BAMListing";
+import Panels from "../Panels";
+import imagesMock from "../Mocks/images.json";
+import commandsMock from "../Mocks/command.json";
+import timeperiodsMock from "../Mocks/timeperiod.json";
+import kpiMock from "../Mocks/kpi.json";
+import escalationMock from "../Mocks/escalation.json";
+import contactGroupsMock from "../Mocks/contactGroups.json";
+import businessViewsMock from "../Mocks/businessViews.json";
 
 class BAMListingPageStory extends Component {
   state = {
     panelActive: true,
     activeBA: {},
     currentlySelected: [],
+    businessViews: businessViewsMock.result.entities,
+    centreonImages: imagesMock.result.entities,
+    timeperiods: timeperiodsMock.result.entities,
+    contactGroups: contactGroupsMock.result.entities,
+    remoteServers: [],
+    escalations: escalationMock.result.entities,
+    eventHandlerCommands: commandsMock.result.entities,
+    kpis: kpiMock.result.entities,
   };
 
   togglePanel = () => {
     const { panelActive } = this.state;
     this.setState({
-      panelActive: !panelActive,
+      panelActive: !panelActive
     });
   };
 
   render() {
     const { BAMTableData } = this.props;
-    const { panelActive, currentlySelected, activeBA } = this.state;
+    const {
+      panelActive,
+      currentlySelected,
+      activeBA,
+      businessViews,
+      centreonImages,
+      timeperiods,
+      contactGroups,
+      remoteServers,
+      escalations,
+      eventHandlerCommands,
+      kpis
+    } = this.state;
     return (
       <React.Fragment>
         <BAMListingPage
           onAddClicked={this.togglePanel.bind(this)}
           onSearch={() => {
-            console.log('onSearch clicked');
+            console.log("onSearch clicked");
           }}
           onDelete={(a, b, c) => {
-            console.log('onDelete clicked', a, b, c, currentlySelected);
+            console.log("onDelete clicked", a, b, c, currentlySelected);
           }}
           onDuplicate={(a, b, c) => {
-            console.log('onDuplicate clicked', a, b, c, currentlySelected);
+            console.log("onDuplicate clicked", a, b, c, currentlySelected);
           }}
           onMassiveChange={(a, b, c) => {
-            console.log('onMassiveChange clicked', a, b, c, currentlySelected);
+            console.log("onMassiveChange clicked", a, b, c, currentlySelected);
           }}
           onEnable={(a, b, c) => {
-            console.log('onEnable clicked', a, b, c, currentlySelected);
+            console.log("onEnable clicked", a, b, c, currentlySelected);
           }}
           onDisable={(a, b, c) => {
-            console.log('onDisable clicked', a, b, c, currentlySelected);
+            console.log("onDisable clicked", a, b, c, currentlySelected);
           }}
           onPaginate={() => {
-            console.log('onPaginate clicked');
+            console.log("onPaginate clicked");
           }}
           onSort={() => {
-            console.log('onSort clicked');
+            console.log("onSort clicked");
           }}
           tableData={BAMTableData.result.entities}
-          onTableSelectionChanged={(currentlySelected) => {
+          onTableSelectionChanged={currentlySelected => {
             this.setState({
-              currentlySelected,
+              currentlySelected
             });
           }}
           currentlySelected={currentlySelected}
           onPaginationLimitChanged={() => {
-            console.log('onPaginationLimitChanged');
+            console.log("onPaginationLimitChanged");
           }}
           paginationLimit={BAMTableData.result.pagination.limit}
           currentPage={
@@ -73,10 +100,14 @@ class BAMListingPageStory extends Component {
         <Panels
           active={panelActive}
           panelData={activeBA}
-          onIconClick={() => {}}
-          onToggleClick={(value) => {
-            // Change value of "activate" column in activeBA
-          }}
+          centreonImages={centreonImages}
+          eventHandlerCommands={eventHandlerCommands}
+          escalations={escalations}
+          timeperiods={timeperiods}
+          kpis={kpis}
+          contactGroups={contactGroups}
+          businessViews={businessViews}
+          remoteServers={remoteServers}
         />
       </React.Fragment>
     );

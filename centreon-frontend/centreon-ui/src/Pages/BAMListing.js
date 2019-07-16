@@ -1,8 +1,8 @@
 /* eslint-disable react/jsx-filename-extension */
 /* eslint-disable react/prop-types */
 
-import React, { Component } from 'react';
-import Paper from '@material-ui/core/Paper';
+import React, { Component } from "react";
+import Paper from "@material-ui/core/Paper";
 import {
   CustomRow,
   CustomColumn,
@@ -19,74 +19,74 @@ import {
   Tooltip,
   MassiveChangeDialog,
   ConfirmationDialog,
-  PromptDialog,
-} from '../index';
+  PromptDialog
+} from "../index";
 
-import TABLE_COLUMN_TYPES from '../Table/ColumnTypes';
+import TABLE_COLUMN_TYPES from "../Table/ColumnTypes";
 
 const breadcrumbs = [
   {
-    label: 'Configuration',
-    link: './main.php?p=6',
+    label: "Configuration",
+    link: "./main.php?p=6"
   },
   {
-    label: 'Business Activity',
-    link: './main.php?p=626',
+    label: "Business Activity",
+    link: "./main.php?p=626"
   },
   {
-    label: 'Activities',
-    link: './configuration/bam/bas',
-  },
+    label: "Activities",
+    link: "./configuration/bam/bas"
+  }
 ];
 
 const tableConfiguration = [
   {
-    id: 'name',
+    id: "name",
     numeric: false,
     disablePadding: true,
-    label: 'Name',
-    type: TABLE_COLUMN_TYPES.string,
+    label: "Name",
+    type: TABLE_COLUMN_TYPES.string
   },
   {
-    id: '#',
+    id: "#",
     numeric: true,
     disablePadding: false,
-    label: '',
-    type: TABLE_COLUMN_TYPES.hoverActions,
+    label: "",
+    type: TABLE_COLUMN_TYPES.hoverActions
   },
   {
-    id: 'activate',
+    id: "activate",
     numeric: true,
     disablePadding: false,
-    label: 'Activate',
-    type: TABLE_COLUMN_TYPES.toggler,
+    label: "Activate",
+    type: TABLE_COLUMN_TYPES.toggler
   },
   {
-    id: 'level_w & level_c',
+    id: "level_w & level_c",
     numeric: true,
     disablePadding: false,
     columns: [
       {
-        id: 'level_w',
-        label: 'Warning:',
-        type: 'percentage',
+        id: "level_w",
+        label: "Warning:",
+        type: "percentage"
       },
       {
-        id: 'level_c',
-        label: 'Critical:',
-        type: 'percentage',
-      },
+        id: "level_c",
+        label: "Critical:",
+        type: "percentage"
+      }
     ],
-    label: 'Calculation method',
-    type: TABLE_COLUMN_TYPES.multicolumn,
+    label: "Calculation method",
+    type: TABLE_COLUMN_TYPES.multicolumn
   },
   {
-    id: 'description',
+    id: "description",
     numeric: true,
     disablePadding: false,
-    label: 'Description',
-    type: TABLE_COLUMN_TYPES.number,
-  },
+    label: "Description",
+    type: TABLE_COLUMN_TYPES.number
+  }
 ];
 
 class BAMListingPage extends Component {
@@ -96,11 +96,11 @@ class BAMListingPage extends Component {
     duplicateActive: false,
   };
 
-  toggleDeleteModal = (selected) => {
+  toggleDeleteModal = selected => {
     const { deleteActive } = this.state;
     const { onTableSelectionChanged } = this.props;
     this.setState({
-      deleteActive: !deleteActive,
+      deleteActive: !deleteActive
     });
     if (selected[0]) {
       onTableSelectionChanged(selected);
@@ -110,22 +110,22 @@ class BAMListingPage extends Component {
   toggleMassiveChangeModal = () => {
     const { massiveChangeActive } = this.state;
     this.setState({
-      massiveChangeActive: !massiveChangeActive,
+      massiveChangeActive: !massiveChangeActive
     });
   };
 
-  toggleDuplicateModal = (selected) => {
+  toggleDuplicateModal = selected => {
     const { duplicateActive } = this.state;
     const { onTableSelectionChanged } = this.props;
     this.setState({
-      duplicateActive: !duplicateActive,
+      duplicateActive: !duplicateActive
     });
     if (selected[0]) {
       onTableSelectionChanged(selected);
     }
   };
 
-  onTableSelection = (selected) => {
+  onTableSelection = selected => {
     const { onTableSelectionChanged } = this.props;
     onTableSelectionChanged(selected);
   };
@@ -146,22 +146,26 @@ class BAMListingPage extends Component {
       paginationLimit,
       totalRows,
       currentPage,
-      currentlySelected,
+      currentlySelected
     } = this.props;
-    const { massiveChangeActive, deleteActive, duplicateActive } = this.state;
+    const {
+      massiveChangeActive,
+      deleteActive,
+      duplicateActive,
+    } = this.state;
     return (
       <React.Fragment>
         <Breadcrumb breadcrumbs={breadcrumbs} />
         <Divider />
-        <Paper elevation={0} style={{ padding: '8px 16px' }}>
+        <Paper elevation={0} style={{ padding: "8px 16px" }}>
           <CustomRow>
             <CustomColumn
               customColumn="md-4"
               additionalStyles={[
-                'flex-none',
-                'container__col-xs-12',
-                'm-0',
-                'mr-2',
+                "flex-none",
+                "container__col-xs-12",
+                "m-0",
+                "mr-2"
               ]}
             >
               <InputFieldSearch onChange={onSearch} />
@@ -169,11 +173,11 @@ class BAMListingPage extends Component {
           </CustomRow>
         </Paper>
         <Divider />
-        <Paper elevation={0} style={{ padding: '8px 16px' }}>
+        <Paper elevation={0} style={{ padding: "8px 16px" }}>
           <CustomRow>
             <CustomColumn
               customColumn="md-4"
-              additionalStyles={['flex-none', 'container__col-xs-12', 'm-0']}
+              additionalStyles={["flex-none", "container__col-xs-12", "m-0"]}
             >
               <ButtonCustom label="ADD" onClick={onAddClicked} />
             </CustomColumn>
@@ -182,10 +186,10 @@ class BAMListingPage extends Component {
                 <CustomColumn
                   customColumn="md-3"
                   additionalStyles={[
-                    'flex-none',
-                    'container__col-xs-12',
-                    'm-0',
-                    'pr-09',
+                    "flex-none",
+                    "container__col-xs-12",
+                    "m-0",
+                    "pr-09"
                   ]}
                 >
                   <Tooltip label="Delete">
@@ -198,11 +202,11 @@ class BAMListingPage extends Component {
                 <CustomColumn
                   customColumn="md-3"
                   additionalStyles={[
-                    'flex-none',
-                    'container__col-xs-12',
-                    'm-0',
-                    'pr-10',
-                    'pl-05',
+                    "flex-none",
+                    "container__col-xs-12",
+                    "m-0",
+                    "pr-10",
+                    "pl-05"
                   ]}
                 >
                   <Tooltip label="Duplicate">
@@ -215,11 +219,11 @@ class BAMListingPage extends Component {
                 <CustomColumn
                   customColumn="md-3"
                   additionalStyles={[
-                    'flex-none',
-                    'container__col-xs-12',
-                    'm-0',
-                    'pr-10',
-                    'pl-05',
+                    "flex-none",
+                    "container__col-xs-12",
+                    "m-0",
+                    "pr-10",
+                    "pl-05"
                   ]}
                 >
                   <Tooltip label="Enable">
@@ -233,12 +237,12 @@ class BAMListingPage extends Component {
                 <CustomColumn
                   customColumn="md-3"
                   additionalStyles={[
-                    'flex-none',
-                    'container__col-xs-12',
-                    'm-0',
-                    'pl-05',
-                    'pr-24',
-                    'border-right',
+                    "flex-none",
+                    "container__col-xs-12",
+                    "m-0",
+                    "pl-05",
+                    "pr-24",
+                    "border-right"
                   ]}
                 >
                   <Tooltip label="Disable">
@@ -252,10 +256,10 @@ class BAMListingPage extends Component {
                 <CustomColumn
                   customColumn="md-3"
                   additionalStyles={[
-                    'flex-none',
-                    'container__col-xs-12',
-                    'm-0',
-                    'pl-22',
+                    "flex-none",
+                    "container__col-xs-12",
+                    "m-0",
+                    "pl-22"
                   ]}
                 >
                   <Tooltip label="Massive change">
@@ -269,7 +273,7 @@ class BAMListingPage extends Component {
             ) : null}
           </CustomRow>
         </Paper>
-        <Paper elevation={0} style={{ padding: '8px 16px', paddingTop: 0 }}>
+        <Paper elevation={0} style={{ padding: "8px 16px", paddingTop: 0 }}>
           <TableCustom
             columnConfiguration={tableConfiguration}
             tableData={tableData}
@@ -295,14 +299,14 @@ class BAMListingPage extends Component {
           active={massiveChangeActive}
           onNoClicked={this.toggleMassiveChangeModal}
           onClose={this.toggleMassiveChangeModal}
-          onYesClicked={(thresholds) => {
+          onYesClicked={thresholds => {
             this.setState(
               {
-                massiveChangeActive: false,
+                massiveChangeActive: false
               },
               () => {
                 onMassiveChange(thresholds);
-              },
+              }
             );
           }}
         />
@@ -314,26 +318,26 @@ class BAMListingPage extends Component {
           onYesClicked={() => {
             this.setState(
               {
-                deleteActive: false,
+                deleteActive: false
               },
-              onDelete,
+              onDelete
             );
           }}
         />
         <PromptDialog
-          customStyle={{ padding: '25px 20px' }}
+          customStyle={{ padding: "25px 20px" }}
           info="How many times would you like to duplicate selected BAs?"
           active={duplicateActive}
           onNoClicked={this.toggleDuplicateModal}
           onClose={this.toggleDuplicateModal}
-          onYesClicked={(times) => {
+          onYesClicked={times => {
             this.setState(
               {
-                duplicateActive: false,
+                duplicateActive: false
               },
               () => {
                 onDuplicate(times);
-              },
+              }
             );
           }}
         />

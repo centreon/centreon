@@ -39,18 +39,42 @@ const useStyles = makeStyles(() => ({
     fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
     marginLeft: 3,
   },
+  iconAttachImage: {
+    maxWidth: '100%',
+    height: 'auto',
+    verticalAlign: 'middle',
+    padding: '0 5px',
+    boxSizing: 'border-box',
+  },
 }));
 
-function IconAttach({ customStyle, onClick }) {
+function IconAttach({
+  customStyle,
+  onClick,
+  defaultImage,
+  uploadedImage,
+  imgSource,
+  title,
+}) {
   const classes = useStyles();
 
   return (
-    <React.Fragment>
-      <span onClick={onClick} className={classes.iconAttach}>
-        <Attach style={customStyle} className={classes.icon} />
-        <span className={classes.iconAttachLabel}>ICON</span>
-      </span>
-    </React.Fragment>
+    <span onClick={onClick} className={classes.iconAttach}>
+      {defaultImage && (
+        <React.Fragment>
+          <Attach style={customStyle} className={classes.icon} />
+          <span className={classes.iconAttachLabel}>ICON</span>
+        </React.Fragment>
+      )}
+      {uploadedImage && (
+        <img
+          src={imgSource}
+          className={classes.iconAttachImage}
+          alt={title}
+          title={title}
+        />
+      )}
+    </span>
   );
 }
 

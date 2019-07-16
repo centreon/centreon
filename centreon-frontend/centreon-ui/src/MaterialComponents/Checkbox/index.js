@@ -7,25 +7,29 @@ import Checkbox from '@material-ui/core/Checkbox';
 import { withStyles } from '@material-ui/core/styles';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 
-const GreenCheckbox = withStyles({
+const CustomCheckbox = withStyles({
   root: {
     color: '#0072CE',
     '&$checked': {
       color: '#0072CE',
     },
     fontSize: 10,
+    padding: 0,
   },
   checked: {},
-  label: {
-    fontSize: 10,
-  },
 })((props) => <Checkbox color="default" {...props} />);
+
+const CustomLabel = withStyles({
+  label: {
+    fontSize: 12,
+  },
+})(FormControlLabel);
 
 // eslint-disable-next-line no-unused-vars
 class CheckboxDefault extends Component {
   render() {
     const { label, ...rest } = this.props;
-    return <FormControlLabel control={<GreenCheckbox {...rest}/>} label={label} />;
+    return <CustomLabel control={<CustomCheckbox {...rest} />} label={label} />;
   }
 }
 

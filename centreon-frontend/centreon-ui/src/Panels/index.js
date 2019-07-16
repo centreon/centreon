@@ -23,19 +23,148 @@ import InputField from "../InputField";
 import TableDefault from "../Table/TableDefault";
 import MultiSelectPanel from "../MultiSelectPanel";
 import BAModel from "../Mocks/oneBa.json";
+import TABLE_COLUMN_TYPES from "../Table/ColumnTypes";
+
+const multiselectsConfiguration = {
+  reporting_timeperiods: {
+    dataKey: "timeperiods",
+    tableConfiguration: [
+      {
+        id: "name",
+        numeric: false,
+        disablePadding: true,
+        label: "Name",
+        type: TABLE_COLUMN_TYPES.string
+      },
+      {
+        id: "alias",
+        numeric: false,
+        label: "Alias",
+        type: TABLE_COLUMN_TYPES.string
+      }
+    ]
+  },
+  bam_kpi: {
+    dataKey: "kpis",
+    tableConfiguration: [
+      {
+        id: "name",
+        numeric: false,
+        disablePadding: true,
+        label: "Objects",
+        type: TABLE_COLUMN_TYPES.string
+      },
+      {
+        id: "type",
+        numeric: false,
+        disablePadding: true,
+        label: "Type",
+        type: TABLE_COLUMN_TYPES.string
+      },
+      {
+        id: "type",
+        numeric: false,
+        disablePadding: true,
+        label: "Mode",
+        subkey:"impact",
+        type: TABLE_COLUMN_TYPES.string
+      },
+      {
+        id: "warning",
+        numeric: false,
+        disablePadding: true,
+        label: "Warning",
+        subkey:"impact",
+        type: TABLE_COLUMN_TYPES.string
+      },
+      {
+        id: "critical",
+        numeric: false,
+        disablePadding: true,
+        label: "Critical",
+        subkey:"impact",
+        type: TABLE_COLUMN_TYPES.string
+      },
+      {
+        id: "unknown",
+        numeric: false,
+        label: "Unknown",
+        subkey:"impact",
+        type: TABLE_COLUMN_TYPES.string
+      }
+    ]
+  },
+  groups: {
+    dataKey: "businessViews",
+    tableConfiguration: [
+      {
+        id: "name",
+        numeric: false, 
+        label: "Name",
+        type: TABLE_COLUMN_TYPES.string
+      },
+      {
+        id: "description",
+        numeric: false,
+        label: "Description",
+        type: TABLE_COLUMN_TYPES.string
+      },
+      {
+        id: "visible",
+        numeric: false,
+        label: "Visible",
+        type: TABLE_COLUMN_TYPES.boolean
+      }
+    ]
+  },
+  bam_contact: {
+    dataKey: "contactGroups",
+    tableConfiguration: [
+      {
+        id: "name",
+        numeric: false,
+        label: "Name",
+        type: TABLE_COLUMN_TYPES.string
+      },
+      {
+        id: "activate",
+        numeric: false,
+        label: "Activate",
+        type: TABLE_COLUMN_TYPES.boolean
+      }]
+  },
+  bam_esc: {
+    dataKey: "escalations",
+    tableConfiguration: [
+      {
+        id: "name",
+        numeric: false,
+        label: "Name",
+        type: TABLE_COLUMN_TYPES.string
+      }]
+  }
+};
 
 class BAPanel extends React.Component {
   state = {
     multiselectActive: false,
+    multiSelectKey: null,
     activeMultiselectKey: "",
     nameEditingToggled: false
   };
 
-  toggleSecondPanel = () => {
-    const { multiselectActive } = this.state;
-    this.setState({
-      multiselectActive: !multiselectActive
-    });
+  toggleMultiselect = multiSelectKey => {
+    if (!multiSelectKey) {
+      this.setState({
+        multiselectActive: false,
+        multiSelectKey: null
+      });
+    } else {
+      this.setState({
+        multiSelectKey,
+        multiselectActive: true
+      });
+    }
   };
 
   toggleNameEditing = () => {
@@ -56,15 +185,25 @@ class BAPanel extends React.Component {
       customClass,
       active,
       onSave,
-      onIconClick,
-      onToggleClick,
       onClose,
       values = BAModel.result,
       errors,
-      multiselectsConfiguration,
-      valueChanged = () => {}
+      valueChanged = () => {},
+      defaultImage,
+      uploadedImage,
+      centreonImages,
+      eventHandlerCommands,
+      escalations,
+      timeperiods,
+      kpis,
+      contactGroups,
+      businessViews
     } = this.props;
-    const { multiselectActive, nameEditingToggled } = this.state;
+    const {
+      multiselectActive,
+      nameEditingToggled,
+      multiSelectKey
+    } = this.state;
     return (
       <div
         className={classnames(
@@ -78,9 +217,16 @@ class BAPanel extends React.Component {
           <div className={classnames(styles["panels-inner"])}>
             <div className={classnames(styles["panels-header"])}>
               {values.icon ? (
-                <IconAttach onClick={onIconClick} />
+                <IconAttach
+                  uploadedImage
+                  imgSource={
+                    centreonImages.find(x => x.id == values.icon)
+                      ? centreonImages.find(x => x.id == values.icon).preview
+                      : ""
+                  }
+                />
               ) : (
-                <IconAttach onClick={onIconClick} />
+                <IconAttach defaultImage />
               )}
               {values.activate ? (
                 <IconPowerSettings />
@@ -133,7 +279,18 @@ class BAPanel extends React.Component {
                   <BAForm
                     values={values}
                     errors={{}}
-                    multiselectsConfiguration={{}}
+                    centreonImages={centreonImages}
+                    eventHandlerCommands={eventHandlerCommands}
+                    escalations={escalations}
+                    timeperiods={timeperiods}
+                    kpis={kpis}
+                    contactGroups={contactGroups}
+                    businessViews={businessViews}
+                    remoteServers={[]}
+                    notificationOptionChanged={() => {}}
+                    toggleMultiselect={this.toggleMultiselect}
+                    valueChanged={valueChanged}
+                    selectedMultiselect={multiSelectKey}
                   />
                 </div>
                 <span
@@ -141,7 +298,11 @@ class BAPanel extends React.Component {
                     styles["panels-arrow"],
                     multiselectActive ? styles["panels-arrow-right"] : ""
                   )}
-                  onClick={this.toggleSecondPanel.bind(this)}
+                  {...(multiselectActive && {
+                    onClick: () => {
+                      this.toggleMultiselect(false);
+                    }
+                  })}
                 >
                   {multiselectActive ? <ArrowForward /> : null}
                 </span>
@@ -149,17 +310,34 @@ class BAPanel extends React.Component {
               <MultiSelectPanel
                 styles={styles2}
                 active={multiselectActive}
-                title={""}
-                data={[]}
-                tableConfiguration={[]}
+                title={
+                  "Manage extra reporting time periods used in Centreon BI indicators"
+                }
+                data={
+                  multiselectsConfiguration[multiSelectKey]
+                    ? this.props[
+                        multiselectsConfiguration[multiSelectKey].dataKey
+                      ]
+                    : []
+                }
+                tableConfiguration={
+                  multiselectsConfiguration[multiSelectKey]
+                    ? multiselectsConfiguration[multiSelectKey]
+                        .tableConfiguration
+                    : []
+                }
                 onSearch={() => {}}
+                key={multiSelectKey}
                 onPaginate={() => {}}
                 onPaginationLimitChanged={() => {}}
                 onSort={() => {}}
                 currentPage={0}
                 totalRows={150}
-                currentlySelected={[]}
+                currentlySelected={multiSelectKey ? values[multiSelectKey] : []}
                 paginationLimit={5}
+                onSelect={selected => {
+                  valueChanged(multiSelectKey, null, selected);
+                }}
               />
             </div>
           </div>

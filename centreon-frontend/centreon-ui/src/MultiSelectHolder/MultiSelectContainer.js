@@ -8,31 +8,43 @@ const excludeAfterIndex = 5;
 
 class MultiSelectContainer extends Component {
   render() {
-    const { label, error, values = [], onEdit, labelKey = "name", valueKey = "id", options=[] } = this.props;
+    const {
+      label,
+      selected,
+      error,
+      values = [],
+      onEdit,
+      labelKey = "name",
+      valueKey = "id",
+      options = []
+    } = this.props;
     return (
       <MultiSelectHolder
         isEmpty={values.length == 0}
         multiSelectLabel={label}
-		multiSelectCount={values.length.toString()}
-		error={error}
-		onClick={onEdit}
+        multiSelectCount={values.length.toString()}
+        error={error}
+        onClick={onEdit}
+        selected={selected}
       >
         <CustomRow additionalStyles={["mb-0"]}>
           {values.map((item, index) => {
-			let result = null
+            let result = null;
             if (index < excludeAfterIndex) {
-			  for(let i = 0; i < options.length; i++){
-				  if(options[i][valueKey] == item){
-					result = <CustomColumn customColumn="md-6">
-					  <InputFieldMultiSelectValue
-						disabled
-						placeholder={options[i][labelKey]}
-					  />
-					</CustomColumn>
-				  }
-			  }
-			}
-			return result
+              for (let i = 0; i < options.length; i++) {
+                if (options[i][valueKey] == item) {
+                  result = (
+                    <CustomColumn customColumn="md-6">
+                      <InputFieldMultiSelectValue
+                        disabled
+                        placeholder={options[i][labelKey]}
+                      />
+                    </CustomColumn>
+                  );
+                }
+              }
+            }
+            return result;
           })}
           {values.length > 5 ? (
             <CustomColumn customColumn="md-6">
