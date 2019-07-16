@@ -22,7 +22,7 @@ import IconCloseNew from "../MaterialComponents/Icons/IconClose";
 import InputField from "../InputField";
 import TableDefault from "../Table/TableDefault";
 import MultiSelectPanel from "../MultiSelectPanel";
-import BAModel from "../Mocks/oneBa.json";
+import BAModel from "../Mocks/oneBa";
 import TABLE_COLUMN_TYPES from "../Table/ColumnTypes";
 
 const multiselectsConfiguration = {
@@ -42,7 +42,8 @@ const multiselectsConfiguration = {
         label: "Alias",
         type: TABLE_COLUMN_TYPES.string
       }
-    ]
+    ],
+    label:"Manage extra reporting time periods used in Centreon BI indicators"
   },
   bam_kpi: {
     dataKey: "kpis",
@@ -66,7 +67,7 @@ const multiselectsConfiguration = {
         numeric: false,
         disablePadding: true,
         label: "Mode",
-        subkey:"impact",
+        subkey: "impact",
         type: TABLE_COLUMN_TYPES.string
       },
       {
@@ -74,7 +75,7 @@ const multiselectsConfiguration = {
         numeric: false,
         disablePadding: true,
         label: "Warning",
-        subkey:"impact",
+        subkey: "impact",
         type: TABLE_COLUMN_TYPES.string
       },
       {
@@ -82,24 +83,25 @@ const multiselectsConfiguration = {
         numeric: false,
         disablePadding: true,
         label: "Critical",
-        subkey:"impact",
+        subkey: "impact",
         type: TABLE_COLUMN_TYPES.string
       },
       {
         id: "unknown",
         numeric: false,
         label: "Unknown",
-        subkey:"impact",
+        subkey: "impact",
         type: TABLE_COLUMN_TYPES.string
       }
-    ]
+    ],
+    label:"Manage indicator"
   },
   groups: {
     dataKey: "businessViews",
     tableConfiguration: [
       {
         id: "name",
-        numeric: false, 
+        numeric: false,
         label: "Name",
         type: TABLE_COLUMN_TYPES.string
       },
@@ -115,7 +117,8 @@ const multiselectsConfiguration = {
         label: "Visible",
         type: TABLE_COLUMN_TYPES.boolean
       }
-    ]
+    ],
+    label:"Manage Business views"
   },
   bam_contact: {
     dataKey: "contactGroups",
@@ -131,7 +134,9 @@ const multiselectsConfiguration = {
         numeric: false,
         label: "Activate",
         type: TABLE_COLUMN_TYPES.boolean
-      }]
+      }
+    ],
+    label:"Manage contact groups"
   },
   bam_esc: {
     dataKey: "escalations",
@@ -141,7 +146,9 @@ const multiselectsConfiguration = {
         numeric: false,
         label: "Name",
         type: TABLE_COLUMN_TYPES.string
-      }]
+      }
+    ],
+    label:"Manage escalations"
   }
 };
 
@@ -187,10 +194,10 @@ class BAPanel extends React.Component {
       onSave,
       onClose,
       values = BAModel.result,
-      errors,
+      errors = {},
       valueChanged = () => {},
-      defaultImage,
-      uploadedImage,
+      notificationOptionChanged = () => {},
+      additionalPollerChanged = () => {},
       centreonImages,
       eventHandlerCommands,
       escalations,
@@ -204,6 +211,9 @@ class BAPanel extends React.Component {
       nameEditingToggled,
       multiSelectKey
     } = this.state;
+
+    if (!values) return null;
+
     return (
       <div
         className={classnames(
@@ -218,7 +228,7 @@ class BAPanel extends React.Component {
             <div className={classnames(styles["panels-header"])}>
               {values.icon ? (
                 <IconAttach
-                  uploadedImage
+                  uploadedImage={true}
                   imgSource={
                     centreonImages.find(x => x.id == values.icon)
                       ? centreonImages.find(x => x.id == values.icon).preview
@@ -226,12 +236,20 @@ class BAPanel extends React.Component {
                   }
                 />
               ) : (
-                <IconAttach defaultImage />
+                <IconAttach defaultImage={true} />
               )}
               {values.activate ? (
-                <IconPowerSettings />
+                <IconPowerSettings
+                  onClick={() => {
+                    valueChanged("activate", false);
+                  }}
+                />
               ) : (
-                <IconPowerSettingsDisable />
+                <IconPowerSettingsDisable
+                  onClick={() => {
+                    valueChanged("activate", true);
+                  }}
+                />
               )}
 
               {nameEditingToggled ? (
@@ -244,11 +262,13 @@ class BAPanel extends React.Component {
                   onChange={event => {
                     valueChanged("name", event);
                   }}
+                  error={errors.name}
                   onBlur={this.toggleNameEditing}
                   reference={this.focusNameEditInput}
                 />
               ) : (
                 <PanelHeaderTitle
+                  error={errors.name}
                   label={values.name ? values.name : "Click here to add name"}
                   onClick={this.toggleNameEditing}
                 />
@@ -278,7 +298,7 @@ class BAPanel extends React.Component {
                 <div className={classnames(styles2["panel-item-inner"])}>
                   <BAForm
                     values={values}
-                    errors={{}}
+                    errors={errors}
                     centreonImages={centreonImages}
                     eventHandlerCommands={eventHandlerCommands}
                     escalations={escalations}
@@ -287,9 +307,10 @@ class BAPanel extends React.Component {
                     contactGroups={contactGroups}
                     businessViews={businessViews}
                     remoteServers={[]}
-                    notificationOptionChanged={() => {}}
+                    notificationOptionChanged={notificationOptionChanged}
                     toggleMultiselect={this.toggleMultiselect}
                     valueChanged={valueChanged}
+                    additionalPollerChanged={additionalPollerChanged}
                     selectedMultiselect={multiSelectKey}
                   />
                 </div>
@@ -311,7 +332,11 @@ class BAPanel extends React.Component {
                 styles={styles2}
                 active={multiselectActive}
                 title={
-                  "Manage extra reporting time periods used in Centreon BI indicators"
+                  multiselectsConfiguration[multiSelectKey]
+                    ? this.props[
+                        multiselectsConfiguration[multiSelectKey].label
+                      ]
+                    : ""
                 }
                 data={
                   multiselectsConfiguration[multiSelectKey]
@@ -333,10 +358,12 @@ class BAPanel extends React.Component {
                 onSort={() => {}}
                 currentPage={0}
                 totalRows={150}
-                currentlySelected={multiSelectKey ? values[multiSelectKey] : []}
+                currentlySelected={
+                  values[multiSelectKey] ? values[multiSelectKey] : []
+                }
                 paginationLimit={5}
                 onSelect={selected => {
-                  valueChanged(multiSelectKey, null, selected);
+                  valueChanged(multiSelectKey, selected);
                 }}
               />
             </div>

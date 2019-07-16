@@ -161,7 +161,7 @@ class TableCustom extends Component {
               size="small"
             >
               <EnhancedTableHead
-                numSelected={selected.length}
+                numSelected={selected ? selected.length : 0}
                 order={order}
                 checkable={checkable}
                 orderBy={orderBy}

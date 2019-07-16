@@ -1,4 +1,4 @@
-{
+export default {
   "status": true,
   "result": {
     "id": 1,

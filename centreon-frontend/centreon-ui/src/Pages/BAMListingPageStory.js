@@ -5,13 +5,13 @@
 import React, { Component } from "react";
 import BAMListingPage from "./BAMListing";
 import Panels from "../Panels";
-import imagesMock from "../Mocks/images.json";
-import commandsMock from "../Mocks/command.json";
-import timeperiodsMock from "../Mocks/timeperiod.json";
-import kpiMock from "../Mocks/kpi.json";
-import escalationMock from "../Mocks/escalation.json";
-import contactGroupsMock from "../Mocks/contactGroups.json";
-import businessViewsMock from "../Mocks/businessViews.json";
+import imagesMock from "../Mocks/images";
+import commandsMock from "../Mocks/command";
+import timeperiodsMock from "../Mocks/timeperiod";
+import kpiMock from "../Mocks/kpi";
+import escalationMock from "../Mocks/escalation";
+import contactGroupsMock from "../Mocks/contactGroups";
+import businessViewsMock from "../Mocks/businessViews";
 
 class BAMListingPageStory extends Component {
   state = {

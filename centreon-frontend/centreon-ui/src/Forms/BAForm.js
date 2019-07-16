@@ -25,12 +25,6 @@ import CheckboxDefault from "../MaterialComponents/Checkbox";
 import ButtonCustom from "../Button/ButtonCustom";
 import { MultiSelectHolder } from "../";
 import MultiSelectContainer from "../MultiSelectHolder/MultiSelectContainer";
-import commandsMock from "../Mocks/command.json";
-import timeperiodsMock from "../Mocks/timeperiod.json";
-import kpiMock from "../Mocks/kpi.json";
-import escalationMock from "../Mocks/escalation.json";
-import contactGroupsMock from "../Mocks/contactGroups.json";
-import businessViewsMock from "../Mocks/businessViews.json";
 
 const styles = theme => ({
   root: {
@@ -66,6 +60,7 @@ class BAForm extends React.Component {
       centreonImages,
       valueChanged = () => {},
       notificationOptionChanged = () => {},
+      additionalPollerChanged = () => {},
       errors,
       toggleMultiselect = () => {},
       eventHandlerCommands,
@@ -86,6 +81,7 @@ class BAForm extends React.Component {
                 placeholder="Add a description"
                 type="text"
                 name="description"
+                error={errors.description}
                 value={values.description}
                 onChange={event => {
                   valueChanged("description", event);
@@ -97,6 +93,7 @@ class BAForm extends React.Component {
                 icons={true}
                 options={centreonImages}
                 value={values.icon}
+                error={errors.icon}
                 customStyle="no-margin"
                 onChange={event => {
                   valueChanged("icon", event);
@@ -112,8 +109,9 @@ class BAForm extends React.Component {
                   <MaterialSwitch
                     value={values.inherit_kpi_downtimes}
                     checked={values.inherit_kpi_downtimes}
-                    onChange={event => {
-                      valueChanged("inherit_kpi_downtimes", event);
+                    error={errors.inherit_kpi_downtimes}
+                    onChange={(event, value) => {
+                      valueChanged("inherit_kpi_downtimes", value);
                     }}
                   />
                 }
@@ -125,8 +123,9 @@ class BAForm extends React.Component {
               <InputFieldSelect
                 options={remoteServers}
                 value={values.additional_poller}
+                error={errors.additional_poller}
                 onChange={event => {
-                  valueChanged("additional_poller", event);
+                  additionalPollerChanged(event);
                 }}
               />
             </CustomColumn>
@@ -169,6 +168,7 @@ class BAForm extends React.Component {
                       type="number"
                       name="level_w"
                       value={values.level_w}
+                      error={errors.level_w}
                       onChange={event => {
                         valueChanged("level_w", event);
                       }}
@@ -190,6 +190,7 @@ class BAForm extends React.Component {
                       type="text"
                       name="level_c"
                       value={values.level_c}
+                      error={errors.level_c}
                       onChange={event => {
                         valueChanged("level_c", event);
                       }}
@@ -201,14 +202,14 @@ class BAForm extends React.Component {
           </ExpansionPanelDetails>
           <ExpansionPanelDetails className={classes.additionalStyles}>
             <MultiSelectContainer
-              label={"Number of indicators"}
+              label={"Indicators"}
               values={values.bam_kpi}
               options={kpis}
               selected={selectedMultiselect == "bam_kpi"}
+              error={errors.bam_kpi}
               onEdit={() => {
                 toggleMultiselect("bam_kpi");
               }}
-              error={""}
               labelKey={"name"}
               valueKey={"id"}
             />
@@ -224,14 +225,14 @@ class BAForm extends React.Component {
           </ExpansionPanelSummary>
           <ExpansionPanelDetails className={classes.additionalStyles}>
             <MultiSelectContainer
-              label={"Number of views"}
+              label={"Business views"}
               values={values.groups}
               options={businessViews}
               selected={selectedMultiselect == "groups"}
+              error={errors.groups}
               onEdit={() => {
                 toggleMultiselect("groups");
               }}
-              error={""}
               labelKey={"name"}
               valueKey={"id"}
             />
@@ -256,8 +257,9 @@ class BAForm extends React.Component {
                     <MaterialSwitch
                       value={values.notifications_enabled}
                       checked={values.notifications_enabled}
-                      onChange={event => {
-                        valueChanged("notifications_enabled", event);
+                      error={errors.notifications_enabled}
+                      onChange={(event, value) => {
+                        valueChanged("notifications_enabled", value);
                       }}
                     />
                   }
@@ -271,6 +273,7 @@ class BAForm extends React.Component {
                   name="test"
                   label="Interval (*60 seconds)"
                   value={values.notification_interval}
+                  error={errors.notification_interval}
                   onChange={event => {
                     valueChanged("notification_interval", event);
                   }}
@@ -325,6 +328,7 @@ class BAForm extends React.Component {
                 <InputFieldSelect
                   options={timeperiods}
                   value={values.notification_period}
+                  error={errors.notification_period}
                   onChange={event => {
                     valueChanged("notification_period", event);
                   }}
@@ -338,6 +342,7 @@ class BAForm extends React.Component {
               values={values.bam_contact}
               options={contactGroups}
               selected={selectedMultiselect == "bam_contact"}
+              error={errors.bam_contact}
               onEdit={() => {
                 toggleMultiselect("bam_contact");
               }}
@@ -364,6 +369,7 @@ class BAForm extends React.Component {
                   name="test"
                   label="SLA warning percentage thresholds"
                   value={values.sla_month_percent_warn}
+                  error={errors.sla_month_percent_warn}
                   onChange={event => {
                     valueChanged("sla_month_percent_warn", event);
                   }}
@@ -376,6 +382,7 @@ class BAForm extends React.Component {
                   name="test"
                   label="SLA warning duration threshold"
                   value={values.sla_month_duration_warn}
+                  error={errors.sla_month_duration_warn}
                   onChange={event => {
                     valueChanged("sla_month_duration_warn", event);
                   }}
@@ -388,6 +395,7 @@ class BAForm extends React.Component {
                   name="test"
                   label="SLA critical percentage thresholds"
                   value={values.sla_month_percent_crit}
+                  error={errors.sla_month_percent_crit}
                   onChange={event => {
                     valueChanged("sla_month_percent_crit", event);
                   }}
@@ -400,6 +408,7 @@ class BAForm extends React.Component {
                   name="test"
                   label="SLA critical duration threshold"
                   value={values.sla_month_duration_crit}
+                  error={errors.sla_month_duration_crit}
                   onChange={event => {
                     valueChanged("sla_month_duration_crit", event);
                   }}
@@ -413,10 +422,10 @@ class BAForm extends React.Component {
               values={values.reporting_timeperiods}
               options={timeperiods}
               selected={selectedMultiselect == "reporting_timeperiods"}
+              error={errors.reporting_timeperiods}
               onEdit={() => {
                 toggleMultiselect("reporting_timeperiods");
               }}
-              error={""}
               labelKey={"name"}
               valueKey={"id"}
             />
@@ -432,14 +441,14 @@ class BAForm extends React.Component {
           </ExpansionPanelSummary>
           <ExpansionPanelDetails className={classes.additionalStyles}>
             <MultiSelectContainer
-              label={"Number of escalations"}
+              label={"Escalations"}
               values={values.bam_esc}
               options={escalations}
               selected={selectedMultiselect == "bam_esc"}
               onEdit={() => {
                 toggleMultiselect("bam_esc");
               }}
-              error={""}
+              error={errors.bam_esc}
               labelKey={"name"}
               valueKey={"id"}
             />
@@ -464,8 +473,9 @@ class BAForm extends React.Component {
                     <MaterialSwitch
                       value={values.event_handler_enabled}
                       checked={values.event_handler_enabled}
-                      onChange={event => {
-                        valueChanged("event_handler_enabled", event);
+                      error={errors.event_handler_enabled}
+                      onChange={(event, value) => {
+                        valueChanged("event_handler_enabled", value);
                       }}
                     />
                   }
@@ -477,6 +487,7 @@ class BAForm extends React.Component {
                 <InputFieldSelect
                   options={eventHandlerCommands}
                   value={values.event_handler_command}
+                  error={errors.event_handler_command}
                   onChange={event => {
                     valueChanged("event_handler_command", event);
                   }}
