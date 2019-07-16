@@ -21,6 +21,7 @@ import CustomRow from '../Custom/CustomRow';
 import CustomColumn from '../Custom/CustomColumn';
 import IconInfo from '../Icon/IconInfo';
 import MaterialSwitch from '../MaterialComponents/Switch';
+import CheckboxDefault from '../MaterialComponents/Checkbox';
 import ButtonCustom from '../Button/ButtonCustom';
 import { MultiSelectHolder } from '../';
 import imagesMock from '../Mocks/images.json';
@@ -239,15 +240,10 @@ class BAForm extends React.Component {
                 />
               </CustomColumn>
               <CustomColumn customColumn="md-6">
-                <IconInfo iconText="Options" />
-                <InputFieldSelect
-                  options={[
-                    { id: '1', name: '24x7', alias: 'Always' },
-                    { id: '2', name: 'none', alias: 'Never' },
-                    { id: '3', name: 'nonworkhours', alias: 'Non-Work Hours' },
-                    { id: '4', name: 'workhours', alias: 'Work hours' },
-                  ]}
-                />
+                <CheckboxDefault label="Recovery" />
+                <CheckboxDefault label="Warning" />
+                <CheckboxDefault label="Critical" />
+                <CheckboxDefault label="Flapping" />
               </CustomColumn>
               <CustomColumn customColumn="md-6">
                 <IconInfo iconText="Time period" />

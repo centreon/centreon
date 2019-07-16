@@ -125,6 +125,7 @@ export {
 } from './MaterialComponents/Icons/IconPowerSettingsDisable';
 // Material Components
 export { default as BAForm } from './Forms/BAForm';
+export { default as CheckboxDefault } from './MaterialComponents/Checkbox';
 export { default as IconAttach } from './MaterialComponents/Icons/IconAttach';
 export { default as IconEdit } from './MaterialComponents/Icons/IconEdit';
 export { default as IconCloseNew } from './MaterialComponents/Icons/IconClose';
