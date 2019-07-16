@@ -1,0 +1,23 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Hello World renders 1`] = `
+<h1>
+  Hello World!
+</h1>
+`;
+
+exports[`MaterialIcon renders 1`] = `
+.emotion-0 {
+  display: inline-block;
+  vertical-align: middle;
+  height: 24px;
+  cursor: pointer;
+  color: #707070;
+}
+
+<span
+  class="emotion-0"
+>
+  <i />
+</span>
+`;

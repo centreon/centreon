@@ -6,6 +6,7 @@ import { storiesOf } from '@storybook/react';
 import {
   IconAction,
   IconClose,
+  IconCloseNew,
   IconContent,
   IconInfo,
   IconHeader,
@@ -13,6 +14,15 @@ import {
   IconRound,
   IconToggleSubmenu,
   IconLegend,
+  IconLibraryAdd,
+  IconDelete,
+  IconAttach,
+  IconEdit,
+  IconInsertChart,
+  IconPowerSettings,
+  IconPowerSettingsDisable,
+  IconVisible,
+  IconInvisible,
 } from '../src';
 
 storiesOf('Icon', module).add(
@@ -262,3 +272,20 @@ storiesOf('Icon', module).add(
   },
   { notes: 'A very simple component' },
 );
+
+storiesOf('Icon', module).add('Icon - Material', () => {
+  return (
+    <>
+      <IconDelete />
+      <IconEdit />
+      <IconCloseNew />
+      <IconLibraryAdd />
+      <IconPowerSettings />
+      <IconPowerSettingsDisable />
+      <IconAttach />
+      <IconInsertChart />
+      <IconVisible />
+      <IconInvisible />
+    </>
+  );
+});

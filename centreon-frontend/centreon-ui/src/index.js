@@ -123,7 +123,6 @@ export {
 export {
   default as IconPowerSettingsDisable,
 } from './MaterialComponents/Icons/IconPowerSettingsDisable';
-// Material Components
 export { default as Accordion } from './MaterialComponents/Accordion';
 export { default as IconAttach } from './MaterialComponents/Icons/IconAttach';
 export { default as IconEdit } from './MaterialComponents/Icons/IconEdit';
@@ -144,3 +143,7 @@ export { default as ConfirmationDialog } from './Dialog/Confirmation';
 export { default as PromptDialog } from './Dialog/Prompt';
 export { default as MassiveChangeDialog } from './Dialog/MassiveChange';
 export { default as Dialog } from './Dialog';
+export { default as IconVisible } from './MaterialComponents/Icons/IconVisible';
+export {
+  default as IconInvisible,
+} from './MaterialComponents/Icons/IconInvisible';
