@@ -1,0 +1,11 @@
+{
+    "status": true,
+    "result": {
+        "pagination": {
+            "total": 0,
+            "offset": 0,
+            "limit": 0
+        },
+        "entities": []
+    }
+}

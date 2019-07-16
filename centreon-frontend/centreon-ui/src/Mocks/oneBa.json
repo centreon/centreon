@@ -11,6 +11,7 @@
     "groups": [],
     "notifications_enabled": true,
     "bam_contact": [3, 5],
+    "bam_kpi":[1,2],
     "notification_period": 3,
     "notification_interval": 1,
     "notification_options": ["r", "c"],

@@ -28,9 +28,7 @@ const styles = () => ({
 class CustomSwitch extends Component {
   render() {
     const { classes, ...rest } = this.props;
-    return (
-      <Switch color="primary" className={classes.switchBase} {...rest}/>
-    );
+    return <Switch color="primary" className={classes.switchBase} {...rest} />;
   }
 }
 
