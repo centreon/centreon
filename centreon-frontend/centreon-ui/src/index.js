@@ -45,8 +45,8 @@ export {
   default as InputFieldMultiSelect,
 } from './InputField/InputFieldMultiSelect';
 export {
-  default as InputFieldMultiSelectNew,
-} from './InputField/InputFieldMultiSelectNew';
+  default as InputFieldMultiSelectValue,
+} from './InputField/InputFieldMultiSelectValue';
 export { default as InputFieldSearch } from './InputField/InputFieldSearch';
 export {
   default as InputFieldSelectCustom,

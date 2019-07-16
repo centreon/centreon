@@ -61,7 +61,8 @@ class BAPanel extends React.Component {
       onClose,
       values = BAModel.result,
       errors,
-      multiselectsConfiguration
+      multiselectsConfiguration,
+      valueChanged = () => {}
     } = this.props;
     const { multiselectActive, nameEditingToggled } = this.state;
     return (
@@ -94,6 +95,9 @@ class BAPanel extends React.Component {
                   name="name"
                   value={values.name}
                   inputSize={"header"}
+                  onChange={event => {
+                    valueChanged("name", event);
+                  }}
                   onBlur={this.toggleNameEditing}
                   reference={this.focusNameEditInput}
                 />

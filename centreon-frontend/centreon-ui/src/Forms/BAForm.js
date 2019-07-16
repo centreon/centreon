@@ -3,57 +3,73 @@
 /* eslint-disable react/prefer-stateless-function */
 /* eslint-disable import/no-named-as-default */
 
-import React from 'react';
-import { withStyles } from '@material-ui/core/styles';
-import ExpansionPanel from '@material-ui/core/ExpansionPanel';
-import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary';
-import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
-import Typography from '@material-ui/core/Typography';
-import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
-import IconWarning from '@material-ui/icons/Warning';
-import IconError from '@material-ui/icons/Error';
-import classnames from 'classnames';
-import InputField from '../InputField';
-import InputFieldMultiSelectNew from '../InputField/InputFieldMultiSelectNew';
-import InputFieldSelect from '../InputField/InputFieldSelectCustom';
-import CustomRow from '../Custom/CustomRow';
-import CustomColumn from '../Custom/CustomColumn';
-import IconInfo from '../Icon/IconInfo';
-import MaterialSwitch from '../MaterialComponents/Switch';
-import ButtonCustom from '../Button/ButtonCustom';
-import { MultiSelectHolder } from '../';
-import imagesMock from '../Mocks/images.json';
+import React from "react";
+import { withStyles } from "@material-ui/core/styles";
+import ExpansionPanel from "@material-ui/core/ExpansionPanel";
+import ExpansionPanelSummary from "@material-ui/core/ExpansionPanelSummary";
+import ExpansionPanelDetails from "@material-ui/core/ExpansionPanelDetails";
+import Typography from "@material-ui/core/Typography";
+import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
+import FormControlLabel from "@material-ui/core/FormControlLabel";
+import IconWarning from "@material-ui/icons/Warning";
+import IconError from "@material-ui/icons/Error";
+import classnames from "classnames";
+import InputField from "../InputField";
+import InputFieldMultiSelectValue from "../InputField/InputFieldMultiSelectValue";
+import InputFieldSelect from "../InputField/InputFieldSelectCustom";
+import CustomRow from "../Custom/CustomRow";
+import CustomColumn from "../Custom/CustomColumn";
+import IconInfo from "../Icon/IconInfo";
+import MaterialSwitch from "../MaterialComponents/Switch";
+import ButtonCustom from "../Button/ButtonCustom";
+import { MultiSelectHolder } from "../";
+import MultiSelectContainer from "../MultiSelectHolder/MultiSelectContainer";
+import imagesMock from "../Mocks/images.json";
+import commandsMock from "../Mocks/command.json";
+import timeperiodsMock from "../Mocks/timeperiod.json";
+import kpiMock from "../Mocks/kpi.json";
+import escalationMock from "../Mocks/escalation.json";
+import contactGroupsMock from "../Mocks/contactGroups.json";
 
-const styles = (theme) => ({
+const styles = theme => ({
   root: {
-    width: '100%',
+    width: "100%"
   },
   heading: {
     fontSize: theme.typography.pxToRem(15),
-    fontWeight: '700',
+    fontWeight: "700"
   },
   customStyle: {
-    margin: '0 !important',
-    backgroundColor: 'transparent',
-    boxShadow: 'none',
-    borderBottom: '1px solid #bcbdc0',
-    borderRadius: '0 !important',
+    margin: "0 !important",
+    backgroundColor: "transparent",
+    boxShadow: "none",
+    borderBottom: "1px solid #bcbdc0",
+    borderRadius: "0 !important"
   },
   additionalStyles: {
-    display: 'block',
+    display: "block"
   },
   helperStyles: {
-    paddingBottom: 0,
+    paddingBottom: 0
   },
   containerStyles: {
-    padding: '10px 24px 10px 24px',
-  },
+    padding: "10px 24px 10px 24px"
+  }
 });
 
 class BAForm extends React.Component {
   render() {
-    const { classes, values, centreonImages = imagesMock.result.entities } = this.props;
+    const {
+      classes,
+      values,
+      centreonImages = imagesMock.result.entities,
+      valueChanged = () => {},
+      errors,
+      eventHandlerCommands = commandsMock.result.entities,
+      escalations = escalationMock.result.entities,
+      timeperiods = timeperiodsMock.result.entities,
+      kpis = kpiMock.result.entities
+    } = this.props;
     return (
       <div className={classes.root}>
         <div className={classes.containerStyles}>
@@ -62,8 +78,11 @@ class BAForm extends React.Component {
               <InputField
                 placeholder="Add a description"
                 type="text"
-                name="test"
+                name="description"
                 value={values.description}
+                onChange={event => {
+                  valueChanged("description", event);
+                }}
               />
             </CustomColumn>
             <CustomColumn customColumn="md-6">
@@ -72,24 +91,36 @@ class BAForm extends React.Component {
                 options={centreonImages}
                 value={values.icon}
                 customStyle="no-margin"
+                onChange={event => {
+                  valueChanged("icon", event);
+                }}
               />
             </CustomColumn>
             <CustomColumn customColumn="md-6">
-              <CustomColumn customColumn="md-12" additionalStyles={['p-0']}>
+              <CustomColumn customColumn="md-12" additionalStyles={["p-0"]}>
                 <IconInfo iconText="Automatically inherit KPI downtimes" />
               </CustomColumn>
-              <FormControlLabel control={<MaterialSwitch value={values.inherit_kpi_downtimes}/>} label="Enable" />
+              <FormControlLabel
+                control={
+                  <MaterialSwitch
+                    value={values.inherit_kpi_downtimes}
+                    checked={values.inherit_kpi_downtimes}
+                    onChange={event => {
+                      valueChanged("inherit_kpi_downtimes", event);
+                    }}
+                  />
+                }
+                label="Enable"
+              />
             </CustomColumn>
             <CustomColumn customColumn="md-6">
               <IconInfo iconText="Display on remote server" />
               <InputFieldSelect
-                options={[
-                  { id: '1', name: '24x7', alias: 'Always' },
-                  { id: '2', name: 'none', alias: 'Never' },
-                  { id: '3', name: 'nonworkhours', alias: 'Non-Work Hours' },
-                  { id: '4', name: 'workhours', alias: 'Work hours' },
-                ]}
+                options={timeperiods}
                 value={values.additional_poller}
+                onChange={event => {
+                  valueChanged("additional_poller", event);
+                }}
               />
             </CustomColumn>
           </CustomRow>
@@ -105,77 +136,74 @@ class BAForm extends React.Component {
           <ExpansionPanelDetails
             className={classnames(
               classes.additionalStyles,
-              classes.helperStyles,
+              classes.helperStyles
             )}
           >
-            <CustomRow additionalStyles={['mb-0']}>
-              <CustomColumn customColumn="md-6" additionalStyles={['mb-0']}>
+            <CustomRow additionalStyles={["mb-0"]}>
+              <CustomColumn customColumn="md-6" additionalStyles={["mb-0"]}>
                 <IconInfo iconText="Status calculation method" />
                 <InputFieldSelect
-                  options={[
-                    { id: '1', name: '24x7', alias: 'Always' },
-                    { id: '2', name: 'none', alias: 'Never' },
-                    { id: '3', name: 'nonworkhours', alias: 'Non-Work Hours' },
-                    { id: '4', name: 'workhours', alias: 'Work hours' },
-                  ]}
+                  value={1}
+                  options={[{ id: 1, name: "Impact", alias: "impact" }]}
+                  disabled
                 />
               </CustomColumn>
-              <CustomColumn customColumn="md-3" additionalStyles={['mb-0']}>
+              <CustomColumn customColumn="md-3" additionalStyles={["mb-0"]}>
                 <IconInfo iconText="Warning threshold" />
-                <CustomRow additionalStyles={['mt-05', 'mb-0']}>
+                <CustomRow additionalStyles={["mt-05", "mb-0"]}>
                   <CustomColumn
                     customColumn="md-3"
-                    additionalStyles={['mt-03']}
+                    additionalStyles={["mt-03"]}
                   >
-                    <IconWarning style={{ color: '#FF9913' }} />
+                    <IconWarning style={{ color: "#FF9913" }} />
                   </CustomColumn>
                   <CustomColumn customColumn="md-9">
-                    <InputField type="number" name="test" value={values.level_w}/>
+                    <InputField
+                      type="number"
+                      name="level_w"
+                      value={values.level_w}
+                      onChange={event => {
+                        valueChanged("level_w", event);
+                      }}
+                    />
                   </CustomColumn>
                 </CustomRow>
               </CustomColumn>
-              <CustomColumn customColumn="md-3" additionalStyles={['mb-0']}>
+              <CustomColumn customColumn="md-3" additionalStyles={["mb-0"]}>
                 <IconInfo iconText="Critical threshold" />
-                <CustomRow additionalStyles={['mt-05']}>
+                <CustomRow additionalStyles={["mt-05"]}>
                   <CustomColumn
                     customColumn="md-3"
-                    additionalStyles={['mt-03']}
+                    additionalStyles={["mt-03"]}
                   >
-                    <IconError style={{ color: '#E00B3D' }} />
+                    <IconError style={{ color: "#E00B3D" }} />
                   </CustomColumn>
                   <CustomColumn customColumn="md-9">
-                    <InputField type="text" name="test" value={values.level_c}/>
+                    <InputField
+                      type="text"
+                      name="level_c"
+                      value={values.level_c}
+                      onChange={event => {
+                        valueChanged("level_c", event);
+                      }}
+                    />
                   </CustomColumn>
                 </CustomRow>
               </CustomColumn>
             </CustomRow>
           </ExpansionPanelDetails>
           <ExpansionPanelDetails className={classes.additionalStyles}>
-            <MultiSelectHolder
-              multiSelectLabel="Number of indicators"
-              multiSelectCount="5"
-            >
-              <CustomRow additionalStyles={['mb-0']}>
-                <CustomColumn customColumn="md-6">
-                  <InputFieldMultiSelectNew placeholder="BA-CIO-Indicator 1" />
-                </CustomColumn>
-                <CustomColumn customColumn="md-6">
-                  <InputFieldMultiSelectNew placeholder="BA-CIO-Indicator 2" />
-                </CustomColumn>
-                <CustomColumn customColumn="md-6">
-                  <InputFieldMultiSelectNew placeholder="BA-CIO-Indicator 3" />
-                </CustomColumn>
-                <CustomColumn customColumn="md-6">
-                  <InputFieldMultiSelectNew placeholder="BA-CIO-Indicator 4" />
-                </CustomColumn>
-                <CustomColumn customColumn="md-6">
-                  <InputFieldMultiSelectNew placeholder="BA-CIO-Indicator 5" />
-                </CustomColumn>
-                <CustomColumn customColumn="md-6">
-                  <InputFieldMultiSelectNew multiSelectType />
-                </CustomColumn>
-              </CustomRow>
-            </MultiSelectHolder>
+            <MultiSelectContainer
+              label={"Number of indicators"}
+              values={[1]}
+              options={kpis}
+              onEdit={() => {
+                console.log("editing");
+              }}
+              error={""}
+              labelKey={"name"}
+              valueKey={"id"}
+            />
           </ExpansionPanelDetails>
         </ExpansionPanel>
         <ExpansionPanel className={classes.customStyle}>
@@ -187,31 +215,17 @@ class BAForm extends React.Component {
             <Typography className={classes.heading}>Business View</Typography>
           </ExpansionPanelSummary>
           <ExpansionPanelDetails className={classes.additionalStyles}>
-            <MultiSelectHolder
-              multiSelectLabel="Number of views"
-              multiSelectCount="5"
-            >
-              <CustomRow>
-                <CustomColumn customColumn="md-6">
-                  <InputFieldMultiSelectNew placeholder="BA-CIO-Indicator 1" />
-                </CustomColumn>
-                <CustomColumn customColumn="md-6">
-                  <InputFieldMultiSelectNew placeholder="BA-CIO-Indicator 2" />
-                </CustomColumn>
-                <CustomColumn customColumn="md-6">
-                  <InputFieldMultiSelectNew placeholder="BA-CIO-Indicator 3" />
-                </CustomColumn>
-                <CustomColumn customColumn="md-6">
-                  <InputFieldMultiSelectNew placeholder="BA-CIO-Indicator 4" />
-                </CustomColumn>
-                <CustomColumn customColumn="md-6">
-                  <InputFieldMultiSelectNew placeholder="BA-CIO-Indicator 5" />
-                </CustomColumn>
-                <CustomColumn customColumn="md-6">
-                  <InputFieldMultiSelectNew multiSelectType />
-                </CustomColumn>
-              </CustomRow>
-            </MultiSelectHolder>
+            <MultiSelectContainer
+              label={"Number of views"}
+              values={[]}
+              options={[]}
+              onEdit={() => {
+                console.log("editing");
+              }}
+              error={""}
+              labelKey={"name"}
+              valueKey={"id"}
+            />
           </ExpansionPanelDetails>
         </ExpansionPanel>
         <ExpansionPanel className={classes.customStyle}>
@@ -225,39 +239,48 @@ class BAForm extends React.Component {
           <ExpansionPanelDetails className={classes.additionalStyles}>
             <CustomRow>
               <CustomColumn customColumn="md-6">
-                <CustomColumn customColumn="md-12" additionalStyles={['p-0']}>
+                <CustomColumn customColumn="md-12" additionalStyles={["p-0"]}>
                   <IconInfo iconText="View notifications" />
                 </CustomColumn>
-                <FormControlLabel control={<MaterialSwitch />} label="Enable" />
+                <FormControlLabel control={<MaterialSwitch
+                    value={values.notifications_enabled}
+                    checked={values.notifications_enabled}
+                    onChange={event => {
+                      valueChanged("notifications_enabled", event);
+                    }}
+                  />} label="Enable" />
               </CustomColumn>
               <CustomColumn customColumn="md-6">
                 <InputField
                   placeholder="*60 seconds"
                   type="text"
                   name="test"
-                  label="Interval"
+                  label="Interval (*60 seconds)"
+                  value={values.notification_interval}
+                  onChange={event => {
+                    valueChanged("notification_interval", event);
+                  }}
                 />
               </CustomColumn>
               <CustomColumn customColumn="md-6">
                 <IconInfo iconText="Options" />
                 <InputFieldSelect
                   options={[
-                    { id: '1', name: '24x7', alias: 'Always' },
-                    { id: '2', name: 'none', alias: 'Never' },
-                    { id: '3', name: 'nonworkhours', alias: 'Non-Work Hours' },
-                    { id: '4', name: 'workhours', alias: 'Work hours' },
+                    { id: "1", name: "24x7", alias: "Always" },
+                    { id: "2", name: "none", alias: "Never" },
+                    { id: "3", name: "nonworkhours", alias: "Non-Work Hours" },
+                    { id: "4", name: "workhours", alias: "Work hours" }
                   ]}
                 />
               </CustomColumn>
               <CustomColumn customColumn="md-6">
                 <IconInfo iconText="Time period" />
                 <InputFieldSelect
-                  options={[
-                    { id: '1', name: '24x7', alias: 'Always' },
-                    { id: '2', name: 'none', alias: 'Never' },
-                    { id: '3', name: 'nonworkhours', alias: 'Non-Work Hours' },
-                    { id: '4', name: 'workhours', alias: 'Work hours' },
-                  ]}
+                  options={timeperiods}
+                  value={values.notification_period}
+                  onChange={event => {
+                    valueChanged("notification_period", event);
+                  }}
                 />
               </CustomColumn>
             </CustomRow>
@@ -267,12 +290,12 @@ class BAForm extends React.Component {
               multiSelectLabel="Number of notifications"
               multiSelectCount="2"
             >
-              <CustomRow additionalStyles={['mb-0']}>
+              <CustomRow additionalStyles={["mb-0"]}>
                 <CustomColumn customColumn="md-6">
-                  <InputFieldMultiSelectNew placeholder="BA-CIO-Indicator 1" />
+                  <InputFieldMultiSelectValue placeholder="BA-CIO-Indicator 1" />
                 </CustomColumn>
                 <CustomColumn customColumn="md-6">
-                  <InputFieldMultiSelectNew placeholder="BA-CIO-Indicator 2" />
+                  <InputFieldMultiSelectValue placeholder="BA-CIO-Indicator 2" />
                 </CustomColumn>
               </CustomRow>
             </MultiSelectHolder>
@@ -295,6 +318,9 @@ class BAForm extends React.Component {
                   name="test"
                   label="SLA warning percentage thresholds"
                   value={values.sla_month_percent_warn}
+                  onChange={event => {
+                    valueChanged("sla_month_percent_warn", event);
+                  }}
                 />
               </CustomColumn>
               <CustomColumn customColumn="md-6">
@@ -304,6 +330,9 @@ class BAForm extends React.Component {
                   name="test"
                   label="SLA warning duration threshold"
                   value={values.sla_month_duration_warn}
+                  onChange={event => {
+                    valueChanged("sla_month_duration_warn", event);
+                  }}
                 />
               </CustomColumn>
               <CustomColumn customColumn="md-6">
@@ -313,6 +342,9 @@ class BAForm extends React.Component {
                   name="test"
                   label="SLA critical percentage thresholds"
                   value={values.sla_month_percent_crit}
+                  onChange={event => {
+                    valueChanged("sla_month_percent_crit", event);
+                  }}
                 />
               </CustomColumn>
               <CustomColumn customColumn="md-6">
@@ -322,15 +354,25 @@ class BAForm extends React.Component {
                   name="test"
                   label="SLA critical duration threshold"
                   value={values.sla_month_duration_crit}
+                  onChange={event => {
+                    valueChanged("sla_month_duration_crit", event);
+                  }}
                 />
               </CustomColumn>
-              <CustomColumn customColumn="md-12" additionalStyles={['mb-1']}>
-                <IconInfo iconText="Extra reporting time periods used in Centreon BI reports (0)" />
-              </CustomColumn>
-              <CustomColumn customColumn="md-12">
-                <ButtonCustom label="ADD" />
-              </CustomColumn>
             </CustomRow>
+            <MultiSelectContainer
+              label={
+                "Extra reporting time periods used in Centreon BI indicators"
+              }
+              values={values.reporting_timeperiods}
+              options={timeperiods}
+              onEdit={() => {
+                console.log("editing");
+              }}
+              error={""}
+              labelKey={"name"}
+              valueKey={"id"}
+            />
           </ExpansionPanelDetails>
         </ExpansionPanel>
         <ExpansionPanel className={classes.customStyle}>
@@ -342,19 +384,17 @@ class BAForm extends React.Component {
             <Typography className={classes.heading}>Escalation</Typography>
           </ExpansionPanelSummary>
           <ExpansionPanelDetails className={classes.additionalStyles}>
-            <MultiSelectHolder
-              multiSelectLabel="Number of escalations"
-              multiSelectCount="2"
-            >
-              <CustomRow>
-                <CustomColumn customColumn="md-6">
-                  <InputFieldMultiSelectNew placeholder="BA-CIO-Indicator 1" />
-                </CustomColumn>
-                <CustomColumn customColumn="md-6">
-                  <InputFieldMultiSelectNew placeholder="BA-CIO-Indicator 2" />
-                </CustomColumn>
-              </CustomRow>
-            </MultiSelectHolder>
+            <MultiSelectContainer
+              label={"Number of escalations"}
+              values={values.bam_esc}
+              options={escalations}
+              onEdit={() => {
+                console.log("editing");
+              }}
+              error={""}
+              labelKey={"name"}
+              valueKey={"id"}
+            />
           </ExpansionPanelDetails>
         </ExpansionPanel>
         <ExpansionPanel className={classes.customStyle}>
@@ -366,30 +406,30 @@ class BAForm extends React.Component {
             <Typography className={classes.heading}>Event handler</Typography>
           </ExpansionPanelSummary>
           <ExpansionPanelDetails className={classes.additionalStyles}>
-            <CustomRow additionalStyles={['w-100']}>
+            <CustomRow additionalStyles={["w-100"]}>
               <CustomColumn customColumn="md-6">
-                <CustomColumn customColumn="md-12" additionalStyles={['p-0']}>
+                <CustomColumn customColumn="md-12" additionalStyles={["p-0"]}>
                   <IconInfo iconText="View event handler" />
                 </CustomColumn>
-                <FormControlLabel control={<MaterialSwitch />} label="Enable" />
+                <FormControlLabel control={<MaterialSwitch
+                    value={values.event_handler_enabled}
+                    checked={values.event_handler_enabled}
+                    onChange={event => {
+                      valueChanged("event_handler_enabled", event);
+                    }}
+                  />} label="Enable" />
               </CustomColumn>
               <CustomColumn customColumn="md-6">
                 <IconInfo iconText="Event handler command" />
                 <InputFieldSelect
-                  options={[
-                    { id: '1', name: '24x7', alias: 'Always' },
-                    { id: '2', name: 'none', alias: 'Never' },
-                    { id: '3', name: 'nonworkhours', alias: 'Non-Work Hours' },
-                    { id: '4', name: 'workhours', alias: 'Work hours' },
-                  ]}
+                  options={eventHandlerCommands}
+                  value={values.event_handler_command}
+                  onChange={event => {
+                    valueChanged("event_handler_command", event);
+                  }}
                 />
               </CustomColumn>
             </CustomRow>
-            <MultiSelectHolder
-              isEmpty
-              multiSelectLabel="Extra reporting time periods used in Centreon BI indicators"
-              multiSelectCount="0"
-            />
           </ExpansionPanelDetails>
         </ExpansionPanel>
       </div>

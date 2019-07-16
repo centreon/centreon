@@ -6,7 +6,7 @@ import React, { Component } from 'react';
 import classnames from 'classnames';
 import styles from './input-field-multi-select.scss';
 
-class InputFieldMultiSelect extends Component {
+class InputFieldMultiSelectValue extends Component {
   render() {
     const {
       type,
@@ -42,6 +42,6 @@ class InputFieldMultiSelect extends Component {
   }
 }
 
-export { InputFieldMultiSelect };
+export { InputFieldMultiSelectValue };
 
-export default InputFieldMultiSelect;
+export default InputFieldMultiSelectValue;

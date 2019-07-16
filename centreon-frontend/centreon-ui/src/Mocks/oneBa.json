@@ -5,7 +5,7 @@
     "activate": true,
     "name": "New BA",
     "description": "Description",
-    "icon": "1",
+    "icon": 1,
     "inherit_kpi_downtimes": true,
     "additional_poller": [],
     "groups": [],
@@ -22,8 +22,8 @@
     "sla_month_duration_warn": 0,
     "sla_month_duration_crit": 0,
     "bam_esc": [2, 3],
-    "event_handler_enabled": false,
-    "event_handler_command": null,
+    "event_handler_enabled": true,
+    "event_handler_command": "4",
     "event_handler_args": null
   }
 }

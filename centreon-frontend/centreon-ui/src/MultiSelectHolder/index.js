@@ -25,6 +25,7 @@ class InputFieldMultiSelectEmpty extends React.Component {
       multiSelectLabel,
       children,
       error,
+      onClick,
     } = this.props;
     const { isHovered } = this.state;
     return (
@@ -36,6 +37,7 @@ class InputFieldMultiSelectEmpty extends React.Component {
         )}
         onMouseEnter={this.toggleHover.bind(this)}
         onMouseLeave={this.toggleHover.bind(this)}
+        onClick={onClick}
       >
         {multiSelectLabel && multiSelectCount && (
           <span className={classnames(styles['multi-select-holder-label'])}>
