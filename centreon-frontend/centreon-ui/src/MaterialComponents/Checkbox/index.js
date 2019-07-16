@@ -7,7 +7,7 @@ import Checkbox from '@material-ui/core/Checkbox';
 import { withStyles } from '@material-ui/core/styles';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 
-const GreenCheckbox = withStyles({
+const CustomCheckbox = withStyles({
   root: {
     color: '#0072CE',
     '&$checked': {
@@ -25,7 +25,7 @@ const GreenCheckbox = withStyles({
 class CheckboxDefault extends Component {
   render() {
     const { label } = this.props;
-    return <FormControlLabel control={<GreenCheckbox />} label={label} />;
+    return <FormControlLabel control={<CustomCheckbox />} label={label} />;
   }
 }
 
