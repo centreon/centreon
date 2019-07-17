@@ -70,6 +70,7 @@ sub new {
     $connector->{clapi_password} = $options{config}->{clapi_password};
     $connector->{clapi_action_applycfg} = $options{config}->{clapi_action_applycfg};
     $connector->{cmdFile} = defined($options{config}->{centcore_cmd}) && $options{config}->{centcore_cmd} ne '' ? $options{config}->{centcore_cmd} : '/var/lib/centreon/centcore.cmd';
+    $connector->{illegal_characters} = defined($options{config}->{illegal_characters}) && $options{config}->{illegal_characters} ne '' ? $options{config}->{illegal_characters} : '~!$%^&*"|\'<>?,()=';
 
     bless $connector, $class;
     $connector->set_signal_handlers();
@@ -159,7 +160,7 @@ sub newtestresync_init {
 
 sub perfdata_add {
     my ($self, %options) = @_;
-   
+
     my $perfdata = {label => '', value => '', unit => '', warning => '', critical => '', min => '', max => ''}; 
     foreach (keys %options) {
         next if (!defined($options{$_}));
@@ -171,7 +172,7 @@ sub perfdata_add {
 
 sub add_output {
     my ($self, %options) = @_;
-    
+
     my $str = $map_service_status{$self->{current_status}} . ': ' . $self->{current_text} . '|';
     foreach my $perf (@{$self->{perfdatas}}) {
         $str .= " '" . $perf->{label} . "'=" . $perf->{value} . $perf->{unit} . ";" . $perf->{warning} . ";" . $perf->{critical} . ";" . $perf->{min} . ";" . $perf->{max};
@@ -332,7 +333,7 @@ sub push_config {
             $self->{logger}->writeLogError("gorgone-newtest generation config for '$self->{poller_name}': failed");
             return ;
         }
-        $self->{logger}->writeLogError("gorgone-newtest generation config for '$self->{poller_name}': succeeded.");
+        $self->{logger}->writeLogInfo("gorgone-newtest generation config for '$self->{poller_name}': succeeded.");
         
         $self->{logger}->writeLogInfo("gorgone-newtest move config for '$self->{poller_name}':");
         if ($self->clapi_execute(cmd => '-a CFGMOVE -v ' . $self->{poller_id},
@@ -340,7 +341,7 @@ sub push_config {
             $self->{logger}->writeLogError("gorgone-newtest move config for '$self->{poller_name}': failed");
             return ;
         }
-        $self->{logger}->writeLogError("gorgone-newtest move config for '$self->{poller_name}': succeeded.");
+        $self->{logger}->writeLogInfo("gorgone-newtest move config for '$self->{poller_name}': succeeded.");
         
         $self->{logger}->writeLogInfo("gorgone-newtest restart/reload config for '$self->{poller_name}':");
         if ($self->clapi_execute(cmd => '-a ' . $self->{clapi_action_applycfg} . ' -v ' . $self->{poller_id},
@@ -348,7 +349,7 @@ sub push_config {
             $self->{logger}->writeLogError("gorgone-newtest restart/reload config for '$self->{poller_name}': failed");
             return ;
         }
-        $self->{logger}->writeLogError("gorgone-newtest restart/reload config for '$self->{poller_name}': succeeded.");
+        $self->{logger}->writeLogInfo("gorgone-newtest restart/reload config for '$self->{poller_name}': succeeded.");
     }
 }
 
@@ -433,17 +434,19 @@ sub get_scenario_results {
                 value => sprintf("%d", $value), 
                 min => 0
             );
-            
+
             $self->get_newtest_extra_metrics(
                 scenario => $options{scenario},
                 robot => $options{robot},
                 id => $result->{Id}
             );
+
+            $self->{logger}->writeLogError("gorgone-newtest result found for scenario: " . $options{scenario} . '/' . $options{robot});
             return 0;
         }
     }
     
-    $self->{logger}->writeLogError("gorgone-newtest  no result found for scenario: " . $options{scenario} . '/' . $options{robot});
+    $self->{logger}->writeLogError("gorgone-newtest no result found for scenario: " . $options{scenario} . '/' . $options{robot});
     return 1;
 }
 
@@ -513,7 +516,10 @@ sub get_newtest_scenarios {
             my $service_name = sprintf($self->{service_prefix}, $scenario_name);
             $self->{current_status} = $map_scenario_status{$scenario->{Status}};
             $self->{current_text} = '';
-            
+
+            $host_name =~ s/\Q$self->{illegal_characters}\E//g;
+            $service_name =~ s/\Q$self->{illegal_characters}\E//g;
+
             # Add host config
             if (!defined($self->{db_newtest}->{$host_name})) {
                 $self->{logger}->writeLogInfo("gorgone-newtest create host '$host_name'");
@@ -524,7 +530,7 @@ sub get_newtest_scenarios {
                     $self->{logger}->writeLogInfo("gorgone-newtest create host '$host_name' succeeded.");
                 }
             }
-            
+
             # Add service config
             if (defined($self->{db_newtest}->{$host_name}) && !defined($self->{db_newtest}->{$host_name}->{$service_name})) {
                 $self->{logger}->writeLogInfo("gorgone-newtest create service '$service_name' for host '$host_name':");
@@ -537,7 +543,7 @@ sub get_newtest_scenarios {
                                          timeout => $self->{clapi_timeout});
                 }
             }
-            
+
             # Check if new message
             if (defined($self->{db_newtest}->{$host_name}->{$service_name}->{last_execution_time}) &&
                 $last_check <= $self->{db_newtest}->{$host_name}->{$service_name}->{last_execution_time}) {
