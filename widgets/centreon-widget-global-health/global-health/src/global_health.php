@@ -107,16 +107,19 @@ foreach ($tabStatusHost as $key => $statusHost) {
     $hostArray[$tabStatusHost[$key]]['percent'] = 0;
 }
 
-if (isset($preferences['hosts_services']) && $preferences['hosts_services'] == 'hosts') {
-    $hgName = false;
-    if (!empty($preferences['hostgroup'])) {
-        $sql = 'select hg.hg_name from hostgroup hg where hg.hg_id = ' . $dbb->escape($preferences['hostgroup']);
-        $dbResult = $db->query($sql);
-        $row = $dbResult->fetchRow();
+$hgName = false;
+// get hostgroup name if defined in preferences
+if (!empty($preferences['hostgroup'])) {
+    $sql = 'select hg.hg_name from hostgroup hg where hg.hg_id = :hostgroup_id';
+    $stmt = $db->prepare($sql);
+    $stmt->bindValue(':hostgroup_id', $preferences['hostgroup'], PDO::PARAM_INT);
+    $stmt->execute();
+    if ($row = $stmt->fetch()) {
         $hgName = $row['hg_name'];
     }
+}
 
-
+if (isset($preferences['hosts_services']) && $preferences['hosts_services'] == 'hosts') {
     $innerjoingroup = '';
     $wheregroup = '';
     if ($hgName) {
@@ -124,9 +127,6 @@ if (isset($preferences['hosts_services']) && $preferences['hosts_services'] == '
             ' INNER JOIN hostgroups hg ON hhg.hostgroup_id = hg.hostgroup_id and hg.name = \'' . $hgName . '\' ';
     }
 
-    /**$obj->DBC->escape($instance)
-     * Get DB informations for creating Flash
-     */
     $rq1 = ' SELECT count(DISTINCT h.name) cnt, h.state, SUM(h.acknowledged) as acknowledged, ' .
         'SUM(CASE WHEN h.scheduled_downtime_depth >= 1 THEN 1 ELSE 0 END) AS downtime ' .
         'FROM `hosts` h ' .
