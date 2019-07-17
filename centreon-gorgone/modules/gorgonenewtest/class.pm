@@ -133,7 +133,8 @@ sub send_log {
 
 my %map_scenario_status = (
     Available => 0, Warning => 1, Failed => 2, Suspended => 2,
-    Canceled => 2, Unknown => 3, OutOfRange => 3,
+    Canceled => 2, Unknown => 3, 
+    OutOfRange => 0, # Not Scheduled scenario
 );
 
 my %map_newtest_units = (
@@ -550,18 +551,22 @@ sub get_newtest_scenarios {
                 $self->{logger}->writeLogInfo("gorgone-newtest skip: service '$service_name' for host '$host_name' already submitted.");
                 next;
             }
-            
-            if ($self->{current_status} == 2) {
-                $self->get_newtest_diagnostic(
-                    scenario => $scenario_name, robot => $robot_name,
-                    host_name => $host_name, service_name => $service_name
-                );
-            }
-            
-            if ($self->get_scenario_results(scenario => $scenario_name, robot => $robot_name,
-                                            host_name => $host_name, service_name => $service_name) == 1) {
-                $self->{current_text} = sprintf("No result avaiblable for scenario '%s'", $scenario_name);
-                $self->{current_status} = 3;
+
+            if ($scenario->{Status} eq 'OutOfRange') {
+                $self->{current_text} = sprintf("scenario '%s' not scheduled", $scenario_name);
+            } else {
+                if ($self->{current_status} == 2) {
+                    $self->get_newtest_diagnostic(
+                        scenario => $scenario_name, robot => $robot_name,
+                        host_name => $host_name, service_name => $service_name
+                    );
+                }
+                
+                if ($self->get_scenario_results(scenario => $scenario_name, robot => $robot_name,
+                                                host_name => $host_name, service_name => $service_name) == 1) {
+                    $self->{current_text} = sprintf("No result avaiblable for scenario '%s'", $scenario_name);
+                    $self->{current_status} = 3;
+                }
             }
             $self->add_output(time => $last_check, host_name => $host_name, service_name => $service_name);
         }
