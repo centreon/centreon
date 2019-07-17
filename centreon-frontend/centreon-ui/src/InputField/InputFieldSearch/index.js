@@ -29,6 +29,7 @@ const useStyles = () => ({
     boxShadow: 'none',
     borderRadius: 0,
     position: 'relative',
+    backgroundColor: '#f9f9f9',
   },
   paper: {
     padding: 0,

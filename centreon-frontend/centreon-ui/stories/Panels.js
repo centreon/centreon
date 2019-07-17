@@ -8,13 +8,14 @@ import React from 'react';
 import { storiesOf } from '@storybook/react';
 import classnames from 'classnames';
 import ButtonCustom from '@material-ui/core/Button';
-import { Panels, Wrapper, Header, Sidebar } from '../src';
+import { Panels, Wrapper, Header, Sidebar, BAMListingPageStory } from '../src';
 import styles2 from '../src/Popup/PopupNew/popup.scss';
 import IconCloseNew from '../src/MaterialComponents/Icons/IconClose';
 import mock from '../src/Sidebar/mock2';
 import reactMock from '../src/Sidebar/reactRoutesMock';
 import SubmenuHeader from '../src/Submenu/SubmenuHeader/Mocked-Submenu';
 import PopupNew from '../src/Popup/PopupNew';
+import BAMTableData from '../src/Pages/BAMListingMock';
 
 storiesOf('Panels', module).add(
   'Panels',
@@ -54,7 +55,7 @@ storiesOf('Panels', module).add(
             <SubmenuHeader submenuType="header" />
             <SubmenuHeader submenuType="header" />
           </Header>
-          <Panels panelTtype="small" togglePanel />
+          <BAMListingPageStory BAMTableData={BAMTableData} />
         </div>
       </Wrapper>
     </React.Fragment>

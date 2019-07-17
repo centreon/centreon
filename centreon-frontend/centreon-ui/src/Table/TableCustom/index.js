@@ -27,15 +27,20 @@ import Tooltip from "../../MaterialComponents/Tooltip";
 
 const styles = theme => ({
   root: {
-    width: "100%"
+    width: "100%",
+    display: 'flex',
+    height: 'calc(100vh - 209px)',
   },
   paper: {
     width: "100%",
-    marginBottom: theme.spacing(2)
+    display: 'flex',
+    flexDirection: 'column',
+    boxShadow: 'none',
   },
   tableWrapper: {
-    overflowX: "auto",
-    overflowY: "hidden"
+    overflow: 'auto',
+    boxShadow:
+      '0px 1px 3px 0px rgba(0,0,0,0.2), 0px 1px 1px 0px rgba(0,0,0,0.14), 0px 2px 1px -1px rgba(0,0,0,0.12)',
   },
   rowDisabled: {
     backgroundColor: "rgba(0, 0, 0, 0.07) !important"
@@ -154,6 +159,21 @@ class TableCustom extends Component {
     return (
       <div className={classes.root}>
         <Paper className={classes.paper}>
+          <StyledPagination
+            rowsPerPageOptions={[10, 20, 30, 40, 50, 60, 70, 80, 90, 100]}
+            colSpan={3}
+            count={totalRows}
+            rowsPerPage={limit}
+            page={currentPage}
+            style={{ display: "flex", flexDirection: "row-reverse",
+          padding: 0 }}
+            SelectProps={{
+              native: true
+            }}
+            onChangePage={onPaginate}
+            onChangeRowsPerPage={onPaginationLimitChanged}
+            ActionsComponent={TablePaginationActions}
+          />
           <div className={classes.tableWrapper}>
             <Table
               className={classes.table}
@@ -416,20 +436,6 @@ class TableCustom extends Component {
               </TableBody>
             </Table>
           </div>
-          <StyledPagination
-            rowsPerPageOptions={[10, 20, 30, 40, 50, 60, 70, 80, 90, 100]}
-            colSpan={3}
-            count={totalRows}
-            rowsPerPage={limit}
-            page={currentPage}
-            style={{ display: "flex", flexDirection: "row-reverse" }}
-            SelectProps={{
-              native: true
-            }}
-            onChangePage={onPaginate}
-            onChangeRowsPerPage={onPaginationLimitChanged}
-            ActionsComponent={TablePaginationActions}
-          />
         </Paper>
       </div>
     );
