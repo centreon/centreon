@@ -226,5 +226,15 @@ sub mymodule_load {
     }
     return wantarray ? (0, $file) : 0;
 }
-        
+
+sub trim {
+    my ($value) = $_[0];
+    
+    # Sometimes there is a null character
+    $value =~ s/\x00$//;
+    $value =~ s/^[ \t\n]+//;
+    $value =~ s/[ \t\n]+$//;
+    return $value;
+}
+
 1;

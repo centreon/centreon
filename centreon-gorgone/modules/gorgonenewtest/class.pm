@@ -22,6 +22,7 @@ package modules::gorgonenewtest::class;
 
 use strict;
 use warnings;
+use centreon::misc::misc;
 use centreon::gorgone::common;
 use centreon::misc::objects::object;
 use ZMQ::LibZMQ4;
@@ -355,7 +356,7 @@ sub get_newtest_diagnostic {
     my ($self, %options) = @_;
     
     my $result = $self->{instance}->ListMessages('Instance', 30, 'Diagnostics', [$options{scenario}, $options{robot}]);
-    if (defined(my $com_error = centreon::newtest::stubs::errors::get_error())) {
+    if (defined(my $com_error = modules::gorgonenewtest::newtest::stubs::errors::get_error())) {
         $self->{logger}->writeLogError("gorgone-newtest newtest API error 'ListMessages' method: " . $com_error);
         return -1;
     }
@@ -398,7 +399,7 @@ sub get_scenario_results {
     }
     if (!defined($self->{cache_robot_list_results}->{$options{robot}})) {
         my $result = $self->{instance}->ListResults('Robot', 30, [$options{robot}]);
-        if (defined(my $com_error = centreon::newtest::stubs::errors::get_error())) {
+        if (defined(my $com_error = modules::gorgonenewtest::newtest::stubs::errors::get_error())) {
             $self->{logger}->writeLogError("gorgone-newtest newtest API error 'ListResults' method: " . $com_error);
             return -1;
         }
@@ -450,7 +451,7 @@ sub get_newtest_extra_metrics {
     my ($self, %options) = @_;
     
     my $result = $self->{instance}->ListResultChildren($options{id});
-    if (defined(my $com_error = centreon::newtest::stubs::errors::get_error())) {
+    if (defined(my $com_error = modules::gorgonenewtest::newtest::stubs::errors::get_error())) {
         $self->{logger}->writeLogError("gorgone-newtest newtest API error 'ListResultChildren' method: " . $com_error);
         return -1;
     }

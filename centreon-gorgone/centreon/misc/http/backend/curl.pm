@@ -23,7 +23,7 @@ package centreon::misc::http::backend::curl;
 use strict;
 use warnings;
 use URI;
-use centreon::plugins::misc;
+use centreon::misc::misc;
 
 sub new {
     my ($class, %options) = @_;
@@ -38,13 +38,13 @@ sub new {
 sub check_options {
     my ($self, %options) = @_;
 
-    if (centreon::plugins::misc::mymodule_load(
+    if (centreon::misc::misc::mymodule_load(
         logger => $self->{logger}, module => 'Net::Curl::Easy',
         error_msg => "Cannot load module 'Net::Curl::Easy'."
         ) == 1) {
         return 1;
     }
-    if (centreon::plugins::misc::mymodule_load(
+    if (centreon::misc::misc::mymodule_load(
         logger => $self->{logger}, module => 'centreon::misc::http::backend::curlconstants',
         error_msg => "Cannot load module 'centreon::misc::http::backend::curlconstants'."
         ) == 1) {
@@ -221,7 +221,7 @@ sub set_extra_curl_opt {
     foreach (@{$options{request}->{curl_opt}}) {
         ($fields->{key}, $fields->{value}) = split /=>/;
         foreach my $label ('key', 'value') {
-            $fields->{$label} = centreon::plugins::misc::trim($fields->{$label});
+            $fields->{$label} = centreon::misc::misc::trim($fields->{$label});
             if ($fields->{$label} =~ /^CURLOPT|CURL/) {
                 $fields->{$label} = $self->{constant_cb}->(name => $fields->{$label});
             }
