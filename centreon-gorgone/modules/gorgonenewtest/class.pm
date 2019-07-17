@@ -441,7 +441,7 @@ sub get_scenario_results {
                 id => $result->{Id}
             );
 
-            $self->{logger}->writeLogError("gorgone-newtest result found for scenario: " . $options{scenario} . '/' . $options{robot});
+            $self->{logger}->writeLogInfo("gorgone-newtest result found for scenario: " . $options{scenario} . '/' . $options{robot});
             return 0;
         }
     }
@@ -517,8 +517,8 @@ sub get_newtest_scenarios {
             $self->{current_status} = $map_scenario_status{$scenario->{Status}};
             $self->{current_text} = '';
 
-            $host_name =~ s/\Q$self->{illegal_characters}\E//g;
-            $service_name =~ s/\Q$self->{illegal_characters}\E//g;
+            $host_name =~ s/[\Q$self->{illegal_characters}\E]//g;
+            $service_name =~ s/[\Q$self->{illegal_characters}\E]//g;
 
             # Add host config
             if (!defined($self->{db_newtest}->{$host_name})) {
