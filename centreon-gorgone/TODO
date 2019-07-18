@@ -1,0 +1,2 @@
+- Add a HTTP frontend module for clients (https and basic auth). Can try: https://metacpan.org/pod/HTTP::Server::Simple
+- Can chain agents and forward protocol
