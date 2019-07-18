@@ -81,7 +81,7 @@ sub class_handle_HUP {
 sub get_client_information {
     my ($self, %options) = @_;
     
-    # TODO DATABASE. Si database marche pas. On fait un PUTLOG.
+    # TODO DATABASE or file maybe. hardcoded right now
     my $result = { type => 1, target_type => 'tcp', target_path => 'localhost:5556',
                    pubkey => 'keys/poller/pubkey.crt', cipher => 'Cipher::AES',
                    keysize => '32', vector => '0123456789012345', class => undef, delete => 0 };
@@ -163,6 +163,9 @@ sub proxy {
         $entry = $connector->{clients}->{$target};
     }
 
+    # TODO we need to manage type SSH with libssh 
+    # type 1 = ZMQ.
+    # type 2 = SSH
     if ($entry->{type} == 1) {
         my ($status, $msg) = $entry->{class}->send_message(action => $action, token => $token,
                                                            target => '', data => $data);

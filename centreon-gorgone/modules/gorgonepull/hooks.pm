@@ -69,9 +69,11 @@ sub init {
     
     $client->send_message(action => 'REGISTERNODE', data => { id => $config_core->{id} }, 
                           json_encode => 1);
-    centreon::gorgone::common::add_zmq_pollin(socket => $socket_to_internal,
-                                                callback => \&from_router,
-                                                poll => $options{poll});
+    centreon::gorgone::common::add_zmq_pollin(
+        socket => $socket_to_internal,
+        callback => \&from_router,
+        poll => $options{poll}
+    );
 }
 
 sub routing {
@@ -83,8 +85,11 @@ sub gently {
     my (%options) = @_;
 
     $stop = 1;
-    $client->send_message(action => 'UNREGISTERNODE', data => { id => $config_core->{id} }, 
-                          json_encode => 1);
+    $client->send_message(
+        action => 'UNREGISTERNODE',
+        data => { id => $config_core->{id} }, 
+        json_encode => 1
+    );
     $client->close();
     return 0;
 }
@@ -157,8 +162,10 @@ sub read_message {
     }
     
     $logger->writeLogDebug("gorgone-pull: hook: read message from external: $options{data}");
-    centreon::gorgone::common::zmq_send_message(socket => $socket_to_internal,
-                                                  message => $options{data});
+    centreon::gorgone::common::zmq_send_message(
+        socket => $socket_to_internal,
+        message => $options{data}
+    );
 }
 
 

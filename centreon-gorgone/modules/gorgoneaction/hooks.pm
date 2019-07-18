@@ -63,10 +63,12 @@ sub routing {
     };
     if ($@) {
         $options{logger}->writeLogError("Cannot decode json data: $@");
-        centreon::gorgone::common::add_history(dbh => $options{dbh},
-                                                 code => 30, token => $options{token},
-                                                 data => { msg => 'gorgoneaction: cannot decode json' },
-                                                 json_encode => 1);
+        centreon::gorgone::common::add_history(
+            dbh => $options{dbh},
+            code => 30, token => $options{token},
+            data => { msg => 'gorgoneaction: cannot decode json' },
+            json_encode => 1
+        );
         return undef;
     }
     
@@ -76,16 +78,22 @@ sub routing {
     }
     
     if (centreon::script::gorgonecore::waiting_ready(ready => \$action->{ready}) == 0) {
-        centreon::gorgone::common::add_history(dbh => $options{dbh},
-                                                 code => 30, token => $options{token},
-                                                 data => { msg => 'gorgoneaction: still no ready' },
-                                                 json_encode => 1);
+        centreon::gorgone::common::add_history(
+            dbh => $options{dbh},
+            code => 30, token => $options{token},
+            data => { msg => 'gorgoneaction: still no ready' },
+            json_encode => 1
+        );
         return undef;
     }
     
-    centreon::gorgone::common::zmq_send_message(socket => $options{socket}, identity => 'gorgoneaction',
-                                                  action => $options{action}, data => $options{data}, token => $options{token},
-                                                  );
+    centreon::gorgone::common::zmq_send_message(
+        socket => $options{socket},
+        identity => 'gorgoneaction',
+        action => $options{action},
+        data => $options{data},
+        token => $options{token},
+    );
 }
 
 sub gently {
@@ -140,10 +148,11 @@ sub create_child {
     my $child_pid = fork();
     if ($child_pid == 0) {
         $0 = 'gorgone-action';
-        my $module = modules::gorgoneaction::class->new(logger => $options{logger},
-                                                          config_core => $config_core,
-                                                          config => $config,
-                                                          );
+        my $module = modules::gorgoneaction::class->new(
+            logger => $options{logger},
+            config_core => $config_core,
+            config => $config,
+        );
         $module->run();
         exit(0);
     }

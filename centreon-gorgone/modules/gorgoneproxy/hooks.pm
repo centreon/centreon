@@ -410,7 +410,8 @@ sub get_sync_time {
 
 sub get_pollers {
     my (%options) = @_;
-    # TODO: 1 for 'zmq', 2 for 'ssh'
+    # TODO method
+    # type 1 = 'zmq', type 2 = 'ssh'
     
     my $pollers = {};
     foreach (([1, 1], [2, 1], [10, 1], [166, 2], [140, 1])) {
@@ -418,7 +419,7 @@ sub get_pollers {
         $synctime_pollers->{${$_}[0]} = { ctime => 0, in_progress => 0, in_progress_time => -1, last_id => 0 }; 
         $last_pong->{${$_}[0]} = 0 if (!defined($last_pong->{${$_}[0]}));
     }
-    
+
     get_sync_time(dbh => $options{dbh});
     
     return $pollers;
