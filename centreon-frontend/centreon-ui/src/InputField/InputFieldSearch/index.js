@@ -35,8 +35,8 @@ const useStyles = () => ({
     padding: 0,
   },
   input: {
-    marginLeft: 8,
     flex: 1,
+    fontSize: 13,
   },
   iconButton: {
     padding: 3,
