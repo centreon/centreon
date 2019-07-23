@@ -204,7 +204,7 @@ class BAPanel extends React.Component {
       timeperiods,
       kpis,
       contactGroups,
-      businessViews
+      businessViews,
     } = this.props;
     const {
       multiselectActive,
@@ -333,9 +333,7 @@ class BAPanel extends React.Component {
                 active={multiselectActive}
                 title={
                   multiselectsConfiguration[multiSelectKey]
-                    ? this.props[
-                        multiselectsConfiguration[multiSelectKey].label
-                      ]
+                    ? multiselectsConfiguration[multiSelectKey].label
                     : ""
                 }
                 data={

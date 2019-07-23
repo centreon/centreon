@@ -8,7 +8,6 @@ import styles from './input-table-cell.scss';
 import IconInfo from '../../Icon/IconInfo';
 
 const InputField = ({
-  type,
   label,
   placeholder,
   topRightLabel,
@@ -45,7 +44,9 @@ const InputField = ({
       )}
       <input
         name={name}
-        type={type}
+        type="number"
+        min="0"
+        max="100"
         placeholder={placeholder}
         className={classnames(styles['form-control'])}
         ref={reference}

@@ -11,19 +11,131 @@
 /* eslint-disable react/sort-comp */
 
 import React, { Component } from 'react';
+import { findDOMNode } from 'react-dom';
 import classnames from 'classnames';
 import styles from './input-select-table-cell.scss';
+import CustomIconWithText from '../../Custom/CustomIconWithText';
 import IconToggleSubmenu from '../../Icon/IconToggleSubmenu';
-// import CustomIconWithText from '../../Custom/CustomIconWithText';
 
 class InputFieldSelectCustom extends Component {
   state = {
     active: false,
+    allOptions: [],
+    options: [],
+    selected: {},
+  };
+
+  toggleSelect = () => {
+    const { disabled } = this.props;
+    if (disabled) return;
+    const { active } = this.state;
+    this.setState({
+      active: !active,
+    });
+  };
+
+  componentWillMount = () => {
+    const { value, options } = this.props;
+    for (let i = 0; i < options.length; i++) {
+      // eslint-disable-next-line
+      if (options[i].id == value) {
+        this.setState({
+          selected: options[i],
+        });
+      }
+    }
+    if (options) {
+      this.setState({
+        options,
+        allOptions: options,
+      });
+    }
+  };
+
+  componentWillReceiveProps = (nextProps) => {
+    const { value, options } = nextProps;
+    for (let i = 0; i < options.length; i++) {
+      // eslint-disable-next-line
+      if (options[i].id == value) {
+        this.setState({
+          selected: options[i],
+        });
+      }
+    }
+    if (options) {
+      this.setState({
+        options,
+        allOptions: options,
+      });
+    }
+  };
+
+  searchTextChanged = (e) => {
+    const searchString = e.target.value;
+    const { allOptions } = this.state;
+    this.setState({
+      options: allOptions.filter((option) => {
+        return (
+          String(option.name)
+            .toLowerCase()
+            .indexOf(String(searchString).toLowerCase()) > -1
+        );
+      }),
+    });
+  };
+
+  optionChecked = (option) => {
+    const { onChange } = this.props;
+    this.setState(
+      {
+        selected: option,
+        active: false,
+      },
+      () => {
+        if (onChange) {
+          onChange(option.id);
+        }
+      },
+    );
+  };
+
+  UNSAFE_componentWillMount() {
+    window.addEventListener('mousedown', this.handleClickOutside, false);
+  }
+
+  componentWillUnmount() {
+    window.removeEventListener('mousedown', this.handleClickOutside, false);
+  }
+
+  handleClickOutside = (e) => {
+    if (!this.select || this.select.contains(e.target)) {
+      return;
+    }
+    this.setState({
+      active: false,
+    });
+  };
+
+  focusInput = (component) => {
+    const { allOptions } = this.state;
+    if (component) {
+      this.setState({
+        options: allOptions,
+      });
+      findDOMNode(component).focus();
+    }
   };
 
   render() {
-    const { active } = this.state;
-    const { size, error, customStyle } = this.props;
+    const { active, selected, options } = this.state;
+    const {
+      size,
+      error,
+      icons,
+      domainPath,
+      customStyle,
+      optionBackground,
+    } = this.props;
     return (
       <div
         className={classnames(
@@ -36,26 +148,47 @@ class InputFieldSelectCustom extends Component {
         ref={(select) => (this.select = select)}
       >
         <div className={classnames(styles['input-select-wrap'])}>
-          <input
-            ref={this.focusInput}
-            onChange={this.searchTextChanged}
-            className={classnames(styles['input-select-input'])}
-            type="text"
-            placeholder="Search"
-          />
+          <span
+            className={classnames(styles['input-select-field'])}
+            onClick={this.toggleSelect.bind(this)}
+          >
+            {selected.name}
+          </span>
           <IconToggleSubmenu
             iconPosition="icons-toggle-position-multiselect-table"
             iconType="arrow"
+            onClick={this.toggleSelect.bind(this)}
           />
         </div>
-        <div className={classnames(styles['input-select-dropdown'])}>
-          <React.Fragment>
-            {/* <CustomIconWithText /> */}
-            <span className={classnames(styles['input-select-label'])}>
-              Option name
-            </span>
-          </React.Fragment>
-        </div>
+        {active ? (
+          <div className={classnames(styles['input-select-dropdown'])}>
+            {options
+              ? options.map((option) => (
+                  <div
+                    style={{
+                      backgroundColor: optionBackground,
+                      margin: '-4px',
+                    }}
+                  >
+                    {icons ? (
+                      <CustomIconWithText
+                        label={option.name}
+                        onClick={this.optionChecked.bind(this, option)}
+                        image={`${domainPath}/${option.preview}`}
+                      />
+                    ) : (
+                      <span
+                        onClick={this.optionChecked.bind(this, option)}
+                        className={classnames(styles['input-select-label'])}
+                      >
+                        {option.name}
+                      </span>
+                    )}
+                  </div>
+                ))
+              : null}
+          </div>
+        ) : null}
         {error ? (
           <div className={classnames(styles['form-error'])}>{error}</div>
         ) : null}
