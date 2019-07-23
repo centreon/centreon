@@ -51,6 +51,12 @@ export { default as InputFieldSearch } from './InputField/InputFieldSearch';
 export {
   default as InputFieldSelectCustom,
 } from './InputField/InputFieldSelectCustom';
+export {
+  default as InputFieldSelectTableCell,
+} from './InputField/InputFieldSelectTableCell';
+export {
+  default as InputFieldTableCell,
+} from './InputField/InputFieldTableCell';
 export { default as ListSortable } from './List/ListSortable';
 export { default as LoaderContent } from './LoaderContent';
 export { default as Logo } from './Logo';

@@ -37,6 +37,12 @@
     top: 1px;
     right: 3px;
   }
+  &-position-multiselect-table {
+    position: absolute;
+    top: -1px;
+    right: 2px;
+    font-size: 22px;
+  }
   &-rotate {
     transform: rotate(180deg);
   }
