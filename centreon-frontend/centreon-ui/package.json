@@ -4,15 +4,13 @@
   "description": "react components used by centreon web frontend",
   "main": "lib",
   "scripts": {
-    "eslint": "npx eslint . --ext .js,.jsx",
+    "eslint": "eslint . --ext .js,.jsx",
     "eslint:fix": "npm run eslint -- --fix",
     "prepublishOnly": "npm run bundle",
-    "clean:testfiles": "find lib -type f -name '*.test.*' -delete",
-    "build": "npx babel ./src --out-dir ./lib --copy-files",
-    "bundle": "npm run build && npm run clean:testfiles",
+    "bundle": "babel ./src --out-dir ./lib --copy-files",
     "start:dev": "npm run build -- --watch --source-maps",
     "storybook": "start-storybook -p 9001 -c .storybook -s ./dynamic/compiled-components/components",
-    "test": "npx jest"
+    "test": "jest"
   },
   "repository": {
     "type": "git",
