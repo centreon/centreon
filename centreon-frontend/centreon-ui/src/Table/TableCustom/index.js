@@ -1,8 +1,5 @@
-/* eslint-disable react/forbid-prop-types */
-/* eslint-disable react/jsx-one-expression-per-line */
 /* eslint-disable react/jsx-no-bind */
 /* eslint-disable react/jsx-filename-extension */
-/* eslint-disable react/prop-types */
 
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
@@ -200,18 +197,11 @@ class TableCustom extends Component {
 
                       {columnConfiguration.map((column) => {
                         switch (column.type) {
+                          case TABLE_COLUMN_TYPES.string:
                           case TABLE_COLUMN_TYPES.number:
                             return (
                               <TableCellCustom
-                                align="left"
-                                className={classes.tableCellCustom}
-                              >
-                                {row[column.id] || ''}
-                              </TableCellCustom>
-                            );
-                          case TABLE_COLUMN_TYPES.string:
-                            return (
-                              <TableCellCustom
+                                key={column.id}
                                 align="left"
                                 className={classes.tableCellCustom}
                               >
@@ -220,7 +210,7 @@ class TableCustom extends Component {
                             );
                           case TABLE_COLUMN_TYPES.toggler:
                             return (
-                              <StyledTableCell2 align="left">
+                              <StyledTableCell2 key={column.id} align="left">
                                 {row[column.id] ? (
                                   <Tooltip
                                     label="Enable/Disable"
@@ -230,12 +220,12 @@ class TableCustom extends Component {
                                       width: 31,
                                       height: 31,
                                     }}
+                                    onClick={() => {
+                                      onDisable([row.id]);
+                                    }}
                                   >
                                     <IconPowerSettings
                                       label="Disable"
-                                      onClick={() => {
-                                        onDisable([row.id]);
-                                      }}
                                       active
                                       customStyle={{
                                         fontSize: 18,
@@ -254,13 +244,13 @@ class TableCustom extends Component {
                                       width: 31,
                                       height: 31,
                                     }}
+                                    onClick={() => {
+                                      onEnable([row.id]);
+                                    }}
                                   >
                                     <IconPowerSettingsDisable
                                       active
                                       label="Disable"
-                                      onClick={() => {
-                                        onEnable([row.id]);
-                                      }}
                                       customStyle={{
                                         fontSize: 18,
                                         boxSizing: 'border-box',
@@ -275,12 +265,13 @@ class TableCustom extends Component {
                           case TABLE_COLUMN_TYPES.multicolumn:
                             return (
                               <TableCellCustom
+                                key={column.id}
                                 align="left"
                                 className={classes.tableCellCustom}
                               >
                                 {column.columns.map((subColumn) => (
                                   <React.Fragment>
-                                    {subColumn.label} {row[subColumn.id]}
+                                    {`${subColumn.label} ${row[subColumn.id]}`}
                                     {subColumn.type === 'percentage'
                                       ? '%'
                                       : null}
@@ -292,6 +283,7 @@ class TableCustom extends Component {
                           case TABLE_COLUMN_TYPES.hoverActions:
                             return (
                               <StyledTableCell2
+                                key={column.id}
                                 style={{
                                   paddingTop: 0,
                                   paddingBottom: 0,
@@ -311,14 +303,14 @@ class TableCustom extends Component {
                                         top: 0,
                                         padding: '3px 5px',
                                       }}
+                                      onClick={() => {
+                                        onDelete([row.id]);
+                                      }}
                                     >
                                       <IconDelete
                                         customStyle={{
                                           color: '#707070',
                                           fontSize: 21,
-                                        }}
-                                        onClick={() => {
-                                          onDelete([row.id]);
                                         }}
                                       />
                                     </Tooltip>
@@ -331,14 +323,14 @@ class TableCustom extends Component {
                                         top: 0,
                                         padding: '3px 5px',
                                       }}
+                                      onClick={() => {
+                                        onDuplicate([row.id]);
+                                      }}
                                     >
                                       <IconLibraryAdd
                                         customStyle={{
                                           color: '#707070',
                                           fontSize: 20,
-                                        }}
-                                        onClick={() => {
-                                          onDuplicate([row.id]);
                                         }}
                                       />
                                     </Tooltip>
@@ -378,8 +370,35 @@ class TableCustom extends Component {
   }
 }
 
+TableCustom.defaultProps = {
+  enabledColumn: '',
+  onRowClick: () => {},
+};
+
+const anyObject = PropTypes.objectOf(
+  PropTypes.oneOfType([PropTypes.bool, PropTypes.string, PropTypes.number]),
+);
+const anyArray = PropTypes.arrayOf(anyObject);
+
 TableCustom.propTypes = {
-  classes: PropTypes.object.isRequired,
+  classes: anyObject.isRequired,
+  onSort: PropTypes.func.isRequired,
+  onTableSelectionChanged: PropTypes.func.isRequired,
+  columnConfiguration: anyArray.isRequired,
+  tableData: anyArray.isRequired,
+  onDelete: PropTypes.func.isRequired,
+  onPaginate: PropTypes.func.isRequired,
+  onDuplicate: PropTypes.func.isRequired,
+  onPaginationLimitChanged: PropTypes.func.isRequired,
+  limit: PropTypes.number.isRequired,
+  checkable: PropTypes.bool.isRequired,
+  currentPage: PropTypes.number.isRequired,
+  totalRows: PropTypes.number.isRequired,
+  onEnable: PropTypes.func.isRequired,
+  onDisable: PropTypes.func.isRequired,
+  onRowClick: PropTypes.func,
+  selected: anyArray.isRequired,
+  enabledColumn: PropTypes.string,
 };
 
 export default withStyles(styles, { withTheme: true })(TableCustom);

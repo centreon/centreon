@@ -39,10 +39,6 @@ exports[`IconAttach renders 1`] = `
     <path
       d="M16.5 6v11.5c0 2.21-1.79 4-4 4s-4-1.79-4-4V5c0-1.38 1.12-2.5 2.5-2.5s2.5 1.12 2.5 2.5v10.5c0 .55-.45 1-1 1s-1-.45-1-1V6H10v9.5c0 1.38 1.12 2.5 2.5 2.5s2.5-1.12 2.5-2.5V5c0-2.21-1.79-4-4-4S7 2.79 7 5v12.5c0 3.04 2.46 5.5 5.5 5.5s5.5-2.46 5.5-5.5V6h-1.5z"
     />
-    <path
-      d="M0 0h24v24H0z"
-      fill="none"
-    />
   </svg>
   <span
     class="emotion-1"
@@ -99,10 +95,6 @@ exports[`IconClose renders 1`] = `
     <path
       d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"
     />
-    <path
-      d="M0 0h24v24H0z"
-      fill="none"
-    />
   </svg>
 </span>
 `;
@@ -128,10 +120,6 @@ exports[`IconDelete renders 1`] = `
   >
     <path
       d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"
-    />
-    <path
-      d="M0 0h24v24H0z"
-      fill="none"
     />
   </svg>
 </span>
@@ -166,10 +154,6 @@ exports[`IconEdit renders 1`] = `
     <path
       d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34a.9959.9959 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"
     />
-    <path
-      d="M0 0h24v24H0z"
-      fill="none"
-    />
   </svg>
 </span>
 `;
@@ -196,10 +180,6 @@ exports[`IconInsertChart renders 1`] = `
     <path
       d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"
     />
-    <path
-      d="M0 0h24v24H0z"
-      fill="none"
-    />
   </svg>
 </span>
 `;
@@ -224,7 +204,7 @@ exports[`IconInvisible renders 1`] = `
     viewBox="0 0 24 24"
   >
     <path
-      d="M0 0h24v24H0zm0 0h24v24H0zm0 0h24v24H0zm0 0h24v24H0z"
+      d="m0 0h24v24H0z"
       fill="none"
     />
     <path
@@ -253,10 +233,6 @@ exports[`IconLibraryAdd renders 1`] = `
     role="presentation"
     viewBox="0 0 24 24"
   >
-    <path
-      d="M0 0h24v24H0z"
-      fill="none"
-    />
     <path
       d="M4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm16-4H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-1 9h-4v4h-2v-4H9V9h4V5h2v4h4v2z"
     />
@@ -291,10 +267,6 @@ exports[`IconPowerSettings renders 1`] = `
     role="presentation"
     viewBox="0 0 24 24"
   >
-    <path
-      d="M0 0h24v24H0z"
-      fill="none"
-    />
     <path
       d="M13 3h-2v10h2V3zm4.83 2.17l-1.42 1.42C17.99 7.86 19 9.81 19 12c0 3.87-3.13 7-7 7s-7-3.13-7-7c0-2.19 1.01-4.14 2.58-5.42L6.17 5.17C4.23 6.82 3 9.26 3 12c0 4.97 4.03 9 9 9s9-4.03 9-9c0-2.74-1.23-5.18-3.17-6.83z"
     />
@@ -364,10 +336,6 @@ exports[`IconPowerSettings renders 2`] = `
     viewBox="0 0 24 24"
   >
     <path
-      d="M0 0h24v24H0z"
-      fill="none"
-    />
-    <path
       d="M13 3h-2v10h2V3zm4.83 2.17l-1.42 1.42C17.99 7.86 19 9.81 19 12c0 3.87-3.13 7-7 7s-7-3.13-7-7c0-2.19 1.01-4.14 2.58-5.42L6.17 5.17C4.23 6.82 3 9.26 3 12c0 4.97 4.03 9 9 9s9-4.03 9-9c0-2.74-1.23-5.18-3.17-6.83z"
     />
   </svg>
@@ -393,10 +361,6 @@ exports[`IconVisible renders 1`] = `
     role="presentation"
     viewBox="0 0 24 24"
   >
-    <path
-      d="M0 0h24v24H0z"
-      fill="none"
-    />
     <path
       d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"
     />
