@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright 2005-2018 CENTREON
+ * Copyright 2005-2019 Centreon
  * Centreon is developed by : Julien Mathis and Romain Le Merlus under
  * GPL Licence 2.0.
  *
@@ -89,7 +89,7 @@ try {
         $command = "ACKNOWLEDGE_HOST_PROBLEM;%s;$sticky;$notify;$persistent;$author;$comment";
         $commandSvc = "ACKNOWLEDGE_SVC_PROBLEM;%s;%s;$sticky;$notify;$persistent;$author;$comment";
         if (isset($_POST['forcecheck'])) {
-            $forceCmd = "SCHEDULE_FORCED_HOST_CHECK;%s;".time(); 
+            $forceCmd = "SCHEDULE_FORCED_HOST_CHECK;%s;".time();
             $forceCmdSvc = "SCHEDULE_FORCED_SVC_CHECK;%s;%s;".time();
         }
     } elseif ($type == 'downtime') {
@@ -109,7 +109,7 @@ try {
         }
 
         if (!isset($_POST['start_time']) || !isset($_POST['end_time'])) {
-            throw new Exception ('Missing downtime start/end');
+            throw new Exception('Missing downtime start/end');
         }
         list($tmpHstart, $tmpMstart) = array_map('trim', explode(':', $_POST['start_time']));
         list($tmpHend, $tmpMend) = array_map('trim', explode(':', $_POST['end_time']));
@@ -153,7 +153,7 @@ try {
                 }
                 if (isset($_POST['processServices'])) {
                     $services = $svcObj->getServiceId(null, $hostname);
-                    foreach($services as $svcDesc => $svcId) {
+                    foreach ($services as $svcDesc => $svcId) {
                         $externalCmd->$externalCommandMethod(sprintf($commandSvc, $hostname, $svcDesc), $pollerId);
                         if (isset($forceCmdSvc)) {
                             $externalCmd->$externalCommandMethod(sprintf($forceCmdSvc, $hostname, $svcDesc), $pollerId);

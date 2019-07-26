@@ -1,6 +1,6 @@
 <?php
 /*
- * Copyright 2005-2018 CENTREON
+ * Copyright 2005-2019 Centreon
  * Centreon is developed by : Julien Mathis and Romain Le Merlus under
  * GPL Licence 2.0.
  *
@@ -59,7 +59,9 @@ if (CentreonSession::checkSession(session_id(), $db) == 0) {
 // Init Smarty
 $template = new Smarty();
 $template = initSmartyTplForPopup(
-    $centreon_path . 'www/widgets/service-monitoring/src/', $template, './',
+    $centreon_path . 'www/widgets/service-monitoring/src/',
+    $template,
+    './',
     $centreon_path
 );
 
@@ -135,25 +137,30 @@ $query = 'SELECT SQL_CALC_FOUND_ROWS h.host_id,
         h.action_url as h_action_url,
         h.notes_url as h_notes_url,
         s.action_url as s_action_url,
-        s.notes_url as s_notes_url, 
+        s.notes_url as s_notes_url,
         cv2.value AS criticality_id,
         cv.value AS criticality_level,
         h.icon_image
-';
-$query .= ' FROM hosts h JOIN instances i ON h.instance_id=i.instance_id, services s ' .
-    ' LEFT JOIN customvariables cv ON (s.service_id = cv.service_id ' .
-    'AND s.host_id = cv.host_id AND cv.name = \'CRITICALITY_LEVEL\') ' .
-    ' LEFT JOIN customvariables cv2 ON (s.service_id = cv2.service_id ' .
-    'AND s.host_id = cv2.host_id AND cv2.name = \'CRITICALITY_ID\') ';
+    FROM hosts h JOIN instances i ON h.instance_id=i.instance_id, services s
+    LEFT JOIN customvariables cv ON (
+        s.service_id = cv.service_id
+        AND s.host_id = cv.host_id 
+        AND cv.name = \'CRITICALITY_LEVEL\'
+    )
+    LEFT JOIN customvariables cv2 ON (
+        s.service_id = cv2.service_id
+        AND s.host_id = cv2.host_id 
+        AND cv2.name = \'CRITICALITY_ID\'
+    ) ';
 
 if (!$centreon->user->admin) {
     $query .= ' , centreon_acl acl ';
 }
 
-$query .= ' WHERE s.host_id = h.host_id ';
-$query .= ' AND h.name NOT LIKE \'_Module_%\' ';
-$query .= ' AND s.enabled = 1 ';
-$query .= ' AND h.enabled = 1 ';
+$query .= ' WHERE s.host_id = h.host_id
+    AND h.name NOT LIKE \'_Module_%\'
+    AND s.enabled = 1
+    AND h.enabled = 1 ';
 
 if (isset($preferences['host_name_search']) && $preferences['host_name_search'] != '') {
     $tab = explode(' ', $preferences['host_name_search']);
@@ -277,22 +284,25 @@ if (isset($preferences['hostgroup']) && $preferences['hostgroup']) {
             'type' => PDO::PARAM_INT
         ];
     }
-    $hostgroupHgIdCondition = <<<SQL
- s.host_id IN (
-      SELECT host_host_id
-      FROM {$conf_centreon['db']}.hostgroup_relation
-      WHERE hostgroup_hg_id IN ({$queryHG}))
-SQL;
-    $query = CentreonUtils::conditionBuilder($query, $hostgroupHgIdCondition);
+    $query = CentreonUtils::conditionBuilder(
+        $query,
+        " s.host_id IN (
+            SELECT host_host_id
+            FROM " . $conf_centreon['db'] . ".hostgroup_relation
+            WHERE hostgroup_hg_id IN (" . $queryHG . ")
+        )"
+    );
 }
 if (isset($preferences['servicegroup']) && $preferences['servicegroup']) {
-    $queryHost = <<<SQL
-SELECT DISTINCT h.host_id FROM servicegroups sg INNER JOIN services_servicegroups
-    sgm ON sg.servicegroup_id = sgm.servicegroup_id INNER JOIN services s ON s.service_id = sgm.service_id
-    INNER JOIN  hosts h ON sgm.host_id = h.host_id AND h.host_id = s.host_id WHERE  sg.servicegroup_id = :servicegroup_id
-SQL;
-
-    $resultHost = $dbb->prepare($queryHost);
+    $resultHost = $dbb->prepare(
+        "SELECT DISTINCT h.host_id 
+        FROM servicegroups sg 
+        INNER JOIN services_servicegroups sgm ON sg.servicegroup_id = sgm.servicegroup_id 
+        INNER JOIN services s ON s.service_id = sgm.service_id
+        INNER JOIN hosts h ON sgm.host_id = h.host_id 
+        AND h.host_id = s.host_id 
+        WHERE sg.servicegroup_id = :servicegroup_id"
+    );
     $resultHost->bindValue(':servicegroup_id', $preferences['servicegroup'], PDO::PARAM_INT);
     $resultHost->execute();
 
@@ -308,16 +318,19 @@ SQL;
         'value' => $preferences['servicegroup'],
         'type' => PDO::PARAM_INT
     ];
-    $servicegroupIdCondition = <<<SQL
- s.service_id IN (
-            SELECT DISTINCT s.service_id FROM servicegroups sg, services_servicegroups sgm, 
-            services s, hosts h WHERE h.host_id = s.host_id AND s.host_id = sgm.host_id AND s.service_id = sgm.service_id 
+    $query = CentreonUtils::conditionBuilder(
+        $query,
+        " s.service_id IN (
+            SELECT DISTINCT s.service_id 
+            FROM servicegroups sg, services_servicegroups sgm, services s, hosts h 
+            WHERE h.host_id = s.host_id 
+            AND s.host_id = sgm.host_id 
+            AND s.service_id = sgm.service_id
             AND sg.servicegroup_id = sgm.servicegroup_id
-            AND sg.servicegroup_id = :servicegroup_id 
-            AND h.host_id IN ({$hostsList}) 
-      ) 
-SQL;
-    $query = CentreonUtils::conditionBuilder($query, $servicegroupIdCondition);
+            AND sg.servicegroup_id = :servicegroup_id
+            AND h.host_id IN (" . $hostsList . ")
+        )"
+    );
     unset($hostsList);
 }
 if (isset($preferences['display_severities']) &&
@@ -333,7 +346,7 @@ if (isset($preferences['display_severities']) &&
         }
         $labels .= "'" . trim($p) . "'";
     }
-    $query2 = "SELECT sc_id FROM service_categories WHERE sc_name IN ({$labels})";
+    $query2 = "SELECT sc_id FROM service_categories WHERE sc_name IN (" . $labels . ")";
     $RES = $db->query($query2);
     $idC = '';
     while ($d1 = $RES->fetch()) {
@@ -342,7 +355,7 @@ if (isset($preferences['display_severities']) &&
         }
         $idC .= $d1['sc_id'];
     }
-    $query .= " AND cv2.`value` IN ({$idC}) ";
+    $query .= " AND cv2.`value` IN (" . $idC . ") ";
 }
 if (!$centreon->user->admin) {
     $pearDB = $db;
@@ -350,7 +363,7 @@ if (!$centreon->user->admin) {
     $groupList = $aclObj->getAccessGroupsString();
     $query .= " AND h.host_id = acl.host_id
     AND acl.service_id = s.service_id
-    AND acl.group_id IN ({$groupList})";
+    AND acl.group_id IN (" . $groupList . ")";
 }
 if (isset($preferences['output_search']) && $preferences['output_search'] != "") {
     $tab = explode(' ', $preferences['output_search']);
@@ -392,7 +405,7 @@ if (isset($preferences['order_by']) && trim($preferences['order_by']) != '') {
 $query .= 'GROUP BY hostname, description ';
 
 if (trim($orderBy)) {
-    $query .= "ORDER BY {$orderBy}";
+    $query .= "ORDER BY " . $orderBy;
 }
 
 $query .= " LIMIT " . ($page * $preferences['entries']) . "," . $preferences['entries'];
@@ -416,8 +429,10 @@ $svcObj = new CentreonService($db);
 $gmt = new CentreonGMT($db);
 $gmt->getMyGMTFromSession(session_id(), $db);
 $allowedActionProtocols = ['http[s]?', '//', 'ssh', 'rdp', 'ftp', 'sftp'];
-$allowedProtocolsRegex = '#(^' . implode(')|(^',
-        $allowedActionProtocols) . ')#'; // String starting with one of these protocols
+$allowedProtocolsRegex = '#(^' . implode(
+    ')|(^',
+    $allowedActionProtocols
+) . ')#'; // String starting with one of these protocols
 
 while ($row = $res->fetch()) {
     foreach ($row as $key => $value) {
@@ -455,7 +470,8 @@ while ($row = $res->fetch()) {
     $data[$row['host_id'] . '_' . $row['service_id']]['last_hard_state_change'] = $valueLastHardState;
 
     // check_attempt
-    $valueCheckAttempt = "{$row['check_attempt']}/{$row['max_check_attempts']} ({$aStateType[$row['state_type']]})";
+    $valueCheckAttempt = $row['check_attempt'] . "/" .
+        $row['max_check_attempts'] . " (" . $aStateType[$row['state_type']] . ")";
     $data[$row['host_id'] . '_' . $row['service_id']]['check_attempt'] = $valueCheckAttempt;
 
     // s_state
@@ -478,8 +494,12 @@ while ($row = $res->fetch()) {
             $valueHActionUrl = '//' . $valueHActionUrl;
         }
 
-        $valueHActionUrl = CentreonUtils::escapeSecure($hostObj->replaceMacroInString($row['hostname'],
-            $valueHActionUrl));
+        $valueHActionUrl = CentreonUtils::escapeSecure(
+            $hostObj->replaceMacroInString(
+                $row['hostname'],
+                $valueHActionUrl
+            )
+        );
         $data[$row['host_id'] . '_' . $row['service_id']]['h_action_url'] = $valueHActionUrl;
     }
 
@@ -492,8 +512,12 @@ while ($row = $res->fetch()) {
             $valueHNotesUrl = '//' . $valueHNotesUrl;
         }
 
-        $valueHNotesUrl = CentreonUtils::escapeSecure($hostObj->replaceMacroInString($row['hostname'],
-            $valueHNotesUrl));
+        $valueHNotesUrl = CentreonUtils::escapeSecure(
+            $hostObj->replaceMacroInString(
+                $row['hostname'],
+                $valueHNotesUrl
+            )
+        );
         $data[$row['host_id'] . '_' . $row['service_id']]['h_notes_url'] = $valueHNotesUrl;
     }
 
@@ -559,7 +583,7 @@ while ($row = $res->fetch()) {
             $commentSql = 'SELECT comment_data AS data FROM downtimes';
         }
 
-        $commentSql .= " WHERE host_id = {$row['host_id']} AND service_id = {$row['service_id']}";
+        $commentSql .= " WHERE host_id = " . $row['host_id'] . " AND service_id = " . $row['service_id'];
         $commentSql .= ' ORDER BY entry_time DESC LIMIT 1';
         $commentResult = $dbb->query($commentSql);
 
