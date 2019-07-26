@@ -1,8 +1,8 @@
 var timeout;
 
 jQuery(function() {
-        reloadWidget();
-    });
+    reloadWidget();
+});
 
 function reloadWidget() {
     jQuery.ajax("./index.php", {

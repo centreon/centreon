@@ -1,7 +1,7 @@
 <?php
 /**
- * Copyright 2005-2011 MERETHIS
- * Centreon is developped by : Julien Mathis and Romain Le Merlus under
+ * Copyright 2005-2019 Centreon
+ * Centreon is developed by : Julien Mathis and Romain Le Merlus under
  * GPL Licence 2.0.
  *
  * This program is free software; you can redistribute it and/or modify it under
@@ -78,8 +78,8 @@ $template = initSmartyTplForPopup($path, $template, "./", $centreon_path);
 
 if (isset($preferences['object_type']) && $preferences['object_type'] === "hosts") {
     require_once 'src/hosts_status.php';
-}else if (isset($preferences['object_type']) && $preferences['object_type'] === "services") {
+} elseif (isset($preferences['object_type']) && $preferences['object_type'] === "services") {
     require_once 'src/services_status.php';
-}else if (isset($preferences['object_type']) && $preferences['object_type'] == "") {
+} elseif (isset($preferences['object_type']) && $preferences['object_type'] == "") {
     require_once 'src/hosts_status.php';
 }

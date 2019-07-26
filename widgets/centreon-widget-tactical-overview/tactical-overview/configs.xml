@@ -1,20 +1,20 @@
 <configs>
-        <title>Tactical Overview</title>
-        <author>Centreon</author>
-        <email>contact@centreon.com</email>
-        <website>http://www.centreon.com</website>
-        <description>This widget displays in a table the number of resources by status, also indicating the unhandled, acknowledged or downtime state. This widget is available for hosts or for services.</description>
-        <version>19.10.0</version>
-        <keywords>centreon, widget, host, monitoring, service</keywords>
-        <screenshot></screenshot>
-        <thumbnail>./widgets/tactical-overview/resources/centreon-logo.png</thumbnail>
-        <url>./widgets/tactical-overview/index.php</url>
-        <autoRefresh>10</autoRefresh>
-        <preferences>
-            <preference label="Object" name="object_type" type="list">
-                <option value="hosts" label="Hosts"/>
-                <option value="services" label="Services"/>
-            </preference>
-            <preference label="Auto Refresh" name="autoRefresh" defaultValue="30" type="integer"/>
-        </preferences>
+    <title>Tactical Overview</title>
+    <author>Centreon</author>
+    <email>contact@centreon.com</email>
+    <website>http://www.centreon.com</website>
+    <description>This widget displays in a table the number of resources by status, also indicating the unhandled, acknowledged or downtime state. This widget is available for hosts or for services.</description>
+    <version>19.10.0</version>
+    <keywords>centreon, widget, host, monitoring, service</keywords>
+    <screenshot></screenshot>
+    <thumbnail>./widgets/tactical-overview/resources/centreon-logo.png</thumbnail>
+    <url>./widgets/tactical-overview/index.php</url>
+    <autoRefresh>10</autoRefresh>
+    <preferences>
+        <preference label="Object" name="object_type" type="list">
+            <option value="hosts" label="Hosts"/>
+            <option value="services" label="Services"/>
+        </preference>
+        <preference label="Auto Refresh" name="autoRefresh" defaultValue="30" type="integer"/>
+    </preferences>
 </configs>

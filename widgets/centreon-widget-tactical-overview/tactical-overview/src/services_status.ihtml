@@ -1,64 +1,80 @@
 <html>
 <head>
-	<title>tactical-overview</title>
-        <link href="../../Themes/Centreon-2/style.css" type="text/css"/>
-        <link href="../../Themes/Centreon-2/Color/blue_css.php" rel="stylesheet" text="text/css"/>
-        {literal}
-        <style type="text/css">
-          .ListTable {font-size:11px;border-color: #BFD0E2;}                                                                                                                               
-        </style>
-        <style>
-          @import url('../../Themes/Centreon-2/style.css');
-        </style>
-        {/literal}
+    <title>tactical-overview</title>
+    <link href="../../Themes/Centreon-2/style.css" type="text/css"/>
+    <link href="../../Themes/Centreon-2/Color/blue_css.php" rel="stylesheet" text="text/css"/>
+    {literal}
+    <style type="text/css">
+        .ListTable {font-size:11px;border-color: #BFD0E2;}
+    </style>
+    <style>
+        @import url('../../Themes/Centreon-2/style.css');
+    </style>
+    {/literal}
 </head>
 <body>
-	<div id="tactical-overview"></div>
+    <div id="tactical-overview">
         <table class='StyleTable ListTable'>
-                <tr class="ListHeader">
-                        <td class='ListColHeaderLeft'><a href="/centreon/main.php?p=20201&o=svc_critical&search=" target="_blank"><span class="badge service_critical margin_right">{$dataCRI[0].status}</span>Critical</a></td>
-                        <td class='ListColHeaderLeft'><a href="/centreon/main.php?p=20201&o=svc_warning&search=" target="_blank"><span class="badge service_warning margin_right">{$dataWA[0].status}</span>Warning</a></td>
-			<td class='ListColHeaderLeft'><a href="/centreon/main.php?p=20201&o=svc_unknown&search=" target="_blank"><span class="badge service_unknown margin_right">{$dataUNK[0].status}</span>Unknown</a></td>
-                        <td class='ListColHeaderLeft'><a href="/centreon/main.php?p=20201&o=svc_ok&search=" target="_blank"><span class="badge service_ok margin_right">{$dataOK[0].status}</span>Ok</a></td>
-                        <td class='ListColHeaderLeft'><a href="/centreon/main.php?p=20201&o=svc_pending&search=" target="_blank"><span class="badge pending margin_right">{$dataPEND[0].status}</span>Pending</a></td>
-               </tr>
-               <tr class="line_ack">
-                        <td class='ListColLeft'><span class="badge service_critical margin_right">{$dataCRI[0].ack}</span>Acknowledge</td>
-                        <td class='ListColLeft'><span class="badge service_warning margin_right">{$dataWA[0].ack}</span>Acknowledge</td>
-			<td class='ListColLeft'><span class="badge service_unknown margin_right">{$dataUNK[0].ack}</span>Acknowledge</td> 
-                       	<td></td>
-                        <td></td>
-                </tr>
-                <tr class ="line_downtime">
-                        <td class='ListColLeft'><span class="badge service_critical margin_right">{$dataCRI[0].down}</span>Downtimes</td>
-                        <td class='ListColLeft'><span class="badge service_warning margin_right">{$dataWA[0].down}</span>Downtimes</td>
-                       	<td class='ListColLeft'><span class="badge service_unknown margin_right">{$dataUNK[0].down}</span>Downtimes</td>
-                        <td></td>
-                        <td></td>
-                </tr>
-                <tr class="list_two">
-                        <td class='ListColLeft'><a href="/centreon/main.php?p=20202&o=svc_unhandled&search=" target="_blank"><span class="badge service_critical margin_right">{$dataCRI[0].un}</span>Unhandled</a></td>
-                        <td class='ListColLeft'><a href="/centreon/main.php?p=20202&o=svc_unhandled&search=" target="_blank"><span class="badge service_warning margin_right">{$dataWA[0].un}</span>Unhandled</a></td>
-           		<td class='ListColLeft'><a href="/centreon/main.php?p=20202&o=svc_unhandled&search=" target="_blank"><span class="badge service_unknown margin_right">{$dataUNK[0].un}</span>Unhandled</a></td>
-                        <td></td>
-                        <td></td>
-                </tr>
-		<tr class="list_one">
-		    <td class="ListColLeft"><span class="badge service_critical margin_right">{$dataCRI[0].pb}</span>Problem on host</td>
-		    <td class="ListColLeft"><span class="badge service_warning margin_right">{$dataWA[0].pb}</span>Problem on host</td>
-		    <td class="ListColLeft"><span class="badge service_unknown margin_right">{$dataUNK[0].pb}</span>Problem on host</td>
-		    <td></td>
-		    <td></td>
-		</tr>
+            <tr class="ListHeader">
+                <td class='ListColHeaderLeft'>
+                    <a href="/centreon/main.php?p=20201&o=svc_critical&search=" target="_blank"><span class="badge service_critical margin_right">{$dataCRI[0].status}</span>Critical</a>
+                </td>
+                <td class='ListColHeaderLeft'>
+                    <a href="/centreon/main.php?p=20201&o=svc_warning&search=" target="_blank"><span class="badge service_warning margin_right">{$dataWA[0].status}</span>Warning</a>
+                </td>
+                <td class='ListColHeaderLeft'>
+                    <a href="/centreon/main.php?p=20201&o=svc_unknown&search=" target="_blank"><span class="badge service_unknown margin_right">{$dataUNK[0].status}</span>Unknown</a>
+                </td>
+                <td class='ListColHeaderLeft'>
+                    <a href="/centreon/main.php?p=20201&o=svc_ok&search=" target="_blank"><span class="badge service_ok margin_right">{$dataOK[0].status}</span>Ok</a>
+                </td>
+                <td class='ListColHeaderLeft'>
+                    <a href="/centreon/main.php?p=20201&o=svc_pending&search=" target="_blank"><span class="badge pending margin_right">{$dataPEND[0].status}</span>Pending</a>
+                </td>
+            </tr>
+            <tr class="line_ack">
+                <td class='ListColLeft'><span class="badge service_critical margin_right">{$dataCRI[0].ack}</span>Acknowledge</td>
+                <td class='ListColLeft'><span class="badge service_warning margin_right">{$dataWA[0].ack}</span>Acknowledge</td>
+                <td class='ListColLeft'><span class="badge service_unknown margin_right">{$dataUNK[0].ack}</span>Acknowledge</td>
+                <td></td>
+                <td></td>
+            </tr>
+            <tr class ="line_downtime">
+                <td class='ListColLeft'><span class="badge service_critical margin_right">{$dataCRI[0].down}</span>Downtimes</td>
+                <td class='ListColLeft'><span class="badge service_warning margin_right">{$dataWA[0].down}</span>Downtimes</td>
+                <td class='ListColLeft'><span class="badge service_unknown margin_right">{$dataUNK[0].down}</span>Downtimes</td>
+                <td></td>
+                <td></td>
+            </tr>
+            <tr class="list_two">
+                <td class='ListColLeft'>
+                    <a href="/centreon/main.php?p=20202&o=svc_unhandled&search=" target="_blank"><span class="badge service_critical margin_right">{$dataCRI[0].un}</span>Unhandled</a>
+                </td>
+                <td class='ListColLeft'>
+                    <a href="/centreon/main.php?p=20202&o=svc_unhandled&search=" target="_blank"><span class="badge service_warning margin_right">{$dataWA[0].un}</span>Unhandled</a>
+                </td>
+                <td class='ListColLeft'>
+                    <a href="/centreon/main.php?p=20202&o=svc_unhandled&search=" target="_blank"><span class="badge service_unknown margin_right">{$dataUNK[0].un}</span>Unhandled</a>
+                </td>
+                <td></td>
+                <td></td>
+            </tr>
+            <tr class="list_one">
+                <td class="ListColLeft"><span class="badge service_critical margin_right">{$dataCRI[0].pb}</span>Problem on host</td>
+                <td class="ListColLeft"><span class="badge service_warning margin_right">{$dataWA[0].pb}</span>Problem on host</td>
+                <td class="ListColLeft"><span class="badge service_unknown margin_right">{$dataUNK[0].pb}</span>Problem on host</td>
+                <td></td>
+                <td></td>
+            </tr>
         </table>
-  <script>
-          var widgetId = "{$widgetId}";
-          var autoRefresh = "{$autoRefresh}";
-          </script>
-        <script type="text/javascript" src="../../include/common/javascript/jquery/jquery.js"></script>
-        <script type="text/javascript" src="../../include/common/javascript/jquery/jquery-ui.js"></script>
-        <script type="text/javascript" src="../../include/common/javascript/widgetUtils.js"></script>
-        <script type="text/javascript" src="src/data_js.js"></script>
-</script>
+    </div>
+    <script>
+        var widgetId = "{$widgetId}";
+        var autoRefresh = "{$autoRefresh}";
+    </script>
+    <script type="text/javascript" src="../../include/common/javascript/jquery/jquery.js"></script>
+    <script type="text/javascript" src="../../include/common/javascript/jquery/jquery-ui.js"></script>
+    <script type="text/javascript" src="../../include/common/javascript/widgetUtils.js"></script>
+    <script type="text/javascript" src="src/data_js.js"></script>
 </body>
 </html>
