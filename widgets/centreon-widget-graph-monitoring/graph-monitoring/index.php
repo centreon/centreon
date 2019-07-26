@@ -1,7 +1,7 @@
 <?php
 /**
- * Copyright 2005-2011 MERETHIS
- * Centreon is developped by : Julien Mathis and Romain Le Merlus under
+ * Copyright 2005-2019 Centreon
+ * Centreon is developed by : Julien Mathis and Romain Le Merlus under
  * GPL Licence 2.0.
  *
  * This program is free software; you can redistribute it and/or modify it under
@@ -68,7 +68,7 @@ try {
     if (isset($preferences['refresh_interval'])) {
         $autoRefresh = $preferences['refresh_interval'];
     }
-}    catch (Exception $e) {
+} catch (Exception $e) {
     echo $e->getMessage() . "<br/>";
     exit;
 }
@@ -88,13 +88,14 @@ $template = initSmartyTplForPopup($path, $template, "/", $centreon_path);
 */
 
 $acl = 1;
-if (isset($tab[0]) && isset($tab[1]) && $centreon->user->admin == 0 ) {
-    $query = "SELECT host_id
-            FROM centreon_acl
-            WHERE host_id = ".$dbAcl->escape($tab[0])."
-            AND service_id = ".$dbAcl->escape($tab[1])."
-            AND group_id IN (".$grouplistStr.")";
-    $res = $dbAcl->query($query);
+if (isset($tab[0]) && isset($tab[1]) && $centreon->user->admin == 0) {
+    $res = $dbAcl->query(
+        "SELECT host_id
+        FROM centreon_acl
+        WHERE host_id = " . $dbAcl->escape($tab[0]) . "
+            AND service_id = " . $dbAcl->escape($tab[1]) . "
+            AND group_id IN (" . $grouplistStr . ")"
+    );
     if (!$res->rowCount()) {
         $acl = 0;
     }
@@ -102,12 +103,14 @@ if (isset($tab[0]) && isset($tab[1]) && $centreon->user->admin == 0 ) {
 
 $servicePreferences = '';
 
-if ($acl === 0){
+if ($acl === 0) {
     $servicePreferences = '';
-} elseif (false === isset($preferences['service']) || trim($preferences['service']) === ''){
-    $servicePreferences = "<div class='update' style='text-align:center;margin-left: auto;margin-right: auto;width:350px;'>"._("Please select a resource first")."</div>";
-} elseif(false === isset($preferences['graph_period'])|| trim($preferences['graph_period']) === ''){
-    $servicePreferences = "<div class='update' style='text-align:center;margin-left: auto;margin-right: auto;width:350px;'>"._("Please select a graph period")."</div>";
+} elseif (false === isset($preferences['service']) || trim($preferences['service']) === '') {
+    $servicePreferences = "<div class='update' style='text-align:center;margin-left: auto;margin-right: " .
+        "auto;width:350px;'>" . _("Please select a resource first") . "</div>";
+} elseif (false === isset($preferences['graph_period']) || trim($preferences['graph_period']) === '') {
+    $servicePreferences = "<div class='update' style='text-align:center;margin-left: auto;margin-right: " .
+        "auto;width:350px;'>" . _("Please select a graph period") . "</div>";
 }
 
 $autoRefresh = $preferences['refresh_interval'];
