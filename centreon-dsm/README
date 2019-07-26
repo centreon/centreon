@@ -13,7 +13,7 @@ Usage after release 2.0
 	-H|--Host		The hostname linked to trap services
 	-i|--id			Id (a built string to match a specific alarm)
 	-t|--time		The time epoch for the trap request
-	-s|--status		The id status nagios 0 Ok; 1 Warning ; 2 Critical ; 3 Unknown 
+	-s|--status		The id status nagios 0 Ok; 1 Warning ; 2 Critical ; 3 Unknown
 	-o|--output     The output to display in service comment
 
 Usage before revision 34 : deprecated.

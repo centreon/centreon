@@ -1,7 +1,7 @@
 #!/bin/bash
 #
-# Copyright 2005-2015 Centreon
-# Centreon is developped by : Julien Mathis and Romain Le Merlus under
+# Copyright 2005-2019 Centreon
+# Centreon is developed by : Julien Mathis and Romain Le Merlus under
 # GPL Licence 2.0.
 #
 # This program is free software; you can redistribute it and/or modify it under
@@ -75,7 +75,7 @@ function usage() {
 
 ### Main
 
-# define where is a centreon source 
+# define where is a centreon source
 BASE_DIR=$(dirname $0)
 ## set directory
 BASE_DIR=$( cd $BASE_DIR; pwd )
@@ -99,7 +99,7 @@ export line
 LOG_DIR="$BASE_DIR/log"
 LOG_FILE="$PWD/install.log"
 
-## Valid if you are root 
+## Valid if you are root
 USERID=`id -u`
 if [ "$USERID" != "0" ]; then
     echo -e "You must exec with root user"
@@ -117,11 +117,11 @@ do
 			silent_install="1"
 			user_conf="${OPTARG%/}"
 			;;
-		\?|h)	usage ; 
-			exit 0 
+		\?|h)	usage ;
+			exit 0
 			;;
-		* )	usage ; 
-			exit 1 
+		* )	usage ;
+			exit 1
 			;;
 	esac
 done
@@ -132,7 +132,7 @@ if [ "$_tmp_install_opts" -eq 0 ] ; then
 fi
 
 #Export variable for all programs
-export silent_install CENTREON_CONF  
+export silent_install CENTREON_CONF
 
 ## init LOG_FILE
 # backup old log file...
@@ -167,11 +167,11 @@ binary_fail="0"
 # For the moment, I check if all binary exists in path.
 # After, I must look a solution to use complet path by binary
 for binary in $BINARIES; do
-	if [ ! -e ${binary} ] ; then 
+	if [ ! -e ${binary} ] ; then
 		pathfind "$binary"
 		if [ "$?" -eq 0 ] ; then
 			echo_success "${binary}" "$ok"
-		else 
+		else
 			echo_failure "${binary}" "$fail"
 			log "ERR" "\$binary not found in \$PATH"
 			binary_fail=1

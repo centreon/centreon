@@ -6,4 +6,3 @@ $upgrade_conf['centreon-dsm']["author"] = "Merethis";
 $upgrade_conf['centreon-dsm']["lang_files"] = "0";
 $upgrade_conf['centreon-dsm']["sql_files"] = "0";
 $upgrade_conf['centreon-dsm']["php_files"] = "0";
-?>

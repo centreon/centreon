@@ -26,7 +26,7 @@ sub new {
     $self->add_options(
         "host-id:s"         => \$self->{host_id},
         "Host:s"            => \$self->{host},
-        "H:s"               => \$self->{host}, 
+        "H:s"               => \$self->{host},
         "id:s"              => \$self->{id},
         "i:s"               => \$self->{id},
         "status:s"          => \$self->{status},
@@ -40,7 +40,7 @@ sub new {
         "pool-prefix:s"     => \$self->{pool_prefix},
         "config-extra:s"    => \$self->{opt_extra},
     );
-    
+
     return $self;
 }
 
@@ -50,9 +50,9 @@ sub init {
 
     $self->{logger}->writeLogInfo(
         sprintf("client launched with options [host id = %s] [id = %s] [status = %s] [time = %s] [output = %s] [macro = %s] [pool prefix = %s]",
-            defined($self->{host_id}) ? $self->{host_id} : '-', defined($self->{id}) ? $self->{id} : '-', 
-            defined($self->{status}) ? $self->{status} : '-', defined($self->{time}) ? $self->{time} : '-', 
-            defined($self->{output}) ? $self->{output} : '-', defined($self->{macro}) ? $self->{macro} : '-', 
+            defined($self->{host_id}) ? $self->{host_id} : '-', defined($self->{id}) ? $self->{id} : '-',
+            defined($self->{status}) ? $self->{status} : '-', defined($self->{time}) ? $self->{time} : '-',
+            defined($self->{output}) ? $self->{output} : '-', defined($self->{macro}) ? $self->{macro} : '-',
             defined($self->{pool_prefix}) ? $self->{pool_prefix} : '-')
     );
     if (!defined($self->{status}) || $self->{status} !~ /^[0123]$/) {
@@ -62,7 +62,7 @@ sub init {
     if (!defined($self->{time}) || $self->{time} !~ /\d+/) {
         $self->{time} = time();
     }
-    
+
     if (!defined($self->{opt_extra})) {
         $self->{opt_extra} = "/etc/centreon/centreon_dsmclient.pm";
     }
@@ -76,7 +76,7 @@ sub init {
 
 sub get_pool_prefix {
     my ($self, %options) = @_;
-    
+
     my $query = "SELECT pool_prefix FROM mod_dsm_pool WHERE pool_host_id = " . $self->{db_centreon}->quote($options{host_id}) . " AND pool_activate = '1'";
     if (defined($self->{pool_prefix}) && $self->{pool_prefix} ne '') {
         $query .= "AND pool_prefix = " . $self->{db_centreon}->quote($self->{pool_prefix});
@@ -86,19 +86,19 @@ sub get_pool_prefix {
         $self->{logger}->writeLogError("Cannot get pool prefix from database");
         exit 1;
     }
-    
+
     if ((my $row = $sth->fetchrow_hashref())) {
         $self->{logger}->writeLogInfo("find pool '" . $row->{pool_prefix}  . "' for host id '" . $options{host_id} . "'");
         return $row->{pool_prefix};
     }
-    
+
     $self->{logger}->writeLogError("Cannot find host id or pool prefix");
     exit(1);
 }
 
 sub get_hosts {
     my ($self, %options) = @_;
-    
+
     my $host_id = $self->{host_id};
     if (defined($self->{host}) && $self->{host} ne '') {
         my $query = "SELECT host_id FROM host WHERE host_name = " . $self->{db_centreon}->quote($self->{host}) . " OR host_address = " . $self->{db_centreon}->quote($self->{host});
@@ -124,7 +124,7 @@ sub get_hosts {
         $self->{logger}->writeLogError("Please set --host-id option");
         exit(1);
     }
-    
+
     return $host_id;
 }
 
@@ -132,7 +132,7 @@ sub run {
     my ($self, %options) = @_;
 
     $self->SUPER::run();
-    
+
     $self->{db_centreon} = centreon::common::db->new(db => $self->{centreon_config}->{centreon_db},
                                                      host => $self->{centreon_config}->{db_host},
                                                      port => $self->{centreon_config}->{db_port},
@@ -141,7 +141,7 @@ sub run {
                                                      force => 1,
                                                      logger => $self->{logger});
     $self->{db_centreon}->connect();
-    
+
     $self->{db_centstorage} = centreon::common::db->new(
         db => $self->{centreon_config}->{centstorage_db},
         host => $self->{centreon_config}->{db_host},

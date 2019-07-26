@@ -1,7 +1,7 @@
 <?php
 /*
- * Copyright 2005-2015 Centreon
- * Centreon is developped by : Julien Mathis and Romain Le Merlus under
+ * Copyright 2005-2019 Centreon
+ * Centreon is developed by : Julien Mathis and Romain Le Merlus under
  * GPL Licence 2.0.
  *
  * This program is free software; you can redistribute it and/or modify it under
@@ -33,45 +33,70 @@
  *
  */
 
-	if (!isset ($oreon)) {
-		exit ();
-	}
+if (!isset($oreon)) {
+    exit();
+}
 
-	isset($_GET["pool_id"]) ? $cG = $_GET["pool_id"] : $cG = NULL;
-	isset($_POST["pool_id"]) ? $cP = $_POST["pool_id"] : $cP = NULL;
-	$cG ? $slot_id = $cG : $slot_id = $cP;
+isset($_GET["pool_id"]) ? $cG = $_GET["pool_id"] : $cG = null;
+isset($_POST["pool_id"]) ? $cP = $_POST["pool_id"] : $cP = null;
+$cG ? $slot_id = $cG : $slot_id = $cP;
 
-	isset($_GET["select"]) ? $cG = $_GET["select"] : $cG = NULL;
-	isset($_POST["select"]) ? $cP = $_POST["select"] : $cP = NULL;
-	$cG ? $select = $cG : $select = $cP;
+isset($_GET["select"]) ? $cG = $_GET["select"] : $cG = null;
+isset($_POST["select"]) ? $cP = $_POST["select"] : $cP = null;
+$cG ? $select = $cG : $select = $cP;
 
-	isset($_GET["dupNbr"]) ? $cG = $_GET["dupNbr"] : $cG = NULL;
-	isset($_POST["dupNbr"]) ? $cP = $_POST["dupNbr"] : $cP = NULL;
-	$cG ? $dupNbr = $cG : $dupNbr = $cP;
+isset($_GET["dupNbr"]) ? $cG = $_GET["dupNbr"] : $cG = null;
+isset($_POST["dupNbr"]) ? $cP = $_POST["dupNbr"] : $cP = null;
+$cG ? $dupNbr = $cG : $dupNbr = $cP;
 
-	$search = isset($_POST['searchSlot']) ? htmlentities($_POST['searchSlot'], ENT_QUOTES) : NULL;
+$search = isset($_POST['searchSlot']) ? htmlentities($_POST['searchSlot'], ENT_QUOTES) : null;
 
-    /*
-	 * Path to the configuration dir
-	 */
-	$path = "./modules/centreon-dsm/core/configuration/services/";
+/*
+ * Path to the configuration dir
+ */
+$path = "./modules/centreon-dsm/core/configuration/services/";
 
-	/*
-	 * PHP functions
-	 */
-	require_once $path."DB-Func.php";
-	require_once "./include/common/common-Func.php";
+/*
+ * PHP functions
+ */
+require_once $path."DB-Func.php";
+require_once "./include/common/common-Func.php";
 
-	switch ($o)	{
-		case "a" : require_once($path."formSlot.php"); break; #Add a slot
-		case "w" : require_once($path."formSlot.php"); break; #Watch a slot
-		case "c" : require_once($path."formSlot.php"); break; #Modify a slot
-		case "s" : enablePoolInDB($slot_id); require_once($path."listSlot.php"); break; #Activate a slot
-		case "ms" : enablePoolInDB(NULL, isset($select) ? $select : array()); require_once($path."listSlot.php"); break;
-		case "u" : disablePoolInDB($slot_id); require_once($path."listSlot.php"); break; #Desactivate a slot
-		case "mu" : disablePoolInDB(NULL, isset($select) ? $select : array()); require_once($path."listSlot.php"); break;
-		case "m" : multiplePoolInDB(isset($select) ? $select : array(), $dupNbr); require_once($path."listSlot.php"); break; #Duplicate n slots
-		case "d" : deletePoolInDB(isset($select) ? $select : array()); require_once($path."listSlot.php"); break; #Delete n slots
-		default : require_once($path."listSlot.php"); break;
-	}
-?>
+switch ($o) {
+    case "a":
+        include_once $path."formSlot.php"; // Add a slot
+        break;
+    case "w":
+        include_once $path."formSlot.php"; // Watch a slot
+        break;
+    case "c":
+        include_once $path."formSlot.php"; // Modify a slot
+        break;
+    case "s":
+        enablePoolInDB($slot_id);
+        include_once $path."listSlot.php"; // Activate a slot
+        break;
+    case "ms":
+        enablePoolInDB(null, isset($select) ? $select : array());
+        include_once $path."listSlot.php";
+        break;
+    case "u":
+        disablePoolInDB($slot_id);
+        include_once $path."listSlot.php"; // Desactivate a slot
+        break;
+    case "mu":
+        disablePoolInDB(null, isset($select) ? $select : array());
+        include_once $path."listSlot.php";
+        break;
+    case "m":
+        multiplePoolInDB(isset($select) ? $select : array(), $dupNbr);
+        include_once $path."listSlot.php"; // Duplicate n slots
+        break;
+    case "d":
+        deletePoolInDB(isset($select) ? $select : array());
+        include_once $path."listSlot.php"; // Delete n slots
+        break;
+    default:
+        include_once $path."listSlot.php";
+        break;
+}

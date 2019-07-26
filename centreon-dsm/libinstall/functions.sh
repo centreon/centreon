@@ -1,4 +1,4 @@
-#!/bin/bash 
+#!/bin/bash
 ## VARS
 yes="y"
 no="n"
@@ -34,7 +34,7 @@ SETCOLOR_NORMAL="\\033[0;39m"
 ## @Globals	LOG_FILE
 #----
 function echo_info() {
-    echo -e "${1}${MOVE_TO_COL}${SETCOLOR_INFO}${2}${SETCOLOR_NORMAL}" 
+    echo -e "${1}${MOVE_TO_COL}${SETCOLOR_INFO}${2}${SETCOLOR_NORMAL}"
     echo -e "$1 : $2" >> $LOG_FILE
 }
 
@@ -47,7 +47,7 @@ function echo_info() {
 ## @Globals	LOG_FILE
 #----
 function echo_success() {
-    echo -e "${1}${MOVE_TO_COL}${SETCOLOR_SUCCESS}${2}${SETCOLOR_NORMAL}" 
+    echo -e "${1}${MOVE_TO_COL}${SETCOLOR_SUCCESS}${2}${SETCOLOR_NORMAL}"
     echo -e "$1 : $2" >> $LOG_FILE
 }
 
@@ -114,7 +114,7 @@ function log() {
 function define_specific_binary_vars() {
 	local vars_bin="GREP CAT SED CHMOD CHOWN RM MKDIR CP MV"
 	local var_bin_tolower=""
-	for var_bin in $vars_bin ; 
+	for var_bin in $vars_bin ;
 	do
 		if [ -z $(eval echo \$$var_bin) ] ; then
 			var_bin_tolower="$(echo $var_bin | tr [:upper:] [:lower:])"
@@ -197,7 +197,7 @@ function find_OS() {
 		fi
 		if [ "$lsb_release" = "Debian" ] || \
 			[ "$lsb_release" = "Ubuntu" ] || \
-			[ -e "/etc/debian_version" ] ; then 
+			[ -e "/etc/debian_version" ] ; then
 			dist_found="DEBIAN"
 			log "INFO" "$(gettext "GNU/Linux Debian Distribution")"
 		elif [ "$lsb_release" = "SUSE LINUX" ] || \
@@ -254,9 +254,9 @@ function yes_no_default() {
 		read res
 		[ -z "$res" ] && res="$default"
 	done
-	if [ "$res" = "$yes" ] ; then 
+	if [ "$res" = "$yes" ] ; then
 		return 0
-	else 
+	else
 		return 1
 	fi
 }
@@ -275,7 +275,7 @@ function get_centreon_parameters() {
   	CENTREON_VARLIB=`${CAT} $CENTREON_CONF/$FILE_CONF_CORE | ${GREP} "CENTREON_VARLIB" | cut -d '=' -f2`
 	CENTREON_BINDIR=`${CAT} $CENTREON_CONF/$FILE_CONF_CORE | ${GREP} "CENTREON_BINDIR" | cut -d '=' -f2`
     CENTREON_ETC=`${CAT} $CENTREON_CONF/$FILE_CONF_CORE | ${GREP} "CENTREON_ETC" | cut -d '=' -f2`
-    
+
 	RESULT=0
 	if [ "$INSTALL_DIR_CENTREON" != "" ] ; then
 		RESULT=`expr $RESULT + 1`
@@ -298,8 +298,8 @@ function get_centreon_parameters() {
     if [ "$CENTREON_ETC" != "" ] ; then
 		RESULT=`expr $RESULT + 1`
 	fi
-	
-	if [ "$RESULT" -eq 7 ]; then 
+
+	if [ "$RESULT" -eq 7 ]; then
 		return 1;
 	else
 		return 0;
@@ -342,7 +342,7 @@ function install_module_cron_files() {
 	echo "$line"
 	echo -e "\tInstall $NAME cron"
 	echo "$line"
-	
+
 	CRON_NAME=centreon-dsm
 	if [ -f /etc/cron.d/$CRON_NAME ] ; then
 		${RM} -Rf "/etc/cron.d/$CRON_NAME"
@@ -359,20 +359,20 @@ function install_module_cron_files() {
 
 	FILE="cron/centreon-dsm"
 
-	${SED} -i -e 's|@CENTREON_DSM_PATH@|'"$CRON_MODULE"'|g' $FILE 2>> $LOG_FILE	
+	${SED} -i -e 's|@CENTREON_DSM_PATH@|'"$CRON_MODULE"'|g' $FILE 2>> $LOG_FILE
 	${SED} -i -e 's|@CENTREON_LOG@|'"$CENTREON_LOG"'|g' $FILE 2>> $LOG_FILE
-    ${SED} -i -e 's|@CENTREON_ETC@|'"$CENTREON_CONF"'|g' $FILE 2>> $LOG_FILE		
+    ${SED} -i -e 's|@CENTREON_ETC@|'"$CENTREON_CONF"'|g' $FILE 2>> $LOG_FILE
 	if [ "$?" -eq 0 ] ; then
 		echo_success "Changing macro" "$ok"
-	else 
+	else
 		echo_failure "Changing macro" "$fail"
 		exit 1
 	fi
 
     ${CP} -Rf www/modules/centreon-dsm/cron/centreon_dsm_purge.pm $CENTREON_CONF/centreon_dsm_purge.pm >> $LOG_FILE 2>> $LOG_FILE
-    
+
 	${CP} cron/centreon-dsm /etc/cron.d/$CRON_NAME >> $LOG_FILE 2>> $LOG_FILE
-	
+
 	${CHMOD} 644 /etc/cron.d/$CRON_NAME >> $LOG_FILE 2>> $LOG_FILE
 	${CHOWN} root:root /etc/cron.d/$CRON_NAME >> $LOG_FILE 2>> $LOG_FILE
 	if [ $? -eq 0 ]; then
@@ -381,7 +381,7 @@ function install_module_cron_files() {
 		echo_failure "Copy cron in cron.d directory:" "$fail"
 		exit 1
 	fi
-    
+
     ${RM} -Rf $INSTALL_DIR_CENTREON/$MODULE_DIR/cron/centreon_dsm_purge.pm >> $LOG_FILE 2>> $LOG_FILE
 }
 
@@ -403,7 +403,7 @@ function install_module() {
 			${RM} -Rf $INSTALL_DIR_CENTREON/$BACKUP/*
 			if [ "$?" -eq 0 ] ; then
 				echo_success "Delete old $NAME backup" "$ok"
-			else 
+			else
 				echo_failure "Delete old $NAME backup" "$fail"
 				exit 1
 			fi
@@ -411,7 +411,7 @@ function install_module() {
 			${MKDIR} $INSTALL_DIR_CENTREON/$BACKUP
 			if [ "$?" -eq 0 ] ; then
 				echo_success "Create a directory to backup old files" "$ok"
-			else 
+			else
 				echo_failure "Create a directory to backup old files" "$fail"
 				exit 1
 			fi
@@ -420,7 +420,7 @@ function install_module() {
 		${MV} $INSTALL_DIR_MODULE $INSTALL_DIR_CENTREON/$BACKUP >> $LOG_FILE 2>> $LOG_FILE
 		if [ "$?" -eq 0 ] ; then
 			echo_success "Backup old installation" "$ok"
-		else 
+		else
 			echo_failure "Backup old installation" "$fail"
 			exit 1
 		fi
@@ -438,15 +438,15 @@ function install_module() {
 	${CHMOD} -R 755 $TEMP_D/* >> $LOG_FILE 2>> $LOG_FILE
 	if [ "$?" -eq 0 ] ; then
 		echo_success "Setting right" "$ok"
-	else 
+	else
 		echo_failure "Setting right" "$fail"
 		exit 1
-	fi	
+	fi
 
 	${CHOWN} -R $WEB_USER.$WEB_GROUP $TEMP_D/* >> $LOG_FILE 2>> $LOG_FILE
 	if [ "$?" -eq 0 ] ; then
 		echo_success "Setting owner/group" "$ok"
-	else 
+	else
 		echo_failure "Setting owner/group" "$fail"
 		exit 1
 	fi
@@ -455,19 +455,19 @@ function install_module() {
 	${CP} -Rf --preserve $TEMP_D/www/* $INSTALL_DIR_CENTREON/$MODULE_DIR >> $LOG_FILE 2>> $LOG_FILE
 	if [ "$?" -eq 0 ] ; then
 		echo_success "Copying module" "$ok"
-	else 
+	else
 		echo_failure "Copying module" "$fail"
 		exit 1
 	fi
 
     install_module_cron_files
-    
+
 	echo ""
 	echo "$line"
 	echo -e "\tInstall $NAME binaries"
 	echo "$line"
 	TEMP_D="/tmp/Install_module"
-	
+
 	${MKDIR} -p $TEMP_D/bin >> $LOG_FILE 2>> $LOG_FILE
 	${MKDIR} -p $TEMP_D/libinstall >> $LOG_FILE 2>> $LOG_FILE
 
@@ -505,23 +505,23 @@ function install_module() {
 
 	if [ "$RESULT" -eq 2 ] ; then
 		echo_success "Changing macros" "$ok"
-	else 
+	else
 		echo_failure "Changing macros" "$fail"
 		exit 1
 	fi
-	
+
 	${CHMOD} -R 755 $TEMP_D/* >> $LOG_FILE 2>> $LOG_FILE
 	if [ "$?" -eq 0 ] ; then
 		echo_success "Setting right" "$ok"
-	else 
+	else
 		echo_failure "Setting right" "$fail"
 		exit 1
-	fi	
+	fi
 
 	${CHOWN} -R $WEB_USER.$WEB_GROUP $TEMP_D/* >> $LOG_FILE 2>> $LOG_FILE
 	if [ "$?" -eq 0 ] ; then
 		echo_success "Setting owner/group" "$ok"
-	else 
+	else
 		echo_failure "Setting owner/group" "$fail"
 		exit 1
 	fi
@@ -534,14 +534,14 @@ function install_module() {
 	if [ "$?" -eq 0 ] ; then
 		RESULT=`expr $RESULT + 1`
 	fi
-	
+
 	if [ "$RESULT" -eq 1 ] ; then
 		echo_success "Copying module" "$ok"
-	else 
+	else
 		echo_failure "Copying module" "$fail"
 		exit 1
 	fi
-	
+
 	################################################################
 	## DSMD init script
 	#
@@ -563,7 +563,7 @@ function install_module() {
 
 	if [ "$RESULT" -eq 3 ] ; then
 		echo_success "Changing macros for init script" "$ok"
-	else 
+	else
 		echo_failure "Changing macros for init script" "$fail"
 		exit 1
 	fi
@@ -571,26 +571,26 @@ function install_module() {
 	${CHMOD} -R 755 $TEMP_D/libinstall/dsmd.systemd >> $LOG_FILE 2>> $LOG_FILE
 	if [ "$?" -eq 0 ] ; then
 		echo_success "Set owner for init script" "$ok"
-	else 
+	else
 		echo_failure "Set owner for init script" "$fail"
 		exit 1
 	fi
 	${CHOWN} $CENTREON_USER $TEMP_D/libinstall/dsmd.systemd >> $LOG_FILE 2>> $LOG_FILE
 	if [ "$?" -eq 0 ] ; then
 		echo_success "Set mod for init script" "$ok"
-	else 
+	else
 		echo_failure "Set mod for init script" "$fail"
 		exit 1
 	fi
-	
+
 	${CP} -Rf --preserve $TEMP_D/libinstall/dsmd.systemd /etc/systemd/system/dsmd.service >> $LOG_FILE 2>> $LOG_FILE
 	if [ "$?" -eq 0 ] ; then
 		echo_success "Copying init script" "$ok"
-	else 
+	else
 		echo_failure "Copying init script" "$fail"
 		exit 1
 	fi
-    
+
     ################################################################
 	## DSMD sysconfig/default script
 	#
@@ -609,10 +609,10 @@ function install_module() {
 	   if [ "$?" -eq 0 ] ; then
 		  RESULT=`expr $RESULT + 1`
 	   fi
-    
+
 	   if [ "$RESULT" -eq 2 ] ; then
 		  echo_success "Changing macros for default script" "$ok"
-	   else 
+	   else
 		  echo_failure "Changing macros for default script" "$fail"
 		  exit 1
 	   fi
@@ -620,22 +620,22 @@ function install_module() {
 	   ${CHMOD} -R 644 $TEMP_D/$FILE >> $LOG_FILE 2>> $LOG_FILE
 	   if [ "$?" -eq 0 ] ; then
 		  echo_success "Set owner for default script" "$ok"
-	   else 
+	   else
 		  echo_failure "Set owner for default script" "$fail"
 		  exit 1
 	   fi
 	   ${CHOWN} root $TEMP_D/$FILE >> $LOG_FILE 2>> $LOG_FILE
 	   if [ "$?" -eq 0 ] ; then
 		  echo_success "Set mod for default script" "$ok"
-	   else 
+	   else
 		  echo_failure "Set mod for default script" "$fail"
 		  exit 1
 	   fi
-	
+
 	   ${CP} -Rf --preserve $TEMP_D/$FILE /etc/default/dsmd >> $LOG_FILE 2>> $LOG_FILE
 	   if [ "$?" -eq 0 ] ; then
 		  echo_success "Copying default script" "$ok"
-	   else 
+	   else
 		  echo_failure "Copying default script" "$fail"
 		  exit 1
 	   fi
@@ -649,10 +649,10 @@ function install_module() {
 	   if [ "$?" -eq 0 ] ; then
 		  RESULT=`expr $RESULT + 1`
 	   fi
-    
+
 	   if [ "$RESULT" -eq 2 ] ; then
 		  echo_success "Changing macros for sysconfig script" "$ok"
-	   else 
+	   else
 		  echo_failure "Changing macros for sysconfig script" "$fail"
 		  exit 1
 	   fi
@@ -660,29 +660,29 @@ function install_module() {
 	   ${CHMOD} -R 644 $TEMP_D/$FILE >> $LOG_FILE 2>> $LOG_FILE
 	   if [ "$?" -eq 0 ] ; then
 		  echo_success "Set owner for sysconfig script" "$ok"
-	   else 
+	   else
 		  echo_failure "Set owner for sysconfig script" "$fail"
 		  exit 1
 	   fi
 	   ${CHOWN} root $TEMP_D/$FILE >> $LOG_FILE 2>> $LOG_FILE
 	   if [ "$?" -eq 0 ] ; then
 		  echo_success "Set mod for sysconfig script" "$ok"
-	   else 
+	   else
 		  echo_failure "Set mod for sysconfig script" "$fail"
 		  exit 1
 	   fi
-	
+
 	   ${CP} -Rf --preserve $TEMP_D/$FILE /etc/sysconfig/dsmd >> $LOG_FILE 2>> $LOG_FILE
 	   if [ "$?" -eq 0 ] ; then
 		  echo_success "Copying sysconfig script" "$ok"
-	   else 
+	   else
 		  echo_failure "Copying sysconfig script" "$fail"
 		  exit 1
 	   fi
     fi
 
 	${RM} -Rf $TEMP_D >> $LOG_FILE 2>> $LOG_FILE
-	
+
 	echo ""
 	echo "$line"
 	echo -e "\tEnd of $NAME installation"

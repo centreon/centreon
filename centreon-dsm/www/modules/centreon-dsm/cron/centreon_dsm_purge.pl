@@ -28,7 +28,7 @@ sub new {
      %{$self->{centreon_dsm_purge_default_config}} = (
        history_time => 180,
     );
-    
+
     return $self;
 }
 
@@ -46,7 +46,7 @@ sub init {
         $self->{logger}->writeLogInfo("Can't find extra config file $self->{opt_extra}");
     }
     $self->{dsm_purge_config} = {%{$self->{centreon_dsm_purge_default_config}}, %centreon_dsm_purge_config};
-    
+
     if (!defined($self->{dsm_purge_config}->{history_time}) || $self->{dsm_purge_config}->{history_time} !~ /\d+/ ||
         $self->{dsm_purge_config}->{history_time} <= 0) {
         $self->{logger}->writeLogError("Please set a postive numeric value for history time");

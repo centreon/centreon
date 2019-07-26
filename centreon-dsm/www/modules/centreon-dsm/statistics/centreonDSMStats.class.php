@@ -1,7 +1,7 @@
 <?php
 /*
  * Copyright 2005-2019 Centreon
- * Centreon is developped by : Julien Mathis and Romain Le Merlus under
+ * Centreon is developed by : Julien Mathis and Romain Le Merlus under
  * GPL Licence 2.0.
  *
  * This program is free software; you can redistribute it and/or modify it under
@@ -69,8 +69,8 @@ class CentreonDSMStats
     {
         $data = array();
 
-        $query = "SELECT COUNT(pool_id) AS pools, MIN(pool_number) AS min, 
-            MAX(pool_number) AS max, AVG(pool_number) as avg 
+        $query = "SELECT COUNT(pool_id) AS pools, MIN(pool_number) AS min,
+            MAX(pool_number) AS max, AVG(pool_number) as avg
             FROM mod_dsm_pool";
         $result = $this->db->query($query);
         while ($row = $result->fetch()) {
