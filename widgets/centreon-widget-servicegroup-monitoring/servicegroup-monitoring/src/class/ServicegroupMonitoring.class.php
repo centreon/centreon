@@ -1,7 +1,7 @@
 <?php
 /**
- * Copyright 2005-2011 MERETHIS
- * Centreon is developped by : Julien Mathis and Romain Le Merlus under
+ * Copyright 2005-2019 Centreon
+ * Centreon is developed by : Julien Mathis and Romain Le Merlus under
  * GPL Licence 2.0.
  *
  * This program is free software; you can redistribute it and/or modify it under
@@ -58,15 +58,15 @@ class ServicegroupMonitoring
      * @param array $preferences
      * @return array
      */
-    public function getHostStates($sgName, $detailFlag = false, $admin, $aclObj, $preferences)
+    public function getHostStates($sgName, $admin, $aclObj, $preferences, $detailFlag = false)
     {
         $query = "SELECT DISTINCT h.host_id, h.state, h.name, h.alias, ssg.servicegroup_id
-                  FROM `services_servicegroups` ssg, `hosts` h, `servicegroups` sg
-                  WHERE h.host_id = ssg.host_id
-                  AND h.name NOT LIKE '_Module_%'
-                  AND h.enabled = 1
-                  AND ssg.servicegroup_id = sg.servicegroup_id
-                  AND sg.name = '" . $this->dbb->escape($sgName)."' ";
+            FROM `services_servicegroups` ssg, `hosts` h, `servicegroups` sg
+            WHERE h.host_id = ssg.host_id
+                AND h.name NOT LIKE '_Module_%'
+                AND h.enabled = 1
+                AND ssg.servicegroup_id = sg.servicegroup_id
+                AND sg.name = '" . $this->dbb->escape($sgName) . "' ";
         if (!$admin) {
             $query .= $aclObj->queryBuilder("AND", "h.host_id", $aclObj->getHostsString("ID", $this->dbb));
         }
@@ -74,7 +74,7 @@ class ServicegroupMonitoring
         $res = $this->dbb->query($query);
         $tab = array();
         $detailTab = array();
-        while ($row = $res->fetchRow()) {
+        while ($row = $res->fetch()) {
             if (!isset($tab[$row['state']])) {
                 $tab[$row['state']] = 0;
             }
@@ -102,30 +102,30 @@ class ServicegroupMonitoring
      * @param array $preferences
      * @return string
      */
-    public function getServiceStates($sgName, $detailFlag = false, $admin, $aclObj, $preferences)
+    public function getServiceStates($sgName, $admin, $aclObj, $preferences, $detailFlag = false)
     {
         $query = "SELECT DISTINCT h.host_id, s.state, h.name, s.service_id, s.description, ssg.servicegroup_id
-                  FROM `services_servicegroups` ssg, `services` s, `hosts` h, `servicegroups` sg ";
+            FROM `services_servicegroups` ssg, `services` s, `hosts` h, `servicegroups` sg ";
         if (!$admin) {
             $query .= ", centreon_acl acl ";
         }
         $query .= "WHERE h.host_id = s.host_id
-                   AND h.name NOT LIKE '_Module_%'
-                   AND s.enabled = 1
-                   AND s.host_id = ssg.host_id
-                   AND ssg.service_id = s.service_id
-                   AND ssg.servicegroup_id = sg.servicegroup_id
-                   AND sg.name = '".$this->dbb->escape($sgName) ."' ";
+                AND h.name NOT LIKE '_Module_%'
+                AND s.enabled = 1
+                AND s.host_id = ssg.host_id
+                AND ssg.service_id = s.service_id
+                AND ssg.servicegroup_id = sg.servicegroup_id
+                AND sg.name = '".$this->dbb->escape($sgName) ."' ";
         if (!$admin) {
             $query .= " AND h.host_id = acl.host_id
-                        AND acl.service_id = s.service_id ";
-            $query .= " AND acl.group_id IN (" .$aclObj->getAccessGroupsString().") ";
+                AND acl.service_id = s.service_id
+                AND acl.group_id IN (" . $aclObj->getAccessGroupsString() . ") ";
         }
         $query .= " ORDER BY h.name ";
         $res = $this->dbb->query($query);
         $tab = array();
         $detailTab = array();
-        while ($row = $res->fetchRow()) {
+        while ($row = $res->fetch()) {
             if (!isset($tab[$row['state']])) {
                 $tab[$row['state']] = 0;
             }

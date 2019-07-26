@@ -1,7 +1,7 @@
 <?php
 /**
- * Copyright 2005-2015 CENTREON
- * Centreon is developped by : Julien Mathis and Romain Le Merlus under
+ * Copyright 2005-2019 Centreon
+ * Centreon is developed by : Julien Mathis and Romain Le Merlus under
  * GPL Licence 2.0.
  *
  * This program is free software; you can redistribute it and/or modify it under
@@ -48,7 +48,7 @@ $centreon = $_SESSION['centreon'];
 $widgetId = $_REQUEST['widgetId'];
 
 try {
-  global $pearDB;
+    global $pearDB;
 
     $db_centreon = $dependencyInjector['configuration_db'];
     $db = $dependencyInjector['realtime_db'];
@@ -63,7 +63,7 @@ try {
     echo $e->getMessage() . "<br/>";
     exit;
 }
-       
+
 $path = $centreon_path . "www/widgets/servicegroup-monitoring/src/";
 
 $template = new Smarty();

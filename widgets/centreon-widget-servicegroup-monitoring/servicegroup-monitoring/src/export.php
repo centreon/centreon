@@ -1,7 +1,7 @@
 <?php
 /**
- * Copyright 2005-2015 CENTREON
- * Centreon is developped by : Julien Mathis and Romain Le Merlus under
+ * Copyright 2005-2019 Centreon
+ * Centreon is developed by : Julien Mathis and Romain Le Merlus under
  * GPL Licence 2.0.
  *
  * This program is free software; you can redistribute it and/or modify it under
@@ -69,18 +69,22 @@ $pearDB = $db;
 $aclObj = new CentreonACL($centreon->user->user_id, $centreon->user->admin);
 
 $res = $db->query("SELECT `key`, `value` FROM `options` WHERE `key` LIKE 'color%'");
-$hostStateColors = array(0 => "#19EE11",
-                         1 => "#F91E05",
-                         2 => "#82CFD8",
-                         4 => "#2AD1D4");
+$hostStateColors = array(
+    0 => "#19EE11",
+    1 => "#F91E05",
+    2 => "#82CFD8",
+    4 => "#2AD1D4"
+);
 
-$serviceStateColors = array(0 => "#13EB3A",
-                            1 => "#F8C706",
-                            2 => "#F91D05",
-                            3 => "#DCDADA",
-                            4 => "#2AD1D4");
+$serviceStateColors = array(
+    0 => "#13EB3A",
+    1 => "#F8C706",
+    2 => "#F91D05",
+    3 => "#DCDADA",
+    4 => "#2AD1D4"
+);
 
-while ($row = $res->fetchRow()) {
+while ($row = $res->fetch()) {
     if ($row['key'] == "color_up") {
         $hostStateColors[0] = $row['value'];
     } elseif ($row['key'] == "color_down") {
@@ -102,19 +106,22 @@ while ($row = $res->fetchRow()) {
     }
 }
 
-$hostStateLabels = array(0 => "Up",
-                         1 => "Down",
-                         2 => "Unreachable",
-                         4 => "Pending");
+$hostStateLabels = array(
+    0 => "Up",
+    1 => "Down",
+    2 => "Unreachable",
+    4 => "Pending"
+);
 
-$serviceStateLabels = array(0 => "Ok",
-                            1 => "Warning",
-                            2 => "Critical",
-                            3 => "Unknown",
-                            4 => "Pending");
+$serviceStateLabels = array(
+    0 => "Ok",
+    1 => "Warning",
+    2 => "Critical",
+    3 => "Unknown",
+    4 => "Pending"
+);
 
-$query = "SELECT SQL_CALC_FOUND_ROWS DISTINCT name ";
-$query .= "FROM servicegroups ";
+$query = "SELECT SQL_CALC_FOUND_ROWS DISTINCT name FROM servicegroups ";
 if (isset($preferences['sg_name_search']) && $preferences['sg_name_search'] != "") {
     $tab = explode(" ", $preferences['sg_name_search']);
     $op = $tab[0];
@@ -122,11 +129,17 @@ if (isset($preferences['sg_name_search']) && $preferences['sg_name_search'] != "
         $search = $tab[1];
     }
     if ($op && isset($search) && $search != "") {
-        $query = CentreonUtils::conditionBuilder($query, "name ".CentreonUtils::operandToMysqlFormat($op)." '".$dbb->escape($search)."' ");
+        $query = CentreonUtils::conditionBuilder(
+            $query,
+            "name " . CentreonUtils::operandToMysqlFormat($op) . " '" . $dbb->escape($search) . "' "
+        );
     }
 }
 if (!$centreon->user->admin) {
-    $query = CentreonUtils::conditionBuilder($query, "name IN (".$aclObj->getServiceGroupsString("NAME").")");
+    $query = CentreonUtils::conditionBuilder(
+        $query,
+        "name IN (" . $aclObj->getServiceGroupsString("NAME") . ")"
+    );
 }
 
 $orderby = "name ASC";
@@ -143,11 +156,23 @@ $detailMode = false;
 if (isset($preferences['enable_detailed_mode']) && $preferences['enable_detailed_mode']) {
     $detailMode = true;
 }
-while ($row = $res->fetchRow()) {
+while ($row = $res->fetch()) {
     foreach ($row as $key => $value) {
         $data[$row['name']][$key] = $value;
-        $data[$row['name']]['host_state'] = $sgMonObj->getHostStates($row['name'], $detailMode, $centreon->user->admin, $aclObj, $preferences);
-        $data[$row['name']]['service_state'] = $sgMonObj->getServiceStates($row['name'], $detailMode, $centreon->user->admin, $aclObj, $preferences);
+        $data[$row['name']]['host_state'] = $sgMonObj->getHostStates(
+            $row['name'],
+            $centreon->user->admin,
+            $aclObj,
+            $preferences,
+            $detailMode
+        );
+        $data[$row['name']]['service_state'] = $sgMonObj->getServiceStates(
+            $row['name'],
+            $centreon->user->admin,
+            $aclObj,
+            $preferences,
+            $detailMode
+        );
     }
 }
 $template->assign('preferences', $preferences);
