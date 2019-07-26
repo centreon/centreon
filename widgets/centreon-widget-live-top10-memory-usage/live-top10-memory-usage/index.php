@@ -1,7 +1,7 @@
 <?php
 /**
- * Copyright 2005-2011 MERETHIS
- * Centreon is developped by : Julien Mathis and Romain Le Merlus under
+ * Copyright 2005-2019 Centreon
+ * Centreon is developed by : Julien Mathis and Romain Le Merlus under
  * GPL Licence 2.0.
  *
  * This program is free software; you can redistribute it and/or modify it under
@@ -81,27 +81,36 @@ $template = initSmartyTplForPopup($path, $template, "./", $centreon_path);
 
 $data = array();
 
-$query = "SELECT i.host_name, i.service_description, i.service_id, i.host_id, m.current_value/max as ratio, max-current_value as remaining_space, s.state AS status "
-        ."FROM metrics m, hosts h "
-        .($preferences['host_group'] ? ", hosts_hostgroups hg " : "")
-        .($centreon->user->admin == 0 ? ", centreon_acl acl " : "")
-        ." , index_data i "
-        ."LEFT JOIN services s ON s.service_id  = i.service_id AND s.enabled = 1 "
-        ."WHERE i.service_description LIKE '%".$preferences['service_description']."%' "
-        ."AND i.id = m.index_id "
-        ."AND m.metric_name LIKE '%".$preferences['metric_name']."%' "
-        ."AND i.host_id = h.host_id "
-        .($preferences['host_group'] ? "AND hg.hostgroup_id = ".$preferences['host_group']." AND i.host_id = hg.host_id " : "");
+$query = "SELECT
+        i.host_name,
+        i.service_description,
+        i.service_id, i.host_id,
+        m.current_value/max AS ratio,
+        max-current_value AS remaining_space,
+        s.state AS status
+    FROM
+        metrics m,
+        hosts h "
+        . ($preferences['host_group'] ? ", hosts_hostgroups hg " : "")
+        . ($centreon->user->admin == 0 ? ", centreon_acl acl " : "")
+        . " , index_data i
+    LEFT JOIN services s ON s.service_id  = i.service_id AND s.enabled = 1
+    WHERE i.service_description LIKE '%" . $preferences['service_description'] . "%'
+        AND i.id = m.index_id
+        AND m.metric_name LIKE '%" . $preferences['metric_name'] . "%'
+        AND i.host_id = h.host_id "
+        . ($preferences['host_group']
+            ? "AND hg.hostgroup_id = " . $preferences['host_group'] . " AND i.host_id = hg.host_id " : "");
 if ($centreon->user->admin == 0) {
-$query .="AND i.host_id = acl.host_id "
-        ."AND i.service_id = acl.service_id "
-        ."AND acl.group_id IN (" .($grouplistStr != "" ? $grouplistStr : 0). ")";
+    $query .= "AND i.host_id = acl.host_id
+        AND i.service_id = acl.service_id
+        AND acl.group_id IN (" . ($grouplistStr != "" ? $grouplistStr : 0) . ")";
 }
-$query .="AND s.enabled = 1 "
-        ."AND h.enabled = 1 "
-        ."GROUP BY i.host_id "
-        ."ORDER BY ratio DESC "
-        ."LIMIT ".$preferences['nb_lin'].";";
+$query .= "AND s.enabled = 1
+        AND h.enabled = 1
+    GROUP BY i.host_id
+    ORDER BY ratio DESC
+    LIMIT " . $preferences['nb_lin'] . ";";
 
 $numLine = 1;
 $in = 0;
@@ -112,13 +121,13 @@ function getUnit($in)
 
     if ($in == 0) {
         $return = "B";
-    } else if ($in == 1) {
+    } elseif ($in == 1) {
         $return = "KB";
-    } else if ($in == 2) {
+    } elseif ($in == 2) {
         $return = "MB";
-    } else if ($in == 3) {
+    } elseif ($in == 3) {
         $return = "GB";
-    } else if ($in == 4) {
+    } elseif ($in == 4) {
         $return = "TB";
     }
 
