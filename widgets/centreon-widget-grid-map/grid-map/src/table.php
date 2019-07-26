@@ -1,7 +1,7 @@
 <?php
 /**
- * Copyright 2005-2011 MERETHIS
- * Centreon is developped by : Julien Mathis and Romain Le Merlus under
+ * Copyright 2005-2019 Centreon
+ * Centreon is developed by : Julien Mathis and Romain Le Merlus under
  * GPL Licence 2.0.
  *
  * This program is free software; you can redistribute it and/or modify it under
@@ -68,7 +68,6 @@ $colors = array(
 );
 
 try {
-
     $db_centreon = $dependencyInjector['configuration_db'];
     $db = $dependencyInjector['realtime_db'];
 
@@ -101,19 +100,26 @@ $inc = 0;
 
 if ($preferences['host_group']) {
     /* Query 1 */
-    $query1 = "SELECT DISTINCT T1.name, T2.host_id " .
-              "FROM hosts T1, hosts_hostgroups T2 " .($centreon->user->admin == 0 ? ", centreon_acl acl " : ""). 
-              "WHERE T1.host_id = T2.host_id ".
-              "AND T1.enabled = 1 ".
-              "AND T2.hostgroup_id = ".$preferences['host_group'].
-              ($centreon->user->admin == 0 ? " AND T1.host_id = acl.host_id AND T2.host_id = acl.host_id AND acl.group_id IN (" .($grouplistStr != "" ? $grouplistStr : 0).")" : "").
-              " ORDER BY T1.name";
+    $query1 = "SELECT DISTINCT T1.name, T2.host_id
+        FROM hosts T1, hosts_hostgroups T2 " . ($centreon->user->admin == 0 ? ", centreon_acl acl " : "") . "
+        WHERE T1.host_id = T2.host_id 
+            AND T1.enabled = 1
+            AND T2.hostgroup_id = " . $preferences['host_group'] .
+                ($centreon->user->admin == 0
+                    ? " AND T1.host_id = acl.host_id AND T2.host_id = acl.host_id AND acl.group_id IN (" .
+                        ($grouplistStr != "" ? $grouplistStr : 0).")"
+                    : ""
+                ) . "
+        ORDER BY T1.name";
 
     /* Query 2 */
-    $query2 = "SELECT distinct T1.description ".
-              "FROM services T1 " .($centreon->user->admin == 0 ? ", centreon_acl acl " : "").
-              "WHERE T1.enabled = 1 ".
-              ($centreon->user->admin == 0 ? " AND T1.service_id = acl.service_id AND acl.group_id IN (" .($grouplistStr != "" ? $grouplistStr : 0).") AND (" : " AND (");
+    $query2 = "SELECT distinct T1.description
+        FROM services T1 " . ($centreon->user->admin == 0 ? ", centreon_acl acl " : "") . "
+        WHERE T1.enabled = 1 " . ($centreon->user->admin == 0
+            ? " AND T1.service_id = acl.service_id AND acl.group_id IN (" .
+                ($grouplistStr != "" ? $grouplistStr : 0).") AND ("
+            : " AND ("
+        );
     foreach (explode(",", $preferences['service']) as $elem) {
         if (!$inc) {
             $query2 .= "T1.description LIKE '$elem'";
@@ -125,11 +131,15 @@ if ($preferences['host_group']) {
     $query2 .= ");";
 
     /* Query 3 */
-    $query3 = "SELECT DISTINCT T1.service_id, T1.description, T1.state, T1.host_id ".
-              "FROM services T1 " .($centreon->user->admin == 0 ? ", centreon_acl acl " : "").
-              "WHERE T1.enabled = 1 " .
-              "AND T1.description NOT LIKE 'ba_%' AND T1.description NOT LIKE 'meta_%' ".
-              ($centreon->user->admin == 0 ? " AND T1.service_id = acl.service_id AND acl.group_id IN (" .($grouplistStr != "" ? $grouplistStr : 0).")" : "");
+    $query3 = "SELECT DISTINCT T1.service_id, T1.description, T1.state, T1.host_id
+        FROM services T1 " . ($centreon->user->admin == 0 ? ", centreon_acl acl " : "") . "
+        WHERE T1.enabled = 1
+            AND T1.description NOT LIKE 'ba_%' AND T1.description NOT LIKE 'meta_%' " .
+                ($centreon->user->admin == 0
+                    ? " AND T1.service_id = acl.service_id AND acl.group_id IN (" .
+                        ($grouplistStr != "" ? $grouplistStr : 0).")"
+                    : ""
+                );
     $inc = 0;
 
     $services = explode(",", $preferences['service']);
@@ -148,29 +158,28 @@ if ($preferences['host_group']) {
 
     /* Get host listing */
     $res = $db->query($query1);
-    while ($row = $res->fetchRow()) {
+    while ($row = $res->fetch()) {
         $data[] = $row;
     }
 
     /* Get service listing */
     $res2 = $db->query($query2);
-    while ($row = $res2->fetchRow()) {
+    while ($row = $res2->fetch()) {
         $data_service[$row['description']] = array(
-                             'description' => $row['description'],
-                             'hosts' => array(),
-                             'hostsStatus' => array()
-                             );
+            'description' => $row['description'],
+            'hosts' => array(),
+            'hostsStatus' => array()
+        );
     }
 
     /* Get host service statuses */
     $res3 = $db->query($query3);
-    while ($row = $res3->fetchRow()) {
+    while ($row = $res3->fetch()) {
         if (isset($data_service[$row['description']])) {
             $data_service[$row['description']]['hosts'][] = $row['host_id'];
             $data_service[$row['description']]['hostsStatus'][$row['host_id']] = $colors[$row['state']];
         }
     }
-
 }
 
 $template->assign('autoRefresh', $autoRefresh);

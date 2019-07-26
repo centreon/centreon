@@ -12,7 +12,7 @@
     {assign var='classStyle' value='list_two'}
     {foreach item=elem from=$data}
     {if $classStyle == 'list_two'}
-         {assign var='classStyle' value='list_one'}
+        {assign var='classStyle' value='list_one'}
     {else}
         {assign var='classStyle' value='list_two'}
     {/if}
@@ -23,9 +23,9 @@
         {foreach item=servi key=description from=$data_service}
             {if $elem.host_id|in_array:$servi.hosts}
         <td class="ListColCenter">
-              <a href="/centreon/main.php?p=20201&o=svcd&host_name={$elem.name}&service_description={$description}" target="_blank">
-              <span style="background-color: {$servi.hostsStatus[$elem.host_id]}; margin-right: 1px;" class="state_badge"></a></span>
-          </td>
+            <a href="/centreon/main.php?p=20201&o=svcd&host_name={$elem.name}&service_description={$description}" target="_blank">
+            <span style="background-color: {$servi.hostsStatus[$elem.host_id]}; margin-right: 1px;" class="state_badge"></a></span>
+        </td>
             {else}
         <td class="ListColCenter"><span style="border-left: 12px;">-</span></td>
             {/if}
