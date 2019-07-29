@@ -26,7 +26,6 @@
     "eslint-plugin-jsx-a11y": "6.x",
     "eslint-plugin-prettier": "3.x",
     "eslint-plugin-react": "7.x",
-    "eslint-plugin-jest": "22.x",
     "babel-eslint": "10.x"
   }
 }
