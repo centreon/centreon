@@ -22,5 +22,9 @@ module.exports = {
       'error',
       { singleQuote: true, arrowParens: 'always', trailingComma: 'all' },
     ],
+    'import/no-extraneous-dependencies': [
+      'error', 
+      { devDependencies: true }
+    ],
   },
 };
