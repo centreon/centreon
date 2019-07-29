@@ -8,7 +8,7 @@
     "eslint:fix": "npm run eslint -- --fix",
     "prepublishOnly": "npm run bundle",
     "bundle": "babel ./src --out-dir ./lib --copy-files",
-    "start:dev": "npm run build -- --watch --source-maps",
+    "start:dev": "npm run bundle -- --watch --source-maps",
     "storybook": "start-storybook -p 9001 -c .storybook -s ./dynamic/compiled-components/components",
     "test": "jest"
   },
