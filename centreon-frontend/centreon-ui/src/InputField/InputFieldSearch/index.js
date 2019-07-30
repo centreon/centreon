@@ -72,7 +72,7 @@ class InputFieldSearch extends Component {
   };
 
   render() {
-    const { classes, style } = this.props;
+    const { classes, style, ...rest } = this.props;
     const { searchText } = this.state;
     return (
       <Paper elevation={0} className={classes.paper}>
@@ -86,6 +86,7 @@ class InputFieldSearch extends Component {
             inputProps={{ 'aria-label': 'Search' }}
             onChange={this.onSearchInputChanged}
             value={searchText}
+            {...rest}
           />
           {searchText.length > 0 ? (
             <IconButton

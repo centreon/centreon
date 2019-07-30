@@ -173,6 +173,7 @@ class TableCustom extends Component {
                       key={row.id}
                       selected={isItemSelected}
                       onMouseEnter={this.rowHovered.bind(this, row.id, true)}
+                      className="trow"
                       {...this.addConditionalRowBackground(
                         row,
                         enabledColumn,
