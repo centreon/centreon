@@ -64,7 +64,7 @@ class PromptDialog extends Component {
               onYesClicked(prompt);
             }}
           >
-            Appy
+            Apply
           </ButtonCustom>
           <ButtonCustom
             variant="contained"
