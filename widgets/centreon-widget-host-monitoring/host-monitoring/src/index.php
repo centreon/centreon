@@ -184,15 +184,26 @@ if (isset($preferences['state_type_filter']) && $preferences['state_type_filter'
 }
 
 if (isset($preferences['hostgroup']) && $preferences['hostgroup']) {
-    $mainQueryParameters[] = [
-        'parameter' => ':host_group_id',
-        'value' => $preferences['hostgroup'],
-        'type' => PDO::PARAM_INT
-    ];
-    $hostGroupCondition = ' h.host_id IN (SELECT host_host_id FROM ' .
-        $conf_centreon['db'] .
-        '.hostgroup_relation WHERE hostgroup_hg_id = :host_group_id)';
-    $query = CentreonUtils::conditionBuilder($query, $hostGroupCondition);
+    $results = explode(',', $preferences['hostgroup']);
+    $queryHg ='';
+    foreach ($results as $result) {
+        if ($queryHg != '') {
+            $queryHg .= ', ';
+        }
+        $queryHg .= ":id_" . $result;
+        $mainQueryParameters[] = [
+            'parameter' => ':id_' . $result,
+            'value' => (int)$result,
+            'type' => PDO::PARAM_INT
+        ];
+    }
+    $hostgroupHgIdCondition = <<<SQL
+h.host_id IN (
+      SELECT host_id
+      FROM hosts_hostgroups
+      WHERE hostgroup_id IN ({$queryHg}))
+SQL;
+    $query = CentreonUtils::conditionBuilder($query, $hostgroupHgIdCondition);
 }
 if (
     isset($preferences['display_severities']) && $preferences['display_severities'] &&
@@ -240,7 +251,7 @@ foreach ($mainQueryParameters as $parameter) {
     $res->bindValue($parameter['parameter'], $parameter['value'], $parameter['type']);
 }
 
-unset($parameter);
+unset($parameter, $mainQueryParameters);
 $res->execute();
 
 $nbRows = $dbb->numberRows();
