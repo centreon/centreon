@@ -77,6 +77,7 @@ $centreon = $_SESSION['centreon'];
 $widgetId = $_REQUEST['widgetId'];
 $widgetObj = new CentreonWidget($centreon, $db);
 $preferences = $widgetObj->getWidgetPreferences($widgetId);
+$template->assign('preferences', $preferences);
 $oreon = $_SESSION['centreon'];
 
 /**

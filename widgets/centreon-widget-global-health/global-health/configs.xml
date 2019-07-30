@@ -12,11 +12,12 @@
         <autoRefresh>10</autoRefresh>
         <preferences>
             <preference label="Services/Hosts" name="hosts_services" defaultValue="hosts" type="list">
-                <option value="hosts" label="Show hosts"/>
+                <option value="hosts" label="Show Hosts"/>
                 <option value="services" label="Show Services"/>
             </preference>
             <preference label="Hostgroup" name="hostgroup" defaultValue="" type="hostgroup"/>
             <preference label="Servicegroup" name="servicegroup" defaultValue="" type="servicegroup"/>
             <preference label="Refresh Interval (seconds)" name="refresh_interval" defaultValue="30" type="text" header="Misc"/>
+            <preference label="Hide table" name="hide_table" defaultValue="0" type="boolean" header="Table"/>
         </preferences>
 </configs>

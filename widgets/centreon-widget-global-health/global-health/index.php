@@ -32,7 +32,6 @@
  * For more information : contact@centreon.com
  *
  */
-
 require_once "../require.php";
 require_once $centreon_path . 'bootstrap.php';
 require_once $centreon_path . 'www/class/centreon.class.php';
@@ -66,7 +65,6 @@ try {
     echo $e->getMessage() . "<br/>";
     exit;
 }
-
 ?>
 <html>
 <head>
@@ -81,8 +79,7 @@ try {
     <script type="text/javascript" src="../../include/common/javascript/widgetUtils.js"></script>
     <script type="text/javascript"
             src="../../include/common/javascript/jquery/plugins/treeTable/jquery.treeTable.min.js"></script>
-    <script src="../../include/common/javascript/charts/d3.min.js" language="javascript"></script>
-    <script src="../../include/common/javascript/charts/c3.min.js" language="javascript"></script>
+    <script src="./lib/apexcharts.min.js" language="javascript"></script>
 </head>
 <body>
 <div id='global_health'></div>
@@ -104,7 +101,7 @@ try {
         loadPage();
     });
 
-    /**
+    /*
      * Load page
      */
     function loadPage() {
@@ -120,7 +117,6 @@ try {
                     var h = jQuery("#global_health").prop("scrollHeight") + 36;
                     parent.iResize(window.name, h);
                 });
-
             }
         });
         if (autoRefresh) {

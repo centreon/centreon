@@ -7,104 +7,124 @@
 {/literal}
 </style>
     <h3 style="text-align: center;" > Global health of Services </h3>
-    <div id="global_health_svc_div" style="text-align:center;display:inline-block;vertical-align: middle;"></div>
-    <div class="global_health_div_tab" style="display:inline-block;vertical-align: middle;" >
-        <table>
-            <thead>
-                <th>
-                </th>
-                <th>
-                    <small>Number</small>
-                </th>
-                <th>
-                    <small>Ack</small>
-                </th>
-                <th>
-                    <small>DT</small>
-                </th>
-                <th>
-                    <small>%</small>
-                </th>
-            </thead>
-            <tbody>
-                <tr>
-                    <td> <span class="ListColCenter state_badge" style="background:#88b917"></span> <b> Ok </b> </td>
-                    <td> {$services.OK.value} </td>
-                    <td> {$services.OK.acknowledged} </td>
-                    <td> {$services.OK.downtime} </td>
-                    <td> {$services.OK.percent}</td>
-
-                </tr>
-                <tr>
-                    <td> <span class="ListColCenter state_badge" style="background:#ff9a13"></span> <b> Warning </b> </td>
-                    <td> {$services.WARNING.value} </td>
-                    <td> {$services.WARNING.acknowledged} </td>
-                    <td> {$services.WARNING.downtime} </td>
-                    <td> {$services.WARNING.percent} </td>
-                </tr>
-                <tr>
-
-                    <td> <span class="ListColCenter state_badge" style="background:#e00b3d"></span> <b> Critical </b> </td>
-                    <td> {$services.CRITICAL.value} </td>
-                    <td> {$services.CRITICAL.acknowledged}</td>
-                    <td> {$services.CRITICAL.downtime}</td>
-                    <td> {$services.CRITICAL.percent}</td>
-                </tr>
-                <tr>
-                    <td> <span class="ListColCenter state_badge" style="background:#0072ce"></span> <b> Unknown </b> </td>
-                    <td> {$services.UNKNOWN.value} </td>
-                    <td> {$services.UNKNOWN.acknowledged} </td>
-                    <td> {$services.UNKNOWN.downtime} </td>
-                    <td> {$services.UNKNOWN.percent} </td>
-                </tr>
-                <tr>
-                    <td> <span class="ListColCenter state_badge" style="background:#bcbdc0"></span> <b> Pending </b> </td>
-                    <td> {$services.PENDING.value} </td>
-                    <td> {$services.PENDING.acknowledged} </td>
-                    <td> {$services.PENDING.downtime} </td>
-                    <td> {$services.PENDING.percent} </td>
-                </tr>
-            </tbody>
-        </table>
-
+    <div id="container" style="text-align:center;">
+        <div id="global_health_svc_div" style="text-align:center;display:inline-block;vertical-align: middle;"></div>
+        {if $preferences.hide_table != 1}<div id="global_health_table_div" class="global_health_div_tab" style="display:inline-block;vertical-align: middle;" >
+            <table>
+                <thead>
+                    <th>
+                    </th>
+                    <th>
+                        <small>Number</small>
+                    </th>
+                    <th>
+                        <small>Ack</small>
+                    </th>
+                    <th>
+                        <small>DT</small>
+                    </th>
+                    <th>
+                        <small>%</small>
+                    </th>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td> <span class="ListColCenter state_badge" style="background:#87BD23"></span> <b> Ok </b> </td>
+                        <td> {$services.OK.value} </td>
+                        <td> {$services.OK.acknowledged} </td>
+                        <td> {$services.OK.downtime} </td>
+                        <td> {$services.OK.percent}</td>
+                    </tr>
+                    <tr>
+                        <td> <span class="ListColCenter state_badge" style="background:#FF4125"></span> <b> Warning </b> </td>
+                        <td> {$services.WARNING.value} </td>
+                        <td> {$services.WARNING.acknowledged} </td>
+                        <td> {$services.WARNING.downtime} </td>
+                        <td> {$services.WARNING.percent} </td>
+                    </tr>
+                    <tr>
+                        <td> <span class="ListColCenter state_badge" style="background:#ED1B23"></span> <b> Critical </b> </td>
+                        <td> {$services.CRITICAL.value} </td>
+                        <td> {$services.CRITICAL.acknowledged}</td>
+                        <td> {$services.CRITICAL.downtime}</td>
+                        <td> {$services.CRITICAL.percent}</td>
+                    </tr>
+                    <tr>
+                        <td> <span class="ListColCenter state_badge" style="background:#CDCDCD"></span> <b> Unknown </b> </td>
+                        <td> {$services.UNKNOWN.value} </td>
+                        <td> {$services.UNKNOWN.acknowledged} </td>
+                        <td> {$services.UNKNOWN.downtime} </td>
+                        <td> {$services.UNKNOWN.percent} </td>
+                    </tr>
+                    <tr>
+                        <td> <span class="ListColCenter state_badge" style="background:#2AD1D4"></span> <b> Pending </b> </td>
+                        <td> {$services.PENDING.value} </td>
+                        <td> {$services.PENDING.acknowledged} </td>
+                        <td> {$services.PENDING.downtime} </td>
+                        <td> {$services.PENDING.percent} </td>
+                    </tr>
+                </tbody>
+            </table>
+        {/if}</div>
     </div>
-
-
 <script>
-{literal}
-jQuery(function () {
+    {literal}
+        let OK = {/literal}{$services.OK.percent}{literal};
+        let WARNING = {/literal}{$services.WARNING.percent}{literal};
+        let CRITICAL = {/literal}{$services.CRITICAL.percent}{literal};
+        let UNKNOWN = {/literal}{$services.UNKNOWN.percent}{literal};
+        let PENDING = {/literal}{$services.PENDING.percent}{literal};
 
-    c3.generate({
-        bindto: d3.select('#global_health_svc_div'),
-        data: {
-            // iris data from R
-            columns: [
-                ['Ok', {/literal}{$services.OK.percent}{literal}],
-                ['Warning', {/literal}{$services.WARNING.percent}{literal}],
-                ['Critical', {/literal}{$services.CRITICAL.percent}{literal}],
-                ['Unknown', {/literal}{$services.UNKNOWN.percent}{literal}],
-                ['Pending', {/literal}{$services.PENDING.percent}{literal}]
-            ],
-            type : 'pie',
-            colors : {
-                'Ok' : '#88b917',
-                'Warning' : '#ff9a13',
-                'Critical' : '#e00b3d',
-                'Unknown' : '#0072ce',
-                'Pending' : '#bcbdc0'
-            }
-        },
-        legend: {
-            show: false
-        },
-        size: {
-            height: 180,
-            width: 290
-        }
-    });
+        let options = {
+            chart: {
+                id:'svc',
+                width:260,
+                type:'pie',
+                height:200,
+            },
+            legend: {
+                show:false,
+                position:'bottom' 
+            },
+            responsive: [{
+                breakpoint:480,
+                options: {
+                    chart: {
+                        width:230
+                    }
+                }
+            }],
+            dataLabels: {
+                style: {
+                    fontSize:'12px',
+                    fontFamily:'Arial, sans-serif',
+                    colors:['#000000']
+                },  
+            },
+            tooltip:{
+                fillSeriesColor: false,
+            },
+            plotOptions: {
+                pie: {
+                    dataLabels: {
+                        offset:0,
+                        minAngleToShowLabel:25
+                    },
+                },            
+            },
+            labels:['Ok', 'Warning', 'Critical','Unknown', 'Pending'],
+            series:[OK, WARNING, CRITICAL,UNKNOWN, PENDING],
+            colors:['#87BD23','#FF4125', '#ED1B23', '#CDCDCD','#2AD1D4']
+        };
+        //The legend appear when the user hide the table because the table include it originally 
+        {/literal}{if $preferences.hide_table}            
+            options.legend.show = true; 
+        {/if}{literal}
 
-});
-
+        const chart = new ApexCharts(
+            document.querySelector("#global_health_svc_div"),
+            options
+        );
+        chart.render();
    {/literal}
-   
 </script>
