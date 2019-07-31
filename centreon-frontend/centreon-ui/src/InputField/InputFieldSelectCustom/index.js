@@ -36,6 +36,7 @@ class InputFieldSelectCustom extends Component {
 
   componentWillMount = () => {
     const { value, options } = this.props;
+    if (options) {
     for (let i = 0; i < options.length; i++) {
       if (options[i].id == value) {
         this.setState({
@@ -43,7 +44,6 @@ class InputFieldSelectCustom extends Component {
         });
       }
     }
-    if (options) {
       this.setState({
         options,
         allOptions: options
@@ -53,6 +53,7 @@ class InputFieldSelectCustom extends Component {
 
   componentWillReceiveProps = nextProps => {
     const { value, options } = nextProps;
+    if (options) {
     for (let i = 0; i < options.length; i++) {
       if (options[i].id == value) {
         this.setState({
@@ -60,7 +61,6 @@ class InputFieldSelectCustom extends Component {
         });
       }
     }
-    if (options) {
       this.setState({
         options,
         allOptions: options

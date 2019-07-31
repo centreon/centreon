@@ -19,7 +19,6 @@ class InputFieldSelect extends Component {
 
   handleChange = (selectedOption) => {
     this.setState({ selectedOption });
-    console.log(`Option selected:`, selectedOption);
   };
 
   render() {

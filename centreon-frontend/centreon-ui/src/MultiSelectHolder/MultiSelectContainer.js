@@ -41,7 +41,7 @@ class MultiSelectContainer extends Component {
           })}
           {values.length > 5 ? (
             <CustomColumn customColumn="md-6">
-              <InputFieldMultiSelectNew multiSelectType />
+              <InputFieldMultiSelectValue multiSelectType />
             </CustomColumn>
           ) : null}
         </CustomRow>

@@ -74,9 +74,10 @@ class TableCustom extends Component {
   };
 
   handleSelectAllClick = event => {
-    const { onTableSelectionChanged, tableData } = this.props;
+    const { onTableSelectionChanged, tableData, nameIdPaired } = this.props;
     if (event.target.checked) {
-      const newSelecteds = tableData.map(n => n.id);
+      
+      const newSelecteds = nameIdPaired ? tableData.map(n => `${n.id}:${n.name}`) : tableData.map(n => n.id);
       onTableSelectionChanged(newSelecteds);
       return;
     }
@@ -84,15 +85,16 @@ class TableCustom extends Component {
     onTableSelectionChanged([]);
   };
 
-  handleClick = (event, name) => {
+  handleClick = (event, object) => {
     event.preventDefault();
     event.stopPropagation();
-    const { onTableSelectionChanged, selected } = this.props;
-    const selectedIndex = selected.indexOf(name);
+    const { onTableSelectionChanged, selected, nameIdPaired } = this.props;
+    const value = nameIdPaired ? `${object.id}:${object.name}` : object.id;
+    const selectedIndex = selected.indexOf(value);
     let newSelected = [];
 
     if (selectedIndex === -1) {
-      newSelected = newSelected.concat(selected, name);
+      newSelected = newSelected.concat(selected, value);
     } else if (selectedIndex === 0) {
       newSelected = newSelected.concat(selected.slice(1));
     } else if (selectedIndex === selected.length - 1) {
@@ -143,7 +145,8 @@ class TableCustom extends Component {
       onDisable,
       onRowClick,
       selected,
-      enabledColumn
+      enabledColumn,
+      nameIdPaired 
     } = this.props;
     const { order, orderBy, hovered } = this.state;
 
@@ -200,7 +203,7 @@ class TableCustom extends Component {
               />
               <TableBody onMouseLeave={this.rowHovered.bind(this, "", false)}>
                 {tableData.map(row => {
-                  const isItemSelected = isSelected(row.id);
+                  const isItemSelected = isSelected(nameIdPaired ? `${row.id}:${row.name}` : row.id);
                   return (
                     <StyledTableRow
                       hover
@@ -224,7 +227,7 @@ class TableCustom extends Component {
                       {checkable ? (
                         <StyledTableCell2
                           align="left"
-                          onClick={event => this.handleClick(event, row.id)}
+                          onClick={event => this.handleClick(event, row)}
                           className={classes.tableCell}
                           padding="checkbox"
                         >

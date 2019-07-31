@@ -24,7 +24,7 @@ import TableDefault from "../Table/TableDefault";
 import MultiSelectPanel from "../MultiSelectPanel";
 import BAModel from "../Mocks/oneBa";
 import TABLE_COLUMN_TYPES from "../Table/ColumnTypes";
-import transformStringArrayIntoObjects from '../MultiSelectPanel/helper';
+import transformStringArrayIntoObjects from "../MultiSelectPanel/helper";
 
 const multiselectsConfiguration = {
   reporting_timeperiods: {
@@ -45,7 +45,7 @@ const multiselectsConfiguration = {
       }
     ],
     label: "Manage extra reporting time periods used in Centreon BI indicators",
-    multiSelectNeedsTransformation:true,
+    multiSelectNeedsTransformation: true
   },
   bam_kpi: {
     dataKey: "kpis",
@@ -97,7 +97,7 @@ const multiselectsConfiguration = {
       }
     ],
     label: "Manage indicator",
-    multiSelectNeedsTransformation:false,
+    multiSelectNeedsTransformation: false
   },
   groups: {
     dataKey: "businessViews",
@@ -122,7 +122,7 @@ const multiselectsConfiguration = {
       }
     ],
     label: "Manage Business views",
-    multiSelectNeedsTransformation:true,
+    multiSelectNeedsTransformation: true
   },
   bam_contact: {
     dataKey: "contactGroups",
@@ -141,7 +141,7 @@ const multiselectsConfiguration = {
       }
     ],
     label: "Manage contact groups",
-    multiSelectNeedsTransformation:true,
+    multiSelectNeedsTransformation: true
   },
   bam_esc: {
     dataKey: "escalations",
@@ -154,7 +154,7 @@ const multiselectsConfiguration = {
       }
     ],
     label: "Manage escalations",
-    multiSelectNeedsTransformation:true,
+    multiSelectNeedsTransformation: true
   }
 };
 
@@ -208,9 +208,15 @@ class BAPanel extends React.Component {
       eventHandlerCommands,
       escalations,
       timeperiods,
+      timeperiodsForSelect,
       kpis,
       contactGroups,
-      businessViews
+      businessViews,
+      onSearchMultiselect,
+      onPaginateMultiselect,
+      onPaginationLimitChangedMultiselect,
+      onSortMultiselect,
+      multiSelectFilters
     } = this.props;
     const {
       multiselectActive,
@@ -308,7 +314,7 @@ class BAPanel extends React.Component {
                     centreonImages={centreonImages}
                     eventHandlerCommands={eventHandlerCommands}
                     escalations={escalations}
-                    timeperiods={timeperiods}
+                    timeperiods={timeperiodsForSelect.entities}
                     kpis={kpis}
                     contactGroups={contactGroups}
                     businessViews={businessViews}
@@ -346,7 +352,7 @@ class BAPanel extends React.Component {
                   multiselectsConfiguration[multiSelectKey]
                     ? this.props[
                         multiselectsConfiguration[multiSelectKey].dataKey
-                      ]
+                      ].entities
                     : []
                 }
                 tableConfiguration={
@@ -355,25 +361,77 @@ class BAPanel extends React.Component {
                         .tableConfiguration
                     : []
                 }
-                onSearch={() => {}}
+                onSearch={value => {
+                  onSearchMultiselect(
+                    multiselectsConfiguration[multiSelectKey].dataKey,
+                    value
+                  );
+                }}
                 key={multiSelectKey}
-                onPaginate={() => {}}
-                onPaginationLimitChanged={() => {}}
-                onSort={() => {}}
-                currentPage={0}
-                totalRows={150}
+                onPaginate={(event, page) => {
+                  onPaginateMultiselect(
+                    multiselectsConfiguration[multiSelectKey].dataKey,
+                    event,
+                    page
+                  );
+                }}
+                onPaginationLimitChanged={value => {
+                  onPaginationLimitChangedMultiselect(
+                    multiselectsConfiguration[multiSelectKey].dataKey,
+                    value
+                  );
+                }}
+                onSort={value => {
+                  onSortMultiselect(
+                    multiselectsConfiguration[multiSelectKey].dataKey,
+                    value
+                  );
+                }}
+                currentPage={
+                  multiselectsConfiguration[multiSelectKey]
+                    ? multiSelectFilters[
+                        multiselectsConfiguration[multiSelectKey].dataKey
+                      ].offset != 0
+                      ? multiSelectFilters[
+                          multiselectsConfiguration[multiSelectKey].dataKey
+                        ].offset /
+                        multiSelectFilters[
+                          multiselectsConfiguration[multiSelectKey].dataKey
+                        ].limit
+                      : 0
+                    : 0
+                }
+                totalRows={
+                  multiselectsConfiguration[multiSelectKey]
+                    ? this.props[
+                        multiselectsConfiguration[multiSelectKey].dataKey
+                      ].pagination.total
+                    : 0
+                }
                 currentlySelected={
                   values[multiSelectKey]
-                    ? multiselectsConfiguration[multiSelectKey].multiSelectNeedsTransformation
+                    ? multiselectsConfiguration[multiSelectKey]
+                        .multiSelectNeedsTransformation
                       ? transformStringArrayIntoObjects(values[multiSelectKey])
                       : values[multiSelectKey]
                     : []
                 }
-                currentlySelectedKey={"id"}
-                paginationLimit={5}
+                paginationLimit={
+                  multiselectsConfiguration[multiSelectKey]
+                    ? multiSelectFilters[
+                        multiselectsConfiguration[multiSelectKey].dataKey
+                      ].limit
+                    : 0
+                }
                 onSelect={selected => {
                   valueChanged(multiSelectKey, selected);
                 }}
+                nameIdPaired={
+                  multiselectsConfiguration[multiSelectKey]
+                    ? multiselectsConfiguration[multiSelectKey]
+                        .multiSelectNeedsTransformation
+                    : true
+                }
               />
             </div>
           </div>

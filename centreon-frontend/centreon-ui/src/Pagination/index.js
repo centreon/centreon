@@ -18,7 +18,6 @@ class Pagination extends Component {
 
   previousPage = () => {
     const { currentPage } = this.state;
-    console.log(currentPage);
     if (currentPage > 0) {
       this.pageChanged(currentPage - 1);
     }
@@ -27,7 +26,6 @@ class Pagination extends Component {
   nextPage = () => {
     const { pageCount } = this.props;
     const { currentPage } = this.state;
-    console.log(pageCount, currentPage);
     if (currentPage < pageCount - 1) {
       this.pageChanged(currentPage + 1);
     }

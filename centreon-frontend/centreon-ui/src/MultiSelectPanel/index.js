@@ -22,15 +22,15 @@ class MultiselectPanel extends Component {
       currentPage,
       totalRows,
       currentlySelected,
-      currentlySelectedKey,
+      nameIdPaired,
       paginationLimit,
       styles
     } = this.props;
     let currentlySelectedFromKey = currentlySelected;
-    if(currentlySelectedKey){
+    if(nameIdPaired){
       currentlySelectedFromKey = [];
       for(let i = 0; i < currentlySelected.length; i++){
-        currentlySelectedFromKey.push(currentlySelected[i][currentlySelectedKey]);
+        currentlySelectedFromKey.push(`${currentlySelected[i].id}:${currentlySelected[i].name}`);
       }
     }
     return (
@@ -59,6 +59,7 @@ class MultiselectPanel extends Component {
             limit={paginationLimit}
             currentPage={currentPage}
             totalRows={totalRows}
+            nameIdPaired={nameIdPaired}
             checkable
             selected={currentlySelectedFromKey}
           />
