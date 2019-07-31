@@ -13,10 +13,7 @@ class MultiSelectContainer extends Component {
       selected,
       error,
       values = [],
-      onEdit,
-      labelKey = "name",
-      valueKey = "id",
-      options = []
+      onEdit
     } = this.props;
     return (
       <MultiSelectHolder
@@ -31,18 +28,14 @@ class MultiSelectContainer extends Component {
           {values.map((item, index) => {
             let result = null;
             if (index < excludeAfterIndex) {
-              for (let i = 0; i < options.length; i++) {
-                if (options[i][valueKey] == item) {
                   result = (
                     <CustomColumn customColumn="md-6">
                       <InputFieldMultiSelectValue
                         disabled
-                        placeholder={options[i][labelKey]}
+                        placeholder={item.name}
                       />
                     </CustomColumn>
                   );
-                }
-              }
             }
             return result;
           })}

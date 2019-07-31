@@ -22,9 +22,17 @@ class MultiselectPanel extends Component {
       currentPage,
       totalRows,
       currentlySelected,
+      currentlySelectedKey,
       paginationLimit,
       styles
     } = this.props;
+    let currentlySelectedFromKey = currentlySelected;
+    if(currentlySelectedKey){
+      currentlySelectedFromKey = [];
+      for(let i = 0; i < currentlySelected.length; i++){
+        currentlySelectedFromKey.push(currentlySelected[i][currentlySelectedKey]);
+      }
+    }
     return (
       <PanelItem
         panelItemType="small"
@@ -52,7 +60,7 @@ class MultiselectPanel extends Component {
             currentPage={currentPage}
             totalRows={totalRows}
             checkable
-            selected={currentlySelected}
+            selected={currentlySelectedFromKey}
           />
         </div>
       </PanelItem>

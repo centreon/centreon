@@ -24,6 +24,7 @@ import TableDefault from "../Table/TableDefault";
 import MultiSelectPanel from "../MultiSelectPanel";
 import BAModel from "../Mocks/oneBa";
 import TABLE_COLUMN_TYPES from "../Table/ColumnTypes";
+import transformStringArrayIntoObjects from '../MultiSelectPanel/helper';
 
 const multiselectsConfiguration = {
   reporting_timeperiods: {
@@ -43,7 +44,8 @@ const multiselectsConfiguration = {
         type: TABLE_COLUMN_TYPES.string
       }
     ],
-    label:"Manage extra reporting time periods used in Centreon BI indicators"
+    label: "Manage extra reporting time periods used in Centreon BI indicators",
+    multiSelectNeedsTransformation:true,
   },
   bam_kpi: {
     dataKey: "kpis",
@@ -94,7 +96,8 @@ const multiselectsConfiguration = {
         type: TABLE_COLUMN_TYPES.string
       }
     ],
-    label:"Manage indicator"
+    label: "Manage indicator",
+    multiSelectNeedsTransformation:false,
   },
   groups: {
     dataKey: "businessViews",
@@ -118,7 +121,8 @@ const multiselectsConfiguration = {
         type: TABLE_COLUMN_TYPES.boolean
       }
     ],
-    label:"Manage Business views"
+    label: "Manage Business views",
+    multiSelectNeedsTransformation:true,
   },
   bam_contact: {
     dataKey: "contactGroups",
@@ -136,7 +140,8 @@ const multiselectsConfiguration = {
         type: TABLE_COLUMN_TYPES.boolean
       }
     ],
-    label:"Manage contact groups"
+    label: "Manage contact groups",
+    multiSelectNeedsTransformation:true,
   },
   bam_esc: {
     dataKey: "escalations",
@@ -148,7 +153,8 @@ const multiselectsConfiguration = {
         type: TABLE_COLUMN_TYPES.string
       }
     ],
-    label:"Manage escalations"
+    label: "Manage escalations",
+    multiSelectNeedsTransformation:true,
   }
 };
 
@@ -204,7 +210,7 @@ class BAPanel extends React.Component {
       timeperiods,
       kpis,
       contactGroups,
-      businessViews,
+      businessViews
     } = this.props;
     const {
       multiselectActive,
@@ -357,8 +363,13 @@ class BAPanel extends React.Component {
                 currentPage={0}
                 totalRows={150}
                 currentlySelected={
-                  values[multiSelectKey] ? values[multiSelectKey] : []
+                  values[multiSelectKey]
+                    ? multiselectsConfiguration[multiSelectKey].multiSelectNeedsTransformation
+                      ? transformStringArrayIntoObjects(values[multiSelectKey])
+                      : values[multiSelectKey]
+                    : []
                 }
+                currentlySelectedKey={"id"}
                 paginationLimit={5}
                 onSelect={selected => {
                   valueChanged(multiSelectKey, selected);

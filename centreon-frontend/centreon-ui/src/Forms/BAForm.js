@@ -25,6 +25,7 @@ import CheckboxDefault from "../MaterialComponents/Checkbox";
 import ButtonCustom from "../Button/ButtonCustom";
 import { MultiSelectHolder } from "../";
 import MultiSelectContainer from "../MultiSelectHolder/MultiSelectContainer";
+import transformStringArrayIntoObjects from '../MultiSelectPanel/helper';
 
 const styles = theme => ({
   root: {
@@ -204,14 +205,11 @@ class BAForm extends React.Component {
             <MultiSelectContainer
               label={"Indicators"}
               values={values.bam_kpi}
-              options={kpis}
               selected={selectedMultiselect == "bam_kpi"}
               error={errors.bam_kpi}
               onEdit={() => {
                 toggleMultiselect("bam_kpi");
               }}
-              labelKey={"name"}
-              valueKey={"id"}
             />
           </ExpansionPanelDetails>
         </ExpansionPanel>
@@ -226,15 +224,12 @@ class BAForm extends React.Component {
           <ExpansionPanelDetails className={classes.additionalStyles}>
             <MultiSelectContainer
               label={"Business views"}
-              values={values.groups}
-              options={businessViews}
+              values={transformStringArrayIntoObjects(values.groups)}
               selected={selectedMultiselect == "groups"}
               error={errors.groups}
               onEdit={() => {
                 toggleMultiselect("groups");
               }}
-              labelKey={"name"}
-              valueKey={"id"}
             />
           </ExpansionPanelDetails>
         </ExpansionPanel>
@@ -339,16 +334,12 @@ class BAForm extends React.Component {
           <ExpansionPanelDetails className={classes.additionalStyles}>
             <MultiSelectContainer
               label={"Contact groups"}
-              values={values.bam_contact}
-              options={contactGroups}
+              values={transformStringArrayIntoObjects(values.bam_contact)}
               selected={selectedMultiselect == "bam_contact"}
               error={errors.bam_contact}
               onEdit={() => {
                 toggleMultiselect("bam_contact");
               }}
-              error={""}
-              labelKey={"name"}
-              valueKey={"id"}
             />
           </ExpansionPanelDetails>
         </ExpansionPanel>
@@ -419,15 +410,12 @@ class BAForm extends React.Component {
               label={
                 "Extra reporting time periods used in Centreon BI indicators"
               }
-              values={values.reporting_timeperiods}
-              options={timeperiods}
+              values={transformStringArrayIntoObjects(values.reporting_timeperiods)}
               selected={selectedMultiselect == "reporting_timeperiods"}
               error={errors.reporting_timeperiods}
               onEdit={() => {
                 toggleMultiselect("reporting_timeperiods");
               }}
-              labelKey={"name"}
-              valueKey={"id"}
             />
           </ExpansionPanelDetails>
         </ExpansionPanel>
@@ -442,15 +430,12 @@ class BAForm extends React.Component {
           <ExpansionPanelDetails className={classes.additionalStyles}>
             <MultiSelectContainer
               label={"Escalations"}
-              values={values.bam_esc}
-              options={escalations}
+              values={transformStringArrayIntoObjects(values.bam_esc)}
               selected={selectedMultiselect == "bam_esc"}
               onEdit={() => {
                 toggleMultiselect("bam_esc");
               }}
               error={errors.bam_esc}
-              labelKey={"name"}
-              valueKey={"id"}
             />
           </ExpansionPanelDetails>
         </ExpansionPanel>

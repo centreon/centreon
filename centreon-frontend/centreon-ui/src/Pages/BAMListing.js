@@ -146,6 +146,7 @@ class BAMListingPage extends Component {
       totalRows,
       currentPage,
       currentlySelected,
+      onRowClick,
     } = this.props;
     const { massiveChangeActive, deleteActive, duplicateActive } = this.state;
     return (
@@ -284,6 +285,7 @@ class BAMListingPage extends Component {
             onDisable={onDisable}
             selected={currentlySelected}
             enabledColumn="activate"
+            onRowClick={onRowClick}
           />
         </Paper>
         <MassiveChangeDialog
