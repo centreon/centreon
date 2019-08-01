@@ -41,10 +41,7 @@ const useStyles = makeStyles(() => ({
   },
   iconAttachImage: {
     maxWidth: '100%',
-    height: 'auto',
-    verticalAlign: 'middle',
-    padding: '0 5px',
-    boxSizing: 'border-box',
+    height: '100%',
   },
 }));
 
