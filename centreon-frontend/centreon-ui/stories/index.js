@@ -3,6 +3,7 @@ import './Card';
 import './Checkbox';
 import './Custom';
 import './Description';
+import './Dialog';
 import './FileUpload';
 import './Header';
 import './HorizontalLines';
