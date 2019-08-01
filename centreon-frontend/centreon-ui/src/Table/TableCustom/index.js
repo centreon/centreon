@@ -148,7 +148,8 @@ class TableCustom extends Component {
       selected,
       enabledColumn,
       nameIdPaired,
-      indicatorsEditor
+      indicatorsEditor,
+      emptyDataMessage
     } = this.props;
     const { order, orderBy, hovered } = this.state;
 
@@ -377,7 +378,11 @@ class TableCustom extends Component {
                               <StyledTableCell2 align="left">
                                 <InputFieldSelectTableCell
                                   options={column.options}
-                                  value={column.subkey ? row[column.subkey][column.id] : row[column.key]}
+                                  value={
+                                    column.subkey
+                                      ? row[column.subkey][column.id]
+                                      : row[column.key]
+                                  }
                                   active="active"
                                 />
                               </StyledTableCell2>
@@ -465,6 +470,19 @@ class TableCustom extends Component {
                     </StyledTableRow>
                   );
                 })}
+                {tableData.length < 1 ? (
+                  <StyledTableRow tabIndex={-1}>
+                    <TableCellCustom
+                      colSpan={6}
+                      align="center"
+                      className={classes.tableCellCustom}
+                    >
+                      {emptyDataMessage
+                        ? emptyDataMessage
+                        : "No results found."}
+                    </TableCellCustom>
+                  </StyledTableRow>
+                ) : null}
               </TableBody>
             </Table>
           </div>

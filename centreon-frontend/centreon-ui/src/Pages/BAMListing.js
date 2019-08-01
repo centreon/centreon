@@ -286,6 +286,7 @@ class BAMListingPage extends Component {
             selected={currentlySelected}
             enabledColumn="activate"
             onRowClick={onRowClick}
+            emptyDataMessage={"No Business Activity found."}
           />
         </Paper>
         <MassiveChangeDialog
