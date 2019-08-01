@@ -70,7 +70,11 @@ const multiselectsConfiguration = {
         disablePadding: true,
         label: "Mode",
         subkey: "impact",
-        type: TABLE_COLUMN_TYPES.string
+        type: TABLE_COLUMN_TYPES.select,
+        options:[
+          { id: "word", name: "Simple", alias: "word" },
+          { id: "value", name: "Advanced", alias: "value" },
+        ]
       },
       {
         id: "warning",
@@ -78,7 +82,7 @@ const multiselectsConfiguration = {
         disablePadding: true,
         label: "Warning",
         subkey: "impact",
-        type: TABLE_COLUMN_TYPES.string
+        type: TABLE_COLUMN_TYPES.input
       },
       {
         id: "critical",
@@ -86,17 +90,25 @@ const multiselectsConfiguration = {
         disablePadding: true,
         label: "Critical",
         subkey: "impact",
-        type: TABLE_COLUMN_TYPES.string
+        type: TABLE_COLUMN_TYPES.input
       },
       {
         id: "unknown",
         numeric: false,
         label: "Unknown",
         subkey: "impact",
-        type: TABLE_COLUMN_TYPES.string
+        type: TABLE_COLUMN_TYPES.input
+      },
+      {
+        id: "boolean",
+        numeric: false,
+        label: "Boolean",
+        subkey: "impact",
+        type: TABLE_COLUMN_TYPES.input
       }
     ],
     label: "Manage indicator",
+    indicatorsEditor:true,
     multiSelectNeedsTransformation: false
   },
   groups: {
@@ -431,6 +443,12 @@ class BAPanel extends React.Component {
                     ? multiselectsConfiguration[multiSelectKey]
                         .multiSelectNeedsTransformation
                     : true
+                }
+                indicatorsEditor={
+                  multiselectsConfiguration[multiSelectKey]
+                  ? multiselectsConfiguration[multiSelectKey].
+                    indicatorsEditor
+                  : false
                 }
               />
             </div>

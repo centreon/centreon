@@ -132,7 +132,7 @@ class BAForm extends React.Component {
             </CustomColumn>
           </CustomRow>
         </div>
-        <ExpansionPanel className={classes.customStyle}>
+        <ExpansionPanel expanded={errors.level_c || errors.level_w} className={classes.customStyle}>
           <ExpansionPanelSummary
             expandIcon={<ExpandMoreIcon />}
             aria-controls="panel1a-content"

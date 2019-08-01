@@ -23,6 +23,7 @@ class MultiselectPanel extends Component {
       totalRows,
       currentlySelected,
       nameIdPaired,
+      indicatorsEditor,
       paginationLimit,
       styles
     } = this.props;
@@ -60,6 +61,7 @@ class MultiselectPanel extends Component {
             currentPage={currentPage}
             totalRows={totalRows}
             nameIdPaired={nameIdPaired}
+            indicatorsEditor={indicatorsEditor}
             checkable
             selected={currentlySelectedFromKey}
           />

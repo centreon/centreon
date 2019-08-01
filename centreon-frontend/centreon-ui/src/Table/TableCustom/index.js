@@ -76,8 +76,9 @@ class TableCustom extends Component {
   handleSelectAllClick = event => {
     const { onTableSelectionChanged, tableData, nameIdPaired } = this.props;
     if (event.target.checked) {
-      
-      const newSelecteds = nameIdPaired ? tableData.map(n => `${n.id}:${n.name}`) : tableData.map(n => n.id);
+      const newSelecteds = nameIdPaired
+        ? tableData.map(n => `${n.id}:${n.name}`)
+        : tableData.map(n => n.id);
       onTableSelectionChanged(newSelecteds);
       return;
     }
@@ -146,7 +147,8 @@ class TableCustom extends Component {
       onRowClick,
       selected,
       enabledColumn,
-      nameIdPaired 
+      nameIdPaired,
+      indicatorsEditor
     } = this.props;
     const { order, orderBy, hovered } = this.state;
 
@@ -203,7 +205,9 @@ class TableCustom extends Component {
               />
               <TableBody onMouseLeave={this.rowHovered.bind(this, "", false)}>
                 {tableData.map(row => {
-                  const isItemSelected = isSelected(nameIdPaired ? `${row.id}:${row.name}` : row.id);
+                  const isItemSelected = isSelected(
+                    nameIdPaired ? `${row.id}:${row.name}` : row.id
+                  );
                   return (
                     <StyledTableRow
                       hover
@@ -363,26 +367,20 @@ class TableCustom extends Component {
                               </StyledTableCell2>
                             );
                           case TABLE_COLUMN_TYPES.input:
-                            return <InputFieldTableCell />;
+                            return (
+                              <StyledTableCell2 align="left">
+                                <InputFieldTableCell />
+                              </StyledTableCell2>
+                            );
                           case TABLE_COLUMN_TYPES.select:
                             return (
-                              <InputFieldSelectTableCell
-                                options={[
-                                  { id: "1", name: "24x7", alias: "Always" },
-                                  { id: "2", name: "none", alias: "Never" },
-                                  {
-                                    id: "3",
-                                    name: "nonworkhours",
-                                    alias: "Non-Work Hours"
-                                  },
-                                  {
-                                    id: "4",
-                                    name: "workhours",
-                                    alias: "Work hours"
-                                  }
-                                ]}
-                                active="active"
-                              />
+                              <StyledTableCell2 align="left">
+                                <InputFieldSelectTableCell
+                                  options={column.options}
+                                  value={column.subkey ? row[column.subkey][column.id] : row[column.key]}
+                                  active="active"
+                                />
+                              </StyledTableCell2>
                             );
                           case TABLE_COLUMN_TYPES.multicolumn:
                             return (
