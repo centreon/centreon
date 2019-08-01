@@ -1,8 +1,5 @@
-/* eslint-disable react/forbid-prop-types */
 /* eslint-disable react/jsx-no-bind */
 /* eslint-disable react/jsx-filename-extension */
-/* eslint-disable react/prop-types */
-/* eslint-disable no-dupe-keys */
 
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
@@ -27,7 +24,6 @@ const useStyles = () => ({
     fontFamily: 'Roboto Regular',
     fontSize: 12,
     boxShadow: 'none',
-    borderRadius: 0,
     position: 'relative',
   },
   paper: {
@@ -72,7 +68,7 @@ class InputFieldSearch extends Component {
   };
 
   render() {
-    const { classes, style, ...rest } = this.props;
+    const { classes, placeholder, style, ...rest } = this.props;
     const { searchText } = this.state;
     return (
       <Paper elevation={0} className={classes.paper}>
@@ -82,7 +78,7 @@ class InputFieldSearch extends Component {
           </IconButton>
           <InputBase
             className={classes.input}
-            placeholder="Search"
+            placeholder={placeholder}
             inputProps={{ 'aria-label': 'Search' }}
             onChange={this.onSearchInputChanged}
             value={searchText}
@@ -106,8 +102,16 @@ class InputFieldSearch extends Component {
   }
 }
 
+InputFieldSearch.defaultProps = {
+  placeholder: 'Search',
+  style: {},
+};
+
 InputFieldSearch.propTypes = {
-  classes: PropTypes.object.isRequired,
+  classes: PropTypes.shape.isRequired,
+  placeholder: PropTypes.string,
+  style: PropTypes.shape,
+  onChange: PropTypes.func.isRequired,
 };
 
 export default withStyles(useStyles)(InputFieldSearch);

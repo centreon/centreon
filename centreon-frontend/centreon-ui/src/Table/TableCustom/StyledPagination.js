@@ -1,6 +1,3 @@
-/* eslint-disable no-unused-vars */
-
-import React, { Component } from 'react';
 import TablePagination from '@material-ui/core/TablePagination';
 import { withStyles } from '@material-ui/core/styles';
 
