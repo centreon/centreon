@@ -17,15 +17,17 @@ module.exports = {
     ecmaVersion: 2018,
     sourceType: 'module',
   },
-  plugins: ['react'],
+  plugins: ['react', 'react-hooks'],
   rules: {
     'prettier/prettier': [
       'error',
       { singleQuote: true, arrowParens: 'always', trailingComma: 'all' },
     ],
     'import/no-extraneous-dependencies': [
-      'error', 
+      'error',
       { devDependencies: true }
     ],
+    'react-hooks/rules-of-hooks': 'error',
+    'react-hooks/exhaustive-deps': 'warn',
   },
 };
