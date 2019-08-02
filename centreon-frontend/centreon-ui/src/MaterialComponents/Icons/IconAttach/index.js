@@ -23,7 +23,7 @@ const useStyles = makeStyles(() => ({
     width: 80,
     height: 49,
     textAlign: 'center',
-    lineHeight: '49px',
+    lineHeight: '46px',
     backgroundColor: '#fff',
     display: 'inline-block',
     marginRight: 15,
@@ -41,7 +41,8 @@ const useStyles = makeStyles(() => ({
   },
   iconAttachImage: {
     maxWidth: '100%',
-    height: '100%',
+    maxHeight: '100%',
+    verticalAlign: 'middle',
   },
 }));
 
