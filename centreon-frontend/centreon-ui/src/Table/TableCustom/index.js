@@ -212,11 +212,8 @@ class TableCustom extends Component {
                   return (
                     <StyledTableRow
                       hover
-                      role="checkbox"
-                      aria-checked={isItemSelected}
                       tabIndex={-1}
                       key={row.id}
-                      selected={isItemSelected}
                       onMouseEnter={this.rowHovered.bind(this, row.id, true)}
                       {...this.addConditionalRowBackground(
                         row,
@@ -328,7 +325,9 @@ class TableCustom extends Component {
                                   >
                                     <IconPowerSettings
                                       label="Disable"
-                                      onClick={() => {
+                                      onClick={(e) => {
+                                        e.preventDefault();
+                                        e.stopPropagation();
                                         onDisable([row.id]);
                                       }}
                                       active
@@ -353,7 +352,9 @@ class TableCustom extends Component {
                                     <IconPowerSettingsDisable
                                       active
                                       label="Disable"
-                                      onClick={() => {
+                                      onClick={(e) => {
+                                        e.preventDefault();
+                                        e.stopPropagation();
                                         onEnable([row.id]);
                                       }}
                                       customStyle={{
@@ -432,7 +433,9 @@ class TableCustom extends Component {
                                           color: "#707070",
                                           fontSize: 21
                                         }}
-                                        onClick={() => {
+                                        onClick={(e) => {
+                                          e.preventDefault();
+                                          e.stopPropagation();
                                           onDelete([row.id]);
                                         }}
                                       />
@@ -452,7 +455,9 @@ class TableCustom extends Component {
                                           color: "#707070",
                                           fontSize: 20
                                         }}
-                                        onClick={() => {
+                                        onClick={(e) => {
+                                          e.preventDefault();
+                                          e.stopPropagation();
                                           onDuplicate([row.id]);
                                         }}
                                       />
