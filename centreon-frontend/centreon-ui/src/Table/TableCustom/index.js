@@ -86,16 +86,25 @@ class TableCustom extends Component {
     onTableSelectionChanged([]);
   };
 
-  handleClick = (event, object) => {
+  handleClick = (event, row) => {
     event.preventDefault();
     event.stopPropagation();
-    const { onTableSelectionChanged, selected, nameIdPaired } = this.props;
-    const value = nameIdPaired ? `${object.id}:${object.name}` : object.id;
-    const selectedIndex = selected.indexOf(value);
+    const {
+      onTableSelectionChanged,
+      selected,
+      nameIdPaired,
+      indicatorsEditor
+    } = this.props;
+    const value = indicatorsEditor
+      ? row
+      : nameIdPaired
+      ? `${row.id}:${row.name}`
+      : row.id;
+    const selectedIndex = indicatorsEditor ? selected.map(({object})=>{return object.id; }).indexOf(value.object.id) : selected.indexOf(value);
     let newSelected = [];
 
     if (selectedIndex === -1) {
-      newSelected = newSelected.concat(selected, value);
+      newSelected = newSelected.concat(selected, indicatorsEditor ? row : value);
     } else if (selectedIndex === 0) {
       newSelected = newSelected.concat(selected.slice(1));
     } else if (selectedIndex === selected.length - 1) {
@@ -153,12 +162,18 @@ class TableCustom extends Component {
     } = this.props;
     const { order, orderBy, hovered } = this.state;
 
-    const isSelected = name => {
+    const isSelected = value => {
       // eslint-disable-next-line
       for (let i = 0; i < selected.length; i++) {
         // eslint-disable-next-line
-        if (selected[i] == name) {
-          return true;
+        if (indicatorsEditor) {
+          if (selected[i].object.id == value) {
+            return true;
+          }
+        } else {
+          if (selected[i] == value) {
+            return true;
+          }
         }
       }
       return false;
@@ -207,7 +222,11 @@ class TableCustom extends Component {
               <TableBody onMouseLeave={this.rowHovered.bind(this, "", false)}>
                 {tableData.map(row => {
                   const isItemSelected = isSelected(
-                    nameIdPaired ? `${row.id}:${row.name}` : row.id
+                    indicatorsEditor
+                      ? row.object.id
+                      : nameIdPaired
+                      ? `${row.id}:${row.name}`
+                      : row.id
                   );
                   return (
                     <StyledTableRow
@@ -325,7 +344,7 @@ class TableCustom extends Component {
                                   >
                                     <IconPowerSettings
                                       label="Disable"
-                                      onClick={(e) => {
+                                      onClick={e => {
                                         e.preventDefault();
                                         e.stopPropagation();
                                         onDisable([row.id]);
@@ -352,7 +371,7 @@ class TableCustom extends Component {
                                     <IconPowerSettingsDisable
                                       active
                                       label="Disable"
-                                      onClick={(e) => {
+                                      onClick={e => {
                                         e.preventDefault();
                                         e.stopPropagation();
                                         onEnable([row.id]);
@@ -433,7 +452,7 @@ class TableCustom extends Component {
                                           color: "#707070",
                                           fontSize: 21
                                         }}
-                                        onClick={(e) => {
+                                        onClick={e => {
                                           e.preventDefault();
                                           e.stopPropagation();
                                           onDelete([row.id]);
@@ -455,7 +474,7 @@ class TableCustom extends Component {
                                           color: "#707070",
                                           fontSize: 20
                                         }}
-                                        onClick={(e) => {
+                                        onClick={e => {
                                           e.preventDefault();
                                           e.stopPropagation();
                                           onDuplicate([row.id]);
