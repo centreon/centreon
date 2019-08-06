@@ -26,6 +26,7 @@ import StyledPagination from "./StyledPagination";
 import Tooltip from "../../MaterialComponents/Tooltip";
 import InputFieldSelectTableCell from "../../InputField/InputFieldSelectTableCell";
 import InputFieldTableCell from "../../InputField/InputFieldTableCell";
+import IndicatorsEditor from './IndicatorsEditorRow';
 
 const styles = () => ({
   root: {
@@ -220,7 +221,7 @@ class TableCustom extends Component {
                 headRows={columnConfiguration}
               />
               <TableBody onMouseLeave={this.rowHovered.bind(this, "", false)}>
-                {tableData.map(row => {
+                {tableData.map((row,index) => {
                   const isItemSelected = isSelected(
                     indicatorsEditor
                       ? row.object.id
@@ -491,6 +492,9 @@ class TableCustom extends Component {
                             return null;
                         }
                       })}
+                      {
+                        indicatorsEditor ? <IndicatorsEditor row={row} index={index} /> : null
+                      }
                     </StyledTableRow>
                   );
                 })}

@@ -26,6 +26,32 @@
     transition: .3s ease-in-out;
     width: 100%;
   }
+  &-header-input {
+    background: none;
+    font-family: 'Roboto Regular';
+    font-weight: bold;
+    display: inline-block;
+    border: none;
+    font-size: 20px;
+    vertical-align: middle;
+    &:hover {
+      outline: none;
+    }
+    &.has-error{
+      &::placeholder {
+        color: red;
+        opacity: 1;
+      }
+      
+      &:-ms-input-placeholder {
+        color: red;
+      }
+      
+      &::-ms-input-placeholder {
+        color: red;
+      }
+    }
+  }
   &-body {
     display: flex;
     justify-content: flex-end;

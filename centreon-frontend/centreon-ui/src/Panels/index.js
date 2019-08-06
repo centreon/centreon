@@ -25,6 +25,7 @@ import MultiSelectPanel from "../MultiSelectPanel";
 import BAModel from "../Mocks/oneBa";
 import TABLE_COLUMN_TYPES from "../Table/ColumnTypes";
 import transformStringArrayIntoObjects from "../MultiSelectPanel/helper";
+import Loader from "../Loader";
 
 const multiselectsConfiguration = {
   reporting_timeperiods: {
@@ -64,48 +65,6 @@ const multiselectsConfiguration = {
         label: "Type",
         type: TABLE_COLUMN_TYPES.string
       },
-      {
-        id: "type",
-        numeric: false,
-        disablePadding: true,
-        label: "Mode",
-        subkey: "impact",
-        type: TABLE_COLUMN_TYPES.select,
-        options:[
-          { id: "word", name: "Simple", alias: "word" },
-          { id: "value", name: "Advanced", alias: "value" },
-        ]
-      },
-      {
-        id: "warning",
-        numeric: false,
-        disablePadding: true,
-        label: "Warning",
-        subkey: "impact",
-        type: TABLE_COLUMN_TYPES.input
-      },
-      {
-        id: "critical",
-        numeric: false,
-        disablePadding: true,
-        label: "Critical",
-        subkey: "impact",
-        type: TABLE_COLUMN_TYPES.input
-      },
-      {
-        id: "unknown",
-        numeric: false,
-        label: "Unknown",
-        subkey: "impact",
-        type: TABLE_COLUMN_TYPES.input
-      },
-      {
-        id: "boolean",
-        numeric: false,
-        label: "Boolean",
-        subkey: "impact",
-        type: TABLE_COLUMN_TYPES.input
-      }
     ],
     label: "Manage indicator",
     indicatorsEditor:true,
@@ -228,7 +187,8 @@ class BAPanel extends React.Component {
       onPaginateMultiselect,
       onPaginationLimitChangedMultiselect,
       onSortMultiselect,
-      multiSelectFilters
+      multiSelectFilters,
+      saving
     } = this.props;
     const {
       multiselectActive,
@@ -276,7 +236,6 @@ class BAPanel extends React.Component {
                 />
               )}
 
-              {nameEditingToggled ? (
                 <InputField
                   placeholder="Click here to add name"
                   type="text"
@@ -286,17 +245,9 @@ class BAPanel extends React.Component {
                   onChange={event => {
                     valueChanged("name", event);
                   }}
-                  error={errors.name}
-                  onBlur={this.toggleNameEditing}
-                  reference={this.focusNameEditInput}
+                  className={classnames(styles['panels-header-input'],
+                  errors.name ? styles["has-error"] : "")}
                 />
-              ) : (
-                <PanelHeaderTitle
-                  error={errors.name}
-                  label={values.name ? values.name : "Click here to add name"}
-                  onClick={this.toggleNameEditing}
-                />
-              )}
 
               <IconCloseNew onClick={onClose} />
               <Button
@@ -310,8 +261,9 @@ class BAPanel extends React.Component {
                   fontSize: 11
                 }}
                 onClick={onSave}
+                disabled={saving}
               >
-                Save
+                {saving ? <Loader/> : "Save"}
               </Button>
             </div>
             <div className={classnames(styles["panels-body"])}>

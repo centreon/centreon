@@ -15,7 +15,7 @@ const useStyles = makeStyles(() => ({
   },
   icon: {
     color: '#707070',
-    cursor: 'pointer',
+    cursor: 'initial',
     fontSize: 14,
     verticalAlign: 'middle',
   },
@@ -28,7 +28,7 @@ const useStyles = makeStyles(() => ({
     display: 'inline-block',
     marginRight: 15,
     verticalAlign: 'middle',
-    cursor: 'pointer',
+    cursor: 'initial',
     marginLeft: -20,
   },
   iconAttachLabel: {
@@ -60,8 +60,7 @@ function IconAttach({
     <span onClick={onClick} className={classes.iconAttach}>
       {defaultImage && (
         <React.Fragment>
-          <Attach style={customStyle} className={classes.icon} />
-          <span className={classes.iconAttachLabel}>ICON</span>
+          <span className={classes.iconAttachLabel}>NO ICON</span>
         </React.Fragment>
       )}
       {uploadedImage && (

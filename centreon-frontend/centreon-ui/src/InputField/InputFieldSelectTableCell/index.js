@@ -36,6 +36,7 @@ class InputFieldSelectCustom extends Component {
 
   componentWillMount = () => {
     const { value, options } = this.props;
+    console.log(options, value, this.state.selected)
     if (options) {
     for (let i = 0; i < options.length; i++) {
       // eslint-disable-next-line
@@ -54,6 +55,7 @@ class InputFieldSelectCustom extends Component {
 
   componentWillReceiveProps = (nextProps) => {
     const { value, options } = nextProps;
+    console.log(options, value, this.state.selected)
     if (options) {
     for (let i = 0; i < options.length; i++) {
       // eslint-disable-next-line
