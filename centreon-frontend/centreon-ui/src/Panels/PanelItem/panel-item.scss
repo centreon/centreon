@@ -3,6 +3,7 @@
 .panel-item {
   position: relative;
   transition: .3s ease-in-out;
+  border-left: 1px solid #d1d2d4;
   &-small {
     width: 500px;
     background-color: #c7c8c9;
