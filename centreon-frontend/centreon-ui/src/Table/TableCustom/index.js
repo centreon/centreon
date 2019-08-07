@@ -159,7 +159,8 @@ class TableCustom extends Component {
       enabledColumn,
       nameIdPaired,
       indicatorsEditor,
-      emptyDataMessage
+      emptyDataMessage,
+      impacts
     } = this.props;
     const { order, orderBy, hovered } = this.state;
 
@@ -219,6 +220,7 @@ class TableCustom extends Component {
                 rowCount={limit - emptyRows}
                 className={classes.tableWrapper}
                 headRows={columnConfiguration}
+                indicatorsEditor={indicatorsEditor}
               />
               <TableBody onMouseLeave={this.rowHovered.bind(this, "", false)}>
                 {tableData.map((row,index) => {
@@ -493,7 +495,7 @@ class TableCustom extends Component {
                         }
                       })}
                       {
-                        indicatorsEditor ? <IndicatorsEditor row={row} index={index} /> : null
+                        indicatorsEditor ? <IndicatorsEditor row={row} index={index} impacts={impacts} /> : null
                       }
                     </StyledTableRow>
                   );

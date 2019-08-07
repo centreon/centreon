@@ -181,6 +181,7 @@ class BAPanel extends React.Component {
       timeperiods,
       timeperiodsForSelect,
       kpis,
+      impacts,
       contactGroups,
       businessViews,
       onSearchMultiselect,
@@ -402,6 +403,7 @@ class BAPanel extends React.Component {
                     indicatorsEditor
                   : false
                 }
+                impacts={impacts}
               />
             </div>
           </div>

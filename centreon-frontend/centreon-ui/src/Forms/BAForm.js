@@ -253,6 +253,7 @@ class BAForm extends React.Component {
                       value={values.notifications_enabled}
                       checked={values.notifications_enabled}
                       error={errors.notifications_enabled}
+                      size={'small'}
                       onChange={(event, value) => {
                         valueChanged("notifications_enabled", value);
                       }}

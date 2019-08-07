@@ -41,6 +41,7 @@
       background: #c2c3c6;
     }
     &.has-error{
+      color:red;
       &::placeholder {
         color: red;
         opacity: 1;

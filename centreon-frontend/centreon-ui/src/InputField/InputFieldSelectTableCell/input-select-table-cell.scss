@@ -109,6 +109,9 @@
     .scrollbar-container {
       position: static;
     }
+    &.extrasmall{
+      width: 58px;
+    }
     &.small {
       width: 150px;
     }

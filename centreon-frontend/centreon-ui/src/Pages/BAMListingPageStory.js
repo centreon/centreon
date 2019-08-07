@@ -12,6 +12,7 @@ import kpiMock from "../Mocks/kpi";
 import escalationMock from "../Mocks/escalation";
 import contactGroupsMock from "../Mocks/contactGroups";
 import businessViewsMock from "../Mocks/businessViews";
+import impactsMock from "../Mocks/impacts";
 
 class BAMListingPageStory extends Component {
   state = {
@@ -25,7 +26,8 @@ class BAMListingPageStory extends Component {
     remoteServers: [],
     escalations: escalationMock.result.entities,
     eventHandlerCommands: commandsMock.result.entities,
-    kpis: kpiMock.result.entities,
+    kpis: kpiMock.result,
+    impacts: impactsMock.result
   };
 
   togglePanel = () => {
@@ -48,7 +50,8 @@ class BAMListingPageStory extends Component {
       remoteServers,
       escalations,
       eventHandlerCommands,
-      kpis
+      kpis,
+      impacts
     } = this.state;
     return (
       <React.Fragment>
@@ -104,10 +107,56 @@ class BAMListingPageStory extends Component {
           eventHandlerCommands={eventHandlerCommands}
           escalations={escalations}
           timeperiods={timeperiods}
+          timeperiodsForSelect={timeperiods}
           kpis={kpis}
           contactGroups={contactGroups}
           businessViews={businessViews}
           remoteServers={remoteServers}
+          impacts={impacts.entities}
+          multiSelectFilters={{
+            timeperiods: {
+              limit: 30,
+              offset: 0,
+              searchString: "",
+              sortf: false,
+              sorto: false
+            },
+            timeperiodsForSelect: {
+              limit: 500,
+              offset: 0,
+              searchString: "",
+              sortf: false,
+              sorto: false
+            },
+            kpis: {
+              limit: 30,
+              offset: 0,
+              searchString: "",
+              sortf: false,
+              sorto: false
+            },
+            businessViews: {
+              limit: 30,
+              offset: 0,
+              searchString: "",
+              sortf: false,
+              sorto: false
+            },
+            contactGroups: {
+              limit: 30,
+              offset: 0,
+              searchString: "",
+              sortf: false,
+              sorto: false
+            },
+            escalations: {
+              limit: 30,
+              offset: 0,
+              searchString: "",
+              sortf: false,
+              sorto: false
+            }
+          }}
         />
       </React.Fragment>
     );

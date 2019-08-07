@@ -25,6 +25,7 @@ class MultiselectPanel extends Component {
       nameIdPaired,
       indicatorsEditor,
       paginationLimit,
+      impacts,
       styles
     } = this.props;
     let currentlySelectedFromKey = currentlySelected;
@@ -64,6 +65,7 @@ class MultiselectPanel extends Component {
             indicatorsEditor={indicatorsEditor}
             checkable
             selected={currentlySelectedFromKey}
+            impacts={impacts}
           />
         </div>
       </PanelItem>

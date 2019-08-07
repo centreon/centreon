@@ -45,6 +45,11 @@
     &.smallest {
       width: 100px;
     }
+    &.extrasmall {
+      .form-control {
+        width:58px;
+      }
+    }
     &.smaller {
       width: 67px;
     }

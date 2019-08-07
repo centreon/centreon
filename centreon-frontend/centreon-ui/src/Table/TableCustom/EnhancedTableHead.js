@@ -1,17 +1,17 @@
 /* eslint-disable react/jsx-filename-extension */
 /* eslint-disable react/prop-types */
 
-import React, { Component } from 'react';
-import TableHead from '@material-ui/core/TableHead';
-import TableRow from '@material-ui/core/TableRow';
-import PropTypes from 'prop-types';
-import StyledTableCell from './StyledTableCell';
-import StyledTableSortLabel from './StyledTableSortLabel';
-import StyledCheckbox from './StyledCheckbox';
-import TABLE_COLUMN_TYPES from '../ColumnTypes';
+import React, { Component } from "react";
+import TableHead from "@material-ui/core/TableHead";
+import TableRow from "@material-ui/core/TableRow";
+import PropTypes from "prop-types";
+import StyledTableCell from "./StyledTableCell";
+import StyledTableSortLabel from "./StyledTableSortLabel";
+import StyledCheckbox from "./StyledCheckbox";
+import TABLE_COLUMN_TYPES from "../ColumnTypes";
 
 class EnhancedTableHead extends Component {
-  createSortHandler = (property) => (event) => {
+  createSortHandler = property => event => {
     const { onRequestSort } = this.props;
     onRequestSort(event, property);
   };
@@ -25,6 +25,7 @@ class EnhancedTableHead extends Component {
       rowCount,
       headRows,
       checkable,
+      indicatorsEditor
     } = this.props;
     return (
       <TableHead>
@@ -39,11 +40,11 @@ class EnhancedTableHead extends Component {
             </StyledTableCell>
           ) : null}
 
-          {headRows.map((row) => (
+          {headRows.map(row => (
             <StyledTableCell
               key={row.id}
-              align={row.numeric ? 'left' : ''}
-              padding={row.disablePadding ? 'none' : 'default'}
+              align={row.numeric ? "left" : ""}
+              padding={row.disablePadding ? "none" : "default"}
               sortDirection={orderBy === row.id ? order : false}
             >
               {row.type === TABLE_COLUMN_TYPES.multicolumn ? (
@@ -53,13 +54,45 @@ class EnhancedTableHead extends Component {
                   active={orderBy === row.id}
                   direction={order}
                   onClick={this.createSortHandler(row.id)}
-                  icon={{ color: 'red' }}
+                  icon={{ color: "red" }}
                 >
                   {row.label}
                 </StyledTableSortLabel>
               )}
             </StyledTableCell>
           ))}
+          {indicatorsEditor ? (
+            <React.Fragment>
+              <StyledTableCell
+                key={"modeKpi"}
+                align={"left"}
+                padding={"none"}
+              >
+                Mode
+              </StyledTableCell>
+              <StyledTableCell
+                key={"warningKpi"}
+                align={"left"}
+                padding={"none"}
+              >
+                Warning
+              </StyledTableCell>
+              <StyledTableCell
+                key={"criticalKpi"}
+                align={"left"}
+                padding={"none"}
+              >
+                Critical
+              </StyledTableCell>
+              <StyledTableCell
+                key={"unknownKpi"}
+                align={"left"}
+                padding={"none"}
+              >
+                Unknown
+              </StyledTableCell>
+            </React.Fragment>
+          ) : null}
         </TableRow>
       </TableHead>
     );
@@ -72,7 +105,7 @@ EnhancedTableHead.propTypes = {
   onSelectAllClick: PropTypes.func.isRequired,
   order: PropTypes.string.isRequired,
   orderBy: PropTypes.string.isRequired,
-  rowCount: PropTypes.number.isRequired,
+  rowCount: PropTypes.number.isRequired
 };
 
 export default EnhancedTableHead;
