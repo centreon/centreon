@@ -30,7 +30,7 @@ use centreon::gorgone::common;
 use centreon::misc::db;
 use centreon::script;
 
-my ($gorgone, $gorgone_config);
+my ($gorgone, $config);
 
 use base qw(centreon::script);
 
@@ -75,23 +75,23 @@ sub init {
         $self->{logger}->writeLogError("Can't find extra config file '$self->{opt_extra}'");
         exit(1);
     }
-    $gorgone_config = centreon::gorgone::common::read_config(
+    $config = centreon::gorgone::common::read_config(
         config_file => $self->{opt_extra},
         logger => $self->{logger}
     );
-    if (defined($gorgone_config->{gorgonecore}{external_com_type}) && $gorgone_config->{gorgonecore}{external_com_type} ne '') {
-        centreon::gorgone::common::loadprivkey(logger => $self->{logger}, privkey => $gorgone_config->{gorgonecore}{privkey});
+    if (defined($config->{gorgonecore}->{external_com_type}) && $config->{gorgonecore}->{external_com_type} ne '') {
+        centreon::gorgone::common::loadprivkey(logger => $self->{logger}, privkey => $config->{gorgonecore}->{privkey});
     }
     
     # Database connections:
     #    We add in gorgone database
     $gorgone->{db_gorgone} = centreon::misc::db->new(
-        type => $gorgone_config->{gorgonecore}{gorgone_db_type},
-        db => $gorgone_config->{gorgonecore}{gorgone_db_name},
-        host => $gorgone_config->{gorgonecore}{gorgone_db_host},
-        port => $gorgone_config->{gorgonecore}{gorgone_db_port},
-        user => $gorgone_config->{gorgonecore}{gorgone_db_user},
-        password => $gorgone_config->{gorgonecore}{gorgone_db_password},
+        type => $config->{gorgonecore}->{gorgone_db_type},
+        db => $config->{gorgonecore}->{gorgone_db_name},
+        host => $config->{gorgonecore}->{gorgone_db_host},
+        port => $config->{gorgonecore}->{gorgone_db_port},
+        user => $config->{gorgonecore}->{gorgone_db_user},
+        password => $config->{gorgonecore}->{gorgone_db_password},
         force => 2,
         logger => $gorgone->{logger}
     );
@@ -101,12 +101,12 @@ sub init {
         exit(1);
     }
     
-    $self->{hostname} = $gorgone_config->{gorgonecore}{hostname};
+    $self->{hostname} = $config->{gorgonecore}->{hostname};
     if (!defined($self->{hostname}) || $self->{hostname} eq '') {
         $self->{hostname} = hostname();
     }
     
-    $self->{id} = $gorgone_config->{gorgonecore}{id};
+    $self->{id} = $config->{gorgonecore}->{id};
     if (!defined($self->{hostname}) || $self->{hostname} eq '') {
         #$self->{id} = get_poller_id(dbh => $dbh, name => $self->{hostname});
     }
@@ -175,28 +175,28 @@ sub handle_CHLD {
 
 sub load_modules {
     my $self = shift;
+    next if (!defined($config->{modules}));
 
-    foreach my $section (keys %{$gorgone_config}) {
-        next if (!defined($gorgone_config->{$section}{module}));
-        
-        my $name = $gorgone_config->{$section}{module};
+    foreach my $module (@{$config->{modules}}) {  
+        next if (!defined($module->{enable}) || $module->{enable} eq '0');      
+        my $name = $module->{module};
         (my $file = "$name.pm") =~ s{::}{/}g;
         require $file;
-        $self->{logger}->writeLogInfo("Module '$section' is loading");
+        $self->{logger}->writeLogInfo("Module '" . $module->{name} . "' is loading");
         $self->{modules_register}->{$name} = {};
         
         foreach my $method_name (('register', 'routing', 'kill', 'kill_internal', 'gently', 'check', 'init')) {
             unless ($self->{modules_register}->{$name}->{$method_name} = $name->can($method_name)) {
-                $self->{logger}->writeLogError("No function '$method_name' for module '$section'");
+                $self->{logger}->writeLogError("No function '$method_name' for module '" . $module->{name} . "'");
                 exit(1);
             }
         }
 
         my ($events, $id) = $self->{modules_register}->{$name}->{register}->(
-            config => $gorgone_config->{$section},
-            config_core => $gorgone_config->{gorgonecore},
-            config_db_centreon => $gorgone_config->{db_centreon},
-            config_db_centstorage => $gorgone_config->{db_centstorage}
+            config => $module,
+            config_core => $config->{gorgonecore},
+            config_db_centreon => $config->{database}->{db_centreon},
+            config_db_centstorage => $config->{database}->{db_centstorage}
         );
         $self->{modules_id}->{$id} = $name;
         foreach my $event (@{$events}) {
@@ -204,7 +204,7 @@ sub load_modules {
             push @{$self->{modules_events}->{$event}}, $name;
         }
 
-        $self->{logger}->writeLogInfo("Module '$section' is loaded");
+        $self->{logger}->writeLogInfo("Module '" . $module->{name} . "' is loaded");
     }    
     
     # Load internal functions
@@ -250,7 +250,7 @@ sub message_run {
     if (defined($target) && $target ne '') {
         # Check if not myself ;)
         if ($target ne $self->{id}) {
-            $self->{modules_register}->{ $self->{modules_id}->{$gorgone_config->{gorgonecore}{proxy_name}}  }->{routing}->(
+            $self->{modules_register}->{ $self->{modules_id}->{$config->{gorgonecore}->{proxy_name}}  }->{routing}->(
                 socket => $self->{internal_socket}, dbh => $self->{db_gorgone}, logger => $self->{logger}, 
                 action => $1, token => $token, target => $target, data => $data,
                 hostname => $self->{hostname}
@@ -262,7 +262,7 @@ sub message_run {
     if ($action =~ /^(PUTLOG|GETLOG|KILL|PING|CONSTATUS)$/) {
         my ($code, $response, $response_type) = $self->{internal_register}->{lc($action)}->(
             gorgone => $self,
-            gorgone_config => $gorgone_config,
+            gorgone_config => $config,
             id => $self->{id},
             data => $data,
             token => $token,
@@ -304,10 +304,10 @@ sub handshake {
 
     if ($status == 1) {
         ($status, my $response) = centreon::gorgone::common::uncrypt_message(
-            cipher => $gorgone_config->{gorgonecore}{cipher}, 
+            cipher => $config->{gorgonecore}->{cipher}, 
             message => $message,
             symkey => $key,
-            vector => $gorgone_config->{gorgonecore}{vector}
+            vector => $config->{gorgonecore}->{vector}
         );
         if ($status == 0 && $response =~ /^\[.*\]/) {
             centreon::gorgone::common::update_identity(dbh => $self->{db_gorgone}, identity => $identity);
@@ -337,8 +337,8 @@ sub handshake {
         }
         my ($status, $symkey) = centreon::gorgone::common::generate_symkey(
             logger => $self->{logger},
-            cipher => $gorgone_config->{gorgonecore}{cipher},
-            keysize => $gorgone_config->{gorgonecore}{keysize}
+            cipher => $config->{gorgonecore}->{cipher},
+            keysize => $config->{gorgonecore}->{keysize}
         );
         if ($status == -1) {
             centreon::gorgone::common::zmq_core_response(
@@ -372,8 +372,8 @@ sub router_external_event {
             centreon::gorgone::common::zmq_core_response(
                 socket => $gorgone->{external_socket},
                 identity => $identity, response_type => $response_type,
-                cipher => $gorgone_config->{gorgonecore}{cipher},
-                vector => $gorgone_config->{gorgonecore}{vector},
+                cipher => $config->{gorgonecore}->{cipher},
+                vector => $config->{gorgonecore}->{vector},
                 symkey => $key,
                 token => $token, code => $code,
                 data => $response
@@ -423,9 +423,9 @@ sub waiting_ready {
 sub clean_sessions {
     my ($self, %options) = @_;
     
-    if ($self->{sessions_timer} - time() > $gorgone_config->{gorgonecore}{purge_sessions_time}) {
+    if ($self->{sessions_timer} - time() > $config->{gorgonecore}->{purge_sessions_time}) {
         $self->{logger}->writeLogInfo("purge sessions in progress...");
-        $self->{db_gorgone}->query("DELETE FROM gorgone_identity WHERE `ctime` <  " . $self->{db_gorgone}->quote(time() - $gorgone_config->{gorgonecore}{sessions_time}));
+        $self->{db_gorgone}->query("DELETE FROM gorgone_identity WHERE `ctime` <  " . $self->{db_gorgone}->quote(time() - $config->{gorgonecore}->{sessions_time}));
         $self->{sessions_timer} = time();
     }
 }
@@ -435,7 +435,7 @@ sub quit {
     
     $self->{logger}->writeLogInfo("Quit main process");
     zmq_close($self->{internal_socket});
-    if (defined($gorgone_config->{gorgonecore}{external_com_type}) && $gorgone_config->{gorgonecore}{external_com_type} ne '') {
+    if (defined($config->{gorgonecore}->{external_com_type}) && $config->{gorgonecore}->{external_com_type} ne '') {
         zmq_close($self->{external_socket});
     }
     exit(0);
@@ -459,15 +459,15 @@ sub run {
     }
     
     $gorgone->{internal_socket} = centreon::gorgone::common::create_com(
-        type => $gorgone_config->{gorgonecore}{internal_com_type},
-        path => $gorgone_config->{gorgonecore}{internal_com_path},
+        type => $config->{gorgonecore}->{internal_com_type},
+        path => $config->{gorgonecore}->{internal_com_path},
         zmq_type => 'ZMQ_ROUTER', name => 'router-internal',
         logger => $gorgone->{logger}
     );
-    if (defined($gorgone_config->{gorgonecore}{external_com_type}) && $gorgone_config->{gorgonecore}{external_com_type} ne '') {
+    if (defined($config->{gorgonecore}->{external_com_type}) && $config->{gorgonecore}->{external_com_type} ne '') {
         $gorgone->{external_socket} = centreon::gorgone::common::create_com(
-            type => $gorgone_config->{gorgonecore}{external_com_type},
-            path => $gorgone_config->{gorgonecore}{external_com_path},
+            type => $config->{gorgonecore}->{external_com_type},
+            path => $config->{gorgonecore}->{external_com_path},
             zmq_type => 'ZMQ_ROUTER', name => 'router-external',
             logger => $gorgone->{logger}
         );
@@ -525,7 +525,7 @@ sub run {
             }
             
             # Send KILL
-            if (time() - $gorgone->{kill_timer} > $gorgone_config->{gorgonecore}{timeout}) {
+            if (time() - $gorgone->{kill_timer} > $config->{gorgonecore}->{timeout}) {
                 foreach my $name (keys %{$gorgone->{modules_register}}) {
                     $gorgone->{modules_register}->{$name}->{kill_internal}->(logger => $gorgone->{logger});
                 }

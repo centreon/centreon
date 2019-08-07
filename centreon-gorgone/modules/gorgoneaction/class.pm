@@ -38,8 +38,8 @@ sub new {
     $connector->{config_core} = $options{config_core};
     $connector->{stop} = 0;
     
-    $connector->{enginecommand_timeout} = defined($connector->{config}{enginecommand_timeout}) ? $connector->{config}{enginecommand_timeout} : 30;
-    $connector->{command_timeout} = defined($connector->{config}{command_timeout}) ? $connector->{config}{command_timeout} : 30;
+    $connector->{enginecommand_timeout} = defined($connector->{config}->{enginecommand_timeout}) ? $connector->{config}->{enginecommand_timeout} : 30;
+    $connector->{command_timeout} = defined($connector->{config}->{command_timeout}) ? $connector->{config}->{command_timeout} : 30;
     
     bless $connector, $class;
     $connector->set_signal_handlers;
@@ -195,8 +195,8 @@ sub action_run {
         name => 'gorgoneaction-'. $$,
         logger => $self->{logger},
         linger => 5000,
-        type => $self->{config_core}{internal_com_type},
-        path => $self->{config_core}{internal_com_path}
+        type => $self->{config_core}->{internal_com_type},
+        path => $self->{config_core}->{internal_com_path}
     );
     if ($options{action} eq 'COMMAND') {
         $self->action_command(%options, socket_log => $socket_log);
@@ -268,8 +268,8 @@ sub run {
         zmq_type => 'ZMQ_DEALER',
         name => 'gorgoneaction',
         logger => $self->{logger},
-        type => $self->{config_core}{internal_com_type},
-        path => $self->{config_core}{internal_com_path}
+        type => $self->{config_core}->{internal_com_type},
+        path => $self->{config_core}->{internal_com_path}
     );
     centreon::gorgone::common::zmq_send_message(
         socket => $socket,

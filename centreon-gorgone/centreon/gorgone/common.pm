@@ -26,26 +26,29 @@ use ZMQ::LibZMQ4;
 use ZMQ::Constants qw(:all);
 use JSON;
 use File::Basename;
-use Config::IniFiles;
 use Crypt::OpenSSL::RSA;
 use Crypt::OpenSSL::Random;
 use Crypt::CBC;
 use Data::Dumper;
+use YAML 'LoadFile';;
 
 my %zmq_type = ('ZMQ_ROUTER' => ZMQ_ROUTER, 'ZMQ_DEALER' => ZMQ_DEALER);
 my $privkey;
 
 sub read_config {
     my (%options) = @_;
-    my %config;
     
-    tie %config, 'Config::IniFiles', (-file => $options{config_file});
-    if (@Config::IniFiles::errors) {
+    my $config;
+    eval {
+        $config = LoadFile($options{config_file});
+    };
+    if ($@) {
         $options{logger}->writeLogError("Parsinig extra config file error:");
-        $options{logger}->writeLogError(join("\n", @Config::IniFiles::errors));
+        $options{logger}->writeLogError($@);
         exit(1);
     }
-    return \%config;
+    
+    return $config;
 }
 
 #######################
@@ -257,8 +260,8 @@ sub is_handshake_done {
 sub constatus {
     my (%options) = @_;
     
-    if (defined($options{gorgone}->{modules_register}->{ $options{gorgone}->{modules_id}->{$options{gorgone_config}->{gorgonecore}{proxy_name}} })) {
-        my $name = $options{gorgone_config}->{$options{gorgone_config}->{gorgonecore}{proxy_name}}{module};
+    if (defined($options{gorgone}->{modules_register}->{ $options{gorgone}->{modules_id}->{$options{gorgone_config}->{gorgonecore}->{proxy_name}} })) {
+        my $name = $options{gorgone_config}->{modules}->{$options{gorgone_config}->{gorgonecore}->{proxy_name}}->{module};
         my $method;
         if (defined($name) && ($method = $name->can('get_constatus_result'))) {
             return (0, { action => 'constatus', mesage => 'ok', data => $method->() }, 'CONSTATUS');

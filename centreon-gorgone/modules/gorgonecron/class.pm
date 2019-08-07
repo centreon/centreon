@@ -107,8 +107,8 @@ sub run {
     $socket = centreon::gorgone::common::connect_com(
         zmq_type => 'ZMQ_DEALER', name => 'gorgonecron',
         logger => $self->{logger},
-        type => $self->{config_core}{internal_com_type},
-        path => $self->{config_core}{internal_com_path}
+        type => $self->{config_core}->{internal_com_type},
+        path => $self->{config_core}->{internal_com_path}
     );
     centreon::gorgone::common::zmq_send_message(
         socket => $socket,
