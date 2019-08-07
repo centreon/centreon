@@ -13,7 +13,8 @@ class MultiSelectContainer extends Component {
       selected,
       error,
       values = [],
-      onEdit
+      onEdit,
+      emptyInfo,
     } = this.props;
     return (
       <MultiSelectHolder
@@ -23,6 +24,7 @@ class MultiSelectContainer extends Component {
         error={error}
         onClick={onEdit}
         selected={selected}
+        emptyInfo={emptyInfo}
       >
         <CustomRow additionalStyles={["mb-0"]}>
           {values.map((item, index) => {

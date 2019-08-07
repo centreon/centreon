@@ -66,7 +66,7 @@ const multiselectsConfiguration = {
         type: TABLE_COLUMN_TYPES.string
       },
     ],
-    label: "Manage indicator",
+    label: "Manage indicators",
     indicatorsEditor:true,
     multiSelectNeedsTransformation: false
   },

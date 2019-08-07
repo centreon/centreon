@@ -26,7 +26,8 @@ class InputFieldMultiSelectEmpty extends React.Component {
       children,
       error,
       onClick,
-      selected
+      selected,
+      emptyInfo
     } = this.props;
     const { isHovered } = this.state;
     return (
@@ -50,7 +51,7 @@ class InputFieldMultiSelectEmpty extends React.Component {
           {isEmpty && (
             <React.Fragment>
               <span className={classnames(styles['multi-select-holder-add'])}>
-                + Click to link an extra indicators time periods
+                + {emptyInfo ? emptyInfo : 'Click to link'}
               </span>
             </React.Fragment>
           )}

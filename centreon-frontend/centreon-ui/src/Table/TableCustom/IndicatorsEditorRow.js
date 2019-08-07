@@ -5,7 +5,7 @@ import StyledTableCell2 from "./StyledTableCell2";
 
 class IndicatorsEditorRow extends Component {
   render() {
-    const { row, index, impacts } = this.props;
+    const { row, index, impacts, selected } = this.props;
     let rowMode = row.impact.type ? row.impact.type : "word";
     return (
       <React.Fragment>
@@ -21,6 +21,7 @@ class IndicatorsEditorRow extends Component {
             value={rowMode}
             active="active"
             size={"extrasmall"}
+            disabled={!selected}
           />
         </StyledTableCell2>
         {rowMode == "word" ? (
@@ -32,6 +33,7 @@ class IndicatorsEditorRow extends Component {
                 isColored={true}
                 size={"extrasmall"}
                 active="active"
+                disabled={!selected}
               />
             </StyledTableCell2>
             <StyledTableCell2 align="left">
@@ -41,6 +43,7 @@ class IndicatorsEditorRow extends Component {
                 isColored={true}
                 size={"extrasmall"}
                 active="active"
+                disabled={!selected}
               />
             </StyledTableCell2>
             <StyledTableCell2 align="left">
@@ -50,6 +53,7 @@ class IndicatorsEditorRow extends Component {
                 isColored={true}
                 size={"extrasmall"}
                 active="active"
+                disabled={!selected}
               />
             </StyledTableCell2>
           </React.Fragment>
@@ -59,18 +63,21 @@ class IndicatorsEditorRow extends Component {
               <InputFieldTableCell
                 value={row.impact.warning}
                 inputSize={"extrasmall"}
+                disabled={!selected}
               />
             </StyledTableCell2>
             <StyledTableCell2 align="left">
               <InputFieldTableCell
                 value={row.impact.critical}
                 inputSize={"extrasmall"}
+                disabled={!selected}
               />
             </StyledTableCell2>
             <StyledTableCell2 align="left">
               <InputFieldTableCell
                 value={row.impact.unknown}
                 inputSize={"extrasmall"}
+                disabled={!selected}
               />
             </StyledTableCell2>
           </React.Fragment>

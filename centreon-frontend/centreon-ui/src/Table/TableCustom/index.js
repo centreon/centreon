@@ -495,7 +495,7 @@ class TableCustom extends Component {
                         }
                       })}
                       {
-                        indicatorsEditor ? <IndicatorsEditor row={row} index={index} impacts={impacts} /> : null
+                        indicatorsEditor ? <IndicatorsEditor row={row} index={index} impacts={impacts} selected={isItemSelected}/> : null
                       }
                     </StyledTableRow>
                   );
