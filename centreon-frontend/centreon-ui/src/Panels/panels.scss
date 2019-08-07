@@ -34,8 +34,11 @@
     border: none;
     font-size: 20px;
     vertical-align: middle;
-    &:hover {
+    &:focus {
       outline: none;
+    }
+    &:hover {
+      background: #c2c3c6;
     }
     &.has-error{
       &::placeholder {
