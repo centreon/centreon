@@ -1,0 +1,127 @@
+name: gorgoned
+database:
+  db_centreon: 
+    dsn: "mysql:host=10.30.2.245;dbname=centreon"
+    username: centreon
+    password: centreon
+  db_centstorage: 
+    dsn: "mysql:host=10.30.2.245;dbname=centreon_storage"
+    username: centreon
+    password: centreon
+gorgonecore:
+  internal_com_type: ipc
+  internal_com_path: /tmp/gorgone/routing.ipc
+  external_com_type: tcp
+  external_com_path: "*:5555"
+  # in seconds before sending kill signals (not gently)
+  timeout: 50
+  gorgone_db_type: SQLite
+  gorgone_db_name: dbname=/tmp/gorgone.sdb
+  gorgone_db_host: 
+  gorgone_db_port: 
+  gorgone_db_user:
+  gorgone_db_password:
+  # If not set. Use 'hostname' function.
+  hostname:
+  # If not set. Try from 'hostname' in database
+  # Set 'none', if you don't need it (for poller in push mode)
+  id: none
+  privkey: keys/central/privkey.pem
+  cipher: "Cipher::AES"
+  # in bytes
+  keysize: 32
+  # 16 bytes for AES
+  vector: 0123456789012345
+  # in seconds
+  sessions_time: 86400
+  # in seconds
+  purge_sessions_time: 3600
+  # shouldn't be changed
+  proxy_name: gorgoneproxy
+modules:
+  - name: gorgonecron
+    module: modules::gorgonecron::hooks
+    enable: 1
+  - name: gorgoneaction
+    module: modules::gorgoneaction::hooks
+    enable: 1
+  - name: gorgoneacl
+    module: modules::gorgoneacl::hooks
+    enable: 0
+    on_demand: 1
+    # How much to keep open in seconds without event received
+    on_demand_time: 60
+    # in seconds - do purge for organizations also
+    check_organizations_time: 3600
+    # in seconds - do a resync of the organizations
+    resync_time: 28800
+    # in seconds - random windows (to avoid resync at the same time)
+    resync_random_windows: 7200
+    # set to 1 to disable - if you want to do it by a cron
+    resync_auto_disable: 0
+    sql_fetch: 10000
+    sql_bulk: 2000
+  - name: gorgoneproxy
+    module: modules::gorgoneproxy::hooks
+    enable: 0
+    pool: 5
+    # sync history each 5 minutes
+    synchistory_time: 300
+    # how much time before the response is in timeout
+    synchistory_timeout: 120
+    # ping each X seconds
+    ping: 60
+  - name: gorgonescom
+    module: modules::gorgonescom::hooks
+    enable: 0
+    # in seconds - do purge for container also
+    check_containers_time: 3600
+    dsmclient_bin: /usr/share/centreon/bin/dsmclient.pl
+    centcore_cmd: /var/lib/centreon/centcore.cmd
+    containers:
+      # - name: toto
+      #   url: "http://scomserver"
+      #   username: toto
+      #   password: pass
+      #   resync_time: 300
+      #   dsmhost: centreon
+      #   dsmslot: slot-%
+      #   dsmmacro: ALARM_ID
+      #   dsmalertmessage: "%{monitoringobjectdisplayname} %{name}"
+      #   dsmrecoverymessage: slot ok
+      # - name: tutu
+      #   url: http://scomserver2/
+      #   username: toto2
+      #   password: toto2
+      #   resync_time: 600
+  - name: gorgonenewtest
+    module: modules::gorgonenewtest::hooks
+    enable: 0
+    # in seconds - do purge for container also
+    check_containers_time: 3600
+    clapi_command: /usr/bin/centreon
+    clapi_username: admin
+    clapi_password: centreon
+    clapi_action_applycfg: RELOAD
+    centcore_cmd: /var/lib/centreon/centcore.cmd
+    containers:
+      # - name: toto
+      #   resync_time: 300
+      #   nmc_endpoint: "http://__NMC_ADDRESS__/nws/managementconsoleservice.asmx"
+      #   password: pass
+      #   host_template: generic-active-host-custom
+      #   host_prefix: Robot-%s
+      #   service_template: generic-passive-service-custom
+      #   service_prefix: Scenario-%s
+      #   poller_name=: Central
+      #   list_scenario_status: '{ "search": "All", "instances": [] }'
+      # - name: tutu
+      #   resync_time: 600
+      #   nmc_endpoint: "http://__NMC_ADDRESS__/nws/managementconsoleservice.asmx"
+      #   password: pass
+      #   host_template: generic-active-host-custom
+      #   host_prefix: Robot-%s
+      #   service_template: generic-passive-service-custom
+      #   service_prefix: Scenario-%s
+      #   poller_name=: Central
+      #   list_scenario_status: '{ "search": "Robot", "instances": ["XXXX"] }' 

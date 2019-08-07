@@ -275,7 +275,7 @@ sub insert_result {
     # MS SQL: IGNORE_DUP_KEY
     # Postgres: ???
     my $prepare_str = '(' . $self->{organization_id} . ', ' . $options{acl_resource_id} . ', ?, ?)';
-    for (my $i = 1; $i < $self->{config}{sql_bulk}; $i++) {
+    for (my $i = 1; $i < $self->{config}->{sql_bulk}; $i++) {
         $prepare_str .= ', (' . $self->{organization_id} . ', ' . $options{acl_resource_id} . ', ?, ?)';
     }
     ($status, $sth) = $self->{db_centreon}->query('INSERT IGNORE INTO cfg_acl_resources_cache VALUES ' . $prepare_str, prepare_only => 1);
@@ -284,13 +284,13 @@ sub insert_result {
     my $i = 0;
     my @array_binds = ();
     while (my $row = ( shift(@$rows) || # get row from cache, or reload cache:
-                       shift(@{$rows = $options{hs_sth}->fetchall_arrayref(undef, $self->{config}{sql_fetch})||[]})) ) {
+                       shift(@{$rows = $options{hs_sth}->fetchall_arrayref(undef, $self->{config}->{sql_fetch})||[]})) ) {
         
         if (!defined($host_insert{$$row[0]})) {
             $host_insert{$$row[0]} = 1;
             push @array_binds, 1, $$row[0];
             $i++;
-            if ($i == $self->{config}{sql_bulk}) {
+            if ($i == $self->{config}->{sql_bulk}) {
                 return 1 if ($self->insert_execute(sth => $sth, bind => \@array_binds));
                 $i = 0;
                 @array_binds = ();
@@ -299,7 +299,7 @@ sub insert_result {
         
         push @array_binds, 2, $$row[1];
         $i++;
-        if ($i == $self->{config}{sql_bulk}) {
+        if ($i == $self->{config}->{sql_bulk}) {
             return 1 if ($self->insert_execute(sth => $sth, bind => \@array_binds));
             $i = 0;
             @array_binds = ();
@@ -387,9 +387,9 @@ sub run {
 
     # Database creation. We stay in the loop still there is an error
     $self->{db_centreon} = centreon::misc::db->new(
-        dsn => $self->{config_db_centreon}{dsn},
-        user => $self->{config_db_centreon}{username},
-        password => $self->{config_db_centreon}{password},
+        dsn => $self->{config_db_centreon}->{dsn},
+        user => $self->{config_db_centreon}->{username},
+        password => $self->{config_db_centreon}->{password},
         force => 2,
         logger => $self->{logger}
     );
@@ -402,8 +402,8 @@ sub run {
     $socket = centreon::gorgone::common::connect_com(
         zmq_type => 'ZMQ_DEALER', name => 'gorgoneacl-' . $self->{organization_id},
         logger => $self->{logger},
-        type => $self->{config_core}{internal_com_type},
-        path => $self->{config_core}{internal_com_path}
+        type => $self->{config_core}->{internal_com_type},
+        path => $self->{config_core}->{internal_com_path}
     );
     centreon::gorgone::common::zmq_send_message(socket => $socket,
                                                   action => 'ACLREADY', data => { organization_id => $self->{organization_id} },
@@ -427,7 +427,7 @@ sub run {
         # Check if we need to quit
         if ($on_demand == 1) {
             if (defined($rev) && $rev == 0) {
-                if (time() - $on_demand_time > $self->{config}{on_demand_time}) {
+                if (time() - $on_demand_time > $self->{config}->{on_demand_time}) {
                     $self->{logger}->writeLogInfo("gorgone-acl $$ has quit");
                     zmq_close($socket);
                     exit(0);

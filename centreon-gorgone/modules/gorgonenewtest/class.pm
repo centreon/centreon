@@ -118,8 +118,8 @@ sub send_log {
         $self->{socket_log} = centreon::gorgone::common::connect_com(
             zmq_type => 'ZMQ_DEALER', name => 'gorgonenewtest-'. $self->{container_id},
             logger => $self->{logger}, linger => 5000,
-            type => $self->{config_core}{internal_com_type},
-            path => $self->{config_core}{internal_com_path}
+            type => $self->{config_core}->{internal_com_type},
+            path => $self->{config_core}->{internal_com_path}
         );
     }
 
@@ -633,16 +633,16 @@ sub run {
 
     # Database creation. We stay in the loop still there is an error
     $self->{db_centstorage} = centreon::misc::db->new(
-        dsn => $self->{config_db_centstorage}{dsn},
-        user => $self->{config_db_centstorage}{username},
-        password => $self->{config_db_centstorage}{password},
+        dsn => $self->{config_db_centstorage}->{dsn},
+        user => $self->{config_db_centstorage}->{username},
+        password => $self->{config_db_centstorage}->{password},
         force => 2,
         logger => $self->{logger}
     );
     $self->{db_centreon} = centreon::misc::db->new(
-        dsn => $self->{config_db_centreon}{dsn},
-        user => $self->{config_db_centreon}{username},
-        password => $self->{config_db_centreon}{password},
+        dsn => $self->{config_db_centreon}->{dsn},
+        user => $self->{config_db_centreon}->{username},
+        password => $self->{config_db_centreon}->{password},
         force => 2,
         logger => $self->{logger}
     );
@@ -656,8 +656,8 @@ sub run {
     $socket = centreon::gorgone::common::connect_com(
         zmq_type => 'ZMQ_DEALER', name => 'gorgonenewtest-' . $self->{container_id},
         logger => $self->{logger},
-        type => $self->{config_core}{internal_com_type},
-        path => $self->{config_core}{internal_com_path}
+        type => $self->{config_core}->{internal_com_type},
+        path => $self->{config_core}->{internal_com_path}
     );
     centreon::gorgone::common::zmq_send_message(
         socket => $socket,
