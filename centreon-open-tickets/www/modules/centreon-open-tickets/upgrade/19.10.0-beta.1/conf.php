@@ -21,7 +21,7 @@
 
 $upgrade_conf['centreon-open-tickets']["rname"] = "Centreon Open Tickets";
 $upgrade_conf['centreon-open-tickets']["name"] = "centreon-open-tickets";
-$upgrade_conf['centreon-open-tickets']["mod_release"] = "19.10.0";
+$upgrade_conf['centreon-open-tickets']["mod_release"] = "19.10.0-beta.1";
 $upgrade_conf['centreon-open-tickets']["is_removeable"] = "1";
 $upgrade_conf['centreon-open-tickets']["author"] = "Centreon";
 $upgrade_conf['centreon-open-tickets']["infos"] = "Open Tickets Module";
