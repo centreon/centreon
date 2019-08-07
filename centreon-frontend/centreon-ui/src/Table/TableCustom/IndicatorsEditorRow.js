@@ -9,7 +9,12 @@ class IndicatorsEditorRow extends Component {
     let rowMode = row.impact.type ? row.impact.type : "word";
     return (
       <React.Fragment>
-        <StyledTableCell2 align="left">
+        <StyledTableCell2
+          align="left"
+          style={{
+            padding: "3px 4px"
+          }}
+        >
           <InputFieldSelectTableCell
             options={[
               {
@@ -26,7 +31,12 @@ class IndicatorsEditorRow extends Component {
         </StyledTableCell2>
         {rowMode == "word" ? (
           <React.Fragment>
-            <StyledTableCell2 align="left">
+            <StyledTableCell2
+              align="left"
+              style={{
+                padding: "3px 4px"
+              }}
+            >
               <InputFieldSelectTableCell
                 options={impacts}
                 value={row.impact.warning ? row.impact.warning : 1}
@@ -36,7 +46,12 @@ class IndicatorsEditorRow extends Component {
                 disabled={!selected}
               />
             </StyledTableCell2>
-            <StyledTableCell2 align="left">
+            <StyledTableCell2
+              align="left"
+              style={{
+                padding: "3px 4px"
+              }}
+            >
               <InputFieldSelectTableCell
                 options={impacts}
                 value={row.impact.critical ? row.impact.critical : 1}
@@ -46,7 +61,12 @@ class IndicatorsEditorRow extends Component {
                 disabled={!selected}
               />
             </StyledTableCell2>
-            <StyledTableCell2 align="left">
+            <StyledTableCell2
+              align="left"
+              style={{
+                padding: "3px 4px"
+              }}
+            >
               <InputFieldSelectTableCell
                 options={impacts}
                 value={row.impact.unknown ? row.impact.unknown : 1}
@@ -59,21 +79,36 @@ class IndicatorsEditorRow extends Component {
           </React.Fragment>
         ) : (
           <React.Fragment>
-            <StyledTableCell2 align="left">
+            <StyledTableCell2
+              align="left"
+              style={{
+                padding: "3px 4px"
+              }}
+            >
               <InputFieldTableCell
                 value={row.impact.warning}
                 inputSize={"extrasmall"}
                 disabled={!selected}
               />
             </StyledTableCell2>
-            <StyledTableCell2 align="left">
+            <StyledTableCell2
+              align="left"
+              style={{
+                padding: "3px 4px"
+              }}
+            >
               <InputFieldTableCell
                 value={row.impact.critical}
                 inputSize={"extrasmall"}
                 disabled={!selected}
               />
             </StyledTableCell2>
-            <StyledTableCell2 align="left">
+            <StyledTableCell2
+              align="left"
+              style={{
+                padding: "3px 4px"
+              }}
+            >
               <InputFieldTableCell
                 value={row.impact.unknown}
                 inputSize={"extrasmall"}

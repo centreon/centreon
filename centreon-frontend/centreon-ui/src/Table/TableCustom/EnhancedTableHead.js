@@ -31,7 +31,17 @@ class EnhancedTableHead extends Component {
       <TableHead>
         <TableRow>
           {checkable ? (
-            <StyledTableCell align="left" padding="checkbox">
+            <StyledTableCell
+              align="left"
+              padding="checkbox"
+              style={
+                indicatorsEditor
+                  ? {
+                      padding: "3px 4px"
+                    }
+                  : {}
+              }
+            >
               <StyledCheckbox
                 indeterminate={numSelected > 0 && numSelected < rowCount}
                 checked={numSelected === rowCount}
@@ -46,6 +56,13 @@ class EnhancedTableHead extends Component {
               align={row.numeric ? "left" : ""}
               padding={row.disablePadding ? "none" : "default"}
               sortDirection={orderBy === row.id ? order : false}
+              style={
+                indicatorsEditor
+                  ? {
+                      padding: "3px 4px"
+                    }
+                  : {}
+              }
             >
               {row.type === TABLE_COLUMN_TYPES.multicolumn ? (
                 row.label
@@ -67,6 +84,13 @@ class EnhancedTableHead extends Component {
                 key={"modeKpi"}
                 align={"left"}
                 padding={"none"}
+                style={
+                  indicatorsEditor
+                    ? {
+                        padding: "3px 4px"
+                      }
+                    : {}
+                }
               >
                 Mode
               </StyledTableCell>
@@ -74,6 +98,13 @@ class EnhancedTableHead extends Component {
                 key={"warningKpi"}
                 align={"left"}
                 padding={"none"}
+                style={
+                  indicatorsEditor
+                    ? {
+                        padding: "3px 4px"
+                      }
+                    : {}
+                }
               >
                 Warning
               </StyledTableCell>
@@ -81,6 +112,13 @@ class EnhancedTableHead extends Component {
                 key={"criticalKpi"}
                 align={"left"}
                 padding={"none"}
+                style={
+                  indicatorsEditor
+                    ? {
+                        padding: "3px 4px"
+                      }
+                    : {}
+                }
               >
                 Critical
               </StyledTableCell>
@@ -88,6 +126,13 @@ class EnhancedTableHead extends Component {
                 key={"unknownKpi"}
                 align={"left"}
                 padding={"none"}
+                style={
+                  indicatorsEditor
+                    ? {
+                        padding: "3px 4px"
+                      }
+                    : {}
+                }
               >
                 Unknown
               </StyledTableCell>

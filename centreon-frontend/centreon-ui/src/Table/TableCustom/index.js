@@ -26,7 +26,7 @@ import StyledPagination from "./StyledPagination";
 import Tooltip from "../../MaterialComponents/Tooltip";
 import InputFieldSelectTableCell from "../../InputField/InputFieldSelectTableCell";
 import InputFieldTableCell from "../../InputField/InputFieldTableCell";
-import IndicatorsEditor from './IndicatorsEditorRow';
+import IndicatorsEditor from "./IndicatorsEditorRow";
 
 const styles = () => ({
   root: {
@@ -101,11 +101,20 @@ class TableCustom extends Component {
       : nameIdPaired
       ? `${row.id}:${row.name}`
       : row.id;
-    const selectedIndex = indicatorsEditor ? selected.map(({object})=>{return object.id; }).indexOf(value.object.id) : selected.indexOf(value);
+    const selectedIndex = indicatorsEditor
+      ? selected
+          .map(({ object }) => {
+            return object.id;
+          })
+          .indexOf(value.object.id)
+      : selected.indexOf(value);
     let newSelected = [];
 
     if (selectedIndex === -1) {
-      newSelected = newSelected.concat(selected, indicatorsEditor ? row : value);
+      newSelected = newSelected.concat(
+        selected,
+        indicatorsEditor ? row : value
+      );
     } else if (selectedIndex === 0) {
       newSelected = newSelected.concat(selected.slice(1));
     } else if (selectedIndex === selected.length - 1) {
@@ -223,7 +232,7 @@ class TableCustom extends Component {
                 indicatorsEditor={indicatorsEditor}
               />
               <TableBody onMouseLeave={this.rowHovered.bind(this, "", false)}>
-                {tableData.map((row,index) => {
+                {tableData.map((row, index) => {
                   const isItemSelected = isSelected(
                     indicatorsEditor
                       ? row.object.id
@@ -254,6 +263,13 @@ class TableCustom extends Component {
                           onClick={event => this.handleClick(event, row)}
                           className={classes.tableCell}
                           padding="checkbox"
+                          style={
+                            indicatorsEditor
+                              ? {
+                                  padding: "3px 4px"
+                                }
+                              : {}
+                          }
                         >
                           <StyledCheckbox
                             checked={isItemSelected}
@@ -269,6 +285,11 @@ class TableCustom extends Component {
                               <TableCellCustom
                                 align="left"
                                 className={classes.tableCellCustom}
+                                style={
+                                  indicatorsEditor ? {
+                                    padding: '3px 4px'
+                                  } : {}
+                                }
                               >
                                 {row[column.id] || ""}
                               </TableCellCustom>
@@ -278,6 +299,11 @@ class TableCustom extends Component {
                               <TableCellCustom
                                 align="left"
                                 className={classes.tableCellCustom}
+                                style={
+                                  indicatorsEditor ? {
+                                    padding: '3px 4px'
+                                  } : {}
+                                }
                               >
                                 {column.subkey
                                   ? row[column.subkey][column.id] || ""
@@ -286,7 +312,16 @@ class TableCustom extends Component {
                             );
                           case TABLE_COLUMN_TYPES.boolean:
                             return (
-                              <StyledTableCell2 align="left">
+                              <StyledTableCell2
+                                align="left"
+                                style={
+                                  indicatorsEditor
+                                    ? {
+                                        padding: "3px 4px"
+                                      }
+                                    : {}
+                                }
+                              >
                                 {row[column.id] ? (
                                   <IconButton
                                     style={{
@@ -334,7 +369,16 @@ class TableCustom extends Component {
                             );
                           case TABLE_COLUMN_TYPES.toggler:
                             return (
-                              <StyledTableCell2 align="left">
+                              <StyledTableCell2
+                                align="left"
+                                style={
+                                  indicatorsEditor
+                                    ? {
+                                        padding: "3px 4px"
+                                      }
+                                    : {}
+                                }
+                              >
                                 {row[column.id] ? (
                                   <Tooltip
                                     label="Enable/Disable"
@@ -392,13 +436,31 @@ class TableCustom extends Component {
                             );
                           case TABLE_COLUMN_TYPES.input:
                             return (
-                              <StyledTableCell2 align="left">
+                              <StyledTableCell2
+                                align="left"
+                                style={
+                                  indicatorsEditor
+                                    ? {
+                                        padding: "3px 4px"
+                                      }
+                                    : {}
+                                }
+                              >
                                 <InputFieldTableCell />
                               </StyledTableCell2>
                             );
                           case TABLE_COLUMN_TYPES.select:
                             return (
-                              <StyledTableCell2 align="left">
+                              <StyledTableCell2
+                                align="left"
+                                style={
+                                  indicatorsEditor
+                                    ? {
+                                        padding: "3px 4px"
+                                      }
+                                    : {}
+                                }
+                              >
                                 <InputFieldSelectTableCell
                                   options={column.options}
                                   value={
@@ -415,6 +477,13 @@ class TableCustom extends Component {
                               <TableCellCustom
                                 align="left"
                                 className={classes.tableCellCustom}
+                                style={
+                                  indicatorsEditor
+                                    ? {
+                                        padding: "3px 4px"
+                                      }
+                                    : {}
+                                }
                               >
                                 {column.columns.map(subColumn => (
                                   <React.Fragment>
@@ -494,9 +563,14 @@ class TableCustom extends Component {
                             return null;
                         }
                       })}
-                      {
-                        indicatorsEditor ? <IndicatorsEditor row={row} index={index} impacts={impacts} selected={isItemSelected}/> : null
-                      }
+                      {indicatorsEditor ? (
+                        <IndicatorsEditor
+                          row={row}
+                          index={index}
+                          impacts={impacts}
+                          selected={isItemSelected}
+                        />
+                      ) : null}
                     </StyledTableRow>
                   );
                 })}
