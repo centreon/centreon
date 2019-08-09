@@ -167,8 +167,12 @@ sub proxy {
     # type 1 = ZMQ.
     # type 2 = SSH
     if ($entry->{type} == 1) {
-        my ($status, $msg) = $entry->{class}->send_message(action => $action, token => $token,
-                                                           target => '', data => $data);
+        my ($status, $msg) = $entry->{class}->send_message(
+            action => $action,
+            token => $token,
+            target => '', # TODO: don't set to null if we need to chain it!!!
+            data => $data
+        );
         if ($status != 0) {
             # error we put log and we close (TODO the log)
             $connector->{logger}->writeLogError("gorgoneproxy: class: send message problem for '$target': $msg");
