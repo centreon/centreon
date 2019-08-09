@@ -2,4 +2,5 @@
 - Add a HTTP frontend module for clients (https and basic auth). Can try: https://metacpan.org/pod/HTTP::Server::Simple
 - Add legacy module: read centcore.cmd
 - Can chain agents and forward protocol
+- Add a core event: GETINFORMATION (events loaded, target loaded and module loaded)
 - gorgone-newtest: don't use centcore.cmd. use ssh system.
