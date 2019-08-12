@@ -27,7 +27,7 @@ use ZMQ::Constants qw(:all);
 use JSON;
 use File::Basename;
 use Crypt::OpenSSL::RSA;
-use Crypt::OpenSSL::Random;
+use Crypt::PRNG;
 use Crypt::CBC;
 use Data::Dumper;
 use YAML 'LoadFile';;
@@ -174,8 +174,8 @@ sub uncrypt_message {
 sub generate_token {
     my (%options) = @_;
     
-    my $token = Crypt::OpenSSL::Random::random_bytes(256);
-    return unpack('H*', $token);
+    my $token = Crypt::PRNG::random_bytes_hex(256);
+    return $token;
 }
 
 sub generate_symkey {
