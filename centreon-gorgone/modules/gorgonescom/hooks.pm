@@ -27,10 +27,11 @@ use modules::gorgonescom::class;
 
 my ($config_core, $config);
 my $config_db_centstorage;
+my $module_shortname = 'scom'; 
 my $module_id = 'gorgonescom';
 my $events = [
-    'SCOMREADY', 
-    'SCOMRESYNC',
+    { event => 'SCOMREADY' },
+    { event => 'SCOMRESYNC', uri => '/resync', method => 'GET' },
 ];
 
 my $last_containers = {}; # Last values from config ini
@@ -47,7 +48,7 @@ sub register {
     $config_core = $options{config_core};
     $config_db_centstorage = $options{config_db_centstorage};
     $config_check_containers_time = defined($config->{check_containers_time}) ? $config->{check_containers_time} : 3600;
-    return ($events, $module_id);
+    return ($events, $module_shortname , $module_id);
 }
 
 sub init {
@@ -169,31 +170,34 @@ sub get_containers {
 
     my $containers = {};
     return $containers if (!defined($config->{containers}));
-    foreach my $container_id (split /,/, $config->{containers}) {
-        next if ($container_id eq '' || !defined($config->{$container_id . '_url'}));
+    foreach (@{$config->{containers}}) {
+        next if (!defined($_->{name}) || $_->{name} eq '');
 
-        if (!defined($config->{$container_id . '_dsmhost'}) ||  $config->{$container_id . '_dsmhost'} eq '') {
-            $options{logger}->writeLogError("gorgone-scom: cannot load container '" . $container_id . "' - please set dsmhost option");
+        if (!defined($_->{url}) || $_->{url} eq '') {
+            $options{logger}->writeLogError("gorgone-scom: cannot load container '" . $_->{name} . "' - please set url option");
             next;
         }
-        if (!defined($config->{$container_id . '_dsmslot'}) ||  $config->{$container_id . '_dsmslot'} eq '') {
-            $options{logger}->writeLogError("gorgone-scom: cannot load container '" . $container_id . "' - please set dsmslot option");
+        if (!defined($_->{dsmhost}) || $_->{dsmhost} eq '') {
+            $options{logger}->writeLogError("gorgone-scom: cannot load container '" . $_->{name} . "' - please set dsmhost option");
+            next;
+        }
+        if (!defined($_->{dsmslot}) || $_->{dsmslot} eq '') {
+            $options{logger}->writeLogError("gorgone-scom: cannot load container '" . $_->{name} . "' - please set dsmslot option");
             next;
         }
 
-        $containers->{$container_id} = {
-            url => $config->{$container_id . '_url'},
-            username => $config->{$container_id . '_username'},
-            password => $config->{$container_id . '_password'},
-            username => $config->{$container_id . '_username'},
+        $containers->{$_->{name}} = {
+            url => $_->{url},
+            username => $_->{username},
+            password => $_->{password},
             resync_time => 
-                (defined($config->{$container_id . '_resync_time'}) && $config->{$container_id . '_resync_time'} =~ /(\d+)/) ? 
-                $1 : 300,
-            dsmhost => $config->{$container_id . '_dsmhost'},
-            dsmslot => $config->{$container_id . '_dsmslot'},
-            dsmmacro => defined($config->{$container_id . '_dsmmacro'}) ? $config->{$container_id . '_dsmmacro'} : 'ALARM_ID',
-            dsmalertmessage => defined($config->{$container_id . '_dsmalertmessage'}) ? $config->{$container_id . '_dsmalertmessage'} : '%{monitoringobjectdisplayname} %{name}',
-            dsmrecoverymessage => defined($config->{$container_id . '_dsmrecoverymessage'}) ? $config->{$container_id . '_dsmrecoverymessage'} : 'slot ok',
+                (defined($_->{resync_time}) && $_->{resync_time} =~ /(\d+)/) ? $1 : 300,
+            api_version => (defined($_->{api_version}) && $_->{api_version} =~ /(2012|2016|1801)/) ? $1 : '2016',
+            dsmhost => $_->{dsmhost},
+            dsmslot => $_->{dsmslot},
+            dsmmacro => defined($_->{dsmmacro}) ? $_->{dsmmacro} : 'ALARM_ID',
+            dsmalertmessage => defined($_->{dsmalertmessage}) ? $_->{dsmalertmessage} : '%{monitoringobjectdisplayname} %{name}',
+            dsmrecoverymessage => defined($_->{dsmrecoverymessage}) ? $_->{dsmrecoverymessage} : 'slot ok',
         };
     }
 
@@ -233,6 +237,7 @@ sub create_child {
         $0 = 'gorgone-scom';
         my $module = modules::gorgonescom::class->new(
             logger => $options{logger},
+            module_id => $module_id,
             config_core => $config_core,
             config => $config,
             config_db_centstorage => $config_db_centstorage,

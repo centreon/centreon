@@ -20,6 +20,8 @@
 
 package modules::gorgonescom::class;
 
+use base qw(centreon::gorgone::module);
+
 use strict;
 use warnings;
 use centreon::gorgone::common;
@@ -32,11 +34,14 @@ use JSON::XS;
 use Data::Dumper;
 
 my %handlers = (TERM => {}, HUP => {});
-my ($connector, $socket);
+my ($connector);
 
 sub new {
     my ($class, %options) = @_;
+
     $connector  = {};
+    $connector->{internal_socket} = undef;
+    $connector->{module_id} = $options{module_id};
     $connector->{logger} = $options{logger};
     $connector->{container_id} = $options{container_id};
     $connector->{config} = $options{config};
@@ -45,6 +50,7 @@ sub new {
     $connector->{config_db_centstorage} = $options{config_db_centstorage};
     $connector->{stop} = 0;
 
+    $connector->{api_version} = $options{config_scom}->{api_version};
     $connector->{dsmhost} = $options{config_scom}->{dsmhost};
     $connector->{dsmslot} = $options{config_scom}->{dsmslot};
     $connector->{dsmmacro} = $options{config_scom}->{dsmmacro};
@@ -220,7 +226,8 @@ sub get_realtime_slots {
 
 sub action_scomresync {
     my ($self, %options) = @_;
-    my ($status, $sth, $resource_configs);
+
+    $options{token} = $self->generate_token() if (!defined($options{token}));
     
     $self->{logger}->writeLogDebug("gorgone-scom: container $self->{container_id}: begin resync");
 
@@ -240,7 +247,7 @@ sub action_scomresync {
 
 sub event {
     while (1) {
-        my $message = centreon::gorgone::common::zmq_dealer_read_message(socket => $socket);
+        my $message = centreon::gorgone::common::zmq_dealer_read_message(socket => $connector->{internal_socket});
         
         $connector->{logger}->writeLogDebug("gorgone-scom: class: $message");
         if ($message =~ /^\[(.*?)\]/) {
@@ -248,14 +255,11 @@ sub event {
                 $message =~ /^\[(.*?)\]\s+\[(.*?)\]\s+\[.*?\]\s+(.*)$/m;
                 my ($action, $token) = ($1, $2);
                 my $data = JSON::XS->new->utf8->decode($3);
-                while ($method->($connector, token => $token, data => $data)) {
-                    # We block until it's fixed!!
-                    sleep(5);
-                }
+                $method->($connector, token => $token, data => $data);
             }
         }
 
-        last unless (centreon::gorgone::common::zmq_still_read(socket => $socket));
+        last unless (centreon::gorgone::common::zmq_still_read(socket => $connector->{internal_socket}));
     }
 }
 
@@ -275,20 +279,20 @@ sub run {
     $self->{http} = centreon::misc::http::http->new(logger => $self->{logger});
 
     # Connect internal
-    $socket = centreon::gorgone::common::connect_com(
+    $connector->{internal_socket} = centreon::gorgone::common::connect_com(
         zmq_type => 'ZMQ_DEALER', name => 'gorgonescom-' . $self->{container_id},
         logger => $self->{logger},
         type => $self->{config_core}->{internal_com_type},
         path => $self->{config_core}->{internal_com_path}
     );
     centreon::gorgone::common::zmq_send_message(
-        socket => $socket,
+        socket => $connector->{internal_socket},
         action => 'SCOMREADY', data => { container_id => $self->{container_id} },
         json_encode => 1
     );
     $self->{poll} = [
         {
-            socket  => $socket,
+            socket  => $connector->{internal_socket},
             events  => ZMQ_POLLIN,
             callback => \&event,
         }
@@ -298,7 +302,7 @@ sub run {
         my $rev = zmq_poll($self->{poll}, 5000);
         if (defined($rev) && $rev == 0 && $self->{stop} == 1) {
             $self->{logger}->writeLogInfo("gorgone-scom $$ has quit");
-            zmq_close($socket);
+            zmq_close($connector->{internal_socket});
             exit(0);
         }
 

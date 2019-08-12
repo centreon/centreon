@@ -43,6 +43,7 @@ sub new {
     my ($class, %options) = @_;
 
     $connector  = {};
+    $connector->{internal_socket} = undef;
     $connector->{module_id} = $options{module_id};
     $connector->{logger} = $options{logger};
     $connector->{container_id} = $options{container_id};
@@ -52,7 +53,6 @@ sub new {
     $connector->{config_db_centstorage} = $options{config_db_centstorage};
     $connector->{config_db_centreon} = $options{config_db_centreon};
     $connector->{stop} = 0;
-    $connector->{internal_socket} = undef;
 
     $connector->{resync_time} = $options{config_newtest}->{resync_time};
     $connector->{last_resync_time} = time() - $connector->{resync_time};
