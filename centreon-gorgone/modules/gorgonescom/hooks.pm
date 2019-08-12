@@ -198,6 +198,7 @@ sub get_containers {
             dsmmacro => defined($_->{dsmmacro}) ? $_->{dsmmacro} : 'ALARM_ID',
             dsmalertmessage => defined($_->{dsmalertmessage}) ? $_->{dsmalertmessage} : '%{monitoringobjectdisplayname} %{name}',
             dsmrecoverymessage => defined($_->{dsmrecoverymessage}) ? $_->{dsmrecoverymessage} : 'slot ok',
+            curlopts => $_->{curlopts},
         };
     }
 

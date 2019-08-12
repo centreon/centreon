@@ -20,7 +20,12 @@
 
 package centreon::gorgone::module;
 
+use strict;
+use warnings;
+
 use centreon::gorgone::common;
+use centreon::misc::misc;
+use JSON::XS;
 
 use constant ACTION_BEGIN => 0;
 use constant ACTION_FINISH_KO => 1;
@@ -45,6 +50,62 @@ sub send_log {
     );
 }
 
+sub json_encode {
+    my ($self, %options) = @_;
 
+    my $encoded_arguments;
+    eval {
+        $encoded_arguments = JSON::XS->new->utf8->encode($options{argument});
+    };
+    if ($@) {
+        $self->{logger}->writeLogError("gorgone-$self->{module_id}: container $self->{container_id}: $options{method} - cannot encode json: $@");
+        return 1;
+    }
+
+    return (0, $encoded_arguments);
+}
+
+sub json_decode {
+    my ($self, %options) = @_;
+
+    my $decoded_arguments;
+    eval {
+        $decoded_arguments = JSON::XS->new->utf8->decode($options{argument});
+    };
+    if ($@) {
+        $self->{logger}->writeLogError("gorgone-$self->{module_id}: container $self->{container_id}: $options{method} - cannot decode json: $@");
+        return 1;
+    }
+
+    return (0, $decoded_arguments);
+}
+
+sub execute_shell_cmd {
+    my ($self, %options) = @_;
+
+    my $timeout = defined($options{timeout}) &&  $options{timeout} =~ /(\d+)/ ? $1 : 30;
+    my ($lerror, $stdout, $exit_code) = centreon::misc::misc::backtick(
+        command => $options{cmd},
+        logger => $self->{logger},
+        timeout => $timeout,
+        wait_exit => 1,
+    );
+    if ($lerror == -1 || ($exit_code >> 8) != 0) {
+        $self->{logger}->writeLogError("gorgone-$self->{module_id} command execution issue $options{cmd} : " . $stdout);
+        return -1;
+    }
+
+    return 0;
+}
+
+sub change_macros {
+    my ($self, %options) = @_;
+
+    $options{template} =~ s/%\{(.*?)\}/$options{macros}->{$1}/g;
+    if (defined($options{escape})) {
+        $options{template} =~ s/([\Q$options{escape}\E])/\\$1/g;
+    }
+    return $options{template};
+}
 
 1;

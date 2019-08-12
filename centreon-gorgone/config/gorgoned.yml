@@ -1,11 +1,11 @@
 name: gorgoned
 database:
   db_centreon: 
-    dsn: "mysql:host=10.30.2.245;dbname=centreon"
+    dsn: "mysql:host=localhost;dbname=centreon"
     username: centreon
     password: centreon
   db_centstorage: 
-    dsn: "mysql:host=10.30.2.245;dbname=centreon_storage"
+    dsn: "mysql:host=localhost;dbname=centreon_storage"
     username: centreon
     password: centreon
 gorgonecore:
@@ -89,22 +89,26 @@ modules:
 
   - name: gorgonescom
     module: modules::gorgonescom::hooks
-    enable: false
+    enable: true
     # in seconds - do purge for container also
     check_containers_time: 3600
     dsmclient_bin: /usr/share/centreon/bin/dsmclient.pl
     centcore_cmd: /var/lib/centreon/centcore.cmd
     containers:
-      # - name: toto
-      #   url: "http://scomserver"
-      #   username: toto
-      #   password: pass
-      #   resync_time: 300
-      #   dsmhost: centreon
-      #   dsmslot: slot-%
-      #   dsmmacro: ALARM_ID
-      #   dsmalertmessage: "%{monitoringobjectdisplayname} %{name}"
-      #   dsmrecoverymessage: slot ok
+        - name: toto
+          api_version: 2016
+          url: "http://scomserver/api/"
+          username: toto
+          password: pass
+          resync_time: 300
+          dsmhost: ADH3
+          dsmslot: Scom-%
+          dsmmacro: ALARM_ID
+          dsmalertmessage: "%{monitoringobjectdisplayname} %{name}"
+          dsmrecoverymessage: slot ok
+          curlopts:
+              CURLOPT_SSL_VERIFYPEER: 0
+              CURLOPT_PROXYAUTH: CURLAUTH_NTLM
       # - name: tutu
       #   url: http://scomserver2/
       #   username: toto2
@@ -113,7 +117,7 @@ modules:
 
   - name: gorgonenewtest
     module: modules::gorgonenewtest::hooks
-    enable: true
+    enable: false
     # in seconds - do purge for container also
     check_containers_time: 3600
     clapi_command: /usr/bin/centreon

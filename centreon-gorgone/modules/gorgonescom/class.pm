@@ -103,21 +103,6 @@ sub class_handle_HUP {
     }
 }
 
-sub json_encode {
-    my ($self, %options) = @_;
-
-    my $encoded_arguments;
-    eval {
-        $encoded_arguments = JSON::XS->new->utf8->encode($options{argument});
-    };
-    if ($@) {
-        $self->{logger}->writeLogError("gorgone-scom: container $self->{container_id}: scom $options{method} - cannot encode json: $@");
-        return 1;
-    }
-
-    return (0, $encoded_arguments);
-}
-
 sub http_check_error {
     my ($self, %options) = @_;
 
@@ -135,7 +120,7 @@ sub http_check_error {
     return 0;
 }
 
-sub scom_authenticate {
+sub scom_authenticate_1801 {
     my ($self, %options) = @_;
 
     my ($status) = $self->{http}->request(
@@ -162,12 +147,13 @@ sub scom_authenticate {
     return 0;
 }
 
-sub get_realtime_scom_alerts {
+
+sub get_realtime_scom_alerts_1801 {
     my ($self, %options) = @_;
 
     $self->{scom_realtime_alerts} = {};
     if (!defined($connector->{scom_session_id})) {
-        return 1 if ($self->scom_authenticate() == 1);
+        return 1 if ($self->scom_authenticate_1801() == 1);
     }
 
     my $arguments = {
@@ -179,7 +165,13 @@ sub get_realtime_scom_alerts {
     };
     my ($status, $encoded_argument) = $self->json_encode(argument => $arguments);
     return 1 if ($status == 1);
-    
+
+    my $curl_opts = [];
+    if (defined($self->{config_scom}->{curlopts})) {
+        foreach (keys %{$self->{config_scom}->{curlopts}}) {
+            push @{$curl_opts}, $_ . ' => ' . $self->{config_scom}->{curlopts}->{$_};
+        }
+    }
     ($status, my $response) = $self->{http}->request(
         method => 'POST', hostname => '',
         full_url => $self->{config_scom}->{url} . '/OperationsManager/data/alert',
@@ -189,13 +181,70 @@ sub get_realtime_scom_alerts {
             'Content-Type: application/json; charset=utf-8',
             'Cookie: SCOMSessionId=' . $self->{scom_session_id} . ';',
         ],
-        curl_opt => ['CURLOPT_SSL_VERIFYPEER => 0'],
+        curl_opt => $curl_opts,
     );
     
     return 1 if ($self->http_check_error(status => $status, method => 'data/alert') == 1);
 
-    $self->{scom_realtime_alerts} = {};
     print Data::Dumper::Dumper($response);
+
+    return 0;
+}
+
+sub get_realtime_scom_alerts_2016 {
+    my ($self, %options) = @_;
+
+    my $curl_opts = [];
+    if (defined($self->{config_scom}->{curlopts})) {
+        foreach (keys %{$self->{config_scom}->{curlopts}}) {
+            push @{$curl_opts}, $_ . ' => ' . $self->{config_scom}->{curlopts}->{$_};
+        }
+    }
+    $self->{scom_realtime_alerts} = {};
+    my ($status, $response) = $self->{http}->request(
+        method => 'GET', hostname => '',
+        full_url => $self->{config_scom}->{url} . 'alerts',
+        ntlmv2 => 1, 
+        username => $self->{config_scom}->{username},
+        password => $self->{config_scom}->{password},
+        header => [
+            'Accept-Type: application/json; charset=utf-8',
+            'Content-Type: application/json; charset=utf-8',
+        ],
+        curl_opt => $curl_opts,
+    );
+
+    return 1 if ($self->http_check_error(status => $status, method => 'alerts') == 1);
+
+    ($status, my $entries) = $self->json_decode(argument => $response);
+    return 1 if ($status == 1);
+
+    # Resolution State:
+    #    0 => New
+    #    255 => Closed
+    #    254 => Resolved
+    #    250 => Scheduled
+    #    247 => Awaiting Evidence
+    #    248 => Assigned to Engineering 
+    #    249 => Acknowledge
+    # Severity:
+    #    0 => Information
+    #    1 => Warning
+    #    2 => Critical
+    foreach (@$entries) {
+        next if (!defined($_->{alertGenerated}->{resolutionState}));
+        next if ($_->{alertGenerated}->{resolutionState} == 255);
+        next if ($_->{alertGenerated}->{severity} == 0);
+        
+        $self->{scom_realtime_alerts}->{$_->{alertGenerated}->{id}} = {
+            monitoringobjectdisplayname => $_->{alertGenerated}->{monitoringObjectDisplayName},
+            resolutionstate => $_->{alertGenerated}->{resolutionState},
+            name => $_->{alertGenerated}->{name},
+            severity => $_->{alertGenerated}->{severity},
+            timeraised => $_->{alertGenerated}->{timeRaised},
+            description => $_->{alertGenerated}->{description},
+        };
+    }
 
     return 0;
 }
@@ -203,9 +252,9 @@ sub get_realtime_scom_alerts {
 sub get_realtime_slots {
     my ($self, %options) = @_;
 
-    $self->{realtime_slots} = [];
+    $self->{realtime_slots} = {};
     my $request = "
-        SELECT hosts.instance_id, hosts.name, services.description, services.state, cv.name, cv.value 
+        SELECT hosts.instance_id, hosts.host_id, hosts.name, services.description, services.state, cv.name, cv.value 
         FROM hosts, services 
         LEFT JOIN customvariables cv ON services.host_id = cv.host_id AND services.service_id = cv.service_id AND cv.name = '$self->{dsmmacro}'
         WHERE hosts.name = '$self->{dsmhost}' AND hosts.host_id = services.host_id AND services.enabled = '1' AND services.description LIKE '$self->{dsmslot}';
@@ -213,14 +262,61 @@ sub get_realtime_slots {
     my ($status, $datas) = $self->{class_object}->custom_execute(request => $request, mode => 2);
     return 1 if ($status == -1);
     foreach (@$datas) {
-        my ($name, $id) = split('##', $$_[5]);
-        push @{$self->{realtime_slots}}, {
-            host_name => $$_[1],
-            description => $$_[2],
-            state => $$_[3],
-            id => $id,
+        my ($name, $id) = split('##', $$_[6]);
+        next if (!defined($id));
+        $self->{realtime_slots}->{$id} = {
+            host_name => $$_[2],
+            host_id => $$_[1],
+            description => $$_[3],
+            state => $$_[4],
             instance_id => $$_[0],
         };
+    }
+
+    return 0;
+}
+
+sub sync_alerts {
+    my ($self, %options) = @_;
+
+    # Look if scom alers is in centreon-dsm services
+    my $pool_prefix = $self->{dsmslot};
+    $pool_prefix =~ s/%//g;
+    foreach my $alert_id (keys %{$self->{scom_realtime_alerts}}) {
+        if (!defined($self->{realtime_slots}->{$alert_id}) ||
+            $self->{realtime_slots}->{$alert_id}->{state} == 0) {
+                my $output = $self->change_macros(
+                    template => $self->{dsmalertmessage},
+                    macros => $self->{scom_realtime_alerts}->{$alert_id},
+                    escape => '"',
+                );
+                $self->execute_shell_cmd(
+                    cmd => $self->{config}->{dsmclient_bin} .
+                        ' --Host "' . $connector->{dsmhost} . '"' . 
+                        ' --pool-prefix "' . $pool_prefix . '"' .
+                        ' --status ' . $self->{scom_realtime_alerts}->{$alert_id}->{severity} . 
+                        ' --id "' . $alert_id . '"' .
+                        ' --output "' . $output . '"'
+                );
+        }
+    }
+
+    # Close centreon alerts not present in scom
+    foreach my $alert_id (keys %{$self->{realtime_slots}}) {
+        next if (defined($self->{scom_realtime_alerts}->{$alert_id}) && $self->{scom_realtime_alerts}->{$alert_id} != 255);
+        my $output = $self->change_macros(
+            template => $self->{dsmrecoverymessage},
+            macros => {},
+            escape => '"',
+        );
+        $self->execute_shell_cmd(
+            cmd => $self->{config}->{dsmclient_bin} .
+                ' --Host "' . $connector->{dsmhost} . '"' . 
+                ' --pool-prefix "' . $pool_prefix . '"' .
+                ' --status 0 ' .
+                ' --id "' . $alert_id . '"' .
+                ' --output "' . $output . '"'
+        );
     }
 }
 
@@ -228,20 +324,29 @@ sub action_scomresync {
     my ($self, %options) = @_;
 
     $options{token} = $self->generate_token() if (!defined($options{token}));
-    
+
+    $self->send_log(code => centreon::gorgone::module::ACTION_BEGIN, token => $options{token}, data => { message => 'action scomresync proceed' });
     $self->{logger}->writeLogDebug("gorgone-scom: container $self->{container_id}: begin resync");
 
-    $self->get_realtime_slots();
-    if (scalar(@{$self->{realtime_slots}}) <= 0) {
+    if ($self->get_realtime_slots()) {
+        $self->send_log(code => centreon::gorgone::module::ACTION_FINISH_KO, token => $options{token}, data => { message => 'cannot find realtime slots' });
         $self->{logger}->writeLogError("gorgone-scom: container $self->{container_id}: cannot find realtime slots");
         return 1;
     }
 
-    if ($self->get_realtime_scom_alerts() == 0) {
+    my $api = 2016;
+    $api = 1801 if ($self->{api_version} == 1801); 
+    my $func = $self->can('get_realtime_scom_alerts_' . $api);
+    if ($func->($self)) {
+        $self->send_log(code => centreon::gorgone::module::ACTION_FINISH_KO, token => $options{token}, data => { message => 'cannot get scom realtime alerts' });
         $self->{logger}->writeLogError("gorgone-scom: container $self->{container_id}: cannot get scom realtime alerts");
         return 1;
     }
 
+    $self->sync_alerts();
+
+    $self->{logger}->writeLogDebug("gorgone-scom: container $self->{container_id}: finish resync");
+    $self->send_log(code => $self->ACTION_FINISH_OK, token => $options{token}, data => { message => 'action scomresync finished' });
     return 0;
 }
 

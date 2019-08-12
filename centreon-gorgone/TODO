@@ -1,4 +1,3 @@
-- Use YAML configuration file instead of ini
 - Add a HTTP frontend module for clients (https and basic auth). Can try: https://metacpan.org/pod/HTTP::Server::Simple
 - Add legacy module: read centcore.cmd
 - Can chain agents and forward protocol
