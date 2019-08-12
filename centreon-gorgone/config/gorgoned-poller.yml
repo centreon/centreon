@@ -28,7 +28,7 @@ gorgonecore:
 modules:
   - name: gorgonepull
     module: modules::gorgonepull::hooks
-    enable: 1
+    enable: true
     target_type: tcp
     target_path: 127.0.0.1:5555
     linger: 5000
@@ -44,7 +44,7 @@ modules:
     ping_timeout: 30
   - name: gorgoneaction
     module: modules::gorgoneaction::hooks
-    enable: 1
+    enable: true
     disable_command_event: 0
     disable_enginecomand_event: 0
     enginecommand_timeout: 30

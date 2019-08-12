@@ -27,10 +27,10 @@ use modules::gorgoneaction::class;
 
 my $config_core;
 my $config;
-my $module_shortname = 'action'; 
+my $module_shortname = 'action';
 my $module_id = 'gorgoneaction';
 my $events = [
-     { event => 'ACTIONREADY' },
+    { event => 'ACTIONREADY' },
 ];
 my $action = {};
 my $stop = 0;
@@ -41,12 +41,13 @@ sub register {
     $config = $options{config};
     $config_core = $options{config_core};
     if (!defined($config->{disable_command_event}) || $config->{disable_command_event} != 1) {
-        push @{$events}, 'COMMAND';
+        push @{$events}, { event => 'COMMAND', uri => '/command', method => 'POST' };
     }
     if (!defined($config->{disable_enginecommand_event}) || $config->{disable_enginecommand_event} != 1) {
-        push @{$events}, 'ENGINECOMMAND';
+        push @{$events}, { event => 'ENGINECOMMAND', uri => '/enginecommand', method => 'POST' };
     }
-    return ($events, $module_shortname , $module_id);
+
+    return ($events, $module_shortname, $module_id);
 }
 
 sub init {

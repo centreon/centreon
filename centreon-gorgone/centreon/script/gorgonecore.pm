@@ -177,8 +177,8 @@ sub load_modules {
     my $self = shift;
     next if (!defined($config->{modules}));
 
-    foreach my $module (@{$config->{modules}}) {  
-        next if (!defined($module->{enable}) || $module->{enable} eq '0');      
+    foreach my $module (@{$config->{modules}}) {
+        next if (!defined($module->{enable}) || $module->{enable} eq 'false');      
         my $name = $module->{module};
         (my $file = "$name.pm") =~ s{::}{/}g;
         require $file;
@@ -192,20 +192,22 @@ sub load_modules {
             }
         }
 
-        my ($events, $id) = $self->{modules_register}->{$name}->{register}->(
+        my ($events, $shortname, $id) = $self->{modules_register}->{$name}->{register}->(
             config => $module,
             config_core => $config->{gorgonecore},
             config_db_centreon => $config->{database}->{db_centreon},
             config_db_centstorage => $config->{database}->{db_centstorage}
         );
         $self->{modules_id}->{$id} = $name;
-        foreach my $event (@{$events}) {
-            $self->{modules_events}->{$event} = [] if (!defined($self->{modules_events}->{$event}));
-            push @{$self->{modules_events}->{$event}}, $name;
-        }
 
+        foreach my $event (@{$events}) {
+            $self->{modules_events}->{$event->{event}} = {
+                module => { name => $name, shortname => $shortname },
+                api => { uri => $event->{uri}, method => $event->{method} }
+            };
+        }
         $self->{logger}->writeLogInfo("Module '" . $module->{name} . "' is loaded");
-    }    
+    }
     
     # Load internal functions
     foreach my $method_name (('putlog', 'getlog', 'kill', 'ping', 'constatus')) {
@@ -220,13 +222,14 @@ sub message_run {
     my ($self, %options) = @_;
 
     if ($options{message} !~ /^\[(.+?)\]\s+\[(.*?)\]\s+\[(.*?)\]\s+(.*)$/) {
-        return (undef, 1, { mesage => 'request not well formatted' });
+        return (undef, 1, { message => 'request not well formatted' });
     }
     my ($action, $token, $target, $data) = ($1, $2, $3, $4);
     if ($action !~ /^(PUTLOG|GETLOG|KILL|PING|CONSTATUS)$/ && !defined($self->{modules_events}->{$action})) {
         centreon::gorgone::common::add_history(
             dbh => $self->{db_gorgone},
-            code => 1, token => $token,
+            code => 1,
+            token => $token,
             data => { msg => "action '$action' is not known" },
             json_encode => 1
         );
@@ -239,7 +242,8 @@ sub message_run {
     if ($self->{stop} == 1) {
         centreon::gorgone::common::add_history(
             dbh => $self->{db_gorgone},
-            code => 1, token => $token,
+            code => 1,
+            token => $token,
             data => { msg => 'gorgone is stopping/restarting. Not proceed request.' },
             json_encode => 1
         );
@@ -250,9 +254,14 @@ sub message_run {
     if (defined($target) && $target ne '') {
         # Check if not myself ;)
         if ($target ne $self->{id}) {
-            $self->{modules_register}->{ $self->{modules_id}->{$config->{gorgonecore}->{proxy_name}}  }->{routing}->(
-                socket => $self->{internal_socket}, dbh => $self->{db_gorgone}, logger => $self->{logger}, 
-                action => $1, token => $token, target => $target, data => $data,
+            $self->{modules_register}->{ $self->{modules_id}->{$config->{gorgonecore}->{proxy_name}} }->{routing}->(
+                socket => $self->{internal_socket},
+                dbh => $self->{db_gorgone},
+                logger => $self->{logger}, 
+                action => $1,
+                token => $token,
+                target => $target,
+                data => $data,
                 hostname => $self->{hostname}
             );
             return ($token, 0);
@@ -270,14 +279,16 @@ sub message_run {
         );
         return ($token, $code, $response, $response_type);
     } else {
-        foreach (@{$self->{modules_events}->{$action}}) {
-            $self->{modules_register}->{$_}->{routing}->(
-                socket => $self->{internal_socket}, 
-                dbh => $self->{db_gorgone}, logger => $self->{logger},
-                action => $1, token => $token, target => $target, data => $data,
-                hostname => $self->{hostname}
-            );
-        }
+        $self->{modules_register}->{$self->{modules_events}->{$action}->{module}->{name}}->{routing}->(
+            socket => $self->{internal_socket}, 
+            dbh => $self->{db_gorgone},
+            logger => $self->{logger},
+            action => $1,
+            token => $token,
+            target => $target,
+            data => $data,
+            hostname => $self->{hostname}
+        );
     }
     return ($token, 0);
 }
@@ -288,8 +299,10 @@ sub router_internal_event {
         my ($token, $code, $response, $response_type) = $gorgone->message_run(message => $message);
         centreon::gorgone::common::zmq_core_response(
             socket => $gorgone->{internal_socket},
-            identity => $identity, response_type => $response_type,
-            data => $response, code => $code,
+            identity => $identity,
+            response_type => $response_type,
+            data => $response,
+            code => $code,
             token => $token
         );
         last unless (centreon::gorgone::common::zmq_still_read(socket => $gorgone->{internal_socket}));
@@ -494,11 +507,13 @@ sub run {
     foreach my $name (keys %{$gorgone->{modules_register}}) {
         $gorgone->{logger}->writeLogInfo("Call init function from module '$name'");
         $gorgone->{modules_register}->{$name}->{init}->(
-            logger => $gorgone->{logger}, id => $gorgone->{id},
+            id => $gorgone->{id},
+            logger => $gorgone->{logger},
             poll => $gorgone->{poll},
             external_socket => $gorgone->{external_socket},
             internal_socket => $gorgone->{internal_socket},
-            dbh => $gorgone->{db_gorgone}
+            dbh => $gorgone->{db_gorgone},
+            modules_events => $gorgone->{modules_events},
         );
     }
     
@@ -514,7 +529,8 @@ sub run {
                 dead_childs => $gorgone->{return_child},
                 internal_socket => $gorgone->{internal_socket},
                 dbh => $gorgone->{db_gorgone},
-                poll => $poll
+                poll => $poll,
+                modules_events => $gorgone->{modules_events},
             );
         }
         

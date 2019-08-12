@@ -30,4 +30,4 @@ gorgonecore:
 modules:
   - name: gorgoneaction
     module: modules::gorgoneaction::hooks
-    enable: 1
+    enable: true

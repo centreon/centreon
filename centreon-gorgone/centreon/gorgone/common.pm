@@ -264,11 +264,11 @@ sub constatus {
         my $name = $options{gorgone_config}->{modules}->{$options{gorgone_config}->{gorgonecore}->{proxy_name}}->{module};
         my $method;
         if (defined($name) && ($method = $name->can('get_constatus_result'))) {
-            return (0, { action => 'constatus', mesage => 'ok', data => $method->() }, 'CONSTATUS');
+            return (0, { action => 'constatus', message => 'ok', data => $method->() }, 'CONSTATUS');
         }
     }
     
-    return (1, { action => 'constatus', mesage => 'cannot get value' }, 'CONSTATUS');
+    return (1, { action => 'constatus', message => 'cannot get value' }, 'CONSTATUS');
 }
 
 sub ping {
@@ -276,7 +276,7 @@ sub ping {
 
     #my $status = add_history(dbh => $options{gorgone}->{db_gorgone}, 
     #                         token => $options{token}, logger => $options{logger}, code => 0);
-    return (0, { action => 'ping', mesage => 'ping ok', id => $options{id} }, 'PONG');
+    return (0, { action => 'ping', message => 'ping ok', id => $options{id} }, 'PONG');
 }
     
 sub putlog {
@@ -287,15 +287,15 @@ sub putlog {
         $data = JSON->new->utf8->decode($options{data});
     };
     if ($@) {
-        return (1, { mesage => 'request not well formatted' });
+        return (1, { message => 'request not well formatted' });
     }
     
     my $status = add_history(dbh => $options{gorgone}->{db_gorgone}, 
                              etime => $data->{etime}, token => $data->{token}, data => json_encode(data => $data->{data}, logger => $options{logger}), code => $data->{code});
     if ($status == -1) {
-        return (1, { mesage => 'database issue' });
+        return (1, { message => 'database issue' });
     }
-    return (0, { mesage => 'message inserted' });
+    return (0, { message => 'message inserted' });
 }
 
 sub getlog {
@@ -306,7 +306,7 @@ sub getlog {
         $data = JSON->new->utf8->decode($options{data});
     };
     if ($@) {
-        return (1, { mesage => 'request not well formatted' });
+        return (1, { message => 'request not well formatted' });
     }
     
     my %filters = ();
@@ -320,12 +320,12 @@ sub getlog {
     }
     
     if ($filter eq '') {
-        return (1, { mesage => 'need at least one filter' });
+        return (1, { message => 'need at least one filter' });
     }
     
     my ($status, $sth) = $options{gorgone}->{db_gorgone}->query("SELECT * FROM gorgone_history WHERE " . $filter);
     if ($status == -1) {
-        return (1, { mesage => 'database issue' });
+        return (1, { message => 'database issue' });
     }
     
     return (0, { action => 'getlog', result => $sth->fetchall_hashref('id'), id => $options{gorgone}->{id} });
