@@ -26,9 +26,9 @@ use centreon::gorgone::clientzmq;
 
 my $config_core;
 my $config;
+my $module_shortname = 'pull';
 my $module_id = 'gorgonepull';
-my $events = [
-];
+my $events = [];
 my $stop = 0;
 my $client;
 my $socket_to_internal;
@@ -39,7 +39,7 @@ sub register {
     
     $config = $options{config};
     $config_core = $options{config_core};
-    return ($events, $module_id);
+    return ($events, $module_shortname , $module_id);
 }
 
 sub init {

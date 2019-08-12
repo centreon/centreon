@@ -42,9 +42,11 @@ modules:
   - name: gorgonecron
     module: modules::gorgonecron::hooks
     enable: 1
+
   - name: gorgoneaction
     module: modules::gorgoneaction::hooks
-    enable: 1
+    enable: 0
+
   - name: gorgoneacl
     module: modules::gorgoneacl::hooks
     enable: 0
@@ -61,6 +63,7 @@ modules:
     resync_auto_disable: 0
     sql_fetch: 10000
     sql_bulk: 2000
+
   - name: gorgoneproxy
     module: modules::gorgoneproxy::hooks
     enable: 0
@@ -71,6 +74,7 @@ modules:
     synchistory_timeout: 120
     # ping each X seconds
     ping: 60
+
   - name: gorgonescom
     module: modules::gorgonescom::hooks
     enable: 0
@@ -94,9 +98,10 @@ modules:
       #   username: toto2
       #   password: toto2
       #   resync_time: 600
+
   - name: gorgonenewtest
     module: modules::gorgonenewtest::hooks
-    enable: 0
+    enable: 1
     # in seconds - do purge for container also
     check_containers_time: 3600
     clapi_command: /usr/bin/centreon
@@ -105,23 +110,23 @@ modules:
     clapi_action_applycfg: RELOAD
     centcore_cmd: /var/lib/centreon/centcore.cmd
     containers:
-      # - name: toto
-      #   resync_time: 300
-      #   nmc_endpoint: "http://__NMC_ADDRESS__/nws/managementconsoleservice.asmx"
-      #   password: pass
-      #   host_template: generic-active-host-custom
-      #   host_prefix: Robot-%s
-      #   service_template: generic-passive-service-custom
-      #   service_prefix: Scenario-%s
-      #   poller_name=: Central
-      #   list_scenario_status: '{ "search": "All", "instances": [] }'
-      # - name: tutu
-      #   resync_time: 600
-      #   nmc_endpoint: "http://__NMC_ADDRESS__/nws/managementconsoleservice.asmx"
-      #   password: pass
-      #   host_template: generic-active-host-custom
-      #   host_prefix: Robot-%s
-      #   service_template: generic-passive-service-custom
-      #   service_prefix: Scenario-%s
-      #   poller_name=: Central
-      #   list_scenario_status: '{ "search": "Robot", "instances": ["XXXX"] }' 
+        - name: toto
+          resync_time: 300
+          nmc_endpoint: "http://__NMC_ADDRESS__/nws/managementconsoleservice.asmx"
+          password: pass
+          host_template: generic-active-host-custom
+          host_prefix: Robot-%s
+          service_template: generic-passive-service-custom
+          service_prefix: Scenario-%s
+          poller_name: Central
+          list_scenario_status: '{ "search": "All", "instances": [] }'
+        - name: tutu
+          resync_time: 600
+          nmc_endpoint: "http://__NMC_ADDRESS__/nws/managementconsoleservice.asmx"
+          password: pass
+          host_template: generic-active-host-custom
+          host_prefix: Robot-%s
+          service_template: generic-passive-service-custom
+          service_prefix: Scenario-%s
+          poller_name: Central
+          list_scenario_status: '{ "search": "Robot", "instances": ["XXXX"] }' 

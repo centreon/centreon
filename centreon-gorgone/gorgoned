@@ -42,7 +42,7 @@ gorgoned [options]
 
 =item B<--config-extra>
 
-Specify the path to the centreonesxd configuration file (default: /etc/centreon/centreon_esxd.pm).
+Specify the path to the centreonesxd configuration file (default: '').
 
 =item B<--help>
 

@@ -20,6 +20,8 @@
 
 package modules::gorgonenewtest::class;
 
+use base qw(centreon::gorgone::module);
+
 use strict;
 use warnings;
 use centreon::misc::misc;
@@ -39,7 +41,9 @@ my ($connector, $socket);
 
 sub new {
     my ($class, %options) = @_;
+
     $connector  = {};
+    $connector->{module_id} = $options{module_id};
     $connector->{logger} = $options{logger};
     $connector->{container_id} = $options{container_id};
     $connector->{config} = $options{config};
@@ -109,28 +113,6 @@ sub class_handle_HUP {
     }
 }
 
-sub send_log {
-    my ($self, %options) = @_;
-
-    return if (!defined($options{token}));
-
-    if (!defined($self->{socket_log})) {
-        $self->{socket_log} = centreon::gorgone::common::connect_com(
-            zmq_type => 'ZMQ_DEALER', name => 'gorgonenewtest-'. $self->{container_id},
-            logger => $self->{logger}, linger => 5000,
-            type => $self->{config_core}->{internal_com_type},
-            path => $self->{config_core}->{internal_com_path}
-        );
-    }
-
-    centreon::gorgone::common::zmq_send_message(
-        socket => $self->{socket_log},
-        action => 'PUTLOG', 
-        data => { code => $options{code}, etime => time(), token => $options{token}, data => $options{data} },
-        json_encode => 1
-    );
-}
-
 my %map_scenario_status = (
     Available => 0, Warning => 1, Failed => 2, Suspended => 2,
     Canceled => 2, Unknown => 3, 
@@ -180,9 +162,11 @@ sub add_output {
     }
     $self->{perfdatas} = [];
     
-    $self->push_external_cmd(cmd => 'PROCESS_SERVICE_CHECK_RESULT;' . $options{host_name} . ';' . 
-                                        $options{service_name} . ';' . $self->{current_status} . ';' . $str,
-                             time => $options{time});
+    $self->push_external_cmd(
+        cmd => 'PROCESS_SERVICE_CHECK_RESULT;' . $options{host_name} . ';' . 
+                $options{service_name} . ';' . $self->{current_status} . ';' . $str,
+        time => $options{time}
+    );
 }
 
 sub convert_measure {
@@ -578,32 +562,33 @@ sub get_newtest_scenarios {
 sub action_newtestresync {
     my ($self, %options) = @_;
 
+    $options{token} = $self->generate_token() if (!defined($options{token}));
     $self->{logger}->writeLogDebug("gorgone-newtest: container $self->{container_id}: begin resync");
-    $self->send_log(code => 301, token => $options{token}, data => { message => 'action newtestresync proceed' });
+    $self->send_log(code => centreon::gorgone::module::ACTION_BEGIN, token => $options{token}, data => { message => 'action newtestresync proceed' });
     $self->newtestresync_init();
     
     if ($self->get_poller_id()) {
-        $self->send_log(code => 305, token => $options{token}, data => { message => 'cannot get poller id' });
+        $self->send_log(code => centreon::gorgone::module::ACTION_FINISH_KO, token => $options{token}, data => { message => 'cannot get poller id' });
         return -1;
     }
     if ($self->get_centreondb_cache()) {
-        $self->send_log(code => 305, token => $options{token}, data => { message => 'cannot get centreon config cache' });
+        $self->send_log(code => centreon::gorgone::module::ACTION_FINISH_KO, token => $options{token}, data => { message => 'cannot get centreon config cache' });
         return -1;
     }
     if ($self->get_centstoragedb_cache()) {
-        $self->send_log(code => 305, token => $options{token}, data => { message => 'cannot get centreon storage cache' });
+        $self->send_log(code => centreon::gorgone::module::ACTION_FINISH_KO, token => $options{token}, data => { message => 'cannot get centreon storage cache' });
         return -1;
     }
     
     if ($self->get_newtest_scenarios(%options)) {
-        $self->send_log(code => 305, token => $options{token}, data => { message => 'cannot get newtest scenarios' });
+        $self->send_log(code => centreon::gorgone::module::ACTION_FINISH_KO, token => $options{token}, data => { message => 'cannot get newtest scenarios' });
         return -1;
     }   
 
     $self->push_config();
     $self->submit_external_cmd();
 
-    $self->send_log(code => 306, token => $options{token}, data => { message => 'action newtestresync finished' });
+    $self->send_log(code => $self->ACTION_FINISH_OK, token => $options{token}, data => { message => 'action newtestresync finished' });
     return 0;
 }
 
@@ -617,10 +602,7 @@ sub event {
                 $message =~ /^\[(.*?)\]\s+\[(.*?)\]\s+\[.*?\]\s+(.*)$/m;
                 my ($action, $token) = ($1, $2);
                 my $data = JSON::XS->new->utf8->decode($3);
-                while ($method->($connector, token => $token, data => $data)) {
-                    # We block until it's fixed!!
-                    sleep(5);
-                }
+                $method->($connector, token => $token, data => $data);
             }
         }
 

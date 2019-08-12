@@ -20,7 +20,7 @@ Daemon uses following Perl modules:
 
 * ZMQ::LibZMQ4: repository 'centreon-stable'
 * JSON: repository 'centos base'
-* Config::IniFiles: repository 'centos base'
+* YAML: repository 'centos base'
 * DBD::SQLite: repository 'centos base'
 * DBD::mysql: repository 'centos base'
 * UUID: repository 'centreon-stable'
@@ -33,7 +33,7 @@ Execute following commands:
 
   ::
   
-    # yum install 'perl(Schedule::Cron)' 'perl(Crypt::CBC)' 'perl(ZMQ::LibZMQ4)' 'perl(JSON)' 'perl(Config::IniFiles)' 'perl(DBD::SQLite)' 'perl(DBD::mysql)' 'perl(UUID)' 'perl(Crypt::OpenSSL::RSA)'
+    # yum install 'perl(Schedule::Cron)' 'perl(Crypt::CBC)' 'perl(ZMQ::LibZMQ4)' 'perl(JSON)' 'perl(YAML)' 'perl(DBD::SQLite)' 'perl(DBD::mysql)' 'perl(UUID)' 'perl(Crypt::OpenSSL::RSA)'
     # yum install perl-CryptX-0.064-1.el7.x86_64
 
 Create sqlite database:
@@ -240,6 +240,17 @@ The client request:
 
   [PUTLOG] [TOKEN] [TARGET] { code => xxx, etime => xxx, token => xxxx, data => { some_datas } }
 
+============
+Common codes
+============
+
+Common code responses for all module requests:
+* 0: action proceed
+* 1: action finished OK
+* 2: action finished KO
+
+Modules can have extra codes.
+
 ===============
 module requests
 ===============
@@ -248,12 +259,7 @@ module requests
 gorgone-acl
 -----------
 
-Common code responses:
-
-* 100: problem. It stopped (read the message)
-* 101: action proceed
-* 105: problem (read the message)
-* 106: action had been finished
+No extra codes.
 
 ACLADDHOST
 ^^^^^^^^^^
@@ -407,18 +413,10 @@ A client example:
 
   [COMMAND] [] [target_id] { command => 'ls /' }
 
-The code responses:
-
-* x0: problem. It stopped (read the message)
-* 31: command proceed
-* 32: command proceed end
-* 35: problem. It stopped (read the message)
-* 36: command had been finished
-
-With the code 36, you can get following attributes:
+With the code 1, you can get following attributes:
 ::
 
-  { code => 36, stdout => 'xxxxx', exit_code => xxx }
+  { code => 1, stdout => 'xxxxx', exit_code => xxx }
 
 ENGINECOMMAND
 ^^^^^^^^^^^^^
@@ -428,14 +426,6 @@ A client example:
 ::
 
   [ENGINECOMMAND] [] [target_id] { command => '[1417705150] ENABLE_HOST_CHECK;host1', engine_pipe => '/var/lib/centreon-engine/rw/centengine.cmd'
-
-The code responses:
-
-* x0: problem. It stopped (read the message)
-* 31: command proceed
-* 32: command proceed end
-* 35: problem. It stopped (read the message)
-* 36: command had been submitted
 
 You only have the message to get informations (it tells you if there are some permission problems or file missing).
 

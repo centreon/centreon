@@ -28,10 +28,15 @@ use modules::gorgoneproxy::class;
 
 my $config_core;
 my $config;
+my $module_shortname = 'proxy';
 my $module_id = 'gorgoneproxy';
 my $events = [
-    'PROXYREADY', 'SETLOGS', 'PONG', 'REGISTERNODE', 'UNREGISTERNODE', # internal. Shouldn't be used by third party clients
-    'ADDPOLLER', 
+    { event => 'PROXYREADY' },
+    { event => 'SETLOGS' }, # internal. Shouldn't be used by third party clients
+    { event => 'PONG' }, # internal. Shouldn't be used by third party clients
+    { event => 'REGISTERNODE' }, # internal. Shouldn't be used by third party clients
+    { event => 'UNREGISTERNODE' }, # internal. Shouldn't be used by third party clients
+    { event => 'ADDPOLLER', uri => '/poller', method => 'POST' },
 ];
 
 my $synctime_error = 0;
@@ -57,7 +62,7 @@ sub register {
     
     $config = $options{config};
     $config_core = $options{config_core};
-    return ($events, $module_id);
+    return ($events, $module_shortname , $module_id);
 }
 
 sub init {

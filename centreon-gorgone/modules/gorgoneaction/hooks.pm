@@ -27,9 +27,10 @@ use modules::gorgoneaction::class;
 
 my $config_core;
 my $config;
+my $module_shortname = 'action'; 
 my $module_id = 'gorgoneaction';
 my $events = [
-    'ACTIONREADY',
+     { event => 'ACTIONREADY' },
 ];
 my $action = {};
 my $stop = 0;
@@ -45,7 +46,7 @@ sub register {
     if (!defined($config->{disable_enginecommand_event}) || $config->{disable_enginecommand_event} != 1) {
         push @{$events}, 'ENGINECOMMAND';
     }
-    return ($events, $module_id);
+    return ($events, $module_shortname , $module_id);
 }
 
 sub init {

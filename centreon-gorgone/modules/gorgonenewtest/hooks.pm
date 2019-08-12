@@ -28,10 +28,11 @@ use modules::gorgonenewtest::class;
 
 my ($config_core, $config);
 my ($config_db_centreon, $config_db_centstorage);
+my $module_shortname = 'newtest'; 
 my $module_id = 'gorgonenewtest';
 my $events = [
-    'NEWTESTREADY', 
-    'NEWTESTRESYNC',
+     { event => 'NEWTESTREADY' },
+     { event => 'NEWTESTRESYNC', uri => '/resync', method => 'GET' },
 ];
 
 my $last_containers = {}; # Last values from config ini
@@ -49,7 +50,7 @@ sub register {
     $config_db_centstorage = $options{config_db_centstorage};
     $config_db_centreon = $options{config_db_centreon};
     $config_check_containers_time = defined($config->{check_containers_time}) ? $config->{check_containers_time} : 3600;
-    return ($events, $module_id);
+    return ($events, $module_shortname , $module_id);
 }
 
 sub init {
@@ -169,52 +170,50 @@ sub check {
 sub get_containers {
     my (%options) = @_;
 
-    my $containers = {};
     return $containers if (!defined($config->{containers}));
-    foreach my $container_id (split /,/, $config->{containers}) {
-        next if ($container_id eq '');
+    foreach (@{$config->{containers}}) {
+        next if (!defined($_->{name}) || $_->{name} eq '');
 
-        if (!defined($config->{$container_id . '_nmc_endpoint'}) ||  $config->{$container_id . '_nmc_endpoint'} eq '') {
-            $options{logger}->writeLogError("gorgone-newtest: cannot load container '" . $container_id . "' - please set nmc_endpoint option");
+        if (!defined($_->{nmc_endpoint}) || $_->{nmc_endpoint} eq '') {
+            $options{logger}->writeLogError("gorgone-newtest: cannot load container '" . $_->{name} . "' - please set nmc_endpoint option");
             next;
         }
-        if (!defined($config->{$container_id . '_poller_name'}) ||  $config->{$container_id . '_poller_name'} eq '') {
-            $options{logger}->writeLogError("gorgone-newtest: cannot load container '" . $container_id . "' - please set poller_name option");
+        if (!defined($_->{poller_name}) || $_->{poller_name} eq '') {
+            $options{logger}->writeLogError("gorgone-newtest: cannot load container '" . $_->{name} . "' - please set poller_name option");
             next;
         }
-        if (!defined($config->{$container_id . '_list_scenario_status'}) ||  $config->{$container_id . '_list_scenario_status'} eq '') {
-            $options{logger}->writeLogError("gorgone-newtest: cannot load container '" . $container_id . "' - please set list_scenario_status option");
+        if (!defined($_->{list_scenario_status}) || $_->{list_scenario_status} eq '') {
+            $options{logger}->writeLogError("gorgone-newtest: cannot load container '" . $_->{name} . "' - please set list_scenario_status option");
             next;
         }
-        
+
         my $list_scenario;
         eval {
-            $list_scenario = JSON::XS->new->utf8->decode($config->{$container_id . '_list_scenario_status'});
+            $list_scenario = JSON::XS->new->utf8->decode($_->{list_scenario_status});
         };
         if ($@) {
-            $options{logger}->writeLogError("gorgone-newtest: cannot load container '" . $container_id . "' - cannot decode list scenario option");
+            $options{logger}->writeLogError("gorgone-newtest: cannot load container '" . $_->{name} . "' - cannot decode list scenario option");
             next;
         }
         
-        $containers->{$container_id} = {
-            nmc_endpoint => $config->{$container_id . '_nmc_endpoint'},
-            nmc_timeout => (defined($config->{$container_id . '_nmc_timeout'}) && $config->{$container_id . '_nmc_timeout'} =~ /(\d+)/) ? 
+        $containers->{$_->{name}} = {
+            nmc_endpoint => $_->{nmc_endpoint},
+            nmc_timeout => (defined($_->{nmc_timeout}) && $_->{nmc_timeout} =~ /(\d+)/) ? 
                 $1 : 10,
-            nmc_username => $config->{$container_id . '_nmc_username'},
-            nmc_password => $config->{$container_id . '_nmc_password'},
-            poller_name => $config->{$container_id . '_poller_name'},
+            nmc_username => $_->{nmc_username},
+            nmc_password => $_->{nmc_password},
+            poller_name => $_->{poller_name},
             list_scenario_status => $list_scenario,
             resync_time => 
-                (defined($config->{$container_id . '_resync_time'}) && $config->{$container_id . '_resync_time'} =~ /(\d+)/) ? 
-                $1 : 300,
+                (defined($_->{resync_time}) && $_->{resync_time} =~ /(\d+)/) ? $1 : 300,
             host_template => 
-                defined($config->{$container_id . '_host_template'}) && $config->{$container_id . '_host_template'} ne '' ? $config->{$container_id . '_host_template'} : 'generic-active-host-custom',
+                defined($_->{host_template}) && $_->{host_template} ne '' ? $_->{host_template} : 'generic-active-host-custom',
             host_prefix => 
-                defined($config->{$container_id . '_host_prefix'}) && $config->{$container_id . '_host_prefix'} ne '' ? $config->{$container_id . '_host_prefix'} : 'Robot-%s',
+                defined($_->{host_prefix}) && $_->{host_prefix} ne '' ? $_->{host_prefix} : 'Robot-%s',
             service_template => 
-                defined($config->{$container_id . '_service_template'}) && $config->{$container_id . '_service_template'} ne '' ? $config->{$container_id . '_service_template'} : 'generic-passive-service-custom',
+                defined($_->{service_template}) && $_->{service_template} ne '' ? $_->{service_template} : 'generic-passive-service-custom',
             service_prefix => 
-                defined($config->{$container_id . '_service_prefix'}) && $config->{$container_id . '_service_prefix'} ne '' ? $config->{$container_id . '_service_prefix'} : 'Scenario-%s',
+                defined($_->{service_prefix}) && $_->{service_prefix} ne '' ? $_->{service_prefix} : 'Scenario-%s',
          };
     }
 
@@ -254,6 +253,7 @@ sub create_child {
         $0 = 'gorgone-newtest';
         my $module = modules::gorgonenewtest::class->new(
             logger => $options{logger},
+            module_id => $module_id,
             config_core => $config_core,
             config => $config,
             config_db_centreon => $config_db_centreon,

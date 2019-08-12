@@ -4,3 +4,4 @@
 - Can chain agents and forward protocol
 - Add a core event: GETINFORMATION (events loaded, target loaded and module loaded)
 - gorgone-newtest: don't use centcore.cmd. use ssh system.
+- Use 4 code for all modules: 0 -> transaction progress, 1 -> transaction finished ok, 2 -> transaction finished ko
