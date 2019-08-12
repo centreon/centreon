@@ -39,15 +39,26 @@ gorgonecore:
   # shouldn't be changed
   proxy_name: gorgoneproxy
 modules:
+  - name: gorgonehttpserver
+    module: modules::gorgonehttpserver::hooks
+    enable: true
+    address: 0.0.0.0
+    port: 8080
+    ssl: true
+    ssl_cert_file: /etc/pki/tls/certs/server-cert.pem
+    ssl_key_file: /etc/pki/tls/server-key.pem
+    auth:
+      user: admin
+      password: password
   - name: gorgonecron
     module: modules::gorgonecron::hooks
-    enable: 1
+    enable: true
   - name: gorgoneaction
     module: modules::gorgoneaction::hooks
-    enable: 1
+    enable: false
   - name: gorgoneacl
     module: modules::gorgoneacl::hooks
-    enable: 0
+    enable: false
     on_demand: 1
     # How much to keep open in seconds without event received
     on_demand_time: 60
@@ -63,7 +74,7 @@ modules:
     sql_bulk: 2000
   - name: gorgoneproxy
     module: modules::gorgoneproxy::hooks
-    enable: 0
+    enable: false
     pool: 5
     # sync history each 5 minutes
     synchistory_time: 300
@@ -73,7 +84,7 @@ modules:
     ping: 60
   - name: gorgonescom
     module: modules::gorgonescom::hooks
-    enable: 0
+    enable: false
     # in seconds - do purge for container also
     check_containers_time: 3600
     dsmclient_bin: /usr/share/centreon/bin/dsmclient.pl
@@ -96,7 +107,7 @@ modules:
       #   resync_time: 600
   - name: gorgonenewtest
     module: modules::gorgonenewtest::hooks
-    enable: 0
+    enable: false
     # in seconds - do purge for container also
     check_containers_time: 3600
     clapi_command: /usr/bin/centreon

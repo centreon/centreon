@@ -27,9 +27,12 @@ use modules::gorgonecron::class;
 
 my $config_core;
 my $config;
+my $module_shortname = 'cron';
 my $module_id = 'gorgonecron';
 my $events = [
-    'CRONREADY', 'RELOADCRON',
+    { event => 'CRONREADY' },
+    { event => 'RELOADCRON', uri => '/reload', method => 'POST' },
+    { event => 'LISTCRON', uri => '/list', method => 'GET' },
 ];
 my $cron = {};
 my $stop = 0;
@@ -39,7 +42,7 @@ sub register {
     
     $config = $options{config};
     $config_core = $options{config_core};
-    return ($events, $module_id);
+    return ($events, $module_shortname , $module_id);
 }
 
 sub init {
