@@ -228,17 +228,25 @@ if (isset($preferences['state_type_filter']) && $preferences['state_type_filter'
     }
 }
 if (isset($preferences['hostgroup']) && $preferences['hostgroup']) {
-    $mainQueryParameters[] = [
-        'parameter' => ':hostgroup',
-        'value' => $preferences['hostgroup_id'],
-        'type' => PDO::PARAM_INT
-    ];
+    $results = explode(',', $preferences['hostgroup']);
+    $queryHG = '';
+    foreach ($results as $result) {
+        if ($queryHG != '') {
+            $queryHG .= ', ';
+        }
+        $queryHG .= ":id_" . $result;
+        $mainQueryParameters[] = [
+            'parameter' => ':id_' . $result,
+            'value' => (int)$result,
+            'type' => PDO::PARAM_INT
+        ];
+    }
     $query = CentreonUtils::conditionBuilder(
         $query,
         " s.host_id IN (
             SELECT host_host_id
-            FROM " . $conf_centreon['db'] .".hostgroup_relation
-            WHERE hostgroup_hg_id = :hostgroup_id
+            FROM " . $conf_centreon['db'] . ".hostgroup_relation
+            WHERE hostgroup_hg_id IN (" . $queryHG . ")
         )"
     );
 }
