@@ -44,7 +44,8 @@ sub send_log {
 
     centreon::gorgone::common::zmq_send_message(
         socket => $self->{internal_socket},
-        action => 'PUTLOG', 
+        action => 'PUTLOG',
+        token => $options{token},
         data => { code => $options{code}, etime => time(), token => $options{token}, data => $options{data} },
         json_encode => 1
     );

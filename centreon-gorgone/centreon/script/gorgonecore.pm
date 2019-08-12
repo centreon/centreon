@@ -235,6 +235,7 @@ sub message_run {
         );
         return (undef, 1, { message => "action '$action' is not known" });
     }
+
     if (!defined($token) || $token eq '') {
         $token = centreon::gorgone::common::generate_token();
     }
