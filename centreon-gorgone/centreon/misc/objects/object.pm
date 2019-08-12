@@ -48,6 +48,9 @@ sub do {
     my $mode = defined($options{mode}) ? $options{mode} : 0;
     
     my ($status, $sth) = $self->{db_centreon}->query($options{request});
+    if ($status == -1) {
+        return (-1, undef);
+    }
     if ($mode == 0) {
         return ($status, $sth);
     } elsif ($mode == 1) {

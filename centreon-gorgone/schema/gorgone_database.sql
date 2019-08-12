@@ -9,7 +9,7 @@ CREATE INDEX IF NOT EXISTS idx_gorgone_identity_identity ON gorgone_identity (id
 
 CREATE TABLE IF NOT EXISTS `gorgone_history` (
   `id` INTEGER PRIMARY KEY,
-  `token` varchar(255) DEFAULT NULL,
+  `token` varchar(2048) DEFAULT NULL,
   `code` int(11) DEFAULT NULL,
   `etime` int(11) DEFAULT NULL,
   `ctime` int(11) DEFAULT NULL,

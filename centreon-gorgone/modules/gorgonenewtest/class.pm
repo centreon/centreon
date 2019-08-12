@@ -37,7 +37,7 @@ use modules::gorgonenewtest::newtest::stubs::errors;
 use Date::Parse;
 
 my %handlers = (TERM => {}, HUP => {});
-my ($connector, $socket);
+my ($connector);
 
 sub new {
     my ($class, %options) = @_;
@@ -52,6 +52,7 @@ sub new {
     $connector->{config_db_centstorage} = $options{config_db_centstorage};
     $connector->{config_db_centreon} = $options{config_db_centreon};
     $connector->{stop} = 0;
+    $connector->{internal_socket} = undef;
 
     $connector->{resync_time} = $options{config_newtest}->{resync_time};
     $connector->{last_resync_time} = time() - $connector->{resync_time};
@@ -563,6 +564,7 @@ sub action_newtestresync {
     my ($self, %options) = @_;
 
     $options{token} = $self->generate_token() if (!defined($options{token}));
+    
     $self->{logger}->writeLogDebug("gorgone-newtest: container $self->{container_id}: begin resync");
     $self->send_log(code => centreon::gorgone::module::ACTION_BEGIN, token => $options{token}, data => { message => 'action newtestresync proceed' });
     $self->newtestresync_init();
@@ -594,7 +596,7 @@ sub action_newtestresync {
 
 sub event {
     while (1) {
-        my $message = centreon::gorgone::common::zmq_dealer_read_message(socket => $socket);
+        my $message = centreon::gorgone::common::zmq_dealer_read_message(socket => $connector->{internal_socket});
         
         $connector->{logger}->writeLogDebug("gorgone-newtest: class: $message");
         if ($message =~ /^\[(.*?)\]/) {
@@ -606,7 +608,7 @@ sub event {
             }
         }
 
-        last unless (centreon::gorgone::common::zmq_still_read(socket => $socket));
+        last unless (centreon::gorgone::common::zmq_still_read(socket => $connector->{internal_socket}));
     }
 }
 
@@ -635,20 +637,20 @@ sub run {
     $self->{instance} = modules::gorgonenewtest::newtest::stubs::ManagementConsoleService->new();
 
     # Connect internal
-    $socket = centreon::gorgone::common::connect_com(
+    $connector->{internal_socket} = centreon::gorgone::common::connect_com(
         zmq_type => 'ZMQ_DEALER', name => 'gorgonenewtest-' . $self->{container_id},
         logger => $self->{logger},
         type => $self->{config_core}->{internal_com_type},
         path => $self->{config_core}->{internal_com_path}
     );
     centreon::gorgone::common::zmq_send_message(
-        socket => $socket,
+        socket => $connector->{internal_socket},
         action => 'NEWTESTREADY', data => { container_id => $self->{container_id} },
         json_encode => 1
     );
     $self->{poll} = [
         {
-            socket  => $socket,
+            socket  => $connector->{internal_socket},
             events  => ZMQ_POLLIN,
             callback => \&event,
         }
@@ -658,7 +660,7 @@ sub run {
         my $rev = zmq_poll($self->{poll}, 5000);
         if (defined($rev) && $rev == 0 && $self->{stop} == 1) {
             $self->{logger}->writeLogInfo("gorgone-newtest $$ has quit");
-            zmq_close($socket);
+            zmq_close($connector->{internal_socket});
             zmq_close($self->{socket_log}) if (defined($self->{socket_log}));
             exit(0);
         }

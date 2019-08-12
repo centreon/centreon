@@ -203,7 +203,9 @@ sub connect() {
         }
 
         my ($package, $filename, $line) = caller;
-        $self->{logger}->writeLogError("MySQL error : cannot connect to database " . $self->{db} . ": " . $DBI::errstr . " (caller: $package:$filename:$line) (try: $count)");
+        $self->{logger}->writeLogError("MySQL error : cannot connect to database '" . 
+            (defined($self->{db}) ? $self->{db} : $self->{dsn}) . "': " . $DBI::errstr . " (caller: $package:$filename:$line) (try: $count)"
+        );
         if ($self->{force} == 0 || ($self->{force} == 2 && $count == 1)) {
             $status = -1;
             last;

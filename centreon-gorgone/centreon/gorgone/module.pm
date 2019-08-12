@@ -37,17 +37,8 @@ sub send_log {
 
     return if (!defined($options{token}));
 
-    if (!defined($self->{socket_log})) {
-        $self->{socket_log} = centreon::gorgone::common::connect_com(
-            zmq_type => 'ZMQ_DEALER', name => $self->{module_id} . '-'. $self->{container_id},
-            logger => $self->{logger}, linger => 5000,
-            type => $self->{config_core}->{internal_com_type},
-            path => $self->{config_core}->{internal_com_path}
-        );
-    }
-
     centreon::gorgone::common::zmq_send_message(
-        socket => $self->{socket_log},
+        socket => $self->{internal_socket},
         action => 'PUTLOG', 
         data => { code => $options{code}, etime => time(), token => $options{token}, data => $options{data} },
         json_encode => 1

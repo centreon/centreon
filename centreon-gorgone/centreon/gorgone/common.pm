@@ -290,8 +290,10 @@ sub putlog {
         return (1, { message => 'request not well formatted' });
     }
     
-    my $status = add_history(dbh => $options{gorgone}->{db_gorgone}, 
-                             etime => $data->{etime}, token => $data->{token}, data => json_encode(data => $data->{data}, logger => $options{logger}), code => $data->{code});
+    my $status = add_history(
+        dbh => $options{gorgone}->{db_gorgone}, 
+        etime => $data->{etime}, token => $data->{token}, data => json_encode(data => $data->{data}, logger => $options{logger}), code => $data->{code}
+    );
     if ($status == -1) {
         return (1, { message => 'database issue' });
     }

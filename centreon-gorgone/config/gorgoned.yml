@@ -41,7 +41,7 @@ gorgonecore:
 modules:
   - name: gorgonehttpserver
     module: modules::gorgonehttpserver::hooks
-    enable: true
+    enable: false
     address: 0.0.0.0
     port: 8080
     ssl: true
@@ -50,6 +50,7 @@ modules:
     auth:
       user: admin
       password: password
+
   - name: gorgonecron
     module: modules::gorgonecron::hooks
     enable: true

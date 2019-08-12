@@ -463,10 +463,12 @@ sub run {
     $gorgone->{logger}->writeLogDebug("gorgoned launched....");
     $gorgone->{logger}->writeLogDebug("PID: $$");
 
-    if (centreon::gorgone::common::add_history(dbh => $gorgone->{db_gorgone},
-                                                 code => 0,
-                                                 data => { msg => 'gorgoned is starting...' },
-                                                 json_encode => 1) == -1) {
+    if (centreon::gorgone::common::add_history(
+        dbh => $gorgone->{db_gorgone},
+        code => 0,
+        data => { msg => 'gorgoned is starting...' },
+        json_encode => 1) == -1
+    ) {
         $gorgone->{logger}->writeLogInfo("Cannot write in history. We quit!!");
         exit(1);
     }
