@@ -120,6 +120,18 @@ sub http_check_error {
     return 0;
 }
 
+sub get_httpauth {
+    my ($self, %options) = @_;
+
+    my $httpauth = {};
+    if ($self->{config_scom}->{httpauth} eq 'basic') {
+        $httpauth->{basic} = 1;
+    } elsif ($self->{config_scom}->{httpauth} eq 'ntlmv2') {
+        $httpauth->{ntlmv2} = 1;
+    }
+    return $httpauth;
+}
+
 sub scom_authenticate_1801 {
     my ($self, %options) = @_;
 
@@ -146,7 +158,6 @@ sub scom_authenticate_1801 {
 
     return 0;
 }
-
 
 sub get_realtime_scom_alerts_1801 {
     my ($self, %options) = @_;
@@ -200,11 +211,15 @@ sub get_realtime_scom_alerts_2016 {
             push @{$curl_opts}, $_ . ' => ' . $self->{config_scom}->{curlopts}->{$_};
         }
     }
+    my $httpauth = $self->get_httpauth();
+    
+
     $self->{scom_realtime_alerts} = {};
     my ($status, $response) = $self->{http}->request(
         method => 'GET', hostname => '',
         full_url => $self->{config_scom}->{url} . 'alerts',
-        ntlmv2 => 1, 
+        credentials => 1,
+        %$httpauth, 
         username => $self->{config_scom}->{username},
         password => $self->{config_scom}->{password},
         header => [
@@ -303,6 +318,7 @@ sub sync_alerts {
 
     # Close centreon alerts not present in scom
     foreach my $alert_id (keys %{$self->{realtime_slots}}) {
+        next if ($self->{realtime_slots}->{$alert_id}->{state} == 0);
         next if (defined($self->{scom_realtime_alerts}->{$alert_id}) && $self->{scom_realtime_alerts}->{$alert_id} != 255);
         my $output = $self->change_macros(
             template => $self->{dsmrecoverymessage},
@@ -318,6 +334,12 @@ sub sync_alerts {
                 ' --output "' . $output . '"'
         );
     }
+}
+
+sub sync_acks {
+    my ($self, %options) = @_;
+
+    
 }
 
 sub action_scomresync {
@@ -344,6 +366,7 @@ sub action_scomresync {
     }
 
     $self->sync_alerts();
+    $self->sync_acks();
 
     $self->{logger}->writeLogDebug("gorgone-scom: container $self->{container_id}: finish resync");
     $self->send_log(code => $self->ACTION_FINISH_OK, token => $options{token}, data => { message => 'action scomresync finished' });

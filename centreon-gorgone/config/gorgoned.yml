@@ -100,6 +100,7 @@ modules:
           url: "http://scomserver/api/"
           username: toto
           password: pass
+          httpauth: basic
           resync_time: 300
           dsmhost: ADH3
           dsmslot: Scom-%
@@ -108,7 +109,6 @@ modules:
           dsmrecoverymessage: slot ok
           curlopts:
               CURLOPT_SSL_VERIFYPEER: 0
-              CURLOPT_PROXYAUTH: CURLAUTH_NTLM
       # - name: tutu
       #   url: http://scomserver2/
       #   username: toto2
@@ -129,6 +129,7 @@ modules:
         - name: toto
           resync_time: 300
           nmc_endpoint: "http://__NMC_ADDRESS__/nws/managementconsoleservice.asmx"
+          username: user
           password: pass
           host_template: generic-active-host-custom
           host_prefix: Robot-%s
@@ -139,6 +140,7 @@ modules:
         - name: tutu
           resync_time: 600
           nmc_endpoint: "http://__NMC_ADDRESS__/nws/managementconsoleservice.asmx"
+          username: user
           password: pass
           host_template: generic-active-host-custom
           host_prefix: Robot-%s

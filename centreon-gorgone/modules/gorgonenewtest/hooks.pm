@@ -250,7 +250,7 @@ sub create_child {
     $options{logger}->writeLogInfo("Create gorgone-newtest for container '" . $options{container_id} . "'");
     my $child_pid = fork();
     if ($child_pid == 0) {
-        $0 = 'gorgone-newtest';
+        $0 = 'gorgone-newtest ' . $options{container_id};
         my $module = modules::gorgonenewtest::class->new(
             logger => $options{logger},
             module_id => $module_id,

@@ -46,7 +46,7 @@ To execute the daemon:
 
   ::
   
-    # perl gorgoned --config-extra=config/gorgoned.ini --severity=debug
+    # perl gorgoned --config-extra=config/gorgoned.yml --severity=debug
 
 ****************
 gorgone protocol 
@@ -489,7 +489,7 @@ Database scheme
   
   CREATE TABLE IF NOT EXISTS `gorgone_history` (
     `id` INTEGER PRIMARY KEY,
-    `token` varchar(255) DEFAULT NULL,
+    `token` varchar(2048) DEFAULT NULL,
     `code` int(11) DEFAULT NULL,
     `etime` int(11) DEFAULT NULL,
     `ctime` int(11) DEFAULT NULL,

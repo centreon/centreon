@@ -190,6 +190,7 @@ sub get_containers {
             url => $_->{url},
             username => $_->{username},
             password => $_->{password},
+            httpauth => defined($_->{httpauth}) && $_->{httpauth} =~ /(basic|ntlmv2)/ ? $_->{httpauth} : 'basic',
             resync_time => 
                 (defined($_->{resync_time}) && $_->{resync_time} =~ /(\d+)/) ? $1 : 300,
             api_version => (defined($_->{api_version}) && $_->{api_version} =~ /(2012|2016|1801)/) ? $1 : '2016',
@@ -235,7 +236,7 @@ sub create_child {
     $options{logger}->writeLogInfo("Create gorgone-scom for container '" . $options{container_id} . "'");
     my $child_pid = fork();
     if ($child_pid == 0) {
-        $0 = 'gorgone-scom';
+        $0 = 'gorgone-scom ' . $options{container_id};
         my $module = modules::gorgonescom::class->new(
             logger => $options{logger},
             module_id => $module_id,
