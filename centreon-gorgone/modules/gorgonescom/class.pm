@@ -193,10 +193,16 @@ sub acknowledge_alert_2016 {
             push @{$curl_opts}, $_ . ' => ' . $self->{config_scom}->{curlopts}->{$_};
         }
     }
+    my $httpauth = $self->get_httpauth();
+
     my ($status, $response) = $self->{http}->request(
         method => 'PUT', hostname => '',
         full_url => $self->{config_scom}->{url} . 'alerts',
         get_param => ['id=' . $options{alert_id}, 'ResolutionState=249'],
+        credentials => 1,
+        %$httpauth, 
+        username => $self->{config_scom}->{username},
+        password => $self->{config_scom}->{password},
         header => [
             'Accept-Type: application/json; charset=utf-8',
             'Content-Type: application/json; charset=utf-8',
