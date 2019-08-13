@@ -181,7 +181,7 @@ sub generate_token {
 sub generate_symkey {
     my (%options) = @_;
     
-    my $random_key = Crypt::OpenSSL::Random::random_bytes($options{keysize});
+    my $random_key = Crypt::PRNG::random_bytes($options{keysize});
     return (0, $random_key);
 }
 
