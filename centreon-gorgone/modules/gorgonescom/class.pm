@@ -187,6 +187,12 @@ sub scom_authenticate_1801 {
 sub acknowledge_alert_2016 {
     my ($self, %options) = @_;
 
+    my $arguments = {
+        'resolutionState' => $options{resolutionstate},
+    };
+    my ($status, $encoded_argument) = $self->json_encode(argument => $arguments);
+    return 1 if ($status == 1);
+
     my $curl_opts = [];
     if (defined($self->{config_scom}->{curlopts})) {
         foreach (keys %{$self->{config_scom}->{curlopts}}) {
@@ -195,10 +201,10 @@ sub acknowledge_alert_2016 {
     }
     my $httpauth = $self->get_httpauth();
 
-    my ($status, $response) = $self->{http}->request(
+    ($status, my $response) = $self->{http}->request(
         method => 'PUT', hostname => '',
-        full_url => $self->{config_scom}->{url} . 'alerts',
-        get_param => ['id=' . $options{alert_id}, 'ResolutionState=249'],
+        full_url => $self->{config_scom}->{url} . 'alerts/' . $options{alert_id},
+        query_form_post => $encoded_argument,
         credentials => 1,
         %$httpauth, 
         username => $self->{config_scom}->{username},
@@ -357,6 +363,21 @@ sub get_realtime_slots {
 sub sync_alerts {
     my ($self, %options) = @_;
 
+    my $func = $self->get_method(method => 'acknowledge_alert');
+    # First we look closed alerts in centreon
+    foreach my $alert_id (keys %{$self->{realtime_slots}}) {
+        next if ($self->{realtime_slots}->{$alert_id}->{state} != 0);
+        next if (!defined($self->{scom_realtime_alerts}->{$alert_id}) ||
+            $self->{scom_realtime_alerts}->{$alert_id}->{resolutionstate} == 254 ||
+            $self->{scom_realtime_alerts}->{$alert_id}->{resolutionstate} == 255
+        );
+        $func->(
+            $self, 
+            alert_id => $alert_id,
+            resolutionstate => 254,
+        );
+    }
+
     # Look if scom alers is in centreon-dsm services
     my $pool_prefix = $self->{dsmslot};
     $pool_prefix =~ s/%//g;
@@ -411,6 +432,7 @@ sub sync_acks {
         $func->(
             $self, 
             alert_id => $alert_id,
+            resolutionstate => 249,
         );
     }
 
