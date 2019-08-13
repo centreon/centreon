@@ -203,7 +203,6 @@ sub client_get_secret {
         $plaintext = $options{privkey}->decrypt($options{message}, 'v1.5');
     };
     if ($@) {
-        print "====$@====\n";
         return (-1, "Decoding issue: $@");
     }
 
