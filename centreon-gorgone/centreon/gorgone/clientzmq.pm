@@ -39,7 +39,9 @@ sub new {
     $connector->{cipher} = $options{cipher};
     $connector->{vector} = $options{vector};
     $connector->{symkey} = undef;
-    $connector->{pubkey} = centreon::gorgone::common::loadpubkey(pubkey => $options{pubkey});
+    $connector->{server_pubkey} = centreon::gorgone::common::loadpubkey(pubkey => $options{server_pubkey});
+    $connector->{client_pubkey} = centreon::gorgone::common::loadpubkey(pubkey => $options{client_pubkey});
+    $connector->{client_privkey} = centreon::gorgone::common::loadprivkey(privkey => $options{client_privkey});
     $connector->{target_type} = $options{target_type};
     $connector->{target_path} = $options{target_path};
     $connector->{ping} = defined($options{ping}) ? $options{ping} : -1;
@@ -47,7 +49,11 @@ sub new {
     $connector->{ping_progress} = 0; 
     $connector->{ping_time} = time();
     $connector->{ping_timeout_time} = time();
-    
+
+    if (defined($connector->{logger}) && $connector->{logger}->is_debug()) {
+        $connector->{logger}->writeLogDebug($connector->{client_pubkey}->export_key_jwk_thumbprint('SHA256'));
+    }
+
     $connectors->{$options{identity}} = $connector;
     bless $connector, $class;
     return $connector;
@@ -134,8 +140,10 @@ sub event {
         
         # in progress
         if ($connectors->{$options{identity}}->{handshake} == 0 || $connectors->{$options{identity}}->{handshake} == 1) {
-            my ($status, $symkey, $hostname) = centreon::gorgone::common::client_get_secret(pubkey => $connectors->{$options{identity}}->{pubkey},
-                                                                                              message => $message);
+            my ($status, $symkey, $hostname) = centreon::gorgone::common::client_get_secret(
+                privkey => $connectors->{$options{identity}}->{client_privkey},
+                message => $message
+            );
             if ($status == -1) {
                 $connectors->{$options{identity}}->{handshake} = 0;
                 return ;
@@ -171,10 +179,10 @@ sub send_message {
     my ($self, %options) = @_;
     
     if ($self->{handshake} == 0) {
-        my $message = '[HELO] [' . $self->{identity} . ']';
         my ($status, $ciphertext) = centreon::gorgone::common::client_helo_encrypt(
-            pubkey => $self->{pubkey},
-            message => $message
+            identity => $self->{identity},
+            server_pubkey => $self->{server_pubkey},
+            client_pubkey => $self->{client_pubkey},
         );
         if ($status == -1) {
             return (-1, 'crypt handshake issue'); 

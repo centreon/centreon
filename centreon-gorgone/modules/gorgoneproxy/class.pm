@@ -82,9 +82,13 @@ sub get_client_information {
     my ($self, %options) = @_;
     
     # TODO DATABASE or file maybe. hardcoded right now
-    my $result = { type => 1, target_type => 'tcp', target_path => 'localhost:5556',
-                   pubkey => 'keys/poller/pubkey.crt', cipher => 'Cipher::AES',
-                   keysize => '32', vector => '0123456789012345', class => undef, delete => 0 };
+    my $result = {
+        type => 1, target_type => 'tcp', target_path => 'localhost:5556',
+        server_pubkey => 'keys/poller/pubkey.crt', 
+        client_pubkey => 'keys/central/pubkey.crt',
+        client_privkey => 'keys/central/privkey.pem',
+        cipher => 'Cipher::AES', keysize => '32', vector => '0123456789012345', class => undef, delete => 0
+    };
     return $result;
 }
 
@@ -135,7 +139,9 @@ sub connect {
             identity => 'proxy-' . $self->{core_id} . '-' . $options{id}, 
             cipher => $options{entry}->{cipher}, 
             vector => $options{entry}->{vector},
-            pubkey => $options{entry}->{pubkey},
+            server_pubkey => $options{entry}->{server_pubkey},
+            client_pubkey => $options{entry}->{client_pubkey},
+            client_privkey => $options{entry}->{client_privkey},            
             target_type => $options{entry}->{target_type},
             target_path => $options{entry}->{target_path},
             logger => $self->{logger}

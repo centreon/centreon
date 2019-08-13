@@ -26,14 +26,13 @@ use ZMQ::LibZMQ4;
 use ZMQ::Constants qw(:all);
 use JSON;
 use File::Basename;
-use Crypt::OpenSSL::RSA;
+use Crypt::PK::RSA;
 use Crypt::PRNG;
 use Crypt::CBC;
 use Data::Dumper;
-use YAML 'LoadFile';;
+use YAML 'LoadFile';
 
 my %zmq_type = ('ZMQ_ROUTER' => ZMQ_ROUTER, 'ZMQ_DEALER' => ZMQ_DEALER);
-my $privkey;
 
 sub read_config {
     my (%options) = @_;
@@ -58,7 +57,7 @@ sub read_config {
 sub loadpubkey {
     my (%options) = @_;
     my $string_key = '';
-    
+
     if (!open FILE, "<" . $options{pubkey}) {
         $options{logger}->writeLogError("Cannot read file '$options{pubkey}': $!");
         exit(1);
@@ -70,11 +69,14 @@ sub loadpubkey {
     
     my $pubkey;
     eval {
-        $pubkey = Crypt::OpenSSL::RSA->new_public_key($string_key);
-        $pubkey->use_pkcs1_padding();
+        $pubkey = Crypt::PK::RSA->new(\$string_key);
     };
     if ($@) {
-        $options{logger}->writeLogError("Cannot load privkey '$options{pubkey}': $@");
+        $options{logger}->writeLogError("Cannot load pubkey '$options{pubkey}': $@");
+        exit(1);
+    }
+    if ($pubkey->is_private()) {
+        $options{logger}->writeLogError("'$options{pubkey}' is not a publickey");
         exit(1);
     }
     
@@ -94,14 +96,20 @@ sub loadprivkey {
     }
     close FILE;
 
+    my $privkey;
     eval {
-        $privkey = Crypt::OpenSSL::RSA->new_private_key($string_key);
-        $privkey->use_pkcs1_padding();
+        $privkey = Crypt::PK::RSA->new(\$string_key);
     };
     if ($@) {
         $options{logger}->writeLogError("Cannot load privkey '$options{privkey}': $@");
         exit(1);
     }
+    if (!$privkey->is_private()) {
+        $options{logger}->writeLogError("'$options{privkey}' is not a privkey");
+        exit(1);
+    }
+
+    return $privkey;
 }
 
 sub zmq_core_key_response {
@@ -112,7 +120,7 @@ sub zmq_core_key_response {
     }
     my $crypttext;
     eval {
-        $crypttext = $privkey->private_encrypt("[KEY] [$options{hostname}] [" . $options{symkey} . "]");
+        $crypttext = $options{client_pubkey}->encrypt("[KEY] [$options{hostname}] [" . $options{symkey} . "]", 'v1.5');
     };
     if ($@) {
         $options{logger}->writeLogError("Encoding issue: " .  $@);
@@ -136,13 +144,14 @@ sub zmq_core_response {
     $msg = '[' . $response_type . '] [' . (defined($options{token}) ? $options{token} : '') . '] ' . ($response_type eq 'PONG' ? '[] ' : '') . $data;
     
     if (defined($options{cipher})) {
-        my $cipher = Crypt::CBC->new(-key    => $options{symkey},
-                                     -keysize => length($options{symkey}),
-                                     -cipher => $options{cipher},
-                                     -iv => $options{vector},
-                                     -header => 'none',
-                                     -literal_key => 1
-                                     );
+        my $cipher = Crypt::CBC->new(
+            -key    => $options{symkey},
+            -keysize => length($options{symkey}),
+            -cipher => $options{cipher},
+            -iv => $options{vector},
+            -header => 'none',
+            -literal_key => 1
+        );
         $msg = $cipher->encrypt($msg);
     }
     zmq_sendmsg($options{socket}, $msg, ZMQ_NOBLOCK);
@@ -152,13 +161,14 @@ sub uncrypt_message {
     my (%options) = @_;
     my $plaintext;
     
-    my $cipher = Crypt::CBC->new(-key    => $options{symkey},
-                                 -keysize => length($options{symkey}),
-                                 -cipher => $options{cipher},
-                                 -iv => $options{vector},
-                                 -header => 'none',
-                                 -literal_key => 1
-                                );
+    my $cipher = Crypt::CBC->new(
+        -key    => $options{symkey},
+        -keysize => length($options{symkey}),
+        -cipher => $options{cipher},
+        -iv => $options{vector},
+        -header => 'none',
+        -literal_key => 1
+    );
     eval {
         $plaintext = $cipher->decrypt($options{message});
     };
@@ -188,11 +198,12 @@ sub generate_symkey {
 sub client_get_secret {
     my (%options) = @_;
     my $plaintext;
-    
+
     eval {
-        $plaintext = $options{pubkey}->public_decrypt($options{message});
+        $plaintext = $options{privkey}->decrypt($options{message}, 'v1.5');
     };
     if ($@) {
+        print "====$@====\n";
         return (-1, "Decoding issue: $@");
     }
 
@@ -210,36 +221,69 @@ sub client_get_secret {
 sub client_helo_encrypt {
     my (%options) = @_;
     my $ciphertext;
-    
+
+    my $client_pubkey = $options{client_pubkey}->export_key_pem('public');
+    $client_pubkey =~ s/\n/\\n/g;
     eval {
-        $ciphertext = $options{pubkey}->encrypt($options{message});
+        $ciphertext = $options{server_pubkey}->encrypt('HELO', 'v1.5');
     };
     if ($@) {
-        return (-1, "Decoding issue: $@");
+        return (-1, "Encoding issue: $@");
     }
 
-    return (0, $ciphertext);
+    return (0, '[' . $options{identity} . '] [' . $client_pubkey . '] [' . $ciphertext . ']');
 }
 
 sub is_client_can_connect {
     my (%options) = @_;
     my $plaintext;
-    
+
+    if ($options{message} !~ /\[(.+)\]\s+\[(.+)\]\s+\[(.+)\]$/ms) {
+        $options{logger}->writeLogError("Decoding issue. Protocol not good");
+        return -1;
+    }
+
+    my ($client, $client_pubkey_str, $cipher_text) = ($1, $2, $3);
     eval {
-        $plaintext = $privkey->decrypt($options{message});
+        $plaintext = $options{privkey}->decrypt($cipher_text, 'v1.5');
     };
     if ($@) {
         $options{logger}->writeLogError("Decoding issue: " .  $@);
         return -1;
     }
-
-    if ($plaintext !~ /\[HELO\]\s+\[(.+)\]/) {
-        $options{logger}->writeLogError("Decoding issue. Protocol not good");
+    if ($plaintext ne 'HELO') {
+        $options{logger}->writeLogError("Encrypted issue for HELO");
         return -1;
     }
 
-    $options{logger}->writeLogInfo("Connection from $1");
-    return 0;
+    my ($client_pubkey);
+    $client_pubkey_str =~ s/\\n/\n/g;
+    eval {
+        $client_pubkey = Crypt::PK::RSA->new(\$client_pubkey_str);
+    };
+    if ($@) {
+        $options{logger}->writeLogError("Cannot load client pubkey '$client_pubkey': $@");
+        return -1;
+    }
+
+    my $is_authorized = 0;
+    my $thumbprint = $client_pubkey->export_key_jwk_thumbprint('SHA256');
+    if (defined($options{authorized_clients})) {
+        foreach (@{$options{authorized_clients}}) {
+            if ($_->{key} eq $thumbprint) {
+                $is_authorized = 1;
+                last;
+            }
+        }
+    }
+    
+    if ($is_authorized == 0) {
+        $options{logger}->writeLogError("client pubkey is not authorized. thumprint is '$thumbprint");
+        return -1;
+    }
+
+    $options{logger}->writeLogInfo("Connection from $client");
+    return (0, $client_pubkey);
 }
 
 sub is_handshake_done {

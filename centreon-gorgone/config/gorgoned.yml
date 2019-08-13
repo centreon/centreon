@@ -26,12 +26,17 @@ gorgonecore:
   # If not set. Try from 'hostname' in database
   # Set 'none', if you don't need it (for poller in push mode)
   id: none
+  
   privkey: keys/central/privkey.pem
   cipher: "Cipher::AES"
   # in bytes
   keysize: 32
   # 16 bytes for AES
   vector: 0123456789012345
+  # JWK format export thumbprint SHA256
+  authorized_clients: 
+    - key: pnI6EWkiTbazjikJXRkLmjml5wvVECYtQduJUjS4QK4
+  
   # in seconds
   sessions_time: 86400
   # in seconds

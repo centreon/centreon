@@ -32,13 +32,18 @@ modules:
     target_type: tcp
     target_path: 127.0.0.1:5555
     linger: 5000
+
     # crypt options
-    pubkey: keys/central/pubkey.crt
+    server_pubkey: keys/central/pubkey.crt
+    client_pubkey => 'keys/poller/pubkey.crt',
+    client_privkey => 'keys/poller/privkey.pem',
+    
     cipher: "Cipher::AES"
     # in bytes
     keysize: 32
     # 16 bytes for AES
     vector: 0123456789012345
+
     # ping
     ping: 60
     ping_timeout: 30

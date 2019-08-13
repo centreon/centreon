@@ -24,16 +24,17 @@ Daemon uses following Perl modules:
 * DBD::SQLite: repository 'centos base'
 * DBD::mysql: repository 'centos base'
 * UUID: repository 'centreon-stable'
-* Crypt::OpenSSL::RSA: repository 'centos base'
 * Crypt::CBC: repository 'centos base'
 * Schedule::Cron: in EPEL
-* Crypt::Cipher::AES: in attachment
+* Crypt::Cipher::AES: in attachment (module CryptX)
+* Crypt::PK::RSA: in attachment (module CryptX)
+* Crypt::PRNG: in attachment (module CryptX)
 
 Execute following commands:
 
   ::
   
-    # yum install 'perl(Schedule::Cron)' 'perl(Crypt::CBC)' 'perl(ZMQ::LibZMQ4)' 'perl(JSON)' 'perl(YAML)' 'perl(DBD::SQLite)' 'perl(DBD::mysql)' 'perl(UUID)' 'perl(Crypt::OpenSSL::RSA)'
+    # yum install 'perl(Schedule::Cron)' 'perl(Crypt::CBC)' 'perl(ZMQ::LibZMQ4)' 'perl(JSON)' 'perl(YAML)' 'perl(DBD::SQLite)' 'perl(DBD::mysql)' 'perl(UUID)'
     # yum install perl-CryptX-0.064-1.el7.x86_64
 
 Create sqlite database:
@@ -66,27 +67,27 @@ Handshake scenario
 Third-party clients connected had to use the zeromq library and the following process:
 
 * client : need to create an uniq identity (will be used in "zmq_setsockopt" and "ZMQ_IDENTITY")
-* client -> server : send the following message crypted with the public key of the server:
+* client -> server : send the following message with HELO crypted with the public key of the server and provides client pubkey:
 
 ::
 
-  [HELO] [HOSTNAME]
+  [HOSTNAME] [CLIENTPUBKEY] [HELO]
 
 * server: uncrypt the client message:
 
   * If uncrypted message result is not "HELO", server refused the connection and send it back:
 
   ::
-  
+
     [ACK] [] { "code" => 1, "data" => { "message" => "handshake issue" } }
 
-  * If uncrypted message result is "HELO", server accepts the connection. It creates symmetric key and send the following message crypted with its private key:
+  * If uncrypted message result is "HELO", server accepts the connection if the clientpubkey is authorized. It creates symmetric key and send the following message crypted with client pubkey:
 
   ::
 
     [KEY] [HOSTNAME] [symmetric key]
 
-* client: uncrypt the server message with the public key of the server.
+* client: uncrypt the server message with its private key.
 * client and server uses the symmetric key to dialog
 
 The server keeps sessions for 24 hours since the last message of the client. Otherwise, it purges the identity/symmetric-key of the client.

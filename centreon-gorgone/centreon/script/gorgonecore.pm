@@ -59,6 +59,7 @@ sub new {
     $self->{modules_id} = {};
     $self->{sessions_timer} = time();
     $self->{kill_timer} = undef;
+    $self->{server_privkey} = undef;
     
     return $self;
 }
@@ -80,7 +81,7 @@ sub init {
         logger => $self->{logger}
     );
     if (defined($config->{gorgonecore}->{external_com_type}) && $config->{gorgonecore}->{external_com_type} ne '') {
-        centreon::gorgone::common::loadprivkey(logger => $self->{logger}, privkey => $config->{gorgonecore}->{privkey});
+        $self->{server_privkey} = centreon::gorgone::common::loadprivkey(logger => $self->{logger}, privkey => $config->{gorgonecore}->{privkey});
     }
     
     # Database connections:
@@ -342,12 +343,20 @@ sub handshake {
         return undef;
     } elsif ($status == 0) {
         # We try to uncrypt
-        if (centreon::gorgone::common::is_client_can_connect(message => $message,
-                                                               logger => $self->{logger}) == -1) {
+        ($status, my $client_pubkey) = centreon::gorgone::common::is_client_can_connect(
+            privkey => $self->{server_privkey},
+            message => $message,
+            logger => $self->{logger},
+            authorized_clients => $config->{gorgonecore}->{authorized_clients}
+        );
+        if ($status == -1) {
             centreon::gorgone::common::zmq_core_response(
-                socket => $self->{external_socket}, identity => $identity,
-                code => 1, data => { message => 'handshake issue' }
+                socket => $self->{external_socket},
+                identity => $identity,
+                code => 1,
+                data => { message => 'handshake issue' }
             );
+            return undef;
         }
         my ($status, $symkey) = centreon::gorgone::common::generate_symkey(
             logger => $self->{logger},
@@ -366,9 +375,9 @@ sub handshake {
                 code => 1, data => { message => 'handshake issue' }
             );
         }
-        
+
         if (centreon::gorgone::common::zmq_core_key_response(logger => $self->{logger}, socket => $self->{external_socket}, identity => $identity,
-                                                               hostname => $self->{hostname}, symkey => $symkey) == -1) {
+                                                             client_pubkey => $client_pubkey, hostname => $self->{hostname}, symkey => $symkey) == -1) {
             centreon::gorgone::common::zmq_core_response(
                 socket => $self->{external_socket}, identity => $identity,
                 code => 1, data => { message => 'handshake issue' }
