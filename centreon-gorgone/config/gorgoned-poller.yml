@@ -35,8 +35,8 @@ modules:
 
     # crypt options
     server_pubkey: keys/central/pubkey.crt
-    client_pubkey => 'keys/poller/pubkey.crt',
-    client_privkey => 'keys/poller/privkey.pem',
+    client_pubkey: keys/poller/pubkey.crt,
+    client_privkey: keys/poller/privkey.pem,
     
     cipher: "Cipher::AES"
     # in bytes
