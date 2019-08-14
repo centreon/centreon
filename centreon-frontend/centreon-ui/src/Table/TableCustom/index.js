@@ -75,9 +75,9 @@ class TableCustom extends Component {
   };
 
   handleSelectAllClick = event => {
-    const { onTableSelectionChanged, tableData, nameIdPaired } = this.props;
+    const { onTableSelectionChanged, tableData, nameIdPaired, indicatorsEditor } = this.props;
     if (event.target.checked) {
-      const newSelecteds = nameIdPaired
+      const newSelecteds = indicatorsEditor ? tableData : nameIdPaired
         ? tableData.map(n => `${n.id}:${n.name}`)
         : tableData.map(n => n.id);
       onTableSelectionChanged(newSelecteds);
