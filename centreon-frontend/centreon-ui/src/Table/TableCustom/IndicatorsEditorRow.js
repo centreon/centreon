@@ -28,7 +28,7 @@ class IndicatorsEditorRow extends Component {
     let rowMode = selected.bool
       ? (selected.obj.impact.type
       ? selected.obj.impact.type
-      : 1)
+      : "word")
       : row.impact.type
       ? row.impact.type
       : "word";
