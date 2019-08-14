@@ -99,6 +99,7 @@ class BAForm extends React.Component {
                 onChange={event => {
                   valueChanged("icon", event);
                 }}
+                domainPath={"."}
               />
             </CustomColumn>
             <CustomColumn customColumn="md-6">

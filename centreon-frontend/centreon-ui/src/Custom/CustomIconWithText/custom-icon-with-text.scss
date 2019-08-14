@@ -7,7 +7,6 @@
   margin-bottom: 10px;
   cursor: pointer;
   &-icon {
-    background: url("../../../img/icons/small-logo.png") no-repeat;
     width: 28px;
     height: 28px;
     background-size: cover;
@@ -17,5 +16,6 @@
     line-height: 12px;
     color: #242f3a;
     font-family: $primary-font-light;
+    text-overflow: ellipsis;
   }
 }
