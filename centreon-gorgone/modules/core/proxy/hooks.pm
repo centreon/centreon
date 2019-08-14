@@ -18,19 +18,16 @@
 # limitations under the License.
 #
 
-package modules::gorgoneproxy::hooks;
+package modules::core::proxy::hooks;
 
 use warnings;
 use strict;
 use centreon::script::gorgonecore;
 use centreon::gorgone::common;
-use modules::gorgoneproxy::class;
+use modules::core::proxy::class;
 
-my $config_core;
-my $config;
-my $module_shortname = 'proxy';
-my $module_id = 'gorgoneproxy';
-my $events = [
+my $NAME = 'proxy';
+my $EVENTS = [
     { event => 'PROXYREADY' },
     { event => 'SETLOGS' }, # internal. Shouldn't be used by third party clients
     { event => 'PONG' }, # internal. Shouldn't be used by third party clients
@@ -38,6 +35,9 @@ my $events = [
     { event => 'UNREGISTERNODE' }, # internal. Shouldn't be used by third party clients
     { event => 'ADDPOLLER', uri => '/poller', method => 'POST' },
 ];
+
+my $config_core;
+my $config;
 
 my $synctime_error = 0;
 my $synctime_pollers = {}; # get last time retrieved
@@ -62,7 +62,7 @@ sub register {
     
     $config = $options{config};
     $config_core = $options{config_core};
-    return ($events, $module_shortname , $module_id);
+    return ($NAME, $EVENTS);
 }
 
 sub init {
@@ -90,11 +90,11 @@ sub routing {
         $data = JSON->new->utf8->decode($options{data});
     };
     if ($@) {
-        $options{logger}->writeLogError("Cannot decode json data: $@");
+        $options{logger}->writeLogError("[proxy] -hooks- Cannot decode json data: $@");
         centreon::gorgone::common::add_history(
             dbh => $options{dbh},
             code => 20, token => $options{token},
-            data => { message => 'gorgoneproxy: cannot decode json' },
+            data => { message => 'proxy - cannot decode json' },
             json_encode => 1
         );
         return undef;
@@ -103,12 +103,12 @@ sub routing {
     if ($options{action} eq 'PONG') {
         return undef if (!defined($data->{data}->{id}) || $data->{data}->{id} eq '');
         $last_pong->{$data->{data}->{id}} = time();
-        $options{logger}->writeLogInfo("gorgone-proxy: pong received from '" . $data->{data}->{id} . "'");
+        $options{logger}->writeLogInfo("[proxy] -hooks- Pong received from '" . $data->{data}->{id} . "'");
         return undef;
     }
     
     if ($options{action} eq 'UNREGISTERNODE') {
-        $options{logger}->writeLogInfo("gorgone-proxy: poller '" . $data->{id} . "' is unregistered");
+        $options{logger}->writeLogInfo("[proxy] -hooks- Poller '" . $data->{id} . "' is unregistered");
         if (defined($register_pollers->{$data->{id}})) {
             delete $register_pollers->{$data->{id}};
             delete $synctime_pollers->{$data->{id}};
@@ -117,7 +117,7 @@ sub routing {
     }
     
     if ($options{action} eq 'REGISTERNODE') {
-        $options{logger}->writeLogInfo("gorgone-proxy: poller '" . $data->{id} . "' is registered");
+        $options{logger}->writeLogInfo("[proxy] -hooks- Poller '" . $data->{id} . "' is registered");
         $register_pollers->{$data->{id}} = 1;
         $last_pong->{$data->{id}} = 0 if (!defined($last_pong->{$data->{id}}));
         if ($synctime_error == 0 && !defined($synctime_pollers->{$options{target}}) &&
@@ -142,7 +142,7 @@ sub routing {
         centreon::gorgone::common::add_history(
             dbh => $options{dbh},
             code => 20, token => $options{token},
-            data => { message => 'gorgoneproxy: need a valid poller id' },
+            data => { message => 'proxy - need a valid poller id' },
             json_encode => 1
         );
         return undef;
@@ -153,7 +153,7 @@ sub routing {
             centreon::gorgone::common::add_history(
                 dbh => $options{dbh},
                 code => 20, token => $options{token},
-                data => { message => 'gorgoneproxy: problem to getlog' },
+                data => { message => 'proxy - problem to getlog' },
                 json_encode => 1
             );
             return undef;
@@ -163,7 +163,7 @@ sub routing {
             centreon::gorgone::common::add_history(
                 dbh => $options{dbh},
                 code => 20, token => $options{token},
-                data => { message => 'gorgoneproxy: getlog already in progress' },
+                data => { message => 'proxy - getlog already in progress' },
                 json_encode => 1
             );
             return undef;
@@ -172,7 +172,7 @@ sub routing {
             centreon::gorgone::common::add_history(
                 dbh => $options{dbh},
                 code => 20, token => $options{token},
-                data => { message => "gorgoneproxy: can't get log a ssh target" },
+                data => { message => "proxy - can't get log a ssh target" },
                 json_encode => 1
             );
             return undef;
@@ -196,7 +196,7 @@ sub routing {
         centreon::gorgone::common::add_history(
             dbh => $options{dbh},
             code => 20, token => $options{token},
-            data => { message => 'gorgoneproxy: still none ready' },
+            data => { message => 'proxy - still none ready' },
             json_encode => 1
         );
         return undef;
@@ -222,7 +222,7 @@ sub gently {
 
     $stop = 1;
     foreach my $pool_id (keys %{$pools}) {
-        $options{logger}->writeLogInfo("gorgone-proxy: Send TERM signal for pool '" . $pool_id . "'");
+        $options{logger}->writeLogInfo("[proxy] -hooks- Send TERM signal for pool '" . $pool_id . "'");
         if ($pools->{$pool_id}->{running} == 1) {
             CORE::kill('TERM', $pools->{$pool_id}->{pid});
         }
@@ -234,7 +234,7 @@ sub kill {
 
     foreach (keys %{$pools}) {
         if ($pools->{$_}->{running} == 1) {
-            $options{logger}->writeLogInfo("gorgone-proxy: Send KILL signal for pool '" . $_ . "'");
+            $options{logger}->writeLogInfo("[proxy] -hooks- Send KILL signal for pool '" . $_ . "'");
             CORE::kill('KILL', $pools->{$_}->{pid});
         }
     }
@@ -274,7 +274,7 @@ sub check {
             centreon::gorgone::common::add_history(
                 dbh => $options{dbh},
                 code => 20,
-                data => { message => "gorgoneproxy: getlog in timeout for '$_'" },
+                data => { message => "proxy - getlog in timeout for '$_'" },
                 json_encode => 1
             );
             $synctime_pollers->{$_}->{in_progress} = 0;
@@ -291,7 +291,7 @@ sub check {
     
     if ($stop == 0 &&
         time() - $ping_time > $ping_option) {
-        $options{logger}->writeLogInfo("gorgone-proxy: send pings");
+        $options{logger}->writeLogInfo("[proxy] -hooks- Send pings");
         $ping_time = time();
         ping_send(dbh => $options{dbh});
     }
@@ -307,7 +307,7 @@ sub setlogs {
         centreon::gorgone::common::add_history(
             dbh => $options{dbh},
             code => 20, token => $options{token},
-            data => { message => 'gorgoneproxy: need a id to setlogs' },
+            data => { message => 'proxy - need a id to setlogs' },
             json_encode => 1
         );
         return undef;
@@ -316,13 +316,13 @@ sub setlogs {
         centreon::gorgone::common::add_history(
             dbh => $options{dbh},
             code => 20, token => $options{token},
-            data => { message => 'gorgoneproxy: skip setlogs response. Maybe too much time to get response. Retry' },
+            data => { message => 'proxy - skip setlogs response. Maybe too much time to get response. Retry' },
             json_encode => 1
         );
         return undef;
     }
     
-    $options{logger}->writeLogInfo("gorgoneproxy: hooks: received setlogs for '$options{data}->{data}->{id}'");
+    $options{logger}->writeLogInfo("[proxy] -hooks- Received setlogs for '$options{data}->{data}->{id}'");
     
     $synctime_pollers->{$options{data}->{data}->{id}}->{in_progress} = 0;
     
@@ -446,11 +446,11 @@ sub rr_pool {
 sub create_child {
     my (%options) = @_;
     
-    $options{logger}->writeLogInfo("Create gorgoneproxy for pool id '" . $options{pool_id} . "'");
+    $options{logger}->writeLogInfo("[proxy] -hooks- Create module 'proxy' child process for pool id '" . $options{pool_id} . "'");
     my $child_pid = fork();
     if ($child_pid == 0) {
         $0 = 'gorgone-proxy';
-        my $module = modules::gorgone::class->new(
+        my $module = modules::core::proxy::class->new(
             logger => $options{logger},
             config_core => $config_core,
             config => $config,
@@ -460,7 +460,7 @@ sub create_child {
         $module->run();
         exit(0);
     }
-    $options{logger}->writeLogInfo("PID $child_pid gorgoneproxy for pool id '" . $options{pool_id} . "'");
+    $options{logger}->writeLogInfo("[proxy] -hooks- PID $child_pid (gorgone-proxy) for pool id '" . $options{pool_id} . "'");
     $pools->{$options{pool_id}} = { pid => $child_pid, ready => 0, running => 1 };
     $pools_pid->{$child_pid} = $options{pool_id};
 }
@@ -478,7 +478,7 @@ sub pull_request {
         centreon::gorgone::common::add_history(
             dbh => $options{dbh},
             code => 20, token => $options{token},
-            data => { message => "gorgoneproxy: node '" . $options{target} . "' had never been connected" },
+            data => { message => "proxy - node '" . $options{target} . "' had never been connected" },
             json_encode => 1
         );
         return undef;

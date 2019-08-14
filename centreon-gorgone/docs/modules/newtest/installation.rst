@@ -23,12 +23,12 @@ centreon-gorgone             1.0
 Module location
 ```````````````
 
-The module "gorgonenewtest" daemon must be installed on Centreon Central server. Minimal used ressources are :
+The module "newtest" daemon must be installed on Centreon Central server. Minimal used ressources are :
 
 * RAM : 128 MB.
 * CPU : it depends the number of newtest scenarios.
 
-Gorgone-newtest Installation - centos/rhel 7 systems
+Module installation - centos/rhel 7 systems
 ====================================================
 
 Requirements
@@ -41,7 +41,7 @@ perl-SOAP-Lite               1.10             centreon base
 perl-TimeDate                2.30             redhat/centos base
 ======================= ===================== ======================
 
-gorgone-newtest Installation
+newtest Installation
 `````````````````````````````````````````
 
-"gorgonenewtest" is an official gorgone module. No installation needed.
+"newtest" is an official gorgone module. No installation needed.

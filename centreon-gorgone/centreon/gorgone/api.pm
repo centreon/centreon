@@ -18,31 +18,36 @@
 # limitations under the License.
 #
 
-package centreon::script::gorgoneapi;
+package centreon::gorgone::api;
 
 use strict;
 use warnings;
 use centreon::gorgone::common;
+use ZMQ::LibZMQ4;
+use ZMQ::Constants qw(:all);
+
+my $socket;
+my $result;
 
 sub root {
     my (%options) = @_;
 
-    $options{logger}->writeLogInfo("gorgoneapi - requesting '" . $options{uri} . "' [" . $options{method} . "]");
+    $options{logger}->writeLogInfo("[api] Requesting '" . $options{uri} . "' [" . $options{method} . "]");
 
     my %dispatch;
     foreach my $action (keys $options{modules_events}) {
         next if (!defined($options{modules_events}->{$action}->{api}->{uri}));
         $dispatch{$options{modules_events}->{$action}->{api}->{method} . '_/' .
-            $options{modules_events}->{$action}->{module}->{shortname} .
+            $options{modules_events}->{$action}->{module}->{name} .
             $options{modules_events}->{$action}->{api}->{uri}} = $action;
     }
 
     my $response;
     if ($options{method} eq 'GET' && $options{uri} =~ /^\/api\/get\/(.*)$/) {
         $response = get_log(socket => $options{socket}, token => $1);
-    } elsif ($options{method} eq 'GET' && $options{uri} =~ /^\/api\/module\/(.*)$/) {
+    } elsif ($options{method} eq 'GET' && $options{uri} =~ /^\/api\/module(.*)$/) {
         $response = call_action(socket => $options{socket}, action => $dispatch{'GET_' . $1});
-    } elsif ($options{method} eq 'POST' && $options{uri} =~ /^\/api\/module\/(.*)$/) {
+    } elsif ($options{method} eq 'POST' && $options{uri} =~ /^\/api\/module(.*)$/) {
         $response = call_action(socket => $options{socket}, action => $dispatch{'POST_' . $1});
     # } elsif {
     # }
@@ -59,10 +64,23 @@ sub call_action {
     centreon::gorgone::common::zmq_send_message(
         socket => $options{socket},
         action => $options{action},
-        # target => $options{target},
-        # data => $options{data},
+        target => $options{target},
+        data => $options{data},
         json_encode => 1
     );
+
+    $socket = $options{socket};    
+    my $poll = [
+        {
+            socket  => $options{socket},
+            events  => ZMQ_POLLIN,
+            callback => \&event,
+        }
+    ];
+
+    my $rev = zmq_poll($poll, 5000);
+
+    return '{"token":"' . $result->{token} . '"}';
 }
 
 sub get_log {
@@ -71,9 +89,42 @@ sub get_log {
     centreon::gorgone::common::zmq_send_message(
         socket => $options{socket},
         action => 'GETLOG',
-        token => $options{token},
+        data => {
+            token => $options{token}
+        },
         json_encode => 1
-    );
+    );    
+
+    $socket = $options{socket};
+    my $poll = [
+        {
+            socket  => $options{socket},
+            events  => ZMQ_POLLIN,
+            callback => \&event,
+        }
+    ];
+
+    my $rev = zmq_poll($poll, 5000);
+
+    return $result->{data};
+}
+
+sub event {
+    while (1) {
+        my $message = centreon::gorgone::common::zmq_dealer_read_message(socket => $socket);
+        
+        $result = {};
+        if ($message =~ /^\[(.*?)\]\s+\[(.*?)\]\s+\[.*?\]\s+(.*)$/m || 
+            $message =~ /^\[(.*?)\]\s+\[(.*?)\]\s+(.*)$/m) {
+            $result = {
+                action => $1,
+                token => $2,
+                data => $3,
+            };
+        }
+        
+        last unless (centreon::gorgone::common::zmq_still_read(socket => $socket));
+    }
 }
 
 1;

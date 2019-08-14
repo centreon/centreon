@@ -29,12 +29,18 @@ Daemon uses following Perl modules:
 * Crypt::Cipher::AES: in attachment (module CryptX)
 * Crypt::PK::RSA: in attachment (module CryptX)
 * Crypt::PRNG: in attachment (module CryptX)
+* HTTP::Daemon: repository 'centos base'
+* HTTP::Daemon::SSL: in EPEL
+* HTTP::Status: repository 'centos base'
+* MIME::Base64: repository 'centos base'
 
 Execute following commands:
 
   ::
   
-    # yum install 'perl(Schedule::Cron)' 'perl(Crypt::CBC)' 'perl(ZMQ::LibZMQ4)' 'perl(JSON)' 'perl(YAML)' 'perl(DBD::SQLite)' 'perl(DBD::mysql)' 'perl(UUID)'
+    # yum install 'perl(Schedule::Cron)' 'perl(Crypt::CBC)' 'perl(ZMQ::LibZMQ4)' 'perl(JSON)' 'perl(YAML)' \
+    'perl(DBD::SQLite)' 'perl(DBD::mysql)' 'perl(UUID)' 'perl(HTTP::Daemon)' 'perl(HTTP::Daemon::SSL)' \
+    'perl(HTTP::Status)' 'perl(MIME::Base64)'
     # yum install perl-CryptX-0.064-1.el7.x86_64
 
 Create sqlite database:
@@ -256,153 +262,8 @@ Modules can have extra codes.
 module requests
 ===============
 
------------
-gorgone-acl
------------
-
-No extra codes.
-
-ACLADDHOST
-^^^^^^^^^^
-
-Example:
-::
-
-  [ACLADDHOST] [] [] { organization_id => XX, host_id => XX }
-
-ACLDELHOST
-^^^^^^^^^^
-
-Example:
-::
-
-  [ACLDELHOST] [] [] { organization_id => XX, host_id => XX }
-
-ACLADDSERVICE
-^^^^^^^^^^^^^
-
-Example:
-::
-
-  [ACLADDSERVICE] [] [] { organization_id => XX, service_id => XX }
-
-ACLDELSERVICE
-^^^^^^^^^^^^^
-
-Example:
-::
-
-  [ACLDELSERVICE] [] [] { organization_id => XX, service_id => XX }
-
-ACLUPDATETAG
-^^^^^^^^^^^^
-
-Example:
-::
-
-  [ACLUPDATETAG] [] [] { organization_id => XX, tag_id => XX, tag_type => X, resource_id => X, action => X }
-
-The following action should be used when you assign/unassign a tag:
-
-* tag_type: '1' (host tag), '2' (service tag), '3' (ba tag)
-* resource_id: host_id, service_id or ba_id (depends of the tag_type)
-* action: '1' (assign), '2' (unassign)
-
-ACLDELTAG
-^^^^^^^^^
-
-Example:
-::
-
-  [ACLDELTAG] [] [] { organization_id => XX, tag_id => XX, tag_type => X }
-
-The following action should be used when you delete a tag:
-
-* tag_type: '1' (host tag), '2' (service tag), '3' (ba tag)
-
-ACLUPDATEDOMAIN
-^^^^^^^^^^^^^^^
-
-Example:
-::
-
-  [ACLUPDATEDOMAIN] [] [] { organization_id => XX, domain_id => XX, service_id => XX, action => X  }
-
-The following action should be used when you assign/unassign a domain to a service.
-
-ACLDELDOMAIN
-^^^^^^^^^^^^
-
-Example:
-::
-
-  [ACLDELDOMAIN] [] [] { organization_id => XX, domain_id => XX }
-
-ACLUPDATEENVIRONMENT
-^^^^^^^^^^^^^^^^^^^^
-
-Example:
-::
-
-  [ACLUPDATEENVIRONMENT] [] [] { organization_id => XX,, environment_id => XX, environment_type => X, resource_id => X, action => X }
-
-The following action should be used when you assign/unassign a environment:
-
-* environment_type: '1' (host), '2' (service), '3' (ba)
-* resource_id: host_id, service_id (depends of the environment_type)
-* action: '1' (assign), '2' (unassign)
-
-ACLDELENVIRONMENT
-^^^^^^^^^^^^^^^^^
-
-Example:
-::
-
-  [ACLDELENVIRONMENT] [] [] { organization_id => XX, environment_id => XX }
-
-ACLUPDATEPOLLER
-^^^^^^^^^^^^^^^
-
-Example:
-::
-
-  [ACLUPDATEPOLLER] [] [] { organization_id => XX, poller_id => XX, host_id => XX, action => X }
-
-The following action should be used when you assign/unassign a poller to a host:
-
-* action: '1' (assign), '2' (unassign)
-
-ACLDELPOLLER
-^^^^^^^^^^^^
-
-Example:
-::
-
-  [ACLDELPOLLER] [] [] { organization_id => XX, poller_id => XX }
-
-ACLPURGEORGANIZATION
-^^^^^^^^^^^^^^^^^^^^
-
-Example:
-::
-
-  [ACLPURGEORGANIZATION] [] [] { organization_id => XX }
-
-The following action should be used when you delete a organization.
-
-ACLRESYNC
-^^^^^^^^^
-
-Example:
-::
-
-  [ACLRESYNC] [] [] { organization_id => XX, acl_resource_id => XX }
-
-The following action should be used when you want to rebuild an entire organization.
-You can rebuild a specific 'acl_resource' group if you set it.
-
 --------------
-gorgone-action
+action
 --------------
 
 COMMAND
@@ -442,15 +303,15 @@ Which modules should i enable ?
 
 A poller with gorgoned should have the following modules:
 
-* gorgone-action
-* gorgone-pull: if the connection to the central should be opened by the poller 
+* action
+* pull: if the connection to the central should be opened by the poller 
 
 A central with gorgoned should have the following modules:
 
-* gorgone-acl
-* gorgone-action
-* gorgone-proxy
-* gorgone-cron
+* action
+* proxy
+* cron
+* httpserver
 
 =================================================
 I want to create a client. How should i proceed ?

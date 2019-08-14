@@ -18,22 +18,22 @@
 # limitations under the License.
 #
 
-package modules::gorgonecron::hooks;
+package modules::core::cron::hooks;
 
 use warnings;
 use strict;
 use centreon::script::gorgonecore;
-use modules::gorgonecron::class;
+use modules::core::cron::class;
 
-my $config_core;
-my $config;
-my $module_shortname = 'cron';
-my $module_id = 'gorgonecron';
-my $events = [
+my $NAME = 'cron';
+my $EVENTS = [
     { event => 'CRONREADY' },
     { event => 'RELOADCRON', uri => '/reload', method => 'POST' },
     { event => 'LISTCRON', uri => '/list', method => 'GET' },
 ];
+
+my $config_core;
+my $config;
 my $cron = {};
 my $stop = 0;
 
@@ -42,7 +42,7 @@ sub register {
     
     $config = $options{config};
     $config_core = $options{config_core};
-    return ($events, $module_shortname , $module_id);
+    return ($NAME, $EVENTS);
 }
 
 sub init {
@@ -59,7 +59,7 @@ sub routing {
         $data = JSON->new->utf8->decode($options{data});
     };
     if ($@) {
-        $options{logger}->writeLogError("Cannot decode json data: $@");
+        $options{logger}->writeLogError("[cron] -hooks- Cannot decode json data: $@");
         centreon::gorgone::common::add_history(
             dbh => $options{dbh},
             code => 10, token => $options{token},
@@ -85,8 +85,11 @@ sub routing {
     }
     
     centreon::gorgone::common::zmq_send_message(
-        socket => $options{socket}, identity => 'gorgonecron',
-        action => $options{action}, data => $options{data}, token => $options{token},
+        socket => $options{socket},
+        identity => 'gorgonecron',
+        action => $options{action},
+        data => $options{data},
+        token => $options{token},
     );
 }
 
@@ -94,7 +97,7 @@ sub gently {
     my (%options) = @_;
 
     $stop = 1;
-    $options{logger}->writeLogInfo("gorgone-cron: Send TERM signal");
+    $options{logger}->writeLogInfo("[cron] -hooks- Send TERM signal");
     if ($cron->{running} == 1) {
         CORE::kill('TERM', $cron->{pid});
     }
@@ -104,7 +107,7 @@ sub kill {
     my (%options) = @_;
 
     if ($cron->{running} == 1) {
-        $options{logger}->writeLogInfo("gorgone-cron: Send KILL signal for pool");
+        $options{logger}->writeLogInfo("[cron] -hooks- Send KILL signal for pool");
         CORE::kill('KILL', $cron->{pid});
     }
 }
@@ -138,11 +141,11 @@ sub check {
 sub create_child {
     my (%options) = @_;
     
-    $options{logger}->writeLogInfo("Create gorgonecron process");
+    $options{logger}->writeLogInfo("[cron] -hooks- Create module 'cron' process");
     my $child_pid = fork();
     if ($child_pid == 0) {
         $0 = 'gorgone-cron';
-        my $module = modules::gorgonecron::class->new(
+        my $module = modules::core::cron::class->new(
             logger => $options{logger},
             config_core => $config_core,
             config => $config,
@@ -150,7 +153,7 @@ sub create_child {
         $module->run();
         exit(0);
     }
-    $options{logger}->writeLogInfo("PID $child_pid gorgonecron");
+    $options{logger}->writeLogInfo("[cron] -hooks- PID $child_pid (gorgone-cron)");
     $cron = { pid => $child_pid, ready => 0, running => 1 };
 }
 

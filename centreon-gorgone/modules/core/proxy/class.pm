@@ -18,7 +18,7 @@
 # limitations under the License.
 #
 
-package modules::gorgoneproxy::class;
+package modules::core::proxy::class;
 
 use strict;
 use warnings;
@@ -62,7 +62,7 @@ sub handle_HUP {
 
 sub handle_TERM {
     my $self = shift;
-    $self->{logger}->writeLogInfo("gorgone-proxy $$ Receiving order to stop...");
+    $self->{logger}->writeLogInfo("[proxy] -class- $$ Receiving order to stop...");
     $self->{stop} = 1;
 }
 
@@ -83,11 +83,17 @@ sub get_client_information {
     
     # TODO DATABASE or file maybe. hardcoded right now
     my $result = {
-        type => 1, target_type => 'tcp', target_path => 'localhost:5556',
+        type => 1,
+        target_type => 'tcp',
+        target_path => 'localhost:5556',
         server_pubkey => 'keys/poller/pubkey.crt', 
         client_pubkey => 'keys/central/pubkey.crt',
         client_privkey => 'keys/central/privkey.pem',
-        cipher => 'Cipher::AES', keysize => '32', vector => '0123456789012345', class => undef, delete => 0
+        cipher => 'Cipher::AES',
+        keysize => '32',
+        vector => '0123456789012345',
+        class => undef,
+        delete => 0
     };
     return $result;
 }
@@ -106,7 +112,9 @@ sub read_message {
         
         centreon::gorgone::common::zmq_send_message(
             socket => $socket,
-            action => 'PONG', token => $token, target => '',
+            action => 'PONG',
+            token => $token,
+            target => '',
             data => { code => 0, data => { message => 'ping ok', action => 'ping', id => $client_identity } },
             json_encode => 1
         );
@@ -123,7 +131,9 @@ sub read_message {
         if (defined($data->{data}->{action}) && $data->{data}->{action} eq 'getlog') {
             centreon::gorgone::common::zmq_send_message(
                 socket => $socket,
-                action => 'SETLOGS', token => $1, target => '',
+                action => 'SETLOGS',
+                token => $1,
+                target => '',
                 data => $2
             );
         }
@@ -181,12 +191,12 @@ sub proxy {
         );
         if ($status != 0) {
             # error we put log and we close (TODO the log)
-            $connector->{logger}->writeLogError("gorgoneproxy: class: send message problem for '$target': $msg");
+            $connector->{logger}->writeLogError("[proxy] -class- Send message problem for '$target': $msg");
             $connector->{clients}->{$target}->{delete} = 1;
         }
     }
     
-    $connector->{logger}->writeLogDebug("gorgoneproxy: class: [action = $action] [token = $token] [target = $target] [data = $data]");
+    $connector->{logger}->writeLogDebug("[proxy] -class- Send message: [action = $action] [token = $token] [target = $target] [data = $data]");
 }
 
 sub event_internal {
@@ -203,14 +213,16 @@ sub run {
 
     # Connect internal
     $socket = centreon::gorgone::common::connect_com(
-        zmq_type => 'ZMQ_DEALER', name => 'gorgoneproxy-' . $self->{pool_id},
+        zmq_type => 'ZMQ_DEALER',
+        name => 'gorgoneproxy-' . $self->{pool_id},
         logger => $self->{logger},
         type => $self->{config_core}{internal_com_type},
         path => $self->{config_core}{internal_com_path}
     );
     centreon::gorgone::common::zmq_send_message(
         socket => $socket,
-        action => 'PROXYREADY', data => { pool_id => $self->{pool_id} },
+        action => 'PROXYREADY',
+        data => { pool_id => $self->{pool_id} },
         json_encode => 1
     );
     my $poll = {
@@ -238,7 +250,7 @@ sub run {
         next if (!defined($rev));
         
         if ($rev == 0 && $self->{stop} == 1) {
-            $self->{logger}->writeLogInfo("gorgone-proxy $$ has quit");
+            $self->{logger}->writeLogInfo("[proxy] -class- $$ has quit");
             zmq_close($socket);
             exit(0);
         }

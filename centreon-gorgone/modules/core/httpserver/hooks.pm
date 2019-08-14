@@ -18,20 +18,20 @@
 # limitations under the License.
 #
 
-package modules::gorgonehttpserver::hooks;
+package modules::core::httpserver::hooks;
 
 use warnings;
 use strict;
 use centreon::script::gorgonecore;
-use modules::gorgonehttpserver::class;
+use modules::core::httpserver::class;
+
+my $NAME = 'httpserver';
+my $EVENTS = [
+    { event => 'HTTPSERVERREADY' },
+];
 
 my $config_core;
 my $config;
-my $module_shortname = 'httpserver';
-my $module_id = 'gorgonehttpserver';
-my $events = [
-    { event => 'HTTPSERVERREADY' },
-];
 my $httpserver = {};
 my $stop = 0;
 
@@ -40,7 +40,7 @@ sub register {
     
     $config = $options{config};
     $config_core = $options{config_core};
-    return ($events, $module_shortname, $module_id);
+    return ($NAME, $EVENTS);
 }
 
 sub init {
@@ -57,7 +57,7 @@ sub routing {
         $data = JSON->new->utf8->decode($options{data});
     };
     if ($@) {
-        $options{logger}->writeLogError("Cannot decode json data: $@");
+        $options{logger}->writeLogError("[httpserver] -hooks- Cannot decode json data: $@");
         centreon::gorgone::common::add_history(
             dbh => $options{dbh},
             code => 10,
@@ -97,7 +97,7 @@ sub gently {
     my (%options) = @_;
 
     $stop = 1;
-    $options{logger}->writeLogInfo("gorgone-httpserver: Send TERM signal");
+    $options{logger}->writeLogInfo("[httpserver] -hooks- Send TERM signal");
     if ($httpserver->{running} == 1) {
         CORE::kill('TERM', $httpserver->{pid});
     }
@@ -107,7 +107,7 @@ sub kill {
     my (%options) = @_;
 
     if ($httpserver->{running} == 1) {
-        $options{logger}->writeLogInfo("gorgone-httpserver: Send KILL signal for pool");
+        $options{logger}->writeLogInfo("[httpserver] -hooks- Send KILL signal for pool");
         CORE::kill('KILL', $httpserver->{pid});
     }
 }
@@ -141,11 +141,11 @@ sub check {
 sub create_child {
     my (%options) = @_;
     
-    $options{logger}->writeLogInfo("Create gorgonehttpserver process");
+    $options{logger}->writeLogInfo("[httpserver] -hooks- Create module 'httpserver' process");
     my $child_pid = fork();
     if ($child_pid == 0) {
         $0 = 'gorgone-httpserver';
-        my $module = modules::gorgonehttpserver::class->new(
+        my $module = modules::core::httpserver::class->new(
             logger => $options{logger},
             config_core => $config_core,
             config => $config,
@@ -154,7 +154,7 @@ sub create_child {
         $module->run();
         exit(0);
     }
-    $options{logger}->writeLogInfo("PID $child_pid gorgonehttpserver");
+    $options{logger}->writeLogInfo("[httpserver] -hooks- PID $child_pid (gorgone-httpserver)");
     $httpserver = { pid => $child_pid, ready => 0, running => 1 };
 }
 

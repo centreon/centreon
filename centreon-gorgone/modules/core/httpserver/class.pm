@@ -18,7 +18,7 @@
 # limitations under the License.
 #
 
-package modules::gorgonehttpserver::class;
+package modules::core::httpserver::class;
 
 use strict;
 use warnings;
@@ -33,13 +33,14 @@ use MIME::Base64;
 my $time = time();
 
 my %handlers = (TERM => {}, HUP => {});
-my ($connector, $socket);
+my ($connector);
 
 my %dispatch;
 
 sub new {
     my ($class, %options) = @_;
     $connector  = {};
+    $connector->{internal_socket} = undef;
     $connector->{logger} = $options{logger};
     $connector->{config} = $options{config};
     $connector->{config_core} = $options{config_core};
@@ -67,7 +68,7 @@ sub handle_HUP {
 
 sub handle_TERM {
     my $self = shift;
-    $self->{logger}->writeLogInfo("gorgone-action $$ Receiving order to stop...");
+    $self->{logger}->writeLogInfo("[httpserver] -class- $$ Receiving order to stop...");
     $self->{stop} = 1;
 }
 
@@ -85,11 +86,11 @@ sub class_handle_HUP {
 
 sub event {
     while (1) {
-        my $message = centreon::gorgone::common::zmq_dealer_read_message(socket => $socket);
+        my $message = centreon::gorgone::common::zmq_dealer_read_message(socket => $connector->{internal_socket});
         
-        $connector->{logger}->writeLogDebug("gorgonehttpserver: class: $message");
+        $connector->{logger}->writeLogDebug("[httpserver] -class- Event: $message");
         
-        last unless (centreon::gorgone::common::zmq_still_read(socket => $socket));
+        last unless (centreon::gorgone::common::zmq_still_read(socket => $connector->{internal_socket}));
     }
 }
 
@@ -104,7 +105,7 @@ sub run {
     my ($self, %options) = @_;
 
     # Connect internal
-    $socket = centreon::gorgone::common::connect_com(
+    $connector->{internal_socket} = centreon::gorgone::common::connect_com(
         zmq_type => 'ZMQ_DEALER',
         name => 'gorgonehttpserver',
         logger => $self->{logger},
@@ -112,18 +113,20 @@ sub run {
         path => $self->{config_core}->{internal_com_path}
     );
     centreon::gorgone::common::zmq_send_message(
-        socket => $socket,
+        socket => $connector->{internal_socket},
         action => 'HTTPSERVERREADY',
         data => { },
         json_encode => 1
     );
     $self->{poll} = [
         {
-            socket  => $socket,
+            socket  => $connector->{internal_socket},
             events  => ZMQ_POLLIN,
             callback => \&event,
         }
     ];
+
+    my $rev = zmq_poll($self->{poll}, 4000);
 
     $self->init_dispatch;
 
@@ -144,7 +147,7 @@ sub run {
 
     while (my ($connection, $peer_addr) = $daemon->accept) {
         while (my $request = $connection->get_request) {
-            $connector->{logger}->writeLogInfo("gorgone-httpserver - " . $request->method . " '" . $request->uri->path . "'");
+            $connector->{logger}->writeLogInfo("[httpserver] -class- " . $request->method . " '" . $request->uri->path . "'");
 
             if ($self->authentication($request->header('Authorization'))) { # Check Basic authentication
                 my ($root) = ($request->uri->path =~ /^(\/\w+)/);
@@ -198,13 +201,13 @@ sub send_response {
 sub api_call {
     my ($self, $request) = @_;
 
-    require 'centreon/script/gorgoneapi.pm';
+    require 'centreon/gorgone/api.pm';
     my %params = $request->uri->query_form;
-    my $response = centreon::script::gorgoneapi::root(
+    my $response = centreon::gorgone::api::root(
         uri => $request->uri->path,
         params => \%params,
         method => $request->method,
-        socket => $socket,
+        socket => $connector->{internal_socket},
         logger => $self->{logger},
         modules_events => $self->{modules_events}
     );

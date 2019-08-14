@@ -73,7 +73,7 @@ sub init {
 
     ## load config ini
     if (! -f $self->{opt_extra}) {
-        $self->{logger}->writeLogError("Can't find extra config file '$self->{opt_extra}'");
+        $self->{logger}->writeLogError("[core] Can't find extra config file '$self->{opt_extra}'");
         exit(1);
     }
     $config = centreon::gorgone::common::read_config(
@@ -98,7 +98,7 @@ sub init {
     );
     $gorgone->{db_gorgone}->set_inactive_destroy();
     if ($gorgone->{db_gorgone}->connect() == -1) {
-        $gorgone->{logger}->writeLogInfo("Cannot connect. We quit!!");
+        $gorgone->{logger}->writeLogInfo("[core] Cannot connect. We quit!!");
         exit(1);
     }
     
@@ -148,7 +148,7 @@ sub class_handle_CHLD {
 
 sub handle_TERM {
     my $self = shift;
-    $self->{logger}->writeLogInfo("$$ Receiving order to stop...");
+    $self->{logger}->writeLogInfo("[core] $$ Receiving order to stop...");
     $self->{stop} = 1;
     
     foreach my $name (keys %{$self->{modules_register}}) {
@@ -159,7 +159,7 @@ sub handle_TERM {
 
 sub handle_HUP {
     my $self = shift;
-    $self->{logger}->writeLogInfo("$$ Receiving order to reload...");
+    $self->{logger}->writeLogInfo("[core] $$ Receiving order to reload...");
     # TODO
 }
 
@@ -180,40 +180,40 @@ sub load_modules {
 
     foreach my $module (@{$config->{modules}}) {
         next if (!defined($module->{enable}) || $module->{enable} eq 'false');      
-        my $name = $module->{module};
-        (my $file = "$name.pm") =~ s{::}{/}g;
+        my $package = $module->{package};
+        (my $file = "$package.pm") =~ s{::}{/}g;
         require $file;
-        $self->{logger}->writeLogInfo("Module '" . $module->{name} . "' is loading");
-        $self->{modules_register}->{$name} = {};
+        $self->{logger}->writeLogInfo("[core] Module '" . $module->{name} . "' is loading");
+        $self->{modules_register}->{$package} = {};
         
         foreach my $method_name (('register', 'routing', 'kill', 'kill_internal', 'gently', 'check', 'init')) {
-            unless ($self->{modules_register}->{$name}->{$method_name} = $name->can($method_name)) {
-                $self->{logger}->writeLogError("No function '$method_name' for module '" . $module->{name} . "'");
+            unless ($self->{modules_register}->{$package}->{$method_name} = $package->can($method_name)) {
+                $self->{logger}->writeLogError("[core] No function '$method_name' for module '" . $module->{name} . "'");
                 exit(1);
             }
         }
 
-        my ($events, $shortname, $id) = $self->{modules_register}->{$name}->{register}->(
+        my ($name, $events) = $self->{modules_register}->{$package}->{register}->(
             config => $module,
             config_core => $config->{gorgonecore},
             config_db_centreon => $config->{database}->{db_centreon},
             config_db_centstorage => $config->{database}->{db_centstorage}
         );
-        $self->{modules_id}->{$id} = $name;
+        $self->{modules_id}->{$name} = $package;
 
         foreach my $event (@{$events}) {
             $self->{modules_events}->{$event->{event}} = {
-                module => { name => $name, shortname => $shortname },
+                module => { name => $name, package => $package },
                 api => { uri => $event->{uri}, method => $event->{method} }
             };
         }
-        $self->{logger}->writeLogInfo("Module '" . $module->{name} . "' is loaded");
+        $self->{logger}->writeLogInfo("[core] Module '" . $module->{name} . "' is loaded");
     }
     
     # Load internal functions
     foreach my $method_name (('putlog', 'getlog', 'kill', 'ping', 'constatus')) {
         unless ($self->{internal_register}->{$method_name} = centreon::gorgone::common->can($method_name)) {
-            $self->{logger}->writeLogError("No function '$method_name'");
+            $self->{logger}->writeLogError("[core] No function '$method_name'");
             exit(1);
         }
     }
@@ -281,7 +281,7 @@ sub message_run {
         );
         return ($token, $code, $response, $response_type);
     } else {
-        $self->{modules_register}->{$self->{modules_events}->{$action}->{module}->{name}}->{routing}->(
+        $self->{modules_register}->{$self->{modules_events}->{$action}->{module}->{package}}->{routing}->(
             socket => $self->{internal_socket}, 
             dbh => $self->{db_gorgone},
             logger => $self->{logger},
@@ -447,7 +447,7 @@ sub clean_sessions {
     my ($self, %options) = @_;
     
     if ($self->{sessions_timer} - time() > $config->{gorgonecore}->{purge_sessions_time}) {
-        $self->{logger}->writeLogInfo("purge sessions in progress...");
+        $self->{logger}->writeLogInfo("[core] Purge sessions in progress...");
         $self->{db_gorgone}->query("DELETE FROM gorgone_identity WHERE `ctime` <  " . $self->{db_gorgone}->quote(time() - $config->{gorgonecore}->{sessions_time}));
         $self->{sessions_timer} = time();
     }
@@ -456,7 +456,7 @@ sub clean_sessions {
 sub quit {
     my ($self, %options) = @_;
     
-    $self->{logger}->writeLogInfo("Quit main process");
+    $self->{logger}->writeLogInfo("[core] Quit main process");
     zmq_close($self->{internal_socket});
     if (defined($config->{gorgonecore}->{external_com_type}) && $config->{gorgonecore}->{external_com_type} ne '') {
         zmq_close($self->{external_socket});
@@ -470,8 +470,8 @@ sub run {
     $gorgone->SUPER::run();
     $gorgone->{logger}->redirect_output();
 
-    $gorgone->{logger}->writeLogDebug("gorgoned launched....");
-    $gorgone->{logger}->writeLogDebug("PID: $$");
+    $gorgone->{logger}->writeLogDebug("[core] gorgoned launched....");
+    $gorgone->{logger}->writeLogDebug("[core] PID $$");
 
     if (centreon::gorgone::common::add_history(
         dbh => $gorgone->{db_gorgone},
@@ -479,7 +479,7 @@ sub run {
         data => { msg => 'gorgoned is starting...' },
         json_encode => 1) == -1
     ) {
-        $gorgone->{logger}->writeLogInfo("Cannot write in history. We quit!!");
+        $gorgone->{logger}->writeLogInfo("[core] Cannot write in history. We quit!!");
         exit(1);
     }
     
@@ -517,7 +517,7 @@ sub run {
     
     # init all modules
     foreach my $name (keys %{$gorgone->{modules_register}}) {
-        $gorgone->{logger}->writeLogInfo("Call init function from module '$name'");
+        $gorgone->{logger}->writeLogInfo("[core] Call init function from module '$name'");
         $gorgone->{modules_register}->{$name}->{init}->(
             id => $gorgone->{id},
             logger => $gorgone->{logger},
@@ -529,7 +529,7 @@ sub run {
         );
     }
     
-    $gorgone->{logger}->writeLogInfo("[Server accepting clients]");
+    $gorgone->{logger}->writeLogInfo("[core] Server accepting clients");
 
     while (1) {
         my $count = 0;

@@ -18,17 +18,17 @@
 # limitations under the License.
 #
 
-package modules::gorgonepull::hooks;
+package modules::core::pull::hooks;
 
 use warnings;
 use strict;
 use centreon::gorgone::clientzmq;
 
+my $NAME = 'pull';
+my $EVENTS = [];
+
 my $config_core;
 my $config;
-my $module_shortname = 'pull';
-my $module_id = 'gorgonepull';
-my $events = [];
 my $stop = 0;
 my $client;
 my $socket_to_internal;
@@ -39,7 +39,7 @@ sub register {
     
     $config = $options{config};
     $config_core = $options{config_core};
-    return ($events, $module_shortname , $module_id);
+    return ($NAME, $EVENTS);
 }
 
 sub init {
@@ -48,7 +48,8 @@ sub init {
     $logger = $options{logger};
     # Connect internal
     $socket_to_internal = centreon::gorgone::common::connect_com(
-        zmq_type => 'ZMQ_DEALER', name => 'gorgonepull',
+        zmq_type => 'ZMQ_DEALER',
+        name => 'gorgonepull',
         logger => $options{logger},
         type => $config_core->{internal_com_type},
         path => $config_core->{internal_com_path},
@@ -69,8 +70,11 @@ sub init {
     );
     $client->init(callback => \&read_message);
     
-    $client->send_message(action => 'REGISTERNODE', data => { id => $config_core->{id} }, 
-                          json_encode => 1);
+    $client->send_message(
+        action => 'REGISTERNODE',
+        data => { id => $config_core->{id} },
+        json_encode => 1
+    );
     centreon::gorgone::common::add_zmq_pollin(
         socket => $socket_to_internal,
         callback => \&from_router,
@@ -148,7 +152,7 @@ sub from_router {
         my $message = transmit_back(message => centreon::gorgone::common::zmq_dealer_read_message(socket => $socket_to_internal));
         # Only send back SETLOGS and PONG
         if (defined($message)) {
-            $logger->writeLogDebug("gorgone-pull: hook: read message from internal: $message");
+            $logger->writeLogDebug("[pull] -hooks- Read message from internal: $message");
             $client->send_message(message => $message);
         }
         last unless (centreon::gorgone::common::zmq_still_read(socket => $socket_to_internal));
@@ -163,7 +167,7 @@ sub read_message {
         return undef;
     }
     
-    $logger->writeLogDebug("gorgone-pull: hook: read message from external: $options{data}");
+    $logger->writeLogDebug("[pull] -hooks- Read message from external: $options{data}");
     centreon::gorgone::common::zmq_send_message(
         socket => $socket_to_internal,
         message => $options{data}

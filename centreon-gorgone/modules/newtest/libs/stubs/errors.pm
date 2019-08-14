@@ -1,5 +1,5 @@
 
-package modules::gorgonenewtest::newtest::stubs::errors;
+package modules::newtest::libs::stubs::errors;
 
 use strict;
 use warnings;
