@@ -246,6 +246,9 @@ class BAPanel extends React.Component {
                   onChange={event => {
                     valueChanged("name", event);
                   }}
+                  style={{
+                    width: multiselectActive ? '794px' : '295px'
+                  }}
                   className={classnames(styles['panels-header-input'],
                   errors.name ? styles["has-error"] : "")}
                 />
