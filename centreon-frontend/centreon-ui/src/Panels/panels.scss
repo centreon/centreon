@@ -11,7 +11,6 @@
   bottom: 0;
   max-width: 1063px;
   z-index: 90;
-  transition: .3s ease-in-out;
   width: 100%;
   z-index: -1;
   &-dialog {
@@ -23,7 +22,6 @@
     position: absolute;
     right: -100%;
     height: 100%;
-    transition: .3s ease-in-out;
     width: 100%;
   }
   &-header-input {
@@ -107,7 +105,6 @@
     min-width: 560px;
     right: 0;
     width: 560px;
-    transition: .3s ease-in-out;
     box-shadow: 0px 3px 4px 0px rgba(0,0,0,0.15);
     -webkit-box-shadow: 0px 3px 4px 0px rgba(0,0,0,0.15);
     -moz-box-shadow: 0px 3px 4px 0px rgba(0,0,0,0.15);
