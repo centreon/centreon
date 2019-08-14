@@ -40,8 +40,8 @@ class MultiselectPanel extends Component {
         panelItemType="small"
         panelItemShow={active ? "panel-item-show" : ""}
       >
-        <div className={classnames(styles["panel-item-inner"])}>
-          <h3 className={classnames(styles["panel-item-title"])}>{title}</h3>
+        <div className={classnames(styles["panel-item-inner"])} style={{padding:'5px'}}>
+          <h3 className={classnames(styles["panel-item-title"])} style={{marginBottom:'5px'}}>{title}</h3>
           <InputFieldSearch
             style={{
               width: "100%",
