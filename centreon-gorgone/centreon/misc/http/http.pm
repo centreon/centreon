@@ -29,20 +29,6 @@ sub new {
     my $self  = {};
     bless $self, $class;
 
-    if (centreon::misc::misc::mymodule_load(
-            logger => $options{logger}, module => 'centreon::misc::http::backend::lwp',
-            error_msg => "Cannot load module 'centreon::misc::http::backend::lwp'."
-        ) == 0) {
-        $self->{backend_lwp} = centreon::misc::http::backend::lwp->new(%options);
-    }
-
-    if (centreon::misc::misc::mymodule_load(
-        logger => $options{logger}, module => 'centreon::misc::http::backend::curl',
-        error_msg => "Cannot load module 'centreon::misc::http::backend::curl'."
-        ) == 0) {
-        $self->{backend_curl} = centreon::misc::http::backend::curl->new(%options);
-    }
-
     $self->{logger} = $options{logger};
     $self->{options} = {
         proto => 'http',
@@ -79,6 +65,20 @@ sub check_options {
     if ($self->{http_backend} !~ /^\s*lwp|curl\s*$/i) {
         $self->{logger}->writeLogError("Unsupported http backend specified '" . $self->{http_backend} . "'.");
         return 1;
+    }
+
+    if ($options{request}->{http_backend} eq 'lwp' && centreon::misc::misc::mymodule_load(
+            logger => $options{logger}, module => 'centreon::misc::http::backend::lwp',
+            error_msg => "Cannot load module 'centreon::misc::http::backend::lwp'."
+        ) == 0) {
+        $self->{backend_lwp} = centreon::misc::http::backend::lwp->new(%options, logger => $self->{logger});
+    }
+
+    if ($options{request}->{http_backend} eq 'curl' && centreon::misc::misc::mymodule_load(
+        logger => $options{logger}, module => 'centreon::misc::http::backend::curl',
+        error_msg => "Cannot load module 'centreon::misc::http::backend::curl'."
+        ) == 0) {
+        $self->{backend_curl} = centreon::misc::http::backend::curl->new(%options, logger => $self->{logger});
     }
 
     if (($options{request}->{proto} ne 'http') && ($options{request}->{proto} ne 'https')) {
