@@ -4,9 +4,32 @@ import InputFieldTableCell from "../../InputField/InputFieldTableCell";
 import StyledTableCell2 from "./StyledTableCell2";
 
 class IndicatorsEditorRow extends Component {
+  onImpactChanged = (value, key, event) => {
+    const { onImpactEdit, row } = this.props;
+    let rowObject = row;
+    if (key != "type") {
+      rowObject.impact.type = rowObject.impact.type
+        ? rowObject.impact.type
+        : "word";
+    }
+    rowObject.impact[key] = value;
+    onImpactEdit(event, rowObject, true);
+  };
+
+  onImpactInputChanged = (event, key) => {
+    const value = event.target.value;
+    const { onImpactEdit, row } = this.props;
+    let rowObject = row;
+    rowObject.impact[key] = value;
+    onImpactEdit(event, rowObject, true);
+  };
   render() {
     const { row, index, impacts, selected } = this.props;
-    let rowMode = row.impact.type ? row.impact.type : "word";
+    let rowMode = selected.bool
+      ? selected.obj.impact.type
+      : row.impact.type
+      ? row.impact.type
+      : "word";
     return (
       <React.Fragment>
         <StyledTableCell2
@@ -23,10 +46,13 @@ class IndicatorsEditorRow extends Component {
               },
               { id: "word", name: "Words" }
             ]}
-            value={rowMode}
             active="active"
             size={"extrasmall"}
-            disabled={!selected}
+            disabled={!selected.bool}
+            value={rowMode}
+            onChange={(value, event) => {
+              this.onImpactChanged(value, "type", event);
+            }}
           />
         </StyledTableCell2>
         {rowMode == "word" ? (
@@ -39,11 +65,20 @@ class IndicatorsEditorRow extends Component {
             >
               <InputFieldSelectTableCell
                 options={impacts}
-                value={row.impact.warning ? row.impact.warning : 1}
+                value={
+                  selected.bool
+                    ? selected.obj.impact.warning
+                    : row.impact.warning
+                    ? row.impact.warning
+                    : 1
+                }
                 isColored={true}
                 size={"extrasmall"}
                 active="active"
-                disabled={!selected}
+                disabled={!selected.bool}
+                onChange={(value, event) => {
+                  this.onImpactChanged(value, "warning", event);
+                }}
               />
             </StyledTableCell2>
             <StyledTableCell2
@@ -54,11 +89,20 @@ class IndicatorsEditorRow extends Component {
             >
               <InputFieldSelectTableCell
                 options={impacts}
-                value={row.impact.critical ? row.impact.critical : 1}
+                value={
+                  selected.bool
+                    ? selected.obj.impact.critical
+                    : row.impact.critical
+                    ? row.impact.critical
+                    : 1
+                }
                 isColored={true}
                 size={"extrasmall"}
                 active="active"
-                disabled={!selected}
+                disabled={!selected.bool}
+                onChange={(value, event) => {
+                  this.onImpactChanged(value, "critical", event);
+                }}
               />
             </StyledTableCell2>
             <StyledTableCell2
@@ -69,11 +113,20 @@ class IndicatorsEditorRow extends Component {
             >
               <InputFieldSelectTableCell
                 options={impacts}
-                value={row.impact.unknown ? row.impact.unknown : 1}
+                value={
+                  selected.bool
+                    ? selected.obj.impact.unknown
+                    : row.impact.unknown
+                    ? row.impact.unknown
+                    : 1
+                }
                 isColored={true}
                 size={"extrasmall"}
                 active="active"
-                disabled={!selected}
+                disabled={!selected.bool}
+                onChange={(value, event) => {
+                  this.onImpactChanged(value, "unknown", event);
+                }}
               />
             </StyledTableCell2>
           </React.Fragment>
@@ -86,9 +139,16 @@ class IndicatorsEditorRow extends Component {
               }}
             >
               <InputFieldTableCell
-                value={row.impact.warning}
+                value={
+                  selected.bool
+                    ? selected.obj.impact.warning
+                    : row.impact.warning
+                }
                 inputSize={"extrasmall"}
-                disabled={!selected}
+                disabled={!selected.bool}
+                onChange={event => {
+                  this.onImpactInputChanged(event, "warning");
+                }}
               />
             </StyledTableCell2>
             <StyledTableCell2
@@ -98,9 +158,16 @@ class IndicatorsEditorRow extends Component {
               }}
             >
               <InputFieldTableCell
-                value={row.impact.critical}
+                value={
+                  selected.bool
+                    ? selected.obj.impact.critical
+                    : row.impact.critical
+                }
                 inputSize={"extrasmall"}
-                disabled={!selected}
+                disabled={!selected.bool}
+                onChange={event => {
+                  this.onImpactInputChanged(event, "critical");
+                }}
               />
             </StyledTableCell2>
             <StyledTableCell2
@@ -110,9 +177,16 @@ class IndicatorsEditorRow extends Component {
               }}
             >
               <InputFieldTableCell
-                value={row.impact.unknown}
+                value={
+                  selected.bool
+                    ? selected.obj.impact.unknown
+                    : row.impact.unknown
+                }
                 inputSize={"extrasmall"}
-                disabled={!selected}
+                disabled={!selected.bool}
+                onChange={event => {
+                  this.onImpactInputChanged(event, "unknown");
+                }}
               />
             </StyledTableCell2>
           </React.Fragment>

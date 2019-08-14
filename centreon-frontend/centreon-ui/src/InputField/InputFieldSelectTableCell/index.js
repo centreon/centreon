@@ -84,7 +84,7 @@ class InputFieldSelectCustom extends Component {
     });
   };
 
-  optionChecked = (option) => {
+  optionChecked = (option, event) => {
     const { onChange } = this.props;
     this.setState(
       {
@@ -93,7 +93,7 @@ class InputFieldSelectCustom extends Component {
       },
       () => {
         if (onChange) {
-          onChange(option.id);
+          onChange(option.id, event);
         }
       },
     );

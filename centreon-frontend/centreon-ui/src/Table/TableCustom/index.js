@@ -87,7 +87,7 @@ class TableCustom extends Component {
     onTableSelectionChanged([]);
   };
 
-  handleClick = (event, row) => {
+  handleClick = (event, row, editing) => {
     event.preventDefault();
     event.stopPropagation();
     const {
@@ -110,21 +110,28 @@ class TableCustom extends Component {
       : selected.indexOf(value);
     let newSelected = [];
 
-    if (selectedIndex === -1) {
-      newSelected = newSelected.concat(
-        selected,
-        indicatorsEditor ? row : value
-      );
-    } else if (selectedIndex === 0) {
-      newSelected = newSelected.concat(selected.slice(1));
-    } else if (selectedIndex === selected.length - 1) {
-      newSelected = newSelected.concat(selected.slice(0, -1));
-    } else if (selectedIndex > 0) {
-      newSelected = newSelected.concat(
-        selected.slice(0, selectedIndex),
-        selected.slice(selectedIndex + 1)
-      );
+
+    if(editing){
+      newSelected = selected;
+      newSelected[selectedIndex] = indicatorsEditor ? row : value;
+    }else{
+      if (selectedIndex === -1) {
+        newSelected = newSelected.concat(
+          selected,
+          indicatorsEditor ? row : value
+        );
+      } else if (selectedIndex === 0) {
+        newSelected = newSelected.concat(selected.slice(1));
+      } else if (selectedIndex === selected.length - 1) {
+        newSelected = newSelected.concat(selected.slice(0, -1));
+      } else if (selectedIndex > 0) {
+        newSelected = newSelected.concat(
+          selected.slice(0, selectedIndex),
+          selected.slice(selectedIndex + 1)
+        );
+      }
     }
+   
     onTableSelectionChanged(newSelected);
   };
 
@@ -163,7 +170,7 @@ class TableCustom extends Component {
       totalRows,
       onEnable,
       onDisable,
-      onRowClick,
+      onRowClick = () => {},
       selected,
       enabledColumn,
       nameIdPaired,
@@ -179,15 +186,24 @@ class TableCustom extends Component {
         // eslint-disable-next-line
         if (indicatorsEditor) {
           if (selected[i].object.id == value) {
-            return true;
+            return {
+              bool: true,
+              obj: selected[i]
+            };
           }
         } else {
           if (selected[i] == value) {
-            return true;
+            return {
+              bool: true,
+              obj: selected[i]
+            };;
           }
         }
       }
-      return false;
+      return {
+        bool: false,
+        obj: null
+      };
     };
 
     const emptyRows = limit - Math.min(limit, totalRows - currentPage * limit);
@@ -272,7 +288,7 @@ class TableCustom extends Component {
                           }
                         >
                           <StyledCheckbox
-                            checked={isItemSelected}
+                            checked={isItemSelected.bool}
                             color="primary"
                           />
                         </StyledTableCell2>
@@ -569,6 +585,7 @@ class TableCustom extends Component {
                           index={index}
                           impacts={impacts}
                           selected={isItemSelected}
+                          onImpactEdit={this.handleClick}
                         />
                       ) : null}
                     </StyledTableRow>

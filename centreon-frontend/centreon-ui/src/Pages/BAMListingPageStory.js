@@ -16,7 +16,7 @@ import impactsMock from "../Mocks/impacts";
 
 class BAMListingPageStory extends Component {
   state = {
-    panelActive: true,
+    panelActive: false,
     activeBA: {},
     currentlySelected: [],
     businessViews: businessViewsMock.result.entities,
@@ -156,6 +156,11 @@ class BAMListingPageStory extends Component {
               sortf: false,
               sorto: false
             }
+          }}
+          onClose={() => {
+            this.setState({
+              panelActive: !panelActive
+            });
           }}
         />
       </React.Fragment>
