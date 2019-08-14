@@ -11,7 +11,7 @@
   bottom: 0;
   max-width: 1063px;
   z-index: 90;
-  width: 100%;
+  width: 0;
   z-index: -1;
   &-dialog {
     position: relative;
@@ -156,6 +156,7 @@
   &-active {
     width: 563px;
     z-index: 90;
+    transition: 0.2s ease-in;
     .panels {
       &-inner {
         right: 0;
