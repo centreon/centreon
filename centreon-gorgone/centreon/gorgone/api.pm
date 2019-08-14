@@ -37,20 +37,42 @@ sub root {
     my %dispatch;
     foreach my $action (keys $options{modules_events}) {
         next if (!defined($options{modules_events}->{$action}->{api}->{uri}));
-        $dispatch{$options{modules_events}->{$action}->{api}->{method} . '_/' .
-            $options{modules_events}->{$action}->{module}->{name} .
+        $dispatch{$options{modules_events}->{$action}->{api}->{method} . '_' .
             $options{modules_events}->{$action}->{api}->{uri}} = $action;
     }
+    use Data::Dumper;
+    print Dumper \%dispatch;
 
     my $response;
     if ($options{method} eq 'GET' && $options{uri} =~ /^\/api\/get\/(.*)$/) {
         $response = get_log(socket => $options{socket}, token => $1);
-    } elsif ($options{method} eq 'GET' && $options{uri} =~ /^\/api\/module(.*)$/) {
-        $response = call_action(socket => $options{socket}, action => $dispatch{'GET_' . $1});
-    } elsif ($options{method} eq 'POST' && $options{uri} =~ /^\/api\/module(.*)$/) {
-        $response = call_action(socket => $options{socket}, action => $dispatch{'POST_' . $1});
-    # } elsif {
-    # }
+    } elsif ($options{method} eq 'GET'
+        && $options{uri} =~ /^\/api\/(target\/(\w*)\/)?(\w+)\/?(\w*?)$/
+        && defined($dispatch{'GET_/' . $3})) {
+        $response = call_action(
+            socket => $options{socket},
+            action => $dispatch{'GET_/' . $3},
+            target => $2,
+            data => { params => $options{params} }
+        );
+    } elsif ($options{method} eq 'POST'
+        && $options{uri} =~ /^\/api\/(target\/(\w*)\/)?(\w+)\/?(\w*?)$/
+        && defined($dispatch{'POST_/' . $3})) {
+        $response = call_action(
+            socket => $options{socket},
+            action => $dispatch{'POST_/' . $3},
+            target => $2,
+            data => { content => $options{content}, params => $options{params} }
+        );
+    } elsif ($options{method} eq 'DELETE'
+        && $options{uri} =~ /^\/api\/(target\/(\w*)\/)?(\w+)\/?(\w*?)$/
+        && defined($dispatch{'DELETE_/' . $3})) {
+        $response = call_action(
+            socket => $options{socket},
+            action => $dispatch{'DELETE_/' . $3},
+            target => $2,
+            data => { params => $options{params} }
+        );
     } else {
         $response = '{"error":"method_unknown","message":"Method not implemented"}';
     }
@@ -80,7 +102,14 @@ sub call_action {
 
     my $rev = zmq_poll($poll, 5000);
 
-    return '{"token":"' . $result->{token} . '"}';
+    my $response = "";
+    if (defined($result->{token}) && $result->{token} ne '') {
+        $response = '{"token":"' . $result->{token} . '"}';
+    } else {
+        $response = '{"error":"no_token","message":"Cannot retrieve token from ack"}';
+    }
+
+    return $response;
 }
 
 sub get_log {

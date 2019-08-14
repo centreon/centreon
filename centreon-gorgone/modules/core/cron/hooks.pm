@@ -28,8 +28,10 @@ use modules::core::cron::class;
 my $NAME = 'cron';
 my $EVENTS = [
     { event => 'CRONREADY' },
-    { event => 'RELOADCRON', uri => '/reload', method => 'POST' },
-    { event => 'LISTCRON', uri => '/list', method => 'GET' },
+    { event => 'GETCRON', uri => '/cron', method => 'GET' },
+    { event => 'ADDCRON', uri => '/cron', method => 'POST' },
+    { event => 'DELETECRON', uri => '/cron', method => 'DELETE' },
+    { event => 'UPDATECRON', uri => '/cron', method => 'PATCH' },
 ];
 
 my $config_core;

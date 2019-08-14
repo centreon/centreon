@@ -29,6 +29,7 @@ use HTTP::Daemon;
 use HTTP::Daemon::SSL;
 use HTTP::Status;
 use MIME::Base64;
+use JSON::XS;
 
 my $time = time();
 
@@ -201,12 +202,21 @@ sub send_response {
 sub api_call {
     my ($self, $request) = @_;
 
+    my $content;
+    eval {
+        $content = JSON::XS->new->utf8->decode($request->content) if ($request->method eq 'POST' && defined($request->content));
+    };
+    if ($@) {
+        return '{"error":"decode_error","message":"POST content must be JSON-formated"}';;
+    }
+
     require 'centreon/gorgone/api.pm';
     my %params = $request->uri->query_form;
     my $response = centreon::gorgone::api::root(
+        method => $request->method,
         uri => $request->uri->path,
         params => \%params,
-        method => $request->method,
+        content => $content,
         socket => $connector->{internal_socket},
         logger => $self->{logger},
         modules_events => $self->{modules_events}
@@ -247,7 +257,7 @@ sub server_status {
         $encoded_data = JSON::XS->new->utf8->encode(\%data);
     };
     if ($@) {
-        $encoded_data = '{"code":"encode_error","message":"Cannot encode response into JSON format"}';
+        $encoded_data = '{"error":"encode_error","message":"Cannot encode response into JSON format"}';
     } 
     
     return $encoded_data;

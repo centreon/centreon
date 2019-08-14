@@ -79,7 +79,56 @@ sub class_handle_HUP {
     }
 }
 
-sub action_listcron {
+sub action_deletecron {
+    my ($self, %options) = @_;
+    
+    $options{token} = $self->generate_token() if (!defined($options{token}));
+
+    $self->send_log(code => centreon::gorgone::module::ACTION_BEGIN, token => $options{token}, data => { message => 'action deletecron proceed' });
+    $self->{logger}->writeLogDebug("[cron] -class- Cron delete start");
+    
+    # Delete...
+
+    $self->{logger}->writeLogDebug("[cron] -class- Cron delete finish");
+    $self->send_log(code => $self->ACTION_FINISH_OK, token => $options{token}, data => { message => 'action deletecron succeed' });
+    return 0;
+}
+
+sub action_addcron {
+    my ($self, %options) = @_;
+    
+    $options{token} = $self->generate_token() if (!defined($options{token}));
+
+    $self->send_log(code => centreon::gorgone::module::ACTION_BEGIN, token => $options{token}, data => { message => 'action addcron proceed' });
+    $self->{logger}->writeLogDebug("[cron] -class- Cron add start");
+    
+    foreach my $definition (@{$options{data}->{content}}) {
+        if (!defined($definition->{timespec}) || $definition->{timespec} eq '' ||
+            !defined($definition->{command_line}) || $definition->{command_line} eq '' ||
+            !defined($definition->{name}) || $definition->{name} eq '') {
+            $self->{logger}->writeLogDebug("[cron] -class- Cron add missing arguments");
+            $self->send_log(code => $self->ACTION_FINISH_KO, token => $options{token}, data => { message => 'action addcron missing arguments' });
+            return 1;
+        }
+    }
+    
+    eval {
+        foreach my $definition (@{$options{data}->{content}}) {
+            $self->{cron}->add_entry($definition->{timespec}, \&dispatcher, { socket => $connector->{internal_socket}, logger => $self->{logger}, definition => $definition });
+        }
+    };
+    if ($@) {
+        $self->{logger}->writeLogDebug("[cron] -class- Cron add failed");
+        $self->send_log(code => $self->ACTION_FINISH_KO, token => $options{token}, data => { message => 'action addcron failed:' . $@ });
+        return 1;
+    }
+
+    $self->{logger}->writeLogDebug("[cron] -class- Cron add finish");
+    $self->send_log(code => $self->ACTION_FINISH_OK, token => $options{token}, data => { message => 'action addcron succeed' });
+    return 0;
+}
+
+sub action_getcron {
     my ($self, %options) = @_;
     
     $options{token} = $self->generate_token() if (!defined($options{token}));
@@ -94,9 +143,9 @@ sub action_listcron {
             push @cron_list, { %{$cron->{args}[0]->{definition}} };
         }
     };
-    if ($@) {        
+    if ($@) {
         $self->{logger}->writeLogDebug("[cron] -class- Cron list failed");
-        $self->send_log(code => $self->ACTION_FINISH_KO, token => $options{token}, data => { message => 'action listcron failed' });
+        $self->send_log(code => $self->ACTION_FINISH_KO, token => $options{token}, data => { message => 'action listcron failed:' . $@ });
         return 1;
     }
 
