@@ -152,7 +152,7 @@ class BAMListingPage extends Component {
     return (
       <React.Fragment>
         <Breadcrumb breadcrumbs={breadcrumbs} />
-        <Paper elevation={0} style={{ padding: '0 16px' }}>
+        <Paper elevation={0} style={{ padding: '16px 0', marginLeft: '16px', marginRight: '16px', borderRadius: '0', borderBottom: '1px solid #e4e4e4', borderTop: '1px solid #e4e4e4' }}>
           <CustomRow>
             <CustomColumn
               customColumn="md-4"
@@ -167,7 +167,7 @@ class BAMListingPage extends Component {
             </CustomColumn>
           </CustomRow>
         </Paper>
-        <Paper elevation={0} style={{ padding: '8px 16px' }}>
+        <Paper elevation={0} style={{ padding: '16px 16px 8px 16px' }}>
           <CustomRow>
             <CustomColumn
               customColumn="md-4"
