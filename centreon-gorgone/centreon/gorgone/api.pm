@@ -40,8 +40,6 @@ sub root {
         $dispatch{$options{modules_events}->{$action}->{api}->{method} . '_' .
             $options{modules_events}->{$action}->{api}->{uri}} = $action;
     }
-    use Data::Dumper;
-    print Dumper \%dispatch;
 
     my $response;
     if ($options{method} eq 'GET' && $options{uri} =~ /^\/api\/get\/(.*)$/) {
