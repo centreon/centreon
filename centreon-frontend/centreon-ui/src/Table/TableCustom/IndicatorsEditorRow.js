@@ -26,7 +26,9 @@ class IndicatorsEditorRow extends Component {
   render() {
     const { row, index, impacts, selected } = this.props;
     let rowMode = selected.bool
+      ? (selected.obj.impact.type
       ? selected.obj.impact.type
+      : 1)
       : row.impact.type
       ? row.impact.type
       : "word";
@@ -67,7 +69,9 @@ class IndicatorsEditorRow extends Component {
                 options={impacts}
                 value={
                   selected.bool
+                    ? (selected.obj.impact.warning
                     ? selected.obj.impact.warning
+                    : 1)
                     : row.impact.warning
                     ? row.impact.warning
                     : 1
@@ -91,7 +95,9 @@ class IndicatorsEditorRow extends Component {
                 options={impacts}
                 value={
                   selected.bool
+                    ? (selected.obj.impact.critical
                     ? selected.obj.impact.critical
+                    : 1 )
                     : row.impact.critical
                     ? row.impact.critical
                     : 1
@@ -115,7 +121,9 @@ class IndicatorsEditorRow extends Component {
                 options={impacts}
                 value={
                   selected.bool
+                    ? (selected.obj.impact.unknown
                     ? selected.obj.impact.unknown
+                    : 1)
                     : row.impact.unknown
                     ? row.impact.unknown
                     : 1
