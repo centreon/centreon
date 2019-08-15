@@ -16,7 +16,7 @@ import impactsMock from "../Mocks/impacts";
 
 class BAMListingPageStory extends Component {
   state = {
-    panelActive: false,
+    panelActive: true,
     activeBA: {},
     currentlySelected: [],
     businessViews: businessViewsMock.result.entities,
@@ -27,7 +27,8 @@ class BAMListingPageStory extends Component {
     escalations: escalationMock.result.entities,
     eventHandlerCommands: commandsMock.result.entities,
     kpis: kpiMock.result,
-    impacts: impactsMock.result
+    impacts: impactsMock.result,
+    onlySelectedFilter:false
   };
 
   togglePanel = () => {
@@ -51,7 +52,8 @@ class BAMListingPageStory extends Component {
       escalations,
       eventHandlerCommands,
       kpis,
-      impacts
+      impacts,
+      onlySelectedFilter
     } = this.state;
     return (
       <React.Fragment>
@@ -161,6 +163,12 @@ class BAMListingPageStory extends Component {
             this.setState({
               panelActive: !panelActive
             });
+          }}
+          onlySelectedFilter={onlySelectedFilter}
+          onlySelectedChange={()=>{
+            this.setState({
+              onlySelectedFilter:!onlySelectedFilter
+            })
           }}
         />
       </React.Fragment>

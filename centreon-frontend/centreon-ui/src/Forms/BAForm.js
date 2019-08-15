@@ -105,21 +105,25 @@ class BAForm extends React.Component {
             <CustomColumn customColumn="md-6">
               <CustomColumn customColumn="md-12" additionalStyles={["p-0"]}>
                 <IconInfo iconText="Automatically inherit KPI downtimes" />
-              </CustomColumn> 
+              </CustomColumn>
               <FormControlLabel
+                style={{
+                  marginLeft: 0
+                }}
                 control={
                   <MaterialSwitch
                     value={values.inherit_kpi_downtimes}
                     checked={values.inherit_kpi_downtimes}
                     error={errors.inherit_kpi_downtimes}
+                    size={"small"}
                     onChange={(event, value) => {
                       valueChanged("inherit_kpi_downtimes", value);
                     }}
                   />
                 }
-                label="Yes/No"
+                label={values.inherit_kpi_downtimes ? "Yes" : "No"}
               />
-            </CustomColumn> 
+            </CustomColumn>
             <CustomColumn customColumn="md-6">
               <IconInfo iconText="Display on remote server" />
               <InputFieldSelect
@@ -214,7 +218,7 @@ class BAForm extends React.Component {
               onEdit={() => {
                 toggleMultiselect("bam_kpi");
               }}
-              emptyInfo={'Click to link indicators'}
+              emptyInfo={"Click to link indicators"}
             />
           </ExpansionPanelDetails>
         </ExpansionPanel>
@@ -235,7 +239,7 @@ class BAForm extends React.Component {
               onEdit={() => {
                 toggleMultiselect("groups");
               }}
-              emptyInfo={'Click to link business view(s)'}
+              emptyInfo={"Click to link business view(s)"}
             />
           </ExpansionPanelDetails>
         </ExpansionPanel>
@@ -254,6 +258,9 @@ class BAForm extends React.Component {
                   <IconInfo iconText="Activate notifications" />
                 </CustomColumn>
                 <FormControlLabel
+                  style={{
+                    marginLeft: 0
+                  }}
                   control={
                     <MaterialSwitch
                       value={values.notifications_enabled}
@@ -265,7 +272,7 @@ class BAForm extends React.Component {
                       }}
                     />
                   }
-                  label="Yes/No"
+                  label={values.notifications_enabled ? "Yes" : "No"}
                 />
               </CustomColumn>
               <CustomColumn customColumn="md-6">
@@ -347,7 +354,7 @@ class BAForm extends React.Component {
               onEdit={() => {
                 toggleMultiselect("bam_contact");
               }}
-              emptyInfo={'Click to link contact group(s)'}
+              emptyInfo={"Click to link contact group(s)"}
             />
           </ExpansionPanelDetails>
           <ExpansionPanelDetails className={classes.additionalStyles}>
@@ -456,17 +463,21 @@ class BAForm extends React.Component {
                   <IconInfo iconText="Activate event handling" />
                 </CustomColumn>
                 <FormControlLabel
+                  style={{
+                    marginLeft: 0
+                  }}
                   control={
                     <MaterialSwitch
                       value={values.event_handler_enabled}
                       checked={values.event_handler_enabled}
                       error={errors.event_handler_enabled}
+                      size={"small"}
                       onChange={(event, value) => {
                         valueChanged("event_handler_enabled", value);
                       }}
                     />
                   }
-                  label="Yes/No"
+                  label={values.event_handler_enabled ? "Yes" : "No"}
                 />
               </CustomColumn>
               <CustomColumn customColumn="md-6">

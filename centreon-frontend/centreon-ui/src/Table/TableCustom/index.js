@@ -75,9 +75,16 @@ class TableCustom extends Component {
   };
 
   handleSelectAllClick = event => {
-    const { onTableSelectionChanged, tableData, nameIdPaired, indicatorsEditor } = this.props;
+    const {
+      onTableSelectionChanged,
+      tableData,
+      nameIdPaired,
+      indicatorsEditor
+    } = this.props;
     if (event.target.checked) {
-      const newSelecteds = indicatorsEditor ? tableData : nameIdPaired
+      const newSelecteds = indicatorsEditor
+        ? tableData
+        : nameIdPaired
         ? tableData.map(n => `${n.id}:${n.name}`)
         : tableData.map(n => n.id);
       onTableSelectionChanged(newSelecteds);
@@ -110,11 +117,10 @@ class TableCustom extends Component {
       : selected.indexOf(value);
     let newSelected = [];
 
-
-    if(editing){
+    if (editing) {
       newSelected = selected;
       newSelected[selectedIndex] = indicatorsEditor ? row : value;
-    }else{
+    } else {
       if (selectedIndex === -1) {
         newSelected = newSelected.concat(
           selected,
@@ -131,7 +137,7 @@ class TableCustom extends Component {
         );
       }
     }
-   
+
     onTableSelectionChanged(newSelected);
   };
 
@@ -176,7 +182,8 @@ class TableCustom extends Component {
       nameIdPaired,
       indicatorsEditor,
       emptyDataMessage,
-      impacts
+      impacts,
+      paginated = true
     } = this.props;
     const { order, orderBy, hovered } = this.state;
 
@@ -196,7 +203,7 @@ class TableCustom extends Component {
             return {
               bool: true,
               obj: selected[i]
-            };;
+            };
           }
         }
       }
@@ -208,28 +215,37 @@ class TableCustom extends Component {
 
     const emptyRows = limit - Math.min(limit, totalRows - currentPage * limit);
 
+    console.log(tableData)
     return (
       <div className={classes.root}>
         <Paper className={classes.paper}>
-          <StyledPagination
-            rowsPerPageOptions={[10, 20, 30, 40, 50, 60, 70, 80, 90, 100]}
-            colSpan={3}
-            count={totalRows}
-            rowsPerPage={limit}
-            page={currentPage}
-            style={{
-              display: "flex",
-              flexDirection: "row-reverse",
-              padding: 0
-            }}
-            SelectProps={{
-              native: true
-            }}
-            onChangePage={onPaginate}
-            onChangeRowsPerPage={onPaginationLimitChanged}
-            ActionsComponent={TablePaginationActions}
-          />
-          <div className={classes.tableWrapper}>
+          {paginated ? (
+            <StyledPagination
+              rowsPerPageOptions={[10, 20, 30, 40, 50, 60, 70, 80, 90, 100]}
+              colSpan={3}
+              count={totalRows}
+              rowsPerPage={limit}
+              page={currentPage}
+              style={{
+                display: "flex",
+                flexDirection: "row-reverse",
+                padding: 0
+              }}
+              SelectProps={{
+                native: true
+              }}
+              onChangePage={onPaginate}
+              onChangeRowsPerPage={onPaginationLimitChanged}
+              ActionsComponent={TablePaginationActions}
+            />
+          ) : null}
+
+          <div className={classes.tableWrapper} style={
+            indicatorsEditor ? 
+            {
+              overflow:'initial'
+            } : {}
+          }>
             <Table
               className={classes.table}
               aria-labelledby="tableTitle"
@@ -260,7 +276,7 @@ class TableCustom extends Component {
                     <StyledTableRow
                       hover
                       tabIndex={-1}
-                      key={row.id}
+                      key={row.id+'index'+index}
                       onMouseEnter={this.rowHovered.bind(this, row.id, true)}
                       {...this.addConditionalRowBackground(
                         row,
@@ -302,9 +318,11 @@ class TableCustom extends Component {
                                 align="left"
                                 className={classes.tableCellCustom}
                                 style={
-                                  indicatorsEditor ? {
-                                    padding: '3px 4px'
-                                  } : {}
+                                  indicatorsEditor
+                                    ? {
+                                        padding: "3px 4px"
+                                      }
+                                    : {}
                                 }
                               >
                                 {row[column.id] || ""}
@@ -316,9 +334,11 @@ class TableCustom extends Component {
                                 align="left"
                                 className={classes.tableCellCustom}
                                 style={
-                                  indicatorsEditor ? {
-                                    padding: '3px 4px'
-                                  } : {}
+                                  indicatorsEditor
+                                    ? {
+                                        padding: "3px 4px"
+                                      }
+                                    : {}
                                 }
                               >
                                 {column.subkey

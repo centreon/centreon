@@ -14,6 +14,7 @@ class CustomColumn extends Component {
       customColumn,
       additionalStyles,
       additionalColumns,
+      style
     } = this.props;
     const additionalClasses = [];
     if (additionalStyles) {

@@ -3,6 +3,10 @@ import classnames from "classnames";
 import InputFieldSearch from "../InputField/InputFieldSearch";
 import PanelItem from "../Panels/PanelItem";
 import TableCustom from "../Table/TableCustom";
+import MaterialSwitch from "../MaterialComponents/Switch";
+import FormControlLabel from "@material-ui/core/FormControlLabel";
+import CustomRow from "../Custom/CustomRow";
+import CustomColumn from "../Custom/CustomColumn";
 
 class MultiselectPanel extends Component {
   onTableSelection = selected => {
@@ -26,13 +30,17 @@ class MultiselectPanel extends Component {
       indicatorsEditor,
       paginationLimit,
       impacts,
-      styles
+      styles,
+      onlySelectedFilter = false,
+      onlySelectedChange = () => {}
     } = this.props;
     let currentlySelectedFromKey = currentlySelected;
-    if(nameIdPaired){
+    if (nameIdPaired) {
       currentlySelectedFromKey = [];
-      for(let i = 0; i < currentlySelected.length; i++){
-        currentlySelectedFromKey.push(`${currentlySelected[i].id}:${currentlySelected[i].name}`);
+      for (let i = 0; i < currentlySelected.length; i++) {
+        currentlySelectedFromKey.push(
+          `${currentlySelected[i].id}:${currentlySelected[i].name}`
+        );
       }
     }
     return (
@@ -40,20 +48,55 @@ class MultiselectPanel extends Component {
         panelItemType="small"
         panelItemShow={active ? "panel-item-show" : ""}
       >
-        <div className={classnames(styles["panel-item-inner"])} style={{padding:'5px'}}>
-          <h3 className={classnames(styles["panel-item-title"])} style={{marginBottom:'5px'}}>{title}</h3>
-          <InputFieldSearch
-            style={{
-              width: "100%",
-              marginBottom: 15,
-              boxSizing: "border-box"
-            }}
-            onChange={onSearch}
-          />
+        <div
+          className={classnames(styles["panel-item-inner"])}
+          style={{ padding: "5px" }}
+        >
+          <h3
+            className={classnames(styles["panel-item-title"])}
+            style={{ marginBottom: "5px" }}
+          >
+            {title}
+          </h3>
+          <CustomRow
+            style={
+              {
+                maxWidth: '100%',
+                margin: '0px'
+              }
+            }
+          >
+            <CustomColumn customColumn={indicatorsEditor ? "md-6" : "md-12"}>
+              <InputFieldSearch
+                style={{
+                  width: "100%",
+                  marginBottom: 15,
+                  boxSizing: "border-box"
+                }}
+                onChange={onSearch}
+              />
+            </CustomColumn>
+            {indicatorsEditor ? (
+              <CustomColumn customColumn="md-6">
+                <FormControlLabel
+                  labelPlacement="top"
+                  control={
+                    <MaterialSwitch
+                      size={"small"}
+                      value={onlySelectedFilter}
+                      checked={onlySelectedFilter}
+                      onChange={onlySelectedChange}
+                    />
+                  }
+                  label="Selected items only"
+                />
+              </CustomColumn>
+            ) : null}
+          </CustomRow>
           <TableCustom
             style={{ minWidth: "auto" }}
             columnConfiguration={tableConfiguration}
-            tableData={data}
+            tableData={onlySelectedFilter ? currentlySelected : data}
             onTableSelectionChanged={this.onTableSelection}
             onPaginate={onPaginate}
             onSort={onSort}
@@ -66,6 +109,7 @@ class MultiselectPanel extends Component {
             checkable
             selected={currentlySelectedFromKey}
             impacts={impacts}
+            paginated={!onlySelectedFilter}
           />
         </div>
       </PanelItem>

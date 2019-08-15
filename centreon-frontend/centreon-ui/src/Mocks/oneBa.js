@@ -25,6 +25,150 @@ export default {
         impact: { type: "word", critical: null, warning: null, unknown: null },
         object: { id: "25", name: "Centreon-Server - Memory", hostid: 14 },
         type: "S"
+      },
+      {
+        id: 1,
+        name: "Centreon-Server - Disk-/",
+        activate: 1,
+        impact: { type: "word", critical: null, warning: null, unknown: null },
+        object: { id: "19", name: "Centreon-Server - Disk-/", hostid: 14 },
+        type: "S"
+      },
+      {
+        id: 2,
+        name: "Centreon-Server - Memory",
+        activate: 1,
+        impact: { type: "word", critical: null, warning: null, unknown: null },
+        object: { id: "25", name: "Centreon-Server - Memory", hostid: 14 },
+        type: "S"
+      },
+      {
+        id: 1,
+        name: "Centreon-Server - Disk-/",
+        activate: 1,
+        impact: { type: "word", critical: null, warning: null, unknown: null },
+        object: { id: "19", name: "Centreon-Server - Disk-/", hostid: 14 },
+        type: "S"
+      },
+      {
+        id: 2,
+        name: "Centreon-Server - Memory",
+        activate: 1,
+        impact: { type: "word", critical: null, warning: null, unknown: null },
+        object: { id: "25", name: "Centreon-Server - Memory", hostid: 14 },
+        type: "S"
+      },
+      {
+        id: 1,
+        name: "Centreon-Server - Disk-/",
+        activate: 1,
+        impact: { type: "word", critical: null, warning: null, unknown: null },
+        object: { id: "19", name: "Centreon-Server - Disk-/", hostid: 14 },
+        type: "S"
+      },
+      {
+        id: 2,
+        name: "Centreon-Server - Memory",
+        activate: 1,
+        impact: { type: "word", critical: null, warning: null, unknown: null },
+        object: { id: "25", name: "Centreon-Server - Memory", hostid: 14 },
+        type: "S"
+      },
+      {
+        id: 1,
+        name: "Centreon-Server - Disk-/",
+        activate: 1,
+        impact: { type: "word", critical: null, warning: null, unknown: null },
+        object: { id: "19", name: "Centreon-Server - Disk-/", hostid: 14 },
+        type: "S"
+      },
+      {
+        id: 2,
+        name: "Centreon-Server - Memory",
+        activate: 1,
+        impact: { type: "word", critical: null, warning: null, unknown: null },
+        object: { id: "25", name: "Centreon-Server - Memory", hostid: 14 },
+        type: "S"
+      },
+      {
+        id: 1,
+        name: "Centreon-Server - Disk-/",
+        activate: 1,
+        impact: { type: "word", critical: null, warning: null, unknown: null },
+        object: { id: "19", name: "Centreon-Server - Disk-/", hostid: 14 },
+        type: "S"
+      },
+      {
+        id: 2,
+        name: "Centreon-Server - Memory",
+        activate: 1,
+        impact: { type: "word", critical: null, warning: null, unknown: null },
+        object: { id: "25", name: "Centreon-Server - Memory", hostid: 14 },
+        type: "S"
+      },
+      {
+        id: 1,
+        name: "Centreon-Server - Disk-/",
+        activate: 1,
+        impact: { type: "word", critical: null, warning: null, unknown: null },
+        object: { id: "19", name: "Centreon-Server - Disk-/", hostid: 14 },
+        type: "S"
+      },
+      {
+        id: 2,
+        name: "Centreon-Server - Memory",
+        activate: 1,
+        impact: { type: "word", critical: null, warning: null, unknown: null },
+        object: { id: "25", name: "Centreon-Server - Memory", hostid: 14 },
+        type: "S"
+      },
+      {
+        id: 1,
+        name: "Centreon-Server - Disk-/",
+        activate: 1,
+        impact: { type: "word", critical: null, warning: null, unknown: null },
+        object: { id: "19", name: "Centreon-Server - Disk-/", hostid: 14 },
+        type: "S"
+      },
+      {
+        id: 2,
+        name: "Centreon-Server - Memory",
+        activate: 1,
+        impact: { type: "word", critical: null, warning: null, unknown: null },
+        object: { id: "25", name: "Centreon-Server - Memory", hostid: 14 },
+        type: "S"
+      },
+      {
+        id: 1,
+        name: "Centreon-Server - Disk-/",
+        activate: 1,
+        impact: { type: "word", critical: null, warning: null, unknown: null },
+        object: { id: "19", name: "Centreon-Server - Disk-/", hostid: 14 },
+        type: "S"
+      },
+      {
+        id: 2,
+        name: "Centreon-Server - Memory",
+        activate: 1,
+        impact: { type: "word", critical: null, warning: null, unknown: null },
+        object: { id: "25", name: "Centreon-Server - Memory", hostid: 14 },
+        type: "S"
+      },
+      {
+        id: 1,
+        name: "Centreon-Server - Disk-/",
+        activate: 1,
+        impact: { type: "word", critical: null, warning: null, unknown: null },
+        object: { id: "19", name: "Centreon-Server - Disk-/", hostid: 14 },
+        type: "S"
+      },
+      {
+        id: 2,
+        name: "Centreon-Server - Memory",
+        activate: 1,
+        impact: { type: "word", critical: null, warning: null, unknown: null },
+        object: { id: "25", name: "Centreon-Server - Memory", hostid: 14 },
+        type: "S"
       }
     ],
     notifications_enabled: false,

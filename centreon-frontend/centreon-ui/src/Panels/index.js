@@ -189,7 +189,9 @@ class BAPanel extends React.Component {
       onPaginationLimitChangedMultiselect,
       onSortMultiselect,
       multiSelectFilters,
-      saving
+      saving,
+      onlySelectedChange,
+      onlySelectedFilter
     } = this.props;
     const {
       multiselectActive,
@@ -407,6 +409,8 @@ class BAPanel extends React.Component {
                   : false
                 }
                 impacts={impacts}
+                onlySelectedChange={onlySelectedChange}
+                onlySelectedFilter={onlySelectedFilter}
               />
             </div>
           </div>
