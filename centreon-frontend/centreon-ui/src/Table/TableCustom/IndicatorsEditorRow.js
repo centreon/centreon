@@ -5,8 +5,8 @@ import StyledTableCell2 from "./StyledTableCell2";
 
 class IndicatorsEditorRow extends Component {
   onImpactChanged = (value, key, event) => {
-    const { onImpactEdit, row } = this.props;
-    let rowObject = row;
+    const { onImpactEdit, selected } = this.props;
+    let rowObject = selected.obj;
     if (key != "type") {
       rowObject.impact.type = rowObject.impact.type
         ? rowObject.impact.type
@@ -18,8 +18,8 @@ class IndicatorsEditorRow extends Component {
 
   onImpactInputChanged = (event, key) => {
     const value = event.target.value;
-    const { onImpactEdit, row } = this.props;
-    let rowObject = row;
+    const { onImpactEdit, selected } = this.props;
+    let rowObject = selected.obj;
     rowObject.impact[key] = value;
     onImpactEdit(event, rowObject, true);
   };
