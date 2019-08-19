@@ -145,29 +145,31 @@ sub run {
             SSL_error_trap => \&ssl_error
         );
     }
+    
+    if (defined($daemon)) {
+        while (my ($connection, $peer_addr) = $daemon->accept) {
+            while (my $request = $connection->get_request) {
+                $connector->{logger}->writeLogInfo("[httpserver] -class- " . $request->method . " '" . $request->uri->path . "'");
 
-    while (my ($connection, $peer_addr) = $daemon->accept) {
-        while (my $request = $connection->get_request) {
-            $connector->{logger}->writeLogInfo("[httpserver] -class- " . $request->method . " '" . $request->uri->path . "'");
+                if ($self->authentication($request->header('Authorization'))) { # Check Basic authentication
+                    my ($root) = ($request->uri->path =~ /^(\/\w+)/);
 
-            if ($self->authentication($request->header('Authorization'))) { # Check Basic authentication
-                my ($root) = ($request->uri->path =~ /^(\/\w+)/);
-
-                if ($request->method eq 'GET' && $root eq "/status") { # Server status
-                    $self->send_response(connection => $connection, response => $self->server_status);
-                } elsif ($root eq "/api") { # API
-                    $self->send_response(connection => $connection, response => $self->api_call($request));
-                } elsif (defined($self->{dispatch}->{$root})) { # Other dispatch definition
-                    $self->send_response(connection => $connection, response => $self->dispatch_call(root => $root, request => $request));
-                } else { # Forbidden
-                    $connection->send_error(RC_FORBIDDEN)
+                    if ($request->method eq 'GET' && $root eq "/status") { # Server status
+                        $self->send_response(connection => $connection, response => $self->server_status);
+                    } elsif ($root eq "/api") { # API
+                        $self->send_response(connection => $connection, response => $self->api_call($request));
+                    } elsif (defined($self->{dispatch}->{$root})) { # Other dispatch definition
+                        $self->send_response(connection => $connection, response => $self->dispatch_call(root => $root, request => $request));
+                    } else { # Forbidden
+                        $connection->send_error(RC_FORBIDDEN)
+                    }
+                } else { # Authen error
+                    $connection->send_error(RC_UNAUTHORIZED);
                 }
-            } else { # Authen error
-                $connection->send_error(RC_UNAUTHORIZED);
             }
+            $connection->close;
+            undef($connection);
         }
-        $connection->close;
-        undef($connection);
     }
 }
 
@@ -195,6 +197,7 @@ sub send_response {
     my ($self, %options) = @_;
 
     my $response = HTTP::Response->new(200);
+    $response->header('Content-Type' => 'application/json'); 
     $response->content($options{response} . "\n");
     $options{connection}->send_response($response);
 }
@@ -204,18 +207,19 @@ sub api_call {
 
     my $content;
     eval {
-        $content = JSON::XS->new->utf8->decode($request->content) if ($request->method eq 'POST' && defined($request->content));
+        $content = JSON::XS->new->utf8->decode($request->content)
+            if ($request->method =~ /POST|PATCH/ && defined($request->content));
     };
     if ($@) {
         return '{"error":"decode_error","message":"POST content must be JSON-formated"}';;
     }
 
     require 'centreon/gorgone/api.pm';
-    my %params = $request->uri->query_form;
+    my %parameters = $request->uri->query_form;
     my $response = centreon::gorgone::api::root(
         method => $request->method,
         uri => $request->uri->path,
-        params => \%params,
+        parameters => \%parameters,
         content => $content,
         socket => $connector->{internal_socket},
         logger => $self->{logger},

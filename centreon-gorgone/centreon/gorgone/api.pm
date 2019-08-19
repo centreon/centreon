@@ -42,34 +42,20 @@ sub root {
     }
 
     my $response;
-    if ($options{method} eq 'GET' && $options{uri} =~ /^\/api\/get\/(.*)$/) {
+    if ($options{method} eq 'GET' && $options{uri} =~ /^\/api\/log\/(.*)$/) {
         $response = get_log(socket => $options{socket}, token => $1);
-    } elsif ($options{method} eq 'GET'
-        && $options{uri} =~ /^\/api\/(target\/(\w*)\/)?(\w+)\/?(\w*?)$/
-        && defined($dispatch{'GET_/' . $3})) {
+    } elsif ($options{uri} =~ /^\/api\/(target\/(\w*)\/)?(\w+)\/?([\w\/]*?)$/
+        && defined($dispatch{$options{method} . '_/' . $3})) {
+        my @variables = split(/\//, $4);
         $response = call_action(
             socket => $options{socket},
-            action => $dispatch{'GET_/' . $3},
+            action => $dispatch{$options{method} . '_/' . $3},
             target => $2,
-            data => { params => $options{params} }
-        );
-    } elsif ($options{method} eq 'POST'
-        && $options{uri} =~ /^\/api\/(target\/(\w*)\/)?(\w+)\/?(\w*?)$/
-        && defined($dispatch{'POST_/' . $3})) {
-        $response = call_action(
-            socket => $options{socket},
-            action => $dispatch{'POST_/' . $3},
-            target => $2,
-            data => { content => $options{content}, params => $options{params} }
-        );
-    } elsif ($options{method} eq 'DELETE'
-        && $options{uri} =~ /^\/api\/(target\/(\w*)\/)?(\w+)\/?(\w*?)$/
-        && defined($dispatch{'DELETE_/' . $3})) {
-        $response = call_action(
-            socket => $options{socket},
-            action => $dispatch{'DELETE_/' . $3},
-            target => $2,
-            data => { params => $options{params} }
+            data => { 
+                content => $options{content},
+                parameters => $options{parameters},
+                variables => \@variables,
+            }
         );
     } else {
         $response = '{"error":"method_unknown","message":"Method not implemented"}';

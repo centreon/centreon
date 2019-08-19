@@ -60,7 +60,7 @@ modules:
     package: modules::core::cron::hooks
     enable: true
     cron:
-      - name: "Echo date in /tmp/date.log"
+      - id: echo_date
         timespec: "* * * * *"
         command_line: "date >> /tmp/date.log"
 
