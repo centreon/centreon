@@ -249,7 +249,7 @@ class BAPanel extends React.Component {
                     valueChanged("name", event);
                   }}
                   style={{
-                    width: multiselectActive ? '794px' : '295px'
+                    width: multiselectActive ? '784px' : '285px'
                   }}
                   className={classnames(styles['panels-header-input'],
                   errors.name ? styles["has-error"] : "")}
