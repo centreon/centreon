@@ -18,7 +18,7 @@
 # limitations under the License.
 #
 
-package modules::newtest::class;
+package modules::plugins::newtest::class;
 
 use base qw(centreon::gorgone::module);
 
@@ -32,8 +32,8 @@ use ZMQ::Constants qw(:all);
 use MIME::Base64;
 use JSON::XS;
 use Data::Dumper;
-use modules::newtest::libs::stubs::ManagementConsoleService;
-use modules::newtest::libs::stubs::errors;
+use modules::plugins::newtest::libs::stubs::ManagementConsoleService;
+use modules::plugins::newtest::libs::stubs::errors;
 use Date::Parse;
 
 my %handlers = (TERM => {}, HUP => {});
@@ -343,7 +343,7 @@ sub get_newtest_diagnostic {
     my ($self, %options) = @_;
     
     my $result = $self->{instance}->ListMessages('Instance', 30, 'Diagnostics', [$options{scenario}, $options{robot}]);
-    if (defined(my $com_error = modules::newtest::libs::stubs::errors::get_error())) {
+    if (defined(my $com_error = modules::plugins::newtest::libs::stubs::errors::get_error())) {
         $self->{logger}->writeLogError("[newtest] -class- newtest API error 'ListMessages' method: " . $com_error);
         return -1;
     }
@@ -386,7 +386,7 @@ sub get_scenario_results {
     }
     if (!defined($self->{cache_robot_list_results}->{$options{robot}})) {
         my $result = $self->{instance}->ListResults('Robot', 30, [$options{robot}]);
-        if (defined(my $com_error = modules::newtest::libs::stubs::errors::get_error())) {
+        if (defined(my $com_error = modules::plugins::newtest::libs::stubs::errors::get_error())) {
             $self->{logger}->writeLogError("[newtest] -class- newtest API error 'ListResults' method: " . $com_error);
             return -1;
         }
@@ -440,7 +440,7 @@ sub get_newtest_extra_metrics {
     my ($self, %options) = @_;
     
     my $result = $self->{instance}->ListResultChildren($options{id});
-    if (defined(my $com_error = modules::newtest::libs::stubs::errors::get_error())) {
+    if (defined(my $com_error = modules::plugins::newtest::libs::stubs::errors::get_error())) {
         $self->{logger}->writeLogError("[newtest] -class- newtest API error 'ListResultChildren' method: " . $com_error);
         return -1;
     }
@@ -484,7 +484,7 @@ sub get_newtest_scenarios {
         0, 
         $self->{list_scenario_status}->{instances}
     );
-    if (defined(my $com_error = modules::newtest::libs::stubs::errors::get_error())) {
+    if (defined(my $com_error = modules::plugins::newtest::libs::stubs::errors::get_error())) {
         $self->{logger}->writeLogError("[newtest] -class- newtest API error 'ListScenarioStatus' method: " . $com_error);
         return -1;
     }
@@ -634,7 +634,7 @@ sub run {
     $self->{class_object_centstorage} = centreon::misc::objects::object->new(logger => $self->{logger}, db_centreon => $self->{db_centstorage});
     $self->{class_object_centreon} = centreon::misc::objects::object->new(logger => $self->{logger}, db_centreon => $self->{db_centreon});
     $SOAP::Constants::PREFIX_ENV = 'SOAP-ENV';
-    $self->{instance} = modules::newtest::libs::stubs::ManagementConsoleService->new();
+    $self->{instance} = modules::plugins::newtest::libs::stubs::ManagementConsoleService->new();
 
     # Connect internal
     $connector->{internal_socket} = centreon::gorgone::common::connect_com(

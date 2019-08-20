@@ -1,5 +1,5 @@
 
-package modules::newtest::libs::stubs::errors;
+package modules::plugins::newtest::libs::stubs::errors;
 
 use strict;
 use warnings;

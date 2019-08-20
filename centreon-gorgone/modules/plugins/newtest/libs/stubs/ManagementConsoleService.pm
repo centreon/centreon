@@ -1,4 +1,4 @@
-package modules::newtest::libs::stubs::ManagementConsoleService;
+package modules::plugins::newtest::libs::stubs::ManagementConsoleService;
 
 sub SOAP::Serializer::as_SearchMode {
     my $self = shift;
@@ -307,7 +307,7 @@ GetLicenceOptionValue => {
 ); # end my %methods
 
 use SOAP::Lite;
-use modules::newtest::libs::stubs::errors;
+use modules::plugins::newtest::libs::stubs::errors;
 use Exporter;
 use Carp ();
 
@@ -320,7 +320,7 @@ sub _call {
     my ($self, $method) = (shift, shift);
     my $name = UNIVERSAL::isa($method => 'SOAP::Data') ? $method->name : $method;
     my %method = %{$methods{$name}};
-    $self->on_fault(\&modules::newtest::libs::stubs::errors::soapGetBad);
+    $self->on_fault(\&modules::plugins::newtest::libs::stubs::errors::soapGetBad);
     $self->proxy($method{endpoint} || Carp::croak "No server address (proxy) specified")
         unless $self->proxy;
     my @templates = @{$method{parameters}};
