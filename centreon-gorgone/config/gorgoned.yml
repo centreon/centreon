@@ -79,8 +79,13 @@ modules:
     # ping each X seconds
     ping: 60
 
+  - name: engine
+    package: modules::centreon::engine::hooks
+    enable: true
+    command_file: "/var/lib/centreon-engine/rw/centengine.cmd"
+
   - name: scom
-    package: modules::scom::hooks
+    package: modules::plugins::scom::hooks
     enable: false
     # in seconds - do purge for container also
     check_containers_time: 3600
@@ -108,7 +113,7 @@ modules:
       #   resync_time: 600
 
   - name: newtest
-    package: modules::newtest::hooks
+    package: modules::plugins::newtest::hooks
     enable: false
     # in seconds - do purge for container also
     check_containers_time: 3600
