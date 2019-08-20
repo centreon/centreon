@@ -215,7 +215,6 @@ class TableCustom extends Component {
 
     const emptyRows = limit - Math.min(limit, totalRows - currentPage * limit);
 
-    console.log(tableData)
     return (
       <div className={classes.root}>
         <Paper className={classes.paper}>
