@@ -18,7 +18,7 @@
 # limitations under the License.
 #
 
-package modules::scom::class;
+package modules::plugins::scom::class;
 
 use base qw(centreon::gorgone::module);
 

@@ -47,12 +47,10 @@ modules:
     # ping
     ping: 60
     ping_timeout: 30
+    
   - name: gorgoneaction
     module: modules::gorgoneaction::hooks
     enable: true
-    disable_command_event: 0
-    disable_enginecomand_event: 0
-    enginecommand_timeout: 30
     command_timeout: 60
     # characters to delete in commands
     paranoid_mode: 1

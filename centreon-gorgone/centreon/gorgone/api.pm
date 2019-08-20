@@ -39,19 +39,20 @@ sub root {
     my %dispatch;
     foreach my $action (keys $options{modules_events}) {
         next if (!defined($options{modules_events}->{$action}->{api}->{uri}));
-        $dispatch{$options{modules_events}->{$action}->{api}->{method} . '_' .
+        $dispatch{$options{modules_events}->{$action}->{module}->{name} . '_' .
+            $options{modules_events}->{$action}->{api}->{method} . '_' .
             $options{modules_events}->{$action}->{api}->{uri}} = $action;
     }
 
     my $response;
     if ($options{method} eq 'GET' && $options{uri} =~ /^\/api\/log\/(.*)$/) {
         $response = get_log(socket => $options{socket}, token => $1);
-    } elsif ($options{uri} =~ /^\/api\/(targets\/(\w*)\/)?(\w+)\/?([\w\/]*?)$/
-        && defined($dispatch{$options{method} . '_/' . $3})) {
-        my @variables = split(/\//, $4);
+    } elsif ($options{uri} =~ /^\/api\/(targets\/(\w*)\/)?(\w+)\/(\w+)\/?([\w\/]*?)$/
+        && defined($dispatch{$3 . '_' . $options{method} . '_/' . $4})) {
+        my @variables = split(/\//, $5);
         $response = call_action(
             socket => $options{socket},
-            action => $dispatch{$options{method} . '_/' . $3},
+            action => $dispatch{$3 . '_' . $options{method} . '_/' . $4},
             target => $2,
             data => { 
                 content => $options{content},
