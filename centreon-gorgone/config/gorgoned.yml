@@ -80,7 +80,7 @@ modules:
     ping: 60
 
   - name: scom
-    package: modules::scom::hooks
+    package: modules::plugins::scom::hooks
     enable: false
     # in seconds - do purge for container also
     check_containers_time: 3600
@@ -108,7 +108,7 @@ modules:
       #   resync_time: 600
 
   - name: newtest
-    package: modules::newtest::hooks
+    package: modules::plugins::newtest::hooks
     enable: false
     # in seconds - do purge for container also
     check_containers_time: 3600
