@@ -43,7 +43,7 @@ sub send_log {
     return if (!defined($options{token}));
 
     centreon::gorgone::common::zmq_send_message(
-        socket => $self->{internal_socket},
+        socket => (defined($options{socket})) ? $options{socket} : $self->{internal_socket},
         action => 'PUTLOG',
         token => $options{token},
         data => { code => $options{code}, etime => time(), token => $options{token}, data => $options{data} },

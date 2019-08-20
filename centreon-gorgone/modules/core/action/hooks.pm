@@ -28,6 +28,7 @@ use modules::core::action::class;
 my $NAME = 'action';
 my $EVENTS = [
     { event => 'ACTIONREADY' },
+    { event => 'COMMAND', uri => '/command', method => 'POST' },
 ];
 
 my $config_core;
@@ -40,13 +41,6 @@ sub register {
     
     $config = $options{config};
     $config_core = $options{config_core};
-    if (!defined($config->{disable_command_event}) || $config->{disable_command_event} != 1) {
-        push @{$EVENTS}, { event => 'COMMAND', uri => '/command', method => 'POST' };
-    }
-    if (!defined($config->{disable_enginecommand_event}) || $config->{disable_enginecommand_event} != 1) {
-        push @{$EVENTS}, { event => 'ENGINECOMMAND', uri => '/enginecommand', method => 'POST' };
-    }
-
     return ($NAME, $EVENTS);
 }
 
