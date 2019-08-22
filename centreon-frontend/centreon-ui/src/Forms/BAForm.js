@@ -102,39 +102,6 @@ class BAForm extends React.Component {
                 domainPath={"."}
               />
             </CustomColumn>
-            <CustomColumn customColumn="md-6">
-              <CustomColumn customColumn="md-12" additionalStyles={["p-0"]}>
-                <IconInfo iconText="Automatically inherit KPI downtimes" />
-              </CustomColumn>
-              <FormControlLabel
-                style={{
-                  marginLeft: 0
-                }}
-                control={
-                  <MaterialSwitch
-                    value={values.inherit_kpi_downtimes}
-                    checked={values.inherit_kpi_downtimes}
-                    error={errors.inherit_kpi_downtimes}
-                    size={"small"}
-                    onChange={(event, value) => {
-                      valueChanged("inherit_kpi_downtimes", value);
-                    }}
-                  />
-                }
-                label={values.inherit_kpi_downtimes ? "Yes" : "No"}
-              />
-            </CustomColumn>
-            <CustomColumn customColumn="md-6">
-              <IconInfo iconText="Display on remote server" />
-              <InputFieldSelect
-                options={remoteServers}
-                value={values.additional_poller}
-                error={errors.additional_poller}
-                onChange={event => {
-                  additionalPollerChanged(event);
-                }}
-              />
-            </CustomColumn>
           </CustomRow>
         </div>
         <ExpansionPanel
@@ -155,6 +122,28 @@ class BAForm extends React.Component {
             )}
           >
             <CustomRow additionalStyles={["mb-0"]}>
+            <CustomColumn customColumn="md-6">
+              <CustomColumn customColumn="md-12" additionalStyles={["p-0"]}>
+                <IconInfo iconText="Automatically inherit indicators" />
+              </CustomColumn>
+              <FormControlLabel
+                style={{
+                  marginLeft: 0
+                }}
+                control={
+                  <MaterialSwitch
+                    value={values.inherit_kpi_downtimes}
+                    checked={values.inherit_kpi_downtimes}
+                    error={errors.inherit_kpi_downtimes}
+                    size={"small"}
+                    onChange={(event, value) => {
+                      valueChanged("inherit_kpi_downtimes", value);
+                    }}
+                  />
+                }
+                label={values.inherit_kpi_downtimes ? "Yes" : "No"}
+              />
+            </CustomColumn>
               <CustomColumn customColumn="md-6" additionalStyles={["mb-0"]}>
                 <IconInfo iconText="Status calculation method" />
                 <InputFieldSelect
@@ -241,6 +230,46 @@ class BAForm extends React.Component {
               }}
               emptyInfo={"Click to link business view(s)"}
             />
+          </ExpansionPanelDetails>
+        </ExpansionPanel>
+        <ExpansionPanel className={classes.customStyle}>
+          <ExpansionPanelSummary
+            expandIcon={<ExpandMoreIcon />}
+            aria-controls="panel2a-content"
+            id="panel2a-header"
+          >
+            <Typography className={classes.heading}>Display</Typography>
+          </ExpansionPanelSummary>
+          <ExpansionPanelDetails className={classes.additionalStyles}>
+          <CustomRow>
+            <CustomColumn customColumn="md-6">
+              <IconInfo iconText="Display on remote server" />
+              <InputFieldSelect
+                options={remoteServers}
+                value={values.additional_poller}
+                error={errors.additional_poller}
+                onChange={event => {
+                  additionalPollerChanged(event);
+                }}
+              />
+            </CustomColumn>
+            <CustomColumn customColumn="md-6">
+              <IconInfo iconText="Geo-coordinates" />
+              <InputField
+                placeholder="Add a geo-coordinates"
+                type="text"
+                name="ba_geo_coords"
+                error={errors.ba_geo_coords}
+                value={values.ba_geo_coords}
+                style={{
+                  marginTop:'6px'
+                }}
+                onChange={event => {
+                  valueChanged("ba_geo_coords", event);
+                }}
+              />
+            </CustomColumn>
+          </CustomRow>
           </ExpansionPanelDetails>
         </ExpansionPanel>
         <ExpansionPanel className={classes.customStyle}>
