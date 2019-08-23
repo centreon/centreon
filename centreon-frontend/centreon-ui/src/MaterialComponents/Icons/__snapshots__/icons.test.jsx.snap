@@ -5,7 +5,6 @@ exports[`IconAttach renders 1`] = `
   display: inline-block;
   vertical-align: middle;
   height: 24px;
-  cursor: pointer;
   color: #707070;
   width: 80px;
   height: 49px;
@@ -53,7 +52,6 @@ exports[`IconClose renders 1`] = `
   display: inline-block;
   vertical-align: middle;
   height: 24px;
-  cursor: pointer;
   color: #707070;
   content: "";
   position: absolute;
@@ -104,7 +102,6 @@ exports[`IconDelete renders 1`] = `
   display: inline-block;
   vertical-align: middle;
   height: 24px;
-  cursor: pointer;
   color: #707070;
 }
 
@@ -130,7 +127,6 @@ exports[`IconEdit renders 1`] = `
   display: inline-block;
   vertical-align: middle;
   height: 24px;
-  cursor: pointer;
   color: #707070;
 }
 
@@ -163,7 +159,6 @@ exports[`IconInsertChart renders 1`] = `
   display: inline-block;
   vertical-align: middle;
   height: 24px;
-  cursor: pointer;
   color: #707070;
 }
 
@@ -189,7 +184,6 @@ exports[`IconInvisible renders 1`] = `
   display: inline-block;
   vertical-align: middle;
   height: 24px;
-  cursor: pointer;
   color: #707070;
 }
 
@@ -219,7 +213,6 @@ exports[`IconLibraryAdd renders 1`] = `
   display: inline-block;
   vertical-align: middle;
   height: 24px;
-  cursor: pointer;
   color: #707070;
 }
 
@@ -245,16 +238,17 @@ exports[`IconPowerSettings renders 1`] = `
   display: inline-block;
   vertical-align: middle;
   height: 24px;
-  cursor: pointer;
   color: #707070;
 }
 
 .emotion-0 {
-  color: #FFF;
+  color: #fff;
   background-color: #707070;
   border-radius: 50%;
+  -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
   padding: 3px;
-  font-size: 15px;
 }
 
 <span
@@ -275,11 +269,20 @@ exports[`IconPowerSettings renders 1`] = `
 `;
 
 exports[`IconPowerSettings renders 2`] = `
+.emotion-0 {
+  color: #fff;
+  background-color: #707070;
+  border-radius: 50%;
+  -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
+  padding: 3px;
+}
+
 .emotion-1 {
   display: inline-block;
   vertical-align: middle;
   height: 24px;
-  cursor: pointer;
   color: #707070;
   display: inline-block;
   vertical-align: middle;
@@ -316,15 +319,6 @@ exports[`IconPowerSettings renders 2`] = `
   z-index: 1;
 }
 
-.emotion-0 {
-  color: #fff;
-  cursor: pointer;
-  background-color: #707070;
-  border-radius: 50%;
-  font-size: 15px;
-  padding: 3px;
-}
-
 <span
   class="emotion-1"
 >
@@ -347,7 +341,6 @@ exports[`IconVisible renders 1`] = `
   display: inline-block;
   vertical-align: middle;
   height: 24px;
-  cursor: pointer;
   color: #707070;
 }
 

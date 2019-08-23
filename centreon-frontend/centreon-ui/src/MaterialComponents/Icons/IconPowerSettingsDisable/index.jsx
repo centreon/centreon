@@ -2,15 +2,9 @@ import React from 'react';
 import PowerSettings from '@material-ui/icons/PowerSettingsNew';
 import styled from '@emotion/styled';
 import MaterialIcon from '../MaterialIcon';
+import RoundedInvertedIcon from '../RoundedInvertedIcon';
 
-const RoundedPowerSettings = styled(PowerSettings)(() => ({
-  color: '#fff',
-  cursor: 'pointer',
-  backgroundColor: '#707070',
-  borderRadius: '50%',
-  fontSize: 15,
-  padding: 3,
-}));
+const RoundedInvertedPowerSettings = RoundedInvertedIcon(PowerSettings);
 
 const DisablingMaterialIcon = styled(MaterialIcon)(() => ({
   display: 'inline-block',
@@ -45,7 +39,7 @@ const DisablingMaterialIcon = styled(MaterialIcon)(() => ({
 function IconPowerSettings(props) {
   return (
     <DisablingMaterialIcon {...props}>
-      <RoundedPowerSettings />
+      <RoundedInvertedPowerSettings />
     </DisablingMaterialIcon>
   );
 }

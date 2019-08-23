@@ -6,7 +6,6 @@ const Wrapper = styled.span(() => ({
   display: 'inline-block',
   verticalAlign: 'middle',
   height: 24,
-  cursor: 'pointer',
   color: '#707070',
 }));
 
