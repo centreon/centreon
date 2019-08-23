@@ -135,14 +135,16 @@ sub run {
     my $daemon;
     if ($self->{config}->{ssl} eq 'false') {
         $daemon = HTTP::Daemon->new(
-            LocalAddr => $self->{config}->{address} . ':' . $self->{config}->{port}
+            LocalAddr => $self->{config}->{address} . ':' . $self->{config}->{port},
+            ReusePort => 1
         );
     } elsif ($self->{config}->{ssl} eq 'true') {
         $daemon = HTTP::Daemon::SSL->new(
             LocalAddr => $self->{config}->{address} . ':' . $self->{config}->{port},
             SSL_cert_file => $self->{config}->{ssl_cert_file},
             SSL_key_file => $self->{config}->{ssl_key_file},
-            SSL_error_trap => \&ssl_error
+            SSL_error_trap => \&ssl_error,
+            ReusePort => 1
         );
     }
     
