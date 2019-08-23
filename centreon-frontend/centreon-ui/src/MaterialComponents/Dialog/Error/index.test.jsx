@@ -8,9 +8,9 @@ describe('ErrorDialog', () => {
   it('renders', async () => {
     const { container, findByText } = render(
       <ErrorDialog
-        open
+        active
         title="Error"
-        text="Something unexpected happened..."
+        info="Something unexpected happened..."
         confirmLabel="Close"
         onClose={() => {}}
       />,
