@@ -4,10 +4,12 @@
 import React from 'react';
 import { storiesOf } from '@storybook/react';
 import {
+  IconAccessTime,
   IconAction,
   IconClose,
   IconCloseNew,
   IconContent,
+  IconDone,
   IconInfo,
   IconHeader,
   IconNumber,
@@ -21,6 +23,8 @@ import {
   IconInsertChart,
   IconPowerSettings,
   IconPowerSettingsDisable,
+  IconRefresh,
+  IconReportProblem,
   IconVisible,
   IconInvisible,
   IconError,
@@ -287,6 +291,10 @@ storiesOf('Icon', module).add('Icon - Material', () => {
       <IconInsertChart />
       <IconVisible />
       <IconInvisible />
+      <IconRefresh />
+      <IconAccessTime />
+      <IconDone />
+      <IconReportProblem />
       <IconError />
     </>
   );

@@ -110,7 +110,11 @@ export { default as ExtensionDeletePopup } from './ExtensionDeletePopup';
 export { default as Axios } from './Axios';
 export { default as Loader } from './Loader';
 
+export {
+  default as IconAccessTime,
+} from './MaterialComponents/Icons/IconAccessTime';
 export { default as IconDelete } from './MaterialComponents/Icons/IconDelete';
+export { default as IconDone } from './MaterialComponents/Icons/IconDone';
 export {
   default as IconInsertChart,
 } from './MaterialComponents/Icons/IconInsertChart';
@@ -123,6 +127,10 @@ export {
 export {
   default as IconPowerSettingsDisable,
 } from './MaterialComponents/Icons/IconPowerSettingsDisable';
+export { default as IconRefresh } from './MaterialComponents/Icons/IconRefresh';
+export {
+  default as IconReportProblem,
+} from './MaterialComponents/Icons/IconReportProblem';
 export { default as Accordion } from './MaterialComponents/Accordion';
 export { default as IconAttach } from './MaterialComponents/Icons/IconAttach';
 export { default as IconEdit } from './MaterialComponents/Icons/IconEdit';
