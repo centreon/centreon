@@ -39,7 +39,7 @@ $SIG{__DIE__} = sub {
 
 sub new {
     my ($class, $name, %options) = @_;
-    my %defaults = 
+    my %defaults =
       (
        config_file => "/etc/centreon/centreon-config.pm",
        log_file => undef,
@@ -47,7 +47,7 @@ sub new {
        centstorage_db_conn => 0,
        severity => "info",
        noconfig => 0,
-       noroot => 0
+       noroot => 1
       );
     my $self = {%defaults, %options};
 
@@ -78,7 +78,7 @@ sub init {
             die("Quit");
         }
     }
-    
+
     if ($self->{centreon_db_conn}) {
         $self->{cdb} = centreon::misc::db->new
           (db => $self->{centreon_config}->{centreon_db},
