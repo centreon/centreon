@@ -208,7 +208,7 @@ class BAForm extends React.Component {
                     }}
                   />
                 }
-                label={values.inherit_kpi_downtimes ? "Yes" : "No"}
+                label={<Typography style={{fontSize:'13px'}}>{values.inherit_kpi_downtimes ? "Yes" : "No"}</Typography>}
               />
             </CustomColumn>
             </ExpansionPanelDetails>
@@ -303,7 +303,7 @@ class BAForm extends React.Component {
                       }}
                     />
                   }
-                  label={values.notifications_enabled ? "Yes" : "No"}
+                  label={<Typography style={{fontSize:'13px'}}>{values.notifications_enabled ? "Yes" : "No"}</Typography>}
                 />
               </CustomColumn>
               <CustomColumn customColumn="md-6">
@@ -508,7 +508,7 @@ class BAForm extends React.Component {
                       }}
                     />
                   }
-                  label={values.event_handler_enabled ? "Yes" : "No"}
+                  label={<Typography style={{fontSize:'13px'}}>{values.event_handler_enabled ? "Yes" : "No"}</Typography>}
                 />
               </CustomColumn>
               <CustomColumn customColumn="md-6">

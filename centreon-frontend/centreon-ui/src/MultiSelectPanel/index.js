@@ -5,6 +5,7 @@ import PanelItem from "../Panels/PanelItem";
 import TableCustom from "../Table/TableCustom";
 import MaterialSwitch from "../MaterialComponents/Switch";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
+import Typography from "@material-ui/core/Typography";
 import CustomRow from "../Custom/CustomRow";
 import CustomColumn from "../Custom/CustomColumn";
 
@@ -31,6 +32,7 @@ class MultiselectPanel extends Component {
       paginationLimit,
       impacts,
       styles,
+      onlySelectedSwitcher = false,
       onlySelectedFilter = false,
       onlySelectedChange = () => {}
     } = this.props;
@@ -66,7 +68,7 @@ class MultiselectPanel extends Component {
               }
             }
           >
-            <CustomColumn customColumn={indicatorsEditor ? "md-6" : "md-12"}>
+            <CustomColumn customColumn={indicatorsEditor || onlySelectedSwitcher ? "md-6" : "md-12"}>
               <InputFieldSearch
                 style={{
                   width: "100%",
@@ -76,7 +78,7 @@ class MultiselectPanel extends Component {
                 onChange={onSearch}
               />
             </CustomColumn>
-            {indicatorsEditor ? (
+            {indicatorsEditor || onlySelectedSwitcher ? (
               <CustomColumn customColumn="md-6">
                 <FormControlLabel
                   labelPlacement="top"
@@ -88,7 +90,9 @@ class MultiselectPanel extends Component {
                       onChange={onlySelectedChange}
                     />
                   }
-                  label="Selected items only"
+                label={<Typography style={{
+                  fontSize: '13px'
+                }}>Selected items only</Typography>}
                 />
               </CustomColumn>
             ) : null}

@@ -46,6 +46,7 @@ const multiselectsConfiguration = {
       }
     ],
     label: "Manage extra reporting time periods used in Centreon BI indicators",
+    onlySelectedSwitcher:true,
     multiSelectNeedsTransformation: true
   },
   bam_kpi: {
@@ -68,6 +69,7 @@ const multiselectsConfiguration = {
     ],
     label: "Manage indicators",
     indicatorsEditor:true,
+    onlySelectedSwitcher:true,
     multiSelectNeedsTransformation: false
   },
   groups: {
@@ -93,6 +95,7 @@ const multiselectsConfiguration = {
       }
     ],
     label: "Manage Business views",
+    onlySelectedSwitcher:true,
     multiSelectNeedsTransformation: true
   },
   bam_contact: {
@@ -112,6 +115,7 @@ const multiselectsConfiguration = {
       }
     ],
     label: "Manage contact groups",
+    onlySelectedSwitcher:true,
     multiSelectNeedsTransformation: true
   },
   bam_esc: {
@@ -125,6 +129,7 @@ const multiselectsConfiguration = {
       }
     ],
     label: "Manage escalations",
+    onlySelectedSwitcher:true,
     multiSelectNeedsTransformation: true
   }
 };
@@ -411,6 +416,10 @@ class BAPanel extends React.Component {
                 impacts={impacts}
                 onlySelectedChange={onlySelectedChange}
                 onlySelectedFilter={onlySelectedFilter}
+                onlySelectedSwitcher={multiselectsConfiguration[multiSelectKey]
+                  ? multiselectsConfiguration[multiSelectKey].
+                  onlySelectedSwitcher
+                  : false}
               />
             </div>
           </div>
