@@ -122,28 +122,6 @@ class BAForm extends React.Component {
             )}
           >
             <CustomRow additionalStyles={["mb-0"]}>
-            <CustomColumn customColumn="md-6">
-              <CustomColumn customColumn="md-12" additionalStyles={["p-0"]}>
-                <IconInfo iconText="Automatically inherit indicators" />
-              </CustomColumn>
-              <FormControlLabel
-                style={{
-                  marginLeft: 0
-                }}
-                control={
-                  <MaterialSwitch
-                    value={values.inherit_kpi_downtimes}
-                    checked={values.inherit_kpi_downtimes}
-                    error={errors.inherit_kpi_downtimes}
-                    size={"small"}
-                    onChange={(event, value) => {
-                      valueChanged("inherit_kpi_downtimes", value);
-                    }}
-                  />
-                }
-                label={values.inherit_kpi_downtimes ? "Yes" : "No"}
-              />
-            </CustomColumn>
               <CustomColumn customColumn="md-6" additionalStyles={["mb-0"]}>
                 <IconInfo iconText="Status calculation method" />
                 <InputFieldSelect
@@ -210,6 +188,30 @@ class BAForm extends React.Component {
               emptyInfo={"Click to link indicators"}
             />
           </ExpansionPanelDetails>
+          <ExpansionPanelDetails>
+          <CustomColumn customColumn="md-12" additionalStyles={["p-0"]}>
+              <CustomColumn customColumn="md-12" additionalStyles={["p-0"]}>
+                <IconInfo iconText="Automatically inherit indicators" />
+              </CustomColumn>
+              <FormControlLabel
+                style={{
+                  marginLeft: 0
+                }}
+                control={
+                  <MaterialSwitch
+                    value={values.inherit_kpi_downtimes}
+                    checked={values.inherit_kpi_downtimes}
+                    error={errors.inherit_kpi_downtimes}
+                    size={"small"}
+                    onChange={(event, value) => {
+                      valueChanged("inherit_kpi_downtimes", value);
+                    }}
+                  />
+                }
+                label={values.inherit_kpi_downtimes ? "Yes" : "No"}
+              />
+            </CustomColumn>
+            </ExpansionPanelDetails>
         </ExpansionPanel>
         <ExpansionPanel className={classes.customStyle}>
           <ExpansionPanelSummary
