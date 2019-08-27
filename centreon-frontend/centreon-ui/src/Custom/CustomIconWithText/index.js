@@ -15,7 +15,10 @@ const CustomIconWithText = ({ label, image, onClick }) => {
         className={classnames(styles['custom-multiple-icon'])}
         src={image || defaultImage}
       />
-      <span className={classnames(styles['custom-multiple-text'])}>
+      <span style={{
+        paddingLeft: '6px'
+      }}
+        className={classnames(styles['custom-multiple-text'])}>
         {label}
       </span>
     </span>

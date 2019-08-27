@@ -346,7 +346,7 @@ class TableCustom extends Component {
                                     style={{
                                       maxWidth: 21,
                                       display: 'inline-block',
-                                      verticalAlign: 'text-bottom',
+                                      verticalAlign: 'middle',
                                       marginRight: 5,
                                     }}
                                   />
