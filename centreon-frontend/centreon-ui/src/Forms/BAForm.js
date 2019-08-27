@@ -3,54 +3,54 @@
 /* eslint-disable react/prefer-stateless-function */
 /* eslint-disable import/no-named-as-default */
 
-import React from "react";
-import { withStyles } from "@material-ui/core/styles";
-import ExpansionPanel from "@material-ui/core/ExpansionPanel";
-import ExpansionPanelSummary from "@material-ui/core/ExpansionPanelSummary";
-import ExpansionPanelDetails from "@material-ui/core/ExpansionPanelDetails";
-import Typography from "@material-ui/core/Typography";
-import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
-import FormControlLabel from "@material-ui/core/FormControlLabel";
-import IconWarning from "@material-ui/icons/Warning";
-import IconError from "@material-ui/icons/Error";
-import classnames from "classnames";
-import InputField from "../InputField";
-import InputFieldMultiSelectValue from "../InputField/InputFieldMultiSelectValue";
-import InputFieldSelect from "../InputField/InputFieldSelectCustom";
-import CustomRow from "../Custom/CustomRow";
-import CustomColumn from "../Custom/CustomColumn";
-import IconInfo from "../Icon/IconInfo";
-import MaterialSwitch from "../MaterialComponents/Switch";
-import CheckboxDefault from "../MaterialComponents/Checkbox";
-import ButtonCustom from "../Button/ButtonCustom";
-import { MultiSelectHolder } from "../";
-import MultiSelectContainer from "../MultiSelectHolder/MultiSelectContainer";
-import transformStringArrayIntoObjects from "../MultiSelectPanel/helper";
+import React from 'react';
+import { withStyles } from '@material-ui/core/styles';
+import ExpansionPanel from '@material-ui/core/ExpansionPanel';
+import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary';
+import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
+import Typography from '@material-ui/core/Typography';
+import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
+import FormControlLabel from '@material-ui/core/FormControlLabel';
+import IconWarning from '@material-ui/icons/Warning';
+import IconError from '@material-ui/icons/Error';
+import classnames from 'classnames';
+import InputField from '../InputField';
+import InputFieldMultiSelectValue from '../InputField/InputFieldMultiSelectValue';
+import InputFieldSelect from '../InputField/InputFieldSelectCustom';
+import CustomRow from '../Custom/CustomRow';
+import CustomColumn from '../Custom/CustomColumn';
+import IconInfo from '../Icon/IconInfo';
+import MaterialSwitch from '../MaterialComponents/Switch';
+import CheckboxDefault from '../MaterialComponents/Checkbox';
+import ButtonCustom from '../Button/ButtonCustom';
+import { MultiSelectHolder } from '..';
+import MultiSelectContainer from '../MultiSelectHolder/MultiSelectContainer';
+import transformStringArrayIntoObjects from '../MultiSelectPanel/helper';
 
-const styles = theme => ({
+const styles = (theme) => ({
   root: {
-    width: "100%"
+    width: '100%',
   },
   heading: {
     fontSize: theme.typography.pxToRem(15),
-    fontWeight: "700"
+    fontWeight: '700',
   },
   customStyle: {
-    margin: "0 !important",
-    backgroundColor: "transparent",
-    boxShadow: "none",
-    borderBottom: "1px solid #bcbdc0",
-    borderRadius: "0 !important"
+    margin: '0 !important',
+    backgroundColor: 'transparent',
+    boxShadow: 'none',
+    borderBottom: '1px solid #bcbdc0',
+    borderRadius: '0 !important',
   },
   additionalStyles: {
-    display: "block"
+    display: 'block',
   },
   helperStyles: {
-    paddingBottom: 0
+    paddingBottom: 0,
   },
   containerStyles: {
-    padding: "10px 24px 10px 24px"
-  }
+    padding: '10px 24px 10px 24px',
+  },
 });
 
 class BAForm extends React.Component {
@@ -59,11 +59,11 @@ class BAForm extends React.Component {
       classes,
       values,
       centreonImages,
-      valueChanged = () => {},
-      notificationOptionChanged = () => {},
-      additionalPollerChanged = () => {},
+      valueChanged = () => { },
+      notificationOptionChanged = () => { },
+      additionalPollerChanged = () => { },
       errors,
-      toggleMultiselect = () => {},
+      toggleMultiselect = () => { },
       eventHandlerCommands,
       escalations,
       timeperiods,
@@ -71,7 +71,7 @@ class BAForm extends React.Component {
       contactGroups,
       businessViews,
       remoteServers,
-      selectedMultiselect
+      selectedMultiselect,
     } = this.props;
     return (
       <div className={classes.root}>
@@ -84,22 +84,22 @@ class BAForm extends React.Component {
                 name="description"
                 error={errors.description}
                 value={values.description}
-                onChange={event => {
-                  valueChanged("description", event);
+                onChange={(event) => {
+                  valueChanged('description', event);
                 }}
               />
             </CustomColumn>
             <CustomColumn customColumn="md-6">
               <InputFieldSelect
-                icons={true}
+                icons
                 options={centreonImages}
                 value={values.icon}
                 error={errors.icon}
                 customStyle="no-margin"
-                onChange={event => {
-                  valueChanged("icon", event);
+                onChange={(event) => {
+                  valueChanged('icon', event);
                 }}
-                domainPath={"."}
+                domainPath="."
               />
             </CustomColumn>
           </CustomRow>
@@ -118,26 +118,26 @@ class BAForm extends React.Component {
           <ExpansionPanelDetails
             className={classnames(
               classes.additionalStyles,
-              classes.helperStyles
+              classes.helperStyles,
             )}
           >
-            <CustomRow additionalStyles={["mb-0"]}>
-              <CustomColumn customColumn="md-6" additionalStyles={["mb-0"]}>
+            <CustomRow additionalStyles={['mb-0']}>
+              <CustomColumn customColumn="md-6" additionalStyles={['mb-0']}>
                 <IconInfo iconText="Status calculation method" />
                 <InputFieldSelect
                   value={1}
-                  options={[{ id: 1, name: "Impact", alias: "impact" }]}
+                  options={[{ id: 1, name: 'Impact', alias: 'impact' }]}
                   disabled
                 />
               </CustomColumn>
-              <CustomColumn customColumn="md-3" additionalStyles={["mb-0"]}>
+              <CustomColumn customColumn="md-3" additionalStyles={['mb-0']}>
                 <IconInfo iconText="Warning threshold" />
-                <CustomRow additionalStyles={["mt-05", "mb-0"]}>
+                <CustomRow additionalStyles={['mt-05', 'mb-0']}>
                   <CustomColumn
                     customColumn="md-3"
-                    additionalStyles={["mt-03"]}
+                    additionalStyles={['mt-03']}
                   >
-                    <IconWarning style={{ color: "#FF9913" }} />
+                    <IconWarning style={{ color: '#FF9913' }} />
                   </CustomColumn>
                   <CustomColumn customColumn="md-9">
                     <InputField
@@ -145,21 +145,21 @@ class BAForm extends React.Component {
                       name="level_w"
                       value={values.level_w}
                       error={errors.level_w}
-                      onChange={event => {
-                        valueChanged("level_w", event);
+                      onChange={(event) => {
+                        valueChanged('level_w', event);
                       }}
                     />
                   </CustomColumn>
                 </CustomRow>
               </CustomColumn>
-              <CustomColumn customColumn="md-3" additionalStyles={["mb-0"]}>
+              <CustomColumn customColumn="md-3" additionalStyles={['mb-0']}>
                 <IconInfo iconText="Critical threshold" />
-                <CustomRow additionalStyles={["mt-05"]}>
+                <CustomRow additionalStyles={['mt-05']}>
                   <CustomColumn
                     customColumn="md-3"
-                    additionalStyles={["mt-03"]}
+                    additionalStyles={['mt-03']}
                   >
-                    <IconError style={{ color: "#E00B3D" }} />
+                    <IconError style={{ color: '#E00B3D' }} />
                   </CustomColumn>
                   <CustomColumn customColumn="md-9">
                     <InputField
@@ -167,8 +167,8 @@ class BAForm extends React.Component {
                       name="level_c"
                       value={values.level_c}
                       error={errors.level_c}
-                      onChange={event => {
-                        valueChanged("level_c", event);
+                      onChange={(event) => {
+                        valueChanged('level_c', event);
                       }}
                     />
                   </CustomColumn>
@@ -178,40 +178,44 @@ class BAForm extends React.Component {
           </ExpansionPanelDetails>
           <ExpansionPanelDetails className={classes.additionalStyles}>
             <MultiSelectContainer
-              label={"Indicators"}
+              label="Indicators"
               values={values.bam_kpi}
-              selected={selectedMultiselect == "bam_kpi"}
+              selected={selectedMultiselect == 'bam_kpi'}
               error={errors.bam_kpi}
               onEdit={() => {
-                toggleMultiselect("bam_kpi");
+                toggleMultiselect('bam_kpi');
               }}
-              emptyInfo={"Click to link indicators"}
+              emptyInfo="Click to link indicators"
             />
           </ExpansionPanelDetails>
           <ExpansionPanelDetails>
-          <CustomColumn customColumn="md-12" additionalStyles={["p-0"]}>
-              <CustomColumn customColumn="md-12" additionalStyles={["p-0"]}>
+            <CustomColumn customColumn="md-12" additionalStyles={['p-0']}>
+              <CustomColumn customColumn="md-12" additionalStyles={['p-0']}>
                 <IconInfo iconText="Automatically inherit indicators" />
               </CustomColumn>
               <FormControlLabel
                 style={{
-                  marginLeft: 0
+                  marginLeft: 0,
                 }}
-                control={
+                control={(
                   <MaterialSwitch
                     value={values.inherit_kpi_downtimes}
                     checked={values.inherit_kpi_downtimes}
                     error={errors.inherit_kpi_downtimes}
-                    size={"small"}
+                    size="small"
                     onChange={(event, value) => {
-                      valueChanged("inherit_kpi_downtimes", value);
+                      valueChanged('inherit_kpi_downtimes', value);
                     }}
                   />
-                }
-                label={<Typography style={{fontSize:'13px'}}>{values.inherit_kpi_downtimes ? "Yes" : "No"}</Typography>}
+                )}
+                label={(
+                  <Typography style={{ fontSize: '13px' }}>
+                    {values.inherit_kpi_downtimes ? 'Yes' : 'No'}
+                  </Typography>
+                )}
               />
             </CustomColumn>
-            </ExpansionPanelDetails>
+          </ExpansionPanelDetails>
         </ExpansionPanel>
         <ExpansionPanel className={classes.customStyle}>
           <ExpansionPanelSummary
@@ -223,14 +227,14 @@ class BAForm extends React.Component {
           </ExpansionPanelSummary>
           <ExpansionPanelDetails className={classes.additionalStyles}>
             <MultiSelectContainer
-              label={"Business views"}
+              label="Business views"
               values={transformStringArrayIntoObjects(values.groups)}
-              selected={selectedMultiselect == "groups"}
+              selected={selectedMultiselect == 'groups'}
               error={errors.groups}
               onEdit={() => {
-                toggleMultiselect("groups");
+                toggleMultiselect('groups');
               }}
-              emptyInfo={"Click to link business view(s)"}
+              emptyInfo="Click to link business view(s)"
             />
           </ExpansionPanelDetails>
         </ExpansionPanel>
@@ -243,35 +247,35 @@ class BAForm extends React.Component {
             <Typography className={classes.heading}>Display</Typography>
           </ExpansionPanelSummary>
           <ExpansionPanelDetails className={classes.additionalStyles}>
-          <CustomRow>
-            <CustomColumn customColumn="md-6">
-              <IconInfo iconText="Display on remote server" />
-              <InputFieldSelect
-                options={remoteServers}
-                value={values.additional_poller}
-                error={errors.additional_poller}
-                onChange={event => {
-                  additionalPollerChanged(event);
-                }}
-              />
-            </CustomColumn>
-            <CustomColumn customColumn="md-6">
-              <IconInfo iconText="Geo-coordinates" />
-              <InputField
-                placeholder="Add a geo-coordinates"
-                type="text"
-                name="ba_geo_coords"
-                error={errors.ba_geo_coords}
-                value={values.ba_geo_coords}
-                style={{
-                  marginTop:'6px'
-                }}
-                onChange={event => {
-                  valueChanged("ba_geo_coords", event);
-                }}
-              />
-            </CustomColumn>
-          </CustomRow>
+            <CustomRow>
+              <CustomColumn customColumn="md-6">
+                <IconInfo iconText="Display on remote server" />
+                <InputFieldSelect
+                  options={remoteServers}
+                  value={values.additional_poller}
+                  error={errors.additional_poller}
+                  onChange={(event) => {
+                    additionalPollerChanged(event);
+                  }}
+                />
+              </CustomColumn>
+              <CustomColumn customColumn="md-6">
+                <IconInfo iconText="Geo-coordinates" />
+                <InputField
+                  placeholder="Add a geo-coordinates"
+                  type="text"
+                  name="ba_geo_coords"
+                  error={errors.ba_geo_coords}
+                  value={values.ba_geo_coords}
+                  style={{
+                    marginTop: '6px',
+                  }}
+                  onChange={(event) => {
+                    valueChanged('ba_geo_coords', event);
+                  }}
+                />
+              </CustomColumn>
+            </CustomRow>
           </ExpansionPanelDetails>
         </ExpansionPanel>
         <ExpansionPanel className={classes.customStyle}>
@@ -285,25 +289,29 @@ class BAForm extends React.Component {
           <ExpansionPanelDetails className={classes.additionalStyles}>
             <CustomRow>
               <CustomColumn customColumn="md-6">
-                <CustomColumn customColumn="md-12" additionalStyles={["p-0"]}>
+                <CustomColumn customColumn="md-12" additionalStyles={['p-0']}>
                   <IconInfo iconText="Activate notifications" />
                 </CustomColumn>
                 <FormControlLabel
                   style={{
-                    marginLeft: 0
+                    marginLeft: 0,
                   }}
-                  control={
+                  control={(
                     <MaterialSwitch
                       value={values.notifications_enabled}
                       checked={values.notifications_enabled}
                       error={errors.notifications_enabled}
-                      size={"small"}
+                      size="small"
                       onChange={(event, value) => {
-                        valueChanged("notifications_enabled", value);
+                        valueChanged('notifications_enabled', value);
                       }}
                     />
+                  )}
+                  label={
+                    <Typography style={{ fontSize: '13px' }}>
+                      {values.notifications_enabled ? 'Yes' : 'No'}
+                    </Typography>
                   }
-                  label={<Typography style={{fontSize:'13px'}}>{values.notifications_enabled ? "Yes" : "No"}</Typography>}
                 />
               </CustomColumn>
               <CustomColumn customColumn="md-6">
@@ -314,19 +322,19 @@ class BAForm extends React.Component {
                   label="Interval (*60 seconds)"
                   value={values.notification_interval}
                   error={errors.notification_interval}
-                  onChange={event => {
-                    valueChanged("notification_interval", event);
+                  onChange={(event) => {
+                    valueChanged('notification_interval', event);
                   }}
                 />
               </CustomColumn>
-              <CustomColumn customColumn="md-6" additionalStyles={["pr-0"]}>
-                <CustomRow additionalStyles={["m-0"]}>
+              <CustomColumn customColumn="md-6" additionalStyles={['pr-0']}>
+                <CustomRow additionalStyles={['m-0']}>
                   <CustomColumn customColumn="md-6">
                     <CheckboxDefault
                       label="Recovery"
-                      checked={values.notification_options.indexOf("r") > -1}
+                      checked={values.notification_options.indexOf('r') > -1}
                       onChange={() => {
-                        notificationOptionChanged("r");
+                        notificationOptionChanged('r');
                       }}
                       error={errors.notification_options}
                     />
@@ -334,9 +342,9 @@ class BAForm extends React.Component {
                   <CustomColumn customColumn="md-6">
                     <CheckboxDefault
                       label="Warning"
-                      checked={values.notification_options.indexOf("w") > -1}
+                      checked={values.notification_options.indexOf('w') > -1}
                       onChange={() => {
-                        notificationOptionChanged("w");
+                        notificationOptionChanged('w');
                       }}
                       error={errors.notification_options}
                     />
@@ -344,9 +352,9 @@ class BAForm extends React.Component {
                   <CustomColumn customColumn="md-6">
                     <CheckboxDefault
                       label="Critical"
-                      checked={values.notification_options.indexOf("c") > -1}
+                      checked={values.notification_options.indexOf('c') > -1}
                       onChange={() => {
-                        notificationOptionChanged("c");
+                        notificationOptionChanged('c');
                       }}
                       error={errors.notification_options}
                     />
@@ -354,9 +362,9 @@ class BAForm extends React.Component {
                   <CustomColumn customColumn="md-6">
                     <CheckboxDefault
                       label="Flapping"
-                      checked={values.notification_options.indexOf("f") > -1}
+                      checked={values.notification_options.indexOf('f') > -1}
                       onChange={() => {
-                        notificationOptionChanged("f");
+                        notificationOptionChanged('f');
                       }}
                       error={errors.notification_options}
                     />
@@ -369,8 +377,8 @@ class BAForm extends React.Component {
                   options={timeperiods}
                   value={values.notification_period}
                   error={errors.notification_period}
-                  onChange={event => {
-                    valueChanged("notification_period", event);
+                  onChange={(event) => {
+                    valueChanged('notification_period', event);
                   }}
                 />
               </CustomColumn>
@@ -378,23 +386,23 @@ class BAForm extends React.Component {
           </ExpansionPanelDetails>
           <ExpansionPanelDetails className={classes.additionalStyles}>
             <MultiSelectContainer
-              label={"Contact groups"}
+              label="Contact groups"
               values={transformStringArrayIntoObjects(values.bam_contact)}
-              selected={selectedMultiselect == "bam_contact"}
+              selected={selectedMultiselect == 'bam_contact'}
               error={errors.bam_contact}
               onEdit={() => {
-                toggleMultiselect("bam_contact");
+                toggleMultiselect('bam_contact');
               }}
-              emptyInfo={"Click to link contact group(s)"}
+              emptyInfo="Click to link contact group(s)"
             />
           </ExpansionPanelDetails>
           <ExpansionPanelDetails className={classes.additionalStyles}>
             <MultiSelectContainer
-              label={"Escalations"}
+              label="Escalations"
               values={transformStringArrayIntoObjects(values.bam_esc)}
-              selected={selectedMultiselect == "bam_esc"}
+              selected={selectedMultiselect == 'bam_esc'}
               onEdit={() => {
-                toggleMultiselect("bam_esc");
+                toggleMultiselect('bam_esc');
               }}
               error={errors.bam_esc}
             />
@@ -418,8 +426,8 @@ class BAForm extends React.Component {
                   label="SLA warning percentage thresholds"
                   value={values.sla_month_percent_warn}
                   error={errors.sla_month_percent_warn}
-                  onChange={event => {
-                    valueChanged("sla_month_percent_warn", event);
+                  onChange={(event) => {
+                    valueChanged('sla_month_percent_warn', event);
                   }}
                 />
               </CustomColumn>
@@ -431,8 +439,8 @@ class BAForm extends React.Component {
                   label="SLA warning duration threshold"
                   value={values.sla_month_duration_warn}
                   error={errors.sla_month_duration_warn}
-                  onChange={event => {
-                    valueChanged("sla_month_duration_warn", event);
+                  onChange={(event) => {
+                    valueChanged('sla_month_duration_warn', event);
                   }}
                 />
               </CustomColumn>
@@ -444,8 +452,8 @@ class BAForm extends React.Component {
                   label="SLA critical percentage thresholds"
                   value={values.sla_month_percent_crit}
                   error={errors.sla_month_percent_crit}
-                  onChange={event => {
-                    valueChanged("sla_month_percent_crit", event);
+                  onChange={(event) => {
+                    valueChanged('sla_month_percent_crit', event);
                   }}
                 />
               </CustomColumn>
@@ -457,25 +465,23 @@ class BAForm extends React.Component {
                   label="SLA critical duration threshold"
                   value={values.sla_month_duration_crit}
                   error={errors.sla_month_duration_crit}
-                  onChange={event => {
-                    valueChanged("sla_month_duration_crit", event);
+                  onChange={(event) => {
+                    valueChanged('sla_month_duration_crit', event);
                   }}
                 />
               </CustomColumn>
             </CustomRow>
             <MultiSelectContainer
-              label={
-                "Extra reporting time periods used in Centreon BI indicators"
-              }
+              label="Extra reporting time periods used in Centreon BI indicators"
               values={transformStringArrayIntoObjects(
-                values.reporting_timeperiods
+                values.reporting_timeperiods,
               )}
-              selected={selectedMultiselect == "reporting_timeperiods"}
+              selected={selectedMultiselect == 'reporting_timeperiods'}
               error={errors.reporting_timeperiods}
               onEdit={() => {
-                toggleMultiselect("reporting_timeperiods");
+                toggleMultiselect('reporting_timeperiods');
               }}
-              emptyInfo={"Click to add time period(s)"}
+              emptyInfo="Click to add time period(s)"
             />
           </ExpansionPanelDetails>
         </ExpansionPanel>
@@ -488,27 +494,31 @@ class BAForm extends React.Component {
             <Typography className={classes.heading}>Event handler</Typography>
           </ExpansionPanelSummary>
           <ExpansionPanelDetails className={classes.additionalStyles}>
-            <CustomRow additionalStyles={["w-100"]}>
+            <CustomRow additionalStyles={['w-100']}>
               <CustomColumn customColumn="md-6">
-                <CustomColumn customColumn="md-12" additionalStyles={["p-0"]}>
+                <CustomColumn customColumn="md-12" additionalStyles={['p-0']}>
                   <IconInfo iconText="Activate event handling" />
                 </CustomColumn>
                 <FormControlLabel
                   style={{
-                    marginLeft: 0
+                    marginLeft: 0,
                   }}
-                  control={
+                  control={(
                     <MaterialSwitch
                       value={values.event_handler_enabled}
                       checked={values.event_handler_enabled}
                       error={errors.event_handler_enabled}
-                      size={"small"}
+                      size="small"
                       onChange={(event, value) => {
-                        valueChanged("event_handler_enabled", value);
+                        valueChanged('event_handler_enabled', value);
                       }}
                     />
+                  )}
+                  label={
+                    <Typography style={{ fontSize: '13px' }}>
+                      {values.event_handler_enabled ? 'Yes' : 'No'}
+                    </Typography>
                   }
-                  label={<Typography style={{fontSize:'13px'}}>{values.event_handler_enabled ? "Yes" : "No"}</Typography>}
                 />
               </CustomColumn>
               <CustomColumn customColumn="md-6">
@@ -517,8 +527,8 @@ class BAForm extends React.Component {
                   options={eventHandlerCommands}
                   value={values.event_handler_command}
                   error={errors.event_handler_command}
-                  onChange={event => {
-                    valueChanged("event_handler_command", event);
+                  onChange={(event) => {
+                    valueChanged('event_handler_command', event);
                   }}
                 />
               </CustomColumn>

@@ -6,14 +6,14 @@
 import React from 'react';
 import classnames from 'classnames';
 import styles from './custom-icon-with-text.scss';
-import defaultImage from "../../../img/icons/small-logo.png";
+import defaultImage from '../../../img/icons/small-logo.png';
 
 const CustomIconWithText = ({ label, image, onClick }) => {
   return (
     <span className={classnames(styles['custom-multiple'])} onClick={onClick}>
       <img
         className={classnames(styles['custom-multiple-icon'])}
-        src={image ? image : defaultImage}
+        src={image || defaultImage}
       />
       <span className={classnames(styles['custom-multiple-text'])}>
         {label}

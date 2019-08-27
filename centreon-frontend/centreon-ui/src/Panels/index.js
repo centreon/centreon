@@ -4,154 +4,154 @@
 /* eslint-disable react/jsx-filename-extension */
 /* eslint-disable react/prop-types */
 
-import React from "react";
-import ReactDOM from "react-dom";
-import classnames from "classnames";
-import Button from "@material-ui/core/Button";
-import ArrowForward from "@material-ui/icons/ArrowForwardIos";
-import ArrowBack from "@material-ui/icons/ArrowBackIos";
-import styles from "./panels.scss";
-import styles2 from "./PanelItem/panel-item.scss";
-import PanelItem from "./PanelItem";
-import PanelHeaderTitle from "./PanelHeaderTitle";
-import IconPowerSettings from "../MaterialComponents/Icons/IconPowerSettings";
-import IconPowerSettingsDisable from "../MaterialComponents/Icons/IconPowerSettingsDisable";
-import IconAttach from "../MaterialComponents/Icons/IconAttach";
-import BAForm from "../Forms/BAForm";
-import IconCloseNew from "../MaterialComponents/Icons/IconClose";
-import InputField from "../InputField";
-import TableDefault from "../Table/TableDefault";
-import MultiSelectPanel from "../MultiSelectPanel";
-import BAModel from "../Mocks/oneBa";
-import TABLE_COLUMN_TYPES from "../Table/ColumnTypes";
-import transformStringArrayIntoObjects from "../MultiSelectPanel/helper";
-import Loader from "../Loader";
+import React from 'react';
+import ReactDOM from 'react-dom';
+import classnames from 'classnames';
+import Button from '@material-ui/core/Button';
+import ArrowForward from '@material-ui/icons/ArrowForwardIos';
+import ArrowBack from '@material-ui/icons/ArrowBackIos';
+import styles from './panels.scss';
+import styles2 from './PanelItem/panel-item.scss';
+import PanelItem from './PanelItem';
+import PanelHeaderTitle from './PanelHeaderTitle';
+import IconPowerSettings from '../MaterialComponents/Icons/IconPowerSettings';
+import IconPowerSettingsDisable from '../MaterialComponents/Icons/IconPowerSettingsDisable';
+import IconAttach from '../MaterialComponents/Icons/IconAttach';
+import BAForm from '../Forms/BAForm';
+import IconCloseNew from '../MaterialComponents/Icons/IconClose';
+import InputField from '../InputField';
+import TableDefault from '../Table/TableDefault';
+import MultiSelectPanel from '../MultiSelectPanel';
+import BAModel from '../Mocks/oneBa';
+import TABLE_COLUMN_TYPES from '../Table/ColumnTypes';
+import transformStringArrayIntoObjects from '../MultiSelectPanel/helper';
+import Loader from '../Loader';
 
 const multiselectsConfiguration = {
   reporting_timeperiods: {
-    dataKey: "timeperiods",
+    dataKey: 'timeperiods',
     tableConfiguration: [
       {
-        id: "name",
+        id: 'name',
         numeric: false,
         disablePadding: true,
-        label: "Name",
-        type: TABLE_COLUMN_TYPES.string
+        label: 'Name',
+        type: TABLE_COLUMN_TYPES.string,
       },
       {
-        id: "alias",
+        id: 'alias',
         numeric: false,
-        label: "Alias",
-        type: TABLE_COLUMN_TYPES.string
-      }
+        label: 'Alias',
+        type: TABLE_COLUMN_TYPES.string,
+      },
     ],
-    label: "Manage extra reporting time periods used in Centreon BI indicators",
-    onlySelectedSwitcher:true,
-    multiSelectNeedsTransformation: true
+    label: 'Manage extra reporting time periods used in Centreon BI indicators',
+    onlySelectedSwitcher: true,
+    multiSelectNeedsTransformation: true,
   },
   bam_kpi: {
-    dataKey: "kpis",
+    dataKey: 'kpis',
     tableConfiguration: [
       {
-        id: "name",
+        id: 'name',
         numeric: false,
         disablePadding: true,
-        label: "Objects",
-        type: TABLE_COLUMN_TYPES.string
+        label: 'Objects',
+        type: TABLE_COLUMN_TYPES.string,
       },
       {
-        id: "type",
+        id: 'type',
         numeric: false,
         disablePadding: true,
-        label: "Type",
-        type: TABLE_COLUMN_TYPES.string
+        label: 'Type',
+        type: TABLE_COLUMN_TYPES.string,
       },
     ],
-    label: "Manage indicators",
-    indicatorsEditor:true,
-    onlySelectedSwitcher:true,
-    multiSelectNeedsTransformation: false
+    label: 'Manage indicators',
+    indicatorsEditor: true,
+    onlySelectedSwitcher: true,
+    multiSelectNeedsTransformation: false,
   },
   groups: {
-    dataKey: "businessViews",
+    dataKey: 'businessViews',
     tableConfiguration: [
       {
-        id: "name",
+        id: 'name',
         numeric: false,
-        label: "Name",
-        type: TABLE_COLUMN_TYPES.string
+        label: 'Name',
+        type: TABLE_COLUMN_TYPES.string,
       },
       {
-        id: "description",
+        id: 'description',
         numeric: false,
-        label: "Description",
-        type: TABLE_COLUMN_TYPES.string
+        label: 'Description',
+        type: TABLE_COLUMN_TYPES.string,
       },
       {
-        id: "visible",
+        id: 'visible',
         numeric: false,
-        label: "Visible",
-        type: TABLE_COLUMN_TYPES.boolean
-      }
+        label: 'Visible',
+        type: TABLE_COLUMN_TYPES.boolean,
+      },
     ],
-    label: "Manage Business views",
-    onlySelectedSwitcher:true,
-    multiSelectNeedsTransformation: true
+    label: 'Manage Business views',
+    onlySelectedSwitcher: true,
+    multiSelectNeedsTransformation: true,
   },
   bam_contact: {
-    dataKey: "contactGroups",
+    dataKey: 'contactGroups',
     tableConfiguration: [
       {
-        id: "name",
+        id: 'name',
         numeric: false,
-        label: "Name",
-        type: TABLE_COLUMN_TYPES.string
+        label: 'Name',
+        type: TABLE_COLUMN_TYPES.string,
       },
       {
-        id: "activate",
+        id: 'activate',
         numeric: false,
-        label: "Activate",
-        type: TABLE_COLUMN_TYPES.boolean
-      }
+        label: 'Activate',
+        type: TABLE_COLUMN_TYPES.boolean,
+      },
     ],
-    label: "Manage contact groups",
-    onlySelectedSwitcher:true,
-    multiSelectNeedsTransformation: true
+    label: 'Manage contact groups',
+    onlySelectedSwitcher: true,
+    multiSelectNeedsTransformation: true,
   },
   bam_esc: {
-    dataKey: "escalations",
+    dataKey: 'escalations',
     tableConfiguration: [
       {
-        id: "name",
+        id: 'name',
         numeric: false,
-        label: "Name",
-        type: TABLE_COLUMN_TYPES.string
-      }
+        label: 'Name',
+        type: TABLE_COLUMN_TYPES.string,
+      },
     ],
-    label: "Manage escalations",
-    onlySelectedSwitcher:true,
-    multiSelectNeedsTransformation: true
-  }
+    label: 'Manage escalations',
+    onlySelectedSwitcher: true,
+    multiSelectNeedsTransformation: true,
+  },
 };
 
 class BAPanel extends React.Component {
   state = {
     multiselectActive: false,
     multiSelectKey: null,
-    activeMultiselectKey: "",
-    nameEditingToggled: false
+    activeMultiselectKey: '',
+    nameEditingToggled: false,
   };
 
-  toggleMultiselect = multiSelectKey => {
+  toggleMultiselect = (multiSelectKey) => {
     if (!multiSelectKey) {
       this.setState({
         multiselectActive: false,
-        multiSelectKey: null
+        multiSelectKey: null,
       });
     } else {
       this.setState({
         multiSelectKey,
-        multiselectActive: true
+        multiselectActive: true,
       });
     }
   };
@@ -159,7 +159,7 @@ class BAPanel extends React.Component {
   toggleNameEditing = () => {
     const { nameEditingToggled } = this.state;
     this.setState({
-      nameEditingToggled: !nameEditingToggled
+      nameEditingToggled: !nameEditingToggled,
     });
   };
 
@@ -196,12 +196,12 @@ class BAPanel extends React.Component {
       multiSelectFilters,
       saving,
       onlySelectedChange,
-      onlySelectedFilter
+      onlySelectedFilter,
     } = this.props;
     const {
       multiselectActive,
       nameEditingToggled,
-      multiSelectKey
+      multiSelectKey,
     } = this.state;
 
     if (!values) return null;
@@ -210,79 +210,81 @@ class BAPanel extends React.Component {
       <div
         className={classnames(
           styles.panels,
-          styles[customClass || ""],
-          styles[active ? "panels-active" : ""],
-          styles[multiselectActive ? "panels-second-active" : ""]
+          styles[customClass || ''],
+          styles[active ? 'panels-active' : ''],
+          styles[multiselectActive ? 'panels-second-active' : ''],
         )}
       >
-        <div className={classnames(styles["panels-dialog"])}>
-          <div className={classnames(styles["panels-inner"])}>
-            <div className={classnames(styles["panels-header"])}>
+        <div className={classnames(styles['panels-dialog'])}>
+          <div className={classnames(styles['panels-inner'])}>
+            <div className={classnames(styles['panels-header'])}>
               {values.icon ? (
                 <IconAttach
-                  uploadedImage={true}
+                  uploadedImage
                   imgSource={
-                    centreonImages.find(x => x.id == values.icon)
-                      ? centreonImages.find(x => x.id == values.icon).preview
-                      : ""
+                    centreonImages.find((x) => x.id == values.icon)
+                      ? centreonImages.find((x) => x.id == values.icon).preview
+                      : ''
                   }
                 />
               ) : (
-                <IconAttach defaultImage={true} />
+                <IconAttach defaultImage />
               )}
               {values.activate ? (
                 <IconPowerSettings
                   onClick={() => {
-                    valueChanged("activate", false);
+                    valueChanged('activate', false);
                   }}
                 />
               ) : (
                 <IconPowerSettingsDisable
                   onClick={() => {
-                    valueChanged("activate", true);
+                    valueChanged('activate', true);
                   }}
                 />
               )}
 
-                <InputField
-                  placeholder="Click here to add name"
-                  type="text"
-                  name="name"
-                  value={values.name}
-                  inputSize={"header"}
-                  onChange={event => {
-                    valueChanged("name", event);
-                  }}
-                  style={{
-                    width: multiselectActive ? '784px' : '285px'
-                  }}
-                  className={classnames(styles['panels-header-input'],
-                  errors.name ? styles["has-error"] : "")}
-                />
+              <InputField
+                placeholder="Click here to add name"
+                type="text"
+                name="name"
+                value={values.name}
+                inputSize="header"
+                onChange={(event) => {
+                  valueChanged('name', event);
+                }}
+                style={{
+                  width: multiselectActive ? '784px' : '285px',
+                }}
+                className={classnames(
+                  styles['panels-header-input'],
+                  errors.name ? styles['has-error'] : '',
+                )}
+              />
 
               <IconCloseNew onClick={onClose} />
               <Button
                 variant="contained"
                 color="primary"
                 style={{
-                  position: "absolute",
+                  position: 'absolute',
                   right: 60,
                   top: 9,
-                  backgroundColor: "#0072CE",
-                  fontSize: 11
+                  backgroundColor: '#0072CE',
+                  fontSize: 11,
                 }}
                 onClick={onSave}
                 disabled={saving}
               >
-                {saving ? <Loader/> : "Save"}
+                {saving ? <Loader /> : 'Save'}
               </Button>
             </div>
-            <div className={classnames(styles["panels-body"])}>
+            <div className={classnames(styles['panels-body'])}>
               <PanelItem
                 panelItemType="big"
-                panelItemShow={multiselectActive ? "panel-item-show-big" : ""}
+                panelItemShow={multiselectActive ? 'panel-item-show-big' : ''}
               >
-                <div className={classnames(styles2["panel-item-inner"])}>
+                <div className={classnames(styles2['panel-item-inner'])}>
                   <BAForm
                     values={values}
                     errors={errors}
@@ -303,13 +305,13 @@ class BAPanel extends React.Component {
                 </div>
                 <span
                   className={classnames(
-                    styles["panels-arrow"],
-                    multiselectActive ? styles["panels-arrow-right"] : ""
+                    styles['panels-arrow'],
+                    multiselectActive ? styles['panels-arrow-right'] : '',
                   )}
                   {...(multiselectActive && {
                     onClick: () => {
                       this.toggleMultiselect(false);
-                    }
+                    },
                   })}
                 >
                   {multiselectActive ? <ArrowForward /> : null}
@@ -321,7 +323,7 @@ class BAPanel extends React.Component {
                 title={
                   multiselectsConfiguration[multiSelectKey]
                     ? multiselectsConfiguration[multiSelectKey].label
-                    : ""
+                    : ''
                 }
                 data={
                   multiselectsConfiguration[multiSelectKey]
@@ -336,10 +338,10 @@ class BAPanel extends React.Component {
                         .tableConfiguration
                     : []
                 }
-                onSearch={value => {
+                onSearch={(value) => {
                   onSearchMultiselect(
                     multiselectsConfiguration[multiSelectKey].dataKey,
-                    value
+                    value,
                   );
                 }}
                 key={multiSelectKey}
@@ -347,19 +349,19 @@ class BAPanel extends React.Component {
                   onPaginateMultiselect(
                     multiselectsConfiguration[multiSelectKey].dataKey,
                     event,
-                    page
+                    page,
                   );
                 }}
-                onPaginationLimitChanged={value => {
+                onPaginationLimitChanged={(value) => {
                   onPaginationLimitChangedMultiselect(
                     multiselectsConfiguration[multiSelectKey].dataKey,
-                    value
+                    value,
                   );
                 }}
-                onSort={value => {
+                onSort={(value) => {
                   onSortMultiselect(
                     multiselectsConfiguration[multiSelectKey].dataKey,
-                    value
+                    value,
                   );
                 }}
                 currentPage={
@@ -398,7 +400,7 @@ class BAPanel extends React.Component {
                       ].limit
                     : 0
                 }
-                onSelect={selected => {
+                onSelect={(selected) => {
                   valueChanged(multiSelectKey, selected);
                 }}
                 nameIdPaired={
@@ -409,17 +411,18 @@ class BAPanel extends React.Component {
                 }
                 indicatorsEditor={
                   multiselectsConfiguration[multiSelectKey]
-                  ? multiselectsConfiguration[multiSelectKey].
-                    indicatorsEditor
-                  : false
+                    ? multiselectsConfiguration[multiSelectKey].indicatorsEditor
+                    : false
                 }
                 impacts={impacts}
                 onlySelectedChange={onlySelectedChange}
                 onlySelectedFilter={onlySelectedFilter}
-                onlySelectedSwitcher={multiselectsConfiguration[multiSelectKey]
-                  ? multiselectsConfiguration[multiSelectKey].
-                  onlySelectedSwitcher
-                  : false}
+                onlySelectedSwitcher={
+                  multiselectsConfiguration[multiSelectKey]
+                    ? multiselectsConfiguration[multiSelectKey]
+                        .onlySelectedSwitcher
+                    : false
+                }
               />
             </div>
           </div>

@@ -45,7 +45,7 @@ const tableConfiguration = [
     disablePadding: true,
     label: 'Name',
     type: TABLE_COLUMN_TYPES.string,
-    image:true
+    image: true,
   },
   {
     id: '#',
@@ -152,7 +152,17 @@ class BAMListingPage extends Component {
     const { massiveChangeActive, deleteActive, duplicateActive } = this.state;
     return (
       <React.Fragment>
-        <Paper elevation={0} style={{ padding: '16px 0', marginLeft: '16px', marginRight: '16px', borderRadius: '0', borderBottom: '1px solid #e4e4e4', borderTop: '1px solid #e4e4e4' }}>
+        <Paper
+          elevation={0}
+          style={{
+            padding: '16px 0',
+            marginLeft: '16px',
+            marginRight: '16px',
+            borderRadius: '0',
+            borderBottom: '1px solid #e4e4e4',
+            borderTop: '1px solid #e4e4e4',
+          }}
+        >
           <CustomRow>
             <CustomColumn
               customColumn="md-4"
@@ -286,7 +296,7 @@ class BAMListingPage extends Component {
             selected={currentlySelected}
             enabledColumn="activate"
             onRowClick={onRowClick}
-            emptyDataMessage={"No Business Activity found."}
+            emptyDataMessage="No Business Activity found."
           />
         </Paper>
         <MassiveChangeDialog

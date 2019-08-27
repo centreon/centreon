@@ -14,7 +14,7 @@ const useStyles = makeStyles((theme) => ({
   root: {
     justifyContent: 'center',
     flexWrap: 'wrap',
-    paddingBottom: '16px'
+    paddingBottom: '16px',
   },
   paper: {
     padding: '0 16px',

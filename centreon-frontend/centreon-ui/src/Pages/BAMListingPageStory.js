@@ -2,17 +2,17 @@
 /* eslint-disable react/jsx-filename-extension */
 /* eslint-disable react/prop-types */
 
-import React, { Component } from "react";
-import BAMListingPage from "./BAMListing";
-import Panels from "../Panels";
-import imagesMock from "../Mocks/images";
-import commandsMock from "../Mocks/command";
-import timeperiodsMock from "../Mocks/timeperiod";
-import kpiMock from "../Mocks/kpi";
-import escalationMock from "../Mocks/escalation";
-import contactGroupsMock from "../Mocks/contactGroups";
-import businessViewsMock from "../Mocks/businessViews";
-import impactsMock from "../Mocks/impacts";
+import React, { Component } from 'react';
+import BAMListingPage from './BAMListing';
+import Panels from '../Panels';
+import imagesMock from '../Mocks/images';
+import commandsMock from '../Mocks/command';
+import timeperiodsMock from '../Mocks/timeperiod';
+import kpiMock from '../Mocks/kpi';
+import escalationMock from '../Mocks/escalation';
+import contactGroupsMock from '../Mocks/contactGroups';
+import businessViewsMock from '../Mocks/businessViews';
+import impactsMock from '../Mocks/impacts';
 
 class BAMListingPageStory extends Component {
   state = {
@@ -28,13 +28,13 @@ class BAMListingPageStory extends Component {
     eventHandlerCommands: commandsMock.result.entities,
     kpis: kpiMock.result,
     impacts: impactsMock.result,
-    onlySelectedFilter:false
+    onlySelectedFilter: false,
   };
 
   togglePanel = () => {
     const { panelActive } = this.state;
     this.setState({
-      panelActive: !panelActive
+      panelActive: !panelActive,
     });
   };
 
@@ -53,45 +53,45 @@ class BAMListingPageStory extends Component {
       eventHandlerCommands,
       kpis,
       impacts,
-      onlySelectedFilter
+      onlySelectedFilter,
     } = this.state;
     return (
       <React.Fragment>
         <BAMListingPage
           onAddClicked={this.togglePanel.bind(this)}
           onSearch={() => {
-            console.log("onSearch clicked");
+            console.log('onSearch clicked');
           }}
           onDelete={(a, b, c) => {
-            console.log("onDelete clicked", a, b, c, currentlySelected);
+            console.log('onDelete clicked', a, b, c, currentlySelected);
           }}
           onDuplicate={(a, b, c) => {
-            console.log("onDuplicate clicked", a, b, c, currentlySelected);
+            console.log('onDuplicate clicked', a, b, c, currentlySelected);
           }}
           onMassiveChange={(a, b, c) => {
-            console.log("onMassiveChange clicked", a, b, c, currentlySelected);
+            console.log('onMassiveChange clicked', a, b, c, currentlySelected);
           }}
           onEnable={(a, b, c) => {
-            console.log("onEnable clicked", a, b, c, currentlySelected);
+            console.log('onEnable clicked', a, b, c, currentlySelected);
           }}
           onDisable={(a, b, c) => {
-            console.log("onDisable clicked", a, b, c, currentlySelected);
+            console.log('onDisable clicked', a, b, c, currentlySelected);
           }}
           onPaginate={() => {
-            console.log("onPaginate clicked");
+            console.log('onPaginate clicked');
           }}
           onSort={() => {
-            console.log("onSort clicked");
+            console.log('onSort clicked');
           }}
           tableData={BAMTableData.result.entities}
-          onTableSelectionChanged={currentlySelected => {
+          onTableSelectionChanged={(currentlySelected) => {
             this.setState({
-              currentlySelected
+              currentlySelected,
             });
           }}
           currentlySelected={currentlySelected}
           onPaginationLimitChanged={() => {
-            console.log("onPaginationLimitChanged");
+            console.log('onPaginationLimitChanged');
           }}
           paginationLimit={BAMTableData.result.pagination.limit}
           currentPage={
@@ -119,56 +119,56 @@ class BAMListingPageStory extends Component {
             timeperiods: {
               limit: 30,
               offset: 0,
-              searchString: "",
+              searchString: '',
               sortf: false,
-              sorto: false
+              sorto: false,
             },
             timeperiodsForSelect: {
               limit: 500,
               offset: 0,
-              searchString: "",
+              searchString: '',
               sortf: false,
-              sorto: false
+              sorto: false,
             },
             kpis: {
               limit: 30,
               offset: 0,
-              searchString: "",
+              searchString: '',
               sortf: false,
-              sorto: false
+              sorto: false,
             },
             businessViews: {
               limit: 30,
               offset: 0,
-              searchString: "",
+              searchString: '',
               sortf: false,
-              sorto: false
+              sorto: false,
             },
             contactGroups: {
               limit: 30,
               offset: 0,
-              searchString: "",
+              searchString: '',
               sortf: false,
-              sorto: false
+              sorto: false,
             },
             escalations: {
               limit: 30,
               offset: 0,
-              searchString: "",
+              searchString: '',
               sortf: false,
-              sorto: false
-            }
+              sorto: false,
+            },
           }}
           onClose={() => {
             this.setState({
-              panelActive: !panelActive
+              panelActive: !panelActive,
             });
           }}
           onlySelectedFilter={onlySelectedFilter}
-          onlySelectedChange={()=>{
+          onlySelectedChange={() => {
             this.setState({
-              onlySelectedFilter:!onlySelectedFilter
-            })
+              onlySelectedFilter: !onlySelectedFilter,
+            });
           }}
         />
       </React.Fragment>

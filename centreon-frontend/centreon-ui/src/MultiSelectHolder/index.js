@@ -27,7 +27,7 @@ class InputFieldMultiSelectEmpty extends React.Component {
       error,
       onClick,
       selected,
-      emptyInfo
+      emptyInfo,
     } = this.props;
     const { isHovered } = this.state;
     return (
@@ -36,7 +36,7 @@ class InputFieldMultiSelectEmpty extends React.Component {
           styles['multi-select-holder'],
           isEmpty ? styles['multi-select-holder-empty'] : '',
           error ? styles['has-danger'] : '',
-          selected ? styles['multi-select-holder-selected'] : ''
+          selected ? styles['multi-select-holder-selected'] : '',
         )}
         onMouseEnter={this.toggleHover.bind(this)}
         onMouseLeave={this.toggleHover.bind(this)}
@@ -51,7 +51,7 @@ class InputFieldMultiSelectEmpty extends React.Component {
           {isEmpty && (
             <React.Fragment>
               <span className={classnames(styles['multi-select-holder-add'])}>
-                + {emptyInfo ? emptyInfo : 'Click to link'}
+                + {emptyInfo || 'Click to link'}
               </span>
             </React.Fragment>
           )}

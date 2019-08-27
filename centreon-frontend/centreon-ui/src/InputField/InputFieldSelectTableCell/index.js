@@ -37,14 +37,14 @@ class InputFieldSelectCustom extends Component {
   componentWillMount = () => {
     const { value, options } = this.props;
     if (options) {
-    for (let i = 0; i < options.length; i++) {
-      // eslint-disable-next-line
+      for (let i = 0; i < options.length; i++) {
+        // eslint-disable-next-line
       if (options[i].id == value) {
-        this.setState({
-          selected: options[i],
-        });
+          this.setState({
+            selected: options[i],
+          });
+        }
       }
-    }
       this.setState({
         options,
         allOptions: options,
@@ -55,14 +55,14 @@ class InputFieldSelectCustom extends Component {
   componentWillReceiveProps = (nextProps) => {
     const { value, options } = nextProps;
     if (options) {
-    for (let i = 0; i < options.length; i++) {
-      // eslint-disable-next-line
+      for (let i = 0; i < options.length; i++) {
+        // eslint-disable-next-line
       if (options[i].id == value) {
-        this.setState({
-          selected: options[i],
-        });
+          this.setState({
+            selected: options[i],
+          });
+        }
       }
-    }
       this.setState({
         options,
         allOptions: options,
@@ -165,12 +165,16 @@ class InputFieldSelectCustom extends Component {
             {options
               ? options.map((option) => (
                   <div
-                    style={isColored ? {
-                      backgroundColor: option.color,
-                      margin: '-4px',
-                    } : {
-                      margin: '-4px'
-                    }}
+                    style={
+                      isColored
+                        ? {
+                            backgroundColor: option.color,
+                            margin: '-4px',
+                          }
+                        : {
+                            margin: '-4px',
+                          }
+                    }
                   >
                     {icons ? (
                       <CustomIconWithText

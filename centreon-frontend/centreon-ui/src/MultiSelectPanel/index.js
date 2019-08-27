@@ -1,19 +1,31 @@
-import React, { Component } from "react";
-import classnames from "classnames";
-import InputFieldSearch from "../InputField/InputFieldSearch";
-import PanelItem from "../Panels/PanelItem";
-import TableCustom from "../Table/TableCustom";
-import MaterialSwitch from "../MaterialComponents/Switch";
-import FormControlLabel from "@material-ui/core/FormControlLabel";
-import Typography from "@material-ui/core/Typography";
-import CustomRow from "../Custom/CustomRow";
-import CustomColumn from "../Custom/CustomColumn";
+import React, { Component } from 'react';
+import classnames from 'classnames';
+import FormControlLabel from '@material-ui/core/FormControlLabel';
+import Typography from '@material-ui/core/Typography';
+import InputFieldSearch from '../InputField/InputFieldSearch';
+import PanelItem from '../Panels/PanelItem';
+import TableCustom from '../Table/TableCustom';
+import MaterialSwitch from '../MaterialComponents/Switch';
+import CustomRow from '../Custom/CustomRow';
+import CustomColumn from '../Custom/CustomColumn';
+import TABLE_COLUMN_TYPES from '../Table/ColumnTypes';
+
+const onlyCheckedTableColumns = [
+  {
+    id: 'name',
+    numeric: false,
+    disablePadding: false,
+    label: 'Name',
+    type: TABLE_COLUMN_TYPES.string,
+  },
+];
 
 class MultiselectPanel extends Component {
-  onTableSelection = selected => {
+  onTableSelection = (selected) => {
     const { onSelect } = this.props;
     onSelect(selected);
   };
+
   render() {
     const {
       active,
@@ -34,46 +46,48 @@ class MultiselectPanel extends Component {
       styles,
       onlySelectedSwitcher = false,
       onlySelectedFilter = false,
-      onlySelectedChange = () => {}
+      onlySelectedChange = () => {},
     } = this.props;
     let currentlySelectedFromKey = currentlySelected;
     if (nameIdPaired) {
       currentlySelectedFromKey = [];
       for (let i = 0; i < currentlySelected.length; i++) {
         currentlySelectedFromKey.push(
-          `${currentlySelected[i].id}:${currentlySelected[i].name}`
+          `${currentlySelected[i].id}:${currentlySelected[i].name}`,
         );
       }
     }
     return (
       <PanelItem
         panelItemType="small"
-        panelItemShow={active ? "panel-item-show" : ""}
+        panelItemShow={active ? 'panel-item-show' : ''}
       >
         <div
-          className={classnames(styles["panel-item-inner"])}
-          style={{ padding: "5px" }}
+          className={classnames(styles['panel-item-inner'])}
+          style={{ padding: '5px' }}
         >
           <h3
-            className={classnames(styles["panel-item-title"])}
-            style={{ marginBottom: "5px" }}
+            className={classnames(styles['panel-item-title'])}
+            style={{ marginBottom: '5px' }}
           >
             {title}
           </h3>
           <CustomRow
-            style={
-              {
-                maxWidth: '100%',
-                margin: '0px'
-              }
-            }
+            style={{
+              maxWidth: '100%',
+              margin: '0px',
+            }}
           >
-            <CustomColumn customColumn={indicatorsEditor || onlySelectedSwitcher ? "md-6" : "md-12"}>
+            <CustomColumn
+              customColumn={
+                indicatorsEditor || onlySelectedSwitcher ? 'md-6' : 'md-12'
+              }
+            >
               <InputFieldSearch
                 style={{
-                  width: "100%",
+                  width: '100%',
                   marginBottom: 15,
-                  boxSizing: "border-box"
+                  boxSizing: 'border-box',
                 }}
                 onChange={onSearch}
               />
@@ -84,22 +98,33 @@ class MultiselectPanel extends Component {
                   labelPlacement="top"
                   control={
                     <MaterialSwitch
-                      size={"small"}
-                      value={onlySelectedFilter}
-                      checked={onlySelectedFilter}
-                      onChange={onlySelectedChange}
-                    />
+  size="small"
+  value={onlySelectedFilter}
+  checked={onlySelectedFilter}
+  onChange={onlySelectedChange}
+/>
                   }
-                label={<Typography style={{
-                  fontSize: '13px'
-                }}>Selected items only</Typography>}
+                  label={
+                    <Typography style={{
+                        fontSize: '13px',
+                      }}
+                    >
+                      Selected items only
+                    </Typography>
+                  }
                 />
               </CustomColumn>
             ) : null}
           </CustomRow>
           <TableCustom
-            style={{ minWidth: "auto" }}
-            columnConfiguration={tableConfiguration}
+            style={{ minWidth: 'auto' }}
+            columnConfiguration={
+              onlySelectedFilter
+                ? indicatorsEditor
+                  ? tableConfiguration
+                  : onlyCheckedTableColumns
+                : tableConfiguration
+            }
             tableData={onlySelectedFilter ? currentlySelected : data}
             onTableSelectionChanged={this.onTableSelection}
             onPaginate={onPaginate}

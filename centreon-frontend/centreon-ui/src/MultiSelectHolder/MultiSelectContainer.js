@@ -1,8 +1,8 @@
-import React, { Component } from "react";
-import MultiSelectHolder from "./";
-import CustomRow from "../Custom/CustomRow";
-import CustomColumn from "../Custom/CustomColumn";
-import InputFieldMultiSelectValue from "../InputField/InputFieldMultiSelectValue";
+import React, { Component } from 'react';
+import MultiSelectHolder from '.';
+import CustomRow from '../Custom/CustomRow';
+import CustomColumn from '../Custom/CustomColumn';
+import InputFieldMultiSelectValue from '../InputField/InputFieldMultiSelectValue';
 
 const excludeAfterIndex = 5;
 
@@ -26,18 +26,18 @@ class MultiSelectContainer extends Component {
         selected={selected}
         emptyInfo={emptyInfo}
       >
-        <CustomRow additionalStyles={["mb-0"]}>
+        <CustomRow additionalStyles={['mb-0']}>
           {values.map((item, index) => {
             let result = null;
             if (index < excludeAfterIndex) {
-                  result = (
-                    <CustomColumn customColumn="md-6">
-                      <InputFieldMultiSelectValue
-                        disabled
-                        placeholder={item.name}
-                      />
-                    </CustomColumn>
-                  );
+              result = (
+                <CustomColumn customColumn="md-6">
+                  <InputFieldMultiSelectValue
+                    disabled
+                    placeholder={item.name}
+                  />
+                </CustomColumn>
+              );
             }
             return result;
           })}

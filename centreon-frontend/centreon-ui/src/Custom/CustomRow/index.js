@@ -18,7 +18,10 @@ class CustomRow extends Component {
     }
 
     return (
-      <div style={style} className={classnames(styles.container__row, additionalClasses)}>
+      <div
+        style={style}
+        className={classnames(styles.container__row, additionalClasses)}
+      >
         {children}
       </div>
     );
