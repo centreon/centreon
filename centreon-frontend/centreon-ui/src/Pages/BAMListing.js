@@ -45,6 +45,7 @@ const tableConfiguration = [
     disablePadding: true,
     label: 'Name',
     type: TABLE_COLUMN_TYPES.string,
+    image:true
   },
   {
     id: '#',

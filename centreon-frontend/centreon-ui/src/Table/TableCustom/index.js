@@ -342,14 +342,13 @@ class TableCustom extends Component {
                               >
                                 {column.image && (
                                   <img
-                                    src={column.image}
+                                    src={row.iconPath}
                                     style={{
                                       maxWidth: 21,
                                       display: 'inline-block',
                                       verticalAlign: 'text-bottom',
                                       marginRight: 5,
                                     }}
-                                    alt={column.image}
                                   />
                                 )}
                                 {column.subkey
