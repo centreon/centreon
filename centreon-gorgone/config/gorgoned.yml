@@ -81,6 +81,7 @@ modules:
 
   - name: pollers
     package: modules::centreon::pollers::hooks
+    enable: false
     resync_time: 600
 
   - name: engine

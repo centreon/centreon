@@ -28,6 +28,7 @@ use centreon::gorgone::common;
 use centreon::misc::misc;
 use ZMQ::LibZMQ4;
 use ZMQ::Constants qw(:all);
+use JSON::XS;
 
 my %handlers = (TERM => {}, HUP => {});
 my ($connector);
@@ -160,7 +161,7 @@ sub create_child {
     $options{message} =~ /^\[(.*?)\]\s+\[(.*?)\]\s+\[.*?\]\s+(.*)$/m;
     
     my ($action, $token) = ($1, $2);
-    my $data = JSON->new->utf8->decode($3);
+    my $data = JSON::XS->new->utf8->decode($3);
     
     my $child_pid = fork();
     if (!defined($child_pid)) {

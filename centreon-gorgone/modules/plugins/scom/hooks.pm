@@ -22,6 +22,7 @@ package modules::plugins::scom::hooks;
 
 use warnings;
 use strict;
+use JSON::XS;
 use centreon::script::gorgonecore;
 use modules::plugins::scom::class;
 
@@ -64,7 +65,7 @@ sub routing {
     
     my $data;
     eval {
-        $data = JSON->new->utf8->decode($options{data});
+        $data = JSON::XS->new->utf8->decode($options{data});
     };
     if ($@) {
         $options{logger}->writeLogError("[scom] -hooks- Cannot decode json data: $@");

@@ -20,19 +20,24 @@
 
 package modules::core::proxy::class;
 
+use base qw(centreon::gorgone::module);
+
 use strict;
 use warnings;
 use centreon::gorgone::common;
 use centreon::gorgone::clientzmq;
 use ZMQ::LibZMQ4;
 use ZMQ::Constants qw(:all);
+use JSON::XS;
 
 my %handlers = (TERM => {}, HUP => {});
-my ($connector, $socket);
+my ($connector);
 
 sub new {
     my ($class, %options) = @_;
+
     $connector  = {};
+    $connector->{internal_socket} = undef;
     $connector->{logger} = $options{logger};
     $connector->{core_id} = $options{core_id};
     $connector->{pool_id} = $options{pool_id};
@@ -111,7 +116,7 @@ sub read_message {
         my ($action, $token) = ($1, $2);
         
         centreon::gorgone::common::zmq_send_message(
-            socket => $socket,
+            socket => $connector->{internal_socket},
             action => 'PONG',
             token => $token,
             target => '',
@@ -122,7 +127,7 @@ sub read_message {
     elsif ($options{data} =~ /^\[ACK\]\s+\[(.*?)\]\s+(.*)/m) {
         my $data;
         eval {
-            $data = JSON->new->utf8->decode($2);
+            $data = JSON::XS->new->utf8->decode($2);
         };
         if ($@) {
             return undef;
@@ -130,7 +135,7 @@ sub read_message {
         
         if (defined($data->{data}->{action}) && $data->{data}->{action} eq 'getlog') {
             centreon::gorgone::common::zmq_send_message(
-                socket => $socket,
+                socket => $connector->{internal_socket},
                 action => 'SETLOGS',
                 token => $1,
                 target => '',
@@ -201,10 +206,10 @@ sub proxy {
 
 sub event_internal {
     while (1) {
-        my $message = centreon::gorgone::common::zmq_dealer_read_message(socket => $socket);
+        my $message = centreon::gorgone::common::zmq_dealer_read_message(socket => $connector->{internal_socket});
                 
         proxy(message => $message);        
-        last unless (centreon::gorgone::common::zmq_still_read(socket => $socket));
+        last unless (centreon::gorgone::common::zmq_still_read(socket => $connector->{internal_socket}));
     }
 }
 
@@ -212,7 +217,7 @@ sub run {
     my ($self, %options) = @_;
 
     # Connect internal
-    $socket = centreon::gorgone::common::connect_com(
+    $connector->{internal_socket} = centreon::gorgone::common::connect_com(
         zmq_type => 'ZMQ_DEALER',
         name => 'gorgoneproxy-' . $self->{pool_id},
         logger => $self->{logger},
@@ -220,13 +225,13 @@ sub run {
         path => $self->{config_core}{internal_com_path}
     );
     centreon::gorgone::common::zmq_send_message(
-        socket => $socket,
+        socket => $connector->{internal_socket},
         action => 'PROXYREADY',
         data => { pool_id => $self->{pool_id} },
         json_encode => 1
     );
     my $poll = {
-            socket  => $socket,
+            socket  => $connector->{internal_socket},
             events  => ZMQ_POLLIN,
             callback => \&event_internal,
     };
@@ -251,7 +256,7 @@ sub run {
         
         if ($rev == 0 && $self->{stop} == 1) {
             $self->{logger}->writeLogInfo("[proxy] -class- $$ has quit");
-            zmq_close($socket);
+            zmq_close($connector->{internal_socket});
             exit(0);
         }
     }

@@ -208,7 +208,7 @@ sub load_modules {
     }
     
     # Load internal functions
-    foreach my $method_name (('putlog', 'getlog', 'kill', 'ping', 'constatus')) {
+    foreach my $method_name (('putlog', 'getlog', 'kill', 'ping', 'constatus', 'setcoreid')) {
         unless ($self->{internal_register}->{$method_name} = centreon::gorgone::common->can($method_name)) {
             $self->{logger}->writeLogError("[core] No function '$method_name'");
             exit(1);
@@ -223,7 +223,7 @@ sub message_run {
         return (undef, 1, { message => 'request not well formatted' });
     }
     my ($action, $token, $target, $data) = ($1, $2, $3, $4);
-    if ($action !~ /^(PUTLOG|GETLOG|KILL|PING|CONSTATUS)$/ && !defined($self->{modules_events}->{$action})) {
+    if ($action !~ /^(PUTLOG|GETLOG|KILL|PING|CONSTATUS|SETCOREID)$/ && !defined($self->{modules_events}->{$action})) {
         centreon::gorgone::common::add_history(
             dbh => $self->{db_gorgone},
             code => 1,
@@ -267,7 +267,7 @@ sub message_run {
         }
     }
     
-    if ($action =~ /^(PUTLOG|GETLOG|KILL|PING|CONSTATUS)$/) {
+    if ($action =~ /^(PUTLOG|GETLOG|KILL|PING|CONSTATUS|SETCOREID)$/) {
         my ($code, $response, $response_type) = $self->{internal_register}->{lc($action)}->(
             gorgone => $self,
             gorgone_config => $config,

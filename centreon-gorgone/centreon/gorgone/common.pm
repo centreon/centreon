@@ -24,7 +24,7 @@ use strict;
 use warnings;
 use ZMQ::LibZMQ4;
 use ZMQ::Constants qw(:all);
-use JSON;
+use JSON::XS;
 use File::Basename;
 use Crypt::PK::RSA;
 use Crypt::PRNG;
@@ -314,6 +314,26 @@ sub constatus {
     return (1, { action => 'constatus', message => 'cannot get value' }, 'CONSTATUS');
 }
 
+sub setcoreid {
+    my (%options) = @_;
+
+    my $data;
+    eval {
+        $data = JSON::XS->new->utf8->decode($options{data});
+    };
+    if ($@) {
+        return (1, { message => 'request not well formatted' });
+    }
+
+    if (!defined($data->{id})) {
+        return (1, { action => 'setcoreid', message => 'please set id for setcoreid' });
+    }
+
+    $options{logger}->writeLogInfo('[core] setcoreid changed ' .  $data->{id});
+    $options{gorgone}->{id} = $data->{id};
+    return (0, { action => 'setcoreid', message => 'setcoreid changed' });
+}
+
 sub ping {
     my (%options) = @_;
 
@@ -327,7 +347,7 @@ sub putlog {
 
     my $data;
     eval {
-        $data = JSON->new->utf8->decode($options{data});
+        $data = JSON::XS->new->utf8->decode($options{data});
     };
     if ($@) {
         return (1, { message => 'request not well formatted' });
@@ -351,7 +371,7 @@ sub getlog {
 
     my $data;
     eval {
-        $data = JSON->new->utf8->decode($options{data});
+        $data = JSON::XS->new->utf8->decode($options{data});
     };
     if ($@) {
         return (1, { message => 'request not well formatted' });
@@ -438,7 +458,7 @@ sub json_encode {
     
     my $data;
     eval {
-        $data = JSON->new->utf8->encode($options{data});
+        $data = JSON::XS->new->utf8->encode($options{data});
     };
     if ($@) {
         if (defined($options{logger})) {

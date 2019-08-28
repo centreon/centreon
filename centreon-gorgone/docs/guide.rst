@@ -19,7 +19,7 @@ Installation
 Daemon uses following Perl modules:
 
 * ZMQ::LibZMQ4: repository 'centreon-stable'
-* JSON: repository 'centos base'
+* JSON::XS: repository 'centos base'
 * YAML: repository 'centos base'
 * DBD::SQLite: repository 'centos base'
 * DBD::mysql: repository 'centos base'
@@ -38,7 +38,7 @@ Execute following commands:
 
   ::
   
-    # yum install 'perl(Schedule::Cron)' 'perl(Crypt::CBC)' 'perl(ZMQ::LibZMQ4)' 'perl(JSON)' 'perl(YAML)' \
+    # yum install 'perl(Schedule::Cron)' 'perl(Crypt::CBC)' 'perl(ZMQ::LibZMQ4)' 'perl(JSON::XS)' 'perl(YAML)' \
     'perl(DBD::SQLite)' 'perl(DBD::mysql)' 'perl(UUID)' 'perl(HTTP::Daemon)' 'perl(HTTP::Daemon::SSL)' \
     'perl(HTTP::Status)' 'perl(MIME::Base64)'
     # yum install perl-CryptX-0.064-1.el7.x86_64
@@ -246,6 +246,25 @@ The client request:
 ::
 
   [PUTLOG] [TOKEN] [TARGET] { code => xxx, etime => xxx, token => xxxx, data => { some_datas } }
+
+-------------
+REGISTERNODES
+-------------
+
+The request shouldn't be used by third-party program. It's commonly used by the internal modules.
+The client request (no carriage returns. only for reading):
+::
+
+  [REGISTERNODES] [TOKEN] [TARGET] { nodes => [ 
+        { id => 20, type => 'pull' }, 
+        { id => 100, type => 'push_ssh', address => 10.0.0.1, ssh_port => 22 },
+        { 
+          id => 150, type => 'push_zmq', address => 10.3.2.1, 
+          server_pubkey => 'test.pem', client_pubkey => 'client_pubkey.pem', server_pubkey => 'server_pubkey.pem', cipher => 'Cipher::AES', keysize => 32, vector => '0123456789012345'
+          nodes => [400, 455]
+        }
+     ]
+  }
 
 ============
 Common codes

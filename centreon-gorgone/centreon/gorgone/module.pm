@@ -37,6 +37,18 @@ sub generate_token {
    return centreon::gorgone::common::generate_token();
 }
 
+sub send_internal_action {
+    my ($self, %options) = @_;
+
+    centreon::gorgone::common::zmq_send_message(
+        socket => $self->{internal_socket},
+        action => $options{action},
+        target => $options{target},
+        data => $options{data},
+        json_encode => 1
+    );
+}
+
 sub send_log {
     my ($self, %options) = @_;
 

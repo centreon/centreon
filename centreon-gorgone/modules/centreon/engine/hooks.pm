@@ -22,6 +22,7 @@ package modules::centreon::engine::hooks;
 
 use warnings;
 use strict;
+use JSON::XS;
 use centreon::script::gorgonecore;
 use modules::centreon::engine::class;
 
@@ -55,7 +56,7 @@ sub routing {
 
     my $data;
     eval {
-        $data = JSON->new->utf8->decode($options{data});
+        $data = JSON::XS->new->utf8->decode($options{data});
     };
     if ($@) {
         $options{logger}->writeLogError("[engine] -hooks- Cannot decode json data: $@");

@@ -18,22 +18,23 @@
 # limitations under the License.
 #
 
-package modules::core::httpserver::hooks;
+package modules::centreon::pollers::hooks;
 
 use warnings;
 use strict;
-use centreon::script::gorgonecore;
-use modules::core::httpserver::class;
 use JSON::XS;
+use centreon::script::gorgonecore;
+use modules::centreon::pollers::class;
 
-my $NAME = 'httpserver';
+my $NAME = 'pollers';
 my $EVENTS = [
-    { event => 'HTTPSERVERREADY' },
+    { event => 'POLLERSREADY' },
 ];
 
 my $config_core;
 my $config;
-my $httpserver = {};
+my ($config_db_centreon);
+my $pollers = {};
 my $stop = 0;
 
 sub register {
@@ -41,13 +42,14 @@ sub register {
     
     $config = $options{config};
     $config_core = $options{config_core};
+    $config_db_centreon = $options{config_db_centreon};
     return ($NAME, $EVENTS);
 }
 
 sub init {
     my (%options) = @_;
 
-    create_child(logger => $options{logger}, modules_events => $options{modules_events});
+    create_child(logger => $options{logger});
 }
 
 sub routing {
@@ -58,28 +60,26 @@ sub routing {
         $data = JSON::XS->new->utf8->decode($options{data});
     };
     if ($@) {
-        $options{logger}->writeLogError("[httpserver] -hooks- Cannot decode json data: $@");
+        $options{logger}->writeLogError("[pollers] -hooks- Cannot decode json data: $@");
         centreon::gorgone::common::add_history(
             dbh => $options{dbh},
-            code => 10,
-            token => $options{token},
-            data => { message => 'gorgonehttpserver: cannot decode json' },
+            code => 10, token => $options{token},
+            data => { message => 'gorgonepollers: cannot decode json' },
             json_encode => 1
         );
         return undef;
     }
     
-    if ($options{action} eq 'HTTPSERVERREADY') {
-        $httpserver->{ready} = 1;
+    if ($options{action} eq 'POLLERSREADY') {
+        $pollers->{ready} = 1;
         return undef;
     }
     
-    if (centreon::script::gorgonecore::waiting_ready(ready => \$httpserver->{ready}) == 0) {
+    if (centreon::script::gorgonecore::waiting_ready(ready => \$pollers->{ready}) == 0) {
         centreon::gorgone::common::add_history(
             dbh => $options{dbh},
-            code => 10,
-            token => $options{token},
-            data => { message => 'gorgonehttpserver: still no ready' },
+            code => 10, token => $options{token},
+            data => { message => 'gorgonepollers: still no ready' },
             json_encode => 1
         );
         return undef;
@@ -87,7 +87,7 @@ sub routing {
     
     centreon::gorgone::common::zmq_send_message(
         socket => $options{socket},
-        identity => 'gorgonehttpserver',
+        identity => 'gorgonepollers',
         action => $options{action},
         data => $options{data},
         token => $options{token},
@@ -98,18 +98,18 @@ sub gently {
     my (%options) = @_;
 
     $stop = 1;
-    $options{logger}->writeLogInfo("[httpserver] -hooks- Send TERM signal");
-    if ($httpserver->{running} == 1) {
-        CORE::kill('TERM', $httpserver->{pid});
+    $options{logger}->writeLogInfo("[pollers] -hooks- Send TERM signal");
+    if ($pollers->{running} == 1) {
+        CORE::kill('TERM', $pollers->{pid});
     }
 }
 
 sub kill {
     my (%options) = @_;
 
-    if ($httpserver->{running} == 1) {
-        $options{logger}->writeLogInfo("[httpserver] -hooks- Send KILL signal for pool");
-        CORE::kill('KILL', $httpserver->{pid});
+    if ($pollers->{running} == 1) {
+        $options{logger}->writeLogInfo("[pollers] -hooks- Send KILL signal for pool");
+        CORE::kill('KILL', $pollers->{pid});
     }
 }
 
@@ -124,16 +124,16 @@ sub check {
     my $count = 0;
     foreach my $pid (keys %{$options{dead_childs}}) {
         # Not me
-        next if ($httpserver->{pid} != $pid);
+        next if ($pollers->{pid} != $pid);
         
-        $httpserver = {};
+        $pollers = {};
         delete $options{dead_childs}->{$pid};
         if ($stop == 0) {
-            create_child(logger => $options{logger}, modules_events => $options{modules_events});
+            create_child(logger => $options{logger});
         }
     }
     
-    $count++  if (defined($httpserver->{running}) && $httpserver->{running} == 1);
+    $count++ if (defined($pollers->{running}) && $pollers->{running} == 1);
     
     return $count;
 }
@@ -142,21 +142,21 @@ sub check {
 sub create_child {
     my (%options) = @_;
     
-    $options{logger}->writeLogInfo("[httpserver] -hooks- Create module 'httpserver' process");
+    $options{logger}->writeLogInfo("[pollers] -hooks- Create module 'pollers' process");
     my $child_pid = fork();
     if ($child_pid == 0) {
-        $0 = 'gorgone-httpserver';
-        my $module = modules::core::httpserver::class->new(
+        $0 = 'gorgone-pollers';
+        my $module = modules::centreon::pollers::class->new(
             logger => $options{logger},
             config_core => $config_core,
             config => $config,
-            modules_events => $options{modules_events}
+            config_db_centreon => $config_db_centreon,
         );
         $module->run();
         exit(0);
     }
-    $options{logger}->writeLogInfo("[httpserver] -hooks- PID $child_pid (gorgone-httpserver)");
-    $httpserver = { pid => $child_pid, ready => 0, running => 1 };
+    $options{logger}->writeLogInfo("[pollers] -hooks- PID $child_pid (gorgone-pollers)");
+    $pollers = { pid => $child_pid, ready => 0, running => 1 };
 }
 
 1;

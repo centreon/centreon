@@ -23,6 +23,7 @@ package modules::core::pull::hooks;
 use warnings;
 use strict;
 use centreon::gorgone::clientzmq;
+use JSON::XS;
 
 my $NAME = 'pull';
 my $EVENTS = [];
@@ -71,8 +72,8 @@ sub init {
     $client->init(callback => \&read_message);
     
     $client->send_message(
-        action => 'REGISTERNODE',
-        data => { id => $config_core->{id} },
+        action => 'REGISTERNODES',
+        data => { nodes => [ { id => $config_core->{id}, type => 'pull' } ] },
         json_encode => 1
     );
     centreon::gorgone::common::add_zmq_pollin(
@@ -92,8 +93,8 @@ sub gently {
 
     $stop = 1;
     $client->send_message(
-        action => 'UNREGISTERNODE',
-        data => { id => $config_core->{id} }, 
+        action => 'UNREGISTERNODES',
+        data => { nodes => [ { id => $config_core->{id} } ] }, 
         json_encode => 1
     );
     $client->close();
@@ -131,7 +132,7 @@ sub transmit_back {
     if ($options{message} =~ /^\[ACK\]\s+\[(.*?)\]\s+(.*)/m) {
         my $data;
         eval {
-            $data = JSON->new->utf8->decode($2);
+            $data = JSON::XS->new->utf8->decode($2);
         };
         if ($@) {
             return $options{message};

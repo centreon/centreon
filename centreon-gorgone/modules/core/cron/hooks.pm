@@ -24,6 +24,7 @@ use warnings;
 use strict;
 use centreon::script::gorgonecore;
 use modules::core::cron::class;
+use JSON::XS;
 
 my $NAME = 'cron';
 my $EVENTS = [
@@ -58,7 +59,7 @@ sub routing {
 
     my $data;
     eval {
-        $data = JSON->new->utf8->decode($options{data});
+        $data = JSON::XS->new->utf8->decode($options{data});
     };
     if ($@) {
         $options{logger}->writeLogError("[cron] -hooks- Cannot decode json data: $@");

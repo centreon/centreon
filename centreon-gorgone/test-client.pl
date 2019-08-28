@@ -23,6 +23,7 @@ use warnings;
 
 use ZMQ::LibZMQ4;
 use ZMQ::Constants qw(:all);
+use JSON::XS;
 use UUID;
 use Data::Dumper;
 use Sys::Hostname;
@@ -77,7 +78,7 @@ sub read_response_result {
         
     my $data;
     eval {
-        $data = JSON->new->utf8->decode($2);
+        $data = JSON::XS->new->utf8->decode($2);
     };
     if ($@) {
         return undef;

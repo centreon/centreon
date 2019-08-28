@@ -24,6 +24,7 @@ use warnings;
 use strict;
 use centreon::script::gorgonecore;
 use modules::core::action::class;
+use JSON::XS;
 
 my $NAME = 'action';
 my $EVENTS = [
@@ -55,7 +56,7 @@ sub routing {
 
     my $data;
     eval {
-        $data = JSON->new->utf8->decode($options{data});
+        $data = JSON::XS->new->utf8->decode($options{data});
     };
     if ($@) {
         $options{logger}->writeLogError("[action] -hooks- Cannot decode json data: $@");
