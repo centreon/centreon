@@ -85,7 +85,7 @@ Third-party clients connected had to use the zeromq library and the following pr
 
   ::
 
-    [ACK] [] { "code" => 1, "data" => { "message" => "handshake issue" } }
+    [ACK] [] { "code": 1, "data": { "message": "handshake issue" } }
 
   * If uncrypted message result is "HELO", server accepts the connection if the clientpubkey is authorized. It creates symmetric key and send the following message crypted with client pubkey:
 
@@ -119,7 +119,7 @@ After a successful handshake, client requests uses the following syntax:
 For each client requests, the server get an immediate response:
 ::
 
-  [ACK] [TOKEN] { "code" => x, "data" => { "message" => "xxxxx" } }
+  [ACK] [TOKEN] { "code": "x", "data": { "message": "xxxxx" } }
 
 * TOKEN: a uniq ID to follow the request
 * DATA: a json stream
@@ -154,19 +154,19 @@ An example of the json stream:
 ::
 
   { 
-    code => 1, 
-    data => { 
-                action => 'constatus', 
-                mesage => 'ok', 
-                data => {
-                  last_ping => xxxx,
-                  entries => {
-                     1 => xxx,
-                     2 => xxx,
-                     ...
-                  }
-                }
-              } 
+    "code": 1, 
+    "data": { 
+      "action": "constatus", 
+      "mesage": "ok", 
+      "data": {
+        "last_ping": "xxxx",
+        "entries": {
+          "1": "xxx",
+          "2": "xxx",
+          ...
+        }
+      }
+    } 
   }
 
 'last_ping' and 'entries' values are unix timestamp in seconds. The 'last_ping' is the date when the daemon had launched a ping broadcast to the poller connected.
@@ -182,7 +182,7 @@ An example: when you request a command execution, the server gives you a direct 
 The client request:
 ::
 
-  [GETLOG] [TOKEN] [TARGET] { code => 'xx', ctime => 'xx', etime => 'xx', token => 'xx', id => 'xx' }
+  [GETLOG] [TOKEN] [TARGET] { "code": "xx", "ctime": "xx", "etime": "xx", "token": "xx", "id": "xx" }
 
 At least one of the 5 values must be defined:
 
@@ -203,30 +203,30 @@ An example of the json stream:
 ::
 
   { 
-    code => 1, 
-    data => { 
-                action => 'getlog', 
-                mesage => 'ok', 
-                result => {
-                  10 => {
-                    id => 10,
-                    token => 'xxxx',
-                    code => 1,
-                    etime => 1419252684,
-                    ctime => 1419252686,
-                    data => xxxxx,
-                  },
-                  100 => {
-                    id => 100,
-                    token => 'xxxx',
-                    code => 1,
-                    etime => 1419252688,
-                    ctime => 1419252690,
-                    data => xxxxx,
-                  },
-                  ...
-                }
-              } 
+    "code": 1, 
+    "data": { 
+      "action": "getlog", 
+      "message": "ok",
+      "result": {
+        "10": {
+          "id": 10,
+          "token": "xxxx",
+          "code": 1,
+          "etime": 1419252684,
+          "ctime": 1419252686,
+          "data": xxxxx,
+        },
+        "100" => {
+          "id": 100,
+          "token": "xxxx",
+          "code": 1,
+          "etime": 1419252688,
+          "ctime": 1419252690,
+          "data": xxxxx,
+        },
+        ...
+      }
+    } 
   }
 
 Each 'gorgoned' nodes store its logs. But every 5 minutes (by default), the central server gets the new logs of its connected nodes and stores it. 
@@ -245,7 +245,7 @@ The request shouldn't be used by third-party program. It's commonly used by the 
 The client request:
 ::
 
-  [PUTLOG] [TOKEN] [TARGET] { code => xxx, etime => xxx, token => xxxx, data => { some_datas } }
+  [PUTLOG] [TOKEN] [TARGET] { "code": xxx, "etime": "xxx", "token": "xxxx", "data": { some_datas } }
 
 -------------
 REGISTERNODES
@@ -255,13 +255,13 @@ The request shouldn't be used by third-party program. It's commonly used by the 
 The client request (no carriage returns. only for reading):
 ::
 
-  [REGISTERNODES] [TOKEN] [TARGET] { nodes => [ 
-        { id => 20, type => 'pull' }, 
-        { id => 100, type => 'push_ssh', address => 10.0.0.1, ssh_port => 22 },
+  [REGISTERNODES] [TOKEN] [TARGET] { "nodes" => [ 
+        { "id": 20, "type": "pull" }, 
+        { "id": 100, "type": "push_ssh", "address": "10.0.0.1", "ssh_port": 22 },
         { 
-          id => 150, type => 'push_zmq', address => 10.3.2.1, 
-          server_pubkey => 'test.pem', client_pubkey => 'client_pubkey.pem', server_pubkey => 'server_pubkey.pem', cipher => 'Cipher::AES', keysize => 32, vector => '0123456789012345'
-          nodes => [400, 455]
+          "id": 150, "type": "push_zmq", address => 10.3.2.1, 
+          "server_pubkey": "server_pubkey.pem", "client_pubkey": "client_pubkey.pem", "client_privkey": "client_privkey.pem", "cipher": "Cipher::AES", "keysize": 32, "vector": "0123456789012345",
+          "nodes": [400, 455]
         }
      ]
   }
@@ -292,12 +292,12 @@ With the following request, you can execute shell commands.
 A client example:
 ::
 
-  [COMMAND] [] [target_id] { command => 'ls /' }
+  [COMMAND] [] [target_id] { "command": "ls /" }
 
 With the code 1, you can get following attributes:
 ::
 
-  { code => 1, stdout => 'xxxxx', exit_code => xxx }
+  { "code": 1, "stdout": "xxxxx", "exit_code": "xxx" }
 
 ENGINECOMMAND
 ^^^^^^^^^^^^^
@@ -306,15 +306,13 @@ With the following request, you can submit external commands to the scheduler li
 A client example:
 ::
 
-  [ENGINECOMMAND] [] [target_id] { command => '[1417705150] ENABLE_HOST_CHECK;host1', engine_pipe => '/var/lib/centreon-engine/rw/centengine.cmd'
+  [ENGINECOMMAND] [] [target_id] { "command": "[1417705150] ENABLE_HOST_CHECK;host1", "engine_pipe": "/var/lib/centreon-engine/rw/centengine.cmd"
 
 You only have the message to get informations (it tells you if there are some permission problems or file missing).
 
 ***
 FAQ
 ***
-
-
 
 ===============================
 Which modules should i enable ?
