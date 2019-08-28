@@ -287,7 +287,7 @@ With the following request, you can submit external commands to the scheduler li
 A client example:
 
 ```
-[ENGINECOMMAND] [] [target_id] { "command": "[1417705150] ENABLE_HOST_CHECK;host1", "engine_pipe": "/var/lib/centreon-engine/rw/centengine.cmd"
+[ENGINECOMMAND] [] [target_id] { "command": "[1417705150] ENABLE_HOST_CHECK;host1", "engine_pipe": "/var/lib/centreon-engine/rw/centengine.cmd" }
 ```
 
 You only have the message to get informations (it tells you if there are some permission problems or file missing).
