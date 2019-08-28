@@ -79,8 +79,8 @@ modules:
     # ping each X seconds
     ping: 60
 
-  - name: 
-    package: modules::centreon::popo::hooks
+  - name: pollers
+    package: modules::centreon::pollers::hooks
     resync_time: 600
 
   - name: engine
