@@ -4,7 +4,6 @@
 
 * gorgone-action: execute commands, send files/directories
 * gorgone-cron: schedule tasks
-* gorgone-acl: manage centreon ACL
 * gorgone-proxy: push tasks (to another "gorgoned" instance) or execute (through SSH)
 
 The daemon is installed on centreon central server and also poller server.
