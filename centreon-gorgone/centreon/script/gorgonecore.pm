@@ -108,10 +108,7 @@ sub init {
     }
     
     $self->{id} = $config->{gorgonecore}->{id};
-    if (!defined($self->{hostname}) || $self->{hostname} eq '') {
-        #$self->{id} = get_poller_id(dbh => $dbh, name => $self->{hostname});
-    }
-    
+
     $self->load_modules();
     
     $self->set_signal_handlers();

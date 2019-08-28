@@ -23,9 +23,9 @@ gorgonecore:
   gorgone_db_password:
   # If not set. Use 'hostname' function.
   hostname:
-  # If not set. Try from 'hostname' in database
-  # Set 'none', if you don't need it (for poller in push mode)
-  id: none
+  # If not set.
+  # Can be override by action: SETCOREID
+  id:
   
   privkey: keys/central/privkey.pem
   cipher: "Cipher::AES"
@@ -78,6 +78,10 @@ modules:
     synchistory_timeout: 120
     # ping each X seconds
     ping: 60
+
+  - name: 
+    package: modules::centreon::popo::hooks
+    resync_time: 600
 
   - name: engine
     package: modules::centreon::engine::hooks

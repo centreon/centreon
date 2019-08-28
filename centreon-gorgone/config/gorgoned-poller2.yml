@@ -23,11 +23,15 @@ gorgonecore:
   keysize: 32
   # 16 bytes for AES
   vector: 0123456789012345
+  # JWK format export thumbprint SHA256
+  authorized_clients: 
+    - key: pnI6EWkiTbazjikJXRkLmjml5wvVECYtQduJUjS4QK4
+
   # in seconds
   sessions_time: 86400
   # in seconds
   purge_sessions_time: 3600
 modules:
-  - name: gorgoneaction
-    module: modules::gorgoneaction::hooks
+  - name: action
+    package: modules::core::action::hooks
     enable: true

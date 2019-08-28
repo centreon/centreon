@@ -26,8 +26,8 @@ gorgonecore:
   # in seconds
   purge_sessions_time: 3600
 modules:
-  - name: gorgonepull
-    module: modules::gorgonepull::hooks
+  - name: pull
+    module: modules::core::pull::hooks
     enable: true
     target_type: tcp
     target_path: 127.0.0.1:5555
@@ -47,11 +47,12 @@ modules:
     # ping
     ping: 60
     ping_timeout: 30
-    
-  - name: gorgoneaction
-    module: modules::gorgoneaction::hooks
+
+  - name: action
+    package: modules::core::action::hooks
     enable: true
     command_timeout: 60
     # characters to delete in commands
     paranoid_mode: 1
     paranoid_characters:
+    
