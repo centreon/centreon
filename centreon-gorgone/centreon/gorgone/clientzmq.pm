@@ -29,7 +29,6 @@ use ZMQ::Constants qw(:all);
 my $connectors = {};
 my $callbacks = {};
 my $sockets = {};
-my $polls = {};
 
 sub new {
     my ($class, %options) = @_;
@@ -51,7 +50,7 @@ sub new {
     $connector->{ping_timeout_time} = time();
 
     if (defined($connector->{logger}) && $connector->{logger}->is_debug()) {
-        $connector->{logger}->writeLogDebug($connector->{client_pubkey}->export_key_jwk_thumbprint('SHA256'));
+        $connector->{logger}->writeLogDebug('jwk thumbprint = ' . $connector->{client_pubkey}->export_key_jwk_thumbprint('SHA256'));
     }
 
     $connectors->{$options{identity}} = $connector;
@@ -116,20 +115,19 @@ sub ping {
 
 sub get_poll {
     my ($self, %options) = @_;
-    
-    $polls->{$sockets->{$self->{identity}}} = {
-            socket  => $sockets->{$self->{identity}},
-            events  => ZMQ_POLLIN,
-            callback => sub {
-                event(identity => $self->{identity});
-            }
+
+    return {
+        socket  => $sockets->{$self->{identity}},
+        events  => ZMQ_POLLIN,
+        callback => sub {
+            event(identity => $self->{identity});
+        }
     };
-    return $polls->{$sockets->{$self->{identity}}};
 }
 
 sub event {
     my (%options) = @_;
-    
+
     # We have a response. So it's ok :)
     if ($connectors->{$options{identity}}->{ping_progress} == 1) {
         $connectors->{$options{identity}}->{ping_progress} = 0;
@@ -189,7 +187,7 @@ sub send_message {
         }
         $self->{handshake} = 1;
 
-        zmq_sendmsg($sockets->{$self->{identity}}, $ciphertext);
+        zmq_sendmsg($sockets->{$self->{identity}}, $ciphertext, ZMQ_DONTWAIT);
         zmq_poll([$self->get_poll()], 10000);
     }
     

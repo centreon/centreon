@@ -486,6 +486,10 @@ sub connect_com {
 
     zmq_setsockopt($socket, ZMQ_IDENTITY, $options{name});
     zmq_setsockopt($socket, ZMQ_LINGER, defined($options{linger}) ? $options{linger} : 0); # 0 we discard
+    zmq_setsockopt($socket, ZMQ_SNDHWM, defined($options{sndhwm}) ? $options{sndhwm} : 0);
+    zmq_setsockopt($socket, ZMQ_RCVHWM, defined($options{rcvhwm}) ? $options{sndhwm} : 0);
+    #zmq_setsockopt($socket, ZMQ_CONNECT_TIMEOUT, 60000); # for tcp: 60 seconds
+    zmq_setsockopt($socket, ZMQ_RECONNECT_IVL, 1000);
     zmq_connect($socket, $options{type} . '://' . $options{path});
     return $socket;
 }
@@ -557,13 +561,14 @@ sub zmq_send_message {
         zmq_sendmsg($options{socket}, $options{identity}, ZMQ_NOBLOCK | ZMQ_SNDMORE);
     }    
     if (defined($options{cipher})) {
-        my $cipher = Crypt::CBC->new(-key    => $options{symkey},
-                                     -keysize => length($options{symkey}),
-                                     -cipher => $options{cipher},
-                                     -iv => $options{vector},
-                                     -header => 'none',
-                                     -literal_key => 1
-                                     );
+        my $cipher = Crypt::CBC->new(
+            -key    => $options{symkey},
+            -keysize => length($options{symkey}),
+            -cipher => $options{cipher},
+            -iv => $options{vector},
+            -header => 'none',
+            -literal_key => 1
+        );
         $message = $cipher->encrypt($message);
     }
     zmq_sendmsg($options{socket}, $message, ZMQ_NOBLOCK);
@@ -601,9 +606,9 @@ sub add_zmq_pollin {
     my (%options) = @_;
 
     push @{$options{poll}}, {
-            socket  => $options{socket},
-            events  => ZMQ_POLLIN,
-            callback => $options{callback},
+        socket  => $options{socket},
+        events  => ZMQ_POLLIN,
+        callback => $options{callback},
     };
 }
         

@@ -118,7 +118,7 @@ sub action_pollersresync {
 
         $self->{register_pollers}->{$_->[0]} = 1;
         $register_temp->{$_->[0]} = 1;
-        push @{$register_nodes}, { id => $_->[0], type => 'push_ssh', address => $_->[3], ssh_port => $_[4] };
+        push @{$register_nodes}, { id => $_->[0], type => 'push_ssh', address => $_->[3], ssh_port => $_->[4] };
     }
     my $unregister_nodes = [];
     

@@ -71,7 +71,9 @@ sub json_encode {
         $encoded_arguments = JSON::XS->new->utf8->encode($options{argument});
     };
     if ($@) {
-        $self->{logger}->writeLogError("gorgone-$self->{module_id}: container $self->{container_id}: $options{method} - cannot encode json: $@");
+        my $container = '';
+        $container = 'container ' . $self->{container_id} . ': ' if (defined($self->{container_id}));
+        $self->{logger}->writeLogError("[$self->{module_id}] -class- ${container}$options{method} - cannot encode json: $@");
         return 1;
     }
 
@@ -86,7 +88,9 @@ sub json_decode {
         $decoded_arguments = JSON::XS->new->utf8->decode($options{argument});
     };
     if ($@) {
-        $self->{logger}->writeLogError("gorgone-$self->{module_id}: container $self->{container_id}: $options{method} - cannot decode json: $@");
+        my $container = '';
+        $container = 'container ' . $self->{container_id} . ': ' if (defined($self->{container_id}));
+        $self->{logger}->writeLogError("[$self->{module_id}] -class- ${container}$options{method} - cannot decode json: $@");
         return 1;
     }
 
@@ -104,7 +108,9 @@ sub execute_shell_cmd {
         wait_exit => 1,
     );
     if ($lerror == -1 || ($exit_code >> 8) != 0) {
-        $self->{logger}->writeLogError("gorgone-$self->{module_id} command execution issue $options{cmd} : " . $stdout);
+        my $container = '';
+        $container = 'container ' . $self->{container_id} . ': ' if (defined($self->{container_id}));
+        $self->{logger}->writeLogError("[$self->{module_id}] -class- ${container}command execution issue $options{cmd} : " . $stdout);
         return -1;
     }
 

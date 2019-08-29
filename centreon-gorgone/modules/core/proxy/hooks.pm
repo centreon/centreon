@@ -34,7 +34,8 @@ my $EVENTS = [
     { event => 'PONG' }, # internal. Shouldn't be used by third party clients
     { event => 'REGISTERNODES' }, # internal. Shouldn't be used by third party clients
     { event => 'UNREGISTERNODES' }, # internal. Shouldn't be used by third party clients
-    { event => 'ADDPOLLER', uri => '/poller', method => 'POST' },
+    { event => 'PROXYADDNODE' }, # internal. Shouldn't be used by third party clients
+    { event => 'PROXYDELNODE' }, # internal. Shouldn't be used by third party clients
 ];
 
 my $config_core;
@@ -53,7 +54,7 @@ my $register_nodes = {};
 my $register_subnodes = {};
 my $pools = {};
 my $pools_pid = {};
-my $poller_pool = {};
+my $nodes_pool = {};
 my $rr_current = 0;
 my $stop = 0;
 my ($external_socket, $internal_socket, $core_id);
@@ -195,15 +196,21 @@ sub routing {
         );
         return undef;
     }
-    
+
     my $identity;
-    if (defined($poller_pool->{$options{target}})) {
-        $identity = $poller_pool->{$options{target}};
-    } else {
-        $identity = rr_pool();
-        $poller_pool->{$options{target}} = $identity;
+    my $target = $options{target};
+    # we prefer to use direct target
+    if (!defined($register_nodes->{$options{target}})) {
+        $target = $register_subnodes->{$options{target}};
     }
     
+    if (defined($nodes_pool->{$target})) {
+        $identity = $nodes_pool->{$target};
+    } else {
+        $identity = rr_pool();
+        $nodes_pool->{$target} = $identity;
+    }
+
     centreon::gorgone::common::zmq_send_message(
         socket => $options{socket}, identity => 'gorgoneproxy-' . $identity,
         action => $options{action}, data => $options{data}, token => $options{token},
@@ -348,8 +355,10 @@ sub setlogs {
 
 sub ping_send {
     my (%options) = @_;
-    
-    foreach my $id (keys %{$register_nodes}) {
+
+    my $nodes_id = [keys %$register_nodes];
+    $nodes_id = [$options{node_id}] if (defined($options{node_id}));
+    foreach my $id (@$nodes_id) {
         if ($register_nodes->{$id}->{type} eq 'push_zmq') {
             routing(socket => $internal_socket, action => 'PING', target => $id, data => '{}', dbh => $options{dbh});
         } elsif ($register_nodes->{$id}->{type} eq 'pull') {
@@ -427,6 +436,7 @@ sub create_child {
         $0 = 'gorgone-proxy';
         my $module = modules::core::proxy::class->new(
             logger => $options{logger},
+            module_id => $NAME,
             config_core => $config_core,
             config => $config,
             pool_id => $options{pool_id},
@@ -486,6 +496,10 @@ sub unregister_nodes {
     return if (!defined($options{data}->{nodes}));
 
     foreach my $node (@{$options{data}->{nodes}}) {
+        if ($node->{type} ne 'pull') {
+            routing(socket => $internal_socket, action => 'PROXYDELNODE', target => $node->{id}, data => JSON::XS->new->utf8->encode($node), dbh => $options{dbh});
+        }
+
         $options{logger}->writeLogInfo("[proxy] -hooks- Poller '" . $node->{id} . "' is unregistered");
         if (defined($register_nodes->{$node->{id}}) && $register_nodes->{$node->{id}}->{nodes}) {
             foreach my $subnode_id (@{$register_nodes->{$node->{id}}->{nodes}}) {
@@ -507,7 +521,9 @@ sub register_nodes {
     return if (!defined($options{data}->{nodes}));
 
     foreach my $node (@{$options{data}->{nodes}}) {
+        my $new_node = 1;
         if (defined($register_nodes->{$node->{id}})) {
+            $new_node = 0;
             # we remove subnodes before
             if ($register_nodes->{$node->{id}}->{type} ne 'push_ssh') {
                 foreach my $subnode_id (keys %$register_subnodes) {
@@ -524,14 +540,21 @@ sub register_nodes {
             }
         }
 
-        $options{logger}->writeLogInfo("[proxy] -hooks- Poller '" . $node->{id} . "' is registered");
-
         if ($node->{type} eq 'push_zmq' || $node->{type} eq 'pull') {
             $last_pong->{$node->{id}} = 0 if (!defined($last_pong->{$node->{id}}));
             if (!defined($synctime_nodes->{$node->{id}})) {
                 $synctime_nodes->{$node->{id}} = { ctime => 0, in_progress => 0, in_progress_time => -1, last_id => 0, synctime_error => 0 };
                 get_sync_time(node_id => $node->{id}, dbh => $options{dbh});
             }
+        }
+
+        if ($node->{type} ne 'pull') {
+            routing(socket => $internal_socket, action => 'PROXYADDNODE', target => $node->{id}, data => JSON::XS->new->utf8->encode($node), dbh => $options{dbh});
+        }
+        if ($new_node == 1) {
+            # we provide information to the proxy class
+            ping_send(node_id => $node->{id}, dbh => $options{dbh});
+            $options{logger}->writeLogInfo("[proxy] -hooks- Poller '" . $node->{id} . "' is registered");
         }
     }
 }

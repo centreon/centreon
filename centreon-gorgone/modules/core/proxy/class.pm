@@ -37,6 +37,7 @@ sub new {
     my ($class, %options) = @_;
 
     $connector  = {};
+    $connector->{module_id} = $options{module_id};
     $connector->{internal_socket} = undef;
     $connector->{logger} = $options{logger};
     $connector->{core_id} = $options{core_id};
@@ -45,9 +46,10 @@ sub new {
     $connector->{config_core} = $options{config_core};
     $connector->{stop} = 0;
     $connector->{clients} = {};
+    $connector->{subnodes} = {};
     
     bless $connector, $class;
-    $connector->set_signal_handlers;
+    $connector->set_signal_handlers();
     return $connector;
 }
 
@@ -83,29 +85,9 @@ sub class_handle_HUP {
     }
 }
 
-sub get_client_information {
-    my ($self, %options) = @_;
-    
-    # TODO DATABASE or file maybe. hardcoded right now
-    my $result = {
-        type => 1,
-        target_type => 'tcp',
-        target_path => 'localhost:5556',
-        server_pubkey => 'keys/poller/pubkey.crt', 
-        client_pubkey => 'keys/central/pubkey.crt',
-        client_privkey => 'keys/central/privkey.pem',
-        cipher => 'Cipher::AES',
-        keysize => '32',
-        vector => '0123456789012345',
-        class => undef,
-        delete => 0
-    };
-    return $result;
-}
-
 sub read_message {
     my (%options) = @_;
-    
+
     return undef if (!defined($options{identity}) || $options{identity} !~ /^proxy-(.*?)-(.*?)$/);
     
     my ($client_identity) = ($2);
@@ -123,8 +105,20 @@ sub read_message {
             data => { code => 0, data => { message => 'ping ok', action => 'ping', id => $client_identity } },
             json_encode => 1
         );
-    }
-    elsif ($options{data} =~ /^\[ACK\]\s+\[(.*?)\]\s+(.*)/m) {
+    } elsif ($options{data} =~ /^\[REGISTERNODES|UNREGISTERNODES\]/) {
+        if ($options{data} !~ /^\[(.+?)\]\s+\[(.*?)\]\s+\[.*?\]\s+(.*)/m) {
+            return undef;
+        }
+        my ($action, $token, $data)  = ($1, $2, $3);
+        
+        centreon::gorgone::common::zmq_send_message(
+            socket => $connector->{internal_socket},
+            action => $action,
+            token => $token,
+            target => '',
+            data => $data
+        );
+    } elsif ($options{data} =~ /^\[ACK\]\s+\[(.*?)\]\s+(.*)/m) {
         my $data;
         eval {
             $data = JSON::XS->new->utf8->decode($2);
@@ -142,27 +136,58 @@ sub read_message {
                 data => $2
             );
         }
-        return undef;
     }
 }
 
 sub connect {
     my ($self, %options) = @_;
 
-    if ($options{entry}->{type} == 1) {
-        $options{entry}->{class} = centreon::gorgone::clientzmq->new(
-            identity => 'proxy-' . $self->{core_id} . '-' . $options{id}, 
-            cipher => $options{entry}->{cipher}, 
-            vector => $options{entry}->{vector},
-            server_pubkey => $options{entry}->{server_pubkey},
-            client_pubkey => $options{entry}->{client_pubkey},
-            client_privkey => $options{entry}->{client_privkey},            
-            target_type => $options{entry}->{target_type},
-            target_path => $options{entry}->{target_path},
-            logger => $self->{logger}
+    if ($self->{clients}->{$options{id}}->{type} eq 'push_zmq') {
+        $self->{clients}->{$options{id}}->{class} = centreon::gorgone::clientzmq->new(
+            identity => 'proxy-' . $self->{pool_id} . '-' . $options{id}, 
+            cipher => $self->{clients}->{$options{id}}->{cipher}, 
+            vector => $self->{clients}->{$options{id}}->{vector},
+            server_pubkey => $self->{clients}->{$options{id}}->{server_pubkey},
+            client_pubkey => $self->{clients}->{$options{id}}->{client_pubkey},
+            client_privkey => $self->{clients}->{$options{id}}->{client_privkey},
+            target_type =>
+                defined($self->{clients}->{$options{id}}->{target_type}) ? $self->{clients}->{$options{id}}->{target_type} : 'tcp',
+            target_path =>
+                defined($self->{clients}->{$options{id}}->{target_path}) ? $self->{clients}->{$options{id}}->{target_path} : $self->{clients}->{$options{id}}->{address} . ':' . $self->{clients}->{$options{id}}->{port},
+            logger => $self->{logger},
         );
-        $options{entry}->{class}->init(callback => \&read_message);
+        $self->{clients}->{$options{id}}->{class}->init(callback => \&read_message);
     }
+}
+
+sub action_proxyaddnode {
+    my ($self, %options) = @_;
+
+    my ($code, $data) = $self->json_decode(argument => $options{data});
+    return if ($code == 1);
+
+    $self->{clients}->{$data->{id}} = $data;
+    $self->{clients}->{$data->{id}}->{delete} = 0;
+    $self->{clients}->{$data->{id}}->{class} = undef;
+
+    my $temp = {};
+    foreach (@{$data->{nodes}}) {
+        $temp->{$_} = 1;
+        $self->{subnodes}->{$_} = $data->{id};
+    }
+    foreach (keys %{$self->{subnodes}}) {
+        delete $self->{subnodes}->{$_}
+            if ($self->{subnodes}->{$_} eq $data->{id} && !defined($temp->{$_}));
+    }    
+}
+
+sub action_proxydelnode {
+    my ($self, %options) = @_;
+
+    my ($code, $data) = $self->json_decode(argument => $options{data});
+    return if ($code == 1);
+
+    
 }
 
 sub proxy {
@@ -172,35 +197,36 @@ sub proxy {
         return undef;
     }
     my ($action, $token, $target, $data) = ($1, $2, $3, $4);
-    
-    my $entry;
-    if (!defined($connector->{clients}->{$target})) {
-        $entry = $connector->get_client_information(id => $target);
-        return if (!defined($entry));
-        
-        $connector->connect(id => $target, entry => $entry);
-        $connector->{clients}->{$target} = $entry;
-    } else {
-        $entry = $connector->{clients}->{$target};
+    if ($action eq 'PROXYADDNODE') {
+        action_proxyaddnode($connector, data => $data);
+        return ;
+    } elsif ($action eq 'PROXYDELNODE') {
+        action_proxydelnode($connector, data => $data);
+        return ;
     }
 
-    # TODO we need to manage type SSH with libssh 
-    # type 1 = ZMQ.
-    # type 2 = SSH
-    if ($entry->{type} == 1) {
-        my ($status, $msg) = $entry->{class}->send_message(
+    my $target_client = $target;
+    if (!defined($connector->{clients}->{$target})) {
+        $target_client = $connector->{subnodes}->{$target};
+    }
+    if (!defined($connector->{clients}->{$target_client}->{class})) {
+        $connector->connect(id => $target_client);
+    }
+
+    if ($connector->{clients}->{$target_client}->{type} eq 'push_zmq') {
+        my ($status, $msg) = $connector->{clients}->{$target_client}->{class}->send_message(
             action => $action,
             token => $token,
-            target => '', # TODO: don't set to null if we need to chain it!!!
+            target => $target,
             data => $data
         );
         if ($status != 0) {
-            # error we put log and we close (TODO the log)
+            $connector->send_log(code => centreon::gorgone::module::ACTION_FINISH_KO, token => $token, data => { message => "Send message problem for '$target': $msg" });
             $connector->{logger}->writeLogError("[proxy] -class- Send message problem for '$target': $msg");
             $connector->{clients}->{$target}->{delete} = 1;
         }
     }
-    
+
     $connector->{logger}->writeLogDebug("[proxy] -class- Send message: [action = $action] [token = $token] [target = $target] [data = $data]");
 }
 
@@ -217,7 +243,7 @@ sub run {
     my ($self, %options) = @_;
 
     # Connect internal
-    $connector->{internal_socket} = centreon::gorgone::common::connect_com(
+    $self->{internal_socket} = centreon::gorgone::common::connect_com(
         zmq_type => 'ZMQ_DEALER',
         name => 'gorgoneproxy-' . $self->{pool_id},
         logger => $self->{logger},
@@ -231,20 +257,22 @@ sub run {
         json_encode => 1
     );
     my $poll = {
-            socket  => $connector->{internal_socket},
-            events  => ZMQ_POLLIN,
-            callback => \&event_internal,
+        socket  => $connector->{internal_socket},
+        events  => ZMQ_POLLIN,
+        callback => \&event_internal,
     };
     while (1) {
         my $polls = [$poll];
         foreach (keys %{$self->{clients}}) {
-            if ($self->{clients}->{$_}->{delete} == 1) {
+            if (defined($self->{clients}->{$_}->{delete}) && $self->{clients}->{$_}->{delete} == 1) {
                 $self->{clients}->{$_}->{class}->close();
-                delete $self->{clients}->{$_};
+                $self->{clients}->{$_}->{class} = undef;
+                $self->{clients}->{$_}->{delete} = 0;
                 next;
             }
-            if ($self->{clients}->{$_}->{type} == 1) {
-                push @{$polls}, $self->{clients}->{$_}->{class}->get_poll();
+
+            if (defined($self->{clients}->{$_}->{class}) && $self->{clients}->{$_}->{type} eq 'push_zmq') {
+                push @$polls, $self->{clients}->{$_}->{class}->get_poll();
             }
         }
         
