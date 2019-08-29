@@ -27,6 +27,7 @@ import TABLE_COLUMN_TYPES from '../Table/ColumnTypes';
 import transformStringArrayIntoObjects from '../MultiSelectPanel/helper';
 import Loader from '../Loader';
 import {requiredValidator} from '../Forms/validators';
+import LinearProgress from '@material-ui/core/LinearProgress';
 
 const multiselectsConfiguration = {
   reporting_timeperiods: {
@@ -141,7 +142,9 @@ class BAPanel extends React.Component {
     multiSelectKey: null,
     activeMultiselectKey: '',
     nameEditingToggled: false,
-    formModified: false
+    formModified: false,
+    successfullySaved:false,
+    errorfullySaved:false
   };
 
   toggleMultiselect = (multiSelectKey) => {
@@ -193,9 +196,27 @@ class BAPanel extends React.Component {
 
   onSave = () => {
     const {onSave = () => {}} = this.props;
+    const savingPromise = onSave();
+    savingPromise.then(()=>{
+      this.setState({successfullySaved:true}, ()=>{
+        setTimeout(()=>{
+          this.setState({
+            successfullySaved:false
+          })
+        },1000)
+      })
+    }).catch(()=>{
+      this.setState({errorfullySaved:true}, ()=>{
+      setTimeout(()=>{
+        this.setState({
+          errorfullySaved:false
+        })
+      },1000)
+    })
+    });
     this.setState({
       formModified:false
-    },onSave);
+    });
   }
 
   render() {
@@ -229,9 +250,10 @@ class BAPanel extends React.Component {
       multiselectActive,
       nameEditingToggled,
       multiSelectKey,
-      formModified
+      formModified,
+      errorfullySaved,
+      successfullySaved
     } = this.state;
-
     if (!values) return null;
 
     return (
@@ -243,6 +265,13 @@ class BAPanel extends React.Component {
           styles[multiselectActive ? 'panels-second-active' : ''],
         )}
       >
+      {saving ?
+      <div style={{
+        flexGrow: 1,
+      }}>
+        <LinearProgress />
+      </div> : null}
+      
         <div className={classnames(styles['panels-dialog'])}>
           <div className={classnames(styles['panels-inner'])}>
             <div className={classnames(styles['panels-header'])}>
@@ -293,18 +322,18 @@ class BAPanel extends React.Component {
               <IconCloseNew onClick={onClose} />
               <Button
                 variant="contained"
-                color={saving || !formModified || Object.keys(errors).length > 0 ? "disabled" : "primary"}
+                color={saving || !formModified || Object.keys(errors).length > 0 ? 'disabled' : "primary"}
                 style={{
                   position: 'absolute',
                   right: 60,
                   top: 9,
                   backgroundColor: '#0072CE',
                   fontSize: 11,
+                  cursor: saving || !formModified || Object.keys(errors).length > 0 ? 'not-allowed' : 'pointer'
                 }}
-                onClick={this.onSave}
-                disabled={saving || !formModified || Object.keys(errors).length > 0}
+                onClick={saving || !formModified || Object.keys(errors).length > 0 ? ()=>{} : this.onSave}
               >
-                {saving ? <Loader /> : 'Save'}
+                {saving ? 'Saving' : successfullySaved ? 'Saved!': errorfullySaved ? 'Not saved!' : 'Save'}
               </Button>
             </div>
             <div className={classnames(styles['panels-body'])}>
