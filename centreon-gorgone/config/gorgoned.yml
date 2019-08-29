@@ -84,6 +84,11 @@ modules:
     enable: false
     resync_time: 600
 
+  - name: register
+    package: modules::core::register::hooks
+    enable: true
+    config_file: config/registernodes.json
+
   - name: engine
     package: modules::centreon::engine::hooks
     enable: true

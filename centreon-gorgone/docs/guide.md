@@ -202,7 +202,7 @@ An example of the json stream:
         "ctime": 1419252686,
         "data": xxxxx,
       },
-      "100" => {
+      "100": {
         "id": 100,
         "token": "xxxx",
         "code": 1,
@@ -240,11 +240,11 @@ The request shouldn't be used by third-party program. It's commonly used by the 
 The client request (no carriage returns. only for reading):
 
 ```
-[REGISTERNODES] [TOKEN] [TARGET] { "nodes" => [ 
+[REGISTERNODES] [TOKEN] [TARGET] { "nodes": [ 
     { "id": 20, "type": "pull" }, 
     { "id": 100, "type": "push_ssh", "address": "10.0.0.1", "ssh_port": 22 },
     { 
-      "id": 150, "type": "push_zmq", address => 10.3.2.1, 
+      "id": 150, "type": "push_zmq", "address": "10.3.2.1", 
       "server_pubkey": "server_pubkey.pem", "client_pubkey": "client_pubkey.pem", "client_privkey": "client_privkey.pem", "cipher": "Cipher::AES", "keysize": 32, "vector": "0123456789012345",
       "nodes": [400, 455]
     }

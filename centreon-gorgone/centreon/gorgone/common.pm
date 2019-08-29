@@ -184,7 +184,7 @@ sub uncrypt_message {
 sub generate_token {
     my (%options) = @_;
     
-    my $token = Crypt::PRNG::random_bytes_hex(256);
+    my $token = Crypt::PRNG::random_bytes_hex(64);
     return $token;
 }
 

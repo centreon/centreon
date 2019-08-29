@@ -1,0 +1,16 @@
+{ 
+    "nodes": [ 
+        { "id": 100, "type": "push_ssh", "address": "10.0.0.1", "ssh_port": 22 },
+        { 
+            "id": 140, 
+            "type": "push_zmq", 
+            "address": "10.3.2.15", 
+            "server_pubkey": "keys/poller/pubkey.crt", 
+            "client_pubkey": "keys/central/pubkey.crt",
+            "client_privkey": "keys/central/privkey.pem", 
+            "cipher": "Cipher::AES", 
+            "keysize": 32, 
+            "vector": "0123456789012345"
+        }
+    ]
+}

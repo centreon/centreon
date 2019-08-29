@@ -530,7 +530,7 @@ sub register_nodes {
             $last_pong->{$node->{id}} = 0 if (!defined($last_pong->{$node->{id}}));
             if (!defined($synctime_nodes->{$node->{id}})) {
                 $synctime_nodes->{$node->{id}} = { ctime => 0, in_progress => 0, in_progress_time => -1, last_id => 0, synctime_error => 0 };
-                get_sync_time(node_id => $node->{id});
+                get_sync_time(node_id => $node->{id}, dbh => $options{dbh});
             }
         }
     }
