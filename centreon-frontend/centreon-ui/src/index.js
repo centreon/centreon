@@ -153,7 +153,7 @@ export {
 export {
   default as PromptDialog,
 } from './MaterialComponents/Dialog/Prompt/Number';
-export { default as MassiveChangeDialog } from './Dialog/MassiveChange';
+export { default as MassiveChangeDialog } from './MaterialComponents/Dialog/MassiveChange/Numbers'; 
 export { default as Dialog } from './Dialog';
 export { default as IconVisible } from './MaterialComponents/Icons/IconVisible';
 export {

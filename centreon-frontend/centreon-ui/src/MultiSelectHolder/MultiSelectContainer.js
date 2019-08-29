@@ -28,29 +28,29 @@ class MultiSelectContainer extends Component {
       >
         {
           values.length > 0 ?
-            <CustomRow additionalStyles={['mb-0']}>
-              {values.map((item, index) => {
-                let result = null;
-                if (index < excludeAfterIndex) {
-                  result = (
-                    <CustomColumn customColumn="md-6">
-                      <InputFieldMultiSelectValue
-                        disabled
-                        placeholder={item.name}
-                      />
-                    </CustomColumn>
-                  );
-                }
-                return result;
-              })}
-              {values.length > 5 ? (
+          <CustomRow additionalStyles={['mb-0']}>
+          {values.map((item, index) => {
+            let result = null;
+            if (index < excludeAfterIndex) {
+              result = (
                 <CustomColumn customColumn="md-6">
-                  <InputFieldMultiSelectValue multiSelectType />
+                  <InputFieldMultiSelectValue
+                    disabled
+                    placeholder={item.name}
+                  />
                 </CustomColumn>
-              ) : null}
-            </CustomRow> : null
+              );
+            }
+            return result;
+          })}
+          {values.length > 5 ? (
+            <CustomColumn customColumn="md-6">
+              <InputFieldMultiSelectValue multiSelectType />
+            </CustomColumn>
+          ) : null}
+        </CustomRow> : null
         }
-
+        
       </MultiSelectHolder>
     );
   }

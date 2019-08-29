@@ -2,9 +2,9 @@ import React from 'react';
 import InsertChart from '@material-ui/icons/InsertChart';
 import MaterialIcon from '../MaterialIcon';
 
-function IconInsertChart() {
+function IconInsertChart(props) {
   return (
-    <MaterialIcon>
+    <MaterialIcon {...props}>
       <InsertChart />
     </MaterialIcon>
   );

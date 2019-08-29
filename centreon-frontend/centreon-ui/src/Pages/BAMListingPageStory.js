@@ -16,14 +16,14 @@ import impactsMock from '../Mocks/impacts';
 
 class BAMListingPageStory extends Component {
   state = {
-    panelActive: true,
+    panelActive: false,
     activeBA: {},
     currentlySelected: [],
     businessViews: businessViewsMock.result.entities,
     centreonImages: imagesMock.result.entities,
     timeperiods: timeperiodsMock.result.entities,
     contactGroups: contactGroupsMock.result.entities,
-    remoteServers: [],
+    remoteServers: [], 
     escalations: escalationMock.result.entities,
     eventHandlerCommands: commandsMock.result.entities,
     kpis: kpiMock.result,

@@ -300,7 +300,7 @@ class BAMListingPage extends Component {
           />
         </Paper>
         <MassiveChangeDialog
-          header="Massive calculation method change"
+          customStyle={{ padding: '25px 20px' }}
           info="Input value of critical and warning threshold for selected BAs"
           active={massiveChangeActive}
           onNoClicked={this.toggleMassiveChangeModal}
