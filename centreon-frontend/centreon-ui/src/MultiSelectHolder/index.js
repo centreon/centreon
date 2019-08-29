@@ -1,3 +1,5 @@
+/* eslint-disable jsx-a11y/no-static-element-interactions */
+/* eslint-disable jsx-a11y/click-events-have-key-events */
 /* eslint-disable react/jsx-filename-extension */
 /* eslint-disable react/prop-types */
 
@@ -51,7 +53,7 @@ class InputFieldMultiSelectEmpty extends React.Component {
           {isEmpty && (
             <React.Fragment>
               <span className={classnames(styles['multi-select-holder-add'])}>
-                + {emptyInfo || 'Click to link'}
+                {emptyInfo || 'Click to link'}
               </span>
             </React.Fragment>
           )}

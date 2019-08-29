@@ -1,5 +1,4 @@
 /* eslint-disable react/jsx-filename-extension */
-/* eslint-disable react/prop-types */
 
 import React, { Component } from 'react';
 import TableHead from '@material-ui/core/TableHead';
@@ -53,7 +52,7 @@ class EnhancedTableHead extends Component {
           {headRows.map((row) => (
             <StyledTableCell
               key={row.id}
-              align={row.numeric ? 'left' : ''}
+              align={row.numeric ? 'left' : 'inherit'}
               padding={row.disablePadding ? 'none' : 'default'}
               sortDirection={orderBy === row.id ? order : false}
               style={
@@ -69,7 +68,7 @@ class EnhancedTableHead extends Component {
               ) : (
                 <StyledTableSortLabel
                   active={orderBy === row.id}
-                  direction={order}
+                  direction={order || 'desc'}
                   onClick={this.createSortHandler(row.id)}
                   icon={{ color: 'red' }}
                 >
@@ -151,6 +150,12 @@ EnhancedTableHead.propTypes = {
   order: PropTypes.string.isRequired,
   orderBy: PropTypes.string.isRequired,
   rowCount: PropTypes.number.isRequired,
+  headRows: PropTypes.arrayOf(
+    PropTypes.objectOf(
+      PropTypes.oneOfType([PropTypes.bool, PropTypes.string, PropTypes.number]),
+    ),
+  ).isRequired,
+  checkable: PropTypes.bool.isRequired,
 };
 
 export default EnhancedTableHead;

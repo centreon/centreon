@@ -12,6 +12,7 @@ import {
   InputFieldMultiSelect,
   InputFieldSelectCustom,
 } from '../src';
+import InputSearch from '../src/MaterialComponents/Input/Search';
 
 storiesOf('Input Field', module).add(
   'Input Field - with title',
@@ -112,4 +113,9 @@ storiesOf('Input Field', module).add(
   'Input Field - select custom error',
   () => <InputFieldSelectCustom error="The field is mandatory" size="medium" />,
   { notes: 'A very simple component' },
+);
+
+storiesOf('Input Field', module).add(
+  'Input Field - search',
+  () => <InputSearch />,
 );

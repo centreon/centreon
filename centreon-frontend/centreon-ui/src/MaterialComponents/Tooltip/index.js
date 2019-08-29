@@ -16,9 +16,9 @@ const styles = () => ({
 
 class TooltipMaterial extends React.Component {
   render() {
-    const { label, classes, children, customStyle } = this.props;
+    const { label, classes, children, onClick, customStyle } = this.props;
     return (
-      <Tooltip title={label} className={classes.tooltipStyle}>
+      <Tooltip title={label} className={classes.tooltipStyle} onClick={onClick}>
         <IconButton
           style={customStyle}
           aria-label={label}

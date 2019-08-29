@@ -1,8 +1,5 @@
-/* eslint-disable react/forbid-prop-types */
-/* eslint-disable react/jsx-one-expression-per-line */
 /* eslint-disable react/jsx-no-bind */
 /* eslint-disable react/jsx-filename-extension */
-/* eslint-disable react/prop-types */
 
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
@@ -41,9 +38,10 @@ const styles = () => ({
     boxShadow: 'none',
   },
   tableWrapper: {
-    overflow: 'auto',
     boxShadow:
       '0px 1px 3px 0px rgba(0,0,0,0.2), 0px 1px 1px 0px rgba(0,0,0,0.14), 0px 2px 1px -1px rgba(0,0,0,0.12)',
+    overflowX: 'auto',
+    overflowY: 'hidden',
   },
   rowDisabled: {
     backgroundColor: 'rgba(0, 0, 0, 0.07) !important',
@@ -167,6 +165,8 @@ class TableCustom extends Component {
       onPaginate,
       onDuplicate,
       onPaginationLimitChanged,
+      labelDisplayedRows,
+      labelRowsPerPage,
       limit,
       checkable,
       currentPage,
@@ -328,8 +328,10 @@ class TableCustom extends Component {
                               </TableCellCustom>
                             );
                           case TABLE_COLUMN_TYPES.string:
+                          case TABLE_COLUMN_TYPES.number:
                             return (
                               <TableCellCustom
+                                key={column.id}
                                 align="left"
                                 className={classes.tableCellCustom}
                                 style={
@@ -434,6 +436,11 @@ class TableCustom extends Component {
                                       width: 31,
                                       height: 31,
                                     }}
+                                    onClick={(e) => {
+                                      e.preventDefault();
+                                      e.stopPropagation();
+                                      onDisable([row.id]);
+                                    }}
                                   >
                                     <IconPowerSettings
                                       label="Disable"
@@ -459,6 +466,11 @@ class TableCustom extends Component {
                                       top: -1,
                                       width: 31,
                                       height: 31,
+                                    }}
+                                    onClick={(e) => {
+                                      e.preventDefault();
+                                      e.stopPropagation();
+                                      onEnable([row.id]);
                                     }}
                                   >
                                     <IconPowerSettingsDisable
@@ -521,6 +533,7 @@ class TableCustom extends Component {
                           case TABLE_COLUMN_TYPES.multicolumn:
                             return (
                               <TableCellCustom
+                                key={column.id}
                                 align="left"
                                 className={classes.tableCellCustom}
                                 style={
@@ -533,7 +546,7 @@ class TableCustom extends Component {
                               >
                                 {column.columns.map((subColumn) => (
                                   <React.Fragment>
-                                    {subColumn.label} {row[subColumn.id]}
+                                    {`${subColumn.label} ${row[subColumn.id]}`}
                                     {subColumn.type === 'percentage'
                                       ? '%'
                                       : null}
@@ -545,6 +558,7 @@ class TableCustom extends Component {
                           case TABLE_COLUMN_TYPES.hoverActions:
                             return (
                               <StyledTableCell2
+                                key={column.id}
                                 style={{
                                   paddingTop: 0,
                                   paddingBottom: 0,
@@ -563,6 +577,9 @@ class TableCustom extends Component {
                                         right: 28,
                                         top: 0,
                                         padding: '3px 5px',
+                                      }}
+                                      onClick={() => {
+                                        onDelete([row.id]);
                                       }}
                                     >
                                       <IconDelete
@@ -585,6 +602,9 @@ class TableCustom extends Component {
                                         right: -5,
                                         top: 0,
                                         padding: '3px 5px',
+                                      }}
+                                      onClick={() => {
+                                        onDuplicate([row.id]);
                                       }}
                                     >
                                       <IconLibraryAdd
@@ -641,8 +661,40 @@ class TableCustom extends Component {
   }
 }
 
+TableCustom.defaultProps = {
+  enabledColumn: '',
+  onRowClick: () => {},
+  labelDisplayedRows: ({ from, to, count }) => `${from}-${to} of ${count}`,
+  labelRowsPerPage: 'Rows per page',
+  onTableSelectionChanged: () => {},
+};
+
+const anyObject = PropTypes.objectOf(
+  PropTypes.oneOfType([PropTypes.bool, PropTypes.string, PropTypes.number]),
+);
+const anyArray = PropTypes.arrayOf(anyObject);
+
 TableCustom.propTypes = {
-  classes: PropTypes.object.isRequired,
+  classes: anyObject.isRequired,
+  onSort: PropTypes.func.isRequired,
+  onTableSelectionChanged: PropTypes.func,
+  columnConfiguration: anyArray.isRequired,
+  tableData: anyArray.isRequired,
+  onDelete: PropTypes.func.isRequired,
+  onPaginate: PropTypes.func.isRequired,
+  onDuplicate: PropTypes.func.isRequired,
+  onPaginationLimitChanged: PropTypes.func.isRequired,
+  labelDisplayedRows: PropTypes.func,
+  labelRowsPerPage: PropTypes.string,
+  limit: PropTypes.number.isRequired,
+  checkable: PropTypes.bool.isRequired,
+  currentPage: PropTypes.number.isRequired,
+  totalRows: PropTypes.number.isRequired,
+  onEnable: PropTypes.func.isRequired,
+  onDisable: PropTypes.func.isRequired,
+  onRowClick: PropTypes.func,
+  selected: anyArray.isRequired,
+  enabledColumn: PropTypes.string,
 };
 
 export default withStyles(styles, { withTheme: true })(TableCustom);
