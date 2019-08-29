@@ -32,6 +32,7 @@ class CustomColumn extends Component {
             ? { [styles[`container__col-${additionalColumns}`]]: true }
             : '',
         )}
+        style={style}
       >
         {children}
       </div>

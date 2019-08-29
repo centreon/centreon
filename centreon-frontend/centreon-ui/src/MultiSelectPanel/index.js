@@ -46,7 +46,7 @@ class MultiselectPanel extends Component {
       styles,
       onlySelectedSwitcher = false,
       onlySelectedFilter = false,
-      onlySelectedChange = () => {},
+      onlySelectedChange = () => { },
     } = this.props;
     let currentlySelectedFromKey = currentlySelected;
     if (nameIdPaired) {
@@ -82,11 +82,15 @@ class MultiselectPanel extends Component {
               customColumn={
                 indicatorsEditor || onlySelectedSwitcher ? 'md-6' : 'md-12'
               }
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}
             >
               <InputFieldSearch
                 style={{
                   width: '100%',
-                  marginBottom: 15,
                   boxSizing: 'border-box',
                 }}
                 onChange={onSearch}
@@ -98,16 +102,16 @@ class MultiselectPanel extends Component {
                   labelPlacement="top"
                   control={
                     <MaterialSwitch
-  size="small"
-  value={onlySelectedFilter}
-  checked={onlySelectedFilter}
-  onChange={onlySelectedChange}
-/>
+                      size="small"
+                      value={onlySelectedFilter}
+                      checked={onlySelectedFilter}
+                      onChange={onlySelectedChange}
+                    />
                   }
                   label={
                     <Typography style={{
-                        fontSize: '13px',
-                      }}
+                      fontSize: '13px',
+                    }}
                     >
                       Selected items only
                     </Typography>

@@ -71,6 +71,7 @@ class BAForm extends React.Component {
       contactGroups,
       businessViews,
       remoteServers,
+      onFormFieldFocus,
       selectedMultiselect,
     } = this.props;
     return (
@@ -85,7 +86,7 @@ class BAForm extends React.Component {
                 error={errors.description}
                 value={values.description}
                 onChange={(event) => {
-                  valueChanged('description', event);
+                  valueChanged('description', event.target ? event.target.value : event);
                 }}
               />
             </CustomColumn>
@@ -97,7 +98,7 @@ class BAForm extends React.Component {
                 error={errors.icon}
                 customStyle="no-margin"
                 onChange={(event) => {
-                  valueChanged('icon', event);
+                  valueChanged('icon', event.target ? event.target.value : event);
                 }}
                 domainPath="."
               />
@@ -146,7 +147,7 @@ class BAForm extends React.Component {
                       value={values.level_w}
                       error={errors.level_w}
                       onChange={(event) => {
-                        valueChanged('level_w', event);
+                        valueChanged('level_w', event.target ? event.target.value : event);
                       }}
                     />
                   </CustomColumn>
@@ -168,7 +169,7 @@ class BAForm extends React.Component {
                       value={values.level_c}
                       error={errors.level_c}
                       onChange={(event) => {
-                        valueChanged('level_c', event);
+                        valueChanged('level_c', event.target ? event.target.value : event);
                       }}
                     />
                   </CustomColumn>
@@ -271,7 +272,7 @@ class BAForm extends React.Component {
                     marginTop: '6px',
                   }}
                   onChange={(event) => {
-                    valueChanged('ba_geo_coords', event);
+                    valueChanged('ba_geo_coords', event.target ? event.target.value : event);
                   }}
                 />
               </CustomColumn>
@@ -323,7 +324,7 @@ class BAForm extends React.Component {
                   value={values.notification_interval}
                   error={errors.notification_interval}
                   onChange={(event) => {
-                    valueChanged('notification_interval', event);
+                    valueChanged('notification_interval', event.target ? event.target.value : event);
                   }}
                 />
               </CustomColumn>
@@ -378,7 +379,7 @@ class BAForm extends React.Component {
                   value={values.notification_period}
                   error={errors.notification_period}
                   onChange={(event) => {
-                    valueChanged('notification_period', event);
+                    valueChanged('notification_period', event.target ? event.target.value : event);
                   }}
                 />
               </CustomColumn>
@@ -427,7 +428,7 @@ class BAForm extends React.Component {
                   value={values.sla_month_percent_warn}
                   error={errors.sla_month_percent_warn}
                   onChange={(event) => {
-                    valueChanged('sla_month_percent_warn', event);
+                    valueChanged('sla_month_percent_warn', event.target ? event.target.value : event);
                   }}
                 />
               </CustomColumn>
@@ -440,7 +441,7 @@ class BAForm extends React.Component {
                   value={values.sla_month_duration_warn}
                   error={errors.sla_month_duration_warn}
                   onChange={(event) => {
-                    valueChanged('sla_month_duration_warn', event);
+                    valueChanged('sla_month_duration_warn', event.target ? event.target.value : event);
                   }}
                 />
               </CustomColumn>
@@ -453,7 +454,7 @@ class BAForm extends React.Component {
                   value={values.sla_month_percent_crit}
                   error={errors.sla_month_percent_crit}
                   onChange={(event) => {
-                    valueChanged('sla_month_percent_crit', event);
+                    valueChanged('sla_month_percent_crit', event.target ? event.target.value : event);
                   }}
                 />
               </CustomColumn>
@@ -466,7 +467,7 @@ class BAForm extends React.Component {
                   value={values.sla_month_duration_crit}
                   error={errors.sla_month_duration_crit}
                   onChange={(event) => {
-                    valueChanged('sla_month_duration_crit', event);
+                    valueChanged('sla_month_duration_crit', event.target ? event.target.value : event);
                   }}
                 />
               </CustomColumn>
@@ -528,7 +529,8 @@ class BAForm extends React.Component {
                   value={values.event_handler_command}
                   error={errors.event_handler_command}
                   onChange={(event) => {
-                    valueChanged('event_handler_command', event);
+                    valueChanged('event_handler_command', event.target ? event.target.value : event);
+                    // event.target ? event.target.value : event is done here instead of event.persist()
                   }}
                 />
               </CustomColumn>
