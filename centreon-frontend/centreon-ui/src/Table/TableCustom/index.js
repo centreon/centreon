@@ -74,6 +74,7 @@ class TableCustom extends Component {
 
   handleSelectAllClick = (event) => {
     const {
+      onEntitiesSelected,
       onTableSelectionChanged,
       tableData,
       nameIdPaired,
@@ -86,6 +87,7 @@ class TableCustom extends Component {
         ? tableData.map((n) => `${n.id}:${n.name}`)
         : tableData.map((n) => n.id);
       onTableSelectionChanged(newSelecteds);
+      onEntitiesSelected(tableData);
       return;
     }
 
@@ -96,10 +98,12 @@ class TableCustom extends Component {
     event.preventDefault();
     event.stopPropagation();
     const {
+      onEntitiesSelected,
       onTableSelectionChanged,
       selected,
       nameIdPaired,
       indicatorsEditor,
+      tableData,
     } = this.props;
     const value = indicatorsEditor
       ? row
@@ -134,6 +138,7 @@ class TableCustom extends Component {
       );
     }
 
+    onEntitiesSelected(tableData.filter(({ id }) => newSelected.includes(id)));
     onTableSelectionChanged(newSelected);
   };
 
@@ -666,6 +671,7 @@ TableCustom.defaultProps = {
   onRowClick: () => {},
   labelDisplayedRows: ({ from, to, count }) => `${from}-${to} of ${count}`,
   labelRowsPerPage: 'Rows per page',
+  onEntitiesSelected: () => {},
   onTableSelectionChanged: () => {},
 };
 
@@ -677,6 +683,7 @@ const anyArray = PropTypes.arrayOf(anyObject);
 TableCustom.propTypes = {
   classes: anyObject.isRequired,
   onSort: PropTypes.func.isRequired,
+  onEntitiesSelected: PropTypes.func,
   onTableSelectionChanged: PropTypes.func,
   columnConfiguration: anyArray.isRequired,
   tableData: anyArray.isRequired,
