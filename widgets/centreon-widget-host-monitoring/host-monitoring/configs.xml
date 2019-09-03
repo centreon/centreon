@@ -15,7 +15,7 @@
         <preference label="Display Up" name="host_up" defaultValue="1" type="boolean"/>
         <preference label="Display Down" name="host_down" defaultValue="1" type="boolean"/>
         <preference label="Display Unreachable" name="host_unreachable" defaultValue="1" type="boolean"/>
-        <preference label="Criticities Filters (criticities name separated by ',')" name="criticality_filter" defaultValue="" type="text"/>
+        <preference label="Severity Filter" name="criticality_filter" defaultValue="" type="hostSeverityMulti"/>
         <preference label="Acknowledgement Filter" name="acknowledgement_filter" type="list">
             <option value="ack" label="Acknowledged"/>
             <option value="nack" label="Not Acknowleged"/>
