@@ -209,7 +209,7 @@ sub load_modules {
     }
     
     # Load internal functions
-    foreach my $method_name (('putlog', 'getlog', 'kill', 'ping', 'constatus', 'setcoreid')) {
+    foreach my $method_name (('putlog', 'getlog', 'kill', 'ping', 'constatus', 'setcoreid', 'synclogs')) {
         unless ($self->{internal_register}->{$method_name} = centreon::gorgone::common->can($method_name)) {
             $self->{logger}->writeLogError("[core] No function '$method_name'");
             exit(1);
@@ -224,7 +224,9 @@ sub message_run {
         return (undef, 1, { message => 'request not well formatted' });
     }
     my ($action, $token, $target, $data) = ($1, $2, $3, $4);
-    
+
+    print "===$action====$target=== la ===\n";
+
     # Check if not myself ;)
     if (defined($target) && ($target eq '' || $target eq $self->{id})) {
         $target = undef;
@@ -234,7 +236,7 @@ sub message_run {
         $token = centreon::gorgone::common::generate_token();
     }
 
-    if ($action !~ /^(PUTLOG|GETLOG|KILL|PING|CONSTATUS|SETCOREID)$/ && 
+    if ($action !~ /^(PUTLOG|GETLOG|KILL|PING|CONSTATUS|SETCOREID|SYNCLOGS)$/ && 
         !defined($target) && !defined($self->{modules_events}->{$action})) {
         centreon::gorgone::common::add_history(
             dbh => $self->{db_gorgone},
@@ -272,7 +274,7 @@ sub message_run {
         return ($token, 0);
     }
     
-    if ($action =~ /^(PUTLOG|GETLOG|KILL|PING|CONSTATUS|SETCOREID)$/) {
+    if ($action =~ /^(PUTLOG|GETLOG|KILL|PING|CONSTATUS|SETCOREID|SYNCLOGS)$/) {
         my ($code, $response, $response_type) = $self->{internal_register}->{lc($action)}->(
             gorgone => $self,
             gorgone_config => $config,
@@ -393,6 +395,39 @@ sub handshake {
         }
         return undef;
     }    
+}
+
+sub send_message_parent {
+    my (%options) = @_;
+
+    if ($options{router_type} eq 'internal') {
+        centreon::gorgone::common::zmq_core_response(
+            socket => $gorgone->{internal_socket},
+            identity => $options{identity},
+            response_type => $options{response_type},
+            data => $options{data},
+            code => $options{code},
+            token => $options{token}
+        );
+    }
+    if ($options{router_type} eq 'external') {
+        my ($status, $key) = centreon::gorgone::common::is_handshake_done(dbh => $gorgone->{db_gorgone}, identity => $options{identity});
+        return if ($status == 0);
+        print "=== response type: $options{response_type} === status: $status === $options{identity}====\n";
+        print "==== token $options{token} === $options{data} ===\n";
+        print "==== $config->{gorgonecore}->{cipher} = $config->{gorgonecore}->{vector} ==\n";
+        centreon::gorgone::common::zmq_core_response(
+            socket => $gorgone->{external_socket},
+            identity => $options{identity},
+            response_type => $options{response_type},
+            cipher => $config->{gorgonecore}->{cipher},
+            vector => $config->{gorgonecore}->{vector},
+            symkey => $key,
+            token => $options{token},
+            code => $options{code},
+            data => $options{data}
+        );
+    }
 }
 
 sub router_external_event {

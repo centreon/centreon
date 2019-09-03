@@ -300,6 +300,34 @@ sub is_handshake_done {
 # internal functions
 #######################
 
+sub synclogs {
+    my (%options) = @_;
+
+    my $data;
+    eval {
+        $data = JSON::XS->new->utf8->decode($options{data});
+    };
+    if ($@) {
+        return (1, { message => 'request not well formatted' });
+    }
+
+    if (!defined($data->{id})) {
+        return (1, { action => 'synclog', message => 'please set id for synclog' });
+    }
+
+    print "===in synclog call===\n";
+    if (defined($options{gorgone_config}->{gorgonecore}->{proxy_name}) && defined($options{gorgone}->{modules_id}->{$options{gorgone_config}->{gorgonecore}->{proxy_name}})) {
+        my $name = $options{gorgone}->{modules_id}->{$options{gorgone_config}->{gorgonecore}->{proxy_name}};
+        my $method;
+        if (defined($name) && ($method = $name->can('synclog'))) {
+            $method->(dbh => $options{gorgone}->{db_gorgone});
+            return (0, { action => 'synclog', message => 'synclog launched' });
+        }
+    }
+
+    return (1, { action => 'synclog', message => 'no proxy module' });
+}
+
 sub constatus {
     my (%options) = @_;
 
@@ -343,6 +371,9 @@ sub ping {
         my $method;
         if (defined($name) && ($method = $name->can('get_constatus_result'))) {
             $constatus = $method->();
+        }
+        if (defined($name) && ($method = $name->can('add_parent_ping'))) {
+            $method->(router_type => $options{router_type}, identity => $options{identity}, logger => $options{logger});
         }
     }
 

@@ -55,6 +55,7 @@ my $last_pong = {};
 my $register_nodes = {};
 my $register_subnodes = {};
 my $constatus_ping = {};
+my $parent_ping = {};
 my $pools = {};
 my $pools_pid = {};
 my $nodes_pool = {};
@@ -334,7 +335,7 @@ sub setlogs {
         );
         return undef;
     }
-    
+
     $options{logger}->writeLogInfo("[proxy] -hooks- Received setlogs for '$options{data}->{data}->{id}'");
     
     $synctime_nodes->{$options{data}->{data}->{id}}->{in_progress} = 0;
@@ -363,7 +364,21 @@ sub setlogs {
     } else {
         $options{dbh}->rollback();
     }
-    $options{dbh}->transaction_mode(0);    
+    $options{dbh}->transaction_mode(0);
+    
+    # We try to send it to parents
+    foreach (keys %{$parent_ping}) {
+        use Data::Dumper; print Data::Dumper::Dumper($parent_ping);
+        print Data::Dumper::Dumper($options{data});
+        centreon::script::gorgonecore::send_message_parent(
+            router_type => $parent_ping->{$_},
+            identity => $_,
+            response_type => 'SYNCLOGS',
+            data => '{ "id": "' . $core_id . '"}',
+            code => 0,
+            token => $options{token}
+        );
+    }
 }
 
 sub ping_send {
@@ -382,6 +397,17 @@ sub ping_send {
             $synctime_nodes->{$id}->{in_progress_ping} = 1;
             routing(action => 'PING', target => $id, data => '{}', dbh => $options{dbh});
         }
+    }
+}
+
+sub synclog {
+    my (%options) = @_;
+
+    # We check if we need synclogs
+    if ($stop == 0 &&
+        time() - $synctime_lasttime > $synctime_option) {
+        $synctime_lasttime = time();
+        full_sync_history(dbh => $options{dbh});
     }
 }
 
@@ -608,6 +634,13 @@ sub register_nodes {
             $options{logger}->writeLogInfo("[proxy] -hooks- Poller '" . $node->{id} . "' is registered");
         }
     }
+}
+
+sub add_parent_ping {
+    my (%options) = @_;
+
+    $options{logger}->writeLogDebug("[proxy] -hooks- parent ping '" . $options{identity} . "' is registered");
+    $parent_ping->{$options{identity}} = $options{router_type};
 }
 
 1;

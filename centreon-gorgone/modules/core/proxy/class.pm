@@ -186,6 +186,7 @@ sub action_proxydelnode {
     my ($code, $data) = $self->json_decode(argument => $options{data});
     return if ($code == 1);
 
+    # TODO
 }
 
 sub action_proxyaddsubnode {
@@ -299,7 +300,7 @@ sub run {
                 push @$polls, $self->{clients}->{$_}->{class}->get_poll();
             }
         }
-        
+
         # we try to do all we can
         my $rev = zmq_poll($polls, 5000);
         
