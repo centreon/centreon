@@ -144,8 +144,9 @@ An example of the json stream:
       "action": "constatus", 
       "mesage": "ok", 
       "data": {
-        "last_ping": "xxxx",
-        "entries": {
+        "last_ping_sent": "xxxx",
+        "last_ping_recv": "xxxx",
+        "nodes": {
           "1": "xxx",
           "2": "xxx",
           ...

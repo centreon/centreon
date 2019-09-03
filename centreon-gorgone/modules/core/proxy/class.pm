@@ -92,18 +92,17 @@ sub read_message {
     
     my ($client_identity) = ($2);
     if ($options{data} =~ /^\[PONG\]/) {
-        if ($options{data} !~ /^\[(.+?)\]\s+\[(.*?)\]\s+\[(.*?)\]/m) {
+        if ($options{data} !~ /^\[(.+?)\]\s+\[(.*?)\]\s+\[.*?\]\s+(.*)/m) {
             return undef;
         }
-        my ($action, $token) = ($1, $2);
-        
+        my ($action, $token, $data) = ($1, $2, $3);
+
         centreon::gorgone::common::zmq_send_message(
             socket => $connector->{internal_socket},
             action => 'PONG',
             token => $token,
             target => '',
-            data => { code => 0, data => { message => 'ping ok', action => 'ping', id => $client_identity } },
-            json_encode => 1
+            data => $data,
         );
     } elsif ($options{data} =~ /^\[REGISTERNODES|UNREGISTERNODES\]/) {
         if ($options{data} !~ /^\[(.+?)\]\s+\[(.*?)\]\s+\[.*?\]\s+(.*)/m) {
@@ -178,7 +177,7 @@ sub action_proxyaddnode {
     foreach (keys %{$self->{subnodes}}) {
         delete $self->{subnodes}->{$_}
             if ($self->{subnodes}->{$_} eq $data->{id} && !defined($temp->{$_}));
-    }    
+    }
 }
 
 sub action_proxydelnode {
@@ -187,7 +186,20 @@ sub action_proxydelnode {
     my ($code, $data) = $self->json_decode(argument => $options{data});
     return if ($code == 1);
 
-    
+}
+
+sub action_proxyaddsubnode {
+    my ($self, %options) = @_;
+
+    my ($code, $data) = $self->json_decode(argument => $options{data});
+    return if ($code == 1);
+
+    foreach (keys %{$self->{subnodes}}) {
+        delete $self->{subnodes}->{$_} if ($self->{subnodes}->{$_} eq $data->{id});
+    }
+    foreach (keys %{$data->{nodes}}) {
+        $self->{subnodes}->{$_} = $data->{id};
+    }
 }
 
 sub proxy {
@@ -199,6 +211,9 @@ sub proxy {
     my ($action, $token, $target, $data) = ($1, $2, $3, $4);
     if ($action eq 'PROXYADDNODE') {
         action_proxyaddnode($connector, data => $data);
+        return ;
+    } elsif ($action eq 'PROXYADDSUBNODE') {
+        action_proxyaddsubnode($connector, data => $data);
         return ;
     } elsif ($action eq 'PROXYDELNODE') {
         action_proxydelnode($connector, data => $data);

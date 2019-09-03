@@ -1,13 +1,13 @@
 name: gorgoned-poller2
 gorgonecore:
   internal_com_type: ipc
-  internal_com_path: /tmp/gorgone/routing-poller.ipc
+  internal_com_path: /tmp/gorgone/routing-poller2.ipc
   external_com_type: tcp
-  external_com_path: "*:5556"
+  external_com_path: "*:5557"
   # in seconds before sending kill signals (not gently)
   timeout: 50
   gorgone_db_type: SQLite
-  gorgone_db_name: dbname=/tmp/gorgone_poller.sdb
+  gorgone_db_name: dbname=/tmp/gorgone_poller2.sdb
   gorgone_db_host: 
   gorgone_db_port: 
   gorgone_db_user:
@@ -16,7 +16,7 @@ gorgonecore:
   hostname:
   # If not set. Try from 'hostname' in database
   # Set 'none', if you don't need it (for poller in push mode)
-  id: 140
+  id: 150
   privkey: keys/poller/privkey.pem
   cipher: "Cipher::AES"
   # in bytes
@@ -31,26 +31,8 @@ gorgonecore:
   sessions_time: 86400
   # in seconds
   purge_sessions_time: 3600
-
-  # shouldn't be changed
-  proxy_name: proxy
 modules:
-  - name: proxy
-    package: modules::core::proxy::hooks
-    enable: true
-    pool: 2
-    # sync history each 5 minutes
-    synchistory_time: 300
-    # how much time before the response is in timeout
-    synchistory_timeout: 120
-    # ping each X seconds
-    ping: 60
-
   - name: action
     package: modules::core::action::hooks
     enable: true
-
-  - name: register
-    package: modules::core::register::hooks
-    enable: true
-    config_file: config/registernodes2.json
+  

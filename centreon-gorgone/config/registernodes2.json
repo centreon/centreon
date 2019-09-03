@@ -1,11 +1,10 @@
 { 
     "nodes": [ 
-        { "id": 100, "type": "push_ssh", "address": "10.0.0.1", "ssh_port": 22 },
         { 
-            "id": 140, 
+            "id": 150, 
             "type": "push_zmq", 
             "address": "10.30.2.15",
-            "port": 5556,
+            "port": 5557,
             "server_pubkey": "keys/poller/pubkey.crt", 
             "client_pubkey": "keys/central/pubkey.crt",
             "client_privkey": "keys/central/privkey.pem", 

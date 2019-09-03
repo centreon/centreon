@@ -288,7 +288,7 @@ sub is_client_can_connect {
 sub is_handshake_done {
     my (%options) = @_;
     
-    my ($status, $sth) = $options{dbh}->query("SELECT `key` FROM gorgone_identity WHERE identity = " . $options{dbh}->quote($options{identity}) . " ORDER BY id DESC");
+    my ($status, $sth) = $options{dbh}->query("SELECT `key` FROM gorgone_identity WHERE identity = " . $options{dbh}->quote($options{identity}) . " ORDER BY id DESC LIMIT 1");
     return if ($status == -1);
     if (my $row = $sth->fetchrow_hashref()) {
         return (1, pack('H*', $row->{key}));
@@ -300,27 +300,11 @@ sub is_handshake_done {
 # internal functions
 #######################
 
-sub registerparent {
-    my (%options) = @_;
-
-    # in pull mode, we do the registerparent directly. But we don't have an history. Not a issue.
-    #$options{gorgone}->{register_parent_nodes}->{}
-    if (defined($options{gorgone}->{modules_register}->{ $options{gorgone}->{modules_id}->{$options{gorgone_config}->{gorgonecore}->{proxy_name}} })) {
-        my $name = $options{gorgone_config}->{modules}->{$options{gorgone_config}->{gorgonecore}->{proxy_name}}->{module};
-        my $method;
-        if (defined($name) && ($method = $name->can('get_constatus_result'))) {
-            return (0, { action => 'constatus', message => 'ok', data => $method->() }, 'CONSTATUS');
-        }
-    }
-    
-    return (1, { action => 'constatus', message => 'cannot get value' }, 'CONSTATUS');
-}
-
 sub constatus {
     my (%options) = @_;
-    
-    if (defined($options{gorgone}->{modules_register}->{ $options{gorgone}->{modules_id}->{$options{gorgone_config}->{gorgonecore}->{proxy_name}} })) {
-        my $name = $options{gorgone_config}->{modules}->{$options{gorgone_config}->{gorgonecore}->{proxy_name}}->{module};
+
+    if (defined($options{gorgone_config}->{gorgonecore}->{proxy_name}) && defined($options{gorgone}->{modules_id}->{$options{gorgone_config}->{gorgonecore}->{proxy_name}})) {
+        my $name = $options{gorgone}->{modules_id}->{$options{gorgone_config}->{gorgonecore}->{proxy_name}};
         my $method;
         if (defined($name) && ($method = $name->can('get_constatus_result'))) {
             return (0, { action => 'constatus', message => 'ok', data => $method->() }, 'CONSTATUS');
@@ -353,9 +337,16 @@ sub setcoreid {
 sub ping {
     my (%options) = @_;
 
-    #my $status = add_history(dbh => $options{gorgone}->{db_gorgone}, 
-    #                         token => $options{token}, logger => $options{logger}, code => 0);
-    return (0, { action => 'ping', message => 'ping ok', id => $options{id} }, 'PONG');
+    my $constatus = {};
+    if (defined($options{gorgone_config}->{gorgonecore}->{proxy_name}) && defined($options{gorgone}->{modules_id}->{$options{gorgone_config}->{gorgonecore}->{proxy_name}})) {
+        my $name = $options{gorgone}->{modules_id}->{$options{gorgone_config}->{gorgonecore}->{proxy_name}};
+        my $method;
+        if (defined($name) && ($method = $name->can('get_constatus_result'))) {
+            $constatus = $method->();
+        }
+    }
+
+    return (0, { action => 'ping', message => 'ping ok', id => $options{id}, data => $constatus }, 'PONG');
 }
 
 sub putlog {

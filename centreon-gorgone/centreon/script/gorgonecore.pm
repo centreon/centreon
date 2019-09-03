@@ -209,7 +209,7 @@ sub load_modules {
     }
     
     # Load internal functions
-    foreach my $method_name (('putlog', 'getlog', 'kill', 'ping', 'constatus', 'setcoreid', 'registerparent')) {
+    foreach my $method_name (('putlog', 'getlog', 'kill', 'ping', 'constatus', 'setcoreid')) {
         unless ($self->{internal_register}->{$method_name} = centreon::gorgone::common->can($method_name)) {
             $self->{logger}->writeLogError("[core] No function '$method_name'");
             exit(1);
@@ -224,7 +224,18 @@ sub message_run {
         return (undef, 1, { message => 'request not well formatted' });
     }
     my ($action, $token, $target, $data) = ($1, $2, $3, $4);
-    if ($action !~ /^(PUTLOG|GETLOG|KILL|PING|CONSTATUS|SETCOREID|REGISTERPARENT)$/ && !defined($self->{modules_events}->{$action})) {
+    
+    # Check if not myself ;)
+    if (defined($target) && ($target eq '' || $target eq $self->{id})) {
+        $target = undef;
+    }
+
+    if (!defined($token) || $token eq '') {
+        $token = centreon::gorgone::common::generate_token();
+    }
+
+    if ($action !~ /^(PUTLOG|GETLOG|KILL|PING|CONSTATUS|SETCOREID)$/ && 
+        !defined($target) && !defined($self->{modules_events}->{$action})) {
         centreon::gorgone::common::add_history(
             dbh => $self->{db_gorgone},
             code => 1,
@@ -233,10 +244,6 @@ sub message_run {
             json_encode => 1
         );
         return (undef, 1, { message => "action '$action' is not known" });
-    }
-
-    if (!defined($token) || $token eq '') {
-        $token = centreon::gorgone::common::generate_token();
     }
 
     if ($self->{stop} == 1) {
@@ -251,27 +258,26 @@ sub message_run {
     }
     
     # Check Routing
-    if (defined($target) && $target ne '') {
-        # Check if not myself ;)
-        if ($target ne $self->{id}) {
-            $self->{modules_register}->{ $self->{modules_id}->{$config->{gorgonecore}->{proxy_name}} }->{routing}->(
-                socket => $self->{internal_socket},
-                dbh => $self->{db_gorgone},
-                logger => $self->{logger}, 
-                action => $1,
-                token => $token,
-                target => $target,
-                data => $data,
-                hostname => $self->{hostname}
-            );
-            return ($token, 0);
-        }
+    if (defined($target)) {
+        $self->{modules_register}->{ $self->{modules_id}->{$config->{gorgonecore}->{proxy_name}} }->{routing}->(
+            socket => $self->{internal_socket},
+            dbh => $self->{db_gorgone},
+            logger => $self->{logger}, 
+            action => $1,
+            token => $token,
+            target => $target,
+            data => $data,
+            hostname => $self->{hostname}
+        );
+        return ($token, 0);
     }
     
-    if ($action =~ /^(PUTLOG|GETLOG|KILL|PING|CONSTATUS|SETCOREID|REGISTERPARENT)$/) {
+    if ($action =~ /^(PUTLOG|GETLOG|KILL|PING|CONSTATUS|SETCOREID)$/) {
         my ($code, $response, $response_type) = $self->{internal_register}->{lc($action)}->(
             gorgone => $self,
             gorgone_config => $config,
+            identity => $options{identity},
+            router_type => $options{router_type},
             id => $self->{id},
             data => $data,
             token => $token,
@@ -296,7 +302,11 @@ sub message_run {
 sub router_internal_event {
     while (1) {
         my ($identity, $message) = centreon::gorgone::common::zmq_read_message(socket => $gorgone->{internal_socket});
-        my ($token, $code, $response, $response_type) = $gorgone->message_run(message => $message);
+        my ($token, $code, $response, $response_type) = $gorgone->message_run(
+            message => $message,
+            identity => $identity,
+            router_type => 'internal',
+        );
         centreon::gorgone::common::zmq_core_response(
             socket => $gorgone->{internal_socket},
             identity => $identity,
@@ -389,7 +399,11 @@ sub router_external_event {
     while (1) {
         my ($identity, $key, $message) = $gorgone->handshake();
         if (defined($message)) {
-            my ($token, $code, $response, $response_type) = $gorgone->message_run(message => $message);
+            my ($token, $code, $response, $response_type) = $gorgone->message_run(
+                message => $message,
+                identity => $identity,
+                router_type => 'external',
+            );
             centreon::gorgone::common::zmq_core_response(
                 socket => $gorgone->{external_socket},
                 identity => $identity, response_type => $response_type,

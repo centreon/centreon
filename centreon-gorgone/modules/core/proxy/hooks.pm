@@ -36,6 +36,7 @@ my $EVENTS = [
     { event => 'UNREGISTERNODES' }, # internal. Shouldn't be used by third party clients
     { event => 'PROXYADDNODE' }, # internal. Shouldn't be used by third party clients
     { event => 'PROXYDELNODE' }, # internal. Shouldn't be used by third party clients
+    { event => 'PROXYADDSUBNODE' }, # internal. Shouldn't be used by third party clients
     { event => 'PONGRESET' }, # internal. Shouldn't be used by third party clients
 ];
 
@@ -53,6 +54,7 @@ my $ping_time = 0;
 my $last_pong = {}; 
 my $register_nodes = {};
 my $register_subnodes = {};
+my $constatus_ping = {};
 my $pools = {};
 my $pools_pid = {};
 my $nodes_pool = {};
@@ -106,12 +108,14 @@ sub routing {
         return undef if (!defined($data->{data}->{id}) || $data->{data}->{id} eq '');
         $synctime_nodes->{$data->{data}->{id}}->{in_progress_ping} = 0;
         $last_pong->{$data->{data}->{id}} = time();
+        $constatus_ping->{$data->{data}->{id}}->{last_ping_recv} = time();
+        $constatus_ping->{$data->{data}->{id}}->{nodes} = $data->{data}->{data};
+        register_subnodes(%options, id => $data->{data}->{id}, subnodes => $data->{data}->{data});
         $options{logger}->writeLogInfo("[proxy] -hooks- Pong received from '" . $data->{data}->{id} . "'");
         return undef;
     }
 
     if ($options{action} eq 'PONGRESET') {
-        use Data::Dumper; print Data::Dumper::Dumper($data);
         return undef if (!defined($data->{id}) || $data->{id} eq '');
         $synctime_nodes->{$data->{id}}->{in_progress_ping} = 0;
         $options{logger}->writeLogInfo("[proxy] -hooks- PongReset received from '" . $data->{id} . "'");
@@ -137,12 +141,12 @@ sub routing {
         setlogs(dbh => $options{dbh}, data => $data, token => $options{token}, logger => $options{logger});
         return undef;
     }
-    
+
     if (!defined($options{target}) || 
         (!defined($register_subnodes->{$options{target}}) && !defined($register_nodes->{$options{target}}))) {
         centreon::gorgone::common::add_history(
             dbh => $options{dbh},
-            code => 20, token => $options{token},
+            code => centreon::gorgone::module::ACTION_FINISH_KO, token => $options{token},
             data => { message => 'proxy - need a valid node id' },
             json_encode => 1
         );
@@ -153,7 +157,7 @@ sub routing {
         if (defined($register_nodes->{$options{target}}) && $register_nodes->{$options{target}}->{type} eq 'push_ssh') {
             centreon::gorgone::common::add_history(
                 dbh => $options{dbh},
-                code => 20, token => $options{token},
+                code => centreon::gorgone::module::ACTION_FINISH_KO, token => $options{token},
                 data => { message => "proxy - can't get log a ssh target" },
                 json_encode => 1
             );
@@ -164,7 +168,7 @@ sub routing {
             if ($synctime_nodes->{$options{target}}->{synctime_error} == -1 || get_sync_time(dbh => $options{dbh}, node_id => $options{target}) == -1) {
                 centreon::gorgone::common::add_history(
                     dbh => $options{dbh},
-                    code => 20, token => $options{token},
+                    code => centreon::gorgone::module::ACTION_FINISH_KO, token => $options{token},
                     data => { message => 'proxy - problem to getlog' },
                     json_encode => 1
                 );
@@ -174,14 +178,13 @@ sub routing {
             if ($synctime_nodes->{$options{target}}->{in_progress} == 1) {
                 centreon::gorgone::common::add_history(
                     dbh => $options{dbh},
-                    code => 20, token => $options{token},
+                    code => centreon::gorgone::module::ACTION_FINISH_KO, token => $options{token},
                     data => { message => 'proxy - getlog already in progress' },
                     json_encode => 1
                 );
                 return undef;
             }
-            
-            
+
             # We put the good time to get        
             my $ctime = $synctime_nodes->{$options{target}}->{ctime};
             my $last_id = $synctime_nodes->{$options{target}}->{last_id};
@@ -190,9 +193,15 @@ sub routing {
             $synctime_nodes->{$options{target}}->{in_progress_time} = time();
         }
     }
-    
+
+    my $target = $options{target};
+    # we prefer to use direct target
+    if (!defined($register_nodes->{$options{target}})) {
+        $target = $register_subnodes->{$options{target}};
+    }
+
     # Mode zmq pull
-    if ($register_nodes->{$options{target}}->{type} eq 'pull') {
+    if ($register_nodes->{$target}->{type} eq 'pull') {
         pull_request(%options, data_decoded => $data);
         return undef;
     }
@@ -200,7 +209,7 @@ sub routing {
     if (centreon::script::gorgonecore::waiting_ready_pool(pool => $pools) == 0) {
         centreon::gorgone::common::add_history(
             dbh => $options{dbh},
-            code => 20, token => $options{token},
+            code => centreon::gorgone::module::ACTION_FINISH_KO, token => $options{token},
             data => { message => 'proxy - still none ready' },
             json_encode => 1
         );
@@ -208,12 +217,6 @@ sub routing {
     }
 
     my $identity;
-    my $target = $options{target};
-    # we prefer to use direct target
-    if (!defined($register_nodes->{$options{target}})) {
-        $target = $register_subnodes->{$options{target}};
-    }
-    
     if (defined($nodes_pool->{$target})) {
         $identity = $nodes_pool->{$target};
     } else {
@@ -284,7 +287,7 @@ sub check {
             time() - $synctime_nodes->{$_}->{in_progress_time} > $synctimeout_option) {
             centreon::gorgone::common::add_history(
                 dbh => $options{dbh},
-                code => 20,
+                code => centreon::gorgone::module::ACTION_FINISH_KO,
                 data => { message => "proxy - getlog in timeout for '$_'" },
                 json_encode => 1
             );
@@ -316,7 +319,7 @@ sub setlogs {
     if (!defined($options{data}->{data}->{id}) || $options{data}->{data}->{id} eq '') {
         centreon::gorgone::common::add_history(
             dbh => $options{dbh},
-            code => 20, token => $options{token},
+            code => centreon::gorgone::module::ACTION_FINISH_KO, token => $options{token},
             data => { message => 'proxy - need a id to setlogs' },
             json_encode => 1
         );
@@ -325,7 +328,7 @@ sub setlogs {
     if ($synctime_nodes->{$options{data}->{data}->{id}}->{in_progress} == 0) {
         centreon::gorgone::common::add_history(
             dbh => $options{dbh},
-            code => 20, token => $options{token},
+            code => centreon::gorgone::module::ACTION_FINISH_KO, token => $options{token},
             data => { message => 'proxy - skip setlogs response. Maybe too much time to get response. Retry' },
             json_encode => 1
         );
@@ -371,6 +374,7 @@ sub ping_send {
     foreach my $id (@$nodes_id) {
         next if (defined($synctime_nodes->{$id}) && $synctime_nodes->{$id}->{in_progress_ping} == 1);
 
+        $constatus_ping->{$id}->{last_ping_sent} = time();
         if ($register_nodes->{$id}->{type} eq 'push_zmq') {
             $synctime_nodes->{$id}->{in_progress_ping} = 1;
             routing(socket => $internal_socket, action => 'PING', target => $id, data => '{}', dbh => $options{dbh});
@@ -500,8 +504,7 @@ sub pull_request {
 sub get_constatus_result {
     my (%options) = @_;
 
-    my $result = { last_ping => $ping_time, entries => $last_pong };
-    return $result;
+    return $constatus_ping;
 }
 
 sub unregister_nodes {
@@ -525,7 +528,40 @@ sub unregister_nodes {
         if (defined($register_nodes->{$node->{id}})) {
             delete $register_nodes->{$node->{id}};
             delete $synctime_nodes->{$node->{id}};
+            delete $constatus_ping->{$node->{id}};
         }
+    }
+}
+
+sub register_subnodes {
+    my (%options) = @_;
+
+    foreach my $subnode_id (keys %$register_subnodes) {
+        delete $register_subnodes->{$subnode_id}
+            if ($register_subnodes->{$subnode_id} eq $options{id});
+    }
+
+    my $subnodes_register = { id => $options{id}, nodes => {} };
+    my $subnodes = [$options{subnodes}];
+    while (1) {
+        last if (scalar(@$subnodes) <= 0);
+
+        my $entry = shift(@$subnodes);
+        foreach (keys %$entry) {
+            $subnodes_register->{nodes}->{$_} = $options{id};
+            $register_subnodes->{$_} = $options{id};
+        }
+        push @$subnodes, $entry->{nodes} if (defined($entry->{nodes}));
+    }
+
+    if ($register_nodes->{$options{id}}->{type} ne 'pull') {
+        routing(
+            socket => $internal_socket, 
+            action => 'PROXYADDSUBNODE',
+            target => $options{id}, 
+            data => JSON::XS->new->utf8->encode($subnodes_register),
+            dbh => $options{dbh}
+        );
     }
 }
 
@@ -546,7 +582,7 @@ sub register_nodes {
                 }
             }
         }
-        
+
         $register_nodes->{$node->{id}} = $node;
         if (defined($node->{nodes})) {
             foreach my $subnode_id (@{$node->{nodes}}) {
@@ -566,6 +602,7 @@ sub register_nodes {
             routing(socket => $internal_socket, action => 'PROXYADDNODE', target => $node->{id}, data => JSON::XS->new->utf8->encode($node), dbh => $options{dbh});
         }
         if ($new_node == 1) {
+            $constatus_ping->{$node->{id}} = { type => $node->{type}, last_ping_sent => 0, last_ping_recv => 0, nodes => {} };
             # we provide information to the proxy class
             ping_send(node_id => $node->{id}, dbh => $options{dbh});
             $options{logger}->writeLogInfo("[proxy] -hooks- Poller '" . $node->{id} . "' is registered");

@@ -39,7 +39,7 @@ sub get_command_result {
     my ($current_retries, $retries) = (0, 4);
     $stopped->{$client2->{identity}} = '^([0-9]+0|32)$'; 
     $client2->send_message(
-        action => 'COMMAND', data => { command => 'ls /' }, target => 120, 
+        action => 'COMMAND', data => { command => 'ls /' }, target => 150, 
         json_encode => 1
     );
     while (1) {
@@ -60,7 +60,7 @@ sub get_command_result {
             if (defined($identities_token->{$client2->{identity}})) {
                 # We ask a sync
                 print "==== send logs ===\n";
-                $client2->send_message(action => 'GETLOG', target => 120, token => $identities_token->{$client2->{identity}},
+                $client2->send_message(action => 'GETLOG', target => 150, token => $identities_token->{$client2->{identity}},
                                        json_encode => 1);
                 $client2->send_message(action => 'GETLOG', token => $identities_token->{$client2->{identity}}, data => { token => $identities_token->{$client2->{identity}} }, 
                                        json_encode => 1);
@@ -108,21 +108,21 @@ my $uuid;
 #$uuid = 'toto';
 UUID::generate($uuid);
 
-$client = centreon::gorgone::clientzmq->new(
-    identity => 'toto', 
-    cipher => 'Cipher::AES', 
-    vector => '0123456789012345',
-    server_pubkey => 'keys/central/pubkey.crt',
-    client_pubkey => 'keys/poller/pubkey.crt',
-    client_privkey => 'keys/poller/privkey.pem',
-    target_type => 'tcp',
-    target_path => '127.0.0.1:5555',
-    ping => 60,
-);
-$client->init(callback => \&read_response);
+#$client = centreon::gorgone::clientzmq->new(
+#    identity => 'toto', 
+#    cipher => 'Cipher::AES', 
+#    vector => '0123456789012345',
+#    server_pubkey => 'keys/central/pubkey.crt',
+#    client_pubkey => 'keys/poller/pubkey.crt',
+#    client_privkey => 'keys/poller/privkey.pem',
+#    target_type => 'tcp',
+#    target_path => '127.0.0.1:5555',
+#    ping => 60,
+#);
+#$client->init(callback => \&read_response);
 $client2 = centreon::gorgone::clientzmq->new(
     identity => 'tata', 
-    cipher => 'Cipher::AES', 
+    cipher => 'Cipher::AES',
     vector => '0123456789012345',
     server_pubkey => 'keys/central/pubkey.crt',
     client_pubkey => 'keys/poller/pubkey.crt',
@@ -134,17 +134,17 @@ $client2->init(callback => \&read_response_result);
 
 #$client->send_message(action => 'ACLADDHOST', data => { organization_id => 1 }, 
 #                      json_encode => 1);
-$client->send_message(
-    action => 'SCOMRESYNC',
-    data => { container_id => 'toto' }, 
-    json_encode => 1
-);
+#$client->send_message(
+#    action => 'SCOMRESYNC',
+#    data => { container_id => 'toto' }, 
+#    json_encode => 1
+#);
 #$client->send_message(action => 'PUTLOG', data => { code => 120, etime => time(), token => 'plopplop', data => { 'nawak' => 'nawak2' } },
 #                      json_encode => 1);
 #$client->send_message(action => 'ACLADDHOST', data => { organization_id => 10 }, target => 10,
 #                      json_encode => 1);
-$client2->send_message(action => 'ACLADDHOST', data => { organization_id => 14 }, 
-                       json_encode => 1);
+#$client2->send_message(action => 'ACLADDHOST', data => { organization_id => 14 }, 
+#                       json_encode => 1);
 #$client2->send_message(action => 'RELOADCRON', data => { }, 
 #                       json_encode => 1);
 
@@ -152,17 +152,17 @@ $client2->send_message(action => 'ACLADDHOST', data => { organization_id => 14 }
 #$client2->send_message(action => 'ENGINECOMMAND', data => { command => '[1417705150] ENABLE_HOST_CHECK;host1', engine_pipe => '/var/lib/centreon-engine/rw/centengine.cmd' }, target => 120, 
 #                       json_encode => 1);
 
-#$client2->send_message(action => 'COMMAND', data => { cmd => 'ls' }, target => 140, 
+#$client2->send_message(action => 'COMMAND', data => { cmd => 'ls' }, target => 150, 
 #                       json_encode => 1);
 #$client2->send_message(action => 'CONSTATUS');
 
 # It will transform
 #$client2->send_message(action => 'GETLOG', data => { cmd => 'ls' }, target => 120, 
 #                       json_encode => 1);
-#$client2->send_message(action => 'GETLOG', data => { cmd => 'ls' }, target => 140, 
+#$client2->send_message(action => 'GETLOG', data => {}, target => 140, 
 #                       json_encode => 1);
 
-#get_command_result();
+get_command_result();
 
 #while (1) {
 #    my $poll = [];
@@ -173,7 +173,8 @@ $client2->send_message(action => 'ACLADDHOST', data => { organization_id => 14 }
 #}
 
 while (1) {
-    my $poll = [$client->get_poll(), $client2->get_poll()];
+    #my $poll = [$client->get_poll(), $client2->get_poll()];
+    my $poll = [$client2->get_poll()];
 
 #    $client->ping(poll => $poll);
 #    $client2->ping(poll => $poll);
