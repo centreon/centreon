@@ -7,7 +7,7 @@ const FloatingEdit = styled(Edit)(() => ({
   color: '#0072CE',
   fontSize: 21,
   position: 'absolute',
-  right: 3,
+  right: 3
 }));
 
 function IconEdit(props) {

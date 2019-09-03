@@ -36,34 +36,40 @@ class InputFieldSelectCustom extends Component {
 
   componentWillMount = () => {
     const { value, options } = this.props;
+    let found = false;
     if (options) {
       for (let i = 0; i < options.length; i++) {
         if (options[i].id == value) {
           this.setState({
             selected: options[i],
           });
+          found = true;
         }
       }
       this.setState({
         options,
         allOptions: options,
+        ...(!found && {selected:{}})
       });
     }
   };
 
   componentWillReceiveProps = (nextProps) => {
-    const { value, options } = nextProps;
+    const { value, options } = nextProps; 
+    let found = false;
     if (options) {
       for (let i = 0; i < options.length; i++) {
         if (options[i].id == value) {
           this.setState({
             selected: options[i],
           });
+          found = true;
         }
       }
       this.setState({
         options,
         allOptions: options,
+        ...(!found && {selected:{}})
       });
     }
   };

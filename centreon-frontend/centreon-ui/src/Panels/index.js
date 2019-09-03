@@ -312,6 +312,7 @@ class BAPanel extends React.Component {
                 }}
                 style={{
                   width: multiselectActive ? '784px' : '285px',
+                  borderBottom: '1px solid'
                 }}
                 className={classnames(
                   styles['panels-header-input'],
@@ -325,9 +326,10 @@ class BAPanel extends React.Component {
                 color={saving || !formModified || Object.keys(errors).length > 0 ? 'disabled' : "primary"}
                 style={{
                   position: 'absolute',
+                  width:'75px',
                   right: 60,
                   top: 9,
-                  backgroundColor: '#0072CE',
+                  ...((!saving && formModified && Object.keys(errors).length < 1) && {backgroundColor: '#0072CE'}),
                   fontSize: 11,
                   cursor: saving || !formModified || Object.keys(errors).length > 0 ? 'not-allowed' : 'pointer'
                 }}

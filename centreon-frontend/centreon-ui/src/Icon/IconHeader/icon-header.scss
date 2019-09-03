@@ -117,7 +117,7 @@
 .iconmoon {
   display: block;
   text-align: center;
-  height: 28px;
+  height: 26px;
   @include iconmoon();
   &:before {
     font-size: 24px;
@@ -128,6 +128,7 @@
     margin-right: 6px;
     cursor: pointer;
     position: relative;
+    height: 39px;
   }
 }
 .icons {

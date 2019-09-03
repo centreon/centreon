@@ -36,6 +36,7 @@ const styles = () => ({
     display: 'flex',
     flexDirection: 'column',
     boxShadow: 'none',
+    background:'none'
   },
   tableWrapper: {
     boxShadow:
@@ -230,6 +231,7 @@ class TableCustom extends Component {
                 display: 'flex',
                 flexDirection: 'row-reverse',
                 padding: 0,
+                background:'#fff'
               }}
               SelectProps={{
                 native: true,
