@@ -251,13 +251,13 @@ sub run {
         path => $self->{config_core}{internal_com_path}
     );
     centreon::gorgone::common::zmq_send_message(
-        socket => $connector->{internal_socket},
+        socket => $self->{internal_socket},
         action => 'PROXYREADY',
         data => { pool_id => $self->{pool_id} },
         json_encode => 1
     );
     my $poll = {
-        socket  => $connector->{internal_socket},
+        socket  => $self->{internal_socket},
         events  => ZMQ_POLLIN,
         callback => \&event_internal,
     };
@@ -265,6 +265,15 @@ sub run {
         my $polls = [$poll];
         foreach (keys %{$self->{clients}}) {
             if (defined($self->{clients}->{$_}->{delete}) && $self->{clients}->{$_}->{delete} == 1) {
+                if ($self->{clients}->{$_}->{type} eq 'push_zmq') {
+                    centreon::gorgone::common::zmq_send_message(
+                        socket => $self->{internal_socket},
+                        action => 'PONGRESET',
+                        token => $self->generate_token(),
+                        target => '',
+                        data => '{ "id": ' . $_ . '}' 
+                    );
+                }
                 $self->{clients}->{$_}->{class}->close();
                 $self->{clients}->{$_}->{class} = undef;
                 $self->{clients}->{$_}->{delete} = 0;

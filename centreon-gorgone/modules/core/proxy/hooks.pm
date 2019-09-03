@@ -36,6 +36,7 @@ my $EVENTS = [
     { event => 'UNREGISTERNODES' }, # internal. Shouldn't be used by third party clients
     { event => 'PROXYADDNODE' }, # internal. Shouldn't be used by third party clients
     { event => 'PROXYDELNODE' }, # internal. Shouldn't be used by third party clients
+    { event => 'PONGRESET' }, # internal. Shouldn't be used by third party clients
 ];
 
 my $config_core;
@@ -100,11 +101,20 @@ sub routing {
         );
         return undef;
     }
-    
+
     if ($options{action} eq 'PONG') {
         return undef if (!defined($data->{data}->{id}) || $data->{data}->{id} eq '');
+        $synctime_nodes->{$data->{data}->{id}}->{in_progress_ping} = 0;
         $last_pong->{$data->{data}->{id}} = time();
         $options{logger}->writeLogInfo("[proxy] -hooks- Pong received from '" . $data->{data}->{id} . "'");
+        return undef;
+    }
+
+    if ($options{action} eq 'PONGRESET') {
+        use Data::Dumper; print Data::Dumper::Dumper($data);
+        return undef if (!defined($data->{id}) || $data->{id} eq '');
+        $synctime_nodes->{$data->{id}}->{in_progress_ping} = 0;
+        $options{logger}->writeLogInfo("[proxy] -hooks- PongReset received from '" . $data->{id} . "'");
         return undef;
     }
     
@@ -359,9 +369,13 @@ sub ping_send {
     my $nodes_id = [keys %$register_nodes];
     $nodes_id = [$options{node_id}] if (defined($options{node_id}));
     foreach my $id (@$nodes_id) {
+        next if (defined($synctime_nodes->{$id}) && $synctime_nodes->{$id}->{in_progress_ping} == 1);
+
         if ($register_nodes->{$id}->{type} eq 'push_zmq') {
+            $synctime_nodes->{$id}->{in_progress_ping} = 1;
             routing(socket => $internal_socket, action => 'PING', target => $id, data => '{}', dbh => $options{dbh});
         } elsif ($register_nodes->{$id}->{type} eq 'pull') {
+            $synctime_nodes->{$id}->{in_progress_ping} = 1;
             routing(action => 'PING', target => $id, data => '{}', dbh => $options{dbh});
         }
     }
@@ -543,7 +557,7 @@ sub register_nodes {
         if ($node->{type} eq 'push_zmq' || $node->{type} eq 'pull') {
             $last_pong->{$node->{id}} = 0 if (!defined($last_pong->{$node->{id}}));
             if (!defined($synctime_nodes->{$node->{id}})) {
-                $synctime_nodes->{$node->{id}} = { ctime => 0, in_progress => 0, in_progress_time => -1, last_id => 0, synctime_error => 0 };
+                $synctime_nodes->{$node->{id}} = { ctime => 0, in_progress_ping => 0, in_progress => 0, in_progress_time => -1, last_id => 0, synctime_error => 0 };
                 get_sync_time(node_id => $node->{id}, dbh => $options{dbh});
             }
         }

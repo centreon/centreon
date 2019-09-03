@@ -126,8 +126,8 @@ sub action_registerresync {
         }
     }
 
-    $self->send_internal_action(action => 'REGISTERNODES', data => { nodes => $register_nodes } );
-    $self->send_internal_action(action => 'UNREGISTERNODES', data => { nodes => $unregister_nodes } );
+    $self->send_internal_action(action => 'REGISTERNODES', data => { nodes => $register_nodes } ) if (scalar(@$register_nodes) > 0);
+    $self->send_internal_action(action => 'UNREGISTERNODES', data => { nodes => $unregister_nodes } ) if (scalar(@$unregister_nodes) > 0);
 
     $self->{logger}->writeLogDebug("[register] -class- finish resync");
     $self->send_log(code => $self->ACTION_FINISH_OK, token => $options{token}, data => { message => 'action registerresync finished' });

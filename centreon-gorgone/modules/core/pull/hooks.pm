@@ -119,7 +119,12 @@ sub check {
     if ($stop == 0) {
         # If distant server restart, it's a not problem. It save the key. 
         # But i don't have the registernode anymore. The ping is the 'registernode' for pull mode.
-        $client->ping(poll => $options{poll}, action => 'REGISTERNODE', data => { id => $config_core->{id} }, json_encode => 1);
+        $client->ping(
+            poll => $options{poll},
+            action => 'REGISTERNODES',
+            data => { nodes => [ { id => $config_core->{id}, type => 'pull' } ] }
+            json_encode => 1
+        );
     }
     return 0;
 }
@@ -167,7 +172,7 @@ sub read_message {
     if ($options{data} =~ /^\[ACK\]/) {
         return undef;
     }
-    
+
     $logger->writeLogDebug("[pull] -hooks- Read message from external: $options{data}");
     centreon::gorgone::common::zmq_send_message(
         socket => $socket_to_internal,

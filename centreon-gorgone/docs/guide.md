@@ -333,10 +333,12 @@ CREATE TABLE IF NOT EXISTS `gorgone_identity` (
     `id` INTEGER PRIMARY KEY,
     `ctime` int(11) DEFAULT NULL,
     `identity` varchar(2048) DEFAULT NULL,
-    `key` varchar(4096) DEFAULT NULL
+    `key` varchar(4096) DEFAULT NULL,
+    `parent` INTEGER DEFAULT '0'
 );
 
-CREATE INDEX IF NOT EXISTS idx_gorgone_identity_identity ON gorgone_identity (identity);
+CREATE INDEX IF NOT EXISTS idx_gorgone_identity ON gorgone_identity (identity);
+CREATE INDEX IF NOT EXISTS idx_gorgone_parent ON gorgone_identity (parent);
 
 CREATE TABLE IF NOT EXISTS `gorgone_history` (
     `id` INTEGER PRIMARY KEY,

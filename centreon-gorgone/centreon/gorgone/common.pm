@@ -300,6 +300,22 @@ sub is_handshake_done {
 # internal functions
 #######################
 
+sub registerparent {
+    my (%options) = @_;
+
+    # in pull mode, we do the registerparent directly. But we don't have an history. Not a issue.
+    #$options{gorgone}->{register_parent_nodes}->{}
+    if (defined($options{gorgone}->{modules_register}->{ $options{gorgone}->{modules_id}->{$options{gorgone_config}->{gorgonecore}->{proxy_name}} })) {
+        my $name = $options{gorgone_config}->{modules}->{$options{gorgone_config}->{gorgonecore}->{proxy_name}}->{module};
+        my $method;
+        if (defined($name) && ($method = $name->can('get_constatus_result'))) {
+            return (0, { action => 'constatus', message => 'ok', data => $method->() }, 'CONSTATUS');
+        }
+    }
+    
+    return (1, { action => 'constatus', message => 'cannot get value' }, 'CONSTATUS');
+}
+
 sub constatus {
     my (%options) = @_;
     
@@ -341,7 +357,7 @@ sub ping {
     #                         token => $options{token}, logger => $options{logger}, code => 0);
     return (0, { action => 'ping', message => 'ping ok', id => $options{id} }, 'PONG');
 }
-    
+
 sub putlog {
     my (%options) = @_;
 
