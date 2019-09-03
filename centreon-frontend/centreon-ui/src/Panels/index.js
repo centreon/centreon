@@ -335,7 +335,7 @@ class BAPanel extends React.Component {
                 }}
                 onClick={saving || !formModified || Object.keys(errors).length > 0 ? ()=>{} : this.onSave}
               >
-                {saving ? 'Saving' : successfullySaved ? 'Saved!': errorfullySaved ? 'Not saved!' : 'Save'}
+                {saving ? 'Saving' : successfullySaved ? 'Saved!': errorfullySaved ? 'Error!' : 'Save'}
               </Button>
             </div>
             <div className={classnames(styles['panels-body'])}>
