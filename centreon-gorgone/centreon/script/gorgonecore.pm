@@ -225,8 +225,6 @@ sub message_run {
     }
     my ($action, $token, $target, $data) = ($1, $2, $3, $4);
 
-    print "===$action====$target=== la ===\n";
-
     # Check if not myself ;)
     if (defined($target) && ($target eq '' || $target eq $self->{id})) {
         $target = undef;
@@ -413,9 +411,6 @@ sub send_message_parent {
     if ($options{router_type} eq 'external') {
         my ($status, $key) = centreon::gorgone::common::is_handshake_done(dbh => $gorgone->{db_gorgone}, identity => $options{identity});
         return if ($status == 0);
-        print "=== response type: $options{response_type} === status: $status === $options{identity}====\n";
-        print "==== token $options{token} === $options{data} ===\n";
-        print "==== $config->{gorgonecore}->{cipher} = $config->{gorgonecore}->{vector} ==\n";
         centreon::gorgone::common::zmq_core_response(
             socket => $gorgone->{external_socket},
             identity => $options{identity},

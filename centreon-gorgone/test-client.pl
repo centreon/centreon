@@ -37,9 +37,9 @@ my $results = {};
 
 sub get_command_result {
     my ($current_retries, $retries) = (0, 4);
-    $stopped->{$client2->{identity}} = '^([0-9]+0|32)$'; 
+    $stopped->{$client2->{identity}} = '^(1|2)$'; 
     $client2->send_message(
-        action => 'COMMAND', data => { command => 'ls /' }, target => 150, 
+        action => 'COMMAND', data => { content => { command => 'ls /' } }, target => 150, 
         json_encode => 1
     );
     while (1) {
@@ -132,8 +132,6 @@ $client2 = centreon::gorgone::clientzmq->new(
 );
 $client2->init(callback => \&read_response_result);
 
-#$client->send_message(action => 'ACLADDHOST', data => { organization_id => 1 }, 
-#                      json_encode => 1);
 #$client->send_message(
 #    action => 'SCOMRESYNC',
 #    data => { container_id => 'toto' }, 
@@ -141,10 +139,6 @@ $client2->init(callback => \&read_response_result);
 #);
 #$client->send_message(action => 'PUTLOG', data => { code => 120, etime => time(), token => 'plopplop', data => { 'nawak' => 'nawak2' } },
 #                      json_encode => 1);
-#$client->send_message(action => 'ACLADDHOST', data => { organization_id => 10 }, target => 10,
-#                      json_encode => 1);
-#$client2->send_message(action => 'ACLADDHOST', data => { organization_id => 14 }, 
-#                       json_encode => 1);
 #$client2->send_message(action => 'RELOADCRON', data => { }, 
 #                       json_encode => 1);
 
@@ -152,7 +146,7 @@ $client2->init(callback => \&read_response_result);
 #$client2->send_message(action => 'ENGINECOMMAND', data => { command => '[1417705150] ENABLE_HOST_CHECK;host1', engine_pipe => '/var/lib/centreon-engine/rw/centengine.cmd' }, target => 120, 
 #                       json_encode => 1);
 
-#$client2->send_message(action => 'COMMAND', data => { cmd => 'ls' }, target => 150, 
+#$client2->send_message(action => 'COMMAND', data => { content => { command => 'ls' } }, target => 150, 
 #                       json_encode => 1);
 #$client2->send_message(action => 'CONSTATUS');
 

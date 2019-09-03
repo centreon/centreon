@@ -140,8 +140,8 @@ sub zmq_core_response {
     }
 
     my $data = json_encode(data => { code => $options{code}, data => $options{data} });
-    # We add 'target' for 'PONG', 'CONSTATUS'. Like that 'gorgone-proxy can get it
-    $msg = '[' . $response_type . '] [' . (defined($options{token}) ? $options{token} : '') . '] ' . ($response_type eq 'PONG' ? '[] ' : '') . $data;
+    # We add 'target' for 'PONG', 'SYNCLOGS'. Like that 'gorgone-proxy can get it
+    $msg = '[' . $response_type . '] [' . (defined($options{token}) ? $options{token} : '') . '] ' . ($response_type =~ /^PONG|SYNCLOGS$/ ? '[] ' : '') . $data;
     
     if (defined($options{cipher})) {
         my $cipher = Crypt::CBC->new(
@@ -311,11 +311,10 @@ sub synclogs {
         return (1, { message => 'request not well formatted' });
     }
 
-    if (!defined($data->{id})) {
+    if (!defined($data->{data}->{id})) {
         return (1, { action => 'synclog', message => 'please set id for synclog' });
     }
 
-    print "===in synclog call===\n";
     if (defined($options{gorgone_config}->{gorgonecore}->{proxy_name}) && defined($options{gorgone}->{modules_id}->{$options{gorgone_config}->{gorgonecore}->{proxy_name}})) {
         my $name = $options{gorgone}->{modules_id}->{$options{gorgone_config}->{gorgonecore}->{proxy_name}};
         my $method;

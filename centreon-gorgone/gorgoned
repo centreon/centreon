@@ -19,10 +19,12 @@
 # limitations under the License.
 #
 
+use strict;
 use warnings;
-use centreon::script::gorgonecore;
+
 use FindBin;
 use lib "$FindBin::Bin";
+use centreon::script::gorgonecore;
 
 centreon::script::gorgonecore->new()->run();
 

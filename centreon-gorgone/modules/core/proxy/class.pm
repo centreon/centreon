@@ -104,7 +104,7 @@ sub read_message {
             target => '',
             data => $data,
         );
-    } elsif ($options{data} =~ /^\[REGISTERNODES|UNREGISTERNODES\]/) {
+    } elsif ($options{data} =~ /^\[REGISTERNODES|UNREGISTERNODES|SYNCLOGS\]/) {
         if ($options{data} !~ /^\[(.+?)\]\s+\[(.*?)\]\s+\[.*?\]\s+(.*)/m) {
             return undef;
         }

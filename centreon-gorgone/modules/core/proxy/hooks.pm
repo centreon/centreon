@@ -368,15 +368,13 @@ sub setlogs {
     
     # We try to send it to parents
     foreach (keys %{$parent_ping}) {
-        use Data::Dumper; print Data::Dumper::Dumper($parent_ping);
-        print Data::Dumper::Dumper($options{data});
         centreon::script::gorgonecore::send_message_parent(
             router_type => $parent_ping->{$_},
             identity => $_,
             response_type => 'SYNCLOGS',
-            data => '{ "id": "' . $core_id . '"}',
+            data => { id => $core_id },
             code => 0,
-            token => $options{token}
+            token => undef,
         );
     }
 }
@@ -404,8 +402,7 @@ sub synclog {
     my (%options) = @_;
 
     # We check if we need synclogs
-    if ($stop == 0 &&
-        time() - $synctime_lasttime > $synctime_option) {
+    if ($stop == 0) {
         $synctime_lasttime = time();
         full_sync_history(dbh => $options{dbh});
     }
