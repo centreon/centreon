@@ -8,6 +8,7 @@ import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
 import Paper from '@material-ui/core/Paper';
 import IconButton from '@material-ui/core/IconButton';
+import { CircularProgress } from '@material-ui/core';
 import StyledTableRow from './StyledTableRow';
 import IconPowerSettings from '../../MaterialComponents/Icons/IconPowerSettings';
 import IconPowerSettingsDisable from '../../MaterialComponents/Icons/IconPowerSettingsDisable';
@@ -46,6 +47,12 @@ const styles = () => ({
   },
   rowDisabled: {
     backgroundColor: 'rgba(0, 0, 0, 0.07) !important',
+  },
+  loadingIndicator: {
+    display: 'block',
+    marginTop: 5,
+    marginRight: 'auto',
+    marginLeft: 'auto',
   },
 });
 
@@ -188,6 +195,7 @@ class TableCustom extends Component {
       emptyDataMessage,
       impacts,
       paginated = true,
+      loading,
     } = this.props;
     const { order, orderBy, hovered } = this.state;
 
@@ -196,13 +204,13 @@ class TableCustom extends Component {
       for (let i = 0; i < selected.length; i++) {
         // eslint-disable-next-line
         if (indicatorsEditor) {
-          if (selected[i].object.id == value) {
+          if (selected[i].object.id === value) {
             return {
               bool: true,
               obj: selected[i],
             };
           }
-        } else if (selected[i] == value) {
+        } else if (selected[i] === value) {
           return {
             bool: true,
             obj: selected[i],
@@ -223,6 +231,8 @@ class TableCustom extends Component {
           {paginated ? (
             <StyledPagination
               rowsPerPageOptions={[10, 20, 30, 40, 50, 60, 70, 80, 90, 100]}
+              labelDisplayedRows={labelDisplayedRows}
+              labelRowsPerPage={labelRowsPerPage}
               colSpan={3}
               count={totalRows}
               rowsPerPage={limit}
@@ -269,6 +279,7 @@ class TableCustom extends Component {
                 headRows={columnConfiguration}
                 indicatorsEditor={indicatorsEditor}
               />
+
               <TableBody onMouseLeave={this.rowHovered.bind(this, '', false)}>
                 {tableData.map((row, index) => {
                   const isItemSelected = isSelected(
@@ -648,14 +659,26 @@ class TableCustom extends Component {
                     </StyledTableRow>
                   );
                 })}
-                {tableData.length < 1 ? (
-                  <StyledTableRow tabIndex={-1}>
+
+                {loading && (
+                  <StyledTableRow>
                     <TableCellCustom
+                      className={classes.tableCellCustom}
                       colSpan={6}
                       align="center"
-                      className={classes.tableCellCustom}
                     >
-                      {emptyDataMessage || 'No results found.'}
+                      <CircularProgress className={classes.loadingIndicator} />
+                    </TableCellCustom>
+                  </StyledTableRow>
+                )}
+                {tableData.length < 1 && !loading ? (
+                  <StyledTableRow tabIndex={-1}>
+                    <TableCellCustom
+                      className={classes.tableCellCustom}
+                      colSpan={6}
+                      align="center"
+                    >
+                      {emptyDataMessage}
                     </TableCellCustom>
                   </StyledTableRow>
                 ) : null}
@@ -675,6 +698,10 @@ TableCustom.defaultProps = {
   labelRowsPerPage: 'Rows per page',
   onEntitiesSelected: () => {},
   onTableSelectionChanged: () => {},
+  nameIdPaired: false,
+  indicatorsEditor: false,
+  emptyDataMessage: 'No results found',
+  loading: false,
 };
 
 const anyObject = PropTypes.objectOf(
@@ -704,6 +731,10 @@ TableCustom.propTypes = {
   onRowClick: PropTypes.func,
   selected: anyArray.isRequired,
   enabledColumn: PropTypes.string,
+  nameIdPaired: PropTypes.bool,
+  indicatorsEditor: PropTypes.bool,
+  emptyDataMessage: PropTypes.string,
+  loading: PropTypes.bool,
 };
 
 export default withStyles(styles, { withTheme: true })(TableCustom);
