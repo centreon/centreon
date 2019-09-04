@@ -20,14 +20,7 @@
  */
 
 require_once _CENTREON_PATH_ . '/www/class/centreonDB.class.php';
-
-if (file_exists(_CENTREON_PATH_ . '/www/include/common/webServices/rest/webService.class.php')) {
-    // Centreon < 2.8
-    require_once _CENTREON_PATH_ . '/www/include/common/webServices/rest/webService.class.php';
-} else {
-    // Centreon >= 2.8
-    require_once _CENTREON_PATH_ . '/www/api/class/webService.class.php';
-}
+require_once _CENTREON_PATH_ . '/www/api/class/webService.class.php';
 
 define('CENTREON_OPENTICKET_PATH', _CENTREON_PATH_ . '/www/modules/centreon-open-tickets');
 

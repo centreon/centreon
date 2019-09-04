@@ -14,23 +14,12 @@ data='{
 }
 '
 
-# Version 2.7.x
-response=$(curl --data "username=superadmin&password=centreon" $url/centreon/include/common/webServices/rest/index.php?action=authenticate)
+response=$(curl --data "username=superadmin&password=centreon" $url/centreon/api/index.php?action=authenticate)
 
 token=$(echo "$response" | cut -d: -f 2 | sed 's/"\(.*\)".*/\1/')
 
-curl --header "centreon-auth-token: $token" --header "Content-Type: application/json" --data "$data" "$url/centreon/include/common/webServices/rest/index.php?object=centreon_openticket_history&action=saveHistory"
+curl --header "centreon-auth-token: $token" --header "Content-Type: application/json" --data "$data" "$url/centreon/api/index.php?object=centreon_openticket_history&action=saveHistory"
 
 echo ""
-
-# Version 2.8.x
-
-#response=$(curl --data "username=superadmin&password=centreon" $url/centreon/api/index.php?action=authenticate)
-
-#token=$(echo "$response" | cut -d: -f 2 | sed 's/"\(.*\)".*/\1/')
-
-#curl --header "centreon-auth-token: $token" --header "Content-Type: application/json" --data "$data" "$url/centreon/api/index.php?object=centreon_openticket_history&action=saveHistory"
-
-#echo ""
 
 exit 0
