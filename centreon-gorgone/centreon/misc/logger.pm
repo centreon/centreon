@@ -51,6 +51,7 @@ use strict;
 use warnings;
 use Sys::Syslog qw(:standard :macros);
 use IO::Handle;
+use Encode;
 
 my %severities = (1 => LOG_INFO,
                   2 => LOG_ERR,
@@ -68,6 +69,8 @@ sub new {
        old_severity => 3,
        # 0 = stdout, 1 = file, 2 = syslog
        log_mode => 0,
+       # Output pid of current process
+       withpid => 0,
        # syslog
        log_facility => undef,
        log_option => LOG_PID,
@@ -132,49 +135,66 @@ sub redirect_output {
 sub set_default_severity {
     my $self = shift;
 
-    $self->{"severity"} = $self->{"old_severity"};
+    $self->{severity} = $self->{old_severity};
 }
 
 # Getter/Setter Log severity
 sub severity {
     my $self = shift;
     if (@_) {
-        my $save_severity = $self->{"severity"};
+        my $save_severity = $self->{severity};
         if ($_[0] =~ /^[012347]$/) {
-            $self->{"severity"} = $_[0];
-        } elsif ($_[0] eq "none") {
-            $self->{"severity"} = 0;
-        } elsif ($_[0] eq "error") {
-            $self->{"severity"} = 1;
-        } elsif ($_[0] eq "info") {
-            $self->{"severity"} = 3;
-        } elsif ($_[0] eq "debug") {
-            $self->{"severity"} = 7;
+            $self->{severity} = $_[0];
+        } elsif ($_[0] eq 'none') {
+            $self->{severity} = 0;
+        } elsif ($_[0] eq 'error') {
+            $self->{severity} = 1;
+        } elsif ($_[0] eq 'info') {
+            $self->{severity} = 3;
+        } elsif ($_[0] eq 'debug') {
+            $self->{severity} = 7;
         } else {
-            $self->writeLogError("Wrong severity value set.");
+            $self->writeLogError('Wrong severity value set.');
             return -1;
         }
-        $self->{"old_severity"} = $save_severity;
+        $self->{old_severity} = $save_severity;
     }
-    return $self->{"severity"};
+    return $self->{severity};
+}
+
+sub withpid {
+    my $self = shift;
+    if (@_) {
+        $self->{withpid} = $_[0];
+    }
+    return $self->{withpid};
 }
 
 sub get_date {
     my $self = shift;
     my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = localtime(time());
-    return sprintf("%04d-%02d-%02d %02d:%02d:%02d", 
+    return sprintf('%04d-%02d-%02d %02d:%02d:%02d', 
                    $year+1900, $mon+1, $mday, $hour, $min, $sec);
 }
 
-sub writeLog($$$%) {
-    my ($self, $severity, $msg, %options) = @_;
-    my $withdate = (defined $options{withdate}) ? $options{withdate} : 1;
-    my $newmsg = ($withdate) 
-      ? $self->get_date . " - $msg" : $msg;
+sub writeLog {
+    my ($self, %options) = @_;
 
-    if (($self->{severity} & $severity) == 0) {
+    my $withdate = (defined $options{withdate}) ? $options{withdate} : 1;
+    my $withseverity = (defined $options{withseverity}) ? $options{withseverity} : 1;
+
+    my $msg = $options{message};
+    $msg = (($self->{withpid} == 1) ? "$$ - $msg " : $msg);
+    my $newmsg = ($withseverity) 
+      ? $options{severity_str} . " - $msg" : $msg;
+    $newmsg = ($withdate) 
+      ? $self->get_date . " - $newmsg" : $newmsg;
+
+    if (($self->{severity} & $options{severity}) == 0) {
         return;
     }
+
+    $newmsg = encode('UTF-8', $newmsg);
     if ($self->{log_mode} == 0) {
         print "$newmsg\n";
     } elsif ($self->{log_mode} == 1) {
@@ -182,20 +202,26 @@ sub writeLog($$$%) {
             print { $self->{filehandler} } "$newmsg\n";
         }
     } elsif ($self->{log_mode} == 2) {
-        syslog($severities{$severity}, $msg);
+        syslog($severities{$options{severity}}, $msg);
     }
 }
 
 sub writeLogDebug {
-    shift->writeLog(4, @_);
+    my ($self, $msg) = @_;
+    
+    $self->writeLog(severity => 4, severity_str => 'DEBUG', message => $msg);
 }
 
 sub writeLogInfo {
-    shift->writeLog(2, @_);
+    my ($self, $msg) = @_;
+    
+    $self->writeLog(severity => 2, severity_str => 'INFO', message => $msg);
 }
 
 sub writeLogError {
-    shift->writeLog(1, @_);
+    my ($self, $msg) = @_;
+    
+    $self->writeLog(severity => 1, severity_str => 'ERROR', message => $msg);
 }
 
 sub DESTROY {

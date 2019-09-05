@@ -356,6 +356,14 @@ sub setcoreid {
         return (1, { action => 'setcoreid', message => 'please set id for setcoreid' });
     }
 
+    if (defined($options{gorgone_config}->{gorgonecore}->{proxy_name}) && defined($options{gorgone}->{modules_id}->{$options{gorgone_config}->{gorgonecore}->{proxy_name}})) {
+        my $name = $options{gorgone}->{modules_id}->{$options{gorgone_config}->{gorgonecore}->{proxy_name}};
+        my $method;
+        if (defined($name) && ($method = $name->can('setcoreid'))) {
+            $method->(core_id => $data->{id});
+        }
+    }
+
     $options{logger}->writeLogInfo('[core] setcoreid changed ' .  $data->{id});
     $options{gorgone}->{id} = $data->{id};
     return (0, { action => 'setcoreid', message => 'setcoreid changed' });

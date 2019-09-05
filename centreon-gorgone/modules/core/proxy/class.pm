@@ -143,7 +143,7 @@ sub connect {
 
     if ($self->{clients}->{$options{id}}->{type} eq 'push_zmq') {
         $self->{clients}->{$options{id}}->{class} = centreon::gorgone::clientzmq->new(
-            identity => 'proxy-' . $self->{pool_id} . '-' . $options{id}, 
+            identity => 'proxy-' . $self->{core_id} . '-' . $options{id}, 
             cipher => $self->{clients}->{$options{id}}->{cipher}, 
             vector => $self->{clients}->{$options{id}}->{vector},
             server_pubkey => $self->{clients}->{$options{id}}->{server_pubkey},

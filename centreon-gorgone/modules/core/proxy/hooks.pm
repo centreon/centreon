@@ -277,7 +277,14 @@ sub check {
             create_child(pool_id => $pool_id, logger => $options{logger});
         }
     }
-    
+
+    # Check if we need to create a child
+    for my $pool_id (1..$config->{pool}) {
+        if (!defined($pools->{$pool_id})) {
+            create_child(pool_id => $pool_id, logger => $options{logger});
+        }
+    }
+
     foreach (keys %{$pools}) {
         $count++  if ($pools->{$_}->{running} == 1);
     }
@@ -308,6 +315,13 @@ sub check {
         $options{logger}->writeLogInfo("[proxy] -hooks- Send pings");
         $ping_time = time();
         ping_send(dbh => $options{dbh});
+    }
+
+    # We clean all parents
+    foreach (keys %$parent_ping) {
+        if (time() - $parent_ping->{$_}->{last_time} > 1800) { # 30 minutes
+            delete $parent_ping->{$_};
+        }
     }
     
     return $count;
@@ -369,7 +383,7 @@ sub setlogs {
     # We try to send it to parents
     foreach (keys %{$parent_ping}) {
         centreon::script::gorgonecore::send_message_parent(
-            router_type => $parent_ping->{$_},
+            router_type => $parent_ping->{$_}->{router_type},
             identity => $_,
             response_type => 'SYNCLOGS',
             data => { id => $core_id },
@@ -470,7 +484,12 @@ sub rr_pool {
 
 sub create_child {
     my (%options) = @_;
-    
+
+    if (!defined($core_id) || $core_id =~ /^\s*$/) {
+        $options{logger}->writeLogError("[proxy] -hooks- Cannot create child. need a core id");
+        return ;
+    }
+
     $options{logger}->writeLogInfo("[proxy] -hooks- Create module 'proxy' child process for pool id '" . $options{pool_id} . "'");
     my $child_pid = fork();
     if ($child_pid == 0) {
@@ -633,11 +652,17 @@ sub register_nodes {
     }
 }
 
+sub setcoreid {
+    my (%options) = @_;
+
+    $core_id = $options{core_id};
+}
+
 sub add_parent_ping {
     my (%options) = @_;
 
     $options{logger}->writeLogDebug("[proxy] -hooks- parent ping '" . $options{identity} . "' is registered");
-    $parent_ping->{$options{identity}} = $options{router_type};
+    $parent_ping->{$options{identity}} = { last_time => time(), router_type => $options{router_type} };
 }
 
 1;
