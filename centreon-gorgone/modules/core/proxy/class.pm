@@ -249,7 +249,7 @@ sub proxy {
 sub event_internal {
     while (1) {
         my $message = centreon::gorgone::common::zmq_dealer_read_message(socket => $connector->{internal_socket});
-                
+
         proxy(message => $message);        
         last unless (centreon::gorgone::common::zmq_still_read(socket => $connector->{internal_socket}));
     }

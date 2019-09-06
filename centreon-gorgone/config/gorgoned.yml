@@ -94,6 +94,11 @@ modules:
     enable: true
     command_file: "/var/lib/centreon-engine/rw/centengine.cmd"
 
+  - name: legacycmd
+    package: modules::centreon::legacycmd::hooks
+    enable: true
+    cmd_file: "/var/lib/centreon/centcore.cmd"
+
   - name: scom
     package: modules::plugins::scom::hooks
     enable: false

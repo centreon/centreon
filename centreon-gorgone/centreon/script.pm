@@ -39,26 +39,25 @@ $SIG{__DIE__} = sub {
 
 sub new {
     my ($class, $name, %options) = @_;
-    my %defaults =
-      (
-       config_file => "/etc/centreon/centreon-config.pm",
+    my %defaults = (
+       config_file => '/etc/centreon/centreon-config.pm',
        log_file => undef,
        centreon_db_conn => 0,
        centstorage_db_conn => 0,
-       severity => "info",
+       severity => 'info',
        noconfig => 0,
-       noroot => 1
-      );
+       noroot => 0
+    );
     my $self = {%defaults, %options};
 
     bless $self, $class;
     $self->{name} = $name;
     $self->{logger} = centreon::misc::logger->new();
     $self->{options} = {
-        "config=s" => \$self->{config_file},
-        "logfile=s" => \$self->{log_file},
-        "severity=s" => \$self->{severity},
-        "help|?" => \$self->{help}
+        'config=s'   => \$self->{config_file},
+        'logfile=s'  => \$self->{log_file},
+        'severity=s' => \$self->{severity},
+        'help|?'     => \$self->{help}
     };
     return $self;
 }
@@ -75,27 +74,29 @@ sub init {
         # Stop exec if root
         if ($< == 0) {
             $self->{logger}->writeLogError("Can't execute script as root.");
-            die("Quit");
+            die('Quit');
         }
     }
 
     if ($self->{centreon_db_conn}) {
-        $self->{cdb} = centreon::misc::db->new
-          (db => $self->{centreon_config}->{centreon_db},
-           host => $self->{centreon_config}->{db_host},
-           user => $self->{centreon_config}->{db_user},
-           password => $self->{centreon_config}->{db_passwd},
-           logger => $self->{logger});
+        $self->{cdb} = centreon::misc::db->new(
+            db => $self->{centreon_config}->{centreon_db},
+            host => $self->{centreon_config}->{db_host},
+            user => $self->{centreon_config}->{db_user},
+            password => $self->{centreon_config}->{db_passwd},
+            logger => $self->{logger}
+        );
         $self->{lock} = centreon::misc::lock::sql->new($self->{name}, dbc => $self->{cdb});
         $self->{lock}->set();
     }
     if ($self->{centstorage_db_conn}) {
-        $self->{csdb} = centreon::misc::db->new
-          (db => $self->{centreon_config}->{centstorage_db},
-           host => $self->{centreon_config}->{db_host},
-           user => $self->{centreon_config}->{db_user},
-           password => $self->{centreon_config}->{db_passwd},
-           logger => $self->{logger});
+        $self->{csdb} = centreon::misc::db->new(
+            db => $self->{centreon_config}->{centstorage_db},
+            host => $self->{centreon_config}->{db_host},
+            user => $self->{centreon_config}->{db_user},
+            password => $self->{centreon_config}->{db_passwd},
+            logger => $self->{logger}
+        );
     }
 }
 
@@ -120,8 +121,8 @@ sub parse_options {
     my $self = shift;
 
     Getopt::Long::Configure('bundling');
-    die "Command line error" if !GetOptions(%{$self->{options}});
-    pod2usage(-exitval => 1, -input => $FindBin::Bin . "/" . $FindBin::Script) if $self->{help};
+    die "Command line error" if (!GetOptions(%{$self->{options}}));
+    pod2usage(-exitval => 1, -input => $FindBin::Bin . "/" . $FindBin::Script) if ($self->{help});
     if ($self->{noconfig} == 0) {
         require $self->{config_file};
         $self->{centreon_config} = $centreon_config;

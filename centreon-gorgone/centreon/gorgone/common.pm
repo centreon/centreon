@@ -230,7 +230,7 @@ sub client_helo_encrypt {
         return (-1, "Encoding issue: $@");
     }
 
-    return (0, '[' . $options{identity} . '] [' . $client_pubkey . '] [' . $ciphertext . ']');
+    return (0, '[' . $options{identity} . '] [' . $client_pubkey . '] [' . unpack('H*', $ciphertext) . ']');
 }
 
 sub is_client_can_connect {
@@ -244,7 +244,7 @@ sub is_client_can_connect {
 
     my ($client, $client_pubkey_str, $cipher_text) = ($1, $2, $3);
     eval {
-        $plaintext = $options{privkey}->decrypt($cipher_text, 'v1.5');
+        $plaintext = $options{privkey}->decrypt(pack('H*', $cipher_text), 'v1.5');
     };
     if ($@) {
         $options{logger}->writeLogError("Decoding issue: " .  $@);

@@ -123,7 +123,7 @@ sub action_enginecommand {
 
     my $fh;
     eval {
-        local $SIG{ALRM} = sub { die "Timeout command\n" };
+        local $SIG{ALRM} = sub { die 'Timeout command' };
         alarm $self->{timeout};
         open($fh, ">", $self->{config}->{command_file}) or die "cannot open '$self->{config}->{command_file}': $!";
         print $fh $options{data}->{content}->{command} . "\n";
@@ -171,7 +171,7 @@ sub action_run {
             socket => $socket_log,
             code => $self->ACTION_FINISH_KO,
             token => $options{token},
-            data => { message => "action unknown" }
+            data => { message => 'action unknown' }
         );
         return -1;
     }
@@ -182,7 +182,7 @@ sub action_run {
 sub create_child {
     my ($self, %options) = @_;
     
-    $self->{logger}->writeLogInfo("[engine] -class- create sub-process");
+    $self->{logger}->writeLogInfo('[engine] -class- create sub-process');
     $options{message} =~ /^\[(.*?)\]\s+\[(.*?)\]\s+\[.*?\]\s+(.*)$/m;
     
     my ($action, $token) = ($1, $2);
@@ -205,7 +205,7 @@ sub create_child {
         $self->send_log(
             code => $self->ACTION_BEGIN,
             token => $token,
-            data => { message => "proceed action" }
+            data => { message => 'proceed action' }
         );
     }
 }
