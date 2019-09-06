@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
-import PropTypes from 'prop-types';
+import React, { createContext, useState } from 'react';
 
 import ErrorSnackbar from '.';
 
+const Context = createContext({});
+
 const withErrorSnackbar = (Component) => {
-  const ComponentWithErrorSnackbar = ({ onError, ...rest }) => {
+  return (props) => {
     const [errorMessage, setErrorMessage] = useState();
 
     const confirmError = () => {
@@ -18,22 +19,17 @@ const withErrorSnackbar = (Component) => {
     const hasError = errorMessage !== undefined;
 
     return (
-      <>
-        <Component onError={showError} {...rest} />
+      <Context.Provider value={{ showError }}>
+        <Component {...props} />
         <ErrorSnackbar
           onClose={confirmError}
           open={hasError}
           message={errorMessage}
         />
-      </>
+      </Context.Provider>
     );
   };
-
-  ComponentWithErrorSnackbar.propTypes = {
-    onError: PropTypes.func.isRequired,
-  };
-
-  return ComponentWithErrorSnackbar;
 };
 
 export default withErrorSnackbar;
+export { Context as ErrorSnackbarContext };

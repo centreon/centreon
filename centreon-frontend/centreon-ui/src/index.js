@@ -153,11 +153,18 @@ export {
 export {
   default as PromptDialog,
 } from './MaterialComponents/Dialog/Prompt/Number';
-export { default as MassiveChangeDialog } from './MaterialComponents/Dialog/MassiveChange/Numbers'; 
+export {
+  default as MassiveChangeDialog,
+} from './MaterialComponents/Dialog/MassiveChange/Numbers';
 export { default as Dialog } from './Dialog';
 export { default as IconVisible } from './MaterialComponents/Icons/IconVisible';
 export {
   default as IconInvisible,
 } from './MaterialComponents/Icons/IconInvisible';
 export { default as IconError } from './MaterialComponents/Icons/IconError';
-export { default as ErrorDialog } from './MaterialComponents/Dialog/Error';
+export {
+  default as withErrorSnackbar,
+} from './MaterialComponents/Snackbar/Error/withErrorSnackbar';
+export {
+  default as useErrorSnackbar,
+} from './MaterialComponents/Snackbar/Error/useErrorSnackbar';
