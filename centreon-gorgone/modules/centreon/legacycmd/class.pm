@@ -26,6 +26,7 @@ use strict;
 use warnings;
 use centreon::gorgone::common;
 use centreon::misc::misc;
+use centreon::misc::objects::object;
 use ZMQ::LibZMQ4;
 use ZMQ::Constants qw(:all);
 use File::Copy;
@@ -43,6 +44,7 @@ sub new {
         $connector->{config}->{cmd_file} = '/var/lib/centreon/centcore.cmd';
     }
     $connector->{config_core} = $options{config_core};
+    $connector->{config_db_centreon} = $options{config_db_centreon};
     $connector->{stop} = 0;
     
     bless $connector, $class;
@@ -110,17 +112,25 @@ sub move_cmd_file {
     return (0, $handle);
 }
 
-#sub getNagiosConfigurationField($$){
-#    my $self = shift;
+sub get_pipe_engines {
+    my ($self, %options) = @_;
 
-#    my ($status, $sth) = $self->{centreon_dbc}->query("SELECT " . $_[1] . " FROM `cfg_nagios` WHERE `nagios_server_id` = '" . $_[0] . "' AND nagios_activate = '1'");
-#    if ($status == -1) {
-#        $self->{logger}->writeLogError("Error when getting server properties");
-#        return undef;
-#    }
-#    my $data = $sth->fetchrow_hashref();
-#    return $data->{$_[1]};
-#}
+    $self->{engine_pipe} = {};
+    my ($status, $datas) = $self->{class_object_centreon}->custom_execute(
+        request => 'SELECT nagios_server_id, command_file FROM nagios_server',
+        mode => 2
+    );
+    if ($status == -1 || !defined($datas->[0])) {
+        $self->{logger}->writeLogError('[legacycmd] -class- cannot get engine pipe for pollers');
+        return -1;
+    }
+
+    foreach (@$datas) {
+        $self->{engine_pipe}->{$_->[0]} = $_->[1];
+    }
+
+    return 0;
+}
 
 sub execute_cmd {
     my ($self, %options) = @_;
@@ -130,7 +140,12 @@ sub execute_cmd {
             action => 'ENGINECOMMAND',
             target => $options{target},
             token => $self->generate_token(),
-            data => { content => { command => $options{param}, engine_pipe => '/var/lib/centreon-engine/rw/centengine.cmd' } },
+            data => {
+                content => {
+                    command => $options{param},
+                    engine_pipe => defined($self->{engine_pipe}->{$options{target}}) ? $self->{engine_pipe}->{$options{target}} : '/var/lib/centreon-engine/rw/centengine.cmd'
+                }
+            },
         );
     }
 }
@@ -139,6 +154,7 @@ sub handle_cmd_file {
     my ($self, %options) = @_;
     require bytes;
 
+    return if ($self->get_pipe_engines() == -1);
     my ($code, $handle) = $self->move_cmd_file();
     return if ($code == -1);
 
@@ -198,6 +214,15 @@ sub run {
         json_encode => 1
     );
 
+    $self->{db_centreon} = centreon::misc::db->new(
+        dsn => $self->{config_db_centreon}->{dsn},
+        user => $self->{config_db_centreon}->{username},
+        password => $self->{config_db_centreon}->{password},
+        force => 2,
+        logger => $self->{logger}
+    );
+    $self->{class_object_centreon} = centreon::misc::objects::object->new(logger => $self->{logger}, db_centreon => $self->{db_centreon});
+
     $self->{poll} = [
         {
             socket  => $connector->{internal_socket},
@@ -207,7 +232,7 @@ sub run {
     ];
     while (1) {
         # we try to do all we can
-        my $rev = zmq_poll($self->{poll}, 1000);
+        my $rev = zmq_poll($self->{poll}, 2000);
         if ($rev == 0 && $self->{stop} == 1) {
             $self->{logger}->writeLogInfo("[legacycmd] -class- $$ has quit");
             zmq_close($connector->{internal_socket});

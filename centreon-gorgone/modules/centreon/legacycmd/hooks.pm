@@ -35,12 +35,14 @@ my $config_core;
 my $config;
 my $legacycmd = {};
 my $stop = 0;
+my $config_db_centreon;
 
 sub register {
     my (%options) = @_;
     
     $config = $options{config};
     $config_core = $options{config_core};
+    $config_db_centreon = $options{config_db_centreon};
     return ($NAME, $EVENTS);
 }
 
@@ -141,6 +143,7 @@ sub create_child {
     my (%options) = @_;
     
     $options{logger}->writeLogInfo("[legacycmd] -hooks- Create module process");
+
     my $child_pid = fork();
     if ($child_pid == 0) {
         $0 = 'gorgone-legacycmd';
@@ -148,6 +151,7 @@ sub create_child {
             logger => $options{logger},
             config_core => $config_core,
             config => $config,
+            config_db_centreon => $config_db_centreon,
         );
         $module->run();
         exit(0);
