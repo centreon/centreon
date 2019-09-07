@@ -5,7 +5,7 @@
     padding: 8px 24px 24px;
     margin: -8px -24px -24px;
     position: relative;
-    box-sizing: border-box;
+    width: 100%;
     &-empty {
       .multi-select-holder-inner {
         border: 2px dashed #c2c3c6;
