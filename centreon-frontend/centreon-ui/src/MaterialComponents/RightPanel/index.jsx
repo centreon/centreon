@@ -33,11 +33,11 @@ const useDrawerStyles = makeStyles({
   paper: {
     top: 52,
     right: 0,
+    bottom: 30,
     backgroundColor: '#ededed',
     minWidth: PANEL_WIDTH,
     position: 'absolute',
     pointerEvents: 'all',
-    height: '100%',
   },
 });
 
@@ -117,6 +117,7 @@ const RightPanel = ({
       ModalProps={{ className: modal }}
       BackdropProps={{ className: backdrop, onClick: onClose }}
       PaperProps={{ className: paper }}
+      style={{ zIndex: 90 }}
       open={active}
       anchor="right"
     >
