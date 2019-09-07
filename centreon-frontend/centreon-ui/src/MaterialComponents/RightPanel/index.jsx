@@ -5,7 +5,6 @@ import Drawer from '@material-ui/core/Drawer';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import Box from '@material-ui/core/Box';
-import ArrowBackIos from '@material-ui/icons/ArrowBackIos';
 import ArrowForwardIos from '@material-ui/icons/ArrowForwardIos';
 
 import IconClose from '../Icons/IconClose';
@@ -72,8 +71,6 @@ const ToggleSecondaryPanelIcon = (Icon) =>
     margin: 'auto',
   });
 
-const OpenSecondaryPanelIcon = ToggleSecondaryPanelIcon(ArrowBackIos);
-
 const CloseSecondaryPanelIcon = ToggleSecondaryPanelIcon(ArrowForwardIos);
 
 const RightPanel = ({
@@ -101,7 +98,7 @@ const RightPanel = ({
     setSecondaryPanelActive(!secondaryPanelActive);
   };
 
-  const onAnimationEnd = () => {
+  const onTransitionEnd = () => {
     if (!secondaryPanelActive) {
       onSecondaryPanelClose();
     }
@@ -147,13 +144,9 @@ const RightPanel = ({
           alignContent="center"
           onClick={toggleSecondaryPanel}
         >
-          {secondaryPanelActive ? (
-            <CloseSecondaryPanelIcon />
-          ) : (
-            <OpenSecondaryPanelIcon />
-          )}
+          {secondaryPanelActive && <CloseSecondaryPanelIcon />}
         </SecondaryPanelBar>
-        <div className={secondaryPanel} onAnimationEnd={onAnimationEnd}>
+        <div className={secondaryPanel} onTransitionEnd={onTransitionEnd}>
           {secondaryPanelComponent}
         </div>
       </Body>
