@@ -143,6 +143,7 @@ class MultiselectPanel extends Component {
             selected={currentlySelectedFromKey}
             impacts={impacts}
             paginated={!onlySelectedFilter}
+            enabledColumn="activate"
           />
         </div>
       </PanelItem>
