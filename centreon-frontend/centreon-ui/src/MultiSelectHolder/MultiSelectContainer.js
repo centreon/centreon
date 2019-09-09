@@ -10,6 +10,7 @@ class MultiSelectContainer extends Component {
   render() {
     const {
       label,
+      ariaLabel,
       selected,
       error,
       values = [],
@@ -20,6 +21,7 @@ class MultiSelectContainer extends Component {
       <MultiSelectHolder
         isEmpty={values.length == 0}
         multiSelectLabel={label}
+        ariaLabel={ariaLabel}
         multiSelectCount={values.length.toString()}
         error={error}
         onClick={onEdit}

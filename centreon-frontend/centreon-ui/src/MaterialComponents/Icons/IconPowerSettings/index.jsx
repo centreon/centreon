@@ -9,7 +9,7 @@ const RoundedInvertedPowerSettings = RoundedInvertedIcon(PowerSettings);
 
 function IconPowerSettings(props) {
   return (
-    <MaterialIcon {...props}>
+    <MaterialIcon {...props}  aria-label="icon enable disable">
       <RoundedInvertedPowerSettings />
     </MaterialIcon>
   );
