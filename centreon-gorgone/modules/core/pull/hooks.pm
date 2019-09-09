@@ -147,7 +147,7 @@ sub transmit_back {
             return '[SETLOGS] [' . $1 . '] [] ' . $2;
         }
         return undef;
-    } elsif ($options{message} =~ /^\[PONG|SYNCLOGS\]/) {
+    } elsif ($options{message} =~ /^\[(PONG|SYNCLOGS)\]/) {
         return $options{message};
     } 
     return undef;
