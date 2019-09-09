@@ -23,7 +23,8 @@ After=centreon.service
 ReloadPropagatedFrom=centreon.service
 
 [Service]
-ExecStart=@INSTALL_DIR_CENTREON@/bin/dsmd.pl
+EnvironmentFile=/etc/sysconfig/dsmd
+ExecStart=@INSTALL_DIR_CENTREON@/bin/dsmd.pl $OPTIONS
 Type=simple
 User=@CENTREON_USER@
 
