@@ -245,6 +245,7 @@ class BAPanel extends React.Component {
       saving,
       onlySelectedChange,
       onlySelectedFilter,
+      ariaLabel
     } = this.props;
     const {
       multiselectActive,
@@ -264,6 +265,7 @@ class BAPanel extends React.Component {
           styles[active ? 'panels-active' : ''],
           styles[multiselectActive ? 'panels-second-active' : ''],
         )}
+        aria-label={ariaLabel}
       >
       {saving ?
       <div style={{
@@ -318,6 +320,7 @@ class BAPanel extends React.Component {
                   styles['panels-header-input'],
                   errors.name ? styles['has-error'] : '',
                 )}
+                aria-label="business activity name"
               />
 
               <IconCloseNew onClick={onClose} />
@@ -334,6 +337,7 @@ class BAPanel extends React.Component {
                   cursor: saving || !formModified || Object.keys(errors).length > 0 ? 'not-allowed' : 'pointer'
                 }}
                 onClick={saving || !formModified || Object.keys(errors).length > 0 ? ()=>{} : this.onSave}
+                aria-label="button save"
               >
                 {saving ? 'Saving' : successfullySaved ? 'Saved!': errorfullySaved ? 'Error!' : 'Save'}
               </Button>
