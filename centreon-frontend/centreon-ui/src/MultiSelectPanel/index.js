@@ -65,6 +65,7 @@ class MultiselectPanel extends Component {
         <div
           className={classnames(styles['panel-item-inner'])}
           style={{ padding: '5px' }}
+          aria-label={title}
         >
           <h3
             className={classnames(styles['panel-item-title'])}
@@ -143,6 +144,7 @@ class MultiselectPanel extends Component {
             selected={currentlySelectedFromKey}
             impacts={impacts}
             paginated={!onlySelectedFilter}
+            ariaLabel={title + " Table"}
           />
         </div>
       </PanelItem>
