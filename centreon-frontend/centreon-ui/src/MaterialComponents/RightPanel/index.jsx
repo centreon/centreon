@@ -61,7 +61,7 @@ const useSecondaryPanelStyles = makeStyles({
     transition: '.3s ease-in-out',
     overflow: 'hidden',
     backgroundColor: '#c7c8c9',
-    padding: ({ active }) => (active ? 15 : 0),
+    padding: ({ active }) => (active ? 5 : 0),
   },
 });
 
