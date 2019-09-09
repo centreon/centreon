@@ -276,6 +276,21 @@ class BAForm extends React.Component {
                   }}
                 />
               </CustomColumn>
+              <CustomColumn customColumn="md-6">
+                <IconInfo iconText="Associated infrastructure view name" />
+                <InputField
+                  type="text"
+                  name="infrastructure_view"
+                  error={errors.infrastructure_view}
+                  value={values.infrastructure_view}
+                  style={{
+                    marginTop: '6px',
+                  }}
+                  onChange={(event) => {
+                    valueChanged('infrastructure_view', event.target ? event.target.value : event);
+                  }}
+                />
+              </CustomColumn>
             </CustomRow>
           </ExpansionPanelDetails>
         </ExpansionPanel>
@@ -380,6 +395,28 @@ class BAForm extends React.Component {
                   error={errors.notification_period}
                   onChange={(event) => {
                     valueChanged('notification_period', event.target ? event.target.value : event);
+                  }}
+                />
+              </CustomColumn>
+              <CustomColumn customColumn="md-6">
+                <InputField
+                  type="number"
+                  label="First notification delay"
+                  value={values.first_notification_delay}
+                  error={errors.first_notification_delay}
+                  onChange={(event) => {
+                    valueChanged('first_notification_delay', event.target ? event.target.value : event);
+                  }}
+                />
+              </CustomColumn>
+              <CustomColumn customColumn="md-6">
+                <InputField
+                  type="number"
+                  label="Recovery notification delay"
+                  value={values.recovery_notification_delay}
+                  error={errors.recovery_notification_delay}
+                  onChange={(event) => {
+                    valueChanged('recovery_notification_delay', event.target ? event.target.value : event);
                   }}
                 />
               </CustomColumn>
