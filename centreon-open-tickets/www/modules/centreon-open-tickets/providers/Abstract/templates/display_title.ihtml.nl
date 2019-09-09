@@ -14,7 +14,7 @@
 {/if}
 
 {assign var="separator_tmp" value=""}
-{if $service_selected|@count gt 0} 
+{if $service_selected|@count gt 0}
 {foreach from=$service_selected item=service}
 {$separator_tmp}{$service.host_name}/{$service.description}/{$service.state_str}
 {assign var="separator_tmp" value="$separator"}

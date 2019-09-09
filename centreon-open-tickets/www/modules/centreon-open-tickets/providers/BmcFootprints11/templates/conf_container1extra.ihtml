@@ -64,14 +64,14 @@
         {$form.mappingticket.label}
     </td>
     <td class="FormRowValue">
-		{include file="file:$centreon_open_tickets_path/providers/Abstract/templates/clone.ihtml" cloneId="mappingTicket" cloneSet=$form.mappingTicket}
-	</td>
+        {include file="file:$centreon_open_tickets_path/providers/Abstract/templates/clone.ihtml" cloneId="mappingTicket" cloneSet=$form.mappingTicket}
+    </td>
 </tr>
 <tr class="list_one">
     <td class="FormRowField">
         {$form.mappingticketprojectfield.label}
     </td>
     <td class="FormRowValue">
-		{include file="file:$centreon_open_tickets_path/providers/Abstract/templates/clone.ihtml" cloneId="mappingTicketProjectField" cloneSet=$form.mappingTicketProjectField}
-	</td>
+        {include file="file:$centreon_open_tickets_path/providers/Abstract/templates/clone.ihtml" cloneId="mappingTicketProjectField" cloneSet=$form.mappingTicketProjectField}
+    </td>
 </tr>

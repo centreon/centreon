@@ -1,16 +1,16 @@
 <?php
 /*
- * Copyright 2015 Centreon (http://www.centreon.com/)
+ * Copyright 2015-2019 Centreon (http://www.centreon.com/)
  *
- * Centreon is a full-fledged industry-strength solution that meets 
- * the needs in IT infrastructure and application monitoring for 
+ * Centreon is a full-fledged industry-strength solution that meets
+ * the needs in IT infrastructure and application monitoring for
  * service performance.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0  
+ *    http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,*
@@ -57,16 +57,34 @@ $toolbar = '';
 if ($preferences['toolbar_buttons']) {
     if (!isset($preferences['opened_tickets']) || $preferences['opened_tickets'] == 0) {
         if ($preferences['action_open_hosts']) {
-            $toolbar .= "<label id='buttontoolbar_4' style='font-size: 13px; font-weight: bold; cursor:pointer;' for='host-ticket'>Host <input type='image' title='" . _("Host: Open ticket") . "' alt='" . _("Host: Open ticket") . "' src='" . $centreon->optGen['oreon_web_path'] . "/modules/centreon-open-tickets/images/open-ticket.svg' name='host-ticket' style='border: none; width: 24px; height: 24px; vertical-align: middle;'/> </label> | ";
+            $toolbar .= "<label id='buttontoolbar_4' style='font-size: 13px; font-weight: bold; cursor:pointer;' " .
+            "for='host-ticket'>Host <input type='image' title='" .
+            _("Host: Open ticket") . "' alt='" . _("Host: Open ticket") . "' src='" .
+            $centreon->optGen['oreon_web_path'] .
+            "/modules/centreon-open-tickets/images/open-ticket.svg' name='host-ticket' " .
+            "style='border: none; width: 24px; height: 24px; vertical-align: middle;'/> </label> | ";
         }
         if ($preferences['action_open_services']) {
-            $toolbar .= "<label id='buttontoolbar_3' style='font-size: 13px; font-weight: bold; cursor:pointer;'  for='service-ticket'> Service <input type='image' title='" . _("Service: Open ticket") . "' alt='" . _("Service: Open ticket") . "' src='" . $centreon->optGen['oreon_web_path'] . "/modules/centreon-open-tickets/images/open-ticket.svg' name='service-ticket' style='border: none; width: 24px; height: 24px; vertical-align: middle;' /> </label> | ";
+            $toolbar .= "<label id='buttontoolbar_3' style='font-size: 13px; font-weight: bold; cursor:pointer;'  " .
+            "for='service-ticket'> Service <input type='image' title='" . _("Service: Open ticket") . "' alt='" .
+            _("Service: Open ticket") . "' src='" . $centreon->optGen['oreon_web_path'] .
+            "/modules/centreon-open-tickets/images/open-ticket.svg' name='service-ticket' " .
+            "style='border: none; width: 24px; height: 24px; vertical-align: middle;' /> </label> | ";
         }
-        if ($preferences['action_ack'] && ($canDoAction || $centreon->user->access->checkAction("service_acknowledgement"))) {
-            $toolbar .= "<label id='buttontoolbar_70' style='font-size: 13px; font-weight: bold; cursor:pointer;'' for='ack-ticket'>Acknowledge <input type='image' title='" . _("Service: Acknowledge") . "' alt='" . _("Service: Acknowledge") . "' src='" . $centreon->optGen['oreon_web_path'] . "/modules/centreon-open-tickets/images/acknowledge.png' name='ack-ticket' style='border: none; height: 22px; vertical-align: middle;' /> ";
+        if ($preferences['action_ack']
+            && ($canDoAction || $centreon->user->access->checkAction("service_acknowledgement"))
+        ) {
+            $toolbar .= "<label id='buttontoolbar_70' style='font-size: 13px; font-weight: bold; cursor:pointer;'' " .
+            "for='ack-ticket'>Acknowledge <input type='image' title='" . _("Service: Acknowledge") . "' alt='" .
+            _("Service: Acknowledge") . "' src='" . $centreon->optGen['oreon_web_path'] .
+            "/modules/centreon-open-tickets/images/acknowledge.png' name='ack-ticket' " .
+            "style='border: none; height: 22px; vertical-align: middle;' /> ";
         }
     } else {
-        $toolbar .= "<input type='image' title='" . _("Close Tickets") . "' alt='" . _("Close Tickets") . "' src='" . $centreon->optGen['oreon_web_path'] . "/modules/centreon-open-tickets/images/close-ticket.svg' id='buttontoolbar_10' style='cursor:pointer; border: none;width: 24px; height: 24px;' />";
+        $toolbar .= "<input type='image' title='" . _("Close Tickets") . "' alt='" . _("Close Tickets") .
+        "' src='" . $centreon->optGen['oreon_web_path'] .
+        "/modules/centreon-open-tickets/images/close-ticket.svg' id='buttontoolbar_10' " .
+        "style='cursor:pointer; border: none;width: 24px; height: 24px;' />";
     }
 } else {
     $toolbar .= "<select class='toolbar'>";
@@ -79,7 +97,9 @@ if ($preferences['toolbar_buttons']) {
         if ($preferences['action_open_services']) {
             $toolbar .= "<option value='3'>"._("Service: Open ticket")."</option>";
         }
-        if ($preferences['action_ack'] && ($canDoAction || $centreon->user->access->checkAction("service_acknowledgement"))) {
+        if ($preferences['action_ack']
+            && ($canDoAction || $centreon->user->access->checkAction("service_acknowledgement"))
+        ) {
             $toolbar .= "<option value='70'>"._("Service: Acknowledge")."</option>";
         }
     } else {
@@ -90,9 +110,6 @@ if ($preferences['toolbar_buttons']) {
 
 $template->assign("widgetId", $widgetId);
 $template->display('toolbar.ihtml');
-
-//<link href="../../include/common/javascript/jquery/plugins/colorbox/colorbox.css" rel="stylesheet" type="text/css"/>
-//<script type="text/javascript" src="../../include/common/javascript/jquery/plugins/colorbox/jquery.colorbox-min.js"></script>
 
 ?>
 
@@ -107,11 +124,11 @@ var widget_id = "<?php echo $widgetId; ?>";
 $(function() {
     $("#toolbar_container").html(toolbar);
     $(".toolbar").change(function() {
-		if (jQuery(this).val() != 0) {
-    		var checkValues = $("input:checked").map(function() {
-    			var tmp = $(this).attr('id').split("_");
-    			return tmp[1];
-    		}).get().join(",");
+        if (jQuery(this).val() != 0) {
+            var checkValues = $("input:checked").map(function() {
+                var tmp = $(this).attr('id').split("_");
+                return tmp[1];
+            }).get().join(",");
 
             if (checkValues != '') {
                 var url = "./widgets/open-tickets/src/action.php?widgetId="+widget_id+"&sid="+sid+"&selection="+checkValues+"&cmd="+jQuery(this).val();
@@ -123,16 +140,16 @@ $(function() {
                 alert("<?php echo _('Please select one or more items'); ?>");
                 return false;
             }
-    		$(".toolbar").val(0);
-		}
-	});
-    
+            $(".toolbar").val(0);
+        }
+    });
+
     $("[id^=buttontoolbar_]").click(function() {
         var checkValues = $("input:checked").map(function() {
-    			var tmp = $(this).attr('id').split("_");
-    			return tmp[1];
-    		}).get().join(",");
-            
+                var tmp = $(this).attr('id').split("_");
+                return tmp[1];
+            }).get().join(",");
+
          if (checkValues != '') {
              var tmp = $(this).attr('id').split("_");
              var url = "./widgets/open-tickets/src/action.php?widgetId="+widget_id+"&sid="+sid+"&selection="+checkValues+"&cmd="+tmp[1];

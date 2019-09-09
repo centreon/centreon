@@ -1,6 +1,6 @@
 <?php
 /*
- * Copyright 2018 Centreon (http://www.centreon.com/)
+ * Copyright 2018-2019 Centreon (http://www.centreon.com/)
  *
  * Centreon is a full-fledged industry-strength solution that meets
  * the needs in IT infrastructure and application monitoring for
@@ -36,7 +36,8 @@ class Centreon_OpenTickets_Log
         $this->_dbStorage = $dbStorage;
     }
 
-    protected function getTime($start_date, $start_time, $end_date, $end_time, $period) {
+    protected function getTime($start_date, $start_time, $end_date, $end_time, $period)
+    {
         $start = null;
         $end = null;
         $auto_period = 1;
@@ -58,7 +59,7 @@ class Centreon_OpenTickets_Log
 
             preg_match("/^([0-9]*)\/([0-9]*)\/([0-9]*)/", $end_date, $matchesD);
             preg_match("/^([0-9]*):([0-9]*)/", $end_time, $matchesT);
-            $end = mktime($matchesT[1], $matchesT[2], "0", $matchesD[1], $matchesD[2], $matchesD[3]) ;
+            $end = mktime($matchesT[1], $matchesT[2], "0", $matchesD[1], $matchesD[2], $matchesD[3]);
         }
 
         if ($auto_period == 1 && !is_null($period) && $period > 0) {
@@ -89,7 +90,8 @@ class Centreon_OpenTickets_Log
      *       [ticket_id] => XXXX
      *       [period] => 10800
      */
-    public function getLog($params, $centreon_bg, $pagination=30, $current_page=1, $all=false) {
+    public function getLog($params, $centreon_bg, $pagination = 30, $current_page = 1, $all = false)
+    {
         /* Get time */
         $range_time = $this->getTime(
             $params['StartDate'],
@@ -99,8 +101,8 @@ class Centreon_OpenTickets_Log
             $params['period']
         );
 
-        $query = "SELECT SQL_CALC_FOUND_ROWS mot.ticket_value as ticket_id, mot.timestamp, mot.user, " .
-            "motl.hostname as host_name, motl.service_description, motd.subject " .
+        $query = "SELECT SQL_CALC_FOUND_ROWS mot.ticket_value AS ticket_id, mot.timestamp, mot.user, " .
+            "motl.hostname AS host_name, motl.service_description, motd.subject " .
             "FROM mod_open_tickets_link motl, mod_open_tickets_data motd, mod_open_tickets mot WHERE ";
         if (!is_null($range_time['start'])) {
             $query .= "mot.timestamp >= " . $range_time['start'] . " AND ";
@@ -127,7 +129,7 @@ class Centreon_OpenTickets_Log
         }
         if (isset($params['host_filter']) && count($params['host_filter']) > 0) {
             if ($build_services_filter != '') {
-               $query .= "(motl.host_id IN (" . join(',', $params['host_filter']) . ") " .
+                $query .= "(motl.host_id IN (" . join(',', $params['host_filter']) . ") " .
                    "OR (" . $build_services_filter . ")) AND ";
             } else {
                 $query .= "motl.host_id IN (" . join(',', $params['host_filter']) . ") AND ";
@@ -144,8 +146,8 @@ class Centreon_OpenTickets_Log
                 ") AND motl.host_id = centreon_acl.host_id " .
                 "AND (motl.service_id IS NULL OR motl.service_id = centreon_acl.service_id)) AND ";
         }
-        $query .= "motl.ticket_id = motd.ticket_id AND motd.ticket_id = mot.ticket_id ";
-        $query .= "ORDER BY `timestamp` DESC ";
+        $query .= "motl.ticket_id = motd.ticket_id AND motd.ticket_id = mot.ticket_id
+            ORDER BY `timestamp` DESC ";
 
         /* Pagination */
         if (is_null($current_page) || $current_page <= 0) {

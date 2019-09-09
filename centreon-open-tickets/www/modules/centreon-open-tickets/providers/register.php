@@ -1,6 +1,6 @@
 <?php
 /*
- * Copyright 2015 Centreon (http://www.centreon.com/)
+ * Copyright 2015-2019 Centreon (http://www.centreon.com/)
  *
  * Centreon is a full-fledged industry-strength solution that meets
  * the needs in IT infrastructure and application monitoring for
@@ -32,5 +32,3 @@ $register_providers['BmcFootprints11'] = 7;
 $register_providers['Easyvista'] = 8;
 $register_providers['ServiceNow'] = 9;
 $register_providers['Jira'] = 10;
-
-?>

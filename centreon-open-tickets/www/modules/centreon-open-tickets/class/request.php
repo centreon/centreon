@@ -1,16 +1,16 @@
 <?php
 /*
- * Copyright 2015 Centreon (http://www.centreon.com/)
+ * Copyright 2015-2019 Centreon (http://www.centreon.com/)
  *
- * Centreon is a full-fledged industry-strength solution that meets 
- * the needs in IT infrastructure and application monitoring for 
+ * Centreon is a full-fledged industry-strength solution that meets
+ * the needs in IT infrastructure and application monitoring for
  * service performance.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0  
+ *    http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,*
@@ -38,7 +38,8 @@ class Centreon_OpenTickets_Request
      *
      * @return void
      */
-    public function __construct() {
+    public function __construct()
+    {
         $this->_postVar = array();
         $this->_getVar = array();
 
@@ -61,7 +62,8 @@ class Centreon_OpenTickets_Request
      * @param string $index
      * @return mixed
      */
-    public function getParam($index) {
+    public function getParam($index)
+    {
         if (isset($this->_getVar[$index])) {
             return $this->_getVar[$index];
         }

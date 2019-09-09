@@ -1,6 +1,6 @@
 {assign var=val value=1}
 {foreach from=$tickets item=ticket}
-{if $val % 2 == 1} 
+{if $val % 2 == 1}
 <tr class="list_one">
 {else}
 <tr class="list_two">

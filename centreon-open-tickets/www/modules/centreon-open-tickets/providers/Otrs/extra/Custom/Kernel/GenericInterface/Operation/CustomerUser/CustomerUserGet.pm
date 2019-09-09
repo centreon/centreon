@@ -54,14 +54,14 @@ sub Run {
         }
     }
 
-    
+
     # check data - only accept undef or hash ref
     if (defined $Param{Data} && ref $Param{Data} ne 'HASH') {
         return $Self->{DebuggerObject}->Error(
             Summary => 'Got Data but it is not a hash ref in Operation Test backend)!'
         );
     }
-    
+
     # authenticate user
     my ($UserID, $UserType) = $Self->Auth(%Param);
     if (!$UserID) {
@@ -70,7 +70,7 @@ sub Run {
             ErrorMessage => "CustomerUserGet: User could not be authenticated!",
         );
     }
-    
+
     $Kernel::OM = Kernel::System::ObjectManager->new();
     my $CustomerUserObject = $Kernel::OM->Get('Kernel::System::CustomerUser');
     my %List = $CustomerUserObject->CustomerUserList(valid => 1);
@@ -82,7 +82,7 @@ sub Run {
             },
         };
     }
-    
+
     my $data = { response => [] };
     my $i = 1;
     foreach my $login (sort keys %List) {

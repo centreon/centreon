@@ -63,12 +63,12 @@ var $callback_serviceAck = function(res) {
 
 function serviceAck() {
     jQuery("#form_error").html('');
-    
+
     var data = {
         "action": "service-ack",
         "form": jQuery("#Form").serializeObject()
     }
-    
+
     jQuery("#validForm").empty();
     jQuery("#OTcontainer").html('<div style="margin-top: 50px; margin-bottom:10px">Please wait...</div><div><img src="./widgets/open-tickets/resources/ajax-waiting.gif" / ></div>');
 

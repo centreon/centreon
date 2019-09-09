@@ -3,14 +3,14 @@
 --
 
 INSERT INTO `topology` (`topology_id`, `topology_name`, `topology_parent`, `topology_page`, `topology_order`, `topology_group`, `topology_url`, `topology_url_opt`, `topology_popup`, `topology_modules`, `topology_show`) VALUES
-('', 'Open Tickets', '604', NULL, NULL, '8', NULL, NULL, '0', '1', '1'),
-('', 'Rules', '604', '60420', '10', '8', './modules/centreon-open-tickets/views/rules/index.php', NULL, NULL, '1', '1');
+(NULL, 'Open Tickets', '604', NULL, NULL, '8', NULL, NULL, '0', '1', '1'),
+(NULL, 'Rules', '604', '60420', '10', '8', './modules/centreon-open-tickets/views/rules/index.php', NULL, NULL, '1', '1');
 INSERT INTO `topology_JS` (`id_page`, `PathName_js`) VALUES ('60420', './modules/centreon-open-tickets/lib/jquery.sheepItPlugin.js');
 INSERT INTO `topology_JS` (`id_page`, `PathName_js`) VALUES ('60420', './modules/centreon-open-tickets/lib/jquery.serialize-object.min.js');
 INSERT INTO `topology_JS` (`id_page`, `PathName_js`) VALUES ('60420', './modules/centreon-open-tickets/lib/doClone.js');
 INSERT INTO `topology_JS` (`id_page`, `PathName_js`) VALUES ('60420', './modules/centreon-open-tickets/lib/commonFunc.js');
 
-INSERT INTO `topology` (`topology_id`, `topology_name`, `topology_parent`, `topology_page`, `topology_order`, `topology_group`, `topology_url`, `topology_url_opt`, `topology_popup`, `topology_modules`, `topology_show`, `topology_style_class`, `topology_style_id`, `topology_OnClick`, `readonly`) VALUES 
+INSERT INTO `topology` (`topology_id`, `topology_name`, `topology_parent`, `topology_page`, `topology_order`, `topology_group`, `topology_url`, `topology_url_opt`, `topology_popup`, `topology_modules`, `topology_show`, `topology_style_class`, `topology_style_id`, `topology_OnClick`, `readonly`) VALUES
 (NULL,'Ticket Logs', 203, 20320,30,30,'./modules/centreon-open-tickets/views/logs/index.php',NULL,'0','0','1',NULL,NULL,NULL,'1');
 INSERT INTO `topology_JS` (`id_page`, `PathName_js`) VALUES ('20320', './modules/centreon-open-tickets/lib/commonFunc.js');
 INSERT INTO `topology_JS` (`id_page`, `PathName_js`) VALUES ('20320', './modules/centreon-open-tickets/lib/jquery.serialize-object.min.js');
@@ -19,24 +19,24 @@ INSERT INTO `topology_JS` (`id_page`, `PathName_js`) VALUES ('20320', './modules
 -- STRUCTURE FOR mod_open_tickets_rule
 --
 CREATE TABLE IF NOT EXISTS `mod_open_tickets_rule` (
-	`rule_id` int(11) NOT NULL AUTO_INCREMENT,
-	`alias` varchar(255) DEFAULT NULL,
+    `rule_id` int(11) NOT NULL AUTO_INCREMENT,
+    `alias` varchar(255) DEFAULT NULL,
     `provider_id` int(11) NOT NULL,
-	`activate` enum('0','1') NOT NULL DEFAULT '1',
-	PRIMARY KEY (`rule_id`)
+    `activate` enum('0','1') NOT NULL DEFAULT '1',
+    PRIMARY KEY (`rule_id`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
 
 --
 -- STRUCTURE FOR mod_open_tickets_form_clone
 --
 CREATE TABLE IF NOT EXISTS `mod_open_tickets_form_clone` (
-	`form_clone_id` int(11) NOT NULL AUTO_INCREMENT,
+    `form_clone_id` int(11) NOT NULL AUTO_INCREMENT,
     `uniq_id` VARCHAR(512) NOT NULL,
     `label` VARCHAR(512) NOT NULL,
-	`value` TEXT,
-	`rule_id` int(11) NOT NULL,
+    `value` TEXT,
+    `rule_id` int(11) NOT NULL,
     `order` int(11) NOT NULL,
-	PRIMARY KEY (`form_clone_id`)
+    PRIMARY KEY (`form_clone_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 ALTER TABLE `mod_open_tickets_form_clone`
@@ -46,11 +46,11 @@ ALTER TABLE `mod_open_tickets_form_clone`
 -- STRUCTURE FOR mod_open_tickets_form_value
 --
 CREATE TABLE IF NOT EXISTS `mod_open_tickets_form_value` (
-	`form_value_id` int(11) NOT NULL AUTO_INCREMENT,
-  	`uniq_id` VARCHAR(512) NOT NULL,
+    `form_value_id` int(11) NOT NULL AUTO_INCREMENT,
+      `uniq_id` VARCHAR(512) NOT NULL,
     `rule_id` int(11) NOT NULL,
     `value` TEXT,
-	PRIMARY KEY (`form_value_id`)
+    PRIMARY KEY (`form_value_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 ALTER TABLE `mod_open_tickets_form_value`
@@ -77,7 +77,7 @@ CREATE TABLE IF NOT EXISTS centreon_storage.`mod_open_tickets_data` (
 
 ALTER TABLE centreon_storage.`mod_open_tickets_data`
   ADD CONSTRAINT `mod_open_tickets_data_fk_1` FOREIGN KEY (`ticket_id`) REFERENCES `mod_open_tickets` (`ticket_id`) ON DELETE CASCADE;
-  
+
 CREATE TABLE IF NOT EXISTS centreon_storage.`mod_open_tickets_link` (
     `ticket_id` int(11) NOT NULL,
     `host_id` int(11),

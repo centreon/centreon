@@ -1,24 +1,24 @@
 <form id="Form"s>
-	<div align=center>
+    <div align=center>
         <div id="form_error" style="color: red"></div>
 
         <div id="OTcontainer">
             {$formatPopupProvider}
-		</div>
+        </div>
         <div id="validForm">
             <input type='hidden' id="rule_id" name='rule_id' value='{$rule_id}' />
             <input type='hidden' id="provider_id" name='provider_id' value='{$provider_id}' />
             <input type='hidden' id='widgetId' name='widgetId' value='{$widgetId}' />
             <input type='hidden' id="uniqId" name='uniqId' value='{$uniqId}' />
-			<input type='hidden' name='selection' value='{$selection}' />
+            <input type='hidden' name='selection' value='{$selection}' />
             <input type='hidden' name='title' value='{$title}' />
-			<input type='hidden' name='cmd' value='{$cmd}' />
+            <input type='hidden' name='cmd' value='{$cmd}' />
             <input type='hidden' id="continue" name='continue' value='{$continue}' />
-			<input type='hidden' name='doSubmitTicket' value='yes' />
-			<input class="btc bt_info" type='submit' id='submit' value='{$submitLabel}' onClick="return validateFormatPopup();" />
-		</div>
+            <input type='hidden' name='doSubmitTicket' value='yes' />
+            <input class="btc bt_info" type='submit' id='submit' value='{$submitLabel}' onClick="return validateFormatPopup();" />
+        </div>
         <div id="OTcountdown" style="color: red"></div>
-	</div>
+    </div>
 </form>
 {if $attach_files_enable}
 <div id="myDropzone" class="dropzone"></div>
@@ -85,20 +85,20 @@ var $callback_removeFile = function(res) {
 
 function submitTicket() {
     jQuery("#form_error").html('');
-    
+
     var data = {
         "action": "submit-ticket",
         "rule_id": jQuery("#rule_id").val(),
         "provider_id": jQuery("#provider_id").val(),
         "form": jQuery("#Form").serializeObject()
     }
-    
+
     jQuery("#validForm").empty();
     jQuery("#OTcontainer").html('<div style="margin-top: 50px; margin-bottom:10px">Please wait...</div><div><img src="./widgets/open-tickets/resources/ajax-waiting.gif" / ></div>');
     if (document.getElementById("myDropzone") !== null) {
         jQuery("#myDropzone").remove();
     }
-    
+
 
     call_ajax_async(data, $callback_submitTicket, './widgets/open-tickets/src/ajax/callforwardmodule.php');
     return false;
@@ -106,20 +106,20 @@ function submitTicket() {
 
 function removeFile(filename) {
     jQuery("#form_error").html('');
-    
+
     var data = {
         "action": "remove-file",
         "uniqId": jQuery("#uniqId").val(),
         "filename": filename
     }
-    
+
     call_ajax_async(data, $callback_removeFile, './widgets/open-tickets/src/ajax/callforwardmodule.php');
     return false;
 }
 
 function validateFormatPopup() {
     jQuery("#form_error").html('');
-    
+
     var data = {
         "action": "validate-format-popup",
         "rule_id": jQuery("#rule_id").val(),

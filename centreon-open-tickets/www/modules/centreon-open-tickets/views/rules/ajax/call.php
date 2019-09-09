@@ -1,16 +1,16 @@
 <?php
 /*
- * Copyright 2015 Centreon (http://www.centreon.com/)
+ * Copyright 2015-2019 Centreon (http://www.centreon.com/)
  *
- * Centreon is a full-fledged industry-strength solution that meets 
- * the needs in IT infrastructure and application monitoring for 
+ * Centreon is a full-fledged industry-strength solution that meets
+ * the needs in IT infrastructure and application monitoring for
  * service performance.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0  
+ *    http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,*
@@ -19,7 +19,7 @@
  * limitations under the License.
  */
 
-require_once dirname(__FILE__) . '/../../../centreon-open-tickets.conf.php';
+require_once __DIR__ . '/../../../centreon-open-tickets.conf.php';
 require_once $centreon_path . 'www/modules/centreon-open-tickets/class/centreonDBManager.class.php';
 require_once $centreon_path . 'www/modules/centreon-open-tickets/class/rule.php';
 require_once $centreon_path . 'www/modules/centreon-open-tickets/providers/register.php';
@@ -42,14 +42,14 @@ require_once $centreon_path . 'www/include/common/common-Func.php';
 
 $resultat = array("code" => 0, "msg" => "");
 $actions = array(
-    "get-form-config" => dirname(__FILE__) . "/actions/getFormConfig.php",
-    "save-form-config" => dirname(__FILE__) . "/actions/saveFormConfig.php",
-    "validate-format-popup" => dirname(__FILE__) . "/actions/validateFormatPopup.php",
-    "submit-ticket" => dirname(__FILE__) . "/actions/submitTicket.php",
-    "close-ticket" => dirname(__FILE__) . "/actions/closeTicket.php",
-    "service-ack" => dirname(__FILE__) . "/actions/serviceAck.php",
-    "upload-file" => dirname(__FILE__) . "/actions/uploadFile.php",
-    "remove-file" => dirname(__FILE__) . "/actions/removeFile.php"
+    "get-form-config" => __DIR__ . "/actions/getFormConfig.php",
+    "save-form-config" => __DIR__ . "/actions/saveFormConfig.php",
+    "validate-format-popup" => __DIR__ . "/actions/validateFormatPopup.php",
+    "submit-ticket" => __DIR__ . "/actions/submitTicket.php",
+    "close-ticket" => __DIR__ . "/actions/closeTicket.php",
+    "service-ack" => __DIR__ . "/actions/serviceAck.php",
+    "upload-file" => __DIR__ . "/actions/uploadFile.php",
+    "remove-file" => __DIR__ . "/actions/removeFile.php"
 );
 if (!isset($_POST['data']) && !isset($_REQUEST['action'])) {
     $resultat = array("code" => 1, "msg" => "POST 'data' needed.");

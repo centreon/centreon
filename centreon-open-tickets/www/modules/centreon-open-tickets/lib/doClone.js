@@ -18,7 +18,7 @@ function remove_sheepit(suffixid, count_add) {
 function reload_sheepit(suffixid) {
     var count = jQuery("#clone-count-" + suffixid).data("clone-count-" + suffixid);
     var i = 0;
-    
+
     if (count > 0) {
         $sheepit[suffixid].inject(jQuery("#clone-values-" + suffixid).data("clone-values-" + suffixid));
     }
@@ -34,7 +34,7 @@ function init_sheepit() {
     jQuery(".clonable").each(function(idx, el) {
        var suffixid = jQuery(el).attr('id');
 
-       if ($sheepit[suffixid] === undefined) {            
+       if ($sheepit[suffixid] === undefined) {
             $sheepit[suffixid] = jQuery(el).sheepIt({
                separator: '',
                allowRemoveLast: true,
@@ -49,12 +49,12 @@ function init_sheepit() {
                data: jQuery("#clone-values-" + suffixid).data("clone-values-" + suffixid)
             });
        }
-       
+
        cloneResort(suffixid);
    });
 
    jQuery(".clonable").sortable(
-   	{
+    {
         handle: ".clonehandle",
         axis: "y",
         helper: "clone",
@@ -64,6 +64,6 @@ function init_sheepit() {
         stop: function(event, ui) {
             cloneResort(jQuery(this).attr('id'));
         }
-	}
+    }
    );
 }

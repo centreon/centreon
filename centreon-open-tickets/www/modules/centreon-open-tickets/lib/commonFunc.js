@@ -16,7 +16,7 @@ function call_ajax_sync(data, call_ok_func, path_call) {
 function call_ajax_async(data, call_ok_func, path_call) {
     var dataString = JSON.stringify(data);
     jQuery("body").css("cursor", "progress");
-    
+
     jQuery.ajaxSetup({async:true});
     jQuery.post(path_call, {data: dataString}, call_ok_func)
     .success(function() { jQuery("body").css("cursor", "auto"); })

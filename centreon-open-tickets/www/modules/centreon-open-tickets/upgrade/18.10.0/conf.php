@@ -1,6 +1,6 @@
 <?php
 /*
- * Copyright 2016-2018 Centreon (http://www.centreon.com/)
+ * Copyright 2016-2018-2019 Centreon (http://www.centreon.com/)
  *
  * Centreon is a full-fledged industry-strength solution that meets
  * the needs in IT infrastructure and application monitoring for

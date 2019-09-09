@@ -19,11 +19,11 @@
         <tr>
             <td><h4>{t}From{/t}</h4></td>
             <td><h4>{t}To{/t}</h4></td>
-    	    <td colspan='3'><h4>{$form.period.label}</h4></td>
+            <td colspan='3'><h4>{$form.period.label}</h4></td>
         </tr>
         <tr>
             <td>{$form.StartDate.html} {$form.StartTime.html}</td>
-    	    <td>{$form.EndDate.html} {$form.EndTime.html}</td>
+            <td>{$form.EndDate.html} {$form.EndTime.html}</td>
             <td colspan="2">{$form.period.html}</td>
             <td align="right" style="padding-right: 100px">{$form.graph.html}</td>
         </tr>
@@ -66,9 +66,9 @@ var $callback_OTGetLogs = function(res) {
     }
 };
 
-function applyForm(current_page) {    
+function applyForm(current_page) {
     current_page = typeof current_page !== 'undefined' ? current_page : 1;
-    
+
     var data = {
         "action": "get-logs",
         "pagination" : jQuery('#num_pagination_top').val(),
@@ -80,7 +80,7 @@ function applyForm(current_page) {
     jQuery("#toolbar_top").empty();
     jQuery("#toolbar_bottom").empty();
     jQuery("#toolbar_top").html('<div>Please wait... <img src="./widgets/open-tickets/resources/ajax-waiting.gif" / ></div>');
-    
+
     call_ajax_async(data, $callback_OTGetLogs, './modules/centreon-open-tickets/views/logs/ajax/call.php');
     return false;
 }

@@ -1,15 +1,15 @@
 <form id="Form">
-	<div align=center>
+    <div align=center>
         <div id="form_error" style="color: red"></div>
 
         <div id="OTcontainer">
-		</div>
+        </div>
         <div id="validForm">
             <input type='hidden' id="rule_id" name='rule_id' value='{$rule_id}' />
             <input type='hidden' id="provider_id" name='provider_id' value='{$provider_id}' />
-			<input type='hidden' name='selection' value='{$selection}' />
-		</div>
-        
+            <input type='hidden' name='selection' value='{$selection}' />
+        </div>
+
         <!--<table class="table">
         <tr>
             <td class="FormHeader" colspan="2"><h3 style="color: #00bfb3;">{$title}</td>
@@ -18,7 +18,7 @@
             <td class="FormRowField" style="padding-left:15px;">Tickets removed.</td>
         </tr>
         </table>-->
-	</div>
+    </div>
 </form>
 
 {literal}
@@ -36,14 +36,14 @@ var $callback_closeTicket = function(res) {
 
 function closeTicket() {
     jQuery("#form_error").html('');
-    
+
     var data = {
         "action": "close-ticket",
         "rule_id": jQuery("#rule_id").val(),
         "provider_id": jQuery("#provider_id").val(),
         "form": jQuery("#Form").serializeObject()
     }
-    
+
     jQuery("#validForm").empty();
     jQuery("#OTcontainer").html('<div style="margin-top: 50px; margin-bottom:10px">Please wait...</div><div><img src="./widgets/open-tickets/resources/ajax-waiting.gif" / ></div>');
 

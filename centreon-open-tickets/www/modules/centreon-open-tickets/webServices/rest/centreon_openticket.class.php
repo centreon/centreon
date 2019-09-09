@@ -1,6 +1,6 @@
 <?php
 /*
- * Copyright 2016 Centreon (http://www.centreon.com/)
+ * Copyright 2016-2019 Centreon (http://www.centreon.com/)
  *
  * Centreon is a full-fledged industry-strength solution that meets
  * the needs in IT infrastructure and application monitoring for
@@ -24,34 +24,38 @@ require_once _CENTREON_PATH_ . '/www/api/class/webService.class.php';
 
 define('CENTREON_OPENTICKET_PATH', _CENTREON_PATH_ . '/www/modules/centreon-open-tickets');
 
-class CentreonOpenticket extends CentreonWebService {
-  public function postTestProvider() {
-    if (!isset($this->arguments['service'])) {
-      throw new RestBadRequestException('Missing service argument');
-    }
-    $service = $this->arguments['service'];
+class CentreonOpenticket extends CentreonWebService
+{
+    public function postTestProvider()
+    {
+        if (!isset($this->arguments['service'])) {
+            throw new RestBadRequestException('Missing service argument');
+        }
+        $service = $this->arguments['service'];
 
-    if (!file_exists(CENTREON_OPENTICKET_PATH . '/providers/' . $service . '/' . $service . 'Provider.class.php')) {
-      throw new RestBadRequestException('The service provider does not exists.');
-    }
-    require_once CENTREON_OPENTICKET_PATH . '/providers/Abstract/AbstractProvider.class.php';
-    require_once CENTREON_OPENTICKET_PATH . '/providers/' . $service . '/' . $service . 'Provider.class.php';
+        if (!file_exists(
+            CENTREON_OPENTICKET_PATH . '/providers/' . $service . '/' . $service . 'Provider.class.php'
+        )) {
+            throw new RestBadRequestException('The service provider does not exists.');
+        }
+        include_once CENTREON_OPENTICKET_PATH . '/providers/Abstract/AbstractProvider.class.php';
+        include_once CENTREON_OPENTICKET_PATH . '/providers/' . $service . '/' . $service . 'Provider.class.php';
 
-    $className = $service . 'Provider';
-    if (!method_exists($className, 'test')) {
-      throw new RestBadRequestException('The service provider has no test function.');
-    }
+        $className = $service . 'Provider';
+        if (!method_exists($className, 'test')) {
+            throw new RestBadRequestException('The service provider has no test function.');
+        }
 
-    try {
-      if (!$className::test($this->arguments)) {
-        throw new RestForbiddenException('Fail.');
-      }
-      return true;
-    } catch (\Exception $e) {
-      if ($e->getMessage() === 'Missing arguments.') {
-        throw new RestBadRequestException('Missing arguments.');
-      }
-      throw $e;
+        try {
+            if (!$className::test($this->arguments)) {
+                throw new RestForbiddenException('Fail.');
+            }
+            return true;
+        } catch (\Exception $e) {
+            if ($e->getMessage() === 'Missing arguments.') {
+                throw new RestBadRequestException('Missing arguments.');
+            }
+            throw $e;
+        }
     }
-  }
 }

@@ -12,7 +12,7 @@
 
 <div id="{$cloneId}_controls">
     <div id="{$cloneId}_add">
-		<p style="cursor:pointer; color: #4ccaff;">{t}+ Add a new entry{/t}</p>
+        <p style="cursor:pointer; color: #4ccaff;">{t}+ Add a new entry{/t}</p>
     </div>
 </div>
 <ul id="{$cloneId}" class="clonable no-deco-list">

@@ -31,12 +31,12 @@ function OTApplyPagination(value_select) {
     applyForm(1);
 }
 
-function exportCSV() {      
+function exportCSV() {
     var data = {
         "action": "export-csv",
         "form": jQuery("#FormTicketLogs").serializeObject()
     }
-    
+
     call_ajax_async(data, undefined, './modules/centreon-open-tickets/views/logs/ajax/call.php');
     return false;
 }

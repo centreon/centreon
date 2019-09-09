@@ -1,39 +1,39 @@
 #!/bin/bash
 #
-# Copyright 2005-2015 CENTREON
-# Centreon is developped by : Julien Mathis and Romain Le Merlus under
+# Copyright 2005-2019 CENTREON
+# Centreon is developed by : Julien Mathis and Romain Le Merlus under
 # GPL Licence 2.0.
-# 
-# This program is free software; you can redistribute it and/or modify it under 
-# the terms of the GNU General Public License as published by the Free Software 
+#
+# This program is free software; you can redistribute it and/or modify it under
+# the terms of the GNU General Public License as published by the Free Software
 # Foundation ; either version 2 of the License.
-# 
+#
 # This program is distributed in the hope that it will be useful, but WITHOUT ANY
-# WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A 
+# WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
 # PARTICULAR PURPOSE. See the GNU General Public License for more details.
-# 
-# You should have received a copy of the GNU General Public License along with 
+#
+# You should have received a copy of the GNU General Public License along with
 # this program; if not, see <http://www.gnu.org/licenses>.
-# 
-# Linking this program statically or dynamically with other modules is making a 
-# combined work based on this program. Thus, the terms and conditions of the GNU 
+#
+# Linking this program statically or dynamically with other modules is making a
+# combined work based on this program. Thus, the terms and conditions of the GNU
 # General Public License cover the whole combination.
-# 
-# As a special exception, the copyright holders of this program give CENTREON 
-# permission to link this program with independent modules to produce an executable, 
-# regardless of the license terms of these independent modules, and to copy and 
-# distribute the resulting executable under terms of CENTREON choice, provided that 
-# CENTREON also meet, for each linked independent module, the terms  and conditions 
-# of the license of that module. An independent module is a module which is not 
-# derived from this program. If you modify this program, you may extend this 
+#
+# As a special exception, the copyright holders of this program give CENTREON
+# permission to link this program with independent modules to produce an executable,
+# regardless of the license terms of these independent modules, and to copy and
+# distribute the resulting executable under terms of CENTREON choice, provided that
+# CENTREON also meet, for each linked independent module, the terms  and conditions
+# of the license of that module. An independent module is a module which is not
+# derived from this program. If you modify this program, you may extend this
 # exception to your version of the program, but you are not obliged to do so. If you
 # do not wish to do so, delete this exception statement from your version.
-# 
+#
 # For more information : contact@centreon.com
-# 
+#
 # SVN : $URL
 # SVN : $Id$
-# 
+#
 
 # Define module information
 RNAME="Centreon Open Tickets"
@@ -83,7 +83,7 @@ function usage() {
 
 ### Main
 
-# define where is a centreon source 
+# define where is a centreon source
 BASE_DIR=$(dirname $0)
 ## set directory
 BASE_DIR=$( cd $BASE_DIR; pwd )
@@ -107,7 +107,7 @@ export line
 LOG_DIR="$BASE_DIR/log"
 LOG_FILE="$PWD/install.log"
 
-## Valid if you are root 
+## Valid if you are root
 USERID=`id -u`
 if [ "$USERID" != "0" ]; then
     echo -e "You must exec with root user"
@@ -125,11 +125,11 @@ do
 			silent_install="1"
 			user_conf="${OPTARG%/}"
 			;;
-		\?|h)	usage ; 
-			exit 0 
+		\?|h)	usage ;
+			exit 0
 			;;
-		* )	usage ; 
-			exit 1 
+		* )	usage ;
+			exit 1
 			;;
 	esac
 done
@@ -140,7 +140,7 @@ if [ "$_tmp_install_opts" -eq 0 ] ; then
 fi
 
 #Export variable for all programs
-export silent_install CENTREON_CONF  
+export silent_install CENTREON_CONF
 
 ## init LOG_FILE
 # backup old log file...
@@ -167,11 +167,11 @@ binary_fail="0"
 # For the moment, I check if all binary exists in path.
 # After, I must look a solution to use complet path by binary
 for binary in $BINARIES; do
-	if [ ! -e ${binary} ] ; then 
+	if [ ! -e ${binary} ] ; then
 		pathfind "$binary"
 		if [ "$?" -eq 0 ] ; then
 			echo_success "${binary}" "$ok"
-		else 
+		else
 			echo_failure "${binary}" "$fail"
 			log "ERR" "\$binary not found in \$PATH"
 			binary_fail=1
