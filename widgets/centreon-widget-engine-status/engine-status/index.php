@@ -97,7 +97,7 @@ $res = $db->query(
         Max(T2.latency) as s_max,
         AVG(T2.latency) as s_moy
     FROM hosts T1, services T2
-    WHERE T1.instance_id = " . $idP . " AND T1.host_id = T2.host_id AND T2.enabled = '1';"
+    WHERE T1.instance_id = " . $idP . " AND T1.host_id = T2.host_id AND T2.enabled = '1' and T2.check_type = '0';"
 );
 while ($row = $res->fetch()) {
     $row['h_max'] = round($row['h_max'], 3);
@@ -114,7 +114,7 @@ $res = $db->query(
         Max(T2.execution_time) as s_max,
         AVG(T2.execution_time) as s_moy
     FROM hosts T1, services T2
-    WHERE T1.instance_id = " . $idP . " AND T1.host_id = T2.host_id AND T2.enabled = '1';"
+    WHERE T1.instance_id = " . $idP . " AND T1.host_id = T2.host_id AND T2.enabled = '1' and T2.check_type = '0';"
 );
 while ($row = $res->fetch()) {
     $row['h_max'] = round($row['h_max'], 3);
