@@ -60,8 +60,7 @@ sub get_command_result {
             if (defined($identities_token->{$client2->{identity}})) {
                 # We ask a sync
                 print "==== send logs ===\n";
-                $client2->send_message(action => 'GETLOG', target => 150, token => $identities_token->{$client2->{identity}},
-                                       json_encode => 1);
+                $client2->send_message(action => 'GETLOG', target => 150, json_encode => 1);
                 $client2->send_message(action => 'GETLOG', token => $identities_token->{$client2->{identity}}, data => { token => $identities_token->{$client2->{identity}} }, 
                                        json_encode => 1);
             }

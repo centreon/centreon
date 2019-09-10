@@ -164,6 +164,7 @@ sub connect {
             ssh_port => $self->{clients}->{$options{id}}->{ssh_port},
             ssh_username => $self->{clients}->{$options{id}}->{ssh_username},
             ssh_password => $self->{clients}->{$options{id}}->{ssh_password},
+            strict_serverkey_check => $self->{clients}->{$options{id}}->{strict_serverkey_check},
         );
         if ($code != 0) {
             $self->{clients}->{$options{id}}->{delete} = 1;
@@ -260,10 +261,18 @@ sub proxy {
             $connector->{clients}->{$target}->{delete} = 1;
         }
     } elsif ($connector->{clients}->{$target_client}->{type} eq 'push_ssh') {
-        my ($status) = $connector->{clients}->{$target_client}->{class}->action(
+        my ($code, $decoded_data) = $connector->json_decode(argument => $data);
+        return if ($code == 1);
+        
+        my ($status, $data_ret) = $connector->{clients}->{$target_client}->{class}->action(
             action => $action,
-            data => $data
+            data => $decoded_data
         );
+        if ($status == 0) {
+            $connector->send_log(code => centreon::gorgone::module::ACTION_FINISH_OK, token => $token, data => $data_ret);
+        } else {
+            $connector->send_log(code => centreon::gorgone::module::ACTION_FINISH_KO, token => $token, data => $data_ret);
+        } 
     }
 
     $connector->{logger}->writeLogDebug("[proxy] -class- Send message: [action = $action] [token = $token] [target = $target] [data = $data]");

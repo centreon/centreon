@@ -44,7 +44,7 @@ sub open_session {
         return -1;
     }
 
-    if ($self->connect() != Libssh::Session::SSH_OK) {
+    if ($self->connect(SkipKeyProblem => $options{strict_serverkey_check}) != Libssh::Session::SSH_OK) {
         $self->{logger}->writeLogError('[proxy] -sshclient- connect method: ' . $self->error());
         return -1;
     }
@@ -72,10 +72,47 @@ sub open_session {
     return 0;
 }
 
+sub action_command {
+    my ($self, %options) = @_;
+
+    if (!defined($options{data}->{content}->{command}) || $options{data}->{content}->{command} eq '') {
+        $self->{logger}->writeLogError('[proxy] -sshclient- action_command: need command');
+        return (-1, { message => 'please set command' });
+    }
+
+    my $timeout = defined($options{data}->{content}->{timeout}) && $options{data}->{content}->{timeout} =~ /(\d+)/ ? $1 : 60;
+    my $timeout_nodata = defined($options{data}->{content}->{timeout_nodata}) && $options{data}->{content}->{timeout_nodata} =~ /(\d+)/ ? $1 : 30;
+
+    my $ret = $self->execute_simple(cmd => $options{data}->{content}->{command}, timeout => $timeout, timeout_nodata => $timeout_nodata);
+    my ($code, $data) = (0, {});
+    if ($ret->{exit} == Libssh::Session::SSH_OK) {
+        $data->{message} = "command '$options{data}->{content}->{command}' had finished successfuly";
+        $data->{exit_code} = $ret->{exit_code};
+        $data->{stdout} = $ret->{stdout};
+        $data->{stderr} = $ret->{stderr};
+    } elsif ($ret->{exit} == Libssh::Session::SSH_AGAIN) { # AGAIN means timeout
+        $code = -1;
+        $data->{message} = "command '$options{data}->{content}->{command}' had timeout";
+        $data->{exit_code} = $ret->{exit_code};
+        $data->{stdout} = $ret->{stdout};
+        $data->{stderr} = $ret->{stderr};
+    } else {
+        return (-1, { message => $self->error(GetErrorSession => 1) });
+    }
+
+    return ($code, $data);
+}
+
 sub action {
     my ($self, %options) = @_;
 
-    print "===lall $options{action}====\n";
+    my $func = $self->can('action_' . lc($options{action}));
+    if (defined($func)) {
+        return $func->($self, data => $options{data});
+    }
+
+    $self->{logger}->writeLogError('[proxy] -sshclient- unsupported action ' . $options{action});
+    return (-1, { message => 'unsupported action' });
 }
 
 sub close {
