@@ -23,15 +23,9 @@ class Sidebar extends Component {
   };
 
   render() {
-    const {
-      navigationData,
-      reactRoutes,
-      handleDirectClick,
-      onNavigate,
-      externalHistory,
-      style,
-    } = this.props;
+    const { navigationData, reactRoutes, style } = this.props;
     const { active } = this.state;
+
     return (
       <nav
         className={classnames(
@@ -48,13 +42,9 @@ class Sidebar extends Component {
             <LogoMini onClick={this.toggleNavigation} />
           )}
           <Navigation
-            customStyle={active ? 'menu-big' : 'menu-small'}
             navigationData={navigationData || []}
             reactRoutes={reactRoutes || {}}
             sidebarActive={active}
-            onNavigate={onNavigate}
-            handleDirectClick={handleDirectClick}
-            externalHistory={externalHistory}
           />
           <div
             className={classnames(styles['sidebar-toggle-wrap'])}

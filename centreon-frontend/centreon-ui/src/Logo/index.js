@@ -13,7 +13,7 @@ import logo from '../../img/centreon.png';
 class Logo extends Component {
   render() {
     const { customClass, onClick } = this.props;
-    console.log(this.props.customClass);
+
     return (
       <div
         onClick={onClick}
