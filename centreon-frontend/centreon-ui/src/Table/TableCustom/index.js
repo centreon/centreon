@@ -8,7 +8,8 @@ import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
 import Paper from '@material-ui/core/Paper';
 import IconButton from '@material-ui/core/IconButton';
-import { CircularProgress } from '@material-ui/core';
+import CircularProgress from '@material-ui/core/CircularProgress';
+import TableRow from '@material-ui/core/TableRow';
 import StyledTableRow from './StyledTableRow';
 import IconPowerSettings from '../../MaterialComponents/Icons/IconPowerSettings';
 import IconPowerSettingsDisable from '../../MaterialComponents/Icons/IconPowerSettingsDisable';
@@ -37,7 +38,7 @@ const styles = () => ({
     display: 'flex',
     flexDirection: 'column',
     boxShadow: 'none',
-    background:'none'
+    background: 'none',
   },
   tableWrapper: {
     boxShadow:
@@ -48,11 +49,21 @@ const styles = () => ({
   rowDisabled: {
     backgroundColor: 'rgba(0, 0, 0, 0.07) !important',
   },
+  loadingRow: {
+    position: 'absolute',
+    top: 0,
+    background: 'rgba(1,1,1,0.25)',
+    width: '100%',
+    height: '100%',
+    zIndex: 1,
+  },
   loadingIndicator: {
+    position: 'absolute',
+    top: '50%',
+    bottom: '50%',
+    left: '50%',
     display: 'block',
-    marginTop: 5,
-    marginRight: 'auto',
-    marginLeft: 'auto',
+    margin: 'auto',
   },
 });
 
@@ -241,7 +252,7 @@ class TableCustom extends Component {
                 display: 'flex',
                 flexDirection: 'row-reverse',
                 padding: 0,
-                background:'#fff'
+                background: '#fff',
               }}
               SelectProps={{
                 native: true,
@@ -280,7 +291,10 @@ class TableCustom extends Component {
                 indicatorsEditor={indicatorsEditor}
               />
 
-              <TableBody onMouseLeave={this.rowHovered.bind(this, '', false)}>
+              <TableBody
+                onMouseLeave={this.rowHovered.bind(this, '', false)}
+                style={{ position: 'relative' }}
+              >
                 {tableData.map((row, index) => {
                   const isItemSelected = isSelected(
                     indicatorsEditor
@@ -661,17 +675,14 @@ class TableCustom extends Component {
                 })}
 
                 {loading && (
-                  <StyledTableRow>
-                    <TableCellCustom
-                      className={classes.tableCellCustom}
-                      colSpan={6}
-                      align="center"
-                    >
-                      <CircularProgress className={classes.loadingIndicator} />
-                    </TableCellCustom>
-                  </StyledTableRow>
+                  <TableRow tabIndex={-1} className={classes.loadingRow}>
+                    <CircularProgress className={classes.loadingIndicator} />
+                  </TableRow>
                 )}
-                {tableData.length < 1 && !loading ? (
+                {loading && tableData.length < 2 && (
+                  <TableRow style={{ height: 75 }} />
+                )}
+                {tableData.length < 1 && !loading && (
                   <StyledTableRow tabIndex={-1}>
                     <TableCellCustom
                       className={classes.tableCellCustom}
@@ -681,7 +692,7 @@ class TableCustom extends Component {
                       {emptyDataMessage}
                     </TableCellCustom>
                   </StyledTableRow>
-                ) : null}
+                )}
               </TableBody>
             </Table>
           </div>
