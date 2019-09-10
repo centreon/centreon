@@ -25,6 +25,7 @@ use base qw(Libssh::Session);
 use strict;
 use warnings;
 use Libssh::Sftp qw(:all);
+use POSIX;
 
 sub new {
     my ($class, %options) = @_;
@@ -101,6 +102,40 @@ sub action_command {
     }
 
     return ($code, $data);
+}
+
+sub action_enginecommand {
+    my ($self, %options) = @_;
+
+    if (!defined($options{data}->{content}->{command}) || $options{data}->{content}->{command} eq '') {
+        $self->{logger}->writeLogError('[proxy] -sshclient- action_enginecommand: need command');
+        return (-1, { message => 'please set command' });
+    }    
+    if (!defined($options{data}->{content}->{engine_pipe}) || $options{data}->{content}->{engine_pipe} eq '') {
+        $self->{logger}->writeLogError('[proxy] -sshclient- action_enginecommand: need engine_pipe');
+        return (-1, { message => 'please set engine_pipe' });
+    }
+
+    chomp $options{data}->{content}->{command};
+    my $ret = $self->{sftp}->stat_file(file => $options{data}->{content}->{engine_pipe});
+    if (!defined($ret)) {
+        return (-1, { message => "cannot stat file '$options{data}->{content}->{engine_pipe}': " . $self->{sftp}->get_msg_error() });
+    }
+
+    if ($ret->{type} != SSH_FILEXFER_TYPE_SPECIAL) {
+        return (-1, { message => "stat file '$options{data}->{content}->{engine_pipe}' is not a pipe file" });
+    }
+
+    my $file = $self->{sftp}->open(file => $options{data}->{content}->{engine_pipe}, accesstype => O_WRONLY|O_APPEND);
+    if (!defined($file)) {
+        return (-1, { message => "cannot open stat file '$options{data}->{content}->{engine_pipe}': " . $self->{sftp}->error() });
+    }
+    if ($self->{sftp}->write(handle_file => $file, data => $options{data}->{content}->{command} . "\n") != Libssh::Session::SSH_OK) {
+        return (-1, { message => "cannot write stat file '$options{data}->{content}->{engine_pipe}': " . $self->{sftp}->error() });
+    }
+
+    $self->{logger}->writeLogDebug("[proxy] -sshclient- action_enginecommand '" . $options{data}->{content}->{command} . "' succeeded");
+    return (0, { message => 'send enginecommand succeeded' });
 }
 
 sub action {

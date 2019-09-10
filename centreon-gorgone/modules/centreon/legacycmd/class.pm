@@ -117,7 +117,7 @@ sub get_pipe_engines {
 
     $self->{engine_pipe} = {};
     my ($status, $datas) = $self->{class_object_centreon}->custom_execute(
-        request => 'SELECT nagios_server_id, command_file FROM nagios_server',
+        request => 'SELECT nagios_server_id, command_file FROM cfg_nagios',
         mode => 2
     );
     if ($status == -1 || !defined($datas->[0])) {
