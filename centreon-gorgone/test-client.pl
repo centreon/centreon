@@ -39,7 +39,7 @@ sub get_command_result {
     my ($current_retries, $retries) = (0, 4);
     $stopped->{$client2->{identity}} = '^(1|2)$'; 
     $client2->send_message(
-        action => 'COMMAND', data => { content => { command => 'ls /' } }, target => 150, 
+        action => 'COMMAND', data => { content => { command => 'ls /' } }, target => 100, 
         json_encode => 1
     );
     while (1) {

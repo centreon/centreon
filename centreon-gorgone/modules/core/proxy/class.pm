@@ -26,6 +26,7 @@ use strict;
 use warnings;
 use centreon::gorgone::common;
 use centreon::gorgone::clientzmq;
+use modules::core::proxy::sshclient;
 use ZMQ::LibZMQ4;
 use ZMQ::Constants qw(:all);
 use JSON::XS;
@@ -156,7 +157,21 @@ sub connect {
             logger => $self->{logger},
         );
         $self->{clients}->{$options{id}}->{class}->init(callback => \&read_message);
+    } elsif ($self->{clients}->{$options{id}}->{type} eq 'push_ssh') {
+        $self->{clients}->{$options{id}}->{class} = modules::core::proxy::sshclient->new(logger => $self->{logger});
+        my $code = $self->{clients}->{$options{id}}->{class}->open_session(
+            ssh_host => $self->{clients}->{$options{id}}->{address},
+            ssh_port => $self->{clients}->{$options{id}}->{ssh_port},
+            ssh_username => $self->{clients}->{$options{id}}->{ssh_username},
+            ssh_password => $self->{clients}->{$options{id}}->{ssh_password},
+        );
+        if ($code != 0) {
+            $self->{clients}->{$options{id}}->{delete} = 1;
+            return -1;
+        }
     }
+
+    return 0;
 }
 
 sub action_proxyaddnode {
@@ -226,7 +241,10 @@ sub proxy {
         $target_client = $connector->{subnodes}->{$target};
     }
     if (!defined($connector->{clients}->{$target_client}->{class})) {
-        $connector->connect(id => $target_client);
+        if ($connector->connect(id => $target_client) != 0) {
+            $connector->send_log(code => centreon::gorgone::module::ACTION_FINISH_KO, token => $token, data => { message => "cannot connect on target node '$target_client'" });
+            return ;
+        }
     }
 
     if ($connector->{clients}->{$target_client}->{type} eq 'push_zmq') {
@@ -241,6 +259,11 @@ sub proxy {
             $connector->{logger}->writeLogError("[proxy] -class- Send message problem for '$target': $msg");
             $connector->{clients}->{$target}->{delete} = 1;
         }
+    } elsif ($connector->{clients}->{$target_client}->{type} eq 'push_ssh') {
+        my ($status) = $connector->{clients}->{$target_client}->{class}->action(
+            action => $action,
+            data => $data
+        );
     }
 
     $connector->{logger}->writeLogDebug("[proxy] -class- Send message: [action = $action] [token = $token] [target = $target] [data = $data]");
