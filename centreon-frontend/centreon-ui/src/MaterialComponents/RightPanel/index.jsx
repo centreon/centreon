@@ -37,6 +37,7 @@ const useDrawerStyles = makeStyles({
     minWidth: PANEL_WIDTH,
     position: 'absolute',
     pointerEvents: 'all',
+    outline: 'none',
   },
 });
 
@@ -139,6 +140,7 @@ const RightPanel = ({
           </List>
         </MainPanel>
         <SecondaryPanelBar
+          aria-label="Close Secondary Panel"
           display="flex"
           alignItems="center"
           alignContent="center"
