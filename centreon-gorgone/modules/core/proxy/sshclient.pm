@@ -32,6 +32,7 @@ sub new {
     my $self = $class->SUPER::new(%options);
     bless $self, $class;
 
+    $self->{save_options} = {};
     $self->{logger} = $options{logger};
     $self->{sftp} = undef;
     return $self;
@@ -40,6 +41,7 @@ sub new {
 sub open_session {
     my ($self, %options) = @_;
 
+    $self->{save_options} = { %options };
     if ($self->options(host => $options{ssh_host}, port => $options{ssh_port}, user => $options{ssh_username}) != Libssh::Session::SSH_OK) {
         $self->{logger}->writeLogError('[proxy] -sshclient- options method: ' . $self->error());
         return -1;
@@ -138,9 +140,21 @@ sub action_enginecommand {
     return (0, { message => 'send enginecommand succeeded' });
 }
 
+sub action_sendcfgfile {
+    my ($self, %options) = @_;
+
+    # cacheDir = /var/cache/centreon
+    # src = $self->{cacheDir} . "/config/engine/" . $id  | dst = 'cfg_dir' of cfg_nagios table
+    # src2 = $self->{cacheDir} . "/config/broker/" . $id | dst = 'centreonbroker_cfg_path' of 'nagios_server' table
+
+    # tar file: tar czf centreon-engine-config-ID.tar.gz -C  "$self->{cacheDir}/config/engine/$id" . 
+    # untar file: tar zxf centreon-engine-config-ID.tar.gz -C "cfg_dir"
+}
+
 sub action {
     my ($self, %options) = @_;
 
+    $self->test_connection();
     my $func = $self->can('action_' . lc($options{action}));
     if (defined($func)) {
         return $func->($self, data => $options{data});
@@ -148,6 +162,15 @@ sub action {
 
     $self->{logger}->writeLogError('[proxy] -sshclient- unsupported action ' . $options{action});
     return (-1, { message => 'unsupported action' });
+}
+
+sub test_connection {
+    my ($self, %options) = @_;
+
+    if ($self->is_connected() == 0) {
+        $self->disconnect();
+        $self->open_session(%{$self->{save_options}});
+    }
 }
 
 sub close {
