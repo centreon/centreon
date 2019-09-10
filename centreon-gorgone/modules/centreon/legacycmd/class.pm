@@ -136,6 +136,7 @@ sub execute_cmd {
     my ($self, %options) = @_;
 
     if ($options{cmd} eq 'EXTERNALCMD') {
+        # TODO: need to remove illegal characters!! 
         $self->send_internal_action(
             action => 'ENGINECOMMAND',
             target => $options{target},
