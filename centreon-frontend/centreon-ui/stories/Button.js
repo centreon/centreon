@@ -1,9 +1,11 @@
 /* eslint-disable react/jsx-filename-extension */
 /* eslint-disable import/no-extraneous-dependencies */
 
-import React from 'react';
+import React, { useState } from 'react';
+
 import { storiesOf } from '@storybook/react';
 import { Button, ButtonAction, ButtonActionInput } from '../src';
+import SaveButton from '../src/MaterialComponents/Button/Save';
 
 storiesOf('Button', module).add(
   'Button - regular',
@@ -182,3 +184,32 @@ storiesOf('Button', module).add('Button - action input', () => (
     buttonIconType="arrow-right"
   />
 ));
+
+const SaveButtonStory = () => {
+  const [loading, setLoading] = useState(false);
+  const [succeeded, setSucceeded] = useState(false);
+
+  const save = () => {
+    setLoading(true);
+
+    setTimeout(() => {
+      setSucceeded(true);
+      setLoading(false);
+
+      setTimeout(() => {
+        setSucceeded(false);
+      }, 1000);
+    }, 1000);
+  };
+
+  return (
+    <SaveButton
+      disabled={loading}
+      loading={loading}
+      succeeded={succeeded}
+      onClick={save}
+    />
+  );
+};
+
+storiesOf('Button', module).add('Button - Save', () => <SaveButtonStory />);
