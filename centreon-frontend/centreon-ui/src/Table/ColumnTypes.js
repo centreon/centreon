@@ -7,4 +7,5 @@ export default {
   boolean: 6,
   select: 7,
   input: 8,
+  widthVariation:9
 };

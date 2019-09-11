@@ -33,7 +33,7 @@ class IndicatorsEditorRow extends Component {
       : row.impact.type
       ? row.impact.type
       : 'word';
-    return (
+    return !selected.bool ? null : (
       <React.Fragment>
         <StyledTableCell2
           align="left"

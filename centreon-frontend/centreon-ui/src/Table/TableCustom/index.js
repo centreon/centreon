@@ -26,6 +26,7 @@ import Tooltip from '../../MaterialComponents/Tooltip';
 import InputFieldSelectTableCell from '../../InputField/InputFieldSelectTableCell';
 import InputFieldTableCell from '../../InputField/InputFieldTableCell';
 import IndicatorsEditor from './IndicatorsEditorRow';
+import DefaultTooltip from '@material-ui/core/Tooltip';
 
 const styles = () => ({
   root: {
@@ -103,8 +104,8 @@ class TableCustom extends Component {
       const newSelecteds = indicatorsEditor
         ? tableData
         : nameIdPaired
-        ? tableData.map((n) => `${n.id}:${n.name}`)
-        : tableData.map((n) => n.id);
+          ? tableData.map((n) => `${n.id}:${n.name}`)
+          : tableData.map((n) => n.id);
       onTableSelectionChanged(newSelecteds);
       onEntitiesSelected(tableData);
       return;
@@ -127,14 +128,14 @@ class TableCustom extends Component {
     const value = indicatorsEditor
       ? row
       : nameIdPaired
-      ? `${row.id}:${row.name}`
-      : row.id;
+        ? `${row.id}:${row.name}`
+        : row.id;
     const selectedIndex = indicatorsEditor
       ? selected
-          .map(({ object }) => {
-            return object.id;
-          })
-          .indexOf(value.object.id)
+        .map(({ object }) => {
+          return object.id;
+        })
+        .indexOf(value.object.id)
       : selected.indexOf(value);
     let newSelected = [];
 
@@ -176,8 +177,8 @@ class TableCustom extends Component {
   ) => {
     return column
       ? {
-          [attribute]: !row[column] ? classes[backgroundClass] : '',
-        }
+        [attribute]: !row[column] ? classes[backgroundClass] : '',
+      }
       : {};
   };
 
@@ -198,7 +199,7 @@ class TableCustom extends Component {
       totalRows,
       onEnable,
       onDisable,
-      onRowClick = () => {},
+      onRowClick = () => { },
       selected,
       enabledColumn,
       nameIdPaired,
@@ -268,8 +269,8 @@ class TableCustom extends Component {
             style={
               indicatorsEditor
                 ? {
-                    overflow: 'initial',
-                  }
+                  overflow: 'initial',
+                }
                 : {}
             }
           >
@@ -300,8 +301,8 @@ class TableCustom extends Component {
                     indicatorsEditor
                       ? row.object.id
                       : nameIdPaired
-                      ? `${row.id}:${row.name}`
-                      : row.id,
+                        ? `${row.id}:${row.name}`
+                        : row.id,
                   );
                   return (
                     <StyledTableRow
@@ -329,8 +330,8 @@ class TableCustom extends Component {
                           style={
                             indicatorsEditor
                               ? {
-                                  padding: '3px 4px',
-                                }
+                                padding: '3px 4px',
+                              }
                               : {}
                           }
                         >
@@ -351,8 +352,8 @@ class TableCustom extends Component {
                                 style={
                                   indicatorsEditor
                                     ? {
-                                        padding: '3px 4px',
-                                      }
+                                      padding: '3px 4px',
+                                    }
                                     : {}
                                 }
                               >
@@ -369,8 +370,8 @@ class TableCustom extends Component {
                                 style={
                                   indicatorsEditor
                                     ? {
-                                        padding: '3px 4px',
-                                      }
+                                      padding: '3px 4px',
+                                    }
                                     : {}
                                 }
                               >
@@ -397,8 +398,8 @@ class TableCustom extends Component {
                                 style={
                                   indicatorsEditor
                                     ? {
-                                        padding: '3px 4px',
-                                      }
+                                      padding: '3px 4px',
+                                    }
                                     : {}
                                 }
                               >
@@ -424,27 +425,27 @@ class TableCustom extends Component {
                                     />
                                   </IconButton>
                                 ) : (
-                                  <IconButton
-                                    style={{
-                                      position: 'absolute',
-                                      top: -1,
-                                      width: 31,
-                                      height: 31,
-                                      padding: 5,
-                                    }}
-                                    disabled
-                                  >
-                                    <IconPowerSettingsDisable
-                                      active
-                                      customStyle={{
-                                        fontSize: 18,
-                                        boxSizing: 'border-box',
-                                        position: 'relative',
-                                        top: -2,
+                                    <IconButton
+                                      style={{
+                                        position: 'absolute',
+                                        top: -1,
+                                        width: 31,
+                                        height: 31,
+                                        padding: 5,
                                       }}
-                                    />
-                                  </IconButton>
-                                )}
+                                      disabled
+                                    >
+                                      <IconPowerSettingsDisable
+                                        active
+                                        customStyle={{
+                                          fontSize: 18,
+                                          boxSizing: 'border-box',
+                                          position: 'relative',
+                                          top: -2,
+                                        }}
+                                      />
+                                    </IconButton>
+                                  )}
                               </StyledTableCell2>
                             );
                           case TABLE_COLUMN_TYPES.toggler:
@@ -454,8 +455,8 @@ class TableCustom extends Component {
                                 style={
                                   indicatorsEditor
                                     ? {
-                                        padding: '3px 4px',
-                                      }
+                                      padding: '3px 4px',
+                                    }
                                     : {}
                                 }
                               >
@@ -491,37 +492,37 @@ class TableCustom extends Component {
                                     />
                                   </Tooltip>
                                 ) : (
-                                  <Tooltip
-                                    label="Enable/Disable"
-                                    customStyle={{
-                                      position: 'absolute',
-                                      top: -1,
-                                      width: 31,
-                                      height: 31,
-                                    }}
-                                    onClick={(e) => {
-                                      e.preventDefault();
-                                      e.stopPropagation();
-                                      onEnable([row.id]);
-                                    }}
-                                  >
-                                    <IconPowerSettingsDisable
-                                      active
-                                      label="Disable"
+                                    <Tooltip
+                                      label="Enable/Disable"
+                                      customStyle={{
+                                        position: 'absolute',
+                                        top: -1,
+                                        width: 31,
+                                        height: 31,
+                                      }}
                                       onClick={(e) => {
                                         e.preventDefault();
                                         e.stopPropagation();
                                         onEnable([row.id]);
                                       }}
-                                      customStyle={{
-                                        fontSize: 18,
-                                        boxSizing: 'border-box',
-                                        position: 'relative',
-                                        top: -2,
-                                      }}
-                                    />
-                                  </Tooltip>
-                                )}
+                                    >
+                                      <IconPowerSettingsDisable
+                                        active
+                                        label="Disable"
+                                        onClick={(e) => {
+                                          e.preventDefault();
+                                          e.stopPropagation();
+                                          onEnable([row.id]);
+                                        }}
+                                        customStyle={{
+                                          fontSize: 18,
+                                          boxSizing: 'border-box',
+                                          position: 'relative',
+                                          top: -2,
+                                        }}
+                                      />
+                                    </Tooltip>
+                                  )}
                               </StyledTableCell2>
                             );
                           case TABLE_COLUMN_TYPES.input:
@@ -531,8 +532,8 @@ class TableCustom extends Component {
                                 style={
                                   indicatorsEditor
                                     ? {
-                                        padding: '3px 4px',
-                                      }
+                                      padding: '3px 4px',
+                                    }
                                     : {}
                                 }
                               >
@@ -546,8 +547,8 @@ class TableCustom extends Component {
                                 style={
                                   indicatorsEditor
                                     ? {
-                                        padding: '3px 4px',
-                                      }
+                                      padding: '3px 4px',
+                                    }
                                     : {}
                                 }
                               >
@@ -562,6 +563,29 @@ class TableCustom extends Component {
                                 />
                               </StyledTableCell2>
                             );
+                          case TABLE_COLUMN_TYPES.widthVariation:
+                            return (
+                            <TableCellCustom
+                              key={column.id}
+                              align="left"
+                              className={classes.tableCellCustom}
+                              colSpan={isItemSelected.bool ? 1 : 5}
+                              style={
+                                indicatorsEditor
+                                  ? {
+                                    padding: '3px 4px',
+                                    maxWidth: '155px'
+                                  }
+                                  : {}
+                              }
+                            >
+                              <DefaultTooltip title={`${row[column.id]} (${row[column.subValue]})`} placement="top">
+                                <span>
+                                  {`${row[column.id]} (${row[column.subValue]})`}
+                                </span>
+                              </DefaultTooltip>
+                            </TableCellCustom>
+                            );
                           case TABLE_COLUMN_TYPES.multicolumn:
                             return (
                               <TableCellCustom
@@ -571,8 +595,8 @@ class TableCustom extends Component {
                                 style={
                                   indicatorsEditor
                                     ? {
-                                        padding: '3px 4px',
-                                      }
+                                      padding: '3px 4px',
+                                    }
                                     : {}
                                 }
                               >
@@ -653,8 +677,8 @@ class TableCustom extends Component {
                                     </Tooltip>
                                   </React.Fragment>
                                 ) : (
-                                  ' '
-                                )}
+                                    ' '
+                                  )}
                               </StyledTableCell2>
                             );
                           default:
@@ -704,11 +728,11 @@ class TableCustom extends Component {
 
 TableCustom.defaultProps = {
   enabledColumn: '',
-  onRowClick: () => {},
+  onRowClick: () => { },
   labelDisplayedRows: ({ from, to, count }) => `${from}-${to} of ${count}`,
   labelRowsPerPage: 'Rows per page',
-  onEntitiesSelected: () => {},
-  onTableSelectionChanged: () => {},
+  onEntitiesSelected: () => { },
+  onTableSelectionChanged: () => { },
   nameIdPaired: false,
   indicatorsEditor: false,
   emptyDataMessage: 'No results found',

@@ -193,22 +193,6 @@ class BAMListingPage extends Component {
                     'flex-none',
                     'container__col-xs-12',
                     'm-0',
-                    'pr-09',
-                  ]}
-                >
-                  <Tooltip label="Delete">
-                    <IconDelete
-                      label="Delete"
-                      onClick={this.toggleDeleteModal}
-                    />
-                  </Tooltip>
-                </CustomColumn>
-                <CustomColumn
-                  customColumn="md-3"
-                  additionalStyles={[
-                    'flex-none',
-                    'container__col-xs-12',
-                    'm-0',
                     'pr-10',
                     'pl-05',
                   ]}
@@ -226,15 +210,13 @@ class BAMListingPage extends Component {
                     'flex-none',
                     'container__col-xs-12',
                     'm-0',
-                    'pr-10',
-                    'pl-05',
+                    'pr-09',
                   ]}
                 >
-                  <Tooltip label="Enable">
-                    <IconPowerSettings
-                      active
-                      label="Enable"
-                      onClick={onEnable}
+                  <Tooltip label="Delete">
+                    <IconDelete
+                      label="Delete"
+                      onClick={this.toggleDeleteModal}
                     />
                   </Tooltip>
                 </CustomColumn>
@@ -246,7 +228,6 @@ class BAMListingPage extends Component {
                     'm-0',
                     'pl-05',
                     'pr-24',
-                    'border-right',
                   ]}
                 >
                   <Tooltip label="Disable">
@@ -254,6 +235,25 @@ class BAMListingPage extends Component {
                       active
                       label="Disable"
                       onClick={onDisable}
+                    />
+                  </Tooltip>
+                </CustomColumn>
+                <CustomColumn
+                  customColumn="md-3"
+                  additionalStyles={[
+                    'flex-none',
+                    'container__col-xs-12',
+                    'm-0',
+                    'pr-10',
+                    'pl-05',
+                    'border-right',
+                  ]}
+                >
+                  <Tooltip label="Enable">
+                    <IconPowerSettings
+                      active
+                      label="Enable"
+                      onClick={onEnable}
                     />
                   </Tooltip>
                 </CustomColumn>
