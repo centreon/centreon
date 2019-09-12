@@ -137,7 +137,6 @@ export { default as IconRefresh } from './MaterialComponents/Icons/IconRefresh';
 export {
   default as IconReportProblem,
 } from './MaterialComponents/Icons/IconReportProblem';
-export { default as Accordion } from './MaterialComponents/Accordion';
 // Material Components
 export { default as BAForm } from './Forms/BAForm';
 export { default as CheckboxDefault } from './MaterialComponents/Checkbox';
