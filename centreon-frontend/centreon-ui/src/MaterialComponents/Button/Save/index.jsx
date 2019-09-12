@@ -37,7 +37,7 @@ const SaveButton = ({ succeeded, loading, tooltipLabel, ...rest }) => {
           variant="contained"
           color="primary"
           style={{ width: 40, height: 40 }}
-          aria-label="Save"
+          aria-label="save button"
           {...rest}
         >
           {ButtonContent()}
