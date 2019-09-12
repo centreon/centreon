@@ -77,7 +77,7 @@ class EnhancedTableHead extends Component {
               )}
             </StyledTableCell>
           ))}
-          {indicatorsEditor ? (
+          {indicatorsEditor && numSelected > 0 ? (
             <React.Fragment>
               <StyledTableCell
                 key="modeKpi"

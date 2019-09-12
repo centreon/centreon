@@ -16,6 +16,7 @@ import PanelItem from './PanelItem';
 import PanelHeaderTitle from './PanelHeaderTitle';
 import IconPowerSettings from '../MaterialComponents/Icons/IconPowerSettings';
 import IconPowerSettingsDisable from '../MaterialComponents/Icons/IconPowerSettingsDisable';
+import SaveButton from '../MaterialComponents/Button/Save';
 import IconAttach from '../MaterialComponents/Icons/IconAttach';
 import BAForm from '../Forms/BAForm';
 import IconCloseNew from '../MaterialComponents/Icons/IconClose';
@@ -315,22 +316,18 @@ class BAPanel extends React.Component {
               />
 
               <IconCloseNew onClick={onClose} />
-              <Button
-                variant="contained"
-                color={saving || !formModified || Object.keys(errors).length > 0 ? 'disabled' : "primary"}
+              <SaveButton
+                onClick={saving || !formModified || Object.keys(errors).length > 0 ? ()=>{} : this.onSave}
+                disabled={!formModified || errorfullySaved}
+                loading={saving}
+                succeeded={successfullySaved ? true : errorfullySaved ? false : true}
                 style={{
                   position: 'absolute',
-                  width:'75px',
-                  right: 60,
-                  top: 9,
-                  ...((!saving && formModified && Object.keys(errors).length < 1) && {backgroundColor: '#0072CE'}),
-                  fontSize: 11,
+                  right: '60px',
+                  top: '4px',
                   cursor: saving || !formModified || Object.keys(errors).length > 0 ? 'not-allowed' : 'pointer'
                 }}
-                onClick={saving || !formModified || Object.keys(errors).length > 0 ? ()=>{} : this.onSave}
-              >
-                {saving ? 'Saving' : successfullySaved ? 'Saved!': errorfullySaved ? 'Error!' : 'Save'}
-              </Button>
+              />
             </div>
             <div className={classnames(styles['panels-body'])}>
               <PanelItem
