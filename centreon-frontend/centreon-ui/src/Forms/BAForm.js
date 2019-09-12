@@ -88,6 +88,7 @@ class BAForm extends React.Component {
                 onChange={(event) => {
                   valueChanged('description', event.target ? event.target.value : event);
                 }}
+                aria-label="description field"
               />
             </CustomColumn>
             <CustomColumn customColumn="md-6">
@@ -177,9 +178,10 @@ class BAForm extends React.Component {
               </CustomColumn>
             </CustomRow>
           </ExpansionPanelDetails>
-          <ExpansionPanelDetails className={classes.additionalStyles}>
+          <ExpansionPanelDetails className={classes.additionalStyles} aria-label="indicators toggle">
             <MultiSelectContainer
               label="Indicators"
+              ariaLabel="Indicators"
               values={values.bam_kpi}
               selected={selectedMultiselect == 'bam_kpi'}
               error={errors.bam_kpi}
@@ -226,9 +228,10 @@ class BAForm extends React.Component {
           >
             <Typography className={classes.heading}>Business View</Typography>
           </ExpansionPanelSummary>
-          <ExpansionPanelDetails className={classes.additionalStyles}>
+          <ExpansionPanelDetails className={classes.additionalStyles} aria-label="business views toggle">
             <MultiSelectContainer
               label="Business views"
+              ariaLabel="Business views"
               values={transformStringArrayIntoObjects(values.groups)}
               selected={selectedMultiselect == 'groups'}
               error={errors.groups}
@@ -422,9 +425,10 @@ class BAForm extends React.Component {
               </CustomColumn>
             </CustomRow>
           </ExpansionPanelDetails>
-          <ExpansionPanelDetails className={classes.additionalStyles}>
+          <ExpansionPanelDetails className={classes.additionalStyles} aria-label="contact groups toggle">
             <MultiSelectContainer
               label="Contact groups"
+              ariaLabel="Contact groups"
               values={transformStringArrayIntoObjects(values.bam_contact)}
               selected={selectedMultiselect == 'bam_contact'}
               error={errors.bam_contact}
@@ -434,9 +438,10 @@ class BAForm extends React.Component {
               emptyInfo="Click to link contact group(s)"
             />
           </ExpansionPanelDetails>
-          <ExpansionPanelDetails className={classes.additionalStyles}>
+          <ExpansionPanelDetails className={classes.additionalStyles} aria-label="escalations toggle">
             <MultiSelectContainer
               label="Escalations"
+              ariaLabel="Escalations"
               values={transformStringArrayIntoObjects(values.bam_esc)}
               selected={selectedMultiselect == 'bam_esc'}
               onEdit={() => {
@@ -454,7 +459,7 @@ class BAForm extends React.Component {
           >
             <Typography className={classes.heading}>Reporting</Typography>
           </ExpansionPanelSummary>
-          <ExpansionPanelDetails className={classes.additionalStyles}>
+          <ExpansionPanelDetails className={classes.additionalStyles} aria-label="time periods toggle">
             <CustomRow>
               <CustomColumn customColumn="md-6">
                 <InputField
@@ -511,6 +516,7 @@ class BAForm extends React.Component {
             </CustomRow>
             <MultiSelectContainer
               label="Extra reporting time periods used in Centreon BI indicators"
+              ariaLabel="Extra reporting time periods used in Centreon BI indicators"
               values={transformStringArrayIntoObjects(
                 values.reporting_timeperiods,
               )}

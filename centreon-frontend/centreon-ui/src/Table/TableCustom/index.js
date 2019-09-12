@@ -205,6 +205,7 @@ class TableCustom extends Component {
       nameIdPaired,
       indicatorsEditor,
       emptyDataMessage,
+      ariaLabel,
       impacts,
       paginated = true,
       loading,
@@ -238,7 +239,7 @@ class TableCustom extends Component {
     const emptyRows = limit - Math.min(limit, totalRows - currentPage * limit);
 
     return (
-      <div className={classes.root}>
+      <div className={classes.root} >
         <Paper className={classes.paper}>
           {paginated ? (
             <StyledPagination
@@ -276,7 +277,7 @@ class TableCustom extends Component {
           >
             <Table
               className={classes.table}
-              aria-labelledby="tableTitle"
+              aria-label={ariaLabel}
               size="small"
             >
               <EnhancedTableHead

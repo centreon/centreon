@@ -10,6 +10,7 @@ import classnames from 'classnames';
 import Button from '@material-ui/core/Button';
 import ArrowForward from '@material-ui/icons/ArrowForwardIos';
 import ArrowBack from '@material-ui/icons/ArrowBackIos';
+import LinearProgress from '@material-ui/core/LinearProgress';
 import styles from './panels.scss';
 import styles2 from './PanelItem/panel-item.scss';
 import PanelItem from './PanelItem';
@@ -28,7 +29,6 @@ import TABLE_COLUMN_TYPES from '../Table/ColumnTypes';
 import transformStringArrayIntoObjects from '../MultiSelectPanel/helper';
 import Loader from '../Loader';
 import {requiredValidator} from '../Forms/validators';
-import LinearProgress from '@material-ui/core/LinearProgress';
 
 const multiselectsConfiguration = {
   reporting_timeperiods: {
@@ -60,7 +60,7 @@ const multiselectsConfiguration = {
         numeric: false,
         disablePadding: true,
         label: 'Name',
-        subValue:'type',
+        subValue: 'type',
         type: TABLE_COLUMN_TYPES.widthVariation,
       },
     ],
@@ -138,8 +138,8 @@ class BAPanel extends React.Component {
     activeMultiselectKey: '',
     nameEditingToggled: false,
     formModified: false,
-    successfullySaved:false,
-    errorfullySaved:false
+    successfullySaved: false,
+    errorfullySaved: false,
   };
 
   toggleMultiselect = (multiSelectKey) => {
@@ -171,48 +171,53 @@ class BAPanel extends React.Component {
 
   onFormModified = () => {
     this.setState({
-      formModified: true
+      formModified: true,
     });
-  }
+  };
 
-  valueChanged = (key,event,validator) => {
-    const {valueChanged = () => {}} = this.props;
-    const {formModified} = this.state;
-    if(!formModified){
-      this.setState({
-        formModified:true
-      },()=>{
-        valueChanged(key,event,validator)
-      })
-    }else{
-      valueChanged(key,event,validator)
+  valueChanged = (key, event, validator) => {
+    const { valueChanged = () => {} } = this.props;
+    const { formModified } = this.state;
+    if (!formModified) {
+      this.setState(
+        {
+          formModified: true,
+        },
+        () => {
+          valueChanged(key, event, validator);
+        },
+      );
+    } else {
+      valueChanged(key, event, validator);
     }
-  }
+  };
 
   onSave = () => {
-    const {onSave = () => {}} = this.props;
+    const { onSave = () => {} } = this.props;
     const savingPromise = onSave();
-    savingPromise.then(()=>{
-      this.setState({successfullySaved:true}, ()=>{
-        setTimeout(()=>{
-          this.setState({
-            successfullySaved:false
-          })
-        },1000)
+    savingPromise
+      .then(() => {
+        this.setState({ successfullySaved: true }, () => {
+          setTimeout(() => {
+            this.setState({
+              successfullySaved: false,
+            });
+          }, 1000);
+        });
       })
-    }).catch(()=>{
-      this.setState({errorfullySaved:true}, ()=>{
-      setTimeout(()=>{
-        this.setState({
-          errorfullySaved:false
-        })
-      },1000)
-    })
-    });
+      .catch(() => {
+        this.setState({ errorfullySaved: true }, () => {
+          setTimeout(() => {
+            this.setState({
+              errorfullySaved: false,
+            });
+          }, 1000);
+        });
+      });
     this.setState({
-      formModified:false
+      formModified: false,
     });
-  }
+  };
 
   render() {
     const {
@@ -221,8 +226,8 @@ class BAPanel extends React.Component {
       onClose,
       values = BAModel.result,
       errors = {},
-      notificationOptionChanged = () => { },
-      additionalPollerChanged = () => { },
+      notificationOptionChanged = () => {},
+      additionalPollerChanged = () => {},
       centreonImages,
       eventHandlerCommands,
       escalations,
@@ -240,6 +245,7 @@ class BAPanel extends React.Component {
       saving,
       onlySelectedChange,
       onlySelectedFilter,
+      ariaLabel,
     } = this.props;
     const {
       multiselectActive,
@@ -247,7 +253,7 @@ class BAPanel extends React.Component {
       multiSelectKey,
       formModified,
       errorfullySaved,
-      successfullySaved
+      successfullySaved,
     } = this.state;
     if (!values) return null;
 
@@ -259,14 +265,16 @@ class BAPanel extends React.Component {
           styles[active ? 'panels-active' : ''],
           styles[multiselectActive ? 'panels-second-active' : ''],
         )}
+        aria-label={ariaLabel}
       >
-      {saving ?
-      <div style={{
+        {saving ? (
+<div style={{
         flexGrow: 1,
       }}>
         <LinearProgress />
-      </div> : null}
-      
+      </div>
+): null}
+
         <div className={classnames(styles['panels-dialog'])}>
           <div className={classnames(styles['panels-inner'])}>
             <div className={classnames(styles['panels-header'])}>
@@ -280,8 +288,8 @@ class BAPanel extends React.Component {
                   }
                 />
               ) : (
-                  <IconAttach defaultImage />
-                )}
+                <IconAttach defaultImage />
+              )}
               {values.activate ? (
                 <IconPowerSettings
                   onClick={() => {
@@ -289,12 +297,12 @@ class BAPanel extends React.Component {
                   }}
                 />
               ) : (
-                  <IconPowerSettingsDisable
-                    onClick={() => {
-                      this.valueChanged('activate', true);
-                    }}
-                  />
-                )}
+                <IconPowerSettingsDisable
+                  onClick={() => {
+                    this.valueChanged('activate', true);
+                  }}
+                />
+              )}
 
               <InputField
                 placeholder="Click here to add name"
@@ -303,29 +311,43 @@ class BAPanel extends React.Component {
                 value={values.name}
                 inputSize="header"
                 onChange={(event) => {
-                  this.valueChanged('name', event.target ? event.target.value : event, requiredValidator(event,'Compulsory field'))
+                  this.valueChanged(
+                    'name',
+                    event.target ? event.target.value : event,
+                    requiredValidator(event, 'Compulsory field'),
+                  );
                 }}
                 style={{
                   width: multiselectActive ? '784px' : '285px',
-                  borderBottom: '1px solid'
+                  borderBottom: '1px solid',
                 }}
                 className={classnames(
                   styles['panels-header-input'],
                   errors.name ? styles['has-error'] : '',
                 )}
+                aria-label="business activity name"
               />
 
               <IconCloseNew onClick={onClose} />
               <SaveButton
-                onClick={saving || !formModified || Object.keys(errors).length > 0 ? ()=>{} : this.onSave}
+                onClick={
+                  saving || !formModified || Object.keys(errors).length > 0
+                    ? () => {}
+                    : this.onSave
+                }
                 disabled={!formModified || errorfullySaved}
                 loading={saving}
-                succeeded={successfullySaved ? true : errorfullySaved ? false : true}
+                succeeded={
+                  successfullySaved ? true : errorfullySaved ? false : true
+                }
                 style={{
                   position: 'absolute',
                   right: '60px',
                   top: '4px',
-                  cursor: saving || !formModified || Object.keys(errors).length > 0 ? 'not-allowed' : 'pointer'
+                  cursor:
+                    saving || !formModified || Object.keys(errors).length > 0
+                      ? 'not-allowed'
+                      : 'pointer',
                 }}
               />
             </div>
@@ -378,14 +400,14 @@ class BAPanel extends React.Component {
                 data={
                   multiselectsConfiguration[multiSelectKey]
                     ? this.props[
-                      multiselectsConfiguration[multiSelectKey].dataKey
-                    ].entities
+                        multiselectsConfiguration[multiSelectKey].dataKey
+                      ].entities
                     : []
                 }
                 tableConfiguration={
                   multiselectsConfiguration[multiSelectKey]
                     ? multiselectsConfiguration[multiSelectKey]
-                      .tableConfiguration
+                        .tableConfiguration
                     : []
                 }
                 onSearch={(value) => {
@@ -417,28 +439,28 @@ class BAPanel extends React.Component {
                 currentPage={
                   multiselectsConfiguration[multiSelectKey]
                     ? multiSelectFilters[
-                      multiselectsConfiguration[multiSelectKey].dataKey
-                    ].offset != 0
+                        multiselectsConfiguration[multiSelectKey].dataKey
+                      ].offset != 0
                       ? multiSelectFilters[
-                        multiselectsConfiguration[multiSelectKey].dataKey
-                      ].offset /
-                      multiSelectFilters[
-                        multiselectsConfiguration[multiSelectKey].dataKey
-                      ].limit
+                          multiselectsConfiguration[multiSelectKey].dataKey
+                        ].offset /
+                        multiSelectFilters[
+                          multiselectsConfiguration[multiSelectKey].dataKey
+                        ].limit
                       : 0
                     : 0
                 }
                 totalRows={
                   multiselectsConfiguration[multiSelectKey]
                     ? this.props[
-                      multiselectsConfiguration[multiSelectKey].dataKey
-                    ].pagination.total
+                        multiselectsConfiguration[multiSelectKey].dataKey
+                      ].pagination.total
                     : 0
                 }
                 currentlySelected={
                   values[multiSelectKey]
                     ? multiselectsConfiguration[multiSelectKey]
-                      .multiSelectNeedsTransformation
+                        .multiSelectNeedsTransformation
                       ? transformStringArrayIntoObjects(values[multiSelectKey])
                       : values[multiSelectKey]
                     : []
@@ -446,8 +468,8 @@ class BAPanel extends React.Component {
                 paginationLimit={
                   multiselectsConfiguration[multiSelectKey]
                     ? multiSelectFilters[
-                      multiselectsConfiguration[multiSelectKey].dataKey
-                    ].limit
+                        multiselectsConfiguration[multiSelectKey].dataKey
+                      ].limit
                     : 0
                 }
                 onSelect={(selected) => {
@@ -456,7 +478,7 @@ class BAPanel extends React.Component {
                 nameIdPaired={
                   multiselectsConfiguration[multiSelectKey]
                     ? multiselectsConfiguration[multiSelectKey]
-                      .multiSelectNeedsTransformation
+                        .multiSelectNeedsTransformation
                     : true
                 }
                 indicatorsEditor={
@@ -470,7 +492,7 @@ class BAPanel extends React.Component {
                 onlySelectedSwitcher={
                   multiselectsConfiguration[multiSelectKey]
                     ? multiselectsConfiguration[multiSelectKey]
-                      .onlySelectedSwitcher
+                        .onlySelectedSwitcher
                     : false
                 }
               />

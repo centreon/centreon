@@ -38,7 +38,7 @@ const DisablingMaterialIcon = styled(MaterialIcon)(() => ({
 
 function IconPowerSettings(props) {
   return (
-    <DisablingMaterialIcon {...props}>
+    <DisablingMaterialIcon {...props} aria-label="icon enable disable inactive">
       <RoundedInvertedPowerSettings />
     </DisablingMaterialIcon>
   );

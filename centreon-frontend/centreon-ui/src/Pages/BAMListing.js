@@ -151,7 +151,7 @@ class BAMListingPage extends Component {
     } = this.props;
     const { massiveChangeActive, deleteActive, duplicateActive } = this.state;
     return (
-      <React.Fragment>
+      <div aria-label={"Business Activity Page"}>
         <Paper
           elevation={0}
           style={{
@@ -183,7 +183,7 @@ class BAMListingPage extends Component {
               customColumn="md-4"
               additionalStyles={['flex-none', 'container__col-xs-12', 'm-0']}
             >
-              <ButtonCustom label="ADD" onClick={onAddClicked} />
+              <ButtonCustom label="ADD" onClick={onAddClicked} aria-label="ADD" />
             </CustomColumn>
             {currentlySelected.length > 0 ? (
               <React.Fragment>
@@ -297,6 +297,7 @@ class BAMListingPage extends Component {
             enabledColumn="activate"
             onRowClick={onRowClick}
             emptyDataMessage="No Business Activity found."
+            ariaLabel="Business Activity Table"
           />
         </Paper>
         <MassiveChangeDialog
@@ -347,7 +348,7 @@ class BAMListingPage extends Component {
             );
           }}
         />
-      </React.Fragment>
+      </div>
     );
   }
 }

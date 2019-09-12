@@ -25,6 +25,7 @@ class InputFieldMultiSelectEmpty extends React.Component {
       isEmpty,
       multiSelectCount,
       multiSelectLabel,
+      ariaLabel,
       children,
       error,
       onClick,
@@ -43,6 +44,7 @@ class InputFieldMultiSelectEmpty extends React.Component {
         onMouseEnter={this.toggleHover.bind(this)}
         onMouseLeave={this.toggleHover.bind(this)}
         onClick={onClick}
+        aria-label={ariaLabel}
       >
         {multiSelectLabel && multiSelectCount && (
           <span className={classnames(styles['multi-select-holder-label'])}>
