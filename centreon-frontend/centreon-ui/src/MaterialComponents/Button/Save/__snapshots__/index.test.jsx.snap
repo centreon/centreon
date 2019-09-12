@@ -2,7 +2,7 @@
 
 exports[`SaveButton renders with a check icon when the suceeded flag is set 1`] = `
 <button
-  aria-label="Save"
+  aria-label="save button"
   class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary"
   style="width: 40px; height: 40px;"
   tabindex="0"
@@ -31,7 +31,7 @@ exports[`SaveButton renders with a check icon when the suceeded flag is set 1`] 
 
 exports[`SaveButton renders with a floppy icon 1`] = `
 <button
-  aria-label="Save"
+  aria-label="save button"
   class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary"
   style="width: 40px; height: 40px;"
   tabindex="0"
@@ -60,7 +60,7 @@ exports[`SaveButton renders with a floppy icon 1`] = `
 
 exports[`SaveButton renders with a loading indicator when loading flag is set 1`] = `
 <button
-  aria-label="Save"
+  aria-label="save button"
   class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary"
   style="width: 40px; height: 40px;"
   tabindex="0"
