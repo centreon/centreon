@@ -10,6 +10,9 @@ const styles = {
     '&:nth-of-type(odd)': {
       backgroundColor: '#f0fbff',
     },
+    '&:nth-of-type(even)': {
+      backgroundColor: '#fff',
+    },
     '&:hover': {
       backgroundColor: '#cae6f1 !important',
     },

@@ -1,3 +1,5 @@
+/* eslint-disable jsx-a11y/no-static-element-interactions */
+/* eslint-disable jsx-a11y/click-events-have-key-events */
 /* eslint-disable react/jsx-filename-extension */
 /* eslint-disable react/prop-types */
 
@@ -23,8 +25,12 @@ class InputFieldMultiSelectEmpty extends React.Component {
       isEmpty,
       multiSelectCount,
       multiSelectLabel,
+      ariaLabel,
       children,
       error,
+      onClick,
+      selected,
+      emptyInfo,
     } = this.props;
     const { isHovered } = this.state;
     return (
@@ -33,9 +39,12 @@ class InputFieldMultiSelectEmpty extends React.Component {
           styles['multi-select-holder'],
           isEmpty ? styles['multi-select-holder-empty'] : '',
           error ? styles['has-danger'] : '',
+          selected ? styles['multi-select-holder-selected'] : '',
         )}
         onMouseEnter={this.toggleHover.bind(this)}
         onMouseLeave={this.toggleHover.bind(this)}
+        onClick={onClick}
+        aria-label={ariaLabel}
       >
         {multiSelectLabel && multiSelectCount && (
           <span className={classnames(styles['multi-select-holder-label'])}>
@@ -46,13 +55,13 @@ class InputFieldMultiSelectEmpty extends React.Component {
           {isEmpty && (
             <React.Fragment>
               <span className={classnames(styles['multi-select-holder-add'])}>
-                + Click to link an extra indicators time periods
+                {emptyInfo || 'Click to link'}
               </span>
             </React.Fragment>
           )}
           {children}
-          {isHovered ? <IconEdit /> : null}
         </div>
+        {isHovered ? <IconEdit style={{display:"inline"}}/> : null}
         {error ? (
           <div className={classnames(styles['form-error'])}>{error}</div>
         ) : null}

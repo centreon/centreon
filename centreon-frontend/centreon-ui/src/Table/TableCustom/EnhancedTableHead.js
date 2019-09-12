@@ -24,12 +24,23 @@ class EnhancedTableHead extends Component {
       rowCount,
       headRows,
       checkable,
+      indicatorsEditor,
     } = this.props;
     return (
       <TableHead>
         <TableRow>
           {checkable ? (
-            <StyledTableCell align="left" padding="checkbox">
+            <StyledTableCell
+              align="left"
+              padding="checkbox"
+              style={
+                indicatorsEditor
+                  ? {
+                      padding: '3px 4px',
+                    }
+                  : {}
+              }
+            >
               <StyledCheckbox
                 indeterminate={numSelected > 0 && numSelected < rowCount}
                 checked={numSelected === rowCount}
@@ -44,6 +55,13 @@ class EnhancedTableHead extends Component {
               align={row.numeric ? 'left' : 'inherit'}
               padding={row.disablePadding ? 'none' : 'default'}
               sortDirection={orderBy === row.id ? order : false}
+              style={
+                indicatorsEditor
+                  ? {
+                      padding: '3px 4px',
+                    }
+                  : {}
+              }
             >
               {row.type === TABLE_COLUMN_TYPES.multicolumn ? (
                 row.label
@@ -59,6 +77,66 @@ class EnhancedTableHead extends Component {
               )}
             </StyledTableCell>
           ))}
+          {indicatorsEditor && numSelected > 0 ? (
+            <React.Fragment>
+              <StyledTableCell
+                key="modeKpi"
+                align="left"
+                padding="none"
+                style={
+                  indicatorsEditor
+                    ? {
+                        padding: '3px 4px',
+                      }
+                    : {}
+                }
+              >
+                Mode
+              </StyledTableCell>
+              <StyledTableCell
+                key="warningKpi"
+                align="left"
+                padding="none"
+                style={
+                  indicatorsEditor
+                    ? {
+                        padding: '3px 4px',
+                      }
+                    : {}
+                }
+              >
+                Warning
+              </StyledTableCell>
+              <StyledTableCell
+                key="criticalKpi"
+                align="left"
+                padding="none"
+                style={
+                  indicatorsEditor
+                    ? {
+                        padding: '3px 4px',
+                      }
+                    : {}
+                }
+              >
+                Critical
+              </StyledTableCell>
+              <StyledTableCell
+                key="unknownKpi"
+                align="left"
+                padding="none"
+                style={
+                  indicatorsEditor
+                    ? {
+                        padding: '3px 4px',
+                      }
+                    : {}
+                }
+              >
+                Unknown
+              </StyledTableCell>
+            </React.Fragment>
+          ) : null}
         </TableRow>
       </TableHead>
     );

@@ -8,9 +8,21 @@ import styles from './panel-header-title.scss';
 
 class PanelHeaderTitle extends React.Component {
   render() {
-    const { label } = this.props;
+    const { label, error, ...rest } = this.props;
     return (
-      <h3 className={classnames(styles['panel-header-title'])}>{label}</h3>
+      <h3
+        className={classnames(styles['panel-header-title'])}
+        style={
+          error
+            ? {
+                color: 'red',
+              }
+            : {}
+        }
+        {...rest}
+      >
+        {label}
+      </h3>
     );
   }
 }

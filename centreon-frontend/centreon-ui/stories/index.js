@@ -29,6 +29,7 @@ import './Sidebar';
 import './Slider';
 import './Submenu';
 import './Subtitle';
+import './Snackbar';
 import './Switcher';
 import './Tabs';
 import './Table';

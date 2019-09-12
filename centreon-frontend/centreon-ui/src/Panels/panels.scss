@@ -6,15 +6,16 @@
 // Extensions panel
 .panels {
   position: absolute;
-  // TODO: set to 56px
-  top: 64px;
-  right: 8px;
+  top: 52px;
+  right: 0;
   bottom: 0;
-  max-width: 1063px;
+  max-width: 1060px;
   z-index: 90;
-  transition: .3s ease-in-out;
-  width: 100%;
+  width: 0;
   z-index: -1;
+  box-shadow: 0px 8px 10px -5px rgba(0,0,0,0.2), 0px 16px 24px 2px rgba(0,0,0,0.14), 0px 6px 30px 5px rgba(0,0,0,0.12);
+  -webkit-box-shadow: 0px 8px 10px -5px rgba(0,0,0,0.2), 0px 16px 24px 2px rgba(0,0,0,0.14), 0px 6px 30px 5px rgba(0,0,0,0.12);
+  -moz-box-shadow: 0px 8px 10px -5px rgba(0,0,0,0.2), 0px 16px 24px 2px rgba(0,0,0,0.14), 0px 6px 30px 5px rgba(0,0,0,0.12);
   &-dialog {
     position: relative;
     height: 100%;
@@ -24,8 +25,38 @@
     position: absolute;
     right: -100%;
     height: 100%;
-    transition: .3s ease-in-out;
     width: 100%;
+  }
+  &-header-input {
+    background: none;
+    font-family: 'Roboto Regular';
+    font-weight: bold;
+    display: inline-block;
+    border: none;
+    font-size: 20px;
+    vertical-align: middle;
+    width: 100%;
+    &:focus {
+      outline: none;
+    }
+    &:hover {
+      background: #c2c3c6;
+    }
+    &.has-error{
+      color:red;
+      &::placeholder {
+        color: red;
+        opacity: 1;
+      }
+      
+      &:-ms-input-placeholder {
+        color: red;
+      }
+      
+      &::-ms-input-placeholder {
+        color: red;
+      }
+    }
   }
   &-body {
     display: flex;
@@ -78,10 +109,6 @@
     min-width: 560px;
     right: 0;
     width: 560px;
-    transition: .3s ease-in-out;
-    box-shadow: 0px 3px 4px 0px rgba(0,0,0,0.15);
-    -webkit-box-shadow: 0px 3px 4px 0px rgba(0,0,0,0.15);
-    -moz-box-shadow: 0px 3px 4px 0px rgba(0,0,0,0.15);
     box-sizing: border-box;
     z-index: 10;
   }
@@ -127,11 +154,13 @@
     }
   }
   &-active {
-    width: 563px;
+    width: 560px;
     z-index: 90;
+    transition: 0.2s ease-in;
     .panels {
       &-inner {
         right: 0;
+        transition: 0.2s ease-in;
       }
     }
   }

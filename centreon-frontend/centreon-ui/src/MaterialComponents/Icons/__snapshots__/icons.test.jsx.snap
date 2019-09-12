@@ -109,6 +109,7 @@ exports[`IconClose renders 1`] = `
 }
 
 <span
+  aria-label="icon close"
   class="emotion-1"
 >
   <svg
@@ -305,6 +306,7 @@ exports[`IconPowerSettings renders 1`] = `
 }
 
 <span
+  aria-label="icon enable disable"
   class="emotion-1"
 >
   <svg
@@ -373,6 +375,7 @@ exports[`IconPowerSettings renders 2`] = `
 }
 
 <span
+  aria-label="icon enable disable inactive"
   class="emotion-1"
 >
   <svg

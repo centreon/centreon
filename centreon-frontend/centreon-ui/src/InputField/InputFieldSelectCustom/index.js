@@ -26,6 +26,8 @@ class InputFieldSelectCustom extends Component {
   };
 
   toggleSelect = () => {
+    const { disabled } = this.props;
+    if (disabled) return;
     const { active } = this.state;
     this.setState({
       active: !active,
@@ -34,34 +36,40 @@ class InputFieldSelectCustom extends Component {
 
   componentWillMount = () => {
     const { value, options } = this.props;
-    for (let i = 0; i < options.length; i++) {
-      if (options[i].id === value) {
-        this.setState({
-          selected: options[i],
-        });
-      }
-    }
+    let found = false;
     if (options) {
+      for (let i = 0; i < options.length; i++) {
+        if (options[i].id == value) {
+          this.setState({
+            selected: options[i],
+          });
+          found = true;
+        }
+      }
       this.setState({
         options,
         allOptions: options,
+        ...(!found && {selected:{}})
       });
     }
   };
 
   componentWillReceiveProps = (nextProps) => {
-    const { value, options } = nextProps;
-    for (let i = 0; i < options.length; i++) {
-      if (options[i].id === value) {
-        this.setState({
-          selected: options[i],
-        });
-      }
-    }
+    const { value, options } = nextProps; 
+    let found = false;
     if (options) {
+      for (let i = 0; i < options.length; i++) {
+        if (options[i].id == value) {
+          this.setState({
+            selected: options[i],
+          });
+          found = true;
+        }
+      }
       this.setState({
         options,
         allOptions: options,
+        ...(!found && {selected:{}})
       });
     }
   };

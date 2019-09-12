@@ -44,7 +44,7 @@ const GreyClose = styled(Close)(() => ({
 
 function IconClose({ label, ...rest }) {
   return (
-    <FloatingIcon {...rest}>
+    <FloatingIcon {...rest} aria-label="icon close">
       <GreyClose />
       {label && <Label>{label}</Label>}
     </FloatingIcon>

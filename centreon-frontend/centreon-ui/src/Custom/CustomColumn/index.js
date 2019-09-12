@@ -14,6 +14,7 @@ class CustomColumn extends Component {
       customColumn,
       additionalStyles,
       additionalColumns,
+      style,
     } = this.props;
     const additionalClasses = [];
     if (additionalStyles) {
@@ -31,6 +32,7 @@ class CustomColumn extends Component {
             ? { [styles[`container__col-${additionalColumns}`]]: true }
             : '',
         )}
+        style={style}
       >
         {children}
       </div>

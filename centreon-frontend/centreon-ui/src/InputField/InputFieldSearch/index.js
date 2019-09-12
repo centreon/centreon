@@ -25,13 +25,14 @@ const useStyles = () => ({
     fontSize: 12,
     boxShadow: 'none',
     position: 'relative',
+    backgroundColor: '#f9f9f9',
   },
   paper: {
     padding: 0,
   },
   input: {
-    marginLeft: 8,
     flex: 1,
+    fontSize: 13,
   },
   iconButton: {
     padding: 3,

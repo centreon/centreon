@@ -7,7 +7,6 @@ import {
   CustomRow,
   CustomColumn,
   Breadcrumb,
-  Divider,
   InputFieldSearch,
   ButtonCustom,
   TableCustom,
@@ -46,6 +45,7 @@ const tableConfiguration = [
     disablePadding: true,
     label: 'Name',
     type: TABLE_COLUMN_TYPES.string,
+    image: true,
   },
   {
     id: '#',
@@ -147,13 +147,22 @@ class BAMListingPage extends Component {
       totalRows,
       currentPage,
       currentlySelected,
+      onRowClick,
     } = this.props;
     const { massiveChangeActive, deleteActive, duplicateActive } = this.state;
     return (
-      <React.Fragment>
-        <Breadcrumb breadcrumbs={breadcrumbs} />
-        <Divider />
-        <Paper elevation={0} style={{ padding: '8px 16px' }}>
+      <div aria-label="Business Activity Page">
+        <Paper
+          elevation={0}
+          style={{
+            padding: '16px 0',
+            marginLeft: '16px',
+            marginRight: '16px',
+            borderRadius: '0',
+            borderBottom: '1px solid #e4e4e4',
+            borderTop: '1px solid #e4e4e4',
+          }}
+        >
           <CustomRow>
             <CustomColumn
               customColumn="md-4"
@@ -168,33 +177,20 @@ class BAMListingPage extends Component {
             </CustomColumn>
           </CustomRow>
         </Paper>
-        <Divider />
-        <Paper elevation={0} style={{ padding: '8px 16px' }}>
+        <Paper elevation={0} style={{ padding: '16px 16px 8px 16px' }}>
           <CustomRow>
             <CustomColumn
               customColumn="md-4"
               additionalStyles={['flex-none', 'container__col-xs-12', 'm-0']}
             >
-              <ButtonCustom label="ADD" onClick={onAddClicked} id="addBA" />
+              <ButtonCustom
+                label="ADD"
+                onClick={onAddClicked}
+                aria-label="ADD"
+              />
             </CustomColumn>
             {currentlySelected.length > 0 ? (
               <React.Fragment>
-                <CustomColumn
-                  customColumn="md-3"
-                  additionalStyles={[
-                    'flex-none',
-                    'container__col-xs-12',
-                    'm-0',
-                    'pr-09',
-                  ]}
-                >
-                  <Tooltip label="Delete">
-                    <IconDelete
-                      label="Delete"
-                      onClick={this.toggleDeleteModal}
-                    />
-                  </Tooltip>
-                </CustomColumn>
                 <CustomColumn
                   customColumn="md-3"
                   additionalStyles={[
@@ -218,15 +214,13 @@ class BAMListingPage extends Component {
                     'flex-none',
                     'container__col-xs-12',
                     'm-0',
-                    'pr-10',
-                    'pl-05',
+                    'pr-09',
                   ]}
                 >
-                  <Tooltip label="Enable">
-                    <IconPowerSettings
-                      active
-                      label="Enable"
-                      onClick={onEnable}
+                  <Tooltip label="Delete">
+                    <IconDelete
+                      label="Delete"
+                      onClick={this.toggleDeleteModal}
                     />
                   </Tooltip>
                 </CustomColumn>
@@ -238,7 +232,6 @@ class BAMListingPage extends Component {
                     'm-0',
                     'pl-05',
                     'pr-24',
-                    'border-right',
                   ]}
                 >
                   <Tooltip label="Disable">
@@ -246,6 +239,25 @@ class BAMListingPage extends Component {
                       active
                       label="Disable"
                       onClick={onDisable}
+                    />
+                  </Tooltip>
+                </CustomColumn>
+                <CustomColumn
+                  customColumn="md-3"
+                  additionalStyles={[
+                    'flex-none',
+                    'container__col-xs-12',
+                    'm-0',
+                    'pr-10',
+                    'pl-05',
+                    'border-right',
+                  ]}
+                >
+                  <Tooltip label="Enable">
+                    <IconPowerSettings
+                      active
+                      label="Enable"
+                      onClick={onEnable}
                     />
                   </Tooltip>
                 </CustomColumn>
@@ -287,10 +299,13 @@ class BAMListingPage extends Component {
             onDisable={onDisable}
             selected={currentlySelected}
             enabledColumn="activate"
+            onRowClick={onRowClick}
+            emptyDataMessage="No Business Activity found."
+            ariaLabel="Business Activity Table"
           />
         </Paper>
         <MassiveChangeDialog
-          header="Massive calculation method change"
+          customStyle={{ padding: '25px 20px' }}
           info="Input value of critical and warning threshold for selected BAs"
           active={massiveChangeActive}
           onNoClicked={this.toggleMassiveChangeModal}
@@ -337,7 +352,7 @@ class BAMListingPage extends Component {
             );
           }}
         />
-      </React.Fragment>
+      </div>
     );
   }
 }

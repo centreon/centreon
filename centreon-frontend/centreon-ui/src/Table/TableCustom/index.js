@@ -7,6 +7,10 @@ import { withStyles } from '@material-ui/core/styles';
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
 import Paper from '@material-ui/core/Paper';
+import IconButton from '@material-ui/core/IconButton';
+import CircularProgress from '@material-ui/core/CircularProgress';
+import TableRow from '@material-ui/core/TableRow';
+import DefaultTooltip from '@material-ui/core/Tooltip';
 import StyledTableRow from './StyledTableRow';
 import IconPowerSettings from '../../MaterialComponents/Icons/IconPowerSettings';
 import IconPowerSettingsDisable from '../../MaterialComponents/Icons/IconPowerSettingsDisable';
@@ -20,21 +24,47 @@ import StyledTableCell2 from './StyledTableCell2';
 import TableCellCustom from './TableCellCustom';
 import StyledPagination from './StyledPagination';
 import Tooltip from '../../MaterialComponents/Tooltip';
+import InputFieldSelectTableCell from '../../InputField/InputFieldSelectTableCell';
+import InputFieldTableCell from '../../InputField/InputFieldTableCell';
+import IndicatorsEditor from './IndicatorsEditorRow';
 
-const styles = (theme) => ({
+const styles = () => ({
   root: {
     width: '100%',
+    display: 'flex',
+    height: 'calc(100vh - 209px)',
   },
   paper: {
     width: '100%',
-    marginBottom: theme.spacing(2),
+    display: 'flex',
+    flexDirection: 'column',
+    boxShadow: 'none',
+    background: 'none',
   },
   tableWrapper: {
+    boxShadow:
+      '0px 1px 3px 0px rgba(0,0,0,0.2), 0px 1px 1px 0px rgba(0,0,0,0.14), 0px 2px 1px -1px rgba(0,0,0,0.12)',
     overflowX: 'auto',
     overflowY: 'hidden',
   },
   rowDisabled: {
     backgroundColor: 'rgba(0, 0, 0, 0.07) !important',
+  },
+  loadingRow: {
+    position: 'absolute',
+    top: 0,
+    background: 'rgba(1,1,1,0.25)',
+    width: '100%',
+    height: '100%',
+    zIndex: 1,
+  },
+  loadingIndicator: {
+    position: 'absolute',
+    top: '50%',
+    bottom: '50%',
+    left: '50%',
+    display: 'block',
+    margin: 'auto',
   },
 });
 
@@ -63,25 +93,60 @@ class TableCustom extends Component {
   };
 
   handleSelectAllClick = (event) => {
-    const { onTableSelectionChanged, tableData } = this.props;
+    const {
+      onEntitiesSelected,
+      onTableSelectionChanged,
+      tableData,
+      nameIdPaired,
+      indicatorsEditor,
+    } = this.props;
     if (event.target.checked) {
-      const newSelecteds = tableData.map((n) => n.id);
+      const newSelecteds = indicatorsEditor
+        ? tableData
+        : nameIdPaired
+        ? tableData.map((n) => `${n.id}:${n.name}`)
+        : tableData.map((n) => n.id);
       onTableSelectionChanged(newSelecteds);
+      onEntitiesSelected(tableData);
       return;
     }
 
     onTableSelectionChanged([]);
   };
 
-  handleClick = (event, name) => {
+  handleClick = (event, row, editing) => {
     event.preventDefault();
     event.stopPropagation();
-    const { onTableSelectionChanged, selected } = this.props;
-    const selectedIndex = selected.indexOf(name);
+    const {
+      onEntitiesSelected,
+      onTableSelectionChanged,
+      selected,
+      nameIdPaired,
+      indicatorsEditor,
+      tableData,
+    } = this.props;
+    const value = indicatorsEditor
+      ? row
+      : nameIdPaired
+      ? `${row.id}:${row.name}`
+      : row.id;
+    const selectedIndex = indicatorsEditor
+      ? selected
+          .map(({ object }) => {
+            return object.id;
+          })
+          .indexOf(value.object.id)
+      : selected.indexOf(value);
     let newSelected = [];
 
-    if (selectedIndex === -1) {
-      newSelected = newSelected.concat(selected, name);
+    if (editing) {
+      newSelected = selected;
+      newSelected[selectedIndex] = indicatorsEditor ? row : value;
+    } else if (selectedIndex === -1) {
+      newSelected = newSelected.concat(
+        selected,
+        indicatorsEditor ? row : value,
+      );
     } else if (selectedIndex === 0) {
       newSelected = newSelected.concat(selected.slice(1));
     } else if (selectedIndex === selected.length - 1) {
@@ -92,6 +157,8 @@ class TableCustom extends Component {
         selected.slice(selectedIndex + 1),
       );
     }
+
+    onEntitiesSelected(tableData.filter(({ id }) => newSelected.includes(id)));
     onTableSelectionChanged(newSelected);
   };
 
@@ -132,50 +199,118 @@ class TableCustom extends Component {
       totalRows,
       onEnable,
       onDisable,
-      onRowClick,
+      onRowClick = () => {},
       selected,
       enabledColumn,
+      nameIdPaired,
+      indicatorsEditor,
+      emptyDataMessage,
+      ariaLabel,
+      impacts,
+      paginated = true,
+      loading,
     } = this.props;
     const { order, orderBy, hovered } = this.state;
 
-    const isSelected = (name) => selected.indexOf(name) !== -1;
+    const isSelected = (value) => {
+      // eslint-disable-next-line
+      for (let i = 0; i < selected.length; i++) {
+        // eslint-disable-next-line
+        if (indicatorsEditor) {
+          if (selected[i].object.id === value) {
+            return {
+              bool: true,
+              obj: selected[i],
+            };
+          }
+        } else if (selected[i] === value) {
+          return {
+            bool: true,
+            obj: selected[i],
+          };
+        }
+      }
+      return {
+        bool: false,
+        obj: null,
+      };
+    };
 
     const emptyRows = limit - Math.min(limit, totalRows - currentPage * limit);
 
     return (
       <div className={classes.root}>
         <Paper className={classes.paper}>
-          <div className={classes.tableWrapper}>
+          {paginated ? (
+            <StyledPagination
+              rowsPerPageOptions={[10, 20, 30, 40, 50, 60, 70, 80, 90, 100]}
+              labelDisplayedRows={labelDisplayedRows}
+              labelRowsPerPage={labelRowsPerPage}
+              colSpan={3}
+              count={totalRows}
+              rowsPerPage={limit}
+              page={currentPage}
+              style={{
+                display: 'flex',
+                flexDirection: 'row-reverse',
+                padding: 0,
+                background: '#fff',
+              }}
+              SelectProps={{
+                native: true,
+              }}
+              onChangePage={onPaginate}
+              onChangeRowsPerPage={onPaginationLimitChanged}
+              ActionsComponent={TablePaginationActions}
+            />
+          ) : null}
+
+          <div
+            className={classes.tableWrapper}
+            style={
+              indicatorsEditor
+                ? {
+                    overflow: 'initial',
+                  }
+                : {}
+            }
+          >
             <Table
               className={classes.table}
-              aria-labelledby="tableTitle"
+              aria-label={ariaLabel}
               size="small"
             >
               <EnhancedTableHead
-                numSelected={selected.length}
+                numSelected={selected ? selected.length : 0}
                 order={order}
                 checkable={checkable}
                 orderBy={orderBy}
                 onSelectAllClick={this.handleSelectAllClick}
                 onRequestSort={this.handleRequestSort}
                 rowCount={limit - emptyRows}
-                onClick={onRowClick}
                 className={classes.tableWrapper}
                 headRows={columnConfiguration}
+                indicatorsEditor={indicatorsEditor}
               />
-              <TableBody onMouseLeave={this.rowHovered.bind(this, '', false)}>
-                {tableData.map((row) => {
-                  const isItemSelected = isSelected(row.id);
+
+              <TableBody
+                onMouseLeave={this.rowHovered.bind(this, '', false)}
+                style={{ position: 'relative' }}
+              >
+                {tableData.map((row, index) => {
+                  const isItemSelected = isSelected(
+                    indicatorsEditor
+                      ? row.object.id
+                      : nameIdPaired
+                      ? `${row.id}:${row.name}`
+                      : row.id,
+                  );
                   return (
                     <StyledTableRow
                       hover
-                      role="checkbox"
-                      aria-checked={isItemSelected}
                       tabIndex={-1}
-                      key={row.id}
-                      selected={isItemSelected}
+                      key={`${row.id}index${index}`}
                       onMouseEnter={this.rowHovered.bind(this, row.id, true)}
-                      className="trow"
                       {...this.addConditionalRowBackground(
                         row,
                         enabledColumn,
@@ -183,16 +318,26 @@ class TableCustom extends Component {
                         'className',
                         classes,
                       )}
+                      onClick={() => {
+                        onRowClick(row.id);
+                      }}
                     >
                       {checkable ? (
                         <StyledTableCell2
                           align="left"
-                          onClick={(event) => this.handleClick(event, row.id)}
+                          onClick={(event) => this.handleClick(event, row)}
                           className={classes.tableCell}
                           padding="checkbox"
+                          style={
+                            indicatorsEditor
+                              ? {
+                                  padding: '3px 4px',
+                                }
+                              : {}
+                          }
                         >
                           <StyledCheckbox
-                            checked={isItemSelected}
+                            checked={isItemSelected.bool}
                             color="primary"
                           />
                         </StyledTableCell2>
@@ -200,6 +345,22 @@ class TableCustom extends Component {
 
                       {columnConfiguration.map((column) => {
                         switch (column.type) {
+                          case TABLE_COLUMN_TYPES.number:
+                            return (
+                              <TableCellCustom
+                                align="left"
+                                className={classes.tableCellCustom}
+                                style={
+                                  indicatorsEditor
+                                    ? {
+                                        padding: '3px 4px',
+                                      }
+                                    : {}
+                                }
+                              >
+                                {row[column.id] || ''}
+                              </TableCellCustom>
+                            );
                           case TABLE_COLUMN_TYPES.string:
                           case TABLE_COLUMN_TYPES.number:
                             return (
@@ -207,13 +368,99 @@ class TableCustom extends Component {
                                 key={column.id}
                                 align="left"
                                 className={classes.tableCellCustom}
+                                style={
+                                  indicatorsEditor
+                                    ? {
+                                        padding: '3px 4px',
+                                      }
+                                    : {}
+                                }
                               >
-                                {row[column.id] || ''}
+                                {column.image && (
+                                  <img
+                                    src={row.iconPath}
+                                    style={{
+                                      maxWidth: 21,
+                                      display: 'inline-block',
+                                      verticalAlign: 'middle',
+                                      marginRight: 5,
+                                    }}
+                                  />
+                                )}
+                                {column.subkey
+                                  ? row[column.subkey][column.id] || ''
+                                  : row[column.id] || ''}
                               </TableCellCustom>
+                            );
+                          case TABLE_COLUMN_TYPES.boolean:
+                            return (
+                              <StyledTableCell2
+                                align="left"
+                                style={
+                                  indicatorsEditor
+                                    ? {
+                                        padding: '3px 4px',
+                                      }
+                                    : {}
+                                }
+                              >
+                                {row[column.id] ? (
+                                  <IconButton
+                                    style={{
+                                      position: 'absolute',
+                                      top: -1,
+                                      width: 31,
+                                      height: 31,
+                                      padding: 5,
+                                    }}
+                                    disabled
+                                  >
+                                    <IconPowerSettings
+                                      active
+                                      customStyle={{
+                                        fontSize: 18,
+                                        boxSizing: 'border-box',
+                                        position: 'relative',
+                                        top: -2,
+                                      }}
+                                    />
+                                  </IconButton>
+                                ) : (
+                                  <IconButton
+                                    style={{
+                                      position: 'absolute',
+                                      top: -1,
+                                      width: 31,
+                                      height: 31,
+                                      padding: 5,
+                                    }}
+                                    disabled
+                                  >
+                                    <IconPowerSettingsDisable
+                                      active
+                                      customStyle={{
+                                        fontSize: 18,
+                                        boxSizing: 'border-box',
+                                        position: 'relative',
+                                        top: -2,
+                                      }}
+                                    />
+                                  </IconButton>
+                                )}
+                              </StyledTableCell2>
                             );
                           case TABLE_COLUMN_TYPES.toggler:
                             return (
-                              <StyledTableCell2 key={column.id} align="left">
+                              <StyledTableCell2
+                                align="left"
+                                style={
+                                  indicatorsEditor
+                                    ? {
+                                        padding: '3px 4px',
+                                      }
+                                    : {}
+                                }
+                              >
                                 {row[column.id] ? (
                                   <Tooltip
                                     label="Enable/Disable"
@@ -223,12 +470,19 @@ class TableCustom extends Component {
                                       width: 31,
                                       height: 31,
                                     }}
-                                    onClick={() => {
+                                    onClick={(e) => {
+                                      e.preventDefault();
+                                      e.stopPropagation();
                                       onDisable([row.id]);
                                     }}
                                   >
                                     <IconPowerSettings
                                       label="Disable"
+                                      onClick={(e) => {
+                                        e.preventDefault();
+                                        e.stopPropagation();
+                                        onDisable([row.id]);
+                                      }}
                                       active
                                       customStyle={{
                                         fontSize: 18,
@@ -247,13 +501,20 @@ class TableCustom extends Component {
                                       width: 31,
                                       height: 31,
                                     }}
-                                    onClick={() => {
+                                    onClick={(e) => {
+                                      e.preventDefault();
+                                      e.stopPropagation();
                                       onEnable([row.id]);
                                     }}
                                   >
                                     <IconPowerSettingsDisable
                                       active
                                       label="Disable"
+                                      onClick={(e) => {
+                                        e.preventDefault();
+                                        e.stopPropagation();
+                                        onEnable([row.id]);
+                                      }}
                                       customStyle={{
                                         fontSize: 18,
                                         boxSizing: 'border-box',
@@ -265,12 +526,87 @@ class TableCustom extends Component {
                                 )}
                               </StyledTableCell2>
                             );
+                          case TABLE_COLUMN_TYPES.input:
+                            return (
+                              <StyledTableCell2
+                                align="left"
+                                style={
+                                  indicatorsEditor
+                                    ? {
+                                        padding: '3px 4px',
+                                      }
+                                    : {}
+                                }
+                              >
+                                <InputFieldTableCell />
+                              </StyledTableCell2>
+                            );
+                          case TABLE_COLUMN_TYPES.select:
+                            return (
+                              <StyledTableCell2
+                                align="left"
+                                style={
+                                  indicatorsEditor
+                                    ? {
+                                        padding: '3px 4px',
+                                      }
+                                    : {}
+                                }
+                              >
+                                <InputFieldSelectTableCell
+                                  options={column.options}
+                                  value={
+                                    column.subkey
+                                      ? row[column.subkey][column.id]
+                                      : row[column.key]
+                                  }
+                                  active="active"
+                                />
+                              </StyledTableCell2>
+                            );
+                          case TABLE_COLUMN_TYPES.widthVariation:
+                            return (
+                              <TableCellCustom
+                                key={column.id}
+                                align="left"
+                                className={classes.tableCellCustom}
+                                colSpan={isItemSelected.bool ? 1 : 5}
+                                style={
+                                  indicatorsEditor
+                                    ? {
+                                        padding: '3px 4px',
+                                        maxWidth: '155px',
+                                      }
+                                    : {}
+                                }
+                              >
+                                <DefaultTooltip
+                                  title={`${row[column.id]} (${
+                                    row[column.subValue]
+                                  })`}
+                                  placement="top"
+                                >
+                                  <span>
+                                    {`${row[column.id]} (${
+                                      row[column.subValue]
+                                    })`}
+                                  </span>
+                                </DefaultTooltip>
+                              </TableCellCustom>
+                            );
                           case TABLE_COLUMN_TYPES.multicolumn:
                             return (
                               <TableCellCustom
                                 key={column.id}
                                 align="left"
                                 className={classes.tableCellCustom}
+                                style={
+                                  indicatorsEditor
+                                    ? {
+                                        padding: '3px 4px',
+                                      }
+                                    : {}
+                                }
                               >
                                 {column.columns.map((subColumn) => (
                                   <React.Fragment>
@@ -315,6 +651,11 @@ class TableCustom extends Component {
                                           color: '#707070',
                                           fontSize: 21,
                                         }}
+                                        onClick={(e) => {
+                                          e.preventDefault();
+                                          e.stopPropagation();
+                                          onDelete([row.id]);
+                                        }}
                                       />
                                     </Tooltip>
                                     <Tooltip
@@ -335,6 +676,11 @@ class TableCustom extends Component {
                                           color: '#707070',
                                           fontSize: 20,
                                         }}
+                                        onClick={(e) => {
+                                          e.preventDefault();
+                                          e.stopPropagation();
+                                          onDuplicate([row.id]);
+                                        }}
                                       />
                                     </Tooltip>
                                   </React.Fragment>
@@ -347,28 +693,41 @@ class TableCustom extends Component {
                             return null;
                         }
                       })}
+                      {indicatorsEditor ? (
+                        <IndicatorsEditor
+                          row={row}
+                          index={index}
+                          impacts={impacts}
+                          selected={isItemSelected}
+                          onImpactEdit={this.handleClick}
+                        />
+                      ) : null}
                     </StyledTableRow>
                   );
                 })}
+
+                {loading && (
+                  <TableRow tabIndex={-1} className={classes.loadingRow}>
+                    <CircularProgress className={classes.loadingIndicator} />
+                  </TableRow>
+                )}
+                {loading && tableData.length < 2 && (
+                  <TableRow style={{ height: 75 }} />
+                )}
+                {tableData.length < 1 && !loading && (
+                  <StyledTableRow tabIndex={-1}>
+                    <TableCellCustom
+                      className={classes.tableCellCustom}
+                      colSpan={6}
+                      align="center"
+                    >
+                      {emptyDataMessage}
+                    </TableCellCustom>
+                  </StyledTableRow>
+                )}
               </TableBody>
             </Table>
           </div>
-          <StyledPagination
-            rowsPerPageOptions={[10, 20, 30, 40, 50, 60, 70, 80, 90, 100]}
-            colSpan={3}
-            count={totalRows}
-            rowsPerPage={limit}
-            page={currentPage}
-            style={{ display: 'flex', flexDirection: 'row-reverse' }}
-            SelectProps={{
-              native: true,
-            }}
-            onChangePage={onPaginate}
-            onChangeRowsPerPage={onPaginationLimitChanged}
-            ActionsComponent={TablePaginationActions}
-            labelDisplayedRows={labelDisplayedRows}
-            labelRowsPerPage={labelRowsPerPage}
-          />
         </Paper>
       </div>
     );
@@ -380,6 +739,12 @@ TableCustom.defaultProps = {
   onRowClick: () => {},
   labelDisplayedRows: ({ from, to, count }) => `${from}-${to} of ${count}`,
   labelRowsPerPage: 'Rows per page',
+  onEntitiesSelected: () => {},
+  onTableSelectionChanged: () => {},
+  nameIdPaired: false,
+  indicatorsEditor: false,
+  emptyDataMessage: 'No results found',
+  loading: false,
 };
 
 const anyObject = PropTypes.objectOf(
@@ -390,7 +755,8 @@ const anyArray = PropTypes.arrayOf(anyObject);
 TableCustom.propTypes = {
   classes: anyObject.isRequired,
   onSort: PropTypes.func.isRequired,
-  onTableSelectionChanged: PropTypes.func.isRequired,
+  onEntitiesSelected: PropTypes.func,
+  onTableSelectionChanged: PropTypes.func,
   columnConfiguration: anyArray.isRequired,
   tableData: anyArray.isRequired,
   onDelete: PropTypes.func.isRequired,
@@ -408,6 +774,10 @@ TableCustom.propTypes = {
   onRowClick: PropTypes.func,
   selected: anyArray.isRequired,
   enabledColumn: PropTypes.string,
+  nameIdPaired: PropTypes.bool,
+  indicatorsEditor: PropTypes.bool,
+  emptyDataMessage: PropTypes.string,
+  loading: PropTypes.bool,
 };
 
 export default withStyles(styles, { withTheme: true })(TableCustom);

@@ -9,7 +9,7 @@ import styles from '../../global-sass-files/_grid.scss';
 
 class CustomRow extends Component {
   render() {
-    const { children, additionalStyles } = this.props;
+    const { children, additionalStyles, style } = this.props;
     const additionalClasses = [];
     if (additionalStyles) {
       for (let i = 0; i < additionalStyles.length; i++) {
@@ -18,7 +18,10 @@ class CustomRow extends Component {
     }
 
     return (
-      <div className={classnames(styles.container__row, additionalClasses)}>
+      <div
+        style={style}
+        className={classnames(styles.container__row, additionalClasses)}
+      >
         {children}
       </div>
     );
