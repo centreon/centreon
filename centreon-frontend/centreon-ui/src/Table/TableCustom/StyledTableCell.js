@@ -10,7 +10,6 @@ const styles = {
     color: '#fff',
     height: '24px',
     padding: '6px 24px 6px 16px',
-    position: 'sticky',
     zIndex: 2,
     top: 0,
     '&:hover': {
