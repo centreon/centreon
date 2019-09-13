@@ -8,8 +8,7 @@ import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
 import Paper from '@material-ui/core/Paper';
 import IconButton from '@material-ui/core/IconButton';
-import CircularProgress from '@material-ui/core/CircularProgress';
-import TableRow from '@material-ui/core/TableRow';
+import LinearProgress from '@material-ui/core/LinearProgress';
 import DefaultTooltip from '@material-ui/core/Tooltip';
 import StyledTableRow from './StyledTableRow';
 import IconPowerSettings from '../../MaterialComponents/Icons/IconPowerSettings';
@@ -27,6 +26,8 @@ import Tooltip from '../../MaterialComponents/Tooltip';
 import InputFieldSelectTableCell from '../../InputField/InputFieldSelectTableCell';
 import InputFieldTableCell from '../../InputField/InputFieldTableCell';
 import IndicatorsEditor from './IndicatorsEditorRow';
+
+const loadingIndicatorHeight = 5;
 
 const styles = () => ({
   root: {
@@ -50,21 +51,9 @@ const styles = () => ({
   rowDisabled: {
     backgroundColor: 'rgba(0, 0, 0, 0.07) !important',
   },
-  loadingRow: {
-    position: 'absolute',
-    top: 0,
-    background: 'rgba(1,1,1,0.25)',
-    width: '100%',
-    height: '100%',
-    zIndex: 1,
-  },
   loadingIndicator: {
-    position: 'absolute',
-    top: '50%',
-    bottom: '50%',
-    left: '50%',
-    display: 'block',
-    margin: 'auto',
+    width: '100%',
+    height: loadingIndicatorHeight,
   },
 });
 
@@ -205,6 +194,7 @@ class TableCustom extends Component {
       nameIdPaired,
       indicatorsEditor,
       emptyDataMessage,
+      loadingDataMessage,
       ariaLabel,
       impacts,
       paginated = true,
@@ -241,6 +231,8 @@ class TableCustom extends Component {
     return (
       <div className={classes.root}>
         <Paper className={classes.paper}>
+          {loading && <LinearProgress className={classes.loadingIndicator} />}
+          {!loading && <div className={classes.loadingIndicator} />}
           {paginated ? (
             <StyledPagination
               rowsPerPageOptions={[10, 20, 30, 40, 50, 60, 70, 80, 90, 100]}
@@ -705,23 +697,14 @@ class TableCustom extends Component {
                     </StyledTableRow>
                   );
                 })}
-
-                {loading && (
-                  <TableRow tabIndex={-1} className={classes.loadingRow}>
-                    <CircularProgress className={classes.loadingIndicator} />
-                  </TableRow>
-                )}
-                {loading && tableData.length < 2 && (
-                  <TableRow style={{ height: 75 }} />
-                )}
-                {tableData.length < 1 && !loading && (
+                {tableData.length < 1 && (
                   <StyledTableRow tabIndex={-1}>
                     <TableCellCustom
                       className={classes.tableCellCustom}
                       colSpan={6}
                       align="center"
                     >
-                      {emptyDataMessage}
+                      {loading ? loadingDataMessage : emptyDataMessage}
                     </TableCellCustom>
                   </StyledTableRow>
                 )}
@@ -744,6 +727,7 @@ TableCustom.defaultProps = {
   nameIdPaired: false,
   indicatorsEditor: false,
   emptyDataMessage: 'No results found',
+  loadingDataMessage: 'Loading data',
   loading: false,
 };
 
@@ -777,6 +761,7 @@ TableCustom.propTypes = {
   nameIdPaired: PropTypes.bool,
   indicatorsEditor: PropTypes.bool,
   emptyDataMessage: PropTypes.string,
+  loadingDataMessage: PropTypes.string,
   loading: PropTypes.bool,
 };
 
