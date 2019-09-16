@@ -151,6 +151,7 @@ sub execute_cmd {
             },
         );
     } elsif ($options{cmd} eq 'SENDCFGFILE') {
+        my $cache_dir = (defined($connector->{config}->{cache_dir})) ? $connector->{config}->{cache_dir} : '/var/cache/centreon';
         # engine
         $self->send_internal_action(
             action => 'REMOTECOPY',
@@ -158,7 +159,7 @@ sub execute_cmd {
             token => $self->generate_token(),
             data => {
                 content => {
-                    source => $connector->{config}->{cache_dir} . '/config/engine/' . $options{target},
+                    source => $cache_dir . '/config/engine/' . $options{target},
                     destination => $self->{pollers}->{$options{target}}->{cfg_dir} . '/',
                     type => 'engine',
                 }
@@ -171,13 +172,15 @@ sub execute_cmd {
             token => $self->generate_token(),
             data => {
                 content => {
-                    source => $connector->{config}->{cache_dir} . '/config/broker/' . $options{target},
+                    source => $cache_dir . '/config/broker/' . $options{target},
                     destination => $self->{pollers}->{$options{target}}->{centreonbroker_cfg_path} . '/',
                     type => 'broker',
                 }
             },
         );
     } elsif ($options{cmd} eq 'SENDEXPORTFILE') {
+        my $cache_dir = (defined($connector->{config}->{cache_dir})) ? $connector->{config}->{cache_dir} : '/var/cache/centreon';
+        my $remote_dir = (defined($connector->{config}->{remote_dir})) ? $connector->{config}->{remote_dir} : '/var/lib/centreon/remote-data/'
         # remote server
         $self->send_internal_action(
             action => 'REMOTECOPY',
@@ -185,8 +188,8 @@ sub execute_cmd {
             token => $self->generate_token(),
             data => {
                 content => {
-                    source => $connector->{config}->{cache_dir} . '/config/export/' . $options{target},
-                    destination => '/var/lib/centreon/remote-data/',
+                    source => $cache_dir . '/config/export/' . $options{target},
+                    destination => $remote_dir,
                     type => 'remote',
                 }
             },
