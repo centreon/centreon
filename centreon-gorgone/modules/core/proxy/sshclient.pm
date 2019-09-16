@@ -180,12 +180,12 @@ sub action_remotecopy {
     my $src = $options{data}->{content}->{source};
     my ($dst, $dst_sftp) = ($options{data}->{content}->{destination}, $options{data}->{content}->{destination});
     if ($options{target_direct} == 0) {
-        $localsrc = $src;
         $dst = $src;
         $dst_sftp = $src;
     }    
 
     if (-f $options{data}->{content}->{source}) {
+        $localsrc = $src;
         $srcname = File::Basename::basename($src);
         $dst_sftp .= $srcname if ($dst =~ /\/$/);
     } elsif (-d $options{data}->{content}->{source}) {
