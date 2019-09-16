@@ -96,7 +96,7 @@ sub action_pollersresync {
     $self->send_log(code => centreon::gorgone::module::ACTION_BEGIN, token => $options{token}, data => { message => 'action pollersresync proceed' });
 
     my $request = "
-        SELECT id, name, localhost, ns_ip_address, ssh_port 
+        SELECT id, name, localhost, ns_ip_address, ssh_port, remote_id
         FROM nagios_server
         WHERE ns_activate = '1'
     ";
@@ -110,22 +110,35 @@ sub action_pollersresync {
     my $core_id;
     my $register_temp = {};
     my $register_nodes = [];
+    my $register_subnodes = {};
     foreach (@$datas) {
         if ($_->[2] == 1) {
             $core_id = $_->[0];
             next;
         }
 
+        if (defined($_->[5]) && $_->[5] =~ /\d+/) {
+            $register_subnodes->{$_->[5]} = [] if (!defined($register_subnodes->{$_->[5]}));
+            push @{$register_subnodes->{$_->[5]}}, $_->[0];
+            next;
+        }
         $self->{register_pollers}->{$_->[0]} = 1;
         $register_temp->{$_->[0]} = 1;
         push @{$register_nodes}, { id => $_->[0], type => 'push_ssh', address => $_->[3], ssh_port => $_->[4] };
     }
-    my $unregister_nodes = [];
-    
+
+    my $unregister_nodes = [];    
     foreach (keys %{$self->{register_pollers}}) {
         if (!defined($register_temp->{$_})) {
             push @{$unregister_nodes}, { id => $_ };
             delete $self->{register_pollers}->{$_};
+        }
+    }
+
+    # We add subnodes
+    foreach (@$register_nodes) {
+        if (defined($register_subnodes->{ $_->{id} })) {
+            $_->{nodes} = $register_subnodes->{ $_->{id} };
         }
     }
 

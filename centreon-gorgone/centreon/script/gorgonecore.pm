@@ -207,7 +207,7 @@ sub load_modules {
         }
         $self->{logger}->writeLogInfo("[core] Module '" . $module->{name} . "' is loaded");
     }
-    
+
     # Load internal functions
     foreach my $method_name (('putlog', 'getlog', 'kill', 'ping', 'constatus', 'setcoreid', 'synclogs')) {
         unless ($self->{internal_register}->{$method_name} = centreon::gorgone::common->can($method_name)) {
@@ -220,6 +220,7 @@ sub load_modules {
 sub message_run {
     my ($self, %options) = @_;
 
+    $self->{logger}->writeLogDebug('[core] message received - ' . $options{message});
     if ($options{message} !~ /^\[(.+?)\]\s+\[(.*?)\]\s+\[(.*?)\]\s+(.*)$/) {
         return (undef, 1, { message => 'request not well formatted' });
     }

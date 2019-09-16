@@ -237,9 +237,10 @@ sub proxy {
         return ;
     }
 
-    my $target_client = $target;
+    my ($target_client, $target_direct) = ($target, 1);
     if (!defined($connector->{clients}->{$target})) {
         $target_client = $connector->{subnodes}->{$target};
+        $target_direct = 0;
     }
     if (!defined($connector->{clients}->{$target_client}->{class})) {
         if ($connector->connect(id => $target_client) != 0) {
@@ -266,7 +267,8 @@ sub proxy {
         
         my ($status, $data_ret) = $connector->{clients}->{$target_client}->{class}->action(
             action => $action,
-            data => $decoded_data
+            data => $decoded_data,
+            target_direct => $target_direct
         );
         if ($status == 0) {
             $connector->send_log(code => centreon::gorgone::module::ACTION_FINISH_OK, token => $token, data => $data_ret);
