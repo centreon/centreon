@@ -92,12 +92,14 @@ modules:
   - name: engine
     package: modules::centreon::engine::hooks
     enable: true
-    cmd_file: "/var/lib/centreon-engine/rw/centengine.cmd"
+    command_file: "/var/lib/centreon-engine/rw/centengine.cmd"
 
   - name: legacycmd
     package: modules::centreon::legacycmd::hooks
     enable: true
     cmd_file: "/var/lib/centreon/centcore.cmd"
+    cache_dir: "/var/cache/centreon/"
+    remote_dir: "/var/lib/centreon/remote-data/"
 
   - name: scom
     package: modules::plugins::scom::hooks
