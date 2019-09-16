@@ -92,7 +92,7 @@ modules:
   - name: engine
     package: modules::centreon::engine::hooks
     enable: true
-    command_file: "/var/lib/centreon-engine/rw/centengine.cmd"
+    cmd_file: "/var/lib/centreon-engine/rw/centengine.cmd"
 
   - name: legacycmd
     package: modules::centreon::legacycmd::hooks

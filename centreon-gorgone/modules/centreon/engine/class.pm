@@ -84,39 +84,62 @@ sub class_handle_HUP {
 sub action_enginecommand {
     my ($self, %options) = @_;
     
-    if (!defined($self->{config}->{command_file}) || $self->{config}->{command_file} eq '') {
+    my $command = $options{data}->{content}->{command};
+    if (!defined($command) || $command eq '') {
+        $self->{logger}->writeLogError('[engine] -class- action_enginecommand: need command argument');
         $self->send_log(
             socket => $options{socket_log},
             code => $self->ACTION_FINISH_KO,
             token => $options{token},
-            data => { message => "need command_file argument" }
+            data => { message => "need command argument" }
+        );
+        return -1;
+    }
+
+    my $cmd_file = ''
+    if (defined($options{data}->{content}->{engine_pipe}) && $options{data}->{content}->{engine_pipe} ne '') {
+        $cmd_file = $options{data}->{content}->{engine_pipe};
+    } elsif (defined($self->{config}->{cmd_file}) && $self->{config}->{cmd_file} ne '') {
+        $cmd_file = $self->{config}->{cmd_file};
+    }
+    
+    if (!defined($cmd_file) || $cmd_file eq '') {
+        $self->{logger}->writeLogError("[engine] -class- need cmd_file (config) or engine_pipe (call) argument");
+        $self->send_log(
+            socket => $options{socket_log},
+            code => $self->ACTION_FINISH_KO,
+            token => $options{token},
+            data => { message => "need cmd_file (config) or engine_pipe (call) argument" }
         );
         return -1;
     }    
-    if (! -e $self->{config}->{command_file}) {
+    if (! -e $cmd_file) {
+        $self->{logger}->writeLogError("[engine] -class- command '$command' - engine_pipe '$cmd_file' must exist");
         $self->send_log(
             socket => $options{socket_log},
             code => $self->ACTION_FINISH_KO,
             token => $options{token},
-            data => { message => "command '$options{data}->{content}->{command}' - engine_pipe '$self->{config}->{command_file}' must exist" }
+            data => { message => "command '$command' - engine_pipe '$cmd_file' must exist" }
         );
         return -1;
     }
-    if (! -p $self->{config}->{command_file}) {
+    if (! -p $cmd_file) {
+        $self->{logger}->writeLogError("[engine] -class- command '$command' - engine_pipe '$cmd_file' must be a pipe file");
         $self->send_log(
             socket => $options{socket_log},
             code => $self->ACTION_FINISH_KO,
             token => $options{token},
-            data => { message => "command '$options{data}->{content}->{command}' - engine_pipe '$self->{config}->{command_file}' must be a pipe file" }
+            data => { message => "command '$command' - engine_pipe '$cmd_file' must be a pipe file" }
         );
         return -1;
     }
-    if (! -w $self->{config}->{command_file}) {
+    if (! -w $cmd_file) {
+        $self->{logger}->writeLogError("[engine] -class- command '$command' - engine_pipe '$cmd_file' must be writeable");
         $self->send_log(
             socket => $options{socket_log},
             code => $self->ACTION_FINISH_KO,
             token => $options{token},
-            data => { message => "command '$options{data}->{content}->{command}' - engine_pipe '$self->{config}->{command_file}' must be writeable" }
+            data => { message => "command '$command' - engine_pipe '$cmd_file' must be writeable" }
         );
         return -1;
     }
@@ -125,19 +148,19 @@ sub action_enginecommand {
     eval {
         local $SIG{ALRM} = sub { die 'Timeout command' };
         alarm $self->{timeout};
-        open($fh, ">", $self->{config}->{command_file}) or die "cannot open '$self->{config}->{command_file}': $!";
-        print $fh $options{data}->{content}->{command} . "\n";
+        open($fh, ">", $cmd_file) or die "cannot open '$cmd_file': $!";
+        print $fh $command . "\n";
         close $fh;
         alarm 0;
     };
     if ($@) {
         close $fh if (defined($fh));
-        $self->{logger}->writeLogError("[action] -class- Submit engine command '$options{data}->{content}->{command}' issue: $@");
+        $self->{logger}->writeLogError("[engine] -class- submit engine command '$command' issue: $@");
         $self->send_log(
             socket => $options{socket_log},
             code => $self->ACTION_FINISH_KO,
             token => $options{token},
-            data => { message => "submit command issue '$options{data}->{content}->{command}': $@" }
+            data => { message => "submit engine command '$command' issue: $@" }
         );
         return undef;
     }
@@ -146,7 +169,7 @@ sub action_enginecommand {
         socket => $options{socket_log},
         code => $self->ACTION_FINISH_OK,
         token => $options{token},
-        data => { message => "command '$options{data}->{content}->{command}' had been submitted': $@" }
+        data => { message => "command '$command' had been submitted': $@" }
     );
 
     return 0;
