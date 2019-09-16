@@ -202,7 +202,14 @@ sub action_proxydelnode {
     my ($code, $data) = $self->json_decode(argument => $options{data});
     return if ($code == 1);
 
-    # TODO
+    if (defined($self->{clients}->{$data->{id}})) {
+        $self->{clients}->{$data->{id}}->{delete} = 1;
+    }
+
+    foreach (keys %{$self->{subnodes}}) {
+        delete $self->{subnodes}->{$_}
+            if ($self->{subnodes}->{$_} eq $data->{id});
+    }
 }
 
 sub action_proxyaddsubnode {
