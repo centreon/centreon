@@ -140,9 +140,10 @@ sub action_enginecommand {
     return (0, { message => 'send enginecommand succeeded' });
 }
 
-sub action_sendcfgfile {
+sub action_remotecopy {
     my ($self, %options) = @_;
 
+    
     # cacheDir = /var/cache/centreon
     # src = $self->{cacheDir} . "/config/engine/" . $id  | dst = 'cfg_dir' of cfg_nagios table
     # src2 = $self->{cacheDir} . "/config/broker/" . $id | dst = 'centreonbroker_cfg_path' of 'nagios_server' table
@@ -152,6 +153,8 @@ sub action_sendcfgfile {
 
     # tar file: tar czf centreon-engine-config-ID.tar.gz -C  "$self->{cacheDir}/config/engine/$id" . 
     # untar file: tar zxf centreon-engine-config-ID.tar.gz -C "cfg_dir"
+
+    # meme si pas de type, on fait la copie sans actions derriere
 }
 
 sub action {
@@ -160,7 +163,12 @@ sub action {
     $self->test_connection();
     my $func = $self->can('action_' . lc($options{action}));
     if (defined($func)) {
-        return $func->($self, data => $options{data});
+        return $func->(
+            $self,
+            data => $options{data},
+            target_direct => $options{target_direct},
+            target => $options{target}
+        );
     }
 
     $self->{logger}->writeLogError('[proxy] -sshclient- unsupported action ' . $options{action});

@@ -275,7 +275,8 @@ sub proxy {
         my ($status, $data_ret) = $connector->{clients}->{$target_client}->{class}->action(
             action => $action,
             data => $decoded_data,
-            target_direct => $target_direct
+            target_direct => $target_direct,
+            target => $target
         );
         if ($status == 0) {
             $connector->send_log(code => centreon::gorgone::module::ACTION_FINISH_OK, token => $token, data => $data_ret);
