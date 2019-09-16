@@ -142,9 +142,9 @@ sub action_pollersresync {
         }
     }
 
+    $self->send_internal_action(action => 'SETCOREID', data => { id => $core_id } ) if (defined($core_id));
     $self->send_internal_action(action => 'REGISTERNODES', data => { nodes => $register_nodes } );
     $self->send_internal_action(action => 'UNREGISTERNODES', data => { nodes => $unregister_nodes } );
-    $self->send_internal_action(action => 'SETCOREID', data => { id => $core_id } ) if (defined($core_id));
 
     $self->{logger}->writeLogDebug("[pollers] -class- finish resync");
     $self->send_log(code => $self->ACTION_FINISH_OK, token => $options{token}, data => { message => 'action pollersresync finished' });

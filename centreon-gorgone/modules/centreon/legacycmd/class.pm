@@ -137,6 +137,8 @@ sub get_pollers_config {
 sub execute_cmd {
     my ($self, %options) = @_;
 
+    chomp $options{target};
+    chomp $options{param} if (defined($options{param}));
     if ($options{cmd} eq 'EXTERNALCMD') {
         # TODO: need to remove illegal characters!!
         $self->send_internal_action(
@@ -214,7 +216,6 @@ sub handle_cmd_file {
             return ;
         }
 
-        chomp $line;
         if ($line =~ /^(.*?):([^:]*)(?::(.*)){0,1}/) {
             $self->execute_cmd(cmd => $1, target => $2, param => $3);
             my $current_pos = tell($handle);

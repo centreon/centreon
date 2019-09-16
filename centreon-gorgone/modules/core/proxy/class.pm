@@ -278,6 +278,8 @@ sub proxy {
             target_direct => $target_direct,
             target => $target
         );
+
+        $connector->{logger}->writeLogDebug("[proxy] -class- sshclient return: [message = $data_ret->{message}]");
         if ($status == 0) {
             $connector->send_log(code => centreon::gorgone::module::ACTION_FINISH_OK, token => $token, data => $data_ret);
         } else {
