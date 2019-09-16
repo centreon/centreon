@@ -161,6 +161,7 @@ sub execute_cmd {
                 content => {
                     source => $cache_dir . '/config/engine/' . $options{target},
                     destination => $self->{pollers}->{$options{target}}->{cfg_dir} . '/',
+                    cache_dir => $cache_dir,
                     type => 'engine',
                 }
             },
@@ -174,6 +175,7 @@ sub execute_cmd {
                 content => {
                     source => $cache_dir . '/config/broker/' . $options{target},
                     destination => $self->{pollers}->{$options{target}}->{centreonbroker_cfg_path} . '/',
+                    cache_dir => $cache_dir,
                     type => 'broker',
                 }
             },
@@ -190,6 +192,7 @@ sub execute_cmd {
                 content => {
                     source => $cache_dir . '/config/export/' . $options{target},
                     destination => $remote_dir,
+                    cache_dir => $cache_dir,
                     type => 'remote',
                 }
             },
