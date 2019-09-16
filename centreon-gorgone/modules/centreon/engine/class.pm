@@ -96,7 +96,7 @@ sub action_enginecommand {
         return -1;
     }
 
-    my $command_file = ''
+    my $command_file = '';
     if (defined($options{data}->{content}->{command_file}) && $options{data}->{content}->{command_file} ne '') {
         $command_file = $options{data}->{content}->{command_file};
     } elsif (defined($self->{config}->{command_file}) && $self->{config}->{command_file} ne '') {

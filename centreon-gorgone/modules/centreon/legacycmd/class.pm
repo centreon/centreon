@@ -180,7 +180,7 @@ sub execute_cmd {
         );
     } elsif ($options{cmd} eq 'SENDEXPORTFILE') {
         my $cache_dir = (defined($connector->{config}->{cache_dir})) ? $connector->{config}->{cache_dir} : '/var/cache/centreon';
-        my $remote_dir = (defined($connector->{config}->{remote_dir})) ? $connector->{config}->{remote_dir} : '/var/lib/centreon/remote-data/'
+        my $remote_dir = (defined($connector->{config}->{remote_dir})) ? $connector->{config}->{remote_dir} : '/var/lib/centreon/remote-data/';
         # remote server
         $self->send_internal_action(
             action => 'REMOTECOPY',
