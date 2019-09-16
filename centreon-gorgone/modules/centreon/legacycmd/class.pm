@@ -144,7 +144,7 @@ sub execute_cmd {
             data => {
                 content => {
                     command => $options{param},
-                    engine_pipe => defined($self->{engine_pipe}->{$options{target}}) ? $self->{engine_pipe}->{$options{target}} : '/var/lib/centreon-engine/rw/centengine.cmd'
+                    engine_pipe => $self->{engine_pipe}->{$options{target}},
                 }
             },
         );
