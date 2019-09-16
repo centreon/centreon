@@ -214,6 +214,7 @@ sub handle_cmd_file {
             return ;
         }
 
+        chomp $line;
         if ($line =~ /^(.*?):([^:]*)(?::(.*)){0,1}/) {
             $self->execute_cmd(cmd => $1, target => $2, param => $3);
             my $current_pos = tell($handle);

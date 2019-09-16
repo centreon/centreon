@@ -26,6 +26,8 @@ use strict;
 use warnings;
 use Libssh::Sftp qw(:all);
 use POSIX;
+use centreon::misc::misc;
+use File::Basename;
 
 sub new {
     my ($class, %options) = @_;
@@ -75,6 +77,25 @@ sub open_session {
     return 0;
 }
 
+sub local_command {
+    my ($self, %options) = @_;
+
+    my ($error, $stdout, $exit_code) = centreon::misc::misc::backtick(
+        command => $options{command},
+        timeout => (defined($options{timeout})) ? $options{timeout} : 120,
+        wait_exit => 1,
+        redirect_stderr => 1,
+        logger => $self->{logger}
+    );
+    if ($error <= -1000) {
+        return (-1, { message => "command '$options{command}' execution issue: $stdout" });
+    }
+    if ($exit_code != 0) {
+        return (-1, { message => "command '$options{command}' execution issue ($exit_code): $stdout" });
+    }
+    return 0;
+}
+
 sub action_command {
     my ($self, %options) = @_;
 
@@ -112,7 +133,7 @@ sub action_enginecommand {
     if (!defined($options{data}->{content}->{command}) || $options{data}->{content}->{command} eq '') {
         $self->{logger}->writeLogError('[proxy] -sshclient- action_enginecommand: need command');
         return (-1, { message => 'please set command' });
-    }    
+    }
     if (!defined($options{data}->{content}->{engine_pipe}) || $options{data}->{content}->{engine_pipe} eq '') {
         $self->{logger}->writeLogError('[proxy] -sshclient- action_enginecommand: need engine_pipe');
         return (-1, { message => 'please set engine_pipe' });
@@ -142,19 +163,59 @@ sub action_enginecommand {
 
 sub action_remotecopy {
     my ($self, %options) = @_;
-
     
-    # cacheDir = /var/cache/centreon
-    # src = $self->{cacheDir} . "/config/engine/" . $id  | dst = 'cfg_dir' of cfg_nagios table
-    # src2 = $self->{cacheDir} . "/config/broker/" . $id | dst = 'centreonbroker_cfg_path' of 'nagios_server' table
-    
-    # /var/cache/centreon/config/engine/1/
-    # /var/cache/centreon/config/broker/1/
+    if (!defined($options{data}->{content}->{source}) || $options{data}->{content}->{source} eq '') {
+        $self->{logger}->writeLogError('[proxy] -sshclient- action_remotecopy: need source');
+        return (-1, { message => 'please set source' });
+    }
+    if (!defined($options{data}->{content}->{destination}) || $options{data}->{content}->{destination} eq '') {
+        $self->{logger}->writeLogError('[proxy] -sshclient- action_remotecopy: need destination');
+        return (-1, { message => 'please set destination' });
+    }
 
-    # tar file: tar czf centreon-engine-config-ID.tar.gz -C  "$self->{cacheDir}/config/engine/$id" . 
-    # untar file: tar zxf centreon-engine-config-ID.tar.gz -C "cfg_dir"
+    my ($code, $message, $data);
 
-    # meme si pas de type, on fait la copie sans actions derriere
+    my $srcname;
+    my $localsrc = $options{data}->{content}->{source};
+    my $src = $options{data}->{content}->{source};
+    my ($dst, $dst_sftp) = ($options{data}->{content}->{destination}, $options{data}->{content}->{destination});
+    if ($options{target_direct} == 0) {
+        $dst = $src;
+        $dst_sftp = $src;
+    }    
+
+    if (-f $options{data}->{content}->{source}) {
+        $srcname = File::Basename::basename($src);
+        $dst_sftp .= $srcname if ($dst =~ /\/$/);
+    } elsif (-d $options{data}->{content}->{source}) {
+        $srcname = (defined($options{data}->{content}->{type}) ? $options{data}->{content}->{type} : 'tmp') . '-' . $options{target} . '.tar.gz';
+        $localsrc = $options{data}->{content}->{cache_dir} . '/' . $srcname; 
+        $dst_sftp = $options{data}->{content}->{cache_dir} . '/' . $srcname;
+
+        ($code, $message) = $self->local_command(command => "tar czf $localsrc -C '" . $src . "'");
+        return ($code, $message) if ($code == -1);
+    } else {
+        return (-1, { message => 'unknown source' });
+    }
+
+    if (($code = $self->{sftp}->copy_file(src => $src, dst => $dst_sftp)) == -1) {
+        return (-1, { message => "cannot sftp copy file : " . $self->{sftp}->error() });
+    }
+
+    if (-d $options{data}->{content}->{source}) {
+        ($code, $data) = $self->action_command(
+            data => {
+                content => { command => "tar zxf $dst_sftp -C '" . $dst  .  "'" }
+            },
+        );
+        return ($code, $data) if ($code == -1);
+    }
+
+    if (defined($options{data}->{content}->{type}) && $options{target_direct} == 0) {
+        # for remote server: ask in centcore
+    }
+
+    return (0, { message => 'send remotecopy succeeded' });
 }
 
 sub action {
