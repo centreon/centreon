@@ -112,21 +112,23 @@ sub move_cmd_file {
     return (0, $handle);
 }
 
-sub get_pipe_engines {
+sub get_pollers_config {
     my ($self, %options) = @_;
 
-    $self->{engine_pipe} = {};
+    $self->{pollers} = {};
     my ($status, $datas) = $self->{class_object_centreon}->custom_execute(
-        request => 'SELECT nagios_server_id, command_file FROM cfg_nagios',
+        request => 'SELECT nagios_server_id, command_file, cfg_dir, centreonbroker_cfg_path FROM cfg_nagios JOIN nagios_server WHERE id = nagios_server_id',
         mode => 2
     );
     if ($status == -1 || !defined($datas->[0])) {
-        $self->{logger}->writeLogError('[legacycmd] -class- cannot get engine pipe for pollers');
+        $self->{logger}->writeLogError('[legacycmd] -class- cannot get engine pipe for pollers (command_file)');
         return -1;
     }
 
     foreach (@$datas) {
-        $self->{engine_pipe}->{$_->[0]} = $_->[1];
+        $self->{pollers}->{$_->[0]}->{command_file} = $_->[1];
+        $self->{pollers}->{$_->[0]}->{cfg_dir} = $_->[2];
+        $self->{pollers}->{$_->[0]}->{centreonbroker_cfg_path} = $_->[3];
     }
 
     return 0;
@@ -136,7 +138,7 @@ sub execute_cmd {
     my ($self, %options) = @_;
 
     if ($options{cmd} eq 'EXTERNALCMD') {
-        # TODO: need to remove illegal characters!! 
+        # TODO: need to remove illegal characters!!
         $self->send_internal_action(
             action => 'ENGINECOMMAND',
             target => $options{target},
@@ -144,7 +146,48 @@ sub execute_cmd {
             data => {
                 content => {
                     command => $options{param},
-                    engine_pipe => $self->{engine_pipe}->{$options{target}},
+                    command_file => $self->{pollers}->{$options{target}}->{command_file},
+                }
+            },
+        );
+    } elsif ($options{cmd} eq 'SENDCFGFILE') {
+        # engine
+        $self->send_internal_action(
+            action => 'REMOTECOPY',
+            target => $options{target},
+            token => $self->generate_token(),
+            data => {
+                content => {
+                    source => $connector->{config}->{cache_dir} . '/config/engine/' . $options{target},
+                    destination => $self->{pollers}->{$options{target}}->{cfg_dir} . '/',
+                    type => 'engine',
+                }
+            },
+        );
+        # broker
+        $self->send_internal_action(
+            action => 'REMOTECOPY',
+            target => $options{target},
+            token => $self->generate_token(),
+            data => {
+                content => {
+                    source => $connector->{config}->{cache_dir} . '/config/broker/' . $options{target},
+                    destination => $self->{pollers}->{$options{target}}->{centreonbroker_cfg_path} . '/',
+                    type => 'broker',
+                }
+            },
+        );
+    } elsif ($options{cmd} eq 'SENDEXPORTFILE') {
+        # remote server
+        $self->send_internal_action(
+            action => 'REMOTECOPY',
+            target => $options{target},
+            token => $self->generate_token(),
+            data => {
+                content => {
+                    source => $connector->{config}->{cache_dir} . '/config/export/' . $options{target},
+                    destination => '/var/lib/centreon/remote-data/',
+                    type => 'remote',
                 }
             },
         );
@@ -155,7 +198,7 @@ sub handle_cmd_file {
     my ($self, %options) = @_;
     require bytes;
 
-    return if ($self->get_pipe_engines() == -1);
+    return if ($self->get_pollers_config() == -1);
     my ($code, $handle) = $self->move_cmd_file();
     return if ($code == -1);
 
@@ -165,7 +208,7 @@ sub handle_cmd_file {
             return ;
         }
 
-        if ($line =~ /^(.*?):(.*?):(.*)/) {
+        if ($line =~ /^(.*?):([^:]*)(?::(.*)){0,1}/) {
             $self->execute_cmd(cmd => $1, target => $2, param => $3);
             my $current_pos = tell($handle);
             seek($handle, $current_pos - bytes::length($line), 0);
