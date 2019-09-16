@@ -146,6 +146,9 @@ sub action_sendcfgfile {
     # cacheDir = /var/cache/centreon
     # src = $self->{cacheDir} . "/config/engine/" . $id  | dst = 'cfg_dir' of cfg_nagios table
     # src2 = $self->{cacheDir} . "/config/broker/" . $id | dst = 'centreonbroker_cfg_path' of 'nagios_server' table
+    
+    # /var/cache/centreon/config/engine/1/
+    # /var/cache/centreon/config/broker/1/
 
     # tar file: tar czf centreon-engine-config-ID.tar.gz -C  "$self->{cacheDir}/config/engine/$id" . 
     # untar file: tar zxf centreon-engine-config-ID.tar.gz -C "cfg_dir"
