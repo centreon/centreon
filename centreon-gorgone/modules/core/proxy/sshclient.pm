@@ -180,6 +180,7 @@ sub action_remotecopy {
     my $src = $options{data}->{content}->{source};
     my ($dst, $dst_sftp) = ($options{data}->{content}->{destination}, $options{data}->{content}->{destination});
     if ($options{target_direct} == 0) {
+        $localsrc = $src;
         $dst = $src;
         $dst_sftp = $src;
     }    
@@ -192,20 +193,20 @@ sub action_remotecopy {
         $localsrc = $options{data}->{content}->{cache_dir} . '/' . $srcname; 
         $dst_sftp = $options{data}->{content}->{cache_dir} . '/' . $srcname;
 
-        ($code, $message) = $self->local_command(command => "tar czf $localsrc -C '" . $src . "'");
+        ($code, $message) = $self->local_command(command => "tar czf $localsrc -C '" . $src . "' .");
         return ($code, $message) if ($code == -1);
     } else {
         return (-1, { message => 'unknown source' });
     }
 
-    if (($code = $self->{sftp}->copy_file(src => $src, dst => $dst_sftp)) == -1) {
+    if (($code = $self->{sftp}->copy_file(src => $localsrc, dst => $dst_sftp)) == -1) {
         return (-1, { message => "cannot sftp copy file : " . $self->{sftp}->error() });
     }
 
     if (-d $options{data}->{content}->{source}) {
         ($code, $data) = $self->action_command(
             data => {
-                content => { command => "tar zxf $dst_sftp -C '" . $dst  .  "'" }
+                content => { command => "tar zxf $dst_sftp -C '" . $dst  .  "' ." }
             },
         );
         return ($code, $data) if ($code == -1);
