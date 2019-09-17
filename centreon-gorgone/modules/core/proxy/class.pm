@@ -281,7 +281,7 @@ sub proxy {
                     action => 'PONG',
                     token => $token,
                     target => '',
-                    data => { id => $target_client },
+                    data => { data => { id => $target_client } },
                     json_encode => 1
                 );
             }
