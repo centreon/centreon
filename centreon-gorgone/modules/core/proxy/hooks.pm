@@ -733,7 +733,7 @@ sub prepare_remote_copy {
         $type = 'regular';
         $localsrc = $src;
         $filename = File::Basename::basename($src);
-        $filename = File::Basename::basename($dst) if ($dst !~ /\/$/);
+        $dst .= $filename if ($dst =~ /\/$/);
     } elsif (-d $options{data}->{content}->{source}) {
         $type = 'archive';
         $filename = (defined($options{data}->{content}->{type}) ? $options{data}->{content}->{type} : 'tmp') . '-' . $options{target} . '.tar.gz';
@@ -793,7 +793,6 @@ sub prepare_remote_copy {
                 },
                 md5 => undef,
                 destination => $dst,
-                filename => $filename,
                 cache_dir => $options{data}->{content}->{cache_dir},
             },
             parameters => { no_fork => 1 }
@@ -807,7 +806,6 @@ sub prepare_remote_copy {
             chunk => undef,
             md5 => file_md5_hex($localsrc),
             destination => $dst,
-            filename => $filename,
             cache_dir => $options{data}->{content}->{cache_dir},
         },
         parameters => { no_fork => 1 }

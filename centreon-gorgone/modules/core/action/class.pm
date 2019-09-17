@@ -194,10 +194,7 @@ sub action_processcopy {
                     return -1;
                 }
             } elsif ($options{data}->{content}->{type} eq "regular") {
-                copy(
-                    $cache_file,
-                    $options{data}->{content}->{destination} . '/' . $options{data}->{content}->{filename}
-                );
+                copy($cache_file, $options{data}->{content}->{destination});
             }
         } else {
             $self->send_log(
