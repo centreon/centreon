@@ -1,16 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { makeStyles, styled } from '@material-ui/core/styles';
-import Drawer from '@material-ui/core/Drawer';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import Box from '@material-ui/core/Box';
 import ArrowForwardIos from '@material-ui/icons/ArrowForwardIos';
+import Slide from '@material-ui/core/Slide';
 
 import IconClose from '../Icons/IconClose';
 import ExpandableSection from './ExpandableSection';
 
-const PANEL_WIDTH = 560;
+const panelWidth = 560;
+const inAnimationDurationMs = 300;
+const outAnimationDurationMs = 200;
 
 const Header = styled(Box)({
   paddingRight: 140,
@@ -22,23 +24,23 @@ const Header = styled(Box)({
   height: 49,
 });
 
-const useDrawerStyles = makeStyles({
-  modal: {
-    pointerEvents: 'none',
-  },
-  backdrop: {
-    backgroundColor: 'transparent',
-  },
-  paper: {
-    top: 52,
-    right: 0,
-    bottom: 30,
-    backgroundColor: '#ededed',
-    minWidth: PANEL_WIDTH,
-    position: 'absolute',
-    pointerEvents: 'all',
-    outline: 'none',
-  },
+const Container = styled('div')({
+  top: 52,
+  right: 0,
+  bottom: 30,
+  backgroundColor: '#ededed',
+  minWidth: panelWidth,
+  position: 'absolute',
+  pointerEvents: 'all',
+  outline: 'none',
+  boxShadow:
+    '0px 8px 10px -5px rgba(0,0,0,0.2), 0px 16px 24px 2px rgba(0,0,0,0.14), 0px 6px 30px 5px rgba(0,0,0,0.12)',
+  WebkitBoxShadow:
+    '0px 8px 10px -5px rgba(0,0,0,0.2), 0px 16px 24px 2px rgba(0,0,0,0.14), 0px 6px 30px 5px rgba(0,0,0,0.12)',
+  MozBoxShadow:
+    '0px 8px 10px -5px rgba(0,0,0,0.2), 0px 16px 24px 2px rgba(0,0,0,0.14), 0px 6px 30px 5px rgba(0,0,0,0.12)',
+  transition: '.3s ease-in-out',
+  zIndex: 90,
 });
 
 const Body = styled(Box)({
@@ -66,13 +68,10 @@ const useSecondaryPanelStyles = makeStyles({
   },
 });
 
-const ToggleSecondaryPanelIcon = (Icon) =>
-  styled(Icon)({
-    width: 15,
-    margin: 'auto',
-  });
-
-const CloseSecondaryPanelIcon = ToggleSecondaryPanelIcon(ArrowForwardIos);
+const CloseSecondaryPanelIcon = styled(ArrowForwardIos)({
+  width: 15,
+  margin: 'auto',
+});
 
 const RightPanel = ({
   active,
@@ -83,7 +82,6 @@ const RightPanel = ({
   onClose,
 }) => {
   const [secondaryPanelActive, setSecondaryPanelActive] = useState(false);
-  const { modal, backdrop, paper } = useDrawerStyles();
   const { secondaryPanel } = useSecondaryPanelStyles({
     active: secondaryPanelActive,
   });
@@ -111,48 +109,50 @@ const RightPanel = ({
   };
 
   return (
-    <Drawer
-      ModalProps={{ className: modal }}
-      BackdropProps={{ className: backdrop, onClick: onClose }}
-      PaperProps={{ className: paper }}
-      style={{ zIndex: 90 }}
-      open={active}
-      anchor="right"
+    <Slide
+      in={active}
+      direction="left"
+      timeout={{
+        enter: inAnimationDurationMs,
+        exit: outAnimationDurationMs,
+      }}
     >
-      <Header display="flex" flexDirection="row">
-        <Box flexGrow={1}>{headerComponent}</Box>
-        <Box>
-          <IconClose onClick={close} />
-        </Box>
-      </Header>
-      <Body display="flex" flexDirection="row" flexGrow={1}>
-        <MainPanel flexGrow={1}>
-          <List>
-            {sections.map(({ id, title, component, expandable }) =>
-              expandable ? (
-                <ExpandableSection key={id} title={title}>
-                  {component}
-                </ExpandableSection>
-              ) : (
-                <ListItem key={id}>{component}</ListItem>
-              ),
-            )}
-          </List>
-        </MainPanel>
-        <SecondaryPanelBar
-          aria-label="Close Secondary Panel"
-          display="flex"
-          alignItems="center"
-          alignContent="center"
-          onClick={toggleSecondaryPanel}
-        >
-          {secondaryPanelActive && <CloseSecondaryPanelIcon />}
-        </SecondaryPanelBar>
-        <div className={secondaryPanel} onTransitionEnd={onTransitionEnd}>
-          {secondaryPanelComponent}
-        </div>
-      </Body>
-    </Drawer>
+      <Container>
+        <Header display="flex" flexDirection="row">
+          <Box flexGrow={1}>{headerComponent}</Box>
+          <Box>
+            <IconClose onClick={close} />
+          </Box>
+        </Header>
+        <Body display="flex" flexDirection="row" flexGrow={1}>
+          <MainPanel flexGrow={1}>
+            <List>
+              {sections.map(({ id, title, component, expandable }) =>
+                expandable ? (
+                  <ExpandableSection key={id} title={title}>
+                    {component}
+                  </ExpandableSection>
+                ) : (
+                  <ListItem key={id}>{component}</ListItem>
+                ),
+              )}
+            </List>
+          </MainPanel>
+          <SecondaryPanelBar
+            aria-label="Close Secondary Panel"
+            display="flex"
+            alignItems="center"
+            alignContent="center"
+            onClick={toggleSecondaryPanel}
+          >
+            {secondaryPanelActive && <CloseSecondaryPanelIcon />}
+          </SecondaryPanelBar>
+          <div className={secondaryPanel} onTransitionEnd={onTransitionEnd}>
+            {secondaryPanelComponent}
+          </div>
+        </Body>
+      </Container>
+    </Slide>
   );
 };
 

@@ -58,6 +58,7 @@ class InputFieldSearch extends Component {
   onSearchInputChanged = (event) => {
     const { onChange } = this.props;
     const searchText = event.target.value;
+
     this.setState(
       {
         searchText,
@@ -69,11 +70,11 @@ class InputFieldSearch extends Component {
   };
 
   render() {
-    const { classes, placeholder, style, ...rest } = this.props;
+    const { classes, placeholder, onChange, ...rest } = this.props;
     const { searchText } = this.state;
     return (
       <Paper elevation={0} className={classes.paper}>
-        <Paper className={classes.root} style={style}>
+        <Paper className={classes.root}>
           <IconButton className={classes.iconButton} aria-label="Search">
             <SearchIcon fontSize="small" />
           </IconButton>
@@ -105,13 +106,11 @@ class InputFieldSearch extends Component {
 
 InputFieldSearch.defaultProps = {
   placeholder: 'Search',
-  style: {},
 };
 
 InputFieldSearch.propTypes = {
   classes: PropTypes.shape.isRequired,
   placeholder: PropTypes.string,
-  style: PropTypes.shape,
   onChange: PropTypes.func.isRequired,
 };
 
