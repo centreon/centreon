@@ -8,7 +8,7 @@ function RoundedInvertedIcon(Icon) {
     MozBoxSizing: 'border-box',
     WebkitBoxSizing: 'border-box',
     boxSizing: 'border-box',
-    padding: 3,
+    padding: 4,
   }));
 }
 

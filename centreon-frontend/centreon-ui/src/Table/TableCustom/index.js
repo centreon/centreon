@@ -27,13 +27,13 @@ import InputFieldSelectTableCell from '../../InputField/InputFieldSelectTableCel
 import InputFieldTableCell from '../../InputField/InputFieldTableCell';
 import IndicatorsEditor from './IndicatorsEditorRow';
 
-const loadingIndicatorHeight = 5;
+const loadingIndicatorHeight = 3;
 
 const styles = () => ({
   root: {
     width: '100%',
     display: 'flex',
-    height: 'calc(100vh - 209px)',
+    height: 'calc(100vh - 200px)',
   },
   paper: {
     width: '100%',
@@ -46,7 +46,6 @@ const styles = () => ({
     boxShadow:
       '0px 1px 3px 0px rgba(0,0,0,0.2), 0px 1px 1px 0px rgba(0,0,0,0.14), 0px 2px 1px -1px rgba(0,0,0,0.12)',
     overflowX: 'auto',
-    overflowY: 'hidden',
   },
   rowDisabled: {
     backgroundColor: 'rgba(0, 0, 0, 0.07) !important',
@@ -229,490 +228,494 @@ class TableCustom extends Component {
     const emptyRows = limit - Math.min(limit, totalRows - currentPage * limit);
 
     return (
-      <div className={classes.root}>
-        <Paper className={classes.paper}>
-          {loading && <LinearProgress className={classes.loadingIndicator} />}
-          {!loading && <div className={classes.loadingIndicator} />}
-          {paginated ? (
-            <StyledPagination
-              rowsPerPageOptions={[10, 20, 30, 40, 50, 60, 70, 80, 90, 100]}
-              labelDisplayedRows={labelDisplayedRows}
-              labelRowsPerPage={labelRowsPerPage}
-              colSpan={3}
-              count={totalRows}
-              rowsPerPage={limit}
-              page={currentPage}
-              style={{
-                display: 'flex',
-                flexDirection: 'row-reverse',
-                padding: 0,
-                background: '#fff',
-              }}
-              SelectProps={{
-                native: true,
-              }}
-              onChangePage={onPaginate}
-              onChangeRowsPerPage={onPaginationLimitChanged}
-              ActionsComponent={TablePaginationActions}
-            />
-          ) : null}
-
-          <div
-            className={classes.tableWrapper}
-            style={
-              indicatorsEditor
-                ? {
-                    overflow: 'initial',
-                  }
-                : {}
-            }
-          >
-            <Table
-              className={classes.table}
-              aria-label={ariaLabel}
-              size="small"
-            >
-              <EnhancedTableHead
-                numSelected={selected ? selected.length : 0}
-                order={order}
-                checkable={checkable}
-                orderBy={orderBy}
-                onSelectAllClick={this.handleSelectAllClick}
-                onRequestSort={this.handleRequestSort}
-                rowCount={limit - emptyRows}
-                className={classes.tableWrapper}
-                headRows={columnConfiguration}
-                indicatorsEditor={indicatorsEditor}
+      <>
+        {loading && <LinearProgress className={classes.loadingIndicator} />}
+        {!loading && <div className={classes.loadingIndicator} />}
+        <div className={classes.root}>
+          <Paper className={classes.paper}>
+            {paginated ? (
+              <StyledPagination
+                rowsPerPageOptions={[10, 20, 30, 40, 50, 60, 70, 80, 90, 100]}
+                labelDisplayedRows={labelDisplayedRows}
+                labelRowsPerPage={labelRowsPerPage}
+                colSpan={3}
+                count={totalRows}
+                rowsPerPage={limit}
+                page={currentPage}
+                style={{
+                  display: 'flex',
+                  flexDirection: 'row-reverse',
+                  padding: 0,
+                  background: '#fff',
+                }}
+                SelectProps={{
+                  native: true,
+                }}
+                onChangePage={onPaginate}
+                onChangeRowsPerPage={onPaginationLimitChanged}
+                ActionsComponent={TablePaginationActions}
               />
+            ) : null}
 
-              <TableBody
-                onMouseLeave={this.rowHovered.bind(this, '', false)}
-                style={{ position: 'relative' }}
+            <div
+              className={classes.tableWrapper}
+              style={
+                indicatorsEditor
+                  ? {
+                      overflow: 'initial',
+                    }
+                  : {}
+              }
+            >
+              <Table
+                className={classes.table}
+                aria-label={ariaLabel}
+                size="small"
               >
-                {tableData.map((row, index) => {
-                  const isItemSelected = isSelected(
-                    indicatorsEditor
-                      ? row.object.id
-                      : nameIdPaired
-                      ? `${row.id}:${row.name}`
-                      : row.id,
-                  );
-                  return (
-                    <StyledTableRow
-                      hover
-                      tabIndex={-1}
-                      key={`${row.id}index${index}`}
-                      onMouseEnter={this.rowHovered.bind(this, row.id, true)}
-                      {...this.addConditionalRowBackground(
-                        row,
-                        enabledColumn,
-                        'rowDisabled',
-                        'className',
-                        classes,
-                      )}
-                      onClick={() => {
-                        onRowClick(row.id);
-                      }}
-                    >
-                      {checkable ? (
-                        <StyledTableCell2
-                          align="left"
-                          onClick={(event) => this.handleClick(event, row)}
-                          className={classes.tableCell}
-                          padding="checkbox"
-                          style={
-                            indicatorsEditor
-                              ? {
-                                  padding: '3px 4px',
-                                }
-                              : {}
-                          }
-                        >
-                          <StyledCheckbox
-                            checked={isItemSelected.bool}
-                            color="primary"
-                          />
-                        </StyledTableCell2>
-                      ) : null}
+                <EnhancedTableHead
+                  numSelected={selected ? selected.length : 0}
+                  order={order}
+                  checkable={checkable}
+                  orderBy={orderBy}
+                  onSelectAllClick={this.handleSelectAllClick}
+                  onRequestSort={this.handleRequestSort}
+                  rowCount={limit - emptyRows}
+                  className={classes.tableWrapper}
+                  headRows={columnConfiguration}
+                  indicatorsEditor={indicatorsEditor}
+                />
 
-                      {columnConfiguration.map((column) => {
-                        switch (column.type) {
-                          case TABLE_COLUMN_TYPES.number:
-                            return (
-                              <TableCellCustom
-                                align="left"
-                                className={classes.tableCellCustom}
-                                style={
-                                  indicatorsEditor
-                                    ? {
-                                        padding: '3px 4px',
-                                      }
-                                    : {}
-                                }
-                              >
-                                {row[column.id] || ''}
-                              </TableCellCustom>
-                            );
-                          case TABLE_COLUMN_TYPES.string:
-                          case TABLE_COLUMN_TYPES.number:
-                            return (
-                              <TableCellCustom
-                                key={column.id}
-                                align="left"
-                                className={classes.tableCellCustom}
-                                style={
-                                  indicatorsEditor
-                                    ? {
-                                        padding: '3px 4px',
-                                      }
-                                    : {}
-                                }
-                              >
-                                {column.image && (
-                                  <img
-                                    src={row.iconPath}
-                                    style={{
-                                      maxWidth: 21,
-                                      display: 'inline-block',
-                                      verticalAlign: 'middle',
-                                      marginRight: 5,
-                                    }}
-                                  />
-                                )}
-                                {column.subkey
-                                  ? row[column.subkey][column.id] || ''
-                                  : row[column.id] || ''}
-                              </TableCellCustom>
-                            );
-                          case TABLE_COLUMN_TYPES.boolean:
-                            return (
-                              <StyledTableCell2
-                                align="left"
-                                style={
-                                  indicatorsEditor
-                                    ? {
-                                        padding: '3px 4px',
-                                      }
-                                    : {}
-                                }
-                              >
-                                {row[column.id] ? (
-                                  <IconButton
-                                    style={{
-                                      position: 'absolute',
-                                      top: -1,
-                                      width: 31,
-                                      height: 31,
-                                      padding: 5,
-                                    }}
-                                    disabled
-                                  >
-                                    <IconPowerSettings
-                                      active
-                                      customStyle={{
-                                        fontSize: 18,
-                                        boxSizing: 'border-box',
-                                        position: 'relative',
-                                        top: -2,
+                <TableBody
+                  onMouseLeave={this.rowHovered.bind(this, '', false)}
+                  style={{ position: 'relative' }}
+                >
+                  {tableData.map((row, index) => {
+                    const isItemSelected = isSelected(
+                      indicatorsEditor
+                        ? row.object.id
+                        : nameIdPaired
+                        ? `${row.id}:${row.name}`
+                        : row.id,
+                    );
+                    return (
+                      <StyledTableRow
+                        hover
+                        tabIndex={-1}
+                        key={`${row.id}index${index}`}
+                        onMouseEnter={this.rowHovered.bind(this, row.id, true)}
+                        {...this.addConditionalRowBackground(
+                          row,
+                          enabledColumn,
+                          'rowDisabled',
+                          'className',
+                          classes,
+                        )}
+                        onClick={() => {
+                          onRowClick(row.id);
+                        }}
+                      >
+                        {checkable ? (
+                          <StyledTableCell2
+                            align="left"
+                            onClick={(event) => this.handleClick(event, row)}
+                            className={classes.tableCell}
+                            padding="checkbox"
+                            style={
+                              indicatorsEditor
+                                ? {
+                                    padding: '3px 4px',
+                                  }
+                                : {}
+                            }
+                          >
+                            <StyledCheckbox
+                              checked={isItemSelected.bool}
+                              color="primary"
+                            />
+                          </StyledTableCell2>
+                        ) : null}
+
+                        {columnConfiguration.map((column) => {
+                          switch (column.type) {
+                            case TABLE_COLUMN_TYPES.number:
+                              return (
+                                <TableCellCustom
+                                  align="left"
+                                  className={classes.tableCellCustom}
+                                  style={
+                                    indicatorsEditor
+                                      ? {
+                                          padding: '3px 4px',
+                                        }
+                                      : {}
+                                  }
+                                >
+                                  {row[column.id] || ''}
+                                </TableCellCustom>
+                              );
+                            case TABLE_COLUMN_TYPES.string:
+                            case TABLE_COLUMN_TYPES.number:
+                              return (
+                                <TableCellCustom
+                                  key={column.id}
+                                  align="left"
+                                  className={classes.tableCellCustom}
+                                  style={
+                                    indicatorsEditor
+                                      ? {
+                                          padding: '3px 4px',
+                                        }
+                                      : {}
+                                  }
+                                >
+                                  {column.image && (
+                                    <img
+                                      src={row.iconPath}
+                                      style={{
+                                        maxWidth: 21,
+                                        display: 'inline-block',
+                                        verticalAlign: 'middle',
+                                        marginRight: 5,
                                       }}
                                     />
-                                  </IconButton>
-                                ) : (
-                                  <IconButton
-                                    style={{
-                                      position: 'absolute',
-                                      top: -1,
-                                      width: 31,
-                                      height: 31,
-                                      padding: 5,
-                                    }}
-                                    disabled
-                                  >
-                                    <IconPowerSettingsDisable
-                                      active
-                                      customStyle={{
-                                        fontSize: 18,
-                                        boxSizing: 'border-box',
-                                        position: 'relative',
-                                        top: -2,
+                                  )}
+                                  {column.subkey
+                                    ? row[column.subkey][column.id] || ''
+                                    : row[column.id] || ''}
+                                </TableCellCustom>
+                              );
+                            case TABLE_COLUMN_TYPES.boolean:
+                              return (
+                                <StyledTableCell2
+                                  align="left"
+                                  style={
+                                    indicatorsEditor
+                                      ? {
+                                          padding: '5px 4px',
+                                        }
+                                      : {}
+                                  }
+                                >
+                                  {row[column.id] ? (
+                                    <IconButton
+                                      style={{
+                                        position: 'absolute',
+                                        top: -1,
+                                        width: 31,
+                                        height: 31,
+                                        padding: 5,
                                       }}
-                                    />
-                                  </IconButton>
-                                )}
-                              </StyledTableCell2>
-                            );
-                          case TABLE_COLUMN_TYPES.toggler:
-                            return (
-                              <StyledTableCell2
-                                align="left"
-                                style={
-                                  indicatorsEditor
-                                    ? {
-                                        padding: '3px 4px',
-                                      }
-                                    : {}
-                                }
-                              >
-                                {row[column.id] ? (
-                                  <Tooltip
-                                    label="Enable/Disable"
-                                    customStyle={{
-                                      position: 'absolute',
-                                      top: -1,
-                                      width: 31,
-                                      height: 31,
-                                    }}
-                                    onClick={(e) => {
-                                      e.preventDefault();
-                                      e.stopPropagation();
-                                      onDisable([row.id]);
-                                    }}
-                                  >
-                                    <IconPowerSettings
-                                      label="Disable"
+                                      disabled
+                                    >
+                                      <IconPowerSettings
+                                        active
+                                        customStyle={{
+                                          fontSize: 18,
+                                          boxSizing: 'border-box',
+                                          position: 'relative',
+                                          top: -2,
+                                        }}
+                                      />
+                                    </IconButton>
+                                  ) : (
+                                    <IconButton
+                                      style={{
+                                        position: 'absolute',
+                                        top: -1,
+                                        width: 31,
+                                        height: 31,
+                                        padding: 5,
+                                      }}
+                                      disabled
+                                    >
+                                      <IconPowerSettingsDisable
+                                        active
+                                        customStyle={{
+                                          fontSize: 18,
+                                          boxSizing: 'border-box',
+                                          position: 'relative',
+                                          top: -2,
+                                        }}
+                                      />
+                                    </IconButton>
+                                  )}
+                                </StyledTableCell2>
+                              );
+                            case TABLE_COLUMN_TYPES.toggler:
+                              return (
+                                <StyledTableCell2
+                                  align="left"
+                                  style={
+                                    indicatorsEditor
+                                      ? {
+                                          padding: '3px 4px',
+                                        }
+                                      : {}
+                                  }
+                                >
+                                  {row[column.id] ? (
+                                    <Tooltip
+                                      label="Enable/Disable"
+                                      customStyle={{
+                                        position: 'absolute',
+                                        top: -1,
+                                        width: 31,
+                                        height: 31,
+                                      }}
                                       onClick={(e) => {
                                         e.preventDefault();
                                         e.stopPropagation();
                                         onDisable([row.id]);
                                       }}
-                                      active
+                                    >
+                                      <IconPowerSettings
+                                        label="Disable"
+                                        onClick={(e) => {
+                                          e.preventDefault();
+                                          e.stopPropagation();
+                                          onDisable([row.id]);
+                                        }}
+                                        active
+                                        customStyle={{
+                                          fontSize: 18,
+                                          boxSizing: 'border-box',
+                                          position: 'relative',
+                                          top: -2,
+                                        }}
+                                      />
+                                    </Tooltip>
+                                  ) : (
+                                    <Tooltip
+                                      label="Enable/Disable"
                                       customStyle={{
-                                        fontSize: 18,
-                                        boxSizing: 'border-box',
-                                        position: 'relative',
-                                        top: -2,
+                                        position: 'absolute',
+                                        top: -1,
+                                        width: 31,
+                                        height: 31,
                                       }}
-                                    />
-                                  </Tooltip>
-                                ) : (
-                                  <Tooltip
-                                    label="Enable/Disable"
-                                    customStyle={{
-                                      position: 'absolute',
-                                      top: -1,
-                                      width: 31,
-                                      height: 31,
-                                    }}
-                                    onClick={(e) => {
-                                      e.preventDefault();
-                                      e.stopPropagation();
-                                      onEnable([row.id]);
-                                    }}
-                                  >
-                                    <IconPowerSettingsDisable
-                                      active
-                                      label="Disable"
                                       onClick={(e) => {
                                         e.preventDefault();
                                         e.stopPropagation();
                                         onEnable([row.id]);
                                       }}
-                                      customStyle={{
-                                        fontSize: 18,
-                                        boxSizing: 'border-box',
-                                        position: 'relative',
-                                        top: -2,
-                                      }}
-                                    />
-                                  </Tooltip>
-                                )}
-                              </StyledTableCell2>
-                            );
-                          case TABLE_COLUMN_TYPES.input:
-                            return (
-                              <StyledTableCell2
-                                align="left"
-                                style={
-                                  indicatorsEditor
-                                    ? {
-                                        padding: '3px 4px',
-                                      }
-                                    : {}
-                                }
-                              >
-                                <InputFieldTableCell />
-                              </StyledTableCell2>
-                            );
-                          case TABLE_COLUMN_TYPES.select:
-                            return (
-                              <StyledTableCell2
-                                align="left"
-                                style={
-                                  indicatorsEditor
-                                    ? {
-                                        padding: '3px 4px',
-                                      }
-                                    : {}
-                                }
-                              >
-                                <InputFieldSelectTableCell
-                                  options={column.options}
-                                  value={
-                                    column.subkey
-                                      ? row[column.subkey][column.id]
-                                      : row[column.key]
+                                    >
+                                      <IconPowerSettingsDisable
+                                        active
+                                        label="Disable"
+                                        onClick={(e) => {
+                                          e.preventDefault();
+                                          e.stopPropagation();
+                                          onEnable([row.id]);
+                                        }}
+                                        customStyle={{
+                                          fontSize: 18,
+                                          boxSizing: 'border-box',
+                                          position: 'relative',
+                                          top: -2,
+                                        }}
+                                      />
+                                    </Tooltip>
+                                  )}
+                                </StyledTableCell2>
+                              );
+                            case TABLE_COLUMN_TYPES.input:
+                              return (
+                                <StyledTableCell2
+                                  align="left"
+                                  style={
+                                    indicatorsEditor
+                                      ? {
+                                          padding: '3px 4px',
+                                        }
+                                      : {}
                                   }
-                                  active="active"
-                                />
-                              </StyledTableCell2>
-                            );
-                          case TABLE_COLUMN_TYPES.widthVariation:
-                            return (
-                              <TableCellCustom
-                                key={column.id}
-                                align="left"
-                                className={classes.tableCellCustom}
-                                colSpan={isItemSelected.bool ? 1 : 5}
-                                style={
-                                  indicatorsEditor
-                                    ? {
-                                        padding: '3px 4px',
-                                        maxWidth: '155px',
-                                      }
-                                    : {}
-                                }
-                              >
-                                <DefaultTooltip
-                                  title={`${row[column.id]} (${
-                                    row[column.subValue]
-                                  })`}
-                                  placement="top"
                                 >
-                                  <span>
-                                    {`${row[column.id]} (${
+                                  <InputFieldTableCell />
+                                </StyledTableCell2>
+                              );
+                            case TABLE_COLUMN_TYPES.select:
+                              return (
+                                <StyledTableCell2
+                                  align="left"
+                                  style={
+                                    indicatorsEditor
+                                      ? {
+                                          padding: '3px 4px',
+                                        }
+                                      : {}
+                                  }
+                                >
+                                  <InputFieldSelectTableCell
+                                    options={column.options}
+                                    value={
+                                      column.subkey
+                                        ? row[column.subkey][column.id]
+                                        : row[column.key]
+                                    }
+                                    active="active"
+                                  />
+                                </StyledTableCell2>
+                              );
+                            case TABLE_COLUMN_TYPES.widthVariation:
+                              return (
+                                <TableCellCustom
+                                  key={column.id}
+                                  align="left"
+                                  className={classes.tableCellCustom}
+                                  colSpan={isItemSelected.bool ? 1 : 5}
+                                  style={
+                                    indicatorsEditor
+                                      ? {
+                                          padding: '3px 4px',
+                                          maxWidth: '155px',
+                                        }
+                                      : {}
+                                  }
+                                >
+                                  <DefaultTooltip
+                                    title={`${row[column.id]} (${
                                       row[column.subValue]
                                     })`}
-                                  </span>
-                                </DefaultTooltip>
-                              </TableCellCustom>
-                            );
-                          case TABLE_COLUMN_TYPES.multicolumn:
-                            return (
-                              <TableCellCustom
-                                key={column.id}
-                                align="left"
-                                className={classes.tableCellCustom}
-                                style={
-                                  indicatorsEditor
-                                    ? {
-                                        padding: '3px 4px',
-                                      }
-                                    : {}
-                                }
-                              >
-                                {column.columns.map((subColumn) => (
-                                  <React.Fragment>
-                                    {`${subColumn.label} ${row[subColumn.id]}`}
-                                    {subColumn.type === 'percentage'
-                                      ? '%'
-                                      : null}
-                                    {'   '}
-                                  </React.Fragment>
-                                ))}
-                              </TableCellCustom>
-                            );
-                          case TABLE_COLUMN_TYPES.hoverActions:
-                            return (
-                              <StyledTableCell2
-                                key={column.id}
-                                style={{
-                                  paddingTop: 0,
-                                  paddingBottom: 0,
-                                  width: 60,
-                                  boxSizing: 'border-box',
-                                  padding: '0 !important',
-                                }}
-                              >
-                                {hovered === row.id ? (
-                                  <React.Fragment>
-                                    <Tooltip
-                                      label="Delete"
-                                      position={{ left: '50px' }}
-                                      customStyle={{
-                                        position: 'absolute',
-                                        right: 28,
-                                        top: 0,
-                                        padding: '3px 5px',
-                                      }}
-                                      onClick={() => {
-                                        onDelete([row.id]);
-                                      }}
-                                    >
-                                      <IconDelete
+                                    placement="top"
+                                  >
+                                    <span>
+                                      {`${row[column.id]} (${
+                                        row[column.subValue]
+                                      })`}
+                                    </span>
+                                  </DefaultTooltip>
+                                </TableCellCustom>
+                              );
+                            case TABLE_COLUMN_TYPES.multicolumn:
+                              return (
+                                <TableCellCustom
+                                  key={column.id}
+                                  align="left"
+                                  className={classes.tableCellCustom}
+                                  style={
+                                    indicatorsEditor
+                                      ? {
+                                          padding: '3px 4px',
+                                        }
+                                      : {}
+                                  }
+                                >
+                                  {column.columns.map((subColumn) => (
+                                    <React.Fragment>
+                                      {`${subColumn.label} ${
+                                        row[subColumn.id]
+                                      }`}
+                                      {subColumn.type === 'percentage'
+                                        ? '%'
+                                        : null}
+                                      {'   '}
+                                    </React.Fragment>
+                                  ))}
+                                </TableCellCustom>
+                              );
+                            case TABLE_COLUMN_TYPES.hoverActions:
+                              return (
+                                <StyledTableCell2
+                                  key={column.id}
+                                  style={{
+                                    paddingTop: 0,
+                                    paddingBottom: 0,
+                                    width: 60,
+                                    boxSizing: 'border-box',
+                                    padding: '0 !important',
+                                  }}
+                                >
+                                  {hovered === row.id ? (
+                                    <React.Fragment>
+                                      <Tooltip
+                                        label="Delete"
+                                        position={{ left: '50px' }}
                                         customStyle={{
-                                          color: '#707070',
-                                          fontSize: 21,
+                                          position: 'absolute',
+                                          right: 28,
+                                          top: 0,
+                                          padding: '3px 5px',
                                         }}
-                                        onClick={(e) => {
-                                          e.preventDefault();
-                                          e.stopPropagation();
+                                        onClick={() => {
                                           onDelete([row.id]);
                                         }}
-                                      />
-                                    </Tooltip>
-                                    <Tooltip
-                                      label="Duplicate"
-                                      position={{ left: '50px' }}
-                                      customStyle={{
-                                        position: 'absolute',
-                                        right: -5,
-                                        top: 0,
-                                        padding: '3px 5px',
-                                      }}
-                                      onClick={() => {
-                                        onDuplicate([row.id]);
-                                      }}
-                                    >
-                                      <IconLibraryAdd
+                                      >
+                                        <IconDelete
+                                          customStyle={{
+                                            color: '#707070',
+                                            fontSize: 21,
+                                          }}
+                                          onClick={(e) => {
+                                            e.preventDefault();
+                                            e.stopPropagation();
+                                            onDelete([row.id]);
+                                          }}
+                                        />
+                                      </Tooltip>
+                                      <Tooltip
+                                        label="Duplicate"
+                                        position={{ left: '50px' }}
                                         customStyle={{
-                                          color: '#707070',
-                                          fontSize: 20,
+                                          position: 'absolute',
+                                          right: -5,
+                                          top: 0,
+                                          padding: '3px 5px',
                                         }}
-                                        onClick={(e) => {
-                                          e.preventDefault();
-                                          e.stopPropagation();
+                                        onClick={() => {
                                           onDuplicate([row.id]);
                                         }}
-                                      />
-                                    </Tooltip>
-                                  </React.Fragment>
-                                ) : (
-                                  ' '
-                                )}
-                              </StyledTableCell2>
-                            );
-                          default:
-                            return null;
-                        }
-                      })}
-                      {indicatorsEditor ? (
-                        <IndicatorsEditor
-                          row={row}
-                          index={index}
-                          impacts={impacts}
-                          selected={isItemSelected}
-                          onImpactEdit={this.handleClick}
-                        />
-                      ) : null}
+                                      >
+                                        <IconLibraryAdd
+                                          customStyle={{
+                                            color: '#707070',
+                                            fontSize: 20,
+                                          }}
+                                          onClick={(e) => {
+                                            e.preventDefault();
+                                            e.stopPropagation();
+                                            onDuplicate([row.id]);
+                                          }}
+                                        />
+                                      </Tooltip>
+                                    </React.Fragment>
+                                  ) : (
+                                    ' '
+                                  )}
+                                </StyledTableCell2>
+                              );
+                            default:
+                              return null;
+                          }
+                        })}
+                        {indicatorsEditor ? (
+                          <IndicatorsEditor
+                            row={row}
+                            index={index}
+                            impacts={impacts}
+                            selected={isItemSelected}
+                            onImpactEdit={this.handleClick}
+                          />
+                        ) : null}
+                      </StyledTableRow>
+                    );
+                  })}
+                  {tableData.length < 1 && (
+                    <StyledTableRow tabIndex={-1}>
+                      <TableCellCustom
+                        className={classes.tableCellCustom}
+                        colSpan={6}
+                        align="center"
+                      >
+                        {loading ? loadingDataMessage : emptyDataMessage}
+                      </TableCellCustom>
                     </StyledTableRow>
-                  );
-                })}
-                {tableData.length < 1 && (
-                  <StyledTableRow tabIndex={-1}>
-                    <TableCellCustom
-                      className={classes.tableCellCustom}
-                      colSpan={6}
-                      align="center"
-                    >
-                      {loading ? loadingDataMessage : emptyDataMessage}
-                    </TableCellCustom>
-                  </StyledTableRow>
-                )}
-              </TableBody>
-            </Table>
-          </div>
-        </Paper>
-      </div>
+                  )}
+                </TableBody>
+              </Table>
+            </div>
+          </Paper>
+        </div>
+      </>
     );
   }
 }
