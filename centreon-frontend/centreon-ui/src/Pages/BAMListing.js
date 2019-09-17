@@ -187,6 +187,7 @@ class BAMListingPage extends Component {
                 label="ADD"
                 onClick={onAddClicked}
                 aria-label="ADD"
+                style={{ marginBottom: 10 }}
               />
             </CustomColumn>
             {currentlySelected.length > 0 ? (

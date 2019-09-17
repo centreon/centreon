@@ -11,6 +11,8 @@ import Button from '@material-ui/core/Button';
 import ArrowForward from '@material-ui/icons/ArrowForwardIos';
 import ArrowBack from '@material-ui/icons/ArrowBackIos';
 import LinearProgress from '@material-ui/core/LinearProgress';
+import Input from '@material-ui/core/Input';
+
 import styles from './panels.scss';
 import styles2 from './PanelItem/panel-item.scss';
 import PanelItem from './PanelItem';
@@ -258,14 +260,6 @@ class BAPanel extends React.Component {
         )}
         aria-label={ariaLabel}
       >
-        {saving ? (
-          <div style={{
-            flexGrow: 1,
-          }}>
-            <LinearProgress />
-          </div>
-        ) : null}
-
         <div className={classnames(styles['panels-dialog'])}>
           <div className={classnames(styles['panels-inner'])}>
             <div className={classnames(styles['panels-header'])}>
@@ -273,8 +267,8 @@ class BAPanel extends React.Component {
                 <IconAttach
                   uploadedImage
                   imgSource={
-                    centreonImages.find((x) => x.id == values.icon)
-                      ? centreonImages.find((x) => x.id == values.icon).preview
+                    centreonImages.find((x) => x.id === values.icon)
+                      ? centreonImages.find((x) => x.id === values.icon).preview
                       : ''
                   }
                 />
@@ -295,12 +289,9 @@ class BAPanel extends React.Component {
                   />
                 )}
 
-              <InputField
+              <Input
                 placeholder="Click here to add name"
-                type="text"
-                name="name"
                 value={values.name}
-                inputSize="header"
                 onChange={(event) => {
                   this.valueChanged(
                     'name',
@@ -310,12 +301,8 @@ class BAPanel extends React.Component {
                 }}
                 style={{
                   width: multiselectActive ? '784px' : '285px',
-                  borderBottom: '1px solid',
+                  marginLeft: 15,
                 }}
-                className={classnames(
-                  styles['panels-header-input'],
-                  errors.name ? styles['has-error'] : '',
-                )}
                 aria-label="business activity name"
               />
 
@@ -328,17 +315,13 @@ class BAPanel extends React.Component {
                 }
                 disabled={!formModified || errorfullySaved}
                 loading={saving}
-                succeeded={
-                  successfullySaved ? true : errorfullySaved ? false : true
-                }
+                succeeded={successfullySaved || errorfullySaved}
                 style={{
                   position: 'absolute',
                   right: '60px',
+                  height: 40,
+                  width: 40,
                   top: '4px',
-                  cursor:
-                    saving || !formModified || Object.keys(errors).length > 0
-                      ? 'not-allowed'
-                      : 'pointer',
                 }}
               />
             </div>
