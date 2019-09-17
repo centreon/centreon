@@ -233,6 +233,8 @@ sub proxy {
         return undef;
     }
     my ($action, $token, $target, $data) = ($1, $2, $3, $4);
+    $connector->{logger}->writeLogDebug("[proxy] -class- Send message: [action = $action] [token = $token] [target = $target] [data = $data]");
+
     if ($action eq 'PROXYADDNODE') {
         action_proxyaddnode($connector, data => $data);
         return ;
@@ -271,7 +273,20 @@ sub proxy {
     } elsif ($connector->{clients}->{$target_client}->{type} eq 'push_ssh') {
         my ($code, $decoded_data) = $connector->json_decode(argument => $data);
         return if ($code == 1);
-        
+
+        if ($action eq 'PING') {
+            if ($connector->{clients}->{$target_client}->{class}->ping() != -1) {
+                centreon::gorgone::common::zmq_send_message(
+                    socket => $connector->{internal_socket},
+                    action => 'PONG',
+                    token => $token,
+                    target => '',
+                    data => { id => $target_client },
+                    json_encode => 1
+                );
+            }
+            return ;
+        }
         my ($status, $data_ret) = $connector->{clients}->{$target_client}->{class}->action(
             action => $action,
             data => $decoded_data,
@@ -286,8 +301,6 @@ sub proxy {
             $connector->send_log(code => centreon::gorgone::module::ACTION_FINISH_KO, token => $token, data => $data_ret);
         } 
     }
-
-    $connector->{logger}->writeLogDebug("[proxy] -class- Send message: [action = $action] [token = $token] [target = $target] [data = $data]");
 }
 
 sub event_internal {

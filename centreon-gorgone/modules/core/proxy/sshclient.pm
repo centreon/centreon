@@ -96,6 +96,16 @@ sub local_command {
     return 0;
 }
 
+sub ping {
+    my ($self, %options) = @_;
+
+    if ($self->is_connected()) {
+        return 0;
+    }
+
+    return -1;
+}
+
 sub action_command {
     my ($self, %options) = @_;
 

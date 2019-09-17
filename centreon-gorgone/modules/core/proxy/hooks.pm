@@ -408,7 +408,7 @@ sub ping_send {
         next if (defined($synctime_nodes->{$id}) && $synctime_nodes->{$id}->{in_progress_ping} == 1);
 
         $constatus_ping->{$id}->{last_ping_sent} = time();
-        if ($register_nodes->{$id}->{type} eq 'push_zmq') {
+        if ($register_nodes->{$id}->{type} eq 'push_zmq' || $register_nodes->{$id}->{type} eq 'push_ssh') {
             $synctime_nodes->{$id}->{in_progress_ping} = 1;
             routing(socket => $internal_socket, action => 'PING', target => $id, data => '{}', dbh => $options{dbh});
         } elsif ($register_nodes->{$id}->{type} eq 'pull') {
@@ -637,11 +637,9 @@ sub register_nodes {
         if (defined($register_nodes->{$node->{id}})) {
             $new_node = 0;
             # we remove subnodes before
-            if ($register_nodes->{$node->{id}}->{type} ne 'push_ssh') {
-                foreach my $subnode_id (keys %$register_subnodes) {
-                     delete $register_subnodes->{$subnode_id}
-                        if ($register_subnodes->{$subnode_id} eq $node->{id});
-                }
+            foreach my $subnode_id (keys %$register_subnodes) {
+                delete $register_subnodes->{$subnode_id}
+                    if ($register_subnodes->{$subnode_id} eq $node->{id});
             }
         }
 
@@ -652,12 +650,10 @@ sub register_nodes {
             }
         }
 
-        if ($node->{type} eq 'push_zmq' || $node->{type} eq 'pull') {
-            $last_pong->{$node->{id}} = 0 if (!defined($last_pong->{$node->{id}}));
-            if (!defined($synctime_nodes->{$node->{id}})) {
-                $synctime_nodes->{$node->{id}} = { ctime => 0, in_progress_ping => 0, in_progress => 0, in_progress_time => -1, last_id => 0, synctime_error => 0 };
-                get_sync_time(node_id => $node->{id}, dbh => $options{dbh});
-            }
+        $last_pong->{$node->{id}} = 0 if (!defined($last_pong->{$node->{id}}));
+        if (!defined($synctime_nodes->{$node->{id}})) {
+            $synctime_nodes->{$node->{id}} = { ctime => 0, in_progress_ping => 0, in_progress => 0, in_progress_time => -1, last_id => 0, synctime_error => 0 };
+            get_sync_time(node_id => $node->{id}, dbh => $options{dbh});
         }
 
         if ($node->{type} ne 'pull') {
