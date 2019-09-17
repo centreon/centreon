@@ -45,8 +45,13 @@ sub root {
     }
 
     my $response;
-    if ($options{method} eq 'GET' && $options{uri} =~ /^\/api\/log\/(.*)$/) {
-        $response = get_log(socket => $options{socket}, token => $1);
+    if ($options{method} eq 'GET' && $options{uri} =~ /^\/api\/(targets\/(\w*)\/)?log\/(.*)$/) {
+        $response = get_log(
+            socket => $options{socket},
+            target => $2,
+            token => $3,
+            refresh => (defined($options{parameters}->{refresh})) ? $options{parameters}->{refresh} : undef
+        );
     } elsif ($options{uri} =~ /^\/api\/(targets\/(\w*)\/)?(\w+)\/(\w+)\/?([\w\/]*?)$/
         && defined($dispatch{$3 . '_' . $options{method} . '_/' . $4})) {
         my @variables = split(/\//, $5);
@@ -59,7 +64,8 @@ sub root {
                 parameters => $options{parameters},
                 variables => \@variables,
             },
-            wait => (defined($options{parameters}->{wait})) ? $options{parameters}->{wait} : undef
+            wait => (defined($options{parameters}->{wait})) ? $options{parameters}->{wait} : undef,
+            refresh => (defined($options{parameters}->{refresh})) ? $options{parameters}->{refresh} : undef,
         );
     } else {
         $response = '{"error":"method_unknown","message":"Method not implemented"}';
@@ -94,7 +100,12 @@ sub call_action {
     if (defined($result->{token}) && $result->{token} ne '') {
         if (defined($options{wait}) && $options{wait} ne '') {
             Time::HiRes::usleep($options{wait});
-            $response = get_log(socket => $options{socket}, token => $result->{token});
+            $response = get_log(
+                socket => $options{socket},
+                target => $options{target},
+                token => $result->{token},
+                refresh => $options{refresh},
+            );
         } else {
             $response = '{"token":"' . $result->{token} . '"}';
         }
@@ -105,15 +116,6 @@ sub call_action {
 
 sub get_log {
     my (%options) = @_;
-
-    centreon::gorgone::common::zmq_send_message(
-        socket => $options{socket},
-        action => 'GETLOG',
-        data => {
-            token => $options{token}
-        },
-        json_encode => 1
-    );
     
     $socket = $options{socket};
     my $poll = [
@@ -123,6 +125,29 @@ sub get_log {
             callback => \&event,
         }
     ];
+
+    if (defined($options{target}) && $options{target} ne '') {        
+        centreon::gorgone::common::zmq_send_message(
+            socket => $options{socket},
+            target => $options{target},
+            action => 'GETLOG',
+            json_encode => 1
+        );
+
+        my $refresh_wait = (defined($options{refresh}) && $options{refresh} ne '') ? $options{refresh} : '10000';
+        Time::HiRes::usleep($refresh_wait);
+
+        my $rev = zmq_poll($poll, 5000);
+    }
+
+    centreon::gorgone::common::zmq_send_message(
+        socket => $options{socket},
+        action => 'GETLOG',
+        data => {
+            token => $options{token}
+        },
+        json_encode => 1
+    );
 
     my $rev = zmq_poll($poll, 5000);
 
