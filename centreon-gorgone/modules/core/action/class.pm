@@ -210,7 +210,7 @@ sub action_processcopy {
         }
     }
 
-    # unlink($cache_file);
+    unlink($cache_file);
 
     $self->send_log(
         socket => $options{socket_log},
