@@ -43,6 +43,9 @@ sub new {
     if (!defined($connector->{config}->{cmd_file}) || $connector->{config}->{cmd_file} eq '') {
         $connector->{config}->{cmd_file} = '/var/lib/centreon/centcore.cmd';
     }
+    if (!defined($connector->{config}->{cmd_dir}) || $connector->{config}->{cmd_dir} eq '') {
+        $connector->{config}->{cmd_dir} = '/var/lib/centreon/centcore/';
+    }
     $connector->{config_core} = $options{config_core};
     $connector->{config_db_centreon} = $options{config_db_centreon};
     $connector->{stop} = 0;
@@ -88,24 +91,25 @@ sub move_cmd_file {
     my ($self, %options) = @_;
 
     my $handle;
-    if (-e $self->{config}->{cmd_file} . '_read') {
-        if (!open($handle, '+<', $self->{config}->{cmd_file} . '_read')) {
-            $self->{logger}->writeLogError("[legacycmd] -class- cannot open file '" . $self->{config}->{cmd_file} . "_read': $!");
+    if (-e $options{dst}) {
+        if (!open($handle, '+<', $options{dst})) {
+            $self->{logger}->writeLogError("[legacycmd] -class- cannot open file '" . $options{dst} . "': $!");
             return -1;
         }
         
         return (0, $handle);
     }
 
-    return -1 if (! -e $connector->{config}->{cmd_file});
+    return -1 if (!defined($options{src}));
+    return -1 if (! -e $options{src});
 
-    if (!File::Copy::move($self->{config}->{cmd_file}, $self->{config}->{cmd_file} . '_read')) {
-        $self->{logger}->writeLogError("[legacycmd] -class- cannot move file '" . $connector->{config}->{cmd_file} . "': $!");
+    if (!File::Copy::move($options{src}, $options{dst})) {
+        $self->{logger}->writeLogError("[legacycmd] -class- cannot move file '" . $options{src} . "': $!");
         return -1;
     }
 
-    if (!open($handle, '+<', $self->{config}->{cmd_file} . '_read')) {
-        $self->{logger}->writeLogError("[legacycmd] -class- cannot open file '" . $self->{config}->{cmd_file} . "_read': $!");
+    if (!open($handle, '+<', $options{dst})) {
+        $self->{logger}->writeLogError("[legacycmd] -class- cannot open file '" . $options{dst} . "': $!");
         return -1;
     }
 
@@ -202,18 +206,15 @@ sub execute_cmd {
     }
 }
 
-sub handle_cmd_file {
+sub handle_file {
     my ($self, %options) = @_;
     require bytes;
 
-    return if ($self->get_pollers_config() == -1);
-    my ($code, $handle) = $self->move_cmd_file();
-    return if ($code == -1);
-
+    my $handle = $options{handle};
     while (my $line = <$handle>) {
         if ($self->{stop} == 1) {
             close($handle);
-            return ;
+            return -1;
         }
 
         if ($line =~ /^(.*?):([^:]*)(?::(.*)){0,1}/) {
@@ -226,9 +227,60 @@ sub handle_cmd_file {
         }
     }
 
-    $self->{logger}->writeLogDebug("[legacycmd] -class- process file '" . $connector->{config}->{cmd_file} . "_read'");
+    $self->{logger}->writeLogDebug("[legacycmd] -class- process file '" . $options{file} . "'");
     close($handle);
-    unlink($self->{config}->{cmd_file} . '_read');
+    unlink($options{file});
+    return 0;
+}
+
+sub handle_centcore_cmd {
+    my ($self, %options) = @_;
+
+    my ($code, $handle) = $self->move_cmd_file(
+        src => $self->{config}->{cmd_file},
+        dst => $self->{config}->{cmd_file} . '_read',
+    );
+    return if ($code == -1);
+    $self->handle_file(handle => $handle, file => $self->{config}->{cmd_file} . '_read');
+}
+
+sub handle_centcore_dir {
+    my ($self, %options) = @_;
+    
+    my ($dh, @files);
+    if (!opendir($dh, $self->{config}->{cmd_dir})) {
+        $self->{logger}->writeLogError("[legacycmd] -class- cant opendir '" . $self->{config}->{cmd_dir} . "': $!");
+        return ;
+    }
+    @files = sort { (stat($self->{config}->{cmd_dir} . '/' . $a))[10] <=> (stat($self->{config}->{cmd_dir} . '/' . $b))[10] } (readdir($dh));
+    closedir($dh);
+    
+    my ($code, $handle);
+    foreach (@files) {
+        next if ($_ =~ /^\./);
+        if ($_ =~ /_read$/) {
+            ($code, $handle) = $self->move_cmd_file(
+                dst => $self->{config}->{cmd_dir} . '/' . $_,
+            );
+        } else {
+            ($code, $handle) = $self->move_cmd_file(
+                src => $self->{config}->{cmd_dir} . '/' . $_,
+                dst => $self->{config}->{cmd_dir} . '/' . $_ . '_read',
+            );
+        }
+        return if ($code == -1);
+        if ($self->handle_file(handle => $handle, file => $self->{config}->{cmd_dir} . '/' . $_) == -1) {
+            return ;
+        }
+    }
+}
+
+sub handle_cmd_files {
+    my ($self, %options) = @_;
+
+    return if ($self->get_pollers_config() == -1);
+    $self->handle_centcore_cmd();
+    $self->handle_centcore_dir();
 }
 
 sub event {
@@ -291,7 +343,7 @@ sub run {
             exit(0);
         }
 
-        $self->handle_cmd_file();
+        $self->handle_cmd_files();
     }
 }
 
