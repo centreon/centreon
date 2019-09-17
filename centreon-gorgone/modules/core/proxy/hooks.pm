@@ -23,9 +23,14 @@ package modules::core::proxy::hooks;
 use warnings;
 use strict;
 use JSON::XS;
+use centreon::misc::misc;
 use centreon::script::gorgonecore;
 use centreon::gorgone::common;
 use modules::core::proxy::class;
+use File::Basename;
+use MIME::Base64;
+use Digest::MD5::File qw(file_md5_hex);
+use Fcntl;
 
 my $NAME = 'proxy';
 my $EVENTS = [
@@ -201,35 +206,57 @@ sub routing {
         $target = $register_subnodes->{$options{target}};
     }
 
-    # Mode zmq pull
-    if ($register_nodes->{$target}->{type} eq 'pull') {
-        pull_request(%options, data_decoded => $data);
-        return undef;
-    }
+    my $action = $options{action};
+    my $bulk_actions;
+    push @{$bulk_actions}, $data;
     
-    if (centreon::script::gorgonecore::waiting_ready_pool(pool => $pools) == 0) {
-        centreon::gorgone::common::add_history(
+    if ($options{action} eq 'REMOTECOPY') {
+        $action = 'PROCESSCOPY';
+        $bulk_actions = prepare_remote_copy(
             dbh => $options{dbh},
-            code => centreon::gorgone::module::ACTION_FINISH_KO, token => $options{token},
-            data => { message => 'proxy - still none ready' },
+            data => $data,
+            target => $options{target},
+            token => $options{token},
+            logger => $options{logger}
+        );
+    }
+
+    foreach my $data (@{$bulk_actions}) {
+        # Mode zmq pull
+        if ($register_nodes->{$target}->{type} eq 'pull') {
+            pull_request(%options, data_decoded => $data);
+            next;
+        }
+        
+        if (centreon::script::gorgonecore::waiting_ready_pool(pool => $pools) == 0) {
+            centreon::gorgone::common::add_history(
+                dbh => $options{dbh},
+                code => centreon::gorgone::module::ACTION_FINISH_KO,
+                token => $options{token},
+                data => { message => 'proxy - still none ready' },
+                json_encode => 1
+            );
+            next;
+        }
+
+        my $identity;
+        if (defined($nodes_pool->{$target})) {
+            $identity = $nodes_pool->{$target};
+        } else {
+            $identity = rr_pool();
+            $nodes_pool->{$target} = $identity;
+        }
+
+        centreon::gorgone::common::zmq_send_message(
+            socket => $options{socket},
+            identity => 'gorgoneproxy-' . $identity,
+            action => $action,
+            data => $data,
+            token => $options{token},
+            target => $options{target},
             json_encode => 1
         );
-        return undef;
     }
-
-    my $identity;
-    if (defined($nodes_pool->{$target})) {
-        $identity = $nodes_pool->{$target};
-    } else {
-        $identity = rr_pool();
-        $nodes_pool->{$target} = $identity;
-    }
-
-    centreon::gorgone::common::zmq_send_message(
-        socket => $options{socket}, identity => 'gorgoneproxy-' . $identity,
-        action => $options{action}, data => $options{data}, token => $options{token},
-        target => $options{target}
-    );
 }
 
 sub gently {
@@ -666,6 +693,127 @@ sub register_nodes {
             $options{logger}->writeLogInfo("[proxy] -hooks- Poller '" . $node->{id} . "' is registered");
         }
     }
+}
+
+sub prepare_remote_copy {
+    my (%options) = @_;
+
+    my @actions;
+    
+    if (!defined($options{data}->{content}->{source}) || $options{data}->{content}->{source} eq '') {
+        $options{logger}->writeLogError('[proxy] -hooks- prepare_remote_copy: need source');
+        centreon::gorgone::common::add_history(
+            dbh => $options{dbh},
+            code => centreon::gorgone::module::ACTION_FINISH_KO,
+            token => $options{token},
+            data => { message => 'remote copy failed' },
+            json_encode => 1
+        );
+        return -1;
+    }
+    if (!defined($options{data}->{content}->{destination}) || $options{data}->{content}->{destination} eq '') {
+        $options{logger}->writeLogError('[proxy] -hooks- prepare_remote_copy: need destination');
+        centreon::gorgone::common::add_history(
+            dbh => $options{dbh},
+            code => centreon::gorgone::module::ACTION_FINISH_KO,
+            token => $options{token},
+            data => { message => 'remote copy failed' },
+            json_encode => 1
+        );
+        return -1;
+    }
+
+    my $type;
+    my $filename;
+    my $localsrc = $options{data}->{content}->{source};
+    my $src = $options{data}->{content}->{source};
+    my $dst = $options{data}->{content}->{destination};
+
+    if (-f $options{data}->{content}->{source}) {
+        $type = 'regular';
+        $localsrc = $src;
+        $filename = File::Basename::basename($src);
+        $filename = File::Basename::basename($dst) if ($dst !~ /\/$/);
+    } elsif (-d $options{data}->{content}->{source}) {
+        $type = 'archive';
+        $filename = (defined($options{data}->{content}->{type}) ? $options{data}->{content}->{type} : 'tmp') . '-' . $options{target} . '.tar.gz';
+        $localsrc = $options{data}->{content}->{cache_dir} . '/' . $filename;
+
+        my ($error, $stdout, $exit_code) = centreon::misc::misc::backtick(
+            command => "tar -czf $localsrc -C '" . $src . "' .",
+            timeout => (defined($options{timeout})) ? $options{timeout} : 10,
+            wait_exit => 1,
+            redirect_stderr => 1,
+        );
+        if ($error <= -1000) {
+            $options{logger}->writeLogError("[proxy] -hooks- prepare_remote_copy: tar failed: $stdout");
+            centreon::gorgone::common::add_history(
+                dbh => $options{dbh},
+                code => centreon::gorgone::module::ACTION_FINISH_KO,
+                token => $options{token},
+                data => { message => 'tar failed' },
+                json_encode => 1
+            );
+            return -1;
+        }
+        if ($exit_code != 0) {
+            $options{logger}->writeLogError("[proxy] -hooks- prepare_remote_copy: tar failed ($exit_code): $stdout");
+            centreon::gorgone::common::add_history(
+                dbh => $options{dbh},
+                code => centreon::gorgone::module::ACTION_FINISH_KO,
+                token => $options{token},
+                data => { message => 'tar failed' },
+                json_encode => 1
+            );
+            return -1;
+        };
+    } else {
+        $options{logger}->writeLogError('[proxy] -hooks- prepare_remote_copy: unknown source');
+        centreon::gorgone::common::add_history(
+            dbh => $options{dbh},
+            code => centreon::gorgone::module::ACTION_FINISH_KO,
+            token => $options{token},
+            data => { message => 'unknown source' },
+            json_encode => 1
+        );
+        return -1;
+    }
+
+    sysopen(FH, $localsrc, O_RDONLY);
+    binmode(FH);
+    my $buffer_size = (defined($config->{buffer_size})) ? $config->{buffer_size} : 500_000;
+    my $buffer;
+    while (my $bytes = sysread(FH, $buffer, $buffer_size)) {
+        push @actions, { content => {
+                status => 'inprogress',
+                type => $type,
+                chunk => {
+                    data => MIME::Base64::encode_base64($buffer),
+                    size => $bytes,
+                },
+                md5 => undef,
+                destination => $dst,
+                filename => $filename,
+                cache_dir => $options{data}->{content}->{cache_dir},
+            },
+            parameters => { no_fork => 1 }
+        };
+    }
+    close FH;
+    
+    push @actions, { content => {
+            status => 'end',
+            type => $type,
+            chunk => undef,
+            md5 => file_md5_hex($localsrc),
+            destination => $dst,
+            filename => $filename,
+            cache_dir => $options{data}->{content}->{cache_dir},
+        },
+        parameters => { no_fork => 1 }
+    };
+
+    return \@actions;
 }
 
 sub setcoreid {

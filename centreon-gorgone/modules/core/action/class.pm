@@ -29,6 +29,11 @@ use centreon::misc::misc;
 use ZMQ::LibZMQ4;
 use ZMQ::Constants qw(:all);
 use JSON::XS;
+use File::Basename;
+use File::Copy;
+use MIME::Base64;
+use Digest::MD5::File qw(file_md5_hex);
+use Fcntl;
 
 my %handlers = (TERM => {}, HUP => {});
 my ($connector);
@@ -98,7 +103,8 @@ sub action_command {
     my ($error, $stdout, $return_code) = centreon::misc::misc::backtick(
         command => $options{data}->{content}->{command},
         #arguments => [@$args, $sub_cmd],
-        timeout => (defined($options{data}->{content}->{timeout})) ? $options{data}->{content}->{timeout} : $self->{command_timeout},
+        timeout => (defined($options{data}->{content}->{timeout})) ?
+            $options{data}->{content}->{timeout} : $self->{command_timeout},
         wait_exit => 1,
         redirect_stderr => 1,
         logger => $self->{logger}
@@ -124,6 +130,96 @@ sub action_command {
         }
     );
 
+    return 0;
+}
+
+sub action_processcopy {
+    my ($self, %options) = @_;
+    
+    if (!defined($options{data}->{content}) || $options{data}->{content} eq '') {
+        $self->send_log(
+            socket => $options{socket_log},
+            code => $self->ACTION_FINISH_KO,
+            token => $options{token},
+            data => { message => 'no content' }
+        );
+        return -1;
+    }
+
+    my $cache_file = $options{data}->{content}->{cache_dir} . '/copy_' . $options{token};
+    if ($options{data}->{content}->{status} eq "inprogress" && defined($options{data}->{content}->{chunk}->{data})) {
+        sysopen(FH, $cache_file, O_WRONLY|O_APPEND|O_CREAT);
+        binmode(FH);
+        syswrite(
+            FH,
+            MIME::Base64::decode_base64($options{data}->{content}->{chunk}->{data}),
+            $options{data}->{content}->{chunk}->{size}
+        );
+        close FH;
+
+        $self->send_log(
+            socket => $options{socket_log},
+            code => $self->ACTION_FINISH_OK,
+            token => $options{token},
+            data => {
+                message => "process copy inprogress",
+            }
+        );
+        return 0;
+    } elsif ($options{data}->{content}->{status} eq "end" && defined($options{data}->{content}->{md5})) {
+        if ($options{data}->{content}->{md5} eq file_md5_hex($cache_file)) {
+            if ($options{data}->{content}->{type} eq "archive") {
+                my ($error, $stdout, $exit_code) = centreon::misc::misc::backtick(
+                    command => "tar --no-overwrite-dir -zxf $cache_file -C '" . $options{data}->{content}->{destination} . "' .",
+                    timeout => (defined($options{timeout})) ? $options{timeout} : 10,
+                    wait_exit => 1,
+                    redirect_stderr => 1,
+                );
+                if ($error <= -1000) {
+                    $self->send_log(
+                        socket => $options{socket_log},
+                        code => $self->ACTION_FINISH_KO,
+                        token => $options{token},
+                        data => { message => "untar failed: $stdout" }
+                    );
+                    return -1;
+                }
+                if ($exit_code != 0) {
+                    $self->send_log(
+                        socket => $options{socket_log},
+                        code => $self->ACTION_FINISH_KO,
+                        token => $options{token},
+                        data => { message => "untar failed ($exit_code): $stdout" }
+                    );
+                    return -1;
+                }
+            } elsif ($options{data}->{content}->{type} eq "regular") {
+                copy(
+                    $cache_file,
+                    $options{data}->{content}->{destination} . '/' . $options{data}->{content}->{filename}
+                );
+            }
+        } else {
+            $self->send_log(
+                socket => $options{socket_log},
+                code => $self->ACTION_FINISH_KO,
+                token => $options{token},
+                data => { message => 'md5 does not match' }
+            );
+            return -1;
+        }
+    }
+
+    # unlink($cache_file);
+
+    $self->send_log(
+        socket => $options{socket_log},
+        code => $self->ACTION_FINISH_OK,
+        token => $options{token},
+        data => {
+            message => "process copy finished successfully",
+        }
+    );
     return 0;
 }
 
@@ -192,9 +288,19 @@ sub event {
         $connector->{logger}->writeLogDebug("[action] -class- Event: $message");
         
         if ($message !~ /^\[ACK\]/) {
-            $connector->create_child(message => $message);
+            $message =~ /^\[(.*?)\]\s+\[(.*?)\]\s+\[.*?\]\s+(.*)$/m;
+            
+            my ($action, $token) = ($1, $2);
+            my $data = JSON::XS->new->utf8->decode($3);
+            if (defined($data->{parameters}->{no_fork})) {
+                if ((my $method = $connector->can('action_' . lc($action)))) {
+                    $method->($connector, token => $token, data => $data);
+                }
+            } else{
+                $connector->create_child(message => $message);
+            }
         }
-        
+
         last unless (centreon::gorgone::common::zmq_still_read(socket => $connector->{internal_socket}));
     }
 }

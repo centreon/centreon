@@ -29,6 +29,7 @@ use JSON::XS;
 my $NAME = 'action';
 my $EVENTS = [
     { event => 'ACTIONREADY' },
+    { event => 'PROCESSCOPY' },
     { event => 'COMMAND', uri => '/command', method => 'POST' },
 ];
 
