@@ -58,7 +58,7 @@ const tableConfiguration = [
     id: 'activate',
     numeric: true,
     disablePadding: false,
-    label: 'Activate',
+    label: 'State',
     type: TABLE_COLUMN_TYPES.toggler,
   },
   {

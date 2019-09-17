@@ -47,6 +47,7 @@ class MultiselectPanel extends Component {
       onlySelectedSwitcher = false,
       onlySelectedFilter = false,
       onlySelectedChange = () => { },
+      enabledColumn,
     } = this.props;
     let currentlySelectedFromKey = currentlySelected;
     if (nameIdPaired) {
@@ -145,7 +146,7 @@ class MultiselectPanel extends Component {
             impacts={impacts}
             paginated={!onlySelectedFilter}
             ariaLabel={title + " Table"}
-            enabledColumn="activate"
+            {...(enabledColumn ? {enabledColumn} : {} )}
           />
         </div>
       </PanelItem>
