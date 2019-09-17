@@ -11,8 +11,8 @@ import IconClose from '../Icons/IconClose';
 import ExpandableSection from './ExpandableSection';
 
 const panelWidth = 560;
-const inAnimationDurationMs = 300;
-const outAnimationDurationMs = 200;
+const inAnimationDurationMs = 150;
+const outAnimationDurationMs = 50;
 
 const Header = styled(Box)({
   paddingRight: 140,
@@ -61,7 +61,7 @@ const SecondaryPanelBar = styled(Box)({
 const useSecondaryPanelStyles = makeStyles({
   secondaryPanel: {
     width: ({ active }) => (active ? 500 : 0),
-    transition: '.3s ease-in-out',
+    transition: '.1s ease-in-out',
     overflow: 'hidden',
     backgroundColor: '#c7c8c9',
     padding: ({ active }) => (active ? 5 : 0),
