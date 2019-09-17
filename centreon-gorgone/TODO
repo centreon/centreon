@@ -1,6 +1,3 @@
-- Add legacy module: read centcore.cmd
-- Can chain agents and forward protocol
 - Add a core event: GETINFORMATION (events loaded, target loaded and module loaded)
 - gorgone-newtest: don't use centcore.cmd. use ssh system.
-- Use 4 code for all modules: 0 -> transaction progress, 1 -> transaction finished ok, 2 -> transaction finished ko
-- Need to manage some legacy commands in proxy module with libssh (ENGINECOMMAND, COMMAND, copy files). Will be hardcoded
+- Add gorgone sqlite cleaning
