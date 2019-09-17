@@ -83,7 +83,7 @@ sub init {
     $external_socket = $options{external_socket};
     $internal_socket = $options{internal_socket};
     for my $pool_id (1..$config->{pool}) {
-        create_child(pool_id => $pool_id, logger => $options{logger});
+        create_child(dbh => $options{dbh}, pool_id => $pool_id, logger => $options{logger});
     }
 }
 
@@ -260,6 +260,17 @@ sub kill_internal {
 
 }
 
+sub check_create_child {
+    my (%options) = @_;
+
+    # Check if we need to create a child
+    for my $pool_id (1..$config->{pool}) {
+        if (!defined($pools->{$pool_id})) {
+            create_child(dbh => $options{dbh}, pool_id => $pool_id, logger => $options{logger});
+        }
+    }
+}
+
 sub check {
     my (%options) = @_;
 
@@ -274,16 +285,11 @@ sub check {
         delete $pools_pid->{$pid};
         delete $options{dead_childs}->{$pid};
         if ($stop == 0) {
-            create_child(pool_id => $pool_id, logger => $options{logger});
+            create_child(dbh => $options{dbh}, pool_id => $pool_id, logger => $options{logger});
         }
     }
 
-    # Check if we need to create a child
-    for my $pool_id (1..$config->{pool}) {
-        if (!defined($pools->{$pool_id})) {
-            create_child(pool_id => $pool_id, logger => $options{logger});
-        }
-    }
+    check_create_child(dbh => $options{dbh}, logger => $options{logger});
 
     foreach (keys %{$pools}) {
         $count++  if ($pools->{$_}->{running} == 1);
@@ -508,6 +514,20 @@ sub create_child {
     $options{logger}->writeLogInfo("[proxy] -hooks- PID $child_pid (gorgone-proxy) for pool id '" . $options{pool_id} . "'");
     $pools->{$options{pool_id}} = { pid => $child_pid, ready => 0, running => 1 };
     $pools_pid->{$child_pid} = $options{pool_id};
+
+    #$nodes_pool->{$target}
+
+    # we sent proxyaddnode to sync
+    foreach my $node_id (keys %$nodes_pool) {
+        next if ($nodes_pool->{$node_id} != $options{pool_id});
+        routing(
+            socket => $internal_socket,
+            action => 'PROXYADDNODE',
+            target => $node_id,
+            data => JSON::XS->new->utf8->encode($register_nodes->{$node_id}),
+            dbh => $options{dbh}
+        );
+    }
 }
 
 sub pull_request {
@@ -656,6 +676,7 @@ sub setcoreid {
     my (%options) = @_;
 
     $core_id = $options{core_id};
+    check_create_child(%options);
 }
 
 sub add_parent_ping {

@@ -360,7 +360,7 @@ sub setcoreid {
         my $name = $options{gorgone}->{modules_id}->{$options{gorgone_config}->{gorgonecore}->{proxy_name}};
         my $method;
         if (defined($name) && ($method = $name->can('setcoreid'))) {
-            $method->(core_id => $data->{id});
+            $method->(dbh => $options{dbh}, core_id => $data->{id}, logger => $options{logger});
         }
     }
 
