@@ -28,6 +28,7 @@ use Libssh::Sftp qw(:all);
 use POSIX;
 use centreon::misc::misc;
 use File::Basename;
+use Time::HiRes;
 
 sub new {
     my ($class, %options) = @_;
@@ -106,6 +107,39 @@ sub ping {
     return -1;
 }
 
+sub action_centcore {
+    my ($self, %options) = @_;
+
+    if (!defined($options{data}->{content}->{command}) || $options{data}->{content}->{command} eq '') {
+        $self->{logger}->writeLogError('[proxy] -sshclient- action_centcore: need command');
+        return (-1, { message => 'please set command' });
+    }
+    if (!defined($options{data}->{content}->{target}) || $options{data}->{content}->{target} eq '') {
+        $self->{logger}->writeLogError('[proxy] -sshclient- action_centcore: need target');
+        return (-1, { message => 'please set target' });
+    }
+
+    my $centcore_cmd = defined($options{data}->{content}->{centcore_cmd}) ? $options{data}->{content}->{centcore_dir} : '/var/lib/centreon/centcore/';
+    my $time = Time::HiRes::time();
+    $time =~ s/\.//g;
+    $centcore_cmd .= $time . '.cmd';
+    
+    my $data = $options{data}->{content}->{command} . ':' . $options{data}->{content}->{target};
+    $data .= ':' . $options{data}->{content}->{param} if (defined($options{data}->{content}->{param}) && $options{data}->{content}->{param} ne '');
+    chomp $data;
+
+    my $file = $self->{sftp}->open(file => $centcore_cmd, accesstype => O_WRONLY|O_CREAT|O_TRUNC);
+    if (!defined($file)) {
+        return (-1, { message => "cannot open stat file '$centcore_cmd': " . $self->{sftp}->error() });
+    }
+    if ($self->{sftp}->write(handle_file => $file, data => $data . "\n") != Libssh::Session::SSH_OK) {
+        return (-1, { message => "cannot write stat file '$centcore_cmd': " . $self->{sftp}->error() });
+    }
+
+    $self->{logger}->writeLogDebug("[proxy] -sshclient- action_centcore '" . $centcore_cmd . "' succeeded");
+    return (0, { message => 'send action_centcore succeeded' });
+}
+
 sub action_command {
     my ($self, %options) = @_;
 
@@ -150,6 +184,18 @@ sub action_enginecommand {
     }
 
     chomp $options{data}->{content}->{command};
+    if ($options{target_direct} == 0) {
+        return $self->action_centcore(
+            data => {
+                content => {
+                    command => 'EXTERNALCMD',
+                    target => $options{target},
+                    param => $options{data}->{content}->{command},
+                }
+            }
+        );
+    }
+
     my $ret = $self->{sftp}->stat_file(file => $options{data}->{content}->{engine_pipe});
     if (!defined($ret)) {
         return (-1, { message => "cannot stat file '$options{data}->{content}->{engine_pipe}': " . $self->{sftp}->get_msg_error() });
@@ -223,7 +269,26 @@ sub action_remotecopy {
     }
 
     if (defined($options{data}->{content}->{type}) && $options{target_direct} == 0) {
-        # for remote server: ask in centcore
+        # only one time (after broker)
+        if ($options{data}->{content}->{type} eq 'broker') {
+            $self->action_centcore(
+                data => {
+                    content => {
+                        command => 'SENDCFGFILE',
+                        target => $options{target},
+                    }
+                }
+            );
+        } elsif ($options{data}->{content}->{type} eq 'remote') {
+             $self->action_centcore(
+                data => {
+                    content => {
+                        command => 'SENDEXPORTFILE',
+                        target => $options{target},
+                    }
+                }
+            );
+        }
     }
 
     return (0, { message => 'send remotecopy succeeded' });
