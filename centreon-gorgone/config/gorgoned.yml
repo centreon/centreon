@@ -97,6 +97,17 @@ modules:
     enable: true
     command_file: "/var/lib/centreon-engine/rw/centengine.cmd"
 
+  - name: broker
+    package: modules::centreon::broker::hooks
+    enable: false
+    cache_dir: "/var/lib/centreon/broker-stats/"
+    cron:
+      - id: broker_stats
+        timespec: "*/2 * * * *"
+        action: BROKERSTATS
+        parameters:
+          timeout: 10
+
   - name: legacycmd
     package: modules::centreon::legacycmd::hooks
     enable: true
