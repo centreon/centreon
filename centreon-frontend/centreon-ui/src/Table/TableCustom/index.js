@@ -271,6 +271,7 @@ class TableCustom extends Component {
                 className={classes.table}
                 aria-label={ariaLabel}
                 size="small"
+                stickyHeader
               >
                 <EnhancedTableHead
                   numSelected={selected ? selected.length : 0}
