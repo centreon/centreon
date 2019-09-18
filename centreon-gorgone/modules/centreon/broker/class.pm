@@ -179,12 +179,14 @@ sub write_stats {
     return if (!defined($options{data}->{data}->{action}) || $options{data}->{data}->{action} ne "getlog" &&
         defined($options{data}->{data}->{result}));
 
+    my $cache_dir = (defined($self->{config}->{cache_dir})) ?
+        $self->{config}->{cache_dir} : '/var/lib/centreon/broker-stats/';
     foreach my $id (sort keys %{$options{data}->{data}->{result}}) {
         my $data = JSON::XS->new->utf8->decode($options{data}->{data}->{result}->{$id}->{data});
-        next if (!defined($data->{exit_code}) || $data->{exit_code} != 0);
-        my $stats = JSON::XS->new->utf8->decode($data->{stdout});
+        next if (!defined($data->{exit_code}) || $data->{exit_code} != 0 ||
+            !defined($data->{metadata}->{poller_id}) || !defined($data->{metadata}->{config_name}));
 
-        my $cache_file = $self->{config}->{cache_dir} . '/' . $data->{metadata}->{poller_id} . '-' . 
+        my $cache_file = $cache_dir . '/' . $data->{metadata}->{poller_id} . '-' . 
             $data->{metadata}->{config_name} . '.dat';
         $self->{logger}->writeLogDebug("[broker] -class- Writing file '" . $cache_file . "'");
         open(FH, '>', $cache_file);
