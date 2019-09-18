@@ -194,7 +194,7 @@ sub routing {
             # We put the good time to get        
             my $ctime = $synctime_nodes->{$options{target}}->{ctime};
             my $last_id = $synctime_nodes->{$options{target}}->{last_id};
-            $options{data} = centreon::gorgone::common::json_encode(data => { ctime => $ctime, id => $last_id });
+            $data = { ctime => $ctime, id => $last_id };
             $synctime_nodes->{$options{target}}->{in_progress} = 1;
             $synctime_nodes->{$options{target}}->{in_progress_time} = time();
         }
