@@ -62,7 +62,10 @@ modules:
     cron:
       - id: echo_date
         timespec: "* * * * *"
-        command_line: "date >> /tmp/date.log"
+        action: COMMAND
+        parameters:
+          command: "date >> /tmp/date.log"
+          timeout: 10
 
   - name: action
     package: modules::core::action::hooks

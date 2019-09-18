@@ -171,7 +171,7 @@ sub action_addcron {
 
     foreach my $definition (@{$options{data}->{content}}) {
         if (!defined($definition->{timespec}) || $definition->{timespec} eq '' ||
-            !defined($definition->{command_line}) || $definition->{command_line} eq '' ||
+            !defined($definition->{action}) || $definition->{action} eq '' ||
             !defined($definition->{id}) || $definition->{id} eq '') {
             $self->{logger}->writeLogDebug("[cron] -class- Cron add missing arguments");
             $self->send_log(
@@ -194,6 +194,7 @@ sub action_addcron {
                 );
                 next;
             }
+            $self->{logger}->writeLogInfo("[cron] -class- Adding cron definition '" . $definition->{id} . "'");
             $self->{cron}->add_entry(
                 $definition->{timespec},
                 $definition->{id},
@@ -412,10 +413,10 @@ sub dispatcher {
 
     centreon::gorgone::common::zmq_send_message(
         socket => $options->{socket},
-        action => 'COMMAND',
+        action => $options->{definition}->{action},
         target => $options->{definition}->{target},
         data => {
-            content => { command => $options->{definition}->{command_line}, timeout => $options->{definition}->{timeout} }
+            content => { %{$options->{definition}->{parameters}} }
         },
         json_encode => 1
     );
