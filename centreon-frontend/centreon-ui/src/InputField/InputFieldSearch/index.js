@@ -70,7 +70,7 @@ class InputFieldSearch extends Component {
   };
 
   render() {
-    const { classes, placeholder, onChange, style, ...rest } = this.props;
+    const { classes, placeholder, onChange, ...rest } = this.props;
     const { searchText } = this.state;
     return (
       <Paper elevation={0} className={classes.paper}>

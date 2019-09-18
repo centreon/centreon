@@ -10,16 +10,18 @@ import {
   InputFieldSearch,
   ButtonCustom,
   TableCustom,
-  IconDelete,
-  IconLibraryAdd,
-  IconPowerSettings,
-  IconPowerSettingsDisable,
   IconInsertChart,
-  Tooltip,
   MassiveChangeDialog,
   ConfirmationDialog,
   PromptDialog,
 } from '../index';
+import IconDelete from '../MaterialComponents/Icons/IconDelete';
+import IconLibraryAdd from '../MaterialComponents/Icons/IconLibraryAdd';
+import IconPowerSettings from '../MaterialComponents/Icons/IconPowerSettings';
+import IconPowerSettingsDisable from '../MaterialComponents/Icons/IconPowerSettingsDisable';
+import Tooltip from '../MaterialComponents/Tooltip';
+
+import Grid from '@material-ui/core/Grid';
 
 import TABLE_COLUMN_TYPES from '../Table/ColumnTypes';
 
@@ -178,109 +180,47 @@ class BAMListingPage extends Component {
           </CustomRow>
         </Paper>
         <Paper elevation={0} style={{ padding: '16px 16px 8px 16px' }}>
-          <CustomRow>
-            <CustomColumn
-              customColumn="md-4"
-              additionalStyles={['flex-none', 'container__col-xs-12', 'm-0']}
-            >
-              <ButtonCustom
-                label="ADD"
-                onClick={onAddClicked}
-                aria-label="ADD"
-                style={{ marginBottom: 10 }}
-              />
-            </CustomColumn>
-            {currentlySelected.length > 0 ? (
-              <React.Fragment>
-                <CustomColumn
-                  customColumn="md-3"
-                  additionalStyles={[
-                    'flex-none',
-                    'container__col-xs-12',
-                    'm-0',
-                    'pr-10',
-                    'pl-05',
-                  ]}
-                >
-                  <Tooltip label="Duplicate">
-                    <IconLibraryAdd
-                      label="Duplicate"
-                      onClick={this.toggleDuplicateModal}
-                    />
-                  </Tooltip>
-                </CustomColumn>
-                <CustomColumn
-                  customColumn="md-3"
-                  additionalStyles={[
-                    'flex-none',
-                    'container__col-xs-12',
-                    'm-0',
-                    'pr-09',
-                  ]}
-                >
-                  <Tooltip label="Delete">
-                    <IconDelete
-                      label="Delete"
-                      onClick={this.toggleDeleteModal}
-                    />
-                  </Tooltip>
-                </CustomColumn>
-                <CustomColumn
-                  customColumn="md-3"
-                  additionalStyles={[
-                    'flex-none',
-                    'container__col-xs-12',
-                    'm-0',
-                    'pl-05',
-                    'pr-24',
-                  ]}
-                >
-                  <Tooltip label="Disable">
-                    <IconPowerSettingsDisable
-                      active
-                      label="Disable"
-                      onClick={onDisable}
-                    />
-                  </Tooltip>
-                </CustomColumn>
-                <CustomColumn
-                  customColumn="md-3"
-                  additionalStyles={[
-                    'flex-none',
-                    'container__col-xs-12',
-                    'm-0',
-                    'pr-10',
-                    'pl-05',
-                    'border-right',
-                  ]}
-                >
-                  <Tooltip label="Enable">
-                    <IconPowerSettings
-                      active
-                      label="Enable"
-                      onClick={onEnable}
-                    />
-                  </Tooltip>
-                </CustomColumn>
-                <CustomColumn
-                  customColumn="md-3"
-                  additionalStyles={[
-                    'flex-none',
-                    'container__col-xs-12',
-                    'm-0',
-                    'pl-22',
-                  ]}
-                >
-                  <Tooltip label="Massive change">
-                    <IconInsertChart
-                      label="Massive change"
-                      onClick={this.toggleMassiveChangeModal}
-                    />
-                  </Tooltip>
-                </CustomColumn>
-              </React.Fragment>
-            ) : null}
-          </CustomRow>
+          <Grid item={true}>
+            <Grid container={true} spacing={3}>
+              <Grid item={true}>
+                <ButtonCustom label={"ADD"} onClick={onAddClicked} aria-label="ADD" style={{ marginBottom: '8px' }} />
+              </Grid>
+              {currentlySelected.length > 0 ? (
+                <Grid item={true}>
+                  <Grid container={true} spacing={2}>
+                    <Grid item={true}>
+                      <Tooltip label={"Duplicate"} onClick={this.toggleDuplicateModal}>
+                        <IconLibraryAdd />
+                      </Tooltip>
+                    </Grid>
+                    <Grid item={true}>
+                      <Tooltip label={"Delete"} onClick={this.toggleDeleteModal}>
+                        <IconDelete />
+                      </Tooltip>
+                    </Grid>
+                    <Grid item={true}>
+                      <Tooltip label={"Disable"} onClick={onDisable}>
+                        <IconPowerSettingsDisable />
+                      </Tooltip>
+                    </Grid>
+                    <Grid item={true} style={{ borderRight: '2px solid #dcdcdc' }}>
+                      <Tooltip label={"Enable"} onClick={onEnable}>
+                        <IconPowerSettings />
+                      </Tooltip>
+                    </Grid>
+                    <Grid item={true}>
+                      <Tooltip label="Massive change">
+                        <IconInsertChart
+                          label="Massive change"
+                          onClick={this.toggleMassiveChangeModal}
+                        />
+                      </Tooltip>
+                    </Grid>
+                  </Grid>
+                </Grid>
+              ) : null}
+            </Grid>
+          </Grid>
         </Paper>
         <Paper elevation={0} style={{ padding: '8px 16px', paddingTop: 0 }}>
           <TableCustom
