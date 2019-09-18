@@ -95,7 +95,10 @@ sub action_command {
             socket => $options{socket_log},
             code => $self->ACTION_FINISH_KO,
             token => $options{token},
-            data => { message => 'need command argument' }
+            data => {
+                message => 'need command argument',
+                metadata => $options{data}->{content}->{metadata}
+            }
         );
         return -1;
     }
@@ -114,7 +117,10 @@ sub action_command {
             socket => $options{socket_log},
             code => $self->ACTION_FINISH_KO,
             token => $options{token},
-            data => { message => "command '$options{data}->{content}->{command}' execution issue: $stdout" }
+            data => {
+                message => "command '$options{data}->{content}->{command}' execution issue: $stdout",
+                metadata => $options{data}->{content}->{metadata}
+            }
         );
         return -1;
     }
@@ -126,7 +132,8 @@ sub action_command {
         data => {
             message => "command '$options{data}->{content}->{command}' has finished",
             stdout => $stdout,
-            exit_code => $return_code
+            exit_code => $return_code,
+            metadata => $options{data}->{content}->{metadata}
         }
     );
 
@@ -250,7 +257,7 @@ sub action_run {
 sub create_child {
     my ($self, %options) = @_;
     
-    $self->{logger}->writeLogInfo("[action] -class- create sub-process");
+    $self->{logger}->writeLogDebug("[action] -class- Create sub-process");
     $options{message} =~ /^\[(.*?)\]\s+\[(.*?)\]\s+\[.*?\]\s+(.*)$/m;
     
     my ($action, $token) = ($1, $2);
