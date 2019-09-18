@@ -42,7 +42,7 @@ sub read_config {
         $config = LoadFile($options{config_file});
     };
     if ($@) {
-        $options{logger}->writeLogError("Parsinig config file error:");
+        $options{logger}->writeLogError("Parsing config file error:");
         $options{logger}->writeLogError($@);
         exit(1);
     }
