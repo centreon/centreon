@@ -48,7 +48,7 @@ modules:
     package: modules::core::httpserver::hooks
     enable: true
     address: 0.0.0.0
-    port: 8080
+    port: 8443
     ssl: true
     ssl_cert_file: /etc/pki/tls/certs/server-cert.pem
     ssl_key_file: /etc/pki/tls/server-key.pem
@@ -87,7 +87,7 @@ modules:
   - name: register
     package: modules::core::register::hooks
     enable: true
-    config_file: config/registernodes.json
+    config_file: config/registernodes.yml
 
   - name: engine
     package: modules::centreon::engine::hooks

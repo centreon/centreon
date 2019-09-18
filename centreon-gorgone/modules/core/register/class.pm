@@ -86,32 +86,23 @@ sub action_registerresync {
 
     $options{token} = $self->generate_token() if (!defined($options{token}));
 
-    $self->send_log(code => centreon::gorgone::module::ACTION_BEGIN, token => $options{token}, data => { message => 'action registerresync proceed' });
-
-    my $content = do {
-        local $/ = undef;
-        if (!open my $fh, "<", $self->{config}->{config_file}) {
-            $self->send_log(code => centreon::gorgone::module::ACTION_FINISH_KO, token => $options{token}, data => { message => "Could not open file $self->{config}->{config_file}: $!" });
-            $self->{logger}->writeLogError("[register] -class- Could not open file $self->{config}->{config_file}: $!");
-            return 1;
+    $self->send_log(
+        code => centreon::gorgone::module::ACTION_BEGIN,
+        token => $options{token},
+        data => {
+            message => 'action registerresync proceed'
         }
-        <$fh>;
-    };
+    );
 
-    my $data;
-    eval {
-        $data = JSON::XS->new->utf8->decode($content);
-    };
-    if ($@) {
-        $self->send_log(code => centreon::gorgone::module::ACTION_FINISH_KO, token => $options{token}, data => { message => "Cannot decode json file: $@" });
-        $self->{logger}->writeLogError("[register] -class- Cannot decode json file: $@");
-        return 1;
-    }
+    my $config = centreon::gorgone::common::read_config(
+        config_file => $self->{config}->{config_file},
+        logger => $self->{logger}
+    );
 
     my $register_temp = {};
     my $register_nodes = [];
-    if (defined($data->{nodes})) {
-        foreach (@{$data->{nodes}}) {
+    if (defined($config->{nodes})) {
+        foreach (@{$config->{nodes}}) {
             $self->{register_nodes}->{$_->{id}} = 1;
             $register_temp->{$_->{id}} = 1;
             push @{$register_nodes}, { %$_ };
@@ -126,11 +117,27 @@ sub action_registerresync {
         }
     }
 
-    $self->send_internal_action(action => 'REGISTERNODES', data => { nodes => $register_nodes } ) if (scalar(@$register_nodes) > 0);
-    $self->send_internal_action(action => 'UNREGISTERNODES', data => { nodes => $unregister_nodes } ) if (scalar(@$unregister_nodes) > 0);
+    $self->send_internal_action(
+        action => 'REGISTERNODES',
+        data => {
+            nodes => $register_nodes
+        }
+    ) if (scalar(@$register_nodes) > 0);
+    $self->send_internal_action(
+        action => 'UNREGISTERNODES',
+        data => {
+            nodes => $unregister_nodes
+        }
+    ) if (scalar(@$unregister_nodes) > 0);
 
     $self->{logger}->writeLogDebug("[register] -class- finish resync");
-    $self->send_log(code => $self->ACTION_FINISH_OK, token => $options{token}, data => { message => 'action registerresync finished' });
+    $self->send_log(
+        code => $self->ACTION_FINISH_OK,
+        token => $options{token},
+        data => {
+            message => 'action registerresync finished'
+        }
+    );
     return 0;
 }
 
@@ -165,7 +172,8 @@ sub run {
     );
     centreon::gorgone::common::zmq_send_message(
         socket => $connector->{internal_socket},
-        action => 'REGISTERREADY', data => { },
+        action => 'REGISTERREADY',
+        data => {},
         json_encode => 1
     );
     $self->{poll} = [
