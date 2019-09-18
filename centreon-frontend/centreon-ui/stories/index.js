@@ -36,5 +36,4 @@ import './Table';
 import './TableCounter';
 import './Title';
 import './Tooltip';
-import './CentreonDynamicComponent';
 import './TopFilters';

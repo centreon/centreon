@@ -1,8 +1,0 @@
-{
-    "name": "@centreon/dynamic-components-generator",
-    "version": "0.0.1",
-    "description": "Dynamic component generator centreon-compgen --help",
-    "main": "index.js",
-    "author": "centreon@centreon.com",
-    "license": "GPL-2.0"
-}

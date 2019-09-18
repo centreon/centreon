@@ -26,12 +26,12 @@ module.exports = {
         use: [
           "style-loader",
           {
-            "loader": "css-loader",
-            "options": {
-              "modules": true,
-              "localIdentName": "[local]__[hash:base64:5]",
-              "importLoaders": 1,
-              "sourceMap": false
+            loader: "css-loader",
+            options: {
+              modules: {
+                localIdentName: "[local]__[hash:base64:5]",
+              },
+              sourceMap: true,
             }
           },
           "sass-loader",

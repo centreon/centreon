@@ -101,14 +101,6 @@ export { default as TableDynamic } from './Table/TableDynamic';
 export { default as TableCounter } from './Table/TableCounter';
 export { default as Title } from './Title';
 export { default as Wrapper } from './Wrapper';
-export {
-  default as DynamicComponentPosition,
-} from './DynamicComponentPosition';
-export { default as DynamicComponentLoader } from './DynamicComponentLoader';
-export { default as DynamicComponentBundle } from './DynamicComponentBundle';
-export {
-  default as CentreonDynamicComponentGetter,
-} from './CentreonDynamicComponentGetter';
 export { default as TopFilters } from './TopFilters';
 export { default as ExtensionsHolder } from './ExtensionsHolder';
 export { default as ExtensionDetailsPopup } from './ExtensionDetailsPopup';
