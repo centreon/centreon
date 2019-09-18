@@ -288,6 +288,15 @@ sub action_remotecopy {
                     }
                 }
             );
+        } elsif ($options{data}->{content}->{type} eq 'trap') {
+             $self->action_centcore(
+                data => {
+                    content => {
+                        command => 'SYNCTRAP',
+                        target => $options{target},
+                    }
+                }
+            );
         }
     }
 

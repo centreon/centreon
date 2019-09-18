@@ -121,7 +121,10 @@ sub get_pollers_config {
 
     $self->{pollers} = {};
     my ($status, $datas) = $self->{class_object_centreon}->custom_execute(
-        request => 'SELECT nagios_server_id, command_file, cfg_dir, centreonbroker_cfg_path FROM cfg_nagios JOIN nagios_server WHERE id = nagios_server_id',
+        request => 'SELECT nagios_server_id, command_file, cfg_dir, centreonbroker_cfg_path, snmp_trapd_path_conf ' .
+            'FROM cfg_nagios ' .
+            'JOIN nagios_server ' .
+            'WHERE id = nagios_server_id',
         mode => 2
     );
     if ($status == -1 || !defined($datas->[0])) {
@@ -133,6 +136,7 @@ sub get_pollers_config {
         $self->{pollers}->{$_->[0]}->{command_file} = $_->[1];
         $self->{pollers}->{$_->[0]}->{cfg_dir} = $_->[2];
         $self->{pollers}->{$_->[0]}->{centreonbroker_cfg_path} = $_->[3];
+        $self->{pollers}->{$_->[0]}->{snmp_trapd_path_conf} = $_->[4];
     }
 
     return 0;
@@ -157,7 +161,8 @@ sub execute_cmd {
             },
         );
     } elsif ($options{cmd} eq 'SENDCFGFILE') {
-        my $cache_dir = (defined($connector->{config}->{cache_dir})) ? $connector->{config}->{cache_dir} : '/var/cache/centreon';
+        my $cache_dir = (defined($connector->{config}->{cache_dir})) ?
+            $connector->{config}->{cache_dir} : '/var/cache/centreon';
         # engine
         $self->send_internal_action(
             action => 'REMOTECOPY',
@@ -187,8 +192,10 @@ sub execute_cmd {
             },
         );
     } elsif ($options{cmd} eq 'SENDEXPORTFILE') {
-        my $cache_dir = (defined($connector->{config}->{cache_dir})) ? $connector->{config}->{cache_dir} : '/var/cache/centreon';
-        my $remote_dir = (defined($connector->{config}->{remote_dir})) ? $connector->{config}->{remote_dir} : '/var/lib/centreon/remote-data/';
+        my $cache_dir = (defined($connector->{config}->{cache_dir})) ?
+            $connector->{config}->{cache_dir} : '/var/cache/centreon';
+        my $remote_dir = (defined($connector->{config}->{remote_dir})) ?
+            $connector->{config}->{remote_dir} : '/var/lib/centreon/remote-data/';
         # remote server
         $self->send_internal_action(
             action => 'REMOTECOPY',
@@ -200,6 +207,25 @@ sub execute_cmd {
                     destination => $remote_dir,
                     cache_dir => $cache_dir,
                     type => 'remote',
+                }
+            },
+        );
+    } elsif ($options{cmd} eq 'SYNCTRAP') {
+        my $cache_dir = (defined($connector->{config}->{cache_dir})) ?
+            $connector->{config}->{cache_dir} : '/var/cache/centreon';
+        my $cache_dir_trap = (defined($connector->{config}->{cache_dir_trap})) ?
+            $connector->{config}->{cache_dir_trap} : '/etc/snmp/centreon_traps/';
+        # centreontrapd
+        $self->send_internal_action(
+            action => 'REMOTECOPY',
+            target => $options{target},
+            token => $self->generate_token(),
+            data => {
+                content => {
+                    source => $cache_dir_trap . '/' . $options{target} . '/centreontrapd.sdb',
+                    destination => $self->{pollers}->{$options{target}}->{snmp_trapd_path_conf} . '/',
+                    cache_dir => $cache_dir,
+                    type => 'trap',
                 }
             },
         );
@@ -252,7 +278,9 @@ sub handle_centcore_dir {
         $self->{logger}->writeLogError("[legacycmd] -class- cant opendir '" . $self->{config}->{cmd_dir} . "': $!");
         return ;
     }
-    @files = sort { (stat($self->{config}->{cmd_dir} . '/' . $a))[10] <=> (stat($self->{config}->{cmd_dir} . '/' . $b))[10] } (readdir($dh));
+    @files = sort {
+        (stat($self->{config}->{cmd_dir} . '/' . $a))[10] <=> (stat($self->{config}->{cmd_dir} . '/' . $b))[10]
+    } (readdir($dh));
     closedir($dh);
     
     my ($code, $handle);
@@ -325,7 +353,10 @@ sub run {
         force => 2,
         logger => $self->{logger}
     );
-    $self->{class_object_centreon} = centreon::misc::objects::object->new(logger => $self->{logger}, db_centreon => $self->{db_centreon});
+    $self->{class_object_centreon} = centreon::misc::objects::object->new(
+        logger => $self->{logger},
+        db_centreon => $self->{db_centreon}
+    );
 
     $self->{poll} = [
         {

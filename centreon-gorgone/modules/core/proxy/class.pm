@@ -150,10 +150,12 @@ sub connect {
             server_pubkey => $self->{clients}->{$options{id}}->{server_pubkey},
             client_pubkey => $self->{clients}->{$options{id}}->{client_pubkey},
             client_privkey => $self->{clients}->{$options{id}}->{client_privkey},
-            target_type =>
-                defined($self->{clients}->{$options{id}}->{target_type}) ? $self->{clients}->{$options{id}}->{target_type} : 'tcp',
-            target_path =>
-                defined($self->{clients}->{$options{id}}->{target_path}) ? $self->{clients}->{$options{id}}->{target_path} : $self->{clients}->{$options{id}}->{address} . ':' . $self->{clients}->{$options{id}}->{port},
+            target_type => defined($self->{clients}->{$options{id}}->{target_type}) ?
+                $self->{clients}->{$options{id}}->{target_type} :
+                'tcp',
+            target_path => defined($self->{clients}->{$options{id}}->{target_path}) ?
+                $self->{clients}->{$options{id}}->{target_path} :
+                $self->{clients}->{$options{id}}->{address} . ':' . $self->{clients}->{$options{id}}->{port},
             logger => $self->{logger},
         );
         $self->{clients}->{$options{id}}->{class}->init(callback => \&read_message);
@@ -191,8 +193,7 @@ sub action_proxyaddnode {
         $self->{subnodes}->{$_} = $data->{id};
     }
     foreach (keys %{$self->{subnodes}}) {
-        delete $self->{subnodes}->{$_}
-            if ($self->{subnodes}->{$_} eq $data->{id} && !defined($temp->{$_}));
+        delete $self->{subnodes}->{$_} if ($self->{subnodes}->{$_} eq $data->{id} && !defined($temp->{$_}));
     }
 }
 
@@ -207,8 +208,7 @@ sub action_proxydelnode {
     }
 
     foreach (keys %{$self->{subnodes}}) {
-        delete $self->{subnodes}->{$_}
-            if ($self->{subnodes}->{$_} eq $data->{id});
+        delete $self->{subnodes}->{$_} if ($self->{subnodes}->{$_} eq $data->{id});
     }
 }
 
@@ -233,7 +233,9 @@ sub proxy {
         return undef;
     }
     my ($action, $token, $target, $data) = ($1, $2, $3, $4);
-    $connector->{logger}->writeLogDebug("[proxy] -class- Send message: [action = $action] [token = $token] [target = $target] [data = $data]");
+    $connector->{logger}->writeLogDebug(
+        "[proxy] -class- Send message: [action = $action] [token = $token] [target = $target] [data = $data]"
+    );
 
     if ($action eq 'PROXYADDNODE') {
         action_proxyaddnode($connector, data => $data);
@@ -253,7 +255,13 @@ sub proxy {
     }
     if (!defined($connector->{clients}->{$target_client}->{class})) {
         if ($connector->connect(id => $target_client) != 0) {
-            $connector->send_log(code => centreon::gorgone::module::ACTION_FINISH_KO, token => $token, data => { message => "cannot connect on target node '$target_client'" });
+            $connector->send_log(
+                code => centreon::gorgone::module::ACTION_FINISH_KO,
+                token => $token,
+                data => {
+                    message => "cannot connect on target node '$target_client'"
+                }
+            );
             return ;
         }
     }
@@ -266,7 +274,13 @@ sub proxy {
             data => $data
         );
         if ($status != 0) {
-            $connector->send_log(code => centreon::gorgone::module::ACTION_FINISH_KO, token => $token, data => { message => "Send message problem for '$target': $msg" });
+            $connector->send_log(
+                code => centreon::gorgone::module::ACTION_FINISH_KO,
+                token => $token,
+                data => {
+                    message => "Send message problem for '$target': $msg"
+                }
+            );
             $connector->{logger}->writeLogError("[proxy] -class- Send message problem for '$target': $msg");
             $connector->{clients}->{$target}->{delete} = 1;
         }
@@ -296,9 +310,17 @@ sub proxy {
 
         $connector->{logger}->writeLogDebug("[proxy] -class- sshclient return: [message = $data_ret->{message}]");
         if ($status == 0) {
-            $connector->send_log(code => centreon::gorgone::module::ACTION_FINISH_OK, token => $token, data => $data_ret);
+            $connector->send_log(
+                code => centreon::gorgone::module::ACTION_FINISH_OK,
+                token => $token,
+                data => $data_ret
+            );
         } else {
-            $connector->send_log(code => centreon::gorgone::module::ACTION_FINISH_KO, token => $token, data => $data_ret);
+            $connector->send_log(
+                code => centreon::gorgone::module::ACTION_FINISH_KO,
+                token => $token,
+                data => $data_ret
+            );
         } 
     }
 }
@@ -326,7 +348,9 @@ sub run {
     centreon::gorgone::common::zmq_send_message(
         socket => $self->{internal_socket},
         action => 'PROXYREADY',
-        data => { pool_id => $self->{pool_id} },
+        data => {
+            pool_id => $self->{pool_id}
+        },
         json_encode => 1
     );
     my $poll = {
