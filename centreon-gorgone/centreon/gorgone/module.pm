@@ -42,6 +42,7 @@ sub send_internal_action {
 
     centreon::gorgone::common::zmq_send_message(
         socket => $self->{internal_socket},
+        token => $options{token},
         action => $options{action},
         target => $options{target},
         data => $options{data},
