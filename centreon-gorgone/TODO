@@ -1,3 +1,5 @@
 - Add a core event: GETINFORMATION (events loaded, target loaded and module loaded)
 - gorgone-newtest: don't use centcore.cmd. use ssh system.
 - Add gorgone sqlite cleaning
+- Add an action to load module dynamically
+- Add a broadcast action to update module (like logger in debug for example)
