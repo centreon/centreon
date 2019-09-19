@@ -10,6 +10,7 @@ import Paper from '@material-ui/core/Paper';
 import IconButton from '@material-ui/core/IconButton';
 import LinearProgress from '@material-ui/core/LinearProgress';
 import DefaultTooltip from '@material-ui/core/Tooltip';
+import Box from '@material-ui/core/Box';
 import StyledTableRow from './StyledTableRow';
 import IconPowerSettings from '../../MaterialComponents/Icons/IconPowerSettings';
 import IconPowerSettingsDisable from '../../MaterialComponents/Icons/IconPowerSettingsDisable';
@@ -33,7 +34,6 @@ const styles = () => ({
   root: {
     width: '100%',
     display: 'flex',
-    height: 'calc(100vh - 200px)',
   },
   paper: {
     width: '100%',
@@ -45,7 +45,8 @@ const styles = () => ({
   tableWrapper: {
     boxShadow:
       '0px 1px 3px 0px rgba(0,0,0,0.2), 0px 1px 1px 0px rgba(0,0,0,0.14), 0px 2px 1px -1px rgba(0,0,0,0.12)',
-    overflowX: 'auto',
+    overflow: 'auto',
+    maxHeight: 'calc(100vh - 200px)',
   },
   rowDisabled: {
     backgroundColor: 'rgba(0, 0, 0, 0.07) !important',
@@ -302,7 +303,7 @@ class TableCustom extends Component {
                       <StyledTableRow
                         hover
                         tabIndex={-1}
-                        key={`${row.id}index${index}`}
+                        key={row.id}
                         onMouseEnter={this.rowHovered.bind(this, row.id, true)}
                         {...this.addConditionalRowBackground(
                           row,
@@ -457,12 +458,6 @@ class TableCustom extends Component {
                                   {row[column.id] ? (
                                     <Tooltip
                                       label="Enable/Disable"
-                                      customStyle={{
-                                        position: 'absolute',
-                                        top: -1,
-                                        width: 31,
-                                        height: 31,
-                                      }}
                                       onClick={(e) => {
                                         e.preventDefault();
                                         e.stopPropagation();
@@ -488,12 +483,6 @@ class TableCustom extends Component {
                                   ) : (
                                     <Tooltip
                                       label="Enable/Disable"
-                                      customStyle={{
-                                        position: 'absolute',
-                                        top: -1,
-                                        width: 31,
-                                        height: 31,
-                                      }}
                                       onClick={(e) => {
                                         e.preventDefault();
                                         e.stopPropagation();
@@ -617,68 +606,68 @@ class TableCustom extends Component {
                             case TABLE_COLUMN_TYPES.hoverActions:
                               return (
                                 <StyledTableCell2
+                                  align="right"
                                   key={column.id}
                                   style={{
                                     paddingTop: 0,
                                     paddingBottom: 0,
-                                    width: 60,
+                                    width: 100,
                                     boxSizing: 'border-box',
                                     padding: '0 !important',
                                   }}
                                 >
                                   {hovered === row.id ? (
-                                    <React.Fragment>
-                                      <Tooltip
-                                        label="Delete"
-                                        position={{ left: '50px' }}
-                                        customStyle={{
-                                          position: 'absolute',
-                                          right: 28,
-                                          top: 0,
-                                          padding: '3px 5px',
-                                        }}
-                                        onClick={() => {
-                                          onDelete([row.id]);
-                                        }}
-                                      >
-                                        <IconDelete
-                                          customStyle={{
-                                            color: '#707070',
-                                            fontSize: 21,
-                                          }}
-                                          onClick={(e) => {
-                                            e.preventDefault();
-                                            e.stopPropagation();
+                                    <Box
+                                      flexDirection="row"
+                                      display="flex"
+                                      style={{
+                                        marginRight: -18,
+                                        position: 'absolute',
+                                        top: 3,
+                                        right: 5,
+                                      }}
+                                    >
+                                      <Box>
+                                        <Tooltip
+                                          label="Delete"
+                                          onClick={() => {
                                             onDelete([row.id]);
                                           }}
-                                        />
-                                      </Tooltip>
-                                      <Tooltip
-                                        label="Duplicate"
-                                        position={{ left: '50px' }}
-                                        customStyle={{
-                                          position: 'absolute',
-                                          right: -5,
-                                          top: 0,
-                                          padding: '3px 5px',
-                                        }}
-                                        onClick={() => {
-                                          onDuplicate([row.id]);
-                                        }}
-                                      >
-                                        <IconLibraryAdd
-                                          customStyle={{
-                                            color: '#707070',
-                                            fontSize: 20,
-                                          }}
-                                          onClick={(e) => {
-                                            e.preventDefault();
-                                            e.stopPropagation();
+                                        >
+                                          <IconDelete
+                                            customStyle={{
+                                              color: '#707070',
+                                              fontSize: 21,
+                                            }}
+                                            onClick={(e) => {
+                                              e.preventDefault();
+                                              e.stopPropagation();
+                                              onDelete([row.id]);
+                                            }}
+                                          />
+                                        </Tooltip>
+                                      </Box>
+                                      <Box>
+                                        <Tooltip
+                                          label="Duplicate"
+                                          onClick={() => {
                                             onDuplicate([row.id]);
                                           }}
-                                        />
-                                      </Tooltip>
-                                    </React.Fragment>
+                                        >
+                                          <IconLibraryAdd
+                                            customStyle={{
+                                              color: '#707070',
+                                              fontSize: 20,
+                                            }}
+                                            onClick={(e) => {
+                                              e.preventDefault();
+                                              e.stopPropagation();
+                                              onDuplicate([row.id]);
+                                            }}
+                                          />
+                                        </Tooltip>
+                                      </Box>
+                                    </Box>
                                   ) : (
                                     ' '
                                   )}

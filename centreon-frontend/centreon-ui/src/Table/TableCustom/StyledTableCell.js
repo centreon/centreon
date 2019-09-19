@@ -15,6 +15,7 @@ const styles = {
     '&:hover': {
       color: '#fff',
     },
+    fontSize: 14,
   },
   body: {
     fontSize: 12,
