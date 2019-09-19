@@ -55,7 +55,7 @@ sub root {
         );
     } elsif ($options{uri} =~ /^\/api\/(targets\/(\w*)\/)?(\w+)\/(\w+)\/(\w+)\/?([\w\/]*?)$/
         && defined($dispatch{$3 . '_' . $4 . '_' . $options{method} . '_/' . $5})) {
-        my @variables = split(/\//, $5);
+        my @variables = split(/\//, $6);
         $response = call_action(
             socket => $options{socket},
             action => $dispatch{$3 . '_' . $4 . '_' . $options{method} . '_/' . $5},
