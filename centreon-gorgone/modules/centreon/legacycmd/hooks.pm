@@ -26,8 +26,9 @@ use centreon::script::gorgonecore;
 use modules::centreon::legacycmd::class;
 use JSON::XS;
 
-my $NAME = 'legacycmd';
-my $EVENTS = [
+use constant NAMESPACE => 'centreon';
+use constant NAME => 'legacycmd';
+use constant EVENTS => [
     { event => 'LEGACYCMDREADY' },
 ];
 
@@ -43,7 +44,7 @@ sub register {
     $config = $options{config};
     $config_core = $options{config_core};
     $config_db_centreon = $options{config_db_centreon};
-    return ($NAME, $EVENTS);
+    return (NAMESPACE, NAME, EVENTS);
 }
 
 sub init {

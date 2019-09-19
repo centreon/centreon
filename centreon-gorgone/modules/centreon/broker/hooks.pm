@@ -26,8 +26,9 @@ use JSON::XS;
 use centreon::script::gorgonecore;
 use modules::centreon::broker::class;
 
-my $NAME = 'broker';
-my $EVENTS = [
+use constant NAMESPACE => 'centreon';
+use constant NAME => 'broker';
+use constant EVENTS => [
     { event => 'BROKERREADY' },
     { event => 'BROKERSTATS', uri => '/statistics', method => 'GET' },
 ];
@@ -44,7 +45,7 @@ sub register {
     $config = $options{config};
     $config_core = $options{config_core};
     $config_db_centreon = $options{config_db_centreon};
-    return ($NAME, $EVENTS);
+    return (NAMESPACE, NAME, EVENTS);
 }
 
 sub init {

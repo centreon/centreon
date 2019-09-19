@@ -39,7 +39,8 @@ sub root {
     my %dispatch;
     foreach my $action (keys $options{modules_events}) {
         next if (!defined($options{modules_events}->{$action}->{api}->{uri}));
-        $dispatch{$options{modules_events}->{$action}->{module}->{name} . '_' .
+        $dispatch{$options{modules_events}->{$action}->{module}->{namespace} . '_' .
+            $options{modules_events}->{$action}->{module}->{name} . '_' .
             $options{modules_events}->{$action}->{api}->{method} . '_' .
             $options{modules_events}->{$action}->{api}->{uri}} = $action;
     }
@@ -52,12 +53,12 @@ sub root {
             token => $3,
             refresh => (defined($options{parameters}->{refresh})) ? $options{parameters}->{refresh} : undef
         );
-    } elsif ($options{uri} =~ /^\/api\/(targets\/(\w*)\/)?(\w+)\/(\w+)\/?([\w\/]*?)$/
-        && defined($dispatch{$3 . '_' . $options{method} . '_/' . $4})) {
+    } elsif ($options{uri} =~ /^\/api\/(targets\/(\w*)\/)?(\w+)\/(\w+)\/(\w+)\/?([\w\/]*?)$/
+        && defined($dispatch{$3 . '_' . $4 . '_' . $options{method} . '_/' . $5})) {
         my @variables = split(/\//, $5);
         $response = call_action(
             socket => $options{socket},
-            action => $dispatch{$3 . '_' . $options{method} . '_/' . $4},
+            action => $dispatch{$3 . '_' . $4 . '_' . $options{method} . '_/' . $5},
             target => $2,
             data => { 
                 content => $options{content},

@@ -26,8 +26,9 @@ use JSON::XS;
 use centreon::script::gorgonecore;
 use modules::centreon::engine::class;
 
-my $NAME = 'engine';
-my $EVENTS = [
+use constant NAMESPACE => 'centreon';
+use constant NAME => 'engine';
+use constant EVENTS => [
     { event => 'ENGINEREADY' },
     { event => 'ENGINECOMMAND', uri => '/command', method => 'POST' },
 ];
@@ -42,7 +43,7 @@ sub register {
     
     $config = $options{config};
     $config_core = $options{config_core};
-    return ($NAME, $EVENTS);
+    return (NAMESPACE, NAME, EVENTS);
 }
 
 sub init {

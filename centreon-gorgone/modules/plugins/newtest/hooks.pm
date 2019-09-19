@@ -26,8 +26,9 @@ use JSON::XS;
 use centreon::script::gorgonecore;
 use modules::plugins::newtest::class;
 
-my $NAME = 'newtest';
-my $EVENTS = [
+use constant NAMESPACE => 'plugins';
+use constant NAME => 'newtest';
+use constant EVENTS => [
      { event => 'NEWTESTREADY' },
      { event => 'NEWTESTRESYNC', uri => '/resync', method => 'GET' },
 ];
@@ -49,7 +50,7 @@ sub register {
     $config_db_centstorage = $options{config_db_centstorage};
     $config_db_centreon = $options{config_db_centreon};
     $config_check_containers_time = defined($config->{check_containers_time}) ? $config->{check_containers_time} : 3600;
-    return ($NAME, $EVENTS);
+    return (NAMESPACE, NAME, EVENTS);
 }
 
 sub init {

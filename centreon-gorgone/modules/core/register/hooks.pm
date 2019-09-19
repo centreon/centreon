@@ -26,8 +26,9 @@ use JSON::XS;
 use centreon::script::gorgonecore;
 use modules::core::register::class;
 
-my $NAME = 'register';
-my $EVENTS = [
+use constant NAMESPACE => 'core';
+use constant NAME => 'register';
+use constant EVENTS => [
     { event => 'REGISTERREADY' },
 ];
 
@@ -42,7 +43,7 @@ sub register {
     
     $config = $options{config};
     $config_core = $options{config_core};
-    return ($NAME, $EVENTS);
+    return (NAMESPACE, NAME, EVENTS);
 }
 
 sub init {

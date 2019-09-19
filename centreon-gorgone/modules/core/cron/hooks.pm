@@ -26,8 +26,9 @@ use centreon::script::gorgonecore;
 use modules::core::cron::class;
 use JSON::XS;
 
-my $NAME = 'cron';
-my $EVENTS = [
+use constant NAMESPACE => 'core';
+use constant NAME => 'cron';
+use constant EVENTS => [
     { event => 'CRONREADY' },
     { event => 'GETCRON', uri => '/definitions', method => 'GET' },
     { event => 'ADDCRON', uri => '/definitions', method => 'POST' },
@@ -45,7 +46,7 @@ sub register {
     
     $config = $options{config};
     $config_core = $options{config_core};
-    return ($NAME, $EVENTS);
+    return (NAMESPACE, NAME, EVENTS);
 }
 
 sub init {

@@ -26,8 +26,9 @@ use JSON::XS;
 use centreon::script::gorgonecore;
 use modules::plugins::scom::class;
 
-my $NAME = 'scom';
-my $EVENTS = [
+use constant NAMESPACE => 'plugins';
+use constant NAME => 'scom';
+use constant EVENTS => [
     { event => 'SCOMREADY' },
     { event => 'SCOMRESYNC', uri => '/resync', method => 'GET' },
 ];
@@ -48,7 +49,7 @@ sub register {
     $config_core = $options{config_core};
     $config_db_centstorage = $options{config_db_centstorage};
     $config_check_containers_time = defined($config->{check_containers_time}) ? $config->{check_containers_time} : 3600;
-    return ($NAME, $EVENTS);
+    return (NAMESPACE, NAME, EVENTS);
 }
 
 sub init {

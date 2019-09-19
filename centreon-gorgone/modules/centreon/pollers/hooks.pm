@@ -26,8 +26,9 @@ use JSON::XS;
 use centreon::script::gorgonecore;
 use modules::centreon::pollers::class;
 
-my $NAME = 'pollers';
-my $EVENTS = [
+use constant NAMESPACE => 'centreon';
+use constant NAME => 'pollers';
+use constant EVENTS => [
     { event => 'POLLERSREADY' },
 ];
 
@@ -43,7 +44,7 @@ sub register {
     $config = $options{config};
     $config_core = $options{config_core};
     $config_db_centreon = $options{config_db_centreon};
-    return ($NAME, $EVENTS);
+    return (NAMESPACE, NAME, EVENTS);
 }
 
 sub init {

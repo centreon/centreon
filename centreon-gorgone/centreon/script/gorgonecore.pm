@@ -191,7 +191,7 @@ sub load_modules {
             }
         }
 
-        my ($name, $events) = $self->{modules_register}->{$package}->{register}->(
+        my ($namespace, $name, $events) = $self->{modules_register}->{$package}->{register}->(
             config => $module,
             config_core => $config->{gorgonecore},
             config_db_centreon => $config->{database}->{db_centreon},
@@ -201,8 +201,15 @@ sub load_modules {
 
         foreach my $event (@{$events}) {
             $self->{modules_events}->{$event->{event}} = {
-                module => { name => $name, package => $package },
-                api => { uri => $event->{uri}, method => $event->{method} }
+                module => {
+                    namespace => $namespace,
+                    name => $name,
+                    package => $package
+                },
+                api => {
+                    uri => $event->{uri},
+                    method => $event->{method}
+                }
             };
         }
         $self->{logger}->writeLogInfo("[core] Module '" . $module->{name} . "' is loaded");

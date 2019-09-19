@@ -26,8 +26,9 @@ use centreon::script::gorgonecore;
 use modules::core::action::class;
 use JSON::XS;
 
-my $NAME = 'action';
-my $EVENTS = [
+use constant NAMESPACE => 'core';
+use constant NAME => 'action';
+use constant EVENTS => [
     { event => 'ACTIONREADY' },
     { event => 'PROCESSCOPY' },
     { event => 'COMMAND', uri => '/command', method => 'POST' },
@@ -43,7 +44,7 @@ sub register {
     
     $config = $options{config};
     $config_core = $options{config_core};
-    return ($NAME, $EVENTS);
+    return (NAMESPACE, NAME, EVENTS);
 }
 
 sub init {

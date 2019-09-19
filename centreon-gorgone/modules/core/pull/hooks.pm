@@ -25,6 +25,7 @@ use strict;
 use centreon::gorgone::clientzmq;
 use JSON::XS;
 
+my $NAMESPACE = 'core';
 my $NAME = 'pull';
 my $EVENTS = [];
 
@@ -40,7 +41,7 @@ sub register {
     
     $config = $options{config};
     $config_core = $options{config_core};
-    return ($NAME, $EVENTS);
+    return ($NAMESPACE, $NAME, $EVENTS);
 }
 
 sub init {

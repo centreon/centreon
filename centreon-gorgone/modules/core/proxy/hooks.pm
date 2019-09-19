@@ -32,8 +32,9 @@ use MIME::Base64;
 use Digest::MD5::File qw(file_md5_hex);
 use Fcntl;
 
-my $NAME = 'proxy';
-my $EVENTS = [
+use constant NAMESPACE => 'core';
+use constant NAME => 'proxy';
+use constant EVENTS => [
     { event => 'PROXYREADY' },
     { event => 'SETLOGS' }, # internal. Shouldn't be used by third party clients
     { event => 'PONG' }, # internal. Shouldn't be used by third party clients
@@ -73,7 +74,7 @@ sub register {
     
     $config = $options{config};
     $config_core = $options{config_core};
-    return ($NAME, $EVENTS);
+    return (NAMESPACE, NAME, EVENTS);
 }
 
 sub init {
@@ -529,7 +530,7 @@ sub create_child {
         $0 = 'gorgone-proxy';
         my $module = modules::core::proxy::class->new(
             logger => $options{logger},
-            module_id => $NAME,
+            module_id => NAME,
             config_core => $config_core,
             config => $config,
             pool_id => $options{pool_id},

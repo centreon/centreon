@@ -26,8 +26,9 @@ use centreon::script::gorgonecore;
 use modules::core::httpserver::class;
 use JSON::XS;
 
-my $NAME = 'httpserver';
-my $EVENTS = [
+use constant NAMESPACE => 'core';
+use constant NAME => 'httpserver';
+use constant EVENTS => [
     { event => 'HTTPSERVERREADY' },
 ];
 
@@ -41,7 +42,7 @@ sub register {
     
     $config = $options{config};
     $config_core = $options{config_core};
-    return ($NAME, $EVENTS);
+    return (NAMESPACE, NAME, EVENTS);
 }
 
 sub init {
