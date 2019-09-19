@@ -57,7 +57,8 @@ sub new {
     $self->{modules_register} = {};
     $self->{modules_events} = {};
     $self->{modules_id} = {};
-    $self->{sessions_timer} = time();
+    $self->{purge_timer} = time();
+    $self->{history_timer} = time();
     $self->{kill_timer} = undef;
     $self->{server_privkey} = undef;
     $self->{register_parent_nodes} = {};
@@ -81,6 +82,18 @@ sub init {
         config_file => $self->{opt_extra},
         logger => $self->{logger}
     );
+    
+    $config->{gorgonecore}->{purge_sessions_time} =
+        defined($config->{gorgonecore}->{purge_sessions_time}) && $config->{gorgonecore}->{purge_sessions_time} =~ /\d+/ ?
+        $config->{gorgonecore}->{purge_sessions_time} :
+        3600
+    ;
+    $config->{gorgonecore}->{purge_history_time} =
+        defined($config->{gorgonecore}->{purge_history_time}) && $config->{gorgonecore}->{purge_history_time} =~ /\d+/ ?
+        $config->{gorgonecore}->{purge_history_time} :
+        604800
+    ;
+    
     if (defined($config->{gorgonecore}->{external_com_type}) && $config->{gorgonecore}->{external_com_type} ne '') {
         $self->{server_privkey} = centreon::gorgone::common::loadprivkey(logger => $self->{logger}, privkey => $config->{gorgonecore}->{privkey});
     }
@@ -493,13 +506,14 @@ sub waiting_ready {
     return 1;
 }
 
-sub clean_sessions {
+sub clean_db {
     my ($self, %options) = @_;
-    
-    if ($self->{sessions_timer} - time() > $config->{gorgonecore}->{purge_sessions_time}) {
-        $self->{logger}->writeLogInfo("[core] Purge sessions in progress...");
-        $self->{db_gorgone}->query("DELETE FROM gorgone_identity WHERE `ctime` <  " . $self->{db_gorgone}->quote(time() - $config->{gorgonecore}->{sessions_time}));
-        $self->{sessions_timer} = time();
+
+    if ($self->{purge_timer} - time() > 3600) {
+        $self->{logger}->writeLogInfo("[core] Purge db in progress...");
+        $self->{db_gorgone}->query("DELETE FROM gorgone_identity WHERE `ctime` <  " . $self->{db_gorgone}->quote(time() - $config->{gorgonecore}->{purge_sessions_time}));
+        $self->{db_gorgone}->query("DELETE FROM gorgone_history WHERE `ctime` <  " . $self->{db_gorgone}->quote(time() - $config->{gorgonecore}->{purge_history_time}));
+        $self->{purge_timer} = time();
     }
 }
 
@@ -613,7 +627,7 @@ sub run {
 
         zmq_poll($poll, 5000);
 
-        $gorgone->clean_sessions();
+        $gorgone->clean_db();
     }
 }
 

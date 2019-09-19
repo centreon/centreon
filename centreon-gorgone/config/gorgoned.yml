@@ -40,7 +40,8 @@ gorgonecore:
   # in seconds
   sessions_time: 86400
   # in seconds
-  purge_sessions_time: 3600
+  #purge_sessions_time: 3600
+  #purge_history_time: 604800
   # shouldn't be changed
   proxy_name: proxy
 modules:
