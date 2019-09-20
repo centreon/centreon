@@ -2,3 +2,4 @@
 - gorgone-newtest: don't use centcore.cmd. use ssh system.
 - Add an action to load module dynamically
 - Add a broadcast action to update module (like logger in debug for example)
+- Move cleaning db in a module
