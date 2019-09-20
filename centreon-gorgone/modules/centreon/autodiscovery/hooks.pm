@@ -35,6 +35,8 @@ use constant EVENTS => [
     { event => 'UPDATEDISCOVERYRESULTS' },
     { event => 'GETDISCOVERYJOB', uri => '/job', method => 'GET' },
     { event => 'ADDDISCOVERYJOB', uri => '/job', method => 'POST' },
+    { event => 'GETDISCOVERYTASK', uri => '/task', method => 'GET' },
+    { event => 'ADDDISCOVERYTASK', uri => '/task', method => 'POST' },
 ];
 
 my $config_core;

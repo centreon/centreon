@@ -31,6 +31,7 @@ use ZMQ::Constants qw(:all);
 use JSON::XS;
 use Time::HiRes;
 
+my %tasks;
 my %jobs;
 my %handlers = (TERM => {}, HUP => {});
 my ($connector);
@@ -86,12 +87,78 @@ sub class_handle_HUP {
     }
 }
 
+sub action_adddiscoverytask {
+    my ($self, %options) = @_;
+
+    $options{token} = $self->generate_token() if (!defined($options{token}));
+    my $id = 'autodiscovery_task_' . $self->generate_token(length => 12) if (!defined($options{data}->{content}->{id}));
+    
+    $self->{logger}->writeLogInfo("[autodiscovery] -class- Add task '" . $id . "'");
+    $self->send_internal_action(
+        action => 'COMMAND',
+        target => $options{data}->{content}->{target},
+        token => $id,
+        data => {
+            content => {
+                %{$options{data}->{content}},
+                metadata => {
+                    id => $id,
+                    source => 'autodiscovery',
+                    type => 'task',
+                },
+            }
+        }
+    );
+
+    $self->send_log(
+        code => $self->ACTION_FINISH_OK,
+        token => $options{token},
+        data => {
+            id => $id
+        }
+    );
+
+    $tasks{$id} = { target => $options{data}->{content}->{target} };
+    
+    return 0;
+}
+
+sub action_getdiscoverytask {
+    my ($self, %options) = @_;
+
+    $options{token} = $self->generate_token() if (!defined($options{token}));
+
+    if (!defined($options{data}->{variables}[0])) {
+        $self->{logger}->writeLogError("[autodiscovery] -class- Need to specify job id");
+        $self->send_log(
+            code => $self->ACTION_FINISH_KO,
+            token => $options{token},
+            data => {
+                message => 'need to specify job id'
+            }
+        );
+        return 1;
+    }
+    my $id = $options{data}->{variables}[0];
+    
+    $self->send_log(
+        code => $self->ACTION_FINISH_OK,
+        token => $options{token},
+        data => {
+            results => $tasks{$id}->{results}
+        }
+    );
+    
+    return 0;
+}
+
 sub action_adddiscoveryjob {
     my ($self, %options) = @_;
 
     $options{token} = $self->generate_token() if (!defined($options{token}));
     my $id = 'autodiscovery_job_' . $self->generate_token(length => 12) if (!defined($options{data}->{content}->{id}));
 
+    $self->{logger}->writeLogInfo("[autodiscovery] -class- Add job '" . $id . "'");
     my $definition = {
         id => $id,
         target => $options{data}->{content}->{target},
@@ -103,6 +170,7 @@ sub action_adddiscoveryjob {
             metadata => {
                 id => $id,
                 source => 'autodiscovery',
+                type => 'job',
             }
         },
         keep_token => 1,
@@ -165,6 +233,17 @@ sub action_syncdiscoverylogs {
 
     $self->{logger}->writeLogDebug("[autodiscovery] -class- Discovery logs sync start");
     my %synced;
+    foreach my $id (keys %tasks) {
+        next if (!defined($tasks{$id}->{target}) || defined($synced{$tasks{$id}->{target}}) ||
+            defined($tasks{$id}->{results}));
+        $self->send_internal_action(
+            action => 'GETLOG',
+            token => $options{token},
+            target => $tasks{$id}->{target},
+            data => {}
+        );
+        $synced{$tasks{$id}->{target}} = 1;
+    }
     foreach my $id (keys %jobs) {
         next if (!defined($jobs{$id}->{target}) || defined($synced{$jobs{$id}->{target}}));
         $self->send_internal_action(
@@ -182,6 +261,16 @@ sub action_syncdiscoverylogs {
 sub action_getdiscoveryresults {
     my ($self, %options) = @_;
 
+    foreach my $id (keys %tasks) {
+        next if (defined($tasks{$id}->{results}));
+        $self->{logger}->writeLogDebug("[autodiscovery] -class- Get logs results for task '" . $id . "'");
+        $self->send_internal_action(
+            action => 'GETLOG',
+            data => {
+                token => $id
+            }
+        );
+    }
     foreach my $id (keys %jobs) {
         $self->{logger}->writeLogDebug("[autodiscovery] -class- Get logs results for job '" . $id . "'");
         $self->send_internal_action(
@@ -199,15 +288,21 @@ sub action_updatediscoveryresults {
     my ($self, %options) = @_;
 
     return if (!defined($options{data}->{data}->{action}) || $options{data}->{data}->{action} ne "getlog" &&
-        defined($options{data}->{data}->{result}));
+        !defined($options{data}->{data}->{result}));
 
     foreach my $message_id (sort keys %{$options{data}->{data}->{result}}) {
         my $data = JSON::XS->new->utf8->decode($options{data}->{data}->{result}->{$message_id}->{data});
-        next if (!defined($data->{exit_code}) || $data->{exit_code} != 0 ||
-            !defined($data->{metadata}->{id}) || !defined($data->{metadata}->{source}) ||
-            $data->{metadata}->{source} ne 'autodiscovery');
+        next if (!defined($data->{exit_code}) || !defined($data->{metadata}->{id}) ||
+            !defined($data->{metadata}->{source}) || $data->{metadata}->{source} ne 'autodiscovery');
 
-        $jobs{$data->{metadata}->{id}}->{results} = $data;
+        if ($data->{metadata}->{type} eq 'task') {
+            $self->{logger}->writeLogInfo(
+                "[autodiscovery] -class- Found result for task '" . $data->{metadata}->{id} . "'"
+            );
+            $tasks{$data->{metadata}->{id}}->{results} = $data;
+        } elsif ($data->{metadata}->{type} eq 'job') {
+            $jobs{$data->{metadata}->{id}}->{results} = $data ;
+        }
     }
 
     return 0;
