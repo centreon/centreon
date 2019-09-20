@@ -34,7 +34,7 @@ use constant ACTION_FINISH_OK => 2;
 sub generate_token {
    my ($self, %options) = @_;
    
-   return centreon::gorgone::common::generate_token();
+   return centreon::gorgone::common::generate_token(length => $options{length});
 }
 
 sub send_internal_action {
