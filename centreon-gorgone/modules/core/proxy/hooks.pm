@@ -84,6 +84,7 @@ sub init {
     $synctime_option = defined($config->{synchistory_time}) ? $config->{synchistory_time} : 300;
     $synctimeout_option = defined($config->{synchistory_timeout}) ? $config->{synchistory_timeout} : 120;
     $ping_option = defined($config->{ping}) ? $config->{ping} : 60;
+    $config->{pong_discard_timeout} = defined($config->{pong_discard_timeout}) ? $config->{pong_discard_timeout} : 300;
     
     $core_id = $options{id};
     $external_socket = $options{external_socket};
@@ -205,6 +206,16 @@ sub routing {
     # we prefer to use direct target
     if (!defined($register_nodes->{$options{target}})) {
         $target = $register_subnodes->{$options{target}};
+    }
+
+    if (defined($last_pong->{$target}) && $last_pong->{$target} != 0 && (time() - $config->{pong_discard_timeout} > $last_pong->{$target})) {
+        centreon::gorgone::common::add_history(
+            dbh => $options{dbh},
+            code => centreon::gorgone::module::ACTION_FINISH_KO, token => $options{token},
+            data => { message => 'proxy - discard message. target peer seems disconnected' },
+            json_encode => 1
+        );
+        return undef;
     }
 
     my $action = $options{action};
@@ -619,6 +630,7 @@ sub unregister_nodes {
             delete $register_nodes->{$node->{id}};
             delete $synctime_nodes->{$node->{id}};
             delete $constatus_ping->{$node->{id}};
+            delete $last_pong->{$node->{id}};
         }
     }
 }
