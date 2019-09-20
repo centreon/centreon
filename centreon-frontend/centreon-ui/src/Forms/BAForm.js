@@ -94,12 +94,12 @@ class BAForm extends React.Component {
             <CustomColumn customColumn="md-6">
               <InputFieldSelect
                 icons
-                options={centreonImages}
+                options={[{id:null, name:'NO ICON', preview:false}].concat(centreonImages)}
                 value={values.icon}
                 error={errors.icon}
                 customStyle="no-margin"
                 onChange={(event) => {
-                  valueChanged('icon', event.target ? event.target.value : event);
+                  valueChanged('icon', event);
                 }}
                 domainPath="."
               />
@@ -405,6 +405,7 @@ class BAForm extends React.Component {
                 <InputField
                   type="number"
                   label="First notification delay"
+                  placeholder="*60 seconds"
                   value={values.first_notification_delay}
                   error={errors.first_notification_delay}
                   onChange={(event) => {
@@ -416,6 +417,7 @@ class BAForm extends React.Component {
                 <InputField
                   type="number"
                   label="Recovery notification delay"
+                  placeholder="*60 seconds"
                   value={values.recovery_notification_delay}
                   error={errors.recovery_notification_delay}
                   onChange={(event) => {

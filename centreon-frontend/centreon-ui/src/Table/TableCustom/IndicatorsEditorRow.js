@@ -31,8 +31,8 @@ class IndicatorsEditorRow extends Component {
         ? selected.obj.impact.type
         : 'word'
       : row.impact.type
-      ? row.impact.type
-      : 'word';
+        ? row.impact.type
+        : 'word';
     return !selected.bool ? null : (
       <React.Fragment>
         <StyledTableCell2
@@ -66,25 +66,29 @@ class IndicatorsEditorRow extends Component {
                 padding: '3px 4px',
               }}
             >
-              <InputFieldSelectTableCell
-                options={impacts}
-                value={
-                  selected.bool
-                    ? selected.obj.impact.warning
-                      ? selected.obj.impact.warning
-                      : 1
-                    : row.impact.warning
-                    ? row.impact.warning
-                    : 1
-                }
-                isColored
-                size="extrasmall"
-                active="active"
-                disabled={!selected.bool}
-                onChange={(value, event) => {
-                  this.onImpactChanged(value, 'warning', event);
-                }}
-              />
+              {
+                selected.obj.type != "B" ?
+                  <InputFieldSelectTableCell
+                    options={impacts}
+                    value={
+                      selected.bool
+                        ? selected.obj.impact.warning
+                          ? selected.obj.impact.warning
+                          : 1
+                        : row.impact.warning
+                          ? row.impact.warning
+                          : 1
+                    }
+                    isColored
+                    size="extrasmall"
+                    active="active"
+                    disabled={!selected.bool}
+                    onChange={(value, event) => {
+                      this.onImpactChanged(value, 'warning', event);
+                    }}
+                  />
+                  : null
+              }
             </StyledTableCell2>
             <StyledTableCell2
               align="left"
@@ -100,8 +104,8 @@ class IndicatorsEditorRow extends Component {
                       ? selected.obj.impact.critical
                       : 1
                     : row.impact.critical
-                    ? row.impact.critical
-                    : 1
+                      ? row.impact.critical
+                      : 1
                 }
                 isColored
                 size="extrasmall"
@@ -118,88 +122,92 @@ class IndicatorsEditorRow extends Component {
                 padding: '3px 4px',
               }}
             >
-              <InputFieldSelectTableCell
-                options={impacts}
-                value={
-                  selected.bool
-                    ? selected.obj.impact.unknown
-                      ? selected.obj.impact.unknown
-                      : 1
-                    : row.impact.unknown
-                    ? row.impact.unknown
-                    : 1
-                }
-                isColored
-                size="extrasmall"
-                active="active"
-                disabled={!selected.bool}
-                onChange={(value, event) => {
-                  this.onImpactChanged(value, 'unknown', event);
-                }}
-              />
+              {
+                selected.obj.type != "B" ?
+                  <InputFieldSelectTableCell
+                    options={impacts}
+                    value={
+                      selected.bool
+                        ? selected.obj.impact.unknown
+                          ? selected.obj.impact.unknown
+                          : 1
+                        : row.impact.unknown
+                          ? row.impact.unknown
+                          : 1
+                    }
+                    isColored
+                    size="extrasmall"
+                    active="active"
+                    disabled={!selected.bool}
+                    onChange={(value, event) => {
+                      this.onImpactChanged(value, 'unknown', event);
+                    }}
+                  />
+                  : null
+              }
             </StyledTableCell2>
           </React.Fragment>
         ) : (
-          <React.Fragment>
-            <StyledTableCell2
-              align="left"
-              style={{
-                padding: '3px 4px',
-              }}
-            >
-              <InputFieldTableCell
-                value={
-                  selected.bool
-                    ? selected.obj.impact.warning
-                    : row.impact.warning
-                }
-                inputSize="extrasmall"
-                disabled={!selected.bool}
-                onChange={(event) => {
-                  this.onImpactInputChanged(event, 'warning');
+            <React.Fragment>
+              <StyledTableCell2
+                align="left"
+                style={{
+                  padding: '3px 4px',
                 }}
-              />
-            </StyledTableCell2>
-            <StyledTableCell2
-              align="left"
-              style={{
-                padding: '3px 4px',
-              }}
-            >
-              <InputFieldTableCell
-                value={
-                  selected.bool
-                    ? selected.obj.impact.critical
-                    : row.impact.critical
-                }
-                inputSize="extrasmall"
-                disabled={!selected.bool}
-                onChange={(event) => {
-                  this.onImpactInputChanged(event, 'critical');
+              >
+                <InputFieldTableCell
+                  value={
+                    selected.bool
+                      ? selected.obj.impact.warning
+                      : row.impact.warning
+                  }
+                  inputSize="extrasmall"
+                  disabled={!selected.bool}
+                  onChange={(event) => {
+                    this.onImpactInputChanged(event, 'warning');
+                  }}
+                />
+              </StyledTableCell2>
+              <StyledTableCell2
+                align="left"
+                style={{
+                  padding: '3px 4px',
                 }}
-              />
-            </StyledTableCell2>
-            <StyledTableCell2
-              align="left"
-              style={{
-                padding: '3px 4px',
-              }}
-            >
-              <InputFieldTableCell
-                value={
-                  selected.bool
-                    ? selected.obj.impact.unknown
-                    : row.impact.unknown
-                }
-                inputSize="extrasmall"
-                disabled={!selected.bool}
-                onChange={(event) => {
-                  this.onImpactInputChanged(event, 'unknown');
+              >
+                <InputFieldTableCell
+                  value={
+                    selected.bool
+                      ? selected.obj.impact.critical
+                      : row.impact.critical
+                  }
+                  inputSize="extrasmall"
+                  disabled={!selected.bool}
+                  onChange={(event) => {
+                    this.onImpactInputChanged(event, 'critical');
+                  }}
+                />
+              </StyledTableCell2>
+              <StyledTableCell2
+                align="left"
+                style={{
+                  padding: '3px 4px',
                 }}
-              />
-            </StyledTableCell2>
-          </React.Fragment>
-        )}
+              >
+                <InputFieldTableCell
+                  value={
+                    selected.bool
+                      ? selected.obj.impact.unknown
+                      : row.impact.unknown
+                  }
+                  inputSize="extrasmall"
+                  disabled={!selected.bool}
+                  onChange={(event) => {
+                    this.onImpactInputChanged(event, 'unknown');
+                  }}
+                />
+              </StyledTableCell2>
+            </React.Fragment>
+          )}
       </React.Fragment>
     );
   }

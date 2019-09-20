@@ -176,7 +176,7 @@ class InputFieldSelectCustom extends Component {
                       <CustomIconWithText
                         label={option.name}
                         onClick={this.optionChecked.bind(this, option)}
-                        image={`${domainPath}/${option.preview}`}
+                        {...(option.preview && {image : `${domainPath}/${option.preview}`})}
                       />
                     ) : (
                       <span

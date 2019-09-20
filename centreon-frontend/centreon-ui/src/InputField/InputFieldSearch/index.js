@@ -15,7 +15,7 @@ const useStyles = () => ({
     padding: '0px 4px',
     display: 'flex',
     alignItems: 'center',
-    width: 300,
+    width: '100%',
     borderColor: '#ccc',
     borderRadius: 2,
     borderStyle: 'solid',
@@ -106,14 +106,12 @@ class InputFieldSearch extends Component {
 
 InputFieldSearch.defaultProps = {
   placeholder: 'Search',
-  style: undefined,
 };
 
 InputFieldSearch.propTypes = {
   classes: PropTypes.shape.isRequired,
   placeholder: PropTypes.string,
-  onChange: PropTypes.func.isRequired,
-  style: PropTypes.shape,
+  onChange: PropTypes.func.isRequired
 };
 
 export default withStyles(useStyles)(InputFieldSearch);
