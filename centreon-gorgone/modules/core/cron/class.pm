@@ -411,8 +411,11 @@ sub dispatcher {
 
     $options->{logger}->writeLogInfo("[cron] -class- Launching job '" . $id . "'");
 
+    my $token = (defined($options->{definition}->{keep_token})) ? $options->{definition}->{id} : undef;
+
     centreon::gorgone::common::zmq_send_message(
         socket => $options->{socket},
+        token => $token,
         action => $options->{definition}->{action},
         target => $options->{definition}->{target},
         data => {
