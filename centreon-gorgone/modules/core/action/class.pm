@@ -103,6 +103,7 @@ sub action_command {
         return -1;
     }
     
+    my $start = time();
     my ($error, $stdout, $return_code) = centreon::misc::misc::backtick(
         command => $options{data}->{content}->{command},
         #arguments => [@$args, $sub_cmd],
@@ -112,6 +113,7 @@ sub action_command {
         redirect_stderr => 1,
         logger => $self->{logger}
     );
+    my $end = time();
     if ($error <= -1000) {
         $self->send_log(
             socket => $options{socket_log},
@@ -119,7 +121,10 @@ sub action_command {
             token => $options{token},
             data => {
                 message => "command '$options{data}->{content}->{command}' execution issue: $stdout",
-                metadata => $options{data}->{content}->{metadata}
+                exit_code => $return_code,
+                metadata => $options{data}->{content}->{metadata},
+                start => $start,
+                end => $end
             }
         );
         return -1;
@@ -133,7 +138,9 @@ sub action_command {
             message => "command '$options{data}->{content}->{command}' has finished",
             stdout => $stdout,
             exit_code => $return_code,
-            metadata => $options{data}->{content}->{metadata}
+            metadata => $options{data}->{content}->{metadata},
+            start => $start,
+            end => $end
         }
     );
 
