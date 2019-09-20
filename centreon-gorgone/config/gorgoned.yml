@@ -98,6 +98,10 @@ modules:
     enable: true
     command_file: "/var/lib/centreon-engine/rw/centengine.cmd"
 
+  - name: autodiscovery
+    package: modules::centreon::autodiscovery::hooks
+    enable: true
+
   - name: broker
     package: modules::centreon::broker::hooks
     enable: false
