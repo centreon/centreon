@@ -121,23 +121,21 @@ sub get_pollers_config {
 
     $self->{pollers} = {};
     my ($status, $datas) = $self->{class_object_centreon}->custom_execute(
-        request => 'SELECT nagios_server_id, command_file, cfg_dir, centreonbroker_cfg_path, snmp_trapd_path_conf ' .
+        request => 'SELECT nagios_server_id, command_file, cfg_dir, centreonbroker_cfg_path, snmp_trapd_path_conf, ' .
+            'engine_start_command, engine_stop_command, engine_restart_command, engine_reload_command, ' .
+            'broker_reload_command, init_script_centreontrapd ' .
             'FROM cfg_nagios ' .
             'JOIN nagios_server ' .
             'WHERE id = nagios_server_id',
-        mode => 2
+        mode => 1,
+        keys => 'nagios_server_id'
     );
-    if ($status == -1 || !defined($datas->[0])) {
-        $self->{logger}->writeLogError('[legacycmd] -class- cannot get engine pipe for pollers (command_file)');
+    if ($status == -1 || !defined($datas)) {
+        $self->{logger}->writeLogError('[legacycmd] -class- cannot get configuration for pollers');
         return -1;
     }
 
-    foreach (@$datas) {
-        $self->{pollers}->{$_->[0]}->{command_file} = $_->[1];
-        $self->{pollers}->{$_->[0]}->{cfg_dir} = $_->[2];
-        $self->{pollers}->{$_->[0]}->{centreonbroker_cfg_path} = $_->[3];
-        $self->{pollers}->{$_->[0]}->{snmp_trapd_path_conf} = $_->[4];
-    }
+    $self->{pollers} = $datas;
 
     return 0;
 }
@@ -226,6 +224,84 @@ sub execute_cmd {
                     destination => $self->{pollers}->{$options{target}}->{snmp_trapd_path_conf} . '/',
                     cache_dir => $cache_dir,
                     type => 'trap',
+                }
+            },
+        );
+    } elsif ($options{cmd} eq 'RESTART') {
+        my $cmd = $self->{pollers}->{$options{target}}->{engine_restart_command};
+        $self->send_internal_action(
+            action => 'COMMAND',
+            target => $options{target},
+            token => $self->generate_token(),
+            data => {
+                content => {
+                    command => 'sudo ' . $cmd,
+                    type => 'restart engine',
+                }
+            },
+        );
+    } elsif ($options{cmd} eq 'RELOAD') {
+        my $cmd = $self->{pollers}->{$options{target}}->{engine_reload_command};
+        $self->send_internal_action(
+            action => 'COMMAND',
+            target => $options{target},
+            token => $self->generate_token(),
+            data => {
+                content => {
+                    command => 'sudo ' . $cmd,
+                    type => 'reload engine',
+                }
+            },
+        );
+    } elsif ($options{cmd} eq 'START') {
+        my $cmd = $self->{pollers}->{$options{target}}->{engine_start_command};
+        $self->send_internal_action(
+            action => 'COMMAND',
+            target => $options{target},
+            token => $self->generate_token(),
+            data => {
+                content => {
+                    command => 'sudo ' . $cmd,
+                    type => 'start engine',
+                }
+            },
+        );
+    } elsif ($options{cmd} eq 'STOP') {
+        my $cmd = $self->{pollers}->{$options{target}}->{engine_stop_command};
+        $self->send_internal_action(
+            action => 'COMMAND',
+            target => $options{target},
+            token => $self->generate_token(),
+            data => {
+                content => {
+                    command => 'sudo ' . $cmd,
+                    type => 'stop engine',
+                }
+            },
+        );
+    } elsif ($options{cmd} eq 'RESTARTCENTREONTRAPD') {
+        my $cmd = $self->{pollers}->{$options{target}}->{init_script_centreontrapd};
+        $self->send_internal_action(
+            action => 'COMMAND',
+            target => $options{target},
+            token => $self->generate_token(),
+            data => {
+                content => {
+                    command => 'sudo service ' . $cmd . ' restart',
+                    type => 'restart trap',
+                }
+            },
+        );
+    } elsif ($options{cmd} eq 'RELOADCENTREONTRAPD') {
+        my $cmd = $self->{pollers}->{$options{target}}->{init_script_centreontrapd};
+        $self->send_internal_action(
+            action => 'COMMAND',
+            target => $options{target},
+            token => $self->generate_token(),
+            data => {
+                content => {
+                    command => 'sudo service ' . $cmd . ' reload',
+                    type => 'reload trap',
                 }
             },
         );
