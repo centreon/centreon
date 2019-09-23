@@ -140,6 +140,32 @@ sub get_pollers_config {
     return 0;
 }
 
+sub get_clapi_user {
+    my ($self, %options) = @_;
+
+    my $clapi_user = (defined($connector->{config}->{clapi_user})) ?
+        $connector->{config}->{clapi_user} : 'admin';
+    my ($status, $datas) = $self->{class_object_centreon}->custom_execute(
+        request => "SELECT contact_passwd " .
+            "FROM `contact` " .
+            "WHERE `contact_activate` = '1' AND `contact_alias` = '" . $clapi_user . "'",
+        mode => 2
+    );
+    if ($status == -1 || !defined($datas->[0])) {
+        $self->{logger}->writeLogError('[legacycmd] -class- cannot get configuration for clapi user');
+        return -1;
+    }
+    my $clapi_password = $datas->[0];
+    if ($clapi_password =~ m/^md5__(.*)/) {
+        $clapi_password = $1;
+    }
+
+    $self->{clapi_user} = $clapi_user;
+    $self->{clapi_password} = $clapi_password;
+    
+    return 0;
+}
+
 sub execute_cmd {
     my ($self, %options) = @_;
 
@@ -205,6 +231,23 @@ sub execute_cmd {
                     destination => $remote_dir,
                     cache_dir => $cache_dir,
                     type => 'remote',
+                }
+            },
+        );
+        
+        my $centreon_dir = (defined($connector->{config}->{centreon_dir})) ?
+            $connector->{config}->{centreon_dir} : '/usr/share/centreon';
+        my $task_id = $options{param};
+        my $cmd = $centreon_dir . '/bin/centreon -u ' . $self->{clapi_user} . ' -p ' .
+            $self->{clapi_password} . ' -w -o CentreonWorker -a createRemoteTask -v ' . $task_id;
+        $self->send_internal_action(
+            action => 'COMMAND',
+            target => undef,
+            token => $self->generate_token(),
+            data => {
+                content => {
+                    command => $cmd,
+                    type => 'CREATEREMOTETASK',
                 }
             },
         );
@@ -305,6 +348,39 @@ sub execute_cmd {
                 }
             },
         );
+    } elsif ($options{cmd} eq 'STARTWORKER') {
+        my $centreon_dir = (defined($connector->{config}->{centreon_dir})) ?
+            $connector->{config}->{centreon_dir} : '/usr/share/centreon';
+        my $cmd = $centreon_dir . '/bin/centreon -u ' . $self->{clapi_user} . ' -p ' .
+            $self->{clapi_password} . ' -w -o CentreonWorker -a processQueue';
+        $self->send_internal_action(
+            action => 'COMMAND',
+            target => undef,
+            token => $self->generate_token(),
+            data => {
+                content => {
+                    command => $cmd,
+                    type => 'STARTWORKER',
+                }
+            },
+        );
+    } elsif ($options{cmd} eq 'CREATEREMOTETASK') {
+        my $centreon_dir = (defined($connector->{config}->{centreon_dir})) ?
+            $connector->{config}->{centreon_dir} : '/usr/share/centreon';
+        my $task_id = $options{target};
+        my $cmd = $centreon_dir . '/bin/centreon -u ' . $self->{clapi_user} . ' -p ' .
+            $self->{clapi_password} . ' -w -o CentreonWorker -a createRemoteTask -v ' . $task_id;
+        $self->send_internal_action(
+            action => 'COMMAND',
+            target => undef,
+            token => $self->generate_token(),
+            data => {
+                content => {
+                    command => $cmd,
+                    type => 'CREATEREMOTETASK',
+                }
+            },
+        );
     }
 }
 
@@ -382,7 +458,7 @@ sub handle_centcore_dir {
 sub handle_cmd_files {
     my ($self, %options) = @_;
 
-    return if ($self->get_pollers_config() == -1);
+    return if ($self->get_pollers_config() == -1 || $self->get_clapi_user() == -1);
     $self->handle_centcore_cmd();
     $self->handle_centcore_dir();
 }
