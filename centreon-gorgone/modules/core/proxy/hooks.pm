@@ -81,8 +81,8 @@ sub init {
     my (%options) = @_;
 
     $synctime_lasttime = time();
-    $synctime_option = defined($config->{synchistory_time}) ? $config->{synchistory_time} : 300;
-    $synctimeout_option = defined($config->{synchistory_timeout}) ? $config->{synchistory_timeout} : 120;
+    $synctime_option = defined($config->{synchistory_time}) ? $config->{synchistory_time} : 60;
+    $synctimeout_option = defined($config->{synchistory_timeout}) ? $config->{synchistory_timeout} : 30;
     $ping_option = defined($config->{ping}) ? $config->{ping} : 60;
     $config->{pong_discard_timeout} = defined($config->{pong_discard_timeout}) ? $config->{pong_discard_timeout} : 300;
     
