@@ -268,27 +268,15 @@ sub action_remotecopy {
         return ($code, $data) if ($code == -1);
     }
 
-    if (defined($options{data}->{content}->{type}) && $options{target_direct} == 0) {
-        # only one time (after broker)
-        if ($options{data}->{content}->{type} eq 'broker') {
-            $self->action_centcore(
-                data => {
-                    content => {
-                        command => 'SENDCFGFILE',
-                        target => $options{target},
-                    }
+    if (defined($options{data}->{content}->{metadata}->{centcore_proxy}) && $options{target_direct} == 0) {
+        $self->action_centcore(
+            data => {
+                content => {
+                    command => $options{data}->{content}->{metadata}->{centcore_cmd},
+                    target => $options{target},
                 }
-            );
-        } elsif ($options{data}->{content}->{type} eq 'trap') {
-             $self->action_centcore(
-                data => {
-                    content => {
-                        command => 'SYNCTRAP',
-                        target => $options{target},
-                    }
-                }
-            );
-        }
+            }
+        );
     }
 
     return (0, { message => 'send remotecopy succeeded' });

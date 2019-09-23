@@ -197,7 +197,9 @@ sub execute_cmd {
                     source => $cache_dir . '/config/engine/' . $options{target},
                     destination => $self->{pollers}->{$options{target}}->{cfg_dir} . '/',
                     cache_dir => $cache_dir,
-                    type => 'engine',
+                    metadata => {
+                        centcore_cmd => 'SENDCFGFILE',
+                    }
                 }
             },
         );
@@ -211,7 +213,10 @@ sub execute_cmd {
                     source => $cache_dir . '/config/broker/' . $options{target},
                     destination => $self->{pollers}->{$options{target}}->{centreonbroker_cfg_path} . '/',
                     cache_dir => $cache_dir,
-                    type => 'broker',
+                    metadata => {
+                        centcore_proxy => 1,
+                        centcore_cmd => 'SENDCFGFILE',
+                    }
                 }
             },
         );
@@ -230,7 +235,9 @@ sub execute_cmd {
                     source => $cache_dir . '/config/export/' . $options{target},
                     destination => $remote_dir,
                     cache_dir => $cache_dir,
-                    type => 'remote',
+                    metadata => {
+                        centcore_cmd => 'SENDEXPORTFILE',
+                    }
                 }
             },
         );
@@ -247,7 +254,9 @@ sub execute_cmd {
             data => {
                 content => {
                     command => $cmd,
-                    type => 'CREATEREMOTETASK',
+                    metadata => {
+                        centcore_cmd => 'SENDEXPORTFILE',
+                    }
                 }
             },
         );
@@ -266,7 +275,10 @@ sub execute_cmd {
                     source => $cache_dir_trap . '/' . $options{target} . '/centreontrapd.sdb',
                     destination => $self->{pollers}->{$options{target}}->{snmp_trapd_path_conf} . '/',
                     cache_dir => $cache_dir,
-                    type => 'trap',
+                    metadata => {
+                        centcore_proxy => 1,
+                        centcore_cmd => 'SYNCTRAP',
+                    }
                 }
             },
         );
@@ -279,7 +291,10 @@ sub execute_cmd {
             data => {
                 content => {
                     command => 'sudo ' . $cmd,
-                    type => 'restart engine',
+                    metadata => {
+                        centcore_proxy => 1,
+                        centcore_cmd => 'SYNCTRAP',
+                    }
                 }
             },
         );
@@ -292,7 +307,10 @@ sub execute_cmd {
             data => {
                 content => {
                     command => 'sudo ' . $cmd,
-                    type => 'reload engine',
+                    metadata => {
+                        centcore_proxy => 1,
+                        centcore_cmd => 'RELOAD',
+                    }
                 }
             },
         );
@@ -305,7 +323,10 @@ sub execute_cmd {
             data => {
                 content => {
                     command => 'sudo ' . $cmd,
-                    type => 'start engine',
+                    metadata => {
+                        centcore_proxy => 1,
+                        centcore_cmd => 'START',
+                    }
                 }
             },
         );
@@ -318,7 +339,10 @@ sub execute_cmd {
             data => {
                 content => {
                     command => 'sudo ' . $cmd,
-                    type => 'stop engine',
+                    metadata => {
+                        centcore_proxy => 1,
+                        centcore_cmd => 'STOP',
+                    }
                 }
             },
         );
@@ -331,7 +355,10 @@ sub execute_cmd {
             data => {
                 content => {
                     command => 'sudo service ' . $cmd . ' restart',
-                    type => 'restart trap',
+                    metadata => {
+                        centcore_proxy => 1,
+                        centcore_cmd => 'RESTARTCENTREONTRAPD',
+                    }
                 }
             },
         );
@@ -344,7 +371,10 @@ sub execute_cmd {
             data => {
                 content => {
                     command => 'sudo service ' . $cmd . ' reload',
-                    type => 'reload trap',
+                    metadata => {
+                        centcore_proxy => 1,
+                        centcore_cmd => 'RELOADCENTREONTRAPD',
+                    }
                 }
             },
         );
@@ -360,7 +390,9 @@ sub execute_cmd {
             data => {
                 content => {
                     command => $cmd,
-                    type => 'STARTWORKER',
+                    metadata => {
+                        centcore_cmd => 'STARTWORKER',
+                    }
                 }
             },
         );
@@ -377,7 +409,9 @@ sub execute_cmd {
             data => {
                 content => {
                     command => $cmd,
-                    type => 'CREATEREMOTETASK',
+                    metadata => {
+                        centcore_cmd => 'CREATEREMOTETASK',
+                    }
                 }
             },
         );
