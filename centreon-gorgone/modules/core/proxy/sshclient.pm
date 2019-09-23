@@ -279,15 +279,6 @@ sub action_remotecopy {
                     }
                 }
             );
-        } elsif ($options{data}->{content}->{type} eq 'remote') {
-             $self->action_centcore(
-                data => {
-                    content => {
-                        command => 'SENDEXPORTFILE',
-                        target => $options{target},
-                    }
-                }
-            );
         } elsif ($options{data}->{content}->{type} eq 'trap') {
              $self->action_centcore(
                 data => {
