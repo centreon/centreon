@@ -370,22 +370,6 @@ sub run {
             callback => \&event,
         }
     ];
-        
-    $self->send_internal_action(
-        action => 'ADDCRON',
-        data => {
-            content => [
-                {
-                    id => 'autodiscovery_syncdiscoverylogs',
-                    target => undef,
-                    timespec => '*/2 * * * *',
-                    action => 'SYNCDISCOVERYLOGS',
-                    parameters => {},
-                    keep_token => 1,
-                }
-            ]
-        }
-    );
     
     $self->send_internal_action(
         action => 'ADDCRON',
