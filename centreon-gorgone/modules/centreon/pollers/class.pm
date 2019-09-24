@@ -96,7 +96,7 @@ sub action_pollersresync {
     $self->send_log(code => centreon::gorgone::module::ACTION_BEGIN, token => $options{token}, data => { message => 'action pollersresync proceed' });
 
     my $request = "
-        SELECT id, name, localhost, ns_ip_address, ssh_port, remote_id
+        SELECT id, name, localhost, ns_ip_address, ssh_port, remote_id, remote_server_centcore_ssh_proxy
         FROM nagios_server
         WHERE ns_activate = '1'
     ";
@@ -117,7 +117,8 @@ sub action_pollersresync {
             next;
         }
 
-        if (defined($_->[5]) && $_->[5] =~ /\d+/) {
+        # remote_server_centcore_ssh_proxy = 1 means: pass through the remote. otherwise directly.
+        if (defined($_->[5]) && $_->[5] =~ /\d+/ && $_->[6] == 1) {
             $register_subnodes->{$_->[5]} = [] if (!defined($register_subnodes->{$_->[5]}));
             push @{$register_subnodes->{$_->[5]}}, $_->[0];
             next;
