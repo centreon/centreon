@@ -151,11 +151,11 @@ sub get_clapi_user {
             "WHERE `contact_activate` = '1' AND `contact_alias` = '" . $clapi_user . "'",
         mode => 2
     );
-    if ($status == -1 || !defined($datas->[0])) {
+    if ($status == -1 || !defined($datas->[0][0])) {
         $self->{logger}->writeLogError('[legacycmd] -class- cannot get configuration for clapi user');
         return -1;
     }
-    my $clapi_password = $datas->[0];
+    my $clapi_password = $datas->[0][0];
     if ($clapi_password =~ m/^md5__(.*)/) {
         $clapi_password = $1;
     }
@@ -171,6 +171,12 @@ sub execute_cmd {
 
     chomp $options{target};
     chomp $options{param} if (defined($options{param}));
+
+    my $msg = "[legacycmd] -class- Handling command '" . $options{cmd} . "'";
+    $msg .= ", Target: '" . $options{target} . "'" if (defined($options{target}));
+    $msg .= ", Parameters: '" . $options{param} . "'" if (defined($options{param}));
+    $self->{logger}->writeLogInfo($msg);
+
     if ($options{cmd} eq 'EXTERNALCMD') {
         # TODO: need to remove illegal characters!!
         $self->send_internal_action(
@@ -422,6 +428,7 @@ sub handle_file {
     my ($self, %options) = @_;
     require bytes;
 
+    $self->{logger}->writeLogDebug("[legacycmd] -class- Processing file '" . $options{file} . "'");
     my $handle = $options{handle};
     while (my $line = <$handle>) {
         if ($self->{stop} == 1) {
@@ -439,7 +446,6 @@ sub handle_file {
         }
     }
 
-    $self->{logger}->writeLogDebug("[legacycmd] -class- process file '" . $options{file} . "'");
     close($handle);
     unlink($options{file});
     return 0;
@@ -472,18 +478,20 @@ sub handle_centcore_dir {
     my ($code, $handle);
     foreach (@files) {
         next if ($_ =~ /^\./);
-        if ($_ =~ /_read$/) {
+        my $file = $self->{config}->{cmd_dir} . '/' . $_;
+        if ($file =~ /_read$/) {
             ($code, $handle) = $self->move_cmd_file(
-                dst => $self->{config}->{cmd_dir} . '/' . $_,
+                dst => $file,
             );
         } else {
             ($code, $handle) = $self->move_cmd_file(
-                src => $self->{config}->{cmd_dir} . '/' . $_,
-                dst => $self->{config}->{cmd_dir} . '/' . $_ . '_read',
+                src => $file,
+                dst => $file . '_read',
             );
+            $file .= '_read';
         }
         return if ($code == -1);
-        if ($self->handle_file(handle => $handle, file => $self->{config}->{cmd_dir} . '/' . $_) == -1) {
+        if ($self->handle_file(handle => $handle, file => $file) == -1) {
             return ;
         }
     }
