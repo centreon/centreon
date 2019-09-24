@@ -2,10 +2,10 @@
 
 import React from 'react';
 import Close from '@material-ui/icons/Close';
-import styled from '@emotion/styled';
+import { styled } from '@material-ui/core/styles';
 import MaterialIcon from '../MaterialIcon';
 
-const Label = styled.span(() => ({
+const Label = styled('span')(() => ({
   color: '#009fdf',
   fontSize: 12,
   display: 'inline-block',
@@ -17,12 +17,6 @@ const Label = styled.span(() => ({
 }));
 
 const FloatingIcon = styled(MaterialIcon)(() => ({
-  content: '""',
-  position: 'absolute',
-  right: 0,
-  top: 0,
-  width: 54,
-  height: 49,
   '&:hover': {
     background: '#707070',
     '& svg': {
@@ -32,14 +26,12 @@ const FloatingIcon = styled(MaterialIcon)(() => ({
 }));
 
 const GreyClose = styled(Close)(() => ({
+  margin: 'auto',
+  height: '100%',
+  width: '100%',
   color: '#424242',
   cursor: 'pointer',
-  float: 'right',
-  fontSize: 32,
   zIndex: 9,
-  position: 'absolute',
-  right: 11,
-  top: 8,
 }));
 
 function IconClose({ label, ...rest }) {

@@ -1,8 +1,8 @@
 import React from 'react';
-import styled from '@emotion/styled';
+import { styled } from '@material-ui/core/styles';
 import PropTypes from 'prop-types';
 
-const Wrapper = styled.span(() => ({
+const Wrapper = styled('span')(() => ({
   display: 'inline-block',
   verticalAlign: 'middle',
   height: 24,

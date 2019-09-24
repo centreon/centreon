@@ -15,12 +15,10 @@ const inAnimationDurationMs = 150;
 const outAnimationDurationMs = 50;
 
 const Header = styled(Box)({
-  paddingRight: 140,
   paddingLeft: 20,
   boxShadow: '0px 3px 4px 0px rgba(0,0,0,0.15)',
   WebkitBoxShadow: '0px 3px 4px 0px rgba(0,0,0,0.15)',
   MozBoxShadow: '0px 3px 4px 0px rgba(0,0,0,0.15)',
-  width: '100%',
   height: 49,
 });
 
@@ -121,7 +119,10 @@ const RightPanel = ({
         <Header display="flex" flexDirection="row">
           <Box flexGrow={1}>{headerComponent}</Box>
           <Box>
-            <IconClose onClick={close} />
+            <IconClose
+              onClick={close}
+              style={{ width: 39, height: 39, padding: 5 }}
+            />
           </Box>
         </Header>
         <Body display="flex" flexDirection="row" flexGrow={1}>
