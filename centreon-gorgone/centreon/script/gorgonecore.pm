@@ -120,7 +120,9 @@ sub init {
     if (!defined($self->{hostname}) || $self->{hostname} eq '') {
         $self->{hostname} = hostname();
     }
-    
+
+    $config->{gorgonecore}->{proxy_name} = 
+        (defined($config->{gorgonecore}->{proxy_name}) && $config->{gorgonecore}->{proxy_name} ne '') ? $config->{gorgonecore}->{proxy_name} : 'proxy';
     $self->{id} = $config->{gorgonecore}->{id};
 
     $self->load_modules();
@@ -275,11 +277,21 @@ sub message_run {
             data => { msg => 'gorgone is stopping/restarting. Not proceed request.' },
             json_encode => 1
         );
-        return ($token, 1, { message => "gorgone is stopping/restarting. Not proceed request." });
+        return ($token, 1, { message => 'gorgone is stopping/restarting. Not proceed request.' });
     }
     
     # Check Routing
     if (defined($target)) {
+        if (!defined($self->{modules_register}->{ $self->{modules_id}->{$config->{gorgonecore}->{proxy_name}} })) {
+            centreon::gorgone::common::add_history(
+                dbh => $self->{db_gorgone},
+                code => 1,
+                token => $token,
+                data => { msg => 'no proxy configured. cannot manage target.' },
+                json_encode => 1
+            );
+            return ($token, 1, { message => 'no proxy configured. cannot manage target.' });
+        }
         $self->{modules_register}->{ $self->{modules_id}->{$config->{gorgonecore}->{proxy_name}} }->{routing}->(
             socket => $self->{internal_socket},
             dbh => $self->{db_gorgone},
