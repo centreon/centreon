@@ -45,7 +45,7 @@ sub register {
     $config = $options{config};
     $config_core = $options{config_core};
     if (!defined($config->{config_file}) || $config->{config_file} =~ /^\s*$/) {
-        $self->{logger}->writeLogError('[register] -hooks- config_file option mandatory');
+        $options{logger}->writeLogError('[register] -hooks- config_file option mandatory');
         $loaded = 0;
     }
     return ($loaded, NAMESPACE, NAME, EVENTS);

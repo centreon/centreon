@@ -46,11 +46,11 @@ sub register {
     $config->{address} = defined($config->{address}) && $config->{address} ne '' ? $config->{address} : '0.0.0.0';
     $config->{port} = defined($config->{port}) && $config->{port} =~ /(\d+)/ ? $1 : 8080;
     if (!defined($config->{auth}->{user}) || $config->{auth}->{user} =~ /^\s*$/) {
-        $self->{logger}->writeLogError('[httpserver] -hooks- auth user option mandatory');
+        $options{logger}->writeLogError('[httpserver] -hooks- auth user option mandatory');
         $loaded = 0;
     }
     if (!defined($config->{auth}->{password}) || $config->{auth}->{password} =~ /^\s*$/) {
-        $self->{logger}->writeLogError('[httpserver] -hooks- auth password option mandatory');
+        $options{logger}->writeLogError('[httpserver] -hooks- auth password option mandatory');
         $loaded = 0;
     }
 
