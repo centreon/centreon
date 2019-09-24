@@ -317,7 +317,7 @@ sub message_run {
     
     # Check Routing
     if (defined($target)) {
-        if (!defined($self->{modules}->{ $self->{modules_id}->{$config->{gorgonecore}->{proxy_name}} })) {
+        if (!defined($self->{modules_register}->{ $self->{modules_id}->{$config->{gorgonecore}->{proxy_name}} })) {
             centreon::gorgone::common::add_history(
                 dbh => $self->{db_gorgone},
                 code => 1,
