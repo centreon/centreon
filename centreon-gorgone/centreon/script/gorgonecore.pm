@@ -191,17 +191,24 @@ sub load_module {
     my ($self, %options) = @_;
 
     return if (!defined($options{config_module}->{enable}) || $options{config_module}->{enable} eq 'false');
+    $self->{logger}->writeLogInfo("[core] Module '" . $options{config_module}->{name} . "' is loading");
 
     my $package = $options{config_module}->{package};
     (my $file = "$package.pm") =~ s{::}{/}g;
-    require $file;
-    $self->{logger}->writeLogInfo("[core] Module '" . $options{config_module}->{name} . "' is loading");
+    eval {
+        local $SIG{__DIE__} = 'IGNORE';
+        require $file;
+    };
+    if ($@) {
+        $self->{logger}->writeLogInfo("[core] Module '" . $options{config_module}->{name} . "' cannot be loaded: " . $@);
+        return 0;
+    }
     $self->{modules_register}->{$package} = {};
 
     foreach my $method_name (('register', 'routing', 'kill', 'kill_internal', 'gently', 'check', 'init')) {
         unless ($self->{modules_register}->{$package}->{$method_name} = $package->can($method_name)) {
             $self->{logger}->writeLogError("[core] No function '$method_name' for module '" . $options{config_module}->{name} . "'");
-            exit(1);
+            return 0;
         }
     }
 
@@ -214,7 +221,7 @@ sub load_module {
     );
     if ($loaded == 0) {
         $self->{logger}->writeLogError("[core] Module '" . $options{config_module}->{name} . "' cannot be loaded");
-        return ;
+        return 0;
     }
 
     $self->{modules_id}->{$name} = $package;
@@ -232,7 +239,9 @@ sub load_module {
             }
         };
     }
+
     $self->{logger}->writeLogInfo("[core] Module '" . $options{config_module}->{name} . "' is loaded");
+    return 1;
 }
 
 sub load_modules {
