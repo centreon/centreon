@@ -223,7 +223,8 @@ sub routing {
     my $bulk_actions;
     push @{$bulk_actions}, $data;
     
-    if ($options{action} eq 'REMOTECOPY') {
+    if ($options{action} eq 'REMOTECOPY' && defined($register_nodes->{$options{target}}) &&
+        $register_nodes->{$options{target}}->{type} ne 'push_ssh') {
         $action = 'PROCESSCOPY';
         $bulk_actions = prepare_remote_copy(
             dbh => $options{dbh},
