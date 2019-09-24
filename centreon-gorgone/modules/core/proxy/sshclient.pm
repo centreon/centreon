@@ -178,9 +178,9 @@ sub action_enginecommand {
         $self->{logger}->writeLogError('[proxy] -sshclient- action_enginecommand: need command');
         return (-1, { message => 'please set command' });
     }
-    if (!defined($options{data}->{content}->{engine_pipe}) || $options{data}->{content}->{engine_pipe} eq '') {
-        $self->{logger}->writeLogError('[proxy] -sshclient- action_enginecommand: need engine_pipe');
-        return (-1, { message => 'please set engine_pipe' });
+    if (!defined($options{data}->{content}->{command_file}) || $options{data}->{content}->{command_file} eq '') {
+        $self->{logger}->writeLogError('[proxy] -sshclient- action_enginecommand: need command_file');
+        return (-1, { message => 'please set command_file' });
     }
 
     chomp $options{data}->{content}->{command};
@@ -196,21 +196,21 @@ sub action_enginecommand {
         );
     }
 
-    my $ret = $self->{sftp}->stat_file(file => $options{data}->{content}->{engine_pipe});
+    my $ret = $self->{sftp}->stat_file(file => $options{data}->{content}->{command_file});
     if (!defined($ret)) {
-        return (-1, { message => "cannot stat file '$options{data}->{content}->{engine_pipe}': " . $self->{sftp}->get_msg_error() });
+        return (-1, { message => "cannot stat file '$options{data}->{content}->{command_file}': " . $self->{sftp}->get_msg_error() });
     }
 
     if ($ret->{type} != SSH_FILEXFER_TYPE_SPECIAL) {
-        return (-1, { message => "stat file '$options{data}->{content}->{engine_pipe}' is not a pipe file" });
+        return (-1, { message => "stat file '$options{data}->{content}->{command_file}' is not a pipe file" });
     }
 
-    my $file = $self->{sftp}->open(file => $options{data}->{content}->{engine_pipe}, accesstype => O_WRONLY|O_APPEND);
+    my $file = $self->{sftp}->open(file => $options{data}->{content}->{command_file}, accesstype => O_WRONLY|O_APPEND);
     if (!defined($file)) {
-        return (-1, { message => "cannot open stat file '$options{data}->{content}->{engine_pipe}': " . $self->{sftp}->error() });
+        return (-1, { message => "cannot open stat file '$options{data}->{content}->{command_file}': " . $self->{sftp}->error() });
     }
     if ($self->{sftp}->write(handle_file => $file, data => $options{data}->{content}->{command} . "\n") != Libssh::Session::SSH_OK) {
-        return (-1, { message => "cannot write stat file '$options{data}->{content}->{engine_pipe}': " . $self->{sftp}->error() });
+        return (-1, { message => "cannot write stat file '$options{data}->{content}->{command_file}': " . $self->{sftp}->error() });
     }
 
     $self->{logger}->writeLogDebug("[proxy] -sshclient- action_enginecommand '" . $options{data}->{content}->{command} . "' succeeded");
