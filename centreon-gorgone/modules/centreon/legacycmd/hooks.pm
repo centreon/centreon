@@ -44,7 +44,11 @@ sub register {
     $config = $options{config};
     $config_core = $options{config_core};
     $config_db_centreon = $options{config_db_centreon};
-    return (NAMESPACE, NAME, EVENTS);
+    $config->{cmd_file} = defined($config->{cmd_file}) ? $config->{cmd_file} : '/var/lib/centreon/centcore.cmd';
+    $config->{cache_dir} = defined($config->{cache_dir}) ? $config->{cache_dir} : '/var/cache/centreon/';
+    $config->{cache_dir_trap} = defined($config->{cache_dir_trap}) ? $config->{cache_dir_trap} : '/etc/snmp/centreon_traps/';
+    $config->{remote_dir} = defined($config->{remote_dir}) ? $config->{remote_dir} : '/var/lib/centreon/remote-data/';
+    return (1, NAMESPACE, NAME, EVENTS);
 }
 
 sub init {

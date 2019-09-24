@@ -46,7 +46,7 @@ sub register {
     
     $config = $options{config};
     $config_core = $options{config_core};
-    return (NAMESPACE, NAME, EVENTS);
+    return (1, NAMESPACE, NAME, EVENTS);
 }
 
 sub init {

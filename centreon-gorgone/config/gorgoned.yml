@@ -73,18 +73,17 @@ modules:
   - name: proxy
     package: modules::core::proxy::hooks
     enable: false
-    pool: 5
+    #pool: 5
     # sync history each 5 minutes
-    synchistory_time: 300
+    #synchistory_time: 300
     # how much time before the response is in timeout
-    synchistory_timeout: 120
+    #synchistory_timeout: 120
     # ping each X seconds
-    ping: 60
+    #ping: 60
 
   - name: pollers
     package: modules::centreon::pollers::hooks
     enable: false
-    resync_time: 600
 
   - name: register
     package: modules::core::register::hooks

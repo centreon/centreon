@@ -44,7 +44,8 @@ sub register {
     $config = $options{config};
     $config_core = $options{config_core};
     $config_db_centreon = $options{config_db_centreon};
-    return (NAMESPACE, NAME, EVENTS);
+    $config->{resync_time} = defined($config->{resync_time}) && $config->{resync_time} =~ /(\d+)/ ? $1 : 600;
+    return (1, NAMESPACE, NAME, EVENTS);
 }
 
 sub init {

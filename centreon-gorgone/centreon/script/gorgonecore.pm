@@ -187,47 +187,60 @@ sub handle_CHLD {
     $SIG{CHLD} = \&class_handle_CHLD;
 }
 
+sub load_module {
+    my ($self, %options) = @_;
+
+    return if (!defined($options{config_module}->{enable}) || $options{config_module}->{enable} eq 'false');
+
+    my $package = $options{config_module}->{package};
+    (my $file = "$package.pm") =~ s{::}{/}g;
+    require $file;
+    $self->{logger}->writeLogInfo("[core] Module '" . $options{config_module}->{name} . "' is loading");
+    $self->{modules_register}->{$package} = {};
+
+    foreach my $method_name (('register', 'routing', 'kill', 'kill_internal', 'gently', 'check', 'init')) {
+        unless ($self->{modules_register}->{$package}->{$method_name} = $package->can($method_name)) {
+            $self->{logger}->writeLogError("[core] No function '$method_name' for module '" . $options{config_module}->{name} . "'");
+            exit(1);
+        }
+    }
+
+    my ($loaded, $namespace, $name, $events) = $self->{modules_register}->{$package}->{register}->(
+        config => $options{config_module},
+        config_core => $config->{gorgonecore},
+        config_db_centreon => $config->{database}->{db_centreon},
+        config_db_centstorage => $config->{database}->{db_centstorage},
+        logger => $self->{logger},
+    );
+    if ($loaded == 0) {
+        $self->{logger}->writeLogError("[core] Module '" . $options{config_module}->{name} . "' cannot be loaded");
+        return ;
+    }
+
+    $self->{modules_id}->{$name} = $package;
+
+    foreach my $event (@{$events}) {
+        $self->{modules_events}->{$event->{event}} = {
+            module => {
+                namespace => $namespace,
+                name => $name,
+                package => $package
+            },
+            api => {
+                uri => $event->{uri},
+                method => $event->{method}
+            }
+        };
+    }
+    $self->{logger}->writeLogInfo("[core] Module '" . $options{config_module}->{name} . "' is loaded");
+}
+
 sub load_modules {
-    my $self = shift;
+    my ($self) = @_;
     next if (!defined($config->{modules}));
 
     foreach my $module (@{$config->{modules}}) {
-        next if (!defined($module->{enable}) || $module->{enable} eq 'false');      
-        my $package = $module->{package};
-        (my $file = "$package.pm") =~ s{::}{/}g;
-        require $file;
-        $self->{logger}->writeLogInfo("[core] Module '" . $module->{name} . "' is loading");
-        $self->{modules_register}->{$package} = {};
-        
-        foreach my $method_name (('register', 'routing', 'kill', 'kill_internal', 'gently', 'check', 'init')) {
-            unless ($self->{modules_register}->{$package}->{$method_name} = $package->can($method_name)) {
-                $self->{logger}->writeLogError("[core] No function '$method_name' for module '" . $module->{name} . "'");
-                exit(1);
-            }
-        }
-
-        my ($namespace, $name, $events) = $self->{modules_register}->{$package}->{register}->(
-            config => $module,
-            config_core => $config->{gorgonecore},
-            config_db_centreon => $config->{database}->{db_centreon},
-            config_db_centstorage => $config->{database}->{db_centstorage}
-        );
-        $self->{modules_id}->{$name} = $package;
-
-        foreach my $event (@{$events}) {
-            $self->{modules_events}->{$event->{event}} = {
-                module => {
-                    namespace => $namespace,
-                    name => $name,
-                    package => $package
-                },
-                api => {
-                    uri => $event->{uri},
-                    method => $event->{method}
-                }
-            };
-        }
-        $self->{logger}->writeLogInfo("[core] Module '" . $module->{name} . "' is loaded");
+        $self->load_module(config_module => $module);
     }
 
     # Load internal functions
@@ -282,7 +295,7 @@ sub message_run {
     
     # Check Routing
     if (defined($target)) {
-        if (!defined($self->{modules_register}->{ $self->{modules_id}->{$config->{gorgonecore}->{proxy_name}} })) {
+        if (!defined($self->{modules}->{ $self->{modules_id}->{$config->{gorgonecore}->{proxy_name}} })) {
             centreon::gorgone::common::add_history(
                 dbh => $self->{db_gorgone},
                 code => 1,

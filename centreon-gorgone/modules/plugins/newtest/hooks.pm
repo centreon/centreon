@@ -50,7 +50,7 @@ sub register {
     $config_db_centstorage = $options{config_db_centstorage};
     $config_db_centreon = $options{config_db_centreon};
     $config_check_containers_time = defined($config->{check_containers_time}) ? $config->{check_containers_time} : 3600;
-    return (NAMESPACE, NAME, EVENTS);
+    return (1, NAMESPACE, NAME, EVENTS);
 }
 
 sub init {

@@ -74,18 +74,19 @@ sub register {
     
     $config = $options{config};
     $config_core = $options{config_core};
-    return (NAMESPACE, NAME, EVENTS);
+
+    $synctime_option = defined($config->{synchistory_time}) ? $config->{synchistory_time} : 60;
+    $synctimeout_option = defined($config->{synchistory_timeout}) ? $config->{synchistory_timeout} : 30;
+    $ping_option = defined($config->{ping}) ? $config->{ping} : 60;
+    $config->{pong_discard_timeout} = defined($config->{pong_discard_timeout}) ? $config->{pong_discard_timeout} : 300;
+    $config->{pool} = defined($config->{pool}) && $config->{pool} =~ /(\d+)/ ? $1 : 5;
+    return (1, NAMESPACE, NAME, EVENTS);
 }
 
 sub init {
     my (%options) = @_;
 
     $synctime_lasttime = time();
-    $synctime_option = defined($config->{synchistory_time}) ? $config->{synchistory_time} : 60;
-    $synctimeout_option = defined($config->{synchistory_timeout}) ? $config->{synchistory_timeout} : 30;
-    $ping_option = defined($config->{ping}) ? $config->{ping} : 60;
-    $config->{pong_discard_timeout} = defined($config->{pong_discard_timeout}) ? $config->{pong_discard_timeout} : 300;
-    
     $core_id = $options{id};
     $external_socket = $options{external_socket};
     $internal_socket = $options{internal_socket};

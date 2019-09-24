@@ -43,7 +43,8 @@ sub register {
     
     $config = $options{config};
     $config_core = $options{config_core};
-    return (NAMESPACE, NAME, EVENTS);
+    $config->{command_file} = defined($config->{command_file}) ? $config->{command_file} : '/var/lib/centreon-engine/rw/centengine.cmd';
+    return (1, NAMESPACE, NAME, EVENTS);
 }
 
 sub init {

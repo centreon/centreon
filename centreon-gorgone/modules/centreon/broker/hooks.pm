@@ -45,7 +45,8 @@ sub register {
     $config = $options{config};
     $config_core = $options{config_core};
     $config_db_centreon = $options{config_db_centreon};
-    return (NAMESPACE, NAME, EVENTS);
+    $config->{cache_dir} = defined($config->{cache_dir}) ? $config->{cache_dir} : '/var/lib/centreon/broker-stats/';
+    return (1, NAMESPACE, NAME, EVENTS);
 }
 
 sub init {

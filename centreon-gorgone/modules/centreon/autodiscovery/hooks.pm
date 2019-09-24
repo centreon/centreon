@@ -51,7 +51,7 @@ sub register {
     $config = $options{config};
     $config_core = $options{config_core};
     $config_db_centreon = $options{config_db_centreon};
-    return (NAMESPACE, NAME, EVENTS);
+    return (1, NAMESPACE, NAME, EVENTS);
 }
 
 sub init {
