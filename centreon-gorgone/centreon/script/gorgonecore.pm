@@ -190,7 +190,20 @@ sub handle_CHLD {
 sub load_module {
     my ($self, %options) = @_;
 
-    return if (!defined($options{config_module}->{enable}) || $options{config_module}->{enable} eq 'false');
+    if (!defined($options{config_module}->{name}) || $options{config_module}->{name} eq '') {
+        $self->{logger}->writeLogError('[core] No module name');
+        return 0;
+    }
+    if (!defined($options{config_module}->{package}) || $options{config_module}->{package} eq '') {
+        $self->{logger}->writeLogError('[core] No package name');
+        return 0;
+    }
+    if (defined($self->{modules_register}->{ $options{config_module}->{package} })) {
+        $self->{logger}->writeLogError("[core] package '$options{config_module}->{package}' already loaded");
+        return 0;
+    }
+    
+    return 0 if (!defined($options{config_module}->{enable}) || $options{config_module}->{enable} eq 'false');
     $self->{logger}->writeLogInfo("[core] Module '" . $options{config_module}->{name} . "' is loading");
 
     my $package = $options{config_module}->{package};
@@ -253,7 +266,7 @@ sub load_modules {
     }
 
     # Load internal functions
-    foreach my $method_name (('putlog', 'getlog', 'kill', 'ping', 'constatus', 'setcoreid', 'synclogs')) {
+    foreach my $method_name (('putlog', 'getlog', 'kill', 'ping', 'constatus', 'setcoreid', 'synclogs', 'loadmodule')) {
         unless ($self->{internal_register}->{$method_name} = centreon::gorgone::common->can($method_name)) {
             $self->{logger}->writeLogError("[core] No function '$method_name'");
             exit(1);
@@ -271,7 +284,7 @@ sub message_run {
     my ($action, $token, $target, $data) = ($1, $2, $3, $4);
 
     # Check if not myself ;)
-    if (defined($target) && ($target eq '' || $target eq $self->{id})) {
+    if (defined($target) && ($target eq '' || (defined($self->{id}) && $target eq $self->{id}))) {
         $target = undef;
     }
 
@@ -279,7 +292,7 @@ sub message_run {
         $token = centreon::gorgone::common::generate_token();
     }
 
-    if ($action !~ /^(PUTLOG|GETLOG|KILL|PING|CONSTATUS|SETCOREID|SYNCLOGS)$/ && 
+    if ($action !~ /^(PUTLOG|GETLOG|KILL|PING|CONSTATUS|SETCOREID|SYNCLOGS|LOADMODULE)$/ && 
         !defined($target) && !defined($self->{modules_events}->{$action})) {
         centreon::gorgone::common::add_history(
             dbh => $self->{db_gorgone},
@@ -327,7 +340,7 @@ sub message_run {
         return ($token, 0);
     }
     
-    if ($action =~ /^(PUTLOG|GETLOG|KILL|PING|CONSTATUS|SETCOREID|SYNCLOGS)$/) {
+    if ($action =~ /^(PUTLOG|GETLOG|KILL|PING|CONSTATUS|SETCOREID|SYNCLOGS|LOADMODULE)$/) {
         my ($code, $response, $response_type) = $self->{internal_register}->{lc($action)}->(
             gorgone => $self,
             gorgone_config => $config,

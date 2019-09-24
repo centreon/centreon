@@ -301,6 +301,34 @@ sub is_handshake_done {
 # internal functions
 #######################
 
+sub loadmodule {
+    my (%options) = @_;
+
+    my $data;
+    eval {
+        $data = JSON::XS->new->utf8->decode($options{data});
+    };
+    if ($@) {
+        return (1, { message => 'request not well formatted' });
+    }
+
+    if ($options{gorgone}->load_module(config_module => $data->{content})) {
+        $options{gorgone}->{modules_register}->{ $data->{content}->{package} }->{init}->(
+            id => $options{gorgone}->{id},
+            logger => $options{gorgone}->{logger},
+            poll => $options{gorgone}->{poll},
+            external_socket => $options{gorgone}->{external_socket},
+            internal_socket => $options{gorgone}->{internal_socket},
+            dbh => $options{gorgone}->{db_gorgone},
+            modules_events => $options{gorgone}->{modules_events},
+        );
+        return (0, { action => 'loadmodule', message => "module '$data->{content}->{name}' is loaded" });
+    }
+
+    # test if the module is already loaded
+    return (1, { action => 'loadmodule', message => "cannot load module '$data->{content}->{name}'" }, 'LOADMODULE');
+}
+
 sub synclogs {
     my (%options) = @_;
 

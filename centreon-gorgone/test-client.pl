@@ -148,6 +148,11 @@ $client2->init(callback => \&read_response_result);
 #$client2->send_message(action => 'COMMAND', data => { content => { command => 'ls' } }, target => 150, 
 #                       json_encode => 1);
 #$client2->send_message(action => 'CONSTATUS');
+$client2->send_message(
+    action => 'LOADMODULE',
+    data => { content => { name => 'engine', package => 'modules::centreon::engine::hooks', enable => 'true', command_file => 'plop' } },
+    json_encode => 1
+);
 
 # It will transform
 #$client2->send_message(action => 'GETLOG', data => { cmd => 'ls' }, target => 120, 
