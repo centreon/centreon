@@ -20,7 +20,7 @@
     <preference label="Display Critical" name="svc_critical" defaultValue="1" type="boolean"/>
     <preference label="Display Unknown" name="svc_unknown" defaultValue="0" type="boolean"/>
     <preference label="Display Pending" name="svc_pending" defaultValue="1" type="boolean"/>
-    <preference label="Criticities Filters (criticities name separated by ',')" name="criticality_filter" defaultValue="" type="text"/>
+    <preference label="Severity Filter" name="criticality_filter" defaultValue="" type="serviceSeverityMulti"/>
     <preference label="Acknowledgement Filter" name="acknowledgement_filter" defaultValue="all" type="list">
       <option value="ack" label="Acknowledged"/>
       <option value="nack" label="Not Acknowleged"/>
@@ -39,7 +39,7 @@
     </preference>
     <preference label="Poller" name="poller" defaultValue="" type="poller"/>
     <preference label="Hostgroup" name="hostgroup" defaultValue="" type="hostGroupMulti"/>
-    <preference label="Servicegroup" name="servicegroup" defaultValue="" type="servicegroup"/>
+    <preference label="Servicegroup" name="servicegroup" defaultValue="" type="serviceGroupMulti"/>
     <preference label="Results" name="entries" defaultValue="10" type="range" min="10" max="100" step="10"/>
     <preference label="Output" name="output_search" defaultValue="" type="compare" />
     <preference label="Display Severities" name="display_severities" defaultValue="1" type="boolean" header="Columns"/>
