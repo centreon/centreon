@@ -170,9 +170,11 @@ class InputFieldSelectCustom extends Component {
                         ? {
                             backgroundColor: option.color,
                             margin: '-4px',
+                            lineHeight: '1.43'
                           }
                         : {
                             margin: '-4px',
+                            lineHeight: '1.43'
                           }
                     }
                   >

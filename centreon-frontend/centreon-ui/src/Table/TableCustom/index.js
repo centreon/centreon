@@ -303,7 +303,7 @@ class TableCustom extends Component {
                       <StyledTableRow
                         hover
                         tabIndex={-1}
-                        key={row.id}
+                        key={index+ariaLabel}
                         onMouseEnter={this.rowHovered.bind(this, row.id, true)}
                         {...this.addConditionalRowBackground(
                           row,

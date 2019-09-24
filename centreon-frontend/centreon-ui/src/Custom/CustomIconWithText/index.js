@@ -8,12 +8,12 @@ import classnames from 'classnames';
 import styles from './custom-icon-with-text.scss';
 import defaultImage from '../../../img/icons/small-logo.png';
 
-const CustomIconWithText = ({ label, image, onClick }) => {
+const CustomIconWithText = ({ label, image, onClick, iconOff }) => {
   return (
     <span className={classnames(styles['custom-multiple'])} onClick={onClick}>
       <img
         className={classnames(styles['custom-multiple-icon'])}
-        src={image || defaultImage}
+        {...(!iconOff ? {src:image || defaultImage} : {})}
       />
       <span style={{
         paddingLeft: '6px'
