@@ -556,8 +556,6 @@ sub create_child {
     $pools->{$options{pool_id}} = { pid => $child_pid, ready => 0, running => 1 };
     $pools_pid->{$child_pid} = $options{pool_id};
 
-    #$nodes_pool->{$target}
-
     # we sent proxyaddnode to sync
     foreach my $node_id (keys %$nodes_pool) {
         next if ($nodes_pool->{$node_id} != $options{pool_id});

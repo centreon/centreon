@@ -181,6 +181,7 @@ sub handle_CHLD {
     my $child_pid;
 
     while (($child_pid = waitpid(-1, &WNOHANG)) > 0) {
+        $self->{logger}->writeLogInfo("[core] received SIGCLD signal (pid: $child_pid)");
         $self->{return_child}->{$child_pid} = time();
     }
     
