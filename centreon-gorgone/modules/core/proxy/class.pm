@@ -282,7 +282,7 @@ sub proxy {
                 }
             );
             $connector->{logger}->writeLogError("[proxy] -class- Send message problem for '$target': $msg");
-            $connector->{clients}->{$target}->{delete} = 1;
+            $connector->{clients}->{$target_client}->{delete} = 1;
         }
     } elsif ($connector->{clients}->{$target_client}->{type} eq 'push_ssh') {
         my ($code, $decoded_data) = $connector->json_decode(argument => $data);
