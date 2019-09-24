@@ -31,6 +31,7 @@ use ZMQ::Constants qw(:all);
 use JSON::XS;
 use File::Basename;
 use File::Copy;
+use File::Path qw(make_path);
 use MIME::Base64;
 use Digest::MD5::File qw(file_md5_hex);
 use Fcntl;
@@ -183,6 +184,9 @@ sub action_processcopy {
     } elsif ($options{data}->{content}->{status} eq "end" && defined($options{data}->{content}->{md5})) {
         if ($options{data}->{content}->{md5} eq file_md5_hex($cache_file)) {
             if ($options{data}->{content}->{type} eq "archive") {
+                if (! -d $options{data}->{content}->{destination}) {
+                    make_path($options{data}->{content}->{destination});
+                }
                 my ($error, $stdout, $exit_code) = centreon::misc::misc::backtick(
                     command => "tar --no-overwrite-dir -zxf $cache_file -C '" . $options{data}->{content}->{destination} . "' .",
                     timeout => (defined($options{timeout})) ? $options{timeout} : 10,
