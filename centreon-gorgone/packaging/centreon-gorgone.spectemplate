@@ -11,7 +11,7 @@ BuildRoot:  %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 Requires:   perl-Cryptx
 Requires:   perl(Schedule::Cron)
-Requires:   perl(perl(ZMQ::LibZMQ4))
+Requires:   perl(ZMQ::LibZMQ4)
 Requires:   perl(ZMQ::Constants)
 Requires:   perl(Crypt::CBC)
 Requires:   perl(JSON::XS)
