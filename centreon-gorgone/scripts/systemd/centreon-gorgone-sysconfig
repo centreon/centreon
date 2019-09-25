@@ -1,0 +1,2 @@
+# centreon-gorgone command line options
+OPTIONS="--logfile=/var/log/centreon/centreon-gorgone.log --severity=error"
