@@ -16,7 +16,6 @@ const useStyles = makeStyles((theme) => ({
   icon: {
     fontSize: 20,
     opacity: 0.9,
-    marginRight: theme.spacing(1),
   },
   message: {
     display: 'flex',
