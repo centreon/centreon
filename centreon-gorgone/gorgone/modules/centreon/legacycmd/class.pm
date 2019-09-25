@@ -271,7 +271,7 @@ sub execute_cmd {
                     command => 'sudo ' . $cmd,
                     metadata => {
                         centcore_proxy => 1,
-                        centcore_cmd => 'SYNCTRAP',
+                        centcore_cmd => 'RESTART',
                     }
                 }
             },
