@@ -1,0 +1,63 @@
+Name:       centreon-gorgone
+Version:    19.10
+Release:    1%{?dist}
+Summary:    Perl daemon task handlers
+Group:      Applications/System
+License:    Apache2
+URL:        http://www.centreon.com
+Source0:    %{name}-%{version}.tar.gz
+BuildArch:  noarch
+BuildRoot:  %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
+
+Requires:   perl-Cryptx
+Requires:   perl(Schedule::Cron)
+Requires:   perl(perl(ZMQ::LibZMQ4))
+Requires:   perl(ZMQ::Constants)
+Requires:   perl(Crypt::CBC)
+Requires:   perl(JSON::XS)
+Requires:   perl(YAML)
+Requires:   perl(DBD::SQLite)
+Requires:   perl(DBD::mysql)
+Requires:   perl(DBI)
+Requires:   perl(UUID)
+Requires:   perl(HTTP::Daemon)
+Requires:   perl(HTTP::Status)
+Requires:   perl(MIME::Base64)
+Requires:   perl(Digest::MD5::File)
+Requires:   perl(Libssh::Session)
+AutoReqProv: no
+
+%description
+
+%prep
+%setup -q -n %{name}-%{version}
+
+%build
+
+%install
+rm -rf %{buildroot}
+mkdir -p %{buildroot}/%{perl_vendorlib}/gorgone
+%{__install} -d -m 0755 %{buildroot}%{_bindir}
+%{__install} -d -m 0755 %{buildroot}%{_sysconfdir}/systemd/system/
+%{__cp} scripts/systemd/centreon-gorgone-service %{buildroot}%{_sysconfdir}/systemd/system/centreon-gorgone.service
+%{__install} -d -m 0755 %{buildroot}%{_sysconfdir}/sysconfig
+%{__cp} scripts/systemd/centreon-gorgone-sysconfig %{buildroot}%{_sysconfdir}/sysconfig/centreon-gorgone
+
+%{__cp} -R gorgone/* %{buildroot}/%{perl_vendorlib}/gorgone/
+%{__cp} gorgoned %{buildroot}%{_bindir}/
+
+%{_fixperms} $RPM_BUILD_ROOT/*
+
+%check
+
+%clean
+rm -rf %{buildroot}
+
+%files
+%defattr(-,root,root,-)
+%{perl_vendorlib}/gorgone/
+%attr(755,root,root) %{_bindir}/gorgoned
+%attr(755,root,root) %{_sysconfdir}/systemd/system/centreon-gorgone.service
+%config(noreplace) %{_sysconfdir}/sysconfig/centreon-gorgone
+
+%changelog
