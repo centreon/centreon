@@ -25,10 +25,10 @@ gorgonecore:
   purge_sessions_time: 3600
 modules:
   - name: action
-    package: modules::core::action::hooks
+    package: gorgone::modules::core::action::hooks
     enable: true
 
   - name: engine
-    package: modules::centreon::engine::hooks
+    package: gorgone::modules::centreon::engine::hooks
     enable: true
     command_file: "/var/lib/centreon-engine/rw/centengine.cmd"

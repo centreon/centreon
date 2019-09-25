@@ -31,7 +31,7 @@ gorgonecore:
   sessions_time: 86400
 modules:
   - name: cron
-    package: modules::core::cron::hooks
+    package: gorgone::modules::core::cron::hooks
     enable: true
     cron:
       - id: echo_date
@@ -42,19 +42,19 @@ modules:
           timeout: 10
 
   - name: action
-    package: modules::core::action::hooks
+    package: gorgone::modules::core::action::hooks
     enable: true
 
   - name: proxy
-    package: modules::core::proxy::hooks
+    package: gorgone::modules::core::proxy::hooks
     enable: true
 
   - name: pollers
-    package: modules::centreon::pollers::hooks
+    package: gorgone::modules::centreon::pollers::hooks
     enable: true
 
   - name: legacycmd
-    package: modules::centreon::legacycmd::hooks
+    package: gorgone::modules::centreon::legacycmd::hooks
     enable: true
     cmd_file: "/var/lib/centreon/centcore.cmd"
     cache_dir: "/var/cache/centreon/"
@@ -62,6 +62,6 @@ modules:
     remote_dir: "/var/lib/centreon/remote-data/"
 
   - name: engine
-    package: modules::centreon::engine::hooks
+    package: gorgone::modules::centreon::engine::hooks
     enable: true
     command_file: "/var/lib/centreon-engine/rw/centengine.cmd"
