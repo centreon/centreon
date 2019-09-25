@@ -32,9 +32,7 @@ import {
   CustomRow,
   CustomColumn,
   CustomStyles,
-  BAMListingPageStory,
 } from '../src';
-import BAMTableData from '../src/Pages/BAMListingMock';
 
 // Extensions Page
 storiesOf('Pages', module).add(
@@ -1475,10 +1473,3 @@ storiesOf('Pages', module).add(
   { notes: 'A very simple component' },
 );
 
-storiesOf('Pages', module).add(
-  'BAM page',
-  () => {
-    return <BAMListingPageStory BAMTableData={BAMTableData} />;
-  },
-  { notes: 'A very simple component' },
-);
