@@ -143,6 +143,17 @@ sub routing {
     
     if ($options{action} eq 'PROXYREADY') {
         $pools->{$data->{pool_id}}->{ready} = 1;
+        # we sent proxyaddnode to sync
+        foreach my $node_id (keys %$nodes_pool) {
+            next if ($nodes_pool->{$node_id} != $data->{pool_id});
+            routing(
+                socket => $internal_socket,
+                action => 'PROXYADDNODE',
+                target => $node_id,
+                data => JSON::XS->new->utf8->encode($register_nodes->{$node_id}),
+                dbh => $options{dbh}
+            );
+        }
         return undef;
     }
     
@@ -555,18 +566,6 @@ sub create_child {
     $options{logger}->writeLogInfo("[proxy] -hooks- PID $child_pid (gorgone-proxy) for pool id '" . $options{pool_id} . "'");
     $pools->{$options{pool_id}} = { pid => $child_pid, ready => 0, running => 1 };
     $pools_pid->{$child_pid} = $options{pool_id};
-
-    # we sent proxyaddnode to sync
-    foreach my $node_id (keys %$nodes_pool) {
-        next if ($nodes_pool->{$node_id} != $options{pool_id});
-        routing(
-            socket => $internal_socket,
-            action => 'PROXYADDNODE',
-            target => $node_id,
-            data => JSON::XS->new->utf8->encode($register_nodes->{$node_id}),
-            dbh => $options{dbh}
-        );
-    }
 }
 
 sub pull_request {
