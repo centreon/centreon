@@ -3,3 +3,5 @@
 - Add an action to load module dynamically
 - Add a broadcast action to update module (like logger in debug for example)
 - Move cleaning db in a module
+- Add redis backend to store logs (we could disable synclog in redis mode)
+- Add a websocket module to call gorgone
