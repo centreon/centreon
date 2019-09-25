@@ -19,7 +19,8 @@
 Description=Centreon Gorgone
 
 [Service]
-ExecStart=/usr/bin/perl /usr/bin/gorgoned --config=/etc/centreon/gorgoned.yml --logfile=/var/log/centreon/gorgoned.log --severity=error
+EnvironmentFile=/etc/sysconfig/centreon-gorgone
+ExecStart=/usr/bin/perl /usr/bin/gorgoned $OPTIONS
 Type=simple
 User=centreon
 

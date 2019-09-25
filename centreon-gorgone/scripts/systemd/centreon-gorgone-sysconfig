@@ -1,2 +1,4 @@
-# centreon-gorgone command line options
-OPTIONS="--logfile=/var/log/centreon/centreon-gorgone.log --severity=error"
+# Configuration file for Centreon Gorgone.
+
+# OPTIONS fro the daemon launch
+OPTIONS="--config=/etc/centreon/gorgoned.yml --logfile=/var/log/centreon/gorgoned.log --severity=error"
