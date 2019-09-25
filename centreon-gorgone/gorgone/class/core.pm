@@ -47,10 +47,10 @@ sub new {
 
     bless $self, $class;
     $self->add_options(
-        'config-extra:s' => \$self->{opt_extra},
+        'config:s' => \$self->{opt_config},
     );
 
-    $self->{opt_extra} = '';
+    $self->{opt_config} = '';
     $self->{return_child} = {};
     $self->{stop} = 0;
     $self->{internal_register} = {};
@@ -74,12 +74,12 @@ sub init {
     $SIG{__DIE__} = undef;
 
     ## load config ini
-    if (! -f $self->{opt_extra}) {
-        $self->{logger}->writeLogError("[core] Can't find extra config file '$self->{opt_extra}'");
+    if (! -f $self->{opt_config}) {
+        $self->{logger}->writeLogError("[core] Can't find config file '$self->{opt_config}'");
         exit(1);
     }
     $config = gorgone::standard::library::read_config(
-        config_file => $self->{opt_extra},
+        config_file => $self->{opt_config},
         logger => $self->{logger}
     );
     

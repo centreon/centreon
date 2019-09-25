@@ -29,8 +29,6 @@ use gorgone::class::logger;
 use gorgone::class::db;
 use gorgone::class::lock;
 
-use vars qw($centreon_config);
-
 $SIG{__DIE__} = sub {
     my $error = shift;
     print "Error: $error";
@@ -40,12 +38,10 @@ $SIG{__DIE__} = sub {
 sub new {
     my ($class, $name, %options) = @_;
     my %defaults = (
-       config_file => '/etc/centreon/centreon-config.pm',
        log_file => undef,
        centreon_db_conn => 0,
        centstorage_db_conn => 0,
        severity => 'info',
-       noconfig => 0,
        noroot => 0
     );
     my $self = {%defaults, %options};
@@ -123,10 +119,6 @@ sub parse_options {
     Getopt::Long::Configure('bundling');
     die "Command line error" if (!GetOptions(%{$self->{options}}));
     pod2usage(-exitval => 1, -input => $FindBin::Bin . "/" . $FindBin::Script) if ($self->{help});
-    if ($self->{noconfig} == 0) {
-        require $self->{config_file};
-        $self->{centreon_config} = $centreon_config;
-    }
 }
 
 sub run {

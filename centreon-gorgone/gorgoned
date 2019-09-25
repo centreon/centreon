@@ -42,9 +42,9 @@ gorgoned [options]
 
 =over 8
 
-=item B<--config-extra>
+=item B<--config>
 
-Specify the path to the centreonesxd configuration file (default: '').
+Specify the path to the yaml configuration file (default: '').
 
 =item B<--help>
 
@@ -54,6 +54,6 @@ Print a brief help message and exits.
 
 =head1 DESCRIPTION
 
-B<gorgoned> will 
+B<gorgoned> will survive
 
 =cut
