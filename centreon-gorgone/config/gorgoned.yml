@@ -1,4 +1,5 @@
 name: gorgoned
+description: Configuration example with more directives
 database:
   db_centreon: 
     dsn: "mysql:host=localhost;dbname=centreon"
