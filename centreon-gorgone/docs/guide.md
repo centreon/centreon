@@ -45,7 +45,7 @@ Create sqlite database:
 To execute the daemon:
 
 ```
-# perl gorgoned --config-extra=config/gorgoned.yml --severity=debug
+# perl gorgoned --config=config/gorgoned.yml --severity=debug
 ```
 
 # gorgone protocol 
