@@ -25,6 +25,7 @@ Requires:   perl(HTTP::Status)
 Requires:   perl(MIME::Base64)
 Requires:   perl(Digest::MD5::File)
 Requires:   perl(Libssh::Session)
+Requires:   perl(Net::Curl::Easy)
 AutoReqProv: no
 
 %description
