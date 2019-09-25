@@ -38,9 +38,18 @@ sub new {
     $connector->{cipher} = $options{cipher};
     $connector->{vector} = $options{vector};
     $connector->{symkey} = undef;
-    $connector->{server_pubkey} = gorgone::standard::library::loadpubkey(pubkey => $options{server_pubkey});
-    $connector->{client_pubkey} = gorgone::standard::library::loadpubkey(pubkey => $options{client_pubkey});
-    $connector->{client_privkey} = gorgone::standard::library::loadprivkey(privkey => $options{client_privkey});
+    $connector->{server_pubkey} = gorgone::standard::library::loadpubkey(
+        pubkey => $options{server_pubkey},
+        logger => $options{logger}
+    );
+    $connector->{client_pubkey} = gorgone::standard::library::loadpubkey(
+        pubkey => $options{client_pubkey},
+        logger => $options{logger}
+    );
+    $connector->{client_privkey} = gorgone::standard::library::loadprivkey(
+        privkey => $options{client_privkey},
+        logger => $options{logger}
+    );
     $connector->{target_type} = $options{target_type};
     $connector->{target_path} = $options{target_path};
     $connector->{ping} = defined($options{ping}) ? $options{ping} : -1;
