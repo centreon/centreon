@@ -1,8 +1,6 @@
 name: gorgoned-poller
 description: Configuration example in a full ZMQ environment for Poller server
 gorgonecore:
-  internal_com_type: ipc
-  internal_com_path: /tmp/gorgone/routing-poller.ipc
   external_com_type: tcp
   external_com_path: "*:5556"
   # in seconds before sending kill signals (not gently)
@@ -19,10 +17,6 @@ gorgonecore:
   # JWK format export thumbprint SHA256
   authorized_clients: 
     - key: pnI6EWkiTbazjikJXRkLmjml5wvVECYtQduJUjS4QK4
-  # in seconds
-  sessions_time: 86400
-  # in seconds
-  purge_sessions_time: 3600
 modules:
   - name: action
     package: gorgone::modules::core::action::hooks
