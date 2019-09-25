@@ -1,5 +1,4 @@
-#!/usr/bin/perl
-# 
+#
 # Copyright 2019 Centreon (http://www.centreon.com/)
 #
 # Centreon is a full-fledged industry-strength solution that meets
@@ -19,41 +18,16 @@
 # limitations under the License.
 #
 
+package gorgone::class::http::backend::curlconstants;
+
 use strict;
 use warnings;
+use Net::Curl::Easy qw(:constants);
 
-use FindBin;
-use lib "$FindBin::Bin";
-use gorgone::class::core;
+sub get_constant_value {
+    my (%options) = @_;
+    
+    return eval $options{name};
+}
 
-gorgone::class::core->new()->run();
-
-__END__
-
-=head1 NAME
-
-gorgoned - a daemon to handle so many things.
-
-=head1 SYNOPSIS
-
-gorgoned [options]
-
-=head1 OPTIONS
-
-=over 8
-
-=item B<--config-extra>
-
-Specify the path to the centreonesxd configuration file (default: '').
-
-=item B<--help>
-
-Print a brief help message and exits.
-
-=back
-
-=head1 DESCRIPTION
-
-B<gorgoned> will 
-
-=cut
+1;
