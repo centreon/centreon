@@ -26,8 +26,7 @@ use DBI;
 
 sub new {
     my ($class, %options) = @_;
-    my %defaults =
-      (
+    my %defaults = (
        logger => undef,
        db => undef,
        dsn => undef,
@@ -37,7 +36,7 @@ sub new {
        port => 3306,
        force => 0,
        type => "mysql"
-      );
+    );
     my $self = {%defaults, %options};
     $self->{type} = 'mysql' if (!defined($self->{type}));
     

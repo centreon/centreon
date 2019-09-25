@@ -83,17 +83,6 @@ sub init {
         logger => $self->{logger}
     );
     
-    $config->{gorgonecore}->{purge_sessions_time} =
-        defined($config->{gorgonecore}->{purge_sessions_time}) && $config->{gorgonecore}->{purge_sessions_time} =~ /\d+/ ?
-        $config->{gorgonecore}->{purge_sessions_time} :
-        3600
-    ;
-    $config->{gorgonecore}->{purge_history_time} =
-        defined($config->{gorgonecore}->{purge_history_time}) && $config->{gorgonecore}->{purge_history_time} =~ /\d+/ ?
-        $config->{gorgonecore}->{purge_history_time} :
-        604800
-    ;
-    
     if (defined($config->{gorgonecore}->{external_com_type}) && $config->{gorgonecore}->{external_com_type} ne '') {
         $self->{server_privkey} = gorgone::standard::library::loadprivkey(logger => $self->{logger}, privkey => $config->{gorgonecore}->{privkey});
     }
@@ -265,6 +254,9 @@ sub load_modules {
     foreach my $module (@{$config->{modules}}) {
         $self->load_module(config_module => $module);
     }
+
+    # force to load module dbclean
+    $self->load_module(config_module => { name => 'dbcleaner', package => 'gorgone::modules::core::dbcleaner::hooks', enable => 'true' });
 
     # Load internal functions
     foreach my $method_name (('putlog', 'getlog', 'kill', 'ping', 'constatus', 'setcoreid', 'synclogs', 'loadmodule')) {
@@ -519,7 +511,7 @@ sub router_external_event {
 
 sub waiting_ready_pool {
     my (%options) = @_;
-    
+
     my $time = time();
     # We wait 10 seconds
     while (time() - $time < 10) {
@@ -531,7 +523,7 @@ sub waiting_ready_pool {
     foreach my $pool_id (keys %{$options{pool}})  {
         return 1 if ($options{pool}->{$pool_id}->{ready} == 1);
     }
-    
+
     return 0;
 }
 
@@ -546,23 +538,12 @@ sub waiting_ready {
            time() - $time < 10) {
         zmq_poll($gorgone->{poll}, 5000);
     }
-    
+
     if (${$options{ready}} == 0) {
         return 0;
     }
-    
+
     return 1;
-}
-
-sub clean_db {
-    my ($self, %options) = @_;
-
-    if ($self->{purge_timer} - time() > 3600) {
-        $self->{logger}->writeLogInfo("[core] Purge db in progress...");
-        $self->{db_gorgone}->query("DELETE FROM gorgone_identity WHERE `ctime` <  " . $self->{db_gorgone}->quote(time() - $config->{gorgonecore}->{purge_sessions_time}));
-        $self->{db_gorgone}->query("DELETE FROM gorgone_history WHERE `ctime` <  " . $self->{db_gorgone}->quote(time() - $config->{gorgonecore}->{purge_history_time}));
-        $self->{purge_timer} = time();
-    }
 }
 
 sub quit {
@@ -674,8 +655,6 @@ sub run {
         }
 
         zmq_poll($poll, 5000);
-
-        $gorgone->clean_db();
     }
 }
 
