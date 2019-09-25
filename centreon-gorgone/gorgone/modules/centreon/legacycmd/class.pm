@@ -46,6 +46,7 @@ sub new {
     if (!defined($connector->{config}->{cmd_dir}) || $connector->{config}->{cmd_dir} eq '') {
         $connector->{config}->{cmd_dir} = '/var/lib/centreon/centcore/';
     }
+    $connector->{config}->{dirty_mode} = defined($connector->{config}->{dirty_mode}) ? $connector->{config}->{dirty_mode} : 1;
     $connector->{config_core} = $options{config_core};
     $connector->{config_db_centreon} = $options{config_db_centreon};
     $connector->{stop} = 0;
@@ -85,35 +86,6 @@ sub class_handle_HUP {
     foreach (keys %{$handlers{HUP}}) {
         &{$handlers{HUP}->{$_}}();
     }
-}
-
-sub move_cmd_file {
-    my ($self, %options) = @_;
-
-    my $handle;
-    if (-e $options{dst}) {
-        if (!open($handle, '+<', $options{dst})) {
-            $self->{logger}->writeLogError("[legacycmd] -class- cannot open file '" . $options{dst} . "': $!");
-            return -1;
-        }
-        
-        return (0, $handle);
-    }
-
-    return -1 if (!defined($options{src}));
-    return -1 if (! -e $options{src});
-
-    if (!File::Copy::move($options{src}, $options{dst})) {
-        $self->{logger}->writeLogError("[legacycmd] -class- cannot move file '" . $options{src} . "': $!");
-        return -1;
-    }
-
-    if (!open($handle, '+<', $options{dst})) {
-        $self->{logger}->writeLogError("[legacycmd] -class- cannot open file '" . $options{dst} . "': $!");
-        return -1;
-    }
-
-    return (0, $handle);
 }
 
 sub get_pollers_config {
@@ -424,6 +396,39 @@ sub execute_cmd {
     }
 }
 
+sub move_cmd_file {
+    my ($self, %options) = @_;
+
+    my $operator = '+<';
+    if ($self->{config}->{dirty_mode} == 1) {
+        $operator = '<';
+    }
+    my $handle;
+    if (-e $options{dst}) {
+        if (!open($handle, $operator, $options{dst})) {
+            $self->{logger}->writeLogError("[legacycmd] -class- cannot open file '" . $options{dst} . "': $!");
+            return -1;
+        }
+        
+        return (0, $handle);
+    }
+
+    return -1 if (!defined($options{src}));
+    return -1 if (! -e $options{src});
+
+    if (!File::Copy::move($options{src}, $options{dst})) {
+        $self->{logger}->writeLogError("[legacycmd] -class- cannot move file '" . $options{src} . "': $!");
+        return -1;
+    }
+
+    if (!open($handle, $operator, $options{dst})) {
+        $self->{logger}->writeLogError("[legacycmd] -class- cannot open file '" . $options{dst} . "': $!");
+        return -1;
+    }
+
+    return (0, $handle);
+}
+
 sub handle_file {
     my ($self, %options) = @_;
     require bytes;
@@ -438,11 +443,13 @@ sub handle_file {
 
         if ($line =~ /^(.*?):([^:]*)(?::(.*)){0,1}/) {
             $self->execute_cmd(cmd => $1, target => $2, param => $3);
-            my $current_pos = tell($handle);
-            seek($handle, $current_pos - bytes::length($line), 0);
-            syswrite($handle, '-');
-            # line is useless
-            $line = <$handle>;
+            if ($self->{config}->{dirty_mode} != 1) {
+                my $current_pos = tell($handle);
+                seek($handle, $current_pos - bytes::length($line), 0);
+                syswrite($handle, '-');
+                # line is useless
+                $line = <$handle>;
+            }
         }
     }
 
