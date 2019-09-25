@@ -148,6 +148,17 @@ sub action_command {
         return (-1, { message => 'please set command' });
     }
 
+    if (defined($options{data}->{content}->{metadata}->{centcore_proxy}) && $options{target_direct} == 0) {
+        return $self->action_centcore(
+            data => {
+                content => {
+                    command => $options{data}->{content}->{metadata}->{centcore_cmd},
+                    target => $options{target},
+                }
+            }
+        );
+    }
+
     my $timeout = defined($options{data}->{content}->{timeout}) && $options{data}->{content}->{timeout} =~ /(\d+)/ ? $1 : 60;
     my $timeout_nodata = defined($options{data}->{content}->{timeout_nodata}) && $options{data}->{content}->{timeout_nodata} =~ /(\d+)/ ? $1 : 30;
 
