@@ -86,7 +86,14 @@ sub init {
     if (defined($config->{gorgonecore}->{external_com_type}) && $config->{gorgonecore}->{external_com_type} ne '') {
         $self->{server_privkey} = gorgone::standard::library::loadprivkey(logger => $self->{logger}, privkey => $config->{gorgonecore}->{privkey});
     }
-    
+
+    $config->{gorgonecore}->{internal_com_type} = 
+        defined($config->{gorgonecore}->{internal_com_type}) && $config->{gorgonecore}->{internal_com_type} ne '' ? $config->{gorgonecore}->{internal_com_type} : 'ipc';
+    $config->{gorgonecore}->{internal_com_path} = 
+        defined($config->{gorgonecore}->{internal_com_path}) && $config->{gorgonecore}->{internal_com_path} ne '' ? $config->{gorgonecore}->{internal_com_path} : '/tmp/gorgone/routing.ipc';
+    $config->{gorgonecore}->{timeout} = 
+        defined($config->{gorgonecore}->{timeout}) && $config->{gorgonecore}->{timeout} =~ /(\d+)/ ? $1 : 50;
+
     # Database connections:
     #    We add in gorgone database
     $gorgone->{db_gorgone} = gorgone::class::db->new(
