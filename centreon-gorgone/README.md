@@ -13,10 +13,27 @@ The daemon can be installed on Centreon environments like Centreon Central, Remo
 
 It uses ZeroMQ library.
 
+To install it and understand the main principles, follow the [guide](docs/guide.md).
+
 ## Modules
 
 The Centreon Gorgone project encloses several built-in modules.
 
 See the list above:
 
-* [Newtest](docs/modules/plugins/newtest.md)
+* Core
+  * [Action](docs/modules/core/action.md)
+  * [Cron](docs/modules/core/cron.md)
+  * [DB Cleaner](docs/modules/core/dbcleaner.md)
+  * [HTTP Server](docs/modules/core/httpserver.md)
+  * [Proxy](docs/modules/core/proxy.md)
+  * [Pull](docs/modules/core/pull.md)
+  * [Register](docs/modules/core/register.md)
+* Centreon
+  * [Autodiscovery](docs/modules/centreon/autodiscovery.md)
+  * [Broker](docs/modules/centreon/broker.md)
+  * [Engine](docs/modules/centreon/engine.md)
+  * [Legacy Cmd](docs/modules/centreon/legacycmd.md)
+  * [Pollers](docs/modules/centreon/pollers.md)
+* Plugins
+  * [Newtest](docs/modules/plugins/newtest.md)
