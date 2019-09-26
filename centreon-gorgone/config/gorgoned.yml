@@ -16,12 +16,12 @@ gorgonecore:
   external_com_path: "*:5555"
   # in seconds before sending kill signals (not gently)
   #timeout: 50
-  gorgone_db_type: SQLite
-  gorgone_db_name: dbname=/tmp/gorgone.sdb
-  gorgone_db_host: 
-  gorgone_db_port: 
-  gorgone_db_user:
-  gorgone_db_password:
+  #gorgone_db_type: SQLite
+  #gorgone_db_name: dbname=/var/lib/centreon/gorgone/gorgone.sdb
+  #gorgone_db_host: 
+  #gorgone_db_port: 
+  #gorgone_db_user:
+  #gorgone_db_password:
   # If not set. Use 'hostname' function.
   hostname:
   # If not set.

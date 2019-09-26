@@ -94,23 +94,24 @@ sub init {
     $config->{gorgonecore}->{timeout} = 
         defined($config->{gorgonecore}->{timeout}) && $config->{gorgonecore}->{timeout} =~ /(\d+)/ ? $1 : 50;
 
-    # Database connections:
-    #    We add in gorgone database
-    $gorgone->{db_gorgone} = gorgone::class::db->new(
+    $config->{gorgonecore}->{gorgone_db_type} =
+        defined($config->{gorgonecore}->{gorgone_db_type}) && $config->{gorgonecore}->{gorgone_db_type} ne '' ? $config->{gorgonecore}->{gorgone_db_type} : 'SQLite';
+    $config->{gorgonecore}->{gorgone_db_name} =
+        defined($config->{gorgonecore}->{gorgone_db_name}) && $config->{gorgonecore}->{gorgone_db_name} ne '' ? $config->{gorgonecore}->{gorgone_db_name} : 'dbname=/var/lib/centreon/gorgone/gorgone.sdb';
+    $config->{gorgonecore}->{gorgone_db_autocreate_schema} =
+        defined($config->{gorgonecore}->{gorgone_db_autocreate_schema}) && $config->{gorgonecore}->{gorgone_db_autocreate_schema} =~ /(\d+)/ ? $1 : 1;
+    gorgone::standard::library::init_database(
+        gorgone => $gorgone,
         type => $config->{gorgonecore}->{gorgone_db_type},
         db => $config->{gorgonecore}->{gorgone_db_name},
         host => $config->{gorgonecore}->{gorgone_db_host},
         port => $config->{gorgonecore}->{gorgone_db_port},
         user => $config->{gorgonecore}->{gorgone_db_user},
         password => $config->{gorgonecore}->{gorgone_db_password},
+        autocreate_schema => $config->{gorgonecore}->{gorgone_db_autocreate_schema},
         force => 2,
         logger => $gorgone->{logger}
     );
-    $gorgone->{db_gorgone}->set_inactive_destroy();
-    if ($gorgone->{db_gorgone}->connect() == -1) {
-        $gorgone->{logger}->writeLogInfo("[core] Cannot connect. We quit!!");
-        exit(1);
-    }
     
     $self->{hostname} = $config->{gorgonecore}->{hostname};
     if (!defined($self->{hostname}) || $self->{hostname} eq '') {
