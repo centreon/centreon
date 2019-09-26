@@ -1,18 +1,5 @@
 # Centreon Gorgone
 
-## Description
-
-"gorgoned" is a daemon which handles tasks. You can plug-in modules:
-
-* Action: execute commands, send files/directories,
-* Cron: cron-like tasks scheduler,
-* Proxy: push tasks (to another "gorgoned" instance) or execute (through SSH).
-* ...
-
-The daemon can be installed on Centreon Central, Remote and Poller servers.
-
-It uses ZeroMQ library.
-
 ## Installation
 
 The daemon uses the following Perl modules:
