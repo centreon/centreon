@@ -16,9 +16,28 @@ This module aims to execute actions on the server running the Gorgone daemon or 
 
 ### Execute a Command Line
 
-Endpoint | Method | Body
-| :- | :- | :- |
-/api/core/action/command | `POST` | Body
+| Endpoint | Method |
+| :- | :- |
+| /api/core/action/command | `POST` |
+
+Headers
+
+---
+
+| Header | Value |
+| :- | :- |
+| Accept | application/json |
+| Content-Type | application/json|
+
+Body
+
+---
+
+```json
+{
+    "command": "<command to execute>"
+}
+```
 
 #### Example
 
