@@ -646,6 +646,9 @@ sub run {
                 modules_events => $gorgone->{modules_events},
             );
         }
+
+        # We can clean return_child.
+        $gorgone->{return_child} = {};
         
         if ($gorgone->{stop} == 1) {
             # No childs
