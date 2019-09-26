@@ -280,6 +280,7 @@
           padding: 11px 10px 11px 28px;
           display: block;
           letter-spacing: -0.4px;
+          background-color: transparent;
           cursor: pointer;
           &:hover {
             color: $white-color;
@@ -379,6 +380,7 @@
             display: block;
             letter-spacing: -.4px;
             cursor: pointer;
+            background-color: transparent;
           }
           &.active {
             &-2B9E93 {
