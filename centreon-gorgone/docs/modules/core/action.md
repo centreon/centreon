@@ -20,18 +20,14 @@ This module aims to execute actions on the server running the Gorgone daemon or 
 | :- | :- |
 | /api/core/action/command | `POST` |
 
-Headers
-
----
+#### Headers
 
 | Header | Value |
 | :- | :- |
 | Accept | application/json |
 | Content-Type | application/json|
 
-Body
-
----
+#### Body
 
 ```json
 {
