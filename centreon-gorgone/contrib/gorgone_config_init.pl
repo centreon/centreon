@@ -145,7 +145,6 @@ modules:
     remote_dir: "$centreon_config->{VarLib}/remote-data/"
 END_FILE
 
-    chomp $content;
     print $fh $content;
     close($fh);
 }
