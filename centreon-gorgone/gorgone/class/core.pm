@@ -28,11 +28,10 @@ use ZMQ::LibZMQ4;
 use ZMQ::Constants qw(:all);
 use gorgone::standard::library;
 use gorgone::class::db;
-use centreon::script;
 
 my ($gorgone, $config);
 
-use base qw(centreon::script);
+use base qw(gorgone::class::script);
 
 my $VERSION = '1.0';
 my %handlers = (TERM => {}, HUP => {}, CHLD => {});
