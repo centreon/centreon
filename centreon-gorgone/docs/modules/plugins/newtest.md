@@ -75,27 +75,27 @@ Add an entry in the `containers` table with the following attributes per NWC def
 ```yaml
 containers:
   - name: nwc_1
-  resync_time: 300
-  nmc_endpoint: "http://__NMC_ADDRESS__/nws/managementconsoleservice.asmx"
-  username: user
-  password: pass
-  host_template: generic-active-host-custom
-  host_prefix: Robot-%s
-  service_template: generic-passive-service-custom
-  service_prefix: Scenario-%s
-  poller_name: Central
-  list_scenario_status: '{ "search": "All", "instances": [] }'
+    resync_time: 300
+    nmc_endpoint: "http://__NMC_ADDRESS__/nws/managementconsoleservice.asmx"
+    username: user
+    password: pass
+    host_template: generic-active-host-custom
+    host_prefix: Robot-%s
+    service_template: generic-passive-service-custom
+    service_prefix: Scenario-%s
+    poller_name: Central
+    list_scenario_status: '{ "search": "All", "instances": [] }'
   - name: nwc_2
-  resync_time: 600
-  nmc_endpoint: "http://__NMC_ADDRESS__/nws/managementconsoleservice.asmx"
-  username: user
-  password: pass
-  host_template: generic-active-host-custom
-  host_prefix: Robot-%s
-  service_template: generic-passive-service-custom
-  service_prefix: Scenario-%s
-  poller_name: Central
-  list_scenario_status: '{ "search": "Robot", "instances": ["XXXX"] }'
+    resync_time: 600
+    nmc_endpoint: "http://__NMC_ADDRESS__/nws/managementconsoleservice.asmx"
+    username: user
+    password: pass
+    host_template: generic-active-host-custom
+    host_prefix: Robot-%s
+    service_template: generic-passive-service-custom
+    service_prefix: Scenario-%s
+    poller_name: Central
+    list_scenario_status: '{ "search": "Robot", "instances": ["XXXX"] }'
 ```
 
 ## Events
