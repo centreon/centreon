@@ -4,6 +4,21 @@
 
 This module aims to execute actions on the server running the Gorgone daemon or remotly using SSH.
 
+## Configuration
+
+| Directive | Description | Default value |
+| :- | :- | :- |
+| command_timeout | Time in seconds before a command is considered timed out | 30 |
+
+#### Example
+
+```yaml
+name: action
+package: "gorgone::modules::core::action::hooks"
+enable: true
+command_timeout: 30
+```
+
 ## Events
 
 | Event | Description |
@@ -25,13 +40,19 @@ This module aims to execute actions on the server running the Gorgone daemon or 
 | Header | Value |
 | :- | :- |
 | Accept | application/json |
-| Content-Type | application/json|
+| Content-Type | application/json |
 
 #### Body
 
+| Key | Value |
+| :- | :- |
+| command | Command to execute |
+| timeout | Time in seconds before a command is considered timed out |
+
 ```json
 {
-    "command": "<command to execute>"
+    "command": "<command to execute>",
+    "timeout": "<timeout in seconds>"
 }
 ```
 
