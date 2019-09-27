@@ -32,7 +32,7 @@ Add an entry in the `containers` table with the following attributes per SCOM se
 | url | URL of the SCOM API |
 | username | Username to connect to SCOM API |
 | password | Username's password |
-| httpauth | API authentification type |
+| httpauth | API authentication type |
 | resync_time | Time in seconds between two SCOM/Centreon synchronisations |
 | dsmhost | Name of the Centreon host to link alerts to |
 | dsmslot | Name of the Centreon DSM slots to link alerts to |
