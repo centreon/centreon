@@ -36,6 +36,7 @@ use constant NAMESPACE => 'core';
 use constant NAME => 'proxy';
 use constant EVENTS => [
     { event => 'PROXYREADY' },
+    { event => 'REMOTECOPY', uri => '/remotecopy', method => 'POST' },
     { event => 'SETLOGS' }, # internal. Shouldn't be used by third party clients
     { event => 'PONG' }, # internal. Shouldn't be used by third party clients
     { event => 'REGISTERNODES' }, # internal. Shouldn't be used by third party clients

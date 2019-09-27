@@ -57,9 +57,11 @@ cron:
 | :- | :- |
 | Accept | application/json |
 
-#### Body
+#### Path variables
 
-Not needed.
+| Variable | Description |
+| :- | :- |
+| id | Identifier of the cron definition |
 
 #### Example
 
@@ -116,11 +118,76 @@ curl --request POST "https://hostname:8443/api/core/cron/definitions" \
     {
         \"timespec\": \"*/15 * * * *\",
         \"id\": \"job_123\",
-        \"action\": \"COMMAND\"
+        \"action\": \"COMMAND\",
         \"parameters\": {
             \"command\": \"date >> /tmp/the_date_again.log\",
             \"timeout\": 5
         }
     }
 ]"
+```
+
+### Update a definition
+
+| Endpoint | Method |
+| :- | :- |
+| /api/core/cron/definitions/:id | `PATCH` |
+
+#### Headers
+
+| Header | Value |
+| :- | :- |
+| Accept | application/json |
+| Content-Type | application/json |
+
+#### Path variables
+
+| Variable | Description |
+| :- | :- |
+| id | Identifier of the cron definition |
+
+#### Body
+
+One or several keys allowed by the add endpoint.
+
+```json
+{
+    "parameters": "<parameters for the action/event>"
+}
+```
+
+#### Example
+
+```bash
+curl --request PATCH "https://hostname:8443/api/core/cron/definitions/job_123" \
+  --header "Accept: application/json" \
+  --header "Content-Type: application/json" \
+  --data "{
+    \"timespec\": \"*/2 * * * *\"
+}"
+```
+
+### Delete a definition
+
+| Endpoint | Method |
+| :- | :- |
+| /api/core/cron/definitions/:id | `DELETE` |
+
+#### Headers
+
+| Header | Value |
+| :- | :- |
+| Accept | application/json |
+
+#### Path variables
+
+| Variable | Description |
+| :- | :- |
+| id | Identifier of the cron definition |
+
+#### Example
+
+```bash
+curl --request DELETE "https://hostname:8443/api/core/cron/definitions/job_123" \
+  --header "Accept: application/json"
 ```
