@@ -92,8 +92,6 @@ database:
     username: "$centreon_config->{db_user}"
     password: "$centreon_config->{db_passwd}"
 gorgonecore:
-  external_com_type: tcp
-  external_com_path: "*:5555"
   hostname:
   id:
 modules:
