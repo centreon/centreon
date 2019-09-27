@@ -216,7 +216,7 @@ sub api_call {
         return '{"error":"decode_error","message":"POST content must be JSON-formated"}';;
     }
 
-    require 'centreon/gorgone/api.pm';
+    require 'gorgone/standard/api.pm';
     my %parameters = $request->uri->query_form;
     my $response = gorgone::standard::api::root(
         method => $request->method,
