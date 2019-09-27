@@ -8,9 +8,9 @@ As for `centcore`, it reads a file (called command file) and process every comma
 
 The module relies on the following modules to process commands:
 
-* [Action](docs/modules/core/action.md)
-* [Proxy](docs/modules/core/proxy.md)
-* [Engine](docs/modules/centreon/engine.md)
+* [Action](../core/action.md)
+* [Proxy](../core/proxy.md)
+* [Engine](engine.md)
 
 ## Configuration
 

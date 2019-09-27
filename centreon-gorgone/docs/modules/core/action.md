@@ -29,7 +29,7 @@ command_timeout: 30
 
 ## API
 
-### Execute a Command Line
+### Execute a command line
 
 | Endpoint | Method |
 | :- | :- |
