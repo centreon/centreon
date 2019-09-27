@@ -8,7 +8,7 @@ It is not needed in a Centreon standalone configuration, but must be enabled if 
 
 The module includes mechanisms like ping to make sure targets are alive, synchronisation to store logs in the Central Gorgone database, etc.
 
-A SSH client library make routing to non-gorgoned targets to be handlded.
+A SSH client library make routing to non-gorgoned targets possible.
 
 ## Configuration
 

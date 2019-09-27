@@ -1,44 +1,10 @@
 # IP-Label Newtest
 
-## Installation
+## Description
 
-### Prerequisites
+This module aims to retrieve Newtest services.
 
-#### Software recommandations
-
-The module "newtest" has been tested on RedHat 7 with RPMs.
-
-Installation on other system is possible but is outside the scope of this document.
-
-#### Module location
-
-The module "newtest" must be installed on Centreon Central server.
-
-Minimal used ressources are:
-
-* RAM: 128 MB,
-* CPU: it depends the number of Newtest scenarios.
-
-### Module installation
-
-#### Requirements
-
-| Dependency         | Version      | Repository         |
-| :----------------- | :----------: | :----------------- |
-| perl-SOAP-Lite     | 1.10         | centreon base      |
-| perl-TimeDate      | 2.30         | redhat/centos base |
-
-#### Newtest installation
-
-"newtest" is an official Gorgone module. No installation needed.
-
-## Exploitation
-
-### Generals Principles
-
-`newtest` is a module in charge to retrieve Newtest services.
-
-This module uses the Newtest webservice in order to connect and retrieve the informations of one (or more) Newtest Management Console (NMC).
+It uses the Newtest webservice in order to connect and retrieve the informations of one (or more) Newtest Management Console (NMC).
 
 By default `newtest` starts X processes (it depends of the configuration).
 
@@ -54,30 +20,46 @@ Here are the steps done by one process:
 
 5. Submit the result to Centreon through "centcore".
 
-### Configuration
+#### Requirements
 
-The `newtest` module is configured in the Gorgone configuration file and the `modules` table.
+| Dependency         | Version      | Repository         |
+| :----------------- | :----------: | :----------------- |
+| perl-SOAP-Lite     | 1.10         | centreon base      |
+| perl-TimeDate      | 2.30         | redhat/centos base |
 
-Common attributes:
+## Configuration
 
-| Label | Description |
-| :------------ | :---------- |
-| name | Name of the module |
-| package | Perl code package used by the module |
-| enable | Activation boolean |
-| check_containers_time |  |
-| clapi_command | Path to the CLAPI binary |
-| clapi_username | CLAPI username |
-| clapi_password | CLAPI username's password |
-| clapi_action_applycfg | CLAPI action used to apply Poller configuration |
-| centcore_cmd | Path to centcore command file |
+| Directive | Description | Default value |
+| :- | :- | :- |
+| clapi_command | Path to the CLAPI binary | /usr/bin/centreon |
+| clapi_timeout | Time in seconds before CLAPI command execution is considered timed out | 10 |
+| clapi_username | CLAPI username | |
+| clapi_password | CLAPI username's password | |
+| centcore_cmd | Path to centcore command file | /var/lib/centreon/centcore.cmd |
+| clapi_action_applycfg | CLAPI action used to apply Poller configuration | |
+| clapi_generate_config_timeout | Time in seconds before the configuration generation is considered timed out | 180 |
+| check_containers_time | Time in seconds between two containers synchronisation | 3600 |
 
-An entry in the `containers` table with the following attributes per NWC definition:
+#### Example
 
-| Label | Description |
+```yaml
+name: newtest
+package: "gorgone::modules::plugins::newtest::hooks"
+enable: false
+check_containers_time: 3600
+clapi_command: /usr/bin/centreon
+clapi_username: admin
+clapi_password: centreon
+clapi_action_applycfg: POLLERRELOAD
+centcore_cmd: /var/lib/centreon/centcore.cmd
+```
+
+Add an entry in the `containers` table with the following attributes per NWC definition:
+
+| Directive | Description |
 | :------------ | :---------- |
 | name | Name of the NWC configuration entrie |
-| resync_time |  |
+| resync_time | Time in seconds between two NWC/Centreon synchronisations |
 | nmc_endpoint | Address of the NMC endpoint |
 | username | Username to connect to NWC endpoint |
 | password | Username's password |
@@ -91,43 +73,60 @@ An entry in the `containers` table with the following attributes per NWC definit
 #### Example
 
 ```yaml
-modules:
-  - name: newtest
-    package: gorgone::modules::plugins::newtest::hooks
-    enable: false
-    # in seconds - do purge for container also
-    check_containers_time: 3600
-    clapi_command: /usr/bin/centreon
-    clapi_username: admin
-    clapi_password: centreon
-    clapi_action_applycfg: POLLERRELOAD
-    centcore_cmd: /var/lib/centreon/centcore.cmd
-    containers:
-      - name: nwc_1
-        resync_time: 300
-        nmc_endpoint: "http://__NMC_ADDRESS__/nws/managementconsoleservice.asmx"
-        username: user
-        password: pass
-        host_template: generic-active-host-custom
-        host_prefix: Robot-%s
-        service_template: generic-passive-service-custom
-        service_prefix: Scenario-%s
-        poller_name: Central
-        list_scenario_status: '{ "search": "All", "instances": [] }'
-      - name: nwc_2
-        resync_time: 600
-        nmc_endpoint: "http://__NMC_ADDRESS__/nws/managementconsoleservice.asmx"
-        username: user
-        password: pass
-        host_template: generic-active-host-custom
-        host_prefix: Robot-%s
-        service_template: generic-passive-service-custom
-        service_prefix: Scenario-%s
-        poller_name: Central
-        list_scenario_status: '{ "search": "Robot", "instances": ["XXXX"] }'
+containers:
+  - name: nwc_1
+  resync_time: 300
+  nmc_endpoint: "http://__NMC_ADDRESS__/nws/managementconsoleservice.asmx"
+  username: user
+  password: pass
+  host_template: generic-active-host-custom
+  host_prefix: Robot-%s
+  service_template: generic-passive-service-custom
+  service_prefix: Scenario-%s
+  poller_name: Central
+  list_scenario_status: '{ "search": "All", "instances": [] }'
+  - name: nwc_2
+  resync_time: 600
+  nmc_endpoint: "http://__NMC_ADDRESS__/nws/managementconsoleservice.asmx"
+  username: user
+  password: pass
+  host_template: generic-active-host-custom
+  host_prefix: Robot-%s
+  service_template: generic-passive-service-custom
+  service_prefix: Scenario-%s
+  poller_name: Central
+  list_scenario_status: '{ "search": "Robot", "instances": ["XXXX"] }'
 ```
 
-### Troubleshooting
+## Events
+
+| Event | Description |
+| :- | :- |
+| NEWTESTREADY | Internal event to notify the core |
+| NEWTESTRESYNC | Synchronise NWC and Centreon configuration |
+
+## API
+
+### Force synchronisation between NWC endpoints and Centreon configuration
+
+| Endpoint | Method |
+| :- | :- |
+| /api/plugins/newtest/resync | `GET` |
+
+#### Headers
+
+| Header | Value |
+| :- | :- |
+| Accept | application/json |
+
+#### Example
+
+```bash
+curl --request POST "https://hostname:8443/api/plugins/newtest/resync" \
+  --header "Accept: application/json"
+```
+
+## Troubleshooting
 
 It is possible to get this kind of error in logs of `newtest`:
 

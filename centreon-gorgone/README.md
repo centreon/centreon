@@ -37,3 +37,4 @@ See the list above:
   * [Pollers](docs/modules/centreon/pollers.md)
 * Plugins
   * [Newtest](docs/modules/plugins/newtest.md)
+  * [Scom](docs/modules/plugins/scom.md)
