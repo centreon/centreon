@@ -105,7 +105,7 @@ Third-party clients have to use the ZeroMQ library and the following process:
 
     * If uncrypted message result is not "HELO", server refuses the connection and send it back:
 
-    ```json
+    ```text
     [ACK] [] { "code": 1, "data": { "message": "handshake issue" } }
     ```
 
@@ -141,7 +141,7 @@ After a successful handshake, client requests use the following syntax:
 
 For each client requests, the server get an immediate response:
 
-```json
+```text
 [ACK] [TOKEN] { "code": "x", "data": { "message": "xxxxx" } }
 ```
 
@@ -185,8 +185,7 @@ An example of the JSON stream:
         "last_ping_recv": "xxxx",
         "nodes": {
           "1": "xxx",
-          "2": "xxx",
-          ...
+          "2": "xxx"
         }
       }
     }
@@ -207,7 +206,7 @@ An example: when you request a command execution, the server gives you a direct 
 
 The client request:
 
-```json
+```text
 [GETLOG] [TOKEN] [TARGET] { "code": "xx", "ctime": "xx", "etime": "xx", "token": "xx", "id": "xx" }
 ```
 
@@ -244,7 +243,7 @@ An example of the json stream:
         "code": 1,
         "etime": 1419252684,
         "ctime": 1419252686,
-        "data": xxxxx,
+        "data": "xxxx",
       },
       "100": {
         "id": 100,
@@ -252,9 +251,8 @@ An example of the json stream:
         "code": 1,
         "etime": 1419252688,
         "ctime": 1419252690,
-        "data": xxxxx,
-      },
-      ...
+        "data": "xxxx",
+      }
     }
   }
 }
@@ -276,7 +274,7 @@ The request shouldn't be used by third-party program. It's commonly used by the 
 
 The client request:
 
-```json
+```text
 [PUTLOG] [TOKEN] [TARGET] { "code": xxx, "etime": "xxx", "token": "xxxx", "data": { some_datas } }
 ```
 
@@ -286,7 +284,7 @@ The request shouldn't be used by third-party program. It's commonly used by the 
 
 The client request (no carriage returns. only for reading):
 
-```json
+```text
 [REGISTERNODES] [TOKEN] [TARGET] { "nodes": [
     { "id": 20, "type": "pull" },
     { "id": 100, "type": "push_ssh", "address": "10.0.0.1", "ssh_port": 22 },
@@ -325,7 +323,7 @@ A Poller with gorgoned should have the following modules:
 * action,
 * pull (if the connection to the Central should be opened by the Poller).
 
-## I want to create a client. How should I proceed ?
+### I want to create a client. How should I proceed ?
 
 First, you must choose a language which can use ZeroMQ library and have some knowledge about ZeroMQ.
 
