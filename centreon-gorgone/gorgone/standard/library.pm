@@ -294,6 +294,7 @@ sub is_handshake_done {
     my ($status, $sth) = $options{dbh}->query("SELECT `key` FROM gorgone_identity WHERE identity = " . $options{dbh}->quote($options{identity}) . " ORDER BY id DESC LIMIT 1");
     return if ($status == -1);
     if (my $row = $sth->fetchrow_hashref()) {
+        return 0 if (!defined($row->{key}) || $row->{key} eq '')
         return (1, pack('H*', $row->{key}));
     }
     return 0;
