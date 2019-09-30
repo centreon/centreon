@@ -8,7 +8,7 @@
 | gorgonecore | Table to set Gorgone main configuration |
 | modules | Table to load and configuration Gorgone modules |
 
-## `database`
+## *database*
 
 Usefull in a Centreon Central installation to access Centreon databases.
 
@@ -32,7 +32,7 @@ database:
     password: centreon
 ```
 
-## `gorgonecore`
+## *gorgonecore*
 
 | Directive | Description | Default value
 | :- | :- | :- |
@@ -79,6 +79,6 @@ gorgonecore:
   proxy_name: gproxy
 ```
 
-## `modules`
+## *modules*
 
-See the `configuration` titles of the modules configurations listed [here](../docs/modules.md).
+See the *configuration* titles of the modules documentations listed [here](../docs/modules.md).

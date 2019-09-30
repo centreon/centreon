@@ -23,7 +23,7 @@ dsmclient_bin: /usr/share/centreon/bin/dsmclient.pl
 centcore_cmd: /var/lib/centreon/centcore.cmd
 ```
 
-Add an entry in the `containers` table with the following attributes per SCOM server:
+Add an entry in the *containers* table with the following attributes per SCOM server:
 
 | Directive | Description |
 | :------------ | :---------- |

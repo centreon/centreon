@@ -1,4 +1,4 @@
-# Migrate from Centreon `centcore`
+# Migrate from Centreon *centcore*
 
 To build a configuration file based on */etc/centreon/conf.pm*, execute the following command line.
 

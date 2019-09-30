@@ -1,6 +1,6 @@
 # Modules
 
-List of the available `modules`:
+List of the available modules:
 
 * Core
   * [Action](../docs/modules/core/action.md)

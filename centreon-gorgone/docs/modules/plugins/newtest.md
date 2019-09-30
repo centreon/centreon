@@ -6,7 +6,7 @@ This module aims to retrieve Newtest services.
 
 It uses the Newtest webservice in order to connect and retrieve the informations of one (or more) Newtest Management Console (NMC).
 
-By default `newtest` starts X processes (it depends of the configuration).
+By default *newtest* starts X processes (it depends of the configuration).
 
 Here are the steps done by one process:
 
@@ -18,7 +18,7 @@ Here are the steps done by one process:
 
 4. Get the last status of scenarios from the NMC,
 
-5. Submit the result to Centreon through "centcore".
+5. Submit the result to Centreon through *centcore*.
 
 #### Requirements
 
@@ -54,7 +54,7 @@ clapi_action_applycfg: POLLERRELOAD
 centcore_cmd: /var/lib/centreon/centcore.cmd
 ```
 
-Add an entry in the `containers` table with the following attributes per NWC definition:
+Add an entry in the *containers* table with the following attributes per NWC definition:
 
 | Directive | Description |
 | :------------ | :---------- |
@@ -128,7 +128,7 @@ curl --request POST "https://hostname:8443/api/plugins/newtest/resync" \
 
 ## Troubleshooting
 
-It is possible to get this kind of error in logs of `newtest`:
+It is possible to get this kind of error in logs of *newtest*:
 
 ```bash
 die: syntax error at line 1, column 0, byte 0 at /usr/lib/perl5/vendor_perl/5.8.8/i386-linux-thread-multi/XML/Parser.pm line 189
