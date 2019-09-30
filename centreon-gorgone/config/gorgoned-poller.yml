@@ -1,20 +1,13 @@
 name: gorgoned-poller
 description: Configuration example in a full ZMQ environment for Poller server
 gorgonecore:
+  id: 2
   external_com_type: tcp
   external_com_path: "*:5556"
-  # in seconds before sending kill signals (not gently)
-  timeout: 50
-  gorgone_db_type: SQLite
-  gorgone_db_name: dbname=/tmp/gorgone.sdb
-  id: 2
   privkey: keys/poller/privkey.pem
   cipher: "Cipher::AES"
-  # in bytes
   keysize: 32
-  # 16 bytes for AES
   vector: 0123456789012345
-  # JWK format export thumbprint SHA256
   authorized_clients: 
     - key: pnI6EWkiTbazjikJXRkLmjml5wvVECYtQduJUjS4QK4
 modules:
