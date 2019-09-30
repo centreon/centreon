@@ -10,8 +10,8 @@ The module is loaded by default. Adding it to the configuration will overload da
 
 | Directive | Description | Default value |
 | :- | :- | :- |
-| purge_sessions_time | Time in seconds before deleting sessions in the `gorgone_identity` table | 3600 |
-| purge_history_time | Time in seconds before deleting history in the `gorgone_history` table | 604800 |
+| purge_sessions_time | Time in seconds before deleting sessions in the `gorgone_identity` table | `3600` |
+| purge_history_time | Time in seconds before deleting history in the `gorgone_history` table | `604800` |
 
 #### Example
 

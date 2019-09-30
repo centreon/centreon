@@ -31,14 +31,14 @@ Here are the steps done by one process:
 
 | Directive | Description | Default value |
 | :- | :- | :- |
-| clapi_command | Path to the CLAPI binary | /usr/bin/centreon |
-| clapi_timeout | Time in seconds before CLAPI command execution is considered timed out | 10 |
+| clapi_command | Path to the CLAPI binary | `/usr/bin/centreon` |
+| clapi_timeout | Time in seconds before CLAPI command execution is considered timed out | `10` |
 | clapi_username | CLAPI username | |
 | clapi_password | CLAPI username's password | |
-| centcore_cmd | Path to centcore command file | /var/lib/centreon/centcore.cmd |
+| centcore_cmd | Path to centcore command file | `/var/lib/centreon/centcore.cmd` |
 | clapi_action_applycfg | CLAPI action used to apply Poller configuration | |
-| clapi_generate_config_timeout | Time in seconds before the configuration generation is considered timed out | 180 |
-| check_containers_time | Time in seconds between two containers synchronisation | 3600 |
+| clapi_generate_config_timeout | Time in seconds before the configuration generation is considered timed out | `180` |
+| check_containers_time | Time in seconds between two containers synchronisation | `3600` |
 
 #### Example
 

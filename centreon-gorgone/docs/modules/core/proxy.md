@@ -14,11 +14,11 @@ A SSH client library make routing to non-gorgoned targets possible.
 
 | Directive | Description | Default value |
 | :- | :- | :- |
-| pool | Number of childs to instantiate to process events | 5 |
-| synchistory_time | Time in seconds between two logs synchronisation | 60 |
-| synchistory_timeout | Time in seconds before logs synchronisation is considered timed out | 30 |
-| ping | Time in seconds between two target pings | 60 |
-| pong_discard_timeout | Time in seconds before a target is considered dead | 300 |
+| pool | Number of childs to instantiate to process events | `5` |
+| synchistory_time | Time in seconds between two logs synchronisation | `60` |
+| synchistory_timeout | Time in seconds before logs synchronisation is considered timed out | `30` |
+| ping | Time in seconds between two target pings | `60` |
+| pong_discard_timeout | Time in seconds before a target is considered dead | `300` |
 
 #### Example
 

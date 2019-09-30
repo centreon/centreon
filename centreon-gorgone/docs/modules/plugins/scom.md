@@ -8,9 +8,9 @@ This module aims to retreive alerts from Microsoft SCOM and store them in Centre
 
 | Directive | Description | Default value |
 | :- | :- | :- |
-| dsmclient_bin | Path to the Centreon DSM client | /usr/share/centreon/bin/dsmclient.pl|
-| centcore_cmd | Path to centcore command file | /var/lib/centreon/centcore.cmd |
-| check_containers_time | Time in seconds between two containers synchronisation | 3600 |
+| dsmclient_bin | Path to the Centreon DSM client | `/usr/share/centreon/bin/`dsmclient.pl|
+| centcore_cmd | Path to centcore command file | `/var/lib/centreon/centcore.cmd` |
+| check_containers_time | Time in seconds between two containers synchronisation | `3600` |
 
 #### Example
 

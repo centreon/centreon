@@ -1,96 +1,11 @@
-# Centreon Gorgone
-
-## Installation
-
-The daemon uses the following Perl modules:
-
-* Repository 'centreon-stable':
-  * ZMQ::LibZMQ4
-  * UUID
-* Repository 'centos base':
-  * JSON::XS
-  * YAML
-  * DBD::SQLite
-  * DBD::mysql
-  * Crypt::CBC
-  * HTTP::Daemon
-  * HTTP::Status
-  * MIME::Base64
-* Repository 'epel':
-  * HTTP::Daemon::SSL
-  * Schedule::Cron
-* From offline packages:
-  * Crypt::Cipher::AES (module CryptX)
-  * Crypt::PK::RSA (module CryptX)
-  * Crypt::PRNG (module CryptX)
-
-Execute the following commands to install them all:
-
-```bash
-yum install 'perl(Schedule::Cron)' 'perl(Crypt::CBC)' 'perl(ZMQ::LibZMQ4)' 'perl(JSON::XS)' 'perl(YAML)' 'perl(DBD::SQLite)' 'perl(DBD::mysql)' 'perl(UUID)' 'perl(HTTP::Daemon)' 'perl(HTTP::Daemon::SSL)' 'perl(HTTP::Status)' 'perl(MIME::Base64)'
-yum install perl-CryptX-0.064-1.el7.x86_64
-```
-
-Create sqlite database with the database schema:
-
-```bash
-sqlite3 -init schema/gorgone_database.sql /tmp/gorgone.sdb
-```
-
-Database schema:
-
-```sql
-CREATE TABLE IF NOT EXISTS `gorgone_identity` (
-    `id` INTEGER PRIMARY KEY,
-    `ctime` int(11) DEFAULT NULL,
-    `identity` varchar(2048) DEFAULT NULL,
-    `key` varchar(4096) DEFAULT NULL,
-    `parent` int(11) DEFAULT '0'
-);
-
-CREATE INDEX IF NOT EXISTS idx_gorgone_identity ON gorgone_identity (identity);
-CREATE INDEX IF NOT EXISTS idx_gorgone_parent ON gorgone_identity (parent);
-
-CREATE TABLE IF NOT EXISTS `gorgone_history` (
-    `id` INTEGER PRIMARY KEY,
-    `token` varchar(2048) DEFAULT NULL,
-    `code` int(11) DEFAULT NULL,
-    `etime` int(11) DEFAULT NULL,
-    `ctime` int(11) DEFAULT NULL,
-    `instant` int(11) DEFAULT '0',
-    `data` TEXT DEFAULT NULL
-);
-
-CREATE INDEX IF NOT EXISTS idx_gorgone_history_id ON gorgone_history (id);
-CREATE INDEX IF NOT EXISTS idx_gorgone_history_token ON gorgone_history (token);
-CREATE INDEX IF NOT EXISTS idx_gorgone_history_etime ON gorgone_history (etime);
-CREATE INDEX IF NOT EXISTS idx_gorgone_history_code ON gorgone_history (code);
-CREATE INDEX IF NOT EXISTS idx_gorgone_history_ctime ON gorgone_history (ctime);
-CREATE INDEX IF NOT EXISTS idx_gorgone_history_instant ON gorgone_history (instant);
-
-CREATE TABLE IF NOT EXISTS `gorgone_synchistory` (
-    `id` int(11) DEFAULT NULL,
-    `ctime` int(11) DEFAULT NULL,
-    `last_id` int(11) DEFAULT NULL
-);
-
-CREATE INDEX IF NOT EXISTS idx_gorgone_synchistory_id ON gorgone_synchistory (id);
-```
-
-Launch the daemon:
-
-```bash
-perl gorgoned --config=config/gorgoned.yml --severity=debug
-```
-
-## Gorgone protocol
+# Gorgone protocol
 
 "gorgone-core" (main mandatory module) can have 2 interfaces:
 
 * Internal: uncrypted dialog (used by internal modules. Commonly in ipc)
 * External: crypted dialog (used by third-party clients. Commonly in tcp)
 
-### Handshake scenario
+## Handshake scenario
 
 Third-party clients have to use the ZeroMQ library and the following process:
 
@@ -126,7 +41,7 @@ If a third-party client with the same identity try to open a new session, the se
 
 Be sure to have the same parameters to crypt/uncrypt with the symmetric key. Commonly: 'AES' cipher, keysize of 32 bytes, vector '0123456789012345'.
 
-### Client request
+## Client request
 
 After a successful handshake, client requests use the following syntax:
 
@@ -153,9 +68,9 @@ For each client requests, the server get an immediate response:
 
 There are some exceptions for 'CONSTATUS' and 'GETLOG' requests.
 
-### Core requests
+## Core requests
 
-#### CONSTATUS
+### CONSTATUS
 
 The following request gives you a table with the last ping response of "gorgoned" nodes connected to the server.
 The command is useful to know if some pollers are disconnected.
@@ -198,7 +113,7 @@ The 'last_ping' value is the date when the daemon have launched a PING broadcast
 
 The 'entries' values are the last time the poller have responded to the PING broadcast.
 
-#### GETLOG
+### GETLOG
 
 The following request gives you the capability to follow your requests. "gorgone" protocol is asynchronous.
 
@@ -268,7 +183,7 @@ A client can force a synchronization with the following request:
 
 The client have to set the target ID (it can be the Poller ID).
 
-#### PUTLOG
+### PUTLOG
 
 The request shouldn't be used by third-party program. It's commonly used by the internal modules.
 
@@ -278,7 +193,7 @@ The client request:
 [PUTLOG] [TOKEN] [TARGET] { "code": xxx, "etime": "xxx", "token": "xxxx", "data": { some_datas } }
 ```
 
-#### REGISTERNODES
+### REGISTERNODES
 
 The request shouldn't be used by third-party program. It's commonly used by the internal modules.
 
@@ -297,7 +212,7 @@ The client request (no carriage returns. only for reading):
 }
 ```
 
-### Common codes
+## Common codes
 
 Common code responses for all module requests:
 
@@ -307,9 +222,9 @@ Common code responses for all module requests:
 
 Modules can have extra codes.
 
-## FAQ
+# FAQ
 
-### Which modules should I enable ?
+## Which modules should I enable ?
 
 A Central with gorgoned should have the following modules:
 
@@ -323,7 +238,7 @@ A Poller with gorgoned should have the following modules:
 * action,
 * pull (if the connection to the Central should be opened by the Poller).
 
-### I want to create a client. How should I proceed ?
+## I want to create a client. How should I proceed ?
 
 First, you must choose a language which can use ZeroMQ library and have some knowledge about ZeroMQ.
 
@@ -339,4 +254,4 @@ I recommend the following scenario:
     3. Do a 'GETLOG' request with the token to get the result,
     4. Repeat actions 2 and 3 if you don't have a result yet (you should stop after X retries).
 
-You can inspire from the code of 'test-client.pl'.
+You can inspire from the code of '[test-client.pl](../contrib/test-client.pl)'.

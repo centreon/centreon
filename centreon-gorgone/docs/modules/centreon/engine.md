@@ -8,7 +8,7 @@ This module aims to provide a bridge to communicate with Centreon Engine daemon.
 
 | Directive | Description | Default value |
 | :- | :- | :- |
-| command_file | Path to the Centreon Engine command file pipe | /var/lib/centreon-engine/rw/centengine.cmd |
+| command_file | Path to the Centreon Engine command file pipe | `/var/lib/centreon-engine/rw/centengine.cmd` |
 
 #### Example
 

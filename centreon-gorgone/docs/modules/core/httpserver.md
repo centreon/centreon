@@ -10,9 +10,9 @@ It relies on a core API module to server Gorgone events and can dispatch any oth
 
 | Directive | Description | Default value |
 | :- | :- | :- |
-| address | IP address for the server to bind to | 0.0.0.0 |
-| port | Port on which the server will listen to requests | 8080 |
-| ssl | Boolean to enable SSL terminaison | false |
+| address | IP address for the server to bind to | `0.0.0.0` |
+| port | Port on which the server will listen to requests | `8080` |
+| ssl | Boolean to enable SSL terminaison | `false` |
 | ssl_cert_file | Path to the SSL certificate (if SSL enabled) |  |
 | ssl_key_file | Path to the SSL key (if SSL enabled) |  |
 | auth | Basic credentials to access the server |  |

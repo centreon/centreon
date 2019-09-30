@@ -8,7 +8,7 @@ This module aims to deal with Centreon Broker daemon.
 
 | Directive | Description | Default value |
 | :- | :- | :- |
-| cache_dir | Path to the Centreon Broker statistics directory (local) use to store target's broker statistics | /var/lib/centreon/broker-stats/ |
+| cache_dir | Path to the Centreon Broker statistics directory (local) use to store target's broker statistics | `/var/lib/centreon/broker-stats/` |
 
 The configuration needs a cron definition to unsure that statistics collection will be done cyclically.
 

@@ -8,7 +8,7 @@ This module aims to execute actions on the server running the Gorgone daemon or 
 
 | Directive | Description | Default value |
 | :- | :- | :- |
-| command_timeout | Time in seconds before a command is considered timed out | 30 |
+| command_timeout | Time in seconds before a command is considered timed out | `30` |
 
 #### Example
 

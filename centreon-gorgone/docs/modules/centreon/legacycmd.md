@@ -16,10 +16,10 @@ The module relies on the following modules to process commands:
 
 | Directive | Description | Default value |
 | :- | :- | :- |
-| cmd_file | *Command file* to read commands from | /var/lib/centreon/centcore.cmd |
-| cache_dir | Directory where to process Centreon configuration files | /var/cache/centreon/ |
-| cache_dir_trap | Directory where to process Centreontrapd databases | /etc/snmp/centreon_traps/ |
-| remote_dir | Directory where to export Remote Servers configuration | /var/lib/centreon/remote-data/ |
+| cmd_file | *Command file* to read commands from | `/var/lib/centreon/centcore.cmd` |
+| cache_dir | Directory where to process Centreon configuration files | `/var/cache/centreon/` |
+| cache_dir_trap | Directory where to process Centreontrapd databases | `/etc/snmp/centreon_traps/` |
+| remote_dir | Directory where to export Remote Servers configuration | `/var/lib/centreon/remote-data/` |
 
 #### Example
 
