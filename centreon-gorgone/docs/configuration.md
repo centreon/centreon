@@ -51,11 +51,12 @@ database:
 | id | Identifier of server running Gorgone | None. Must be unique over all Gorgone daemons. |
 | privkey | Path to the Gorgone core private key | `keys/central/privkey.pem` |
 | cipher | Cipher used for encryption | `Cipher::AES` |
-| keysize | Size in bytes of the encryption key | `32` |
+| keysize | Size in bytes of the symmetric encryption key | `32` |
 | vector | Encryption vector | `0123456789012345` |
+| authorized_clients | Table of string-formated JWK thumbprints of clients public key |  |
 | proxy_name | Name of the proxy module definition | `proxy` (loaded internally) |
 
-#### Example with hardcoded default values
+#### Example
 
 ```yaml
 gorgonecore:
@@ -76,7 +77,9 @@ gorgonecore:
   cipher: "Cipher::AES"
   keysize: 32
   vector: 0123456789012345
-  proxy_name: gproxy
+  authorized_clients:
+    - key: pnI6EWkiTbazjikJXRkLmjml5wvVECYtQduJUjS4QK4
+  proxy_name: proxy
 ```
 
 ## *modules*

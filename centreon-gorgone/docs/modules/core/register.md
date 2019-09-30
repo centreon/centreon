@@ -37,7 +37,7 @@ Targets are listed in a separate configuration file in a `nodes` table as below:
 | client_pubkey | Client public key |
 | client_privkey | Client private key |
 | cipher | Cipher used for encryption |
-| keysize | Size of the encryption key |
+| keysize | Size in bytes of the symmetric encryption key |
 | vector | Encryption vector |
 | nodes | Table to register subnodes managed by target |
 
