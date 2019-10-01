@@ -6,29 +6,31 @@ In a Centreon context, the **client** is the Gorgone daemon running on the **Cen
 
 ## Generate private and public keys
 
-On both client and server, generate RSA private and public keys.
+On both client and server, generate RSA private and public keys using *centreon* user.
 
 ```bash
-$ mkdir -p /etc/pki/gorgone/
-$ openssl genrsa -out /etc/pki/gorgone/privkey.pem 4092
+$ mkdir -p /var/spool/centreon/.gorgone/
+$ chmod 700 /var/spool/centreon/.gorgone
+$ openssl genrsa -out /var/spool/centreon/.gorgone/privkey.pem 4092
 Generating RSA private key, 4092 bit long modulus
 ...................................++
 ...........................................................................................................................................................................++
 e is 65537 (0x10001)
-$ openssl rsa -in /etc/pki/gorgone/privkey.pem -out /etc/pki/gorgone/pubkey.pem -pubout -outform PEM
+$ openssl rsa -in /var/spool/centreon/.gorgone/privkey.pem -out /var/spool/centreon/.gorgone/pubkey.pem -pubout -outform PEM
 writing RSA key
-$ chmod 644 /etc/pki/gorgone/*
+$ chmod 644 /var/spool/centreon/.gorgone/pubkey.pem
+$ chmod 600 /var/spool/centreon/.gorgone/privkey.pem
 ```
 
-Copy the server public key onto the client in a specific directory (for example */etc/pki/gorgone/<target_id>*)
+Copy the server public key onto the client in a specific directory (for example */var/spool/centreon/.gorgone/<target_id>*)
 
 ## Get the string-formatted JWK thumbprint
 
 On the client, execute the following command:
 
 ```bash
-$ perl /usr/local/bin/gorgone_key_thumbprint.pl --key-path='/etc/pki/gorgone/pubkey.pem'
-2019-09-30 11:00:00 - INFO - File '/etc/pki/gorgone/pubkey.pem' JWK thumbprint: pnI6EWkiTbazjikJXRkLmjml5wvVECYtQduJUjS4QK4
+$ perl /usr/local/bin/gorgone_key_thumbprint.pl --key-path='/var/spool/centreon/.gorgone/pubkey.pem'
+2019-09-30 11:00:00 - INFO - File '/var/spool/centreon/.gorgone/pubkey.pem' JWK thumbprint: pnI6EWkiTbazjikJXRkLmjml5wvVECYtQduJUjS4QK4
 ```
 
 ## Set the configurations
@@ -42,7 +44,7 @@ In the *gorgoned.yml* configuration file, add the following directives under the
 ```yaml
 gorgonecore:
   id: 1
-  privkey: /etc/pki/gorgone/privkey.pem
+  privkey: /var/spool/centreon/.gorgone/privkey.pem
   cipher: "Cipher::AES"
   keysize: 32
   vector: 0123456789012345
@@ -66,9 +68,9 @@ nodes:
     type: push_zmq
     address: 10.1.2.3
     port: 5556
-    server_pubkey: /etc/pki/gorgone/2/pubkey.pem
-    client_pubkey: /etc/pki/gorgone/pubkey.pem
-    client_privkey: /etc/pki/gorgone/privkey.pem
+    server_pubkey: /var/spool/centreon/.gorgone/2/pubkey.pem
+    client_pubkey: /var/spool/centreon/.gorgone/pubkey.pem
+    client_privkey: /var/spool/centreon/.gorgone/privkey.pem
     cipher: "Cipher::AES"
     keysize: 32
     vector: 0123456789012345
@@ -83,10 +85,12 @@ gorgonecore:
   id: 2
   external_com_type: tcp
   external_com_path: "*:5556"
-  privkey: /etc/pki/gorgone/privkey.pem
+  privkey: /var/spool/centreon/.gorgone/privkey.pem
   cipher: "Cipher::AES"
   keysize: 32
   vector: 0123456789012345
   authorized_clients:
     - key: pnI6EWkiTbazjikJXRkLmjml5wvVECYtQduJUjS4QK4
 ```
+
+The *authorized_clients* entry allows to define the client public key thumbprint retrieved earlier.
