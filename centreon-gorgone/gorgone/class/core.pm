@@ -266,7 +266,7 @@ sub load_modules {
     $self->load_module(config_module => { name => 'dbcleaner', package => 'gorgone::modules::core::dbcleaner::hooks', enable => 'true' });
 
     # Load internal functions
-    foreach my $method_name (('putlog', 'getlog', 'kill', 'ping', 'constatus', 'setcoreid', 'synclogs', 'loadmodule')) {
+    foreach my $method_name (('putlog', 'getlog', 'kill', 'ping', 'constatus', 'setcoreid', 'synclogs', 'loadmodule', 'unloadmodule', 'information')) {
         unless ($self->{internal_register}->{$method_name} = gorgone::standard::library->can($method_name)) {
             $self->{logger}->writeLogError("[core] No function '$method_name'");
             exit(1);
@@ -292,7 +292,7 @@ sub message_run {
         $token = gorgone::standard::library::generate_token();
     }
 
-    if ($action !~ /^(PUTLOG|GETLOG|KILL|PING|CONSTATUS|SETCOREID|SYNCLOGS|LOADMODULE)$/ && 
+    if ($action !~ /^(PUTLOG|GETLOG|KILL|PING|CONSTATUS|SETCOREID|SYNCLOGS|LOADMODULE|UNLOADMODULE|INFORMATION)$/ && 
         !defined($target) && !defined($self->{modules_events}->{$action})) {
         gorgone::standard::library::add_history(
             dbh => $self->{db_gorgone},
@@ -340,7 +340,7 @@ sub message_run {
         return ($token, 0);
     }
     
-    if ($action =~ /^(PUTLOG|GETLOG|KILL|PING|CONSTATUS|SETCOREID|SYNCLOGS|LOADMODULE)$/) {
+    if ($action =~ /^(PUTLOG|GETLOG|KILL|PING|CONSTATUS|SETCOREID|SYNCLOGS|LOADMODULE|UNLOADMODULE|INFORMATION)$/) {
         my ($code, $response, $response_type) = $self->{internal_register}->{lc($action)}->(
             gorgone => $self,
             gorgone_config => $config,
