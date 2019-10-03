@@ -184,6 +184,25 @@ sub handle_CHLD {
     $SIG{CHLD} = \&class_handle_CHLD;
 }
 
+sub unload_module {
+    my ($self, %options) = @_;
+
+    foreach my $event (keys %{$self->{modules_events}}) {
+        if ($self->{modules_events}->{$event}->{module}->{package} eq $options{package}) {
+            delete $self->{modules_events}->{$event};
+        }
+    }
+
+    delete $self->{modules_register}->{ $options{package} };
+    foreach (keys %{$self->{modules_id}}) {
+        if ($self->{modules_id}->{$_} eq $options{package}) {
+            delete $self->{modules_id}->{$_};
+            last;
+        }
+    }
+    $self->{logger}->writeLogInfo("[core] Module '" . $options{package} . "' is unloaded");
+}
+
 sub load_module {
     my ($self, %options) = @_;
 
@@ -236,7 +255,7 @@ sub load_module {
 
     $self->{modules_id}->{$name} = $package;
 
-    foreach my $event (@{$events}) {
+    foreach my $event (@$events) {
         $self->{modules_events}->{$event->{event}} = {
             module => {
                 namespace => $namespace,
@@ -634,9 +653,9 @@ sub run {
     while (1) {
         my $count = 0;
         my $poll = [@{$gorgone->{poll}}];
-        
+
         foreach my $name (keys %{$gorgone->{modules_register}}) {
-            $count += $gorgone->{modules_register}->{$name}->{check}->(
+            my $count_module = $gorgone->{modules_register}->{$name}->{check}->(
                 logger => $gorgone->{logger},
                 dead_childs => $gorgone->{return_child},
                 internal_socket => $gorgone->{internal_socket},
@@ -644,6 +663,10 @@ sub run {
                 poll => $poll,
                 modules_events => $gorgone->{modules_events},
             );
+            $count += $count_module;
+            if ($count_module == 0) {
+                $gorgone->unload_module(package => $name);
+            }
         }
 
         # We can clean return_child.

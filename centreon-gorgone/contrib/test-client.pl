@@ -27,8 +27,8 @@ use JSON::XS;
 use UUID;
 use Data::Dumper;
 use Sys::Hostname;
-use centreon::gorgone::clientzmq;
-use centreon::gorgone::common;
+use gorgone::class::clientzmq;
+use gorgone::standard::library;
 
 my ($client, $client2);
 my $identities_token = {};
@@ -107,7 +107,7 @@ my $uuid;
 #$uuid = 'toto';
 UUID::generate($uuid);
 
-#$client = centreon::gorgone::clientzmq->new(
+#$client = gorgone::class::clientzmq->new(
 #    identity => 'toto', 
 #    cipher => 'Cipher::AES', 
 #    vector => '0123456789012345',
@@ -119,7 +119,7 @@ UUID::generate($uuid);
 #    ping => 60,
 #);
 #$client->init(callback => \&read_response);
-$client2 = centreon::gorgone::clientzmq->new(
+$client2 = gorgone::class::clientzmq->new(
     identity => 'tata', 
     cipher => 'Cipher::AES',
     vector => '0123456789012345',
@@ -150,7 +150,7 @@ $client2->init(callback => \&read_response_result);
 #$client2->send_message(action => 'CONSTATUS');
 $client2->send_message(
     action => 'LOADMODULE',
-    data => { content => { name => 'engine', package => 'modules::centreon::engine::hooks', enable => 'true', command_file => 'plop' } },
+    data => { content => { name => 'engine', package => 'gorgone::modules::centreon::engine::hooks', enable => 'true', command_file => 'plop' } },
     json_encode => 1
 );
 

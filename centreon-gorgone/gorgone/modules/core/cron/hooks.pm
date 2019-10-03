@@ -136,7 +136,7 @@ sub check {
         }
     }
     
-    $count++  if (defined($cron->{running}) && $cron->{running} == 1);
+    $count++ if (defined($cron->{running}) && $cron->{running} == 1);
     
     return $count;
 }
