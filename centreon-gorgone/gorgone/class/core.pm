@@ -61,7 +61,7 @@ sub new {
     $self->{kill_timer} = undef;
     $self->{server_privkey} = undef;
     $self->{register_parent_nodes} = {};
-    $self->{counters} = { internal => {}, external => {}, proxy => {} };
+    $self->{counters} = { total => 0, internal => { total => 0 }, external => { total => 0 }, proxy => { total => 0 } };
 
     return $self;
 }
@@ -326,6 +326,8 @@ sub message_run {
 
     $self->{counters}->{$options{router_type}}->{lc($action)} = 0 if (!defined($self->{counters}->{$options{router_type}}->{lc($action)}));
     $self->{counters}->{$options{router_type}}->{lc($action)}++;
+    $self->{counters}->{total}++;
+    $self->{counters}->{$options{router_type}}->{total}++;
 
     if ($self->{stop} == 1) {
         gorgone::standard::library::add_history(
@@ -353,6 +355,7 @@ sub message_run {
 
         $self->{counters}->{proxy}->{lc($action)} = 0 if (!defined($self->{counters}->{proxy}->{lc($action)}));
         $self->{counters}->{proxy}->{lc($action)}++;
+        $self->{counters}->{proxy}->{total}++;
 
         $self->{modules_register}->{ $self->{modules_id}->{$config->{gorgonecore}->{proxy_name}} }->{routing}->(
             socket => $self->{internal_socket},
