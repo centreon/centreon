@@ -307,6 +307,11 @@ sub is_handshake_done {
 sub information {
     my (%options) = @_;
 
+    my $data = {
+        counters => $options{gorgone}->{counters},
+        modules => $options{gorgone}->{modules_id},
+    };
+    return (0, { action => 'information', message => 'ok', data => $data }, 'INFORMATION');
 }
 
 sub unloadmodule {

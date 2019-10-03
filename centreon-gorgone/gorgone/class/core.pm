@@ -61,6 +61,7 @@ sub new {
     $self->{kill_timer} = undef;
     $self->{server_privkey} = undef;
     $self->{register_parent_nodes} = {};
+    $self->{counters} = { internal => {}, external => {}, proxy => {} };
 
     return $self;
 }
@@ -323,6 +324,9 @@ sub message_run {
         return (undef, 1, { message => "action '$action' is not known" });
     }
 
+    $self->{counters}->{$options{router_type}}->{lc($action)} = 0 if (!defined($self->{counters}->{$options{router_type}}->{lc($action)}));
+    $self->{counters}->{$options{router_type}}->{lc($action)}++;
+
     if ($self->{stop} == 1) {
         gorgone::standard::library::add_history(
             dbh => $self->{db_gorgone},
@@ -346,6 +350,10 @@ sub message_run {
             );
             return ($token, 1, { message => 'no proxy configured. cannot manage target.' });
         }
+
+        $self->{counters}->{proxy}->{lc($action)} = 0 if (!defined($self->{counters}->{proxy}->{lc($action)}));
+        $self->{counters}->{proxy}->{lc($action)}++;
+
         $self->{modules_register}->{ $self->{modules_id}->{$config->{gorgonecore}->{proxy_name}} }->{routing}->(
             socket => $self->{internal_socket},
             dbh => $self->{db_gorgone},
