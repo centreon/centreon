@@ -317,6 +317,8 @@ sub kill_internal {
 sub check_create_child {
     my (%options) = @_;
 
+    return if ($stop == 1);
+
     # Check if we need to create a child
     for my $pool_id (1..$config->{pool}) {
         if (!defined($pools->{$pool_id})) {

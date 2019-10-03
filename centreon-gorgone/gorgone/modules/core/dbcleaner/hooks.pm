@@ -134,7 +134,7 @@ sub check {
     my $count = 0;
     foreach my $pid (keys %{$options{dead_childs}}) {
         # Not me
-        next if ($dbcleaner->{pid} != $pid);
+        next if (!defined($dbcleaner->{pid}) || $dbcleaner->{pid} != $pid);
         
         $dbcleaner = {};
         delete $options{dead_childs}->{$pid};
