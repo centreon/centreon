@@ -1,4 +1,3 @@
-- Add a core event: GETINFORMATION (events loaded, target loaded and module loaded)
 - gorgone-newtest: don't use centcore.cmd. use ssh system.
 - Add a broadcast action to update module (like logger in debug for example)
 - Add redis backend to store logs (we could disable synclog in redis mode)
