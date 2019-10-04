@@ -34,15 +34,15 @@
         <td class='ListColLeft'>
             {foreach key=state item=counter from=$elem.service_state}
                 {if $state == 0 }
-                    {assign var='link' value='&o=svc_ok'}
+                    {assign var='link' value='&o=svc&statusFilter=ok'}
                 {elseif $state == 1 }
-                    {assign var='link' value='&o=svc_warning'}
+                    {assign var='link' value='&o=svc&statusFilter=warning'}
                 {elseif $state == 2 }
-                    {assign var='link' value='&o=svc_critical'}
+                    {assign var='link' value='&o=svc&statusFilter=critical'}
                 {elseif $state == 3 }
-                    {assign var='link' value='&o=svc_unknown'}
+                    {assign var='link' value='&o=svc&statusFilter=unknown'}
                 {elseif $state == 4 }
-                    {assign var='link' value='&o=svc_pending'}
+                    {assign var='link' value='&o=svc&statusFilter=pending'}
                 {/if}
             <span class="state_badge" style='background-color: {$serviceStateColors[$state]};'></span>
             <span class='margin_right'>
