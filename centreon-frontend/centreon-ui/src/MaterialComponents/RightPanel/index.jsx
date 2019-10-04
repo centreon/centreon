@@ -8,6 +8,7 @@ import ArrowForwardIos from '@material-ui/icons/ArrowForwardIos';
 import Slide from '@material-ui/core/Slide';
 
 import IconClose from '../Icons/IconClose';
+import Loader from '../../Loader';
 import ExpandableSection from './ExpandableSection';
 
 const panelWidth = 560;
@@ -78,6 +79,8 @@ const RightPanel = ({
   onSecondaryPanelClose,
   sections,
   onClose,
+  onOpen,
+  loading,
 }) => {
   const [secondaryPanelActive, setSecondaryPanelActive] = useState(false);
   const { secondaryPanel } = useSecondaryPanelStyles({
@@ -110,12 +113,14 @@ const RightPanel = ({
     <Slide
       in={active}
       direction="left"
+      onEntered={onOpen}
       timeout={{
         enter: inAnimationDurationMs,
         exit: outAnimationDurationMs,
       }}
     >
       <Container>
+        {loading && <Loader fullContent />}
         <Header display="flex" flexDirection="row">
           <Box flexGrow={1}>{headerComponent}</Box>
           <Box>
@@ -159,16 +164,20 @@ const RightPanel = ({
 
 RightPanel.defaultProps = {
   onClose: () => {},
+  onOpen: () => {},
   onSecondaryPanelClose: () => {},
   secondaryPanelComponent: undefined,
+  loading: false,
 };
 
 RightPanel.propTypes = {
   active: PropTypes.bool.isRequired,
+  loading: PropTypes.bool,
   headerComponent: PropTypes.node.isRequired,
   secondaryPanelComponent: PropTypes.node,
   sections: PropTypes.arrayOf(PropTypes.shape).isRequired,
   onClose: PropTypes.func,
+  onOpen: PropTypes.func,
   onSecondaryPanelClose: PropTypes.func,
 };
 
