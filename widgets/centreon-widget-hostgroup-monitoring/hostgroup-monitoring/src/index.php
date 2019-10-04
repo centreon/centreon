@@ -150,7 +150,7 @@ while ($row = $res->fetch()) {
     $data[$row['name']] = array(
         'name' => $row['name'],
         'hg_id' => $row['hostgroup_id'],
-        'hgurl' => "main.php?p=20201&o=svc&hg=" . $row['hostgroup_id'],
+        'hgurl' => "main.php?p=20201&o=svc&search=&hg=" . $row['hostgroup_id'],
         "hgurlhost" => "main.php?p=20202&o=h&hostgroups=" . $row['hostgroup_id'],
         'host_state' => array(),
         'service_state' => array()
