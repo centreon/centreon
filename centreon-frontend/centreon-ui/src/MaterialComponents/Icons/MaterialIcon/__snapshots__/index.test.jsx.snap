@@ -7,15 +7,8 @@ exports[`Hello World renders 1`] = `
 `;
 
 exports[`MaterialIcon renders 1`] = `
-.emotion-0 {
-  display: inline-block;
-  vertical-align: middle;
-  height: 24px;
-  color: #707070;
-}
-
 <span
-  class="emotion-0"
+  class="span-root-1 span-root-2"
 >
   <i />
 </span>
