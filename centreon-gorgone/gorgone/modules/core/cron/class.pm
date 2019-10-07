@@ -84,57 +84,68 @@ sub action_getcron {
     
     $options{token} = $self->generate_token() if (!defined($options{token}));
 
-    $self->send_log(
-        code => gorgone::class::module::ACTION_BEGIN,
-        token => $options{token},
-        data => { message => 'get start' }
-    );
-    $self->{logger}->writeLogDebug("[cron] -class- Cron get start");
-
-    my @cron_list = ();
+    my $data;
     my $id = $options{data}->{variables}[0];
+    my $parameter = $options{data}->{variables}[1];
     if (defined($id) && $id ne '') {
-        my $idx;
-        eval {
-            $idx = $self->{cron}->check_entry($id);
-        };
-        if ($@) {
-            $self->{logger}->writeLogDebug("[cron] -class- Cron get failed to retrieve entry index");
-            $self->send_log(
-                code => $self->ACTION_FINISH_KO,
+        if (defined($parameter) && $parameter =~ /^status$/) {
+            $self->{logger}->writeLogDebug("[cron] -class- Get logs results for definition '" . $id . "'");
+            $self->send_internal_action(
+                action => 'GETLOG',
                 token => $options{token},
-                data => { message => 'failed to retrieve entry index' }
+                data => {
+                    token => $id,
+                    ctime => $options{data}->{parameters}->{ctime},
+                    etime => $options{data}->{parameters}->{etime},
+                    limit => $options{data}->{parameters}->{limit},
+                    code => $options{data}->{parameters}->{code}
+                }
             );
-            return 1;
-        }
-        if (!defined($idx)) {
-            $self->{logger}->writeLogDebug("[cron] -class- Cron get failed no entry found for id");
-            $self->send_log(
-                code => $self->ACTION_FINISH_KO,
-                token => $options{token},
-                data => { message => 'no entry found for id' }
-            );
-            return 1;
-        }
+            my $rev = zmq_poll($connector->{poll}, 5000);
+            $data = $connector->{ack}->{data}->{data}->{result};
+        } else {
+            my $idx;
+            eval {
+                $idx = $self->{cron}->check_entry($id);
+            };
+            if ($@) {
+                $self->{logger}->writeLogDebug("[cron] -class- Cron get failed to retrieve entry index");
+                $self->send_log(
+                    code => $self->ACTION_FINISH_KO,
+                    token => $options{token},
+                    data => { message => 'failed to retrieve entry index' }
+                );
+                return 1;
+            }
+            if (!defined($idx)) {
+                $self->{logger}->writeLogDebug("[cron] -class- Cron get failed no entry found for id");
+                $self->send_log(
+                    code => $self->ACTION_FINISH_KO,
+                    token => $options{token},
+                    data => { message => 'no entry found for id' }
+                );
+                return 1;
+            }
 
-        eval {
-            my $result = $self->{cron}->get_entry($idx);
-            push @cron_list, { %{$result->{args}[1]->{definition}} } if (defined($result->{args}[1]->{definition}));
-        };
-        if ($@) {
-            $self->{logger}->writeLogDebug("[cron] -class- Cron get failed");
-            $self->send_log(
-                code => $self->ACTION_FINISH_KO,
-                token => $options{token},
-                data => { message => 'get failed:' . $@ }
-            );
-            return 1;
+            eval {
+                my $result = $self->{cron}->get_entry($idx);
+                push @{$data}, { %{$result->{args}[1]->{definition}} } if (defined($result->{args}[1]->{definition}));
+            };
+            if ($@) {
+                $self->{logger}->writeLogDebug("[cron] -class- Cron get failed");
+                $self->send_log(
+                    code => $self->ACTION_FINISH_KO,
+                    token => $options{token},
+                    data => { message => 'get failed:' . $@ }
+                );
+                return 1;
+            }
         }
     } else {
         eval {
             my @results = $self->{cron}->list_entries();
             foreach my $cron (@results) {
-                push @cron_list, { %{$cron->{args}[1]->{definition}} };
+                push @{$data}, { %{$cron->{args}[1]->{definition}} };
             }
         };
         if ($@) {
@@ -148,11 +159,10 @@ sub action_getcron {
         }
     }
 
-    $self->{logger}->writeLogDebug("[cron] -class- Cron get finish");
     $self->send_log(
         code => $self->ACTION_FINISH_OK,
         token => $options{token},
-        data => \@cron_list
+        data => $data
     );
     return 0;
 }
@@ -163,11 +173,6 @@ sub action_addcron {
     $options{token} = $self->generate_token() if (!defined($options{token}));
 
     $self->{logger}->writeLogDebug("[cron] -class- Cron add start");
-    $self->send_log(
-        code => gorgone::class::module::ACTION_BEGIN,
-        token => $options{token},
-        data => { message => 'add start' }
-    );
 
     foreach my $definition (@{$options{data}->{content}}) {
         if (!defined($definition->{timespec}) || $definition->{timespec} eq '' ||
@@ -231,11 +236,6 @@ sub action_updatecron {
     $options{token} = $self->generate_token() if (!defined($options{token}));
 
     $self->{logger}->writeLogDebug("[cron] -class- Cron update start");
-    $self->send_log(
-        code => gorgone::class::module::ACTION_BEGIN,
-        token => $options{token},
-        data => { message => 'update start' }
-    );
     
     my $id = $options{data}->{variables}[0];
     if (!defined($id)) {
@@ -317,11 +317,6 @@ sub action_deletecron {
     $options{token} = $self->generate_token() if (!defined($options{token}));
 
     $self->{logger}->writeLogDebug("[cron] -class- Cron delete start");
-    $self->send_log(
-        code => gorgone::class::module::ACTION_BEGIN,
-        token => $options{token},
-        data => { message => 'delete start' }
-    );
     
     my $id = $options{data}->{variables}[0];
     if (!defined($id) || $id eq '') {
@@ -382,9 +377,17 @@ sub action_deletecron {
 sub event {
     while (1) {
         my $message = gorgone::standard::library::zmq_dealer_read_message(socket => $connector->{internal_socket});
-        
+
         $connector->{logger}->writeLogDebug("[cron] -class- Event: $message");
-        if ($message =~ /^\[(.*?)\]/) {
+        if ($message =~ /^\[ACK\]\s+\[(.*?)\]\s+(.*)$/m) {
+            my $token = $1;
+            my $data = JSON::XS->new->utf8->decode($2);
+            $connector->{ack} = {
+                token => $token,
+                data => $data,
+            };
+        } else {
+            $message =~ /^\[(.*?)\]\s+\[(.*?)\]\s+\[.*?\]\s+(.*)$/m;
             if ((my $method = $connector->can('action_' . lc($1)))) {
                 $message =~ /^\[(.*?)\]\s+\[(.*?)\]\s+\[.*?\]\s+(.*)$/m;
                 my ($action, $token) = ($1, $2);
@@ -459,7 +462,17 @@ sub run {
         }
     ];
 
-    $self->{cron} = new Schedule::Cron(\&dispatcher, nostatus => 1, nofork => 1);
+    push @{$self->{config}->{cron}}, {
+        id => "default",
+        timespec => "0 0 * * *",
+        action => "COMMAND",
+        parameters => {
+            command => "date >> /tmp/date.log",
+            timeout => 2,
+        }
+    };
+
+    $self->{cron} = new Schedule::Cron(\&dispatcher, nostatus => 1, nofork => 1, catch => 1);
 
     foreach my $definition (@{$self->{config}->{cron}}) {
         $self->{cron}->add_entry(
