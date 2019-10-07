@@ -160,7 +160,7 @@ sub get_log {
         };
         if ($@) {
             $response = '{"error":"decode_error","message":"Cannot decode response"}';
-        } elsif (defined($content->{data}->{result}) && scalar(keys %{$content->{data}->{result}}) > 0) {
+        } elsif (defined($content->{data}->{result}) && scalar(@{$content->{data}->{result}}) > 0) {
             eval {
                 $response = JSON::XS->new->utf8->encode($content->{data}->{result});
             };
