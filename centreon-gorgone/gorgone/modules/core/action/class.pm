@@ -287,12 +287,6 @@ sub create_child {
     if ($child_pid == 0) {
         $self->action_run(action => $action, token => $token, data => $data);
         exit(0);
-    } else {
-        $self->send_log(
-            code => $self->ACTION_BEGIN,
-            token => $token,
-            data => { message => "proceed action" }
-        );
     }
 }
 
