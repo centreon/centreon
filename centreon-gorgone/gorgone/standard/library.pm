@@ -501,13 +501,22 @@ sub getlog {
     if ($filter eq '') {
         return (1, { message => 'need at least one filter' });
     }
+
+    my $query = "SELECT * FROM gorgone_history WHERE " . $filter;
+    $query .= " ORDER BY id DESC LIMIT " . $data->{limit} if (defined($data->{limit}) && $data->{limit} ne '');
     
-    my ($status, $sth) = $options{gorgone}->{db_gorgone}->query("SELECT * FROM gorgone_history WHERE " . $filter);
+    my ($status, $sth) = $options{gorgone}->{db_gorgone}->query($query);
     if ($status == -1) {
         return (1, { message => 'database issue' });
     }
+
+    my @result;
+    my $results = $sth->fetchall_hashref('id');
+    foreach (sort keys %{$results}) {
+        push @result, $results->{$_};
+    }
     
-    return (0, { action => 'getlog', result => $sth->fetchall_hashref('id'), id => $options{gorgone}->{id} });
+    return (0, { action => 'getlog', result => \@result, id => $options{gorgone}->{id} });
 }
 
 sub kill {
