@@ -141,3 +141,7 @@ If you are using the sources, execute the following command:
 ```bash
 perl gorgoned --config=config/gorgoned.yml --severity=error
 ```
+
+## Full-ZMQ setup
+
+To use Gorgone distributed on multiple servers using ZMQ, follow the example given [here](../docs/client_server_zmq.md).
