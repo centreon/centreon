@@ -30,6 +30,7 @@ cron:
     parameters:
       command: "date >> /tmp/date.log"
       timeout: 10
+    keep_token: true
 ```
 
 ## Events
@@ -44,7 +45,7 @@ cron:
 
 ## API
 
-### Get one or all definitions
+### Get one or all definitions configuration
 
 | Endpoint | Method |
 | :- | :- |
@@ -75,6 +76,31 @@ curl --request GET "https://hostname:8443/api/core/cron/definitions/echo_date" \
   --header "Accept: application/json"
 ```
 
+### Get one definition status
+
+| Endpoint | Method |
+| :- | :- |
+| /api/core/cron/definitions/:id/status | `GET` |
+
+#### Headers
+
+| Header | Value |
+| :- | :- |
+| Accept | application/json |
+
+#### Path variables
+
+| Variable | Description |
+| :- | :- |
+| id | Identifier of the cron definition |
+
+#### Example
+
+```bash
+curl --request GET "https://hostname:8443/api/core/cron/definitions/echo_date/status" \
+  --header "Accept: application/json"
+```
+
 ### Add one or several cron definitions
 
 | Endpoint | Method |
@@ -96,6 +122,7 @@ curl --request GET "https://hostname:8443/api/core/cron/definitions/echo_date" \
 | timespec | Cron-like time specification |
 | command | Action/event to call at job execution |
 | parameters | Parameters needed by the called action/event |
+| keep_token | Boolean to define whether or not the ID of the definition will be used as token for the command |
 
 ```json
 [
@@ -103,7 +130,8 @@ curl --request GET "https://hostname:8443/api/core/cron/definitions/echo_date" \
         "id": "<id of the definition>",
         "timespec": "<cron-like time specification>",
         "command": "<action/event>",
-        "parameters": "<parameters for the action/event>"
+        "parameters": "<parameters for the action/event>",
+        "keep_token": "<boolean to keep id as token>"
     }
 ]
 ```
@@ -122,7 +150,8 @@ curl --request POST "https://hostname:8443/api/core/cron/definitions" \
         \"parameters\": {
             \"command\": \"date >> /tmp/the_date_again.log\",
             \"timeout\": 5
-        }
+        },
+        \"keep_token\": true
     }
 ]"
 ```
