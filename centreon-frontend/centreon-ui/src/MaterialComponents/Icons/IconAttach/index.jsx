@@ -53,6 +53,7 @@ function IconAttach({
   uploadedImage,
   imgSource,
   title,
+  labelNoIcon = "NO ICON",
 }) {
   const classes = useStyles();
 
@@ -60,7 +61,7 @@ function IconAttach({
     <span onClick={onClick} className={classes.iconAttach}>
       {defaultImage && (
         <React.Fragment>
-          <span className={classes.iconAttachLabel}>NO ICON</span>
+          <span className={classes.iconAttachLabel}>{labelNoIcon}</span>
         </React.Fragment>
       )}
       {uploadedImage && (
