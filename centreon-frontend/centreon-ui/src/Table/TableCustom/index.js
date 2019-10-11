@@ -121,10 +121,10 @@ class TableCustom extends Component {
       : row.id;
     const selectedIndex = indicatorsEditor
       ? selected
-          .map(({ object }) => {
-            return object.id;
+          .map(({ object, type }) => {
+            return object.id + type + "Typed";
           })
-          .indexOf(value.object.id)
+          .indexOf(value.object.id + value.type + "Typed")
       : selected.indexOf(value);
     let newSelected = [];
 
@@ -207,7 +207,7 @@ class TableCustom extends Component {
       for (let i = 0; i < selected.length; i++) {
         // eslint-disable-next-line
         if (indicatorsEditor) {
-          if (selected[i].object.id === value) {
+          if (selected[i].object.id === value.object.id && selected[i].type === value.type) {
             return {
               bool: true,
               obj: selected[i],
@@ -294,7 +294,7 @@ class TableCustom extends Component {
                   {tableData.map((row, index) => {
                     const isItemSelected = isSelected(
                       indicatorsEditor
-                        ? row.object.id
+                        ? row
                         : nameIdPaired
                         ? `${row.id}:${row.name}`
                         : row.id,
