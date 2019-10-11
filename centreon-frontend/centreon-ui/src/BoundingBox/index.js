@@ -24,7 +24,18 @@ export default class BoundingBox extends Component {
 
   componentDidMount() {
     this.node = findDOMNode(this);
-    if (this.props.active) {
+
+    if (!this.node) {
+      return;
+    }
+
+    const rect = normalize(
+      this.roundRectDown(this.node.getBoundingClientRect()),
+    );
+
+    const isHidden = rect.height === 0 && rect.width === 0;
+
+    if (this.props.active && !isHidden) {
       this.startWatching();
     }
   }
