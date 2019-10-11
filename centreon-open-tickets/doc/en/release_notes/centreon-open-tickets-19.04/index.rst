@@ -1,4 +1,5 @@
-Centreon Open Tickets 19.10
+###########################
+Centreon Open Tickets 19.04
 ###########################
 
 Change version number according to new
