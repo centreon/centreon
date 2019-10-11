@@ -4,7 +4,7 @@ import MassiveChangeDialog from '..';
 import InputField from '../../../../InputField';
 
 
-function MassiveChangeNumbersDialog({ onYesClicked, ...rest }) {
+function MassiveChangeNumbersDialog({ onYesClicked, warningLabel="Warning threshold", criticalLabel="Critical threshold", ...rest }) {
 	const [warning, setWarning] = useState(0);
 	const [critical, setCritical] = useState(0);
 
@@ -25,7 +25,7 @@ function MassiveChangeNumbersDialog({ onYesClicked, ...rest }) {
 			<MassiveChangeDialog onYesClicked={()=>{onYesClicked({critical,warning})}} {...rest}>
 				<InputField
 					type="number"
-					label="Warning threshold"
+					label={warningLabel}
 					onChange={onWarningChanged}
 					name="prompt-input"
 					inputSize="big"
@@ -33,7 +33,7 @@ function MassiveChangeNumbersDialog({ onYesClicked, ...rest }) {
 				/>
 				<InputField
 					type="number"
-					label="Critical threshold"
+					label={criticalLabel}
 					onChange={onCriticalChanged}
 					name="prompt-input"
 					inputSize="big"

@@ -9,6 +9,8 @@ function MassiveChangeDialog({
 	onYesClicked,
 	children,
 	info,
+	applyLabel = "Apply",
+	cancelLabel = "Cancel",
 	...rest
 }) {
 	const Body = (
@@ -25,12 +27,12 @@ function MassiveChangeDialog({
 				color="primary"
 				onClick={onYesClicked}
 			>
-				Appy
+				{applyLabel}
           </Button>
 
 			<Button variant="outlined" onClick={onNoClicked} color="primary">
-				Cancel
-        </Button>
+				{cancelLabel}
+        	</Button>
 		</React.Fragment>
 	);
 	return <Dialog body={Body} actions={Actions} {...rest} />;
