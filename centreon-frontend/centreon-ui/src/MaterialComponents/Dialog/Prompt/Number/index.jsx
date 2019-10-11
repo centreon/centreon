@@ -24,6 +24,7 @@ function PromptNumberDialog({ onYesClicked, ...rest }) {
           margin="dense"
           id="prompt-dialog-count"
           type="number"
+          value={value}
           defaultValue={1}
           inputProps={{ min: 1 }}
           fullWidth
