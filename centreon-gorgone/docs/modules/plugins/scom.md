@@ -85,6 +85,6 @@ containers:
 #### Example
 
 ```bash
-curl --request POST "https://hostname:8443/api/plugins/scom/resync" \
+curl --request GET "https://hostname:8443/api/plugins/scom/resync" \
   --header "Accept: application/json"
 ```
