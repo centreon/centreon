@@ -54,6 +54,7 @@
     "redux-form": "^8.1.0",
     "redux-saga": "^1.0.2",
     "redux-thunk": "^2.3.0",
+    "resize-observer-polyfill": "^1.5.1",
     "sass-loader": "^7.1.0"
   },
   "devDependencies": {

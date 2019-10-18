@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
+import TableCell from '@material-ui/core/TableCell';
 import InputFieldSelectTableCell from '../../InputField/InputFieldSelectTableCell';
 import InputFieldTableCell from '../../InputField/InputFieldTableCell';
-import StyledTableCell2 from './StyledTableCell2';
 
 class IndicatorsEditorRow extends Component {
   onImpactChanged = (value, key, event) => {
@@ -35,7 +35,7 @@ class IndicatorsEditorRow extends Component {
         : 'word';
     return !selected.bool ? null : (
       <React.Fragment>
-        <StyledTableCell2
+        <TableCell
           align="left"
           style={{
             padding: '3px 4px',
@@ -57,10 +57,10 @@ class IndicatorsEditorRow extends Component {
               this.onImpactChanged(value, 'type', event);
             }}
           />
-        </StyledTableCell2>
+        </TableCell>
         {rowMode == 'word' ? (
           <React.Fragment>
-            <StyledTableCell2
+            <TableCell
               align="left"
               style={{
                 padding: '3px 4px',
@@ -89,8 +89,8 @@ class IndicatorsEditorRow extends Component {
                   />
                   : null
               }
-            </StyledTableCell2>
-            <StyledTableCell2
+            </TableCell>
+            <TableCell
               align="left"
               style={{
                 padding: '3px 4px',
@@ -115,8 +115,8 @@ class IndicatorsEditorRow extends Component {
                   this.onImpactChanged(value, 'critical', event);
                 }}
               />
-            </StyledTableCell2>
-            <StyledTableCell2
+            </TableCell>
+            <TableCell
               align="left"
               style={{
                 padding: '3px 4px',
@@ -145,11 +145,11 @@ class IndicatorsEditorRow extends Component {
                   />
                   : null
               }
-            </StyledTableCell2>
+            </TableCell>
           </React.Fragment>
         ) : (
             <React.Fragment>
-              <StyledTableCell2
+              <TableCell
                 align="left"
                 style={{
                   padding: '3px 4px',
@@ -167,8 +167,8 @@ class IndicatorsEditorRow extends Component {
                     this.onImpactInputChanged(event, 'warning');
                   }}
                 />
-              </StyledTableCell2>
-              <StyledTableCell2
+              </TableCell>
+              <TableCell
                 align="left"
                 style={{
                   padding: '3px 4px',
@@ -186,8 +186,8 @@ class IndicatorsEditorRow extends Component {
                     this.onImpactInputChanged(event, 'critical');
                   }}
                 />
-              </StyledTableCell2>
-              <StyledTableCell2
+              </TableCell>
+              <TableCell
                 align="left"
                 style={{
                   padding: '3px 4px',
@@ -205,7 +205,7 @@ class IndicatorsEditorRow extends Component {
                     this.onImpactInputChanged(event, 'unknown');
                   }}
                 />
-              </StyledTableCell2>
+              </TableCell>
             </React.Fragment>
           )}
       </React.Fragment>

@@ -1,60 +1,103 @@
 /* eslint-disable react/jsx-filename-extension */
 
-import React, { Component } from 'react';
+import React from 'react';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import PropTypes from 'prop-types';
-import StyledTableCell from './StyledTableCell';
+import TableCell from '@material-ui/core/TableCell';
+import { withStyles, createStyles } from '@material-ui/core/styles';
 import StyledTableSortLabel from './StyledTableSortLabel';
 import StyledCheckbox from './StyledCheckbox';
 import TABLE_COLUMN_TYPES from '../ColumnTypes';
 
-class EnhancedTableHead extends Component {
-  createSortHandler = (property) => (event) => {
-    const { onRequestSort } = this.props;
+const HeaderCell = withStyles(() =>
+  createStyles({
+    head: {
+      backgroundColor: '#009fdf',
+      color: '#fff',
+      lineHeight: 1.4,
+      height: 24,
+      padding: '6px 24px 6px 16px',
+    },
+    body: {
+      fontSize: 14,
+    },
+  }),
+)(TableCell);
+
+const EnhancedTableHead = ({
+  onSelectAllClick,
+  order,
+  orderBy,
+  numSelected,
+  rowCount,
+  headRows,
+  checkable,
+  onRequestSort,
+  indicatorsEditor,
+}) => {
+
+  const createSortHandler = (property) => (event) => {
     onRequestSort(event, property);
   };
 
-  render() {
-    const {
-      onSelectAllClick,
-      order,
-      orderBy,
-      numSelected,
-      rowCount,
-      headRows,
-      checkable,
-      indicatorsEditor,
-    } = this.props;
-    return (
-      <TableHead>
-        <TableRow>
-          {checkable ? (
-            <StyledTableCell
-              align="left"
-              padding="checkbox"
-              style={
-                indicatorsEditor
-                  ? {
-                      padding: '3px 4px',
-                    }
-                  : {}
-              }
-            >
-              <StyledCheckbox
-                indeterminate={numSelected > 0 && numSelected < rowCount}
-                checked={numSelected === rowCount}
-                onChange={onSelectAllClick}
-              />
-            </StyledTableCell>
-          ) : null}
+  return (
+    <TableHead>
+      <TableRow>
+        {checkable ? (
+          <HeaderCell
+            align="left"
+            padding="checkbox"
+            style={
+              indicatorsEditor
+                ? {
+                    padding: '3px 4px',
+                  }
+                : {}
+            }
+          >
+            <StyledCheckbox
+              indeterminate={numSelected > 0 && numSelected < rowCount}
+              checked={numSelected === rowCount}
+              onChange={onSelectAllClick}
+            />
+          </HeaderCell>
+        ) : null}
 
-          {headRows.map((row) => (
-            <StyledTableCell
-              key={row.id}
-              align={row.numeric ? 'left' : 'inherit'}
-              padding={row.disablePadding ? 'none' : 'default'}
-              sortDirection={orderBy === row.id ? order : false}
+        {headRows.map((row) => (
+          <HeaderCell
+            key={row.id}
+            align={row.numeric ? 'left' : 'inherit'}
+            padding={row.disablePadding ? 'none' : 'default'}
+            sortDirection={orderBy === row.id ? order : false}
+            style={
+              indicatorsEditor
+                ? {
+                    padding: '3px 4px',
+                  }
+                : {}
+            }
+          >
+            {row.type === TABLE_COLUMN_TYPES.multicolumn ? (
+              row.label
+            ) : (
+              <StyledTableSortLabel
+                active={orderBy === row.id}
+                direction={order || 'desc'}
+                onClick={createSortHandler(row.id)}
+                icon={{ color: 'red' }}
+              >
+                {row.label}
+              </StyledTableSortLabel>
+            )}
+          </HeaderCell>
+        ))}
+        {indicatorsEditor && numSelected > 0 ? (
+          <>
+            <HeaderCell
+              key="modeKpi"
+              align="left"
+              padding="none"
               style={
                 indicatorsEditor
                   ? {
@@ -63,85 +106,56 @@ class EnhancedTableHead extends Component {
                   : {}
               }
             >
-              {row.type === TABLE_COLUMN_TYPES.multicolumn ? (
-                row.label
-              ) : (
-                <StyledTableSortLabel
-                  active={orderBy === row.id}
-                  direction={order || 'desc'}
-                  onClick={this.createSortHandler(row.id)}
-                  icon={{ color: 'red' }}
-                >
-                  {row.label}
-                </StyledTableSortLabel>
-              )}
-            </StyledTableCell>
-          ))}
-          {indicatorsEditor && numSelected > 0 ? (
-            <React.Fragment>
-              <StyledTableCell
-                key="modeKpi"
-                align="left"
-                padding="none"
-                style={
-                  indicatorsEditor
-                    ? {
-                        padding: '3px 4px',
-                      }
-                    : {}
-                }
-              >
-                Mode
-              </StyledTableCell>
-              <StyledTableCell
-                key="warningKpi"
-                align="left"
-                padding="none"
-                style={
-                  indicatorsEditor
-                    ? {
-                        padding: '3px 4px',
-                      }
-                    : {}
-                }
-              >
-                Warning
-              </StyledTableCell>
-              <StyledTableCell
-                key="criticalKpi"
-                align="left"
-                padding="none"
-                style={
-                  indicatorsEditor
-                    ? {
-                        padding: '3px 4px',
-                      }
-                    : {}
-                }
-              >
-                Critical
-              </StyledTableCell>
-              <StyledTableCell
-                key="unknownKpi"
-                align="left"
-                padding="none"
-                style={
-                  indicatorsEditor
-                    ? {
-                        padding: '3px 4px',
-                      }
-                    : {}
-                }
-              >
-                Unknown
-              </StyledTableCell>
-            </React.Fragment>
-          ) : null}
-        </TableRow>
-      </TableHead>
-    );
-  }
-}
+              Mode
+            </HeaderCell>
+            <HeaderCell
+              key="warningKpi"
+              align="left"
+              padding="none"
+              style={
+                indicatorsEditor
+                  ? {
+                      padding: '3px 4px',
+                    }
+                  : {}
+              }
+            >
+              Warning
+            </HeaderCell>
+            <HeaderCell
+              key="criticalKpi"
+              align="left"
+              padding="none"
+              style={
+                indicatorsEditor
+                  ? {
+                      padding: '3px 4px',
+                    }
+                  : {}
+              }
+            >
+              Critical
+            </HeaderCell>
+            <HeaderCell
+              key="unknownKpi"
+              align="left"
+              padding="none"
+              style={
+                indicatorsEditor
+                  ? {
+                      padding: '3px 4px',
+                    }
+                  : {}
+              }
+            >
+              Unknown
+            </HeaderCell>
+          </>
+        ) : null}
+      </TableRow>
+    </TableHead>
+  );
+};
 
 EnhancedTableHead.propTypes = {
   numSelected: PropTypes.number.isRequired,
