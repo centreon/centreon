@@ -477,14 +477,14 @@ class ServiceNowProvider extends AbstractProvider
      */
     protected function refreshToken($refreshToken)
     {
-        $instance = $this->_getFormValue('instance_name');
+        $instance = $this->_getFormValue('instance_name', false);
         $url = 'https://' . $instance . '.service-now.com/oauth_token.do';
         $postfields = 'grant_type=refresh_token';
         $postfields .= '&client_id=' . urlencode(
-            $this->_getFormValue('client_id')
+            $this->_getFormValue('client_id', false)
         );
         $postfields .= '&client_secret=' . urlencode(
-            $this->_getFormValue('client_secret')
+            $this->_getFormValue('client_secret', false)
         );
         $postfields .= '&refresh_token=' . $refreshToken;
 
@@ -498,10 +498,10 @@ class ServiceNowProvider extends AbstractProvider
         self::setProxy(
             $ch,
             array(
-                'proxy_address' => $this->_getFormValue('proxy_address'),
-                'proxy_port' => $this->_getFormValue('proxy_port'),
-                'proxy_username' => $this->_getFormValue('proxy_username'),
-                'proxy_password' => $this->_getFormValue('proxy_password'),
+                'proxy_address' => $this->_getFormValue('proxy_address', false),
+                'proxy_port' => $this->_getFormValue('proxy_port', false),
+                'proxy_username' => $this->_getFormValue('proxy_username', false),
+                'proxy_password' => $this->_getFormValue('proxy_password', false),
             )
         );
 
@@ -532,15 +532,15 @@ class ServiceNowProvider extends AbstractProvider
         if (is_null($refreshToken)) {
             $tokens = self::getAccessToken(
                 array(
-                    'instance' => $this->_getFormValue('instance_name'),
-                    'client_id' => $this->_getFormValue('client_id'),
-                    'client_secret' => $this->_getFormValue('client_secret'),
-                    'username' => $this->_getFormValue('username'),
-                    'password' => $this->_getFormValue('password'),
-                    'proxy_address' => $this->_getFormValue('proxy_address'),
-                    'proxy_port' => $this->_getFormValue('proxy_port'),
-                    'proxy_username' => $this->_getFormValue('proxy_username'),
-                    'proxy_password' => $this->_getFormValue('proxy_password')
+                    'instance' => $this->_getFormValue('instance_name', false),
+                    'client_id' => $this->_getFormValue('client_id', false),
+                    'client_secret' => $this->_getFormValue('client_secret', false),
+                    'username' => $this->_getFormValue('username', false),
+                    'password' => $this->_getFormValue('password', false),
+                    'proxy_address' => $this->_getFormValue('proxy_address', false),
+                    'proxy_port' => $this->_getFormValue('proxy_port', false),
+                    'proxy_username' => $this->_getFormValue('proxy_username', false),
+                    'proxy_password' => $this->_getFormValue('proxy_password', false)
                 )
             );
             $accessToken = $tokens['accessToken'];
@@ -566,7 +566,7 @@ class ServiceNowProvider extends AbstractProvider
      */
     protected function runHttpRequest($uri, $accessToken, $method = 'GET', $data = null)
     {
-        $instance = $this->_getFormValue('instance_name');
+        $instance = $this->_getFormValue('instance_name', false);
         $url = 'https://' . $instance . '.service-now.com' . $uri;
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $url);
@@ -582,10 +582,10 @@ class ServiceNowProvider extends AbstractProvider
         self::setProxy(
             $ch,
             array(
-                'proxy_address' => $this->_getFormValue('proxy_address'),
-                'proxy_port' => $this->_getFormValue('proxy_port'),
-                'proxy_username' => $this->_getFormValue('proxy_username'),
-                'proxy_password' => $this->_getFormValue('proxy_password')
+                'proxy_address' => $this->_getFormValue('proxy_address', false),
+                'proxy_port' => $this->_getFormValue('proxy_port', false),
+                'proxy_username' => $this->_getFormValue('proxy_username', false),
+                'proxy_password' => $this->_getFormValue('proxy_password', false)
             )
         );
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);

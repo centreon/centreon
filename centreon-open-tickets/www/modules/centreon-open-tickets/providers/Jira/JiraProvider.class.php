@@ -601,14 +601,14 @@ class JiraProvider extends AbstractProvider
         curl_setopt($ch, CURLOPT_TIMEOUT, $this->rule_data['timeout']);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-        curl_setopt($ch, CURLOPT_USERPWD, $this->_getFormValue('username') . ':' . $this->_getFormValue('user_token'));
+        curl_setopt($ch, CURLOPT_USERPWD, $this->_getFormValue('username', false) . ':' . $this->_getFormValue('user_token', false));
         self::setProxy(
             $ch,
             array(
-                'proxy_address' => $this->_getFormValue('proxy_address'),
-                'proxy_port' => $this->_getFormValue('proxy_port'),
-                'proxy_username' => $this->_getFormValue('proxy_username'),
-                'proxy_password' => $this->_getFormValue('proxy_password'),
+                'proxy_address' => $this->_getFormValue('proxy_address', false),
+                'proxy_port' => $this->_getFormValue('proxy_port', false),
+                'proxy_username' => $this->_getFormValue('proxy_username', false),
+                'proxy_password' => $this->_getFormValue('proxy_password', false),
             )
         );
         curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);

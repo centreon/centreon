@@ -407,7 +407,7 @@ Output: {$service.output|substr:0:1024}
      *
      * @return a string
      */
-    protected function _getFormValue($uniq_id)
+    protected function _getFormValue($uniq_id, $htmlentities=true)
     {
         $value = '';
         if (isset($this->rule_data[$uniq_id]) && !is_null($this->rule_data[$uniq_id])) {
@@ -416,7 +416,9 @@ Output: {$service.output|substr:0:1024}
             $value = $this->default_data[$uniq_id];
         }
 
-        $value = htmlentities($value, ENT_QUOTES);
+        if ($htmlentities) {
+            $value = htmlentities($value, ENT_QUOTES);
+        }
         return $value;
     }
 
