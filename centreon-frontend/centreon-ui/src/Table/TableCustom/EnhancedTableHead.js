@@ -5,25 +5,20 @@ import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import PropTypes from 'prop-types';
 import TableCell from '@material-ui/core/TableCell';
-import { withStyles, createStyles } from '@material-ui/core/styles';
+import { withStyles } from '@material-ui/core/styles';
 import StyledTableSortLabel from './StyledTableSortLabel';
 import StyledCheckbox from './StyledCheckbox';
 import TABLE_COLUMN_TYPES from '../ColumnTypes';
 
-const HeaderCell = withStyles(() =>
-  createStyles({
-    head: {
-      backgroundColor: '#009fdf',
-      color: '#fff',
-      lineHeight: 1.4,
-      height: 24,
-      padding: '6px 24px 6px 16px',
-    },
-    body: {
-      fontSize: 14,
-    },
-  }),
-)(TableCell);
+const HeaderCell = withStyles({
+  root: {
+    backgroundColor: '#009fdf',
+    color: '#fff',
+    lineHeight: 1.4,
+    height: 24,
+    padding: '3px 4px',
+  },
+})(TableCell);
 
 const EnhancedTableHead = ({
   onSelectAllClick,
@@ -36,7 +31,6 @@ const EnhancedTableHead = ({
   onRequestSort,
   indicatorsEditor,
 }) => {
-
   const createSortHandler = (property) => (event) => {
     onRequestSort(event, property);
   };
@@ -45,17 +39,7 @@ const EnhancedTableHead = ({
     <TableHead>
       <TableRow>
         {checkable ? (
-          <HeaderCell
-            align="left"
-            padding="checkbox"
-            style={
-              indicatorsEditor
-                ? {
-                    padding: '3px 4px',
-                  }
-                : {}
-            }
-          >
+          <HeaderCell align="left" padding="checkbox">
             <StyledCheckbox
               indeterminate={numSelected > 0 && numSelected < rowCount}
               checked={numSelected === rowCount}
@@ -70,13 +54,6 @@ const EnhancedTableHead = ({
             align={row.numeric ? 'left' : 'inherit'}
             padding={row.disablePadding ? 'none' : 'default'}
             sortDirection={orderBy === row.id ? order : false}
-            style={
-              indicatorsEditor
-                ? {
-                    padding: '3px 4px',
-                  }
-                : {}
-            }
           >
             {row.type === TABLE_COLUMN_TYPES.multicolumn ? (
               row.label
@@ -94,60 +71,16 @@ const EnhancedTableHead = ({
         ))}
         {indicatorsEditor && numSelected > 0 ? (
           <>
-            <HeaderCell
-              key="modeKpi"
-              align="left"
-              padding="none"
-              style={
-                indicatorsEditor
-                  ? {
-                      padding: '3px 4px',
-                    }
-                  : {}
-              }
-            >
+            <HeaderCell key="modeKpi" align="left" padding="none">
               Mode
             </HeaderCell>
-            <HeaderCell
-              key="warningKpi"
-              align="left"
-              padding="none"
-              style={
-                indicatorsEditor
-                  ? {
-                      padding: '3px 4px',
-                    }
-                  : {}
-              }
-            >
+            <HeaderCell key="warningKpi" align="left" padding="none">
               Warning
             </HeaderCell>
-            <HeaderCell
-              key="criticalKpi"
-              align="left"
-              padding="none"
-              style={
-                indicatorsEditor
-                  ? {
-                      padding: '3px 4px',
-                    }
-                  : {}
-              }
-            >
+            <HeaderCell key="criticalKpi" align="left" padding="none">
               Critical
             </HeaderCell>
-            <HeaderCell
-              key="unknownKpi"
-              align="left"
-              padding="none"
-              style={
-                indicatorsEditor
-                  ? {
-                      padding: '3px 4px',
-                    }
-                  : {}
-              }
-            >
+            <HeaderCell key="unknownKpi" align="left" padding="none">
               Unknown
             </HeaderCell>
           </>
