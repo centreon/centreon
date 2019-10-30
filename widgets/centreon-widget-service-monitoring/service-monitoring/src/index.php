@@ -348,6 +348,13 @@ if (isset($preferences['output_search']) && $preferences['output_search'] != "")
         $query = CentreonUtils::conditionBuilder($query, $serviceOutputCondition);
     }
 }
+if (!$centreon->user->admin) {
+    $aclObj = new CentreonACL($centreon->user->user_id, $centreon->user->admin);
+    $groupList = $aclObj->getAccessGroupsString();
+    $query .= " AND h.host_id = acl.host_id
+        AND acl.service_id = s.service_id
+        AND acl.group_id IN (" . $groupList . ") ";
+}
 $orderBy = 'hostname ASC , description ASC';
 
 if (isset($preferences['order_by']) && trim($preferences['order_by']) != '') {
