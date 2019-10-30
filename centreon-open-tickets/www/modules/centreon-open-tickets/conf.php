@@ -21,7 +21,7 @@
 
 $module_conf['centreon-open-tickets']["rname"] = "Centreon Open Tickets";
 $module_conf['centreon-open-tickets']["name"] = "centreon-open-tickets";
-$module_conf['centreon-open-tickets']["mod_release"] = "19.10.0";
+$module_conf['centreon-open-tickets']["mod_release"] = "20.04.0";
 $module_conf['centreon-open-tickets']["infos"] = "Centreon Open Tickets is a community module developed to " .
     "create tickets to your favorite ITSM tools using API.
 
