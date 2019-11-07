@@ -111,7 +111,7 @@ InputFieldSearch.defaultProps = {
 InputFieldSearch.propTypes = {
   classes: PropTypes.shape.isRequired,
   placeholder: PropTypes.string,
-  onChange: PropTypes.func.isRequired
+  onChange: PropTypes.func.isRequired,
 };
 
 export default withStyles(useStyles)(InputFieldSearch);

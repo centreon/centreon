@@ -1,13 +1,13 @@
+/* eslint-disable prettier/prettier */
 /* eslint-disable jsx-a11y/click-events-have-key-events */
 /* eslint-disable jsx-a11y/no-static-element-interactions */
-/* eslint-disable eqeqeq */
 /* eslint-disable react/prop-types */
-/* eslint-disable camelcase */
 /* eslint-disable react/sort-comp */
+/* eslint-disable camelcase */
 import React, { Component } from 'react';
 import { findDOMNode } from 'react-dom';
 import classnames from 'classnames';
-import styles from './input-field.scss';
+import styles from './input-select-table-cell.scss';
 import CustomIconWithText from '../../Custom/CustomIconWithText';
 import IconToggleSubmenu from '../../Icon/IconToggleSubmenu';
 
@@ -16,63 +16,51 @@ class InputFieldSelectCustom extends Component {
     active: false,
     allOptions: [],
     options: [],
-    selected: null,
+    selected: {},
   };
 
-  componentWillUnmount() {
-    window.removeEventListener('mousedown', this.handleClickOutside, false);
-  }
-
   componentWillMount = () => {
-    const { value, options, onChange } = this.props;
-    const { selected } = this.state;
-    let found = false;
+    const { value, options } = this.props;
     if (options) {
       for (let i = 0; i < options.length; i += 1) {
+        // eslint-disable-next-line
         if (options[i].id == value) {
           this.setState({
             selected: options[i],
           });
-          found = true;
         }
       }
       this.setState({
         options,
         allOptions: options,
-        ...(!found && { selected: null }),
       });
-      if (!found && selected !== null) {
-        onChange(null);
-      }
     }
   };
 
   componentWillReceiveProps = (nextProps) => {
-    const { value, options, onChange } = nextProps;
-    const { selected } = this.state;
-    let found = false;
+    const { value, options } = nextProps;
     if (options) {
       for (let i = 0; i < options.length; i += 1) {
+        // eslint-disable-next-line
         if (options[i].id == value) {
           this.setState({
             selected: options[i],
           });
-          found = true;
         }
       }
       this.setState({
         options,
         allOptions: options,
-        ...(!found && { selected: null }),
       });
-      if (!found && selected !== null) {
-        onChange(null);
-      }
     }
   };
 
-  componentDidMount() {
+  UNSAFE_componentWillMount() {
     window.addEventListener('mousedown', this.handleClickOutside, false);
+  }
+
+  componentWillUnmount() {
+    window.removeEventListener('mousedown', this.handleClickOutside, false);
   }
 
   toggleSelect = () => {
@@ -98,7 +86,7 @@ class InputFieldSelectCustom extends Component {
     });
   };
 
-  optionChecked = (option) => {
+  optionChecked = (option, event) => {
     const { onChange } = this.props;
     this.setState(
       {
@@ -107,7 +95,7 @@ class InputFieldSelectCustom extends Component {
       },
       () => {
         if (onChange) {
-          onChange(option.id);
+          onChange(option.id, event);
         }
       },
     );
@@ -139,7 +127,14 @@ class InputFieldSelectCustom extends Component {
 
   render() {
     const { active, selected, options } = this.state;
-    const { size, error, icons, domainPath, customStyle } = this.props;
+    const {
+      size,
+      error,
+      icons,
+      domainPath,
+      customStyle,
+      isColored,
+    } = this.props;
     return (
       <div
         className={classnames(
@@ -152,24 +147,14 @@ class InputFieldSelectCustom extends Component {
         ref={this.referSelectField}
       >
         <div className={classnames(styles['input-select-wrap'])}>
-          {active ? (
-            <input
-              ref={this.focusInput}
-              onChange={this.searchTextChanged}
-              className={classnames(styles['input-select-input'])}
-              type="text"
-              placeholder="Search"
-            />
-          ) : (
-            <span
-              className={classnames(styles['input-select-field'])}
-              onClick={this.toggleSelect.bind(this)}
-            >
-              {selected ? selected.name : ''}
-            </span>
-          )}
+          <span
+            className={classnames(styles['input-select-field'])}
+            onClick={this.toggleSelect}
+          >
+            {selected.name}
+          </span>
           <IconToggleSubmenu
-            iconPosition="icons-toggle-position-multiselect"
+            iconPosition="icons-toggle-position-multiselect-table"
             iconType="arrow"
             onClick={this.toggleSelect}
           />
@@ -178,28 +163,36 @@ class InputFieldSelectCustom extends Component {
           <div className={classnames(styles['input-select-dropdown'])}>
             {options
               ? options.map((option) => (
-                // eslint-disable-next-line react/jsx-indent
-                <React.Fragment>
+                <div
+                  style={
+                      isColored
+                        ? {
+                            backgroundColor: option.color,
+                            margin: '-4px',
+                            lineHeight: '1.43',
+                          }
+                        : {
+                            margin: '-4px',
+                            lineHeight: '1.43',
+                          }
+                    }
+                >
                   {icons ? (
                     <CustomIconWithText
                       label={option.name}
-                      onClick={() => {
-                        this.optionChecked(option);
-                      }}
-                      {...(option.preview
-                        ? { image: `${domainPath}/${option.preview}` }
-                        : { iconOff: true })}
+                      onClick={()=> this.optionChecked(option)}
+                      image={`${domainPath}/${option.preview}`}
                     />
-                  ) : (
-                    <span
-                      onClick={this.optionChecked.bind(this, option)}
-                      className={classnames(styles['input-select-label'])}
-                    >
+                    ) : (
+                      <span
+                        onClick={this.optionChecked.bind(this, option)}
+                        className={classnames(styles['input-select-label'])}
+                      >
                         {option.name}
                       </span>
-                  )}
-                </React.Fragment>
-              ))
+                    )}
+                </div>
+                ))
               : null}
           </div>
         ) : null}

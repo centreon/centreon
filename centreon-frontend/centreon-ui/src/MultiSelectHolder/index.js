@@ -61,7 +61,7 @@ class InputFieldMultiSelectEmpty extends React.Component {
           )}
           {children}
         </div>
-        {isHovered ? <IconEdit style={{display:"inline"}}/> : null}
+        {isHovered ? <IconEdit style={{ display: 'inline' }} /> : null}
         {error ? (
           <div className={classnames(styles['form-error'])}>{error}</div>
         ) : null}

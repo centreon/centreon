@@ -12,9 +12,7 @@ import styles from './table.scss';
 import Pagination from '../Pagination';
 
 class Table extends Component {
-  onHeaderFieldClicked = (key) => {
-    console.log(key);
-  };
+  onHeaderFieldClicked = () => {};
 
   render() {
     const { fields, data, pagination } = this.props;
@@ -52,12 +50,10 @@ class Table extends Component {
                           const actionIconValue = values[row[key]];
                           subComponent = (
                             <td key={`tableRow${rowIndex}Cell${index}`}>
-                              {
-                                <IconAction
-                                  iconActionType={actionIconValue.icon}
-                                  iconColor={actionIconValue.color}
-                                />
-                              }
+                              <IconAction
+                                iconActionType={actionIconValue.icon}
+                                iconColor={actionIconValue.color}
+                              />
                             </td>
                           );
                           break;
@@ -83,9 +79,7 @@ class Table extends Component {
         <div className={classnames(styles['text-center'])}>
           <Pagination
             pageCount={14}
-            onPageChange={(page) => {
-              console.log(page);
-            }}
+            onPageChange={() => {}}
           />
         </div>
       </React.Fragment>

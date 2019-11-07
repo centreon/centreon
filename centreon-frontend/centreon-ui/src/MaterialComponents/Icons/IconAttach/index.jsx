@@ -1,11 +1,9 @@
 /* eslint-disable jsx-a11y/no-static-element-interactions */
 /* eslint-disable jsx-a11y/click-events-have-key-events */
-/* eslint-disable react/jsx-filename-extension */
 /* eslint-disable react/prop-types */
 
 import React from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import Attach from '@material-ui/icons/AttachFile';
 
 const useStyles = makeStyles(() => ({
   root: {
@@ -47,13 +45,12 @@ const useStyles = makeStyles(() => ({
 }));
 
 function IconAttach({
-  customStyle,
   onClick,
   defaultImage,
   uploadedImage,
   imgSource,
   title,
-  labelNoIcon = "NO ICON",
+  labelNoIcon = 'NO ICON',
 }) {
   const classes = useStyles();
 

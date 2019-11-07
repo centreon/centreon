@@ -1,5 +1,14 @@
-const requiredValidator = (event, message) => new Promise((resolve, reject)=>{
-	let value = event.target ? event.target.value : event;
-	value.length > 0 ? resolve() : reject(message)
-});
-export {requiredValidator};
+const requiredValidator = (event, message) =>
+  new Promise((resolve, reject) => {
+    const value = event.target ? event.target.value : event;
+    if (value.length > 0) {
+      resolve();
+    } else {
+      reject(message);
+    }
+  });
+export { requiredValidator };
+
+export default {
+  requiredValidator,
+};

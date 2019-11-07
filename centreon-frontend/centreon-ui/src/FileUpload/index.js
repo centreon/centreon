@@ -23,9 +23,7 @@ class FileUpload extends Component {
     });
   };
 
-  onFilesError = (error) => {
-    console.log(`error code ${error.code}: ${error.message}`);
-  };
+  onFilesError = () => {};
 
   onRemoveFile = (idx) => {
     const { files } = this.state;

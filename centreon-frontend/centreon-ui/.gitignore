@@ -22,6 +22,9 @@ node_modules/
 #phpstorm
 .idea/
 
+#vscode
+.vscode/
+
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*

@@ -1472,4 +1472,3 @@ storiesOf('Pages', module).add(
   ),
   { notes: 'A very simple component' },
 );
-
