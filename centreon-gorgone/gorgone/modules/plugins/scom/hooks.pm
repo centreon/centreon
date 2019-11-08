@@ -240,7 +240,7 @@ sub create_child {
         $0 = 'gorgone-scom ' . $options{container_id};
         my $module = gorgone::modules::plugins::scom::class->new(
             logger => $options{logger},
-            module_id => $NAME,
+            module_id => NAME,
             config_core => $config_core,
             config => $config,
             config_db_centstorage => $config_db_centstorage,
