@@ -32,3 +32,4 @@ $register_providers['BmcFootprints11'] = 7;
 $register_providers['Easyvista'] = 8;
 $register_providers['ServiceNow'] = 9;
 $register_providers['Jira'] = 10;
+$register_providers['GlpiRestApi'] = 11;
