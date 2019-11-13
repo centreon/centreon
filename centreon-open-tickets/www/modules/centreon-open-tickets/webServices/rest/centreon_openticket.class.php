@@ -52,10 +52,7 @@ class CentreonOpenticket extends CentreonWebService
             }
             return true;
         } catch (\Exception $e) {
-            if ($e->getMessage() === 'Missing arguments.') {
-                throw new RestBadRequestException('Missing arguments.');
-            }
-            throw $e;
+            throw new RestBadRequestException($e->getMessage());
         }
     }
 }
