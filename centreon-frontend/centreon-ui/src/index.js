@@ -104,6 +104,8 @@ export { default as ExtensionDetailsPopup } from './ExtensionDetailsPopup';
 export { default as ExtensionDeletePopup } from './ExtensionDeletePopup';
 export { default as Axios } from './Axios';
 export { default as Loader } from './Loader';
+export { default as ThemeProvider } from './ThemeProvider';
+export { default as Wizard, Page as WizardPage } from './Wizard';
 
 export {
   default as IconAccessTime,
@@ -141,16 +143,13 @@ export {
 export { default as MaterialButton } from './MaterialComponents/Button';
 export { default as TABLE_COLUMN_TYPES } from './Table/ColumnTypes';
 export { default as Tooltip } from './MaterialComponents/Tooltip';
-export {
-  default as ConfirmationDialog,
-} from './MaterialComponents/Dialog/Prompt';
-export {
-  default as PromptDialog,
-} from './MaterialComponents/Dialog/Prompt/Number';
-export {
-  default as MassiveChangeDialog,
-} from './MaterialComponents/Dialog/MassiveChange/Numbers';
 export { default as Dialog } from './Dialog';
+export { default as ConfirmDialog } from './Dialog/Confirm';
+export { default as DuplicateDialog } from './Dialog/Duplicate';
+export {
+  default as MassiveChangeThresholds,
+} from './Dialog/MassiveChange/Thresholds';
+
 export { default as IconVisible } from './MaterialComponents/Icons/IconVisible';
 export {
   default as IconInvisible,

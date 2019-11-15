@@ -1,13 +1,30 @@
-/* eslint-disable no-alert */
-
 import React from 'react';
 import { storiesOf } from '@storybook/react';
-import { ConfirmationDialog, PromptDialog } from '../src';
+import {
+  ConfirmDialog,
+  DuplicateDialog,
+  MassiveChangeThresholds,
+  ThemeProvider,
+} from '../src';
 
 storiesOf('Dialog', module)
-  .add('Prompt', () => (
-    <PromptDialog active title="Prompt" info="Please enter a number" />
+  .add('Confirm', () => (
+    <ThemeProvider>
+      <ConfirmDialog
+        open
+        onCancel={() => {}}
+        labelTitle="Do you want to confirm action ?"
+        labelMessage="Your progress will not be saved."
+      />
+    </ThemeProvider>
   ))
-  .add('Confirmation', () => (
-    <ConfirmationDialog active title="Confirm" info="Are you sure?" />
+  .add('Duplicate', () => (
+    <ThemeProvider>
+      <DuplicateDialog open onCancel={() => {}} />
+    </ThemeProvider>
+  ))
+  .add('Massive change thresholds', () => (
+    <ThemeProvider>
+      <MassiveChangeThresholds open onCancel={() => {}} />
+    </ThemeProvider>
   ));

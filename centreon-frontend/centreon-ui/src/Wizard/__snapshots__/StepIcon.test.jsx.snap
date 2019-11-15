@@ -1,0 +1,47 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`StepIcon renders active step correctly 1`] = `
+<div
+  class="makeStyles-root-21"
+>
+  <div
+    class="MuiAvatar-root MuiAvatar-circle makeStyles-avatar-22 makeStyles-avatarActive-23 MuiAvatar-colorDefault"
+  >
+    1
+  </div>
+</div>
+`;
+
+exports[`StepIcon renders completed step correctly 1`] = `
+<div
+  class="makeStyles-root-1"
+>
+  <div
+    class="MuiAvatar-root MuiAvatar-circle makeStyles-avatar-2 makeStyles-avatarCompleted-4 MuiAvatar-colorDefault"
+  >
+    <svg
+      aria-hidden="true"
+      class="MuiSvgIcon-root makeStyles-completed-5"
+      focusable="false"
+      role="presentation"
+      viewBox="0 0 24 24"
+    >
+      <path
+        d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"
+      />
+    </svg>
+  </div>
+</div>
+`;
+
+exports[`StepIcon renders pending step correctly 1`] = `
+<div
+  class="makeStyles-root-32"
+>
+  <div
+    class="MuiAvatar-root MuiAvatar-circle makeStyles-avatar-33 MuiAvatar-colorDefault"
+  >
+    2
+  </div>
+</div>
+`;
