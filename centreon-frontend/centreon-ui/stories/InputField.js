@@ -12,9 +12,10 @@ import {
   InputFieldMultiSelect,
   InputFieldSelectCustom,
 } from '../src';
+import SearchInput from '../src/InputField/SearchInput';
 
 storiesOf('Input Field', module).add(
-  'Input Field - with title',
+  'with title',
   () => (
     <InputField
       type="text"
@@ -27,19 +28,21 @@ storiesOf('Input Field', module).add(
 );
 
 storiesOf('Input Field', module).add(
-  'Input Field - without title',
+  'without title',
   () => <InputField type="text" name="test" inputSize="small" />,
   { notes: 'A very simple component' },
 );
 
 storiesOf('Input Field', module).add(
-  'Input Field - without title',
-  () => <InputField type="text" name="test" inputSize="small" />,
+  'search',
+  () => (
+    <SearchInput onChange={() => {}} />
+  ),
   { notes: 'A very simple component' },
 );
 
 storiesOf('Input Field', module).add(
-  'Input Field error - without title',
+  'error - without title',
   () => (
     <InputField
       type="text"
@@ -52,7 +55,7 @@ storiesOf('Input Field', module).add(
 );
 
 storiesOf('Input Field', module).add(
-  'Input Field - select',
+  'select',
   () => (
     <InputFieldSelect
       customClass={classnames(styles['select-option-custom'])}
@@ -62,7 +65,7 @@ storiesOf('Input Field', module).add(
 );
 
 storiesOf('Input Field', module).add(
-  'Input Field - textarea',
+  'textarea',
   () => (
     <InputFieldTextarea textareaType="small" label="Textarea field label" />
   ),
@@ -70,7 +73,7 @@ storiesOf('Input Field', module).add(
 );
 
 storiesOf('Input Field', module).add(
-  'Input Field - multiselect custom',
+  'multiselect custom',
   () => (
     <InputFieldMultiSelect
       options={[
@@ -86,13 +89,13 @@ storiesOf('Input Field', module).add(
 );
 
 storiesOf('Input Field', module).add(
-  'Input Field - multiselect custom error',
+  'multiselect custom error',
   () => <InputFieldMultiSelect error="The field is mandatory" size="medium" />,
   { notes: 'A very simple component' },
 );
 
 storiesOf('Input Field', module).add(
-  'Input Field - select custom',
+  'select custom',
   () => (
     <InputFieldSelectCustom
       options={[
@@ -109,7 +112,7 @@ storiesOf('Input Field', module).add(
 );
 
 storiesOf('Input Field', module).add(
-  'Input Field - select custom error',
+  'select custom error',
   () => <InputFieldSelectCustom error="The field is mandatory" size="medium" />,
   { notes: 'A very simple component' },
 );

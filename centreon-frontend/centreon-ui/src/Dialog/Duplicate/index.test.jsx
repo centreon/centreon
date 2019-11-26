@@ -10,7 +10,7 @@ describe('DialogDuplicate', () => {
       <DialogDuplicate
         open
         labelTitle="title"
-        labelMessage="message"
+        labelInput="Duplications"
         labelCancel="cancel"
         labelConfirm="confirm"
         onCancel={jest.fn()}
@@ -30,7 +30,7 @@ describe('DialogDuplicate', () => {
       <DialogDuplicate
         open
         labelTitle="title"
-        labelMessage="message"
+        labelInput="Duplications"
         labelCancel="cancel"
         labelConfirm="confirm"
         onCancel={jest.fn()}
