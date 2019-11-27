@@ -115,7 +115,7 @@
       contentType: 'application/json',
       dataType: 'json',
       data: JSON.stringify({
-        service: 'TutoGlpi', // this is the name of our provider
+        service: 'GlpiRestApi', // this is the name of our provider
         address: jQuery('input[name="address"]').val(),
         api_path: jQuery('input[name="api_path"]').val(),
         protocol: jQuery('input[name="protocol"]').val(),
