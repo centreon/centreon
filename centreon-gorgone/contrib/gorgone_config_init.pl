@@ -94,6 +94,8 @@ database:
 gorgonecore:
   hostname:
   id:
+  privkey: /var/spool/centreon/.gorgone/rsakey.priv.pem
+  pubkey:  /var/spool/centreon/.gorgone/rsakey.pub.pem
 modules:
   - name: httpserver
     package: gorgone::modules::core::httpserver::hooks

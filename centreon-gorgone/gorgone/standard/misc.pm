@@ -24,6 +24,8 @@ use strict;
 use warnings;
 use vars qw($centreon_config);
 use POSIX ":sys_wait_h";
+use File::Path;
+use File::Basename;
 
 sub reload_db_config {
     my ($logger, $config_file, $cdb, $csdb) = @_;
@@ -230,6 +232,7 @@ sub mymodule_load {
 sub write_file {
     my (%options) = @_;
 
+    File::Path::make_path(File::Basename::dirname($options{filename}));
     my $fh;
     if (!open($fh, '>', $options{filename})) {
         $options{logger}->writeLogError("Could not open file '$options{filename}': $!");
