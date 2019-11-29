@@ -56,13 +56,33 @@ sub read_config {
 # Handshake functions
 #######################
 
+sub generate_keys {
+    my (%options) = @_;
+
+    my ($privkey, $pubkey);
+    eval {
+        my $pkrsa = Crypt::PK::RSA->new();
+        $pkrsa->generate_key(256, 65537);
+        $pubkey = $pkrsa->export_key_pem('public_x509');
+        $privkey = $pkrsa->export_key_pem('private');
+    };
+    if ($@) {
+        $options{logger}->writeLogError("Cannot generate server keys: $@");
+        return 0;
+    }
+
+    return (1, $privkey, $pubkey);
+}
+
 sub loadpubkey {
     my (%options) = @_;
+    my $quit = defined($options{noquit}) ? 0 : 1;
     my $string_key = '';
 
     if (!open FILE, "<" . $options{pubkey}) {
         $options{logger}->writeLogError("Cannot read file '$options{pubkey}': $!");
-        exit(1);
+        exit(1) if ($quit);
+        return 0;
     }
     while (<FILE>) {
         $string_key .= $_;
@@ -75,23 +95,27 @@ sub loadpubkey {
     };
     if ($@) {
         $options{logger}->writeLogError("Cannot load pubkey '$options{pubkey}': $@");
-        exit(1);
+        exit(1) if ($quit);
+        return 0;
     }
     if ($pubkey->is_private()) {
         $options{logger}->writeLogError("'$options{pubkey}' is not a publickey");
-        exit(1);
+        exit(1) if ($quit);
+        return 0;
     }
     
-    return $pubkey;
+    return (1, $pubkey);
 }
 
 sub loadprivkey {
     my (%options) = @_;
     my $string_key = '';
-    
+    my $quit = defined($options{noquit}) ? 0 : 1;
+
     if (!open FILE, "<" . $options{privkey}) {
         $options{logger}->writeLogError("Cannot read file '$options{privkey}': $!");
-        exit(1);
+        exit(1) if ($quit);
+        return 0;
     }
     while (<FILE>) {
         $string_key .= $_;
@@ -104,14 +128,16 @@ sub loadprivkey {
     };
     if ($@) {
         $options{logger}->writeLogError("Cannot load privkey '$options{privkey}': $@");
-        exit(1);
+        exit(1) if ($quit);
+        return 0;
     }
     if (!$privkey->is_private()) {
         $options{logger}->writeLogError("'$options{privkey}' is not a privkey");
-        exit(1);
+        exit(1) if ($quit);
+        return 0;
     }
 
-    return $privkey;
+    return (1, $privkey);
 }
 
 sub zmq_core_key_response {

@@ -27,6 +27,7 @@ use Sys::Hostname;
 use ZMQ::LibZMQ4;
 use ZMQ::Constants qw(:all);
 use gorgone::standard::library;
+use gorgone::standard::misc;
 use gorgone::class::db;
 
 my ($gorgone, $config);
@@ -66,8 +67,59 @@ sub new {
     return $self;
 }
 
+sub init_server_keys {
+    my ($self, %options) = @_;
+
+    my ($code, $content_privkey, $content_pubkey);
+    $self->{logger}->writeLogInfo("[core] init server keys");
+
+    $self->{keys_loaded} = 0;
+    $self->{server_privkey_file} = defined($options{config}->{gorgonecore}->{privkey}) && $options{config}->{gorgonecore}->{privkey} ne '' ?
+        $options{config}->{gorgonecore}->{privkey} : 'keys/rsakey.priv.pem';
+    $self->{server_pubkey_file} = defined($options{config}->{gorgonecore}->{pubkey}) && $options{config}->{gorgonecore}->{pubkey} ne '' ?
+        $options{config}->{gorgonecore}->{privkey} : 'keys/rsakey.pub.pem';
+
+    if (! -f $self->{server_privkey_file} && ! -f $self->{server_pubkey_file}) {
+        ($code, $content_privkey, $content_pubkey) = gorgone::standard::library::generate_keys(logger => $self->{logger});
+        return if ($code == 0);
+        $code = gorgone::standard::misc::write_file(
+            logger => $self->{logger},
+            filename => $self->{server_privkey_file},
+            content => $content_privkey,
+        );
+        return if ($code == 0);
+        $self->{logger}->writeLogInfo("[core] private key file '$self->{server_privkey_file}' written");
+        
+        $code = gorgone::standard::misc::write_file(
+            logger => $self->{logger},
+            filename => $self->{server_pubkey_file},
+            content => $content_pubkey,
+        );
+        return if ($code == 0);
+        $self->{logger}->writeLogInfo("[core] public key file '$self->{server_pubkey_file}' written");
+    }
+
+    ($code, $self->{server_privkey}) = gorgone::standard::library::loadprivkey(
+        logger => $self->{logger},
+        privkey => $self->{server_privkey_file},
+        noquit => 1
+    );
+    return if ($code == 0);
+    $self->{logger}->writeLogInfo("[core] private key file '$self->{server_privkey_file}' loaded");
+
+    ($code, $self->{server_pubkey}) = gorgone::standard::library::loadpubkey(
+        logger => $self->{logger},
+        pubkey => $self->{server_pubkey_file},
+        noquit => 1
+    );
+    return if ($code == 0);
+    $self->{logger}->writeLogInfo("[core] public key file '$self->{server_pubkey_file}' loaded");
+
+    $self->{keys_loaded} = 1;
+}
+
 sub init {
-    my $self = shift;
+    my ($self) = @_;
     $self->SUPER::init();
 
     # redefine to avoid out when we try modules
@@ -82,10 +134,8 @@ sub init {
         config_file => $self->{opt_config},
         logger => $self->{logger}
     );
-    
-    if (defined($config->{gorgonecore}->{external_com_type}) && $config->{gorgonecore}->{external_com_type} ne '') {
-        $self->{server_privkey} = gorgone::standard::library::loadprivkey(logger => $self->{logger}, privkey => $config->{gorgonecore}->{privkey});
-    }
+
+    $self->init_server_keys(config => $config);
 
     $config->{gorgonecore}->{internal_com_type} = 
         defined($config->{gorgonecore}->{internal_com_type}) && $config->{gorgonecore}->{internal_com_type} ne '' ? $config->{gorgonecore}->{internal_com_type} : 'ipc';
@@ -128,7 +178,7 @@ sub init {
 }
 
 sub set_signal_handlers {
-    my $self = shift;
+    my ($self) = @_;
 
     $SIG{TERM} = \&class_handle_TERM;
     $handlers{TERM}->{$self} = sub { $self->handle_TERM() };
@@ -157,7 +207,7 @@ sub class_handle_CHLD {
 }
 
 sub handle_TERM {
-    my $self = shift;
+    my ($self) = @_;
     $self->{logger}->writeLogInfo("[core] $$ Receiving order to stop...");
     $self->{stop} = 1;
     
@@ -482,8 +532,10 @@ sub handshake {
             );
         }
 
-        if (gorgone::standard::library::zmq_core_key_response(logger => $self->{logger}, socket => $self->{external_socket}, identity => $identity,
-                                                             client_pubkey => $client_pubkey, hostname => $self->{hostname}, symkey => $symkey) == -1) {
+        if (gorgone::standard::library::zmq_core_key_response(
+                logger => $self->{logger}, socket => $self->{external_socket}, identity => $identity,
+                client_pubkey => $client_pubkey, hostname => $self->{hostname}, symkey => $symkey) == -1
+            ) {
             gorgone::standard::library::zmq_core_response(
                 socket => $self->{external_socket}, identity => $identity,
                 code => 1, data => { message => 'handshake issue' }
@@ -588,7 +640,7 @@ sub quit {
     
     $self->{logger}->writeLogInfo("[core] Quit main process");
     zmq_close($self->{internal_socket});
-    if (defined($config->{gorgonecore}->{external_com_type}) && $config->{gorgonecore}->{external_com_type} ne '') {
+    if (defined($self->{external_socket})) {
         zmq_close($self->{external_socket});
     }
     exit(0);
@@ -620,12 +672,16 @@ sub run {
         logger => $gorgone->{logger}
     );
     if (defined($config->{gorgonecore}->{external_com_type}) && $config->{gorgonecore}->{external_com_type} ne '') {
-        $gorgone->{external_socket} = gorgone::standard::library::create_com(
-            type => $config->{gorgonecore}->{external_com_type},
-            path => $config->{gorgonecore}->{external_com_path},
-            zmq_type => 'ZMQ_ROUTER', name => 'router-external',
-            logger => $gorgone->{logger}
-        );
+        if ($gorgone->{keys_loaded}) {
+            $gorgone->{external_socket} = gorgone::standard::library::create_com(
+                type => $config->{gorgonecore}->{external_com_type},
+                path => $config->{gorgonecore}->{external_com_path},
+                zmq_type => 'ZMQ_ROUTER', name => 'router-external',
+                logger => $gorgone->{logger}
+            );
+        } else {
+            $gorgone->{logger}->writeLogError("[core] Cannot create external com: no keys loaded");
+        }
     }
 
     # Initialize poll set

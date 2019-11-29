@@ -227,6 +227,19 @@ sub mymodule_load {
     return wantarray ? (0, $file) : 0;
 }
 
+sub write_file {
+    my (%options) = @_;
+
+    my $fh;
+    if (!open($fh, '>', $options{filename})) {
+        $options{logger}->writeLogError("Could not open file '$options{filename}': $!");
+        return 0;
+    }
+    print $fh $options{content};
+    close $fh;
+    return 1;
+}
+
 sub trim {
     my ($value) = $_[0];
     
