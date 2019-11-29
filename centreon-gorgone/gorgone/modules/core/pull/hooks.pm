@@ -62,8 +62,12 @@ sub init {
         cipher => $config->{cipher}, 
         vector => $config->{vector},
         server_pubkey => $config->{server_pubkey},
-        client_pubkey => $config->{client_pubkey},
-        client_privkey => $config->{server_privkey},        
+        client_pubkey => 
+            defined($config->{client_pubkey}) && $config->{client_pubkey} ne '' ?
+                $config->{client_pubkey} : $config_core->{pubkey},
+        client_privkey =>
+            defined($config->{client_privkey}) && $config->{client_privkey} ne '' ?
+                $config->{client_privkey} : $config_core->{privkey},
         target_type => $config->{target_type},
         target_path => $config->{target_path},
         logger => $options{logger},

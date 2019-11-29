@@ -74,46 +74,46 @@ sub init_server_keys {
     $self->{logger}->writeLogInfo("[core] init server keys");
 
     $self->{keys_loaded} = 0;
-    $self->{server_privkey_file} = defined($options{config}->{gorgonecore}->{privkey}) && $options{config}->{gorgonecore}->{privkey} ne '' ?
+    $options{config}->{gorgonecore}->{privkey} = defined($options{config}->{gorgonecore}->{privkey}) && $options{config}->{gorgonecore}->{privkey} ne '' ?
         $options{config}->{gorgonecore}->{privkey} : 'keys/rsakey.priv.pem';
-    $self->{server_pubkey_file} = defined($options{config}->{gorgonecore}->{pubkey}) && $options{config}->{gorgonecore}->{pubkey} ne '' ?
-        $options{config}->{gorgonecore}->{privkey} : 'keys/rsakey.pub.pem';
+    $options{config}->{gorgonecore}->{pubkey} = defined($options{config}->{gorgonecore}->{pubkey}) && $options{config}->{gorgonecore}->{pubkey} ne '' ?
+        $options{config}->{gorgonecore}->{pubkey} : 'keys/rsakey.pub.pem';
 
-    if (! -f $self->{server_privkey_file} && ! -f $self->{server_pubkey_file}) {
+    if (! -f $options{config}->{gorgonecore}->{privkey} && ! -f $options{config}->{gorgonecore}->{pubkey}) {
         ($code, $content_privkey, $content_pubkey) = gorgone::standard::library::generate_keys(logger => $self->{logger});
         return if ($code == 0);
         $code = gorgone::standard::misc::write_file(
             logger => $self->{logger},
-            filename => $self->{server_privkey_file},
+            filename => $options{config}->{gorgonecore}->{privkey},
             content => $content_privkey,
         );
         return if ($code == 0);
-        $self->{logger}->writeLogInfo("[core] private key file '$self->{server_privkey_file}' written");
+        $self->{logger}->writeLogInfo("[core] private key file '$options{config}->{gorgonecore}->{privkey}' written");
         
         $code = gorgone::standard::misc::write_file(
             logger => $self->{logger},
-            filename => $self->{server_pubkey_file},
+            filename => $options{config}->{gorgonecore}->{pubkey},
             content => $content_pubkey,
         );
         return if ($code == 0);
-        $self->{logger}->writeLogInfo("[core] public key file '$self->{server_pubkey_file}' written");
+        $self->{logger}->writeLogInfo("[core] public key file '$options{config}->{gorgonecore}->{pubkey}' written");
     }
 
     ($code, $self->{server_privkey}) = gorgone::standard::library::loadprivkey(
         logger => $self->{logger},
-        privkey => $self->{server_privkey_file},
+        privkey => $options{config}->{gorgonecore}->{privkey},
         noquit => 1
     );
     return if ($code == 0);
-    $self->{logger}->writeLogInfo("[core] private key file '$self->{server_privkey_file}' loaded");
+    $self->{logger}->writeLogInfo("[core] private key file '$options{config}->{gorgonecore}->{privkey}' loaded");
 
     ($code, $self->{server_pubkey}) = gorgone::standard::library::loadpubkey(
         logger => $self->{logger},
-        pubkey => $self->{server_pubkey_file},
+        pubkey => $options{config}->{gorgonecore}->{pubkey},
         noquit => 1
     );
     return if ($code == 0);
-    $self->{logger}->writeLogInfo("[core] public key file '$self->{server_pubkey_file}' loaded");
+    $self->{logger}->writeLogInfo("[core] public key file '$options{config}->{gorgonecore}->{pubkey}' loaded");
 
     $self->{keys_loaded} = 1;
 }

@@ -148,8 +148,12 @@ sub connect {
             cipher => $self->{clients}->{$options{id}}->{cipher}, 
             vector => $self->{clients}->{$options{id}}->{vector},
             server_pubkey => $self->{clients}->{$options{id}}->{server_pubkey},
-            client_pubkey => $self->{clients}->{$options{id}}->{client_pubkey},
-            client_privkey => $self->{clients}->{$options{id}}->{client_privkey},
+            client_pubkey => 
+                defined($self->{clients}->{$options{id}}->{client_pubkey}) && $self->{clients}->{$options{id}}->{client_pubkey} ne ''
+                    ? $self->{clients}->{$options{id}}->{client_pubkey} : $self->{config_core}->{pubkey},
+            client_privkey =>
+                defined($self->{clients}->{$options{id}}->{client_privkey}) && $self->{clients}->{$options{id}}->{client_privkey} ne ''
+                    ? $self->{clients}->{$options{id}}->{client_privkey} : $self->{config_core}->{privkey},
             target_type => defined($self->{clients}->{$options{id}}->{target_type}) ?
                 $self->{clients}->{$options{id}}->{target_type} :
                 'tcp',
@@ -342,8 +346,8 @@ sub run {
         zmq_type => 'ZMQ_DEALER',
         name => 'gorgoneproxy-' . $self->{pool_id},
         logger => $self->{logger},
-        type => $self->{config_core}{internal_com_type},
-        path => $self->{config_core}{internal_com_path}
+        type => $self->{config_core}->{internal_com_type},
+        path => $self->{config_core}->{internal_com_path}
     );
     gorgone::standard::library::zmq_send_message(
         socket => $self->{internal_socket},
