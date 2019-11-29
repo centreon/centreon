@@ -17,6 +17,9 @@
 
 [Unit]
 Description=Centreon Gorgone
+PartOf=centreon.service
+After=centreon.service
+ReloadPropagatedFrom=centreon.service
 
 [Service]
 EnvironmentFile=/etc/sysconfig/centreon-gorgone
@@ -26,3 +29,4 @@ User=centreon
 
 [Install]
 WantedBy=multi-user.target
+WantedBy=centreon.service
