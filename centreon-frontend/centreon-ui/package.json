@@ -1,7 +1,7 @@
 {
-  "name": "@centreon/react-components",
+  "name": "@centreon/ui",
   "version": "20.4.0",
-  "description": "react components used by centreon web frontend",
+  "description": "Centreon UI Components",
   "main": "lib",
   "scripts": {
     "eslint": "eslint . --ext .js,.jsx",
@@ -14,7 +14,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/centreon/centreon-react-components.git"
+    "url": "git+https://github.com/centreon/centreon-ui.git"
   },
   "keywords": [
     "centreon",
@@ -23,9 +23,9 @@
   "author": "centreon@centreon.com",
   "license": "GPL-2.0",
   "bugs": {
-    "url": "https://github.com/centreon/centreon-react-components/issues"
+    "url": "https://github.com/centreon/ui/issues"
   },
-  "homepage": "https://github.com/centreon/centreon-react-components#readme",
+  "homepage": "https://github.com/centreon/centreon-ui#readme",
   "peerDependencies": {
     "react": "^16.0.0",
     "react-dom": "^16.0.0"
