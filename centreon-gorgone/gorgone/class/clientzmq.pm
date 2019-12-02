@@ -38,10 +38,14 @@ sub new {
     $connector->{cipher} = $options{cipher};
     $connector->{vector} = $options{vector};
     $connector->{symkey} = undef;
-    (undef, $connector->{server_pubkey}) = gorgone::standard::library::loadpubkey(
-        pubkey => $options{server_pubkey},
-        logger => $options{logger}
-    );
+    $connector->{verbose_last_message} = '';
+
+    if (defined($options{server_pubkey}) && $options{server_pubkey} ne '') {
+        (undef, $connector->{server_pubkey}) = gorgone::standard::library::loadpubkey(
+            pubkey => $options{server_pubkey},
+            logger => $options{logger}
+        );
+    }
     (undef, $connector->{client_pubkey}) = gorgone::standard::library::loadpubkey(
         pubkey => $options{client_pubkey},
         logger => $options{logger}
@@ -84,6 +88,38 @@ sub close {
     my ($self, %options) = @_;
     
     zmq_close($sockets->{$self->{identity}});
+}
+
+sub get_server_pubkey {
+    my ($self, %options) = @_;
+
+    zmq_sendmsg($sockets->{$self->{identity}}, '[GETPUBKEY]', ZMQ_DONTWAIT);
+    zmq_poll([$self->get_poll()], 10000);
+}
+
+sub check_server_pubkey {
+    my ($self, %options) = @_;
+
+    if ($options{message} !~ /^\s*\[PUBKEY\]\s+\[(.*?)\]/) {
+        $self->{logger}->writeLogError('cannot read pubbkey response from server: ' . $options{message}) if (defined($self->{logger}));
+        $self->{verbose_last_message} = 'cannot read pubkey response from server';
+        return 0;
+    }
+
+    my $server_pubkey_str = pack('H*', $1);
+    (my $code, $self->{server_pubkey}) = gorgone::standard::library::loadpubkey(
+        pubkey_str => $server_pubkey_str,
+        logger => $self->{logger},
+        noquit => 1
+    );
+
+    if ($code == 0) {
+        $self->{logger}->writeLogError('cannot load pubbkey') if (defined($self->{logger}));
+        $self->{verbose_last_message} = 'cannot load pubkey';
+        return 0;
+    }
+
+    return 1;
 }
 
 sub is_connected {
@@ -146,13 +182,19 @@ sub event {
         my $message = gorgone::standard::library::zmq_dealer_read_message(socket => $sockets->{$options{identity}});
         
         # in progress
-        if ($connectors->{$options{identity}}->{handshake} == 0 || $connectors->{$options{identity}}->{handshake} == 1) {
-            my ($status, $symkey, $hostname) = gorgone::standard::library::client_get_secret(
+        if ($connectors->{$options{identity}}->{handshake} == 0) {
+            $connectors->{$options{identity}}->{handshake} = 1;
+            if ($connectors->{$options{identity}}->check_server_pubkey(message => $message) == 0) {
+                $connectors->{$options{identity}}->{handshake} = -1;
+            }
+        } elsif ($connectors->{$options{identity}}->{handshake} == 1) {
+            my ($status, $verbose, $symkey, $hostname) = gorgone::standard::library::client_get_secret(
                 privkey => $connectors->{$options{identity}}->{client_privkey},
                 message => $message
             );
             if ($status == -1) {
-                $connectors->{$options{identity}}->{handshake} = 0;
+                $connectors->{$options{identity}}->{handshake} = -1;
+                $connectors->{$options{identity}}->{verbose_last_message} = $verbose;
                 return ;
             }
             $connectors->{$options{identity}}->{symkey} = $symkey;
@@ -169,7 +211,8 @@ sub event {
             );
             
             if ($status == -1 || $data !~ /^\[(.+?)\]\s+\[(.*?)\]\s+(?:\[(.*?)\]\s*(.*)|(.*))$/m) {
-                $connectors->{$options{identity}}->{handshake} = 0;
+                $connectors->{$options{identity}}->{handshake} = -1;
+                $connectors->{$options{identity}}->{verbose_last_message} = 'uncrypt issue: ' . $data;
                 return ;
             }
             
@@ -184,28 +227,34 @@ sub event {
 
 sub send_message {
     my ($self, %options) = @_;
-    
+
     if ($self->{handshake} == 0) {
+        if (!defined($self->{server_pubkey})) {
+            $self->get_server_pubkey();
+        } else {
+            $self->{handshake} = 1;
+        }
+    }
+
+    if ($self->{handshake} == 1) {
         my ($status, $ciphertext) = gorgone::standard::library::client_helo_encrypt(
             identity => $self->{identity},
             server_pubkey => $self->{server_pubkey},
             client_pubkey => $self->{client_pubkey},
         );
         if ($status == -1) {
-            return (-1, 'crypt handshake issue'); 
+            $self->{verbose_last_message} = 'crypt handshake issue';
+            return (-1, $self->{verbose_last_message}); 
         }
-        $self->{handshake} = 1;
 
+        $self->{verbose_last_message} = 'Handshake timeout';
         zmq_sendmsg($sockets->{$self->{identity}}, $ciphertext, ZMQ_DONTWAIT);
         zmq_poll([$self->get_poll()], 10000);
     }
     
-    if ($self->{handshake} == 1) {
+    if ($self->{handshake} < 2) {
         $self->{handshake} = 0;
-        return (-1, 'Handshake timeout');
-    }
-    if ($self->{handshake} == 0) {
-        return (-1, 'Handshake issue');
+        return (-1, $self->{verbose_last_message});
     }
     
     gorgone::standard::library::zmq_send_message(

@@ -61,7 +61,6 @@ sub init {
         identity => $config_core->{id}, 
         cipher => $config->{cipher}, 
         vector => $config->{vector},
-        server_pubkey => $config->{server_pubkey},
         client_pubkey => 
             defined($config->{client_pubkey}) && $config->{client_pubkey} ne '' ?
                 $config->{client_pubkey} : $config_core->{pubkey},

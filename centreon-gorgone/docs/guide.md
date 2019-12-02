@@ -9,14 +9,26 @@
 
 Third-party clients have to use the ZeroMQ library and the following process:
 
-1. Client : need to create an uniq identity (will be used in "zmq_setsockopt" and "ZMQ_IDENTITY")
-2. Client -> Server : send the following message with HELO crypted with the public key of the server and provides client pubkey:
+1. Client: need to create an uniq identity (will be used in "zmq_setsockopt" and "ZMQ_IDENTITY")
+2. Client -> Server: ask the server pubkey
+
+    ```text
+    [GETPUBKEY]
+    ```
+
+3. Server -> Client: send back the pubkey
+
+    ```text
+    [PUBKEY] [xxxxx]
+    ```
+
+4. Client -> Server: send the following message with HELO crypted with the public key of the server and provides client pubkey:
 
     ```text
     [HOSTNAME] [CLIENTPUBKEY] [HELO]
     ```
 
-3. Server: uncrypt the client message:
+5. Server -> Client: uncrypt the client message:
 
     * If uncrypted message result is not "HELO", server refuses the connection and send it back:
 

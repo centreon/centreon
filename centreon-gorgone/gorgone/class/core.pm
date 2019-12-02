@@ -471,6 +471,17 @@ sub handshake {
     my ($self, %options) = @_;
 
     my ($identity, $message) = gorgone::standard::library::zmq_read_message(socket => $self->{external_socket});
+
+    # Test if it asks for the pubkey
+    if ($message =~ /^\s*\[GETPUBKEY\]/) {
+        gorgone::standard::library::zmq_core_pubkey_response(
+            socket => $self->{external_socket},
+            identity => $identity,
+            pubkey => $self->{server_pubkey}
+        );
+        return undef;
+    }
+
     my ($status, $key) = gorgone::standard::library::is_handshake_done(dbh => $self->{db_gorgone}, identity => $identity);
 
     if ($status == 1) {

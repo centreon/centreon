@@ -79,31 +79,35 @@ sub loadpubkey {
     my $quit = defined($options{noquit}) ? 0 : 1;
     my $string_key = '';
 
-    if (!open FILE, "<" . $options{pubkey}) {
-        $options{logger}->writeLogError("Cannot read file '$options{pubkey}': $!");
-        exit(1) if ($quit);
-        return 0;
+    if (defined($options{pubkey})) {
+        if (!open FILE, "<" . $options{pubkey}) {
+            $options{logger}->writeLogError("Cannot read file '$options{pubkey}': $!") if (defined($options{logger}));
+            exit(1) if ($quit);
+            return 0;
+        }
+        while (<FILE>) {
+            $string_key .= $_;
+        }
+        close FILE;
+    } else {
+        $string_key = $options{pubkey_str};
     }
-    while (<FILE>) {
-        $string_key .= $_;
-    }
-    close FILE;
-    
+
     my $pubkey;
     eval {
         $pubkey = Crypt::PK::RSA->new(\$string_key);
     };
     if ($@) {
-        $options{logger}->writeLogError("Cannot load pubkey '$options{pubkey}': $@");
+        $options{logger}->writeLogError("Cannot load pubkey '$options{pubkey}': $@") if (defined($options{logger}));
         exit(1) if ($quit);
         return 0;
     }
     if ($pubkey->is_private()) {
-        $options{logger}->writeLogError("'$options{pubkey}' is not a publickey");
+        $options{logger}->writeLogError("'$options{pubkey}' is not a publickey") if (defined($options{logger}));
         exit(1) if ($quit);
         return 0;
     }
-    
+
     return (1, $pubkey);
 }
 
@@ -138,6 +142,19 @@ sub loadprivkey {
     }
 
     return (1, $privkey);
+}
+
+sub zmq_core_pubkey_response {
+    my (%options) = @_;
+    
+    if (defined($options{identity})) {
+        zmq_sendmsg($options{socket}, pack('H*', $options{identity}), ZMQ_NOBLOCK | ZMQ_SNDMORE);
+    }
+    my $client_pubkey = $options{pubkey}->export_key_pem('public');
+    my $msg = '[PUBKEY] [' . unpack('H*', $client_pubkey) . ']';
+
+    zmq_sendmsg($options{socket}, $msg, ZMQ_NOBLOCK);
+    return 0;
 }
 
 sub zmq_core_key_response {
@@ -243,7 +260,7 @@ sub client_get_secret {
 
     my $hostname = pack('H*', $3);
     my $symkey = pack('H*', $5);
-    return (0, $symkey, $hostname);
+    return (0, 'ok', $symkey, $hostname);
 }
 
 sub client_helo_encrypt {
