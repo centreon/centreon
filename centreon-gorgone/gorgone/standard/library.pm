@@ -854,6 +854,16 @@ sub init_database {
             q{
                 CREATE INDEX IF NOT EXISTS idx_gorgone_synchistory_id ON gorgone_synchistory (id);
             },
+            q{
+                CREATE TABLE IF NOT EXISTS `gorgone_target_fingerprint` (
+                  `id` INTEGER PRIMARY KEY,
+                  `target` varchar(2048) DEFAULT NULL,
+                  `fingerprint` varchar(4096) DEFAULT NULL
+                );
+            },
+            q{
+                CREATE INDEX IF NOT EXISTS idx_gorgone_target_fingerprint_target ON gorgone_target_fingerprint (target);
+            },
         ];
         foreach (@$requests) {
             $options{gorgone}->{db_gorgone}->query($_);

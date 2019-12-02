@@ -23,6 +23,7 @@ package gorgone::class::clientzmq;
 use strict;
 use warnings;
 use gorgone::standard::library;
+use gorgone::standard::misc;
 use ZMQ::LibZMQ4;
 use ZMQ::Constants qw(:all);
 
@@ -39,6 +40,22 @@ sub new {
     $connector->{vector} = $options{vector};
     $connector->{symkey} = undef;
     $connector->{verbose_last_message} = '';
+    $connector->{config_core} = $options{config_core};
+
+    if (defined($connector->{config_core}) && defined($connector->{config_core}->{fingerprint_mgr}->{package})) {
+        my ($code, $class_mgr) = gorgone::standard::misc::mymodule_load(
+            logger => $connector->{logger},
+            module => $connector->{config_core}->{fingerprint_mgr}->{package}, 
+            error_msg => "Cannot load module $connector->{config_core}->{fingerprint_mgr}->{package}"
+        );
+        if ($code == 0) {
+            $connector->{fingerprint_mgr} = $class_mgr->new(
+                logger => $connector->{logger},
+                config => $connector->{config_core}->{fingerprint_mgr},
+                config_core => $connector->{config_core}
+            );
+        }
+    }
 
     if (defined($options{server_pubkey}) && $options{server_pubkey} ne '') {
         (undef, $connector->{server_pubkey}) = gorgone::standard::library::loadpubkey(
@@ -106,8 +123,9 @@ sub check_server_pubkey {
         return 0;
     }
 
+    my ($code, $verbose_message);
     my $server_pubkey_str = pack('H*', $1);
-    (my $code, $self->{server_pubkey}) = gorgone::standard::library::loadpubkey(
+    ($code, $self->{server_pubkey}) = gorgone::standard::library::loadpubkey(
         pubkey_str => $server_pubkey_str,
         logger => $self->{logger},
         noquit => 1
@@ -117,6 +135,20 @@ sub check_server_pubkey {
         $self->{logger}->writeLogError('cannot load pubbkey') if (defined($self->{logger}));
         $self->{verbose_last_message} = 'cannot load pubkey';
         return 0;
+    }
+
+    # if not set, we are in 'always' mode
+    if (defined($self->{fingerprint_mgr})) {
+        my $thumbprint = $self->{server_pubkey}->export_key_jwk_thumbprint('SHA256');
+        ($code, $verbose_message) = $self->{fingerprint_mgr}->check_fingerprint(
+            target => $self->{target_type} . '://' . $self->{target_path},
+            fingerprint => $thumbprint
+        );
+        if ($code == 0) {
+            $self->{logger}->writeLogError($verbose_message) if (defined($self->{logger}));
+            $self->{verbose_last_message} = $verbose_message;
+            return 0;
+        }
     }
 
     return 1;

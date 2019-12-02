@@ -159,7 +159,8 @@ sub connect {
             target_path => defined($self->{clients}->{$options{id}}->{target_path}) ?
                 $self->{clients}->{$options{id}}->{target_path} :
                 $self->{clients}->{$options{id}}->{address} . ':' . $self->{clients}->{$options{id}}->{port},
-            logger => $self->{logger},
+            config_core => $self->{config_core},
+            logger => $self->{logger}
         );
         $self->{clients}->{$options{id}}->{class}->init(callback => \&read_message);
     } elsif ($self->{clients}->{$options{id}}->{type} eq 'push_ssh') {

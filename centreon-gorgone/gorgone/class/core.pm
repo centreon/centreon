@@ -144,6 +144,15 @@ sub init {
     $config->{gorgonecore}->{timeout} = 
         defined($config->{gorgonecore}->{timeout}) && $config->{gorgonecore}->{timeout} =~ /(\d+)/ ? $1 : 50;
 
+    $config->{gorgonecore}->{fingerprint_mode} =
+        defined($config->{gorgonecore}->{fingerprint_mode}) && $config->{gorgonecore}->{fingerprint_mode} =~ /^\s*(always|firt|strict)\s*/i ? lc($1) : 'first';
+    $config->{gorgonecore}->{fingerprint_mgr} = {} if (!defined($config->{gorgonecore}->{fingerprint_mgr}));
+    $config->{gorgonecore}->{fingerprint_mgr}->{package} = 'gorgone::class::fingerprint::backend::sql'
+        if (!defined($config->{gorgonecore}->{fingerprint_mgr}->{package}) || $config->{gorgonecore}->{fingerprint_mgr}->{package} eq '');
+
+    $config->{gorgonecore}->{fingerprint_mode} =
+        defined($config->{gorgonecore}->{fingerprint_mode}) && $config->{gorgonecore}->{fingerprint_mode} =~ /^\s*(always|firt|strict)\s*/i ? lc($1) : 'first';
+
     $config->{gorgonecore}->{gorgone_db_type} =
         defined($config->{gorgonecore}->{gorgone_db_type}) && $config->{gorgonecore}->{gorgone_db_type} ne '' ? $config->{gorgonecore}->{gorgone_db_type} : 'SQLite';
     $config->{gorgonecore}->{gorgone_db_name} =

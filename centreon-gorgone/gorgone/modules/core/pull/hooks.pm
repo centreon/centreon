@@ -69,6 +69,7 @@ sub init {
                 $config->{client_privkey} : $config_core->{privkey},
         target_type => $config->{target_type},
         target_path => $config->{target_path},
+        config_core => $config_core,
         logger => $options{logger},
         ping => $config->{ping},
         ping_timeout => $config->{ping_timeout}
