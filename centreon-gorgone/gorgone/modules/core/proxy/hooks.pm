@@ -421,17 +421,17 @@ sub setlogs {
     # Transaction
     $options{dbh}->transaction_mode(1);
     my $status = 0;
-    foreach (keys %{$options{data}->{data}->{result}}) {
+    foreach (@{$options{data}->{data}->{result}}) {
         $status = gorgone::standard::library::add_history(
             dbh => $options{dbh},
-            etime => $options{data}->{data}->{result}->{$_}->{etime}, 
-            code => $options{data}->{data}->{result}->{$_}->{code}, 
-            token => $options{data}->{data}->{result}->{$_}->{token},
-            data => $options{data}->{data}->{result}->{$_}->{data}
+            etime => $_->{etime}, 
+            code => $_->{code}, 
+            token => $_->{token},
+            data => $_->{data}
         );
         last if ($status == -1);
-        $ctime_recent = $options{data}->{data}->{result}->{$_}->{ctime} if ($ctime_recent < $options{data}->{data}->{result}->{$_}->{ctime});
-        $last_id = $options{data}->{data}->{result}->{$_}->{id} if ($last_id < $options{data}->{data}->{result}->{$_}->{id});
+        $ctime_recent = $_->{ctime} if ($ctime_recent < $_->{ctime});
+        $last_id = $_->{id} if ($last_id < $_->{id});
     }
     if ($status == 0 && update_sync_time(dbh => $options{dbh}, id => $options{data}->{data}->{id}, last_id => $last_id, ctime => $ctime_recent) == 0) {
         $options{dbh}->commit();

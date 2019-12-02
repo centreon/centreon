@@ -163,8 +163,8 @@ An example of the json stream:
   "data": {
     "action": "getlog",
     "message": "ok",
-    "result": {
-      "10": {
+    "result": [
+      {
         "id": 10,
         "token": "xxxx",
         "code": 1,
@@ -172,7 +172,7 @@ An example of the json stream:
         "ctime": 1419252686,
         "data": "xxxx",
       },
-      "100": {
+      {
         "id": 100,
         "token": "xxxx",
         "code": 1,
@@ -180,7 +180,7 @@ An example of the json stream:
         "ctime": 1419252690,
         "data": "xxxx",
       }
-    }
+    ]
   }
 }
 ```
