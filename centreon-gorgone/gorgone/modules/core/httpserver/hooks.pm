@@ -138,16 +138,16 @@ sub check {
     foreach my $pid (keys %{$options{dead_childs}}) {
         # Not me
         next if ($httpserver->{pid} != $pid);
-        
+
         $httpserver = {};
         delete $options{dead_childs}->{$pid};
         if ($stop == 0) {
             create_child(logger => $options{logger}, modules_events => $options{modules_events});
         }
     }
-    
+
     $count++  if (defined($httpserver->{running}) && $httpserver->{running} == 1);
-    
+
     return $count;
 }
 

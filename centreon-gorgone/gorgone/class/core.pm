@@ -736,29 +736,33 @@ sub run {
     }
     
     $gorgone->{logger}->writeLogInfo("[core] Server accepting clients");
-
+    my $cb_timer_check = time();
     while (1) {
         my $count = 0;
         my $poll = [@{$gorgone->{poll}}];
 
-        foreach my $name (keys %{$gorgone->{modules_register}}) {
-            my $count_module = $gorgone->{modules_register}->{$name}->{check}->(
-                logger => $gorgone->{logger},
-                dead_childs => $gorgone->{return_child},
-                internal_socket => $gorgone->{internal_socket},
-                dbh => $gorgone->{db_gorgone},
-                poll => $poll,
-                modules_events => $gorgone->{modules_events},
-            );
-            $count += $count_module;
-            if ($count_module == 0) {
-                $gorgone->unload_module(package => $name);
+        my $current_time = time();
+        if (time() - $cb_timer_check > 15) {
+            foreach my $name (keys %{$gorgone->{modules_register}}) {
+                my $count_module = $gorgone->{modules_register}->{$name}->{check}->(
+                    logger => $gorgone->{logger},
+                    dead_childs => $gorgone->{return_child},
+                    internal_socket => $gorgone->{internal_socket},
+                    dbh => $gorgone->{db_gorgone},
+                    poll => $poll,
+                    modules_events => $gorgone->{modules_events},
+                );
+                $cb_timer_check = time();
+                $count += $count_module;
+                if ($count_module == 0) {
+                    $gorgone->unload_module(package => $name);
+                }
             }
+
+            # We can clean return_child.
+            $gorgone->{return_child} = {};
         }
 
-        # We can clean return_child.
-        $gorgone->{return_child} = {};
-        
         if ($gorgone->{stop} == 1) {
             # No childs
             if ($count == 0) {

@@ -23,10 +23,10 @@ package gorgone::modules::core::httpserver::class;
 use strict;
 use warnings;
 use gorgone::standard::library;
+use gorgone::standard::misc;
 use ZMQ::LibZMQ4;
 use ZMQ::Constants qw(:all);
 use HTTP::Daemon;
-use HTTP::Daemon::SSL;
 use HTTP::Status;
 use MIME::Base64;
 use JSON::XS;
@@ -47,7 +47,15 @@ sub new {
     $connector->{config_core} = $options{config_core};
     $connector->{stop} = 0;
     $connector->{modules_events} = $options{modules_events};
-    
+
+    if ($connector->{config}->{ssl} eq 'true') {
+        exit(1) if (gorgone::standard::misc::mymodule_load(
+            logger => $connector->{logger},
+            module => 'HTTP::Daemon::SSL',
+            error_msg => "[httpserver] -class- cannot load module 'HTTP::Daemon::SSL'")
+        );
+    }
+
     bless $connector, $class;
     $connector->set_signal_handlers;
     return $connector;
@@ -178,8 +186,8 @@ sub run {
 sub ssl_error {
     my ($self, $error) = @_;
     
-    ${*$self}{'httpd_client_proto'} = 1000;
-    ${*$self}{'httpd_daemon'} = new HTTP::Daemon::SSL::DummyDaemon;
+    ${*$self}{httpd_client_proto} = 1000;
+    ${*$self}{httpd_daemon} = HTTP::Daemon::SSL::DummyDaemon->new();
     $self->send_error(RC_BAD_REQUEST);
     $self->close;
 }
