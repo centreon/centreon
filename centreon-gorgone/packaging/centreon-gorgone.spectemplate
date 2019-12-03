@@ -65,4 +65,13 @@ rm -rf %{buildroot}
 %attr(755,root,root) %{_sysconfdir}/systemd/system/centreon-gorgone.service
 %config(noreplace) %{_sysconfdir}/sysconfig/centreon-gorgone
 
+%post
+%systemd_post centreon-gorgone.service || :
+
+%preun
+%systemd_preun centreon-gorgone.service || :
+
+%postun
+%systemd_postun_with_restart centreon-gorgone.service || :
+
 %changelog
