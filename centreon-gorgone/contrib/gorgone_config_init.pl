@@ -106,8 +106,13 @@ modules:
     ssl_cert_file: /etc/pki/tls/certs/server-cert.pem
     ssl_key_file: /etc/pki/tls/server-key.pem
     auth:
+      enabled: false
       user: admin
       password: password
+    allowed_hosts:
+      enabled: true
+      subnets:
+        - 127.0.0.1/32
 
   - name: cron
     package: gorgone::modules::core::cron::hooks

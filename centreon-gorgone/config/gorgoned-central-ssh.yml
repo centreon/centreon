@@ -21,6 +21,7 @@ modules:
     ssl_cert_file: /etc/pki/tls/certs/server-cert.pem
     ssl_key_file: /etc/pki/tls/server-key.pem
     auth:
+      enabled: true
       user: admin
       password: password
 

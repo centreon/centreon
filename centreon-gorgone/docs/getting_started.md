@@ -32,6 +32,7 @@ The daemon uses the following Perl modules:
   * HTTP::Daemon
   * HTTP::Status
   * MIME::Base64
+  * NetAddr::IP
 * Repository 'epel':
   * HTTP::Daemon::SSL
   * Schedule::Cron
@@ -43,7 +44,7 @@ The daemon uses the following Perl modules:
 Execute the following commands to install them all:
 
 ```bash
-yum install 'perl(Schedule::Cron)' 'perl(Crypt::CBC)' 'perl(ZMQ::LibZMQ4)' 'perl(JSON::XS)' 'perl(YAML)' 'perl(DBD::SQLite)' 'perl(DBD::mysql)' 'perl(UUID)' 'perl(HTTP::Daemon)' 'perl(HTTP::Daemon::SSL)' 'perl(HTTP::Status)' 'perl(MIME::Base64)'
+yum install 'perl(NetAddr::IP)' 'perl(Schedule::Cron)' 'perl(Crypt::CBC)' 'perl(ZMQ::LibZMQ4)' 'perl(JSON::XS)' 'perl(YAML)' 'perl(DBD::SQLite)' 'perl(DBD::mysql)' 'perl(UUID)' 'perl(HTTP::Daemon)' 'perl(HTTP::Daemon::SSL)' 'perl(HTTP::Status)' 'perl(MIME::Base64)'
 yum install packaging/packages/perl-CryptX-0.064-1.el7.x86_64
 ```
 

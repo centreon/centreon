@@ -30,6 +30,7 @@ use HTTP::Daemon;
 use HTTP::Status;
 use MIME::Base64;
 use JSON::XS;
+use Socket;
 
 my $time = time();
 
@@ -54,6 +55,17 @@ sub new {
             module => 'HTTP::Daemon::SSL',
             error_msg => "[httpserver] -class- cannot load module 'HTTP::Daemon::SSL'")
         );
+    }
+
+    $connector->{auth_enabled} = (defined($connector->{config}->{auth}->{enabled}) && $connector->{config}->{auth}->{enabled} eq 'true') ? 1 : 0;
+
+    $connector->{allowed_hosts_enabled} = (defined($connector->{config}->{allowed_hosts}->{enabled}) && $connector->{config}->{allowed_hosts}->{enabled} eq 'true') ? 1 : 0;
+    if (gorgone::standard::misc::mymodule_load(
+            logger => $connector->{logger},
+            module => 'NetAddr::IP',
+            error_msg => "[httpserver] -class- cannot load module 'NetAddr::IP'. Cannot use allowed_hosts configuration.")
+    ) {
+        $connector->{allowed_hosts_enabled} = 0;
     }
 
     bless $connector, $class;
@@ -110,8 +122,40 @@ sub init_dispatch {
         if (defined($self->{config}->{dispatch}) && $self->{config}->{dispatch} ne '');
 }
 
+sub check_allowed_host {
+    my ($self, %options) = @_;
+
+    my $subnet = NetAddr::IP->new($options{peer_addr} . '/32');
+    foreach (@{$self->{peer_subnets}}) {
+        return 1 if ($_->contains($subnet));
+    }
+
+    return 0;
+}
+
+sub load_peer_subnets {
+    my ($self, %options) = @_;
+
+    return if ($connector->{allowed_hosts_enabled} == 0);
+
+    $connector->{peer_subnets} = [];
+    return if (!defined($connector->{config}->{allowed_hosts}->{subnets}));
+
+    foreach (@{$connector->{config}->{allowed_hosts}->{subnets}}) {
+        my $subnet = NetAddr::IP->new($_);
+        if (!defined($subnet)) {
+            $self->{logger}->writeLogError("[httpserver] -class- cannot load subnet: $_");
+            next;
+        }
+
+        push @{$connector->{peer_subnets}}, $subnet;
+    }
+}
+
 sub run {
     my ($self, %options) = @_;
+
+    $self->load_peer_subnets();
 
     # Connect internal
     $connector->{internal_socket} = gorgone::standard::library::connect_com(
@@ -127,6 +171,7 @@ sub run {
         data => { },
         json_encode => 1
     );
+
     $self->{poll} = [
         {
             socket  => $connector->{internal_socket},
@@ -137,7 +182,7 @@ sub run {
 
     my $rev = zmq_poll($self->{poll}, 4000);
 
-    $self->init_dispatch;
+    $self->init_dispatch();
 
     # HTTP daemon
     my $daemon;
@@ -157,9 +202,16 @@ sub run {
     }
     
     if (defined($daemon)) {
-        while (my ($connection, $peer_addr) = $daemon->accept) {
+        while (my ($connection, $peer_addr) = $daemon->accept()) {
             while (my $request = $connection->get_request) {
                 $connector->{logger}->writeLogInfo("[httpserver] -class- " . $request->method . " '" . $request->uri->path . "'");
+
+                if ($connector->{allowed_hosts_enabled} == 1) {
+                    if ($connector->check_allowed_host(peer_addr => inet_ntoa($connection->peeraddr())) == 0) {
+                        $connection->send_error(RC_UNAUTHORIZED);
+                        next;
+                    }
+                }
 
                 if ($self->authentication($request->header('Authorization'))) { # Check Basic authentication
                     my ($root) = ($request->uri->path =~ /^(\/\w+)/);
@@ -194,11 +246,15 @@ sub ssl_error {
 
 sub authentication {
     my ($self, $header) = @_;
+
+    return 1 if ($self->{auth_enabled} == 0);
+
     return 0 if (!defined($header) || $header eq '');
         
     ($header =~ /Basic\s(.*)$/);
     my ($user, $password) = split(/:/, MIME::Base64::decode($1), 2);
-    return 1 if ($user eq $self->{config}->{auth}->{user} && $password eq $self->{config}->{auth}->{password});
+    return 1 if (defined($self->{config}->{auth}->{user}) && $user eq $self->{config}->{auth}->{user} && 
+        defined($self->{config}->{auth}->{password}) && $password eq $self->{config}->{auth}->{password});
 
     return 0;
 }

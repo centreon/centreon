@@ -16,6 +16,7 @@ It relies on a core API module to server Gorgone events and can dispatch any oth
 | ssl_cert_file | Path to the SSL certificate (if SSL enabled) |  |
 | ssl_key_file | Path to the SSL key (if SSL enabled) |  |
 | auth | Basic credentials to access the server |  |
+| allowed_hosts | Peer address to access the server |  |
 
 #### Example
 
@@ -29,8 +30,14 @@ ssl: true
 ssl_cert_file: /etc/pki/tls/certs/server-cert.pem
 ssl_key_file: /etc/pki/tls/server-key.pem
 auth:
+  enabled: true
   user: admin
   password: password
+allowed_hosts:
+  enabled: true
+  subnets:
+    - 127.0.0.1/32
+    - 10.30.2.0/16
 ```
 
 Below the configuration to add other endpoints:
