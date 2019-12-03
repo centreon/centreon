@@ -82,7 +82,7 @@ curl --request GET "https://hostname:8443/api/internal/constatus" \
 ```
 
 ```bash
-curl --request GET "https://hostname:8443/api/internal/getthumbprint" \
+curl --request GET "https://hostname:8443/api/internal/thumbprint" \
   --header "Accept: application/json"
 ```
 
