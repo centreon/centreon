@@ -27,6 +27,7 @@ Requires:   perl(Digest::MD5::File)
 Requires:   perl(Libssh::Session)
 Requires:   perl(Net::Curl::Easy)
 Requires:   perl(HTTP::Daemon::SSL)
+Requires:   perl(NetAddr::IP)
 AutoReqProv: no
 
 %description
