@@ -104,6 +104,14 @@ CREATE TABLE IF NOT EXISTS `gorgone_synchistory` (
 );
 
 CREATE INDEX IF NOT EXISTS idx_gorgone_synchistory_id ON gorgone_synchistory (id);
+
+CREATE TABLE IF NOT EXISTS `gorgone_target_fingerprint` (
+  `id` INTEGER PRIMARY KEY,
+  `target` varchar(2048) DEFAULT NULL,
+  `fingerprint` varchar(4096) DEFAULT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_gorgone_target_fingerprint_target ON gorgone_target_fingerprint (target);
 ```
 
 ## Launch the daemon
