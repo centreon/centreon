@@ -96,7 +96,7 @@ The client request:
 The server response:
 
 ```text
-[ACK] [token_id] DATA
+[CONSTATUS] [token_id] DATA
 ```
 
 An example of the JSON stream:

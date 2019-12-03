@@ -217,7 +217,7 @@ sub run {
                     my ($root) = ($request->uri->path =~ /^(\/\w+)/);
 
                     if ($request->method eq 'GET' && $root eq "/status") { # Server status
-                        $self->send_response(connection => $connection, response => $self->server_status);
+                        $self->send_response(connection => $connection, response => $self->server_status());
                     } elsif ($root eq "/api") { # API
                         $self->send_response(connection => $connection, response => $self->api_call($request));
                     } elsif (defined($self->{dispatch}->{$root})) { # Other dispatch definition

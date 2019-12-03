@@ -53,6 +53,13 @@ sub root {
             token => $3,
             refresh => (defined($options{parameters}->{refresh})) ? $options{parameters}->{refresh} : undef
         );
+    } elsif ($options{method} eq 'GET' && $options{uri} =~ /^\/api\/(targets\/(\w*)\/)?internal\/(.*)$/) {
+        $response = get_internal(
+            socket => $options{socket},
+            target => $2,
+            action => $3,
+            refresh => (defined($options{parameters}->{refresh})) ? $options{parameters}->{refresh} : undef
+        );
     } elsif ($options{uri} =~ /^\/api\/(targets\/(\w*)\/)?(\w+)\/(\w+)\/(\w+)\/?([\w\/]*?)$/
         && defined($dispatch{$3 . '_' . $4 . '_' . $options{method} . '_/' . $5})) {
         my @variables = split(/\//, $6);
@@ -115,6 +122,64 @@ sub call_action {
     return $response;
 }
 
+sub get_internal {
+    my (%options) = @_;
+    
+    $socket = $options{socket};
+    my $poll = [
+        {
+            socket  => $options{socket},
+            events  => ZMQ_POLLIN,
+            callback => \&event,
+        }
+    ];
+
+    if (!defined($options{action}) || $options{action} !~ /[a-z]/i) {
+         my $response = '{"error":"method_unknown","message":"Method not implemented"}';
+         return $response;
+    }
+
+    if (defined($options{target}) && $options{target} ne '') {        
+        return call_action(
+            socket => $options{socket},
+            target => $options{target},
+            action => uc($options{action}),
+            data => {},
+            json_encode => 1,
+            refresh => $options{refresh}
+        );
+    }
+
+    gorgone::standard::library::zmq_send_message(
+        socket => $options{socket},
+        action => uc($options{action}),
+        data => {},
+        json_encode => 1
+    );
+
+    my $rev = zmq_poll($poll, 5000);
+
+    my $response = '{"error":"no_result", "message":"No result found for action "' . uc($options{action}) . '"}';
+    if (defined($result->{data})) {
+        my $content;
+        eval {
+            $content = JSON::XS->new->utf8->decode($result->{data});
+        };
+        if ($@) {
+            $response = '{"error":"decode_error","message":"Cannot decode response"}';
+        } else {
+            eval {
+                $response = JSON::XS->new->utf8->encode($content->{data});
+            };
+            if ($@) {
+                $response = '{"error":"encode_error","message":"Cannot encode response"}';
+            }
+        }
+    }
+
+    return $response;
+}
+
 sub get_log {
     my (%options) = @_;
     
@@ -167,7 +232,7 @@ sub get_log {
             if ($@) {
                 $response = '{"error":"encode_error","message":"Cannot encode response"}';
             }
-        } 
+        }
     }
 
     return $response;

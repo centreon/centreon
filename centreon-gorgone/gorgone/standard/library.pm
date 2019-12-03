@@ -347,6 +347,16 @@ sub is_handshake_done {
 # internal functions
 #######################
 
+sub getthumbprint {
+    my (%options) = @_;
+
+    if ($options{gorgone}->{keys_loaded} == 0) {
+        return (1, { action => 'getthumbprint', message => 'no public key loaded' }, 'GETTHUMBPRINT');
+    }
+    my $thumbprint = $options{gorgone}->{server_pubkey}->export_key_jwk_thumbprint('SHA256');
+    return (0, { action => 'getthumbprint', message => 'ok', data => { thumbprint => $thumbprint } }, 'GETTHUMBPRINT');
+}
+
 sub information {
     my (%options) = @_;
 
