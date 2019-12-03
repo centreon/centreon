@@ -75,3 +75,14 @@ dispatch:
 curl --request GET "https://hostname:8443/status" \
   --header "Accept: application/json"
 ```
+
+```bash
+curl --request GET "https://hostname:8443/api/internal/constatus" \
+  --header "Accept: application/json"
+```
+
+```bash
+curl --request GET "https://hostname:8443/api/internal/getthumbprint" \
+  --header "Accept: application/json"
+```
+
