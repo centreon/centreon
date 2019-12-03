@@ -46,7 +46,7 @@ sub send_internal_action {
         action => $options{action},
         target => $options{target},
         data => $options{data},
-        json_encode => 1
+        json_encode => defined($options{data_noencode}) ? undef : 1
     );
 }
 

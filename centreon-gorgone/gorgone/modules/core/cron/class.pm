@@ -449,10 +449,9 @@ sub run {
         type => $self->{config_core}->{internal_com_type},
         path => $self->{config_core}->{internal_com_path}
     );
-    gorgone::standard::library::zmq_send_message(
-        socket => $connector->{internal_socket},
-        action => 'CRONREADY', data => { },
-        json_encode => 1
+    $connector->send_internal_action(
+        action => 'CRONREADY',
+        data => {}
     );
     $connector->{poll} = [
         {
@@ -462,14 +461,12 @@ sub run {
         }
     ];
 
+    # need at least one cron to get sleep working
     push @{$self->{config}->{cron}}, {
         id => "default",
         timespec => "0 0 * * *",
-        action => "COMMAND",
-        parameters => {
-            command => "date >> /tmp/date.log",
-            timeout => 2,
-        }
+        action => "INFORMATION",
+        parameters => {}
     };
 
     $self->{cron} = new Schedule::Cron(\&dispatcher, nostatus => 1, nofork => 1, catch => 1);

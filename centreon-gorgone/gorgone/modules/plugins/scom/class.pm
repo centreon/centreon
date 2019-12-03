@@ -522,10 +522,9 @@ sub run {
         type => $self->{config_core}->{internal_com_type},
         path => $self->{config_core}->{internal_com_path}
     );
-    gorgone::standard::library::zmq_send_message(
-        socket => $connector->{internal_socket},
-        action => 'SCOMREADY', data => { container_id => $self->{container_id} },
-        json_encode => 1
+    $connector->send_internal_action(
+        action => 'SCOMREADY',
+        data => { container_id => $self->{container_id} }
     );
     $self->{poll} = [
         {

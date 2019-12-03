@@ -20,6 +20,8 @@
 
 package gorgone::modules::core::httpserver::class;
 
+use base qw(gorgone::class::module);
+
 use strict;
 use warnings;
 use gorgone::standard::library;
@@ -165,11 +167,9 @@ sub run {
         type => $self->{config_core}->{internal_com_type},
         path => $self->{config_core}->{internal_com_path}
     );
-    gorgone::standard::library::zmq_send_message(
-        socket => $connector->{internal_socket},
+    $connector->send_internal_action(
         action => 'HTTPSERVERREADY',
-        data => { },
-        json_encode => 1
+        data => {}
     );
 
     $self->{poll} = [

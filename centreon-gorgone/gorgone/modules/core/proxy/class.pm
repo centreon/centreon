@@ -98,25 +98,25 @@ sub read_message {
         }
         my ($action, $token, $data) = ($1, $2, $3);
 
-        gorgone::standard::library::zmq_send_message(
-            socket => $connector->{internal_socket},
+        $connector->send_internal_action(
             action => 'PONG',
-            token => $token,
-            target => '',
             data => $data,
+            data_noencode => 1,
+            token => $token,
+            target => ''
         );
     } elsif ($options{data} =~ /^\[REGISTERNODES|UNREGISTERNODES|SYNCLOGS\]/) {
         if ($options{data} !~ /^\[(.+?)\]\s+\[(.*?)\]\s+\[.*?\]\s+(.*)/m) {
             return undef;
         }
         my ($action, $token, $data)  = ($1, $2, $3);
-        
-        gorgone::standard::library::zmq_send_message(
-            socket => $connector->{internal_socket},
+
+        $connector->send_internal_action(
             action => $action,
+            data => $data,
+            data_noencode => 1,
             token => $token,
-            target => '',
-            data => $data
+            target => ''
         );
     } elsif ($options{data} =~ /^\[ACK\]\s+\[(.*?)\]\s+(.*)/m) {
         my $data;
@@ -128,12 +128,12 @@ sub read_message {
         }
         
         if (defined($data->{data}->{action}) && $data->{data}->{action} eq 'getlog') {
-            gorgone::standard::library::zmq_send_message(
-                socket => $connector->{internal_socket},
+            $connector->send_internal_action(
                 action => 'SETLOGS',
+                data => $2,
+                data_noencode => 1,
                 token => $1,
-                target => '',
-                data => $2
+                target => ''
             );
         }
     }
@@ -294,13 +294,11 @@ sub proxy {
 
         if ($action eq 'PING') {
             if ($connector->{clients}->{$target_client}->{class}->ping() != -1) {
-                gorgone::standard::library::zmq_send_message(
-                    socket => $connector->{internal_socket},
+                $connector->send_internal_action(
                     action => 'PONG',
-                    token => $token,
-                    target => '',
                     data => { data => { id => $target_client } },
-                    json_encode => 1
+                    token => $token,
+                    target => ''
                 );
             }
             return ;
@@ -349,13 +347,11 @@ sub run {
         type => $self->{config_core}->{internal_com_type},
         path => $self->{config_core}->{internal_com_path}
     );
-    gorgone::standard::library::zmq_send_message(
-        socket => $self->{internal_socket},
+    $connector->send_internal_action(
         action => 'PROXYREADY',
         data => {
             pool_id => $self->{pool_id}
         },
-        json_encode => 1
     );
     my $poll = {
         socket  => $self->{internal_socket},
@@ -367,12 +363,12 @@ sub run {
         foreach (keys %{$self->{clients}}) {
             if (defined($self->{clients}->{$_}->{delete}) && $self->{clients}->{$_}->{delete} == 1) {
                 if ($self->{clients}->{$_}->{type} eq 'push_zmq') {
-                    gorgone::standard::library::zmq_send_message(
-                        socket => $self->{internal_socket},
+                    $connector->send_internal_action(
                         action => 'PONGRESET',
+                        data => '{ "id": ' . $_ . '}',
+                        data_noencode => 1,
                         token => $self->generate_token(),
-                        target => '',
-                        data => '{ "id": ' . $_ . '}' 
+                        target => ''
                     );
                 }
                 $self->{clients}->{$_}->{class}->close();
