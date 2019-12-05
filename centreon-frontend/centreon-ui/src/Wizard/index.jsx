@@ -27,20 +27,20 @@ function cloneElement(element, props) {
   return React.cloneElement(element, { ...forwardedProps });
 }
 
-const useWizardStyles = makeStyles({
+const useWizardStyles = makeStyles((theme) => ({
   fullHeight: {
     height: '100%',
   },
   dialogContent: {
     display: 'flex',
-    backgroundColor: '#efeeee',
+    backgroundColor: theme.palette.grey[100],
   },
   form: {
     display: 'flex',
     flexDirection: 'column',
     flex: 1,
   },
-});
+}));
 
 function Wizard(props) {
   const {
@@ -77,9 +77,9 @@ function Wizard(props) {
     }
   };
 
-  const next = () => {
+  const next = (submittedValues) => {
     setPage(Math.min(page + 1, children.length - 1));
-    setValues(values);
+    setValues(submittedValues);
   };
 
   const previous = () => {
@@ -90,6 +90,14 @@ function Wizard(props) {
     const activePage = React.Children.toArray(children)[page];
 
     return activePage.props.validate ? activePage.props.validate(values) : {};
+  };
+
+  const validationSchema = () => {
+    const activePage = React.Children.toArray(children)[page];
+
+    return activePage.props.validationSchema
+      ? activePage.props.validationSchema
+      : null;
   };
 
   const handleSubmit = (submittedValues, bag) => {
@@ -124,27 +132,21 @@ function Wizard(props) {
             initialValues={values}
             enableReinitialize={false}
             validate={validate}
+            validationSchema={validationSchema()}
             onSubmit={handleSubmit}
           >
-            {({
-              handleSubmit: handleFormSubmit,
-              isSubmitting,
-              setFieldValue,
-              submitForm,
-            }) => (
-              <form className={classes.form} onSubmit={handleFormSubmit}>
+            {(bag) => (
+              <form className={classes.form} onSubmit={bag.handleSubmit}>
                 {cloneElement(activePage, {
                   onPrevious: previous,
                   onNext: next,
-                  values,
-                  setFieldValue,
-                  submitForm,
+                  bag,
                 })}
                 {!activePage.props.noActionBar && (
                   <ActionBar
+                    disabledNext={!bag.isValid || bag.isSubmitting}
                     page={page}
                     isLastPage={isLastPage}
-                    isSubmitting={isSubmitting}
                     onPrevious={previous}
                     actionBarProps={actionBarProps}
                   />

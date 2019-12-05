@@ -20,4 +20,10 @@ describe('ActionBar', () => {
 
     expect(mockCancel).toBeCalled();
   });
+
+  it('cannot finish if form is not valid', () => {
+    const { getByText } = render(<ActionBar disabledNext />);
+
+    expect(getByText('Finish').parentNode).toHaveAttribute('disabled');
+  });
 });
