@@ -29,17 +29,16 @@ Targets are listed in a separate configuration file in a `nodes` table as below:
 
 | Directive | Description |
 | :- | :- |
-| id | Unique identifier of the target (can be Poller's ID if [pollers](../centreon/pollers.md) module is not used) |
+| id | Unique identifier of the target (can be Poller's ID if [nodes](../centreon/nodes.md) module is not used) |
 | type | Way for the daemon to connect to the target (push_zmq) |
 | address | IP address of the target |
 | port | Port to connect to on the target |
-| server_pubkey | Server public key |
-| client_pubkey | Client public key |
-| client_privkey | Client private key |
-| cipher | Cipher used for encryption |
-| keysize | Size in bytes of the symmetric encryption key |
-| vector | Encryption vector |
-| nodes | Table to register subnodes managed by target |
+| server_pubkey | Server public key (Default: ask the server pubkey when it connects) |
+| client_pubkey | Client public key (Default: use global public key) |
+| client_privkey | Client private key (Default: use global private key) |
+| cipher | Cipher used for encryption (Default: "Cipher::AES") |
+| vector | Encryption vector (Default: 0123456789012345) |
+| nodes | Table to register subnodes managed by target (pathscore is not mandatory) |
 
 #### Example
 
@@ -49,14 +48,11 @@ nodes:
     type: push_zmq
     address: 10.1.2.3
     port: 5556
-    server_pubkey: keys/poller/pubkey.crt
-    client_pubkey: keys/central/pubkey.crt
-    client_privkey: keys/central/privkey.pem
-    cipher: "Cipher::AES"
-    keysize: 32
-    vector: 0123456789012345
     nodes:
-      - 2
+      - id: 2
+        pathscore: 1
+      - id: 20
+        pathscore: 10
 ```
 
 ##### Using SSH

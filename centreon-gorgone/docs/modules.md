@@ -15,7 +15,7 @@ List of the available modules:
   * [Broker](../docs/modules/centreon/broker.md)
   * [Engine](../docs/modules/centreon/engine.md)
   * [Legacy Cmd](../docs/modules/centreon/legacycmd.md)
-  * [Pollers](../docs/modules/centreon/pollers.md)
+  * [Nodes](../docs/modules/centreon/nodes.md)
 * Plugins
   * [Newtest](../docs/modules/plugins/newtest.md)
   * [Scom](../docs/modules/plugins/scom.md)

@@ -12,9 +12,6 @@ database:
 gorgonecore:
   id: 1
   privkey: keys/central/privkey.pem
-  cipher: "Cipher::AES"
-  keysize: 32
-  vector: 0123456789012345
   # can be: always, first (default), strict
   fingerprint_mode: first
   fingerprint_mgr:

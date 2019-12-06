@@ -36,8 +36,10 @@ sub new {
     my $connector  = {};
     $connector->{logger} = $options{logger};
     $connector->{identity} = $options{identity};
-    $connector->{cipher} = $options{cipher};
-    $connector->{vector} = $options{vector};
+    
+    $connector->{cipher} = defined($options{cipher}) && $options{cipher} ne '' ? $options{cipher} : 'Cipher::AES';
+    $connector->{vector} = defined($options{vector}) && $options{vector} ne '' ? $options{vector} : '0123456789012345';
+
     $connector->{symkey} = undef;
     $connector->{verbose_last_message} = '';
     $connector->{config_core} = $options{config_core};

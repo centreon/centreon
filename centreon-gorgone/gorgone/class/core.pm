@@ -144,6 +144,13 @@ sub init {
     $config->{gorgonecore}->{timeout} = 
         defined($config->{gorgonecore}->{timeout}) && $config->{gorgonecore}->{timeout} =~ /(\d+)/ ? $1 : 50;
 
+    $config->{gorgonecore}->{cipher} = 
+        defined($config->{gorgonecore}->{cipher}) && $config->{gorgonecore}->{cipher} ne '' ? $config->{gorgonecore}->{cipher} : 'Cipher::AES';
+    $config->{gorgonecore}->{keysize} = 
+        defined($config->{gorgonecore}->{keysize}) && $config->{gorgonecore}->{keysize} ne '' ? $config->{gorgonecore}->{keysize} : 32;
+    $config->{gorgonecore}->{vector} = 
+        defined($config->{gorgonecore}->{vector}) && $config->{gorgonecore}->{vector} ne '' ? $config->{gorgonecore}->{vector} : '0123456789012345';
+
     $config->{gorgonecore}->{fingerprint_mode} =
         defined($config->{gorgonecore}->{fingerprint_mode}) && $config->{gorgonecore}->{fingerprint_mode} =~ /^\s*(always|firt|strict)\s*/i ? lc($1) : 'first';
     $config->{gorgonecore}->{fingerprint_mgr} = {} if (!defined($config->{gorgonecore}->{fingerprint_mgr}));
@@ -402,7 +409,8 @@ sub message_run {
     
     # Check Routing
     if (defined($target)) {
-        if (!defined($self->{modules_register}->{ $self->{modules_id}->{$config->{gorgonecore}->{proxy_name}} })) {
+        if (!defined($self->{modules_id}->{$config->{gorgonecore}->{proxy_name}}) || 
+            !defined($self->{modules_register}->{ $self->{modules_id}->{$config->{gorgonecore}->{proxy_name}} })) {
             gorgone::standard::library::add_history(
                 dbh => $self->{db_gorgone},
                 code => 1,

@@ -60,6 +60,21 @@ my $ping_time = 0;
 
 my $last_pong = {}; 
 my $register_nodes = {};
+# With static routes we have a pathscore. Dynamic no pathscore.
+# algo is: we use static routes first. after we use dynamic routes
+#  {
+#     subnode_id => {
+#         static => {
+#              parent_id1 => 1,
+#              parent_id2 => 2,
+#         },
+#         dynamic => {
+#              parent_id3 => 1,
+#              parent_id5 => 1,
+#         },
+#     }
+#  }
+#
 my $register_subnodes = {};
 my $constatus_ping = {};
 my $parent_ping = {};
@@ -153,7 +168,8 @@ sub routing {
                 action => 'PROXYADDNODE',
                 target => $node_id,
                 data => JSON::XS->new->utf8->encode($register_nodes->{$node_id}),
-                dbh => $options{dbh}
+                dbh => $options{dbh},
+                logger => $options{logger}
             );
         }
         return undef;
@@ -164,30 +180,27 @@ sub routing {
         return undef;
     }
 
-    if (!defined($options{target}) || 
-        (!defined($register_subnodes->{$options{target}}) && !defined($register_nodes->{$options{target}}))) {
-        gorgone::standard::library::add_history(
-            dbh => $options{dbh},
-            code => gorgone::class::module::ACTION_FINISH_KO, token => $options{token},
-            data => { message => 'proxy - need a valid node id' },
-            json_encode => 1
-        );
-        return undef;
-    }
+    my ($code, $target_complete, $target_parent, $target) = pathway(
+        target => $options{target},
+        dbh => $options{dbh},
+        token => $options{token},
+        logger => $options{logger}
+    );
+    return if ($code == -1);
     
     if ($options{action} eq 'GETLOG') {
-        if (defined($register_nodes->{$options{target}}) && $register_nodes->{$options{target}}->{type} eq 'push_ssh') {
+        if (defined($register_nodes->{$target_parent}) && $register_nodes->{$target_parent}->{type} eq 'push_ssh') {
             gorgone::standard::library::add_history(
                 dbh => $options{dbh},
                 code => gorgone::class::module::ACTION_FINISH_KO, token => $options{token},
-                data => { message => "proxy - can't get log a ssh target" },
+                data => { message => "proxy - can't get log a ssh target or through a ssh node" },
                 json_encode => 1
             );
             return undef;
         }
 
-        if (defined($register_nodes->{$options{target}})) {
-            if ($synctime_nodes->{$options{target}}->{synctime_error} == -1 || get_sync_time(dbh => $options{dbh}, node_id => $options{target}) == -1) {
+        if (defined($register_nodes->{$target})) {
+            if ($synctime_nodes->{$target}->{synctime_error} == -1 || get_sync_time(dbh => $options{dbh}, node_id => $target) == -1) {
                 gorgone::standard::library::add_history(
                     dbh => $options{dbh},
                     code => gorgone::class::module::ACTION_FINISH_KO, token => $options{token},
@@ -197,7 +210,7 @@ sub routing {
                 return undef;
             }
 
-            if ($synctime_nodes->{$options{target}}->{in_progress} == 1) {
+            if ($synctime_nodes->{$target}->{in_progress} == 1) {
                 gorgone::standard::library::add_history(
                     dbh => $options{dbh},
                     code => gorgone::class::module::ACTION_FINISH_KO, token => $options{token},
@@ -208,41 +221,25 @@ sub routing {
             }
 
             # We put the good time to get        
-            my $ctime = $synctime_nodes->{$options{target}}->{ctime};
-            my $last_id = $synctime_nodes->{$options{target}}->{last_id};
+            my $ctime = $synctime_nodes->{$target}->{ctime};
+            my $last_id = $synctime_nodes->{$target}->{last_id};
             $data = { ctime => $ctime, id => $last_id };
-            $synctime_nodes->{$options{target}}->{in_progress} = 1;
-            $synctime_nodes->{$options{target}}->{in_progress_time} = time();
+            $synctime_nodes->{$target}->{in_progress} = 1;
+            $synctime_nodes->{$target}->{in_progress_time} = time();
         }
-    }
-
-    my $target = $options{target};
-    # we prefer to use direct target
-    if (!defined($register_nodes->{$options{target}})) {
-        $target = $register_subnodes->{$options{target}};
-    }
-
-    if (defined($last_pong->{$target}) && $last_pong->{$target} != 0 && (time() - $config->{pong_discard_timeout} > $last_pong->{$target})) {
-        gorgone::standard::library::add_history(
-            dbh => $options{dbh},
-            code => gorgone::class::module::ACTION_FINISH_KO, token => $options{token},
-            data => { message => 'proxy - discard message. target peer seems disconnected' },
-            json_encode => 1
-        );
-        return undef;
     }
 
     my $action = $options{action};
     my $bulk_actions;
     push @{$bulk_actions}, $data;
     
-    if ($options{action} eq 'REMOTECOPY' && defined($register_nodes->{$options{target}}) &&
-        $register_nodes->{$options{target}}->{type} ne 'push_ssh') {
+    if ($options{action} eq 'REMOTECOPY' && defined($register_nodes->{$target_parent}) &&
+        $register_nodes->{$target_parent}->{type} ne 'push_ssh') {
         $action = 'PROCESSCOPY';
         $bulk_actions = prepare_remote_copy(
             dbh => $options{dbh},
             data => $data,
-            target => $options{target},
+            target => $target_parent,
             token => $options{token},
             logger => $options{logger}
         );
@@ -250,7 +247,7 @@ sub routing {
 
     foreach my $data (@{$bulk_actions}) {
         # Mode zmq pull
-        if ($register_nodes->{$target}->{type} eq 'pull') {
+        if ($register_nodes->{$target_parent}->{type} eq 'pull') {
             pull_request(%options, data_decoded => $data);
             next;
         }
@@ -267,11 +264,11 @@ sub routing {
         }
 
         my $identity;
-        if (defined($nodes_pool->{$target})) {
-            $identity = $nodes_pool->{$target};
+        if (defined($nodes_pool->{$target_parent})) {
+            $identity = $nodes_pool->{$target_parent};
         } else {
             $identity = rr_pool();
-            $nodes_pool->{$target} = $identity;
+            $nodes_pool->{$target_parent} = $identity;
         }
 
         gorgone::standard::library::zmq_send_message(
@@ -280,7 +277,7 @@ sub routing {
             action => $action,
             data => $data,
             token => $options{token},
-            target => $options{target},
+            target => $target_complete,
             json_encode => 1
         );
     }
@@ -369,14 +366,14 @@ sub check {
     if ($stop == 0 &&
         time() - $synctime_lasttime > $synctime_option) {
         $synctime_lasttime = time();
-        full_sync_history(dbh => $options{dbh});
+        full_sync_history(dbh => $options{dbh}, logger => $options{logger});
     }
     
     if ($stop == 0 &&
         time() - $ping_time > $ping_option) {
         $options{logger}->writeLogInfo("[proxy] -hooks- Send pings");
         $ping_time = time();
-        ping_send(dbh => $options{dbh});
+        ping_send(dbh => $options{dbh}, logger => $options{logger});
     }
 
     # We clean all parents
@@ -390,6 +387,49 @@ sub check {
 }
 
 # Specific functions
+sub pathway {
+    my (%options) = @_;
+
+    my $target = $options{target};
+    if (!defined($target)) {
+        gorgone::standard::library::add_history(
+            dbh => $options{dbh},
+            code => gorgone::class::module::ACTION_FINISH_KO, token => $options{token},
+            data => { message => 'proxy - need a valid node id' },
+            json_encode => 1
+        );
+        return -1;
+    }
+
+    my @targets = ();
+    if (defined($register_nodes->{$target})) {
+        push @targets, $target;
+    }
+    if (defined($register_subnodes->{$target}->{static})) {
+        push @targets, sort { $register_subnodes->{$target}->{static}->{$a} <=> $register_subnodes->{$target}->{static}->{$b} } keys %{$register_subnodes->{$target}->{static}};
+    }
+    if (defined($register_subnodes->{$target}->{dynamic})) {
+        push @targets, keys %{$register_subnodes->{$target}->{dynamic}};
+    }
+
+    foreach (@targets) {
+        if (!defined($last_pong->{$_}) || $last_pong->{$_} == 0 || (time() - $config->{pong_discard_timeout} < $last_pong->{$_})) {
+            $options{logger}->writeLogDebug("[proxy] -hooks- choose node target '$_' for node '$target'");
+            return (1, $_ . '~~' . $target, $_, $target);
+        }
+
+        $options{logger}->writeLogDebug("[proxy] -hooks- skip node target '$_' for node '$target'");
+    }
+
+    gorgone::standard::library::add_history(
+        dbh => $options{dbh},
+        code => gorgone::class::module::ACTION_FINISH_KO, token => $options{token},
+        data => { message => 'proxy - discard message. target peer(s) seems disconnected' },
+        json_encode => 1
+    );
+    return -1;
+}
+
 sub setlogs {
     my (%options) = @_;
     
@@ -466,10 +506,10 @@ sub ping_send {
         $constatus_ping->{$id}->{last_ping_sent} = time();
         if ($register_nodes->{$id}->{type} eq 'push_zmq' || $register_nodes->{$id}->{type} eq 'push_ssh') {
             $synctime_nodes->{$id}->{in_progress_ping} = 1;
-            routing(socket => $internal_socket, action => 'PING', target => $id, data => '{}', dbh => $options{dbh});
+            routing(socket => $internal_socket, action => 'PING', target => $id, data => '{}', dbh => $options{dbh}, logger => $options{logger});
         } elsif ($register_nodes->{$id}->{type} eq 'pull') {
             $synctime_nodes->{$id}->{in_progress_ping} = 1;
-            routing(action => 'PING', target => $id, data => '{}', dbh => $options{dbh});
+            routing(action => 'PING', target => $id, data => '{}', dbh => $options{dbh}, logger => $options{logger});
         }
     }
 }
@@ -480,7 +520,7 @@ sub synclog {
     # We check if we need synclogs
     if ($stop == 0) {
         $synctime_lasttime = time();
-        full_sync_history(dbh => $options{dbh});
+        full_sync_history(dbh => $options{dbh}, logger => $options{logger});
     }
 }
 
@@ -489,9 +529,9 @@ sub full_sync_history {
     
     foreach my $id (keys %{$register_nodes}) {
         if ($register_nodes->{$id}->{type} eq 'push_zmq') {
-            routing(socket => $internal_socket, action => 'GETLOG', target => $id, data => '{}', dbh => $options{dbh});
+            routing(socket => $internal_socket, action => 'GETLOG', target => $id, data => '{}', dbh => $options{dbh}, logger => $options{logger});
         } elsif ($register_nodes->{$id}->{type} eq 'pull') {
-            routing(action => 'GETLOG', target => $id, data => '{}', dbh => $options{dbh});
+            routing(action => 'GETLOG', target => $id, data => '{}', dbh => $options{dbh}, logger => $options{logger});
         }
     }
 }
@@ -572,6 +612,7 @@ sub create_child {
     $pools_pid->{$child_pid} = $options{pool_id};
 }
 
+# we don't manage (yet) the target from pull connection
 sub pull_request {
     my (%options) = @_;
 
@@ -618,14 +659,16 @@ sub unregister_nodes {
 
     foreach my $node (@{$options{data}->{nodes}}) {
         if ($node->{type} ne 'pull') {
-            routing(socket => $internal_socket, action => 'PROXYDELNODE', target => $node->{id}, data => JSON::XS->new->utf8->encode($node), dbh => $options{dbh});
+            routing(socket => $internal_socket, action => 'PROXYDELNODE', target => $node->{id}, data => JSON::XS->new->utf8->encode($node), dbh => $options{dbh}, logger => $options{logger});
         }
 
-        $options{logger}->writeLogInfo("[proxy] -hooks- Poller '" . $node->{id} . "' is unregistered");
+        $options{logger}->writeLogInfo("[proxy] -hooks- node '" . $node->{id} . "' is unregistered");
         if (defined($register_nodes->{$node->{id}}) && $register_nodes->{$node->{id}}->{nodes}) {
-            foreach my $subnode_id (@{$register_nodes->{$node->{id}}->{nodes}}) {
-                delete $register_subnodes->{$subnode_id} 
-                    if ($register_subnodes->{$subnode_id} eq $node->{id});
+            foreach my $subnode (@{$register_nodes->{$node->{id}}->{nodes}}) {
+                delete $register_subnodes->{ $subnode->{id} }->{static}->{ $node->{id} }
+                    if (defined($register_subnodes->{ $subnode->{id} }->{static}->{ $node->{id} }));
+                delete $register_subnodes->{ $subnode->{id} }->{dynamic}->{ $node->{id} }
+                    if (defined($register_subnodes->{ $subnode->{id} }->{dynamic}->{ $node->{id} }));
             }
         }
 
@@ -638,35 +681,26 @@ sub unregister_nodes {
     }
 }
 
+# It comes from PONG result. 
 sub register_subnodes {
     my (%options) = @_;
 
+    # we remove dynamic values
     foreach my $subnode_id (keys %$register_subnodes) {
-        delete $register_subnodes->{$subnode_id}
-            if ($register_subnodes->{$subnode_id} eq $options{id});
+        delete $register_subnodes->{$subnode_id}->{dynamic}->{ $options{id} }
+            if (defined($register_subnodes->{$subnode_id}->{dynamic}->{ $options{id} }));
     }
 
-    my $subnodes_register = { id => $options{id}, nodes => {} };
+    # we can add in dynamic even if it's in static (not an issue)
     my $subnodes = [$options{subnodes}];
     while (1) {
         last if (scalar(@$subnodes) <= 0);
 
         my $entry = shift(@$subnodes);
         foreach (keys %$entry) {
-            $subnodes_register->{nodes}->{$_} = $options{id};
-            $register_subnodes->{$_} = $options{id};
+            $register_subnodes->{$_}->{dynamic}->{ $options{id} } = 1;
         }
         push @$subnodes, $entry->{nodes} if (defined($entry->{nodes}));
-    }
-
-    if ($register_nodes->{$options{id}}->{type} ne 'pull') {
-        routing(
-            socket => $internal_socket, 
-            action => 'PROXYADDSUBNODE',
-            target => $options{id}, 
-            data => JSON::XS->new->utf8->encode($subnodes_register),
-            dbh => $options{dbh}
-        );
     }
 }
 
@@ -681,15 +715,18 @@ sub register_nodes {
             $new_node = 0;
             # we remove subnodes before
             foreach my $subnode_id (keys %$register_subnodes) {
-                delete $register_subnodes->{$subnode_id}
-                    if ($register_subnodes->{$subnode_id} eq $node->{id});
+                delete $register_subnodes->{$subnode_id}->{static}->{ $node->{id} }
+                    if (defined($register_subnodes->{$subnode_id}->{static}->{ $node->{id} }));
+                delete $register_subnodes->{$subnode_id}->{dynamic}->{ $node->{id} }
+                    if (defined($register_subnodes->{$subnode_id}->{dynamic}->{ $node->{id} }));
             }
         }
 
         $register_nodes->{$node->{id}} = $node;
         if (defined($node->{nodes})) {
-            foreach my $subnode_id (@{$node->{nodes}}) {
-                $register_subnodes->{$subnode_id} = $node->{id};
+            foreach my $subnode (@{$node->{nodes}}) {
+                $register_subnodes->{$subnode->{id}} = { static => {}, dynamic => {} } if (!defined($register_subnodes->{ $subnode->{id} }));
+                $register_subnodes->{$subnode->{id}}->{static}->{ $node->{id} } = defined($subnode->{pathscore}) && $subnode->{pathscore} =~ /[0-9]+/ ? $subnode->{pathscore} : 1;
             }
         }
 
@@ -700,13 +737,13 @@ sub register_nodes {
         }
 
         if ($node->{type} ne 'pull') {
-            routing(socket => $internal_socket, action => 'PROXYADDNODE', target => $node->{id}, data => JSON::XS->new->utf8->encode($node), dbh => $options{dbh});
+            routing(socket => $internal_socket, action => 'PROXYADDNODE', target => $node->{id}, data => JSON::XS->new->utf8->encode($node), dbh => $options{dbh}, logger => $options{logger});
         }
         if ($new_node == 1) {
             $constatus_ping->{$node->{id}} = { type => $node->{type}, last_ping_sent => 0, last_ping_recv => 0, nodes => {} };
             # we provide information to the proxy class
-            ping_send(node_id => $node->{id}, dbh => $options{dbh});
-            $options{logger}->writeLogInfo("[proxy] -hooks- Poller '" . $node->{id} . "' is registered");
+            ping_send(node_id => $node->{id}, dbh => $options{dbh}, logger => $options{logger});
+            $options{logger}->writeLogInfo("[proxy] -hooks- node '" . $node->{id} . "' is registered");
         }
     }
 }

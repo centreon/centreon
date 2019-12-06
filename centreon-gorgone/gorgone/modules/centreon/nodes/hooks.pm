@@ -18,24 +18,24 @@
 # limitations under the License.
 #
 
-package gorgone::modules::centreon::pollers::hooks;
+package gorgone::modules::centreon::nodes::hooks;
 
 use warnings;
 use strict;
 use JSON::XS;
 use gorgone::class::core;
-use gorgone::modules::centreon::pollers::class;
+use gorgone::modules::centreon::nodes::class;
 
 use constant NAMESPACE => 'centreon';
-use constant NAME => 'pollers';
+use constant NAME => 'nodes';
 use constant EVENTS => [
-    { event => 'POLLERSREADY' },
+    { event => 'CENTREONNODESREADY' },
 ];
 
 my $config_core;
 my $config;
 my ($config_db_centreon);
-my $pollers = {};
+my $nodes = {};
 my $stop = 0;
 
 sub register {
@@ -62,26 +62,26 @@ sub routing {
         $data = JSON::XS->new->utf8->decode($options{data});
     };
     if ($@) {
-        $options{logger}->writeLogError("[pollers] -hooks- Cannot decode json data: $@");
+        $options{logger}->writeLogError("[nodes] -hooks- Cannot decode json data: $@");
         gorgone::standard::library::add_history(
             dbh => $options{dbh},
             code => 10, token => $options{token},
-            data => { message => 'gorgonepollers: cannot decode json' },
+            data => { message => 'gorgonenodes: cannot decode json' },
             json_encode => 1
         );
         return undef;
     }
     
-    if ($options{action} eq 'POLLERSREADY') {
-        $pollers->{ready} = 1;
+    if ($options{action} eq 'CENTREONNODESREADY') {
+        $nodes->{ready} = 1;
         return undef;
     }
     
-    if (gorgone::class::core::waiting_ready(ready => \$pollers->{ready}) == 0) {
+    if (gorgone::class::core::waiting_ready(ready => \$nodes->{ready}) == 0) {
         gorgone::standard::library::add_history(
             dbh => $options{dbh},
             code => 10, token => $options{token},
-            data => { message => 'gorgonepollers: still no ready' },
+            data => { message => 'gorgonenodes: still no ready' },
             json_encode => 1
         );
         return undef;
@@ -89,7 +89,7 @@ sub routing {
     
     gorgone::standard::library::zmq_send_message(
         socket => $options{socket},
-        identity => 'gorgonepollers',
+        identity => 'gorgonenodes',
         action => $options{action},
         data => $options{data},
         token => $options{token},
@@ -100,18 +100,18 @@ sub gently {
     my (%options) = @_;
 
     $stop = 1;
-    $options{logger}->writeLogInfo("[pollers] -hooks- Send TERM signal");
-    if ($pollers->{running} == 1) {
-        CORE::kill('TERM', $pollers->{pid});
+    $options{logger}->writeLogInfo("[nodes] -hooks- Send TERM signal");
+    if ($nodes->{running} == 1) {
+        CORE::kill('TERM', $nodes->{pid});
     }
 }
 
 sub kill {
     my (%options) = @_;
 
-    if ($pollers->{running} == 1) {
-        $options{logger}->writeLogInfo("[pollers] -hooks- Send KILL signal for pool");
-        CORE::kill('KILL', $pollers->{pid});
+    if ($nodes->{running} == 1) {
+        $options{logger}->writeLogInfo("[nodes] -hooks- Send KILL signal for pool");
+        CORE::kill('KILL', $nodes->{pid});
     }
 }
 
@@ -126,16 +126,16 @@ sub check {
     my $count = 0;
     foreach my $pid (keys %{$options{dead_childs}}) {
         # Not me
-        next if ($pollers->{pid} != $pid);
+        next if ($nodes->{pid} != $pid);
         
-        $pollers = {};
+        $nodes = {};
         delete $options{dead_childs}->{$pid};
         if ($stop == 0) {
             create_child(logger => $options{logger});
         }
     }
     
-    $count++ if (defined($pollers->{running}) && $pollers->{running} == 1);
+    $count++ if (defined($nodes->{running}) && $nodes->{running} == 1);
     
     return $count;
 }
@@ -144,11 +144,11 @@ sub check {
 sub create_child {
     my (%options) = @_;
     
-    $options{logger}->writeLogInfo("[pollers] -hooks- Create module 'pollers' process");
+    $options{logger}->writeLogInfo("[nodes] -hooks- Create module 'nodes' process");
     my $child_pid = fork();
     if ($child_pid == 0) {
-        $0 = 'gorgone-pollers';
-        my $module = gorgone::modules::centreon::pollers::class->new(
+        $0 = 'gorgone-nodes';
+        my $module = gorgone::modules::centreon::nodes::class->new(
             logger => $options{logger},
             config_core => $config_core,
             config => $config,
@@ -157,8 +157,8 @@ sub create_child {
         $module->run();
         exit(0);
     }
-    $options{logger}->writeLogInfo("[pollers] -hooks- PID $child_pid (gorgone-pollers)");
-    $pollers = { pid => $child_pid, ready => 0, running => 1 };
+    $options{logger}->writeLogInfo("[nodes] -hooks- PID $child_pid (gorgone-nodes)");
+    $nodes = { pid => $child_pid, ready => 0, running => 1 };
 }
 
 1;

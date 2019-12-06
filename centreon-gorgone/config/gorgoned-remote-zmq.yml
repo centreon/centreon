@@ -14,9 +14,6 @@ gorgonecore:
   external_com_type: tcp
   external_com_path: "*:5556"
   privkey: keys/central/privkey.pem
-  cipher: "Cipher::AES"
-  keysize: 32
-  vector: 0123456789012345
   authorized_clients: 
     - key: pnI6EWkiTbazjikJXRkLmjml5wvVECYtQduJUjS4QK4
 modules:

@@ -47,7 +47,6 @@ sub new {
     $connector->{config_core} = $options{config_core};
     $connector->{stop} = 0;
     $connector->{clients} = {};
-    $connector->{subnodes} = {};
     
     bless $connector, $class;
     $connector->set_signal_handlers();
@@ -90,7 +89,7 @@ sub read_message {
     my (%options) = @_;
 
     return undef if (!defined($options{identity}) || $options{identity} !~ /^proxy-(.*?)-(.*?)$/);
-    
+
     my ($client_identity) = ($2);
     if ($options{data} =~ /^\[PONG\]/) {
         if ($options{data} !~ /^\[(.+?)\]\s+\[(.*?)\]\s+\[.*?\]\s+(.*)/m) {
@@ -190,15 +189,6 @@ sub action_proxyaddnode {
     $self->{clients}->{$data->{id}} = $data;
     $self->{clients}->{$data->{id}}->{delete} = 0;
     $self->{clients}->{$data->{id}}->{class} = undef;
-
-    my $temp = {};
-    foreach (@{$data->{nodes}}) {
-        $temp->{$_} = 1;
-        $self->{subnodes}->{$_} = $data->{id};
-    }
-    foreach (keys %{$self->{subnodes}}) {
-        delete $self->{subnodes}->{$_} if ($self->{subnodes}->{$_} eq $data->{id} && !defined($temp->{$_}));
-    }
 }
 
 sub action_proxydelnode {
@@ -210,24 +200,6 @@ sub action_proxydelnode {
     if (defined($self->{clients}->{$data->{id}})) {
         $self->{clients}->{$data->{id}}->{delete} = 1;
     }
-
-    foreach (keys %{$self->{subnodes}}) {
-        delete $self->{subnodes}->{$_} if ($self->{subnodes}->{$_} eq $data->{id});
-    }
-}
-
-sub action_proxyaddsubnode {
-    my ($self, %options) = @_;
-
-    my ($code, $data) = $self->json_decode(argument => $options{data});
-    return if ($code == 1);
-
-    foreach (keys %{$self->{subnodes}}) {
-        delete $self->{subnodes}->{$_} if ($self->{subnodes}->{$_} eq $data->{id});
-    }
-    foreach (keys %{$data->{nodes}}) {
-        $self->{subnodes}->{$_} = $data->{id};
-    }
 }
 
 sub proxy {
@@ -236,25 +208,32 @@ sub proxy {
     if ($options{message} !~ /^\[(.+?)\]\s+\[(.*?)\]\s+\[(.*?)\]\s+(.*)$/m) {
         return undef;
     }
-    my ($action, $token, $target, $data) = ($1, $2, $3, $4);
+    my ($action, $token, $target_complete, $data) = ($1, $2, $3, $4);
     $connector->{logger}->writeLogDebug(
-        "[proxy] -class- Send message: [action = $action] [token = $token] [target = $target] [data = $data]"
+        "[proxy] -class- Send message: [action = $action] [token = $token] [target = $target_complete] [data = $data]"
     );
 
     if ($action eq 'PROXYADDNODE') {
         action_proxyaddnode($connector, data => $data);
-        return ;
-    } elsif ($action eq 'PROXYADDSUBNODE') {
-        action_proxyaddsubnode($connector, data => $data);
         return ;
     } elsif ($action eq 'PROXYDELNODE') {
         action_proxydelnode($connector, data => $data);
         return ;
     }
 
-    my ($target_client, $target_direct) = ($target, 1);
-    if (!defined($connector->{clients}->{$target})) {
-        $target_client = $connector->{subnodes}->{$target};
+    if ($target_complete !~ /^(.+)~~(.+)$/) {
+        $connector->send_log(
+            code => gorgone::class::module::ACTION_FINISH_KO,
+            token => $token,
+            data => {
+                message => "unknown target format '$target_complete'"
+            }
+        );
+        return ;
+    }
+
+    my ($target_client, $target, $target_direct) = ($1, $2, 1);
+    if ($target_client ne $target) {
         $target_direct = 0;
     }
     if (!defined($connector->{clients}->{$target_client}->{class})) {

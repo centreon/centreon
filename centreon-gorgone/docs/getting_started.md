@@ -134,7 +134,7 @@ $ systemctl status centreon-gorgone
            ├─5168 /usr/bin/perl /usr/bin/gorgoned --config=/etc/centreon/gorgoned.yml --logfile=/var/log/centreon/gorgoned.log --severity=error
            ├─5175 gorgone-dbcleaner
            ├─5182 gorgone-action
-           ├─5187 gorgone-pollers
+           ├─5187 gorgone-nodes
            ├─5190 gorgone-legacycmd
            ├─5203 gorgone-proxy
            ├─5204 gorgone-proxy

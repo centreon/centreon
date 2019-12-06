@@ -18,7 +18,7 @@
 # limitations under the License.
 #
 
-package gorgone::modules::centreon::pollers::class;
+package gorgone::modules::centreon::nodes::class;
 
 use base qw(gorgone::class::module);
 
@@ -46,7 +46,7 @@ sub new {
     $connector->{config_core} = $options{config_core};
     $connector->{config_db_centreon} = $options{config_db_centreon};
     $connector->{stop} = 0;
-    $connector->{register_pollers} = {}; 
+    $connector->{register_nodes} = {}; 
 
     $connector->{resync_time} = (defined($options{config}->{resync_time}) && $options{config}->{resync_time} =~ /(\d+)/) ? $1 : 600;
     $connector->{last_resync_time} = -1;
@@ -72,7 +72,7 @@ sub handle_HUP {
 
 sub handle_TERM {
     my $self = shift;
-    $self->{logger}->writeLogInfo("[pollers] -class- $$ Receiving order to stop...");
+    $self->{logger}->writeLogInfo("[nodes] -class- $$ Receiving order to stop...");
     $self->{stop} = 1;
 }
 
@@ -88,12 +88,12 @@ sub class_handle_HUP {
     }
 }
 
-sub action_pollersresync {
+sub action_nodesresync {
     my ($self, %options) = @_;
 
     $options{token} = $self->generate_token() if (!defined($options{token}));
 
-    $self->send_log(code => gorgone::class::module::ACTION_BEGIN, token => $options{token}, data => { message => 'action pollersresync proceed' });
+    $self->send_log(code => gorgone::class::module::ACTION_BEGIN, token => $options{token}, data => { message => 'action nodesresync proceed' });
 
     my $request = "
         SELECT id, name, localhost, ns_ip_address, ssh_port, remote_id, remote_server_centcore_ssh_proxy
@@ -102,8 +102,8 @@ sub action_pollersresync {
     ";
     my ($status, $datas) = $self->{class_object}->custom_execute(request => $request, mode => 2);
     if ($status == -1) {
-        $self->send_log(code => gorgone::class::module::ACTION_FINISH_KO, token => $options{token}, data => { message => 'cannot find pollers configuration' });
-        $self->{logger}->writeLogError("[pollers] -class- cannot find pollers configuration");
+        $self->send_log(code => gorgone::class::module::ACTION_FINISH_KO, token => $options{token}, data => { message => 'cannot find nodes configuration' });
+        $self->{logger}->writeLogError("[nodes] -class- cannot find nodes configuration");
         return 1;
     }
 
@@ -123,16 +123,16 @@ sub action_pollersresync {
             push @{$register_subnodes->{$_->[5]}}, $_->[0];
             next;
         }
-        $self->{register_pollers}->{$_->[0]} = 1;
+        $self->{register_nodes}->{$_->[0]} = 1;
         $register_temp->{$_->[0]} = 1;
         push @{$register_nodes}, { id => $_->[0], type => 'push_ssh', address => $_->[3], ssh_port => $_->[4] };
     }
 
     my $unregister_nodes = [];    
-    foreach (keys %{$self->{register_pollers}}) {
+    foreach (keys %{$self->{register_nodes}}) {
         if (!defined($register_temp->{$_})) {
             push @{$unregister_nodes}, { id => $_ };
-            delete $self->{register_pollers}->{$_};
+            delete $self->{register_nodes}->{$_};
         }
     }
 
@@ -147,8 +147,8 @@ sub action_pollersresync {
     $self->send_internal_action(action => 'REGISTERNODES', data => { nodes => $register_nodes } );
     $self->send_internal_action(action => 'UNREGISTERNODES', data => { nodes => $unregister_nodes } );
 
-    $self->{logger}->writeLogDebug("[pollers] -class- finish resync");
-    $self->send_log(code => $self->ACTION_FINISH_OK, token => $options{token}, data => { message => 'action pollersresync finished' });
+    $self->{logger}->writeLogDebug("[nodes] -class- finish resync");
+    $self->send_log(code => $self->ACTION_FINISH_OK, token => $options{token}, data => { message => 'action nodesresync finished' });
     return 0;
 }
 
@@ -156,7 +156,7 @@ sub event {
     while (1) {
         my $message = gorgone::standard::library::zmq_dealer_read_message(socket => $connector->{internal_socket});
         
-        $connector->{logger}->writeLogDebug("[pollers] -class- Event: $message");
+        $connector->{logger}->writeLogDebug("[nodes] -class- Event: $message");
         if ($message =~ /^\[(.*?)\]/) {
             if ((my $method = $connector->can('action_' . lc($1)))) {
                 $message =~ /^\[(.*?)\]\s+\[(.*?)\]\s+\[.*?\]\s+(.*)$/m;
@@ -187,13 +187,13 @@ sub run {
     # Connect internal
     $connector->{internal_socket} = gorgone::standard::library::connect_com(
         zmq_type => 'ZMQ_DEALER',
-        name => 'gorgonepollers',
+        name => 'gorgonenodes',
         logger => $self->{logger},
         type => $self->{config_core}->{internal_com_type},
         path => $self->{config_core}->{internal_com_path}
     );
     $connector->send_internal_action(
-        action => 'POLLERSREADY',
+        action => 'CENTREONNODESREADY',
         data => {}
     );
     $self->{poll} = [
@@ -207,14 +207,14 @@ sub run {
         # we try to do all we can
         my $rev = zmq_poll($self->{poll}, 5000);
         if (defined($rev) && $rev == 0 && $self->{stop} == 1) {
-            $self->{logger}->writeLogInfo("[pollers] -class- $$ has quit");
+            $self->{logger}->writeLogInfo("[nodes] -class- $$ has quit");
             zmq_close($connector->{internal_socket});
             exit(0);
         }
 
         if (time() - $self->{resync_time} > $self->{last_resync_time}) {
             $self->{last_resync_time} = time();
-            $self->action_pollersresync();
+            $self->action_nodesresync();
         }
     }
 }

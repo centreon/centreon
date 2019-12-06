@@ -1,10 +1,10 @@
-# Pollers
+# Nodes
 
 ## Description
 
 This module aims to automatically register Poller servers as Gorgone targets, in opposition to the [register](../core/register.md) module.
 
-For now, targets will only be registered as SSH targets.
+For now, targets can be registered as SSH targets or ZMQ targets.
 
 ## Configuration
 
@@ -13,8 +13,8 @@ No specific configuration.
 #### Example
 
 ```yaml
-name: pollers
-package: "gorgone::modules::centreon::pollers::hooks"
+name: nodes
+package: "gorgone::modules::centreon::nodes::hooks"
 enable: true
 ```
 
@@ -22,7 +22,7 @@ enable: true
 
 | Event | Description |
 | :- | :- |
-| POLLERSREADY | Internal event to notify the core |
+| CENTREONNODESREADY | Internal event to notify the core |
 
 ## API
 
