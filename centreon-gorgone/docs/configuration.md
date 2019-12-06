@@ -54,6 +54,8 @@ database:
 | cipher | Cipher used for encryption | `Cipher::AES` |
 | keysize | Size in bytes of the symmetric encryption key | `32` |
 | vector | Encryption vector | `0123456789012345` |
+| fingerprint_mode | Validation mode of zmq nodes to connect (can be: always, first, strict) | `first` |
+| fingerprint_mgr | Hash of the definition class to store fingerprints | |
 | authorized_clients | Table of string-formated JWK thumbprints of clients public key |  |
 | proxy_name | Name of the proxy module definition | `proxy` (loaded internally) |
 
@@ -78,6 +80,9 @@ gorgonecore:
   cipher: "Cipher::AES"
   keysize: 32
   vector: 0123456789012345
+  fingerprint_mode: first
+  fingerprint_mgr:
+    package: gorgone::class::fingerprint::backend::sql
   authorized_clients:
     - key: pnI6EWkiTbazjikJXRkLmjml5wvVECYtQduJUjS4QK4
   proxy_name: proxy
