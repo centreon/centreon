@@ -217,8 +217,7 @@ The client request (no carriage returns. only for reading):
     { "id": 100, "type": "push_ssh", "address": "10.0.0.1", "ssh_port": 22 },
     {
       "id": 150, "type": "push_zmq", "address": "10.3.2.1",
-      "server_pubkey": "server_pubkey.pem", "client_pubkey": "client_pubkey.pem", "client_privkey": "client_privkey.pem", "cipher": "Cipher::AES", "keysize": 32, "vector": "0123456789012345",
-      "nodes": [400, 455]
+      "nodes": [ { "id": 400, { "id": 455 } ]
     }
   ]
 }
