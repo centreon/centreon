@@ -37,7 +37,7 @@ $ perl /usr/local/bin/gorgone_key_thumbprint.pl --key-path='/var/spool/centreon/
 
 *Make the IDs match Centreon Pollers ID to benefit from [legacy cmd](../docs/modules/core/legacycmd.md) module's actions.*
 
-#### Client
+#### Server
 
 In the *gorgoned.yml* configuration file, add the following directives under the *gorgonecore* section:
 
@@ -45,9 +45,7 @@ In the *gorgoned.yml* configuration file, add the following directives under the
 gorgonecore:
   id: 1
   privkey: /var/spool/centreon/.gorgone/privkey.pem
-  cipher: "Cipher::AES"
-  keysize: 32
-  vector: 0123456789012345
+  pubkey: /var/spool/centreon/.gorgone/pubkey.pem
 ```
 
 Add the [register](../docs/modules/core/register.md) module and define the path to the dedicated configuration file.
@@ -68,15 +66,9 @@ nodes:
     type: push_zmq
     address: 10.1.2.3
     port: 5556
-    server_pubkey: /var/spool/centreon/.gorgone/2/pubkey.pem
-    client_pubkey: /var/spool/centreon/.gorgone/pubkey.pem
-    client_privkey: /var/spool/centreon/.gorgone/privkey.pem
-    cipher: "Cipher::AES"
-    keysize: 32
-    vector: 0123456789012345
 ```
 
-#### Server
+#### Client
 
 In the *gorgoned.yml* configuration file, add the following directives under the *gorgonecore* section:
 
@@ -86,9 +78,7 @@ gorgonecore:
   external_com_type: tcp
   external_com_path: "*:5556"
   privkey: /var/spool/centreon/.gorgone/privkey.pem
-  cipher: "Cipher::AES"
-  keysize: 32
-  vector: 0123456789012345
+  pubkey: /var/spool/centreon/.gorgone/pubkey.pem
   authorized_clients:
     - key: pnI6EWkiTbazjikJXRkLmjml5wvVECYtQduJUjS4QK4
 ```

@@ -49,7 +49,8 @@ database:
 | gorgone_db_password | Username's password |  |
 | hostname | Hostname of the server running Gorgone | Result of *hostname* system function. |
 | id | Identifier of server running Gorgone | None. Must be unique over all Gorgone daemons. |
-| privkey | Path to the Gorgone core private key | `keys/central/privkey.pem` |
+| privkey | Path to the Gorgone core private key | `keys/rsakey.priv.pem` |
+| privkey | Path to the Gorgone core public key | `keys/rsakey.pub.pem` |
 | cipher | Cipher used for encryption | `Cipher::AES` |
 | keysize | Size in bytes of the symmetric encryption key | `32` |
 | vector | Encryption vector | `0123456789012345` |

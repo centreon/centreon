@@ -236,13 +236,14 @@ sub routing {
     if ($options{action} eq 'REMOTECOPY' && defined($register_nodes->{$target_parent}) &&
         $register_nodes->{$target_parent}->{type} ne 'push_ssh') {
         $action = 'PROCESSCOPY';
-        $bulk_actions = prepare_remote_copy(
+        ($code, $bulk_actions) = prepare_remote_copy(
             dbh => $options{dbh},
             data => $data,
             target => $target_parent,
             token => $options{token},
             logger => $options{logger}
         );
+        return if ($code == -1);
     }
 
     foreach my $data (@{$bulk_actions}) {
@@ -864,7 +865,7 @@ sub prepare_remote_copy {
         parameters => { no_fork => 1 }
     };
 
-    return \@actions;
+    return (0, \@actions);
 }
 
 sub setcoreid {
