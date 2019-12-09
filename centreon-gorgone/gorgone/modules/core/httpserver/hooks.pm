@@ -45,13 +45,15 @@ sub register {
     $config_core = $options{config_core};
     $config->{address} = defined($config->{address}) && $config->{address} ne '' ? $config->{address} : '0.0.0.0';
     $config->{port} = defined($config->{port}) && $config->{port} =~ /(\d+)/ ? $1 : 8080;
-    if (!defined($config->{auth}->{user}) || $config->{auth}->{user} =~ /^\s*$/) {
-        $options{logger}->writeLogError('[httpserver] -hooks- auth user option mandatory');
-        $loaded = 0;
-    }
-    if (!defined($config->{auth}->{password}) || $config->{auth}->{password} =~ /^\s*$/) {
-        $options{logger}->writeLogError('[httpserver] -hooks- auth password option mandatory');
-        $loaded = 0;
+    if (defined($config->{auth}->{enabled}) && $config->{auth}->{enabled} eq 'true') {
+        if (!defined($config->{auth}->{user}) || $config->{auth}->{user} =~ /^\s*$/) {
+            $options{logger}->writeLogError('[httpserver] -hooks- user option mandatory if auth enabled');
+            $loaded = 0;
+        }
+        if (!defined($config->{auth}->{password}) || $config->{auth}->{password} =~ /^\s*$/) {
+            $options{logger}->writeLogError('[httpserver] -hooks- password option mandatory if auth enabled');
+            $loaded = 0;
+        }
     }
 
     return ($loaded, NAMESPACE, NAME, EVENTS);
