@@ -28,6 +28,7 @@ use gorgone::standard::library;
 use gorgone::class::sqlquery;
 use ZMQ::LibZMQ4;
 use ZMQ::Constants qw(:all);
+use File::Path qw(make_path);
 use JSON::XS;
 use Time::HiRes;
 
@@ -181,15 +182,16 @@ sub write_stats {
 
     my $cache_dir = (defined($self->{config}->{cache_dir})) ?
         $self->{config}->{cache_dir} : '/var/lib/centreon/broker-stats/';
-    foreach my $id (sort keys %{$options{data}->{data}->{result}}) {
-        my $data = JSON::XS->new->utf8->decode($options{data}->{data}->{result}->{$id}->{data});
+    foreach my $entry (@{$options{data}->{data}->{result}}) {
+        my $data = JSON::XS->new->utf8->decode($entry->{data});
         next if (!defined($data->{exit_code}) || $data->{exit_code} != 0 ||
             !defined($data->{metadata}->{poller_id}) || !defined($data->{metadata}->{config_name}));
 
-        my $cache_file = $cache_dir . '/' . $data->{metadata}->{poller_id} . '-' . 
-            $data->{metadata}->{config_name} . '.dat';
-        $self->{logger}->writeLogDebug("[broker] -class- Writing file '" . $cache_file . "'");
-        open(FH, '>', $cache_file);
+        my $dest_dir = $cache_dir . '/' . $data->{metadata}->{poller_id};
+        make_path($dest_dir) if (! -d $dest_dir);
+        my $dest_file = $dest_dir . '/' . $data->{metadata}->{config_name} . '.json';
+        $self->{logger}->writeLogDebug("[broker] -class- Writing file '" . $dest_file . "'");
+        open(FH, '>', $dest_file);
         print FH $data->{stdout};
         close(FH);
     }
