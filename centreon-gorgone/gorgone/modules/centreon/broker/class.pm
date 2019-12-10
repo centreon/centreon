@@ -180,14 +180,12 @@ sub write_stats {
     return if (!defined($options{data}->{data}->{action}) || $options{data}->{data}->{action} ne "getlog" &&
         defined($options{data}->{data}->{result}));
 
-    my $cache_dir = (defined($self->{config}->{cache_dir})) ?
-        $self->{config}->{cache_dir} : '/var/lib/centreon/broker-stats/';
     foreach my $entry (@{$options{data}->{data}->{result}}) {
         my $data = JSON::XS->new->utf8->decode($entry->{data});
         next if (!defined($data->{exit_code}) || $data->{exit_code} != 0 ||
             !defined($data->{metadata}->{poller_id}) || !defined($data->{metadata}->{config_name}));
 
-        my $dest_dir = $cache_dir . '/' . $data->{metadata}->{poller_id};
+        my $dest_dir = $self->{config}->{cache_dir} . '/' . $data->{metadata}->{poller_id};
         make_path($dest_dir) if (! -d $dest_dir);
         my $dest_file = $dest_dir . '/' . $data->{metadata}->{config_name} . '.json';
         $self->{logger}->writeLogDebug("[broker] -class- Writing file '" . $dest_file . "'");
