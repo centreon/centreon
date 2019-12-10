@@ -217,7 +217,8 @@ sub get_log {
         socket => $options{socket},
         action => 'GETLOG',
         data => {
-            token => $options{token}
+            token => $options{token},
+            %{$options{parameters}}
         },
         json_encode => 1
     );
