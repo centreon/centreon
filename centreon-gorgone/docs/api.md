@@ -254,7 +254,7 @@ curl --request GET "https://hostname:8443/api/log/3f25bc3a797fe989d1fb052b1886a8
 {
     "error":"no_result",
     "message":"No result found for action <name of action>"
-    }
+}
 ```
 
 ### No token found when using wait parameter
