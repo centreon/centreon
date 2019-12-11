@@ -202,9 +202,9 @@ sub run {
     }
     
     if (defined($daemon)) {
-        while (my ($connection, $peer_addr) = $daemon->accept()) {
+        while (my ($connection) = $daemon->accept()) {
             while (my $request = $connection->get_request) {
-                $connector->{logger}->writeLogInfo("[httpserver] -class- " . $request->method . " '" . $request->uri->path . "'");
+                $connector->{logger}->writeLogInfo("[httpserver] -class- " . $connection->peerhost() . " " . $request->method . " '" . $request->uri->path . "' '" . $request->header("User-Agent") . "'");
 
                 if ($connector->{allowed_hosts_enabled} == 1) {
                     if ($connector->check_allowed_host(peer_addr => inet_ntoa($connection->peeraddr())) == 0) {
@@ -228,6 +228,7 @@ sub run {
                 } else { # Authen error
                     $connection->send_error(RC_UNAUTHORIZED);
                 }
+                $connection->force_last_request;
             }
             $connection->close;
             undef($connection);
