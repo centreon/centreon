@@ -22,3 +22,9 @@ To understand the main principles of Gorgone protocol, follow the [guide](docs/g
 The Centreon Gorgone project encloses several built-in modules.
 
 See the full list [here](docs/modules.md).
+
+## API
+
+The HTTP server module exposes a RestAPI.
+
+See how to use it [here](docs/api.md).
