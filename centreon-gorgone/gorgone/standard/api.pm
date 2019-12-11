@@ -33,7 +33,8 @@ my $result;
 
 my $mapping_internal_endpoint = {
     thumbprint => 'GETTHUMBPRINT',
-    constatus => 'CONSTATUS'
+    constatus => 'CONSTATUS',
+    information => 'INFORMATION'
 };
 
 sub root {
@@ -56,7 +57,8 @@ sub root {
             socket => $options{socket},
             target => $2,
             token => $3,
-            refresh => (defined($options{parameters}->{refresh})) ? $options{parameters}->{refresh} : undef
+            refresh => (defined($options{parameters}->{refresh})) ? $options{parameters}->{refresh} : undef,
+            parameters => $options{parameters}
         );
     } elsif ($options{method} eq 'GET' && $options{uri} =~ /^\/api\/(targets\/(\w*)\/)?internal\/(.*)$/) {
         $response = get_internal(
@@ -235,7 +237,13 @@ sub get_log {
             $response = '{"error":"decode_error","message":"Cannot decode response"}';
         } elsif (defined($content->{data}->{result}) && scalar(@{$content->{data}->{result}}) > 0) {
             eval {
-                $response = JSON::XS->new->utf8->encode($content->{data}->{result});
+                $response = JSON::XS->new->utf8->encode(
+                    {
+                        message => "Logs found",
+                        token => $options{token},
+                        data => $content->{data}->{result}
+                    }
+                );
             };
             if ($@) {
                 $response = '{"error":"encode_error","message":"Cannot encode response"}';
