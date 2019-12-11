@@ -227,7 +227,7 @@ sub get_log {
 
     my $rev = zmq_poll($poll, 5000);
 
-    my $response = '{"error":"no_log","message":"No log found for token","token":"' . $options{token} . '"}';
+    my $response = '{"error":"no_log","message":"No log found for token","data":[],"token":"' . $options{token} . '"}';
     if (defined($result->{data})) {
         my $content;
         eval {
