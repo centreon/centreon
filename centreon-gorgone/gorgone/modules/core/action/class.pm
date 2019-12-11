@@ -104,6 +104,16 @@ sub action_command {
         return -1;
     }
     
+    $self->send_log(
+        socket => $options{socket_log},
+        code => $self->ACTION_BEGIN,
+        token => $options{token},
+        data => {
+            message => "command '$options{data}->{content}->{command}' has started",
+            metadata => $options{data}->{content}->{metadata}
+        }
+    );
+    
     my $start = time();
     my ($error, $stdout, $return_code) = gorgone::standard::misc::backtick(
         command => $options{data}->{content}->{command},
