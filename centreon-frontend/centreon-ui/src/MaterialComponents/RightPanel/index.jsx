@@ -15,6 +15,9 @@ const panelWidth = 560;
 const inAnimationDurationMs = 150;
 const outAnimationDurationMs = 50;
 
+// TODO this should be dynamic
+const topHeight = 52;
+
 const Header = styled(Box)({
   paddingLeft: 20,
   boxShadow: '0px 3px 4px 0px rgba(0,0,0,0.15)',
@@ -24,7 +27,7 @@ const Header = styled(Box)({
 });
 
 const Container = styled('div')({
-  top: 52,
+  top: topHeight,
   right: 0,
   bottom: 30,
   backgroundColor: '#ededed',
@@ -47,6 +50,8 @@ const Body = styled(Box)({
 
 const MainPanel = styled(Box)({
   width: 540,
+  overflowY: 'auto',
+  marginBottom: topHeight,
 });
 
 const SecondaryPanelBar = styled(Box)({

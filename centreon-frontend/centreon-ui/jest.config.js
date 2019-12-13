@@ -6,7 +6,7 @@ module.exports = {
     '^.+\\.jsx?$': 'babel-jest',
   },
   moduleNameMapper: {
-    '\\.(s?css)$': 'identity-obj-proxy',
+    '\\.(s?css|png)$': 'identity-obj-proxy',
   },
   testPathIgnorePatterns: ['/node_modules/', '/lib/'],
 };

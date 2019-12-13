@@ -16,15 +16,9 @@ export { default as CustomStyles } from './Custom/CustomStyles';
 export { default as Description } from './Description';
 export { default as Divider } from './Divider';
 export { default as FileUpload } from './FileUpload';
-export {
-  default as HorizontalLine,
-} from './HorizontalLines/HorizontalLineRegular';
-export {
-  default as HorizontalLineContent,
-} from './HorizontalLines/HorizontalLineContent';
-export {
-  default as HorizontalLineSeparator,
-} from './HorizontalLines/HorizontalLineSeparator';
+export { default as HorizontalLine } from './HorizontalLines/HorizontalLineRegular';
+export { default as HorizontalLineContent } from './HorizontalLines/HorizontalLineContent';
+export { default as HorizontalLineSeparator } from './HorizontalLines/HorizontalLineSeparator';
 export { default as Header } from './Header';
 export { default as IconAction } from './Icon/IconAction';
 export { default as IconClose } from './Icon/IconClose';
@@ -70,9 +64,7 @@ export { default as Pagination } from './Pagination';
 export { default as Popup } from './Popup';
 export { default as PopupNew } from './Popup/PopupNew';
 export { default as ProgressBar } from './ProgressBar/ProgressBarSteps';
-export {
-  default as ProgressBarItem,
-} from './ProgressBar/ProgressBarSteps/ProgressBarItem';
+export { default as ProgressBarItem } from './ProgressBar/ProgressBarSteps/ProgressBarItem';
 export { default as RadioButton } from './RadioButton';
 export { default as ScrollBar } from './ScrollBar';
 export { default as SearchLive } from './Search/SearchLive';
@@ -85,9 +77,7 @@ export { default as SubmenuItem } from './Submenu/SubmenuHeader/SubmenuItem';
 export { default as Subtitle } from './Subtitle';
 export { default as Switcher } from './Switcher';
 export { default as SwitcherInputField } from './Switcher/SwitcherInputField';
-export {
-  default as SwitcherInvertedInputField,
-} from './Switcher/SwitcherInputField/inverted';
+export { default as SwitcherInvertedInputField } from './Switcher/SwitcherInputField/inverted';
 export { default as SwitcherMode } from './Switcher/SwitcherMode';
 export { default as Tabs } from './Tab';
 export { default as Tab } from './Tab/Tab';
@@ -107,27 +97,15 @@ export { default as Loader } from './Loader';
 export { default as ThemeProvider } from './ThemeProvider';
 export { default as Wizard, Page as WizardPage } from './Wizard';
 
-export {
-  default as IconAccessTime,
-} from './MaterialComponents/Icons/IconAccessTime';
+export { default as IconAccessTime } from './MaterialComponents/Icons/IconAccessTime';
 export { default as IconDelete } from './MaterialComponents/Icons/IconDelete';
 export { default as IconDone } from './MaterialComponents/Icons/IconDone';
-export {
-  default as IconInsertChart,
-} from './MaterialComponents/Icons/IconInsertChart';
-export {
-  default as IconLibraryAdd,
-} from './MaterialComponents/Icons/IconLibraryAdd';
-export {
-  default as IconPowerSettings,
-} from './MaterialComponents/Icons/IconPowerSettings';
-export {
-  default as IconPowerSettingsDisable,
-} from './MaterialComponents/Icons/IconPowerSettingsDisable';
+export { default as IconInsertChart } from './MaterialComponents/Icons/IconInsertChart';
+export { default as IconLibraryAdd } from './MaterialComponents/Icons/IconLibraryAdd';
+export { default as IconPowerSettings } from './MaterialComponents/Icons/IconPowerSettings';
+export { default as IconPowerSettingsDisable } from './MaterialComponents/Icons/IconPowerSettingsDisable';
 export { default as IconRefresh } from './MaterialComponents/Icons/IconRefresh';
-export {
-  default as IconReportProblem,
-} from './MaterialComponents/Icons/IconReportProblem';
+export { default as IconReportProblem } from './MaterialComponents/Icons/IconReportProblem';
 // Material Components
 export { default as CheckboxDefault } from './MaterialComponents/Checkbox';
 export { default as IconAttach } from './MaterialComponents/Icons/IconAttach';
@@ -137,28 +115,18 @@ export { default as MaterialSwtich } from './MaterialComponents/Switch';
 
 export { default as MaterialTabs } from './MaterialComponents/Tabs';
 export { default as MaterialTable } from './MaterialComponents/Table';
-export {
-  default as MaterialProgressBar,
-} from './MaterialComponents/ProgressBar';
+export { default as MaterialProgressBar } from './MaterialComponents/ProgressBar';
 export { default as MaterialButton } from './MaterialComponents/Button';
 export { default as TABLE_COLUMN_TYPES } from './Table/ColumnTypes';
 export { default as Tooltip } from './MaterialComponents/Tooltip';
 export { default as Dialog } from './Dialog';
 export { default as ConfirmDialog } from './Dialog/Confirm';
 export { default as DuplicateDialog } from './Dialog/Duplicate';
-export {
-  default as MassiveChangeThresholds,
-} from './Dialog/MassiveChange/Thresholds';
+export { default as MassiveChangeThresholds } from './Dialog/MassiveChange/Thresholds';
 
 export { default as IconVisible } from './MaterialComponents/Icons/IconVisible';
-export {
-  default as IconInvisible,
-} from './MaterialComponents/Icons/IconInvisible';
+export { default as IconInvisible } from './MaterialComponents/Icons/IconInvisible';
 export { default as IconError } from './MaterialComponents/Icons/IconError';
-export {
-  default as withErrorSnackbar,
-} from './MaterialComponents/Snackbar/Error/withErrorSnackbar';
-export {
-  default as useErrorSnackbar,
-} from './MaterialComponents/Snackbar/Error/useErrorSnackbar';
+export { default as withErrorSnackbar } from './MaterialComponents/Snackbar/Error/withErrorSnackbar';
+export { default as useErrorSnackbar } from './MaterialComponents/Snackbar/Error/useErrorSnackbar';
 export { default as SaveButton } from './MaterialComponents/Button/Save';

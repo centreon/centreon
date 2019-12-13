@@ -39,6 +39,7 @@ const useStyles = makeStyles((theme) => {
       height: 32,
       paddingLeft: 6,
       fontSize: 13,
+      backgroundColor: 'white',
     },
     input: {
       paddingBottom: 4,
@@ -78,7 +79,7 @@ SearchInput.propTypes = {
 
 SearchInput.defaultProps = {
   placeholder: 'Search',
-  value: '',
+  value: null,
 };
 
 export default SearchInput;

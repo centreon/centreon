@@ -4,6 +4,7 @@
 /* eslint-disable react/prop-types */
 /* eslint-disable camelcase */
 /* eslint-disable react/sort-comp */
+
 import React, { Component } from 'react';
 import { findDOMNode } from 'react-dom';
 import classnames from 'classnames';
@@ -14,62 +15,37 @@ import IconToggleSubmenu from '../../Icon/IconToggleSubmenu';
 class InputFieldSelectCustom extends Component {
   state = {
     active: false,
-    allOptions: [],
-    options: [],
+    filteredOptions: [],
     selected: null,
   };
+
+  componentWillMount() {
+    const { options } = this.props;
+    this.setState({ filteredOptions: options });
+  }
 
   componentWillUnmount() {
     window.removeEventListener('mousedown', this.handleClickOutside, false);
   }
 
-  componentWillMount = () => {
-    const { value, options, onChange } = this.props;
-    const { selected } = this.state;
-    let found = false;
-    if (options) {
-      for (let i = 0; i < options.length; i += 1) {
-        if (options[i].id == value) {
-          this.setState({
-            selected: options[i],
-          });
-          found = true;
-        }
-      }
-      this.setState({
-        options,
-        allOptions: options,
-        ...(!found && { selected: null }),
-      });
-      if (!found && selected !== null) {
-        onChange(null);
-      }
-    }
-  };
+  componentWillReceiveProps(nextProps) {
+    const { value, options, onChange = () => {} } = nextProps;
 
-  componentWillReceiveProps = (nextProps) => {
-    const { value, options, onChange } = nextProps;
-    const { selected } = this.state;
-    let found = false;
-    if (options) {
-      for (let i = 0; i < options.length; i += 1) {
-        if (options[i].id == value) {
-          this.setState({
-            selected: options[i],
-          });
-          found = true;
-        }
-      }
-      this.setState({
-        options,
-        allOptions: options,
-        ...(!found && { selected: null }),
-      });
-      if (!found && selected !== null) {
-        onChange(null);
-      }
+    if (options.length === 0) {
+      return;
     }
-  };
+
+    const optionIds = options.map(({ id }) => id);
+
+    if (value && !optionIds.includes(value.id)) {
+      onChange(null);
+      return;
+    }
+
+    this.setState({
+      selected: value,
+    });
+  }
 
   componentDidMount() {
     window.addEventListener('mousedown', this.handleClickOutside, false);
@@ -86,9 +62,9 @@ class InputFieldSelectCustom extends Component {
 
   searchTextChanged = (e) => {
     const searchString = e.target.value;
-    const { allOptions } = this.state;
+    const { options } = this.props;
     this.setState({
-      options: allOptions.filter((option) => {
+      filteredOptions: options.filter((option) => {
         return (
           String(option.name)
             .toLowerCase()
@@ -100,14 +76,14 @@ class InputFieldSelectCustom extends Component {
 
   optionChecked = (option) => {
     const { onChange } = this.props;
+
     this.setState(
       {
-        selected: option,
         active: false,
       },
       () => {
         if (onChange) {
-          onChange(option.id);
+          onChange(option);
         }
       },
     );
@@ -123,10 +99,10 @@ class InputFieldSelectCustom extends Component {
   };
 
   focusInput = (component) => {
-    const { allOptions } = this.state;
+    const { options } = this.props;
     if (component) {
       this.setState({
-        options: allOptions,
+        filteredOptions: options,
       });
       // eslint-disable-next-line react/no-find-dom-node
       findDOMNode(component).focus();
@@ -138,7 +114,7 @@ class InputFieldSelectCustom extends Component {
   };
 
   render() {
-    const { active, selected, options } = this.state;
+    const { active, selected, filteredOptions } = this.state;
     const { size, error, icons, domainPath, customStyle } = this.props;
     return (
       <div
@@ -176,8 +152,8 @@ class InputFieldSelectCustom extends Component {
         </div>
         {active ? (
           <div className={classnames(styles['input-select-dropdown'])}>
-            {options
-              ? options.map((option) => (
+            {filteredOptions
+              ? filteredOptions.map((option) => (
                   // eslint-disable-next-line react/jsx-indent
                   <React.Fragment>
                     {icons ? (
