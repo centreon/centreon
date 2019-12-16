@@ -208,6 +208,7 @@ sub run {
 
                 if ($connector->{allowed_hosts_enabled} == 1) {
                     if ($connector->check_allowed_host(peer_addr => inet_ntoa($connection->peeraddr())) == 0) {
+                        $connector->{logger}->writeLogError("[httpserver] -class- " . $connection->peerhost() . " Unauthorized");
                         $self->send_error(
                             connection => $connection,
                             code => "401",
@@ -227,6 +228,7 @@ sub run {
                     } elsif (defined($self->{dispatch}->{$root})) { # Other dispatch definition
                         $self->send_response(connection => $connection, response => $self->dispatch_call(root => $root, request => $request));
                     } else { # Forbidden
+                        $connector->{logger}->writeLogError("[httpserver] -class- " . $connection->peerhost() . " '" . $request->uri->path . "' Forbidden");
                         $self->send_error(
                             connection => $connection,
                             code => "403",
@@ -234,6 +236,7 @@ sub run {
                         );
                     }
                 } else { # Authen error
+                    $connector->{logger}->writeLogError("[httpserver] -class- " . $connection->peerhost() . " Unauthorized");
                     $self->send_error(
                         connection => $connection,
                         code => "401",
