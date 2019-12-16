@@ -208,7 +208,11 @@ sub run {
 
                 if ($connector->{allowed_hosts_enabled} == 1) {
                     if ($connector->check_allowed_host(peer_addr => inet_ntoa($connection->peeraddr())) == 0) {
-                        $connection->send_error(RC_UNAUTHORIZED);
+                        $self->send_error(
+                            connection => $connection,
+                            code => "401",
+                            response => '{"error":"http_error_401","message":"unauthorized"}'
+                        );
                         next;
                     }
                 }
@@ -223,10 +227,18 @@ sub run {
                     } elsif (defined($self->{dispatch}->{$root})) { # Other dispatch definition
                         $self->send_response(connection => $connection, response => $self->dispatch_call(root => $root, request => $request));
                     } else { # Forbidden
-                        $connection->send_error(RC_FORBIDDEN)
+                        $self->send_error(
+                            connection => $connection,
+                            code => "403",
+                            response => '{"error":"http_error_403","message":"forbidden"}'
+                        );
                     }
                 } else { # Authen error
-                    $connection->send_error(RC_UNAUTHORIZED);
+                    $self->send_error(
+                        connection => $connection,
+                        code => "401",
+                        response => '{"error":"http_error_401","message":"unauthorized"}'
+                    );
                 }
                 $connection->force_last_request;
             }
@@ -264,6 +276,15 @@ sub send_response {
     my ($self, %options) = @_;
 
     my $response = HTTP::Response->new(200);
+    $response->header('Content-Type' => 'application/json'); 
+    $response->content($options{response} . "\n");
+    $options{connection}->send_response($response);
+}
+
+sub send_error {
+    my ($self, %options) = @_;
+
+    my $response = HTTP::Response->new($options{code});
     $response->header('Content-Type' => 'application/json'); 
     $response->content($options{response} . "\n");
     $options{connection}->send_response($response);

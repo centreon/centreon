@@ -201,6 +201,24 @@ curl --request GET "https://hostname:8443/api/log/3f25bc3a797fe989d1fb052b1886a8
 
 ## Errors
 
+### Unauthorized
+
+```json
+{
+    "error":"http_error_401",
+    "message":"unauthorized"
+}
+```
+
+### Forbidden
+
+```json
+{
+    "error":"http_error_403",
+    "message":"forbidden"
+}
+```
+
 ### Unknown endpoint
 
 ```json
