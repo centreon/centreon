@@ -95,43 +95,61 @@ sub action_nodesresync {
 
     $self->send_log(code => gorgone::class::module::ACTION_BEGIN, token => $options{token}, data => { message => 'action nodesresync proceed' });
 
-    my $request = "
-        SELECT id, name, localhost, ns_ip_address, ssh_port, remote_id, remote_server_centcore_ssh_proxy
+    my $request = 'SELECT remote_server_id, poller_server_id FROM rs_poller_relation';
+    my ($status, $datas) = $self->{class_object}->custom_execute(request => $request, mode => 2);
+    if ($status == -1) {
+        $self->send_log(code => gorgone::class::module::ACTION_FINISH_KO, token => $options{token}, data => { message => 'cannot find nodes remote configuration' });
+        $self->{logger}->writeLogError('[nodes] -class- cannot find nodes remote configuration');
+        return 1;
+    }
+
+    # we set a pathscore of 100 because it's "slave"
+    my $register_subnodes = {};
+    foreach (@$datas) {
+        $register_subnodes->{$_->[0]} = [] if (!defined($register_subnodes->{$_->[0]}));
+        unshift $register_subnodes->{$_->[0]}, { id => $_->[1], pathscore => 100 };
+    }
+
+    $request = "
+        SELECT id, name, localhost, ns_ip_address, gorgone_port, remote_id, remote_server_use_as_proxy, gorgone_communication_type
         FROM nagios_server
         WHERE ns_activate = '1'
     ";
-    my ($status, $datas) = $self->{class_object}->custom_execute(request => $request, mode => 2);
+    ($status, $datas) = $self->{class_object}->custom_execute(request => $request, mode => 2);
     if ($status == -1) {
         $self->send_log(code => gorgone::class::module::ACTION_FINISH_KO, token => $options{token}, data => { message => 'cannot find nodes configuration' });
-        $self->{logger}->writeLogError("[nodes] -class- cannot find nodes configuration");
+        $self->{logger}->writeLogError('[nodes] -class- cannot find nodes configuration');
         return 1;
     }
 
     my $core_id;
     my $register_temp = {};
     my $register_nodes = [];
-    my $register_subnodes = {};
     foreach (@$datas) {
         if ($_->[2] == 1) {
             $core_id = $_->[0];
             next;
         }
 
-        # remote_server_centcore_ssh_proxy = 1 means: pass through the remote. otherwise directly.
+        # remote_server_use_as_proxy = 1 means: pass through the remote. otherwise directly.
         if (defined($_->[5]) && $_->[5] =~ /\d+/ && $_->[6] == 1) {
             $register_subnodes->{$_->[5]} = [] if (!defined($register_subnodes->{$_->[5]}));
-            push @{$register_subnodes->{$_->[5]}}, $_->[0];
+            unshift @{$register_subnodes->{$_->[5]}}, { id => $_->[0], pathscore => 1 };
             next;
         }
         $self->{register_nodes}->{$_->[0]} = 1;
         $register_temp->{$_->[0]} = 1;
-        push @{$register_nodes}, { id => $_->[0], type => 'push_ssh', address => $_->[3], ssh_port => $_->[4] };
+        if ($_->[7] == 2) {
+            push @$register_nodes, { id => $_->[0], type => 'push_ssh', address => $_->[3], ssh_port => $_->[4] };
+        } else {
+            push @$register_nodes, { id => $_->[0], type => 'push_zmq', address => $_->[3], port => $_->[4] };
+        }
     }
 
     my $unregister_nodes = [];    
     foreach (keys %{$self->{register_nodes}}) {
         if (!defined($register_temp->{$_})) {
-            push @{$unregister_nodes}, { id => $_ };
+            push @$unregister_nodes, { id => $_ };
             delete $self->{register_nodes}->{$_};
         }
     }
@@ -178,7 +196,7 @@ sub run {
         dsn => $self->{config_db_centreon}->{dsn},
         user => $self->{config_db_centreon}->{username},
         password => $self->{config_db_centreon}->{password},
-        force => 2,
+        force => 0,
         logger => $self->{logger}
     );
     ##### Load objects #####
