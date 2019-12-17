@@ -85,6 +85,21 @@ sub class_handle_HUP {
     }
 }
 
+sub get_broker_stats_collection_flag {
+    my ($self, %options) = @_;
+
+    my ($status, $datas) = $self->{class_object_centreon}->custom_execute(
+        request => "SELECT `value` FROM options WHERE `key` = 'enable_broker_stats'",
+        mode => 2
+    );
+    if ($status == -1 || !defined($datas->[0][0])) {
+        $self->{logger}->writeLogError('[broker] -class- Cannot get Broker statistics collection flag');
+        return -1;
+    }
+    
+    return $datas->[0][0];
+}
+
 sub action_brokerstats {
     my ($self, %options) = @_;
 
@@ -98,6 +113,18 @@ sub action_brokerstats {
         }
     );
 
+    if ($self->get_broker_stats_collection_flag() < 1) {
+        $self->send_log(
+            code => gorgone::class::module::ACTION_FINISH_OK,
+            token => $options{token},
+            data => {
+                message => 'no collection configured'
+            }
+        );
+        $self->{logger}->writeLogInfo("[broker] -class- No Broker statistics collection configured");
+        return 0;
+    }
+
     my $request = "SELECT id, cache_directory, config_name FROM cfg_centreonbroker " .
         "JOIN nagios_server " .
         "WHERE ns_activate = '1' AND stats_activate = '1' AND ns_nagios_server = id";
@@ -106,7 +133,7 @@ sub action_brokerstats {
         $request .= " AND id = '" . $options{data}->{variables}[0] . "'";
     }
 
-    my ($status, $datas) = $self->{class_object}->custom_execute(request => $request, mode => 2);
+    my ($status, $datas) = $self->{class_object_centreon}->custom_execute(request => $request, mode => 2);
     if ($status == -1) {
         $self->send_log(
             code => gorgone::class::module::ACTION_FINISH_KO,
@@ -221,20 +248,6 @@ sub event {
 
 sub run {
     my ($self, %options) = @_;
-    
-    # Database creation. We stay in the loop still there is an error
-    $self->{db_centreon} = gorgone::class::db->new(
-        dsn => $self->{config_db_centreon}->{dsn},
-        user => $self->{config_db_centreon}->{username},
-        password => $self->{config_db_centreon}->{password},
-        force => 2,
-        logger => $self->{logger}
-    );
-    ##### Load objects #####
-    $self->{class_object} = gorgone::class::sqlquery->new(
-        logger => $self->{logger},
-        db_centreon => $self->{db_centreon}
-    );
 
     # Connect internal
     $connector->{internal_socket} = gorgone::standard::library::connect_com(
@@ -248,6 +261,19 @@ sub run {
         action => 'BROKERREADY',
         data => {}
     );
+
+    $self->{db_centreon} = gorgone::class::db->new(
+        dsn => $self->{config_db_centreon}->{dsn},
+        user => $self->{config_db_centreon}->{username},
+        password => $self->{config_db_centreon}->{password},
+        force => 2,
+        logger => $self->{logger}
+    );
+    $self->{class_object_centreon} = gorgone::class::sqlquery->new(
+        logger => $self->{logger},
+        db_centreon => $self->{db_centreon}
+    );
+
     $self->{poll} = [
         {
             socket  => $connector->{internal_socket},
@@ -255,7 +281,7 @@ sub run {
             callback => \&event,
         }
     ];
-    
+
     if (defined($self->{config}->{cron})) {
         $self->send_internal_action(
             action => 'ADDCRON', 
