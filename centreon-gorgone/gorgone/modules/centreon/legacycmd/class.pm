@@ -142,7 +142,7 @@ sub get_illegal_characters {
     my ($self, %options) = @_;
 
     my ($status, $datas) = $self->{class_object_centreon}->custom_execute(
-        request => "SELECT `value` FROM options WHERE `key` = 'centcore_illegal_characters'",
+        request => "SELECT `value` FROM options WHERE `key` = 'gorgone_illegal_characters'",
         mode => 2
     );
     if ($status == -1 || !defined($datas->[0][0])) {
@@ -150,7 +150,7 @@ sub get_illegal_characters {
         return -1;
     }
 
-    $self->{centcore_illegal_characters} = $datas->[0][0];
+    $self->{gorgone_illegal_characters} = $datas->[0][0];
     
     return 0;
 }
@@ -167,8 +167,8 @@ sub execute_cmd {
     $self->{logger}->writeLogInfo($msg);
 
     if ($options{cmd} eq 'EXTERNALCMD') {
-        $options{param} =~ s/[\Q$self->{centcore_illegal_characters}\E]//g
-            if (defined($self->{centcore_illegal_characters}) && $self->{centcore_illegal_characters} ne '');
+        $options{param} =~ s/[\Q$self->{gorgone_illegal_characters}\E]//g
+            if (defined($self->{gorgone_illegal_characters}) && $self->{gorgone_illegal_characters} ne '');
         $self->send_internal_action(
             action => 'ENGINECOMMAND',
             target => $options{target},
