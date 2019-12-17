@@ -43,9 +43,11 @@ mkdir -p %{buildroot}/%{perl_vendorlib}/gorgone
 %{__install} -d -m 0755 %{buildroot}%{_bindir}
 %{__install} -d -m 0755 %{buildroot}%{_usr}/local/bin/
 %{__install} -d -m 0755 %{buildroot}%{_sysconfdir}/systemd/system/
-%{__cp} scripts/systemd/centreon-gorgone-service %{buildroot}%{_sysconfdir}/systemd/system/centreon-gorgone.service
+%{__cp} config/systemd/centreon-gorgone-service %{buildroot}%{_sysconfdir}/systemd/system/centreon-gorgone.service
 %{__install} -d -m 0755 %{buildroot}%{_sysconfdir}/sysconfig
-%{__cp} scripts/systemd/centreon-gorgone-sysconfig %{buildroot}%{_sysconfdir}/sysconfig/centreon-gorgone
+%{__cp} config/systemd/centreon-gorgone-sysconfig %{buildroot}%{_sysconfdir}/sysconfig/centreon-gorgone
+%{__install} -d -m 0755 %{buildroot}%{_sysconfdir}/logrotate.d
+%{__cp} config/logrotate/gorgoned %{buildroot}%{_sysconfdir}/logrotate.d/gorgoned
 
 %{__cp} -R gorgone/* %{buildroot}/%{perl_vendorlib}/gorgone/
 %{__cp} gorgoned %{buildroot}%{_bindir}/
@@ -65,6 +67,7 @@ rm -rf %{buildroot}
 %attr(755,root,root) %{_usr}/local/bin/gorgone_config_init.pl
 %attr(755,root,root) %{_sysconfdir}/systemd/system/centreon-gorgone.service
 %config(noreplace) %{_sysconfdir}/sysconfig/centreon-gorgone
+%config(noreplace) %{_sysconfdir}/logrotate.d/gorgoned
 
 %post
 %systemd_post centreon-gorgone.service || :
