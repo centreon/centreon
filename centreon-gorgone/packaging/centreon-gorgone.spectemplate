@@ -43,6 +43,7 @@ mkdir -p %{buildroot}/%{perl_vendorlib}/gorgone
 %{__install} -d -m 0755 %{buildroot}%{_bindir}
 %{__install} -d -m 0755 %{buildroot}%{_usr}/local/bin/
 %{__install} -d -m 0755 %{buildroot}%{_sysconfdir}/systemd/system/
+%{__install} -d -m 0775 %buildroot%{_localstatedir}/log/centreon
 %{__cp} config/systemd/centreon-gorgone-service %{buildroot}%{_sysconfdir}/systemd/system/centreon-gorgone.service
 %{__install} -d -m 0755 %{buildroot}%{_sysconfdir}/sysconfig
 %{__cp} config/systemd/centreon-gorgone-sysconfig %{buildroot}%{_sysconfdir}/sysconfig/centreon-gorgone
