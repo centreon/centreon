@@ -31,6 +31,7 @@ import './Switcher';
 import './Tabs';
 import './Table';
 import './TableCounter';
+import './TextField';
 import './Title';
 import './Tooltip';
 import './TopFilters';

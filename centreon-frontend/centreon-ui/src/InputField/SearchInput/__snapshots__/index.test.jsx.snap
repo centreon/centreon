@@ -2,7 +2,7 @@
 
 exports[`SearchInput renders correctly 1`] = `
 <div
-  class="MuiInputBase-root MuiInput-root makeStyles-root-1 MuiInput-underline makeStyles-underline-3 MuiInputBase-adornedStart MuiInputBase-marginDense"
+  class="MuiInputBase-root MuiInput-root makeStyles-root-1 MuiInput-underline makeStyles-underline-3 MuiInputBase-adornedStart MuiInputBase-marginDense MuiInput-marginDense"
 >
   <div
     class="MuiInputAdornment-root MuiInputAdornment-positionStart"

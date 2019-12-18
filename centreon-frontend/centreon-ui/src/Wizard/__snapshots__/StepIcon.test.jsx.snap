@@ -2,10 +2,10 @@
 
 exports[`StepIcon renders active step correctly 1`] = `
 <div
-  class="makeStyles-root-21"
+  class="makeStyles-root-22"
 >
   <div
-    class="MuiAvatar-root MuiAvatar-circle makeStyles-avatar-22 makeStyles-avatarActive-23 MuiAvatar-colorDefault"
+    class="MuiAvatar-root MuiAvatar-circle makeStyles-avatar-23 makeStyles-avatarActive-24 MuiAvatar-colorDefault"
   >
     1
   </div>
@@ -36,10 +36,10 @@ exports[`StepIcon renders completed step correctly 1`] = `
 
 exports[`StepIcon renders pending step correctly 1`] = `
 <div
-  class="makeStyles-root-32"
+  class="makeStyles-root-34"
 >
   <div
-    class="MuiAvatar-root MuiAvatar-circle makeStyles-avatar-33 MuiAvatar-colorDefault"
+    class="MuiAvatar-root MuiAvatar-circle makeStyles-avatar-35 MuiAvatar-colorDefault"
   >
     2
   </div>

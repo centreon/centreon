@@ -1,0 +1,30 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`TextField renders correctly 1`] = `
+<div
+  class="MuiFormControl-root MuiTextField-root"
+>
+  <label
+    class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink"
+    data-shrink="true"
+  >
+    label
+  </label>
+  <div
+    class="MuiInputBase-root MuiInput-root makeStyles-root-1 MuiInput-underline MuiInputBase-formControl MuiInput-formControl"
+  >
+    <input
+      aria-invalid="false"
+      class="MuiInputBase-input MuiInput-input makeStyles-input-2"
+      placeholder="placeholder"
+      type="text"
+      value=""
+    />
+  </div>
+  <p
+    class="MuiFormHelperText-root makeStyles-inputHelperText-3"
+  >
+    helper text
+  </p>
+</div>
+`;
