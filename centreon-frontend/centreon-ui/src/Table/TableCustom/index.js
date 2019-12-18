@@ -74,8 +74,6 @@ function cumulativeOffset(element) {
 
 class TableCustom extends Component {
   state = {
-    order: '',
-    orderBy: '',
     tableTopOffset: 0,
   };
 
@@ -97,22 +95,14 @@ class TableCustom extends Component {
     return !!selectedRows.find((includedRow) => deepEqual(includedRow, row));
   };
 
-  handleRequestSort = (event, property) => {
-    const { onSort } = this.props;
-    const { orderBy, order } = this.state;
-    const isDesc = orderBy === property && order === 'desc';
-    this.setState(
-      {
-        order: isDesc ? 'asc' : 'desc',
-        orderBy: property,
-      },
-      () => {
-        onSort({
-          order: isDesc ? 'asc' : 'desc',
-          orderBy: property,
-        });
-      },
-    );
+  handleRequestSort = (_, property) => {
+    const { onSort, sorto, sortf } = this.props;
+    const isDesc = sortf === property && sorto === 'desc';
+
+    onSort({
+      order: isDesc ? 'asc' : 'desc',
+      orderBy: property,
+    });
   };
 
   selectAllRows = (event) => {
@@ -185,7 +175,14 @@ class TableCustom extends Component {
       paginated = true,
       loading,
     } = this.props;
-    const { order, orderBy, hovered } = this.state;
+    const { hovered } = this.state;
+    const {
+      sorto,
+      sortf,
+      labelEnableDisable,
+      labelDuplicate,
+      labelDelete,
+    } = this.props;
 
     const isSelected = (row) => {
       return this.selectedRowsInclude(row);
@@ -241,9 +238,9 @@ class TableCustom extends Component {
             >
               <EnhancedTableHead
                 numSelected={selectedRows.length}
-                order={order}
+                order={sorto}
                 checkable={checkable}
-                orderBy={orderBy}
+                orderBy={sortf}
                 onSelectAllClick={this.selectAllRows}
                 onRequestSort={this.handleRequestSort}
                 rowCount={limit - emptyRows}
@@ -286,6 +283,9 @@ class TableCustom extends Component {
                         >
                           <StyledCheckbox
                             checked={isRowSelected}
+                            inputProps={{
+                              'aria-label': `Select row ${row.id}`,
+                            }}
                             color="primary"
                           />
                         </BodyTableCell>
@@ -372,7 +372,7 @@ class TableCustom extends Component {
                               <BodyTableCell align="left">
                                 {row[column.id] ? (
                                   <Tooltip
-                                    label="Enable/Disable"
+                                    label={labelEnableDisable}
                                     onClick={(e) => {
                                       e.preventDefault();
                                       e.stopPropagation();
@@ -397,7 +397,7 @@ class TableCustom extends Component {
                                   </Tooltip>
                                 ) : (
                                   <Tooltip
-                                    label="Enable/Disable"
+                                    label={labelEnableDisable}
                                     onClick={(e) => {
                                       e.preventDefault();
                                       e.stopPropagation();
@@ -506,7 +506,7 @@ class TableCustom extends Component {
                                   >
                                     <Box>
                                       <Tooltip
-                                        label="Delete"
+                                        label={labelDelete}
                                         onClick={() => {
                                           onDelete([row]);
                                         }}
@@ -526,7 +526,7 @@ class TableCustom extends Component {
                                     </Box>
                                     <Box>
                                       <Tooltip
-                                        label="Duplicate"
+                                        label={labelDuplicate}
                                         onClick={() => {
                                           onDuplicate([row]);
                                         }}
@@ -608,6 +608,13 @@ TableCustom.defaultProps = {
   paginated: true,
   impacts: [],
   selectedRows: [],
+  sorto: undefined,
+  sortf: undefined,
+  onEnable: () => undefined,
+  onDisable: () => undefined,
+  labelEnableDisable: 'Enable / Disable',
+  labelDelete: 'Delete',
+  labelDuplicate: 'Duplicate',
 };
 
 const anyObject = PropTypes.objectOf(
@@ -627,14 +634,16 @@ TableCustom.propTypes = {
   onPaginate: PropTypes.func.isRequired,
   onDuplicate: PropTypes.func.isRequired,
   onPaginationLimitChanged: PropTypes.func.isRequired,
+  sorto: PropTypes.string,
+  sortf: PropTypes.string,
   labelDisplayedRows: PropTypes.func,
   labelRowsPerPage: PropTypes.string,
   limit: PropTypes.number.isRequired,
   checkable: PropTypes.bool.isRequired,
   currentPage: PropTypes.number.isRequired,
   totalRows: PropTypes.number.isRequired,
-  onEnable: PropTypes.func.isRequired,
-  onDisable: PropTypes.func.isRequired,
+  onEnable: PropTypes.func,
+  onDisable: PropTypes.func,
   onRowClick: PropTypes.func,
   selectedRows: anyArray,
   enabledColumn: PropTypes.string,
@@ -644,6 +653,9 @@ TableCustom.propTypes = {
   loading: PropTypes.bool,
   paginated: PropTypes.bool,
   impacts: anyArray,
+  labelEnableDisable: PropTypes.string,
+  labelDelete: PropTypes.string,
+  labelDuplicate: PropTypes.string,
 };
 
 export default withStyles(styles, { withTheme: true })(TableCustom);

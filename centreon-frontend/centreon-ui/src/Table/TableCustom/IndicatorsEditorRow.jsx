@@ -54,7 +54,7 @@ class IndicatorsEditorRow extends Component {
   };
 
   render() {
-    const { impacts, selected } = this.props;
+    const { row, impacts, selected } = this.props;
     const { type, unknown, warning, critical } = this.state;
 
     return !selected ? null : (
@@ -88,7 +88,7 @@ class IndicatorsEditorRow extends Component {
                 padding: '3px 4px',
               }}
             >
-              {type !== 'B' ? (
+              {row.type !== 'B' ? (
                 <InputFieldSelectTableCell
                   options={impacts}
                   value={warning}
@@ -126,7 +126,7 @@ class IndicatorsEditorRow extends Component {
                 padding: '3px 4px',
               }}
             >
-              {type !== 'B' ? (
+              {row.type !== 'B' ? (
                 <InputFieldSelectTableCell
                   options={impacts}
                   value={unknown}
@@ -151,6 +151,7 @@ class IndicatorsEditorRow extends Component {
             >
               <InputFieldTableCell
                 value={warning}
+                ariaLabel="Warning value"
                 inputSize="extrasmall"
                 disabled={!selected}
                 onChange={(event) => {
@@ -166,6 +167,7 @@ class IndicatorsEditorRow extends Component {
             >
               <InputFieldTableCell
                 value={critical}
+                ariaLabel="Critical value"
                 inputSize="extrasmall"
                 disabled={!selected}
                 onChange={(event) => {
@@ -181,6 +183,7 @@ class IndicatorsEditorRow extends Component {
             >
               <InputFieldTableCell
                 value={unknown}
+                ariaLabel="Unknown value"
                 inputSize="extrasmall"
                 disabled={!selected}
                 onChange={(event) => {

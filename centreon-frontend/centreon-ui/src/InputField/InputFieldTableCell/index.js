@@ -17,6 +17,7 @@ const InputField = ({
   iconName,
   iconColor,
   noMargin,
+  ariaLabel,
   reference = () => {},
   ...rest
 }) => {
@@ -48,6 +49,7 @@ const InputField = ({
         min="0"
         max="100"
         placeholder={placeholder}
+        aria-label={ariaLabel}
         className={classnames(styles['form-control'])}
         ref={reference}
         {...rest}

@@ -38,6 +38,7 @@ function MassiveChangeThresholds({
         value={warning}
         inputProps={{ min: 0, max: 100 }}
         margin="dense"
+        placeholder="0-100%"
         fullWidth
         autoFocus
       />
@@ -48,6 +49,7 @@ function MassiveChangeThresholds({
         value={critical}
         inputProps={{ min: 0, max: 100 }}
         margin="dense"
+        placeholder="0-100%"
         fullWidth
       />
     </Dialog>

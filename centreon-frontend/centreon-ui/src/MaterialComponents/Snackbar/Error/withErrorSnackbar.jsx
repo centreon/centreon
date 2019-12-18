@@ -16,10 +16,29 @@ const withErrorSnackbar = (Component) => {
       setErrorMessage(message);
     };
 
+    const showErrors = (errors) => {
+      const errorKeys = Object.keys(errors);
+
+      const formattedErrors = errorKeys.reduce(
+        (acc, current) => [...acc, `${current}: ${errors[current]}`],
+        [],
+      );
+
+      showError(
+        <div style={{ display: 'block' }}>
+          {formattedErrors.map((err, index) => (
+            <p style={{ margin: 0 }} key={errorKeys[index]}>
+              {err}
+            </p>
+          ))}
+        </div>,
+      );
+    };
+
     const hasError = errorMessage !== undefined;
 
     return (
-      <Context.Provider value={{ showError }}>
+      <Context.Provider value={{ showError, showErrors }}>
         <Component {...props} />
         <ErrorSnackbar
           onClose={confirmError}

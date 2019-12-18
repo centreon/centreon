@@ -41,6 +41,7 @@ const EnhancedTableHead = ({
         {checkable ? (
           <HeaderCell align="left" padding="checkbox">
             <StyledCheckbox
+              inputProps={{ 'aria-label': 'Select all' }}
               indeterminate={numSelected > 0 && numSelected < rowCount}
               checked={numSelected === rowCount}
               onChange={onSelectAllClick}

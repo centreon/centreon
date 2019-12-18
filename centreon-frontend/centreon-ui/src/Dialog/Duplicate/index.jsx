@@ -22,7 +22,7 @@ function Duplicate({ labelInput, onConfirm, ...rest }) {
         label={labelInput}
         onChange={handleChange}
         value={value}
-        inputProps={{ min: 1 }}
+        inputProps={{ min: 1, 'aria-label': 'Duplications' }}
         margin="dense"
         fullWidth
         autoFocus

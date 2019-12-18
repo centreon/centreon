@@ -7,21 +7,21 @@ import RightPanel from '.';
 describe(RightPanel, () => {
   it('displays given Header and sections', async () => {
     const Header = <>Header</>;
-    const sections = [
+    const Sections = [
       {
         id: 0,
         expandable: false,
-        component: <>Non Expandable Section</>,
+        Section: <>Non Expandable Section</>,
       },
       {
         id: 1,
         expandable: true,
         title: 'Expand me',
-        component: <>Expandable Section</>,
+        Section: <>Expandable Section</>,
       },
     ];
     const { getByText } = render(
-      <RightPanel headerComponent={Header} sections={sections} active />,
+      <RightPanel Header={Header} Sections={Sections} active />,
     );
 
     expect(getByText('Header')).toBeInTheDocument();
@@ -35,8 +35,8 @@ describe(RightPanel, () => {
 
     const { baseElement, getByText, queryByText } = render(
       <RightPanel
-        headerComponent={<>Header</>}
-        sections={[]}
+        Header={<>Header</>}
+        Sections={[]}
         active
         secondaryPanelComponent={secondaryPanelComponent}
       />,

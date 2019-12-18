@@ -29,18 +29,7 @@ class InputFieldSelectCustom extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    const { value, options, onChange = () => {} } = nextProps;
-
-    if (options.length === 0) {
-      return;
-    }
-
-    const optionIds = options.map(({ id }) => id);
-
-    if (value && !optionIds.includes(value.id)) {
-      onChange(null);
-      return;
-    }
+    const { value } = nextProps;
 
     this.setState({
       selected: value,
@@ -115,7 +104,14 @@ class InputFieldSelectCustom extends Component {
 
   render() {
     const { active, selected, filteredOptions } = this.state;
-    const { size, error, icons, domainPath, customStyle } = this.props;
+    const {
+      ariaLabel,
+      size,
+      error,
+      icons,
+      domainPath,
+      customStyle,
+    } = this.props;
     return (
       <div
         className={classnames(
@@ -140,6 +136,7 @@ class InputFieldSelectCustom extends Component {
             <span
               className={classnames(styles['input-select-field'])}
               onClick={this.toggleSelect.bind(this)}
+              aria-label={ariaLabel}
             >
               {selected ? selected.name : ''}
             </span>

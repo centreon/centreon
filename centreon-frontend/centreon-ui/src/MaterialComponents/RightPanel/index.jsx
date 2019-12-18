@@ -18,7 +18,7 @@ const outAnimationDurationMs = 50;
 // TODO this should be dynamic
 const topHeight = 52;
 
-const Header = styled(Box)({
+const HeaderContainer = styled(Box)({
   paddingLeft: 20,
   boxShadow: '0px 3px 4px 0px rgba(0,0,0,0.15)',
   WebkitBoxShadow: '0px 3px 4px 0px rgba(0,0,0,0.15)',
@@ -26,7 +26,7 @@ const Header = styled(Box)({
   height: 49,
 });
 
-const Container = styled('div')({
+const BodyContainer = styled('div')({
   top: topHeight,
   right: 0,
   bottom: 30,
@@ -78,10 +78,10 @@ const CloseSecondaryPanelIcon = styled(ArrowForwardIos)({
 
 const RightPanel = ({
   active,
-  headerComponent,
+  Header,
   secondaryPanelComponent,
   onSecondaryPanelClose,
-  sections,
+  Sections,
   onClose,
   onOpen,
   loading,
@@ -123,27 +123,27 @@ const RightPanel = ({
         exit: outAnimationDurationMs,
       }}
     >
-      <Container>
+      <BodyContainer>
         {loading && <Loader fullContent />}
-        <Header display="flex" flexDirection="row">
-          <Box flexGrow={1}>{headerComponent}</Box>
+        <HeaderContainer display="flex" flexDirection="row">
+          <Box flexGrow={1}>{Header}</Box>
           <Box>
             <IconClose
               onClick={close}
               style={{ width: 39, height: 39, padding: 5 }}
             />
           </Box>
-        </Header>
+        </HeaderContainer>
         <Body display="flex" flexDirection="row" flexGrow={1}>
           <MainPanel flexGrow={1}>
             <List>
-              {sections.map(({ id, title, component, expandable }) =>
+              {Sections.map(({ id, title, Section, expandable }) =>
                 expandable ? (
                   <ExpandableSection key={id} title={title}>
-                    {component}
+                    {Section}
                   </ExpandableSection>
                 ) : (
-                  <ListItem key={id}>{component}</ListItem>
+                  <ListItem key={id}>{Section}</ListItem>
                 ),
               )}
             </List>
@@ -161,7 +161,7 @@ const RightPanel = ({
             {secondaryPanelComponent}
           </div>
         </Body>
-      </Container>
+      </BodyContainer>
     </Slide>
   );
 };
@@ -177,9 +177,9 @@ RightPanel.defaultProps = {
 RightPanel.propTypes = {
   active: PropTypes.bool.isRequired,
   loading: PropTypes.bool,
-  headerComponent: PropTypes.node.isRequired,
+  Header: PropTypes.node.isRequired,
   secondaryPanelComponent: PropTypes.node,
-  sections: PropTypes.arrayOf(PropTypes.shape).isRequired,
+  Sections: PropTypes.arrayOf(PropTypes.shape).isRequired,
   onClose: PropTypes.func,
   onOpen: PropTypes.func,
   onSecondaryPanelClose: PropTypes.func,

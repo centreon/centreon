@@ -10,6 +10,7 @@
     width: 100%;
     box-sizing: border-box;
     cursor: pointer;
+    pointer-events: none;
     &:focus {
       outline: none;
     }
