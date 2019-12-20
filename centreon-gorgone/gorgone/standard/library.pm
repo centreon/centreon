@@ -200,6 +200,7 @@ sub zmq_core_response {
             -literal_key => 1
         );
         $msg = $cipher->encrypt($msg);
+        $msg = unpack('H*', $msg);
     }
     zmq_sendmsg($options{socket}, $msg, ZMQ_NOBLOCK);
 }
@@ -217,7 +218,8 @@ sub uncrypt_message {
         -literal_key => 1
     );
     eval {
-        $plaintext = $cipher->decrypt($options{message});
+        my $cryptedmessage = pack('H*', $options{message});
+        $plaintext = $cipher->decrypt($cryptedmessage);
     };
     if ($@) {
         if (defined($options{logger})) {
@@ -745,6 +747,7 @@ sub zmq_send_message {
             -literal_key => 1
         );
         $message = $cipher->encrypt($message);
+        $message = unpack('H*', $message);
     }
     zmq_sendmsg($options{socket}, $message, ZMQ_NOBLOCK);
 }
