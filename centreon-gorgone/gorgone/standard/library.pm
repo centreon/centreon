@@ -171,7 +171,9 @@ sub zmq_core_key_response {
         $options{logger}->writeLogError("Encoding issue: " .  $@);
         return -1;
     }
-    zmq_sendmsg($options{socket}, $crypttext, ZMQ_NOBLOCK);
+
+    
+    zmq_sendmsg($options{socket}, unpack('H*', $crypttext), ZMQ_NOBLOCK);
     return 0;
 }
 
@@ -246,14 +248,14 @@ sub client_get_secret {
     my $plaintext;
 
     eval {
-        $plaintext = $options{privkey}->decrypt($options{message}, 'v1.5');
+        my $cryptedtext = pack('H*', $options{message});
+        $plaintext = $options{privkey}->decrypt($cryptedtext, 'v1.5');
     };
     if ($@) {
         return (-1, "Decoding issue: $@");
     }
 
     $plaintext = unpack('H*', $plaintext);
-    
     if ($plaintext !~ /^5b(.*?)5d(.*?)5b(.*?)5d(.*?)5b(.*)5d$/i) {
         return (-1, 'Wrong protocol');
     }
