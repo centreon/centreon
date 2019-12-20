@@ -19,10 +19,10 @@ Third-party clients have to use the ZeroMQ library and the following process:
 3. Server -> Client: send back the pubkey
 
     ```text
-    [PUBKEY] [xxxxx]
+    [PUBKEY] [hex encoding pubkey]
     ```
 
-4. Client -> Server: send the following message with HELO crypted with the public key of the server and provides client pubkey:
+4. Client -> Server: send the following message with HELO crypted with the public key of the server (and hex encoding) and provides client pubkey:
 
     ```text
     [HOSTNAME] [CLIENTPUBKEY] [HELO]
@@ -42,8 +42,8 @@ Third-party clients have to use the ZeroMQ library and the following process:
     [KEY] [HOSTNAME] [symmetric key]
     ```
 
-4. Client: uncrypts the Server message with its private key.
-5. Client and Server uses the symmetric key to dialog.
+4. Client: uncrypts the server message with its private key.
+5. Client and Server uses the symmetric key+hex encoding to dialog.
 
 The server keeps sessions for 24 hours since the last message of the client.
 
