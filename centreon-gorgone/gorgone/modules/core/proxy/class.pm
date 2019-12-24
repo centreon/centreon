@@ -186,6 +186,34 @@ sub action_proxyaddnode {
     my ($code, $data) = $self->json_decode(argument => $options{data});
     return if ($code == 1);
 
+    if (defined($self->{clients}->{$data->{id}}->{class})) {
+        # test if a connection parameter changed
+        my $changed = 0;
+        foreach (keys %$data) {
+            if (ref($data->{$_}) eq 'SCALAR' && $data->{$_} ne $self->{clients}->{$_}) {
+                $changed = 1;
+                last;
+            }
+        }
+
+        if ($changed == 0) {
+            $self->{logger}->writeLogInfo("[proxy] -class- session not changed $data->{id}");
+            return ;
+        }
+
+        $self->{logger}->writeLogInfo("[proxy] -class- recreate session for $data->{id}");
+        # we send a pong reset. because the ping can be lost
+        $connector->send_internal_action(
+            action => 'PONGRESET',
+            data => '{ "id": ' . $data->{id} . '}',
+            data_noencode => 1,
+            token => $self->generate_token(),
+            target => ''
+        );
+
+        $self->{clients}->{$data->{id}}->{class}->close();
+    }
+
     $self->{clients}->{$data->{id}} = $data;
     $self->{clients}->{$data->{id}}->{delete} = 0;
     $self->{clients}->{$data->{id}}->{class} = undef;
