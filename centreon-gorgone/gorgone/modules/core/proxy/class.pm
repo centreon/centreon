@@ -203,7 +203,7 @@ sub action_proxyaddnode {
 
         $self->{logger}->writeLogInfo("[proxy] -class- recreate session for $data->{id}");
         # we send a pong reset. because the ping can be lost
-        $connector->send_internal_action(
+        $self->send_internal_action(
             action => 'PONGRESET',
             data => '{ "id": ' . $data->{id} . '}',
             data_noencode => 1,
@@ -227,6 +227,17 @@ sub action_proxydelnode {
 
     if (defined($self->{clients}->{$data->{id}})) {
         $self->{clients}->{$data->{id}}->{delete} = 1;
+    }
+}
+
+sub close_connections {
+    my ($self, %options) = @_;
+
+    foreach (keys %{$self->{clients}}) {
+        if (defined($self->{clients}->{$_}->{class})) {
+            $self->{logger}->writeLogInfo("[proxy] -class- close connection for $_");
+            $self->{clients}->{$_}->{class}->close();
+        }
     }
 }
 
@@ -354,7 +365,7 @@ sub run {
         type => $self->{config_core}->{internal_com_type},
         path => $self->{config_core}->{internal_com_path}
     );
-    $connector->send_internal_action(
+    $self->send_internal_action(
         action => 'PROXYREADY',
         data => {
             pool_id => $self->{pool_id}
@@ -369,7 +380,7 @@ sub run {
         my $polls = [$poll];
         foreach (keys %{$self->{clients}}) {
             if (defined($self->{clients}->{$_}->{delete}) && $self->{clients}->{$_}->{delete} == 1) {
-                $connector->send_internal_action(
+                $self->send_internal_action(
                     action => 'PONGRESET',
                     data => '{ "id": ' . $_ . '}',
                     data_noencode => 1,
@@ -395,6 +406,7 @@ sub run {
         
         if ($rev == 0 && $self->{stop} == 1) {
             $self->{logger}->writeLogInfo("[proxy] -class- $$ has quit");
+            $self->close_connections();
             zmq_close($connector->{internal_socket});
             exit(0);
         }
