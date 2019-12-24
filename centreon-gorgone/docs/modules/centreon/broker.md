@@ -25,6 +25,7 @@ cron:
     action: BROKERSTATS
     parameters:
       timeout: 10
+      collect_localhost: false
 ```
 
 ## Events

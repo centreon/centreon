@@ -132,6 +132,11 @@ sub action_brokerstats {
     if (defined($options{data}->{variables}[0]) && $options{data}->{variables}[0] =~ /\d+/) {
         $request .= " AND id = '" . $options{data}->{variables}[0] . "'";
     }
+    
+    if (!defined($options{data}->{content}->{collect_localhost}) ||
+        $options{data}->{content}->{collect_localhost} eq 'false') {
+        $request .= " AND localhost = '0'";
+    }
 
     my ($status, $datas) = $self->{class_object_centreon}->custom_execute(request => $request, mode => 2);
     if ($status == -1) {
@@ -160,7 +165,7 @@ sub action_brokerstats {
             data => {
                 content => {
                     command => 'cat ' . $statistics_file,
-                    timeout => 10,
+                    timeout => $options{data}->{content}->{timeout},
                     metadata => {
                         poller_id => $target,
                         config_name => $_->[2],
