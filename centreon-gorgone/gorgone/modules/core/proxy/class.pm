@@ -369,15 +369,13 @@ sub run {
         my $polls = [$poll];
         foreach (keys %{$self->{clients}}) {
             if (defined($self->{clients}->{$_}->{delete}) && $self->{clients}->{$_}->{delete} == 1) {
-                if ($self->{clients}->{$_}->{type} eq 'push_zmq') {
-                    $connector->send_internal_action(
-                        action => 'PONGRESET',
-                        data => '{ "id": ' . $_ . '}',
-                        data_noencode => 1,
-                        token => $self->generate_token(),
-                        target => ''
-                    );
-                }
+                $connector->send_internal_action(
+                    action => 'PONGRESET',
+                    data => '{ "id": ' . $_ . '}',
+                    data_noencode => 1,
+                    token => $self->generate_token(),
+                    target => ''
+                );
                 $self->{clients}->{$_}->{class}->close();
                 $self->{clients}->{$_}->{class} = undef;
                 $self->{clients}->{$_}->{delete} = 0;
