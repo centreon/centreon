@@ -62,7 +62,7 @@ sub register {
 sub init {
     my (%options) = @_;
 
-    create_child(logger => $options{logger}, modules_events => $options{modules_events});
+    create_child(logger => $options{logger}, api_endpoints => $options{api_endpoints});
 }
 
 sub routing {
@@ -144,7 +144,7 @@ sub check {
         $httpserver = {};
         delete $options{dead_childs}->{$pid};
         if ($stop == 0) {
-            create_child(logger => $options{logger}, modules_events => $options{modules_events});
+            create_child(logger => $options{logger}, api_endpoints => $options{api_endpoints});
         }
     }
 
@@ -165,7 +165,7 @@ sub create_child {
             logger => $options{logger},
             config_core => $config_core,
             config => $config,
-            modules_events => $options{modules_events}
+            api_endpoints => $options{api_endpoints}
         );
         $module->run();
         exit(0);

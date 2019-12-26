@@ -57,6 +57,7 @@ sub new {
     $self->{modules_register} = {};
     $self->{modules_events} = {};
     $self->{modules_id} = {};
+    $self->{api_endpoints} = {};
     $self->{purge_timer} = time();
     $self->{history_timer} = time();
     $self->{kill_timer} = undef;
@@ -328,12 +329,9 @@ sub load_module {
                 namespace => $namespace,
                 name => $name,
                 package => $package
-            },
-            api => {
-                uri => $event->{uri},
-                method => $event->{method}
             }
         };
+        $self->{api_endpoints}->{$event->{method} . '_/' . $namespace . '/' . $name . $event->{uri}} = $event->{event} if defined($event->{uri});
     }
 
     $self->{logger}->writeLogInfo("[core] Module '" . $options{config_module}->{name} . "' is loaded");
@@ -740,7 +738,7 @@ sub run {
             external_socket => $gorgone->{external_socket},
             internal_socket => $gorgone->{internal_socket},
             dbh => $gorgone->{db_gorgone},
-            modules_events => $gorgone->{modules_events},
+            api_endpoints => $gorgone->{api_endpoints}
         );
     }
     
@@ -759,7 +757,7 @@ sub run {
                     internal_socket => $gorgone->{internal_socket},
                     dbh => $gorgone->{db_gorgone},
                     poll => $poll,
-                    modules_events => $gorgone->{modules_events},
+                    api_endpoints => $gorgone->{api_endpoints},
                 );
                 $cb_timer_check = time();
                 $count += $count_module;
