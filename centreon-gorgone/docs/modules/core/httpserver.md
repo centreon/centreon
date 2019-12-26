@@ -54,24 +54,3 @@ dispatch:
 | Event | Description |
 | :- | :- |
 | HTTPSERVERREADY | Internal event to notify the core |
-
-## API
-
-### Get HTTP server status
-
-| Endpoint | Method |
-| :- | :- |
-| /status | `GET` |
-
-#### Headers
-
-| Header | Value |
-| :- | :- |
-| Accept | application/json |
-
-#### Example
-
-```bash
-curl --request GET "https://hostname:8443/status" \
-  --header "Accept: application/json"
-```
