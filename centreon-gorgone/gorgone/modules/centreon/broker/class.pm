@@ -163,14 +163,16 @@ sub action_brokerstats {
             action => 'COMMAND',
             token => $options{token},
             data => {
-                content => {
-                    command => 'cat ' . $statistics_file,
-                    timeout => $options{data}->{content}->{timeout},
-                    metadata => {
-                        poller_id => $target,
-                        config_name => $_->[2],
+                content => [ 
+                    {
+                        command => 'cat ' . $statistics_file,
+                        timeout => $options{data}->{content}->{timeout},
+                        metadata => {
+                            poller_id => $target,
+                            config_name => $_->[2],
+                        }
                     }
-                }
+                ]
             }
         );
         $targets{$target} = 1;
@@ -214,7 +216,7 @@ sub write_stats {
 
     foreach my $entry (@{$options{data}->{data}->{result}}) {
         my $data = JSON::XS->new->utf8->decode($entry->{data});
-        next if (!defined($data->{exit_code}) || $data->{exit_code} != 0 ||
+        next if (!defined($data->{result}->{exit_code}) || $data->{result}->{exit_code} != 0 ||
             !defined($data->{metadata}->{poller_id}) || !defined($data->{metadata}->{config_name}));
 
         my $dest_dir = $self->{config}->{cache_dir} . '/' . $data->{metadata}->{poller_id};
@@ -222,7 +224,7 @@ sub write_stats {
         my $dest_file = $dest_dir . '/' . $data->{metadata}->{config_name} . '.json';
         $self->{logger}->writeLogDebug("[broker] -class- Writing file '" . $dest_file . "'");
         open(FH, '>', $dest_file);
-        print FH $data->{stdout};
+        print FH $data->{result}->{stdout};
         close(FH);
     }
 }

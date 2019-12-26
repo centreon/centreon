@@ -99,14 +99,16 @@ sub action_adddiscoverytask {
         target => $options{data}->{content}->{target},
         token => $id,
         data => {
-            content => {
-                %{$options{data}->{content}},
-                metadata => {
-                    id => $id,
-                    source => 'autodiscovery',
-                    type => 'task',
-                },
-            }
+            content => [
+                {
+                    %{$options{data}->{content}},
+                    metadata => {
+                        id => $id,
+                        source => 'autodiscovery',
+                        type => 'task',
+                    },
+                }
+            ]
         }
     );
 
@@ -165,13 +167,15 @@ sub action_adddiscoveryjob {
         timespec => $options{data}->{content}->{timespec},
         action => 'COMMAND',
         parameters => {
-            command => $options{data}->{content}->{command},
-            timeout => $options{data}->{content}->{timeout},
-            metadata => {
-                id => $id,
-                source => 'autodiscovery',
-                type => 'job',
-            }
+            [
+                command => $options{data}->{content}->{command},
+                timeout => $options{data}->{content}->{timeout},
+                metadata => {
+                    id => $id,
+                    source => 'autodiscovery',
+                    type => 'job',
+                }
+            ]
         },
         keep_token => 1,
     };

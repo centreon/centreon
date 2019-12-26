@@ -91,69 +91,99 @@ sub class_handle_HUP {
 sub action_command {
     my ($self, %options) = @_;
     
-    if (!defined($options{data}->{content}->{command}) || $options{data}->{content}->{command} eq '') {
+    if (!defined($options{data}->{content}) || ref($options{data}->{content}) ne 'ARRAY') {
         $self->send_log(
             socket => $options{socket_log},
             code => $self->ACTION_FINISH_KO,
             token => $options{token},
             data => {
-                message => 'need command argument',
-                metadata => $options{data}->{content}->{metadata}
+                message => "expected array, found '" . ref($options{data}->{content}) . "'",
             }
         );
         return -1;
     }
-    
-    $self->send_log(
-        socket => $options{socket_log},
-        code => $self->ACTION_BEGIN,
-        token => $options{token},
-        data => {
-            message => "command '$options{data}->{content}->{command}' has started",
-            metadata => $options{data}->{content}->{metadata}
+
+    my $index = 0;
+    foreach my $command (@{$options{data}->{content}}) {
+        if (!defined($command->{command}) || $command->{command} eq '') {
+            $self->send_log(
+                socket => $options{socket_log},
+                code => $self->ACTION_FINISH_KO,
+                token => $options{token},
+                data => {
+                    message => "need command argument at array index '" . $index . "'",
+                }
+            );
+            return -1;
         }
-    );
-    
-    my $start = time();
-    my ($error, $stdout, $return_code) = gorgone::standard::misc::backtick(
-        command => $options{data}->{content}->{command},
-        #arguments => [@$args, $sub_cmd],
-        timeout => (defined($options{data}->{content}->{timeout})) ?
-            $options{data}->{content}->{timeout} : $self->{command_timeout},
-        wait_exit => 1,
-        redirect_stderr => 1,
-        logger => $self->{logger}
-    );
-    my $end = time();
-    if ($error <= -1000) {
+        $index++;
+    }
+
+    foreach my $command (@{$options{data}->{content}}) {
         $self->send_log(
             socket => $options{socket_log},
-            code => $self->ACTION_FINISH_KO,
+            code => $self->ACTION_BEGIN,
             token => $options{token},
             data => {
-                message => "command '$options{data}->{content}->{command}' execution issue: $stdout",
-                exit_code => $return_code,
-                metadata => $options{data}->{content}->{metadata},
-                start => $start,
-                end => $end
+                message => "command has started",
+                command => $command->{command},
+                metadata => $command->{metadata}
             }
         );
-        return -1;
-    }
-    
-    $self->send_log(
-        socket => $options{socket_log},
-        code => $self->ACTION_FINISH_OK,
-        token => $options{token},
-        data => {
-            message => "command '$options{data}->{content}->{command}' has finished",
-            stdout => $stdout,
-            exit_code => $return_code,
-            metadata => $options{data}->{content}->{metadata},
-            start => $start,
-            end => $end
+        
+        my $start = time();
+        my ($error, $stdout, $return_code) = gorgone::standard::misc::backtick(
+            command => $command->{command},
+            timeout => (defined($command->{timeout})) ? $command->{timeout} : $self->{command_timeout},
+            wait_exit => 1,
+            redirect_stderr => 1,
+            logger => $self->{logger}
+        );
+        my $end = time();
+        if ($error <= -1000) {
+            $self->send_log(
+                socket => $options{socket_log},
+                code => $self->ACTION_FINISH_KO,
+                token => $options{token},
+                data => {
+                    message => "command execution issue",
+                    command => $command->{command},
+                    metadata => $command->{metadata},
+                    result => {
+                        exit_code => $return_code,
+                        stdout => $stdout
+                    },
+                    metrics => {
+                        start => $start,
+                        end => $end,
+                        duration => $end - $start
+                    }
+                }
+            );
+        } else {
+            $self->send_log(
+                socket => $options{socket_log},
+                code => $self->ACTION_FINISH_OK,
+                token => $options{token},
+                data => {
+                    message => "command has finished",
+                    command => $command->{command},
+                    metadata => $command->{metadata},
+                    result => {
+                        exit_code => $return_code,
+                        stdout => $stdout
+                    },
+                    metrics => {
+                        start => $start,
+                        end => $end,
+                        duration => $end - $start
+                    }
+                }
+            );
         }
-    );
+
+        return -1 if (defined($command->{continue_on_error}) && $command->{continue_on_error} eq 'false');            
+    }
 
     return 0;
 }

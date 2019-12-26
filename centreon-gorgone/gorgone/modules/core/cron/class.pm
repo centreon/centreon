@@ -422,7 +422,7 @@ sub dispatcher {
         action => $options->{definition}->{action},
         target => $options->{definition}->{target},
         data => {
-            content => { %{$options->{definition}->{parameters}} }
+            content => $options->{definition}->{parameters}
         },
         json_encode => 1
     );

@@ -28,8 +28,8 @@ cron:
     timespec: "* * * * *"
     action: COMMAND
     parameters:
-      command: "date >> /tmp/date.log"
-      timeout: 10
+      - command: "date >> /tmp/date.log"
+        timeout: 10
     keep_token: true
 ```
 

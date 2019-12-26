@@ -48,12 +48,16 @@ command_timeout: 30
 | :- | :- |
 | command | Command to execute |
 | timeout | Time in seconds before a command is considered timed out |
+| continue_on_error | Behaviour in case of execution issue |
 
 ```json
-{
-    "command": "<command to execute>",
-    "timeout": "<timeout in seconds>"
-}
+[
+    {
+        "command": "<command to execute>",
+        "timeout": "<timeout in seconds>",
+        "continue_on_error": "<boolean>"
+    }
+]
 ```
 
 #### Example

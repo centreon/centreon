@@ -248,12 +248,14 @@ sub execute_cmd {
             target => undef,
             token => $self->generate_token(),
             data => {
-                content => {
-                    command => $cmd,
-                    metadata => {
-                        centcore_cmd => 'SENDEXPORTFILE',
+                content => [
+                    {
+                        command => $cmd,
+                        metadata => {
+                            centcore_cmd => 'SENDEXPORTFILE',
+                        }
                     }
-                }
+                ]
             },
         );
     } elsif ($options{cmd} eq 'SYNCTRAP') {
@@ -285,13 +287,15 @@ sub execute_cmd {
             target => $options{target},
             token => $self->generate_token(),
             data => {
-                content => {
-                    command => 'sudo ' . $cmd,
-                    metadata => {
-                        centcore_proxy => 1,
-                        centcore_cmd => 'RESTART',
+                content => [
+                    {
+                        command => 'sudo ' . $cmd,
+                        metadata => {
+                            centcore_proxy => 1,
+                            centcore_cmd => 'RESTART',
+                        }
                     }
-                }
+                ]
             },
         );
     } elsif ($options{cmd} eq 'RELOAD') {
@@ -301,13 +305,15 @@ sub execute_cmd {
             target => $options{target},
             token => $self->generate_token(),
             data => {
-                content => {
-                    command => 'sudo ' . $cmd,
-                    metadata => {
-                        centcore_proxy => 1,
-                        centcore_cmd => 'RELOAD',
+                content => [
+                    {
+                        command => 'sudo ' . $cmd,
+                        metadata => {
+                            centcore_proxy => 1,
+                            centcore_cmd => 'RELOAD',
+                        }
                     }
-                }
+                ]
             },
         );
     } elsif ($options{cmd} eq 'START') {
@@ -317,13 +323,15 @@ sub execute_cmd {
             target => $options{target},
             token => $self->generate_token(),
             data => {
-                content => {
-                    command => 'sudo ' . $cmd,
-                    metadata => {
-                        centcore_proxy => 1,
-                        centcore_cmd => 'START',
+                content => [
+                    {
+                        command => 'sudo ' . $cmd,
+                        metadata => {
+                            centcore_proxy => 1,
+                            centcore_cmd => 'START',
+                        }
                     }
-                }
+                ]
             },
         );
     } elsif ($options{cmd} eq 'STOP') {
@@ -333,13 +341,15 @@ sub execute_cmd {
             target => $options{target},
             token => $self->generate_token(),
             data => {
-                content => {
-                    command => 'sudo ' . $cmd,
-                    metadata => {
-                        centcore_proxy => 1,
-                        centcore_cmd => 'STOP',
+                content => [
+                    {
+                        command => 'sudo ' . $cmd,
+                        metadata => {
+                            centcore_proxy => 1,
+                            centcore_cmd => 'STOP',
+                        }
                     }
-                }
+                ]
             },
         );
     } elsif ($options{cmd} eq 'RESTARTCENTREONTRAPD') {
@@ -349,13 +359,15 @@ sub execute_cmd {
             target => $options{target},
             token => $self->generate_token(),
             data => {
-                content => {
-                    command => 'sudo service ' . $cmd . ' restart',
-                    metadata => {
-                        centcore_proxy => 1,
-                        centcore_cmd => 'RESTARTCENTREONTRAPD',
+                content => [
+                    {
+                        command => 'sudo service ' . $cmd . ' restart',
+                        metadata => {
+                            centcore_proxy => 1,
+                            centcore_cmd => 'RESTARTCENTREONTRAPD',
+                        }
                     }
-                }
+                ]
             },
         );
     } elsif ($options{cmd} eq 'RELOADCENTREONTRAPD') {
@@ -365,13 +377,15 @@ sub execute_cmd {
             target => $options{target},
             token => $self->generate_token(),
             data => {
-                content => {
-                    command => 'sudo service ' . $cmd . ' reload',
-                    metadata => {
-                        centcore_proxy => 1,
-                        centcore_cmd => 'RELOADCENTREONTRAPD',
+                content => [
+                    {
+                        command => 'sudo service ' . $cmd . ' reload',
+                        metadata => {
+                            centcore_proxy => 1,
+                            centcore_cmd => 'RELOADCENTREONTRAPD',
+                        }
                     }
-                }
+                ]
             },
         );
     } elsif ($options{cmd} eq 'STARTWORKER') {
@@ -384,12 +398,14 @@ sub execute_cmd {
             target => undef,
             token => $self->generate_token(),
             data => {
-                content => {
-                    command => $cmd,
-                    metadata => {
-                        centcore_cmd => 'STARTWORKER',
+                content => [
+                    {
+                        command => $cmd,
+                        metadata => {
+                            centcore_cmd => 'STARTWORKER',
+                        }
                     }
-                }
+                ]
             },
         );
     } elsif ($options{cmd} eq 'CREATEREMOTETASK') {
@@ -403,12 +419,14 @@ sub execute_cmd {
             target => undef,
             token => $self->generate_token(),
             data => {
-                content => {
-                    command => $cmd,
-                    metadata => {
-                        centcore_cmd => 'CREATEREMOTETASK',
+                content => [
+                    {
+                        command => $cmd,
+                        metadata => {
+                            centcore_cmd => 'CREATEREMOTETASK',
+                        }
                     }
-                }
+                ]
             },
         );
     }
