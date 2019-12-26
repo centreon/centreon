@@ -166,17 +166,15 @@ sub action_adddiscoveryjob {
         target => $options{data}->{content}->{target},
         timespec => $options{data}->{content}->{timespec},
         action => 'COMMAND',
-        parameters => {
-            [
-                command => $options{data}->{content}->{command},
-                timeout => $options{data}->{content}->{timeout},
-                metadata => {
-                    id => $id,
-                    source => 'autodiscovery',
-                    type => 'job',
-                }
-            ]
-        },
+        parameters =>  [
+            command => $options{data}->{content}->{command},
+            timeout => $options{data}->{content}->{timeout},
+            metadata => {
+                id => $id,
+                source => 'autodiscovery',
+                type => 'job',
+            }
+        ]
         keep_token => 1,
     };
     
