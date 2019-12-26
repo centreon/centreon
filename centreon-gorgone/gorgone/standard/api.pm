@@ -42,15 +42,6 @@ sub root {
 
     $options{logger}->writeLogInfo("[api] Requesting '" . $options{uri} . "' [" . $options{method} . "]");
 
-    my %dispatch;
-    foreach my $action (keys $options{modules_events}) {
-        next if (!defined($options{modules_events}->{$action}->{api}->{uri}));
-        $dispatch{$options{modules_events}->{$action}->{module}->{namespace} . '_' .
-            $options{modules_events}->{$action}->{module}->{name} . '_' .
-            $options{modules_events}->{$action}->{api}->{method} . '_' .
-            $options{modules_events}->{$action}->{api}->{uri}} = $action;
-    }
-
     my $response;
     if ($options{method} eq 'GET' && $options{uri} =~ /^\/api\/(targets\/(\w*)\/)?log\/(.*)$/) {
         $response = get_log(
@@ -68,11 +59,11 @@ sub root {
             refresh => (defined($options{parameters}->{refresh})) ? $options{parameters}->{refresh} : undef
         );
     } elsif ($options{uri} =~ /^\/api\/(targets\/(\w*)\/)?(\w+)\/(\w+)\/(\w+)\/?([\w\/]*?)$/
-        && defined($dispatch{$3 . '_' . $4 . '_' . $options{method} . '_/' . $5})) {
+        && defined($options{api_endpoints}->{$options{method} . '_/' . $3 . '/' . $4 . '/' . $5})) {
         my @variables = split(/\//, $6);
         $response = call_action(
             socket => $options{socket},
-            action => $dispatch{$3 . '_' . $4 . '_' . $options{method} . '_/' . $5},
+            action => $options{api_endpoints}->{$options{method} . '_/' . $3 . '/' . $4 . '/' . $5},
             target => $2,
             data => { 
                 content => $options{content},

@@ -26,6 +26,7 @@ use strict;
 use warnings;
 use gorgone::standard::library;
 use gorgone::standard::misc;
+use gorgone::standard::api;
 use ZMQ::LibZMQ4;
 use ZMQ::Constants qw(:all);
 use HTTP::Daemon;
@@ -49,7 +50,7 @@ sub new {
     $connector->{config} = $options{config};
     $connector->{config_core} = $options{config_core};
     $connector->{stop} = 0;
-    $connector->{modules_events} = $options{modules_events};
+    $connector->{api_endpoints} = $options{api_endpoints};
 
     if ($connector->{config}->{ssl} eq 'true') {
         exit(1) if (gorgone::standard::misc::mymodule_load(
@@ -221,9 +222,7 @@ sub run {
                 if ($self->authentication($request->header('Authorization'))) { # Check Basic authentication
                     my ($root) = ($request->uri->path =~ /^(\/\w+)/);
 
-                    if ($request->method eq 'GET' && $root eq "/status") { # Server status
-                        $self->send_response(connection => $connection, response => $self->server_status());
-                    } elsif ($root eq "/api") { # API
+                    if ($root eq "/api") { # API
                         $self->send_response(connection => $connection, response => $self->api_call($request));
                     } elsif (defined($self->{dispatch}->{$root})) { # Other dispatch definition
                         $self->send_response(connection => $connection, response => $self->dispatch_call(root => $root, request => $request));
@@ -305,7 +304,6 @@ sub api_call {
         return '{"error":"decode_error","message":"POST content must be JSON-formated"}';;
     }
 
-    require 'gorgone/standard/api.pm';
     my %parameters = $request->uri->query_form;
     my $response = gorgone::standard::api::root(
         method => $request->method,
@@ -314,7 +312,7 @@ sub api_call {
         content => $content,
         socket => $connector->{internal_socket},
         logger => $self->{logger},
-        modules_events => $self->{modules_events}
+        api_endpoints => $self->{api_endpoints}
     );
 
     return $response;
@@ -336,26 +334,6 @@ sub dispatch_call {
     };
 
     return $response;
-}
-
-sub server_status {
-    my ($self, %options) = @_;
-    
-    my %data = (
-        starttime => $time,
-        dispatch => $self->{dispatch},
-        modules_events => $self->{modules_events}
-    );
-
-    my $encoded_data;
-    eval {
-        $encoded_data = JSON::XS->new->utf8->encode(\%data);
-    };
-    if ($@) {
-        $encoded_data = '{"error":"encode_error","message":"Cannot encode response into JSON format"}';
-    } 
-    
-    return $encoded_data;
 }
 
 1;

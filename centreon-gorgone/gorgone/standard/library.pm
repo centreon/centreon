@@ -363,10 +363,11 @@ sub getthumbprint {
 
 sub information {
     my (%options) = @_;
-
+    
     my $data = {
         counters => $options{gorgone}->{counters},
         modules => $options{gorgone}->{modules_id},
+        api_endpoints => $options{gorgone}->{api_endpoints}
     };
     return (0, { action => 'information', message => 'ok', data => $data }, 'INFORMATION');
 }
@@ -415,7 +416,7 @@ sub loadmodule {
             external_socket => $options{gorgone}->{external_socket},
             internal_socket => $options{gorgone}->{internal_socket},
             dbh => $options{gorgone}->{db_gorgone},
-            modules_events => $options{gorgone}->{modules_events},
+            api_endpoints => $options{gorgone}->{api_endpoints},
         );
         return (0, { action => 'loadmodule', message => "module '$data->{content}->{name}' is loaded" }, 'LOADMODULE');
     }
