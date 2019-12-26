@@ -118,6 +118,16 @@ sub action_command {
         }
         $index++;
     }
+    
+    $self->send_log(
+        socket => $options{socket_log},
+        code => $self->ACTION_BEGIN,
+        token => $options{token},
+        data => {
+            message => "commands processing has started",
+            request_content => $options{data}->{content}
+        }
+    );
 
     foreach my $command (@{$options{data}->{content}}) {
         $self->send_log(
@@ -182,8 +192,17 @@ sub action_command {
             );
         }
 
-        return -1 if (defined($command->{continue_on_error}) && $command->{continue_on_error} eq 'false');            
+        return -1 if (defined($command->{continue_on_error}) && $command->{continue_on_error} eq 'false');
     }
+    
+    $self->send_log(
+        socket => $options{socket_log},
+        code => $self->ACTION_FINISH_OK,
+        token => $options{token},
+        data => {
+            message => "commands processing has finished"
+        }
+    );
 
     return 0;
 }

@@ -91,6 +91,7 @@ sub action_enginecommand {
             token => $options{token},
             data => {
                 message => "expected array, found '" . ref($options{data}->{content}) . "'",
+                request_content => $options{data}->{content}
             }
         );
         return -1;
@@ -106,12 +107,23 @@ sub action_enginecommand {
                 token => $options{token},
                 data => {
                     message => "need command argument at array index '" . $index . "'",
+                    request_content => $options{data}->{content}
                 }
             );
             return -1;
         }
         $index++;
     }
+    
+    $self->send_log(
+        socket => $options{socket_log},
+        code => $self->ACTION_BEGIN,
+        token => $options{token},
+        data => {
+            message => "commands processing has started",
+            request_content => $options{data}->{content}
+        }
+    );
 
     foreach my $command (@{$options{data}->{content}}) {
         my $command_file = '';
@@ -132,7 +144,7 @@ sub action_enginecommand {
                     command => $command->{command}
                 }
             );
-            return -1;
+            (defined($command->{continue_on_error}) && $command->{continue_on_error} eq 'false') ? return -1 : next;
         }    
         if (! -e $command_file) {
             $self->{logger}->writeLogError("[engine] -class- command '$command->{command}' - command_file '$command_file' must exist");
@@ -145,7 +157,7 @@ sub action_enginecommand {
                     command => $command->{command}
                 }
             );
-            return -1;
+            (defined($command->{continue_on_error}) && $command->{continue_on_error} eq 'false') ? return -1 : next;
         }
         if (! -p $command_file) {
             $self->{logger}->writeLogError("[engine] -class- command '$command->{command}' - command_file '$command_file' must be a pipe file");
@@ -158,7 +170,7 @@ sub action_enginecommand {
                     command => $command->{command}
                 }
             );
-            return -1;
+            (defined($command->{continue_on_error}) && $command->{continue_on_error} eq 'false') ? return -1 : next;
         }
         if (! -w $command_file) {
             $self->{logger}->writeLogError("[engine] -class- command '$command->{command}' - command_file '$command_file' must be writeable");
@@ -171,7 +183,7 @@ sub action_enginecommand {
                     command => $command->{command}
                 }
             );
-            return -1;
+            (defined($command->{continue_on_error}) && $command->{continue_on_error} eq 'false') ? return -1 : next;
         }
 
         my $fh;
@@ -195,7 +207,7 @@ sub action_enginecommand {
                     command => $command->{command}
                 }
             );
-            return undef;
+            (defined($command->{continue_on_error}) && $command->{continue_on_error} eq 'false') ? return -1 : next;
         }
         
         $self->send_log(
@@ -203,11 +215,20 @@ sub action_enginecommand {
             code => $self->ACTION_FINISH_OK,
             token => $options{token},
             data => {
-                message => "command had been submitted",
+                message => "command has been submitted",
                 command => $command->{command}
             }
         );
     }
+    
+    $self->send_log(
+        socket => $options{socket_log},
+        code => $self->ACTION_FINISH_OK,
+        token => $options{token},
+        data => {
+            message => "commands processing has finished"
+        }
+    );
 
     return 0;
 }
@@ -261,12 +282,6 @@ sub create_child {
     if ($child_pid == 0) {
         $self->action_run(action => $action, token => $token, data => $data);
         exit(0);
-    } else {
-        $self->send_log(
-            code => $self->ACTION_BEGIN,
-            token => $token,
-            data => { message => 'proceed action' }
-        );
     }
 }
 
