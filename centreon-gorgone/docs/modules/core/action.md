@@ -66,7 +66,9 @@ command_timeout: 30
 curl --request POST "https://hostname:8443/api/core/action/command" \
   --header "Accept: application/json" \
   --header "Content-Type: application/json" \
-  --data "{
-    \"command\": \"echo 'Test command' >> /tmp/here.log\"
-}"
+  --data "[
+    {
+        \"command\": \"echo 'Test command' >> /tmp/here.log\"
+    }
+]"
 ```
