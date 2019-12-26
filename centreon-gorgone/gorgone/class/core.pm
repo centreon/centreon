@@ -57,13 +57,17 @@ sub new {
     $self->{modules_register} = {};
     $self->{modules_events} = {};
     $self->{modules_id} = {};
-    $self->{api_endpoints} = {};
     $self->{purge_timer} = time();
     $self->{history_timer} = time();
     $self->{kill_timer} = undef;
     $self->{server_privkey} = undef;
     $self->{register_parent_nodes} = {};
     $self->{counters} = { total => 0, internal => { total => 0 }, external => { total => 0 }, proxy => { total => 0 } };
+    $self->{api_endpoints} = {
+        'GET_/internal/thumbprint' => 'GETTHUMBPRINT',
+        'GET_/internal/constatus' => 'CONSTATUS',
+        'GET_/internal/information' => 'INFORMATION'
+    };
 
     return $self;
 }

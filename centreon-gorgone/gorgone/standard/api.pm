@@ -31,12 +31,6 @@ use JSON::XS;
 my $socket;
 my $result;
 
-my $mapping_internal_endpoint = {
-    thumbprint => 'GETTHUMBPRINT',
-    constatus => 'CONSTATUS',
-    information => 'INFORMATION'
-};
-
 sub root {
     my (%options) = @_;
 
@@ -51,11 +45,18 @@ sub root {
             refresh => (defined($options{parameters}->{refresh})) ? $options{parameters}->{refresh} : undef,
             parameters => $options{parameters}
         );
-    } elsif ($options{method} eq 'GET' && $options{uri} =~ /^\/api\/(targets\/(\w*)\/)?internal\/(.*)$/) {
-        $response = get_internal(
+    } elsif ($options{uri} =~ /^\/api\/(targets\/(\w*)\/)?internal\/(.*)$/
+        && defined($options{api_endpoints}->{$options{method} . '_/internal/' . $3})) {
+        my @variables = split(/\//, $4);
+        $response = call_internal(
             socket => $options{socket},
+            action => $options{api_endpoints}->{$options{method} . '_/internal/' . $3},
             target => $2,
-            endpoint => $3,
+            data => { 
+                content => $options{content},
+                parameters => $options{parameters},
+                variables => \@variables,
+            },
             refresh => (defined($options{parameters}->{refresh})) ? $options{parameters}->{refresh} : undef
         );
     } elsif ($options{uri} =~ /^\/api\/(targets\/(\w*)\/)?(\w+)\/(\w+)\/(\w+)\/?([\w\/]*?)$/
@@ -121,7 +122,7 @@ sub call_action {
     return $response;
 }
 
-sub get_internal {
+sub call_internal {
     my (%options) = @_;
     
     $socket = $options{socket};
@@ -133,18 +134,11 @@ sub get_internal {
         }
     ];
 
-    if (!defined($options{endpoint}) || !defined($mapping_internal_endpoint->{lc($options{endpoint})})) {
-         my $response = '{"error":"endpoint_unknown","message":"endpoint not implemented"}';
-         return $response;
-    }
-
-    my $action = $mapping_internal_endpoint->{lc($options{endpoint})};
-
     if (defined($options{target}) && $options{target} ne '') {        
         return call_action(
             socket => $options{socket},
             target => $options{target},
-            action => $action,
+            action => $options{action},
             data => {},
             json_encode => 1,
             refresh => $options{refresh}
@@ -153,14 +147,14 @@ sub get_internal {
 
     gorgone::standard::library::zmq_send_message(
         socket => $options{socket},
-        action => $action,
+        action => $options{action},
         data => {},
         json_encode => 1
     );
 
     my $rev = zmq_poll($poll, 5000);
 
-    my $response = '{"error":"no_result", "message":"No result found for action "' . $action . '"}';
+    my $response = '{"error":"no_result", "message":"No result found for action "' . $options{action} . '"}';
     if (defined($result->{data})) {
         my $content;
         eval {

@@ -77,6 +77,19 @@ curl --request GET "https://hostname:8443/api/internal/information" \
             "nodes": "gorgone::modules::centreon::nodes::hooks",
             "legacycmd": "gorgone::modules::centreon::legacycmd::hooks"
         },
+        "api_endpoints": {
+            "GET_/centreon/broker/statistics": "BROKERSTATS",
+            "GET_/internal/thumbprint": "GETTHUMBPRINT",
+            "GET_/core/cron/definitions": "GETCRON",
+            "GET_/internal/information": "INFORMATION",
+            "POST_/core/cron/definitions": "ADDCRON",
+            "POST_/core/action/command": "COMMAND",
+            "POST_/centreon/engine/command": "ENGINECOMMAND",
+            "POST_/core/proxy/remotecopy": "REMOTECOPY",
+            "PATCH_/core/cron/definitions": "UPDATECRON",
+            "DELETE_/core/cron/definitions": "DELETECRON",
+            "GET_/internal/constatus": "CONSTATUS"
+        },
         "counters": {
             "external": {
                 "total": 0
