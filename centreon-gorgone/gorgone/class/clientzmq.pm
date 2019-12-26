@@ -26,6 +26,7 @@ use gorgone::standard::library;
 use gorgone::standard::misc;
 use ZMQ::LibZMQ4;
 use ZMQ::Constants qw(:all);
+use MIME::Base64;
 
 my $connectors = {};
 my $callbacks = {};
@@ -126,7 +127,7 @@ sub check_server_pubkey {
     }
 
     my ($code, $verbose_message);
-    my $server_pubkey_str = pack('H*', $1);
+    my $server_pubkey_str = MIME::Base64::decode_base64($1);
     ($code, $self->{server_pubkey}) = gorgone::standard::library::loadpubkey(
         pubkey_str => $server_pubkey_str,
         logger => $self->{logger},

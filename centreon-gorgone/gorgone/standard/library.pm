@@ -152,7 +152,7 @@ sub zmq_core_pubkey_response {
         zmq_sendmsg($options{socket}, pack('H*', $options{identity}), ZMQ_NOBLOCK | ZMQ_SNDMORE);
     }
     my $client_pubkey = $options{pubkey}->export_key_pem('public');
-    my $msg = '[PUBKEY] [' . MIME::Base64::encode_base64($client_pubkey) . ']';
+    my $msg = '[PUBKEY] [' . MIME::Base64::encode_base64($client_pubkey, '') . ']';
 
     zmq_sendmsg($options{socket}, $msg, ZMQ_NOBLOCK);
     return 0;
@@ -173,7 +173,7 @@ sub zmq_core_key_response {
         return -1;
     }
 
-    zmq_sendmsg($options{socket}, MIME::Base64::encode_base64($crypttext), ZMQ_NOBLOCK);
+    zmq_sendmsg($options{socket}, MIME::Base64::encode_base64($crypttext, ''), ZMQ_NOBLOCK);
     return 0;
 }
 
@@ -200,7 +200,7 @@ sub zmq_core_response {
             -literal_key => 1
         );
         $msg = $cipher->encrypt($msg);
-        $msg = MIME::Base64::encode_base64($msg);
+        $msg = MIME::Base64::encode_base64($msg, '');
     }
     zmq_sendmsg($options{socket}, $msg, ZMQ_NOBLOCK);
 }
@@ -280,7 +280,7 @@ sub client_helo_encrypt {
         return (-1, "Encoding issue: $@");
     }
 
-    return (0, '[' . $options{identity} . '] [' . $client_pubkey . '] [' . MIME::Base64::encode_base64($ciphertext) . ']');
+    return (0, '[' . $options{identity} . '] [' . $client_pubkey . '] [' . MIME::Base64::encode_base64($ciphertext, '') . ']');
 }
 
 sub is_client_can_connect {
@@ -748,7 +748,7 @@ sub zmq_send_message {
             -literal_key => 1
         );
         $message = $cipher->encrypt($message);
-        $message = MIME::Base64::encode_base64($message);
+        $message = MIME::Base64::encode_base64($message, '');
     }
     zmq_sendmsg($options{socket}, $message, ZMQ_NOBLOCK);
 }
