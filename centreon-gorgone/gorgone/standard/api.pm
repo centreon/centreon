@@ -120,6 +120,7 @@ sub call_action {
                 target => $options{target},
                 token => $result->{token},
                 refresh => $options{refresh},
+                parameters => $options{data}->{parameters}
             );
         } else {
             $response = '{"token":"' . $result->{token} . '"}';
