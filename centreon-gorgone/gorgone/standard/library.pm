@@ -33,6 +33,7 @@ use Data::Dumper;
 use YAML 'LoadFile';
 use File::Path;
 use File::Basename;
+use MIME::Base64;
 
 my %zmq_type = ('ZMQ_ROUTER' => ZMQ_ROUTER, 'ZMQ_DEALER' => ZMQ_DEALER);
 
@@ -151,7 +152,7 @@ sub zmq_core_pubkey_response {
         zmq_sendmsg($options{socket}, pack('H*', $options{identity}), ZMQ_NOBLOCK | ZMQ_SNDMORE);
     }
     my $client_pubkey = $options{pubkey}->export_key_pem('public');
-    my $msg = '[PUBKEY] [' . unpack('H*', $client_pubkey) . ']';
+    my $msg = '[PUBKEY] [' . MIME::Base64::encode_base64($client_pubkey) . ']';
 
     zmq_sendmsg($options{socket}, $msg, ZMQ_NOBLOCK);
     return 0;
@@ -172,8 +173,7 @@ sub zmq_core_key_response {
         return -1;
     }
 
-    
-    zmq_sendmsg($options{socket}, unpack('H*', $crypttext), ZMQ_NOBLOCK);
+    zmq_sendmsg($options{socket}, MIME::Base64::encode_base64($crypttext), ZMQ_NOBLOCK);
     return 0;
 }
 
@@ -200,7 +200,7 @@ sub zmq_core_response {
             -literal_key => 1
         );
         $msg = $cipher->encrypt($msg);
-        $msg = unpack('H*', $msg);
+        $msg = MIME::Base64::encode_base64($msg);
     }
     zmq_sendmsg($options{socket}, $msg, ZMQ_NOBLOCK);
 }
@@ -218,7 +218,7 @@ sub uncrypt_message {
         -literal_key => 1
     );
     eval {
-        my $cryptedmessage = pack('H*', $options{message});
+        my $cryptedmessage = MIME::Base64::decode_base64($options{message});
         $plaintext = $cipher->decrypt($cryptedmessage);
     };
     if ($@) {
@@ -250,7 +250,7 @@ sub client_get_secret {
     my $plaintext;
 
     eval {
-        my $cryptedtext = pack('H*', $options{message});
+        my $cryptedtext = MIME::Base64::decode_base64($options{message});
         $plaintext = $options{privkey}->decrypt($cryptedtext, 'v1.5');
     };
     if ($@) {
@@ -280,7 +280,7 @@ sub client_helo_encrypt {
         return (-1, "Encoding issue: $@");
     }
 
-    return (0, '[' . $options{identity} . '] [' . $client_pubkey . '] [' . unpack('H*', $ciphertext) . ']');
+    return (0, '[' . $options{identity} . '] [' . $client_pubkey . '] [' . MIME::Base64::encode_base64($ciphertext) . ']');
 }
 
 sub is_client_can_connect {
@@ -294,7 +294,7 @@ sub is_client_can_connect {
 
     my ($client, $client_pubkey_str, $cipher_text) = ($1, $2, $3);
     eval {
-        $plaintext = $options{privkey}->decrypt(pack('H*', $cipher_text), 'v1.5');
+        $plaintext = $options{privkey}->decrypt(MIME::Base64::decode_base64($cipher_text), 'v1.5');
     };
     if ($@) {
         $options{logger}->writeLogError("Decoding issue: " .  $@);
@@ -747,7 +747,7 @@ sub zmq_send_message {
             -literal_key => 1
         );
         $message = $cipher->encrypt($message);
-        $message = unpack('H*', $message);
+        $message = MIME::Base64::encode_base64($message);
     }
     zmq_sendmsg($options{socket}, $message, ZMQ_NOBLOCK);
 }
