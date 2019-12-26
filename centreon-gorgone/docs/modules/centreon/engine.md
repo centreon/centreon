@@ -49,10 +49,12 @@ command_file: "/var/lib/centreon-engine/rw/centengine.cmd"
 | command_file | Path to the Centreon Engine command file pipe |
 
 ```json
-{
-    "command": "<external command>",
-    "command_file": "<command file path>"
-}
+[
+    {
+        "command": "<external command>",
+        "command_file": "<command file path>"
+    }
+]
 ```
 
 #### Example
@@ -61,7 +63,9 @@ command_file: "/var/lib/centreon-engine/rw/centengine.cmd"
 curl --request POST "https://hostname:8443/api/centreon/engine/command" \
   --header "Accept: application/json" \
   --header "Content-Type: application/json" \
-  --data "{
-    \"command\": \"[653284380] SCHEDULE_SVC_CHECK;host1;service1;653284380\"
-}"
+  --data "[
+    {
+        \"command\": \"[653284380] SCHEDULE_SVC_CHECK;host1;service1;653284380\"
+    }
+]"
 ```
