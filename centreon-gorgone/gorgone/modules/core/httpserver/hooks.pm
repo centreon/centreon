@@ -153,11 +153,7 @@ sub check {
     return $count;
 }
 
-sub broadcast {
-    my (%options) = @_;
-
-    routing(%options);
-}
+sub broadcast {}
 
 # Specific functions
 sub create_child {

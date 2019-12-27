@@ -391,7 +391,7 @@ sub broadcast {
     my (%options) = @_;
 
     foreach my $pool_id (keys %$pools) {
-        next if ($pools->{$pool_id} != 1);
+        next if ($pools->{$pool_id}->{ready} != 1);
 
         gorgone::standard::library::zmq_send_message(
             socket => $options{socket},

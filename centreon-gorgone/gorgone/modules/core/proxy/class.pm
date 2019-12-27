@@ -259,6 +259,7 @@ sub proxy {
         $connector->action_proxydelnode(data => $data);
         return ;
     } elsif ($action eq 'BCASTLOGGER' && $target_complete eq '') {
+        (undef, $data) = $connector->json_decode(argument => $data);
         $connector->action_bcastlogger(data => $data);
         return ;
     }

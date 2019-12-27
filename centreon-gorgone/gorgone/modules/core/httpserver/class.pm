@@ -113,6 +113,15 @@ sub event {
         my $message = gorgone::standard::library::zmq_dealer_read_message(socket => $connector->{internal_socket});
         
         $connector->{logger}->writeLogDebug("[httpserver] -class- Event: $message");
+
+        if ($message =~ /^\[(.*?)\]\s+\[(.*?)\]\s+\[.*?\]\s+(.*)$/) {
+            if ((my $method = $connector->can('action_' . lc($1)))) {
+                $message =~ /^\[(.*?)\]\s+\[(.*?)\]\s+\[.*?\]\s+(.*)$/m;
+                my ($action, $token) = ($1, $2);
+                my $data = JSON::XS->new->utf8->decode($3);
+                $method->($connector, token => $token, data => $data);
+            }
+        }
         
         last unless (gorgone::standard::library::zmq_still_read(socket => $connector->{internal_socket}));
     }
@@ -190,7 +199,8 @@ sub run {
     if ($self->{config}->{ssl} eq 'false') {
         $daemon = HTTP::Daemon->new(
             LocalAddr => $self->{config}->{address} . ':' . $self->{config}->{port},
-            ReusePort => 1
+            ReusePort => 1,
+            Timeout => 5
         );
     } elsif ($self->{config}->{ssl} eq 'true') {
         $daemon = HTTP::Daemon::SSL->new(
@@ -198,12 +208,24 @@ sub run {
             SSL_cert_file => $self->{config}->{ssl_cert_file},
             SSL_key_file => $self->{config}->{ssl_key_file},
             SSL_error_trap => \&ssl_error,
-            ReusePort => 1
+            ReusePort => 1,
+            Timeout => 5
         );
     }
     
     if (defined($daemon)) {
-        while (my ($connection) = $daemon->accept()) {
+        while (1) {
+            my ($connection) = $daemon->accept();
+
+            if ($self->{stop} == 1) {
+                $self->{logger}->writeLogInfo("[httpserver] -class- $$ has quit");
+                $connection->close() if (defined($connection));
+                zmq_close($connector->{internal_socket});
+                exit(0);
+            }
+            
+            next if (!defined($connection));
+ 
             while (my $request = $connection->get_request) {
                 $connector->{logger}->writeLogInfo("[httpserver] -class- " . $connection->peerhost() . " " . $request->method . " '" . $request->uri->path . "' '" . $request->header("User-Agent") . "'");
 
