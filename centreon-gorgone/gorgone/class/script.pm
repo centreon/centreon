@@ -65,6 +65,7 @@ sub init {
         $self->{logger}->file_mode($self->{log_file});
     }
     $self->{logger}->severity($self->{severity});
+    $self->{logger}->force_default_severity();
 
     if ($self->{noroot} == 1) {
         # Stop exec if root
