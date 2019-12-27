@@ -83,7 +83,7 @@ sub new {
     $connector->{ping_timeout_time} = time();
 
     if (defined($connector->{logger}) && $connector->{logger}->is_debug()) {
-        $connector->{logger}->writeLogDebug('jwk thumbprint = ' . $connector->{client_pubkey}->export_key_jwk_thumbprint('SHA256'));
+        $connector->{logger}->writeLogDebug('[core] JWK thumbprint = ' . $connector->{client_pubkey}->export_key_jwk_thumbprint('SHA256'));
     }
 
     $connectors->{$options{identity}} = $connector;
@@ -121,7 +121,7 @@ sub check_server_pubkey {
     my ($self, %options) = @_;
 
     if ($options{message} !~ /^\s*\[PUBKEY\]\s+\[(.*?)\]/) {
-        $self->{logger}->writeLogError('cannot read pubbkey response from server: ' . $options{message}) if (defined($self->{logger}));
+        $self->{logger}->writeLogError('[core] Cannot read pubbkey response from server: ' . $options{message}) if (defined($self->{logger}));
         $self->{verbose_last_message} = 'cannot read pubkey response from server';
         return 0;
     }
@@ -135,7 +135,7 @@ sub check_server_pubkey {
     );
 
     if ($code == 0) {
-        $self->{logger}->writeLogError('cannot load pubbkey') if (defined($self->{logger}));
+        $self->{logger}->writeLogError('[core] Cannot load pubbkey') if (defined($self->{logger}));
         $self->{verbose_last_message} = 'cannot load pubkey';
         return 0;
     }
@@ -181,7 +181,7 @@ sub ping {
     }
     if ($self->{ping_progress} == 1 && 
         time() - $self->{ping_timeout_time} > $self->{ping_timeout}) {
-        $self->{logger}->writeLogError("no ping response") if (defined($self->{logger}));
+        $self->{logger}->writeLogError("[core] No ping response") if (defined($self->{logger}));
         $self->{ping_progress} = 0;
         zmq_close($sockets->{$self->{identity}});
         $self->init();

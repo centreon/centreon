@@ -56,14 +56,14 @@ sub do {
     } elsif ($mode == 1) {
         my $result = $sth->fetchall_hashref($options{keys});
         if (!defined($result)) {
-            $self->{logger}->writeLogError("Cannot fetch database data: " . $sth->errstr . " [request = $options{request}]");
+            $self->{logger}->writeLogError("[core] Cannot fetch database data: " . $sth->errstr . " [request = $options{request}]");
             return (-1, undef);
         }
         return ($status, $result);
     }
     my $result = $sth->fetchall_arrayref();
     if (!defined($result)) {
-        $self->{logger}->writeLogError("Cannot fetch database data: " . $sth->errstr . " [request = $options{request}]");
+        $self->{logger}->writeLogError("[core] Cannot fetch database data: " . $sth->errstr . " [request = $options{request}]");
         return (-1, undef);
     }
     return ($status, $result);

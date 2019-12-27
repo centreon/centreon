@@ -65,7 +65,7 @@ sub handle_HUP {
 
 sub handle_TERM {
     my $self = shift;
-    $self->{logger}->writeLogInfo("[register] -class- $$ Receiving order to stop...");
+    $self->{logger}->writeLogInfo("[register] $$ Receiving order to stop...");
     $self->{stop} = 1;
 }
 
@@ -131,7 +131,7 @@ sub action_registerresync {
         }
     ) if (scalar(@$unregister_nodes) > 0);
 
-    $self->{logger}->writeLogDebug("[register] -class- finish resync");
+    $self->{logger}->writeLogDebug("[register] Finish resync");
     $self->send_log(
         code => $self->ACTION_FINISH_OK,
         token => $options{token},
@@ -146,7 +146,7 @@ sub event {
     while (1) {
         my $message = gorgone::standard::library::zmq_dealer_read_message(socket => $connector->{internal_socket});
         
-        $connector->{logger}->writeLogDebug("[register] -class- Event: $message");
+        $connector->{logger}->writeLogDebug("[register] Event: $message");
         if ($message =~ /^\[(.*?)\]/) {
             if ((my $method = $connector->can('action_' . lc($1)))) {
                 $message =~ /^\[(.*?)\]\s+\[(.*?)\]\s+\[.*?\]\s+(.*)$/m;
@@ -188,7 +188,7 @@ sub run {
         # we try to do all we can
         my $rev = zmq_poll($self->{poll}, 5000);
         if (defined($rev) && $rev == 0 && $self->{stop} == 1) {
-            $self->{logger}->writeLogInfo("[register] -class- $$ has quit");
+            $self->{logger}->writeLogInfo("[register] $$ has quit");
             zmq_close($connector->{internal_socket});
             exit(0);
         }

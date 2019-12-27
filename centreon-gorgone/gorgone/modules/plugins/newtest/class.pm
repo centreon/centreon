@@ -98,7 +98,7 @@ sub handle_HUP {
 
 sub handle_TERM {
     my $self = shift;
-    $self->{logger}->writeLogInfo("[newtest] -class- $$ Receiving order to stop...");
+    $self->{logger}->writeLogInfo("[newtest] $$ Receiving order to stop...");
     $self->{stop} = 1;
 }
 
@@ -189,12 +189,12 @@ sub get_poller_id {
         mode => 2
     );
     if ($status == -1) {
-        $self->{logger}->writeLogError("[newtest] -class- cannot get poller id for poller '" . $self->{poller_name} . "'.");
+        $self->{logger}->writeLogError("[newtest] cannot get poller id for poller '" . $self->{poller_name} . "'.");
         return 1;
     }
     
     if (!defined($datas->[0])) {
-        $self->{logger}->writeLogError("[newtest] -class- cannot find poller id for poller '" . $self->{poller_name} . "'.");
+        $self->{logger}->writeLogError("[newtest] cannot find poller id for poller '" . $self->{poller_name} . "'.");
         return 1;
     }
 
@@ -219,7 +219,7 @@ sub get_centreondb_cache {
         mode => 2
     );    
     if ($status == -1) {
-        $self->{logger}->writeLogError("[newtest] -class- cannot get robot/scenarios list from centreon db.");
+        $self->{logger}->writeLogError("[newtest] cannot get robot/scenarios list from centreon db.");
         return 1;
     }
     
@@ -245,17 +245,17 @@ sub get_centstoragedb_cache {
         mode => 2
     );    
     if ($status == -1) {
-        $self->{logger}->writeLogError("[newtest] -class- cannot get robot/scenarios list from centstorage db.");
+        $self->{logger}->writeLogError("[newtest] cannot get robot/scenarios list from centstorage db.");
         return 1;
     }
     
     foreach (@$datas) {
         if (!defined($self->{db_newtest}->{$_->[0]})) {
-            $self->{logger}->writeLogError("[newtest] -class- host '" . $_->[0]  . "'is in censtorage DB but not in centreon config...");
+            $self->{logger}->writeLogError("[newtest] host '" . $_->[0]  . "'is in censtorage DB but not in centreon config...");
             next;
         }
         if (defined($_->[1]) && !defined($self->{db_newtest}->{$_->[0]}->{$_->[1]})) {
-            $self->{logger}->writeLogError("[newtest] -class- host scenario '" . $_->[0]  . "/" .  $_->[1] . "' is in censtorage DB but not in centreon config...");
+            $self->{logger}->writeLogError("[newtest] host scenario '" . $_->[0]  . "/" .  $_->[1] . "' is in censtorage DB but not in centreon config...");
             next;
         }
         
@@ -278,7 +278,7 @@ sub clapi_execute {
         wait_exit => 1,
     );
     if ($lerror == -1 || ($exit_code >> 8) != 0) {
-        $self->{logger}->writeLogError("[newtest] -class- clapi execution problem for command $cmd : " . $stdout);
+        $self->{logger}->writeLogError("[newtest] clapi execution problem for command $cmd : " . $stdout);
         return -1;
     }
 
@@ -303,7 +303,7 @@ sub submit_external_cmd {
             wait_exit => 1
         );
         if ($lerror == -1 || ($exit_code >> 8) != 0) {
-            $self->{logger}->writeLogError("[newtest] -class- clapi execution problem for command $cmd : " . $stdout);
+            $self->{logger}->writeLogError("[newtest] clapi execution problem for command $cmd : " . $stdout);
             return -1;
         }
     }
@@ -313,29 +313,29 @@ sub push_config {
     my ($self, %options) = @_;
 
     if ($self->{must_push_config} == 1) {
-        $self->{logger}->writeLogInfo("[newtest] -class- generation config for '$self->{poller_name}':");
+        $self->{logger}->writeLogInfo("[newtest] generation config for '$self->{poller_name}':");
         if ($self->clapi_execute(cmd => '-a POLLERGENERATE -v ' . $self->{poller_id},
                                  timeout => $self->{clapi_generate_config_timeout}) != 0) {
-            $self->{logger}->writeLogError("[newtest] -class- generation config for '$self->{poller_name}': failed");
+            $self->{logger}->writeLogError("[newtest] generation config for '$self->{poller_name}': failed");
             return ;
         }
-        $self->{logger}->writeLogInfo("[newtest] -class- generation config for '$self->{poller_name}': succeeded.");
+        $self->{logger}->writeLogInfo("[newtest] generation config for '$self->{poller_name}': succeeded.");
         
-        $self->{logger}->writeLogInfo("[newtest] -class- move config for '$self->{poller_name}':");
+        $self->{logger}->writeLogInfo("[newtest] move config for '$self->{poller_name}':");
         if ($self->clapi_execute(cmd => '-a CFGMOVE -v ' . $self->{poller_id},
                                 timeout => $self->{clapi_timeout}) != 0) {
-            $self->{logger}->writeLogError("[newtest] -class- move config for '$self->{poller_name}': failed");
+            $self->{logger}->writeLogError("[newtest] move config for '$self->{poller_name}': failed");
             return ;
         }
-        $self->{logger}->writeLogInfo("[newtest] -class- move config for '$self->{poller_name}': succeeded.");
+        $self->{logger}->writeLogInfo("[newtest] move config for '$self->{poller_name}': succeeded.");
         
-        $self->{logger}->writeLogInfo("[newtest] -class- restart/reload config for '$self->{poller_name}':");
+        $self->{logger}->writeLogInfo("[newtest] restart/reload config for '$self->{poller_name}':");
         if ($self->clapi_execute(cmd => '-a ' . $self->{clapi_action_applycfg} . ' -v ' . $self->{poller_id},
                                 timeout => $self->{clapi_timeout}) != 0) {
-            $self->{logger}->writeLogError("[newtest] -class- restart/reload config for '$self->{poller_name}': failed");
+            $self->{logger}->writeLogError("[newtest] restart/reload config for '$self->{poller_name}': failed");
             return ;
         }
-        $self->{logger}->writeLogInfo("[newtest] -class- restart/reload config for '$self->{poller_name}': succeeded.");
+        $self->{logger}->writeLogInfo("[newtest] restart/reload config for '$self->{poller_name}': succeeded.");
     }
 }
 
@@ -344,12 +344,12 @@ sub get_newtest_diagnostic {
     
     my $result = $self->{instance}->ListMessages('Instance', 30, 'Diagnostics', [$options{scenario}, $options{robot}]);
     if (defined(my $com_error = gorgone::modules::plugins::newtest::libs::stubs::errors::get_error())) {
-        $self->{logger}->writeLogError("[newtest] -class- newtest API error 'ListMessages' method: " . $com_error);
+        $self->{logger}->writeLogError("[newtest] newtest API error 'ListMessages' method: " . $com_error);
         return -1;
     }
     
     if (!(ref($result) && defined($result->{MessageItem}))) {
-        $self->{logger}->writeLogError("[newtest] -class- no diagnostic found for scenario: " . $options{scenario} . '/' . $options{robot});
+        $self->{logger}->writeLogError("[newtest] no diagnostic found for scenario: " . $options{scenario} . '/' . $options{robot});
         return 1;
     }
     if (ref($result->{MessageItem}) eq 'HASH') {
@@ -380,20 +380,20 @@ sub get_scenario_results {
     # Already test the robot but no response
     if (defined($self->{cache_robot_list_results}->{$options{robot}}) && 
         !defined($self->{cache_robot_list_results}->{$options{robot}}->{ResultItem})) {
-        $self->{current_text} = sprintf("[newtest] -class- no result avaiblable for scenario '%s'", $options{scenario});
+        $self->{current_text} = sprintf("[newtest] no result avaiblable for scenario '%s'", $options{scenario});
         $self->{current_status} = 3;
         return 1;
     }
     if (!defined($self->{cache_robot_list_results}->{$options{robot}})) {
         my $result = $self->{instance}->ListResults('Robot', 30, [$options{robot}]);
         if (defined(my $com_error = gorgone::modules::plugins::newtest::libs::stubs::errors::get_error())) {
-            $self->{logger}->writeLogError("[newtest] -class- newtest API error 'ListResults' method: " . $com_error);
+            $self->{logger}->writeLogError("[newtest] newtest API error 'ListResults' method: " . $com_error);
             return -1;
         }
         
         if (!(ref($result) && defined($result->{ResultItem}))) {
             $self->{cache_robot_list_results}->{$options{robot}} = {};
-            $self->{logger}->writeLogError("[newtest] -class- no results found for robot: " . $options{robot});
+            $self->{logger}->writeLogError("[newtest] no results found for robot: " . $options{robot});
             return 1;
         }
         
@@ -427,12 +427,12 @@ sub get_scenario_results {
                 id => $result->{Id}
             );
 
-            $self->{logger}->writeLogInfo("[newtest] -class- result found for scenario: " . $options{scenario} . '/' . $options{robot});
+            $self->{logger}->writeLogInfo("[newtest] result found for scenario: " . $options{scenario} . '/' . $options{robot});
             return 0;
         }
     }
     
-    $self->{logger}->writeLogError("[newtest] -class- no result found for scenario: " . $options{scenario} . '/' . $options{robot});
+    $self->{logger}->writeLogError("[newtest] no result found for scenario: " . $options{scenario} . '/' . $options{robot});
     return 1;
 }
 
@@ -441,12 +441,12 @@ sub get_newtest_extra_metrics {
     
     my $result = $self->{instance}->ListResultChildren($options{id});
     if (defined(my $com_error = gorgone::modules::plugins::newtest::libs::stubs::errors::get_error())) {
-        $self->{logger}->writeLogError("[newtest] -class- newtest API error 'ListResultChildren' method: " . $com_error);
+        $self->{logger}->writeLogError("[newtest] newtest API error 'ListResultChildren' method: " . $com_error);
         return -1;
     }
     
     if (!(ref($result) && defined($result->{ResultItem}))) {
-        $self->{logger}->writeLogError("[newtest] -class- no extra metrics found for scenario: " . $options{scenario} . '/' . $options{robot});
+        $self->{logger}->writeLogError("[newtest] no extra metrics found for scenario: " . $options{scenario} . '/' . $options{robot});
         return 1;
     }
     
@@ -469,7 +469,7 @@ sub get_newtest_scenarios {
         $self->{instance}->proxy($self->{endpoint}, timeout => $self->{nmc_timeout});
     };
     if ($@) {
-        $self->{logger}->writeLogError('[newtest] -class- newtest proxy error: ' . $@);
+        $self->{logger}->writeLogError('[newtest] newtest proxy error: ' . $@);
         return -1;
     }
 
@@ -485,7 +485,7 @@ sub get_newtest_scenarios {
         $self->{list_scenario_status}->{instances}
     );
     if (defined(my $com_error = gorgone::modules::plugins::newtest::libs::stubs::errors::get_error())) {
-        $self->{logger}->writeLogError("[newtest] -class- newtest API error 'ListScenarioStatus' method: " . $com_error);
+        $self->{logger}->writeLogError("[newtest] newtest API error 'ListScenarioStatus' method: " . $com_error);
         return -1;
     }
     
@@ -508,23 +508,23 @@ sub get_newtest_scenarios {
 
             # Add host config
             if (!defined($self->{db_newtest}->{$host_name})) {
-                $self->{logger}->writeLogInfo("[newtest] -class- create host '$host_name'");
+                $self->{logger}->writeLogInfo("[newtest] create host '$host_name'");
                 if ($self->clapi_execute(cmd => '-o HOST -a ADD -v "' . $host_name . ';' . $host_name . ';127.0.0.1;' . $self->{host_template} . ';' . $self->{poller_name} . ';"',
                                          timeout => $self->{clapi_timeout}) == 0) {
                     $self->{db_newtest}->{$host_name} = {};
                     $self->{must_push_config} = 1;
-                    $self->{logger}->writeLogInfo("[newtest] -class- create host '$host_name' succeeded.");
+                    $self->{logger}->writeLogInfo("[newtest] create host '$host_name' succeeded.");
                 }
             }
 
             # Add service config
             if (defined($self->{db_newtest}->{$host_name}) && !defined($self->{db_newtest}->{$host_name}->{$service_name})) {
-                $self->{logger}->writeLogInfo("[newtest] -class- create service '$service_name' for host '$host_name':");
+                $self->{logger}->writeLogInfo("[newtest] create service '$service_name' for host '$host_name':");
                 if ($self->clapi_execute(cmd => '-o SERVICE -a ADD -v "' . $host_name . ';' . $service_name . ';' . $self->{service_template} . '"',
                                          timeout => $self->{clapi_timeout}) == 0) {
                     $self->{db_newtest}->{$host_name}->{$service_name} = {};
                     $self->{must_push_config} = 1;
-                    $self->{logger}->writeLogInfo("[newtest] -class- create service '$service_name' for host '$host_name' succeeded.");
+                    $self->{logger}->writeLogInfo("[newtest] create service '$service_name' for host '$host_name' succeeded.");
                     $self->clapi_execute(cmd => '-o SERVICE -a setmacro -v "' . $host_name . ';' . $service_name . ';NEWTEST_MESSAGEID;"',
                                          timeout => $self->{clapi_timeout});
                 }
@@ -533,7 +533,7 @@ sub get_newtest_scenarios {
             # Check if new message
             if (defined($self->{db_newtest}->{$host_name}->{$service_name}->{last_execution_time}) &&
                 $last_check <= $self->{db_newtest}->{$host_name}->{$service_name}->{last_execution_time}) {
-                $self->{logger}->writeLogInfo("[newtest] -class- skip: service '$service_name' for host '$host_name' already submitted.");
+                $self->{logger}->writeLogInfo("[newtest] skip: service '$service_name' for host '$host_name' already submitted.");
                 next;
             }
 
@@ -658,7 +658,7 @@ sub run {
         # we try to do all we can
         my $rev = zmq_poll($self->{poll}, 5000);
         if (defined($rev) && $rev == 0 && $self->{stop} == 1) {
-            $self->{logger}->writeLogInfo("[newtest] -class- $$ has quit");
+            $self->{logger}->writeLogInfo("[newtest] $$ has quit");
             zmq_close($connector->{internal_socket});
             zmq_close($self->{socket_log}) if (defined($self->{socket_log}));
             exit(0);

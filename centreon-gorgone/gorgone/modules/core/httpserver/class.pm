@@ -92,7 +92,7 @@ sub handle_HUP {
 
 sub handle_TERM {
     my $self = shift;
-    $self->{logger}->writeLogInfo("[httpserver] -class- $$ Receiving order to stop...");
+    $self->{logger}->writeLogDebug("[httpserver] $$ Receiving order to stop...");
     $self->{stop} = 1;
 }
 
@@ -112,7 +112,7 @@ sub event {
     while (1) {
         my $message = gorgone::standard::library::zmq_dealer_read_message(socket => $connector->{internal_socket});
         
-        $connector->{logger}->writeLogDebug("[httpserver] -class- Event: $message");
+        $connector->{logger}->writeLogDebug("[httpserver] Event: $message");
 
         if ($message =~ /^\[(.*?)\]\s+\[(.*?)\]\s+\[.*?\]\s+(.*)$/) {
             if ((my $method = $connector->can('action_' . lc($1)))) {
@@ -156,7 +156,7 @@ sub load_peer_subnets {
     foreach (@{$connector->{config}->{allowed_hosts}->{subnets}}) {
         my $subnet = NetAddr::IP->new($_);
         if (!defined($subnet)) {
-            $self->{logger}->writeLogError("[httpserver] -class- cannot load subnet: $_");
+            $self->{logger}->writeLogError("[httpserver] Cannot load subnet: $_");
             next;
         }
 
@@ -218,7 +218,7 @@ sub run {
             my ($connection) = $daemon->accept();
 
             if ($self->{stop} == 1) {
-                $self->{logger}->writeLogInfo("[httpserver] -class- $$ has quit");
+                $self->{logger}->writeLogInfo("[httpserver] $$ has quit");
                 $connection->close() if (defined($connection));
                 zmq_close($connector->{internal_socket});
                 exit(0);
@@ -227,11 +227,11 @@ sub run {
             next if (!defined($connection));
  
             while (my $request = $connection->get_request) {
-                $connector->{logger}->writeLogInfo("[httpserver] -class- " . $connection->peerhost() . " " . $request->method . " '" . $request->uri->path . "' '" . $request->header("User-Agent") . "'");
+                $connector->{logger}->writeLogInfo("[httpserver] " . $connection->peerhost() . " " . $request->method . " '" . $request->uri->path . "' '" . $request->header("User-Agent") . "'");
 
                 if ($connector->{allowed_hosts_enabled} == 1) {
                     if ($connector->check_allowed_host(peer_addr => inet_ntoa($connection->peeraddr())) == 0) {
-                        $connector->{logger}->writeLogError("[httpserver] -class- " . $connection->peerhost() . " Unauthorized");
+                        $connector->{logger}->writeLogError("[httpserver] " . $connection->peerhost() . " Unauthorized");
                         $self->send_error(
                             connection => $connection,
                             code => "401",
@@ -249,7 +249,7 @@ sub run {
                     } elsif (defined($self->{dispatch}->{$root})) { # Other dispatch definition
                         $self->send_response(connection => $connection, response => $self->dispatch_call(root => $root, request => $request));
                     } else { # Forbidden
-                        $connector->{logger}->writeLogError("[httpserver] -class- " . $connection->peerhost() . " '" . $request->uri->path . "' Forbidden");
+                        $connector->{logger}->writeLogError("[httpserver] " . $connection->peerhost() . " '" . $request->uri->path . "' Forbidden");
                         $self->send_error(
                             connection => $connection,
                             code => "403",
@@ -257,7 +257,7 @@ sub run {
                         );
                     }
                 } else { # Authen error
-                    $connector->{logger}->writeLogError("[httpserver] -class- " . $connection->peerhost() . " Unauthorized");
+                    $connector->{logger}->writeLogError("[httpserver] " . $connection->peerhost() . " Unauthorized");
                     $self->send_error(
                         connection => $connection,
                         code => "401",

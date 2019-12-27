@@ -69,7 +69,7 @@ sub handle_HUP {
 
 sub handle_TERM {
     my $self = shift;
-    $self->{logger}->writeLogInfo("[proxy] -class- $$ Receiving order to stop...");
+    $self->{logger}->writeLogInfo("[proxy] $$ Receiving order to stop...");
     $self->{stop} = 1;
 }
 
@@ -197,11 +197,11 @@ sub action_proxyaddnode {
         }
 
         if ($changed == 0) {
-            $self->{logger}->writeLogInfo("[proxy] -class- session not changed $data->{id}");
+            $self->{logger}->writeLogInfo("[proxy] Session not changed $data->{id}");
             return ;
         }
 
-        $self->{logger}->writeLogInfo("[proxy] -class- recreate session for $data->{id}");
+        $self->{logger}->writeLogInfo("[proxy] Recreate session for $data->{id}");
         # we send a pong reset. because the ping can be lost
         $self->send_internal_action(
             action => 'PONGRESET',
@@ -235,7 +235,7 @@ sub close_connections {
 
     foreach (keys %{$self->{clients}}) {
         if (defined($self->{clients}->{$_}->{class})) {
-            $self->{logger}->writeLogInfo("[proxy] -class- close connection for $_");
+            $self->{logger}->writeLogInfo("[proxy] Close connection for $_");
             $self->{clients}->{$_}->{class}->close();
         }
     }
@@ -249,7 +249,7 @@ sub proxy {
     }
     my ($action, $token, $target_complete, $data) = ($1, $2, $3, $4);
     $connector->{logger}->writeLogDebug(
-        "[proxy] -class- Send message: [action = $action] [token = $token] [target = $target_complete] [data = $data]"
+        "[proxy] Send message: [action = $action] [token = $token] [target = $target_complete] [data = $data]"
     );
 
     if ($action eq 'PROXYADDNODE') {
@@ -307,7 +307,7 @@ sub proxy {
                     message => "Send message problem for '$target': $msg"
                 }
             );
-            $connector->{logger}->writeLogError("[proxy] -class- Send message problem for '$target': $msg");
+            $connector->{logger}->writeLogError("[proxy] Send message problem for '$target': $msg");
             $connector->{clients}->{$target_client}->{delete} = 1;
         }
     } elsif ($connector->{clients}->{$target_client}->{type} eq 'push_ssh') {
@@ -332,7 +332,7 @@ sub proxy {
             target => $target
         );
 
-        $connector->{logger}->writeLogDebug("[proxy] -class- sshclient return: [message = $data_ret->{message}]");
+        $connector->{logger}->writeLogDebug("[proxy] Sshclient return: [message = $data_ret->{message}]");
         if ($status == 0) {
             $connector->send_log(
                 code => gorgone::class::module::ACTION_FINISH_OK,
@@ -409,7 +409,7 @@ sub run {
         next if (!defined($rev));
         
         if ($rev == 0 && $self->{stop} == 1) {
-            $self->{logger}->writeLogInfo("[proxy] -class- $$ has quit");
+            $self->{logger}->writeLogInfo("[proxy] $$ has quit");
             $self->close_connections();
             zmq_close($connector->{internal_socket});
             exit(0);

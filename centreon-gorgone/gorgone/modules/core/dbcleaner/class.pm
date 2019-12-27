@@ -66,7 +66,7 @@ sub handle_HUP {
 
 sub handle_TERM {
     my $self = shift;
-    $self->{logger}->writeLogInfo("[dbcleaner] -class- $$ Receiving order to stop...");
+    $self->{logger}->writeLogDebug("[dbcleaner] $$ Receiving order to stop...");
     $self->{stop} = 1;
 }
 
@@ -99,12 +99,12 @@ sub action_dbclean {
         }
     ) if (!defined($options{cycle}));
 
-    $self->{logger}->writeLogInfo("[dbcleaner] -class- purge db in progress...");
+    $self->{logger}->writeLogDebug("[dbcleaner] Purge database in progress...");
     my ($status) = $self->{db_gorgone}->query("DELETE FROM gorgone_identity WHERE `ctime` <  " . $self->{db_gorgone}->quote(time() - $self->{config}->{purge_sessions_time}));
     my ($status2) = $self->{db_gorgone}->query("DELETE FROM gorgone_history WHERE `ctime` <  " . $self->{db_gorgone}->quote(time() - $self->{config}->{purge_history_time}));
     $self->{purge_timer} = time();
 
-    $self->{logger}->writeLogDebug("[dbcleaner] -class- finish dbclean");
+    $self->{logger}->writeLogDebug("[dbcleaner] Purge finished");
 
     if ($status == -1 || $status2 == -1) {
         $self->send_log(
@@ -131,7 +131,7 @@ sub event {
     while (1) {
         my $message = gorgone::standard::library::zmq_dealer_read_message(socket => $connector->{internal_socket});
         
-        $connector->{logger}->writeLogDebug("[dbcleaner] -class- Event: $message");
+        $connector->{logger}->writeLogDebug("[dbcleaner] Event: $message");
         if ($message =~ /^\[(.*?)\]/) {
             if ((my $method = $connector->can('action_' . lc($1)))) {
                 $message =~ /^\[(.*?)\]\s+\[(.*?)\]\s+\[.*?\]\s+(.*)$/m;
@@ -183,7 +183,7 @@ sub run {
         # we try to do all we can
         my $rev = zmq_poll($self->{poll}, 5000);
         if (defined($rev) && $rev == 0 && $self->{stop} == 1) {
-            $self->{logger}->writeLogInfo("[dbcleaner] -class- $$ has quit");
+            $self->{logger}->writeLogInfo("[dbcleaner] $$ has quit");
             zmq_close($connector->{internal_socket});
             exit(0);
         }

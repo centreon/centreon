@@ -62,7 +62,7 @@ sub routing {
         $data = JSON::XS->new->utf8->decode($options{data});
     };
     if ($@) {
-        $options{logger}->writeLogError("[nodes] -hooks- Cannot decode json data: $@");
+        $options{logger}->writeLogError("[nodes] Cannot decode json data: $@");
         gorgone::standard::library::add_history(
             dbh => $options{dbh},
             code => 10, token => $options{token},
@@ -100,7 +100,7 @@ sub gently {
     my (%options) = @_;
 
     $stop = 1;
-    $options{logger}->writeLogInfo("[nodes] -hooks- Send TERM signal");
+    $options{logger}->writeLogDebug("[nodes] Send TERM signal");
     if ($nodes->{running} == 1) {
         CORE::kill('TERM', $nodes->{pid});
     }
@@ -110,7 +110,7 @@ sub kill {
     my (%options) = @_;
 
     if ($nodes->{running} == 1) {
-        $options{logger}->writeLogInfo("[nodes] -hooks- Send KILL signal for pool");
+        $options{logger}->writeLogDebug("[nodes] Send KILL signal for pool");
         CORE::kill('KILL', $nodes->{pid});
     }
 }
@@ -150,7 +150,7 @@ sub broadcast {
 sub create_child {
     my (%options) = @_;
     
-    $options{logger}->writeLogInfo("[nodes] -hooks- Create module 'nodes' process");
+    $options{logger}->writeLogInfo("[nodes] Create module 'nodes' process");
     my $child_pid = fork();
     if ($child_pid == 0) {
         $0 = 'gorgone-nodes';
@@ -163,7 +163,7 @@ sub create_child {
         $module->run();
         exit(0);
     }
-    $options{logger}->writeLogInfo("[nodes] -hooks- PID $child_pid (gorgone-nodes)");
+    $options{logger}->writeLogDebug("[nodes] PID $child_pid (gorgone-nodes)");
     $nodes = { pid => $child_pid, ready => 0, running => 1 };
 }
 

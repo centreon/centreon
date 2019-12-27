@@ -71,7 +71,7 @@ sub handle_HUP {
 
 sub handle_TERM {
     my $self = shift;
-    $self->{logger}->writeLogInfo("[autodiscovery] -class- $$ Receiving order to stop...");
+    $self->{logger}->writeLogInfo("[autodiscovery] $$ Receiving order to stop...");
     $self->{stop} = 1;
 }
 
@@ -93,7 +93,7 @@ sub action_adddiscoverytask {
     $options{token} = $self->generate_token() if (!defined($options{token}));
     my $id = 'autodiscovery_task_' . $self->generate_token(length => 12) if (!defined($options{data}->{content}->{id}));
     
-    $self->{logger}->writeLogInfo("[autodiscovery] -class- Add task '" . $id . "'");
+    $self->{logger}->writeLogInfo("[autodiscovery] Add task '" . $id . "'");
     $self->send_internal_action(
         action => 'COMMAND',
         target => $options{data}->{content}->{target},
@@ -131,7 +131,7 @@ sub action_getdiscoverytask {
     $options{token} = $self->generate_token() if (!defined($options{token}));
 
     if (!defined($options{data}->{variables}[0])) {
-        $self->{logger}->writeLogError("[autodiscovery] -class- Need to specify job id");
+        $self->{logger}->writeLogError("[autodiscovery] Need to specify job id");
         $self->send_log(
             code => $self->ACTION_FINISH_KO,
             token => $options{token},
@@ -160,7 +160,7 @@ sub action_adddiscoveryjob {
     $options{token} = $self->generate_token() if (!defined($options{token}));
     my $id = 'autodiscovery_job_' . $self->generate_token(length => 12) if (!defined($options{data}->{content}->{id}));
 
-    $self->{logger}->writeLogInfo("[autodiscovery] -class- Add job '" . $id . "'");
+    $self->{logger}->writeLogInfo("[autodiscovery] Add job '" . $id . "'");
     my $definition = {
         id => $id,
         target => $options{data}->{content}->{target},
@@ -205,7 +205,7 @@ sub action_getdiscoveryjob {
     $options{token} = $self->generate_token() if (!defined($options{token}));
 
     if (!defined($options{data}->{variables}[0])) {
-        $self->{logger}->writeLogError("[autodiscovery] -class- Need to specify job id");
+        $self->{logger}->writeLogError("[autodiscovery] Need to specify job id");
         $self->send_log(
             code => $self->ACTION_FINISH_KO,
             token => $options{token},
@@ -265,7 +265,7 @@ sub action_getdiscoveryresults {
 
     foreach my $id (keys %tasks) {
         next if (defined($tasks{$id}->{results}));
-        $self->{logger}->writeLogDebug("[autodiscovery] -class- Get logs results for task '" . $id . "'");
+        $self->{logger}->writeLogDebug("[autodiscovery] Get logs results for task '" . $id . "'");
         $self->send_internal_action(
             action => 'GETLOG',
             data => {
@@ -274,7 +274,7 @@ sub action_getdiscoveryresults {
         );
     }
     foreach my $id (keys %jobs) {
-        $self->{logger}->writeLogDebug("[autodiscovery] -class- Get logs results for job '" . $id . "'");
+        $self->{logger}->writeLogDebug("[autodiscovery] Get logs results for job '" . $id . "'");
         $self->send_internal_action(
             action => 'GETLOG',
             data => {
@@ -298,9 +298,7 @@ sub action_updatediscoveryresults {
             !defined($data->{metadata}->{source}) || $data->{metadata}->{source} ne 'autodiscovery');
 
         if ($data->{metadata}->{type} eq 'task') {
-            $self->{logger}->writeLogInfo(
-                "[autodiscovery] -class- Found result for task '" . $data->{metadata}->{id} . "'"
-            );
+            $self->{logger}->writeLogInfo("[autodiscovery] Found result for task '" . $data->{metadata}->{id} . "'");
             $tasks{$data->{metadata}->{id}}->{results} = $data;
         } elsif ($data->{metadata}->{type} eq 'job') {
             $jobs{$data->{metadata}->{id}}->{results} = $data ;
@@ -314,7 +312,7 @@ sub event {
     while (1) {
         my $message = gorgone::standard::library::zmq_dealer_read_message(socket => $connector->{internal_socket});
         
-        $connector->{logger}->writeLogDebug("[autodiscovery] -class- Event: $message");
+        $connector->{logger}->writeLogDebug("[autodiscovery] Event: $message");
         if ($message =~ /^\[ACK\]\s+\[(.*?)\]\s+(.*)$/m) {
             my $token = $1;
             my $data = JSON::XS->new->utf8->decode($2);
@@ -391,7 +389,7 @@ sub run {
         # we try to do all we can
         my $rev = zmq_poll($self->{poll}, 5000);
         if (defined($rev) && $rev == 0 && $self->{stop} == 1) {
-            $self->{logger}->writeLogInfo("[autodiscovery] -class- $$ has quit");
+            $self->{logger}->writeLogInfo("[autodiscovery] $$ has quit");
             zmq_close($connector->{internal_socket});
             exit(0);
         }

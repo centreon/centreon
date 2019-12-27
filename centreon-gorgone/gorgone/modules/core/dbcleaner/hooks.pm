@@ -70,7 +70,7 @@ sub routing {
         $data = JSON::XS->new->utf8->decode($options{data});
     };
     if ($@) {
-        $options{logger}->writeLogError("[dbcleaner] -hooks- Cannot decode json data: $@");
+        $options{logger}->writeLogError("[dbcleaner] Cannot decode json data: $@");
         gorgone::standard::library::add_history(
             dbh => $options{dbh},
             code => 10, token => $options{token},
@@ -108,7 +108,7 @@ sub gently {
     my (%options) = @_;
 
     $stop = 1;
-    $options{logger}->writeLogInfo("[dbcleaner] -hooks- Send TERM signal");
+    $options{logger}->writeLogDebug("[dbcleaner] Send TERM signal");
     if ($dbcleaner->{running} == 1) {
         CORE::kill('TERM', $dbcleaner->{pid});
     }
@@ -118,7 +118,7 @@ sub kill {
     my (%options) = @_;
 
     if ($dbcleaner->{running} == 1) {
-        $options{logger}->writeLogInfo("[dbcleaner] -hooks- Send KILL signal for pool");
+        $options{logger}->writeLogDebug("[dbcleaner] Send KILL signal for pool");
         CORE::kill('KILL', $dbcleaner->{pid});
     }
 }
@@ -158,7 +158,7 @@ sub broadcast {
 sub create_child {
     my (%options) = @_;
 
-    $options{logger}->writeLogInfo("[dbcleaner] -hooks- Create module 'dbcleaner' process");
+    $options{logger}->writeLogInfo("[dbcleaner] Create module 'dbcleaner' process");
     my $child_pid = fork();
     if ($child_pid == 0) {
         $0 = 'gorgone-dbcleaner';
@@ -170,7 +170,7 @@ sub create_child {
         $module->run();
         exit(0);
     }
-    $options{logger}->writeLogInfo("[dbcleaner] -hooks- PID $child_pid (gorgone-dbcleaner)");
+    $options{logger}->writeLogDebug("[dbcleaner] PID $child_pid (gorgone-dbcleaner)");
     $dbcleaner = { pid => $child_pid, ready => 0, running => 1 };
 }
 

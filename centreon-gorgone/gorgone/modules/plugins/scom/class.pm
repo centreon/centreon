@@ -87,7 +87,7 @@ sub handle_HUP {
 
 sub handle_TERM {
     my $self = shift;
-    $self->{logger}->writeLogInfo("[scom] -class- $$ Receiving order to stop...");
+    $self->{logger}->writeLogInfo("[scom] $$ Receiving order to stop...");
     $self->{stop} = 1;
 }
 
@@ -107,13 +107,13 @@ sub http_check_error {
     my ($self, %options) = @_;
 
     if ($options{status} == 1) {
-        $self->{logger}->writeLogError("[scom] -class- Container $self->{container_id}: scom $options{method} issue");
+        $self->{logger}->writeLogError("[scom] Container $self->{container_id}: scom $options{method} issue");
         return 1;
     }
 
     my $code = $self->{http}->get_code();
     if ($code !~ /^2/) {
-        $self->{logger}->writeLogError("[scom] -class- Container $self->{container_id}: scom $options{method} issue - " . $self->{http}->get_message());
+        $self->{logger}->writeLogError("[scom] Container $self->{container_id}: scom $options{method} issue - " . $self->{http}->get_message());
         return 1;
     }
 
@@ -150,7 +150,7 @@ sub submit_external_cmd {
         wait_exit => 1
     );
     if ($lerror == -1 || ($exit_code >> 8) != 0) {
-        $self->{logger}->writeLogError("[scom] -class- Command execution problem for command $options{cmd} : " . $stdout);
+        $self->{logger}->writeLogError("[scom] Command execution problem for command $options{cmd} : " . $stdout);
         return -1;
     }
 
@@ -177,7 +177,7 @@ sub scom_authenticate_1801 {
     if (defined($header) && $header =~ /SCOMSessionId=([^;]+);/i) {
         $connector->{scom_session_id} = $1;
     } else {
-        $self->{logger}->writeLogError("[scom] -class- Container $self->{container_id}: scom authenticate issue - error retrieving cookie");
+        $self->{logger}->writeLogError("[scom] Container $self->{container_id}: scom authenticate issue - error retrieving cookie");
         return 1;
     }
 
@@ -458,25 +458,25 @@ sub action_scomresync {
     $options{token} = $self->generate_token() if (!defined($options{token}));
 
     $self->send_log(code => gorgone::class::module::ACTION_BEGIN, token => $options{token}, data => { message => 'action scomresync proceed' });
-    $self->{logger}->writeLogDebug("[scom] -class- Container $self->{container_id}: begin resync");
+    $self->{logger}->writeLogDebug("[scom] Container $self->{container_id}: begin resync");
 
     if ($self->get_realtime_slots()) {
         $self->send_log(code => gorgone::class::module::ACTION_FINISH_KO, token => $options{token}, data => { message => 'cannot find realtime slots' });
-        $self->{logger}->writeLogError("[scom] -class- Container $self->{container_id}: cannot find realtime slots");
+        $self->{logger}->writeLogError("[scom] Container $self->{container_id}: cannot find realtime slots");
         return 1;
     }
 
     my $func = $self->get_method(method => 'get_realtime_scom_alerts');
     if ($func->($self)) {
         $self->send_log(code => gorgone::class::module::ACTION_FINISH_KO, token => $options{token}, data => { message => 'cannot get scom realtime alerts' });
-        $self->{logger}->writeLogError("[scom] -class- Container $self->{container_id}: cannot get scom realtime alerts");
+        $self->{logger}->writeLogError("[scom] Container $self->{container_id}: cannot get scom realtime alerts");
         return 1;
     }
 
     $self->sync_alerts();
     $self->sync_acks();
 
-    $self->{logger}->writeLogDebug("[scom] -class- Container $self->{container_id}: finish resync");
+    $self->{logger}->writeLogDebug("[scom] Container $self->{container_id}: finish resync");
     $self->send_log(code => $self->ACTION_FINISH_OK, token => $options{token}, data => { message => 'action scomresync finished' });
     return 0;
 }
@@ -485,7 +485,7 @@ sub event {
     while (1) {
         my $message = gorgone::standard::library::zmq_dealer_read_message(socket => $connector->{internal_socket});
         
-        $connector->{logger}->writeLogDebug("[scom] -class- Event: $message");
+        $connector->{logger}->writeLogDebug("[scom] Event: $message");
         if ($message =~ /^\[(.*?)\]/) {
             if ((my $method = $connector->can('action_' . lc($1)))) {
                 $message =~ /^\[(.*?)\]\s+\[(.*?)\]\s+\[.*?\]\s+(.*)$/m;
@@ -537,7 +537,7 @@ sub run {
         # we try to do all we can
         my $rev = zmq_poll($self->{poll}, 5000);
         if (defined($rev) && $rev == 0 && $self->{stop} == 1) {
-            $self->{logger}->writeLogInfo("[scom] -class- $$ has quit");
+            $self->{logger}->writeLogInfo("[scom] $$ has quit");
             zmq_close($connector->{internal_socket});
             exit(0);
         }

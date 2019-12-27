@@ -72,7 +72,7 @@ sub handle_HUP {
 
 sub handle_TERM {
     my $self = shift;
-    $self->{logger}->writeLogInfo("[legacycmd] -class- $$ Receiving order to stop...");
+    $self->{logger}->writeLogDebug("[legacycmd] $$ Receiving order to stop...");
     $self->{stop} = 1;
 }
 
@@ -103,7 +103,7 @@ sub get_pollers_config {
         keys => 'nagios_server_id'
     );
     if ($status == -1 || !defined($datas)) {
-        $self->{logger}->writeLogError('[legacycmd] -class- cannot get configuration for pollers');
+        $self->{logger}->writeLogError('[legacycmd] Cannot get configuration for pollers');
         return -1;
     }
 
@@ -124,7 +124,7 @@ sub get_clapi_user {
         mode => 2
     );
     if ($status == -1 || !defined($datas->[0][0])) {
-        $self->{logger}->writeLogError('[legacycmd] -class- cannot get configuration for clapi user');
+        $self->{logger}->writeLogError('[legacycmd] Cannot get configuration for CLAPI user');
         return -1;
     }
     my $clapi_password = $datas->[0][0];
@@ -146,7 +146,7 @@ sub get_illegal_characters {
         mode => 2
     );
     if ($status == -1 || !defined($datas->[0][0])) {
-        $self->{logger}->writeLogError('[legacycmd] -class- cannot get centcore illegal characters');
+        $self->{logger}->writeLogError('[legacycmd] Cannot get illegal characters');
         return -1;
     }
 
@@ -444,7 +444,7 @@ sub move_cmd_file {
     my $handle;
     if (-e $options{dst}) {
         if (!open($handle, $operator, $options{dst})) {
-            $self->{logger}->writeLogError("[legacycmd] -class- cannot open file '" . $options{dst} . "': $!");
+            $self->{logger}->writeLogError("[legacycmd] Cannot open file '" . $options{dst} . "': $!");
             return -1;
         }
         
@@ -455,12 +455,12 @@ sub move_cmd_file {
     return -1 if (! -e $options{src});
 
     if (!File::Copy::move($options{src}, $options{dst})) {
-        $self->{logger}->writeLogError("[legacycmd] -class- cannot move file '" . $options{src} . "': $!");
+        $self->{logger}->writeLogError("[legacycmd] Cannot move file '" . $options{src} . "': $!");
         return -1;
     }
 
     if (!open($handle, $operator, $options{dst})) {
-        $self->{logger}->writeLogError("[legacycmd] -class- cannot open file '" . $options{dst} . "': $!");
+        $self->{logger}->writeLogError("[legacycmd] Cannot open file '" . $options{dst} . "': $!");
         return -1;
     }
 
@@ -471,7 +471,7 @@ sub handle_file {
     my ($self, %options) = @_;
     require bytes;
 
-    $self->{logger}->writeLogDebug("[legacycmd] -class- Processing file '" . $options{file} . "'");
+    $self->{logger}->writeLogDebug("[legacycmd] Processing file '" . $options{file} . "'");
     my $handle = $options{handle};
     while (my $line = <$handle>) {
         if ($self->{stop} == 1) {
@@ -512,7 +512,7 @@ sub handle_centcore_dir {
     
     my ($dh, @files);
     if (!opendir($dh, $self->{config}->{cmd_dir})) {
-        $self->{logger}->writeLogError("[legacycmd] -class- cant opendir '" . $self->{config}->{cmd_dir} . "': $!");
+        $self->{logger}->writeLogError("[legacycmd] Cannot open directory '" . $self->{config}->{cmd_dir} . "': $!");
         return ;
     }
     @files = sort {
@@ -555,7 +555,7 @@ sub event {
     while (1) {
         my $message = gorgone::standard::library::zmq_dealer_read_message(socket => $connector->{internal_socket});
         
-        $connector->{logger}->writeLogDebug("[legacycmd] -class- Event: $message");
+        $connector->{logger}->writeLogDebug("[legacycmd] Event: $message");
         if ($message =~ /^\[(.*?)\]/) {
             if ((my $method = $connector->can('action_' . lc($1)))) {
                 $message =~ /^\[(.*?)\]\s+\[(.*?)\]\s+\[.*?\]\s+(.*)$/m;
@@ -608,7 +608,7 @@ sub run {
         # we try to do all we can
         my $rev = zmq_poll($self->{poll}, 2000);
         if ($rev == 0 && $self->{stop} == 1) {
-            $self->{logger}->writeLogInfo("[legacycmd] -class- $$ has quit");
+            $self->{logger}->writeLogInfo("[legacycmd] $$ has quit");
             zmq_close($connector->{internal_socket});
             exit(0);
         }

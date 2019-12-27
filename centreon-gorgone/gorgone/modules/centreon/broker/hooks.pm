@@ -63,7 +63,7 @@ sub routing {
         $data = JSON::XS->new->utf8->decode($options{data});
     };
     if ($@) {
-        $options{logger}->writeLogError("[broker] -hooks- Cannot decode json data: $@");
+        $options{logger}->writeLogError("[broker] Cannot decode json data: $@");
         gorgone::standard::library::add_history(
             dbh => $options{dbh},
             code => 30, token => $options{token},
@@ -101,7 +101,7 @@ sub gently {
     my (%options) = @_;
 
     $stop = 1;
-    $options{logger}->writeLogInfo("[broker] -hooks- Send TERM signal");
+    $options{logger}->writeLogDebug("[broker] Send TERM signal");
     if ($broker->{running} == 1) {
         CORE::kill('TERM', $broker->{pid});
     }
@@ -111,7 +111,7 @@ sub kill {
     my (%options) = @_;
 
     if ($broker->{running} == 1) {
-        $options{logger}->writeLogInfo("[broker] -hooks- Send KILL signal for pool");
+        $options{logger}->writeLogDebug("[broker] Send KILL signal for pool");
         CORE::kill('KILL', $broker->{pid});
     }
 }
@@ -151,7 +151,7 @@ sub broadcast {
 sub create_child {
     my (%options) = @_;
     
-    $options{logger}->writeLogInfo("[broker] -hooks- Create module 'broker' process");
+    $options{logger}->writeLogInfo("[broker] Create module 'broker' process");
     my $child_pid = fork();
     if ($child_pid == 0) {
         $0 = 'gorgone-broker';
@@ -164,7 +164,7 @@ sub create_child {
         $module->run();
         exit(0);
     }
-    $options{logger}->writeLogInfo("[broker] -hooks- PID $child_pid (gorgone-broker)");
+    $options{logger}->writeLogDebug("[broker] PID $child_pid (gorgone-broker)");
     $broker = { pid => $child_pid, ready => 0, running => 1 };
 }
 

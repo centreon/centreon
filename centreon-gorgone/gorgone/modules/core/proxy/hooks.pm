@@ -119,7 +119,7 @@ sub routing {
         $data = JSON::XS->new->utf8->decode($options{data});
     };
     if ($@) {
-        $options{logger}->writeLogError("[proxy] -hooks- Cannot decode json data: $@");
+        $options{logger}->writeLogError("[proxy] Cannot decode json data: $@");
         gorgone::standard::library::add_history(
             dbh => $options{dbh},
             code => 20, token => $options{token},
@@ -137,14 +137,14 @@ sub routing {
         $constatus_ping->{$data->{data}->{id}}->{last_ping_recv} = time();
         $constatus_ping->{$data->{data}->{id}}->{nodes} = $data->{data}->{data};
         register_subnodes(%options, id => $data->{data}->{id}, subnodes => $data->{data}->{data});
-        $options{logger}->writeLogInfo("[proxy] -hooks- Pong received from '" . $data->{data}->{id} . "'");
+        $options{logger}->writeLogInfo("[proxy] Pong received from '" . $data->{data}->{id} . "'");
         return undef;
     }
 
     if ($options{action} eq 'PONGRESET') {
         return undef if (!defined($data->{id}) || $data->{id} eq '');
         $synctime_nodes->{$data->{id}}->{in_progress_ping} = 0;
-        $options{logger}->writeLogInfo("[proxy] -hooks- PongReset received from '" . $data->{id} . "'");
+        $options{logger}->writeLogInfo("[proxy] PongReset received from '" . $data->{id} . "'");
         return undef;
     }
     
@@ -289,7 +289,7 @@ sub gently {
 
     $stop = 1;
     foreach my $pool_id (keys %{$pools}) {
-        $options{logger}->writeLogInfo("[proxy] -hooks- Send TERM signal for pool '" . $pool_id . "'");
+        $options{logger}->writeLogDebug("[proxy] Send TERM signal for pool '" . $pool_id . "'");
         if ($pools->{$pool_id}->{running} == 1) {
             CORE::kill('TERM', $pools->{$pool_id}->{pid});
         }
@@ -301,7 +301,7 @@ sub kill {
 
     foreach (keys %{$pools}) {
         if ($pools->{$_}->{running} == 1) {
-            $options{logger}->writeLogInfo("[proxy] -hooks- Send KILL signal for pool '" . $_ . "'");
+            $options{logger}->writeLogDebug("[proxy] Send KILL signal for pool '" . $_ . "'");
             CORE::kill('KILL', $pools->{$_}->{pid});
         }
     }
@@ -372,7 +372,7 @@ sub check {
     
     if ($stop == 0 &&
         time() - $ping_time > $ping_option) {
-        $options{logger}->writeLogInfo("[proxy] -hooks- Send pings");
+        $options{logger}->writeLogInfo("[proxy] Send pings");
         $ping_time = time();
         ping_send(dbh => $options{dbh}, logger => $options{logger});
     }
@@ -431,11 +431,11 @@ sub pathway {
 
     foreach (@targets) {
         if (!defined($last_pong->{$_}) || $last_pong->{$_} == 0 || (time() - $config->{pong_discard_timeout} < $last_pong->{$_})) {
-            $options{logger}->writeLogDebug("[proxy] -hooks- choose node target '$_' for node '$target'");
+            $options{logger}->writeLogDebug("[proxy] Choose node target '$_' for node '$target'");
             return (1, $_ . '~~' . $target, $_, $target);
         }
 
-        $options{logger}->writeLogDebug("[proxy] -hooks- skip node target '$_' for node '$target'");
+        $options{logger}->writeLogDebug("[proxy] Skip node target '$_' for node '$target'");
     }
 
     gorgone::standard::library::add_history(
@@ -469,7 +469,7 @@ sub setlogs {
         return undef;
     }
 
-    $options{logger}->writeLogInfo("[proxy] -hooks- Received setlogs for '$options{data}->{data}->{id}'");
+    $options{logger}->writeLogInfo("[proxy] Received setlogs for '$options{data}->{data}->{id}'");
     
     $synctime_nodes->{$options{data}->{data}->{id}}->{in_progress} = 0;
     
@@ -605,11 +605,11 @@ sub create_child {
     my (%options) = @_;
 
     if (!defined($core_id) || $core_id =~ /^\s*$/) {
-        $options{logger}->writeLogError("[proxy] -hooks- Cannot create child. need a core id");
+        $options{logger}->writeLogError("[proxy] Cannot create child, need a core id");
         return ;
     }
 
-    $options{logger}->writeLogInfo("[proxy] -hooks- Create module 'proxy' child process for pool id '" . $options{pool_id} . "'");
+    $options{logger}->writeLogInfo("[proxy] Create module 'proxy' child process for pool id '" . $options{pool_id} . "'");
     my $child_pid = fork();
     if ($child_pid == 0) {
         $0 = 'gorgone-proxy';
@@ -624,7 +624,7 @@ sub create_child {
         $module->run();
         exit(0);
     }
-    $options{logger}->writeLogInfo("[proxy] -hooks- PID $child_pid (gorgone-proxy) for pool id '" . $options{pool_id} . "'");
+    $options{logger}->writeLogDebug("[proxy] PID $child_pid (gorgone-proxy) for pool id '" . $options{pool_id} . "'");
     $pools->{$options{pool_id}} = { pid => $child_pid, ready => 0, running => 1 };
     $pools_pid->{$child_pid} = $options{pool_id};
 }
@@ -679,7 +679,7 @@ sub unregister_nodes {
             routing(socket => $internal_socket, action => 'PROXYDELNODE', target => $node->{id}, data => JSON::XS->new->utf8->encode($node), dbh => $options{dbh}, logger => $options{logger});
         }
 
-        $options{logger}->writeLogInfo("[proxy] -hooks- node '" . $node->{id} . "' is unregistered");
+        $options{logger}->writeLogInfo("[proxy] Node '" . $node->{id} . "' is unregistered");
         if (defined($register_nodes->{$node->{id}}) && $register_nodes->{$node->{id}}->{nodes}) {
             foreach my $subnode (@{$register_nodes->{$node->{id}}->{nodes}}) {
                 delete $register_subnodes->{ $subnode->{id} }->{static}->{ $node->{id} }
@@ -760,7 +760,7 @@ sub register_nodes {
             $constatus_ping->{$node->{id}} = { type => $node->{type}, last_ping_sent => 0, last_ping_recv => 0, nodes => {} };
             # we provide information to the proxy class
             ping_send(node_id => $node->{id}, dbh => $options{dbh}, logger => $options{logger});
-            $options{logger}->writeLogInfo("[proxy] -hooks- node '" . $node->{id} . "' is registered");
+            $options{logger}->writeLogInfo("[proxy] Node '" . $node->{id} . "' is registered");
         }
     }
 }
@@ -771,7 +771,7 @@ sub prepare_remote_copy {
     my @actions;
     
     if (!defined($options{data}->{content}->{source}) || $options{data}->{content}->{source} eq '') {
-        $options{logger}->writeLogError('[proxy] -hooks- prepare_remote_copy: need source');
+        $options{logger}->writeLogError('[proxy] Need source for remote copy');
         gorgone::standard::library::add_history(
             dbh => $options{dbh},
             code => gorgone::class::module::ACTION_FINISH_KO,
@@ -782,7 +782,7 @@ sub prepare_remote_copy {
         return -1;
     }
     if (!defined($options{data}->{content}->{destination}) || $options{data}->{content}->{destination} eq '') {
-        $options{logger}->writeLogError('[proxy] -hooks- prepare_remote_copy: need destination');
+        $options{logger}->writeLogError('[proxy] Need destination for remote copy');
         gorgone::standard::library::add_history(
             dbh => $options{dbh},
             code => gorgone::class::module::ACTION_FINISH_KO,
@@ -816,7 +816,7 @@ sub prepare_remote_copy {
             redirect_stderr => 1,
         );
         if ($error <= -1000) {
-            $options{logger}->writeLogError("[proxy] -hooks- prepare_remote_copy: tar failed: $stdout");
+            $options{logger}->writeLogError("[proxy] Tar failed: $stdout");
             gorgone::standard::library::add_history(
                 dbh => $options{dbh},
                 code => gorgone::class::module::ACTION_FINISH_KO,
@@ -827,7 +827,7 @@ sub prepare_remote_copy {
             return -1;
         }
         if ($exit_code != 0) {
-            $options{logger}->writeLogError("[proxy] -hooks- prepare_remote_copy: tar failed ($exit_code): $stdout");
+            $options{logger}->writeLogError("[proxy] Tar failed ($exit_code): $stdout");
             gorgone::standard::library::add_history(
                 dbh => $options{dbh},
                 code => gorgone::class::module::ACTION_FINISH_KO,
@@ -838,7 +838,7 @@ sub prepare_remote_copy {
             return -1;
         };
     } else {
-        $options{logger}->writeLogError('[proxy] -hooks- prepare_remote_copy: unknown source');
+        $options{logger}->writeLogError('[proxy] Unknown source for remote copy');
         gorgone::standard::library::add_history(
             dbh => $options{dbh},
             code => gorgone::class::module::ACTION_FINISH_KO,
@@ -894,7 +894,7 @@ sub setcoreid {
 sub add_parent_ping {
     my (%options) = @_;
 
-    $options{logger}->writeLogDebug("[proxy] -hooks- parent ping '" . $options{identity} . "' is registered");
+    $options{logger}->writeLogDebug("[proxy] Parent ping '" . $options{identity} . "' is registered");
     $parent_ping->{$options{identity}} = { last_time => time(), router_type => $options{router_type} };
 }
 

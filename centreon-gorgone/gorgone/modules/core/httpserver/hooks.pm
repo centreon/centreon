@@ -47,11 +47,11 @@ sub register {
     $config->{port} = defined($config->{port}) && $config->{port} =~ /(\d+)/ ? $1 : 8080;
     if (defined($config->{auth}->{enabled}) && $config->{auth}->{enabled} eq 'true') {
         if (!defined($config->{auth}->{user}) || $config->{auth}->{user} =~ /^\s*$/) {
-            $options{logger}->writeLogError('[httpserver] -hooks- user option mandatory if auth enabled');
+            $options{logger}->writeLogError('[httpserver] User option mandatory if authentication is enabled');
             $loaded = 0;
         }
         if (!defined($config->{auth}->{password}) || $config->{auth}->{password} =~ /^\s*$/) {
-            $options{logger}->writeLogError('[httpserver] -hooks- password option mandatory if auth enabled');
+            $options{logger}->writeLogError('[httpserver] Password option mandatory if authentication is enabled');
             $loaded = 0;
         }
     }
@@ -73,7 +73,7 @@ sub routing {
         $data = JSON::XS->new->utf8->decode($options{data});
     };
     if ($@) {
-        $options{logger}->writeLogError("[httpserver] -hooks- Cannot decode json data: $@");
+        $options{logger}->writeLogError("[httpserver] Cannot decode json data: $@");
         gorgone::standard::library::add_history(
             dbh => $options{dbh},
             code => 10,
@@ -113,7 +113,7 @@ sub gently {
     my (%options) = @_;
 
     $stop = 1;
-    $options{logger}->writeLogInfo("[httpserver] -hooks- Send TERM signal");
+    $options{logger}->writeLogDebug("[httpserver] Send TERM signal");
     if ($httpserver->{running} == 1) {
         CORE::kill('TERM', $httpserver->{pid});
     }
@@ -123,7 +123,7 @@ sub kill {
     my (%options) = @_;
 
     if ($httpserver->{running} == 1) {
-        $options{logger}->writeLogInfo("[httpserver] -hooks- Send KILL signal for pool");
+        $options{logger}->writeLogDebug("[httpserver] Send KILL signal for pool");
         CORE::kill('KILL', $httpserver->{pid});
     }
 }
@@ -159,7 +159,7 @@ sub broadcast {}
 sub create_child {
     my (%options) = @_;
     
-    $options{logger}->writeLogInfo("[httpserver] -hooks- Create module 'httpserver' process");
+    $options{logger}->writeLogInfo("[httpserver] Create module 'httpserver' process");
     my $child_pid = fork();
     if ($child_pid == 0) {
         $0 = 'gorgone-httpserver';
@@ -172,7 +172,7 @@ sub create_child {
         $module->run();
         exit(0);
     }
-    $options{logger}->writeLogInfo("[httpserver] -hooks- PID $child_pid (gorgone-httpserver)");
+    $options{logger}->writeLogDebug("[httpserver] PID $child_pid (gorgone-httpserver)");
     $httpserver = { pid => $child_pid, ready => 0, running => 1 };
 }
 

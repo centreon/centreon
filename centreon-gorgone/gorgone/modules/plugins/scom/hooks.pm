@@ -69,7 +69,7 @@ sub routing {
         $data = JSON::XS->new->utf8->decode($options{data});
     };
     if ($@) {
-        $options{logger}->writeLogError("[scom] -hooks- Cannot decode json data: $@");
+        $options{logger}->writeLogError("[scom] Cannot decode json data: $@");
         gorgone::standard::library::add_history(
             dbh => $options{dbh},
             code => 200, token => $options{token},
@@ -115,7 +115,7 @@ sub gently {
 
     $stop = 1;
     foreach my $container_id (keys %$containers) {
-        $options{logger}->writeLogInfo("[scom] -hooks- Send TERM signal for container '" . $container_id . "'");
+        $options{logger}->writeLogInfo("[scom] Send TERM signal for container '" . $container_id . "'");
         if ($containers->{$container_id}->{running} == 1) {
             CORE::kill('TERM', $containers->{$container_id}->{pid});
         }
@@ -127,7 +127,7 @@ sub kill_internal {
 
     foreach (keys %$containers) {
         if ($containers->{$_}->{running} == 1) {
-            $options{logger}->writeLogInfo("[scom] -hooks- Send KILL signal for container '" . $_ . "'");
+            $options{logger}->writeLogInfo("[scom] Send KILL signal for container '" . $_ . "'");
             CORE::kill('KILL', $containers->{$_}->{pid});
         }
     }
@@ -187,15 +187,15 @@ sub get_containers {
         next if (!defined($_->{name}) || $_->{name} eq '');
 
         if (!defined($_->{url}) || $_->{url} eq '') {
-            $options{logger}->writeLogError("[scom] -hooks- Cannot load container '" . $_->{name} . "' - please set url option");
+            $options{logger}->writeLogError("[scom] Cannot load container '" . $_->{name} . "' - please set url option");
             next;
         }
         if (!defined($_->{dsmhost}) || $_->{dsmhost} eq '') {
-            $options{logger}->writeLogError("[scom] -hooks- Cannot load container '" . $_->{name} . "' - please set dsmhost option");
+            $options{logger}->writeLogError("[scom] Cannot load container '" . $_->{name} . "' - please set dsmhost option");
             next;
         }
         if (!defined($_->{dsmslot}) || $_->{dsmslot} eq '') {
-            $options{logger}->writeLogError("[scom] -hooks- Cannot load container '" . $_->{name} . "' - please set dsmslot option");
+            $options{logger}->writeLogError("[scom] Cannot load container '" . $_->{name} . "' - please set dsmslot option");
             next;
         }
 
@@ -234,7 +234,7 @@ sub sync_container_childs {
         next if (defined($last_containers->{$container_id}));
 
         if ($containers->{$container_id}->{running} == 1) {
-            $options{logger}->writeLogInfo("[scom] -hooks- Send KILL signal for container '" . $container_id . "'");
+            $options{logger}->writeLogDebug("[scom] Send KILL signal for container '" . $container_id . "'");
             CORE::kill('KILL', $containers->{$container_id}->{pid});
         }
         
@@ -246,7 +246,7 @@ sub sync_container_childs {
 sub create_child {
     my (%options) = @_;
     
-    $options{logger}->writeLogInfo("[scom] -hooks- Create 'gorgone-scom' process for container '" . $options{container_id} . "'");
+    $options{logger}->writeLogInfo("[scom] Create 'gorgone-scom' process for container '" . $options{container_id} . "'");
     my $child_pid = fork();
     if ($child_pid == 0) {
         $0 = 'gorgone-scom ' . $options{container_id};
@@ -262,7 +262,7 @@ sub create_child {
         $module->run();
         exit(0);
     }
-    $options{logger}->writeLogInfo("[scom] -hooks- PID $child_pid (gorgone-scom) for container '" . $options{container_id} . "'");
+    $options{logger}->writeLogDebug("[scom] PID $child_pid (gorgone-scom) for container '" . $options{container_id} . "'");
     $containers->{$options{container_id}} = { pid => $child_pid, ready => 0, running => 1 };
     $containers_pid->{$child_pid} = $options{container_id};
 }

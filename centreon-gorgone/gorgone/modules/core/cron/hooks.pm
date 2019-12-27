@@ -63,7 +63,7 @@ sub routing {
         $data = JSON::XS->new->utf8->decode($options{data});
     };
     if ($@) {
-        $options{logger}->writeLogError("[cron] -hooks- Cannot decode json data: $@");
+        $options{logger}->writeLogError("[cron] Cannot decode json data: $@");
         gorgone::standard::library::add_history(
             dbh => $options{dbh},
             code => 10, token => $options{token},
@@ -101,7 +101,7 @@ sub gently {
     my (%options) = @_;
 
     $stop = 1;
-    $options{logger}->writeLogInfo("[cron] -hooks- Send TERM signal");
+    $options{logger}->writeLogDebug("[cron] Send TERM signal");
     if ($cron->{running} == 1) {
         CORE::kill('TERM', $cron->{pid});
     }
@@ -111,7 +111,7 @@ sub kill {
     my (%options) = @_;
 
     if ($cron->{running} == 1) {
-        $options{logger}->writeLogInfo("[cron] -hooks- Send KILL signal for pool");
+        $options{logger}->writeLogDebug("[cron] Send KILL signal for pool");
         CORE::kill('KILL', $cron->{pid});
     }
 }
@@ -151,7 +151,7 @@ sub broadcast {
 sub create_child {
     my (%options) = @_;
     
-    $options{logger}->writeLogInfo("[cron] -hooks- Create module 'cron' process");
+    $options{logger}->writeLogInfo("[cron] Create module 'cron' process");
     my $child_pid = fork();
     if ($child_pid == 0) {
         $0 = 'gorgone-cron';
@@ -163,7 +163,7 @@ sub create_child {
         $module->run();
         exit(0);
     }
-    $options{logger}->writeLogInfo("[cron] -hooks- PID $child_pid (gorgone-cron)");
+    $options{logger}->writeLogDebug("[cron] PID $child_pid (gorgone-cron)");
     $cron = { pid => $child_pid, ready => 0, running => 1 };
 }
 

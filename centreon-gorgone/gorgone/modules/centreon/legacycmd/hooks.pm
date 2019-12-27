@@ -65,7 +65,7 @@ sub routing {
         $data = JSON::XS->new->utf8->decode($options{data});
     };
     if ($@) {
-        $options{logger}->writeLogError("[legacycmd] -hooks- Cannot decode json data: $@");
+        $options{logger}->writeLogError("[legacycmd] Cannot decode json data: $@");
         gorgone::standard::library::add_history(
             dbh => $options{dbh},
             code => 10, token => $options{token},
@@ -103,7 +103,7 @@ sub gently {
     my (%options) = @_;
 
     $stop = 1;
-    $options{logger}->writeLogInfo("[legacycmd] -hooks- Send TERM signal");
+    $options{logger}->writeLogDebug("[legacycmd] Send TERM signal");
     if ($legacycmd->{running} == 1) {
         CORE::kill('TERM', $legacycmd->{pid});
     }
@@ -113,7 +113,7 @@ sub kill {
     my (%options) = @_;
 
     if ($legacycmd->{running} == 1) {
-        $options{logger}->writeLogInfo("[legacycmd] -hooks- Send KILL signal for pool");
+        $options{logger}->writeLogDebug("[legacycmd] Send KILL signal for pool");
         CORE::kill('KILL', $legacycmd->{pid});
     }
 }
@@ -153,7 +153,7 @@ sub broadcast {
 sub create_child {
     my (%options) = @_;
     
-    $options{logger}->writeLogInfo("[legacycmd] -hooks- Create module process");
+    $options{logger}->writeLogInfo("[legacycmd] Create module 'legacycmd' process");
 
     my $child_pid = fork();
     if ($child_pid == 0) {
@@ -167,7 +167,7 @@ sub create_child {
         $module->run();
         exit(0);
     }
-    $options{logger}->writeLogInfo("[legacycmd] -hooks- PID $child_pid (gorgone-legacycmd)");
+    $options{logger}->writeLogDebug("[legacycmd] PID $child_pid (gorgone-legacycmd)");
     $legacycmd = { pid => $child_pid, ready => 0, running => 1 };
 }
 

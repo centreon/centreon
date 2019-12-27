@@ -45,7 +45,7 @@ sub register {
     $config = $options{config};
     $config_core = $options{config_core};
     if (!defined($config->{config_file}) || $config->{config_file} =~ /^\s*$/) {
-        $options{logger}->writeLogError('[register] -hooks- config_file option mandatory');
+        $options{logger}->writeLogError("[register] Option 'config_file' mandatory");
         $loaded = 0;
     }
     return ($loaded, NAMESPACE, NAME, EVENTS);
@@ -65,7 +65,7 @@ sub routing {
         $data = JSON::XS->new->utf8->decode($options{data});
     };
     if ($@) {
-        $options{logger}->writeLogError("[register] -hooks- Cannot decode json data: $@");
+        $options{logger}->writeLogError("[register] Cannot decode json data: $@");
         gorgone::standard::library::add_history(
             dbh => $options{dbh},
             code => 10, token => $options{token},
@@ -103,7 +103,7 @@ sub gently {
     my (%options) = @_;
 
     $stop = 1;
-    $options{logger}->writeLogInfo("[register] -hooks- Send TERM signal");
+    $options{logger}->writeLogDebug("[register] Send TERM signal");
     if ($register->{running} == 1) {
         CORE::kill('TERM', $register->{pid});
     }
@@ -113,7 +113,7 @@ sub kill {
     my (%options) = @_;
 
     if ($register->{running} == 1) {
-        $options{logger}->writeLogInfo("[register] -hooks- Send KILL signal for pool");
+        $options{logger}->writeLogDebug("[register] Send KILL signal for pool");
         CORE::kill('KILL', $register->{pid});
     }
 }
@@ -153,7 +153,7 @@ sub broadcast {
 sub create_child {
     my (%options) = @_;
 
-    $options{logger}->writeLogInfo("[register] -hooks- Create module 'register' process");
+    $options{logger}->writeLogInfo("[register] Create module 'register' process");
     my $child_pid = fork();
     if ($child_pid == 0) {
         $0 = 'gorgone-register';
@@ -165,7 +165,7 @@ sub create_child {
         $module->run();
         exit(0);
     }
-    $options{logger}->writeLogInfo("[register] -hooks- PID $child_pid (gorgone-register)");
+    $options{logger}->writeLogDebug("[register] PID $child_pid (gorgone-register)");
     $register = { pid => $child_pid, ready => 0, running => 1 };
 }
 

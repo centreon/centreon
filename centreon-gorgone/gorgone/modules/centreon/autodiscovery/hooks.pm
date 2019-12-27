@@ -68,7 +68,7 @@ sub routing {
         $data = JSON::XS->new->utf8->decode($options{data});
     };
     if ($@) {
-        $options{logger}->writeLogError("[autodiscovery] -hooks- Cannot decode json data: $@");
+        $options{logger}->writeLogError("[autodiscovery] Cannot decode json data: $@");
         gorgone::standard::library::add_history(
             dbh => $options{dbh},
             code => 30, token => $options{token},
@@ -106,7 +106,7 @@ sub gently {
     my (%options) = @_;
 
     $stop = 1;
-    $options{logger}->writeLogInfo("[autodiscovery] -hooks- Send TERM signal");
+    $options{logger}->writeLogDebug("[autodiscovery] Send TERM signal");
     if ($autodiscovery->{running} == 1) {
         CORE::kill('TERM', $autodiscovery->{pid});
     }
@@ -116,7 +116,7 @@ sub kill {
     my (%options) = @_;
 
     if ($autodiscovery->{running} == 1) {
-        $options{logger}->writeLogInfo("[autodiscovery] -hooks- Send KILL signal for pool");
+        $options{logger}->writeLogDebug("[autodiscovery] Send KILL signal for pool");
         CORE::kill('KILL', $autodiscovery->{pid});
     }
 }
@@ -156,7 +156,7 @@ sub broadcast {
 sub create_child {
     my (%options) = @_;
     
-    $options{logger}->writeLogInfo("[autodiscovery] -hooks- Create module 'autodiscovery' process");
+    $options{logger}->writeLogInfo("[autodiscovery] Create module 'autodiscovery' process");
     my $child_pid = fork();
     if ($child_pid == 0) {
         $0 = 'gorgone-autodiscovery';
@@ -169,7 +169,7 @@ sub create_child {
         $module->run();
         exit(0);
     }
-    $options{logger}->writeLogInfo("[autodiscovery] -hooks- PID $child_pid (gorgone-autodiscovery)");
+    $options{logger}->writeLogDebug("[autodiscovery] PID $child_pid (gorgone-autodiscovery)");
     $autodiscovery = { pid => $child_pid, ready => 0, running => 1 };
 }
 

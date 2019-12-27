@@ -46,32 +46,32 @@ sub open_session {
 
     $self->{save_options} = { %options };
     if ($self->options(host => $options{ssh_host}, port => $options{ssh_port}, user => $options{ssh_username}) != Libssh::Session::SSH_OK) {
-        $self->{logger}->writeLogError('[proxy] -sshclient- options method: ' . $self->error());
+        $self->{logger}->writeLogError('[sshclient] Options method: ' . $self->error());
         return -1;
     }
 
     if ($self->connect(SkipKeyProblem => $options{strict_serverkey_check}) != Libssh::Session::SSH_OK) {
-        $self->{logger}->writeLogError('[proxy] -sshclient- connect method: ' . $self->error());
+        $self->{logger}->writeLogError('[sshclient] Connect method: ' . $self->error());
         return -1;
     }
 
     if ($self->auth_publickey_auto() != Libssh::Session::SSH_AUTH_SUCCESS) {
-        $self->{logger}->writeLogInfo('[proxy] -sshclient- auth publickey auto failure: ' . $self->error(GetErrorSession => 1));
+        $self->{logger}->writeLogInfo('[sshclient] Auth publickey auto failure: ' . $self->error(GetErrorSession => 1));
         if (!defined($options{ssh_password}) || $options{ssh_password} eq '') {
-            $self->{logger}->writeLogError('[proxy] -sshclient- auth issue: no password');
+            $self->{logger}->writeLogError('[sshclient] Auth issue: no password');
             return -1;
         }
         if ($self->auth_password(password => $options{ssh_password}) != Libssh::Session::SSH_AUTH_SUCCESS) {
-            $self->{logger}->writeLogError('[proxy] -sshclient- auth issue: ' . $self->error(GetErrorSession => 1));
+            $self->{logger}->writeLogError('[sshclient] Auth issue: ' . $self->error(GetErrorSession => 1));
             return -1;
         }
     }
 
-    $self->{logger}->writeLogInfo('[proxy] -sshclient- authentification succeed');
+    $self->{logger}->writeLogInfo('[sshclient] Authentification succeed');
 
     $self->{sftp} = Libssh::Sftp->new(session => $self);
     if (!defined($self->{sftp})) {
-        $self->{logger}->writeLogError('[proxy] -sshclient- cannot init sftp: ' . Libssh::Sftp::error());
+        $self->{logger}->writeLogError('[sshclient] Cannot init sftp: ' . Libssh::Sftp::error());
         return -1;
     }
 
@@ -111,11 +111,11 @@ sub action_centcore {
     my ($self, %options) = @_;
 
     if (!defined($options{data}->{content}->{command}) || $options{data}->{content}->{command} eq '') {
-        $self->{logger}->writeLogError('[proxy] -sshclient- action_centcore: need command');
+        $self->{logger}->writeLogError('[sshclient] Action centcore - Need command');
         return (-1, { message => 'please set command' });
     }
     if (!defined($options{data}->{content}->{target}) || $options{data}->{content}->{target} eq '') {
-        $self->{logger}->writeLogError('[proxy] -sshclient- action_centcore: need target');
+        $self->{logger}->writeLogError('[sshclient] Action centcore - Need target');
         return (-1, { message => 'please set target' });
     }
 
@@ -136,7 +136,7 @@ sub action_centcore {
         return (-1, { message => "cannot write stat file '$centcore_cmd': " . $self->{sftp}->error() });
     }
 
-    $self->{logger}->writeLogDebug("[proxy] -sshclient- action_centcore '" . $centcore_cmd . "' succeeded");
+    $self->{logger}->writeLogDebug("[sshclient] Action centcore - '" . $centcore_cmd . "' succeeded");
     return (0, { message => 'send action_centcore succeeded' });
 }
 
@@ -144,7 +144,7 @@ sub action_command {
     my ($self, %options) = @_;
 
     if (!defined($options{data}->{content}->{command}) || $options{data}->{content}->{command} eq '') {
-        $self->{logger}->writeLogError('[proxy] -sshclient- action_command: need command');
+        $self->{logger}->writeLogError('[sshclient] Action command - Need command');
         return (-1, { message => 'please set command' });
     }
 
@@ -186,11 +186,11 @@ sub action_enginecommand {
     my ($self, %options) = @_;
 
     if (!defined($options{data}->{content}->{command}) || $options{data}->{content}->{command} eq '') {
-        $self->{logger}->writeLogError('[proxy] -sshclient- action_enginecommand: need command');
+        $self->{logger}->writeLogError('[sshclient] Action engine command - Need command');
         return (-1, { message => 'please set command' });
     }
     if (!defined($options{data}->{content}->{command_file}) || $options{data}->{content}->{command_file} eq '') {
-        $self->{logger}->writeLogError('[proxy] -sshclient- action_enginecommand: need command_file');
+        $self->{logger}->writeLogError('[sshclient] Action engine command - Need command_file');
         return (-1, { message => 'please set command_file' });
     }
 
@@ -224,7 +224,7 @@ sub action_enginecommand {
         return (-1, { message => "cannot write stat file '$options{data}->{content}->{command_file}': " . $self->{sftp}->error() });
     }
 
-    $self->{logger}->writeLogDebug("[proxy] -sshclient- action_enginecommand '" . $options{data}->{content}->{command} . "' succeeded");
+    $self->{logger}->writeLogDebug("[sshclient] Action engine command - '" . $options{data}->{content}->{command} . "' succeeded");
     return (0, { message => 'send enginecommand succeeded' });
 }
 
@@ -232,11 +232,11 @@ sub action_remotecopy {
     my ($self, %options) = @_;
     
     if (!defined($options{data}->{content}->{source}) || $options{data}->{content}->{source} eq '') {
-        $self->{logger}->writeLogError('[proxy] -sshclient- action_remotecopy: need source');
+        $self->{logger}->writeLogError('[sshclient] Action remote copy - Need source');
         return (-1, { message => 'please set source' });
     }
     if (!defined($options{data}->{content}->{destination}) || $options{data}->{content}->{destination} eq '') {
-        $self->{logger}->writeLogError('[proxy] -sshclient- action_remotecopy: need destination');
+        $self->{logger}->writeLogError('[sshclient] Action remote copy - Need destination');
         return (-1, { message => 'please set destination' });
     }
 
@@ -307,7 +307,7 @@ sub action {
         );
     }
 
-    $self->{logger}->writeLogError('[proxy] -sshclient- unsupported action ' . $options{action});
+    $self->{logger}->writeLogError("[sshclient] Unsupported action '" . $options{action} . "'");
     return (-1, { message => 'unsupported action' });
 }
 

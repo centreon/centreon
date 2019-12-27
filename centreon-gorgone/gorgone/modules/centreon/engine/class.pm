@@ -65,7 +65,7 @@ sub handle_HUP {
 
 sub handle_TERM {
     my $self = shift;
-    $self->{logger}->writeLogInfo("[engine] -class- $$ Receiving order to stop...");
+    $self->{logger}->writeLogInfo("[engine] $$ Receiving order to stop...");
     $self->{stop} = 1;
 }
 
@@ -100,7 +100,7 @@ sub action_enginecommand {
     my $index = 0;
     foreach my $command (@{$options{data}->{content}}) {
         if (!defined($command->{command}) || $command->{command} eq '') {
-            $self->{logger}->writeLogError("[engine] -class- action_enginecommand: need command argument at array index '" . $index . "'");
+            $self->{logger}->writeLogError("[engine] Need command argument at array index '" . $index . "'");
             $self->send_log(
                 socket => $options{socket_log},
                 code => $self->ACTION_FINISH_KO,
@@ -134,7 +134,7 @@ sub action_enginecommand {
         }
 
         if (!defined($command_file) || $command_file eq '') {
-            $self->{logger}->writeLogError("[engine] -class- need command_file (config or call) argument");
+            $self->{logger}->writeLogError("[engine] Need command_file (config or call) argument");
             $self->send_log(
                 socket => $options{socket_log},
                 code => $self->ACTION_FINISH_KO,
@@ -147,7 +147,7 @@ sub action_enginecommand {
             (defined($command->{continue_on_error}) && $command->{continue_on_error} eq 'false') ? return -1 : next;
         }    
         if (! -e $command_file) {
-            $self->{logger}->writeLogError("[engine] -class- command '$command->{command}' - command_file '$command_file' must exist");
+            $self->{logger}->writeLogError("[engine] Command '$command->{command}' - command_file '$command_file' must exist");
             $self->send_log(
                 socket => $options{socket_log},
                 code => $self->ACTION_FINISH_KO,
@@ -160,7 +160,7 @@ sub action_enginecommand {
             (defined($command->{continue_on_error}) && $command->{continue_on_error} eq 'false') ? return -1 : next;
         }
         if (! -p $command_file) {
-            $self->{logger}->writeLogError("[engine] -class- command '$command->{command}' - command_file '$command_file' must be a pipe file");
+            $self->{logger}->writeLogError("[engine] Command '$command->{command}' - command_file '$command_file' must be a pipe file");
             $self->send_log(
                 socket => $options{socket_log},
                 code => $self->ACTION_FINISH_KO,
@@ -173,7 +173,7 @@ sub action_enginecommand {
             (defined($command->{continue_on_error}) && $command->{continue_on_error} eq 'false') ? return -1 : next;
         }
         if (! -w $command_file) {
-            $self->{logger}->writeLogError("[engine] -class- command '$command->{command}' - command_file '$command_file' must be writeable");
+            $self->{logger}->writeLogError("[engine] Command '$command->{command}' - command_file '$command_file' must be writeable");
             $self->send_log(
                 socket => $options{socket_log},
                 code => $self->ACTION_FINISH_KO,
@@ -197,7 +197,7 @@ sub action_enginecommand {
         };
         if ($@) {
             close $fh if (defined($fh));
-            $self->{logger}->writeLogError("[engine] -class- submit engine command '$command->{command}' issue: $@");
+            $self->{logger}->writeLogError("[engine] Submit engine command '$command->{command}' issue: $@");
             $self->send_log(
                 socket => $options{socket_log},
                 code => $self->ACTION_FINISH_KO,
@@ -275,9 +275,10 @@ sub create_child {
         return undef;
     }
 
-    $self->{logger}->writeLogInfo('[engine] -class- create sub-process');
+    $self->{logger}->writeLogDebug('[engine] Create sub-process');
     my $child_pid = fork();
     if (!defined($child_pid)) {
+        $self->{logger}->writeLogError("[engine] Cannot fork process: $!");
         $self->send_log(
             code => $self->ACTION_FINISH_KO,
             token => $token,
@@ -296,7 +297,7 @@ sub event {
     while (1) {
         my $message = gorgone::standard::library::zmq_dealer_read_message(socket => $connector->{internal_socket});
         
-        $connector->{logger}->writeLogDebug("[engine] -class- Event: $message");
+        $connector->{logger}->writeLogDebug("[engine] Event: $message");
 
         if ($message !~ /^\[ACK\]/) {
             $connector->create_child(message => $message);
@@ -332,7 +333,7 @@ sub run {
         # we try to do all we can
         my $rev = zmq_poll($self->{poll}, 5000);
         if ($rev == 0 && $self->{stop} == 1) {
-            $self->{logger}->writeLogInfo("[engine] -class- $$ has quit");
+            $self->{logger}->writeLogInfo("[engine] $$ has quit");
             zmq_close($connector->{internal_socket});
             exit(0);
         }

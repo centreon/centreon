@@ -69,7 +69,7 @@ sub handle_HUP {
 
 sub handle_TERM {
     my $self = shift;
-    $self->{logger}->writeLogInfo("[broker] -class- $$ Receiving order to stop...");
+    $self->{logger}->writeLogInfo("[broker] $$ Receiving order to stop...");
     $self->{stop} = 1;
 }
 
@@ -93,7 +93,7 @@ sub get_broker_stats_collection_flag {
         mode => 2
     );
     if ($status == -1 || !defined($datas->[0][0])) {
-        $self->{logger}->writeLogError('[broker] -class- Cannot get Broker statistics collection flag');
+        $self->{logger}->writeLogError('[broker] Cannot get Broker statistics collection flag');
         return -1;
     }
     
@@ -121,7 +121,7 @@ sub action_brokerstats {
                 message => 'no collection configured'
             }
         );
-        $self->{logger}->writeLogInfo("[broker] -class- No Broker statistics collection configured");
+        $self->{logger}->writeLogInfo("[broker] No Broker statistics collection configured");
         return 0;
     }
 
@@ -147,7 +147,7 @@ sub action_brokerstats {
                 message => 'cannot find configuration'
             }
         );
-        $self->{logger}->writeLogError("[broker] -class- Cannot find configuration");
+        $self->{logger}->writeLogError("[broker] Cannot find configuration");
         return 1;
     }
 
@@ -156,7 +156,7 @@ sub action_brokerstats {
         my $target = $_->[0];
         my $statistics_file = $_->[1] . "/" . $_->[2] . "-stats.json";
         $self->{logger}->writeLogInfo(
-            "[broker] -class- Collecting file '" . $statistics_file . "' on target '" . $target . "'"
+            "[broker] Collecting file '" . $statistics_file . "' on target '" . $target . "'"
         );
         $self->send_internal_action(
             target => $target,
@@ -222,7 +222,7 @@ sub write_stats {
         my $dest_dir = $self->{config}->{cache_dir} . '/' . $data->{metadata}->{poller_id};
         make_path($dest_dir) if (! -d $dest_dir);
         my $dest_file = $dest_dir . '/' . $data->{metadata}->{config_name} . '.json';
-        $self->{logger}->writeLogDebug("[broker] -class- Writing file '" . $dest_file . "'");
+        $self->{logger}->writeLogDebug("[broker] Writing file '" . $dest_file . "'");
         open(FH, '>', $dest_file);
         print FH $data->{result}->{stdout};
         close(FH);
@@ -233,7 +233,7 @@ sub event {
     while (1) {
         my $message = gorgone::standard::library::zmq_dealer_read_message(socket => $connector->{internal_socket});
         
-        $connector->{logger}->writeLogDebug("[broker] -class- Event: $message");
+        $connector->{logger}->writeLogDebug("[broker] Event: $message");
         if ($message =~ /^\[ACK\]\s+\[(.*?)\]\s+(.*)$/m) {
             my $token = $1;
             my $data = JSON::XS->new->utf8->decode($2);
@@ -302,7 +302,7 @@ sub run {
         # we try to do all we can
         my $rev = zmq_poll($self->{poll}, 5000);
         if (defined($rev) && $rev == 0 && $self->{stop} == 1) {
-            $self->{logger}->writeLogInfo("[broker] -class- $$ has quit");
+            $self->{logger}->writeLogInfo("[broker] $$ has quit");
             zmq_close($connector->{internal_socket});
             exit(0);
         }

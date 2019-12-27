@@ -230,7 +230,7 @@ sub do {
 
     if (!defined $self->{instance}) {
         if ($self->connect() == -1) {
-            $self->{logger}->writeLogError("Can't connect to the database");
+            $self->{logger}->writeLogError("Cannot connect to database");
             return -1;
         }
     }

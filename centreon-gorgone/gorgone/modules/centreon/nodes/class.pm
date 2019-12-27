@@ -72,7 +72,7 @@ sub handle_HUP {
 
 sub handle_TERM {
     my $self = shift;
-    $self->{logger}->writeLogInfo("[nodes] -class- $$ Receiving order to stop...");
+    $self->{logger}->writeLogDebug("[nodes] $$ Receiving order to stop...");
     $self->{stop} = 1;
 }
 
@@ -99,7 +99,7 @@ sub action_nodesresync {
     my ($status, $datas) = $self->{class_object}->custom_execute(request => $request, mode => 2);
     if ($status == -1) {
         $self->send_log(code => gorgone::class::module::ACTION_FINISH_KO, token => $options{token}, data => { message => 'cannot find nodes remote configuration' });
-        $self->{logger}->writeLogError('[nodes] -class- cannot find nodes remote configuration');
+        $self->{logger}->writeLogError('[nodes] Cannot find nodes remote configuration');
         return 1;
     }
 
@@ -118,7 +118,7 @@ sub action_nodesresync {
     ($status, $datas) = $self->{class_object}->custom_execute(request => $request, mode => 2);
     if ($status == -1) {
         $self->send_log(code => gorgone::class::module::ACTION_FINISH_KO, token => $options{token}, data => { message => 'cannot find nodes configuration' });
-        $self->{logger}->writeLogError('[nodes] -class- cannot find nodes configuration');
+        $self->{logger}->writeLogError('[nodes] Cannot find nodes configuration');
         return 1;
     }
 
@@ -165,7 +165,7 @@ sub action_nodesresync {
     $self->send_internal_action(action => 'REGISTERNODES', data => { nodes => $register_nodes } );
     $self->send_internal_action(action => 'UNREGISTERNODES', data => { nodes => $unregister_nodes } );
 
-    $self->{logger}->writeLogDebug("[nodes] -class- finish resync");
+    $self->{logger}->writeLogDebug("[nodes] Finish resync");
     $self->send_log(code => $self->ACTION_FINISH_OK, token => $options{token}, data => { message => 'action nodesresync finished' });
     return 0;
 }
@@ -174,7 +174,7 @@ sub event {
     while (1) {
         my $message = gorgone::standard::library::zmq_dealer_read_message(socket => $connector->{internal_socket});
         
-        $connector->{logger}->writeLogDebug("[nodes] -class- Event: $message");
+        $connector->{logger}->writeLogDebug("[nodes] Event: $message");
         if ($message =~ /^\[(.*?)\]/) {
             if ((my $method = $connector->can('action_' . lc($1)))) {
                 $message =~ /^\[(.*?)\]\s+\[(.*?)\]\s+\[.*?\]\s+(.*)$/m;

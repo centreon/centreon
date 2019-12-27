@@ -77,7 +77,7 @@ sub init_server_keys {
     my ($self, %options) = @_;
 
     my ($code, $content_privkey, $content_pubkey);
-    $self->{logger}->writeLogInfo("[core] init server keys");
+    $self->{logger}->writeLogInfo("[core] Initialize server keys");
 
     $self->{keys_loaded} = 0;
     $options{config}->{gorgonecore}->{privkey} = defined($options{config}->{gorgonecore}->{privkey}) && $options{config}->{gorgonecore}->{privkey} ne '' ?
@@ -94,7 +94,7 @@ sub init_server_keys {
             content => $content_privkey,
         );
         return if ($code == 0);
-        $self->{logger}->writeLogInfo("[core] private key file '$options{config}->{gorgonecore}->{privkey}' written");
+        $self->{logger}->writeLogInfo("[core] Private key file '$options{config}->{gorgonecore}->{privkey}' written");
         
         $code = gorgone::standard::misc::write_file(
             logger => $self->{logger},
@@ -102,7 +102,7 @@ sub init_server_keys {
             content => $content_pubkey,
         );
         return if ($code == 0);
-        $self->{logger}->writeLogInfo("[core] public key file '$options{config}->{gorgonecore}->{pubkey}' written");
+        $self->{logger}->writeLogInfo("[core] Public key file '$options{config}->{gorgonecore}->{pubkey}' written");
     }
 
     ($code, $self->{server_privkey}) = gorgone::standard::library::loadprivkey(
@@ -111,7 +111,7 @@ sub init_server_keys {
         noquit => 1
     );
     return if ($code == 0);
-    $self->{logger}->writeLogInfo("[core] private key file '$options{config}->{gorgonecore}->{privkey}' loaded");
+    $self->{logger}->writeLogInfo("[core] Private key file '$options{config}->{gorgonecore}->{privkey}' loaded");
 
     ($code, $self->{server_pubkey}) = gorgone::standard::library::loadpubkey(
         logger => $self->{logger},
@@ -119,7 +119,7 @@ sub init_server_keys {
         noquit => 1
     );
     return if ($code == 0);
-    $self->{logger}->writeLogInfo("[core] public key file '$options{config}->{gorgonecore}->{pubkey}' loaded");
+    $self->{logger}->writeLogInfo("[core] Public key file '$options{config}->{gorgonecore}->{pubkey}' loaded");
 
     $self->{keys_loaded} = 1;
 }
@@ -250,7 +250,7 @@ sub handle_CHLD {
     my $child_pid;
 
     while (($child_pid = waitpid(-1, &WNOHANG)) > 0) {
-        $self->{logger}->writeLogInfo("[core] received SIGCLD signal (pid: $child_pid)");
+        $self->{logger}->writeLogDebug("[core] Received SIGCLD signal (pid: $child_pid)");
         $self->{return_child}->{$child_pid} = time();
     }
     
@@ -288,7 +288,7 @@ sub load_module {
         return 0;
     }
     if (defined($self->{modules_register}->{ $options{config_module}->{package} })) {
-        $self->{logger}->writeLogError("[core] package '$options{config_module}->{package}' already loaded");
+        $self->{logger}->writeLogError("[core] Package '$options{config_module}->{package}' already loaded");
         return 0;
     }
     
@@ -394,7 +394,7 @@ sub broadcast_run {
 sub message_run {
     my ($self, %options) = @_;
 
-    $self->{logger}->writeLogDebug('[core] message received - ' . $options{message});
+    $self->{logger}->writeLogDebug('[core] Message received - ' . $options{message});
     if ($options{message} !~ /^\[(.+?)\]\s+\[(.*?)\]\s+\[(.*?)\]\s+(.*)$/) {
         return (undef, 1, { message => 'request not well formatted' });
     }
@@ -718,8 +718,8 @@ sub run {
     $gorgone->SUPER::run();
     $gorgone->{logger}->redirect_output();
 
-    $gorgone->{logger}->writeLogDebug("[core] gorgoned launched....");
-    $gorgone->{logger}->writeLogDebug("[core] PID $$");
+    $gorgone->{logger}->writeLogInfo("[core] Gorgoned started");
+    $gorgone->{logger}->writeLogInfo("[core] PID $$");
 
     if (gorgone::standard::library::add_history(
         dbh => $gorgone->{db_gorgone},
@@ -769,7 +769,7 @@ sub run {
     
     # init all modules
     foreach my $name (keys %{$gorgone->{modules_register}}) {
-        $gorgone->{logger}->writeLogInfo("[core] Call init function from module '$name'");
+        $gorgone->{logger}->writeLogDebug("[core] Call init function from module '$name'");
         $gorgone->{modules_register}->{$name}->{init}->(
             id => $gorgone->{id},
             logger => $gorgone->{logger},

@@ -70,7 +70,7 @@ sub routing {
         $data = JSON::XS->new->utf8->decode($options{data});
     };
     if ($@) {
-        $options{logger}->writeLogError("Cannot decode json data: $@");
+        $options{logger}->writeLogError("[newtest] Cannot decode json data: $@");
         gorgone::standard::library::add_history(
             dbh => $options{dbh},
             code => 300, token => $options{token},
@@ -116,7 +116,7 @@ sub gently {
 
     $stop = 1;
     foreach my $container_id (keys %$containers) {
-        $options{logger}->writeLogInfo("[newtest] -hooks- Send TERM signal for container '" . $container_id . "'");
+        $options{logger}->writeLogDebug("[newtest] Send TERM signal for container '" . $container_id . "'");
         if ($containers->{$container_id}->{running} == 1) {
             CORE::kill('TERM', $containers->{$container_id}->{pid});
         }
@@ -128,7 +128,7 @@ sub kill_internal {
 
     foreach (keys %$containers) {
         if ($containers->{$_}->{running} == 1) {
-            $options{logger}->writeLogInfo("[newtest] -hooks- Send KILL signal for container '" . $_ . "'");
+            $options{logger}->writeLogDebug("[newtest] Send KILL signal for container '" . $_ . "'");
             CORE::kill('KILL', $containers->{$_}->{pid});
         }
     }
@@ -187,15 +187,15 @@ sub get_containers {
         next if (!defined($_->{name}) || $_->{name} eq '');
 
         if (!defined($_->{nmc_endpoint}) || $_->{nmc_endpoint} eq '') {
-            $options{logger}->writeLogError("[newtest] -hooks- cannot load container '" . $_->{name} . "' - please set nmc_endpoint option");
+            $options{logger}->writeLogError("[newtest] cannot load container '" . $_->{name} . "' - please set nmc_endpoint option");
             next;
         }
         if (!defined($_->{poller_name}) || $_->{poller_name} eq '') {
-            $options{logger}->writeLogError("[newtest] -hooks- cannot load container '" . $_->{name} . "' - please set poller_name option");
+            $options{logger}->writeLogError("[newtest] cannot load container '" . $_->{name} . "' - please set poller_name option");
             next;
         }
         if (!defined($_->{list_scenario_status}) || $_->{list_scenario_status} eq '') {
-            $options{logger}->writeLogError("[newtest] -hooks- cannot load container '" . $_->{name} . "' - please set list_scenario_status option");
+            $options{logger}->writeLogError("[newtest] cannot load container '" . $_->{name} . "' - please set list_scenario_status option");
             next;
         }
 
@@ -204,7 +204,7 @@ sub get_containers {
             $list_scenario = JSON::XS->new->utf8->decode($_->{list_scenario_status});
         };
         if ($@) {
-            $options{logger}->writeLogError("[newtest] -hooks- cannot load container '" . $_->{name} . "' - cannot decode list scenario option");
+            $options{logger}->writeLogError("[newtest] cannot load container '" . $_->{name} . "' - cannot decode list scenario option");
             next;
         }
         
@@ -247,7 +247,7 @@ sub sync_container_childs {
         next if (defined($last_containers->{$container_id}));
 
         if ($containers->{$container_id}->{running} == 1) {
-            $options{logger}->writeLogInfo("[newtest] -hooks- Send KILL signal for container '" . $container_id . "'");
+            $options{logger}->writeLogDebug("[newtest] Send KILL signal for container '" . $container_id . "'");
             CORE::kill('KILL', $containers->{$container_id}->{pid});
         }
         
@@ -259,7 +259,7 @@ sub sync_container_childs {
 sub create_child {
     my (%options) = @_;
     
-    $options{logger}->writeLogInfo("[newtest] -hooks- Create 'gorgone-newtest' process for container '" . $options{container_id} . "'");
+    $options{logger}->writeLogInfo("[newtest] Create 'gorgone-newtest' process for container '" . $options{container_id} . "'");
     my $child_pid = fork();
     if ($child_pid == 0) {
         $0 = 'gorgone-newtest ' . $options{container_id};
@@ -276,7 +276,7 @@ sub create_child {
         $module->run();
         exit(0);
     }
-    $options{logger}->writeLogInfo("[newtest] -hooks- PID $child_pid (gorgone-newtest) for container '" . $options{container_id} . "'");
+    $options{logger}->writeLogDebug("[newtest] PID $child_pid (gorgone-newtest) for container '" . $options{container_id} . "'");
     $containers->{$options{container_id}} = { pid => $child_pid, ready => 0, running => 1 };
     $containers_pid->{$child_pid} = $options{container_id};
 }

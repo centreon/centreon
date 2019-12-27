@@ -74,7 +74,7 @@ sub json_encode {
     if ($@) {
         my $container = '';
         $container = 'container ' . $self->{container_id} . ': ' if (defined($self->{container_id}));
-        $self->{logger}->writeLogError("[$self->{module_id}] -class- ${container}$options{method} - cannot encode json: $@");
+        $self->{logger}->writeLogError("[$self->{module_id}] ${container}$options{method} - cannot encode json: $@");
         return 1;
     }
 
@@ -91,7 +91,7 @@ sub json_decode {
     if ($@) {
         my $container = '';
         $container = 'container ' . $self->{container_id} . ': ' if (defined($self->{container_id}));
-        $self->{logger}->writeLogError("[$self->{module_id}] -class- ${container}$options{method} - cannot decode json: $@");
+        $self->{logger}->writeLogError("[$self->{module_id}] ${container}$options{method} - cannot decode json: $@");
         return 1;
     }
 
@@ -111,7 +111,7 @@ sub execute_shell_cmd {
     if ($lerror == -1 || ($exit_code >> 8) != 0) {
         my $container = '';
         $container = 'container ' . $self->{container_id} . ': ' if (defined($self->{container_id}));
-        $self->{logger}->writeLogError("[$self->{module_id}] -class- ${container}command execution issue $options{cmd} : " . $stdout);
+        $self->{logger}->writeLogError("[$self->{module_id}] ${container}command execution issue $options{cmd} : " . $stdout);
         return -1;
     }
 

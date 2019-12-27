@@ -63,7 +63,7 @@ sub handle_HUP {
 
 sub handle_TERM {
     my $self = shift;
-    $self->{logger}->writeLogInfo("[cron] -class- $$ Receiving order to stop...");
+    $self->{logger}->writeLogDebug("[cron] $$ Receiving order to stop...");
     $self->{stop} = 1;
 }
 
@@ -89,7 +89,7 @@ sub action_getcron {
     my $parameter = $options{data}->{variables}[1];
     if (defined($id) && $id ne '') {
         if (defined($parameter) && $parameter =~ /^status$/) {
-            $self->{logger}->writeLogDebug("[cron] -class- Get logs results for definition '" . $id . "'");
+            $self->{logger}->writeLogInfo("[cron] Get logs results for definition '" . $id . "'");
             $self->send_internal_action(
                 action => 'GETLOG',
                 token => $options{token},
@@ -109,7 +109,7 @@ sub action_getcron {
                 $idx = $self->{cron}->check_entry($id);
             };
             if ($@) {
-                $self->{logger}->writeLogDebug("[cron] -class- Cron get failed to retrieve entry index");
+                $self->{logger}->writeLogError("[cron] Cron get failed to retrieve entry index");
                 $self->send_log(
                     code => $self->ACTION_FINISH_KO,
                     token => $options{token},
@@ -118,7 +118,7 @@ sub action_getcron {
                 return 1;
             }
             if (!defined($idx)) {
-                $self->{logger}->writeLogDebug("[cron] -class- Cron get failed no entry found for id");
+                $self->{logger}->writeLogError("[cron] Cron get failed no entry found for id");
                 $self->send_log(
                     code => $self->ACTION_FINISH_KO,
                     token => $options{token},
@@ -132,7 +132,7 @@ sub action_getcron {
                 push @{$data}, { %{$result->{args}[1]->{definition}} } if (defined($result->{args}[1]->{definition}));
             };
             if ($@) {
-                $self->{logger}->writeLogDebug("[cron] -class- Cron get failed");
+                $self->{logger}->writeLogError("[cron] Cron get failed");
                 $self->send_log(
                     code => $self->ACTION_FINISH_KO,
                     token => $options{token},
@@ -149,7 +149,7 @@ sub action_getcron {
             }
         };
         if ($@) {
-            $self->{logger}->writeLogDebug("[cron] -class- Cron get failed");
+            $self->{logger}->writeLogError("[cron] Cron get failed");
             $self->send_log(
                 code => $self->ACTION_FINISH_KO,
                 token => $options{token},
@@ -172,13 +172,13 @@ sub action_addcron {
     
     $options{token} = $self->generate_token() if (!defined($options{token}));
 
-    $self->{logger}->writeLogDebug("[cron] -class- Cron add start");
+    $self->{logger}->writeLogDebug("[cron] Cron add start");
 
     foreach my $definition (@{$options{data}->{content}}) {
         if (!defined($definition->{timespec}) || $definition->{timespec} eq '' ||
             !defined($definition->{action}) || $definition->{action} eq '' ||
             !defined($definition->{id}) || $definition->{id} eq '') {
-            $self->{logger}->writeLogDebug("[cron] -class- Cron add missing arguments");
+            $self->{logger}->writeLogError("[cron] Cron add missing arguments");
             $self->send_log(
                 code => $self->ACTION_FINISH_KO,
                 token => $options{token},
@@ -199,7 +199,7 @@ sub action_addcron {
                 );
                 next;
             }
-            $self->{logger}->writeLogInfo("[cron] -class- Adding cron definition '" . $definition->{id} . "'");
+            $self->{logger}->writeLogInfo("[cron] Adding cron definition '" . $definition->{id} . "'");
             $self->{cron}->add_entry(
                 $definition->{timespec},
                 $definition->{id},
@@ -212,7 +212,7 @@ sub action_addcron {
         }
     };
     if ($@) {
-        $self->{logger}->writeLogDebug("[cron] -class- Cron add failed");
+        $self->{logger}->writeLogError("[cron] Cron add failed");
         $self->send_log(
             code => $self->ACTION_FINISH_KO,
             token => $options{token},
@@ -221,7 +221,7 @@ sub action_addcron {
         return 1;
     }
 
-    $self->{logger}->writeLogDebug("[cron] -class- Cron add finish");
+    $self->{logger}->writeLogDebug("[cron] Cron add finish");
     $self->send_log(
         code => $self->ACTION_FINISH_OK,
         token => $options{token},
@@ -235,11 +235,11 @@ sub action_updatecron {
     
     $options{token} = $self->generate_token() if (!defined($options{token}));
 
-    $self->{logger}->writeLogDebug("[cron] -class- Cron update start");
+    $self->{logger}->writeLogDebug("[cron] Cron update start");
     
     my $id = $options{data}->{variables}[0];
     if (!defined($id)) {
-        $self->{logger}->writeLogDebug("[cron] -class- Cron update missing id");
+        $self->{logger}->writeLogError("[cron] Cron update missing id");
         $self->send_log(
             code => $self->ACTION_FINISH_KO,
             token => $options{token},
@@ -253,7 +253,7 @@ sub action_updatecron {
         $idx = $self->{cron}->check_entry($id);
     };
     if ($@) {
-        $self->{logger}->writeLogDebug("[cron] -class- Cron update failed to retrieve entry index");
+        $self->{logger}->writeLogError("[cron] Cron update failed to retrieve entry index");
         $self->send_log(
             code => $self->ACTION_FINISH_KO,
             token => $options{token},
@@ -262,7 +262,7 @@ sub action_updatecron {
         return 1;
     }
     if (!defined($idx)) {
-        $self->{logger}->writeLogDebug("[cron] -class- Cron update failed no entry found for id");
+        $self->{logger}->writeLogError("[cron] Cron update failed no entry found for id");
         $self->send_log(
             code => $self->ACTION_FINISH_KO,
             token => $options{token},
@@ -274,7 +274,7 @@ sub action_updatecron {
     my $definition = $options{data}->{content};
     if ((!defined($definition->{timespec}) || $definition->{timespec} eq '') &&
         (!defined($definition->{command_line}) || $definition->{command_line} eq '')) {
-        $self->{logger}->writeLogDebug("[cron] -class- Cron update missing arguments");
+        $self->{logger}->writeLogError("[cron] Cron update missing arguments");
         $self->send_log(
             code => $self->ACTION_FINISH_KO,
             token => $options{token},
@@ -293,7 +293,7 @@ sub action_updatecron {
         $self->{cron}->update_entry($idx, $entry);
     };
     if ($@) {
-        $self->{logger}->writeLogDebug("[cron] -class- Cron update failed");
+        $self->{logger}->writeLogError("[cron] Cron update failed");
         $self->send_log(
             code => $self->ACTION_FINISH_KO,
             token => $options{token},
@@ -302,7 +302,7 @@ sub action_updatecron {
         return 1;
     }
 
-    $self->{logger}->writeLogDebug("[cron] -class- Cron update succeed");
+    $self->{logger}->writeLogDebug("[cron] Cron update succeed");
     $self->send_log(
         code => $self->ACTION_FINISH_OK,
         token => $options{token},
@@ -316,11 +316,11 @@ sub action_deletecron {
     
     $options{token} = $self->generate_token() if (!defined($options{token}));
 
-    $self->{logger}->writeLogDebug("[cron] -class- Cron delete start");
+    $self->{logger}->writeLogDebug("[cron] Cron delete start");
     
     my $id = $options{data}->{variables}[0];
     if (!defined($id) || $id eq '') {
-        $self->{logger}->writeLogDebug("[cron] -class- Cron delete missing id");
+        $self->{logger}->writeLogError("[cron] Cron delete missing id");
         $self->send_log(
             code => $self->ACTION_FINISH_KO,
             token => $options{token},
@@ -334,7 +334,7 @@ sub action_deletecron {
         $idx = $self->{cron}->check_entry($id);
     };
     if ($@) {
-        $self->{logger}->writeLogDebug("[cron] -class- Cron delete failed to retrieve entry index");
+        $self->{logger}->writeLogError("[cron] Cron delete failed to retrieve entry index");
         $self->send_log(
             code => $self->ACTION_FINISH_KO,
             token => $options{token},
@@ -343,7 +343,7 @@ sub action_deletecron {
         return 1;
     }
     if (!defined($idx)) {
-        $self->{logger}->writeLogDebug("[cron] -class- Cron delete failed no entry found for id");
+        $self->{logger}->writeLogError("[cron] Cron delete failed no entry found for id");
         $self->send_log(
             code => $self->ACTION_FINISH_KO,
             token => $options{token},
@@ -356,7 +356,7 @@ sub action_deletecron {
         $self->{cron}->delete_entry($idx);
     };
     if ($@) {
-        $self->{logger}->writeLogDebug("[cron] -class- Cron delete failed");
+        $self->{logger}->writeLogError("[cron] Cron delete failed");
         $self->send_log(
             code => $self->ACTION_FINISH_KO,
             token => $options{token},
@@ -365,7 +365,7 @@ sub action_deletecron {
         return 1;
     }
 
-    $self->{logger}->writeLogDebug("[cron] -class- Cron delete finish");
+    $self->{logger}->writeLogDebug("[cron] Cron delete finish");
     $self->send_log(
         code => $self->ACTION_FINISH_OK,
         token => $options{token},
@@ -378,7 +378,7 @@ sub event {
     while (1) {
         my $message = gorgone::standard::library::zmq_dealer_read_message(socket => $connector->{internal_socket});
 
-        $connector->{logger}->writeLogDebug("[cron] -class- Event: $message");
+        $connector->{logger}->writeLogDebug("[cron] Event: $message");
         if ($message =~ /^\[ACK\]\s+\[(.*?)\]\s+(.*)$/m) {
             my $token = $1;
             my $data = JSON::XS->new->utf8->decode($2);
@@ -403,7 +403,7 @@ sub event {
 sub cron_sleep {
     my $rev = zmq_poll($connector->{poll}, 1000);
     if ($rev == 0 && $connector->{stop} == 1) {
-        $connector->{logger}->writeLogInfo("[cron] -class- $$ has quit");
+        $connector->{logger}->writeLogInfo("[cron] $$ has quit");
         zmq_close($connector->{internal_socket});
         exit(0);
     }
@@ -412,7 +412,7 @@ sub cron_sleep {
 sub dispatcher {
     my ($id, $options) = @_;
 
-    $options->{logger}->writeLogInfo("[cron] -class- Launching job '" . $id . "'");
+    $options->{logger}->writeLogInfo("[cron] Launching job '" . $id . "'");
 
     my $token = (defined($options->{definition}->{keep_token})) ? $options->{definition}->{id} : undef;
 

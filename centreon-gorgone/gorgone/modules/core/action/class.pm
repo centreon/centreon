@@ -72,7 +72,7 @@ sub handle_HUP {
 
 sub handle_TERM {
     my $self = shift;
-    $self->{logger}->writeLogInfo("[action] -class- $$ Receiving order to stop...");
+    $self->{logger}->writeLogInfo("[action] $$ Receiving order to stop...");
     $self->{stop} = 1;
 }
 
@@ -339,9 +339,10 @@ sub create_child {
         return undef;
     }
 
-    $self->{logger}->writeLogDebug("[action] -class- Create sub-process");
+    $self->{logger}->writeLogDebug("[action] Create sub-process");
     my $child_pid = fork();
     if (!defined($child_pid)) {
+        $self->{logger}->writeLogError("[action] Cannot fork process: $!");
         $self->send_log(
             code => $self->ACTION_FINISH_KO,
             token => $token,
@@ -360,7 +361,7 @@ sub event {
     while (1) {
         my $message = gorgone::standard::library::zmq_dealer_read_message(socket => $connector->{internal_socket});
         
-        $connector->{logger}->writeLogDebug("[action] -class- Event: $message");
+        $connector->{logger}->writeLogDebug("[action] Event: $message");
         
         if ($message !~ /^\[ACK\]/) {
             $message =~ /^\[(.*?)\]\s+\[(.*?)\]\s+\[.*?\]\s+(.*)$/m;
@@ -406,7 +407,7 @@ sub run {
         # we try to do all we can
         my $rev = zmq_poll($self->{poll}, 5000);
         if ($rev == 0 && $self->{stop} == 1) {
-            $self->{logger}->writeLogInfo("[action] -class- $$ has quit");
+            $self->{logger}->writeLogInfo("[action] $$ has quit");
             zmq_close($connector->{internal_socket});
             exit(0);
         }
