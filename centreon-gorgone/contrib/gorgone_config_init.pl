@@ -127,7 +127,7 @@ modules:
     enable: true
 
   - name: pollers
-    package: gorgone::modules::centreon::pollers::hooks
+    package: gorgone::modules::centreon::nodes::hooks
     enable: true
 
   - name: broker
