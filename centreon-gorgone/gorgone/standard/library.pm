@@ -45,7 +45,7 @@ sub read_config {
         $config = LoadFile($options{config_file});
     };
     if ($@) {
-        $options{logger}->writeLogError("Parsing config file error:");
+        $options{logger}->writeLogError("[core] Parsing config file error:");
         $options{logger}->writeLogError($@);
         exit(1);
     }
@@ -68,7 +68,7 @@ sub generate_keys {
         $privkey = $pkrsa->export_key_pem('private');
     };
     if ($@) {
-        $options{logger}->writeLogError("Cannot generate server keys: $@");
+        $options{logger}->writeLogError("[core] Cannot generate server keys: $@");
         return 0;
     }
 
@@ -82,7 +82,7 @@ sub loadpubkey {
 
     if (defined($options{pubkey})) {
         if (!open FILE, "<" . $options{pubkey}) {
-            $options{logger}->writeLogError("Cannot read file '$options{pubkey}': $!") if (defined($options{logger}));
+            $options{logger}->writeLogError("[core] Cannot read file '$options{pubkey}': $!") if (defined($options{logger}));
             exit(1) if ($quit);
             return 0;
         }
@@ -99,12 +99,12 @@ sub loadpubkey {
         $pubkey = Crypt::PK::RSA->new(\$string_key);
     };
     if ($@) {
-        $options{logger}->writeLogError("Cannot load pubkey '$options{pubkey}': $@") if (defined($options{logger}));
+        $options{logger}->writeLogError("[core] Cannot load pubkey '$options{pubkey}': $@") if (defined($options{logger}));
         exit(1) if ($quit);
         return 0;
     }
     if ($pubkey->is_private()) {
-        $options{logger}->writeLogError("'$options{pubkey}' is not a publickey") if (defined($options{logger}));
+        $options{logger}->writeLogError("[core] '$options{pubkey}' is not a public key") if (defined($options{logger}));
         exit(1) if ($quit);
         return 0;
     }
@@ -118,7 +118,7 @@ sub loadprivkey {
     my $quit = defined($options{noquit}) ? 0 : 1;
 
     if (!open FILE, "<" . $options{privkey}) {
-        $options{logger}->writeLogError("Cannot read file '$options{privkey}': $!");
+        $options{logger}->writeLogError("[core] Cannot read file '$options{privkey}': $!");
         exit(1) if ($quit);
         return 0;
     }
@@ -132,12 +132,12 @@ sub loadprivkey {
         $privkey = Crypt::PK::RSA->new(\$string_key);
     };
     if ($@) {
-        $options{logger}->writeLogError("Cannot load privkey '$options{privkey}': $@");
+        $options{logger}->writeLogError("[core] Cannot load privkey '$options{privkey}': $@");
         exit(1) if ($quit);
         return 0;
     }
     if (!$privkey->is_private()) {
-        $options{logger}->writeLogError("'$options{privkey}' is not a privkey");
+        $options{logger}->writeLogError("[core] '$options{privkey}' is not a private key");
         exit(1) if ($quit);
         return 0;
     }
@@ -169,7 +169,7 @@ sub zmq_core_key_response {
         $crypttext = $options{client_pubkey}->encrypt("[KEY] [$options{hostname}] [" . $options{symkey} . "]", 'v1.5');
     };
     if ($@) {
-        $options{logger}->writeLogError("Encoding issue: " .  $@);
+        $options{logger}->writeLogError("[core] Encoding issue: " .  $@);
         return -1;
     }
 
@@ -223,7 +223,7 @@ sub uncrypt_message {
     };
     if ($@) {
         if (defined($options{logger})) {
-            $options{logger}->writeLogError("Sym encrypt issue: " .  $@);
+            $options{logger}->writeLogError("[core] Sym encrypt issue: " .  $@);
         }
         return (-1, $@);
     }
@@ -288,7 +288,7 @@ sub is_client_can_connect {
     my $plaintext;
 
     if ($options{message} !~ /\[(.+)\]\s+\[(.+)\]\s+\[(.+)\]$/ms) {
-        $options{logger}->writeLogError("Decoding issue. Protocol not good");
+        $options{logger}->writeLogError("[core] Decoding issue. Protocol not good");
         return -1;
     }
 
@@ -297,11 +297,11 @@ sub is_client_can_connect {
         $plaintext = $options{privkey}->decrypt(MIME::Base64::decode_base64($cipher_text), 'v1.5');
     };
     if ($@) {
-        $options{logger}->writeLogError("Decoding issue: " .  $@);
+        $options{logger}->writeLogError("[core] Decoding issue: " .  $@);
         return -1;
     }
     if ($plaintext ne 'HELO') {
-        $options{logger}->writeLogError("Encrypted issue for HELO");
+        $options{logger}->writeLogError("[core] Encrypted issue for HELO");
         return -1;
     }
 
@@ -311,7 +311,7 @@ sub is_client_can_connect {
         $client_pubkey = Crypt::PK::RSA->new(\$client_pubkey_str);
     };
     if ($@) {
-        $options{logger}->writeLogError("Cannot load client pubkey '$client_pubkey': $@");
+        $options{logger}->writeLogError("[core] Cannot load client pubkey '$client_pubkey': $@");
         return -1;
     }
 
@@ -327,11 +327,11 @@ sub is_client_can_connect {
     }
     
     if ($is_authorized == 0) {
-        $options{logger}->writeLogError("client pubkey is not authorized. thumprint is '$thumbprint");
+        $options{logger}->writeLogError("[core] client pubkey is not authorized. thumprint is '$thumbprint");
         return -1;
     }
 
-    $options{logger}->writeLogInfo("Connection from $client");
+    $options{logger}->writeLogInfo("[core] Connection from $client");
     return (0, $client_pubkey);
 }
 
@@ -488,7 +488,7 @@ sub setcoreid {
         }
     }
 
-    $options{logger}->writeLogInfo('[core] setcoreid changed ' .  $data->{id});
+    $options{logger}->writeLogInfo('[core] Setcoreid changed ' .  $data->{id});
     $options{gorgone}->{id} = $data->{id};
     return (0, { action => 'setcoreid', message => 'setcoreid changed' });
 }
@@ -640,7 +640,7 @@ sub json_encode {
     };
     if ($@) {
         if (defined($options{logger})) {
-            $options{logger}->writeLogError("Cannot encode json data: $@");
+            $options{logger}->writeLogError("[core] Cannot encode json data: $@");
         }
         return undef;
     }
@@ -657,7 +657,7 @@ sub json_decode {
     };
     if ($@) {
         if (defined($options{logger})) {
-            $options{logger}->writeLogError("Cannot decode json data: $@");
+            $options{logger}->writeLogError("[core] Cannot decode json data: $@");
         }
         return undef;
     }
@@ -705,21 +705,22 @@ sub create_com {
         zmq_bind($socket, 'tcp://' . $options{path});
     } elsif ($options{type} eq 'ipc') {
         if (zmq_bind($socket, 'ipc://' . $options{path}) == -1) {
-            $options{logger}->writeLogError("Cannot bind ipc '$options{path}': $!");
+            $options{logger}->writeLogDebug("[core] Cannot bind IPC '$options{path}': $!");
             # try create dir
-            $options{logger}->writeLogError("Maybe directory not exist. We try to create it!!!");
+            $options{logger}->writeLogDebug("[core] Maybe directory not exist. We try to create it!!!");
             if (!mkdir(dirname($options{path}))) {
+                $options{logger}->writeLogError("[core] Cannot create IPC file directory '$options{path}'");
                 zmq_close($socket);
                 exit(1);
             }
             if (zmq_bind($socket, 'ipc://' . $options{path}) == -1) {
-                $options{logger}->writeLogError("Cannot bind ipc '$options{path}': $!");
+                $options{logger}->writeLogError("[core] Cannot bind IPC '$options{path}': $!");
                 zmq_close($socket);
                 exit(1);
             }
         }
     } else {
-        $options{logger}->writeLogError("zmq type '$options{type}' not managed");
+        $options{logger}->writeLogError("[core] ZMQ type '$options{type}' not managed");
         zmq_close($socket);
         exit(1);
     }

@@ -32,9 +32,9 @@ sub reload_db_config {
     my ($cdb_mod, $csdb_mod) = (0, 0);
     
     unless (my $return = do $config_file) {
-        $logger->writeLogError("couldn't parse $config_file: $@") if $@;
-        $logger->writeLogError("couldn't do $config_file: $!") unless defined $return;
-        $logger->writeLogError("couldn't run $config_file") unless $return;
+        $logger->writeLogError("[core] Couldn't parse $config_file: $@") if $@;
+        $logger->writeLogError("[core] Couldn't do $config_file: $!") unless defined $return;
+        $logger->writeLogError("[core] Couldn't run $config_file") unless $return;
         return -1;
     }
     
@@ -44,7 +44,7 @@ sub reload_db_config {
             $centreon_config->{db_user} ne $cdb->user() ||
             $centreon_config->{db_passwd} ne $cdb->password() ||
             $centreon_config->{db_port} ne $cdb->port()) {
-            $logger->writeLogInfo("Database centreon config had been modified");
+            $logger->writeLogInfo("[core] Database centreon config has been modified");
             $cdb->db($centreon_config->{centreon_db});
             $cdb->host($centreon_config->{db_host});
             $cdb->user($centreon_config->{db_user});
@@ -60,7 +60,7 @@ sub reload_db_config {
             $centreon_config->{db_user} ne $csdb->user() ||
             $centreon_config->{db_passwd} ne $csdb->password() ||
             $centreon_config->{db_port} ne $csdb->port()) {
-            $logger->writeLogInfo("Database centstorage config had been modified");
+            $logger->writeLogInfo("[core] Database centstorage config has been modified");
             $csdb->db($centreon_config->{centstorage_db});
             $csdb->host($centreon_config->{db_host});
             $csdb->user($centreon_config->{db_user});
@@ -123,12 +123,12 @@ sub check_debug {
     if (defined($data->{'value'}) && $data->{'value'} == 1) {
         if (!$logger->is_debug()) {
             $logger->severity("debug");
-            $logger->writeLogInfo("Enable Debug in $name");
+            $logger->writeLogInfo("[core] Enable Debug in $name");
         }
     } else {
         if ($logger->is_debug()) {
             $logger->set_default_severity();
-            $logger->writeLogInfo("Disable Debug in $name");
+            $logger->writeLogInfo("[core] Disable Debug in $name");
         }
     }
     return 0;
@@ -159,7 +159,7 @@ sub backtick {
     $| = 1;
 
     if (!defined($pid = open( KID, "-|" ))) {
-        $arg{logger}->writeLogError("Cant fork: $!");
+        $arg{logger}->writeLogError("[core] Cant fork: $!");
         return (-1000, "cant fork: $!");
     }
     
@@ -223,7 +223,7 @@ sub mymodule_load {
         $file =~ s/\.pm$//;
     };
     if ($@) {
-        $options{logger}->writeLogError($options{error_msg} . ' - ' . $@);
+        $options{logger}->writeLogError('[core] ' . $options{error_msg} . ' - ' . $@);
         return 1;
     }
     return wantarray ? (0, $file) : 0;
@@ -235,7 +235,7 @@ sub write_file {
     File::Path::make_path(File::Basename::dirname($options{filename}));
     my $fh;
     if (!open($fh, '>', $options{filename})) {
-        $options{logger}->writeLogError("Could not open file '$options{filename}': $!");
+        $options{logger}->writeLogError("[core] Cannot open file '$options{filename}': $!");
         return 0;
     }
     print $fh $options{content};
