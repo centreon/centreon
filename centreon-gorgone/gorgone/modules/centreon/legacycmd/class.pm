@@ -50,7 +50,8 @@ sub new {
     $connector->{config_core} = $options{config_core};
     $connector->{config_db_centreon} = $options{config_db_centreon};
     $connector->{stop} = 0;
-    
+    $connector->{gorgone_illegal_characters} = '`';
+
     bless $connector, $class;
     $connector->set_signal_handlers;
     return $connector;
@@ -134,7 +135,7 @@ sub get_clapi_user {
 
     $self->{clapi_user} = $clapi_user;
     $self->{clapi_password} = $clapi_password;
-    
+
     return 0;
 }
 
@@ -145,13 +146,15 @@ sub get_illegal_characters {
         request => "SELECT `value` FROM options WHERE `key` = 'gorgone_illegal_characters'",
         mode => 2
     );
-    if ($status == -1 || !defined($datas->[0][0])) {
+    if ($status == -1) { 
         $self->{logger}->writeLogError('[legacycmd] Cannot get illegal characters');
         return -1;
     }
 
-    $self->{gorgone_illegal_characters} = $datas->[0][0];
-    
+    if (defined($datas->[0]->[0])) {
+        $self->{gorgone_illegal_characters} = $datas->[0]->[0];
+    }
+
     return 0;
 }
 
@@ -239,7 +242,7 @@ sub execute_cmd {
                 }
             },
         );
-        
+
         my $centreon_dir = (defined($connector->{config}->{centreon_dir})) ?
             $connector->{config}->{centreon_dir} : '/usr/share/centreon';
         my $task_id = $options{param};
@@ -519,7 +522,7 @@ sub handle_centcore_dir {
         (stat($self->{config}->{cmd_dir} . '/' . $a))[10] <=> (stat($self->{config}->{cmd_dir} . '/' . $b))[10]
     } (readdir($dh));
     closedir($dh);
-    
+
     my ($code, $handle);
     foreach (@files) {
         next if ($_ =~ /^\./);
@@ -554,7 +557,7 @@ sub handle_cmd_files {
 sub event {
     while (1) {
         my $message = gorgone::standard::library::zmq_dealer_read_message(socket => $connector->{internal_socket});
-        
+
         $connector->{logger}->writeLogDebug("[legacycmd] Event: $message");
         if ($message =~ /^\[(.*?)\]/) {
             if ((my $method = $connector->can('action_' . lc($1)))) {
