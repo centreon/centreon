@@ -161,7 +161,7 @@ sub execute_cmd {
     chomp $options{target};
     chomp $options{param} if (defined($options{param}));
 
-    my $msg = "[legacycmd] -class- Handling command '" . $options{cmd} . "'";
+    my $msg = "[legacycmd] Handling command '" . $options{cmd} . "'";
     $msg .= ", Target: '" . $options{target} . "'" if (defined($options{target}));
     $msg .= ", Parameters: '" . $options{param} . "'" if (defined($options{param}));
     $self->{logger}->writeLogInfo($msg);
