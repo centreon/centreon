@@ -305,7 +305,7 @@ sub send_response {
         $response->content($options{response} . "\n");
         $options{connection}->send_response($response);
     } else {
-        my $response = HTTP::Response->new(203);
+        my $response = HTTP::Response->new(204);
         $options{connection}->send_response($response);
     }
 }
