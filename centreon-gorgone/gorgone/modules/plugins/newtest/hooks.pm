@@ -137,7 +137,6 @@ sub kill_internal {
 sub kill {
     my (%options) = @_;
 
-    
 }
 
 sub check {
@@ -164,6 +163,19 @@ sub check {
     }
     
     return $count;
+}
+
+sub broadcast {
+    my (%options) = @_;
+
+    foreach my $container_id (keys %$containers) {
+        if ($containers->{$container_id}->{running} == 1) {
+            gorgone::standard::library::zmq_send_message(
+                socket => $options{socket}, identity => 'gorgonenewtest-' . $container_id,
+                action => $options{action}, data => $options{data}, token => $options{token}
+            );
+        }
+    }
 }
 
 # Specific functions

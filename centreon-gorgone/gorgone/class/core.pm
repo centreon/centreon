@@ -66,7 +66,8 @@ sub new {
     $self->{api_endpoints} = {
         'GET_/internal/thumbprint' => 'GETTHUMBPRINT',
         'GET_/internal/constatus' => 'CONSTATUS',
-        'GET_/internal/information' => 'INFORMATION'
+        'GET_/internal/information' => 'INFORMATION',
+        'POST_/internal/logger' => 'BCASTLOGGER',
     };
 
     return $self;
@@ -306,7 +307,7 @@ sub load_module {
     }
     $self->{modules_register}->{$package} = {};
 
-    foreach my $method_name (('register', 'routing', 'kill', 'kill_internal', 'gently', 'check', 'init')) {
+    foreach my $method_name (('register', 'routing', 'kill', 'kill_internal', 'gently', 'check', 'init', 'broadcast')) {
         unless ($self->{modules_register}->{$package}->{$method_name} = $package->can($method_name)) {
             $self->{logger}->writeLogError("[core] No function '$method_name' for module '" . $options{config_module}->{name} . "'");
             return 0;
@@ -363,6 +364,33 @@ sub load_modules {
     }
 }
 
+sub broadcast_run {
+    my ($self, %options) = @_;
+
+    if ($options{action} eq 'BCASTLOGGER') {
+        my $data = gorgone::standard::library::json_decode(data => $options{data}, logger => $self->{logger});
+        return if (!defined($data));
+
+        if (defined($data->{content}->{severity}) && $data->{content}->{severity} ne '') {
+            if ($data->{content}->{severity} eq 'default') {
+                $self->{logger}->set_default_severity();
+            } else {
+                $self->{logger}->severity($data->{content}->{severity});
+            }
+        }
+    }
+
+    foreach (keys %{$self->{modules_register}}) {
+        $self->{modules_register}->{$_}->{broadcast}->(
+            socket => $self->{internal_socket},
+            action => $options{action},
+            logger => $self->{logger},
+            data => $options{data},
+            token => $options{token}
+        );
+    }
+}
+
 sub message_run {
     my ($self, %options) = @_;
 
@@ -381,7 +409,7 @@ sub message_run {
         $token = gorgone::standard::library::generate_token();
     }
 
-    if ($action !~ /^(?:PUTLOG|GETLOG|KILL|PING|CONSTATUS|SETCOREID|SYNCLOGS|LOADMODULE|UNLOADMODULE|INFORMATION|GETTHUMBPRINT)$/ && 
+    if ($action !~ /^(?:PUTLOG|GETLOG|KILL|PING|CONSTATUS|SETCOREID|SYNCLOGS|LOADMODULE|UNLOADMODULE|INFORMATION|GETTHUMBPRINT|BCAST.*)$/ && 
         !defined($target) && !defined($self->{modules_events}->{$action})) {
         gorgone::standard::library::add_history(
             dbh => $self->{db_gorgone},
@@ -452,6 +480,13 @@ sub message_run {
             logger => $self->{logger}
         );
         return ($token, $code, $response, $response_type);
+    } elsif ($action =~ /^BCAST(.*)$/) {
+        return (undef, 1, { message => "action '$action' is not known" }) if ($1 !~ /^LOGGER$/);
+        $self->broadcast_run(
+            action => $action,
+            data => $data,
+            token => $token
+        );
     } else {
         $self->{modules_register}->{$self->{modules_events}->{$action}->{module}->{package}}->{routing}->(
             socket => $self->{internal_socket}, 

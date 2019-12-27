@@ -134,6 +134,8 @@ sub check {
     return 0;
 }
 
+sub broadcast {}
+
 ####### specific
 
 sub transmit_back {

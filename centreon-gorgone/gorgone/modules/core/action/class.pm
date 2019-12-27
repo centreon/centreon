@@ -326,13 +326,20 @@ sub action_run {
 
 sub create_child {
     my ($self, %options) = @_;
-    
-    $self->{logger}->writeLogDebug("[action] -class- Create sub-process");
+
     $options{message} =~ /^\[(.*?)\]\s+\[(.*?)\]\s+\[.*?\]\s+(.*)$/m;
     
     my ($action, $token) = ($1, $2);
     my $data = JSON::XS->new->utf8->decode($3);
-    
+
+    if ($action =~ /^BCAST.*/) {
+        if ((my $method = $self->can('action_' . lc($action)))) {
+            $method->($self, token => $token, data => $data);
+        }
+        return undef;
+    }
+
+    $self->{logger}->writeLogDebug("[action] -class- Create sub-process");
     my $child_pid = fork();
     if (!defined($child_pid)) {
         $self->send_log(

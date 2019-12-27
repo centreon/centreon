@@ -387,6 +387,22 @@ sub check {
     return $count;
 }
 
+sub broadcast {
+    my (%options) = @_;
+
+    foreach my $pool_id (keys %$pools) {
+        next if ($pools->{$pool_id} != 1);
+
+        gorgone::standard::library::zmq_send_message(
+            socket => $options{socket},
+            identity => 'gorgoneproxy-' . $pool_id,
+            action => $options{action},
+            data => $options{data},
+            token => $options{token},
+        );
+    }
+}
+
 # Specific functions
 sub pathway {
     my (%options) = @_;

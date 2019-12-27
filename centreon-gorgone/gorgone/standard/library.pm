@@ -648,6 +648,23 @@ sub json_encode {
     return $data;
 }
 
+sub json_decode {
+    my (%options) = @_;
+    
+    my $data;
+    eval {
+        $data = JSON::XS->new->utf8->decode($options{data});
+    };
+    if ($@) {
+        if (defined($options{logger})) {
+            $options{logger}->writeLogError("Cannot decode json data: $@");
+        }
+        return undef;
+    }
+
+    return $data;
+}
+
 #######################
 # Global ZMQ functions
 #######################

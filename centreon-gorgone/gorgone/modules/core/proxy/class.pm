@@ -253,10 +253,13 @@ sub proxy {
     );
 
     if ($action eq 'PROXYADDNODE') {
-        action_proxyaddnode($connector, data => $data);
+        $connector->action_proxyaddnode(data => $data);
         return ;
     } elsif ($action eq 'PROXYDELNODE') {
-        action_proxydelnode($connector, data => $data);
+        $connector->action_proxydelnode(data => $data);
+        return ;
+    } elsif ($action eq 'BCASTLOGGER' && $target_complete eq '') {
+        $connector->action_bcastlogger(data => $data);
         return ;
     }
 
