@@ -299,10 +299,15 @@ sub authentication {
 sub send_response {
     my ($self, %options) = @_;
 
-    my $response = HTTP::Response->new(200);
-    $response->header('Content-Type' => 'application/json'); 
-    $response->content($options{response} . "\n");
-    $options{connection}->send_response($response);
+    if (defined($options{response}) && $options{response} ne '') {
+        my $response = HTTP::Response->new(200);
+        $response->header('Content-Type' => 'application/json'); 
+        $response->content($options{response} . "\n");
+        $options{connection}->send_response($response);
+    } else {
+        my $response = HTTP::Response->new(203);
+        $options{connection}->send_response($response);
+    }
 }
 
 sub send_error {

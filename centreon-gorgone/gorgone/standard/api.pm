@@ -163,11 +163,15 @@ sub call_internal {
         if ($@) {
             $response = '{"error":"decode_error","message":"Cannot decode response"}';
         } else {
-            eval {
-                $response = JSON::XS->new->utf8->encode($content);
-            };
-            if ($@) {
-                $response = '{"error":"encode_error","message":"Cannot encode response"}';
+            if (defined($content->{data})) {
+                eval {
+                    $response = JSON::XS->new->utf8->encode($content->{data});
+                };
+                if ($@) {
+                    $response = '{"error":"encode_error","message":"Cannot encode response"}';
+                }
+            } else {
+                $response = '';
             }
         }
     }
