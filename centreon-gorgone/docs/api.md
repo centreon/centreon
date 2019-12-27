@@ -139,9 +139,11 @@ Endpoints are basically built from:
 curl --request POST "https://hostname:8443/api/core/action/command" \
   --header "Accept: application/json" \
   --header "Content-Type: application/json" \
-  --data "{
-    \"command\": \"echo 'Test command'\"
-}"
+  --data "[
+    {
+        \"command\": \"echo 'Test command'\"
+    }
+]"
 ```
 
 Find more informations directly from modules documentations [here](../docs/modules.md).
@@ -191,9 +193,18 @@ curl --request GET "https://hostname:8443/api/log/3f25bc3a797fe989d1fb052b1886a8
         {
             "ctime": 1576083003,
             "etime": 1576083003,
+            "id": "15638",
+            "instant": 0,
+            "data": "{\"message\":\"commands processing has started\",\"request_content\":[{\"timeout\":10,\"command\":\"echo 'Test command'\"}]}",
+            "token": "3f25bc3a797fe989d1fb052b1886a806e73fe2d8ccfc6377ee3d4490f8ad03c02cb2533edcc1b3d8e1770e28d6f2de83bd98923b66c0c33395e5f835759de4b1",
+            "code": 0
+        },
+        {
+            "ctime": 1576083003,
+            "etime": 1576083003,
             "id": "15639",
             "instant": 0,
-            "data": "{\"metadata\":null,\"message\":\"command 'echo 'Test command'' has started\"}",
+            "data": "{\"metadata\":null,\"message\":\"command has started\",\"command\":\"echo 'Test command'\"}",
             "token": "3f25bc3a797fe989d1fb052b1886a806e73fe2d8ccfc6377ee3d4490f8ad03c02cb2533edcc1b3d8e1770e28d6f2de83bd98923b66c0c33395e5f835759de4b1",
             "code": 0
         },
@@ -202,7 +213,16 @@ curl --request GET "https://hostname:8443/api/log/3f25bc3a797fe989d1fb052b1886a8
             "etime": 1576083003,
             "id": "15640",
             "instant": 0,
-            "data": "{\"exit_code\":0,\"metadata\":null,\"stdout\":\"Test command\",\"message\":\"command 'echo 'Test command'' has finished\",\"start\":1576083003,\"end\":1576083003}",
+            "data": "{\"metadata\":null,\"metrics\":{\"duration\":0,\"start\":1576083003,\"end\":1576083003},\"message\":\"command has finished\",\"command\":\"echo 'Test command'\",\"result\":{\"exit_code\":0,\"stdout\":\"Test command\"}}",
+            "token": "3f25bc3a797fe989d1fb052b1886a806e73fe2d8ccfc6377ee3d4490f8ad03c02cb2533edcc1b3d8e1770e28d6f2de83bd98923b66c0c33395e5f835759de4b1",
+            "code": 2
+        },
+        {
+            "ctime": 1576083003,
+            "etime": 1576083003,
+            "id": "15641",
+            "instant": 0,
+            "data": "{\"message\":\"commands processing has finished\"}",
             "token": "3f25bc3a797fe989d1fb052b1886a806e73fe2d8ccfc6377ee3d4490f8ad03c02cb2533edcc1b3d8e1770e28d6f2de83bd98923b66c0c33395e5f835759de4b1",
             "code": 2
         }

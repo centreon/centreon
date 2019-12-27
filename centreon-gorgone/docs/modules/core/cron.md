@@ -16,6 +16,7 @@ Below the configuration to add cron definitions:
 | timespec | Cron-like time specification |
 | action | Action/event to call at job execution |
 | parameters | Parameters needed by the called action/event |
+| keep_token | Boolean to define whether or not the ID of the definition will be used as token for the command |
 
 #### Example
 
@@ -147,10 +148,12 @@ curl --request POST "https://hostname:8443/api/core/cron/definitions" \
         \"timespec\": \"*/15 * * * *\",
         \"id\": \"job_123\",
         \"action\": \"COMMAND\",
-        \"parameters\": {
-            \"command\": \"date >> /tmp/the_date_again.log\",
-            \"timeout\": 5
-        },
+        \"parameters\": [
+            {
+                \"command\": \"date >> /tmp/the_date_again.log\",
+                \"timeout\": 5
+            }
+        ],
         \"keep_token\": true
     }
 ]"
@@ -181,7 +184,11 @@ One or several keys allowed by the add endpoint.
 
 ```json
 {
-    "parameters": "<parameters for the action/event>"
+    "id": "<id of the definition>",
+    "timespec": "<cron-like time specification>",
+    "command": "<action/event>",
+    "parameters": "<parameters for the action/event>",
+    "keep_token": "<boolean to keep id as token>"
 }
 ```
 
