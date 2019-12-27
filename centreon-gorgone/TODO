@@ -1,8 +1,3 @@
 - gorgone-newtest: don't use centcore.cmd. use ssh system.
-- Add a broadcast action to update module (like logger in debug for example)
 - Add redis backend to store logs (we could disable synclog in redis mode)
 - Add a websocket module to call gorgone
-
-- gorgone_port: 22 ou 5665
-- gorgone_communication_type: 1 = 'zmq', 2 = 'ssh' 
-- remote_server_use_proxy
