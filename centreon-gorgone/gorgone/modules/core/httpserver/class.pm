@@ -111,18 +111,9 @@ sub class_handle_HUP {
 sub event {
     while (1) {
         my $message = gorgone::standard::library::zmq_dealer_read_message(socket => $connector->{internal_socket});
-        
+
         $connector->{logger}->writeLogDebug("[httpserver] Event: $message");
 
-        if ($message =~ /^\[(.*?)\]\s+\[(.*?)\]\s+\[.*?\]\s+(.*)$/) {
-            if ((my $method = $connector->can('action_' . lc($1)))) {
-                $message =~ /^\[(.*?)\]\s+\[(.*?)\]\s+\[.*?\]\s+(.*)$/m;
-                my ($action, $token) = ($1, $2);
-                my $data = JSON::XS->new->utf8->decode($3);
-                $method->($connector, token => $token, data => $data);
-            }
-        }
-        
         last unless (gorgone::standard::library::zmq_still_read(socket => $connector->{internal_socket}));
     }
 }
@@ -212,7 +203,7 @@ sub run {
             Timeout => 5
         );
     }
-    
+
     if (defined($daemon)) {
         while (1) {
             my ($connection) = $daemon->accept();
@@ -223,9 +214,9 @@ sub run {
                 zmq_close($connector->{internal_socket});
                 exit(0);
             }
-            
+
             next if (!defined($connection));
- 
+
             while (my $request = $connection->get_request) {
                 $connector->{logger}->writeLogInfo("[httpserver] " . $connection->peerhost() . " " . $request->method . " '" . $request->uri->path . "' '" . $request->header("User-Agent") . "'");
 
@@ -274,7 +265,7 @@ sub run {
 
 sub ssl_error {
     my ($self, $error) = @_;
-    
+
     ${*$self}{httpd_client_proto} = 1000;
     ${*$self}{httpd_daemon} = HTTP::Daemon::SSL::DummyDaemon->new();
     $self->send_error(RC_BAD_REQUEST);
@@ -287,7 +278,7 @@ sub authentication {
     return 1 if ($self->{auth_enabled} == 0);
 
     return 0 if (!defined($header) || $header eq '');
-        
+
     ($header =~ /Basic\s(.*)$/);
     my ($user, $password) = split(/:/, MIME::Base64::decode($1), 2);
     return 1 if (defined($self->{config}->{auth}->{user}) && $user eq $self->{config}->{auth}->{user} && 
