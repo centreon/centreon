@@ -45,7 +45,7 @@ sub root {
             refresh => (defined($options{parameters}->{refresh})) ? $options{parameters}->{refresh} : undef,
             parameters => $options{parameters}
         );
-    } elsif ($options{uri} =~ /^\/api\/(targets\/(\w*)\/)?internal\/(.*)$/
+    } elsif ($options{uri} =~ /^\/api\/(targets\/(\w*)\/)?internal\/(\w+)\/?([\w\/]*?)$/
         && defined($options{api_endpoints}->{$options{method} . '_/internal/' . $3})) {
         my @variables = split(/\//, $4);
         $response = call_internal(
@@ -139,7 +139,7 @@ sub call_internal {
             socket => $options{socket},
             target => $options{target},
             action => $options{action},
-            data => {},
+            data => $options{data},
             json_encode => 1,
             refresh => $options{refresh}
         );
@@ -148,7 +148,7 @@ sub call_internal {
     gorgone::standard::library::zmq_send_message(
         socket => $options{socket},
         action => $options{action},
-        data => {},
+        data => $options{data},
         json_encode => 1
     );
 
@@ -164,7 +164,7 @@ sub call_internal {
             $response = '{"error":"decode_error","message":"Cannot decode response"}';
         } else {
             eval {
-                $response = JSON::XS->new->utf8->encode($content->{data});
+                $response = JSON::XS->new->utf8->encode($content);
             };
             if ($@) {
                 $response = '{"error":"encode_error","message":"Cannot encode response"}';
