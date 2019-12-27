@@ -88,12 +88,36 @@ sub class_handle_HUP {
     }
 }
 
+sub check_debug {
+    my ($self, %options) = @_;
+
+    my $request = "SELECT `value` FROM options WHERE `key` = 'debug_gorgone'";
+    my ($status, $datas) = $self->{class_object}->custom_execute(request => $request, mode => 2);
+    if ($status == -1) {
+        $self->send_log(code => gorgone::class::module::ACTION_FINISH_KO, token => $options{token}, data => { message => 'cannot find debug configuration' });
+        $self->{logger}->writeLogError('[nodes] -class- cannot find debug configuration');
+        return 1;
+    }
+
+    my $map_values = { 0 => 'default', 1 => 'debug' };
+    my $debug_gorgone = 0;
+    $debug_gorgone = $datas->[0]->[0] if (defined($datas->[0]->[0]));
+    if (!defined($self->{debug_gorgone}) || $self->{debug_gorgone} != $debug_gorgone) {
+        $self->send_internal_action(action => 'BCASTLOGGER', data => { content => { severity => $map_values->{$debug_gorgone} } } );
+    }
+
+    $self->{debug_gorgone} = $debug_gorgone;
+    return 0;
+}
+
 sub action_nodesresync {
     my ($self, %options) = @_;
 
     $options{token} = $self->generate_token() if (!defined($options{token}));
 
     $self->send_log(code => gorgone::class::module::ACTION_BEGIN, token => $options{token}, data => { message => 'action nodesresync proceed' });
+
+    return 1 if ($self->check_debug());
 
     my $request = 'SELECT remote_server_id, poller_server_id FROM rs_poller_relation';
     my ($status, $datas) = $self->{class_object}->custom_execute(request => $request, mode => 2);

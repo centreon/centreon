@@ -53,9 +53,11 @@ use Sys::Syslog qw(:standard :macros);
 use IO::Handle;
 use Encode;
 
-my %severities = (1 => LOG_INFO,
-                  2 => LOG_ERR,
-                  4 => LOG_DEBUG);
+my %severities = (
+    1 => LOG_INFO,
+    2 => LOG_ERR,
+    4 => LOG_DEBUG
+);
 
 sub new {
     my $class = shift;
@@ -130,6 +132,12 @@ sub redirect_output {
         open STDOUT, '>&', $lfh;
         open STDERR, '>&', $lfh;
     }
+}
+
+sub force_default_severity {
+    my ($self, %options) = @_;
+
+    $self->{old_severity} = defined($options{severity}) ? $options{severity} : $self->{severity};
 }
 
 sub set_default_severity {
