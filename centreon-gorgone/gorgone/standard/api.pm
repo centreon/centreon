@@ -37,7 +37,7 @@ sub root {
     $options{logger}->writeLogInfo("[api] Requesting '" . $options{uri} . "' [" . $options{method} . "]");
 
     my $response;
-    if ($options{method} eq 'GET' && $options{uri} =~ /^\/api\/(targets\/(\w*)\/)?log\/(.*)$/) {
+    if ($options{method} eq 'GET' && $options{uri} =~ /^\/api\/(nodes\/(\w*)\/)?log\/(.*)$/) {
         $response = get_log(
             socket => $options{socket},
             target => $2,
@@ -45,7 +45,7 @@ sub root {
             refresh => (defined($options{parameters}->{refresh})) ? $options{parameters}->{refresh} : undef,
             parameters => $options{parameters}
         );
-    } elsif ($options{uri} =~ /^\/api\/(targets\/(\w*)\/)?internal\/(\w+)\/?([\w\/]*?)$/
+    } elsif ($options{uri} =~ /^\/api\/(nodes\/(\w*)\/)?internal\/(\w+)\/?([\w\/]*?)$/
         && defined($options{api_endpoints}->{$options{method} . '_/internal/' . $3})) {
         my @variables = split(/\//, $4);
         $response = call_internal(
@@ -59,7 +59,7 @@ sub root {
             },
             refresh => (defined($options{parameters}->{refresh})) ? $options{parameters}->{refresh} : undef
         );
-    } elsif ($options{uri} =~ /^\/api\/(targets\/(\w*)\/)?(\w+)\/(\w+)\/(\w+)\/?([\w\/]*?)$/
+    } elsif ($options{uri} =~ /^\/api\/(nodes\/(\w*)\/)?(\w+)\/(\w+)\/(\w+)\/?([\w\/]*?)$/
         && defined($options{api_endpoints}->{$options{method} . '_/' . $3 . '/' . $4 . '/' . $5})) {
         my @variables = split(/\//, $6);
         $response = call_action(
