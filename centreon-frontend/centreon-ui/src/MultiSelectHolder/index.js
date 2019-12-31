@@ -5,7 +5,7 @@
 
 import React from 'react';
 import classnames from 'classnames';
-import IconEdit from '../MaterialComponents/Icons/IconEdit';
+import IconEdit from '../Icon/IconEdit';
 import styles from './multi-select-holder.scss';
 
 class InputFieldMultiSelectEmpty extends React.Component {

@@ -3,6 +3,6 @@
 
 import '@testing-library/react/cleanup-after-each';
 import '@testing-library/jest-dom/extend-expect';
-import emotionSerializer from 'jest-emotion';
+import registerRequireContextHook from 'babel-plugin-require-context-hook/register';
 
-expect.addSnapshotSerializer(emotionSerializer);
+registerRequireContextHook();

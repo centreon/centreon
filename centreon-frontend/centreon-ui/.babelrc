@@ -10,7 +10,7 @@
           "esmodules": false
         }
       }
-    ],
+    ]
   ],
   "plugins": [
     "@babel/plugin-syntax-dynamic-import",
@@ -28,5 +28,10 @@
         "regenerator": true
       }
     ]
-  ]
+  ],
+  "env": {
+    "test": {
+      "plugins": ["require-context-hook"]
+    }
+  }
 }

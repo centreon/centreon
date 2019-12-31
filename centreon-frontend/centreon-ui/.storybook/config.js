@@ -18,8 +18,5 @@ const withThemeProvider = (story) => (
 
 addDecorator(withThemeProvider);
 
-function loadStories() {
-  require('../stories/index.js');
-}
+configure(require.context('../src', true, /\.stories\.jsx?$/), module);
 
-configure(loadStories, module);

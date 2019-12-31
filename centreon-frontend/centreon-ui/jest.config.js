@@ -1,12 +1,11 @@
 module.exports = {
   setupFilesAfterEnv: ['<rootDir>/setupTests.js'],
-  snapshotSerializers: ['jest-emotion'],
   roots: ['<rootDir>/src/'],
   transform: {
     '^.+\\.jsx?$': 'babel-jest',
   },
   moduleNameMapper: {
-    '\\.(s?css|png)$': 'identity-obj-proxy',
+    '\\.(s?css|png|svg)$': 'identity-obj-proxy',
   },
   testPathIgnorePatterns: ['/node_modules/', '/lib/'],
 };

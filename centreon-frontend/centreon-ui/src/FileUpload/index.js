@@ -7,7 +7,7 @@ import React, { Component } from 'react';
 import classnames from 'classnames';
 import Files from 'react-files';
 import styles from './file-upload.scss';
-import Button from '../Button/ButtonRegular';
+import Button from '../Button';
 import Popup from '../Popup';
 import FileUploadItem from './FileUploadItem';
 import IconClose from '../Icon/IconClose';

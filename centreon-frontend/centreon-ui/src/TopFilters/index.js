@@ -11,7 +11,7 @@ import filterStyles from './top-filters.scss';
 import Wrapper from '../Wrapper';
 import SearchLive from '../Search/SearchLive';
 import Switcher from '../Switcher';
-import Button from '../Button/ButtonRegular';
+import Button from '../Button';
 
 class TopFilters extends Component {
   render() {

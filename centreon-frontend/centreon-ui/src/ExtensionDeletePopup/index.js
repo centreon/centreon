@@ -8,7 +8,7 @@ import styles from '../Popup/popup.scss';
 import Popup from '../Popup';
 import Title from '../Title';
 import MessageInfo from '../Message/MessageInfo';
-import Button from '../Button/ButtonRegular';
+import Button from '../Button';
 import IconClose from '../Icon/IconClose';
 
 class ExtensionDeletePopup extends React.Component {

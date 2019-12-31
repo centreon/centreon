@@ -1,8 +1,9 @@
 version: 2.1
+
 jobs:
   build:
     docker:
-      - image: circleci/node:8
+      - image: buildkite/puppeteer
     steps:
       - checkout
       - restore_cache:
@@ -17,6 +18,9 @@ jobs:
       - run:
           name: Build
           command: npm run bundle
+      - run:
+          name: Build
+          command: npm run build:storybook
       - run:
           name: Check Linting
           command: npm run eslint
