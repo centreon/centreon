@@ -111,7 +111,7 @@ containers:
 
 | Endpoint | Method |
 | :- | :- |
-| /api/plugins/newtest/resync | `GET` |
+| /plugins/newtest/resync | `GET` |
 
 #### Headers
 

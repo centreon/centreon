@@ -50,8 +50,8 @@ cron:
 
 | Endpoint | Method |
 | :- | :- |
-| /api/core/cron/definitions | `GET` |
-| /api/core/cron/definitions/:id | `GET` |
+| /core/cron/definitions | `GET` |
+| /core/cron/definitions/:id | `GET` |
 
 #### Headers
 
@@ -81,7 +81,7 @@ curl --request GET "https://hostname:8443/api/core/cron/definitions/echo_date" \
 
 | Endpoint | Method |
 | :- | :- |
-| /api/core/cron/definitions/:id/status | `GET` |
+| /core/cron/definitions/:id/status | `GET` |
 
 #### Headers
 
@@ -106,7 +106,7 @@ curl --request GET "https://hostname:8443/api/core/cron/definitions/echo_date/st
 
 | Endpoint | Method |
 | :- | :- |
-| /api/core/cron/definitions | `POST` |
+| /core/cron/definitions | `POST` |
 
 #### Headers
 
@@ -163,7 +163,7 @@ curl --request POST "https://hostname:8443/api/core/cron/definitions" \
 
 | Endpoint | Method |
 | :- | :- |
-| /api/core/cron/definitions/:id | `PATCH` |
+| /core/cron/definitions/:id | `PATCH` |
 
 #### Headers
 
@@ -207,7 +207,7 @@ curl --request PATCH "https://hostname:8443/api/core/cron/definitions/job_123" \
 
 | Endpoint | Method |
 | :- | :- |
-| /api/core/cron/definitions/:id | `DELETE` |
+| /core/cron/definitions/:id | `DELETE` |
 
 #### Headers
 

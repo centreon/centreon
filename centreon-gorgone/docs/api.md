@@ -8,7 +8,7 @@ Centreon Gorgone provides a RestAPI through its HTTP server module.
 
 | Endpoint | Method |
 | :- | :- |
-| /api/internal/constatus | `GET` |
+| /internal/constatus | `GET` |
 
 #### Headers
 
@@ -27,7 +27,7 @@ curl --request GET "https://hostname:8443/api/internal/constatus" \
 
 | Endpoint | Method |
 | :- | :- |
-| /api/internal/thumbprint | `GET` |
+| /internal/thumbprint | `GET` |
 
 #### Headers
 
@@ -46,7 +46,7 @@ curl --request GET "https://hostname:8443/api/internal/thumbprint" \
 
 | Endpoint | Method |
 | :- | :- |
-| /api/internal/information | `GET` |
+| /internal/information | `GET` |
 
 #### Headers
 
@@ -164,7 +164,7 @@ To retrieve the logs, a specific endpoint can be called as follow.
 
 | Endpoint | Method |
 | :- | :- |
-| /api/log/:token | `GET` |
+| /log/:token | `GET` |
 
 #### Headers
 

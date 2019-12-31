@@ -74,7 +74,7 @@ containers:
 
 | Endpoint | Method |
 | :- | :- |
-| /api/plugins/scom/resync | `GET` |
+| /plugins/scom/resync | `GET` |
 
 #### Headers
 

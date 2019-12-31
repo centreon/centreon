@@ -2,7 +2,7 @@
 
 ## Description
 
-This module should be used on remote targets where the connection has to be opened from the target to the Central Gorgone.
+This module should be used on remote nodes where the connection has to be opened from the node to the Central Gorgone.
 
 ## Configuration
 

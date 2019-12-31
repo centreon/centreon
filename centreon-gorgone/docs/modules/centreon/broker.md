@@ -8,7 +8,7 @@ This module aims to deal with Centreon Broker daemon.
 
 | Directive | Description | Default value |
 | :- | :- | :- |
-| cache_dir | Path to the Centreon Broker statistics directory (local) use to store target's broker statistics | `/var/lib/centreon/broker-stats/` |
+| cache_dir | Path to the Centreon Broker statistics directory (local) use to store node's broker statistics | `/var/lib/centreon/broker-stats/` |
 
 The configuration needs a cron definition to unsure that statistics collection will be done cyclically.
 
@@ -33,16 +33,16 @@ cron:
 | Event | Description |
 | :- | :- |
 | BROKERREADY | Internal event to notify the core |
-| BROKERSTATS | Collect Centreon Broker statistics files on target |
+| BROKERSTATS | Collect Centreon Broker statistics files on node |
 
 ## API
 
-### Collect Centreon Broker statistics on one or several targets
+### Collect Centreon Broker statistics on one or several nodes
 
 | Endpoint | Method |
 | :- | :- |
-| /api/centreon/broker/statistics | `GET` |
-| /api/centreon/broker/statistics/:id | `GET` |
+| /centreon/broker/statistics | `GET` |
+| /centreon/broker/statistics/:id | `GET` |
 
 #### Headers
 
@@ -54,7 +54,7 @@ cron:
 
 | Variable | Description |
 | :- | :- |
-| id | Identifier of the target |
+| id | Identifier of the node |
 
 #### Example
 

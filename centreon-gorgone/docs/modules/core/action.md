@@ -33,7 +33,7 @@ command_timeout: 30
 
 | Endpoint | Method |
 | :- | :- |
-| /api/core/action/command | `POST` |
+| /core/action/command | `POST` |
 
 #### Headers
 

@@ -34,7 +34,7 @@ enable: true
 
 | Endpoint | Method |
 | :- | :- |
-| /api/centreon/autodiscovery/task | `POST` |
+| /centreon/autodiscovery/task | `POST` |
 
 #### Headers
 
@@ -78,7 +78,7 @@ curl --request POST "https://hostname:8443/api/centreon/autodiscovery/task" \
 
 | Endpoint | Method |
 | :- | :- |
-| /api/centreon/autodiscovery/task/:id | `GET` |
+| /centreon/autodiscovery/task/:id | `GET` |
 
 #### Headers
 
@@ -103,7 +103,7 @@ curl --request GET "https://hostname:8443/api/centreon/autodiscovery/task/autodi
 
 | Endpoint | Method |
 | :- | :- |
-| /api/centreon/autodiscovery/job | `POST` |
+| /centreon/autodiscovery/job | `POST` |
 
 #### Headers
 
@@ -150,7 +150,7 @@ curl --request POST "https://hostname:8443/api/centreon/autodiscovery/job" \
 
 | Endpoint | Method |
 | :- | :- |
-| /api/centreon/autodiscovery/job/:id | `GET` |
+| /centreon/autodiscovery/job/:id | `GET` |
 
 #### Headers
 

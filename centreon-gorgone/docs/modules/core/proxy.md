@@ -6,9 +6,9 @@ This module aims to give the possibility to Gorgone to become distributed.
 
 It is not needed in a Centreon standalone configuration, but must be enabled if there is Poller or Remote servers.
 
-The module includes mechanisms like ping to make sure targets are alive, synchronisation to store logs in the Central Gorgone database, etc.
+The module includes mechanisms like ping to make sure nodes are alive, synchronisation to store logs in the Central Gorgone database, etc.
 
-A SSH client library make routing to non-gorgoned targets possible.
+A SSH client library make routing to non-gorgoned nodes possible.
 
 ## Configuration
 
@@ -17,8 +17,8 @@ A SSH client library make routing to non-gorgoned targets possible.
 | pool | Number of childs to instantiate to process events | `5` |
 | synchistory_time | Time in seconds between two logs synchronisation | `60` |
 | synchistory_timeout | Time in seconds before logs synchronisation is considered timed out | `30` |
-| ping | Time in seconds between two target pings | `60` |
-| pong_discard_timeout | Time in seconds before a target is considered dead | `300` |
+| ping | Time in seconds between two node pings | `60` |
+| pong_discard_timeout | Time in seconds before a node is considered dead | `300` |
 
 #### Example
 
@@ -40,13 +40,13 @@ pong_discard_timeout: 300
 | PROXYREADY | Internal event to notify the core |
 | REMOTECOPY | Copy files or directories from the server running the daemon to another server |
 | SETLOGS | Internal event to insert logs into the database |
-| PONG | Internal event to handle target ping response |
-| REGISTERNODES | Internal event to register targets |
-| UNREGISTERNODES | Internal event to unregister targets |
+| PONG | Internal event to handle node ping response |
+| REGISTERNODES | Internal event to register nodes |
+| UNREGISTERNODES | Internal event to unregister nodes |
 | PROXYADDNODE | Internal event to add nodes for proxying |
 | PROXYDELNODE | Internal event to delete nodes from proxying |
 | PROXYADDSUBNODE | Internal event to add nodes of nodes for proxying |
-| PONGRESET | Internal event to deal with no pong targets |
+| PONGRESET | Internal event to deal with no pong nodes |
 
 ## API
 

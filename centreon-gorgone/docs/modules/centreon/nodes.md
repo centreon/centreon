@@ -2,9 +2,9 @@
 
 ## Description
 
-This module aims to automatically register Poller servers as Gorgone targets, in opposition to the [register](../core/register.md) module.
+This module aims to automatically register Poller servers as Gorgone nodes, in opposition to the [register](../core/register.md) module.
 
-For now, targets can be registered as SSH targets or ZMQ targets.
+For now, nodes can be registered as SSH nodes or ZMQ nodes.
 
 ## Configuration
 

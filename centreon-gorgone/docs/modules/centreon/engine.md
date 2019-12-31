@@ -32,7 +32,7 @@ command_file: "/var/lib/centreon-engine/rw/centengine.cmd"
 
 | Endpoint | Method |
 | :- | :- |
-| /api/centreon/engine/command | `POST` |
+| /centreon/engine/command | `POST` |
 
 #### Headers
 
