@@ -75,3 +75,9 @@ export { default as IconError } from './Icon/IconError';
 export { default as withErrorSnackbar } from './Snackbar/Error/withErrorSnackbar';
 export { default as useErrorSnackbar } from './Snackbar/Error/useErrorSnackbar';
 export { default as SaveButton } from './Button/Save';
+
+export { default as IconHeader } from './Icon/IconHeader';
+export { default as IconNumber } from './Icon/IconNumber';
+export { default as SubmenuHeader } from './Submenu/SubmenuHeader';
+export { default as SubmenuItems } from './Submenu/SubmenuHeader/SubmenuItems';
+export { default as SubmenuItem } from './Submenu/SubmenuHeader/SubmenuItem';
