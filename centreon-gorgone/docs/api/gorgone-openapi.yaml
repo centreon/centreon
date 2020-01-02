@@ -83,7 +83,7 @@ paths:
       tags:
         - Internal
       summary: "Get nodes connection status"
-      description: "Get the connection status of all nodes managed by the Gorgone daemon"
+      description: "Get the connection status of all nodes managed by the Gorgone daemon."
       responses:
         '200':
           description: OK
@@ -155,14 +155,11 @@ paths:
       summary: "Retrieve event's logs"
       description: "Retrieve the event's logs based on event's token."
       parameters:
-        - name: token
-          in: path
-          description: "Token of the event"
-          schema:
-            type: string
-          required: true
-          example:
-            "1d48a26a0fc37c1d8658222378044007d9c12311ba49b214de633739be05353415eee946f41b43babb6cb2a083a45c0d6359f361874af39a45b07542de8e2165"
+        - $ref: '#/components/parameters/Token'
+        - $ref: '#/components/parameters/Code'
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Ctime'
+        - $ref: '#/components/parameters/Etime'
       responses:
         '200':
           description: OK
@@ -172,7 +169,6 @@ paths:
                 oneOf:
                   - $ref: '#/components/schemas/Logs'
                   - $ref: '#/components/schemas/NoLogs'
-                  - $ref: '#/components/schemas/Token'
                   - $ref: '#/components/schemas/Error'
         '401':
           $ref: '#/components/responses/Unauthorized'
@@ -191,9 +187,9 @@ paths:
             application/json:
               schema:
                 oneOf:
+                  - $ref: '#/components/schemas/Token'
                   - $ref: '#/components/schemas/Logs'
                   - $ref: '#/components/schemas/NoLogs'
-                  - $ref: '#/components/schemas/Token'
                   - $ref: '#/components/schemas/Error'
         '401':
           $ref: '#/components/responses/Unauthorized'
@@ -217,29 +213,22 @@ paths:
             application/json:
               schema:
                 oneOf:
+                  - $ref: '#/components/schemas/Token'
                   - $ref: '#/components/schemas/Logs'
                   - $ref: '#/components/schemas/NoLogs'
-                  - $ref: '#/components/schemas/Token'
                   - $ref: '#/components/schemas/Error'
         '401':
           $ref: '#/components/responses/Unauthorized'
         '403':
           $ref: '#/components/responses/Forbidden'
-  /core/cron/definitions/{id}:
+  /core/cron/definitions/{definition_id}:
     get:
       tags:
         - Cron
       summary: "Get a definition"
       description: "List cron definition identified by id."
       parameters:
-        - name: id
-          in: path
-          description: "ID of the definition"
-          schema:
-            type: string
-          required: true
-          example:
-            "broker_stats"
+        - $ref: '#/components/parameters/DefinitionId'
       responses:
         '200':
           description: OK
@@ -247,9 +236,9 @@ paths:
             application/json:
               schema:
                 oneOf:
+                  - $ref: '#/components/schemas/Token'
                   - $ref: '#/components/schemas/Logs'
                   - $ref: '#/components/schemas/NoLogs'
-                  - $ref: '#/components/schemas/Token'
                   - $ref: '#/components/schemas/Error'
         '401':
           $ref: '#/components/responses/Unauthorized'
@@ -261,14 +250,7 @@ paths:
       summary: "Update a definition"
       description: "Update a cron definition."
       parameters:
-        - name: id
-          in: path
-          description: "ID of the definition"
-          schema:
-            type: string
-          required: true
-          example:
-            "broker_stats"
+        - $ref: '#/components/parameters/DefinitionId'
       requestBody:
         required: true
         content:
@@ -282,9 +264,9 @@ paths:
             application/json:
               schema:
                 oneOf:
+                  - $ref: '#/components/schemas/Token'
                   - $ref: '#/components/schemas/Logs'
                   - $ref: '#/components/schemas/NoLogs'
-                  - $ref: '#/components/schemas/Token'
                   - $ref: '#/components/schemas/Error'
         '401':
           $ref: '#/components/responses/Unauthorized'
@@ -296,14 +278,7 @@ paths:
       summary: "Delete a definition"
       description: "Delete a cron definition."
       parameters:
-        - name: id
-          in: path
-          description: "ID of the definition"
-          schema:
-            type: string
-          required: true
-          example:
-            "broker_stats"
+        - $ref: '#/components/parameters/DefinitionId'
       responses:
         '200':
           description: OK
@@ -311,29 +286,22 @@ paths:
             application/json:
               schema:
                 oneOf:
+                  - $ref: '#/components/schemas/Token'
                   - $ref: '#/components/schemas/Logs'
                   - $ref: '#/components/schemas/NoLogs'
-                  - $ref: '#/components/schemas/Token'
                   - $ref: '#/components/schemas/Error'
         '401':
           $ref: '#/components/responses/Unauthorized'
         '403':
           $ref: '#/components/responses/Forbidden'
-  /core/cron/definitions/{id}/status:
+  /core/cron/definitions/{definition_id}/status:
     get:
       tags:
         - Cron
       summary: "Get a definition status"
       description: "Get a definition execution status."
       parameters:
-        - name: id
-          in: path
-          description: "ID of the definition"
-          schema:
-            type: string
-          required: true
-          example:
-            "broker_stats"
+        - $ref: '#/components/parameters/DefinitionId'
       responses:
         '200':
           description: OK
@@ -341,9 +309,9 @@ paths:
             application/json:
               schema:
                 oneOf:
+                  - $ref: '#/components/schemas/Token'
                   - $ref: '#/components/schemas/Logs'
                   - $ref: '#/components/schemas/NoLogs'
-                  - $ref: '#/components/schemas/Token'
                   - $ref: '#/components/schemas/Error'
         '401':
           $ref: '#/components/responses/Unauthorized'
@@ -368,9 +336,9 @@ paths:
             application/json:
               schema:
                 oneOf:
+                  - $ref: '#/components/schemas/Token'
                   - $ref: '#/components/schemas/Logs'
                   - $ref: '#/components/schemas/NoLogs'
-                  - $ref: '#/components/schemas/Token'
                   - $ref: '#/components/schemas/Error'
         '401':
           $ref: '#/components/responses/Unauthorized'
@@ -397,9 +365,9 @@ paths:
             application/json:
               schema:
                 oneOf:
+                  - $ref: '#/components/schemas/Token'
                   - $ref: '#/components/schemas/Logs'
                   - $ref: '#/components/schemas/NoLogs'
-                  - $ref: '#/components/schemas/Token'
                   - $ref: '#/components/schemas/Error'
         '401':
           $ref: '#/components/responses/Unauthorized'
@@ -418,29 +386,22 @@ paths:
             application/json:
               schema:
                 oneOf:
+                  - $ref: '#/components/schemas/Token'
                   - $ref: '#/components/schemas/Logs'
                   - $ref: '#/components/schemas/NoLogs'
-                  - $ref: '#/components/schemas/Token'
                   - $ref: '#/components/schemas/Error'
         '401':
           $ref: '#/components/responses/Unauthorized'
         '403':
           $ref: '#/components/responses/Forbidden'
-  /centreon/broker/statistics/{id}:
+  /centreon/broker/statistics/{monitoring_server_id}:
     get:
       tags:
         - Broker
       summary: "Launch Broker statistics collection of a specific monitoring server"
       description: "Launch Broker statistics collection and store the result on disk."
       parameters:
-        - name: id
-          in: path
-          description: "ID of the monitoring server"
-          schema:
-            type: integer
-          required: true
-          example:
-            2
+        - $ref: '#/components/parameters/MonitoringServerId'
       responses:
         '200':
           description: OK
@@ -448,9 +409,9 @@ paths:
             application/json:
               schema:
                 oneOf:
+                  - $ref: '#/components/schemas/Token'
                   - $ref: '#/components/schemas/Logs'
                   - $ref: '#/components/schemas/NoLogs'
-                  - $ref: '#/components/schemas/Token'
                   - $ref: '#/components/schemas/Error'
         '401':
           $ref: '#/components/responses/Unauthorized'
@@ -475,29 +436,22 @@ paths:
             application/json:
               schema:
                 oneOf:
+                  - $ref: '#/components/schemas/Token'
                   - $ref: '#/components/schemas/Logs'
                   - $ref: '#/components/schemas/NoLogs'
-                  - $ref: '#/components/schemas/Token'
                   - $ref: '#/components/schemas/Error'
         '401':
           $ref: '#/components/responses/Unauthorized'
         '403':
           $ref: '#/components/responses/Forbidden'
-  /centreon/autodiscovery/task/{id}:
+  /centreon/autodiscovery/task/{task_id}:
     get:
       tags:
         - Autodiscovery
       summary: "Get a discovery task results"
       description: "Get Centreon Autodiscovery task results."
       parameters:
-        - name: id
-          in: path
-          description: "ID of the task"
-          schema:
-            type: string
-          required: true
-          example:
-            "Task-SNMP-10.1.2.3"
+        - $ref: '#/components/parameters/TaskId'
       responses:
         '200':
           description: OK
@@ -505,9 +459,9 @@ paths:
             application/json:
               schema:
                 oneOf:
+                  - $ref: '#/components/schemas/Token'
                   - $ref: '#/components/schemas/Logs'
                   - $ref: '#/components/schemas/NoLogs'
-                  - $ref: '#/components/schemas/Token'
                   - $ref: '#/components/schemas/Error'
         '401':
           $ref: '#/components/responses/Unauthorized'
@@ -532,29 +486,22 @@ paths:
             application/json:
               schema:
                 oneOf:
+                  - $ref: '#/components/schemas/Token'
                   - $ref: '#/components/schemas/Logs'
                   - $ref: '#/components/schemas/NoLogs'
-                  - $ref: '#/components/schemas/Token'
                   - $ref: '#/components/schemas/Error'
         '401':
           $ref: '#/components/responses/Unauthorized'
         '403':
           $ref: '#/components/responses/Forbidden'
-  /centreon/autodiscovery/job/{id}:
+  /centreon/autodiscovery/job/{job_id}:
     get:
       tags:
         - Autodiscovery
       summary: "Get a discovery job results"
       description: "Get Centreon Autodiscovery job results."
       parameters:
-        - name: id
-          in: path
-          description: "ID of the job"
-          schema:
-            type: string
-          required: true
-          example:
-            "Job-SNMP-10.1.2.3"
+        - $ref: '#/components/parameters/JobId'
       responses:
         '200':
           description: OK
@@ -562,9 +509,9 @@ paths:
             application/json:
               schema:
                 oneOf:
+                  - $ref: '#/components/schemas/Token'
                   - $ref: '#/components/schemas/Logs'
                   - $ref: '#/components/schemas/NoLogs'
-                  - $ref: '#/components/schemas/Token'
                   - $ref: '#/components/schemas/Error'
         '401':
           $ref: '#/components/responses/Unauthorized'
@@ -575,6 +522,83 @@ components:
     Basic Authentication:
       type: http
       scheme: basic
+  parameters:
+    Token:
+      in: path
+      name: token
+      required: true
+      description: "Token of the event"
+      schema:
+        type: string
+        example: "1d48a26a0fc37c1d8658222378044007d9c12311ba49b214de633739be05353415eee946f41b43babb6cb2a083a45c0d6359f361874af39a45b07542de8e2165"
+    Code:
+      in: query
+      name: code
+      required: false
+      description: "Only retrieve logs with defined code"
+      schema:
+        type: integer
+        enum: [0, 1, 2]
+        example: 2
+    Limit:
+      in: query
+      name: limit
+      required: false
+      description: "Only retrieve the last x logs"
+      schema:
+        type: integer
+        minimum: 1
+        example: 1
+    Ctime:
+      in: query
+      name: ctime
+      required: false
+      description: "Only retrieve logs with a creation time equal or superior to a timestamp"
+      schema:
+        type: integer
+        format: int64
+        example: 1577726040
+    Etime:
+      in: query
+      name: etime
+      required: false
+      description: "Only retrieve logs of an event time superior to a timestamp"
+      schema:
+        type: integer
+        format: int64
+        example: 1577726040
+    DefinitionId:
+      in: path
+      name: definition_id
+      required: true
+      description: "ID of the definition"
+      schema:
+        type: string
+        example: "broker_stats"
+    MonitoringServerId:
+      in: path
+      name: monitoring_server_id
+      required: true
+      description: "ID of the monitoring server"
+      schema:
+        type: integer
+        example: 2
+    TaskId:
+      in: path
+      name: task_id
+      required: true
+      description: "ID of the task"
+      schema:
+        type: string
+        example: "Task-SNMP-10.1.2.3"
+    JobId:
+      in: path
+      name: job_id
+      required: true
+      description: "ID of the job"
+      schema:
+        type: string
+        example: "Job-SNMP-10.1.2.3"
   responses:
     NotFound:
       description: "The specified resource was not found"
@@ -596,13 +620,11 @@ components:
               error:
                 type: string
                 description: "Short error description"
-                example:
-                  "http_error_401"
+                example: "http_error_401"
               message:
                 type: string
                 description: "Message explaining the error"
-                example:
-                  "unauthorized"
+                example: "unauthorized"
             required:
               - error
               - message
@@ -616,13 +638,11 @@ components:
               error:
                 type: string
                 description: "Short error description"
-                example:
-                  "http_error_403"
+                example: "http_error_403"
               message:
                 type: string
                 description: "Message explaining the error"
-                example:
-                  "forbidden"
+                example: "forbidden"
             required:
               - error
               - message
@@ -636,13 +656,11 @@ components:
               error:
                 type: string
                 description: "Short error description"
-                example:
-                  "method_unknown"
+                example: "method_unknown"
               message:
                 type: string
                 description: "Message explaining the error"
-                example:
-                  "Method not implemented"
+                example: "Method not implemented"
             required:
               - error
               - message
@@ -656,13 +674,11 @@ components:
               error:
                 type: string
                 description: "Short error description"
-                example:
-                  "endpoint_unknown"
+                example: "endpoint_unknown"
               message:
                 type: string
                 description: "Message explaining the error"
-                example:
-                  "endpoint not implemented"
+                example: "endpoint not implemented"
             required:
               - error
               - message
@@ -686,22 +702,19 @@ components:
           type: string
           format: byte
           description: "Token related to the event's result"
-          example:
-            "1d48a26a0fc37c1d8658222378044007d9c12311ba49b214de633739be05353415eee946f41b43babb6cb2a083a45c0d6359f361874af39a45b07542de8e2165"
+          example: "1d48a26a0fc37c1d8658222378044007d9c12311ba49b214de633739be05353415eee946f41b43babb6cb2a083a45c0d6359f361874af39a45b07542de8e2165"
     Logs:
       type: object
       properties:
         message:
           type: string
           description: "Additionnal message"
-          example:
-            "Logs found"
+          example: "Logs found"
         token:
           type: string
           format: byte
           description: "Token related to the event's result"
-          example:
-            "03008486ba50b52e529ff5828d1432e5578dd18bb530c145b133dc902c8cfa6b8aac4d58fffb0c5ed44b943d2acbfb7cd1b18c55fcebce62e51999db460112c7"
+          example: "03008486ba50b52e529ff5828d1432e5578dd18bb530c145b133dc902c8cfa6b8aac4d58fffb0c5ed44b943d2acbfb7cd1b18c55fcebce62e51999db460112c7"
         data:
           type: array
           description: "Results array containing all logs related to token"
@@ -714,23 +727,19 @@ components:
           type: string
           format: timestamp
           description: "Time when the server has stored the log in its database"
-          example:
-            1577727699
+          example: 1577727699
         etime:
           type: string
           format: timestamp
           description: "Time when the event has occured"
-          example:
-            1577727699
+          example: 1577727699
         id:
           type: integer
           description: "ID of the event"
-          example:
-            101483
+          example: 101483
         instant:
           type: integer
-          example:
-            0
+          example: 0
         data:
           type: object
           description: "Data stored for this event"
@@ -738,31 +747,26 @@ components:
           type: string
           format: byte
           description: "Token related to the event"
-          example:
-            "03008486ba50b52e529ff5828d1432e5578dd18bb530c145b133dc902c8cfa6b8aac4d58fffb0c5ed44b943d2acbfb7cd1b18c55fcebce62e51999db460112c7"
+          example: "03008486ba50b52e529ff5828d1432e5578dd18bb530c145b133dc902c8cfa6b8aac4d58fffb0c5ed44b943d2acbfb7cd1b18c55fcebce62e51999db460112c7"
         code:
           type: integer
           description: "Returned code of the event"
-          example:
-            2
+          example: 2
     NoLogs:
       type: object
       properties:
         error:
           type: string
           description: "Short error description"
-          example:
-            "no_log"
+          example: "no_log"
         message:
           type: string
           description: "Message explaining the error"
-          example:
-            "No log found for token"
+          example: "No log found for token"
         token:
           type: string
           description: "Token related to the event's result"
-          example:
-            "03008486ba50b52e529ff5828d1432e5578dd18bb530c145b133dc902c8cfa6b8aac4d58fffb0c5ed44b943d2acbfb7cd1b18c55fcebce62e51999db460112c7"
+          example: "03008486ba50b52e529ff5828d1432e5578dd18bb530c145b133dc902c8cfa6b8aac4d58fffb0c5ed44b943d2acbfb7cd1b18c55fcebce62e51999db460112c7"
         data:
           type: array
           description: "Empty array"
@@ -774,13 +778,11 @@ components:
         action:
           type: string
           description: "Event sent to retrieve data"
-          example:
-            "constatus"
+          example: "constatus"
         message:
           type: string
           description: "Response message"
-          example:
-            "ok"
+          example: "ok"
         data:
           type: object
           properties:
@@ -793,14 +795,12 @@ components:
           type: string
           format: timestamp
           description: "Last ping sent timestamp"
-          example:
-            1577726040
+          example: 1577726040
         type:
           type: string
           enum: [push_zmq, pull_zmq, ssh]
           description: "Communication type"
-          example:
-            "push_zmq"
+          example: "push_zmq"
         nodes:
           type: object
           description: "Nodes managed by this Gorgone daemon"
@@ -808,21 +808,18 @@ components:
           type: string
           format: timestamp
           description: "Last ping received timestamp"
-          example:
-            1577726040
+          example: 1577726040
     Information:
       type: object
       properties:
         action:
           type: string
           description: "Event sent to retrieve data"
-          example:
-            "information"
+          example: "information"
         message:
           type: string
           description: "Response message"
-          example:
-            "ok"
+          example: "ok"
         data:
           type: object
           properties:
@@ -872,8 +869,7 @@ components:
         total:
           type: integer
           description: "Total number of events processed since startup"
-          example:
-            40210
+          example: 40210
         external:
           type: object
           description: "Number of external events since startup"
@@ -927,13 +923,11 @@ components:
         action:
           type: string
           description: "Event sent to retrieve data"
-          example:
-            "getthumbprint"
+          example: "getthumbprint"
         message:
           type: string
           description: "Response message"
-          example:
-            "ok"
+          example: "ok"
         data:
           type: object
           properties:
@@ -989,18 +983,15 @@ components:
         command:
           type: string
           description: "Command to execute"
-          example:
-            "echo data > /tmp/date.log"
+          example: "echo data > /tmp/date.log"
         timeout:
           type: integer
           description: "Time in seconds before a command is considered timed out"
-          example:
-            5
+          example: 5
         continue_on_error:
           type: boolean
           description: "Behaviour in case of execution issue"
-          example:
-            true
+          example: true
       required:
         - command
     EngineCommands:
@@ -1013,13 +1004,11 @@ components:
         command:
           type: string
           description: "External command"
-          example:
-            "[653284380] SCHEDULE_SVC_CHECK;host1;service1;653284380"
+          example: "[653284380] SCHEDULE_SVC_CHECK;host1;service1;653284380"
         command_file:
           type: string
           description: "Path to the Centreon Engine command file pipe"
-          example:
-            "/var/lib/centreon-engine/rw/centengine.cmd"
+          example: "/var/lib/centreon-engine/rw/centengine.cmd"
       required:
         - command
     AutodiscoveryTask:
@@ -1028,8 +1017,7 @@ components:
         id:
           type: string
           description: "Identifier of the task (random if empty)"
-          example:
-            "Task-SNMP-10.1.2.3"
+          example: "Task-SNMP-10.1.2.3"
         command:
           type: string
           description: "Command line to execute to perform the discovery"
@@ -1038,13 +1026,11 @@ components:
         timeout:
           type: integer
           description: "Time in seconds before the command is considered timed out"
-          example:
-            300
+          example: 300
         target:
           type: integer
           description: "Identifier of the target on which to execute the command"
-          example:
-            2
+          example: 2
       required:
         - command
         - target
@@ -1054,13 +1040,11 @@ components:
         id:
           type: string
           description: "Identifier of the job (random if empty)"
-          example:
-            "Job-SNMP-10.1.2.3"
+          example: "Job-SNMP-10.1.2.3"
         timespec:
           type: string
           description: "Cron-like time specification"
-          example:
-            "30 2 * * *"
+          example: "30 2 * * *"
         command:
           type: string
           description: "Command line to execute to perform the discovery"
@@ -1069,13 +1053,11 @@ components:
         timeout:
           type: integer
           description: "Time in seconds before the command is considered timed out"
-          example:
-            300
+          example: 300
         target:
           type: integer
           description: "Identifier of the target on which to execute the command"
-          example:
-            2
+          example: 2
       required:
         - timespec
         - command
