@@ -4,17 +4,20 @@
 /* eslint-disable react/jsx-filename-extension */
 
 import React, { Component } from 'react';
+
 import PropTypes from 'prop-types';
+import clsx from 'clsx';
+import ResizeObserver from 'resize-observer-polyfill';
+
 import { withStyles } from '@material-ui/core/styles';
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
 import Paper from '@material-ui/core/Paper';
-import IconButton from '@material-ui/core/IconButton';
 import LinearProgress from '@material-ui/core/LinearProgress';
 import DefaultTooltip from '@material-ui/core/Tooltip';
 import Box from '@material-ui/core/Box';
 import TableCell from '@material-ui/core/TableCell';
-import ResizeObserver from 'resize-observer-polyfill';
+
 import StyledTableRow from './StyledTableRow';
 import IconPowerSettings from '../../Icon/IconPowerSettings';
 import IconPowerSettingsDisable from '../../Icon/IconPowerSettingsDisable';
@@ -26,13 +29,11 @@ import TABLE_COLUMN_TYPES from '../ColumnTypes';
 import TablePaginationActions from './TablePaginationActions';
 import StyledPagination from './StyledPagination';
 import Tooltip from '../../Tooltip';
-import InputFieldSelectTableCell from '../../InputField/InputFieldSelectTableCell';
-import InputFieldTableCell from '../../InputField/InputFieldTableCell';
 import IndicatorsEditor from './IndicatorsEditorRow';
 
 const loadingIndicatorHeight = 3;
 
-const deepEqual = (a, b) => a.id === b.id;
+const haveSameIds = (a, b) => a.id === b.id;
 
 const BodyTableCell = withStyles({
   root: {
@@ -92,7 +93,7 @@ class TableCustom extends Component {
   selectedRowsInclude = (row) => {
     const { selectedRows } = this.props;
 
-    return !!selectedRows.find((includedRow) => deepEqual(includedRow, row));
+    return !!selectedRows.find((includedRow) => haveSameIds(includedRow, row));
   };
 
   handleRequestSort = (_, property) => {
@@ -121,7 +122,7 @@ class TableCustom extends Component {
     const { onSelectRows, selectedRows } = this.props;
 
     if (this.selectedRowsInclude(row)) {
-      onSelectRows(selectedRows.filter((entity) => !deepEqual(entity, row)));
+      onSelectRows(selectedRows.filter((entity) => !haveSameIds(entity, row)));
       return;
     }
     onSelectRows([...selectedRows, row]);
@@ -133,27 +134,187 @@ class TableCustom extends Component {
     });
   };
 
-  addConditionalRowBackground = (
-    row,
-    column,
-    backgroundClass,
-    attribute,
-    classes,
-  ) => {
-    return column
-      ? {
-          [attribute]: !row[column] ? classes[backgroundClass] : '',
-        }
-      : {};
+  isSelected = (row) => {
+    return this.selectedRowsInclude(row);
+  };
+
+  getColumnCell = ({ row, column }) => {
+    const {
+      onEnable,
+      onDisable,
+      onDuplicate,
+      onDelete,
+      labelEnableDisable,
+      labelDuplicate,
+      labelDelete,
+    } = this.props;
+
+    const { hovered } = this.state;
+
+    const cellByColumnType = {
+      [TABLE_COLUMN_TYPES.number]: () => (
+        <BodyTableCell align="left">{row[column.id] || ''}</BodyTableCell>
+      ),
+      [TABLE_COLUMN_TYPES.string]: () => (
+        <BodyTableCell key={column.id} align="left">
+          {column.image && (
+            <img
+              alt=""
+              src={row.iconPath}
+              style={{
+                maxWidth: 21,
+                display: 'inline-block',
+                verticalAlign: 'middle',
+                marginRight: 5,
+              }}
+            />
+          )}
+          {row[column.id] || ''}
+        </BodyTableCell>
+      ),
+      [TABLE_COLUMN_TYPES.toggler]: () => (
+        <BodyTableCell align="left">
+          {row[column.id] ? (
+            <Tooltip
+              label={labelEnableDisable}
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                onDisable([row]);
+              }}
+            >
+              <IconPowerSettings
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  onDisable([row]);
+                }}
+              />
+            </Tooltip>
+          ) : (
+            <Tooltip
+              label={labelEnableDisable}
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                onEnable([row]);
+              }}
+            >
+              <IconPowerSettingsDisable
+                active
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  onEnable([row]);
+                }}
+              />
+            </Tooltip>
+          )}
+        </BodyTableCell>
+      ),
+      [TABLE_COLUMN_TYPES.widthVariation]: () => (
+        <BodyTableCell
+          key={column.id}
+          align="left"
+          colSpan={this.isSelected(row) ? 1 : 5}
+          style={{
+            maxWidth: '145px',
+            textOverflow: 'ellipsis',
+            overflow: 'hidden',
+          }}
+        >
+          <DefaultTooltip
+            title={`${row[column.id]} (${row[column.subValue]})`}
+            placement="top"
+          >
+            <span>{`${row[column.id]} (${row[column.subValue]})`}</span>
+          </DefaultTooltip>
+        </BodyTableCell>
+      ),
+      [TABLE_COLUMN_TYPES.multicolumn]: () => (
+        <BodyTableCell key={column.id} align="left">
+          {column.columns.map((subColumn) => (
+            <>
+              {`${subColumn.label} ${row[subColumn.id]}`}
+              {subColumn.type === 'percentage' ? '%' : null}
+              {'   '}
+            </>
+          ))}
+        </BodyTableCell>
+      ),
+      [TABLE_COLUMN_TYPES.hoverActions]: () => (
+        <BodyTableCell
+          align="right"
+          key={column.id}
+          style={{
+            width: 90,
+            position: 'relative',
+          }}
+        >
+          {hovered === row.id ? (
+            <Box
+              flexDirection="row"
+              display="flex"
+              style={{
+                marginRight: -4,
+                position: 'absolute',
+                top: 3,
+                right: 0,
+              }}
+            >
+              <Box>
+                <Tooltip
+                  label={labelDelete}
+                  onClick={() => {
+                    onDelete([row]);
+                  }}
+                >
+                  <IconDelete
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      onDelete([row]);
+                    }}
+                  />
+                </Tooltip>
+              </Box>
+              <Box>
+                <Tooltip
+                  label={labelDuplicate}
+                  onClick={() => {
+                    onDuplicate([row]);
+                  }}
+                >
+                  <IconLibraryAdd
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      onDuplicate([row]);
+                    }}
+                  />
+                </Tooltip>
+              </Box>
+            </Box>
+          ) : (
+            ' '
+          )}
+        </BodyTableCell>
+      ),
+      [TABLE_COLUMN_TYPES.component]: () => (
+        <BodyTableCell>
+          <column.Component row={row} isRowSelected={this.isSelected(row)} />
+        </BodyTableCell>
+      ),
+    };
+
+    return cellByColumnType[column.type]();
   };
 
   render() {
     const {
       columnConfiguration,
       tableData,
-      onDelete,
       onPaginate,
-      onDuplicate,
       onPaginationLimitChanged,
       labelDisplayedRows,
       labelRowsPerPage,
@@ -162,11 +323,9 @@ class TableCustom extends Component {
       currentPage,
       classes,
       totalRows,
-      onEnable,
-      onDisable,
       onRowClick = () => {},
       selectedRows,
-      enabledColumn,
+      grayRowCondition,
       indicatorsEditor,
       emptyDataMessage,
       loadingDataMessage,
@@ -175,18 +334,7 @@ class TableCustom extends Component {
       paginated = true,
       loading,
     } = this.props;
-    const { hovered } = this.state;
-    const {
-      sorto,
-      sortf,
-      labelEnableDisable,
-      labelDuplicate,
-      labelDelete,
-    } = this.props;
-
-    const isSelected = (row) => {
-      return this.selectedRowsInclude(row);
-    };
+    const { sorto, sortf } = this.props;
 
     const emptyRows = limit - Math.min(limit, totalRows - currentPage * limit);
 
@@ -255,8 +403,8 @@ class TableCustom extends Component {
                   position: 'relative',
                 }}
               >
-                {tableData.map((row, index) => {
-                  const isRowSelected = isSelected(row);
+                {tableData.map((row) => {
+                  const isRowSelected = this.isSelected(row);
 
                   return (
                     <StyledTableRow
@@ -264,13 +412,9 @@ class TableCustom extends Component {
                       tabIndex={-1}
                       key={row.id}
                       onMouseEnter={this.rowHovered.bind(this, row.id, true)}
-                      {...this.addConditionalRowBackground(
-                        row,
-                        enabledColumn,
-                        'rowDisabled',
-                        'className',
-                        classes,
-                      )}
+                      className={clsx({
+                        [classes.rowDisabled]: grayRowCondition(row),
+                      })}
                       onClick={() => {
                         onRowClick(row);
                       }}
@@ -291,273 +435,12 @@ class TableCustom extends Component {
                         </BodyTableCell>
                       ) : null}
 
-                      {columnConfiguration.map((column) => {
-                        switch (column.type) {
-                          case TABLE_COLUMN_TYPES.number:
-                            return (
-                              <BodyTableCell align="left">
-                                {row[column.id] || ''}
-                              </BodyTableCell>
-                            );
-                          case TABLE_COLUMN_TYPES.string:
-                            return (
-                              <BodyTableCell key={column.id} align="left">
-                                {column.image && (
-                                  <img
-                                    alt=""
-                                    src={row.iconPath}
-                                    style={{
-                                      maxWidth: 21,
-                                      display: 'inline-block',
-                                      verticalAlign: 'middle',
-                                      marginRight: 5,
-                                    }}
-                                  />
-                                )}
-                                {column.subkey
-                                  ? row[column.subkey][column.id] || ''
-                                  : row[column.id] || ''}
-                              </BodyTableCell>
-                            );
-                          case TABLE_COLUMN_TYPES.boolean:
-                            return (
-                              <BodyTableCell align="left">
-                                {row[column.id] ? (
-                                  <IconButton
-                                    style={{
-                                      position: 'absolute',
-                                      top: -1,
-                                      width: 31,
-                                      height: 31,
-                                      padding: 5,
-                                    }}
-                                    disabled
-                                  >
-                                    <IconPowerSettings
-                                      active
-                                      customStyle={{
-                                        fontSize: 18,
-                                        boxSizing: 'border-box',
-                                        position: 'relative',
-                                        top: -2,
-                                      }}
-                                    />
-                                  </IconButton>
-                                ) : (
-                                  <IconButton
-                                    style={{
-                                      position: 'absolute',
-                                      top: -1,
-                                      width: 31,
-                                      height: 31,
-                                      padding: 5,
-                                    }}
-                                    disabled
-                                  >
-                                    <IconPowerSettingsDisable
-                                      active
-                                      customStyle={{
-                                        fontSize: 18,
-                                        boxSizing: 'border-box',
-                                        position: 'relative',
-                                        top: -2,
-                                      }}
-                                    />
-                                  </IconButton>
-                                )}
-                              </BodyTableCell>
-                            );
-                          case TABLE_COLUMN_TYPES.toggler:
-                            return (
-                              <BodyTableCell align="left">
-                                {row[column.id] ? (
-                                  <Tooltip
-                                    label={labelEnableDisable}
-                                    onClick={(e) => {
-                                      e.preventDefault();
-                                      e.stopPropagation();
-                                      onDisable([row]);
-                                    }}
-                                  >
-                                    <IconPowerSettings
-                                      label="Disable"
-                                      onClick={(e) => {
-                                        e.preventDefault();
-                                        e.stopPropagation();
-                                        onDisable([row]);
-                                      }}
-                                      active
-                                      customStyle={{
-                                        fontSize: 18,
-                                        boxSizing: 'border-box',
-                                        position: 'relative',
-                                        top: -2,
-                                      }}
-                                    />
-                                  </Tooltip>
-                                ) : (
-                                  <Tooltip
-                                    label={labelEnableDisable}
-                                    onClick={(e) => {
-                                      e.preventDefault();
-                                      e.stopPropagation();
-                                      onEnable([row]);
-                                    }}
-                                  >
-                                    <IconPowerSettingsDisable
-                                      active
-                                      label="Disable"
-                                      onClick={(e) => {
-                                        e.preventDefault();
-                                        e.stopPropagation();
-                                        onEnable([row]);
-                                      }}
-                                      customStyle={{
-                                        fontSize: 18,
-                                        boxSizing: 'border-box',
-                                        position: 'relative',
-                                        top: -2,
-                                      }}
-                                    />
-                                  </Tooltip>
-                                )}
-                              </BodyTableCell>
-                            );
-                          case TABLE_COLUMN_TYPES.input:
-                            return (
-                              <BodyTableCell align="left">
-                                <InputFieldTableCell />
-                              </BodyTableCell>
-                            );
-                          case TABLE_COLUMN_TYPES.select:
-                            return (
-                              <BodyTableCell align="left">
-                                <InputFieldSelectTableCell
-                                  options={column.options}
-                                  value={
-                                    column.subkey
-                                      ? row[column.subkey][column.id]
-                                      : row[column.key]
-                                  }
-                                  active="active"
-                                />
-                              </BodyTableCell>
-                            );
-                          case TABLE_COLUMN_TYPES.widthVariation:
-                            return (
-                              <BodyTableCell
-                                key={column.id}
-                                align="left"
-                                colSpan={isRowSelected ? 1 : 5}
-                                style={{
-                                  maxWidth: '145px',
-                                  textOverflow: 'ellipsis',
-                                  overflow: 'hidden',
-                                }}
-                              >
-                                <DefaultTooltip
-                                  title={`${row[column.id]} (${
-                                    row[column.subValue]
-                                  })`}
-                                  placement="top"
-                                >
-                                  <span>
-                                    {`${row[column.id]} (${
-                                      row[column.subValue]
-                                    })`}
-                                  </span>
-                                </DefaultTooltip>
-                              </BodyTableCell>
-                            );
-                          case TABLE_COLUMN_TYPES.multicolumn:
-                            return (
-                              <BodyTableCell key={column.id} align="left">
-                                {column.columns.map((subColumn) => (
-                                  <>
-                                    {`${subColumn.label} ${row[subColumn.id]}`}
-                                    {subColumn.type === 'percentage'
-                                      ? '%'
-                                      : null}
-                                    {'   '}
-                                  </>
-                                ))}
-                              </BodyTableCell>
-                            );
-                          case TABLE_COLUMN_TYPES.hoverActions:
-                            return (
-                              <BodyTableCell
-                                align="right"
-                                key={column.id}
-                                style={{
-                                  width: 90,
-                                  position: 'relative',
-                                }}
-                              >
-                                {hovered === row.id ? (
-                                  <Box
-                                    flexDirection="row"
-                                    display="flex"
-                                    style={{
-                                      marginRight: -4,
-                                      position: 'absolute',
-                                      top: 3,
-                                      right: 0,
-                                    }}
-                                  >
-                                    <Box>
-                                      <Tooltip
-                                        label={labelDelete}
-                                        onClick={() => {
-                                          onDelete([row]);
-                                        }}
-                                      >
-                                        <IconDelete
-                                          customStyle={{
-                                            color: '#707070',
-                                            fontSize: 21,
-                                          }}
-                                          onClick={(e) => {
-                                            e.preventDefault();
-                                            e.stopPropagation();
-                                            onDelete([row]);
-                                          }}
-                                        />
-                                      </Tooltip>
-                                    </Box>
-                                    <Box>
-                                      <Tooltip
-                                        label={labelDuplicate}
-                                        onClick={() => {
-                                          onDuplicate([row]);
-                                        }}
-                                      >
-                                        <IconLibraryAdd
-                                          customStyle={{
-                                            color: '#707070',
-                                            fontSize: 20,
-                                          }}
-                                          onClick={(e) => {
-                                            e.preventDefault();
-                                            e.stopPropagation();
-                                            onDuplicate([row]);
-                                          }}
-                                        />
-                                      </Tooltip>
-                                    </Box>
-                                  </Box>
-                                ) : (
-                                  ' '
-                                )}
-                              </BodyTableCell>
-                            );
-                          default:
-                            return null;
-                        }
-                      })}
+                      {columnConfiguration.map((column) =>
+                        this.getColumnCell({ column, row }),
+                      )}
                       {indicatorsEditor ? (
                         <IndicatorsEditor
                           row={row}
-                          index={index}
                           impacts={impacts}
                           selected={isRowSelected}
                           onImpactEdit={(updatedRow) => {
@@ -594,10 +477,10 @@ class TableCustom extends Component {
 }
 
 TableCustom.defaultProps = {
-  enabledColumn: '',
+  grayRowCondition: () => false,
   ariaLabel: '',
-  dense: false,
-  onRowClick: () => {},
+  onRowClick: () => undefined,
+  checkable: false,
   labelDisplayedRows: ({ from, to, count }) => `${from}-${to} of ${count}`,
   labelRowsPerPage: 'Rows per page',
   onSelectRows: () => {},
@@ -625,7 +508,6 @@ const anyArray = PropTypes.arrayOf(anyObject);
 TableCustom.propTypes = {
   ariaLabel: PropTypes.string,
   classes: anyObject.isRequired,
-  dense: PropTypes.bool,
   onSort: PropTypes.func.isRequired,
   onSelectRows: PropTypes.func,
   columnConfiguration: anyArray.isRequired,
@@ -639,14 +521,14 @@ TableCustom.propTypes = {
   labelDisplayedRows: PropTypes.func,
   labelRowsPerPage: PropTypes.string,
   limit: PropTypes.number.isRequired,
-  checkable: PropTypes.bool.isRequired,
+  checkable: PropTypes.bool,
   currentPage: PropTypes.number.isRequired,
   totalRows: PropTypes.number.isRequired,
   onEnable: PropTypes.func,
   onDisable: PropTypes.func,
   onRowClick: PropTypes.func,
   selectedRows: anyArray,
-  enabledColumn: PropTypes.string,
+  grayRowCondition: PropTypes.func,
   indicatorsEditor: PropTypes.bool,
   emptyDataMessage: PropTypes.string,
   loadingDataMessage: PropTypes.string,

@@ -10,6 +10,7 @@ const styles = {
     height: '32px',
     minHeight: 'auto',
     paddingLeft: 5,
+    overflow: 'hidden',
   },
 };
 
