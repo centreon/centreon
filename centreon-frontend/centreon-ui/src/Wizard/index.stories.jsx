@@ -4,7 +4,7 @@ import Typography from '@material-ui/core/Typography';
 
 import { Wizard, WizardPage as Page } from '..';
 
-export default { title: 'Wizzard' };
+export default { title: 'Wizard' };
 
 export const threeSteps = () => (
   <Wizard open>

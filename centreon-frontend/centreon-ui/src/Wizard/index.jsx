@@ -77,12 +77,12 @@ function Wizard(props) {
     }
   };
 
-  const next = (submittedValues) => {
+  const handleNext = (submittedValues) => {
     setPage(Math.min(page + 1, children.length - 1));
     setValues(submittedValues);
   };
 
-  const previous = () => {
+  const handlePrevious = () => {
     setPage(Math.max(page - 1, 0));
   };
 
@@ -109,7 +109,7 @@ function Wizard(props) {
 
     bag.setTouched({});
     bag.setSubmitting(false);
-    next(submittedValues);
+    handleNext(submittedValues);
 
     return null;
   };
@@ -138,16 +138,24 @@ function Wizard(props) {
             {(bag) => (
               <form className={classes.form} onSubmit={bag.handleSubmit}>
                 {cloneElement(activePage, {
-                  onPrevious: previous,
-                  onNext: next,
-                  bag,
+                  errors: bag.errors,
+                  handleBlur: bag.handleBlur,
+                  handleChange: bag.handleChange,
+                  handleSubmit: bag.handleSubmit,
+                  onPrevious: handlePrevious,
+                  onNext: handleNext,
+                  setFieldTouched: bag.setFieldTouched,
+                  setFieldValue: bag.setFieldValue,
+                  submitForm: bag.submitForm,
+                  touched: bag.touched,
+                  values: bag.values,
                 })}
                 {!activePage.props.noActionBar && (
                   <ActionBar
                     disabledNext={!bag.isValid || bag.isSubmitting}
                     page={page}
                     isLastPage={isLastPage}
-                    onPrevious={previous}
+                    onPrevious={handlePrevious}
                     actionBarProps={actionBarProps}
                   />
                 )}
