@@ -479,6 +479,17 @@ sub message_run {
             token => $token,
             logger => $self->{logger}
         );
+
+        if ($action =~ /^(?:CONSTATUS|INFORMATION|GETTHUMBPRINT)$/) {
+            gorgone::standard::library::add_history(
+                dbh => $self->{db_gorgone},
+                code => 0,
+                token => $token,
+                data => $response,
+                json_encode => 1
+            );
+        }
+        
         return ($token, $code, $response, $response_type);
     } elsif ($action =~ /^BCAST(.*)$/) {
         return (undef, 1, { message => "action '$action' is not known" }) if ($1 !~ /^LOGGER$/);

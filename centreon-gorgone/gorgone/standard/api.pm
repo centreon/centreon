@@ -154,7 +154,7 @@ sub call_internal {
 
     my $rev = zmq_poll($poll, 5000);
 
-    my $response = '{"error":"no_result", "message":"No result found for action "' . $options{action} . '"}';
+    my $response = '{"error":"no_result", "message":"No result found for action \'' . $options{action} . '\'"}';
     if (defined($result->{data})) {
         my $content;
         eval {
