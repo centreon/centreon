@@ -1,0 +1,283 @@
+#!/bin/sh
+
+__pids_pidof_centreon() {
+	PID_VALUES=$(pidof -c -o $$ -o $PPID -o %PPID -x "$1" || pidof -c -o $$ -o $PPID -o %PPID -x "${1##*/}")
+	ret_value=$?
+	if [ "$ret_value" -eq 0 ] && [ -n "$2" ] ; then
+		# Check argument
+		PID_VALUES=$(ps -o pid,args --no-heading -p $PID_VALUES | grep "$2" | awk '{ print $1 }')
+	fi
+
+	if [ -n "$PID_VALUES" ] ; then
+		return 0
+	fi
+	return 1
+}
+
+pidofproc_centreon() {
+	local RC pid pid_file=
+
+	# Test syntax.
+	if [ "$#" = 0 ]; then
+		ocf_log err "Usage: pidofproc [-p pidfile] {program} {arg}"
+		return 1
+	fi
+	if [ "$1" = "-p" ]; then
+		pid_file=$2
+		shift 2
+	fi
+	fail_code=3 # "Program is not running"
+
+	# First try "/var/run/*.pid" files
+	__pids_var_run_centreon "$1" "$pid_file"
+	RC=$?
+	if [ -n "$pid" ]; then
+		echo $pid
+		return 0
+	fi
+
+	[ -n "$pid_file" ] && return $RC
+	__pids_pidof_centreon "$1" "$2" || return $RC
+}
+
+# A function to stop a program.
+killproc_centreon() {
+	local RC killlevel= base pid pid_file= delay arg counter
+
+	RC=0; delay=3
+	# Test syntax.
+	if [ "$#" -eq 0 ]; then
+		ocf_log info "Usage: killproc [-p pidfile] [ -d delay] [ -a arg ] {program} [-signal]"
+		return 1
+	fi
+	if [ "$1" = "-p" ]; then
+		pid_file=$2
+		shift 2
+	fi
+	if [ "$1" = "-d" ]; then
+		delay=$2
+		shift 2
+	fi
+	if [ "$1" = "-a" ]; then
+		arg=$2
+		shift 2
+	fi
+
+	# check for second arg to be kill level
+	[ -n "${2:-}" ] && killlevel=$2
+
+	# Save basename.
+	base=${1##*/}
+
+	# Find pid.
+	__pids_var_run_centreon "$1" "$pid_file"
+	if [ -z "$pid_file" -a -z "$pid" ]; then
+		__pids_pidof_centreon "$1" "$arg"
+		pid=$PID_VALUES
+	fi
+
+        # Kill it.
+	ocf_log info "kill section"
+	if [ -n "$pid" ] ; then
+		[ "$BOOTUP" = "verbose" -a -z "${LSB:-}" ] && echo -n "$base "
+		if [ -z "$killlevel" ] ; then
+			if checkpid_centreon $pid 2>&1; then
+				# TERM first, then KILL if not dead
+				ocf_log info "Send -TERM signal process '$pid'"
+				kill -TERM $pid
+				usleep 100000
+				counter=0
+				while : ; do
+					ocf_log info "counter = '$counter' delay = '$delay'"
+					if [ "$counter" -gt "$delay" ] ; then
+						ocf_log info "Send -KILL signal process '$pid'"
+						kill -KILL $pid >/dev/null 2>&1
+						usleep 100000
+						break
+					fi
+					if ! checkpid_centreon $pid ; then
+						break
+					fi
+					sleep 1
+					counter=$(($counter + 1))
+				done
+			fi
+			checkpid_centreon $pid
+			RC=$?
+			[ "$RC" -eq 0 ] && ocf_log info "failure $base shutdown" || ocf_log info "success $base shutdown"
+			RC=$((! $RC))
+ 		# use specified level only
+		else
+			if checkpid_centreon $pid; then
+				kill $killlevel $pid >/dev/null 2>&1
+				RC=$?
+				[ "$RC" -eq 0 ] && ocf_log info "failure $base $killlevel" ||  ocf_log info "sucess $base $killlevel"
+ 			elif [ -n "${LSB:-}" ]; then
+				RC=7 # Program is not running
+			fi
+		fi
+	else
+		if [ -n "${LSB:-}" -a -n "$killlevel" ]; then
+			RC=7 # Program is not running
+ 		else
+			ocf_log info "$base shutdown"
+			RC=0
+		fi
+	fi
+
+	# Remove pid file if any.
+	if [ -z "$killlevel" ]; then
+		rm -f "${pid_file:-/var/run/$base.pid}"
+	fi
+	return $RC
+}
+
+status_centreon() {
+	local base pid pid_file= arg
+
+	# Test syntax.
+	if [ "$#" = 0 ] ; then
+		ocf_log info "Usage: status [-p pidfile] [-a arg ] {program}"
+		return 1
+	fi
+	if [ "$1" = "-p" ]; then
+		pid_file=$2
+		shift 2
+	fi
+	if [ "$1" = "-a" ]; then
+		arg=$2
+		shift 2
+	fi
+	base=${1##*/}
+
+	# First try "pidof"
+	__pids_var_run_centreon "$1" "$pid_file"
+	RC=$?
+	if [ -z "$pid_file" -a -z "$pid" ]; then
+		__pids_pidof_centreon "$1" "$arg"
+		pid=$PID_VALUES
+	fi
+	if [ -n "$pid" ]; then
+		ocf_log info "${base} (pid $pid) is running..."
+		return 0
+	fi
+
+	case "$RC" in
+		0)
+			ocf_log info "${base} (pid $pid) is running..."
+			return 0
+			;;
+ 		1)
+			ocf_log info "${base} dead but pid file exists (pid=$pid)"
+			return 1
+			;;
+	esac
+	ocf_log info "${base} is stopped"
+	return 3
+}
+
+__pids_var_run_centreon() {
+	local base=${1##*/}
+	local pid_file=${2:-/var/run/$base.pid}
+
+	pid=
+	if [ -f "$pid_file" ] ; then
+		local line p
+		read line < "$pid_file"
+		for p in $line ; do
+			[ -z "${p//[0-9]/}" -a -d "/proc/$p" ] && pid="$pid $p"
+		done
+		if [ -n "$pid" ]; then
+			return 0
+		fi
+		return 1 # "Program is dead and /var/run pid file exists"
+	fi
+	return 3 # "Program is not running"
+}
+
+checkpid_centreon() {
+	local i
+
+	for i in $* ; do
+		[ -d "/proc/$i" ] && return 0
+	done
+	return 1
+}
+
+daemon_centreon() {
+	# Test syntax.
+	local gotbase= force= nicelevel corelimit
+	local pid base= user= nice= bg= pid_file=
+	nicelevel=0
+	while [ "$1" != "${1##[-+]}" ]; do
+		case $1 in
+		'')     echo $"$0: Usage: daemon [+/-nicelevel] {program}"
+			return 1;;
+		--check)
+			base=$2
+			gotbase="yes"
+			shift 2
+			;;
+		--check=?*)
+			base=${1#--check=}
+			gotbase="yes"
+			shift
+			;;
+		--user)
+			user=$2
+			shift 2
+			;;
+		--user=?*)
+			user=${1#--user=}
+			shift
+			;;
+		--pidfile)
+			pid_file=$2
+			shift 2
+			;;
+		--pidfile=?*)
+			pid_file=${1#--pidfile=}
+			shift
+			;;
+		--pidfile=?*)
+			pid_file=${1#--pidfile=}
+			shift
+			;;
+		--force)
+			force="force"
+			shift
+			;;
+		[-+][0-9]*)
+			nice="nice -n $1"
+			shift
+			;;
+		*)      ocf_log info "$0: Usage: daemon [+/-nicelevel] {program}"
+			return 1;;
+		esac
+	done
+
+	# Save basename.
+	[ -z "$gotbase" ] && base=${1##*/}
+
+	# See if it's already running. Look *only* at the pid file.
+	__pids_var_run_centreon "$base" "$pid_file"
+
+	[ -n "$pid" -a -z "$force" ] && return
+
+	# make sure it doesn't core dump anywhere unless requested
+	corelimit="ulimit -S -c ${DAEMON_COREFILE_LIMIT:-0}"
+
+	# if they set NICELEVEL in /etc/sysconfig/foo, honor it
+	[ -n "${NICELEVEL:-}" ] && nice="nice -n $NICELEVEL"
+
+	# Echo daemon
+	[ "${BOOTUP:-}" = "verbose" -a -z "${LSB:-}" ] && echo -n " $base"
+
+	# And start it up.
+	if [ -z "$user" ]; then
+		$nice /bin/bash -c "$corelimit >/dev/null 2>&1 ; $*"
+	else
+		$nice runuser -s /bin/bash $user -c "$corelimit >/dev/null 2>&1 ; $*"
+	fi
+	[ "$?" -eq 0 ] && ocf_log info "$base startup" || ocf_log err "$base startup"
+}

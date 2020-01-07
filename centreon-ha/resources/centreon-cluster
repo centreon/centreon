@@ -1,0 +1,17 @@
+## BEGIN: CENTREON SUDO
+
+Defaults:CENTREON !requiretty
+
+## BEGIN HA SPECIFIC HACK
+## Centengine user stop and start cmd for clustering
+
+CENTREON ALL = NOPASSWD: /usr/sbin/pcs resource disable centengine
+CENTREON ALL = NOPASSWD: /usr/sbin/pcs resource enable centengine
+CENTREON ALL = NOPASSWD: /usr/sbin/pcs resource cleanup centengine
+
+CENTREON   ALL = NOPASSWD: /usr/bin/systemctl start centengine*
+CENTREON   ALL = NOPASSWD: /usr/bin/systemctl stop centengine*
+CENTREON   ALL = NOPASSWD: /usr/bin/systemctl restart centengine*
+CENTREON   ALL = NOPASSWD: /usr/bin/systemctl reload centengine*
+
+## END: CENTREON SUDO

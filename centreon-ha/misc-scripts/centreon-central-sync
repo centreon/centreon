@@ -1,0 +1,155 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+
+use Linux::Inotify2;
+use File::Basename;
+use Getopt::Long;
+
+my $peer_addr = 'XXX.XXX.XXX.XXX'; # Need Change
+my $log_file = '/var/log/centreon/centreon-central-sync.log';
+my @dirs = ("/etc/centreon-broker", "/etc/centreon-engine", "/var/log/centreon-engine", "/var/lib/centreon/centplugins", "/etc/centreon/license.d", "/usr/share/centreon-broker/lua"); # , "/usr/share/snmp/mibs", "/usr/lib64/nagios/plugins"
+my @special_dirs = ("/usr/share/centreon/www/img/media", "/usr/share/centreon/www/sounds", "/etc/snmp/centreon_traps"); #, "/var/spool/centreontrapd", "/var/lib/centreon/centreon-bi-server/archives");
+my $rsync_excludes = '--exclude=".*" --exclude="centengine.cmd"';
+my $ssh_options = '-o ConnectTimeout=10 -o StrictHostKeyChecking=yes -o PreferredAuthentications=publickey -o ServerAliveInterval=10 -o ServerAliveCountMax=3 -o Compression=yes ';
+my $total_sync = 600;
+
+my $inotify;
+my %watches;
+my %rsync_dir_cache = ();
+my %special_dirs_cache = ();
+my $last_time = time();
+my $running = 1;
+
+sub catch_zap_term {
+    writeLog("$$ Receiving order to stop...");
+    $running = 0;
+}
+
+sub writeLog {
+    if (!defined($log_file)) {
+        print localtime() . ": " . $_[0] . "\n";
+    } else {
+        open (LOG, ">> ".$log_file) || return 1;
+        print LOG localtime() . ": " . $_[0] . "\n";
+        close LOG;
+    }
+}
+
+sub add_watch {
+    my $special_dir = $_[1];
+
+    writeLog("add_watch: Trying to init watch on dir '$_[0]'");
+    if (!($watches{$_[0]} = $inotify->watch($_[0], IN_CREATE|IN_CLOSE_WRITE|IN_DELETE, \&mywatch))) {
+        writeLog("add_watch: Observor error $!");
+        exit(1);
+    }
+    my $output = `rsync -a --omit-dir-times --chmod=g+w --update --delete --log-format="\%o \%m \%f \%l" --timeout=30 $rsync_excludes -e "ssh $ssh_options" $_[0]/ $peer_addr:$_[0]/ 2>&1`;
+    writeLog("rsync output '$_[0]' = \n$output");
+}
+
+sub watch_and_sync {
+    foreach (@dirs) {
+        add_watch($_);
+    }
+    foreach my $dir (@special_dirs) {
+        my $dh;
+
+        if (!opendir($dh, $dir)) {
+            writeLog("Can't opendir '$dir': $!");
+            exit(1);
+        }
+        while((my $filename = readdir $dh)) {
+            if ($filename !~ /^\./ && -d "$dir/$filename") {
+                $special_dirs_cache{$dir . "/" . $filename} = 1;
+                add_watch($dir . "/" . $filename, 1);
+            }
+        }
+        closedir $dh;
+    }
+}
+
+sub mywatch {
+    my $e = shift;
+
+    my $name = $e->fullname;
+    my $dirname = dirname($name);
+    my $file = basename($name);
+
+    if ($file !~ /^\./) {
+        if (!$_->IN_ISDIR && $_->IN_CREATE) {
+            return 1;
+        }
+        if ($e->IN_Q_OVERFLOW) {
+            return 1;
+        }
+        $rsync_dir_cache{$dirname} = 1;
+        writeLog("$name was created") if $e->IN_CREATE;
+        writeLog("$name was closed write") if $e->IN_CLOSE_WRITE;
+        writeLog("$name is deleted") if $e->IN_DELETE;
+    }
+    return 0;
+}
+
+GetOptions('peer-addr=s' => \$peer_addr,
+           'log-file=s' => \$log_file);
+if (!defined($peer_addr) || $peer_addr eq 'XXX.XXX.XXX.XXX') {
+    writeLog("Please specify --peer-addr option.");
+    exit(1);
+}
+
+$SIG{TERM}  = \&catch_zap_term;
+
+# Creation d'une instance inotify
+$inotify = new Linux::Inotify2 or die("Can't create inotify instance:  $!");
+$inotify->blocking(0);
+
+watch_and_sync();
+while ($running) {
+    $inotify->poll;
+    foreach (keys %rsync_dir_cache) {
+        delete $rsync_dir_cache{$_};
+        my $output;
+        $output = `rsync -a --omit-dir-times --chmod=g+w --update --delete --timeout=30 --log-format="\%o \%m \%f \%l" $rsync_excludes -e "ssh $ssh_options" $_/ $peer_addr:$_/ 2>&1`;
+        writeLog("rsync output = \n$output");
+    }
+    sleep(2);
+    if (time() - $last_time > $total_sync) {
+        foreach (@dirs) {
+            my $output = `rsync -a --omit-dir-times --chmod=g+w --update --delete --log-format="\%o \%m \%f \%l" --timeout=30 $rsync_excludes -e "ssh $ssh_options" $_/ $peer_addr:$_/ 2>&1`;
+            writeLog("rsync output '$_' = \n$output");
+        }
+        $last_time = time();
+        
+        # Add dir for special if needed
+        foreach my $dir (@special_dirs) {
+            my $dh;
+            if (!opendir($dh, $dir)) {
+                writeLog("Can't opendir '$dir': $!");
+                next;
+            }
+            my $output = `rsync -a --omit-dir-times --chmod=g+w --update --delete --log-format="\%o \%m \%f \%l" --timeout=30 $rsync_excludes -e "ssh $ssh_options" $dir/ $peer_addr:$dir/ 2>&1`;
+            writeLog("rsync output '$dir' = \n$output");
+            while ((my $filename = readdir $dh)) {
+                if ($filename !~ /^\./ && -d "$dir/$filename") {
+                    if (!defined($special_dirs_cache{$dir . "/" . $filename})) {
+                        $special_dirs_cache{$dir . "/" . $filename} = 1;
+                        add_watch($dir . "/" . $filename, 1);
+                    } else {
+                        $output = `rsync -a --omit-dir-times --chmod=g+w --update --delete --log-format="\%o \%m \%f \%l" --timeout=30 $rsync_excludes -e "ssh $ssh_options" "$dir/$filename/" "$peer_addr:$dir/$filename/" 2>&1`;
+                        writeLog("rsync output '$dir/$filename' = \n$output");
+                    }
+                }
+            }
+            closedir $dh;
+        }
+    }
+}
+
+$inotify->poll;
+foreach (keys %watches) {
+	$watches{$_}->cancel;
+}
+
+exit 0;

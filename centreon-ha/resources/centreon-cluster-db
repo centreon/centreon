@@ -1,0 +1,15 @@
+## BEGIN: CENTREON SUDO
+
+User_Alias      MYSQL=%mysql
+Defaults:MYSQL !requiretty
+
+## BEGIN HA SPECIFIC HACK
+## Mysql user stop and start cmd for clustering
+
+MYSQL   ALL = NOPASSWD: /usr/bin/systemctl start mysql
+MYSQL   ALL = NOPASSWD: /usr/bin/systemctl restart mysql
+MYSQL   ALL = NOPASSWD: /usr/bin/systemctl stop mysql
+MYSQL   ALL = NOPASSWD: /etc/init.d/mysql start
+MYSQL   ALL = NOPASSWD: /etc/init.d/mysql stop
+
+## END: CENTREON SUDO
