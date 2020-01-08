@@ -265,45 +265,41 @@ function yes_no_default() {
 ## {Get Centreon install dir and user/group for apache}
 #----
 function get_centreon_parameters() {
-	INSTALL_DIR_CENTREON=`${CAT} $CENTREON_CONF/$FILE_CONF | ${GREP} "INSTALL_DIR_CENTREON" | cut -d '=' -f2`
-	WEB_USER=`${CAT} $CENTREON_CONF/$FILE_CONF | ${GREP} "WEB_USER" | cut -d '=' -f2`
-	WEB_GROUP=`${CAT} $CENTREON_CONF/$FILE_CONF | ${GREP} "WEB_GROUP" | cut -d '=' -f2`
-	CENTREON_LOG=`${CAT} $CENTREON_CONF/$FILE_CONF | ${GREP} "CENTREON_LOG" | cut -d '=' -f2`
-	CENTREON_USER=`${CAT} $CENTREON_CONF/$FILE_CONF | ${GREP} "CENTREON_USER" | cut -d '=' -f2`
-	CENTREON_GROUP=`${CAT} $CENTREON_CONF/$FILE_CONF | ${GREP} "CENTREON_GROUP" | cut -d '=' -f2`
-    CENTREON_RUNDIR=`${CAT} $CENTREON_CONF/$FILE_CONF_CORE | ${GREP} "CENTREON_RUNDIR" | cut -d '=' -f2`
-  	CENTREON_VARLIB=`${CAT} $CENTREON_CONF/$FILE_CONF_CORE | ${GREP} "CENTREON_VARLIB" | cut -d '=' -f2`
-	CENTREON_BINDIR=`${CAT} $CENTREON_CONF/$FILE_CONF_CORE | ${GREP} "CENTREON_BINDIR" | cut -d '=' -f2`
-    CENTREON_ETC=`${CAT} $CENTREON_CONF/$FILE_CONF_CORE | ${GREP} "CENTREON_ETC" | cut -d '=' -f2`
+    INSTALL_DIR_CENTREON=`${CAT} $CENTREON_CONF/$FILE_CONF | ${GREP} "INSTALL_DIR_CENTREON" | cut -d '=' -f2`
+    WEB_USER=`${CAT} $CENTREON_CONF/$FILE_CONF | ${GREP} "WEB_USER" | cut -d '=' -f2`
+    WEB_GROUP=`${CAT} $CENTREON_CONF/$FILE_CONF | ${GREP} "WEB_GROUP" | cut -d '=' -f2`
+    CENTREON_LOG=`${CAT} $CENTREON_CONF/$FILE_CONF | ${GREP} "CENTREON_LOG" | cut -d '=' -f2`
+    CENTREON_USER=`${CAT} $CENTREON_CONF/$FILE_CONF | ${GREP} "CENTREON_USER" | cut -d '=' -f2`
+    CENTREON_GROUP=`${CAT} $CENTREON_CONF/$FILE_CONF | ${GREP} "CENTREON_GROUP" | cut -d '=' -f2`
+    CENTREON_VARLIB=`${CAT} $CENTREON_CONF/$FILE_CONF | ${GREP} "CENTREON_VARLIB" | cut -d '=' -f2`
+    CENTREON_BINDIR=`${CAT} $CENTREON_CONF/$FILE_CONF | ${GREP} "CENTREON_BINDIR" | cut -d '=' -f2`
+    CENTREON_ETC=`${CAT} $CENTREON_CONF/$FILE_CONF | ${GREP} "CENTREON_ETC" | cut -d '=' -f2`
 
-	RESULT=0
-	if [ "$INSTALL_DIR_CENTREON" != "" ] ; then
-		RESULT=`expr $RESULT + 1`
-	fi
-	if [ "$WEB_USER" != "" ] ; then
-		RESULT=`expr $RESULT + 1`
-	fi
-	if [ "$WEB_GROUP" != "" ] ; then
-		RESULT=`expr $RESULT + 1`
-	fi
-	if [ "$CENTREON_LOG" != "" ] ; then
-		RESULT=`expr $RESULT + 1`
-	fi
-	if [ "$CENTREON_VARLIB" != "" ] ; then
-		RESULT=`expr $RESULT + 1`
-	fi
-    if [ "$CENTREON_RUNDIR" != "" ] ; then
-		RESULT=`expr $RESULT + 1`
-	fi
+    RESULT=0
+    if [ "$INSTALL_DIR_CENTREON" != "" ] ; then
+        RESULT=`expr $RESULT + 1`
+    fi
+    if [ "$WEB_USER" != "" ] ; then
+        RESULT=`expr $RESULT + 1`
+    fi
+    if [ "$WEB_GROUP" != "" ] ; then
+        RESULT=`expr $RESULT + 1`
+    fi
+    if [ "$CENTREON_LOG" != "" ] ; then
+    RESULT=`expr $RESULT + 1`
+    fi
+    if [ "$CENTREON_VARLIB" != "" ] ; then
+        RESULT=`expr $RESULT + 1`
+    fi
     if [ "$CENTREON_ETC" != "" ] ; then
-		RESULT=`expr $RESULT + 1`
-	fi
+        RESULT=`expr $RESULT + 1`
+    fi
 
-	if [ "$RESULT" -eq 7 ]; then
-		return 1;
-	else
-		return 0;
-	fi
+    if [ "$RESULT" -eq 6 ]; then
+        return 1;
+    else
+        return 0;
+    fi
 }
 
 #---
@@ -556,12 +552,8 @@ function install_module() {
 	if [ "$?" -eq 0 ] ; then
 		RESULT=`expr $RESULT + 1`
 	fi
-    ${SED} -i -e 's|@CENTREON_RUNDIR@|'"$CENTREON_RUNDIR"'|g' $TEMP_D/$FILE 2>> $LOG_FILE
-	if [ "$?" -eq 0 ] ; then
-		RESULT=`expr $RESULT + 1`
-	fi
 
-	if [ "$RESULT" -eq 3 ] ; then
+	if [ "$RESULT" -eq 2 ] ; then
 		echo_success "Changing macros for init script" "$ok"
 	else
 		echo_failure "Changing macros for init script" "$fail"

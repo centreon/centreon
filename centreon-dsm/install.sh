@@ -40,7 +40,6 @@ MODULE=$NAME.$VERSION
 LOG_VERSION="Centreon Module $MODULE installation"
 FILE_CONF="instCentWeb.conf"
 FILE_CONF_CENTPLUGIN="instCentPlugins.conf"
-FILE_CONF_CORE="instCentCore.conf"
 CENTREON_CONF="/etc/centreon/"
 MODULE_DIR="www/modules/centreon-dsm/"
 INSTALL_DIR_CENTREON="0"
