@@ -8,6 +8,7 @@ const useStyles = makeStyles((theme) => ({
   root: {
     backgroundColor: theme.palette.common.white,
     border: `1px solid ${theme.palette.grey[400]}`,
+    borderBottom: 0,
   },
   input: {
     paddingLeft: 8,
