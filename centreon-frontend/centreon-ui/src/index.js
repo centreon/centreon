@@ -31,7 +31,7 @@ export { default as Slider } from './Slider/SliderContent';
 export { default as Sidebar } from './Sidebar';
 export { default as Subtitle } from './Subtitle';
 export { default as Switcher } from './Switcher';
-export { default as TableCustom } from './Table/TableCustom';
+export { default as Listing } from './Listing';
 export { default as Title } from './Title';
 export { default as Wrapper } from './Wrapper';
 export { default as TopFilters } from './TopFilters';
@@ -62,7 +62,7 @@ export { default as IconEdit } from './Icon/IconEdit';
 export { default as IconCloseNew } from './Icon/IconClose2';
 export { default as MaterialSwtich } from './Switch';
 
-export { default as TABLE_COLUMN_TYPES } from './Table/ColumnTypes';
+export { default as TABLE_COLUMN_TYPES } from './Listing/ColumnTypes';
 export { default as Tooltip } from './Tooltip';
 export { default as Dialog } from './Dialog';
 export { default as ConfirmDialog } from './Dialog/Confirm';

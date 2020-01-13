@@ -2,7 +2,7 @@ import React from 'react';
 import { render, fireEvent } from '@testing-library/react';
 
 import Table from '.';
-import ColumnTypes from '../ColumnTypes';
+import ColumnTypes from './ColumnTypes';
 
 describe('Table', () => {
   const getAllCheckboxes = (container) => {

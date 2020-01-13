@@ -4,6 +4,7 @@
 /* eslint-disable react/prop-types */
 /* eslint-disable react/sort-comp */
 /* eslint-disable camelcase */
+
 import React, { Component } from 'react';
 import { findDOMNode } from 'react-dom';
 import classnames from 'classnames';
@@ -22,38 +23,40 @@ class InputFieldSelectCustom extends Component {
 
   componentWillMount = () => {
     const { value, options } = this.props;
-    if (options) {
-      for (let i = 0; i < options.length; i += 1) {
-        // eslint-disable-next-line
-        if (options[i].id == value) {
-          this.setState({
-            selected: options[i],
-          });
-        }
+
+    if (!options) {
+      return;
+    }
+
+      const valueOption = options.find(({ id }) => id === value);
+
+      if (valueOption) {
+        this.setState({ selected: valueOption})
       }
+
       this.setState({
         options,
         allOptions: options,
       });
-    }
   };
 
   componentWillReceiveProps = (nextProps) => {
     const { value, options } = nextProps;
-    if (options) {
-      for (let i = 0; i < options.length; i += 1) {
-        // eslint-disable-next-line
-        if (options[i].id == value) {
-          this.setState({
-            selected: options[i],
-          });
-        }
+
+    if (!options) {
+      return;
+    }
+
+      const valueOption = options.find(({ id }) => id === value);
+
+      if (valueOption) {
+        this.setState({ selected: valueOption})
       }
+
       this.setState({
         options,
         allOptions: options,
       });
-    }
   };
 
   UNSAFE_componentWillMount() {

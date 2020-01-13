@@ -6,9 +6,9 @@ import TableRow from '@material-ui/core/TableRow';
 import PropTypes from 'prop-types';
 import TableCell from '@material-ui/core/TableCell';
 import { withStyles } from '@material-ui/core/styles';
-import StyledTableSortLabel from './StyledTableSortLabel';
-import StyledCheckbox from './StyledCheckbox';
-import TABLE_COLUMN_TYPES from '../ColumnTypes';
+import StyledTableSortLabel from './SortLabel';
+import StyledCheckbox from './Checkbox';
+import TABLE_COLUMN_TYPES from './ColumnTypes';
 
 const HeaderCell = withStyles({
   root: {
@@ -20,7 +20,7 @@ const HeaderCell = withStyles({
   },
 })(TableCell);
 
-const EnhancedTableHead = ({
+const ListingHeader = ({
   onSelectAllClick,
   order,
   orderBy,
@@ -29,7 +29,6 @@ const EnhancedTableHead = ({
   headRows,
   checkable,
   onRequestSort,
-  indicatorsEditor,
 }) => {
   const createSortHandler = (property) => (event) => {
     onRequestSort(event, property);
@@ -56,7 +55,8 @@ const EnhancedTableHead = ({
             padding={row.disablePadding ? 'none' : 'default'}
             sortDirection={orderBy === row.id ? order : false}
           >
-            {row.type === TABLE_COLUMN_TYPES.multicolumn ? (
+            {row.type === TABLE_COLUMN_TYPES.multicolumn ||
+            row.sortable === false ? (
               row.label
             ) : (
               <StyledTableSortLabel
@@ -70,28 +70,12 @@ const EnhancedTableHead = ({
             )}
           </HeaderCell>
         ))}
-        {indicatorsEditor && numSelected > 0 ? (
-          <>
-            <HeaderCell key="modeKpi" align="left" padding="none">
-              Mode
-            </HeaderCell>
-            <HeaderCell key="warningKpi" align="left" padding="none">
-              Warning
-            </HeaderCell>
-            <HeaderCell key="criticalKpi" align="left" padding="none">
-              Critical
-            </HeaderCell>
-            <HeaderCell key="unknownKpi" align="left" padding="none">
-              Unknown
-            </HeaderCell>
-          </>
-        ) : null}
       </TableRow>
     </TableHead>
   );
 };
 
-EnhancedTableHead.propTypes = {
+ListingHeader.propTypes = {
   numSelected: PropTypes.number.isRequired,
   onRequestSort: PropTypes.func.isRequired,
   onSelectAllClick: PropTypes.func.isRequired,
@@ -104,11 +88,6 @@ EnhancedTableHead.propTypes = {
     ),
   ).isRequired,
   checkable: PropTypes.bool.isRequired,
-  indicatorsEditor: PropTypes.bool,
 };
 
-EnhancedTableHead.defaultProps = {
-  indicatorsEditor: null,
-};
-
-export default EnhancedTableHead;
+export default ListingHeader;

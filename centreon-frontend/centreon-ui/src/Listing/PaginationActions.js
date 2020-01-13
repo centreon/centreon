@@ -19,7 +19,7 @@ const styles = (theme) => ({
   },
 });
 
-class TablePaginationActions extends Component {
+class PaginationActions extends Component {
   handleFirstPageButtonClick = (event) => {
     const { onChangePage } = this.props;
     onChangePage(event, 0);
@@ -85,7 +85,7 @@ class TablePaginationActions extends Component {
   }
 }
 
-TablePaginationActions.propTypes = {
+PaginationActions.propTypes = {
   count: PropTypes.number.isRequired,
   page: PropTypes.number.isRequired,
   rowsPerPage: PropTypes.number.isRequired,
@@ -93,4 +93,4 @@ TablePaginationActions.propTypes = {
   classes: PropTypes.object.isRequired,
 };
 
-export default withStyles(styles, { withTheme: true })(TablePaginationActions);
+export default withStyles(styles, { withTheme: true })(PaginationActions);

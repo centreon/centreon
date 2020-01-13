@@ -2,10 +2,10 @@
 
 import React from 'react';
 
-import EntityTable from './TableCustom';
+import Listing from '.';
 import ColumnTypes from './ColumnTypes';
 
-export default { title: 'EntityTable' };
+export default { title: 'Listing' };
 
 const ComponentColumn = ({ row, isRowSelected }) => (
   <>
@@ -44,7 +44,7 @@ const listing = [...Array(10).keys()].map((index) => ({
 }));
 
 const Story = (props) => (
-  <EntityTable
+  <Listing
     columnConfiguration={configuration}
     onDelete={noOp}
     onSort={noOp}

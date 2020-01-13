@@ -3,7 +3,7 @@
 /* eslint-disable react/jsx-no-bind */
 /* eslint-disable react/jsx-filename-extension */
 
-import React, { Component } from 'react';
+import React from 'react';
 
 import PropTypes from 'prop-types';
 import clsx from 'clsx';
@@ -18,18 +18,17 @@ import DefaultTooltip from '@material-ui/core/Tooltip';
 import Box from '@material-ui/core/Box';
 import TableCell from '@material-ui/core/TableCell';
 
-import StyledTableRow from './StyledTableRow';
-import IconPowerSettings from '../../Icon/IconPowerSettings';
-import IconPowerSettingsDisable from '../../Icon/IconPowerSettingsDisable';
-import StyledCheckbox from './StyledCheckbox';
-import IconDelete from '../../Icon/IconDelete';
-import IconLibraryAdd from '../../Icon/IconLibraryAdd';
-import EnhancedTableHead from './EnhancedTableHead';
-import TABLE_COLUMN_TYPES from '../ColumnTypes';
-import TablePaginationActions from './TablePaginationActions';
-import StyledPagination from './StyledPagination';
-import Tooltip from '../../Tooltip';
-import IndicatorsEditor from './IndicatorsEditorRow';
+import StyledTableRow from './Row';
+import IconPowerSettings from '../Icon/IconPowerSettings';
+import IconPowerSettingsDisable from '../Icon/IconPowerSettingsDisable';
+import StyledCheckbox from './Checkbox';
+import IconDelete from '../Icon/IconDelete';
+import IconLibraryAdd from '../Icon/IconLibraryAdd';
+import ListingHeader from './Header';
+import TABLE_COLUMN_TYPES from './ColumnTypes';
+import PaginationActions from './PaginationActions';
+import StyledPagination from './Pagination';
+import Tooltip from '../Tooltip';
 
 const loadingIndicatorHeight = 3;
 
@@ -73,7 +72,7 @@ function cumulativeOffset(element) {
   return cumulativeOffset(element.offsetParent) + element.offsetTop;
 }
 
-class TableCustom extends Component {
+class Listing extends React.Component {
   state = {
     tableTopOffset: 0,
   };
@@ -300,11 +299,20 @@ class TableCustom extends Component {
           )}
         </BodyTableCell>
       ),
-      [TABLE_COLUMN_TYPES.component]: () => (
-        <BodyTableCell>
-          <column.Component row={row} isRowSelected={this.isSelected(row)} />
-        </BodyTableCell>
-      ),
+      [TABLE_COLUMN_TYPES.component]: () => {
+        const Component = column.Component({
+          row,
+          isRowSelected: this.isSelected(row),
+        });
+
+        return (
+          Component && (
+            <BodyTableCell align="left" key={column.id}>
+              {Component}
+            </BodyTableCell>
+          )
+        );
+      },
     };
 
     return cellByColumnType[column.type]();
@@ -326,11 +334,9 @@ class TableCustom extends Component {
       onRowClick = () => {},
       selectedRows,
       grayRowCondition,
-      indicatorsEditor,
       emptyDataMessage,
       loadingDataMessage,
       ariaLabel,
-      impacts,
       paginated = true,
       loading,
     } = this.props;
@@ -369,12 +375,12 @@ class TableCustom extends Component {
               }}
               onChangePage={onPaginate}
               onChangeRowsPerPage={onPaginationLimitChanged}
-              ActionsComponent={TablePaginationActions}
+              ActionsComponent={PaginationActions}
             />
           ) : null}
           <div
             style={{
-              overflow: indicatorsEditor ? 'visible' : 'auto',
+              overflow: 'visible',
               maxHeight: tableMaxHeight(),
             }}
           >
@@ -384,7 +390,7 @@ class TableCustom extends Component {
               size="small"
               stickyHeader
             >
-              <EnhancedTableHead
+              <ListingHeader
                 numSelected={selectedRows.length}
                 order={sorto}
                 checkable={checkable}
@@ -393,7 +399,6 @@ class TableCustom extends Component {
                 onRequestSort={this.handleRequestSort}
                 rowCount={limit - emptyRows}
                 headRows={columnConfiguration}
-                indicatorsEditor={indicatorsEditor}
               />
 
               <TableBody
@@ -438,25 +443,6 @@ class TableCustom extends Component {
                       {columnConfiguration.map((column) =>
                         this.getColumnCell({ column, row }),
                       )}
-                      {indicatorsEditor ? (
-                        <IndicatorsEditor
-                          row={row}
-                          impacts={impacts}
-                          selected={isRowSelected}
-                          onImpactEdit={(updatedRow) => {
-                            const { onSelectRows } = this.props;
-
-                            const newSelection = selectedRows.map(
-                              (selectedRow) =>
-                                selectedRow.id === updatedRow.id
-                                  ? updatedRow
-                                  : selectedRow,
-                            );
-
-                            onSelectRows(newSelection);
-                          }}
-                        />
-                      ) : null}
                     </StyledTableRow>
                   );
                 })}
@@ -476,7 +462,7 @@ class TableCustom extends Component {
   }
 }
 
-TableCustom.defaultProps = {
+Listing.defaultProps = {
   grayRowCondition: () => false,
   ariaLabel: '',
   onRowClick: () => undefined,
@@ -484,12 +470,10 @@ TableCustom.defaultProps = {
   labelDisplayedRows: ({ from, to, count }) => `${from}-${to} of ${count}`,
   labelRowsPerPage: 'Rows per page',
   onSelectRows: () => {},
-  indicatorsEditor: false,
   emptyDataMessage: 'No results found',
   loadingDataMessage: 'Loading data',
   loading: false,
   paginated: true,
-  impacts: [],
   selectedRows: [],
   sorto: undefined,
   sortf: undefined,
@@ -505,7 +489,7 @@ const anyObject = PropTypes.objectOf(
 );
 const anyArray = PropTypes.arrayOf(anyObject);
 
-TableCustom.propTypes = {
+Listing.propTypes = {
   ariaLabel: PropTypes.string,
   classes: anyObject.isRequired,
   onSort: PropTypes.func.isRequired,
@@ -529,15 +513,13 @@ TableCustom.propTypes = {
   onRowClick: PropTypes.func,
   selectedRows: anyArray,
   grayRowCondition: PropTypes.func,
-  indicatorsEditor: PropTypes.bool,
   emptyDataMessage: PropTypes.string,
   loadingDataMessage: PropTypes.string,
   loading: PropTypes.bool,
   paginated: PropTypes.bool,
-  impacts: anyArray,
   labelEnableDisable: PropTypes.string,
   labelDelete: PropTypes.string,
   labelDuplicate: PropTypes.string,
 };
 
-export default withStyles(styles, { withTheme: true })(TableCustom);
+export default withStyles(styles, { withTheme: true })(Listing);
