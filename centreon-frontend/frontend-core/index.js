@@ -18,6 +18,16 @@ module.exports = {
     sourceType: 'module',
   },
   plugins: ['react', 'react-hooks'],
+  settings: {
+    'import/resolver': {
+      alias: {
+        map: [
+          ['@centreon/ui', '@centreon/ui/src'],
+        ],
+        extensions: ['.js', '.jsx']
+      }
+    }
+  },
   rules: {
     'prettier/prettier': [
       'error',
@@ -29,5 +39,6 @@ module.exports = {
     ],
     'react-hooks/rules-of-hooks': 'error',
     'react-hooks/exhaustive-deps': 'warn',
+    'react/jsx-filename-extension': ['error', { extensions: ['.jsx'] }]
   },
 };

@@ -27,6 +27,7 @@
     "eslint-plugin-prettier": "3.x",
     "eslint-plugin-react": "7.x",
     "eslint-plugin-react-hooks": "1.x",
-    "babel-eslint": "10.x"
+    "babel-eslint": "10.x",
+    "eslint-import-resolver-alias": "1.x"
   }
 }
