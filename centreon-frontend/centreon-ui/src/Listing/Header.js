@@ -79,8 +79,8 @@ ListingHeader.propTypes = {
   numSelected: PropTypes.number.isRequired,
   onRequestSort: PropTypes.func.isRequired,
   onSelectAllClick: PropTypes.func.isRequired,
-  order: PropTypes.string.isRequired,
-  orderBy: PropTypes.string.isRequired,
+  order: PropTypes.string,
+  orderBy: PropTypes.string,
   rowCount: PropTypes.number.isRequired,
   headRows: PropTypes.arrayOf(
     PropTypes.objectOf(
@@ -88,6 +88,11 @@ ListingHeader.propTypes = {
     ),
   ).isRequired,
   checkable: PropTypes.bool.isRequired,
+};
+
+ListingHeader.defaultProps = {
+  order: undefined,
+  orderBy: undefined,
 };
 
 export default ListingHeader;
