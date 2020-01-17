@@ -39,6 +39,11 @@ module.exports = {
     ],
     'react-hooks/rules-of-hooks': 'error',
     'react-hooks/exhaustive-deps': 'warn',
-    'react/jsx-filename-extension': ['error', { extensions: ['.jsx'] }]
+    'react/jsx-filename-extension': ['error', { extensions: ['.jsx'] }],
+    'react/jsx-no-duplicate-props': [
+      'error',
+      { 'ignoreCase': false }
+    ],
+    'react/jsx-props-no-spreading': 'off',
   },
 };
