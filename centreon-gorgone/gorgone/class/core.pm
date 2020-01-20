@@ -415,10 +415,10 @@ sub message_run {
             dbh => $self->{db_gorgone},
             code => 1,
             token => $token,
-            data => { msg => "action '$action' is not known" },
+            data => { error => "unknown_action", message => "action '$action' is unknown" },
             json_encode => 1
         );
-        return (undef, 1, { message => "action '$action' is not known" });
+        return (undef, 1, { error => "unknown_action", message => "action '$action' is unknown" });
     }
 
     $self->{counters}->{$options{router_type}}->{lc($action)} = 0 if (!defined($self->{counters}->{$options{router_type}}->{lc($action)}));
@@ -431,10 +431,10 @@ sub message_run {
             dbh => $self->{db_gorgone},
             code => 1,
             token => $token,
-            data => { msg => 'gorgone is stopping/restarting. Not proceed request.' },
+            data => { message => 'gorgone is stopping/restarting. Cannot proceed request.' },
             json_encode => 1
         );
-        return ($token, 1, { message => 'gorgone is stopping/restarting. Not proceed request.' });
+        return ($token, 1, { message => 'gorgone is stopping/restarting. Cannot proceed request.' });
     }
     
     # Check Routing
@@ -445,10 +445,10 @@ sub message_run {
                 dbh => $self->{db_gorgone},
                 code => 1,
                 token => $token,
-                data => { msg => 'no proxy configured. cannot manage target.' },
+                data => { error => "no_proxy", message => 'no proxy configured. cannot manage target.' },
                 json_encode => 1
             );
-            return ($token, 1, { message => 'no proxy configured. cannot manage target.' });
+            return ($token, 1, { error => "no_proxy", message => 'no proxy configured. cannot manage target.' });
         }
 
         $self->{counters}->{proxy}->{lc($action)} = 0 if (!defined($self->{counters}->{proxy}->{lc($action)}));
@@ -735,7 +735,7 @@ sub run {
     if (gorgone::standard::library::add_history(
         dbh => $gorgone->{db_gorgone},
         code => 0,
-        data => { msg => 'gorgoned is starting...' },
+        data => { message => 'gorgoned is starting...' },
         json_encode => 1) == -1
     ) {
         $gorgone->{logger}->writeLogInfo("[core] Cannot write in history. We quit!!");
