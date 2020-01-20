@@ -357,6 +357,24 @@ sub execute_cmd {
                 ]
             },
         );
+    } elsif ($options{cmd} eq 'RELOADBROKER') {
+        my $cmd = $self->{pollers}->{$options{target}}->{broker_reload_command};
+        $self->send_internal_action(
+            action => 'COMMAND',
+            target => $options{target},
+            token => $self->generate_token(),
+            data => {
+                content => [
+                    {
+                        command => 'sudo ' . $cmd,
+                        metadata => {
+                            centcore_proxy => 1,
+                            centcore_cmd => 'RELOADBROKER',
+                        }
+                    }
+                ]
+            },
+        );
     } elsif ($options{cmd} eq 'RESTARTCENTREONTRAPD') {
         my $cmd = $self->{pollers}->{$options{target}}->{init_script_centreontrapd};
         $self->send_internal_action(
