@@ -67,7 +67,6 @@ export { default as Tooltip } from './Tooltip';
 export { default as Dialog } from './Dialog';
 export { default as ConfirmDialog } from './Dialog/Confirm';
 export { default as DuplicateDialog } from './Dialog/Duplicate';
-export { default as MassiveChangeThresholds } from './Dialog/MassiveChange/Thresholds';
 
 export { default as IconVisible } from './Icon/IconVisible';
 export { default as IconInvisible } from './Icon/IconInvisible';
