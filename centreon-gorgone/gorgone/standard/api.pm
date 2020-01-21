@@ -57,6 +57,7 @@ sub root {
                 parameters => $options{parameters},
                 variables => \@variables,
             },
+            wait => (defined($options{parameters}->{wait})) ? $options{parameters}->{wait} : undef,
             refresh => (defined($options{parameters}->{refresh})) ? $options{parameters}->{refresh} : undef
         );
     } elsif ($options{uri} =~ /^\/api\/(nodes\/(\w*)\/)?(\w+)\/(\w+)\/(\w+)\/?([\w\/]*?)$/
@@ -141,6 +142,7 @@ sub call_internal {
             action => $options{action},
             data => $options{data},
             json_encode => 1,
+            wait => $options{wait},
             refresh => $options{refresh}
         );
     }
