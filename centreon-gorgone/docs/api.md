@@ -23,6 +23,23 @@ curl --request GET "https://hostname:8443/api/internal/constatus" \
   --header "Accept: application/json"
 ```
 
+#### Response example
+
+```json
+{
+    "action": "constatus",
+    "data": {
+        "2": {
+            "last_ping_sent": 1579684258,
+            "type": "push_zmq",
+            "nodes": {},
+            "last_ping_recv": 1579684258
+        }
+    },
+    "message": "ok"
+}
+```
+
 ### Get Public Key Thumbprint
 
 | Endpoint | Method |
@@ -40,6 +57,18 @@ curl --request GET "https://hostname:8443/api/internal/constatus" \
 ```bash
 curl --request GET "https://hostname:8443/api/internal/thumbprint" \
   --header "Accept: application/json"
+```
+
+#### Response example
+
+```json
+{
+    "action": "getthumbprint",
+    "data": {
+        "thumbprint": "cS4B3lZq96qcP4FTMhVMuwAhztqRBQERKyhnEitnTFM"
+    },
+    "message": "ok"
+}
 ```
 
 ### Get Runtime Informations And Statistics
@@ -158,6 +187,58 @@ As Centreon Gorgone is asynchronous, those endpoints will return a token corresp
 }
 ```
 
+That being said, its possible to make Gorgone work synchronously by providing two parameters.
+
+First one is `log_wait` with a numeric value in microseconds: this value defines the amount of time the API will wait before trying to retrieve log results.
+
+Second one is `sync_wait` with a numeric value in microseconds: this value defines the amount of time the API will wait after asking for logs synchronisation if a remote node is involved.
+
+Note: the `sync_wait` parameter is induced if you ask for a log directly specifying a node, by using the log endpoint, and the default value is 10000 microseconds (10 milliseconds).
+
+#### Examples
+
+##### Launch a command locally and wait for the result
+
+Using the `/core/action/command` endpoint with `log_wait` parameter set to 100000:
+
+```bash
+curl --request POST "https://hostname:8443/api/core/action/command&log_wait=100000" \
+  --header "Accept: application/json" \
+  --header "Content-Type: application/json" \
+  --data "[
+    {
+        \"command\": \"echo 'Test command'\"
+    }
+]"
+```
+
+This call will ask for the API to execute an action and will give a result after 100ms that can be:
+
+* Logs, like the log endpoint could provide,
+* A no_log error with a token to retrieve the logs later.
+
+Note: there is no need for logs synchronisation when dealing with local actions.
+
+##### Launch a command remotly and wait for the result
+
+Using the `/nodes/:id/core/action/command` endpoint with `log_wait` parameter set to 100000:
+
+```bash
+curl --request POST "https://hostname:8443/api/nodes/2/core/action/command&log_wait=100000&sync_wait=200000" \
+  --header "Accept: application/json" \
+  --header "Content-Type: application/json" \
+  --data "[
+    {
+        \"command\": \"echo 'Test command'\"
+    }
+]"
+```
+
+This call will ask for the API to execute an action on the node with ID 2, will then wait for 100ms before getting a result, but will wait for an extra 200ms for logs synchronisation before giving a result, that can be:
+
+* Logs, like the log endpoint could provide,
+* A no_log error with a token to retrieve the logs later.
+
 ## Log endpoint
 
 To retrieve the logs, a specific endpoint can be called as follow.
@@ -178,12 +259,19 @@ To retrieve the logs, a specific endpoint can be called as follow.
 | :- | :- |
 | token | Token of the action |
 
-#### Example
+#### Examples
 
 ```bash
 curl --request GET "https://hostname:8443/api/log/3f25bc3a797fe989d1fb052b1886a806e73fe2d8ccfc6377ee3d4490f8ad03c02cb2533edcc1b3d8e1770e28d6f2de83bd98923b66c0c33395e5f835759de4b1" \
   --header "Accept: application/json"
 ```
+
+```bash
+curl --request GET "https://hostname:8443/api/nodes/2/log/3f25bc3a797fe989d1fb052b1886a806e73fe2d8ccfc6377ee3d4490f8ad03c02cb2533edcc1b3d8e1770e28d6f2de83bd98923b66c0c33395e5f835759de4b1" \
+  --header "Accept: application/json"
+```
+
+This second example will force logs synchonisation before looking for results to retrieve. Default temporisation is 10ms and can be changed by providing `sync_wait` parameter.
 
 #### Response example
 
