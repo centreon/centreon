@@ -42,7 +42,7 @@ sub root {
             socket => $options{socket},
             target => $2,
             token => $3,
-            refresh => (defined($options{parameters}->{refresh})) ? $options{parameters}->{refresh} : undef,
+            sync_wait => (defined($options{parameters}->{sync_wait})) ? $options{parameters}->{sync_wait} : undef,
             parameters => $options{parameters}
         );
     } elsif ($options{uri} =~ /^\/api\/(nodes\/(\w*)\/)?internal\/(\w+)\/?([\w\/]*?)$/
@@ -57,8 +57,8 @@ sub root {
                 parameters => $options{parameters},
                 variables => \@variables,
             },
-            wait => (defined($options{parameters}->{wait})) ? $options{parameters}->{wait} : undef,
-            refresh => (defined($options{parameters}->{refresh})) ? $options{parameters}->{refresh} : undef
+            log_wait => (defined($options{parameters}->{log_wait})) ? $options{parameters}->{log_wait} : undef,
+            sync_wait => (defined($options{parameters}->{sync_wait})) ? $options{parameters}->{sync_wait} : undef
         );
     } elsif ($options{uri} =~ /^\/api\/(nodes\/(\w*)\/)?(\w+)\/(\w+)\/(\w+)\/?([\w\/]*?)$/
         && defined($options{api_endpoints}->{$options{method} . '_/' . $3 . '/' . $4 . '/' . $5})) {
@@ -72,8 +72,8 @@ sub root {
                 parameters => $options{parameters},
                 variables => \@variables,
             },
-            wait => (defined($options{parameters}->{wait})) ? $options{parameters}->{wait} : undef,
-            refresh => (defined($options{parameters}->{refresh})) ? $options{parameters}->{refresh} : undef,
+            log_wait => (defined($options{parameters}->{log_wait})) ? $options{parameters}->{log_wait} : undef,
+            sync_wait => (defined($options{parameters}->{sync_wait})) ? $options{parameters}->{sync_wait} : undef,
         );
     } else {
         $response = '{"error":"method_unknown","message":"Method not implemented"}';
@@ -106,13 +106,13 @@ sub call_action {
 
     my $response = '{"error":"no_token","message":"Cannot retrieve token from ack"}';
     if (defined($result->{token}) && $result->{token} ne '') {
-        if (defined($options{wait}) && $options{wait} ne '') {
-            Time::HiRes::usleep($options{wait});
+        if (defined($options{log_wait}) && $options{log_wait} ne '') {
+            Time::HiRes::usleep($options{log_wait});
             $response = get_log(
                 socket => $options{socket},
                 target => $options{target},
                 token => $result->{token},
-                refresh => $options{refresh},
+                sync_wait => $options{sync_wait},
                 parameters => $options{data}->{parameters}
             );
         } else {
@@ -142,8 +142,8 @@ sub call_internal {
             action => $options{action},
             data => $options{data},
             json_encode => 1,
-            wait => $options{wait},
-            refresh => $options{refresh}
+            log_wait => $options{log_wait},
+            sync_wait => $options{sync_wait}
         );
     }
 
@@ -201,8 +201,8 @@ sub get_log {
             json_encode => 1
         );
 
-        my $refresh_wait = (defined($options{refresh}) && $options{refresh} ne '') ? $options{refresh} : '10000';
-        Time::HiRes::usleep($refresh_wait);
+        my $sync_wait = (defined($options{sync_wait}) && $options{sync_wait} ne '') ? $options{sync_wait} : '10000';
+        Time::HiRes::usleep($sync_wait);
 
         my $rev = zmq_poll($poll, 5000);
     }
