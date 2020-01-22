@@ -15,7 +15,8 @@ Requires:   perl(ZMQ::LibZMQ4)
 Requires:   perl(ZMQ::Constants)
 Requires:   perl(Crypt::CBC)
 Requires:   perl(JSON::XS)
-Requires:   perl(YAML)
+Requires:   perl(JSON::PP)
+Requires:   perl(YAML::XS)
 Requires:   perl(DBD::SQLite)
 Requires:   perl(DBD::mysql)
 Requires:   perl(DBI)
@@ -28,6 +29,7 @@ Requires:   perl(Libssh::Session)
 Requires:   perl(Net::Curl::Easy)
 Requires:   perl(HTTP::Daemon::SSL)
 Requires:   perl(NetAddr::IP)
+Requires:   perl(Hash::Merge)
 AutoReqProv: no
 
 %description
