@@ -28,6 +28,10 @@ use Pod::Usage;
 use gorgone::class::logger;
 use gorgone::class::db;
 use gorgone::class::lock;
+use YAML::XS;
+use Hash::Merge;
+Hash::Merge::set_behavior('RIGHT_PRECEDENT');
+$YAML::XS::Boolean = 'JSON::PP';
 
 $SIG{__DIE__} = sub {
     my $error = shift;
@@ -127,6 +131,85 @@ sub run {
 
     $self->parse_options();
     $self->init();
+}
+
+sub yaml_get_include {
+    my ($self, %options) = @_;
+
+    my $dir = File::Basename::dirname($options{include});
+    $dir = $options{current_dir} . '/' . $dir if ($dir !~ /^\//);
+    my $match_files = File::Basename::basename($options{include});
+    $match_files =~ s/\*/\\E.*\\Q/g;
+    $match_files = '\Q' . $match_files . '\E';
+
+    my $DIR;
+    if (!opendir($DIR, $dir)) {
+        $self->{logger}->writeLogError("config - cannot opendir '$dir' error: $!");
+        return ();
+    }
+    my @sorted_files = ();
+    while (readdir($DIR)) {
+        if (-f "$dir/$_" && eval "/$match_files/") {
+            push @sorted_files, "$dir/$_";
+        }
+    }
+    closedir($DIR);
+    @sorted_files = sort { $a cmp $b } @sorted_files;
+    return @sorted_files;
+}
+
+sub yaml_parse_config {
+    my ($self, %options) = @_;
+
+    if (ref(${$options{config}}) eq 'HASH') {
+        foreach (keys %{${$options{config}}}) {
+            $self->yaml_parse_config(config => \${$options{config}}->{$_}, current_dir => $options{current_dir});
+        }
+    } elsif (ref(${$options{config}}) eq 'ARRAY') {
+        for (my $i = 0; $i < scalar(@{${$options{config}}}); $i++) {
+            $self->yaml_parse_config(config => \${$options{config}}->[$i], current_dir => $options{current_dir});
+        }
+    } elsif (ref(${$options{config}}) eq 'include') {
+        my @files = $self->yaml_get_include(include => ${${$options{config}}}, current_dir => $options{current_dir});
+        ${$options{config}} = undef;
+        foreach (@files) {
+            next if (! -r $_);
+            my $config = yaml_load_config(file => $_);
+            next if (!defined($config));
+            if (ref($config) eq 'ARRAY') {
+                ${$options{config}} = [] if (ref(${$options{config}}) ne 'ARRAY');
+                push @{${$options{config}}}, @$config;
+            } elsif (ref($config) eq 'HASH') {
+                ${$options{config}} = {} if (ref(${$options{config}}) ne 'HASH');
+                ${$options{config}} = Hash::Merge::merge(${$options{config}}, $config);
+            } else {
+                ${$options{config}} = $config;
+            }
+        }
+    } elsif (ref(${$options{config}}) eq 'JSON::PP::Boolean') {
+        if (${${$options{config}}}) {
+            ${$options{config}} = 'true';
+        } else {
+            ${$options{config}} = 'false';
+        }
+    }
+}
+
+sub yaml_load_config {
+    my ($self, %options) = @_;
+
+    my $config;
+    eval {
+        $config = YAML::XS::LoadFile($options{file});
+    };
+    if ($@) {
+        $self->{logger}->writeLogError("config - yaml load file '$options{file}' error: $@");
+        return undef;
+    }
+
+    my $current_dir = File::Basename::dirname($options{file});
+    $self->yaml_parse_config(config => \$config, current_dir => $current_dir);
+    return $config;
 }
 
 1;
