@@ -77,48 +77,48 @@ sub init_server_keys {
     $self->{logger}->writeLogInfo("[core] Initialize server keys");
 
     $self->{keys_loaded} = 0;
-    $self->{config} = { gorgone => { gorgonecore => { } } } if (!defined($self->{config}->{gorgone}));
+    $self->{config} = { gorgone => { gorgonecore => { } } } if (!defined($self->{config}->{configuration}->{gorgone}));
     
-    $self->{config}->{gorgone}->{gorgonecore}->{privkey} = 'keys/rsakey.priv.pem'
-        if (!defined($self->{config}->{gorgone}->{gorgonecore}->{privkey}) || $self->{config}->{gorgone}->{gorgonecore}->{privkey} eq '');
-    $self->{config}->{gorgone}->{gorgonecore}->{pubkey} = 'keys/rsakey.pub.pem'
-        if (!defined($self->{config}->{gorgone}->{gorgonecore}->{pubkey}) || $self->{config}->{gorgone}->{gorgonecore}->{pubkey} eq '');
+    $self->{config}->{configuration}->{gorgone}->{gorgonecore}->{privkey} = 'keys/rsakey.priv.pem'
+        if (!defined($self->{config}->{configuration}->{gorgone}->{gorgonecore}->{privkey}) || $self->{config}->{configuration}->{gorgone}->{gorgonecore}->{privkey} eq '');
+    $self->{config}->{configuration}->{gorgone}->{gorgonecore}->{pubkey} = 'keys/rsakey.pub.pem'
+        if (!defined($self->{config}->{configuration}->{gorgone}->{gorgonecore}->{pubkey}) || $self->{config}->{configuration}->{gorgone}->{gorgonecore}->{pubkey} eq '');
 
-    if (! -f $self->{config}->{gorgone}->{gorgonecore}->{privkey} && ! -f $self->{config}->{gorgone}->{gorgonecore}->{pubkey}) {
+    if (! -f $self->{config}->{configuration}->{gorgone}->{gorgonecore}->{privkey} && ! -f $self->{config}->{configuration}->{gorgone}->{gorgonecore}->{pubkey}) {
         ($code, $content_privkey, $content_pubkey) = gorgone::standard::library::generate_keys(logger => $self->{logger});
         return if ($code == 0);
         $code = gorgone::standard::misc::write_file(
             logger => $self->{logger},
-            filename => $self->{config}->{gorgone}->{gorgonecore}->{privkey},
+            filename => $self->{config}->{configuration}->{gorgone}->{gorgonecore}->{privkey},
             content => $content_privkey,
         );
         return if ($code == 0);
-        $self->{logger}->writeLogInfo("[core] Private key file '$self->{config}->{gorgone}->{gorgonecore}->{privkey}' written");
+        $self->{logger}->writeLogInfo("[core] Private key file '$self->{config}->{configuration}->{gorgone}->{gorgonecore}->{privkey}' written");
         
         $code = gorgone::standard::misc::write_file(
             logger => $self->{logger},
-            filename => $self->{config}->{gorgone}->{gorgonecore}->{pubkey},
+            filename => $self->{config}->{configuration}->{gorgone}->{gorgonecore}->{pubkey},
             content => $content_pubkey,
         );
         return if ($code == 0);
-        $self->{logger}->writeLogInfo("[core] Public key file '$self->{config}->{gorgone}->{gorgonecore}->{pubkey}' written");
+        $self->{logger}->writeLogInfo("[core] Public key file '$self->{config}->{configuration}->{gorgone}->{gorgonecore}->{pubkey}' written");
     }
 
     ($code, $self->{server_privkey}) = gorgone::standard::library::loadprivkey(
         logger => $self->{logger},
-        privkey => $self->{config}->{gorgone}->{gorgonecore}->{privkey},
+        privkey => $self->{config}->{configuration}->{gorgone}->{gorgonecore}->{privkey},
         noquit => 1
     );
     return if ($code == 0);
-    $self->{logger}->writeLogInfo("[core] Private key file '$self->{config}->{gorgone}->{gorgonecore}->{privkey}' loaded");
+    $self->{logger}->writeLogInfo("[core] Private key file '$self->{config}->{configuration}->{gorgone}->{gorgonecore}->{privkey}' loaded");
 
     ($code, $self->{server_pubkey}) = gorgone::standard::library::loadpubkey(
         logger => $self->{logger},
-        pubkey => $self->{config}->{gorgone}->{gorgonecore}->{pubkey},
+        pubkey => $self->{config}->{configuration}->{gorgone}->{gorgonecore}->{pubkey},
         noquit => 1
     );
     return if ($code == 0);
-    $self->{logger}->writeLogInfo("[core] Public key file '$self->{config}->{gorgone}->{gorgonecore}->{pubkey}' loaded");
+    $self->{logger}->writeLogInfo("[core] Public key file '$self->{config}->{configuration}->{gorgone}->{gorgonecore}->{pubkey}' loaded");
 
     $self->{keys_loaded} = 1;
 }
@@ -142,56 +142,56 @@ sub init {
     $self->{config} = $self->yaml_load_config(file => $self->{config_file});
     $self->init_server_keys();
 
-    $self->{config}->{gorgone}->{gorgonecore}->{internal_com_type} = 'ipc'
-        if (!defined($self->{config}->{gorgone}->{gorgonecore}->{internal_com_type}) || $self->{config}->{gorgone}->{gorgonecore}->{internal_com_type} eq '');
-    $self->{config}->{gorgone}->{gorgonecore}->{internal_com_path} = '/tmp/gorgone/routing.ipc'
-        if (!defined($self->{config}->{gorgone}->{gorgonecore}->{internal_com_path}) || $self->{config}->{gorgone}->{gorgonecore}->{internal_com_path} eq '');
-    $self->{config}->{gorgone}->{gorgonecore}->{timeout} = 
-        defined($self->{config}->{gorgone}->{gorgonecore}->{timeout}) && $self->{config}->{gorgone}->{gorgonecore}->{timeout} =~ /(\d+)/ ? $1 : 50;
+    $self->{config}->{configuration}->{gorgone}->{gorgonecore}->{internal_com_type} = 'ipc'
+        if (!defined($self->{config}->{configuration}->{gorgone}->{gorgonecore}->{internal_com_type}) || $self->{config}->{configuration}->{gorgone}->{gorgonecore}->{internal_com_type} eq '');
+    $self->{config}->{configuration}->{gorgone}->{gorgonecore}->{internal_com_path} = '/tmp/gorgone/routing.ipc'
+        if (!defined($self->{config}->{configuration}->{gorgone}->{gorgonecore}->{internal_com_path}) || $self->{config}->{configuration}->{gorgone}->{gorgonecore}->{internal_com_path} eq '');
+    $self->{config}->{configuration}->{gorgone}->{gorgonecore}->{timeout} = 
+        defined($self->{config}->{configuration}->{gorgone}->{gorgonecore}->{timeout}) && $self->{config}->{configuration}->{gorgone}->{gorgonecore}->{timeout} =~ /(\d+)/ ? $1 : 50;
 
-    $self->{config}->{gorgone}->{gorgonecore}->{cipher} = 'Cipher::AES'
-        if (!defined($self->{config}->{gorgone}->{gorgonecore}->{cipher}) || $self->{config}->{gorgone}->{gorgonecore}->{cipher} eq '');
-    $self->{config}->{gorgone}->{gorgonecore}->{keysize} = 32
-        if (!defined($self->{config}->{gorgone}->{gorgonecore}->{keysize}) || $self->{config}->{gorgone}->{gorgonecore}->{keysize} eq '');
-    $self->{config}->{gorgone}->{gorgonecore}->{vector} = '0123456789012345'
-        if (!defined($self->{config}->{gorgone}->{gorgonecore}->{vector}) || $self->{config}->{gorgone}->{gorgonecore}->{vector} eq '');
+    $self->{config}->{configuration}->{gorgone}->{gorgonecore}->{cipher} = 'Cipher::AES'
+        if (!defined($self->{config}->{configuration}->{gorgone}->{gorgonecore}->{cipher}) || $self->{config}->{configuration}->{gorgone}->{gorgonecore}->{cipher} eq '');
+    $self->{config}->{configuration}->{gorgone}->{gorgonecore}->{keysize} = 32
+        if (!defined($self->{config}->{configuration}->{gorgone}->{gorgonecore}->{keysize}) || $self->{config}->{configuration}->{gorgone}->{gorgonecore}->{keysize} eq '');
+    $self->{config}->{configuration}->{gorgone}->{gorgonecore}->{vector} = '0123456789012345'
+        if (!defined($self->{config}->{configuration}->{gorgone}->{gorgonecore}->{vector}) || $self->{config}->{configuration}->{gorgone}->{gorgonecore}->{vector} eq '');
 
-    $self->{config}->{gorgone}->{gorgonecore}->{fingerprint_mode} =
-        defined($self->{config}->{gorgone}->{gorgonecore}->{fingerprint_mode}) && $self->{config}->{gorgone}->{gorgonecore}->{fingerprint_mode} =~ /^\s*(always|firt|strict)\s*/i ? lc($1) : 'first';
-    $self->{config}->{gorgone}->{gorgonecore}->{fingerprint_mgr} = {} if (!defined($self->{config}->{gorgone}->{gorgonecore}->{fingerprint_mgr}));
-    $self->{config}->{gorgone}->{gorgonecore}->{fingerprint_mgr}->{package} = 'gorgone::class::fingerprint::backend::sql'
-        if (!defined($self->{config}->{gorgone}->{gorgonecore}->{fingerprint_mgr}->{package}) || $self->{config}->{gorgone}->{gorgonecore}->{fingerprint_mgr}->{package} eq '');
+    $self->{config}->{configuration}->{gorgone}->{gorgonecore}->{fingerprint_mode} =
+        defined($self->{config}->{configuration}->{gorgone}->{gorgonecore}->{fingerprint_mode}) && $self->{config}->{configuration}->{gorgone}->{gorgonecore}->{fingerprint_mode} =~ /^\s*(always|firt|strict)\s*/i ? lc($1) : 'first';
+    $self->{config}->{configuration}->{gorgone}->{gorgonecore}->{fingerprint_mgr} = {} if (!defined($self->{config}->{configuration}->{gorgone}->{gorgonecore}->{fingerprint_mgr}));
+    $self->{config}->{configuration}->{gorgone}->{gorgonecore}->{fingerprint_mgr}->{package} = 'gorgone::class::fingerprint::backend::sql'
+        if (!defined($self->{config}->{configuration}->{gorgone}->{gorgonecore}->{fingerprint_mgr}->{package}) || $self->{config}->{configuration}->{gorgone}->{gorgonecore}->{fingerprint_mgr}->{package} eq '');
 
-    $self->{config}->{gorgone}->{gorgonecore}->{fingerprint_mode} =
-        defined($self->{config}->{gorgone}->{gorgonecore}->{fingerprint_mode}) && $self->{config}->{gorgone}->{gorgonecore}->{fingerprint_mode} =~ /^\s*(always|firt|strict)\s*/i ? lc($1) : 'first';
+    $self->{config}->{configuration}->{gorgone}->{gorgonecore}->{fingerprint_mode} =
+        defined($self->{config}->{configuration}->{gorgone}->{gorgonecore}->{fingerprint_mode}) && $self->{config}->{configuration}->{gorgone}->{gorgonecore}->{fingerprint_mode} =~ /^\s*(always|firt|strict)\s*/i ? lc($1) : 'first';
 
-    $self->{config}->{gorgone}->{gorgonecore}->{gorgone_db_type} =
-        defined($self->{config}->{gorgone}->{gorgonecore}->{gorgone_db_type}) && $self->{config}->{gorgone}->{gorgonecore}->{gorgone_db_type} ne '' ? $self->{config}->{gorgone}->{gorgonecore}->{gorgone_db_type} : 'SQLite';
-    $self->{config}->{gorgone}->{gorgonecore}->{gorgone_db_name} =
-        defined($self->{config}->{gorgone}->{gorgonecore}->{gorgone_db_name}) && $self->{config}->{gorgone}->{gorgonecore}->{gorgone_db_name} ne '' ? $self->{config}->{gorgone}->{gorgonecore}->{gorgone_db_name} : 'dbname=/var/lib/centreon/gorgone/gorgone.sdb';
-    $self->{config}->{gorgone}->{gorgonecore}->{gorgone_db_autocreate_schema} =
-        defined($self->{config}->{gorgone}->{gorgonecore}->{gorgone_db_autocreate_schema}) && $self->{config}->{gorgone}->{gorgonecore}->{gorgone_db_autocreate_schema} =~ /(\d+)/ ? $1 : 1;
+    $self->{config}->{configuration}->{gorgone}->{gorgonecore}->{gorgone_db_type} =
+        defined($self->{config}->{configuration}->{gorgone}->{gorgonecore}->{gorgone_db_type}) && $self->{config}->{configuration}->{gorgone}->{gorgonecore}->{gorgone_db_type} ne '' ? $self->{config}->{configuration}->{gorgone}->{gorgonecore}->{gorgone_db_type} : 'SQLite';
+    $self->{config}->{configuration}->{gorgone}->{gorgonecore}->{gorgone_db_name} =
+        defined($self->{config}->{configuration}->{gorgone}->{gorgonecore}->{gorgone_db_name}) && $self->{config}->{configuration}->{gorgone}->{gorgonecore}->{gorgone_db_name} ne '' ? $self->{config}->{configuration}->{gorgone}->{gorgonecore}->{gorgone_db_name} : 'dbname=/var/lib/centreon/gorgone/gorgone.sdb';
+    $self->{config}->{configuration}->{gorgone}->{gorgonecore}->{gorgone_db_autocreate_schema} =
+        defined($self->{config}->{configuration}->{gorgone}->{gorgonecore}->{gorgone_db_autocreate_schema}) && $self->{config}->{configuration}->{gorgone}->{gorgonecore}->{gorgone_db_autocreate_schema} =~ /(\d+)/ ? $1 : 1;
     gorgone::standard::library::init_database(
         gorgone => $gorgone,
-        type => $self->{config}->{gorgone}->{gorgonecore}->{gorgone_db_type},
-        db => $self->{config}->{gorgone}->{gorgonecore}->{gorgone_db_name},
-        host => $self->{config}->{gorgone}->{gorgonecore}->{gorgone_db_host},
-        port => $self->{config}->{gorgone}->{gorgonecore}->{gorgone_db_port},
-        user => $self->{config}->{gorgone}->{gorgonecore}->{gorgone_db_user},
-        password => $self->{config}->{gorgone}->{gorgonecore}->{gorgone_db_password},
-        autocreate_schema => $self->{config}->{gorgone}->{gorgonecore}->{gorgone_db_autocreate_schema},
+        type => $self->{config}->{configuration}->{gorgone}->{gorgonecore}->{gorgone_db_type},
+        db => $self->{config}->{configuration}->{gorgone}->{gorgonecore}->{gorgone_db_name},
+        host => $self->{config}->{configuration}->{gorgone}->{gorgonecore}->{gorgone_db_host},
+        port => $self->{config}->{configuration}->{gorgone}->{gorgonecore}->{gorgone_db_port},
+        user => $self->{config}->{configuration}->{gorgone}->{gorgonecore}->{gorgone_db_user},
+        password => $self->{config}->{configuration}->{gorgone}->{gorgonecore}->{gorgone_db_password},
+        autocreate_schema => $self->{config}->{configuration}->{gorgone}->{gorgonecore}->{gorgone_db_autocreate_schema},
         force => 2,
         logger => $gorgone->{logger}
     );
     
-    $self->{hostname} = $self->{config}->{gorgone}->{gorgonecore}->{hostname};
+    $self->{hostname} = $self->{config}->{configuration}->{gorgone}->{gorgonecore}->{hostname};
     if (!defined($self->{hostname}) || $self->{hostname} eq '') {
         $self->{hostname} = hostname();
     }
 
-    $self->{config}->{gorgone}->{gorgonecore}->{proxy_name} = 
-        (defined($self->{config}->{gorgone}->{gorgonecore}->{proxy_name}) && $self->{config}->{gorgone}->{gorgonecore}->{proxy_name} ne '') ? $self->{config}->{gorgone}->{gorgonecore}->{proxy_name} : 'proxy';
-    $self->{id} = $self->{config}->{gorgone}->{gorgonecore}->{id};
+    $self->{config}->{configuration}->{gorgone}->{gorgonecore}->{proxy_name} = 
+        (defined($self->{config}->{configuration}->{gorgone}->{gorgonecore}->{proxy_name}) && $self->{config}->{configuration}->{gorgone}->{gorgonecore}->{proxy_name} ne '') ? $self->{config}->{configuration}->{gorgone}->{gorgonecore}->{proxy_name} : 'proxy';
+    $self->{id} = $self->{config}->{configuration}->{gorgone}->{gorgonecore}->{id};
 
     $self->load_modules();
     
@@ -315,9 +315,9 @@ sub load_module {
 
     my ($loaded, $namespace, $name, $events) = $self->{modules_register}->{$package}->{register}->(
         config => $options{config_module},
-        config_core => $self->{config}->{gorgone}->{gorgonecore},
-        config_db_centreon => $self->{config}->{common}->{database}->{db_configuration},
-        config_db_centstorage => $self->{config}->{common}->{database}->{db_realtime},
+        config_core => $self->{config}->{configuration}->{gorgone}->{gorgonecore},
+        config_db_centreon => $self->{config}->{configuration}->{database}->{db_configuration},
+        config_db_centstorage => $self->{config}->{configuration}->{database}->{db_realtime},
         logger => $self->{logger},
     );
     if ($loaded == 0) {
@@ -344,9 +344,9 @@ sub load_module {
 
 sub load_modules {
     my ($self) = @_;
-    return if (!defined($self->{config}->{gorgone}->{modules}));
+    return if (!defined($self->{config}->{configuration}->{gorgone}->{modules}));
 
-    foreach my $module (@{$self->{config}->{gorgone}->{modules}}) {
+    foreach my $module (@{$self->{config}->{configuration}->{gorgone}->{modules}}) {
         $self->load_module(config_module => $module);
     }
 
@@ -438,8 +438,8 @@ sub message_run {
     
     # Check Routing
     if (defined($target)) {
-        if (!defined($self->{modules_id}->{ $self->{config}->{gorgone}->{gorgonecore}->{proxy_name} }) || 
-            !defined($self->{modules_register}->{ $self->{modules_id}->{ $self->{config}->{gorgone}->{gorgonecore}->{proxy_name} } })) {
+        if (!defined($self->{modules_id}->{ $self->{config}->{configuration}->{gorgone}->{gorgonecore}->{proxy_name} }) || 
+            !defined($self->{modules_register}->{ $self->{modules_id}->{ $self->{config}->{configuration}->{gorgone}->{gorgonecore}->{proxy_name} } })) {
             gorgone::standard::library::add_history(
                 dbh => $self->{db_gorgone},
                 code => 1,
@@ -454,7 +454,7 @@ sub message_run {
         $self->{counters}->{proxy}->{lc($action)}++;
         $self->{counters}->{proxy}->{total}++;
 
-        $self->{modules_register}->{ $self->{modules_id}->{ $self->{config}->{gorgone}->{gorgonecore}->{proxy_name} } }->{routing}->(
+        $self->{modules_register}->{ $self->{modules_id}->{ $self->{config}->{configuration}->{gorgone}->{gorgonecore}->{proxy_name} } }->{routing}->(
             socket => $self->{internal_socket},
             dbh => $self->{db_gorgone},
             logger => $self->{logger}, 
@@ -470,7 +470,7 @@ sub message_run {
     if ($action =~ /^(?:PUTLOG|GETLOG|KILL|PING|CONSTATUS|SETCOREID|SYNCLOGS|LOADMODULE|UNLOADMODULE|INFORMATION|GETTHUMBPRINT)$/) {
         my ($code, $response, $response_type) = $self->{internal_register}->{lc($action)}->(
             gorgone => $self,
-            gorgone_config => $self->{config}->{gorgone},
+            gorgone_config => $self->{config}->{configuration}->{gorgone},
             identity => $options{identity},
             router_type => $options{router_type},
             id => $self->{id},
@@ -551,10 +551,10 @@ sub handshake {
 
     if ($status == 1) {
         ($status, my $response) = gorgone::standard::library::uncrypt_message(
-            cipher => $self->{config}->{gorgone}->{gorgonecore}->{cipher}, 
+            cipher => $self->{config}->{configuration}->{gorgone}->{gorgonecore}->{cipher}, 
             message => $message,
             symkey => $key,
-            vector => $self->{config}->{gorgone}->{gorgonecore}->{vector}
+            vector => $self->{config}->{configuration}->{gorgone}->{gorgonecore}->{vector}
         );
         if ($status == 0 && $response =~ /^\[.*\]/) {
             gorgone::standard::library::update_identity(dbh => $self->{db_gorgone}, identity => $identity);
@@ -579,7 +579,7 @@ sub handshake {
             privkey => $self->{server_privkey},
             message => $message,
             logger => $self->{logger},
-            authorized_clients => $self->{config}->{gorgone}->{gorgonecore}->{authorized_clients}
+            authorized_clients => $self->{config}->{configuration}->{gorgone}->{gorgonecore}->{authorized_clients}
         );
         if ($status == -1) {
             gorgone::standard::library::zmq_core_response(
@@ -592,8 +592,8 @@ sub handshake {
         }
         my ($status, $symkey) = gorgone::standard::library::generate_symkey(
             logger => $self->{logger},
-            cipher => $self->{config}->{gorgone}->{gorgonecore}->{cipher},
-            keysize => $self->{config}->{gorgone}->{gorgonecore}->{keysize}
+            cipher => $self->{config}->{configuration}->{gorgone}->{gorgonecore}->{cipher},
+            keysize => $self->{config}->{configuration}->{gorgone}->{gorgonecore}->{keysize}
         );
         if ($status == -1) {
             gorgone::standard::library::zmq_core_response(
@@ -641,8 +641,8 @@ sub send_message_parent {
             socket => $gorgone->{external_socket},
             identity => $options{identity},
             response_type => $options{response_type},
-            cipher => $gorgone->{config}->{gorgone}->{gorgonecore}->{cipher},
-            vector => $gorgone->{config}->{gorgone}->{gorgonecore}->{vector},
+            cipher => $gorgone->{config}->{configuration}->{gorgone}->{gorgonecore}->{cipher},
+            vector => $gorgone->{config}->{configuration}->{gorgone}->{gorgonecore}->{vector},
             symkey => $key,
             token => $options{token},
             code => $options{code},
@@ -663,8 +663,8 @@ sub router_external_event {
             gorgone::standard::library::zmq_core_response(
                 socket => $gorgone->{external_socket},
                 identity => $identity, response_type => $response_type,
-                cipher => $gorgone->{config}->{gorgone}->{gorgonecore}->{cipher},
-                vector => $gorgone->{config}->{gorgone}->{gorgonecore}->{vector},
+                cipher => $gorgone->{config}->{configuration}->{gorgone}->{gorgonecore}->{cipher},
+                vector => $gorgone->{config}->{configuration}->{gorgone}->{gorgonecore}->{vector},
                 symkey => $key,
                 token => $token, code => $code,
                 data => $response
@@ -742,16 +742,16 @@ sub run {
     }
     
     $gorgone->{internal_socket} = gorgone::standard::library::create_com(
-        type => $gorgone->{config}->{gorgone}->{gorgonecore}->{internal_com_type},
-        path => $gorgone->{config}->{gorgone}->{gorgonecore}->{internal_com_path},
+        type => $gorgone->{config}->{configuration}->{gorgone}->{gorgonecore}->{internal_com_type},
+        path => $gorgone->{config}->{configuration}->{gorgone}->{gorgonecore}->{internal_com_path},
         zmq_type => 'ZMQ_ROUTER', name => 'router-internal',
         logger => $gorgone->{logger}
     );
-    if (defined($gorgone->{config}->{gorgone}->{gorgonecore}->{external_com_type}) && $gorgone->{config}->{gorgone}->{gorgonecore}->{external_com_type} ne '') {
+    if (defined($gorgone->{config}->{configuration}->{gorgone}->{gorgonecore}->{external_com_type}) && $gorgone->{config}->{configuration}->{gorgone}->{gorgonecore}->{external_com_type} ne '') {
         if ($gorgone->{keys_loaded}) {
             $gorgone->{external_socket} = gorgone::standard::library::create_com(
-                type => $gorgone->{config}->{gorgone}->{gorgonecore}->{external_com_type},
-                path => $gorgone->{config}->{gorgone}->{gorgonecore}->{external_com_path},
+                type => $gorgone->{config}->{configuration}->{gorgone}->{gorgonecore}->{external_com_type},
+                path => $gorgone->{config}->{configuration}->{gorgone}->{gorgonecore}->{external_com_path},
                 zmq_type => 'ZMQ_ROUTER', name => 'router-external',
                 logger => $gorgone->{logger}
             );
@@ -826,7 +826,7 @@ sub run {
             }
             
             # Send KILL
-            if (time() - $gorgone->{kill_timer} > $gorgone->{config}->{gorgone}->{gorgonecore}->{timeout}) {
+            if (time() - $gorgone->{kill_timer} > $gorgone->{config}->{configuration}->{gorgone}->{gorgonecore}->{timeout}) {
                 foreach my $name (keys %{$gorgone->{modules_register}}) {
                     $gorgone->{modules_register}->{$name}->{kill_internal}->(logger => $gorgone->{logger});
                 }

@@ -4,8 +4,9 @@
 | :- | :- |
 | name | Name of the configuration |
 | description | Short string to decribe the configuration |
-| database | Table to set Centreon databases data source names and credentials  |
-| gorgonecore | Table to set Gorgone main configuration |
+| configuration | First configuration entry point |
+| database | Entry point to set Centreon databases data source names and credentials  |
+| gorgonecore | Entry point to set Gorgone main configuration |
 | modules | Table to load and configuration Gorgone modules |
 
 ## *database*
@@ -21,15 +22,16 @@ Usefull in a Centreon Central installation to access Centreon databases.
 #### Example
 
 ```yaml
-database:
-  db_centreon:
-    dsn: "mysql:host=localhost;dbname=centreon"
-    username: centreon
-    password: centreon
-  db_centstorage:
-    dsn: "mysql:host=localhost;dbname=centreon_storage"
-    username: centreon
-    password: centreon
+configuration:
+  database:
+    db_configuration:
+      dsn: "mysql:host=localhost;dbname=centreon"
+      username: centreon
+      password: centreon
+    db_realtime:
+      dsn: "mysql:host=localhost;dbname=centreon_storage"
+      username: centreon
+      password: centreon
 ```
 
 ## *gorgonecore*
@@ -62,30 +64,32 @@ database:
 #### Example
 
 ```yaml
-gorgonecore:
-  internal_com_type: ipc
-  internal_com_path: /tmp/gorgone/routing.ipc
-  external_com_type: tcp
-  external_com_path: "*:5555"
-  timeout: 50
-  gorgone_db_type: SQLite
-  gorgone_db_name: dbname=/var/lib/centreon/gorgone/gorgone.sdb
-  gorgone_db_host:
-  gorgone_db_port:
-  gorgone_db_user:
-  gorgone_db_password:
-  hostname:
-  id:
-  privkey: keys/central/privkey.pem
-  cipher: "Cipher::AES"
-  keysize: 32
-  vector: 0123456789012345
-  fingerprint_mode: first
-  fingerprint_mgr:
-    package: gorgone::class::fingerprint::backend::sql
-  authorized_clients:
-    - key: pnI6EWkiTbazjikJXRkLmjml5wvVECYtQduJUjS4QK4
-  proxy_name: proxy
+configuration:
+  gorgone:
+    gorgonecore:
+      internal_com_type: ipc
+      internal_com_path: /tmp/gorgone/routing.ipc
+      external_com_type: tcp
+      external_com_path: "*:5555"
+      timeout: 50
+      gorgone_db_type: SQLite
+      gorgone_db_name: dbname=/var/lib/centreon/gorgone/gorgone.sdb
+      gorgone_db_host:
+      gorgone_db_port:
+      gorgone_db_user:
+      gorgone_db_password:
+      hostname:
+      id:
+      privkey: keys/central/privkey.pem
+      cipher: "Cipher::AES"
+      keysize: 32
+      vector: 0123456789012345
+      fingerprint_mode: first
+      fingerprint_mgr:
+        package: gorgone::class::fingerprint::backend::sql
+      authorized_clients:
+        - key: pnI6EWkiTbazjikJXRkLmjml5wvVECYtQduJUjS4QK4
+      proxy_name: proxy
 ```
 
 ## *modules*
