@@ -24,7 +24,7 @@ module.exports = {
         map: [
           ['@centreon/ui', '@centreon/ui/src'],
         ],
-        extensions: ['.js', '.jsx']
+        extensions: ['.ts', '.tsx', '.js', '.jsx']
       }
     }
   },
@@ -45,5 +45,18 @@ module.exports = {
       { 'ignoreCase': false }
     ],
     'react/jsx-props-no-spreading': 'off',
+    'react/state-in-constructor': 'off',
+    'import/prefer-default-export': 'off',
+    'no-use-before-define': 'off',
+    'import/extensions': [
+      'error',
+      'ignorePackages',
+      {
+        'js': 'never',
+        'jsx': 'never',
+        'ts': 'never',
+        'tsx': 'never'
+      }
+   ]
   },
 };

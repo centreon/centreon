@@ -18,16 +18,20 @@
   },
   "homepage": "https://github.com/centreon/eslint-config-centreon#readme",
   "peerDependencies": {
-    "eslint": "5.x",
     "prettier": "1.x",
-    "eslint-config-airbnb": "17.x",
-    "eslint-config-prettier": "4.x",
-    "eslint-plugin-import": "2.x",
-    "eslint-plugin-jsx-a11y": "6.x",
+    "eslint-config-prettier": "6.x",
     "eslint-plugin-prettier": "3.x",
-    "eslint-plugin-react": "7.x",
-    "eslint-plugin-react-hooks": "1.x",
-    "babel-eslint": "10.x",
     "eslint-import-resolver-alias": "1.x"
+  },
+  "devDependencies": {
+    "@typescript-eslint/parser": "^2.17.0",
+    "babel-eslint": "^10.0.3",
+    "eslint": "^6.1.0",
+    "eslint-config-airbnb": "^18.0.1",
+    "eslint-plugin-import": "^2.20.0",
+    "eslint-plugin-jsx-a11y": "^6.2.3",
+    "eslint-plugin-react": "^7.18.0",
+    "eslint-plugin-react-hooks": "^1.7.0",
+    "typescript": "^3.7.5"
   }
 }
