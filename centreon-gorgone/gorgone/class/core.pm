@@ -77,8 +77,10 @@ sub init_server_keys {
     $self->{logger}->writeLogInfo("[core] Initialize server keys");
 
     $self->{keys_loaded} = 0;
-    $self->{config} = { gorgone => { gorgonecore => { } } } if (!defined($self->{config}->{configuration}->{gorgone}));
-    
+    $self->{config} = { configuration => {} } if (!defined($self->{config}->{configuration}));
+    $self->{config}->{configuration} = { gorgone => {} } if (!defined($self->{config}->{configuration}->{gorgone}));
+    $self->{config}->{configuration}->{gorgone} = { gorgonecore => {} } if (!defined($self->{config}->{configuration}->{gorgone}->{gorgonecore}));
+
     $self->{config}->{configuration}->{gorgone}->{gorgonecore}->{privkey} = 'keys/rsakey.priv.pem'
         if (!defined($self->{config}->{configuration}->{gorgone}->{gorgonecore}->{privkey}) || $self->{config}->{configuration}->{gorgone}->{gorgonecore}->{privkey} eq '');
     $self->{config}->{configuration}->{gorgone}->{gorgonecore}->{pubkey} = 'keys/rsakey.pub.pem'
@@ -139,7 +141,10 @@ sub init {
         $self->{logger}->writeLogError("[core] can't find config file '$self->{config_file}'");
         exit(1);
     }
-    $self->{config} = $self->yaml_load_config(file => $self->{config_file});
+    $self->{config} = $self->yaml_load_config(
+        file => $self->{config_file},
+        filter => '!($ariane eq "configuration##" || $ariane =~ /^configuration##(?:gorgone|database)##/)'
+    );
     $self->init_server_keys();
 
     $self->{config}->{configuration}->{gorgone}->{gorgonecore}->{internal_com_type} = 'ipc'

@@ -163,18 +163,43 @@ sub yaml_parse_config {
 
     if (ref(${$options{config}}) eq 'HASH') {
         foreach (keys %{${$options{config}}}) {
-            $self->yaml_parse_config(config => \${$options{config}}->{$_}, current_dir => $options{current_dir});
+            my $ariane = $options{ariane} . $_ . '##';
+            if (defined($options{filter}) && eval "$options{filter}") {
+                delete ${$options{config}}->{$_};
+                next;
+            }
+            $self->yaml_parse_config(
+                config => \${$options{config}}->{$_},
+                current_dir => $options{current_dir},
+                filter => $options{filter},
+                ariane => $ariane
+            );
         }
     } elsif (ref(${$options{config}}) eq 'ARRAY') {
-        for (my $i = 0; $i < scalar(@{${$options{config}}}); $i++) {
-            $self->yaml_parse_config(config => \${$options{config}}->[$i], current_dir => $options{current_dir});
+        my $size = @{${$options{config}}};
+        my $ariane = $options{ariane} . 'ARRAY##';
+        for (my $i = 0; $i < $size; $i++) {
+            if (defined($options{filter}) && eval "$options{filter}") {
+                ${$options{config}} = undef;
+                last;
+            }
+            $self->yaml_parse_config(
+                config => \${$options{config}}->[$i],
+                current_dir => $options{current_dir},
+                filter => $options{filter},
+                ariane => $ariane
+            );
         }
     } elsif (ref(${$options{config}}) eq 'include') {
-        my @files = $self->yaml_get_include(include => ${${$options{config}}}, current_dir => $options{current_dir});
+        my @files = $self->yaml_get_include(
+            include => ${${$options{config}}},
+            current_dir => $options{current_dir},
+            filter => $options{filter}
+        );
         ${$options{config}} = undef;
         foreach (@files) {
             next if (! -r $_);
-            my $config = yaml_load_config(file => $_);
+            my $config = yaml_load_config(file => $_, filter => $options{filter}, $options{ariane});
             next if (!defined($config));
             if (ref($config) eq 'ARRAY') {
                 ${$options{config}} = [] if (ref(${$options{config}}) ne 'ARRAY');
@@ -208,7 +233,12 @@ sub yaml_load_config {
     }
 
     my $current_dir = File::Basename::dirname($options{file});
-    $self->yaml_parse_config(config => \$config, current_dir => $current_dir);
+    $self->yaml_parse_config(
+        config => \$config,
+        current_dir => $current_dir,
+        filter => $options{filter},
+        ariane => defined($options{ariane}) ? $options{ariane} : ''
+    );
     return $config;
 }
 
