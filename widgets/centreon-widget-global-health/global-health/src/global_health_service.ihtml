@@ -36,14 +36,14 @@
                         <td> {$services.OK.percent}</td>
                     </tr>
                     <tr>
-                        <td> <span class="ListColCenter state_badge" style="background:#FF4125"></span> <b> Warning </b> </td>
+                        <td> <span class="ListColCenter state_badge" style="background:#FF9913"></span> <b> Warning </b> </td>
                         <td> {$services.WARNING.value} </td>
                         <td> {$services.WARNING.acknowledged} </td>
                         <td> {$services.WARNING.downtime} </td>
                         <td> {$services.WARNING.percent} </td>
                     </tr>
                     <tr>
-                        <td> <span class="ListColCenter state_badge" style="background:#ED1B23"></span> <b> Critical </b> </td>
+                        <td> <span class="ListColCenter state_badge" style="background:#ED1C24"></span> <b> Critical </b> </td>
                         <td> {$services.CRITICAL.value} </td>
                         <td> {$services.CRITICAL.acknowledged}</td>
                         <td> {$services.CRITICAL.downtime}</td>
@@ -114,7 +114,7 @@
             },
             labels:['Ok', 'Warning', 'Critical','Unknown', 'Pending'],
             series:[OK, WARNING, CRITICAL,UNKNOWN, PENDING],
-            colors:['#87BD23','#FF4125', '#ED1B23', '#CDCDCD','#2AD1D4']
+            colors:['#87BD23','#FF9913', '#ED1C24', '#CDCDCD','#2AD1D4']
         };
         //The legend appear when the user hide the table because the table include it originally 
         {/literal}{if $preferences.hide_table}            

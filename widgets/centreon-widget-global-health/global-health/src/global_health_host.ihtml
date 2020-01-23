@@ -37,7 +37,7 @@
                     </tr>
                     <tr>
 
-                        <td> <span class="ListColCenter state_badge" style="background:#ED1B23"></span> <b> Down </b> </td>
+                        <td> <span class="ListColCenter state_badge" style="background:#ED1C24"></span> <b> Down </b> </td>
                         <td> {$hosts.DOWN.value} </td>
                         <td> {$hosts.DOWN.acknowledged} </td>
                         <td> {$hosts.DOWN.downtime} </td>
@@ -108,7 +108,7 @@
             },
             labels:['Up', 'Down', 'Unreachable', 'Pending'],
             series:[UP, DOWN, UNREACHABLE, PENDING],
-            colors:['#87BD23', '#ED1B23', '#CDCDCD','#2AD1D4']
+            colors:['#87BD23', '#ED1C24', '#CDCDCD','#2AD1D4']
         };
         //The legend appear when the user hide the table because the table include it originally 
         {/literal}{if $preferences.hide_table}            
