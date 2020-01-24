@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 __pids_pidof_centreon() {
 	PID_VALUES=$(pidof -c -o $$ -o $PPID -o %PPID -x "$1" || pidof -c -o $$ -o $PPID -o %PPID -x "${1##*/}")
