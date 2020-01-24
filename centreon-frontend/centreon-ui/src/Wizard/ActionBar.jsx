@@ -1,7 +1,19 @@
 import React from 'react';
+
 import PropTypes from 'prop-types';
+
+import { makeStyles } from '@material-ui/core/styles';
 import Grid from '@material-ui/core/Grid';
 import Button from '@material-ui/core/Button';
+
+const useStyles = makeStyles((theme) => ({
+  container: {
+    position: 'sticky',
+    bottom: 0,
+    padding: '0px 10px',
+    borderTop: `1px solid ${theme.palette.grey[300]}`,
+  },
+}));
 
 function ActionBar({
   disabledNext,
@@ -16,8 +28,16 @@ function ActionBar({
   labelNext,
   labelFinish,
 }) {
+  const classes = useStyles();
+
   return (
-    <Grid container direction="row" justify="space-between" alignItems="center">
+    <Grid
+      container
+      direction="row"
+      justify="space-between"
+      alignItems="center"
+      className={classes.container}
+    >
       <Grid item>
         {onCancel && (
           <Button

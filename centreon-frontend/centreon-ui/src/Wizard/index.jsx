@@ -33,6 +33,7 @@ const useWizardStyles = makeStyles((theme) => ({
   },
   dialogContent: {
     display: 'flex',
+    padding: 0,
     backgroundColor: theme.palette.grey[100],
   },
   form: {
@@ -199,7 +200,7 @@ Wizard.defaultProps = {
 };
 
 export const Page = ({ children, ...props }) => (
-  <Box flex={1}>
+  <Box height="100%" style={{ overflow: 'auto' }}>
     {React.Children.toArray(children).map((child) => {
       return cloneElement(child, props);
     })}

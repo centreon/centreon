@@ -1,16 +1,18 @@
 import React from 'react';
+
 import PropTypes from 'prop-types';
+
 import { makeStyles } from '@material-ui/core/styles';
 import MaterialStepper from '@material-ui/core/Stepper';
 import Step from '@material-ui/core/Step';
 import StepLabel from '@material-ui/core/StepLabel';
+
 import StepIcon from './StepIcon';
 
-const useStyles = makeStyles({
+const useStyles = makeStyles((theme) => ({
   stepper: {
     padding: '18px 16px 14px 16px',
-    backgroundColor: '#e2e0e0',
-    borderBottom: '1px solid #d8d7d7',
+    backgroundColor: theme.palette.grey[200],
   },
   label: {
     '& .MuiStepLabel-alternativeLabel': {
@@ -18,7 +20,7 @@ const useStyles = makeStyles({
       fontSize: '0.8rem',
     },
   },
-});
+}));
 
 function Stepper({ activeStep, children }) {
   const classes = useStyles();
