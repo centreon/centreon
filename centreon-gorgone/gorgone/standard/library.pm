@@ -358,7 +358,7 @@ sub getthumbprint {
         return (1, { action => 'getthumbprint', message => 'no public key loaded' }, 'GETTHUMBPRINT');
     }
     my $thumbprint = $options{gorgone}->{server_pubkey}->export_key_jwk_thumbprint('SHA256');
-    return (0, { action => 'getthumbprint', message => 'ok', data => { thumbprint => $thumbprint } }, 'GETTHUMBPRINT');
+    return (2, { action => 'getthumbprint', message => 'ok', data => { thumbprint => $thumbprint } }, 'GETTHUMBPRINT');
 }
 
 sub information {
@@ -369,7 +369,7 @@ sub information {
         modules => $options{gorgone}->{modules_id},
         api_endpoints => $options{gorgone}->{api_endpoints}
     };
-    return (0, { action => 'information', message => 'ok', data => $data }, 'INFORMATION');
+    return (2, { action => 'information', message => 'ok', data => $data }, 'INFORMATION');
 }
 
 sub unloadmodule {
@@ -458,7 +458,7 @@ sub constatus {
         my $name = $options{gorgone}->{modules_id}->{$options{gorgone_config}->{gorgonecore}->{proxy_name}};
         my $method;
         if (defined($name) && ($method = $name->can('get_constatus_result'))) {
-            return (0, { action => 'constatus', message => 'ok', data => $method->() }, 'CONSTATUS');
+            return (2, { action => 'constatus', message => 'ok', data => $method->() }, 'CONSTATUS');
         }
     }
     

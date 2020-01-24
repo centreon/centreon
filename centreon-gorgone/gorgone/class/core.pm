@@ -433,7 +433,7 @@ sub message_run {
     if ($self->{stop} == 1) {
         gorgone::standard::library::add_history(
             dbh => $self->{db_gorgone},
-            code => 1,
+            code => $code,
             token => $token,
             data => { message => 'gorgone is stopping/restarting. Cannot proceed request.' },
             json_encode => 1
