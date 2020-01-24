@@ -17,10 +17,11 @@
 ##
 
 [Unit]
-Description=Centreon SQL Broker watchdog
+Description=Centreon SQL Broker service
 
 [Service]
-ExecStart=/usr/sbin/cbwd /etc/centreon-broker/watchdog-sql.json
+EnvironmentFile=/etc/sysconfig/cbd_sql
+ExecStart=/usr/sbin/cbd $OPTIONS
 ExecReload=/bin/kill -HUP $MAINPID
 Type=simple
 User=centreon-broker
