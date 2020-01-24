@@ -433,7 +433,7 @@ sub message_run {
     if ($self->{stop} == 1) {
         gorgone::standard::library::add_history(
             dbh => $self->{db_gorgone},
-            code => $code,
+            code => 0,
             token => $token,
             data => { message => 'gorgone is stopping/restarting. Cannot proceed request.' },
             json_encode => 1
@@ -487,7 +487,7 @@ sub message_run {
         if ($action =~ /^(?:CONSTATUS|INFORMATION|GETTHUMBPRINT)$/) {
             gorgone::standard::library::add_history(
                 dbh => $self->{db_gorgone},
-                code => 0,
+                code => $code,
                 token => $token,
                 data => $response,
                 json_encode => 1
