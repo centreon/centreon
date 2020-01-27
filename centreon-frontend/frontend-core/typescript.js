@@ -37,7 +37,8 @@ module.exports = {
             parameterProperties: 'explicit'
           }
         }],
-        '@typescript-eslint/no-unused-expressions': ["error"]
+        '@typescript-eslint/no-unused-expressions': ['error'],
+        'no-unused-expressions': 'off',
       },
     }
   ]

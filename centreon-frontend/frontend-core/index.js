@@ -17,7 +17,7 @@ module.exports = {
     ecmaVersion: 2018,
     sourceType: 'module',
   },
-  plugins: ['react', 'react-hooks'],
+  plugins: ['react', 'react-hooks', 'babel', 'prefer-arrow-functions'],
   settings: {
     'import/resolver': {
       alias: {
@@ -57,6 +57,7 @@ module.exports = {
         'ts': 'never',
         'tsx': 'never'
       }
-   ]
+   ],
+   'prefer-arrow-functions/prefer-arrow-functions': ['error'],
   },
 };
