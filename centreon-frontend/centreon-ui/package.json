@@ -97,6 +97,7 @@
     "identity-obj-proxy": "^3.0.0",
     "jest": "^24.9.0",
     "jest-emotion": "^10.0.17",
+    "jest-junit": "^10.0.0",
     "node-sass": "^4.10.0",
     "prettier": "^1.18.2",
     "react-test-renderer": "^16.12.0"
