@@ -5,7 +5,12 @@ import React from 'react';
 import classnames from 'classnames';
 import styles from './info-state-icon.scss';
 
-const IconInfo = ({ iconName, iconText, iconColor, iconPosition }) => {
+const IconInfo = ({
+  iconText,
+  iconName = null,
+  iconColor = null,
+  iconPosition = null,
+}) => {
   const cn = classnames(
     styles.info,
     { [styles[`info-${iconName}`]]: true },

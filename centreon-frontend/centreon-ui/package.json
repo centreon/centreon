@@ -2,7 +2,7 @@
   "name": "@centreon/ui",
   "version": "20.4.0",
   "description": "Centreon UI Components",
-  "main": "lib",
+  "main": "src",
   "scripts": {
     "eslint": "eslint . --ext .js,.jsx",
     "eslint:fix": "npm run eslint -- --fix",
@@ -13,6 +13,7 @@
     "build:storybook": "build-storybook -c .storybook -o .out",
     "test": "jest"
   },
+  "sideEffects": false,
   "repository": {
     "type": "git",
     "url": "git+https://github.com/centreon/centreon-ui.git"

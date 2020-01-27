@@ -16,7 +16,7 @@ export { default as IconContent } from './Icon/IconContent';
 export { default as IconInfo } from './Icon/IconInfo';
 export { default as IconToggleSubmenu } from './Icon/IconToggleSubmenu';
 export { default as InputField } from './InputField';
-export { default as InputFieldSelectCustom } from './InputField/InputFieldSelectCustom';
+export { default as InputFieldSelect } from './InputField/InputFieldSelectCustom';
 export { default as InputFieldSelectTableCell } from './InputField/InputFieldSelectTableCell';
 export { default as InputFieldTableCell } from './InputField/InputFieldTableCell';
 export { default as SearchInput } from './InputField/SearchInput';
@@ -60,7 +60,7 @@ export { default as CheckboxDefault } from './Checkbox';
 export { default as IconAttach } from './Icon/IconAttach';
 export { default as IconEdit } from './Icon/IconEdit';
 export { default as IconCloseNew } from './Icon/IconClose2';
-export { default as MaterialSwtich } from './Switch';
+export { default as MaterialSwitch } from './Switch';
 
 export { default as TABLE_COLUMN_TYPES } from './Listing/ColumnTypes';
 export { default as Tooltip } from './Tooltip';
@@ -80,3 +80,7 @@ export { default as IconNumber } from './Icon/IconNumber';
 export { default as SubmenuHeader } from './Submenu/SubmenuHeader';
 export { default as SubmenuItems } from './Submenu/SubmenuHeader/SubmenuItems';
 export { default as SubmenuItem } from './Submenu/SubmenuHeader/SubmenuItem';
+
+export { default as MultiSelectContainer } from './MultiSelectHolder/MultiSelectContainer';
+export { default as RightPanel } from './RightPanel';
+export { default as InputFieldSearch } from './InputField/SearchInput';
