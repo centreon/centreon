@@ -2,24 +2,24 @@
 /* eslint-disable react/prop-types */
 
 import React from 'react';
-import classnames from 'classnames';
+import clsx from 'clsx';
 import styles from './popup.scss';
 
 const Popup = ({ popupType, children, customClass }) => {
   return (
     <React.Fragment>
       <div
-        className={classnames(
+        className={clsx(
           styles.popup,
           { [styles[`popup-${popupType}`]]: true },
           styles[customClass || ''],
         )}
       >
-        <div className={classnames(styles['popup-dialog'])}>
-          <div className={classnames(styles['popup-content'])}>{children}</div>
+        <div className={clsx(styles['popup-dialog'])}>
+          <div className={clsx(styles['popup-content'])}>{children}</div>
         </div>
       </div>
-      <div className={classnames(styles['popup-overlay'])} />
+      <div className={clsx(styles['popup-overlay'])} />
     </React.Fragment>
   );
 };

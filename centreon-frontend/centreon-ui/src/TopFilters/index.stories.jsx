@@ -1,7 +1,7 @@
 /* eslint-disable no-console */
 import React from 'react';
 
-import classnames from 'classnames';
+import clsx from 'clsx';
 
 import styles from '../global-sass-files/_grid.scss';
 import TopFilters from '.';
@@ -19,7 +19,7 @@ export const normal = () => (
     switchers={[
       [
         {
-          customClass: classnames(
+          customClass: clsx(
             styles['container__col-md-3'],
             styles['container__col-xs-4'],
           ),
@@ -31,7 +31,7 @@ export const normal = () => (
           },
         },
         {
-          customClass: classnames(
+          customClass: clsx(
             styles['container__col-md-3'],
             styles['container__col-xs-4'],
           ),
@@ -42,7 +42,7 @@ export const normal = () => (
           },
         },
         {
-          customClass: classnames(
+          customClass: clsx(
             styles['container__col-md-3'],
             styles['container__col-xs-4'],
           ),
@@ -55,7 +55,7 @@ export const normal = () => (
       ],
       [
         {
-          customClass: classnames(
+          customClass: clsx(
             styles['container__col-sm-3'],
             styles['container__col-xs-4'],
           ),
@@ -67,7 +67,7 @@ export const normal = () => (
           },
         },
         {
-          customClass: classnames(
+          customClass: clsx(
             styles['container__col-sm-3'],
             styles['container__col-xs-4'],
           ),

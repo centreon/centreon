@@ -5,7 +5,7 @@
 /* eslint-disable react/prefer-stateless-function */
 
 import React, { Component } from 'react';
-import classnames from 'classnames';
+import clsx from 'clsx';
 import styles from './logo-mini.scss';
 import miniLogo from '../../../img/centreon-logo-mini.svg';
 
@@ -15,11 +15,11 @@ class LogoMini extends Component {
     return (
       <div
         onClick={onClick}
-        className={classnames(styles['logo-mini'], styles[customClass || ''])}
+        className={clsx(styles['logo-mini'], styles[customClass || ''])}
       >
         <span>
           <img
-            className={classnames(styles['logo-mini-image'])}
+            className={clsx(styles['logo-mini-image'])}
             src={miniLogo}
             width="23"
             height="21"

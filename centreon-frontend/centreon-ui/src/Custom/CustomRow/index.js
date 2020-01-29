@@ -4,7 +4,7 @@
 /* eslint-disable react/prefer-stateless-function */
 
 import React, { Component } from 'react';
-import classnames from 'classnames';
+import clsx from 'clsx';
 import styles from '../../global-sass-files/_grid.scss';
 
 class CustomRow extends Component {
@@ -20,7 +20,7 @@ class CustomRow extends Component {
     return (
       <div
         style={style}
-        className={classnames(styles.container__row, additionalClasses)}
+        className={clsx(styles.container__row, additionalClasses)}
       >
         {children}
       </div>

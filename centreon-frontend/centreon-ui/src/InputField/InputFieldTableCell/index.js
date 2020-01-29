@@ -3,7 +3,7 @@
 /* eslint-disable react/prop-types */
 
 import React from 'react';
-import classnames from 'classnames';
+import clsx from 'clsx';
 import styles from './input-table-cell.scss';
 import IconInfo from '../../Icon/IconInfo';
 
@@ -23,7 +23,7 @@ const InputField = ({
 }) => {
   return (
     <div
-      className={classnames(
+      className={clsx(
         styles['form-group'],
         styles[inputSize || ''],
         error ? styles['has-danger'] : '',
@@ -38,7 +38,7 @@ const InputField = ({
             ) : null}
             {label}
           </span>
-          <span className={classnames(styles['label-option'], styles.required)}>
+          <span className={clsx(styles['label-option'], styles.required)}>
             {topRightLabel || null}
           </span>
         </label>
@@ -50,13 +50,11 @@ const InputField = ({
         max="100"
         placeholder={placeholder}
         aria-label={ariaLabel}
-        className={classnames(styles['form-control'])}
+        className={clsx(styles['form-control'])}
         ref={reference}
         {...rest}
       />
-      {error ? (
-        <div className={classnames(styles['form-error'])}>{error}</div>
-      ) : null}
+      {error ? <div className={clsx(styles['form-error'])}>{error}</div> : null}
     </div>
   );
 };

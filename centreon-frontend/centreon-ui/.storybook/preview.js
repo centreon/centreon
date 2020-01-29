@@ -1,10 +1,10 @@
 import React from 'react';
-import { configure, addDecorator } from '@storybook/react';
-import { withNotes } from '@storybook/addon-notes';
-import { StylesProvider } from '@material-ui/styles';
-import { ThemeProvider } from '../src';
 
-addDecorator(withNotes);
+import { addDecorator } from '@storybook/react';
+
+import { StylesProvider } from '@material-ui/styles';
+
+import { ThemeProvider } from '../src';
 
 const withStylesProvider = (story) => (
   <StylesProvider injectFirst>{story()}</StylesProvider>
@@ -17,6 +17,3 @@ const withThemeProvider = (story) => (
 );
 
 addDecorator(withThemeProvider);
-
-configure(require.context('../src', true, /\.stories\.jsx?$/), module);
-

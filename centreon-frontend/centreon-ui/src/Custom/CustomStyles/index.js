@@ -4,7 +4,7 @@
 /* eslint-disable react/prefer-stateless-function */
 
 import React, { Component } from 'react';
-import classnames from 'classnames';
+import clsx from 'clsx';
 import styles from '../../global-sass-files/_grid.scss';
 
 class CustomStyles extends Component {
@@ -19,7 +19,7 @@ class CustomStyles extends Component {
 
     return (
       <div
-        className={classnames(
+        className={clsx(
           customStyles ? { [styles[`${customStyles}`]]: true } : '',
           additionalClasses,
         )}

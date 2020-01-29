@@ -4,13 +4,13 @@
 /* eslint-disable react/prop-types */
 
 import React from 'react';
-import classnames from 'classnames';
+import clsx from 'clsx';
 import styles from './close-icon.scss';
 
 const IconClose = ({ iconType, iconPosition, onClick, customStyle }) => (
   <span
     onClick={onClick}
-    className={classnames(
+    className={clsx(
       styles['icon-close'],
       { [styles[`icon-close-${iconType}`]]: true },
       styles[iconPosition || ''],

@@ -1,6 +1,8 @@
 import React from 'react';
+
+import { styled } from '@material-ui/core/styles';
 import PowerSettings from '@material-ui/icons/PowerSettingsNew';
-import styled from '@emotion/styled';
+
 import MaterialIcon from '../MaterialIcon';
 import RoundedInvertedIcon from '../RoundedInvertedIcon';
 

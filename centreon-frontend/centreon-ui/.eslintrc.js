@@ -1,3 +1,3 @@
-module.exports = { 
+module.exports = {
   extends: '@centreon/eslint-config-centreon'
 };

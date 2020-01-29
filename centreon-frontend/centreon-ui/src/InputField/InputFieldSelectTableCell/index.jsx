@@ -7,7 +7,7 @@
 
 import React, { Component } from 'react';
 import { findDOMNode } from 'react-dom';
-import classnames from 'classnames';
+import clsx from 'clsx';
 import styles from './input-select-table-cell.scss';
 import CustomIconWithText from '../../Custom/CustomIconWithText';
 import IconToggleSubmenu from '../../Icon/IconToggleSubmenu';
@@ -141,7 +141,7 @@ class InputFieldSelectCustom extends Component {
     } = this.props;
     return (
       <div
-        className={classnames(
+        className={clsx(
           styles['input-select'],
           styles[size || ''],
           styles[active ? 'active' : ''],
@@ -150,9 +150,9 @@ class InputFieldSelectCustom extends Component {
         )}
         ref={this.referSelectField}
       >
-        <div className={classnames(styles['input-select-wrap'])}>
+        <div className={clsx(styles['input-select-wrap'])}>
           <span
-            className={classnames(styles['input-select-field'])}
+            className={clsx(styles['input-select-field'])}
             onClick={this.toggleSelect}
           >
             {selected.name}
@@ -164,7 +164,7 @@ class InputFieldSelectCustom extends Component {
           />
         </div>
         {active ? (
-          <div className={classnames(styles['input-select-dropdown'])}>
+          <div className={clsx(styles['input-select-dropdown'])}>
             {options
               ? options.map((option) => (
                 <div
@@ -190,7 +190,7 @@ class InputFieldSelectCustom extends Component {
                     ) : (
                       <span
                         onClick={this.optionChecked.bind(this, option)}
-                        className={classnames(styles['input-select-label'])}
+                        className={clsx(styles['input-select-label'])}
                       >
                         {option.name}
                       </span>
@@ -201,7 +201,7 @@ class InputFieldSelectCustom extends Component {
           </div>
         ) : null}
         {error ? (
-          <div className={classnames(styles['form-error'])}>{error}</div>
+          <div className={clsx(styles['form-error'])}>{error}</div>
         ) : null}
       </div>
     );

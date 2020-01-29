@@ -4,17 +4,17 @@
 /* eslint-disable react/prop-types */
 
 import React from 'react';
-import classnames from 'classnames';
+import clsx from 'clsx';
 import styles from './content-slider.scss';
 
 const ContentSliderLeftArrow = ({ goToPrevSlide, iconColor }) => {
   return (
     <span
-      className={classnames(styles['content-slider-prev'])}
+      className={clsx(styles['content-slider-prev'])}
       onClick={goToPrevSlide}
     >
       <span
-        className={classnames(
+        className={clsx(
           styles['content-slider-prev-icon'],
           styles[iconColor || ''],
         )}

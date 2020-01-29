@@ -6,7 +6,7 @@
 /* eslint-disable react/prefer-stateless-function */
 
 import React, { Component } from 'react';
-import classnames from 'classnames';
+import clsx from 'clsx';
 import styles from './logo.scss';
 import logo from '../../img/centreon.png';
 
@@ -17,11 +17,11 @@ class Logo extends Component {
     return (
       <div
         onClick={onClick}
-        className={classnames(styles.logo, styles[customClass || ''])}
+        className={clsx(styles.logo, styles[customClass || ''])}
       >
         <span>
           <img
-            className={classnames(styles['logo-image'])}
+            className={clsx(styles['logo-image'])}
             src={logo}
             width="254"
             height="57"

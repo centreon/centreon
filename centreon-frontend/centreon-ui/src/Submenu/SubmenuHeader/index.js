@@ -3,7 +3,7 @@
 /* eslint-disable react/prefer-stateless-function */
 
 import React, { Component } from 'react';
-import classnames from 'classnames';
+import clsx from 'clsx';
 import styles from './submenu.scss';
 
 class SubmenuHeader extends Component {
@@ -12,7 +12,7 @@ class SubmenuHeader extends Component {
 
     return (
       <div
-        className={classnames(styles[`submenu-${submenuType}`], {
+        className={clsx(styles[`submenu-${submenuType}`], {
           [styles['submenu-active']]: !!active,
         })}
         {...props}

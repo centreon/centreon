@@ -6,7 +6,7 @@
 /* eslint-disable camelcase */
 
 import React from 'react';
-import classnames from 'classnames';
+import clsx from 'clsx';
 import styles from './switcher.scss';
 
 class Switcher extends React.Component {
@@ -58,15 +58,15 @@ class Switcher extends React.Component {
     const { value, toggled } = this.state;
 
     return (
-      <div className={classnames(styles.switcher, styles[customClass])}>
-        <span className={classnames(styles['switcher-title'])}>
+      <div className={clsx(styles.switcher, styles[customClass])}>
+        <span className={clsx(styles['switcher-title'])}>
           {switcherTitle || ' '}
         </span>
-        <span className={classnames(styles['switcher-status'])}>
+        <span className={clsx(styles['switcher-status'])}>
           {switcherStatus}
         </span>
         <label
-          className={classnames(
+          className={clsx(
             styles.switch,
             styles[toggled ? 'switch-active' : 'switch-hide'],
           )}
@@ -77,10 +77,7 @@ class Switcher extends React.Component {
             onClick={this.onChange.bind(this)}
           />
           <span
-            className={classnames(
-              styles['switch-slider'],
-              styles['switch-round'],
-            )}
+            className={clsx(styles['switch-slider'], styles['switch-round'])}
           />
         </label>
       </div>

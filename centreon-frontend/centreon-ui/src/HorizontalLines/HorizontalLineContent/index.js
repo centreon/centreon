@@ -2,17 +2,17 @@
 /* eslint-disable react/prop-types */
 
 import React from 'react';
-import classnames from 'classnames';
+import clsx from 'clsx';
 import styles from './content-horizontal-line.scss';
 
 const HorizontalLineContent = ({ hrTitle, hrColor, hrTitleColor }) => (
   <div
-    className={classnames(styles['content-hr'], {
+    className={clsx(styles['content-hr'], {
       [styles[`content-hr-${hrColor}`]]: hrColor,
     })}
   >
     <span
-      className={classnames(styles['content-hr-title'], {
+      className={clsx(styles['content-hr-title'], {
         [styles[`content-hr-title-${hrTitleColor}`]]: hrTitleColor,
       })}
     >

@@ -4,7 +4,7 @@
 /* eslint-disable react/prop-types */
 
 import React, { Component } from 'react';
-import classnames from 'classnames';
+import clsx from 'clsx';
 import styles from './sidebar.scss';
 import Logo from '../Logo';
 import LogoMini from '../Logo/LogoMini';
@@ -28,14 +28,11 @@ class Sidebar extends Component {
 
     return (
       <nav
-        className={classnames(
-          styles.sidebar,
-          styles[active ? 'active' : 'mini'],
-        )}
+        className={clsx(styles.sidebar, styles[active ? 'active' : 'mini'])}
         id="sidebar"
         style={style}
       >
-        <div className={classnames(styles['sidebar-inner'])}>
+        <div className={clsx(styles['sidebar-inner'])}>
           {active ? (
             <Logo onClick={this.toggleNavigation} />
           ) : (
@@ -47,10 +44,10 @@ class Sidebar extends Component {
             sidebarActive={active}
           />
           <div
-            className={classnames(styles['sidebar-toggle-wrap'])}
+            className={clsx(styles['sidebar-toggle-wrap'])}
             onClick={this.toggleNavigation}
           >
-            <span className={classnames(styles['sidebar-toggle-icon'])} />
+            <span className={clsx(styles['sidebar-toggle-icon'])} />
           </div>
         </div>
       </nav>

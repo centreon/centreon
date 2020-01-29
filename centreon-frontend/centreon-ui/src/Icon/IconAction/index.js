@@ -2,7 +2,7 @@
 /* eslint-disable react/prop-types */
 
 import React from 'react';
-import classnames from 'classnames';
+import clsx from 'clsx';
 import styles from './action-icons.scss';
 
 const IconAction = ({
@@ -13,7 +13,7 @@ const IconAction = ({
   iconReset,
   ...rest
 }) => {
-  const cn = classnames(
+  const cn = clsx(
     styles['icon-action'],
     { [styles[`icon-action-${iconActionType}`]]: true },
     styles[iconColor || ''],

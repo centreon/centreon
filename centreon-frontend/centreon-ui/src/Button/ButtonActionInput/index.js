@@ -4,7 +4,7 @@
 /* eslint-disable react/prop-types */
 
 import React from 'react';
-import classnames from 'classnames';
+import clsx from 'clsx';
 import IconAction from '../../Icon/IconAction';
 import styles from './button-action-input.scss';
 
@@ -15,7 +15,7 @@ const ButtonActionInput = ({
   iconColor,
   buttonPosition,
 }) => {
-  const cn = classnames(
+  const cn = clsx(
     styles['button-action-input'],
     styles[buttonColor || ''],
     styles[buttonPosition || ''],

@@ -5,7 +5,7 @@
 /* eslint-disable consistent-return */
 
 import React, { Component } from 'react';
-import classnames from 'classnames';
+import clsx from 'clsx';
 import styles from './content-slider.scss';
 import ContentSliderItem from './ContentSliderItem';
 import ContentSliderLeftArrow from './ContentSliderLeftArrow';
@@ -102,17 +102,17 @@ class SliderContent extends Component {
     const { images, children } = this.props;
 
     return (
-      <div className={classnames(styles['content-slider-wrapper'])}>
-        <div className={classnames(styles['content-slider'])}>
+      <div className={clsx(styles['content-slider-wrapper'])}>
+        <div className={clsx(styles['content-slider'])}>
           <div
-            className={classnames(styles['content-slider-items'])}
+            className={clsx(styles['content-slider-items'])}
             style={{
               transform: `translateX(${translateValue}px)`,
             }}
           >
             {this.renderSlides()}
           </div>
-          <div className={classnames(styles['content-slider-controls'])}>
+          <div className={clsx(styles['content-slider-controls'])}>
             {currentIndex === 0 ? null : (
               <ContentSliderLeftArrow
                 goToPrevSlide={this.goToPrevSlide}

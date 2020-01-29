@@ -3,7 +3,7 @@
 /* eslint-disable react/prefer-stateless-function */
 
 import React, { Component } from 'react';
-import classnames from 'classnames';
+import clsx from 'clsx';
 import styles from './input-field-multi-select.scss';
 
 class InputFieldMultiSelectValue extends Component {
@@ -19,7 +19,7 @@ class InputFieldMultiSelectValue extends Component {
     return (
       <React.Fragment>
         <div
-          className={classnames(
+          className={clsx(
             styles['multi-select'],
             multiSelectType ? styles['multi-select-empty'] : '',
           )}
@@ -29,12 +29,12 @@ class InputFieldMultiSelectValue extends Component {
               name={name}
               type={type}
               placeholder={placeholder}
-              className={classnames(styles['multi-select-input'])}
+              className={clsx(styles['multi-select-input'])}
               {...rest}
             />
           )}
           {error ? (
-            <div className={classnames(styles['form-error'])}>{error}</div>
+            <div className={clsx(styles['form-error'])}>{error}</div>
           ) : null}
         </div>
       </React.Fragment>

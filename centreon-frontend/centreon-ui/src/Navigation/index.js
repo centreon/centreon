@@ -10,7 +10,7 @@
 /* eslint-disable react/prop-types */
 
 import React, { Component } from 'react';
-import classnames from 'classnames';
+import clsx from 'clsx';
 import Link from '@material-ui/core/Link';
 import { styled } from '@material-ui/styles';
 import { Link as RouterLink } from 'react-router-dom';
@@ -124,7 +124,7 @@ class Navigation extends Component {
 
     return (
       <ul
-        className={classnames(
+        className={clsx(
           styles.menu,
           styles['menu-items'],
           styles['list-unstyled'],
@@ -136,7 +136,7 @@ class Navigation extends Component {
             firstLevel.toggled || this.areSamePage(pageId, firstLevel, 1);
           return (
             <li
-              className={classnames(
+              className={clsx(
                 styles['menu-item'],
                 styles[`color-${firstLevel.color}`],
                 {
@@ -146,9 +146,9 @@ class Navigation extends Component {
               )}
               key={`firstLevel-${firstLevel.page}`}
             >
-              <span className={classnames(styles['menu-item-link'])}>
+              <span className={clsx(styles['menu-item-link'])}>
                 <StyledLink
-                  className={classnames(
+                  className={clsx(
                     styles.iconmoon,
                     styles[`icon-${firstLevel.icon}`],
                   )}
@@ -177,13 +177,13 @@ class Navigation extends Component {
                   component={RouterLink}
                   to={this.getUrlFromEntry(firstLevel)}
                 >
-                  <span className={classnames(styles['menu-item-name'])}>
+                  <span className={clsx(styles['menu-item-name'])}>
                     {firstLevel.label}
                   </span>
                 </StyledLink>
               </span>
               <ul
-                className={classnames(
+                className={clsx(
                   styles.collapse,
                   styles['collapsed-items'],
                   styles['list-unstyled'],
@@ -208,7 +208,7 @@ class Navigation extends Component {
                     this.areSamePage(pageId, secondLevel, 3);
                   return (
                     <li
-                      className={classnames(styles['collapsed-item'], {
+                      className={clsx(styles['collapsed-item'], {
                         [styles.active]: secondLevelIsActive,
                         [styles[
                           `active-${firstLevel.color}`
@@ -217,7 +217,7 @@ class Navigation extends Component {
                       key={`secondLevel-${secondLevel.page}`}
                     >
                       <StyledLink
-                        className={classnames(
+                        className={clsx(
                           styles['collapsed-item-level-link'],
                           styles[`color-${firstLevel.color}`],
                           {
@@ -250,7 +250,7 @@ class Navigation extends Component {
                           }
                           return (
                             <ul
-                              className={classnames(
+                              className={clsx(
                                 styles['collapsed-level-items'],
                                 styles['list-unstyled'],
                               )}
@@ -262,7 +262,7 @@ class Navigation extends Component {
                                 >
                                   {secondLevel.groups.length > 1 ? (
                                     <span
-                                      className={classnames(
+                                      className={clsx(
                                         styles['collapsed-level-title'],
                                       )}
                                     >
@@ -275,7 +275,7 @@ class Navigation extends Component {
                                       this.areSamePage(pageId, thirdLevel);
                                     return (
                                       <li
-                                        className={classnames(
+                                        className={clsx(
                                           styles['collapsed-level-item'],
                                           {
                                             [styles.active]: thirdLevelIsActive,
@@ -287,7 +287,7 @@ class Navigation extends Component {
                                         key={`thirdLevel-${thirdLevel.page}`}
                                       >
                                         <StyledLink
-                                          className={classnames(
+                                          className={clsx(
                                             styles['collapsed-item-level-link'],
                                             styles[`color-${firstLevel.color}`],
                                           )}

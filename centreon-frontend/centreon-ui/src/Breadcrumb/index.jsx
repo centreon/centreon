@@ -1,20 +1,28 @@
 import React from 'react';
-import styled from '@emotion/styled';
+
 import PropTypes from 'prop-types';
+
+import { makeStyles } from '@material-ui/core/styles';
 import Breadcrumbs from '@material-ui/core/Breadcrumbs';
 import NavigateNextIcon from '@material-ui/icons/NavigateNext';
+
 import BreadcrumbLink from './Link';
 
-const StyledBreadcrumb = styled(Breadcrumbs)(() => ({
-  padding: '4px 16px',
-  '.MuiBreadcrumbs-li': {
+const useStyles = makeStyles({
+  breadcrumb: {
+    padding: '4px 16px',
+  },
+  item: {
     display: 'flex',
   },
-}));
+});
 
 function Breadcrumb({ breadcrumbs }) {
+  const classes = useStyles();
+
   return (
-    <StyledBreadcrumb
+    <Breadcrumbs
+      classes={{ root: classes.breadcrumb, li: classes.item }}
       separator={<NavigateNextIcon fontSize="small" />}
       aria-label="Breadcrumb"
     >
@@ -27,7 +35,7 @@ function Breadcrumb({ breadcrumbs }) {
             count={breadcrumbs.length}
           />
         ))}
-    </StyledBreadcrumb>
+    </Breadcrumbs>
   );
 }
 

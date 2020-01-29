@@ -4,15 +4,15 @@
 /* eslint-disable react/prop-types */
 
 import React from 'react';
-import classnames from 'classnames';
+import clsx from 'clsx';
 import styles from './custom-icon-with-text.scss';
 import defaultImage from '../../../img/icons/small-logo.png';
 
 const CustomIconWithText = ({ label, image, onClick, iconOff }) => {
   return (
-    <span className={classnames(styles['custom-multiple'])} onClick={onClick}>
+    <span className={clsx(styles['custom-multiple'])} onClick={onClick}>
       <img
-        className={classnames(styles['custom-multiple-icon'])}
+        className={clsx(styles['custom-multiple-icon'])}
         {...(!iconOff ? { src: image || defaultImage } : {})}
         alt=""
       />
@@ -20,7 +20,7 @@ const CustomIconWithText = ({ label, image, onClick, iconOff }) => {
         style={{
           paddingLeft: '6px',
         }}
-        className={classnames(styles['custom-multiple-text'])}
+        className={clsx(styles['custom-multiple-text'])}
       >
         {label}
       </span>

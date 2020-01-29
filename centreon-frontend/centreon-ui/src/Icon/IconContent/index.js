@@ -4,7 +4,7 @@
 /* eslint-disable react/prop-types */
 
 import React from 'react';
-import classnames from 'classnames';
+import clsx from 'clsx';
 import styles from './content-icons.scss';
 
 const IconContent = ({
@@ -16,7 +16,7 @@ const IconContent = ({
 }) => (
   <span
     style={loading ? { top: '20%' } : {}}
-    className={classnames(
+    className={clsx(
       styles['content-icon'],
       { [styles[`content-icon-${iconContentType}`]]: true },
       styles[iconContentColor ? `content-icon-${iconContentColor}` : ''],

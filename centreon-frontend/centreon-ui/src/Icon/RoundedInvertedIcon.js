@@ -1,4 +1,4 @@
-import styled from '@emotion/styled';
+import { styled } from '@material-ui/core/styles';
 
 function RoundedInvertedIcon(Icon) {
   return styled(Icon)(() => ({

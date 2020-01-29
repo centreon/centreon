@@ -4,7 +4,7 @@
 /* eslint-disable react/prop-types */
 
 import React from 'react';
-import classnames from 'classnames';
+import clsx from 'clsx';
 import styles from './custom-title.scss';
 
 const Title = ({
@@ -19,7 +19,7 @@ const Title = ({
   children,
 }) => (
   <div
-    className={classnames(
+    className={clsx(
       styles['custom-title'],
       customTitleStyles ? styles['custom-title-styles'] : '',
     )}
@@ -28,17 +28,14 @@ const Title = ({
   >
     {icon ? (
       <span
-        className={classnames(styles['custom-title-icon'], {
+        className={clsx(styles['custom-title-icon'], {
           [styles[`custom-title-icon-${icon}`]]: true,
         })}
       />
     ) : null}
     <div className={styles['custom-title-label-container']}>
       <span
-        className={classnames(
-          styles['custom-title-label'],
-          styles[titleColor || ''],
-        )}
+        className={clsx(styles['custom-title-label'], styles[titleColor || ''])}
         style={labelStyle}
         title={title || label}
       >

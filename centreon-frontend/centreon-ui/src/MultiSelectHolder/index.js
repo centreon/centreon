@@ -4,7 +4,7 @@
 /* eslint-disable react/prop-types */
 
 import React from 'react';
-import classnames from 'classnames';
+import clsx from 'clsx';
 import IconEdit from '../Icon/IconEdit';
 import styles from './multi-select-holder.scss';
 
@@ -35,7 +35,7 @@ class InputFieldMultiSelectEmpty extends React.Component {
     const { isHovered } = this.state;
     return (
       <div
-        className={classnames(
+        className={clsx(
           styles['multi-select-holder'],
           isEmpty ? styles['multi-select-holder-empty'] : '',
           error ? styles['has-danger'] : '',
@@ -47,14 +47,14 @@ class InputFieldMultiSelectEmpty extends React.Component {
         aria-label={ariaLabel}
       >
         {multiSelectLabel && multiSelectCount && (
-          <span className={classnames(styles['multi-select-holder-label'])}>
+          <span className={clsx(styles['multi-select-holder-label'])}>
             {`${multiSelectLabel} (${multiSelectCount})`}
           </span>
         )}
-        <div className={classnames(styles['multi-select-holder-inner'])}>
+        <div className={clsx(styles['multi-select-holder-inner'])}>
           {isEmpty && (
             <React.Fragment>
-              <span className={classnames(styles['multi-select-holder-add'])}>
+              <span className={clsx(styles['multi-select-holder-add'])}>
                 {emptyInfo || 'Click to link'}
               </span>
             </React.Fragment>
@@ -63,7 +63,7 @@ class InputFieldMultiSelectEmpty extends React.Component {
         </div>
         {isHovered ? <IconEdit style={{ display: 'inline' }} /> : null}
         {error ? (
-          <div className={classnames(styles['form-error'])}>{error}</div>
+          <div className={clsx(styles['form-error'])}>{error}</div>
         ) : null}
       </div>
     );

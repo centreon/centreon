@@ -3,7 +3,7 @@
 /* eslint-disable react/prefer-stateless-function */
 
 import React from 'react';
-import classnames from 'classnames';
+import clsx from 'clsx';
 import styles from '../Popup/popup.scss';
 import Popup from '../Popup';
 import Loader from '../Loader';
@@ -64,7 +64,7 @@ class ExtensionDetailPopup extends React.Component {
             />
           )}
         </Slider>
-        <div className={classnames(styles['popup-header'])}>
+        <div className={clsx(styles['popup-header'])}>
           <Title label={modalDetails.title} />
           <Button
             style={{ cursor: 'default' }}
@@ -83,7 +83,7 @@ class ExtensionDetailPopup extends React.Component {
           />
         </div>
         <HorizontalLine />
-        <div className={classnames(styles['popup-body'])}>
+        <div className={clsx(styles['popup-body'])}>
           {modalDetails.last_update ? (
             <Description date={`Last update ${modalDetails.last_update}`} />
           ) : null}
@@ -91,7 +91,7 @@ class ExtensionDetailPopup extends React.Component {
           <Description text={modalDetails.description} />
         </div>
         <HorizontalLine />
-        <div className={classnames(styles['popup-footer'])}>
+        <div className={clsx(styles['popup-footer'])}>
           <Description note={modalDetails.release_note} link />
         </div>
         <IconClose

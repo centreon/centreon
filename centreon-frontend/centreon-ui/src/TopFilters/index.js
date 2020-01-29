@@ -5,7 +5,7 @@
 /* eslint-disable react/prefer-stateless-function */
 
 import React, { Component } from 'react';
-import classnames from 'classnames';
+import clsx from 'clsx';
 import styles from '../global-sass-files/_grid.scss';
 import filterStyles from './top-filters.scss';
 import Wrapper from '../Wrapper';
@@ -21,10 +21,10 @@ class TopFilters extends Component {
       <div className={styles['container-gray']}>
         <div className={filterStyles['filters-wrapper']}>
           <Wrapper>
-            <div className={classnames(styles.container__row)}>
+            <div className={clsx(styles.container__row)}>
               {fullText ? (
                 <div
-                  className={classnames(
+                  className={clsx(
                     styles['container__col-md-3'],
                     styles['container__col-xs-12'],
                   )}
@@ -39,7 +39,7 @@ class TopFilters extends Component {
                 </div>
               ) : null}
 
-              <div className={classnames(styles.container__row)}>
+              <div className={clsx(styles.container__row)}>
                 {switchers
                   ? switchers.map((switcherColumn, index) => (
                     <div
@@ -75,7 +75,7 @@ class TopFilters extends Component {
                             ) : (
                               <div
                                 key={`switcher${index}${i}`}
-                                className={classnames(
+                                className={clsx(
                                   styles['container__col-sm-6'],
                                   styles['container__col-xs-4'],
                                   styles['center-vertical'],

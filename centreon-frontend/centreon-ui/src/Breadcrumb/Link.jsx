@@ -1,11 +1,18 @@
 import React from 'react';
-import styled from '@emotion/styled';
-import PropTypes from 'prop-types';
-import Link from '@material-ui/core/Link';
+
 import { Link as RouterLink } from 'react-router-dom';
+import PropTypes from 'prop-types';
+
+import { styled } from '@material-ui/core/styles';
+import Link from '@material-ui/core/Link';
 
 const SmallLink = styled(Link)(() => ({
   fontSize: '12px',
+  color: 'inherit',
+  textDecoration: 'none',
+  '&:hover': {
+    textDecoration: 'underline',
+  },
 }));
 
 const BreadcrumbLink = ({ index, count, breadcrumb }) => {

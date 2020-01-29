@@ -4,7 +4,7 @@
 /* eslint-disable react/prop-types */
 
 import React from 'react';
-import classnames from 'classnames';
+import clsx from 'clsx';
 import styles from './icon-toggle-submenu.scss';
 
 const IconToggleSubmenu = ({
@@ -14,7 +14,7 @@ const IconToggleSubmenu = ({
   onClick,
   ...rest
 }) => {
-  const cn = classnames(
+  const cn = clsx(
     {
       [styles[`icons-toggle-${iconType}`]]: true,
     },

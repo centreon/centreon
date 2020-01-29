@@ -4,7 +4,7 @@
 /* eslint-disable react/prop-types */
 
 import React from 'react';
-import classnames from 'classnames';
+import clsx from 'clsx';
 import IconAction from '../../Icon/IconAction';
 import styles from './button-action.scss';
 
@@ -16,7 +16,7 @@ const ButtonAction = ({
   title,
   customPosition,
 }) => {
-  const cn = classnames(
+  const cn = clsx(
     styles['button-action'],
     {
       [styles[`button-action-${buttonActionType || ''}`]]: true,

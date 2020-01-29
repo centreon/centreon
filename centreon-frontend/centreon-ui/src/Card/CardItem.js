@@ -3,7 +3,7 @@
 /* eslint-disable react/prefer-stateless-function */
 
 import React, { Component } from 'react';
-import classnames from 'classnames';
+import clsx from 'clsx';
 import styles from './card.scss';
 
 class CardItem extends Component {
@@ -16,14 +16,14 @@ class CardItem extends Component {
       customClass,
       style,
     } = this.props;
-    const cnCardItem = classnames(
+    const cnCardItem = clsx(
       styles['card-item'],
       {
         [styles[`card-item-bordered-${itemBorderColor || ''}`]]: true,
       },
       styles[customClass || ''],
     );
-    const cnCardItemFooter = classnames(styles['card-item-footer'], {
+    const cnCardItemFooter = clsx(styles['card-item-footer'], {
       [styles[`card-item-footer-${itemFooterColor || ''}`]]: true,
     });
 

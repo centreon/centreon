@@ -3,7 +3,7 @@
 /* eslint-disable react/prop-types */
 
 import React from 'react';
-import classnames from 'classnames';
+import clsx from 'clsx';
 import IconAction from '../Icon/IconAction';
 import styles from './button.scss';
 
@@ -22,7 +22,7 @@ const Button = ({
   position,
   ...rest
 }) => {
-  const cn = classnames(
+  const cn = clsx(
     styles.button,
     { [styles[`button-${buttonType}-${color}`]]: true },
     styles.linear,

@@ -3,14 +3,14 @@
 /* eslint-disable react/prefer-stateless-function */
 
 import React, { Component } from 'react';
-import classnames from 'classnames';
+import clsx from 'clsx';
 import styles from '../global-sass-files/_containers.scss';
 
 class ExtensionsWrapper extends Component {
   render() {
     const { children, style } = this.props;
     return (
-      <div style={style} className={classnames(styles['content-wrapper'])}>
+      <div style={style} className={clsx(styles['content-wrapper'])}>
         {children}
       </div>
     );

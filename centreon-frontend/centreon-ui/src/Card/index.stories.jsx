@@ -1,7 +1,7 @@
 /* eslint-disable no-alert */
 import React from 'react';
 
-import classnames from 'classnames';
+import clsx from 'clsx';
 
 import Card from '.';
 import CardItem from './CardItem';
@@ -45,7 +45,7 @@ export const withContent = () => (
         iconColor="green"
         iconPosition="info-icon-position"
       />
-      <div className={classnames(styles['custom-title-heading'])}>
+      <div className={clsx(styles['custom-title-heading'])}>
         <Title
           icon="object"
           label="Test Title"

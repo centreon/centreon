@@ -3,7 +3,7 @@
 /* eslint-disable react/prefer-stateless-function */
 
 import React from 'react';
-import classnames from 'classnames';
+import clsx from 'clsx';
 import styles from '../Popup/popup.scss';
 import Popup from '../Popup';
 import Title from '../Title';
@@ -17,18 +17,18 @@ class ExtensionDeletePopup extends React.Component {
 
     return (
       <Popup popupType="small">
-        <div className={classnames(styles['popup-header'])}>
+        <div className={clsx(styles['popup-header'])}>
           <Title label={deletingEntity.description} />
         </div>
-        <div className={classnames(styles['popup-body'])}>
+        <div className={clsx(styles['popup-body'])}>
           <MessageInfo
             messageInfo="red"
             text="Do you want to delete this extension? This action will remove all associated data."
           />
         </div>
-        <div className={classnames(styles['popup-footer'])}>
-          <div className={classnames(styles.container__row)}>
-            <div className={classnames(styles['container__col-xs-6'])}>
+        <div className={clsx(styles['popup-footer'])}>
+          <div className={clsx(styles.container__row)}>
+            <div className={clsx(styles['container__col-xs-6'])}>
               <Button
                 label="Delete"
                 buttonType="regular"
@@ -40,11 +40,7 @@ class ExtensionDeletePopup extends React.Component {
                 }}
               />
             </div>
-            <div
-              className={classnames(styles['container__col-xs-6'], [
-                'text-left',
-              ])}
-            >
+            <div className={clsx(styles['container__col-xs-6'], ['text-left'])}>
               <Button
                 label="Cancel"
                 buttonType="regular"

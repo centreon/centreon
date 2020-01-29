@@ -5,7 +5,7 @@
 /* eslint-disable react/prefer-stateless-function */
 
 import React, { Component } from 'react';
-import classnames from 'classnames';
+import clsx from 'clsx';
 import styles from './file-upload.scss';
 
 class FileUploadItem extends Component {
@@ -24,22 +24,22 @@ class FileUploadItem extends Component {
       message,
       onDeleteFile,
     } = this.props;
-    const cnFileUploadIcon = classnames(
+    const cnFileUploadIcon = clsx(
       styles['file-upload-item-icon'],
       styles[icon || ''],
       styles[iconStatus || ''],
     );
-    const cnFileUploadTitle = classnames(
+    const cnFileUploadTitle = clsx(
       styles['file-upload-item-title'],
       styles[titleStatus || ''],
     );
-    const cnFileUploadInfo = classnames(
+    const cnFileUploadInfo = clsx(
       styles['file-upload-item-info'],
       styles[infoStatus || ''],
     );
     return (
       <React.Fragment>
-        <div className={classnames(styles['file-upload-item'])}>
+        <div className={clsx(styles['file-upload-item'])}>
           {icon ? <span className={cnFileUploadIcon} /> : null}
           <span className={cnFileUploadTitle}>{title}</span>
           {info ? (
@@ -50,26 +50,20 @@ class FileUploadItem extends Component {
           ) : null}
           {!uploading ? (
             <span
-              className={classnames(
-                styles['icon-close'],
-                styles['icon-close-small'],
-              )}
+              className={clsx(styles['icon-close'], styles['icon-close-small'])}
               onClick={onDeleteFile}
             />
           ) : null}
-          <div className={classnames(styles.progress)}>
+          <div className={clsx(styles.progress)}>
             <span
-              className={classnames(
-                styles['progress-bar'],
-                styles[progressBar],
-              )}
+              className={clsx(styles['progress-bar'], styles[progressBar])}
               style={{
                 width: `${progressPercentage}%`,
               }}
             />
           </div>
           {message ? (
-            <span className={classnames(styles['file-upload-message'])}>
+            <span className={clsx(styles['file-upload-message'])}>
               {message}
             </span>
           ) : null}
