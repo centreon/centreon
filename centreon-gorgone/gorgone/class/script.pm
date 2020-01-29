@@ -199,7 +199,7 @@ sub yaml_parse_config {
         ${$options{config}} = undef;
         foreach (@files) {
             next if (! -r $_);
-            my $config = yaml_load_config(file => $_, filter => $options{filter}, $options{ariane});
+            my $config = $self->yaml_load_config(file => $_, filter => $options{filter}, ariane => $options{ariane});
             next if (!defined($config));
             if (ref($config) eq 'ARRAY') {
                 ${$options{config}} = [] if (ref(${$options{config}}) ne 'ARRAY');
