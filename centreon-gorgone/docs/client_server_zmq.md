@@ -39,13 +39,16 @@ $ perl /usr/local/bin/gorgone_key_thumbprint.pl --key-path='/var/spool/centreon/
 
 #### Server
 
-In the *gorgoned.yml* configuration file, add the following directives under the *gorgonecore* section:
+In the */etc/centreon/confid.d/20-gorgoned.yaml* configuration file, add the following directives under the 
+*gorgonecore* 
+section:
 
 ```yaml
-gorgonecore:
-  id: 1
-  privkey: /var/spool/centreon/.gorgone/privkey.pem
-  pubkey: /var/spool/centreon/.gorgone/pubkey.pem
+gorgone:
+  gorgonecore:
+    id: 1
+    privkey: /var/spool/centreon/.gorgone/privkey.pem
+    pubkey: /var/spool/centreon/.gorgone/pubkey.pem
 ```
 
 Add the [register](../docs/modules/core/register.md) module and define the path to the dedicated configuration file.
@@ -70,17 +73,18 @@ nodes:
 
 #### Client
 
-In the *gorgoned.yml* configuration file, add the following directives under the *gorgonecore* section:
+In the */etc/centreon/config.d/20-gorgoned.yaml* configuration file, add the following directives:
 
 ```yaml
-gorgonecore:
-  id: 2
-  external_com_type: tcp
-  external_com_path: "*:5556"
-  privkey: /var/spool/centreon/.gorgone/privkey.pem
-  pubkey: /var/spool/centreon/.gorgone/pubkey.pem
-  authorized_clients:
-    - key: pnI6EWkiTbazjikJXRkLmjml5wvVECYtQduJUjS4QK4
+gorgone:
+  gorgonecore:
+    id: 2
+    external_com_type: tcp
+    external_com_path: "*:5556"
+    privkey: /var/spool/centreon/.gorgone/privkey.pem
+    pubkey: /var/spool/centreon/.gorgone/pubkey.pem
+    authorized_clients:
+      - key: pnI6EWkiTbazjikJXRkLmjml5wvVECYtQduJUjS4QK4
 ```
 
 The *authorized_clients* entry allows to define the client public key thumbprint retrieved earlier.

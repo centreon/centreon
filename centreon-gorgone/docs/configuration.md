@@ -5,6 +5,7 @@
 | name | Name of the configuration |
 | description | Short string to decribe the configuration |
 | configuration | First configuration entry point |
+| centreon | Entry point to set Centreon configuration |
 | database | Entry point to set Centreon databases data source names and credentials  |
 | gorgonecore | Entry point to set Gorgone main configuration |
 | modules | Table to load and configuration Gorgone modules |
@@ -23,15 +24,16 @@ Usefull in a Centreon Central installation to access Centreon databases.
 
 ```yaml
 configuration:
-  database:
-    db_configuration:
-      dsn: "mysql:host=localhost;dbname=centreon"
-      username: centreon
-      password: centreon
-    db_realtime:
-      dsn: "mysql:host=localhost;dbname=centreon_storage"
-      username: centreon
-      password: centreon
+  centreon:
+    database:
+      db_configuration:
+        dsn: "mysql:host=localhost;dbname=centreon"
+        username: centreon
+        password: centreon
+      db_realtime:
+        dsn: "mysql:host=localhost;dbname=centreon_storage"
+        username: centreon
+        password: centreon
 ```
 
 ## *gorgonecore*

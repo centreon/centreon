@@ -35,6 +35,13 @@ AutoReqProv: no
 
 %description
 
+%package centreon-config
+Summary:    Configure Centreon Gorgone for use with Centreon Web
+Group:      Networking/Other
+Requires:   centreon-common
+
+%description centreon-config
+
 %prep
 %setup -q -n %{name}-%{version}
 
@@ -46,16 +53,20 @@ mkdir -p %{buildroot}/%{perl_vendorlib}/gorgone
 %{__install} -d -m 0755 %{buildroot}%{_bindir}
 %{__install} -d -m 0755 %{buildroot}%{_usr}/local/bin/
 %{__install} -d -m 0755 %{buildroot}%{_sysconfdir}/systemd/system/
-%{__install} -d -m 0775 %buildroot%{_localstatedir}/log/centreon
-%{__cp} config/systemd/centreon-gorgone-service %{buildroot}%{_sysconfdir}/systemd/system/centreon-gorgone.service
+%{__install} -d -m 0775 %buildroot%{_localstatedir}/log/centreon-gorgone
+%{__cp} config/systemd/gorgoned-service %{buildroot}%{_sysconfdir}/systemd/system/gorgoned.service
 %{__install} -d -m 0755 %{buildroot}%{_sysconfdir}/sysconfig
-%{__cp} config/systemd/centreon-gorgone-sysconfig %{buildroot}%{_sysconfdir}/sysconfig/centreon-gorgone
+%{__cp} config/systemd/gorgoned-sysconfig %{buildroot}%{_sysconfdir}/sysconfig/gorgoned
 %{__install} -d -m 0755 %{buildroot}%{_sysconfdir}/logrotate.d
 %{__cp} config/logrotate/gorgoned %{buildroot}%{_sysconfdir}/logrotate.d/gorgoned
 
 %{__cp} -R gorgone/* %{buildroot}/%{perl_vendorlib}/gorgone/
 %{__cp} gorgoned %{buildroot}%{_bindir}/
 %{__cp} contrib/gorgone_config_init.pl %{buildroot}%{_usr}/local/bin/
+
+%{__install} -d -m 0755 %{buildroot}%{_sysconfdir}/centreon-gorgone/config.d/
+%{__cp} packaging/config.yaml %{buildroot}%{_sysconfdir}/centreon-gorgone/
+%{__cp} packaging/centreon.yaml %{buildroot}%{_sysconfdir}/centreon-gorgone/config.d/30-centreon.yaml
 
 %{_fixperms} $RPM_BUILD_ROOT/*
 
@@ -65,19 +76,36 @@ mkdir -p %{buildroot}/%{perl_vendorlib}/gorgone
 rm -rf %{buildroot}
 
 %files
-%defattr(-,root,root,-)
+%defattr(-, root, root, -)
 %{perl_vendorlib}/gorgone/
-%attr(755,root,root) %{_bindir}/gorgoned
-%attr(755,root,root) %{_usr}/local/bin/gorgone_config_init.pl
-%attr(755,root,root) %{_sysconfdir}/systemd/system/centreon-gorgone.service
-%config(noreplace) %{_sysconfdir}/sysconfig/centreon-gorgone
+%attr(755, root, root) %{_bindir}/gorgoned
+%attr(755, root, root) %{_usr}/local/bin/gorgone_config_init.pl
+%attr(755, root, root) %{_sysconfdir}/systemd/system/gorgoned.service
+%config(noreplace) %{_sysconfdir}/sysconfig/gorgoned
 %config(noreplace) %{_sysconfdir}/logrotate.d/gorgoned
+%dir %{_sysconfdir}/centreon-gorgone
+%{_sysconfdir}/centreon-gorgone/config.yaml
+
+%defattr(-, centreon-gorgone, centreon-gorgone, -)
+%dir %{_sysconfdir}/centreon-gorgone/config.d
+%{_localstatedir}/log/centreon-gorgone
+
+%pre
+%{_bindir}/getent group centreon-gorgone &>/dev/null || %{_sbindir}/groupadd -r centreon-gorgone
+%{_bindir}/getent passwd centreon-gorgone &>/dev/null || %{_sbindir}/useradd -g centreon-gorgone -m -d %{_localstatedir}/log/centreon-gorgone -r centreon-gorgone 2> /dev/null
+
+%files centreon-config
+%{_sysconfdir}/centreon-gorgone/config.d/30-centreon.yaml
+
+%post centreon-config
+%{_bindir}/getent passwd centreon &>/dev/null && %{_sbindir}/usermod -a G centreon-gorgone centreon 2> /dev/null
+%{_bindir}/getent passwd centreon-gorgone &>/dev/null && %{_sbindir}/usermod -a G centreon centreon-gorgone 2> /dev/null
 
 %post
-%systemd_post centreon-gorgone.service || :
+%systemd_post gorgoned.service || :
 
 %preun
-%systemd_preun centreon-gorgone.service || :
+%systemd_preun gorgoned.service || :
 
 %postun
 %systemd_postun_with_restart centreon-gorgone.service || :

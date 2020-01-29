@@ -40,7 +40,8 @@ sub init {
     $self->SUPER::init();
 
     $self->{centcore_config} = '/etc/centreon/conf.pm' if (!defined($self->{centcore_config}) || $self->{centcore_config} eq '');
-    $self->{gorgone_config} = '/etc/centreon/gorgoned.yml' if (!defined($self->{gorgone_config}) || $self->{gorgone_config} eq '');
+    $self->{gorgone_config} = '/etc/centreon-gorgone/config.yaml' if (!defined($self->{gorgone_config}) ||
+        $self->{gorgone_config} eq '');
 }
 
 sub read_centcore_config {
@@ -82,72 +83,75 @@ sub write_gorgone_config {
     my $content = <<"END_FILE";
 name: gorgoned
 description: Configuration init by gorgone_config_init
-database:
-  db_centreon:
-    dsn: "mysql:host=$centreon_config->{db_host}${db_port};dbname=$centreon_config->{centreon_db}"
-    username: "$centreon_config->{db_user}"
-    password: "$centreon_config->{db_passwd}"
-  db_centstorage:
-    dsn: "mysql:host=$centreon_config->{db_host}${db_port};dbname=$centreon_config->{centstorage_db}"
-    username: "$centreon_config->{db_user}"
-    password: "$centreon_config->{db_passwd}"
-gorgonecore:
-  hostname:
-  id:
-  privkey: /var/spool/centreon/.gorgone/rsakey.priv.pem
-  pubkey:  /var/spool/centreon/.gorgone/rsakey.pub.pem
-modules:
-  - name: httpserver
-    package: gorgone::modules::core::httpserver::hooks
-    enable: false
-    address: 0.0.0.0
-    port: 8443
-    ssl: true
-    ssl_cert_file: /etc/pki/tls/certs/server-cert.pem
-    ssl_key_file: /etc/pki/tls/server-key.pem
-    auth:
-      enabled: false
-      user: admin
-      password: password
-    allowed_hosts:
-      enabled: true
-      subnets:
-        - 127.0.0.1/32
+configuration:
+  centreon:
+    database:
+      db_configuration:
+        dsn: "mysql:host=$centreon_config->{db_host}${db_port};dbname=$centreon_config->{centreon_db}"
+        username: "$centreon_config->{db_user}"
+        password: "$centreon_config->{db_passwd}"
+      db_realtime:
+        dsn: "mysql:host=$centreon_config->{db_host}${db_port};dbname=$centreon_config->{centstorage_db}"
+        username: "$centreon_config->{db_user}"
+        password: "$centreon_config->{db_passwd}"
+  gorgone:      
+    gorgonecore:
+      hostname:
+      id:
+      privkey: /var/spool/centreon/.gorgone/rsakey.priv.pem
+      pubkey:  /var/spool/centreon/.gorgone/rsakey.pub.pem
+    modules:
+      - name: httpserver
+        package: gorgone::modules::core::httpserver::hooks
+        enable: false
+        address: 0.0.0.0
+        port: 8443
+        ssl: true
+        ssl_cert_file: /etc/pki/tls/certs/server-cert.pem
+        ssl_key_file: /etc/pki/tls/server-key.pem
+        auth:
+          enabled: false
+          user: admin
+          password: password
+        allowed_hosts:
+          enabled: true
+          subnets:
+            - 127.0.0.1/32
 
-  - name: cron
-    package: gorgone::modules::core::cron::hooks
-    enable: false
+      - name: cron
+        package: gorgone::modules::core::cron::hooks
+        enable: false
 
-  - name: action
-    package: gorgone::modules::core::action::hooks
-    enable: true
+      - name: action
+        package: gorgone::modules::core::action::hooks
+        enable: true
 
-  - name: proxy
-    package: gorgone::modules::core::proxy::hooks
-    enable: true
+      - name: proxy
+        package: gorgone::modules::core::proxy::hooks
+        enable: true
 
-  - name: pollers
-    package: gorgone::modules::centreon::nodes::hooks
-    enable: true
+      - name: pollers
+        package: gorgone::modules::centreon::nodes::hooks
+        enable: true
 
-  - name: broker
-    package: gorgone::modules::centreon::broker::hooks
-    enable: false
-    cache_dir: "/var/lib/centreon/broker-stats/"
-    cron:
-      - id: broker_stats
-        timespec: "*/2 * * * *"
-        action: BROKERSTATS
-        parameters:
-          timeout: 10
+      - name: broker
+        package: gorgone::modules::centreon::broker::hooks
+        enable: false
+        cache_dir: "/var/lib/centreon/broker-stats/"
+        cron:
+          - id: broker_stats
+            timespec: "*/2 * * * *"
+            action: BROKERSTATS
+            parameters:
+              timeout: 10
 
-  - name: legacycmd
-    package: gorgone::modules::centreon::legacycmd::hooks
-    enable: true
-    cmd_file: "$centreon_config->{VarLib}/centcore.cmd"
-    cache_dir: "$centreon_config->{CacheDir}"
-    cache_dir_trap: "/etc/snmp/centreon_traps/"
-    remote_dir: "$centreon_config->{VarLib}/remote-data/"
+      - name: legacycmd
+        package: gorgone::modules::centreon::legacycmd::hooks
+        enable: true
+        cmd_file: "$centreon_config->{VarLib}/centcore.cmd"
+        cache_dir: "$centreon_config->{CacheDir}"
+        cache_dir_trap: "/etc/snmp/centreon_traps/"
+        remote_dir: "$centreon_config->{VarLib}/remote-data/"
 END_FILE
 
     print $fh $content;
@@ -184,7 +188,7 @@ Specify the path to the centcore configuration file (default: '/etc/centreon/con
 
 =item B<--gorgone-config>
 
-Specify the gorgone config file created (default: '/etc/centreon/gorgoned.yml').
+Specify the gorgone config file created (default: '/etc/centreon-gorgone/config.yaml').
 
 =item B<--severity>
 

@@ -321,8 +321,8 @@ sub load_module {
     my ($loaded, $namespace, $name, $events) = $self->{modules_register}->{$package}->{register}->(
         config => $options{config_module},
         config_core => $self->{config}->{configuration}->{gorgone}->{gorgonecore},
-        config_db_centreon => $self->{config}->{configuration}->{database}->{db_configuration},
-        config_db_centstorage => $self->{config}->{configuration}->{database}->{db_realtime},
+        config_db_centreon => $self->{config}->{configuration}->{centreon}->{database}->{db_configuration},
+        config_db_centstorage => $self->{config}->{configuration}->{centreon}->{database}->{db_realtime},
         logger => $self->{logger},
     );
     if ($loaded == 0) {

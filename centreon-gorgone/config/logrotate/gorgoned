@@ -1,4 +1,4 @@
-/var/log/centreon/gorgoned.log {
+/var/log/centreon-gorgone/gorgoned.log {
     copytruncate
     weekly
     rotate 52

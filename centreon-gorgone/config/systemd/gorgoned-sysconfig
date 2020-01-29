@@ -1,0 +1,4 @@
+# Configuration file for Centreon Gorgone.
+
+# OPTIONS for the daemon launch
+OPTIONS="--config=/etc/centreon-gorgone/config.yaml --logfile=/var/log/centreon-gorgone/gorgoned.log --severity=info"

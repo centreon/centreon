@@ -1,4 +1,5 @@
-## Copyright 2019 Centreon
+##
+## Copyright 2019-2020 Centreon
 ##
 ## Licensed under the Apache License, Version 2.0 (the "License");
 ## you may not use this file except in compliance with the License.
@@ -22,10 +23,10 @@ After=centreon.service
 ReloadPropagatedFrom=centreon.service
 
 [Service]
-EnvironmentFile=/etc/sysconfig/centreon-gorgone
+EnvironmentFile=/etc/sysconfig/gorgoned
 ExecStart=/usr/bin/perl /usr/bin/gorgoned $OPTIONS
 Type=simple
-User=centreon
+User=centreon-gorgone
 
 [Install]
 WantedBy=multi-user.target
