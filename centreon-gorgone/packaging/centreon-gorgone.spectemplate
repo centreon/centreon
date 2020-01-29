@@ -108,6 +108,6 @@ rm -rf %{buildroot}
 %systemd_preun gorgoned.service || :
 
 %postun
-%systemd_postun_with_restart centreon-gorgone.service || :
+%systemd_postun_with_restart gorgoned.service || :
 
 %changelog
