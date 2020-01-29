@@ -143,7 +143,7 @@ sub init {
     }
     $self->{config} = $self->yaml_load_config(
         file => $self->{config_file},
-        filter => '!($ariane eq "configuration##" || $ariane =~ /^configuration##(?:gorgone|database)##/)'
+        filter => '!($ariane eq "configuration##" || $ariane =~ /^configuration##(?:gorgone|centreon)##/)'
     );
     $self->init_server_keys();
 
@@ -173,7 +173,7 @@ sub init {
     $self->{config}->{configuration}->{gorgone}->{gorgonecore}->{gorgone_db_type} =
         defined($self->{config}->{configuration}->{gorgone}->{gorgonecore}->{gorgone_db_type}) && $self->{config}->{configuration}->{gorgone}->{gorgonecore}->{gorgone_db_type} ne '' ? $self->{config}->{configuration}->{gorgone}->{gorgonecore}->{gorgone_db_type} : 'SQLite';
     $self->{config}->{configuration}->{gorgone}->{gorgonecore}->{gorgone_db_name} =
-        defined($self->{config}->{configuration}->{gorgone}->{gorgonecore}->{gorgone_db_name}) && $self->{config}->{configuration}->{gorgone}->{gorgonecore}->{gorgone_db_name} ne '' ? $self->{config}->{configuration}->{gorgone}->{gorgonecore}->{gorgone_db_name} : 'dbname=/var/lib/centreon/gorgone/gorgone.sdb';
+        defined($self->{config}->{configuration}->{gorgone}->{gorgonecore}->{gorgone_db_name}) && $self->{config}->{configuration}->{gorgone}->{gorgonecore}->{gorgone_db_name} ne '' ? $self->{config}->{configuration}->{gorgone}->{gorgonecore}->{gorgone_db_name} : 'dbname=/var/lib/centreon-gorgone/history.sdb';
     $self->{config}->{configuration}->{gorgone}->{gorgonecore}->{gorgone_db_autocreate_schema} =
         defined($self->{config}->{configuration}->{gorgone}->{gorgonecore}->{gorgone_db_autocreate_schema}) && $self->{config}->{configuration}->{gorgone}->{gorgonecore}->{gorgone_db_autocreate_schema} =~ /(\d+)/ ? $1 : 1;
     gorgone::standard::library::init_database(
