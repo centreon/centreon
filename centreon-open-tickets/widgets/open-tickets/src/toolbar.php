@@ -117,7 +117,6 @@ $template->display('toolbar.ihtml');
 
 <script type='text/javascript'>
 var tab = new Array();
-var sid = '<?php echo session_id();?>';
 var toolbar = "<?php echo $toolbar;?>";
 var widget_id = "<?php echo $widgetId; ?>";
 
@@ -131,7 +130,7 @@ $(function() {
             }).get().join(",");
 
             if (checkValues != '') {
-                var url = "./widgets/open-tickets/src/action.php?widgetId="+widget_id+"&sid="+sid+"&selection="+checkValues+"&cmd="+jQuery(this).val();
+                var url = "./widgets/open-tickets/src/action.php?widgetId="+widget_id+"&selection="+checkValues+"&cmd="+jQuery(this).val();
                 // We delete the old one (not really clean. Should be managed by popin itself. Like with a destroy parameters)
                 parent.jQuery('#OTWidgetPopin').parent().remove();
                 var popin = parent.jQuery('<div id="OTWidgetPopin">');
@@ -152,7 +151,7 @@ $(function() {
 
          if (checkValues != '') {
              var tmp = $(this).attr('id').split("_");
-             var url = "./widgets/open-tickets/src/action.php?widgetId="+widget_id+"&sid="+sid+"&selection="+checkValues+"&cmd="+tmp[1];
+             var url = "./widgets/open-tickets/src/action.php?widgetId="+widget_id+"&selection="+checkValues+"&cmd="+tmp[1];
              // We delete the old one (not really clean. Should be managed by popin itself. Like with a destroy parameters)
              parent.jQuery('#OTWidgetPopin').parent().remove();
              var popin = parent.jQuery('<div id="OTWidgetPopin">');
