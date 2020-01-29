@@ -66,7 +66,7 @@ If it does not exist, the daemon will automatically create it in the path set by
 However, you can manualy create it with the database schema:
 
 ```bash
-sqlite3 -init schema/gorgone_database.sql /var/lib/centreon/gorgone/gorgone.sdb
+sqlite3 -init schema/gorgone_database.sql /var/lib/centreon-gorgone/history.sdb
 ```
 
 Database schema:
@@ -122,19 +122,19 @@ CREATE INDEX IF NOT EXISTS idx_gorgone_target_fingerprint_target ON gorgone_targ
 If you are using the package, just launch the service as below:
 
 ```bash
-systemctl start centreon-gorgone
+systemctl start gorgoned
 ```
 
 Make sure the daemon is running:
 
 ```bash
-$ systemctl status centreon-gorgone
-● centreon-gorgone.service - Centreon Gorgone
-   Loaded: loaded (/etc/systemd/system/centreon-gorgone.service; disabled; vendor preset: disabled)
+$ systemctl status gorgoned
+● gorgoned.service - Centreon Gorgone
+   Loaded: loaded (/etc/systemd/system/gorgoned.service; disabled; vendor preset: disabled)
    Active: active (running) since Mon 2019-09-30 09:36:19 CEST; 2min 29s ago
  Main PID: 5168 (perl)
-   CGroup: /system.slice/centreon-gorgone.service
-           ├─5168 /usr/bin/perl /usr/bin/gorgoned --config=/etc/centreon-gorgone/config.yaml --logfile=/var/log/centreon/gorgoned.log --severity=error
+   CGroup: /system.slice/gorgoned.service
+           ├─5168 /usr/bin/perl /usr/bin/gorgoned --config=/etc/centreon-gorgone/config.yaml --logfile=/var/log/centreon/gorgoned.log --severity=info
            ├─5175 gorgone-dbcleaner
            ├─5182 gorgone-action
            ├─5187 gorgone-nodes
@@ -145,13 +145,13 @@ $ systemctl status centreon-gorgone
            ├─5206 gorgone-proxy
            └─5207 gorgone-proxy
 
-Sep 30 09:36:19 cga-centreon-19-10.int.centreon.com systemd[1]: Started Centreon Gorgone.
+Sep 30 09:36:19 localhost systemd[1]: Started Centreon Gorgone.
 ```
 
 If you are using the sources, execute the following command:
 
 ```bash
-perl gorgoned --config=config/config.yaml --severity=error
+perl gorgoned --config=config/config.yaml --severity=info
 ```
 
 ## Full-ZMQ setup

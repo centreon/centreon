@@ -1,15 +1,16 @@
 name: gorgoned-remote-ssh
 description: Configuration example in a SSH environment for Remote server
 configuration:
-  database:
-    db_configuration: 
-      dsn: "mysql:host=localhost;dbname=centreon"
-      username: centreon
-      password: centreon
-    db_realtime: 
-      dsn: "mysql:host=localhost;dbname=centreon_storage"
-      username: centreon
-      password: centreon
+  centreon:
+    database:
+      db_configuration: 
+        dsn: "mysql:host=localhost;dbname=centreon"
+        username: centreon
+        password: centreon
+      db_realtime: 
+        dsn: "mysql:host=localhost;dbname=centreon_storage"
+        username: centreon
+        password: centreon
   gorgone:
     gorgonecore:
       timeout: 50

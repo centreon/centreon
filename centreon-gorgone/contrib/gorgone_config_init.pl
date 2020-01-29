@@ -98,21 +98,17 @@ configuration:
     gorgonecore:
       hostname:
       id:
-      privkey: /var/spool/centreon/.gorgone/rsakey.priv.pem
-      pubkey:  /var/spool/centreon/.gorgone/rsakey.pub.pem
+      privkey: /var/lib/centreon-gorgone/.keys/rsakey.priv.pem
+      pubkey:  /var/lib/centreon-gorgone/.keys/rsakey.pub.pem
     modules:
       - name: httpserver
         package: gorgone::modules::core::httpserver::hooks
         enable: false
         address: 0.0.0.0
-        port: 8443
-        ssl: true
-        ssl_cert_file: /etc/pki/tls/certs/server-cert.pem
-        ssl_key_file: /etc/pki/tls/server-key.pem
+        port: 8085
+        ssl: false
         auth:
           enabled: false
-          user: admin
-          password: password
         allowed_hosts:
           enabled: true
           subnets:

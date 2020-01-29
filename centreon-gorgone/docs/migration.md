@@ -32,23 +32,23 @@ configuration:
         dsn: "mysql:host=localhost;port=3306;dbname=centreon_storage"
         username: "centreon"
         password: "centreon"
-
   gorgone:
     gorgonecore:
-      privkey: "/var/spool/centreon/.gorgone/rsakey.priv.pem"
-      pubkey: "/var/spool/centreon/.gorgone/rsakey.pub.pem"
+      privkey: "/var/lib/centreon-gorgone/.keys/rsakey.priv.pem"
+      pubkey: "/var/lib/centreon-gorgone/.keys/rsakey.pub.pem"
     modules:
       - name: httpserver
         package: gorgone::modules::core::httpserver::hooks
-        enable: true
+        enable: false
         address: 0.0.0.0
         port: 8085
-        ssl: true
-        ssl_cert_file: /etc/pki/tls/certs/server-cert.pem
-        ssl_key_file: /etc/pki/tls/server-key.pem
+        ssl: false
         auth:
-          user: admin
-          password: password
+          enabled: false
+        allowed_hosts:
+          enabled: true
+          subnets:
+            - 127.0.0.1/32
 
       - name: action
         package: gorgone::modules::core::action::hooks

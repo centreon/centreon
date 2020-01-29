@@ -46,7 +46,7 @@ configuration:
 | external_com_path | Path to the external ZMQ socket | `*:5555` |
 | timeout | Time in seconds before killing child processes when stopping Gorgone | `50` |
 | gorgone_db_type | Type of the Gorgone database | `SQLite` |
-| gorgone_db_name | Path and name of the database | `dbname=/var/lib/centreon/gorgone/gorgone.sdb` |
+| gorgone_db_name | Path and name of the database | `dbname=/var/lib/centreon-gorgone/history.sdb` |
 | gorgone_db_host | Hostname/IP address of the server hosting the database |  |
 | gorgone_db_port | Port of the database listener |  |
 | gorgone_db_user | Username to access the database |  |
@@ -75,7 +75,7 @@ configuration:
       external_com_path: "*:5555"
       timeout: 50
       gorgone_db_type: SQLite
-      gorgone_db_name: dbname=/var/lib/centreon/gorgone/gorgone.sdb
+      gorgone_db_name: dbname=/var/lib/centreon-gorgone/history.sdb
       gorgone_db_host:
       gorgone_db_port:
       gorgone_db_user:
