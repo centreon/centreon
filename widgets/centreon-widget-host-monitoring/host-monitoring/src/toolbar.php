@@ -92,7 +92,6 @@ $template->display('toolbar.ihtml');
 var tab = new Array();
 var actions = "<?php echo $actions;?>";
 var widget_id = "<?php echo $widgetId; ?>";
-var sid = '<?php echo session_id();?>';
 
 jQuery( function() {
     jQuery(".toolbar").change( function() {
@@ -106,7 +105,7 @@ jQuery( function() {
                 .get().join(",");
 
             if (checkValues != '') {
-                var url = "./widgets/host-monitoring/src/action.php?widgetId=" + widgetId + "&sid=" + sid +
+                var url = "./widgets/host-monitoring/src/action.php?widgetId=" + widgetId +
                     "&selection=" + checkValues + "&cmd=" + jQuery(this).val();
                 parent.jQuery('#WidgetDowntime').parent().remove();
                 var popin = parent.jQuery('<div id="WidgetDowntime">');
