@@ -53,6 +53,7 @@ mkdir -p %{buildroot}/%{perl_vendorlib}/gorgone
 %{__install} -d -m 0755 %{buildroot}%{_bindir}
 %{__install} -d -m 0755 %{buildroot}%{_usr}/local/bin/
 %{__install} -d -m 0755 %{buildroot}%{_sysconfdir}/systemd/system/
+%{__install} -d -m 0775 %buildroot%{_localstatedir}/lib/centreon-gorgone
 %{__install} -d -m 0775 %buildroot%{_localstatedir}/log/centreon-gorgone
 %{__cp} config/systemd/gorgoned-service %{buildroot}%{_sysconfdir}/systemd/system/gorgoned.service
 %{__install} -d -m 0755 %{buildroot}%{_sysconfdir}/sysconfig
@@ -88,11 +89,12 @@ rm -rf %{buildroot}
 
 %defattr(-, centreon-gorgone, centreon-gorgone, -)
 %dir %{_sysconfdir}/centreon-gorgone/config.d
+%{_localstatedir}/lib/centreon-gorgone
 %{_localstatedir}/log/centreon-gorgone
 
 %pre
 %{_bindir}/getent group centreon-gorgone &>/dev/null || %{_sbindir}/groupadd -r centreon-gorgone
-%{_bindir}/getent passwd centreon-gorgone &>/dev/null || %{_sbindir}/useradd -g centreon-gorgone -m -d %{_localstatedir}/log/centreon-gorgone -r centreon-gorgone 2> /dev/null
+%{_bindir}/getent passwd centreon-gorgone &>/dev/null || %{_sbindir}/useradd -g centreon-gorgone -m -d %{_localstatedir}/lib/centreon-gorgone -r centreon-gorgone 2> /dev/null
 
 %files centreon-config
 %{_sysconfdir}/centreon-gorgone/config.d/30-centreon.yaml
