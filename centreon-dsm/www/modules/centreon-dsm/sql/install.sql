@@ -1,5 +1,5 @@
 --
--- Structure de la table `mod_dsm_pool`
+-- `mod_dsm_pool` table structure
 --
 
 CREATE TABLE IF NOT EXISTS `mod_dsm_pool` (
@@ -21,7 +21,7 @@ CREATE TABLE IF NOT EXISTS `mod_dsm_pool` (
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
 
 --
--- Contraintes pour les tables exportées
+-- exported tables constraints
 --
 
 ALTER TABLE `mod_dsm_pool`
@@ -33,7 +33,7 @@ INSERT INTO `topology` (`topology_id`, `topology_name`, `topology_parent`, `topo
 INSERT INTO `topology` (`topology_id`, `topology_name`, `topology_parent`, `topology_page`, `topology_order`, `topology_group`, `topology_url`, `topology_url_opt`, `topology_popup`, `topology_modules`, `topology_show`, `topology_style_class`, `topology_style_id`, `topology_OnClick`) VALUES (NULL, 'Configure', 507, 50711, 10, 11, './modules/centreon-dsm/core/configuration/services/slots.php', NULL, '0', '0', '1', NULL, NULL, NULL);
 
 --
--- Structure de la table `mod_dsm_cache`
+-- `mod_dsm_locks` table structure
 --
 
 CREATE TABLE IF NOT EXISTS centreon_storage.`mod_dsm_cache` (
@@ -46,7 +46,7 @@ CREATE TABLE IF NOT EXISTS centreon_storage.`mod_dsm_cache` (
   `macros` text,
   `output` text,
   PRIMARY KEY (`cache_id`),
-  KEY `cache_mult_idx` (`host_id`,`id`,`cache_id`),
+  KEY `cache_host_id` (`host_id`),
   KEY `pool_prefix` (`pool_prefix`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
 
@@ -66,7 +66,7 @@ CREATE TABLE IF NOT EXISTS centreon_storage.`mod_dsm_locks` (
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
 
 --
--- Structure de la table `mod_dsm_history`
+-- `mod_dsm_history` table structure
 --
 
 CREATE TABLE IF NOT EXISTS centreon_storage.`mod_dsm_history` (
