@@ -84,11 +84,11 @@ rm -rf %{buildroot}
 %attr(755, root, root) %{_sysconfdir}/systemd/system/gorgoned.service
 %config(noreplace) %{_sysconfdir}/sysconfig/gorgoned
 %config(noreplace) %{_sysconfdir}/logrotate.d/gorgoned
-%dir %{_sysconfdir}/centreon-gorgone
-%{_sysconfdir}/centreon-gorgone/config.yaml
 
 %defattr(-, centreon-gorgone, centreon-gorgone, -)
+%dir %{_sysconfdir}/centreon-gorgone
 %dir %{_sysconfdir}/centreon-gorgone/config.d
+%{_sysconfdir}/centreon-gorgone/config.yaml
 %{_localstatedir}/lib/centreon-gorgone
 %{_localstatedir}/log/centreon-gorgone
 
@@ -100,8 +100,11 @@ rm -rf %{buildroot}
 %{_sysconfdir}/centreon-gorgone/config.d/30-centreon.yaml
 
 %post centreon-config
-%{_bindir}/getent passwd centreon &>/dev/null && %{_sbindir}/usermod -a G centreon-gorgone centreon 2> /dev/null
-%{_bindir}/getent passwd centreon-gorgone &>/dev/null && %{_sbindir}/usermod -a G centreon centreon-gorgone 2> /dev/null
+%{_bindir}/getent passwd centreon &>/dev/null && %{_sbindir}/usermod -a -G centreon-gorgone centreon 2> /dev/null
+%{_bindir}/getent passwd centreon-gorgone &>/dev/null && %{_sbindir}/usermod -a -G centreon centreon-gorgone 2> /dev/null
+%{_bindir}/getent passwd centreon-gorgone &>/dev/null && %{_sbindir}/usermod -a -G centreon-engine centreon-gorgone 2> /dev/null
+%{_bindir}/getent passwd centreon-gorgone &>/dev/null && %{_sbindir}/usermod -a -G centreon-broker centreon-gorgone 2> /dev/null
+%{_bindir}/getent passwd centreon-gorgone &>/dev/null && %{_sbindir}/usermod -a -G apache centreon-gorgone 2> /dev/null
 
 %post
 %systemd_post gorgoned.service || :
