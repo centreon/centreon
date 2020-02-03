@@ -810,8 +810,8 @@ sub prepare_remote_copy {
         $localsrc = $options{data}->{content}->{cache_dir} . '/' . $filename;
 
         my $tar_cmd = "tar -czf $localsrc -C '" . $src . "' .";
-        $tar_cmd = " --owner=" . $options{data}->{content}->{owner} if (defined($options{data}->{content}->{owner}) && $options{data}->{content}->{owner} ne '');
-        $tar_cmd = " --group=" . $options{data}->{content}->{group} if (defined($options{data}->{content}->{group}) && $options{data}->{content}->{group} ne '');
+        $tar_cmd .= " --owner=" . $options{data}->{content}->{owner} if (defined($options{data}->{content}->{owner}) && $options{data}->{content}->{owner} ne '');
+        $tar_cmd .= " --group=" . $options{data}->{content}->{group} if (defined($options{data}->{content}->{group}) && $options{data}->{content}->{group} ne '');
         my ($error, $stdout, $exit_code) = gorgone::standard::misc::backtick(
             command => $tar_cmd,
             timeout => (defined($options{timeout})) ? $options{timeout} : 10,
