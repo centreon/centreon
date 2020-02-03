@@ -27,7 +27,7 @@ sub new {
     bless $self, $class;
 
     $self->add_options(
-        "config-extra=s" => \$self->{opt_extra},
+        'config-extra=s' => \$self->{opt_extra},
     );
 
     $self->{whoami} = getpwuid($<);
@@ -165,10 +165,11 @@ sub submit_split {
         $options{cmd} =~ s/"/\\"/g;
         $submit = "su -l " . $self->{dsmd_config}->{centreon_user} . " -c '/bin/echo \"$options{cmd}\" >> " . $self->{cmdDir} . "/" . $datetime . "-dsm' 2>&1";
     }
-    my ($lerror, $stdout) = centreon::common::misc::backtick(command => $submit,
-                                                             logger => $self->{logger},
-                                                             timeout => $self->{dsmd_config}->{submit_command_timeout}
-                                                             );
+    my ($lerror, $stdout) = centreon::common::misc::backtick(
+        command => $submit,
+        logger => $self->{logger},
+        timeout => $self->{dsmd_config}->{submit_command_timeout}
+    );
 
     $self->{logger}->writeLogInfo("SUBMIT: Force service status via passive check update");
     $self->{logger}->writeLogInfo("SUBMIT: Launched command: $submit");
@@ -225,9 +226,16 @@ sub get_alarms {
     $self->{current_alarms} = [];
     $self->{current_pools_status} = {};
 
-    my ($status, $sth) = $self->{db_centstorage}->query("SELECT `cache_id`, `host_id`, `ctime`, `status`, `pool_prefix`, `id`, `macros`, `output` FROM mod_dsm_cache");
+    # if hosts is disabled: it's an host on the wrong instance or instance is not running. otherwise we care about enabled only.
+    my ($status, $sth) = $self->{db_centstorage}->query(
+        "SELECT mdc.`cache_id`, mdc.`host_id`, mdc.`ctime`, mdc.`status`, mdc.`pool_prefix`, mdc.`id`, mdc.`macros`, mdc.`output`
+         FROM mod_dsm_cache mdc, hosts
+         WHERE mdc.host_id = hosts.host_id AND
+               hosts.enabled = '1'
+         "
+    );
     if ($status == -1) {
-        $self->{logger}->writeLogError("Cannot get alarms");
+        $self->{logger}->writeLogError('cannot get alarms');
         return 1;
     }
 
@@ -236,14 +244,16 @@ sub get_alarms {
     while (my $row = ( shift(@$rows) || # get row from cache, or reload cache:
                        shift(@{$rows = $sth->fetchall_arrayref(undef, $self->{dsmd_config}->{sql_fetch})||[]})) ) {
         push @{$self->{current_alarms}}, $row;
-        push @sql_where, "(services.host_id = $$row[1] AND services.description LIKE " . $self->{db_centstorage}->quote($$row[4] . '%') . ")";
+        push @sql_where, "(services.host_id = $row->[1] AND services.description LIKE " . $self->{db_centstorage}->quote($row->[4] . '%') . ")";
     }
 
     return 1 if (scalar(@{$self->{current_alarms}}) == 0);
 
-    ($status, $sth) = $self->{db_centstorage}->query("SELECT hosts.`name`, hosts.`instance_id`, services.`host_id`, services.`service_id`, services.`description`, services.`last_check`, services.`state`, cv.`value` FROM services " .
+    ($status, $sth) = $self->{db_centstorage}->query(
+        "SELECT hosts.`name`, hosts.`instance_id`, services.`host_id`, services.`service_id`, services.`description`, services.`last_check`, services.`state`, cv.`value` FROM services " .
         "LEFT JOIN customvariables cv ON cv.host_id = services.host_id AND cv.service_id = services.service_id AND cv.name = '" . $self->{dsmd_config}->{macro_config} . "', hosts " .
-        "WHERE (" . join('OR', @sql_where) . ") AND services.enabled = '1' AND services.host_id = hosts.host_id");
+        "WHERE (" . join('OR', @sql_where) . ") AND services.enabled = '1' AND services.host_id = hosts.host_id"
+    );
     if ($status == -1) {
         $self->{logger}->writeLogError("Cannot get alarms");
         return 1;
@@ -252,10 +262,14 @@ sub get_alarms {
     $rows = [];
     while (my $row = ( shift(@$rows) || # get row from cache, or reload cache:
                        shift(@{$rows = $sth->fetchall_arrayref(undef, $self->{dsmd_config}->{sql_fetch})||[]})) ) {
-        $self->{current_pools_status}->{$$row[2]} = {} if (!defined($self->{current_pools_status}->{$$row[2]}));
-        $self->{current_pools_status}->{$$row[2]}->{$$row[4]} = {
-            host_name => $$row[0], instance_id => $$row[1], service_id => $$row[3],
-            last_check => $$row[5], state => $$row[6], alarm_id => $$row[7]
+        $self->{current_pools_status}->{$row->[2]} = {} if (!defined($self->{current_pools_status}->{$row->[2]}));
+        $self->{current_pools_status}->{$row->[2]}->{$row->[4]} = {
+            host_name => $row->[0],
+            instance_id => $row->[1],
+            service_id => $row->[3],
+            last_check => $row->[5],
+            state => $row->[6],
+            alarm_id => $row->[7]
         };
     }
 
@@ -334,8 +348,10 @@ sub clean_locks {
     $self->{logger}->writeLogInfo("clean locks checked");
     foreach (keys %{$self->{cache_locks}}) {
         if (($current_time - $self->{cache_locks}->{$_}->[3]) > $self->{dsmd_config}->{clean_locks_keep_stored}) {
-            $self->delete_locks(id => $_,
-                                lock_id => $self->{cache_locks}->{$_}->[0]);
+            $self->delete_locks(
+                id => $_,
+                lock_id => $self->{cache_locks}->{$_}->[0]
+            );
         }
     }
     $self->{last_clean_locks_time} = time();
@@ -391,8 +407,11 @@ sub custom_macros {
     return if (!defined($options{macros}) || $options{macros} eq '');
     foreach (split /\|/, $options{macros}) {
         if (/^(.*?)=(.*)/) {
-            $self->add_command(instance_id => $options{instance_id}, time => $options{time},
-                command => "CHANGE_CUSTOM_SVC_VAR;$options{host_name};$options{service_description};$1;$2");
+            $self->add_command(
+                instance_id => $options{instance_id},
+                time => $options{time},
+                command => "CHANGE_CUSTOM_SVC_VAR;$options{host_name};$options{service_description};$1;$2"
+            );
         }
     }
 }
@@ -439,8 +458,13 @@ sub manage_alarm_ok {
     my $output = defined($options{alarm}->[7]) ? $options{alarm}->[7] : 'Free Slot';
     $self->add_command(instance_id => $data->{instance_id}, time => $options{alarm}->[2], command => "PROCESS_SERVICE_CHECK_RESULT;$data->{host_name};$service_description;0;$output");
     $self->add_command(instance_id => $data->{instance_id}, time => $options{alarm}->[2], command => "CHANGE_CUSTOM_SVC_VAR;$data->{host_name};$service_description;$self->{dsmd_config}->{macro_config};$options{alarm_id}");
-    $self->custom_macros(instance_id => $data->{instance_id}, time => $options{alarm}->[2],
-        host_name => $data->{host_name}, service_description => $service_description, macros => $options{alarm}->[6]);
+    $self->custom_macros(
+        instance_id => $data->{instance_id},
+        time => $options{alarm}->[2],
+        host_name => $data->{host_name},
+        service_description => $service_description,
+        macros => $options{alarm}->[6]
+    );
 }
 
 sub manage_alarm_error {
@@ -466,8 +490,13 @@ sub manage_alarm_error {
     my $output = defined($options{alarm}->[7]) ? $options{alarm}->[7] : '';
     $self->add_command(instance_id => $data2->{instance_id}, time => $options{alarm}->[2], command => "PROCESS_SERVICE_CHECK_RESULT;$data2->{host_name};$service2;$options{alarm}->[3];$output");
     $self->add_command(instance_id => $data2->{instance_id}, time => $options{alarm}->[2], command => "CHANGE_CUSTOM_SVC_VAR;$data2->{host_name};$service2;$self->{dsmd_config}->{macro_config};$options{alarm_id}");
-    $self->custom_macros(instance_id => $data->{instance_id}, time => $options{alarm}->[2],
-        host_name => $data2->{host_name}, service_description => $service2, macros => $options{alarm}->[6]);
+    $self->custom_macros(
+        instance_id => $data->{instance_id},
+        time => $options{alarm}->[2],
+        host_name => $data2->{host_name},
+        service_description => $service2,
+        macros => $options{alarm}->[6]
+    );
 }
 
 sub manage_alarms {
