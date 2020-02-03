@@ -272,6 +272,12 @@ sub action_processcopy {
                 }
             } elsif ($options{data}->{content}->{type} eq "regular") {
                 copy($cache_file, $options{data}->{content}->{destination});
+                my $uid = getpwnam($options{data}->{content}->{owner});
+                my $gid = getgrnam($options{data}->{content}->{group});
+                use Data::Dumper;
+                print Dumper $uid;
+                print Dumper $gid;
+                chown($uid, $gid, $options{data}->{content}->{destination});
             }
         } else {
             $self->send_log(

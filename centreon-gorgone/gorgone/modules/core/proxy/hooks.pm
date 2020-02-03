@@ -809,8 +809,11 @@ sub prepare_remote_copy {
         $filename = (defined($options{data}->{content}->{type}) ? $options{data}->{content}->{type} : 'tmp') . '-' . $options{target} . '.tar.gz';
         $localsrc = $options{data}->{content}->{cache_dir} . '/' . $filename;
 
+        my $tar_cmd = "tar -czf $localsrc -C '" . $src . "' .";
+        $tar_cmd = " --owner=" . $options{data}->{content}->{owner} if (defined($options{data}->{content}->{owner}) && $options{data}->{content}->{owner} ne '');
+        $tar_cmd = " --group=" . $options{data}->{content}->{group} if (defined($options{data}->{content}->{group}) && $options{data}->{content}->{group} ne '');
         my ($error, $stdout, $exit_code) = gorgone::standard::misc::backtick(
-            command => "tar -czf $localsrc -C '" . $src . "' .",
+            command => $tar_cmd,
             timeout => (defined($options{timeout})) ? $options{timeout} : 10,
             wait_exit => 1,
             redirect_stderr => 1,
@@ -877,6 +880,8 @@ sub prepare_remote_copy {
             md5 => file_md5_hex($localsrc),
             destination => $dst,
             cache_dir => $options{data}->{content}->{cache_dir},
+            owner => $options{data}->{content}->{owner},
+            group => $options{data}->{content}->{group},
         },
         parameters => { no_fork => 1 }
     };

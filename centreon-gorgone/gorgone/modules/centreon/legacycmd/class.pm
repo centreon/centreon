@@ -198,6 +198,8 @@ sub execute_cmd {
                     source => $cache_dir . '/config/engine/' . $options{target},
                     destination => $self->{pollers}->{$options{target}}->{cfg_dir} . '/',
                     cache_dir => $cache_dir,
+                    owner => 'centreon-engine',
+                    group => 'centreon-engine',
                     metadata => {
                         centcore_cmd => 'SENDCFGFILE',
                     }
@@ -214,6 +216,8 @@ sub execute_cmd {
                     source => $cache_dir . '/config/broker/' . $options{target},
                     destination => $self->{pollers}->{$options{target}}->{centreonbroker_cfg_path} . '/',
                     cache_dir => $cache_dir,
+                    owner => 'centreon-broker',
+                    group => 'centreon-broker',
                     metadata => {
                         centcore_proxy => 1,
                         centcore_cmd => 'SENDCFGFILE',
@@ -236,6 +240,8 @@ sub execute_cmd {
                     source => $cache_dir . '/config/export/' . $options{target},
                     destination => $remote_dir,
                     cache_dir => $cache_dir,
+                    owner => 'centreon',
+                    group => 'centreon',
                     metadata => {
                         centcore_cmd => 'SENDEXPORTFILE',
                     }
@@ -278,6 +284,8 @@ sub execute_cmd {
                     source => $cache_dir_trap . '/' . $options{target} . '/centreontrapd.sdb',
                     destination => $self->{pollers}->{$options{target}}->{snmp_trapd_path_conf} . '/',
                     cache_dir => $cache_dir,
+                    owner => 'centreon',
+                    group => 'centreon',
                     metadata => {
                         centcore_proxy => 1,
                         centcore_cmd => 'SYNCTRAP',
