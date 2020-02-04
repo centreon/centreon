@@ -39,6 +39,7 @@ AutoReqProv: no
 Summary:    Configure Centreon Gorgone for use with Centreon Web
 Group:      Networking/Other
 Requires:   centreon-common
+Requires:   centreon-gorgone
 
 %description centreon-config
 
