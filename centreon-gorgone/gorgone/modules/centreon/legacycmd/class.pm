@@ -229,7 +229,7 @@ sub execute_cmd {
         my $cache_dir = (defined($connector->{config}->{cache_dir})) ?
             $connector->{config}->{cache_dir} : '/var/cache/centreon';
         my $remote_dir = (defined($connector->{config}->{remote_dir})) ?
-            $connector->{config}->{remote_dir} : '/var/lib/centreon/remote-data/';
+            $connector->{config}->{remote_dir} : '/var/cache/centreon/config/remote-data/';
         # remote server
         $self->send_internal_action(
             action => 'REMOTECOPY',

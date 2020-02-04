@@ -147,7 +147,7 @@ configuration:
         cmd_file: "$centreon_config->{VarLib}/centcore.cmd"
         cache_dir: "$centreon_config->{CacheDir}"
         cache_dir_trap: "/etc/snmp/centreon_traps/"
-        remote_dir: "$centreon_config->{VarLib}/remote-data/"
+        remote_dir: "$centreon_config->{CacheDir}/config/remote-data/"
 END_FILE
 
     print $fh $content;
