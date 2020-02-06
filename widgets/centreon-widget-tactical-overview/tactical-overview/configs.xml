@@ -3,7 +3,7 @@
     <author>Centreon</author>
     <email>contact@centreon.com</email>
     <website>http://www.centreon.com</website>
-    <description>This widget displays in a table the number of resources by status, also indicating the unhandled, acknowledged or downtime state. This widget is available for hosts or for services.</description>
+    <description>Widget for displaying Host Status and service status Summary</description>
     <version>20.04.0</version>
     <keywords>centreon, widget, host, monitoring, service</keywords>
     <screenshot></screenshot>
