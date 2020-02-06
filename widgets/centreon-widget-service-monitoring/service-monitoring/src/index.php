@@ -1,6 +1,6 @@
 <?php
 /*
- * Copyright 2005-2019 Centreon
+ * Copyright 2005-2020 Centreon
  * Centreon is developed by : Julien Mathis and Romain Le Merlus under
  * GPL Licence 2.0.
  *
@@ -71,8 +71,8 @@ $media = new CentreonMedia($db);
 
 $centreon = $_SESSION['centreon'];
 $centreonWebPath = trim($centreon->optGen['oreon_web_path'], '/');
-$widgetId = $_REQUEST['widgetId'];
-$page = $_REQUEST['page'];
+$widgetId = filter_input(INPUT_GET, 'widgetId', FILTER_VALIDATE_INT, ['options' => ['default' => 0]]);
+$page = filter_input(INPUT_GET, 'page', FILTER_VALIDATE_INT, ['options' => ['default' => 0]]);
 
 /**
  * @var $dbb CentreonDB
@@ -107,40 +107,40 @@ $mainQueryParameters = [];
 
 // Build Query
 $query = 'SELECT SQL_CALC_FOUND_ROWS h.host_id,
-        h.name as hostname,
-        h.alias as hostalias,
-        s.latency,
-        s.execution_time,
-        h.state as h_state,
-        s.service_id,
-        s.description,
-        s.state as s_state,
-        h.state_type as state_type,
-        s.last_hard_state,
-        s.output,
-        s.scheduled_downtime_depth as s_scheduled_downtime_depth,
-        s.acknowledged as s_acknowledged,
-        s.notify as s_notify,
-        s.perfdata,
-        s.active_checks as s_active_checks,
-        s.passive_checks as s_passive_checks,
-        h.scheduled_downtime_depth as h_scheduled_downtime_depth,
-        h.acknowledged as h_acknowledged,
-        h.notify as h_notify,
-        h.active_checks as h_active_checks,
-        h.passive_checks as h_passive_checks,
-        s.last_check,
-        s.last_state_change,
-        s.last_hard_state_change,
-        s.check_attempt,
-        s.max_check_attempts,
-        h.action_url as h_action_url,
-        h.notes_url as h_notes_url,
-        s.action_url as s_action_url,
-        s.notes_url as s_notes_url,
-        cv2.value AS criticality_id,
-        cv.value AS criticality_level,
-        h.icon_image
+    h.name as hostname,
+    h.alias as hostalias,
+    s.latency,
+    s.execution_time,
+    h.state as h_state,
+    s.service_id,
+    s.description,
+    s.state as s_state,
+    h.state_type as state_type,
+    s.last_hard_state,
+    s.output,
+    s.scheduled_downtime_depth as s_scheduled_downtime_depth,
+    s.acknowledged as s_acknowledged,
+    s.notify as s_notify,
+    s.perfdata,
+    s.active_checks as s_active_checks,
+    s.passive_checks as s_passive_checks,
+    h.scheduled_downtime_depth as h_scheduled_downtime_depth,
+    h.acknowledged as h_acknowledged,
+    h.notify as h_notify,
+    h.active_checks as h_active_checks,
+    h.passive_checks as h_passive_checks,
+    s.last_check,
+    s.last_state_change,
+    s.last_hard_state_change,
+    s.check_attempt,
+    s.max_check_attempts,
+    h.action_url as h_action_url,
+    h.notes_url as h_notes_url,
+    s.action_url as s_action_url,
+    s.notes_url as s_notes_url,
+    cv2.value AS criticality_id,
+    cv.value AS criticality_level,
+    h.icon_image
     FROM hosts h JOIN instances i ON h.instance_id=i.instance_id, services s
     LEFT JOIN customvariables cv ON (
         s.service_id = cv.service_id
@@ -382,7 +382,8 @@ if (trim($orderBy)) {
     $query .= "ORDER BY " . $orderBy;
 }
 
-$query .= " LIMIT " . ($page * $preferences['entries']) . "," . $preferences['entries'];
+$num = filter_var($preferences['entries'], FILTER_VALIDATE_INT) ?: 10;
+$query .= " LIMIT " . ($page * $num) . "," . $num;
 
 $res = $dbb->prepare($query);
 
@@ -395,8 +396,8 @@ $res->execute();
 
 $nbRows = $dbb->numberRows();
 $data = [];
-$outputLength = $preferences['output_length'] ? $preferences['output_length'] : 50;
-$commentLength = $preferences['comment_length'] ? $preferences['comment_length'] : 50;
+$outputLength = $preferences['output_length'] ?: 50;
+$commentLength = $preferences['comment_length'] ?: 50;
 
 $hostObj = new CentreonHost($db);
 $svcObj = new CentreonService($db);
@@ -579,7 +580,9 @@ while ($row = $res->fetch()) {
     );
 }
 
-$autoRefresh = $preferences['refresh_interval'];
+$autoRefresh = (isset($preferences['refresh_interval']) && (int)$preferences['refresh_interval'] > 0)
+    ? (int)$preferences['refresh_interval']
+    : 30;
 $template->assign('widgetId', $widgetId);
 $template->assign('autoRefresh', $autoRefresh);
 $template->assign('preferences', $preferences);

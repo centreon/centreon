@@ -1,6 +1,6 @@
 <?php
 /*
- * Copyright 2005-2019 Centreon
+ * Copyright 2005-2020 Centreon
  * Centreon is developed by : Julien Mathis and Romain Le Merlus under
  * GPL Licence 2.0.
  *
@@ -44,16 +44,15 @@ if (!isset($_SESSION['centreon']) || !isset($_REQUEST['widgetId'])) {
     exit();
 }
 $centreon = $_SESSION['centreon'];
-$widgetId = $_REQUEST['widgetId'];
+$widgetId = filter_input(INPUT_GET, 'widgetId', FILTER_VALIDATE_INT, ['options' => ['default' => 0]]);
 
 try {
     $db = $dependencyInjector['configuration_db'];
     $widgetObj = new CentreonWidget($centreon, $db);
     $preferences = $widgetObj->getWidgetPreferences($widgetId);
-    $autoRefresh = 0;
-    if (isset($preferences['refresh_interval'])) {
-        $autoRefresh = $preferences['refresh_interval'];
-    }
+    $autoRefresh = (isset($preferences['refresh_interval']) && (int)$preferences['refresh_interval'] > 0)
+        ? (int)$preferences['refresh_interval']
+        : 30;
 } catch (Exception $e) {
     echo $e->getMessage() . "<br/>";
     exit;

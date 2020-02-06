@@ -1,6 +1,6 @@
 <?php
-/**
- * Copyright 2005-2019 Centreon
+/*
+ * Copyright 2005-2020 Centreon
  * Centreon is developed by : Julien Mathis and Romain Le Merlus under
  * GPL Licence 2.0.
  *
@@ -32,6 +32,7 @@
  * For more information : contact@centreon.com
  *
  */
+
 require_once "../../require.php";
 require_once $centreon_path . 'www/class/centreon.class.php';
 require_once $centreon_path . 'www/class/centreonSession.class.php';
@@ -58,8 +59,8 @@ try {
     }
     $centreon = $_SESSION['centreon'];
     $oreon = $centreon;
-    $cmd = $_REQUEST['cmd'];
-    $wId = $_REQUEST['wid'];
+    $cmd = filter_input(INPUT_GET, 'cmd', FILTER_VALIDATE_INT, ['options' => ['default' => 0]]);
+    $wId = filter_input(INPUT_GET, 'wid', FILTER_VALIDATE_INT, ['options' => ['default' => 0]]);
     $selections = explode(",", $_REQUEST['selection']);
     $externalCmd = new CentreonExternalCommand($centreon);
 
@@ -270,9 +271,9 @@ try {
                 if (count($tmp) != 2) {
                     throw new Exception('Incorrect id format');
                 }
-                $hostId = $tmp[0];
-                $svcId = $tmp[1];
-                if ($hostId != 0 && $svcId != 0) {
+                $hostId = filter_var($tmp[0], FILTER_VALIDATE_INT) ?: 0;
+                $svcId = filter_var($tmp[1], FILTER_VALIDATE_INT) ?: 0;
+                if ($hostId !== 0 && $svcId !== 0) {
                     $hostname = $hostObj->getHostName($hostId);
                     $svcDesc = $svcObj->getServiceDesc($svcId);
                     if ($isSvcCommand === true) {

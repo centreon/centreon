@@ -1,6 +1,6 @@
 <?php
 /*
- * Copyright 2005-2019 Centreon
+ * Copyright 2005-2020 Centreon
  * Centreon is developed by : Julien Mathis and Romain Le Merlus under
  * GPL Licence 2.0.
  *
@@ -53,7 +53,7 @@ $template = new Smarty();
 $template = initSmartyTplForPopup($path, $template, "./", $centreon_path);
 
 $centreon = $_SESSION['centreon'];
-$widgetId = $_POST['widgetId'];
+$widgetId = filter_input(INPUT_POST, 'widgetId', FILTER_VALIDATE_INT, ['options' => ['default' => 0]]);
 $db = $dependencyInjector['configuration_db'];
 $widgetObj = new CentreonWidget($centreon, $db);
 $preferences = $widgetObj->getWidgetPreferences($widgetId);
@@ -105,7 +105,7 @@ if ($canDoAction || $centreon->user->access->checkAction("host_checks")) {
     $actions .= "<option value='93'>"._("Host: Disable Host Check")."</option>";
 }
 
-$template->assign("widgetId", $_POST['widgetId']);
+$template->assign("widgetId", $widgetId);
 $template->assign("actions", $actions);
 $template->display('toolbar.ihtml');
 
@@ -129,7 +129,7 @@ jQuery( function() {
                 .get().join(",");
 
             if (checkValues != '') {
-                var url = "./widgets/service-monitoring/src/action.php?selection="+checkValues+
+                var url = "./widgets/service-monitoring/src/action.php?selection=" + checkValues +
                     "&cmd=" + jQuery(this).val() + "&wid=" + wid;
                 parent.jQuery('#widgetPopin').parent().remove();
                 var popin = parent.jQuery('<div id="widgetPopin">');
