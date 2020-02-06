@@ -1,7 +1,7 @@
 <?php
-/**
- * Copyright 2005-2011 MERETHIS
- * Centreon is developped by : Julien Mathis and Romain Le Merlus under
+/*
+ * Copyright 2005-2020 Centreon
+ * Centreon is developed by : Julien Mathis and Romain Le Merlus under
  * GPL Licence 2.0.
  *
  * This program is free software; you can redistribute it and/or modify it under
@@ -19,11 +19,11 @@
  * combined work based on this program. Thus, the terms and conditions of the GNU
  * General Public License cover the whole combination.
  *
- * As a special exception, the copyright holders of this program give MERETHIS
+ * As a special exception, the copyright holders of this program give CENTREON
  * permission to link this program with independent modules to produce an executable,
  * regardless of the license terms of these independent modules, and to copy and
- * distribute the resulting executable under terms of MERETHIS choice, provided that
- * MERETHIS also meet, for each linked independent module, the terms  and conditions
+ * distribute the resulting executable under terms of CENTREON choice, provided that
+ * CENTREON also meet, for each linked independent module, the terms  and conditions
  * of the license of that module. An independent module is a module which is not
  * derived from this program. If you modify this program, you may extend this
  * exception to your version of the program, but you are not obliged to do so. If you
@@ -57,19 +57,18 @@ try {
     if (CentreonSession::checkSession(session_id(), $db) == 0) {
         throw new Exception('Invalid session');
     }
-    $type = $_POST['cmdType'];
     $centreon = $_SESSION['centreon'];
-    $hosts = explode(',', $_POST['hosts']);
     $oreon = $centreon;
+
+    $type = filter_input(INPUT_POST, 'cmdType', FILTER_SANITIZE_STRING, ['options' => ['default' => '']]);
+    //@TODO choose what to do with harmful names and comments
+    $author = filter_input(INPUT_POST, 'author', FILTER_SANITIZE_STRING, ['options' => ['default' => '']]);
+    $comment = filter_input(INPUT_POST, 'comment', FILTER_SANITIZE_STRING, ['options' => ['default' => '']]) ?? '';
+
     $externalCmd = new CentreonExternalCommand($centreon);
     $hostObj = new CentreonHost($db);
     $svcObj = new CentreonService($db);
     $command = "";
-    $author = $_POST['author'];
-    $comment = "";
-    if (isset($_POST['comment'])) {
-        $comment = $_POST['comment'];
-    }
     if ($type == 'ack') {
         $persistent = 0;
         $sticky = 0;
@@ -126,8 +125,10 @@ try {
         if (method_exists($externalCmd, 'setProcessCommand')) {
             $externalCommandMethod = 'setProcessCommand';
         }
+        $hosts = explode(',', $_POST['hosts']);
         foreach ($hosts as $hostId) {
-            if ($hostId != 0) {
+            $hostId = filter_var($hostId, FILTER_VALIDATE_INT) ?: 0;
+            if ($hostId !== 0) {
                 $hostname = $hostObj->getHostName($hostId);
                 $pollerId = $hostObj->getHostPollerId($hostId);
                 $externalCmd->$externalCommandMethod(sprintf($command, $hostname), $pollerId);

@@ -1,6 +1,6 @@
 <?php
 /*
- * Copyright 2005-2018 Centreon
+ * Copyright 2005-2020 Centreon
  * Centreon is developed by : Julien Mathis and Romain Le Merlus under
  * GPL Licence 2.0.
  *
@@ -19,11 +19,11 @@
  * combined work based on this program. Thus, the terms and conditions of the GNU
  * General Public License cover the whole combination.
  *
- * As a special exception, the copyright holders of this program give Centreon
+ * As a special exception, the copyright holders of this program give CENTREON
  * permission to link this program with independent modules to produce an executable,
  * regardless of the license terms of these independent modules, and to copy and
- * distribute the resulting executable under terms of Centreon choice, provided that
- * Centreon also meet, for each linked independent module, the terms  and conditions
+ * distribute the resulting executable under terms of CENTREON choice, provided that
+ * CENTREON also meet, for each linked independent module, the terms  and conditions
  * of the license of that module. An independent module is a module which is not
  * derived from this program. If you modify this program, you may extend this
  * exception to your version of the program, but you are not obliged to do so. If you
@@ -58,10 +58,16 @@ try {
     }
     $centreon = $_SESSION['centreon'];
     $oreon = $centreon;
-    $cmd = $_REQUEST['cmd'];
-    $hosts = explode(",", $_REQUEST['selection']);
-    $externalCmd = new CentreonExternalCommand($centreon);
+    $cmd = filter_input(INPUT_GET, 'cmd', FILTER_VALIDATE_INT, ['options' => ['default' => 0]]);
 
+    $selection = '';
+    $hosts = explode(",", $_GET['selection']);
+    foreach($hosts as $host) {
+        $selection .= (filter_var($host, FILTER_VALIDATE_INT) ?: 0) . ',';
+    }
+    $selection = rtrim($selection, ',');
+
+    $externalCmd = new CentreonExternalCommand($centreon);
     $hostObj = new CentreonHost($db);
     $successMsg = _("External Command successfully submitted... Exiting window...");
     $result = 0;
@@ -96,7 +102,7 @@ try {
         $template->assign('durationLabel', _("Duration"));
         $template->assign('startLabel', _("Start"));
         $template->assign('endLabel', _("End"));
-        $template->assign('hosts', $_REQUEST['selection']);
+        $template->assign('hosts', $selection);
         $template->assign('author', $centreon->user->name);
         if ($cmd == 72) {
             $template->assign('ackHostSvcLabel', _("Acknowledge services of hosts"));
@@ -214,7 +220,8 @@ try {
                 $externalCommandMethod = 'setProcessCommand';
             }
             foreach ($hosts as $hostId) {
-                if ($hostId != 0) {
+                $hostId = filter_var($hostId, FILTER_VALIDATE_INT) ?: 0;
+                if ($hostId !== 0) {
                     $externalCmd->$externalCommandMethod(sprintf(
                         $command, $hostObj->getHostName($hostId)),
                         $hostObj->getHostPollerId($hostId)

@@ -1,7 +1,7 @@
 <?php
-/**
- * Copyright 2005-2011 MERETHIS
- * Centreon is developped by : Julien Mathis and Romain Le Merlus under
+/*
+ * Copyright 2005-2020 Centreon
+ * Centreon is developed by : Julien Mathis and Romain Le Merlus under
  * GPL Licence 2.0.
  *
  * This program is free software; you can redistribute it and/or modify it under
@@ -19,11 +19,11 @@
  * combined work based on this program. Thus, the terms and conditions of the GNU
  * General Public License cover the whole combination.
  *
- * As a special exception, the copyright holders of this program give MERETHIS
+ * As a special exception, the copyright holders of this program give CENTREON
  * permission to link this program with independent modules to produce an executable,
  * regardless of the license terms of these independent modules, and to copy and
- * distribute the resulting executable under terms of MERETHIS choice, provided that
- * MERETHIS also meet, for each linked independent module, the terms  and conditions
+ * distribute the resulting executable under terms of CENTREON choice, provided that
+ * CENTREON also meet, for each linked independent module, the terms  and conditions
  * of the license of that module. An independent module is a module which is not
  * derived from this program. If you modify this program, you may extend this
  * exception to your version of the program, but you are not obliged to do so. If you
@@ -33,31 +33,38 @@
  *
  */
 
-function getColors($db) {
-  $stateColors = array(0 => "#88b917",
-		       1 => "#e00b3d",
-		       2 => "#82CFD8",
-		       4 => "#2ad1d4");
+function getColors($db)
+{
+    $stateColors = array(
+        0 => "#88b917",
+        1 => "#e00b3d",
+        2 => "#82CFD8",
+        4 => "#2ad1d4"
+    );
 
-  // Get configured colors
-  $res = $db->query("SELECT `key`, `value` FROM `options` WHERE `key` LIKE 'color%'");
-  while ($row = $res->fetchRow()) {
-    if ($row['key'] == "color_up") {
-      $stateColors[0] = $row['value'];
-    } elseif ($row['key'] == "color_down") {
-      $stateColors[1] = $row['value'];
-    } elseif ($row['key'] == "color_unreachable") {
-      $stateColors[2] = $row['value'];
-    } elseif ($row['key'] == "color_pending") {
-      $stateColors[4] = $row['value'];
+    // Get configured colors
+    $res = $db->query("SELECT `key`, `value` FROM `options` WHERE `key` LIKE 'color%'");
+    while ($row = $res->fetchRow()) {
+        if ($row['key'] === "color_up") {
+            $stateColors[0] = $row['value'];
+        } elseif ($row['key'] === "color_down") {
+            $stateColors[1] = $row['value'];
+        } elseif ($row['key'] === "color_unreachable") {
+            $stateColors[2] = $row['value'];
+        } elseif ($row['key'] === "color_pending") {
+            $stateColors[4] = $row['value'];
+        }
     }
-  }
-  return $stateColors;
+
+    return $stateColors;
 }
 
-function getLabels() {
-  return array(0 => "Up",
-	       1 => "Down",
-	       2 => "Unreachable",
-	       4 => "Pending");
+function getLabels()
+{
+    return array(
+        0 => "Up",
+        1 => "Down",
+        2 => "Unreachable",
+        4 => "Pending"
+    );
 }
