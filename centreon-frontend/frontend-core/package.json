@@ -29,7 +29,12 @@
     "eslint-plugin-jsx-a11y": "6.x",
     "eslint-plugin-react": "7.x",
     "eslint-plugin-react-hooks": "1.x",
-    "eslint-plugin-prefer-arrow-functions": "3.x"
+    "eslint-plugin-prefer-arrow-functions": "3.x",
+    "@babel/preset-react": "7.x",
+    "@babel/preset-env": "7.x",
+    "@babel/plugin-proposal-class-properties": "7.x",
+    "babel-jest": "25.x",
+    "babel-loader": "8.x"
   },
   "devDependencies": {
     "@typescript-eslint/parser": "^2.17.0",
