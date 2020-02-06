@@ -1,11 +1,10 @@
 module.exports = {
-  context: __dirname,
   resolve: {
     extensions: ['.js', '.jsx'],
   },
   output: {
     libraryTarget: 'umd',
-    umdNamedDefined: true,
+    umdNamedDefine: true,
   },
   optimization: {
     splitChunks: {
