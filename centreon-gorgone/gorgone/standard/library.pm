@@ -443,7 +443,7 @@ sub synclogs {
         my $name = $options{gorgone}->{modules_id}->{$options{gorgone_config}->{gorgonecore}->{proxy_name}};
         my $method;
         if (defined($name) && ($method = $name->can('synclog'))) {
-            $method->(dbh => $options{gorgone}->{db_gorgone});
+            $method->(dbh => $options{gorgone}->{db_gorgone}, logger => $options{gorgone}->{logger});
             return (0, { action => 'synclog', message => 'synclog launched' });
         }
     }
