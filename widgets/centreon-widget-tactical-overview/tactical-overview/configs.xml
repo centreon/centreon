@@ -15,6 +15,6 @@
             <option value="hosts" label="Hosts"/>
             <option value="services" label="Services"/>
         </preference>
-        <preference label="Auto Refresh" name="autoRefresh" defaultValue="30" type="integer"/>
+        <preference label="Refresh Interval (seconds)" name="autoRefresh" defaultValue="30" type="text"/>
     </preferences>
 </configs>
