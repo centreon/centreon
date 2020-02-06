@@ -1,5 +1,3 @@
-# eslint-config-centreon
+# Centreon frontend-core
 
-[![npm version](https://badge.fury.io/js/%40centreon%2Feslint-config-centreon.svg)](https://badge.fury.io/js/%40centreon%2Feslint-config-centreon.svg)
-
-This package provides Centreon's .eslintrc as an extensible shared config.
+This repository stores the Frontend build configuration shared accross Centreon's projects.

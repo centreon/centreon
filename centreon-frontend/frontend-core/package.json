@@ -1,11 +1,11 @@
 {
-  "name": "@centreon/eslint-config-centreon",
-  "description": "centreon eslint configuration",
-  "version": "1.2.2",
+  "name": "@centreon/frontend-core",
+  "description": "Centreon Frontend shared build configuration",
+  "version": "1.0.0",
   "main": "index.js",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/centreon/eslint-config-centreon.git"
+    "url": "git+https://github.com/centreon/frontend-core.git"
   },
   "keywords": [
     "centreon",
@@ -14,9 +14,9 @@
   "author": "centreon@centreon.com",
   "license": "GPL-2.0",
   "bugs": {
-    "url": "https://github.com/centreon/eslint-config-centreon/issues"
+    "url": "https://github.com/centreon/frontend-core/issues"
   },
-  "homepage": "https://github.com/centreon/eslint-config-centreon#readme",
+  "homepage": "https://github.com/centreon/frontend-core#readme",
   "peerDependencies": {
     "prettier": "1.x",
     "eslint-config-prettier": "6.x",
@@ -37,8 +37,13 @@
     "babel-loader": "8.x"
   },
   "devDependencies": {
-    "@typescript-eslint/parser": "^2.17.0",
+    "@babel/core": "^7.8.4",
+    "@typescript-eslint/parser": "^2.19.0",
     "babel-eslint": "^10.0.3",
-    "typescript": "^3.7.5"
+    "babel-merge": "^3.0.0",
+    "eslint": "^6.8.0",
+    "eslint-config-airbnb": "^18.0.1",
+    "typescript": "^3.7.5",
+    "webpack-merge": "^4.2.2"
   }
 }

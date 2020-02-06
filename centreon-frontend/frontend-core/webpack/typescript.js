@@ -1,13 +1,18 @@
+const merge = require('webpack-merge');
+
 const webpackConfig = require('.');
 
-webpackConfig.module.rules = [
-  ...webpackConfig.module.rules,
-  {
-    test: /\.tsx?$/,
-    exclude: /node_modules/,
-    use: ['babel-loader', 'awesome-typescript-loader'],
-  }
-];
-webpackConfig.resolve.extensions = ['.js', '.jsx', '.ts', '.tsx'],
-
-module.exports = webpackConfig;
+module.exports = merge(webpackConfig, {
+  resolve: {
+    extensions: ['.js', '.jsx', '.ts', '.tsx'],
+  },
+  module: {
+    rules: [
+      {
+        test: /\.tsx?$/,
+        exclude: /node_modules/,
+        use: ['babel-loader', 'awesome-typescript-loader'],
+      },
+    ],
+  },
+});

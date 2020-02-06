@@ -1,8 +1,9 @@
-const commonPresets = ['@babel/preset-react'];
+const merge = require('babel-merge');
+
 const configuration = {
   presets: [
-    ...commonPresets,
     [
+      '@babel/preset-react',
       '@babel/preset-env',
       {
         modules: false,
@@ -16,10 +17,8 @@ module.exports = {
   env: {
     production: configuration,
     development: configuration,
-    test: {
-      ...configuration,
+    test: merge(configuration, {
       presets: [
-        ...commonPresets,
         [
           '@babel/preset-env',
           {
@@ -29,6 +28,6 @@ module.exports = {
           },
         ],
       ],
-    },
+    }),
   },
 };

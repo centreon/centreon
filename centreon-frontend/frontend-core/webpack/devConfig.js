@@ -1,6 +1,10 @@
+const merge = require('webpack-merge');
+
 const webpackConfig = require('.');
 
-webpackConfig.devtool = 'inline-source-map';
-webpackConfig.output.filename = '[name].js';
-
-module.exports = webpackConfig;
+module.exports = merge(webpackConfig, {
+  devtool: 'inline-source-map',
+  output: {
+    filename: '[name].js',
+  },
+});

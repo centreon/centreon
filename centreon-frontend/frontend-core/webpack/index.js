@@ -11,13 +11,12 @@ module.exports = {
       chunks: 'all',
     },
   },
-  plugins: [],
   module: {
     rules: [
       {
         test: /\.jsx?$/,
         exclude: /node_modules/,
-        use: [{ loader: 'babel-loader' }],
+        use: ['babel-loader'],
       },
     ],
   },

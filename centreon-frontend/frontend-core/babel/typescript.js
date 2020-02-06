@@ -1,25 +1,19 @@
-const commonPresets = [
-  '@babel/preset-typescript',
-  '@babel/preset-react',
-  [
-    '@babel/preset-env',
-    {
-      modules: false,
-    },
-  ],
-];
+const merge = require('babel-merge');
 
-module.exports = {
-  extends: './index.js',
+const baseConfiguration = require('.');
+
+const presets = ['@babel/preset-typescript'];
+
+module.exports = merge(baseConfiguration, {
   env: {
     production: {
-      presets: commonPresets
+      presets,
     },
     development: {
-      presets: commonPresets
+      presets,
     },
     test: {
-      presets: commonPresets
-    }
-  }
-}
+      presets,
+    },
+  },
+});
