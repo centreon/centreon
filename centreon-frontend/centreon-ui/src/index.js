@@ -20,6 +20,7 @@ export { default as InputFieldSelect } from './InputField/InputFieldSelectCustom
 export { default as InputFieldSelectTableCell } from './InputField/InputFieldSelectTableCell';
 export { default as InputFieldTableCell } from './InputField/InputFieldTableCell';
 export { default as SearchInput } from './InputField/SearchInput';
+export { default as TextField } from './InputField/TextField';
 export { default as Logo } from './Logo';
 export { default as LogoMini } from './Logo/LogoMini';
 export { default as MessageInfo } from './Message/MessageInfo';
