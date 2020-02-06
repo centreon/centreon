@@ -29,6 +29,22 @@ stage('Source') {
 }
 
 try {
+  stage('Unit tests') {
+    node {
+      sh 'setup_centreon_build.sh'
+      sh "./centreon-build/jobs/ui/ui-unittest.sh"
+      junit 'ut.xml'
+      recordIssues(
+        enabledForFailure: true,
+        tools: [esLint(pattern: 'codestyle.xml')],
+        referenceJobName: 'centreon-ui/master'
+      )
+    }
+    if ((currentBuild.result ?: 'SUCCESS') != 'SUCCESS') {
+      error('Unit tests stage failure.');
+    }
+  }
+
   stage('Bundle') {
     node {
       sh 'setup_centreon_build.sh'
