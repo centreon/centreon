@@ -218,8 +218,15 @@ sub run {
             next if (!defined($connection));
 
             while (my $request = $connection->get_request) {
-                $connector->{logger}->writeLogInfo("[httpserver] " . $connection->peerhost() . " " . $request->method . " '" . $request->uri->path . "' '" . $request->header("User-Agent") . "'");
+                if ($connection->antique_client eq '1') {
+                    $connection->force_last_request;
+                    next;
+                }
 
+                my $msg = "[httpserver] " . $connection->peerhost() . " " . $request->method . " '" . $request->uri->path . "'";
+                $msg .= " '" . $request->header("User-Agent") . "'" if (defined($request->header("User-Agent")) && $request->header("User-Agent") ne '');
+                $connector->{logger}->writeLogInfo($msg);
+                
                 if ($connector->{allowed_hosts_enabled} == 1) {
                     if ($connector->check_allowed_host(peer_addr => inet_ntoa($connection->peeraddr())) == 0) {
                         $connector->{logger}->writeLogError("[httpserver] " . $connection->peerhost() . " Unauthorized");
