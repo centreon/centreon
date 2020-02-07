@@ -49,7 +49,7 @@ try {
   stage('Delivery') {
     node {
       sh 'setup_centreon_build.sh'
-      sh './centreon-build/jobs/ui/${serie}/ui-delivery.sh'
+      sh "./centreon-build/jobs/ui/${serie}/ui-delivery.sh"
     }
     if ((currentBuild.result ?: 'SUCCESS') != 'SUCCESS') {
       error('Delivery stage failure.');
