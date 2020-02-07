@@ -326,8 +326,8 @@ This second example will force logs synchonisation before looking for results to
 
 ```json
 {
-    "error":"http_error_401",
-    "message":"unauthorized"
+    "error": "http_error_401",
+    "message": "unauthorized"
 }
 ```
 
@@ -335,8 +335,8 @@ This second example will force logs synchonisation before looking for results to
 
 ```json
 {
-    "error":"http_error_403",
-    "message":"forbidden"
+    "error": "http_error_403",
+    "message": "forbidden"
 }
 ```
 
@@ -344,8 +344,8 @@ This second example will force logs synchonisation before looking for results to
 
 ```json
 {
-    "error":"endpoint_unknown",
-    "message":"endpoint not implemented"
+    "error": "endpoint_unknown",
+    "message": "endpoint not implemented"
 }
 ```
 
@@ -373,8 +373,8 @@ This second example will force logs synchonisation before looking for results to
 
 ```json
 {
-    "error":"decode_error",
-    "message":"Cannot decode response"
+    "error": "decode_error",
+    "message": "Cannot decode response"
 }
 ```
 
@@ -382,8 +382,8 @@ This second example will force logs synchonisation before looking for results to
 
 ```json
 {
-    "error":"encode_error",
-    "message":"Cannot encode response"
+    "error": "encode_error",
+    "message": "Cannot encode response"
 }
 ```
 
@@ -391,8 +391,8 @@ This second example will force logs synchonisation before looking for results to
 
 ```json
 {
-    "error":"no_result",
-    "message":"No result found for action <name of action>"
+    "error": "no_result",
+    "message": "No result found for action <name of action>"
 }
 ```
 
@@ -400,7 +400,7 @@ This second example will force logs synchonisation before looking for results to
 
 ```json
 {
-    "error":"no_token",
-    "message":"Cannot retrieve token from ack"
+    "error": "no_token",
+    "message": "Cannot retrieve token from ack"
 }
 ```
