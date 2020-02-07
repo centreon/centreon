@@ -27,7 +27,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-function ButtonAdd({ label, onClick, ...rest }) {
+const ButtonAdd = ({ label, onClick, ...rest }) => {
   const classes = useStyles();
   return (
     <Button
@@ -41,6 +41,6 @@ function ButtonAdd({ label, onClick, ...rest }) {
       {label}
     </Button>
   );
-}
+};
 
 export default ButtonAdd;

@@ -11,7 +11,7 @@ import reactMock from './reactRoutesMock';
 import Sidebar from '.';
 import mock from './mock2';
 
-function replaceQueryParam(param, newval, search) {
+const replaceQueryParam = (param, newval, search) => {
   const regex = new RegExp(`([?;&])${param}[^&;]*[;&]?`);
   const query = search.replace(regex, '$1').replace(/&$/, '');
 
@@ -19,7 +19,7 @@ function replaceQueryParam(param, newval, search) {
     (query.length > 2 ? `${query}&` : '?') +
     (newval ? `${param}=${newval}` : '')
   );
-}
+};
 
 export default { title: 'Sidebar' };
 

@@ -12,12 +12,10 @@ const FloatingEdit = styled(Edit)(() => ({
   right: 3,
 }));
 
-function IconEdit(props) {
-  return (
-    <MaterialIcon {...props}>
-      <FloatingEdit />
-    </MaterialIcon>
-  );
-}
+const IconEdit = (props) => (
+  <MaterialIcon {...props}>
+    <FloatingEdit />
+  </MaterialIcon>
+);
 
 export default IconEdit;

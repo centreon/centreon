@@ -9,7 +9,7 @@ import Stepper from './Stepper';
 import ActionBar from './ActionBar';
 import Confirm from '../Dialog/Confirm';
 
-function isReactElement(element) {
+const isReactElement = (element) => {
   if (
     element &&
     element.type &&
@@ -19,13 +19,13 @@ function isReactElement(element) {
   }
 
   return false;
-}
+};
 
-function cloneElement(element, props) {
+const cloneElement = (element, props) => {
   const forwardedProps = isReactElement(element) ? props : {};
 
   return React.cloneElement(element, { ...forwardedProps });
-}
+};
 
 const useWizardStyles = makeStyles((theme) => ({
   fullHeight: {
@@ -43,7 +43,7 @@ const useWizardStyles = makeStyles((theme) => ({
   },
 }));
 
-function Wizard(props) {
+const Wizard = (props) => {
   const {
     open,
     onClose,
@@ -175,7 +175,7 @@ function Wizard(props) {
       />
     </>
   );
-}
+};
 
 Wizard.propTypes = {
   open: PropTypes.bool.isRequired,

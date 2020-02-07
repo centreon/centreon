@@ -19,7 +19,7 @@ class InputFieldSelectCustom extends Component {
     selected: null,
   };
 
-  componentWillMount() {
+  UNSAFE_componentWillMount() {
     const { options } = this.props;
     this.setState({ filteredOptions: options });
   }
@@ -28,7 +28,7 @@ class InputFieldSelectCustom extends Component {
     window.removeEventListener('mousedown', this.handleClickOutside, false);
   }
 
-  componentWillReceiveProps(nextProps) {
+  UNSAFE_componentWillReceiveProps(nextProps) {
     const { value } = nextProps;
 
     this.setState({
@@ -152,7 +152,7 @@ class InputFieldSelectCustom extends Component {
             {filteredOptions
               ? filteredOptions.map((option) => (
                   // eslint-disable-next-line react/jsx-indent
-                  <React.Fragment>
+                  <>
                     {icons ? (
                       <CustomIconWithText
                         label={option.name}
@@ -171,7 +171,7 @@ class InputFieldSelectCustom extends Component {
                         {option.name}
                       </span>
                     )}
-                  </React.Fragment>
+                  </>
                 ))
               : null}
           </div>

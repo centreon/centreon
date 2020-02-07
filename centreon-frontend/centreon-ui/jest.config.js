@@ -2,7 +2,7 @@ module.exports = {
   setupFilesAfterEnv: ['<rootDir>/setupTests.js'],
   roots: ['<rootDir>/src/'],
   transform: {
-    '^.+\\.jsx?$': 'babel-jest',
+    '^.+\\.[jt]sx?$': 'babel-jest',
   },
   moduleNameMapper: {
     '\\.(s?css|png|svg)$': 'identity-obj-proxy',

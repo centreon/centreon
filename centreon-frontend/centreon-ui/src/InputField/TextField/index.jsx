@@ -20,52 +20,51 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const TextField = forwardRef(function TextField(
-  { InputProps, InputLabelProps, FormHelperTextProps, ...other },
-  ref,
-) {
-  const classes = useStyles();
+const TextField = forwardRef(
+  ({ InputProps, InputLabelProps, FormHelperTextProps, ...other }, ref) => {
+    const classes = useStyles();
 
-  return (
-    <MuiTextField
-      InputProps={{
-        ...InputProps,
-        classes: {
-          ...InputProps.classes,
-          root: clsx(
-            classes.root,
-            InputProps.classes && InputProps.classes.root
-              ? InputProps.classes.root
-              : null,
-          ),
-          input: clsx(
-            classes.input,
-            InputProps.classes && InputProps.classes.input
-              ? InputProps.classes.input
-              : null,
-          ),
-        },
-      }}
-      InputLabelProps={{
-        ...InputLabelProps,
-        shrink: true,
-      }}
-      FormHelperTextProps={{
-        ...FormHelperTextProps,
-        classes: {
-          root: clsx(
-            classes.inputHelperText,
-            FormHelperTextProps.classes && FormHelperTextProps.classes.root
-              ? FormHelperTextProps.classes.root
-              : null,
-          ),
-        },
-      }}
-      ref={ref}
-      {...other}
-    />
-  );
-});
+    return (
+      <MuiTextField
+        InputProps={{
+          ...InputProps,
+          classes: {
+            ...InputProps.classes,
+            root: clsx(
+              classes.root,
+              InputProps.classes && InputProps.classes.root
+                ? InputProps.classes.root
+                : null,
+            ),
+            input: clsx(
+              classes.input,
+              InputProps.classes && InputProps.classes.input
+                ? InputProps.classes.input
+                : null,
+            ),
+          },
+        }}
+        InputLabelProps={{
+          ...InputLabelProps,
+          shrink: true,
+        }}
+        FormHelperTextProps={{
+          ...FormHelperTextProps,
+          classes: {
+            root: clsx(
+              classes.inputHelperText,
+              FormHelperTextProps.classes && FormHelperTextProps.classes.root
+                ? FormHelperTextProps.classes.root
+                : null,
+            ),
+          },
+        }}
+        ref={ref}
+        {...other}
+      />
+    );
+  },
+);
 
 TextField.propTypes = {
   InputProps: PropTypes.objectOf(PropTypes.any),

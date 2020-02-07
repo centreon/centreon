@@ -18,12 +18,12 @@ const IconInfo = ({
     styles[iconColor || ''],
   );
   return (
-    <React.Fragment>
+    <>
       {iconName && <span className={cn} />}
       {iconText && (
         <span className={clsx(styles['info-text'])}>{iconText}</span>
       )}
-    </React.Fragment>
+    </>
   );
 };
 

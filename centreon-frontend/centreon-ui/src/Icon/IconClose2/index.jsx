@@ -34,13 +34,11 @@ const GreyClose = styled(Close)(() => ({
   zIndex: 9,
 }));
 
-function IconClose({ label, ...rest }) {
-  return (
-    <FloatingIcon {...rest} aria-label="icon close">
-      <GreyClose />
-      {label && <Label>{label}</Label>}
-    </FloatingIcon>
-  );
-}
+const IconClose = ({ label, ...rest }) => (
+  <FloatingIcon {...rest} aria-label="icon close">
+    <GreyClose />
+    {label && <Label>{label}</Label>}
+  </FloatingIcon>
+);
 
 export default IconClose;

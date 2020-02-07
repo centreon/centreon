@@ -21,7 +21,7 @@ class InputFieldSelectCustom extends Component {
   };
 
 
-  componentWillMount = () => {
+  UNSAFE_componentWillMount = () => {
     const { value, options } = this.props;
 
     if (!options) {
@@ -40,7 +40,7 @@ class InputFieldSelectCustom extends Component {
       });
   };
 
-  componentWillReceiveProps = (nextProps) => {
+  UNSAFE_componentWillReceiveProps = (nextProps) => {
     const { value, options } = nextProps;
 
     if (!options) {

@@ -7,7 +7,7 @@ import styles from './popup.scss';
 
 const Popup = ({ popupType, children, customClass }) => {
   return (
-    <React.Fragment>
+    <>
       <div
         className={clsx(
           styles.popup,
@@ -20,7 +20,7 @@ const Popup = ({ popupType, children, customClass }) => {
         </div>
       </div>
       <div className={clsx(styles['popup-overlay'])} />
-    </React.Fragment>
+    </>
   );
 };
 

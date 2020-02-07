@@ -14,7 +14,7 @@ class FileUploadItem extends Component {
       titleStatus || '',
     );
     return (
-      <React.Fragment>
+      <>
         <div className={clsx(styles['file-upload-item'])}>
           <span className={cnFileUploadTitle}>{title}</span>
           <div className={clsx(styles.progress)}>
@@ -28,7 +28,7 @@ class FileUploadItem extends Component {
             {`${uploadedPercentage}%/100%`}
           </span>
         </div>
-      </React.Fragment>
+      </>
     );
   }
 }

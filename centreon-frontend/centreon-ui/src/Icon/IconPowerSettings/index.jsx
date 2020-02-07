@@ -7,12 +7,10 @@ import RoundedInvertedIcon from '../RoundedInvertedIcon';
 
 const RoundedInvertedPowerSettings = RoundedInvertedIcon(PowerSettings);
 
-function IconPowerSettings(props) {
-  return (
-    <MaterialIcon {...props} aria-label="icon enable disable">
-      <RoundedInvertedPowerSettings />
-    </MaterialIcon>
-  );
-}
+const IconPowerSettings = (props) => (
+  <MaterialIcon {...props} aria-label="icon enable disable">
+    <RoundedInvertedPowerSettings />
+  </MaterialIcon>
+);
 
 export default IconPowerSettings;

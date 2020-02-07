@@ -9,9 +9,9 @@ const Wrapper = styled('span')(() => ({
   color: '#707070',
 }));
 
-function MaterialIcon({ children, ...props }) {
-  return <Wrapper {...props}>{children}</Wrapper>;
-}
+const MaterialIcon = ({ children, ...props }) => (
+  <Wrapper {...props}>{children}</Wrapper>
+);
 
 MaterialIcon.propTypes = {
   children: PropTypes.node.isRequired,

@@ -3,13 +3,11 @@ import PropTypes from 'prop-types';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import Dialog from '..';
 
-function Confirm({ labelMessage, ...rest }) {
-  return (
-    <Dialog {...rest}>
-      {labelMessage && <DialogContentText>{labelMessage}</DialogContentText>}
-    </Dialog>
-  );
-}
+const Confirm = ({ labelMessage, ...rest }) => (
+  <Dialog {...rest}>
+    {labelMessage && <DialogContentText>{labelMessage}</DialogContentText>}
+  </Dialog>
+);
 
 Confirm.propTypes = {
   open: PropTypes.bool.isRequired,

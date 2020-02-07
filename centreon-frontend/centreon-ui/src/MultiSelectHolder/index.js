@@ -53,11 +53,11 @@ class InputFieldMultiSelectEmpty extends React.Component {
         )}
         <div className={clsx(styles['multi-select-holder-inner'])}>
           {isEmpty && (
-            <React.Fragment>
+            <>
               <span className={clsx(styles['multi-select-holder-add'])}>
                 {emptyInfo || 'Click to link'}
               </span>
-            </React.Fragment>
+            </>
           )}
           {children}
         </div>

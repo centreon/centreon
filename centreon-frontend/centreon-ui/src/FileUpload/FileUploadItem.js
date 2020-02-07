@@ -38,7 +38,7 @@ class FileUploadItem extends Component {
       styles[infoStatus || ''],
     );
     return (
-      <React.Fragment>
+      <>
         <div className={clsx(styles['file-upload-item'])}>
           {icon ? <span className={cnFileUploadIcon} /> : null}
           <span className={cnFileUploadTitle}>{title}</span>
@@ -68,7 +68,7 @@ class FileUploadItem extends Component {
             </span>
           ) : null}
         </div>
-      </React.Fragment>
+      </>
     );
   }
 }

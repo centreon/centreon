@@ -15,7 +15,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-function ActionBar({
+const ActionBar = ({
   disabledNext,
   page,
   isLastPage,
@@ -27,7 +27,7 @@ function ActionBar({
   labelPrevious,
   labelNext,
   labelFinish,
-}) {
+}) => {
   const classes = useStyles();
 
   return (
@@ -79,7 +79,7 @@ function ActionBar({
       </Grid>
     </Grid>
   );
-}
+};
 
 ActionBar.propTypes = {
   disabledNext: PropTypes.bool,

@@ -39,20 +39,10 @@ try {
         tools: [esLint(pattern: 'codestyle.xml')],
         referenceJobName: 'centreon-ui/master'
       )
-      archiveArtifacts allowEmptyArchive: true, artifacts: 'centreon-ui/src/__image_snapshots__/__diff_output__/*.png'
+      archiveArtifacts allowEmptyArchive: true, artifacts: 'snapshots/*.png'
     }
     if ((currentBuild.result ?: 'SUCCESS') != 'SUCCESS') {
       error('Unit tests stage failure.');
-    }
-  }
-
-  stage('Bundle') {
-    node {
-      sh 'setup_centreon_build.sh'
-      sh "./centreon-build/jobs/ui/ui-bundle.sh"
-    }
-    if ((currentBuild.result ?: 'SUCCESS') != 'SUCCESS') {
-      error('Bundle stage failure.');
     }
   }
 

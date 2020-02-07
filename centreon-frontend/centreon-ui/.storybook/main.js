@@ -1,66 +1,46 @@
-const path = require("path");
+const merge = require('lodash/merge');
+const webpackMerge = require('webpack-merge');
+const baseConfig = require('@centreon/frontend-core').webpackTypeScript;
+
+const storiesPath = '../src/**/*.stories';
 
 module.exports = {
-  stories: ['../src/**/*.stories.jsx'],
+  stories: [`${storiesPath}.jsx`, `${storiesPath}.tsx`],
   addons: [],
-  webpackFinal: (config) => ({
-    ...config,
-    resolve: {
-      extensions: ['.js', '.jsx'],
-    },
-    module: {
-      ...config.module,
-      rules: [
-        {
-          test: /\.jsx?$/,
-          include: path.resolve(__dirname, ".."),
-          exclude: /node_modules/,
-          use: [{ loader: 'babel-loader' }],
-        },
-        {
-          test: /\.css$/,
-          include: path.resolve(__dirname, ".."),
-          use: [
+  webpackFinal: (config) =>
+    merge(
+      config,
+      webpackMerge(baseConfig, {
+        module: {
+          rules: [
             {
-              loader: 'style-loader',
-            },
-            {
-              loader: 'css-loader',
-              options: {
-                sourceMap: true,
-              },
-            },
-          ],
-        },
-        {
-          test: /\.scss$/,
-          use: [
-            'style-loader',
-            {
-              loader: 'css-loader',
-              options: {
-                modules: {
-                  localIdentName: '[local]__[hash:base64:5]',
+              test: /\.s?[ac]ss$/i,
+              use: [
+                'style-loader',
+                {
+                  loader: 'css-loader',
+                  options: {
+                    modules: {
+                      localIdentName: '[local]__[hash:base64:5]',
+                    },
+                  },
                 },
-                sourceMap: true,
+                'sass-loader',
+              ],
+            },
+            {
+              test: /\.(?:woff|woff2|eot|ttf|otf)$/,
+              loader: 'file-loader',
+            },
+            {
+              test: /\.(?:png|jpg|svg)$/,
+              loader: 'url-loader',
+              query: {
+                limit: 10000,
               },
             },
-            'sass-loader',
           ],
-          include: path.resolve(__dirname, ".."),
         },
-        {
-          test: /\.(?:woff|woff2|eot|ttf|otf)$/,
-          loader: 'file-loader',
-        },
-        {
-          test: /\.(?:png|jpg|svg)$/,
-          loader: 'url-loader',
-          query: {
-            limit: 10000,
-          },
-        },
-      ],
-    },
-  }),
+      })
+    ),
 };

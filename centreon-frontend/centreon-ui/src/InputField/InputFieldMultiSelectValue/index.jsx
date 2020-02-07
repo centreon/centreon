@@ -17,7 +17,7 @@ class InputFieldMultiSelectValue extends Component {
       ...rest
     } = this.props;
     return (
-      <React.Fragment>
+      <>
         <div
           className={clsx(
             styles['multi-select'],
@@ -37,7 +37,7 @@ class InputFieldMultiSelectValue extends Component {
             <div className={clsx(styles['form-error'])}>{error}</div>
           ) : null}
         </div>
-      </React.Fragment>
+      </>
     );
   }
 }

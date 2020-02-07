@@ -1,3 +1,4 @@
+/* eslint-disable react/static-property-placement */
 /* eslint-disable class-methods-use-this */
 /* eslint-disable react/no-did-update-set-state */
 /* eslint-disable react/prop-types */

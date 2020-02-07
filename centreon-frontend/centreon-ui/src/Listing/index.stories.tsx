@@ -7,7 +7,7 @@ import ColumnTypes from './ColumnTypes';
 
 export default { title: 'Listing' };
 
-const ComponentColumn = ({ row, isRowSelected }) => (
+const ComponentColumn = ({ row, isRowSelected }): JSX.Element => (
   <>
     <span>
       {'I am '}
@@ -33,9 +33,11 @@ const configuration = [
   },
 ];
 
-const noOp = () => undefined;
+const noOp = (): void => undefined;
 
-const listing = [...Array(10).keys()].map((index) => ({
+const tenElements = new Array(10).fill(0);
+
+const listing = [...tenElements].map((_, index) => ({
   id: index,
   name: `E${index}`,
   description: `Entity ${index}`,
@@ -43,7 +45,7 @@ const listing = [...Array(10).keys()].map((index) => ({
   selected: index % 3 === 0,
 }));
 
-const Story = (props) => (
+const Story = (props): JSX.Element => (
   <Listing
     columnConfiguration={configuration}
     onDelete={noOp}
@@ -55,11 +57,11 @@ const Story = (props) => (
     currentPage={0}
     totalRows={listing.length}
     tableData={listing}
-    grayRowCondition={(row) => !row.active}
+    grayRowCondition={(row): boolean => !row.active}
     selectedRows={listing.filter((row) => row.selected)}
     checkable
     {...props}
   />
 );
 
-export const normal = () => <Story />;
+export const normal = (): JSX.Element => <Story />;

@@ -11,7 +11,7 @@ const useAdornmentStyles = makeStyles((theme) => ({
   },
 }));
 
-function StartAdornment() {
+const StartAdornment = () => {
   const classes = useAdornmentStyles();
 
   return (
@@ -23,7 +23,7 @@ function StartAdornment() {
       />
     </InputAdornment>
   );
-}
+};
 
 const useStyles = makeStyles((theme) => {
   // took it from material-ui source code
@@ -52,7 +52,7 @@ const useStyles = makeStyles((theme) => {
   };
 });
 
-const SearchInput = forwardRef(function SearchInput(props, ref) {
+const SearchInput = forwardRef((props, ref) => {
   const classes = useStyles();
 
   return (

@@ -7,7 +7,7 @@ import clsx from 'clsx';
 import styles from './content-description.scss';
 
 const DescriptionContent = ({ date, title, text, note, link }) => (
-  <React.Fragment>
+  <>
     {date ? (
       <span className={clsx(styles['content-description-date'])}>{date}</span>
     ) : null}
@@ -41,7 +41,7 @@ const DescriptionContent = ({ date, title, text, note, link }) => (
         )}
       </span>
     ) : null}
-  </React.Fragment>
+  </>
 );
 
 export default DescriptionContent;

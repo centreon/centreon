@@ -13,13 +13,11 @@ const theme = createMuiTheme({
   },
 });
 
-function ThemeProvider({ children, ...rest }) {
-  return (
-    <MuiThemeProvider theme={theme} {...rest}>
-      {children}
-    </MuiThemeProvider>
-  );
-}
+const ThemeProvider = ({ children, ...rest }) => (
+  <MuiThemeProvider theme={theme} {...rest}>
+    {children}
+  </MuiThemeProvider>
+);
 
 ThemeProvider.propTypes = {
   children: PropTypes.node.isRequired,

@@ -9,7 +9,7 @@ import DialogContent from '@material-ui/core/DialogContent';
 import DialogActions from '@material-ui/core/DialogActions';
 import { withStyles } from '@material-ui/styles';
 
-function Dialog({
+const Dialog = ({
   open,
   onClose,
   onCancel,
@@ -21,28 +21,26 @@ function Dialog({
   contentWidth,
   confirmDisabled,
   ...rest
-}) {
-  return (
-    <MuiDialog open={open} onClose={onClose} {...rest}>
-      {labelTitle && <DialogTitle>{labelTitle}</DialogTitle>}
-      {children && (
-        <DialogContent style={{ overflowY: 'visible', width: contentWidth }}>
-          {children}
-        </DialogContent>
-      )}
-      <DialogActions>
-        {onCancel && (
-          <Button color="primary" onClick={onCancel}>
-            {labelCancel}
-          </Button>
-        )}
-        <Button color="primary" onClick={onConfirm} disabled={confirmDisabled}>
-          {labelConfirm}
+}) => (
+  <MuiDialog open={open} onClose={onClose} {...rest}>
+    {labelTitle && <DialogTitle>{labelTitle}</DialogTitle>}
+    {children && (
+      <DialogContent style={{ overflowY: 'visible', width: contentWidth }}>
+        {children}
+      </DialogContent>
+    )}
+    <DialogActions>
+      {onCancel && (
+        <Button color="primary" onClick={onCancel}>
+          {labelCancel}
         </Button>
-      </DialogActions>
-    </MuiDialog>
-  );
-}
+      )}
+      <Button color="primary" onClick={onConfirm} disabled={confirmDisabled}>
+        {labelConfirm}
+      </Button>
+    </DialogActions>
+  </MuiDialog>
+);
 
 Dialog.propTypes = {
   open: PropTypes.bool.isRequired,

@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import TextField from '@material-ui/core/TextField';
 import Dialog from '..';
 
-function Duplicate({ labelInput, onConfirm, ...rest }) {
+const Duplicate = ({ labelInput, onConfirm, ...rest }) => {
   const [value, setValue] = useState(1);
 
   const handleChange = ({ target }) => {
@@ -29,7 +29,7 @@ function Duplicate({ labelInput, onConfirm, ...rest }) {
       />
     </Dialog>
   );
-}
+};
 
 Duplicate.propTypes = {
   open: PropTypes.bool.isRequired,

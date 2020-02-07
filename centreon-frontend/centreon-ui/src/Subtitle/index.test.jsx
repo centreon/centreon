@@ -5,9 +5,8 @@ import { render } from '@testing-library/react';
 
 import Subtitle from '.';
 
-function renderSubtitle({ label = '', subtitleType = '' }) {
-  return render(<Subtitle label={label} subtitleType={subtitleType} />);
-}
+const renderSubtitle = ({ label = '', subtitleType = '' }) =>
+  render(<Subtitle label={label} subtitleType={subtitleType} />);
 
 describe('Subtitle', () => {
   it('renders with given subtitleType style', () => {

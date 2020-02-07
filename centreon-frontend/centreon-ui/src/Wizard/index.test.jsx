@@ -2,8 +2,8 @@ import React from 'react';
 import { act, render, fireEvent } from '@testing-library/react';
 import Wizard, { Page } from '.';
 
-function renderWizard() {
-  return render(
+const renderWizard = () =>
+  render(
     <Wizard open>
       <Page label="step label 1">
         <div>Step 1</div>
@@ -16,7 +16,6 @@ function renderWizard() {
       </Page>
     </Wizard>,
   );
-}
 
 describe('Wizard', () => {
   it('displays step labels', () => {

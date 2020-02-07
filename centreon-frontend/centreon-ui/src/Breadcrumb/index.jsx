@@ -17,7 +17,7 @@ const useStyles = makeStyles({
   },
 });
 
-function Breadcrumb({ breadcrumbs }) {
+const Breadcrumb = ({ breadcrumbs }) => {
   const classes = useStyles();
 
   return (
@@ -37,7 +37,7 @@ function Breadcrumb({ breadcrumbs }) {
         ))}
     </Breadcrumbs>
   );
-}
+};
 
 Breadcrumb.propTypes = {
   breadcrumbs: PropTypes.arrayOf(PropTypes.shape).isRequired,

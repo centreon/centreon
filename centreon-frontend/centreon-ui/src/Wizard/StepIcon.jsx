@@ -34,7 +34,7 @@ const useStepIconStyles = makeStyles((theme) => ({
   },
 }));
 
-function StepIcon({ active, completed, icon }) {
+const StepIcon = ({ active, completed, icon }) => {
   const classes = useStepIconStyles();
 
   return (
@@ -54,7 +54,7 @@ function StepIcon({ active, completed, icon }) {
       )}
     </div>
   );
-}
+};
 
 StepIcon.propTypes = {
   active: PropTypes.bool,

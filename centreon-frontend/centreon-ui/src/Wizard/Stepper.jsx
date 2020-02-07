@@ -22,7 +22,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-function Stepper({ activeStep, children }) {
+const Stepper = ({ activeStep, children }) => {
   const classes = useStyles();
 
   return (
@@ -45,7 +45,7 @@ function Stepper({ activeStep, children }) {
       ))}
     </MaterialStepper>
   );
-}
+};
 
 Stepper.propTypes = {
   activeStep: PropTypes.number,
