@@ -21,7 +21,7 @@ stage('Source') {
     dir('centreon-ui') {
       checkout scm
     }
-    sh "./centreon-build/jobs/ui/ui-source.sh"
+    sh "./centreon-build/jobs/ui/${serie}/ui-source.sh"
     source = readProperties file: 'source.properties'
     env.VERSION = "${source.VERSION}"
     env.RELEASE = "${source.RELEASE}"
@@ -32,7 +32,7 @@ try {
   stage('Unit tests') {
     node {
       sh 'setup_centreon_build.sh'
-      sh "./centreon-build/jobs/ui/ui-unittest.sh"
+      sh "./centreon-build/jobs/ui/${serie}/ui-unittest.sh"
       junit 'ut.xml'
       recordIssues(
         enabledForFailure: true,
@@ -49,7 +49,7 @@ try {
   stage('Delivery') {
     node {
       sh 'setup_centreon_build.sh'
-      sh './centreon-build/jobs/ui/ui-delivery.sh'
+      sh './centreon-build/jobs/ui/${serie}/ui-delivery.sh'
     }
     if ((currentBuild.result ?: 'SUCCESS') != 'SUCCESS') {
       error('Delivery stage failure.');
