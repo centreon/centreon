@@ -1,6 +1,4 @@
-const webpackConfig = require('.');
-
-webpackConfig.optimization = {
+module.exports = {
   splitChunks: {
     cacheGroups: {
       commons: {
@@ -20,5 +18,3 @@ webpackConfig.optimization = {
     }
   }
 };
-
-module.exports = webpackConfig;

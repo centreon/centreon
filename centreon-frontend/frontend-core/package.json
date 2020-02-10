@@ -2,7 +2,6 @@
   "name": "@centreon/frontend-core",
   "description": "Centreon Frontend shared build configuration",
   "version": "1.0.0",
-  "main": "index.js",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/centreon/frontend-core.git"
@@ -34,16 +33,26 @@
     "@babel/preset-env": "7.x",
     "@babel/plugin-proposal-class-properties": "7.x",
     "babel-jest": "25.x",
-    "babel-loader": "8.x"
+    "babel-loader": "8.x",
+    "bebel-merge": "3.x",
+    "webpack-merge": "4.x",
+    "typescript" : "3.x",
+    "identity-obj-proxy": "3.x",
+    "jest": "25.x",
+    "@testing-library/react": "9.x",
+    "@testing-library/jest-dom": "5.x"
   },
   "devDependencies": {
     "@babel/core": "^7.8.4",
     "@typescript-eslint/parser": "^2.19.0",
     "babel-eslint": "^10.0.3",
     "babel-merge": "^3.0.0",
+    "clean-webpack-plugin": "^3.0.0",
     "eslint": "^6.8.0",
     "eslint-config-airbnb": "^18.0.1",
+    "mini-css-extract-plugin": "^0.9.0",
     "typescript": "^3.7.5",
+    "webpack": "^4.41.5",
     "webpack-merge": "^4.2.2"
   }
 }

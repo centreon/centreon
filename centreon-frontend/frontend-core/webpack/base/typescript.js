@@ -10,7 +10,7 @@ module.exports = merge(webpackConfig, {
     rules: [
       {
         test: /\.tsx?$/,
-        exclude: /node_modules/,
+        exclude: /node_modules(?!\/@centreon\/ui)/,
         use: ['babel-loader', 'awesome-typescript-loader'],
       },
     ],
