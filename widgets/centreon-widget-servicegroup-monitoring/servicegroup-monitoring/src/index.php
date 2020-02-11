@@ -1,7 +1,7 @@
 <?php
 /**
- * Copyright 2005-2015 CENTREON
- * Centreon is developped by : Julien Mathis and Romain Le Merlus under
+ * Copyright 2005-2019 Centreon
+ * Centreon is developed by : Julien Mathis and Romain Le Merlus under
  * GPL Licence 2.0.
  *
  * This program is free software; you can redistribute it and/or modify it under
@@ -72,39 +72,56 @@ $preferences = $widgetObj->getWidgetPreferences($widgetId);
 $pearDB = $db;
 $aclObj = new CentreonACL($centreon->user->user_id, $centreon->user->admin);
 $nbRows = $preferences['entries'];
-$query = "SELECT `value` FROM informations WHERE `key` = 'version'";
-$res = $db->query($query);
-$row = $res->fetchRow();
+$res = $db->query("SELECT `value` FROM informations WHERE `key` = 'version'");
+$row = $res->fetch();
 $version = $row['value'];
 
 $hostStateColors = array(
     0 => "#88B917",
     1 => "#F91E05",
     2 => "#82CFD8",
-    4 => "#2AD1D4");
+    4 => "#2AD1D4"
+);
 
 $serviceStateColors = array(
     0 => "#88B917",
     1 => "#FF9A13",
     2 => "#E00B3D",
     3 => "#DCDADA",
-    4 => "#2AD1D4");
+    4 => "#2AD1D4"
+);
 
-$aColorHost = array(0 => 'host_up', 1 => 'host_down', 2 => 'host_unreachable', 4 => 'host_pending');
-$aColorService = array(0 => 'service_ok', 1 => 'service_warning', 2 => 'service_critical', 3 => 'service_unknown', 4 => 'pending');
-$hostStateLabels = array(0 => "Up",
+$aColorHost = array(
+    0 => 'host_up',
+    1 => 'host_down',
+    2 => 'host_unreachable',
+    4 => 'host_pending'
+);
+
+$aColorService = array(
+    0 => 'service_ok',
+    1 => 'service_warning',
+    2 => 'service_critical',
+    3 => 'service_unknown',
+    4 => 'pending'
+);
+
+$hostStateLabels = array(
+    0 => "Up",
     1 => "Down",
     2 => "Unreachable",
-    4 => "Pending");
+    4 => "Pending"
+);
 
-$serviceStateLabels = array(0 => "Ok",
+$serviceStateLabels = array(
+    0 => "Ok",
     1 => "Warning",
     2 => "Critical",
     3 => "Unknown",
-    4 => "Pending");
+    4 => "Pending"
+);
 
-$query = "SELECT SQL_CALC_FOUND_ROWS DISTINCT name, servicegroup_id ";
-$query .= "FROM servicegroups ";
+$query = "SELECT SQL_CALC_FOUND_ROWS DISTINCT name, servicegroup_id FROM servicegroups ";
 if (isset($preferences['sg_name_search']) && $preferences['sg_name_search'] != "") {
     $tab = explode(" ", $preferences['sg_name_search']);
     $op = $tab[0];
@@ -112,11 +129,17 @@ if (isset($preferences['sg_name_search']) && $preferences['sg_name_search'] != "
         $search = $tab[1];
     }
     if ($op && isset($search) && $search != "") {
-        $query = CentreonUtils::conditionBuilder($query, "name " . CentreonUtils::operandToMysqlFormat($op) . " '" . $dbb->escape($search) . "' ");
+        $query = CentreonUtils::conditionBuilder(
+            $query,
+            "name " . CentreonUtils::operandToMysqlFormat($op) . " '" . $dbb->escape($search) . "' "
+        );
     }
 }
 if (!$centreon->user->admin) {
-    $query = CentreonUtils::conditionBuilder($query, "name IN (" . $aclObj->getServiceGroupsString("NAME") . ")");
+    $query = CentreonUtils::conditionBuilder(
+        $query,
+        "name IN (" . $aclObj->getServiceGroupsString("NAME") . ")"
+    );
 }
 
 
@@ -135,13 +158,27 @@ $detailMode = false;
 if (isset($preferences['enable_detailed_mode']) && $preferences['enable_detailed_mode']) {
     $detailMode = true;
 }
-while ($row = $res->fetchRow()) {
-    $data[$row['name']] = array('name'          => $row['name'],
-                                'svc_id'        => $row['servicegroup_id'],
-                                'sgurl'         => "main.php?p=20201&search=0&host_search=0&output_search=0&hg=0&sg=" .$row['servicegroup_id'],
-                                'hosturl'       => "main.php?p=20202",
-                                'host_state'    => $sgMonObj->getHostStates($row['name'], $detailMode, $centreon->user->admin, $aclObj, $preferences),
-                                'service_state' => $sgMonObj->getServiceStates($row['name'], $detailMode, $centreon->user->admin, $aclObj, $preferences));
+while ($row = $res->fetch()) {
+    $data[$row['name']] = array(
+        'name' => $row['name'],
+        'svc_id' => $row['servicegroup_id'],
+        'sgurl' => "main.php?p=20201&search=0&host_search=0&output_search=0&hg=0&sg=" .$row['servicegroup_id'],
+        'hosturl' => "main.php?p=20202",
+        'host_state' => $sgMonObj->getHostStates(
+            $row['name'],
+            $centreon->user->admin,
+            $aclObj,
+            $preferences,
+            $detailMode
+        ),
+        'service_state' => $sgMonObj->getServiceStates(
+            $row['name'],
+            $centreon->user->admin,
+            $aclObj,
+            $preferences,
+            $detailMode
+        )
+    );
 }
 
 $autoRefresh = $preferences['refresh_interval'];

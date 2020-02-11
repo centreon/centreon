@@ -1,6 +1,6 @@
 /*
- * Copyright 2005-2015 Centreon
- * Centreon is developped by : Julien Mathis and Romain Le Merlus under
+ * Copyright 2005-2019 Centreon
+ * Centreon is developed by : Julien Mathis and Romain Le Merlus under
  * GPL Licence 2.0.
  *
  * This program is free software; you can redistribute it and/or modify it under
@@ -33,26 +33,26 @@
  */
 
 jQuery(function () {
-    loadPage();
+  loadPage();
 });
 
-/**                                                                                                                                                                                                          
- * Load page                                                                                                                                                                                                 
+/**
+ * Load page
  */
 function loadPage()
 {
-    jQuery.ajax("./src/index.php?widgetId=" + widgetId + "&page=" + pageNumber, {
-        success: function (htmlData) {
-            jQuery("#sgMonitoringTable").empty().append(htmlData).append(function() {
-                var h = jQuery("#sgMonitoringTable").prop("scrollHeight");
-                parent.iResize(window.name, h);
-            });
-        }
-    });
-    if (autoRefresh) {
-        if (timeout) {
-            clearTimeout(timeout);
-        }
-        timeout = setTimeout(loadPage, (autoRefresh * 1000));
+  jQuery.ajax("./src/index.php?widgetId=" + widgetId + "&page=" + pageNumber, {
+    success: function (htmlData) {
+      jQuery("#sgMonitoringTable").empty().append(htmlData).append(function() {
+        var h = jQuery("#sgMonitoringTable").prop("scrollHeight");
+        parent.iResize(window.name, h);
+      });
     }
+  });
+  if (autoRefresh) {
+    if (timeout) {
+      clearTimeout(timeout);
+    }
+    timeout = setTimeout(loadPage, (autoRefresh * 1000));
+  }
 }
