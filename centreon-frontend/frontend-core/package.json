@@ -40,7 +40,12 @@
     "identity-obj-proxy": "3.x",
     "jest": "25.x",
     "@testing-library/react": "9.x",
-    "@testing-library/jest-dom": "5.x"
+    "@testing-library/jest-dom": "5.x",
+    "css-loader": "3.x",
+    "resolve-url-loader": "3.x",
+    "sass-loader": "8.x",
+    "node-sass": "4.x",
+    "awesome-typescript-loader": "5.x"
   },
   "devDependencies": {
     "@babel/core": "^7.8.4",
