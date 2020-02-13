@@ -1,4 +1,3 @@
-const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 
 module.exports = {
@@ -8,9 +7,8 @@ module.exports = {
   output: {
     libraryTarget: 'umd',
     umdNamedDefine: true,
-    filename: '[name].[hash:8].js',
-    chunkFilename: '[name].[hash:8].chunk.js',
-    library: '[name]',
+    filename: '[name].[chunkhash:8].js',
+    chunkFilename: '[name].[chunkhash:8].chunk.js',
   },
   optimization: {
     splitChunks: {

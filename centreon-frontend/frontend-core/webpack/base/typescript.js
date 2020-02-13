@@ -4,7 +4,7 @@ const webpackConfig = require('.');
 
 module.exports = merge(webpackConfig, {
   resolve: {
-    extensions: ['.js', '.jsx', '.ts', '.tsx'],
+    extensions: ['.ts', '.tsx'],
   },
   module: {
     rules: [

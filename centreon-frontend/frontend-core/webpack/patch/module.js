@@ -1,4 +1,7 @@
 module.exports = assetPublicPath => ({
+  output: {
+    library: '[chunkhash:8]',
+  },
   externals: {
     react: 'React',
     'react-dom': 'ReactDOM',
