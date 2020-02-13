@@ -34,7 +34,7 @@
     "@babel/plugin-proposal-class-properties": "7.x",
     "babel-jest": "25.x",
     "babel-loader": "8.x",
-    "bebel-merge": "3.x",
+    "babel-merge": "3.x",
     "webpack-merge": "4.x",
     "typescript": "3.x",
     "identity-obj-proxy": "3.x",
