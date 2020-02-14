@@ -24,7 +24,6 @@ export { default as TextField } from './InputField/TextField';
 export { default as Logo } from './Logo';
 export { default as LogoMini } from './Logo/LogoMini';
 export { default as MessageInfo } from './Message/MessageInfo';
-export { default as MultiSelectHolder } from './MultiSelectHolder';
 export { default as Navigation } from './Navigation';
 export { default as Popup } from './Popup';
 export { default as SearchLive } from './Search/SearchLive';
@@ -82,6 +81,6 @@ export { default as SubmenuHeader } from './Submenu/SubmenuHeader';
 export { default as SubmenuItems } from './Submenu/SubmenuHeader/SubmenuItems';
 export { default as SubmenuItem } from './Submenu/SubmenuHeader/SubmenuItem';
 
-export { default as MultiSelectContainer } from './MultiSelectHolder/MultiSelectContainer';
+export { default as MultiSelectEntries } from './MultiSelectEntries';
 export { default as RightPanel } from './RightPanel';
 export { default as InputFieldSearch } from './InputField/SearchInput';

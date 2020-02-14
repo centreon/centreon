@@ -2,20 +2,10 @@ import React from 'react';
 
 import Button from '@material-ui/core/Button';
 import CircularProgress from '@material-ui/core/CircularProgress';
-import { createMuiTheme } from '@material-ui/core/styles';
 import Tooltip from '@material-ui/core/Tooltip';
 import CheckIcon from '@material-ui/icons/Check';
 import SaveIcon from '@material-ui/icons/Save';
-import ThemeProvider from '@material-ui/styles/ThemeProvider';
 import PropTypes from 'prop-types';
-
-const theme = createMuiTheme({
-  palette: {
-    primary: {
-      main: '#1174cb',
-    },
-  },
-});
 
 const SaveButton = ({ succeeded, loading, tooltipLabel, ...rest }) => {
   const ButtonContent = () => {
@@ -24,7 +14,7 @@ const SaveButton = ({ succeeded, loading, tooltipLabel, ...rest }) => {
     }
 
     if (loading) {
-      return <CircularProgress size={30} color="white" />;
+      return <CircularProgress size={30} />;
     }
 
     return <SaveIcon />;
@@ -32,7 +22,7 @@ const SaveButton = ({ succeeded, loading, tooltipLabel, ...rest }) => {
 
   return (
     <Tooltip title={tooltipLabel} placement="bottom">
-      <ThemeProvider theme={theme}>
+      <div>
         <Button
           variant="contained"
           color="primary"
@@ -42,7 +32,7 @@ const SaveButton = ({ succeeded, loading, tooltipLabel, ...rest }) => {
         >
           {ButtonContent()}
         </Button>
-      </ThemeProvider>
+      </div>
     </Tooltip>
   );
 };

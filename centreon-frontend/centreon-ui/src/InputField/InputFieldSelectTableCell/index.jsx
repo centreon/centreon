@@ -168,6 +168,7 @@ class InputFieldSelectCustom extends Component {
             {options
               ? options.map((option) => (
                 <div
+                  key={option.id}
                   style={
                       isColored
                         ? {

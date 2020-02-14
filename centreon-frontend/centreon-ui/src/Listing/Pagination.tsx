@@ -1,3 +1,5 @@
+import React from 'react';
+
 import TablePagination from '@material-ui/core/TablePagination';
 import { withStyles } from '@material-ui/core/styles';
 
@@ -14,4 +16,8 @@ const styles = {
   },
 };
 
-export default withStyles(styles)(TablePagination);
+const Pagination = (props): JSX.Element => (
+  <TablePagination component="div" {...props} />
+);
+
+export default withStyles(styles)(Pagination);

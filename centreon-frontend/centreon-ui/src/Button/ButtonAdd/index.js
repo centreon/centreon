@@ -11,14 +11,9 @@ const useStyles = makeStyles((theme) => ({
   button: {
     margin: theme.spacing(1),
     display: 'flex',
-    backgroundColor: '#1174cb',
-    color: '#fff',
     fontSize: 12,
     margin: 0,
     padding: '7px 10px',
-    '&:hover': {
-      backgroundColor: '#1e68a9',
-    },
   },
   leftIcon: {
     marginRight: theme.spacing(1),
@@ -29,10 +24,11 @@ const useStyles = makeStyles((theme) => ({
 
 const ButtonAdd = ({ label, onClick, ...rest }) => {
   const classes = useStyles();
+
   return (
     <Button
       variant="contained"
-      color="secondary"
+      color="primary"
       className={classes.button}
       onClick={onClick}
       {...rest}

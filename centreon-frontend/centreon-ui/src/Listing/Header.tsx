@@ -1,9 +1,6 @@
-/* eslint-disable react/jsx-filename-extension */
-
 import React from 'react';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
-import PropTypes from 'prop-types';
 import TableCell from '@material-ui/core/TableCell';
 import { withStyles } from '@material-ui/core/styles';
 import StyledTableSortLabel from './SortLabel';
@@ -20,6 +17,17 @@ const HeaderCell = withStyles({
   },
 })(TableCell);
 
+interface Props {
+  onSelectAllClick: (event) => void;
+  order?: 'desc' | 'asc';
+  orderBy?: string;
+  numSelected: number;
+  rowCount: number;
+  headRows;
+  checkable: boolean;
+  onRequestSort: (event, property) => void;
+}
+
 const ListingHeader = ({
   onSelectAllClick,
   order,
@@ -29,8 +37,8 @@ const ListingHeader = ({
   headRows,
   checkable,
   onRequestSort,
-}) => {
-  const createSortHandler = (property) => (event) => {
+}: Props): JSX.Element => {
+  const createSortHandler = (property) => (event): void => {
     onRequestSort(event, property);
   };
 
@@ -73,26 +81,6 @@ const ListingHeader = ({
       </TableRow>
     </TableHead>
   );
-};
-
-ListingHeader.propTypes = {
-  numSelected: PropTypes.number.isRequired,
-  onRequestSort: PropTypes.func.isRequired,
-  onSelectAllClick: PropTypes.func.isRequired,
-  order: PropTypes.string,
-  orderBy: PropTypes.string,
-  rowCount: PropTypes.number.isRequired,
-  headRows: PropTypes.arrayOf(
-    PropTypes.objectOf(
-      PropTypes.oneOfType([PropTypes.bool, PropTypes.string, PropTypes.number]),
-    ),
-  ).isRequired,
-  checkable: PropTypes.bool.isRequired,
-};
-
-ListingHeader.defaultProps = {
-  order: undefined,
-  orderBy: undefined,
 };
 
 export default ListingHeader;

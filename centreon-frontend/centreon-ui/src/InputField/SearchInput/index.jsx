@@ -72,13 +72,11 @@ const SearchInput = forwardRef((props, ref) => {
 
 SearchInput.propTypes = {
   placeholder: PropTypes.string,
-  value: PropTypes.string,
   onChange: PropTypes.func.isRequired,
 };
 
 SearchInput.defaultProps = {
   placeholder: 'Search',
-  value: null,
 };
 
 export default SearchInput;

@@ -8,13 +8,15 @@ import clsx from 'clsx';
 import ResizeObserver from 'resize-observer-polyfill';
 
 import { withStyles } from '@material-ui/core/styles';
-import Table from '@material-ui/core/Table';
-import TableBody from '@material-ui/core/TableBody';
-import Paper from '@material-ui/core/Paper';
-import LinearProgress from '@material-ui/core/LinearProgress';
-import DefaultTooltip from '@material-ui/core/Tooltip';
-import Box from '@material-ui/core/Box';
-import TableCell from '@material-ui/core/TableCell';
+import {
+  Table,
+  TableBody,
+  Paper,
+  LinearProgress,
+  Tooltip as DefaultTooltip,
+  Box,
+  TableCell,
+} from '@material-ui/core';
 
 import StyledTableRow from './Row';
 import IconPowerSettings from '../Icon/IconPowerSettings';
@@ -97,7 +99,7 @@ interface Props {
   onSort?: (sortParams) => void;
   paginated?: boolean;
   selectedRows?;
-  sorto?: string;
+  sorto?: 'asc' | 'desc';
   sortf?: string;
   tableData;
   totalRows: number;
@@ -199,7 +201,9 @@ const Listing = ({
   const getColumnCell = ({ row, column }): JSX.Element => {
     const cellByColumnType = {
       [TABLE_COLUMN_TYPES.number]: (): JSX.Element => (
-        <BodyTableCell align="left">{row[column.id] || ''}</BodyTableCell>
+        <BodyTableCell key={column.id} align="left">
+          {row[column.id] || ''}
+        </BodyTableCell>
       ),
       [TABLE_COLUMN_TYPES.string]: (): JSX.Element => (
         <BodyTableCell key={column.id} align="left">
@@ -219,7 +223,7 @@ const Listing = ({
         </BodyTableCell>
       ),
       [TABLE_COLUMN_TYPES.toggler]: (): JSX.Element => (
-        <BodyTableCell align="left">
+        <BodyTableCell align="left" key={column.id}>
           {row[column.id] ? (
             <Tooltip
               label={labelEnableDisable}
@@ -229,13 +233,7 @@ const Listing = ({
                 onDisable([row]);
               }}
             >
-              <IconPowerSettings
-                onClick={(e): void => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  onDisable([row]);
-                }}
-              />
+              <IconPowerSettings />
             </Tooltip>
           ) : (
             <Tooltip
@@ -246,14 +244,7 @@ const Listing = ({
                 onEnable([row]);
               }}
             >
-              <IconPowerSettingsDisable
-                active
-                onClick={(e): void => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  onEnable([row]);
-                }}
-              />
+              <IconPowerSettingsDisable />
             </Tooltip>
           )}
         </BodyTableCell>
@@ -311,33 +302,25 @@ const Listing = ({
               <Box>
                 <Tooltip
                   label={labelDelete}
-                  onClick={(): void => {
+                  onClick={(e): void => {
+                    e.preventDefault();
+                    e.stopPropagation();
                     onDelete([row]);
                   }}
                 >
-                  <IconDelete
-                    onClick={(e): void => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      onDelete([row]);
-                    }}
-                  />
+                  <IconDelete />
                 </Tooltip>
               </Box>
               <Box>
                 <Tooltip
                   label={labelDuplicate}
-                  onClick={(): void => {
+                  onClick={(e): void => {
+                    e.preventDefault();
+                    e.stopPropagation();
                     onDuplicate([row]);
                   }}
                 >
-                  <IconLibraryAdd
-                    onClick={(e): void => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      onDuplicate([row]);
-                    }}
-                  />
+                  <IconLibraryAdd />
                 </Tooltip>
               </Box>
             </Box>
@@ -401,7 +384,7 @@ const Listing = ({
         ) : null}
         <div
           style={{
-            overflow: 'visible',
+            overflow: 'auto',
             maxHeight: tableMaxHeight(),
           }}
         >

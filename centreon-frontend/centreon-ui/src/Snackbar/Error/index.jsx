@@ -59,10 +59,11 @@ const ErrorSnackbar = ({ message, open, onClose }) => {
 
 ErrorSnackbar.defaultProps = {
   onClose: () => {},
+  message: null,
 };
 
 ErrorSnackbar.propTypes = {
-  message: PropTypes.string.isRequired,
+  message: PropTypes.string,
   open: PropTypes.bool.isRequired,
   onClose: PropTypes.func,
 };

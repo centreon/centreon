@@ -152,7 +152,7 @@ class InputFieldSelectCustom extends Component {
             {filteredOptions
               ? filteredOptions.map((option) => (
                   // eslint-disable-next-line react/jsx-indent
-                  <>
+                  <div key={option.id}>
                     {icons ? (
                       <CustomIconWithText
                         label={option.name}
@@ -171,7 +171,7 @@ class InputFieldSelectCustom extends Component {
                         {option.name}
                       </span>
                     )}
-                  </>
+                  </div>
                 ))
               : null}
           </div>
