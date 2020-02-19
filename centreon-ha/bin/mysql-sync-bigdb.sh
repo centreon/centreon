@@ -267,7 +267,7 @@ fi
 if [ "$started" -eq 1 ] ; then
 	i=0
 	echo -n "Stopping mysqld:"
-    $MYSQLADMIN -f -u "$DBROOTUSER" -h "$master_hostname" "$DBROOTPASSWORD" shutdown
+    $MYSQLADMIN -f -u "$DBROOTUSER" -h "$master_hostname" -p"$DBROOTPASSWORD" shutdown
 	while ps -o args --no-headers -C mysqld >/dev/null; do
 		if [ "$i" -gt "$STOP_TIMEOUT" ] ; then
 			echo ""
@@ -335,7 +335,7 @@ echo "BinLog Position = " $binlog_pos
 ###
 
 echo "Remove read_only on master"
-mysql -f -u "$DBROOTUSER" -h "$master_hostname" "$DBROOTPASSWORD" -e "SET GLOBAL read_only=off"
+mysql -f -u "$DBROOTUSER" -h "$master_hostname" -p"$DBROOTPASSWORD" -e "SET GLOBAL read_only=off"
 
 ###
 # Delete from other side
@@ -388,7 +388,7 @@ $USER_SUDO ssh $slave_hostname "$SUDO_MYSQL_START_SLAVE $MYSQL_START"
 # Demarrer la replication
 ###
 echo "Start Replication"
-mysql -f -u "$DBROOTUSER" -h "$slave_hostname" "$DBROOTPASSWORD" << EOF
+mysql -f -u "$DBROOTUSER" -h "$slave_hostname" -p"$DBROOTPASSWORD" << EOF
 RESET MASTER;
 STOP SLAVE;
 RESET SLAVE;
