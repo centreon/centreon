@@ -3,12 +3,15 @@ import PropTypes from 'prop-types';
 import {
   createMuiTheme,
   ThemeProvider as MuiThemeProvider,
-} from '@material-ui/core/styles';
+} from '@material-ui/core';
 
 const theme = createMuiTheme({
   palette: {
     primary: {
-      main: '#009fdf',
+      main: '#00006F',
+    },
+    background: {
+      default: '#EDEDED',
     },
   },
 });

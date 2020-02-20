@@ -3,8 +3,7 @@ export default {
   toggler: 2,
   number: 3,
   hoverActions: 4,
-  multicolumn: 5,
-  select: 6,
-  widthVariation: 7,
-  component: 8,
+  select: 5,
+  widthVariation: 6,
+  component: 7,
 };

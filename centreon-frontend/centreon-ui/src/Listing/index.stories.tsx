@@ -2,10 +2,18 @@
 
 import React from 'react';
 
+import { makeStyles } from '@material-ui/core';
+
 import Listing from '.';
 import ColumnTypes from './ColumnTypes';
 
 export default { title: 'Listing' };
+
+const useStyles = makeStyles((theme) => ({
+  listing: {
+    backgroundColor: theme.palette.background.default,
+  },
+}));
 
 const ComponentColumn = ({ row, isRowSelected }): JSX.Element => (
   <>
@@ -45,23 +53,29 @@ const listing = [...tenElements].map((_, index) => ({
   selected: index % 3 === 0,
 }));
 
-const Story = (props): JSX.Element => (
-  <Listing
-    columnConfiguration={configuration}
-    onDelete={noOp}
-    onSort={noOp}
-    onDuplicate={noOp}
-    onPaginate={noOp}
-    onPaginationLimitChanged={noOp}
-    limit={listing.length}
-    currentPage={0}
-    totalRows={listing.length}
-    tableData={listing}
-    grayRowCondition={(row): boolean => !row.active}
-    selectedRows={listing.filter((row) => row.selected)}
-    checkable
-    {...props}
-  />
-);
+const Story = (props): JSX.Element => {
+  const classes = useStyles();
+
+  return (
+    <div className={classes.listing}>
+      <Listing
+        columnConfiguration={configuration}
+        onDelete={noOp}
+        onSort={noOp}
+        onDuplicate={noOp}
+        onPaginate={noOp}
+        onPaginationLimitChanged={noOp}
+        limit={listing.length}
+        currentPage={0}
+        totalRows={listing.length}
+        tableData={listing}
+        grayRowCondition={(row): boolean => !row.active}
+        selectedRows={listing.filter((row) => row.selected)}
+        checkable
+        {...props}
+      />
+    </div>
+  );
+};
 
 export const normal = (): JSX.Element => <Story />;

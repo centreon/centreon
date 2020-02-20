@@ -18,7 +18,7 @@ import {
   TableCell,
 } from '@material-ui/core';
 
-import StyledTableRow from './Row';
+import ListingRow from './Row';
 import IconPowerSettings from '../Icon/IconPowerSettings';
 import IconPowerSettingsDisable from '../Icon/IconPowerSettingsDisable';
 import StyledCheckbox from './Checkbox';
@@ -48,15 +48,10 @@ const styles = (): {} => ({
     height: '100%',
     display: 'flex',
     flexDirection: 'column',
-    boxShadow: 'none',
     background: 'none',
   },
-  table: {
-    boxShadow:
-      '0px 1px 3px 0px rgba(0,0,0,0.2), 0px 1px 1px 0px rgba(0,0,0,0.14), 0px 2px 1px -1px rgba(0,0,0,0.12)',
-  },
   rowDisabled: {
-    backgroundColor: 'rgba(0, 0, 0, 0.07) !important',
+    backgroundColor: 'rgba(0, 0, 0, 0.07)',
   },
   loadingIndicator: {
     width: '100%',
@@ -200,11 +195,6 @@ const Listing = ({
 
   const getColumnCell = ({ row, column }): JSX.Element => {
     const cellByColumnType = {
-      [TABLE_COLUMN_TYPES.number]: (): JSX.Element => (
-        <BodyTableCell key={column.id} align="left">
-          {row[column.id] || ''}
-        </BodyTableCell>
-      ),
       [TABLE_COLUMN_TYPES.string]: (): JSX.Element => (
         <BodyTableCell key={column.id} align="left">
           {column.image && (
@@ -268,17 +258,6 @@ const Listing = ({
           </DefaultTooltip>
         </BodyTableCell>
       ),
-      [TABLE_COLUMN_TYPES.multicolumn]: (): JSX.Element => (
-        <BodyTableCell key={column.id} align="left">
-          {column.columns.map((subColumn) => (
-            <>
-              {`${subColumn.label} ${row[subColumn.id]}`}
-              {subColumn.type === 'percentage' ? '%' : null}
-              {'   '}
-            </>
-          ))}
-        </BodyTableCell>
-      ),
       [TABLE_COLUMN_TYPES.hoverActions]: (): JSX.Element => (
         <BodyTableCell
           align="right"
@@ -335,10 +314,14 @@ const Listing = ({
           isRowSelected: isSelected(row),
         });
 
+        const { ComponentOnHover } = column;
+
+        const isHovered = hovered === row.id;
+
         return (
           Component && (
             <BodyTableCell align="left" key={column.id}>
-              {Component}
+              {ComponentOnHover && isHovered ? <ComponentOnHover /> : Component}
             </BodyTableCell>
           )
         );
@@ -358,7 +341,7 @@ const Listing = ({
     <>
       {loading && <LinearProgress className={classes.loadingIndicator} />}
       {!loading && <div className={classes.loadingIndicator} />}
-      <Paper className={classes.paper}>
+      <div className={classes.paper}>
         {paginated ? (
           <StyledPagination
             rowsPerPageOptions={[10, 20, 30, 40, 50, 60, 70, 80, 90, 100]}
@@ -372,7 +355,6 @@ const Listing = ({
               display: 'flex',
               flexDirection: 'row-reverse',
               padding: 0,
-              background: '#fff',
             }}
             SelectProps={{
               native: true,
@@ -382,18 +364,14 @@ const Listing = ({
             ActionsComponent={PaginationActions}
           />
         ) : null}
-        <div
+        <Paper
           style={{
             overflow: 'auto',
             maxHeight: tableMaxHeight(),
           }}
+          elevation={1}
         >
-          <Table
-            className={classes.table}
-            aria-label={ariaLabel}
-            size="small"
-            stickyHeader
-          >
+          <Table aria-label={ariaLabel} size="small" stickyHeader>
             <ListingHeader
               numSelected={selectedRows.length}
               order={sorto}
@@ -416,8 +394,7 @@ const Listing = ({
                 const isRowSelected = isSelected(row);
 
                 return (
-                  <StyledTableRow
-                    hover
+                  <ListingRow
                     tabIndex={-1}
                     key={row.id}
                     onMouseEnter={hoverRow(row.id)}
@@ -447,20 +424,20 @@ const Listing = ({
                     {columnConfiguration.map((column) =>
                       getColumnCell({ column, row }),
                     )}
-                  </StyledTableRow>
+                  </ListingRow>
                 );
               })}
               {tableData.length < 1 && (
-                <StyledTableRow tabIndex={-1}>
+                <ListingRow tabIndex={-1}>
                   <BodyTableCell colSpan={6} align="center">
                     {loading ? loadingDataMessage : emptyDataMessage}
                   </BodyTableCell>
-                </StyledTableRow>
+                </ListingRow>
               )}
             </TableBody>
           </Table>
-        </div>
-      </Paper>
+        </Paper>
+      </div>
     </>
   );
 };
