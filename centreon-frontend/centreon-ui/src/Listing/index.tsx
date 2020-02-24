@@ -134,7 +134,7 @@ const Listing = ({
   sortf = undefined,
 }: Props): JSX.Element => {
   const [tableTopOffset, setTableTopOffset] = useState(0);
-  const [hovered, setHovered] = useState();
+  const [hovered, setHovered] = useState(null);
 
   const tableBody = useRef<Element>();
 
