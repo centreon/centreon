@@ -508,7 +508,7 @@ sub ping {
         }
     }
 
-    return (0, { action => 'ping', message => 'ping ok', id => $options{id}, data => $constatus }, 'PONG');
+    return (0, { action => 'ping', message => 'ping ok', id => $options{id}, hostname => $options{gorgone}->{hostname}, data => $constatus }, 'PONG');
 }
 
 sub putlog {
