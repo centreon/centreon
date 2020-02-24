@@ -104,6 +104,7 @@ my $http_code_explained = {
 sub cb_debug {
     my ($easy, $type, $data, $uservar) = @_;
 
+    chomp $data;
     my $msg = '';
     if ($type == $uservar->{constant_cb}->(name => 'CURLINFO_TEXT')) {
         $msg = sprintf("== Info: %s", $data);

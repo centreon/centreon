@@ -28,7 +28,7 @@ sub new {
     my $self  = {};
     $self->{logger} = $options{logger};
     $self->{db_centreon} = $options{db_centreon};
-    
+
     bless $self, $class;
     return $self;
 }
@@ -39,7 +39,7 @@ sub builder {
     my $where = defined($options{where}) ? ' WHERE ' . $options{where} : '';
     my $extra_suffix = defined($options{extra_suffix}) ? $options{extra_suffix} : '';
     my $request = $options{request} . " " . join(', ', @{$options{fields}}) . 
-                    " FROM " . join(', ', @{$options{tables}}) . $where . $extra_suffix;
+        ' FROM ' . join(', ', @{$options{tables}}) . $where . $extra_suffix;
     return $request;
 }
 
@@ -82,10 +82,30 @@ sub execute {
     return $self->do(request => $request, %options);
 }
 
+sub transaction_query {
+    my ($self, %options) = @_;
+
+    $self->transaction_mode(1);
+    my ($status) = $self->do(request => $options{request});
+    if ($status == -1) {
+        $self->rollback();
+        return -1;
+    }
+    
+    $self->commit();
+    return 0;
+}
+
 sub quote {
     my ($self, %options) = @_;
 
     return $self->{db_centreon}->quote($options{value});
 }
+
+sub transaction_mode { shift->{db_centreon}->transaction_mode($_[0]); };
+
+sub commit { shift->{db_centreon}->commit(); }
+
+sub rollback { shift->{db_centreon}->rollback(); }
 
 1;

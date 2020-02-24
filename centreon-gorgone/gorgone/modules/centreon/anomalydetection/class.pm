@@ -49,8 +49,11 @@ sub new {
 
     $connector->{resync_time} = (defined($options{config}->{resync_time}) && $options{config}->{resync_time} =~ /(\d+)/) ? $1 : 600;
     $connector->{last_resync_time} = -1;
-    $connector->{authtoken} = undef;
-    $connector->{proxyurl} = undef; # format http://[username:password@]server:port
+    $connector->{saas_token} = undef;
+    $connector->{saas_url} = undef;
+    $connector->{proxy_url} = undef; # format http://[username:password@]server:port
+    $connector->{centreon_metrics} = {};
+    $connector->{unregister_metrics_centreon} = {};
 
     bless $connector, $class;
     $connector->set_signal_handlers();
@@ -89,15 +92,325 @@ sub class_handle_HUP {
     }
 }
 
+sub http_check_error {
+    my ($self, %options) = @_;
+
+    if ($options{status} == 1) {
+        $self->{logger}->writeLogError("[anomalydetection] -class- $options{endpoint} issue");
+        return 1;
+    }
+
+    my $code = $self->{http}->get_code();
+    if ($code !~ /$options{http_code_continue}/) {
+        $self->{logger}->writeLogError("[anomalydetection] -class- $options{endpoint} issue - " . $self->{http}->get_message());
+        return 1;
+    }
+
+    return 0;
+}
+
+sub saas_api_request {
+    my ($self, %options) = @_;
+
+    my ($status, $payload);
+    if (defined($options{payload})) {
+        ($status, $payload) = $self->json_encode(argument => $options{payload});
+        return 1 if ($status == 1);
+    }
+
+    ($status, my $response) = $self->{http}->request(
+        method => $options{method}, hostname => '',
+        full_url => $self->{saas_url} . $options{endpoint},
+        query_form_post => $payload,
+        header => [
+            'Accept-Type: application/json; charset=utf-8',
+            'Content-Type: application/json; charset=utf-8',
+            'x-api-key: ' . $self->{saas_token}
+        ],
+        proxyurl => $self->{proxy_url},
+        curl_opt => ['CURLOPT_SSL_VERIFYPEER => 0']
+    );
+    return 1 if ($self->http_check_error(status => $status, endpoint => $options{endpoint}, http_code_continue => $options{http_code_continue}) == 1);
+
+    ($status, my $result) = $self->json_decode(argument => $response);
+    return 1 if ($status == 1);
+
+    return (0, $result);
+}
+
+sub connection_informations {
+    my ($self, %options) = @_;
+
+    my ($status, $datas) = $self->{class_object_centreon}->custom_execute(
+        request => "select `key`, `value` from options WHERE `key` IN ('saas_url', 'saas_token', 'proxy_url', 'proxy_port', 'proxy_user', 'proxy_password')",
+        mode => 2
+    );
+    if ($status == -1) {
+        $self->{logger}->writeLogError('[anomalydetection] -class- cannot get connection informations');
+        return 1;
+    }
+
+    $self->{$_->[0]} = $_->[1] foreach (@$datas);
+
+    if (!defined($self->{saas_url}) || $self->{saas_url} eq '') {
+        $self->{logger}->writeLogError('[anomalydetection] -class- database: saas_url is not defined');
+        return 1;
+    }
+    if (!defined($self->{saas_token}) || $self->{saas_token} eq '') {
+        $self->{logger}->writeLogError('[anomalydetection] -class- database: saas_token is not defined');
+        return 1;
+    }
+
+    if (defined($self->{proxy_url})) {
+        if ($self->{proxy_url} eq '') {
+            $self->{proxy_url} = undef;
+            return 0;
+        }
+
+        $self->{proxy_url} = $self->{proxy_user} . ':' . $self->{proxy_password} . '@' . $self->{proxy_url}
+            if (defined($self->{proxy_user}) && $self->{proxy_user} ne '' &&
+                defined($self->{proxy_password}) && $self->{proxy_password} ne '');
+        $self->{proxy_url} = $self->{proxy_url} . ':' . $self->{proxy_port}
+            if (defined($self->{proxy_port}) && $self->{proxy_port} =~ /(\d+)/);
+        $self->{proxy_url} = 'http://' . $self->{proxy_url};
+    }
+
+    return 0;
+}
+
+sub get_centreon_anomaly_metrics {
+    my ($self, %options) = @_;
+
+    my ($status, $datas) = $self->{class_object_centreon}->custom_execute(
+        request => '
+            SELECT mas.*, hsr.host_host_id as host_id
+            FROM mod_anomaly_service mas, host_service_relation hsr
+            WHERE mas.service_id = hsr.service_service_id
+        ',
+        keys => 'id',
+        mode => 1
+    );
+    if ($status == -1) {
+        $self->{logger}->writeLogError('[anomalydetection] -class- database: cannot get metrics from centreon');
+        return 1;
+    }
+
+    $self->{centreon_metrics} = $datas;
+
+    my $metric_ids = {};
+    foreach (keys %{$self->{centreon_metrics}}) {
+        if (!defined($self->{centreon_metrics}->{$_}->{saas_creation_date})) {
+            $metric_ids->{ $self->{centreon_metrics}->{$_}->{metric_id} } = $_;
+        }
+    }
+
+    if (scalar(keys %$metric_ids) > 0) {
+        ($status, $datas) = $self->{class_object_centstorage}->custom_execute(
+            request => 'SELECT `metric_id`, `metric_name` FROM metrics  WHERE metric_id IN (' . join(', ', keys %$metric_ids) . ')',
+            mode => 2
+        );
+        if ($status == -1) {
+            $self->{logger}->writeLogError('[anomalydetection] -class- database: cannot get metric name informations');
+            return 2;
+        }
+
+        foreach (@$datas) {
+            $self->{centreon_metrics}->{ $metric_ids->{ $_->[0] } }->{metric_name} = $_->[1];
+        }
+    }
+
+    return 0;
+}
+
+sub save_centreon_previous_register {
+    my ($self, %options) = @_;
+
+    my ($query, $query_append) = ('', '');
+    foreach (keys %{$self->{unregister_metrics_centreon}}) {
+        $query .= $query_append . 
+            'UPDATE mod_anomaly_service SET' .
+            ' saas_model_id = ' . $self->{class_object_centreon}->quote(value => $self->{unregister_metrics_centreon}->{$_}->{saas_model_id}) . ',' .
+            ' saas_metric_id = ' . $self->{class_object_centreon}->quote(value => $self->{unregister_metrics_centreon}->{$_}->{saas_metric_id}) . ',' .
+            ' saas_creation_date = ' . $self->{unregister_metrics_centreon}->{$_}->{creation_date} .
+            ' WHERE `id` = ' . $_;
+        $query_append = ';';
+    }
+    if ($query ne '') {
+        my $status = $self->{class_object_centreon}->transaction_query(request => $query);
+        if ($status == -1) {
+            $self->{logger}->writeLogError('[anomalydetection] -class- database: cannot save centreon previous register');
+            return 1;
+        }
+
+        foreach (keys %{$self->{unregister_metrics_centreon}}) {
+            $self->{centreon_metrics}->{$_}->{saas_creation_date} = $self->{unregister_metrics_centreon}->{$_}->{creation_date};
+            $self->{centreon_metrics}->{$_}->{saas_model_id} = $self->{unregister_metrics_centreon}->{$_}->{saas_model_id};
+            $self->{centreon_metrics}->{$_}->{saas_metric_id} = $self->{unregister_metrics_centreon}->{$_}->{saas_metric_id};
+        }
+    }
+
+    $self->{unregister_metrics_centreon} = {};
+    return 0;
+}
+
+sub saas_register_metrics {
+    my ($self, %options) = @_;
+
+    my $register_centreon_metrics = {};
+    my ($query, $query_append) = ('', '');
+    
+    $self->{generate_metrics_lua} = 0;
+    foreach (keys %{$self->{centreon_metrics}}) {
+        # metric_name is set when we need to register it
+        next if (!defined($self->{centreon_metrics}->{$_}->{metric_name}));
+        next if ($self->{centreon_metrics}->{$_}->{saas_to_delete} == 1);
+
+        my $payload = {
+            metrics => [
+                {
+                    name => $self->{centreon_metrics}->{$_}->{metric_name},
+                    labels => {
+                        host_id => $self->{centreon_metrics}->{$_}->{host_id},
+                        service_id => $self->{centreon_metrics}->{$_}->{service_id}
+                    },
+                    preprocessingOptions =>  {
+                        bucketize => {
+                            bucketizeFunction => 'mean',
+                            period => 300
+                        }
+                    }
+                }
+            ],
+            algorithm => {
+                type => $self->{centreon_metrics}->{$_}->{ml_model_name},
+                options => {
+                    period => '30d'
+                }
+            }
+        };
+
+        my ($status, $result) = $self->saas_api_request(
+            endpoint => '/machinelearning',
+            method => 'POST',
+            payload => $payload,
+            http_code_continue => '^2'
+        );
+        return 1 if ($status);
+
+        $self->{logger}->writeLogDebug(
+            "[anomalydetection] -class- saas: metric '$self->{centreon_metrics}->{$_}->{host_id}/$self->{centreon_metrics}->{$_}->{service_id}/$self->{centreon_metrics}->{$_}->{metric_name}' registered"
+        );
+
+        # {"metrics": [{"name":"system_load1","labels":{"hostname":"srvi-monitoring"},"preprocessingOptions":{"bucketize":{"bucketizeFunction":"mean","period":300}},"id":"e255db55-008b-48cd-8dfe-34cf60babd01"}],"algorithm":{"type":"h2o","options":{"period":"180d"}},
+        #  "id":"257fc68d-3248-4c92-92a1-43c0c63d5e5e"}
+
+        $self->{generate_metrics_lua} = 1;
+        $register_centreon_metrics->{$_} = {
+            saas_creation_date => time(),
+            saas_model_id => $result->{id},
+            saas_metric_id => $result->{metrics}->[0]->{id}
+        };
+
+        $query .= $query_append . 
+            'UPDATE mod_anomaly_service SET' .
+            ' saas_model_id = ' . $self->{class_object_centreon}->quote(value => $register_centreon_metrics->{$_}->{saas_model_id}) . ',' .
+            ' saas_metric_id = ' . $self->{class_object_centreon}->quote(value => $register_centreon_metrics->{$_}->{saas_metric_id}) . ',' .
+            ' saas_creation_date = ' . $register_centreon_metrics->{$_}->{saas_creation_date} .
+            ' WHERE `id` = ' . $_;
+        $query_append = ';';
+    }
+
+    return 0 if ($query eq '');
+
+    my $status = $self->{class_object_centreon}->transaction_query(request => $query);
+    if ($status == -1) {
+        $self->{unregister_metrics_centreon} = $register_centreon_metrics;
+        $self->{logger}->writeLogError('[anomalydetection] -class- dabase: cannot update centreon register');
+        return 1;
+    }
+
+    foreach (keys %$register_centreon_metrics) {
+        $self->{centreon_metrics}->{$_}->{saas_creation_date} = $register_centreon_metrics->{$_}->{saas_creation_date};
+        $self->{centreon_metrics}->{$_}->{saas_metric_id} = $register_centreon_metrics->{$_}->{saas_metric_id};
+        $self->{centreon_metrics}->{$_}->{saas_model_id} = $register_centreon_metrics->{$_}->{saas_model_id};
+    }
+
+    return 0;
+}
+
+sub saas_delete_metrics {
+    my ($self, %options) = @_;
+
+    my $delete_ids = [];
+    foreach (keys %{$self->{centreon_metrics}}) {
+        next if ($self->{centreon_metrics}->{$_}->{saas_to_delete} == 0);
+
+        if (defined($self->{centreon_metrics}->{$_}->{saas_model_id})) {
+            my ($status, $result) = $self->saas_api_request(
+                endpoint => '/machinelearning/' . $self->{centreon_metrics}->{$_}->{saas_model_id},
+                method => 'DELETE',
+                http_code_continue => '^(?:2|404)'
+            );
+            next if ($status);
+
+            $self->{logger}->writeLogDebug(
+                "[anomalydetection] -class- saas:: metric '$self->{centreon_metrics}->{$_}->{host_id}/$self->{centreon_metrics}->{$_}->{service_id}/$self->{centreon_metrics}->{$_}->{metric_name}' deleted"
+            );
+
+            next if (!defined($result->{message}) ||
+                $result->{message} !~ /machine learning request id is not found/i);
+        }
+
+        push @$delete_ids, $_;
+    }
+
+    return 0 if (scalar(@$delete_ids) <= 0);
+
+    my $status = $self->{class_object_centreon}->transaction_query(
+        request => 'DELETE FROM mod_anomaly_service WHERE id IN (' . join(', ', @$delete_ids) . ')'
+    );
+    if ($status == -1) {
+        $self->{logger}->writeLogError('[anomalydetection] -class- database: cannot delete centreon saas');
+        return 1;
+    }
+
+    return 0;
+}
+
 sub action_adsync {
     my ($self, %options) = @_;
 
     $options{token} = $self->generate_token() if (!defined($options{token}));
     $self->send_log(code => gorgone::class::module::ACTION_BEGIN, token => $options{token}, data => { message => 'action adsync proceed' });
 
-    # we need to get proxyurl, token options
-    # need to check if the module is installed
-    # first part: declare in SaaS
+    if ($self->connection_informations()) {
+        $self->send_log(code => gorgone::class::module::ACTION_FINISH_KO, token => $options{token}, data => { message => 'cannot get connection informations' });
+        return 1;
+    }
+
+    if ($self->save_centreon_previous_register()) {
+        $self->send_log(code => gorgone::class::module::ACTION_FINISH_KO, token => $options{token}, data => { message => 'cannot save previsous register' });
+        return 1;
+    }
+
+    if ($self->get_centreon_anomaly_metrics()) {
+        $self->send_log(code => gorgone::class::module::ACTION_FINISH_KO, token => $options{token}, data => { message => 'cannot get metrics from centreon' });
+        return 1;
+    }
+
+    if ($self->saas_register_metrics()) {
+        $self->send_log(code => gorgone::class::module::ACTION_FINISH_KO, token => $options{token}, data => { message => 'cannot get declare metrics in saas' });
+        return 1;
+    }
+
+    if ($self->{generate_metrics_lua} == 1) {
+        # need to generate a new file (TODO)
+    }
+
+    if ($self->saas_delete_metrics()) {
+        $self->send_log(code => gorgone::class::module::ACTION_FINISH_KO, token => $options{token}, data => { message => 'cannot delete metrics in saas' });
+        return 1;
+    }
 
     $self->{logger}->writeLogDebug("[anomalydetection] Finish adsync");
     $self->send_log(code => $self->ACTION_FINISH_OK, token => $options{token}, data => { message => 'action adsync finished' });
