@@ -11,7 +11,8 @@
     "start:dev": "npm run bundle -- --watch --source-maps",
     "storybook": "start-storybook -p 9001 -c .storybook",
     "build:storybook": "build-storybook -c .storybook -o .out",
-    "test": "jest"
+    "test": "node testRunner.js",
+    "test:storyshot": "npm run test storyshots.test.js -- --story"
   },
   "sideEffects": false,
   "repository": {

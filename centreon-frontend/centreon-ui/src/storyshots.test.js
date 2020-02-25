@@ -15,8 +15,18 @@ const beforeScreenshot = () => {
   );
 };
 
+const getStoryKindRegex = () => {
+  const config = JSON.parse(process.env.TEST_CONFIGURATION);
+  if (!config.story) {
+    return null;
+  }
+
+  return new RegExp(`^(${config.story || ''})$`, 'g');
+};
+
 initStoryshots({
   suite: 'Image StoryShots',
+  storyKindRegex: getStoryKindRegex(),
   test: imageSnapshot({
     storybookUrl: `file://${__dirname}/../.out`,
     getMatchOptions,
