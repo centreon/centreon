@@ -1,5 +1,5 @@
 # 
-# Copyright 2019 Centreon (http://www.centreon.com/)
+# Copyright 2020 Centreon (http://www.centreon.com/)
 #
 # Centreon is a full-fledged industry-strength solution that meets
 # the needs in IT infrastructure and application monitoring for
@@ -109,6 +109,39 @@ sub http_check_error {
     return 0;
 }
 
+sub get_localhost_poller {
+    my ($self, %options) = @_;
+
+    my $instance;
+    foreach (keys %{$self->{pollers}}) {
+        if ($self->{pollers}->{$_}->{localhost} == 1) {
+            $instance = $_;
+            last;
+        }
+    }
+
+    return $instance;
+}
+
+sub get_poller {
+    my ($self, %options) = @_;
+
+    return $self->{pollers}->{$options{instance}};
+}
+
+sub write_file {
+    my ($self, %options) = @_;
+
+    my $fh;
+    if (!open($fh, '>', $options{file})) {
+        $self->{logger}->writeLogError("[anomalydetection] -class- cannot open file '" . $options{file} . "': $!");
+        return 1;
+    }
+    print $fh $options{content};
+    close($fh);
+    return 0;
+}
+
 sub saas_api_request {
     my ($self, %options) = @_;
 
@@ -182,10 +215,29 @@ sub get_centreon_anomaly_metrics {
     my ($self, %options) = @_;
 
     my ($status, $datas) = $self->{class_object_centreon}->custom_execute(
+        request =>
+            'SELECT nagios_server_id, cfg_dir, centreonbroker_cfg_path, localhost, ' .
+            'engine_start_command, engine_stop_command, engine_restart_command, engine_reload_command, ' .
+            'broker_reload_command ' .
+            'FROM cfg_nagios ' .
+            'JOIN nagios_server ' .
+            'WHERE id = nagios_server_id',
+        mode => 1,
+        keys => 'nagios_server_id'
+    );
+    if ($status == -1) {
+        $self->{logger}->writeLogError('[anomalydetection] cannot get configuration for pollers');
+        return 1;
+    }
+    $self->{pollers} = $datas;
+
+    ($status, $datas) = $self->{class_object_centreon}->custom_execute(
         request => '
-            SELECT mas.*, hsr.host_host_id as host_id
-            FROM mod_anomaly_service mas, host_service_relation hsr
-            WHERE mas.service_id = hsr.service_service_id
+            SELECT mas.*, hsr.host_host_id as host_id, nhr.nagios_server_id as instance_id
+            FROM mod_anomaly_service mas, host_service_relation hsr, ns_host_relation nhr
+            WHERE
+                mas.service_id = hsr.service_service_id AND
+                hsr.host_host_id = nhr.host_host_id
         ',
         keys => 'id',
         mode => 1
@@ -231,7 +283,8 @@ sub save_centreon_previous_register {
             'UPDATE mod_anomaly_service SET' .
             ' saas_model_id = ' . $self->{class_object_centreon}->quote(value => $self->{unregister_metrics_centreon}->{$_}->{saas_model_id}) . ',' .
             ' saas_metric_id = ' . $self->{class_object_centreon}->quote(value => $self->{unregister_metrics_centreon}->{$_}->{saas_metric_id}) . ',' .
-            ' saas_creation_date = ' . $self->{unregister_metrics_centreon}->{$_}->{creation_date} .
+            ' saas_creation_date = ' . $self->{unregister_metrics_centreon}->{$_}->{creation_date} . ',' .
+            ' saas_update_date = ' . $self->{unregister_metrics_centreon}->{$_}->{creation_date} .
             ' WHERE `id` = ' . $_;
         $query_append = ';';
     }
@@ -301,8 +354,25 @@ sub saas_register_metrics {
             "[anomalydetection] -class- saas: metric '$self->{centreon_metrics}->{$_}->{host_id}/$self->{centreon_metrics}->{$_}->{service_id}/$self->{centreon_metrics}->{$_}->{metric_name}' registered"
         );
 
-        # {"metrics": [{"name":"system_load1","labels":{"hostname":"srvi-monitoring"},"preprocessingOptions":{"bucketize":{"bucketizeFunction":"mean","period":300}},"id":"e255db55-008b-48cd-8dfe-34cf60babd01"}],"algorithm":{"type":"h2o","options":{"period":"180d"}},
-        #  "id":"257fc68d-3248-4c92-92a1-43c0c63d5e5e"}
+        # {
+        #    "metrics": [
+        #        {
+        #            "name": "system_load1",
+        #            "labels": { "hostname":"srvi-monitoring" },
+        #            "preprocessingOptions": {
+        #                "bucketize": {
+        #                    "bucketizeFunction": "mean", "period": 300
+        #                }
+        #            },
+        #            "id": "e255db55-008b-48cd-8dfe-34cf60babd01"
+        #        }
+        #    ],
+        #    "algorithm": {
+        #        "type": "h2o",
+        #        "options": { "period":"180d" }
+        #    },
+        #  "id":"257fc68d-3248-4c92-92a1-43c0c63d5e5e"
+        # }
 
         $self->{generate_metrics_lua} = 1;
         $register_centreon_metrics->{$_} = {
@@ -315,7 +385,8 @@ sub saas_register_metrics {
             'UPDATE mod_anomaly_service SET' .
             ' saas_model_id = ' . $self->{class_object_centreon}->quote(value => $register_centreon_metrics->{$_}->{saas_model_id}) . ',' .
             ' saas_metric_id = ' . $self->{class_object_centreon}->quote(value => $register_centreon_metrics->{$_}->{saas_metric_id}) . ',' .
-            ' saas_creation_date = ' . $register_centreon_metrics->{$_}->{saas_creation_date} .
+            ' saas_creation_date = ' . $register_centreon_metrics->{$_}->{saas_creation_date} . ',' .
+            ' saas_update_date = ' . $register_centreon_metrics->{$_}->{saas_creation_date} .
             ' WHERE `id` = ' . $_;
         $query_append = ';';
     }
@@ -325,12 +396,13 @@ sub saas_register_metrics {
     my $status = $self->{class_object_centreon}->transaction_query(request => $query);
     if ($status == -1) {
         $self->{unregister_metrics_centreon} = $register_centreon_metrics;
-        $self->{logger}->writeLogError('[anomalydetection] -class- dabase: cannot update centreon register');
+        $self->{logger}->writeLogError('[anomalydetection] -class- database: cannot update centreon register');
         return 1;
     }
 
     foreach (keys %$register_centreon_metrics) {
         $self->{centreon_metrics}->{$_}->{saas_creation_date} = $register_centreon_metrics->{$_}->{saas_creation_date};
+        $self->{centreon_metrics}->{$_}->{saas_update_date} = $register_centreon_metrics->{$_}->{saas_creation_date};
         $self->{centreon_metrics}->{$_}->{saas_metric_id} = $register_centreon_metrics->{$_}->{saas_metric_id};
         $self->{centreon_metrics}->{$_}->{saas_model_id} = $register_centreon_metrics->{$_}->{saas_model_id};
     }
@@ -354,7 +426,7 @@ sub saas_delete_metrics {
             next if ($status);
 
             $self->{logger}->writeLogDebug(
-                "[anomalydetection] -class- saas:: metric '$self->{centreon_metrics}->{$_}->{host_id}/$self->{centreon_metrics}->{$_}->{service_id}/$self->{centreon_metrics}->{$_}->{metric_name}' deleted"
+                "[anomalydetection] -class- saas: metric '$self->{centreon_metrics}->{$_}->{host_id}/$self->{centreon_metrics}->{$_}->{service_id}/$self->{centreon_metrics}->{$_}->{metric_name}' deleted"
             );
 
             next if (!defined($result->{message}) ||
@@ -377,11 +449,97 @@ sub saas_delete_metrics {
     return 0;
 }
 
-sub action_adsync {
+sub generate_lua_filter_file {
+    my ($self, %options) = @_;
+
+    my $data = { filters => { } };
+    foreach (values %{$self->{centreon_metrics}}) {
+        next if ($_->{saas_to_delete} == 1);
+        next if (!defined($_->{saas_creation_date}));
+
+        $data->{filters}->{ $_->{host_id} } = {}
+            if (!defined($data->{filters}->{ $_->{host_id} }));
+        $data->{filters}->{ $_->{host_id} }->{ $_->{service_id} } = {}
+            if (!defined($data->{filters}->{ $_->{host_id} }->{ $_->{service_id} }));
+        $data->{filters}->{ $_->{host_id} }->{ $_->{service_id} }->{ $_->{metric_name} } = 1;
+    }
+
+    my ($status, $content) = $self->json_encode(argument => $data);
+    if ($status == 1) {
+        $self->{logger}->writeLogError('[anomalydetection] -class- cannot encode lua filter file');
+        return 1;
+    }
+
+    my $instance = $self->get_localhost_poller();
+    if ($status == 1) {
+        $self->{logger}->writeLogError('[anomalydetection] -class- cannot find localhost poller');
+        return 1;
+    }
+
+    my $poller = $self->get_poller(instance => $instance);
+    my $file = $poller->{centreonbroker_cfg_path} . '/anomaly-detection-filters.json';
+    if (! -w $poller->{centreonbroker_cfg_path}) {
+        $self->{logger}->writeLogError("[anomalydetection] -class- cannot write file '" . $file . "'");
+        return 1;
+    }
+
+    return 1 if ($self->write_file(file => $file, content => $content));
+
+    $self->{logger}->writeLogDebug('[anomalydetection] -class- reload centreon-broker');
+
+    $self->send_internal_action(
+        action => 'COMMAND',
+        token => $options{token},
+        data => {
+            content => [ { command => 'sudo ' . $poller->{broker_reload_command} } ]
+        },
+    );
+
+    return 0;
+}
+
+sub saas_get_predicts {
+    my ($self, %options) = @_;
+
+    foreach (keys %{$self->{centreon_metrics}}) {
+        next if ($self->{centreon_metrics}->{$_}->{saas_to_delete} == 1);
+        next if (!defined($self->{centreon_metrics}->{$_}->{thresholds_file}) ||
+            $self->{centreon_metrics}->{$_}->{thresholds_file} eq '');
+        next if ($self->{centreon_metrics}->{$_}->{saas_update_date} > time() - 86400);
+
+        my ($status, $result) = $self->saas_api_request(
+            endpoint => '/machinelearning/' . $self->{centreon_metrics}->{$_}->{saas_model_id} . '/predicts',
+            method => 'GET',
+            http_code_continue => '^2'
+        );
+        next if ($status);
+
+        $self->{logger}->writeLogDebug(
+            "[anomalydetection] -class- saas: get predict metric '$self->{centreon_metrics}->{$_}->{host_id}/$self->{centreon_metrics}->{$_}->{service_id}/$self->{centreon_metrics}->{$_}->{metric_name}'"
+        );
+    }
+
+    return 0;
+}
+
+sub action_saaspredict {
     my ($self, %options) = @_;
 
     $options{token} = $self->generate_token() if (!defined($options{token}));
-    $self->send_log(code => gorgone::class::module::ACTION_BEGIN, token => $options{token}, data => { message => 'action adsync proceed' });
+    $self->send_log(code => gorgone::class::module::ACTION_BEGIN, token => $options{token}, data => { message => 'action saaspredict proceed' });
+
+    $self->saas_get_predicts();
+
+    $self->{logger}->writeLogDebug('[anomalydetection] Finish saaspredict');
+    $self->send_log(code => $self->ACTION_FINISH_OK, token => $options{token}, data => { message => 'action saaspredict finished' });
+    return 0;
+}
+
+sub action_saasregister {
+    my ($self, %options) = @_;
+
+    $options{token} = $self->generate_token() if (!defined($options{token}));
+    $self->send_log(code => gorgone::class::module::ACTION_BEGIN, token => $options{token}, data => { message => 'action saasregister proceed' });
 
     if ($self->connection_informations()) {
         $self->send_log(code => gorgone::class::module::ACTION_FINISH_KO, token => $options{token}, data => { message => 'cannot get connection informations' });
@@ -404,7 +562,7 @@ sub action_adsync {
     }
 
     if ($self->{generate_metrics_lua} == 1) {
-        # need to generate a new file (TODO)
+        $self->generate_lua_filter_file(token => $options{token});
     }
 
     if ($self->saas_delete_metrics()) {
@@ -412,8 +570,8 @@ sub action_adsync {
         return 1;
     }
 
-    $self->{logger}->writeLogDebug("[anomalydetection] Finish adsync");
-    $self->send_log(code => $self->ACTION_FINISH_OK, token => $options{token}, data => { message => 'action adsync finished' });
+    $self->{logger}->writeLogDebug('[anomalydetection] Finish saasregister');
+    $self->send_log(code => $self->ACTION_FINISH_OK, token => $options{token}, data => { message => 'action saasregister finished' });
     return 0;
 }
 
@@ -488,7 +646,8 @@ sub run {
 
         if (time() - $self->{resync_time} > $self->{last_resync_time}) {
             $self->{last_resync_time} = time();
-            $self->action_adsync();
+            $self->action_saasregister();
+            $self->action_saaspredict();
         }
     }
 }
