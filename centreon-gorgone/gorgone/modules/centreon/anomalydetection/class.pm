@@ -30,6 +30,8 @@ use gorgone::class::http::http;
 use ZMQ::LibZMQ4;
 use ZMQ::Constants qw(:all);
 use JSON::XS;
+use IO::Compress::Bzip2;
+use MIME::Base64;
 
 my %handlers = (TERM => {}, HUP => {});
 my ($connector);
@@ -249,28 +251,6 @@ sub get_centreon_anomaly_metrics {
 
     $self->{centreon_metrics} = $datas;
 
-    my $metric_ids = {};
-    foreach (keys %{$self->{centreon_metrics}}) {
-        if (!defined($self->{centreon_metrics}->{$_}->{saas_creation_date})) {
-            $metric_ids->{ $self->{centreon_metrics}->{$_}->{metric_id} } = $_;
-        }
-    }
-
-    if (scalar(keys %$metric_ids) > 0) {
-        ($status, $datas) = $self->{class_object_centstorage}->custom_execute(
-            request => 'SELECT `metric_id`, `metric_name` FROM metrics  WHERE metric_id IN (' . join(', ', keys %$metric_ids) . ')',
-            mode => 2
-        );
-        if ($status == -1) {
-            $self->{logger}->writeLogError('[anomalydetection] -class- database: cannot get metric name informations');
-            return 2;
-        }
-
-        foreach (@$datas) {
-            $self->{centreon_metrics}->{ $metric_ids->{ $_->[0] } }->{metric_name} = $_->[1];
-        }
-    }
-
     return 0;
 }
 
@@ -297,6 +277,7 @@ sub save_centreon_previous_register {
 
         foreach (keys %{$self->{unregister_metrics_centreon}}) {
             $self->{centreon_metrics}->{$_}->{saas_creation_date} = $self->{unregister_metrics_centreon}->{$_}->{creation_date};
+            $self->{centreon_metrics}->{$_}->{saas_update_date} = $self->{unregister_metrics_centreon}->{$_}->{creation_date};
             $self->{centreon_metrics}->{$_}->{saas_model_id} = $self->{unregister_metrics_centreon}->{$_}->{saas_model_id};
             $self->{centreon_metrics}->{$_}->{saas_metric_id} = $self->{unregister_metrics_centreon}->{$_}->{saas_metric_id};
         }
@@ -314,8 +295,8 @@ sub saas_register_metrics {
     
     $self->{generate_metrics_lua} = 0;
     foreach (keys %{$self->{centreon_metrics}}) {
-        # metric_name is set when we need to register it
-        next if (!defined($self->{centreon_metrics}->{$_}->{metric_name}));
+        # saas_creation_date is set when we need to register it
+        next if (defined($self->{centreon_metrics}->{$_}->{saas_creation_date}));
         next if ($self->{centreon_metrics}->{$_}->{saas_to_delete} == 1);
 
         my $payload = {
@@ -501,6 +482,8 @@ sub generate_lua_filter_file {
 sub saas_get_predicts {
     my ($self, %options) = @_;
 
+    my ($query, $query_append) = ('', '');
+    my $engine_reload = {};
     foreach (keys %{$self->{centreon_metrics}}) {
         next if ($self->{centreon_metrics}->{$_}->{saas_to_delete} == 1);
         next if (!defined($self->{centreon_metrics}->{$_}->{thresholds_file}) ||
@@ -517,6 +500,66 @@ sub saas_get_predicts {
         $self->{logger}->writeLogDebug(
             "[anomalydetection] -class- saas: get predict metric '$self->{centreon_metrics}->{$_}->{host_id}/$self->{centreon_metrics}->{$_}->{service_id}/$self->{centreon_metrics}->{$_}->{metric_name}'"
         );
+
+        next if (!defined($result->[0]) || !defined($result->[0]->{predict}));
+
+        my $data = [
+            {
+                host_id => $self->{centreon_metrics}->{$_}->{host_id},
+                service_id => $self->{centreon_metrics}->{$_}->{service_id},
+                metric_name => $self->{centreon_metrics}->{$_}->{metric_name},
+                predict => $result->[0]->{predict}
+            }
+        ];
+        my ($status, $content) = $self->json_encode(argument => $data);
+        next if ($status == 1);
+
+        my $encoded_content;
+        if (!IO::Compress::Bzip2::bzip2($content, \$encoded_content)) {
+            $self->{logger}->writeLogError('[anomalydetection] -class- cannot compress content: ' . $IO::Compress::Bzip2::Bzip2Error);
+            next;
+        }
+
+        $encoded_content = MIME::Base64::encode_base64($encoded_content, '');
+
+        my $poller = $self->get_poller(instance => $self->{centreon_metrics}->{$_}->{instance_id});
+        $self->send_internal_action(
+            action => 'COMMAND',
+            target => $self->{centreon_metrics}->{$_}->{instance_id},
+            token => $options{token},
+            data => {
+                content => [ { command => 'echo -n ' . $encoded_content . ' | bzcat -d | base64 -d > "' . $poller->{cfg_dir} . '/anomaly/' . $_ . '.json"' } ]
+            }
+        );
+
+        $engine_reload->{ $self->{centreon_metrics}->{$_}->{instance_id} } = 1;
+
+        $query .= $query_append . 
+            'UPDATE mod_anomaly_service SET' .
+            ' saas_update_date = ' . time() .
+            ' WHERE `id` = ' . $_;
+        $query_append = ';';
+    }
+
+    return 0 if ($query eq '');
+
+    foreach (keys %$engine_reload) {
+        my $poller = $self->get_poller(instance => $_);
+        $self->{logger}->writeLogDebug('[anomalydetection] -class- reload process centengine ' . $_);
+        $self->send_internal_action(
+            action => 'COMMAND',
+            target => $_,
+            token => $options{token},
+            data => {
+                content => [ { command => 'sudo ' . $poller->{engine_reload_command} } ]
+            }
+        );
+    }
+
+    my $status = $self->{class_object_centreon}->transaction_query(request => $query);
+    if ($status == -1) {
+        $self->{logger}->writeLogError('[anomalydetection] -class- database: cannot update predicts');
+        return 1;
     }
 
     return 0;
@@ -525,12 +568,13 @@ sub saas_get_predicts {
 sub action_saaspredict {
     my ($self, %options) = @_;
 
+    $self->{logger}->writeLogDebug('[anomalydetection] -class - start saaspredict');
     $options{token} = $self->generate_token() if (!defined($options{token}));
     $self->send_log(code => gorgone::class::module::ACTION_BEGIN, token => $options{token}, data => { message => 'action saaspredict proceed' });
 
-    $self->saas_get_predicts();
+    $self->saas_get_predicts(token => $options{token});
 
-    $self->{logger}->writeLogDebug('[anomalydetection] Finish saaspredict');
+    $self->{logger}->writeLogDebug('[anomalydetection] -class- finish saaspredict');
     $self->send_log(code => $self->ACTION_FINISH_OK, token => $options{token}, data => { message => 'action saaspredict finished' });
     return 0;
 }
@@ -538,6 +582,7 @@ sub action_saaspredict {
 sub action_saasregister {
     my ($self, %options) = @_;
 
+    $self->{logger}->writeLogDebug('[anomalydetection] -class- start saasregister');
     $options{token} = $self->generate_token() if (!defined($options{token}));
     $self->send_log(code => gorgone::class::module::ACTION_BEGIN, token => $options{token}, data => { message => 'action saasregister proceed' });
 
@@ -570,7 +615,7 @@ sub action_saasregister {
         return 1;
     }
 
-    $self->{logger}->writeLogDebug('[anomalydetection] Finish saasregister');
+    $self->{logger}->writeLogDebug('[anomalydetection] -class- finish saasregister');
     $self->send_log(code => $self->ACTION_FINISH_OK, token => $options{token}, data => { message => 'action saasregister finished' });
     return 0;
 }
