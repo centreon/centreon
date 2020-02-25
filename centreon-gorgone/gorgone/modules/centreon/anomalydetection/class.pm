@@ -515,7 +515,7 @@ sub saas_get_predicts {
         next if ($status == 1);
 
         my $encoded_content;
-        if (!IO::Compress::Bzip2::bzip2($content, \$encoded_content)) {
+        if (!IO::Compress::Bzip2::bzip2(\$content, \$encoded_content)) {
             $self->{logger}->writeLogError('[anomalydetection] -class- cannot compress content: ' . $IO::Compress::Bzip2::Bzip2Error);
             next;
         }
@@ -528,7 +528,7 @@ sub saas_get_predicts {
             target => $self->{centreon_metrics}->{$_}->{instance_id},
             token => $options{token},
             data => {
-                content => [ { command => 'echo -n ' . $encoded_content . ' | bzcat -d | base64 -d > "' . $poller->{cfg_dir} . '/anomaly/' . $_ . '.json"' } ]
+                content => [ { command => 'mkdir -p ' . $poller->{cfg_dir} . '/anomaly/' . '; echo -n ' . $encoded_content . ' | base64 -d | bzcat -d > "' . $poller->{cfg_dir} . '/anomaly/' . $_ . '.json"' } ]
             }
         );
 
