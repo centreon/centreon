@@ -13,6 +13,18 @@ const theme = createMuiTheme({
     background: {
       default: '#EDEDED',
     },
+    warning: {
+      main: '#FF9A13',
+    },
+    success: {
+      main: '#84BD00',
+    },
+    error: {
+      main: '#f90026',
+    },
+    info: {
+      main: '#00d3d4',
+    },
   },
 });
 

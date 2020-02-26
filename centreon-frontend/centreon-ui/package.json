@@ -4,7 +4,7 @@
   "description": "Centreon UI Components",
   "main": "src",
   "scripts": {
-    "eslint": "eslint . --ext .js,.jsx",
+    "eslint": "eslint . --ext .js,.jsx,.ts,.tsx",
     "eslint:fix": "npm run eslint -- --fix",
     "prepublishOnly": "npm run bundle",
     "bundle": "babel ./src --out-dir ./lib --copy-files",

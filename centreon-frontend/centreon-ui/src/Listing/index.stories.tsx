@@ -30,9 +30,19 @@ const ComponentColumn = ({ row, isRowSelected }): JSX.Element => (
 );
 
 const configuration = [
-  { id: 'name', label: 'Name', type: ColumnTypes.string },
+  {
+    id: 'name',
+    label: 'Name',
+    type: ColumnTypes.string,
+    getFormattedString: ({ name }): string => name,
+  },
   { id: 'active', label: 'Active', type: ColumnTypes.toggler },
-  { id: 'description', label: 'Description', type: ColumnTypes.string },
+  {
+    id: 'description',
+    label: 'Description',
+    type: ColumnTypes.string,
+    getFormattedString: ({ description }): string => description,
+  },
   {
     id: '#',
     label: 'Custom',

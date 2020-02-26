@@ -13,10 +13,14 @@ describe('Table', () => {
     {
       id: 'name',
       type: ColumnTypes.string,
+      getFormattedString: ({ name }) => name,
     },
   ];
 
-  const tableData = [{ name: 'My First Row' }, { name: 'My Second Row' }];
+  const tableData = [
+    { id: 0, name: 'My First Row' },
+    { id: 1, name: 'My Second Row' },
+  ];
   const onSelectRows = jest.fn();
 
   it('selects a row when the corresponding checkbox is clicked', () => {
@@ -64,6 +68,7 @@ describe('Table', () => {
         onSelectRows={onSelectRows}
         columnConfiguration={columnConfiguration}
         tableData={tableData}
+        totalRows={2}
         checkable
       />,
     );
@@ -72,7 +77,7 @@ describe('Table', () => {
 
     fireEvent.click(selectAllCheckbox);
 
-    expect(onSelectRows).toHaveBeenCalledWith(tableData);
+    expect(onSelectRows).toHaveBeenLastCalledWith(tableData);
   });
 
   it('unselects all rows when all rows are selected and the "select all" checkbox is clicked', () => {
