@@ -22,7 +22,7 @@ module.exports = {
     rules: [
       {
         test: /\.jsx?$/,
-        exclude: /node_modules(?!\/@centreon\/ui)/,
+        exclude: /node_modules(?!(\\|\/)@centreon(\\|\/)ui)/,
         use: ['babel-loader'],
       },
     ],
