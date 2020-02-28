@@ -2,7 +2,7 @@ import React from 'react';
 
 import Switcher from '.';
 
-export default { title: 'normal' };
+export default { title: 'Switcher' };
 
 export const normal = () => <Switcher />;
 
