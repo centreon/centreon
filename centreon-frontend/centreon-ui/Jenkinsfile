@@ -36,6 +36,7 @@ try {
       junit 'ut.xml'
       recordIssues(
         enabledForFailure: true,
+        failOnError: true,
         tools: [esLint(pattern: 'codestyle.xml')],
         referenceJobName: 'centreon-ui/master'
       )
