@@ -164,9 +164,20 @@ sub action_nodesresync {
         $self->{register_nodes}->{$_->[0]} = 1;
         $register_temp->{$_->[0]} = 1;
         if ($_->[7] == 2) {
-            push @$register_nodes, { id => $_->[0], type => 'push_ssh', address => $_->[3], ssh_port => $_->[4] };
+            push @$register_nodes, {
+                id => $_->[0],
+                type => 'push_ssh',
+                address => $_->[3],
+                ssh_port => $_->[4],
+                ssh_username => $self->{config}->{ssh_username}
+            };
         } else {
-            push @$register_nodes, { id => $_->[0], type => 'push_zmq', address => $_->[3], port => $_->[4] };
+            push @$register_nodes, {
+                id => $_->[0],
+                type => 'push_zmq',
+                address => $_->[3],
+                port => $_->[4]
+            };
         }
     }
 

@@ -45,6 +45,7 @@ sub register {
     $config_core = $options{config_core};
     $config_db_centreon = $options{config_db_centreon};
     $config->{resync_time} = defined($config->{resync_time}) && $config->{resync_time} =~ /(\d+)/ ? $1 : 600;
+    $config->{ssh_username} = defined($config->{ssh_username}) ? $config->{ssh_username} : 'centreon';
     return (1, NAMESPACE, NAME, EVENTS);
 }
 
