@@ -332,20 +332,30 @@ sub proxy {
             target => $target
         );
 
-        $connector->{logger}->writeLogDebug("[proxy] Sshclient return: [message = $data_ret->{message}]");
-        if ($status == 0) {
-            $connector->send_log(
-                code => gorgone::class::module::ACTION_FINISH_OK,
-                token => $token,
-                data => $data_ret
-            );
+        if (ref($data_ret) eq 'ARRAY') {
+            foreach (@{$data_ret}) {
+                $connector->send_log(
+                    code => $_->{code},
+                    token => $token,
+                    data => $_->{data}
+                );
+            }
         } else {
-            $connector->send_log(
-                code => gorgone::class::module::ACTION_FINISH_KO,
-                token => $token,
-                data => $data_ret
-            );
-        } 
+            $connector->{logger}->writeLogDebug("[proxy] Sshclient return: [message = $data_ret->{message}]");
+            if ($status == 0) {
+                $connector->send_log(
+                    code => gorgone::class::module::ACTION_FINISH_OK,
+                    token => $token,
+                    data => $data_ret
+                );
+            } else {
+                $connector->send_log(
+                    code => gorgone::class::module::ACTION_FINISH_KO,
+                    token => $token,
+                    data => $data_ret
+                );
+            }
+        }
     }
 }
 

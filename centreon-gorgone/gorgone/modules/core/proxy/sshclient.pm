@@ -143,89 +143,293 @@ sub action_centcore {
 sub action_command {
     my ($self, %options) = @_;
 
-    if (!defined($options{data}->{content}->{command}) || $options{data}->{content}->{command} eq '') {
-        $self->{logger}->writeLogError('[sshclient] Action command - Need command');
-        return (-1, { message => 'please set command' });
+    if (!defined($options{data}->{content}) || ref($options{data}->{content}) ne 'ARRAY') {
+        return (-1, { message => "expected array, found '" . ref($options{data}->{content}) . "'" });
     }
 
-    if (defined($options{data}->{content}->{metadata}->{centcore_proxy}) && $options{target_direct} == 0) {
-        return $self->action_centcore(
+    my $index = 0;
+    foreach my $command (@{$options{data}->{content}}) {
+        if (!defined($command->{command}) || $command->{command} eq '') {
+            return (-1, { message => "need command argument at array index '" . $index . "'" });
+        }
+        $index++;
+    }
+
+    my $errors = 0;
+    my $results;
+    
+    push @{$results}, {
+        code => 0,
+        data => {
+            message => "commands processing has started",
+            request_content => $options{data}->{content}
+        }
+    };
+
+    foreach my $command (@{$options{data}->{content}}) {
+        my ($code, $data) = (0, {});
+
+        push @{$results}, {
+            code => 0,
             data => {
-                content => {
-                    command => $options{data}->{content}->{metadata}->{centcore_cmd},
-                    target => $options{target},
-                }
+                message => "command has started",
+                command => $command->{command},
+                metadata => $command->{metadata}
             }
-        );
+        };
+
+        if (defined($command->{metadata}->{centcore_proxy}) && $options{target_direct} == 0) {
+            ($code, $data->{data}) = $self->action_centcore(
+                data => {
+                    content => {
+                        command => $command->{metadata}->{centcore_cmd},
+                        target => $options{target},
+                    }
+                }
+            );
+            $data->{code} = ($code < 0 ) ? 1 : 2;
+        } else {
+            my $timeout = defined($command->{timeout}) && $command->{timeout} =~ /(\d+)/ ? $1 : 60;
+            my $timeout_nodata = defined($command->{timeout_nodata}) && $command->{timeout_nodata} =~ /(\d+)/ ? $1 : 30;
+            
+            my $start = time();
+            my $ret = $self->execute_simple(
+                cmd => $command->{command},
+                timeout => $timeout,
+                timeout_nodata => $timeout_nodata
+            );
+            my $end = time();
+
+            $data = {
+                data => {
+                    command => $command->{command},
+                    metadata => $command->{metadata},
+                    result => {
+                        exit_code => $ret->{exit_code},
+                        stdout => $ret->{stdout},
+                        stderr => $ret->{stderr},
+                    },
+                    metrics => {
+                        start => $start,
+                        end => $end,
+                        duration => $end - $start
+                    }
+                }
+            };
+
+            if ($ret->{exit} == Libssh::Session::SSH_OK) {
+                $data->{data}->{message} = "command has finished successfully";
+                $data->{code} = 2;
+            } elsif ($ret->{exit} == Libssh::Session::SSH_AGAIN) { # AGAIN means timeout
+                $code = -1;
+                $data->{data}->{message} = "command has timed out";
+                $data->{code} = 1;
+            } else {
+                $code = -1;
+                $data->{data}->{message} = $self->error(GetErrorSession => 1);
+                $data->{code} = 1;
+            }
+        }
+
+        push @{$results}, $data;
+
+        if ($code < 0) {
+            if (defined($command->{continue_on_error}) && $command->{continue_on_error} == 0) {
+                push @{$results}, {
+                    code => 1,
+                    data => {
+                        message => "commands processing has been interrupted because of error"
+                    }
+                };
+                return (-1, $results);
+            }
+
+            $errors = 1;
+        }
     }
 
-    my $timeout = defined($options{data}->{content}->{timeout}) && $options{data}->{content}->{timeout} =~ /(\d+)/ ? $1 : 60;
-    my $timeout_nodata = defined($options{data}->{content}->{timeout_nodata}) && $options{data}->{content}->{timeout_nodata} =~ /(\d+)/ ? $1 : 30;
-
-    my $ret = $self->execute_simple(cmd => $options{data}->{content}->{command}, timeout => $timeout, timeout_nodata => $timeout_nodata);
-    my ($code, $data) = (0, {});
-    if ($ret->{exit} == Libssh::Session::SSH_OK) {
-        $data->{message} = "command '$options{data}->{content}->{command}' had finished successfuly";
-        $data->{exit_code} = $ret->{exit_code};
-        $data->{stdout} = $ret->{stdout};
-        $data->{stderr} = $ret->{stderr};
-    } elsif ($ret->{exit} == Libssh::Session::SSH_AGAIN) { # AGAIN means timeout
-        $code = -1;
-        $data->{message} = "command '$options{data}->{content}->{command}' had timeout";
-        $data->{exit_code} = $ret->{exit_code};
-        $data->{stdout} = $ret->{stdout};
-        $data->{stderr} = $ret->{stderr};
-    } else {
-        return (-1, { message => $self->error(GetErrorSession => 1) });
+    if ($errors) {
+        push @{$results}, {
+            code => 1,
+            data => {
+                message => "commands processing has finished with errors"
+            }
+        };
+        return (-1, $results);
     }
 
-    return ($code, $data);
+    push @{$results}, {
+        code => 2,
+        data => {
+            message => "commands processing has finished successfully"
+        }
+    };
+
+    return (0, $results);
 }
 
 sub action_enginecommand {
     my ($self, %options) = @_;
 
-    if (!defined($options{data}->{content}->{command}) || $options{data}->{content}->{command} eq '') {
-        $self->{logger}->writeLogError('[sshclient] Action engine command - Need command');
-        return (-1, { message => 'please set command' });
-    }
-    if (!defined($options{data}->{content}->{command_file}) || $options{data}->{content}->{command_file} eq '') {
-        $self->{logger}->writeLogError('[sshclient] Action engine command - Need command_file');
-        return (-1, { message => 'please set command_file' });
+    if (!defined($options{data}->{content}) || ref($options{data}->{content}) ne 'ARRAY') {
+        return (-1, { message => "expected array, found '" . ref($options{data}->{content}) . "'" });
     }
 
-    chomp $options{data}->{content}->{command};
-    if ($options{target_direct} == 0) {
-        return $self->action_centcore(
-            data => {
-                content => {
-                    command => 'EXTERNALCMD',
-                    target => $options{target},
-                    param => $options{data}->{content}->{command},
+    my $index = 0;
+    foreach my $command (@{$options{data}->{content}}) {
+        if (!defined($command->{command}) || $command->{command} eq '') {
+            return (-1, { message => "need command argument at array index '" . $index . "'" });
+        }
+        if (!defined($command->{command_file}) || $command->{command_file} eq '') {
+            return (-1, { message => "need command_file argument at array index '" . $index . "'" });
+        }
+        $index++;
+    }
+
+    my $errors = 0;
+    my $results;
+    
+    push @{$results}, {
+        code => 0,
+        data => {
+            message => "commands processing has started",
+            request_content => $options{data}->{content}
+        }
+    };
+
+    foreach my $command (@{$options{data}->{content}}) {
+        my ($code, $data) = (0, {});
+
+        chomp $command->{command};
+        if ($options{target_direct} == 0) {
+            ($code, $data->{data}) = $self->action_centcore(
+                data => {
+                    content => {
+                        command => 'EXTERNALCMD',
+                        target => $options{target},
+                        param => $command->{command},
+                    }
                 }
+            );
+            $data->{code} = ($code < 0 ) ? 1 : 2;
+        } else {
+            my $ret = $self->{sftp}->stat_file(file => $command->{command_file});
+            if (!defined($ret)) {
+                push @{$results}, {
+                    code => 1,
+                    data => {
+                        message => "cannot stat file '$command->{command_file}': " . $self->{sftp}->get_msg_error()
+                    }
+                };
+
+                if (defined($command->{continue_on_error}) && $command->{continue_on_error} == 0) {
+                    push @{$results}, {
+                        code => 1,
+                        data => {
+                            message => "commands processing has been interrupted because of error"
+                        }
+                    };
+                    return (-1, $results);
+                }
+
+                $errors = 1;
+                next;
             }
-        );
+
+            if ($ret->{type} != SSH_FILEXFER_TYPE_SPECIAL) {
+                push @{$results}, {
+                    code => 1,
+                    data => {
+                        message => "stat file '$command->{command_file}' is not a pipe file"
+                    }
+                };
+
+                if (defined($command->{continue_on_error}) && $command->{continue_on_error} == 0) {
+                    push @{$results}, {
+                        code => 1,
+                        data => {
+                            message => "commands processing has been interrupted because of error"
+                        }
+                    };
+                    return (-1, $results);
+                }
+
+                $errors = 1;
+                next;
+            }
+
+            my $file = $self->{sftp}->open(file => $command->{command_file}, accesstype => O_WRONLY|O_APPEND);
+            if (!defined($file)) {
+                push @{$results}, {
+                    code => 1,
+                    data => {
+                        message => "cannot open stat file '$command->{command_file}': " . $self->{sftp}->error()
+                    }
+                };
+
+                if (defined($command->{continue_on_error}) && $command->{continue_on_error} == 0) {
+                    push @{$results}, {
+                        code => 1,
+                        data => {
+                            message => "commands processing has been interrupted because of error"
+                        }
+                    };
+                    return (-1, $results);
+                }
+
+                $errors = 1;
+                next;
+            }
+            if ($self->{sftp}->write(handle_file => $file, data => $command->{command} . "\n") != Libssh::Session::SSH_OK) {
+                push @{$results}, {
+                    code => 1,
+                    data => {
+                        message => "cannot write stat file '$command->{command_file}': " . $self->{sftp}->error()
+                    }
+                };
+
+                if (defined($command->{continue_on_error}) && $command->{continue_on_error} == 0) {
+                    push @{$results}, {
+                        code => 1,
+                        data => {
+                            message => "commands processing has been interrupted because of error"
+                        }
+                    };
+                    return (-1, $results);
+                }
+
+                $errors = 1;
+                next;
+            }
+        }
+
+        push @{$results}, {
+            code => 2,
+            data => {
+                message => "command has been submitted",
+                command => $command->{command}
+            }
+        };
     }
 
-    my $ret = $self->{sftp}->stat_file(file => $options{data}->{content}->{command_file});
-    if (!defined($ret)) {
-        return (-1, { message => "cannot stat file '$options{data}->{content}->{command_file}': " . $self->{sftp}->get_msg_error() });
+    if ($errors) {
+        push @{$results}, {
+            code => 1,
+            data => {
+                message => "commands processing has finished with errors"
+            }
+        };
+        return (-1, $results);
     }
 
-    if ($ret->{type} != SSH_FILEXFER_TYPE_SPECIAL) {
-        return (-1, { message => "stat file '$options{data}->{content}->{command_file}' is not a pipe file" });
-    }
+    push @{$results}, {
+        code => 2,
+        data => {
+            message => "commands processing has finished successfully"
+        }
+    };
 
-    my $file = $self->{sftp}->open(file => $options{data}->{content}->{command_file}, accesstype => O_WRONLY|O_APPEND);
-    if (!defined($file)) {
-        return (-1, { message => "cannot open stat file '$options{data}->{content}->{command_file}': " . $self->{sftp}->error() });
-    }
-    if ($self->{sftp}->write(handle_file => $file, data => $options{data}->{content}->{command} . "\n") != Libssh::Session::SSH_OK) {
-        return (-1, { message => "cannot write stat file '$options{data}->{content}->{command_file}': " . $self->{sftp}->error() });
-    }
-
-    $self->{logger}->writeLogDebug("[sshclient] Action engine command - '" . $options{data}->{content}->{command} . "' succeeded");
-    return (0, { message => 'send enginecommand succeeded' });
+    return (0, $results);
 }
 
 sub action_remotecopy {
@@ -273,7 +477,7 @@ sub action_remotecopy {
     if (-d $options{data}->{content}->{source}) {
         ($code, $data) = $self->action_command(
             data => {
-                content => { command => "tar zxf $dst_sftp -C '" . $dst  .  "' ." }
+                content => [ { command => "tar zxf $dst_sftp -C '" . $dst  .  "' ." } ]
             },
         );
         return ($code, $data) if ($code == -1);
