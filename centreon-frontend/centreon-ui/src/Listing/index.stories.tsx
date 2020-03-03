@@ -3,6 +3,7 @@
 import React from 'react';
 
 import { makeStyles } from '@material-ui/core';
+import { grey } from '@material-ui/core/colors';
 
 import Listing from '.';
 import ColumnTypes from './ColumnTypes';
@@ -15,8 +16,8 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const ComponentColumn = ({ row, isRowSelected }): JSX.Element => (
-  <>
+const ComponentColumn = ({ row, isRowSelected, Cell }): JSX.Element => (
+  <Cell>
     <span>
       {'I am '}
       <b>{`${isRowSelected ? 'selected' : 'not selected'}`}</b>
@@ -26,7 +27,7 @@ const ComponentColumn = ({ row, isRowSelected }): JSX.Element => (
       {'I am '}
       <b>{`${row.active ? 'active' : 'not active'}`}</b>
     </span>
-  </>
+  </Cell>
 );
 
 const configuration = [
@@ -63,6 +64,14 @@ const listing = [...tenElements].map((_, index) => ({
   selected: index % 3 === 0,
 }));
 
+const rowColorConditions = [
+  {
+    name: 'inactive',
+    condition: ({ active }): boolean => !active,
+    color: grey[500],
+  },
+];
+
 const Story = (props): JSX.Element => {
   const classes = useStyles();
 
@@ -79,7 +88,7 @@ const Story = (props): JSX.Element => {
         currentPage={0}
         totalRows={listing.length}
         tableData={listing}
-        grayRowCondition={(row): boolean => !row.active}
+        rowColorConditions={rowColorConditions}
         selectedRows={listing.filter((row) => row.selected)}
         checkable
         {...props}
