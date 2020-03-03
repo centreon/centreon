@@ -995,22 +995,18 @@ components:
       required:
         - command
     EngineCommands:
-      type: array
-      items:
-        $ref: '#/components/schemas/EngineCommand'
-    EngineCommand:
       type: object
       properties:
-        command:
-          type: string
-          description: "External command"
-          example: "[653284380] SCHEDULE_SVC_CHECK;host1;service1;653284380"
         command_file:
           type: string
           description: "Path to the Centreon Engine command file pipe"
           example: "/var/lib/centreon-engine/rw/centengine.cmd"
-      required:
-        - command
+        command:
+          type: array
+          items:
+            type: string
+            description: "External command"
+            example: "[653284380] SCHEDULE_SVC_CHECK;host1;service1;653284380"
     AutodiscoveryTask:
       type: object
       properties:

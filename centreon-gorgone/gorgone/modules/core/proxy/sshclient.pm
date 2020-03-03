@@ -271,161 +271,87 @@ sub action_command {
 sub action_enginecommand {
     my ($self, %options) = @_;
 
-    if (!defined($options{data}->{content}) || ref($options{data}->{content}) ne 'ARRAY') {
-        return (-1, { message => "expected array, found '" . ref($options{data}->{content}) . "'" });
-    }
-
-    my $index = 0;
-    foreach my $command (@{$options{data}->{content}}) {
-        if (!defined($command->{command}) || $command->{command} eq '') {
-            return (-1, { message => "need command argument at array index '" . $index . "'" });
-        }
-        if (!defined($command->{command_file}) || $command->{command_file} eq '') {
-            return (-1, { message => "need command_file argument at array index '" . $index . "'" });
-        }
-        $index++;
-    }
-
-    my $errors = 0;
     my $results;
-    
-    push @{$results}, {
-        code => 0,
-        data => {
-            message => "commands processing has started",
-            request_content => $options{data}->{content}
-        }
-    };
 
-    foreach my $command (@{$options{data}->{content}}) {
-        my ($code, $data) = (0, {});
-
-        chomp $command->{command};
-        if ($options{target_direct} == 0) {
-            ($code, $data->{data}) = $self->action_centcore(
+    if ($options{target_direct} == 0) {
+        foreach my $command (@{$options{data}->{content}->{commands}}) {
+            chomp $command;
+            my $msg = "[sshclient] Handling command 'EXTERNALCMD'";
+            $msg .= ", Target: '" . $options{target} . "'" if (defined($options{target}));
+            $msg .= ", Parameters: '" . $command . "'" if (defined($command));
+            $self->{logger}->writeLogInfo($msg);
+            my ($code, $data) = $self->action_centcore(
                 data => {
                     content => {
                         command => 'EXTERNALCMD',
                         target => $options{target},
-                        param => $command->{command},
+                        param => $command,
                     }
                 }
             );
-            $data->{code} = ($code < 0 ) ? 1 : 2;
-        } else {
-            my $ret = $self->{sftp}->stat_file(file => $command->{command_file});
-            if (!defined($ret)) {
-                push @{$results}, {
-                    code => 1,
-                    data => {
-                        message => "cannot stat file '$command->{command_file}': " . $self->{sftp}->get_msg_error()
-                    }
-                };
-
-                if (defined($command->{continue_on_error}) && $command->{continue_on_error} == 0) {
-                    push @{$results}, {
-                        code => 1,
-                        data => {
-                            message => "commands processing has been interrupted because of error"
-                        }
-                    };
-                    return (-1, $results);
-                }
-
-                $errors = 1;
-                next;
-            }
-
-            if ($ret->{type} != SSH_FILEXFER_TYPE_SPECIAL) {
-                push @{$results}, {
-                    code => 1,
-                    data => {
-                        message => "stat file '$command->{command_file}' is not a pipe file"
-                    }
-                };
-
-                if (defined($command->{continue_on_error}) && $command->{continue_on_error} == 0) {
-                    push @{$results}, {
-                        code => 1,
-                        data => {
-                            message => "commands processing has been interrupted because of error"
-                        }
-                    };
-                    return (-1, $results);
-                }
-
-                $errors = 1;
-                next;
-            }
-
-            my $file = $self->{sftp}->open(file => $command->{command_file}, accesstype => O_WRONLY|O_APPEND);
-            if (!defined($file)) {
-                push @{$results}, {
-                    code => 1,
-                    data => {
-                        message => "cannot open stat file '$command->{command_file}': " . $self->{sftp}->error()
-                    }
-                };
-
-                if (defined($command->{continue_on_error}) && $command->{continue_on_error} == 0) {
-                    push @{$results}, {
-                        code => 1,
-                        data => {
-                            message => "commands processing has been interrupted because of error"
-                        }
-                    };
-                    return (-1, $results);
-                }
-
-                $errors = 1;
-                next;
-            }
-            if ($self->{sftp}->write(handle_file => $file, data => $command->{command} . "\n") != Libssh::Session::SSH_OK) {
-                push @{$results}, {
-                    code => 1,
-                    data => {
-                        message => "cannot write stat file '$command->{command_file}': " . $self->{sftp}->error()
-                    }
-                };
-
-                if (defined($command->{continue_on_error}) && $command->{continue_on_error} == 0) {
-                    push @{$results}, {
-                        code => 1,
-                        data => {
-                            message => "commands processing has been interrupted because of error"
-                        }
-                    };
-                    return (-1, $results);
-                }
-
-                $errors = 1;
-                next;
-            }
+        }
+    } else {
+        if (!defined($options{data}->{content}->{command_file}) || $options{data}->{content}->{command_file} eq '') {
+            $self->{logger}->writeLogError("[sshclient] Need command_file argument");
+            return (-1, { message => "need command_file argument" });
         }
 
-        push @{$results}, {
-            code => 2,
-            data => {
-                message => "command has been submitted",
-                command => $command->{command}
-            }
-        };
-    }
+        my $command_file = $options{data}->{content}->{command_file};
 
-    if ($errors) {
+        my $ret = $self->{sftp}->stat_file(file => $command_file);
+        if (!defined($ret)) {
+            $self->{logger}->writeLogError("[sshclient] Command file '$command_file' must exist");
+            return (-1, { message => "command file '$command_file' must exist", error => $self->{sftp}->get_msg_error() });
+        }
+
+        if ($ret->{type} != SSH_FILEXFER_TYPE_SPECIAL) {
+            $self->{logger}->writeLogError("[sshclient] Command file '$command_file' must be a pipe file");
+            return (-1, { message => "command file '$command_file' must be a pipe file" });
+        }
+
+        my $file = $self->{sftp}->open(file => $command_file, accesstype => O_WRONLY|O_APPEND);
+        if (!defined($file)) {
+            $self->{logger}->writeLogError("[sshclient] Cannot open command file '$command_file'");
+            return (-1, { message => "cannot open command file '$command_file'", error => $self->{sftp}->error() });
+        }
+    
         push @{$results}, {
-            code => 1,
+            code => 0,
             data => {
-                message => "commands processing has finished with errors"
+                message => "commands processing has started",
+                request_content => $options{data}->{content}
             }
         };
-        return (-1, $results);
+
+        foreach my $command (@{$options{data}->{content}->{commands}}) {
+            $self->{logger}->writeLogInfo("[sshclient] Processing external command '" . $command . "'");
+            if ($self->{sftp}->write(handle_file => $file, data => $command . "\n") != Libssh::Session::SSH_OK) {
+                $self->{logger}->writeLogError("[sshclient] Command file '$command_file' must be writeable");
+                push @{$results}, {
+                    code => 1,
+                    data => {
+                        message => "command file '$command_file' must be writeable",
+                        error => $self->{sftp}->error()
+                    }
+                };
+
+                return (-1, $results);
+            }
+
+            push @{$results}, {
+                code => 2,
+                data => {
+                    message => "command has been submitted",
+                    command => $command
+                }
+            };
+        }
     }
 
     push @{$results}, {
         code => 2,
         data => {
-            message => "commands processing has finished successfully"
+            message => "commands processing has finished"
         }
     };
 

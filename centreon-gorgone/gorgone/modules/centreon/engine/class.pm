@@ -83,36 +83,61 @@ sub class_handle_HUP {
 
 sub action_enginecommand {
     my ($self, %options) = @_;
-    
-    if (!defined($options{data}->{content}) || ref($options{data}->{content}) ne 'ARRAY') {
+
+    my $command_file = '';
+    if (defined($options{data}->{content}->{command_file}) && $options{data}->{content}->{command_file} ne '') {
+        $command_file = $options{data}->{content}->{command_file};
+    } elsif (defined($self->{config}->{command_file}) && $self->{config}->{command_file} ne '') {
+        $command_file = $self->{config}->{command_file};
+    }
+
+    if (!defined($command_file) || $command_file eq '') {
+        $self->{logger}->writeLogError("[engine] Need command_file (config or call) argument");
         $self->send_log(
             socket => $options{socket_log},
             code => $self->ACTION_FINISH_KO,
             token => $options{token},
             data => {
-                message => "expected array, found '" . ref($options{data}->{content}) . "'",
-                request_content => $options{data}->{content}
+                message => "need command_file (config or call) argument"
+            }
+        );
+        return -1;
+    }    
+    if (! -e $command_file) {
+        $self->{logger}->writeLogError("[engine] Command file '$command_file' must exist");
+        $self->send_log(
+            socket => $options{socket_log},
+            code => $self->ACTION_FINISH_KO,
+            token => $options{token},
+            data => {
+                message => "command file '$command_file' must exist"
             }
         );
         return -1;
     }
-
-    my $index = 0;
-    foreach my $command (@{$options{data}->{content}}) {
-        if (!defined($command->{command}) || $command->{command} eq '') {
-            $self->{logger}->writeLogError("[engine] Need command argument at array index '" . $index . "'");
-            $self->send_log(
-                socket => $options{socket_log},
-                code => $self->ACTION_FINISH_KO,
-                token => $options{token},
-                data => {
-                    message => "need command argument at array index '" . $index . "'",
-                    request_content => $options{data}->{content}
-                }
-            );
-            return -1;
-        }
-        $index++;
+    if (! -p $command_file) {
+        $self->{logger}->writeLogError("[engine] Command file '$command_file' must be a pipe file");
+        $self->send_log(
+            socket => $options{socket_log},
+            code => $self->ACTION_FINISH_KO,
+            token => $options{token},
+            data => {
+                message => "command file '$command_file' must be a pipe file"
+            }
+        );
+        return -1;
+    }
+    if (! -w $command_file) {
+        $self->{logger}->writeLogError("[engine] Command file '$command_file' must be writeable");
+        $self->send_log(
+            socket => $options{socket_log},
+            code => $self->ACTION_FINISH_KO,
+            token => $options{token},
+            data => {
+                message => "command file '$command_file' must be writeable"
+            }
+        );
+        return -1;
     }
     
     $self->send_log(
@@ -125,192 +150,49 @@ sub action_enginecommand {
         }
     );
 
-    my $errors = 0;
-
-    foreach my $command (@{$options{data}->{content}}) {
-        my $command_file = '';
-        if (defined($command->{command_file}) && $command->{command_file} ne '') {
-            $command_file = $command->{command_file};
-        } elsif (defined($self->{config}->{command_file}) && $self->{config}->{command_file} ne '') {
-            $command_file = $self->{config}->{command_file};
-        }
-
-        if (!defined($command_file) || $command_file eq '') {
-            $self->{logger}->writeLogError("[engine] Need command_file (config or call) argument");
-            $self->send_log(
-                socket => $options{socket_log},
-                code => $self->ACTION_FINISH_KO,
-                token => $options{token},
-                data => {
-                    message => "need command_file (config or call) argument",
-                    command => $command->{command}
-                }
-            );
-
-            if (defined($command->{continue_on_error}) && $command->{continue_on_error} == 0) {
-                $self->send_log(
-                    socket => $options{socket_log},
-                    code => $self->ACTION_FINISH_KO,
-                    token => $options{token},
-                    data => {
-                        message => "commands processing has been interrupted because of error"
-                    }
-                );
-                return -1;
-            }
-
-            $errors = 1;
-            next;
-        }    
-        if (! -e $command_file) {
-            $self->{logger}->writeLogError("[engine] Command '$command->{command}' - command_file '$command_file' must exist");
-            $self->send_log(
-                socket => $options{socket_log},
-                code => $self->ACTION_FINISH_KO,
-                token => $options{token},
-                data => {
-                    message => "command_file '$command_file' must exist",
-                    command => $command->{command}
-                }
-            );
-
-            if (defined($command->{continue_on_error}) && $command->{continue_on_error} == 0) {
-                $self->send_log(
-                    socket => $options{socket_log},
-                    code => $self->ACTION_FINISH_KO,
-                    token => $options{token},
-                    data => {
-                        message => "commands processing has been interrupted because of error"
-                    }
-                );
-                return -1;
-            }
-
-            $errors = 1;
-            next;
-        }
-        if (! -p $command_file) {
-            $self->{logger}->writeLogError("[engine] Command '$command->{command}' - command_file '$command_file' must be a pipe file");
-            $self->send_log(
-                socket => $options{socket_log},
-                code => $self->ACTION_FINISH_KO,
-                token => $options{token},
-                data => {
-                    message => "command_file '$command_file' must be a pipe file",
-                    command => $command->{command}
-                }
-            );
-
-            if (defined($command->{continue_on_error}) && $command->{continue_on_error} == 0) {
-                $self->send_log(
-                    socket => $options{socket_log},
-                    code => $self->ACTION_FINISH_KO,
-                    token => $options{token},
-                    data => {
-                        message => "commands processing has been interrupted because of error"
-                    }
-                );
-                return -1;
-            }
-
-            $errors = 1;
-            next;
-        }
-        if (! -w $command_file) {
-            $self->{logger}->writeLogError("[engine] Command '$command->{command}' - command_file '$command_file' must be writeable");
-            $self->send_log(
-                socket => $options{socket_log},
-                code => $self->ACTION_FINISH_KO,
-                token => $options{token},
-                data => {
-                    message => "command_file '$command_file' must be writeable",
-                    command => $command->{command}
-                }
-            );
-            
-            if (defined($command->{continue_on_error}) && $command->{continue_on_error} == 0) {
-                $self->send_log(
-                    socket => $options{socket_log},
-                    code => $self->ACTION_FINISH_KO,
-                    token => $options{token},
-                    data => {
-                        message => "commands processing has been interrupted because of error"
-                    }
-                );
-                return -1;
-            }
-
-            $errors = 1;
-            next;
-        }
-
-        my $fh;
-        eval {
-            local $SIG{ALRM} = sub { die 'Timeout command' };
-            alarm $self->{timeout};
-            open($fh, ">", $command_file) or die "cannot open '$command_file': $!";
-            print $fh $command->{command} . "\n";
-            close $fh;
-            alarm 0;
-        };
-        if ($@) {
-            close $fh if (defined($fh));
-            $self->{logger}->writeLogError("[engine] Submit engine command '$command->{command}' issue: $@");
-            $self->send_log(
-                socket => $options{socket_log},
-                code => $self->ACTION_FINISH_KO,
-                token => $options{token},
-                data => {
-                    message => "submit engine command issue: $@",
-                    command => $command->{command}
-                }
-            );
-            
-            if (defined($command->{continue_on_error}) && $command->{continue_on_error} == 0) {
-                $self->send_log(
-                    socket => $options{socket_log},
-                    code => $self->ACTION_FINISH_KO,
-                    token => $options{token},
-                    data => {
-                        message => "commands processing has been interrupted because of error"
-                    }
-                );
-                return -1;
-            }
-
-            $errors = 1;
-            next;
-        }
+    my $fh;
+    eval {
+        local $SIG{ALRM} = sub { die 'Timeout command' };
+        alarm $self->{timeout};
+        open($fh, ">", $command_file) or die "cannot open '$command_file': $!";
         
-        $self->send_log(
-            socket => $options{socket_log},
-            code => $self->ACTION_FINISH_OK,
-            token => $options{token},
-            data => {
-                message => "command has been submitted",
-                command => $command->{command}
-            }
-        );
-    }
-        
-    if ($errors) {
+        foreach my $command (@{$options{data}->{content}->{commands}}) {
+            $self->{logger}->writeLogInfo("[engine] Processing external command '" . $command . "'");
+            print $fh $command . "\n";
+            $self->send_log(
+                socket => $options{socket_log},
+                code => $self->ACTION_FINISH_OK,
+                token => $options{token},
+                data => {
+                    message => "command has been submitted",
+                    command => $command
+                }
+            );
+        }
+
+        close $fh;
+        alarm 0;
+    };
+    if ($@) {
+        close $fh if (defined($fh));
+        $self->{logger}->writeLogError("[engine] Submit engine command issue: $@");
         $self->send_log(
             socket => $options{socket_log},
             code => $self->ACTION_FINISH_KO,
             token => $options{token},
             data => {
-                message => "commands processing has finished with errors"
+                message => "submit engine command issue: $@"
             }
         );
-        return -1;
+        return -1
     }
-
+    
     $self->send_log(
         socket => $options{socket_log},
         code => $self->ACTION_FINISH_OK,
         token => $options{token},
         data => {
-            message => "commands processing has finished successfully"
+            message => "commands processing has finished"
         }
     );
 

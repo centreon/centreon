@@ -177,12 +177,12 @@ sub execute_cmd {
             target => $options{target},
             token => $self->generate_token(),
             data => {
-                content => [
-                    {
-                        command => $options{param},
-                        command_file => $self->{pollers}->{$options{target}}->{command_file},
-                    }
-                ]
+                content => {
+                    command_file => $self->{pollers}->{$options{target}}->{command_file},
+                    commands => [
+                        $options{param}
+                    ]
+                }
             },
         );
     } elsif ($options{cmd} eq 'SENDCFGFILE') {
