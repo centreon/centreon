@@ -125,6 +125,8 @@ sub action_enginecommand {
         }
     );
 
+    my $errors = 0;
+
     foreach my $command (@{$options{data}->{content}}) {
         my $command_file = '';
         if (defined($command->{command_file}) && $command->{command_file} ne '') {
@@ -144,7 +146,21 @@ sub action_enginecommand {
                     command => $command->{command}
                 }
             );
-            (defined($command->{continue_on_error}) && $command->{continue_on_error} eq 'false') ? return -1 : next;
+
+            if (defined($command->{continue_on_error}) && $command->{continue_on_error} == 0) {
+                $self->send_log(
+                    socket => $options{socket_log},
+                    code => $self->ACTION_FINISH_KO,
+                    token => $options{token},
+                    data => {
+                        message => "commands processing has been interrupted because of error"
+                    }
+                );
+                return -1;
+            }
+
+            $errors = 1;
+            next;
         }    
         if (! -e $command_file) {
             $self->{logger}->writeLogError("[engine] Command '$command->{command}' - command_file '$command_file' must exist");
@@ -157,7 +173,21 @@ sub action_enginecommand {
                     command => $command->{command}
                 }
             );
-            (defined($command->{continue_on_error}) && $command->{continue_on_error} eq 'false') ? return -1 : next;
+
+            if (defined($command->{continue_on_error}) && $command->{continue_on_error} == 0) {
+                $self->send_log(
+                    socket => $options{socket_log},
+                    code => $self->ACTION_FINISH_KO,
+                    token => $options{token},
+                    data => {
+                        message => "commands processing has been interrupted because of error"
+                    }
+                );
+                return -1;
+            }
+
+            $errors = 1;
+            next;
         }
         if (! -p $command_file) {
             $self->{logger}->writeLogError("[engine] Command '$command->{command}' - command_file '$command_file' must be a pipe file");
@@ -170,7 +200,21 @@ sub action_enginecommand {
                     command => $command->{command}
                 }
             );
-            (defined($command->{continue_on_error}) && $command->{continue_on_error} eq 'false') ? return -1 : next;
+
+            if (defined($command->{continue_on_error}) && $command->{continue_on_error} == 0) {
+                $self->send_log(
+                    socket => $options{socket_log},
+                    code => $self->ACTION_FINISH_KO,
+                    token => $options{token},
+                    data => {
+                        message => "commands processing has been interrupted because of error"
+                    }
+                );
+                return -1;
+            }
+
+            $errors = 1;
+            next;
         }
         if (! -w $command_file) {
             $self->{logger}->writeLogError("[engine] Command '$command->{command}' - command_file '$command_file' must be writeable");
@@ -183,7 +227,21 @@ sub action_enginecommand {
                     command => $command->{command}
                 }
             );
-            (defined($command->{continue_on_error}) && $command->{continue_on_error} eq 'false') ? return -1 : next;
+            
+            if (defined($command->{continue_on_error}) && $command->{continue_on_error} == 0) {
+                $self->send_log(
+                    socket => $options{socket_log},
+                    code => $self->ACTION_FINISH_KO,
+                    token => $options{token},
+                    data => {
+                        message => "commands processing has been interrupted because of error"
+                    }
+                );
+                return -1;
+            }
+
+            $errors = 1;
+            next;
         }
 
         my $fh;
@@ -207,7 +265,21 @@ sub action_enginecommand {
                     command => $command->{command}
                 }
             );
-            (defined($command->{continue_on_error}) && $command->{continue_on_error} eq 'false') ? return -1 : next;
+            
+            if (defined($command->{continue_on_error}) && $command->{continue_on_error} == 0) {
+                $self->send_log(
+                    socket => $options{socket_log},
+                    code => $self->ACTION_FINISH_KO,
+                    token => $options{token},
+                    data => {
+                        message => "commands processing has been interrupted because of error"
+                    }
+                );
+                return -1;
+            }
+
+            $errors = 1;
+            next;
         }
         
         $self->send_log(
@@ -220,13 +292,25 @@ sub action_enginecommand {
             }
         );
     }
-    
+        
+    if ($errors) {
+        $self->send_log(
+            socket => $options{socket_log},
+            code => $self->ACTION_FINISH_KO,
+            token => $options{token},
+            data => {
+                message => "commands processing has finished with errors"
+            }
+        );
+        return -1;
+    }
+
     $self->send_log(
         socket => $options{socket_log},
         code => $self->ACTION_FINISH_OK,
         token => $options{token},
         data => {
-            message => "commands processing has finished"
+            message => "commands processing has finished successfully"
         }
     );
 
