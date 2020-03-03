@@ -173,7 +173,7 @@ sub action_command {
                 }
             );
 
-            if (defined($command->{continue_on_error}) && $command->{continue_on_error} eq 'false') {
+            if (defined($command->{continue_on_error}) && $command->{continue_on_error} == 0) {
                 $self->send_log(
                     socket => $options{socket_log},
                     code => $self->ACTION_FINISH_KO,
