@@ -30,13 +30,10 @@ use constant NAMESPACE => 'centreon';
 use constant NAME => 'autodiscovery';
 use constant EVENTS => [
     { event => 'AUTODISCOVERYREADY' },
-    { event => 'SYNCDISCOVERYLOGS' },
+    { event => 'ADDDISCOVERYJOB', uri => '/job', method => 'POST' },
+    { event => 'LAUNCHDISCOVERY' },
     { event => 'GETDISCOVERYRESULTS' },
     { event => 'UPDATEDISCOVERYRESULTS' },
-    { event => 'GETDISCOVERYJOB', uri => '/job', method => 'GET' },
-    { event => 'ADDDISCOVERYJOB', uri => '/job', method => 'POST' },
-    { event => 'GETDISCOVERYTASK', uri => '/task', method => 'GET' },
-    { event => 'ADDDISCOVERYTASK', uri => '/task', method => 'POST' },
 ];
 
 my $config_core;
