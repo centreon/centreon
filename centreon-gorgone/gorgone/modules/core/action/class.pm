@@ -129,6 +129,8 @@ sub action_command {
         }
     );
 
+    my $errors = 0;
+
     foreach my $command (@{$options{data}->{content}}) {
         $self->send_log(
             socket => $options{socket_log},
@@ -170,13 +172,27 @@ sub action_command {
                     }
                 }
             );
+
+            if (defined($command->{continue_on_error}) && $command->{continue_on_error} eq 'false') {
+                $self->send_log(
+                    socket => $options{socket_log},
+                    code => $self->ACTION_FINISH_KO,
+                    token => $options{token},
+                    data => {
+                        message => "commands processing has been interrupted because of error"
+                    }
+                );
+                return -1;
+            }
+
+            $errors = 1;
         } else {
             $self->send_log(
                 socket => $options{socket_log},
                 code => $self->ACTION_FINISH_OK,
                 token => $options{token},
                 data => {
-                    message => "command has finished",
+                    message => "command has finished successfully",
                     command => $command->{command},
                     metadata => $command->{metadata},
                     result => {
@@ -191,16 +207,26 @@ sub action_command {
                 }
             );
         }
-
-        return -1 if (defined($command->{continue_on_error}) && $command->{continue_on_error} eq 'false');
     }
     
+    if ($errors) {
+        $self->send_log(
+            socket => $options{socket_log},
+            code => $self->ACTION_FINISH_KO,
+            token => $options{token},
+            data => {
+                message => "commands processing has finished with errors"
+            }
+        );
+        return -1;
+    }
+
     $self->send_log(
         socket => $options{socket_log},
         code => $self->ACTION_FINISH_OK,
         token => $options{token},
         data => {
-            message => "commands processing has finished"
+            message => "commands processing has finished successfully"
         }
     );
 
