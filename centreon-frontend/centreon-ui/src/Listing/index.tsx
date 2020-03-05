@@ -25,6 +25,7 @@ import TABLE_COLUMN_TYPES from './ColumnTypes';
 import PaginationActions from './PaginationActions';
 import StyledPagination from './Pagination';
 import Tooltip from '../Tooltip';
+import ListingLoadingSkeleton from './Skeleton';
 
 const loadingIndicatorHeight = 3;
 
@@ -127,7 +128,6 @@ const Listing = ({
   labelEnableDisable = 'Enable / Disable',
   labelRowsPerPage = 'Rows per page',
   loading = false,
-  loadingDataMessage = 'Loading data',
   onEnable = (): void => undefined,
   onDelete = (): void => undefined,
   onDisable = (): void => undefined,
@@ -343,8 +343,12 @@ const Listing = ({
 
   return (
     <>
-      {loading && <LinearProgress className={classes.loadingIndicator} />}
-      {!loading && <div className={classes.loadingIndicator} />}
+      {loading && tableData.length > 0 && (
+        <LinearProgress className={classes.loadingIndicator} />
+      )}
+      {(!loading || (loading && tableData.length < 1)) && (
+        <div className={classes.loadingIndicator} />
+      )}
       <div className={classes.paper}>
         {paginated ? (
           <StyledPagination
@@ -439,7 +443,7 @@ const Listing = ({
                     colSpan={columnConfiguration.length + 1}
                     align="center"
                   >
-                    {loading ? loadingDataMessage : emptyDataMessage}
+                    {loading ? <ListingLoadingSkeleton /> : emptyDataMessage}
                   </BodyTableCell>
                 </TableRow>
               )}

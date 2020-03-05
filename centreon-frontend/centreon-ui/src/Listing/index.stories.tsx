@@ -98,3 +98,11 @@ const Story = (props): JSX.Element => {
 };
 
 export const normal = (): JSX.Element => <Story />;
+
+export const loadingWithNoData = (): JSX.Element => {
+  return <Story tableData={[]} totalRows={0} loading />;
+};
+
+export const loadingWithData = (): JSX.Element => {
+  return <Story loading />;
+};
