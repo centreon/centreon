@@ -30,9 +30,7 @@ use ZMQ::LibZMQ4;
 use ZMQ::Constants qw(:all);
 use JSON::XS;
 use Time::HiRes;
-use DateTime;
 
-my %jobs;
 my %handlers = (TERM => {}, HUP => {});
 my ($connector);
 
@@ -96,8 +94,8 @@ sub action_adddiscoveryjob {
     
     # Scheduled
     my $query = "UPDATE mod_host_disco_job " . 
-        "SET generate_date = '" . $self->date . "', status = '0', duration = 0, discovered_items = 0, message = 'Scheduled' " .
-        "WHERE id = " . $options{data}->{content}->{job_id};
+        "SET status = '0', duration = '0', discovered_items = '0', message = 'Scheduled' " .
+        "WHERE id = '" . $options{data}->{content}->{job_id} . "'";
     my $status = $self->{class_object_centreon}->transaction_query(request => $query);
     if ($status == -1) {
         $self->{logger}->writeLogError('[autodiscovery] Failed to update job status');
@@ -151,8 +149,6 @@ sub action_adddiscoveryjob {
             id => $token
         }
     );
-
-    $jobs{$token} = { target => $options{data}->{content}->{target} };
     
     return 0;
 }
@@ -182,8 +178,8 @@ sub action_launchdiscovery {
 
     # Running
     my $query = "UPDATE mod_host_disco_job " .
-        "SET generate_date = '" . $self->date . "', status = '3', duration = 0, discovered_items = 0, message = '" . $options{data}->{content}->{token} . "' " .
-        "WHERE id = " . $options{data}->{content}->{job_id};
+        "SET status = '3', duration = '0', discovered_items = '0', token = '" . $options{data}->{content}->{token} . "' " .
+        "WHERE id = '" . $options{data}->{content}->{job_id} . "'";
     my $status = $self->{class_object_centreon}->transaction_query(request => $query);
     if ($status == -1) {
         $self->{logger}->writeLogError('[autodiscovery] Failed to update job status');
@@ -196,17 +192,27 @@ sub action_getdiscoveryresults {
     
     # List running jobs
     my ($status, $data) = $self->{class_object_centreon}->custom_execute(
-        request => "SELECT id, message FROM mod_host_disco_job WHERE status = '3'",
+        request => "SELECT id, monitoring_server_id, token FROM mod_host_disco_job WHERE status = '3'",
         mode => 1,
         keys => 'id'
     );
 
+    # Sync logs and try to retrieve results for each jobs
     foreach my $job_id (keys %{$data}) {
         $self->{logger}->writeLogDebug("[autodiscovery] Get logs results for job '" . $job_id . "'");
+
+        $self->send_internal_action(
+            target => $data->{$job_id}->{monitoring_server_id},
+            action => 'GETLOG',
+        );
+
+        my $wait = (defined($self->{config}->{sync_wait})) ? $self->{config}->{sync_wait} : 1_000_000;
+        Time::HiRes::usleep($wait);
+
         $self->send_internal_action(
             action => 'GETLOG',
             data => {
-                token => $data->{$job_id}->{message},
+                token => $data->{$job_id}->{token},
                 limit => 4
             }
         );
@@ -239,9 +245,9 @@ sub action_updatediscoveryresults {
         my $result = JSON::XS->new->utf8->decode($stdout);
 
         # Finished
-        my $query = "UPDATE mod_host_disco_job SET generate_date = '" . $self->date . "', status = '1', duration = " . $result->{duration} .", " . 
-            "discovered_items = " . $result->{discovered_items} .", message = 'Finished' " .
-            "WHERE id = " . $job_id;
+        my $query = "UPDATE mod_host_disco_job SET status = '1', duration = '" . $result->{duration} ."', " . 
+            "discovered_items = '" . $result->{discovered_items} ."', message = 'Finished' " .
+            "WHERE id = '" . $job_id ."'";
         my $status = $self->{class_object_centreon}->transaction_query(request => $query);
         if ($status == -1) {
             $self->{logger}->writeLogError('[autodiscovery] Failed to update job status');
@@ -249,7 +255,7 @@ sub action_updatediscoveryresults {
         }
 
         # Delete previous results
-        $query = "DELETE FROM mod_host_disco_host WHERE job_id = " . $job_id;
+        $query = "DELETE FROM mod_host_disco_host WHERE job_id = '" . $job_id ."'";
         $status = $self->{class_object_centreon}->transaction_query(request => $query);
         if ($status == -1) {
             $self->{logger}->writeLogError('[autodiscovery] Failed to delete job hosts');
@@ -260,11 +266,11 @@ sub action_updatediscoveryresults {
         my $values;
         my $append = '';
         foreach my $host (@{$result->{results}}) {
-            $values .= $append . "(" . $job_id . ", 4, '" . JSON::XS->new->utf8->encode($host) ."')";
+            $values .= $append . "('" . $job_id . "', '" . JSON::XS->new->utf8->encode($host) ."')";
             $append = ', '
         }
 
-        $query = "INSERT INTO mod_host_disco_host (job_id, mapping_id, data) VALUES " . $values;
+        $query = "INSERT INTO mod_host_disco_host (job_id, discovery_result) VALUES " . $values;
         $status = $self->{class_object_centreon}->transaction_query(request => $query);
         if ($status == -1) {
             $self->{logger}->writeLogError('[autodiscovery] Failed to insert job hosts');
@@ -273,9 +279,9 @@ sub action_updatediscoveryresults {
     } else {
         # Failed
         my $query = "UPDATE mod_host_disco_job " .
-            "SET generate_date = '" . $self->date . "', status = '2', duration = 0, discovered_items = 0, " .
+            "SET status = '2', duration = '0', discovered_items = '0', " .
             "message = " . $self->{class_object_centreon}->quote(value => $stdout) . " " .
-            "WHERE id = " . $job_id;
+            "WHERE id = '" . $job_id ."'";
         my $status = $self->{class_object_centreon}->transaction_query(request => $query);
         if ($status == -1) {
             $self->{logger}->writeLogError('[autodiscovery] Failed to update job status');
@@ -284,11 +290,6 @@ sub action_updatediscoveryresults {
     }
 
     return 0;
-}
-
-sub date {
-    my $dt = DateTime->now;
-    return $dt->ymd . ' ' . $dt->hms;
 }
 
 sub event {
