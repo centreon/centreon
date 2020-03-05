@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 
 import ResizeObserver from 'resize-observer-polyfill';
+import isEqual from 'lodash/isEqual';
 import clsx from 'clsx';
 
 import { withStyles, makeStyles, Theme } from '@material-ui/core/styles';
@@ -11,6 +12,7 @@ import {
   LinearProgress,
   Box,
   TableCell,
+  TableRowProps,
   TableRow,
   fade,
 } from '@material-ui/core';
@@ -406,7 +408,7 @@ const Listing = ({
                 );
 
                 return (
-                  <TableRow
+                  <MemoizedRow
                     tabIndex={-1}
                     key={row.id}
                     onMouseEnter={hoverRow(row.id)}
@@ -414,6 +416,7 @@ const Listing = ({
                     onClick={(): void => {
                       onRowClick(row);
                     }}
+                    isHovered={hovered === row.id}
                   >
                     {checkable ? (
                       <BodyTableCell
@@ -434,7 +437,7 @@ const Listing = ({
                     {columnConfiguration.map((column) =>
                       getColumnCell({ column, row }),
                     )}
-                  </TableRow>
+                  </MemoizedRow>
                 );
               })}
               {tableData.length < 1 && (
@@ -454,5 +457,19 @@ const Listing = ({
     </>
   );
 };
+
+interface RowProps {
+  children;
+  isHovered?: boolean;
+}
+
+const MemoizedRow = React.memo<RowProps & TableRowProps>(
+  ({ children, ...props }: RowProps): JSX.Element => (
+    <TableRow {...props}>{children}</TableRow>
+  ),
+  (prevProps, nextProps) => {
+    return isEqual(prevProps.isHovered, nextProps.isHovered);
+  },
+);
 
 export default Listing;
