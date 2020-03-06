@@ -66,7 +66,8 @@ mkdir -p %{buildroot}/%{perl_vendorlib}/gorgone
 %{__cp} gorgoned %{buildroot}%{_bindir}/
 %{__cp} contrib/gorgone_config_init.pl %{buildroot}%{_usr}/local/bin/
 
-%{__install} -d -m 0755 %{buildroot}%{_sysconfdir}/centreon-gorgone/config.d/
+%{__install} -d -m 0775 %{buildroot}%{_sysconfdir}/centreon-gorgone
+%{__install} -d -m 0775 %{buildroot}%{_sysconfdir}/centreon-gorgone/config.d/
 %{__cp} packaging/config.yaml %{buildroot}%{_sysconfdir}/centreon-gorgone/
 %{__cp} packaging/centreon.yaml %{buildroot}%{_sysconfdir}/centreon-gorgone/config.d/30-centreon.yaml
 
