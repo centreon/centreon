@@ -67,7 +67,7 @@ sub open_session {
         }
     }
 
-    $self->{logger}->writeLogInfo('[sshclient] Authentification succeed');
+    $self->{logger}->writeLogInfo('[sshclient] Authentication succeed');
 
     $self->{sftp} = Libssh::Sftp->new(session => $self);
     if (!defined($self->{sftp})) {
