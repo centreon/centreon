@@ -51,23 +51,23 @@ Requires:   centreon-gorgone
 %install
 rm -rf %{buildroot}
 mkdir -p %{buildroot}/%{perl_vendorlib}/gorgone
-%{__install} -d -m 0755 %{buildroot}%{_bindir}
-%{__install} -d -m 0755 %{buildroot}%{_usr}/local/bin/
-%{__install} -d -m 0755 %{buildroot}%{_sysconfdir}/systemd/system/
-%{__install} -d -m 0775 %buildroot%{_localstatedir}/lib/centreon-gorgone
-%{__install} -d -m 0775 %buildroot%{_localstatedir}/log/centreon-gorgone
+%{__install} -d %{buildroot}%{_bindir}
+%{__install} -d %{buildroot}%{_usr}/local/bin/
+%{__install} -d %{buildroot}%{_sysconfdir}/systemd/system/
+%{__install} -d %buildroot%{_localstatedir}/lib/centreon-gorgone
+%{__install} -d %buildroot%{_localstatedir}/log/centreon-gorgone
 %{__cp} config/systemd/gorgoned-service %{buildroot}%{_sysconfdir}/systemd/system/gorgoned.service
-%{__install} -d -m 0755 %{buildroot}%{_sysconfdir}/sysconfig
+%{__install} -d %{buildroot}%{_sysconfdir}/sysconfig
 %{__cp} config/systemd/gorgoned-sysconfig %{buildroot}%{_sysconfdir}/sysconfig/gorgoned
-%{__install} -d -m 0755 %{buildroot}%{_sysconfdir}/logrotate.d
+%{__install} -d %{buildroot}%{_sysconfdir}/logrotate.d
 %{__cp} config/logrotate/gorgoned %{buildroot}%{_sysconfdir}/logrotate.d/gorgoned
 
 %{__cp} -R gorgone/* %{buildroot}/%{perl_vendorlib}/gorgone/
 %{__cp} gorgoned %{buildroot}%{_bindir}/
 %{__cp} contrib/gorgone_config_init.pl %{buildroot}%{_usr}/local/bin/
 
-%{__install} -d -m 0775 %{buildroot}%{_sysconfdir}/centreon-gorgone
-%{__install} -d -m 0775 %{buildroot}%{_sysconfdir}/centreon-gorgone/config.d/
+%{__install} -d %{buildroot}%{_sysconfdir}/centreon-gorgone
+%{__install} -d %{buildroot}%{_sysconfdir}/centreon-gorgone/config.d/
 %{__cp} packaging/config.yaml %{buildroot}%{_sysconfdir}/centreon-gorgone/
 %{__cp} packaging/centreon.yaml %{buildroot}%{_sysconfdir}/centreon-gorgone/config.d/30-centreon.yaml
 
@@ -89,7 +89,7 @@ rm -rf %{buildroot}
 
 %defattr(-, centreon-gorgone, centreon-gorgone, -)
 %dir %{_sysconfdir}/centreon-gorgone
-%dir %{_sysconfdir}/centreon-gorgone/config.d
+%dir %attr(775, centreon-gorgone, centreon-gorgone) %{_sysconfdir}/centreon-gorgone/config.d
 %{_sysconfdir}/centreon-gorgone/config.yaml
 %{_localstatedir}/lib/centreon-gorgone
 %{_localstatedir}/log/centreon-gorgone
@@ -107,6 +107,7 @@ rm -rf %{buildroot}
 %{_bindir}/getent passwd centreon-gorgone &>/dev/null && %{_sbindir}/usermod -a -G centreon-engine centreon-gorgone 2> /dev/null
 %{_bindir}/getent passwd centreon-gorgone &>/dev/null && %{_sbindir}/usermod -a -G centreon-broker centreon-gorgone 2> /dev/null
 %{_bindir}/getent passwd centreon-gorgone &>/dev/null && %{_sbindir}/usermod -a -G apache centreon-gorgone 2> /dev/null
+%{_bindir}/getent passwd centreon-gorgone &>/dev/null && %{_sbindir}/usermod -a -G centreon-gorgone apache 2> /dev/null
 if [ \( \! -d %{_localstatedir}/lib/centreon-gorgone/.ssh \) -a \( -d %{_localstatedir}/spool/centreon/.ssh \) ] ; then
   %{__cp} -r %{_localstatedir}/spool/centreon/.ssh %{_localstatedir}/lib/centreon-gorgone/.ssh
   %{__chown} -R centreon-gorgone:centreon-gorgone %{_localstatedir}/lib/centreon-gorgone/.ssh
