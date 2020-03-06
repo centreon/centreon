@@ -54,7 +54,8 @@ module.exports = {
         'ts': 'never',
         'tsx': 'never'
       }
-   ],
-   'prefer-arrow-functions/prefer-arrow-functions': ['error'],
+    ],
+    'prefer-arrow-functions/prefer-arrow-functions': ['error'],
+    camelcase: ['error', { properties: 'never', ignoreDestructuring: true }],
   },
 };
