@@ -81,9 +81,9 @@ sub init_server_keys {
     $self->{config}->{configuration} = { gorgone => {} } if (!defined($self->{config}->{configuration}->{gorgone}));
     $self->{config}->{configuration}->{gorgone} = { gorgonecore => {} } if (!defined($self->{config}->{configuration}->{gorgone}->{gorgonecore}));
 
-    $self->{config}->{configuration}->{gorgone}->{gorgonecore}->{privkey} = 'keys/rsakey.priv.pem'
+    $self->{config}->{configuration}->{gorgone}->{gorgonecore}->{privkey} = '/var/lib/centreon-gorgone/.keys/rsakey.priv.pem'
         if (!defined($self->{config}->{configuration}->{gorgone}->{gorgonecore}->{privkey}) || $self->{config}->{configuration}->{gorgone}->{gorgonecore}->{privkey} eq '');
-    $self->{config}->{configuration}->{gorgone}->{gorgonecore}->{pubkey} = 'keys/rsakey.pub.pem'
+    $self->{config}->{configuration}->{gorgone}->{gorgonecore}->{pubkey} = '/var/lib/centreon-gorgone/.keys/rsakey.pub.pem'
         if (!defined($self->{config}->{configuration}->{gorgone}->{gorgonecore}->{pubkey}) || $self->{config}->{configuration}->{gorgone}->{gorgonecore}->{pubkey} eq '');
 
     if (! -f $self->{config}->{configuration}->{gorgone}->{gorgonecore}->{privkey} && ! -f $self->{config}->{configuration}->{gorgone}->{gorgonecore}->{pubkey}) {
