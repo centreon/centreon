@@ -1,6 +1,8 @@
 import initStoryshots from '@storybook/addon-storyshots';
 import { imageSnapshot } from '@storybook/addon-storyshots-puppeteer';
 
+jest.unmock('axios');
+
 const getMatchOptions = () => {
   return {
     failureThreshold: 0.2,

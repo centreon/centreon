@@ -17,7 +17,7 @@ const useStyles = makeStyles((theme: Theme) => ({
   },
 }));
 
-interface SelectEntry {
+export interface SelectEntry {
   id: number;
   name: string;
 }
@@ -34,6 +34,7 @@ const SelectField = ({
   onChange,
   selectedOptionId,
   label,
+  ...props
 }: Props): JSX.Element => {
   const classes = useStyles();
 
@@ -47,6 +48,7 @@ const SelectField = ({
         value={selectedOptionId}
         onChange={onChange}
         disableUnderline
+        {...props}
       >
         {options.map(({ id, name }) => (
           <MenuItem key={id} value={id}>
