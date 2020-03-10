@@ -74,7 +74,12 @@ $template->assign('host_label', _('Hosts'));
 $template->assign('svc_label', _('Services'));
 
 $centreon = $_SESSION['centreon'];
-$widgetId = $_REQUEST['widgetId'];
+
+$widgetId = filter_var($_REQUEST['widgetId'], FILTER_VALIDATE_INT);
+if ($widgetId === false) {
+    throw new InvalidArgumentException('Widget ID must be an integer');
+}
+
 $widgetObj = new CentreonWidget($centreon, $db);
 $preferences = $widgetObj->getWidgetPreferences($widgetId);
 $template->assign('preferences', $preferences);

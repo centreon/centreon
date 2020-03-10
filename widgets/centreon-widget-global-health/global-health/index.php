@@ -43,16 +43,22 @@ if (!isset($_SESSION['centreon']) || !isset($_REQUEST['widgetId'])) {
     exit;
 }
 $centreon = $_SESSION['centreon'];
-$widgetId = $_REQUEST['widgetId'];
+$widgetId = filter_var($_REQUEST['widgetId'], FILTER_VALIDATE_INT); 
 
 try {
+    if ($widgetId === false) {
+        throw new InvalidArgumentException('Widget ID must be an integer');
+    }
+
     $db = $dependencyInjector['configuration_db'];
     $widgetObj = new CentreonWidget($centreon, $db);
     $preferences = $widgetObj->getWidgetPreferences($widgetId);
-    $autoRefresh = 0;
-    if (isset($preferences['refresh_interval'])) {
-        $autoRefresh = $preferences['refresh_interval'];
+    
+    $autoRefresh = filter_var($preferences['refresh_interval'], FILTER_VALIDATE_INT);
+    if ($autoRefresh === false || $autoRefresh < 5) {
+        $autoRefresh = 30;
     }
+
     $broker = "broker";
     $res = $db->query("SELECT `value` FROM `options` WHERE `key` = 'broker'");
     if ($res->rowCount()) {
@@ -89,11 +95,6 @@ try {
     var widgetId = <?php echo $widgetId; ?>;
     var autoRefresh = <?php echo $autoRefresh;?>;
     var timeout;
-    var itemsPerPage = <?php if (!empty($preferences['entries'])) {
-        echo $preferences['entries'];
-    } else {
-        echo '50';
-    }?>;
     var pageNumber = 0;
     var broker = '<?php echo $broker;?>';
 
@@ -101,16 +102,12 @@ try {
         loadPage();
     });
 
-    /*
-     * Load page
-     */
     function loadPage() {
         var indexPage = "global_health";
         jQuery.ajax("./src/" + indexPage + ".php?widgetId=" + widgetId, {
             success: function (htmlData) {
                 jQuery("#global_health").html("");
                 jQuery("#global_health").html(htmlData);
-                //jQuery("#BaTable").styleTable();
                 var h = jQuery("#global_health").prop("scrollHeight") + 36;
                 parent.iResize(window.name, h);
                 jQuery("#global_health").find("img, style, script, link").load(function () {
