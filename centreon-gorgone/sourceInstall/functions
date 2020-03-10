@@ -1,0 +1,1027 @@
+#!/bin/bash
+#----
+## @Synopsis	Functions needed in the installation script of Centreon Gorgone module
+## @Copyright	Copyright 2008, Guillaume Watteeux
+## @Copyright	Copyright 2008-2020, Centreon
+## @License	GPL : http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt
+#----
+## Centreon is developed with GPL Licence 2.0
+## Developed by : Julien Mathis - Romain Le Merlus
+##
+## This program is free software; you can redistribute it and/or
+## modify it under the terms of the GNU General Public License
+## as published by the Free Software Foundation; either version 2
+## of the License, or (at your option) any later version.
+##
+## This program is distributed in the hope that it will be useful,
+## but WITHOUT ANY WARRANTY; without even the implied warranty of
+## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+## GNU General Public License for more details.
+##
+##    For information : infos@centreon.com
+#
+
+## VARS
+yes="y"
+no="n"
+ok="OK"
+fail="FAIL"
+passed="PASSED"
+warning="WARNING"
+critical="CRITICAL"
+# Init binary to empty to use pathfind or manual define
+GREP=""
+CAT=""
+SED=""
+CHMOD=""
+CHOWN=""
+
+## COLOR FUNCTIONS
+RES_COL="60"
+MOVE_TO_COL="\\033[${RES_COL}G"
+SETCOLOR_INFO="\\033[1;38m"
+SETCOLOR_SUCCESS="\\033[1;32m"
+SETCOLOR_FAILURE="\\033[1;31m"
+SETCOLOR_WARNING="\\033[1;33m"
+SETCOLOR_NORMAL="\\033[0;39m"
+
+#----
+## make a question with yes/no possibility
+## use "no" response by default
+## @param	message to print
+## @param 	default response (default to no)
+## @return 0 	yes
+## @return 1 	no
+#----
+yes_no_default() {
+    local message=$1
+    local default=${2:-$no}
+    local res="not_define"
+    while [ "$res" != "$yes" ] && [ "$res" != "$no" ] && [ ! -z "$res" ] ; do
+        echo -e "\n$message\n[y/n], default to [$default]:"
+        echo -en "> "
+        read res
+        [ -z "$res" ] && res="$default"
+    done
+    if [ "$res" = "$yes" ] ; then
+        return 0
+    else
+        return 1
+    fi
+}
+
+#----
+## print info message and add it to log file
+## @param	message info
+## @param	type info (ex: INFO, username...)
+## @Stdout	info message
+## @Globals	LOG_FILE
+#----
+echo_info() {
+    echo -e "${1}${MOVE_TO_COL}${SETCOLOR_INFO}${2}${SETCOLOR_NORMAL}"
+    log "$1" "$2"
+}
+
+#----
+## print success message
+## add success message to log file
+## @param	message
+## @param	word to specify success (ex: OK)
+## @Stdout	success message
+## @Globals	LOG_FILE
+#----
+echo_success() {
+    echo -e "${1}${MOVE_TO_COL}${SETCOLOR_SUCCESS}${2}${SETCOLOR_NORMAL}"
+    log "$1" "$2"
+}
+
+#----
+## print failure message
+## add failure message to log file
+## @param	message
+## @param	word to specify failure (ex: fail)
+## @Stdout	failure message
+## @Globals	LOG_FILE
+#----
+echo_failure() {
+    echo -e "${1}${MOVE_TO_COL}${SETCOLOR_FAILURE}${2}${SETCOLOR_NORMAL}"
+    log "$1" "$2"
+}
+
+#----
+## print passed message
+## add passed message to log file
+## @param	message
+## @param	word to specify pass (ex: passed)
+## @Stdout	passed message
+## @Globals	LOG_FILE
+#----
+echo_passed() {
+    echo -e "${1}${MOVE_TO_COL}${SETCOLOR_WARNING}${2}${SETCOLOR_NORMAL}"
+    log "$1" "$2"
+}
+
+#----
+## print warning message
+## add warning message to log file
+## @param	message
+## @param	word to specify warning (ex: warn)
+## @Stdout	warning message
+## @Globals	LOG_FILE
+#----
+echo_warning() {
+    echo -e "${1}${MOVE_TO_COL}${SETCOLOR_WARNING}${2}${SETCOLOR_NORMAL}"
+    log "$1" "$2"
+}
+
+#----
+## Trim whitespaces and tabulations
+## @param	string to trim
+## @return	string
+#----
+trim() {
+    echo "$1" | sed 's/^[ \t]*\(.*\)[ \t]*$/\1/'
+}
+
+#----
+## add message on log file
+## @param	type of message level (debug, info, ...)
+## @param	message
+## @Globals	LOG_FILE
+#----
+log() {
+    local program="$0"
+    local type="$1"
+    shift
+    local message="$@"
+    echo -e "[$program] - $type: $message" >> $LOG_FILE
+}
+
+#----
+## find in $PATH if binary exist
+## @param	file to test
+## @return 0	found
+## @return 1	not found
+## @Globals	PATH
+#----
+pathfind() {
+    OLDIFS="$IFS"
+    IFS=:
+    for p in $PATH; do
+        if [ -x "$p/$*" ] ; then
+            IFS="$OLDIFS"
+            return 0
+        fi
+    done
+    IFS="$OLDIFS"
+    return 1
+}
+
+#----
+## find in $PATH if binary exist and return dirname
+## @param	file to test
+## @param	global variable to set a result
+## @return 0	found
+## @return 1	not found
+## @Globals	PATH
+#----
+pathfind_ret() {
+    local bin=$1
+    local var_ref=$2
+    local OLDIFS="$IFS"
+    IFS=:
+    for p in $PATH; do
+        if [ -x "$p/$bin" ] ; then
+            IFS="$OLDIFS"
+            eval $var_ref=$p
+            return 0
+        fi
+    done
+    IFS="$OLDIFS"
+    return 1
+}
+
+#----
+## define a specific variables for grep,cat,sed,... binaries
+## This functions was been use in first line on your script
+## @return 0	All is't ok
+## @return 1	problem with one variable
+## @Globals	GREP, CAT, SED, CHMOD, CHOWN
+#----
+define_specific_binary_vars() {
+    local vars_bin="GREP CAT SED CHMOD CHOWN"
+    local var_bin_tolower=""
+    for var_bin in $vars_bin ; do
+        if [ -z $(eval echo \$$var_bin) ] ; then
+            var_bin_tolower="$(echo $var_bin | tr [:upper:] [:lower:])"
+            pathfind_ret "$var_bin_tolower" "$(echo -n $var_bin)"
+            if [ "$?" -eq 0 ] ; then
+                eval "$var_bin='$(eval echo \$$var_bin)/$var_bin_tolower'"
+                export $(echo $var_bin)
+                log "PATH" "$var_bin=$(eval echo \$$var_bin)"
+            else
+                return 1
+            fi
+        fi
+    done
+    return 0
+}
+
+#----
+## Check space left before installing
+## @return 0	Space ok
+## @return 1	No Space left
+## @Globals	INSTALL_DIR
+#----
+check_disk_space() {
+    local min_space="35584"
+    local free_space=""
+    local tmp_dir=""
+    dest_dir=$(dirname $INSTALL_DIR)
+    free_space=$(df -P $dest_dir | tail -1 | awk '{print $4}')
+    if [ "$free_space" -lt "$min_space" ] ; then
+        echo_failure "No space left on : $dest_dir  (<$min_space Ko)" "$fail"
+        return 1
+    else
+        return 0
+    fi
+}
+
+#----
+## print a message, test directory if answer is correct
+## Loop if not a valid directory
+## @param	message
+## @param	default value (use "NO_DEFAULT" if not default value)
+## @param	global variable to set a result
+## @return 0	end
+#----
+answer_with_testdir() {
+    local message=$1
+    local default=$2
+    local var_ref=$3
+    local res="not_defined"
+    local first=0
+    while [ ! -d "$res" ] ; do
+        [ $first -eq 1 ] && echo_passed "$res is not a directory or does not exist" "$critical"
+        echo -e "\n$message"
+        [ "$default" != "NO_DEFAULT" ] && echo -e "default to [$default]"
+        echo -en "> "
+        read res
+        if [ -z "$res" ] ; then
+            [ $default != "NO_DEFAULT" ] && res=$default
+        fi
+        if [ -z ${res#/} ] ; then
+            echo_passed  "You cannot select the filesystem root folder"
+            res="not_defined"
+        else
+            first=1
+        fi
+    done
+    eval $var_ref=$res
+    return 0
+}
+
+#----
+## ask if the creation of missing folders should be automated or not
+#----
+allow_creation_of_missing_folders() {
+    CREATION_ALLOWED=0
+    yes_no_default "Do you want to be asked for confirmation before creating the missing folders ?" "$yes"
+    if [ "$?" -eq 1 ] ; then
+        CREATION_ALLOWED=1
+        echo_warning "Ask confirmation before folder creation" "NO"
+    fi
+    export CREATION_ALLOWED
+}
+
+#----
+## print a message, create directory with answer
+## Loop if not a valid directory (slash...)
+## @param	message
+## @param	default value (use "NO_DEFAULT" if not default value)
+## @param	global variable to set a result
+## @return 0	end
+#----
+answer_with_createdir() {
+    local message=$1
+    local default=$2
+    local var_ref=$3
+    local res="not_defined"
+    local first=0
+    while [ ! -d "$res" ] ; do
+        [ $first -eq 1 ] && echo_passed "Directory $res does not exists." "$critical"
+        echo -e "\n$message"
+        [ "$default" != "NO_DEFAULT" ] && echo -e "default to [$default]"
+        echo -en "> "
+        read res
+        if [ -z "$res" ] ; then
+            [ "$default" != "NO_DEFAULT" ] && res=$default
+        fi
+        if [ -z "${res#/}" -o "$yes" = "$res" -o "$no" = "$res" ] ; then
+            echo_passed  "You cannot select the filesystem root folder"
+            res="not_defined"
+        else
+            first=1
+            if [ $CREATION_ALLOWED -eq 0 ] ; then
+                [ -d "$res" ] && break
+                yes_no_default "Do you want to create this directory ? [$res]"
+            fi
+            if [ $? -eq 0 ] || [ $CREATION_ALLOWED -eq 1 ] ; then
+                mkdir -p $res
+                log "INFO" "Creating $res"
+            elif [ $? -ne 0 ] ; then
+                echo_passed "Could not create directory." "$critical"
+                #continue
+            fi
+        fi
+    done
+    eval $var_ref=$res
+    return 0
+}
+
+#----
+## print a message, test if file exists
+## Loop if not a valid file
+## @param	message
+## @param	default value (use "NO_DEFAULT" if not default value)
+## @param	global variable to set a result
+## @return 0	end
+#----
+answer_with_testfile() {
+    local message=$1
+    local default=$2
+    local var_ref=$3
+    local res="not_define"
+    local first=0
+    while [ ! -f "$res" ] ; do
+        [ $first -eq 1 ] && echo_passed "$res is not a valid file." "$critical"
+        echo -e "\n$message"
+        [ "$default" != "NO_DEFAULT" ] && echo -e "default to [$default]"
+        echo -en "> "
+        read res
+        if [ -z "$res" ] ; then
+            [ "$default" != "NO_DEFAULT" ] && res=$default
+        fi
+        first=1
+    done
+    eval $var_ref=$res
+    return 0
+}
+
+#----
+## Test if file exist
+## @param	file
+## @param	variable to reset
+## @return 0 	file exist
+## @return 1 	file does not exist
+#----
+testfile_clean() {
+    local file="$1"
+    local var="$2"
+    [ -z "$file" ] && return 1
+    if [ ! -e "$file" ] ; then
+        eval $var=""
+        return 1
+    else
+        return 0
+    fi
+}
+
+#----
+## Test if directory exist
+## @param	directory
+## @param	variable to reset
+## @return 0 directory exist
+## @return 1 directory does not exist
+#----
+testdir_clean() {
+    local dir="$1"
+    local var="$2"
+    [ -z "$dir" ] && return 1
+    if [ ! -d "$dir" ] ; then
+        eval $var=""
+        return 1
+    else
+        return 0
+    fi
+}
+
+#----
+## Check equality of two arguments
+## @param	value1
+## @param	value2
+#----
+test_answer() {
+    if [ ! -z $2 ] ; then
+        if [ $2 != "" ] ; then
+            eval $1=$2
+        fi
+    fi
+}
+
+#----
+## Try to create a new folder
+## @param	directory
+## @return 0 on success
+## @return 1 on failure
+#----
+dir_test_create() {
+    local dirname="$1"
+    if [ ! -d "$1" ] ; then
+        mkdir -p "$dirname"
+        if [ $? -ne 0 ] ; then
+            echo_failure "Could not create folder $dirname" "$fail"
+            return 1
+        fi
+        echo_success "Creating folder $dirname" "$ok"
+    fi
+    return 0
+}
+
+#----
+## Change rights on specific file/folders
+#----
+change_rights() {
+    local user=$1
+    local group=$2
+    local rights=$3
+    local target=$4
+
+    ${CHOWN} $user.$group $target
+    if [ $? -eq 0 ] ; then
+        echo_success "Modify owner of $target" "$ok"
+    else
+        echo_failure "Modify owner of $target" "$fail"
+    fi
+
+    ${CHMOD} $rights $target
+    if [ $? -eq 0 ] ; then
+        echo_success "Modify rights of $target" "$ok"
+    else
+        echo_failure "Modify rights of $target" "$fail"
+    fi
+}
+
+#----
+## Define where is Gorgone log folder
+#----
+locate_gorgone_logdir() {
+    if [ -n "$GORGONE_LOG" ] ; then
+        dir_test_create "$GORGONE_LOG"
+        if [ $? -ne 0 ] ; then
+            GORGONE_LOG=""
+        fi
+    fi
+    if [ -z "$GORGONE_LOG" ] ; then
+        answer_with_createdir "Where is your Gorgone log folder" "$DEFAULT_GORGONE_LOG" "GORGONE_LOG"
+        echo_success "Path $GORGONE_LOG" "$ok"
+    fi
+    GORGONE_LOG=`trim ${GORGONE_LOG%/}`
+    export GORGONE_LOG
+    log "VALUE OF" "GORGONE_LOG folder = $GORGONE_LOG"
+}
+
+#----
+## Define where is Gorgone database folder
+#----
+locate_gorgone_varlib() {
+    if [ -n "$GORGONE_VARLIB" ] ; then
+        dir_test_create "$GORGONE_VARLIB"
+        if [ $? -ne 0 ] ; then
+            GORGONE_VARLIB=""
+        fi
+    fi
+    if [ -z "$GORGONE_VARLIB" ] ; then
+        answer_with_createdir "Where is your Gorgone database folder" "$DEFAULT_GORGONE_VARLIB" "GORGONE_VARLIB"
+        echo_success "Path $GORGONE_VARLIB" "$ok"
+    fi
+    GORGONE_VARLIB=`trim ${GORGONE_VARLIB%/}`
+    export GORGONE_VARLIB
+    log "VALUE OF" "GORGONE_VARLIB folder = $GORGONE_VARLIB"
+}
+
+
+#----
+## Define where is Gorgone config (etc) folder
+#----
+locate_gorgone_etcdir() {
+    if [ -n "$GORGONE_ETC" ] ; then
+        dir_test_create "$GORGONE_ETC"
+        if [ $? -ne 0 ] ; then
+            GORGONE_ETC=""
+        fi
+    fi
+    if [ -z "$GORGONE_ETC" ] ; then
+        answer_with_createdir "Where is your Gorgone config (etc) folder" "$DEFAULT_GORGONE_ETC" "GORGONE_ETC"
+        echo_success "Path $GORGONE_ETC" "$ok"
+    fi
+    GORGONE_ETC=`trim ${GORGONE_ETC%/}`
+    export GORGONE_ETC
+    log "VALUE OF" "GORGONE_ETC folder = $GORGONE_ETC"
+    # create the sub-folder for specific config files
+    dir_test_create "$GORGONE_ETC/config.d"
+}
+
+#----
+## Define where is Gorgone user's bin folder
+#----
+locate_gorgone_bindir() {
+    if [ -n "$GORGONE_BINDIR" ] ; then
+        dir_test_create "$GORGONE_BINDIR"
+        if [ $? -ne 0 ] ; then
+            GORGONE_BINDIR=""
+        fi
+    fi
+    if [ -z "$GORGONE_BINDIR" ] ; then
+        answer_with_createdir "Where are your Gorgone user's folder" "$DEFAULT_GORGONE_BINDIR" "GORGONE_BINDIR"
+        echo_success "Path $GORGONE_BINDIR" "$ok"
+    fi
+    GORGONE_BINDIR=`trim ${GORGONE_BINDIR%/}`
+    export GORGONE_BINDIR
+    log "VALUE OF" "GORGONE_PERL folder = $GORGONE_BINDIR"
+}
+
+#----
+## Define where is Gorgone perl folder
+#----
+locate_gorgone_perldir() {
+    if [ -n "$GORGONE_PERL" ] ; then
+        dir_test_create "$GORGONE_PERL"
+        if [ $? -ne 0 ] ; then
+            GORGONE_PERL=""
+        fi
+    fi
+    if [ -z "$GORGONE_PERL" ] ; then
+        answer_with_createdir "Where are your Gorgone's perl files" "$DEFAULT_GORGONE_PERL" "GORGONE_PERL"
+        echo_success "Path $GORGONE_PERL" "$ok"
+    fi
+    GORGONE_PERL=`trim ${GORGONE_PERL%/}`
+    export GORGONE_PERL
+    log "VALUE OF" "GORGONE_PERL folder = $GORGONE_PERL"
+}
+
+#----
+## Define where is perl binary
+## find perl in PATH
+#----
+locate_perl() {
+    testfile_clean "$BIN_PERL" "BIN_PERL"
+    if [ -z "$BIN_PERL" ] ; then
+        pathfind_ret "perl" "BIN_PERL"
+        if [ "$?" -ne 0 ] ; then
+            answer_with_testfile "Where is perl" "$DEFAULT_BIN_PERL" "BIN_PERL"
+        else
+            BIN_PERL="$BIN_PERL/perl"
+        fi
+        echo_success "$BIN_PERL" "$ok"
+    fi
+    BIN_PERL=${BIN_PERL%/}
+    export BIN_PERL
+    log "VALUE OF" "BIN_PERL = $BIN_PERL"
+}
+
+#----
+## Define where is your cron.d directory
+#----
+locate_cron_d() {
+    testdir_clean "$CRON_D" "CRON_D"
+    if [ -z "$CRON_D" ] ; then
+        if [ -d "/etc/cron.d" ] ; then
+            CRON_D="/etc/cron.d"
+            # Add most of init.d
+        else
+            answer_with_testdir "Where is your cron.d directory ?" "$DEFAULT_CRON_D" "CRON_D"
+            echo_success "Location $CRON_D" "$ok"
+        fi
+    fi
+    CRON_D=${CRON_D%/}
+    export CRON_D
+    log "VALUE OF" "CRON_D = $CRON_D"
+}
+
+#----
+## Define where is your logrotate.d directory
+## @Globals	LOGROTATE_D, DEFAULT_LOGROTATE_D
+#----
+locate_logrotate_d() {
+    testdir_clean "$LOGROTATE_D" "LOGROTATE_D"
+    if [ -z "$LOGROTATE_D" ] ; then
+        if [ -d "/etc/logrotate.d" ] ; then
+            LOGROTATE_D="/etc/logrotate.d"
+            # Add most of init.d
+        else
+            answer_with_testdir "Where is your logrotate.d folder ?" "$DEFAULT_LOGROTATE_D" "LOGROTATE_D"
+            echo_success "Path $LOGROTATE_D" "$ok"
+        fi
+    fi
+    LOGROTATE_D=`trim ${LOGROTATE_D%/}`
+    export LOGROTATE_D
+    log "VALUE OF" "LOGROTATE_D = $LOGROTATE_D"
+}
+
+#----
+## Define where is your systemd folder
+## @Globals	SYSTEM_D, DEFAULT_SYSTEM_D
+#----
+locate_system_d() {
+    testdir_clean "$SYSTEM_D" "SYSTEM_D"
+    if [ -z "$SYSTEM_D" ] ; then
+        if [ -d "/etc/systemd/system" ] ; then
+            SYSTEM_D="/etc/systemd/system"
+            # Add most of init.d
+        else
+            answer_with_testdir "Where is your systemd folder ?" "$DEFAULT_SYSTEM_D" "SYSTEM_D"
+            echo_success "Path $SYSTEM_D" "$ok"
+        fi
+    fi
+    SYSTEM_D=`trim ${SYSTEM_D%/}`
+    export SYSTEM_D
+    log "VALUE OF" "SYSTEM_D = $SYSTEM_D"
+}
+
+#----
+## Define where is your sysconfig folder
+## @Globals	SYSCONFIG, DEFAULT_SYSCONFIG
+#----
+locate_sysconfig() {
+    testdir_clean "$SYSCONFIG" "SYSCONFIG"
+    if [ -z "$SYSCONFIG" ] ; then
+        if [ -d "/etc/sysconfig" ] ; then
+            SYSCONFIG="/etc/sysconfig"
+            # Add most of init.d
+        else
+            answer_with_testdir "Where is your sysconfig folder ?" "$DEFAULT_SYSCONFIG" "SYSCONFIG"
+            echo_success "Path $SYSCONFIG" "$ok"
+        fi
+    fi
+    SYSCONFIG=`trim ${SYSCONFIG%/}`
+    export SYSCONFIG
+    log "VALUE OF" "SYSCONFIG = $SYSCONFIG"
+}
+
+#----
+## Ask for centreon user, and create it if not exists
+## @Globals	GORGONE_GROUP, DEFAULT_GORGONE_GROUP
+#----
+check_gorgone_group()
+{
+    if [ -n "$GORGONE_GROUP" ] ; then
+        group_test "$GORGONE_GROUP"
+        if [ $? -ne 0 ] ; then
+            group_create "$GORGONE_GROUP"
+            if [ $? -ne 0 ] ; then
+                GORGONE_GROUP=""
+            fi
+        fi
+    fi
+    if [ -z "$GORGONE_GROUP" ] ; then
+        answer_with_creategroup "What is the Gorgone group ?" "$DEFAULT_GORGONE_GROUP" "GORGONE_GROUP"
+    fi
+    log "VALUE OF" "GORGONE_GROUP = $GORGONE_GROUP"
+    return 0
+}
+
+group_test() {
+    grep "^$1:" /etc/group &>/dev/null
+    return $?
+}
+
+group_create() {
+    local groupname="$1"
+    groupadd -r "$groupname"
+    if [ $? -ne 0 ] ; then
+        echo_failure "Could not create group $groupname" "$fail"
+        return 1
+    fi
+    echo_success "Creating group $groupname" "$ok"
+    log "VALUE OF" "Creating group $groupname"
+    return 0
+}
+
+#----
+## print a message for get information with create a group system
+## @param	message
+## @param	default value (use "NO_DEFAULT" if not default value)
+## @param	global variable to set a result
+## @return 0	end
+#----
+answer_with_creategroup() {
+    local message=$1
+    local default=$2
+    local var_ref=$3
+    local res="not_def"
+    local first=0
+    local group_tested=1
+    while [ "$group_tested" -ne 0 ] ; do
+        [ $first -eq 1 ] && echo_passed "The group $res does not exist" "$critical"
+        echo -e "\n$message"
+        [ "$default" != "NO_DEFAULT" ] && echo -e "default to [$default]"
+        echo -en "> "
+        read res
+        if [ -z "$res" ] ; then
+            [ "$default" != "NO_DEFAULT" ] && res=$default
+        fi
+        first=1
+        if [ -n "$res" ] ; then
+            group_test "$res"
+            if [ $? -ne 0 ] ; then
+                if [ $CREATION_ALLOWED -eq 0 ] ; then
+                    yes_no_default "Do you want to create this group ? [$res]"
+                fi
+                if [ $? -eq 0 ] || [ $CREATION_ALLOWED -eq 1 ] ; then
+                    group_create "$res"
+                fi
+            fi
+        else
+            res="not_def"
+        fi
+        group_test "$res"
+        group_tested=$?
+    done
+    eval $var_ref=$res
+    return 0
+}
+
+#----
+## Ask for centreon user
+## @Globals	GORGONE_USER, DEFAULT_GORGONE_USER
+#----
+check_gorgone_user()
+{
+    local groups="$GORGONE_GROUP"
+    local description="Gorgone user"
+    local home="$GORGONE_VARLIB"
+    if [ -n "$GORGONE_USER" ] ; then
+        user_test "$GORGONE_USER"
+        if [ $? -ne 0 ] ; then
+            user_create "$GORGONE_USER" "$groups" "$description" "$home"
+            if [ $? -ne 0 ] ; then
+                GORGONE_USER=""
+            fi
+        fi
+    fi
+    if [ -z "$GORGONE_USER" ] ; then
+        answer_with_createuser "What is the Gorgone user ?" "$DEFAULT_GORGONE_USER" "GORGONE_USER" "$groups" "$description" "$home"
+    fi
+    log "VALUE OF" "GORGONE_USER = $GORGONE_USER"
+    return 0
+}
+
+user_test() {
+    grep "^$1:" /etc/passwd &>/dev/null
+    return $?
+}
+
+user_create() {
+    local username="$1"
+    local groupname="$2"
+    local description="$3"
+    local home="$4"
+    useradd -r -c "$description" -s "/bin/sh" -d "$home" -g "$groupname" "$username"
+    if [ $? -ne 0 ] ; then
+        echo_failure "Could not create user $username" "$fail"
+        return 1
+    fi
+    echo_success "Creating user $username ($description)" "$ok"
+    log "INFO" "Creating user $username"
+    return 0
+}
+
+#----
+## print a message for get information with create a user system
+## @param	message
+## @param	default value (use "NO_DEFAULT" if not default value)
+## @param	global variable to set a result
+## @return 0	end
+#----
+answer_with_createuser() {
+    local message=$1
+    local default=$2
+    local var_ref=$3
+    local groups="$4"
+    local description="$5"
+    local home="$6"
+    local res="not_def"
+    local first=0
+    local user_tested=1
+    while [ "$user_tested" -ne 0 ] ; do
+        [ $first -eq 1 ] && echo_passed "The user $res does not exist" "$critical"
+        echo -e "\n$message"
+        [ "$default" != "NO_DEFAULT" ] && echo -e "default to [$default]"
+        echo -en "> "
+        read res
+        if [ -z "$res" ] ; then
+            [ "$default" != "NO_DEFAULT" ] && res=$default
+        fi
+        first=1
+        if [ -n "$res" ] ; then
+            user_test "$res"
+            if [ $? -ne 0 ] ; then
+                if [ $CREATION_ALLOWED -eq 0 ] ; then
+                    yes_no_default "Do you want to create this user ? [$res]"
+                fi
+                if [ $? -eq 0 ]  || [ $CREATION_ALLOWED -eq 1 ] ; then
+                    user_create "$res" "$groups" "$description" "$home"
+                fi
+            fi
+        else
+            res="not_def"
+        fi
+        user_test "$res"
+        user_tested=$?
+    done
+    eval $var_ref=$res
+    return 0
+}
+
+#----
+## install init script on distrib
+## use this fonction to install a init script on your system
+## it call <@find_OS> to define install command
+## @param	name of service
+## @return 0	install service ok
+## @return 1	install service fail
+#----
+install_init_service() {
+    # how to find methode to install in rc.d directory a correct link ?
+    # debian	update-rc.d
+    # redhat	chkconfig
+    # Suse		chkconfig
+    # FreeBSD	add ${service}_enable=YES in /etc/rc.conf
+    local service=$1
+
+    if [ -z $2 ]; then
+        OS=""
+        find_OS "OS"
+    else
+        OS=$2
+    fi
+
+    if [ "$OS" = "DEBIAN" ] ; then
+        systemctl start $service
+        systemctl enable $service
+    elif [ "$OS" = "SUSE" ] ; then
+        chkconfig --add $service
+    elif [ "$OS" = "REDHAT" ] ; then
+        systemctl start $service
+        systemctl enable $service
+    elif [ "$OS" = "FREEBSD" ] ; then
+        echo_info "You must configure your /etc/rc.conf with: ${service}_enable=YES"
+    else
+        echo_passed "Impossible to install your run level for $service" "$fail"
+        return 1
+    fi
+    return 0
+}
+
+#----
+## Define OS
+## check on etc to find a specific file <p>
+## Debian, Suse, Redhat, FreeBSD
+## @param	variable to set a result
+## @return 0	OS found
+## @return 1	OS not found
+#----
+find_OS() {
+    local distrib=$1
+    local dist_found=""
+    local system=""
+    local lsb_release=""
+    system="$(uname -s)"
+    if [ "$system" = "Linux" ] ; then
+        if [ "$(pathfind lsb_release; echo $?)" -eq "0" ] ; then
+            lsb_release="$(lsb_release -i -s)"
+        else
+            lsb_release="NOT_FOUND"
+        fi
+        if [ "$lsb_release" = "Debian" ] || \
+            [ "$lsb_release" = "Ubuntu" ] || \
+            [ -e "/etc/debian_version" ] ; then
+            dist_found="DEBIAN"
+            log "INFO" "GNU/Linux Debian Distribution"
+        elif [ "$lsb_release" = "SUSE LINUX" ] || \
+            [ -e "/etc/SuSE-release" ] ; then
+            dist_found="SUSE"
+            log "INFO" "GNU/Linux Suse Distribution"
+        elif [ "$lsb_release" = "RedHatEnterpriseES" ] || \
+            [ "$lsb_release" = "Fedora" ] || \
+            [ -e "/etc/redhat-release" ] ; then
+            dist_found="REDHAT"
+            log "INFO" "GNU/Linux Redhat Distribution"
+        else
+            dist_found="NOT_FOUND"
+            log "INFO" "GNU/Linux distribution not found"
+            return 1
+        fi
+    elif [ "$system" = "FreeBSD" ] ; then
+        dist_found="FREEBSD"
+        log "INFO" "FreeBSD System"
+    elif [ "$system" = "AIX" ] ; then
+        dist_found="AIX"
+        log "INFO" "AIX System"
+    elif [ "$system" = "SunOS" ] ; then
+        dist_found="SUNOS"
+        log "INFO" "SunOS System"
+    else
+        dist_found="NOT_FOUND"
+        log "INFO" "System not found"
+    fi
+
+    eval $distrib=$dist_found
+    return 0
+}
+
+#----
+## Check result and print a message
+## @param	return code to check
+## @param	message to print
+#----
+check_result() {
+    local code=$1
+    shift
+    local message=$@
+
+    if [ $code -eq 0 ] ; then
+        echo_success "$message" "$ok"
+    else
+        echo_failure "$message" "$fail"
+    fi
+    return 0
+}
+
+#----
+## Test if the file exists, is readable and not empty
+## @param   file
+## @return 0 	file exist
+## @return 1 	file does not exist
+#----
+test_file() {
+    local file="$1"
+    if [ -r "$file" ] && [ -s "$file" ]; then
+        return 0
+    else
+        echo -e "The file named '$file' is missing or empty\nPlease check your sources"
+        exit 1
+    fi
+}
+
+#----
+## Change rights and copy file
+## @param   origin path of the file
+## @param   source filename
+## @param   destination path
+## @param   destination filename
+## @param   chmod rights
+## @Globals GORGONE_USER, GORGONE_GROUP
+## return 0 is no errors
+## return 1 on errors
+#----
+copy_and_modify_rights() {
+    local origin=$1
+    local src_name=$2
+    local destination=$3
+    local filename=$4
+    local rights=$5
+
+    # check for empty source folder string
+    origin=`trim ${origin%/}`
+    if [ -z "$origin" ] ; then
+        echo_failure "Empty source folder defined for file : $src_name" "$fail"
+        return 1
+    fi
+
+    # check that the file exists in the source folder
+    file="$origin/$src_name"
+    test_file "$file"
+    [ $? -ne 0 ] && return 1
+
+    # check for empty destination folder string
+    destination=`trim ${destination%/}`
+    if [ -z "$origin" ] ; then
+        echo_failure "Empty destination folder defined for file : $src_name" "$fail"
+        return 1
+    fi
+    dir_test_create "$destination"
+    [ $? -ne 0 ] && return 1
+
+    cp -f $file "$destination/$filename"
+    if [ $? -ne 0 ] ; then
+        echo_failure "Could not copy the file : $filename to : $destination" "$fail"
+        return 1
+    fi
+
+    ${CHMOD} "$rights" "$destination/$filename"
+    if [ $? -ne 0 ] ; then
+        echo_failure "Could not modify the rights of the file : $filename" "$fail"
+        return 1
+    fi
+
+    ${CHOWN} $GORGONE_USER.$GORGONE_GROUP "$destination/$filename"
+    if [ $? -ne 0 ] ; then
+        echo_failure "Could not modify the owner of the file : $filename" "$fail"
+        return 1
+    fi
+
+    echo_success "Modify rights on $filename" "$ok"
+    return 0
+}
