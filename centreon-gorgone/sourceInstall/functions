@@ -1016,7 +1016,7 @@ copy_and_modify_rights() {
         return 1
     fi
 
-    ${CHOWN} $GORGONE_USER.$GORGONE_GROUP "$destination/$filename"
+    ${CHOWN} "$GORGONE_USER:$GORGONE_GROUP" "$destination/$filename"
     if [ $? -ne 0 ] ; then
         echo_failure "Could not modify the owner of the file : $filename" "$fail"
         return 1

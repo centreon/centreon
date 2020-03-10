@@ -229,7 +229,7 @@ copy_and_modify_rights "$BASE_DIR/contrib" "gorgone_config_init.pl" "$GORGONE_BI
 ## Recursively copy perl files
 cp -R "$BASE_DIR/gorgone" "$GORGONE_PERL"
 ${CHMOD} -R "775" "$GORGONE_PERL"
-${CHOWN} -R "$GORGONE_USER.$GORGONE_GROUP" "$GORGONE_PERL"
+${CHOWN} -R "$GORGONE_USER:$GORGONE_GROUP" "$GORGONE_PERL"
 
 #----
 ## starting the service
