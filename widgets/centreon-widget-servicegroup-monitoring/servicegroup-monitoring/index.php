@@ -45,9 +45,13 @@ if (!isset($_SESSION['centreon']) || !isset($_REQUEST['widgetId'])) {
     exit;
 }
 $centreon = $_SESSION['centreon'];
-$widgetId = $_REQUEST['widgetId'];
+$widgetId = filter_var($_REQUEST['widgetId'], FILTER_VALIDATE_INT); 
 
 try {
+    if ($widgetId === false) {
+        throw new InvalidArgumentException('Widget ID must be an integer');
+    }
+
     global $pearDB;
 
     $db_centreon = $dependencyInjector['configuration_db'];
@@ -55,9 +59,9 @@ try {
     $pearDB = $db_centreon;
     $widgetObj = new CentreonWidget($centreon, $db_centreon);
     $preferences = $widgetObj->getWidgetPreferences($widgetId);
-    $autoRefresh = 0;
-    if (isset($preferences['refresh_interval'])) {
-        $autoRefresh = $preferences['refresh_interval'];
+    $autoRefresh = filter_var($preferences['refresh_interval'], FILTER_VALIDATE_INT);
+    if ($autoRefresh === false || $autoRefresh < 5) {
+        $autoRefresh = 30;
     }
 } catch (Exception $e) {
     echo $e->getMessage() . "<br/>";
