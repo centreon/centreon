@@ -58,8 +58,14 @@ $template = new Smarty();
 $template = initSmartyTplForPopup($path, $template, "./", $centreon_path);
 
 $centreon = $_SESSION['centreon'];
-$widgetId = $_REQUEST['widgetId'];
-$page = $_REQUEST['page'];
+$widgetId = filter_var($_REQUEST['widgetId'], FILTER_VALIDATE_INT);
+$page = filter_var($_REQUEST['page'], FILTER_VALIDATE_INT);
+if ($widgetId === false) {
+    throw new InvalidArgumentException('Widget ID must be an integer');
+}
+if ($page === false) {
+    throw new InvalidArgumentException('page must be an integer');
+}
 
 /**
  * @var $dbb CentreonDB
@@ -159,7 +165,11 @@ while ($row = $res->fetch()) {
 $hgMonObj->getHostStates($data, $detailMode, $centreon->user->admin, $aclObj, $preferences);
 $hgMonObj->getServiceStates($data, $detailMode, $centreon->user->admin, $aclObj, $preferences);
 
-$autoRefresh = $preferences['refresh_interval'];
+$autoRefresh = filter_var($preferences['refresh_interval'], FILTER_VALIDATE_INT);
+if ($autoRefresh === false || $autoRefresh < 5) {
+    $autoRefresh = 30;
+}
+
 $template->assign('widgetId', $widgetId);
 $template->assign('autoRefresh', $autoRefresh);
 $template->assign('preferences', $preferences);
