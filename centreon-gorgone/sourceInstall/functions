@@ -518,8 +518,16 @@ locate_gorgone_etcdir() {
     GORGONE_ETC=`trim ${GORGONE_ETC%/}`
     export GORGONE_ETC
     log "VALUE OF" "GORGONE_ETC folder = $GORGONE_ETC"
+
     # create the sub-folder for specific config files
     dir_test_create "$GORGONE_ETC/config.d"
+
+    # modify rights
+    ${CHOWN} -R "$GORGONE_USER:$GORGONE_GROUP" "$GORGONE_ETC"
+    if [ $? -ne 0 ] ; then
+        echo_failure "$(gettext "Cannot modify the owner of the files in $GORGONE_ETC folder")" "$fail"
+        return 1
+    fi
 }
 
 #----
@@ -858,12 +866,10 @@ install_init_service() {
     fi
 
     if [ "$OS" = "DEBIAN" ] ; then
-        systemctl start $service
         systemctl enable $service
     elif [ "$OS" = "SUSE" ] ; then
         chkconfig --add $service
     elif [ "$OS" = "REDHAT" ] ; then
-        systemctl start $service
         systemctl enable $service
     elif [ "$OS" = "FREEBSD" ] ; then
         echo_info "You must configure your /etc/rc.conf with: ${service}_enable=YES"
@@ -1022,6 +1028,6 @@ copy_and_modify_rights() {
         return 1
     fi
 
-    echo_success "Modify rights on $filename" "$ok"
+    echo_success "Creating and adding rights on $filename" "$ok"
     return 0
 }
