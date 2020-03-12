@@ -4,8 +4,8 @@ import { Skeleton } from '@material-ui/lab';
 
 const ListingLoadingSkeleton = (): JSX.Element => (
   <>
-    {new Array(3).fill(0).map(() => (
-      <Skeleton height={20} animation="wave" />
+    {['skeleton1', 'skeleton2', 'skeleton3'].map((key) => (
+      <Skeleton key={key} height={20} animation="wave" />
     ))}
   </>
 );

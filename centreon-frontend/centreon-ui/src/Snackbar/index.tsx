@@ -83,7 +83,7 @@ const ErrorSnackbar = ({
       }}
       open={open}
       autoHideDuration={6000}
-      onClose={onClose}
+      onExited={onClose}
     >
       <SnackbarContent
         className={classes.iconColor}
