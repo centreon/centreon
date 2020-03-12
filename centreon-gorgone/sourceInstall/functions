@@ -284,12 +284,12 @@ answer_with_testdir() {
 #----
 ## ask if the creation of missing folders should be automated or not
 #----
-allow_creation_of_missing_folders() {
+allow_creation_of_missing_resources() {
     CREATION_ALLOWED=0
-    yes_no_default "Do you want to be asked for confirmation before creating the missing folders ?" "$yes"
+    yes_no_default "Do you want to be asked for confirmation before creating missing resources ?" "$yes"
     if [ "$?" -eq 1 ] ; then
         CREATION_ALLOWED=1
-        echo_warning "Ask confirmation before folder creation" "NO"
+        echo_warning "Ask confirmation before creation" "NO"
     fi
     export CREATION_ALLOWED
 }

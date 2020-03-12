@@ -185,6 +185,7 @@ echo -e "\tChecking the required users"
 echo "$line"
 
 ## create gorgone user
+allow_creation_of_missing_resources
 check_gorgone_group
 check_gorgone_user
 
@@ -197,7 +198,6 @@ echo -e "$line"
 check_disk_space
 
 ## define destination folders
-allow_creation_of_missing_folders
 locate_gorgone_logdir
 locate_gorgone_varlib
 locate_gorgone_etcdir
