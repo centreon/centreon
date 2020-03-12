@@ -1,108 +1,129 @@
+/* eslint-disable react/jsx-curly-newline */
+/* eslint-disable react/jsx-indent */
+/* eslint-disable react/jsx-wrap-multilines */
 /* eslint-disable react/no-array-index-key */
-/* eslint-disable prettier/prettier */
 /* eslint-disable react/jsx-filename-extension */
 /* eslint-disable react/prop-types */
 /* eslint-disable react/prefer-stateless-function */
 
-import React, { Component } from 'react';
+import React from 'react';
+
 import clsx from 'clsx';
+
+import { Switch, FormControlLabel, makeStyles } from '@material-ui/core';
+
 import styles from '../global-sass-files/_grid.scss';
 import filterStyles from './top-filters.scss';
 import Wrapper from '../Wrapper';
 import SearchLive from '../Search/SearchLive';
-import Switcher from '../Switcher';
 import Button from '../Button';
 
-class TopFilters extends Component {
-  render() {
-    const { fullText, switchers, onChange } = this.props;
+const useStyles = makeStyles({
+  labelFontSize: {
+    fontSize: '13px',
+  },
+});
+const TopFilters = ({ fullText, switches, onChange }) => {
+  const classes = useStyles();
+  return (
+    <div className={styles['container-gray']}>
+      <div className={filterStyles['filters-wrapper']}>
+        <Wrapper>
+          <div className={clsx(styles.container__row)}>
+            {fullText ? (
+              <div
+                className={clsx(
+                  styles['container__col-md-3'],
+                  styles['container__col-xs-12'],
+                )}
+              >
+                <SearchLive
+                  icon={fullText.icon}
+                  onChange={onChange}
+                  label={fullText.label}
+                  value={fullText.value}
+                  filterKey={fullText.filterKey}
+                />
+              </div>
+            ) : null}
 
-    return (
-      <div className={styles['container-gray']}>
-        <div className={filterStyles['filters-wrapper']}>
-          <Wrapper>
             <div className={clsx(styles.container__row)}>
-              {fullText ? (
-                <div
-                  className={clsx(
-                    styles['container__col-md-3'],
-                    styles['container__col-xs-12'],
-                  )}
-                >
-                  <SearchLive
-                    icon={fullText.icon}
-                    onChange={onChange}
-                    label={fullText.label}
-                    value={fullText.value}
-                    filterKey={fullText.filterKey}
-                  />
-                </div>
-              ) : null}
-
-              <div className={clsx(styles.container__row)}>
-                {switchers
-                  ? switchers.map((switcherColumn, index) => (
+              {switches
+                ? switches.map((switchColumn, index) => (
                     <div
-                      key={`switcherSubColumn${index}`}
+                      key={`switchSubColumn${index}`}
                       className={filterStyles['switch-wrapper']}
                     >
-                      {switcherColumn.map(
-                          (
-                            {
-                              customClass,
-                              switcherTitle,
-                              switcherStatus,
-                              button,
-                              label,
-                              buttonType,
-                              color,
-                              onClick,
-                              filterKey,
-                              value,
-                            },
-                            i,
-                          ) =>
-                            !button ? (
-                              <Switcher
-                                key={`switcher${index}${i}`}
-                                customClass={customClass}
-                                {...(switcherTitle ? { switcherTitle } : {})}
-                                switcherStatus={switcherStatus}
-                                filterKey={filterKey}
-                                onChange={onChange}
-                                value={value}
-                              />
-                            ) : (
-                              <div
-                                key={`switcher${index}${i}`}
-                                className={clsx(
-                                  styles['container__col-sm-6'],
-                                  styles['container__col-xs-4'],
-                                  styles['center-vertical'],
-                                  styles['mt-1'],
-                                  filterStyles['button-wrapper'],
-                                )}
-                              >
-                                <Button
-                                  key={`switcherButton${index}${i}`}
-                                  label={label}
-                                  buttonType={buttonType}
-                                  color={color}
-                                  onClick={onClick}
+                      {switchColumn.map(
+                        (
+                          {
+                            switchTitle,
+                            switchStatus,
+                            button,
+                            label,
+                            buttonType,
+                            color,
+                            onClick,
+                            value,
+                            filterKey,
+                          },
+                          i,
+                        ) =>
+                          !button ? (
+                            <FormControlLabel
+                              control={
+                                <Switch
+                                  checked={value}
+                                  color="primary"
+                                  size="small"
+                                  onChange={(e) =>
+                                    onChange(e.target.checked, filterKey)
+                                  }
                                 />
-                              </div>
-                            ),
-                        )}
+                              }
+                              label={
+                                <>
+                                  {switchTitle && (
+                                    <div>
+                                      <b>{switchTitle}</b>
+                                    </div>
+                                  )}
+                                  {switchStatus && <div>{switchStatus}</div>}
+                                </>
+                              }
+                              labelPlacement="top"
+                              classes={{ label: classes.labelFontSize }}
+                            />
+                          ) : (
+                            <div
+                              key={`switch${index}${i}`}
+                              className={clsx(
+                                styles['container__col-sm-6'],
+                                styles['container__col-xs-4'],
+                                styles['center-vertical'],
+                                styles['mt-1'],
+                                filterStyles['button-wrapper'],
+                              )}
+                            >
+                              <Button
+                                key={`switchButton${index}${i}`}
+                                label={label}
+                                buttonType={buttonType}
+                                color={color}
+                                onClick={onClick}
+                              />
+                            </div>
+                          ),
+                      )}
                     </div>
-                    ))
-                  : null}
-              </div>
+                  ))
+                : null}
             </div>
-          </Wrapper>
-        </div>
+          </div>
+        </Wrapper>
       </div>
-    );
-  }
-}
+    </div>
+  );
+};
 
 export default TopFilters;

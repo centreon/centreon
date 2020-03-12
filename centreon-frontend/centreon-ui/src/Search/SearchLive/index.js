@@ -21,7 +21,11 @@ class SearchLive extends Component {
       <div
         className={clsx(styles['search-live'], styles[icon ? 'custom' : ''])}
       >
-        {label && <label>{label}</label>}
+        {label && (
+          <label>
+            <b>{label}</b>
+          </label>
+        )}
         <input type="text" value={value} onChange={this.onChange.bind(this)} />
         {icon ? (
           <ButtonActionInput

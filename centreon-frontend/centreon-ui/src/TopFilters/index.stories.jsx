@@ -16,15 +16,15 @@ export const normal = () => (
         console.log(a);
       },
     }}
-    switchers={[
+    switches={[
       [
         {
           customClass: clsx(
             styles['container__col-md-3'],
             styles['container__col-xs-4'],
           ),
-          switcherTitle: 'Status:',
-          switcherStatus: 'Not installed',
+          switchTitle: 'Status:',
+          switchStatus: 'Not installed',
           defaultValue: false,
           onChange: (value) => {
             console.log(value);
@@ -35,7 +35,7 @@ export const normal = () => (
             styles['container__col-md-3'],
             styles['container__col-xs-4'],
           ),
-          switcherStatus: 'Installed',
+          switchStatus: 'Installed',
           defaultValue: false,
           onChange: (value) => {
             console.log(value);
@@ -46,7 +46,7 @@ export const normal = () => (
             styles['container__col-md-3'],
             styles['container__col-xs-4'],
           ),
-          switcherStatus: 'Update',
+          switchStatus: 'Update',
           defaultValue: false,
           onChange: (value) => {
             console.log(value);
@@ -59,8 +59,8 @@ export const normal = () => (
             styles['container__col-sm-3'],
             styles['container__col-xs-4'],
           ),
-          switcherTitle: 'Type:',
-          switcherStatus: 'Module',
+          switchTitle: 'Type:',
+          switchStatus: 'Module',
           defaultValue: false,
           onChange: (value) => {
             console.log(value);
@@ -71,7 +71,7 @@ export const normal = () => (
             styles['container__col-sm-3'],
             styles['container__col-xs-4'],
           ),
-          switcherStatus: 'Update',
+          switchStatus: 'Update',
           defaultValue: false,
           onChange: (value) => {
             console.log(value);
