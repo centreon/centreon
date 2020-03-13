@@ -180,22 +180,13 @@ if [ "$binary_fail" -eq 1 ] ; then
 	exit 1
 fi
 
-echo "$line"
-echo -e "\tChecking the required users"
-echo "$line"
-
-## create gorgone user
-allow_creation_of_missing_resources
-check_gorgone_group
-check_gorgone_user
-
-
 echo -e "\n$line"
 echo -e "\tChecking the mandatory folders"
 echo -e "$line"
 
 ## check filesystem space
 check_disk_space
+allow_creation_of_missing_resources
 
 ## define destination folders
 locate_gorgone_logdir
@@ -208,13 +199,20 @@ locate_logrotate_d
 locate_system_d
 locate_sysconfig
 
+echo "$line"
+echo -e "\tChecking the required users"
+echo "$line"
+
+## create gorgone user
+check_gorgone_group
+check_gorgone_user
+
 echo -e "\n$line"
 echo -e "\tAdding Gorgone user to the mandatory folders"
 echo -e "$line"
 
 change_rights "$GORGONE_USER" "$GORGONE_GROUP" "775" "$GORGONE_LOG"
 change_rights "$GORGONE_USER" "$GORGONE_GROUP" "775" "$GORGONE_VARLIB"
-change_rights "$GORGONE_USER" "$GORGONE_GROUP" "775" "$GORGONE_ETC"
 
 #----
 ## installation of Gorgone files
@@ -222,6 +220,13 @@ change_rights "$GORGONE_USER" "$GORGONE_GROUP" "775" "$GORGONE_ETC"
 echo "$line"
 echo -e "\tInstalling Gorgone daemon"
 echo "$line"
+
+# modify rights on etc folder
+${CHMOD} -R "775" "$GORGONE_ETC"
+${CHOWN} -R "$GORGONE_USER:$GORGONE_GROUP" "$GORGONE_ETC"
+if [ $? -ne 0 ] ; then
+    echo_failure "$(gettext "Cannot modify the owner of the files in $GORGONE_ETC folder")" "$fail"
+fi
 
 ## Copy the files in destination folders and modify rights
 copy_and_modify_rights "$BASE_DIR/config/systemd" "gorgoned-service" "$SYSTEM_D" "gorgoned.service" "664"

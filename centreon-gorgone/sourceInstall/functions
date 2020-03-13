@@ -521,13 +521,7 @@ locate_gorgone_etcdir() {
 
     # create the sub-folder for specific config files
     dir_test_create "$GORGONE_ETC/config.d"
-
-    # modify rights
-    ${CHOWN} -R "$GORGONE_USER:$GORGONE_GROUP" "$GORGONE_ETC"
-    if [ $? -ne 0 ] ; then
-        echo_failure "$(gettext "Cannot modify the owner of the files in $GORGONE_ETC folder")" "$fail"
-        return 1
-    fi
+    echo_success "Path $GORGONE_ETC/config.d" "$ok"
 }
 
 #----
