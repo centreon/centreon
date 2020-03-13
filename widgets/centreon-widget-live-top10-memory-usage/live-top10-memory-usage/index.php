@@ -50,18 +50,21 @@ if (!isset($_SESSION['centreon']) || !isset($_REQUEST['widgetId'])) {
 }
 
 $centreon = $_SESSION['centreon'];
-$widgetId = $_REQUEST['widgetId'];
+$widgetId = filter_var($_REQUEST['widgetId'], FILTER_VALIDATE_INT);
 $grouplistStr = '';
 
 try {
+    if ($widgetId === false) {
+        throw new InvalidArgumentException('Widget ID must be an integer');
+    }
     $db_centreon = $dependencyInjector['configuration_db'];
     $db = $dependencyInjector['realtime_db'];
 
     $widgetObj = new CentreonWidget($centreon, $db_centreon);
     $preferences = $widgetObj->getWidgetPreferences($widgetId);
-    $autoRefresh = 0;
-    if (isset($preferences['refresh_interval'])) {
-        $autoRefresh = $preferences['refresh_interval'];
+    $autoRefresh = (int) $preferences['refresh_interval'];
+    if ($autoRefresh < 5) {
+        $autoRefresh = 30;
     }
 
 } catch (Exception $e) {
@@ -117,18 +120,24 @@ $in = 0;
 
 function getUnit($in)
 {
-    $return = null;
-
-    if ($in == 0) {
-        $return = "B";
-    } elseif ($in == 1) {
-        $return = "KB";
-    } elseif ($in == 2) {
-        $return = "MB";
-    } elseif ($in == 3) {
-        $return = "GB";
-    } elseif ($in == 4) {
-        $return = "TB";
+    switch ($in) {
+        case 0:
+            $return = "B";
+            break;
+        case 1:
+            $return = "KB";
+            break;
+        case 2:
+            $return = "MB";
+            break;
+        case 3:
+            $return = "GB";
+            break;
+        case 4:
+            $return = "TB";
+            break;
+        default:
+            $return = null;
     }
 
     return $return;
