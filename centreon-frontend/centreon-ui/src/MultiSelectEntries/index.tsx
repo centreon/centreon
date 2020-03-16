@@ -12,7 +12,7 @@ import {
   Typography,
   makeStyles,
 } from '@material-ui/core';
-import { Create } from '@material-ui/icons';
+import IconCreate from '@material-ui/icons/Create';
 
 import useHover from './useHover';
 
@@ -116,7 +116,7 @@ const MultiSelectEntries = ({
           <Caption>{caption}</Caption>
         </Box>
         <Box>
-          <Create
+          <IconCreate
             fontSize="small"
             className={clsx({ [classes.hidden]: !isHovered && !highlight })}
           />

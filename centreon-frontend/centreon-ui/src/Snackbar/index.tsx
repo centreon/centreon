@@ -7,7 +7,11 @@ import {
   makeStyles,
   Theme,
 } from '@material-ui/core';
-import { Error, CheckCircle, Warning, Info, Close } from '@material-ui/icons';
+import IconError from '@material-ui/icons/Error';
+import IconCheckCircle from '@material-ui/icons/CheckCircle';
+import IconWarning from '@material-ui/icons/Warning';
+import IconInfo from '@material-ui/icons/Info';
+import IconClose from '@material-ui/icons/Close';
 import { CreateCSSProperties } from '@material-ui/styles';
 
 import Severity from './Severity';
@@ -40,19 +44,19 @@ interface Props {
 
 const snackbarIcons = {
   error: {
-    Icon: (props): JSX.Element => <Error {...props} />,
+    Icon: (props): JSX.Element => <IconError {...props} />,
     getColor: (theme): string => theme.palette.error.dark,
   },
   warning: {
-    Icon: (props): JSX.Element => <Warning {...props} />,
+    Icon: (props): JSX.Element => <IconWarning {...props} />,
     getColor: (theme): string => theme.palette.warning.dark,
   },
   success: {
-    Icon: (props): JSX.Element => <CheckCircle {...props} />,
+    Icon: (props): JSX.Element => <IconCheckCircle {...props} />,
     getColor: (theme): string => theme.palette.success.dark,
   },
   info: {
-    Icon: (props): JSX.Element => <Info {...props} />,
+    Icon: (props): JSX.Element => <IconInfo {...props} />,
     getColor: (theme): string => theme.palette.info.dark,
   },
 };
@@ -90,7 +94,7 @@ const ErrorSnackbar = ({
         message={Message}
         action={[
           <IconButton key="close" color="inherit" onClick={onClose}>
-            <Close className={classes.icon} />
+            <IconClose className={classes.icon} />
           </IconButton>,
         ]}
       />
