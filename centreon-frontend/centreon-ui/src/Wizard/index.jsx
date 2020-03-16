@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+
 import PropTypes from 'prop-types';
 import { Formik } from 'formik';
 import { makeStyles } from '@material-ui/core/styles';
@@ -59,6 +60,19 @@ const Wizard = (props) => {
   const [page, setPage] = useState(0);
   const [values, setValues] = useState(initialValues);
   const [openConfirm, setOpenConfirm] = useState(false);
+  const [validValues, setValidValues] = useState(false);
+
+  useEffect(() => {
+    const activePage = React.Children.toArray(children)[page];
+    const { validationSchema } = activePage.props;
+    if (validationSchema) {
+      validationSchema.isValid(values).then((isValidSchema) => {
+        setValidValues(isValidSchema);
+      });
+    } else {
+      setValidValues(true);
+    }
+  }, [values]);
 
   const handleClose = (event, reason) => {
     // close wizard without confirmation if it's the first page
@@ -138,32 +152,38 @@ const Wizard = (props) => {
             validationSchema={validationSchema()}
             onSubmit={handleSubmit}
           >
-            {(bag) => (
-              <form className={classes.form} onSubmit={bag.handleSubmit}>
-                {cloneElement(activePage, {
-                  errors: bag.errors,
-                  handleBlur: bag.handleBlur,
-                  handleChange: bag.handleChange,
-                  handleSubmit: bag.handleSubmit,
-                  onPrevious: handlePrevious,
-                  onNext: handleNext,
-                  setFieldTouched: bag.setFieldTouched,
-                  setFieldValue: bag.setFieldValue,
-                  submitForm: bag.submitForm,
-                  touched: bag.touched,
-                  values: bag.values,
-                })}
-                {!activePage.props.noActionBar && (
-                  <ActionBar
-                    disabledNext={!bag.isValid || bag.isSubmitting}
-                    page={page}
-                    isLastPage={isLastPage}
-                    onPrevious={handlePrevious}
-                    actionBarProps={actionBarProps}
-                  />
-                )}
-              </form>
-            )}
+            {(bag) => {
+              const disabledNext =
+                !bag.isValid ||
+                bag.isSubmitting ||
+                (!bag.dirty && !validValues);
+              return (
+                <form className={classes.form} onSubmit={bag.handleSubmit}>
+                  {cloneElement(activePage, {
+                    errors: bag.errors,
+                    handleBlur: bag.handleBlur,
+                    handleChange: bag.handleChange,
+                    handleSubmit: bag.handleSubmit,
+                    onPrevious: handlePrevious,
+                    onNext: handleNext,
+                    setFieldTouched: bag.setFieldTouched,
+                    setFieldValue: bag.setFieldValue,
+                    submitForm: bag.submitForm,
+                    touched: bag.touched,
+                    values: bag.values,
+                  })}
+                  {!activePage.props.noActionBar && (
+                    <ActionBar
+                      disabledNext={disabledNext}
+                      page={page}
+                      isLastPage={isLastPage}
+                      onPrevious={handlePrevious}
+                      actionBarProps={actionBarProps}
+                    />
+                  )}
+                </form>
+              );
+            }}
           </Formik>
         </DialogContent>
       </Dialog>
