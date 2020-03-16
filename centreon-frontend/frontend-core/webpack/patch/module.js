@@ -1,6 +1,7 @@
 module.exports = assetPublicPath => ({
   output: {
     library: '[chunkhash:8]',
+    jsonpFunction: `wpJsonp-${assetPublicPath}`,
   },
   externals: {
     react: 'React',
