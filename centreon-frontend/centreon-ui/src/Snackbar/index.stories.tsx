@@ -13,8 +13,12 @@ export const errorSnackbar = (): JSX.Element => (
   />
 );
 
-export const normal = (): JSX.Element => (
-  <Snackbar open message="Something successful happened..." />
+export const successSnackbar = (): JSX.Element => (
+  <Snackbar
+    open
+    message="Something successful happened..."
+    severity={Severity.success}
+  />
 );
 
 export const infoSnackbar = (): JSX.Element => (

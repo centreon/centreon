@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 
 import { SnackbarActions } from './withSnackbar';
+import Severity from './Severity';
 
 interface SnackbarContent {
   message;
@@ -10,11 +11,10 @@ interface SnackbarContent {
 
 const useMessage = (): SnackbarContent & SnackbarActions => {
   const [snackbarMessage, setSnackbarMessage] = useState();
-  const [snackbarSeverity, setSnackbarSeverity] = useState();
+  const [snackbarSeverity, setSnackbarSeverity] = useState(Severity.error);
 
   const confirmMessage = (): void => {
     setSnackbarMessage(undefined);
-    setSnackbarSeverity(undefined);
   };
 
   const showMessage = ({ message, severity }): void => {
