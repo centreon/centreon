@@ -15,11 +15,11 @@ import {
   TableRowProps,
   TableRow,
   fade,
+  Checkbox,
 } from '@material-ui/core';
 
 import IconPowerSettings from '../Icon/IconPowerSettings';
 import IconPowerSettingsDisable from '../Icon/IconPowerSettingsDisable';
-import StyledCheckbox from './Checkbox';
 import IconDelete from '../Icon/IconDelete';
 import IconLibraryAdd from '../Icon/IconLibraryAdd';
 import ListingHeader from './Header';
@@ -160,7 +160,7 @@ const Listing = ({
   Actions,
 }: Props): JSX.Element => {
   const [tableTopOffset, setTableTopOffset] = useState(0);
-  const [hovered, setHovered] = useState(null);
+  const [hoveredRowId, setHoveredRowId] = useState(null);
 
   const tableBody = useRef<Element>();
 
@@ -207,27 +207,29 @@ const Listing = ({
     onSelectRows([...selectedRows, row]);
   };
 
-  const hoverRow = (id) => (): void => {
-    setHovered(id);
+  const hoverRow = (id): void => {
+    setHoveredRowId(id);
   };
 
   const clearHoveredRow = (): void => {
-    if (hovered !== null) {
-      setHovered(null);
-    }
+    setHoveredRowId(null);
   };
 
   const isSelected = (row): boolean => {
     return selectedRowsInclude(row);
   };
 
-  const getColumnCell = ({ row, column }): JSX.Element => {
+  const getColumnCell = ({ row, column }): JSX.Element | null => {
+    const cellKey = `${row.id}-${column.id}`;
+    const isRowHovered = hoveredRowId === row.id;
+    const isRowSelected = isSelected(row);
+
     const cellByColumnType = {
       [TABLE_COLUMN_TYPES.string]: (): JSX.Element => {
         const { getFormattedString } = column;
 
         return (
-          <BodyTableCell key={column.id} align="left">
+          <BodyTableCell key={cellKey} align="left">
             {getFormattedString(row) || ''}
           </BodyTableCell>
         );
@@ -268,7 +270,7 @@ const Listing = ({
             position: 'relative',
           }}
         >
-          {hovered === row.id ? (
+          {hoveredRowId === row.id ? (
             <Box
               flexDirection="row"
               display="flex"
@@ -309,18 +311,22 @@ const Listing = ({
           )}
         </BodyTableCell>
       ),
-      [TABLE_COLUMN_TYPES.component]: (): JSX.Element => {
-        const { Component, ComponentOnHover, clickable } = column;
+      [TABLE_COLUMN_TYPES.component]: (): JSX.Element | null => {
+        const { Component, clickable, hiddenCondition, width } = column;
 
-        interface CellProps {
-          children: React.ReactNode;
-          width?: number;
+        const isCellHidden = hiddenCondition
+          ? hiddenCondition({ row, isRowSelected })
+          : false;
+
+        if (isCellHidden) {
+          return null;
         }
 
-        const Cell = ({ children, width }: CellProps): JSX.Element => (
+        return (
           <BodyTableCell
             align="left"
-            style={{ width }}
+            key={cellKey}
+            style={{ width: width || 'auto' }}
             {...(!clickable && {
               onClick: (e): void => {
                 e.preventDefault();
@@ -328,24 +334,13 @@ const Listing = ({
               },
             })}
           >
-            {children}
+            <Component
+              row={row}
+              isRowelected={isRowSelected}
+              isHovered={isRowHovered}
+            />
           </BodyTableCell>
         );
-
-        const displayHoverComponent = hovered === row.id && ComponentOnHover;
-
-        const ComponentToDisplay = displayHoverComponent
-          ? ComponentOnHover
-          : Component;
-
-        const props = {
-          Cell,
-          key: column.id,
-          row,
-          isRowSelected: isSelected(row),
-        };
-
-        return <ComponentToDisplay {...props} />;
       },
     };
 
@@ -425,12 +420,12 @@ const Listing = ({
                   <MemoizedRow
                     tabIndex={-1}
                     key={row.id}
-                    onMouseEnter={hoverRow(row.id)}
+                    onMouseEnter={(): void => hoverRow(row.id)}
                     className={clsx([classes.row, classes[specialColor?.name]])}
                     onClick={(): void => {
                       onRowClick(row);
                     }}
-                    isHovered={hovered === row.id}
+                    isHovered={hoveredRowId === row.id}
                     row={row}
                   >
                     {checkable ? (
@@ -439,7 +434,7 @@ const Listing = ({
                         onClick={(event): void => selectRow(event, row)}
                         padding="checkbox"
                       >
-                        <StyledCheckbox
+                        <Checkbox
                           checked={isRowSelected}
                           inputProps={{
                             'aria-label': `Select row ${row.id}`,
@@ -450,7 +445,10 @@ const Listing = ({
                     ) : null}
 
                     {columnConfiguration.map((column) =>
-                      getColumnCell({ column, row }),
+                      getColumnCell({
+                        column,
+                        row,
+                      }),
                     )}
                   </MemoizedRow>
                 );

@@ -16,8 +16,8 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const ComponentColumn = ({ row, isRowSelected, Cell }): JSX.Element => (
-  <Cell>
+const ComponentColumn = ({ row, isRowSelected }): JSX.Element => (
+  <>
     <span>
       {'I am '}
       <b>{`${isRowSelected ? 'selected' : 'not selected'}`}</b>
@@ -27,7 +27,7 @@ const ComponentColumn = ({ row, isRowSelected, Cell }): JSX.Element => (
       {'I am '}
       <b>{`${row.active ? 'active' : 'not active'}`}</b>
     </span>
-  </Cell>
+  </>
 );
 
 const configuration = [

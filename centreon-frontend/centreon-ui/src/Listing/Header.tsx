@@ -1,6 +1,7 @@
 import React from 'react';
 
 import {
+  Checkbox,
   TableHead,
   TableRow,
   TableCell,
@@ -8,8 +9,6 @@ import {
   TableSortLabel,
   Typography,
 } from '@material-ui/core';
-
-import StyledCheckbox from './Checkbox';
 
 const HeaderCell = withStyles((theme) => ({
   root: {
@@ -50,7 +49,8 @@ const ListingHeader = ({
       <TableRow>
         {checkable ? (
           <HeaderCell align="left" padding="checkbox">
-            <StyledCheckbox
+            <Checkbox
+              color="primary"
               inputProps={{ 'aria-label': 'Select all' }}
               indeterminate={numSelected > 0 && numSelected < rowCount}
               checked={numSelected === rowCount}

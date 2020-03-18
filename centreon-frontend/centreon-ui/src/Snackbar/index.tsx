@@ -5,7 +5,7 @@ import {
   IconButton,
   makeStyles,
 } from '@material-ui/core';
-import { Close } from '@material-ui/icons';
+import IconClose from '@material-ui/icons/Close';
 import { Alert } from '@material-ui/lab';
 
 import Severity from './Severity';
@@ -49,7 +49,7 @@ const Snackbar = ({ message, open, onClose, severity }: Props): JSX.Element => {
         severity={severity}
         action={[
           <IconButton key="close" color="inherit" onClick={onClose}>
-            <Close className={classes.closeIcon} />
+            <IconClose className={classes.closeIcon} />
           </IconButton>,
         ]}
         classes={{ icon: classes.alertIcon }}
