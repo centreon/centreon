@@ -861,10 +861,12 @@ install_init_service() {
 
     if [ "$OS" = "DEBIAN" ] ; then
         systemctl enable $service
+        systemctl start $service
     elif [ "$OS" = "SUSE" ] ; then
         chkconfig --add $service
     elif [ "$OS" = "REDHAT" ] ; then
         systemctl enable $service
+        systemctl start $service
     elif [ "$OS" = "FREEBSD" ] ; then
         echo_info "You must configure your /etc/rc.conf with: ${service}_enable=YES"
     else
@@ -872,6 +874,15 @@ install_init_service() {
         return 1
     fi
     return 0
+}
+
+#----
+## Change gorgone service "environment file" value
+## replace the default sysconfig path with the chosen custom path
+## @Globals	DEFAULT_SYSCONFIG, SYSCONFIG
+#----
+change_environment_file_path() {
+    sed -i -e "s,$DEFAULT_SYSCONFIG,$SYSCONFIG,g" "$BASE_DIR/config/systemd/gorgoned-service"
 }
 
 #----
