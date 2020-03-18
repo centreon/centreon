@@ -61,6 +61,19 @@ const useStyles = (rowColorConditions): (() => Record<string, string>) =>
         flexDirection: 'column',
         background: 'none',
       },
+      actionBar: {
+        display: 'flex',
+        alignItems: 'center',
+      },
+      actions: {
+        padding: 10,
+      },
+      pagination: {
+        marginLeft: 'auto',
+        display: 'flex',
+        flexDirection: 'row-reverse',
+        padding: 0,
+      },
       loadingIndicator: {
         width: '100%',
         height: loadingIndicatorHeight,
@@ -112,6 +125,7 @@ interface Props {
   sortf?: string;
   tableData?;
   totalRows?;
+  Actions?: JSX.Element;
 }
 
 const Listing = ({
@@ -143,6 +157,7 @@ const Listing = ({
   selectedRows = [],
   sorto = undefined,
   sortf = undefined,
+  Actions,
 }: Props): JSX.Element => {
   const [tableTopOffset, setTableTopOffset] = useState(0);
   const [hovered, setHovered] = useState(null);
@@ -352,28 +367,27 @@ const Listing = ({
         <div className={classes.loadingIndicator} />
       )}
       <div className={classes.paper}>
-        {paginated ? (
-          <StyledPagination
-            rowsPerPageOptions={[10, 20, 30, 40, 50, 60, 70, 80, 90, 100]}
-            labelDisplayedRows={labelDisplayedRows}
-            labelRowsPerPage={labelRowsPerPage}
-            colSpan={3}
-            count={totalRows}
-            rowsPerPage={limit}
-            page={currentPage}
-            style={{
-              display: 'flex',
-              flexDirection: 'row-reverse',
-              padding: 0,
-            }}
-            SelectProps={{
-              native: true,
-            }}
-            onChangePage={onPaginate}
-            onChangeRowsPerPage={onPaginationLimitChanged}
-            ActionsComponent={PaginationActions}
-          />
-        ) : null}
+        <div className={classes.actionBar}>
+          <div className={classes.actions}>{Actions}</div>
+          {paginated ? (
+            <StyledPagination
+              className={classes.pagination}
+              rowsPerPageOptions={[10, 20, 30, 40, 50, 60, 70, 80, 90, 100]}
+              labelDisplayedRows={labelDisplayedRows}
+              labelRowsPerPage={labelRowsPerPage}
+              colSpan={3}
+              count={totalRows}
+              rowsPerPage={limit}
+              page={currentPage}
+              SelectProps={{
+                native: true,
+              }}
+              onChangePage={onPaginate}
+              onChangeRowsPerPage={onPaginationLimitChanged}
+              ActionsComponent={PaginationActions}
+            />
+          ) : null}
+        </div>
         <Paper
           style={{
             overflow: 'auto',
