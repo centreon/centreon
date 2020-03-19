@@ -43,9 +43,9 @@ describe(ConnectedAutocompleteField, () => {
   });
 
   it('populates options with the result from the get call from the given endpoint', async () => {
-    const { getByText } = renderConnectedAutocompleteField();
+    const { getByLabelText, getByText } = renderConnectedAutocompleteField();
 
-    fireEvent.click(getByText(label));
+    fireEvent.click(getByLabelText('Open'));
 
     expect(mockedAxios.get).toHaveBeenCalledWith(endpoint, expect.anything());
 
