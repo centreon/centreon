@@ -103,7 +103,7 @@ configuration:
     modules:
       - name: httpserver
         package: gorgone::modules::core::httpserver::hooks
-        enable: false
+        enable: true
         address: 0.0.0.0
         port: 8085
         ssl: false
@@ -116,7 +116,7 @@ configuration:
 
       - name: cron
         package: gorgone::modules::core::cron::hooks
-        enable: false
+        enable: true
 
       - name: action
         package: gorgone::modules::core::action::hooks
@@ -126,13 +126,13 @@ configuration:
         package: gorgone::modules::core::proxy::hooks
         enable: true
 
-      - name: pollers
+      - name: nodes
         package: gorgone::modules::centreon::nodes::hooks
         enable: true
 
       - name: broker
         package: gorgone::modules::centreon::broker::hooks
-        enable: false
+        enable: true
         cache_dir: "/var/lib/centreon/broker-stats/"
         cron:
           - id: broker_stats
@@ -148,6 +148,11 @@ configuration:
         cache_dir: "$centreon_config->{CacheDir}"
         cache_dir_trap: "/etc/snmp/centreon_traps/"
         remote_dir: "$centreon_config->{CacheDir}/config/remote-data/"
+
+      - name: engine
+        package: gorgone::modules::centreon::engine::hooks
+        enable: true
+        command_file: "/var/lib/centreon-engine/rw/centengine.cmd"
 END_FILE
 
     print $fh $content;
