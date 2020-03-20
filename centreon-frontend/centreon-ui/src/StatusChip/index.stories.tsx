@@ -1,40 +1,37 @@
 import React from 'react';
 
-import StatusChip, { StatusCode } from '.';
+import StatusChip, { SeverityCode } from '.';
 
 export default { title: 'StatusChip' };
 
 export const withNoneStatusCode = (): JSX.Element => (
-  <StatusChip label="1" statusCode={StatusCode.None} />
+  <StatusChip label="1" severityCode={SeverityCode.None} />
 );
 
 export const withUpOrOkStatusCode = (): JSX.Element => (
-  <StatusChip label="Up" statusCode={StatusCode.UpOrOk} />
+  <StatusChip label="Up" severityCode={SeverityCode.None} />
 );
 
-export const withDownOrWarningStatusCode = (): JSX.Element => (
-  <StatusChip label="Down" statusCode={StatusCode.DownOrWarning} />
+export const withWarningStatusCode = (): JSX.Element => (
+  <StatusChip label="Warning" severityCode={SeverityCode.Medium} />
 );
 
-export const withUnreachableOrCriticalStatusCode = (): JSX.Element => (
-  <StatusChip
-    label="Unreachable"
-    statusCode={StatusCode.UnreachableOrCritical}
-  />
+export const withDownOrCriticalStatusCode = (): JSX.Element => (
+  <StatusChip label="Down" severityCode={SeverityCode.High} />
 );
 
-export const withUnknownStatusCode = (): JSX.Element => (
-  <StatusChip label="Unknown" statusCode={StatusCode.Unknown} />
+export const withUnreachableOrUnknownStatusCode = (): JSX.Element => (
+  <StatusChip label="Unknown" severityCode={SeverityCode.Medium} />
 );
 
 export const withPendingStatusCode = (): JSX.Element => (
-  <StatusChip label="Pending" statusCode={StatusCode.Pending} />
+  <StatusChip label="Pending" severityCode={SeverityCode.Pending} />
 );
 
-export const withUnreachableOrCriticalStatusCodeAndWithoutLabel = (): JSX.Element => (
-  <StatusChip statusCode={StatusCode.UnreachableOrCritical} />
+export const withDownOrCriticalStatusCodeAndWithoutLabel = (): JSX.Element => (
+  <StatusChip severityCode={SeverityCode.High} />
 );
 
 export const withUpOrOkStatusCodeAndWithoutLabel = (): JSX.Element => (
-  <StatusChip statusCode={StatusCode.UpOrOk} />
+  <StatusChip severityCode={SeverityCode.None} />
 );

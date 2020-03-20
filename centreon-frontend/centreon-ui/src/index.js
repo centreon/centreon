@@ -86,6 +86,6 @@ export { default as MultiSelectEntries } from './MultiSelectEntries';
 export { default as RightPanel } from './RightPanel';
 
 export { default as StatusChip } from './StatusChip';
-export { StatusCode } from './StatusChip';
+export { SeverityCode } from './StatusChip';
 
 export { default as useCancelTokenSource } from './api/useCancelTokenSource';
