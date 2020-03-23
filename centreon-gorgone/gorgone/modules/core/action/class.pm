@@ -238,8 +238,7 @@ sub action_processcopy {
     
     if (!defined($options{data}->{content}) || $options{data}->{content} eq '') {
         $self->send_log(
-            socket => $options{socket_log},
-            code => $self->ACTION_FINISH_KO,
+            code => gorgone::class::module::ACTION_FINISH_KO,
             token => $options{token},
             data => { message => 'no content' }
         );
@@ -258,13 +257,13 @@ sub action_processcopy {
         close FH;
 
         $self->send_log(
-            socket => $options{socket_log},
-            code => $self->ACTION_FINISH_OK,
+            code => gorgone::class::module::ACTION_FINISH_OK,
             token => $options{token},
             data => {
                 message => "process copy inprogress",
             }
         );
+        $self->{logger}->writeLogInfo("[action] Copy processing - Received chunk for '" . $options{data}->{content}->{destination} . "'");
         return 0;
     } elsif ($options{data}->{content}->{status} eq "end" && defined($options{data}->{content}->{md5})) {
         if ($options{data}->{content}->{md5} eq file_md5_hex($cache_file)) {
@@ -280,20 +279,20 @@ sub action_processcopy {
                 );
                 if ($error <= -1000) {
                     $self->send_log(
-                        socket => $options{socket_log},
-                        code => $self->ACTION_FINISH_KO,
+                        code => gorgone::class::module::ACTION_FINISH_KO,
                         token => $options{token},
                         data => { message => "untar failed: $stdout" }
                     );
+                    $self->{logger}->writeLogError('[action] Copy processing - Untar failed: ' . $stdout);
                     return -1;
                 }
                 if ($exit_code != 0) {
                     $self->send_log(
-                        socket => $options{socket_log},
-                        code => $self->ACTION_FINISH_KO,
+                        code => gorgone::class::module::ACTION_FINISH_KO,
                         token => $options{token},
                         data => { message => "untar failed ($exit_code): $stdout" }
                     );
+                    $self->{logger}->writeLogError('[action] Copy processing - Untar failed: ' . $stdout);
                     return -1;
                 }
             } elsif ($options{data}->{content}->{type} eq "regular") {
@@ -304,11 +303,11 @@ sub action_processcopy {
             }
         } else {
             $self->send_log(
-                socket => $options{socket_log},
-                code => $self->ACTION_FINISH_KO,
+                code => gorgone::class::module::ACTION_FINISH_KO,
                 token => $options{token},
                 data => { message => 'md5 does not match' }
             );
+            $self->{logger}->writeLogError('[action] Copy processing - MD5 does not match');
             return -1;
         }
     }
@@ -316,13 +315,13 @@ sub action_processcopy {
     unlink($cache_file);
 
     $self->send_log(
-        socket => $options{socket_log},
-        code => $self->ACTION_FINISH_OK,
+        code => gorgone::class::module::ACTION_FINISH_OK,
         token => $options{token},
         data => {
             message => "process copy finished successfully",
         }
     );
+    $self->{logger}->writeLogInfo("[action] Copy processing - Copy to '" . $options{data}->{content}->{destination} . "' finished successfully");
     return 0;
 }
 
