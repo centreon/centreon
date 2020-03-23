@@ -107,7 +107,7 @@ rm -rf %{buildroot}
 %{_bindir}/getent passwd centreon-gorgone &>/dev/null && %{_sbindir}/usermod -a -G centreon-engine centreon-gorgone 2> /dev/null
 %{_bindir}/getent passwd centreon-gorgone &>/dev/null && %{_sbindir}/usermod -a -G centreon-broker centreon-gorgone 2> /dev/null
 %{_bindir}/getent passwd centreon-gorgone &>/dev/null && %{_sbindir}/usermod -a -G apache centreon-gorgone 2> /dev/null
-%{_bindir}/getent passwd apache&>/dev/null && %{_sbindir}/usermod -a -G centreon-gorgone apache 2> /dev/null
+%{_bindir}/getent passwd apache &>/dev/null && %{_sbindir}/usermod -a -G centreon-gorgone apache 2> /dev/null
 if [ \( \! -d %{_localstatedir}/lib/centreon-gorgone/.ssh \) -a \( -d %{_localstatedir}/spool/centreon/.ssh \) ] ; then
   %{__cp} -r %{_localstatedir}/spool/centreon/.ssh %{_localstatedir}/lib/centreon-gorgone/.ssh
   %{__chown} -R centreon-gorgone:centreon-gorgone %{_localstatedir}/lib/centreon-gorgone/.ssh
