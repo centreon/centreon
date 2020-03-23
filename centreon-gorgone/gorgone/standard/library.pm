@@ -327,7 +327,7 @@ sub is_client_can_connect {
     }
     
     if ($is_authorized == 0) {
-        $options{logger}->writeLogError("[core] Client pubkey is not authorized. Thumprint is '$thumbprint");
+        $options{logger}->writeLogError("[core] Client pubkey is not authorized. Thumbprint is '$thumbprint");
         return -1;
     }
 
