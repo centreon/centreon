@@ -114,8 +114,8 @@ interface Props {
   onDisable?: (rows) => void;
   onDuplicate?: (rows) => void;
   onEnable?: (rows) => void;
-  onPaginate?: () => void;
-  onPaginationLimitChanged?: () => void;
+  onPaginate?: (event, value) => void;
+  onPaginationLimitChanged?: (event) => void;
   onRowClick?: (row) => void;
   onSelectRows?: (rows) => void;
   onSort?: (sortParams) => void;
