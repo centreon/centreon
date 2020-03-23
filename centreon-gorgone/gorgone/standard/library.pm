@@ -327,7 +327,7 @@ sub is_client_can_connect {
     }
     
     if ($is_authorized == 0) {
-        $options{logger}->writeLogError("[core] client pubkey is not authorized. thumprint is '$thumbprint");
+        $options{logger}->writeLogError("[core] Client pubkey is not authorized. Thumprint is '$thumbprint");
         return -1;
     }
 
@@ -467,6 +467,11 @@ sub constatus {
 
 sub setcoreid {
     my (%options) = @_;
+
+    if (defined($options{gorgone}->{config}->{configuration}->{gorgone}->{gorgonecore}->{id}) &&
+        $options{gorgone}->{config}->{configuration}->{gorgone}->{gorgonecore}->{id} =~ /\d+/) {
+        return (0, { action => 'setcoreid', message => 'setcoreid unchanged, use config value' })
+    }
 
     my $data;
     eval {
