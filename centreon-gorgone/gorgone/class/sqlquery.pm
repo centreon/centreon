@@ -82,6 +82,28 @@ sub execute {
     return $self->do(request => $request, %options);
 }
 
+sub transaction_query_multi {
+    my ($self, %options) = @_;
+
+    $self->transaction_mode(1);
+    my ($status, $sth) = $self->{db_centreon}->query($options{request}, prepare_only => 1);
+    if ($status == -1) {
+        $self->rollback();
+        return -1;
+    }
+    $sth->execute();
+    do {
+        if ($sth->err) {
+            $self->rollback();
+            $self->{db_centreon}->error($sth->errstr, $options{request});
+            return -1;
+        }
+    } while ($sth->more_results);
+
+    $self->commit();
+    return 0;
+}
+
 sub transaction_query {
     my ($self, %options) = @_;
 

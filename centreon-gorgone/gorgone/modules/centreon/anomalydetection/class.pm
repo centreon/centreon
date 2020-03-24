@@ -46,7 +46,6 @@ sub new {
     $connector->{config} = $options{config};
     $connector->{config_core} = $options{config_core};
     $connector->{config_db_centreon} = $options{config_db_centreon};
-    $connector->{config_db_centstorage} = $options{config_db_centstorage};
     $connector->{stop} = 0;
 
     $connector->{resync_time} = (defined($options{config}->{resync_time}) && $options{config}->{resync_time} =~ /(\d+)/) ? $1 : 600;
@@ -236,10 +235,9 @@ sub get_centreon_anomaly_metrics {
     ($status, $datas) = $self->{class_object_centreon}->custom_execute(
         request => '
             SELECT mas.*, hsr.host_host_id as host_id, nhr.nagios_server_id as instance_id
-            FROM mod_anomaly_service mas, host_service_relation hsr, ns_host_relation nhr
-            WHERE
-                mas.service_id = hsr.service_service_id AND
-                hsr.host_host_id = nhr.host_host_id
+            FROM mod_anomaly_service mas
+            LEFT JOIN (host_service_relation hsr, ns_host_relation nhr) ON 
+                (mas.service_id = hsr.service_service_id AND hsr.host_host_id = nhr.host_host_id)                
         ',
         keys => 'id',
         mode => 1
@@ -269,7 +267,7 @@ sub save_centreon_previous_register {
         $query_append = ';';
     }
     if ($query ne '') {
-        my $status = $self->{class_object_centreon}->transaction_query(request => $query);
+        my $status = $self->{class_object_centreon}->transaction_query_multi(request => $query);
         if ($status == -1) {
             $self->{logger}->writeLogError('[anomalydetection] -class- database: cannot save centreon previous register');
             return 1;
@@ -324,7 +322,7 @@ sub saas_register_metrics {
         };
 
         my ($status, $result) = $self->saas_api_request(
-            endpoint => '/machinelearning',
+            endpoint => '/v1/machinelearning', # shitty version hardcoded
             method => 'POST',
             payload => $payload,
             http_code_continue => '^2'
@@ -374,7 +372,7 @@ sub saas_register_metrics {
 
     return 0 if ($query eq '');
 
-    my $status = $self->{class_object_centreon}->transaction_query(request => $query);
+    my $status = $self->{class_object_centreon}->transaction_query_multi(request => $query);
     if ($status == -1) {
         $self->{unregister_metrics_centreon} = $register_centreon_metrics;
         $self->{logger}->writeLogError('[anomalydetection] -class- database: cannot update centreon register');
@@ -400,7 +398,7 @@ sub saas_delete_metrics {
 
         if (defined($self->{centreon_metrics}->{$_}->{saas_model_id})) {
             my ($status, $result) = $self->saas_api_request(
-                endpoint => '/machinelearning/' . $self->{centreon_metrics}->{$_}->{saas_model_id},
+                endpoint => '/v1/machinelearning/' . $self->{centreon_metrics}->{$_}->{saas_model_id}, # shitty version hardcoded
                 method => 'DELETE',
                 http_code_continue => '^(?:2|404)'
             );
@@ -482,7 +480,7 @@ sub generate_lua_filter_file {
 sub saas_get_predicts {
     my ($self, %options) = @_;
 
-    my ($query, $query_append) = ('', '');
+    my ($query, $query_append, $status) = ('', '');
     my $engine_reload = {};
     foreach (keys %{$self->{centreon_metrics}}) {
         next if ($self->{centreon_metrics}->{$_}->{saas_to_delete} == 1);
@@ -490,8 +488,8 @@ sub saas_get_predicts {
             $self->{centreon_metrics}->{$_}->{thresholds_file} eq '');
         next if ($self->{centreon_metrics}->{$_}->{saas_update_date} > time() - 86400);
 
-        my ($status, $result) = $self->saas_api_request(
-            endpoint => '/machinelearning/' . $self->{centreon_metrics}->{$_}->{saas_model_id} . '/predicts',
+        ($status, my $result) = $self->saas_api_request(
+            endpoint => '/v1/machinelearning/' . $self->{centreon_metrics}->{$_}->{saas_model_id} . '/predicts', # shitty version hardcoded
             method => 'GET',
             http_code_continue => '^2'
         );
@@ -511,7 +509,7 @@ sub saas_get_predicts {
                 predict => $result->[0]->{predict}
             }
         ];
-        my ($status, $content) = $self->json_encode(argument => $data);
+        ($status, my $content) = $self->json_encode(argument => $data);
         next if ($status == 1);
 
         my $encoded_content;
@@ -556,7 +554,7 @@ sub saas_get_predicts {
         );
     }
 
-    my $status = $self->{class_object_centreon}->transaction_query(request => $query);
+    $status = $self->{class_object_centreon}->transaction_query_multi(request => $query);
     if ($status == -1) {
         $self->{logger}->writeLogError('[anomalydetection] -class- database: cannot update predicts');
         return 1;
@@ -642,23 +640,15 @@ sub run {
     my ($self, %options) = @_;
 
     $self->{db_centreon} = gorgone::class::db->new(
-        dsn => $self->{config_db_centreon}->{dsn},
+        dsn => $self->{config_db_centreon}->{dsn} . ';mysql_multi_statements=1',
         user => $self->{config_db_centreon}->{username},
         password => $self->{config_db_centreon}->{password},
-        force => 2,
-        logger => $self->{logger}
-    );
-    $self->{db_centstorage} = gorgone::class::db->new(
-        dsn => $self->{config_db_centstorage}->{dsn},
-        user => $self->{config_db_centstorage}->{username},
-        password => $self->{config_db_centstorage}->{password},
         force => 2,
         logger => $self->{logger}
     );
 
     ##### Load objects #####
     $self->{class_object_centreon} = gorgone::class::sqlquery->new(logger => $self->{logger}, db_centreon => $self->{db_centreon});
-    $self->{class_object_centstorage} = gorgone::class::sqlquery->new(logger => $self->{logger}, db_centreon => $self->{db_centstorage});
     $self->{http} = gorgone::class::http::http->new(logger => $self->{logger});
 
     # Connect internal
