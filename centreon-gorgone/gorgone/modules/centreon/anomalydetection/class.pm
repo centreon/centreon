@@ -405,7 +405,7 @@ sub saas_delete_metrics {
             next if ($status);
 
             $self->{logger}->writeLogDebug(
-                "[anomalydetection] -class- saas: metric '$self->{centreon_metrics}->{$_}->{host_id}/$self->{centreon_metrics}->{$_}->{service_id}/$self->{centreon_metrics}->{$_}->{metric_name}' deleted"
+                "[anomalydetection] -class- saas: metric '$self->{centreon_metrics}->{$_}->{service_id}/$self->{centreon_metrics}->{$_}->{metric_name}' deleted"
             );
 
             next if (!defined($result->{message}) ||
