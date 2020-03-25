@@ -66,7 +66,7 @@ const useStyles = (rowColorConditions): (() => Record<string, string>) =>
         alignItems: 'center',
       },
       actions: {
-        padding: 10,
+        padding: theme.spacing(0.5),
       },
       pagination: {
         marginLeft: 'auto',

@@ -108,7 +108,7 @@ export const loadingWithData = (): JSX.Element => {
 };
 
 const Actions = (
-  <Button variant="contained" color="primary">
+  <Button variant="contained" color="primary" size="small">
     Action
   </Button>
 );
