@@ -128,7 +128,7 @@ sub action_centcore {
     $data .= ':' . $options{data}->{content}->{param} if (defined($options{data}->{content}->{param}) && $options{data}->{content}->{param} ne '');
     chomp $data;
 
-    my $file = $self->{sftp}->open(file => $centcore_cmd, accesstype => O_WRONLY|O_CREAT|O_TRUNC);
+    my $file = $self->{sftp}->open(file => $centcore_cmd, accesstype => O_WRONLY|O_CREAT|O_TRUNC, mode => 0660);
     if (!defined($file)) {
         return (-1, { message => "cannot open stat file '$centcore_cmd': " . $self->{sftp}->error() });
     }
@@ -309,7 +309,7 @@ sub action_enginecommand {
             return (-1, { message => "command file '$command_file' must be a pipe file" });
         }
 
-        my $file = $self->{sftp}->open(file => $command_file, accesstype => O_WRONLY|O_APPEND);
+        my $file = $self->{sftp}->open(file => $command_file, accesstype => O_WRONLY|O_APPEND, mode => 0660);
         if (!defined($file)) {
             $self->{logger}->writeLogError("[sshclient] Cannot open command file '$command_file'");
             return (-1, { message => "cannot open command file '$command_file'", error => $self->{sftp}->error() });
