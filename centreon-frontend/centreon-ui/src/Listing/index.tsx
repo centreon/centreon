@@ -41,52 +41,32 @@ const BodyTableCell = withStyles({
   },
 })(TableCell);
 
-const useStyles = (rowColorConditions): (() => Record<string, string>) =>
-  makeStyles<Theme>((theme) => {
-    const rowColorClasses = rowColorConditions.reduce(
-      (rowColorConditionClasses, { name, color }) => ({
-        ...rowColorConditionClasses,
-        [name]: {
-          backgroundColor: fade(color, 0.2),
-        },
-      }),
-      {},
-    );
-
-    return {
-      paper: {
-        width: '100%',
-        height: '100%',
-        display: 'flex',
-        flexDirection: 'column',
-        background: 'none',
-      },
-      actionBar: {
-        display: 'flex',
-        alignItems: 'center',
-      },
-      actions: {
-        padding: theme.spacing(0.5),
-      },
-      pagination: {
-        marginLeft: 'auto',
-        display: 'flex',
-        flexDirection: 'row-reverse',
-        padding: 0,
-      },
-      loadingIndicator: {
-        width: '100%',
-        height: loadingIndicatorHeight,
-      },
-      row: {
-        cursor: 'pointer',
-        '&:hover': {
-          backgroundColor: fade(theme.palette.primary.main, 0.08),
-        },
-      },
-      ...rowColorClasses,
-    };
-  });
+const useStyles = makeStyles<Theme>((theme) => ({
+  paper: {
+    width: '100%',
+    height: '100%',
+    display: 'flex',
+    flexDirection: 'column',
+    background: 'none',
+  },
+  actionBar: {
+    display: 'flex',
+    alignItems: 'center',
+  },
+  actions: {
+    padding: theme.spacing(0.5),
+  },
+  pagination: {
+    marginLeft: 'auto',
+    display: 'flex',
+    flexDirection: 'row-reverse',
+    padding: 0,
+  },
+  loadingIndicator: {
+    width: '100%',
+    height: loadingIndicatorHeight,
+  },
+}));
 
 const cumulativeOffset = (element): number => {
   if (!element || !element.offsetParent) {
@@ -166,7 +146,7 @@ const Listing = ({
 
   const tableBody = useRef<HTMLTableSectionElement>();
 
-  const classes = useStyles(rowColorConditions)();
+  const classes = useStyles();
 
   useEffect(() => {
     const ro = new ResizeObserver(() => {
@@ -332,13 +312,10 @@ const Listing = ({
             align="left"
             key={cellKey}
             style={{ width: width || 'auto' }}
-            onClick={(): void => {
-              clearHoveredRow();
-            }}
           >
             <Component
               row={row}
-              isRowelected={isRowSelected}
+              isSelected={isRowSelected}
               isHovered={isRowHovered}
             />
           </BodyTableCell>
@@ -416,22 +393,19 @@ const Listing = ({
               {tableData.map((row) => {
                 const isRowSelected = isSelected(row);
 
-                const specialColor = rowColorConditions.find(({ condition }) =>
-                  condition(row),
-                );
-
                 return (
                   <MemoizedRow
                     tabIndex={-1}
                     key={row.id}
                     onMouseOver={(): void => hoverRow(row.id)}
                     onFocus={(): void => hoverRow(row.id)}
-                    className={clsx([classes.row, classes[specialColor?.name]])}
                     onClick={(): void => {
                       onRowClick(row);
                     }}
                     isHovered={hoveredRowId === row.id}
+                    isSelected={isRowSelected}
                     row={row}
+                    rowColorConditions={rowColorConditions}
                   >
                     {checkable ? (
                       <BodyTableCell
@@ -476,10 +450,35 @@ const Listing = ({
   );
 };
 
+const useRowStyles = (rowColorConditions): (() => Record<string, string>) =>
+  makeStyles<Theme>((theme) => {
+    const rowColorClasses = rowColorConditions.reduce(
+      (rowColorConditionClasses, { name, color }) => ({
+        ...rowColorConditionClasses,
+        [name]: {
+          backgroundColor: fade(color, 0.2),
+        },
+      }),
+      {},
+    );
+
+    return {
+      row: {
+        cursor: 'pointer',
+        '&:hover': {
+          backgroundColor: fade(theme.palette.primary.main, 0.08),
+        },
+      },
+      ...rowColorClasses,
+    };
+  });
+
 interface RowProps {
   children;
   isHovered?: boolean;
+  isSelected?: boolean;
   row;
+  rowColorConditions;
 }
 
 const MemoizedRow = React.memo<RowProps & TableRowProps>(
@@ -488,22 +487,32 @@ const MemoizedRow = React.memo<RowProps & TableRowProps>(
     tabIndex,
     onMouseOver,
     onFocus,
-    className,
     onClick,
-  }: RowProps & TableRowProps): JSX.Element => (
-    <TableRow
-      tabIndex={tabIndex}
-      onMouseOver={onMouseOver}
-      className={className}
-      onFocus={onFocus}
-      onClick={onClick}
-    >
-      {children}
-    </TableRow>
-  ),
+    row,
+    rowColorConditions,
+  }: RowProps & TableRowProps): JSX.Element => {
+    const classes = useRowStyles(rowColorConditions)();
+
+    const specialColor = rowColorConditions.find(({ condition }) =>
+      condition(row),
+    );
+
+    return (
+      <TableRow
+        tabIndex={tabIndex}
+        onMouseOver={onMouseOver}
+        className={clsx([classes.row, classes[specialColor?.name]])}
+        onFocus={onFocus}
+        onClick={onClick}
+      >
+        {children}
+      </TableRow>
+    );
+  },
   (prevProps, nextProps) => {
     return (
       isEqual(prevProps.isHovered, nextProps.isHovered) &&
+      isEqual(prevProps.isSelected, nextProps.isSelected) &&
       isEqual(prevProps.row, nextProps.row) &&
       isEqual(prevProps.className, nextProps.className)
     );
