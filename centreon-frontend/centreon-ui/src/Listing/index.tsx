@@ -297,7 +297,7 @@ const Listing = ({
         </BodyTableCell>
       ),
       [TABLE_COLUMN_TYPES.component]: (): JSX.Element | null => {
-        const { Component, hiddenCondition, width } = column;
+        const { Component, hiddenCondition, width, clickable } = column;
 
         const isCellHidden = hiddenCondition
           ? hiddenCondition({ row, isRowSelected })
@@ -312,6 +312,13 @@ const Listing = ({
             align="left"
             key={cellKey}
             style={{ width: width || 'auto' }}
+            onClick={(e): void => {
+              if (!clickable) {
+                return;
+              }
+              e.preventDefault();
+              e.stopPropagation();
+            }}
           >
             <Component
               row={row}

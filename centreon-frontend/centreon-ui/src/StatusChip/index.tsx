@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { makeStyles, Theme, Chip, fade } from '@material-ui/core';
+import { makeStyles, Theme, Chip, fade, ChipProps } from '@material-ui/core';
 import { CreateCSSProperties } from '@material-ui/styles';
 
 enum SeverityCode {
@@ -55,11 +55,11 @@ const getStatusColors = ({ theme, severityCode }: StatusColorProps): Colors => {
   return colorMapping[severityCode];
 };
 
-interface Props {
+type Props = {
   label?: string;
   severityCode: SeverityCode;
   clickable?: boolean;
-}
+} & ChipProps;
 
 const useStyles = makeStyles<Theme, Props>((theme) => ({
   chip: ({ severityCode, label }: Props): CreateCSSProperties<Props> => ({
@@ -92,5 +92,5 @@ const StatusChip = ({
   );
 };
 
-export { SeverityCode };
+export { SeverityCode, getStatusColors };
 export default StatusChip;
