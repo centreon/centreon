@@ -126,6 +126,7 @@ interface Props {
   tableData?;
   totalRows?;
   Actions?: JSX.Element;
+  innerScrollDisabled: boolean;
 }
 
 const Listing = ({
@@ -158,6 +159,7 @@ const Listing = ({
   sorto = undefined,
   sortf = undefined,
   Actions,
+  innerScrollDisabled = false,
 }: Props): JSX.Element => {
   const [tableTopOffset, setTableTopOffset] = useState(0);
   const [hoveredRowId, setHoveredRowId] = useState(null);
@@ -350,7 +352,9 @@ const Listing = ({
   const emptyRows = limit - Math.min(limit, totalRows - currentPage * limit);
 
   const tableMaxHeight = (): string => {
-    return `calc(100vh - ${tableTopOffset}px - 25px)`;
+    return innerScrollDisabled
+      ? '100%'
+      : `calc(100vh - ${tableTopOffset}px - 25px)`;
   };
 
   return (
