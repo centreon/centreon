@@ -70,7 +70,7 @@ sub check_fingerprint {
     }
 
     if ($row->{fingerprint} ne $options{fingerprint}) {
-        return (0, "fingerprint changed for target '" . $options{target} . "' [id: $row->{id}] [old fingerprint: $row->{id}] [new fingerprint: $options{fingerprint}]");
+        return (0, "fingerprint changed for target '" . $options{target} . "' [id: $row->{id}] [old fingerprint: $row->{fingerprint}] [new fingerprint: $options{fingerprint}]");
     }
     return 1;
 }
