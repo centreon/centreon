@@ -2,7 +2,6 @@ export { default as Button } from './Button';
 export { default as ButtonAction } from './Button/ButtonAction';
 export { default as ButtonActionInput } from './Button/ButtonActionInput';
 export { default as ButtonAdd } from './Button/ButtonAdd';
-export { default as Breadcrumb } from './Breadcrumb';
 export { default as Card } from './Card';
 export { default as CardItem } from './Card/CardItem';
 export { default as CustomIconWithText } from './Custom/CustomIconWithText';
