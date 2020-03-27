@@ -9,6 +9,7 @@ import {
   InputLabel,
   makeStyles,
   Theme,
+  SelectProps,
 } from '@material-ui/core';
 
 const useStyles = makeStyles((theme: Theme) => ({
@@ -18,16 +19,16 @@ const useStyles = makeStyles((theme: Theme) => ({
 }));
 
 export interface SelectEntry {
-  id: number;
+  id: number | string;
   name: string;
 }
 
-interface Props {
+type Props = {
   options: Array<SelectEntry>;
   onChange;
-  selectedOptionId: number;
+  selectedOptionId: number | string;
   label?: string;
-}
+} & SelectProps;
 
 const SelectField = ({
   options,
