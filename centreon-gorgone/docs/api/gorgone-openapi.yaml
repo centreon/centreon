@@ -417,56 +417,6 @@ paths:
           $ref: '#/components/responses/Unauthorized'
         '403':
           $ref: '#/components/responses/Forbidden'
-  /centreon/autodiscovery/task:
-    post:
-      tags:
-        - Autodiscovery
-      summary: "Add a discovery task"
-      description: "Add one Centreon Autodiscovery task."
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/AutodiscoveryTask'
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                oneOf:
-                  - $ref: '#/components/schemas/Token'
-                  - $ref: '#/components/schemas/Logs'
-                  - $ref: '#/components/schemas/NoLogs'
-                  - $ref: '#/components/schemas/Error'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-  /centreon/autodiscovery/task/{task_id}:
-    get:
-      tags:
-        - Autodiscovery
-      summary: "Get a discovery task results"
-      description: "Get Centreon Autodiscovery task results."
-      parameters:
-        - $ref: '#/components/parameters/TaskId'
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                oneOf:
-                  - $ref: '#/components/schemas/Token'
-                  - $ref: '#/components/schemas/Logs'
-                  - $ref: '#/components/schemas/NoLogs'
-                  - $ref: '#/components/schemas/Error'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '403':
-          $ref: '#/components/responses/Forbidden'
   /centreon/autodiscovery/job:
     post:
       tags:
@@ -479,29 +429,6 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/AutodiscoveryJob'
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                oneOf:
-                  - $ref: '#/components/schemas/Token'
-                  - $ref: '#/components/schemas/Logs'
-                  - $ref: '#/components/schemas/NoLogs'
-                  - $ref: '#/components/schemas/Error'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-  /centreon/autodiscovery/job/{job_id}:
-    get:
-      tags:
-        - Autodiscovery
-      summary: "Get a discovery job results"
-      description: "Get Centreon Autodiscovery job results."
-      parameters:
-        - $ref: '#/components/parameters/JobId'
       responses:
         '200':
           description: OK
@@ -583,22 +510,6 @@ components:
       schema:
         type: integer
         example: 2
-    TaskId:
-      in: path
-      name: task_id
-      required: true
-      description: "ID of the task"
-      schema:
-        type: string
-        example: "Task-SNMP-10.1.2.3"
-    JobId:
-      in: path
-      name: job_id
-      required: true
-      description: "ID of the job"
-      schema:
-        type: string
-        example: "Job-SNMP-10.1.2.3"
   responses:
     NotFound:
       description: "The specified resource was not found"
@@ -988,10 +899,12 @@ components:
           type: integer
           description: "Time in seconds before a command is considered timed out"
           example: 5
+          default: 30
         continue_on_error:
           type: boolean
           description: "Behaviour in case of execution issue"
           example: true
+          default: false
       required:
         - command
     EngineCommands:
@@ -1007,29 +920,6 @@ components:
             type: string
             description: "External command"
             example: "[653284380] SCHEDULE_SVC_CHECK;host1;service1;653284380"
-    AutodiscoveryTask:
-      type: object
-      properties:
-        id:
-          type: string
-          description: "Identifier of the task (random if empty)"
-          example: "Task-SNMP-10.1.2.3"
-        command:
-          type: string
-          description: "Command line to execute to perform the discovery"
-          example: |
-            perl /usr/lib/centreon/plugins/centreon_generic_snmp.pl --plugin=os::linux::local::plugin --mode=discovery-snmp --subnet='10.1.2.3/24' --snmp-port='161' --snmp-version='2c' --snmp-community='public'
-        timeout:
-          type: integer
-          description: "Time in seconds before the command is considered timed out"
-          example: 300
-        target:
-          type: integer
-          description: "Identifier of the target on which to execute the command"
-          example: 2
-      required:
-        - command
-        - target
     AutodiscoveryJob:
       type: object
       properties:
@@ -1037,10 +927,10 @@ components:
           type: string
           description: "Identifier of the job (random if empty)"
           example: "Job-SNMP-10.1.2.3"
-        timespec:
+        execution_mode:
           type: string
-          description: "Cron-like time specification"
-          example: "30 2 * * *"
+          description: "Execution mode of this job ('0': execute immediately, '1': schedule with cron)"
+          example: 0
         command:
           type: string
           description: "Command line to execute to perform the discovery"
@@ -1055,7 +945,7 @@ components:
           description: "Identifier of the target on which to execute the command"
           example: 2
       required:
-        - timespec
+        - execution_mode
         - command
         - target
           
