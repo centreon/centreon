@@ -30,12 +30,6 @@ module.exports = {
         exclude: /node_modules(\\|\/)(?!(@centreon(\\|\/)ui))/,
         use: [
           { loader: 'cache-loader' },
-          {
-              loader: 'thread-loader',
-              options: {
-                  workers: require('os').cpus().length - 1,
-              },
-          },
           'babel-loader',
           {
             loader: 'ts-loader',
