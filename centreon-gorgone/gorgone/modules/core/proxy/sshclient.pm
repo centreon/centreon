@@ -72,6 +72,7 @@ sub open_session {
     $self->{sftp} = Libssh::Sftp->new(session => $self);
     if (!defined($self->{sftp})) {
         $self->{logger}->writeLogError('[sshclient] Cannot init sftp: ' . Libssh::Sftp::error());
+        $self->disconnect();
         return -1;
     }
 

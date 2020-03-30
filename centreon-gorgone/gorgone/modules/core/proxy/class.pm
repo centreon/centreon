@@ -241,6 +241,66 @@ sub close_connections {
     }
 }
 
+sub proxy_ssh {
+    my ($self, %options) = @_;
+
+    my ($code, $decoded_data) = $self->json_decode(argument => $options{data});
+    return if ($code == 1);
+
+    if ($options{action} eq 'PING') {
+        if ($self->{clients}->{ $options{target_client} }->{class}->ping() != -1) {
+            $self->send_internal_action(
+                action => 'PONG',
+                data => { data => { id => $options{target_client} } },
+                token => $options{token},
+                target => ''
+            );
+        }
+        return ;
+    }
+
+    my $retry = 1; # manage server disconnected
+    do {
+        my ($status, $data_ret) = $self->{clients}->{ $options{target_client} }->{class}->action(
+            action => $options{action},
+            data => $decoded_data,
+            target_direct => $options{target_direct},
+            target => $options{target}
+        );
+
+        if (ref($data_ret) eq 'ARRAY') {
+            foreach (@{$data_ret}) {
+                $self->send_log(
+                    code => $_->{code},
+                    token => $options{token},
+                    data => $_->{data}
+                );
+            }
+            last;
+        }
+
+        $self->{logger}->writeLogDebug("[proxy] Sshclient return: [message = $data_ret->{message}]");
+        if ($status == 0) {
+            $self->send_log(
+                code => gorgone::class::module::ACTION_FINISH_OK,
+                token => $options{token},
+                data => $data_ret
+            );
+            last;
+        }
+
+        $self->send_log(
+            code => gorgone::class::module::ACTION_FINISH_KO,
+            token => $options{token},
+            data => $data_ret
+        );
+
+        # quit because it's not a ssh connection issue
+        last if ($self->{clients}->{ $options{target_client} }->{class}->is_connected() != 0); 
+        $retry--;
+    } while ($retry);
+}
+
 sub proxy {
     my (%options) = @_;
     
@@ -311,51 +371,14 @@ sub proxy {
             $connector->{clients}->{$target_client}->{delete} = 1;
         }
     } elsif ($connector->{clients}->{$target_client}->{type} eq 'push_ssh') {
-        my ($code, $decoded_data) = $connector->json_decode(argument => $data);
-        return if ($code == 1);
-
-        if ($action eq 'PING') {
-            if ($connector->{clients}->{$target_client}->{class}->ping() != -1) {
-                $connector->send_internal_action(
-                    action => 'PONG',
-                    data => { data => { id => $target_client } },
-                    token => $token,
-                    target => ''
-                );
-            }
-            return ;
-        }
-        my ($status, $data_ret) = $connector->{clients}->{$target_client}->{class}->action(
+        $connector->proxy_ssh(
             action => $action,
-            data => $decoded_data,
+            data => $data,
+            target_client => $target_client,
+            target => $target,
             target_direct => $target_direct,
-            target => $target
+            token => $token
         );
-
-        if (ref($data_ret) eq 'ARRAY') {
-            foreach (@{$data_ret}) {
-                $connector->send_log(
-                    code => $_->{code},
-                    token => $token,
-                    data => $_->{data}
-                );
-            }
-        } else {
-            $connector->{logger}->writeLogDebug("[proxy] Sshclient return: [message = $data_ret->{message}]");
-            if ($status == 0) {
-                $connector->send_log(
-                    code => gorgone::class::module::ACTION_FINISH_OK,
-                    token => $token,
-                    data => $data_ret
-                );
-            } else {
-                $connector->send_log(
-                    code => gorgone::class::module::ACTION_FINISH_KO,
-                    token => $token,
-                    data => $data_ret
-                );
-            }
-        }
     }
 }
 
