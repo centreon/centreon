@@ -484,8 +484,8 @@ sub saas_get_predicts {
     my $engine_reload = {};
     foreach (keys %{$self->{centreon_metrics}}) {
         next if ($self->{centreon_metrics}->{$_}->{saas_to_delete} == 1);
-        next if (!defined($self->{centreon_metrics}->{$_}->{thresholds_file}) ||
-            $self->{centreon_metrics}->{$_}->{thresholds_file} eq '');
+        #next if (!defined($self->{centreon_metrics}->{$_}->{thresholds_file}) ||
+        #    $self->{centreon_metrics}->{$_}->{thresholds_file} eq '');
         next if ($self->{centreon_metrics}->{$_}->{saas_update_date} > time() - 86400);
 
         ($status, my $result) = $self->saas_api_request(
