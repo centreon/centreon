@@ -71,8 +71,8 @@ tags:
     description: "Module aiming to execute actions on the server running the Gorgone daemon or remotly using SSH."
   - name: Engine
     description: "Module aiming to provide a bridge to communicate with Centreon Engine daemon."
-  - name: Broker
-    description: "Module aiming to deal with Centreon Broker daemon."
+  - name: Statistics
+    description: "Module aiming to deal with statistics collection of Centreon Engine and Broker."
   - name: Autodiscovery
     description: "Module aiming to extend Centreon Autodiscovery server functionalities."
 security:
@@ -373,10 +373,10 @@ paths:
           $ref: '#/components/responses/Unauthorized'
         '403':
           $ref: '#/components/responses/Forbidden'
-  /centreon/broker/statistics:
+  /centreon/statistics/broker:
     get:
       tags:
-        - Broker
+        - Statistics
       summary: "Launch Broker statistics collection"
       description: "Launch Broker statistics collection and store the result on disk."
       responses:
@@ -394,10 +394,10 @@ paths:
           $ref: '#/components/responses/Unauthorized'
         '403':
           $ref: '#/components/responses/Forbidden'
-  /centreon/broker/statistics/{monitoring_server_id}:
+  /centreon/statistics/broker/{monitoring_server_id}:
     get:
       tags:
-        - Broker
+        - Statistics
       summary: "Launch Broker statistics collection of a specific monitoring server"
       description: "Launch Broker statistics collection and store the result on disk."
       parameters:
@@ -751,7 +751,7 @@ components:
         cron: "gorgone::modules::core::cron::hooks"
         engine: "gorgone::modules::centreon::engine::hooks"
         action: "gorgone::modules::core::action::hooks"
-        broker: "gorgone::modules::centreon::broker::hooks"
+        statistics: "gorgone::modules::centreon::statistics::hooks"
         nodes: "gorgone::modules::centreon::nodes::hooks"
         legacycmd: "gorgone::modules::centreon::legacycmd::hooks"
         proxy: "gorgone::modules::core::proxy::hooks"
@@ -762,7 +762,7 @@ components:
         type: string
       example:
         POST_/internal/logger: "BCASTLOGGER"
-        GET_/centreon/broker/statistics: "BROKERSTATS"
+        GET_/centreon/statistics/broker: "BROKERSTATS"
         GET_/internal/thumbprint: "GETTHUMBPRINT"
         GET_/core/cron/definitions: "GETCRON"
         GET_/internal/information: "INFORMATION"
@@ -800,7 +800,7 @@ components:
             registernodes: 443
             pong: 3397
             proxyready: 5
-            brokerready: 1
+            statisticsready: 1
             addcron: 1
             cronready: 1
             getthumbprint: 2

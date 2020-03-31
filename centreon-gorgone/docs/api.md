@@ -102,12 +102,12 @@ curl --request GET "https://hostname:8443/api/internal/information" \
             "cron": "gorgone::modules::core::cron::hooks",
             "engine": "gorgone::modules::centreon::engine::hooks",
             "action": "gorgone::modules::core::action::hooks",
-            "broker": "gorgone::modules::centreon::broker::hooks",
+            "statistics": "gorgone::modules::centreon::statistics::hooks",
             "nodes": "gorgone::modules::centreon::nodes::hooks",
             "legacycmd": "gorgone::modules::centreon::legacycmd::hooks"
         },
         "api_endpoints": {
-            "GET_/centreon/broker/statistics": "BROKERSTATS",
+            "GET_/centreon/statistics/broker": "BROKERSTATS",
             "GET_/internal/thumbprint": "GETTHUMBPRINT",
             "GET_/core/cron/definitions": "GETCRON",
             "GET_/internal/information": "INFORMATION",
@@ -126,7 +126,7 @@ curl --request GET "https://hostname:8443/api/internal/information" \
             "total": 183,
             "internal": {
                 "legacycmdready": 1,
-                "brokerready": 1,
+                "statisticsready": 1,
                 "addcron": 1,
                 "cronready": 1,
                 "centreonnodesready": 1,

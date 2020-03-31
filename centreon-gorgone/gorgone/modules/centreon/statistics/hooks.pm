@@ -18,25 +18,25 @@
 # limitations under the License.
 #
 
-package gorgone::modules::centreon::broker::hooks;
+package gorgone::modules::centreon::statistics::hooks;
 
 use warnings;
 use strict;
 use JSON::XS;
 use gorgone::class::core;
-use gorgone::modules::centreon::broker::class;
+use gorgone::modules::centreon::statistics::class;
 
 use constant NAMESPACE => 'centreon';
-use constant NAME => 'broker';
+use constant NAME => 'statistics';
 use constant EVENTS => [
-    { event => 'BROKERREADY' },
-    { event => 'BROKERSTATS', uri => '/statistics', method => 'GET' },
+    { event => 'STATISTICSREADY' },
+    { event => 'BROKERSTATS', uri => '/broker', method => 'GET' },
 ];
 
 my $config_core;
 my $config;
 my $config_db_centreon;
-my $broker = {};
+my $statistics = {};
 my $stop = 0;
 
 sub register {
@@ -45,7 +45,7 @@ sub register {
     $config = $options{config};
     $config_core = $options{config_core};
     $config_db_centreon = $options{config_db_centreon};
-    $config->{cache_dir} = defined($config->{cache_dir}) ? $config->{cache_dir} : '/var/cache/centreon/broker-stats/';
+    $config->{broker_cache_dir} = defined($config->{broker_cache_dir}) ? $config->{broker_cache_dir} : '/var/cache/centreon/broker-stats/';
     return (1, NAMESPACE, NAME, EVENTS);
 }
 
@@ -63,26 +63,26 @@ sub routing {
         $data = JSON::XS->new->utf8->decode($options{data});
     };
     if ($@) {
-        $options{logger}->writeLogError("[broker] Cannot decode json data: $@");
+        $options{logger}->writeLogError("[statistics] Cannot decode json data: $@");
         gorgone::standard::library::add_history(
             dbh => $options{dbh},
             code => 30, token => $options{token},
-            data => { msg => 'gorgonebroker: cannot decode json' },
+            data => { msg => 'gorgonestatistics: cannot decode json' },
             json_encode => 1
         );
         return undef;
     }
     
-    if ($options{action} eq 'BROKERREADY') {
-        $broker->{ready} = 1;
+    if ($options{action} eq 'STATISTICSREADY') {
+        $statistics->{ready} = 1;
         return undef;
     }
     
-    if (gorgone::class::core::waiting_ready(ready => \$broker->{ready}) == 0) {
+    if (gorgone::class::core::waiting_ready(ready => \$statistics->{ready}) == 0) {
         gorgone::standard::library::add_history(
             dbh => $options{dbh},
             code => 30, token => $options{token},
-            data => { msg => 'gorgonebroker: still no ready' },
+            data => { msg => 'gorgonestatistics: still no ready' },
             json_encode => 1
         );
         return undef;
@@ -90,7 +90,7 @@ sub routing {
     
     gorgone::standard::library::zmq_send_message(
         socket => $options{socket},
-        identity => 'gorgonebroker',
+        identity => 'gorgonestatistics',
         action => $options{action},
         data => $options{data},
         token => $options{token},
@@ -101,18 +101,18 @@ sub gently {
     my (%options) = @_;
 
     $stop = 1;
-    $options{logger}->writeLogDebug("[broker] Send TERM signal");
-    if ($broker->{running} == 1) {
-        CORE::kill('TERM', $broker->{pid});
+    $options{logger}->writeLogDebug("[statistics] Send TERM signal");
+    if ($statistics->{running} == 1) {
+        CORE::kill('TERM', $statistics->{pid});
     }
 }
 
 sub kill {
     my (%options) = @_;
 
-    if ($broker->{running} == 1) {
-        $options{logger}->writeLogDebug("[broker] Send KILL signal for pool");
-        CORE::kill('KILL', $broker->{pid});
+    if ($statistics->{running} == 1) {
+        $options{logger}->writeLogDebug("[statistics] Send KILL signal for pool");
+        CORE::kill('KILL', $statistics->{pid});
     }
 }
 
@@ -127,16 +127,16 @@ sub check {
     my $count = 0;
     foreach my $pid (keys %{$options{dead_childs}}) {
         # Not me
-        next if ($broker->{pid} != $pid);
+        next if ($statistics->{pid} != $pid);
         
-        $broker = {};
+        $statistics = {};
         delete $options{dead_childs}->{$pid};
         if ($stop == 0) {
             create_child(logger => $options{logger});
         }
     }
     
-    $count++  if (defined($broker->{running}) && $broker->{running} == 1);
+    $count++  if (defined($statistics->{running}) && $statistics->{running} == 1);
     
     return $count;
 }
@@ -151,11 +151,11 @@ sub broadcast {
 sub create_child {
     my (%options) = @_;
     
-    $options{logger}->writeLogInfo("[broker] Create module 'broker' process");
+    $options{logger}->writeLogInfo("[statistics] Create module 'statistics' process");
     my $child_pid = fork();
     if ($child_pid == 0) {
-        $0 = 'gorgone-broker';
-        my $module = gorgone::modules::centreon::broker::class->new(
+        $0 = 'gorgone-statistics';
+        my $module = gorgone::modules::centreon::statistics::class->new(
             logger => $options{logger},
             config_core => $config_core,
             config => $config,
@@ -164,8 +164,8 @@ sub create_child {
         $module->run();
         exit(0);
     }
-    $options{logger}->writeLogDebug("[broker] PID $child_pid (gorgone-broker)");
-    $broker = { pid => $child_pid, ready => 0, running => 1 };
+    $options{logger}->writeLogDebug("[statistics] PID $child_pid (gorgone-statistics)");
+    $statistics = { pid => $child_pid, ready => 0, running => 1 };
 }
 
 1;
