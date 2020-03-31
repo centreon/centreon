@@ -168,6 +168,7 @@ const Wizard = (props) => {
                     onNext: handleNext,
                     setFieldTouched: bag.setFieldTouched,
                     setFieldValue: bag.setFieldValue,
+                    setFieldError: bag.setFieldError,
                     submitForm: bag.submitForm,
                     touched: bag.touched,
                     values: bag.values,
