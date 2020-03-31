@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005-2020 Centreon
  * Centreon is developed by : Julien Mathis and Romain Le Merlus under
@@ -47,7 +48,8 @@ require_once $centreon_path . 'www/class/centreonExternalCommand.class.php';
 session_start();
 
 try {
-    if (!isset($_SESSION['centreon']) ||
+    if (
+        !isset($_SESSION['centreon']) ||
         !isset($_REQUEST['cmd']) ||
         !isset($_REQUEST['selection'])
     ) {
@@ -69,21 +71,13 @@ try {
     $successMsg = _("External Command successfully submitted... Exiting window...");
     $result = 0;
 
-    //retrieving the default timezone is the user didn't choose one
-    $gmt = $centreon->user->getMyGMT();
-    if (!$gmt) {
-        $gmt = date_default_timezone_get();
-    }
-
     $defaultDuration = 7200;
     $defaultScale = 's';
-    $duration = $defaultDuration;
-    if ($defaultScale == 'm') {
-        $duration *= 60;
-    } elseif ($defaultScale == 'h') {
-        $duration *= 3600;
-    } elseif ($defaultScale == 'd') {
-        $duration *= 86400;
+    if (!empty($centreon->optGen['monitoring_dwt_duration'])) {
+        $defaultDuration = $centreon->optGen['monitoring_dwt_duration'];
+        if (!empty($centreon->optGen['monitoring_dwt_duration_scale'])) {
+            $defaultScale = $centreon->optGen['monitoring_dwt_duration_scale'];
+        }
     }
 
     if ($cmd == 72 || $cmd == 75 || $cmd == 70 || $cmd == 74) {
@@ -115,35 +109,31 @@ try {
 
             /* Default ack options */
             $persistent_checked = '';
-            if (isset($centreon->optGen['monitoring_ack_persistent'])
-                && $centreon->optGen['monitoring_ack_persistent']
-            ) {
+            if (!empty($centreon->optGen['monitoring_ack_persistent'])) {
                 $persistent_checked = 'checked';
             }
             $template->assign('persistent_checked', $persistent_checked);
 
             $sticky_checked = '';
-            if (isset($centreon->optGen['monitoring_ack_sticky']) && $centreon->optGen['monitoring_ack_sticky']) {
+            if (!empty($centreon->optGen['monitoring_ack_sticky'])) {
                 $sticky_checked = 'checked';
             }
             $template->assign('sticky_checked', $sticky_checked);
 
             $notify_checked = '';
-            if (isset($centreon->optGen['monitoring_ack_notify']) && $centreon->optGen['monitoring_ack_notify']) {
+            if (!empty($centreon->optGen['monitoring_ack_notify'])) {
                 $notify_checked = 'checked';
             }
             $template->assign('notify_checked', $notify_checked);
 
             $process_service_checked = '';
-            if (isset($centreon->optGen['monitoring_ack_svc']) && $centreon->optGen['monitoring_ack_svc']) {
+            if (!empty($centreon->optGen['monitoring_ack_svc'])) {
                 $process_service_checked = 'checked';
             }
             $template->assign('process_service_checked', $process_service_checked);
 
             $force_active_checked = '';
-            if (isset($centreon->optGen['monitoring_ack_active_checks'])
-                && $centreon->optGen['monitoring_ack_active_checks']
-            ) {
+            if (!empty($centreon->optGen['monitoring_ack_active_checks'])) {
                 $force_active_checked = 'checked';
             }
             $template->assign('force_active_checked', $force_active_checked);
@@ -152,12 +142,6 @@ try {
             $template->assign('submitLabel', _("Acknowledge"));
             $template->display('acknowledge.ihtml');
         } elseif ($cmd == 75 || $cmd == 74) {
-            $hourStart = $centreon->CentreonGMT->getDate("H", time(), $gmt);
-            $minuteStart = $centreon->CentreonGMT->getDate("i", time(), $gmt);
-
-            $hourEnd = $centreon->CentreonGMT->getDate("H", time() + $duration, $gmt);
-            $minuteEnd = $centreon->CentreonGMT->getDate("i", time() + $duration, $gmt);
-
             $template->assign('downtimeHostSvcLabel', _("Set downtime on services of hosts"));
             if ($cmd == 75) {
                 $title = _("Host Downtime");
@@ -168,37 +152,28 @@ try {
             /* Default downtime options */
             $process_service_checked = '';
             $fixed_checked = '';
-            if (isset($centreon->optGen['monitoring_dwt_fixed']) && $centreon->optGen['monitoring_dwt_fixed']) {
+            if (!empty($centreon->optGen['monitoring_dwt_fixed'])) {
                 $fixed_checked = 'checked';
             }
             $template->assign('fixed_checked', $fixed_checked);
 
-            if (isset($centreon->optGen['monitoring_dwt_svc']) && $centreon->optGen['monitoring_dwt_svc']) {
+            if (!empty($centreon->optGen['monitoring_dwt_svc'])) {
                 $process_service_checked = 'checked';
             }
             $template->assign('process_service_checked', $process_service_checked);
-
             $template->assign('defaultMessage', sprintf(_('Downtime set by %s'), $centreon->user->alias));
-
             $template->assign('titleLabel', $title);
             $template->assign('submitLabel', _("Set Downtime"));
-            $template->assign('defaultSecondDuration', $defaultScale == 's' ? $defaultDuration : '0');
-            $template->assign('defaultHourDuration', $defaultScale == 'h' ? $defaultDuration : '0');
-            $template->assign('defaultMinuteDuration', $defaultScale == 'm' ? $defaultDuration : '0');
-            $template->assign('defaultDayDuration',  $defaultScale == 'd' ? $defaultDuration : '0');
-            $template->assign('duration', $duration); // In seconds
-            $template->assign('secondsLabel', _("seconds"));
-            $template->assign('daysLabel', _("days"));
-            $template->assign('hoursLabel', _("hours"));
-            $template->assign('minutesLabel', _("minutes"));
-            $template->assign('defaultHourStart', $hourStart);
-            $template->assign('defaultMinuteStart', $minuteStart);
-            $template->assign('defaultHourEnd', $hourEnd);
-            $template->assign('defaultMinuteEnd', $minuteEnd);
+            $template->assign('sDurationLabel', _("seconds"));
+            $template->assign('mDurationLabel', _("minutes"));
+            $template->assign('hDurationLabel', _("hours"));
+            $template->assign('dDurationLabel', _("days"));
+            $template->assign('defaultDuration', $defaultDuration);
+            $template->assign($defaultScale . 'DefaultScale', 'selected');
             $template->display('downtime.ihtml');
         }
     } else {
-        $command = "";
+        $command = '';
         $isSvcCommand = false;
         switch ($cmd) {
             /* service: schedule check */
@@ -260,7 +235,7 @@ try {
                 throw new Exception('Unknown command');
                 break;
         }
-        if ($command != "") {
+        if ($command != '') {
             $externalCommandMethod = 'set_process_command';
             if (method_exists($externalCmd, 'setProcessCommand')) {
                 $externalCommandMethod = 'setProcessCommand';
@@ -277,7 +252,7 @@ try {
                     $hostname = $hostObj->getHostName($hostId);
                     $svcDesc = $svcObj->getServiceDesc($svcId);
                     if ($isSvcCommand === true) {
-                        $cmdParam = $hostname . ";" . $svcDesc;
+                        $cmdParam = $hostname . ';' . $svcDesc;
                     } else {
                         $cmdParam = $hostname;
                     }
@@ -295,7 +270,7 @@ try {
         $result = 1;
     }
 } catch (Exception $e) {
-    echo $e->getMessage() . "<br/>";
+    echo $e->getMessage() . '<br/>';
 }
 
 ?>
@@ -323,10 +298,18 @@ try {
         });
 
         //initializing datepicker and timepicker
-        initDatepicker("datepicker", "yy/mm/dd", "0");
+        jQuery(".timepicker").each(function () {
+            if (!$(this).val()) {
+                $(this).val(moment().tz(localStorage.getItem('realTimezone')
+                    ? localStorage.getItem('realTimezone')
+                    : moment.tz.guess()).format("HH:mm")
+                );
+            }
+        });
         jQuery("#start_time, #end_time").timepicker();
-
+        initDatepicker();
         turnOnEvents();
+        updateEndTime();
     });
 
     function closeBox()
@@ -362,15 +345,11 @@ try {
     function toggleDurationField()
     {
         if (jQuery("[name=fixed]").is(':checked')) {
-            jQuery("[name=dayduration]").attr('disabled', true);
-            jQuery("[name=hourduration]").attr('disabled', true);
-            jQuery("[name=minuteduration]").attr('disabled', true);
-            jQuery("[name=secondduration]").attr('disabled', true);
+            jQuery("[name=duration]").attr('disabled', true);
+            jQuery("[name=duration_scale]").attr('disabled', true);
         } else {
-            jQuery("[name=dayduration]").removeAttr('disabled');
-            jQuery("[name=hourduration]").removeAttr('disabled');
-            jQuery("[name=minuteduration]").removeAttr('disabled');
-            jQuery("[name=secondduration]").removeAttr('disabled');
+            jQuery("[name=duration]").removeAttr('disabled');
+            jQuery("[name=duration_scale]").removeAttr('disabled');
         }
     }
 </script>
