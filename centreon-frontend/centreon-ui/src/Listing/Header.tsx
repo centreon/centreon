@@ -13,11 +13,15 @@ import {
 const HeaderCell = withStyles((theme) => ({
   root: {
     backgroundColor: theme.palette.common.white,
-    lineHeight: 1.4,
-    height: 24,
-    padding: '3px 4px',
+    padding: theme.spacing(1),
   },
 }))(TableCell);
+
+const HeaderTypography = withStyles({
+  root: {
+    fontWeight: 'bold',
+  },
+})(Typography);
 
 interface Props {
   onSelectAllClick: (event) => void;
@@ -48,8 +52,9 @@ const ListingHeader = ({
     <TableHead>
       <TableRow>
         {checkable ? (
-          <HeaderCell align="left" padding="checkbox">
+          <HeaderCell padding="checkbox">
             <Checkbox
+              size="small"
               color="primary"
               inputProps={{ 'aria-label': 'Select all' }}
               indeterminate={numSelected > 0 && numSelected < rowCount}
@@ -67,14 +72,14 @@ const ListingHeader = ({
             sortDirection={orderBy === row.id ? order : false}
           >
             {row.sortable === false ? (
-              <Typography variant="subtitle1">{row.label}</Typography>
+              <HeaderTypography variant="body2">{row.label}</HeaderTypography>
             ) : (
               <TableSortLabel
                 active={orderBy === row.id}
                 direction={order || 'desc'}
                 onClick={createSortHandler(row.id)}
               >
-                <Typography variant="subtitle1">{row.label}</Typography>
+                <HeaderTypography variant="body2">{row.label}</HeaderTypography>
               </TableSortLabel>
             )}
           </HeaderCell>

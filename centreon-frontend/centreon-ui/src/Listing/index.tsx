@@ -16,6 +16,7 @@ import {
   TableRow,
   fade,
   Checkbox,
+  Typography,
 } from '@material-ui/core';
 
 import IconPowerSettings from '../Icon/IconPowerSettings';
@@ -33,13 +34,11 @@ const loadingIndicatorHeight = 3;
 
 const haveSameIds = (a, b): boolean => a.id === b.id;
 
-const BodyTableCell = withStyles({
+const BodyTableCell = withStyles((theme) => ({
   root: {
-    fontSize: 13,
-    lineHeight: 1.4,
-    padding: '3px 4px',
+    padding: theme.spacing(0.5, 0.5),
   },
-})(TableCell);
+}))(TableCell);
 
 const useStyles = makeStyles<Theme>((theme) => ({
   paper: {
@@ -54,7 +53,7 @@ const useStyles = makeStyles<Theme>((theme) => ({
     alignItems: 'center',
   },
   actions: {
-    padding: theme.spacing(0.5),
+    padding: theme.spacing(1),
   },
   pagination: {
     marginLeft: 'auto',
@@ -215,7 +214,9 @@ const Listing = ({
 
         return (
           <BodyTableCell key={cellKey} align="left">
-            {getFormattedString(row) || ''}
+            <Typography variant="body2">
+              {getFormattedString(row) || ''}
+            </Typography>
           </BodyTableCell>
         );
       },
@@ -377,6 +378,7 @@ const Listing = ({
             maxHeight: tableMaxHeight(),
           }}
           elevation={1}
+          square
         >
           <Table size="small" stickyHeader>
             <ListingHeader
@@ -421,11 +423,12 @@ const Listing = ({
                         padding="checkbox"
                       >
                         <Checkbox
+                          size="small"
+                          color="primary"
                           checked={isRowSelected}
                           inputProps={{
                             'aria-label': `Select row ${row.id}`,
                           }}
-                          color="primary"
                         />
                       </BodyTableCell>
                     ) : null}
@@ -463,7 +466,7 @@ const useRowStyles = (rowColorConditions): (() => Record<string, string>) =>
       (rowColorConditionClasses, { name, color }) => ({
         ...rowColorConditionClasses,
         [name]: {
-          backgroundColor: fade(color, 0.2),
+          backgroundColor: color,
         },
       }),
       {},

@@ -66,8 +66,8 @@ const useStyles = makeStyles<Theme, Props>((theme) => ({
     ...getStatusColors({ theme, severityCode }),
     ...(!label && {
       borderRadius: theme.spacing(1.5),
-      height: theme.spacing(1.5),
       width: theme.spacing(1.5),
+      height: theme.spacing(1.5),
     }),
     '&:hover': { ...getStatusColors({ theme, severityCode }) },
   }),
