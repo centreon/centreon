@@ -28,7 +28,7 @@ module.exports = {
   rules: {
     'prettier/prettier': [
       'error',
-      { singleQuote: true, arrowParens: 'always', trailingComma: 'all' },
+      { singleQuote: true, arrowParens: 'always', trailingComma: 'all', endOfLine: 'auto' },
     ],
     'import/no-extraneous-dependencies': [
       'error',
