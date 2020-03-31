@@ -18,7 +18,7 @@ The configuration needs a cron definition to unsure that statistics collection w
 name: statistics
 package: "gorgone::modules::centreon::statistics::hooks"
 enable: false
-cache_dir: "/var/lib/centreon/broker-stats/"
+broker_cache_dir: "/var/lib/centreon/broker-stats/"
 cron:
   - id: broker_stats
     timespec: "*/5 * * * *"
