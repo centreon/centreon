@@ -531,6 +531,7 @@ sub putlog {
         dbh => $options{gorgone}->{db_gorgone}, 
         etime => $data->{etime},
         token => $data->{token},
+        instant => $data->{instant},
         data => json_encode(data => $data->{data}, logger => $options{logger}),
         code => $data->{code}
     );
@@ -621,14 +622,16 @@ sub add_history {
     
     my @names = ();
     my @values = ();
-    foreach (('data', 'token', 'ctime', 'etime', 'code')) {
+    foreach (('data', 'token', 'ctime', 'etime', 'code', 'instant')) {
         if (defined($options{$_})) {
             push @names, $_;
             push @values, $options{dbh}->quote($options{$_});
         }
     }
-    my ($status, $sth) = $options{dbh}->query("INSERT INTO gorgone_history (" . join(',', @names) . ") VALUES (" . 
-                 join(',', @values) . ")");
+    my ($status, $sth) = $options{dbh}->query(
+        "INSERT INTO gorgone_history (" . join(',', @names) . ") VALUES (" . 
+        join(',', @values) . ")"
+    );
     return $status;
 }
 
