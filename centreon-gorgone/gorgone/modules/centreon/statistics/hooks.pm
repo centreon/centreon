@@ -53,8 +53,9 @@ sub register {
     $config->{engine_stats_dir} = defined($config->{config}->{engine_stats_dir}) ?
         $config->{config}->{engine_stats_dir} : "/var/lib/centreon/nagios-perf/";
     
-    $config->{interval} = defined($config->{interval}) ? $config->{interval} : 60;
-    $config->{number} = 365 * 24 * 60 * 60 / $config->{interval};
+    $config->{interval} = defined($config->{interval}) ? $config->{interval} : 300;
+    $config->{length} = defined($config->{length}) ? $config->{length} : 365;
+    $config->{number} = $config->{length} * 24 * 60 * 60 / $config->{interval};
     $config->{heartbeat_factor} = defined($config->{heartbeat_factor}) ? $config->{heartbeat_factor} : 10;
     $config->{heartbeat} = $config->{interval} * $config->{heartbeat_factor};
 
