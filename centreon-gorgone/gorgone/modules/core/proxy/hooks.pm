@@ -484,6 +484,7 @@ sub setlogs {
             etime => $_->{etime}, 
             code => $_->{code}, 
             token => $_->{token},
+            instant => $_->{instant},
             data => $_->{data}
         );
         last if ($status == -1);
