@@ -105,6 +105,8 @@ sub cb_debug {
     my ($easy, $type, $data, $uservar) = @_;
 
     chomp $data;
+    $data =~ s/\r//mg;
+
     my $msg = '';
     if ($type == $uservar->{constant_cb}->(name => 'CURLINFO_TEXT')) {
         $msg = sprintf("== Info: %s", $data);
