@@ -31,11 +31,13 @@ use constant NAME => 'statistics';
 use constant EVENTS => [
     { event => 'STATISTICSREADY' },
     { event => 'BROKERSTATS', uri => '/broker', method => 'GET' },
+    { event => 'ENGINESTATS', uri => '/engine', method => 'GET' },
 ];
 
 my $config_core;
 my $config;
 my $config_db_centreon;
+my $config_db_centstorage;
 my $statistics = {};
 my $stop = 0;
 
@@ -45,7 +47,17 @@ sub register {
     $config = $options{config};
     $config_core = $options{config_core};
     $config_db_centreon = $options{config_db_centreon};
-    $config->{broker_cache_dir} = defined($config->{broker_cache_dir}) ? $config->{broker_cache_dir} : '/var/cache/centreon/broker-stats/';
+    $config_db_centstorage = $options{config_db_centstorage};
+    $config->{broker_cache_dir} = defined($config->{broker_cache_dir}) ?
+        $config->{broker_cache_dir} : '/var/cache/centreon/broker-stats/';
+    $config->{engine_stats_dir} = defined($config->{config}->{engine_stats_dir}) ?
+        $config->{config}->{engine_stats_dir} : "/var/lib/centreon/nagios-perf/";
+    
+    $config->{interval} = defined($config->{interval}) ? $config->{interval} : 60;
+    $config->{number} = 365 * 24 * 60 * 60 / $config->{interval};
+    $config->{heartbeat_factor} = defined($config->{heartbeat_factor}) ? $config->{heartbeat_factor} : 10;
+    $config->{heartbeat} = $config->{interval} * $config->{heartbeat_factor};
+
     return (1, NAMESPACE, NAME, EVENTS);
 }
 
@@ -160,6 +172,7 @@ sub create_child {
             config_core => $config_core,
             config => $config,
             config_db_centreon => $config_db_centreon,
+            config_db_centstorage => $config_db_centstorage,
         );
         $module->run();
         exit(0);

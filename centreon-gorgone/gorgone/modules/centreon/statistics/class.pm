@@ -31,6 +31,7 @@ use ZMQ::Constants qw(:all);
 use File::Path qw(make_path);
 use JSON::XS;
 use Time::HiRes;
+use RRDs;
 
 my $result;
 my %handlers = (TERM => {}, HUP => {});
@@ -46,6 +47,7 @@ sub new {
     $connector->{config} = $options{config};
     $connector->{config_core} = $options{config_core};
     $connector->{config_db_centreon} = $options{config_db_centreon};
+    $connector->{config_db_centstorage} = $options{config_db_centstorage};
     $connector->{stop} = 0;
 
     bless $connector, $class;
@@ -85,19 +87,37 @@ sub class_handle_HUP {
     }
 }
 
+sub get_pollers_config {
+    my ($self, %options) = @_;
+
+    my ($status, $data) = $self->{class_object_centreon}->custom_execute(
+        request => "SELECT id, nagiostats_bin, cfg_dir, cfg_file FROM cfg_nagios " .
+            "JOIN nagios_server " .
+            "WHERE ns_activate = '1' AND nagios_id = id",
+        mode => 1,
+        keys => 'id'
+    );
+    if ($status == -1) {
+        $self->{logger}->writeLogError('[engine] Cannot get Pollers configuration');
+        return -1;
+    }
+    
+    return $data;
+}
+
 sub get_broker_stats_collection_flag {
     my ($self, %options) = @_;
 
-    my ($status, $datas) = $self->{class_object_centreon}->custom_execute(
+    my ($status, $data) = $self->{class_object_centreon}->custom_execute(
         request => "SELECT `value` FROM options WHERE `key` = 'enable_broker_stats'",
         mode => 2
     );
-    if ($status == -1 || !defined($datas->[0][0])) {
+    if ($status == -1 || !defined($data->[0][0])) {
         $self->{logger}->writeLogError('[statistics] Cannot get Broker statistics collection flag');
         return -1;
     }
     
-    return $datas->[0][0];
+    return $data->[0][0];
 }
 
 sub action_brokerstats {
@@ -138,7 +158,7 @@ sub action_brokerstats {
         $request .= " AND localhost = '0'";
     }
 
-    my ($status, $datas) = $self->{class_object_centreon}->custom_execute(request => $request, mode => 2);
+    my ($status, $data) = $self->{class_object_centreon}->custom_execute(request => $request, mode => 2);
     if ($status == -1) {
         $self->send_log(
             code => gorgone::class::module::ACTION_FINISH_KO,
@@ -152,11 +172,11 @@ sub action_brokerstats {
     }
 
     my %targets;
-    foreach (@{$datas}) {
+    foreach (@{$data}) {
         my $target = $_->[0];
         my $statistics_file = $_->[1] . "/" . $_->[2] . "-stats.json";
         $self->{logger}->writeLogInfo(
-            "[statistics] Collecting file '" . $statistics_file . "' on target '" . $target . "'"
+            "[statistics] Collecting Broker statistics file '" . $statistics_file . "' from target '" . $target . "'"
         );
         $self->send_internal_action(
             target => $target,
@@ -170,6 +190,7 @@ sub action_brokerstats {
                         metadata => {
                             poller_id => $target,
                             config_name => $_->[2],
+                            source => 'brokerstats'
                         }
                     }
                 ]
@@ -208,6 +229,353 @@ sub action_brokerstats {
     return 0;
 }
 
+sub action_enginestats {
+    my ($self, %options) = @_;
+
+    $options{token} = $self->generate_token() if (!defined($options{token}));
+
+    $self->send_log(
+        code => gorgone::class::module::ACTION_BEGIN,
+        token => $options{token},
+        data => {
+            message => 'action enginestats starting'
+        }
+    );
+
+    my $pollers = $self->get_pollers_config();
+
+    foreach (keys %{$pollers}) {
+        my $target = $_;
+        my $enginestats_file = $pollers->{$_}->{nagiostats_bin};
+        my $config_file = $pollers->{$_}->{cfg_dir} . '/' . $pollers->{$_}->{cfg_file};
+        $self->{logger}->writeLogInfo(
+            "[statistics] Collecting Engine statistics from target '" . $target . "'"
+        );
+        $self->send_internal_action(
+            target => $target,
+            action => 'COMMAND',
+            token => $options{token},
+            data => {
+                content => [ 
+                    {
+                        command => $enginestats_file . ' -c ' . $config_file,
+                        timeout => $options{data}->{content}->{timeout},
+                        metadata => {
+                            poller_id => $target,
+                            source => 'enginestats'
+                        }
+                    }
+                ]
+            }
+        );
+    }
+    
+    my $wait = (defined($self->{config}->{command_wait})) ? $self->{config}->{command_wait} : 2_000_000;
+    Time::HiRes::usleep($wait);
+    
+    foreach my $target (keys %{$pollers}) {
+        $self->send_internal_action(
+            target => $target,
+            action => 'GETLOG',
+        );
+    }
+
+    $wait = (defined($self->{config}->{sync_wait})) ? $self->{config}->{sync_wait} : 2_000_000;
+    Time::HiRes::usleep($wait);
+
+    $self->send_log(
+        code => $self->ACTION_FINISH_OK,
+        token => $options{token},
+        data => {
+            message => 'action enginestats finished'
+        }
+    );
+    
+    $self->send_internal_action(
+        action => 'GETLOG',
+        data => {
+            token => $options{token}
+        }
+    );
+    return 0;
+}
+
+sub write_broker_stats {
+    my ($self, %options) = @_;
+
+    return if (!defined($options{data}->{result}->{exit_code}) || $options{data}->{result}->{exit_code} != 0 ||
+        !defined($options{data}->{metadata}->{poller_id}) || !defined($options{data}->{metadata}->{config_name}));
+
+    my $broker_cache_dir = $self->{config}->{broker_cache_dir} . '/' . $options{data}->{metadata}->{poller_id};
+    
+    if (! -d $broker_cache_dir ) {
+        if (make_path($broker_cache_dir) == 0) {
+            $self->{logger}->writeLogError("[statistics] Cannot create directory '" . $broker_cache_dir . "': $!");
+            return 1;
+        }
+    }
+
+    my $dest_file = $broker_cache_dir . '/' . $options{data}->{metadata}->{config_name} . '.json';
+    $self->{logger}->writeLogDebug("[statistics] Writing file '" . $dest_file . "'");
+    open(FH, '>', $dest_file);
+    print FH $options{data}->{result}->{stdout};
+    close(FH);
+
+    return 0
+}
+
+
+sub write_engine_stats {
+    my ($self, %options) = @_;
+
+    return if (!defined($options{data}->{result}->{exit_code}) || $options{data}->{result}->{exit_code} != 0 ||
+        !defined($options{data}->{metadata}->{poller_id}));
+
+    my $engine_stats_dir = $self->{config}->{engine_stats_dir} . '/perfmon-' . $options{data}->{metadata}->{poller_id};
+
+    if (! -d $engine_stats_dir ) {
+        if (make_path($engine_stats_dir) == 0) {
+            $self->{logger}->writeLogError("[statistics] Cannot create directory '" . $engine_stats_dir . "': $!");
+            return 1;
+        }
+    }
+
+    foreach (split(/\n/, $options{data}->{result}->{stdout})) {
+        if ($_ =~ /Used\/High\/Total Command Buffers:\s*([0-9\.]*)\ \/\ ([0-9\.]*)\ \/\ ([0-9\.]*)/) {
+            my $dest_file = $engine_stats_dir . '/nagios_cmd_buffer.rrd';
+            $self->{logger}->writeLogDebug("[statistics] Writing in file '" . $dest_file . "'");
+            if (!-e $dest_file) {
+                next if ($self->rrd_create(
+                    file => $dest_file,
+                    heartbeat => $self->{config}->{heartbeat},
+                    interval => $self->{config}->{interval},
+                    number => $self->{config}->{number},
+                    ds => [ "In_Use", "Max_Used", "Total_Available" ]
+                ));
+            }
+            $self->rrd_update(
+                file => $dest_file,
+                ds => [ "In_Use", "Max_Used", "Total_Available" ],
+                values => [ $1, $2 , $3 ]
+            );
+        } elsif ($_ =~ /Active Service Latency:\s*([0-9\.]*)\ \/\ ([0-9\.]*)\ \/\ ([0-9\.]*)\ sec/) {
+            my $status = $self->{class_object_centstorage}->custom_execute(
+                request => "DELETE FROM `nagios_stats` WHERE instance_id = '" . $options{data}->{metadata}->{poller_id} . "'"
+            );
+            if ($status == -1) {
+                $self->{logger}->writeLogError("[statistics] Failed to delete statistics in 'nagios_stats table'");
+            } else {
+                my $status = $self->{class_object_centstorage}->custom_execute(
+                    request => "INSERT INTO `nagios_stats` (instance_id, stat_label, stat_key, stat_value) VALUES " .
+                        "('$options{data}->{metadata}->{poller_id}', 'Service Check Latency', 'Min', '$1'), " .
+                        "('$options{data}->{metadata}->{poller_id}', 'Service Check Latency', 'Max', '$2'), " .
+                        "('$options{data}->{metadata}->{poller_id}', 'Service Check Latency', 'Average', '$3')"
+                );
+                if ($status == -1) {
+                    $self->{logger}->writeLogError("[statistics] Failed to add statistics in 'nagios_stats table'");
+                }
+            }
+
+            my $dest_file = $engine_stats_dir . '/nagios_active_service_latency.rrd';
+            $self->{logger}->writeLogDebug("[statistics] Writing in file '" . $dest_file . "'");
+            if (!-e $dest_file) {
+                next if ($self->rrd_create(
+                    file => $dest_file,
+                    heartbeat => $self->{config}->{heartbeat},
+                    interval => $self->{config}->{interval},
+                    number => $self->{config}->{number},
+                    ds => [ "Min", "Max", "Average" ]
+                ));
+            }
+            $self->rrd_update(
+                file => $dest_file,
+                ds => [ "Min", "Max", "Average" ],
+                values => [ $1, $2 , $3 ]
+            );
+        } elsif ($_ =~ /Active Service Execution Time:\s*([0-9\.]*)\ \/\ ([0-9\.]*)\ \/\ ([0-9\.]*)\ sec/) {
+            my $dest_file = $engine_stats_dir . '/nagios_active_service_execution.rrd';
+            $self->{logger}->writeLogDebug("[statistics] Writing in file '" . $dest_file . "'");
+            if (!-e $dest_file) {
+                next if ($self->rrd_create(
+                    file => $dest_file,
+                    heartbeat => $self->{config}->{heartbeat},
+                    interval => $self->{config}->{interval},
+                    number => $self->{config}->{number},
+                    ds => [ "Min", "Max", "Average" ]
+                ));
+            }
+            $self->rrd_update(
+                file => $dest_file,
+                ds => [ "Min", "Max", "Average" ],
+                values => [ $1, $2 , $3 ]
+            );
+        } elsif ($_ =~ /Active Services Last 1\/5\/15\/60 min:\s*([0-9\.]*)\ \/\ ([0-9\.]*)\ \/\ ([0-9\.]*)\ \/\ ([0-9\.]*)/) {
+            my $dest_file = $engine_stats_dir . '/nagios_active_service_last.rrd';
+            $self->{logger}->writeLogDebug("[statistics] Writing in file '" . $dest_file . "'");
+            if (!-e $dest_file) {
+                next if ($self->rrd_create(
+                    file => $dest_file,
+                    heartbeat => $self->{config}->{heartbeat},
+                    interval => $self->{config}->{interval},
+                    number => $self->{config}->{number},
+                    ds => [ "Last_Min", "Last_5_Min", "Last_15_Min", "Last_Hour" ]
+                ));
+            }
+            $self->rrd_update(
+                file => $dest_file,
+                ds => [ "Last_Min", "Last_5_Min", "Last_15_Min", "Last_Hour" ],
+                values => [ $1, $2 , $3, $4 ]
+            );
+        } elsif ($_ =~ /Services Ok\/Warn\/Unk\/Crit:\s*([0-9\.]*)\ \/\ ([0-9\.]*)\ \/\ ([0-9\.]*)\ \/\ ([0-9\.]*)/) {
+            my $dest_file = $engine_stats_dir . '/nagios_services_states.rrd';
+            $self->{logger}->writeLogDebug("[statistics] Writing in file '" . $dest_file . "'");
+            if (!-e $dest_file) {
+                next if ($self->rrd_create(
+                    file => $dest_file,
+                    heartbeat => $self->{config}->{heartbeat},
+                    interval => $self->{config}->{interval},
+                    number => $self->{config}->{number},
+                    ds => [ "Ok", "Warn", "Unk", "Crit" ]
+                ));
+            }
+            $self->rrd_update(
+                file => $dest_file,
+                ds => [ "Ok", "Warn", "Unk", "Crit" ],
+                values => [ $1, $2 , $3, $4 ]
+            );
+        } elsif ($_ =~ /Active Host Latency:\s*([0-9\.]*)\ \/\ ([0-9\.]*)\ \/\ ([0-9\.]*)\ sec/) {
+            my $dest_file = $engine_stats_dir . '/nagios_active_host_latency.rrd';
+            $self->{logger}->writeLogDebug("[statistics] Writing in file '" . $dest_file . "'");
+            if (!-e $dest_file) {
+                next if ($self->rrd_create(
+                    file => $dest_file,
+                    heartbeat => $self->{config}->{heartbeat},
+                    interval => $self->{config}->{interval},
+                    number => $self->{config}->{number},
+                    ds => [ "Min", "Max", "Average" ]
+                ));
+            }
+            $self->rrd_update(
+                file => $dest_file,
+                ds => [ "Min", "Max", "Average" ],
+                values => [ $1, $2 , $3 ]
+            );
+        } elsif ($_ =~ /Active Host Execution Time:\s*([0-9\.]*)\ \/\ ([0-9\.]*)\ \/\ ([0-9\.]*)\ sec/) {
+            my $dest_file = $engine_stats_dir . '/nagios_active_host_execution.rrd';
+            $self->{logger}->writeLogDebug("[statistics] Writing in file '" . $dest_file . "'");
+            if (!-e $dest_file) {
+                next if ($self->rrd_create(
+                    file => $dest_file,
+                    heartbeat => $self->{config}->{heartbeat},
+                    interval => $self->{config}->{interval},
+                    number => $self->{config}->{number},
+                    ds => [ "Min", "Max", "Average" ]
+                ));
+            }
+            $self->rrd_update(
+                file => $dest_file,
+                ds => [ "Min", "Max", "Average" ],
+                values => [ $1, $2 , $3 ]
+            );
+        } elsif ($_ =~ /Active Hosts Last 1\/5\/15\/60 min:\s*([0-9\.]*)\ \/\ ([0-9\.]*)\ \/\ ([0-9\.]*)\ \/\ ([0-9\.]*)/) {
+            my $dest_file = $engine_stats_dir . '/nagios_active_host_last.rrd';
+            $self->{logger}->writeLogDebug("[statistics] Writing in file '" . $dest_file . "'");
+            if (!-e $dest_file) {
+                next if ($self->rrd_create(
+                    file => $dest_file,
+                    heartbeat => $self->{config}->{heartbeat},
+                    interval => $self->{config}->{interval},
+                    number => $self->{config}->{number},
+                    ds => [ "Last_Min", "Last_5_Min", "Last_15_Min", "Last_Hour" ]
+                ));
+            }
+            $self->rrd_update(
+                file => $dest_file,
+                ds => [ "Last_Min", "Last_5_Min", "Last_15_Min", "Last_Hour" ],
+                values => [ $1, $2 , $3, $4 ]
+            );
+        } elsif ($_ =~ /Hosts Up\/Down\/Unreach:\s*([0-9\.]*)\ \/\ ([0-9\.]*)\ \/\ ([0-9\.]*)/) {
+            my $dest_file = $engine_stats_dir . '/nagios_hosts_states.rrd';
+            $self->{logger}->writeLogDebug("[statistics] Writing in file '" . $dest_file . "'");
+            if (!-e $dest_file) {
+                next if ($self->rrd_create(
+                    file => $dest_file,
+                    heartbeat => $self->{config}->{heartbeat},
+                    interval => $self->{config}->{interval},
+                    number => $self->{config}->{number},
+                    ds => [ "Up", "Down", "Unreach" ]
+                ));
+            }
+            $self->rrd_update(
+                file => $dest_file,
+                ds => [ "Up", "Down", "Unreach" ],
+                values => [ $1, $2 , $3 ]
+            );
+        }
+    }
+}
+
+sub rrd_create {
+    my ($self, %options) = @_;
+
+    my @ds;
+    foreach my $ds (@{$options{ds}}) {
+        push @ds, "DS:" . $ds . ":GAUGE:" . $options{interval} . ":0:U";
+    }
+    
+    RRDs::create(
+        $options{file},
+        "-s" . $options{interval},
+        @ds,
+        "RRA:AVERAGE:0.5:1:" . $options{number},
+        "RRA:AVERAGE:0.5:12:" . $options{number}
+    );
+    if (RRDs::error()) {
+        my $error = RRDs::error();
+        $self->{logger}->writeLogError("[statistics] Error creating RRD file '" . $options{file} . "': " . $error);
+        return 1
+    }
+    
+    foreach my $ds (@{$options{ds}}) {
+        RRDs::tune($options{file}, "-h",  $ds . ":" . $options{heartbeat});
+        if (RRDs::error()) {
+            my $error = RRDs::error();
+            $self->{logger}->writeLogError("[statistics] Error tuning RRD file '" . $options{file} . "': " . $error);
+            return 1
+        }
+    }
+
+    return 0;
+}
+
+sub rrd_update {
+    my ($self, %options) = @_;
+
+    my $append = '';
+    my $ds;
+    foreach (@{$options{ds}}) {
+        $ds .= $append . $_;
+        $append = ':';
+    }
+    my $values;
+    foreach (@{$options{values}}) {
+        $values .= $append . $_;
+    }
+    RRDs::update(
+        $options{file},
+        "--template",
+        $ds,
+        "N" . $values
+    );
+    if (RRDs::error()) {
+        my $error = RRDs::error();
+        $self->{logger}->writeLogError("[statistics] Error updating RRD file '" . $options{file} . "': " . $error);
+        return 1
+    }
+    
+    return 0;
+}
+
 sub write_stats {
     my ($self, %options) = @_;
 
@@ -216,16 +584,14 @@ sub write_stats {
 
     foreach my $entry (@{$options{data}->{data}->{result}}) {
         my $data = JSON::XS->new->utf8->decode($entry->{data});
-        next if (!defined($data->{result}->{exit_code}) || $data->{result}->{exit_code} != 0 ||
-            !defined($data->{metadata}->{poller_id}) || !defined($data->{metadata}->{config_name}));
-
-        my $dest_dir = $self->{config}->{cache_dir} . '/' . $data->{metadata}->{poller_id};
-        make_path($dest_dir) if (! -d $dest_dir);
-        my $dest_file = $dest_dir . '/' . $data->{metadata}->{config_name} . '.json';
-        $self->{logger}->writeLogDebug("[statistics] Writing file '" . $dest_file . "'");
-        open(FH, '>', $dest_file);
-        print FH $data->{result}->{stdout};
-        close(FH);
+        
+        if (defined($data->{metadata}->{source})) {
+            if ($data->{metadata}->{source} eq "brokerstats") {
+                $self->write_broker_stats(data => $data);
+            } elsif ($data->{metadata}->{source} eq "enginestats") {
+                $self->write_engine_stats(data => $data);
+            }
+        }
     }
 }
 
@@ -279,6 +645,18 @@ sub run {
     $self->{class_object_centreon} = gorgone::class::sqlquery->new(
         logger => $self->{logger},
         db_centreon => $self->{db_centreon}
+    );
+
+    $self->{db_centstorage} = gorgone::class::db->new(
+        dsn => $self->{config_db_centstorage}->{dsn},
+        user => $self->{config_db_centstorage}->{username},
+        password => $self->{config_db_centstorage}->{password},
+        force => 2,
+        logger => $self->{logger}
+    );
+    $self->{class_object_centstorage} = gorgone::class::sqlquery->new(
+        logger => $self->{logger},
+        db_centreon => $self->{db_centstorage}
     );
 
     $self->{poll} = [
