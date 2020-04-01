@@ -59,7 +59,7 @@ sub send_log {
         socket => (defined($options{socket})) ? $options{socket} : $self->{internal_socket},
         action => 'PUTLOG',
         token => $options{token},
-        data => { code => $options{code}, etime => time(), token => $options{token}, data => $options{data} },
+        data => { code => $options{code}, etime => time(), instant => $options{instant}, token => $options{token}, data => $options{data} },
         json_encode => 1
     );
 }
