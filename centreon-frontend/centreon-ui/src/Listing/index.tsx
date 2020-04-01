@@ -389,7 +389,7 @@ const Listing = ({
               onSelectAllClick={selectAllRows}
               onRequestSort={handleRequestSort}
               rowCount={limit - emptyRows}
-              headRows={columnConfiguration}
+              headColumns={columnConfiguration}
             />
 
             <TableBody

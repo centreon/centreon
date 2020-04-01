@@ -12,16 +12,27 @@ describe('Table', () => {
   const columnConfiguration = [
     {
       id: 'name',
+      label: 'name',
       type: ColumnTypes.string,
       getFormattedString: ({ name }) => name,
+      sortable: true,
+    },
+    {
+      id: 'description',
+      label: 'description',
+      type: ColumnTypes.string,
+      getFormattedString: ({ description }) => description,
+      sortable: true,
+      sortField: 'descriptionField',
     },
   ];
 
   const tableData = [
-    { id: 0, name: 'My First Row' },
-    { id: 1, name: 'My Second Row' },
+    { id: 0, name: 'My First Row', description: 'first row description' },
+    { id: 1, name: 'My Second Row', description: 'second row description' },
   ];
   const onSelectRows = jest.fn();
+  const onSort = jest.fn();
 
   it('selects a row when the corresponding checkbox is clicked', () => {
     const { container } = render(
@@ -96,5 +107,43 @@ describe('Table', () => {
     fireEvent.click(selectAllCheckbox);
 
     expect(onSelectRows).toHaveBeenCalledWith([]);
+  });
+
+  it('sorts on on column id when the column header is clicked and sortField is not defined', () => {
+    const columnWithoutSortField = columnConfiguration[0];
+
+    const { getByLabelText } = render(
+      <Table
+        onSort={onSort}
+        columnConfiguration={columnConfiguration}
+        tableData={tableData}
+      />,
+    );
+
+    fireEvent.click(getByLabelText(`Column ${columnWithoutSortField.label}`));
+
+    expect(onSort).toHaveBeenCalledWith({
+      order: 'desc',
+      orderBy: columnWithoutSortField.id,
+    });
+  });
+
+  it('sorts on on column sortField when the column header is clicked and sortField is defined', () => {
+    const columnWithSortField = columnConfiguration[1];
+
+    const { getByLabelText } = render(
+      <Table
+        onSort={onSort}
+        columnConfiguration={columnConfiguration}
+        tableData={tableData}
+      />,
+    );
+
+    fireEvent.click(getByLabelText(`Column ${columnWithSortField.label}`));
+
+    expect(onSort).toHaveBeenCalledWith({
+      order: 'desc',
+      orderBy: columnWithSortField.sortField,
+    });
   });
 });

@@ -29,7 +29,7 @@ interface Props {
   orderBy?: string;
   numSelected: number;
   rowCount: number;
-  headRows;
+  headColumns;
   checkable: boolean;
   onRequestSort: (event, property) => void;
 }
@@ -40,13 +40,15 @@ const ListingHeader = ({
   orderBy,
   numSelected,
   rowCount,
-  headRows,
+  headColumns,
   checkable,
   onRequestSort,
 }: Props): JSX.Element => {
   const createSortHandler = (property) => (event): void => {
     onRequestSort(event, property);
   };
+
+  const getSortField = (column): string => column.sortField || column.id;
 
   return (
     <TableHead>
@@ -64,22 +66,27 @@ const ListingHeader = ({
           </HeaderCell>
         ) : null}
 
-        {headRows.map((row) => (
+        {headColumns.map((column) => (
           <HeaderCell
-            key={row.id}
-            align={row.numeric ? 'left' : 'inherit'}
-            padding={row.disablePadding ? 'none' : 'default'}
-            sortDirection={orderBy === row.id ? order : false}
+            key={column.id}
+            align={column.numeric ? 'left' : 'inherit'}
+            padding={column.disablePadding ? 'none' : 'default'}
+            sortDirection={orderBy === column.id ? order : false}
           >
-            {row.sortable === false ? (
-              <HeaderTypography variant="body2">{row.label}</HeaderTypography>
+            {column.sortable === false ? (
+              <HeaderTypography variant="body2">
+                {column.label}
+              </HeaderTypography>
             ) : (
               <TableSortLabel
-                active={orderBy === row.id}
+                aria-label={`Column ${column.label}`}
+                active={orderBy === getSortField(column)}
                 direction={order || 'desc'}
-                onClick={createSortHandler(row.id)}
+                onClick={createSortHandler(getSortField(column))}
               >
-                <HeaderTypography variant="body2">{row.label}</HeaderTypography>
+                <HeaderTypography variant="body2">
+                  {column.label}
+                </HeaderTypography>
               </TableSortLabel>
             )}
           </HeaderCell>
