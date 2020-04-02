@@ -594,7 +594,6 @@ sub action_centreoncommand {
 
     if (!defined($options{data}->{content}) || ref($options{data}->{content}) ne 'ARRAY') {
         $self->send_log(
-            socket => $options{socket_log},
             code => $self->ACTION_FINISH_KO,
             token => $options{token},
             data => {
