@@ -178,6 +178,7 @@ sub action_brokerstats {
         $self->{logger}->writeLogInfo(
             "[statistics] Collecting Broker statistics file '" . $statistics_file . "' from target '" . $target . "'"
         );
+        
         $self->send_internal_action(
             target => $target,
             action => 'COMMAND',
@@ -185,6 +186,7 @@ sub action_brokerstats {
             data => {
                 content => [ 
                     {
+                        instant => 1,
                         command => 'cat ' . $statistics_file,
                         timeout => $options{data}->{content}->{timeout},
                         metadata => {
@@ -258,6 +260,7 @@ sub action_enginestats {
             data => {
                 content => [ 
                     {
+                        instant => 1,
                         command => $enginestats_file . ' -c ' . $config_file,
                         timeout => $options{data}->{content}->{timeout},
                         metadata => {

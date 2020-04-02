@@ -191,6 +191,7 @@ sub action_command {
                 socket => $options{socket_log},
                 code => $self->ACTION_FINISH_OK,
                 token => $options{token},
+                instant => $command->{instant},
                 data => {
                     message => "command has finished successfully",
                     command => $command->{command},

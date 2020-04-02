@@ -235,7 +235,7 @@ sub event {
             $connectors->{$options{identity}}->{symkey} = $symkey;
             $connectors->{$options{identity}}->{handshake} = 2;
             if (defined($connectors->{$options{identity}}->{logger})) {
-                $connectors->{$options{identity}}->{logger}->writeLogInfo("Client connected successfuly to '" . $connectors->{$options{identity}}->{target_type} . '//' . $connectors->{$options{identity}}->{target_path});
+                $connectors->{$options{identity}}->{logger}->writeLogInfo("[zmqclient] Client connected successfuly to '" . $connectors->{$options{identity}}->{target_type} . "//" . $connectors->{$options{identity}}->{target_path} . "'");
             }
         } else {
             my ($status, $data) = gorgone::standard::library::uncrypt_message(

@@ -273,6 +273,7 @@ sub proxy_ssh {
                 $self->send_log(
                     code => $_->{code},
                     token => $options{token},
+                    instant => $_->{instant},
                     data => $_->{data}
                 );
             }

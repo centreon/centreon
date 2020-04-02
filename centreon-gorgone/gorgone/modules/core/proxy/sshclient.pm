@@ -202,6 +202,7 @@ sub action_command {
             my $end = time();
 
             $data = {
+                instant => $command->{instant},
                 data => {
                     command => $command->{command},
                     metadata => $command->{metadata},
