@@ -212,10 +212,14 @@ const Listing = ({
 
     const cellByColumnType = {
       [TABLE_COLUMN_TYPES.string]: (): JSX.Element => {
-        const { getFormattedString } = column;
+        const { getFormattedString, width } = column;
 
         return (
-          <BodyTableCell key={cellKey} align="left">
+          <BodyTableCell
+            key={cellKey}
+            align="left"
+            style={{ width: width || 'auto' }}
+          >
             <Typography variant="body2">
               {getFormattedString(row) || ''}
             </Typography>

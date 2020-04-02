@@ -13,7 +13,9 @@ import {
 const HeaderCell = withStyles((theme) => ({
   root: {
     backgroundColor: theme.palette.common.white,
-    padding: theme.spacing(1),
+    paddingBottom: theme.spacing(1),
+    paddingTop: theme.spacing(1),
+    paddingLeft: 0,
   },
 }))(TableCell);
 
