@@ -77,6 +77,7 @@ const cumulativeOffset = (element): number => {
 
 interface Props {
   checkable?: boolean;
+  disableRowCheckCondition?;
   currentPage?;
   columnConfiguration;
   emptyDataMessage?: string;
@@ -115,6 +116,7 @@ const Listing = ({
   currentPage = 0,
   totalRows = 0,
   checkable = false,
+  disableRowCheckCondition = (): boolean => false,
   emptyDataMessage = 'No results found',
   rowColorConditions = [],
   labelDelete = 'Delete',
@@ -429,6 +431,7 @@ const Listing = ({
                           inputProps={{
                             'aria-label': `Select row ${row.id}`,
                           }}
+                          disabled={disableRowCheckCondition(row)}
                         />
                       </BodyTableCell>
                     ) : null}

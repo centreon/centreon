@@ -62,6 +62,7 @@ const listing = [...tenElements].map((_, index) => ({
   description: `Entity ${index}`,
   active: index % 2 === 0,
   selected: index % 3 === 0,
+  disableCheckbox: index % 4 === 0,
 }));
 
 const rowColorConditions = [
@@ -91,6 +92,7 @@ const Story = (props): JSX.Element => {
         rowColorConditions={rowColorConditions}
         selectedRows={listing.filter((row) => row.selected)}
         checkable
+        disableRowCheckCondition={(row): boolean => row.disableCheckbox}
         {...props}
       />
     </div>
