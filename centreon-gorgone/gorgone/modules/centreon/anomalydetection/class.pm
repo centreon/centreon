@@ -543,13 +543,14 @@ sub saas_get_predicts {
 
     foreach (keys %$engine_reload) {
         my $poller = $self->get_poller(instance => $_);
-        $self->{logger}->writeLogDebug('[anomalydetection] -class- reload process centengine ' . $_);
+        $self->{logger}->writeLogDebug('[anomalydetection] -class- send engine threshold file external command ' . $_);
         $self->send_internal_action(
-            action => 'COMMAND',
-            target => $_,
+            action => 'CENTREONCOMMAND',
             token => $options{token},
             data => {
-                content => [ { command => 'sudo ' . $poller->{engine_reload_command} } ]
+                content => [
+                    { target => $_, command => 'EXTERNALCMD', param => '[' . time() . '] NEW_THRESHOLDS_FILE;' . $poller->{cfg_dir} . '/anomaly/' . $_ . '.json' }
+                ]
             }
         );
     }

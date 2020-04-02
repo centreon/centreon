@@ -163,6 +163,8 @@ sub execute_cmd {
 
     chomp $options{target};
     chomp $options{param} if (defined($options{param}));
+    my $token = $options{token};
+    $token = $self->generate_token() if (!defined($token));
 
     my $msg = "[legacycmd] Handling command '" . $options{cmd} . "'";
     $msg .= ", Target: '" . $options{target} . "'" if (defined($options{target}));
@@ -175,7 +177,7 @@ sub execute_cmd {
         $self->send_internal_action(
             action => 'ENGINECOMMAND',
             target => $options{target},
-            token => $self->generate_token(),
+            token => $token,
             data => {
                 content => {
                     command_file => $self->{pollers}->{$options{target}}->{command_file},
@@ -192,7 +194,7 @@ sub execute_cmd {
         $self->send_internal_action(
             action => 'REMOTECOPY',
             target => $options{target},
-            token => $self->generate_token(),
+            token => $token,
             data => {
                 content => {
                     source => $cache_dir . '/config/engine/' . $options{target},
@@ -210,7 +212,7 @@ sub execute_cmd {
         $self->send_internal_action(
             action => 'REMOTECOPY',
             target => $options{target},
-            token => $self->generate_token(),
+            token => $token,
             data => {
                 content => {
                     source => $cache_dir . '/config/broker/' . $options{target},
@@ -234,7 +236,7 @@ sub execute_cmd {
         $self->send_internal_action(
             action => 'REMOTECOPY',
             target => $options{target},
-            token => $self->generate_token(),
+            token => $token,
             data => {
                 content => {
                     source => $cache_dir . '/config/export/' . $options{target},
@@ -257,7 +259,7 @@ sub execute_cmd {
         $self->send_internal_action(
             action => 'COMMAND',
             target => undef,
-            token => $self->generate_token(),
+            token => $token,
             data => {
                 content => [
                     {
@@ -278,7 +280,7 @@ sub execute_cmd {
         $self->send_internal_action(
             action => 'REMOTECOPY',
             target => $options{target},
-            token => $self->generate_token(),
+            token => $token,
             data => {
                 content => {
                     source => $cache_dir_trap . '/' . $options{target} . '/centreontrapd.sdb',
@@ -298,7 +300,7 @@ sub execute_cmd {
         $self->send_internal_action(
             action => 'COMMAND',
             target => $options{target},
-            token => $self->generate_token(),
+            token => $token,
             data => {
                 content => [
                     {
@@ -316,7 +318,7 @@ sub execute_cmd {
         $self->send_internal_action(
             action => 'COMMAND',
             target => $options{target},
-            token => $self->generate_token(),
+            token => $token,
             data => {
                 content => [
                     {
@@ -334,7 +336,7 @@ sub execute_cmd {
         $self->send_internal_action(
             action => 'COMMAND',
             target => $options{target},
-            token => $self->generate_token(),
+            token => $token,
             data => {
                 content => [
                     {
@@ -352,7 +354,7 @@ sub execute_cmd {
         $self->send_internal_action(
             action => 'COMMAND',
             target => $options{target},
-            token => $self->generate_token(),
+            token => $token,
             data => {
                 content => [
                     {
@@ -370,7 +372,7 @@ sub execute_cmd {
         $self->send_internal_action(
             action => 'COMMAND',
             target => $options{target},
-            token => $self->generate_token(),
+            token => $token,
             data => {
                 content => [
                     {
@@ -388,7 +390,7 @@ sub execute_cmd {
         $self->send_internal_action(
             action => 'COMMAND',
             target => $options{target},
-            token => $self->generate_token(),
+            token => $token,
             data => {
                 content => [
                     {
@@ -406,7 +408,7 @@ sub execute_cmd {
         $self->send_internal_action(
             action => 'COMMAND',
             target => $options{target},
-            token => $self->generate_token(),
+            token => $token,
             data => {
                 content => [
                     {
@@ -427,7 +429,7 @@ sub execute_cmd {
         $self->send_internal_action(
             action => 'COMMAND',
             target => undef,
-            token => $self->generate_token(),
+            token => $token,
             data => {
                 content => [
                     {
@@ -448,7 +450,7 @@ sub execute_cmd {
         $self->send_internal_action(
             action => 'COMMAND',
             target => undef,
-            token => $self->generate_token(),
+            token => $token,
             data => {
                 content => [
                     {
@@ -574,10 +576,54 @@ sub handle_centcore_dir {
 sub handle_cmd_files {
     my ($self, %options) = @_;
 
-    return if ($self->get_pollers_config() == -1  || $self->get_clapi_user() == -1 ||
-        $self->get_illegal_characters() == -1);
+    return if (
+        $self->get_pollers_config() == -1  || 
+        $self->get_clapi_user() == -1 ||
+        $self->get_illegal_characters() == -1
+    );
     $self->handle_centcore_cmd();
     $self->handle_centcore_dir();
+}
+
+sub action_centreoncommand {
+    my ($self, %options) = @_;
+
+    $self->{logger}->writeLogDebug('[legacycmd] -class- start centreoncommand');
+    $options{token} = $self->generate_token() if (!defined($options{token}));
+    $self->send_log(code => gorgone::class::module::ACTION_BEGIN, token => $options{token}, data => { message => 'action centreoncommand proceed' });
+
+    if (!defined($options{data}->{content}) || ref($options{data}->{content}) ne 'ARRAY') {
+        $self->send_log(
+            socket => $options{socket_log},
+            code => $self->ACTION_FINISH_KO,
+            token => $options{token},
+            data => {
+                message => "expected array, found '" . ref($options{data}->{content}) . "'",
+            }
+        );
+        return -1;
+    }
+
+    if (
+        $self->get_pollers_config() == -1  || 
+        $self->get_clapi_user() == -1 ||
+        $self->get_illegal_characters() == -1
+    ) {
+        $self->send_log(code => gorgone::class::module::ACTION_FINISH_KO, token => $options{token}, data => { message => 'cannot get centreon database configuration' });
+        return 1;
+    }
+
+    foreach my $command (@{$options{data}->{content}}) {
+        $self->execute_cmd(
+            token => $options{token},
+            target => $command->{target},
+            cmd => $command->{command},
+            param => $command->{param}
+        );
+    }
+
+    $self->{logger}->writeLogDebug('[legacycmd] -class- finish centreoncommand');
+    return 0;
 }
 
 sub event {

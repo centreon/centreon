@@ -29,7 +29,8 @@ use JSON::XS;
 use constant NAMESPACE => 'centreon';
 use constant NAME => 'legacycmd';
 use constant EVENTS => [
-    { event => 'LEGACYCMDREADY' },
+    { event => 'CENTREONCOMMAND', uri => '/command', method => 'POST' },
+    { event => 'LEGACYCMDREADY' }
 ];
 
 my $config_core;
