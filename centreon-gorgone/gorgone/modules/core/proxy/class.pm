@@ -260,7 +260,7 @@ sub proxy_ssh {
     }
 
     my $retry = 1; # manage server disconnected
-    do {
+    while ($retry >= 0) {
         my ($status, $data_ret) = $self->{clients}->{ $options{target_client} }->{class}->action(
             action => $options{action},
             data => $decoded_data,
@@ -300,7 +300,7 @@ sub proxy_ssh {
         last if ($self->{clients}->{ $options{target_client} }->{class}->is_connected() != 0);
         $self->{clients}->{ $options{target_client} }->{class}->test_connection();
         $retry--;
-    } while ($retry);
+    }
 }
 
 sub proxy {
