@@ -48,7 +48,8 @@
     "react-dom": "^16.11.0",
     "react-files": "^2.4.8",
     "react-router-dom": "^5.1.2",
-    "resize-observer-polyfill": "^1.5.1"
+    "resize-observer-polyfill": "^1.5.1",
+    "use-debounce": "^3.4.1"
   },
   "devDependencies": {
     "@babel/cli": "^7.8.4",

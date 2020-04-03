@@ -18,7 +18,7 @@ const DescriptionContent = ({ date, title, text, note, link }) => (
       <p className={clsx(styles['content-description-text'])}>
         {text.split('\n').map((i) => {
           return (
-            <span>
+            <span key={i}>
               {i}
               <br />
             </span>

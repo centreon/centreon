@@ -133,6 +133,7 @@ class FileUpload extends Component {
                   {!uploadStatus ? (
                     files.map((file, idx) => (
                       <FileUploadItem
+                        key={file.name}
                         icon={file.extension === 'zip' ? 'zip' : 'file'}
                         iconStatus={uploading ? 'percentage' : 'warning'}
                         title={file.name}
@@ -153,6 +154,7 @@ class FileUpload extends Component {
                     <>
                       {uploadStatus.result.successed.map(({ license }) => (
                         <FileUploadItem
+                          key={license}
                           icon="file"
                           iconStatus="success"
                           title={license}
@@ -166,6 +168,7 @@ class FileUpload extends Component {
                       {uploadStatus.result.errors.map(
                         ({ license, message }) => (
                           <FileUploadItem
+                            key={license}
                             icon="file"
                             iconStatus="error"
                             title={license}

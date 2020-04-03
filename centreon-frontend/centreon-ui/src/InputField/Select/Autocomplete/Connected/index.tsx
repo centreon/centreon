@@ -1,4 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import * as React from 'react';
+
+import { useDebouncedCallback } from 'use-debounce';
 
 import AutocompleteField, { Props as AutocompleteFieldProps } from '..';
 import useCancelTokenSource from '../../../../api/useCancelTokenSource';
@@ -17,9 +19,10 @@ const ConnectedAutocompleteField = <TData extends Record<string, unknown>>({
   getOptionsFromResult,
   ...props
 }: Props & Omit<AutocompleteFieldProps, 'options'>): JSX.Element => {
-  const [options, setOptions] = useState<Array<SelectEntry>>();
-  const [open, setOpen] = useState(false);
-  const [loading, setLoading] = useState(true);
+  const [options, setOptions] = React.useState<Array<SelectEntry>>();
+  const [open, setOpen] = React.useState(false);
+  const [loading, setLoading] = React.useState(true);
+  const [searchValue, setSearchValue] = React.useState('');
 
   const { token, cancel } = useCancelTokenSource();
 
@@ -36,8 +39,13 @@ const ConnectedAutocompleteField = <TData extends Record<string, unknown>>({
       .finally(() => setLoading(false));
   };
 
+  const [debouncedChangeText] = useDebouncedCallback((value: string) => {
+    loadOptions(getSearchEndpoint(value));
+  }, 500);
+
   const changeText = (event): void => {
-    loadOptions(getSearchEndpoint(event.target.value));
+    setSearchValue(event.target.value);
+    debouncedChangeText(event.target.value);
   };
 
   const doOpen = (): void => {
@@ -48,12 +56,13 @@ const ConnectedAutocompleteField = <TData extends Record<string, unknown>>({
     setOpen(false);
   };
 
-  useEffect(() => {
+  React.useEffect(() => {
     return (): void => cancel();
   }, []);
 
-  useEffect(() => {
+  React.useEffect(() => {
     if (!open) {
+      setSearchValue('');
       return;
     }
 
@@ -67,6 +76,7 @@ const ConnectedAutocompleteField = <TData extends Record<string, unknown>>({
       options={options || []}
       onTextChange={changeText}
       loading={loading}
+      inputValue={searchValue}
       {...props}
     />
   );

@@ -83,6 +83,7 @@ class ExtensionsHolder extends React.Component {
             {entities.map((entity) => {
               return (
                 <div
+                  key={entity.id}
                   id={`${type}-${entity.id}`}
                   onClick={() => {
                     onCardClicked(entity.id, type);

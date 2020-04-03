@@ -70,7 +70,7 @@ class SliderContent extends Component {
       const defaultImage =
         type === 'widget' ? defaultImageWidget : defaultImageModule;
 
-      return [<ContentSliderItem image={defaultImage} isActive />];
+      return [<ContentSliderItem key={0} image={defaultImage} isActive />];
     }
 
     return slides;
