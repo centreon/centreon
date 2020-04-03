@@ -56,18 +56,20 @@ sub open_session {
     }
 
     if ($self->auth_publickey_auto() != Libssh::Session::SSH_AUTH_SUCCESS) {
-        $self->{logger}->writeLogInfo('[sshclient] Auth publickey auto failure: ' . $self->error(GetErrorSession => 1));
+        $self->{logger}->writeLogInfo('[sshclient] Authentication publickey auto failure: ' . $self->error(GetErrorSession => 1));
         if (!defined($options{ssh_password}) || $options{ssh_password} eq '') {
-            $self->{logger}->writeLogError('[sshclient] Auth issue: no password');
+            $self->{logger}->writeLogError('[sshclient] Authentication issue: no password');
             return -1;
         }
         if ($self->auth_password(password => $options{ssh_password}) != Libssh::Session::SSH_AUTH_SUCCESS) {
-            $self->{logger}->writeLogError('[sshclient] Auth issue: ' . $self->error(GetErrorSession => 1));
+            $self->{logger}->writeLogError('[sshclient] Authentication issue: ' . $self->error(GetErrorSession => 1));
             return -1;
         }
     }
 
-    $self->{logger}->writeLogInfo('[sshclient] Authentication succeed');
+    $self->{logger}->writeLogInfo(
+        "[sshclient] Client authenticated successfully to 'ssh://" . $options{ssh_host} . ":" . $options{ssh_port} . "'"
+    );
 
     $self->{sftp} = Libssh::Sftp->new(session => $self);
     if (!defined($self->{sftp})) {
