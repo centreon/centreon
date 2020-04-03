@@ -530,7 +530,8 @@ sub saas_get_predicts {
             }
         );
 
-        $engine_reload->{ $self->{centreon_metrics}->{$_}->{instance_id} } = 1;
+        $engine_reload->{ $self->{centreon_metrics}->{$_}->{instance_id} } = [] if (!defined($engine_reload->{ $self->{centreon_metrics}->{$_}->{instance_id} }));
+        push @{$engine_reload->{ $self->{centreon_metrics}->{$_}->{instance_id} }}, $poller->{cfg_dir} . '/anomaly/' . $_ . '.json';
 
         $query .= $query_append . 
             'UPDATE mod_anomaly_service SET' .
@@ -541,16 +542,22 @@ sub saas_get_predicts {
 
     return 0 if ($query eq '');
 
-    foreach (keys %$engine_reload) {
-        my $poller = $self->get_poller(instance => $_);
-        $self->{logger}->writeLogDebug('[anomalydetection] -class- send engine threshold file external command ' . $_);
+    foreach my $instance_id (keys %$engine_reload) {
+        $self->{logger}->writeLogDebug('[anomalydetection] -class- send engine threshold files external command ' . $instance_id);
+        my $contents = [];
+        foreach (@{$engine_reload->{$instance_id}}) {
+            push @$contents, {
+                target => $instance_id,
+                 command => 'EXTERNALCMD',
+                  param => '[' . time() . '] NEW_THRESHOLDS_FILE;' . $_
+            };
+        }
+
         $self->send_internal_action(
             action => 'CENTREONCOMMAND',
             token => $options{token},
             data => {
-                content => [
-                    { target => $_, command => 'EXTERNALCMD', param => '[' . time() . '] NEW_THRESHOLDS_FILE;' . $poller->{cfg_dir} . '/anomaly/' . $_ . '.json' }
-                ]
+                content => $contents
             }
         );
     }
