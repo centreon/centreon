@@ -236,7 +236,7 @@ sub event {
             $connectors->{$options{identity}}->{handshake} = 2;
             if (defined($connectors->{$options{identity}}->{logger})) {
                 $connectors->{$options{identity}}->{logger}->writeLogInfo(
-                    "[zmqclient] Client connected successfuly to '" . $connectors->{$options{identity}}->{target_type} .
+                    "[zmqclient] Client connected successfully to '" . $connectors->{$options{identity}}->{target_type} .
                     "://" . $connectors->{$options{identity}}->{target_path} . "'"
                 );
             }
