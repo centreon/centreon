@@ -30,6 +30,8 @@ use ZMQ::LibZMQ4;
 use ZMQ::Constants qw(:all);
 use JSON::XS;
 use Time::HiRes;
+use POSIX qw(strftime);
+use Digest::MD5 qw(md5_hex);
 
 my %handlers = (TERM => {}, HUP => {});
 my ($connector);
@@ -46,8 +48,11 @@ sub new {
     $connector->{config_db_centreon} = $options{config_db_centreon};
     $connector->{stop} = 0;
 
-    $connector->{resync_time} = (defined($options{config}->{resync_time}) && $options{config}->{resync_time} =~ /(\d+)/) ? $1 : 15;
-    $connector->{last_resync_time} = -1;
+    $connector->{check_interval} = (defined($options{config}->{check_interval}) &&
+        $options{config}->{check_interval} =~ /(\d+)/) ? $1 : 15;
+    $connector->{sync_wait} = (defined($options{config}->{sync_wait})) ?
+        $options{config}->{sync_wait} : 1_000_000;
+    $connector->{last_check_time} = -1;
 
     bless $connector, $class;
     $connector->set_signal_handlers();
@@ -102,6 +107,20 @@ sub action_adddiscoveryjob {
         return 1;
     }
 
+    # Retrieve uuid attributes
+    my $result;
+    $query = "SELECT uuid_attributes " .
+        "FROM mod_host_disco_provider mhdp " .
+        "JOIN mod_host_disco_job mhdj " .
+        "WHERE mhdj.provider_id = mhdp.id AND mhdj.id = '" . $options{data}->{content}->{job_id} . "'";
+    ($status, $result) = $self->{class_object_centreon}->custom_execute(request => $query, mode => 2);
+    if ($status == -1) {
+        $self->{logger}->writeLogError('[autodiscovery] Failed to retrieve uuid attributes');
+        return 1;
+    }
+    
+    my $uuid_attributes = $result->[0]->[0];    
+
     if ($options{data}->{content}->{execution_mode} == 0) {
         # Execute immediately
         $self->action_launchdiscovery(
@@ -111,6 +130,7 @@ sub action_adddiscoveryjob {
                     command => $options{data}->{content}->{command},
                     timeout => $options{data}->{content}->{timeout},
                     job_id => $options{data}->{content}->{job_id},
+                    uuid_attributes => $uuid_attributes,
                     token => $token
                 }
             }
@@ -128,6 +148,7 @@ sub action_adddiscoveryjob {
                 command => $options{data}->{content}->{command},
                 timeout => $options{data}->{content}->{timeout},
                 job_id => $options{data}->{content}->{job_id},
+                uuid_attributes => $uuid_attributes,
                 token => $token
             },
             keep_token => 1,
@@ -165,10 +186,12 @@ sub action_launchdiscovery {
         data => {
             content => [
                 {
+                    instant => 1,
                     command => $options{data}->{content}->{command},
                     timeout => $options{data}->{content}->{timeout},
                     metadata => {
                         job_id => $options{data}->{content}->{job_id},
+                        uuid_attributes => $options{data}->{content}->{uuid_attributes},
                         source => 'autodiscovery'
                     },
                 }
@@ -178,7 +201,9 @@ sub action_launchdiscovery {
 
     # Running
     my $query = "UPDATE mod_host_disco_job " .
-        "SET status = '3', duration = '0', discovered_items = '0', token = '" . $options{data}->{content}->{token} . "' " .
+        "SET status = '3', duration = '0', discovered_items = '0', " .
+        "creation_date = '" . strftime("%F %H:%M:%S", localtime) . "', " .
+        "token = '" . $options{data}->{content}->{token} . "', message = 'Running' " .
         "WHERE id = '" . $options{data}->{content}->{job_id} . "'";
     my $status = $self->{class_object_centreon}->transaction_query(request => $query);
     if ($status == -1) {
@@ -206,8 +231,7 @@ sub action_getdiscoveryresults {
             action => 'GETLOG',
         );
 
-        my $wait = (defined($self->{config}->{sync_wait})) ? $self->{config}->{sync_wait} : 1_000_000;
-        Time::HiRes::usleep($wait);
+        Time::HiRes::usleep($self->{sync_wait});
 
         $self->send_internal_action(
             action => 'GETLOG',
@@ -227,7 +251,7 @@ sub action_updatediscoveryresults {
     return if (!defined($options{data}->{data}->{action}) || $options{data}->{data}->{action} ne "getlog" &&
         !defined($options{data}->{data}->{result}));
 
-    my ($exit_code, $stdout, $job_id);
+    my ($exit_code, $output, $job_id, $uuid_attributes);
 
     foreach my $message (@{$options{data}->{data}->{result}}) {
         my $data = JSON::XS->new->utf8->decode($message->{data});
@@ -237,12 +261,29 @@ sub action_updatediscoveryresults {
         $self->{logger}->writeLogInfo("[autodiscovery] Found result for job '" . $data->{metadata}->{job_id} . "'");
 
         $exit_code = $data->{result}->{exit_code};
-        $stdout = $data->{result}->{stdout};
+        $output = (defined($data->{result}->{stderr}) && $data->{result}->{stderr} ne '') ?
+            $data->{result}->{stderr} : $data->{result}->{stdout};
         $job_id = $data->{metadata}->{job_id};
+        $uuid_attributes = JSON::XS->new->utf8->decode($data->{metadata}->{uuid_attributes});
     }
 
     if ($exit_code == 0) {
-        my $result = JSON::XS->new->utf8->decode($stdout);
+        my $result;
+        eval {
+            $result = JSON::XS->new->utf8->decode($output);
+        };
+        if ($@) {
+            # Failed
+            my $query = "UPDATE mod_host_disco_job " .
+                "SET status = '2', duration = '0', discovered_items = '0', " .
+                "message = 'Failed to decode discovery plugin response' " .
+                "WHERE id = '" . $job_id ."'";
+            my $status = $self->{class_object_centreon}->transaction_query(request => $query);
+            if ($status == -1) {
+                $self->{logger}->writeLogError('[autodiscovery] Failed to decode discovery plugin response');
+                return 1;
+            }
+        }
 
         # Finished
         my $query = "UPDATE mod_host_disco_job SET status = '1', duration = '" . $result->{duration} ."', " . 
@@ -258,7 +299,7 @@ sub action_updatediscoveryresults {
         $query = "DELETE FROM mod_host_disco_host WHERE job_id = '" . $job_id ."'";
         $status = $self->{class_object_centreon}->transaction_query(request => $query);
         if ($status == -1) {
-            $self->{logger}->writeLogError('[autodiscovery] Failed to delete job hosts');
+            $self->{logger}->writeLogError('[autodiscovery] Failed to delete previous job results');
             return 1;
         }
 
@@ -266,21 +307,32 @@ sub action_updatediscoveryresults {
         my $values;
         my $append = '';
         foreach my $host (@{$result->{results}}) {
-            $values .= $append . "('" . $job_id . "', '" . JSON::XS->new->utf8->encode($host) ."')";
+            # Generate uuid based on attributs
+            my $uuid_char = '';
+            foreach (@{$uuid_attributes}) {
+                $uuid_char .= $host->{$_} if (defined($host->{$_}) && $host->{$_} ne '');
+            }
+            my $ctx = Digest::MD5->new;
+            $ctx->add($uuid_char);
+            my $digest = $ctx->hexdigest;
+            my $uuid = substr($digest, 0, 8) . '-' . substr($digest, 8, 4) . '-' . substr($digest, 12, 4) . '-' .
+                substr($digest, 16, 4) . '-' . substr($digest, 20, 12);
+
+            $values .= $append . "('" . $job_id . "', '" . JSON::XS->new->utf8->encode($host) ."', '" . $uuid . "')";
             $append = ', '
         }
 
-        $query = "INSERT INTO mod_host_disco_host (job_id, discovery_result) VALUES " . $values;
+        $query = "INSERT INTO mod_host_disco_host (job_id, discovery_result, uuid) VALUES " . $values;
         $status = $self->{class_object_centreon}->transaction_query(request => $query);
         if ($status == -1) {
-            $self->{logger}->writeLogError('[autodiscovery] Failed to insert job hosts');
+            $self->{logger}->writeLogError('[autodiscovery] Failed to insert job results');
             return 1;
         }
     } else {
         # Failed
         my $query = "UPDATE mod_host_disco_job " .
             "SET status = '2', duration = '0', discovered_items = '0', " .
-            "message = " . $self->{class_object_centreon}->quote(value => $stdout) . " " .
+            "message = " . $self->{class_object_centreon}->quote(value => $output) . " " .
             "WHERE id = '" . $job_id ."'";
         my $status = $self->{class_object_centreon}->transaction_query(request => $query);
         if ($status == -1) {
@@ -361,8 +413,8 @@ sub run {
             exit(0);
         }
 
-        if (time() - $self->{resync_time} > $self->{last_resync_time}) {
-            $self->{last_resync_time} = time();
+        if (time() - $self->{check_interval} > $self->{last_check_time}) {
+            $self->{last_check_time} = time();
             $self->action_getdiscoveryresults();
         }
     }
