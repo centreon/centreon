@@ -149,7 +149,7 @@ sub yaml_get_include {
     }
     my @sorted_files = ();
     while (readdir($DIR)) {
-        if (-f "$dir/$_" && eval "/$match_files/") {
+        if (-f "$dir/$_" && eval "/^$match_files\$/") {
             push @sorted_files, "$dir/$_";
         }
     }
