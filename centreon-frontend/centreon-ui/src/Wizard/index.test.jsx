@@ -2,7 +2,7 @@ import React from 'react';
 import { act, render, fireEvent } from '@testing-library/react';
 import Wizard, { Page } from '.';
 
-const renderWizard = () =>
+const renderWizardThreeSteps = () =>
   render(
     <Wizard open>
       <Page label="step label 1">
@@ -17,17 +17,32 @@ const renderWizard = () =>
     </Wizard>,
   );
 
+const renderWizardOneStep = () =>
+  render(
+    <Wizard open>
+      <Page>
+        <div>Step 1</div>
+      </Page>
+    </Wizard>,
+  );
+
 describe('Wizard', () => {
   it('displays step labels', () => {
-    const { getByText } = renderWizard();
+    const { getByText } = renderWizardThreeSteps();
 
     expect(getByText('step label 1')).toBeInTheDocument();
     expect(getByText('step label 2')).toBeInTheDocument();
     expect(getByText('step label 3')).toBeInTheDocument();
   });
 
+  it('does not display step labels when there is only one step', () => {
+    const { queryByText } = renderWizardOneStep();
+
+    expect(queryByText('step label 1')).not.toBeInTheDocument();
+  });
+
   it('goes to next and previous steps', async () => {
-    const { getByText } = renderWizard();
+    const { getByText } = renderWizardThreeSteps();
 
     await act(async () => {
       fireEvent.click(getByText('Next').parentNode);

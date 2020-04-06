@@ -143,7 +143,9 @@ const Wizard = (props) => {
         open={open}
         onClose={handleClose}
       >
-        <Stepper activeStep={page}>{children}</Stepper>
+        {React.Children.count(children) > 1 && (
+          <Stepper activeStep={page}>{children}</Stepper>
+        )}
         <DialogContent className={classes.dialogContent}>
           <Formik
             initialValues={values}

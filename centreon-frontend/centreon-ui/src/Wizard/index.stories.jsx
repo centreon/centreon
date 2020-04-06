@@ -6,6 +6,16 @@ import { Wizard, WizardPage as Page } from '..';
 
 export default { title: 'Wizard' };
 
+export const oneStep = () => (
+  <Wizard open>
+    <Page>
+      <Typography variant="h5" align="center">
+        Step 1
+      </Typography>
+    </Page>
+  </Wizard>
+);
+
 export const threeSteps = () => (
   <Wizard open>
     <Page label="step 1">
