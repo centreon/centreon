@@ -162,7 +162,6 @@ sub saas_api_request {
             'x-api-key: ' . $self->{saas_token}
         ],
         proxyurl => $self->{proxy_url},
-        cookies_file => '', # in memory
         curl_opt => ['CURLOPT_SSL_VERIFYPEER => 0']
     );
     return 1 if ($self->http_check_error(status => $status, endpoint => $options{endpoint}, http_code_continue => $options{http_code_continue}) == 1);
