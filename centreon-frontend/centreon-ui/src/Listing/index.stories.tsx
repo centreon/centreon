@@ -73,7 +73,7 @@ const rowColorConditions = [
   },
 ];
 
-const Story = (props): JSX.Element => {
+const Story = ({ disableCheckable = false, ...props }): JSX.Element => {
   const classes = useStyles();
 
   return (
@@ -91,7 +91,7 @@ const Story = (props): JSX.Element => {
         tableData={listing}
         rowColorConditions={rowColorConditions}
         selectedRows={listing.filter((row) => row.selected)}
-        checkable
+        checkable={!disableCheckable}
         disableRowCheckCondition={(row): boolean => row.disableCheckbox}
         {...props}
       />
@@ -116,3 +116,5 @@ const Actions = (
 );
 
 export const withActions = (): JSX.Element => <Story Actions={Actions} />;
+
+export const withoutCheckboxes = (): JSX.Element => <Story disableCheckable />;

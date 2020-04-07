@@ -15,7 +15,7 @@ const HeaderCell = withStyles((theme) => ({
     backgroundColor: theme.palette.common.white,
     paddingBottom: theme.spacing(1),
     paddingTop: theme.spacing(1),
-    paddingLeft: 0,
+    paddingLeft: theme.spacing(0.5),
   },
 }))(TableCell);
 
