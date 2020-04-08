@@ -248,26 +248,36 @@ sub action_getdiscoveryresults {
 sub action_updatediscoveryresults {
     my ($self, %options) = @_;
 
-    return if (!defined($options{data}->{data}->{action}) || $options{data}->{data}->{action} ne "getlog" &&
-        !defined($options{data}->{data}->{result}));
+    return if (!defined($options{data}->{data}->{action}) || $options{data}->{data}->{action} ne "getlog" ||
+        !defined($options{data}->{data}->{result}) || scalar(@{$options{data}->{data}->{result}} == 0));
 
-    my ($exit_code, $output, $job_id, $uuid_attributes);
+    my ($exit_code, $output, $job_id, $token, $uuid_attributes) = -1, undef, undef, undef, undef;
 
     foreach my $message (@{$options{data}->{data}->{result}}) {
-        my $data = JSON::XS->new->utf8->decode($message->{data});
-        next if (!defined($data->{result}->{exit_code}) || !defined($data->{metadata}->{job_id}) ||
-            !defined($data->{metadata}->{source}) || $data->{metadata}->{source} ne 'autodiscovery');
+        if ($message->{code} == 2) {
+            my $data = JSON::XS->new->utf8->decode($message->{data});
+            next if (!defined($data->{result}->{exit_code}) || !defined($data->{metadata}->{job_id}) ||
+                !defined($data->{metadata}->{source}) || $data->{metadata}->{source} ne 'autodiscovery');
 
-        $self->{logger}->writeLogInfo("[autodiscovery] Found result for job '" . $data->{metadata}->{job_id} . "'");
+            $self->{logger}->writeLogInfo("[autodiscovery] Found result for job '" . $data->{metadata}->{job_id} . "'");
 
-        $exit_code = $data->{result}->{exit_code};
-        $output = (defined($data->{result}->{stderr}) && $data->{result}->{stderr} ne '') ?
-            $data->{result}->{stderr} : $data->{result}->{stdout};
-        $job_id = $data->{metadata}->{job_id};
-        $uuid_attributes = JSON::XS->new->utf8->decode($data->{metadata}->{uuid_attributes});
+            $exit_code = $data->{result}->{exit_code};
+            $output = (defined($data->{result}->{stderr}) && $data->{result}->{stderr} ne '') ?
+                $data->{result}->{stderr} : $data->{result}->{stdout};
+            $job_id = $data->{metadata}->{job_id};
+            $token = $message->{token};
+            $uuid_attributes = JSON::XS->new->utf8->decode($data->{metadata}->{uuid_attributes});
+        } elsif ($message->{code} == 1) {
+            my $data = JSON::XS->new->utf8->decode($message->{data});
+
+            $self->{logger}->writeLogInfo("[autodiscovery] Found result for token '" . $message->{token} . "'");
+
+            $output = $data->{message};
+            $token = $message->{token};
+        }
     }
 
-    if ($exit_code == 0) {
+    if ($exit_code == 0 && defined($job_id)) {
         my $result;
         eval {
             $result = JSON::XS->new->utf8->decode($output);
@@ -328,12 +338,23 @@ sub action_updatediscoveryresults {
             $self->{logger}->writeLogError('[autodiscovery] Failed to insert job results');
             return 1;
         }
-    } else {
+    } elsif ($exit_code > 0 && defined($job_id)) {
         # Failed
         my $query = "UPDATE mod_host_disco_job " .
             "SET status = '2', duration = '0', discovered_items = '0', " .
             "message = " . $self->{class_object_centreon}->quote(value => $output) . " " .
             "WHERE id = '" . $job_id ."'";
+        my $status = $self->{class_object_centreon}->transaction_query(request => $query);
+        if ($status == -1) {
+            $self->{logger}->writeLogError('[autodiscovery] Failed to update job status');
+            return 1;
+        }
+    } elsif (defined($token)) {
+        # Failed
+        my $query = "UPDATE mod_host_disco_job " .
+            "SET status = '2', duration = '0', discovered_items = '0', " .
+            "message = " . $self->{class_object_centreon}->quote(value => $output) . " " .
+            "WHERE token = '" . $token ."'";
         my $status = $self->{class_object_centreon}->transaction_query(request => $query);
         if ($status == -1) {
             $self->{logger}->writeLogError('[autodiscovery] Failed to update job status');
