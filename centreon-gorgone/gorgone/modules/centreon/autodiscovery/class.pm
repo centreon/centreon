@@ -93,6 +93,8 @@ sub class_handle_HUP {
 
 sub action_adddiscoveryjob {
     my ($self, %options) = @_;
+    
+    return if (!$self->is_module_installed());
 
     $options{token} = $self->generate_token() if (!defined($options{token}));
     my $token = 'autodiscovery_' . $self->generate_token(length => 8);
@@ -176,6 +178,8 @@ sub action_adddiscoveryjob {
 
 sub action_launchdiscovery {
     my ($self, %options) = @_;
+    
+    return if (!$self->is_module_installed());
 
     $self->{logger}->writeLogInfo("[autodiscovery] Launching discovery for job '" . $options{data}->{content}->{job_id} . "'");
 
@@ -215,6 +219,8 @@ sub action_launchdiscovery {
 sub action_getdiscoveryresults {
     my ($self, %options) = @_;
     
+    return if (!$self->is_module_installed());
+    
     # List running jobs
     my ($status, $data) = $self->{class_object_centreon}->custom_execute(
         request => "SELECT id, monitoring_server_id, token FROM mod_host_disco_job WHERE status = '3'",
@@ -247,6 +253,8 @@ sub action_getdiscoveryresults {
 
 sub action_updatediscoveryresults {
     my ($self, %options) = @_;
+    
+    return if (!$self->is_module_installed());
 
     return if (!defined($options{data}->{data}->{action}) || $options{data}->{data}->{action} ne "getlog" ||
         !defined($options{data}->{data}->{result}) || scalar(@{$options{data}->{data}->{result}} == 0));
@@ -363,6 +371,17 @@ sub action_updatediscoveryresults {
     }
 
     return 0;
+}
+
+sub is_module_installed {
+    my ($self) = @_;
+
+    my ($status, $data) = $self->{class_object_centreon}->custom_execute(
+        request => "SELECT id FROM modules_informations WHERE name = 'centreon-autodiscovery-server'",
+        mode => 2
+    );
+
+    (defined($data->[0]) && scalar($data->[0]) > 0) ? return 1 : return 0;
 }
 
 sub event {
