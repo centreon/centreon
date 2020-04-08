@@ -26,6 +26,7 @@ use strict;
 use warnings;
 use gorgone::class::db;
 use gorgone::standard::library;
+use gorgone::standard::constants qw(:all);
 use ZMQ::LibZMQ4;
 use ZMQ::Constants qw(:all);
 use JSON::XS;
@@ -92,7 +93,7 @@ sub action_dbclean {
     }
 
     $self->send_log(
-        code => gorgone::class::module::ACTION_BEGIN,
+        code => GORGONE_ACTION_BEGIN,
         token => $options{token},
         data => {
             message => 'action dbclean proceed'
@@ -109,7 +110,7 @@ sub action_dbclean {
 
     if ($status == -1 || $status2 == -1 || $status3 == -1) {
         $self->send_log(
-            code => $self->ACTION_FINISH_KO,
+            code => GORGONE_ACTION_FINISH_KO,
             token => $options{token},
             data => {
                 message => 'action dbclean finished'
@@ -119,7 +120,7 @@ sub action_dbclean {
     }
 
     $self->send_log(
-        code => $self->ACTION_FINISH_OK,
+        code => GORGONE_ACTION_FINISH_OK,
         token => $options{token},
         data => {
             message => 'action dbclean finished'

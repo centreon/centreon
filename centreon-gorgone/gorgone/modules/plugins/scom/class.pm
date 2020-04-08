@@ -25,6 +25,7 @@ use base qw(gorgone::class::module);
 use strict;
 use warnings;
 use gorgone::standard::library;
+use gorgone::standard::constants qw(:all);
 use gorgone::class::sqlquery;
 use gorgone::class::http::http;
 use ZMQ::LibZMQ4;
@@ -457,18 +458,18 @@ sub action_scomresync {
 
     $options{token} = $self->generate_token() if (!defined($options{token}));
 
-    $self->send_log(code => gorgone::class::module::ACTION_BEGIN, token => $options{token}, data => { message => 'action scomresync proceed' });
+    $self->send_log(code => GORGONE_ACTION_BEGIN, token => $options{token}, data => { message => 'action scomresync proceed' });
     $self->{logger}->writeLogDebug("[scom] Container $self->{container_id}: begin resync");
 
     if ($self->get_realtime_slots()) {
-        $self->send_log(code => gorgone::class::module::ACTION_FINISH_KO, token => $options{token}, data => { message => 'cannot find realtime slots' });
+        $self->send_log(code => GORGONE_ACTION_FINISH_KO, token => $options{token}, data => { message => 'cannot find realtime slots' });
         $self->{logger}->writeLogError("[scom] Container $self->{container_id}: cannot find realtime slots");
         return 1;
     }
 
     my $func = $self->get_method(method => 'get_realtime_scom_alerts');
     if ($func->($self)) {
-        $self->send_log(code => gorgone::class::module::ACTION_FINISH_KO, token => $options{token}, data => { message => 'cannot get scom realtime alerts' });
+        $self->send_log(code => GORGONE_ACTION_FINISH_KO, token => $options{token}, data => { message => 'cannot get scom realtime alerts' });
         $self->{logger}->writeLogError("[scom] Container $self->{container_id}: cannot get scom realtime alerts");
         return 1;
     }
@@ -477,7 +478,7 @@ sub action_scomresync {
     $self->sync_acks();
 
     $self->{logger}->writeLogDebug("[scom] Container $self->{container_id}: finish resync");
-    $self->send_log(code => $self->ACTION_FINISH_OK, token => $options{token}, data => { message => 'action scomresync finished' });
+    $self->send_log(code => GORGONE_ACTION_FINISH_OK, token => $options{token}, data => { message => 'action scomresync finished' });
     return 0;
 }
 

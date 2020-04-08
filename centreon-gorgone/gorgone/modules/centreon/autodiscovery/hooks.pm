@@ -25,6 +25,7 @@ use strict;
 use JSON::XS;
 use gorgone::class::core;
 use gorgone::modules::centreon::autodiscovery::class;
+use gorgone::standard::constants qw(:all);
 
 use constant NAMESPACE => 'centreon';
 use constant NAME => 'autodiscovery';
@@ -68,7 +69,8 @@ sub routing {
         $options{logger}->writeLogError("[autodiscovery] Cannot decode json data: $@");
         gorgone::standard::library::add_history(
             dbh => $options{dbh},
-            code => 30, token => $options{token},
+            code => GORGONE_ACTION_FINISH_KO,
+            token => $options{token},
             data => { msg => 'gorgoneautodiscovery: cannot decode json' },
             json_encode => 1
         );
@@ -83,7 +85,8 @@ sub routing {
     if (gorgone::class::core::waiting_ready(ready => \$autodiscovery->{ready}) == 0) {
         gorgone::standard::library::add_history(
             dbh => $options{dbh},
-            code => 30, token => $options{token},
+            code => GORGONE_ACTION_FINISH_KO,
+            token => $options{token},
             data => { msg => 'gorgoneautodiscovery: still no ready' },
             json_encode => 1
         );

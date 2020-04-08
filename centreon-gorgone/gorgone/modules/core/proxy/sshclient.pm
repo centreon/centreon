@@ -29,6 +29,7 @@ use POSIX;
 use gorgone::standard::misc;
 use File::Basename;
 use Time::HiRes;
+use gorgone::standard::constants qw(:all);
 
 sub new {
     my ($class, %options) = @_;
@@ -162,7 +163,7 @@ sub action_command {
     my $results;
     
     push @{$results}, {
-        code => 0,
+        code => GORGONE_ACTION_BEGIN,
         data => {
             message => "commands processing has started",
             request_content => $options{data}->{content}
@@ -173,7 +174,7 @@ sub action_command {
         my ($code, $data) = (0, {});
 
         push @{$results}, {
-            code => 0,
+            code => GORGONE_ACTION_BEGIN,
             data => {
                 message => "command has started",
                 command => $command->{command},
@@ -190,7 +191,7 @@ sub action_command {
                     }
                 }
             );
-            $data->{code} = ($code < 0 ) ? 1 : 2;
+            $data->{code} = ($code < 0 ) ? GORGONE_ACTION_FINISH_KO : GORGONE_ACTION_FINISH_OK;
         } else {
             my $timeout = defined($command->{timeout}) && $command->{timeout} =~ /(\d+)/ ? $1 : 60;
             my $timeout_nodata = defined($command->{timeout_nodata}) && $command->{timeout_nodata} =~ /(\d+)/ ? $1 : 30;
@@ -223,15 +224,15 @@ sub action_command {
 
             if ($ret->{exit} == Libssh::Session::SSH_OK) {
                 $data->{data}->{message} = "command has finished successfully";
-                $data->{code} = 2;
+                $data->{code} = GORGONE_ACTION_FINISH_OK;
             } elsif ($ret->{exit} == Libssh::Session::SSH_AGAIN) { # AGAIN means timeout
                 $code = -1;
                 $data->{data}->{message} = "command has timed out";
-                $data->{code} = 1;
+                $data->{code} = GORGONE_ACTION_FINISH_KO;
             } else {
                 $code = -1;
                 $data->{data}->{message} = $self->error(GetErrorSession => 1);
-                $data->{code} = 1;
+                $data->{code} = GORGONE_ACTION_FINISH_KO;
             }
         }
 
@@ -254,7 +255,7 @@ sub action_command {
 
     if ($errors) {
         push @{$results}, {
-            code => 1,
+            code => GORGONE_ACTION_FINISH_KO,
             data => {
                 message => "commands processing has finished with errors"
             }
@@ -263,7 +264,7 @@ sub action_command {
     }
 
     push @{$results}, {
-        code => 2,
+        code => GORGONE_ACTION_FINISH_OK,
         data => {
             message => "commands processing has finished successfully"
         }
@@ -320,7 +321,7 @@ sub action_enginecommand {
         }
     
         push @{$results}, {
-            code => 0,
+            code => GORGONE_ACTION_BEGIN,
             data => {
                 message => "commands processing has started",
                 request_content => $options{data}->{content}
@@ -332,7 +333,7 @@ sub action_enginecommand {
             if ($self->{sftp}->write(handle_file => $file, data => $command . "\n") != Libssh::Session::SSH_OK) {
                 $self->{logger}->writeLogError("[sshclient] Command file '$command_file' must be writeable");
                 push @{$results}, {
-                    code => 1,
+                    code => GORGONE_ACTION_FINISH_KO,
                     data => {
                         message => "command file '$command_file' must be writeable",
                         error => $self->{sftp}->error()
@@ -343,7 +344,7 @@ sub action_enginecommand {
             }
 
             push @{$results}, {
-                code => 2,
+                code => GORGONE_ACTION_FINISH_OK,
                 data => {
                     message => "command has been submitted",
                     command => $command
@@ -353,7 +354,7 @@ sub action_enginecommand {
     }
 
     push @{$results}, {
-        code => 2,
+        code => GORGONE_ACTION_FINISH_OK,
         data => {
             message => "commands processing has finished"
         }

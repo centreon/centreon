@@ -25,6 +25,7 @@ use base qw(gorgone::class::module);
 use strict;
 use warnings;
 use gorgone::standard::library;
+use gorgone::standard::constants qw(:all);
 use gorgone::class::sqlquery;
 use ZMQ::LibZMQ4;
 use ZMQ::Constants qw(:all);
@@ -126,7 +127,7 @@ sub action_brokerstats {
     $options{token} = $self->generate_token() if (!defined($options{token}));
 
     $self->send_log(
-        code => gorgone::class::module::ACTION_BEGIN,
+        code => GORGONE_ACTION_BEGIN,
         token => $options{token},
         data => {
             message => 'action brokerstats starting'
@@ -135,7 +136,7 @@ sub action_brokerstats {
 
     if ($self->get_broker_stats_collection_flag() < 1) {
         $self->send_log(
-            code => gorgone::class::module::ACTION_FINISH_OK,
+            code => GORGONE_ACTION_FINISH_OK,
             token => $options{token},
             data => {
                 message => 'no collection configured'
@@ -161,7 +162,7 @@ sub action_brokerstats {
     my ($status, $data) = $self->{class_object_centreon}->custom_execute(request => $request, mode => 2);
     if ($status == -1) {
         $self->send_log(
-            code => gorgone::class::module::ACTION_FINISH_KO,
+            code => GORGONE_ACTION_FINISH_KO,
             token => $options{token},
             data => {
                 message => 'cannot find configuration'
@@ -215,7 +216,7 @@ sub action_brokerstats {
     Time::HiRes::usleep($wait);
 
     $self->send_log(
-        code => $self->ACTION_FINISH_OK,
+        code => GORGONE_ACTION_FINISH_OK,
         token => $options{token},
         data => {
             message => 'action brokerstats finished'
@@ -237,7 +238,7 @@ sub action_enginestats {
     $options{token} = $self->generate_token() if (!defined($options{token}));
 
     $self->send_log(
-        code => gorgone::class::module::ACTION_BEGIN,
+        code => GORGONE_ACTION_BEGIN,
         token => $options{token},
         data => {
             message => 'action enginestats starting'
@@ -287,7 +288,7 @@ sub action_enginestats {
     Time::HiRes::usleep($wait);
 
     $self->send_log(
-        code => $self->ACTION_FINISH_OK,
+        code => GORGONE_ACTION_FINISH_OK,
         token => $options{token},
         data => {
             message => 'action enginestats finished'

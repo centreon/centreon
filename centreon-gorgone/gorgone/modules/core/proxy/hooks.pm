@@ -26,6 +26,7 @@ use JSON::XS;
 use gorgone::standard::misc;
 use gorgone::class::core;
 use gorgone::standard::library;
+use gorgone::standard::constants qw(:all);
 use gorgone::modules::core::proxy::class;
 use File::Basename;
 use MIME::Base64;
@@ -122,7 +123,8 @@ sub routing {
         $options{logger}->writeLogError("[proxy] Cannot decode json data: $@");
         gorgone::standard::library::add_history(
             dbh => $options{dbh},
-            code => 20, token => $options{token},
+            code => GORGONE_ACTION_FINISH_KO,
+            token => $options{token},
             data => { message => 'proxy - cannot decode json' },
             json_encode => 1
         );
@@ -192,7 +194,7 @@ sub routing {
         if (defined($register_nodes->{$target_parent}) && $register_nodes->{$target_parent}->{type} eq 'push_ssh') {
             gorgone::standard::library::add_history(
                 dbh => $options{dbh},
-                code => gorgone::class::module::ACTION_FINISH_KO, token => $options{token},
+                code => GORGONE_ACTION_FINISH_KO, token => $options{token},
                 data => { message => "proxy - can't get log a ssh target or through a ssh node" },
                 json_encode => 1
             );
@@ -203,7 +205,7 @@ sub routing {
             if ($synctime_nodes->{$target}->{synctime_error} == -1 || get_sync_time(dbh => $options{dbh}, node_id => $target) == -1) {
                 gorgone::standard::library::add_history(
                     dbh => $options{dbh},
-                    code => gorgone::class::module::ACTION_FINISH_KO, token => $options{token},
+                    code => GORGONE_ACTION_FINISH_KO, token => $options{token},
                     data => { message => 'proxy - problem to getlog' },
                     json_encode => 1
                 );
@@ -213,7 +215,7 @@ sub routing {
             if ($synctime_nodes->{$target}->{in_progress} == 1) {
                 gorgone::standard::library::add_history(
                     dbh => $options{dbh},
-                    code => gorgone::class::module::ACTION_FINISH_KO, token => $options{token},
+                    code => GORGONE_ACTION_FINISH_KO, token => $options{token},
                     data => { message => 'proxy - getlog already in progress' },
                     json_encode => 1
                 );
@@ -256,7 +258,7 @@ sub routing {
         if (gorgone::class::core::waiting_ready_pool(pool => $pools) == 0) {
             gorgone::standard::library::add_history(
                 dbh => $options{dbh},
-                code => gorgone::class::module::ACTION_FINISH_KO,
+                code => GORGONE_ACTION_FINISH_KO,
                 token => $options{token},
                 data => { message => 'proxy - still none ready' },
                 json_encode => 1
@@ -355,7 +357,7 @@ sub check {
             time() - $synctime_nodes->{$_}->{in_progress_time} > $synctimeout_option) {
             gorgone::standard::library::add_history(
                 dbh => $options{dbh},
-                code => gorgone::class::module::ACTION_FINISH_KO,
+                code => GORGONE_ACTION_FINISH_KO,
                 data => { message => "proxy - getlog in timeout for '$_'" },
                 json_encode => 1
             );
@@ -411,7 +413,7 @@ sub pathway {
     if (!defined($target)) {
         gorgone::standard::library::add_history(
             dbh => $options{dbh},
-            code => gorgone::class::module::ACTION_FINISH_KO, token => $options{token},
+            code => GORGONE_ACTION_FINISH_KO, token => $options{token},
             data => { message => 'proxy - need a valid node id' },
             json_encode => 1
         );
@@ -440,7 +442,7 @@ sub pathway {
 
     gorgone::standard::library::add_history(
         dbh => $options{dbh},
-        code => gorgone::class::module::ACTION_FINISH_KO, token => $options{token},
+        code => GORGONE_ACTION_FINISH_KO, token => $options{token},
         data => { message => 'proxy - discard message. target peer(s) seems disconnected' },
         json_encode => 1
     );
@@ -453,7 +455,7 @@ sub setlogs {
     if (!defined($options{data}->{data}->{id}) || $options{data}->{data}->{id} eq '') {
         gorgone::standard::library::add_history(
             dbh => $options{dbh},
-            code => gorgone::class::module::ACTION_FINISH_KO, token => $options{token},
+            code => GORGONE_ACTION_FINISH_KO, token => $options{token},
             data => { message => 'proxy - need a id to setlogs' },
             json_encode => 1
         );
@@ -462,7 +464,7 @@ sub setlogs {
     if ($synctime_nodes->{$options{data}->{data}->{id}}->{in_progress} == 0) {
         gorgone::standard::library::add_history(
             dbh => $options{dbh},
-            code => gorgone::class::module::ACTION_FINISH_KO, token => $options{token},
+            code => GORGONE_ACTION_FINISH_KO, token => $options{token},
             data => { message => 'proxy - skip setlogs response. Maybe too much time to get response. Retry' },
             json_encode => 1
         );
@@ -507,7 +509,7 @@ sub setlogs {
             identity => $_,
             response_type => 'SYNCLOGS',
             data => { id => $core_id },
-            code => 0,
+            code => GORGONE_ACTION_BEGIN,
             token => undef,
         );
     }
@@ -643,7 +645,8 @@ sub pull_request {
     if ($status == 0) {
         gorgone::standard::library::add_history(
             dbh => $options{dbh},
-            code => 20, token => $options{token},
+            code => GORGONE_ACTION_FINISH_KO,
+            token => $options{token},
             data => { message => "proxy - node '" . $options{target} . "' had never been connected" },
             json_encode => 1
         );
@@ -775,7 +778,7 @@ sub prepare_remote_copy {
         $options{logger}->writeLogError('[proxy] Need source for remote copy');
         gorgone::standard::library::add_history(
             dbh => $options{dbh},
-            code => gorgone::class::module::ACTION_FINISH_KO,
+            code => GORGONE_ACTION_FINISH_KO,
             token => $options{token},
             data => { message => 'remote copy failed' },
             json_encode => 1
@@ -786,7 +789,7 @@ sub prepare_remote_copy {
         $options{logger}->writeLogError('[proxy] Need destination for remote copy');
         gorgone::standard::library::add_history(
             dbh => $options{dbh},
-            code => gorgone::class::module::ACTION_FINISH_KO,
+            code => GORGONE_ACTION_FINISH_KO,
             token => $options{token},
             data => { message => 'remote copy failed' },
             json_encode => 1
@@ -823,7 +826,7 @@ sub prepare_remote_copy {
             $options{logger}->writeLogError("[proxy] Tar failed: $stdout");
             gorgone::standard::library::add_history(
                 dbh => $options{dbh},
-                code => gorgone::class::module::ACTION_FINISH_KO,
+                code => GORGONE_ACTION_FINISH_KO,
                 token => $options{token},
                 data => { message => 'tar failed' },
                 json_encode => 1
@@ -834,7 +837,7 @@ sub prepare_remote_copy {
             $options{logger}->writeLogError("[proxy] Tar failed ($exit_code): $stdout");
             gorgone::standard::library::add_history(
                 dbh => $options{dbh},
-                code => gorgone::class::module::ACTION_FINISH_KO,
+                code => GORGONE_ACTION_FINISH_KO,
                 token => $options{token},
                 data => { message => 'tar failed' },
                 json_encode => 1
@@ -845,7 +848,7 @@ sub prepare_remote_copy {
         $options{logger}->writeLogError('[proxy] Unknown source for remote copy');
         gorgone::standard::library::add_history(
             dbh => $options{dbh},
-            code => gorgone::class::module::ACTION_FINISH_KO,
+            code => GORGONE_ACTION_FINISH_KO,
             token => $options{token},
             data => { message => 'unknown source' },
             json_encode => 1

@@ -25,6 +25,7 @@ use base qw(gorgone::class::module);
 use strict;
 use warnings;
 use gorgone::standard::library;
+use gorgone::standard::constants qw(:all);
 use gorgone::class::clientzmq;
 use gorgone::modules::core::proxy::sshclient;
 use ZMQ::LibZMQ4;
@@ -283,7 +284,7 @@ sub proxy_ssh {
         $self->{logger}->writeLogDebug("[proxy] Sshclient return: [message = $data_ret->{message}]");
         if ($status == 0) {
             $self->send_log(
-                code => gorgone::class::module::ACTION_FINISH_OK,
+                code => GORGONE_ACTION_FINISH_OK,
                 token => $options{token},
                 data => $data_ret
             );
@@ -291,7 +292,7 @@ sub proxy_ssh {
         }
 
         $self->send_log(
-            code => gorgone::class::module::ACTION_FINISH_KO,
+            code => GORGONE_ACTION_FINISH_KO,
             token => $options{token},
             data => $data_ret
         );
@@ -328,7 +329,7 @@ sub proxy {
 
     if ($target_complete !~ /^(.+)~~(.+)$/) {
         $connector->send_log(
-            code => gorgone::class::module::ACTION_FINISH_KO,
+            code => GORGONE_ACTION_FINISH_KO,
             token => $token,
             data => {
                 message => "unknown target format '$target_complete'"
@@ -344,7 +345,7 @@ sub proxy {
     if (!defined($connector->{clients}->{$target_client}->{class})) {
         if ($connector->connect(id => $target_client) != 0) {
             $connector->send_log(
-                code => gorgone::class::module::ACTION_FINISH_KO,
+                code => GORGONE_ACTION_FINISH_KO,
                 token => $token,
                 data => {
                     message => "cannot connect on target node '$target_client'"
@@ -363,7 +364,7 @@ sub proxy {
         );
         if ($status != 0) {
             $connector->send_log(
-                code => gorgone::class::module::ACTION_FINISH_KO,
+                code => GORGONE_ACTION_FINISH_KO,
                 token => $token,
                 data => {
                     message => "Send message problem for '$target': $msg"

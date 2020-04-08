@@ -25,6 +25,7 @@ use base qw(gorgone::class::module);
 use strict;
 use warnings;
 use gorgone::standard::library;
+use gorgone::standard::constants qw(:all);
 use gorgone::standard::misc;
 use gorgone::class::sqlquery;
 use ZMQ::LibZMQ4;
@@ -590,11 +591,11 @@ sub action_centreoncommand {
 
     $self->{logger}->writeLogDebug('[legacycmd] -class- start centreoncommand');
     $options{token} = $self->generate_token() if (!defined($options{token}));
-    $self->send_log(code => gorgone::class::module::ACTION_BEGIN, token => $options{token}, data => { message => 'action centreoncommand proceed' });
+    $self->send_log(code => GORGONE_ACTION_BEGIN, token => $options{token}, data => { message => 'action centreoncommand proceed' });
 
     if (!defined($options{data}->{content}) || ref($options{data}->{content}) ne 'ARRAY') {
         $self->send_log(
-            code => gorgone::class::module::ACTION_FINISH_KO,
+            code => GORGONE_ACTION_FINISH_KO,
             token => $options{token},
             data => {
                 message => "expected array, found '" . ref($options{data}->{content}) . "'",
@@ -608,7 +609,7 @@ sub action_centreoncommand {
         $self->get_clapi_user() == -1 ||
         $self->get_illegal_characters() == -1
     ) {
-        $self->send_log(code => gorgone::class::module::ACTION_FINISH_KO, token => $options{token}, data => { message => 'cannot get centreon database configuration' });
+        $self->send_log(code => GORGONE_ACTION_FINISH_KO, token => $options{token}, data => { message => 'cannot get centreon database configuration' });
         return 1;
     }
 

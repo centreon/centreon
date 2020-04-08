@@ -27,6 +27,7 @@ use Sys::Hostname;
 use ZMQ::LibZMQ4;
 use ZMQ::Constants qw(:all);
 use gorgone::standard::library;
+use gorgone::standard::constants qw(:all);
 use gorgone::standard::misc;
 use gorgone::class::db;
 
@@ -417,7 +418,7 @@ sub message_run {
         !defined($target) && !defined($self->{modules_events}->{$action})) {
         gorgone::standard::library::add_history(
             dbh => $self->{db_gorgone},
-            code => 1,
+            code => GORGONE_ACTION_FINISH_KO,
             token => $token,
             data => { error => "unknown_action", message => "action '$action' is unknown" },
             json_encode => 1
@@ -433,7 +434,7 @@ sub message_run {
     if ($self->{stop} == 1) {
         gorgone::standard::library::add_history(
             dbh => $self->{db_gorgone},
-            code => 0,
+            code => GORGONE_ACTION_FINISH_KO,
             token => $token,
             data => { message => 'gorgone is stopping/restarting. Cannot proceed request.' },
             json_encode => 1
@@ -447,7 +448,7 @@ sub message_run {
             !defined($self->{modules_register}->{ $self->{modules_id}->{ $self->{config}->{configuration}->{gorgone}->{gorgonecore}->{proxy_name} } })) {
             gorgone::standard::library::add_history(
                 dbh => $self->{db_gorgone},
-                code => 1,
+                code => GORGONE_ACTION_FINISH_KO,
                 token => $token,
                 data => { error => "no_proxy", message => 'no proxy configured. cannot manage target.' },
                 json_encode => 1
@@ -574,7 +575,7 @@ sub handshake {
         gorgone::standard::library::zmq_core_response(
             socket => $self->{external_socket}, 
             identity => $identity,
-            code => 1,
+            code => GORGONE_ACTION_FINISH_KO,
             data => { message => 'Database issue' }
         );
         return undef;
@@ -590,7 +591,7 @@ sub handshake {
             gorgone::standard::library::zmq_core_response(
                 socket => $self->{external_socket},
                 identity => $identity,
-                code => 1,
+                code => GORGONE_ACTION_FINISH_KO,
                 data => { message => 'handshake issue' }
             );
             return undef;
@@ -603,13 +604,15 @@ sub handshake {
         if ($status == -1) {
             gorgone::standard::library::zmq_core_response(
                 socket => $self->{external_socket}, identity => $identity,
-                code => 1, data => { message => 'handshake issue' }
+                code => GORGONE_ACTION_FINISH_KO,
+                data => { message => 'handshake issue' }
             );
         }
         if (gorgone::standard::library::add_identity(dbh => $self->{db_gorgone}, identity => $identity, symkey => $symkey) == -1) {
             gorgone::standard::library::zmq_core_response(
                 socket => $self->{external_socket}, identity => $identity,
-                code => 1, data => { message => 'handshake issue' }
+                code => GORGONE_ACTION_FINISH_KO,
+                data => { message => 'handshake issue' }
             );
         }
 
@@ -619,7 +622,8 @@ sub handshake {
             ) {
             gorgone::standard::library::zmq_core_response(
                 socket => $self->{external_socket}, identity => $identity,
-                code => 1, data => { message => 'handshake issue' }
+                code => GORGONE_ACTION_FINISH_KO,
+                data => { message => 'handshake issue' }
             );
         }
         return undef;
@@ -738,7 +742,7 @@ sub run {
 
     if (gorgone::standard::library::add_history(
         dbh => $gorgone->{db_gorgone},
-        code => 0,
+        code => GORGONE_STARTED,
         data => { message => 'gorgoned is starting...' },
         json_encode => 1) == -1
     ) {

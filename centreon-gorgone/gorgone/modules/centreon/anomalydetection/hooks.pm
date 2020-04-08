@@ -25,6 +25,7 @@ use strict;
 use JSON::XS;
 use gorgone::class::core;
 use gorgone::modules::centreon::anomalydetection::class;
+use gorgone::standard::constants qw(:all);
 
 use constant NAMESPACE => 'centreon';
 use constant NAME => 'anomalydetection';
@@ -66,7 +67,8 @@ sub routing {
         $options{logger}->writeLogError("[anomalydetection] Cannot decode json data: $@");
         gorgone::standard::library::add_history(
             dbh => $options{dbh},
-            code => 10, token => $options{token},
+            code => GORGONE_ACTION_FINISH_KO,
+            token => $options{token},
             data => { message => 'gorgone-anomalydetection: cannot decode json' },
             json_encode => 1
         );
@@ -81,7 +83,8 @@ sub routing {
     if (gorgone::class::core::waiting_ready(ready => \$process->{ready}) == 0) {
         gorgone::standard::library::add_history(
             dbh => $options{dbh},
-            code => 10, token => $options{token},
+            code => GORGONE_ACTION_FINISH_KO,
+            token => $options{token},
             data => { message => 'gorgone-anomalydetection: still no ready' },
             json_encode => 1
         );

@@ -25,6 +25,7 @@ use strict;
 use JSON::XS;
 use gorgone::class::core;
 use gorgone::modules::plugins::scom::class;
+use gorgone::standard::constants qw(:all);
 
 use constant NAMESPACE => 'plugins';
 use constant NAME => 'scom';
@@ -72,7 +73,8 @@ sub routing {
         $options{logger}->writeLogError("[scom] Cannot decode json data: $@");
         gorgone::standard::library::add_history(
             dbh => $options{dbh},
-            code => 200, token => $options{token},
+            code => GORGONE_ACTION_FINISH_KO,
+            token => $options{token},
             data => { message => 'gorgone-scom: cannot decode json' },
             json_encode => 1
         );
@@ -87,7 +89,8 @@ sub routing {
     if (!defined($data->{container_id}) || !defined($last_containers->{$data->{container_id}})) {
         gorgone::standard::library::add_history(
             dbh => $options{dbh},
-            code => 200, token => $options{token},
+            code => GORGONE_ACTION_FINISH_KO,
+            token => $options{token},
             data => { message => 'gorgone-scom: need a valid container id' },
             json_encode => 1
         );
@@ -97,7 +100,8 @@ sub routing {
     if (gorgone::class::core::waiting_ready(ready => \$containers->{$data->{container_id}}->{ready}) == 0) {
         gorgone::standard::library::add_history(
             dbh => $options{dbh},
-             code => 200, token => $options{token},
+             code => GORGONE_ACTION_FINISH_KO,
+             token => $options{token},
              data => { message => 'gorgone-scom: still no ready' },
              json_encode => 1
         );

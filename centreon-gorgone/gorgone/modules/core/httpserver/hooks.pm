@@ -24,6 +24,7 @@ use warnings;
 use strict;
 use gorgone::class::core;
 use gorgone::modules::core::httpserver::class;
+use gorgone::standard::constants qw(:all);
 use JSON::XS;
 
 use constant NAMESPACE => 'core';
@@ -76,7 +77,7 @@ sub routing {
         $options{logger}->writeLogError("[httpserver] Cannot decode json data: $@");
         gorgone::standard::library::add_history(
             dbh => $options{dbh},
-            code => 10,
+            code => GORGONE_ACTION_FINISH_KO,
             token => $options{token},
             data => { message => 'gorgonehttpserver: cannot decode json' },
             json_encode => 1
@@ -92,7 +93,7 @@ sub routing {
     if (gorgone::class::core::waiting_ready(ready => \$httpserver->{ready}) == 0) {
         gorgone::standard::library::add_history(
             dbh => $options{dbh},
-            code => 10,
+            code => GORGONE_ACTION_FINISH_KO,
             token => $options{token},
             data => { message => 'gorgonehttpserver: still no ready' },
             json_encode => 1

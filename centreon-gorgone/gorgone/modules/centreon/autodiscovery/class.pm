@@ -25,6 +25,7 @@ use base qw(gorgone::class::module);
 use strict;
 use warnings;
 use gorgone::standard::library;
+use gorgone::standard::constants qw(:all);
 use gorgone::class::sqlquery;
 use ZMQ::LibZMQ4;
 use ZMQ::Constants qw(:all);
@@ -164,7 +165,7 @@ sub action_adddiscoveryjob {
     }
 
     $self->send_log(
-        code => $self->ACTION_FINISH_OK,
+        code => GORGONE_ACTION_FINISH_OK,
         token => $options{token},
         data => {
             id => $token

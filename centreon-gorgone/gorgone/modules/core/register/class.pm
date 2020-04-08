@@ -25,6 +25,7 @@ use base qw(gorgone::class::module);
 use strict;
 use warnings;
 use gorgone::standard::library;
+use gorgone::standard::constants qw(:all);
 use ZMQ::LibZMQ4;
 use ZMQ::Constants qw(:all);
 use JSON::XS;
@@ -87,7 +88,7 @@ sub action_registerresync {
     $options{token} = $self->generate_token() if (!defined($options{token}));
 
     $self->send_log(
-        code => gorgone::class::module::ACTION_BEGIN,
+        code => GORGONE_ACTION_BEGIN,
         token => $options{token},
         data => {
             message => 'action registerresync proceed'
@@ -133,7 +134,7 @@ sub action_registerresync {
 
     $self->{logger}->writeLogDebug("[register] Finish resync");
     $self->send_log(
-        code => $self->ACTION_FINISH_OK,
+        code => GORGONE_ACTION_FINISH_OK,
         token => $options{token},
         data => {
             message => 'action registerresync finished'
