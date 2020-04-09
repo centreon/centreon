@@ -104,8 +104,8 @@ sub read_message {
             token => $token,
             target => ''
         );
-    } elsif ($options{data} =~ /^\[REGISTERNODES|UNREGISTERNODES|SYNCLOGS\]/) {
-        if ($options{data} !~ /^\[(.+?)\]\s+\[(.*?)\]\s+\[.*?\]\s+(.*)/m) {
+    } elsif ($options{data} =~ /^\[(?:REGISTERNODES|UNREGISTERNODES|SYNCLOGS)\]/) {
+        if ($options{data} !~ /^\[(.+?)\]\s+\[(.*?)\]\s+\[.*?\]\s+(.*)/ms) {
             return undef;
         }
         my ($action, $token, $data)  = ($1, $2, $3);
@@ -117,7 +117,7 @@ sub read_message {
             token => $token,
             target => ''
         );
-    } elsif ($options{data} =~ /^\[ACK\]\s+\[(.*?)\]\s+(.*)/m) {
+    } elsif ($options{data} =~ /^\[ACK\]\s+\[(.*?)\]\s+(.*)/ms) {
         my $data;
         eval {
             $data = JSON::XS->new->utf8->decode($2);
