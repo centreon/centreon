@@ -275,6 +275,7 @@ sub action_updatediscoveryresults {
             $job_id = $data->{metadata}->{job_id};
             $token = $message->{token};
             $uuid_attributes = JSON::XS->new->utf8->decode($data->{metadata}->{uuid_attributes});
+            last;
         } elsif ($message->{code} == 1) {
             my $data = JSON::XS->new->utf8->decode($message->{data});
 
@@ -282,6 +283,7 @@ sub action_updatediscoveryresults {
 
             $output = $data->{message};
             $token = $message->{token};
+            last;
         }
     }
 
@@ -348,7 +350,7 @@ sub action_updatediscoveryresults {
                 return 1;
             }
         }
-    } elsif ($exit_code > 0 && defined($job_id)) {
+    } elsif ($exit_code != 0 && defined($job_id)) {
         # Failed
         my $query = "UPDATE mod_host_disco_job " .
             "SET status = '2', duration = '0', discovered_items = '0', " .
