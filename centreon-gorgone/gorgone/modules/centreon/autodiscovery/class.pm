@@ -340,11 +340,13 @@ sub action_updatediscoveryresults {
             $append = ', '
         }
 
-        $query = "INSERT INTO mod_host_disco_host (job_id, discovery_result, uuid) VALUES " . $values;
-        $status = $self->{class_object_centreon}->transaction_query(request => $query);
-        if ($status == -1) {
-            $self->{logger}->writeLogError('[autodiscovery] Failed to insert job results');
-            return 1;
+        if (defined($values) && $values ne '') {
+            $query = "INSERT INTO mod_host_disco_host (job_id, discovery_result, uuid) VALUES " . $values;
+            $status = $self->{class_object_centreon}->transaction_query(request => $query);
+            if ($status == -1) {
+                $self->{logger}->writeLogError('[autodiscovery] Failed to insert job results');
+                return 1;
+            }
         }
     } elsif ($exit_code > 0 && defined($job_id)) {
         # Failed
