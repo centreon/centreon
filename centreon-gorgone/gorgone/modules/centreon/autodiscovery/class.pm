@@ -48,6 +48,8 @@ sub new {
     $connector->{config_db_centreon} = $options{config_db_centreon};
     $connector->{stop} = 0;
 
+    $connector->{global_timeout} = (defined($options{config}->{global_timeout}) &&
+        $options{config}->{global_timeout} =~ /(\d+)/) ? $1 : 300;
     $connector->{check_interval} = (defined($options{config}->{check_interval}) &&
         $options{config}->{check_interval} =~ /(\d+)/) ? $1 : 15;
     $connector->{sync_wait} = (defined($options{config}->{sync_wait})) ?
@@ -123,6 +125,9 @@ sub action_adddiscoveryjob {
     
     my $uuid_attributes = $result->[0]->[0];    
 
+    my $timeout = (defined($options{data}->{content}->{timeout}) && $options{data}->{content}->{timeout} =~ /(\d+)/) ?
+        $options{data}->{content}->{timeout} : $self->{global_timeout};
+
     if ($options{data}->{content}->{execution_mode} == 0) {
         # Execute immediately
         $self->action_launchdiscovery(
@@ -130,7 +135,7 @@ sub action_adddiscoveryjob {
                 content => {
                     target => $options{data}->{content}->{target},
                     command => $options{data}->{content}->{command},
-                    timeout => $options{data}->{content}->{timeout},
+                    timeout => $timeout,
                     job_id => $options{data}->{content}->{job_id},
                     uuid_attributes => $uuid_attributes,
                     token => $token
@@ -148,7 +153,7 @@ sub action_adddiscoveryjob {
             parameters =>  {
                 target => $options{data}->{content}->{target},
                 command => $options{data}->{content}->{command},
-                timeout => $options{data}->{content}->{timeout},
+                timeout => $timeout,
                 job_id => $options{data}->{content}->{job_id},
                 uuid_attributes => $uuid_attributes,
                 token => $token
@@ -262,28 +267,26 @@ sub action_updatediscoveryresults {
     my ($exit_code, $output, $job_id, $token, $uuid_attributes) = -1, undef, undef, undef, undef;
 
     foreach my $message (@{$options{data}->{data}->{result}}) {
-        if ($message->{code} == 2) {
+        if ($message->{code} > 0) {
             my $data = JSON::XS->new->utf8->decode($message->{data});
-            next if (!defined($data->{result}->{exit_code}) || !defined($data->{metadata}->{job_id}) ||
-                !defined($data->{metadata}->{source}) || $data->{metadata}->{source} ne 'autodiscovery');
+            if (!defined($data->{result}->{exit_code}) || !defined($data->{metadata}->{job_id}) ||
+                !defined($data->{metadata}->{source}) || $data->{metadata}->{source} ne 'autodiscovery') {
+                $self->{logger}->writeLogInfo("[autodiscovery] Found result for token '" . $message->{token} . "'");
 
-            $self->{logger}->writeLogInfo("[autodiscovery] Found result for job '" . $data->{metadata}->{job_id} . "'");
+                $output = $data->{message};
+                $token = $message->{token};
+                last;
+            } else {
+                $self->{logger}->writeLogInfo("[autodiscovery] Found result for job '" . $data->{metadata}->{job_id} . "'");
 
-            $exit_code = $data->{result}->{exit_code};
-            $output = (defined($data->{result}->{stderr}) && $data->{result}->{stderr} ne '') ?
-                $data->{result}->{stderr} : $data->{result}->{stdout};
-            $job_id = $data->{metadata}->{job_id};
-            $token = $message->{token};
-            $uuid_attributes = JSON::XS->new->utf8->decode($data->{metadata}->{uuid_attributes});
-            last;
-        } elsif ($message->{code} == 1) {
-            my $data = JSON::XS->new->utf8->decode($message->{data});
-
-            $self->{logger}->writeLogInfo("[autodiscovery] Found result for token '" . $message->{token} . "'");
-
-            $output = $data->{message};
-            $token = $message->{token};
-            last;
+                $exit_code = $data->{result}->{exit_code};
+                $output = (defined($data->{result}->{stderr}) && $data->{result}->{stderr} ne '') ?
+                    $data->{result}->{stderr} : $data->{result}->{stdout};
+                $job_id = $data->{metadata}->{job_id};
+                $token = $message->{token};
+                $uuid_attributes = JSON::XS->new->utf8->decode($data->{metadata}->{uuid_attributes});
+                last;
+            }
         }
     }
 
