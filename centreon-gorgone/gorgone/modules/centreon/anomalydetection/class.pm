@@ -486,7 +486,8 @@ sub saas_get_predicts {
         next if ($self->{centreon_metrics}->{$_}->{saas_to_delete} == 1);
         #next if (!defined($self->{centreon_metrics}->{$_}->{thresholds_file}) ||
         #    $self->{centreon_metrics}->{$_}->{thresholds_file} eq '');
-        next if ($self->{centreon_metrics}->{$_}->{saas_update_date} > time() - 86400);
+        next if (!defined($self->{centreon_metrics}->{$_}->{saas_update_date}) || 
+            $self->{centreon_metrics}->{$_}->{saas_update_date} > time() - 86400);
 
         ($status, my $result) = $self->saas_api_request(
             endpoint => '/v1/machinelearning/' . $self->{centreon_metrics}->{$_}->{saas_model_id} . '/predicts', # shitty version hardcoded
@@ -598,7 +599,7 @@ sub action_saasregister {
     }
 
     if ($self->save_centreon_previous_register()) {
-        $self->send_log(code => gorgone::class::module::ACTION_FINISH_KO, token => $options{token}, data => { message => 'cannot save previsous register' });
+        $self->send_log(code => gorgone::class::module::ACTION_FINISH_KO, token => $options{token}, data => { message => 'cannot save previous register' });
         return 1;
     }
 
