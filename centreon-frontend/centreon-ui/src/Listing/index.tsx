@@ -171,7 +171,10 @@ const Listing = ({
   };
 
   const selectAllRows = (event): void => {
-    if (event.target.checked) {
+    if (
+      event.target.checked &&
+      event.target.getAttribute('data-indeterminate') === 'false'
+    ) {
       onSelectRows(tableData);
       return;
     }

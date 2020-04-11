@@ -30,6 +30,8 @@ describe('Table', () => {
   const tableData = [
     { id: 0, name: 'My First Row', description: 'first row description' },
     { id: 1, name: 'My Second Row', description: 'second row description' },
+    { id: 2, name: 'My Third Row', description: 'third row description' },
+    { id: 3, name: 'My Fourth Row', description: 'fourth row description' },
   ];
   const onSelectRows = jest.fn();
   const onSort = jest.fn();
@@ -79,7 +81,7 @@ describe('Table', () => {
         onSelectRows={onSelectRows}
         columnConfiguration={columnConfiguration}
         tableData={tableData}
-        totalRows={2}
+        totalRows={4}
         checkable
       />,
     );
@@ -98,6 +100,25 @@ describe('Table', () => {
         columnConfiguration={columnConfiguration}
         tableData={tableData}
         selectedRows={tableData}
+        checkable
+      />,
+    );
+
+    const selectAllCheckbox = getAllCheckboxes(container)[0];
+
+    fireEvent.click(selectAllCheckbox);
+
+    expect(onSelectRows).toHaveBeenCalledWith([]);
+  });
+
+  it('unselects selected rows when some rows are selected and the "select all" checkbox is clicked', () => {
+    const selectedRows = tableData.filter(({ id }) => id % 2 === 0);
+    const { container } = render(
+      <Table
+        onSelectRows={onSelectRows}
+        columnConfiguration={columnConfiguration}
+        tableData={tableData}
+        selectedRows={selectedRows}
         checkable
       />,
     );
