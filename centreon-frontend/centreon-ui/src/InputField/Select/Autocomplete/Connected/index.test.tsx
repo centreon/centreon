@@ -1,7 +1,12 @@
 import React from 'react';
 
 import axios from 'axios';
-import { render, fireEvent, wait, RenderResult } from '@testing-library/react';
+import {
+  render,
+  fireEvent,
+  waitFor,
+  RenderResult,
+} from '@testing-library/react';
 
 import ConnectedAutocompleteField from '.';
 import { SelectEntry } from '../..';
@@ -49,7 +54,7 @@ describe(ConnectedAutocompleteField, () => {
 
     expect(mockedAxios.get).toHaveBeenCalledWith(endpoint, expect.anything());
 
-    await wait(() => expect(getByText('My Option 1')).toBeInTheDocument());
+    await waitFor(() => expect(getByText('My Option 1')).toBeInTheDocument());
   });
 
   it('populates options with the result of the get call from the given search endpoint when some text is typed', async () => {
@@ -64,7 +69,7 @@ describe(ConnectedAutocompleteField, () => {
       target: { value: 'My Option 2' },
     });
 
-    await wait(() =>
+    await waitFor(() =>
       expect(mockedAxios.get).toHaveBeenCalledWith(
         `${endpoint}?search="My Option 2"`,
         expect.anything(),
