@@ -190,6 +190,8 @@ sub connection_informations {
         $self->{logger}->writeLogInfo('[anomalydetection] -class- database: saas_url is not defined');
         return 1;
     }
+    $self->{saas_url} =~ s/\/$//g;
+
     if (!defined($self->{saas_token}) || $self->{saas_token} eq '') {
         $self->{logger}->writeLogInfo('[anomalydetection] -class- database: saas_token is not defined');
         return 1;
@@ -322,7 +324,7 @@ sub saas_register_metrics {
         };
 
         my ($status, $result) = $self->saas_api_request(
-            endpoint => '/v1/machinelearning', # shitty version hardcoded
+            endpoint => '/machinelearning',
             method => 'POST',
             payload => $payload,
             http_code_continue => '^2'
@@ -398,7 +400,7 @@ sub saas_delete_metrics {
 
         if (defined($self->{centreon_metrics}->{$_}->{saas_model_id})) {
             my ($status, $result) = $self->saas_api_request(
-                endpoint => '/v1/machinelearning/' . $self->{centreon_metrics}->{$_}->{saas_model_id}, # shitty version hardcoded
+                endpoint => '/machinelearning/' . $self->{centreon_metrics}->{$_}->{saas_model_id},
                 method => 'DELETE',
                 http_code_continue => '^(?:2|404)'
             );
@@ -490,7 +492,7 @@ sub saas_get_predicts {
             $self->{centreon_metrics}->{$_}->{saas_update_date} > time() - 86400);
 
         ($status, my $result) = $self->saas_api_request(
-            endpoint => '/v1/machinelearning/' . $self->{centreon_metrics}->{$_}->{saas_model_id} . '/predicts', # shitty version hardcoded
+            endpoint => '/machinelearning/' . $self->{centreon_metrics}->{$_}->{saas_model_id} . '/predicts',
             method => 'GET',
             http_code_continue => '^2'
         );
