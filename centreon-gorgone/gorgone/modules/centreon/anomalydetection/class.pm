@@ -187,11 +187,11 @@ sub connection_informations {
     $self->{$_->[0]} = $_->[1] foreach (@$datas);
 
     if (!defined($self->{saas_url}) || $self->{saas_url} eq '') {
-        $self->{logger}->writeLogError('[anomalydetection] -class- database: saas_url is not defined');
+        $self->{logger}->writeLogInfo('[anomalydetection] -class- database: saas_url is not defined');
         return 1;
     }
     if (!defined($self->{saas_token}) || $self->{saas_token} eq '') {
-        $self->{logger}->writeLogError('[anomalydetection] -class- database: saas_token is not defined');
+        $self->{logger}->writeLogInfo('[anomalydetection] -class- database: saas_token is not defined');
         return 1;
     }
 
