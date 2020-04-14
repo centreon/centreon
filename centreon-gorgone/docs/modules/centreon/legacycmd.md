@@ -21,6 +21,10 @@ The module relies on the following modules to process commands:
 | cache_dir | Directory where to process Centreon configuration files | `/var/cache/centreon/` |
 | cache_dir_trap | Directory where to process Centreontrapd databases | `/etc/snmp/centreon_traps/` |
 | remote_dir | Directory where to export Remote Servers configuration | `/var/cache/centreon/config/remote-data/` |
+| clapi_user | Centreon user with admin rights used to execute CLAPI commands | `admin` |
+
+CLAPI user, and CLAPI user's password, must be the same on both Central and
+Remote Servers if platform uses those kind of servers.
 
 #### Example
 
@@ -33,6 +37,7 @@ cmd_dir: "/var/lib/centreon/"
 cache_dir: "/var/cache/centreon/"
 cache_dir_trap: "/etc/snmp/centreon_traps/"
 remote_dir: "/var/cache/centreon/config/remote-data/"
+clapi_user: "admin"
 ```
 
 ## Events
