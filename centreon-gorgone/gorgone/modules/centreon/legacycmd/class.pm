@@ -116,19 +116,20 @@ sub get_pollers_config {
 sub get_clapi_user {
     my ($self, %options) = @_;
 
-    my $clapi_user = (defined($connector->{config}->{clapi_user})) ?
-        $connector->{config}->{clapi_user} : 'admin';
     my ($status, $datas) = $self->{class_object_centreon}->custom_execute(
-        request => "SELECT contact_passwd " .
+        request => "SELECT contact_alias, contact_passwd " .
             "FROM `contact` " .
-            "WHERE `contact_activate` = '1' AND `contact_alias` = '" . $clapi_user . "'",
+            "WHERE `contact_admin` = '1' AND `contact_activate` = '1' LIMIT 1 ",
         mode => 2
     );
+    
     if ($status == -1 || !defined($datas->[0][0])) {
         $self->{logger}->writeLogError('[legacycmd] Cannot get configuration for CLAPI user');
         return -1;
     }
-    my $clapi_password = $datas->[0][0];
+    
+    my $clapi_user = $datas->[0][0];
+    my $clapi_password = $datas->[0][1];
     if ($clapi_password =~ m/^md5__(.*)/) {
         $clapi_password = $1;
     }
