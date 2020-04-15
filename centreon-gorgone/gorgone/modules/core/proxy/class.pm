@@ -426,7 +426,7 @@ sub run {
                     token => $self->generate_token(),
                     target => ''
                 );
-                $self->{clients}->{$_}->{class}->close();
+                $self->{clients}->{$_}->{class}->close() if (defined($self->{clients}->{$_}->{class}));
                 $self->{clients}->{$_}->{class} = undef;
                 $self->{clients}->{$_}->{delete} = 0;
                 next;
@@ -446,7 +446,7 @@ sub run {
         if ($rev == 0 && $self->{stop} == 1) {
             $self->{logger}->writeLogInfo("[proxy] $$ has quit");
             $self->close_connections();
-            zmq_close($connector->{internal_socket});
+            zmq_close($self->{internal_socket});
             exit(0);
         }
     }

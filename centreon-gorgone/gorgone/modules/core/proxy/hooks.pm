@@ -676,7 +676,7 @@ sub unregister_nodes {
     return if (!defined($options{data}->{nodes}));
 
     foreach my $node (@{$options{data}->{nodes}}) {
-        if ($node->{type} ne 'pull') {
+        if (defined($register_nodes->{$node->{id}}) && $register_nodes->{$node->{id}}->{type} ne 'pull') {
             routing(socket => $internal_socket, action => 'PROXYDELNODE', target => $node->{id}, data => JSON::XS->new->utf8->encode($node), dbh => $options{dbh}, logger => $options{logger});
         }
 
