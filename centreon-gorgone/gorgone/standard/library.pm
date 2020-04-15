@@ -888,13 +888,13 @@ sub init_database {
             },
             q{
                 CREATE TABLE IF NOT EXISTS `gorgone_synchistory` (
-                  `id` int(11) DEFAULT NULL,
+                  `id` int(11) NOT NULL,
                   `ctime` int(11) DEFAULT NULL,
                   `last_id` int(11) DEFAULT NULL
                 );
             },
             q{
-                CREATE INDEX IF NOT EXISTS idx_gorgone_synchistory_id ON gorgone_synchistory (id);
+                CREATE UNIQUE INDEX IF NOT EXISTS idx_gorgone_synchistory_id ON gorgone_synchistory (id);
             },
             q{
                 CREATE TABLE IF NOT EXISTS `gorgone_target_fingerprint` (

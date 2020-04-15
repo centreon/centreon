@@ -27,12 +27,12 @@ CREATE INDEX IF NOT EXISTS idx_gorgone_history_ctime ON gorgone_history (ctime);
 CREATE INDEX IF NOT EXISTS idx_gorgone_history_instant ON gorgone_history (instant);
 
 CREATE TABLE IF NOT EXISTS `gorgone_synchistory` (
-  `id` int(11) DEFAULT NULL,
+  `id` int(11) NOT NULL,
   `ctime` int(11) DEFAULT NULL,
   `last_id` int(11) DEFAULT NULL
 );
 
-CREATE INDEX IF NOT EXISTS idx_gorgone_synchistory_id ON gorgone_synchistory (id);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_gorgone_synchistory_id ON gorgone_synchistory (id);
 
 CREATE TABLE IF NOT EXISTS `gorgone_target_fingerprint` (
   `id` INTEGER PRIMARY KEY,
