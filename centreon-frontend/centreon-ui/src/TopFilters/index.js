@@ -26,7 +26,7 @@ const useStyles = makeStyles({
 const TopFilters = ({ fullText, switches, onChange }) => {
   const classes = useStyles();
   return (
-    <div className={styles['container-gray']}>
+    <div>
       <div className={filterStyles['filters-wrapper']}>
         <Wrapper>
           <div className={clsx(styles.container__row)}>
