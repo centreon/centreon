@@ -96,6 +96,7 @@ $form->addGroup($ldapUseDns, 'ldap_srv_dns', _("Use service DNS"), '&nbsp;');
 
 $form->addElement('text', 'ldap_dns_use_domain', _("Alternative domain for ldap"), $attrsText);
 
+$form->addElement('text', 'ldap_connect_timeout', _('LDAP connection timeout'), $attrsText2);
 $form->addElement('text', 'ldap_search_limit', _('LDAP search size limit'), $attrsText2);
 $form->addElement('text', 'ldap_search_timeout', _('LDAP search timeout'), $attrsText2);
 
@@ -216,6 +217,7 @@ $defaultOpt = array(
     'ldap_dns_use_tls' => '0',
     'ldap_contact_tmpl' => '0',
     'ldap_default_cg' => '0',
+    'ldap_connect_timeout' => '5',
     'ldap_search_limit' => '60',
     'ldap_auto_sync' => '1', // synchronization on user's login is enabled by default
     'ldap_sync_interval' => '1', // minimal value of the interval between two LDAP synchronizations
