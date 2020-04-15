@@ -690,6 +690,7 @@ sub unregister_nodes {
             }
         }
 
+        delete $nodes_pool->{$node->{id}} if (defined($nodes_pool->{$node->{id}}));
         if (defined($register_nodes->{$node->{id}})) {
             delete $register_nodes->{$node->{id}};
             delete $synctime_nodes->{$node->{id}};
