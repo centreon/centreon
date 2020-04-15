@@ -23,7 +23,7 @@ import IconPowerSettings from '../Icon/IconPowerSettings';
 import IconPowerSettingsDisable from '../Icon/IconPowerSettingsDisable';
 import IconDelete from '../Icon/IconDelete';
 import IconLibraryAdd from '../Icon/IconLibraryAdd';
-import ListingHeader from './Header';
+import ListingHeader, { useCellStyles } from './Header';
 import TABLE_COLUMN_TYPES from './ColumnTypes';
 import PaginationActions from './PaginationActions';
 import StyledPagination from './Pagination';
@@ -36,7 +36,9 @@ const haveSameIds = (a, b): boolean => a.id === b.id;
 
 const BodyTableCell = withStyles((theme) => ({
   root: {
-    padding: theme.spacing(0.5, 0.5),
+    paddingTop: theme.spacing(0.5),
+    paddingBottom: theme.spacing(0.5),
+    paddingRight: theme.spacing(0.5),
   },
 }))(TableCell);
 
@@ -148,6 +150,7 @@ const Listing = ({
   const tableBody = useRef<HTMLTableSectionElement>();
 
   const classes = useStyles();
+  const cellClasses = useCellStyles(checkable);
 
   useEffect(() => {
     const ro = new ResizeObserver(() => {
@@ -222,6 +225,7 @@ const Listing = ({
             key={cellKey}
             align="left"
             style={{ width: width || 'auto' }}
+            className={cellClasses.cell}
           >
             <Typography variant="body2">
               {getFormattedString(row) || ''}
@@ -230,7 +234,11 @@ const Listing = ({
         );
       },
       [TABLE_COLUMN_TYPES.toggler]: (): JSX.Element => (
-        <BodyTableCell align="left" key={column.id}>
+        <BodyTableCell
+          align="left"
+          key={column.id}
+          className={cellClasses.cell}
+        >
           {row[column.id] ? (
             <Tooltip
               label={labelEnableDisable}
@@ -264,6 +272,7 @@ const Listing = ({
             width: 90,
             position: 'relative',
           }}
+          className={cellClasses.cell}
         >
           {hoveredRowId === row.id ? (
             <Box
@@ -329,6 +338,7 @@ const Listing = ({
               e.preventDefault();
               e.stopPropagation();
             }}
+            className={cellClasses.cell}
           >
             <Component
               row={row}

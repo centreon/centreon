@@ -8,6 +8,7 @@ import {
   withStyles,
   TableSortLabel,
   Typography,
+  makeStyles,
 } from '@material-ui/core';
 
 const HeaderCell = withStyles((theme) => ({
@@ -15,7 +16,6 @@ const HeaderCell = withStyles((theme) => ({
     backgroundColor: theme.palette.common.white,
     paddingBottom: theme.spacing(1),
     paddingTop: theme.spacing(1),
-    paddingLeft: theme.spacing(0.5),
   },
 }))(TableCell);
 
@@ -24,6 +24,12 @@ const HeaderTypography = withStyles({
     fontWeight: 'bold',
   },
 })(Typography);
+
+export const useCellStyles = makeStyles((theme) => ({
+  cell: {
+    paddingLeft: (checkable): number => theme.spacing(checkable ? 0 : 1.5),
+  },
+}));
 
 interface Props {
   onSelectAllClick: (event) => void;
@@ -46,6 +52,8 @@ const ListingHeader = ({
   checkable,
   onRequestSort,
 }: Props): JSX.Element => {
+  const classes = useCellStyles(checkable);
+
   const createSortHandler = (property) => (event): void => {
     onRequestSort(event, property);
   };
@@ -74,6 +82,7 @@ const ListingHeader = ({
             align={column.numeric ? 'left' : 'inherit'}
             padding={column.disablePadding ? 'none' : 'default'}
             sortDirection={orderBy === column.id ? order : false}
+            className={classes.cell}
           >
             {column.sortable === false ? (
               <HeaderTypography variant="body2">
