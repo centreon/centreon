@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 
 import PropTypes from 'prop-types';
-import { Formik } from 'formik';
+import { Formik, Form } from 'formik';
 import { makeStyles } from '@material-ui/core/styles';
 import Dialog from '@material-ui/core/Dialog';
 import DialogContent from '@material-ui/core/DialogContent';
@@ -160,7 +160,19 @@ const Wizard = (props) => {
                 bag.isSubmitting ||
                 (!bag.dirty && !validValues);
               return (
-                <form className={classes.form} onSubmit={bag.handleSubmit}>
+                <Form
+                  className={classes.form}
+                  onSubmit={bag.handleSubmit}
+                  onKeyPress={(keyEvent) => {
+                    const { preventEnterKey } = activePage.props;
+                    if (
+                      preventEnterKey &&
+                      (keyEvent.charCode || keyEvent.keyCode) === 13
+                    ) {
+                      keyEvent.preventDefault();
+                    }
+                  }}
+                >
                   {cloneElement(activePage, {
                     errors: bag.errors,
                     handleBlur: bag.handleBlur,
@@ -184,7 +196,7 @@ const Wizard = (props) => {
                       actionBarProps={actionBarProps}
                     />
                   )}
-                </form>
+                </Form>
               );
             }}
           </Formik>
