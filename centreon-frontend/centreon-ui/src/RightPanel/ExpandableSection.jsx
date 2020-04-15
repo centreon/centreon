@@ -1,13 +1,24 @@
 import React from 'react';
 
-import ExpansionPanel from '@material-ui/core/ExpansionPanel';
-import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary';
-import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
-import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
-import { Typography } from '@material-ui/core';
-import { styled } from '@material-ui/core/styles';
-import ListItem from '@material-ui/core/ListItem';
 import PropTypes from 'prop-types';
+
+import {
+  Typography,
+  makeStyles,
+  ExpansionPanelSummary,
+  ExpansionPanelDetails,
+  ExpansionPanel,
+  styled,
+  withStyles,
+  ListItem,
+} from '@material-ui/core';
+import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
+
+const useStyles = makeStyles((theme) => ({
+  details: {
+    padding: theme.spacing(0, 2),
+  },
+}));
 
 const Title = styled(Typography)(({ theme }) => ({
   fontSize: theme.typography.pxToRem(15),
@@ -22,13 +33,30 @@ const Section = styled(ExpansionPanel)({
   borderBottom: '1px solid #bcbdc0',
   borderRadius: '0',
 });
+
+const CustomizedExpansionPanelSummary = withStyles((theme) => ({
+  root: {
+    minHeight: theme.spacing(4),
+    '&$expanded': {
+      minHeight: theme.spacing(4),
+    },
+  },
+  content: {
+    '&$expanded': {
+      margin: theme.spacing(1, 0),
+    },
+  },
+  expanded: {},
+}))(ExpansionPanelSummary);
+
 const ExpandableSection = ({ title, children }) => {
+  const classes = useStyles();
   return (
     <Section>
-      <ExpansionPanelSummary expandIcon={<ExpandMoreIcon />}>
+      <CustomizedExpansionPanelSummary expandIcon={<ExpandMoreIcon />}>
         <Title>{title}</Title>
-      </ExpansionPanelSummary>
-      <ExpansionPanelDetails style={{ padding: '8px 10px 10px' }}>
+      </CustomizedExpansionPanelSummary>
+      <ExpansionPanelDetails className={classes.details}>
         <ListItem>{children}</ListItem>
       </ExpansionPanelDetails>
     </Section>
