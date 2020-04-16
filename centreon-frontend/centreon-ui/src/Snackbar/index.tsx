@@ -22,6 +22,11 @@ const useStyles = makeStyles<PropsStyle>({
   alertIcon: {
     paddingTop: '10px',
   },
+  message: {
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'center',
+  },
 });
 
 interface Props {
@@ -52,7 +57,7 @@ const Snackbar = ({ message, open, onClose, severity }: Props): JSX.Element => {
             <IconClose className={classes.closeIcon} />
           </IconButton>,
         ]}
-        classes={{ icon: classes.alertIcon }}
+        classes={{ icon: classes.alertIcon, message: classes.message }}
       >
         {message}
       </Alert>
