@@ -66,7 +66,7 @@ CREATE TABLE IF NOT EXISTS centreon_storage.`mod_open_tickets` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE INDEX `mod_open_tickets_timestamp_idx` ON centreon_storage.`mod_open_tickets` (`timestamp`);
-CREATE INDEX `mod_open_tickets_ticket_value_idx` ON centreon_storage.`mod_open_tickets` (`ticket_value`);
+CREATE INDEX `mod_open_tickets_ticket_value_idx` ON centreon_storage.`mod_open_tickets` (`ticket_value`(768));
 
 CREATE TABLE IF NOT EXISTS centreon_storage.`mod_open_tickets_data` (
     `ticket_id` int(11) NOT NULL,
