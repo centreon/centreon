@@ -22,7 +22,7 @@ Third-party clients have to use the ZeroMQ library and the following process:
     [PUBKEY] [base64 encoding pubkey]
     ```
 
-4. Client -> Server: send the following message with HELO crypted with the public key of the server (and base64 encoding) and provides client pubkey:
+4. Client -> Server: send the following message with HELO crypted with the public key of the server (and base64 encoding) and provides client pubkey (base64 encoding):
 
     ```text
     [HOSTNAME] [CLIENTPUBKEY] [HELO]

@@ -272,7 +272,6 @@ sub client_helo_encrypt {
     my $ciphertext;
 
     my $client_pubkey = $options{client_pubkey}->export_key_pem('public');
-    $client_pubkey =~ s/\n/\\n/g;
     eval {
         $ciphertext = $options{server_pubkey}->encrypt('HELO', 'v1.5');
     };
@@ -280,7 +279,7 @@ sub client_helo_encrypt {
         return (-1, "Encoding issue: $@");
     }
 
-    return (0, '[' . $options{identity} . '] [' . $client_pubkey . '] [' . MIME::Base64::encode_base64($ciphertext, '') . ']');
+    return (0, '[' . $options{identity} . '] [' . MIME::Base64::encode_base64($client_pubkey, '') . '] [' . MIME::Base64::encode_base64($ciphertext, '') . ']');
 }
 
 sub is_client_can_connect {
@@ -306,7 +305,7 @@ sub is_client_can_connect {
     }
 
     my ($client_pubkey);
-    $client_pubkey_str =~ s/\\n/\n/g;
+    $client_pubkey_str = MIME::Base64::decode_base64($client_pubkey_str);
     eval {
         $client_pubkey = Crypt::PK::RSA->new(\$client_pubkey_str);
     };
