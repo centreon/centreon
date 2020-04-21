@@ -408,10 +408,22 @@ sub pathway {
 
     my $target = $options{target};
     if (!defined($target)) {
+        $options{logger}->writeLogDebug('[proxy] need a valid node id');
         gorgone::standard::library::add_history(
             dbh => $options{dbh},
             code => gorgone::class::module::ACTION_FINISH_KO, token => $options{token},
             data => { message => 'proxy - need a valid node id' },
+            json_encode => 1
+        );
+        return -1;
+    }
+
+    if (!defined($register_nodes->{$target}) && !defined($register_subnodes->{$target})) {
+        $options{logger}->writeLogDebug("[proxy] unknown target '$target'");
+        gorgone::standard::library::add_history(
+            dbh => $options{dbh},
+            code => gorgone::class::module::ACTION_FINISH_KO, token => $options{token},
+            data => { message => 'proxy - unknown target ' . $target },
             json_encode => 1
         );
         return -1;
