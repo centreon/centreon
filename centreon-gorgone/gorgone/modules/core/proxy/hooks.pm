@@ -200,7 +200,7 @@ sub routing {
         }
 
         if (defined($register_nodes->{$target})) {
-            if ($synctime_nodes->{$target}->{synctime_error} == -1 || get_sync_time(dbh => $options{dbh}, node_id => $target) == -1) {
+            if ($synctime_nodes->{$target}->{synctime_error} == -1 && get_sync_time(dbh => $options{dbh}, node_id => $target) == -1) {
                 gorgone::standard::library::add_history(
                     dbh => $options{dbh},
                     code => gorgone::class::module::ACTION_FINISH_KO, token => $options{token},
