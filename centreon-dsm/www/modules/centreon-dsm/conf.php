@@ -17,7 +17,7 @@ The goal of this module is to overhead the basic trap management system of Centr
 $module_conf['centreon-dsm']["is_removeable"] = "1";
 $module_conf['centreon-dsm']["author"] = "Centreon";
 $module_conf['centreon-dsm']["stability"] = "stable";
-$module_conf['centreon-dsm']["last_update"] = "2020-04-17;
+$module_conf['centreon-dsm']["last_update"] = "2020-04-22";
 $module_conf['centreon-dsm']["release_note"] = "https://documentation.centreon.com/20.04/en/releases/centreon-os-extensions.html";
 $module_conf['centreon-dsm']["images"] = [
     'images/dsm_snmp_events_tray.png'
