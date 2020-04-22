@@ -89,3 +89,4 @@ export { SeverityCode, getStatusColors } from './StatusChip';
 
 export { default as useCancelTokenSource } from './api/useCancelTokenSource';
 export { getData } from './api';
+export { default as useRequest } from './api/useRequest';
