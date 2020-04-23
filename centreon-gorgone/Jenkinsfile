@@ -39,6 +39,12 @@ try {
         sh 'setup_centreon_build.sh'
         sh "./centreon-build/jobs/gorgone/${serie}/gorgone-package.sh centos7"
       }
+    },
+    'centos8': {
+      node {
+        sh 'setup_centreon_build.sh'
+        sh "./centreon-build/jobs/gorgone/${serie}/gorgone-package.sh centos8"
+      }
     }
     if ((currentBuild.result ?: 'SUCCESS') != 'SUCCESS') {
       error('Package stage failure.');
