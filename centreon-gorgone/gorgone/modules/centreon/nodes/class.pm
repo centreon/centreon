@@ -137,7 +137,7 @@ sub action_nodesresync {
     my $register_subnodes = {};
     foreach (@$datas) {
         $register_subnodes->{$_->[0]} = [] if (!defined($register_subnodes->{$_->[0]}));
-        unshift $register_subnodes->{$_->[0]}, { id => $_->[1], pathscore => 100 };
+        unshift @{$register_subnodes->{$_->[0]}}, { id => $_->[1], pathscore => 100 };
     }
 
     $request = "
