@@ -60,11 +60,16 @@ $template = initSmartyTplForPopup($path, $template, "./", $centreon_path);
 $centreon = $_SESSION['centreon'];
 $widgetId = filter_var($_REQUEST['widgetId'], FILTER_VALIDATE_INT);
 $page = filter_var($_REQUEST['page'], FILTER_VALIDATE_INT);
-if ($widgetId === false) {
-    throw new InvalidArgumentException('Widget ID must be an integer');
-}
-if ($page === false) {
-    throw new InvalidArgumentException('page must be an integer');
+try {
+    if ($widgetId === false) {
+        throw new InvalidArgumentException('Widget ID must be an integer');
+    }
+    if ($page === false) {
+        throw new InvalidArgumentException('Page must be an integer');
+    }
+} catch (InvalidArgumentException $e) {
+    echo $e->getMessage();
+    exit;
 }
 
 /**
