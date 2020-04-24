@@ -69,6 +69,7 @@ mkdir -p %{buildroot}/%{perl_vendorlib}/gorgone
 
 %{__install} -d %{buildroot}%{_sysconfdir}/centreon-gorgone
 %{__install} -d %{buildroot}%{_sysconfdir}/centreon-gorgone/config.d/
+%{__install} -d %{buildroot}%{_sysconfdir}/centreon-gorgone/config.d/cron.d/
 %{__install} -d %buildroot%{_localstatedir}/cache/centreon-gorgone/autodiscovery
 %{__cp} packaging/config.yaml %{buildroot}%{_sysconfdir}/centreon-gorgone/
 %{__cp} packaging/centreon.yaml %{buildroot}%{_sysconfdir}/centreon-gorgone/config.d/30-centreon.yaml
@@ -92,6 +93,7 @@ rm -rf %{buildroot}
 %defattr(-, centreon-gorgone, centreon-gorgone, -)
 %dir %{_sysconfdir}/centreon-gorgone
 %dir %attr(775, centreon-gorgone, centreon-gorgone) %{_sysconfdir}/centreon-gorgone/config.d
+%dir %attr(775, centreon-gorgone, centreon-gorgone) %{_sysconfdir}/centreon-gorgone/config.d/cron.d
 %{_sysconfdir}/centreon-gorgone/config.yaml
 %{_localstatedir}/lib/centreon-gorgone
 %{_localstatedir}/log/centreon-gorgone
