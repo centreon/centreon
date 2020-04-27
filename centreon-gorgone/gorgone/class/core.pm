@@ -561,11 +561,11 @@ sub handshake {
             symkey => $key,
             vector => $self->{config}->{configuration}->{gorgone}->{gorgonecore}->{vector}
         );
-        if ($status == 0 && $response =~ /^\[.*\]/) {
+        if ($status == 0 && $response =~ /^(?:[\[a-zA-Z-_]+?\]\s+\[.*?\]|[\[a-zA-Z-_]+?\]\s*$)/) {
             gorgone::standard::library::update_identity(dbh => $self->{db_gorgone}, identity => $identity);
             return ($identity, $key, $response);
         }
-        
+
         # Maybe he want to redo a handshake
         $status = 0;    
     }
