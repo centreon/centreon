@@ -37,7 +37,10 @@ export { default as SearchLive } from './Search/SearchLive';
 export { default as Slider } from './Slider/SliderContent';
 export { default as Sidebar } from './Sidebar';
 export { default as Subtitle } from './Subtitle';
+
 export { default as Listing } from './Listing';
+export { RowColorCondition } from './Listing/Row';
+
 export { default as Title } from './Title';
 export { default as Wrapper } from './Wrapper';
 export { default as TopFilters } from './TopFilters';

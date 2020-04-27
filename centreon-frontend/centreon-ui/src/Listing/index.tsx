@@ -1,8 +1,6 @@
 import React, { useState, useRef, useEffect, RefObject } from 'react';
 
 import ResizeObserver from 'resize-observer-polyfill';
-import isEqual from 'lodash/isEqual';
-import clsx from 'clsx';
 
 import { withStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import {
@@ -12,9 +10,7 @@ import {
   LinearProgress,
   Box,
   TableCell,
-  TableRowProps,
   TableRow,
-  fade,
   Checkbox,
   Typography,
 } from '@material-ui/core';
@@ -24,6 +20,7 @@ import IconPowerSettingsDisable from '../Icon/IconPowerSettingsDisable';
 import IconDelete from '../Icon/IconDelete';
 import IconLibraryAdd from '../Icon/IconLibraryAdd';
 import ListingHeader, { useCellStyles } from './Header';
+import ListingRow from './Row';
 import TABLE_COLUMN_TYPES from './ColumnTypes';
 import PaginationActions from './PaginationActions';
 import StyledPagination from './Pagination';
@@ -422,7 +419,7 @@ const Listing = ({
                 const isRowSelected = isSelected(row);
 
                 return (
-                  <MemoizedRow
+                  <ListingRow
                     tabIndex={-1}
                     key={row.id}
                     onMouseOver={(): void => hoverRow(row.id)}
@@ -459,7 +456,7 @@ const Listing = ({
                         row,
                       }),
                     )}
-                  </MemoizedRow>
+                  </ListingRow>
                 );
               })}
               {tableData.length < 1 && (
@@ -479,74 +476,5 @@ const Listing = ({
     </>
   );
 };
-
-const useRowStyles = (rowColorConditions): (() => Record<string, string>) =>
-  makeStyles<Theme>((theme) => {
-    const rowColorClasses = rowColorConditions.reduce(
-      (rowColorConditionClasses, { name, color }) => ({
-        ...rowColorConditionClasses,
-        [name]: {
-          backgroundColor: color,
-        },
-      }),
-      {},
-    );
-
-    return {
-      row: {
-        cursor: 'pointer',
-        '&:hover': {
-          backgroundColor: fade(theme.palette.primary.main, 0.08),
-        },
-      },
-      ...rowColorClasses,
-    };
-  });
-
-interface RowProps {
-  children;
-  isHovered?: boolean;
-  isSelected?: boolean;
-  row;
-  rowColorConditions;
-}
-
-const MemoizedRow = React.memo<RowProps & TableRowProps>(
-  ({
-    children,
-    tabIndex,
-    onMouseOver,
-    onFocus,
-    onClick,
-    row,
-    rowColorConditions,
-  }: RowProps & TableRowProps): JSX.Element => {
-    const classes = useRowStyles(rowColorConditions)();
-
-    const specialColor = rowColorConditions.find(({ condition }) =>
-      condition(row),
-    );
-
-    return (
-      <TableRow
-        tabIndex={tabIndex}
-        onMouseOver={onMouseOver}
-        className={clsx([classes.row, classes[specialColor?.name]])}
-        onFocus={onFocus}
-        onClick={onClick}
-      >
-        {children}
-      </TableRow>
-    );
-  },
-  (prevProps, nextProps) => {
-    return (
-      isEqual(prevProps.isHovered, nextProps.isHovered) &&
-      isEqual(prevProps.isSelected, nextProps.isSelected) &&
-      isEqual(prevProps.row, nextProps.row) &&
-      isEqual(prevProps.className, nextProps.className)
-    );
-  },
-);
 
 export default Listing;
