@@ -594,15 +594,21 @@ sub kill {
 sub update_identity {
     my (%options) = @_;
 
-    my ($status, $sth) = $options{dbh}->query("UPDATE gorgone_identity SET `ctime` = " . $options{dbh}->quote(time()) . " WHERE `identity` = " . $options{dbh}->quote($options{identity}));
+    my ($status, $sth) = $options{dbh}->query(
+        "UPDATE gorgone_identity SET `ctime` = " . $options{dbh}->quote(time()) .
+        " WHERE `identity` = " . $options{dbh}->quote($options{identity}) . " AND " .
+        " `id` = (SELECT `id` FROM gorgone_identity WHERE `identity` = " . $options{dbh}->quote($options{identity}) . " ORDER BY `id` DESC LIMIT 1)"
+    );
     return $status;
 }
 
 sub add_identity {
     my (%options) = @_;
 
-    my ($status, $sth) = $options{dbh}->query("INSERT INTO gorgone_identity (`ctime`, `identity`, `key`) VALUES (" . 
-                  $options{dbh}->quote(time()) . ", " . $options{dbh}->quote($options{identity}) . ", " . $options{dbh}->quote(unpack('H*', $options{symkey})) . ")");
+    my ($status, $sth) = $options{dbh}->query(
+        "INSERT INTO gorgone_identity (`ctime`, `identity`, `key`) VALUES (" . 
+        $options{dbh}->quote(time()) . ", " . $options{dbh}->quote($options{identity}) . ", " . $options{dbh}->quote(unpack('H*', $options{symkey})) . ")"
+    );
     return $status;
 }
 
