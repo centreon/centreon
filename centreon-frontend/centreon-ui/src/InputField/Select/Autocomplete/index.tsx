@@ -1,20 +1,15 @@
 import * as React from 'react';
 
-import isEqual from 'lodash/isEqual';
+import { equals } from 'ramda';
 
-import {
-  Checkbox,
-  makeStyles,
-  CircularProgress,
-  Chip,
-} from '@material-ui/core';
+import { makeStyles, CircularProgress } from '@material-ui/core';
 import Autocomplete, { AutocompleteProps } from '@material-ui/lab/Autocomplete';
+import { UseAutocompleteProps } from '@material-ui/lab/useAutocomplete';
 
-import { UseAutocompleteMultipleProps } from '@material-ui/lab/useAutocomplete';
 import TextField from '../../Text';
 import { SelectEntry } from '..';
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles(() => ({
   loadingIndicator: {
     textAlign: 'center',
   },
@@ -28,9 +23,6 @@ const useStyles = makeStyles((theme) => ({
     '&:hover:before': {
       borderBottom: 0,
     },
-  },
-  tag: {
-    fontSize: theme.typography.pxToRem(10),
   },
 }));
 
@@ -50,7 +42,7 @@ export type Props = {
   label: string;
   placeholder?: string;
 } & Omit<AutocompleteProps<SelectEntry>, 'renderInput'> &
-  Omit<UseAutocompleteMultipleProps<SelectEntry>, 'multiple'>;
+  UseAutocompleteProps<SelectEntry>;
 
 const AutocompleteField = ({
   options,
@@ -62,22 +54,8 @@ const AutocompleteField = ({
 }: Props): JSX.Element => {
   const classes = useStyles();
 
-  const renderTags = (value, getTagProps): Array<JSX.Element> =>
-    value.map((option, index) => (
-      <Chip
-        classes={{
-          root: classes.tag,
-        }}
-        key={option.id}
-        label={option.name}
-        size="small"
-        {...getTagProps({ index })}
-      />
-    ));
-
   return (
     <Autocomplete
-      multiple
       size="small"
       options={options}
       disableCloseOnSelect
@@ -85,13 +63,7 @@ const AutocompleteField = ({
       classes={{ inputRoot: classes.input }}
       getOptionLabel={(option): string => option.name}
       loadingText={<LoadingIndicator />}
-      getOptionSelected={isEqual}
-      renderOption={(option, { selected }): JSX.Element => (
-        <>
-          <Checkbox color="primary" checked={selected} />
-          {option.name}
-        </>
-      )}
+      getOptionSelected={equals}
       renderInput={(params): JSX.Element => (
         <TextField
           {...params}
@@ -100,7 +72,6 @@ const AutocompleteField = ({
           onChange={onTextChange}
         />
       )}
-      renderTags={renderTags}
       {...props}
     />
   );

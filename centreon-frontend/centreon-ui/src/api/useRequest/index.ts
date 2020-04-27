@@ -3,17 +3,18 @@ import * as React from 'react';
 import axios from 'axios';
 import { pathOr, cond, T, defaultTo } from 'ramda';
 
-import { useCancelTokenSource, Severity } from '../..';
+import useCancelTokenSource from '../useCancelTokenSource';
+import Severity from '../../Snackbar/Severity';
 import useSnackbar from '../../Snackbar/useSnackbar';
 
 export interface RequestParams<TResult> {
-  request: (token) => Promise<TResult>;
+  request: (token) => (params?) => Promise<TResult>;
   getErrorMessage?: (error) => string;
   defaultFailureMessage?: string;
 }
 
 export interface RequestResult<TResult> {
-  sendRequest: () => Promise<TResult>;
+  sendRequest: (params?) => Promise<TResult>;
   sending: boolean;
 }
 
@@ -43,10 +44,10 @@ const useRequest = <TResult>({
     });
   };
 
-  const sendRequest = (): Promise<TResult> => {
+  const sendRequest = (params): Promise<TResult> => {
     setSending(true);
 
-    return request(token)
+    return request(token)(params)
       .catch((error) =>
         cond([
           [axios.isCancel, T],

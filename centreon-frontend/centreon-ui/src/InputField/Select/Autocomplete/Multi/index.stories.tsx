@@ -1,8 +1,8 @@
 import React from 'react';
 
-import AutocompleteField from '.';
+import MultiAutocompleteField from '.';
 
-export default { title: 'InputField/Autocomplete' };
+export default { title: 'InputField/Autocomplete/Multi' };
 
 const options = [
   { id: 0, name: 'First Entity' },
@@ -12,11 +12,11 @@ const options = [
 
 export const openWithThreeOptions = (): JSX.Element => {
   return (
-    <AutocompleteField
+    <MultiAutocompleteField
       options={options}
       label="Autocomplete"
       placeholder="Type here..."
-      value={options[1]}
+      value={[options[1]]}
       open
     />
   );

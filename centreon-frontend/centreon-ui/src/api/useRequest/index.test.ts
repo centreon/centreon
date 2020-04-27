@@ -39,21 +39,21 @@ describe(useRequest, () => {
   });
 
   it('resolves with the result of the given request', async () => {
-    request.mockResolvedValue({ data: 'success' });
+    request.mockImplementation(() => jest.fn().mockResolvedValue('success'));
 
     const { result } = renderUseRequest({
       request,
     });
 
     await act(async () =>
-      result.current.sendRequest().then(({ data }) => {
+      result.current.sendRequest().then((data) => {
         expect(data).toEqual('success');
       }),
     );
   });
 
   it('shows an error via the Snackbar using the result of the given getErrorMessage function when it is passed', async () => {
-    request.mockRejectedValue({});
+    request.mockImplementation(() => jest.fn().mockRejectedValue({}));
 
     const getErrorMessage = (): string => 'custom message';
 
@@ -70,9 +70,11 @@ describe(useRequest, () => {
   });
 
   it('shows an error via the Snackbar using the error message from the API when available', async () => {
-    request.mockRejectedValue({
-      response: { data: { message: 'failure' } },
-    });
+    request.mockImplementation(() =>
+      jest.fn().mockRejectedValue({
+        response: { data: { message: 'failure' } },
+      }),
+    );
 
     const { result } = renderUseRequest({ request });
 
@@ -87,7 +89,7 @@ describe(useRequest, () => {
   });
 
   it('shows a default failure message via the Snackbar as fallback', async () => {
-    request.mockRejectedValue({});
+    request.mockImplementation(() => jest.fn().mockRejectedValue({}));
 
     const { result } = renderUseRequest({
       request,
@@ -107,7 +109,7 @@ describe(useRequest, () => {
   it('does not show any message via the Snackbar when the error is an axios cancel', async () => {
     mockedAxios.isCancel.mockReturnValue(true);
 
-    request.mockRejectedValue({});
+    request.mockImplementation(() => jest.fn().mockRejectedValue({}));
 
     const { result } = renderUseRequest({
       request,

@@ -16,10 +16,15 @@ export { default as IconInfo } from './Icon/IconInfo';
 export { default as IconToggleSubmenu } from './Icon/IconToggleSubmenu';
 
 export {
-  default as AutocompleteField,
-  Props as AutocompleteFieldProps,
+  default as SingleAutocompleteField,
+  Props as SingleAutocompleteFieldProps,
 } from './InputField/Select/Autocomplete';
-export { default as ConnectedAutocompleteField } from './InputField/Select/Autocomplete/Connected';
+export {
+  default as MultiAutocompleteField,
+  Props as MultiAutocompleteFieldProps,
+} from './InputField/Select/Autocomplete/Multi';
+export { default as SingleConnectedAutocompleteField } from './InputField/Select/Autocomplete/Connected/Single';
+export { default as MultiConnectedAutocompleteField } from './InputField/Select/Autocomplete/Connected/Multi';
 export { default as SearchField } from './InputField/Search';
 export { default as TextField } from './InputField/Text';
 export { default as SelectField, SelectEntry } from './InputField/Select';
