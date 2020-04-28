@@ -36,6 +36,7 @@ use MIME::Base64;
 use Digest::MD5::File qw(file_md5_hex);
 use Fcntl;
 
+$Digest::MD5::File::NOFATALS = 1;
 my %handlers = (TERM => {}, HUP => {});
 my ($connector);
 
@@ -47,6 +48,7 @@ sub new {
     $connector->{config} = $options{config};
     $connector->{config_core} = $options{config_core};
     $connector->{stop} = 0;
+    $connector->{process_copy_files_error} = {};
     
     $connector->{command_timeout} = defined($connector->{config}->{command_timeout}) ?
         $connector->{config}->{command_timeout} : 30;
@@ -247,15 +249,29 @@ sub action_processcopy {
     }
 
     my $cache_file = $options{data}->{content}->{cache_dir} . '/copy_' . $options{token};
-    if ($options{data}->{content}->{status} eq "inprogress" && defined($options{data}->{content}->{chunk}->{data})) {
-        sysopen(FH, $cache_file, O_WRONLY|O_APPEND|O_CREAT);
-        binmode(FH);
+    if ($options{data}->{content}->{status} eq 'inprogress' && defined($options{data}->{content}->{chunk}->{data})) {        
+        my $fh;
+        if (!sysopen($fh, $cache_file, O_RDWR|O_APPEND|O_CREAT, 0660)) {
+            # no need to insert too many logs
+            return -1 if (defined($self->{process_copy_files_error}->{$cache_file}));
+            $self->{process_copy_files_error}->{$cache_file} = 1;
+            $self->send_log(
+                code => gorgone::class::module::ACTION_FINISH_KO,
+                token => $options{token},
+                data => { message => "file '$cache_file' open failed: $!" }
+            );
+
+            $self->{logger}->writeLogError("[action] file '$cache_file' open failed: $!");
+            return -1;
+        }
+        delete $self->{process_copy_files_error}->{$cache_file} if (defined($self->{process_copy_files_error}->{$cache_file}));
+        binmode($fh);
         syswrite(
-            FH,
+            $fh,
             MIME::Base64::decode_base64($options{data}->{content}->{chunk}->{data}),
             $options{data}->{content}->{chunk}->{size}
         );
-        close FH;
+        close $fh;
 
         $self->send_log(
             code => gorgone::class::module::ACTION_FINISH_OK,
@@ -266,8 +282,10 @@ sub action_processcopy {
         );
         $self->{logger}->writeLogInfo("[action] Copy processing - Received chunk for '" . $options{data}->{content}->{destination} . "'");
         return 0;
-    } elsif ($options{data}->{content}->{status} eq "end" && defined($options{data}->{content}->{md5})) {
-        if ($options{data}->{content}->{md5} eq file_md5_hex($cache_file)) {
+    } elsif ($options{data}->{content}->{status} eq 'end' && defined($options{data}->{content}->{md5})) {
+        delete $self->{process_copy_files_error}->{$cache_file} if (defined($self->{process_copy_files_error}->{$cache_file}));
+        my $local_md5_hex = file_md5_hex($cache_file);
+        if (defined($local_md5_hex) && $options{data}->{content}->{md5} eq $local_md5_hex) {
             if ($options{data}->{content}->{type} eq "archive") {
                 if (! -d $options{data}->{content}->{destination}) {
                     make_path($options{data}->{content}->{destination});
@@ -296,7 +314,7 @@ sub action_processcopy {
                     $self->{logger}->writeLogError('[action] Copy processing - Untar failed: ' . $stdout);
                     return -1;
                 }
-            } elsif ($options{data}->{content}->{type} eq "regular") {
+            } elsif ($options{data}->{content}->{type} eq 'regular') {
                 copy($cache_file, $options{data}->{content}->{destination});
                 my $uid = getpwnam($options{data}->{content}->{owner});
                 my $gid = getgrnam($options{data}->{content}->{group});
