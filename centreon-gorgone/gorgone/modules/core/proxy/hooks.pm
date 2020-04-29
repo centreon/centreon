@@ -488,6 +488,11 @@ sub setlogs {
     $options{dbh}->transaction_mode(1);
     my $status = 0;
     foreach (@{$options{data}->{data}->{result}}) {
+        # wrong timestamp inserted. we skip it
+        if ($_->{ctime} !~ /^\d+$/) {
+            $options{logger}->writeLogDebug("[proxy] wrong ctime for '$options{data}->{data}->{id}'");
+            next;
+        }
         $status = gorgone::standard::library::add_history(
             dbh => $options{dbh},
             etime => $_->{etime}, 
