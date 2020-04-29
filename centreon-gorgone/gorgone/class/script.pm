@@ -32,6 +32,7 @@ use YAML::XS;
 use Hash::Merge;
 Hash::Merge::set_behavior('RIGHT_PRECEDENT');
 $YAML::XS::Boolean = 'JSON::PP';
+$YAML::XS::LoadBlessed = 1;
 
 $SIG{__DIE__} = sub {
     my $error = shift;
