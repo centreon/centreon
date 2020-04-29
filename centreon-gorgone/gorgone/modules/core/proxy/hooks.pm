@@ -131,7 +131,6 @@ sub routing {
 
     if ($options{action} eq 'PONG') {
         return undef if (!defined($data->{data}->{id}) || $data->{data}->{id} eq '');
-        return undef if ($register_nodes->{$data->{data}->{id}}->{type} eq 'push_ssh');
         $synctime_nodes->{$data->{data}->{id}}->{in_progress_ping} = 0;
         $last_pong->{$data->{data}->{id}} = time();
         $constatus_ping->{$data->{data}->{id}}->{last_ping_recv} = time();
