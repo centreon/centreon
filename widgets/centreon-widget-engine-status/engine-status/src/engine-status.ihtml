@@ -19,9 +19,9 @@
             <h4>Status</h4>
             <tr class="ListHeader">
                 <td></td>
-                <td class="ListColHeaderLeft"><a href="/centreon/main.php?p=10201" target="_blank">Services</a></td>
+                <td class="ListColHeaderLeft"><a href="/centreon/main.php?p=50502" target="_blank">Services</a></td>
                 <td></td>
-                <td class="ListColHeaderLeft"><a href="/centreon/main.php?p=10201" target="_blank">Hosts</a></td>
+                <td class="ListColHeaderLeft"><a href="/centreon/main.php?p=50502" target="_blank">Hosts</a></td>
             </tr>
             <tr class="list_one">
                 <td class="ListColLeft">Ok</td>
@@ -60,7 +60,7 @@
             <tr>
                 <td>
                     <table class="styleTable ListTable">
-                        <a href="/centreon/main.php?p=10201" target="_blank"><h4>Check Latency</h4></a>
+                        <a href="/centreon/main.php?p=50502" target="_blank"><h4>Check Latency</h4></a>
                         <tr class="ListHeader">
                             <td class="ListColHeaderLeft">type</td>
                             <td class="ListColHeaderCenter">AVG</td>
@@ -111,7 +111,7 @@
                 </td>
                 <td>
                     <table class="styleTable ListTable">
-                        <a href="/centreon/main.php?p=10201" target="_blank"><h4>Check the execution time</h4></a>
+                        <a href="/centreon/main.php?p=50502" target="_blank"><h4>Check the execution time</h4></a>
                         <tr class="ListHeader">
                             <td class="ListColHeaderLeft">type</td>
                             <td class="ListColHeaderCenter">AVG</td>
