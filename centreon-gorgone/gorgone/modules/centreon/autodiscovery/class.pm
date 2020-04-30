@@ -297,15 +297,14 @@ sub action_updatediscoveryresults {
         };
         if ($@) {
             # Failed
+            $self->{logger}->writeLogError('[autodiscovery] Failed to decode discovery plugin response: ' . $@);
             my $query = "UPDATE mod_host_disco_job " .
                 "SET status = '2', duration = '0', discovered_items = '0', " .
                 "message = 'Failed to decode discovery plugin response' " .
                 "WHERE id = '" . $job_id ."'";
             my $status = $self->{class_object_centreon}->transaction_query(request => $query);
-            if ($status == -1) {
-                $self->{logger}->writeLogError('[autodiscovery] Failed to decode discovery plugin response');
-                return 1;
-            }
+            $self->{logger}->writeLogError('[autodiscovery] Failed to update job status') if ($status == -1);
+            return 1;
         }
 
         # Finished
@@ -360,10 +359,8 @@ sub action_updatediscoveryresults {
             "message = " . $self->{class_object_centreon}->quote(value => $output) . " " .
             "WHERE id = '" . $job_id ."'";
         my $status = $self->{class_object_centreon}->transaction_query(request => $query);
-        if ($status == -1) {
-            $self->{logger}->writeLogError('[autodiscovery] Failed to update job status');
-            return 1;
-        }
+        $self->{logger}->writeLogError('[autodiscovery] Failed to update job status') if ($status == -1);
+        return 1;
     } elsif (defined($token)) {
         # Failed
         my $query = "UPDATE mod_host_disco_job " .
@@ -371,10 +368,8 @@ sub action_updatediscoveryresults {
             "message = " . $self->{class_object_centreon}->quote(value => $output) . " " .
             "WHERE token = '" . $token ."'";
         my $status = $self->{class_object_centreon}->transaction_query(request => $query);
-        if ($status == -1) {
-            $self->{logger}->writeLogError('[autodiscovery] Failed to update job status');
-            return 1;
-        }
+        $self->{logger}->writeLogError('[autodiscovery] Failed to update job status') if ($status == -1);
+        return 1;
     }
 
     return 0;
