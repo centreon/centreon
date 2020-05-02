@@ -1,3 +1,5 @@
+PRAGMA encoding = "UTF-8";
+
 CREATE TABLE IF NOT EXISTS `gorgone_identity` (
   `id` INTEGER PRIMARY KEY,
   `ctime` int(11) DEFAULT NULL,

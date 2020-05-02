@@ -848,6 +848,9 @@ sub init_database {
     if (defined($options{autocreate_schema}) && $options{autocreate_schema} == 1) {
         my $requests = [
             q{
+                PRAGMA encoding = "UTF-8"
+            },
+            q{
                 CREATE TABLE IF NOT EXISTS `gorgone_identity` (
                   `id` INTEGER PRIMARY KEY,
                   `ctime` int(11) DEFAULT NULL,
