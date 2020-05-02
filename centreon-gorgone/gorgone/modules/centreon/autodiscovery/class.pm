@@ -268,7 +268,7 @@ sub action_updatediscoveryresults {
 
     foreach my $message (@{$options{data}->{data}->{result}}) {
         if ($message->{code} > 0) {
-            my $data = JSON::XS->new->utf8->decode($message->{data});
+            my $data = JSON::XS->new->decode($message->{data});
             if (!defined($data->{result}->{exit_code}) || !defined($data->{metadata}->{job_id}) ||
                 !defined($data->{metadata}->{source}) || $data->{metadata}->{source} ne 'autodiscovery') {
                 $self->{logger}->writeLogInfo("[autodiscovery] Found result for token '" . $message->{token} . "'");
@@ -293,7 +293,7 @@ sub action_updatediscoveryresults {
     if ($exit_code == 0 && defined($job_id)) {
         my $result;
         eval {
-            $result = JSON::XS->new->utf8->decode($output);
+            $result = JSON::XS->new->decode($output);
         };
         if ($@) {
             # Failed
