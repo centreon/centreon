@@ -36,6 +36,33 @@ export const threeSteps = () => (
   </Wizard>
 );
 
+export const threeStepsWithCustomLabels = () => (
+  <Wizard
+    open
+    actionBarProps={{
+      labelPrevious: 'Previous step',
+      labelNext: 'Next step',
+      labelFinish: 'Finish wizard',
+    }}
+  >
+    <Page label="step 1">
+      <Typography variant="h5" align="center">
+        Step 1
+      </Typography>
+    </Page>
+    <Page label="step 2">
+      <Typography variant="h5" align="center">
+        Step 2
+      </Typography>
+    </Page>
+    <Page label="step3">
+      <Typography variant="h5" align="center">
+        Step 3
+      </Typography>
+    </Page>
+  </Wizard>
+);
+
 export const fullHeight = () => (
   <Wizard open fullHeight>
     <Page>
