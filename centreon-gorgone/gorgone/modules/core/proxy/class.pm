@@ -248,14 +248,19 @@ sub proxy_ssh {
     return if ($code == 1);
 
     if ($options{action} eq 'PING') {
-        if ($self->{clients}->{ $options{target_client} }->{class}->ping() != -1) {
-            $self->send_internal_action(
-                action => 'PONG',
-                data => { data => { id => $options{target_client} } },
-                token => $options{token},
-                target => ''
-            );
+        my $action = 'PONG';
+        if ($self->{clients}->{ $options{target_client} }->{class}->ping() == -1) {
+            $action = 'PONGRESET';
+            $self->{clients}->{ $options{target_client} }->{class}->close();
+            $self->{clients}->{ $options{target_client} }->{class} = undef;
+            $self->{clients}->{ $options{target_client} }->{delete} = 0;
         }
+        $self->send_internal_action(
+            action => $action,
+            data => { data => { id => $options{target_client} } },
+            token => $options{token},
+            target => ''
+        );
         return ;
     }
 

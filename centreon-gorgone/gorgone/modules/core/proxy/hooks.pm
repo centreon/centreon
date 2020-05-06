@@ -574,7 +574,7 @@ sub update_sync_time {
     return 0 if ($options{ctime} == 0);
 
     my ($status) = $options{dbh}->query(
-        "REPLACE  INTO gorgone_synchistory (`id`, `ctime`) VALUES (" .
+        "REPLACE INTO gorgone_synchistory (`id`, `ctime`) VALUES (" .
         $options{dbh}->quote($options{id}) . ', ' . 
         $options{dbh}->quote($options{ctime}) . ')'
     );
