@@ -234,7 +234,7 @@ sub close_connections {
     my ($self, %options) = @_;
 
     foreach (keys %{$self->{clients}}) {
-        if (defined($self->{clients}->{$_}->{class})) {
+        if (defined($self->{clients}->{$_}->{class}) && self->{clients}->{$_}->{type} eq 'push_zmq') {
             $self->{logger}->writeLogInfo("[proxy] Close connection for $_");
             $self->{clients}->{$_}->{class}->close();
         }
@@ -246,7 +246,7 @@ sub proxy_ssh {
 
     my ($code, $decoded_data) = $self->json_decode(argument => $options{data});
     return if ($code == 1);
-
+->{type} eq 'push_ssh'
     if ($options{action} eq 'PING') {
         my $action = 'PONG';
         if ($self->{clients}->{ $options{target_client} }->{class}->ping() == -1) {
