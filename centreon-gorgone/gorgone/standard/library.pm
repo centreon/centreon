@@ -34,6 +34,7 @@ use YAML 'LoadFile';
 use File::Path;
 use File::Basename;
 use MIME::Base64;
+use Time::HiRes;
 
 my %zmq_type = ('ZMQ_ROUTER' => ZMQ_ROUTER, 'ZMQ_DEALER' => ZMQ_DEALER);
 
@@ -554,7 +555,7 @@ sub getlog {
     my %filters = ();
     my ($filter, $filter_append) = ('', '');
     
-    foreach ((['id', '>'], ['token', '='], ['ctime', '>='], ['etime', '>'], ['code', '='])) {
+    foreach ((['id', '>'], ['token', '='], ['ctime', '>'], ['etime', '>'], ['code', '='])) {
         if (defined($data->{${$_}[0]}) && $data->{${$_}[0]} ne '') {
             $filter .= $filter_append . ${$_}[0] . ' ' . ${$_}[1] . ' ' . $options{gorgone}->{db_gorgone}->quote($data->{${$_}[0]});
             $filter_append = ' AND ';
@@ -619,7 +620,7 @@ sub add_history {
         return -1 if (!($options{data} = json_encode(data => $options{data}, logger => $options{logger})));
     }
     if (!defined($options{ctime})) {
-        $options{ctime} = time();
+        $options{ctime} = Time::HiRes::time();
     }
     if (!defined($options{etime})) {
         $options{etime} = time();
@@ -871,7 +872,7 @@ sub init_database {
                   `token` varchar(2048) DEFAULT NULL,
                   `code` int(11) DEFAULT NULL,
                   `etime` int(11) DEFAULT NULL,
-                  `ctime` int(11) DEFAULT NULL,
+                  `ctime` FLOAT DEFAULT NULL,
                   `instant` int(11) DEFAULT '0',
                   `data` TEXT DEFAULT NULL
                 );
@@ -897,7 +898,7 @@ sub init_database {
             q{
                 CREATE TABLE IF NOT EXISTS `gorgone_synchistory` (
                   `id` int(11) NOT NULL,
-                  `ctime` int(11) DEFAULT NULL,
+                  `ctime` FLOAT DEFAULT NULL,
                   `last_id` int(11) DEFAULT NULL
                 );
             },

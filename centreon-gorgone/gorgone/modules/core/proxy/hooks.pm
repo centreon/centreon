@@ -31,6 +31,7 @@ use File::Basename;
 use MIME::Base64;
 use Digest::MD5::File qw(file_md5_hex);
 use Fcntl;
+use Time::HiRes;
 
 use constant NAMESPACE => 'core';
 use constant NAME => 'proxy';
@@ -102,7 +103,7 @@ sub register {
 sub init {
     my (%options) = @_;
 
-    $synctime_lasttime = time();
+    $synctime_lasttime = Time::HiRes::time();
     $core_id = $options{id};
     $external_socket = $options{external_socket};
     $internal_socket = $options{internal_socket};
@@ -489,7 +490,7 @@ sub setlogs {
     my $status = 0;
     foreach (@{$options{data}->{data}->{result}}) {
         # wrong timestamp inserted. we skip it
-        if ($_->{ctime} !~ /^\d+$/) {
+        if ($_->{ctime} !~ /[0-9\.]/) {
             $options{logger}->writeLogDebug("[proxy] wrong ctime for '$options{data}->{data}->{id}'");
             next;
         }
@@ -506,7 +507,7 @@ sub setlogs {
     }
     if ($status == 0 && update_sync_time(dbh => $options{dbh}, id => $options{data}->{data}->{id}, ctime => $ctime_recent) == 0) {
         $options{dbh}->commit();
-        $synctime_nodes->{$options{data}->{data}->{id}}->{ctime} = $ctime_recent if ($ctime_recent != 0);
+        $synctime_nodes->{$options{data}->{data}->{id}}->{ctime} = $ctime_recent if ($ctime_recent != 0); 
     } else {
         $options{dbh}->rollback();
     }

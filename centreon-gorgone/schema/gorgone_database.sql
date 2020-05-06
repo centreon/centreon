@@ -16,7 +16,7 @@ CREATE TABLE IF NOT EXISTS `gorgone_history` (
   `token` varchar(2048) DEFAULT NULL,
   `code` int(11) DEFAULT NULL,
   `etime` int(11) DEFAULT NULL,
-  `ctime` int(11) DEFAULT NULL,
+  `ctime` FLOAT DEFAULT NULL,
   `instant` int(11) DEFAULT '0',
   `data` TEXT DEFAULT NULL
 );
@@ -30,7 +30,7 @@ CREATE INDEX IF NOT EXISTS idx_gorgone_history_instant ON gorgone_history (insta
 
 CREATE TABLE IF NOT EXISTS `gorgone_synchistory` (
   `id` int(11) NOT NULL,
-  `ctime` int(11) DEFAULT NULL,
+  `ctime` FLOAT DEFAULT NULL,
   `last_id` int(11) DEFAULT NULL
 );
 
