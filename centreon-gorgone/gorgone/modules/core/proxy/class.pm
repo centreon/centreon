@@ -190,7 +190,7 @@ sub action_proxyaddnode {
         # test if a connection parameter changed
         my $changed = 0;
         foreach (keys %$data) {
-            if (ref($data->{$_}) eq '' && (!defined($self->{clients}->{$_}) || $data->{$_} ne $self->{clients}->{$_})) {
+            if (ref($data->{$_}) eq '' && (!defined($self->{clients}->{ $data->{id} }->{$_}) || $data->{$_} ne $self->{clients}->{ $data->{id} }->{$_})) {
                 $changed = 1;
                 last;
             }

@@ -452,7 +452,7 @@ sub action {
 sub close {
     my ($self, %options) = @_;
     
-    # to be compatible with zmq close class
+    $self->disconnect();
 }
 
 1;
