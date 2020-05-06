@@ -234,7 +234,7 @@ sub close_connections {
     my ($self, %options) = @_;
 
     foreach (keys %{$self->{clients}}) {
-        if (defined($self->{clients}->{$_}->{class}) && self->{clients}->{$_}->{type} eq 'push_zmq') {
+        if (defined($self->{clients}->{$_}->{class}) && $self->{clients}->{$_}->{type} eq 'push_zmq') {
             $self->{logger}->writeLogInfo("[proxy] Close connection for $_");
             $self->{clients}->{$_}->{class}->close();
         }
