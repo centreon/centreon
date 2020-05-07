@@ -94,6 +94,7 @@
     "react-test-renderer": "^16.13.1",
     "sass-loader": "^8.0.2",
     "typescript": "^3.8.3",
-    "webpack-merge": "^4.2.2"
+    "webpack-merge": "^4.2.2",
+    "yup": "^0.28.5"
   }
 }

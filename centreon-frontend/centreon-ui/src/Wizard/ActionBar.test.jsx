@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { render, fireEvent } from '@testing-library/react';
+import { render, fireEvent, act } from '@testing-library/react';
 import ActionBar from './ActionBar';
 
 const mockFn = jest.fn();
@@ -12,7 +12,9 @@ describe('ActionBar', () => {
       <ActionBar onCancel={mockCancel} labelCancel="Exit" />,
     );
 
-    fireEvent.click(getByText('Exit').parentNode);
+    act(() => {
+      fireEvent.click(getByText('Exit').parentNode);
+    });
 
     expect(mockCancel).toBeCalled();
   });
