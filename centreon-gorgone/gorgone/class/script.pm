@@ -199,7 +199,10 @@ sub yaml_parse_config {
         );
         ${$options{config}} = undef;
         foreach (@files) {
-            next if (! -r $_);
+            if (! -r $_) {
+                $self->{logger}->writeLogError("config - cannot read file '$_'");
+                next;
+            }
             my $config = $self->yaml_load_config(file => $_, filter => $options{filter}, ariane => $options{ariane});
             next if (!defined($config));
             if (ref($config) eq 'ARRAY') {
