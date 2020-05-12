@@ -235,7 +235,7 @@ sub execute_cmd {
         );
     } elsif ($options{cmd} eq 'SENDEXPORTFILE') {
         if (!defined($self->{clapi_password})) {
-            return (-1, 'need centreon clapi password to execute STARTWORKER command');
+            return (-1, 'need centreon clapi password to execute SENDEXPORTFILE command');
         }
 
         my $cache_dir = (defined($connector->{config}->{cache_dir})) ?
@@ -456,7 +456,7 @@ sub execute_cmd {
         );
     } elsif ($options{cmd} eq 'CREATEREMOTETASK') {
         if (!defined($self->{clapi_password})) {
-            return (-1, 'need centreon clapi password to execute STARTWORKER command');
+            return (-1, 'need centreon clapi password to execute CREATEREMOTETASK command');
         }
         my $centreon_dir = (defined($connector->{config}->{centreon_dir})) ?
             $connector->{config}->{centreon_dir} : '/usr/share/centreon';
@@ -639,6 +639,7 @@ sub action_centreoncommand {
         );
 
         if ($code == -1) {
+            $self->{logger}->writeLogError('[legacycmd] -class- ' . $message);
             $self->send_log(code => gorgone::class::module::ACTION_FINISH_KO, token => $options{token}, data => { message => $message });
             return 1;
         }
