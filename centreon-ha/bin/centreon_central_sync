@@ -30,7 +30,7 @@ use centreon::common::misc;
 use base qw(centreon::script);
 use vars qw(%centreon_central_sync_config);
 
-my %handlers = ('TERM' => {}, 'DIE' => {});
+my %handlers = ('TERM' => {}, 'HUP' => {}, 'DIE' => {});
 my $object_cb;
 
 sub new {
@@ -49,6 +49,7 @@ sub new {
     $self->{rsync_dirs_cache} = ();
     $self->{special_rsync_dirs_cache} = ();
     $self->{last_time} = time();
+    $self->{timetoreload} = 0;
     $self->{running} = 1;
 
     %{$self->{centreon_central_sync_default_config}} =
@@ -89,6 +90,8 @@ sub set_signal_handlers {
 
     $SIG{TERM} = \&class_handle_TERM;
     $handlers{TERM}->{$self} = sub { $self->handle_TERM() };
+    $SIG{HUP} = \&class_handle_HUP;
+    $handlers{HUP}->{$self} = sub { $self->handle_HUP() };
     $SIG{__DIE__} = \&class_handle_DIE;
     $handlers{DIE}->{$self} = sub { $self->handle_DIE($_[0]) };
 
@@ -97,6 +100,12 @@ sub set_signal_handlers {
 sub class_handle_TERM {
     foreach (keys %{$handlers{TERM}}) {
         &{$handlers{TERM}->{$_}}();
+    }
+}
+
+sub class_handle_HUP {
+    foreach (keys %{$handlers{HUP}}) {
+        &{$handlers{HUP}->{$_}}();
     }
 }
 
@@ -115,6 +124,12 @@ sub handle_TERM {
     $self->{running} = 0;
 }
 
+sub handle_HUP {
+    my $self = shift;
+    $self->{logger}->writeLogInfo("$$ Receiving order to reload...");
+    $self->{timetoreload} = 1;
+}
+
 sub handle_DIE {
     my $self = shift;
     my $msg = @_;
@@ -123,11 +138,45 @@ sub handle_DIE {
     $self->{running} = 0;
 }
 
+sub reload_config {
+    my $self = shift;
+    my $file = $_[0];
+
+    unless (my $return = do $file) {
+        $self->{logger}->writeLogError("couldn't parse $file: $@") if $@;
+        $self->{logger}->writeLogError("couldn't do $file: $!") unless defined $return;
+        $self->{logger}->writeLogError("couldn't run $file") unless $return;
+    }
+}
+
+sub reload {
+    my $self = shift;
+
+    $self->{logger}->writeLogInfo("Reload in progress...");
+
+    if ($self->{logger}->is_file_mode()) {
+        $self->{logger}->file_mode($self->{logger}->{file_name});
+    }
+    $self->{logger}->redirect_output();
+
+    $self->reload_config($self->{opt_extra});
+
+    $self->{logger}->writeLogInfo("Clearing watches...");
+    $self->{inotify}->poll;
+    foreach my $watch (keys %{$self->{watches}}) {
+        $self->{watches}{$watch}->cancel;
+    }
+
+    $self->{timetoreload} = 0;
+
+    $self->{logger}->writeLogInfo("Reload done...");
+}
+
 sub add_watch {
     my ($self, %options) = @_;
 
     $self->{logger}->writeLogDebug("add_watch: Trying to init watch on dir '$options{watch}'");
-    if (!($self->{watches}{$options{watch}}[0] = $self->{inotify}->watch($options{watch}, IN_CREATE|IN_CLOSE_WRITE|IN_DELETE, \&mywatch))) {
+    if (!($self->{watches}{$options{watch}} = $self->{inotify}->watch($options{watch}, IN_CREATE|IN_CLOSE_WRITE|IN_DELETE, \&mywatch))) {
         $self->{logger}->writeLogError("add_watch: Observor error $!");
         die("Exiting");
     }
@@ -292,12 +341,16 @@ sub run {
                 closedir $dh;
             }
         }
+
+        if ($self->{timetoreload} == 1) {
+            $self->reload();
+        }
     }
 
    $self->{inotify}->poll;
 
    foreach my $watch (keys %{$self->{watches}}) {
-        $self->{watches}{$watch}->cancel;
+        $self->{watches}->{$watch}->cancel;
    }
 
 }
@@ -342,4 +395,3 @@ B<centreon_central_sync> will watch interesting directory and sync files across 
 =cut
 
 __END__
-
