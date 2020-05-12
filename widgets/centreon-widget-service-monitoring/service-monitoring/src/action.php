@@ -309,7 +309,7 @@ try {
         jQuery("#start_time, #end_time").timepicker();
         initDatepicker();
         turnOnEvents();
-        updateEndTime();
+        updateDateAndTime();
     });
 
     function closeBox()
