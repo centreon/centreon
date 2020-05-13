@@ -1,20 +1,30 @@
-%define cpan_name CryptX
+%define cpan_name ZMQ-LibZMQ4
 
-Name:		perl-CryptX
-Version:	0.068
+Name:		perl-ZMQ-LibZMQ4
+Version:	0.01
 Release:	1%{?dist}
-Summary:	Cryptographic toolkit (self-contained, no external libraries needed)
+Summary:	A libzmq 4.x wrapper for Perl
 Group:		Development/Libraries
 License:	GPL or Artistic
-URL:		https://metacpan.org/pod/CryptX
-Source0:	https://cpan.metacpan.org/authors/id/M/MI/MIK/%{cpan_name}-%{version}.tar.gz
+URL:		https://metacpan.org/pod/ZMQ::LibZMQ4
+Source0:	https://cpan.metacpan.org/authors/id/M/MO/MOSCONI/%{cpan_name}-%{version}.tar.gz
 BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
-BuildRequires:  make
 BuildRequires:  gcc
+BuildRequires:  make
+BuildRequires:  perl(Devel::PPPort)
+BuildRequires:  perl(ExtUtils::MakeMaker)
+BuildRequires:  zeromq-devel
+
+Provides:	perl(ZMQ::LibZMQ4)
+Requires:	perl
+Requires:   zeromq
+Requires:   perl(ExtUtils::ParseXS)
+Requires:   perl(ZMQ::Constants)
+AutoReqProv:    no
 
 %description
-Cryptography in CryptX is based on https://github.com/libtom/libtomcrypt
+The ZMQ::LibZMQ4 module is a wrapper of the 0MQ message passing library for Perl.
 
 %prep
 %setup -q -n %{cpan_name}-%{version}
@@ -39,7 +49,8 @@ rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root,-)
-%{perl_vendorarch}
+%doc Changes
+%{perl_vendorarch}/
 %{_mandir}/man3/*.3*
 
 %changelog

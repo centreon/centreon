@@ -1,20 +1,26 @@
-%define cpan_name CryptX
+%define cpan_name Digest-MD5-File
 
-Name:		perl-CryptX
-Version:	0.068
+Name:		Digest-MD5-File
+Version:	0.08
 Release:	1%{?dist}
-Summary:	Cryptographic toolkit (self-contained, no external libraries needed)
+Summary:	Perl extension for getting MD5 sums for files and urls.
 Group:		Development/Libraries
 License:	GPL or Artistic
-URL:		https://metacpan.org/pod/CryptX
-Source0:	https://cpan.metacpan.org/authors/id/M/MI/MIK/%{cpan_name}-%{version}.tar.gz
+URL:		https://metacpan.org/pod/Digest::MD5::File
+Source0:	https://cpan.metacpan.org/authors/id/D/DM/DMUEY/%{cpan_name}-%{version}.tar.gz
+BuildArch:  noarch
 BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
+BuildRequires:  perl(ExtUtils::MakeMaker)
 BuildRequires:  make
-BuildRequires:  gcc
+
+Provides:	perl(Digest::MD5::File)
+Requires:   perl(Digest::MD5)
+Requires:   perl(LWP::UserAgent)
+AutoReqProv:    no
 
 %description
-Cryptography in CryptX is based on https://github.com/libtom/libtomcrypt
+Get MD5 sums for files of a given path or content of a given url.
 
 %prep
 %setup -q -n %{cpan_name}-%{version}
@@ -39,7 +45,8 @@ rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root,-)
-%{perl_vendorarch}
+%doc Changes
+%{perl_vendorlib}
 %{_mandir}/man3/*.3*
 
 %changelog

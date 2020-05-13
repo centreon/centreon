@@ -1,20 +1,24 @@
-%define cpan_name CryptX
+%define cpan_name Clone
 
-Name:		perl-CryptX
-Version:	0.068
+Name:		perl-Clone
+Version:	0.45
 Release:	1%{?dist}
-Summary:	Cryptographic toolkit (self-contained, no external libraries needed)
+Summary:	recursively copy Perl datatypes
 Group:		Development/Libraries
 License:	GPL or Artistic
-URL:		https://metacpan.org/pod/CryptX
-Source0:	https://cpan.metacpan.org/authors/id/M/MI/MIK/%{cpan_name}-%{version}.tar.gz
+URL:		https://metacpan.org/pod/Clone
+Source0:	https://cpan.metacpan.org/authors/id/A/AT/ATOOMIC/%{cpan_name}-%{version}.tar.gz
 BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
-BuildRequires:  make
+BuildRequires:  perl(ExtUtils::MakeMaker)
 BuildRequires:  gcc
+BuildRequires:  make
+
+Provides:	perl(Clone)
+AutoReqProv:    no
 
 %description
-Cryptography in CryptX is based on https://github.com/libtom/libtomcrypt
+This module provides a clone() method which makes recursive copies of nested hash, array, scalar and reference types, including tied variables and objects.
 
 %prep
 %setup -q -n %{cpan_name}-%{version}
@@ -39,6 +43,7 @@ rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root,-)
+%doc Changes
 %{perl_vendorarch}
 %{_mandir}/man3/*.3*
 
