@@ -117,19 +117,25 @@ sub get_pollers_config {
 sub get_clapi_user {
     my ($self, %options) = @_;
 
-    my $clapi_user = (defined($connector->{config}->{clapi_user})) ?
-        $connector->{config}->{clapi_user} : 'admin';
+    $self->{clapi_user} = undef;
+    $self->{clapi_password} = undef;
     my ($status, $datas) = $self->{class_object_centreon}->custom_execute(
-        request => "SELECT contact_passwd " .
+        request => "SELECT contact_alias, contact_passwd " .
             "FROM `contact` " .
-            "WHERE `contact_activate` = '1' AND `contact_alias` = '" . $clapi_user . "'",
+            "WHERE `contact_admin` = '1' " . 
+            "AND `contact_activate` = '1' " .
+            "AND `contact_passwd` IS NOT NULL " .
+            "LIMIT 1 ",
         mode => 2
     );
-    if ($status == -1 || !defined($datas->[0][0])) {
-        $self->{logger}->writeLogError('[legacycmd] Cannot get configuration for CLAPI user');
-        return -1;
+
+    if ($status == -1 || !defined($datas->[0]->[0])) {
+        $self->{logger}->writeLogInfo('[legacycmd] Cannot get configuration for CLAPI user');
+        return 0;
     }
-    my $clapi_password = $datas->[0][0];
+
+    my $clapi_user = $datas->[0]->[0];
+    my $clapi_password = $datas->[0]->[1];
     if ($clapi_password =~ m/^md5__(.*)/) {
         $clapi_password = $1;
     }
@@ -229,6 +235,10 @@ sub execute_cmd {
             },
         );
     } elsif ($options{cmd} eq 'SENDEXPORTFILE') {
+        if (!defined($self->{clapi_password})) {
+            return (-1, 'need centreon clapi password to execute SENDEXPORTFILE command');
+        }
+
         my $cache_dir = (defined($connector->{config}->{cache_dir})) ?
             $connector->{config}->{cache_dir} : '/var/cache/centreon';
         my $remote_dir = (defined($connector->{config}->{remote_dir})) ?
@@ -423,6 +433,9 @@ sub execute_cmd {
             },
         );
     } elsif ($options{cmd} eq 'STARTWORKER') {
+        if (!defined($self->{clapi_password})) {
+            return (-1, 'need centreon clapi password to execute STARTWORKER command');
+        }
         my $centreon_dir = (defined($connector->{config}->{centreon_dir})) ?
             $connector->{config}->{centreon_dir} : '/usr/share/centreon';
         my $cmd = $centreon_dir . '/bin/centreon -u ' . $self->{clapi_user} . ' -p ' .
@@ -443,6 +456,9 @@ sub execute_cmd {
             },
         );
     } elsif ($options{cmd} eq 'CREATEREMOTETASK') {
+        if (!defined($self->{clapi_password})) {
+            return (-1, 'need centreon clapi password to execute CREATEREMOTETASK command');
+        }
         my $centreon_dir = (defined($connector->{config}->{centreon_dir})) ?
             $connector->{config}->{centreon_dir} : '/usr/share/centreon';
         my $task_id = $options{target};
@@ -464,6 +480,8 @@ sub execute_cmd {
             },
         );
     }
+
+    return 0;
 }
 
 sub move_cmd_file {
@@ -614,12 +632,18 @@ sub action_centreoncommand {
     }
 
     foreach my $command (@{$options{data}->{content}}) {
-        $self->execute_cmd(
+        my ($code, $message) = $self->execute_cmd(
             token => $options{token},
             target => $command->{target},
             cmd => $command->{command},
             param => $command->{param}
         );
+
+        if ($code == -1) {
+            $self->{logger}->writeLogError('[legacycmd] -class- ' . $message);
+            $self->send_log(code => gorgone::class::module::ACTION_FINISH_KO, token => $options{token}, data => { message => $message });
+            return 1;
+        }
     }
 
     $self->{logger}->writeLogDebug('[legacycmd] -class- finish centreoncommand');

@@ -1,3 +1,5 @@
+PRAGMA encoding = "UTF-8";
+
 CREATE TABLE IF NOT EXISTS `gorgone_identity` (
   `id` INTEGER PRIMARY KEY,
   `ctime` int(11) DEFAULT NULL,
@@ -14,7 +16,7 @@ CREATE TABLE IF NOT EXISTS `gorgone_history` (
   `token` varchar(2048) DEFAULT NULL,
   `code` int(11) DEFAULT NULL,
   `etime` int(11) DEFAULT NULL,
-  `ctime` int(11) DEFAULT NULL,
+  `ctime` FLOAT DEFAULT NULL,
   `instant` int(11) DEFAULT '0',
   `data` TEXT DEFAULT NULL
 );
@@ -27,12 +29,12 @@ CREATE INDEX IF NOT EXISTS idx_gorgone_history_ctime ON gorgone_history (ctime);
 CREATE INDEX IF NOT EXISTS idx_gorgone_history_instant ON gorgone_history (instant);
 
 CREATE TABLE IF NOT EXISTS `gorgone_synchistory` (
-  `id` int(11) DEFAULT NULL,
-  `ctime` int(11) DEFAULT NULL,
+  `id` int(11) NOT NULL,
+  `ctime` FLOAT DEFAULT NULL,
   `last_id` int(11) DEFAULT NULL
 );
 
-CREATE INDEX IF NOT EXISTS idx_gorgone_synchistory_id ON gorgone_synchistory (id);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_gorgone_synchistory_id ON gorgone_synchistory (id);
 
 CREATE TABLE IF NOT EXISTS `gorgone_target_fingerprint` (
   `id` INTEGER PRIMARY KEY,

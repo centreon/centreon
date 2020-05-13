@@ -130,17 +130,6 @@ configuration:
         package: gorgone::modules::centreon::nodes::hooks
         enable: true
 
-      - name: broker
-        package: gorgone::modules::centreon::broker::hooks
-        enable: true
-        cache_dir: "/var/lib/centreon/broker-stats/"
-        cron:
-          - id: broker_stats
-            timespec: "*/2 * * * *"
-            action: BROKERSTATS
-            parameters:
-              timeout: 10
-
       - name: legacycmd
         package: gorgone::modules::centreon::legacycmd::hooks
         enable: true
@@ -153,6 +142,22 @@ configuration:
         package: gorgone::modules::centreon::engine::hooks
         enable: true
         command_file: "/var/lib/centreon-engine/rw/centengine.cmd"
+
+      - name: statistics
+        package: "gorgone::modules::centreon::statistics::hooks"
+        enable: true
+        broker_cache_dir: "/var/cache/centreon/broker-stats/"
+        cron:
+          - id: broker_stats
+            timespec: "*/5 * * * *"
+            action: BROKERSTATS
+            parameters:
+              timeout: 10
+          - id: engine_stats
+            timespec: "*/5 * * * *"
+            action: ENGINESTATS
+            parameters:
+              timeout: 10
 END_FILE
 
     print $fh $content;

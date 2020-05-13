@@ -35,6 +35,7 @@ use YAML 'LoadFile';
 use File::Path;
 use File::Basename;
 use MIME::Base64;
+use Time::HiRes;
 
 my %zmq_type = ('ZMQ_ROUTER' => ZMQ_ROUTER, 'ZMQ_DEALER' => ZMQ_DEALER);
 
@@ -273,7 +274,6 @@ sub client_helo_encrypt {
     my $ciphertext;
 
     my $client_pubkey = $options{client_pubkey}->export_key_pem('public');
-    $client_pubkey =~ s/\n/\\n/g;
     eval {
         $ciphertext = $options{server_pubkey}->encrypt('HELO', 'v1.5');
     };
@@ -281,7 +281,7 @@ sub client_helo_encrypt {
         return (-1, "Encoding issue: $@");
     }
 
-    return (0, '[' . $options{identity} . '] [' . $client_pubkey . '] [' . MIME::Base64::encode_base64($ciphertext, '') . ']');
+    return (0, '[' . $options{identity} . '] [' . MIME::Base64::encode_base64($client_pubkey, '') . '] [' . MIME::Base64::encode_base64($ciphertext, '') . ']');
 }
 
 sub is_client_can_connect {
@@ -307,7 +307,7 @@ sub is_client_can_connect {
     }
 
     my ($client_pubkey);
-    $client_pubkey_str =~ s/\\n/\n/g;
+    $client_pubkey_str = MIME::Base64::decode_base64($client_pubkey_str);
     eval {
         $client_pubkey = Crypt::PK::RSA->new(\$client_pubkey_str);
     };
@@ -555,8 +555,7 @@ sub getlog {
 
     my %filters = ();
     my ($filter, $filter_append) = ('', '');
-
-    foreach ((['id', '>'], ['token', '='], ['ctime', '>='], ['etime', '>'], ['code', '='])) {
+    foreach ((['id', '>'], ['token', '='], ['ctime', '>'], ['etime', '>'], ['code', '='])) {
         if (defined($data->{$_->[0]}) && $data->{$_->[0]} ne '') {
             $filter .= $filter_append . $_->[0] . ' ' . $_->[1] . ' ' . $options{gorgone}->{db_gorgone}->quote($data->{$_->[0]});
             $filter_append = ' AND ';
@@ -596,7 +595,11 @@ sub kill {
 sub update_identity {
     my (%options) = @_;
 
-    my ($status, $sth) = $options{dbh}->query("UPDATE gorgone_identity SET `ctime` = " . $options{dbh}->quote(time()) . " WHERE `identity` = " . $options{dbh}->quote($options{identity}));
+    my ($status, $sth) = $options{dbh}->query(
+        "UPDATE gorgone_identity SET `ctime` = " . $options{dbh}->quote(time()) .
+        " WHERE `identity` = " . $options{dbh}->quote($options{identity}) . " AND " .
+        " `id` = (SELECT `id` FROM gorgone_identity WHERE `identity` = " . $options{dbh}->quote($options{identity}) . " ORDER BY `id` DESC LIMIT 1)"
+    );
     return $status;
 }
 
@@ -619,7 +622,7 @@ sub add_history {
         return -1 if (!($options{data} = json_encode(data => $options{data}, logger => $options{logger})));
     }
     if (!defined($options{ctime})) {
-        $options{ctime} = time();
+        $options{ctime} = Time::HiRes::time();
     }
     if (!defined($options{etime})) {
         $options{etime} = time();
@@ -848,6 +851,9 @@ sub init_database {
     if (defined($options{autocreate_schema}) && $options{autocreate_schema} == 1) {
         my $requests = [
             q{
+                PRAGMA encoding = "UTF-8"
+            },
+            q{
                 CREATE TABLE IF NOT EXISTS `gorgone_identity` (
                   `id` INTEGER PRIMARY KEY,
                   `ctime` int(11) DEFAULT NULL,
@@ -868,7 +874,7 @@ sub init_database {
                   `token` varchar(2048) DEFAULT NULL,
                   `code` int(11) DEFAULT NULL,
                   `etime` int(11) DEFAULT NULL,
-                  `ctime` int(11) DEFAULT NULL,
+                  `ctime` FLOAT DEFAULT NULL,
                   `instant` int(11) DEFAULT '0',
                   `data` TEXT DEFAULT NULL
                 );
@@ -893,13 +899,13 @@ sub init_database {
             },
             q{
                 CREATE TABLE IF NOT EXISTS `gorgone_synchistory` (
-                  `id` int(11) DEFAULT NULL,
-                  `ctime` int(11) DEFAULT NULL,
+                  `id` int(11) NOT NULL,
+                  `ctime` FLOAT DEFAULT NULL,
                   `last_id` int(11) DEFAULT NULL
                 );
             },
             q{
-                CREATE INDEX IF NOT EXISTS idx_gorgone_synchistory_id ON gorgone_synchistory (id);
+                CREATE UNIQUE INDEX IF NOT EXISTS idx_gorgone_synchistory_id ON gorgone_synchistory (id);
             },
             q{
                 CREATE TABLE IF NOT EXISTS `gorgone_target_fingerprint` (

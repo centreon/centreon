@@ -33,6 +33,7 @@ display_help() {
     echo
     echo -e "Usage: $0 [option...]"
     echo -e "\t-i\tRun the installation script\n"
+    echo -e "\t-f\tRun with file with all variable"
     exit 1
 }
 
@@ -83,15 +84,22 @@ fi
 ## get and check the chosen script's option
 process_install="0"
 silent_install="0"
+user_install_vars=""
+
 if [ "$#" -eq 0 ] ; then
     echo -e "Install : please select one option"
     display_help
     exit 1
 fi
 
-while getopts ":ih" options; do
-    case ${options} in
+while getopts "if:h" Options; 
+do
+    case ${Options} in
         i ) silent_install="0"
+            process_install="1"
+            ;;
+        f ) silent_install="1"
+            user_install_vars="${OPTARG}"
             process_install="1"
             ;;
         \?|h ) display_help;
@@ -102,6 +110,7 @@ while getopts ":ih" options; do
             ;;
     esac
 done
+
 
 if [ "$process_install" -ne 1 ]; then
     echo "Install : option not found"
@@ -133,19 +142,23 @@ ${CAT} << __EOT__
 
 __EOT__
 
-## displaying the license
-echo -e "\nPlease read the license.\\n\\tPress enter to continue."
-read
-tput clear
-more "$BASE_DIR/LICENSE.txt"
+if [ "$silent_install" -ne 1 ] ; then 
+	## displaying the license
+	echo -e "\nPlease read the license.\\n\\tPress enter to continue."
+	read
+	tput clear
+	more "$BASE_DIR/LICENSE.txt"
 
-yes_no_default "Do you accept the license ?"
-if [ "$?" -ne 0 ] ; then
-    echo_info "As you did not accept the license, we cannot continue."
-    log "INFO" "Installation aborted - License not accepted"
-    exit 1
+	yes_no_default "Do you accept the license ?"
+	if [ "$?" -ne 0 ] ; then
+	    echo_info "As you did not accept the license, we cannot continue."
+	    log "INFO" "Installation aborted - License not accepted"
+	    exit 1
+	else
+	    log "INFO" "Accepted the license"
+	fi
 else
-    log "INFO" "Accepted the license"
+	. $user_install_vars
 fi
 
 ## Test all binaries
@@ -186,7 +199,12 @@ echo -e "$line"
 
 ## check filesystem space
 check_disk_space
-allow_creation_of_missing_resources
+if [ "$silent_install" -ne 1 ] ; then
+	allow_creation_of_missing_resources
+else
+   CREATION_ALLOWED=1
+   export CREATION_ALLOWED
+fi
 
 ## define destination folders
 locate_gorgone_logdir

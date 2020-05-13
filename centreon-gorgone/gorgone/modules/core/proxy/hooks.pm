@@ -32,6 +32,7 @@ use File::Basename;
 use MIME::Base64;
 use Digest::MD5::File qw(file_md5_hex);
 use Fcntl;
+use Time::HiRes;
 
 use constant NAMESPACE => 'core';
 use constant NAME => 'proxy';
@@ -103,7 +104,7 @@ sub register {
 sub init {
     my (%options) = @_;
 
-    $synctime_lasttime = time();
+    $synctime_lasttime = Time::HiRes::time();
     $core_id = $options{id};
     $external_socket = $options{external_socket};
     $internal_socket = $options{internal_socket};
@@ -133,7 +134,6 @@ sub routing {
 
     if ($options{action} eq 'PONG') {
         return undef if (!defined($data->{data}->{id}) || $data->{data}->{id} eq '');
-        return undef if ($register_nodes->{$data->{data}->{id}}->{type} eq 'push_ssh');
         $synctime_nodes->{$data->{data}->{id}}->{in_progress_ping} = 0;
         $last_pong->{$data->{data}->{id}} = time();
         $constatus_ping->{$data->{data}->{id}}->{last_ping_recv} = time();
@@ -202,7 +202,7 @@ sub routing {
         }
 
         if (defined($register_nodes->{$target})) {
-            if ($synctime_nodes->{$target}->{synctime_error} == -1 || get_sync_time(dbh => $options{dbh}, node_id => $target) == -1) {
+            if ($synctime_nodes->{$target}->{synctime_error} == -1 && get_sync_time(dbh => $options{dbh}, node_id => $target) == -1) {
                 gorgone::standard::library::add_history(
                     dbh => $options{dbh},
                     code => GORGONE_ACTION_FINISH_KO, token => $options{token},
@@ -224,8 +224,7 @@ sub routing {
 
             # We put the good time to get        
             my $ctime = $synctime_nodes->{$target}->{ctime};
-            my $last_id = $synctime_nodes->{$target}->{last_id};
-            $data = { ctime => $ctime, id => $last_id };
+            $data = { ctime => $ctime };
             $synctime_nodes->{$target}->{in_progress} = 1;
             $synctime_nodes->{$target}->{in_progress_time} = time();
         }
@@ -411,10 +410,22 @@ sub pathway {
 
     my $target = $options{target};
     if (!defined($target)) {
+        $options{logger}->writeLogDebug('[proxy] need a valid node id');
         gorgone::standard::library::add_history(
             dbh => $options{dbh},
             code => GORGONE_ACTION_FINISH_KO, token => $options{token},
             data => { message => 'proxy - need a valid node id' },
+            json_encode => 1
+        );
+        return -1;
+    }
+
+    if (!defined($register_nodes->{$target}) && !defined($register_subnodes->{$target})) {
+        $options{logger}->writeLogDebug("[proxy] unknown target '$target'");
+        gorgone::standard::library::add_history(
+            dbh => $options{dbh},
+            code => gorgone::class::module::ACTION_FINISH_KO, token => $options{token},
+            data => { message => 'proxy - unknown target ' . $target },
             json_encode => 1
         );
         return -1;
@@ -476,11 +487,15 @@ sub setlogs {
     $synctime_nodes->{$options{data}->{data}->{id}}->{in_progress} = 0;
     
     my $ctime_recent = 0;
-    my $last_id = 0;
-    # Transaction
+    # Transaction. We don't use last_id (problem if it's clean the sqlite table
     $options{dbh}->transaction_mode(1);
     my $status = 0;
     foreach (@{$options{data}->{data}->{result}}) {
+        # wrong timestamp inserted. we skip it
+        if ($_->{ctime} !~ /[0-9\.]/) {
+            $options{logger}->writeLogDebug("[proxy] wrong ctime for '$options{data}->{data}->{id}'");
+            next;
+        }
         $status = gorgone::standard::library::add_history(
             dbh => $options{dbh},
             etime => $_->{etime}, 
@@ -491,12 +506,10 @@ sub setlogs {
         );
         last if ($status == -1);
         $ctime_recent = $_->{ctime} if ($ctime_recent < $_->{ctime});
-        $last_id = $_->{id} if ($last_id < $_->{id});
     }
-    if ($status == 0 && update_sync_time(dbh => $options{dbh}, id => $options{data}->{data}->{id}, last_id => $last_id, ctime => $ctime_recent) == 0) {
+    if ($status == 0 && update_sync_time(dbh => $options{dbh}, id => $options{data}->{data}->{id}, ctime => $ctime_recent) == 0) {
         $options{dbh}->commit();
-        $synctime_nodes->{$options{data}->{data}->{id}}->{last_id} = $last_id if ($last_id != 0);
-        $synctime_nodes->{$options{data}->{data}->{id}}->{ctime} = $ctime_recent if ($ctime_recent != 0);
+        $synctime_nodes->{$options{data}->{data}->{id}}->{ctime} = $ctime_recent if ($ctime_recent != 0); 
     } else {
         $options{dbh}->rollback();
     }
@@ -562,12 +575,11 @@ sub update_sync_time {
     # Nothing to update (no insert before)
     return 0 if ($options{ctime} == 0);
 
-    my $status;
-    if ($synctime_nodes->{$options{id}}->{last_id} == 0) {
-        ($status) = $options{dbh}->query("INSERT INTO gorgone_synchistory (`id`, `ctime`, `last_id`) VALUES (" . $options{dbh}->quote($options{id}) . ", " . $options{dbh}->quote($options{ctime}) . ", " . $options{dbh}->quote($options{last_id}) . ")");
-    } else {
-        ($status) = $options{dbh}->query("UPDATE gorgone_synchistory SET `ctime` = " . $options{dbh}->quote($options{ctime}) . ", `last_id` = " . $options{dbh}->quote($options{last_id}) . " WHERE `id` = " . $options{dbh}->quote($options{id}));
-    }
+    my ($status) = $options{dbh}->query(
+        "REPLACE INTO gorgone_synchistory (`id`, `ctime`) VALUES (" .
+        $options{dbh}->quote($options{id}) . ', ' . 
+        $options{dbh}->quote($options{ctime}) . ')'
+    );
     return $status;
 }
 
@@ -585,7 +597,6 @@ sub get_sync_time {
         $synctime_nodes->{$row->{id}}->{ctime} = $row->{ctime};
         $synctime_nodes->{$row->{id}}->{in_progress} = 0;
         $synctime_nodes->{$row->{id}}->{in_progress_time} = -1;
-        $synctime_nodes->{$row->{id}}->{last_id} = $row->{last_id};
     }
     
     return 0;
@@ -679,7 +690,7 @@ sub unregister_nodes {
     return if (!defined($options{data}->{nodes}));
 
     foreach my $node (@{$options{data}->{nodes}}) {
-        if ($node->{type} ne 'pull') {
+        if (defined($register_nodes->{$node->{id}}) && $register_nodes->{$node->{id}}->{type} ne 'pull') {
             routing(socket => $internal_socket, action => 'PROXYDELNODE', target => $node->{id}, data => JSON::XS->new->utf8->encode($node), dbh => $options{dbh}, logger => $options{logger});
         }
 
@@ -693,6 +704,7 @@ sub unregister_nodes {
             }
         }
 
+        delete $nodes_pool->{$node->{id}} if (defined($nodes_pool->{$node->{id}}));
         if (defined($register_nodes->{$node->{id}})) {
             delete $register_nodes->{$node->{id}};
             delete $synctime_nodes->{$node->{id}};
@@ -753,7 +765,7 @@ sub register_nodes {
 
         $last_pong->{$node->{id}} = 0 if (!defined($last_pong->{$node->{id}}));
         if (!defined($synctime_nodes->{$node->{id}})) {
-            $synctime_nodes->{$node->{id}} = { ctime => 0, in_progress_ping => 0, in_progress => 0, in_progress_time => -1, last_id => 0, synctime_error => 0 };
+            $synctime_nodes->{$node->{id}} = { ctime => 0, in_progress_ping => 0, in_progress => 0, in_progress_time => -1, synctime_error => 0 };
             get_sync_time(node_id => $node->{id}, dbh => $options{dbh});
         }
 

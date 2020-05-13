@@ -49,7 +49,8 @@ sub new {
     $connector->{stop} = 0;
     $connector->{register_nodes} = {}; 
 
-    $connector->{resync_time} = (defined($options{config}->{resync_time}) && $options{config}->{resync_time} =~ /(\d+)/) ? $1 : 600;
+    $connector->{default_resync_time} = (defined($options{config}->{resync_time}) && $options{config}->{resync_time} =~ /(\d+)/) ? $1 : 600;
+    $connector->{resync_time} = $connector->{default_resync_time};
     $connector->{last_resync_time} = -1;
 
     bless $connector, $class;
@@ -118,11 +119,16 @@ sub action_nodesresync {
 
     $self->send_log(code => GORGONE_ACTION_BEGIN, token => $options{token}, data => { message => 'action nodesresync proceed' });
 
-    return 1 if ($self->check_debug());
+    # If we have a SQL issue: resync = 10 sec
+    if ($self->check_debug()) {
+        $self->{resync_time} = 10;
+        return 1;
+    }
 
     my $request = 'SELECT remote_server_id, poller_server_id FROM rs_poller_relation';
     my ($status, $datas) = $self->{class_object}->custom_execute(request => $request, mode => 2);
     if ($status == -1) {
+        $self->{resync_time} = 10;
         $self->send_log(code => GORGONE_ACTION_FINISH_KO, token => $options{token}, data => { message => 'cannot find nodes remote configuration' });
         $self->{logger}->writeLogError('[nodes] Cannot find nodes remote configuration');
         return 1;
@@ -132,7 +138,7 @@ sub action_nodesresync {
     my $register_subnodes = {};
     foreach (@$datas) {
         $register_subnodes->{$_->[0]} = [] if (!defined($register_subnodes->{$_->[0]}));
-        unshift $register_subnodes->{$_->[0]}, { id => $_->[1], pathscore => 100 };
+        unshift @{$register_subnodes->{$_->[0]}}, { id => $_->[1], pathscore => 100 };
     }
 
     $request = "
@@ -142,6 +148,7 @@ sub action_nodesresync {
     ";
     ($status, $datas) = $self->{class_object}->custom_execute(request => $request, mode => 2);
     if ($status == -1) {
+        $self->{resync_time} = 10;
         $self->send_log(code => GORGONE_ACTION_FINISH_KO, token => $options{token}, data => { message => 'cannot find nodes configuration' });
         $self->{logger}->writeLogError('[nodes] Cannot find nodes configuration');
         return 1;
@@ -203,6 +210,8 @@ sub action_nodesresync {
 
     $self->{logger}->writeLogDebug("[nodes] Finish resync");
     $self->send_log(code => GORGONE_ACTION_FINISH_OK, token => $options{token}, data => { message => 'action nodesresync finished' });
+
+    $self->{resync_time} = $self->{default_resync_time};
     return 0;
 }
 

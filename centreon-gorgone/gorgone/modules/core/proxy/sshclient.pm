@@ -104,7 +104,12 @@ sub local_command {
 sub ping {
     my ($self, %options) = @_;
 
-    if ($self->is_connected()) {
+    my $ret = $self->execute_simple(
+        cmd => 'hostname',
+        timeout => 5,
+        timeout_nodata => 5
+    );
+    if ($ret->{exit} == Libssh::Session::SSH_OK) {
         return 0;
     }
 
@@ -431,7 +436,6 @@ sub action_remotecopy {
 sub action {
     my ($self, %options) = @_;
 
-    $self->test_connection();
     my $func = $self->can('action_' . lc($options{action}));
     if (defined($func)) {
         return $func->(
@@ -446,19 +450,10 @@ sub action {
     return (-1, { message => 'unsupported action' });
 }
 
-sub test_connection {
-    my ($self, %options) = @_;
-
-    if ($self->is_connected() == 0) {
-        $self->disconnect();
-        $self->open_session(%{$self->{save_options}});
-    }
-}
-
 sub close {
     my ($self, %options) = @_;
     
-    # to be compatible with zmq close class
+    $self->disconnect();
 }
 
 1;

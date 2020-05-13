@@ -151,7 +151,11 @@ sub transaction_mode {
 
 sub commit { shift->{instance}->commit; }
 
-sub rollback { shift->{instance}->rollback; }
+sub rollback {
+    my ($self) = @_;
+
+    $self->{instance}->rollback() if (defined($self->{instance}));
+}
 
 sub kill {
     my $self = shift;
@@ -176,7 +180,12 @@ sub connect() {
         if (defined($self->{dsn})) {
             $self->{instance} = DBI->connect(
                 "DBI:".$self->{dsn}, $self->{user}, $self->{password},
-                { RaiseError => 0, PrintError => 0, AutoCommit => 1 }
+                {
+                    RaiseError => 0,
+                    PrintError => 0,
+                    AutoCommit => 1,
+                    mysql_enable_utf8 => 1
+                }
             );
         } elsif ($self->{type} =~ /SQLite/i) {
             $self->{instance} = DBI->connect(
@@ -184,7 +193,7 @@ sub connect() {
                     .":".$self->{db},
                 $self->{user},
                 $self->{password},
-                { RaiseError => 0, PrintError => 0, AutoCommit => 1 }
+                { RaiseError => 0, PrintError => 0, AutoCommit => 1, sqlite_unicode => 1 }
             );
         } else {
             $self->{instance} = DBI->connect(
@@ -194,7 +203,12 @@ sub connect() {
                     .":".$self->{port},
                 $self->{user},
                 $self->{password},
-                { RaiseError => 0, PrintError => 0, AutoCommit => 1 }
+                {
+                    RaiseError => 0,
+                    PrintError => 0,
+                    AutoCommit => 1,
+                    mysql_enable_utf8 => 1
+                }
             );
         }
         if (defined($self->{instance})) {

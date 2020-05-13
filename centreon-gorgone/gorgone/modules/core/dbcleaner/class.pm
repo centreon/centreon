@@ -89,7 +89,7 @@ sub action_dbclean {
     $options{token} = $self->generate_token() if (!defined($options{token}));
 
     if (defined($options{cycle})) {
-        return 0 if ($self->{purge_timer} - time() < 3600);
+        return 0 if ((time() - $self->{purge_timer}) < 3600);
     }
 
     $self->send_log(

@@ -49,6 +49,8 @@ sub new {
     $connector->{config_db_centreon} = $options{config_db_centreon};
     $connector->{stop} = 0;
 
+    $connector->{global_timeout} = (defined($options{config}->{global_timeout}) &&
+        $options{config}->{global_timeout} =~ /(\d+)/) ? $1 : 300;
     $connector->{check_interval} = (defined($options{config}->{check_interval}) &&
         $options{config}->{check_interval} =~ /(\d+)/) ? $1 : 15;
     $connector->{sync_wait} = (defined($options{config}->{sync_wait})) ?
@@ -124,6 +126,9 @@ sub action_adddiscoveryjob {
     
     my $uuid_attributes = $result->[0]->[0];    
 
+    my $timeout = (defined($options{data}->{content}->{timeout}) && $options{data}->{content}->{timeout} =~ /(\d+)/) ?
+        $options{data}->{content}->{timeout} : $self->{global_timeout};
+
     if ($options{data}->{content}->{execution_mode} == 0) {
         # Execute immediately
         $self->action_launchdiscovery(
@@ -131,7 +136,7 @@ sub action_adddiscoveryjob {
                 content => {
                     target => $options{data}->{content}->{target},
                     command => $options{data}->{content}->{command},
-                    timeout => $options{data}->{content}->{timeout},
+                    timeout => $timeout,
                     job_id => $options{data}->{content}->{job_id},
                     uuid_attributes => $uuid_attributes,
                     token => $token
@@ -149,7 +154,7 @@ sub action_adddiscoveryjob {
             parameters =>  {
                 target => $options{data}->{content}->{target},
                 command => $options{data}->{content}->{command},
-                timeout => $options{data}->{content}->{timeout},
+                timeout => $timeout,
                 job_id => $options{data}->{content}->{job_id},
                 uuid_attributes => $uuid_attributes,
                 token => $token
@@ -263,45 +268,44 @@ sub action_updatediscoveryresults {
     my ($exit_code, $output, $job_id, $token, $uuid_attributes) = -1, undef, undef, undef, undef;
 
     foreach my $message (@{$options{data}->{data}->{result}}) {
-        if ($message->{code} == 2) {
-            my $data = JSON::XS->new->utf8->decode($message->{data});
-            next if (!defined($data->{result}->{exit_code}) || !defined($data->{metadata}->{job_id}) ||
-                !defined($data->{metadata}->{source}) || $data->{metadata}->{source} ne 'autodiscovery');
+        if ($message->{code} > 0) {
+            my $data = JSON::XS->new->decode($message->{data});
+            if (!defined($data->{result}->{exit_code}) || !defined($data->{metadata}->{job_id}) ||
+                !defined($data->{metadata}->{source}) || $data->{metadata}->{source} ne 'autodiscovery') {
+                $self->{logger}->writeLogInfo("[autodiscovery] Found result for token '" . $message->{token} . "'");
 
-            $self->{logger}->writeLogInfo("[autodiscovery] Found result for job '" . $data->{metadata}->{job_id} . "'");
+                $output = $data->{message};
+                $token = $message->{token};
+                last;
+            } else {
+                $self->{logger}->writeLogInfo("[autodiscovery] Found result for job '" . $data->{metadata}->{job_id} . "'");
 
-            $exit_code = $data->{result}->{exit_code};
-            $output = (defined($data->{result}->{stderr}) && $data->{result}->{stderr} ne '') ?
-                $data->{result}->{stderr} : $data->{result}->{stdout};
-            $job_id = $data->{metadata}->{job_id};
-            $token = $message->{token};
-            $uuid_attributes = JSON::XS->new->utf8->decode($data->{metadata}->{uuid_attributes});
-        } elsif ($message->{code} == 1) {
-            my $data = JSON::XS->new->utf8->decode($message->{data});
-
-            $self->{logger}->writeLogInfo("[autodiscovery] Found result for token '" . $message->{token} . "'");
-
-            $output = $data->{message};
-            $token = $message->{token};
+                $exit_code = $data->{result}->{exit_code};
+                $output = (defined($data->{result}->{stderr}) && $data->{result}->{stderr} ne '') ?
+                    $data->{result}->{stderr} : $data->{result}->{stdout};
+                $job_id = $data->{metadata}->{job_id};
+                $token = $message->{token};
+                $uuid_attributes = JSON::XS->new->utf8->decode($data->{metadata}->{uuid_attributes});
+                last;
+            }
         }
     }
 
     if ($exit_code == 0 && defined($job_id)) {
         my $result;
         eval {
-            $result = JSON::XS->new->utf8->decode($output);
+            $result = JSON::XS->new->decode($output);
         };
         if ($@) {
             # Failed
+            $self->{logger}->writeLogError('[autodiscovery] Failed to decode discovery plugin response: ' . $@);
             my $query = "UPDATE mod_host_disco_job " .
                 "SET status = '2', duration = '0', discovered_items = '0', " .
                 "message = 'Failed to decode discovery plugin response' " .
                 "WHERE id = '" . $job_id ."'";
             my $status = $self->{class_object_centreon}->transaction_query(request => $query);
-            if ($status == -1) {
-                $self->{logger}->writeLogError('[autodiscovery] Failed to decode discovery plugin response');
-                return 1;
-            }
+            $self->{logger}->writeLogError('[autodiscovery] Failed to update job status') if ($status == -1);
+            return 1;
         }
 
         # Finished
@@ -341,23 +345,23 @@ sub action_updatediscoveryresults {
             $append = ', '
         }
 
-        $query = "INSERT INTO mod_host_disco_host (job_id, discovery_result, uuid) VALUES " . $values;
-        $status = $self->{class_object_centreon}->transaction_query(request => $query);
-        if ($status == -1) {
-            $self->{logger}->writeLogError('[autodiscovery] Failed to insert job results');
-            return 1;
+        if (defined($values) && $values ne '') {
+            $query = "INSERT INTO mod_host_disco_host (job_id, discovery_result, uuid) VALUES " . $values;
+            $status = $self->{class_object_centreon}->transaction_query(request => $query);
+            if ($status == -1) {
+                $self->{logger}->writeLogError('[autodiscovery] Failed to insert job results');
+                return 1;
+            }
         }
-    } elsif ($exit_code > 0 && defined($job_id)) {
+    } elsif ($exit_code != 0 && defined($job_id)) {
         # Failed
         my $query = "UPDATE mod_host_disco_job " .
             "SET status = '2', duration = '0', discovered_items = '0', " .
             "message = " . $self->{class_object_centreon}->quote(value => $output) . " " .
             "WHERE id = '" . $job_id ."'";
         my $status = $self->{class_object_centreon}->transaction_query(request => $query);
-        if ($status == -1) {
-            $self->{logger}->writeLogError('[autodiscovery] Failed to update job status');
-            return 1;
-        }
+        $self->{logger}->writeLogError('[autodiscovery] Failed to update job status') if ($status == -1);
+        return 1;
     } elsif (defined($token)) {
         # Failed
         my $query = "UPDATE mod_host_disco_job " .
@@ -365,10 +369,8 @@ sub action_updatediscoveryresults {
             "message = " . $self->{class_object_centreon}->quote(value => $output) . " " .
             "WHERE token = '" . $token ."'";
         my $status = $self->{class_object_centreon}->transaction_query(request => $query);
-        if ($status == -1) {
-            $self->{logger}->writeLogError('[autodiscovery] Failed to update job status');
-            return 1;
-        }
+        $self->{logger}->writeLogError('[autodiscovery] Failed to update job status') if ($status == -1);
+        return 1;
     }
 
     return 0;

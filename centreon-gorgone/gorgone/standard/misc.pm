@@ -163,7 +163,8 @@ sub backtick {
         return (-1000, "cant fork: $!");
     }
     
-    if ($pid) {  
+    if ($pid) {
+        binmode(KID, ":encoding(UTF-8)");
         eval {
            local $SIG{ALRM} = sub { die "Timeout by signal ALARM\n"; };
            alarm( $arg{timeout} );

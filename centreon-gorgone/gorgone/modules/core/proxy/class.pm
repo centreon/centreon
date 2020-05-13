@@ -191,7 +191,7 @@ sub action_proxyaddnode {
         # test if a connection parameter changed
         my $changed = 0;
         foreach (keys %$data) {
-            if (ref($data->{$_}) eq 'SCALAR' && $data->{$_} ne $self->{clients}->{$_}) {
+            if (ref($data->{$_}) eq '' && (!defined($self->{clients}->{ $data->{id} }->{$_}) || $data->{$_} ne $self->{clients}->{ $data->{id} }->{$_})) {
                 $changed = 1;
                 last;
             }
@@ -235,7 +235,7 @@ sub close_connections {
     my ($self, %options) = @_;
 
     foreach (keys %{$self->{clients}}) {
-        if (defined($self->{clients}->{$_}->{class})) {
+        if (defined($self->{clients}->{$_}->{class}) && $self->{clients}->{$_}->{type} eq 'push_zmq') {
             $self->{logger}->writeLogInfo("[proxy] Close connection for $_");
             $self->{clients}->{$_}->{class}->close();
         }
@@ -249,14 +249,19 @@ sub proxy_ssh {
     return if ($code == 1);
 
     if ($options{action} eq 'PING') {
-        if ($self->{clients}->{ $options{target_client} }->{class}->ping() != -1) {
-            $self->send_internal_action(
-                action => 'PONG',
-                data => { data => { id => $options{target_client} } },
-                token => $options{token},
-                target => ''
-            );
+        my $action = 'PONG';
+        if ($self->{clients}->{ $options{target_client} }->{class}->ping() == -1) {
+            $action = 'PONGRESET';
+            $self->{clients}->{ $options{target_client} }->{class}->close();
+            $self->{clients}->{ $options{target_client} }->{class} = undef;
+            $self->{clients}->{ $options{target_client} }->{delete} = 0;
         }
+        $self->send_internal_action(
+            action => $action,
+            data => { data => { id => $options{target_client} } },
+            token => $options{token},
+            target => ''
+        );
         return ;
     }
 
@@ -427,7 +432,7 @@ sub run {
                     token => $self->generate_token(),
                     target => ''
                 );
-                $self->{clients}->{$_}->{class}->close();
+                $self->{clients}->{$_}->{class}->close() if (defined($self->{clients}->{$_}->{class}));
                 $self->{clients}->{$_}->{class} = undef;
                 $self->{clients}->{$_}->{delete} = 0;
                 next;
@@ -447,7 +452,7 @@ sub run {
         if ($rev == 0 && $self->{stop} == 1) {
             $self->{logger}->writeLogInfo("[proxy] $$ has quit");
             $self->close_connections();
-            zmq_close($connector->{internal_socket});
+            zmq_close($self->{internal_socket});
             exit(0);
         }
     }
