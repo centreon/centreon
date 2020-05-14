@@ -46,6 +46,8 @@ sub new {
     $connector->{stop} = 0;
     $connector->{purge_timer} = time();
 
+    $connector->{pipelines} = {};
+
     bless $connector, $class;
     $connector->set_signal_handlers();
     return $connector;
@@ -83,12 +85,38 @@ sub class_handle_HUP {
     }
 }
 
+sub send_listener {
+    my ($self, %options) = @_;
+
+    my $current = $self->{pipelines}->{ $options{token} }->{current};
+    $self->send_internal_action(
+        action => 'ADDLISTENER',
+        data => {
+            identity => 'gorgonepipeline',
+            event => 'PIPELINELISTENER',
+            target => $self->{pipelines}->{ $options{token} }->{pipe}->[$current]->{target},
+            token => $options{token} . '-' . $current,
+        }
+    );
+    $self->send_internal_action(
+        action => $self->{pipelines}->{ $options{token} }->{pipe}->[$current]->{action},
+        target => $self->{pipelines}->{ $options{token} }->{pipe}->[$current]->{target},
+        token => $options{token} . '-' . $current,
+        data => $self->{pipelines}->{ $options{token} }->{pipe}->[$current]->{data}
+    );
+}
+
 sub action_addpipeline {
     my ($self, %options) = @_;
 
     $options{token} = $self->generate_token() if (!defined($options{token}));
+    #[
+    #  { "action": "COMMAND", "data": { "content": [ { "command": "ls" } ] }, "continue": 0, "continue_custom_attribute": "%{exit_code} == 1" }, // By default for COMMAND: "continue": "%{exit_code} == 0" 
+    #  { "action:" "COMMAND", "target": 10, "data": { [ "content": { "command": "ls /tmp" } ] } }
+    #]
 
-    print "====la===\n";
+    $self->{pipelines}->{$options{token}} = { current => 0, pipe => $options{data} };
+    $self->send_listener(token => $options{token});
 
     return 0;
 }
@@ -96,6 +124,9 @@ sub action_addpipeline {
 sub action_pipelinelistener {
     my ($self, %options) = @_;
 
+    use Data::Dumper;
+    print Data::Dumper::Dumper("=== token = " . $options{token});
+    print Data::Dumper::Dumper($options{data});
     return 0;
 }
 

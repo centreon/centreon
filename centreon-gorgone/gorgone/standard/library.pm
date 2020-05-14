@@ -372,7 +372,7 @@ sub addlistener {
         log_pace => $data->{log_pace},
         timeout => $data->{timeout}
     );
-    return (GORGONE_ACTION_FINISH_OK, { action => 'addlistener', message => 'ok', data => $data }, 'INFORMATION');
+    return (GORGONE_ACTION_FINISH_OK, { action => 'addlistener', message => 'ok', data => $data });
 }
 
 sub getthumbprint {

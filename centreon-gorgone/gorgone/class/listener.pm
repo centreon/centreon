@@ -44,13 +44,10 @@ sub event_log {
 
     foreach (keys %{$self->{tokens}->{ $options{token} }->{events}}) {
         $self->{logger}->writeLogDebug("[listener] trigger event '$options{token}'");
-        
-        gorgone::standard::library::zmq_send_message(
-            socket => $self->{internal_socket},
-            identity => $self->{tokens}->{ $options{token} }->{events}->{$_},
-            action => $_,
-            token => 'core-listener-event',
-            data => '{ "code": ' . $options{code} . ', "data": { ' . $options{data} . ' } }'
+
+        $self->{gorgone_core}->message_run(
+            message => '[' . $_ . '] [' . $options{token} . '] [] { "code": ' . $options{code} . ', "data": ' . $options{data} . ' }',
+            router_type => 'internal'
         );
     }
     if ($options{code} == GORGONE_ACTION_FINISH_KO || $options{code} == GORGONE_ACTION_FINISH_OK) {
@@ -103,7 +100,7 @@ sub check {
             $self->{logger}->writeLogDebug("[listener] delete token '$token': timeout");
             next;
         }
-        $self->check_getlog_token(token => $options{token});
+        $self->check_getlog_token(token => $token);
     }
 }
 
