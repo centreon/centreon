@@ -192,7 +192,7 @@ sub action_command {
         } else {
             $self->send_log(
                 socket => $options{socket_log},
-                code => GORGONE_ACTION_FINISH_OK,
+                code => GORGONE_MODULE_ACTION_COMMAND_RESULT,
                 token => $options{token},
                 instant => $command->{instant},
                 data => {

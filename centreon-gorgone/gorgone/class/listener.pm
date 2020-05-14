@@ -63,7 +63,7 @@ sub add_listener {
         $self->{tokens}->{$options{token}} = {
             target   => $options{target},
             log_pace => defined($options{log_pace}) && $options{log_pace} =~ /(\d+)/ ? $1 : 30,
-            timeout  => defined($options{timeout}) && $options{timeout} =~ /(\d+)/ ? $1 : 3600,
+            timeout  => defined($options{timeout}) && $options{timeout} =~ /(\d+)/ ? $1 : 600,
             events   => { $options{event} => $options{identity} },
             getlog_last => -1,
             created => time()
@@ -98,6 +98,12 @@ sub check {
         if (time() - $self->{tokens}->{$token}->{created} > $self->{tokens}->{$token}->{timeout}) {
             delete $self->{tokens}->{$token};
             $self->{logger}->writeLogDebug("[listener] delete token '$token': timeout");
+            gorgone::standard::library::add_history(
+                dbh => $self->{gorgone_core}->{db_gorgone},
+                code => GORGONE_ACTION_FINISH_KO,
+                token => $token,
+                data => '{ "message": "listener token ' . $token . ' timeout reached" }'
+            );
             next;
         }
         $self->check_getlog_token(token => $token);
