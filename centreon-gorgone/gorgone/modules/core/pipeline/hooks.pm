@@ -31,6 +31,8 @@ use constant NAMESPACE => 'core';
 use constant NAME => 'pipeline';
 use constant EVENTS => [
     { event => 'PIPELINEREADY' },
+    { event => 'PIPELINELISTENER' },
+    { event => 'ADDPIPELINE', uri => '/definitions', method => 'POST' },
 ];
 
 my $config_core;

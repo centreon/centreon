@@ -83,10 +83,18 @@ sub class_handle_HUP {
     }
 }
 
-sub action_dbclean {
+sub action_addpipeline {
     my ($self, %options) = @_;
 
     $options{token} = $self->generate_token() if (!defined($options{token}));
+
+    print "====la===\n";
+
+    return 0;
+}
+
+sub action_pipelinelistener {
+    my ($self, %options) = @_;
 
     return 0;
 }
@@ -151,8 +159,6 @@ sub run {
             zmq_close($connector->{internal_socket});
             exit(0);
         }
-
-        $self->action_dbclean(cycle => 1);
     }
 }
 

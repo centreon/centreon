@@ -424,7 +424,7 @@ sub pathway {
         $options{logger}->writeLogDebug("[proxy] unknown target '$target'");
         gorgone::standard::library::add_history(
             dbh => $options{dbh},
-            code => gorgone::class::module::ACTION_FINISH_KO, token => $options{token},
+            code => GORGONE_ACTION_FINISH_KO, token => $options{token},
             data => { message => 'proxy - unknown target ' . $target },
             json_encode => 1
         );
@@ -889,7 +889,8 @@ sub prepare_remote_copy {
     }
     close FH;
     
-    push @actions, { content => {
+    push @actions, {
+        content => {
             status => 'end',
             type => $type,
             chunk => undef,

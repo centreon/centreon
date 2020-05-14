@@ -641,7 +641,7 @@ sub action_centreoncommand {
 
         if ($code == -1) {
             $self->{logger}->writeLogError('[legacycmd] -class- ' . $message);
-            $self->send_log(code => gorgone::class::module::ACTION_FINISH_KO, token => $options{token}, data => { message => $message });
+            $self->send_log(code => GORGONE_ACTION_FINISH_KO, token => $options{token}, data => { message => $message });
             return 1;
         }
     }

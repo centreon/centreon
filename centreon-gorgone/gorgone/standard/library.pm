@@ -37,6 +37,7 @@ use File::Basename;
 use MIME::Base64;
 use Time::HiRes;
 
+our $listener;
 my %zmq_type = ('ZMQ_ROUTER' => ZMQ_ROUTER, 'ZMQ_DEALER' => ZMQ_DEALER);
 
 sub read_config {
@@ -328,7 +329,7 @@ sub is_client_can_connect {
     }
     
     if ($is_authorized == 0) {
-        $options{logger}->writeLogError("[core] Client pubkey is not authorized. Thumbprint is '$thumbprint");
+        $options{logger}->writeLogError("[core] Client pubkey is not authorized. Thumbprint is '$thumbprint'");
         return -1;
     }
 
@@ -351,6 +352,28 @@ sub is_handshake_done {
 #######################
 # internal functions
 #######################
+
+sub addlistener {
+    my (%options) = @_;
+
+    my $data;
+    eval {
+        $data = JSON::XS->new->utf8->decode($options{data});
+    };
+    if ($@) {
+        return (GORGONE_ACTION_FINISH_KO, { message => 'request not well formatted' });
+    }
+
+    $options{gorgone}->{listener}->add_listener(
+        identity => $options{identity},
+        event => $data->{event},
+        target => $data->{target},
+        token => $data->{token},
+        log_pace => $data->{log_pace},
+        timeout => $data->{timeout}
+    );
+    return (GORGONE_ACTION_FINISH_OK, { action => 'addlistener', message => 'ok', data => $data }, 'INFORMATION');
+}
 
 sub getthumbprint {
     my (%options) = @_;
@@ -640,6 +663,14 @@ sub add_history {
         "INSERT INTO gorgone_history (" . join(',', @names) . ") VALUES (" . 
         join(',', @values) . ")"
     );
+
+    if (defined($options{token}) && $options{token} ne '') {
+        $listener->event_log(
+            token => $options{token},
+            code => $options{code},
+            data => $options{data}
+        );
+    }
     return $status;
 }
 

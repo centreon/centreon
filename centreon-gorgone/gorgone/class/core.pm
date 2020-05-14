@@ -30,6 +30,7 @@ use gorgone::standard::library;
 use gorgone::standard::constants qw(:all);
 use gorgone::standard::misc;
 use gorgone::class::db;
+use gorgone::class::listener;
 
 my ($gorgone);
 
@@ -200,7 +201,7 @@ sub init {
     $self->{id} = $self->{config}->{configuration}->{gorgone}->{gorgonecore}->{id};
 
     $self->load_modules();
-    
+
     $self->set_signal_handlers();
 }
 
@@ -360,7 +361,7 @@ sub load_modules {
     $self->load_module(config_module => { name => 'dbcleaner', package => 'gorgone::modules::core::dbcleaner::hooks', enable => 'true' });
 
     # Load internal functions
-    foreach my $method_name (('putlog', 'getlog', 'kill', 'ping', 
+    foreach my $method_name (('addlistener', 'putlog', 'getlog', 'kill', 'ping', 
         'getthumbprint', 'constatus', 'setcoreid', 'synclogs', 'loadmodule', 'unloadmodule', 'information')) {
         unless ($self->{internal_register}->{$method_name} = gorgone::standard::library->can($method_name)) {
             $self->{logger}->writeLogError("[core] No function '$method_name'");
@@ -414,7 +415,7 @@ sub message_run {
         $token = gorgone::standard::library::generate_token();
     }
 
-    if ($action !~ /^(?:PUTLOG|GETLOG|KILL|PING|CONSTATUS|SETCOREID|SYNCLOGS|LOADMODULE|UNLOADMODULE|INFORMATION|GETTHUMBPRINT|BCAST.*)$/ && 
+    if ($action !~ /^(?:ADDLISTENER|PUTLOG|GETLOG|KILL|PING|CONSTATUS|SETCOREID|SYNCLOGS|LOADMODULE|UNLOADMODULE|INFORMATION|GETTHUMBPRINT|BCAST.*)$/ && 
         !defined($target) && !defined($self->{modules_events}->{$action})) {
         gorgone::standard::library::add_history(
             dbh => $self->{db_gorgone},
@@ -473,7 +474,7 @@ sub message_run {
         return ($token, 0);
     }
     
-    if ($action =~ /^(?:PUTLOG|GETLOG|KILL|PING|CONSTATUS|SETCOREID|SYNCLOGS|LOADMODULE|UNLOADMODULE|INFORMATION|GETTHUMBPRINT)$/) {
+    if ($action =~ /^(?:ADDLISTENER|PUTLOG|GETLOG|KILL|PING|CONSTATUS|SETCOREID|SYNCLOGS|LOADMODULE|UNLOADMODULE|INFORMATION|GETTHUMBPRINT)$/) {
         my ($code, $response, $response_type) = $self->{internal_register}->{lc($action)}->(
             gorgone => $self,
             gorgone_config => $self->{config}->{configuration}->{gorgone},
@@ -785,7 +786,7 @@ sub run {
             callback => \&router_external_event,
         };
     }
-    
+
     # init all modules
     foreach my $name (keys %{$gorgone->{modules_register}}) {
         $gorgone->{logger}->writeLogDebug("[core] Call init function from module '$name'");
@@ -799,7 +800,13 @@ sub run {
             api_endpoints => $gorgone->{api_endpoints}
         );
     }
-    
+
+    $gorgone->{listener} = gorgone::class::listener->new(
+        gorgone => $gorgone,
+        logger => $gorgone->{logger}
+    );
+    $gorgone::standard::library::listener = $gorgone->{listener};
+
     $gorgone->{logger}->writeLogInfo("[core] Server accepting clients");
     my $cb_timer_check = time();
     while (1) {
@@ -844,6 +851,8 @@ sub run {
         }
 
         zmq_poll($poll, 5000);
+
+        $gorgone->{listener}->check();
     }
 }
 

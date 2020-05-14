@@ -257,7 +257,7 @@ sub action_processcopy {
             return -1 if (defined($self->{process_copy_files_error}->{$cache_file}));
             $self->{process_copy_files_error}->{$cache_file} = 1;
             $self->send_log(
-                code => gorgone::class::module::ACTION_FINISH_KO,
+                code => GORGONE_ACTION_FINISH_KO,
                 token => $options{token},
                 data => { message => "file '$cache_file' open failed: $!" }
             );
