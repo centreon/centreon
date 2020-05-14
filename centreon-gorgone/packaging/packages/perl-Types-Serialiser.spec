@@ -1,20 +1,25 @@
-%define cpan_name CryptX
+%define cpan_name Types-Serialiser
 
-Name:		perl-CryptX
-Version:	0.068
+Name:		perl-Types-Serialiser
+Version:	1.0
 Release:	1%{?dist}
-Summary:	Cryptographic toolkit (self-contained, no external libraries needed)
+Summary:	simple data types for common serialisation formats
 Group:		Development/Libraries
 License:	GPL or Artistic
-URL:		https://metacpan.org/pod/CryptX
-Source0:	https://cpan.metacpan.org/authors/id/M/MI/MIK/%{cpan_name}-%{version}.tar.gz
+URL:		https://metacpan.org/pod/Types::Serialiser
+Source0:	https://cpan.metacpan.org/authors/id/M/ML/MLEHMANN/%{cpan_name}-%{version}.tar.gz
+BuildArch:  noarch
 BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
+BuildRequires:  perl(ExtUtils::MakeMaker)
 BuildRequires:  make
-BuildRequires:  gcc
+
+Provides:	perl(Types::Serialiser)
+Requires:   perl(common::sense)
+AutoReqProv:    no
 
 %description
-Cryptography in CryptX is based on https://github.com/libtom/libtomcrypt
+This module provides some extra datatypes that are used by common serialisation formats such as JSON or CBOR. The idea is to have a repository of simple/small constants and containers that can be shared by different implementations so they become interoperable between each other.
 
 %prep
 %setup -q -n %{cpan_name}-%{version}
@@ -39,7 +44,8 @@ rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root,-)
-%{perl_vendorarch}
+%doc Changes
+%{perl_vendorlib}
 %{_mandir}/man3/*.3*
 
 %changelog

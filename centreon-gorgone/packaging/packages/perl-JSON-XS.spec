@@ -1,25 +1,32 @@
-%define cpan_name CryptX
+%define cpan_name JSON-XS
 
-Name:		perl-CryptX
-Version:	0.068
+Name:		perl-JSON-XS
+Version:	4.02
 Release:	1%{?dist}
-Summary:	Cryptographic toolkit (self-contained, no external libraries needed)
+Summary:	JSON serialising/deserialising, done correctly and fast
 Group:		Development/Libraries
 License:	GPL or Artistic
-URL:		https://metacpan.org/pod/CryptX
-Source0:	https://cpan.metacpan.org/authors/id/M/MI/MIK/%{cpan_name}-%{version}.tar.gz
+URL:		https://metacpan.org/pod/JSON::XS
+Source0:	https://cpan.metacpan.org/authors/id/M/ML/MLEHMANN/%{cpan_name}-%{version}.tar.gz
 BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
+BuildRequires:  perl(Canary::Stability)
+BuildRequires:  perl(ExtUtils::MakeMaker)
 BuildRequires:  make
-BuildRequires:  gcc
+
+Provides:	perl(JSON::XS)
+Requires:   perl(common::sense)
+Requires:   perl(Types::Serialiser)
+AutoReqProv:    no
 
 %description
-Cryptography in CryptX is based on https://github.com/libtom/libtomcrypt
+This module converts Perl data structures to JSON and vice versa. Its primary goal is to be correct and its secondary goal is to be fast. To reach the latter goal it was written in C.
 
 %prep
 %setup -q -n %{cpan_name}-%{version}
 
 %build
+export PERL_CANARY_STABILITY_NOPROMPT=1
 %{__perl} Makefile.PL INSTALLDIRS=vendor OPTIMIZE="$RPM_OPT_FLAGS"
 make %{?_smp_mflags}
 
@@ -39,8 +46,10 @@ rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root,-)
+%doc Changes
+%{_usr}/bin/*
 %{perl_vendorarch}
-%{_mandir}/man3/*.3*
+%{_mandir}
 
 %changelog
 

@@ -31,6 +31,7 @@ Requires:   perl(Net::Curl::Easy)
 Requires:   perl(HTTP::Daemon::SSL)
 Requires:   perl(NetAddr::IP)
 Requires:   perl(Hash::Merge)
+Requires:   perl(Clone)
 AutoReqProv: no
 
 %description
