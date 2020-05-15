@@ -80,6 +80,9 @@ sub check_getlog_token {
 
     if (defined($self->{tokens}->{$options{token}}->{target}) &&
         $self->{tokens}->{$options{token}}->{target}) {
+
+        return if (defined($self->{gorgone_core}->{id}) && $self->{gorgone_core}->{id} == $self->{tokens}->{$options{token}}->{target});
+        
         if ((time() - $self->{tokens}->{$options{token}}->{log_pace}) > $self->{tokens}->{$options{token}}->{getlog_last}) {
             $self->{gorgone_core}->message_run(
                 message => "[GETLOG] [] [$self->{tokens}->{$options{token}}->{target}]",

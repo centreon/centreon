@@ -93,14 +93,16 @@ sub send_listener {
     $self->{pipelines}->{ $options{token} }->{pipe}->[$current]->{created} = time();
     $self->send_internal_action(
         action => 'ADDLISTENER',
-        data => {
-            identity => 'gorgonepipeline',
-            event => 'PIPELINELISTENER',
-            target => $self->{pipelines}->{ $options{token} }->{pipe}->[$current]->{target},
-            token => $options{token} . '-' . $current,
-            timeout => $self->{pipelines}->{ $options{token} }->{pipe}->[$current]->{timeout},
-            log_pace => $self->{pipelines}->{ $options{token} }->{pipe}->[$current]->{log_pace}
-        }
+        data => [
+            {
+                identity => 'gorgonepipeline',
+                event => 'PIPELINELISTENER',
+                target => $self->{pipelines}->{ $options{token} }->{pipe}->[$current]->{target},
+                token => $options{token} . '-' . $current,
+                timeout => $self->{pipelines}->{ $options{token} }->{pipe}->[$current]->{timeout},
+                log_pace => $self->{pipelines}->{ $options{token} }->{pipe}->[$current]->{log_pace}
+            }
+        ]
     );
 
     $self->send_internal_action(

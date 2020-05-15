@@ -364,14 +364,16 @@ sub addlistener {
         return (GORGONE_ACTION_FINISH_KO, { message => 'request not well formatted' });
     }
 
-    $options{gorgone}->{listener}->add_listener(
-        identity => $options{identity},
-        event => $data->{event},
-        target => $data->{target},
-        token => $data->{token},
-        log_pace => $data->{log_pace},
-        timeout => $data->{timeout}
-    );
+    foreach (@$data) {
+        $options{gorgone}->{listener}->add_listener(
+            identity => $options{identity},
+            event => $_->{event},
+            target => $_->{target},
+            token => $_->{token},
+            log_pace => $_->{log_pace},
+            timeout => $_->{timeout}
+        );
+    }
     return (GORGONE_ACTION_FINISH_OK, { action => 'addlistener', message => 'ok', data => $data });
 }
 
