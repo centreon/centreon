@@ -58,12 +58,17 @@ sub event_log {
 sub add_listener {
     my ($self, %options) = @_;
 
+    use Data::Dumper; print Data::Dumper::Dumper(\%options);
+
     $self->{logger}->writeLogDebug("[listener] add token '$options{token}'");
     if (!defined($self->{tokens}->{$options{token}})) {
+        my ($log_pace, $timeout) = (30, 600);
+        $log_pace = $1 if (defined($options{log_pace}) && $options{log_pace} =~ /(\d+)/);
+        $timeout = $1 if (defined($options{timeout}) && $options{timeout} =~ /(\d+)/);
         $self->{tokens}->{$options{token}} = {
             target   => $options{target},
-            log_pace => defined($options{log_pace}) && $options{log_pace} =~ /(\d+)/ ? $1 : 30,
-            timeout  => defined($options{timeout}) && $options{timeout} =~ /(\d+)/ ? $1 : 600,
+            log_pace => $log_pace,
+            timeout  => $timeout,
             events   => { $options{event} => $options{identity} },
             getlog_last => -1,
             created => time()
@@ -85,7 +90,7 @@ sub check_getlog_token {
         
         if ((time() - $self->{tokens}->{$options{token}}->{log_pace}) > $self->{tokens}->{$options{token}}->{getlog_last}) {
             $self->{gorgone_core}->message_run(
-                message => "[GETLOG] [] [$self->{tokens}->{$options{token}}->{target}]",
+                message => "[GETLOG] [] [$self->{tokens}->{$options{token}}->{target}] {}",
                 router_type => 'internal'
             );
 

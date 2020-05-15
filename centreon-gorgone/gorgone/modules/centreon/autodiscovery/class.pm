@@ -194,7 +194,8 @@ sub action_launchdiscovery {
                 event => 'AUTODISCOVERYLISTENER',
                 target => $options{data}->{content}->{target},
                 token => $options{data}->{content}->{token},
-                timeout => $options{data}->{content}->{timeout},
+                timeout => defined($options{data}->{content}->{timeout}) && $options{data}->{content}->{timeout} =~ /(\d+)/ ? 
+                    $1 + $self->{check_interval} + 15 : undef,
                 log_pace => $self->{check_interval}
             }
         ]

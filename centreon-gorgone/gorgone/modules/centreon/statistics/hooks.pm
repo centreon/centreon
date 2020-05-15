@@ -31,6 +31,7 @@ use constant NAMESPACE => 'centreon';
 use constant NAME => 'statistics';
 use constant EVENTS => [
     { event => 'STATISTICSREADY' },
+    { event => 'STATISTICSLISTENER' },
     { event => 'BROKERSTATS', uri => '/broker', method => 'GET' },
     { event => 'ENGINESTATS', uri => '/engine', method => 'GET' },
 ];
