@@ -195,7 +195,7 @@ sub execute_cmd {
             },
         );
     } elsif ($options{cmd} eq 'SENDCFGFILE') {
-        my $cache_dir = (defined($connector->{config}->{cache_dir})) ?
+        my $cache_dir = (defined($connector->{config}->{cache_dir}) && $connector->{config}->{cache_dir} ne '') ?
             $connector->{config}->{cache_dir} : '/var/cache/centreon';
         # engine
         $self->send_internal_action(
@@ -239,7 +239,7 @@ sub execute_cmd {
             return (-1, 'need centreon clapi password to execute SENDEXPORTFILE command');
         }
 
-        my $cache_dir = (defined($connector->{config}->{cache_dir})) ?
+        my $cache_dir = (defined($connector->{config}->{cache_dir}) && $connector->{config}->{cache_dir} ne '') ?
             $connector->{config}->{cache_dir} : '/var/cache/centreon';
         my $remote_dir = (defined($connector->{config}->{remote_dir})) ?
             $connector->{config}->{remote_dir} : '/var/cache/centreon/config/remote-data/';
@@ -283,9 +283,9 @@ sub execute_cmd {
             },
         );
     } elsif ($options{cmd} eq 'SYNCTRAP') {
-        my $cache_dir = (defined($connector->{config}->{cache_dir})) ?
+        my $cache_dir = (defined($connector->{config}->{cache_dir}) && $connector->{config}->{cache_dir} ne '') ?
             $connector->{config}->{cache_dir} : '/var/cache/centreon';
-        my $cache_dir_trap = (defined($connector->{config}->{cache_dir_trap})) ?
+        my $cache_dir_trap = (defined($connector->{config}->{cache_dir_trap}) && $connector->{config}->{cache_dir_trap} ne '') ?
             $connector->{config}->{cache_dir_trap} : '/etc/snmp/centreon_traps/';
         # centreontrapd
         $self->send_internal_action(
