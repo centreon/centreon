@@ -45,6 +45,7 @@
     <preference label="Display Severities" name="display_severities" defaultValue="1" type="boolean" header="Columns"/>
     <preference label="Display Host Name" name="display_host_name" defaultValue="1" type="boolean" />
     <preference label="Display Host Alias" name="display_host_alias" defaultValue="0" type="boolean" />
+    <preference label="Display Chart Link/Icon" name="display_chart_icon" defaultValue="1" type="boolean"/>
     <preference label="Display Service Description" name="display_svc_description" defaultValue="1" type="boolean"/>
     <preference label="Display Output" name="display_output" defaultValue="1" type="boolean"/>
     <preference label="Output Length" name="output_length" defaultValue="50" type="range" min="50" max="500" step="50"/>
