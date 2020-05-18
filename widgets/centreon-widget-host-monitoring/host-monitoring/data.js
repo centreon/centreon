@@ -1,5 +1,5 @@
-/**
- * Copyright 2005-2019 Centreon
+/*
+ * Copyright 2005-2020 Centreon
  * Centreon is developed by : Julien Mathis and Romain Le Merlus under
  * GPL Licence 2.0.
  *
@@ -18,11 +18,11 @@
  * combined work based on this program. Thus, the terms and conditions of the GNU
  * General Public License cover the whole combination.
  *
- * As a special exception, the copyright holders of this program give MERETHIS
+ * As a special exception, the copyright holders of this program give CENTREON
  * permission to link this program with independent modules to produce an executable,
  * regardless of the license terms of these independent modules, and to copy and
- * distribute the resulting executable under terms of MERETHIS choice, provided that
- * MERETHIS also meet, for each linked independent module, the terms  and conditions
+ * distribute the resulting executable under terms of CENTREON choice, provided that
+ * CENTREON also meet, for each linked independent module, the terms  and conditions
  * of the license of that module. An independent module is a module which is not
  * derived from this program. If you modify this program, you may extend this
  * exception to your version of the program, but you are not obliged to do so. If you
@@ -72,3 +72,27 @@ jQuery(function () {
     loadToolBar();
     loadPage();
 });
+
+/**
+ * retrieve selected resources
+ */
+function exportChecked() {
+    let exportList = '';
+    // get checked resource list from local storage
+    $(".selection").each(function () {
+        let itemSaved = 'w_hm_' + $(this).attr('id');
+        let toRemove = 'w_hm_selection_'
+        if (localStorage.getItem(itemSaved)) {
+            exportList += itemSaved.substring(toRemove.length, itemSaved.length) + ',';
+        }
+    });
+    // remove last comma
+    exportList = exportList.substring(0, exportList.length - 1);
+
+    // if at least one resource is found, redirect to the export.php
+    if (0 < exportList.length) {
+        window.location.href = './src/export.php?widgetId=' + widgetId + '&list=' + exportList;
+    } else {
+        alert('Please select at least one resource');
+    }
+}

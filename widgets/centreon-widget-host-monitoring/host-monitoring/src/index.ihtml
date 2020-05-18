@@ -9,7 +9,7 @@
         {if $preferences.more_views == 1}
         <div id='actionBar' style='width:100%; float:left;'>
             <div id='toolBar' style='float:left;'></div>
-            <a href='./src/export.php?widgetId={$widgetId}' class="btc bt_success" style="float:right; margin-top: 8px;">Export</a>
+            <a class="btc bt_success" style="float:right; margin-top: 8px;" onclick="exportChecked()">Export</a>
             <div id='pagination' class="pagination" style='float:left;text-align:right;margin:12px 0px 10px 12px;'></div>
         </div>
         {/if}
@@ -27,7 +27,7 @@
         <script type="text/javascript" src="../../include/common/javascript/jquery/jquery.js"></script>
         <script type="text/javascript" src="../../include/common/javascript/jquery/plugins/pagination/jquery.pagination.js"></script>
         <script type="text/javascript" src="../../include/common/javascript/centreon/popin.js"></script>
-        <script type="text/javascript" src="../../include/common/javascript/moment-with-locales.js"></script>
+        <script type="text/javascript" src="../../include/common/javascript/moment-with-locales.min.2.21.js"></script>
         <script type="text/javascript" src="../../include/common/javascript/moment-timezone-with-data.min.js"></script>
         <script type="text/javascript" src="../../include/common/javascript/centreon/dateMoment.js"></script>
         <script type="text/javascript" src="../../include/common/javascript/centreon/centreon-localStorage.js"></script>

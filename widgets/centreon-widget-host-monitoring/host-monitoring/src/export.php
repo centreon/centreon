@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005-2020 Centreon
  * Centreon is developed by : Julien Mathis and Romain Le Merlus under
@@ -50,7 +51,8 @@ require_once $centreon_path . 'www/class/centreonMedia.class.php';
 require_once $centreon_path . 'www/class/centreonCriticality.class.php';
 
 session_start();
-if (!isset($_SESSION['centreon']) || !isset($_REQUEST['widgetId'])) {
+if (!isset($_SESSION['centreon'], $_GET['widgetId'], $_GET['list'])) {
+    // As the header is already defined, if one of these parameters is missing, an empty CSV is exported
     exit;
 }
 
@@ -69,8 +71,35 @@ $template = new Smarty();
 $template = initSmartyTplForPopup($path, $template, './', $centreon_path);
 
 $centreon = $_SESSION['centreon'];
-$widgetId = filter_input(INPUT_REQUEST, 'widgetId', FILTER_VALIDATE_INT, ['options' => ['default' => 0]]);
+$widgetId = filter_input(INPUT_GET, 'widgetId', FILTER_VALIDATE_INT, ['options' => ['default' => 0]]);
+
+/**
+ * Sanitize and concatenate selected resources for the query
+ */
+ // Check returned list and make an array of it
+if (false !== strpos($_GET['list'], ',')) {
+    $exportList = explode(',', $_GET['list']);
+} else {
+    $exportList[] = $_GET['list'];
+}
 $mainQueryParameters = [];
+$hostQuery = '';
+// Check consistency, sanitize and bind values
+foreach ($exportList as $key => $hostId) {
+    if (0 === (int) $hostId) {
+        // skip non consistent dat
+        continue;
+    }
+    if (!empty($hostQuery)) {
+        $hostQuery .= ', ';
+    }
+    $hostQuery .= ':' . $key . 'host' . $hostId;
+    $mainQueryParameters[] = [
+        'parameter' => ':' . $key . 'host' . $hostId,
+        'value' => (int) $hostId,
+        'type' => \PDO::PARAM_INT
+    ];
+}
 
 $widgetObj = new CentreonWidget($centreon, $db);
 $preferences = $widgetObj->getWidgetPreferences($widgetId);
@@ -78,6 +107,7 @@ $preferences = $widgetObj->getWidgetPreferences($widgetId);
 // Get status labels
 $stateLabels = getLabels();
 
+// Request
 $query = 'SELECT SQL_CALC_FOUND_ROWS
     h.host_id,
     h.name,
@@ -113,6 +143,10 @@ $query = 'SELECT SQL_CALC_FOUND_ROWS
     WHERE enabled = 1
     AND h.name NOT LIKE \'_Module_%\' ';
 
+if (!empty($hostQuery)) {
+    $query .= 'AND h.host_id IN (' . $hostQuery . ') ';
+}
+
 if (isset($preferences['host_name_search']) && $preferences['host_name_search'] != "") {
     $tab = explode(' ', $preferences['host_name_search']);
     $op = $tab[0];
@@ -120,7 +154,11 @@ if (isset($preferences['host_name_search']) && $preferences['host_name_search'] 
         $search = $tab[1];
     }
     if ($op && isset($search) && $search != '') {
-        $mainQueryParameters[] = ['parameter' => ':host_name_search', 'value' => $search, 'type' => PDO::PARAM_STR];
+        $mainQueryParameters[] = [
+            'parameter' => ':host_name_search',
+            'value' => $search,
+            'type' => \PDO::PARAM_STR
+        ];
         $hostNameCondition = 'h.name ' . CentreonUtils::operandToMysqlFormat($op) . ' :host_name_search ';
         $query = CentreonUtils::conditionBuilder($query, $hostNameCondition);
     }
@@ -186,8 +224,8 @@ if (isset($preferences['hostgroup']) && $preferences['hostgroup']) {
         $queryHg .= ":id_" . $result;
         $mainQueryParameters[] = [
             'parameter' => ':id_' . $result,
-            'value' => (int)$result,
-            'type' => PDO::PARAM_INT
+            'value' => (int) $result,
+            'type' => \PDO::PARAM_INT
         ];
     }
     $hostgroupHgIdCondition = <<<SQL
@@ -209,7 +247,7 @@ if (!empty($preferences['display_severities']) && !empty($preferences['criticali
         $mainQueryParameters[] = [
             'parameter' => ':id_' . $p,
             'value' => (int)$p,
-            'type' => PDO::PARAM_INT
+            'type' => \PDO::PARAM_INT
         ];
     }
     $SeverityIdCondition =
@@ -241,8 +279,8 @@ unset($parameter, $mainQueryParameters);
 $res->execute();
 $nbRows = $res->rowCount();
 $data = [];
-$outputLength = $preferences['output_length'] ?: 50;
-$commentLength = $preferences['comment_length'] ?: 50;
+$outputLength = $preferences['output_length'] ?? 50;
+$commentLength = $preferences['comment_length'] ?? 50;
 $hostObj = new CentreonHost($db);
 $gmt = new CentreonGMT($db);
 $gmt->getMyGMTFromSession(session_id(), $db);
