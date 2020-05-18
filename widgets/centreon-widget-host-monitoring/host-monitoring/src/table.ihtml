@@ -71,9 +71,11 @@
                         <img src='/{$centreon_web_path}/img/icons/link.png' class='ico-14'>
                     </a>
                     {/if}
+                    {if $preferences.display_chart_icon}
                     <a target=_blank href='/{$centreon_web_path}/main.php?p=204&amp;mode=0&svc_id={$elem.encoded_host_name}'>
                         <img src='/{$centreon_web_path}/img/icons/chart.png' class='ico-18' title='{$title_graph}' />
                     </a>
+                    {/if}
                 </div>
         </td>
         {/if}
