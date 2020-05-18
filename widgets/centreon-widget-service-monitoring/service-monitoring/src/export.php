@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005-2020 Centreon
  * Centreon is developed by : Julien Mathis and Romain Le Merlus under
@@ -36,7 +37,7 @@
 header('Content-type: application/csv');
 header('Content-Disposition: attachment; filename="services-monitoring.csv"');
 
-require_once "../../require.php";
+require_once '../../require.php';
 require_once $centreon_path . 'bootstrap.php';
 require_once $centreon_path . 'www/class/centreon.class.php';
 require_once $centreon_path . 'www/class/centreonSession.class.php';
@@ -50,7 +51,8 @@ require_once $centreon_path . 'www/class/centreonMedia.class.php';
 require_once $centreon_path . 'www/class/centreonCriticality.class.php';
 
 session_start();
-if (!isset($_SESSION['centreon']) || !isset($_REQUEST['widgetId'])) {
+if (!isset($_SESSION['centreon'], $_GET['widgetId'], $_GET['list'])) {
+    // As the header is already defined, if one of these parameters is missing, an empty CSV is exported
     exit();
 }
 
@@ -75,6 +77,57 @@ $media = new CentreonMedia($db);
 $centreon = $_SESSION['centreon'];
 $widgetId = filter_input(INPUT_GET, 'widgetId', FILTER_VALIDATE_INT, ['options' => ['default' => 0]]);
 
+/**
+ * Sanitize and concatenate selected resources for the query
+ */
+// Check returned combinations
+if (false !== strpos($_GET['list'], ',')) {
+    $resources = explode(',', $_GET['list']);
+} else {
+    $resources[] = $_GET['list'];
+}
+// Check combinations consistency and split them in an [hostId, serviceId] array
+$exportList = [];
+foreach ($resources as $resource) {
+    if (false !== strpos($resource, '\;')) {
+        continue;
+    } else {
+        $exportList[] = explode(';', $resource);
+    }
+}
+$mainQueryParameters = [];
+$hostQuery = '';
+$serviceQuery = '';
+// Prepare the query concatenation and the bind values
+$firstResult = true;
+foreach ($exportList as $key => $Id) {
+    if (
+        !isset($exportList[$key][1]) ||
+        0 === (int) $exportList[$key][0] ||
+        0 === (int) $exportList[$key][1]
+    ) {
+        // skip missing serviceId in combinations or non consistent data
+        continue;
+    }
+    if (false === $firstResult) {
+        $hostQuery .= ', ';
+        $serviceQuery .= ', ';
+    }
+    $hostQuery .= ':' . $key . 'hId' . $exportList[$key][0];
+    $mainQueryParameters[] = [
+        'parameter' => ':' . $key . 'hId' . $exportList[$key][0],
+        'value' => (int) $exportList[$key][0],
+        'type' => \PDO::PARAM_INT
+    ];
+    $serviceQuery .= ':' . $key . 'sId' . $exportList[$key][1];
+    $mainQueryParameters[] = [
+        'parameter' => ':' . $key . 'sId' . $exportList[$key][1],
+        'value' => (int) $exportList[$key][1],
+        'type' => \PDO::PARAM_INT
+    ];
+    $firstResult = false;
+}
+
 $dbb = $dependencyInjector['realtime_db'];
 $widgetObj = new CentreonWidget($centreon, $db);
 $preferences = $widgetObj->getWidgetPreferences($widgetId);
@@ -87,8 +140,6 @@ $stateLabels = array(
     3 => "Unknown",
     4 => "Pending"
 );
-
-$mainQueryParameters = [];
 
 // Build Query
 $query = "SELECT SQL_CALC_FOUND_ROWS h.host_id,
@@ -138,6 +189,11 @@ $query .= " WHERE s.host_id = h.host_id
     AND h.name NOT LIKE '_Module_%'
     AND s.enabled = 1
     AND h.enabled = 1 ";
+
+if (false === $firstResult) {
+    $query .= " AND h.host_id IN ($hostQuery) AND s.service_id IN ($serviceQuery) ";
+}
+
 if (isset($preferences['host_name_search']) && $preferences['host_name_search'] != "") {
     $tab = explode(" ", $preferences['host_name_search']);
     $op = $tab[0];
@@ -148,7 +204,7 @@ if (isset($preferences['host_name_search']) && $preferences['host_name_search'] 
         $mainQueryParameters[] = [
             'parameter' => ':host_name',
             'value' => $search,
-            'type' => PDO::PARAM_STR
+            'type' => \PDO::PARAM_STR
         ];
         $hostNameCondition = 'h.name ' . CentreonUtils::operandToMysqlFormat($op) . ' :host_name ';
         $query = CentreonUtils::conditionBuilder($query, $hostNameCondition);
@@ -164,7 +220,7 @@ if (isset($preferences['service_description_search']) && $preferences['service_d
         $mainQueryParameters[] = [
             'parameter' => ':service_description',
             'value' => $search,
-            'type' => PDO::PARAM_STR
+            'type' => \PDO::PARAM_STR
         ];
         $serviceDescriptionCondition = 's.description ' .
             CentreonUtils::operandToMysqlFormat($op) . ' :service_description ';
@@ -238,7 +294,7 @@ if (isset($preferences['hostgroup']) && $preferences['hostgroup']) {
         $mainQueryParameters[] = [
             'parameter' => ':id_' . $result,
             'value' => (int)$result,
-            'type' => PDO::PARAM_INT
+            'type' => \PDO::PARAM_INT
         ];
     }
     $query = CentreonUtils::conditionBuilder(
@@ -261,7 +317,7 @@ if (isset($preferences['servicegroup']) && $preferences['servicegroup']) {
         $mainQueryParameters[] = [
             'parameter' => ':id_' . $resultSG,
             'value' => (int)$resultSG,
-            'type' => PDO::PARAM_INT
+            'type' => \PDO::PARAM_INT
         ];
     }
     $query = CentreonUtils::conditionBuilder(
@@ -281,7 +337,7 @@ if  (!empty($preferences['criticality_filter'])) {
         $mainQueryParameters[] = [
             'parameter' => ':id_' . $p,
             'value' => (int) $p,
-            'type' => PDO::PARAM_INT
+            'type' => \PDO::PARAM_INT
         ];
     }
     $query = CentreonUtils::conditionBuilder(
@@ -299,7 +355,7 @@ if (isset($preferences['output_search']) && $preferences['output_search'] != "")
         $mainQueryParameters[] = [
             'parameter' => ':service_output',
             'value' => $search,
-            'type' => PDO::PARAM_STR
+            'type' => \PDO::PARAM_STR
         ];
         $serviceOutputCondition = ' s.output ' . CentreonUtils::operandToMysqlFormat($op) . ' :service_output ';
         $query = CentreonUtils::conditionBuilder($query, $serviceOutputCondition);
@@ -331,8 +387,8 @@ $res->execute();
 
 $nbRows = $res->rowCount();
 $data = array();
-$outputLength = $preferences['output_length'] ?: 50;
-$commentLength = $preferences['comment_length'] ?: 50;
+$outputLength = $preferences['output_length'] ?? 50;
+$commentLength = $preferences['comment_length'] ?? 50;
 
 $hostObj = new CentreonHost($db);
 $svcObj = new CentreonService($db);
@@ -367,8 +423,8 @@ while ($row = $res->fetch()) {
             AND service_id = :service_id
             ORDER BY entry_time DESC LIMIT 1'
         );
-        $res2->bindValue(':host_id', $row['host_id'], PDO::PARAM_INT);
-        $res2->bindValue(':service_id', $row['service_id'], PDO::PARAM_INT);
+        $res2->bindValue(':host_id', $row['host_id'], \PDO::PARAM_INT);
+        $res2->bindValue(':service_id', $row['service_id'], \PDO::PARAM_INT);
         $res2->execute();
 
         $data[$row['host_id'] . "_" . $row['service_id']]['comment'] = '-';
