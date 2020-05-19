@@ -75,7 +75,7 @@ sub assign {
     my $request = "
         SELECT nhr.host_host_id
         FROM hostcategories hc, hostcategories_relation hcr, ns_host_relation nhr, nagios_server ns
-        WHERE hc.hc_active = '1' AND hc.hc_name = " . $options{module}->{class_object_centreon}->quote(value => $options{hcategory}) . "
+        WHERE hc.hc_activate = '1' AND hc.hc_name = " . $options{module}->{class_object_centreon}->quote(value => $options{cluster}->{hcategory}) . "
          AND hc.hc_id = hcr.hostcategories_hc_id
          AND hcr.host_host_id = nhr.host_host_id
          AND nhr.nagios_server_id = ns.id
@@ -85,7 +85,7 @@ sub assign {
     my ($status, $datas) = $options{module}->{class_object_centreon}->custom_execute(
         request => $request, 
         mode => 2
-    );    
+    );
     if ($status == -1) {
         $options{module}->{logger}->writeLogError("[judge] -class- cluster '" . $options{cluster}->{name} . "': cannot get hosts");
         return {};
@@ -102,7 +102,7 @@ sub assign {
         $pollers_reload->{$poller_id} = 1;
         $options{module}->{logger}->writeLogInfo("[judge] -class- cluster '" . $options{cluster}->{name} . "': assign host '$_->[0]' --> poller '$poller_id'");
 
-        $status = $options{module}->{class_object_centstorage}->custom_execute(
+        ($status) = $options{module}->{class_object_centreon}->custom_execute(
             request => "UPDATE `ns_host_relation` SET `nagios_server_id` = $poller_id WHERE `host_host_id` = $_->[0]"
         );
         if ($status == -1) {

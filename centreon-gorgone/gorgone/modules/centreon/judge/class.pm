@@ -46,6 +46,8 @@ sub new {
     $connector->{logger} = $options{logger};
     $connector->{config} = $options{config};
     $connector->{config_core} = $options{config_core};
+    $connector->{config_db_centstorage} = $options{config_db_centstorage};
+    $connector->{config_db_centreon} = $options{config_db_centreon};
     $connector->{stop} = 0;
     $connector->{timeout} = 600;
     $connector->{check_alive_sync} = defined($connector->{config}->{check_alive}) && $connector->{config}->{check_alive} =~ /(\d+)/ ? $1 : 60;
@@ -156,6 +158,17 @@ sub get_pollers_config {
 sub get_clapi_user {
     my ($self, %options) = @_;
 
+    $self->{clapi_user} = $self->{config}->{clapi_user};
+    $self->{clapi_password} = $self->{config}->{clapi_password};
+
+    if (!defined($self->{clapi_password})) {
+        $self->{logger}->writeLogError('[judge] -class- cannot get configuration for CLAPI user');
+        return -1;
+    }
+
+    return 0;
+
+=pod
     $self->{clapi_user} = undef;
     $self->{clapi_password} = undef;
     my ($status, $datas) = $self->{class_object_centreon}->custom_execute(
@@ -181,6 +194,7 @@ sub get_clapi_user {
 
     $self->{clapi_user} = $clapi_user;
     $self->{clapi_password} = $clapi_password;
+=cut
 
     return 0;
 }
@@ -252,7 +266,8 @@ sub add_pipeline_config_reload_poller {
             },
             {
                 action => 'REMOTECOPY',
-                target => $options{poller_id}, 
+                target => $options{poller_id},
+                log_pace => 5,
                 data => {
                     content => {
                         source => $self->{cache_dir} . '/config/engine/' . $options{poller_id},
@@ -261,11 +276,12 @@ sub add_pipeline_config_reload_poller {
                         owner => 'centreon-engine',
                         group => 'centreon-engine',
                     }
-                } 
+                }
             },
             {
                 action => 'REMOTECOPY',
-                target => $options{poller_id}, 
+                target => $options{poller_id},
+                log_pace => 5,
                 data => {
                     content => {
                        source => $self->{cache_dir} . '/config/broker/' . $options{poller_id},
@@ -347,7 +363,7 @@ sub run {
         force => 2,
         logger => $self->{logger}
     );
-    $self->{class_object} = gorgone::class::sqlquery->new(logger => $self->{logger}, db_centreon => $self->{db_centstorage});
+    $self->{class_object_centstorage} = gorgone::class::sqlquery->new(logger => $self->{logger}, db_centreon => $self->{db_centstorage});
     $self->{class_object_centreon} = gorgone::class::sqlquery->new(logger => $self->{logger}, db_centreon => $self->{db_centreon});
 
     $self->{db_gorgone} = gorgone::class::db->new(

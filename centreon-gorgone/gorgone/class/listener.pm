@@ -58,8 +58,6 @@ sub event_log {
 sub add_listener {
     my ($self, %options) = @_;
 
-    use Data::Dumper; print Data::Dumper::Dumper(\%options);
-
     $self->{logger}->writeLogDebug("[listener] add token '$options{token}'");
     if (!defined($self->{tokens}->{$options{token}})) {
         my ($log_pace, $timeout) = (30, 600);

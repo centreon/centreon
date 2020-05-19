@@ -37,6 +37,7 @@ use constant EVENTS => [
 
 my $config_core;
 my $config;
+my ($config_db_centreon, $config_db_centstorage);
 my $judge = {};
 my $stop = 0;
 
@@ -45,6 +46,8 @@ sub register {
 
     $config = $options{config};
     $config_core = $options{config_core};
+    $config_db_centstorage = $options{config_db_centstorage};
+    $config_db_centreon = $options{config_db_centreon};
     return (1, NAMESPACE, NAME, EVENTS);
 }
 
@@ -159,7 +162,9 @@ sub create_child {
         my $module = gorgone::modules::centreon::judge::class->new(
             logger => $options{logger},
             config_core => $config_core,
-            config => $config
+            config => $config,
+            config_db_centreon => $config_db_centreon,
+            config_db_centstorage => $config_db_centstorage
         );
         $module->run();
         exit(0);

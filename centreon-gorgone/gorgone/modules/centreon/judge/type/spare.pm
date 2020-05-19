@@ -26,6 +26,7 @@ use warnings;
 sub check_config {
     my (%options) = @_;
 
+    return {};
 }
 
 1;
