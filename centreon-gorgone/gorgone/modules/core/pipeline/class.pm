@@ -258,17 +258,6 @@ sub run {
         }
     ];
 
-    $self->{db_gorgone} = gorgone::class::db->new(
-        type => $self->{config_core}->{gorgone_db_type},
-        db => $self->{config_core}->{gorgone_db_name},
-        host => $self->{config_core}->{gorgone_db_host},
-        port => $self->{config_core}->{gorgone_db_port},
-        user => $self->{config_core}->{gorgone_db_user},
-        password => $self->{config_core}->{gorgone_db_password},
-        force => 2,
-        logger => $self->{logger}
-    );
-
     while (1) {
         # we try to do all we can
         my $rev = zmq_poll($self->{poll}, 5000);

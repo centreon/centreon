@@ -389,6 +389,7 @@ sub broadcast_run {
     foreach (keys %{$self->{modules_register}}) {
         $self->{modules_register}->{$_}->{broadcast}->(
             socket => $self->{internal_socket},
+            dbh => $self->{db_gorgone},
             action => $options{action},
             logger => $self->{logger},
             data => $options{data},
