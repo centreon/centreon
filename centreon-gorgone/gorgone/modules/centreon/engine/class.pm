@@ -92,6 +92,16 @@ sub action_enginecommand {
         $command_file = $self->{config}->{command_file};
     }
 
+    $self->send_log(
+        socket => $options{socket_log},
+        code => GORGONE_ACTION_BEGIN,
+        token => $options{token},
+        data => {
+            message => "commands processing has started",
+            request_content => $options{data}->{content}
+        }
+    );
+
     if (!defined($command_file) || $command_file eq '') {
         $self->{logger}->writeLogError("[engine] Need command_file (config or call) argument");
         $self->send_log(
@@ -140,16 +150,6 @@ sub action_enginecommand {
         );
         return -1;
     }
-    
-    $self->send_log(
-        socket => $options{socket_log},
-        code => $self->ACTION_BEGIN,
-        token => $options{token},
-        data => {
-            message => "commands processing has started",
-            request_content => $options{data}->{content}
-        }
-    );
 
     my $fh;
     eval {
