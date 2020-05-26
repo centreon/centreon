@@ -47,6 +47,8 @@
     "react-files": "^2.4.8",
     "react-router-dom": "^5.1.2",
     "resize-observer-polyfill": "^1.5.1",
+    "ts.data.json": "^1.1.0",
+    "ulog": "^2.0.0-beta.7",
     "use-debounce": "^3.4.1"
   },
   "devDependencies": {

@@ -2,13 +2,18 @@ import * as React from 'react';
 
 import axios from 'axios';
 import { pathOr, cond, T, defaultTo } from 'ramda';
+import ulog from 'ulog';
+import { JsonDecoder } from 'ts.data.json';
 
 import useCancelTokenSource from '../useCancelTokenSource';
 import Severity from '../../Snackbar/Severity';
 import useSnackbar from '../../Snackbar/useSnackbar';
 
+const log = ulog('API Request');
+
 export interface RequestParams<TResult> {
   request: (token) => (params?) => Promise<TResult>;
+  decoder?: JsonDecoder.Decoder<TResult>;
   getErrorMessage?: (error) => string;
   defaultFailureMessage?: string;
 }
@@ -20,6 +25,7 @@ export interface RequestResult<TResult> {
 
 const useRequest = <TResult>({
   request,
+  decoder,
   getErrorMessage,
   defaultFailureMessage = 'Oops, something went wrong',
 }: RequestParams<TResult>): RequestResult<TResult> => {
@@ -48,12 +54,22 @@ const useRequest = <TResult>({
     setSending(true);
 
     return request(token)(params)
-      .catch((error) =>
+      .then((data) => {
+        if (decoder) {
+          return decoder.decodePromise(data);
+        }
+        return data;
+      })
+      .catch((error) => {
+        log.error(error);
+
         cond([
           [axios.isCancel, T],
           [T, showErrorMessage],
-        ])(error),
-      )
+        ])(error);
+
+        throw error;
+      })
       .finally(() => setSending(false));
   };
 
