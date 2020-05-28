@@ -31,6 +31,7 @@ use constant NAMESPACE => 'centreon';
 use constant NAME => 'judge';
 use constant EVENTS => [
     { event => 'JUDGEREADY' },
+    { event => 'JUDGELISTENER' },
     { event => 'JUDGEFAILBACK', uri => '/failback', method => 'POST' },
     { event => 'JUDGEMOVE', uri => '/move', method => 'POST' },
 ];

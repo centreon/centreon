@@ -199,6 +199,25 @@ sub get_clapi_user {
     return 0;
 }
 
+sub action_judgelistener {
+    my ($self, %options) = @_;
+
+    return 0 if (!defined($options{token}));
+
+    if ($options{token} =~ /^judge-spare##(.*?)##(\d+)##/) {
+        gorgone::modules::centreon::judge::type::spare::migrate_steps_listener_response(
+            token => $options{token},
+            cluster => $1,
+            state => $2,
+            clusters => $self->{clusters_spare},
+            module => $self,
+            code => $options{data}->{code}
+        );
+    }
+
+    return 1;
+}
+
 sub event {
     while (1) {
         my $message = gorgone::standard::library::zmq_dealer_read_message(socket => $connector->{internal_socket});
@@ -252,56 +271,66 @@ sub check_alive {
 sub add_pipeline_config_reload_poller {
     my ($self, %options) = @_;
 
-    my $cmd = 'centreon -u ' . $self->{clapi_user} . ' -p ' . $self->{clapi_password} . ' -a POLLERGENERATE -v ' . $options{poller_id};
-    $self->send_internal_action(
-        action => 'ADDPIPELINE',
-        data => [
-            {
-                action => 'COMMAND', 
-                data => {
-                    content => [ {
-                        command => $cmd 
-                    } ] 
-                }
-            },
-            {
-                action => 'REMOTECOPY',
-                target => $options{poller_id},
-                log_pace => 5,
-                data => {
-                    content => {
-                        source => $self->{cache_dir} . '/config/engine/' . $options{poller_id},
-                        destination => $self->{pollers_config}->{ $options{poller_id} }->{cfg_dir} . '/',
-                        cache_dir => $self->{cache_dir},
-                        owner => 'centreon-engine',
-                        group => 'centreon-engine',
-                    }
-                }
-            },
-            {
-                action => 'REMOTECOPY',
-                target => $options{poller_id},
-                log_pace => 5,
-                data => {
-                    content => {
-                       source => $self->{cache_dir} . '/config/broker/' . $options{poller_id},
-                       destination => $self->{pollers_config}->{ $options{poller_id} }->{centreonbroker_cfg_path} . '/',
-                       cache_dir => $self->{cache_dir},
-                       owner => 'centreon-broker',
-                       group => 'centreon-broker',
-                    }
-                } 
-            },
-            {
-                action => 'COMMAND',
-                target => $options{poller_id}, 
-                data => {
-                    content => [ {
-                        command => 'sudo ' . $self->{pollers_config}->{ $options{poller_id} }->{engine_reload_command}
-                    } ] 
+    my $actions = [
+        {
+            action => 'REMOTECOPY',
+            target => $options{poller_id},
+            timeout => 120,
+            log_pace => 5,
+            data => {
+                content => {
+                    source => $self->{cache_dir} . '/config/engine/' . $options{poller_id},
+                    destination => $self->{pollers_config}->{ $options{poller_id} }->{cfg_dir} . '/',
+                    cache_dir => $self->{cache_dir},
+                    owner => 'centreon-engine',
+                    group => 'centreon-engine',
                 }
             }
-        ]
+        },
+        {
+            action => 'REMOTECOPY',
+            target => $options{poller_id},
+            timeout => 120,
+            log_pace => 5,
+            data => {
+                content => {
+                   source => $self->{cache_dir} . '/config/broker/' . $options{poller_id},
+                   destination => $self->{pollers_config}->{ $options{poller_id} }->{centreonbroker_cfg_path} . '/',
+                   cache_dir => $self->{cache_dir},
+                   owner => 'centreon-broker',
+                   group => 'centreon-broker',
+                }
+            } 
+        },
+        {
+            action => 'COMMAND',
+            target => $options{poller_id}, 
+            timeout => 60,
+            data => {
+                content => [ {
+                    command => 'sudo ' . $self->{pollers_config}->{ $options{poller_id} }->{engine_reload_command}
+                } ] 
+            }
+        }
+    ];
+
+    if (!defined($options{no_generate_config})) {
+        my $cmd = 'centreon -u ' . $self->{clapi_user} . ' -p ' . $self->{clapi_password} . ' -a POLLERGENERATE -v ' . $options{poller_id};
+        unshift @$actions, {
+            action => 'COMMAND', 
+            data => {
+                content => [ {
+                    command => $cmd 
+                } ] 
+            }
+        };
+    }
+
+    $self->send_internal_action(
+        action => 'ADDPIPELINE',
+        token => $options{token},
+        timeout => $options{pipeline_timeout},
+        data => $actions
     );
 }
 
