@@ -23,8 +23,8 @@ export default (
     ...props
   }: Props): JSX.Element => {
     const [options, setOptions] = React.useState<Array<SelectEntry>>();
-    const [optionsOpen, setOptionsOpen] = React.useState(false);
-    const [searchValue, setSearchValue] = React.useState('');
+    const [optionsOpen, setOptionsOpen] = React.useState<boolean>(false);
+    const [searchValue, setSearchValue] = React.useState<string>('');
 
     const { sendRequest, sending } = useRequest<TData>({
       request: getData,
@@ -64,6 +64,8 @@ export default (
 
     const loading = sending || !options;
 
+    const inputValueProps = optionsOpen ? { inputValue: searchValue } : {};
+
     return (
       <AutocompleteField
         onOpen={openOptions}
@@ -71,7 +73,7 @@ export default (
         options={options || []}
         onTextChange={changeText}
         loading={loading}
-        inputValue={searchValue}
+        {...inputValueProps}
         {...props}
       />
     );
