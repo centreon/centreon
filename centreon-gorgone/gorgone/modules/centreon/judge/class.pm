@@ -311,6 +311,7 @@ sub test_types {
     # we don't test if we cannot do check_alive
     return if ($self->{check_alive} == 0);
 
+    # distribute clusters
     my $all_pollers = {};
     foreach (values %{$self->{clusters_distribute}}) {
         my $pollers = gorgone::modules::centreon::judge::type::distribute::assign(cluster => $_, module => $self);
@@ -325,6 +326,16 @@ sub test_types {
             $self->add_pipeline_config_reload_poller(poller_id => $_);
         }
     }
+
+    # spare clusters
+    gorgone::modules::centreon::judge::type::spare::init(
+        clusters => $self->{clusters_spare},
+        module => $self
+    );
+    gorgone::modules::centreon::judge::type::spare::check_migrate(
+        clusters => $self->{clusters_spare},
+        module => $self
+    );
 }
 
 sub run {
