@@ -199,6 +199,74 @@ sub get_clapi_user {
     return 0;
 }
 
+sub action_judgemove {
+    my ($self, %options) = @_;
+
+    $options{token} = $self->generate_token() if (!defined($options{token}));
+    # { content => { cluster_name => 'moncluster', node_move => 2 } }
+
+    return -1 if (!defined($options{data}->{content}->{cluster_name}) || $options{data}->{content}->{cluster_name} eq '');
+    return -1 if (!defined($options{data}->{content}->{node_move}) || $options{data}->{content}->{node_move} eq '');
+
+    $self->send_log(
+        code => GORGONE_ACTION_BEGIN,
+        token => $options{token},
+        data => { message => 'failover start' }
+    );
+
+    if (!defined($self->{clusters_spare}->{ $options{data}->{content}->{cluster_name} })) {
+        $self->send_log(
+            code => GORGONE_ACTION_FINISH_KO,
+            token => $options{token},
+            data => { message => "unknown cluster_name '" . $options{data}->{content}->{cluster_name} . "' in config" }
+        );
+        return -1;
+    }
+    
+    my $node_configured = 0;
+    foreach (@{$self->{clusters_spare}->{ $options{data}->{content}->{cluster_name} }->{node}}) {
+        if ($_ eq $options{data}->{content}->{node_move}) {
+            $node_configured = 1;
+            last;
+        }
+    }
+    if ($node_configured == 0) {
+        $self->send_log(
+            code => GORGONE_ACTION_FINISH_KO,
+            token => $options{token},
+            data => { message => "unknown node '" . $options{data}->{content}->{node_move} . "' in cluster config" }
+        );
+        return -1;
+    }
+
+    if (!gorgone::modules::centreon::judge::type::spare::is_ready_status(status => $self->{clusters_spare}->{ $options{data}->{content}->{cluster_name} }->{live}->{status})) {
+        $self->send_log(
+            code => GORGONE_ACTION_FINISH_KO,
+            token => $options{token},
+            data => { message => 'cluster status not ready to move' }
+        );
+        return -1;
+    }
+    if (!gorgone::modules::centreon::judge::type::spare::is_spare_ready(module => $self, ctime => time(), cluster => $self->{clusters_spare}->{ $options{data}->{content}->{cluster_name} })) {
+        $self->send_log(
+            code => GORGONE_ACTION_FINISH_KO,
+            token => $options{token},
+            data => { message => 'cluster spare not ready' }
+        );
+        return -1;
+    }
+
+    gorgone::modules::centreon::judge::type::spare::migrate_steps_1_2_3(
+        token => $options{token},
+        module => $self,
+        node_src => $options{data}->{content}->{node_move},
+        cluster => $options{data}->{content}->{cluster_name},
+        clusters => $self->{clusters_spare}
+    );
+
+    return 0;
+}
+
 sub action_judgelistener {
     my ($self, %options) = @_;
 

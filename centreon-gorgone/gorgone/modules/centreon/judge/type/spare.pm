@@ -127,6 +127,29 @@ sub send_log {
     );
 }
 
+sub is_ready_status {
+    my (%options) = @_;
+
+    if ($options{status} == READY_STATUS) {
+        return 1;
+    }
+
+    return 0;
+}
+
+sub is_spare_ready {
+    my (%options) = @_;
+
+    if (!defined($options{module}->{nodes}->{ $options{cluster}->{spare} }->{running}) || 
+        $options{module}->{nodes}->{ $options{cluster}->{spare} }->{running} == 0 ||
+        ($options{ctime} - $options{cluster}->{alive_timeout}) > $options{module}->{nodes}->{ $options{cluster}->{spare} }->{last_alive}
+    ) {
+        return 0;
+    }
+
+    return 1;
+}
+
 sub update_status {
     my (%options) = @_;
 
@@ -142,23 +165,19 @@ sub update_status {
 sub check_migrate {
     my (%options) = @_;
 
-    my $current_time = time();
+    my $ctime = time();
     foreach (keys %{$options{clusters}}) {
         next if ($options{clusters}->{$_}->{live}->{status} != READY_STATUS);
 
-        # migrate if: node is down (running) and spare is ok (running and last update recent)
-        if (!defined($options{module}->{nodes}->{ $options{clusters}->{$_}->{spare} }->{running}) || 
-            $options{module}->{nodes}->{ $options{clusters}->{$_}->{spare} }->{running} == 0 ||
-            ($current_time - $options{clusters}->{$_}->{alive_timeout}) > $options{module}->{nodes}->{ $options{clusters}->{$_}->{spare} }->{last_alive}
-        ) {
+        if (!is_spare_ready(module => $options{module}, cluster => $options{clusters}->{$_}, ctime => $ctime)) {
             $options{module}->{logger}->writeLogInfo("[judge] -class- cluster '" . $options{clusters}->{$_}->{name} . "' cannot migrate - spare poller not alive");
             next;
         }
 
         my $node_src;
-        foreach my $node_id (keys %{$options{module}->{nodes}}) {
+        foreach my $node_id (@{$options{clusters}->{$_}->{nodes}}) {
             if (defined($options{module}->{nodes}->{$node_id}->{running}) && $options{module}->{nodes}->{$node_id}->{running} == 1 &&
-                (($current_time - $options{clusters}->{$_}->{alive_timeout}) > $options{module}->{nodes}->{$node_id}->{last_alive})
+                (($ctime - $options{clusters}->{$_}->{alive_timeout}) > $options{module}->{nodes}->{$node_id}->{last_alive})
             ) {
                 $node_src = $node_id;
                 last;
@@ -166,7 +185,15 @@ sub check_migrate {
         }
 
         if (defined($node_src)) {
+            my $token = $options{module}->generate_token();
+            send_log(
+                module => $options{module},
+                code => GORGONE_ACTION_BEGIN,
+                token => $token,
+                data => { message => 'failover start' }
+            );
             migrate_steps_1_2_3(
+                token => $options{token},
                 module => $options{module},
                 node_src => $node_src,
                 clusters => $options{clusters},
@@ -185,7 +212,7 @@ Failover migrate steps
 sub migrate_steps_1_2_3 {
     my (%options) = @_;
 
-    $options{clusters}->{ $options{cluster} }->{live}->{token} = defined($options{token}) && $options{token} ne '' ? $options{token} : $options{module}->generate_token();
+    $options{clusters}->{ $options{cluster} }->{live}->{token} = $options{token};
     $options{clusters}->{ $options{cluster} }->{live}->{status} = FAILOVER_RUNNING_STATUS;
     $options{clusters}->{ $options{cluster} }->{live}->{token_config_node_failed} = undef;
     $options{clusters}->{ $options{cluster} }->{live}->{token_config_node_spare} = undef;
@@ -194,8 +221,7 @@ sub migrate_steps_1_2_3 {
     $options{clusters}->{ $options{cluster} }->{live}->{token_pipeline_node_spare} = undef;
     $options{clusters}->{ $options{cluster} }->{live}->{node_src} = $options{node_src};
     $options{clusters}->{ $options{cluster} }->{live}->{node_dst} = $options{clusters}->{ $options{cluster} }->{token_config_node_spare};
-
-    send_log(module => $options{module}, code => GORGONE_ACTION_BEGIN, live => $options{clusters}->{ $options{cluster} }->{live});
+    send_log(module => $options{module}, code => GORGONE_MODULE_CENTREON_JUDGE_FAILOVER_RUNNING, live => $options{clusters}->{ $options{cluster} }->{live});
 
     if ($options{module}->get_clapi_user() != 0) {
         $options{clusters}->{ $options{cluster} }->{live}->{status} = READY_STATUS;
