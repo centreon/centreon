@@ -31,10 +31,10 @@
     "react-dom": "^16.13.1"
   },
   "dependencies": {
-    "@material-ui/core": "^4.9.11",
+    "@material-ui/core": "^4.10.0",
     "@material-ui/icons": "4.9.1",
-    "@material-ui/lab": "^4.0.0-alpha.50",
-    "@material-ui/styles": "^4.9.10",
+    "@material-ui/lab": "^4.0.0-alpha.54",
+    "@material-ui/styles": "^4.10.0",
     "axios": "^0.19.2",
     "clsx": "^1.1.0",
     "formik": "^2.1.4",
@@ -45,11 +45,11 @@
     "react": "^16.11.0",
     "react-dom": "^16.11.0",
     "react-files": "^2.4.8",
-    "react-router-dom": "^5.1.2",
+    "react-router-dom": "^5.2.0",
     "resize-observer-polyfill": "^1.5.1",
     "ts.data.json": "^1.1.0",
     "ulog": "^2.0.0-beta.7",
-    "use-debounce": "^3.4.1"
+    "use-debounce": "^3.4.2"
   },
   "devDependencies": {
     "@babel/cli": "^7.8.4",

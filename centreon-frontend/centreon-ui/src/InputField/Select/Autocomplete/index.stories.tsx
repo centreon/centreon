@@ -1,5 +1,7 @@
 import React from 'react';
 
+import EditIcon from '@material-ui/icons/Edit';
+
 import AutocompleteField from '.';
 
 export default { title: 'InputField/Autocomplete' };
@@ -18,6 +20,18 @@ export const openWithThreeOptions = (): JSX.Element => {
       placeholder="Type here..."
       value={options[1]}
       open
+    />
+  );
+};
+
+export const closeWithEndAdornment = (): JSX.Element => {
+  return (
+    <AutocompleteField
+      options={options}
+      label="Autocomplete"
+      placeholder="Type here..."
+      value={options[1]}
+      endAdornment={<EditIcon />}
     />
   );
 };
