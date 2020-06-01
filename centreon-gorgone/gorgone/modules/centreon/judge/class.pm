@@ -224,7 +224,7 @@ sub action_judgemove {
     }
     
     my $node_configured = 0;
-    foreach (@{$self->{clusters_spare}->{ $options{data}->{content}->{cluster_name} }->{node}}) {
+    foreach (@{$self->{clusters_spare}->{ $options{data}->{content}->{cluster_name} }->{nodes}}) {
         if ($_ eq $options{data}->{content}->{node_move}) {
             $node_configured = 1;
             last;
@@ -235,6 +235,16 @@ sub action_judgemove {
             code => GORGONE_ACTION_FINISH_KO,
             token => $options{token},
             data => { message => "unknown node '" . $options{data}->{content}->{node_move} . "' in cluster config" }
+        );
+        return -1;
+    }
+
+    $self->check_alive();
+    if ($self->{check_alive} == 0) {
+         $self->send_log(
+            code => GORGONE_ACTION_FINISH_KO,
+            token => $options{token},
+            data => { message => 'cannot check cluster nodes status' }
         );
         return -1;
     }
@@ -254,14 +264,15 @@ sub action_judgemove {
             data => { message => 'cluster spare not ready' }
         );
         return -1;
-    }
+    }    
 
     gorgone::modules::centreon::judge::type::spare::migrate_steps_1_2_3(
         token => $options{token},
         module => $self,
         node_src => $options{data}->{content}->{node_move},
         cluster => $options{data}->{content}->{cluster_name},
-        clusters => $self->{clusters_spare}
+        clusters => $self->{clusters_spare},
+        no_update_running_failed => 1
     );
 
     return 0;

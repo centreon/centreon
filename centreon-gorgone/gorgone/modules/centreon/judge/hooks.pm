@@ -34,6 +34,7 @@ use constant EVENTS => [
     { event => 'JUDGELISTENER' },
     { event => 'JUDGEFAILBACK', uri => '/failback', method => 'POST' },
     { event => 'JUDGEMOVE', uri => '/move', method => 'POST' },
+    { event => 'JUDGECLEAN', uri => '/clean', method => 'POST' }
 ];
 
 my $config_core;

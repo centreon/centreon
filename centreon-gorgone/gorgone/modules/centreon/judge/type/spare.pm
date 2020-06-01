@@ -154,7 +154,7 @@ sub update_status {
     my (%options) = @_;
 
     my ($status) = $options{module}->{db_gorgone}->query(
-        'UPDATE INTO gorgone_centreon_judge_spare SET `status` = ' . $options{status} . ' ' .
+        'UPDATE gorgone_centreon_judge_spare SET `status` = ' . $options{status} . ' ' .
         'WHERE `cluster_name` = ' . $options{module}->{db_gorgone}->quote($options{cluster})
     );
     if ($status == -1) {
@@ -221,15 +221,18 @@ sub migrate_steps_1_2_3 {
     $options{clusters}->{ $options{cluster} }->{live}->{token_pipeline_node_spare} = undef;
     $options{clusters}->{ $options{cluster} }->{live}->{node_src} = $options{node_src};
     $options{clusters}->{ $options{cluster} }->{live}->{node_dst} = $options{clusters}->{ $options{cluster} }->{token_config_node_spare};
+    $options{clusters}->{ $options{cluster} }->{live}->{no_update_running_failed} = $options{no_update_running_failed};
+    
     send_log(module => $options{module}, code => GORGONE_MODULE_CENTREON_JUDGE_FAILOVER_RUNNING, live => $options{clusters}->{ $options{cluster} }->{live});
 
-    if ($options{module}->get_clapi_user() != 0) {
+    if ($options{module}->get_clapi_user() != 0 ||
+        $options{module}->get_pollers_config() != 0) {
         $options{clusters}->{ $options{cluster} }->{live}->{status} = READY_STATUS;
         send_log(
             module => $options{module},
             code => GORGONE_ACTION_FINISH_KO,
             token => $options{clusters}->{ $options{cluster} }->{live}->{token},
-            data => { message => 'cannot get clapi user informations' }
+            data => { message => 'cannot get clapi user informations and/or poller config' }
         );
         return -1;
     }
@@ -237,7 +240,7 @@ sub migrate_steps_1_2_3 {
     my ($status, $datas) = $options{module}->{class_object_centreon}->custom_execute(
         request => 'SELECT host_host_id ' .
             'FROM ns_host_relation ' .
-            'WHERE nagios_server_id = ' . $options{module}->{class_object_centreon}->quote($options{node_src}),
+            'WHERE nagios_server_id = ' . $options{module}->{class_object_centreon}->quote(value => $options{node_src}),
         mode => 2
     );
     if ($status == -1) {
@@ -266,18 +269,21 @@ sub migrate_steps_1_2_3 {
     ########
     # Step 1
     ########
+    $options{module}->{logger}->writeLogInfo('[judge] -class- ************************************');
     $options{module}->{logger}->writeLogInfo("[judge] -class- cluster '" . $options{clusters}->{ $options{cluster} }->{name} . "' step STATE_MIGRATION_UPDATE_SQLITE started");
+    $options{module}->{logger}->writeLogInfo('[judge] -class- ************************************');
     $options{clusters}->{ $options{cluster} }->{live}->{state} = STATE_MIGRATION_UPDATE_SQLITE;
     send_log(module => $options{module}, code => GORGONE_MODULE_CENTREON_JUDGE_FAILOVER_RUNNING, live => $options{clusters}->{ $options{cluster} }->{live});
 
-    my $data = { node_src => $options{node_src}, hosts => $datas };
+    my $data = { node_src => $options{node_src}, hosts => [] };
+    push @{$data->{hosts}}, $_->[0] foreach (@$datas);
     ($status, my $encoded) = $options{module}->json_encode(
         argument => $data,
         method => "-class- cluster '" . $options{clusters}->{ $options{cluster} }->{name} . "' step STATE_MIGRATION_UPDATE_SQLITE"
     );
 
     ($status) = $options{module}->{db_gorgone}->query(
-        'UPDATE INTO gorgone_centreon_judge_spare SET `status` = ' . FAILOVER_RUNNING_STATUS . ', `data` = ' . $options{module}->{db_gorgone}->quote($encoded) . ' ' .
+        'UPDATE gorgone_centreon_judge_spare SET `status` = ' . FAILOVER_RUNNING_STATUS . ', `data` = ' . $options{module}->{db_gorgone}->quote($encoded) . ' ' .
         'WHERE `cluster_name` = ' . $options{module}->{db_gorgone}->quote($options{cluster})
     );
     if ($status == -1) {
@@ -291,18 +297,22 @@ sub migrate_steps_1_2_3 {
         return -1;
     }
 
+    $options{module}->{logger}->writeLogInfo('[judge] -class- ************************************');
     $options{module}->{logger}->writeLogInfo("[judge] -class- cluster '" . $options{clusters}->{ $options{cluster} }->{name} . "' step STATE_MIGRATION_UPDATE_SQLITE finished");
+    $options{module}->{logger}->writeLogInfo('[judge] -class- ************************************');
 
     ########
     # Step 2
     ########
+    $options{module}->{logger}->writeLogInfo('[judge] -class- ************************************');
     $options{module}->{logger}->writeLogInfo("[judge] -class- cluster '" . $options{clusters}->{ $options{cluster} }->{name} . "' step STATE_MIGRATION_UPDATE_CENTREON_DB started");
+    $options{module}->{logger}->writeLogInfo('[judge] -class- ************************************');
     $options{clusters}->{ $options{cluster} }->{live}->{state} = STATE_MIGRATION_UPDATE_CENTREON_DB;
     send_log(module => $options{module}, code => GORGONE_MODULE_CENTREON_JUDGE_FAILOVER_RUNNING, live => $options{clusters}->{ $options{cluster} }->{live});
 
     ($status) = $options{module}->{class_object_centreon}->custom_execute(
-        request => 'UPDATE ns_host_relation SET nagios_server_id = ' . $options{module}->{class_object_centreon}->quote($options{clusters}->{ $options{cluster} }->{spare}) .
-            ' WHERE host_host_id IN (' . join(',', $data->{hosts}) . ')'
+        request => 'UPDATE ns_host_relation SET nagios_server_id = ' . $options{module}->{class_object_centreon}->quote(value => $options{clusters}->{ $options{cluster} }->{spare}) .
+            ' WHERE host_host_id IN (' . join(',', @{$data->{hosts}}) . ')'
     );
     if ($status == -1) {
         $options{module}->{logger}->writeLogError("[judge] -class- cluster '" . $options{clusters}->{ $options{cluster} }->{name} . "' step STATE_MIGRATION_UPDATE_CENTREON_DB: cannot update database");
@@ -315,12 +325,16 @@ sub migrate_steps_1_2_3 {
         return -1;
     }
 
+    $options{module}->{logger}->writeLogInfo('[judge] -class- ************************************');
     $options{module}->{logger}->writeLogInfo("[judge] -class- cluster '" . $options{clusters}->{ $options{cluster} }->{name} . "' step STATE_MIGRATION_UPDATE_CENTREON_DB finished");
+    $options{module}->{logger}->writeLogInfo('[judge] -class- ************************************');
 
     ########
     # Step 3
     ########
+    $options{module}->{logger}->writeLogInfo('[judge] -class- ************************************');
     $options{module}->{logger}->writeLogInfo("[judge] -class- cluster '" . $options{clusters}->{ $options{cluster} }->{name} . "' step STATE_MIGRATION_GENERATE_CONFIGS started");
+    $options{module}->{logger}->writeLogInfo('[judge] -class- ************************************');
     $options{clusters}->{ $options{cluster} }->{live}->{state} = STATE_MIGRATION_GENERATE_CONFIGS;
     $options{clusters}->{ $options{cluster} }->{live}->{token_config_node_failed} = 'judge-spare##' . $options{clusters}->{ $options{cluster} }->{name} . '##' . STATE_MIGRATION_GENERATE_CONFIGS . '##' . $options{module}->generate_token(length => 8); 
     $options{clusters}->{ $options{cluster} }->{live}->{token_config_node_spare} = 'judge-spare##' . $options{clusters}->{ $options{cluster} }->{name} . '##' . STATE_MIGRATION_GENERATE_CONFIGS . '##' . $options{module}->generate_token(length => 8); 
@@ -333,22 +347,25 @@ sub migrate_steps_1_2_3 {
                 identity => 'gorgonejudge',
                 event => 'JUDGELISTENER',
                 token => $options{clusters}->{ $options{cluster} }->{live}->{token_config_node_failed},
-                timeout => 180
+                timeout => 200
             }
         ]
     );
     $options{module}->send_internal_action(
-        action => 'COMMAND',
+        action => 'ADDPIPELINE',
         token => $options{clusters}->{ $options{cluster} }->{live}->{token_config_node_failed},
-        data => {
-            content => [
-                {
-                    instant => 1,
-                    command => 'centreon -u ' . $options{module}->{clapi_user} . ' -p ' . $options{module}->{clapi_password} . ' -a POLLERGENERATE -v ' . $options{node_src},
-                    timeout => 150
+        timeout => 180,
+        data => [
+            {
+                action => 'COMMAND',
+                timeout => 150,
+                data => {
+                    content => [ {
+                        command => 'centreon -u ' . $options{module}->{clapi_user} . ' -p ' . $options{module}->{clapi_password} . ' -a POLLERGENERATE -v ' . $options{node_src},
+                    } ] 
                 }
-            ]
-        }
+            }
+        ]
     );
 
     $options{module}->send_internal_action(
@@ -358,22 +375,25 @@ sub migrate_steps_1_2_3 {
                 identity => 'gorgonejudge',
                 event => 'JUDGELISTENER',
                 token => $options{clusters}->{ $options{cluster} }->{live}->{token_config_node_spare},
-                timeout => 180
+                timeout => 200
             }
         ]
     );
     $options{module}->send_internal_action(
-        action => 'COMMAND',
+        action => 'ADDPIPELINE',
         token => $options{clusters}->{ $options{cluster} }->{live}->{token_config_node_spare},
-        data => {
-            content => [
-                {
-                    instant => 1,
-                    command => 'centreon -u ' . $options{module}->{clapi_user} . ' -p ' . $options{module}->{clapi_password} . ' -a POLLERGENERATE -v ' . $options{clusters}->{ $options{cluster} }->{spare},
-                    timeout => 150
+        timeout => 180,
+        data => [
+            {
+                action => 'COMMAND',
+                timeout => 150,
+                data => {
+                    content => [ {
+                        command => 'centreon -u ' . $options{module}->{clapi_user} . ' -p ' . $options{module}->{clapi_password} . ' -a POLLERGENERATE -v ' . $options{clusters}->{ $options{cluster} }->{spare},
+                    } ] 
                 }
-            ]
-        }
+            }
+        ]
     );
 
     return 0;
@@ -382,7 +402,7 @@ sub migrate_steps_1_2_3 {
 sub migrate_step_3 {
     my (%options) = @_;
 
-    return 0 if ($options{code} != GORGONE_ACTION_FINISH_KO || $options{code} != GORGONE_ACTION_FINISH_OK);
+    return 0 if ($options{code} != GORGONE_ACTION_FINISH_KO && $options{code} != GORGONE_ACTION_FINISH_OK);
     return 0 if ($options{token} ne $options{clusters}->{ $options{cluster} }->{live}->{token_config_node_failed} &&
         $options{token} ne $options{clusters}->{ $options{cluster} }->{live}->{token_config_node_spare});
 
@@ -409,12 +429,16 @@ sub migrate_step_3 {
         return 0;
     }
 
+    $options{module}->{logger}->writeLogInfo('[judge] -class- ************************************');
     $options{module}->{logger}->writeLogInfo("[judge] -class- cluster '" . $options{clusters}->{ $options{cluster} }->{name} . "' step STATE_MIGRATION_GENERATE_CONFIGS finished");
+    $options{module}->{logger}->writeLogInfo('[judge] -class- ************************************');
 
     ########
     # Step 4
     ########
-    $options{module}->{logger}->writeLogInfo("[judge] -class- cluster '" . $options{clusters}->{ $options{cluster} }->{name} . "' step MIGRATION_POLLER_FAILED started");
+    $options{module}->{logger}->writeLogInfo('[judge] -class- ************************************');
+    $options{module}->{logger}->writeLogInfo("[judge] -class- cluster '" . $options{clusters}->{ $options{cluster} }->{name} . "' step STATE_MIGRATION_POLLER_FAILED started");
+    $options{module}->{logger}->writeLogInfo('[judge] -class- ************************************');
     $options{clusters}->{ $options{cluster} }->{live}->{state} = STATE_MIGRATION_POLLER_FAILED;
     $options{clusters}->{ $options{cluster} }->{live}->{token_pipeline_node_failed} = 'judge-spare##' . $options{clusters}->{ $options{cluster} }->{name} . '##' . STATE_MIGRATION_POLLER_FAILED . '##' . $options{module}->generate_token(length => 8);
     send_log(module => $options{module}, code => GORGONE_MODULE_CENTREON_JUDGE_FAILOVER_RUNNING, live => $options{clusters}->{ $options{cluster} }->{live});
@@ -443,14 +467,18 @@ sub migrate_step_3 {
 sub migrate_step_4 {
     my (%options) = @_;
 
-    return 0 if ($options{code} != GORGONE_ACTION_FINISH_KO || $options{code} != GORGONE_ACTION_FINISH_OK);
+    return 0 if ($options{code} != GORGONE_ACTION_FINISH_KO && $options{code} != GORGONE_ACTION_FINISH_OK);
 
-    $options{module}->{logger}->writeLogInfo("[judge] -class- cluster '" . $options{clusters}->{ $options{cluster} }->{name} . "' step MIGRATION_POLLER_FAILED finished");
+    $options{module}->{logger}->writeLogInfo('[judge] -class- ************************************');
+    $options{module}->{logger}->writeLogInfo("[judge] -class- cluster '" . $options{clusters}->{ $options{cluster} }->{name} . "' step STATE_MIGRATION_POLLER_FAILED finished");
+    $options{module}->{logger}->writeLogInfo('[judge] -class- ************************************');
 
     ########
     # Step 5
     ########
+    $options{module}->{logger}->writeLogInfo('[judge] -class- ************************************');
     $options{module}->{logger}->writeLogInfo("[judge] -class- cluster '" . $options{clusters}->{ $options{cluster} }->{name} . "' step STATE_MIGRATION_POLLER_SPARE started");
+    $options{module}->{logger}->writeLogInfo('[judge] -class- ************************************');
     $options{clusters}->{ $options{cluster} }->{live}->{state} = STATE_MIGRATION_POLLER_SPARE;
     $options{clusters}->{ $options{cluster} }->{live}->{token_pipeline_node_spare} = 'judge-spare##' . $options{clusters}->{ $options{cluster} }->{name} . '##' . STATE_MIGRATION_POLLER_SPARE . '##' . $options{module}->generate_token(length => 8); 
     send_log(module => $options{module}, code => GORGONE_MODULE_CENTREON_JUDGE_FAILOVER_RUNNING, live => $options{clusters}->{ $options{cluster} }->{live});
@@ -477,7 +505,7 @@ sub migrate_step_4 {
 sub migrate_step_5 {
     my (%options) = @_;
 
-    return 0 if ($options{code} != GORGONE_ACTION_FINISH_KO || $options{code} != GORGONE_ACTION_FINISH_OK);
+    return 0 if ($options{code} != GORGONE_ACTION_FINISH_KO && $options{code} != GORGONE_ACTION_FINISH_OK);
 
     if ($options{code} == GORGONE_ACTION_FINISH_KO) {
         $options{module}->{logger}->writeLogError("[judge] -class- cluster '" . $options{clusters}->{ $options{cluster} }->{name} . "' step STATE_MIGRATION_POLLER_SPARE: pipeline error");
@@ -497,7 +525,9 @@ sub migrate_step_5 {
         return -1;
     }
 
+    $options{module}->{logger}->writeLogInfo('[judge] -class- ************************************');
     $options{module}->{logger}->writeLogInfo("[judge] -class- cluster '" . $options{clusters}->{ $options{cluster} }->{name} . "' step STATE_MIGRATION_POLLER_SPARE finished");
+    $options{module}->{logger}->writeLogInfo('[judge] -class- ************************************');
 
     ########
     # Step 6
@@ -505,12 +535,15 @@ sub migrate_step_5 {
     $options{clusters}->{ $options{cluster} }->{live}->{state} = STATE_MIGRATION_UPDATE_RUNNING_POLLER_FAILED;
     send_log(module => $options{module}, code => GORGONE_MODULE_CENTREON_JUDGE_FAILOVER_RUNNING, live => $options{clusters}->{ $options{cluster} }->{live});
 
-    my ($status) = $options{module}->{class_object_centstorage}->custom_execute(
-        request => 'UPDATE instances SET running = 0 ' .
-            ' WHERE ' . $options{module}->{class_object_centstorage}->quote($options{clusters}->{ $options{cluster} }->{live}->{node_src})
-    );
-    if ($status == -1) {
-        $options{module}->{logger}->writeLogError("[judge] -class- cluster '" . $options{clusters}->{ $options{cluster} }->{name} . "' step STATE_MIGRATION_UPDATE_RUNNING_POLLER_FAILED: cannot update database");
+    if (!defined($options{clusters}->{ $options{cluster} }->{live}->{no_update_running_failed}) || 
+        $options{clusters}->{ $options{cluster} }->{live}->{no_update_running_failed} != 1) {
+        my ($status) = $options{module}->{class_object_centstorage}->custom_execute(
+            request => 'UPDATE instances SET running = 0 ' .
+                ' WHERE instance_id = ' . $options{module}->{class_object_centstorage}->quote(value => $options{clusters}->{ $options{cluster} }->{live}->{node_src})
+        );
+        if ($status == -1) {
+            $options{module}->{logger}->writeLogError("[judge] -class- cluster '" . $options{clusters}->{ $options{cluster} }->{name} . "' step STATE_MIGRATION_UPDATE_RUNNING_POLLER_FAILED: cannot update database");
+        }
     }
 
     $options{clusters}->{ $options{cluster} }->{live}->{status} = FAILOVER_SUCCESS_STATUS;
