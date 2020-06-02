@@ -1,6 +1,8 @@
 <table id='HostTable' class='ListTable styleTable'>
     <tr class="ListHeader">
-        <td class='ListColHeaderPicker' style='width:20px;text-align:center;'><input type='checkbox' id='selection_0' class='checkall selection'/></td>
+        {if $preferences.more_views}
+            <td class='ListColHeaderPicker' style='width:20px;text-align:center;'><input type='checkbox' id='selection_0' class='checkall selection'/></td>
+        {/if}
         {if $preferences.display_severities}<td class='ListColHeaderCenter' name='Severities' style="white-space: nowrap; width: 17px;">S</td>{/if}
         {if $preferences.display_host_name || $preferences.display_host_alias}
             {if $preferences.display_host_name && $preferences.display_host_alias}
@@ -29,7 +31,9 @@
         {assign var='classStyle' value='list_two'}
     {/if}
     <tr class ='{$classStyle} {$elem.class_tr}'>
-        <td class='ListColLeft' style='width:20px;text-align:center;'><input class='selection' id='selection_{$elem.host_id}' type='checkbox'/></td>
+        {if $preferences.more_views}
+            <td class='ListColLeft' style='width:20px;text-align:center;'><input class='selection' id='selection_{$elem.host_id}' type='checkbox'/></td>
+        {/if}
         {if $preferences.display_severities}<td class='ListColLeft' style='text-align:center;'>{$elem.criticality}</td>{/if}
         {if $preferences.display_host_name || $preferences.display_host_alias}
         <td class='ListColLeft'>
