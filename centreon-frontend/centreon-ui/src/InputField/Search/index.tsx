@@ -2,11 +2,9 @@ import React from 'react';
 
 import IconSearch from '@material-ui/icons/Search';
 
-import TextField, { Props as TextFieldProps } from '../Text';
+import TextField from '../Text';
 
-type Props = Omit<TextFieldProps, 'StartAdornment'>;
-
-const SearchField = (props: Props): JSX.Element => (
+const SearchField = (props): JSX.Element => (
   <TextField StartAdornment={(): JSX.Element => <IconSearch />} {...props} />
 );
 

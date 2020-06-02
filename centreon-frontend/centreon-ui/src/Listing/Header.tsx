@@ -27,8 +27,7 @@ const HeaderTypography = withStyles({
 
 export const useCellStyles = makeStyles((theme) => ({
   cell: {
-    paddingLeft: (checkable: boolean): number =>
-      theme.spacing(checkable ? 0 : 1.5),
+    paddingLeft: (checkable): number => theme.spacing(checkable ? 0 : 1.5),
   },
 }));
 

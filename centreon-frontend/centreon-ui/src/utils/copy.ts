@@ -1,4 +1,4 @@
-const copyToClipboard = (text: string): void => {
+const copyToClipboard = (text): void => {
   const textArea = document.createElement('textarea');
   document.body.appendChild(textArea);
   textArea.value = text;
