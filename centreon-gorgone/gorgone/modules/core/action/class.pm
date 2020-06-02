@@ -275,10 +275,10 @@ sub action_processcopy {
         close $fh;
 
         $self->send_log(
-            code => GORGONE_ACTION_FINISH_OK,
+            code => GORGONE_MODULE_ACTION_PROCESSCOPY_INPROGRESS,
             token => $options{token},
             data => {
-                message => "process copy inprogress",
+                message => 'process copy inprogress',
             }
         );
         $self->{logger}->writeLogInfo("[action] Copy processing - Received chunk for '" . $options{data}->{content}->{destination} . "'");
