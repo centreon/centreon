@@ -13,7 +13,7 @@ export const withPlaceholderOnly = (): JSX.Element => (
 );
 
 export const withError = (): JSX.Element => (
-  <TextField error="Wrong name" label="name" />
+  <TextField error label="name" helperText="Wrong name" />
 );
 
 export const fullWidth = (): JSX.Element => (

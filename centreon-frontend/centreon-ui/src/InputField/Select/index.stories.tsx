@@ -27,13 +27,3 @@ export const withThreeOptions = (): JSX.Element => {
     />
   );
 };
-
-export const withError = (): JSX.Element => (
-  <SelectField
-    label="name"
-    options={[{ id: 0, name: 'Selected' }]}
-    selectedOptionId={0}
-    onChange={() => undefined}
-    error="Something went wrong"
-  />
-);
