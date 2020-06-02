@@ -37,7 +37,7 @@ const OptionalLabelInputAdornment = ({
   );
 };
 
-type Props = {
+export type Props = {
   StartAdornment?: React.SFC;
   EndAdornment?: React.SFC;
   error?: string;
