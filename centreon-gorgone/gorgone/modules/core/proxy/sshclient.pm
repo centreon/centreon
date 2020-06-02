@@ -196,7 +196,7 @@ sub action_command {
                     }
                 }
             );
-            $data->{code} = ($code < 0 ) ? GORGONE_ACTION_FINISH_KO : GORGONE_ACTION_FINISH_OK;
+            $data->{code} = ($code < 0) ? GORGONE_ACTION_FINISH_KO : GORGONE_ACTION_FINISH_OK;
         } else {
             my $timeout = defined($command->{timeout}) && $command->{timeout} =~ /(\d+)/ ? $1 : 60;
             my $timeout_nodata = defined($command->{timeout_nodata}) && $command->{timeout_nodata} =~ /(\d+)/ ? $1 : 30;
