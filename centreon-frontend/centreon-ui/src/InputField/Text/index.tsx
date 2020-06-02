@@ -1,6 +1,7 @@
 import React from 'react';
 
 import clsx from 'clsx';
+import { isNil } from 'ramda';
 
 import {
   TextField as MuiTextField,
@@ -36,22 +37,26 @@ const OptionalLabelInputAdornment = ({
   );
 };
 
-interface Props {
+type Props = {
   StartAdornment?: React.SFC;
   EndAdornment?: React.SFC;
-}
+  error?: string;
+} & Omit<TextFieldProps, 'variant' | 'size' | 'error'>;
 
 const TextField = ({
   StartAdornment,
   EndAdornment,
   label,
+  error,
   ...rest
-}: Props & Omit<TextFieldProps, 'variant' | 'size'>): JSX.Element => {
+}: Props): JSX.Element => {
   const classes = useStyles();
 
   return (
     <MuiTextField
       label={label}
+      error={!isNil(error)}
+      helperText={error}
       InputProps={{
         endAdornment: EndAdornment && (
           <OptionalLabelInputAdornment label={label} position="end">

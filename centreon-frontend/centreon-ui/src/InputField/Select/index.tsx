@@ -1,6 +1,7 @@
 import React from 'react';
 
 import clsx from 'clsx';
+import { isNil } from 'ramda';
 
 import {
   Select,
@@ -10,6 +11,7 @@ import {
   makeStyles,
   Theme,
   SelectProps,
+  FormHelperText,
 } from '@material-ui/core';
 
 const useStyles = makeStyles((theme: Theme) => ({
@@ -28,19 +30,21 @@ type Props = {
   onChange;
   selectedOptionId: number | string;
   label?: string;
-} & SelectProps;
+  error?: string;
+} & Omit<SelectProps, 'error'>;
 
 const SelectField = ({
   options,
   onChange,
   selectedOptionId,
   label,
+  error,
   ...props
 }: Props): JSX.Element => {
   const classes = useStyles();
 
   return (
-    <FormControl variant="filled" size="small">
+    <FormControl variant="filled" size="small" error={!isNil(error)}>
       {label && <InputLabel>{label}</InputLabel>}
       <Select
         inputProps={{
@@ -57,6 +61,7 @@ const SelectField = ({
           </MenuItem>
         ))}
       </Select>
+      {error && <FormHelperText>{error}</FormHelperText>}
     </FormControl>
   );
 };
