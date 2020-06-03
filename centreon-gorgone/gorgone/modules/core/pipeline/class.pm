@@ -188,6 +188,7 @@ sub action_pipelinelistener {
     if ($success == 0) {
         $self->{logger}->writeLogDebug("[pipeline] -class- pipeline '$token' failed at $current");
         $self->send_log(code => GORGONE_ACTION_FINISH_KO, token => $token, data => { message => 'action pipeline failed' });
+        delete $self->{pipelines}->{$token};
     } else {
         if (defined($self->{pipelines}->{$token}->{pipe}->[$current + 1])) {
             $self->{pipelines}->{$token}->{current}++;
@@ -195,6 +196,7 @@ sub action_pipelinelistener {
         } else {
             $self->{logger}->writeLogDebug("[pipeline] -class- pipeline '$token' finished successfully");
             $self->send_log(code => GORGONE_ACTION_FINISH_OK, token => $token, data => { message => 'action pipeline finished successfully' });
+            delete $self->{pipelines}->{$token};
         }
     }
 
