@@ -144,9 +144,9 @@ sub routing {
     }
 
     if ($options{action} eq 'PONGRESET') {
-        return undef if (!defined($data->{id}) || $data->{id} eq '');
-        $synctime_nodes->{$data->{id}}->{in_progress_ping} = 0;
-        $options{logger}->writeLogInfo("[proxy] PongReset received from '" . $data->{id} . "'");
+        return undef if (!defined($data->{data}->{id}) || $data->{data}->{id} eq '');
+        $synctime_nodes->{ $data->{data}->{id} }->{in_progress_ping} = 0;
+        $options{logger}->writeLogInfo("[proxy] PongReset received from '" . $data->{data}->{id} . "'");
         return undef;
     }
     

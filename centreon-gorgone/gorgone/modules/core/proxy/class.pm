@@ -206,7 +206,7 @@ sub action_proxyaddnode {
         # we send a pong reset. because the ping can be lost
         $self->send_internal_action(
             action => 'PONGRESET',
-            data => '{ "id": ' . $data->{id} . '}',
+            data => '{ "data": { "id": ' . $data->{id} . ' } }',
             data_noencode => 1,
             token => $self->generate_token(),
             target => ''
@@ -427,7 +427,7 @@ sub run {
             if (defined($self->{clients}->{$_}->{delete}) && $self->{clients}->{$_}->{delete} == 1) {
                 $self->send_internal_action(
                     action => 'PONGRESET',
-                    data => '{ "id": ' . $_ . '}',
+                    data => '{ "data": { "id": ' . $_ . ' } }',
                     data_noencode => 1,
                     token => $self->generate_token(),
                     target => ''
