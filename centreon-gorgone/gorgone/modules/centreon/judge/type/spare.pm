@@ -175,7 +175,10 @@ sub update_status {
     );
     if ($status == -1) {
         $options{module}->{logger}->writeLogError("[judge] -class- cluster '" . $options{cluster} . "' step $options{step}: cannot update status");
+        return -1;
     }
+
+    return 0;
 }
 
 sub check_migrate {
@@ -219,6 +222,36 @@ sub check_migrate {
     }
 }
 
+sub clean {
+    my (%options) = @_;
+
+    $options{clusters}->{ $options{cluster} }->{live}->{status} = READY_STATUS;
+    if (update_status(
+        module => $options{module},
+        cluster => $options{cluster},
+        status => READY_STATUS,
+        step => 'clean'
+        ) == -1) {
+        send_log(
+            module => $options{module},
+            code => GORGONE_ACTION_FINISH_KO,
+            token => $options{token},
+            data => { message => 'clean: cannot update status' }
+        );
+        $options{module}->{logger}->writeLogError("[judge] -class- cluster '" . $options{clusters}->{ $options{cluster} }->{name} . "' clean: cannot update status");
+        return -1;
+    }
+
+    $options{module}->{logger}->writeLogInfo("[judge] -class- cluster '" . $options{clusters}->{ $options{cluster} }->{name} . "' clean: status updated");
+    send_log(
+        module => $options{module},
+        code => GORGONE_ACTION_FINISH_OK,
+        token => $options{token},
+        data => { message => 'clean: status updated' }
+    );
+    return 0;
+}
+
 =pod
 
 **********************
@@ -240,7 +273,8 @@ sub migrate_steps_1_2_3 {
     $options{clusters}->{ $options{cluster} }->{live}->{node_src} = $options{node_src};
     $options{clusters}->{ $options{cluster} }->{live}->{node_dst} = $options{clusters}->{ $options{cluster} }->{token_config_node_spare};
     $options{clusters}->{ $options{cluster} }->{live}->{no_update_running_failed} = $options{no_update_running_failed};
-    
+    $options{clusters}->{ $options{cluster} }->{live}->{state} = undef;
+
     send_log(module => $options{module}, code => GORGONE_MODULE_CENTREON_JUDGE_FAILOVER_RUNNING, live => $options{clusters}->{ $options{cluster} }->{live});
 
     if ($options{module}->get_clapi_user() != 0 ||
