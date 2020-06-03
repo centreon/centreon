@@ -278,6 +278,69 @@ sub action_judgemove {
     return 0;
 }
 
+sub action_judgefailback {
+    my ($self, %options) = @_;
+
+    $options{token} = $self->generate_token() if (!defined($options{token}));
+    # { content => { cluster_name => 'moncluster' } }
+
+    return -1 if (!defined($options{data}->{content}->{cluster_name}) || $options{data}->{content}->{cluster_name} eq '');
+
+    $self->send_log(
+        code => GORGONE_ACTION_BEGIN,
+        token => $options{token},
+        data => { message => 'failback start' }
+    );
+
+    if (!defined($self->{clusters_spare}->{ $options{data}->{content}->{cluster_name} })) {
+        $self->send_log(
+            code => GORGONE_ACTION_FINISH_KO,
+            token => $options{token},
+            data => { message => "unknown cluster_name '" . $options{data}->{content}->{cluster_name} . "' in config" }
+        );
+        return -1;
+    }
+
+    $self->check_alive();
+    if ($self->{check_alive} == 0) {
+         $self->send_log(
+            code => GORGONE_ACTION_FINISH_KO,
+            token => $options{token},
+            data => { message => 'cannot check cluster nodes status' }
+        );
+        return -1;
+    }
+
+    if ($self->get_clapi_user() != 0 ||
+        $self->get_pollers_config() != 0) {
+        $self->send_log(
+            code => GORGONE_ACTION_FINISH_KO,
+            token => $options{token},
+            data => { message => 'cannot get clapi user informations and/or poller config' }
+        );
+        return -1;
+    }
+
+    if (!gorgone::modules::centreon::judge::type::spare::is_failover_status(status => $self->{clusters_spare}->{ $options{data}->{content}->{cluster_name} }->{live}->{status})) {
+        $self->send_log(
+            code => GORGONE_ACTION_FINISH_KO,
+            token => $options{token},
+            data => { message => 'cluster status not ready to failback' }
+        );
+        return -1;
+    }
+    
+
+    gorgone::modules::centreon::judge::type::spare::failback_start(
+        token => $options{token},
+        module => $self,
+        cluster => $options{data}->{content}->{cluster_name},
+        clusters => $self->{clusters_spare},
+    );
+
+    return 0;
+}
+
 sub action_judgelistener {
     my ($self, %options) = @_;
 

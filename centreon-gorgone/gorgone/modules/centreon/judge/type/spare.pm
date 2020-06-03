@@ -66,6 +66,12 @@ use constant STATE_MIGRATION_POLLER_FAILED => 4;
 use constant STATE_MIGRATION_POLLER_SPARE => 5;
 use constant STATE_MIGRATION_UPDATE_RUNNING_POLLER_FAILED => 6;
 
+use constant STATE_FAILBACK_GET_SQLITE => 10;
+use constant STATE_FAILBACK_UPDATE_CENTREON_DB => 11;
+use constant STATE_FAILBACK_GENERATE_CONFIGS => 12;
+use constant STATE_FAILBACK_POLLER_SRC => 13;
+use constant STATE_FAILBACK_POLLER_DST => 14;
+
 sub check_config {
     my (%options) = @_;
 
@@ -131,6 +137,16 @@ sub is_ready_status {
     my (%options) = @_;
 
     if ($options{status} == READY_STATUS) {
+        return 1;
+    }
+
+    return 0;
+}
+
+sub is_failover_status {
+    my (%options) = @_;
+
+    if ($options{status} == FAILOVER_FAIL_STATUS || $options{status} == FAILOVER_SUCCESS_STATUS) {
         return 1;
     }
 
@@ -205,7 +221,9 @@ sub check_migrate {
 
 =pod
 
+**********************
 Failover migrate steps
+**********************
 
 =cut
 
@@ -281,6 +299,16 @@ sub migrate_steps_1_2_3 {
         argument => $data,
         method => "-class- cluster '" . $options{clusters}->{ $options{cluster} }->{name} . "' step STATE_MIGRATION_UPDATE_SQLITE"
     );
+    if ($status == 1) {
+        $options{module}->{logger}->writeLogError("[judge] -class- cluster '" . $options{clusters}->{ $options{cluster} }->{name} . "' step STATE_MIGRATION_UPDATE_SQLITE: cannot encode json");
+        send_log(
+            module => $options{module},
+            code => GORGONE_ACTION_FINISH_KO,
+            token => $options{clusters}->{ $options{cluster} }->{live}->{token},
+            data => { message => 'cannot encode json' }
+        );
+        return -1;
+    }
 
     ($status) = $options{module}->{db_gorgone}->query(
         'UPDATE gorgone_centreon_judge_spare SET `status` = ' . FAILOVER_RUNNING_STATUS . ', `data` = ' . $options{module}->{db_gorgone}->quote($encoded) . ' ' .
@@ -562,7 +590,6 @@ sub migrate_step_5 {
 
     return 0;
 }
-
 sub migrate_steps_listener_response {
     my (%options) = @_;
 
@@ -581,6 +608,353 @@ sub migrate_steps_listener_response {
     if ($options{state} == STATE_MIGRATION_POLLER_SPARE) {
         return migrate_step_5(%options);
     }
+
+    if ($options{state} == STATE_FAILBACK_GENERATE_CONFIGS) {
+        return failback_generate_configs(%options);
+    }
+    if ($options{state} == STATE_FAILBACK_POLLER_SRC) {
+        return failback_poller_src(%options);
+    }
+    if ($options{state} == STATE_FAILBACK_POLLER_DST) {
+        return failback_poller_dst(%options);
+    }
+}
+
+=pod
+
+**********************
+Failback migrate steps
+**********************
+
+=cut
+
+sub failback_start {
+    my (%options) = @_;
+
+    $options{clusters}->{ $options{cluster} }->{live}->{token} = $options{token};
+    $options{clusters}->{ $options{cluster} }->{live}->{status} = FAILBACK_RUNNING_STATUS;
+    $options{clusters}->{ $options{cluster} }->{live}->{token_config_node_src} = undef;
+    $options{clusters}->{ $options{cluster} }->{live}->{token_config_node_dst} = undef;
+    $options{clusters}->{ $options{cluster} }->{live}->{token_config_responses} = 0;
+    $options{clusters}->{ $options{cluster} }->{live}->{token_pipeline_node_src} = undef;
+    $options{clusters}->{ $options{cluster} }->{live}->{token_pipeline_node_dst} = undef;
+    $options{clusters}->{ $options{cluster} }->{live}->{node_src} = $options{clusters}->{ $options{cluster} }->{spare};
+    $options{clusters}->{ $options{cluster} }->{live}->{node_dst} = undef;
+
+    ########
+    # Step 1
+    ########
+    $options{module}->{logger}->writeLogInfo('[judge] -class- ************************************');
+    $options{module}->{logger}->writeLogInfo("[judge] -class- cluster '" . $options{clusters}->{ $options{cluster} }->{name} . "' step STATE_FAILBACK_GET_SQLITE started");
+    $options{module}->{logger}->writeLogInfo('[judge] -class- ************************************');
+    $options{clusters}->{ $options{cluster} }->{live}->{state} = STATE_FAILBACK_GET_SQLITE;
+    send_log(module => $options{module}, code => GORGONE_MODULE_CENTREON_JUDGE_FAILBACK_RUNNING, live => $options{clusters}->{ $options{cluster} }->{live});
+
+    my $query = 'SELECT `status`, `data` FROM gorgone_centreon_judge_spare WHERE cluster_name = ' . $options{module}->{db_gorgone}->quote($options{clusters}->{ $options{cluster} }->{name});
+    my ($status, $sth) = $options{module}->{db_gorgone}->query($query);
+    if ($status == -1) {
+        $options{module}->{logger}->writeLogError("[judge] -class- cluster '" . $options{clusters}->{ $options{cluster} }->{name} . "' cannot get sqlite information");
+        send_log(
+            module => $options{module},
+            code => GORGONE_ACTION_FINISH_KO,
+            token => $options{clusters}->{ $options{cluster} }->{live}->{token},
+            data => { message => 'cannot get sqlite information' }
+        );        
+        return -1;
+    }
+    my $row = $sth->fetchrow_hashref();
+    if (!defined($row)) {
+        $options{module}->{logger}->writeLogError("[judge] -class- cluster '" . $options{clusters}->{ $options{cluster} }->{name} . "' no data in sqlite");
+        send_log(
+            module => $options{module},
+            code => GORGONE_ACTION_FINISH_KO,
+            token => $options{clusters}->{ $options{cluster} }->{live}->{token},
+            data => { message => 'no data in sqlite' }
+        );        
+        return -1;
+    }
+    ($status, my $decoded) = $options{module}->json_decode(
+        argument => $row->{data},
+        method => "-class- cluster '" . $options{clusters}->{ $options{cluster} }->{name} . "' cannot decode json information"
+    );
+    if ($status == 1) {
+        $options{module}->{logger}->writeLogError("[judge] -class- cluster '" . $options{clusters}->{ $options{cluster} }->{name} . "' cannot decode json");
+        send_log(
+            module => $options{module},
+            code => GORGONE_ACTION_FINISH_KO,
+            token => $options{clusters}->{ $options{cluster} }->{live}->{token},
+            data => { message => 'cannot decode json' }
+        );
+        return -1;
+    }
+
+    $options{clusters}->{ $options{cluster} }->{live}->{node_dst} = $decoded->{node_src};
+
+    $options{module}->{logger}->writeLogInfo('[judge] -class- ************************************');
+    $options{module}->{logger}->writeLogInfo("[judge] -class- cluster '" . $options{clusters}->{ $options{cluster} }->{name} . "' step STATE_FAILBACK_GET_SQLITE finished");
+    $options{module}->{logger}->writeLogInfo('[judge] -class- ************************************');
+
+    ########
+    # Step 2
+    ########
+    $options{module}->{logger}->writeLogInfo('[judge] -class- ************************************');
+    $options{module}->{logger}->writeLogInfo("[judge] -class- cluster '" . $options{clusters}->{ $options{cluster} }->{name} . "' step STATE_FAILBACK_UPDATE_CENTREON_DB started");
+    $options{module}->{logger}->writeLogInfo('[judge] -class- ************************************');
+    $options{clusters}->{ $options{cluster} }->{live}->{state} = STATE_FAILBACK_UPDATE_CENTREON_DB;
+    send_log(module => $options{module}, code => GORGONE_MODULE_CENTREON_JUDGE_FAILBACK_RUNNING, live => $options{clusters}->{ $options{cluster} }->{live});
+
+    ($status) = $options{module}->{class_object_centreon}->custom_execute(
+        request => 'UPDATE ns_host_relation SET nagios_server_id = ' . $options{module}->{class_object_centreon}->quote(value => $options{clusters}->{ $options{cluster} }->{live}->{node_dst}) .
+            ' WHERE host_host_id IN (' . join(',', @{$decoded->{hosts}}) . ')'
+    );
+    if ($status == -1) {
+        $options{module}->{logger}->writeLogError("[judge] -class- cluster '" . $options{clusters}->{ $options{cluster} }->{name} . "' step STATE_FAILBACK_UPDATE_CENTREON_DB: cannot update database");
+        send_log(
+            module => $options{module},
+            code => GORGONE_ACTION_FINISH_KO,
+            token => $options{clusters}->{ $options{cluster} }->{live}->{token},
+            data => { message => 'cannot update database' }
+        );
+        return -1;
+    }
+
+    $options{module}->{logger}->writeLogInfo('[judge] -class- ************************************');
+    $options{module}->{logger}->writeLogInfo("[judge] -class- cluster '" . $options{clusters}->{ $options{cluster} }->{name} . "' step STATE_FAILBACK_UPDATE_CENTREON_DB finished");
+    $options{module}->{logger}->writeLogInfo('[judge] -class- ************************************');
+
+    ########
+    # Step 3
+    ########
+    $options{module}->{logger}->writeLogInfo('[judge] -class- ************************************');
+    $options{module}->{logger}->writeLogInfo("[judge] -class- cluster '" . $options{clusters}->{ $options{cluster} }->{name} . "' step STATE_FAILBACK_GENERATE_CONFIGS started");
+    $options{module}->{logger}->writeLogInfo('[judge] -class- ************************************');
+    $options{clusters}->{ $options{cluster} }->{live}->{state} = STATE_FAILBACK_GENERATE_CONFIGS;
+    $options{clusters}->{ $options{cluster} }->{live}->{token_config_node_src} = 'judge-spare##' . $options{clusters}->{ $options{cluster} }->{name} . '##' . STATE_FAILBACK_GENERATE_CONFIGS . '##' . $options{module}->generate_token(length => 8); 
+    $options{clusters}->{ $options{cluster} }->{live}->{token_config_node_dst} = 'judge-spare##' . $options{clusters}->{ $options{cluster} }->{name} . '##' . STATE_FAILBACK_GENERATE_CONFIGS . '##' . $options{module}->generate_token(length => 8); 
+    send_log(module => $options{module}, code => GORGONE_MODULE_CENTREON_JUDGE_FAILBACK_RUNNING, live => $options{clusters}->{ $options{cluster} }->{live});
+
+    $options{module}->send_internal_action(
+        action => 'ADDLISTENER',
+        data => [
+            {
+                identity => 'gorgonejudge',
+                event => 'JUDGELISTENER',
+                token => $options{clusters}->{ $options{cluster} }->{live}->{token_config_node_src},
+                timeout => 200
+            }
+        ]
+    );
+    $options{module}->send_internal_action(
+        action => 'ADDPIPELINE',
+        token => $options{clusters}->{ $options{cluster} }->{live}->{token_config_node_src},
+        timeout => 180,
+        data => [
+            {
+                action => 'COMMAND',
+                timeout => 150,
+                data => {
+                    content => [ {
+                        command => 'centreon -u ' . $options{module}->{clapi_user} . ' -p ' . $options{module}->{clapi_password} . ' -a POLLERGENERATE -v ' . $options{clusters}->{ $options{cluster} }->{live}->{node_src}
+                    } ] 
+                }
+            }
+        ]
+    );
+
+    $options{module}->send_internal_action(
+        action => 'ADDLISTENER',
+        data => [
+            {
+                identity => 'gorgonejudge',
+                event => 'JUDGELISTENER',
+                token => $options{clusters}->{ $options{cluster} }->{live}->{token_config_node_dst},
+                timeout => 200
+            }
+        ]
+    );
+    $options{module}->send_internal_action(
+        action => 'ADDPIPELINE',
+        token => $options{clusters}->{ $options{cluster} }->{live}->{token_config_node_dst},
+        timeout => 180,
+        data => [
+            {
+                action => 'COMMAND',
+                timeout => 150,
+                data => {
+                    content => [ {
+                        command => 'centreon -u ' . $options{module}->{clapi_user} . ' -p ' . $options{module}->{clapi_password} . ' -a POLLERGENERATE -v ' . $options{clusters}->{ $options{cluster} }->{live}->{node_dst}
+                    } ] 
+                }
+            }
+        ]
+    );
+
+    return 0;
+}
+
+sub failback_generate_configs {
+    my (%options) = @_;
+
+    return 0 if ($options{code} != GORGONE_ACTION_FINISH_KO && $options{code} != GORGONE_ACTION_FINISH_OK);
+    return 0 if ($options{token} ne $options{clusters}->{ $options{cluster} }->{live}->{token_config_node_src} &&
+        $options{token} ne $options{clusters}->{ $options{cluster} }->{live}->{token_config_node_dst});
+
+    if ($options{code} == GORGONE_ACTION_FINISH_KO) {
+        $options{module}->{logger}->writeLogError("[judge] -class- cluster '" . $options{clusters}->{ $options{cluster} }->{name} . "' step STATE_FAILBACK_GENERATE_CONFIGS: generate config error");
+        $options{clusters}->{ $options{cluster} }->{live}->{status} = FAILBACK_FAIL_STATUS;
+        update_status(
+            module => $options{module},
+            cluster => $options{cluster},
+            status => FAILBACK_FAIL_STATUS,
+            step => 'STATE_FAILBACK_GENERATE_CONFIGS'
+        );
+        send_log(
+            module => $options{module},
+            code => GORGONE_ACTION_FINISH_KO,
+            token => $options{clusters}->{ $options{cluster} }->{live}->{token},
+            data => { message => 'generate config error' }
+        );
+        return -1;
+    }
+    
+    $options{clusters}->{ $options{cluster} }->{live}->{token_config_responses}++;
+    if ($options{clusters}->{ $options{cluster} }->{live}->{token_config_responses} < 2) {
+        return 0;
+    }
+
+    $options{module}->{logger}->writeLogInfo('[judge] -class- ************************************');
+    $options{module}->{logger}->writeLogInfo("[judge] -class- cluster '" . $options{clusters}->{ $options{cluster} }->{name} . "' step STATE_FAILBACK_GENERATE_CONFIGS finished");
+    $options{module}->{logger}->writeLogInfo('[judge] -class- ************************************');
+
+    ########
+    # Step 4
+    ########
+    $options{module}->{logger}->writeLogInfo('[judge] -class- ************************************');
+    $options{module}->{logger}->writeLogInfo("[judge] -class- cluster '" . $options{clusters}->{ $options{cluster} }->{name} . "' step STATE_FAILBACK_POLLER_SRC started");
+    $options{module}->{logger}->writeLogInfo('[judge] -class- ************************************');
+    $options{clusters}->{ $options{cluster} }->{live}->{state} = STATE_FAILBACK_POLLER_SRC;
+    $options{clusters}->{ $options{cluster} }->{live}->{token_pipeline_node_src} = 'judge-spare##' . $options{clusters}->{ $options{cluster} }->{name} . '##' . STATE_FAILBACK_POLLER_SRC . '##' . $options{module}->generate_token(length => 8);
+    send_log(module => $options{module}, code => GORGONE_MODULE_CENTREON_JUDGE_FAILBACK_RUNNING, live => $options{clusters}->{ $options{cluster} }->{live});
+
+    $options{module}->send_internal_action(
+        action => 'ADDLISTENER',
+        data => [
+            {
+                identity => 'gorgonejudge',
+                event => 'JUDGELISTENER',
+                token => $options{clusters}->{ $options{cluster} }->{live}->{token_pipeline_node_src},
+                timeout => 450
+            }
+        ]
+    );
+    $options{module}->add_pipeline_config_reload_poller(
+        token => $options{clusters}->{ $options{cluster} }->{live}->{token_pipeline_node_src},
+        poller_id => $options{clusters}->{ $options{cluster} }->{live}->{node_src},
+        no_generate_config => 1,
+        pipeline_timeout => 400
+    );
+
+    return 0;
+}
+
+sub failback_poller_src {
+    my (%options) = @_;
+
+    return 0 if ($options{code} != GORGONE_ACTION_FINISH_KO && $options{code} != GORGONE_ACTION_FINISH_OK);
+
+    if ($options{code} == GORGONE_ACTION_FINISH_KO) {
+        $options{module}->{logger}->writeLogError("[judge] -class- cluster '" . $options{clusters}->{ $options{cluster} }->{name} . "' step STATE_FAILBACK_POLLER_SRC: pipeline error");
+        $options{clusters}->{ $options{cluster} }->{status} = FAILBACK_FAIL_STATUS;
+        update_status(
+            module => $options{module},
+            cluster => $options{cluster},
+            status => FAILBACK_FAIL_STATUS,
+            step => 'STATE_FAILBACK_POLLER_SRC'
+        );
+        send_log(
+            module => $options{module},
+            code => GORGONE_ACTION_FINISH_KO,
+            token => $options{clusters}->{ $options{cluster} }->{live}->{token},
+            data => { message => 'pipeline error' }
+        );
+        return -1;
+    }
+
+    $options{module}->{logger}->writeLogInfo('[judge] -class- ************************************');
+    $options{module}->{logger}->writeLogInfo("[judge] -class- cluster '" . $options{clusters}->{ $options{cluster} }->{name} . "' step STATE_FAILBACK_POLLER_SRC finished");
+    $options{module}->{logger}->writeLogInfo('[judge] -class- ************************************');
+
+    ########
+    # Step 5
+    ########
+    $options{module}->{logger}->writeLogInfo('[judge] -class- ************************************');
+    $options{module}->{logger}->writeLogInfo("[judge] -class- cluster '" . $options{clusters}->{ $options{cluster} }->{name} . "' step STATE_FAILBACK_POLLER_DST started");
+    $options{module}->{logger}->writeLogInfo('[judge] -class- ************************************');
+    $options{clusters}->{ $options{cluster} }->{live}->{state} = STATE_FAILBACK_POLLER_DST;
+    $options{clusters}->{ $options{cluster} }->{live}->{token_pipeline_node_dst} = 'judge-spare##' . $options{clusters}->{ $options{cluster} }->{name} . '##' . STATE_FAILBACK_POLLER_DST . '##' . $options{module}->generate_token(length => 8); 
+    send_log(module => $options{module}, code => GORGONE_MODULE_CENTREON_JUDGE_FAILBACK_RUNNING, live => $options{clusters}->{ $options{cluster} }->{live});
+
+    $options{module}->send_internal_action(
+        action => 'ADDLISTENER',
+        data => [
+            {
+                identity => 'gorgonejudge',
+                event => 'JUDGELISTENER',
+                token => $options{clusters}->{ $options{cluster} }->{live}->{token_pipeline_node_dst},
+                timeout => 450
+            }
+        ]
+    );
+    $options{module}->add_pipeline_config_reload_poller(
+        token => $options{clusters}->{ $options{cluster} }->{live}->{token_pipeline_node_dst},
+        poller_id => $options{clusters}->{ $options{cluster} }->{live}->{node_dst},
+        no_generate_config => 1,
+        pipeline_timeout => 400
+    );
+}
+
+sub failback_poller_dst {
+    my (%options) = @_;
+
+    return 0 if ($options{code} != GORGONE_ACTION_FINISH_KO && $options{code} != GORGONE_ACTION_FINISH_OK);
+
+    if ($options{code} == GORGONE_ACTION_FINISH_KO) {
+        $options{module}->{logger}->writeLogError("[judge] -class- cluster '" . $options{clusters}->{ $options{cluster} }->{name} . "' step STATE_FAILBACK_POLLER_DST: pipeline error");
+        $options{clusters}->{ $options{cluster} }->{status} = FAILBACK_FAIL_STATUS;
+        update_status(
+            module => $options{module},
+            cluster => $options{cluster},
+            status => FAILBACK_FAIL_STATUS,
+            step => 'STATE_FAILBACK_POLLER_DST'
+        );
+        send_log(
+            module => $options{module},
+            code => GORGONE_ACTION_FINISH_KO,
+            token => $options{clusters}->{ $options{cluster} }->{live}->{token},
+            data => { message => 'pipeline error' }
+        );
+        return -1;
+    }
+
+    $options{module}->{logger}->writeLogInfo('[judge] -class- ************************************');
+    $options{module}->{logger}->writeLogInfo("[judge] -class- cluster '" . $options{clusters}->{ $options{cluster} }->{name} . "' step STATE_FAILBACK_POLLER_DST finished");
+    $options{module}->{logger}->writeLogInfo('[judge] -class- ************************************');
+
+    $options{clusters}->{ $options{cluster} }->{live}->{status} = FAILBACK_SUCCESS_STATUS;
+    update_status(
+        module => $options{module},
+        cluster => $options{cluster},
+        status => FAILBACK_SUCCESS_STATUS,
+        step => 'STATE_FAILBACK_POLLER_DST'
+    );
+    send_log(
+        module => $options{module},
+        code => GORGONE_ACTION_FINISH_OK,
+        token => $options{clusters}->{ $options{cluster} }->{live}->{token},
+        data => { message => 'failback finished' }
+    );
+
+    return 0;
 }
 
 1;
