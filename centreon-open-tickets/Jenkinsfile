@@ -2,7 +2,7 @@
 ** Variables.
 */
 properties([buildDiscarder(logRotator(numToKeepStr: '50'))])
-def serie = '20.04'
+def serie = '20.10'
 def maintenanceBranch = "${serie}.x"
 if (env.BRANCH_NAME.startsWith('release-')) {
   env.BUILD = 'RELEASE'
