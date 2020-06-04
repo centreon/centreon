@@ -1,5 +1,5 @@
 ##
-## Copyright 2016-2019 Centreon
+## Copyright 2016-2020 Centreon
 ##
 ## All rights reserved.
 ##
@@ -11,8 +11,8 @@ Name:           centreon-awie
 Version:        @VERSION@
 Release:        @RELEASE@%{?dist}
 Summary:        Centreon API Web Import Export
-%define thismajor 20.04.0
-%define nextmajor 20.05.0
+%define thismajor 20.10.0
+%define nextmajor 20.11.0
 
 Group:          Applications/System
 License:        Proprietary
