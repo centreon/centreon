@@ -27,8 +27,10 @@ use Sys::Hostname;
 use ZMQ::LibZMQ4;
 use ZMQ::Constants qw(:all);
 use gorgone::standard::library;
+use gorgone::standard::constants qw(:all);
 use gorgone::standard::misc;
 use gorgone::class::db;
+use gorgone::class::listener;
 
 my ($gorgone);
 
@@ -199,7 +201,7 @@ sub init {
     $self->{id} = $self->{config}->{configuration}->{gorgone}->{gorgonecore}->{id};
 
     $self->load_modules();
-    
+
     $self->set_signal_handlers();
 }
 
@@ -359,7 +361,7 @@ sub load_modules {
     $self->load_module(config_module => { name => 'dbcleaner', package => 'gorgone::modules::core::dbcleaner::hooks', enable => 'true' });
 
     # Load internal functions
-    foreach my $method_name (('putlog', 'getlog', 'kill', 'ping', 
+    foreach my $method_name (('addlistener', 'putlog', 'getlog', 'kill', 'ping', 
         'getthumbprint', 'constatus', 'setcoreid', 'synclogs', 'loadmodule', 'unloadmodule', 'information')) {
         unless ($self->{internal_register}->{$method_name} = gorgone::standard::library->can($method_name)) {
             $self->{logger}->writeLogError("[core] No function '$method_name'");
@@ -387,6 +389,7 @@ sub broadcast_run {
     foreach (keys %{$self->{modules_register}}) {
         $self->{modules_register}->{$_}->{broadcast}->(
             socket => $self->{internal_socket},
+            dbh => $self->{db_gorgone},
             action => $options{action},
             logger => $self->{logger},
             data => $options{data},
@@ -413,11 +416,11 @@ sub message_run {
         $token = gorgone::standard::library::generate_token();
     }
 
-    if ($action !~ /^(?:PUTLOG|GETLOG|KILL|PING|CONSTATUS|SETCOREID|SYNCLOGS|LOADMODULE|UNLOADMODULE|INFORMATION|GETTHUMBPRINT|BCAST.*)$/ && 
+    if ($action !~ /^(?:ADDLISTENER|PUTLOG|GETLOG|KILL|PING|CONSTATUS|SETCOREID|SYNCLOGS|LOADMODULE|UNLOADMODULE|INFORMATION|GETTHUMBPRINT|BCAST.*)$/ && 
         !defined($target) && !defined($self->{modules_events}->{$action})) {
         gorgone::standard::library::add_history(
             dbh => $self->{db_gorgone},
-            code => 1,
+            code => GORGONE_ACTION_FINISH_KO,
             token => $token,
             data => { error => "unknown_action", message => "action '$action' is unknown" },
             json_encode => 1
@@ -433,7 +436,7 @@ sub message_run {
     if ($self->{stop} == 1) {
         gorgone::standard::library::add_history(
             dbh => $self->{db_gorgone},
-            code => 0,
+            code => GORGONE_ACTION_FINISH_KO,
             token => $token,
             data => { message => 'gorgone is stopping/restarting. Cannot proceed request.' },
             json_encode => 1
@@ -447,7 +450,7 @@ sub message_run {
             !defined($self->{modules_register}->{ $self->{modules_id}->{ $self->{config}->{configuration}->{gorgone}->{gorgonecore}->{proxy_name} } })) {
             gorgone::standard::library::add_history(
                 dbh => $self->{db_gorgone},
-                code => 1,
+                code => GORGONE_ACTION_FINISH_KO,
                 token => $token,
                 data => { error => "no_proxy", message => 'no proxy configured. cannot manage target.' },
                 json_encode => 1
@@ -472,7 +475,7 @@ sub message_run {
         return ($token, 0);
     }
     
-    if ($action =~ /^(?:PUTLOG|GETLOG|KILL|PING|CONSTATUS|SETCOREID|SYNCLOGS|LOADMODULE|UNLOADMODULE|INFORMATION|GETTHUMBPRINT)$/) {
+    if ($action =~ /^(?:ADDLISTENER|PUTLOG|GETLOG|KILL|PING|CONSTATUS|SETCOREID|SYNCLOGS|LOADMODULE|UNLOADMODULE|INFORMATION|GETTHUMBPRINT)$/) {
         my ($code, $response, $response_type) = $self->{internal_register}->{lc($action)}->(
             gorgone => $self,
             gorgone_config => $self->{config}->{configuration}->{gorgone},
@@ -574,7 +577,7 @@ sub handshake {
         gorgone::standard::library::zmq_core_response(
             socket => $self->{external_socket}, 
             identity => $identity,
-            code => 1,
+            code => GORGONE_ACTION_FINISH_KO,
             data => { message => 'Database issue' }
         );
         return undef;
@@ -590,7 +593,7 @@ sub handshake {
             gorgone::standard::library::zmq_core_response(
                 socket => $self->{external_socket},
                 identity => $identity,
-                code => 1,
+                code => GORGONE_ACTION_FINISH_KO,
                 data => { message => 'handshake issue' }
             );
             return undef;
@@ -603,13 +606,15 @@ sub handshake {
         if ($status == -1) {
             gorgone::standard::library::zmq_core_response(
                 socket => $self->{external_socket}, identity => $identity,
-                code => 1, data => { message => 'handshake issue' }
+                code => GORGONE_ACTION_FINISH_KO,
+                data => { message => 'handshake issue' }
             );
         }
         if (gorgone::standard::library::add_identity(dbh => $self->{db_gorgone}, identity => $identity, symkey => $symkey) == -1) {
             gorgone::standard::library::zmq_core_response(
                 socket => $self->{external_socket}, identity => $identity,
-                code => 1, data => { message => 'handshake issue' }
+                code => GORGONE_ACTION_FINISH_KO,
+                data => { message => 'handshake issue' }
             );
         }
 
@@ -619,7 +624,8 @@ sub handshake {
             ) {
             gorgone::standard::library::zmq_core_response(
                 socket => $self->{external_socket}, identity => $identity,
-                code => 1, data => { message => 'handshake issue' }
+                code => GORGONE_ACTION_FINISH_KO,
+                data => { message => 'handshake issue' }
             );
         }
         return undef;
@@ -738,7 +744,7 @@ sub run {
 
     if (gorgone::standard::library::add_history(
         dbh => $gorgone->{db_gorgone},
-        code => 0,
+        code => GORGONE_STARTED,
         data => { message => 'gorgoned is starting...' },
         json_encode => 1) == -1
     ) {
@@ -781,7 +787,7 @@ sub run {
             callback => \&router_external_event,
         };
     }
-    
+
     # init all modules
     foreach my $name (keys %{$gorgone->{modules_register}}) {
         $gorgone->{logger}->writeLogDebug("[core] Call init function from module '$name'");
@@ -795,7 +801,13 @@ sub run {
             api_endpoints => $gorgone->{api_endpoints}
         );
     }
-    
+
+    $gorgone->{listener} = gorgone::class::listener->new(
+        gorgone => $gorgone,
+        logger => $gorgone->{logger}
+    );
+    $gorgone::standard::library::listener = $gorgone->{listener};
+
     $gorgone->{logger}->writeLogInfo("[core] Server accepting clients");
     my $cb_timer_check = time();
     while (1) {
@@ -840,6 +852,8 @@ sub run {
         }
 
         zmq_poll($poll, 5000);
+
+        $gorgone->{listener}->check();
     }
 }
 

@@ -43,3 +43,11 @@ CREATE TABLE IF NOT EXISTS `gorgone_target_fingerprint` (
 );
 
 CREATE INDEX IF NOT EXISTS idx_gorgone_target_fingerprint_target ON gorgone_target_fingerprint (target);
+
+CREATE TABLE IF NOT EXISTS `gorgone_centreon_judge_spare` (
+  `cluster_name` varchar(2048) NOT NULL,
+  `status` int(11) NOT NULL,
+  `data` TEXT DEFAULT NULL
+);
+
+CREATE UNIQUE INDEX IF NOT EXISTS idx_gorgone_centreon_judge_spare_cluster_name ON gorgone_centreon_judge_spare (cluster_name);

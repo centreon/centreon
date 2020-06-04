@@ -25,6 +25,7 @@ use base qw(gorgone::class::module);
 use strict;
 use warnings;
 use gorgone::standard::library;
+use gorgone::standard::constants qw(:all);
 use gorgone::class::sqlquery;
 use gorgone::class::http::http;
 use ZMQ::LibZMQ4;
@@ -95,7 +96,7 @@ sub check_debug {
     my $request = "SELECT `value` FROM options WHERE `key` = 'debug_gorgone'";
     my ($status, $datas) = $self->{class_object}->custom_execute(request => $request, mode => 2);
     if ($status == -1) {
-        $self->send_log(code => gorgone::class::module::ACTION_FINISH_KO, token => $options{token}, data => { message => 'cannot find debug configuration' });
+        $self->send_log(code => GORGONE_ACTION_FINISH_KO, token => $options{token}, data => { message => 'cannot find debug configuration' });
         $self->{logger}->writeLogError('[nodes] -class- cannot find debug configuration');
         return 1;
     }
@@ -116,7 +117,7 @@ sub action_nodesresync {
 
     $options{token} = $self->generate_token() if (!defined($options{token}));
 
-    $self->send_log(code => gorgone::class::module::ACTION_BEGIN, token => $options{token}, data => { message => 'action nodesresync proceed' });
+    $self->send_log(code => GORGONE_ACTION_BEGIN, token => $options{token}, data => { message => 'action nodesresync proceed' });
 
     # If we have a SQL issue: resync = 10 sec
     if ($self->check_debug()) {
@@ -128,7 +129,7 @@ sub action_nodesresync {
     my ($status, $datas) = $self->{class_object}->custom_execute(request => $request, mode => 2);
     if ($status == -1) {
         $self->{resync_time} = 10;
-        $self->send_log(code => gorgone::class::module::ACTION_FINISH_KO, token => $options{token}, data => { message => 'cannot find nodes remote configuration' });
+        $self->send_log(code => GORGONE_ACTION_FINISH_KO, token => $options{token}, data => { message => 'cannot find nodes remote configuration' });
         $self->{logger}->writeLogError('[nodes] Cannot find nodes remote configuration');
         return 1;
     }
@@ -148,7 +149,7 @@ sub action_nodesresync {
     ($status, $datas) = $self->{class_object}->custom_execute(request => $request, mode => 2);
     if ($status == -1) {
         $self->{resync_time} = 10;
-        $self->send_log(code => gorgone::class::module::ACTION_FINISH_KO, token => $options{token}, data => { message => 'cannot find nodes configuration' });
+        $self->send_log(code => GORGONE_ACTION_FINISH_KO, token => $options{token}, data => { message => 'cannot find nodes configuration' });
         $self->{logger}->writeLogError('[nodes] Cannot find nodes configuration');
         return 1;
     }
@@ -208,7 +209,7 @@ sub action_nodesresync {
     $self->send_internal_action(action => 'UNREGISTERNODES', data => { nodes => $unregister_nodes } );
 
     $self->{logger}->writeLogDebug("[nodes] Finish resync");
-    $self->send_log(code => $self->ACTION_FINISH_OK, token => $options{token}, data => { message => 'action nodesresync finished' });
+    $self->send_log(code => GORGONE_ACTION_FINISH_OK, token => $options{token}, data => { message => 'action nodesresync finished' });
 
     $self->{resync_time} = $self->{default_resync_time};
     return 0;

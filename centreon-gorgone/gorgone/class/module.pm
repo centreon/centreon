@@ -27,10 +27,6 @@ use gorgone::standard::library;
 use gorgone::standard::misc;
 use JSON::XS;
 
-use constant ACTION_BEGIN => 0;
-use constant ACTION_FINISH_KO => 1;
-use constant ACTION_FINISH_OK => 2;
-
 sub generate_token {
    my ($self, %options) = @_;
    

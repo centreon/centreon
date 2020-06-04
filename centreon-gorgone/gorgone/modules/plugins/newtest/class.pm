@@ -26,6 +26,7 @@ use strict;
 use warnings;
 use gorgone::standard::misc;
 use gorgone::standard::library;
+use gorgone::standard::constants qw(:all);
 use gorgone::class::sqlquery;
 use ZMQ::LibZMQ4;
 use ZMQ::Constants qw(:all);
@@ -566,31 +567,31 @@ sub action_newtestresync {
     $options{token} = $self->generate_token() if (!defined($options{token}));
     
     $self->{logger}->writeLogDebug("gorgone-newtest: container $self->{container_id}: begin resync");
-    $self->send_log(code => gorgone::class::module::ACTION_BEGIN, token => $options{token}, data => { message => 'action newtestresync proceed' });
+    $self->send_log(code => GORGONE_ACTION_BEGIN, token => $options{token}, data => { message => 'action newtestresync proceed' });
     $self->newtestresync_init();
     
     if ($self->get_poller_id()) {
-        $self->send_log(code => gorgone::class::module::ACTION_FINISH_KO, token => $options{token}, data => { message => 'cannot get poller id' });
+        $self->send_log(code => GORGONE_ACTION_FINISH_KO, token => $options{token}, data => { message => 'cannot get poller id' });
         return -1;
     }
     if ($self->get_centreondb_cache()) {
-        $self->send_log(code => gorgone::class::module::ACTION_FINISH_KO, token => $options{token}, data => { message => 'cannot get centreon config cache' });
+        $self->send_log(code => GORGONE_ACTION_FINISH_KO, token => $options{token}, data => { message => 'cannot get centreon config cache' });
         return -1;
     }
     if ($self->get_centstoragedb_cache()) {
-        $self->send_log(code => gorgone::class::module::ACTION_FINISH_KO, token => $options{token}, data => { message => 'cannot get centreon storage cache' });
+        $self->send_log(code => GORGONE_ACTION_FINISH_KO, token => $options{token}, data => { message => 'cannot get centreon storage cache' });
         return -1;
     }
     
     if ($self->get_newtest_scenarios(%options)) {
-        $self->send_log(code => gorgone::class::module::ACTION_FINISH_KO, token => $options{token}, data => { message => 'cannot get newtest scenarios' });
+        $self->send_log(code => GORGONE_ACTION_FINISH_KO, token => $options{token}, data => { message => 'cannot get newtest scenarios' });
         return -1;
     }   
 
     $self->push_config();
     $self->submit_external_cmd();
 
-    $self->send_log(code => $self->ACTION_FINISH_OK, token => $options{token}, data => { message => 'action newtestresync finished' });
+    $self->send_log(code => GORGONE_ACTION_FINISH_OK, token => $options{token}, data => { message => 'action newtestresync finished' });
     return 0;
 }
 

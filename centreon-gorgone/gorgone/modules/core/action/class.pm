@@ -25,6 +25,7 @@ use base qw(gorgone::class::module);
 use strict;
 use warnings;
 use gorgone::standard::library;
+use gorgone::standard::constants qw(:all);
 use gorgone::standard::misc;
 use ZMQ::LibZMQ4;
 use ZMQ::Constants qw(:all);
@@ -96,7 +97,7 @@ sub action_command {
     if (!defined($options{data}->{content}) || ref($options{data}->{content}) ne 'ARRAY') {
         $self->send_log(
             socket => $options{socket_log},
-            code => $self->ACTION_FINISH_KO,
+            code => GORGONE_ACTION_FINISH_KO,
             token => $options{token},
             data => {
                 message => "expected array, found '" . ref($options{data}->{content}) . "'",
@@ -110,7 +111,7 @@ sub action_command {
         if (!defined($command->{command}) || $command->{command} eq '') {
             $self->send_log(
                 socket => $options{socket_log},
-                code => $self->ACTION_FINISH_KO,
+                code => GORGONE_ACTION_FINISH_KO,
                 token => $options{token},
                 data => {
                     message => "need command argument at array index '" . $index . "'",
@@ -123,7 +124,7 @@ sub action_command {
     
     $self->send_log(
         socket => $options{socket_log},
-        code => $self->ACTION_BEGIN,
+        code => GORGONE_ACTION_BEGIN,
         token => $options{token},
         data => {
             message => "commands processing has started",
@@ -136,7 +137,7 @@ sub action_command {
     foreach my $command (@{$options{data}->{content}}) {
         $self->send_log(
             socket => $options{socket_log},
-            code => $self->ACTION_BEGIN,
+            code => GORGONE_ACTION_BEGIN,
             token => $options{token},
             data => {
                 message => "command has started",
@@ -157,7 +158,7 @@ sub action_command {
         if ($error <= -1000) {
             $self->send_log(
                 socket => $options{socket_log},
-                code => $self->ACTION_FINISH_KO,
+                code => GORGONE_ACTION_FINISH_KO,
                 token => $options{token},
                 data => {
                     message => "command execution issue",
@@ -178,7 +179,7 @@ sub action_command {
             if (defined($command->{continue_on_error}) && $command->{continue_on_error} == 0) {
                 $self->send_log(
                     socket => $options{socket_log},
-                    code => $self->ACTION_FINISH_KO,
+                    code => GORGONE_ACTION_FINISH_KO,
                     token => $options{token},
                     data => {
                         message => "commands processing has been interrupted because of error"
@@ -191,7 +192,7 @@ sub action_command {
         } else {
             $self->send_log(
                 socket => $options{socket_log},
-                code => $self->ACTION_FINISH_OK,
+                code => GORGONE_MODULE_ACTION_COMMAND_RESULT,
                 token => $options{token},
                 instant => $command->{instant},
                 data => {
@@ -215,7 +216,7 @@ sub action_command {
     if ($errors) {
         $self->send_log(
             socket => $options{socket_log},
-            code => $self->ACTION_FINISH_KO,
+            code => GORGONE_ACTION_FINISH_KO,
             token => $options{token},
             data => {
                 message => "commands processing has finished with errors"
@@ -226,7 +227,7 @@ sub action_command {
 
     $self->send_log(
         socket => $options{socket_log},
-        code => $self->ACTION_FINISH_OK,
+        code => GORGONE_ACTION_FINISH_OK,
         token => $options{token},
         data => {
             message => "commands processing has finished successfully"
@@ -241,7 +242,7 @@ sub action_processcopy {
     
     if (!defined($options{data}->{content}) || $options{data}->{content} eq '') {
         $self->send_log(
-            code => gorgone::class::module::ACTION_FINISH_KO,
+            code => GORGONE_ACTION_FINISH_KO,
             token => $options{token},
             data => { message => 'no content' }
         );
@@ -256,7 +257,7 @@ sub action_processcopy {
             return -1 if (defined($self->{process_copy_files_error}->{$cache_file}));
             $self->{process_copy_files_error}->{$cache_file} = 1;
             $self->send_log(
-                code => gorgone::class::module::ACTION_FINISH_KO,
+                code => GORGONE_ACTION_FINISH_KO,
                 token => $options{token},
                 data => { message => "file '$cache_file' open failed: $!" }
             );
@@ -274,10 +275,10 @@ sub action_processcopy {
         close $fh;
 
         $self->send_log(
-            code => gorgone::class::module::ACTION_FINISH_OK,
+            code => GORGONE_MODULE_ACTION_PROCESSCOPY_INPROGRESS,
             token => $options{token},
             data => {
-                message => "process copy inprogress",
+                message => 'process copy inprogress',
             }
         );
         $self->{logger}->writeLogInfo("[action] Copy processing - Received chunk for '" . $options{data}->{content}->{destination} . "'");
@@ -298,7 +299,7 @@ sub action_processcopy {
                 );
                 if ($error <= -1000) {
                     $self->send_log(
-                        code => gorgone::class::module::ACTION_FINISH_KO,
+                        code => GORGONE_ACTION_FINISH_KO,
                         token => $options{token},
                         data => { message => "untar failed: $stdout" }
                     );
@@ -307,7 +308,7 @@ sub action_processcopy {
                 }
                 if ($exit_code != 0) {
                     $self->send_log(
-                        code => gorgone::class::module::ACTION_FINISH_KO,
+                        code => GORGONE_ACTION_FINISH_KO,
                         token => $options{token},
                         data => { message => "untar failed ($exit_code): $stdout" }
                     );
@@ -322,7 +323,7 @@ sub action_processcopy {
             }
         } else {
             $self->send_log(
-                code => gorgone::class::module::ACTION_FINISH_KO,
+                code => GORGONE_ACTION_FINISH_KO,
                 token => $options{token},
                 data => { message => 'md5 does not match' }
             );
@@ -334,7 +335,7 @@ sub action_processcopy {
     unlink($cache_file);
 
     $self->send_log(
-        code => gorgone::class::module::ACTION_FINISH_OK,
+        code => GORGONE_ACTION_FINISH_OK,
         token => $options{token},
         data => {
             message => "process copy finished successfully",
@@ -361,7 +362,7 @@ sub action_run {
     } else {
         $self->send_log(
             socket => $socket_log,
-            code => $self->ACTION_FINISH_KO,
+            code => GORGONE_ACTION_FINISH_KO,
             token => $options{token},
             data => { message => "action unknown" }
         );
@@ -391,7 +392,7 @@ sub create_child {
     if (!defined($child_pid)) {
         $self->{logger}->writeLogError("[action] Cannot fork process: $!");
         $self->send_log(
-            code => $self->ACTION_FINISH_KO,
+            code => GORGONE_ACTION_FINISH_KO,
             token => $token,
             data => { message => "cannot fork: $!" }
         );

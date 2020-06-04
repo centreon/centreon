@@ -24,12 +24,14 @@ use warnings;
 use strict;
 use JSON::XS;
 use gorgone::class::core;
+use gorgone::standard::constants qw(:all);
 use gorgone::modules::centreon::statistics::class;
 
 use constant NAMESPACE => 'centreon';
 use constant NAME => 'statistics';
 use constant EVENTS => [
     { event => 'STATISTICSREADY' },
+    { event => 'STATISTICSLISTENER' },
     { event => 'BROKERSTATS', uri => '/broker', method => 'GET' },
     { event => 'ENGINESTATS', uri => '/engine', method => 'GET' },
 ];
@@ -79,7 +81,8 @@ sub routing {
         $options{logger}->writeLogError("[statistics] Cannot decode json data: $@");
         gorgone::standard::library::add_history(
             dbh => $options{dbh},
-            code => 30, token => $options{token},
+            code => GORGONE_ACTION_FINISH_KO,
+            token => $options{token},
             data => { msg => 'gorgonestatistics: cannot decode json' },
             json_encode => 1
         );
@@ -94,7 +97,8 @@ sub routing {
     if (gorgone::class::core::waiting_ready(ready => \$statistics->{ready}) == 0) {
         gorgone::standard::library::add_history(
             dbh => $options{dbh},
-            code => 30, token => $options{token},
+            code => GORGONE_ACTION_FINISH_KO,
+            token => $options{token},
             data => { msg => 'gorgonestatistics: still no ready' },
             json_encode => 1
         );

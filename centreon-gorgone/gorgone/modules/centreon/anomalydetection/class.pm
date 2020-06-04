@@ -25,6 +25,7 @@ use base qw(gorgone::class::module);
 use strict;
 use warnings;
 use gorgone::standard::library;
+use gorgone::standard::constants qw(:all);
 use gorgone::class::sqlquery;
 use gorgone::class::http::http;
 use ZMQ::LibZMQ4;
@@ -579,12 +580,12 @@ sub action_saaspredict {
 
     $self->{logger}->writeLogDebug('[anomalydetection] -class - start saaspredict');
     $options{token} = $self->generate_token() if (!defined($options{token}));
-    $self->send_log(code => gorgone::class::module::ACTION_BEGIN, token => $options{token}, data => { message => 'action saaspredict proceed' });
+    $self->send_log(code => GORGONE_ACTION_BEGIN, token => $options{token}, data => { message => 'action saaspredict proceed' });
 
     $self->saas_get_predicts(token => $options{token});
 
     $self->{logger}->writeLogDebug('[anomalydetection] -class- finish saaspredict');
-    $self->send_log(code => $self->ACTION_FINISH_OK, token => $options{token}, data => { message => 'action saaspredict finished' });
+    $self->send_log(code => GORGONE_ACTION_FINISH_OK, token => $options{token}, data => { message => 'action saaspredict finished' });
     return 0;
 }
 
@@ -593,25 +594,25 @@ sub action_saasregister {
 
     $self->{logger}->writeLogDebug('[anomalydetection] -class- start saasregister');
     $options{token} = $self->generate_token() if (!defined($options{token}));
-    $self->send_log(code => gorgone::class::module::ACTION_BEGIN, token => $options{token}, data => { message => 'action saasregister proceed' });
+    $self->send_log(code => GORGONE_ACTION_BEGIN, token => $options{token}, data => { message => 'action saasregister proceed' });
 
     if ($self->connection_informations()) {
-        $self->send_log(code => gorgone::class::module::ACTION_FINISH_KO, token => $options{token}, data => { message => 'cannot get connection informations' });
+        $self->send_log(code => GORGONE_ACTION_FINISH_KO, token => $options{token}, data => { message => 'cannot get connection informations' });
         return 1;
     }
 
     if ($self->save_centreon_previous_register()) {
-        $self->send_log(code => gorgone::class::module::ACTION_FINISH_KO, token => $options{token}, data => { message => 'cannot save previous register' });
+        $self->send_log(code => GORGONE_ACTION_FINISH_KO, token => $options{token}, data => { message => 'cannot save previsous register' });
         return 1;
     }
 
     if ($self->get_centreon_anomaly_metrics()) {
-        $self->send_log(code => gorgone::class::module::ACTION_FINISH_KO, token => $options{token}, data => { message => 'cannot get metrics from centreon' });
+        $self->send_log(code => GORGONE_ACTION_FINISH_KO, token => $options{token}, data => { message => 'cannot get metrics from centreon' });
         return 1;
     }
 
     if ($self->saas_register_metrics()) {
-        $self->send_log(code => gorgone::class::module::ACTION_FINISH_KO, token => $options{token}, data => { message => 'cannot get declare metrics in saas' });
+        $self->send_log(code => GORGONE_ACTION_FINISH_KO, token => $options{token}, data => { message => 'cannot get declare metrics in saas' });
         return 1;
     }
 
@@ -620,12 +621,12 @@ sub action_saasregister {
     }
 
     if ($self->saas_delete_metrics()) {
-        $self->send_log(code => gorgone::class::module::ACTION_FINISH_KO, token => $options{token}, data => { message => 'cannot delete metrics in saas' });
+        $self->send_log(code => GORGONE_ACTION_FINISH_KO, token => $options{token}, data => { message => 'cannot delete metrics in saas' });
         return 1;
     }
 
     $self->{logger}->writeLogDebug('[anomalydetection] -class- finish saasregister');
-    $self->send_log(code => $self->ACTION_FINISH_OK, token => $options{token}, data => { message => 'action saasregister finished' });
+    $self->send_log(code => GORGONE_ACTION_FINISH_OK, token => $options{token}, data => { message => 'action saasregister finished' });
     return 0;
 }
 

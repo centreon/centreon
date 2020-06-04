@@ -25,6 +25,7 @@ use base qw(gorgone::class::module);
 use strict;
 use warnings;
 use gorgone::standard::library;
+use gorgone::standard::constants qw(:all);
 use gorgone::class::sqlquery;
 use ZMQ::LibZMQ4;
 use ZMQ::Constants qw(:all);
@@ -48,6 +49,7 @@ sub new {
     $connector->{config_core} = $options{config_core};
     $connector->{config_db_centreon} = $options{config_db_centreon};
     $connector->{config_db_centstorage} = $options{config_db_centstorage};
+    $connector->{log_pace} = 3;
     $connector->{stop} = 0;
 
     bless $connector, $class;
@@ -91,9 +93,7 @@ sub get_pollers_config {
     my ($self, %options) = @_;
 
     my ($status, $data) = $self->{class_object_centreon}->custom_execute(
-        request => "SELECT id, nagiostats_bin, cfg_dir, cfg_file FROM cfg_nagios " .
-            "JOIN nagios_server " .
-            "WHERE ns_activate = '1' AND nagios_id = id",
+        request => "SELECT id, nagiostats_bin, cfg_dir, cfg_file FROM nagios_server, cfg_nagios WHERE ns_activate = '1' AND cfg_nagios.nagios_server_id = nagios_server.id",
         mode => 1,
         keys => 'id'
     );
@@ -117,17 +117,20 @@ sub get_broker_stats_collection_flag {
         return -1;
     }
     
-    return $data->[0][0];
+    return $data->[0]->[0];
 }
 
 sub action_brokerstats {
     my ($self, %options) = @_;
 
-    $options{token} = $self->generate_token() if (!defined($options{token}));
+    $options{token} = 'broker_stats' if (!defined($options{token}));
+    
+    $self->{logger}->writeLogDebug("[statistics] No Broker statistics collection configured");
 
     $self->send_log(
-        code => gorgone::class::module::ACTION_BEGIN,
+        code => GORGONE_ACTION_BEGIN,
         token => $options{token},
+        instant => 1,
         data => {
             message => 'action brokerstats starting'
         }
@@ -135,13 +138,14 @@ sub action_brokerstats {
 
     if ($self->get_broker_stats_collection_flag() < 1) {
         $self->send_log(
-            code => gorgone::class::module::ACTION_FINISH_OK,
+            code => GORGONE_ACTION_FINISH_OK,
             token => $options{token},
+            instant => 1,
             data => {
                 message => 'no collection configured'
             }
         );
-        $self->{logger}->writeLogDebug("[statistics] No Broker statistics collection configured");
+        
         return 0;
     }
 
@@ -161,8 +165,9 @@ sub action_brokerstats {
     my ($status, $data) = $self->{class_object_centreon}->custom_execute(request => $request, mode => 2);
     if ($status == -1) {
         $self->send_log(
-            code => gorgone::class::module::ACTION_FINISH_KO,
+            code => GORGONE_ACTION_FINISH_KO,
             token => $options{token},
+            instant => 1,
             data => {
                 message => 'cannot find configuration'
             }
@@ -171,18 +176,32 @@ sub action_brokerstats {
         return 1;
     }
 
-    my %targets;
     foreach (@{$data}) {
         my $target = $_->[0];
         my $statistics_file = $_->[1] . "/" . $_->[2] . "-stats.json";
         $self->{logger}->writeLogInfo(
             "[statistics] Collecting Broker statistics file '" . $statistics_file . "' from target '" . $target . "'"
         );
-        
+
+        $self->send_internal_action(
+            action => 'ADDLISTENER',
+            data => [
+                {
+                    identity => 'gorgonestatistics',
+                    event => 'STATISTICSLISTENER',
+                    target => $target,
+                    token => $options{token} . '-' . $target,
+                    timeout => defined($options{data}->{content}->{timeout}) && $options{data}->{content}->{timeout} =~ /(\d+)/ ? 
+                        $1 + $self->{log_pace} + 5: undef,
+                    log_pace => $self->{log_pace}
+                }
+            ]
+        );
+
         $self->send_internal_action(
             target => $target,
             action => 'COMMAND',
-            token => $options{token},
+            token => $options{token} . '-' . $target,
             data => {
                 content => [ 
                     {
@@ -198,47 +217,29 @@ sub action_brokerstats {
                 ]
             }
         );
-        $targets{$target} = 1;
     }
-    
-    my $wait = (defined($self->{config}->{command_wait})) ? $self->{config}->{command_wait} : 1_000_000;
-    Time::HiRes::usleep($wait);
-    
-    foreach my $target (keys %targets) {
-        $self->send_internal_action(
-            target => $target,
-            action => 'GETLOG',
-        );
-    }
-
-    $wait = (defined($self->{config}->{sync_wait})) ? $self->{config}->{sync_wait} : 1_000_000;
-    Time::HiRes::usleep($wait);
 
     $self->send_log(
-        code => $self->ACTION_FINISH_OK,
+        code => GORGONE_ACTION_FINISH_OK,
         token => $options{token},
+        instant => 1,
         data => {
             message => 'action brokerstats finished'
         }
     );
-    
-    $self->send_internal_action(
-        action => 'GETLOG',
-        data => {
-            token => $options{token}
-        }
-    );
+
     return 0;
 }
 
 sub action_enginestats {
     my ($self, %options) = @_;
 
-    $options{token} = $self->generate_token() if (!defined($options{token}));
+    $options{token} = 'engine_stats' if (!defined($options{token}));
 
     $self->send_log(
-        code => gorgone::class::module::ACTION_BEGIN,
+        code => GORGONE_ACTION_BEGIN,
         token => $options{token},
+        instant => 1,
         data => {
             message => 'action enginestats starting'
         }
@@ -246,17 +247,33 @@ sub action_enginestats {
 
     my $pollers = $self->get_pollers_config();
 
-    foreach (keys %{$pollers}) {
+    foreach (keys %$pollers) {
         my $target = $_;
         my $enginestats_file = $pollers->{$_}->{nagiostats_bin};
         my $config_file = $pollers->{$_}->{cfg_dir} . '/' . $pollers->{$_}->{cfg_file};
         $self->{logger}->writeLogInfo(
             "[statistics] Collecting Engine statistics from target '" . $target . "'"
         );
+
+        $self->send_internal_action(
+            action => 'ADDLISTENER',
+            data => [
+                {
+                    identity => 'gorgonestatistics',
+                    event => 'STATISTICSLISTENER',
+                    target => $target,
+                    token => $options{token} . '-' . $target,
+                    timeout => defined($options{data}->{content}->{timeout}) && $options{data}->{content}->{timeout} =~ /(\d+)/ ? 
+                        $1 + $self->{log_pace} + 5: undef,
+                    log_pace => $self->{log_pace}
+                }
+            ]
+        );
+        
         $self->send_internal_action(
             target => $target,
             action => 'COMMAND',
-            token => $options{token},
+            token => $options{token} . '-' . $target,
             data => {
                 content => [ 
                     {
@@ -272,35 +289,30 @@ sub action_enginestats {
             }
         );
     }
-    
-    my $wait = (defined($self->{config}->{command_wait})) ? $self->{config}->{command_wait} : 2_000_000;
-    Time::HiRes::usleep($wait);
-    
-    foreach my $target (keys %{$pollers}) {
-        $self->send_internal_action(
-            target => $target,
-            action => 'GETLOG',
-        );
-    }
-
-    $wait = (defined($self->{config}->{sync_wait})) ? $self->{config}->{sync_wait} : 2_000_000;
-    Time::HiRes::usleep($wait);
 
     $self->send_log(
-        code => $self->ACTION_FINISH_OK,
+        code => GORGONE_ACTION_FINISH_OK,
         token => $options{token},
+        instant => 1,
         data => {
             message => 'action enginestats finished'
         }
     );
-    
-    $self->send_internal_action(
-        action => 'GETLOG',
-        data => {
-            token => $options{token}
-        }
-    );
+
     return 0;
+}
+
+sub action_statisticslistener {
+    my ($self, %options) = @_;
+
+    return 0 if (!defined($options{token}));
+    return 0 if ($options{data}->{code} != GORGONE_MODULE_ACTION_COMMAND_RESULT);
+
+    if ($options{data}->{data}->{metadata}->{source} eq "brokerstats") {
+        $self->write_broker_stats(data => $options{data}->{data});
+    } elsif ($options{data}->{data}->{metadata}->{source} eq "enginestats") {
+        $self->write_engine_stats(data => $options{data}->{data});
+    }
 }
 
 sub write_broker_stats {
@@ -326,7 +338,6 @@ sub write_broker_stats {
 
     return 0
 }
-
 
 sub write_engine_stats {
     my ($self, %options) = @_;
@@ -579,37 +590,12 @@ sub rrd_update {
     return 0;
 }
 
-sub write_stats {
-    my ($self, %options) = @_;
-
-    return if (!defined($options{data}->{data}->{action}) || $options{data}->{data}->{action} ne "getlog" &&
-        defined($options{data}->{data}->{result}));
-
-    foreach my $entry (@{$options{data}->{data}->{result}}) {
-        my $data = JSON::XS->new->utf8->decode($entry->{data});
-        
-        if (defined($data->{metadata}->{source})) {
-            if ($data->{metadata}->{source} eq "brokerstats") {
-                $self->write_broker_stats(data => $data);
-            } elsif ($data->{metadata}->{source} eq "enginestats") {
-                $self->write_engine_stats(data => $data);
-            }
-        }
-    }
-}
-
 sub event {
     while (1) {
         my $message = gorgone::standard::library::zmq_dealer_read_message(socket => $connector->{internal_socket});
         
         $connector->{logger}->writeLogDebug("[statistics] Event: $message");
-        if ($message =~ /^\[ACK\]\s+\[(.*?)\]\s+(.*)$/m) {
-            my $token = $1;
-            my $data = JSON::XS->new->utf8->decode($2);
-            my $method = $connector->can('write_stats');
-            $method->($connector, data => $data);
-        } else {
-            $message =~ /^\[(.*?)\]\s+\[(.*?)\]\s+\[.*?\]\s+(.*)$/m;
+        if ($message =~ /^\[(.*?)\]/) {
             if ((my $method = $connector->can('action_' . lc($1)))) {
                 $message =~ /^\[(.*?)\]\s+\[(.*?)\]\s+\[.*?\]\s+(.*)$/m;
                 my ($action, $token) = ($1, $2);

@@ -25,6 +25,7 @@ use base qw(gorgone::class::module);
 use strict;
 use warnings;
 use gorgone::standard::library;
+use gorgone::standard::constants qw(:all);
 use gorgone::standard::misc;
 use ZMQ::LibZMQ4;
 use ZMQ::Constants qw(:all);
@@ -111,7 +112,7 @@ sub action_getcron {
             if ($@) {
                 $self->{logger}->writeLogError("[cron] Cron get failed to retrieve entry index");
                 $self->send_log(
-                    code => $self->ACTION_FINISH_KO,
+                    code => GORGONE_ACTION_FINISH_KO,
                     token => $options{token},
                     data => { message => 'failed to retrieve entry index' }
                 );
@@ -120,7 +121,7 @@ sub action_getcron {
             if (!defined($idx)) {
                 $self->{logger}->writeLogError("[cron] Cron get failed no entry found for id");
                 $self->send_log(
-                    code => $self->ACTION_FINISH_KO,
+                    code => GORGONE_ACTION_FINISH_KO,
                     token => $options{token},
                     data => { message => 'no entry found for id' }
                 );
@@ -134,7 +135,7 @@ sub action_getcron {
             if ($@) {
                 $self->{logger}->writeLogError("[cron] Cron get failed");
                 $self->send_log(
-                    code => $self->ACTION_FINISH_KO,
+                    code => GORGONE_ACTION_FINISH_KO,
                     token => $options{token},
                     data => { message => 'get failed:' . $@ }
                 );
@@ -151,7 +152,7 @@ sub action_getcron {
         if ($@) {
             $self->{logger}->writeLogError("[cron] Cron get failed");
             $self->send_log(
-                code => $self->ACTION_FINISH_KO,
+                code => GORGONE_ACTION_FINISH_KO,
                 token => $options{token},
                 data => { message => 'get failed:' . $@ }
             );
@@ -160,7 +161,7 @@ sub action_getcron {
     }
 
     $self->send_log(
-        code => $self->ACTION_FINISH_OK,
+        code => GORGONE_ACTION_FINISH_OK,
         token => $options{token},
         data => $data
     );
@@ -180,7 +181,7 @@ sub action_addcron {
             !defined($definition->{id}) || $definition->{id} eq '') {
             $self->{logger}->writeLogError("[cron] Cron add missing arguments");
             $self->send_log(
-                code => $self->ACTION_FINISH_KO,
+                code => GORGONE_ACTION_FINISH_KO,
                 token => $options{token},
                 data => { message => 'missing arguments' }
             );
@@ -193,7 +194,7 @@ sub action_addcron {
             my $idx = $self->{cron}->check_entry($definition->{id});
             if (defined($idx)) {
                 $self->send_log(
-                    code => $self->ACTION_FINISH_KO,
+                    code => GORGONE_ACTION_FINISH_KO,
                     token => $options{token},
                     data => { message => "id '" . $definition->{id} . "' already exists" }
                 );
@@ -214,7 +215,7 @@ sub action_addcron {
     if ($@) {
         $self->{logger}->writeLogError("[cron] Cron add failed");
         $self->send_log(
-            code => $self->ACTION_FINISH_KO,
+            code => GORGONE_ACTION_FINISH_KO,
             token => $options{token},
             data => { message => 'add failed:' . $@ }
         );
@@ -223,7 +224,7 @@ sub action_addcron {
 
     $self->{logger}->writeLogDebug("[cron] Cron add finish");
     $self->send_log(
-        code => $self->ACTION_FINISH_OK,
+        code => GORGONE_ACTION_FINISH_OK,
         token => $options{token},
         data => { message => 'add succeed' }
     );
@@ -241,7 +242,7 @@ sub action_updatecron {
     if (!defined($id)) {
         $self->{logger}->writeLogError("[cron] Cron update missing id");
         $self->send_log(
-            code => $self->ACTION_FINISH_KO,
+            code => GORGONE_ACTION_FINISH_KO,
             token => $options{token},
             data => { message => 'missing id' }
         );
@@ -255,7 +256,7 @@ sub action_updatecron {
     if ($@) {
         $self->{logger}->writeLogError("[cron] Cron update failed to retrieve entry index");
         $self->send_log(
-            code => $self->ACTION_FINISH_KO,
+            code => GORGONE_ACTION_FINISH_KO,
             token => $options{token},
             data => { message => 'failed to retrieve entry index' }
         );
@@ -264,7 +265,7 @@ sub action_updatecron {
     if (!defined($idx)) {
         $self->{logger}->writeLogError("[cron] Cron update failed no entry found for id");
         $self->send_log(
-            code => $self->ACTION_FINISH_KO,
+            code => GORGONE_ACTION_FINISH_KO,
             token => $options{token},
             data => { message => 'no entry found for id' }
         );
@@ -276,7 +277,7 @@ sub action_updatecron {
         (!defined($definition->{command_line}) || $definition->{command_line} eq '')) {
         $self->{logger}->writeLogError("[cron] Cron update missing arguments");
         $self->send_log(
-            code => $self->ACTION_FINISH_KO,
+            code => GORGONE_ACTION_FINISH_KO,
             token => $options{token},
             data => { message => 'missing arguments' }
         );
@@ -295,7 +296,7 @@ sub action_updatecron {
     if ($@) {
         $self->{logger}->writeLogError("[cron] Cron update failed");
         $self->send_log(
-            code => $self->ACTION_FINISH_KO,
+            code => GORGONE_ACTION_FINISH_KO,
             token => $options{token},
             data => { message => 'update failed:' . $@ }
         );
@@ -304,7 +305,7 @@ sub action_updatecron {
 
     $self->{logger}->writeLogDebug("[cron] Cron update succeed");
     $self->send_log(
-        code => $self->ACTION_FINISH_OK,
+        code => GORGONE_ACTION_FINISH_OK,
         token => $options{token},
         data => { message => 'update succeed' }
     );
@@ -322,7 +323,7 @@ sub action_deletecron {
     if (!defined($id) || $id eq '') {
         $self->{logger}->writeLogError("[cron] Cron delete missing id");
         $self->send_log(
-            code => $self->ACTION_FINISH_KO,
+            code => GORGONE_ACTION_FINISH_KO,
             token => $options{token},
             data => { message => 'missing id' }
         );
@@ -336,7 +337,7 @@ sub action_deletecron {
     if ($@) {
         $self->{logger}->writeLogError("[cron] Cron delete failed to retrieve entry index");
         $self->send_log(
-            code => $self->ACTION_FINISH_KO,
+            code => GORGONE_ACTION_FINISH_KO,
             token => $options{token},
             data => { message => 'failed to retrieve entry index' }
         );
@@ -345,7 +346,7 @@ sub action_deletecron {
     if (!defined($idx)) {
         $self->{logger}->writeLogError("[cron] Cron delete failed no entry found for id");
         $self->send_log(
-            code => $self->ACTION_FINISH_KO,
+            code => GORGONE_ACTION_FINISH_KO,
             token => $options{token},
             data => { message => 'no entry found for id' }
         );
@@ -358,7 +359,7 @@ sub action_deletecron {
     if ($@) {
         $self->{logger}->writeLogError("[cron] Cron delete failed");
         $self->send_log(
-            code => $self->ACTION_FINISH_KO,
+            code => GORGONE_ACTION_FINISH_KO,
             token => $options{token},
             data => { message => 'delete failed:' . $@ }
         );
@@ -367,7 +368,7 @@ sub action_deletecron {
 
     $self->{logger}->writeLogDebug("[cron] Cron delete finish");
     $self->send_log(
-        code => $self->ACTION_FINISH_OK,
+        code => GORGONE_ACTION_FINISH_OK,
         token => $options{token},
         data => { message => 'delete succeed' }
     );

@@ -22,6 +22,7 @@ package gorgone::standard::library;
 
 use strict;
 use warnings;
+use gorgone::standard::constants qw(:all);
 use ZMQ::LibZMQ4;
 use ZMQ::Constants qw(:all);
 use JSON::XS;
@@ -36,6 +37,7 @@ use File::Basename;
 use MIME::Base64;
 use Time::HiRes;
 
+our $listener;
 my %zmq_type = ('ZMQ_ROUTER' => ZMQ_ROUTER, 'ZMQ_DEALER' => ZMQ_DEALER);
 
 sub read_config {
@@ -327,7 +329,7 @@ sub is_client_can_connect {
     }
     
     if ($is_authorized == 0) {
-        $options{logger}->writeLogError("[core] Client pubkey is not authorized. Thumbprint is '$thumbprint");
+        $options{logger}->writeLogError("[core] Client pubkey is not authorized. Thumbprint is '$thumbprint'");
         return -1;
     }
 
@@ -351,14 +353,38 @@ sub is_handshake_done {
 # internal functions
 #######################
 
+sub addlistener {
+    my (%options) = @_;
+
+    my $data;
+    eval {
+        $data = JSON::XS->new->utf8->decode($options{data});
+    };
+    if ($@) {
+        return (GORGONE_ACTION_FINISH_KO, { message => 'request not well formatted' });
+    }
+
+    foreach (@$data) {
+        $options{gorgone}->{listener}->add_listener(
+            identity => $options{identity},
+            event => $_->{event},
+            target => $_->{target},
+            token => $_->{token},
+            log_pace => $_->{log_pace},
+            timeout => $_->{timeout}
+        );
+    }
+    return (GORGONE_ACTION_FINISH_OK, { action => 'addlistener', message => 'ok', data => $data });
+}
+
 sub getthumbprint {
     my (%options) = @_;
 
     if ($options{gorgone}->{keys_loaded} == 0) {
-        return (1, { action => 'getthumbprint', message => 'no public key loaded' }, 'GETTHUMBPRINT');
+        return (GORGONE_ACTION_FINISH_KO, { action => 'getthumbprint', message => 'no public key loaded' }, 'GETTHUMBPRINT');
     }
     my $thumbprint = $options{gorgone}->{server_pubkey}->export_key_jwk_thumbprint('SHA256');
-    return (2, { action => 'getthumbprint', message => 'ok', data => { thumbprint => $thumbprint } }, 'GETTHUMBPRINT');
+    return (GORGONE_ACTION_FINISH_OK, { action => 'getthumbprint', message => 'ok', data => { thumbprint => $thumbprint } }, 'GETTHUMBPRINT');
 }
 
 sub information {
@@ -369,7 +395,7 @@ sub information {
         modules => $options{gorgone}->{modules_id},
         api_endpoints => $options{gorgone}->{api_endpoints}
     };
-    return (2, { action => 'information', message => 'ok', data => $data }, 'INFORMATION');
+    return (GORGONE_ACTION_FINISH_OK, { action => 'information', message => 'ok', data => $data }, 'INFORMATION');
 }
 
 sub unloadmodule {
@@ -380,21 +406,21 @@ sub unloadmodule {
         $data = JSON::XS->new->utf8->decode($options{data});
     };
     if ($@) {
-        return (1, { message => 'request not well formatted' });
+        return (GORGONE_ACTION_FINISH_KO, { message => 'request not well formatted' });
     }
 
     if (defined($data->{content}->{package}) && defined($options{gorgone}->{modules_register}->{ $data->{content}->{package} })) {
         $options{gorgone}->{modules_register}->{ $data->{content}->{package} }->{gently}->(logger => $options{gorgone}->{logger});
-        return (0, { action => 'unloadmodule', message => "module '$data->{content}->{package}' unload in progress" }, 'UNLOADMODULE');
+        return (GORGONE_ACTION_BEGIN, { action => 'unloadmodule', message => "module '$data->{content}->{package}' unload in progress" }, 'UNLOADMODULE');
     }
     if (defined($data->{content}->{name}) &&
         defined($options{gorgone}->{modules_id}->{$data->{content}->{name}}) && 
         defined($options{gorgone}->{modules_register}->{ $options{gorgone}->{modules_id}->{$data->{content}->{name}} })) {
         $options{gorgone}->{modules_register}->{ $options{gorgone}->{modules_id}->{$data->{content}->{name}} }->{gently}->(logger => $options{gorgone}->{logger});
-        return (0, { action => 'unloadmodule', message => "module '$data->{content}->{name}' unload in progress" }, 'UNLOADMODULE');
+        return (GORGONE_ACTION_BEGIN, { action => 'unloadmodule', message => "module '$data->{content}->{name}' unload in progress" }, 'UNLOADMODULE');
     }
 
-    return (1, { action => 'unloadmodule', message => 'cannot find unload module' }, 'UNLOADMODULE');
+    return (GORGONE_ACTION_FINISH_KO, { action => 'unloadmodule', message => 'cannot find unload module' }, 'UNLOADMODULE');
 }
 
 sub loadmodule {
@@ -405,7 +431,7 @@ sub loadmodule {
         $data = JSON::XS->new->utf8->decode($options{data});
     };
     if ($@) {
-        return (1, { message => 'request not well formatted' });
+        return (GORGONE_ACTION_FINISH_KO, { message => 'request not well formatted' });
     }
 
     if ($options{gorgone}->load_module(config_module => $data->{content})) {
@@ -418,10 +444,10 @@ sub loadmodule {
             dbh => $options{gorgone}->{db_gorgone},
             api_endpoints => $options{gorgone}->{api_endpoints},
         );
-        return (0, { action => 'loadmodule', message => "module '$data->{content}->{name}' is loaded" }, 'LOADMODULE');
+        return (GORGONE_ACTION_BEGIN, { action => 'loadmodule', message => "module '$data->{content}->{name}' is loaded" }, 'LOADMODULE');
     }
 
-    return (1, { action => 'loadmodule', message => "cannot load module '$data->{content}->{name}'" }, 'LOADMODULE');
+    return (GORGONE_ACTION_FINISH_KO, { action => 'loadmodule', message => "cannot load module '$data->{content}->{name}'" }, 'LOADMODULE');
 }
 
 sub synclogs {
@@ -432,11 +458,11 @@ sub synclogs {
         $data = JSON::XS->new->utf8->decode($options{data});
     };
     if ($@) {
-        return (1, { message => 'request not well formatted' });
+        return (GORGONE_ACTION_FINISH_KO, { message => 'request not well formatted' });
     }
 
     if (!defined($data->{data}->{id})) {
-        return (1, { action => 'synclog', message => 'please set id for synclog' });
+        return (GORGONE_ACTION_FINISH_KO, { action => 'synclog', message => 'please set id for synclog' });
     }
 
     if (defined($options{gorgone_config}->{gorgonecore}->{proxy_name}) && defined($options{gorgone}->{modules_id}->{$options{gorgone_config}->{gorgonecore}->{proxy_name}})) {
@@ -444,11 +470,11 @@ sub synclogs {
         my $method;
         if (defined($name) && ($method = $name->can('synclog'))) {
             $method->(dbh => $options{gorgone}->{db_gorgone}, logger => $options{gorgone}->{logger});
-            return (0, { action => 'synclog', message => 'synclog launched' });
+            return (GORGONE_ACTION_BEGIN, { action => 'synclog', message => 'synclog launched' });
         }
     }
 
-    return (1, { action => 'synclog', message => 'no proxy module' });
+    return (GORGONE_ACTION_FINISH_KO, { action => 'synclog', message => 'no proxy module' });
 }
 
 sub constatus {
@@ -458,11 +484,11 @@ sub constatus {
         my $name = $options{gorgone}->{modules_id}->{$options{gorgone_config}->{gorgonecore}->{proxy_name}};
         my $method;
         if (defined($name) && ($method = $name->can('get_constatus_result'))) {
-            return (2, { action => 'constatus', message => 'ok', data => $method->() }, 'CONSTATUS');
+            return (GORGONE_ACTION_FINISH_OK, { action => 'constatus', message => 'ok', data => $method->() }, 'CONSTATUS');
         }
     }
     
-    return (1, { action => 'constatus', message => 'cannot get value' }, 'CONSTATUS');
+    return (GORGONE_ACTION_FINISH_KO, { action => 'constatus', message => 'cannot get value' }, 'CONSTATUS');
 }
 
 sub setcoreid {
@@ -470,7 +496,7 @@ sub setcoreid {
 
     if (defined($options{gorgone}->{config}->{configuration}->{gorgone}->{gorgonecore}->{id}) &&
         $options{gorgone}->{config}->{configuration}->{gorgone}->{gorgonecore}->{id} =~ /\d+/) {
-        return (0, { action => 'setcoreid', message => 'setcoreid unchanged, use config value' })
+        return (GORGONE_ACTION_FINISH_OK, { action => 'setcoreid', message => 'setcoreid unchanged, use config value' })
     }
 
     my $data;
@@ -478,11 +504,11 @@ sub setcoreid {
         $data = JSON::XS->new->utf8->decode($options{data});
     };
     if ($@) {
-        return (1, { message => 'request not well formatted' });
+        return (GORGONE_ACTION_FINISH_KO, { message => 'request not well formatted' });
     }
 
     if (!defined($data->{id})) {
-        return (1, { action => 'setcoreid', message => 'please set id for setcoreid' });
+        return (GORGONE_ACTION_FINISH_KO, { action => 'setcoreid', message => 'please set id for setcoreid' });
     }
 
     if (defined($options{gorgone_config}->{gorgonecore}->{proxy_name}) && defined($options{gorgone}->{modules_id}->{$options{gorgone_config}->{gorgonecore}->{proxy_name}})) {
@@ -495,7 +521,7 @@ sub setcoreid {
 
     $options{logger}->writeLogInfo('[core] Setcoreid changed ' .  $data->{id});
     $options{gorgone}->{id} = $data->{id};
-    return (0, { action => 'setcoreid', message => 'setcoreid changed' });
+    return (GORGONE_ACTION_FINISH_OK, { action => 'setcoreid', message => 'setcoreid changed' });
 }
 
 sub ping {
@@ -513,7 +539,7 @@ sub ping {
         }
     }
 
-    return (0, { action => 'ping', message => 'ping ok', id => $options{id}, hostname => $options{gorgone}->{hostname}, data => $constatus }, 'PONG');
+    return (GORGONE_ACTION_BEGIN, { action => 'ping', message => 'ping ok', id => $options{id}, hostname => $options{gorgone}->{hostname}, data => $constatus }, 'PONG');
 }
 
 sub putlog {
@@ -524,9 +550,9 @@ sub putlog {
         $data = JSON::XS->new->utf8->decode($options{data});
     };
     if ($@) {
-        return (1, { message => 'request not well formatted' });
+        return (GORGONE_ACTION_FINISH_KO, { message => 'request not well formatted' });
     }
-    
+
     my $status = add_history(
         dbh => $options{gorgone}->{db_gorgone}, 
         etime => $data->{etime},
@@ -536,9 +562,9 @@ sub putlog {
         code => $data->{code}
     );
     if ($status == -1) {
-        return (1, { message => 'database issue' });
+        return (GORGONE_ACTION_FINISH_KO, { message => 'database issue' });
     }
-    return (0, { message => 'message inserted' });
+    return (GORGONE_ACTION_BEGIN, { message => 'message inserted' });
 }
 
 sub getlog {
@@ -549,29 +575,28 @@ sub getlog {
         $data = JSON::XS->new->utf8->decode($options{data});
     };
     if ($@) {
-        return (1, { message => 'request not well formatted' });
+        return (GORGONE_ACTION_FINISH_KO, { message => 'request not well formatted' });
     }
-    
+
     my %filters = ();
     my ($filter, $filter_append) = ('', '');
-    
     foreach ((['id', '>'], ['token', '='], ['ctime', '>'], ['etime', '>'], ['code', '='])) {
-        if (defined($data->{${$_}[0]}) && $data->{${$_}[0]} ne '') {
-            $filter .= $filter_append . ${$_}[0] . ' ' . ${$_}[1] . ' ' . $options{gorgone}->{db_gorgone}->quote($data->{${$_}[0]});
+        if (defined($data->{$_->[0]}) && $data->{$_->[0]} ne '') {
+            $filter .= $filter_append . $_->[0] . ' ' . $_->[1] . ' ' . $options{gorgone}->{db_gorgone}->quote($data->{$_->[0]});
             $filter_append = ' AND ';
         }
     }
-    
+
     if ($filter eq '') {
-        return (1, { message => 'need at least one filter' });
+        return (GORGONE_ACTION_FINISH_KO, { message => 'need at least one filter' });
     }
 
     my $query = "SELECT * FROM gorgone_history WHERE " . $filter;
     $query .= " ORDER BY id DESC LIMIT " . $data->{limit} if (defined($data->{limit}) && $data->{limit} ne '');
-    
+
     my ($status, $sth) = $options{gorgone}->{db_gorgone}->query($query);
     if ($status == -1) {
-        return (1, { message => 'database issue' });
+        return (GORGONE_ACTION_FINISH_KO, { message => 'database issue' });
     }
 
     my @result;
@@ -579,8 +604,8 @@ sub getlog {
     foreach (sort keys %{$results}) {
         push @result, $results->{$_};
     }
-    
-    return (0, { action => 'getlog', result => \@result, id => $options{gorgone}->{id} });
+
+    return (GORGONE_ACTION_BEGIN, { action => 'getlog', result => \@result, id => $options{gorgone}->{id} });
 }
 
 sub kill {
@@ -608,7 +633,9 @@ sub add_identity {
 
     my ($status, $sth) = $options{dbh}->query(
         "INSERT INTO gorgone_identity (`ctime`, `identity`, `key`) VALUES (" . 
-        $options{dbh}->quote(time()) . ", " . $options{dbh}->quote($options{identity}) . ", " . $options{dbh}->quote(unpack('H*', $options{symkey})) . ")"
+        $options{dbh}->quote(time()) . ", " .
+        $options{dbh}->quote($options{identity}) . ", " .
+        $options{dbh}->quote(unpack('H*', $options{symkey})) . ")"
     );
     return $status;
 }
@@ -625,7 +652,7 @@ sub add_history {
     if (!defined($options{etime})) {
         $options{etime} = time();
     }
-    
+
     my @names = ();
     my @values = ();
     foreach (('data', 'token', 'ctime', 'etime', 'code', 'instant')) {
@@ -638,6 +665,14 @@ sub add_history {
         "INSERT INTO gorgone_history (" . join(',', @names) . ") VALUES (" . 
         join(',', @values) . ")"
     );
+
+    if (defined($options{token}) && $options{token} ne '') {
+        $listener->event_log(
+            token => $options{token},
+            code => $options{code},
+            data => $options{data}
+        );
+    }
     return $status;
 }
 
@@ -647,7 +682,7 @@ sub add_history {
 
 sub json_encode {
     my (%options) = @_;
-    
+
     my $data;
     eval {
         $data = JSON::XS->new->utf8->encode($options{data});
@@ -664,7 +699,7 @@ sub json_encode {
 
 sub json_decode {
     my (%options) = @_;
-    
+
     my $data;
     eval {
         $data = JSON::XS->new->utf8->decode($options{data});
@@ -685,7 +720,7 @@ sub json_decode {
 
 sub connect_com {
     my (%options) = @_;
-    
+
     my $context = zmq_init();
     my $socket = zmq_socket($context, $zmq_type{$options{zmq_type}});
     if (!defined($socket)) {
@@ -705,7 +740,7 @@ sub connect_com {
 
 sub create_com {
     my (%options) = @_;
-    
+
     my $context = zmq_init();
     my $socket = zmq_socket($context, $zmq_type{$options{zmq_type}});
     if (!defined($socket)) {
@@ -738,7 +773,7 @@ sub create_com {
         zmq_close($socket);
         exit(1);
     }
-    
+
     return $socket;
 }
 
@@ -756,14 +791,14 @@ sub build_protocol {
     } else {
         $data = json_encode(data => {}, logger => $options{logger});
     }
-    
+
     return '[' . $action . '] [' . $token . '] [' . $target . '] ' . $data;
 }
 
 sub zmq_send_message {
     my (%options) = @_;
     my $message = $options{message};
-    
+
     if (!defined($message)) {
         $message = build_protocol(%options);
     }
@@ -787,29 +822,29 @@ sub zmq_send_message {
 
 sub zmq_dealer_read_message {
     my (%options) = @_;
-    
+
     # Process all parts of the message
     my $message = zmq_recvmsg($options{socket});
     my $data = zmq_msg_data($message);
- 
+
     return $data;
 }
 
 sub zmq_read_message {
     my (%options) = @_;
-    
+
     # Process all parts of the message
     my $message = zmq_recvmsg($options{socket});
     my $identity = zmq_msg_data($message);
     $message = zmq_recvmsg($options{socket});
     my $data = zmq_msg_data($message);
- 
+
     return (unpack('H*', $identity), $data);
 }
 
 sub zmq_still_read {
     my (%options) = @_;
-    
+
     return zmq_getsockopt($options{socket}, ZMQ_RCVMORE);        
 }
 
@@ -915,6 +950,16 @@ sub init_database {
             q{
                 CREATE INDEX IF NOT EXISTS idx_gorgone_target_fingerprint_target ON gorgone_target_fingerprint (target);
             },
+            q{
+                CREATE TABLE IF NOT EXISTS `gorgone_centreon_judge_spare` (
+                  `cluster_name` varchar(2048) NOT NULL,
+                  `status` int(11) NOT NULL,
+                  `data` TEXT DEFAULT NULL
+                );
+            },
+            q{
+                CREATE INDEX IF NOT EXISTS idx_gorgone_centreon_judge_spare_cluster_name ON gorgone_centreon_judge_spare (cluster_name);
+            }
         ];
         foreach (@$requests) {
             $options{gorgone}->{db_gorgone}->query($_);

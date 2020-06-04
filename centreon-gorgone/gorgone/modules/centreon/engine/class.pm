@@ -26,6 +26,7 @@ use strict;
 use warnings;
 use JSON::XS;
 use gorgone::standard::library;
+use gorgone::standard::constants qw(:all);
 use gorgone::standard::misc;
 use ZMQ::LibZMQ4;
 use ZMQ::Constants qw(:all);
@@ -91,11 +92,21 @@ sub action_enginecommand {
         $command_file = $self->{config}->{command_file};
     }
 
+    $self->send_log(
+        socket => $options{socket_log},
+        code => GORGONE_ACTION_BEGIN,
+        token => $options{token},
+        data => {
+            message => "commands processing has started",
+            request_content => $options{data}->{content}
+        }
+    );
+
     if (!defined($command_file) || $command_file eq '') {
         $self->{logger}->writeLogError("[engine] Need command_file (config or call) argument");
         $self->send_log(
             socket => $options{socket_log},
-            code => $self->ACTION_FINISH_KO,
+            code => GORGONE_ACTION_FINISH_KO,
             token => $options{token},
             data => {
                 message => "need command_file (config or call) argument"
@@ -107,7 +118,7 @@ sub action_enginecommand {
         $self->{logger}->writeLogError("[engine] Command file '$command_file' must exist");
         $self->send_log(
             socket => $options{socket_log},
-            code => $self->ACTION_FINISH_KO,
+            code => GORGONE_ACTION_FINISH_KO,
             token => $options{token},
             data => {
                 message => "command file '$command_file' must exist"
@@ -119,7 +130,7 @@ sub action_enginecommand {
         $self->{logger}->writeLogError("[engine] Command file '$command_file' must be a pipe file");
         $self->send_log(
             socket => $options{socket_log},
-            code => $self->ACTION_FINISH_KO,
+            code => GORGONE_ACTION_FINISH_KO,
             token => $options{token},
             data => {
                 message => "command file '$command_file' must be a pipe file"
@@ -131,7 +142,7 @@ sub action_enginecommand {
         $self->{logger}->writeLogError("[engine] Command file '$command_file' must be writeable");
         $self->send_log(
             socket => $options{socket_log},
-            code => $self->ACTION_FINISH_KO,
+            code => GORGONE_ACTION_FINISH_KO,
             token => $options{token},
             data => {
                 message => "command file '$command_file' must be writeable"
@@ -139,16 +150,6 @@ sub action_enginecommand {
         );
         return -1;
     }
-    
-    $self->send_log(
-        socket => $options{socket_log},
-        code => $self->ACTION_BEGIN,
-        token => $options{token},
-        data => {
-            message => "commands processing has started",
-            request_content => $options{data}->{content}
-        }
-    );
 
     my $fh;
     eval {
@@ -161,7 +162,7 @@ sub action_enginecommand {
             print $fh $command . "\n";
             $self->send_log(
                 socket => $options{socket_log},
-                code => $self->ACTION_FINISH_OK,
+                code => GORGONE_ACTION_FINISH_OK,
                 token => $options{token},
                 data => {
                     message => "command has been submitted",
@@ -178,7 +179,7 @@ sub action_enginecommand {
         $self->{logger}->writeLogError("[engine] Submit engine command issue: $@");
         $self->send_log(
             socket => $options{socket_log},
-            code => $self->ACTION_FINISH_KO,
+            code => GORGONE_ACTION_FINISH_KO,
             token => $options{token},
             data => {
                 message => "submit engine command issue: $@"
@@ -189,7 +190,7 @@ sub action_enginecommand {
     
     $self->send_log(
         socket => $options{socket_log},
-        code => $self->ACTION_FINISH_OK,
+        code => GORGONE_ACTION_FINISH_OK,
         token => $options{token},
         data => {
             message => "commands processing has finished"
@@ -216,7 +217,7 @@ sub action_run {
     } else {
         $self->send_log(
             socket => $socket_log,
-            code => $self->ACTION_FINISH_KO,
+            code => GORGONE_ACTION_FINISH_KO,
             token => $options{token},
             data => { message => 'action unknown' }
         );
@@ -246,7 +247,7 @@ sub create_child {
     if (!defined($child_pid)) {
         $self->{logger}->writeLogError("[engine] Cannot fork process: $!");
         $self->send_log(
-            code => $self->ACTION_FINISH_KO,
+            code => GORGONE_ACTION_FINISH_KO,
             token => $token,
             data => { message => "cannot fork: $!" }
         );
