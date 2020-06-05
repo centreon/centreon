@@ -23,8 +23,8 @@ interface SnackbarContextProviderProps {
 
 const withSnackbar = (
   Component: (props) => JSX.Element,
-): ((props) => ReactElement) => {
-  return (props: SnackbarContextProviderProps): JSX.Element => {
+): ((props) => JSX.Element) => {
+  return (props: SnackbarContextProviderProps): ReactElement => {
     const {
       message,
       severity,

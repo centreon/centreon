@@ -7,8 +7,11 @@ import {
   CircularProgress,
   InputAdornment,
 } from '@material-ui/core';
-import Autocomplete, { AutocompleteProps } from '@material-ui/lab/Autocomplete';
-import { UseAutocompleteProps } from '@material-ui/lab/useAutocomplete';
+import {
+  Autocomplete,
+  AutocompleteProps,
+  UseAutocompleteProps,
+} from '@material-ui/lab';
 
 import TextField from '../../Text';
 import { SelectEntry } from '..';
@@ -77,7 +80,7 @@ const AutocompleteField = ({
       disableCloseOnSelect
       loading={loading}
       classes={{ inputRoot: classes.input }}
-      getOptionLabel={(option): string => option.name}
+      getOptionLabel={(option: SelectEntry): string => option.name}
       loadingText={<LoadingIndicator />}
       getOptionSelected={equals}
       renderInput={(params): JSX.Element => (

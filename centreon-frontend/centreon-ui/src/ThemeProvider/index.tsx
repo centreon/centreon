@@ -1,8 +1,8 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import {
   createMuiTheme,
   ThemeProvider as MuiThemeProvider,
+  ThemeProviderProps,
 } from '@material-ui/core';
 
 declare module '@material-ui/core/styles/createPalette' {
@@ -48,16 +48,12 @@ const theme = createMuiTheme({
   },
 });
 
-const ThemeProvider = ({ children, ...rest }): JSX.Element => (
+type Props = Omit<ThemeProviderProps, 'theme'>;
+
+const ThemeProvider = ({ children, ...rest }: Props): JSX.Element => (
   <MuiThemeProvider theme={theme} {...rest}>
     {children}
   </MuiThemeProvider>
 );
-
-ThemeProvider.propTypes = {
-  children: PropTypes.node.isRequired,
-};
-
-ThemeProvider.defaultProps = {};
 
 export default ThemeProvider;

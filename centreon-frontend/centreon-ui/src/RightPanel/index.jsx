@@ -16,7 +16,7 @@ const inAnimationDurationMs = 150;
 const outAnimationDurationMs = 50;
 
 // TODO this should be dynamic
-const topHeight = 49;
+const topHeight = 52;
 
 const HeaderContainer = styled(Box)({
   paddingLeft: 20,
