@@ -43,6 +43,7 @@ module.exports = {
       { 'ignoreCase': false }
     ],
     'react/jsx-props-no-spreading': 'off',
+    'react/jsx-wrap-multilines': 'off',
     'react/state-in-constructor': 'off',
     'import/prefer-default-export': 'off',
     'no-use-before-define': 'off',
