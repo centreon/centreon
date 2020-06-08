@@ -172,11 +172,7 @@ const Wizard = (props) => {
                   className={classes.form}
                   onSubmit={bag.handleSubmit}
                   onKeyPress={(keyEvent) => {
-                    const { preventEnterKey } = activePage.props;
-                    if (
-                      preventEnterKey &&
-                      (keyEvent.charCode || keyEvent.keyCode) === 13
-                    ) {
+                    if ((keyEvent.charCode || keyEvent.keyCode) === 13) {
                       keyEvent.preventDefault();
                     }
                   }}

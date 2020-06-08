@@ -30,6 +30,12 @@ const ActionBar = ({
 }) => {
   const classes = useStyles();
 
+  const preventEnterKey = (keyEvent) => {
+    if ((keyEvent.charCode || keyEvent.keyCode) === 13) {
+      keyEvent.preventDefault();
+    }
+  };
+
   return (
     <Grid
       container
@@ -44,6 +50,7 @@ const ActionBar = ({
             type="button"
             color="primary"
             onClick={(event) => onCancel(event, 'cancel')}
+            onKeyPress={preventEnterKey}
           >
             {labelCancel}
           </Button>
@@ -52,7 +59,12 @@ const ActionBar = ({
 
       <Grid item>
         {page > 0 && (
-          <Button type="button" color="primary" onClick={onPrevious}>
+          <Button
+            type="button"
+            color="primary"
+            onClick={onPrevious}
+            onKeyPress={preventEnterKey}
+          >
             {labelPrevious}
           </Button>
         )}
@@ -63,6 +75,7 @@ const ActionBar = ({
             color="primary"
             disabled={disabledNext}
             onClick={onFinish}
+            onKeyPress={preventEnterKey}
           >
             {labelFinish}
           </Button>
@@ -72,6 +85,7 @@ const ActionBar = ({
             color="primary"
             onClick={onNext}
             disabled={disabledNext}
+            onKeyPress={preventEnterKey}
           >
             {labelNext}
           </Button>
