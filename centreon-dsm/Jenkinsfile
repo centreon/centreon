@@ -48,6 +48,12 @@ try {
         sh 'setup_centreon_build.sh'
         sh "./centreon-build/jobs/dsm/${serie}/dsm-package.sh centos7"
       }
+    },
+    'centos8': {
+      node {
+        sh 'setup_centreon_build.sh'
+        sh "./centreon-build/jobs/dsm/${serie}/dsm-package.sh centos8"
+      }
     }
     if ((currentBuild.result ?: 'SUCCESS') != 'SUCCESS') {
       error('Package stage failure.')
