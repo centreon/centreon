@@ -37,45 +37,17 @@ stage('Source') {
 }
 
 try {
-  stage('Unit tests') {
-    parallel 'centos7': {
-      node {
-        sh 'setup_centreon_build.sh'
-        /*
-        sh "./centreon-build/jobs/awie/${serie}/mon-awie-unittest.sh centos7"
-        junit 'ut.xml'
-        if (currentBuild.result == 'UNSTABLE')
-          currentBuild.result = 'FAILURE'
-        step([
-          $class: 'CloverPublisher',
-          cloverReportDir: '.',
-          cloverReportFileName: 'coverage.xml'
-        ])
-        step([
-          $class: 'hudson.plugins.checkstyle.CheckStylePublisher',
-          pattern: 'codestyle.xml',
-          usePreviousBuildAsReference: true,
-          useDeltaValues: true,
-          failedNewAll: '0'
-        ])
-        */
-        if ((env.BUILD == 'RELEASE') || (env.BUILD == 'REFERENCE')) {
-          withSonarQubeEnv('SonarQube') {
-            sh "./centreon-build/jobs/awie/${serie}/mon-awie-analysis.sh"
-          }
-        }
-      }
-    }
-    if ((currentBuild.result ?: 'SUCCESS') != 'SUCCESS') {
-      error('Unit tests stage failure.');
-    }
-  }
-
   stage('Package') {
     parallel 'centos7': {
       node {
         sh 'setup_centreon_build.sh'
         sh "./centreon-build/jobs/awie/${serie}/mon-awie-package.sh centos7"
+      }
+    },
+    'centos8': {
+      node {
+        sh 'setup_centreon_build.sh'
+        sh "./centreon-build/jobs/awie/${serie}/mon-awie-package.sh centos8"
       }
     }
     if ((currentBuild.result ?: 'SUCCESS') != 'SUCCESS') {
@@ -89,6 +61,12 @@ try {
         sh 'setup_centreon_build.sh'
         sh "./centreon-build/jobs/awie/${serie}/mon-awie-bundle.sh centos7"
       }
+    },
+    'centos8': {
+      node {
+        sh 'setup_centreon_build.sh'
+        sh "./centreon-build/jobs/awie/${serie}/mon-awie-bundle.sh centos8"
+      }
     }
     if ((currentBuild.result ?: 'SUCCESS') != 'SUCCESS') {
       error('Bundle stage failure.');
@@ -100,6 +78,16 @@ try {
       node {
         sh 'setup_centreon_build.sh'
         sh "./centreon-build/jobs/awie/${serie}/mon-awie-acceptance.sh centos7"
+        junit 'xunit-reports/**/*.xml'
+        if (currentBuild.result == 'UNSTABLE')
+          currentBuild.result = 'FAILURE'
+        archiveArtifacts allowEmptyArchive: true, artifacts: 'acceptance-logs/*.txt, acceptance-logs/*.png'
+      }
+    },
+    'centos8': {
+      node {
+        sh 'setup_centreon_build.sh'
+        sh "./centreon-build/jobs/awie/${serie}/mon-awie-acceptance.sh centos8"
         junit 'xunit-reports/**/*.xml'
         if (currentBuild.result == 'UNSTABLE')
           currentBuild.result = 'FAILURE'
