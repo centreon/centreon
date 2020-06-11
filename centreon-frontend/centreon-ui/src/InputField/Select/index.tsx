@@ -18,11 +18,16 @@ const useStyles = makeStyles((theme: Theme) => ({
   noLabelInput: {
     padding: theme.spacing(1.5),
   },
+  compact: {
+    padding: theme.spacing(0.5),
+    fontSize: 'x-small',
+  },
 }));
 
 export interface SelectEntry {
   id: number | string;
   name: string;
+  color?: string;
 }
 
 type Props = {
@@ -31,6 +36,8 @@ type Props = {
   selectedOptionId: number | string;
   label?: string;
   error?: string;
+  compact?: boolean;
+  ariaLabel?: string;
 } & Omit<SelectProps, 'error'>;
 
 const SelectField = ({
@@ -39,24 +46,39 @@ const SelectField = ({
   selectedOptionId,
   label,
   error,
+  fullWidth,
+  ariaLabel,
+  inputProps,
+  compact = false,
   ...props
 }: Props): JSX.Element => {
   const classes = useStyles();
 
   return (
-    <FormControl variant="filled" size="small" error={!isNil(error)}>
+    <FormControl
+      variant="filled"
+      size="small"
+      error={!isNil(error)}
+      fullWidth={fullWidth}
+    >
       {label && <InputLabel>{label}</InputLabel>}
       <Select
         inputProps={{
-          className: clsx({ [classes.noLabelInput]: !label }),
+          'aria-label': ariaLabel,
+          className: clsx({
+            [classes.noLabelInput]: !label && !compact,
+            [classes.compact]: compact,
+          }),
+          ...inputProps,
         }}
         value={selectedOptionId}
         onChange={onChange}
         disableUnderline
+        fullWidth={fullWidth}
         {...props}
       >
-        {options.map(({ id, name }) => (
-          <MenuItem key={id} value={id}>
+        {options.map(({ id, name, color }) => (
+          <MenuItem key={id} value={id} style={{ backgroundColor: color }}>
             {name}
           </MenuItem>
         ))}

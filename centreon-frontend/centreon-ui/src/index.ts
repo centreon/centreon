@@ -39,8 +39,13 @@ export { default as Slider } from './Slider/SliderContent';
 export { default as Sidebar } from './Sidebar';
 export { default as Subtitle } from './Subtitle';
 
-export { default as Listing } from './Listing';
-export { RowColorCondition } from './Listing/Row';
+export { default as Listing, Props as ListingProps } from './Listing';
+export {
+  ColumnType,
+  ComponentColumnProps,
+  Column,
+  RowColorCondition,
+} from './Listing/models';
 
 export { default as Title } from './Title';
 export { default as Wrapper } from './Wrapper';
@@ -70,7 +75,6 @@ export { default as IconAttach } from './Icon/IconAttach';
 export { default as IconEdit } from './Icon/IconEdit';
 export { default as IconCloseNew } from './Icon/IconClose2';
 
-export { default as TABLE_COLUMN_TYPES } from './Listing/ColumnTypes';
 export { default as Tooltip } from './Tooltip';
 export { default as Dialog } from './Dialog';
 export { default as ConfirmDialog } from './Dialog/Confirm';

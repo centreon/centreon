@@ -1,19 +1,16 @@
 /* eslint-disable react/static-property-placement */
 /* eslint-disable class-methods-use-this */
-/* eslint-disable react/no-did-update-set-state */
 /* eslint-disable react/prop-types */
 /* eslint-disable react/destructuring-assignment */
 /* eslint-disable react/sort-comp */
-/* eslint-disable react/no-find-dom-node */
 /* eslint-disable react/require-default-props */
-/* eslint-disable no-unused-vars */
 
-import React, { Component, Children } from 'react';
-import { findDOMNode } from 'react-dom';
+import * as React from 'react';
+
 import PropTypes from 'prop-types';
 import { normalize } from './helpers';
 
-export default class BoundingBox extends Component {
+export default class BoundingBox extends React.Component {
   state = {
     isInViewport: null,
   };
@@ -23,58 +20,8 @@ export default class BoundingBox extends Component {
     children: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
   };
 
-  componentDidMount() {
-    this.node = findDOMNode(this);
-
-    if (!this.node) {
-      return;
-    }
-
-    const rect = normalize(
-      this.roundRectDown(this.node.getBoundingClientRect()),
-    );
-
-    const isHidden = rect.height === 0 && rect.width === 0;
-
-    if (this.props.active && !isHidden) {
-      this.startWatching();
-    }
-  }
-
-  componentWillUnmount() {
-    this.stopWatching();
-  }
-
-  componentDidUpdate(prevProps) {
-    this.node = findDOMNode(this);
-
-    if (this.props.active && !prevProps.active) {
-      this.setState({
-        isInViewport: null,
-      });
-
-      this.startWatching();
-    } else if (!this.props.active) {
-      this.stopWatching();
-    }
-  }
-
   getContainer = () => {
     return window;
-  };
-
-  startWatching = () => {
-    if (this.interval) {
-      return;
-    }
-
-    this.interval = setInterval(this.isIn, 0);
-  };
-
-  stopWatching = () => {
-    if (this.interval) {
-      this.interval = clearInterval(this.interval);
-    }
   };
 
   roundRectDown(rect) {
@@ -141,6 +88,6 @@ export default class BoundingBox extends Component {
         rectBox: this.state.rectBox,
       });
     }
-    return Children.only(this.props.children);
+    return React.Children.only(this.props.children);
   }
 }

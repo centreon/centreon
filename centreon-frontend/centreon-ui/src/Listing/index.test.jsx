@@ -2,7 +2,7 @@ import React from 'react';
 import { render, fireEvent } from '@testing-library/react';
 
 import Table from '.';
-import ColumnTypes from './ColumnTypes';
+import { ColumnType } from './models';
 
 describe('Table', () => {
   const getAllCheckboxes = (container) => {
@@ -13,14 +13,14 @@ describe('Table', () => {
     {
       id: 'name',
       label: 'name',
-      type: ColumnTypes.string,
+      type: ColumnType.string,
       getFormattedString: ({ name }) => name,
       sortable: true,
     },
     {
       id: 'description',
       label: 'description',
-      type: ColumnTypes.string,
+      type: ColumnType.string,
       getFormattedString: ({ description }) => description,
       sortable: true,
       sortField: 'descriptionField',

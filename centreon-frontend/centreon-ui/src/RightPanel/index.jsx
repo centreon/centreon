@@ -125,42 +125,46 @@ const RightPanel = ({
     >
       <BodyContainer>
         {loading && <Loader fullContent />}
-        <HeaderContainer display="flex" flexDirection="row">
-          <Box flexGrow={1}>{Header}</Box>
-          <Box>
-            <IconClose
-              onClick={close}
-              style={{ width: 39, height: 39, padding: 5 }}
-            />
-          </Box>
-        </HeaderContainer>
-        <Body display="flex" flexDirection="row" flexGrow={1}>
-          <MainPanel flexGrow={1}>
-            <List>
-              {Sections.map(({ id, title, Section, expandable }) =>
-                expandable ? (
-                  <ExpandableSection key={id} title={title}>
-                    {Section}
-                  </ExpandableSection>
-                ) : (
-                  <ListItem key={id}>{Section}</ListItem>
-                ),
-              )}
-            </List>
-          </MainPanel>
-          <SecondaryPanelBar
-            aria-label="Close Secondary Panel"
-            display="flex"
-            alignItems="center"
-            alignContent="center"
-            onClick={toggleSecondaryPanel}
-          >
-            {secondaryPanelActive && <CloseSecondaryPanelIcon />}
-          </SecondaryPanelBar>
-          <div className={secondaryPanel} onTransitionEnd={onTransitionEnd}>
-            {secondaryPanelComponent}
-          </div>
-        </Body>
+        {active && !loading && (
+          <>
+            <HeaderContainer display="flex" flexDirection="row">
+              <Box flexGrow={1}>{Header}</Box>
+              <Box>
+                <IconClose
+                  onClick={close}
+                  style={{ width: 39, height: 39, padding: 5 }}
+                />
+              </Box>
+            </HeaderContainer>
+            <Body display="flex" flexDirection="row" flexGrow={1}>
+              <MainPanel flexGrow={1}>
+                <List>
+                  {Sections.map(({ id, title, Section, expandable }) =>
+                    expandable ? (
+                      <ExpandableSection key={id} title={title}>
+                        {Section}
+                      </ExpandableSection>
+                    ) : (
+                      <ListItem key={id}>{Section}</ListItem>
+                    ),
+                  )}
+                </List>
+              </MainPanel>
+              <SecondaryPanelBar
+                aria-label="Close Secondary Panel"
+                display="flex"
+                alignItems="center"
+                alignContent="center"
+                onClick={toggleSecondaryPanel}
+              >
+                {secondaryPanelActive && <CloseSecondaryPanelIcon />}
+              </SecondaryPanelBar>
+              <div className={secondaryPanel} onTransitionEnd={onTransitionEnd}>
+                {secondaryPanelComponent}
+              </div>
+            </Body>
+          </>
+        )}
       </BodyContainer>
     </Slide>
   );

@@ -6,7 +6,7 @@ import { makeStyles, Button } from '@material-ui/core';
 import { grey } from '@material-ui/core/colors';
 
 import Listing from '.';
-import ColumnTypes from './ColumnTypes';
+import { ColumnType } from './models';
 
 export default { title: 'Listing' };
 
@@ -34,20 +34,19 @@ const configuration = [
   {
     id: 'name',
     label: 'Name',
-    type: ColumnTypes.string,
+    type: ColumnType.string,
     getFormattedString: ({ name }): string => name,
   },
-  { id: 'active', label: 'Active', type: ColumnTypes.toggler },
   {
     id: 'description',
     label: 'Description',
-    type: ColumnTypes.string,
+    type: ColumnType.string,
     getFormattedString: ({ description }): string => description,
   },
   {
     id: '#',
     label: 'Custom',
-    type: ColumnTypes.component,
+    type: ColumnType.component,
     Component: ComponentColumn,
   },
 ];
@@ -80,9 +79,7 @@ const Story = ({ disableCheckable = false, ...props }): JSX.Element => {
     <div className={classes.listing}>
       <Listing
         columnConfiguration={configuration}
-        onDelete={noOp}
         onSort={noOp}
-        onDuplicate={noOp}
         onPaginate={noOp}
         onPaginationLimitChanged={noOp}
         limit={listing.length}

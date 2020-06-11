@@ -37,3 +37,12 @@ export const withError = (): JSX.Element => (
     error="Something went wrong"
   />
 );
+
+export const compact = (): JSX.Element => (
+  <SelectField
+    options={[{ id: 0, name: 'Tiny' }]}
+    selectedOptionId={0}
+    onChange={(): void => undefined}
+    compact
+  />
+);

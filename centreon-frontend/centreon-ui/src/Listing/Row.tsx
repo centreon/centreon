@@ -11,6 +11,8 @@ import {
   fade,
 } from '@material-ui/core';
 
+import { RowColorCondition } from './models';
+
 const useStyles = (rowColorConditions): (() => Record<string, string>) =>
   makeStyles<Theme>((theme) => {
     const rowColorClasses = rowColorConditions.reduce(
@@ -41,12 +43,6 @@ type Props = {
   row;
   rowColorConditions;
 } & TableRowProps;
-
-export interface RowColorCondition {
-  name: string;
-  condition: (row) => boolean;
-  color: string;
-}
 
 const getRowColor = ({ conditions, row }): RowColorCondition =>
   conditions.find(({ condition }) => condition(row));

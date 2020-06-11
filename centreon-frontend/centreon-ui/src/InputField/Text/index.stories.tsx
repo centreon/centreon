@@ -19,3 +19,7 @@ export const withError = (): JSX.Element => (
 export const fullWidth = (): JSX.Element => (
   <TextField fullWidth label="full width" />
 );
+
+export const compact = (): JSX.Element => (
+  <TextField compact placeholder="Tiny" />
+);
