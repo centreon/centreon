@@ -2,6 +2,6 @@
   timespec: "15 6 * * *"
   action: COMMAND
   parameters:
-    - command: "/opt/rh/rh-php72/root/usr/bin/php -q /usr/share/centreon/cron/centreon-send-stats.php >> /var/log/centreon/statistics.log 2>&1"
+    - command: "/opt/rh/rh-php72/root/usr/bin/php -q /usr/share/centreon/cron/centreon-send-stats.php >> /var/log/centreon-gorgone/cron-statistics.log 2>&1"
       timeout: 60
   keep_token: true
