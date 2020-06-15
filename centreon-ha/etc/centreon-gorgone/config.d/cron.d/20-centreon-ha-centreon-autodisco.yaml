@@ -1,4 +1,4 @@
-- id: centreon_autodisco_svc
+- id: centreon_service_discovery
   timespec: "30 22 * * *"
   action: COMMAND
   parameters:
