@@ -384,8 +384,8 @@ sub check {
             delete $parent_ping->{$_};
         }
     }
-    
-    return $count;
+
+    return ($count, 1);
 }
 
 sub broadcast {

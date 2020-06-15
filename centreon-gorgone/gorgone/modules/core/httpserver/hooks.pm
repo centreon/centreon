@@ -147,6 +147,8 @@ sub check {
         if ($stop == 0) {
             create_child(logger => $options{logger}, api_endpoints => $options{api_endpoints});
         }
+
+        last;
     }
 
     $count++  if (defined($httpserver->{running}) && $httpserver->{running} == 1);

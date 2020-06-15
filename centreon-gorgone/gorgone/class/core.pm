@@ -815,9 +815,9 @@ sub run {
         my $poll = [@{$gorgone->{poll}}];
 
         my $current_time = time();
-        if (time() - $cb_timer_check > 15) {
+        if (time() - $cb_timer_check > 15 || $gorgone->{stop} == 1) {
             foreach my $name (keys %{$gorgone->{modules_register}}) {
-                my $count_module = $gorgone->{modules_register}->{$name}->{check}->(
+                my ($count_module, $keepalive) = $gorgone->{modules_register}->{$name}->{check}->(
                     logger => $gorgone->{logger},
                     dead_childs => $gorgone->{return_child},
                     internal_socket => $gorgone->{internal_socket},
@@ -825,13 +825,14 @@ sub run {
                     poll => $poll,
                     api_endpoints => $gorgone->{api_endpoints},
                 );
-                $cb_timer_check = time();
+
                 $count += $count_module;
-                if ($count_module == 0) {
+                if ($count_module == 0 && (!defined($keepalive) || $keepalive == 0)) {
                     $gorgone->unload_module(package => $name);
                 }
             }
 
+            $cb_timer_check = time();
             # We can clean return_child.
             $gorgone->{return_child} = {};
         }
