@@ -2,6 +2,6 @@
   timespec: "30 22 * * *"
   action: COMMAND
   parameters:
-    - command: "/usr/share/centreon/www/modules/centreon-autodiscovery-server//cron/centreon_autodisco.pl --config='/etc/centreon/conf.pm' --config-extra='/etc/centreon/centreon_autodisco.pm' --severity=error >> /var/log/centreon-gorgone/cron-centreon_service_discovery.log 2>&1"
+    - command: "/usr/share/centreon/www/modules/centreon-autodiscovery-server//cron/centreon_autodisco.pl --config='/etc/centreon/conf.pm' --config-extra='/etc/centreon/centreon_autodisco.pm' --severity=error >> /var/log/centreon-gorgone/centreon_service_discovery.log 2>&1"
       timeout: 600
   keep_token: true
