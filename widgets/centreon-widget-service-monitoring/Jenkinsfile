@@ -19,13 +19,13 @@ def featureFiles = []
 stage('Source') {
   node {
     sh 'setup_centreon_build.sh'
-    dir('centreon-widget-service-monitoring') {
+    env.WIDGET = 'service-monitoring'
+    dir("centreon-widget-${env.WIDGET}") {
       checkout scm
     }
-    sh "./centreon-build/jobs/widgets/${serie}/widget-source.sh service-monitoring"
+    sh "./centreon-build/jobs/widgets/${serie}/widget-source.sh"
     source = readProperties file: 'source.properties'
     env.PROJECT = "${source.PROJECT}"
-    env.WIDGET = "${source.RELEASE}"
     env.VERSION = "${source.VERSION}"
     env.RELEASE = "${source.RELEASE}"
     env.SUMMARY = "${source.SUMMARY}"
@@ -45,7 +45,13 @@ try {
     parallel 'centos7': {
       node {
         sh 'setup_centreon_build.sh'
-        sh "./centreon-build/jobs/widgets/${serie}/widget-package.sh service-monitoring centos7"
+        sh "./centreon-build/jobs/widgets/${serie}/widget-package.sh centos7"
+      }
+    },
+    'centos8': {
+      node {
+        sh 'setup_centreon_build.sh'
+        sh "./centreon-build/jobs/widgets/${serie}/widget-package.sh centos8"
       }
     }
     if ((currentBuild.result ?: 'SUCCESS') != 'SUCCESS') {
@@ -57,7 +63,7 @@ try {
     stage('Delivery') {
       node {
         sh 'setup_centreon_build.sh'
-        sh "./centreon-build/jobs/widgets/${serie}/widget-delivery.sh service-monitoring"
+        sh "./centreon-build/jobs/widgets/${serie}/widget-delivery.sh"
       }
       if ((currentBuild.result ?: 'SUCCESS') != 'SUCCESS') {
         error('Delivery stage failure.');
