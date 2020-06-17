@@ -38,12 +38,14 @@ try {
       node {
         sh 'setup_centreon_build.sh'
         sh "./centreon-build/jobs/gorgone/${serie}/gorgone-package.sh centos7"
+        archiveArtifacts artifacts: 'rpms-centos7.tar.gz'
       }
     },
     'centos8': {
       node {
         sh 'setup_centreon_build.sh'
         sh "./centreon-build/jobs/gorgone/${serie}/gorgone-package.sh centos8"
+        archiveArtifacts artifacts: 'rpms-centos8.tar.gz'
       }
     }
     if ((currentBuild.result ?: 'SUCCESS') != 'SUCCESS') {
