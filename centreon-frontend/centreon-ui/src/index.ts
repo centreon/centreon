@@ -1,7 +1,8 @@
 export { default as Button } from './Button';
 export { default as ButtonAction } from './Button/ButtonAction';
 export { default as ButtonActionInput } from './Button/ButtonActionInput';
-export { default as ButtonAdd } from './Button/ButtonAdd';
+export { default as IconButton } from './Button/Icon';
+
 export { default as Card } from './Card';
 export { default as CardItem } from './Card/CardItem';
 export { default as CustomIconWithText } from './Custom/CustomIconWithText';
@@ -55,6 +56,7 @@ export { default as ExtensionDetailsPopup } from './ExtensionDetailsPopup';
 export { default as ExtensionDeletePopup } from './ExtensionDeletePopup';
 export { default as Loader } from './Loader';
 export { default as ThemeProvider } from './ThemeProvider';
+export { default as withThemeProvider } from './ThemeProvider/withThemeProvider';
 export { default as Wizard, Page as WizardPage } from './Wizard';
 
 export { default as IconAccessTime } from './Icon/IconAccessTime';

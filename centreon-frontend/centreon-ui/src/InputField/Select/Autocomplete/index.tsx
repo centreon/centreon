@@ -69,6 +69,7 @@ const AutocompleteField = ({
   loading = false,
   onTextChange = (): void => undefined,
   endAdornment = undefined,
+  inputValue,
   ...props
 }: Props): JSX.Element => {
   const classes = useStyles();
@@ -89,6 +90,7 @@ const AutocompleteField = ({
           label={label}
           placeholder={placeholder}
           onChange={onTextChange}
+          value={inputValue || ''}
           inputProps={{
             ...params.inputProps,
             'aria-label': label,
@@ -97,12 +99,14 @@ const AutocompleteField = ({
             ...params.InputProps,
             endAdornment: (
               <>
-                <InputAdornment
-                  classes={{ root: classes.inputEndAdornment }}
-                  position="end"
-                >
-                  {endAdornment}
-                </InputAdornment>
+                {endAdornment && (
+                  <InputAdornment
+                    classes={{ root: classes.inputEndAdornment }}
+                    position="end"
+                  >
+                    {endAdornment}
+                  </InputAdornment>
+                )}
                 {params.InputProps.endAdornment}
               </>
             ),
