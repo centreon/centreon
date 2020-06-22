@@ -67,18 +67,20 @@ sub check_options {
         return 1;
     }
 
-    if ($options{request}->{http_backend} eq 'lwp' && gorgone::standard::misc::mymodule_load(
+    if (!defined($self->{backend_lwp}) && !defined($self->{backend_curl})) {
+        if ($options{request}->{http_backend} eq 'lwp' && gorgone::standard::misc::mymodule_load(
             logger => $options{logger}, module => 'gorgone::class::http::backend::lwp',
             error_msg => "Cannot load module 'gorgone::class::http::backend::lwp'."
-        ) == 0) {
-        $self->{backend_lwp} = gorgone::class::http::backend::lwp->new(%options, logger => $self->{logger});
-    }
+            ) == 0) {
+            $self->{backend_lwp} = gorgone::class::http::backend::lwp->new(%options, logger => $self->{logger});
+        }
 
-    if ($options{request}->{http_backend} eq 'curl' && gorgone::standard::misc::mymodule_load(
-        logger => $options{logger}, module => 'gorgone::class::http::backend::curl',
-        error_msg => "Cannot load module 'gorgone::class::http::backend::curl'."
-        ) == 0) {
-        $self->{backend_curl} = gorgone::class::http::backend::curl->new(%options, logger => $self->{logger});
+        if ($options{request}->{http_backend} eq 'curl' && gorgone::standard::misc::mymodule_load(
+            logger => $options{logger}, module => 'gorgone::class::http::backend::curl',
+            error_msg => "Cannot load module 'gorgone::class::http::backend::curl'."
+            ) == 0) {
+            $self->{backend_curl} = gorgone::class::http::backend::curl->new(%options, logger => $self->{logger});
+        }
     }
 
     if (($options{request}->{proto} ne 'http') && ($options{request}->{proto} ne 'https')) {
