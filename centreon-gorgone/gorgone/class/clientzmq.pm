@@ -37,7 +37,8 @@ sub new {
     my $connector  = {};
     $connector->{logger} = $options{logger};
     $connector->{identity} = $options{identity};
-    
+    $connector->{extra_identity} = gorgone::standard::library::generate_token(length => 12);
+
     $connector->{cipher} = defined($options{cipher}) && $options{cipher} ne '' ? $options{cipher} : 'Cipher::AES';
     $connector->{vector} = defined($options{vector}) && $options{vector} ne '' ? $options{vector} : '0123456789012345';
 
@@ -96,7 +97,7 @@ sub init {
     
     $self->{handshake} = 0;
     $sockets->{$self->{identity}} = gorgone::standard::library::connect_com(
-        zmq_type => 'ZMQ_DEALER', name => $self->{identity},
+        zmq_type => 'ZMQ_DEALER', name => $self->{identity} . '-' .  $self->{extra_identity},
         logger => $self->{logger},
         type => $self->{target_type},
         path => $self->{target_path}
