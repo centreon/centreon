@@ -182,7 +182,7 @@ sub add_watch {
     }
 
     my $cmd = 'rsync -a --omit-dir-times --chmod=g+w --update --delete --log-format="\%o \%m \%f \%l" --timeout=30 ' . $self->{centreon_central_sync_config}->{rsync_exclude} . ' -e "ssh ' .
-        $self->{centreon_central_sync_config}->{ssh_options} . '" ' . $options{watch} . '/ ' . $self->{centreon_central_sync_config}->{peer_addr} .  ':' . $options{watch} . '/ 2>&1';
+        $self->{centreon_central_sync_config}->{ssh_options} . '" "' . $options{watch} . '/ ' . $self->{centreon_central_sync_config}->{peer_addr} .  ':' . $options{watch} . '/" 2>&1';
 
     my ($lerror, $stdout) = centreon::common::misc::backtick(
         command => $cmd,
@@ -197,8 +197,10 @@ sub watch_and_sync {
     my $self = shift;
 
     foreach my $directory (@{$self->{centreon_central_sync_config}->{rsync_dir}}) {
-        $self->add_watch(watch => $directory,
-                         special => 0);
+        $self->add_watch(
+            watch => $directory,
+            special => 0
+        );
     }
 
     foreach my $special_directory (@{$self->{centreon_central_sync_config}->{special_rsync_dir}}) {
@@ -211,8 +213,10 @@ sub watch_and_sync {
         while((my $filename = readdir $dh)) {
             if ($filename !~ /^\./ && -d "$special_directory/$filename") {
                 $self->{special_dirs_cache}->{$special_directory . "/" . $filename} = 1;
-                $self->add_watch(watch => $special_directory . "/" . $filename,
-                                 special => 1);
+                $self->add_watch(
+                    watch => $special_directory . "/" . $filename,
+                    special => 1
+                );
             }
         }
         closedir $dh;
@@ -271,7 +275,7 @@ sub run {
         foreach my $dir (keys %{$object_cb->{rsync_dirs_cache}}) {
             delete $object_cb->{rsync_dirs_cache}->{$dir};
             $cmd = 'rsync -a --omit-dir-times --chmod=g+w --update --delete --log-format="\%o \%m \%f \%l" --timeout=30 ' . $self->{centreon_central_sync_config}->{rsync_exclude} . ' -e "ssh ' .
-                $self->{centreon_central_sync_config}->{ssh_options} . '" ' . $dir . '/ ' . $self->{centreon_central_sync_config}->{peer_addr} .  ':' . $dir . '/ 2>&1';
+                $self->{centreon_central_sync_config}->{ssh_options} . '" "' . $dir . '/ ' . $self->{centreon_central_sync_config}->{peer_addr} .  ':' . $dir . '/" 2>&1';
 
             ($lerror, $stdout) = centreon::common::misc::backtick(
                 command => $cmd,
@@ -279,8 +283,7 @@ sub run {
                 timeout => 30
             );
 
-        $self->{logger}->writeLogDebug("rsync code: " . $lerror . " output: = \n$stdout ");
-
+            $self->{logger}->writeLogDebug("rsync code: " . $lerror . " output: = \n$stdout ");
         }
 
         sleep(2);
@@ -288,7 +291,7 @@ sub run {
         if (time() - $self->{last_time} > $self->{centreon_central_sync_config}->{global_sync_time}) {
             foreach my $dir (@{$self->{centreon_central_sync_config}->{rsync_dir}}) {
                 $cmd = 'rsync -a --omit-dir-times --chmod=g+w --update --delete --log-format="\%o \%m \%f \%l" --timeout=30 ' . $self->{centreon_central_sync_config}->{rsync_exclude} . ' -e "ssh ' .
-                    $self->{centreon_central_sync_config}->{ssh_options} . '" ' . $dir . '/ ' . $self->{centreon_central_sync_config}->{peer_addr} .  ':' . $dir . '/ 2>&1';
+                    $self->{centreon_central_sync_config}->{ssh_options} . '" "' . $dir . '/ ' . $self->{centreon_central_sync_config}->{peer_addr} .  ':' . $dir . '/" 2>&1';
 
                 ($lerror, $stdout) = centreon::common::misc::backtick(
                     command => $cmd,
@@ -309,7 +312,7 @@ sub run {
                     next;
                 }
                 $cmd = 'rsync -a --omit-dir-times --chmod=g+w --update --delete --log-format="\%o \%m \%f \%l" --timeout=30 ' . $self->{centreon_central_sync_config}->{rsync_exclude} . ' -e "ssh ' .
-                    $self->{centreon_central_sync_config}->{ssh_options} . '" ' . $special_dir . '/ ' . $self->{centreon_central_sync_config}->{peer_addr} .  ':' . $special_dir . '/ 2>&1';
+                    $self->{centreon_central_sync_config}->{ssh_options} . '" "' . $special_dir . '/ ' . $self->{centreon_central_sync_config}->{peer_addr} .  ':' . $special_dir . '/" 2>&1';
 
                 ($lerror, $stdout) = centreon::common::misc::backtick(
                     command => $cmd,
@@ -326,7 +329,7 @@ sub run {
                             $self->add_watch(directory => $special_dir . "/" . $filename, special => 1);
                         } else {
                             $cmd = 'rsync -a --omit-dir-times --chmod=g+w --update --delete --log-format="\%o \%m \%f \%l" --timeout=30 ' . $self->{centreon_central_sync_config}->{rsync_exclude} . ' -e "ssh ' .
-                                $self->{centreon_central_sync_config}->{ssh_options} . '" ' . $special_dir . '/' . $filename . '/ ' . $self->{centreon_central_sync_config}->{peer_addr} .  ':' . $special_dir . '/' . $filename . '/ 2>&1';
+                                $self->{centreon_central_sync_config}->{ssh_options} . '" "' . $special_dir . '/' . $filename . '/ ' . $self->{centreon_central_sync_config}->{peer_addr} .  ':' . $special_dir . '/' . $filename . '/" 2>&1';
 
                             ($lerror, $stdout) = centreon::common::misc::backtick(
                                 command => $cmd,
@@ -347,16 +350,14 @@ sub run {
         }
     }
 
-   $self->{inotify}->poll;
+    $self->{inotify}->poll;
 
-   foreach my $watch (keys %{$self->{watches}}) {
+    foreach my $watch (keys %{$self->{watches}}) {
         $self->{watches}->{$watch}->cancel;
-   }
-
+    }
 }
 
 1;
-
 
 # For more information : contact@centreon.com
 #
