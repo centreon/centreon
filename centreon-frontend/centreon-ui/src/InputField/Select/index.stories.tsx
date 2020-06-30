@@ -46,3 +46,15 @@ export const compact = (): JSX.Element => (
     compact
   />
 );
+
+export const openWithColors = (): JSX.Element => (
+  <SelectField
+    options={[
+      { id: 0, name: 'Red', color: 'red' },
+      { id: 0, name: 'Yellow', color: 'yellow' },
+    ]}
+    selectedOptionId={0}
+    onChange={(): void => undefined}
+    open
+  />
+);

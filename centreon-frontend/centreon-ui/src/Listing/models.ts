@@ -12,7 +12,7 @@ export interface Column {
   clickable?: boolean;
   width?: number | string;
   getFormattedString?: (row) => string | null;
-  getColSpan?: (isSelected) => boolean;
+  getColSpan?: (isSelected) => number | undefined;
   getTruncationState?: (isSelected) => boolean;
   disablePadding?: boolean;
   sortable?: boolean;

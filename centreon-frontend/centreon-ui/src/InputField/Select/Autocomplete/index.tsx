@@ -6,6 +6,7 @@ import {
   makeStyles,
   CircularProgress,
   InputAdornment,
+  Typography,
 } from '@material-ui/core';
 import {
   Autocomplete,
@@ -16,7 +17,7 @@ import {
 import TextField from '../../Text';
 import { SelectEntry } from '..';
 
-const useStyles = makeStyles(() => ({
+const useStyles = makeStyles((theme) => ({
   loadingIndicator: {
     textAlign: 'center',
   },
@@ -33,6 +34,12 @@ const useStyles = makeStyles(() => ({
   },
   inputEndAdornment: {
     paddingBottom: '19px',
+  },
+  options: {
+    display: 'grid',
+    gridAutoFlow: 'column',
+    gridGap: theme.spacing(1),
+    alignItems: 'center',
   },
 }));
 
@@ -56,6 +63,7 @@ export type Props = {
   label: string;
   placeholder?: string;
   endAdornment?: React.ReactElement;
+  displayOptionThumbnail?: boolean;
 } & Omit<
   AutocompleteProps<SelectEntry, Multiple, DisableClearable, FreeSolo>,
   'renderInput'
@@ -70,6 +78,7 @@ const AutocompleteField = ({
   onTextChange = (): void => undefined,
   endAdornment = undefined,
   inputValue,
+  displayOptionThumbnail = false,
   ...props
 }: Props): JSX.Element => {
   const classes = useStyles();
@@ -78,12 +87,22 @@ const AutocompleteField = ({
     <Autocomplete
       size="small"
       options={options}
-      disableCloseOnSelect
       loading={loading}
       classes={{ inputRoot: classes.input }}
       getOptionLabel={(option: SelectEntry): string => option.name}
       loadingText={<LoadingIndicator />}
       getOptionSelected={equals}
+      renderOption={(option) => {
+        return (
+          <div className={classes.options}>
+            {displayOptionThumbnail && (
+              <img alt={option.name} src={option.url} height={20} width={20} />
+            )}
+
+            <Typography>{option.name}</Typography>
+          </div>
+        );
+      }}
       renderInput={(params): JSX.Element => (
         <TextField
           {...params}
