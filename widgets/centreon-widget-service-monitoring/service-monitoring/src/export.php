@@ -61,15 +61,6 @@ if (CentreonSession::checkSession(session_id(), $db) == 0) {
     exit();
 }
 
-// Init Smarty
-$template = new Smarty();
-$template = initSmartyTplForPopup(
-    $centreon_path . "www/widgets/service-monitoring/src/",
-    $template,
-    "./",
-    $centreon_path
-);
-
 /* Init Objects */
 $criticality = new CentreonCriticality($db);
 $media = new CentreonMedia($db);
@@ -444,7 +435,95 @@ while ($row = $res->fetch()) {
 $autoRefresh = (isset($preferences['refresh_interval']) && (int)$preferences['refresh_interval'] > 0)
     ? (int)$preferences['refresh_interval']
     : 30;
-$template->assign('widgetId', $widgetId);
-$template->assign('preferences', $preferences);
-$template->assign('data', $data);
-$template->display('export.ihtml');
+
+$lines = [];
+foreach ($data as $lineData) {
+    $lines[0] = [];
+    $line = [];
+
+    // Export if set in preferences : severities
+    if ($preferences['display_severities']) {
+        $lines[0][] = 'Severity';
+        $line[] = $lineData['criticality_id'];
+    }
+    // Export if set in preferences : name column
+    if ($preferences['display_host_name'] && $preferences['display_host_alias']) {
+        $lines[0][] = 'Host Name - Host Alias';
+        $line[] = $lineData['hostname'] . ' - ' . $lineData['hostalias'];
+    } elseif ($preferences['display_host_alias']) {
+        $lines[0][] = 'Host Alias';
+        $line[] = $lineData['hostalias'];
+    } else {
+        $lines[0][] = 'Host Name';
+        $line[] = $lineData['hostname'];
+    }
+    // Export if set in preferences : service description
+    if ($preferences['display_svc_description']) {
+        $lines[0][] = 'Description';
+        $line[] = $lineData['description'];
+    }
+    // Export if set in preferences : output
+    if ($preferences['display_output']) {
+        $lines[0][] = 'Output';
+        $line[] = $lineData['output'];
+    }
+    // Export if set in preferences : status
+    if ($preferences['display_status']) {
+        $lines[0][] = 'Status';
+        $line[] = $lineData['s_state'];
+    }
+    // Export if set in preferences : last check
+    if ($preferences['display_last_check']) {
+        $lines[0][] = 'Last Check';
+        $line[] = $lineData['last_check'];
+    }
+    // Export if set in preferences : duration
+    if ($preferences['display_duration']) {
+        $lines[0][] = 'Duration';
+        $line[] = $lineData['last_state_change'];
+    }
+    // Export if set in preferences : hard state duration
+    if ($preferences['display_hard_state_duration']) {
+        $lines[0][] = 'Hard State Duration';
+        $line[] = $lineData['last_hard_state_change'];
+    }
+    // Export if set in preferences : Tries
+    if ($preferences['display_tries']) {
+        $lines[0][] = 'Attempt';
+        $line[] = $lineData['check_attempt'];
+    }
+    // Export if set in preferences : Last comment
+    if ($preferences['display_last_comment']) {
+        $lines[0][] = 'Last comment';
+        $line[] = $lineData['comment'];
+    }
+
+    // Export if set in preferences : Latency
+    if ($preferences['display_latency']) {
+        $lines[0][] = 'Latency';
+        $line[] = $lineData['latency'];
+    }
+    // Export if set in preferences : Latency
+    if ($preferences['display_execution_time']) {
+        $lines[0][] = 'Execution time';
+        $line[] = $lineData['execution_time'];
+    }
+
+    $lines[] = $line;
+}
+
+// open raw memory as file so no temp files needed, you might run out of memory though
+$memoryFile = fopen('php://memory', 'w');
+// loop over the input array
+foreach ($lines as $line) {
+    // generate csv lines from the inner arrays
+    fputcsv($memoryFile, $line, ';');
+}
+// reset the file pointer to the start of the file
+fseek($memoryFile, 0);
+// tell the browser it's going to be a csv file
+header('Content-Type: application/csv');
+// tell the browser we want to save it instead of displaying it
+header('Content-Disposition: attachment; filename="services-monitoring.csv";');
+// make php send the generated csv lines to the browser
+fpassthru($memoryFile);
