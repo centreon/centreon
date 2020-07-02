@@ -34,9 +34,6 @@
  *
  */
 
-header('Content-type: application/csv');
-header('Content-Disposition: attachment; filename="hosts-monitoring.csv"');
-
 require_once '../../require.php';
 require_once './DB-Func.php';
 require_once $centreon_path . 'bootstrap.php';
@@ -65,10 +62,6 @@ $dbb = $dependencyInjector['realtime_db'];
 /* Init Objects */
 $criticality = new CentreonCriticality($db);
 $aStateType = ['1' => 'H', '0' => 'S'];
-
-$path = $centreon_path . 'www/widgets/host-monitoring/src/';
-$template = new Smarty();
-$template = initSmartyTplForPopup($path, $template, './', $centreon_path);
 
 $centreon = $_SESSION['centreon'];
 $widgetId = filter_input(INPUT_GET, 'widgetId', FILTER_VALIDATE_INT, ['options' => ['default' => 0]]);
@@ -326,6 +319,92 @@ while ($row = $res->fetch()) {
     }
 }
 
-$template->assign('preferences', $preferences);
-$template->assign('data', $data);
-$template->display('export.ihtml');
+$lines = [];
+foreach ($data as $lineData) {
+    $lines[0] = [];
+    $line = [];
+
+    // severity column
+    if ($preferences['display_severities']) {
+        $lines[0][] = 'Severity';
+        $line[] = $lineData['criticality'];
+    }
+
+    // name column
+    if ($preferences['display_host_name'] && $preferences['display_host_alias']) {
+        $lines[0][] = 'Host Name - Host Alias';
+        $line[] = $lineData['name'] . ' - ' . $lineData['alias'];
+    } elseif ($preferences['display_host_alias']) {
+        $lines[0][] = 'Host Alias';
+        $line[] = $lineData['alias'];
+    } else {
+        $lines[0][] = 'Host Name';
+        $line[] = $lineData['name'];
+    }
+
+    // ip address column
+    if ($preferences['display_ip']) {
+        $lines[0][] = 'Address';
+        $line[] = $lineData['address'];
+    }
+
+    // status column
+    if ($preferences['display_status']) {
+        $lines[0][] = 'Status';
+        $line[] = $lineData['state'];
+    }
+
+    // duration column
+    if ($preferences['display_duration']) {
+        $lines[0][] = 'Duration';
+        $line[] = $lineData['last_state_change'];
+    }
+
+    // hard state duration column
+    if ($preferences['display_hard_state_duration']) {
+        $lines[0][] = 'Hard State Duration';
+        $line[] = $lineData['last_hard_state_change'];
+    }
+
+    // last check column
+    if ($preferences['display_last_check']) {
+        $lines[0][] = 'Last Check';
+        $line[] = $lineData['last_check'];
+    }
+
+    // check attempts column
+    if ($preferences['display_tries']) {
+        $lines[0][] = 'Attempt';
+        $line[] = $lineData['check_attempt'];
+    }
+
+    // output column
+    if ($preferences['display_output']) {
+        $lines[0][] = 'Output';
+        $line[] = $lineData['output'];
+    }
+
+    // comment column
+    if ($preferences['display_last_comment']) {
+        $lines[0][] = 'Last comment';
+        $line[] = $lineData['comment'];
+    }
+
+    $lines[] = $line;
+}
+
+// open raw memory as file so no temp files needed, you might run out of memory though
+$memoryFile = fopen('php://memory', 'w');
+// loop over the input array
+foreach ($lines as $line) {
+    // generate csv lines from the inner arrays
+    fputcsv($memoryFile, $line, ';');
+}
+// reset the file pointer to the start of the file
+fseek($memoryFile, 0);
+// tell the browser it's going to be a csv file
+header('Content-Type: application/csv');
+// tell the browser we want to save it instead of displaying it
+header('Content-Disposition: attachment; filename="hosts-monitoring.csv";');
+// make php send the generated csv lines to the browser
+fpassthru($memoryFile);
