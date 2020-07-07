@@ -197,6 +197,11 @@ const Listing = ({
     return selectedRowsInclude(row);
   };
 
+  const onLimitChanged = (event): void => {
+    onPaginationLimitChanged(event);
+    onPaginate(null, 0);
+  };
+
   const getColumnCell = ({ row, column }): JSX.Element | null => {
     const cellKey = `${row.id}-${column.id}`;
     const isRowHovered = hoveredRowId === row.id;
@@ -307,7 +312,7 @@ const Listing = ({
                 native: true,
               }}
               onChangePage={onPaginate}
-              onChangeRowsPerPage={onPaginationLimitChanged}
+              onChangeRowsPerPage={onLimitChanged}
               ActionsComponent={PaginationActions}
             />
           ) : null}
