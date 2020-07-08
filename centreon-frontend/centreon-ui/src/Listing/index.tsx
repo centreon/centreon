@@ -36,7 +36,7 @@ const BodyTableCell = withStyles((theme) => ({
 }))(TableCell);
 
 const useStyles = makeStyles<Theme>((theme) => ({
-  paper: {
+  paperElement: {
     width: '100%',
     height: '100%',
     display: 'flex',
@@ -50,7 +50,7 @@ const useStyles = makeStyles<Theme>((theme) => ({
   actions: {
     padding: theme.spacing(1),
   },
-  pagination: {
+  paginationElement: {
     marginLeft: 'auto',
     display: 'flex',
     flexDirection: 'row-reverse',
@@ -133,17 +133,25 @@ const Listing = ({
   const [tableTopOffset, setTableTopOffset] = useState(0);
   const [hoveredRowId, setHoveredRowId] = useState(null);
 
-  const tableBody = useRef<HTMLTableSectionElement>();
+  const paperElement = useRef<HTMLDivElement>();
+  const paginationElement = useRef<HTMLDivElement>();
+  const tableHeaderElement = useRef<HTMLTableSectionElement>();
 
   const classes = useStyles();
   const cellClasses = useCellStyles(checkable);
 
   useEffect(() => {
+    let active = true;
     const ro = new ResizeObserver(() => {
-      setTableTopOffset(cumulativeOffset(tableBody.current));
+      if (active) {
+        setTableTopOffset(cumulativeOffset(paperElement.current));
+      }
     });
 
-    ro.observe(tableBody.current as Element);
+    ro.observe(paperElement.current as Element);
+    return () => {
+      active = false;
+    };
   }, []);
 
   const selectedRowsInclude = (row): boolean => {
@@ -282,9 +290,11 @@ const Listing = ({
   const emptyRows = limit - Math.min(limit, totalRows - currentPage * limit);
 
   const tableMaxHeight = (): string => {
-    return innerScrollDisabled
-      ? '100%'
-      : `calc(100vh - ${tableTopOffset}px - 25px)`;
+    if (innerScrollDisabled) {
+      return '100%';
+    }
+
+    return `calc(100vh - ${tableTopOffset}px - ${paginationElement.current?.clientHeight}px - ${tableHeaderElement.current?.clientHeight}px)`;
   };
 
   return (
@@ -295,12 +305,18 @@ const Listing = ({
       {(!loading || (loading && tableData.length < 1)) && (
         <div className={classes.loadingIndicator} />
       )}
-      <div className={classes.paper}>
-        <div className={classes.actionBar}>
+      <div
+        className={classes.paperElement}
+        ref={paperElement as RefObject<HTMLDivElement>}
+      >
+        <div
+          className={classes.actionBar}
+          ref={paginationElement as RefObject<HTMLDivElement>}
+        >
           <div className={classes.actions}>{Actions}</div>
           {paginated ? (
             <StyledPagination
-              className={classes.pagination}
+              className={classes.paginationElement}
               rowsPerPageOptions={[10, 20, 30, 40, 50, 60, 70, 80, 90, 100]}
               labelDisplayedRows={labelDisplayedRows}
               labelRowsPerPage={labelRowsPerPage}
@@ -335,10 +351,10 @@ const Listing = ({
               onRequestSort={handleRequestSort}
               rowCount={limit - emptyRows}
               headColumns={columnConfiguration}
+              ref={tableHeaderElement as RefObject<HTMLTableSectionElement>}
             />
 
             <TableBody
-              ref={tableBody as RefObject<HTMLTableSectionElement>}
               onMouseLeave={clearHoveredRow}
               style={{
                 position: 'relative',
