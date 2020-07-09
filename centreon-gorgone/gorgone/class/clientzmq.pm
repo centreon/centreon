@@ -111,6 +111,12 @@ sub close {
     zmq_close($sockets->{$self->{identity}});
 }
 
+sub get_connect_identity {
+    my ($self, %options) = @_;
+
+    return $self->{identity} . '-' .  $self->{extra_identity};
+}
+
 sub get_server_pubkey {
     my ($self, %options) = @_;
 

@@ -63,6 +63,7 @@ my $ping_time = 0;
 my $last_pong = {}; 
 my $register_nodes = {};
 # With static routes we have a pathscore. Dynamic no pathscore.
+# Dynamic comes from PONG result
 # algo is: we use static routes first. after we use dynamic routes
 #  {
 #     subnode_id => {
@@ -73,7 +74,7 @@ my $register_nodes = {};
 #         dynamic => {
 #              parent_id3 => 1,
 #              parent_id5 => 1,
-#         },
+#         }
 #     }
 #  }
 #
@@ -250,7 +251,13 @@ sub routing {
     foreach my $data (@{$bulk_actions}) {
         # Mode zmq pull
         if ($register_nodes->{$target_parent}->{type} eq 'pull') {
-            pull_request(%options, data_decoded => $data);
+            pull_request(
+                action => $action,
+                data => $data,
+                token => $options{token},
+                target_parent => $target_parent,
+                target => $target
+            );
             next;
         }
         
@@ -444,11 +451,11 @@ sub pathway {
 
     foreach (@targets) {
         if (!defined($last_pong->{$_}) || $last_pong->{$_} == 0 || (time() - $config->{pong_discard_timeout} < $last_pong->{$_})) {
-            $options{logger}->writeLogDebug("[proxy] Choose node target '$_' for node '$target'");
+            $options{logger}->writeLogDebug("[proxy] choose node target '$_' for node '$target'");
             return (1, $_ . '~~' . $target, $_, $target);
         }
 
-        $options{logger}->writeLogDebug("[proxy] Skip node target '$_' for node '$target'");
+        $options{logger}->writeLogDebug("[proxy] skip node target '$_' for node '$target'");
     }
 
     gorgone::standard::library::add_history(
@@ -647,33 +654,44 @@ sub create_child {
 sub pull_request {
     my (%options) = @_;
 
-    # No target anymore. We remove it.
     my $message = gorgone::standard::library::build_protocol(
-        action => $options{action}, data => $options{data}, token => $options{token},
-        target => ''
+        action => $options{action},
+        data => $options{data},
+        token => $options{token},
+        target => $options{target}
     );
-    my ($status, $key) = gorgone::standard::library::is_handshake_done(dbh => $options{dbh}, identity => unpack('H*', $options{target}));
+
+    if (!defined($register_nodes->{ $options{target_parent} }->{identity})) {
+        gorgone::standard::library::add_history(
+            dbh => $options{dbh},
+            code => GORGONE_ACTION_FINISH_KO,
+            token => $options{token},
+            data => { message => "proxy - node '" . $options{target_parent} . "' had never been connected" },
+            json_encode => 1
+        );
+        return undef;
+    }
+    my ($status, $key) = gorgone::standard::library::is_handshake_done(
+        dbh => $options{dbh},
+        identity => unpack('H*', $register_nodes->{ $options{target_parent} }->{identity})
+    );
     if ($status == 0) {
         gorgone::standard::library::add_history(
             dbh => $options{dbh},
             code => GORGONE_ACTION_FINISH_KO,
             token => $options{token},
-            data => { message => "proxy - node '" . $options{target} . "' had never been connected" },
+            data => { message => "proxy - node '" . $options{target_parent} . "' had never been connected" },
             json_encode => 1
         );
         return undef;
     }
-    
-    # Should call here the function to transform data and do some put logs. A loop (because it will also be used in sub proxy process)
-    # Catch some actions call and do some transformation (on file copy)
-    # TODO
-    
+
     gorgone::standard::library::zmq_send_message(
         socket => $external_socket,
         cipher => $config_core->{cipher},
         vector => $config_core->{vector},
         symkey => $key,
-        identity => $options{target},
+        identity => $register_nodes->{ $options{target_parent} }->{identity},
         message => $message
     );
 }
@@ -737,15 +755,27 @@ sub register_subnodes {
     }
 }
 
+
+# 'pull' type:
+#    - it does a REGISTERNODES without subnodes (if it already exist, no new entry created, otherwise create an entry). We save the uniq identity
+#    - PING done by proxy and with PONG we get subnodes
 sub register_nodes {
     my (%options) = @_;
 
     return if (!defined($options{data}->{nodes}));
 
     foreach my $node (@{$options{data}->{nodes}}) {
-        my $new_node = 1;
-        if (defined($register_nodes->{$node->{id}})) {
-            $new_node = 0;
+        my ($new_node, $prevail) = (1, 0);
+
+        # prevail = 1 means: we cannot override the old one (if it exists)
+        $prevail = 1
+            if (defined($register_nodes->{$node->{id}}) 
+                && defined($register_nodes->{$node->{id}}->{prevail}) &&
+                $register_nodes->{$node->{id}}->{prevail} == 1);
+        if ($prevail == 1) {
+            $options{logger}->writeLogInfo("[proxy] cannot override node '$node->{id}' registration: prevails!!!");
+        }
+        if (defined($register_nodes->{$node->{id}}) && $prevail == 0) {
             # we remove subnodes before
             foreach my $subnode_id (keys %$register_subnodes) {
                 delete $register_subnodes->{$subnode_id}->{static}->{ $node->{id} }
@@ -755,12 +785,26 @@ sub register_nodes {
             }
         }
 
-        $register_nodes->{$node->{id}} = $node;
-        if (defined($node->{nodes})) {
-            foreach my $subnode (@{$node->{nodes}}) {
-                $register_subnodes->{$subnode->{id}} = { static => {}, dynamic => {} } if (!defined($register_subnodes->{ $subnode->{id} }));
-                $register_subnodes->{$subnode->{id}}->{static}->{ $node->{id} } = defined($subnode->{pathscore}) && $subnode->{pathscore} =~ /[0-9]+/ ? $subnode->{pathscore} : 1;
+        if (defined($register_nodes->{$node->{id}})) {
+            $new_node = 0;
+
+            unregister_nodes(data => { nodes => [ { id => $node->{id} } ] }) 
+                if ($register_nodes->{ $node->{id} }->{type} ne 'pull' && $node->{type} eq 'pull');
+        }
+
+        if ($prevail == 0) {
+            $register_nodes->{$node->{id}} = $node;
+            if (defined($node->{nodes})) {
+                foreach my $subnode (@{$node->{nodes}}) {
+                    $register_subnodes->{$subnode->{id}} = { static => {}, dynamic => {} } if (!defined($register_subnodes->{ $subnode->{id} }));
+                    $register_subnodes->{$subnode->{id}}->{static}->{ $node->{id} } = defined($subnode->{pathscore}) && $subnode->{pathscore} =~ /[0-9]+/ ? $subnode->{pathscore} : 1;
+                }
             }
+        }
+
+        # we update identity in all cases (already created or not)
+        if ($node->{type} eq 'pull' && defined($node->{identity})) {
+            $register_nodes->{$node->{id}}->{identity} = $node->{identity};
         }
 
         $last_pong->{$node->{id}} = 0 if (!defined($last_pong->{$node->{id}}));
