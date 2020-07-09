@@ -252,6 +252,7 @@ sub routing {
         # Mode zmq pull
         if ($register_nodes->{$target_parent}->{type} eq 'pull') {
             pull_request(
+                dbh => $options{dbh},
                 action => $action,
                 data => $data,
                 token => $options{token},
@@ -359,6 +360,13 @@ sub check {
     
     # We put synclog request in timeout
     foreach (keys %{$synctime_nodes}) {
+        if ($register_nodes->{$_}->{type} eq 'pull' && $synctime_nodes->{$_}->{in_progress_ping} == 1) {
+            my $ping_timeout = defined($register_nodes->{$_}->{ping_timeout}) ? $register_nodes->{$_}->{ping_timeout} : 30;
+            if ((time() - $synctime_nodes->{$_}->{in_progress_ping_pull}) > $ping_timeout) {
+                $synctime_nodes->{$_}->{in_progress_ping} = 0;
+                $options{logger}->writeLogInfo("[proxy] Ping timeout from '" . $_ . "'");
+            }
+        }
         if ($synctime_nodes->{$_}->{in_progress} == 1 && 
             time() - $synctime_nodes->{$_}->{in_progress_time} > $synctimeout_option) {
             gorgone::standard::library::add_history(
@@ -370,7 +378,7 @@ sub check {
             $synctime_nodes->{$_}->{in_progress} = 0;
         }
     }
-    
+
     # We check if we need synclogs
     if ($stop == 0 &&
         time() - $synctime_lasttime > $synctime_option) {
@@ -450,6 +458,10 @@ sub pathway {
     }
 
     foreach (@targets) {
+        if ($register_nodes->{$_}->{type} eq 'pull' && !defined($register_nodes->{$_}->{identity})) {
+            $options{logger}->writeLogDebug("[proxy] skip node pull target '$_' for node '$target' - never connected");
+            next;
+        }
         if (!defined($last_pong->{$_}) || $last_pong->{$_} == 0 || (time() - $config->{pong_discard_timeout} < $last_pong->{$_})) {
             $options{logger}->writeLogDebug("[proxy] choose node target '$_' for node '$target'");
             return (1, $_ . '~~' . $target, $_, $target);
@@ -549,6 +561,7 @@ sub ping_send {
             routing(socket => $internal_socket, action => 'PING', target => $id, data => '{}', dbh => $options{dbh}, logger => $options{logger});
         } elsif ($register_nodes->{$id}->{type} eq 'pull') {
             $synctime_nodes->{$id}->{in_progress_ping} = 1;
+            $synctime_nodes->{$id}->{in_progress_ping_pull} = time();
             routing(action => 'PING', target => $id, data => '{}', dbh => $options{dbh}, logger => $options{logger});
         }
     }
@@ -788,8 +801,11 @@ sub register_nodes {
         if (defined($register_nodes->{$node->{id}})) {
             $new_node = 0;
 
-            unregister_nodes(data => { nodes => [ { id => $node->{id} } ] }) 
-                if ($register_nodes->{ $node->{id} }->{type} ne 'pull' && $node->{type} eq 'pull');
+            unregister_nodes(
+                data => { nodes => [ { id => $node->{id} } ] },
+                dbh => $options{dbh},
+                logger => $options{logger}
+            ) if ($register_nodes->{ $node->{id} }->{type} ne 'pull' && $node->{type} eq 'pull');
         }
 
         if ($prevail == 0) {
