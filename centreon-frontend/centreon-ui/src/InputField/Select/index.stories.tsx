@@ -51,7 +51,23 @@ export const openWithColors = (): JSX.Element => (
   <SelectField
     options={[
       { id: 0, name: 'Red', color: 'red' },
-      { id: 0, name: 'Yellow', color: 'yellow' },
+      { id: 1, name: 'Yellow', color: 'yellow' },
+    ]}
+    selectedOptionId={0}
+    onChange={(): void => undefined}
+    open
+  />
+);
+
+export const openWithHeader = (): JSX.Element => (
+  <SelectField
+    options={[
+      {
+        id: 0,
+        name: 'Header',
+        type: 'header',
+      },
+      { id: 1, name: 'Item' },
     ]}
     selectedOptionId={0}
     onChange={(): void => undefined}

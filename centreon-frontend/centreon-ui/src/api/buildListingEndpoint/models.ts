@@ -28,6 +28,7 @@ export interface ListingOptions {
   limit?: number;
   search?: string;
   searchOptions?: Array<string>;
+  extraParams?: Array<Param>;
 }
 
 type Value = string | number | OrSearchParam | AndSearchParam | Sort;

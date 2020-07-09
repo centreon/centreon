@@ -107,7 +107,7 @@ export { SeverityCode, getStatusColors } from './StatusChip';
 
 export { Listing as ListingModel } from './api/models';
 export { default as useCancelTokenSource } from './api/useCancelTokenSource';
-export { getData, postData, putData, deleteData } from './api';
+export { getData, patchData, postData, putData, deleteData } from './api';
 export { default as useRequest } from './api/useRequest';
 export { default as buildListingEndpoint } from './api/buildListingEndpoint';
 export {

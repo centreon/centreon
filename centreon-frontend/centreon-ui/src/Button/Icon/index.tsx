@@ -15,7 +15,7 @@ const useStyles = makeStyles((theme) => ({
 
 type Props = {
   title: string;
-  onClick: () => void;
+  onClick: (event) => void;
   ariaLabel?: string;
 } & IconButtonProps;
 

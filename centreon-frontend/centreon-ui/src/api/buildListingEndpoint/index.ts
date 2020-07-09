@@ -17,6 +17,7 @@ const getListingParams = ({
   limit,
   search,
   searchOptions,
+  extraParams = [],
 }: ListingOptions): Array<Param> => {
   return [
     { name: 'page', value: page },
@@ -26,6 +27,7 @@ const getListingParams = ({
       name: 'search',
       value: getSearchParam({ searchValue: search, searchOptions }),
     },
+    ...extraParams,
   ];
 };
 
@@ -37,16 +39,18 @@ interface BuildListingParams {
   baseEndpoint?: string;
   searchOptions?: Array<string>;
   params: ListingOptions;
+  extraParams?: Array<Param>;
 }
 
 const buildListingEndpoint = ({
   baseEndpoint,
   searchOptions,
   params,
+  extraParams,
 }: BuildListingParams): string => {
   return buildEndpoint({
     baseEndpoint,
-    params: [...getListingParams({ searchOptions, ...params })],
+    params: [...getListingParams({ searchOptions, ...params, extraParams })],
   });
 };
 

@@ -1,7 +1,7 @@
-import React from 'react';
+import * as React from 'react';
 
 import clsx from 'clsx';
-import { isNil } from 'ramda';
+import { isNil, propEq } from 'ramda';
 
 import {
   Select,
@@ -12,6 +12,8 @@ import {
   Theme,
   SelectProps,
   FormHelperText,
+  ListSubheader,
+  Divider,
 } from '@material-ui/core';
 
 const useStyles = makeStyles((theme: Theme) => ({
@@ -29,6 +31,7 @@ export interface SelectEntry {
   name: string;
   color?: string;
   url?: string;
+  type?: 'header';
 }
 
 type Props = {
@@ -76,17 +79,29 @@ const SelectField = ({
         onChange={onChange}
         disableUnderline
         fullWidth={fullWidth}
+        displayEmpty
+        renderValue={(id) => {
+          return options.find(propEq('id', id))?.name;
+        }}
         {...props}
       >
-        {options.map(({ id, name, color }) => (
-          <MenuItem
-            key={`${id}-${name}`}
-            value={id}
-            style={{ backgroundColor: color }}
-          >
-            {name}
-          </MenuItem>
-        ))}
+        {options
+          .filter(({ id }) => id !== '')
+          .map(({ id, name, color, type }) => {
+            const key = `${id}-${name}`;
+            if (type === 'header') {
+              return [
+                <ListSubheader key={key}>{name}</ListSubheader>,
+                <Divider key={`${key}-divider`} />,
+              ];
+            }
+
+            return (
+              <MenuItem key={key} value={id} style={{ backgroundColor: color }}>
+                {name}
+              </MenuItem>
+            );
+          })}
       </Select>
       {error && <FormHelperText>{error}</FormHelperText>}
     </FormControl>
