@@ -34,10 +34,7 @@ module.exports = {
   },
   plugins: [
     new CleanWebpackPlugin(),
-    new ForkTsCheckerWebpackPlugin({
-      useTypescriptIncrementalApi: true,
-      checkSyntacticErrors: true,
-    }),
+    new ForkTsCheckerWebpackPlugin(),
   ],
   module: {
     rules: [
@@ -52,8 +49,6 @@ module.exports = {
             options: {
               allowTsInNodeModules: true,
               transpileOnly: true,
-              experimentalWatchApi: true,
-              happyPackMode: true,
             }
           },
         ],
