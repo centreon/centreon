@@ -127,12 +127,12 @@ sub check {
         $client->ping(
             poll => $options{poll},
             action => 'REGISTERNODES',
-            data => { nodes => [ { id => $config_core->{id}, type => 'pull' } ] }
+            data => { nodes => [ { id => $config_core->{id}, type => 'pull' } ] },
             json_encode => 1
         );
     }
 
-    return 0;
+    return (0, 1);
 }
 
 sub broadcast {}
