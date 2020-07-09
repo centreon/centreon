@@ -81,6 +81,10 @@ sub init {
         data => { nodes => [ { id => $config_core->{id}, type => 'pull', identity => $client->get_connect_identity() } ] },
         json_encode => 1
     );
+
+    # put client dealer in global look
+    push @{$options{poll}}, $client->get_poll();
+
     gorgone::standard::library::add_zmq_pollin(
         socket => $socket_to_internal,
         callback => \&from_router,
