@@ -127,7 +127,7 @@ sub check {
         $client->ping(
             poll => $options{poll},
             action => 'REGISTERNODES',
-            data => { nodes => [ { id => $config_core->{id}, type => 'pull' } ] },
+            data => { nodes => [ { id => $config_core->{id}, type => 'pull', identity => $client->get_connect_identity() } ] },
             json_encode => 1
         );
     }
