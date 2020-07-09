@@ -672,7 +672,8 @@ sub pull_request {
         action => $options{action},
         data => $options{data},
         token => $options{token},
-        target => $options{target}
+        target => $options{target},
+        json_encode => 1
     );
 
     if (!defined($register_nodes->{ $options{target_parent} }->{identity})) {
