@@ -812,12 +812,13 @@ sub run {
     my $cb_timer_check = time();
     while (1) {
         my $count = 0;
-        my $poll = [@{$gorgone->{poll}}];
+        my $poll = [];
 
         my $current_time = time();
         if (time() - $cb_timer_check > 15 || $gorgone->{stop} == 1) {
             foreach my $name (keys %{$gorgone->{modules_register}}) {
                 my ($count_module, $keepalive) = $gorgone->{modules_register}->{$name}->{check}->(
+                    gorgone => $gorgone,
                     logger => $gorgone->{logger},
                     dead_childs => $gorgone->{return_child},
                     internal_socket => $gorgone->{internal_socket},
@@ -852,6 +853,7 @@ sub run {
             }
         }
 
+        push @$poll, @{$gorgone->{poll}};
         zmq_poll($poll, 5000);
 
         $gorgone->{listener}->check();

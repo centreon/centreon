@@ -129,7 +129,7 @@ sub check {
         # If distant server restart, it's a not problem. It save the key. 
         # But i don't have the registernode anymore. The ping is the 'registernode' for pull mode.
         $client->ping(
-            poll => $options{poll},
+            poll => $options{gorgone}->{poll},
             action => 'REGISTERNODES',
             data => { nodes => [ { id => $config_core->{id}, type => 'pull', identity => $client->get_connect_identity() } ] },
             json_encode => 1

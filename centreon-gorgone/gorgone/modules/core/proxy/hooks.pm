@@ -727,11 +727,18 @@ sub unregister_nodes {
             routing(socket => $internal_socket, action => 'PROXYDELNODE', target => $node->{id}, data => JSON::XS->new->utf8->encode($node), dbh => $options{dbh}, logger => $options{logger});
         }
 
+        my $prevail = 0;
+        $prevail = 1 if (defined($register_nodes->{ $node->{id} }->{prevail}) && $register_nodes->{ $node->{id} }->{prevail} == 1);
+
+        if ($register_nodes->{$node->{id}}->{type} eq 'pull' && $prevail == 1) {
+            $register_nodes->{$node->{id}}->{identity} = undef;
+        }
+
         $options{logger}->writeLogInfo("[proxy] Node '" . $node->{id} . "' is unregistered");
         if (defined($register_nodes->{$node->{id}}) && $register_nodes->{$node->{id}}->{nodes}) {
             foreach my $subnode (@{$register_nodes->{$node->{id}}->{nodes}}) {
                 delete $register_subnodes->{ $subnode->{id} }->{static}->{ $node->{id} }
-                    if (defined($register_subnodes->{ $subnode->{id} }->{static}->{ $node->{id} }));
+                    if (defined($register_subnodes->{ $subnode->{id} }->{static}->{ $node->{id} }) && $prevail == 0);
                 delete $register_subnodes->{ $subnode->{id} }->{dynamic}->{ $node->{id} }
                     if (defined($register_subnodes->{ $subnode->{id} }->{dynamic}->{ $node->{id} }));
             }
@@ -739,7 +746,7 @@ sub unregister_nodes {
 
         delete $nodes_pool->{$node->{id}} if (defined($nodes_pool->{$node->{id}}));
         if (defined($register_nodes->{$node->{id}})) {
-            delete $register_nodes->{$node->{id}};
+            delete $register_nodes->{$node->{id}} if ($prevail == 0);
             delete $synctime_nodes->{$node->{id}};
             delete $constatus_ping->{$node->{id}};
             delete $last_pong->{$node->{id}};
@@ -831,7 +838,7 @@ sub register_nodes {
             get_sync_time(node_id => $node->{id}, dbh => $options{dbh});
         }
 
-        if ($node->{type} ne 'pull') {
+        if ($register_nodes->{ $node->{id} }->{type} ne 'pull') {
             routing(socket => $internal_socket, action => 'PROXYADDNODE', target => $node->{id}, data => JSON::XS->new->utf8->encode($node), dbh => $options{dbh}, logger => $options{logger});
         }
         if ($new_node == 1) {

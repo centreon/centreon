@@ -27,6 +27,7 @@ use gorgone::standard::misc;
 use ZMQ::LibZMQ4;
 use ZMQ::Constants qw(:all);
 use MIME::Base64;
+use Scalar::Util;
 
 my $connectors = {};
 my $callbacks = {};
@@ -190,13 +191,20 @@ sub ping {
         time() - $self->{ping_timeout_time} > $self->{ping_timeout}) {
         $self->{logger}->writeLogError("[core] No ping response") if (defined($self->{logger}));
         $self->{ping_progress} = 0;
+        # we delete the old one
+        for (my $i = 0; $i < scalar(@{$options{poll}}); $i++) {
+            if (Scalar::Util::refaddr($sockets->{$self->{identity}}) eq Scalar::Util::refaddr($options{poll}->[$i]->{socket})) {
+                splice @{$options{poll}}, $i, 1;
+                last;
+            }
+        }
         zmq_close($sockets->{$self->{identity}});
+
         $self->init();
         push @{$options{poll}}, $self->get_poll();
         $status = 1;
     }
     
-    push @{$options{poll}}, $self->get_poll();
     return $status;
 }
 
