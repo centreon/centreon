@@ -830,6 +830,7 @@ sub register_nodes {
         # we update identity in all cases (already created or not)
         if ($node->{type} eq 'pull' && defined($node->{identity})) {
             $register_nodes->{$node->{id}}->{identity} = $node->{identity};
+            $last_pong->{$node->{id}} = time() if (defined($last_pong->{$node->{id}}));
         }
 
         $last_pong->{$node->{id}} = 0 if (!defined($last_pong->{$node->{id}}));
