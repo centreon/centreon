@@ -11,7 +11,7 @@ In our case, we have the following configuration (need to adatp to your configur
 * Central server:
   * address: 10.30.2.203
 * Rebound server:
-  * id: 1024 (it must be unique. it's an arbitray number)
+  * id: 1024 (it must be unique. it's an arbitrary number)
   * address: 10.30.2.67
   * rsa public key thumbprint: NmnPME43IoWpkQoam6CLnrI5hjmdq6Kq8QMUCCg-F4g
 * distant server:
