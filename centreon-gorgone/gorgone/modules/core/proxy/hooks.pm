@@ -84,6 +84,8 @@ my $parent_ping = {};
 my $pools = {};
 my $pools_pid = {};
 my $nodes_pool = {};
+my $prevails = {};
+my $prevails_subnodes = {};
 my $rr_current = 0;
 my $stop = 0;
 my ($external_socket, $internal_socket, $core_id);
@@ -723,20 +725,20 @@ sub unregister_nodes {
     return if (!defined($options{data}->{nodes}));
 
     foreach my $node (@{$options{data}->{nodes}}) {
-        if (defined($register_nodes->{$node->{id}}) && $register_nodes->{$node->{id}}->{type} ne 'pull') {
+        if (defined($register_nodes->{ $node->{id} }) && $register_nodes->{ $node->{id} }->{type} ne 'pull') {
             routing(socket => $internal_socket, action => 'PROXYDELNODE', target => $node->{id}, data => JSON::XS->new->utf8->encode($node), dbh => $options{dbh}, logger => $options{logger});
         }
 
         my $prevail = 0;
-        $prevail = 1 if (defined($register_nodes->{ $node->{id} }->{prevail}) && $register_nodes->{ $node->{id} }->{prevail} == 1);
+        $prevail = 1  if (defined($prevails->{ $node->{id} }));
 
-        if ($register_nodes->{$node->{id}}->{type} eq 'pull' && $prevail == 1) {
-            $register_nodes->{$node->{id}}->{identity} = undef;
+        if ($register_nodes->{ $node->{id} }->{type} eq 'pull' && $prevail == 1) {
+            $register_nodes->{ $node->{id} }->{identity} = undef;
         }
 
         $options{logger}->writeLogInfo("[proxy] Node '" . $node->{id} . "' is unregistered");
-        if (defined($register_nodes->{$node->{id}}) && $register_nodes->{$node->{id}}->{nodes}) {
-            foreach my $subnode (@{$register_nodes->{$node->{id}}->{nodes}}) {
+        if (defined($register_nodes->{ $node->{id} }) && $register_nodes->{ $node->{id} }->{nodes}) {
+            foreach my $subnode (@{$register_nodes->{ $node->{id} }->{nodes}}) {
                 delete $register_subnodes->{ $subnode->{id} }->{static}->{ $node->{id} }
                     if (defined($register_subnodes->{ $subnode->{id} }->{static}->{ $node->{id} }) && $prevail == 0);
                 delete $register_subnodes->{ $subnode->{id} }->{dynamic}->{ $node->{id} }
@@ -744,12 +746,12 @@ sub unregister_nodes {
             }
         }
 
-        delete $nodes_pool->{$node->{id}} if (defined($nodes_pool->{$node->{id}}));
-        if (defined($register_nodes->{$node->{id}})) {
-            delete $register_nodes->{$node->{id}} if ($prevail == 0);
-            delete $synctime_nodes->{$node->{id}};
-            delete $constatus_ping->{$node->{id}};
-            delete $last_pong->{$node->{id}};
+        delete $nodes_pool->{ $node->{id} } if (defined($nodes_pool->{ $node->{id} }));
+        if (defined($register_nodes->{ $node->{id} })) {
+            delete $register_nodes->{ $node->{id} } if ($prevail == 0);
+            delete $synctime_nodes->{ $node->{id} };
+            delete $constatus_ping->{ $node->{id} };
+            delete $last_pong->{ $node->{id} };
         }
     }
 }
@@ -790,14 +792,18 @@ sub register_nodes {
         my ($new_node, $prevail) = (1, 0);
 
         # prevail = 1 means: we cannot override the old one (if it exists)
-        $prevail = 1
-            if (defined($register_nodes->{$node->{id}}) 
-                && defined($register_nodes->{$node->{id}}->{prevail}) &&
-                $register_nodes->{$node->{id}}->{prevail} == 1);
+        if (defined($prevails_subnodes->{ $node->{id} })) {
+            $options{logger}->writeLogInfo("[proxy] cannot register node '$node->{id}': already defined as a subnode [prevails]");
+            next;
+        }
+        $prevail = 1 if (defined($prevails->{ $node->{id} }));
+        $prevails->{ $node->{id} } = 1 if (defined($node->{prevail}) && $node->{prevail} == 1);
+
         if ($prevail == 1) {
             $options{logger}->writeLogInfo("[proxy] cannot override node '$node->{id}' registration: prevails!!!");
         }
-        if (defined($register_nodes->{$node->{id}}) && $prevail == 0) {
+
+        if (defined($register_nodes->{ $node->{id} }) && $prevail == 0) {
             # we remove subnodes before
             foreach my $subnode_id (keys %$register_subnodes) {
                 delete $register_subnodes->{$subnode_id}->{static}->{ $node->{id} }
@@ -807,7 +813,7 @@ sub register_nodes {
             }
         }
 
-        if (defined($register_nodes->{$node->{id}})) {
+        if (defined($register_nodes->{ $node->{id} })) {
             $new_node = 0;
 
             unregister_nodes(
@@ -818,24 +824,34 @@ sub register_nodes {
         }
 
         if ($prevail == 0) {
-            $register_nodes->{$node->{id}} = $node;
+            $register_nodes->{ $node->{id} } = $node;
             if (defined($node->{nodes})) {
                 foreach my $subnode (@{$node->{nodes}}) {
-                    $register_subnodes->{$subnode->{id}} = { static => {}, dynamic => {} } if (!defined($register_subnodes->{ $subnode->{id} }));
-                    $register_subnodes->{$subnode->{id}}->{static}->{ $node->{id} } = defined($subnode->{pathscore}) && $subnode->{pathscore} =~ /[0-9]+/ ? $subnode->{pathscore} : 1;
+                    $register_subnodes->{ $subnode->{id} } = { static => {}, dynamic => {} } if (!defined($register_subnodes->{ $subnode->{id} }));
+                    $register_subnodes->{ $subnode->{id} }->{static}->{ $node->{id} } = defined($subnode->{pathscore}) && $subnode->{pathscore} =~ /[0-9]+/ ? $subnode->{pathscore} : 1;
+
+                    # subnodes also prevails. we try to unregister it
+                    if (defined($node->{prevail}) && $node->{prevail} == 1) {
+                        unregister_nodes(
+                            data => { nodes => [ { id => $subnode->{id} } ] },
+                            dbh => $options{dbh},
+                            logger => $options{logger}
+                        );
+                        $prevails_subnodes->{ $subnode->{id} } = 1;
+                    }
                 }
             }
         }
 
         # we update identity in all cases (already created or not)
         if ($node->{type} eq 'pull' && defined($node->{identity})) {
-            $register_nodes->{$node->{id}}->{identity} = $node->{identity};
-            $last_pong->{$node->{id}} = time() if (defined($last_pong->{$node->{id}}));
+            $register_nodes->{ $node->{id} }->{identity} = $node->{identity};
+            $last_pong->{ $node->{id} } = time() if (defined($last_pong->{ $node->{id} }));
         }
 
-        $last_pong->{$node->{id}} = 0 if (!defined($last_pong->{$node->{id}}));
-        if (!defined($synctime_nodes->{$node->{id}})) {
-            $synctime_nodes->{$node->{id}} = { ctime => 0, in_progress_ping => 0, in_progress => 0, in_progress_time => -1, synctime_error => 0 };
+        $last_pong->{ $node->{id} } = 0 if (!defined($last_pong->{ $node->{id} }));
+        if (!defined($synctime_nodes->{ $node->{id} })) {
+            $synctime_nodes->{ $node->{id} } = { ctime => 0, in_progress_ping => 0, in_progress => 0, in_progress_time => -1, synctime_error => 0 };
             get_sync_time(node_id => $node->{id}, dbh => $options{dbh});
         }
 
@@ -843,7 +859,7 @@ sub register_nodes {
             routing(socket => $internal_socket, action => 'PROXYADDNODE', target => $node->{id}, data => JSON::XS->new->utf8->encode($node), dbh => $options{dbh}, logger => $options{logger});
         }
         if ($new_node == 1) {
-            $constatus_ping->{$node->{id}} = { type => $node->{type}, last_ping_sent => 0, last_ping_recv => 0, nodes => {} };
+            $constatus_ping->{ $node->{id} } = { type => $node->{type}, last_ping_sent => 0, last_ping_recv => 0, nodes => {} };
             # we provide information to the proxy class
             ping_send(node_id => $node->{id}, dbh => $options{dbh}, logger => $options{logger});
             $options{logger}->writeLogInfo("[proxy] Node '" . $node->{id} . "' is registered");
