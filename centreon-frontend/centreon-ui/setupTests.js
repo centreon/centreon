@@ -11,3 +11,15 @@ document.createRange = () => ({
     ownerDocument: document,
   },
 });
+
+global.IntersectionObserver = class IntersectionObserver {
+  observe() {
+    this.a = '';
+    return null;
+  }
+
+  disconnect() {
+    this.a = '';
+    return null;
+  }
+};
