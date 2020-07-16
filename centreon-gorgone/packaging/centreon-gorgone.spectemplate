@@ -33,6 +33,7 @@ Requires:   perl(HTTP::Daemon::SSL)
 Requires:   perl(NetAddr::IP)
 Requires:   perl(Hash::Merge)
 Requires:   perl(Clone)
+Requires:   perl(Sys::Syslog)
 AutoReqProv: no
 
 %description
