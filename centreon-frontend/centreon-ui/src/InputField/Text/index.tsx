@@ -19,9 +19,6 @@ const useStyles = makeStyles((theme: Theme) => ({
     padding: theme.spacing(1),
     fontSize: 'x-small',
   },
-  transparent: {
-    backgroundColor: 'transparent',
-  },
 }));
 
 interface OptionalLabelInputAdornmentProps {
@@ -50,7 +47,6 @@ export type Props = {
   error?: string;
   compact?: boolean;
   ariaLabel?: string;
-  transparent?: boolean;
 } & Omit<TextFieldProps, 'variant' | 'size' | 'error'>;
 
 const TextField = ({
@@ -59,7 +55,6 @@ const TextField = ({
   label,
   error,
   ariaLabel,
-  transparent = false,
   compact = false,
   ...rest
 }: Props): JSX.Element => {
@@ -71,9 +66,6 @@ const TextField = ({
       error={!isNil(error)}
       helperText={error}
       InputProps={{
-        className: clsx({
-          [classes.transparent]: transparent,
-        }),
         endAdornment: EndAdornment && (
           <OptionalLabelInputAdornment label={label} position="end">
             <EndAdornment />

@@ -23,7 +23,3 @@ export const fullWidth = (): JSX.Element => (
 export const compact = (): JSX.Element => (
   <TextField compact placeholder="Tiny" />
 );
-
-export const transparent = (): JSX.Element => (
-  <TextField transparent placeholder="Transparent" />
-);
