@@ -31,10 +31,9 @@ const ContentWithCircularLoading = ({
 
   if (loading) {
     return (
-      <CircularProgress
-        className={clsx({ [classes.alignCenter]: alignCenter })}
-        size={loadingIndicatorSize}
-      />
+      <div className={clsx({ [classes.alignCenter]: alignCenter })}>
+        <CircularProgress size={loadingIndicatorSize} />
+      </div>
     );
   }
 
