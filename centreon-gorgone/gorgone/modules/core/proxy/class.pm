@@ -304,7 +304,6 @@ sub proxy_ssh {
 
         # quit because it's not a ssh connection issue
         last if ($self->{clients}->{ $options{target_client} }->{class}->is_connected() != 0);
-        $self->{clients}->{ $options{target_client} }->{class}->test_connection();
         $retry--;
     }
 }
