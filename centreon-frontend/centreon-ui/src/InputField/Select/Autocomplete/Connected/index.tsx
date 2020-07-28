@@ -1,48 +1,87 @@
 import * as React from 'react';
 
+import { concat, last, equals } from 'ramda';
 import { useDebouncedCallback } from 'use-debounce';
 
-import { getData } from '../../../../api';
-import { SelectEntry } from '../..';
+import {
+  Typography,
+  Checkbox,
+  makeStyles,
+  CircularProgress,
+  useTheme,
+  FormControlLabel,
+} from '@material-ui/core';
+
 import { Props as AutocompleteFieldProps } from '..';
+import { SelectEntry } from '../..';
 import useRequest from '../../../../api/useRequest';
+import { getData } from '../../../../api';
+import useIntersectionObserver from '../../../../utils/useIntersectionObserver';
+import { ListingModel } from '../../../..';
 
-type Props = {
-  baseEndpoint: string;
-  getSearchEndpoint: (searchField: string) => string;
-  getOptionsFromResult: (result) => Array<SelectEntry>;
-} & Omit<AutocompleteFieldProps, 'options'>;
+interface Props {
+  getEndpoint: ({ search, page }) => string;
+  initialPage: number;
+}
 
-export default (
+const useStyles = makeStyles((theme) => ({
+  checkbox: {
+    padding: 0,
+    marginRight: theme.spacing(1),
+  },
+}));
+
+const ConnectedAutocompleteField = (
   AutocompleteField: (props) => JSX.Element,
+  multiple: boolean,
 ): ((props) => JSX.Element) => {
-  const ConnectedAutocompleteField = <TData extends Record<string, unknown>>({
-    baseEndpoint,
-    getSearchEndpoint,
-    getOptionsFromResult,
+  const InnerConnectedAutocompleteField = <
+    TData extends Record<string, unknown>
+  >({
+    initialPage,
+    getEndpoint,
     ...props
-  }: Props): JSX.Element => {
+  }: Props & Omit<AutocompleteFieldProps, 'options'>): JSX.Element => {
     const [options, setOptions] = React.useState<Array<SelectEntry>>();
     const [optionsOpen, setOptionsOpen] = React.useState<boolean>(false);
     const [searchValue, setSearchValue] = React.useState<string>('');
+    const [page, setPage] = React.useState(1);
+    const [maxPage, setMaxPage] = React.useState(initialPage);
 
-    const { sendRequest, sending } = useRequest<TData>({
+    const classes = useStyles();
+    const theme = useTheme();
+
+    const { sendRequest, sending } = useRequest<ListingModel<TData>>({
       request: getData,
     });
 
-    const loadOptions = (endpoint): void => {
-      sendRequest(endpoint).then((result) =>
-        setOptions(getOptionsFromResult(result)),
-      );
+    const loadOptions = ({ endpoint, loadMore = false }) => {
+      sendRequest(endpoint).then(({ result, meta }) => {
+        setOptions(concat(loadMore ? options : [], result));
+        setMaxPage(Math.ceil(meta.total / meta.limit));
+      });
     };
 
+    const lastItemElementRef = useIntersectionObserver({
+      maxPage,
+      page,
+      loading: sending,
+      action: () => setPage(page + 1),
+    });
+
     const [debouncedChangeText] = useDebouncedCallback((value: string) => {
-      loadOptions(getSearchEndpoint(value));
+      if (page === initialPage) {
+        loadOptions({
+          endpoint: getEndpoint({ search: value, page: initialPage }),
+        });
+      }
+
+      setPage(1);
     }, 500);
 
     const changeText = (event): void => {
-      setSearchValue(event.target.value);
       debouncedChangeText(event.target.value);
+      setSearchValue(event.target.value);
     };
 
     const openOptions = (): void => {
@@ -53,18 +92,56 @@ export default (
       setOptionsOpen(false);
     };
 
+    const renderOptions = (option, { selected }): JSX.Element => {
+      const isLastElement = equals(last(options), option);
+      const refProp = isLastElement ? { ref: lastItemElementRef } : {};
+
+      const checkbox = (
+        <Checkbox
+          color="primary"
+          checked={selected}
+          className={classes.checkbox}
+        />
+      );
+
+      return (
+        <div style={{ width: '100%' }}>
+          <div>
+            {multiple ? (
+              <FormControlLabel
+                control={checkbox}
+                label={option.name}
+                labelPlacement="end"
+                {...refProp}
+              />
+            ) : (
+              <Typography {...refProp}>{option.name}</Typography>
+            )}
+          </div>
+          {isLastElement && page > 1 && sending && (
+            <div style={{ width: '100%', textAlign: 'center' }}>
+              <CircularProgress size={theme.spacing(2.5)} />
+            </div>
+          )}
+        </div>
+      );
+    };
+
     React.useEffect(() => {
       if (!optionsOpen) {
         setSearchValue('');
+        setOptions([]);
+        setPage(initialPage);
         return;
       }
 
-      loadOptions(baseEndpoint);
-    }, [optionsOpen]);
+      loadOptions({
+        endpoint: getEndpoint({ search: searchValue, page }),
+        loadMore: page > 1,
+      });
+    }, [optionsOpen, page]);
 
     const loading = sending || !options;
-
-    const inputValueProps = optionsOpen ? { inputValue: searchValue } : {};
 
     return (
       <AutocompleteField
@@ -73,11 +150,14 @@ export default (
         options={options || []}
         onTextChange={changeText}
         loading={loading}
-        {...inputValueProps}
+        renderOption={renderOptions}
+        filterOptions={(opt) => opt}
         {...props}
       />
     );
   };
 
-  return ConnectedAutocompleteField;
+  return InnerConnectedAutocompleteField;
 };
+
+export default ConnectedAutocompleteField;

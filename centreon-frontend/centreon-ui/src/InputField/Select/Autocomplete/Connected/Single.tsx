@@ -3,6 +3,7 @@ import AutocompleteField from '..';
 
 const SingleConnectedAutocompleteField = ConnectedAutocompleteField(
   AutocompleteField,
+  false,
 );
 
 export default SingleConnectedAutocompleteField;

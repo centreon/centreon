@@ -48,6 +48,7 @@ const MultiAutocompleteField = (props: Props): JSX.Element => {
   return (
     <Autocomplete
       multiple
+      disableCloseOnSelect
       renderOption={(option, { selected }): JSX.Element => (
         <>
           <Checkbox

@@ -8,38 +8,55 @@ import {
   RenderResult,
 } from '@testing-library/react';
 
-import ConnectedAutocompleteField from './Multi';
+import { act } from 'react-test-renderer';
+import SingleInfiniteAutocomplete from './Single';
 import { SelectEntry } from '../..';
+import buildListingEndpoint from '../../../../api/buildListingEndpoint';
 
 const mockedAxios = axios as jest.Mocked<typeof axios>;
 
-describe(ConnectedAutocompleteField, () => {
-  const label = 'Connected Autocomplete';
-  const placeholder = 'Type here...';
-  const endpoint = 'endpoint';
+mockedAxios.CancelToken = jest.requireActual('axios').CancelToken;
 
-  const options = [
+const cancelTokenRequestParam = {
+  cancelToken: { promise: Promise.resolve({}) },
+};
+
+const label = 'Infnite Autocomplete';
+const placeholder = 'Type here...';
+
+const optionsData = {
+  result: [
     { id: 0, name: 'My Option 1' },
     { id: 1, name: 'My Option 2' },
-  ];
+  ],
+  meta: {
+    pagination: {
+      limit: 2,
+      page: 1,
+      total: 20,
+    },
+  },
+};
 
-  const getSearchEndpoint = (searchValue): string =>
-    `${endpoint}?search="${searchValue}"`;
+const baseEndpoint = 'endpoint';
+const getEndpoint = (params): string =>
+  buildListingEndpoint({ baseEndpoint, params, searchOptions: ['host.name'] });
 
-  const renderConnectedAutocompleteField = (): RenderResult =>
-    render(
-      <ConnectedAutocompleteField
-        label={label}
-        getOptionsFromResult={(result): Array<SelectEntry> => result}
-        baseEndpoint={endpoint}
-        placeholder={placeholder}
-        getSearchEndpoint={getSearchEndpoint}
-      />,
-    );
+const renderSingleInfiniteAutocompleteField = (): RenderResult =>
+  render(
+    <SingleInfiniteAutocomplete
+      label={label}
+      initialPage={1}
+      getEndpoint={getEndpoint}
+      getOptionsFromResult={(result): Array<SelectEntry> => result}
+      placeholder="Type here..."
+    />,
+  );
 
+describe('Infinite Autocomplete', () => {
   beforeEach(() => {
     mockedAxios.get.mockResolvedValue({
-      data: options,
+      data: optionsData,
     });
   });
 
@@ -47,33 +64,50 @@ describe(ConnectedAutocompleteField, () => {
     mockedAxios.get.mockReset();
   });
 
-  it('populates options with the result from the get call from the given endpoint', async () => {
-    const { getByLabelText, getByText } = renderConnectedAutocompleteField();
+  it('populates options with the first page result of get call from endpoint', async () => {
+    const {
+      getByLabelText,
+      getByText,
+    } = renderSingleInfiniteAutocompleteField();
 
-    fireEvent.click(getByLabelText('Open'));
+    act(() => {
+      fireEvent.click(getByLabelText('Open'));
+    });
 
-    expect(mockedAxios.get).toHaveBeenCalledWith(endpoint, expect.anything());
+    expect(mockedAxios.get).toHaveBeenCalledWith(
+      `${baseEndpoint}?page=1`,
+      cancelTokenRequestParam,
+    );
 
-    await waitFor(() => expect(getByText('My Option 1')).toBeInTheDocument());
+    await waitFor(() => {
+      expect(getByText('My Option 1')).toBeInTheDocument();
+    });
   });
 
-  it('populates options with the result of the get call from the given search endpoint when some text is typed', async () => {
+  it('populates options with the first page result of the get call from the endpoint after typing something in input field', async () => {
     const {
-      getByText,
+      getByLabelText,
       getByPlaceholderText,
-    } = renderConnectedAutocompleteField();
+    } = renderSingleInfiniteAutocompleteField();
 
-    fireEvent.click(getByText(label));
+    act(() => {
+      fireEvent.click(getByLabelText('Open'));
+    });
+
+    expect(mockedAxios.get).toHaveBeenCalledWith(
+      `${baseEndpoint}?page=1`,
+      cancelTokenRequestParam,
+    );
 
     fireEvent.change(getByPlaceholderText(placeholder), {
       target: { value: 'My Option 2' },
     });
 
-    await waitFor(() =>
+    await waitFor(() => {
       expect(mockedAxios.get).toHaveBeenCalledWith(
-        `${endpoint}?search="My Option 2"`,
-        expect.anything(),
-      ),
-    );
+        `${baseEndpoint}?page=1&search={"$or":[{"host.name":{"$rg":"My Option 2"}}]}`,
+        cancelTokenRequestParam,
+      );
+    });
   });
 });

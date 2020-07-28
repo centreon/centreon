@@ -7,7 +7,7 @@ interface HookParam {
   action: () => void;
 }
 
-const useObserver = ({
+const useIntersectionObserver = ({
   maxPage,
   page,
   loading,
@@ -25,8 +25,8 @@ const useObserver = ({
         return;
       }
 
-      observer.current = new IntersectionObserver((entries) => {
-        if (entries[0].isIntersecting && page < maxPage) {
+      observer.current = new IntersectionObserver(([entry]) => {
+        if (entry.isIntersecting && page < maxPage) {
           action();
         }
       });
@@ -41,4 +41,4 @@ const useObserver = ({
   return lastElementRef;
 };
 
-export default useObserver;
+export default useIntersectionObserver;
