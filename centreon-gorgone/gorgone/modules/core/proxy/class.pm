@@ -171,6 +171,7 @@ sub connect {
             ssh_username => $self->{clients}->{$options{id}}->{ssh_username},
             ssh_password => $self->{clients}->{$options{id}}->{ssh_password},
             strict_serverkey_check => $self->{clients}->{$options{id}}->{strict_serverkey_check},
+            ssh_connect_timeout => $self->{clients}->{$options{id}}->{ssh_connect_timeout}
         );
         if ($code != 0) {
             $self->{clients}->{$options{id}}->{delete} = 1;
