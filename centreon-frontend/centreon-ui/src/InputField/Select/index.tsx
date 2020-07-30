@@ -58,6 +58,16 @@ const SelectField = ({
 }: Props): JSX.Element => {
   const classes = useStyles();
 
+  const getOption = (id): SelectEntry => {
+    return options.find(propEq('id', id)) as SelectEntry;
+  };
+
+  const changeOption = (event) => {
+    if (!isNil(event.target.value)) {
+      onChange(event);
+    }
+  };
+
   return (
     <FormControl
       variant="filled"
@@ -76,12 +86,12 @@ const SelectField = ({
           ...inputProps,
         }}
         value={selectedOptionId}
-        onChange={onChange}
+        onChange={changeOption}
         disableUnderline
         fullWidth={fullWidth}
         displayEmpty
         renderValue={(id) => {
-          return options.find(propEq('id', id))?.name;
+          return getOption(id).name;
         }}
         {...props}
       >
