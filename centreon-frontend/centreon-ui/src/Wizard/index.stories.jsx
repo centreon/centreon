@@ -1,4 +1,6 @@
-import React from 'react';
+import * as React from 'react';
+
+import PropTypes from 'prop-types';
 
 import Typography from '@material-ui/core/Typography';
 
@@ -125,6 +127,35 @@ export const withCustomExitAlertLabels = () => (
     <Page>
       <Typography variant="h5" align="center">
         Step 3
+      </Typography>
+    </Page>
+  </Wizard>
+);
+
+const FirstStep = ({ disableNextOnSendingRequests }) => {
+  React.useEffect(() => {
+    disableNextOnSendingRequests([true]);
+  }, []);
+
+  return (
+    <Typography variant="h5" align="center">
+      Sending request...
+    </Typography>
+  );
+};
+
+FirstStep.propTypes = {
+  disableNextOnSendingRequests: PropTypes.func.isRequired,
+};
+
+export const stepWithSendingRequest = () => (
+  <Wizard open>
+    <Page>
+      <FirstStep />
+    </Page>
+    <Page>
+      <Typography variant="h5" align="center">
+        Step 2
       </Typography>
     </Page>
   </Wizard>

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import * as React from 'react';
 
 import PropTypes from 'prop-types';
 import { Formik, Form } from 'formik';
@@ -29,7 +29,7 @@ const cloneElement = (element, props) => {
 };
 
 const FormPage = ({ children, page, validateForm }) => {
-  useEffect(() => {
+  React.useEffect(() => {
     validateForm();
   }, [page]);
 
@@ -65,12 +65,13 @@ const Wizard = (props) => {
     children,
   } = props;
   const classes = useWizardStyles(props);
-  const [page, setPage] = useState(0);
-  const [values, setValues] = useState(initialValues);
-  const [openConfirm, setOpenConfirm] = useState(false);
-  const [validValues, setValidValues] = useState(false);
+  const [page, setPage] = React.useState(0);
+  const [values, setValues] = React.useState(initialValues);
+  const [openConfirm, setOpenConfirm] = React.useState(false);
+  const [validValues, setValidValues] = React.useState(false);
+  const [sendingRequest, setSendingRequest] = React.useState(false);
 
-  useEffect(() => {
+  React.useEffect(() => {
     const activePage = React.Children.toArray(children)[page];
     const { validationSchema } = activePage.props;
     if (validationSchema) {
@@ -139,6 +140,14 @@ const Wizard = (props) => {
     return null;
   };
 
+  const disableNextOnSendingRequests = (sendingRequests) => {
+    if (sendingRequests.length === 0) {
+      setSendingRequest(false);
+    }
+
+    setSendingRequest(sendingRequests.filter((sending) => sending).length > 0);
+  };
+
   const activePage = React.Children.toArray(children)[page];
   const isLastPage = page === React.Children.count(children) - 1;
 
@@ -164,6 +173,7 @@ const Wizard = (props) => {
           >
             {(bag) => {
               const disabledNext =
+                sendingRequest ||
                 !bag.isValid ||
                 bag.isSubmitting ||
                 (!bag.dirty && !validValues);
@@ -191,6 +201,7 @@ const Wizard = (props) => {
                       submitForm: bag.submitForm,
                       touched: bag.touched,
                       values: bag.values,
+                      disableNextOnSendingRequests,
                     })}
                   </FormPage>
                   {!activePage.props.noActionBar && (
