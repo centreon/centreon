@@ -59,5 +59,6 @@ module.exports = {
     ],
     'prefer-arrow-functions/prefer-arrow-functions': ['error'],
     camelcase: ['error', { properties: 'never', ignoreDestructuring: true }],
+    'react/jsx-wrap-multilines': ['error', { prop: false }],
   },
 };
