@@ -328,6 +328,7 @@ sub get_hosts {
     }
 
     my $hosts = {};
+    my $count = 0;
     foreach my $host_id (keys %$datas) {
         if (defined($options{with_macro}) && $options{with_macro} == 1) {
             if (defined($done_macro_host->{ $host_id })) {
@@ -342,10 +343,11 @@ sub get_hosts {
             }
         }
 
+        $count++;
         push @{$hosts->{ $datas->{$host_id}->{poller_id} }}, $datas->{$host_id};
     }
 
-    return (0, '', $hosts);
+    return (0, '', $hosts, $count);
 }
 
 sub set_macro {
@@ -395,7 +397,7 @@ sub get_macros_host {
         foreach (@$datas) {
             set_macro(\%macros, $_->[0], $_->[1]);
         }
-    
+
         ($status, $datas) = $options{class_object_centreon}->custom_execute(
             request => "SELECT host_tpl_id FROM host_template_relation WHERE host_host_id = " . $lhost_id . " ORDER BY `order` DESC",
             mode => 2

@@ -483,8 +483,9 @@ sub action_launchservicediscovery {
     # get hosts
     #################
     gorgone::modules::centreon::autodiscovery::services::resources::reset_macro_hosts();
+    my $total = 0;
     foreach my $rule_id (keys %$rules) {
-        ($status, $message, my $hosts) = gorgone::modules::centreon::autodiscovery::services::resources::get_hosts(
+        ($status, $message, my $hosts, my $count) = gorgone::modules::centreon::autodiscovery::services::resources::get_hosts(
             host_template => $rules->{$rule_id}->{host_template},
             poller_id => $rules->{$rule_id}->{poller_id},
             class_object_centreon => $self->{class_object_centreon},
@@ -502,21 +503,25 @@ sub action_launchservicediscovery {
             next;
         }
 
+        $total += $count;
         $rules->{$rule_id}->{hosts} = $hosts;
     }
 
     $self->{service_discoveries}->{ $self->{service_number} } = {
+        count_discoveries => $total,
+        done_discoveries => 0,
         rules => $rules,
         options => defined($options{data}->{content}) ? $options{data}->{content} : {}
     };
 
-    #use Data::Dumper; print Data::Dumper::Dumper($self->{service_discoveries});
+    use Data::Dumper; print Data::Dumper::Dumper($self->{service_discoveries});
 
     # We need to do a method to execute and add listeners (timeout of 120 seconds)
     #    - can execute 10 commands by pollers
     #    - for the listener we use the token: svc-disco-SVCNUMBER-COMMANDNUMBER
 
     # need to manage dry-run and manual
+    # add a progress bar of commands in log
 
     return 0;
 }
