@@ -18,7 +18,7 @@ Centreon-HA repository contains:
 
 Copying the Centreon-ha files manually to the places where they are meant to be would be a loss of your time. You'd rather install the `centreon-ha` RPM which can be found on [our public YUM repo](http://yum.centreon.com/standard/20.04/el7/stable/noarch/RPMS/).
 
-But this won't be sufficient to make your Centreon servers work as a cluster. **It is very important that you carefully read [our documentation about Centreon-HA](https://docs.centreon.com/current/en/integrations/centreon-ha/centreon-ha-architectures.html)** before starting to install it.
+But this won't be sufficient to make your Centreon servers work as a cluster. **It is very important that you carefully read [our documentation about Centreon-HA](https://docs.centreon.com/current/en/administration/centreon-ha/architectures.html)** before starting to install it.
 
 ## Contributing
 
