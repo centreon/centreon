@@ -688,16 +688,17 @@ sub router_external_event {
 sub waiting_ready_pool {
     my (%options) = @_;
 
+    my $name = $gorgone->{modules_id}->{$gorgone->{config}->{configuration}->{gorgone}->{gorgonecore}->{proxy_name}};
+    my $method = $name->can('is_all_proxy_ready');
+
     my $time = time();
-    # We wait 10 seconds
-    while (time() - $time < 10) {
-        foreach my $pool_id (keys %{$options{pool}})  {
-            return 1 if ($options{pool}->{$pool_id}->{ready} == 1);
-        }
+    while (time() - $time < 60) {
+        return 1 if ($method->() == 100);
         zmq_poll($gorgone->{poll}, 5000);
     }
-    foreach my $pool_id (keys %{$options{pool}})  {
-        return 1 if ($options{pool}->{$pool_id}->{ready} == 1);
+
+    if ($method->() > 0) {
+        return 1;
     }
 
     return 0;

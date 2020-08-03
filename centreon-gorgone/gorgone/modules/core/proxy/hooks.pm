@@ -193,6 +193,18 @@ sub routing {
         logger => $options{logger}
     );
     return if ($code == -1);
+
+    # we check if we have all proxy connected
+    if (gorgone::class::core::waiting_ready_pool() == 0) {
+        gorgone::standard::library::add_history(
+            dbh => $options{dbh},
+            code => GORGONE_ACTION_FINISH_KO,
+            token => $options{token},
+            data => { message => 'proxy - still all ready' },
+            json_encode => 1
+        );
+        return ;
+    }
     
     if ($options{action} eq 'GETLOG') {
         if (defined($register_nodes->{$target_parent}) && $register_nodes->{$target_parent}->{type} eq 'push_ssh') {
@@ -262,17 +274,6 @@ sub routing {
                 target_parent => $target_parent,
                 target => $target,
                 logger => $options{logger}
-            );
-            next;
-        }
-        
-        if (gorgone::class::core::waiting_ready_pool(pool => $pools) == 0) {
-            gorgone::standard::library::add_history(
-                dbh => $options{dbh},
-                code => GORGONE_ACTION_FINISH_KO,
-                token => $options{token},
-                data => { message => 'proxy - still none ready' },
-                json_encode => 1
             );
             next;
         }
@@ -631,6 +632,17 @@ sub get_sync_time {
     return 0;
 }
 
+sub is_all_proxy_ready {
+    my $ready = 0;
+    for my $pool_id (1..$config->{pool}) {
+        if (defined($pools->{$pool_id}) && $pools->{$pool_id}->{ready} == 1) {
+            $ready++;
+        }
+    }
+
+    return ($ready * 100 / $config->{pool});
+}
+
 sub rr_pool {
     my (%options) = @_;
     
@@ -738,7 +750,7 @@ sub unregister_nodes {
         my $prevail = 0;
         $prevail = 1  if (defined($prevails->{ $node->{id} }));
 
-        if ($register_nodes->{ $node->{id} }->{type} eq 'pull' && $prevail == 1) {
+        if (defined($register_nodes->{ $node->{id} }) && $register_nodes->{ $node->{id} }->{type} eq 'pull' && $prevail == 1) {
             $register_nodes->{ $node->{id} }->{identity} = undef;
         }
 
