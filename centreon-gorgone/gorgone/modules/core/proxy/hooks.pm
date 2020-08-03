@@ -472,7 +472,7 @@ sub pathway {
         }
 
         # we let the ping passthrough
-        if ((time() - $config->{pong_discard_timeout} < $last_pong->{$_}) && $options{action} eq 'PING' && $_ eq $target) {
+        if ((time() - $config->{pong_discard_timeout} >= $last_pong->{$_}) && $options{action} eq 'PING' && $_ eq $target) {
             return (1, $_ . '~~' . $target, $_, $target);
         }
 
