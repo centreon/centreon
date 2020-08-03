@@ -202,6 +202,7 @@ const Wizard = (props) => {
                       touched: bag.touched,
                       values: bag.values,
                       disableNextOnSendingRequests,
+                      setValues: bag.setValues,
                     })}
                   </FormPage>
                   {!activePage.props.noActionBar && (
