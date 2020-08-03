@@ -521,7 +521,7 @@ sub action_launchservicediscovery {
     #    - for the listener we use the token: svc-disco-SVCNUMBER-COMMANDNUMBER
 
     # need to manage dry-run and manual
-    # add a progress bar of commands in log
+    # add a progress bar of commands in log (we do for each 5%)
 
     return 0;
 }
