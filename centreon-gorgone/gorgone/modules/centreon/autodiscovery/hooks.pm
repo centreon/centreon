@@ -33,7 +33,9 @@ use constant EVENTS => [
     { event => 'AUTODISCOVERYREADY' },
     { event => 'AUTODISCOVERYLISTENER' },
     { event => 'ADDDISCOVERYJOB', uri => '/job', method => 'POST' },
-    { event => 'LAUNCHDISCOVERY' }
+    { event => 'LAUNCHDISCOVERY' },
+    { event => 'LAUNCHSERVICEDISCOVERY', uri => '/services', method => 'POST' },
+    { event => 'SERVICEDISCOVERYLISTENER' }
 ];
 
 my $config_core;
@@ -160,6 +162,7 @@ sub create_child {
     if ($child_pid == 0) {
         $0 = 'gorgone-autodiscovery';
         my $module = gorgone::modules::centreon::autodiscovery::class->new(
+            module_id => NAME,
             logger => $options{logger},
             config_core => $config_core,
             config => $config,

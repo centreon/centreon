@@ -26,6 +26,7 @@ use strict;
 use warnings;
 use gorgone::standard::library;
 use gorgone::standard::constants qw(:all);
+use gorgone::modules::centreon::autodiscovery::services::resources;
 use gorgone::class::sqlquery;
 use ZMQ::LibZMQ4;
 use ZMQ::Constants qw(:all);
@@ -53,6 +54,11 @@ sub new {
         $options{config}->{global_timeout} =~ /(\d+)/) ? $1 : 300;
     $connector->{check_interval} = (defined($options{config}->{check_interval}) &&
         $options{config}->{check_interval} =~ /(\d+)/) ? $1 : 15;
+
+    $connector->{service_discoveries} = {};
+    $connector->{service_pollers} = {};
+    $connector->{service_audit_user_id} = undef;
+    $connector->{service_number} = 0;
 
     bless $connector, $class;
     $connector->set_signal_handlers();
@@ -90,6 +96,14 @@ sub class_handle_HUP {
         &{$handlers{HUP}->{$_}}();
     }
 }
+
+=pod
+
+*******************
+Host Discovery part
+*******************
+
+=cut
 
 sub action_adddiscoveryjob {
     my ($self, %options) = @_;
@@ -377,6 +391,133 @@ sub register_listener {
         );
     }
     
+    return 0;
+}
+
+=pod
+
+**********************
+Service Discovery part
+**********************
+
+=cut
+
+sub get_clapi_user {
+    my ($self, %options) = @_;
+
+    $self->{clapi_user} = $self->{config}->{clapi_user};
+    $self->{clapi_password} = $self->{config}->{clapi_password};
+
+    if (!defined($self->{clapi_password})) {
+        return (-1, 'cannot get configuration for CLAPI user');
+    }
+
+    return 0;
+}
+
+sub action_launchservicediscovery {
+    my ($self, %options) = @_;
+
+    $options{token} = $self->generate_token() if (!defined($options{token}));
+    $self->{service_number}++;
+
+    $self->{logger}->writeLogInfo("[autodiscovery] -servicediscovery- $self->{service_number} service discovery start");
+    $self->send_log(
+        code => GORGONE_ACTION_BEGIN,
+        token => $options{token},
+        data => { message => 'servicediscovery start' }
+    );
+
+    if (!$self->is_module_installed()) {
+        $self->send_log_error(token => $options{token}, subname => 'servicediscovery', number => $self->{service_number}, message => 'centreon module is not installed');
+        return -1;
+    }
+
+    ################
+    # get pollers
+    ################
+    $self->{logger}->writeLogInfo("[autodiscovery] -servicediscovery- $self->{service_number} load pollers configuration");
+    my ($status, $message, $pollers) = gorgone::modules::centreon::autodiscovery::services::resources::get_pollers(
+        class_object_centreon => $self->{class_object_centreon}
+    );
+    if ($status < 0) {
+        $self->send_log_msg_error(token => $options{token}, subname => 'servicediscovery', number => $self->{service_number}, message => $message);
+        return -1;
+    }
+    $self->{service_pollers} = $pollers;
+
+    ################
+    # get audit user
+    ################
+    $self->{logger}->writeLogInfo("[autodiscovery] -servicediscovery- $self->{service_number} load audit configuration");
+    ($status, $message) = $self->get_clapi_user();
+    if ($status < 0) {
+        $self->send_log_msg_error(token => $options{token}, subname => 'servicediscovery', number => $self->{service_number}, message => $message);
+        return -1;
+    }
+    ($status, $message, my $user_id) = gorgone::modules::centreon::autodiscovery::services::resources::get_pollers(
+        class_object_centreon => $self->{class_object_centreon}
+    );
+    if ($status < 0) {
+        $self->send_log_msg_error(token => $options{token}, subname => 'servicediscovery', number => $self->{service_number}, message => $message);
+        return -1;
+    }
+    $connector->{service_audit_user_id} = $user_id;
+
+    ################
+    # get rules
+    ################
+    $self->{logger}->writeLogInfo("[autodiscovery] -servicediscovery- $self->{service_number} load rules configuration");
+    
+    ($status, $message, my $rules) = gorgone::modules::centreon::autodiscovery::services::resources::get_rules(
+        class_object_centreon => $self->{class_object_centreon},
+        filter_rules => $options{data}->{content}->{filter_rules},
+        force_rule => $options{data}->{content}->{force_rule}
+    );
+    if ($status < 0) {
+        $self->send_log_msg_error(token => $options{token}, subname => 'servicediscovery', number => $self->{service_number}, message => $message);
+        return -1;
+    }
+
+    #################
+    # get hosts
+    #################
+    gorgone::modules::centreon::autodiscovery::services::resources::reset_macro_hosts();
+    foreach my $rule_id (keys %$rules) {
+        ($status, $message, my $hosts) = gorgone::modules::centreon::autodiscovery::services::resources::get_hosts(
+            host_template => $rules->{$rule_id}->{host_template},
+            poller_id => $rules->{$rule_id}->{poller_id},
+            class_object_centreon => $self->{class_object_centreon},
+            with_macro => 1,
+            host_lookup => $options{data}->{content}->{filter_hosts},
+            poller_lookup => $options{data}->{content}->{filter_pollers}
+        );
+        if ($status < 0) {
+            $self->send_log_msg_error(token => $options{token}, subname => 'servicediscovery', number => $self->{service_number}, message => $message);
+            return -1;
+        }
+        
+        if (!defined($hosts) || scalar(keys %$hosts) == 0) {
+            $self->{logger}->writeLogInfo("[autodiscovery] -servicediscovery- $self->{service_number} no hosts found for rule '" . $options{rule}->{rule_alias} . "'");
+            next;
+        }
+
+        $rules->{$rule_id}->{hosts} = $hosts;
+    }
+
+    $self->{service_discoveries}->{ $self->{service_number} } = {
+        rules => $rules,
+        options => defined($options{data}->{content}) ? $options{data}->{content} : {}
+    };
+
+    #use Data::Dumper; print Data::Dumper::Dumper($self->{service_discoveries});
+
+    # We need to do a method to execute and add listeners (timeout of 120 seconds)
+    #    - can execute 10 commands by pollers
+    #    - for the listener we use the token: svc-disco-SVCNUMBER-COMMANDNUMBER
+
+    # need to manage dry-run and manual
+
     return 0;
 }
 
