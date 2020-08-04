@@ -327,7 +327,7 @@ sub get_hosts {
         return (-1, 'cannot host list');
     }
 
-    my $hosts = {};
+    my $hosts = { pollers => {}, infos => {} };
     my $count = 0;
     foreach my $host_id (keys %$datas) {
         if (defined($options{with_macro}) && $options{with_macro} == 1) {
@@ -344,7 +344,8 @@ sub get_hosts {
         }
 
         $count++;
-        push @{$hosts->{ $datas->{$host_id}->{poller_id} }}, $datas->{$host_id};
+        push @{$hosts->{pollers}->{ $datas->{$host_id}->{poller_id} }}, $host_id;
+        $hosts->{infos}->{$host_id} = $datas->{$host_id};
     }
 
     return (0, '', $hosts, $count);
@@ -380,10 +381,10 @@ sub get_macros_host {
             return (-1, 'get macro: cannot get snmp information');
         }
 
-        if (defined($datas->[0]->[0]) && $datas->[0]->[0] ne "") {
+        if (defined($datas->[0]->[0]) && $datas->[0]->[0] ne '') {
             set_macro(\%macros, '$_HOSTSNMPCOMMUNITY$', $datas->[0]->[0]);
         }
-        if (defined($datas->[0]->[1]) && $datas->[0]->[1] ne "") {
+        if (defined($datas->[0]->[1]) && $datas->[0]->[1] ne '') {
             set_macro(\%macros, '$_HOSTSNMPVERSION$', $datas->[0]->[1]);
         }
 
@@ -410,7 +411,28 @@ sub get_macros_host {
         }
     }
 
-    return \%macros;
+    return (0, '', \%macros);
+}
+
+sub substitute_service_discovery_command {
+    my (%options) = @_;
+    
+    my $command = $options{command_line};
+    while ($command =~ /(\$_HOST.*?\$)/) {
+        my ($substitute_str, $macro) = ('', $1);
+        $substitute_str = $options{host}->{macros}->{$macro} if (defined($options{host}->{macros}->{$macro}));
+        $command =~ s/\Q$macro\E/$substitute_str/g;
+    }
+    while ($command =~ /(\$(?:USER.*?|CENTREONPLUGINS)\$)/) {
+        my ($substitute_str, $macro) = ('', $1);
+        $substitute_str = $options{poller}->{resources}->{$macro} if (defined($options{poller}->{resources}->{$macro}));
+        $command =~ s/\Q$macro\E/$substitute_str/g;
+    }
+    
+    $command =~ s/\$HOSTADDRESS\$/$options{host}->{host_address}/g;
+    $command =~ s/\$HOSTNAME\$/$options{host}->{host_name}/g;
+    
+    return $command;
 }
 
 1;
