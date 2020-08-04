@@ -508,8 +508,10 @@ sub action_launchservicediscovery {
     }
 
     $self->{service_discoveries}->{ $self->{service_number} } = {
+        token => $options{token},
         count_discoveries => $total,
         done_discoveries => 0,
+        current_progress => 0,
         rules => $rules,
         options => defined($options{data}->{content}) ? $options{data}->{content} : {}
     };
