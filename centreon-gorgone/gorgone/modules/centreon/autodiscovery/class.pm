@@ -26,11 +26,12 @@ use strict;
 use warnings;
 use gorgone::standard::library;
 use gorgone::standard::constants qw(:all);
-use gorgone::modules::centreon::autodiscovery::services::resources;
+use gorgone::modules::centreon::autodiscovery::services::discovery;
 use gorgone::class::sqlquery;
 use ZMQ::LibZMQ4;
 use ZMQ::Constants qw(:all);
 use JSON::XS;
+use XML::Simple;
 use Time::HiRes;
 use POSIX qw(strftime);
 use Digest::MD5 qw(md5_hex);
@@ -56,14 +57,8 @@ sub new {
         $options{config}->{check_interval} =~ /(\d+)/) ? $1 : 15;
 
     $connector->{service_discoveries} = {};
-    $connector->{service_pollers} = {};
-    $connector->{service_audit_user_id} = undef;
-    $connector->{service_number} = 0;
-    $connector->{service_parrallel_commands_poller} = 8;
-    $connector->{service_current_commands_poller} = {};
 
     bless $connector, $class;
-    $connector->{service_uuid} = $connector->generate_token(length => 4);
     $connector->set_signal_handlers();
     return $connector;
 }
@@ -405,135 +400,25 @@ Service Discovery part
 
 =cut
 
-sub get_clapi_user {
-    my ($self, %options) = @_;
-
-    $self->{clapi_user} = $self->{config}->{clapi_user};
-    $self->{clapi_password} = $self->{config}->{clapi_password};
-
-    if (!defined($self->{clapi_password})) {
-        return (-1, 'cannot get configuration for CLAPI user');
-    }
-
-    return 0;
-}
-
-sub service_response_parsing {
-    my ($self, %options) = @_;
-
-    use Data::Dumper; print Data::Dumper::Dumper(\%options);
-}
-
 sub action_servicediscoverylistener {
     my ($self, %options) = @_;
 
     return 0 if (!defined($options{token}));
 
-    # 'svc-disco-SVCUUID-SVCNUMBER-RULEID-HOSTID' . $self->{service_uuid} . '-' . $service_number . '-' . $rule_id . '-' . $host->{host_id}
-    return 0 if ($options{token} !~ /^svc-disco-(?:.*?)-(\d+)-(\d+)-(\d+)/);
-    my ($service_number, $rule_id, $host_id) = ($1, $2, $3);
+    # 'svc-disco-UUID-RULEID-HOSTID' . $self->{service_uuid} . '-' . $service_number . '-' . $rule_id . '-' . $host->{host_id}
+    return 0 if ($options{token} !~ /^svc-disco-(.*?)-(\d+)-(\d+)/);
 
-    # if i have GORGONE_MODULE_ACTION_COMMAND_RESULT, i can't have GORGONE_ACTION_FINISH_KO
-    if ($options{data}->{code} == GORGONE_MODULE_ACTION_COMMAND_RESULT) {
-        my $exit_code = $options{data}->{data}->{result}->{exit_code};
-        if ($exit_code == 0) {
-            $self->service_response_parsing(
-                service_number => $service_number,
-                rule_id => $rule_id,
-                host_id => $host_id,
-                response => $options{data}->{data}->{result}->{stdout}
-            );
-        } elsif ($self->{service_discoveries}->{$service_number}->{manual} == 1) {
-            $self->{service_discoveries}->{$service_number}->{rules}->{$rule_id}->{manual}->{$host_id} = { message => $options{data}->{data}->{message}, data => $options{data}->{data}, discovery => {} };
-        }
-    } elsif ($options{data}->{code} == GORGONE_ACTION_FINISH_KO) {
-        if ($self->{service_discoveries}->{$service_number}->{manual} == 1) {
-            $self->{service_discoveries}->{$service_number}->{rules}->{$rule_id}->{manual}->{$host_id} = { message => $options{data}->{data}->{message}, data => $options{data}->{data}, discovery => {} };
-        }
-    } else {
-        return 0;
-    }
+    my ($uuid, $rule_id, $host_id) = ($1, $2, $3);
+    return 0 if (!defined($self->{service_discoveries}->{ $uuid }));
 
-    $self->{service_current_commands_poller}->{ $self->{service_discoveries}->{$service_number}->{hosts}->{$host_id}->{poller_id} }--;
-    $self->service_execute_commands();
+    $self->{service_discoveries}->{ $uuid }->discoverylistener(
+        rule_id => $rule_id,
+        host_id => $host_id,
+        %options
+    );
 
-    print "==============================================\n";
-    print "=== service_number = $service_number \n";
-    print Data::Dumper::Dumper($self->{service_current_commands_poller});
-    print Data::Dumper::Dumper($options{data});
-    print "============= $self->{service_discoveries}->{ $service_number }->{done_discoveries} =======================\n";
-    print "==============================================\n";
-
-    $self->{service_discoveries}->{ $service_number }->{done_discoveries}++;
-    if ($self->{service_discoveries}->{ $service_number }->{done_discoveries} == $self->{service_discoveries}->{ $service_number }->{count_discoveries}) {
-        print "==============================================\n";
-        print "============= FINISHED =======================\n";
-        print "==============================================\n";
-    }
-
-    return 0;
-}
-
-sub service_execute_commands {
-    my ($self, %options) = @_;
-
-    foreach my $service_number (keys %{$self->{service_discoveries}}) {
-        foreach my $rule_id (keys %{$self->{service_discoveries}->{$service_number}->{rules}}) {
-            foreach my $poller_id (keys %{$self->{service_discoveries}->{$service_number}->{rules}->{$rule_id}->{hosts}}) {
-                next if (scalar(@{$self->{service_discoveries}->{$service_number}->{rules}->{$rule_id}->{hosts}->{$poller_id}}) <= 0);
-                $self->{service_current_commands_poller}->{$poller_id} = 0 if (!defined($self->{service_current_commands_poller}->{$poller_id}));
-                
-                while (1) {
-                    last if ($self->{service_current_commands_poller}->{$poller_id} >= $self->{service_parrallel_commands_poller});
-                    my $host_id = shift @{$self->{service_discoveries}->{$service_number}->{rules}->{$rule_id}->{hosts}->{$poller_id}};
-                    last if (!defined($host_id));
-
-                    my $host = $self->{service_discoveries}->{$service_number}->{hosts}->{$host_id};
-                    $self->{service_current_commands_poller}->{$poller_id}++;
-
-                    my $command = gorgone::modules::centreon::autodiscovery::services::resources::substitute_service_discovery_command(
-                        command_line => $self->{service_discoveries}->{$service_number}->{rules}->{$rule_id}->{command_line},
-                        host => $host,
-                        poller => $self->{service_pollers}->{$poller_id}
-                    );
-
-                    $self->{logger}->writeLogInfo("[autodiscovery] -servicediscovery- $self->{service_number}" . 
-                        $self->{service_discoveries}->{$service_number}->{rules}->{$rule_id}->{rule_alias} . "] [" . 
-                        $self->{service_pollers}->{$poller_id}->{name} . "] [" .
-                        $host->{host_name} . "] -> substitute string: " . $command
-                    );
-
-                    $self->send_internal_action(
-                        action => 'ADDLISTENER',
-                        data => [
-                            {
-                                identity => 'gorgoneautodiscovery',
-                                event => 'SERVICEDISCOVERYLISTENER',
-                                target => $poller_id,
-                                token => 'svc-disco-' . $self->{service_uuid} . '-' . $service_number . '-' . $rule_id . '-' . $host_id,
-                                timeout => 120,
-                                log_pace => 15
-                            }
-                        ]
-                    );
-
-                    $self->send_internal_action(
-                        action => 'COMMAND',
-                        target => $poller_id,
-                        token => 'svc-disco-' . $self->{service_uuid} . '-' . $service_number . '-' . $rule_id . '-' . $host_id,
-                        data => {
-                            content => [
-                                {
-                                    instant => 1,
-                                    command => $command,
-                                    timeout => 90
-                                }
-                            ]
-                        }
-                    );
-                }
-            }
-        }
+    if ($self->{service_discoveries}->{ $uuid }->is_finished()) {
+        delete $self->{service_discoveries}->{ $uuid };
     }
 }
 
@@ -541,130 +426,24 @@ sub action_launchservicediscovery {
     my ($self, %options) = @_;
 
     $options{token} = $self->generate_token() if (!defined($options{token}));
+
     $self->{service_number}++;
-
-    $self->{logger}->writeLogInfo("[autodiscovery] -servicediscovery- $self->{service_number} service discovery start");
-    $self->send_log(
-        code => GORGONE_ACTION_BEGIN,
-        token => $options{token},
-        data => { message => 'servicediscovery start' }
+    my $svc_discovery = gorgone::modules::centreon::autodiscovery::services::discovery->new(
+        module_id => $self->{module_id},
+        logger => $self->{logger},
+        internal_socket => $self->{internal_socket},
+        config => $self->{config},
+        config_core => $self->{config_core},
+        service_number => $self->{service_number}
     );
-
-    if (!$self->is_module_installed()) {
-        $self->send_log_error(token => $options{token}, subname => 'servicediscovery', number => $self->{service_number}, message => 'centreon module is not installed');
-        return -1;
-    }
-
-    ################
-    # get pollers
-    ################
-    $self->{logger}->writeLogInfo("[autodiscovery] -servicediscovery- $self->{service_number} load pollers configuration");
-    my ($status, $message, $pollers) = gorgone::modules::centreon::autodiscovery::services::resources::get_pollers(
-        class_object_centreon => $self->{class_object_centreon}
-    );
-    if ($status < 0) {
-        $self->send_log_msg_error(token => $options{token}, subname => 'servicediscovery', number => $self->{service_number}, message => $message);
-        return -1;
-    }
-    $self->{service_pollers} = $pollers;
-
-    ################
-    # get audit user
-    ################
-    $self->{logger}->writeLogInfo("[autodiscovery] -servicediscovery- $self->{service_number} load audit configuration");
-    ($status, $message) = $self->get_clapi_user();
-    if ($status < 0) {
-        $self->send_log_msg_error(token => $options{token}, subname => 'servicediscovery', number => $self->{service_number}, message => $message);
-        return -1;
-    }
-    ($status, $message, my $user_id) = gorgone::modules::centreon::autodiscovery::services::resources::get_pollers(
-        class_object_centreon => $self->{class_object_centreon}
-    );
-    if ($status < 0) {
-        $self->send_log_msg_error(token => $options{token}, subname => 'servicediscovery', number => $self->{service_number}, message => $message);
-        return -1;
-    }
-    $connector->{service_audit_user_id} = $user_id;
-
-    ################
-    # get rules
-    ################
-    $self->{logger}->writeLogInfo("[autodiscovery] -servicediscovery- $self->{service_number} load rules configuration");
-    
-    ($status, $message, my $rules) = gorgone::modules::centreon::autodiscovery::services::resources::get_rules(
+    my $status = $svc_discovery->launchdiscovery(
         class_object_centreon => $self->{class_object_centreon},
-        filter_rules => $options{data}->{content}->{filter_rules},
-        force_rule => $options{data}->{content}->{force_rule}
-    );
-    if ($status < 0) {
-        $self->send_log_msg_error(token => $options{token}, subname => 'servicediscovery', number => $self->{service_number}, message => $message);
-        return -1;
-    }
-
-    #################
-    # get hosts
-    #################
-    gorgone::modules::centreon::autodiscovery::services::resources::reset_macro_hosts();
-    my $all_hosts = {};
-    my $total = 0;
-    foreach my $rule_id (keys %$rules) {
-        ($status, $message, my $hosts, my $count) = gorgone::modules::centreon::autodiscovery::services::resources::get_hosts(
-            host_template => $rules->{$rule_id}->{host_template},
-            poller_id => $rules->{$rule_id}->{poller_id},
-            class_object_centreon => $self->{class_object_centreon},
-            with_macro => 1,
-            host_lookup => $options{data}->{content}->{filter_hosts},
-            poller_lookup => $options{data}->{content}->{filter_pollers}
-        );
-        if ($status < 0) {
-            $self->send_log_msg_error(token => $options{token}, subname => 'servicediscovery', number => $self->{service_number}, message => $message);
-            return -1;
-        }
-        
-        if (!defined($hosts) || scalar(keys %$hosts) == 0) {
-            $self->{logger}->writeLogInfo("[autodiscovery] -servicediscovery- $self->{service_number} no hosts found for rule '" . $options{rule}->{rule_alias} . "'");
-            next;
-        }
-
-        $total += $count;
-        $rules->{$rule_id}->{manual} = {};
-        $rules->{$rule_id}->{hosts} = $hosts->{pollers};
-        $all_hosts = { %$all_hosts, %{$hosts->{infos}} };
-    }
-
-    if ($total == 0) {
-        $self->send_log_msg_error(token => $options{token}, subname => 'servicediscovery', number => $self->{service_number}, message => 'no hosts found');
-        return -1;
-    }
-
-    $self->{service_discoveries}->{ $self->{service_number} } = {
         token => $options{token},
-        count_discoveries => $total,
-        done_discoveries => 0,
-        progress => 0,
-        progress_div => 0,
-        rules => $rules,
-        manual => defined($options{data}->{content}->{manual}) ? 1 : 0,
-        options => defined($options{data}->{content}) ? $options{data}->{content} : {},
-        hosts => $all_hosts,
-        journal => []
-    };
-
-    use Data::Dumper; print Data::Dumper::Dumper($self->{service_discoveries});
-
-    $self->service_execute_commands();
-    
-    use Data::Dumper;
-    print Data::Dumper::Dumper($self->{service_current_commands_poller});
-
-    # We need to do a method to execute and add listeners (timeout of 120 seconds)
-    #    - can execute 10 commands by pollers
-    #    - for the listener we use the token: svc-disco-GENNUM-SVCNUMBER-RULEID-HOSTID
-
-    # need to manage dry-run and manual
-    # add a progress bar of commands in log (we do for each 5%)
-
-    return 0;
+        data => $options{data}
+    );
+    if ($status == 0) {
+        $self->{service_discoveries}->{ $svc_discovery->get_uuid() } = $svc_discovery;
+    }
 }
 
 sub is_module_installed {

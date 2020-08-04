@@ -44,7 +44,7 @@ sub get_pollers {
         ($status, my $resources) = $options{class_object_centreon}->custom_execute(
             request =>
                 'SELECT resource_name, resource_line FROM cfg_resource_instance_relations, cfg_resource WHERE cfg_resource_instance_relations.instance_id = ' .
-                $options{class_object_centreon}->quote(value => $poller_id) . "AND cfg_resource_instance_relations.resource_id = cfg_resource.resource_id AND resource_activate = '1'",
+                $options{class_object_centreon}->quote(value => $poller_id) . " AND cfg_resource_instance_relations.resource_id = cfg_resource.resource_id AND resource_activate = '1'",
             mode => 2
         );
         if ($status == -1) {
@@ -433,6 +433,157 @@ sub substitute_service_discovery_command {
     $command =~ s/\$HOSTNAME\$/$options{host}->{host_name}/g;
     
     return $command;
+}
+
+sub change_vars {
+    my (%options) = @_;
+
+    # First we change '$$' values
+    if (defined($options{rule}->{change})) {
+        foreach my $change (@{$options{rule}->{change}}) {
+            next if (!defined($change->{change_str}) || $change->{change_str} eq '' || 
+                     !defined($change->{change_regexp}) || $change->{change_regexp} eq '' ||
+                     $change->{change_str} =~ /\@SERVICENAME\@/);
+
+            if ($change->{change_str} !~ /\$(.+?)\$/) {
+                $options{logger}->writeLogError("$options{logger_pre_message} -> not a valid change configuration");
+                next;
+            }
+            my $attr = $1;
+            if (!defined($options{discovery_svc}->{attributes}->{$attr})) {
+                $options{logger}->writeLogError("$options{logger_pre_message} -> change: '$attr' not exist in XML");
+                next;
+            }
+
+            eval "\$options{discovery_svc}->{attributes}->{\$attr} =~ s{$change->{change_regexp}}{$change->{change_replace}}$change->{change_modifier}";
+        }
+    }
+
+    $options{discovery_svc}->{service_name} = substitute_vars(
+        value => $options{rule}->{service_display_name},
+        service_name => $options{discovery_svc}->{service_name},
+        attributes => $options{discovery_svc}->{attributes}
+    );
+    
+    if (defined($options{rule}->{change})) {
+        # Second pass for service_name now
+        foreach my $change (@{$options{rule}->{change}}) {
+            next if (!defined($change->{change_str}) || $change->{change_str} eq '' || 
+                     !defined($change->{change_regexp}) || $change->{change_regexp} eq '' ||
+                     $change->{change_str} !~ /\@SERVICENAME\@/);
+            eval "\$options{discovery_svc}->{service_name} =~ s{$change->{change_regexp}}{$change->{change_replace}}$change->{change_modifier}";
+        }
+    }
+}
+
+sub substitute_vars {
+    my (%options) = @_;
+
+    my $value = $options{value};
+    while ($value =~ /\$(.+?)\$/) {
+        my ($substitute_str, $macro) = ('', $1);
+        $substitute_str = $options{attributes}->{$macro} if (defined($options{attributes}->{$macro}));
+        $value =~ s/\$\Q$macro\E\$/$substitute_str/g;
+    }
+    $value =~ s/\@SERVICENAME\@/$options{service_name}/g;
+    return $value;
+}
+
+sub check_exinc {
+    my (%options) = @_;
+    
+    return 0 if (!defined($options{rule}->{exinc}));
+    foreach my $exinc (@{$options{rule}->{exinc}}) {
+        next if (!defined($exinc->{exinc_str}) || $exinc->{exinc_str} eq '');
+        my $value = substitute_vars(
+            value => $exinc->{exinc_str},
+            service_name => $options{discovery_svc}->{service_name},
+            attributes => $options{discovery_svc}->{attributes}
+        );
+        if ($exinc->{exinc_type} == 1 && $value =~ /$exinc->{exinc_regexp}/) {
+            $options{logger}->writeLogInfo("$options{logger_pre_message} [" . $options{discovery_svc}->{service_name} . "] -> inclusion '$exinc->{exinc_regexp}'");
+            return 0;
+        } elsif ($exinc->{exinc_type} == 0 && $value =~ /$exinc->{exinc_regexp}/) {
+            $options{logger}->writeLogInfo("$options{logger_pre_message} [" . $options{discovery_svc}->{service_name} . "] -> exclusion '$exinc->{exinc_regexp}'");
+            return 1;
+        }
+    }
+    
+    return 0;
+}
+
+sub custom_variables {
+    my (%options) = @_;
+    
+    if (defined($options{rule}->{rule_variable_custom}) && $options{rule}->{rule_variable_custom} ne '') {
+        my $error;
+        local $SIG{__DIE__} = sub { $error = $_[0]; };
+
+        eval "$options{rule}->{rule_variable_custom}";
+        if (defined($error)) {
+            $options{logger}->writeLogError("$options{logger_pre_message} custom variable code execution problem: " . $error);
+        }  
+    }
+}
+
+sub change_bytes {
+    my (%options) = @_;
+    my $divide = defined($options{network}) ? 1000 : 1024;
+    my @units = ('K', 'M', 'G', 'T');
+    my $unit = '';
+    
+    for (my $i = 0; $i < scalar(@units); $i++) {
+        last if (($options{value} / $divide) < 1);
+        $unit = $units[$i];
+        $options{value} = $options{value} / $divide;
+    }
+
+    return (sprintf("%.2f", $options{value}), $unit . (defined($options{network}) ? 'b' : 'B'));
+}
+
+sub get_macros {
+    my (%options) = @_;
+    my $macros = {};
+    
+    return $macros if (!defined($options{rule}->{macro}));
+    foreach my $macro (keys %{$options{rule}->{macro}}) {
+        $macros->{$macro} = substitute_vars(
+            value => $options{rule}->{macro}->{$macro}->{macro_value},
+            service_name => $options{discovery_svc}->{service_name},
+            attributes => $options{discovery_svc}->{attributes}
+        );
+    }
+    
+    return $macros;
+}
+
+sub get_service {
+    my (%options) = @_;
+
+    my $service;
+    my ($status, $datas) =$options{class_object_centreon}->custom_execute(
+        request => 'SELECT service_id, service_template_model_stm_id, service_activate, svc_macro_name, svc_macro_value FROM host, host_service_relation, service LEFT JOIN on_demand_macro_service ON on_demand_macro_service.svc_svc_id = service.service_id WHERE host_id = ' . $options{host_id} . 
+                " AND host.host_id = host_service_relation.host_host_id AND host_service_relation.service_service_id = service.service_id AND service.service_description = " . $options{class_object_centreon}->quote(value => $options{service_name}),
+        mode => 2
+    );
+    if ($status == -1) {
+        $options{logger}->writeLogError("$options{logger_pre_message} [" . $options{service_name} . "] -> cannot check service in configuration");
+        return 1;
+    }
+
+    foreach (@$datas) {
+        $service = {
+            id => $_->[0],
+            template_id => $_->[1], 
+            activate => $_->[2],
+            macros => {}
+        } if (!defined($service->{id}));
+        if (defined($_->[3])) {
+            $service->{macros}->{ $_->[3] } = $_->[4];
+        }
+    }
+
+    return (0, $service);
 }
 
 1;
