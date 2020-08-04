@@ -43,7 +43,6 @@ sub new {
 
     $connector->{service_pollers} = {};
     $connector->{service_audit_user_id} = undef;
-    $connector->{service_number} = 0;
     $connector->{service_parrallel_commands_poller} = 8;
     $connector->{service_current_commands_poller} = {};
     $connector->{finished} = 0;
@@ -51,6 +50,47 @@ sub new {
     bless $connector, $class;
     $connector->{uuid} = $connector->generate_token(length => 4) . ':' . $options{service_number};
     return $connector;
+}
+
+sub database_init_transaction {
+    my ($self, %options) = @_;
+    
+    eval {
+        $self->{class_object_centreon}->{db_centreon}->transaction_mode(1);
+    };
+    if ($@) {
+        $self->{logger}->writeLogError("$@");
+        return -1;
+    }
+    return 0;
+}
+
+sub database_commit_transaction {
+    my ($self, %options) = @_;
+    
+    eval {
+        $self->{class_object_centreon}->commit();
+        $self->{class_object_centreon}->transaction_mode(0);
+    };
+    if ($@) {
+        $self->{logger}->writeLogError("$@");
+        return -1;
+    }
+    return 0;
+}
+
+sub database_error_rollback {
+    my ($self, %options) = @_;
+
+    $self->{logger}->writeLogError($options{message});
+    eval {
+        $self->{class_object_centreon}->rollback();
+        $self->{class_object_centreon}->transaction_mode(0);
+    };
+    if ($@) {
+        $self->{logger}->writeLogError("$@");
+    }
+    return -1;
 }
 
 sub get_uuid {
@@ -75,6 +115,136 @@ sub get_clapi_user {
         return (-1, 'cannot get configuration for CLAPI user');
     }
 
+    return 0;
+}
+
+sub get_description {
+    my ($self, %options) = @_;
+    
+    my $description = $options{discovery_svc}->{service_name};
+    if (defined($self->{discovery}->{rules}->{ $options{rule_id} }->{rule_scan_display_custom}) && $self->{discovery}->{rules}->{ $options{rule_id} }->{rule_scan_display_custom} ne '') {
+        my $error;
+        local $SIG{__DIE__} = sub { $error = $_[0]; };
+
+        eval "$self->{discovery}->{rules}->{ $options{rule_id} }->{rule_scan_display_custom}";
+        if (defined($error)) {
+            $self->{logger}->writeLogError("$options{logger_pre_message} [" . $options{discovery_svc}->{service_name} . "] custom description code execution problem: " . $error);
+        }
+    }
+    
+    return $description;
+}
+
+sub link_service_autodisco {
+    my ($self, %options) = @_;
+    
+    my $query = 'INSERT IGNORE INTO mod_auto_disco_rule_service_relation (rule_rule_id, service_service_id) VALUES (' . $options{rule_id} . ', ' . $options{service_id} . ')';
+    my ($status, $sth) = $self->{class_object_centreon}->custom_execute(request => $query);
+    if ($status == -1) {
+        return -1;
+    }
+    
+    return 0;
+}
+
+sub create_service {
+    my ($self, %options) = @_;
+    
+    if ($self->{discovery}->{manual} == 1) {
+        $self->{discovery}->{rules}->{ $options{rule_id} }->{manual}->{ $options{host_id} } = { discovery => {} }
+            if (!defined($self->{discovery}->{rules}->{ $options{rule_id} }->{manual}->{ $options{host_id} }));
+        $self->{discovery}->{rules}->{ $options{rule_id} }->{manual}->{ $options{host_id} }->{discovery}->{ $options{discovery_svc}->{service_name} } = { 
+            type => 1, 
+            service_template_model_stm_id => $self->{discovery}->{rules}->{ $options{rule_id} }->{service_template_model_id},
+            macros => {},
+            description => $self->get_description(%options),
+        };
+        foreach (keys %{$options{macros}}) {
+            $self->{discovery}->{rules}->{ $options{rule_id} }->{manual}->{ $options{host_id} }->{discovery}->{ $options{discovery_svc}->{service_name} }->{macros}->{$_} = {
+                value => $options{macros}->{$_},
+                type => 1
+            };
+        }
+    }
+
+    return 0 if ($self->{discovery}->{dry_run} == 1);
+    # We create the service
+
+    return -1 if ($self->database_init_transaction() == -1);
+
+    my $query = 'INSERT INTO service (service_template_model_stm_id, service_description, service_register) VALUES (' . $self->{class_object_centreon}->quote(value => $self->{discovery}->{rules}->{ $options{rule_id} }->{service_template_model_id}) . ', ' . $self->{class_object_centreon}->quote(value => $options{discovery_svc}->{service_name}) . ", '1')";
+    my ($status, $sth) = $self->{class_object_centreon}->custom_execute(request => $query);
+    if ($status == -1) {
+        return $self->database_error_rollback(message => "$options{logger_pre_message} [" . $options{discovery_svc}->{service_name} . "] -> cannot create service");
+    }
+    my $service_id = $self->{class_object_centreon}->{db_centreon}->last_insert_id();
+    $self->{logger}->writeLogError("$options{logger_pre_message} [" . $options{discovery_svc}->{service_name} . "] -> PLOP last insert id = $service_id");
+    
+    $query = 'INSERT INTO host_service_relation (host_host_id, service_service_id) VALUES (' . $options{host_id} . ', ' . $service_id . ')';
+    ($status) = $self->{class_object_centreon}->custom_execute(request => $query);
+    if ($status == -1) {
+        return $self->database_error_rollback(message => "$options{logger_pre_message} [" . $options{discovery_svc}->{service_name} . "] -> cannot link service to host");
+    }
+    
+    $query = 'INSERT INTO extended_service_information (service_service_id) VALUES (' . $service_id . ')';
+    ($status) = $self->{class_object_centreon}->custom_execute(request => $query);
+    if ($status == -1) {
+        return $self->database_error_rollback(message => "$options{logger_pre_message} [" . $options{discovery_svc}->{service_name} . "] -> cannot service extended information");
+    }
+    
+    foreach (keys %{$options{macros}}) {
+        $query = 'INSERT INTO on_demand_macro_service (svc_svc_id, svc_macro_name, svc_macro_value) VALUES (' . $service_id . ', ' . $self->{class_object_centreon}->quote(value => '$_SERVICE' . $_ . '$') . ', ' . $self->{class_object_centreon}->quote(value => $options{macros}->{$_}) . ')';
+        ($status) = $self->{class_object_centreon}->custom_execute(request => $query);
+        if ($status == -1) {
+            return $self->database_error_rollback(message => "$options{logger_pre_message} [" . $options{discovery_svc}->{service_name} . "] -> cannot create macro '$_' => '$options{macros}->{$_}'");
+        }
+    }
+
+    if ($self->link_service_autodisco(%options, service_id => $service_id) == -1) {
+        return $self->database_error_rollback(message => "$options{logger_pre_message} [" . $options{discovery_svc}->{service_name} . "] -> cannot link service to autodisco");
+    }
+    
+    return -1 if ($self->database_commit_transaction() == -1);
+    
+    $self->{discovery}->{pollers_reload}->{ $options{poller_id} } = 1;
+
+    # TODO
+    #$self->audit_update(
+    #    object_type => 'service', 
+    #    action_type => 'a', 
+    #    object_id => $service_id, 
+    #    object_name => $self->{service_name},
+    #    contact_id => $self->{audit_user_id},
+    #    fields => {
+    #        service_template_model_id => $self->{rule}->{service_template_model_id}, 
+    #        service_description => $self->{service_name}, 
+    #        service_register => '1', 
+    #        service_hPars => $options{host}->{host_id}
+    #    }
+    #);
+
+    return $service_id;
+}
+
+sub crud_service {
+    my ($self, %options) = @_;
+    
+    my $service_id;
+    if (!defined($options{service})) {
+        $service_id = $self->create_service(%options);
+        $self->{logger}->writeLogInfo("$options{logger_pre_message} [" . $options{discovery_svc}->{service_name} . "] -> service created");
+        if ($service_id != -1) {
+            push @{$self->{discovery}->{journal}}, {
+                host_name => $self->{discovery}->{hosts}->{ $options{host_id} }->{host_name},
+                service_name => $options{discovery_svc}->{service_name},
+                type => 'created'
+            };
+        }
+    } else {
+        # TODO
+        #$service_id = $self->update_service(%options);
+    }
+    
     return 0;
 }
 
@@ -139,7 +309,7 @@ sub service_response_parsing {
         );
         my $macros = gorgone::modules::centreon::autodiscovery::services::resources::get_macros(
             discovery_svc => $discovery_svc,
-            rule => $self->{rules}->{ $options{rule_id} }
+            rule => $self->{discovery}->{rules}->{ $options{rule_id} }
         );
         
         my ($status, $service) = gorgone::modules::centreon::autodiscovery::services::resources::get_service(
@@ -152,9 +322,18 @@ sub service_response_parsing {
         next if ($status == -1);
 
         $self->{logger}->writeLogDebug("$logger_pre_message -> service '" .  $discovery_svc->{service_name} . "' ici");
-        #$self->crud_service(service => $service, host => $options{host}, macros => $macros);
+        $self->crud_service(
+            discovery_svc => $discovery_svc,
+            rule_id => $options{rule_id},
+            host_id => $options{host_id},
+            poller_id => $options{poller_id},
+            service => $service,
+            macros => $macros,
+            logger_pre_message => $logger_pre_message
+        );
     }
 
+    # TODO
     #$self->disable_services(host => $options{host});
 }
 
@@ -186,13 +365,12 @@ sub discoverylistener {
     $self->service_execute_commands();
 
     print "==============================================\n";
-    print "=== uuid = $self->{uuid} \n";
     print Data::Dumper::Dumper($self->{service_current_commands_poller});
     print Data::Dumper::Dumper($options{data});
-    print "============= $self->{discovery}->{done_discoveries} =======================\n";
     print "==============================================\n";
 
     $self->{discovery}->{done_discoveries}++;
+    $self->{logger}->writeLogDebug("[autodiscovery] -servicediscovery- $self->{discovery}->{done_discoveries}/$self->{discovery}->{count_discoveries} done");
     if ($self->{discovery}->{done_discoveries} == $self->{discovery}->{count_discoveries}) {
         $self->{logger}->writeLogDebug("[autodiscovery] -servicediscovery- $self->{uuid} discovery finished");
         $self->{finished} = 1;
@@ -266,7 +444,6 @@ sub launchdiscovery {
     my ($self, %options) = @_;
 
     $options{token} = $self->generate_token() if (!defined($options{token}));
-    $self->{service_number} = $options{service_number};
     $self->{class_object_centreon} = $options{class_object_centreon};
 
     $self->{logger}->writeLogInfo("[autodiscovery] -servicediscovery- $self->{uuid} discovery start");
@@ -284,7 +461,7 @@ sub launchdiscovery {
         class_object_centreon => $self->{class_object_centreon}
     );
     if ($status < 0) {
-        $self->send_log_msg_error(token => $options{token}, subname => 'servicediscovery', number => $self->{service_number}, message => $message);
+        $self->send_log_msg_error(token => $options{token}, subname => 'servicediscovery', number => $self->{uuid}, message => $message);
         return -1;
     }
     $self->{service_pollers} = $pollers;
@@ -295,14 +472,14 @@ sub launchdiscovery {
     $self->{logger}->writeLogInfo("[autodiscovery] -servicediscovery- $self->{uuid} load audit configuration");
     ($status, $message) = $self->get_clapi_user();
     if ($status < 0) {
-        $self->send_log_msg_error(token => $options{token}, subname => 'servicediscovery', number => $self->{service_number}, message => $message);
+        $self->send_log_msg_error(token => $options{token}, subname => 'servicediscovery', number => $self->{uuid}, message => $message);
         return -1;
     }
     ($status, $message, my $user_id) = gorgone::modules::centreon::autodiscovery::services::resources::get_pollers(
         class_object_centreon => $self->{class_object_centreon}
     );
     if ($status < 0) {
-        $self->send_log_msg_error(token => $options{token}, subname => 'servicediscovery', number => $self->{service_number}, message => $message);
+        $self->send_log_msg_error(token => $options{token}, subname => 'servicediscovery', number => $self->{uuid}, message => $message);
         return -1;
     }
     $self->{service_audit_user_id} = $user_id;
@@ -318,7 +495,7 @@ sub launchdiscovery {
         force_rule => $options{data}->{content}->{force_rule}
     );
     if ($status < 0) {
-        $self->send_log_msg_error(token => $options{token}, subname => 'servicediscovery', number => $self->{service_number}, message => $message);
+        $self->send_log_msg_error(token => $options{token}, subname => 'servicediscovery', number => $self->{uuid}, message => $message);
         return -1;
     }
 
@@ -338,7 +515,7 @@ sub launchdiscovery {
             poller_lookup => $options{data}->{content}->{filter_pollers}
         );
         if ($status < 0) {
-            $self->send_log_msg_error(token => $options{token}, subname => 'servicediscovery', number => $self->{service_number}, message => $message);
+            $self->send_log_msg_error(token => $options{token}, subname => 'servicediscovery', number => $self->{uuid}, message => $message);
             return -1;
         }
         
@@ -354,8 +531,8 @@ sub launchdiscovery {
 
         foreach (('rule_scan_display_custom', 'rule_variable_custom')) {
             if (defined($rules->{$rule_id}->{$_}) && $rules->{$rule_id}->{$_} ne '') {
-                $rules->{$rule_id}->{$_} =~ s/\$([a-zA-Z_\-\.]*?)\$/\$discovery_svc->{attributes}->{$1}/msg;
-                $rules->{$rule_id}->{$_} =~ s/\@SERVICENAME\@/\$discovery_svc->{service_name}/msg;
+                $rules->{$rule_id}->{$_} =~ s/\$([a-zA-Z_\-\.]*?)\$/\$options{discovery_svc}->{attributes}->{$1}/msg;
+                $rules->{$rule_id}->{$_} =~ s/\@SERVICENAME\@/\$options{discovery_svc}->{service_name}/msg;
             }
         }
     }
@@ -373,9 +550,11 @@ sub launchdiscovery {
         progress_div => 0,
         rules => $rules,
         manual => defined($options{data}->{content}->{manual}) ? 1 : 0,
+        dry_run => defined($options{data}->{content}->{dry_run}) ? 1 : 0,
         options => defined($options{data}->{content}) ? $options{data}->{content} : {},
         hosts => $all_hosts,
-        journal => []
+        journal => [],
+        pollers_reload => {}
     };
 
     use Data::Dumper; print Data::Dumper::Dumper($self->{discovery});

@@ -489,6 +489,35 @@ sub substitute_vars {
     return $value;
 }
 
+sub change_bytes {
+    my (%options) = @_;
+    my $divide = defined($options{network}) ? 1000 : 1024;
+    my @units = ('K', 'M', 'G', 'T');
+    my $unit = '';
+    
+    for (my $i = 0; $i < scalar(@units); $i++) {
+        last if (($options{value} / $divide) < 1);
+        $unit = $units[$i];
+        $options{value} = $options{value} / $divide;
+    }
+
+    return (sprintf("%.2f", $options{value}), $unit . (defined($options{network}) ? 'b' : 'B'));
+}
+
+sub custom_variables {
+    my (%options) = @_;
+
+    if (defined($options{rule}->{rule_variable_custom}) && $options{rule}->{rule_variable_custom} ne '') {
+        my $error;
+        local $SIG{__DIE__} = sub { $error = $_[0]; };
+
+        eval "$options{rule}->{rule_variable_custom}";
+        if (defined($error)) {
+            $options{logger}->writeLogError("$options{logger_pre_message} custom variable code execution problem: " . $error);
+        }  
+    }
+}
+
 sub check_exinc {
     my (%options) = @_;
     
@@ -512,35 +541,6 @@ sub check_exinc {
     return 0;
 }
 
-sub custom_variables {
-    my (%options) = @_;
-    
-    if (defined($options{rule}->{rule_variable_custom}) && $options{rule}->{rule_variable_custom} ne '') {
-        my $error;
-        local $SIG{__DIE__} = sub { $error = $_[0]; };
-
-        eval "$options{rule}->{rule_variable_custom}";
-        if (defined($error)) {
-            $options{logger}->writeLogError("$options{logger_pre_message} custom variable code execution problem: " . $error);
-        }  
-    }
-}
-
-sub change_bytes {
-    my (%options) = @_;
-    my $divide = defined($options{network}) ? 1000 : 1024;
-    my @units = ('K', 'M', 'G', 'T');
-    my $unit = '';
-    
-    for (my $i = 0; $i < scalar(@units); $i++) {
-        last if (($options{value} / $divide) < 1);
-        $unit = $units[$i];
-        $options{value} = $options{value} / $divide;
-    }
-
-    return (sprintf("%.2f", $options{value}), $unit . (defined($options{network}) ? 'b' : 'B'));
-}
-
 sub get_macros {
     my (%options) = @_;
     my $macros = {};
@@ -561,7 +561,7 @@ sub get_service {
     my (%options) = @_;
 
     my $service;
-    my ($status, $datas) =$options{class_object_centreon}->custom_execute(
+    my ($status, $datas) = $options{class_object_centreon}->custom_execute(
         request => 'SELECT service_id, service_template_model_stm_id, service_activate, svc_macro_name, svc_macro_value FROM host, host_service_relation, service LEFT JOIN on_demand_macro_service ON on_demand_macro_service.svc_svc_id = service.service_id WHERE host_id = ' . $options{host_id} . 
                 " AND host.host_id = host_service_relation.host_host_id AND host_service_relation.service_service_id = service.service_id AND service.service_description = " . $options{class_object_centreon}->quote(value => $options{service_name}),
         mode => 2
