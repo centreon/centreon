@@ -443,7 +443,13 @@ sub action_launchservicediscovery {
         token => $options{token},
         data => $options{data}
     );
-    if ($status == 0) {
+    if ($status == -1) {
+        $self->send_log(
+            code => GORGONE_ACTION_FINISH_KO,
+            token => $options{token},
+            data => { message => 'cannot launch discovery' }
+        );
+    } elsif ($status == 0) {
         $self->{service_discoveries}->{ $svc_discovery->get_uuid() } = $svc_discovery;
     }
 }
