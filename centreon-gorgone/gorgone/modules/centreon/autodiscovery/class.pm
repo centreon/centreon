@@ -49,6 +49,7 @@ sub new {
     $connector->{config} = $options{config};
     $connector->{config_core} = $options{config_core};
     $connector->{config_db_centreon} = $options{config_db_centreon};
+    $connector->{config_db_centstorage} = $options{config_db_centstorage};
     $connector->{stop} = 0;
 
     $connector->{global_timeout} = (defined($options{config}->{global_timeout}) &&
@@ -434,10 +435,11 @@ sub action_launchservicediscovery {
         internal_socket => $self->{internal_socket},
         config => $self->{config},
         config_core => $self->{config_core},
-        service_number => $self->{service_number}
+        service_number => $self->{service_number},
+        class_object_centreon => $self->{class_object_centreon},
+        class_object_centstorage => $self->{class_object_centstorage}
     );
     my $status = $svc_discovery->launchdiscovery(
-        class_object_centreon => $self->{class_object_centreon},
         token => $options{token},
         data => $options{data}
     );
@@ -485,10 +487,21 @@ sub run {
         force => 2,
         logger => $self->{logger}
     );
+    $self->{db_centstorage} = gorgone::class::db->new(
+        dsn => $self->{config_db_centstorage}->{dsn},
+        user => $self->{config_db_centstorage}->{username},
+        password => $self->{config_db_centstorage}->{password},
+        force => 2,
+        logger => $self->{logger}
+    );
     
     $self->{class_object_centreon} = gorgone::class::sqlquery->new(
         logger => $self->{logger},
         db_centreon => $self->{db_centreon}
+    );
+    $self->{class_object_centstorage} = gorgone::class::sqlquery->new(
+        logger => $self->{logger},
+        db_centreon => $self->{db_centstorage}
     );
 
     # Connect internal

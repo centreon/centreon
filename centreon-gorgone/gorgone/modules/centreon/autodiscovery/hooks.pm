@@ -40,7 +40,7 @@ use constant EVENTS => [
 
 my $config_core;
 my $config;
-my $config_db_centreon;
+my ($config_db_centreon, $config_db_centstorage);
 my $autodiscovery = {};
 my $stop = 0;
 
@@ -50,6 +50,7 @@ sub register {
     $config = $options{config};
     $config_core = $options{config_core};
     $config_db_centreon = $options{config_db_centreon};
+    $config_db_centstorage = $options{config_db_centstorage};
     return (1, NAMESPACE, NAME, EVENTS);
 }
 
@@ -167,6 +168,7 @@ sub create_child {
             config_core => $config_core,
             config => $config,
             config_db_centreon => $config_db_centreon,
+            config_db_centstorage => $config_db_centstorage
         );
         $module->run();
         exit(0);
