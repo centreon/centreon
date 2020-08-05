@@ -453,7 +453,7 @@ sub create_service {
     }
     
     return -1 if ($self->database_commit_transaction() == -1);
-    
+
     $self->{discovery}->{pollers_reload}->{ $options{poller_id} } = 1;
 
     $self->audit_update(
@@ -789,13 +789,23 @@ sub launchdiscovery {
     # get audit user
     ################
     $self->{logger}->writeLogInfo("[autodiscovery] -servicediscovery- $self->{uuid} load audit configuration");
+
+    ($status, $message, my $audit_enable) = gorgone::modules::centreon::autodiscovery::services::resources::get_audit(
+        class_object_centstorage => $self->{class_object_centstorage}
+    );
+    if ($status < 0) {
+        $self->send_log_msg_error(token => $options{token}, subname => 'servicediscovery', number => $self->{uuid}, message => $message);
+        return -1;
+    }
+
     ($status, $message) = $self->get_clapi_user();
     if ($status < 0) {
         $self->send_log_msg_error(token => $options{token}, subname => 'servicediscovery', number => $self->{uuid}, message => $message);
         return -1;
     }
-    ($status, $message, my $user_id) = gorgone::modules::centreon::autodiscovery::services::resources::get_pollers(
-        class_object_centreon => $self->{class_object_centreon}
+    ($status, $message, my $user_id) = gorgone::modules::centreon::autodiscovery::services::resources::get_audit_user_id(
+        class_object_centreon => $self->{class_object_centreon},
+        clapi_user => $self->{clapi_user}
     );
     if ($status < 0) {
         $self->send_log_msg_error(token => $options{token}, subname => 'servicediscovery', number => $self->{uuid}, message => $message);
@@ -868,9 +878,9 @@ sub launchdiscovery {
         progress_div => 0,
         rules => $rules,
         manual => {},
-        is_manual => (defined($options{data}->{content}->{audit_enable}) && $options{data}->{content}->{manual} =~ /^1$/) ? 1 : 0,
-        dry_run => (defined($options{data}->{content}->{audit_enable}) && $options{data}->{content}->{dry_run} =~ /^1$/) ? 1 : 0,
-        audit_enable => (defined($options{data}->{content}->{audit_enable}) && $options{data}->{content}->{audit_enable} =~ /^1$/) ? 1 : 0,
+        is_manual => (defined($options{data}->{content}->{manual}) && $options{data}->{content}->{manual} =~ /^1$/) ? 1 : 0,
+        dry_run => (defined($options{data}->{content}->{dry_run}) && $options{data}->{content}->{dry_run} =~ /^1$/) ? 1 : 0,
+        audit_enable => $audit_enable,
         no_generate_config => (defined($options{data}->{content}->{no_generate_config}) && $options{data}->{content}->{no_generate_config} =~ /^1$/) ? 1 : 0,
         options => defined($options{data}->{content}) ? $options{data}->{content} : {},
         hosts => $all_hosts,

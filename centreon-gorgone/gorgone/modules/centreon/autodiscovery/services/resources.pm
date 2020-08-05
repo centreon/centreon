@@ -59,6 +59,25 @@ sub get_pollers {
     return (0, '', $pollers);
 }
 
+sub get_audit {
+    my (%options) = @_;
+    my $audit = 0;
+
+    my ($status, $rows) = $options{class_object_centstorage}->custom_execute(
+        request =>
+            'SELECT audit_log_option FROM config LIMIT 1',
+        mode => 2
+    );
+    if ($status == -1) {
+        return (-1, 'cannot get audit configuration');
+    }
+    if (defined($rows->[0]->[0])) {
+        $audit = $rows->[0]->[0];
+    }
+
+    return (1, '', $audit);
+}
+
 sub get_audit_user_id {
     my (%options) = @_;
     my $user_id = 0;
@@ -252,7 +271,8 @@ sub get_contact {
 
     my ($status, $datas) = $options{class_object_centreon}->custom_execute(
         request => "SELECT contact_id, contact_email FROM contact WHERE contact_id = '" . $options{contact_id} . "' AND contact_activate = '1'",
-        mode => 1
+        mode => 1,
+        keys => 'contact_id'
     );
 
     if ($status == -1) {
