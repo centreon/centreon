@@ -42,6 +42,9 @@ sub new {
     $connector->{config_core} = $options{config_core};
     $connector->{class_object_centreon} = $options{class_object_centreon};
     $connector->{class_object_centstorage} = $options{class_object_centstorage};
+    $connector->{mail_command} = defined($connector->{config}->{mail_command}) ? $connector->{config}->{mail_command} : '/bin/mail';
+    $connector->{mail_subject} = defined($connector->{config}->{mail_subject}) ? $connector->{config}->{mail_subject} : 'Centreon Auto Discovery';
+    $connector->{mail_from} = defined($connector->{config}->{mail_from}) ? $connector->{config}->{mail_from} : 'centreon-autodisco';
 
     $connector->{service_pollers} = {};
     $connector->{audit_user_id} = undef;
@@ -118,6 +121,79 @@ sub get_clapi_user {
     }
 
     return 0;
+}
+
+sub send_email {
+    my ($self, %options) = @_;
+
+    my $messages = {};
+    foreach my $journal (@{$self->{discovery}->{journal}}) {
+        $messages->{ $journal->{rule_id } } = '' if (!defined($messages->{ $journal->{rule_id } }));
+        $messages->{ $journal->{rule_id } } .= $journal->{type} . " service '" . $journal->{service_name} . "' on host '" . $journal->{host_name} . "'.\n";
+    }
+
+    my $contact_send = {};
+    foreach my $rule_id (keys %{$self->{discovery}->{rules}}) {
+        next if (!defined($self->{discovery}->{rules}->{$rule_id}->{contact}));
+        next if (!defined($messages->{$rule_id}));
+
+        foreach my $contact_id (keys %{$self->{discovery}->{rules}->{$rule_id}->{contact}}) {
+            next if (defined($contact_send->{$contact_id}));
+            $contact_send->{$contact_id} = 1;
+
+            my $message = '';
+            foreach my $rule_id2 (keys %{$messages}) {
+                if (defined($self->{discovery}->{rules}->{$rule_id2}->{contact}->{$contact_id})) {
+                    $message .= $messages->{$rule_id2} . '\n';
+                }
+            }
+
+            if ($message ne '') {
+                $self->{logger}->writeLogInfo("[autodiscovery] -servicediscovery- $self->{uuid} send email to '" . $contact_id .  "' (" . $self->{discovery}->{rules}->{$rule_id}->{contact}->{$contact_id}->{contact_email} . ")");
+
+                $self->send_internal_action(
+                    action => 'COMMAND',
+                    token => $self->{discovery}->{token} . ':email',
+                    data => {
+                        content => [
+                            {
+                                command => sprintf(
+                                    "/usr/bin/printf '%s' | %s -s '%s' -r %s %s",
+                                    $message,
+                                    $self->{mail_command},
+                                    $self->{mail_subject},
+                                    $self->{mail_from},
+                                    $self->{discovery}->{rules}->{$rule_id}->{contact}->{$contact_id}->{contact_email}
+                                )
+                            }
+                        ]
+                    }
+                );
+            }
+        }
+    }
+}
+
+sub restart_pollers {
+    my ($self, %options) = @_;
+
+    return if ($self->{discovery}->{no_generate_config} == 1);
+
+    my $poller_ids = {};
+    foreach my $poller_id (keys %{$self->{discovery}->{pollers_reload}}) {
+        $self->{logger}->writeLogError("[autodiscovery] -servicediscovery- $self->{uuid} generate poller config '" . $poller_id . "'");
+        $self->send_internal_action(
+            action => 'COMMAND',
+            token => $self->{discovery}->{token} . ':config',
+            data => {
+                content => [
+                    {
+                        command => 'centreon -u ' . $self->{clapi_user} . ' -p ' . $self->{clapi_password} . ' -a APPLYCFG -v ' . $poller_id
+                    }
+                ]
+            }
+        );
+    }
 }
 
 sub audit_update {
@@ -204,7 +280,8 @@ sub update_service {
             host_name => $self->{discovery}->{hosts}->{ $options{host_id} }->{host_name},
             service_name => $options{discovery_svc}->{service_name},
             type => 'update',
-            msg => 'template'
+            msg => 'template',
+            rule_id => $options{rule_id}
         }; 
         $self->{logger}->writeLogInfo("$options{logger_pre_message} [" . $options{discovery_svc}->{service_name} . "] -> service update template");
         if ($self->{discovery}->{is_manual} == 1) {
@@ -216,7 +293,8 @@ sub update_service {
         push @journal, {
             host_name => $self->{discovery}->{hosts}->{ $options{host_id} }->{host_name},
             service_name => $options{discovery_svc}->{service_name},
-            type => 'enable'
+            type => 'enable',
+            rule_id => $options{rule_id}
         };
         $self->{logger}->writeLogInfo("$options{logger_pre_message} [" . $options{discovery_svc}->{service_name} . "] -> service enable");
     }
@@ -246,7 +324,8 @@ sub update_service {
             host_name => $self->{discovery}->{hosts}->{ $options{host_id} }->{host_name},
             service_name => $options{discovery_svc}->{service_name},
             type => 'update',
-            msg => 'macros'
+            msg => 'macros',
+            rule_id => $options{rule_id}
         };
         $self->{logger}->writeLogInfo("$options{logger_pre_message} [" . $options{discovery_svc}->{service_name} . "] -> service update/insert macros");
     }
@@ -405,7 +484,8 @@ sub crud_service {
             push @{$self->{discovery}->{journal}}, {
                 host_name => $self->{discovery}->{hosts}->{ $options{host_id} }->{host_name},
                 service_name => $options{discovery_svc}->{service_name},
-                type => 'created'
+                type => 'created',
+                rule_id => $options{rule_id}
             };
         }
     } else {
@@ -436,7 +516,8 @@ sub disable_services {
             push @{$self->{discovery}->{journal}}, {
                 host_name => $self->{discovery}->{hosts}->{ $options{host_id} }->{host_name},
                 service_name => $service_description,
-                type => 'disable'
+                type => 'disable',
+                rule_id => $options{rule_id}
             }; 
             $self->{discovery}->{pollers_reload}->{ $options{poller_id} } = 1;
             $self->audit_update(
@@ -577,6 +658,20 @@ sub discoverylistener {
     $self->service_execute_commands();
 
     $self->{discovery}->{done_discoveries}++;
+    my $progress = $self->{discovery}->{done_discoveries} * 100 / $self->{discovery}->{count_discoveries};
+    my $div = int(int($progress) / 5);
+    if ($div > $self->{discovery}->{progress_div}) {
+        $self->{discovery}->{progress_div} = $div;
+        $self->send_log(
+            code => GORGONE_MODULE_CENTREON_AUTODISCO_SVC_PROGRESS,
+            token => $self->{discovery}->{token},
+            instant => 1,
+            data => {
+                message => 'current progress',
+                complete => sprintf('%.2f', $progress) 
+            }
+        );
+    }
 
     $self->{logger}->writeLogDebug("[autodiscovery] -servicediscovery- $self->{uuid} current count $self->{discovery}->{done_discoveries}/$self->{discovery}->{count_discoveries}");
     if ($self->{discovery}->{done_discoveries} == $self->{discovery}->{count_discoveries}) {
@@ -585,7 +680,7 @@ sub discoverylistener {
 
         $self->send_log(
             code => GORGONE_ACTION_FINISH_OK,
-            token => $options{token},
+            token => $self->{discovery}->{token},
             data => {
                 message => 'discovery finished',
                 failed_discoveries => $self->{discovery}->{failed_discoveries},
@@ -595,7 +690,10 @@ sub discoverylistener {
             }
         );
 
-        use Data::Dumper; print Data::Dumper::Dumper($self->{discovery});
+        if ($self->{discovery}->{is_manual} == 0) {
+            $self->restart_pollers();
+            $self->send_email();
+        }
     }
 
     return 0;
@@ -767,13 +865,13 @@ sub launchdiscovery {
         count_discoveries => $total,
         failed_discoveries => 0,
         done_discoveries => 0,
-        progress => 0,
         progress_div => 0,
         rules => $rules,
         manual => {},
         is_manual => (defined($options{data}->{content}->{audit_enable}) && $options{data}->{content}->{manual} =~ /^1$/) ? 1 : 0,
         dry_run => (defined($options{data}->{content}->{audit_enable}) && $options{data}->{content}->{dry_run} =~ /^1$/) ? 1 : 0,
         audit_enable => (defined($options{data}->{content}->{audit_enable}) && $options{data}->{content}->{audit_enable} =~ /^1$/) ? 1 : 0,
+        no_generate_config => (defined($options{data}->{content}->{no_generate_config}) && $options{data}->{content}->{no_generate_config} =~ /^1$/) ? 1 : 0,
         options => defined($options{data}->{content}) ? $options{data}->{content} : {},
         hosts => $all_hosts,
         journal => [],
