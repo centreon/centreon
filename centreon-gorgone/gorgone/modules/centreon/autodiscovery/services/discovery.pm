@@ -181,7 +181,7 @@ sub restart_pollers {
 
     my $poller_ids = {};
     foreach my $poller_id (keys %{$self->{discovery}->{pollers_reload}}) {
-        $self->{logger}->writeLogError("[autodiscovery] -servicediscovery- $self->{uuid} generate poller config '" . $poller_id . "'");
+        $self->{logger}->writeLogInfo("[autodiscovery] -servicediscovery- $self->{uuid} generate poller config '" . $poller_id . "'");
         $self->send_internal_action(
             action => 'COMMAND',
             token => $self->{discovery}->{token} . ':config',
