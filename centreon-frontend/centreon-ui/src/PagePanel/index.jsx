@@ -18,7 +18,7 @@ const outAnimationDurationMs = 50;
 // TODO this should be dynamic
 const topHeight = 52;
 
-const HeaderContainer = styled(Box)({
+export const HeaderContainer = styled(Box)({
   paddingLeft: 20,
   boxShadow: '0px 3px 4px 0px rgba(0,0,0,0.15)',
   WebkitBoxShadow: '0px 3px 4px 0px rgba(0,0,0,0.15)',
@@ -54,29 +54,29 @@ const MainPanel = styled(Box)({
   marginBottom: topHeight,
 });
 
-const SecondaryPanelBar = styled(Box)({
-  border: '1px solid #D6D6D8',
+export const SecondaryPanelBar = styled(Box)(({ theme }) => ({
+  border: `1px solid ${theme.palette.grey[300]}`,
   width: 20,
   cursor: 'pointer',
   marginBottom: topHeight,
-});
+}));
 
-const useSecondaryPanelStyles = makeStyles({
+const useSecondaryPanelStyles = makeStyles((theme) => ({
   secondaryPanel: {
     width: ({ active }) => (active ? 500 : 0),
     transition: '.1s ease-in-out',
     overflow: 'hidden',
-    backgroundColor: '#c7c8c9',
+    backgroundColor: `${theme.palette.grey[100]}`,
     padding: ({ active }) => (active ? 5 : 0),
   },
-});
+}));
 
-const CloseSecondaryPanelIcon = styled(ArrowForwardIos)({
+export const CloseSecondaryPanelIcon = styled(ArrowForwardIos)({
   width: 15,
   margin: 'auto',
 });
 
-const RightPanel = ({
+const ListingPanel = ({
   active,
   Header,
   secondaryPanelComponent,
@@ -170,7 +170,7 @@ const RightPanel = ({
   );
 };
 
-RightPanel.defaultProps = {
+ListingPanel.defaultProps = {
   onClose: () => {},
   onOpen: () => {},
   onSecondaryPanelClose: () => {},
@@ -178,7 +178,7 @@ RightPanel.defaultProps = {
   loading: false,
 };
 
-RightPanel.propTypes = {
+ListingPanel.propTypes = {
   active: PropTypes.bool.isRequired,
   loading: PropTypes.bool,
   Header: PropTypes.node.isRequired,
@@ -189,4 +189,4 @@ RightPanel.propTypes = {
   onSecondaryPanelClose: PropTypes.func,
 };
 
-export default RightPanel;
+export default ListingPanel;

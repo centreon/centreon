@@ -10,7 +10,7 @@ const useStyles = makeStyles({
   },
   paperPanel: {
     display: 'grid',
-    gridTemplate: 'auto 1fr',
+    gridTemplateRows: 'auto 1fr',
     height: '100%',
   },
   slideContent: {
@@ -38,16 +38,16 @@ const SlidePanel = ({ header, content }: SlidePanelProps): JSX.Element => {
         exit: 50,
       }}
     >
-      <div className={classes.rightPanel}>
-        <Paper elevation={5} className={classes.paperPanel}>
+      <Paper elevation={5} className={classes.rightPanel}>
+        <div className={classes.paperPanel}>
           {header && (
             <Paper elevation={3} className={classes.slideHeader}>
               {header}
             </Paper>
           )}
           <div className={classes.slideContent}>{content}</div>
-        </Paper>
-      </div>
+        </div>
+      </Paper>
     </Slide>
   );
 };
