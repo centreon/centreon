@@ -31,7 +31,6 @@ use gorgone::class::sqlquery;
 use ZMQ::LibZMQ4;
 use ZMQ::Constants qw(:all);
 use JSON::XS;
-use XML::Simple;
 use Time::HiRes;
 use POSIX qw(strftime);
 use Digest::MD5 qw(md5_hex);
