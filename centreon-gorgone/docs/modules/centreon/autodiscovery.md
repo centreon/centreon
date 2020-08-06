@@ -93,13 +93,13 @@ curl --request POST "https://hostname:8443/api/centreon/autodiscovery/job" \
 
 | Key | Value | Description |
 | :- | :- | :- |
-| filter_rules       | array     | Run the selected rule of discovery | 
-| force_rule         | ```1|0``` | Run also disabled rules |
-| filter_hosts       | array     | Run all discovery rules linked to all templates of host used by selected host |
-| filter_pollers     | array     | Run all discovery rules linked to all poller linked with rule |
-| manual             | ```1|0``` | Run discovery for manual scan |
-| dry_run            | ```1|0``` | Run discovery without configuration change                  |
-| no_generate_config | ```1|0``` | No configuration generation (even if there is some changes) |
+| filter_rules       | array | Run the selected rule of discovery | 
+| force_rule         | `1|0` | Run also disabled rules |
+| filter_hosts       | array | Run all discovery rules linked to all templates of host used by selected host |
+| filter_pollers     | array | Run all discovery rules linked to all poller linked with rule |
+| manual             | `1|0` | Run discovery for manual scan |
+| dry_run            | `1|0` | Run discovery without configuration change                  |
+| no_generate_config | `1|0` | No configuration generation (even if there is some changes) |
 
 ```json
 {

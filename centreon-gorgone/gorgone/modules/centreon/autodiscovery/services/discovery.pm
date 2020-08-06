@@ -263,9 +263,7 @@ sub update_service {
     my @insert_macros = ();
     
     if ($self->{discovery}->{is_manual} == 1) {
-        $self->{discovery}->{manual}->{ $options{host_id} } = { discovery => {} }
-            if (!defined($self->{discovery}->{manual}->{ $options{host_id} }));
-        $self->{discovery}->{manual}->{ $options{host_id} }->{discovery}->{ $options{discovery_svc}->{service_name} } = { 
+        $self->{discovery}->{manual}->{ $options{host_id} }->{rules}->{ $options{rule_id} }->{discovery}->{ $options{discovery_svc}->{service_name} } = { 
             type => 0,
             macros => {},
             description => $self->get_description(%options)
@@ -285,7 +283,7 @@ sub update_service {
         }; 
         $self->{logger}->writeLogInfo("$options{logger_pre_message} [" . $options{discovery_svc}->{service_name} . "] -> service update template");
         if ($self->{discovery}->{is_manual} == 1) {
-            $self->{discovery}->{manual}->{ $options{host_id} }->{discovery}->{ $options{discovery_svc}->{service_name} }->{service_template_model_stm_id} = $self->{discovery}->{rules}->{ $options{rule_id} }->{service_template_model_id};
+            $self->{discovery}->{manual}->{ $options{host_id} }->{rules}->{ $options{rule_id} }->{discovery}->{ $options{discovery_svc}->{service_name} }->{service_template_model_stm_id} = $self->{discovery}->{rules}->{ $options{rule_id} }->{service_template_model_id};
         }
     }
     if ($options{service}->{activate} == '0') {
@@ -306,7 +304,7 @@ sub update_service {
                 value => $options{macros}->{$macro_name}
             };
             if ($self->{discovery}->{is_manual} == 1) {
-                $self->{discovery}->{manual}->{ $options{host_id} }->{discovery}->{ $options{discovery_svc}->{service_name} }->{macros}->{$macro_name} = { value => $options{macros}->{$macro_name}, type => 1 };
+                $self->{discovery}->{manual}->{ $options{host_id} }->{rules}->{ $options{rule_id} }->{discovery}->{ $options{discovery_svc}->{service_name} }->{macros}->{$macro_name} = { value => $options{macros}->{$macro_name}, type => 1 };
             }
         } elsif ($options{service}->{macros}->{'$_SERVICE' . $macro_name . '$'} ne $options{macros}->{$macro_name})  {
             push @update_macros, {
@@ -314,7 +312,7 @@ sub update_service {
                 value => $options{macros}->{$macro_name}
             };
             if ($self->{discovery}->{is_manual} == 1) {
-                $self->{discovery}->{manual}->{ $options{host_id} }->{discovery}->{ $options{discovery_svc}->{service_name} }->{macros}->{$macro_name} = { value => $options{macros}->{$macro_name}, type => 0 };
+                $self->{discovery}->{manual}->{ $options{host_id} }->{rules}->{ $options{rule_id} }->{discovery}->{ $options{discovery_svc}->{service_name} }->{macros}->{$macro_name} = { value => $options{macros}->{$macro_name}, type => 0 };
             }
         }
     }
@@ -399,16 +397,14 @@ sub create_service {
     my ($self, %options) = @_;
     
     if ($self->{discovery}->{is_manual} == 1) {
-        $self->{discovery}->{manual}->{ $options{host_id} } = { discovery => {} }
-            if (!defined($self->{discovery}->{manual}->{ $options{host_id} }));
-        $self->{discovery}->{manual}->{ $options{host_id} }->{discovery}->{ $options{discovery_svc}->{service_name} } = { 
+        $self->{discovery}->{manual}->{ $options{host_id} }->{rules}->{ $options{rule_id} }->{discovery}->{ $options{discovery_svc}->{service_name} } = { 
             type => 1, 
             service_template_model_stm_id => $self->{discovery}->{rules}->{ $options{rule_id} }->{service_template_model_id},
             macros => {},
             description => $self->get_description(%options)
         };
         foreach (keys %{$options{macros}}) {
-            $self->{discovery}->{manual}->{ $options{host_id} }->{discovery}->{ $options{discovery_svc}->{service_name} }->{macros}->{$_} = {
+            $self->{discovery}->{manual}->{ $options{host_id} }->{rules}->{ $options{rule_id} }->{discovery}->{ $options{discovery_svc}->{service_name} }->{macros}->{$_} = {
                 value => $options{macros}->{$_},
                 type => 1
             };
@@ -545,8 +541,8 @@ sub service_response_parsing {
     };
     if ($@) {
         if ($self->{discovery}->{is_manual} == 1) {
-            $self->{discovery}->{manual}->{ $options{host_id} } = { discovery => {} } if (!defined($self->{discovery}->{manual}->{ $options{host_id} }));
-            $self->{discovery}->{manual}->{ $options{host_id} }->{message} = 'load xml issue';
+            $self->{discovery}->{manual}->{ $options{host_id} }->{rules}->{ $options{rule_id} }->{failed} = 1;
+            $self->{discovery}->{manual}->{ $options{host_id} }->{rules}->{ $options{rule_id} }->{message} = 'load xml issue';
         }
         $self->{logger}->writeLogError("$logger_pre_message -> load xml issue");
         $self->{logger}->writeLogDebug("$logger_pre_message -> load xml error: $@");
@@ -626,6 +622,13 @@ sub service_response_parsing {
 sub discoverylistener {
     my ($self, %options) = @_;
 
+    return 0 if ($options{data}->{code} != GORGONE_MODULE_ACTION_COMMAND_RESULT && $options{data}->{code} != GORGONE_ACTION_FINISH_KO);
+
+    if ($self->{discovery}->{is_manual} == 1) {
+        $self->{discovery}->{manual}->{ $options{host_id} } = { rules => {} } if (!defined($self->{discovery}->{manual}->{ $options{host_id} }));
+        $self->{discovery}->{manual}->{ $options{host_id} }->{rules}->{ $options{rule_id} } = { failed => 0, discovery => {} } if (!defined($self->{discovery}->{manual}->{ $options{host_id} }->{rules}->{ $options{rule_id} }));
+    }
+
     # if i have GORGONE_MODULE_ACTION_COMMAND_RESULT, i can't have GORGONE_ACTION_FINISH_KO
     if ($options{data}->{code} == GORGONE_MODULE_ACTION_COMMAND_RESULT) {
         my $exit_code = $options{data}->{data}->{result}->{exit_code};
@@ -639,15 +642,15 @@ sub discoverylistener {
         } else {
             $self->{discovery}->{failed_discoveries}++;
             if ($self->{discovery}->{is_manual} == 1) {
-                $self->{discovery}->{manual}->{ $options{host_id} } = { discovery => {} } if (!defined($self->{discovery}->{manual}->{ $options{host_id} }));
-                $self->{discovery}->{manual}->{ $options{host_id} }->{message} = $options{data}->{data}->{message};
-                $self->{discovery}->{manual}->{ $options{host_id} }->{data} = $options{data}->{data};
+                $self->{discovery}->{manual}->{ $options{host_id} }->{rules}->{ $options{rule_id} }->{failed} = 1;
+                $self->{discovery}->{manual}->{ $options{host_id} }->{rules}->{ $options{rule_id} }->{message} = $options{data}->{data}->{message};
+                $self->{discovery}->{manual}->{ $options{host_id} }->{rules}->{ $options{rule_id} }->{data} = $options{data}->{data};
             }
         }
     } elsif ($options{data}->{code} == GORGONE_ACTION_FINISH_KO) {
         if ($self->{discovery}->{is_manual} == 1) {
-            $self->{discovery}->{manual}->{ $options{host_id} } = { discovery => {} } if (!defined($self->{discovery}->{manual}->{ $options{host_id} }));
-            $self->{discovery}->{manual}->{ $options{host_id} }->{message} = $options{data}->{data}->{message};
+            $self->{discovery}->{manual}->{ $options{host_id} }->{rules}->{ $options{rule_id} }->{failed} = 1;
+            $self->{discovery}->{manual}->{ $options{host_id} }->{rules}->{ $options{rule_id} }->{message} = $options{data}->{data}->{message};
         }
         $self->{discovery}->{failed_discoveries}++;
     } else {
