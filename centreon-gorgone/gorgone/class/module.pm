@@ -23,6 +23,7 @@ package gorgone::class::module;
 use strict;
 use warnings;
 
+use gorgone::standard::constants qw(:all);
 use gorgone::standard::library;
 use gorgone::standard::misc;
 use JSON::XS;
@@ -43,6 +44,21 @@ sub send_internal_action {
         target => $options{target},
         data => $options{data},
         json_encode => defined($options{data_noencode}) ? undef : 1
+    );
+}
+
+sub send_log_msg_error {
+    my ($self, %options) = @_;
+
+    return if (!defined($options{token}));
+
+    $self->{logger}->writeLogError("[$self->{module_id}] -$options{subname}- $options{number} $options{message}");
+    gorgone::standard::library::zmq_send_message(
+        socket => (defined($options{socket})) ? $options{socket} : $self->{internal_socket},
+        action => 'PUTLOG',
+        token => $options{token},
+        data => { code => GORGONE_ACTION_FINISH_KO, etime => time(), instant => $options{instant}, token => $options{token}, data => { message => $options{message} } },
+        json_encode => 1
     );
 }
 

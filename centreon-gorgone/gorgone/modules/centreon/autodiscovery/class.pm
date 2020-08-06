@@ -26,6 +26,7 @@ use strict;
 use warnings;
 use gorgone::standard::library;
 use gorgone::standard::constants qw(:all);
+use gorgone::modules::centreon::autodiscovery::services::discovery;
 use gorgone::class::sqlquery;
 use ZMQ::LibZMQ4;
 use ZMQ::Constants qw(:all);
@@ -47,12 +48,15 @@ sub new {
     $connector->{config} = $options{config};
     $connector->{config_core} = $options{config_core};
     $connector->{config_db_centreon} = $options{config_db_centreon};
+    $connector->{config_db_centstorage} = $options{config_db_centstorage};
     $connector->{stop} = 0;
 
     $connector->{global_timeout} = (defined($options{config}->{global_timeout}) &&
         $options{config}->{global_timeout} =~ /(\d+)/) ? $1 : 300;
     $connector->{check_interval} = (defined($options{config}->{check_interval}) &&
         $options{config}->{check_interval} =~ /(\d+)/) ? $1 : 15;
+
+    $connector->{service_discoveries} = {};
 
     bless $connector, $class;
     $connector->set_signal_handlers();
@@ -90,6 +94,14 @@ sub class_handle_HUP {
         &{$handlers{HUP}->{$_}}();
     }
 }
+
+=pod
+
+*******************
+Host Discovery part
+*******************
+
+=cut
 
 sub action_adddiscoveryjob {
     my ($self, %options) = @_;
@@ -215,7 +227,7 @@ sub action_launchdiscovery {
                         job_id => $options{data}->{content}->{job_id},
                         uuid_attributes => $options{data}->{content}->{uuid_attributes},
                         source => 'autodiscovery'
-                    },
+                    }
                 }
             ]
         }
@@ -380,6 +392,67 @@ sub register_listener {
     return 0;
 }
 
+=pod
+
+**********************
+Service Discovery part
+**********************
+
+=cut
+
+sub action_servicediscoverylistener {
+    my ($self, %options) = @_;
+
+    return 0 if (!defined($options{token}));
+
+    # 'svc-disco-UUID-RULEID-HOSTID' . $self->{service_uuid} . '-' . $service_number . '-' . $rule_id . '-' . $host->{host_id}
+    return 0 if ($options{token} !~ /^svc-disco-(.*?)-(\d+)-(\d+)/);
+
+    my ($uuid, $rule_id, $host_id) = ($1, $2, $3);
+    return 0 if (!defined($self->{service_discoveries}->{ $uuid }));
+
+    $self->{service_discoveries}->{ $uuid }->discoverylistener(
+        rule_id => $rule_id,
+        host_id => $host_id,
+        %options
+    );
+
+    if ($self->{service_discoveries}->{ $uuid }->is_finished()) {
+        delete $self->{service_discoveries}->{ $uuid };
+    }
+}
+
+sub action_launchservicediscovery {
+    my ($self, %options) = @_;
+
+    $options{token} = $self->generate_token() if (!defined($options{token}));
+
+    $self->{service_number}++;
+    my $svc_discovery = gorgone::modules::centreon::autodiscovery::services::discovery->new(
+        module_id => $self->{module_id},
+        logger => $self->{logger},
+        internal_socket => $self->{internal_socket},
+        config => $self->{config},
+        config_core => $self->{config_core},
+        service_number => $self->{service_number},
+        class_object_centreon => $self->{class_object_centreon},
+        class_object_centstorage => $self->{class_object_centstorage}
+    );
+    my $status = $svc_discovery->launchdiscovery(
+        token => $options{token},
+        data => $options{data}
+    );
+    if ($status == -1) {
+        $self->send_log(
+            code => GORGONE_ACTION_FINISH_KO,
+            token => $options{token},
+            data => { message => 'cannot launch discovery' }
+        );
+    } elsif ($status == 0) {
+        $self->{service_discoveries}->{ $svc_discovery->get_uuid() } = $svc_discovery;
+    }
+}
+
 sub is_module_installed {
     my ($self) = @_;
 
@@ -419,10 +492,21 @@ sub run {
         force => 2,
         logger => $self->{logger}
     );
+    $self->{db_centstorage} = gorgone::class::db->new(
+        dsn => $self->{config_db_centstorage}->{dsn},
+        user => $self->{config_db_centstorage}->{username},
+        password => $self->{config_db_centstorage}->{password},
+        force => 2,
+        logger => $self->{logger}
+    );
     
     $self->{class_object_centreon} = gorgone::class::sqlquery->new(
         logger => $self->{logger},
         db_centreon => $self->{db_centreon}
+    );
+    $self->{class_object_centstorage} = gorgone::class::sqlquery->new(
+        logger => $self->{logger},
+        db_centreon => $self->{db_centstorage}
     );
 
     # Connect internal
