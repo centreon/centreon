@@ -32,10 +32,10 @@ use constant NAME => 'autodiscovery';
 use constant EVENTS => [
     { event => 'AUTODISCOVERYREADY' },
     { event => 'AUTODISCOVERYLISTENER' },
+    { event => 'SERVICEDISCOVERYLISTENER' },
     { event => 'ADDDISCOVERYJOB', uri => '/job', method => 'POST' },
     { event => 'LAUNCHDISCOVERY' },
     { event => 'LAUNCHSERVICEDISCOVERY', uri => '/services', method => 'POST' },
-    { event => 'SERVICEDISCOVERYLISTENER' }
 ];
 
 my $config_core;
