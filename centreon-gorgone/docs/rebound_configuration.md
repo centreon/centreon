@@ -3,7 +3,7 @@
 We are showing how to configure gorgone to manage that architecture:
 
 ```text
-central server <------- rebound server <------- distant poller
+Central server <------- Rebound server <------- Distant Poller
 ```
 
 In our case, we have the following configuration (need to adatp to your configuration).
@@ -11,25 +11,25 @@ In our case, we have the following configuration (need to adatp to your configur
 * Central server:
   * address: 10.30.2.203
 * Rebound server:
-  * id: 1024 (it must be unique. it's an arbitrary number)
+  * id: 1024 (It must be unique. It's an arbitrary number)
   * address: 10.30.2.67
   * rsa public key thumbprint: NmnPME43IoWpkQoam6CLnrI5hjmdq6Kq8QMUCCg-F4g
-* distant server:
-  * id: 6 (configured in centreon interface as **zmq**. you get it in the centreon interface)
+* Distant Poller:
+  * id: 6 (configured in Centreon interface as **zmq**. You get it in the Centreon interface)
   * address: 10.30.2.179
   * rsa public key thumbprint: nJSH9nZN2ugQeksHif7Jtv19RQA58yjxfX-Cpnhx09s
 
-# Distant poller
+# Distant Poller
 
 ## Installation
 
-The distant server is already installed and gorgone also.
+The Distant Poller is already installed and Gorgone also.
 
 ## Configuration
 
 We configure the file **/etc/centreon-gorgone/config.d/40-gorgoned.yaml**:
 
-```text
+```yaml
 name:  distant-server
 description: Configuration for distant server
 gorgone:
@@ -60,18 +60,18 @@ gorgone:
 
 ## Installation
 
-We have installed an centos 7. We install gorgone daemon:
+We have installed a CentOS 7 server. We install Gorgone daemon:
 
-```console
-# yum install http://yum.centreon.com/standard/20.04/el7/stable/noarch/RPMS/centreon-release-20.04-1.el7.centos.noarch.rpm
-# yum --enablerepo=centreon-unstable* install centreon-gorgone
+```shell
+yum install http://yum.centreon.com/standard/20.04/el7/stable/noarch/RPMS/centreon-release-20.04-1.el7.centos.noarch.rpm
+yum install centreon-gorgone
 ```
 
 ## Configuration
 
 We configure the file **/etc/centreon-gorgone/config.d/40-gorgoned.yaml**:
 
-```text
+```yaml
 name:  rebound-server
 description: Configuration for rebound-server
 gorgone:
@@ -101,32 +101,34 @@ gorgone:
 
 ## Installation
 
-The central server is already installed and gorgone also.
+The Central server is already installed and Gorgone also.
 
 ## Configuration
 
 We configure the file **/etc/centreon-gorgone/config.d/40-gorgoned.yaml**:
 
-```text
+```yaml
 ...
 gorgone:
   gorgonecore:
-     ...
-     authorized_clients:
-        - key: NmnPME43IoWpkQoam6CLnrI5hjmdq6Kq8QMUCCg-F4g
-     ...
+    ...
+    external_com_type: tcp
+    external_com_path: "*:5556"
+    authorized_clients:
+      - key: NmnPME43IoWpkQoam6CLnrI5hjmdq6Kq8QMUCCg-F4g
+    ...
   modules:
-     ... 
-     - name: register
-       package: "gorgone::modules::core::register::hooks"
-       enable: true
-       config_file: /etc/centreon-gorgone/nodes-register-override.yml
-     ...
+    ...
+    - name: register
+      package: "gorgone::modules::core::register::hooks"
+      enable: true
+      config_file: /etc/centreon-gorgone/nodes-register-override.yml
+    ...
 ```
 
 We create the file **/etc/centreon-gorgone/nodes-register-override.yml**:
 
-```text
+```yaml
 nodes:
   - id: 1024
     type: pull
