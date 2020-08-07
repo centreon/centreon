@@ -29,7 +29,7 @@ Nodes are listed in a separate configuration file in a `nodes` table as below:
 
 | Directive | Description |
 | :- | :- |
-| id | Unique identifier of the node (can be Poller's ID if [nodes](../centreon/nodes.md) module is not used) |
+| id | Unique identifier of the node (can be Poller's ID if using prevail option) |
 | type | Way for the daemon to connect to the node (push_zmq) |
 | address | IP address of the node |
 | port | Port to connect to on the node |
@@ -38,6 +38,7 @@ Nodes are listed in a separate configuration file in a `nodes` table as below:
 | client_privkey | Client private key (Default: use global private key) |
 | cipher | Cipher used for encryption (Default: "Cipher::AES") |
 | vector | Encryption vector (Default: 0123456789012345) |
+| prevail | Defines if this configuration prevails on `nodes` module configuration|
 | nodes | Table to register subnodes managed by node (pathscore is not mandatory) |
 
 #### Example
@@ -59,13 +60,14 @@ nodes:
 
 | Directive | Description |
 | :- | :- |
-| id | Unique identifier of the node (can be Poller's ID if [pollers](../centreon/pollers.md) module is not used) |
+| id | Unique identifier of the node (can be Poller's ID if using prevail option) |
 | type | Way for the daemon to connect to the node (push_ssh) |
 | address | IP address of the node |
 | ssh_port | Port to connect to on the node |
 | ssh_username | SSH username (if no SSH key) |
 | ssh_password | SSH password (if no SSH key) |
 | strict_serverkey_check | Boolean to strictly check the node fingerprint |
+| prevail | Defines if this configuration prevails on `nodes` module configuration|
 
 #### Example
 
@@ -78,6 +80,7 @@ nodes:
     ssh_username: user
     ssh_password: pass
     strict_serverkey_check: false
+    prevail: 1
 ```
 
 ## Events
