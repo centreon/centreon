@@ -2,26 +2,26 @@ import React from 'react';
 
 import { render, fireEvent } from '@testing-library/react';
 
-import PagePanel from '.';
+import SectionPanel from '.';
 
-describe(PagePanel, () => {
+describe(SectionPanel, () => {
   it('displays given Header and sections', async () => {
-    const Header = <>Header</>;
-    const Sections = [
+    const header = <>Header</>;
+    const sections = [
       {
-        id: 0,
+        id: 'non-expandable',
         expandable: false,
-        Section: <>Non Expandable Section</>,
+        section: <>Non Expandable Section</>,
       },
       {
-        id: 1,
+        id: 'expandable',
         expandable: true,
         title: 'Expand me',
-        Section: <>Expandable Section</>,
+        section: <>Expandable Section</>,
       },
     ];
     const { getByText } = render(
-      <PagePanel Header={Header} Sections={Sections} active />,
+      <SectionPanel header={header} sections={sections} onClose={jest.fn()} />,
     );
 
     expect(getByText('Header')).toBeInTheDocument();
@@ -31,14 +31,14 @@ describe(PagePanel, () => {
   });
 
   it('displays secondary Panel when secondary Panel bar is clicked', () => {
-    const secondaryPanelComponent = <>Secondary Panel</>;
+    const secondaryPanel = <>Secondary Panel</>;
 
     const { baseElement, getByText, queryByText } = render(
-      <PagePanel
-        Header={<>Header</>}
-        Sections={[]}
-        active
-        secondaryPanelComponent={secondaryPanelComponent}
+      <SectionPanel
+        header={<>Header</>}
+        sections={[]}
+        onClose={jest.fn()}
+        secondaryPanel={secondaryPanel}
       />,
     );
 

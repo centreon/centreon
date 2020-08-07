@@ -1,6 +1,5 @@
-import React, { useState, useRef, useEffect, RefObject } from 'react';
+import React, { useState, useRef, RefObject } from 'react';
 
-import ResizeObserver from 'resize-observer-polyfill';
 import clsx from 'clsx';
 
 import { withStyles, makeStyles, Theme } from '@material-ui/core/styles';
@@ -22,6 +21,8 @@ import { ColumnType } from './models';
 import PaginationActions from './PaginationActions';
 import StyledPagination from './Pagination';
 import ListingLoadingSkeleton from './Skeleton';
+import useResizeObserver from './useResizeObserver';
+import getCumulativeOffset from './getCumulativeOffset';
 
 const loadingIndicatorHeight = 3;
 
@@ -67,14 +68,6 @@ const useStyles = makeStyles<Theme>((theme) => ({
     whiteSpace: 'nowrap',
   },
 }));
-
-const cumulativeOffset = (element): number => {
-  if (!element || !element.offsetParent) {
-    return 0;
-  }
-
-  return cumulativeOffset(element.offsetParent) + element.offsetTop;
-};
 
 export interface Props {
   checkable?: boolean;
@@ -133,26 +126,19 @@ const Listing = ({
   const [tableTopOffset, setTableTopOffset] = useState(0);
   const [hoveredRowId, setHoveredRowId] = useState(null);
 
-  const paperElement = useRef<HTMLDivElement>();
+  const paperRef = useRef<HTMLDivElement>();
   const paginationElement = useRef<HTMLDivElement>();
   const tableHeaderElement = useRef<HTMLTableSectionElement>();
 
   const classes = useStyles();
   const cellClasses = useCellStyles(checkable);
 
-  useEffect(() => {
-    let active = true;
-    const ro = new ResizeObserver(() => {
-      if (active) {
-        setTableTopOffset(cumulativeOffset(paperElement.current));
-      }
-    });
-
-    ro.observe(paperElement.current as Element);
-    return () => {
-      active = false;
-    };
-  }, []);
+  useResizeObserver({
+    ref: paperRef,
+    onResize: () => {
+      setTableTopOffset(getCumulativeOffset(paperRef.current));
+    },
+  });
 
   const selectedRowsInclude = (row): boolean => {
     return !!selectedRows.find((includedRow) => haveSameIds(includedRow, row));
@@ -307,7 +293,7 @@ const Listing = ({
       )}
       <div
         className={classes.paperElement}
-        ref={paperElement as RefObject<HTMLDivElement>}
+        ref={paperRef as RefObject<HTMLDivElement>}
       >
         <div
           className={classes.actionBar}

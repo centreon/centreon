@@ -1,18 +1,18 @@
 /* eslint-disable react-hooks/rules-of-hooks */
+
 import * as React from 'react';
 
-import { Typography, makeStyles, Paper, Button } from '@material-ui/core';
+import { Typography, makeStyles, Paper, Button, Tab } from '@material-ui/core';
 import { grey } from '@material-ui/core/colors';
-import CloseIcon from '@material-ui/icons/Close';
 
 import ListingPage from '.';
 import Listing from '../Listing';
 import { ColumnType } from '../Listing/models';
 import { SearchField } from '..';
 import TextField from '../InputField/Text';
+import Panel from '../Panel';
+import Filters from './Filters';
 import AutocompleteField from '../InputField/Select/Autocomplete';
-import SlidePanel from './SlidePanel';
-import IconButton from '../Button/Icon';
 
 export default { title: 'Listing Page' };
 
@@ -120,10 +120,6 @@ const listing = (
   />
 );
 
-interface Filter {
-  onOpen?: () => void;
-}
-
 const FiltersSummary = (): JSX.Element => {
   const classes = useStyles();
 
@@ -135,20 +131,30 @@ const FiltersSummary = (): JSX.Element => {
   );
 };
 
-const FiltersSummaryWithOpenSlidePanelButton = ({
+const NonExpandableFilters = (): JSX.Element => {
+  return <Filters filters={<FiltersSummary />} />;
+};
+
+interface ExpandableFiltersWithOpenButtonProps {
+  onOpen?: () => void;
+}
+const ExpandableFiltersWithOpenButton = ({
   onOpen = () => undefined,
-}: Filter): JSX.Element => {
+}: ExpandableFiltersWithOpenButtonProps): JSX.Element => {
   const classes = useStyles();
 
   return (
-    <div className={classes.filtersSummary}>
-      <Typography>Filters</Typography>
-      <SearchField />
-      <Button onClick={onOpen}>Open Side Panel</Button>
-    </div>
+    <Filters
+      filters={
+        <div className={classes.filtersSummary}>
+          <Typography>Filters</Typography>
+          <SearchField />
+          <Button onClick={onOpen}>Open Side Panel</Button>
+        </div>
+      }
+    />
   );
 };
-
 const FiltersDetails = (): JSX.Element => {
   const classes = useStyles();
 
@@ -171,6 +177,16 @@ const FiltersDetails = (): JSX.Element => {
       />
       <TextField placeholder="Other Text" />
     </div>
+  );
+};
+
+const ExpandableFilters = (): JSX.Element => {
+  return (
+    <Filters
+      filters={<FiltersSummary />}
+      expandable
+      expandableFilters={<FiltersDetails />}
+    />
   );
 };
 
@@ -241,18 +257,13 @@ interface PanelProps {
   onClose?: () => void;
 }
 
-const DetailsPanelHeader = ({
-  onClose = () => undefined,
-}: PanelProps): JSX.Element => {
+const DetailsPanelHeader = (): JSX.Element => {
   const classes = useStyles();
   return (
     <div className={classes.detailsPanelHeader}>
       <Typography variant="h5" align="center">
         Details Panel
       </Typography>
-      <IconButton title="Close" ariaLabel="Close" onClick={onClose}>
-        <CloseIcon />
-      </IconButton>
     </div>
   );
 };
@@ -260,65 +271,76 @@ const DetailsPanelHeader = ({
 const DetailsPanel = ({
   onClose = () => undefined,
 }: PanelProps): JSX.Element => (
-  <SlidePanel
-    header={<DetailsPanelHeader onClose={onClose} />}
-    content={<DetailsPanelContent />}
+  <Panel
+    onClose={onClose}
+    header={<DetailsPanelHeader />}
+    selectedTab={<DetailsPanelContent />}
+  />
+);
+
+const DetailsPanelWithTabs = ({
+  onClose = () => undefined,
+}: PanelProps): JSX.Element => (
+  <Panel
+    onClose={onClose}
+    header={<DetailsPanelHeader />}
+    tabs={[<Tab key="tab1" label="Tab 1" />, <Tab key="tab2" label="Tab 2" />]}
+    selectedTab={<DetailsPanelContent />}
   />
 );
 
 export const normal = (): JSX.Element => (
   <ListingPage
-    slidePanelOpen={false}
+    panelOpen={false}
     listing={listing}
-    filtersExpandable={false}
-    filters={<FiltersSummary />}
+    filters={<NonExpandableFilters />}
   />
 );
 
-export const normalWithOpenedPanel = (): JSX.Element => (
+export const withOpenPanel = (): JSX.Element => (
   <ListingPage
-    slidePanelOpen
+    panelOpen
     listing={listing}
-    filtersExpandable={false}
-    filters={<FiltersSummary />}
-    slidePanel={<DetailsPanel />}
+    filters={<NonExpandableFilters />}
+    panel={<DetailsPanel />}
   />
 );
 
-export const normalWithFiltersDetails = (): JSX.Element => (
+export const withOpenPanelAndTabs = (): JSX.Element => (
   <ListingPage
-    slidePanelOpen={false}
+    panelOpen
     listing={listing}
-    filtersExpandable
-    filters={<FiltersSummary />}
-    expandableFilters={<FiltersDetails />}
+    filters={<NonExpandableFilters />}
+    panel={<DetailsPanelWithTabs />}
   />
 );
 
-export const normalWithFiltersDetailsAndOpenedPanel = (): JSX.Element => (
+export const withExpandableFilters = (): JSX.Element => (
   <ListingPage
-    slidePanelOpen
+    panelOpen={false}
     listing={listing}
-    filtersExpandable
-    filters={<FiltersSummary />}
-    expandableFilters={<FiltersDetails />}
-    slidePanel={<DetailsPanel />}
+    filters={<ExpandableFilters />}
   />
 );
 
-export const normalWithFiltersDetailsAndOpenedIntegratedPanel = (): JSX.Element => {
+export const withFilterDetailsAndOpenPanel = (): JSX.Element => (
+  <ListingPage
+    panelOpen
+    listing={listing}
+    filters={<ExpandableFilters />}
+    panel={<DetailsPanel />}
+  />
+);
+
+export const withExpandableFiltersAndFixedPanel = (): JSX.Element => {
   const [open, setOpen] = React.useState(true);
   return (
     <ListingPage
-      slidePanelOpen={open}
+      panelOpen={open}
       listing={listing}
-      filtersExpandable
-      filters={
-        <FiltersSummaryWithOpenSlidePanelButton onOpen={() => setOpen(true)} />
-      }
-      expandableFilters={<FiltersDetails />}
-      slidePanel={<DetailsPanel onClose={() => setOpen(false)} />}
-      slidePanelIntegrate
+      filters={<ExpandableFiltersWithOpenButton onOpen={() => setOpen(true)} />}
+      panel={<DetailsPanel onClose={() => setOpen(false)} />}
+      panelFixed
     />
   );
 };

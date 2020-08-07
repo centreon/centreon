@@ -1,19 +1,12 @@
 import * as React from 'react';
 
 import {
-  makeStyles,
   withStyles,
   ExpansionPanel,
   ExpansionPanelSummary as MuiExpansionPanelSummary,
   ExpansionPanelDetails as MuiExpansionPanelDetails,
 } from '@material-ui/core';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
-
-const useStyles = makeStyles({
-  filters: {
-    zIndex: 4,
-  },
-});
 
 const ExpansionPanelSummary = withStyles((theme) => ({
   root: {
@@ -45,53 +38,50 @@ const ExpansionPanelDetails = withStyles((theme) => ({
 }))(MuiExpansionPanelDetails);
 
 export interface FiltersProps {
-  filtersExpandable: boolean;
-  labelFiltersIcon?: string;
+  expandable?: boolean;
+  expandLabel?: string;
   filters: React.ReactElement;
   expandableFilters?: React.ReactElement;
-  onExpandTransitionFinished?: () => void;
+  onExpandTransitionFinish?: (expanded: boolean) => void;
 }
 
 const Filters = React.forwardRef(
   (
     {
-      filtersExpandable,
-      labelFiltersIcon,
+      expandable = false,
+      expandLabel,
       filters,
       expandableFilters,
-      onExpandTransitionFinished,
+      onExpandTransitionFinish,
     }: FiltersProps,
     ref,
   ): JSX.Element => {
     const [expanded, setExpanded] = React.useState(false);
-    const classes = useStyles();
 
     const toggleExpanded = () => setExpanded(!expanded);
 
     return (
-      <div className={classes.filters}>
-        <ExpansionPanel
-          square
-          expanded={filtersExpandable ? expanded : false}
-          onTransitionEnd={() => onExpandTransitionFinished?.()}
+      <ExpansionPanel
+        square
+        expanded={expandable ? expanded : false}
+        onTransitionEnd={() => onExpandTransitionFinish?.(expanded)}
+      >
+        <ExpansionPanelSummary
+          expandIcon={
+            expandable && (
+              <ExpandMoreIcon color="primary" aria-label={expandLabel} />
+            )
+          }
+          IconButtonProps={{ onClick: toggleExpanded }}
+          style={{ cursor: 'default' }}
+          ref={ref as React.RefObject<HTMLDivElement>}
         >
-          <ExpansionPanelSummary
-            expandIcon={
-              filtersExpandable && (
-                <ExpandMoreIcon color="primary" aria-label={labelFiltersIcon} />
-              )
-            }
-            IconButtonProps={{ onClick: toggleExpanded }}
-            style={{ cursor: 'default' }}
-            ref={ref as React.RefObject<HTMLDivElement>}
-          >
-            {filters}
-          </ExpansionPanelSummary>
-          {expandableFilters && (
-            <ExpansionPanelDetails>{expandableFilters}</ExpansionPanelDetails>
-          )}
-        </ExpansionPanel>
-      </div>
+          {filters}
+        </ExpansionPanelSummary>
+        {expandableFilters && (
+          <ExpansionPanelDetails>{expandableFilters}</ExpansionPanelDetails>
+        )}
+      </ExpansionPanel>
     );
   },
 );

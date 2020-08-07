@@ -1,7 +1,5 @@
 import React from 'react';
 
-import PropTypes from 'prop-types';
-
 import {
   Typography,
   makeStyles,
@@ -49,7 +47,12 @@ const CustomizedExpansionPanelSummary = withStyles((theme) => ({
   expanded: {},
 }))(ExpansionPanelSummary);
 
-const ExpandableSection = ({ title, children }) => {
+interface Props {
+  title: string;
+  children: JSX.Element;
+}
+
+const ExpandableSection = ({ title, children }: Props): JSX.Element => {
   const classes = useStyles();
   return (
     <Section>
@@ -61,15 +64,6 @@ const ExpandableSection = ({ title, children }) => {
       </ExpansionPanelDetails>
     </Section>
   );
-};
-
-ExpandableSection.defaultProps = {
-  title: '',
-};
-
-ExpandableSection.propTypes = {
-  title: PropTypes.string,
-  children: PropTypes.node.isRequired,
 };
 
 export default ExpandableSection;
