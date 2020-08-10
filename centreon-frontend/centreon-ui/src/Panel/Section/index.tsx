@@ -13,7 +13,10 @@ const closeSecondaryPanelBarWidth = 20;
 const useStyles = makeStyles((theme) => ({
   container: {
     display: 'grid',
-    gridTemplateColumns: `${panelWidth}px ${closeSecondaryPanelBarWidth}px ${panelWidth}px`,
+    gridTemplateColumns: (hasSecondaryPanel) =>
+      hasSecondaryPanel
+        ? `${panelWidth}px ${closeSecondaryPanelBarWidth}px ${panelWidth}px`
+        : `${panelWidth}px `,
     height: '100%',
   },
   closeSecondaryPanelBar: {
