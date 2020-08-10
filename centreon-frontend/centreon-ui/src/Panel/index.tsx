@@ -9,16 +9,19 @@ import {
   Divider,
   AppBar,
   Tabs,
+  Theme,
 } from '@material-ui/core';
 import IconClose from '@material-ui/icons/Clear';
 import IconButton from '../Button/Icon';
 
-const useStyles = makeStyles((theme) => ({
+type StylesProps = Pick<Props, 'headerBackgroundColor' | 'width'>;
+
+const useStyles = makeStyles<Theme, StylesProps>((theme) => ({
   container: {
     height: '100%',
     display: 'grid',
     gridTemplate: 'auto auto 1fr / 1fr',
-    width: (width: number) => width,
+    width: ({ width }) => width,
   },
   header: {
     gridArea: '1 / 1 / 2 / 1',
@@ -26,6 +29,7 @@ const useStyles = makeStyles((theme) => ({
     display: 'grid',
     gridTemplateColumns: '1fr auto',
     alignItems: 'center',
+    backgroundColor: ({ headerBackgroundColor }) => headerBackgroundColor,
   },
   divider: {
     gridArea: '2 / 1 / 3 / 1',
@@ -64,6 +68,7 @@ interface Props {
   onClose?: () => void;
   labelClose?: string;
   width?: number;
+  headerBackgroundColor?: string;
 }
 
 const Panel = ({
@@ -75,8 +80,9 @@ const Panel = ({
   onTabSelect = () => undefined,
   labelClose = 'Close',
   width = 550,
+  headerBackgroundColor,
 }: Props): JSX.Element => {
-  const classes = useStyles(width);
+  const classes = useStyles({ width, headerBackgroundColor });
 
   return (
     <Slide
