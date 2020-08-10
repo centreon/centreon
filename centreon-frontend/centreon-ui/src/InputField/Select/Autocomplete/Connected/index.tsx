@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import { concat, last, equals } from 'ramda';
+import { last, equals } from 'ramda';
 import { useDebouncedCallback } from 'use-debounce';
 
 import {
@@ -13,7 +13,6 @@ import {
 } from '@material-ui/core';
 
 import { Props as AutocompleteFieldProps } from '..';
-import { SelectEntry } from '../..';
 import useRequest from '../../../../api/useRequest';
 import { getData } from '../../../../api';
 import useIntersectionObserver from '../../../../utils/useIntersectionObserver';
@@ -42,7 +41,7 @@ const ConnectedAutocompleteField = (
     getEndpoint,
     ...props
   }: Props & Omit<AutocompleteFieldProps, 'options'>): JSX.Element => {
-    const [options, setOptions] = React.useState<Array<SelectEntry>>();
+    const [options, setOptions] = React.useState<Array<TData>>([]);
     const [optionsOpen, setOptionsOpen] = React.useState<boolean>(false);
     const [searchValue, setSearchValue] = React.useState<string>('');
     const [page, setPage] = React.useState(1);
@@ -57,7 +56,8 @@ const ConnectedAutocompleteField = (
 
     const loadOptions = ({ endpoint, loadMore = false }) => {
       sendRequest(endpoint).then(({ result, meta }) => {
-        setOptions(concat(loadMore ? options : [], result));
+        const moreOptions = loadMore ? options : [];
+        setOptions(result.concat(moreOptions));
         setMaxPage(Math.ceil(meta.total / meta.limit));
       });
     };
@@ -142,15 +142,13 @@ const ConnectedAutocompleteField = (
       });
     }, [optionsOpen, page]);
 
-    const loading = sending || !options;
-
     return (
       <AutocompleteField
         onOpen={openOptions}
         onClose={closeOptions}
-        options={options || []}
+        options={options}
         onTextChange={changeText}
-        loading={loading}
+        loading={sending}
         renderOption={renderOptions}
         filterOptions={(opt) => opt}
         {...props}

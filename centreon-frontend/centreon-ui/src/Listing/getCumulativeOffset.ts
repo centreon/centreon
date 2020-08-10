@@ -1,7 +1,7 @@
-import { isNil, pipe, prop } from 'ramda';
+import { isNil, pipe, propOr } from 'ramda';
 
 const getCumulativeOffset = (element?: HTMLElement): number => {
-  if (pipe(prop('offsetParent'), isNil)(element)) {
+  if (pipe(propOr(undefined, 'offsetParent'), isNil)(element)) {
     return 0;
   }
 
