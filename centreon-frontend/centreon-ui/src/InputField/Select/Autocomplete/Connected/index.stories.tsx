@@ -20,20 +20,31 @@ const buildEntities = (from) => {
     }));
 };
 
-const buildResult = (page) => ({
+const buildResult = ({ page, withPagination = false }) => ({
   result: buildEntities((page - 1) * 10),
-  meta: {
-    pagination: {
-      limit: 10,
-      page,
-      total: 40,
-    },
-  },
+  meta: withPagination
+    ? {
+        pagination: {
+          limit: 10,
+          page,
+          total: 40,
+        },
+      }
+    : {
+        limit: 10,
+        page,
+        total: 40,
+      },
 });
 
 const baseEndpoint = 'endpoint';
-const getEndpoint = (params): string =>
-  buildListingEndpoint({ baseEndpoint, params, searchOptions: ['host.name'] });
+const baseEndpointWithPagination = 'endpointWithPagination';
+const getEndpoint = ({ endpoint, params }): string =>
+  buildListingEndpoint({
+    baseEndpoint: endpoint,
+    params,
+    searchOptions: ['host.name'],
+  });
 
 const mockedAxios = new MockAdapter(axios, { delayResponse: 500 });
 
@@ -44,7 +55,23 @@ mockedAxios
   .reply((config) => {
     return [
       200,
-      buildResult(parseInt(config.url?.split('page=')[1][0] || '0', 10)),
+      buildResult({
+        page: parseInt(config.url?.split('page=')[1][0] || '0', 10),
+      }),
+    ];
+  });
+
+mockedAxios
+  .onGet(
+    /endpointWithPagination\?page=\d+(?:&search={"\$or":\[{"host\.name":{"\$rg":".*"}}]})?/,
+  )
+  .reply((config) => {
+    return [
+      200,
+      buildResult({
+        page: parseInt(config.url?.split('page=')[1][0] || '0', 10),
+        withPagination: true,
+      }),
     ];
   });
 
@@ -52,7 +79,7 @@ export const single = (): JSX.Element => (
   <SingleConnectedAutocompleteField
     label="Single Connected Autocomplete"
     initialPage={1}
-    getEndpoint={getEndpoint}
+    getEndpoint={(params) => getEndpoint({ endpoint: baseEndpoint, params })}
     getOptionsFromResult={(result): Array<SelectEntry> => result}
     placeholder="Type here..."
   />
@@ -60,10 +87,24 @@ export const single = (): JSX.Element => (
 
 export const multi = (): JSX.Element => (
   <MultiConnectedAutocompleteField
-    label="Multi Infinite Autocomplete"
+    label="Multi Connected Autocomplete"
     initialPage={1}
-    getEndpoint={getEndpoint}
+    getEndpoint={(params) => getEndpoint({ endpoint: baseEndpoint, params })}
     getOptionsFromResult={(result): Array<SelectEntry> => result}
     placeholder="Type here..."
+  />
+);
+
+const getEndpointWithPagination = (params) =>
+  getEndpoint({ endpoint: baseEndpointWithPagination, params });
+
+export const singleWithCustomPathToPaginationProperties = (): JSX.Element => (
+  <SingleConnectedAutocompleteField
+    label="Single Connected Autocomplete"
+    initialPage={1}
+    getEndpoint={getEndpointWithPagination}
+    getOptionsFromResult={(result): Array<SelectEntry> => result}
+    placeholder="Type here..."
+    paginationPath={['pagination']}
   />
 );
