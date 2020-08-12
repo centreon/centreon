@@ -278,11 +278,8 @@ const DetailsPanel = ({
   />
 );
 
-const DetailsPanelWithTabs = ({
-  onClose = () => undefined,
-}: PanelProps): JSX.Element => (
+const DetailsPanelWithTabs = (): JSX.Element => (
   <Panel
-    onClose={onClose}
     header={<DetailsPanelHeader />}
     tabs={[<Tab key="tab1" label="Tab 1" />, <Tab key="tab2" label="Tab 2" />]}
     selectedTab={<DetailsPanelContent />}

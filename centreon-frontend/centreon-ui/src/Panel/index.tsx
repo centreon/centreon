@@ -76,7 +76,7 @@ const Panel = ({
   tabs = [],
   selectedTabId = 0,
   selectedTab,
-  onClose = () => undefined,
+  onClose,
   onTabSelect = () => undefined,
   labelClose = 'Close',
   width = 550,
@@ -98,13 +98,15 @@ const Panel = ({
           <>
             <div className={classes.header}>
               {header}
-              <IconButton
-                title={labelClose}
-                ariaLabel={labelClose}
-                onClick={onClose}
-              >
-                <IconClose color="action" />
-              </IconButton>
+              {onClose && (
+                <IconButton
+                  title={labelClose}
+                  ariaLabel={labelClose}
+                  onClick={onClose}
+                >
+                  <IconClose color="action" />
+                </IconButton>
+              )}
             </div>
             <Divider className={classes.divider} />
           </>
