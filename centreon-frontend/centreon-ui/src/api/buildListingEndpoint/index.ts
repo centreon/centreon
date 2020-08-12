@@ -1,56 +1,53 @@
-import getSearchParam from './getSearchParam';
-import { ListingOptions, Param } from './models';
+import getSearchQueryParameterValue from './getSearchQueryParameterValue';
+import {
+  Parameters,
+  QueryParameter,
+  BuildListingEndpointParameters,
+} from './models';
 
-const buildParam = ({ name, value }): string => {
+const toRawQueryParameter = ({ name, value }): string => {
   return `${name}=${JSON.stringify(value)}`;
 };
 
-const buildParams = (params): Array<string> =>
-  params
+const toRawQueryParameters = (queryParameters): Array<string> =>
+  queryParameters
     .filter(({ value }) => value !== undefined && value.length !== 0)
-    .map(buildParam)
+    .map(toRawQueryParameter)
     .join('&');
 
-const getListingParams = ({
+const getQueryParameters = ({
   sort,
   page,
   limit,
   search,
-  searchOptions,
-  extraParams = [],
-}: ListingOptions): Array<Param> => {
+  customQueryParameters = [],
+}: Parameters): Array<QueryParameter> => {
   return [
     { name: 'page', value: page },
     { name: 'limit', value: limit },
     { name: 'sort_by', value: sort },
     {
       name: 'search',
-      value: getSearchParam({ searchValue: search, searchOptions }),
+      value: getSearchQueryParameterValue(search),
     },
-    ...extraParams,
+    ...customQueryParameters,
   ];
 };
 
-const buildEndpoint = ({ baseEndpoint, params }): string => {
-  return `${baseEndpoint}?${buildParams(params)}`;
+const buildEndpoint = ({ baseEndpoint, queryParameters }): string => {
+  return `${baseEndpoint}?${toRawQueryParameters(queryParameters)}`;
 };
-
-interface BuildListingParams {
-  baseEndpoint?: string;
-  searchOptions?: Array<string>;
-  params: ListingOptions;
-  extraParams?: Array<Param>;
-}
 
 const buildListingEndpoint = ({
   baseEndpoint,
-  searchOptions,
-  params,
-  extraParams,
-}: BuildListingParams): string => {
+  parameters,
+  customQueryParameters,
+}: BuildListingEndpointParameters): string => {
   return buildEndpoint({
     baseEndpoint,
-    params: [...getListingParams({ searchOptions, ...params, extraParams })],
+    queryParameters: [
+      ...getQueryParameters({ ...parameters, customQueryParameters }),
+    ],
   });
 };
 

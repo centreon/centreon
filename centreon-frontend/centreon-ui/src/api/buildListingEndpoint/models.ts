@@ -1,39 +1,79 @@
-export interface SearchInput {
-  searchValue?: string;
-  searchOptions?: Array<string>;
+export interface BuildListingEndpointParameters {
+  baseEndpoint?: string;
+  parameters: Parameters;
+  customQueryParameters?: Array<QueryParameter>;
 }
 
-export interface SearchObject {
+interface SortQueryParameterValue {
+  [sortf: string]: string;
+}
+
+export interface RegexSearchParameter {
+  value: string;
+  fields: Array<string>;
+}
+
+export interface ListsSearchParameter {
+  field: string;
+  values: Array<string>;
+}
+
+export interface SearchMatch {
   field: string;
   value: string;
 }
 
+export interface Parameters {
+  sort?: SortQueryParameterValue;
+  page?: number;
+  limit?: number;
+  search?: SearchParameter;
+  customQueryParameters?: Array<QueryParameter>;
+}
+
 type SearchPatterns = Array<{ [field: string]: { $rg: string } }>;
 
-export interface OrSearchParam {
+export interface OrSearchQueryParameterValue {
   $or: SearchPatterns;
 }
 
-export interface AndSearchParam {
+export interface AndSearchQueryParameterValue {
   $and: SearchPatterns;
 }
 
-interface Sort {
-  [sortf: string]: string;
+export type RegexSearchQueryParameterValue =
+  | OrSearchQueryParameterValue
+  | AndSearchQueryParameterValue
+  | undefined;
+
+export interface SearchParameter {
+  regex?: RegexSearchParameter;
+  lists?: Array<ListsSearchParameter>;
 }
 
-export interface ListingOptions {
-  sort?: Sort;
-  page?: number;
-  limit?: number;
-  search?: string;
-  searchOptions?: Array<string>;
-  extraParams?: Array<Param>;
+export interface ListsSearchQueryParameterValue {
+  $and: Array<{ [field: string]: { [field: string]: { $in: Array<string> } } }>;
 }
 
-type Value = string | number | OrSearchParam | AndSearchParam | Sort;
+export type SearchQueryParameterValue =
+  | {
+      $and: Array<
+        RegexSearchQueryParameterValue | ListsSearchQueryParameterValue
+      >;
+    }
+  | RegexSearchQueryParameterValue
+  | ListsSearchQueryParameterValue
+  | undefined;
 
-export interface Param {
+export type QueryParameterValue =
+  | string
+  | number
+  | SortQueryParameterValue
+  | SearchQueryParameterValue
+  | Array<string>
+  | undefined;
+
+export interface QueryParameter {
   name: string;
-  value?: Value;
+  value: QueryParameterValue;
 }

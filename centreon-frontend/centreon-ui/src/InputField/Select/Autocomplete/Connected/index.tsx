@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import { last, equals, path, append } from 'ramda';
+import { equals, path, append, last, isEmpty } from 'ramda';
 
 import {
   Typography,
@@ -20,6 +20,7 @@ import { ListingModel } from '../../../..';
 
 interface Props {
   getEndpoint: ({ search, page }) => string;
+  field: string;
   initialPage: number;
   paginationPath?: Array<string>;
 }
@@ -42,6 +43,7 @@ const ConnectedAutocompleteField = (
   >({
     initialPage,
     getEndpoint,
+    field,
     paginationPath = [],
     ...props
   }: Props & Omit<AutocompleteFieldProps, 'options'>): JSX.Element => {
@@ -80,11 +82,27 @@ const ConnectedAutocompleteField = (
       action: () => setPage(page + 1),
     });
 
+    const getSearchOption = (value: string) => {
+      if (isEmpty(value)) {
+        return undefined;
+      }
+
+      return {
+        regex: {
+          fields: [field],
+          value,
+        },
+      };
+    };
+
     const debouncedChangeText = React.useRef<SearchDebounce>(
       debounce<SearchDebounce>((value): void => {
         if (page === initialPage) {
           loadOptions({
-            endpoint: getEndpoint({ search: value, page: initialPage }),
+            endpoint: getEndpoint({
+              search: getSearchOption(value),
+              page: initialPage,
+            }),
           });
         }
 
@@ -150,7 +168,7 @@ const ConnectedAutocompleteField = (
       }
 
       loadOptions({
-        endpoint: getEndpoint({ search: searchValue, page }),
+        endpoint: getEndpoint({ search: getSearchOption(searchValue), page }),
         loadMore: page > 1,
       });
     }, [optionsOpen, page]);

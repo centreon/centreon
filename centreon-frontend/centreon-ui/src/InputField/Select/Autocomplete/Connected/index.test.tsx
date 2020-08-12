@@ -10,7 +10,6 @@ import {
 
 import { act } from 'react-test-renderer';
 import SingleInfiniteAutocomplete from './Single';
-import { SelectEntry } from '../..';
 import buildListingEndpoint from '../../../../api/buildListingEndpoint';
 
 const mockedAxios = axios as jest.Mocked<typeof axios>;
@@ -21,7 +20,7 @@ const cancelTokenRequestParam = {
   cancelToken: { promise: Promise.resolve({}) },
 };
 
-const label = 'Infnite Autocomplete';
+const label = 'Connected Autocomplete';
 const placeholder = 'Type here...';
 
 const optionsData = {
@@ -39,8 +38,9 @@ const optionsData = {
 };
 
 const baseEndpoint = 'endpoint';
-const getEndpoint = (params): string =>
-  buildListingEndpoint({ baseEndpoint, params, searchOptions: ['host.name'] });
+const getEndpoint = (parameters): string => {
+  return buildListingEndpoint({ baseEndpoint, parameters });
+};
 
 const renderSingleInfiniteAutocompleteField = (): RenderResult =>
   render(
@@ -48,12 +48,12 @@ const renderSingleInfiniteAutocompleteField = (): RenderResult =>
       label={label}
       initialPage={1}
       getEndpoint={getEndpoint}
-      getOptionsFromResult={(result): Array<SelectEntry> => result}
+      field="host.name"
       placeholder="Type here..."
     />,
   );
 
-describe('Infinite Autocomplete', () => {
+describe(SingleInfiniteAutocomplete, () => {
   beforeEach(() => {
     mockedAxios.get.mockResolvedValue({
       data: optionsData,
