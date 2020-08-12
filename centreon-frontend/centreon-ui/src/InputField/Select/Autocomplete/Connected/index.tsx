@@ -1,7 +1,6 @@
 import * as React from 'react';
 
-import { equals, path, append, last } from 'ramda';
-import { useDebouncedCallback } from 'use-debounce';
+import { last, equals, path, append } from 'ramda';
 
 import {
   Typography,
@@ -11,6 +10,7 @@ import {
   useTheme,
   FormControlLabel,
 } from '@material-ui/core';
+import debounce from '@material-ui/core/utils/debounce';
 
 import { Props as AutocompleteFieldProps } from '..';
 import useRequest from '../../../../api/useRequest';
@@ -23,6 +23,8 @@ interface Props {
   initialPage: number;
   paginationPath?: Array<string>;
 }
+
+type SearchDebounce = (value: string) => void;
 
 const useStyles = makeStyles((theme) => ({
   checkbox: {
@@ -78,18 +80,20 @@ const ConnectedAutocompleteField = (
       action: () => setPage(page + 1),
     });
 
-    const [debouncedChangeText] = useDebouncedCallback((value: string) => {
-      if (page === initialPage) {
-        loadOptions({
-          endpoint: getEndpoint({ search: value, page: initialPage }),
-        });
-      }
+    const debouncedChangeText = React.useRef<SearchDebounce>(
+      debounce<SearchDebounce>((value): void => {
+        if (page === initialPage) {
+          loadOptions({
+            endpoint: getEndpoint({ search: value, page: initialPage }),
+          });
+        }
 
-      setPage(1);
-    }, 500);
+        setPage(1);
+      }, 500),
+    );
 
     const changeText = (event): void => {
-      debouncedChangeText(event.target.value);
+      debouncedChangeText.current(event.target.value);
       setSearchValue(event.target.value);
     };
 

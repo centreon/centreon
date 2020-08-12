@@ -3,9 +3,9 @@ import React from 'react';
 import {
   Typography,
   makeStyles,
-  ExpansionPanelSummary,
-  ExpansionPanelDetails,
-  ExpansionPanel,
+  AccordionSummary,
+  AccordionDetails,
+  Accordion,
   styled,
   withStyles,
   ListItem,
@@ -23,7 +23,7 @@ const Title = styled(Typography)(({ theme }) => ({
   fontWeight: 700,
 }));
 
-const Section = styled(ExpansionPanel)({
+const Section = styled(Accordion)({
   width: '100%',
   margin: '0',
   backgroundColor: 'transparent',
@@ -32,7 +32,7 @@ const Section = styled(ExpansionPanel)({
   borderRadius: '0',
 });
 
-const CustomizedExpansionPanelSummary = withStyles((theme) => ({
+const CustomizedAccordionSummary = withStyles((theme) => ({
   root: {
     minHeight: theme.spacing(4),
     '&$expanded': {
@@ -45,7 +45,7 @@ const CustomizedExpansionPanelSummary = withStyles((theme) => ({
     },
   },
   expanded: {},
-}))(ExpansionPanelSummary);
+}))(AccordionSummary);
 
 interface Props {
   title: string;
@@ -56,12 +56,12 @@ const ExpandableSection = ({ title, children }: Props): JSX.Element => {
   const classes = useStyles();
   return (
     <Section>
-      <CustomizedExpansionPanelSummary expandIcon={<ExpandMoreIcon />}>
+      <CustomizedAccordionSummary expandIcon={<ExpandMoreIcon />}>
         <Title>{title}</Title>
-      </CustomizedExpansionPanelSummary>
-      <ExpansionPanelDetails className={classes.details}>
+      </CustomizedAccordionSummary>
+      <AccordionDetails className={classes.details}>
         <ListItem>{children}</ListItem>
-      </ExpansionPanelDetails>
+      </AccordionDetails>
     </Section>
   );
 };
