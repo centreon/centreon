@@ -9,7 +9,7 @@ import {
 } from '@testing-library/react';
 
 import { act } from 'react-test-renderer';
-import SingleInfiniteAutocomplete from './Single';
+import SingleAutocompleteField from './Single';
 import buildListingEndpoint from '../../../../api/buildListingEndpoint';
 
 const mockedAxios = axios as jest.Mocked<typeof axios>;
@@ -42,9 +42,9 @@ const getEndpoint = (parameters): string => {
   return buildListingEndpoint({ baseEndpoint, parameters });
 };
 
-const renderSingleInfiniteAutocompleteField = (): RenderResult =>
+const renderSingleAutocompleteField = (): RenderResult =>
   render(
-    <SingleInfiniteAutocomplete
+    <SingleAutocompleteField
       label={label}
       initialPage={1}
       getEndpoint={getEndpoint}
@@ -53,7 +53,7 @@ const renderSingleInfiniteAutocompleteField = (): RenderResult =>
     />,
   );
 
-describe(SingleInfiniteAutocomplete, () => {
+describe(SingleAutocompleteField, () => {
   beforeEach(() => {
     mockedAxios.get.mockResolvedValue({
       data: optionsData,
@@ -65,10 +65,7 @@ describe(SingleInfiniteAutocomplete, () => {
   });
 
   it('populates options with the first page result of get call from endpoint', async () => {
-    const {
-      getByLabelText,
-      getByText,
-    } = renderSingleInfiniteAutocompleteField();
+    const { getByLabelText, getByText } = renderSingleAutocompleteField();
 
     act(() => {
       fireEvent.click(getByLabelText('Open'));
@@ -88,7 +85,7 @@ describe(SingleInfiniteAutocomplete, () => {
     const {
       getByLabelText,
       getByPlaceholderText,
-    } = renderSingleInfiniteAutocompleteField();
+    } = renderSingleAutocompleteField();
 
     act(() => {
       fireEvent.click(getByLabelText('Open'));

@@ -2,9 +2,9 @@ import * as React from 'react';
 
 import {
   withStyles,
-  ExpansionPanel,
-  ExpansionPanelSummary as MuiExpansionPanelSummary,
-  ExpansionPanelDetails as MuiExpansionPanelDetails,
+  Accordion,
+  AccordionSummary,
+  AccordionDetails,
 } from '@material-ui/core';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 
@@ -29,13 +29,13 @@ const ExpansionPanelSummary = withStyles((theme) => ({
   },
   focused: {},
   expanded: {},
-}))(MuiExpansionPanelSummary);
+}))(AccordionSummary);
 
 const ExpansionPanelDetails = withStyles((theme) => ({
   root: {
     padding: theme.spacing(0, 0.5, 1, 2),
   },
-}))(MuiExpansionPanelDetails);
+}))(AccordionDetails);
 
 export interface FiltersProps {
   expandable?: boolean;
@@ -61,7 +61,7 @@ const Filters = React.forwardRef(
     const toggleExpanded = () => setExpanded(!expanded);
 
     return (
-      <ExpansionPanel
+      <Accordion
         square
         expanded={expandable ? expanded : false}
         onTransitionEnd={() => onExpandTransitionFinish?.(expanded)}
@@ -81,7 +81,7 @@ const Filters = React.forwardRef(
         {expandableFilters && (
           <ExpansionPanelDetails>{expandableFilters}</ExpansionPanelDetails>
         )}
-      </ExpansionPanel>
+      </Accordion>
     );
   },
 );
