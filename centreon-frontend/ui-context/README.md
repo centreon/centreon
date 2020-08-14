@@ -2,7 +2,7 @@
 
 A repository containing the shared context for the Centreon front-end (using the [React Context](https://reactjs.org/docs/context.html))
 
-# Linting
+## Linting
 
 To lint the code with ESlint, run:
 
