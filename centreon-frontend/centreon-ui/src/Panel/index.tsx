@@ -21,7 +21,6 @@ const useStyles = makeStyles<Theme, StylesProps>((theme) => ({
     height: '100%',
     display: 'grid',
     gridTemplate: 'auto auto 1fr / 1fr',
-    width: ({ width }) => width,
   },
   header: {
     gridArea: '1 / 1 / 2 / 1',
@@ -39,6 +38,7 @@ const useStyles = makeStyles<Theme, StylesProps>((theme) => ({
     display: 'grid',
     gridTemplateRows: 'auto 1fr',
     height: '100%',
+    width: ({ width }) => width,
   },
   contentContainer: {
     backgroundColor: theme.palette.background.default,
