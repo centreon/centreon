@@ -170,6 +170,8 @@ sub connect {
             ssh_port => $self->{clients}->{$options{id}}->{ssh_port},
             ssh_username => $self->{clients}->{$options{id}}->{ssh_username},
             ssh_password => $self->{clients}->{$options{id}}->{ssh_password},
+            ssh_dir => $self->{clients}->{$options{id}}->{ssh_dir},
+            ssh_identity => $self->{clients}->{$options{id}}->{ssh_identity},
             strict_serverkey_check => $self->{clients}->{$options{id}}->{strict_serverkey_check},
             ssh_connect_timeout => $self->{clients}->{$options{id}}->{ssh_connect_timeout}
         );
