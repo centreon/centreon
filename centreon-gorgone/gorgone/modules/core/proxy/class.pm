@@ -171,6 +171,7 @@ sub connect {
             ssh_username => $self->{clients}->{$options{id}}->{ssh_username},
             ssh_password => $self->{clients}->{$options{id}}->{ssh_password},
             ssh_directory => $self->{clients}->{$options{id}}->{ssh_directory},
+            ssh_known_hosts => $self->{clients}->{$options{id}}->{ssh_known_hosts},
             ssh_identity => $self->{clients}->{$options{id}}->{ssh_identity},
             strict_serverkey_check => $self->{clients}->{$options{id}}->{strict_serverkey_check},
             ssh_connect_timeout => $self->{clients}->{$options{id}}->{ssh_connect_timeout}

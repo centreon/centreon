@@ -52,6 +52,7 @@ sub open_session {
             port => $options{ssh_port},
             user => $options{ssh_username},
             sshdir => $options{ssh_directory},
+            knownhosts => $options{ssh_known_hosts},
             identity => $options{ssh_identity},
             timeout => $timeout
         ) != Libssh::Session::SSH_OK) {
