@@ -35,3 +35,29 @@ export const closeWithEndAdornment = (): JSX.Element => {
     />
   );
 };
+
+export const required = (): JSX.Element => {
+  return (
+    <AutocompleteField
+      options={options}
+      label="Autocomplete"
+      placeholder="Type here..."
+      value={options[1]}
+      endAdornment={<EditIcon />}
+      required
+    />
+  );
+};
+
+export const closeWithError = (): JSX.Element => {
+  return (
+    <AutocompleteField
+      options={options}
+      label="Autocomplete"
+      placeholder="Type here..."
+      value={options[1]}
+      endAdornment={<EditIcon />}
+      labelError="Error"
+    />
+  );
+};
