@@ -10,9 +10,9 @@ Nodes are either servers running Gorgone daemon or simple equipment with SSH ser
 
 There is no specific configuration in the Gorgone daemon configuration file, only a directive to set a path to a dedicated configuration file.
 
-| Directive | Description | Default value |
-| :- | :- | :- |
-| config_file | Path to the configuration file listing nodes | |
+| Directive    | Description                                  | Default value |
+|:-------------|:---------------------------------------------|:--------------|
+| config\_file | Path to the configuration file listing nodes |               |
 
 #### Example
 
@@ -20,26 +20,26 @@ There is no specific configuration in the Gorgone daemon configuration file, onl
 name: register
 package: "gorgone::modules::core::register::hooks"
 enable: true
-config_file: config/registernodes.yml
+config_file: config/registernodes.yaml
 ```
 
 Nodes are listed in a separate configuration file in a `nodes` table as below:
 
 ##### Using ZMQ (Gorgone running on node)
 
-| Directive | Description |
-| :- | :- |
-| id | Unique identifier of the node (can be Poller's ID if using prevail option) |
-| type | Way for the daemon to connect to the node (push_zmq) |
-| address | IP address of the node |
-| port | Port to connect to on the node |
-| server_pubkey | Server public key (Default: ask the server pubkey when it connects) |
-| client_pubkey | Client public key (Default: use global public key) |
-| client_privkey | Client private key (Default: use global private key) |
-| cipher | Cipher used for encryption (Default: "Cipher::AES") |
-| vector | Encryption vector (Default: 0123456789012345) |
-| prevail | Defines if this configuration prevails on `nodes` module configuration|
-| nodes | Table to register subnodes managed by node (pathscore is not mandatory) |
+| Directive       | Description                                                                |
+|:----------------|:---------------------------------------------------------------------------|
+| id              | Unique identifier of the node (can be Poller’s ID if using prevail option) |
+| type            | Way for the daemon to connect to the node (push\_zmq)                      |
+| address         | IP address of the node                                                     |
+| port            | Port to connect to on the node                                             |
+| server\_pubkey  | Server public key (Default: ask the server pubkey when it connects)        |
+| client\_pubkey  | Client public key (Default: use global public key)                         |
+| client\_privkey | Client private key (Default: use global private key)                       |
+| cipher          | Cipher used for encryption (Default: “Cipher::AES”)                        |
+| vector          | Encryption vector (Default: 0123456789012345)                              |
+| prevail         | Defines if this configuration prevails on `nodes` module configuration     |
+| nodes           | Table to register subnodes managed by node (pathscore is not mandatory)    |
 
 #### Example
 
@@ -58,16 +58,19 @@ nodes:
 
 ##### Using SSH
 
-| Directive | Description |
-| :- | :- |
-| id | Unique identifier of the node (can be Poller's ID if using prevail option) |
-| type | Way for the daemon to connect to the node (push_ssh) |
-| address | IP address of the node |
-| ssh_port | Port to connect to on the node |
-| ssh_username | SSH username (if no SSH key) |
-| ssh_password | SSH password (if no SSH key) |
-| strict_serverkey_check | Boolean to strictly check the node fingerprint |
-| prevail | Defines if this configuration prevails on `nodes` module configuration|
+| Directive                | Description                                                                                       |
+|:-------------------------|:--------------------------------------------------------------------------------------------------|
+| id                       | Unique identifier of the node (can be Poller’s ID if using prevail option)                        |
+| type                     | Way for the daemon to connect to the node (push\_ssh)                                             |
+| address                  | IP address of the node                                                                            |
+| ssh\_port                | Port to connect to on the node                                                                    |
+| ssh\_directory           | Path to the SSH directory, used for files like known\_hosts and identity (private and public key) |
+| ssh\_known\_hosts        | Path to the known hosts file                                                                      |
+| ssh\_identity            | Path to the identity file                                                                         |
+| ssh\_username            | SSH username                                                                                      |
+| ssh\_password            | SSH password (if no SSH key)                                                                      |
+| strict\_serverkey\_check | Boolean to strictly check the node fingerprint                                                    |
+| prevail                  | Defines if this configuration prevails on `nodes` module configuration                            |
 
 #### Example
 
@@ -76,9 +79,9 @@ nodes:
   - id: 8
     type: push_ssh
     address: 10.4.5.6
-    ssh_port: 22
+    ssh_port: 2222
+    ssh_identity: ~/.ssh/the_rsa_key
     ssh_username: user
-    ssh_password: pass
     strict_serverkey_check: false
     prevail: 1
 ```
