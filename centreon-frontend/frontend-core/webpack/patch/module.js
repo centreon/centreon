@@ -9,6 +9,8 @@ module.exports = assetPublicPath => ({
     'react-redux-i18n': 'ReactReduxI18n',
     'react-router-dom': 'ReactRouterDom',
     'react-redux': 'ReactRedux',
+    'react-i18next': 'ReactI18Next',
+    '@centreon/ui-context': 'CentreonUiContext',
   },
   module: {
     rules: [
