@@ -17,7 +17,7 @@
         <script type="text/javascript" src="../../include/common/javascript/jquery/plugins/treeTable/jquery.treeTable.min.js"></script>
         <script type="text/javascript" src="../../include/common/javascript/widgetUtils.js"></script>
         <script type="text/javascript" src="data.js"></script>
-        <script type="text/javascript" src="../../include/common/javascript/moment-with-locales.js"></script>
+        <script type="text/javascript" src="../../include/common/javascript/moment-with-locales.min.2.21.js"></script>
         <script type="text/javascript" src="../../include/common/javascript/moment-timezone-with-data.min.js"></script>
 
         <script type="text/javascript" src="../../include/common/javascript/charts/d3.min.js"></script>
