@@ -47,7 +47,15 @@ sub open_session {
 
     $self->{save_options} = { %options };
     my $timeout = defined($options{ssh_connect_timeout}) && $options{ssh_connect_timeout} =~ /^\d+$/ ? $options{ssh_connect_timeout} : 5;
-    if ($self->options(host => $options{ssh_host}, port => $options{ssh_port}, user => $options{ssh_username}, timeout => $timeout) != Libssh::Session::SSH_OK) {
+    if ($self->options(
+            host => $options{ssh_host},
+            port => $options{ssh_port},
+            user => $options{ssh_username},
+            sshdir => $options{ssh_directory},
+            knownhosts => $options{ssh_known_hosts},
+            identity => $options{ssh_identity},
+            timeout => $timeout
+        ) != Libssh::Session::SSH_OK) {
         $self->{logger}->writeLogError('[sshclient] Options method: ' . $self->error());
         return -1;
     }
