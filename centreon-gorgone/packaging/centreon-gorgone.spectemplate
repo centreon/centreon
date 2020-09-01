@@ -27,7 +27,7 @@ Requires:   perl(HTTP::Daemon)
 Requires:   perl(HTTP::Status)
 Requires:   perl(MIME::Base64)
 Requires:   perl(Digest::MD5::File)
-Requires:   perl(Libssh::Session)
+Requires:   perl(Libssh::Session) >= 0.6
 Requires:   perl(Net::Curl::Easy)
 Requires:   perl(HTTP::Daemon::SSL)
 Requires:   perl(NetAddr::IP)
