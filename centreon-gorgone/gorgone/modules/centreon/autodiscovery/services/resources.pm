@@ -103,8 +103,17 @@ sub get_rules {
     my (%options) = @_;
     
     my $filter = "rule_activate = '1' AND ";
-    if (defined($options{force_rule})) {
+    if (defined($options{force_rule}) && $options{force_rule} == 1) {
         $filter = '';
+    }
+    if (defined($options{filter_rules}) && scalar(@{$options{filter_rules}}) > 0) {
+        my $append = '';
+        $filter .= 'rule_alias IN (';
+        foreach my $rule (@{$options{filter_rules}}) {
+            $filter .= $append . $options{class_object_centreon}->quote(value => $rule);
+            $append = ', ';
+        }
+        $filter .= ') AND ';
     }
 
     my ($status, $rules) = $options{class_object_centreon}->custom_execute(

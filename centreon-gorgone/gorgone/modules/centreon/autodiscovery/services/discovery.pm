@@ -824,7 +824,7 @@ sub launchdiscovery {
     ($status, $message, my $rules) = gorgone::modules::centreon::autodiscovery::services::resources::get_rules(
         class_object_centreon => $self->{class_object_centreon},
         filter_rules => $options{data}->{content}->{filter_rules},
-        force_rule => $options{data}->{content}->{force_rule}
+        force_rule => (defined($options{data}->{content}->{force_rule}) && $options{data}->{content}->{force_rule} =~ /^1$/) ? 1 : 0
     );
     if ($status < 0) {
         $self->send_log_msg_error(token => $options{token}, subname => 'servicediscovery', number => $self->{uuid}, message => $message);
