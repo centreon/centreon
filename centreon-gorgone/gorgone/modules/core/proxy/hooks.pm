@@ -874,7 +874,11 @@ sub register_nodes {
         }
 
         if ($register_nodes->{ $node->{id} }->{type} ne 'pull') {
-            routing(socket => $internal_socket, action => 'PROXYADDNODE', target => $node->{id}, data => JSON::XS->new->utf8->encode($node), dbh => $options{dbh}, logger => $options{logger});
+            if ($prevail == 1) {
+                routing(socket => $internal_socket, action => 'PROXYADDNODE', target => $node->{id}, data => JSON::XS->new->utf8->encode($register_nodes->{ $node->{id} }), dbh => $options{dbh}, logger => $options{logger});
+            } else {
+                routing(socket => $internal_socket, action => 'PROXYADDNODE', target => $node->{id}, data => JSON::XS->new->utf8->encode($node), dbh => $options{dbh}, logger => $options{logger});
+            }
         }
         if ($new_node == 1) {
             $constatus_ping->{ $node->{id} } = { type => $node->{type}, last_ping_sent => 0, last_ping_recv => 0, nodes => {} };
