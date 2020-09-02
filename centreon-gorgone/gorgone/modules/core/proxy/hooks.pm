@@ -359,12 +359,12 @@ sub check {
 
     check_create_child(dbh => $options{dbh}, logger => $options{logger});
 
-    foreach (keys %{$pools}) {
+    foreach (keys %$pools) {
         $count++  if ($pools->{$_}->{running} == 1);
     }
-    
-    # We put synclog request in timeout
-    foreach (keys %{$synctime_nodes}) {
+
+    # We check synclog/ping/ping request timeout 
+    foreach (keys %$synctime_nodes) {
         if ($register_nodes->{$_}->{type} eq 'pull' && $synctime_nodes->{$_}->{in_progress_ping} == 1) {
             my $ping_timeout = defined($register_nodes->{$_}->{ping_timeout}) ? $register_nodes->{$_}->{ping_timeout} : 30;
             if ((time() - $synctime_nodes->{$_}->{in_progress_ping_pull}) > $ping_timeout) {
@@ -372,6 +372,13 @@ sub check {
                 $options{logger}->writeLogInfo("[proxy] Ping timeout from '" . $_ . "'");
             }
         }
+        if ($register_nodes->{$_}->{type} ne 'pull' && $synctime_nodes->{$_}->{in_progress_ping} == 1) {
+            if (time() - $constatus_ping->{ $_ }->{last_ping_sent} > $config->{pong_discard_timeout}) {
+                $options{logger}->writeLogInfo("[proxy] Ping timeout from '" . $_ . "'");
+                $synctime_nodes->{$_}->{in_progress_ping} = 0;
+            }
+        }
+
         if ($synctime_nodes->{$_}->{in_progress} == 1 && 
             time() - $synctime_nodes->{$_}->{in_progress_time} > $synctimeout_option) {
             gorgone::standard::library::add_history(
@@ -501,7 +508,7 @@ sub setlogs {
         );
         return undef;
     }
-    if ($synctime_nodes->{$options{data}->{data}->{id}}->{in_progress} == 0) {
+    if ($synctime_nodes->{ $options{data}->{data}->{id} }->{in_progress} == 0) {
         gorgone::standard::library::add_history(
             dbh => $options{dbh},
             code => GORGONE_ACTION_FINISH_KO, token => $options{token},
@@ -512,9 +519,14 @@ sub setlogs {
     }
 
     $options{logger}->writeLogInfo("[proxy] Received setlogs for '$options{data}->{data}->{id}'");
-    
-    $synctime_nodes->{$options{data}->{data}->{id}}->{in_progress} = 0;
-    
+
+    # we have received the setlogs (it's like a pong response. not a problem if we received the pong after)
+    $synctime_nodes->{ $options{data}->{data}->{id} }->{in_progress_ping} = 0;
+    $constatus_ping->{ $options{data}->{data}->{id} }->{last_ping_recv} = time();
+    $last_pong->{ $options{data}->{data}->{id} } = time() if (defined($last_pong->{ $options{data}->{data}->{id} }));
+
+    $synctime_nodes->{ $options{data}->{data}->{id} }->{in_progress} = 0;
+
     my $ctime_recent = 0;
     # Transaction. We don't use last_id (problem if it's clean the sqlite table
     $options{dbh}->transaction_mode(1);

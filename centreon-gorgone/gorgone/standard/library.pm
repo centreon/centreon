@@ -152,12 +152,12 @@ sub zmq_core_pubkey_response {
     my (%options) = @_;
     
     if (defined($options{identity})) {
-        zmq_sendmsg($options{socket}, pack('H*', $options{identity}), ZMQ_NOBLOCK | ZMQ_SNDMORE);
+        zmq_sendmsg($options{socket}, pack('H*', $options{identity}), ZMQ_DONTWAIT | ZMQ_SNDMORE);
     }
     my $client_pubkey = $options{pubkey}->export_key_pem('public');
     my $msg = '[PUBKEY] [' . MIME::Base64::encode_base64($client_pubkey, '') . ']';
 
-    zmq_sendmsg($options{socket}, $msg, ZMQ_NOBLOCK);
+    zmq_sendmsg($options{socket}, $msg, ZMQ_DONTWAIT);
     return 0;
 }
 
@@ -165,7 +165,7 @@ sub zmq_core_key_response {
     my (%options) = @_;
     
     if (defined($options{identity})) {
-        zmq_sendmsg($options{socket}, pack('H*', $options{identity}), ZMQ_NOBLOCK | ZMQ_SNDMORE);
+        zmq_sendmsg($options{socket}, pack('H*', $options{identity}), ZMQ_DONTWAIT | ZMQ_SNDMORE);
     }
     my $crypttext;
     eval {
@@ -176,7 +176,7 @@ sub zmq_core_key_response {
         return -1;
     }
 
-    zmq_sendmsg($options{socket}, MIME::Base64::encode_base64($crypttext, ''), ZMQ_NOBLOCK);
+    zmq_sendmsg($options{socket}, MIME::Base64::encode_base64($crypttext, ''), ZMQ_DONTWAIT);
     return 0;
 }
 
@@ -186,7 +186,7 @@ sub zmq_core_response {
     my $response_type = defined($options{response_type}) ? $options{response_type} : 'ACK';
     
     if (defined($options{identity})) {
-        zmq_sendmsg($options{socket}, pack('H*', $options{identity}), ZMQ_NOBLOCK | ZMQ_SNDMORE);
+        zmq_sendmsg($options{socket}, pack('H*', $options{identity}), ZMQ_DONTWAIT | ZMQ_SNDMORE);
     }
 
     my $data = json_encode(data => { code => $options{code}, data => $options{data} });
@@ -205,7 +205,7 @@ sub zmq_core_response {
         $msg = $cipher->encrypt($msg);
         $msg = MIME::Base64::encode_base64($msg, '');
     }
-    zmq_sendmsg($options{socket}, $msg, ZMQ_NOBLOCK);
+    zmq_sendmsg($options{socket}, $msg, ZMQ_DONTWAIT);
 }
 
 sub uncrypt_message {
@@ -803,7 +803,7 @@ sub zmq_send_message {
         $message = build_protocol(%options);
     }
     if (defined($options{identity})) {
-        zmq_sendmsg($options{socket}, $options{identity}, ZMQ_NOBLOCK | ZMQ_SNDMORE);
+        zmq_sendmsg($options{socket}, $options{identity}, ZMQ_DONTWAIT | ZMQ_SNDMORE);
     }    
     if (defined($options{cipher})) {
         my $cipher = Crypt::CBC->new(
@@ -817,7 +817,7 @@ sub zmq_send_message {
         $message = $cipher->encrypt($message);
         $message = MIME::Base64::encode_base64($message, '');
     }
-    zmq_sendmsg($options{socket}, $message, ZMQ_NOBLOCK);
+    zmq_sendmsg($options{socket}, $message, ZMQ_DONTWAIT);
 }
 
 sub zmq_dealer_read_message {
