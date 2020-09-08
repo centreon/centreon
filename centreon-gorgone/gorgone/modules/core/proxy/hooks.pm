@@ -474,13 +474,14 @@ sub pathway {
             $options{logger}->writeLogDebug("[proxy] skip node pull target '$_' for node '$target' - never connected");
             next;
         }
-        if (!defined($last_pong->{$_}) || $last_pong->{$_} == 0 || (time() - $config->{pong_discard_timeout} < $last_pong->{$_})) {
-            $options{logger}->writeLogDebug("[proxy] choose node target '$_' for node '$target'");
+
+        # we let the ping passthrough
+        if (defined($last_pong->{$_}) && (time() - $config->{pong_discard_timeout} >= $last_pong->{$_}) && $options{action} eq 'PING' && $_ eq $target) {
             return (1, $_ . '~~' . $target, $_, $target);
         }
 
-        # we let the ping passthrough
-        if ((time() - $config->{pong_discard_timeout} >= $last_pong->{$_}) && $options{action} eq 'PING' && $_ eq $target) {
+        if (!defined($last_pong->{$_}) || $last_pong->{$_} == 0 || (time() - $config->{pong_discard_timeout} < $last_pong->{$_})) {
+            $options{logger}->writeLogDebug("[proxy] choose node target '$_' for node '$target'");
             return (1, $_ . '~~' . $target, $_, $target);
         }
 
