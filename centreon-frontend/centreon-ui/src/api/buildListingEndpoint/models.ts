@@ -1,21 +1,9 @@
+import { QueryParameter } from '../../queryParameters/models';
+
 export interface BuildListingEndpointParameters {
   baseEndpoint?: string;
   parameters: Parameters;
   customQueryParameters?: Array<QueryParameter>;
-}
-
-interface SortQueryParameterValue {
-  [sortf: string]: string;
-}
-
-export interface RegexSearchParameter {
-  value: string;
-  fields: Array<string>;
-}
-
-export interface ListsSearchParameter {
-  field: string;
-  values: Array<string>;
 }
 
 export interface SearchMatch {
@@ -29,6 +17,29 @@ export interface Parameters {
   limit?: number;
   search?: SearchParameter;
   customQueryParameters?: Array<QueryParameter>;
+}
+
+export interface SearchParameter {
+  regex?: RegexSearchParameter;
+  lists?: Array<ListsSearchParameter>;
+}
+
+export interface ListsSearchQueryParameterValue {
+  $and: Array<{ [field: string]: { [field: string]: { $in: Array<string> } } }>;
+}
+
+export interface SortQueryParameterValue {
+  [sortf: string]: string;
+}
+
+export interface RegexSearchParameter {
+  value: string;
+  fields: Array<string>;
+}
+
+export interface ListsSearchParameter {
+  field: string;
+  values: Array<string>;
 }
 
 type SearchPatterns = Array<{ [field: string]: { $rg: string } }>;
@@ -46,15 +57,6 @@ export type RegexSearchQueryParameterValue =
   | AndSearchQueryParameterValue
   | undefined;
 
-export interface SearchParameter {
-  regex?: RegexSearchParameter;
-  lists?: Array<ListsSearchParameter>;
-}
-
-export interface ListsSearchQueryParameterValue {
-  $and: Array<{ [field: string]: { [field: string]: { $in: Array<string> } } }>;
-}
-
 export type SearchQueryParameterValue =
   | {
       $and: Array<
@@ -64,16 +66,3 @@ export type SearchQueryParameterValue =
   | RegexSearchQueryParameterValue
   | ListsSearchQueryParameterValue
   | undefined;
-
-export type QueryParameterValue =
-  | string
-  | number
-  | SortQueryParameterValue
-  | SearchQueryParameterValue
-  | Array<string>
-  | undefined;
-
-export interface QueryParameter {
-  name: string;
-  value: QueryParameterValue;
-}

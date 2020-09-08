@@ -1,19 +1,7 @@
 import getSearchQueryParameterValue from './getSearchQueryParameterValue';
-import {
-  Parameters,
-  QueryParameter,
-  BuildListingEndpointParameters,
-} from './models';
-
-const toRawQueryParameter = ({ name, value }): string => {
-  return `${name}=${JSON.stringify(value)}`;
-};
-
-const toRawQueryParameters = (queryParameters): Array<string> =>
-  queryParameters
-    .filter(({ value }) => value !== undefined && value.length !== 0)
-    .map(toRawQueryParameter)
-    .join('&');
+import { Parameters, BuildListingEndpointParameters } from './models';
+import toRawQueryParameters from '../../queryParameters';
+import { QueryParameter } from '../../queryParameters/models';
 
 const getQueryParameters = ({
   sort,
