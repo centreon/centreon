@@ -756,7 +756,9 @@ sub run {
     $gorgone->{internal_socket} = gorgone::standard::library::create_com(
         type => $gorgone->{config}->{configuration}->{gorgone}->{gorgonecore}->{internal_com_type},
         path => $gorgone->{config}->{configuration}->{gorgone}->{gorgonecore}->{internal_com_path},
-        zmq_type => 'ZMQ_ROUTER', name => 'router-internal',
+        zmq_type => 'ZMQ_ROUTER',
+        name => 'router-internal',
+        zmq_router_handover => $gorgone->{config}->{configuration}->{gorgone}->{gorgonecore}->{internal_com_zmq_router_handover},
         logger => $gorgone->{logger}
     );
     if (defined($gorgone->{config}->{configuration}->{gorgone}->{gorgonecore}->{external_com_type}) && $gorgone->{config}->{configuration}->{gorgone}->{gorgonecore}->{external_com_type} ne '') {
@@ -764,7 +766,9 @@ sub run {
             $gorgone->{external_socket} = gorgone::standard::library::create_com(
                 type => $gorgone->{config}->{configuration}->{gorgone}->{gorgonecore}->{external_com_type},
                 path => $gorgone->{config}->{configuration}->{gorgone}->{gorgonecore}->{external_com_path},
-                zmq_type => 'ZMQ_ROUTER', name => 'router-external',
+                zmq_type => 'ZMQ_ROUTER',
+                zmq_router_handover => $gorgone->{config}->{configuration}->{gorgone}->{gorgonecore}->{external_com_zmq_router_handover},
+                name => 'router-external',
                 logger => $gorgone->{logger}
             );
         } else {
