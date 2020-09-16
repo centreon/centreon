@@ -313,6 +313,12 @@ while ($row = $res->fetch()) {
     // output
     $data[$row['host_id']]['output'] = substr($row['output'], 0, $outputLength);
 
+    $kernel = \App\Kernel::createForWeb();
+    $resourceController = $kernel->getContainer()->get(
+        \Centreon\Application\Controller\MonitoringResourceController::class
+    );
+    $data[$row['host_id']]['details_uri'] = $resourceController->buildHostDetailsUri($row['host_id']);
+
     // action_url
     $valueActionUrl = $row['action_url'];
     if (!empty($valueActionUrl)) {
