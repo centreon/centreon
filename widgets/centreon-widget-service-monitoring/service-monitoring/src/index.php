@@ -461,6 +461,17 @@ while ($row = $res->fetch()) {
     // output
     $data[$row['host_id'] . '_' . $row['service_id']]['output'] = substr($row['output'], 0, $outputLength);
 
+    $kernel = \App\Kernel::createForWeb();
+    $resourceController = $kernel->getContainer()->get(
+        \Centreon\Application\Controller\MonitoringResourceController::class
+    );
+    $data[$row['host_id'] . '_' . $row['service_id']]['h_details_uri'] =
+        $resourceController->buildHostDetailsUri($row['host_id']);
+    $data[$row['host_id'] . '_' . $row['service_id']]['s_details_uri'] =
+        $resourceController->buildServiceDetailsUri($row['host_id'], $row['service_id']);
+    $data[$row['host_id'] . '_' . $row['service_id']]['s_graph_uri'] =
+        $resourceController->buildServiceUri($row['host_id'], $row['service_id'], $resourceController::TAB_GRAPH_NAME);
+
     // h_action_url
     $valueHActionUrl = $row['h_action_url'];
     if ($valueHActionUrl) {
