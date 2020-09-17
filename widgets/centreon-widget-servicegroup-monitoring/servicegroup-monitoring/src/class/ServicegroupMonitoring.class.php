@@ -100,9 +100,9 @@ class ServicegroupMonitoring
      * @param int $admin
      * @param CentreonACL $aclObj
      * @param array $preferences
-     * @return string
+     * @return array
      */
-    public function getServiceStates($sgName, $admin, $aclObj, $preferences, $detailFlag = false)
+    public function getServiceStates($sgName, $admin, $aclObj, $preferences, $detailFlag = false): array
     {
         $query = "SELECT DISTINCT h.host_id, s.state, h.name, s.service_id, s.description, ssg.servicegroup_id
             FROM `services_servicegroups` ssg, `services` s, `hosts` h, `servicegroups` sg ";

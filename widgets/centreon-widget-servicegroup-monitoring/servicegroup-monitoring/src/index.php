@@ -79,9 +79,6 @@ $preferences = $widgetObj->getWidgetPreferences($widgetId);
 $pearDB = $db;
 $aclObj = new CentreonACL($centreon->user->user_id, $centreon->user->admin);
 $nbRows = $preferences['entries'];
-$res = $db->query("SELECT `value` FROM informations WHERE `key` = 'version'");
-$row = $res->fetch();
-$version = $row['value'];
 
 $hostStateColors = array(
     0 => "#88B917",
@@ -160,32 +157,101 @@ $query .= " LIMIT " . ($page * $preferences['entries']) . "," . $preferences['en
 $res = $dbb->query($query);
 $nbRows = $dbb->numberRows();
 
+$kernel = \App\Kernel::createForWeb();
+$resourceController = $kernel->getContainer()->get(
+    \Centreon\Application\Controller\MonitoringResourceController::class
+);
+
+$buildServicegroupUri = function($servicegroups = [], $types = [], $statuses = [], $search = '') use ($resourceController) {
+    return $resourceController->buildListingUri([
+        'filter' => json_encode([
+            'criterias' => [
+                'serviceGroups' => $servicegroups,
+                'resourceTypes' => $types,
+                'statuses' => $statuses,
+                'search' => $search,
+            ],
+        ]),
+    ]);
+};
+
+$buildParameter = function($id, $name) {
+    return [
+        'id' => $id,
+        'name' => $name,
+    ];
+};
+
+$hostType = $buildParameter('host', 'Host');
+$serviceType = $buildParameter('service', 'Service');
+$okStatus = $buildParameter('OK', 'Ok');
+$warningStatus = $buildParameter('WARNING', 'Warning');
+$criticalStatus = $buildParameter('CRITICAL', 'Critical');
+$unknownStatus = $buildParameter('UNKNOWN', 'Unknown');
+$pendingStatus = $buildParameter('PENDING', 'Pending');
+
 $data = array();
 $detailMode = false;
 if (isset($preferences['enable_detailed_mode']) && $preferences['enable_detailed_mode']) {
     $detailMode = true;
 }
 while ($row = $res->fetch()) {
-    $data[$row['name']] = array(
+    $servicegroup = [
+        'id' => (int) $row['servicegroup_id'],
+        'name' => $row['name'],
+    ];
+
+    $hostStates = $sgMonObj->getHostStates(
+        $row['name'],
+        $centreon->user->admin,
+        $aclObj,
+        $preferences,
+        $detailMode
+    );
+
+    $serviceStates = $sgMonObj->getServiceStates(
+        $row['name'],
+        $centreon->user->admin,
+        $aclObj,
+        $preferences,
+        $detailMode
+    );
+
+    if ($detailMode === true) {
+        foreach ($hostStates as $hostName => &$properties) {
+            $properties['details_uri'] = $resourceController->buildHostDetailsUri(
+                $properties['host_id']
+            );
+            $properties['services_uri'] = $buildServicegroupUri(
+                [$servicegroup],
+                [$serviceType],
+                [],
+                'h.name:' . $hostName
+            );
+        }
+
+        foreach ($serviceStates as $hostId => &$serviceState) {
+            foreach ($serviceState as $serviceId => &$properties) {
+                $properties['details_uri'] = $resourceController->buildServiceDetailsUri(
+                    $hostId,
+                    $serviceId
+                );
+            }
+        }
+    }
+
+    $data[$row['name']] = [
         'name' => $row['name'],
         'svc_id' => $row['servicegroup_id'],
-        'sgurl' => "main.php?p=20201&search=0&host_search=0&output_search=0&hg=0&sg=" .$row['servicegroup_id'],
-        'hosturl' => "main.php?p=20202",
-        'host_state' => $sgMonObj->getHostStates(
-            $row['name'],
-            $centreon->user->admin,
-            $aclObj,
-            $preferences,
-            $detailMode
-        ),
-        'service_state' => $sgMonObj->getServiceStates(
-            $row['name'],
-            $centreon->user->admin,
-            $aclObj,
-            $preferences,
-            $detailMode
-        )
-    );
+        'sgurl' => $buildServicegroupUri([$servicegroup]),
+        'host_state' => $hostStates,
+        'service_state' => $serviceStates,
+        'sg_service_ok_uri' => $buildServicegroupUri([$servicegroup], [$serviceType], [$okStatus]),
+        'sg_service_warning_uri' => $buildServicegroupUri([$servicegroup], [$serviceType], [$warningStatus]),
+        'sg_service_critical_uri' => $buildServicegroupUri([$servicegroup], [$serviceType], [$criticalStatus]),
+        'sg_service_unknown_uri' => $buildServicegroupUri([$servicegroup], [$serviceType], [$unknownStatus]),
+        'sg_service_pending_uri' => $buildServicegroupUri([$servicegroup], [$serviceType], [$pendingStatus]),
+    ];
 }
 
 $autoRefresh = filter_var($preferences['refresh_interval'], FILTER_VALIDATE_INT);
@@ -210,7 +276,6 @@ $template->assign('serviceStateLabels', $serviceStateLabels);
 $template->assign('serviceStateColors', $serviceStateColors);
 $template->assign('centreon_web_path', trim($centreon->optGen['oreon_web_path'], "/"));
 $template->assign('centreon_path', $centreon_path);
-$template->assign('displayLink', version_compare($version, "2.7.200", ">"));
 
 $bMoreViews = 0;
 if ($preferences['more_views']) {
