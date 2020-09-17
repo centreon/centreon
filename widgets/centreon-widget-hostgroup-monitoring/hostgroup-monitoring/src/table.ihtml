@@ -18,38 +18,38 @@
     {assign var='classStyle' value='list_two'}
     {/if}
     <tr id="hg-{$hgId}" class ='{$classStyle}'>
-        <td class='ListColLeft'><a href='/{$centreon_web_path}/{$elem.hgurl}' target=_blank> {$elem.name}</a></td>
+        <td class='ListColLeft'><a href='{$elem.hg_uri}' target=_blank> {$elem.name}</a></td>
         {if $preferences.enable_detailed_mode == 0}
         <td class='ListColLeft'>
             {assign var='link' value=''}
             {foreach key=state item=counter from=$elem.host_state}
             {if $state == 0 }
-            {assign var='link' value='&o=h_up'}
+            {assign var='link' value=$elem.hg_host_up_uri}
             {elseif $state == 1}
-            {assign var='link' value='&o=h_down'}
+            {assign var='link' value=$elem.hg_host_down_uri}
             {elseif $state == 2}
-            {assign var='link' value='&o=h_pending'}
+            {assign var='link' value=$elem.hg_host_pending_uri}
             {elseif $state == 4}
-            {assign var='link' value='&o=h_ok'}
+            {assign var='link' value=$elem.hg_host_unreachable_uri}
             {/if}
-            <a href='/{$centreon_web_path}/{$elem.hgurlhost}{$link}' target=_blank><span class='state_badge' style='background-color: {$hostStateColors[$state]};'>&nbsp;&nbsp;</span>{$counter}</a>&nbsp;
+            <a href='{$link}' target=_blank><span class='state_badge' style='background-color: {$hostStateColors[$state]};'>&nbsp;&nbsp;</span>{$counter}</a>&nbsp;
             {/foreach}
         </td>
         <td class='ListColLeft'>
             {assign var='link' value=''}
             {foreach key=state item=counter from=$elem.service_state}
             {if $state == 0 }
-            {assign var='link' value='&o=svc&statusFilter=ok'}
+            {assign var='link' value=$elem.hg_service_ok_uri}
             {elseif $state == 1}
-            {assign var='link' value='&o=svc&statusFilter=warning'}
+            {assign var='link' value=$elem.hg_service_warning_uri}
             {elseif $state == 2}
-            {assign var='link' value='&o=svc&statusFilter=critical'}
+            {assign var='link' value=$elem.hg_service_critical_uri}
             {elseif $state == 3}
-            {assign var='link' value='&o=svc&statusFilter=unknown'}
+            {assign var='link' value=$elem.hg_service_unknown_uri}
             {elseif $state == 4}
-            {assign var='link' value='&o=svc&statusFilter=pending'}
+            {assign var='link' value=$elem.hg_service_pending_uri}
             {/if}
-            <a href='/{$centreon_web_path}/{$elem.hgurl}{$link}' target=_blank><span class='state_badge' style='background-color: {$serviceStateColors[$state]};'>&nbsp;&nbsp;</span>{$counter}</a>&nbsp;
+            <a href='{$link}' target=_blank><span class='state_badge' style='background-color: {$serviceStateColors[$state]};'>&nbsp;&nbsp;</span>{$counter}</a>&nbsp;
             {/foreach}
         </td>
         {else}
@@ -66,10 +66,10 @@
         {/if}
     <tr id="host-{$elem2.host_id}" class="child-of-hg-{$hgId}">
         <td class='ListColLeft'></td>
-        <td class='ListColLeft'><a href='/{$centreon_web_path}/main.php?o=hd&p=20202&host_name={$elem2.name}' target=_blank><span class='state_badge {$aColorHost[$elem2.state]}'></span>{$host_name}</a></td>
+        <td class='ListColLeft'><a href='{$elem2.details_uri}' target=_blank><span class='state_badge {$aColorHost[$elem2.state]}'></span>{$host_name}</a></td>
         <td class='ListColLeft'>
             {foreach item=elem3 from=$elem.service_state[$elem2.host_id]}
-            <a href='/{$centreon_web_path}/main.php?o=svcd&p=20201&amp;host_name={$elem2.name}&service_description={$elem3.description}' target=_blank><span class='state_badge {$aColorService[$elem3.state]}'></span>{$elem3.description}</a>&nbsp;
+            <a href='{$elem3.details_uri}' target=_blank><span class='state_badge {$aColorService[$elem3.state]}'></span>{$elem3.description}</a>&nbsp;
             {/foreach}
         </td>
     </tr>
