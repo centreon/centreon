@@ -53,7 +53,7 @@
                 </div>
             </td>
             <td class="ListColLeft">
-                <a href="/centreon/main.php?p=20201&amp;o=svcd&amp;host_name={$elem.host_name}&service_description={$elem.service_description}" target="_blank">{$elem.host_name}</a>
+                <a href="{$elem.details_uri}" target="_blank">{$elem.host_name}</a>
             </td>
             <td class="ListColLeft">{$elem.remaining_space} {$elem.unit} remaining</td>
     {/foreach}

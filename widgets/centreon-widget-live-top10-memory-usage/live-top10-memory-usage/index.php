@@ -72,6 +72,11 @@ try {
     exit;
 }
 
+$kernel = \App\Kernel::createForWeb();
+$resourceController = $kernel->getContainer()->get(
+    \Centreon\Application\Controller\MonitoringResourceController::class
+);
+
 if ($centreon->user->admin == 0) {
     $access = new CentreonACL($centreon->user->get_id());
     $grouplist = $access->getAccessGroups();
@@ -155,6 +160,7 @@ while ($row = $res->fetchRow()) {
     $in = 0;
     $row['remaining_space'] = round($row['remaining_space']);
     $row['ratio'] = ceil($row['ratio'] * 100);
+    $row['details_uri'] = $resourceController->buildServiceDetailsUri($row['host_id'], $row['service_id']);
     $data[] = $row;
     $numLine++;
 }
