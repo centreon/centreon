@@ -71,6 +71,11 @@ try {
     exit;
 }
 
+$kernel = \App\Kernel::createForWeb();
+$resourceController = $kernel->getContainer()->get(
+    \Centreon\Application\Controller\MonitoringResourceController::class
+);
+
 //configure smarty
 
 if ($centreon->user->admin == 0) {
@@ -123,6 +128,7 @@ $res = $db->query($query);
 while ($row = $res->fetch()) {
     $row['numLin'] = $numLine;
     $row['current_value'] = ceil($row['current_value']);
+    $row['details_uri'] = $resourceController->buildServiceDetailsUri($row['host_id'], $row['service_id']);
     $data[] = $row;
     $numLine++;
 }

@@ -52,7 +52,7 @@
                     </div>
                 </td>
                 <td class="ListColLeft" style="font-size: 11px;">
-                    <a href="/centreon/main.php?p=20201&o=svcd&host_name={$elem.host_name}&service_description={$elem.service_description}" target="_blank">{$elem.host_name}</a>
+                    <a href="{$elem.details_uri}" target="_blank">{$elem.host_name}</a>
                 </td>
             </tr>
             {/foreach}
