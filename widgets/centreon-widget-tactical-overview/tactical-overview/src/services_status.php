@@ -40,6 +40,28 @@ $dataUNK = array();
 $dataPEND = array();
 $db = new CentreonDB("centstorage");
 
+$buildServiceUri = function(array $states, array $statuses) use ($resourceController, $buildParameter) {
+    return $resourceController->buildListingUri([
+        'filter' => json_encode([
+            'criterias' => [
+                'resourceTypes' => [$buildParameter('service', 'Service')],
+                'states' => $states,
+                'statuses' => $statuses,
+            ],
+        ]),
+    ]);
+};
+
+$pendingStatus = $buildParameter('PENDING', 'Pending');
+$okStatus = $buildParameter('OK', 'Ok');
+$warningStatus = $buildParameter('WARNING', 'Warning');
+$criticalStatus = $buildParameter('CRITICAL', 'Critical');
+$unknownStatus = $buildParameter('UNKNOWN', 'Unknown');
+
+$unhandledState = $buildParameter('unhandled_problems', 'Unhandled');
+$acknowledgedState = $buildParameter('acknowledged', 'Acknowledged');
+$inDowntimeState = $buildParameter('in_downtime', 'In downtime');
+
 // query for CRITICAL state
 $res = $db->query(
     "SELECT
@@ -97,6 +119,10 @@ $res = $db->query(
     ) . ";"
 );
 while ($row = $res->fetch()) {
+    $row['listing_uri'] = $buildServiceUri([], [$criticalStatus]);
+    $row['listing_ack_uri'] = $buildServiceUri([$acknowledgedState], [$criticalStatus]);
+    $row['listing_downtime_uri'] = $buildServiceUri([$inDowntimeState], [$criticalStatus]);
+    $row['listing_unhandled_uri'] = $buildServiceUri([$unhandledState], [$criticalStatus]);
     $dataCRI[] = $row;
 }
 
@@ -157,6 +183,10 @@ $res = $db->query(
     ) . ";"
 );
 while ($row = $res->fetch()) {
+    $row['listing_uri'] = $buildServiceUri([], [$warningStatus]);
+    $row['listing_ack_uri'] = $buildServiceUri([$acknowledgedState], [$warningStatus]);
+    $row['listing_downtime_uri'] = $buildServiceUri([$inDowntimeState], [$warningStatus]);
+    $row['listing_unhandled_uri'] = $buildServiceUri([$unhandledState], [$warningStatus]);
     $dataWA[] = $row;
 }
 
@@ -183,6 +213,7 @@ $res = $db->query(
     ) . ";"
 );
 while ($row = $res->fetch()) {
+    $row['listing_uri'] = $buildServiceUri([], [$okStatus]);
     $dataOK[] = $row;
 }
 
@@ -208,6 +239,7 @@ $res = $db->query(
         : "") . ";"
 );
 while ($row = $res->fetch()) {
+    $row['listing_uri'] = $buildServiceUri([], [$pendingStatus]);
     $dataPEND[] = $row;
 }
 
@@ -268,6 +300,10 @@ $res = $db->query(
         ) . ";"
 );
 while ($row = $res->fetch()) {
+    $row['listing_uri'] = $buildServiceUri([], [$unknownStatus]);
+    $row['listing_ack_uri'] = $buildServiceUri([$acknowledgedState], [$unknownStatus]);
+    $row['listing_downtime_uri'] = $buildServiceUri([$inDowntimeState], [$unknownStatus]);
+    $row['listing_unhandled_uri'] = $buildServiceUri([$unhandledState], [$unknownStatus]);
     $dataUNK[] = $row;
 }
 

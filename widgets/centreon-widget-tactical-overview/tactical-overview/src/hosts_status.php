@@ -40,6 +40,27 @@ $dataPEND = array();
 $dataList = array();
 $db = new CentreonDB("centstorage");
 
+$buildHostUri = function(array $states, array $statuses) use ($resourceController, $buildParameter) {
+    return $resourceController->buildListingUri([
+        'filter' => json_encode([
+            'criterias' => [
+                'resourceTypes' => [$buildParameter('host', 'Host')],
+                'states' => $states,
+                'statuses' => $statuses,
+            ],
+        ]),
+    ]);
+};
+
+$pendingStatus = $buildParameter('PENDING', 'Pending');
+$upStatus = $buildParameter('UP', 'Up');
+$downStatus = $buildParameter('DOWN', 'Down');
+$unreachableStatus = $buildParameter('UNREACHABLE', 'Unreachable');
+
+$unhandledState = $buildParameter('unhandled_problems', 'Unhandled');
+$acknowledgedState = $buildParameter('acknowledged', 'Acknowledged');
+$inDowntimeState = $buildParameter('in_downtime', 'In downtime');
+
 // query for DOWN status
 $res = $db->query(
     "SELECT
@@ -75,6 +96,10 @@ $res = $db->query(
 );
 while ($row = $res->fetch()) {
     $row['un'] = $row['status'] - ($row['ack'] + $row['down']);
+    $row['listing_uri'] = $buildHostUri([], [$downStatus]);
+    $row['listing_ack_uri'] = $buildHostUri([$acknowledgedState], [$downStatus]);
+    $row['listing_downtime_uri'] = $buildHostUri([$inDowntimeState], [$downStatus]);
+    $row['listing_unhandled_uri'] = $buildHostUri([$unhandledState], [$downStatus]);
     $dataDO[] = $row;
 }
 
@@ -113,6 +138,10 @@ $res = $db->query(
 );
 while ($row = $res->fetch()) {
     $row['un'] = $row['status'] - ($row['ack'] + $row['down']);
+    $row['listing_uri'] = $buildHostUri([], [$unreachableStatus]);
+    $row['listing_ack_uri'] = $buildHostUri([$acknowledgedState], [$unreachableStatus]);
+    $row['listing_downtime_uri'] = $buildHostUri([$inDowntimeState], [$unreachableStatus]);
+    $row['listing_unhandled_uri'] = $buildHostUri([$unhandledState], [$unreachableStatus]);
     $dataUN[] = $row;
 }
 
@@ -136,6 +165,7 @@ $res = $db->query(
     ) . ";"
 );
 while ($row = $res->fetch()) {
+    $row['listing_uri'] = $buildHostUri([], [$upStatus]);
     $dataUP[] = $row;
 }
 
@@ -159,6 +189,7 @@ $res = $db->query(
     ) . ";"
 );
 while ($row = $res->fetch()) {
+    $row['listing_uri'] = $buildHostUri([], [$pendingStatus]);
     $dataPEND[] = $row;
 }
 
