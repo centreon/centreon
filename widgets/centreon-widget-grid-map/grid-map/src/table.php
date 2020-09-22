@@ -92,6 +92,11 @@ try {
     exit;
 }
 
+$kernel = \App\Kernel::createForWeb();
+$resourceController = $kernel->getContainer()->get(
+    \Centreon\Application\Controller\MonitoringResourceController::class
+);
+
 /* Start Smarty Init */
 $template = new Smarty();
 $template = initSmartyTplForPopup(getcwd()."/", $template, "./", $centreon_path);
@@ -162,6 +167,7 @@ if ($preferences['host_group']) {
     /* Get host listing */
     $res = $db->query($query1);
     while ($row = $res->fetch()) {
+        $row['details_uri'] = $resourceController->buildHostDetailsUri($row['host_id']);
         $data[] = $row;
     }
 
@@ -171,7 +177,8 @@ if ($preferences['host_group']) {
         $data_service[$row['description']] = array(
             'description' => $row['description'],
             'hosts' => array(),
-            'hostsStatus' => array()
+            'hostsStatus' => [],
+            'details_uri' => []
         );
     }
 
@@ -181,6 +188,8 @@ if ($preferences['host_group']) {
         if (isset($data_service[$row['description']])) {
             $data_service[$row['description']]['hosts'][] = $row['host_id'];
             $data_service[$row['description']]['hostsStatus'][$row['host_id']] = $colors[$row['state']];
+            $data_service[$row['description']]['details_uri'][$row['host_id']] =
+                $resourceController->buildServiceDetailsUri($row['host_id'], $row['service_id']);
         }
     }
 }
