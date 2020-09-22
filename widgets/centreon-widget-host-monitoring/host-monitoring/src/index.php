@@ -116,9 +116,9 @@ $query = 'SELECT SQL_CALC_FOUND_ROWS
     cv.name IS NULL as isnull
     FROM hosts h
     LEFT JOIN `customvariables` cv
-        ON (cv.host_id = h.host_id AND cv.service_id IS NULL AND cv.name = \'CRITICALITY_LEVEL\')
+        ON (cv.host_id = h.host_id AND cv.service_id = 0 AND cv.name = \'CRITICALITY_LEVEL\')
     LEFT JOIN `customvariables` cv2
-        ON (cv2.host_id = h.host_id AND cv2.service_id IS NULL AND cv2.name = \'CRITICALITY_ID\')
+        ON (cv2.host_id = h.host_id AND cv2.service_id = 0 AND cv2.name = \'CRITICALITY_ID\')
     WHERE enabled = 1
     AND h.name NOT LIKE \'_Module_%\' ';
 $stateTab = [];
@@ -215,20 +215,15 @@ if (!empty($preferences['criticality_filter'])) {
         if ($labels != '') {
             $labels .= ',';
         }
-        $labels .= ":id_". $p;
+        $labels .= ":severity_id_". $p;
         $mainQueryParameters[] = [
-            'parameter' => ':id_' . $p,
-            'value' => (int)$p,
+            'parameter' => ":severity_id_". $p,
+            'value' => (int) $p,
             'type' => PDO::PARAM_INT
         ];
     }
-    $SeverityIdCondition = <<<SQL
-h.host_id IN (
-    SELECT DISTINCT host_host_id 
-    FROM {$conf_centreon['db']}.hostcategories_relation
-    WHERE hostcategories_hc_id IN ({$labels}))
-SQL;
-    $query = CentreonUtils::conditionBuilder($query, $SeverityIdCondition);
+    $severityIdCondition = 'cv2.value IN (' . $labels . ')';
+    $query = CentreonUtils::conditionBuilder($query, $severityIdCondition);
 }
 if (!$centreon->user->admin) {
     $pearDB = $db;
