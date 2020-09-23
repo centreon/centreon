@@ -112,8 +112,14 @@ jQuery( function() {
                 var popin = parent.jQuery('<div id="WidgetDowntime">');
 
                 popin.centreonPopin({
-                    open:true,
-                    url:url
+                    open: true,
+                    url: url,
+                    onClose: () => {
+                        checkValues.split(',').forEach((value) => {
+                            localStorage.removeItem('w_hm_selection_' + value);
+                            jQuery('#selection_' + value).prop('checked', false);
+                        });
+                    }
                 });
 
            } else {
