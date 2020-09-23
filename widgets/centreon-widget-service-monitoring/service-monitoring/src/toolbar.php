@@ -136,9 +136,14 @@ jQuery( function() {
                 var popin = parent.jQuery('<div id="widgetPopin">');
 
                 popin.centreonPopin({
-                  open:true,
-                  url:url
-                  });
+                    open: true,
+                    url: url,
+                    onClose: () => {
+                        checkValues.split(',').forEach((value) => {
+                            localStorage.removeItem('w_sm_selection_' + value);
+                        });
+                    }
+                });
 
             } else {
                 alert("<?php echo _('Please select one or more items'); ?>");
