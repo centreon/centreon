@@ -1,40 +1,27 @@
 import React, { useState, useRef, RefObject } from 'react';
 
-import clsx from 'clsx';
-
-import { withStyles, makeStyles, Theme } from '@material-ui/core/styles';
+import { makeStyles, Theme } from '@material-ui/core/styles';
 import {
   Table,
   TableBody,
   Paper,
   LinearProgress,
-  TableCell,
   TableRow,
   Checkbox,
-  Typography,
-  Tooltip,
 } from '@material-ui/core';
 
-import ListingHeader, { useCellStyles } from './Header';
+import ListingHeader from './Header';
 import ListingRow from './Row';
-import { ColumnType } from './models';
 import PaginationActions from './PaginationActions';
 import StyledPagination from './Pagination';
 import ListingLoadingSkeleton from './Skeleton';
 import useResizeObserver from './useResizeObserver';
 import getCumulativeOffset from './getCumulativeOffset';
+import ColumnCell, { BodyTableCell } from './ColumnCell';
 
 const loadingIndicatorHeight = 3;
 
 const haveSameIds = (a, b): boolean => a.id === b.id;
-
-const BodyTableCell = withStyles((theme) => ({
-  root: {
-    paddingTop: theme.spacing(0.5),
-    paddingBottom: theme.spacing(0.5),
-    paddingRight: theme.spacing(0.5),
-  },
-}))(TableCell);
 
 const useStyles = makeStyles<Theme>((theme) => ({
   paperElement: {
@@ -60,12 +47,6 @@ const useStyles = makeStyles<Theme>((theme) => ({
   loadingIndicator: {
     width: '100%',
     height: loadingIndicatorHeight,
-  },
-  truncated: {
-    overflow: 'hidden',
-    textOverflow: 'ellipsis',
-    maxWidth: 150,
-    whiteSpace: 'nowrap',
   },
 }));
 
@@ -124,14 +105,15 @@ const Listing = ({
   innerScrollDisabled = false,
 }: Props): JSX.Element => {
   const [tableTopOffset, setTableTopOffset] = useState(0);
-  const [hoveredRowId, setHoveredRowId] = useState(null);
+  const [hoveredRowId, setHoveredRowId] = useState<string | number | null>(
+    null,
+  );
 
   const paperRef = useRef<HTMLDivElement>();
   const paginationElement = useRef<HTMLDivElement>();
   const tableHeaderElement = useRef<HTMLTableSectionElement>();
 
   const classes = useStyles();
-  const cellClasses = useCellStyles(checkable);
 
   useResizeObserver({
     ref: paperRef,
@@ -194,83 +176,6 @@ const Listing = ({
   const onLimitChanged = (event): void => {
     onPaginationLimitChanged(event);
     onPaginate(null, 0);
-  };
-
-  const getColumnCell = ({ row, column }): JSX.Element | null => {
-    const cellKey = `${row.id}-${column.id}`;
-    const isRowHovered = hoveredRowId === row.id;
-    const isRowSelected = isSelected(row);
-
-    const cellByColumnType = {
-      [ColumnType.string]: (): JSX.Element => {
-        const {
-          getFormattedString,
-          width,
-          getTruncateCondition,
-          getColSpan,
-        } = column;
-
-        const isTruncated = getTruncateCondition?.(isRowSelected);
-        const colSpan = getColSpan?.(isRowSelected);
-
-        const formattedString = getFormattedString(row) || '';
-
-        return (
-          <BodyTableCell
-            key={cellKey}
-            align="left"
-            style={{ width: width || 'auto' }}
-            className={cellClasses.cell}
-            colSpan={colSpan}
-          >
-            {isTruncated && (
-              <Tooltip title={formattedString}>
-                <Typography
-                  variant="body2"
-                  className={clsx({ [classes.truncated]: isTruncated })}
-                >
-                  {formattedString}
-                </Typography>
-              </Tooltip>
-            )}
-            {!isTruncated && formattedString}
-          </BodyTableCell>
-        );
-      },
-      [ColumnType.component]: (): JSX.Element | null => {
-        const { Component, getHiddenCondition, width, clickable } = column;
-
-        const isCellHidden = getHiddenCondition?.(isRowSelected);
-
-        if (isCellHidden) {
-          return null;
-        }
-
-        return (
-          <BodyTableCell
-            align="left"
-            key={cellKey}
-            style={{ width: width || 'auto' }}
-            onClick={(e): void => {
-              if (!clickable) {
-                return;
-              }
-              e.preventDefault();
-              e.stopPropagation();
-            }}
-            className={cellClasses.cell}
-          >
-            <Component
-              row={row}
-              isSelected={isRowSelected}
-              isHovered={isRowHovered}
-            />
-          </BodyTableCell>
-        );
-      },
-    };
-
-    return cellByColumnType[column.type]();
   };
 
   const emptyRows = limit - Math.min(limit, totalRows - currentPage * limit);
@@ -348,6 +253,7 @@ const Listing = ({
             >
               {tableData.map((row) => {
                 const isRowSelected = isSelected(row);
+                const isRowHovered = hoveredRowId === row.id;
 
                 return (
                   <ListingRow
@@ -358,7 +264,7 @@ const Listing = ({
                     onClick={(): void => {
                       onRowClick(row);
                     }}
-                    isHovered={hoveredRowId === row.id}
+                    isHovered={isRowHovered}
                     isSelected={isRowSelected}
                     row={row}
                     rowColorConditions={rowColorConditions}
@@ -381,12 +287,16 @@ const Listing = ({
                       </BodyTableCell>
                     ) : null}
 
-                    {columnConfiguration.map((column) =>
-                      getColumnCell({
-                        column,
-                        row,
-                      }),
-                    )}
+                    {columnConfiguration.map((column) => (
+                      <ColumnCell
+                        key={`${row.id}-${column.id}`}
+                        column={column}
+                        row={row}
+                        listingCheckable={checkable}
+                        isRowSelected={isRowSelected}
+                        isRowHovered={isRowHovered}
+                      />
+                    ))}
                   </ListingRow>
                 );
               })}

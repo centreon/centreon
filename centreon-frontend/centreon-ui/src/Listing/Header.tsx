@@ -8,8 +8,9 @@ import {
   withStyles,
   TableSortLabel,
   Typography,
-  makeStyles,
 } from '@material-ui/core';
+
+import { useStyles as useCellStyles } from './ColumnCell';
 
 const HeaderCell = withStyles((theme) => ({
   root: {
@@ -24,13 +25,6 @@ const HeaderTypography = withStyles({
     fontWeight: 'bold',
   },
 })(Typography);
-
-export const useCellStyles = makeStyles((theme) => ({
-  cell: {
-    paddingLeft: (checkable: boolean): number =>
-      theme.spacing(checkable ? 0 : 1.5),
-  },
-}));
 
 interface Props {
   onSelectAllClick: (event) => void;

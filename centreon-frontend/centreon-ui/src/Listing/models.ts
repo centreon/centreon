@@ -8,14 +8,18 @@ export interface Column {
   id: string;
   label: string;
   type: ColumnType;
-  Component?: (props: ComponentColumnProps) => JSX.Element;
+  Component?: (props: ComponentColumnProps) => JSX.Element | null;
+  hasHoverableComponent?: boolean;
   clickable?: boolean;
   width?: number | string;
   getFormattedString?: (row) => string | null;
   getColSpan?: (isSelected) => number | undefined;
-  getTruncationState?: (isSelected) => boolean;
+  getTruncateCondition?: (isSelected) => boolean;
+  getHiddenCondition?: (isSelected) => boolean;
   disablePadding?: boolean;
   sortable?: boolean;
+  sortField?: string;
+  renderComponentOnRowUpdate?: boolean;
 }
 
 enum ColumnType {
