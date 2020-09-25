@@ -19,7 +19,7 @@ export interface Column {
   disablePadding?: boolean;
   sortable?: boolean;
   sortField?: string;
-  renderComponentOnRowUpdate?: boolean;
+  getRenderComponentOnRowUpdateCondition?: (row) => boolean;
 }
 
 enum ColumnType {

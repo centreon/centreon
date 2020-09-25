@@ -132,16 +132,18 @@ const MemoizedColumnCell = React.memo<Props>(
     const previousIsRowHovered = prevProps.isRowHovered;
     const previousIsRowSelected = prevProps.isRowSelected;
     const previousHasHoverableComponent = previousColumn.hasHoverableComponent;
-    const previousRenderComponentOnRowUpdate =
-      previousColumn.renderComponentOnRowUpdate;
+    const previousRenderComponentOnRowUpdate = previousColumn.getRenderComponentOnRowUpdateCondition?.(
+      previousRow,
+    );
 
     const nextColumn = nextProps.column;
     const nextRow = nextProps.row;
     const nextIsRowHovered = nextProps.isRowHovered;
     const nextIsRowSelected = nextProps.isRowSelected;
     const nextHasHoverableComponent = nextColumn.hasHoverableComponent;
-    const nextRenderComponentOnRowUpdate =
-      nextColumn.renderComponentOnRowUpdate;
+    const nextRenderComponentOnRowUpdate = nextColumn.getRenderComponentOnRowUpdateCondition?.(
+      nextRow,
+    );
 
     const previousIsComponentHovered =
       previousHasHoverableComponent && previousIsRowHovered;
