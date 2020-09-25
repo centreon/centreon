@@ -190,7 +190,7 @@ sub init {
         force => 2,
         logger => $gorgone->{logger}
     );
-    
+
     $self->{hostname} = $self->{config}->{configuration}->{gorgone}->{gorgonecore}->{hostname};
     if (!defined($self->{hostname}) || $self->{hostname} eq '') {
         $self->{hostname} = hostname();
@@ -322,7 +322,7 @@ sub load_module {
 
     my ($loaded, $namespace, $name, $events) = $self->{modules_register}->{$package}->{register}->(
         config => $options{config_module},
-        config_core => $self->{config}->{configuration}->{gorgone}->{gorgonecore},
+        config_core => $self->{config}->{configuration}->{gorgone},
         config_db_centreon => $self->{config}->{configuration}->{centreon}->{database}->{db_configuration},
         config_db_centstorage => $self->{config}->{configuration}->{centreon}->{database}->{db_realtime},
         logger => $self->{logger},

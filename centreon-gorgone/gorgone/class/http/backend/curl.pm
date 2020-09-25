@@ -149,6 +149,7 @@ sub set_method {
     my ($self, %options) = @_;
 
     $self->curl_setopt(option => $self->{constant_cb}->(name => 'CURLOPT_CUSTOMREQUEST'), parameter => undef);
+    $self->curl_setopt(option => $self->{constant_cb}->(name => 'CURLOPT_POSTFIELDS'), parameter => undef);
     $self->curl_setopt(option => $self->{constant_cb}->(name => 'CURLOPT_HTTPGET'), parameter => 1);
 
     if ($options{request}->{method} eq 'GET') {
@@ -337,7 +338,7 @@ sub request {
     $self->{response_headers} = [{}];
     $self->curl_setopt(option => $self->{constant_cb}->(name => 'CURLOPT_HEADERDATA'), parameter => $self);
     $self->curl_setopt(option => $self->{constant_cb}->(name => 'CURLOPT_HEADERFUNCTION'), parameter => \&cb_get_header);
-        
+
     eval {
         $self->{curl_easy}->perform();
     };

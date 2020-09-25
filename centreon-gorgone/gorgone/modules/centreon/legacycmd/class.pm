@@ -37,10 +37,9 @@ my ($connector);
 
 sub new {
     my ($class, %options) = @_;
-    $connector  = {};
-    $connector->{internal_socket} = undef;
-    $connector->{logger} = $options{logger};
-    $connector->{config} = $options{config};
+    $connector = $class->SUPER::new(%options);
+    bless $connector, $class;
+
     if (!defined($connector->{config}->{cmd_file}) || $connector->{config}->{cmd_file} eq '') {
         $connector->{config}->{cmd_file} = '/var/lib/centreon/centcore.cmd';
     }
@@ -48,12 +47,8 @@ sub new {
         $connector->{config}->{cmd_dir} = '/var/lib/centreon/centcore/';
     }
     $connector->{config}->{dirty_mode} = defined($connector->{config}->{dirty_mode}) ? $connector->{config}->{dirty_mode} : 1;
-    $connector->{config_core} = $options{config_core};
-    $connector->{config_db_centreon} = $options{config_db_centreon};
-    $connector->{stop} = 0;
     $connector->{gorgone_illegal_characters} = '`';
 
-    bless $connector, $class;
     $connector->set_signal_handlers;
     return $connector;
 }

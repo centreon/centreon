@@ -40,19 +40,11 @@ my ($connector);
 
 sub new {
     my ($class, %options) = @_;
-
-    $connector  = {};
-    $connector->{internal_socket} = undef;
-    $connector->{module_id} = $options{module_id};
-    $connector->{logger} = $options{logger};
-    $connector->{config} = $options{config};
-    $connector->{config_core} = $options{config_core};
-    $connector->{config_db_centreon} = $options{config_db_centreon};
-    $connector->{config_db_centstorage} = $options{config_db_centstorage};
-    $connector->{log_pace} = 3;
-    $connector->{stop} = 0;
-
+    $connector = $class->SUPER::new(%options);
     bless $connector, $class;
+
+    $connector->{log_pace} = 3;
+
     $connector->set_signal_handlers();
     return $connector;
 }

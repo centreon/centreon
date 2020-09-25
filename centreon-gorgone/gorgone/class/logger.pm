@@ -134,6 +134,12 @@ sub redirect_output {
     }
 }
 
+sub flush_output {
+    my ($self, %options) = @_;
+
+    $| = 1 if (defined($options{enabled}));
+}
+
 sub force_default_severity {
     my ($self, %options) = @_;
 

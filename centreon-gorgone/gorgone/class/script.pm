@@ -55,10 +55,11 @@ sub new {
     $self->{name} = $name;
     $self->{logger} = gorgone::class::logger->new();
     $self->{options} = {
-        'config=s'   => \$self->{config_file},
-        'logfile=s'  => \$self->{log_file},
-        'severity=s' => \$self->{severity},
-        'help|?'     => \$self->{help}
+        'config=s'    => \$self->{config_file},
+        'logfile=s'   => \$self->{log_file},
+        'severity=s'  => \$self->{severity},
+        'flushoutput' => \$self->{flushoutput},
+        'help|?'      => \$self->{help}
     };
     return $self;
 }
@@ -69,6 +70,7 @@ sub init {
     if (defined $self->{log_file}) {
         $self->{logger}->file_mode($self->{log_file});
     }
+    $self->{logger}->flush_output(enabled => $self->{flushoutput});
     $self->{logger}->severity($self->{severity});
     $self->{logger}->force_default_severity();
 

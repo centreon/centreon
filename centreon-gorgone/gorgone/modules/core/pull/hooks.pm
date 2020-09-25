@@ -40,7 +40,7 @@ sub register {
     my (%options) = @_;
     
     $config = $options{config};
-    $config_core = $options{config_core};
+    $config_core = $options{config_core}->{gorgonecore};
     return (1, NAMESPACE, NAME, EVENTS);
 }
 

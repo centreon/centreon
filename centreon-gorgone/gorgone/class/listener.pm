@@ -59,6 +59,7 @@ sub add_listener {
     my ($self, %options) = @_;
 
     $self->{logger}->writeLogDebug("[listener] add token '$options{token}'");
+    # an issue can happen if the event is unknown (recursive loop)
     if (!defined($self->{tokens}->{$options{token}})) {
         my ($log_pace, $timeout) = (30, 600);
         $log_pace = $1 if (defined($options{log_pace}) && $options{log_pace} =~ /(\d+)/);

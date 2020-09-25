@@ -42,18 +42,11 @@ my ($connector);
 
 sub new {
     my ($class, %options) = @_;
+    $connector = $class->SUPER::new(%options);
+    bless $connector, $class;
 
-    $connector  = {};
-    $connector->{internal_socket} = undef;
-    $connector->{module_id} = $options{module_id};
-    $connector->{logger} = $options{logger};
     $connector->{container_id} = $options{container_id};
-    $connector->{config} = $options{config};
-    $connector->{config_core} = $options{config_core};
     $connector->{config_newtest} = $options{config_newtest};
-    $connector->{config_db_centstorage} = $options{config_db_centstorage};
-    $connector->{config_db_centreon} = $options{config_db_centreon};
-    $connector->{stop} = 0;
 
     $connector->{resync_time} = $options{config_newtest}->{resync_time};
     $connector->{last_resync_time} = time() - $connector->{resync_time};
@@ -78,7 +71,6 @@ sub new {
     $connector->{cmdFile} = defined($options{config}->{centcore_cmd}) && $options{config}->{centcore_cmd} ne '' ? $options{config}->{centcore_cmd} : '/var/lib/centreon/centcore.cmd';
     $connector->{illegal_characters} = defined($options{config}->{illegal_characters}) && $options{config}->{illegal_characters} ne '' ? $options{config}->{illegal_characters} : '~!$%^&*"|\'<>?,()=';
 
-    bless $connector, $class;
     $connector->set_signal_handlers();
     return $connector;
 }

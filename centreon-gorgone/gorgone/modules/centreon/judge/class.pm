@@ -38,22 +38,14 @@ my ($connector);
 
 sub new {
     my ($class, %options) = @_;
-    $connector  = {};
+    $connector = $class->SUPER::new(%options);
     bless $connector, $class;
 
-    $connector->{internal_socket} = undef;
-    $connector->{module_id} = $options{module_id};
-    $connector->{logger} = $options{logger};
-    $connector->{config} = $options{config};
-    $connector->{config_core} = $options{config_core};
-    $connector->{config_db_centstorage} = $options{config_db_centstorage};
-    $connector->{config_db_centreon} = $options{config_db_centreon};
-    $connector->{stop} = 0;
     $connector->{timeout} = 600;
     $connector->{check_alive_sync} = defined($connector->{config}->{check_alive}) && $connector->{config}->{check_alive} =~ /(\d+)/ ? $1 : 60;
     $connector->{check_alive_last} = -1;
     $connector->{check_alive} = 0;
-    
+
     $connector->{cache_dir} = (defined($connector->{config}->{cache_dir}) && $connector->{config}->{cache_dir} ne '') ?
         $connector->{config}->{cache_dir} : '/var/cache/centreon';
 

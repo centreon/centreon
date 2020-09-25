@@ -417,18 +417,64 @@ paths:
           $ref: '#/components/responses/Unauthorized'
         '403':
           $ref: '#/components/responses/Forbidden'
-  /centreon/autodiscovery/job:
+  /centreon/autodiscovery/hosts:
     post:
       tags:
         - Autodiscovery
-      summary: "Add a discovery job"
-      description: "Add one Centreon Autodiscovery job."
+      summary: "Add a host discovery job"
+      description: "Add one Centreon Autodiscovery job to discover hosts."
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/AutodiscoveryJob'
+              $ref: '#/components/schemas/HostDiscoveryJob'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/Token'
+                  - $ref: '#/components/schemas/Logs'
+                  - $ref: '#/components/schemas/NoLogs'
+                  - $ref: '#/components/schemas/Error'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+  /centreon/autodiscovery/hosts/{job_id}/schedule:
+    get:
+      tags:
+        - Autodiscovery
+      summary: "Launch a host discovery job"
+      description: "Launch a host discovery job identified by id (even if in cron mode)."
+      parameters:
+        - $ref: '#/components/parameters/HostDiscoveryId'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/Token'
+                  - $ref: '#/components/schemas/Logs'
+                  - $ref: '#/components/schemas/NoLogs'
+                  - $ref: '#/components/schemas/Error'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+  /centreon/autodiscovery/hosts/{token}:
+    delete:
+      tags:
+        - Autodiscovery
+      summary: "Delete a host discovery job"
+      description: "Delete one Centreon Autodiscovery scheduled job."
+      parameters:
+        - $ref: '#/components/parameters/HostDiscoveryToken'
       responses:
         '200':
           description: OK
@@ -510,6 +556,22 @@ components:
       schema:
         type: integer
         example: 2
+    HostDiscoveryId:
+      in: path
+      name: job_id
+      required: true
+      description: "ID of the job"
+      schema:
+        type: integer
+        example: 2
+    HostDiscoveryToken:
+      in: path
+      name: token
+      required: true
+      description: "Token of the scheduled job"
+      schema:
+        type: string
+        example: "discovery_14_6b7d1bb8"
   responses:
     NotFound:
       description: "The specified resource was not found"
@@ -920,32 +982,63 @@ components:
             type: string
             description: "External command"
             example: "[653284380] SCHEDULE_SVC_CHECK;host1;service1;653284380"
-    AutodiscoveryJob:
+    HostDiscoveryJob:
       type: object
       properties:
-        id:
-          type: string
-          description: "Identifier of the job (random if empty)"
-          example: "Job-SNMP-10.1.2.3"
-        execution_mode:
-          type: string
-          description: "Execution mode of this job ('0': execute immediately, '1': schedule with cron)"
-          example: 0
-        command:
-          type: string
-          description: "Command line to execute to perform the discovery"
-          example: |
-            perl /usr/lib/centreon/plugins/centreon_generic_snmp.pl --plugin=os::linux::local::plugin --mode=discovery-snmp --subnet='10.1.2.3/24' --snmp-port='161' --snmp-version='2c' --snmp-community='public'
-        timeout:
+        job_id:
           type: integer
-          description: "Time in seconds before the command is considered timed out"
-          example: 300
+          description: "ID of the Host Discovery job"
+          example: 14
         target:
           type: integer
           description: "Identifier of the target on which to execute the command"
           example: 2
+        command_line:
+          type: string
+          description: "Command line to execute to perform the discovery"
+          example: "perl /usr/lib/centreon/plugins/centreon_generic_snmp.pl --plugin=os::linux::local::plugin --mode=discovery-snmp --subnet='10.1.2.3/24' --snmp-port='161' --snmp-version='2c' --snmp-community='public'"
+        timeout:
+          type: integer
+          description: "Time in seconds before the command is considered timed out"
+          example: 300
+        execution:
+          type: object
+          description: "Execution mode of this job ('0': execute immediately, '1': schedule with cron)"
+          properties:
+            mode:
+              type: integer
+              description: "Execution mode ('0': immediate, '1': scheduled)"
+              example: 0
+            parameters:
+              type: object
+              description: "Parameters needed by execution mode"
+              properties:
+                cron_definition:
+                  type: string
+                  description: "Cron definition"
+                  example: "*/10 * * * *"
+        post_execution:
+          type: object
+          description: "Post-execution settings"
+          properties:
+            commands:
+              type: array
+              description: "Array of commands (content depends on command)"
+              items:
+                type: object
+                description: "Command"
+                properties:
+                  action:
+                    type: string
+                    description: "Action to perform"
+                    example: COMMAND
+                  command_line:
+                    type: string
+                    description: "Command line to execute"
+                    example: "/usr/share/centreon/www/modules/centreon-autodiscovery-server/script/run_save_discovered_host --job-id=14"
       required:
-        - execution_mode
-        - command
+        - job_id
         - target
+        - command_line
+        - execution
           

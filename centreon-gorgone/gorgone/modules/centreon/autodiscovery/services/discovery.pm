@@ -40,6 +40,7 @@ sub new {
     $connector->{logger} = $options{logger};
     $connector->{config} = $options{config};
     $connector->{config_core} = $options{config_core};
+    $connector->{tpapi_clapi} = $options{tpapi_clapi};
     $connector->{class_object_centreon} = $options{class_object_centreon};
     $connector->{class_object_centstorage} = $options{class_object_centstorage};
     $connector->{mail_command} = defined($connector->{config}->{mail_command}) ? $connector->{config}->{mail_command} : '/bin/mail';
@@ -110,19 +111,6 @@ sub is_finished {
     return $self->{finished};
 }
 
-sub get_clapi_user {
-    my ($self, %options) = @_;
-
-    $self->{clapi_user} = $self->{config}->{clapi_user};
-    $self->{clapi_password} = $self->{config}->{clapi_password};
-
-    if (!defined($self->{clapi_password})) {
-        return (-1, 'cannot get configuration for CLAPI user');
-    }
-
-    return 0;
-}
-
 sub send_email {
     my ($self, %options) = @_;
 
@@ -188,7 +176,7 @@ sub restart_pollers {
             data => {
                 content => [
                     {
-                        command => 'centreon -u ' . $self->{clapi_user} . ' -p ' . $self->{clapi_password} . ' -a APPLYCFG -v ' . $poller_id
+                        command => $self->{tpapi_clapi}->get_applycfg_command(poller_id => $poller_id)
                     }
                 ]
             }
@@ -801,14 +789,13 @@ sub launchdiscovery {
         return -1;
     }
 
-    ($status, $message) = $self->get_clapi_user();
-    if ($status < 0) {
-        $self->send_log_msg_error(token => $options{token}, subname => 'servicediscovery', number => $self->{uuid}, message => $message);
+    if (!defined($self->{tpapi_clapi}->get_username())) {
+        $self->send_log_msg_error(token => $options{token}, subname => 'servicediscovery', number => $self->{uuid}, message => 'clapi ' . $self->{tpapi_clapi}->error());
         return -1;
     }
     ($status, $message, my $user_id) = gorgone::modules::centreon::autodiscovery::services::resources::get_audit_user_id(
         class_object_centreon => $self->{class_object_centreon},
-        clapi_user => $self->{clapi_user}
+        clapi_user => $self->{tpapi_clapi}->get_username()
     );
     if ($status < 0) {
         $self->send_log_msg_error(token => $options{token}, subname => 'servicediscovery', number => $self->{uuid}, message => $message);

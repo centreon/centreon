@@ -39,17 +39,11 @@ my ($connector);
 
 sub new {
     my ($class, %options) = @_;
+    $connector = $class->SUPER::new(%options);
+    bless $connector, $class;
 
-    $connector  = {};
-    $connector->{internal_socket} = undef;
-    $connector->{module_id} = $options{module_id};
-    $connector->{logger} = $options{logger};
     $connector->{container_id} = $options{container_id};
-    $connector->{config} = $options{config};
-    $connector->{config_core} = $options{config_core};
     $connector->{config_scom} = $options{config_scom};
-    $connector->{config_db_centstorage} = $options{config_db_centstorage};
-    $connector->{stop} = 0;
 
     $connector->{api_version} = $options{config_scom}->{api_version};
     $connector->{dsmhost} = $options{config_scom}->{dsmhost};
@@ -67,7 +61,6 @@ sub new {
     $connector->{dsmclient_bin} = 
         defined($connector->{config}->{dsmclient_bin}) ? $connector->{config}->{dsmclient_bin} : '/usr/share/centreon/bin/dsmclient.pl';
 
-    bless $connector, $class;
     $connector->set_signal_handlers();
     return $connector;
 }

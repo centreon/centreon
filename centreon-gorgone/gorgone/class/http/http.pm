@@ -169,7 +169,7 @@ sub request {
     foreach (keys %options) {
         $request_options->{$_} = $options{$_} if (defined($options{$_}));
     }
-    $self->check_options(request => $request_options);
+    return 1 if ($self->check_options(request => $request_options));
 
     return $self->{'backend_' . $self->{http_backend}}->request(request => $request_options);
 }

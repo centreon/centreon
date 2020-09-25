@@ -26,7 +26,29 @@ use warnings;
 use gorgone::standard::constants qw(:all);
 use gorgone::standard::library;
 use gorgone::standard::misc;
+use gorgone::class::tpapi;
 use JSON::XS;
+
+sub new {
+    my ($class, %options) = @_;
+    my $self  = {};
+    bless $self, $class;
+
+    $self->{internal_socket} = undef;
+    $self->{module_id} = $options{module_id};
+    $self->{core_id} = $options{core_id};
+    $self->{logger} = $options{logger};
+    $self->{config} = $options{config};
+    $self->{config_core} = $options{config_core}->{gorgonecore};
+    $self->{config_db_centreon} = $options{config_db_centreon};
+    $self->{config_db_centstorage} = $options{config_db_centstorage};
+    $self->{stop} = 0;
+
+    $self->{tpapi} = gorgone::class::tpapi->new();
+    $self->{tpapi}->load_configuration(configuration => $options{config_core}->{tpapi});
+
+    return $self;
+}
 
 sub generate_token {
    my ($self, %options) = @_;

@@ -31,11 +31,13 @@ use constant NAMESPACE => 'centreon';
 use constant NAME => 'autodiscovery';
 use constant EVENTS => [
     { event => 'AUTODISCOVERYREADY' },
-    { event => 'AUTODISCOVERYLISTENER' },
+    { event => 'HOSTDISCOVERYJOBLISTENER' },
+    { event => 'HOSTDISCOVERYCRONLISTENER' },
     { event => 'SERVICEDISCOVERYLISTENER' },
-    { event => 'ADDDISCOVERYJOB', uri => '/job', method => 'POST' },
-    { event => 'LAUNCHDISCOVERY' },
-    { event => 'LAUNCHSERVICEDISCOVERY', uri => '/services', method => 'POST' },
+    { event => 'ADDHOSTDISCOVERYJOB', uri => '/hosts', method => 'POST' },
+    { event => 'DELETEHOSTDISCOVERYJOB', uri => '/hosts', method => 'DELETE' },
+    { event => 'LAUNCHHOSTDISCOVERY', uri => '/hosts', method => 'GET' },
+    { event => 'LAUNCHSERVICEDISCOVERY', uri => '/services', method => 'POST' }
 ];
 
 my $config_core;

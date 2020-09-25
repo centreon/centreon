@@ -35,17 +35,11 @@ my ($connector);
 
 sub new {
     my ($class, %options) = @_;
+    $connector = $class->SUPER::new(%options);
+    bless $connector, $class;
 
-    $connector  = {};
-    $connector->{internal_socket} = undef;
-    $connector->{module_id} = $options{module_id};
-    $connector->{logger} = $options{logger};
-    $connector->{config} = $options{config};
-    $connector->{config_core} = $options{config_core};
-    $connector->{stop} = 0;
     $connector->{register_nodes} = {};
 
-    bless $connector, $class;
     $connector->set_signal_handlers();
     return $connector;
 }

@@ -37,19 +37,12 @@ my ($connector);
 
 sub new {
     my ($class, %options) = @_;
-
-    $connector  = {};
-    $connector->{module_id} = $options{module_id};
-    $connector->{internal_socket} = undef;
-    $connector->{logger} = $options{logger};
-    $connector->{core_id} = $options{core_id};
-    $connector->{pool_id} = $options{pool_id};
-    $connector->{config} = $options{config};
-    $connector->{config_core} = $options{config_core};
-    $connector->{stop} = 0;
-    $connector->{clients} = {};
-    
+    $connector = $class->SUPER::new(%options);
     bless $connector, $class;
+
+    $connector->{pool_id} = $options{pool_id};
+    $connector->{clients} = {};
+
     $connector->set_signal_handlers();
     return $connector;
 }

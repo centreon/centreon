@@ -39,15 +39,8 @@ my ($connector);
 
 sub new {
     my ($class, %options) = @_;
-
-    $connector  = {};
-    $connector->{internal_socket} = undef;
-    $connector->{module_id} = $options{module_id};
-    $connector->{logger} = $options{logger};
-    $connector->{config} = $options{config};
-    $connector->{config_core} = $options{config_core};
-    $connector->{config_db_centreon} = $options{config_db_centreon};
-    $connector->{stop} = 0;
+    $connector = $class->SUPER::new(%options);
+    bless $connector, $class;
 
     $connector->{resync_time} = (defined($options{config}->{resync_time}) && $options{config}->{resync_time} =~ /(\d+)/) ? $1 : 600;
     $connector->{last_resync_time} = -1;
@@ -57,7 +50,6 @@ sub new {
     $connector->{centreon_metrics} = {};
     $connector->{unregister_metrics_centreon} = {};
 
-    bless $connector, $class;
     $connector->set_signal_handlers();
     return $connector;
 }
