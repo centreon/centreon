@@ -79,7 +79,7 @@ sub set_configuration {
 
     $self->{http_backend} = defined($options{config}->{backend}) ? $options{config}->{backend} : 'curl';
 
-    $self->{curl_opts} = ['CURLOPT_SSL_VERIFYPEER => 0'];
+    $self->{curl_opts} = ['CURLOPT_SSL_VERIFYPEER => 0', 'CURLOPT_POSTREDIR => CURL_REDIR_POST_ALL'];
     my $curl_opts = [];
     if (defined($options{config}->{curlopts})) {
         foreach (keys %{$options{config}->{curlopts}}) {
