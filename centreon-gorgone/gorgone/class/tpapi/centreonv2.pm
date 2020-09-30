@@ -235,38 +235,18 @@ sub get_monitoring_hosts {
     );
 }
 
-sub get_scheduling_jobs {
+
+sub get_platform_versions {
     my ($self, %options) = @_;
 
-=pod
-    my $results = [
-        {
-            execution => {
-                parameters => {
-                    cron_definition => "* * * * *",
-                    is_paused => 0
-                },
-                mode => 1
-            },
-            post_execution => {
-                commands => [
-                    {
-                        action => 'COMMAND',
-                        command_line => '/usr/share/centreon/www/modules/centreon-autodiscovery-server/script/run_save_discovered_host --all --job-id=9'
-                    }
-                ]
-            },
-            job_id => 9,
-            token => "discovery_9_f2b0ea11",
-            command_line => "/usr/lib/centreon/plugins/centreon_generic_snmp.pl --plugin=os::linux::local::plugin --mode=discovery-snmp --subnet='127.0.0.1/32' --snmp-community='public' --snmp-version='2c' --snmp-port='161' --snmp-timeout='1' \$_EXTRAOPTIONS\$",
-            target => 1,
-            status => 1,
-            last_execution => undef,
-            uuid_attributes => ["hostname", "ip"]
-        }
-    ];
-    return (0, $results);
-=cut
+    return $self->request(
+        method => 'GET',
+        endpoint => '/platform/versions'
+    );    
+}
+
+sub get_scheduling_jobs {
+    my ($self, %options) = @_;
 
     my $get_param;
     if (defined($options{search})) {

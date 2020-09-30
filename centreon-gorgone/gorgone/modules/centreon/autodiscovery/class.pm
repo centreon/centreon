@@ -72,6 +72,10 @@ sub new {
     $connector->{tpapi_centreonv2_name} = defined($options{config}->{tpapi_centreonv2}) && $options{config}->{tpapi_centreonv2} ne '' ? 
         $options{config}->{tpapi_centreonv2} : 'centreonv2';
 
+    $connector->{is_module_installed} = 0;
+    $connector->{is_module_installed_check_interval} = 60;
+    $connector->{is_module_installed_last_check} = -1;
+
     $connector->{hdisco_synced} = 0;
     $connector->{hdisco_synced_time} = -1;
     $connector->{hdisco_jobs_tokens} = {};
@@ -249,6 +253,7 @@ sub hdisco_addupdate_job {
 sub hdisco_sync {
     my ($self, %options) = @_;
 
+    return if ($self->{is_module_installed} == 0);
     return if ($self->{hdisco_synced} == 1 && (time() - $self->{hdisco_synced_time}) < 600);
 
     $self->{logger}->writeLogInfo('[autodiscovery] -class- host discovery - sync started');
@@ -428,7 +433,7 @@ sub launchhostdiscovery {
         return (1, 'job is already running');
     }
     if ($self->{hdisco_jobs_ids}->{$job_id}->{execution}->{mode} == EXECUTION_MODE_PAUSE) {
-        return (1, 'job is paused');
+        return (0, "job '$job_id' is paused");
     }
 
     $self->{logger}->writeLogInfo("[autodiscovery] -class- host discovery - launching discovery for job '" . $job_id . "'");
@@ -486,7 +491,7 @@ sub launchhostdiscovery {
         }
     );
 
-    return 0;
+    return (0, "job '$job_id' launched");
 }
 
 sub action_launchhostdiscovery {
@@ -570,7 +575,7 @@ sub action_launchhostdiscovery {
         token => $options{token},
         instant => 1,
         data => {
-            message => "job '$job_id' launched"
+            message => $message
         }
     );
 }
@@ -1009,6 +1014,29 @@ sub action_launchservicediscovery {
     }
 }
 
+sub is_module_installed {
+    my ($self) = @_;
+
+    return 1 if ($self->{is_module_installed} == 1);
+    return 0 if ((time() - $self->{is_module_installed_check_interval}) < $self->{is_module_installed_last_check});
+
+    $self->{logger}->writeLogDebug('[autodiscovery] -class- host discovery - check centreon module installed');
+    $self->{is_module_installed_last_check} = time();
+
+    my ($status, $results) = $self->{tpapi_centreonv2}->get_platform_versions();
+    if ($status != 0) {
+        $self->{logger}->writeLogError('[autodiscovery] -class- host discovery - cannot get platform versions - ' . $self->{tpapi_centreonv2}->error());
+        return 0;
+    }
+
+    if (defined($results->{modules}->{'centreon-autodiscovery-server'})) {
+        $self->{logger}->writeLogDebug('[autodiscovery] -class- host discovery - module autodiscovery installed');
+        $self->{is_module_installed} = 1;
+    }
+
+    return $self->{is_module_installed};
+}
+
 sub is_hdisco_synced {
     my ($self) = @_;
 
@@ -1094,9 +1122,9 @@ sub run {
     ];
 
     while (1) {
+        $self->is_module_installed();
         $self->hdisco_sync();
 
-        # we try to do all we can
         my $rev = zmq_poll($self->{poll}, 5000);
         if (defined($rev) && $rev == 0 && $self->{stop} == 1) {
             $self->{logger}->writeLogInfo("[autodiscovery] $$ has quit");
