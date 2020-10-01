@@ -625,7 +625,7 @@ sub discovery_command_result {
     }
 
     $self->{logger}->writeLogInfo("[autodiscovery] -class- host discovery - found result for job '" . $job_id . "'");
-    my $uuid_attributes = $self->{hdisco_jobs_ids}->{$job_id}->{uuid_attributes};
+    my $uuid_parameters = $self->{hdisco_jobs_ids}->{$job_id}->{uuid_parameters};
     my $exit_code = $options{data}->{data}->{result}->{exit_code};
     my $output = (defined($options{data}->{data}->{result}->{stderr}) && $options{data}->{data}->{result}->{stderr} ne '') ?
         $options{data}->{data}->{result}->{stderr} : $options{data}->{data}->{result}->{stdout};
@@ -692,7 +692,7 @@ sub discovery_command_result {
 
         # Generate uuid based on attributs
         my $uuid_char = '';
-        foreach (@$uuid_attributes) {
+        foreach (@$uuid_parameters) {
             $uuid_char .= $host->{$_} if (defined($host->{$_}) && $host->{$_} ne '');
         }
         my $ctx = Digest::MD5->new;
