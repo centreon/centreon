@@ -48,8 +48,10 @@ sub new {
     }
     $connector->{config}->{dirty_mode} = defined($connector->{config}->{dirty_mode}) ? $connector->{config}->{dirty_mode} : 1;
     $connector->{gorgone_illegal_characters} = '`';
+    $connector->{cache_refresh_interval} = 60;
+    $connector->{cache_refresh_last} = -1;
 
-    $connector->set_signal_handlers;
+    $connector->set_signal_handlers();
     return $connector;
 }
 
@@ -85,10 +87,14 @@ sub class_handle_HUP {
     }
 }
 
-sub get_pollers_config {
+sub cache_refresh {
     my ($self, %options) = @_;
 
-    $self->{pollers} = {};
+    return if ((time() - $self->{cache_refresh_interval}) < $self->{cache_refresh_last});
+    $self->{cache_refresh_last} = time();
+    
+    # get pollers config
+    $self->{pollers} = undef;
     my ($status, $datas) = $self->{class_object_centreon}->custom_execute(
         request => 'SELECT nagios_server_id, command_file, cfg_dir, centreonbroker_cfg_path, snmp_trapd_path_conf, ' .
             'engine_start_command, engine_stop_command, engine_restart_command, engine_reload_command, ' .
@@ -101,20 +107,15 @@ sub get_pollers_config {
     );
     if ($status == -1 || !defined($datas)) {
         $self->{logger}->writeLogError('[legacycmd] Cannot get configuration for pollers');
-        return -1;
+        return ;
     }
 
     $self->{pollers} = $datas;
 
-    return 0;
-}
-
-sub get_clapi_user {
-    my ($self, %options) = @_;
-
+    # get clapi user
     $self->{clapi_user} = undef;
     $self->{clapi_password} = undef;
-    my ($status, $datas) = $self->{class_object_centreon}->custom_execute(
+    ($status, $datas) = $self->{class_object_centreon}->custom_execute(
         request => "SELECT contact_alias, contact_passwd " .
             "FROM `contact` " .
             "WHERE `contact_admin` = '1' " . 
@@ -126,38 +127,36 @@ sub get_clapi_user {
 
     if ($status == -1 || !defined($datas->[0]->[0])) {
         $self->{logger}->writeLogInfo('[legacycmd] Cannot get configuration for CLAPI user');
-        return 0;
+    } else {
+        my $clapi_user = $datas->[0]->[0];
+        my $clapi_password = $datas->[0]->[1];
+        if ($clapi_password =~ m/^md5__(.*)/) {
+            $clapi_password = $1;
+        }
+
+        $self->{clapi_user} = $clapi_user;
+        $self->{clapi_password} = $clapi_password;
     }
 
-    my $clapi_user = $datas->[0]->[0];
-    my $clapi_password = $datas->[0]->[1];
-    if ($clapi_password =~ m/^md5__(.*)/) {
-        $clapi_password = $1;
-    }
-
-    $self->{clapi_user} = $clapi_user;
-    $self->{clapi_password} = $clapi_password;
-
-    return 0;
-}
-
-sub get_illegal_characters {
-    my ($self, %options) = @_;
-
-    my ($status, $datas) = $self->{class_object_centreon}->custom_execute(
+    # check illegal characters
+    ($status, $datas) = $self->{class_object_centreon}->custom_execute(
         request => "SELECT `value` FROM options WHERE `key` = 'gorgone_illegal_characters'",
         mode => 2
     );
     if ($status == -1) { 
         $self->{logger}->writeLogError('[legacycmd] Cannot get illegal characters');
-        return -1;
+        return ;
     }
 
     if (defined($datas->[0]->[0])) {
         $self->{gorgone_illegal_characters} = $datas->[0]->[0];
     }
+}
 
-    return 0;
+sub check_pollers_config {
+    my ($self, %options) = @_;
+
+    return defined($self->{pollers}) ? 1 : 0;
 }
 
 sub execute_cmd {
@@ -590,11 +589,7 @@ sub handle_centcore_dir {
 sub handle_cmd_files {
     my ($self, %options) = @_;
 
-    return if (
-        $self->get_pollers_config() == -1  || 
-        $self->get_clapi_user() == -1 ||
-        $self->get_illegal_characters() == -1
-    );
+    return if ($self->check_pollers_config() == 0);
     $self->handle_centcore_cmd();
     $self->handle_centcore_dir();
 }
@@ -707,6 +702,7 @@ sub run {
             exit(0);
         }
 
+        $self->cache_refresh();
         $self->handle_cmd_files();
     }
 }
