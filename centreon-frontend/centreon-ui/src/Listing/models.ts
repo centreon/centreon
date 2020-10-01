@@ -20,6 +20,7 @@ export interface Column {
   sortable?: boolean;
   sortField?: string;
   getRenderComponentOnRowUpdateCondition?: (row) => boolean;
+  getRenderComponentCondition?: (row) => boolean;
 }
 
 enum ColumnType {

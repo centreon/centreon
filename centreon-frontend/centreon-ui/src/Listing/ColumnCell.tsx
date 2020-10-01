@@ -135,6 +135,21 @@ const MemoizedColumnCell = React.memo<Props>(
     const previousRenderComponentOnRowUpdate = previousColumn.getRenderComponentOnRowUpdateCondition?.(
       previousRow,
     );
+    const previousRenderComponentCondition = previousColumn.getRenderComponentCondition?.(
+      previousRow,
+    );
+    const previousIsComponentHovered =
+      previousHasHoverableComponent && previousIsRowHovered;
+    const previousFormattedString = previousColumn.getFormattedString?.(
+      previousRow,
+    );
+    const previousTruncateCondition = previousColumn.getTruncateCondition?.(
+      previousIsRowSelected,
+    );
+    const previousColSpan = previousColumn.getColSpan?.(previousIsRowSelected);
+    const previousHiddenCondition = previousColumn.getHiddenCondition?.(
+      previousIsRowSelected,
+    );
 
     const nextColumn = nextProps.column;
     const nextRow = nextProps.row;
@@ -144,33 +159,27 @@ const MemoizedColumnCell = React.memo<Props>(
     const nextRenderComponentOnRowUpdate = nextColumn.getRenderComponentOnRowUpdateCondition?.(
       nextRow,
     );
-
-    const previousIsComponentHovered =
-      previousHasHoverableComponent && previousIsRowHovered;
+    const nextRenderComponentCondition = nextColumn.getRenderComponentCondition?.(
+      nextRow,
+    );
     const nextIsComponentHovered =
       nextHasHoverableComponent && nextIsRowHovered;
 
-    const previousFormattedString = previousColumn.getFormattedString?.(
-      previousRow,
-    );
     const nextFormatttedString = nextColumn.getFormattedString?.(nextRow);
 
-    const previousColSpan = previousColumn.getColSpan?.(previousIsRowSelected);
     const nextColSpan = nextColumn.getColSpan?.(nextIsRowSelected);
 
-    const previousTruncateCondition = previousColumn.getTruncateCondition?.(
-      previousIsRowSelected,
-    );
     const nextTruncateCondition = nextColumn.getTruncateCondition?.(
       nextIsRowSelected,
     );
 
-    const previousHiddenCondition = previousColumn.getHiddenCondition?.(
-      previousIsRowSelected,
-    );
     const nextHiddenCondition = nextColumn.getHiddenCondition?.(
       nextIsRowSelected,
     );
+
+    if (previousRenderComponentCondition && nextRenderComponentCondition) {
+      return false;
+    }
 
     return (
       equals(previousIsComponentHovered, nextIsComponentHovered) &&
