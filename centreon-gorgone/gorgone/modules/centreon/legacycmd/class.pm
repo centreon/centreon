@@ -99,9 +99,8 @@ sub cache_refresh {
         request => 'SELECT nagios_server_id, command_file, cfg_dir, centreonbroker_cfg_path, snmp_trapd_path_conf, ' .
             'engine_start_command, engine_stop_command, engine_restart_command, engine_reload_command, ' .
             'broker_reload_command, init_script_centreontrapd ' .
-            'FROM cfg_nagios ' .
-            'JOIN nagios_server ' .
-            'WHERE id = nagios_server_id',
+            'FROM cfg_nagios, nagios_server ' .
+            "WHERE nagios_server.id = cfg_nagios.nagios_server_id AND cfg_nagios.nagios_activate = '1'",
         mode => 1,
         keys => 'nagios_server_id'
     );
