@@ -31,7 +31,8 @@ use constant NAMESPACE => 'centreon';
 use constant NAME => 'legacycmd';
 use constant EVENTS => [
     { event => 'CENTREONCOMMAND', uri => '/command', method => 'POST' },
-    { event => 'LEGACYCMDREADY' }
+    { event => 'LEGACYCMDREADY' },
+    { event => 'ADDIMPORTTASKWITHPARENT' }
 ];
 
 my $config_core;

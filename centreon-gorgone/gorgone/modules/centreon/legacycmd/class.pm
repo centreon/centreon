@@ -255,25 +255,18 @@ sub execute_cmd {
             },
         );
 
-        my $centreon_dir = (defined($connector->{config}->{centreon_dir})) ?
-            $connector->{config}->{centreon_dir} : '/usr/share/centreon';
-        my $task_id = $options{param};
-        my $cmd = $centreon_dir . '/bin/centreon -u ' . $self->{clapi_user} . ' -p ' .
-            $self->{clapi_password} . ' -w -o CentreonWorker -a createRemoteTask -v ' . $task_id;
+        # Forward data use to be done by createRemoteTask as well as task_id in a gorgone command
+        # Command name: AddImportTaskWithParent
+        # Data: ['parent_id' => $task->getId()]
         $self->send_internal_action(
-            action => 'COMMAND',
-            target => undef,
-            token => $token,
+            action => 'ADDIMPORTTASKWITHPARENT',
+            token => $options{token},
+            target => $options{target},
             data => {
-                content => [
-                    {
-                        command => $cmd,
-                        metadata => {
-                            centcore_cmd => 'SENDEXPORTFILE',
-                        }
-                    }
-                ]
-            },
+                content => {
+                    parent_id => $options{param},
+                }
+            }
         );
     } elsif ($options{cmd} eq 'SYNCTRAP') {
         my $cache_dir = (defined($connector->{config}->{cache_dir}) && $connector->{config}->{cache_dir} ne '') ?
@@ -448,31 +441,62 @@ sub execute_cmd {
                 ]
             },
         );
-    } elsif ($options{cmd} eq 'CREATEREMOTETASK') {
-        if (!defined($self->{clapi_password})) {
-            return (-1, 'need centreon clapi password to execute CREATEREMOTETASK command');
-        }
-        my $centreon_dir = (defined($connector->{config}->{centreon_dir})) ?
-            $connector->{config}->{centreon_dir} : '/usr/share/centreon';
-        my $task_id = $options{target};
-        my $cmd = $centreon_dir . '/bin/centreon -u ' . $self->{clapi_user} . ' -p ' .
-            $self->{clapi_password} . ' -w -o CentreonWorker -a createRemoteTask -v ' . $task_id;
-        $self->send_internal_action(
-            action => 'COMMAND',
-            target => undef,
-            token => $token,
-            data => {
-                content => [
-                    {
-                        command => $cmd,
-                        metadata => {
-                            centcore_cmd => 'CREATEREMOTETASK',
-                        }
-                    }
-                ]
-            },
-        );
     }
+
+    return 0;
+}
+
+sub action_addimporttaskwithparent {
+    my ($self, %options) = @_;
+
+    if (!defined($options{data}->{content}->{parent_id})) {
+        $self->send_log(
+            code => GORGONE_ACTION_FINISH_KO,
+            token => $options{token},
+            data => {
+                message => "expected parent_id task ID, found '" . $options{data}->{content}->{parent_id} . "'",
+            }
+        );
+        return -1;
+    }
+
+    my ($status, $datas) = $self->{class_object_centreon}->custom_execute(
+        request => "INSERT INTO task (`type`, `status`, `parent_id`) VALUES ('import', 'pending', '" . $options{data}->{content}->{parent_id} . "')"
+    );
+    if ($status == -1) {
+        $self->send_log(
+            code => GORGONE_ACTION_FINISH_KO,
+            token => $options{token},
+            data => {
+                message => "Cannot add import task on Remote Server.",
+            }
+        );
+        return -1;
+    }
+
+    my $centreon_dir = (defined($connector->{config}->{centreon_dir})) ?
+        $connector->{config}->{centreon_dir} : '/usr/share/centreon';
+    my $cmd = $centreon_dir . '/bin/centreon -u ' . $self->{clapi_user} . ' -p ' .
+        $self->{clapi_password} . ' -w -o CentreonWorker -a processQueue';
+    $self->send_internal_action(
+        action => 'COMMAND',
+        token => $options{token},
+        data => {
+            content => [
+                {
+                    command => $cmd,
+                }
+            ]
+        },
+    );
+    
+    $self->send_log(
+        code => GORGONE_ACTION_FINISH_OK,
+        token => $options{token},
+        data => {
+            message => 'Task inserted on Remote Server',
+        }
+    );
 
     return 0;
 }
