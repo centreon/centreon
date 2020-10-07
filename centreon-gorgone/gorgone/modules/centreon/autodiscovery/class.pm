@@ -888,12 +888,14 @@ sub action_hostdiscoveryjoblistener {
     #    return 1;
     #}
 
+    # Can happen if we have a execution command timeout
+    my $message = defined($options{data}->{data}->{result}->{stdout}) ? $options{data}->{data}->{result}->{stdout} : $options{data}->{message};
     if ($options{data}->{code} == GORGONE_ACTION_FINISH_KO) {
         $self->{hdisco_jobs_ids}->{$job_id}->{status} = JOB_FAILED;
         $self->update_job_information(
             values => {
                 status => JOB_FAILED,
-                message => $options{data}->{message},
+                message => $message,
                 duration => 0,
                 discovered_items => 0
             },
