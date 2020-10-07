@@ -392,7 +392,8 @@ sub action_addhostdiscoveryjob {
     if ($self->{hdisco_jobs_ids}->{ $options{data}->{content}->{job_id} }->{execution}->{mode} == EXECUTION_MODE_IMMEDIATE) {
         ($status, $message) = $self->launchhostdiscovery(
             job_id => $options{data}->{content}->{job_id},
-            timeout => $options{data}->{content}->{timeout}
+            timeout => $options{data}->{content}->{timeout},
+            source => 'immediate'
         );
         if ($status) {
             $self->send_log(
@@ -430,7 +431,7 @@ sub launchhostdiscovery {
     if ($self->hdisco_is_running_job(status => $self->{hdisco_jobs_ids}->{$job_id}->{status})) {
         return (1, 'job is already running');
     }
-    if ($self->{hdisco_jobs_ids}->{$job_id}->{execution}->{mode} == EXECUTION_MODE_PAUSE) {
+    if ($self->{hdisco_jobs_ids}->{$job_id}->{execution}->{mode} == EXECUTION_MODE_PAUSE && $options{source} eq 'cron') {
         return (0, "job '$job_id' is paused");
     }
 
@@ -454,7 +455,7 @@ sub launchhostdiscovery {
         return (1, 'cannot update job status');
     }
     $self->{hdisco_jobs_ids}->{$job_id}->{status} = JOB_RUNNING;
-    my $timeout = (defined($timeout) && $timeout =~ /(\d+)/) ? $1 : $self->{global_timeout};
+    my $timeout = (defined($options{timeout}) && $options{timeout} =~ /(\d+)/) ? $1 : $self->{global_timeout};
 
     $self->send_internal_action(
         action => 'ADDLISTENER',
@@ -507,13 +508,15 @@ sub action_launchhostdiscovery {
         return ;
     }
 
-    my ($job_id, $timeout);
+    my ($job_id, $timeout, $source);
     if (defined($options{data}->{variables}->[0]) &&
         defined($options{data}->{variables}->[1]) && $options{data}->{variables}->[1] eq 'schedule') {
         $job_id = $options{data}->{variables}->[0];
+        $source = 'immediate';
     } elsif (defined($options{data}->{content}->{job_id})) {
         $job_id = $options{data}->{content}->{job_id};
         $timeout = $options{data}->{content}->{timeout};
+        $source = 'cron';
     }
 
     my ($status, $message, $job);
@@ -557,7 +560,8 @@ sub action_launchhostdiscovery {
 
     ($status, $message) = $self->launchhostdiscovery(
         job_id => $job_id,
-        timeout => $timeout
+        timeout => $timeout,
+        source => $source
     );
     if ($status) {
         $self->{logger}->writeLogError("[autodiscovery] -class- host discovery - launch discovery job '$job_id' - $message");
