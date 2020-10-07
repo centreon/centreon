@@ -77,7 +77,8 @@ sub new {
     $connector->{is_module_installed_last_check} = -1;
 
     $connector->{hdisco_synced} = 0;
-    $connector->{hdisco_synced_time} = -1;
+    $connector->{hdisco_synced_failed_time} = -1;
+    $connector->{hdisco_synced_ok_time} = -1;
     $connector->{hdisco_jobs_tokens} = {};
     $connector->{hdisco_jobs_ids} = {};
 
@@ -257,13 +258,16 @@ sub hdisco_sync {
     my ($self, %options) = @_;
 
     return if ($self->{is_module_installed} == 0);
-    return if ($self->{hdisco_synced} == 1 && (time() - $self->{hdisco_synced_time}) < 600);
+    return if ($self->{hdisco_synced} == 0 && (time() - $self->{hdisco_synced_failed_time}) < 60);
+    return if ($self->{hdisco_synced} == 1 && (time() - $self->{hdisco_synced_ok_time}) < 600);
 
     $self->{logger}->writeLogInfo('[autodiscovery] -class- host discovery - sync started');
     my ($status, $results, $message);
 
+    $self->{hdisco_synced} = 0;
     ($status, $results) = $self->{tpapi_centreonv2}->get_scheduling_jobs();
     if ($status != 0) {
+        $self->{hdisco_synced_failed_time} = time();
         $self->{logger}->writeLogError('[autodiscovery] -class- host discovery - cannot get host discovery jobs - ' . $self->{tpapi_centreonv2}->error());
         return ;
     }
@@ -289,7 +293,7 @@ sub hdisco_sync {
         delete $self->{hdisco_jobs_ids}->{$job_id};
     }
 
-    $self->{hdisco_synced_time} = time();
+    $self->{hdisco_synced_ok_time} = time();
     $self->{hdisco_synced} = 1;
 }
 
