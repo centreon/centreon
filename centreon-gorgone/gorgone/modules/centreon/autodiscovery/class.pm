@@ -166,7 +166,7 @@ sub hdisco_add_cron {
         action => 'LAUNCHHOSTDISCOVERY',
         parameters =>  {
             job_id => $options{job}->{job_id},
-            timeout => $self->{global_timeout}
+            timeout => (defined($options{job}->{timeout}) && $options{job}->{timeout} =~ /(\d+)/) ? $1 : $self->{global_timeout}
         }
     };
     $self->send_internal_action(
@@ -242,7 +242,10 @@ sub hdisco_addupdate_job {
     if ($self->{hdisco_jobs_ids}->{ $options{job}->{job_id} }->{execution}->{mode} == EXECUTION_MODE_CRON &&
         ($extra_infos->{cron_added} == CRON_ADDED_NONE || $extra_infos->{cron_added} == CRON_ADDED_KO)
     ) {
-        ($status, $message) = $self->hdisco_add_cron(job => $options{job}, discovery_token => $options{job}->{token});
+        ($status, $message) = $self->hdisco_add_cron(
+            job => $options{job},
+            discovery_token => $options{job}->{token}
+        );
         return ($status, $message) if ($status);
         $self->{hdisco_jobs_ids}->{ $options{job}->{job_id} }->{extra_infos}->{cron_added} = CRON_ADDED_PROGRESS;
     }
@@ -371,6 +374,7 @@ sub action_addhostdiscoveryjob {
         return 1;
     }
 
+    $job->{timeout} = $options{data}->{content}->{timeout};
     ($status, $message) = $self->hdisco_addupdate_job(job => $job);
     if ($status) {
         $self->{logger}->writeLogError("[autodiscovery] -class- host discovery - add job '$options{data}->{content}->{job_id}' - $message");
@@ -386,15 +390,9 @@ sub action_addhostdiscoveryjob {
 
     # Launch a immediate job.
     if ($self->{hdisco_jobs_ids}->{ $options{data}->{content}->{job_id} }->{execution}->{mode} == EXECUTION_MODE_IMMEDIATE) {
-        my $timeout = (defined($options{data}->{content}->{timeout}) && $options{data}->{content}->{timeout} =~ /(\d+)/) ?
-            $options{data}->{content}->{timeout} : $self->{global_timeout};
-        ($status, $message) = $self->action_launchhostdiscovery(
-            data => {
-                content => {
-                    timeout => $timeout,
-                    job_id => $options{data}->{content}->{job_id}
-                }
-            }
+        ($status, $message) = $self->launchhostdiscovery(
+            job_id => $options{data}->{content}->{job_id},
+            timeout => $options{data}->{content}->{timeout}
         );
         if ($status) {
             $self->send_log(
@@ -456,6 +454,7 @@ sub launchhostdiscovery {
         return (1, 'cannot update job status');
     }
     $self->{hdisco_jobs_ids}->{$job_id}->{status} = JOB_RUNNING;
+    my $timeout = (defined($timeout) && $timeout =~ /(\d+)/) ? $1 : $self->{global_timeout};
 
     $self->send_internal_action(
         action => 'ADDLISTENER',
@@ -465,8 +464,7 @@ sub launchhostdiscovery {
                 event => 'HOSTDISCOVERYJOBLISTENER',
                 target => $self->{hdisco_jobs_ids}->{$job_id}->{target},
                 token => $self->{hdisco_jobs_ids}->{$job_id}->{token},
-                timeout => defined($options{data}->{content}->{timeout}) && $options{data}->{content}->{timeout} =~ /(\d+)/ ? 
-                    $1 + $self->{check_interval} + 15 : undef,
+                timeout => $timeout + $self->{check_interval} + 15,
                 log_pace => $self->{check_interval}
             }
         ]
@@ -481,7 +479,7 @@ sub launchhostdiscovery {
                 {
                     instant => 1,
                     command => $self->{hdisco_jobs_ids}->{$job_id}->{command_line},
-                    timeout => defined($options{data}->{content}->{timeout}) && $options{data}->{content}->{timeout} =~ /(\d+)/ ? $1 : undef,
+                    timeout => $timeout,
                     metadata => {
                         job_id => $job_id,
                         source => 'autodiscovery-host-job-discovery'
@@ -509,12 +507,13 @@ sub action_launchhostdiscovery {
         return ;
     }
 
-    my $job_id;
+    my ($job_id, $timeout);
     if (defined($options{data}->{variables}->[0]) &&
         defined($options{data}->{variables}->[1]) && $options{data}->{variables}->[1] eq 'schedule') {
         $job_id = $options{data}->{variables}->[0];
     } elsif (defined($options{data}->{content}->{job_id})) {
         $job_id = $options{data}->{content}->{job_id};
+        $timeout = $options{data}->{content}->{timeout};
     }
 
     my ($status, $message, $job);
@@ -556,7 +555,10 @@ sub action_launchhostdiscovery {
         return 1;
     }
 
-    ($status, $message) = $self->launchhostdiscovery(job_id => $job_id, %options);
+    ($status, $message) = $self->launchhostdiscovery(
+        job_id => $job_id,
+        timeout => $timeout
+    );
     if ($status) {
         $self->{logger}->writeLogError("[autodiscovery] -class- host discovery - launch discovery job '$job_id' - $message");
         $self->send_log(
