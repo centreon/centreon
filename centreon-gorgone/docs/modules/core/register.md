@@ -69,6 +69,7 @@ nodes:
 | ssh\_identity            | Path to the identity file                                                                         |
 | ssh\_username            | SSH username                                                                                      |
 | ssh\_password            | SSH password (if no SSH key)                                                                      |
+| ssh\_connect\_timeout    | Time is seconds before a connection is considered timed out                                       |
 | strict\_serverkey\_check | Boolean to strictly check the node fingerprint                                                    |
 | prevail                  | Defines if this configuration prevails on `nodes` module configuration                            |
 
