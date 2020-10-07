@@ -196,22 +196,26 @@ sub request {
         critical_status => ''
     );
 
+    my $decoded = $self->json_decode(content => $content);
+
     # code 403 means forbidden (token not good maybe)
     if ($self->{http}->get_code() == 403) {
         $self->{token} = undef;
         $self->{is_logged} = 0;
         $self->{is_error} = 1;
         $self->{error} = 'token forbidden';
+        $self->{error} = $decoded->{message} if (defined($decoded) && defined($decoded->{message}));
         return 1;
     }
 
     if ($self->{http}->get_code() < 200 || $self->{http}->get_code() >= 300) {
         $self->{is_error} = 1;
-        $self->{error} =  "request error [code: '" . $self->{http}->get_code() . "'] [message: '" . $self->{http}->get_message() . "']";
+        my $message = $self->{http}->get_message();
+        $message = $decoded->{message} if (defined($decoded) && defined($decoded->{message}));
+        $self->{error} =  "request error [code: '" . $self->{http}->get_code() . "'] [message: '" . $message . "']";
         return 1;
     }
 
-    my $decoded = $self->json_decode(content => $content);
     return 1 if (!defined($decoded));
 
     return (0, $decoded);
