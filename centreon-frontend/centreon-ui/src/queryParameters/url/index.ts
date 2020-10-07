@@ -23,9 +23,7 @@ const setUrlQueryParameters = (
 const getUrlQueryParameters = <
   TQueryParameters extends Record<string, unknown>
 >(): TQueryParameters => {
-  const urlParams = new URLSearchParams(
-    decodeURIComponent(window.location.search),
-  );
+  const urlParams = new URLSearchParams(window.location.search);
   const entries = [...urlParams.entries()].map<[string, string]>(
     ([key, value]) => {
       return [key, JSON.parse(value)];
