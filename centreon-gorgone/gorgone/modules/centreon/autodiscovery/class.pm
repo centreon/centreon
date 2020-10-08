@@ -652,7 +652,7 @@ sub discovery_command_result {
 
     my $result;
     eval {
-        $result = JSON::XS->new->utf8->decode($output);
+        $result = JSON::XS->new->decode($output);
     };
 
     if ($@) {
@@ -710,7 +710,7 @@ sub discovery_command_result {
         my $digest = $ctx->hexdigest;
         my $uuid = substr($digest, 0, 8) . '-' . substr($digest, 8, 4) . '-' . substr($digest, 12, 4) . '-' .
             substr($digest, 16, 4) . '-' . substr($digest, 20, 12);
-        my $encoded_host = JSON::XS->new->utf8->encode($host);
+        my $encoded_host = JSON::XS->new->encode($host);
 
         # Build bulk insert
         $values .= $append . "(" . $self->{class_object_centreon}->quote(value => $job_id) . ", " . 
