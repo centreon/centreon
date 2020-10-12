@@ -14,9 +14,7 @@ const setUrlQueryParameters = (
   window.history.pushState(
     {},
     '',
-    `${window.location.pathname}?${decodeURIComponent(
-      urlQueryParameters.toString(),
-    )}`,
+    `${window.location.pathname}?${urlQueryParameters.toString()}`,
   );
 };
 
@@ -24,6 +22,7 @@ const getUrlQueryParameters = <
   TQueryParameters extends Record<string, unknown>
 >(): TQueryParameters => {
   const urlParams = new URLSearchParams(window.location.search);
+
   const entries = [...urlParams.entries()].map<[string, string]>(
     ([key, value]) => {
       return [key, JSON.parse(value)];
