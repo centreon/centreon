@@ -109,8 +109,8 @@ rm -rf %{buildroot}
 %{_bindir}/getent passwd centreon-gorgone &>/dev/null || %{_sbindir}/useradd -g centreon-gorgone -m -d %{_localstatedir}/lib/centreon-gorgone -r centreon-gorgone 2> /dev/null
 
 %files centreon-config
-%{_sysconfdir}/centreon-gorgone/config.d/30-centreon.yaml
-%{_sysconfdir}/centreon-gorgone/config.d/31-centreon-api.yaml
+%config(noreplace) %{_sysconfdir}/centreon-gorgone/config.d/30-centreon.yaml
+%config(noreplace) %{_sysconfdir}/centreon-gorgone/config.d/31-centreon-api.yaml
 
 %defattr(-, centreon-gorgone, centreon-gorgone, -)
 %{_localstatedir}/cache/centreon-gorgone/autodiscovery
