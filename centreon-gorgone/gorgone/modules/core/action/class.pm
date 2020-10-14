@@ -47,7 +47,7 @@ sub new {
     bless $connector, $class;
 
     $connector->{process_copy_files_error} = {};
-    
+
     $connector->{command_timeout} = defined($connector->{config}->{command_timeout}) ?
         $connector->{config}->{command_timeout} : 30;
     
@@ -348,7 +348,7 @@ sub action_run {
         zmq_type => 'ZMQ_DEALER',
         name => 'gorgoneaction-'. $$,
         logger => $self->{logger},
-        linger => 5000,
+        zmq_linger => 5000,
         type => $self->{config_core}->{internal_com_type},
         path => $self->{config_core}->{internal_com_path}
     );
@@ -371,14 +371,9 @@ sub action_run {
 sub create_child {
     my ($self, %options) = @_;
 
-    $options{message} =~ /^\[(.*?)\]\s+\[(.*?)\]\s+\[.*?\]\s+(.*)$/m;
-    
-    my ($action, $token) = ($1, $2);
-    my $data = JSON::XS->new->utf8->decode($3);
-
-    if ($action =~ /^BCAST.*/) {
-        if ((my $method = $self->can('action_' . lc($action)))) {
-            $method->($self, token => $token, data => $data);
+    if ($options{action} =~ /^BCAST.*/) {
+        if ((my $method = $self->can('action_' . lc($options{action})))) {
+            $method->($self, token => $options{token}, data => $options{data});
         }
         return undef;
     }
@@ -389,14 +384,14 @@ sub create_child {
         $self->{logger}->writeLogError("[action] Cannot fork process: $!");
         $self->send_log(
             code => GORGONE_ACTION_FINISH_KO,
-            token => $token,
+            token => $options{token},
             data => { message => "cannot fork: $!" }
         );
         return undef;
     }
     
     if ($child_pid == 0) {
-        $self->action_run(action => $action, token => $token, data => $data);
+        $self->action_run(action => $options{action}, token => $options{token}, data => $options{data});
         exit(0);
     }
 }
@@ -417,7 +412,7 @@ sub event {
                     $method->($connector, token => $token, data => $data);
                 }
             } else{
-                $connector->create_child(message => $message);
+                $connector->create_child(action => $action, token => $token, data => $data);
             }
         }
 

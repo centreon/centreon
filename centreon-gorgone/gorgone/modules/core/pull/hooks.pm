@@ -55,7 +55,7 @@ sub init {
         logger => $options{logger},
         type => $config_core->{internal_com_type},
         path => $config_core->{internal_com_path},
-        linger => $config->{linger}
+        zmq_linger => $config->{linger}
     );
     $client = gorgone::class::clientzmq->new(
         identity => $config_core->{id}, 
