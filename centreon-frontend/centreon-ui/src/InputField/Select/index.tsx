@@ -91,7 +91,7 @@ const SelectField = ({
         fullWidth={fullWidth}
         displayEmpty
         renderValue={(id) => {
-          return getOption(id).name;
+          return getOption(id)?.name;
         }}
         {...props}
       >
