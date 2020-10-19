@@ -635,11 +635,7 @@ sub action_centreoncommand {
         return -1;
     }
 
-    if (
-        $self->get_pollers_config() == -1  || 
-        $self->get_clapi_user() == -1 ||
-        $self->get_illegal_characters() == -1
-    ) {
+    if ($self->check_pollers_config() == 0) {
         $self->send_log(code => GORGONE_ACTION_FINISH_KO, token => $options{token}, data => { message => 'cannot get centreon database configuration' });
         return 1;
     }
