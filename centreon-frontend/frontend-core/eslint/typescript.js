@@ -17,7 +17,19 @@ module.exports = {
       },
       rules: {
         'react/jsx-filename-extension': ['error', { extensions: ['.jsx', '.tsx'] }],
-        '@typescript-eslint/camelcase': 'off',
+        camelcase: 'off',
+        '@typescript-eslint/naming-convention': [
+          'error',
+          {
+            selector: 'variable', format: ['camelCase', 'PascalCase'],
+          },
+          {
+            selector: 'property', format: ['snake_case', 'camelCase'],
+          },
+          {
+            selector: 'parameter', format: ['snake_case', 'camelCase'],
+          },
+        ],
         '@typescript-eslint/prefer-function-type': 'error',
         "@typescript-eslint/consistent-type-definitions": ["error", "interface"],
         '@typescript-eslint/array-type': ["error", {
