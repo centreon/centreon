@@ -10,7 +10,7 @@ describe(buildListingEndpoint, () => {
   it('builds the listing endpoint string using the given params', () => {
     const endpoint = buildListingEndpoint({ baseEndpoint, parameters });
 
-    expect(endpoint).toEqual(
+    expect(decodeURIComponent(endpoint)).toEqual(
       'resources?page=1&limit=10&sort_by={"name":"asc"}',
     );
   });
@@ -29,7 +29,7 @@ describe(buildListingEndpoint, () => {
       },
     });
 
-    expect(endpoint).toContain(
+    expect(decodeURIComponent(endpoint)).toContain(
       '&search={"$and":[{"h.name":{"$rg":"hvalue"}}]}',
     );
   });
@@ -48,7 +48,7 @@ describe(buildListingEndpoint, () => {
       },
     });
 
-    expect(endpoint).toContain(
+    expect(decodeURIComponent(endpoint)).toContain(
       '&search={"$or":[{"h.name":{"$rg":"searchValue"}},{"s.description":{"$rg":"searchValue"}}]}',
     );
   });
@@ -69,7 +69,7 @@ describe(buildListingEndpoint, () => {
       },
     });
 
-    expect(endpoint).toContain(
+    expect(decodeURIComponent(endpoint)).toContain(
       '&search={"$and":[{"h.status":{"$in":["OK"]}}]}',
     );
   });

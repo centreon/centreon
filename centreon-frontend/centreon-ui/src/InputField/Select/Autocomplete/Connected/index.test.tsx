@@ -102,7 +102,10 @@ describe(SingleAutocompleteField, () => {
 
     await waitFor(() => {
       expect(mockedAxios.get).toHaveBeenCalledWith(
-        `${baseEndpoint}?page=1&search={"$or":[{"host.name":{"$rg":"My Option 2"}}]}`,
+        `${baseEndpoint}?page=1&search=${encodeURIComponent(
+          '{"$or":[{"host.name":{"$rg":"My Option 2"}}]}',
+        )}`,
+
         cancelTokenRequestParam,
       );
     });

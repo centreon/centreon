@@ -3,7 +3,7 @@ import { isNil, isEmpty } from 'ramda';
 import { QueryParameter } from './models';
 
 const toRawQueryParameter = ({ name, value }): string => {
-  return `${name}=${JSON.stringify(value)}`;
+  return `${name}=${encodeURIComponent(JSON.stringify(value))}`;
 };
 
 const toRawQueryParameters = (queryParameters: Array<QueryParameter>): string =>
