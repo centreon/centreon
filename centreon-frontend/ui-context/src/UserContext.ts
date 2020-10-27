@@ -1,4 +1,5 @@
 import * as React from 'react';
+
 import { UserContext } from './types';
 
 const defaultUser = {
@@ -12,12 +13,16 @@ const defaultAcl = {
     host: {
       check: false,
       acknowledgement: false,
+      disacknowledgement: false,
       downtime: false,
+      submit_status: false,
     },
     service: {
       check: false,
       acknowledgement: false,
+      disacknowledgement: false,
       downtime: false,
+      submit_status: false,
     },
   },
 };
