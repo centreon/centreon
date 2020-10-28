@@ -28,12 +28,17 @@ module.exports = {
             selector: 'property',
             format: ['snake_case', 'camelCase', 'PascalCase'],
             filter: {
-              regex: '(__esModule|.+-.+|^_$)',
+              regex: '(__esModule|.+-.+)',
               match: false,
             },
           },
           {
-            selector: 'parameter', format: ['snake_case', 'camelCase'],
+            selector: 'parameter', 
+            format: ['snake_case', 'camelCase', 'PascalCase'],
+            filter: {
+              regex: '^_$',
+              match: false,
+            },
           },
         ],
         '@typescript-eslint/prefer-function-type': 'error',
