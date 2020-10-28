@@ -25,7 +25,12 @@ module.exports = {
             selector: 'variable', format: ['camelCase', 'PascalCase'],
           },
           {
-            selector: 'property', format: ['snake_case', 'camelCase'],
+            selector: 'property',
+            format: ['snake_case', 'camelCase', 'PascalCase'],
+            filter: {
+              regex: '(__esModule|.+-.+|^_$)',
+              match: false,
+            },
           },
           {
             selector: 'parameter', format: ['snake_case', 'camelCase'],
