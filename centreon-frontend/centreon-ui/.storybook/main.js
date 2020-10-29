@@ -16,7 +16,7 @@ module.exports = {
         },
         {
           test: /\.tsx?$/,
-          exclude: /node_modules/,
+          exclude: /node_modules(\\|\/)(?!(@centreon))/,
           use: ['babel-loader', 'awesome-typescript-loader'],
         },
         {
