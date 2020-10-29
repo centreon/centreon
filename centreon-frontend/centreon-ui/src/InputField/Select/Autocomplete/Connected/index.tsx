@@ -41,7 +41,7 @@ const ConnectedAutocompleteField = (
   const InnerConnectedAutocompleteField = <
     TData extends Record<string, unknown>
   >({
-    initialPage,
+    initialPage = 1,
     getEndpoint,
     field,
     paginationPath = [],
