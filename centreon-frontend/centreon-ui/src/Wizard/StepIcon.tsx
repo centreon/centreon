@@ -1,7 +1,6 @@
 import React from 'react';
-import PropTypes from 'prop-types';
-import classNames from 'clsx';
-import { makeStyles } from '@material-ui/core/styles';
+
+import { makeStyles, StepIconProps } from '@material-ui/core';
 import Avatar from '@material-ui/core/Avatar';
 import Check from '@material-ui/icons/Check';
 
@@ -34,7 +33,7 @@ const useStepIconStyles = makeStyles((theme) => ({
   },
 }));
 
-const StepIcon = ({ active, completed, icon }) => {
+const StepIcon = ({ active, completed, icon }: StepIconProps): JSX.Element => {
   const classes = useStepIconStyles();
 
   return (
@@ -45,27 +44,13 @@ const StepIcon = ({ active, completed, icon }) => {
         </Avatar>
       ) : (
         <Avatar
-          className={classNames(classes.avatar, {
-            [classes.avatarActive]: active,
-          })}
+          className={`${classes.avatar} ${active ? classes.avatarActive : ''}`}
         >
           {icon}
         </Avatar>
       )}
     </div>
   );
-};
-
-StepIcon.propTypes = {
-  active: PropTypes.bool,
-  completed: PropTypes.bool,
-  icon: PropTypes.node,
-};
-
-StepIcon.defaultProps = {
-  active: false,
-  completed: false,
-  icon: null,
 };
 
 export default StepIcon;
