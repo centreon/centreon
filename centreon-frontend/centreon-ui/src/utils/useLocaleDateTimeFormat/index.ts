@@ -1,8 +1,11 @@
 import dayjs from 'dayjs';
+import humanizeDuration from 'humanize-duration';
 
 import 'dayjs/plugin/timezone';
 
 import { useUserContext } from '@centreon/ui-context';
+
+import shortLocales from './sortLocales';
 
 interface FormatParameters {
   date: Date | string;
@@ -15,6 +18,7 @@ export interface LocaleDateTimeFormat {
   toDateTime: (date: Date | string) => string;
   toTime: (date: Date | string) => string;
   toIsoString: (date: Date) => string;
+  toHumanizedDuration: (duration: number) => string;
 }
 
 const dateTimeFormat = 'L HH:mm';
@@ -58,7 +62,29 @@ const useLocaleDateTimeFormat = (): LocaleDateTimeFormat => {
     return `${new Date(date).toISOString().substring(0, 19)}Z`;
   };
 
-  return { format, toDateTime, toDate, toTime, toIsoString };
+  const toHumanizedDuration = (duration: number): string => {
+    const humanizer = humanizeDuration.humanizer();
+    humanizer.languages = shortLocales;
+    const normalizedLocale = locale.substring(0, 2).toUpperCase();
+
+    return humanizer(duration * 1000, {
+      round: true,
+      language: `short${normalizedLocale}`,
+      delimiter: ' ',
+      spacer: '',
+      serialComma: false,
+      fallbacks: ['shortEN'],
+    });
+  };
+
+  return {
+    format,
+    toDateTime,
+    toDate,
+    toTime,
+    toIsoString,
+    toHumanizedDuration,
+  };
 };
 
 export default useLocaleDateTimeFormat;
