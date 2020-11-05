@@ -39,7 +39,7 @@ export interface RegexSearchParameter {
 
 export interface ListsSearchParameter {
   field: string;
-  values: Array<string>;
+  values: Array<string | number>;
 }
 
 type SearchPatterns = Array<{ [field: string]: { $rg: string } }>;

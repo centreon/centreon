@@ -53,7 +53,7 @@ describe(buildListingEndpoint, () => {
     );
   });
 
-  it('builds the listing endpoint string with a "$and" search expression between list search options', () => {
+  it('builds the listing endpoint string with a "$and" search expression between strings list search options', () => {
     const endpoint = buildListingEndpoint({
       baseEndpoint,
       parameters: {
@@ -71,6 +71,27 @@ describe(buildListingEndpoint, () => {
 
     expect(decodeURIComponent(endpoint)).toContain(
       '&search={"$and":[{"h.status":{"$in":["OK"]}}]}',
+    );
+  });
+
+  it('builds the listing endpoint string with a "$and" search expression between numbers list search options', () => {
+    const endpoint = buildListingEndpoint({
+      baseEndpoint,
+      parameters: {
+        ...parameters,
+        search: {
+          lists: [
+            {
+              field: 'h.status',
+              values: [1, 2, 3, 4],
+            },
+          ],
+        },
+      },
+    });
+
+    expect(decodeURIComponent(endpoint)).toContain(
+      '&search={"$and":[{"h.status":{"$in":[1,2,3,4]}}]}',
     );
   });
 });
