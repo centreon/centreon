@@ -29,7 +29,9 @@ use gorgone::standard::constants qw(:all);
 use gorgone::modules::centreon::autodiscovery::services::resources;
 use ZMQ::LibZMQ4;
 use ZMQ::Constants qw(:all);
+use Net::SMTP;
 use XML::Simple;
+use POSIX qw(strftime);
 
 sub new {
     my ($class, %options) = @_;
@@ -43,7 +45,6 @@ sub new {
     $connector->{tpapi_clapi} = $options{tpapi_clapi};
     $connector->{class_object_centreon} = $options{class_object_centreon};
     $connector->{class_object_centstorage} = $options{class_object_centstorage};
-    $connector->{mail_command} = defined($connector->{config}->{mail_command}) ? $connector->{config}->{mail_command} : '/bin/mail';
     $connector->{mail_subject} = defined($connector->{config}->{mail_subject}) ? $connector->{config}->{mail_subject} : 'Centreon Auto Discovery';
     $connector->{mail_from} = defined($connector->{config}->{mail_from}) ? $connector->{config}->{mail_from} : 'centreon-autodisco';
 
@@ -116,8 +117,8 @@ sub send_email {
 
     my $messages = {};
     foreach my $journal (@{$self->{discovery}->{journal}}) {
-        $messages->{ $journal->{rule_id } } = '' if (!defined($messages->{ $journal->{rule_id } }));
-        $messages->{ $journal->{rule_id } } .= $journal->{type} . " service '" . $journal->{service_name} . "' on host '" . $journal->{host_name} . "'.\n";
+        $messages->{ $journal->{rule_id } } = [] if (!defined($messages->{ $journal->{rule_id } }));
+        push @{$messages->{ $journal->{rule_id } }}, $journal->{type} . " service '" . $journal->{service_name} . "' on host '" . $journal->{host_name} . "'.";
     }
 
     my $contact_send = {};
@@ -129,34 +130,38 @@ sub send_email {
             next if (defined($contact_send->{$contact_id}));
             $contact_send->{$contact_id} = 1;
 
-            my $message = '';
+            my $body = [];
             foreach my $rule_id2 (keys %{$messages}) {
                 if (defined($self->{discovery}->{rules}->{$rule_id2}->{contact}->{$contact_id})) {
-                    $message .= $messages->{$rule_id2} . '\n';
+                    push @$body, @{$messages->{$rule_id2}};
                 }
             }
 
-            if ($message ne '') {
+            if (scalar(@$body) > 0) {
                 $self->{logger}->writeLogInfo("[autodiscovery] -servicediscovery- $self->{uuid} send email to '" . $contact_id .  "' (" . $self->{discovery}->{rules}->{$rule_id}->{contact}->{$contact_id}->{contact_email} . ")");
 
-                $self->send_internal_action(
-                    action => 'COMMAND',
-                    token => $self->{discovery}->{token} . ':email',
-                    data => {
-                        content => [
-                            {
-                                command => sprintf(
-                                    "/usr/bin/printf '%s' | %s -s '%s' -r %s %s",
-                                    $message,
-                                    $self->{mail_command},
-                                    $self->{mail_subject},
-                                    $self->{mail_from},
-                                    $self->{discovery}->{rules}->{$rule_id}->{contact}->{$contact_id}->{contact_email}
-                                )
-                            }
-                        ]
-                    }
+                my $smtp = Net::SMTP->new('localhost', Timeout => 15);
+                if (!defined($smtp)) {
+                    $self->{logger}->writeLogError("[autodiscovery] -servicediscovery- sent email error - " . $@);
+                    next;
+                }
+                $smtp->mail($self->{mail_from});
+                if (!$smtp->to($self->{discovery}->{rules}->{$rule_id}->{contact}->{$contact_id}->{contact_email})) {
+                    $self->{logger}->writeLogError("[autodiscovery] -servicediscovery- sent email error - " . $smtp->message());
+                    next;
+                }
+
+                $smtp->data();
+                $smtp->datasend(
+                    'Date: ' . strftime('%a, %d %b %Y %H:%M:%S %z', localtime(time())) . "\n" .
+                    'From: ' . $self->{mail_from} . "\n" .
+                    'To: ' . $self->{discovery}->{rules}->{$rule_id}->{contact}->{$contact_id}->{contact_email} . "\n" .
+                    'Subject: ' . $self->{mail_subject} . "\n" .
+                    "\n" .
+                    join("\n", @$body) . "\n"
                 );
+                $smtp->dataend();
+                $smtp->quit();
             }
         }
     }

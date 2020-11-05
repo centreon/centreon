@@ -288,7 +288,7 @@ sub get_contact {
         return 0;
     }
 
-    return defined($datas->[0]) ? $datas->[0] : undef;
+    return defined($datas->{ $options{contact_id} }) ? $datas->{ $options{contact_id} } : undef;
 }
 
 my $done_macro_host = {};

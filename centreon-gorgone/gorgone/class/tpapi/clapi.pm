@@ -81,7 +81,7 @@ sub get_applycfg_command {
         return undef;
     }
 
-    return 'centreon -u ' . $options{config}->{username} . ' -p ' . $options{config}->{password} . ' -a APPLYCFG -v ' . $options{poller_id};
+    return 'centreon -u ' . $self->{username} . ' -p ' . $self->{password} . ' -a APPLYCFG -v ' . $options{poller_id};
 }
 
 1;
