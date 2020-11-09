@@ -544,7 +544,8 @@ sub setlogs {
             code => $_->{code}, 
             token => $_->{token},
             instant => $_->{instant},
-            data => $_->{data}
+            data => $_->{data},
+            encode_utf8 => 1
         );
         last if ($status == -1);
         $ctime_recent = $_->{ctime} if ($ctime_recent < $_->{ctime});

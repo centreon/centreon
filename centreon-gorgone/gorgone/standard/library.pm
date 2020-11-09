@@ -671,7 +671,8 @@ sub add_history {
         $listener->event_log(
             token => $options{token},
             code => $options{code},
-            data => $options{data}
+            data => $options{data},
+            encode_utf8 => $options{encode_utf8}
         );
     }
     return $status;
