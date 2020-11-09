@@ -20,25 +20,17 @@ const buildEntities = (from) => {
     }));
 };
 
-const buildResult = ({ page, withPagination = false }) => ({
+const buildResult = (page) => ({
   result: buildEntities((page - 1) * 10),
-  meta: withPagination
-    ? {
-        pagination: {
-          limit: 10,
-          page,
-          total: 40,
-        },
-      }
-    : {
-        limit: 10,
-        page,
-        total: 40,
-      },
+  meta: {
+    limit: 10,
+    page,
+    total: 40,
+  },
 });
 
 const baseEndpoint = 'endpoint';
-const baseEndpointWithPagination = 'endpointWithPagination';
+
 const getEndpoint = ({ endpoint, parameters }): string =>
   buildListingEndpoint({
     baseEndpoint: endpoint,
@@ -54,23 +46,7 @@ mockedAxios
   .reply((config) => {
     return [
       200,
-      buildResult({
-        page: parseInt(config.url?.split('page=')[1][0] || '0', 10),
-      }),
-    ];
-  });
-
-mockedAxios
-  .onGet(
-    /endpointWithPagination\?page=\d+(?:&search={"\$or":\[{"host\.name":{"\$rg":".*"}}]})?/,
-  )
-  .reply((config) => {
-    return [
-      200,
-      buildResult({
-        page: parseInt(config.url?.split('page=')[1][0] || '0', 10),
-        withPagination: true,
-      }),
+      buildResult(parseInt(config.url?.split('page=')[1][0] || '0', 10)),
     ];
   });
 
@@ -97,20 +73,5 @@ export const multi = (): JSX.Element => (
     }}
     getOptionsFromResult={(result): Array<SelectEntry> => result}
     placeholder="Type here..."
-  />
-);
-
-const getEndpointWithPagination = (parameters) =>
-  getEndpoint({ endpoint: baseEndpointWithPagination, parameters });
-
-export const singleWithCustomPathToPaginationProperties = (): JSX.Element => (
-  <SingleConnectedAutocompleteField
-    label="Single Connected Autocomplete"
-    initialPage={1}
-    field="host.name"
-    getEndpoint={getEndpointWithPagination}
-    getOptionsFromResult={(result): Array<SelectEntry> => result}
-    placeholder="Type here..."
-    paginationPath={['pagination']}
   />
 );

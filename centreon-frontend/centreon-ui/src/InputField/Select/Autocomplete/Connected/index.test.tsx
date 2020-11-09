@@ -29,11 +29,9 @@ const optionsData = {
     { id: 1, name: 'My Option 2' },
   ],
   meta: {
-    pagination: {
-      limit: 2,
-      page: 1,
-      total: 20,
-    },
+    limit: 2,
+    page: 1,
+    total: 20,
   },
 };
 

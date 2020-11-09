@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import { equals, path, append, last, isEmpty } from 'ramda';
+import { equals, prop, last, isEmpty } from 'ramda';
 
 import {
   Typography,
@@ -22,7 +22,6 @@ interface Props {
   getEndpoint: ({ search, page }) => string;
   field: string;
   initialPage: number;
-  paginationPath?: Array<string>;
 }
 
 type SearchDebounce = (value: string) => void;
@@ -44,7 +43,6 @@ const ConnectedAutocompleteField = (
     initialPage = 1,
     getEndpoint,
     field,
-    paginationPath = [],
     ...props
   }: Props & Omit<AutocompleteFieldProps, 'options'>): JSX.Element => {
     const [options, setOptions] = React.useState<Array<TData>>([]);
@@ -60,16 +58,13 @@ const ConnectedAutocompleteField = (
       request: getData,
     });
 
-    const getPaginationProperty = ({ meta, prop }): number | undefined =>
-      path(append(prop, paginationPath), meta);
-
     const loadOptions = ({ endpoint, loadMore = false }) => {
       sendRequest(endpoint).then(({ result, meta }) => {
         const moreOptions = loadMore ? options : [];
         setOptions(moreOptions.concat(result));
 
-        const total = getPaginationProperty({ meta, prop: 'total' }) || 1;
-        const limit = getPaginationProperty({ meta, prop: 'limit' }) || 1;
+        const total = prop('total', meta) || 1;
+        const limit = prop('limit', meta) || 1;
 
         setMaxPage(Math.ceil(total / limit));
       });
