@@ -360,7 +360,7 @@ sub proxy {
         my ($status, $msg) = $connector->{clients}->{$target_client}->{class}->send_message(
             action => $action,
             token => $token,
-            target => $target,
+            target => $target_direct == 0 ? $target : undef,
             data => $data
         );
         if ($status != 0) {
