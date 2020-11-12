@@ -29,7 +29,7 @@ const useLocaleDateTimeFormat = (): LocaleDateTimeFormat => {
   const { locale, timezone } = useUserContext();
 
   const format = ({ date, formatString }: FormatParameters): string => {
-    const normalizedLocale = locale.replace('_', '-').toLowerCase();
+    const normalizedLocale = locale.substring(0, 2);
 
     return dayjs(date)
       .tz(timezone)
