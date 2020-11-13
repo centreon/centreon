@@ -490,7 +490,8 @@ sub disable_services {
     return if ($self->{discovery}->{rules}->{ $options{rule_id} }->{rule_disable} != 1 || !defined($self->{discovery}->{rules}->{ $options{rule_id} }->{linked_services}->{ $options{host_id} }));
     foreach my $service (keys %{$self->{discovery}->{rules}->{ $options{rule_id} }->{linked_services}->{ $options{host_id} }}) {
         my $service_description = $self->{discovery}->{rules}->{ $options{rule_id} }->{linked_services}->{ $options{host_id} }->{$service}->{service_description};
-        if (!defined($options{discovered_services}->{discovered_services}->{$service_description}) && 
+
+        if (!defined($options{discovery_svc}->{discovered_services}->{$service_description}) && 
             $self->{discovery}->{rules}->{ $options{rule_id} }->{linked_services}->{ $options{host_id} }->{$service}->{service_activate} == 1) {
             $self->{logger}->writeLogInfo("$options{logger_pre_message} -> disable service '" . $service_description . "'");
             next if ($self->{discovery}->{dry_run} == 1);

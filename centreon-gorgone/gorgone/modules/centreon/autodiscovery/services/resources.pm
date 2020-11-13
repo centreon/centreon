@@ -215,7 +215,7 @@ sub get_rules {
         $rules->{ $_->[0] }->{linked_services} = {} if (!defined($rules->{ $_->[0] }->{linked_services}));
         $rules->{ $_->[0] }->{linked_services}->{ $_->[1] } = {} if (!defined($rules->{ $_->[0] }->{linked_services}->{ $_->[1] }));
         $rules->{ $_->[0] }->{linked_services}->{ $_->[1] }->{ $_->[2] } = {
-            service_activate => $_->[3], service_description => $_->[3]
+            service_activate => $_->[3], service_description => $_->[4]
         };
     }
     
