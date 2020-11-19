@@ -1042,7 +1042,8 @@ sub is_module_installed {
         return 0;
     }
 
-    if (defined($results->{modules}->{'centreon-autodiscovery-server'})) {
+    if (defined($results->{modules}) && ref($results->{modules}) eq 'HASH' &&
+        defined($results->{modules}->{'centreon-autodiscovery-server'})) {
         $self->{logger}->writeLogDebug('[autodiscovery] -class- host discovery - module autodiscovery installed');
         $self->{is_module_installed} = 1;
     }
