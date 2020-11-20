@@ -47,6 +47,7 @@ use constant EVENTS => [
     { event => 'PROXYDELNODE' }, # internal. Shouldn't be used by third party clients
     { event => 'PROXYADDSUBNODE' }, # internal. Shouldn't be used by third party clients
     { event => 'PONGRESET' }, # internal. Shouldn't be used by third party clients
+    { event => 'PROXYCLOSECONNECTION' }
 ];
 
 my $config_core;
@@ -100,6 +101,7 @@ sub register {
     $synctimeout_option = defined($config->{synchistory_timeout}) ? $config->{synchistory_timeout} : 30;
     $ping_option = defined($config->{ping}) ? $config->{ping} : 60;
     $config->{pong_discard_timeout} = defined($config->{pong_discard_timeout}) ? $config->{pong_discard_timeout} : 300;
+    $config->{pong_max_timeout} = defined($config->{pong_max_timeout}) ? $config->{pong_max_timeout} : 3;
     $config->{pool} = defined($config->{pool}) && $config->{pool} =~ /(\d+)/ ? $1 : 5;
     return (1, NAMESPACE, NAME, EVENTS);
 }
@@ -138,6 +140,7 @@ sub routing {
     if ($options{action} eq 'PONG') {
         return undef if (!defined($data->{data}->{id}) || $data->{data}->{id} eq '');
         $synctime_nodes->{$data->{data}->{id}}->{in_progress_ping} = 0;
+        $synctime_nodes->{$data->{data}->{id}}->{ping_timeout} = 0;
         $last_pong->{$data->{data}->{id}} = time();
         $constatus_ping->{$data->{data}->{id}}->{last_ping_recv} = time();
         $constatus_ping->{$data->{data}->{id}}->{nodes} = $data->{data}->{data};
@@ -148,21 +151,24 @@ sub routing {
 
     if ($options{action} eq 'PONGRESET') {
         return undef if (!defined($data->{data}->{id}) || $data->{data}->{id} eq '');
-        $synctime_nodes->{ $data->{data}->{id} }->{in_progress_ping} = 0 if (defined($synctime_nodes->{ $data->{data}->{id} }));
+        if (defined($synctime_nodes->{ $data->{data}->{id} })) {
+            $synctime_nodes->{ $data->{data}->{id} }->{in_progress_ping} = 0;
+            $synctime_nodes->{ $data->{data}->{id} }->{ping_timeout} = 0;
+        }
         $options{logger}->writeLogInfo("[proxy] PongReset received from '" . $data->{data}->{id} . "'");
         return undef;
     }
-    
+
     if ($options{action} eq 'UNREGISTERNODES') {
         unregister_nodes(%options, data => $data);
         return undef;
     }
-    
+
     if ($options{action} eq 'REGISTERNODES') {
         register_nodes(%options, data => $data);
         return undef;
     }
-    
+
     if ($options{action} eq 'PROXYREADY') {
         $pools->{$data->{pool_id}}->{ready} = 1;
         # we sent proxyaddnode to sync
@@ -179,7 +185,7 @@ sub routing {
         }
         return undef;
     }
-    
+
     if ($options{action} eq 'SETLOGS') {
         setlogs(dbh => $options{dbh}, data => $data, token => $options{token}, logger => $options{logger});
         return undef;
@@ -249,7 +255,7 @@ sub routing {
     my $action = $options{action};
     my $bulk_actions;
     push @{$bulk_actions}, $data;
-    
+
     if ($options{action} eq 'REMOTECOPY' && defined($register_nodes->{$target_parent}) &&
         $register_nodes->{$target_parent}->{type} ne 'push_ssh') {
         $action = 'PROCESSCOPY';
@@ -376,6 +382,19 @@ sub check {
             if (time() - $constatus_ping->{ $_ }->{last_ping_sent} > $config->{pong_discard_timeout}) {
                 $options{logger}->writeLogInfo("[proxy] Ping timeout from '" . $_ . "'");
                 $synctime_nodes->{$_}->{in_progress_ping} = 0;
+                $synctime_nodes->{$_}->{ping_timeout}++;
+                if (($synctime_nodes->{$_}->{ping_timeout} % $config->{pong_max_timeout}) == 0) {
+                    $options{logger}->writeLogInfo("[proxy] Ping max timeout reached from '" . $_ . "'");
+                    routing(
+                        socket => $internal_socket,
+                        target => $_,
+                        action => 'PROXYCLOSECONNECTION',
+                        data => JSON::XS->new->utf8->encode({ id => $_ }),
+                        dbh => $options{dbh},
+                        logger => $options{logger}
+                    );
+                    $synctime_nodes->{$_}->{ping_timeout}++;
+                }
             }
         }
 
@@ -499,7 +518,7 @@ sub pathway {
 
 sub setlogs {
     my (%options) = @_;
-    
+
     if (!defined($options{data}->{data}->{id}) || $options{data}->{data}->{id} eq '') {
         gorgone::standard::library::add_history(
             dbh => $options{dbh},
@@ -523,6 +542,7 @@ sub setlogs {
 
     # we have received the setlogs (it's like a pong response. not a problem if we received the pong after)
     $synctime_nodes->{ $options{data}->{data}->{id} }->{in_progress_ping} = 0;
+    $synctime_nodes->{ $options{data}->{data}->{id} }->{ping_timeout} = 0;
     $constatus_ping->{ $options{data}->{data}->{id} }->{last_ping_recv} = time();
     $last_pong->{ $options{data}->{data}->{id} } = time() if (defined($last_pong->{ $options{data}->{data}->{id} }));
 
@@ -629,7 +649,7 @@ sub update_sync_time {
 
 sub get_sync_time {
     my (%options) = @_;
-    
+
     my ($status, $sth) = $options{dbh}->query("SELECT * FROM gorgone_synchistory WHERE id = '" . $options{node_id} . "'");
     if ($status == -1) {
         $synctime_nodes->{$options{node_id}}->{synctime_error} = -1; 
@@ -642,7 +662,7 @@ sub get_sync_time {
         $synctime_nodes->{$row->{id}}->{in_progress} = 0;
         $synctime_nodes->{$row->{id}}->{in_progress_time} = -1;
     }
-    
+
     return 0;
 }
 
@@ -659,7 +679,7 @@ sub is_all_proxy_ready {
 
 sub rr_pool {
     my (%options) = @_;
-    
+
     while (1) {
         $rr_current = $rr_current % $config->{pool};
         if ($pools->{$rr_current + 1}->{ready} == 1) {
@@ -698,7 +718,6 @@ sub create_child {
     $pools_pid->{$child_pid} = $options{pool_id};
 }
 
-# we don't manage (yet) the target from pull connection
 sub pull_request {
     my (%options) = @_;
 
@@ -737,8 +756,8 @@ sub pull_request {
 
     gorgone::standard::library::zmq_send_message(
         socket => $external_socket,
-        cipher => $config_core->{cipher},
-        vector => $config_core->{vector},
+        cipher => $config_core->{gorgonecore}->{cipher},
+        vector => $config_core->{gorgonecore}->{vector},
         symkey => $key,
         identity => $register_nodes->{ $options{target_parent} }->{identity},
         message => $message
@@ -883,7 +902,14 @@ sub register_nodes {
 
         $last_pong->{ $node->{id} } = 0 if (!defined($last_pong->{ $node->{id} }));
         if (!defined($synctime_nodes->{ $node->{id} })) {
-            $synctime_nodes->{ $node->{id} } = { ctime => 0, in_progress_ping => 0, in_progress => 0, in_progress_time => -1, synctime_error => 0 };
+            $synctime_nodes->{ $node->{id} } = {
+                ctime => 0,
+                in_progress_ping => 0,
+                in_progress => 0,
+                in_progress_time => -1,
+                synctime_error => 0,
+                ping_timeout => 0
+            };
             get_sync_time(node_id => $node->{id}, dbh => $options{dbh});
         }
 
@@ -1010,7 +1036,7 @@ sub prepare_remote_copy {
         };
     }
     close FH;
-    
+
     push @actions, {
         content => {
             status => 'end',

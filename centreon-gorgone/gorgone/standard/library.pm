@@ -39,6 +39,7 @@ use Time::HiRes;
 
 our $listener;
 my %zmq_type = ('ZMQ_ROUTER' => ZMQ_ROUTER, 'ZMQ_DEALER' => ZMQ_DEALER);
+my $ZMQ_CONNECT_TIMEOUT = 79;
 my $ZMQ_ROUTER_HANDOVER = 56;
 
 sub read_config {
@@ -734,8 +735,8 @@ sub connect_com {
     zmq_setsockopt($socket, ZMQ_LINGER, defined($options{zmq_linger}) ? $options{zmq_linger} : 0); # 0 we discard
     zmq_setsockopt($socket, ZMQ_SNDHWM, defined($options{zmq_sndhwm}) ? $options{zmq_sndhwm} : 0);
     zmq_setsockopt($socket, ZMQ_RCVHWM, defined($options{zmq_rcvhwm}) ? $options{zmq_rcvhwm} : 0);
-    #zmq_setsockopt($socket, ZMQ_CONNECT_TIMEOUT, 60000); # for tcp: 60 seconds
     zmq_setsockopt($socket, ZMQ_RECONNECT_IVL, 1000);
+    ZMQ::LibZMQ4::zmq_setsockopt_int($socket, $ZMQ_CONNECT_TIMEOUT, defined($options{zmq_connect_timeout}) ? $options{zmq_connect_timeout} : 30000);
     ZMQ::LibZMQ4::zmq_setsockopt_int($socket, $ZMQ_ROUTER_HANDOVER, defined($options{zmq_router_handover}) ? $options{zmq_router_handover} : 1);
     zmq_connect($socket, $options{type} . '://' . $options{path});
     return $socket;

@@ -119,7 +119,7 @@ sub read_message {
         if ($@) {
             return undef;
         }
-        
+
         if (defined($data->{data}->{action}) && $data->{data}->{action} eq 'getlog') {
             $connector->send_internal_action(
                 action => 'SETLOGS',
@@ -228,6 +228,21 @@ sub action_proxydelnode {
     }
 }
 
+sub action_proxycloseconnection {
+    my ($self, %options) = @_;
+
+    my ($code, $data) = $self->json_decode(argument => $options{data});
+    return if ($code == 1);
+
+    return if (!defined($self->{clients}->{ $data->{id} }));
+
+    $self->{logger}->writeLogInfo("[proxy] Close connectionn for $data->{id}");
+
+    $self->{clients}->{ $data->{id} }->{class}->close();
+    $self->{clients}->{ $data->{id} }->{delete} = 0;
+    $self->{clients}->{ $data->{id} }->{class} = undef;
+}
+
 sub close_connections {
     my ($self, %options) = @_;
 
@@ -325,6 +340,9 @@ sub proxy {
     } elsif ($action eq 'BCASTLOGGER' && $target_complete eq '') {
         (undef, $data) = $connector->json_decode(argument => $data);
         $connector->action_bcastlogger(data => $data);
+        return ;
+    } elsif ($action eq 'PROXYCLOSECONNECTION') {
+        $connector->action_proxycloseconnection(data => $data);
         return ;
     }
 
