@@ -1,11 +1,14 @@
 export interface User {
   locale: string;
   timezone: string;
-  username: string;
+  name: string;
+  alias: string;
 }
 
 export type UserContext = {
   acl: Acl;
+  downtime: Downtime;
+  refreshInterval: number;
 } & User;
 
 export interface ActionAcl {
@@ -22,4 +25,8 @@ export interface Actions {
 
 interface Acl {
   actions: Actions;
+}
+
+export interface Downtime {
+  default_duration: number;
 }
