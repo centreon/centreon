@@ -1,7 +1,8 @@
 export interface User {
   locale: string;
   timezone: string;
-  username: string;
+  name: string;
+  alias: string;
 }
 
 export type UserContext = {

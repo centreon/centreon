@@ -3,7 +3,8 @@ import * as React from 'react';
 import { UserContext } from './types';
 
 const defaultUser = {
-  username: '',
+  name: '',
+  alias: '',
   locale: navigator.language,
   timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
 };
