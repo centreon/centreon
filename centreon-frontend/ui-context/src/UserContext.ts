@@ -29,7 +29,7 @@ const defaultAcl = {
 };
 
 const defaultDowntime = {
-  default_duration: 3600,
+  default_duration: 7200,
 };
 
 const defaultRefreshInterval = 15;
