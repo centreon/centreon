@@ -47,4 +47,10 @@ const useUserContext = (): UserContext => React.useContext(Context);
 
 export default Context;
 
-export { useUserContext, defaultUser, defaultAcl, defaultDowntime, defaultRefreshInterval };
+export {
+  useUserContext,
+  defaultUser,
+  defaultAcl,
+  defaultDowntime,
+  defaultRefreshInterval,
+};

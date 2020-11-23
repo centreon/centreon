@@ -1,4 +1,5 @@
 import * as React from 'react';
+
 import { defaultRefreshInterval } from './UserContext';
 import { Downtime } from './types';
 
@@ -8,7 +9,9 @@ interface RefreshIntervalState {
 }
 
 const useRefreshInterval = (): RefreshIntervalState => {
-  const [refreshInterval, setRefreshInterval] = React.useState<Downtime>(defaultRefreshInterval);
+  const [refreshInterval, setRefreshInterval] = React.useState<Downtime>(
+    defaultRefreshInterval,
+  );
 
   return { refreshInterval, setRefreshInterval };
 };

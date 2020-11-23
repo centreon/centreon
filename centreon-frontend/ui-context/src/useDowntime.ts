@@ -1,4 +1,5 @@
 import * as React from 'react';
+
 import { defaultDowntime } from './UserContext';
 import { Downtime } from './types';
 
