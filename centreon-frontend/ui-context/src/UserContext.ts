@@ -28,9 +28,17 @@ const defaultAcl = {
   },
 };
 
-const defaultContext = {
+const defaultDowntime = {
+  default_duration: 3600,
+};
+
+const defaultRefreshInterval = 15;
+
+const defaultContext: UserContext = {
   ...defaultUser,
   acl: defaultAcl,
+  downtime: defaultDowntime,
+  refreshInterval: defaultRefreshInterval,
 };
 
 const Context = React.createContext<UserContext>(defaultContext);
@@ -39,4 +47,4 @@ const useUserContext = (): UserContext => React.useContext(Context);
 
 export default Context;
 
-export { useUserContext, defaultUser, defaultAcl };
+export { useUserContext, defaultUser, defaultAcl, defaultDowntime, defaultRefreshInterval };

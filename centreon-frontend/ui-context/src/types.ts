@@ -7,6 +7,8 @@ export interface User {
 
 export type UserContext = {
   acl: Acl;
+  downtime: Downtime;
+  refreshInterval: number;
 } & User;
 
 export interface ActionAcl {
@@ -23,4 +25,8 @@ export interface Actions {
 
 interface Acl {
   actions: Actions;
+}
+
+export interface Downtime {
+  default_duration: number;
 }
