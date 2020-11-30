@@ -32,6 +32,8 @@ export interface SelectEntry {
   color?: string;
   url?: string;
   type?: 'header';
+  createOption?: string;
+  inputValue?: string;
 }
 
 type Props = {

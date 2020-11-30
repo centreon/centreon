@@ -18,7 +18,7 @@ import { getData } from '../../../../api';
 import useIntersectionObserver from '../../../../utils/useIntersectionObserver';
 import { ListingModel } from '../../../..';
 
-interface Props {
+export interface ConnectedAutoCompleteFieldProps {
   getEndpoint: ({ search, page }) => string;
   field: string;
   initialPage: number;
@@ -44,7 +44,8 @@ const ConnectedAutocompleteField = (
     getEndpoint,
     field,
     ...props
-  }: Props & Omit<AutocompleteFieldProps, 'options'>): JSX.Element => {
+  }: ConnectedAutoCompleteFieldProps &
+    Omit<AutocompleteFieldProps, 'options'>): JSX.Element => {
     const [options, setOptions] = React.useState<Array<TData>>([]);
     const [optionsOpen, setOptionsOpen] = React.useState<boolean>(false);
     const [searchValue, setSearchValue] = React.useState<string>('');
