@@ -43,8 +43,14 @@ sub event_log {
 
     return if (!defined($self->{tokens}->{$options{token}}));
 
+    # we want to avoid loop
+    my $events = $self->{tokens}->{ $options{token} };
+    if ($options{code} == GORGONE_ACTION_FINISH_KO || $options{code} == GORGONE_ACTION_FINISH_OK) {
+        delete $self->{tokens}->{ $options{token} };
+    }
+
     my $encoded = 0;
-    foreach (keys %{$self->{tokens}->{ $options{token} }->{events}}) {
+    foreach (keys %{$events->{events}}) {
         $self->{logger}->writeLogDebug("[listener] trigger event '$options{token}'");
 
         # it will be decoded by module (hooks.pm). So in some case, we want to avoid double utf8 decode
@@ -57,9 +63,6 @@ sub event_log {
             message => '[' . $_ . '] [' . $options{token} . '] [] { "code": ' . $options{code} . ', "data": ' . $options{data} . ' }',
             router_type => 'internal'
         );
-    }
-    if ($options{code} == GORGONE_ACTION_FINISH_KO || $options{code} == GORGONE_ACTION_FINISH_OK) {
-        delete $self->{tokens}->{$options{token}};
     }
 }
 

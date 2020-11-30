@@ -134,7 +134,7 @@ sub check {
     my $count = 0;
     foreach my $pid (keys %{$options{dead_childs}}) {
         # Not me
-        next if ($legacycmd->{pid} != $pid);
+        next if (!defined($legacycmd->{pid}) || $legacycmd->{pid} != $pid);
         
         $legacycmd = {};
         delete $options{dead_childs}->{$pid};

@@ -47,6 +47,7 @@ sub new {
     }
 
     $self->{instance} = undef;
+    $self->{transaction_begin} = 0;
     $self->{args} = [];
     bless $self, $class;
     return $self;
@@ -98,6 +99,7 @@ sub user {
 }
 
 # Getter/Setter DB force
+#     force 2 should'nt be used with transaction
 sub force {
     my $self = shift;
     if (@_) {
@@ -144,19 +146,27 @@ sub transaction_mode {
 
     if ($status) {
         $self->{instance}->begin_work;
+        $self->{transaction_begin} = 1;
         $self->{instance}->{RaiseError} = 1;
     } else {
+        $self->{transaction_begin} = 0;
         $self->{instance}->{AutoCommit} = 1;
         $self->{instance}->{RaiseError} = 0;
     }
 }
 
-sub commit { shift->{instance}->commit; }
+sub commit {
+    my ($self) = @_;
+
+    $self->{instance}->commit;
+    $self->{transaction_begin} = 0;
+}
 
 sub rollback {
     my ($self) = @_;
 
     $self->{instance}->rollback() if (defined($self->{instance}));
+    $self->{transaction_begin} = 0;
 }
 
 sub kill {
@@ -264,6 +274,9 @@ sub error {
 SQL error: $error (caller: $package:$filename:$line)
 Query: $query
 EOE
+    if ($self->{transaction_begin} == 1) {
+        $self->rollback();
+    }
     $self->disconnect();
     $self->{instance} = undef;
 }
@@ -300,12 +313,12 @@ sub query {
             sleep(1);
             next;
         }
-        
+
         if (defined($options{prepare_only})) {
             return ($status, $statement_handle);
         }
 
-        my $rv = $statement_handle->execute;
+        my $rv = $statement_handle->execute();
         if (!$rv) {
             $self->error($statement_handle->errstr, $query);
             $status = -1;

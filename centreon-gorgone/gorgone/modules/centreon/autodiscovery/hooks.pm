@@ -136,7 +136,7 @@ sub check {
     my $count = 0;
     foreach my $pid (keys %{$options{dead_childs}}) {
         # Not me
-        next if ($autodiscovery->{pid} != $pid);
+        next if (!defined($autodiscovery->{pid}) || $autodiscovery->{pid} != $pid);
         
         $autodiscovery = {};
         delete $options{dead_childs}->{$pid};

@@ -140,7 +140,7 @@ sub check {
     my $count = 0;
     foreach my $pid (keys %{$options{dead_childs}}) {
         # Not me
-        next if ($httpserver->{pid} != $pid);
+        next if (!defined($httpserver->{pid}) || $httpserver->{pid} != $pid);
 
         $httpserver = {};
         delete $options{dead_childs}->{$pid};

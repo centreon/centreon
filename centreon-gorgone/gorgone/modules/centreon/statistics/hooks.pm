@@ -144,7 +144,7 @@ sub check {
     my $count = 0;
     foreach my $pid (keys %{$options{dead_childs}}) {
         # Not me
-        next if ($statistics->{pid} != $pid);
+        next if (!defined($statistics->{pid}) || $statistics->{pid} != $pid);
         
         $statistics = {};
         delete $options{dead_childs}->{$pid};

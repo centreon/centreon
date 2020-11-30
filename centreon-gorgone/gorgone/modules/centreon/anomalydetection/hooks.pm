@@ -130,7 +130,7 @@ sub check {
     my $count = 0;
     foreach my $pid (keys %{$options{dead_childs}}) {
         # Not me
-        next if ($process->{pid} != $pid);
+        next if (!defined($process->{pid}) || $process->{pid} != $pid);
         
         $process = {};
         delete $options{dead_childs}->{$pid};
