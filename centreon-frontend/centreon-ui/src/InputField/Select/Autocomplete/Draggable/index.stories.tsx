@@ -81,3 +81,17 @@ const MultiDraggableConnected = (): JSX.Element => (
 );
 
 export const multiConnected = (): JSX.Element => <MultiDraggableConnected />;
+
+const MultiDraggableInitialValues = (): JSX.Element => (
+  <MultiDraggableAutocompleteField
+    options={options}
+    label="Draggable Autocomplete"
+    placeholder="Type here..."
+    open
+    initialValues={[options[0]]}
+  />
+);
+
+export const draggableInitialValues = (): JSX.Element => (
+  <MultiDraggableInitialValues />
+);

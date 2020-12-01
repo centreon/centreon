@@ -49,6 +49,7 @@ const useStyles = makeStyles((theme) => ({
 interface Props {
   onSelectedValuesChange?: (values: Array<SelectEntry>) => Array<SelectEntry>;
   label?: string;
+  initialValues?: Array<SelectEntry>;
 }
 
 const DraggableAutocomplete = (
@@ -57,12 +58,13 @@ const DraggableAutocomplete = (
   const InnerDraggableAutocompleteField = ({
     onSelectedValuesChange,
     label,
+    initialValues,
     ...props
   }: Props &
     (ConnectedAutoCompleteFieldProps | MultiAutocompleteFieldProps)) => {
     const [selectedValues, setSelectedValues] = React.useState<
       Array<SelectEntry>
-    >([]);
+    >(initialValues || []);
     const classes = useStyles();
     const theme = useTheme();
 
