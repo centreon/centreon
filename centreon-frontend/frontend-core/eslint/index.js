@@ -34,6 +34,28 @@ module.exports = {
       'error',
       { devDependencies: true }
     ],
+    'import/order': ['error', {
+        pathGroups: [
+          {
+            pattern: 'react',
+            group: 'builtin',
+            position: 'before',
+          },
+          {
+            pattern: '@material-ui/**',
+            group: 'external',
+            position: 'after',
+          },
+          {
+            pattern: '@centreon/**',
+            group: 'parent',
+            position: 'before',
+          },
+        ],
+        'pathGroupsExcludedImportTypes': ['builtin'],
+        'newlines-between': 'always',
+      }
+    ],
     'react-hooks/rules-of-hooks': 'error',
     'react-hooks/exhaustive-deps': 'off',
     'react/jsx-filename-extension': ['error', { extensions: ['.jsx'] }],
