@@ -65,6 +65,7 @@ sub handle_TERM {
     my $self = shift;
     $self->{logger}->writeLogInfo("[proxy] $$ Receiving order to stop...");
     $self->{stop} = 1;
+    $self->{stop_time} = time();
 }
 
 sub class_handle_TERM {
@@ -77,6 +78,15 @@ sub class_handle_HUP {
     foreach (keys %{$handlers{HUP}}) {
         &{$handlers{HUP}->{$_}}();
     }
+}
+
+sub exit_process {
+    my ($self, %options) = @_;
+
+    $self->{logger}->writeLogInfo("[proxy] $$ has quit");
+    $self->close_connections();
+    zmq_close($self->{internal_socket});
+    exit(0);
 }
 
 sub read_message {
@@ -408,7 +418,10 @@ sub event_internal {
     while (1) {
         my $message = gorgone::standard::library::zmq_dealer_read_message(socket => $connector->{internal_socket});
 
-        proxy(message => $message);        
+        proxy(message => $message);
+        if ($connector->{stop} == 1 && (time() - $connector->{exit_timeout}) > $connector->{stop_time}) {
+            $connector->exit_process();
+        }
         last unless (gorgone::standard::library::zmq_still_read(socket => $connector->{internal_socket}));
     }
 }
@@ -464,10 +477,7 @@ sub run {
         next if (!defined($rev));
         
         if ($rev == 0 && $self->{stop} == 1) {
-            $self->{logger}->writeLogInfo("[proxy] $$ has quit");
-            $self->close_connections();
-            zmq_close($self->{internal_socket});
-            exit(0);
+            $self->exit_process();
         }
     }
 }

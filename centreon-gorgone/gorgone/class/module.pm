@@ -39,6 +39,7 @@ sub new {
     $self->{core_id} = $options{core_id};
     $self->{logger} = $options{logger};
     $self->{config} = $options{config};
+    $self->{exit_timeout} = (defined($options{config}->{exit_timeout}) && $options{config}->{exit_timeout} =~ /(\d+)/) ? $1 : 30;
     $self->{config_core} = $options{config_core}->{gorgonecore};
     $self->{config_db_centreon} = $options{config_db_centreon};
     $self->{config_db_centstorage} = $options{config_db_centstorage};
