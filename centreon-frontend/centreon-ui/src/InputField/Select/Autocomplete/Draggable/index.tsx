@@ -19,7 +19,6 @@ import { Chip, makeStyles, lighten, useTheme } from '@material-ui/core';
 import { createFilterOptions } from '@material-ui/lab/Autocomplete';
 import CloseIcon from '@material-ui/icons/Close';
 
-import TextField from '../../../Text';
 import { SelectEntry } from '../..';
 import { ConnectedAutoCompleteFieldProps } from '../Connected';
 import { MultiAutocompleteFieldProps } from '../../../..';
@@ -48,7 +47,6 @@ const useStyles = makeStyles((theme) => ({
 
 interface Props {
   onSelectedValuesChange?: (values: Array<SelectEntry>) => Array<SelectEntry>;
-  label?: string;
   initialValues?: Array<SelectEntry>;
 }
 
@@ -57,7 +55,6 @@ const DraggableAutocomplete = (
 ): ((props) => JSX.Element) => {
   const InnerDraggableAutocompleteField = ({
     onSelectedValuesChange,
-    label,
     initialValues,
     ...props
   }: Props &
@@ -181,7 +178,6 @@ const DraggableAutocomplete = (
         freeSolo
         handleHomeEndKeys
         renderTags={renderTags}
-        renderInput={(params) => <TextField {...params} label={label} />}
         onChange={onChange}
         filterOptions={filterOptions}
         {...props}

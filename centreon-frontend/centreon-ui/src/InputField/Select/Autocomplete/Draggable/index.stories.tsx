@@ -65,7 +65,7 @@ const MultiDraggable = (): JSX.Element => (
   />
 );
 
-export const multi = (): JSX.Element => <MultiDraggable />;
+export const draggable = (): JSX.Element => <MultiDraggable />;
 
 const MultiDraggableConnected = (): JSX.Element => (
   <MultiDraggableConnectedAutocompleteField
@@ -80,18 +80,43 @@ const MultiDraggableConnected = (): JSX.Element => (
   />
 );
 
-export const multiConnected = (): JSX.Element => <MultiDraggableConnected />;
+export const draggableConnected = (): JSX.Element => (
+  <MultiDraggableConnected />
+);
+
+const MultiDraggableError = (): JSX.Element => (
+  <MultiDraggableAutocompleteField
+    options={options}
+    label="Draggable Autocomplete"
+    placeholder="Type here..."
+    error="Error"
+  />
+);
+
+export const draggableWithError = (): JSX.Element => <MultiDraggableError />;
+
+const MultiDraggableRequired = (): JSX.Element => (
+  <MultiDraggableAutocompleteField
+    options={options}
+    label="Draggable Autocomplete"
+    placeholder="Type here..."
+    required
+  />
+);
+
+export const draggableWithRequired = (): JSX.Element => (
+  <MultiDraggableRequired />
+);
 
 const MultiDraggableInitialValues = (): JSX.Element => (
   <MultiDraggableAutocompleteField
     options={options}
     label="Draggable Autocomplete"
     placeholder="Type here..."
-    open
     initialValues={[options[0]]}
   />
 );
 
-export const draggableInitialValues = (): JSX.Element => (
+export const draggableWithInitialValues = (): JSX.Element => (
   <MultiDraggableInitialValues />
 );

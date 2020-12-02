@@ -57,7 +57,7 @@ export const closeWithError = (): JSX.Element => {
       placeholder="Type here..."
       value={options[1]}
       endAdornment={<EditIcon />}
-      labelError="Error"
+      error="Error"
     />
   );
 };

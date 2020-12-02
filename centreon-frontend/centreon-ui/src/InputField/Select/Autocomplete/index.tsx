@@ -65,7 +65,7 @@ export type Props = {
   endAdornment?: React.ReactElement;
   displayOptionThumbnail?: boolean;
   required?: boolean;
-  labelError?: string;
+  error?: string;
 } & Omit<
   AutocompleteProps<SelectEntry, Multiple, DisableClearable, FreeSolo>,
   'renderInput'
@@ -82,7 +82,7 @@ const AutocompleteField = ({
   inputValue,
   displayOptionThumbnail = false,
   required = false,
-  labelError,
+  error,
   ...props
 }: Props): JSX.Element => {
   const classes = useStyles();
@@ -119,8 +119,7 @@ const AutocompleteField = ({
             'aria-label': label,
           }}
           required={required}
-          error={labelError}
-          helperText={labelError}
+          error={error}
           InputProps={{
             ...params.InputProps,
             endAdornment: (
