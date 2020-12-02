@@ -85,7 +85,7 @@ We create the file **/etc/centreon-gorgone/nodes-register-override.yml**:
 
 ```yaml
 nodes:
-  - id: 1024
+  - id: 6
     type: pull
     prevail: 1
 ```
