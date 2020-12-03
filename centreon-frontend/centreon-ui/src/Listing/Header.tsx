@@ -51,7 +51,7 @@ const ListingHeader = React.forwardRef(
     }: Props,
     ref,
   ): JSX.Element => {
-    const classes = useCellStyles(checkable);
+    const classes = useCellStyles({ listingCheckable: checkable });
 
     const createSortHandler = (property) => (event): void => {
       onRequestSort(event, property);

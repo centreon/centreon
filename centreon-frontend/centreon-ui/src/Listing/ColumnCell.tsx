@@ -9,6 +9,7 @@ import {
   TableCell,
   Tooltip,
   Typography,
+  Theme,
 } from '@material-ui/core';
 
 import { Column, ColumnType, ComponentColumnProps } from './models';
@@ -21,9 +22,9 @@ const BodyTableCell = withStyles((theme) => ({
   },
 }))(TableCell);
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles<Theme, { listingCheckable: boolean }>((theme) => ({
   cell: {
-    paddingLeft: (listingCheckable: boolean): number =>
+    paddingLeft: ({ listingCheckable }): number =>
       theme.spacing(listingCheckable ? 0 : 1.5),
   },
   truncated: {
@@ -49,7 +50,7 @@ const ColumnCell = ({
   isRowSelected,
   isRowHovered,
 }: Props): JSX.Element | null => {
-  const classes = useStyles(listingCheckable);
+  const classes = useStyles({ listingCheckable });
 
   const cellByColumnType = {
     [ColumnType.string]: (): JSX.Element => {
