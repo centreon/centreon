@@ -549,9 +549,11 @@ sub setlogs {
     $synctime_nodes->{ $options{data}->{data}->{id} }->{in_progress} = 0;
 
     my $ctime_recent = 0;
-    # Transaction. We don't use last_id (problem if it's clean the sqlite table
-    $options{dbh}->transaction_mode(1);
-    my $status = 0;
+    # Transaction. We don't use last_id (problem if it's clean the sqlite table).
+    my $status;
+    $status = $options{dbh}->transaction_mode(1);
+    return -1 if ($status == -1);
+
     foreach (@{$options{data}->{data}->{result}}) {
         # wrong timestamp inserted. we skip it
         if ($_->{ctime} !~ /[0-9\.]/) {
@@ -571,13 +573,17 @@ sub setlogs {
         $ctime_recent = $_->{ctime} if ($ctime_recent < $_->{ctime});
     }
     if ($status == 0 && update_sync_time(dbh => $options{dbh}, id => $options{data}->{data}->{id}, ctime => $ctime_recent) == 0) {
-        $options{dbh}->commit();
+        $status = $options{dbh}->commit();
+        return -1 if ($status == -1);
+        $options{dbh}->transaction_mode(0);
+
         $synctime_nodes->{$options{data}->{data}->{id}}->{ctime} = $ctime_recent if ($ctime_recent != 0); 
     } else {
         $options{dbh}->rollback();
+        $options{dbh}->transaction_mode(0);
+        return -1;
     }
-    $options{dbh}->transaction_mode(0);
-    
+
     # We try to send it to parents
     foreach (keys %{$parent_ping}) {
         gorgone::class::core::send_message_parent(
@@ -589,6 +595,8 @@ sub setlogs {
             token => undef,
         );
     }
+
+    return 0;
 }
 
 sub ping_send {

@@ -85,8 +85,12 @@ sub execute {
 sub transaction_query_multi {
     my ($self, %options) = @_;
 
-    $self->transaction_mode(1);
-    my ($status, $sth) = $self->{db_centreon}->query($options{request}, prepare_only => 1);
+    my ($status, $sth);
+
+    $status = $self->transaction_mode(1);
+    return -1 if ($status == -1);
+
+    ($status, $sth) = $self->{db_centreon}->query($options{request}, prepare_only => 1);
     if ($status == -1) {
         $self->rollback();
         return -1;
@@ -100,21 +104,28 @@ sub transaction_query_multi {
         }
     } while ($sth->more_results);
 
-    $self->commit();
+    $status = $self->commit();
+    return -1 if ($status == -1);
+
     return 0;
 }
 
 sub transaction_query {
     my ($self, %options) = @_;
+    my $status;
 
-    $self->transaction_mode(1);
-    my ($status) = $self->do(request => $options{request});
+    $status = $self->transaction_mode(1);
+    return -1 if ($status == -1);
+
+    ($status) = $self->do(request => $options{request});
     if ($status == -1) {
         $self->rollback();
         return -1;
     }
     
-    $self->commit();
+    $status = $self->commit();
+    return -1 if ($status == -1);
+
     return 0;
 }
 
@@ -124,10 +135,22 @@ sub quote {
     return $self->{db_centreon}->quote($options{value});
 }
 
-sub transaction_mode { shift->{db_centreon}->transaction_mode($_[0]); };
+sub transaction_mode {
+    my ($self) = @_;
 
-sub commit { shift->{db_centreon}->commit(); }
+    return $self->{db_centreon}->transaction_mode($_[1]);
+};
 
-sub rollback { shift->{db_centreon}->rollback(); }
+sub commit {
+    my ($self, %options) = @_;
+
+    return $self->{db_centreon}->commit();
+}
+
+sub rollback {
+    my ($self, %options) = @_;
+
+    return $self->{db_centreon}->rollback();
+}
 
 1;

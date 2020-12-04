@@ -142,24 +142,46 @@ sub set_inactive_destroy {
 }
 
 sub transaction_mode {
-    my ($self, $status) = @_;
+    my ($self, $mode) = @_;
 
-    if ($status) {
-        $self->{instance}->begin_work;
+    my $status;
+    if (!defined($self->{instance})) {
+        $status = $self->connect();
+        return -1 if ($status == -1);
+    }
+
+    if ($mode) {
+        $status = $self->{instance}->begin_work();
+        if (!$status) {
+            $self->error($self->{instance}->errstr, 'begin work');
+            return -1;
+        }
         $self->{transaction_begin} = 1;
-        $self->{instance}->{RaiseError} = 1;
     } else {
         $self->{transaction_begin} = 0;
         $self->{instance}->{AutoCommit} = 1;
-        $self->{instance}->{RaiseError} = 0;
     }
+
+    return 0;
 }
 
 sub commit {
     my ($self) = @_;
 
-    $self->{instance}->commit;
+    if (!defined($self->{instance})) {
+        $self->{transaction_begin} = 0;
+        return -1;
+    }
+
+    my $status = $self->{instance}->commit();
     $self->{transaction_begin} = 0;
+
+    if (!$status) {
+        $self->error($self->{instance}->errstr, 'commit');
+        return -1;
+    }
+
+    return 0;
 }
 
 sub rollback {
@@ -238,6 +260,7 @@ sub connect() {
         sleep(1);
         $count++;
     }
+
     return $status;
 }
 
@@ -254,7 +277,7 @@ sub disconnect {
 sub do {
     my ($self, $query) = @_;
 
-    if (!defined $self->{instance}) {
+    if (!defined($self->{instance})) {
         if ($self->connect() == -1) {
             $self->{logger}->writeLogError("Cannot connect to database");
             return -1;
@@ -298,7 +321,7 @@ sub query {
                 }
                 $self->{args} = [];
             }
-            if ($status == -1 && $self->{force} != 1) {
+            if ($status == -1) {
                 $self->{args} = [];
                 last;
             }
@@ -326,8 +349,10 @@ sub query {
             sleep(1);
             next;
         }
+
         last;
     }
+
     return ($status, $statement_handle);
 }
 

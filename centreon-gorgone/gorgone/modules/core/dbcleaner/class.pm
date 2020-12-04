@@ -31,7 +31,7 @@ use ZMQ::LibZMQ4;
 use ZMQ::Constants qw(:all);
 use JSON::XS;
 
-my %handlers = (TERM => {}, HUP => {});
+my %handlers = (TERM => {}, HUP => {}, DIE => {});
 my ($connector);
 
 sub new {
@@ -52,6 +52,8 @@ sub set_signal_handlers {
     $handlers{TERM}->{$self} = sub { $self->handle_TERM() };
     $SIG{HUP} = \&class_handle_HUP;
     $handlers{HUP}->{$self} = sub { $self->handle_HUP() };
+    $SIG{__DIE__} = \&class_handle_DIE;
+    $handlers{DIE}->{$self} = sub { $self->handle_DIE($_[0]) };
 }
 
 sub handle_HUP {
@@ -65,6 +67,22 @@ sub handle_TERM {
     $self->{stop} = 1;
 }
 
+sub handle_DIE {
+    my $self = shift;
+    my $msg = shift;
+
+    $self->{logger}->writeLogError("[dbcleaner] Receiving DIE: $msg");
+    $self->exit_process();
+}
+
+sub class_handle_DIE {
+    my ($msg) = @_;
+
+    foreach (keys %{$handlers{DIE}}) {
+        &{$handlers{DIE}->{$_}}($msg);
+    }
+}
+
 sub class_handle_TERM {
     foreach (keys %{$handlers{TERM}}) {
         &{$handlers{TERM}->{$_}}();
@@ -75,6 +93,14 @@ sub class_handle_HUP {
     foreach (keys %{$handlers{HUP}}) {
         &{$handlers{HUP}->{$_}}();
     }
+}
+
+sub exit_process {
+    my ($self, %options) = @_;
+
+    $self->{logger}->writeLogInfo("[dbcleaner] $$ has quit");
+    zmq_close($self->{internal_socket});
+    exit(0);
 }
 
 sub action_dbclean {
@@ -180,9 +206,7 @@ sub run {
         # we try to do all we can
         my $rev = zmq_poll($self->{poll}, 5000);
         if (defined($rev) && $rev == 0 && $self->{stop} == 1) {
-            $self->{logger}->writeLogInfo("[dbcleaner] $$ has quit");
-            zmq_close($connector->{internal_socket});
-            exit(0);
+            $self->exit_process();
         }
 
         $self->action_dbclean(cycle => 1);

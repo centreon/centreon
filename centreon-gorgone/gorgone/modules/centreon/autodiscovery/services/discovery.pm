@@ -61,11 +61,9 @@ sub new {
 
 sub database_init_transaction {
     my ($self, %options) = @_;
-    
-    eval {
-        $self->{class_object_centreon}->{db_centreon}->transaction_mode(1);
-    };
-    if ($@) {
+
+    my $status = $self->{class_object_centreon}->{db_centreon}->transaction_mode(1);
+    if ($status == -1) {
         $self->{logger}->writeLogError("$@");
         return -1;
     }
@@ -75,14 +73,13 @@ sub database_init_transaction {
 sub database_commit_transaction {
     my ($self, %options) = @_;
     
-    eval {
-        $self->{class_object_centreon}->commit();
-        $self->{class_object_centreon}->transaction_mode(0);
-    };
-    if ($@) {
+    my $status = $self->{class_object_centreon}->commit();
+    if ($status == -1) {
         $self->{logger}->writeLogError("$@");
         return -1;
     }
+
+    $self->{class_object_centreon}->transaction_mode(0);
     return 0;
 }
 

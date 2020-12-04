@@ -877,7 +877,7 @@ sub init_database {
         port => $options{port},
         user => $options{user},
         password => $options{password},
-        force => 1,
+        force => 2,
         logger => $options{logger}
     );
     $options{gorgone}->{db_gorgone}->set_inactive_destroy();

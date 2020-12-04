@@ -37,7 +37,7 @@ my ($gorgone);
 use base qw(gorgone::class::script);
 
 my $VERSION = '1.0';
-my %handlers = (TERM => {}, HUP => {}, CHLD => {});
+my %handlers = (TERM => {}, HUP => {}, CHLD => {}, DIE => {});
 
 sub new {
     my $class = shift;
@@ -214,6 +214,8 @@ sub set_signal_handlers {
     $handlers{HUP}->{$self} = sub { $self->handle_HUP() };
     $SIG{CHLD} = \&class_handle_CHLD;
     $handlers{CHLD}->{$self} = sub { $self->handle_CHLD() };
+    $SIG{__DIE__} = \&class_handle_DIE;
+    $handlers{DIE}->{$self} = sub { $self->handle_DIE($_[0]) };
 }
 
 sub class_handle_TERM {
@@ -231,6 +233,14 @@ sub class_handle_HUP {
 sub class_handle_CHLD {
     foreach (keys %{$handlers{CHLD}}) {
         &{$handlers{CHLD}->{$_}}();
+    }
+}
+
+sub class_handle_DIE {
+    my ($msg) = @_;
+
+    foreach (keys %{$handlers{DIE}}) {
+        &{$handlers{DIE}->{$_}}($msg);
     }
 }
 
@@ -261,6 +271,13 @@ sub handle_CHLD {
     }
     
     $SIG{CHLD} = \&class_handle_CHLD;
+}
+
+sub handle_DIE {
+    my $self = shift;
+    my $msg = shift;
+
+    $self->{logger}->writeLogError("[core] Receiving DIE: $msg");
 }
 
 sub unload_module {
