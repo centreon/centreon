@@ -4,9 +4,12 @@
 /* eslint-disable react/prop-types */
 
 import React from 'react';
+
 import clsx from 'clsx';
-import styles from './custom-icon-with-text.scss';
+
 import defaultImage from '../../../img/icons/small-logo.png';
+
+import styles from './custom-icon-with-text.scss';
 
 const CustomIconWithText = ({ label, image, onClick, iconOff }) => {
   return (

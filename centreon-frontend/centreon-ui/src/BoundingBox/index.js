@@ -8,6 +8,7 @@
 import * as React from 'react';
 
 import PropTypes from 'prop-types';
+
 import { normalize } from './helpers';
 
 export default class BoundingBox extends React.Component {

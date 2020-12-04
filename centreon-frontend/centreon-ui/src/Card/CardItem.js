@@ -3,7 +3,9 @@
 /* eslint-disable react/prefer-stateless-function */
 
 import React, { Component } from 'react';
+
 import clsx from 'clsx';
+
 import styles from './card.scss';
 
 class CardItem extends Component {

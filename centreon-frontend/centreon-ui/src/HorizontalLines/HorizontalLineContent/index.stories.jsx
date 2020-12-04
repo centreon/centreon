@@ -1,4 +1,5 @@
 import React from 'react';
+
 import HorizontalLineContent from '.';
 
 export default { title: 'HorizontalLine/Content' };

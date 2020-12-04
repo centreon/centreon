@@ -13,10 +13,11 @@ import clsx from 'clsx';
 import { Switch, FormControlLabel, makeStyles } from '@material-ui/core';
 
 import styles from '../global-sass-files/_grid.scss';
-import filterStyles from './top-filters.scss';
 import Wrapper from '../Wrapper';
 import SearchLive from '../Search/SearchLive';
 import Button from '../Button';
+
+import filterStyles from './top-filters.scss';
 
 const useStyles = makeStyles({
   labelFontSize: {

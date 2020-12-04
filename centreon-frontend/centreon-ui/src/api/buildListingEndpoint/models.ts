@@ -22,6 +22,7 @@ export interface Parameters {
 export interface SearchParameter {
   regex?: RegexSearchParameter;
   lists?: Array<ListsSearchParameter>;
+  conditions?: Array<ConditionsSearchParameter>;
 }
 
 export interface ListsSearchQueryParameterValue {
@@ -40,6 +41,27 @@ export interface RegexSearchParameter {
 export interface ListsSearchParameter {
   field: string;
   values: Array<string | number>;
+}
+
+export type Operator =
+  | '$eq'
+  | '$neq'
+  | '$lt'
+  | '$le'
+  | '$gt'
+  | '$ge'
+  | '$lk'
+  | '$nk'
+  | '$in'
+  | '$ni';
+
+export type ConditionValue = {
+  [value in Operator]?: string;
+};
+
+export interface ConditionsSearchParameter {
+  field: string;
+  values: ConditionValue;
 }
 
 type SearchPatterns = Array<{ [field: string]: { $rg: string } }>;

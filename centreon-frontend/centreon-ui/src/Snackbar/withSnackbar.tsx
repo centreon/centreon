@@ -1,7 +1,8 @@
 import React, { createContext, ReactNode, ReactElement } from 'react';
 
-import Snackbar from '.';
 import useMessage from './useMessage';
+
+import Snackbar from '.';
 
 export interface SnackbarActions {
   showMessage: ({ message, severity }) => void;

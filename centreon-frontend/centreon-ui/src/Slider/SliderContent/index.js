@@ -5,14 +5,17 @@
 /* eslint-disable consistent-return */
 
 import React, { Component } from 'react';
+
 import clsx from 'clsx';
+
+import defaultImageModule from '../../../img/slider-default-image-module.png';
+import defaultImageWidget from '../../../img/slider-default-image-widget.png';
+
 import styles from './content-slider.scss';
 import ContentSliderItem from './ContentSliderItem';
 import ContentSliderLeftArrow from './ContentSliderLeftArrow';
 import ContentSliderRightArrow from './ContentSliderRightArrow';
 import ContentSliderIndicators from './ContentSliderIndicators';
-import defaultImageModule from '../../../img/slider-default-image-module.png';
-import defaultImageWidget from '../../../img/slider-default-image-widget.png';
 
 class SliderContent extends Component {
   constructor(props) {

@@ -1,5 +1,7 @@
 import * as React from 'react';
+
 import { render, screen, fireEvent } from '@testing-library/react';
+
 import ActionsBar from './ActionsBar';
 
 const goToPreviousStep = jest.fn();

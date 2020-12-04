@@ -1,6 +1,7 @@
 import React from 'react';
 
 import { Typography } from '@material-ui/core';
+
 import ContentWithCircularLoading from '.';
 
 export default { title: 'ContentWithCircularLoading' };

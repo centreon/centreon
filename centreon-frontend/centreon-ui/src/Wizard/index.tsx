@@ -5,10 +5,11 @@ import { Formik } from 'formik';
 
 import { Dialog, makeStyles, DialogContent } from '@material-ui/core';
 
+import Confirm from '../Dialog/Confirm';
+
 import { WizardProps } from './models';
 import Stepper from './Stepper';
 import WizardContent from './WizardContent';
-import Confirm from '../Dialog/Confirm';
 
 const useStyles = makeStyles((theme) => ({
   fullHeight: {

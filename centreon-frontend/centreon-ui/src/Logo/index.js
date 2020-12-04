@@ -6,9 +6,12 @@
 /* eslint-disable react/prefer-stateless-function */
 
 import React, { Component } from 'react';
+
 import clsx from 'clsx';
-import styles from './logo.scss';
+
 import logo from '../../img/centreon.png';
+
+import styles from './logo.scss';
 
 class Logo extends Component {
   render() {

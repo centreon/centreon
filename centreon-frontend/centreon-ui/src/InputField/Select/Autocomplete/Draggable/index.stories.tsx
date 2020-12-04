@@ -3,11 +3,11 @@ import * as React from 'react';
 import axios from 'axios';
 import MockAdapter from 'axios-mock-adapter';
 
-import MultiDraggableConnectedAutocompleteField from './MultiConnected';
-import MultiDraggableAutocompleteField from './Multi';
-
 import { SelectEntry } from '../..';
 import { buildListingEndpoint } from '../../../..';
+
+import MultiDraggableConnectedAutocompleteField from './MultiConnected';
+import MultiDraggableAutocompleteField from './Multi';
 
 export default { title: 'InputField/Autocomplete/Draggable' };
 

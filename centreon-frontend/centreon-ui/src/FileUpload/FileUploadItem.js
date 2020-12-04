@@ -5,7 +5,9 @@
 /* eslint-disable react/prefer-stateless-function */
 
 import React, { Component } from 'react';
+
 import clsx from 'clsx';
+
 import styles from './file-upload.scss';
 
 class FileUploadItem extends Component {

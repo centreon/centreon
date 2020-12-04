@@ -5,9 +5,12 @@
 /* eslint-disable react/prefer-stateless-function */
 
 import React, { Component } from 'react';
+
 import clsx from 'clsx';
-import styles from './logo-mini.scss';
+
 import miniLogo from '../../../img/centreon-logo-mini.svg';
+
+import styles from './logo-mini.scss';
 
 class LogoMini extends Component {
   render() {

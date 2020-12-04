@@ -3,11 +3,11 @@ import * as React from 'react';
 import axios from 'axios';
 import MockAdapter from 'axios-mock-adapter';
 
-import SingleConnectedAutocompleteField from './Single';
-import MultiConnectedAutocompleteField from './Multi';
-
 import { SelectEntry } from '../..';
 import { buildListingEndpoint } from '../../../..';
+
+import SingleConnectedAutocompleteField from './Single';
+import MultiConnectedAutocompleteField from './Multi';
 
 export default { title: 'InputField/Autocomplete/Connected' };
 

@@ -3,7 +3,9 @@
 /* eslint-disable react/prefer-stateless-function */
 
 import React from 'react';
+
 import clsx from 'clsx';
+
 import styles from '../Popup/popup.scss';
 import Popup from '../Popup';
 import Loader from '../Loader';

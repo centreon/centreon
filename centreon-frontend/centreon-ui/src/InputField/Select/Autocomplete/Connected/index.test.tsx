@@ -7,10 +7,11 @@ import {
   waitFor,
   RenderResult,
 } from '@testing-library/react';
-
 import { act } from 'react-test-renderer';
-import SingleAutocompleteField from './Single';
+
 import buildListingEndpoint from '../../../../api/buildListingEndpoint';
+
+import SingleAutocompleteField from './Single';
 
 const mockedAxios = axios as jest.Mocked<typeof axios>;
 

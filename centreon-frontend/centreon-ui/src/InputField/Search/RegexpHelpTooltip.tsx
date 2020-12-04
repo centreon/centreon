@@ -1,7 +1,9 @@
 import * as React from 'react';
+
 import { ifElse, always, isNil } from 'ramda';
 
 import { Box, Link } from '@material-ui/core';
+
 import PersistentTooltip from './PersistentTooltip';
 
 interface ContentProps {

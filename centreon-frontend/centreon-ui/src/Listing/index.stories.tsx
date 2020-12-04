@@ -5,8 +5,9 @@ import React from 'react';
 import { makeStyles, Button } from '@material-ui/core';
 import { grey } from '@material-ui/core/colors';
 
-import Listing from '.';
 import { ColumnType } from './models';
+
+import Listing from '.';
 
 export default { title: 'Listing' };
 

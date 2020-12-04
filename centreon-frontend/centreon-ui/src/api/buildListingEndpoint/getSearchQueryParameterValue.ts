@@ -1,4 +1,14 @@
-import { isEmpty, isNil, reject, prop, head } from 'ramda';
+import {
+  isEmpty,
+  isNil,
+  reject,
+  prop,
+  head,
+  toPairs,
+  pipe,
+  map,
+  flatten,
+} from 'ramda';
 
 import {
   SearchMatch,
@@ -7,6 +17,7 @@ import {
   SearchParameter,
   ListsSearchQueryParameterValue,
   SearchQueryParameterValue,
+  ConditionsSearchParameter,
 } from './models';
 
 const getFoundFields = ({
@@ -62,6 +73,25 @@ const getListsSearchQueryParameterValue = (lists) => {
   };
 };
 
+const getConditionsSearchQueryParameterValue = (
+  conditions: Array<ConditionsSearchParameter> | undefined,
+) => {
+  if (conditions === undefined) {
+    return undefined;
+  }
+
+  const toIndividualOperatorValues = ({ field, values }) =>
+    toPairs(values).map(([operator, operatorValue]) => ({
+      [field]: {
+        [operator]: operatorValue,
+      },
+    }));
+
+  return {
+    $and: pipe(map(toIndividualOperatorValues), flatten)(conditions),
+  };
+};
+
 const getSearchQueryParameterValue = (
   search: SearchParameter | undefined,
 ): SearchQueryParameterValue => {
@@ -69,14 +99,17 @@ const getSearchQueryParameterValue = (
     return undefined;
   }
 
-  const { regex, lists } = search;
+  const { regex, lists, conditions } = search;
 
   const regexSearchParam = getRegexSearchQueryParameterValue(regex);
   const listSearchesParam = getListsSearchQueryParameterValue(lists);
+  const conditionSearchesParam = getConditionsSearchQueryParameterValue(
+    conditions,
+  );
 
   const result = reject<
     RegexSearchQueryParameterValue | ListsSearchQueryParameterValue
-  >(isNil, [regexSearchParam, listSearchesParam]);
+  >(isNil, [regexSearchParam, listSearchesParam, conditionSearchesParam]);
 
   if (result.length === 1) {
     return head(result);

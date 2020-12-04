@@ -4,7 +4,9 @@
 /* eslint-disable react/prop-types */
 
 import React from 'react';
+
 import clsx from 'clsx';
+
 import styles from './icon-header.scss';
 
 const IconHeader = ({ iconType, iconName, style, onClick, children }) => {

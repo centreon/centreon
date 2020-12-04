@@ -4,9 +4,12 @@
 /* eslint-disable react/prop-types */
 
 import React, { Component } from 'react';
+
 import clsx from 'clsx';
-import styles from './search-live.scss';
+
 import ButtonActionInput from '../../Button/ButtonActionInput';
+
+import styles from './search-live.scss';
 import '../SearchWithArrow/search-with-arrow.scss';
 
 class SearchLive extends Component {

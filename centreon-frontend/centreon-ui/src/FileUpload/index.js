@@ -4,13 +4,16 @@
 /* eslint-disable react/prop-types */
 
 import React, { Component } from 'react';
+
 import clsx from 'clsx';
 import Files from 'react-files';
-import styles from './file-upload.scss';
+
 import Button from '../Button';
 import Popup from '../Popup';
-import FileUploadItem from './FileUploadItem';
 import IconClose from '../Icon/IconClose';
+
+import FileUploadItem from './FileUploadItem';
+import styles from './file-upload.scss';
 
 class FileUpload extends Component {
   state = {

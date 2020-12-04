@@ -4,8 +4,11 @@
 /* eslint-disable react/prop-types */
 
 import React from 'react';
+
 import clsx from 'clsx';
+
 import IconAction from '../../Icon/IconAction';
+
 import styles from './button-action-input.scss';
 
 const ButtonActionInput = ({

@@ -1,6 +1,7 @@
 import * as React from 'react';
 
 import { makeStyles, Theme } from '@material-ui/core';
+
 import WithPanel from '../Panel/WithPanel';
 
 const useStyles = makeStyles<Theme>((theme) => {

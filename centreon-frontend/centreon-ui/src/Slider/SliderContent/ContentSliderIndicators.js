@@ -5,7 +5,9 @@
 /* eslint-disable react/prop-types */
 
 import React from 'react';
+
 import clsx from 'clsx';
+
 import styles from './content-slider.scss';
 
 const ContentSliderIndicators = ({ images, currentIndex, handleDotClick }) => {

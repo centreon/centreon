@@ -1,4 +1,5 @@
 import { useContext } from 'react';
+
 import { SnackbarContext, SnackbarActions } from './withSnackbar';
 
 const useSnackbar = (): SnackbarActions => {

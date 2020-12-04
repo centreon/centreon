@@ -8,8 +8,9 @@ import React from 'react';
 import { MemoryRouter } from 'react-router-dom';
 
 import reactMock from './reactRoutesMock';
-import Sidebar from '.';
 import mock from './mock2';
+
+import Sidebar from '.';
 
 const replaceQueryParam = (param, newval, search) => {
   const regex = new RegExp(`([?;&])${param}[^&;]*[;&]?`);

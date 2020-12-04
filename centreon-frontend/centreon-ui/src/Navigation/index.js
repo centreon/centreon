@@ -10,12 +10,16 @@
 /* eslint-disable react/prop-types */
 
 import React, { Component } from 'react';
+
 import clsx from 'clsx';
+import { Link as RouterLink } from 'react-router-dom';
+
 import Link from '@material-ui/core/Link';
 import { styled } from '@material-ui/styles';
-import { Link as RouterLink } from 'react-router-dom';
-import styles from './navigation.scss';
+
 import BoundingBox from '../BoundingBox';
+
+import styles from './navigation.scss';
 
 const StyledLink = styled(Link)(() => ({
   textDecoration: 'none',

@@ -4,8 +4,9 @@ import { useFormikContext, FormikErrors, FormikValues } from 'formik';
 
 import { Typography, TextField } from '@material-ui/core';
 
-import Wizard from '.';
 import { StepComponentProps } from './models';
+
+import Wizard from '.';
 
 export default { title: 'Wizard' };
 

@@ -4,11 +4,14 @@
 /* eslint-disable react/prop-types */
 
 import React, { Component } from 'react';
+
 import clsx from 'clsx';
-import styles from './sidebar.scss';
+
 import Logo from '../Logo';
 import LogoMini from '../Logo/LogoMini';
 import Navigation from '../Navigation';
+
+import styles from './sidebar.scss';
 
 class Sidebar extends Component {
   state = {

@@ -2,7 +2,9 @@
 /* eslint-disable react/prop-types */
 
 import React from 'react';
+
 import clsx from 'clsx';
+
 import styles2 from './content-slider.scss';
 
 const ContentSliderItem = ({ image, isActive }) => (

@@ -4,7 +4,9 @@
 /* eslint-disable react/prop-types */
 
 import React from 'react';
+
 import clsx from 'clsx';
+
 import styles from './close-icon.scss';
 
 const IconClose = ({ iconType, iconPosition, onClick, customStyle }) => (

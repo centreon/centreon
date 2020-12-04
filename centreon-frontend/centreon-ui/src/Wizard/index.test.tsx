@@ -9,8 +9,9 @@ import {
 } from '@testing-library/react';
 import * as Yup from 'yup';
 
-import Wizard from '.';
 import { StepComponentProps } from './models';
+
+import Wizard from '.';
 
 const renderWizardThreeSteps = (): RenderResult =>
   render(

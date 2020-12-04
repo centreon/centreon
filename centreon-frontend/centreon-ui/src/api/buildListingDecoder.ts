@@ -1,4 +1,5 @@
 import { JsonDecoder } from 'ts.data.json';
+
 import { ListingMeta, Listing } from './models';
 
 const metaDecoder = JsonDecoder.object<ListingMeta>(

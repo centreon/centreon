@@ -6,6 +6,7 @@
 /* eslint-disable no-restricted-globals */
 
 import React from 'react';
+
 import cardStyles from '../Card/card.scss';
 import Wrapper from '../Wrapper';
 import HorizontalLineContent from '../HorizontalLines/HorizontalLineContent';

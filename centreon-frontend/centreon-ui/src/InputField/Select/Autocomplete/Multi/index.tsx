@@ -1,8 +1,8 @@
 import * as React from 'react';
 
 import { Checkbox, Chip, makeStyles, Typography } from '@material-ui/core';
-
 import { UseAutocompleteProps } from '@material-ui/lab';
+
 import Autocomplete, { Props as AutocompleteProps } from '..';
 import { SelectEntry } from '../..';
 

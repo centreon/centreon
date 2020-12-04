@@ -1,7 +1,8 @@
 import React from 'react';
 
-import Snackbar from '.';
 import Severity from './Severity';
+
+import Snackbar from '.';
 
 export default { title: 'Snackbar' };
 

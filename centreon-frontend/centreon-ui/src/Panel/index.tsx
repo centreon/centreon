@@ -12,6 +12,7 @@ import {
   Theme,
 } from '@material-ui/core';
 import IconClose from '@material-ui/icons/Clear';
+
 import IconButton from '../Button/Icon';
 
 type StylesProps = Pick<Props, 'headerBackgroundColor' | 'width'>;

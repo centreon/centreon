@@ -1,8 +1,10 @@
 /* eslint-disable react/prop-types */
 
 import React from 'react';
+
 import Close from '@material-ui/icons/Close';
 import { styled } from '@material-ui/core/styles';
+
 import MaterialIcon from '../MaterialIcon';
 
 const Label = styled('span')(() => ({

@@ -1,12 +1,14 @@
 import * as React from 'react';
 
+import { isNil } from 'ramda';
+
 import { List, ListItem, makeStyles, Slide, Paper } from '@material-ui/core';
 import ForwardIcon from '@material-ui/icons/ArrowForwardIos';
 
-import { isNil } from 'ramda';
-import ExpandableSection from './ExpandableSection';
 import Panel from '..';
 import ContentWithCircularLoading from '../../ContentWithCircularProgress';
+
+import ExpandableSection from './ExpandableSection';
 
 const panelWidth = 550;
 const closeSecondaryPanelBarWidth = 20;

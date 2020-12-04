@@ -3,12 +3,12 @@ import {
   act,
   RenderHookResult,
 } from '@testing-library/react-hooks';
-
 import axios from 'axios';
 import ulog from 'ulog';
 
-import useRequest, { RequestResult, RequestParams } from '.';
 import { Severity } from '../..';
+
+import useRequest, { RequestResult, RequestParams } from '.';
 
 const mockedAxios = axios as jest.Mocked<typeof axios>;
 

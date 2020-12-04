@@ -1,8 +1,9 @@
 import React from 'react';
 
-import SearchInput from '.';
 import RegexpHelpTooltip from './RegexpHelpTooltip';
 import PersistentTooltip from './PersistentTooltip';
+
+import SearchInput from '.';
 
 export default { title: 'InputField/Search' };
 

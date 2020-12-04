@@ -5,14 +5,16 @@ import * as React from 'react';
 import { Typography, makeStyles, Paper, Button, Tab } from '@material-ui/core';
 import { grey } from '@material-ui/core/colors';
 
-import ListingPage from '.';
 import Listing from '../Listing';
 import { ColumnType } from '../Listing/models';
 import { SearchField } from '..';
 import TextField from '../InputField/Text';
 import Panel from '../Panel';
-import Filters from './Filters';
 import AutocompleteField from '../InputField/Select/Autocomplete';
+
+import Filters from './Filters';
+
+import ListingPage from '.';
 
 export default { title: 'Listing Page' };
 

@@ -94,4 +94,28 @@ describe(buildListingEndpoint, () => {
       '&search={"$and":[{"h.status":{"$in":[1,2,3,4]}}]}',
     );
   });
+
+  it('build the listing endpoint with a "$and" search expression between the given conditions', () => {
+    const endpoint = buildListingEndpoint({
+      baseEndpoint,
+      parameters: {
+        ...parameters,
+        search: {
+          conditions: [
+            {
+              field: 'date',
+              values: {
+                $gt: '2020-12-01T07:00:00',
+                $lt: '2020-12-01T11:00:00',
+              },
+            },
+          ],
+        },
+      },
+    });
+
+    expect(decodeURIComponent(endpoint)).toContain(
+      '&search={"$and":[{"date":{"$gt":"2020-12-01T07:00:00"}},{"date":{"$lt":"2020-12-01T11:00:00"}}]}',
+    );
+  });
 });
