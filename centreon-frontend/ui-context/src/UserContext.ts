@@ -17,6 +17,7 @@ const defaultAcl = {
       disacknowledgement: false,
       downtime: false,
       submit_status: false,
+      comment: false,
     },
     service: {
       check: false,
@@ -24,6 +25,7 @@ const defaultAcl = {
       disacknowledgement: false,
       downtime: false,
       submit_status: false,
+      comment: false,
     },
   },
 };
