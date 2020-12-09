@@ -43,6 +43,7 @@ sub new {
     bless $connector, $class;
 
     $connector->{resync_time} = (defined($options{config}->{resync_time}) && $options{config}->{resync_time} =~ /(\d+)/) ? $1 : 600;
+    $connector->{thresholds_sync_time} = (defined($options{config}->{thresholds_sync_time}) && $options{config}->{thresholds_sync_time} =~ /(\d+)/) ? $1 : 28800;
     $connector->{last_resync_time} = -1;
     $connector->{saas_token} = undef;
     $connector->{saas_url} = undef;
@@ -481,8 +482,8 @@ sub saas_get_predicts {
         next if ($self->{centreon_metrics}->{$_}->{saas_to_delete} == 1);
         #next if (!defined($self->{centreon_metrics}->{$_}->{thresholds_file}) ||
         #    $self->{centreon_metrics}->{$_}->{thresholds_file} eq '');
-        next if (!defined($self->{centreon_metrics}->{$_}->{saas_update_date}) || 
-            $self->{centreon_metrics}->{$_}->{saas_update_date} > time() - 86400);
+        next if (!defined($self->{centreon_metrics}->{$_}->{saas_update_date}) ||
+            $self->{centreon_metrics}->{$_}->{saas_update_date} > time() - $self->{thresholds_sync_time});
 
         ($status, my $result) = $self->saas_api_request(
             endpoint => '/machinelearning/' . $self->{centreon_metrics}->{$_}->{saas_model_id} . '/predicts',
