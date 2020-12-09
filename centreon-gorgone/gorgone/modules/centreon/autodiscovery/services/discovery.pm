@@ -412,7 +412,6 @@ sub create_service {
         return $self->database_error_rollback(message => "$options{logger_pre_message} [" . $options{discovery_svc}->{service_name} . "] -> cannot create service");
     }
     my $service_id = $self->{class_object_centreon}->{db_centreon}->last_insert_id();
-    $self->{logger}->writeLogError("$options{logger_pre_message} [" . $options{discovery_svc}->{service_name} . "] -> PLOP last insert id = $service_id");
     
     $query = 'INSERT INTO host_service_relation (host_host_id, service_service_id) VALUES (' . $options{host_id} . ', ' . $service_id . ')';
     ($status) = $self->{class_object_centreon}->custom_execute(request => $query);
