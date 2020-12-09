@@ -31,7 +31,7 @@
     "react-dom": "^16.13.1"
   },
   "dependencies": {
-    "@centreon/ui-context": "github:centreon/ui-context#e085f8121536f3cac409cabb9eb847f211c4c5a5",
+    "@centreon/ui-context": "github:centreon/ui-context",
     "@material-ui/core": "^4.11.0",
     "@material-ui/icons": "4.9.1",
     "@material-ui/lab": "^4.0.0-alpha.56",
