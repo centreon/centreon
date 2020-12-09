@@ -246,10 +246,10 @@ sub get_rules {
             }
             foreach my $row (@$datas2) {
                 # Already add it
-                next if (defined($rules->{ $_->[0] }->{contact}->{ $row->[1] }));
-                if ((my $contact = get_contact(class_object_centreon => $options{class_object_centreon}, contact_id => $row->[1]))) {
+                next if (defined($rules->{ $_->[0] }->{contact}->{ $row->[0] }));
+                if ((my $contact = get_contact(class_object_centreon => $options{class_object_centreon}, contact_id => $row->[0]))) {
                     $rules->{ $_->[0] }->{contact} = {} if (!defined($rules->{ $_->[0] }->{contact}));
-                    $rules->{ $_->[0] }->{contact}->{$contact->{contact_id}} = { contact_email => $contact->{contact_email} };
+                    $rules->{ $_->[0] }->{contact}->{ $contact->{contact_id} } = { contact_email => $contact->{contact_email} };
                 }
             }
         }
