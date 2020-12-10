@@ -348,7 +348,7 @@ sub action_run {
         zmq_type => 'ZMQ_DEALER',
         name => 'gorgoneaction-'. $$,
         logger => $self->{logger},
-        zmq_linger => 5000,
+        zmq_linger => 60000,
         type => $self->{config_core}->{internal_com_type},
         path => $self->{config_core}->{internal_com_path}
     );
