@@ -130,11 +130,12 @@ sub read_message {
             return undef;
         }
 
+        # we set the id (distant node can not have id in configuration)
+        $data->{data}->{id} = $client_identity;
         if (defined($data->{data}->{action}) && $data->{data}->{action} eq 'getlog') {
             $connector->send_internal_action(
                 action => 'SETLOGS',
-                data => $2,
-                data_noencode => 1,
+                data => $data,
                 token => $1,
                 target => ''
             );
