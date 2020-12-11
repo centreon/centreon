@@ -26,8 +26,8 @@ export {
 } from './InputField/Select/Autocomplete/Multi';
 export { default as SingleConnectedAutocompleteField } from './InputField/Select/Autocomplete/Connected/Single';
 export { default as MultiConnectedAutocompleteField } from './InputField/Select/Autocomplete/Connected/Multi';
-export { default as MultiDraggableAutocompleteField } from './InputField/Select/Autocomplete/Draggable/Multi';
-export { default as MultiDraggableConnectedAutocompleteField } from './InputField/Select/Autocomplete/Draggable/MultiConnected';
+export { default as DraggableAutocompleteField } from './InputField/Select/Autocomplete/Draggable/Multi';
+export { default as DraggableConnectedAutocompleteField } from './InputField/Select/Autocomplete/Draggable/MultiConnected';
 export { default as SearchField } from './InputField/Search';
 export { default as RegexpHelpTooltip } from './InputField/Search/RegexpHelpTooltip';
 export { default as TextField } from './InputField/Text';

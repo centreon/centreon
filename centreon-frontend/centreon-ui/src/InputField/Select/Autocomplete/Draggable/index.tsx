@@ -1,54 +1,33 @@
 import * as React from 'react';
 
-import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import {
   remove,
   move,
-  not,
-  prop,
   equals,
   pipe,
   type,
   last,
   length,
   inc,
+  path,
+  F,
 } from 'ramda';
-import clsx from 'clsx';
 
-import { Chip, makeStyles, lighten, useTheme } from '@material-ui/core';
-import { createFilterOptions } from '@material-ui/lab/Autocomplete';
-import CloseIcon from '@material-ui/icons/Close';
+import { makeStyles } from '@material-ui/core';
 
 import { SelectEntry } from '../..';
 import { ConnectedAutoCompleteFieldProps } from '../Connected';
-import { MultiAutocompleteFieldProps } from '../../../..';
-
-const filter = createFilterOptions();
-
-const reorder = (list, startIndex, endIndex) => {
-  const result = Array.from(list);
-  return move(startIndex, endIndex, result);
-};
-
-const useStyles = makeStyles((theme) => ({
-  tag: {
-    margin: theme.spacing(0.5),
-  },
-  createdTag: {
-    backgroundColor: lighten(theme.palette.primary.main, 0.7),
-  },
-  list: {
-    display: 'flex',
-    overflow: 'auto',
-    maxWidth: '80%',
-    borderRight: `1px solid ${theme.palette.grey[400]}`,
-  },
-}));
+import { Props as SingleAutocompletefieldProps } from '..';
+import SortableList from './SortableList';
 
 interface Props {
   onSelectedValuesChange?: (values: Array<SelectEntry>) => Array<SelectEntry>;
   initialValues?: Array<SelectEntry>;
 }
+
+const useStyles = makeStyles((theme) => ({
+  helper: { boxShadow: theme.shadows[3] },
+}));
 
 const DraggableAutocomplete = (
   MultiAutocomplete: (props) => JSX.Element,
@@ -58,27 +37,20 @@ const DraggableAutocomplete = (
     initialValues,
     ...props
   }: Props &
-    (ConnectedAutoCompleteFieldProps | MultiAutocompleteFieldProps)) => {
+    (ConnectedAutoCompleteFieldProps | SingleAutocompletefieldProps)) => {
     const [selectedValues, setSelectedValues] = React.useState<
       Array<SelectEntry>
     >(initialValues || []);
+    const [isSorting, setIsSorting] = React.useState(false);
+
     const classes = useStyles();
-    const theme = useTheme();
 
-    const onDragEnd = (result) => {
-      // dropped outside the list
-      if (not(prop('destination', result))) {
-        return;
-      }
-
-      const items = reorder(
-        selectedValues,
-        result.source.index,
-        result.destination.index,
-      ) as Array<SelectEntry>;
-
-      setSelectedValues(items);
+    const onDragEnd = ({ oldIndex, newIndex }) => {
+      setSelectedValues(move(oldIndex, newIndex, selectedValues));
+      setIsSorting(false);
     };
+
+    const onDragStart = () => setIsSorting(true);
 
     const deleteValue = (index) => {
       setSelectedValues(remove(index, 1, selectedValues));
@@ -100,69 +72,24 @@ const DraggableAutocomplete = (
       setSelectedValues(newValue);
     };
 
-    const filterOptions = (options, params) => {
-      const filtered = filter(options, params);
+    const cancelStart = (event) =>
+      pipe(
+        path(['target', 'textContent']) as (object) => string,
+        equals(''),
+      )(event);
 
-      if (
-        pipe(prop('inputValue') as (value) => string, equals(''), not)(params)
-      ) {
-        filtered.push({
-          id: inc(length(selectedValues)),
-          name: params.inputValue,
-          createOption: params.inputValue,
-        });
-      }
-
-      return filtered;
-    };
-
-    const renderTags = (tags) => {
+    const renderTags = () => {
       return (
-        <DragDropContext onDragEnd={onDragEnd}>
-          <Droppable droppableId="droppable" direction="horizontal">
-            {(provided) => (
-              <div
-                ref={provided.innerRef}
-                {...provided.droppableProps}
-                className={classes.list}
-              >
-                {tags.map((tag, index) => (
-                  <Draggable
-                    key={`${tag.name}_${index.toString()}`}
-                    draggableId={`${tag.name}_${index}`}
-                    index={index}
-                  >
-                    {(providedDraggable, snapshot) => (
-                      <div
-                        ref={providedDraggable.innerRef}
-                        {...providedDraggable.draggableProps}
-                        {...providedDraggable.dragHandleProps}
-                      >
-                        <Chip
-                          size="small"
-                          label={tag.name}
-                          className={clsx(
-                            classes.tag,
-                            tag.createOption && classes.createdTag,
-                          )}
-                          style={
-                            snapshot.isDragging
-                              ? { boxShadow: theme.shadows[3] }
-                              : {}
-                          }
-                          clickable
-                          onDelete={() => deleteValue(index)}
-                          deleteIcon={<CloseIcon />}
-                        />
-                      </div>
-                    )}
-                  </Draggable>
-                ))}
-                {provided.placeholder}
-              </div>
-            )}
-          </Droppable>
-        </DragDropContext>
+        <SortableList
+          items={selectedValues}
+          axis="xy"
+          onSortEnd={onDragEnd}
+          onSortStart={onDragStart}
+          shouldCancelStart={cancelStart}
+          isSorting={isSorting}
+          deleteValue={deleteValue}
+          helperClass={classes.helper}
+        />
       );
     };
 
@@ -179,7 +106,9 @@ const DraggableAutocomplete = (
         handleHomeEndKeys
         renderTags={renderTags}
         onChange={onChange}
-        filterOptions={filterOptions}
+        disableCloseOnSelect={false}
+        displayCheckboxOption={false}
+        getOptionSelected={F}
         {...props}
       />
     );

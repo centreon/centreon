@@ -61,11 +61,14 @@ const MultiDraggable = (): JSX.Element => (
     options={options}
     label="Draggable Autocomplete"
     placeholder="Type here..."
-    open
   />
 );
 
-export const draggable = (): JSX.Element => <MultiDraggable />;
+export const containedDraggable = (): JSX.Element => (
+  <div style={{ width: '400px' }}>
+    <MultiDraggable />
+  </div>
+);
 
 const MultiDraggableConnected = (): JSX.Element => (
   <MultiDraggableConnectedAutocompleteField

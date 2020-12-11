@@ -46,10 +46,10 @@
     "prop-types": "^15.7.2",
     "ramda": "^0.27.1",
     "react": "^16.11.0",
-    "react-beautiful-dnd": "^13.0.0",
     "react-dom": "^16.11.0",
     "react-files": "^2.4.8",
     "react-router-dom": "^5.2.0",
+    "react-sortable-hoc": "^1.11.0",
     "resize-observer-polyfill": "^1.5.1",
     "ts.data.json": "^1.2.0",
     "ulog": "^2.0.0-beta.7"

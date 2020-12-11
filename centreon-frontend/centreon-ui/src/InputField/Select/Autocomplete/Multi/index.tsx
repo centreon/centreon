@@ -16,6 +16,10 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
+interface MultiAutocompleteProps {
+  displayCheckboxOption?: boolean;
+}
+
 type Multiple = boolean;
 type DisableClearable = boolean;
 type FreeSolo = boolean;
@@ -27,9 +31,13 @@ export type Props = Omit<
   Omit<
     UseAutocompleteProps<SelectEntry, Multiple, DisableClearable, FreeSolo>,
     'multiple'
-  >;
+  > &
+  MultiAutocompleteProps;
 
-const MultiAutocompleteField = (props: Props): JSX.Element => {
+const MultiAutocompleteField = ({
+  displayCheckboxOption = true,
+  ...props
+}: Props): JSX.Element => {
   const classes = useStyles();
 
   const renderTags = (value, getTagProps): Array<JSX.Element> =>
@@ -51,12 +59,14 @@ const MultiAutocompleteField = (props: Props): JSX.Element => {
       disableCloseOnSelect
       renderOption={(option, { selected }): JSX.Element => (
         <>
-          <Checkbox
-            color="primary"
-            size="small"
-            checked={selected}
-            className={classes.checkbox}
-          />
+          {displayCheckboxOption && (
+            <Checkbox
+              color="primary"
+              size="small"
+              checked={selected}
+              className={classes.checkbox}
+            />
+          )}
           <Typography>{option.name}</Typography>
         </>
       )}
