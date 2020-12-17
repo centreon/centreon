@@ -149,6 +149,9 @@ sub init {
     );
     $self->init_server_keys();
 
+    $self->{config}->{configuration}->{gorgone}->{gorgonecore}->{external_com_zmq_tcp_keepalive} =
+        defined($self->{config}->{configuration}->{gorgone}->{gorgonecore}->{external_com_zmq_tcp_keepalive}) && $self->{config}->{configuration}->{gorgone}->{gorgonecore}->{external_com_zmq_tcp_keepalive} =~ /^(0|1)$/ ? $1 : 1;
+
     $self->{config}->{configuration}->{gorgone}->{gorgonecore}->{internal_com_type} = 'ipc'
         if (!defined($self->{config}->{configuration}->{gorgone}->{gorgonecore}->{internal_com_type}) || $self->{config}->{configuration}->{gorgone}->{gorgonecore}->{internal_com_type} eq '');
     $self->{config}->{configuration}->{gorgone}->{gorgonecore}->{internal_com_path} = '/tmp/gorgone/routing.ipc'
@@ -785,6 +788,7 @@ sub run {
                 path => $gorgone->{config}->{configuration}->{gorgone}->{gorgonecore}->{external_com_path},
                 zmq_type => 'ZMQ_ROUTER',
                 zmq_router_handover => $gorgone->{config}->{configuration}->{gorgone}->{gorgonecore}->{external_com_zmq_router_handover},
+                zmq_tcp_keepalive => $gorgone->{config}->{configuration}->{gorgone}->{gorgonecore}->{external_com_zmq_tcp_keepalive},
                 name => 'router-external',
                 logger => $gorgone->{logger}
             );

@@ -41,6 +41,7 @@ our $listener;
 my %zmq_type = ('ZMQ_ROUTER' => ZMQ_ROUTER, 'ZMQ_DEALER' => ZMQ_DEALER);
 my $ZMQ_CONNECT_TIMEOUT = 79;
 my $ZMQ_ROUTER_HANDOVER = 56;
+my $ZMQ_TCP_KEEPALIVE = 34;
 
 sub read_config {
     my (%options) = @_;
@@ -756,6 +757,7 @@ sub create_com {
     zmq_setsockopt($socket, ZMQ_LINGER, 0); # we discard
     ZMQ::LibZMQ4::zmq_setsockopt_int($socket, $ZMQ_ROUTER_HANDOVER, defined($options{zmq_router_handover}) ? $options{zmq_router_handover} : 1);
     if ($options{type} eq 'tcp') {
+        ZMQ::LibZMQ4::zmq_setsockopt_int($socket, $ZMQ_TCP_KEEPALIVE, defined($options{zmq_tcp_keepalive}) ? $options{zmq_tcp_keepalive} : -1);
         zmq_bind($socket, 'tcp://' . $options{path});
     } elsif ($options{type} eq 'ipc') {
         if (zmq_bind($socket, 'ipc://' . $options{path}) == -1) {
