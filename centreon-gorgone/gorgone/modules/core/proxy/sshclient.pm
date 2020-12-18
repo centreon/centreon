@@ -239,7 +239,7 @@ sub action_command {
 
             if ($ret->{exit} == Libssh::Session::SSH_OK) {
                 $data->{data}->{message} = "command has finished successfully";
-                $data->{code} = GORGONE_ACTION_FINISH_OK;
+                $data->{code} = GORGONE_MODULE_ACTION_COMMAND_RESULT;
             } elsif ($ret->{exit} == Libssh::Session::SSH_AGAIN) { # AGAIN means timeout
                 $code = -1;
                 $data->{data}->{message} = "command has timed out";
