@@ -41,6 +41,60 @@ stage('Source') {
 }
 
 try {
+  stage('Unit tests') {
+    parallel 'centos7': {
+      node {
+        sh 'setup_centreon_build.sh'
+        sh "./centreon-build/jobs/widgets/${serie}/widget-unittest.sh centos7"
+        if (currentBuild.result == 'UNSTABLE')
+          currentBuild.result = 'FAILURE'
+        step([
+          $class: 'CloverPublisher',
+          cloverReportDir: '.',
+          cloverReportFileName: 'coverage-be.xml'
+        ])
+
+        if (env.CHANGE_ID) { // pull request to comment with coding style issues
+          ViolationsToGitHub([
+            repositoryName: 'centreon-widget-engine-status',
+            pullRequestId: env.CHANGE_ID,
+
+            createSingleFileComments: true,
+            commentOnlyChangedContent: true,
+            commentOnlyChangedFiles: true,
+            keepOldComments: false,
+
+            commentTemplate: "**{{violation.severity}}**: {{violation.message}}",
+
+            violationConfigs: [
+              [parser: 'CHECKSTYLE', pattern: '.*/codestyle-be.xml$', reporter: 'Checkstyle']
+            ]
+          ])
+        }
+
+        recordIssues(
+          enabledForFailure: true,
+          failOnError: true,
+          ignoreFailedBuilds: false,
+          qualityGates: [[threshold: 1, type: 'NEW', unstable: false]],
+          tools: [
+            checkStyle(pattern: 'codestyle-be.xml')
+          ],
+          referenceJobName: 'centreon-widget-engine-status/master'
+        )
+
+        if ((env.BUILD == 'RELEASE') || (env.BUILD == 'REFERENCE')) {
+          withSonarQubeEnv('SonarQube') {
+            sh "./centreon-build/jobs/widgets/${serie}/widget-analysis.sh"
+          }
+        }
+      }
+    }
+    if ((currentBuild.result ?: 'SUCCESS') != 'SUCCESS') {
+      error('Unit tests stage failure.');
+    }
+  }
+
   stage('Package') {
     parallel 'centos7': {
       node {
@@ -73,10 +127,10 @@ try {
 } catch(e) {
   if ((env.BUILD == 'RELEASE') || (env.BUILD == 'REFERENCE')) {
     slackSend channel: "#monitoring-metrology",
-        color: "#F30031",
-        message: "*FAILURE*: `CENTREON WIDGET ENGINE STATUS` <${env.BUILD_URL}|build #${env.BUILD_NUMBER}> on branch ${env.BRANCH_NAME}\n" +
-            "*COMMIT*: <https://github.com/centreon/centreon-widget-engine-status/commit/${source.COMMIT}|here> by ${source.COMMITTER}\n" +
-            "*INFO*: ${e}"
+      color: "#F30031",
+      message: "*FAILURE*: `CENTREON WIDGET ENGINE STATUS` <${env.BUILD_URL}|build #${env.BUILD_NUMBER}> on branch ${env.BRANCH_NAME}\n" +
+        "*COMMIT*: <https://github.com/centreon/centreon-widget-engine-status/commit/${source.COMMIT}|here> by ${source.COMMITTER}\n" +
+        "*INFO*: ${e}"
   }
 
   currentBuild.result = 'FAILURE'
