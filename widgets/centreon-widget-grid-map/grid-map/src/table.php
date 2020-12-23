@@ -1,6 +1,7 @@
 <?php
-/**
- * Copyright 2005-2019 Centreon
+
+/*
+ * Copyright 2005-2020 Centreon
  * Centreon is developed by : Julien Mathis and Romain Le Merlus under
  * GPL Licence 2.0.
  *
@@ -19,11 +20,11 @@
  * combined work based on this program. Thus, the terms and conditions of the GNU
  * General Public License cover the whole combination.
  *
- * As a special exception, the copyright holders of this program give MERETHIS
+ * As a special exception, the copyright holders of this program give Centreon
  * permission to link this program with independent modules to produce an executable,
  * regardless of the license terms of these independent modules, and to copy and
- * distribute the resulting executable under terms of MERETHIS choice, provided that
- * MERETHIS also meet, for each linked independent module, the terms  and conditions
+ * distribute the resulting executable under terms of Centreon choice, provided that
+ * Centreon also meet, for each linked independent module, the terms  and conditions
  * of the license of that module. An independent module is a module which is not
  * derived from this program. If you modify this program, you may extend this
  * exception to your version of the program, but you are not obliged to do so. If you
@@ -34,10 +35,7 @@
  */
 
 require_once "../../require.php";
-
-/* Get Env informations */
 require_once "../../../../config/centreon.config.php";
-
 require_once $centreon_path . 'www/class/centreon.class.php';
 require_once $centreon_path . 'www/class/centreonSession.class.php';
 require_once $centreon_path . 'www/class/centreonWidget.class.php';
@@ -46,7 +44,6 @@ require_once $centreon_path . 'www/class/centreonUtils.class.php';
 require_once $centreon_path . 'www/class/centreonACL.class.php';
 require_once $centreon_path . 'www/class/centreonHost.class.php';
 require_once $centreon_path . 'bootstrap.php';
-
 
 CentreonSession::start(1);
 
@@ -58,7 +55,6 @@ $centreon = $_SESSION['centreon'];
 $widgetId = filter_var($_REQUEST['widgetId'], FILTER_VALIDATE_INT);
 
 /* INIT */
-
 $colors = array(
     0 => '#8FCF3C',
     1 => '#ff9a13',
@@ -99,7 +95,7 @@ $resourceController = $kernel->getContainer()->get(
 
 /* Start Smarty Init */
 $template = new Smarty();
-$template = initSmartyTplForPopup(getcwd()."/", $template, "./", $centreon_path);
+$template = initSmartyTplForPopup(getcwd() . "/", $template, "./", $centreon_path);
 
 $data = array();
 $data_service = array();
@@ -113,11 +109,11 @@ if ($preferences['host_group']) {
         WHERE T1.host_id = T2.host_id 
             AND T1.enabled = 1
             AND T2.hostgroup_id = " . $preferences['host_group'] .
-                ($centreon->user->admin == 0
-                    ? " AND T1.host_id = acl.host_id AND T2.host_id = acl.host_id AND acl.group_id IN (" .
-                        ($grouplistStr != "" ? $grouplistStr : 0).")"
-                    : ""
-                ) . "
+        ($centreon->user->admin == 0
+            ? " AND T1.host_id = acl.host_id AND T2.host_id = acl.host_id AND acl.group_id IN (" .
+            ($grouplistStr != "" ? $grouplistStr : 0) . ")"
+            : ""
+        ) . "
         ORDER BY T1.name";
 
     /* Query 2 */
@@ -125,7 +121,7 @@ if ($preferences['host_group']) {
         FROM services T1 " . ($centreon->user->admin == 0 ? ", centreon_acl acl " : "") . "
         WHERE T1.enabled = 1 " . ($centreon->user->admin == 0
             ? " AND T1.service_id = acl.service_id AND acl.group_id IN (" .
-                ($grouplistStr != "" ? $grouplistStr : 0).") AND ("
+            ($grouplistStr != "" ? $grouplistStr : 0) . ") AND ("
             : " AND ("
         );
     foreach (explode(",", $preferences['service']) as $elem) {
@@ -143,11 +139,11 @@ if ($preferences['host_group']) {
         FROM services T1 " . ($centreon->user->admin == 0 ? ", centreon_acl acl " : "") . "
         WHERE T1.enabled = 1
             AND T1.description NOT LIKE 'ba_%' AND T1.description NOT LIKE 'meta_%' " .
-                ($centreon->user->admin == 0
-                    ? " AND T1.service_id = acl.service_id AND acl.group_id IN (" .
-                        ($grouplistStr != "" ? $grouplistStr : 0).")"
-                    : ""
-                );
+        ($centreon->user->admin == 0
+            ? " AND T1.service_id = acl.service_id AND acl.group_id IN (" .
+            ($grouplistStr != "" ? $grouplistStr : 0) . ")"
+            : ""
+        );
     $inc = 0;
 
     $services = explode(",", $preferences['service']);
