@@ -1,3 +1,5 @@
 /nbproject/private/
-nbproject/
-.idea/
+/nbproject/
+/.idea/
+/vendor
+/build
