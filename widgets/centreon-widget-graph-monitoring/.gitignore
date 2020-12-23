@@ -1,2 +1,4 @@
-.idea/
+/idea
 /nbproject/private/
+/vendor
+/build

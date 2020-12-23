@@ -41,6 +41,55 @@ stage('Source') {
 }
 
 try {
+  stage('Unit tests') {
+    parallel 'centos7': {
+      node {
+        sh 'setup_centreon_build.sh'
+        sh "./centreon-build/jobs/widgets/${serie}/widget-unittest.sh centos7"
+        if (currentBuild.result == 'UNSTABLE')
+          currentBuild.result = 'FAILURE'
+
+        if (env.CHANGE_ID) { // pull request to comment with coding style issues
+          ViolationsToGitHub([
+            repositoryName: 'centreon-widget-graph-monitoring',
+            pullRequestId: env.CHANGE_ID,
+
+            createSingleFileComments: true,
+            commentOnlyChangedContent: true,
+            commentOnlyChangedFiles: true,
+            keepOldComments: false,
+
+            commentTemplate: "**{{violation.severity}}**: {{violation.message}}",
+
+            violationConfigs: [
+              [parser: 'CHECKSTYLE', pattern: '.*/codestyle-be.xml$', reporter: 'Checkstyle']
+            ]
+          ])
+        }
+
+        recordIssues(
+          enabledForFailure: true,
+          failOnError: true,
+          qualityGates: [[threshold: 1, type: 'DELTA', unstable: false]],
+          tools: [
+            checkStyle(pattern: 'codestyle-be.xml')
+          ],
+          trendChartType: 'NONE',
+          referenceJobName: 'centreon-widget-graph-monitoring/master'
+        )
+
+        if ((env.BUILD == 'RELEASE') || (env.BUILD == 'REFERENCE')) {
+          withSonarQubeEnv('SonarQube') {
+            sh "./centreon-build/jobs/widgets/${serie}/widget-analysis.sh"
+          }
+        }
+      }
+    }
+    if ((currentBuild.result ?: 'SUCCESS') != 'SUCCESS') {
+      error('Unit tests stage failure.');
+    }
+  }
+
   stage('Package') {
     parallel 'centos7': {
       node {
