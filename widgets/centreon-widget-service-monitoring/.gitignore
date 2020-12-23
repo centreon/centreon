@@ -1,4 +1,6 @@
-.idea/
-nbproject/
+/.idea/
+/nbproject/
 /nbproject/private/
-.vscode/
+/.vscode/
+/vendor
+/build

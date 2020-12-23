@@ -20,11 +20,11 @@
  * combined work based on this program. Thus, the terms and conditions of the GNU
  * General Public License cover the whole combination.
  *
- * As a special exception, the copyright holders of this program give CENTREON
+ * As a special exception, the copyright holders of this program give Centreon
  * permission to link this program with independent modules to produce an executable,
  * regardless of the license terms of these independent modules, and to copy and
- * distribute the resulting executable under terms of CENTREON choice, provided that
- * CENTREON also meet, for each linked independent module, the terms  and conditions
+ * distribute the resulting executable under terms of Centreon choice, provided that
+ * Centreon also meet, for each linked independent module, the terms  and conditions
  * of the license of that module. An independent module is a module which is not
  * derived from this program. If you modify this program, you may extend this
  * exception to your version of the program, but you are not obliged to do so. If you
@@ -64,46 +64,46 @@ $canDoAction = false;
 if ($admin) {
     $canDoAction = true;
 }
-$actions  = "<option value='0'>-- "._("More actions")." -- </option>";
+$actions = "<option value='0'>-- " . _("More actions") . " -- </option>";
 if ($canDoAction || $centreon->user->access->checkAction("service_schedule_check")) {
-    $actions .= "<option value='3'>"._("Service: Schedule Immediate Check")."</option>";
+    $actions .= "<option value='3'>" . _("Service: Schedule Immediate Check") . "</option>";
 }
 if ($canDoAction || $centreon->user->access->checkAction("service_schedule_forced_check")) {
-    $actions .= "<option value='4'>"._("Service: Schedule Immediate Forced Check")."</option>";
+    $actions .= "<option value='4'>" . _("Service: Schedule Immediate Forced Check") . "</option>";
 }
 if ($canDoAction || $centreon->user->access->checkAction("service_acknowledgement")) {
-    $actions .= "<option value='70'>"._("Service: Acknowledge")."</option>";
+    $actions .= "<option value='70'>" . _("Service: Acknowledge") . "</option>";
 }
 if ($canDoAction || $centreon->user->access->checkAction("service_disacknowledgement")) {
-    $actions .= "<option value='71'>"._("Service: Remove Acknowledgement")."</option>";
+    $actions .= "<option value='71'>" . _("Service: Remove Acknowledgement") . "</option>";
 }
 if ($canDoAction || $centreon->user->access->checkAction("service_schedule_downtime")) {
-    $actions .= "<option value='74'>"._("Service: Set Downtime")."</option>";
+    $actions .= "<option value='74'>" . _("Service: Set Downtime") . "</option>";
 }
 if ($canDoAction || $centreon->user->access->checkAction("service_notifications")) {
-    $actions .= "<option value='80'>"._("Service: Enable Notification")."</option>";
-    $actions .= "<option value='81'>"._("Service: Disable Notification")."</option>";
+    $actions .= "<option value='80'>" . _("Service: Enable Notification") . "</option>";
+    $actions .= "<option value='81'>" . _("Service: Disable Notification") . "</option>";
 }
 if ($canDoAction || $centreon->user->access->checkAction("service_checks")) {
-    $actions .= "<option value='90'>"._("Service: Enable Check")."</option>";
-    $actions .= "<option value='91'>"._("Service: Disable Check")."</option>";
+    $actions .= "<option value='90'>" . _("Service: Enable Check") . "</option>";
+    $actions .= "<option value='91'>" . _("Service: Disable Check") . "</option>";
 }
 if ($canDoAction || $centreon->user->access->checkAction("host_acknowledgement")) {
-    $actions .= "<option value='72'>"._("Host: Acknowledge")."</option>";
+    $actions .= "<option value='72'>" . _("Host: Acknowledge") . "</option>";
 }
 if ($canDoAction || $centreon->user->access->checkAction("host_disacknowledgement")) {
-    $actions .= "<option value='73'>"._("Host: Remove Acknowledgement")."</option>";
+    $actions .= "<option value='73'>" . _("Host: Remove Acknowledgement") . "</option>";
 }
 if ($canDoAction || $centreon->user->access->checkAction("host_schedule_downtime")) {
-    $actions .= "<option value='75'>"._("Host: Set Downtime")."</option>";
+    $actions .= "<option value='75'>" . _("Host: Set Downtime") . "</option>";
 }
 if ($canDoAction || $centreon->user->access->checkAction("host_notifications")) {
-    $actions .= "<option value='82'>"._("Host: Enable Host Notification")."</option>";
-    $actions .= "<option value='83'>"._("Host: Disable Host Notification")."</option>";
+    $actions .= "<option value='82'>" . _("Host: Enable Host Notification") . "</option>";
+    $actions .= "<option value='83'>" . _("Host: Disable Host Notification") . "</option>";
 }
 if ($canDoAction || $centreon->user->access->checkAction("host_checks")) {
-    $actions .= "<option value='92'>"._("Host: Enable Host Check")."</option>";
-    $actions .= "<option value='93'>"._("Host: Disable Host Check")."</option>";
+    $actions .= "<option value='92'>" . _("Host: Enable Host Check") . "</option>";
+    $actions .= "<option value='93'>" . _("Host: Disable Host Check") . "</option>";
 }
 
 $template->assign("widgetId", $widgetId);
@@ -113,44 +113,42 @@ $template->display('toolbar.ihtml');
 ?>
 <script type="text/javascript" src="../../include/common/javascript/centreon/popin.js"></script>
 <script type='text/javascript'>
-var tab = new Array();
-var actions = "<?php echo $actions;?>";
-var wid = "<?php echo $widgetId;?>";
+    var tab = new Array();
+    var actions = "<?php echo $actions;?>";
+    var wid = "<?php echo $widgetId;?>";
 
 
-jQuery( function() {
-    jQuery(".toolbar").change( function() {
+    jQuery(function () {
+        jQuery(".toolbar").change(function () {
+            if (jQuery(this).val() != 0) {
+                var checkValues = jQuery("input:checked")
+                    .map(function () {
+                        var tmp = jQuery(this).attr('id').split("_");
+                        return tmp[1];
+                    })
+                    .get().join(",");
 
-        if (jQuery(this).val() != 0) {
-            var checkValues = jQuery("input:checked")
-                .map( function() {
-                      var tmp = jQuery(this).attr('id').split("_");
-                      return tmp[1];
-                })
-                .get().join(",");
+                if (checkValues != '') {
+                    var url = "./widgets/service-monitoring/src/action.php?selection=" + checkValues +
+                        "&cmd=" + jQuery(this).val() + "&wid=" + wid;
+                    parent.jQuery('#widgetPopin').parent().remove();
+                    var popin = parent.jQuery('<div id="widgetPopin">');
 
-            if (checkValues != '') {
-                var url = "./widgets/service-monitoring/src/action.php?selection=" + checkValues +
-                    "&cmd=" + jQuery(this).val() + "&wid=" + wid;
-                parent.jQuery('#widgetPopin').parent().remove();
-                var popin = parent.jQuery('<div id="widgetPopin">');
+                    popin.centreonPopin({
+                        open: true,
+                        url: url,
+                        onClose: () => {
+                            checkValues.split(',').forEach((value) => {
+                                localStorage.removeItem('w_sm_selection_' + value);
+                            });
+                        }
+                    });
+                } else {
+                    alert("<?php echo _('Please select one or more items'); ?>");
+                }
 
-                popin.centreonPopin({
-                    open: true,
-                    url: url,
-                    onClose: () => {
-                        checkValues.split(',').forEach((value) => {
-                            localStorage.removeItem('w_sm_selection_' + value);
-                        });
-                    }
-                });
-
-            } else {
-                alert("<?php echo _('Please select one or more items'); ?>");
+                jQuery(this).val(0);
             }
-
-            jQuery(this).val(0);
-        }
+        });
     });
-});
 </script>
