@@ -1,6 +1,7 @@
 <?php
-/**
- * Copyright 2005-2015 Centreon
+
+/*
+ * Copyright 2005-2020 Centreon
  * Centreon is developed by : Julien Mathis and Romain Le Merlus under
  * GPL Licence 2.0.
  *
@@ -126,17 +127,16 @@ if (!empty($preferences['hostgroup'])) {
 }
 
 if (isset($preferences['hosts_services']) && $preferences['hosts_services'] == 'hosts') {
-    $innerjoingroup = '';
-    $wheregroup = '';
+    $innerJoinGroup = '';
     if ($hgName) {
-        $innerjoingroup = ' INNER JOIN hosts_hostgroups hhg ON  h.host_id = hhg.host_id ' .
+        $innerJoinGroup = ' INNER JOIN hosts_hostgroups hhg ON  h.host_id = hhg.host_id ' .
             ' INNER JOIN hostgroups hg ON hhg.hostgroup_id = hg.hostgroup_id and hg.name = \'' . $hgName . '\' ';
     }
 
     $rq1 = ' SELECT count(DISTINCT h.name) cnt, h.state, SUM(h.acknowledged) as acknowledged, ' .
         'SUM(CASE WHEN h.scheduled_downtime_depth >= 1 THEN 1 ELSE 0 END) AS downtime ' .
         'FROM `hosts` h ' .
-        $innerjoingroup .
+        $innerJoinGroup .
         'WHERE h.enabled = 1 ' .
         $oreon->user->access->queryBuilder('AND', 'h.name', $oreon->user->access->getHostsString('NAME', $dbb)) .
         ' AND h.name NOT LIKE \'_Module_%\' ' .
@@ -151,9 +151,6 @@ if (isset($preferences['hosts_services']) && $preferences['hosts_services'] == '
         $data[$ndo['state']]['count'] = $ndo['cnt'];
         $data[$ndo['state']]['acknowledged'] = $ndo['acknowledged'];
         $data[$ndo['state']]['downtime'] = $ndo['downtime'];
-        //$data[] = $ndo['cnt'];
-        //$legend[] = $tabStatusHost[$ndo['state']];
-        //$color[] = $oreon->optGen['color_'.strtolower($tabStatusHost[$ndo['state']])];
         $counter += $ndo['cnt'];
     }
     $dbResult->closeCursor();
@@ -165,13 +162,11 @@ if (isset($preferences['hosts_services']) && $preferences['hosts_services'] == '
         $hostArray[$tabStatusHost[$key]]['percent'] = $valuePercent;
         $hostArray[$tabStatusHost[$key]]['acknowledged'] = $value['acknowledged'];
         $hostArray[$tabStatusHost[$key]]['downtime'] = $value['downtime'];
-        //$hostArray[$tabStatusHost[$key]]['color'] = $oreon->optGen['color_'.strtolower($tabStatusHost[$key])];
     }
 
     $template->assign('hosts', $hostArray);
     $template->display('global_health_host.ihtml');
-
-} else if (isset($preferences['hosts_services']) && $preferences['hosts_services'] == 'services') {
+} elseif (isset($preferences['hosts_services']) && $preferences['hosts_services'] == 'services') {
     $sgName = false;
     if (!empty($preferences['servicegroup'])) {
         $sql = 'select sg.sg_name from servicegroup sg where sg.sg_id = ' . $dbb->escape($preferences['servicegroup']);
@@ -180,14 +175,15 @@ if (isset($preferences['hosts_services']) && $preferences['hosts_services'] == '
         $sgName = $row['sg_name'];
     }
 
-    $innerjoingroup = '';
+    $innerJoinGroup = '';
     if ($sgName) {
-        $innerjoingroup = ' INNER JOIN services_servicegroups ssg ON ssg.service_id = s.service_id and ssg.host_id = s.host_id ' .
-            ' INNER JOIN servicegroups sg ON ssg.servicegroup_id = sg.servicegroup_id and sg.name = \'' . $sgName . '\' ';
+        $innerJoinGroup = ' INNER JOIN services_servicegroups ssg ON ssg.service_id = s.service_id ' .
+            'and ssg.host_id = s.host_id INNER JOIN servicegroups sg ON ssg.servicegroup_id = sg.servicegroup_id ' .
+            'and sg.name = \'' . $sgName . '\' ';
     }
 
-    if ($hgName){
-        $innerjoingroup .= ' INNER JOIN hosts_hostgroups hhg ON  h.host_id = hhg.host_id ' .
+    if ($hgName) {
+        $innerJoinGroup .= ' INNER JOIN hosts_hostgroups hhg ON  h.host_id = hhg.host_id ' .
             ' INNER JOIN hostgroups hg ON hhg.hostgroup_id = hg.hostgroup_id and hg.name = \'' . $hgName . '\' ';
     }
 
@@ -206,7 +202,7 @@ if (isset($preferences['hosts_services']) && $preferences['hosts_services'] == '
             ' FROM services s ' .
             ' INNER JOIN centreon_acl acl ON s.host_id  = acl.host_id AND s.service_id = acl.service_id ' .
             ' INNER JOIN hosts h ON s.host_id = h.host_id ' .
-            $innerjoingroup .
+            $innerJoinGroup .
             ' WHERE h.name NOT LIKE \'_Module_%\' ' .
             ' AND h.enabled = 1 ' .
             ' AND s.enabled = 1 ' .
@@ -218,7 +214,7 @@ if (isset($preferences['hosts_services']) && $preferences['hosts_services'] == '
             ' SUM(CASE WHEN s.scheduled_downtime_depth >= 1 THEN 1 ELSE 0 END) AS downtime  ' .
             ' FROM services s' .
             ' INNER JOIN hosts h ON s.host_id = h.host_id ' .
-            $innerjoingroup .
+            $innerJoinGroup .
             ' WHERE h.name NOT LIKE \'_Module_%\' ' .
             ' AND h.enabled = 1 ' .
             ' AND s.enabled = 1 ' .

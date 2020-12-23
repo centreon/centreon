@@ -1,7 +1,8 @@
 <?php
-/**
- * Copyright 2005-2011 MERETHIS
- * Centreon is developped by : Julien Mathis and Romain Le Merlus under
+
+/*
+ * Copyright 2005-2020 Centreon
+ * Centreon is developed by : Julien Mathis and Romain Le Merlus under
  * GPL Licence 2.0.
  *
  * This program is free software; you can redistribute it and/or modify it under
@@ -19,11 +20,11 @@
  * combined work based on this program. Thus, the terms and conditions of the GNU
  * General Public License cover the whole combination.
  *
- * As a special exception, the copyright holders of this program give MERETHIS
+ * As a special exception, the copyright holders of this program give Centreon
  * permission to link this program with independent modules to produce an executable,
  * regardless of the license terms of these independent modules, and to copy and
- * distribute the resulting executable under terms of MERETHIS choice, provided that
- * MERETHIS also meet, for each linked independent module, the terms  and conditions
+ * distribute the resulting executable under terms of Centreon choice, provided that
+ * Centreon also meet, for each linked independent module, the terms  and conditions
  * of the license of that module. An independent module is a module which is not
  * derived from this program. If you modify this program, you may extend this
  * exception to your version of the program, but you are not obliged to do so. If you
@@ -32,6 +33,7 @@
  * For more information : contact@centreon.com
  *
  */
+
 require_once "../require.php";
 require_once $centreon_path . 'bootstrap.php';
 require_once $centreon_path . 'www/class/centreon.class.php';
@@ -43,7 +45,7 @@ if (!isset($_SESSION['centreon']) || !isset($_REQUEST['widgetId'])) {
     exit;
 }
 $centreon = $_SESSION['centreon'];
-$widgetId = filter_var($_REQUEST['widgetId'], FILTER_VALIDATE_INT); 
+$widgetId = filter_var($_REQUEST['widgetId'], FILTER_VALIDATE_INT);
 
 try {
     if ($widgetId === false) {
@@ -53,7 +55,7 @@ try {
     $db = $dependencyInjector['configuration_db'];
     $widgetObj = new CentreonWidget($centreon, $db);
     $preferences = $widgetObj->getWidgetPreferences($widgetId);
-    
+
     $autoRefresh = filter_var($preferences['refresh_interval'], FILTER_VALIDATE_INT);
     if ($autoRefresh === false || $autoRefresh < 5) {
         $autoRefresh = 30;
@@ -72,46 +74,46 @@ try {
     exit;
 }
 ?>
-<html>
-<head>
-    <title></title>
-    <link href="../../Themes/Centreon-2/style.css" rel="stylesheet" type="text/css"/>
-    <link href="../../Themes/Centreon-2/jquery-ui/jquery-ui.css" rel="stylesheet" type="text/css"/>
-    <link href="../../Themes/Centreon-2/jquery-ui/jquery-ui-centreon.css" rel="stylesheet" type="text/css"/>
-    <script type="text/javascript" src="../../include/common/javascript/jquery/jquery.js"></script>
-    <script type="text/javascript" src="../../include/common/javascript/jquery/jquery-ui.js"></script>
-    <script type="text/javascript"
-            src="../../include/common/javascript/jquery/plugins/pagination/jquery.pagination.js"></script>
-    <script type="text/javascript" src="../../include/common/javascript/widgetUtils.js"></script>
-    <script type="text/javascript"
-            src="../../include/common/javascript/jquery/plugins/treeTable/jquery.treeTable.min.js"></script>
-    <script src="./lib/apexcharts.min.js" language="javascript"></script>
-</head>
-<body>
-<div id='global_health'></div>
-</body>
+<HTML>
+    <HEAD>
+        <TITLE></TITLE>
+        <link href="../../Themes/Centreon-2/style.css" rel="stylesheet" type="text/css"/>
+        <link href="../../Themes/Centreon-2/jquery-ui/jquery-ui.css" rel="stylesheet" type="text/css"/>
+        <link href="../../Themes/Centreon-2/jquery-ui/jquery-ui-centreon.css" rel="stylesheet" type="text/css"/>
+        <script type="text/javascript" src="../../include/common/javascript/jquery/jquery.js"></script>
+        <script type="text/javascript" src="../../include/common/javascript/jquery/jquery-ui.js"></script>
+        <script type="text/javascript"
+                src="../../include/common/javascript/jquery/plugins/pagination/jquery.pagination.js"></script>
+        <script type="text/javascript" src="../../include/common/javascript/widgetUtils.js"></script>
+        <script type="text/javascript"
+                src="../../include/common/javascript/jquery/plugins/treeTable/jquery.treeTable.min.js"></script>
+        <script src="./lib/apexcharts.min.js" language="javascript"></script>
+    </HEAD>
+<BODY>
+    <DIV id='global_health'></DIV>
+</BODY>
 
 <script type="text/javascript">
-    var widgetId = <?php echo $widgetId; ?>;
-    var autoRefresh = <?php echo $autoRefresh;?>;
-    var timeout;
-    var pageNumber = 0;
-    var broker = '<?php echo $broker;?>';
+    let widgetId = <?= $widgetId; ?>;
+    let autoRefresh = <?= $autoRefresh;?>;
+    let timeout;
+    let pageNumber = 0;
+    let broker = '<?= $broker;?>';
 
     jQuery(function () {
         loadPage();
     });
 
     function loadPage() {
-        var indexPage = "global_health";
+        let indexPage = "global_health";
         jQuery.ajax("./src/" + indexPage + ".php?widgetId=" + widgetId, {
             success: function (htmlData) {
                 jQuery("#global_health").html("");
                 jQuery("#global_health").html(htmlData);
-                var h = jQuery("#global_health").prop("scrollHeight") + 36;
+                let h = jQuery("#global_health").prop("scrollHeight") + 36;
                 parent.iResize(window.name, h);
                 jQuery("#global_health").find("img, style, script, link").load(function () {
-                    var h = jQuery("#global_health").prop("scrollHeight") + 36;
+                    let h = jQuery("#global_health").prop("scrollHeight") + 36;
                     parent.iResize(window.name, h);
                 });
             }
@@ -124,4 +126,4 @@ try {
         }
     }
 </script>
-</html>
+</HTML>
