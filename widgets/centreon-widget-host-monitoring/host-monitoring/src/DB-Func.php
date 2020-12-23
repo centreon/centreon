@@ -20,11 +20,11 @@
  * combined work based on this program. Thus, the terms and conditions of the GNU
  * General Public License cover the whole combination.
  *
- * As a special exception, the copyright holders of this program give CENTREON
+ * As a special exception, the copyright holders of this program give Centreon
  * permission to link this program with independent modules to produce an executable,
  * regardless of the license terms of these independent modules, and to copy and
- * distribute the resulting executable under terms of CENTREON choice, provided that
- * CENTREON also meet, for each linked independent module, the terms  and conditions
+ * distribute the resulting executable under terms of Centreon choice, provided that
+ * Centreon also meet, for each linked independent module, the terms  and conditions
  * of the license of that module. An independent module is a module which is not
  * derived from this program. If you modify this program, you may extend this
  * exception to your version of the program, but you are not obliged to do so. If you
@@ -34,7 +34,7 @@
  *
  */
 
-function getColors($db)
+function getColors($db): array
 {
     $stateColors = array(
         0 => "#88b917",
@@ -60,7 +60,7 @@ function getColors($db)
     return $stateColors;
 }
 
-function getLabels()
+function getLabels(): array
 {
     return array(
         0 => "Up",

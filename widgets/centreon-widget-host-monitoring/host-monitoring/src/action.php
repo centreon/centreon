@@ -20,11 +20,11 @@
  * combined work based on this program. Thus, the terms and conditions of the GNU
  * General Public License cover the whole combination.
  *
- * As a special exception, the copyright holders of this program give CENTREON
+ * As a special exception, the copyright holders of this program give Centreon
  * permission to link this program with independent modules to produce an executable,
  * regardless of the license terms of these independent modules, and to copy and
- * distribute the resulting executable under terms of CENTREON choice, provided that
- * CENTREON also meet, for each linked independent module, the terms  and conditions
+ * distribute the resulting executable under terms of Centreon choice, provided that
+ * Centreon also meet, for each linked independent module, the terms  and conditions
  * of the license of that module. An independent module is a module which is not
  * derived from this program. If you modify this program, you may extend this
  * exception to your version of the program, but you are not obliged to do so. If you
@@ -218,17 +218,17 @@ try {
     var result = <?php echo $result;?>;
     var successMsg = "<?php echo $successMsg;?>";
 
-    jQuery(function() {
+    jQuery(function () {
         if (result) {
             jQuery("#result").html(successMsg);
             setTimeout('closeBox()', 2000);
         }
-        jQuery("#submit").click(function() {
+        jQuery("#submit").click(function () {
             sendCmd();
         });
         jQuery("#submit").button();
         toggleDurationField();
-        jQuery("[name=fixed]").click(function() {
+        jQuery("[name=fixed]").click(function () {
             toggleDurationField();
         });
 
@@ -247,13 +247,11 @@ try {
         updateDateAndTime();
     });
 
-    function closeBox()
-    {
+    function closeBox() {
         jQuery('#WidgetDowntime').centreonPopin('close');
     }
 
-    function sendCmd()
-    {
+    function sendCmd() {
         fieldResult = true;
         if (jQuery("#comment") && !jQuery("#comment").val()) {
             fieldResult = false;
@@ -263,18 +261,17 @@ try {
             return false;
         }
         jQuery.ajax({
-            type : "POST",
-            url : "./widgets/host-monitoring/src/sendCmd.php",
-            data : jQuery("#Form").serialize(),
-            success : function() {
+            type: "POST",
+            url: "./widgets/host-monitoring/src/sendCmd.php",
+            data: jQuery("#Form").serialize(),
+            success: function () {
                 jQuery("#result").html(successMsg);
                 setTimeout('closeBox()', 2000);
             }
-       });
+        });
     }
 
-    function toggleDurationField()
-    {
+    function toggleDurationField() {
         if (jQuery("[name=fixed]").is(':checked')) {
             jQuery("[name=duration]").attr('disabled', true);
             jQuery("[name=duration_scale]").attr('disabled', true);

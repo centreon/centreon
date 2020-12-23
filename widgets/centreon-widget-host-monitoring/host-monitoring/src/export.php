@@ -20,11 +20,11 @@
  * combined work based on this program. Thus, the terms and conditions of the GNU
  * General Public License cover the whole combination.
  *
- * As a special exception, the copyright holders of this program give CENTREON
+ * As a special exception, the copyright holders of this program give Centreon
  * permission to link this program with independent modules to produce an executable,
  * regardless of the license terms of these independent modules, and to copy and
- * distribute the resulting executable under terms of CENTREON choice, provided that
- * CENTREON also meet, for each linked independent module, the terms  and conditions
+ * distribute the resulting executable under terms of Centreon choice, provided that
+ * Centreon also meet, for each linked independent module, the terms  and conditions
  * of the license of that module. An independent module is a module which is not
  * derived from this program. If you modify this program, you may extend this
  * exception to your version of the program, but you are not obliged to do so. If you
@@ -69,7 +69,7 @@ $widgetId = filter_input(INPUT_GET, 'widgetId', FILTER_VALIDATE_INT, ['options' 
 /**
  * Sanitize and concatenate selected resources for the query
  */
- // Check returned list and make an array of it
+// Check returned list and make an array of it
 if (false !== strpos($_GET['list'], ',')) {
     $exportList = explode(',', $_GET['list']);
 } else {
@@ -79,7 +79,7 @@ $mainQueryParameters = [];
 $hostQuery = '';
 // Check consistency, sanitize and bind values
 foreach ($exportList as $key => $hostId) {
-    if (0 === (int) $hostId) {
+    if (0 === (int)$hostId) {
         // skip non consistent dat
         continue;
     }
@@ -89,7 +89,7 @@ foreach ($exportList as $key => $hostId) {
     $hostQuery .= ':' . $key . 'host' . $hostId;
     $mainQueryParameters[] = [
         'parameter' => ':' . $key . 'host' . $hostId,
-        'value' => (int) $hostId,
+        'value' => (int)$hostId,
         'type' => \PDO::PARAM_INT
     ];
 }
@@ -209,7 +209,7 @@ if (isset($preferences['state_type_filter']) && $preferences['state_type_filter'
 
 if (isset($preferences['hostgroup']) && $preferences['hostgroup']) {
     $results = explode(',', $preferences['hostgroup']);
-    $queryHg ='';
+    $queryHg = '';
     foreach ($results as $result) {
         if ($queryHg != '') {
             $queryHg .= ', ';
@@ -217,7 +217,7 @@ if (isset($preferences['hostgroup']) && $preferences['hostgroup']) {
         $queryHg .= ":id_" . $result;
         $mainQueryParameters[] = [
             'parameter' => ':id_' . $result,
-            'value' => (int) $result,
+            'value' => (int)$result,
             'type' => \PDO::PARAM_INT
         ];
     }
@@ -236,7 +236,7 @@ if (!empty($preferences['display_severities']) && !empty($preferences['criticali
         if ($labels != '') {
             $labels .= ',';
         }
-        $labels .= ":id_". $p;
+        $labels .= ":id_" . $p;
         $mainQueryParameters[] = [
             'parameter' => ':id_' . $p,
             'value' => (int)$p,
@@ -286,7 +286,7 @@ while ($row = $res->fetch()) {
             $value = time() - $value;
             $value = CentreonDuration::toString($value);
         } elseif ($key == 'check_attempt') {
-            $value = $value . '/' . $row['max_check_attempts']. ' ('.$aStateType[$row['state_type']].')';
+            $value = $value . '/' . $row['max_check_attempts'] . ' (' . $aStateType[$row['state_type']] . ')';
         } elseif ($key == 'state') {
             $value = $stateLabels[$value];
         } elseif ($key == 'output') {
