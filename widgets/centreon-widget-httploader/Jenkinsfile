@@ -41,6 +41,53 @@ stage('Source') {
 }
 
 try {
+  stage('Unit tests') {
+    parallel 'centos7': {
+      node {
+        sh 'setup_centreon_build.sh'
+        sh "./centreon-build/jobs/widgets/${serie}/widget-unittest.sh centos7"
+        if (currentBuild.result == 'UNSTABLE')
+          currentBuild.result = 'FAILURE'
+
+        if (env.CHANGE_ID) { // pull request to comment with coding style issues
+          ViolationsToGitHub([
+            repositoryName: 'centreon-widget-httploader',
+            pullRequestId: env.CHANGE_ID,
+
+            createSingleFileComments: true,
+            commentOnlyChangedContent: true,
+            commentOnlyChangedFiles: true,
+            keepOldComments: false,
+
+            commentTemplate: "**{{violation.severity}}**: {{violation.message}}",
+
+            violationConfigs: [
+              [parser: 'CHECKSTYLE', pattern: '.*/codestyle-be.xml$', reporter: 'Checkstyle']
+            ]
+          ])
+        }
+
+        recordIssues(
+          enabledForFailure: true,
+          failOnError: true,
+          qualityGates: [[threshold: 1, type: 'DELTA', unstable: false]],
+          tool: phpCodeSniffer(id: 'phpcs', name: 'phpcs', pattern: 'codestyle-be.xml'),
+          trendChartType: 'NONE',
+          referenceJobName: 'centreon-widget-httploader/master'
+        )
+
+        if ((env.BUILD == 'RELEASE') || (env.BUILD == 'REFERENCE')) {
+          withSonarQubeEnv('SonarQube') {
+            sh "./centreon-build/jobs/widgets/${serie}/widget-analysis.sh"
+          }
+        }
+      }
+    }
+    if ((currentBuild.result ?: 'SUCCESS') != 'SUCCESS') {
+      error('Unit tests stage failure.');
+    }
+  }
+
   stage('Package') {
     parallel 'centos7': {
       node {
@@ -74,7 +121,7 @@ try {
   if ((env.BUILD == 'RELEASE') || (env.BUILD == 'REFERENCE')) {
     slackSend channel: "#monitoring-metrology",
         color: "#F30031",
-        message: "*FAILURE*: `CENTREON WIDGET HTTPLOADER` <${env.BUILD_URL}|build #${env.BUILD_NUMBER}> on branch ${env.BRANCH_NAME}\n" +
+        message: "*FAILURE*: `CENTREON WIDGET HTTP LOADER` <${env.BUILD_URL}|build #${env.BUILD_NUMBER}> on branch ${env.BRANCH_NAME}\n" +
             "*COMMIT*: <https://github.com/centreon/centreon-widget-httploader/commit/${source.COMMIT}|here> by ${source.COMMITTER}\n" +
             "*INFO*: ${e}"
   }
