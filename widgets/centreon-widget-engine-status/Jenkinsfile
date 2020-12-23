@@ -48,11 +48,6 @@ try {
         sh "./centreon-build/jobs/widgets/${serie}/widget-unittest.sh centos7"
         if (currentBuild.result == 'UNSTABLE')
           currentBuild.result = 'FAILURE'
-        step([
-          $class: 'CloverPublisher',
-          cloverReportDir: '.',
-          cloverReportFileName: 'coverage-be.xml'
-        ])
 
         if (env.CHANGE_ID) { // pull request to comment with coding style issues
           ViolationsToGitHub([
@@ -80,6 +75,7 @@ try {
           tools: [
             checkStyle(pattern: 'codestyle-be.xml')
           ],
+          trendChartType: 'NONE',
           referenceJobName: 'centreon-widget-engine-status/master'
         )
 
