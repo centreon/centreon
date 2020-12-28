@@ -293,7 +293,7 @@ sub is_client_can_connect {
     my $plaintext;
 
     if ($options{message} !~ /\[(.+)\]\s+\[(.+)\]\s+\[(.+)\]$/ms) {
-        $options{logger}->writeLogError("[core] Decoding issue. Protocol not good");
+        $options{logger}->writeLogError("[core] Decoding issue. Protocol not good: $options{message}");
         return -1;
     }
 
@@ -842,8 +842,16 @@ sub zmq_read_message {
 
     # Process all parts of the message
     my $message = zmq_recvmsg($options{socket});
+    if (!defined($message)) {
+        $options{logger}->writeLogError("[core] zmq_recvmsg error: $!");
+        return undef;
+    }
     my $identity = zmq_msg_data($message);
     $message = zmq_recvmsg($options{socket});
+    if (!defined($message)) {
+        $options{logger}->writeLogError("[core] zmq_recvmsg error: $!");
+        return undef;
+    }
     my $data = zmq_msg_data($message);
 
     return (unpack('H*', $identity), $data);

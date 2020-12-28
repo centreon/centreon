@@ -167,6 +167,7 @@ sub create_child {
         $0 = 'gorgone-dbcleaner';
         my $module = gorgone::modules::core::dbcleaner::class->new(
             logger => $options{logger},
+            module_id => NAME,
             config_core => $config_core,
             config => $config,
         );

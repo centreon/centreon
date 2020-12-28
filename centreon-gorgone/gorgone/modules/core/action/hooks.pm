@@ -158,6 +158,7 @@ sub create_child {
         $0 = 'gorgone-action';
         my $module = gorgone::modules::core::action::class->new(
             logger => $options{logger},
+            module_id => NAME,
             config_core => $config_core,
             config => $config,
         );

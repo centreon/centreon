@@ -162,6 +162,7 @@ sub create_child {
         $0 = 'gorgone-register';
         my $module = gorgone::modules::core::register::class->new(
             logger => $options{logger},
+            module_id => NAME,
             config_core => $config_core,
             config => $config,
         );

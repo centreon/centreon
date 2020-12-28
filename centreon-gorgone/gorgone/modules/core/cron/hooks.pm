@@ -160,6 +160,7 @@ sub create_child {
         $0 = 'gorgone-cron';
         my $module = gorgone::modules::core::cron::class->new(
             logger => $options{logger},
+            module_id => NAME,
             config_core => $config_core,
             config => $config,
         );

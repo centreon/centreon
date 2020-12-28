@@ -29,6 +29,8 @@ use gorgone::standard::misc;
 use gorgone::class::tpapi;
 use JSON::XS;
 
+my %handlers = (DIE => {});
+
 sub new {
     my ($class, %options) = @_;
     my $self  = {};
@@ -48,7 +50,24 @@ sub new {
     $self->{tpapi} = gorgone::class::tpapi->new();
     $self->{tpapi}->load_configuration(configuration => $options{config_core}->{tpapi});
 
+    $SIG{__DIE__} = \&class_handle_DIE;
+    $handlers{DIE}->{$self} = sub { $self->handle_DIE($_[0]) };
+
     return $self;
+}
+
+sub class_handle_DIE {
+    my ($msg) = @_;
+
+    foreach (keys %{$handlers{DIE}}) {
+        &{$handlers{DIE}->{$_}}($msg);
+    }
+}
+
+sub handle_DIE {
+    my ($self, $msg) = @_;
+
+    $self->{logger}->writeLogError("[$self->{module_id}] Receiving DIE: $msg");
 }
 
 sub generate_token {

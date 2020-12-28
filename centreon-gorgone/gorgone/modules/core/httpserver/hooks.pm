@@ -168,6 +168,7 @@ sub create_child {
         $0 = 'gorgone-httpserver';
         my $module = gorgone::modules::core::httpserver::class->new(
             logger => $options{logger},
+            module_id => NAME,
             config_core => $config_core,
             config => $config,
             api_endpoints => $options{api_endpoints}

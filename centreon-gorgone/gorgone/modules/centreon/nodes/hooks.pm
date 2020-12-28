@@ -160,6 +160,7 @@ sub create_child {
         $0 = 'gorgone-nodes';
         my $module = gorgone::modules::centreon::nodes::class->new(
             logger => $options{logger},
+            module_id => NAME,
             config_core => $config_core,
             config => $config,
             config_db_centreon => $config_db_centreon,
