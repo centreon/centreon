@@ -92,7 +92,7 @@ sub exit_process {
 sub read_message {
     my (%options) = @_;
 
-    return undef if (!defined($options{identity}) || $options{identity} !~ /^proxy-(.*?)-(.*?)$/);
+    return undef if (!defined($options{identity}) || $options{identity} !~ /^gorgone-proxy-(.*?)-(.*?)$/);
 
     my ($client_identity) = ($2);
     if ($options{data} =~ /^\[PONG\]/) {
@@ -148,7 +148,7 @@ sub connect {
 
     if ($self->{clients}->{$options{id}}->{type} eq 'push_zmq') {
         $self->{clients}->{$options{id}}->{class} = gorgone::class::clientzmq->new(
-            identity => 'proxy-' . $self->{core_id} . '-' . $options{id}, 
+            identity => 'gorgone-proxy-' . $self->{core_id} . '-' . $options{id}, 
             cipher => $self->{clients}->{$options{id}}->{cipher}, 
             vector => $self->{clients}->{$options{id}}->{vector},
             client_pubkey => 
@@ -433,7 +433,7 @@ sub run {
     # Connect internal
     $self->{internal_socket} = gorgone::standard::library::connect_com(
         zmq_type => 'ZMQ_DEALER',
-        name => 'gorgoneproxy-' . $self->{pool_id},
+        name => 'gorgone-proxy-' . $self->{pool_id},
         logger => $self->{logger},
         type => $self->{config_core}->{internal_com_type},
         path => $self->{config_core}->{internal_com_path}

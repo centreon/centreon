@@ -294,7 +294,7 @@ sub routing {
 
         gorgone::standard::library::zmq_send_message(
             socket => $options{socket},
-            identity => 'gorgoneproxy-' . $identity,
+            identity => 'gorgone-proxy-' . $identity,
             action => $action,
             data => $data,
             token => $options{token},
@@ -442,7 +442,7 @@ sub broadcast {
 
         gorgone::standard::library::zmq_send_message(
             socket => $options{socket},
-            identity => 'gorgoneproxy-' . $pool_id,
+            identity => 'gorgone-proxy-' . $pool_id,
             action => $options{action},
             data => $options{data},
             token => $options{token},

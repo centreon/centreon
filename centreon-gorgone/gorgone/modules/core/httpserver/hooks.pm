@@ -103,7 +103,7 @@ sub routing {
     
     gorgone::standard::library::zmq_send_message(
         socket => $options{socket},
-        identity => 'gorgonehttpserver',
+        identity => 'gorgone-httpserver',
         action => $options{action},
         data => $options{data},
         token => $options{token},

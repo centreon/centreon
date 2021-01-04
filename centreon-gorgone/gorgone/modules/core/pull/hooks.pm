@@ -51,14 +51,14 @@ sub init {
     # Connect internal
     $socket_to_internal = gorgone::standard::library::connect_com(
         zmq_type => 'ZMQ_DEALER',
-        name => 'gorgonepull',
+        name => 'gorgone-pull',
         logger => $options{logger},
         type => $config_core->{internal_com_type},
         path => $config_core->{internal_com_path},
         zmq_linger => $config->{linger}
     );
     $client = gorgone::class::clientzmq->new(
-        identity => $config_core->{id}, 
+        identity => 'gorgone-' . $config_core->{id}, 
         cipher => $config->{cipher}, 
         vector => $config->{vector},
         client_pubkey => 

@@ -110,7 +110,7 @@ sub routing {
     }
     
     gorgone::standard::library::zmq_send_message(
-        socket => $options{socket}, identity => 'gorgonenewtest-' . $data->{container_id},
+        socket => $options{socket}, identity => 'gorgone-newtest-' . $data->{container_id},
         action => $options{action}, data => $options{data}, token => $options{token},
     );
 }
@@ -175,7 +175,7 @@ sub broadcast {
     foreach my $container_id (keys %$containers) {
         if ($containers->{$container_id}->{running} == 1) {
             gorgone::standard::library::zmq_send_message(
-                socket => $options{socket}, identity => 'gorgonenewtest-' . $container_id,
+                socket => $options{socket}, identity => 'gorgone-newtest-' . $container_id,
                 action => $options{action}, data => $options{data}, token => $options{token}
             );
         }

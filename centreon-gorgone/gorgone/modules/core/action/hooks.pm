@@ -91,7 +91,7 @@ sub routing {
     
     gorgone::standard::library::zmq_send_message(
         socket => $options{socket},
-        identity => 'gorgoneaction',
+        identity => 'gorgone-action',
         action => $options{action},
         data => $options{data},
         token => $options{token},

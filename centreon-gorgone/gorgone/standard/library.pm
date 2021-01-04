@@ -847,6 +847,11 @@ sub zmq_read_message {
         return undef;
     }
     my $identity = zmq_msg_data($message);
+    $identity = defined($identity) ? $identity  : 'undef';
+    if ($identity !~ /^gorgone-/) {
+        $options{logger}->writeLogError("[core] unknown identity: $identity");
+        return undef;
+    }
     $message = zmq_recvmsg($options{socket});
     if (!defined($message)) {
         $options{logger}->writeLogError("[core] zmq_recvmsg error: $!");

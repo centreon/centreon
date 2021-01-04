@@ -243,7 +243,7 @@ sub run {
     # Connect internal
     $connector->{internal_socket} = gorgone::standard::library::connect_com(
         zmq_type => 'ZMQ_DEALER',
-        name => 'gorgonenodes',
+        name => 'gorgone-nodes',
         logger => $self->{logger},
         type => $self->{config_core}->{internal_com_type},
         path => $self->{config_core}->{internal_com_path}
