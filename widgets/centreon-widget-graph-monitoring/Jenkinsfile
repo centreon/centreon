@@ -71,9 +71,7 @@ try {
           enabledForFailure: true,
           failOnError: true,
           qualityGates: [[threshold: 1, type: 'DELTA', unstable: false]],
-          tools: [
-            checkStyle(pattern: 'codestyle-be.xml')
-          ],
+          tool: phpCodeSniffer(id: 'phpcs', name: 'phpcs', pattern: 'codestyle-be.xml'),
           trendChartType: 'NONE',
           referenceJobName: 'centreon-widget-graph-monitoring/master'
         )
