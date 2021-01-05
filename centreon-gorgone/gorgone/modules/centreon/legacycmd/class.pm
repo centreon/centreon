@@ -46,10 +46,15 @@ sub new {
     if (!defined($connector->{config}->{cmd_dir}) || $connector->{config}->{cmd_dir} eq '') {
         $connector->{config}->{cmd_dir} = '/var/lib/centreon/centcore/';
     }
+    $connector->{config}->{bulk_external_cmd} =
+        defined($connector->{config}->{bulk_external_cmd}) && $connector->{config}->{bulk_external_cmd} =~ /(\d+)/ ? $1 : 50;
+    $connector->{config}->{bulk_external_cmd_sequential} =
+        defined($connector->{config}->{bulk_external_cmd_sequential}) && $connector->{config}->{bulk_external_cmd_sequential} =~ /^False|0$/i ? 0 : 1;
     $connector->{config}->{dirty_mode} = defined($connector->{config}->{dirty_mode}) ? $connector->{config}->{dirty_mode} : 1;
     $connector->{gorgone_illegal_characters} = '`';
     $connector->{cache_refresh_interval} = 60;
     $connector->{cache_refresh_last} = -1;
+    $connector->{bulk_commands} = {};
 
     $connector->set_signal_handlers();
     return $connector;
@@ -158,6 +163,66 @@ sub check_pollers_config {
     return defined($self->{pollers}) ? 1 : 0;
 }
 
+sub send_external_commands {
+    my ($self, %options) = @_;
+    my $token = $options{token};
+    $token = $self->generate_token() if (!defined($token));
+
+    my $targets = [];
+    $targets = [$options{target}] if (defined($options{target}));
+    if (scalar(@$targets) <= 0) {
+        $targets = [keys %{$self->{bulk_commands}}];
+    }
+
+    foreach my $target (@$targets) {
+        next if (!defined($self->{bulk_commands}->{$target}) || scalar(@{$self->{bulk_commands}->{$target}}) <= 0);
+        $self->send_internal_action(
+            action => 'ENGINECOMMAND',
+            target => $target,
+            token => $token,
+            data => {
+                content => {
+                    command_file => $self->{pollers}->{$target}->{command_file},
+                    commands => [
+                        join("\n", @{$self->{bulk_commands}->{$target}})
+                    ]
+                }
+            }
+        );
+
+        $self->{logger}->writeLogDebug("[legacycmd] send external commands for '$target'");
+        $self->{bulk_commands}->{$target} = [];
+    }
+}
+
+sub add_external_command {
+    my ($self, %options) = @_;
+
+    $options{param} =~ s/[\Q$self->{gorgone_illegal_characters}\E]//g
+        if (defined($self->{gorgone_illegal_characters}) && $self->{gorgone_illegal_characters} ne '');
+    if ($options{action} == 1) {
+        $self->send_internal_action(
+            action => 'ENGINECOMMAND',
+            target => $options{target},
+            token => $options{token},
+            data => {
+                content => {
+                    command_file => $self->{pollers}->{ $options{target} }->{command_file},
+                    commands => [
+                        $options{param}
+                    ]
+                }
+            }
+        );
+    } else {
+        $self->{bulk_commands}->{ $options{target} } = [] if (!defined($self->{bulk_commands}->{ $options{target} }));
+        push @{$self->{bulk_commands}->{ $options{target} }}, $options{param};
+        if (scalar(@{$self->{bulk_commands}->{ $options{target} }}) > $self->{config}->{bulk_external_cmd}) {
+            $self->send_external_commands(%options);
+        }
+    }
+}
+
 sub execute_cmd {
     my ($self, %options) = @_;
 
@@ -172,22 +237,19 @@ sub execute_cmd {
     $self->{logger}->writeLogInfo($msg);
 
     if ($options{cmd} eq 'EXTERNALCMD') {
-        $options{param} =~ s/[\Q$self->{gorgone_illegal_characters}\E]//g
-            if (defined($self->{gorgone_illegal_characters}) && $self->{gorgone_illegal_characters} ne '');
-        $self->send_internal_action(
-            action => 'ENGINECOMMAND',
+        $self->add_external_command(
+            action => $options{action},
+            param => $options{param},
             target => $options{target},
-            token => $token,
-            data => {
-                content => {
-                    command_file => $self->{pollers}->{$options{target}}->{command_file},
-                    commands => [
-                        $options{param}
-                    ]
-                }
-            },
+            token => $options{token}
         );
-    } elsif ($options{cmd} eq 'SENDCFGFILE') {
+        return 0;
+    }
+
+    $self->send_external_commands(target => $options{target})
+        if (defined($options{target}) && $self->{config}->{bulk_external_cmd_sequential} == 1);
+
+    if ($options{cmd} eq 'SENDCFGFILE') {
         my $cache_dir = (defined($connector->{config}->{cache_dir}) && $connector->{config}->{cache_dir} ne '') ?
             $connector->{config}->{cache_dir} : '/var/cache/centreon';
         # engine
@@ -547,7 +609,7 @@ sub handle_file {
         }
 
         if ($line =~ /^(.*?):([^:]*)(?::(.*)){0,1}/) {
-            $self->execute_cmd(cmd => $1, target => $2, param => $3);
+            $self->execute_cmd(action => 0, cmd => $1, target => $2, param => $3);
             if ($self->{config}->{dirty_mode} != 1) {
                 my $current_pos = tell($handle);
                 seek($handle, $current_pos - bytes::length($line), 0);
@@ -615,6 +677,7 @@ sub handle_cmd_files {
     return if ($self->check_pollers_config() == 0);
     $self->handle_centcore_cmd();
     $self->handle_centcore_dir();
+    $self->send_external_commands();
 }
 
 sub action_centreoncommand {
@@ -642,6 +705,7 @@ sub action_centreoncommand {
 
     foreach my $command (@{$options{data}->{content}}) {
         my ($code, $message) = $self->execute_cmd(
+            action => 1,
             token => $options{token},
             target => $command->{target},
             cmd => $command->{command},
