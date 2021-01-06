@@ -20,6 +20,7 @@
  */
 
 class Centreon_OpenTickets_Request
+
 {
     /**
      *
@@ -45,7 +46,7 @@ class Centreon_OpenTickets_Request
 
         if (isset($_POST)) {
             foreach ($_POST as $key => $value) {
-                $this->_postVar[$key] = $value;
+                   $this->_postVar[$key] = $value;
             }
         }
 
@@ -64,7 +65,8 @@ class Centreon_OpenTickets_Request
      */
     public function getParam($index)
     {
-        if (isset($this->_getVar[$index])) {
+        if (
+            isset($this->_getVar[$index])) {
             return $this->_getVar[$index];
         }
         if (isset($this->_postVar[$index])) {

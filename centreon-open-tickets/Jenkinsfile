@@ -33,15 +33,56 @@ stage('Source') {
       reportName: 'Centreon Open Tickets Build Artifacts',
       reportTitles: ''
     ])
-    if ((env.BUILD == 'RELEASE') || (env.BUILD == 'REFERENCE')) {
-      withSonarQubeEnv('SonarQube') {
-        sh "./centreon-build/jobs/open-tickets/${serie}/mon-open-tickets-analysis.sh"
-      }
-    }
   }
 }
 
 try {
+  stage('Unit tests') {
+    parallel 'centos7': {
+      node {
+        sh 'setup_centreon_build.sh'
+        sh "./centreon-build/jobs/open-tickets/${serie}/mon-open-tickets-unittest.sh centos7"
+        if (currentBuild.result == 'UNSTABLE')
+          currentBuild.result = 'FAILURE'
+
+        if (env.CHANGE_ID) { // pull request to comment with coding style issues
+          ViolationsToGitHub([
+            repositoryName: 'centreon-open-tickets',
+            pullRequestId: env.CHANGE_ID,
+
+            createSingleFileComments: true,
+            commentOnlyChangedContent: true,
+            commentOnlyChangedFiles: true,
+            keepOldComments: false,
+
+            commentTemplate: "**{{violation.severity}}**: {{violation.message}}",
+
+            violationConfigs: [
+              [parser: 'CHECKSTYLE', pattern: '.*/codestyle-be.xml$', reporter: 'Checkstyle']
+            ]
+          ])
+        }
+
+        recordIssues(
+          enabledForFailure: true,
+          qualityGates: [[threshold: 1, type: 'DELTA', unstable: false]],
+          tool: phpCodeSniffer(id: 'phpcs', name: 'phpcs', pattern: 'codestyle-be.xml'),
+          trendChartType: 'NONE',
+          referenceJobName: 'centreon-open-tickets/master'
+        )
+
+        if ((env.BUILD == 'RELEASE') || (env.BUILD == 'REFERENCE')) {
+          withSonarQubeEnv('SonarQube') {
+            sh "./centreon-build/jobs/open-tickets/${serie}/mon-open-tickets-analysis.sh"
+          }
+        }
+      }
+    }
+    if ((currentBuild.result ?: 'SUCCESS') != 'SUCCESS') {
+      error('Unit tests stage failure.');
+    }
+  }
+
   stage('Package') {
     parallel 'centos7': {
       node {
