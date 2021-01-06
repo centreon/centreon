@@ -19,6 +19,6 @@
     </rule>
     <rule ref="PSR1.Classes.ClassDeclaration.MissingNamespace">
         <exclude-pattern>widgets/open-tickets</exclude-pattern>
-        <exclude-pattern>www/class</exclude-pattern>
+        <exclude-pattern>www</exclude-pattern>
     </rule>
 </ruleset>

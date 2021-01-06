@@ -22,7 +22,7 @@
 require_once './modules/centreon-open-tickets/centreon-open-tickets.conf.php';
 
 $db = new CentreonDBManager();
-$request = new Centreon_OpenTickets_Request();
+$request = new CentreonOpenTicketsRequest();
 $rule = new Centreon_OpenTickets_Rule($db);
 
 $o = $request->getParam('o');
