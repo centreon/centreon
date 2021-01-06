@@ -118,7 +118,7 @@ const Panel = ({
 
     const getResizedWidth = (): number => {
       if (newWidth <= minWidth) {
-        return width;
+        return minWidth;
       }
 
       if (newWidth > maxWidth) {
