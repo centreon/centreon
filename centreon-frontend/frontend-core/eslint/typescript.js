@@ -4,7 +4,7 @@ module.exports = {
   ],
   overrides: [
     {
-      files: ["*.ts", "*.tsx"],
+      files: ['*.ts', '*.tsx'],
       extends: ['plugin:@typescript-eslint/recommended'],
       parser: '@typescript-eslint/parser',
       plugins: ['@typescript-eslint'],
@@ -42,12 +42,12 @@ module.exports = {
           },
         ],
         '@typescript-eslint/prefer-function-type': 'error',
-        "@typescript-eslint/consistent-type-definitions": ["error", "interface"],
-        '@typescript-eslint/array-type': ["error", {
-          "default" : "generic",
-          "readonly": "generic"
+        '@typescript-eslint/consistent-type-definitions': ['error', 'interface'],
+        '@typescript-eslint/array-type': ['error', {
+          'default' : 'generic',
+          'readonly': 'generic'
         }],
-        '@typescript-eslint/explicit-member-accessibility': ["error", {
+        '@typescript-eslint/explicit-member-accessibility': ['error', {
           accessibility: 'explicit',
           overrides: {
             accessors: 'explicit',
@@ -60,6 +60,9 @@ module.exports = {
         '@typescript-eslint/no-unused-expressions': ['error'],
         'no-unused-expressions': 'off',
         'react/require-default-props': 'off',
+        'no-shadow': 'off',
+        '@typescript-eslint/no-shadow': ['error'],
+        'no-unused-vars': ['error', { 'vars': 'all', 'args': 'all', 'ignoreRestSiblings': false, 'argsIgnorePattern': '^_$' }]
       },
     }
   ]
