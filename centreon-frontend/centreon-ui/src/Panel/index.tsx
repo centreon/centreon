@@ -1,6 +1,7 @@
 import * as React from 'react';
 
 import { isEmpty } from 'ramda';
+import { isNil } from 'lodash';
 
 import {
   makeStyles,
@@ -22,6 +23,8 @@ const useStyles = makeStyles<Theme, StylesProps>((theme) => ({
     height: '100%',
     display: 'grid',
     gridTemplate: 'auto auto 1fr / 1fr',
+    overflow: 'hidden',
+    width: ({ width }) => width,
   },
   header: {
     gridArea: '1 / 1 / 2 / 1',
@@ -39,7 +42,6 @@ const useStyles = makeStyles<Theme, StylesProps>((theme) => ({
     display: 'grid',
     gridTemplateRows: 'auto 1fr',
     height: '100%',
-    width: ({ width }) => width,
   },
   contentContainer: {
     backgroundColor: theme.palette.background.default,
@@ -52,6 +54,15 @@ const useStyles = makeStyles<Theme, StylesProps>((theme) => ({
     right: 0,
     top: 0,
     overflow: 'auto',
+  },
+  dragger: {
+    cursor: 'ew-resize',
+    position: 'absolute',
+    bottom: 0,
+    right: ({ width }) => width,
+    top: 0,
+    width: 5,
+    zIndex: theme.zIndex.drawer,
   },
 }));
 
@@ -69,7 +80,9 @@ interface Props {
   onClose?: () => void;
   labelClose?: string;
   width?: number;
+  minWidth?: number;
   headerBackgroundColor?: string;
+  onResize?: (newWidth: number) => void;
 }
 
 const Panel = ({
@@ -81,9 +94,42 @@ const Panel = ({
   onTabSelect = () => undefined,
   labelClose = 'Close',
   width = 550,
+  minWidth = 550,
   headerBackgroundColor,
+  onResize,
 }: Props): JSX.Element => {
   const classes = useStyles({ width, headerBackgroundColor });
+
+  const resize = () => {
+    document.addEventListener('mouseup', releaseMouse, true);
+    document.addEventListener('mousemove', moveMouse, true);
+  };
+
+  const releaseMouse = () => {
+    document.removeEventListener('mouseup', releaseMouse, true);
+    document.removeEventListener('mousemove', moveMouse, true);
+  };
+
+  const moveMouse = React.useCallback((e) => {
+    e.preventDefault();
+
+    const maxWidth = window.innerWidth * 0.85;
+    const newWidth = document.body.clientWidth - e.clientX;
+
+    const getResizedWidth = (): number => {
+      if (newWidth <= minWidth) {
+        return width;
+      }
+
+      if (newWidth > maxWidth) {
+        return maxWidth;
+      }
+
+      return newWidth;
+    };
+
+    onResize?.(getResizedWidth());
+  }, []);
 
   return (
     <Slide
@@ -95,6 +141,9 @@ const Panel = ({
       }}
     >
       <Paper elevation={2} className={classes.container}>
+        {!isNil(onResize) && (
+          <div className={classes.dragger} onMouseDown={resize} role="none" />
+        )}
         {header && (
           <>
             <div className={classes.header}>

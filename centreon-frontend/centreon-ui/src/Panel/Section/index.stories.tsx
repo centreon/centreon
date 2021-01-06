@@ -17,7 +17,9 @@ const PanelWithHeader = ({
   secondaryPanel = undefined,
   loading = false,
 }: Props): JSX.Element => (
-  <div style={{ height: '100vh' }}>
+  <div
+    style={{ height: '100vh', display: 'flex', flexDirection: 'row-reverse' }}
+  >
     <Panel
       header={<Typography>Header</Typography>}
       sections={sections}

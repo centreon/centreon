@@ -11,7 +11,7 @@ const useStyles = makeStyles<Theme>((theme) => {
       display: 'grid',
       gridTemplateRows: 'auto 1fr',
       backgroundColor: theme.palette.background.default,
-      overflowY: 'hidden',
+      overflow: 'hidden',
     },
     filters: {
       zIndex: 4,
