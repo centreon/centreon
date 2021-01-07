@@ -1,6 +1,7 @@
 <?php
+
 /**
- * Copyright 2018 Centreon
+ * Copyright 2021 Centreon
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,8 +27,7 @@ class ZipAndDownload
     public function __construct($fileNames, $filePath = '/tmp', $fileExtension = '.txt')
     {
         $archivePath = $filePath . '/' . $fileNames . '.zip';
-        $filePath = $filePath . '/' . $fileNames . $fileExtension;
-        //echo $file_path;die;
+        $filePath .= '/' . $fileNames . $fileExtension;
         $zip = new ZipArchive();
         //create the file and throw the error if unsuccessful
         if ($zip->open($archivePath, ZIPARCHIVE::CREATE) !== true) {

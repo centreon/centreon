@@ -1,6 +1,7 @@
 <?php
+
 /**
- * Copyright 2018 Centreon
+ * Copyright 2021 Centreon
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,7 +40,7 @@ class Export
         $this->tmpName = 'centreon-clapi-export-' . time();
         $this->tmpFile = '/tmp/' . $this->tmpName . '.txt';
     }
-    
+
     /**
      * @param $type
      * @return array
@@ -63,7 +64,6 @@ class Export
         }
         return $cmdScript;
     }
-
 
     /**
      * @param $value
@@ -93,10 +93,7 @@ class Export
             $result = $this->generateObject('ENGINECFG');
             $cmdScript['result'] .= $result['result'];
             $cmdScript['error'] .= $result['error'];
-
-
         } elseif (!empty($value['INSTANCE_filter'])) {
-
             $query = 'SELECT `id` FROM `nagios_server` WHERE `name` = "' . $value['INSTANCE_filter'] . '"';
             $res = $this->db->query($query);
             $pollerId = null;
@@ -109,7 +106,7 @@ class Export
             $result = $this->generateObject('INSTANCE', $filter);
             $cmdScript['result'] = $result['result'];
             $cmdScript['error'] = $result['error'];
-            
+
             // check is missed pollerId
             if ($pollerId === null) {
                 return $cmdScript;
@@ -175,7 +172,7 @@ class Export
             }
         }
     }
-    
+
     /**
      * @param $object
      * @param string $filter

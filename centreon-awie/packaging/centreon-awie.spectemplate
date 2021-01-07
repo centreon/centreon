@@ -1,5 +1,5 @@
 ##
-## Copyright 2016-2020 Centreon
+## Copyright 2016-2021 Centreon
 ##
 ## All rights reserved.
 ##
@@ -11,8 +11,8 @@ Name:           centreon-awie
 Version:        @VERSION@
 Release:        @RELEASE@%{?dist}
 Summary:        Centreon API Web Import Export
-%define thismajor 20.10.0
-%define nextmajor 20.11.0
+%define thismajor 21.04.0
+%define nextmajor 21.05.0
 
 Group:          Applications/System
 License:        Proprietary
@@ -57,5 +57,7 @@ rm -rf $RPM_BUILD_ROOT
 %attr(-,apache,apache) %{centreon_www}/modules/%{name}
 
 %changelog
+* Wed Jan 6 2021 sc979 <schapron@centreon.com> 21.04.0
+- Centreon AWIE 21.04.0
 * Wed Aug 16 2017 Loic Laurent <llaurent@centreon.com> 1.0.0-1
 - Centreon AWIE 1.0.

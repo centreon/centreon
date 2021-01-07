@@ -1,6 +1,7 @@
 <?php
+
 /*
-** Copyright 2018 Centreon
+** Copyright 2021 Centreon
 **
 ** All rights reserved.
 */
@@ -9,9 +10,8 @@ use Centreon\Test\Behat\CentreonContext;
 
 class CentreonAwieContext extends CentreonContext
 {
-
     /**
-     *  @Given I am logged in a Centreon server with Awie installed
+     * @Given I am logged in a Centreon server with Awie installed
      */
     public function iAmLoggedInACentreonServerWithAWIEInstalled()
     {

@@ -1,6 +1,7 @@
 <?php
-/**
- * Copyright 2018 Centreon
+
+/*
+ * Copyright 2021 Centreon
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +16,7 @@
  * limitations under the License.
  */
 
-$currentPath = dirname(__FILE__);
+$currentPath = __DIR__;
 
 if (!defined('_MODULE_PATH_')) {
     define('_MODULE_PATH_', _CENTREON_PATH_ . '/www/modules/centreon-awie/');

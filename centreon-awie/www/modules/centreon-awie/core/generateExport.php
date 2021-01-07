@@ -1,6 +1,7 @@
 <?php
+
 /**
- * Copyright 2018 Centreon
+ * Copyright 2021 Centreon
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +16,7 @@
  * limitations under the License.
  */
 
-require_once dirname(__FILE__) . '/../../../../bootstrap.php';
+require_once __DIR__ . '/../../../../bootstrap.php';
 
 error_reporting(E_ALL & ~E_STRICT);
 ini_set('display_errors', false);

@@ -1,6 +1,7 @@
 <?php
+
 /**
- * Copyright 2018 Centreon
+ * Copyright 2021 Centreon
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +16,7 @@
  * limitations under the License.
  */
 
-require_once dirname(__FILE__) . '/../../../../config/centreon.config.php';
+require_once __DIR__ . '/../../../../config/centreon.config.php';
 require_once _CENTREON_PATH_ . 'bootstrap.php';
 require_once _CENTREON_PATH_ . '/www/modules/centreon-awie/centreon-awie.conf.php';
 require_once _CENTREON_PATH_ . '/www/modules/centreon-awie/class/ClapiObject.class.php';
@@ -26,11 +27,16 @@ require_once _CENTREON_PATH_ . '/www/class/centreonSession.class.php';
 define('_CLAPI_LIB_', _CENTREON_PATH_ . "/lib");
 define('_CLAPI_CLASS_', _CENTREON_PATH_ . "/www/class/centreon-clapi");
 
-set_include_path(implode(PATH_SEPARATOR, array(
-    realpath(_CLAPI_LIB_),
-    realpath(_CLAPI_CLASS_),
-    get_include_path()
-)));
+set_include_path(
+    implode(
+        PATH_SEPARATOR,
+        array(
+            realpath(_CLAPI_LIB_),
+            realpath(_CLAPI_CLASS_),
+            get_include_path()
+        )
+    )
+);
 require_once _CLAPI_CLASS_ . "/centreonUtils.class.php";
 require_once _CLAPI_CLASS_ . "/centreonAPI.class.php";
 
@@ -62,11 +68,10 @@ if (!$moveFile) {
     exit;
 }
 
-
 /**
- * Dezippe file
+ * Unzip file
  */
-$zip = new ZipArchive;
+$zip = new ZipArchive();
 $confPath = '/usr/share/centreon/filesUpload/';
 
 if ($zip->open($uploadFile) === true) {
