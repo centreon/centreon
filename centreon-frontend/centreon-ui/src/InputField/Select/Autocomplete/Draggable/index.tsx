@@ -18,6 +18,7 @@ import { makeStyles } from '@material-ui/core';
 import { SelectEntry } from '../..';
 import { ConnectedAutoCompleteFieldProps } from '../Connected';
 import { Props as SingleAutocompletefieldProps } from '..';
+
 import SortableList from './SortableList';
 
 interface Props {
