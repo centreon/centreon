@@ -1,7 +1,6 @@
 import * as React from 'react';
 
-import { isEmpty } from 'ramda';
-import { isNil } from 'lodash';
+import { isEmpty, isNil } from 'ramda';
 
 import {
   makeStyles,
