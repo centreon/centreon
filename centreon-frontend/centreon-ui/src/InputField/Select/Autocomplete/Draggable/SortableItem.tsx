@@ -1,45 +1,102 @@
 import * as React from 'react';
 
-import clsx from 'clsx';
-import { SortableElement } from 'react-sortable-hoc';
+import { useSortable } from '@dnd-kit/sortable';
+import { CSS, Transform } from '@dnd-kit/utilities';
+import { equals } from 'ramda';
+import { DraggableSyntheticListeners } from '@dnd-kit/core';
 
-import { Chip, makeStyles, lighten } from '@material-ui/core';
-import CloseIcon from '@material-ui/icons/Close';
+import Item from './Item';
 
-const useStyles = makeStyles((theme) => ({
-  tag: {
-    margin: theme.spacing(0.5),
-  },
-  createdTag: {
-    backgroundColor: lighten(theme.palette.primary.main, 0.7),
-  },
-  sorting: {
-    transition: theme.transitions.create('transform', {
-      duration: theme.transitions.duration.shortest,
-      easing: theme.transitions.easing.easeOut,
-    }),
-  },
-}));
+export interface ItemProps {
+  name: string;
+  createOption?: string;
+  id: string;
+  index: number;
+  deleteValue: (id: number) => void;
+}
 
-const SortableItem = SortableElement(
-  ({ name, createOption, idx, deleteValue, isSorting }): JSX.Element => {
-    const classes = useStyles();
+interface StyledSortableProps extends ItemProps {
+  transform: Transform | null;
+  isDragging: boolean;
+  transition?: string;
+  setNodeRef: (node: HTMLElement | null) => void;
+  listeners: DraggableSyntheticListeners;
+}
 
-    return (
-      <Chip
-        size="small"
-        label={name}
-        className={clsx(
-          classes.tag,
-          createOption && classes.createdTag,
-          isSorting && classes.sorting,
-        )}
-        clickable
-        onDelete={() => deleteValue(idx)}
-        deleteIcon={<CloseIcon />}
-      />
-    );
-  },
+const StyledSortableItem = ({
+  name,
+  createOption,
+  index,
+  deleteValue,
+  transform,
+  isDragging,
+  transition,
+  setNodeRef,
+  listeners,
+  ...props
+}: Omit<StyledSortableProps, 'id'>): JSX.Element => {
+  const style: React.CSSProperties = {
+    position: 'relative',
+    display: 'inline-block',
+    opacity: isDragging ? '0.7' : '1',
+    transform: CSS.Translate.toString(transform),
+    transition,
+  };
+
+  return (
+    <Item
+      {...props}
+      ref={setNodeRef}
+      style={style}
+      listeners={listeners}
+      name={name}
+      createOption={createOption}
+      deleteValue={deleteValue}
+      index={index}
+    />
+  );
+};
+
+const MemoizedStyledDraggableItem = React.memo(
+  StyledSortableItem,
+  (prevProps, nextProps) =>
+    equals(prevProps.name, nextProps.name) &&
+    equals(prevProps.createOption, nextProps.createOption) &&
+    equals(prevProps.index, nextProps.index) &&
+    equals(prevProps.transform, nextProps.transform) &&
+    equals(prevProps.isDragging, nextProps.isDragging),
 );
+
+const SortableItem = ({
+  name,
+  createOption,
+  id,
+  index,
+  deleteValue,
+}: ItemProps): JSX.Element => {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id });
+
+  return (
+    <MemoizedStyledDraggableItem
+      setNodeRef={setNodeRef}
+      {...attributes}
+      listeners={listeners}
+      name={name}
+      createOption={createOption}
+      deleteValue={deleteValue}
+      index={index}
+      transform={transform}
+      transition={transition}
+      isDragging={isDragging}
+    />
+  );
+};
 
 export default SortableItem;

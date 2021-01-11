@@ -77,7 +77,7 @@ const Wizard = ({
     bag.setSubmitting(false);
   };
 
-  const handleClose = (event, reason) => {
+  const handleClose = (_, reason) => {
     if (equals(reason, 'backdropClick')) {
       setOpenConfirm(true);
       return;

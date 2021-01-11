@@ -251,7 +251,7 @@ const Form = (): JSX.Element => {
         email: '',
         password: '',
       }}
-      onSubmit={(values, { setSubmitting }) => {
+      onSubmit={(_, { setSubmitting }) => {
         setTimeout(() => {
           setSubmitting(false);
           setSubmitted(true);

@@ -1,19 +1,6 @@
 import * as React from 'react';
 
-import {
-  remove,
-  move,
-  equals,
-  pipe,
-  type,
-  last,
-  length,
-  inc,
-  path,
-  F,
-} from 'ramda';
-
-import { makeStyles } from '@material-ui/core';
+import { remove, equals, pipe, type, last, length, inc, F } from 'ramda';
 
 import { SelectEntry } from '../..';
 import { ConnectedAutoCompleteFieldProps } from '../Connected';
@@ -25,13 +12,6 @@ interface Props {
   onSelectedValuesChange?: (values: Array<SelectEntry>) => Array<SelectEntry>;
   initialValues?: Array<SelectEntry>;
 }
-
-const useStyles = makeStyles((theme) => ({
-  helper: {
-    boxShadow: theme.shadows[3],
-    zIndex: theme.zIndex.tooltip,
-  },
-}));
 
 const DraggableAutocomplete = (
   MultiAutocomplete: (props) => JSX.Element,
@@ -45,54 +25,49 @@ const DraggableAutocomplete = (
     const [selectedValues, setSelectedValues] = React.useState<
       Array<SelectEntry>
     >(initialValues || []);
-    const [isSorting, setIsSorting] = React.useState(false);
+    const [totalValues, setTotalValues] = React.useState<number>(
+      length(initialValues || []),
+    );
 
-    const classes = useStyles();
-
-    const onDragEnd = ({ oldIndex, newIndex }) => {
-      setSelectedValues(move(oldIndex, newIndex, selectedValues));
-      setIsSorting(false);
+    const onChangeSelectedValuesOrder = (newSelectedValues) => {
+      setSelectedValues(newSelectedValues);
     };
-
-    const onDragStart = () => setIsSorting(true);
 
     const deleteValue = (index) => {
       setSelectedValues(remove(index, 1, selectedValues));
     };
 
-    const onChange = (event, newValue) => {
+    const onChange = (_, newValue) => {
       const lastValue = last(newValue);
       if (pipe(type, equals('String'))(lastValue)) {
         setSelectedValues([
           ...selectedValues,
           {
-            id: inc(length(selectedValues)),
+            id: totalValues,
             name: lastValue,
             createOption: lastValue,
           },
         ]);
+        setTotalValues(inc(totalValues));
         return;
       }
-      setSelectedValues(newValue);
+      const lastItem = last<SelectEntry>(newValue) as SelectEntry;
+      setSelectedValues([
+        ...selectedValues,
+        {
+          id: totalValues,
+          name: lastItem.name,
+        },
+      ]);
+      setTotalValues(inc(totalValues));
     };
-
-    const cancelStart = (event) =>
-      pipe(
-        path(['target', 'textContent']) as (object) => string,
-        equals(''),
-      )(event);
 
     const renderTags = () => {
       return (
         <SortableList
           items={selectedValues}
-          axis="xy"
-          onSortEnd={onDragEnd}
-          onSortStart={onDragStart}
-          shouldCancelStart={cancelStart}
-          isSorting={isSorting}
           deleteValue={deleteValue}
-          helperClass={classes.helper}
+          changeItemsOrder={onChangeSelectedValuesOrder}
         />
       );
     };
