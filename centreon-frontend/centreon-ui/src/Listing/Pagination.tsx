@@ -1,4 +1,6 @@
-import React from 'react';
+import * as React from 'react';
+
+import { equals } from 'ramda';
 
 import TablePagination from '@material-ui/core/TablePagination';
 import { withStyles } from '@material-ui/core/styles';
@@ -16,4 +18,14 @@ const Pagination = (props): JSX.Element => (
   <TablePagination component="div" {...props} />
 );
 
-export default withStyles(styles)(Pagination);
+const MemoizedPagination = React.memo(
+  Pagination,
+  (prevProps, nextProps) =>
+    equals(prevProps.rowsPerPage, nextProps.rowsPerPage) &&
+    equals(prevProps.page, nextProps.page) &&
+    equals(prevProps.count, prevProps.count) &&
+    equals(prevProps.labelDisplayedRows, prevProps.labelDisplayedRows) &&
+    equals(prevProps.labelRowsPerPage, prevProps.labelRowsPerPage),
+);
+
+export default withStyles(styles)(MemoizedPagination);

@@ -1,5 +1,7 @@
 import * as React from 'react';
 
+import { equals } from 'ramda';
+
 import {
   Checkbox,
   TableHead,
@@ -107,4 +109,15 @@ const ListingHeader = React.forwardRef(
   },
 );
 
-export default ListingHeader;
+const MemoizedListingHeader = React.memo(
+  ListingHeader,
+  (prevProps, nextProps) =>
+    equals(prevProps.order, nextProps.order) &&
+    equals(prevProps.orderBy, nextProps.orderBy) &&
+    equals(prevProps.numSelected, nextProps.numSelected) &&
+    equals(prevProps.rowCount, nextProps.rowCount) &&
+    equals(prevProps.headColumns, nextProps.headColumns) &&
+    equals(prevProps.checkable, nextProps.checkable),
+);
+
+export default MemoizedListingHeader;
