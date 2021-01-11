@@ -1,6 +1,16 @@
 import * as React from 'react';
 
-import { remove, equals, pipe, type, last, length, inc, F } from 'ramda';
+import {
+  remove,
+  equals,
+  pipe,
+  type,
+  last,
+  inc,
+  F,
+  length,
+  isEmpty,
+} from 'ramda';
 
 import { SelectEntry } from '../..';
 import { ConnectedAutoCompleteFieldProps } from '../Connected';
@@ -34,14 +44,18 @@ const DraggableAutocomplete = (
     };
 
     const deleteValue = (index) => {
-      setSelectedValues(remove(index, 1, selectedValues));
+      setSelectedValues((values) => remove(index, 1, values));
     };
 
     const onChange = (_, newValue) => {
+      if (isEmpty(newValue)) {
+        setSelectedValues(newValue);
+        return;
+      }
       const lastValue = last(newValue);
       if (pipe(type, equals('String'))(lastValue)) {
-        setSelectedValues([
-          ...selectedValues,
+        setSelectedValues((values) => [
+          ...values,
           {
             id: totalValues,
             name: lastValue,
@@ -52,8 +66,8 @@ const DraggableAutocomplete = (
         return;
       }
       const lastItem = last<SelectEntry>(newValue) as SelectEntry;
-      setSelectedValues([
-        ...selectedValues,
+      setSelectedValues((values) => [
+        ...values,
         {
           id: totalValues,
           name: lastItem.name,
