@@ -34,12 +34,15 @@ try {
       sh 'setup_centreon_build.sh'
       sh "./centreon-build/jobs/ui/${serie}/ui-unittest.sh"
       junit 'ut.xml'
+
+      discoverGitReferenceBuild()
       recordIssues(
         enabledForFailure: true,
         failOnError: true,
         tools: [esLint(pattern: 'codestyle.xml')],
-        referenceJobName: 'centreon-ui/master'
+        trendChartType: 'NONE'
       )
+
       archiveArtifacts allowEmptyArchive: true, artifacts: 'snapshots/*.png'
     }
     if ((currentBuild.result ?: 'SUCCESS') != 'SUCCESS') {
