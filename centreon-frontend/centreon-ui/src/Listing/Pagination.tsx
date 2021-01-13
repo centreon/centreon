@@ -24,7 +24,6 @@ const MemoizedPagination = React.memo(
     equals(prevProps.rowsPerPage, nextProps.rowsPerPage) &&
     equals(prevProps.page, nextProps.page) &&
     equals(prevProps.count, nextProps.count) &&
-    equals(prevProps.labelDisplayedRows, nextProps.labelDisplayedRows) &&
     equals(prevProps.labelRowsPerPage, nextProps.labelRowsPerPage),
 );
 
