@@ -63,12 +63,12 @@ try {
           ])
         }
 
+        discoverGitReferenceBuild()
         recordIssues(
           enabledForFailure: true,
           qualityGates: [[threshold: 1, type: 'DELTA', unstable: false]],
           tool: phpCodeSniffer(id: 'phpcs', name: 'phpcs', pattern: 'codestyle-be.xml'),
-          trendChartType: 'NONE',
-          referenceJobName: 'centreon-open-tickets/master'
+          trendChartType: 'NONE'
         )
 
         if ((env.BUILD == 'RELEASE') || (env.BUILD == 'REFERENCE')) {
