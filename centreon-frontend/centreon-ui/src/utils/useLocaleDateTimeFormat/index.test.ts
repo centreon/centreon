@@ -33,7 +33,7 @@ describe(useLocaleDateTimeFormat, () => {
 
       const formattedDateTime = result.current.toDateTime(new Date(dateTime));
 
-      expect(formattedDateTime).toEqual('12/17/1995 04:24');
+      expect(formattedDateTime).toEqual('12/17/1995 4:24 AM');
     });
   });
 
@@ -53,7 +53,7 @@ describe(useLocaleDateTimeFormat, () => {
 
       const formattedDateTime = result.current.toTime(new Date(dateTime));
 
-      expect(formattedDateTime).toEqual('04:24');
+      expect(formattedDateTime).toEqual('4:24 AM');
     });
   });
 

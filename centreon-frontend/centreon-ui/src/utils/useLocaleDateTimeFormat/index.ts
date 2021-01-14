@@ -21,9 +21,9 @@ export interface LocaleDateTimeFormat {
   toHumanizedDuration: (duration: number) => string;
 }
 
-const dateTimeFormat = 'L HH:mm';
 const dateFormat = 'L';
-const timeFormat = 'HH:mm';
+const timeFormat = 'LT';
+const dateTimeFormat = `${dateFormat} ${timeFormat}`;
 
 const useLocaleDateTimeFormat = (): LocaleDateTimeFormat => {
   const { locale, timezone } = useUserContext();
