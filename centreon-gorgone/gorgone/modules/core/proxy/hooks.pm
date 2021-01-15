@@ -65,8 +65,7 @@ my $synctime_nodes = {}; # get last time retrieved
 my $synctime_lasttime;
 my $synctime_option;
 my $synctimeout_option;
-my $ping_option;
-my $ping_time = 0;
+my $ping_interval;
 
 my $last_pong = {}; 
 my $register_nodes = {};
@@ -106,7 +105,7 @@ sub register {
 
     $synctime_option = defined($config->{synchistory_time}) ? $config->{synchistory_time} : 60;
     $synctimeout_option = defined($config->{synchistory_timeout}) ? $config->{synchistory_timeout} : 30;
-    $ping_option = defined($config->{ping}) ? $config->{ping} : 60;
+    $ping_interval = defined($config->{ping}) ? $config->{ping} : 60;
     $config->{pong_discard_timeout} = defined($config->{pong_discard_timeout}) ? $config->{pong_discard_timeout} : 300;
     $config->{pong_max_timeout} = defined($config->{pong_max_timeout}) ? $config->{pong_max_timeout} : 3;
     $config->{pool} = defined($config->{pool}) && $config->{pool} =~ /(\d+)/ ? $1 : 5;
@@ -146,11 +145,12 @@ sub routing {
 
     if ($options{action} eq 'PONG') {
         return undef if (!defined($data->{data}->{id}) || $data->{data}->{id} eq '');
-        $synctime_nodes->{$data->{data}->{id}}->{in_progress_ping} = 0;
-        $synctime_nodes->{$data->{data}->{id}}->{ping_timeout} = 0;
+        $constatus_ping->{ $data->{data}->{id} }->{in_progress_ping} = 0;
+        $constatus_ping->{ $data->{data}->{id} }->{ping_timeout} = 0;
         $last_pong->{$data->{data}->{id}} = time();
-        $constatus_ping->{$data->{data}->{id}}->{last_ping_recv} = time();
-        $constatus_ping->{$data->{data}->{id}}->{nodes} = $data->{data}->{data};
+        $constatus_ping->{ $data->{data}->{id} }->{last_ping_recv} = time();
+        $constatus_ping->{ $data->{data}->{id} }->{nodes} = $data->{data}->{data};
+        $constatus_ping->{ $data->{data}->{id} }->{ping_ok}++;
         register_subnodes(%options, id => $data->{data}->{id}, subnodes => $data->{data}->{data});
         $options{logger}->writeLogInfo("[proxy] Pong received from '" . $data->{data}->{id} . "'");
         return undef;
@@ -158,9 +158,10 @@ sub routing {
 
     if ($options{action} eq 'PONGRESET') {
         return undef if (!defined($data->{data}->{id}) || $data->{data}->{id} eq '');
-        if (defined($synctime_nodes->{ $data->{data}->{id} })) {
-            $synctime_nodes->{ $data->{data}->{id} }->{in_progress_ping} = 0;
-            $synctime_nodes->{ $data->{data}->{id} }->{ping_timeout} = 0;
+        if (defined($constatus_ping->{ $data->{data}->{id} })) {
+            $constatus_ping->{ $data->{data}->{id} }->{in_progress_ping} = 0;
+            $constatus_ping->{ $data->{data}->{id} }->{ping_timeout} = 0;
+            $constatus_ping->{ $data->{data}->{id} }->{ping_failed}++;
         }
         $options{logger}->writeLogInfo("[proxy] PongReset received from '" . $data->{data}->{id} . "'");
         return undef;
@@ -387,18 +388,19 @@ sub check {
 
     # We check synclog/ping/ping request timeout 
     foreach (keys %$synctime_nodes) {
-        if ($register_nodes->{$_}->{type} eq 'pull' && $synctime_nodes->{$_}->{in_progress_ping} == 1) {
+        if ($register_nodes->{$_}->{type} eq 'pull' && $constatus_ping->{$_}->{in_progress_ping} == 1) {
             my $ping_timeout = defined($register_nodes->{$_}->{ping_timeout}) ? $register_nodes->{$_}->{ping_timeout} : 30;
-            if ((time() - $synctime_nodes->{$_}->{in_progress_ping_pull}) > $ping_timeout) {
-                $synctime_nodes->{$_}->{in_progress_ping} = 0;
+            if ((time() - $constatus_ping->{$_}->{in_progress_ping_pull}) > $ping_timeout) {
+                $constatus_ping->{$_}->{in_progress_ping} = 0;
                 $options{logger}->writeLogInfo("[proxy] Ping timeout from '" . $_ . "'");
             }
         }
-        if ($register_nodes->{$_}->{type} ne 'pull' && $synctime_nodes->{$_}->{in_progress_ping} == 1) {
+        if ($register_nodes->{$_}->{type} ne 'pull' && $constatus_ping->{$_}->{in_progress_ping} == 1) {
             if (time() - $constatus_ping->{ $_ }->{last_ping_sent} > $config->{pong_discard_timeout}) {
                 $options{logger}->writeLogInfo("[proxy] Ping timeout from '" . $_ . "'");
-                $synctime_nodes->{$_}->{in_progress_ping} = 0;
-                $synctime_nodes->{$_}->{ping_timeout}++;
+                $constatus_ping->{$_}->{in_progress_ping} = 0;
+                $constatus_ping->{$_}->{ping_timeout}++;
+                $constatus_ping->{$_}->{ping_failed}++;
                 if (($synctime_nodes->{$_}->{ping_timeout} % $config->{pong_max_timeout}) == 0) {
                     $options{logger}->writeLogInfo("[proxy] Ping max timeout reached from '" . $_ . "'");
                     routing(
@@ -409,7 +411,6 @@ sub check {
                         dbh => $options{dbh},
                         logger => $options{logger}
                     );
-                    $synctime_nodes->{$_}->{ping_timeout}++;
                 }
             }
         }
@@ -433,10 +434,7 @@ sub check {
         full_sync_history(dbh => $options{dbh}, logger => $options{logger});
     }
     
-    if ($stop == 0 &&
-        time() - $ping_time > $ping_option) {
-        $options{logger}->writeLogInfo("[proxy] Send pings");
-        $ping_time = time();
+    if ($stop == 0) {
         ping_send(dbh => $options{dbh}, logger => $options{logger});
     }
 
@@ -564,8 +562,8 @@ sub setlogs {
     $options{logger}->writeLogInfo("[proxy] Received setlogs for '$options{data}->{data}->{id}'");
 
     # we have received the setlogs (it's like a pong response. not a problem if we received the pong after)
-    $synctime_nodes->{ $options{data}->{data}->{id} }->{in_progress_ping} = 0;
-    $synctime_nodes->{ $options{data}->{data}->{id} }->{ping_timeout} = 0;
+    $constatus_ping->{ $options{data}->{data}->{id} }->{in_progress_ping} = 0;
+    $constatus_ping->{ $options{data}->{data}->{id} }->{ping_timeout} = 0;
     $constatus_ping->{ $options{data}->{data}->{id} }->{last_ping_recv} = time();
     $last_pong->{ $options{data}->{data}->{id} } = time() if (defined($last_pong->{ $options{data}->{data}->{id} }));
 
@@ -627,16 +625,18 @@ sub ping_send {
 
     my $nodes_id = [keys %$register_nodes];
     $nodes_id = [$options{node_id}] if (defined($options{node_id}));
+    my $current_time = time();
     foreach my $id (@$nodes_id) {
-        next if (defined($synctime_nodes->{$id}) && $synctime_nodes->{$id}->{in_progress_ping} == 1);
+        next if ($constatus_ping->{$id}->{in_progress_ping} == 1 || $current_time < $constatus_ping->{$id}->{next_ping});
 
-        $constatus_ping->{$id}->{last_ping_sent} = time();
+        $constatus_ping->{$id}->{last_ping_sent} = $current_time;
+        $constatus_ping->{$id}->{next_ping} = $current_time + $ping_interval;
         if ($register_nodes->{$id}->{type} eq 'push_zmq' || $register_nodes->{$id}->{type} eq 'push_ssh') {
-            $synctime_nodes->{$id}->{in_progress_ping} = 1;
+            $constatus_ping->{$id}->{in_progress_ping} = 1;
             routing(socket => $internal_socket, action => 'PING', target => $id, data => '{}', dbh => $options{dbh}, logger => $options{logger});
         } elsif ($register_nodes->{$id}->{type} eq 'pull') {
-            $synctime_nodes->{$id}->{in_progress_ping} = 1;
-            $synctime_nodes->{$id}->{in_progress_ping_pull} = time();
+            $constatus_ping->{$id}->{in_progress_ping} = 1;
+            $constatus_ping->{$id}->{in_progress_ping_pull} = time();
             routing(action => 'PING', target => $id, data => '{}', dbh => $options{dbh}, logger => $options{logger});
         }
     }
@@ -689,9 +689,9 @@ sub get_sync_time {
 
     $synctime_nodes->{$options{node_id}}->{synctime_error} = 0;
     if (my $row = $sth->fetchrow_hashref()) {
-        $synctime_nodes->{$row->{id}}->{ctime} = $row->{ctime};
-        $synctime_nodes->{$row->{id}}->{in_progress} = 0;
-        $synctime_nodes->{$row->{id}}->{in_progress_time} = -1;
+        $synctime_nodes->{ $row->{id} }->{ctime} = $row->{ctime};
+        $synctime_nodes->{ $row->{id} }->{in_progress} = 0;
+        $synctime_nodes->{ $row->{id} }->{in_progress_time} = -1;
     }
 
     return 0;
@@ -935,11 +935,9 @@ sub register_nodes {
         if (!defined($synctime_nodes->{ $node->{id} })) {
             $synctime_nodes->{ $node->{id} } = {
                 ctime => 0,
-                in_progress_ping => 0,
                 in_progress => 0,
                 in_progress_time => -1,
                 synctime_error => 0,
-                ping_timeout => 0,
                 channel_read_stop => 0,
                 channel_ready => 0
             };
@@ -954,9 +952,17 @@ sub register_nodes {
             }
         }
         if ($new_node == 1) {
-            $constatus_ping->{ $node->{id} } = { type => $node->{type}, last_ping_sent => 0, last_ping_recv => 0, nodes => {} };
-            # we provide information to the proxy class
-            ping_send(node_id => $node->{id}, dbh => $options{dbh}, logger => $options{logger});
+            $constatus_ping->{ $node->{id} } = {
+                type => $node->{type},
+                in_progress_ping => 0,
+                ping_timeout => 0,
+                last_ping_sent => 0,
+                last_ping_recv => 0,
+                next_ping => time() + int(rand($ping_interval)),
+                ping_ok => 0,
+                ping_failed => 0,
+                nodes => {}
+            };
             $options{logger}->writeLogInfo("[proxy] Node '" . $node->{id} . "' is registered");
         }
     }

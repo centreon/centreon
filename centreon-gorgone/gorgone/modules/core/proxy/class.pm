@@ -100,14 +100,17 @@ sub read_message {
         if ($options{data} !~ /^\[(.+?)\]\s+\[(.*?)\]\s+\[.*?\]\s+(.*)/m) {
             return undef;
         }
-        my ($action, $token, $data) = ($1, $2, $3);
+        my ($action, $token) = ($1, $2);
+        my ($code, $data) = $connector->json_decode(argument => $3);
+        return undef if ($code == 1);
+
+        $data->{data}->{id} = $client_identity;
 
         # if we get a pong response, we can open the internal com read
         $connector->{clients}->{ $client_identity }->{com_read_internal} = 1;
         $connector->send_internal_action(
             action => 'PONG',
             data => $data,
-            data_noencode => 1,
             token => $token,
             target => ''
         );
@@ -125,13 +128,8 @@ sub read_message {
             target => ''
         );
     } elsif ($options{data} =~ /^\[ACK\]\s+\[(.*?)\]\s+(.*)/ms) {
-        my $data;
-        eval {
-            $data = JSON::XS->new->utf8->decode($2);
-        };
-        if ($@) {
-            return undef;
-        }
+        my ($code, $data) = $connector->json_decode(argument => $2);
+        return undef if ($code == 1);
 
         # we set the id (distant node can not have id in configuration)
         $data->{data}->{id} = $client_identity;
@@ -303,9 +301,15 @@ sub proxy_ssh {
     return if ($code == 1);
 
     if ($options{action} eq 'PING') {
-        my $action = 'PONG';
         if ($self->{clients}->{ $options{target_client} }->{class}->ping() == -1) {
             $self->{clients}->{ $options{target_client} }->{delete} = 1;
+        } else {
+            $self->send_internal_action(
+                action => 'PONG',
+                data => { data => { id => $options{target_client} } },
+                token => $options{token},
+                target => ''
+            );
         }
         return ;
     }
