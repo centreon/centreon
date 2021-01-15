@@ -304,7 +304,7 @@ sub send_message {
         zmq_sendmsg($sockets->{$self->{identity}}, $ciphertext, ZMQ_DONTWAIT);
         zmq_poll([$self->get_poll()], 10000);
     }
-    
+
     if ($self->{handshake} < 2) {
         $self->{handshake} = 0;
         return (-1, $self->{verbose_last_message});

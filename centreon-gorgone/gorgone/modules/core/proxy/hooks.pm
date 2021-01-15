@@ -34,6 +34,12 @@ use Digest::MD5::File qw(file_md5_hex);
 use Fcntl;
 use Time::HiRes;
 
+=begin comment
+for each proxy processus, we have: 
+    one control channel (DEALER identity: gorgone-proxy-$poolid)
+    one channel by client (DEALER identity: gorgone-proxy-channel-$nodeid)
+=cut
+
 use constant NAMESPACE => 'core';
 use constant NAME => 'proxy';
 use constant EVENTS => [
@@ -47,7 +53,8 @@ use constant EVENTS => [
     { event => 'PROXYDELNODE' }, # internal. Shouldn't be used by third party clients
     { event => 'PROXYADDSUBNODE' }, # internal. Shouldn't be used by third party clients
     { event => 'PONGRESET' }, # internal. Shouldn't be used by third party clients
-    { event => 'PROXYCLOSECONNECTION' }
+    { event => 'PROXYCLOSECONNECTION' },
+    { event => 'PROXYSTOPREADCHANNEL' }
 ];
 
 my $config_core;
@@ -170,18 +177,22 @@ sub routing {
     }
 
     if ($options{action} eq 'PROXYREADY') {
-        $pools->{$data->{pool_id}}->{ready} = 1;
-        # we sent proxyaddnode to sync
-        foreach my $node_id (keys %$nodes_pool) {
-            next if ($nodes_pool->{$node_id} != $data->{pool_id});
-            routing(
-                socket => $internal_socket,
-                action => 'PROXYADDNODE',
-                target => $node_id,
-                data => JSON::XS->new->utf8->encode($register_nodes->{$node_id}),
-                dbh => $options{dbh},
-                logger => $options{logger}
-            );
+        if (defined($data->{pool_id})) {
+            $pools->{ $data->{pool_id} }->{ready} = 1;
+            # we sent proxyaddnode to sync
+            foreach my $node_id (keys %$nodes_pool) {
+                next if ($nodes_pool->{$node_id} != $data->{pool_id});
+                routing(
+                    socket => $internal_socket,
+                    action => 'PROXYADDNODE',
+                    target => $node_id,
+                    data => JSON::XS->new->utf8->encode($register_nodes->{$node_id}),
+                    dbh => $options{dbh},
+                    logger => $options{logger}
+                );
+            }
+        } elsif (defined($data->{node_id}) && defined($synctime_nodes->{ $data->{node_id} })) {
+            $synctime_nodes->{ $data->{node_id} }->{channel_ready} = 1;
         }
         return undef;
     }
@@ -191,7 +202,7 @@ sub routing {
         return undef;
     }
 
-    my ($code, $target_complete, $target_parent, $target) = pathway(
+    my ($code, $is_ctrl_channel, $target_complete, $target_parent, $target) = pathway(
         action => $options{action},
         target => $options{target},
         dbh => $options{dbh},
@@ -269,6 +280,19 @@ sub routing {
         return if ($code == -1);
     }
 
+    my $pool_id;
+    if (defined($nodes_pool->{$target_parent})) {
+        $pool_id = $nodes_pool->{$target_parent};
+    } else {
+        $pool_id = rr_pool();
+        $nodes_pool->{$target_parent} = $pool_id;
+    }
+
+    my $identity = 'gorgone-proxy-' . $pool_id;
+    if ($is_ctrl_channel == 0 && $synctime_nodes->{$target_parent}->{channel_ready} == 1) {
+        $identity = 'gorgone-proxy-channel-' . $target_parent;
+    }
+
     foreach my $data (@{$bulk_actions}) {
         # Mode zmq pull
         if ($register_nodes->{$target_parent}->{type} eq 'pull') {
@@ -284,17 +308,9 @@ sub routing {
             next;
         }
 
-        my $identity;
-        if (defined($nodes_pool->{$target_parent})) {
-            $identity = $nodes_pool->{$target_parent};
-        } else {
-            $identity = rr_pool();
-            $nodes_pool->{$target_parent} = $identity;
-        }
-
         gorgone::standard::library::zmq_send_message(
             socket => $options{socket},
-            identity => 'gorgone-proxy-' . $identity,
+            identity => $identity,
             action => $action,
             data => $data,
             token => $options{token},
@@ -445,7 +461,7 @@ sub broadcast {
             identity => 'gorgone-proxy-' . $pool_id,
             action => $options{action},
             data => $options{data},
-            token => $options{token},
+            token => $options{token}
         );
     }
 }
@@ -488,32 +504,39 @@ sub pathway {
         push @targets, keys %{$register_subnodes->{$target}->{dynamic}};
     }
 
+    my $first_target;
     foreach (@targets) {
         if ($register_nodes->{$_}->{type} eq 'pull' && !defined($register_nodes->{$_}->{identity})) {
             $options{logger}->writeLogDebug("[proxy] skip node pull target '$_' for node '$target' - never connected");
             next;
         }
 
-        # we let the ping passthrough
-        if (defined($last_pong->{$_}) && (time() - $config->{pong_discard_timeout} >= $last_pong->{$_}) && $options{action} eq 'PING' && $_ eq $target) {
-            return (1, $_ . '~~' . $target, $_, $target);
+        # we let passthrough. it's for control channel
+        if ($options{action} =~ /^(?:PING|PROXYADDNODE|PROXYDELNODE|PROXYADDSUBNODE|PROXYCLOSECONNECTION|PROXYSTOPREADCHANNEL)$/ && $_ eq $target) {
+            return (1, 1, $_ . '~~' . $target, $_, $target);
         }
 
         if (!defined($last_pong->{$_}) || $last_pong->{$_} == 0 || (time() - $config->{pong_discard_timeout} < $last_pong->{$_})) {
             $options{logger}->writeLogDebug("[proxy] choose node target '$_' for node '$target'");
-            return (1, $_ . '~~' . $target, $_, $target);
+            return (1, 0, $_ . '~~' . $target, $_, $target);
         }
 
-        $options{logger}->writeLogDebug("[proxy] skip node target '$_' for node '$target'");
+        $first_target = $_ if (!defined($first_target));
+        if ($synctime_nodes->{$_}->{channel_read_stop} == 0) {
+            $synctime_nodes->{$_}->{channel_read_stop} = 1;
+            routing(
+                socket => $internal_socket,
+                target => $_,
+                action => 'PROXYCLOSEREADCHANNEL',
+                data => JSON::XS->new->utf8->encode({ id => $_ }),
+                dbh => $options{dbh},
+                logger => $options{logger}
+            );
+        }
     }
 
-    gorgone::standard::library::add_history(
-        dbh => $options{dbh},
-        code => GORGONE_ACTION_FINISH_KO, token => $options{token},
-        data => { message => 'proxy - discard message. target peer(s) seems disconnected' },
-        json_encode => 1
-    );
-    return -1;
+    # if there are here, we use the first pathway (because all pathways had an issue)
+    return (1, 0, $first_target . '~~' . $target, $first_target, $target);
 }
 
 sub setlogs {
@@ -916,7 +939,9 @@ sub register_nodes {
                 in_progress => 0,
                 in_progress_time => -1,
                 synctime_error => 0,
-                ping_timeout => 0
+                ping_timeout => 0,
+                channel_read_stop => 0,
+                channel_ready => 0
             };
             get_sync_time(node_id => $node->{id}, dbh => $options{dbh});
         }
