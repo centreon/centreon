@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<ruleset name="Centreon Widget Servicegroup Monitoring">
+<ruleset name="Centreon Open Tickets Module">
     <description>Custom rules defined by Centreon</description>
 
     <exclude-pattern>vendor</exclude-pattern>
