@@ -278,6 +278,6 @@ curl --request POST "https://hostname:8443/api/centreon/autodiscovery/services" 
   --header "Accept: application/json" \
   --header "Content-Type: application/json" \
   --data '{
-    "filters_rules": ["OS-Linux-SNMP-Disk-Name", "OS-Linux-SNMP-Traffic-Name"]
+    "filter_rules": ["OS-Linux-SNMP-Disk-Name", "OS-Linux-SNMP-Traffic-Name"]
 }'
 ```
