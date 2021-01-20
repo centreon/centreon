@@ -1,6 +1,7 @@
 <?php
+
 /*
- * Copyright 2005-2019 Centreon
+ * Copyright 2005-2021 Centreon
  * Centreon is developed by : Julien Mathis and Romain Le Merlus under
  * GPL Licence 2.0.
  *
@@ -210,11 +211,11 @@ function updatePoolInDB($pool_id = null)
 }
 
 /**
-  * Insert a slot pool in DB
-  *
-  * @param array The values
-  * @return int $pool_id The pool id, return -1 if error
-  */
+ * Insert a slot pool in DB
+ *
+ * @param array The values
+ * @return int $pool_id The pool id, return -1 if error
+ */
 function insertPoolInDB($ret = array())
 {
     $pool_id = insertPool($ret);
@@ -258,22 +259,22 @@ function multiplePoolInDB($pool = array(), $nbrDup = array())
             $val = null;
 
             foreach ($row as $key2 => $value2) {
-                $key2 == "pool_name" ? ($pool_name = $value2 = $value2."_".$i) : null;
+                $key2 == "pool_name" ? ($pool_name = $value2 = $value2 . "_" . $i) : null;
                 if ($key2 == 'pool_host_id') {
-                        $value2 = null;
+                    $value2 = null;
                 } elseif ($key2 == 'pool_activate') {
-                        $value2 = '0';
+                    $value2 = '0';
                 }
                 $val ? $val .= (
-                    $value2 != null?(", '".$pearDB->escape($value2)."'"):", NULL"
+                $value2 != null ? (", '" . $pearDB->escape($value2) . "'") : ", NULL"
                 ) : $val .= (
-                    $value2 != null?("'".$pearDB->escape($value2)."'"):"NULL"
+                $value2 != null ? ("'" . $pearDB->escape($value2) . "'") : "NULL"
                 );
                 if ($key2 != "pool_id") {
                     $fields[$key2] = $pearDB->escape($value2);
                 }
                 if (isset($pool_name)) {
-                        $fields["pool_name"] = $pool_name."_$i";
+                    $fields["pool_name"] = $pool_name . "_$i";
                 }
             }
 
@@ -317,7 +318,7 @@ function generateServices($prefix, $number, $host_id, $template, $cmd, $args, $o
     if ($currentNumber == 0) {
         for ($i = 1; $i <= $number; $i++) {
             $suffix = "";
-            for ($t = $i; $t < 1000; $t*=10) {
+            for ($t = $i; $t < 1000; $t *= 10) {
                 $suffix .= "0";
             }
             $suffix .= $i;
@@ -340,18 +341,18 @@ function generateServices($prefix, $number, $host_id, $template, $cmd, $args, $o
                     service_notifications_enabled,
                     service_is_volatile
                 ) VALUES ('" .
-                    $prefix . $suffix .
-                    "', '" . $template .
-                    "', " . ($cmd ? "'$cmd'" : "NULL") .
-                    ", " . ($args ? "'$args'" : "NULL") .
-                    ", '1', '1', '0', '1', '2', '2', '2', '2', '2', '2', '2', '2'
+                $prefix . $suffix .
+                "', '" . $template .
+                "', " . ($cmd ? "'$cmd'" : "NULL") .
+                ", " . ($args ? "'$args'" : "NULL") .
+                ", '1', '1', '0', '1', '2', '2', '2', '2', '2', '2', '2', '2'
                 )"
             );
 
             $dbResult = $pearDB->query(
                 "SELECT MAX(service_id)
                 FROM service
-                WHERE service_description = '" . $prefix.$suffix . "'
+                WHERE service_description = '" . $prefix . $suffix . "'
                 AND service_activate = '1' AND service_register = '1'"
             );
             $service = $dbResult->fetch();
@@ -371,7 +372,7 @@ function generateServices($prefix, $number, $host_id, $template, $cmd, $args, $o
     } elseif ($currentNumber <= $number) {
         for ($i = 1; $data = $dbResult->fetch(); $i++) {
             $suffix = "";
-            for ($t = $i; $t < 1000; $t*=10) {
+            for ($t = $i; $t < 1000; $t *= 10) {
                 $suffix .= "0";
             }
             $suffix .= $i;
@@ -396,7 +397,7 @@ function generateServices($prefix, $number, $host_id, $template, $cmd, $args, $o
         }
         while ($i <= $number) {
             $suffix = "";
-            for ($t = $i; $t < 1000; $t*=10) {
+            for ($t = $i; $t < 1000; $t *= 10) {
                 $suffix .= "0";
             }
             $suffix .= $i;
@@ -493,32 +494,32 @@ function insertPool($ret = array())
     ) VALUES (
         NULL, ";
     isset($ret["pool_name"])
-        && $ret["pool_name"] != null
-        ? $rq .= "'" . $pearDB->escape($ret["pool_name"]) . "', ": $rq .= "NULL, ";
+    && $ret["pool_name"] != null
+        ? $rq .= "'" . $pearDB->escape($ret["pool_name"]) . "', " : $rq .= "NULL, ";
     isset($ret["pool_host_id"])
-        && $ret["pool_host_id"] != null
-        ? $rq .= "'" . $ret["pool_host_id"] . "', ": $rq .= "NULL, ";
+    && $ret["pool_host_id"] != null
+        ? $rq .= "'" . $ret["pool_host_id"] . "', " : $rq .= "NULL, ";
     isset($ret["pool_description"])
-        && $ret["pool_description"] != null
-        ? $rq .= "'" . $pearDB->escape($ret["pool_description"]) . "', ": $rq .= "NULL, ";
+    && $ret["pool_description"] != null
+        ? $rq .= "'" . $pearDB->escape($ret["pool_description"]) . "', " : $rq .= "NULL, ";
     isset($ret["pool_number"])
-        && $ret["pool_number"] != null
-        ? $rq .= "'" . $ret["pool_number"] . "', ": $rq .= "NULL, ";
+    && $ret["pool_number"] != null
+        ? $rq .= "'" . $ret["pool_number"] . "', " : $rq .= "NULL, ";
     isset($ret["pool_prefix"])
-        && $ret["pool_prefix"] != null
-        ? $rq .= "'" . $ret["pool_prefix"] . "', ": $rq .= "NULL, ";
+    && $ret["pool_prefix"] != null
+        ? $rq .= "'" . $ret["pool_prefix"] . "', " : $rq .= "NULL, ";
     isset($ret["pool_cmd_id"])
-        && $ret["pool_cmd_id"] != null
-        ? $rq .= "'" . $ret["pool_cmd_id"] . "', ": $rq .= "NULL, ";
+    && $ret["pool_cmd_id"] != null
+        ? $rq .= "'" . $ret["pool_cmd_id"] . "', " : $rq .= "NULL, ";
     isset($ret["pool_args"])
-        && $ret["pool_args"] != null
-        ? $rq .= "'" . $pearDB->escape($ret["pool_args"]) . "', ": $rq .= "NULL, ";
+    && $ret["pool_args"] != null
+        ? $rq .= "'" . $pearDB->escape($ret["pool_args"]) . "', " : $rq .= "NULL, ";
     isset($ret["pool_activate"]["pool_activate"])
-        && $ret["pool_activate"]["pool_activate"] != null
-        ? $rq .= "'" . $ret["pool_activate"]["pool_activate"] . "', ": $rq .= "NULL, ";
+    && $ret["pool_activate"]["pool_activate"] != null
+        ? $rq .= "'" . $ret["pool_activate"]["pool_activate"] . "', " : $rq .= "NULL, ";
     isset($ret["pool_service_template_id"])
-        && $ret["pool_service_template_id"] != null
-        ? $rq .= "'" . $ret["pool_service_template_id"] . "' ": $rq .= "NULL ";
+    && $ret["pool_service_template_id"] != null
+        ? $rq .= "'" . $ret["pool_service_template_id"] . "' " : $rq .= "NULL ";
     $rq .= ")";
 
     /*
@@ -539,9 +540,9 @@ function insertPool($ret = array())
     $pool_id = $dbResult->fetch();
 
     if ($ret["pool_activate"]["pool_activate"] == 1) {
-            enablePoolInDB($pool_id["MAX(pool_id)"]);
+        enablePoolInDB($pool_id["MAX(pool_id)"]);
     } else {
-            disablePoolInDB($pool_id["MAX(pool_id)"]);
+        disablePoolInDB($pool_id["MAX(pool_id)"]);
     }
 
     return ($pool_id["MAX(pool_id)"]);
@@ -581,41 +582,41 @@ function updatePool($pool_id = null)
     $rq = "UPDATE mod_dsm_pool SET
         pool_name = ";
     isset($ret["pool_name"])
-        && $ret["pool_name"] != null
-        ? $rq .= "'" . $pearDB->escape($ret["pool_name"]) . "', ": $rq .= "NULL, ";
-    $rq .=  "pool_description = ";
+    && $ret["pool_name"] != null
+        ? $rq .= "'" . $pearDB->escape($ret["pool_name"]) . "', " : $rq .= "NULL, ";
+    $rq .= "pool_description = ";
     isset($ret["pool_description"])
-        && $ret["pool_description"] != null
-        ? $rq .= "'" . $pearDB->escape($ret["pool_description"]) . "', ": $rq .= "NULL, ";
-    $rq .=  "pool_host_id = ";
+    && $ret["pool_description"] != null
+        ? $rq .= "'" . $pearDB->escape($ret["pool_description"]) . "', " : $rq .= "NULL, ";
+    $rq .= "pool_host_id = ";
     isset($ret["pool_host_id"])
-        && $ret["pool_host_id"] != null
-        ? $rq .= "'" . $ret["pool_host_id"] . "', ": $rq .= "NULL, ";
-    $rq .=  "pool_number = ";
+    && $ret["pool_host_id"] != null
+        ? $rq .= "'" . $ret["pool_host_id"] . "', " : $rq .= "NULL, ";
+    $rq .= "pool_number = ";
     isset($ret["pool_number"])
-        && $ret["pool_number"] != null
-        ? $rq .= "'" . $ret["pool_number"] . "', ": $rq .= "NULL, ";
-    $rq .=  "pool_prefix = ";
+    && $ret["pool_number"] != null
+        ? $rq .= "'" . $ret["pool_number"] . "', " : $rq .= "NULL, ";
+    $rq .= "pool_prefix = ";
     isset($ret["pool_prefix"])
-        && $ret["pool_prefix"] != null
-        ? $rq .= "'" . $ret["pool_prefix"] . "', ": $rq .= "NULL, ";
-    $rq .=  "pool_cmd_id = ";
+    && $ret["pool_prefix"] != null
+        ? $rq .= "'" . $ret["pool_prefix"] . "', " : $rq .= "NULL, ";
+    $rq .= "pool_cmd_id = ";
     isset($ret["pool_cmd_id"])
-        && $ret["pool_cmd_id"] != null
-        ? $rq .= "'" . $ret["pool_cmd_id"] . "', ": $rq .= "NULL, ";
-    $rq .=  "pool_args = ";
+    && $ret["pool_cmd_id"] != null
+        ? $rq .= "'" . $ret["pool_cmd_id"] . "', " : $rq .= "NULL, ";
+    $rq .= "pool_args = ";
     isset($ret["pool_args"])
-        && $ret["pool_args"] != null
-        ? $rq .= "'" . $pearDB->escape($ret["pool_args"]) . "', ": $rq .= "NULL, ";
-    $rq .=  "pool_activate = ";
+    && $ret["pool_args"] != null
+        ? $rq .= "'" . $pearDB->escape($ret["pool_args"]) . "', " : $rq .= "NULL, ";
+    $rq .= "pool_activate = ";
     isset($ret["pool_activate"]["pool_activate"])
-        && $ret["pool_activate"]["pool_activate"] != null
-        ? $rq .= "'" . $ret["pool_activate"]["pool_activate"] . "', ": $rq .= "NULL, ";
-    $rq .=  "pool_service_template_id = ";
+    && $ret["pool_activate"]["pool_activate"] != null
+        ? $rq .= "'" . $ret["pool_activate"]["pool_activate"] . "', " : $rq .= "NULL, ";
+    $rq .= "pool_service_template_id = ";
     isset($ret["pool_service_template_id"])
-        && $ret["pool_service_template_id"] != null
-        ? $rq .= "'" . $ret["pool_service_template_id"] . "' ": $rq .= "NULL ";
-    $rq .= "WHERE pool_id = '".$pool_id."'";
+    && $ret["pool_service_template_id"] != null
+        ? $rq .= "'" . $ret["pool_service_template_id"] . "' " : $rq .= "NULL ";
+    $rq .= "WHERE pool_id = '" . $pool_id . "'";
     $dbResult = $pearDB->query($rq);
 
     generateServices(
@@ -687,7 +688,7 @@ function updatePoolContact($pool_id = null, $ret = array())
             "INSERT INTO mod_dsm_cct_relation (
                 pool_id, cct_cct_id
             ) VALUES (
-                '" .$pool_id . "', '" . $ret[$i] . "'
+                '" . $pool_id . "', '" . $ret[$i] . "'
             )"
         );
     }

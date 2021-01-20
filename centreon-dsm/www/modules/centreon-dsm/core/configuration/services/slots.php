@@ -1,6 +1,7 @@
 <?php
+
 /*
- * Copyright 2005-2019 Centreon
+ * Copyright 2005-2021 Centreon
  * Centreon is developed by : Julien Mathis and Romain Le Merlus under
  * GPL Licence 2.0.
  *
@@ -59,44 +60,44 @@ $path = "./modules/centreon-dsm/core/configuration/services/";
 /*
  * PHP functions
  */
-require_once $path."DB-Func.php";
+require_once $path . "DB-Func.php";
 require_once "./include/common/common-Func.php";
 
 switch ($o) {
     case "a":
-        include_once $path."formSlot.php"; // Add a slot
+        include_once $path . "formSlot.php"; // Add a slot
         break;
     case "w":
-        include_once $path."formSlot.php"; // Watch a slot
+        include_once $path . "formSlot.php"; // Watch a slot
         break;
     case "c":
-        include_once $path."formSlot.php"; // Modify a slot
+        include_once $path . "formSlot.php"; // Modify a slot
         break;
     case "s":
         enablePoolInDB($slot_id);
-        include_once $path."listSlot.php"; // Activate a slot
+        include_once $path . "listSlot.php"; // Activate a slot
         break;
     case "ms":
         enablePoolInDB(null, isset($select) ? $select : array());
-        include_once $path."listSlot.php";
+        include_once $path . "listSlot.php";
         break;
     case "u":
         disablePoolInDB($slot_id);
-        include_once $path."listSlot.php"; // Desactivate a slot
+        include_once $path . "listSlot.php"; // Desactivate a slot
         break;
     case "mu":
         disablePoolInDB(null, isset($select) ? $select : array());
-        include_once $path."listSlot.php";
+        include_once $path . "listSlot.php";
         break;
     case "m":
         multiplePoolInDB(isset($select) ? $select : array(), $dupNbr);
-        include_once $path."listSlot.php"; // Duplicate n slots
+        include_once $path . "listSlot.php"; // Duplicate n slots
         break;
     case "d":
         deletePoolInDB(isset($select) ? $select : array());
-        include_once $path."listSlot.php"; // Delete n slots
+        include_once $path . "listSlot.php"; // Delete n slots
         break;
     default:
-        include_once $path."listSlot.php";
+        include_once $path . "listSlot.php";
         break;
 }

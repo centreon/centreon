@@ -1,6 +1,7 @@
 <?php
+
 /**
- * Copyright 2005-2019 Centreon
+ * Copyright 2005-2020 Centreon
  * Centreon is developed by : Julien Mathis and Romain Le Merlus under
  * GPL Licence 2.0.
  *
@@ -79,18 +80,18 @@ while ($data = $dbResult->fetch()) {
 /*
  * Template / Style for Quickform input
  */
-$attrsText      = array("size"=>"30");
-$attrsTextSmall = array("size"=>"10");
-$attrsText2     = array("size"=>"60");
+$attrsText = array("size" => "30");
+$attrsTextSmall = array("size" => "10");
+$attrsText2 = array("size" => "60");
 $attrsAdvSelect = array("style" => "width: 300px; height: 100px;");
-$attrsTextarea  = array("rows"=>"5", "cols"=>"40");
-$template       = "<table><tr><td>{unselected}</td><td align='center'>{add}<br /><br /><br />" .
+$attrsTextarea = array("rows" => "5", "cols" => "40");
+$template = "<table><tr><td>{unselected}</td><td align='center'>{add}<br /><br /><br />" .
     "{remove}</td><td>{selected}</td></tr></table>";
 
 /*
  * Form begin
  */
-$form = new HTML_QuickFormCustom('Form', 'post', "?p=".$p);
+$form = new HTML_QuickFormCustom('Form', 'post', "?p=" . $p);
 if ($o == "a") {
     $form->addElement('header', 'title', _("Add a pool of services"));
 } elseif ($o == "c") {
@@ -132,7 +133,7 @@ $tab = array();
 $tab[] = $form->createElement('radio', 'action', null, _("List"), '1');
 $tab[] = $form->createElement('radio', 'action', null, _("Form"), '0');
 $form->addGroup($tab, 'action', _("Post Validation"), '&nbsp;');
-$form->setDefaults(array('action'=>'1'));
+$form->setDefaults(array('action' => '1'));
 
 $form->addElement('hidden', 'pool_id');
 $redirect = $form->addElement('hidden', 'o');
@@ -140,7 +141,7 @@ $redirect->setValue($o);
 if (is_array($select)) {
     $select_str = null;
     foreach ($select as $key => $value) {
-        $select_str .= $key.",";
+        $select_str .= $key . ",";
     }
     $select_pear = $form->addElement('hidden', 'select');
     $select_pear->setValue($select_str);
@@ -155,6 +156,7 @@ function myReplace()
     $ret = $form->getSubmitValues();
     return (str_replace(" ", "_", $ret["pool_name"]));
 }
+
 $form->applyFilter('__ALL__', 'myTrim');
 $form->applyFilter('pool_name', 'myReplace');
 $from_list_menu = false;

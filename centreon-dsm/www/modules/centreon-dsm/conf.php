@@ -1,5 +1,6 @@
 <?php
-// Be Carefull with internal_name, it's case sensitive (with directory module name)
+
+// Be Careful with internal_name, it's case sensitive (with directory module name)
 $module_conf['centreon-dsm']["name"] = "centreon-dsm";
 $module_conf['centreon-dsm']["rname"] = "Dynamic Services Management";
 $module_conf['centreon-dsm']["mod_release"] = "20.10.0-beta.2";
@@ -18,7 +19,8 @@ $module_conf['centreon-dsm']["is_removeable"] = "1";
 $module_conf['centreon-dsm']["author"] = "Centreon";
 $module_conf['centreon-dsm']["stability"] = "stable";
 $module_conf['centreon-dsm']["last_update"] = "2020-10-14";
-$module_conf['centreon-dsm']["release_note"] = "https://documentation.centreon.com/20.10/en/releases/centreon-os-extensions.html";
+$module_conf['centreon-dsm']["release_note"] = "https://documentation.centreon.com/20.10/en/releases/" .
+    "centreon-os-extensions.html";
 $module_conf['centreon-dsm']["images"] = [
     'images/dsm_snmp_events_tray.png'
 ];
