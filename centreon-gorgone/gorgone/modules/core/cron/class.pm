@@ -410,7 +410,8 @@ sub dispatcher {
 
     $options->{logger}->writeLogInfo("[cron] Launching job '" . $id . "'");
 
-    my $token = (defined($options->{definition}->{keep_token})) ? $options->{definition}->{id} : undef;
+    my $token = (defined($options->{definition}->{keep_token})) && $options->{definition}->{keep_token} =~ /true|1/i
+        ? $options->{definition}->{id} : undef;
 
     gorgone::standard::library::zmq_send_message(
         socket => $options->{socket},
