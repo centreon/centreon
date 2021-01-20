@@ -31,6 +31,7 @@ use gorgone::standard::constants qw(:all);
 use gorgone::standard::misc;
 use gorgone::class::db;
 use gorgone::class::listener;
+use Time::HiRes;
 
 my ($gorgone);
 
@@ -152,9 +153,11 @@ sub init {
     $self->{config}->{configuration}->{gorgone}->{gorgonecore}->{external_com_zmq_tcp_keepalive} =
         defined($self->{config}->{configuration}->{gorgone}->{gorgonecore}->{external_com_zmq_tcp_keepalive}) && $self->{config}->{configuration}->{gorgone}->{gorgonecore}->{external_com_zmq_tcp_keepalive} =~ /^(0|1)$/ ? $1 : 1;
 
+    my $time_hi = Time::HiRes::time();
+    $time_hi =~ s/\.//;
     $self->{config}->{configuration}->{gorgone}->{gorgonecore}->{internal_com_type} = 'ipc'
         if (!defined($self->{config}->{configuration}->{gorgone}->{gorgonecore}->{internal_com_type}) || $self->{config}->{configuration}->{gorgone}->{gorgonecore}->{internal_com_type} eq '');
-    $self->{config}->{configuration}->{gorgone}->{gorgonecore}->{internal_com_path} = '/tmp/gorgone/routing.ipc'
+    $self->{config}->{configuration}->{gorgone}->{gorgonecore}->{internal_com_path} = '/tmp/gorgone/routing-' . $time_hi . '.ipc'
         if (!defined($self->{config}->{configuration}->{gorgone}->{gorgonecore}->{internal_com_path}) || $self->{config}->{configuration}->{gorgone}->{gorgonecore}->{internal_com_path} eq '');
     $self->{config}->{configuration}->{gorgone}->{gorgonecore}->{timeout} = 
         defined($self->{config}->{configuration}->{gorgone}->{gorgonecore}->{timeout}) && $self->{config}->{configuration}->{gorgone}->{gorgonecore}->{timeout} =~ /(\d+)/ ? $1 : 50;
@@ -759,6 +762,9 @@ sub quit {
     zmq_close($self->{internal_socket});
     if (defined($self->{external_socket})) {
         zmq_close($self->{external_socket});
+    }
+    if ($self->{config}->{configuration}->{gorgone}->{gorgonecore}->{internal_com_type} eq 'ipc') {
+        unlink($self->{config}->{configuration}->{gorgone}->{gorgonecore}->{internal_com_path});
     }
     exit(0);
 }
