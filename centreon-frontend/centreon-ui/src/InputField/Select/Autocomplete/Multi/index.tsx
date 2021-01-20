@@ -1,10 +1,11 @@
 import * as React from 'react';
 
-import { Checkbox, Chip, makeStyles, Typography } from '@material-ui/core';
+import { Checkbox, Chip, makeStyles } from '@material-ui/core';
 import { UseAutocompleteProps } from '@material-ui/lab';
 
 import Autocomplete, { Props as AutocompleteProps } from '..';
 import { SelectEntry } from '../..';
+import Option from '../../Option';
 
 const useStyles = makeStyles((theme) => ({
   checkbox: {
@@ -67,7 +68,7 @@ const MultiAutocompleteField = ({
               className={classes.checkbox}
             />
           )}
-          <Typography>{option.name}</Typography>
+          <Option>{option.name}</Option>
         </>
       )}
       renderTags={renderTags}

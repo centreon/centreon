@@ -16,6 +16,8 @@ import {
   Divider,
 } from '@material-ui/core';
 
+import Option from './Option';
+
 const useStyles = makeStyles((theme: Theme) => ({
   noLabelInput: {
     padding: theme.spacing(1.5),
@@ -110,7 +112,7 @@ const SelectField = ({
 
             return (
               <MenuItem key={key} value={id} style={{ backgroundColor: color }}>
-                {name}
+                <Option>{name}</Option>
               </MenuItem>
             );
           })}

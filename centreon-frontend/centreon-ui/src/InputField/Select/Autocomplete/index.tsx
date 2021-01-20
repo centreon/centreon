@@ -6,7 +6,6 @@ import {
   makeStyles,
   CircularProgress,
   InputAdornment,
-  Typography,
 } from '@material-ui/core';
 import {
   Autocomplete,
@@ -14,6 +13,7 @@ import {
   UseAutocompleteProps,
 } from '@material-ui/lab';
 
+import Option from '../Option';
 import TextField from '../../Text';
 import { SelectEntry } from '..';
 
@@ -103,7 +103,7 @@ const AutocompleteField = ({
               <img alt={option.name} src={option.url} height={20} width={20} />
             )}
 
-            <Typography>{option.name}</Typography>
+            <Option>{option.name}</Option>
           </div>
         );
       }}

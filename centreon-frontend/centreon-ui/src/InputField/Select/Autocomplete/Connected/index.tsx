@@ -138,12 +138,14 @@ const ConnectedAutocompleteField = (
             {multiple ? (
               <FormControlLabel
                 control={checkbox}
-                label={option.name}
+                label={<Typography variant="body2">{option.name}</Typography>}
                 labelPlacement="end"
                 {...refProp}
               />
             ) : (
-              <Typography {...refProp}>{option.name}</Typography>
+              <Typography variant="body2" {...refProp}>
+                {option.name}
+              </Typography>
             )}
           </div>
           {isLastElement && page > 1 && sending && (
