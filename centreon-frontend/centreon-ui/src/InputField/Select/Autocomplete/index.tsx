@@ -12,6 +12,7 @@ import {
   AutocompleteProps,
   UseAutocompleteProps,
 } from '@material-ui/lab';
+import ClearIcon from '@material-ui/icons/Close';
 
 import Option from '../Option';
 import TextField from '../../Text';
@@ -40,6 +41,9 @@ const useStyles = makeStyles((theme) => ({
     gridAutoFlow: 'column',
     gridGap: theme.spacing(1),
     alignItems: 'center',
+  },
+  clearIcon: {
+    fontSize: theme.typography.pxToRem(16),
   },
 }));
 
@@ -138,6 +142,7 @@ const AutocompleteField = ({
           }}
         />
       )}
+      closeIcon={<ClearIcon className={classes.clearIcon} />}
       {...props}
     />
   );

@@ -72,6 +72,7 @@ const MultiAutocompleteField = ({
         </>
       )}
       renderTags={renderTags}
+      getLimitTagsText={(more) => <Option>{`+${more}`}</Option>}
       {...props}
     />
   );
