@@ -76,7 +76,7 @@ const useStyles = makeStyles<Theme, Props>((theme) => ({
 const StatusChip = ({
   severityCode,
   label,
-  clickable = true,
+  clickable = false,
   ...rest
 }: Props): JSX.Element => {
   const classes = useStyles({ severityCode, label });
