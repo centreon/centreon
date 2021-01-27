@@ -12,7 +12,6 @@ import {
   AutocompleteProps,
   UseAutocompleteProps,
 } from '@material-ui/lab';
-import ClearIcon from '@material-ui/icons/Close';
 
 import Option from '../Option';
 import TextField from '../../Text';
@@ -22,7 +21,21 @@ const useStyles = makeStyles((theme) => ({
   loadingIndicator: {
     textAlign: 'center',
   },
+  inputLabel: {
+    '&&': {
+      transform: 'translate(12px, 14px) scale(1)',
+      fontSize: theme.typography.body1.fontSize,
+      whiteSpace: 'nowrap',
+      maxWidth: '72%',
+      overflow: 'hidden',
+      textOverflow: 'ellipsis',
+    },
+  },
   input: {
+    '&[class*="MuiFilledInput-root"]': {
+      paddingTop: theme.spacing(2),
+    },
+    paddingTop: theme.spacing(1),
     '&:before': {
       borderBottom: 0,
     },
@@ -36,14 +49,16 @@ const useStyles = makeStyles((theme) => ({
   inputEndAdornment: {
     paddingBottom: '19px',
   },
+  inputLabelShrink: {
+    '&&': {
+      maxWidth: '90%',
+    },
+  },
   options: {
     display: 'grid',
     gridAutoFlow: 'column',
     gridGap: theme.spacing(1),
     alignItems: 'center',
-  },
-  clearIcon: {
-    fontSize: theme.typography.pxToRem(16),
   },
 }));
 
@@ -96,7 +111,10 @@ const AutocompleteField = ({
       size="small"
       options={options}
       loading={loading}
-      classes={{ inputRoot: classes.input }}
+      classes={{
+        inputRoot: classes.input,
+        groupLabel: classes.inputLabel,
+      }}
       getOptionLabel={(option: SelectEntry): string => option.name}
       loadingText={<LoadingIndicator />}
       getOptionSelected={equals}
@@ -124,8 +142,15 @@ const AutocompleteField = ({
           }}
           required={required}
           error={error}
+          InputLabelProps={{
+            classes: {
+              marginDense: classes.inputLabel,
+              shrink: classes.inputLabelShrink,
+            },
+          }}
           InputProps={{
             ...params.InputProps,
+
             endAdornment: (
               <>
                 {endAdornment && (
@@ -142,7 +167,6 @@ const AutocompleteField = ({
           }}
         />
       )}
-      closeIcon={<ClearIcon className={classes.clearIcon} />}
       {...props}
     />
   );

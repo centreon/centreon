@@ -13,7 +13,12 @@ const useStyles = makeStyles((theme) => ({
     marginRight: theme.spacing(1),
   },
   tag: {
-    fontSize: theme.typography.pxToRem(10),
+    fontSize: theme.typography.caption.fontSize,
+    height: theme.spacing(1.75),
+  },
+  deleteIcon: {
+    width: theme.spacing(1.5),
+    height: theme.spacing(1.5),
   },
 }));
 
@@ -46,6 +51,7 @@ const MultiAutocompleteField = ({
       <Chip
         classes={{
           root: classes.tag,
+          deleteIcon: classes.deleteIcon,
         }}
         key={option.id}
         label={option.name}

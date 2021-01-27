@@ -19,8 +19,11 @@ import {
 import Option from './Option';
 
 const useStyles = makeStyles((theme: Theme) => ({
+  input: {
+    fontSize: theme.typography.body1.fontSize,
+  },
   noLabelInput: {
-    padding: theme.spacing(1.5),
+    padding: theme.spacing(1.25),
   },
   compact: {
     padding: theme.spacing(0.5),
@@ -83,7 +86,7 @@ const SelectField = ({
       <Select
         inputProps={{
           'aria-label': ariaLabel,
-          className: clsx({
+          className: clsx(classes.input, {
             [classes.noLabelInput]: !label && !compact,
             [classes.compact]: compact,
           }),
