@@ -1,5 +1,7 @@
 import * as React from 'react';
 
+import { isNil } from 'ramda';
+
 import {
   withStyles,
   Accordion,
@@ -38,41 +40,35 @@ const ExpansionPanelDetails = withStyles((theme) => ({
 }))(AccordionDetails);
 
 export interface FiltersProps {
-  expandable?: boolean;
   expandLabel?: string;
+  expanded?: boolean;
+  onExpand?: () => void;
   filters: React.ReactElement;
   expandableFilters?: React.ReactElement;
-  onExpandTransitionFinish?: (expanded: boolean) => void;
 }
 
 const Filters = React.forwardRef(
   (
     {
-      expandable = false,
       expandLabel,
+      expanded = false,
+      onExpand,
       filters,
       expandableFilters,
-      onExpandTransitionFinish,
     }: FiltersProps,
     ref,
   ): JSX.Element => {
-    const [expanded, setExpanded] = React.useState(false);
-
-    const toggleExpanded = () => setExpanded(!expanded);
+    const expandable = !isNil(onExpand);
 
     return (
-      <Accordion
-        square
-        expanded={expandable ? expanded : false}
-        onTransitionEnd={() => onExpandTransitionFinish?.(expanded)}
-      >
+      <Accordion square expanded={expandable ? expanded : false}>
         <ExpansionPanelSummary
           expandIcon={
             expandable && (
               <ExpandMoreIcon color="primary" aria-label={expandLabel} />
             )
           }
-          IconButtonProps={{ onClick: toggleExpanded }}
+          IconButtonProps={{ onClick: onExpand }}
           style={{ cursor: 'default' }}
           ref={ref as React.RefObject<HTMLDivElement>}
         >

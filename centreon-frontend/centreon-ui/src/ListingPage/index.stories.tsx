@@ -183,10 +183,13 @@ const FiltersDetails = (): JSX.Element => {
 };
 
 const ExpandableFilters = (): JSX.Element => {
+  const [expanded, setExpanded] = React.useState(false);
+
   return (
     <Filters
       filters={<FiltersSummary />}
-      expandable
+      expanded={expanded}
+      onExpand={() => setExpanded(!expanded)}
       expandableFilters={<FiltersDetails />}
     />
   );
