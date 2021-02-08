@@ -4,12 +4,9 @@ module.exports = {
     es6: true,
     jest: true,
   },
-  extends: ['airbnb', 'plugin:prettier/recommended'],
-  globals: {
-    Atomics: 'readonly',
-    SharedArrayBuffer: 'readonly',
-  },
-  parser: 'babel-eslint',
+  root: true,
+  extends: ['airbnb', '../base.eslintrc.js'],
+
   parserOptions: {
     ecmaFeatures: {
       jsx: true,
@@ -17,7 +14,7 @@ module.exports = {
     ecmaVersion: 2018,
     sourceType: 'module',
   },
-  plugins: ['react', 'react-hooks', 'babel', 'prefer-arrow-functions'],
+  plugins: ['react', 'react-hooks', 'babel'],
   settings: {
     'import/resolver': {
       alias: {
@@ -26,10 +23,7 @@ module.exports = {
     }
   },
   rules: {
-    'prettier/prettier': [
-      'error',
-      { singleQuote: true, arrowParens: 'always', trailingComma: 'all', endOfLine: 'auto' },
-    ],
+   
     'import/no-extraneous-dependencies': [
       'error',
       { devDependencies: true }
@@ -67,7 +61,6 @@ module.exports = {
     'react/jsx-props-no-spreading': 'off',
     'react/jsx-wrap-multilines': 'off',
     'react/state-in-constructor': 'off',
-    'import/prefer-default-export': 'off',
     'no-use-before-define': 'off',
     'import/extensions': [
       'error',

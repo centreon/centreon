@@ -1,7 +1,8 @@
 module.exports = {
   extends: [
-    './index.js'
+    './index.eslintrc.js'
   ],
+  root: true,
   overrides: [
     {
       files: ['*.ts', '*.tsx'],
@@ -62,7 +63,7 @@ module.exports = {
         'react/require-default-props': 'off',
         'no-shadow': 'off',
         '@typescript-eslint/no-shadow': ['error'],
-        'no-unused-vars': ['error', { 'vars': 'all', 'args': 'all', 'ignoreRestSiblings': false, 'argsIgnorePattern': '^_$' }]
+        "@typescript-eslint/no-unused-vars": ["error"],
       },
     }
   ]
