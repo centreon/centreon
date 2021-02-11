@@ -9,8 +9,8 @@ import Listing from '../Listing';
 import { ColumnType } from '../Listing/models';
 import { SearchField } from '..';
 import TextField from '../InputField/Text';
-import Panel from '../Panel';
 import AutocompleteField from '../InputField/Select/Autocomplete';
+import Panel from '../Panel';
 
 import Filters from './Filters';
 
@@ -140,6 +140,7 @@ const NonExpandableFilters = (): JSX.Element => {
 interface ExpandableFiltersWithOpenButtonProps {
   onOpen?: () => void;
 }
+
 const ExpandableFiltersWithOpenButton = ({
   onOpen = () => undefined,
 }: ExpandableFiltersWithOpenButtonProps): JSX.Element => {

@@ -7,6 +7,7 @@ import ForwardIcon from '@material-ui/icons/ArrowForwardIos';
 
 import Panel from '..';
 import ContentWithCircularLoading from '../../ContentWithCircularProgress';
+import useMemoComponent from '../../utils/useMemoComponent';
 
 import ExpandableSection from './ExpandableSection';
 
@@ -52,7 +53,7 @@ interface Section {
   section: JSX.Element;
 }
 
-interface Props {
+interface SectionPanelProps {
   header: JSX.Element;
   sections: Array<Section>;
   onClose: () => void;
@@ -68,7 +69,7 @@ const SectionPanel = ({
   onSecondaryPanelClose = () => undefined,
   onClose = () => undefined,
   loading = false,
-}: Props): JSX.Element => {
+}: SectionPanelProps): JSX.Element => {
   const hasSecondaryPanel = !isNil(secondaryPanel);
 
   const classes = useStyles(hasSecondaryPanel);
@@ -124,5 +125,28 @@ const SectionPanel = ({
     />
   );
 };
+
+interface MemoizedSectionPanelProps extends SectionPanelProps {
+  memoProps?: Array<unknown>;
+}
+
+export const MemoizedSectionPanel = ({
+  memoProps = [],
+  sections,
+  secondaryPanel,
+  loading,
+  ...props
+}: MemoizedSectionPanelProps): JSX.Element =>
+  useMemoComponent({
+    Component: (
+      <SectionPanel
+        sections={sections}
+        secondaryPanel={secondaryPanel}
+        loading={loading}
+        {...props}
+      />
+    ),
+    memoProps: [...memoProps, sections, secondaryPanel, loading],
+  });
 
 export default SectionPanel;

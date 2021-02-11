@@ -10,6 +10,8 @@ import {
 } from '@material-ui/core';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 
+import { useMemoComponent } from '..';
+
 const ExpansionPanelSummary = withStyles((theme) => ({
   root: {
     padding: theme.spacing(0, 3, 0, 2),
@@ -81,5 +83,19 @@ const Filters = React.forwardRef(
     );
   },
 );
+
+interface MemoizedFiltersProps extends FiltersProps {
+  memoProps?: Array<unknown>;
+}
+
+export const MemoizedFilters = ({
+  memoProps = [],
+  expanded,
+  ...props
+}: MemoizedFiltersProps): JSX.Element =>
+  useMemoComponent({
+    Component: <Filters expanded={expanded} {...props} />,
+    memoProps: [...memoProps, expanded],
+  });
 
 export default Filters;

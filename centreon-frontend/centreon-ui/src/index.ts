@@ -42,7 +42,11 @@ export { default as Slider } from './Slider/SliderContent';
 export { default as Sidebar } from './Sidebar';
 export { default as Subtitle } from './Subtitle';
 
-export { default as Listing, Props as ListingProps } from './Listing';
+export {
+  default as Listing,
+  Props as ListingProps,
+  MemoizedListing,
+} from './Listing';
 export {
   ColumnType,
   ComponentColumnProps,
@@ -51,8 +55,8 @@ export {
 } from './Listing/models';
 
 export { default as ListingPage } from './ListingPage';
-export { default as Filters } from './ListingPage/Filters';
-export { default as Panel } from './Panel';
+export { default as Filters, MemoizedFilters } from './ListingPage/Filters';
+export { default as Panel, MemoizedPanel } from './Panel';
 
 export { default as Title } from './Title';
 export { default as Wrapper } from './Wrapper';
@@ -103,7 +107,7 @@ export { default as SubmenuItems } from './Submenu/SubmenuHeader/SubmenuItems';
 export { default as SubmenuItem } from './Submenu/SubmenuHeader/SubmenuItem';
 
 export { default as MultiSelectEntries } from './MultiSelectEntries';
-export { default as SectionPanel } from './Panel/Section';
+export { default as SectionPanel, MemoizedSectionPanel } from './Panel/Section';
 
 export { default as StatusChip } from './StatusChip';
 export { SeverityCode, getStatusColors } from './StatusChip';
@@ -139,3 +143,5 @@ export {
   RegexSearchParameter,
   ListsSearchParameter,
 } from './api/buildListingEndpoint/models';
+
+export { default as useMemoComponent } from './utils/useMemoComponent';
