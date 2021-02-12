@@ -16,7 +16,7 @@
             var autoRefresh = "{$autoRefresh}";
             var timeout;
         </script>
-        <script type="text/javascript" src="../../include/common/javascript/jquery/jquery.js"></script>
+        <script type="text/javascript" src="../../include/common/javascript/jquery/jquery.min.js"></script>
         <script type="text/javascript" src="../../include/common/javascript/jquery/jquery-ui.js"></script>
         <script type="text/javascript" src="src/data_js.js"></script>
     </body>
