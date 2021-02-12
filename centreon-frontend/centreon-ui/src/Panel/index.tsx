@@ -86,104 +86,109 @@ interface Props {
   memoProps?: Array<unknown>;
 }
 
-const Panel = ({
-  header,
-  tabs = [],
-  selectedTabId = 0,
-  selectedTab,
-  onClose,
-  onTabSelect = () => undefined,
-  labelClose = 'Close',
-  width = 550,
-  minWidth = 550,
-  headerBackgroundColor,
-  onResize,
-}: Omit<Props, 'memoProps'>): JSX.Element => {
-  const classes = useStyles({ width, headerBackgroundColor });
+const Panel = React.forwardRef<HTMLDivElement, Props>(
+  (
+    {
+      header,
+      tabs = [],
+      selectedTabId = 0,
+      selectedTab,
+      onClose,
+      onTabSelect = () => undefined,
+      labelClose = 'Close',
+      width = 550,
+      minWidth = 550,
+      headerBackgroundColor,
+      onResize,
+    }: Omit<Props, 'memoProps'>,
+    ref,
+  ): JSX.Element => {
+    const classes = useStyles({ width, headerBackgroundColor });
 
-  const resize = () => {
-    document.addEventListener('mouseup', releaseMouse, true);
-    document.addEventListener('mousemove', moveMouse, true);
-  };
-
-  const releaseMouse = () => {
-    document.removeEventListener('mouseup', releaseMouse, true);
-    document.removeEventListener('mousemove', moveMouse, true);
-  };
-
-  const moveMouse = React.useCallback((e) => {
-    e.preventDefault();
-
-    const maxWidth = window.innerWidth * 0.85;
-    const newWidth = document.body.clientWidth - e.clientX;
-
-    const getResizedWidth = (): number => {
-      if (newWidth <= minWidth) {
-        return minWidth;
-      }
-
-      if (newWidth > maxWidth) {
-        return maxWidth;
-      }
-
-      return newWidth;
+    const resize = () => {
+      document.addEventListener('mouseup', releaseMouse, true);
+      document.addEventListener('mousemove', moveMouse, true);
     };
 
-    onResize?.(getResizedWidth());
-  }, []);
+    const releaseMouse = () => {
+      document.removeEventListener('mouseup', releaseMouse, true);
+      document.removeEventListener('mousemove', moveMouse, true);
+    };
 
-  return (
-    <Slide
-      direction="left"
-      in
-      timeout={{
-        enter: 150,
-        exit: 50,
-      }}
-    >
-      <Paper elevation={2} className={classes.container}>
-        {!isNil(onResize) && (
-          <div className={classes.dragger} onMouseDown={resize} role="none" />
-        )}
-        {header && (
-          <>
-            <div className={classes.header}>
-              {header}
-              {onClose && (
-                <IconButton
-                  title={labelClose}
-                  ariaLabel={labelClose}
-                  onClick={onClose}
+    const moveMouse = React.useCallback((e) => {
+      e.preventDefault();
+
+      const maxWidth = window.innerWidth * 0.85;
+      const newWidth = document.body.clientWidth - e.clientX;
+
+      const getResizedWidth = (): number => {
+        if (newWidth <= minWidth) {
+          return minWidth;
+        }
+
+        if (newWidth > maxWidth) {
+          return maxWidth;
+        }
+
+        return newWidth;
+      };
+
+      onResize?.(getResizedWidth());
+    }, []);
+
+    return (
+      <Slide
+        direction="left"
+        in
+        timeout={{
+          enter: 150,
+          exit: 50,
+        }}
+      >
+        <Paper elevation={2} className={classes.container}>
+          {!isNil(onResize) && (
+            <div className={classes.dragger} onMouseDown={resize} role="none" />
+          )}
+          {header && (
+            <>
+              <div className={classes.header}>
+                {header}
+                {onClose && (
+                  <IconButton
+                    title={labelClose}
+                    ariaLabel={labelClose}
+                    onClick={onClose}
+                  >
+                    <IconClose color="action" />
+                  </IconButton>
+                )}
+              </div>
+              <Divider className={classes.divider} />
+            </>
+          )}
+          <div className={classes.body}>
+            <AppBar position="static" color="default">
+              {!isEmpty(tabs) && (
+                <Tabs
+                  variant="fullWidth"
+                  value={selectedTabId}
+                  indicatorColor="primary"
+                  textColor="primary"
+                  onChange={onTabSelect}
                 >
-                  <IconClose color="action" />
-                </IconButton>
+                  {tabs.map((tab) => tab)}
+                </Tabs>
               )}
+            </AppBar>
+            <div className={classes.contentContainer} ref={ref}>
+              <div className={classes.content}>{selectedTab}</div>
             </div>
-            <Divider className={classes.divider} />
-          </>
-        )}
-        <div className={classes.body}>
-          <AppBar position="static" color="default">
-            {!isEmpty(tabs) && (
-              <Tabs
-                variant="fullWidth"
-                value={selectedTabId}
-                indicatorColor="primary"
-                textColor="primary"
-                onChange={onTabSelect}
-              >
-                {tabs.map((tab) => tab)}
-              </Tabs>
-            )}
-          </AppBar>
-          <div className={classes.contentContainer}>
-            <div className={classes.content}>{selectedTab}</div>
           </div>
-        </div>
-      </Paper>
-    </Slide>
-  );
-};
+        </Paper>
+      </Slide>
+    );
+  },
+);
 
 export const MemoizedPanel = ({
   memoProps = [],
