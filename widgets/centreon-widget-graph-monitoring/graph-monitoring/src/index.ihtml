@@ -11,7 +11,7 @@
         <!--<div id='graphMonitoringTable'></div>-->
         <div class="chart" data-graph-id="{$graphId}" data-graph-type="service"></div>
 
-        <script type="text/javascript" src="../../include/common/javascript/jquery/jquery.js"></script>
+        <script type="text/javascript" src="../../include/common/javascript/jquery/jquery.min.js"></script>
         <script type="text/javascript" src="../../include/common/javascript/jquery/jquery-ui.js"></script>
         <script type="text/javascript" src="../../include/common/javascript/widgetUtils.js"></script>
         <script type="text/javascript" src="../../include/common/javascript/jquery/plugins/treeTable/jquery.treeTable.min.js"></script>
