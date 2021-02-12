@@ -21,7 +21,7 @@
             var pageNumber = 0;
             var clickedCb = new Array();
         </script>
-        <script type="text/javascript" src="../../include/common/javascript/jquery/jquery.js"></script>
+        <script type="text/javascript" src="../../include/common/javascript/jquery/jquery.min.js"></script>
         <script type="text/javascript" src="../../include/common/javascript/jquery/jquery-ui.js"></script>
         <script type="text/javascript" src="../../include/common/javascript/widgetUtils.js"></script>
         <script type="text/javascript" src="../../include/common/javascript/jquery/plugins/pagination/jquery.pagination.js"></script>
