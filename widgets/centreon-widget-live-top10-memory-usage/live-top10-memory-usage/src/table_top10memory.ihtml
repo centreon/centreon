@@ -71,7 +71,7 @@
         var widgetId = "{$widgetId}";
         var autoRefresh = "{$autoRefresh}";
     </script>
-    <script type="text/javascript" src="../../include/common/javascript/jquery/jquery.js"></script>
+    <script type="text/javascript" src="../../include/common/javascript/jquery/jquery.min.js"></script>
     <script type="text/javascript" src="../../include/common/javascript/jquery/jquery-ui.js"></script>
     <script type="text/javascript" src="../../include/common/javascript/widgetUtils.js"></script>
     <script type="text/javascript" src="src/data_js.js"></script>
