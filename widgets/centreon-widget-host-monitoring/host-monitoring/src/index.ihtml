@@ -24,7 +24,7 @@
             var _num_edge_entries = 1;
             var _num_display_entries = 3;
         </script>
-        <script type="text/javascript" src="../../include/common/javascript/jquery/jquery.js"></script>
+        <script type="text/javascript" src="../../include/common/javascript/jquery/jquery.min.js"></script>
         <script type="text/javascript" src="../../include/common/javascript/jquery/plugins/pagination/jquery.pagination.js"></script>
         <script type="text/javascript" src="../../include/common/javascript/centreon/popin.js"></script>
         <script type="text/javascript" src="../../include/common/javascript/moment-with-locales.min.2.21.js"></script>
