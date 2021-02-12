@@ -64,10 +64,10 @@ export { default as TopFilters } from './TopFilters';
 export { default as ExtensionsHolder } from './ExtensionsHolder';
 export { default as ExtensionDetailsPopup } from './ExtensionDetailsPopup';
 export { default as ExtensionDeletePopup } from './ExtensionDeletePopup';
-export { default as Loader } from './Loader';
 export { default as ThemeProvider } from './ThemeProvider';
 export { default as withThemeProvider } from './ThemeProvider/withThemeProvider';
 export { default as Wizard } from './Wizard';
+export { default as PageSkeleton } from './PageSkeleton';
 
 export { default as IconAccessTime } from './Icon/IconAccessTime';
 export { default as IconDelete } from './Icon/IconDelete';
