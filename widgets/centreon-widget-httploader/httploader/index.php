@@ -83,7 +83,7 @@ try {
         <link href="../../Themes/Centreon-2/style.css" rel="stylesheet" type="text/css"/>
         <link href="../../Themes/Centreon-2/jquery-ui/jquery-ui.css" rel="stylesheet" type="text/css"/>
         <link href="../../Themes/Centreon-2/jquery-ui/jquery-ui-centreon.css" rel="stylesheet" type="text/css"/>
-        <script type="text/javascript" src="../../include/common/javascript/jquery/jquery.js"></script>
+        <script type="text/javascript" src="../../include/common/javascript/jquery/jquery.min.js"></script>
         <script type="text/javascript" src="../../include/common/javascript/jquery/jquery-ui.js"></script>
         <script type="text/javascript" src="../../include/common/javascript/widgetUtils.js"></script>
     </head>
