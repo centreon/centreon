@@ -74,6 +74,7 @@ const PageSkeleton = ({
                 skeletonClasses.skeletonLayout,
               )}
               animation={animate ? 'wave' : false}
+              height={theme.spacing(2.5)}
             />
             <ContentSkeleton animate={animate} />
           </div>

@@ -7,14 +7,14 @@ import BaseRectSkeleton from './BaseSkeleton';
 import { PageSkeletonProps } from '.';
 
 const numberOfActionButtons = 2;
-const filterHeight = 6.5;
-const paginationHeight = 5;
-const actionBarHeight = 6;
+const filterHeight = 7.4;
+const paginationHeight = 4;
+const actionBarHeight = 3.75;
 const contentHeight = 40;
 
 const useStyles = makeStyles((theme) => ({
   actionBarPaginationContainer: {
-    marginTop: theme.spacing(1.5),
+    marginTop: theme.spacing(1.25),
     marginLeft: theme.spacing(3),
     display: 'grid',
     gridTemplateColumns: `${theme.spacing(50)}px ${theme.spacing(54)}px`,
