@@ -199,7 +199,7 @@ export const MemoizedPanel = ({
   minWidth,
   headerBackgroundColor,
   ...props
-}: Props): JSX.Element =>
+}: Props & React.RefAttributes<HTMLDivElement>): JSX.Element =>
   useMemoComponent({
     Component: (
       <Panel

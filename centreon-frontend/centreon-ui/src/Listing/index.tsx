@@ -1,5 +1,7 @@
 import React, { useState, useRef, RefObject } from 'react';
 
+import { isNil } from 'ramda';
+
 import { makeStyles, Theme } from '@material-ui/core/styles';
 import {
   Table,
@@ -7,26 +9,28 @@ import {
   Paper,
   LinearProgress,
   TableRow,
-  Checkbox,
+  useTheme,
 } from '@material-ui/core';
 
 import useMemoComponent from '../utils/useMemoComponent';
 
-import ListingHeader from './Header';
+import ListingHeader, { headerHeight } from './Header';
 import ListingRow from './Row';
 import PaginationActions from './PaginationActions';
 import StyledPagination from './Pagination';
 import ListingLoadingSkeleton from './Skeleton';
 import useResizeObserver from './useResizeObserver';
 import getCumulativeOffset from './getCumulativeOffset';
-import ColumnCell, { BodyTableCell } from './ColumnCell';
+import DataCell from './Cell/DataCell';
+import Cell from './Cell';
+import Checkbox from './Checkbox';
 
 const loadingIndicatorHeight = 3;
 
 const haveSameIds = (a, b): boolean => a.id === b.id;
 
 const useStyles = makeStyles<Theme>((theme) => ({
-  paperElement: {
+  container: {
     width: '100%',
     height: '100%',
     display: 'flex',
@@ -50,11 +54,29 @@ const useStyles = makeStyles<Theme>((theme) => ({
     width: '100%',
     height: loadingIndicatorHeight,
   },
+  table: {
+    position: 'relative',
+    display: 'grid',
+    alignItems: 'center',
+  },
+  tableBody: {
+    position: 'relative',
+    display: 'contents',
+  },
+  paper: {
+    overflow: 'auto',
+  },
+  emptyDataRow: {
+    display: 'contents',
+  },
+  emptyDataCell: {
+    paddingLeft: theme.spacing(2),
+  },
 }));
 
 export interface Props {
   checkable?: boolean;
-  currentPage?;
+  currentPage?: number;
   columnConfiguration;
   emptyDataMessage?: string;
   rowColorConditions?;
@@ -111,16 +133,17 @@ const Listing = ({
     null,
   );
 
-  const paperRef = useRef<HTMLDivElement>();
-  const paginationElement = useRef<HTMLDivElement>();
-  const tableHeaderElement = useRef<HTMLTableSectionElement>();
+  const containerRef = useRef<HTMLDivElement>();
+  const actionBarRef = useRef<HTMLDivElement>();
 
   const classes = useStyles();
 
+  const theme = useTheme();
+
   useResizeObserver({
-    ref: paperRef,
+    ref: containerRef,
     onResize: () => {
-      setTableTopOffset(getCumulativeOffset(paperRef.current));
+      setTableTopOffset(getCumulativeOffset(containerRef.current));
     },
   });
 
@@ -187,7 +210,27 @@ const Listing = ({
       return '100%';
     }
 
-    return `calc(100vh - ${tableTopOffset}px - ${paginationElement.current?.clientHeight}px - ${tableHeaderElement.current?.clientHeight}px)`;
+    return `calc(100vh - ${tableTopOffset}px - ${
+      actionBarRef.current?.offsetHeight
+    }px - ${headerHeight}px - ${loadingIndicatorHeight}px - ${theme.spacing(
+      1,
+    )}px)`;
+  };
+
+  const getGridTemplateColumn = (): string => {
+    const checkbox = checkable ? 'min-content ' : '';
+
+    const columns = columnConfiguration
+      .map(({ width }) => {
+        if (isNil(width)) {
+          return 'auto';
+        }
+
+        return typeof width === 'number' ? `${width}px` : width;
+      })
+      .join(' ');
+
+    return `${checkbox}${columns}`;
   };
 
   return (
@@ -199,12 +242,12 @@ const Listing = ({
         <div className={classes.loadingIndicator} />
       )}
       <div
-        className={classes.paperElement}
-        ref={paperRef as RefObject<HTMLDivElement>}
+        className={classes.container}
+        ref={containerRef as RefObject<HTMLDivElement>}
       >
         <div
           className={classes.actionBar}
-          ref={paginationElement as RefObject<HTMLDivElement>}
+          ref={actionBarRef as RefObject<HTMLDivElement>}
         >
           <div className={classes.actions}>{Actions}</div>
           {paginated ? (
@@ -228,13 +271,20 @@ const Listing = ({
         </div>
         <Paper
           style={{
-            overflow: 'auto',
             maxHeight: tableMaxHeight(),
           }}
+          className={classes.paper}
           elevation={1}
           square
         >
-          <Table size="small" stickyHeader>
+          <Table
+            size="small"
+            stickyHeader
+            className={classes.table}
+            style={{
+              gridTemplateColumns: getGridTemplateColumn(),
+            }}
+          >
             <ListingHeader
               numSelected={selectedRows.length}
               order={sorto}
@@ -244,14 +294,11 @@ const Listing = ({
               onRequestSort={handleRequestSort}
               rowCount={limit - emptyRows}
               headColumns={columnConfiguration}
-              ref={tableHeaderElement as RefObject<HTMLTableSectionElement>}
             />
 
             <TableBody
               onMouseLeave={clearHoveredRow}
-              style={{
-                position: 'relative',
-              }}
+              className={classes.tableBody}
             >
               {tableData.map((row) => {
                 const isRowSelected = isSelected(row);
@@ -269,47 +316,53 @@ const Listing = ({
                     isHovered={isRowHovered}
                     isSelected={isRowSelected}
                     row={row}
-                    rowColorConditions={rowColorConditions}
                   >
-                    {checkable ? (
-                      <BodyTableCell
+                    {checkable && (
+                      <Cell
                         align="left"
                         onClick={(event): void => selectRow(event, row)}
-                        padding="checkbox"
+                        isRowHovered={isRowHovered}
+                        row={row}
+                        rowColorConditions={rowColorConditions}
                       >
                         <Checkbox
-                          size="small"
-                          color="primary"
                           checked={isRowSelected}
                           inputProps={{
                             'aria-label': `Select row ${row.id}`,
                           }}
                           disabled={disableRowCheckCondition(row)}
                         />
-                      </BodyTableCell>
-                    ) : null}
+                      </Cell>
+                    )}
 
                     {columnConfiguration.map((column) => (
-                      <ColumnCell
+                      <DataCell
                         key={`${row.id}-${column.id}`}
                         column={column}
                         row={row}
                         listingCheckable={checkable}
                         isRowSelected={isRowSelected}
                         isRowHovered={isRowHovered}
+                        rowColorConditions={rowColorConditions}
                       />
                     ))}
                   </ListingRow>
                 );
               })}
               {tableData.length < 1 && (
-                <TableRow tabIndex={-1}>
-                  <BodyTableCell
-                    colSpan={columnConfiguration.length + 1}
+                <TableRow tabIndex={-1} className={classes.emptyDataRow}>
+                  <Cell
+                    className={classes.emptyDataCell}
+                    isRowHovered={false}
                     align="center"
+                    style={{
+                      gridColumn: `auto / span ${
+                        columnConfiguration.length + 1
+                      }`,
+                    }}
                   >
                     {loading ? <ListingLoadingSkeleton /> : emptyDataMessage}
-                  </BodyTableCell>
+                  </Cell>
                 </TableRow>
               )}
             </TableBody>

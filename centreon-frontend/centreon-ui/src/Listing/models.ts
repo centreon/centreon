@@ -14,7 +14,7 @@ export interface Column {
   width?: number | string;
   getFormattedString?: (row) => string | null;
   getColSpan?: (isSelected) => number | undefined;
-  getTruncateCondition?: (isSelected) => boolean;
+  isTruncated?: boolean;
   getHiddenCondition?: (isSelected) => boolean;
   disablePadding?: boolean;
   sortable?: boolean;

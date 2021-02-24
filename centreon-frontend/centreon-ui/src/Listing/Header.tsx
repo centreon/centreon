@@ -3,22 +3,25 @@ import * as React from 'react';
 import { equals } from 'ramda';
 
 import {
-  Checkbox,
   TableHead,
   TableRow,
   TableCell,
   withStyles,
   TableSortLabel,
   Typography,
+  makeStyles,
 } from '@material-ui/core';
 
-import { useStyles as useCellStyles } from './ColumnCell';
+import { useStyles as useCellStyles } from './Cell/DataCell';
+import Checkbox from './Checkbox';
+
+const height = 28;
 
 const HeaderCell = withStyles((theme) => ({
   root: {
     backgroundColor: theme.palette.common.white,
-    paddingBottom: theme.spacing(1),
-    paddingTop: theme.spacing(1),
+    padding: theme.spacing(0, 0, 0, 1.5),
+    height,
   },
 }))(TableCell);
 
@@ -27,6 +30,12 @@ const HeaderTypography = withStyles({
     fontWeight: 'bold',
   },
 })(Typography);
+
+const useStyles = makeStyles(() => ({
+  row: {
+    display: 'contents',
+  },
+}));
 
 interface Props {
   onSelectAllClick: (event) => void;
@@ -39,75 +48,69 @@ interface Props {
   onRequestSort: (event, property) => void;
 }
 
-const ListingHeader = React.forwardRef(
-  (
-    {
-      onSelectAllClick,
-      order,
-      orderBy,
-      numSelected,
-      rowCount,
-      headColumns,
-      checkable,
-      onRequestSort,
-    }: Props,
-    ref,
-  ): JSX.Element => {
-    const classes = useCellStyles({ listingCheckable: checkable });
+const ListingHeader = ({
+  onSelectAllClick,
+  order,
+  orderBy,
+  numSelected,
+  rowCount,
+  headColumns,
+  checkable,
+  onRequestSort,
+}: Props): JSX.Element => {
+  const classes = useStyles();
+  const cellClasses = useCellStyles({ listingCheckable: checkable });
 
-    const createSortHandler = (property) => (event): void => {
-      onRequestSort(event, property);
-    };
+  const createSortHandler = (property) => (event): void => {
+    onRequestSort(event, property);
+  };
 
-    const getSortField = (column): string => column.sortField || column.id;
+  const getSortField = (column): string => column.sortField || column.id;
 
-    return (
-      <TableHead ref={ref as React.RefObject<HTMLTableSectionElement>}>
-        <TableRow>
-          {checkable ? (
-            <HeaderCell padding="checkbox">
-              <Checkbox
-                size="small"
-                color="primary"
-                inputProps={{ 'aria-label': 'Select all' }}
-                indeterminate={numSelected > 0 && numSelected < rowCount}
-                checked={numSelected === rowCount}
-                onChange={onSelectAllClick}
-              />
-            </HeaderCell>
-          ) : null}
+  return (
+    <TableHead className={classes.row}>
+      <TableRow className={classes.row}>
+        {checkable && (
+          <HeaderCell>
+            <Checkbox
+              inputProps={{ 'aria-label': 'Select all' }}
+              indeterminate={numSelected > 0 && numSelected < rowCount}
+              checked={numSelected === rowCount}
+              onChange={onSelectAllClick}
+            />
+          </HeaderCell>
+        )}
 
-          {headColumns.map((column) => (
-            <HeaderCell
-              key={column.id}
-              align={column.numeric ? 'left' : 'inherit'}
-              padding={column.disablePadding ? 'none' : 'default'}
-              sortDirection={orderBy === column.id ? order : false}
-              className={classes.cell}
-            >
-              {column.sortable === false ? (
+        {headColumns.map((column) => (
+          <HeaderCell
+            key={column.id}
+            align={column.numeric ? 'left' : 'inherit'}
+            padding={column.disablePadding ? 'none' : 'default'}
+            sortDirection={orderBy === column.id ? order : false}
+            className={cellClasses.cell}
+          >
+            {column.sortable === false ? (
+              <HeaderTypography variant="body2">
+                {column.label}
+              </HeaderTypography>
+            ) : (
+              <TableSortLabel
+                aria-label={`Column ${column.label}`}
+                active={orderBy === getSortField(column)}
+                direction={order || 'desc'}
+                onClick={createSortHandler(getSortField(column))}
+              >
                 <HeaderTypography variant="body2">
                   {column.label}
                 </HeaderTypography>
-              ) : (
-                <TableSortLabel
-                  aria-label={`Column ${column.label}`}
-                  active={orderBy === getSortField(column)}
-                  direction={order || 'desc'}
-                  onClick={createSortHandler(getSortField(column))}
-                >
-                  <HeaderTypography variant="body2">
-                    {column.label}
-                  </HeaderTypography>
-                </TableSortLabel>
-              )}
-            </HeaderCell>
-          ))}
-        </TableRow>
-      </TableHead>
-    );
-  },
-);
+              </TableSortLabel>
+            )}
+          </HeaderCell>
+        ))}
+      </TableRow>
+    </TableHead>
+  );
+};
 
 const MemoizedListingHeader = React.memo(
   ListingHeader,
@@ -121,3 +124,4 @@ const MemoizedListingHeader = React.memo(
 );
 
 export default MemoizedListingHeader;
+export { height as headerHeight };

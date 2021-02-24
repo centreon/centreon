@@ -19,7 +19,7 @@ const useStyles = makeStyles((theme: Theme) => ({
     padding: theme.spacing(1.25),
   },
   compact: {
-    padding: theme.spacing(1),
+    padding: theme.spacing(0.75),
     fontSize: 'x-small',
   },
   transparent: {
