@@ -570,44 +570,38 @@ sub router_internal_event {
 sub handshake {
     my ($self, %options) = @_;
 
-    my ($identity, $message) = gorgone::standard::library::zmq_read_message(
-        socket => $self->{external_socket},
-        logger => $self->{logger}
-    );
-    return undef if (!defined($identity));
-
     # Test if it asks for the pubkey
-    if ($message =~ /^\s*\[GETPUBKEY\]/) {
+    if ($options{message} =~ /^\s*\[GETPUBKEY\]/) {
         gorgone::standard::library::zmq_core_pubkey_response(
             socket => $self->{external_socket},
-            identity => $identity,
+            identity => $options{identity},
             pubkey => $self->{server_pubkey}
         );
         return undef;
     }
 
-    my ($status, $key) = gorgone::standard::library::is_handshake_done(dbh => $self->{db_gorgone}, identity => $identity);
+    my ($status, $key) = gorgone::standard::library::is_handshake_done(dbh => $self->{db_gorgone}, identity => $options{identity});
 
     if ($status == 1) {
         ($status, my $response) = gorgone::standard::library::uncrypt_message(
             cipher => $self->{config}->{configuration}->{gorgone}->{gorgonecore}->{cipher}, 
-            message => $message,
+            message => $options{message},
             symkey => $key,
             vector => $self->{config}->{configuration}->{gorgone}->{gorgonecore}->{vector}
         );
         if ($status == 0 && $response =~ /^(?:[\[a-zA-Z-_]+?\]\s+\[.*?\]|[\[a-zA-Z-_]+?\]\s*$)/) {
-            gorgone::standard::library::update_identity(dbh => $self->{db_gorgone}, identity => $identity);
-            return ($identity, $key, $response);
+            gorgone::standard::library::update_identity(dbh => $self->{db_gorgone}, identity => $options{identity});
+            return ($key, $response);
         }
 
         # Maybe he want to redo a handshake
         $status = 0;    
     }
-    
+
     if ($status == -1) {
         gorgone::standard::library::zmq_core_response(
             socket => $self->{external_socket}, 
-            identity => $identity,
+            identity => $options{identity},
             code => GORGONE_ACTION_FINISH_KO,
             data => { message => 'Database issue' }
         );
@@ -616,14 +610,14 @@ sub handshake {
         # We try to uncrypt
         ($status, my $client_pubkey) = gorgone::standard::library::is_client_can_connect(
             privkey => $self->{server_privkey},
-            message => $message,
+            message => $options{message},
             logger => $self->{logger},
             authorized_clients => $self->{config}->{configuration}->{gorgone}->{gorgonecore}->{authorized_clients}
         );
         if ($status == -1) {
             gorgone::standard::library::zmq_core_response(
                 socket => $self->{external_socket},
-                identity => $identity,
+                identity => $options{identity},
                 code => GORGONE_ACTION_FINISH_KO,
                 data => { message => 'handshake issue' }
             );
@@ -636,25 +630,25 @@ sub handshake {
         );
         if ($status == -1) {
             gorgone::standard::library::zmq_core_response(
-                socket => $self->{external_socket}, identity => $identity,
+                socket => $self->{external_socket}, identity => $options{identity},
                 code => GORGONE_ACTION_FINISH_KO,
                 data => { message => 'handshake issue' }
             );
         }
-        if (gorgone::standard::library::add_identity(dbh => $self->{db_gorgone}, identity => $identity, symkey => $symkey) == -1) {
+        if (gorgone::standard::library::add_identity(dbh => $self->{db_gorgone}, identity => $options{identity}, symkey => $symkey) == -1) {
             gorgone::standard::library::zmq_core_response(
-                socket => $self->{external_socket}, identity => $identity,
+                socket => $self->{external_socket}, identity => $options{identity},
                 code => GORGONE_ACTION_FINISH_KO,
                 data => { message => 'handshake issue' }
             );
         }
 
         if (gorgone::standard::library::zmq_core_key_response(
-                logger => $self->{logger}, socket => $self->{external_socket}, identity => $identity,
+                logger => $self->{logger}, socket => $self->{external_socket}, identity => $options{identity},
                 client_pubkey => $client_pubkey, hostname => $self->{hostname}, symkey => $symkey) == -1
             ) {
             gorgone::standard::library::zmq_core_response(
-                socket => $self->{external_socket}, identity => $identity,
+                socket => $self->{external_socket}, identity => $options{identity},
                 code => GORGONE_ACTION_FINISH_KO,
                 data => { message => 'handshake issue' }
             );
@@ -695,10 +689,19 @@ sub send_message_parent {
 
 sub router_external_event {
     while (1) {
-        my ($identity, $key, $message) = $gorgone->handshake();
-        if (defined($message)) {
+        my ($identity, $message) = gorgone::standard::library::zmq_read_message(
+            socket => $gorgone->{external_socket},
+            logger => $gorgone->{logger}
+        );
+        last if (!defined($identity));
+
+        my ($key, $uncrypt_message) = $gorgone->handshake(
+            identity => $identity,
+            message => $message,
+        );
+        if (defined($uncrypt_message)) {
             my ($token, $code, $response, $response_type) = $gorgone->message_run(
-                message => $message,
+                message => $uncrypt_message,
                 identity => $identity,
                 router_type => 'external',
             );
