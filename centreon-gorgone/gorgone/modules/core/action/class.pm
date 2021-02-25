@@ -398,8 +398,9 @@ sub create_child {
 
 sub event {
     while (1) {
-        my $message = gorgone::standard::library::zmq_dealer_read_message(socket => $connector->{internal_socket});
-        
+        my $message = gorgone::standard::library::zmq_dealer_read_message(socket => $connector->{internal_socket}); 
+        last if (!defined($message));
+
         $connector->{logger}->writeLogDebug("[action] Event: $message");
         
         if ($message !~ /^\[ACK\]/) {
@@ -415,8 +416,6 @@ sub event {
                 $connector->create_child(action => $action, token => $token, data => $data);
             }
         }
-
-        last unless (gorgone::standard::library::zmq_still_read(socket => $connector->{internal_socket}));
     }
 }
 

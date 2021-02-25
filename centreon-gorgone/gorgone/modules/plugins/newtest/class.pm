@@ -590,7 +590,8 @@ sub action_newtestresync {
 sub event {
     while (1) {
         my $message = gorgone::standard::library::zmq_dealer_read_message(socket => $connector->{internal_socket});
-        
+        last if (!defined($message));
+
         $connector->{logger}->writeLogDebug("gorgone-newtest: class: $message");
         if ($message =~ /^\[(.*?)\]/) {
             if ((my $method = $connector->can('action_' . lc($1)))) {
@@ -600,8 +601,6 @@ sub event {
                 $method->($connector, token => $token, data => $data);
             }
         }
-
-        last unless (gorgone::standard::library::zmq_still_read(socket => $connector->{internal_socket}));
     }
 }
 

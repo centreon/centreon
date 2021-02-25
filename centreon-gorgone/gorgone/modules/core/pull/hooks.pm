@@ -168,12 +168,13 @@ sub transmit_back {
 sub from_router {
     while (1) {        
         my $message = transmit_back(message => gorgone::standard::library::zmq_dealer_read_message(socket => $socket_to_internal));
+        last if (!defined($message));
+
         # Only send back SETLOGS and PONG
         if (defined($message)) {
             $logger->writeLogDebug("[pull] Read message from internal: $message");
             $client->send_message(message => $message);
         }
-        last unless (gorgone::standard::library::zmq_still_read(socket => $socket_to_internal));
     }
 }
 

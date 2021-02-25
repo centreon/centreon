@@ -830,10 +830,10 @@ sub zmq_send_message {
 sub zmq_dealer_read_message {
     my (%options) = @_;
 
-    # Process all parts of the message
-    my $message = zmq_recvmsg($options{socket});
-    my $data = zmq_msg_data($message);
+    my $message = zmq_recvmsg($options{socket}, ZMQ_DONTWAIT);
+    return undef if (!defined($message));
 
+    my $data = zmq_msg_data($message);
     return $data;
 }
 
@@ -841,9 +841,9 @@ sub zmq_read_message {
     my (%options) = @_;
 
     # Process all parts of the message
-    my $message = zmq_recvmsg($options{socket});
+    my $message = zmq_recvmsg($options{socket}, ZMQ_DONTWAIT);
     if (!defined($message)) {
-        $options{logger}->writeLogError("[core] zmq_recvmsg error: $!");
+        $options{logger}->writeLogDebug("[core] zmq_recvmsg error: $!");
         return undef;
     }
     my $identity = zmq_msg_data($message);
@@ -852,9 +852,9 @@ sub zmq_read_message {
         $options{logger}->writeLogError("[core] unknown identity: $identity");
         return undef;
     }
-    $message = zmq_recvmsg($options{socket});
+    $message = zmq_recvmsg($options{socket}, ZMQ_DONTWAIT);
     if (!defined($message)) {
-        $options{logger}->writeLogError("[core] zmq_recvmsg error: $!");
+        $options{logger}->writeLogDebug("[core] zmq_recvmsg error: $!");
         return undef;
     }
     my $data = zmq_msg_data($message);

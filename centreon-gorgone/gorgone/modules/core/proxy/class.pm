@@ -459,6 +459,7 @@ sub event_internal {
     my $socket = $options{channel} eq 'control' ? $connector->{internal_socket} : $connector->{internal_channels}->{ $options{channel} };
     while (1) {
         my $message = gorgone::standard::library::zmq_dealer_read_message(socket => $socket);
+        last if (!defined($message));
 
         proxy(message => $message, channel => $options{channel});
         if ($connector->{stop} == 1 && (time() - $connector->{exit_timeout}) > $connector->{stop_time}) {
@@ -468,7 +469,6 @@ sub event_internal {
             defined($connector->{clients}->{ $options{channel} }) && 
             ($connector->{clients}->{ $options{channel} }->{com_read_internal} == 0 || $connector->{clients}->{ $options{channel} }->{delete} == 1)
         );
-        last unless (gorgone::standard::library::zmq_still_read(socket => $socket));
     }
 }
 

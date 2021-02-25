@@ -373,6 +373,7 @@ sub action_deletecron {
 sub event {
     while (1) {
         my $message = gorgone::standard::library::zmq_dealer_read_message(socket => $connector->{internal_socket});
+        last if (!defined($message));
 
         $connector->{logger}->writeLogDebug("[cron] Event: $message");
         if ($message =~ /^\[ACK\]\s+\[(.*?)\]\s+(.*)$/m) {
@@ -390,9 +391,7 @@ sub event {
                 my $data = JSON::XS->new->utf8->decode($3);
                 $method->($connector, token => $token, data => $data);
             }
-        }
-        
-        last unless (gorgone::standard::library::zmq_still_read(socket => $connector->{internal_socket}));
+        }        
     }
 }
 

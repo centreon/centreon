@@ -230,7 +230,8 @@ sub event {
     $connectors->{$options{identity}}->{ping_time} = time();
     while (1) {
         my $message = gorgone::standard::library::zmq_dealer_read_message(socket => $sockets->{$options{identity}});
-        
+        last if (!defined($message));
+
         # in progress
         if ($connectors->{$options{identity}}->{handshake} == 0) {
             $connectors->{$options{identity}}->{handshake} = 1;
@@ -272,9 +273,7 @@ sub event {
             if (defined($callbacks->{$options{identity}})) {
                 $callbacks->{$options{identity}}->(identity => $options{identity}, data => $data);
             }
-        }
-        
-        last unless (gorgone::standard::library::zmq_still_read(socket => $sockets->{$options{identity}}));
+        }        
     }
 }
 

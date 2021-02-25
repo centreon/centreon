@@ -29,17 +29,21 @@ use Time::HiRes;
 use JSON::XS;
 
 my $socket;
-my $result;
+my $results;
+my $action_token;
 
 sub root {
     my (%options) = @_;
 
     $options{logger}->writeLogInfo("[api] Requesting '" . $options{uri} . "' [" . $options{method} . "]");
 
+    $action_token = undef;
+    $socket = $options{socket};
+    $results = {};
+
     my $response;
     if ($options{method} eq 'GET' && $options{uri} =~ /^\/api\/(nodes\/(\w*)\/)?log\/(.*)$/) {
         $response = get_log(
-            socket => $options{socket},
             target => $2,
             token => $3,
             sync_wait => (defined($options{parameters}->{sync_wait})) ? $options{parameters}->{sync_wait} : undef,
@@ -49,13 +53,12 @@ sub root {
         && defined($options{api_endpoints}->{$options{method} . '_/internal/' . $3})) {
         my @variables = split(/\//, $4);
         $response = call_internal(
-            socket => $options{socket},
             action => $options{api_endpoints}->{$options{method} . '_/internal/' . $3},
             target => $2,
             data => { 
                 content => $options{content},
                 parameters => $options{parameters},
-                variables => \@variables,
+                variables => \@variables
             },
             log_wait => (defined($options{parameters}->{log_wait})) ? $options{parameters}->{log_wait} : undef,
             sync_wait => (defined($options{parameters}->{sync_wait})) ? $options{parameters}->{sync_wait} : undef
@@ -64,16 +67,15 @@ sub root {
         && defined($options{api_endpoints}->{$options{method} . '_/' . $3 . '/' . $4 . '/' . $5})) {
         my @variables = split(/\//, $6);
         $response = call_action(
-            socket => $options{socket},
             action => $options{api_endpoints}->{$options{method} . '_/' . $3 . '/' . $4 . '/' . $5},
             target => $2,
             data => { 
                 content => $options{content},
                 parameters => $options{parameters},
-                variables => \@variables,
+                variables => \@variables
             },
             log_wait => (defined($options{parameters}->{log_wait})) ? $options{parameters}->{log_wait} : undef,
-            sync_wait => (defined($options{parameters}->{sync_wait})) ? $options{parameters}->{sync_wait} : undef,
+            sync_wait => (defined($options{parameters}->{sync_wait})) ? $options{parameters}->{sync_wait} : undef
         );
     } else {
         $response = '{"error":"method_unknown","message":"Method not implemented"}';
@@ -84,40 +86,27 @@ sub root {
 
 sub call_action {
     my (%options) = @_;
-    
+
+    $action_token = gorgone::standard::library::generate_token() if (!defined($options{token}));
+
     gorgone::standard::library::zmq_send_message(
-        socket => $options{socket},
+        socket => $socket,
         action => $options{action},
         target => $options{target},
+        token => $action_token,
         data => $options{data},
         json_encode => 1
     );
 
-    $socket = $options{socket};    
-    my $poll = [
-        {
-            socket => $options{socket},
-            events => ZMQ_POLLIN,
-            callback => \&event,
-        }
-    ];
-
-    my $rev = zmq_poll($poll, 5000);
-
-    my $response = '{"error":"no_token","message":"Cannot retrieve token from ack"}';
-    if (defined($result->{token}) && $result->{token} ne '') {
-        if (defined($options{log_wait}) && $options{log_wait} ne '') {
-            Time::HiRes::usleep($options{log_wait});
-            $response = get_log(
-                socket => $options{socket},
-                target => $options{target},
-                token => $result->{token},
-                sync_wait => $options{sync_wait},
-                parameters => $options{data}->{parameters}
-            );
-        } else {
-            $response = '{"token":"' . $result->{token} . '"}';
-        }
+    my $response = '{"token":"' . $action_token . '"}';
+    if (defined($options{log_wait}) && $options{log_wait} ne '') {
+        Time::HiRes::usleep($options{log_wait});
+        $response = get_log(
+            target => $options{target},
+            token => $action_token,
+            sync_wait => $options{sync_wait},
+            parameters => $options{data}->{parameters}
+        );
     }
 
     return $response;
@@ -125,21 +114,21 @@ sub call_action {
 
 sub call_internal {
     my (%options) = @_;
-    
-    $socket = $options{socket};
+
     my $poll = [
         {
-            socket  => $options{socket},
+            socket  => $socket,
             events  => ZMQ_POLLIN,
-            callback => \&event,
+            callback => \&event
         }
     ];
 
+    $action_token = gorgone::standard::library::generate_token();
     if (defined($options{target}) && $options{target} ne '') {        
         return call_action(
-            socket => $options{socket},
             target => $options{target},
             action => $options{action},
+            token => $action_token,
             data => $options{data},
             json_encode => 1,
             log_wait => $options{log_wait},
@@ -148,8 +137,9 @@ sub call_internal {
     }
 
     gorgone::standard::library::zmq_send_message(
-        socket => $options{socket},
+        socket => $socket,
         action => $options{action},
+        token => $action_token,
         data => $options{data},
         json_encode => 1
     );
@@ -157,10 +147,10 @@ sub call_internal {
     my $rev = zmq_poll($poll, 5000);
 
     my $response = '{"error":"no_result", "message":"No result found for action \'' . $options{action} . '\'"}';
-    if (defined($result->{data})) {
+    if (defined($results->{$action_token}->{data})) {
         my $content;
         eval {
-            $content = JSON::XS->new->utf8->decode($result->{data});
+            $content = JSON::XS->new->utf8->decode($results->{$action_token}->{data});
         };
         if ($@) {
             $response = '{"error":"decode_error","message":"Cannot decode response"}';
@@ -183,33 +173,31 @@ sub call_internal {
 
 sub get_log {
     my (%options) = @_;
-    
-    $socket = $options{socket};
+
     my $poll = [
         {
-            socket  => $options{socket},
+            socket  => $socket,
             events  => ZMQ_POLLIN,
-            callback => \&event,
+            callback => \&event
         }
     ];
 
     if (defined($options{target}) && $options{target} ne '') {        
         gorgone::standard::library::zmq_send_message(
-            socket => $options{socket},
+            socket => $socket,
             target => $options{target},
             action => 'GETLOG',
             json_encode => 1
         );
 
-        my $sync_wait = (defined($options{sync_wait}) && $options{sync_wait} ne '') ? $options{sync_wait} : '10000';
+        my $sync_wait = (defined($options{sync_wait}) && $options{sync_wait} ne '') ? $options{sync_wait} : 10000;
         Time::HiRes::usleep($sync_wait);
-
-        my $rev = zmq_poll($poll, 5000);
     }
 
     gorgone::standard::library::zmq_send_message(
-        socket => $options{socket},
+        socket => $socket,
         action => 'GETLOG',
+        token => $options{token},
         data => {
             token => $options{token},
             %{$options{parameters}}
@@ -220,10 +208,10 @@ sub get_log {
     my $rev = zmq_poll($poll, 5000);
 
     my $response = '{"error":"no_log","message":"No log found for token","data":[],"token":"' . $options{token} . '"}';
-    if (defined($result->{data})) {
+    if (defined($results->{ $options{token} }) && defined($results->{ $options{token} }->{data})) {
         my $content;
         eval {
-            $content = JSON::XS->new->utf8->decode($result->{data});
+            $content = JSON::XS->new->utf8->decode($results->{ $options{token} }->{data});
         };
         if ($@) {
             $response = '{"error":"decode_error","message":"Cannot decode response"}';
@@ -249,18 +237,16 @@ sub get_log {
 sub event {
     while (1) {
         my $message = gorgone::standard::library::zmq_dealer_read_message(socket => $socket);
-        
-        $result = {};
+        last if (!defined($message));
+
         if ($message =~ /^\[(.*?)\]\s+\[(.*?)\]\s+\[.*?\]\s+(.*)$/m || 
             $message =~ /^\[(.*?)\]\s+\[(.*?)\]\s+(.*)$/m) {
-            $result = {
+            $results->{$2} = {
                 action => $1,
                 token => $2,
-                data => $3,
+                data => $3
             };
         }
-        
-        last unless (gorgone::standard::library::zmq_still_read(socket => $socket));
     }
 }
 
