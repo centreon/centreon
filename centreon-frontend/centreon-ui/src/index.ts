@@ -56,7 +56,8 @@ export {
 
 export { default as ListingPage } from './ListingPage';
 export { default as Filters, MemoizedFilters } from './ListingPage/Filters';
-export { default as Panel, MemoizedPanel } from './Panel';
+export { default as Panel } from './Panel';
+export { default as MemoizedPanel } from './Panel/Memoized';
 
 export { default as Title } from './Title';
 export { default as Wrapper } from './Wrapper';
