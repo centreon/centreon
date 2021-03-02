@@ -1,6 +1,7 @@
 import * as React from 'react';
 
 import { equals } from 'ramda';
+import clsx from 'clsx';
 
 import {
   TableHead,
@@ -31,9 +32,12 @@ const HeaderTypography = withStyles({
   },
 })(Typography);
 
-const useStyles = makeStyles(() => ({
+const useStyles = makeStyles((theme) => ({
   row: {
     display: 'contents',
+  },
+  compactCell: {
+    paddingLeft: theme.spacing(0.5),
   },
 }));
 
@@ -85,9 +89,12 @@ const ListingHeader = ({
           <HeaderCell
             key={column.id}
             align={column.numeric ? 'left' : 'inherit'}
-            padding={column.disablePadding ? 'none' : 'default'}
+            padding={column.compact ? 'none' : 'default'}
             sortDirection={orderBy === column.id ? order : false}
-            className={cellClasses.cell}
+            className={clsx(
+              cellClasses.cell,
+              column.compact && classes.compactCell,
+            )}
           >
             {column.sortable === false ? (
               <HeaderTypography variant="body2">

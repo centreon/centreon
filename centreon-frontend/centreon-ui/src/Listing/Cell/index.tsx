@@ -8,7 +8,8 @@ import { Props as DataCellProps } from './DataCell';
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    padding: theme.spacing(0, 0, 0, 1.5),
+    padding: ({ compact }: Props) =>
+      theme.spacing(0, 0, 0, compact ? 0.5 : 1.5),
     backgroundColor: ({ isRowHovered, row, rowColorConditions }: Props) => {
       if (isRowHovered) {
         return fade(theme.palette.primary.main, 0.08);
@@ -24,14 +25,17 @@ const useStyles = makeStyles((theme) => ({
 
       return 'unset';
     },
+    '&:last-child': {
+      paddingRight: ({ compact }: Props) => theme.spacing(compact ? 0 : 2),
+    },
   },
 }));
 
-type Props = Pick<
-  DataCellProps,
-  'isRowHovered' | 'row' | 'rowColorConditions'
-> &
-  TableCellProps;
+interface Props
+  extends Pick<DataCellProps, 'isRowHovered' | 'row' | 'rowColorConditions'>,
+    TableCellProps {
+  compact?: boolean;
+}
 
 const Cell = (props: Props): JSX.Element => {
   const classes = useStyles(props);
@@ -41,7 +45,7 @@ const Cell = (props: Props): JSX.Element => {
   return (
     <TableCell
       classes={{ root: classes.root }}
-      {...omit(['isRowHovered', 'row', 'rowColorConditions'], props)}
+      {...omit(['isRowHovered', 'row', 'rowColorConditions', 'compact'], props)}
     >
       {children}
     </TableCell>

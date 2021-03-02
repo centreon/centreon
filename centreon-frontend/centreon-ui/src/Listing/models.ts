@@ -21,6 +21,7 @@ export interface Column {
   sortField?: string;
   getRenderComponentOnRowUpdateCondition?: (row) => boolean;
   getRenderComponentCondition?: (row) => boolean;
+  compact?: boolean;
 }
 
 enum ColumnType {

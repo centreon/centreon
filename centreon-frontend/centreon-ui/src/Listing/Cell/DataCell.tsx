@@ -32,6 +32,7 @@ const useStyles = makeStyles<Theme, { listingCheckable: boolean }>(() => ({
   },
   text: {
     overflow: 'hidden',
+    whiteSpace: 'nowrap',
     textOverflow: 'ellipsis',
   },
 }));
@@ -52,6 +53,7 @@ const DataCell = ({
     className: classes.cell,
     align: 'left' as const,
     row,
+    compact: column.compact,
   };
 
   const cellByColumnType = {
@@ -115,82 +117,96 @@ const DataCell = ({
   return cellByColumnType[column.type]();
 };
 
-const MemoizedDataCell = React.memo<Props>(DataCell, (prevProps, nextProps) => {
-  const {
-    column: previousColumn,
-    row: previousRow,
-    isRowHovered: previousIsRowHovered,
-    isRowSelected: previousIsRowSelected,
-  } = prevProps;
-  const previousHasHoverableComponent = previousColumn.hasHoverableComponent;
-  const previousRenderComponentOnRowUpdate = previousColumn.getRenderComponentOnRowUpdateCondition?.(
-    previousRow,
-  );
-  const previousRenderComponentCondition = previousColumn.getRenderComponentCondition?.(
-    previousRow,
-  );
-  const previousIsComponentHovered =
-    previousHasHoverableComponent && previousIsRowHovered;
-  const previousFormattedString = previousColumn.getFormattedString?.(
-    previousRow,
-  );
-  const previousIsTruncated = previousColumn.isTruncated;
-  const previousColSpan = previousColumn.getColSpan?.(previousIsRowSelected);
-  const previousHiddenCondition = previousColumn.getHiddenCondition?.(
-    previousIsRowSelected,
-  );
+const MemoizedDataCell = React.memo<Props>(
+  DataCell,
+  (prevProps, nextProps): boolean => {
+    const {
+      column: previousColumn,
+      row: previousRow,
+      isRowHovered: previousIsRowHovered,
+      isRowSelected: previousIsRowSelected,
+      rowColorConditions: previousRowColorConditions,
+    } = prevProps;
+    const previousHasHoverableComponent = previousColumn.hasHoverableComponent;
+    const previousRenderComponentOnRowUpdate = previousColumn.getRenderComponentOnRowUpdateCondition?.(
+      previousRow,
+    );
+    const previousRenderComponentCondition = previousColumn.getRenderComponentCondition?.(
+      previousRow,
+    );
+    const previousIsComponentHovered =
+      previousHasHoverableComponent && previousIsRowHovered;
+    const previousFormattedString = previousColumn.getFormattedString?.(
+      previousRow,
+    );
+    const previousIsTruncated = previousColumn.isTruncated;
+    const previousColSpan = previousColumn.getColSpan?.(previousIsRowSelected);
+    const previousHiddenCondition = previousColumn.getHiddenCondition?.(
+      previousIsRowSelected,
+    );
 
-  const {
-    column: nextColumn,
-    row: nextRow,
-    isRowHovered: nextIsRowHovered,
-    isRowSelected: nextIsRowSelected,
-  } = nextProps;
-  const nextHasHoverableComponent = nextColumn.hasHoverableComponent;
-  const nextRenderComponentOnRowUpdate = nextColumn.getRenderComponentOnRowUpdateCondition?.(
-    nextRow,
-  );
-  const nextRenderComponentCondition = nextColumn.getRenderComponentCondition?.(
-    nextRow,
-  );
-  const nextIsComponentHovered = nextHasHoverableComponent && nextIsRowHovered;
+    const {
+      column: nextColumn,
+      row: nextRow,
+      isRowHovered: nextIsRowHovered,
+      isRowSelected: nextIsRowSelected,
+      rowColorConditions: nextRowColorConditions,
+    } = nextProps;
+    const nextHasHoverableComponent = nextColumn.hasHoverableComponent;
+    const nextRenderComponentOnRowUpdate = nextColumn.getRenderComponentOnRowUpdateCondition?.(
+      nextRow,
+    );
+    const nextRenderComponentCondition = nextColumn.getRenderComponentCondition?.(
+      nextRow,
+    );
+    const nextIsComponentHovered =
+      nextHasHoverableComponent && nextIsRowHovered;
 
-  const nextFormatttedString = nextColumn.getFormattedString?.(nextRow);
+    const nextFormatttedString = nextColumn.getFormattedString?.(nextRow);
 
-  const nextColSpan = nextColumn.getColSpan?.(nextIsRowSelected);
+    const nextColSpan = nextColumn.getColSpan?.(nextIsRowSelected);
 
-  const nextHiddenCondition = nextColumn.getHiddenCondition?.(
-    nextIsRowSelected,
-  );
-  const nextIsTruncated = nextColumn.isTruncated;
+    const nextHiddenCondition = nextColumn.getHiddenCondition?.(
+      nextIsRowSelected,
+    );
+    const nextIsTruncated = nextColumn.isTruncated;
 
-  // Explicitely render the Component.
-  if (previousRenderComponentCondition && nextRenderComponentCondition) {
-    return false;
-  }
+    const prevRowColors = previousRowColorConditions?.map(({ condition }) =>
+      condition(previousRow),
+    );
+    const nextRowColors = nextRowColorConditions?.map(({ condition }) =>
+      condition(nextRow),
+    );
 
-  // Explicitely prevent the component from rendering.
-  if (
-    previousRenderComponentCondition === false &&
-    nextRenderComponentCondition === false
-  ) {
-    return true;
-  }
+    // Explicitely render the Component.
+    if (previousRenderComponentCondition && nextRenderComponentCondition) {
+      return false;
+    }
 
-  return (
-    equals(previousIsComponentHovered, nextIsComponentHovered) &&
-    equals(previousIsRowHovered, nextIsRowHovered) &&
-    equals(previousFormattedString, nextFormatttedString) &&
-    equals(previousColSpan, nextColSpan) &&
-    equals(previousIsTruncated, nextIsTruncated) &&
-    equals(previousHiddenCondition, nextHiddenCondition) &&
-    equals(
-      previousRenderComponentOnRowUpdate && previousRow,
-      nextRenderComponentOnRowUpdate && nextRow,
-    ) &&
-    equals(previousRow, nextRow)
-  );
-});
+    // Explicitely prevent the component from rendering.
+    if (
+      previousRenderComponentCondition === false &&
+      nextRenderComponentCondition === false
+    ) {
+      return true;
+    }
+
+    return (
+      equals(previousIsComponentHovered, nextIsComponentHovered) &&
+      equals(previousIsRowHovered, nextIsRowHovered) &&
+      equals(previousFormattedString, nextFormatttedString) &&
+      equals(previousColSpan, nextColSpan) &&
+      equals(previousIsTruncated, nextIsTruncated) &&
+      equals(previousHiddenCondition, nextHiddenCondition) &&
+      equals(
+        previousRenderComponentOnRowUpdate && previousRow,
+        nextRenderComponentOnRowUpdate && nextRow,
+      ) &&
+      equals(previousRow, nextRow) &&
+      equals(prevRowColors, nextRowColors)
+    );
+  },
+);
 
 export default MemoizedDataCell;
 export { useStyles, Props };
