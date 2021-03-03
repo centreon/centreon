@@ -184,10 +184,7 @@ const MemoizedDataCell = React.memo<Props>(
     }
 
     // Explicitely prevent the component from rendering.
-    if (
-      previousRenderComponentCondition === false &&
-      nextRenderComponentCondition === false
-    ) {
+    if (nextRenderComponentCondition === false) {
       return true;
     }
 
