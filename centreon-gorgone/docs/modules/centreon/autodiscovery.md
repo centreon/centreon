@@ -90,7 +90,7 @@ With the following keys for the `post_execution` entry:
 
 #### Examples
 
-#### Execute immediately without post-execution commands
+##### Execute immediately without post-execution commands
 
 ```bash
 curl --request POST "https://hostname:8443/api/centreon/autodiscovery/hosts" \
@@ -109,7 +109,7 @@ curl --request POST "https://hostname:8443/api/centreon/autodiscovery/hosts" \
 }"
 ```
 
-#### Execute immediately with post-execution commands
+##### Execute immediately with post-execution commands
 
 ```bash
 curl --request POST "https://hostname:8443/api/centreon/autodiscovery/hosts" \
@@ -135,7 +135,7 @@ curl --request POST "https://hostname:8443/api/centreon/autodiscovery/hosts" \
 }"
 ```
 
-#### Schedule execution without post-execution commands
+##### Schedule execution without post-execution commands
 
 ```bash
 curl --request POST "https://hostname:8443/api/centreon/autodiscovery/hosts" \
@@ -156,7 +156,7 @@ curl --request POST "https://hostname:8443/api/centreon/autodiscovery/hosts" \
 }"
 ```
 
-#### Schedule execution with post-execution commands
+##### Schedule execution with post-execution commands
 
 ```bash
 curl --request POST "https://hostname:8443/api/centreon/autodiscovery/hosts" \
@@ -249,35 +249,70 @@ curl --request DELETE "https://hostname:8443/api/centreon/autodiscovery/hosts/di
 
 #### Body
 
-| Key                  | Value | Description                                                                   |
-|:---------------------|:------|:------------------------------------------------------------------------------|
-| filter\_rules        | array | Run the selected rule of discovery                                            |
-| force\_rule          | `1|0` | Run also disabled rules                                                       |
-| filter\_hosts        | array | Run all discovery rules linked to all templates of host used by selected host |
-| filter\_pollers      | array | Run all discovery rules linked to all poller linked with rule                 |
-| manual               | `1|0` | Run discovery for manual scan                                                 |
-| dry\_run             | `1|0` | Run discovery without configuration change                                    |
-| no\_generate\_config | `1|0` | No configuration generation (even if there is some changes)                   |
+| Key                  | Value                                                                                             |
+|:---------------------|:--------------------------------------------------------------------------------------------------|
+| filter\_rules        | Array of rules to use for discovery (empty means all)                                             |
+| force\_rule          | Run disabled rules ('0': not forced, '1': forced)                                                 |
+| filter\_hosts        | Array of hosts against which run the discovery (empty means all)                                  |
+| filter\_pollers      | Array of pollers for which linked hosts will be discovered against (empty means all)              |
+| manual               | Run discovery for manual scan from web UI ('0': automatic, '1': manual)                           |
+| dry\_run             | Run discovery without configuration change ('0': changes, '1': dry run)                           |
+| no\_generate\_config | No configuration generation (even if there is some changes) ('0': generation, '1': no generation) |
 
 ```json
 {
-    "filter_rules": ["<rule1>", "<rule2>", ...],
-    "force_rule": <1|0>,
-    "filter_hosts": ["<host1>", "<host2>", ...],
-    "filter_pollers": ["<poller1>", "<poller2>", ...],
-    "manual": <1|0>,
-    "dry_run": <1|0>,
-    "no_generate_config": <1|0>
+    "filter_rules": "<array of rules>",
+    "force_rule": "<run disabled rules>",
+    "filter_hosts": "<array of hosts>",
+    "filter_pollers": "<array of pollers>",
+    "manual": "<manual scan>",
+    "dry_run": "<run without changes>",
+    "no_generate_config": "<no configuration generation>"
 }
 ```
 
-#### Example
+#### Examples
+
+##### Execute discovery with defined rules (even if disabled)
 
 ```bash
 curl --request POST "https://hostname:8443/api/centreon/autodiscovery/services" \
   --header "Accept: application/json" \
   --header "Content-Type: application/json" \
-  --data '{
-    "filter_rules": ["OS-Linux-SNMP-Disk-Name", "OS-Linux-SNMP-Traffic-Name"]
-}'
+  --data "{
+    \"filter_rules\": [
+        \"OS-Linux-SNMP-Disk-Name\",
+        \"OS-Linux-SNMP-Traffic-Name\"
+    ],
+    \"force_rule\": 1
+}"
+```
+
+##### Execute discovery for defined hosts
+
+```bash
+curl --request POST "https://hostname:8443/api/centreon/autodiscovery/services" \
+  --header "Accept: application/json" \
+  --header "Content-Type: application/json" \
+  --data "{
+    \"filter_hosts\": [
+        \"Host-1\",
+        \"Host-2\",
+        \"Host-3\"
+    ]
+}"
+```
+
+##### Execute discovery for defined poller (without changes)
+
+```bash
+curl --request POST "https://hostname:8443/api/centreon/autodiscovery/services" \
+  --header "Accept: application/json" \
+  --header "Content-Type: application/json" \
+  --data "{
+    \"filter_pollers\": [
+        \"Poller-1\"
+    ],
+    \"dry_run\": 1
+}"
 ```
