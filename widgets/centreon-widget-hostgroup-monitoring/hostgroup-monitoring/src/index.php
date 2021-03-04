@@ -170,9 +170,18 @@ $buildHostgroupUri = function (array $hostgroup, array $types, array $statuses) 
             'filter' => json_encode(
                 [
                     'criterias' => [
-                        'hostGroups' => [$hostgroup],
-                        'resourceTypes' => $types,
-                        'statuses' => $statuses,
+                        [
+                            'name' => 'host_groups',
+                            'value' => $hostgroup,
+                        ],
+                        [
+                            'name' => 'resource_types',
+                            'value' => $types,
+                        ],
+                        [
+                            'name' => 'statuses',
+                            'value' => $statuses,
+                        ]
                     ],
                 ]
             )
@@ -207,18 +216,18 @@ while ($row = $res->fetch()) {
     $data[$row['name']] = [
         'name' => $row['name'],
         'hg_id' => $row['hostgroup_id'],
-        'hg_uri' => $buildHostgroupUri($hostgroup, [], []),
-        'hg_service_uri' => $buildHostgroupUri($hostgroup, [$serviceType], []),
-        'hg_service_ok_uri' => $buildHostgroupUri($hostgroup, [$serviceType], [$okStatus]),
-        'hg_service_warning_uri' => $buildHostgroupUri($hostgroup, [$serviceType], [$warningStatus]),
-        'hg_service_critical_uri' => $buildHostgroupUri($hostgroup, [$serviceType], [$criticalStatus]),
-        'hg_service_unknown_uri' => $buildHostgroupUri($hostgroup, [$serviceType], [$unknownStatus]),
-        'hg_service_pending_uri' => $buildHostgroupUri($hostgroup, [$serviceType], [$pendingStatus]),
-        'hg_host_uri' => $buildHostgroupUri($hostgroup, [$hostType], []),
-        'hg_host_up_uri' => $buildHostgroupUri($hostgroup, [$hostType], [$upStatus]),
-        'hg_host_down_uri' => $buildHostgroupUri($hostgroup, [$hostType], [$downStatus]),
-        'hg_host_unreachable_uri' => $buildHostgroupUri($hostgroup, [$hostType], [$unreachableStatus]),
-        'hg_host_pending_uri' => $buildHostgroupUri($hostgroup, [$hostType], [$pendingStatus]),
+        'hg_uri' => $buildHostgroupUri([$hostgroup], [], []),
+        'hg_service_uri' => $buildHostgroupUri([$hostgroup], [$serviceType], []),
+        'hg_service_ok_uri' => $buildHostgroupUri([$hostgroup], [$serviceType], [$okStatus]),
+        'hg_service_warning_uri' => $buildHostgroupUri([$hostgroup], [$serviceType], [$warningStatus]),
+        'hg_service_critical_uri' => $buildHostgroupUri([$hostgroup], [$serviceType], [$criticalStatus]),
+        'hg_service_unknown_uri' => $buildHostgroupUri([$hostgroup], [$serviceType], [$unknownStatus]),
+        'hg_service_pending_uri' => $buildHostgroupUri([$hostgroup], [$serviceType], [$pendingStatus]),
+        'hg_host_uri' => $buildHostgroupUri([$hostgroup], [$hostType], []),
+        'hg_host_up_uri' => $buildHostgroupUri([$hostgroup], [$hostType], [$upStatus]),
+        'hg_host_down_uri' => $buildHostgroupUri([$hostgroup], [$hostType], [$downStatus]),
+        'hg_host_unreachable_uri' => $buildHostgroupUri([$hostgroup], [$hostType], [$unreachableStatus]),
+        'hg_host_pending_uri' => $buildHostgroupUri([$hostgroup], [$hostType], [$pendingStatus]),
         'host_state' => [],
         'service_state' => [],
     ];
