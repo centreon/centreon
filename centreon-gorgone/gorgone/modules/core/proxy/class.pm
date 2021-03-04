@@ -320,7 +320,8 @@ sub proxy_ssh {
             action => $options{action},
             data => $decoded_data,
             target_direct => $options{target_direct},
-            target => $options{target}
+            target => $options{target},
+            token => $options{token}
         );
 
         if (ref($data_ret) eq 'ARRAY') {

@@ -265,7 +265,8 @@ sub execute_cmd {
                     owner => 'centreon-engine',
                     group => 'centreon-engine',
                     metadata => {
-                        centcore_cmd => 'SENDCFGFILE',
+                        centcore_proxy => 1,
+                        centcore_cmd => 'SENDCFGFILE'
                     }
                 }
             },
@@ -284,10 +285,10 @@ sub execute_cmd {
                     group => 'centreon-broker',
                     metadata => {
                         centcore_proxy => 1,
-                        centcore_cmd => 'SENDCFGFILE',
+                        centcore_cmd => 'SENDCFGFILE'
                     }
                 }
-            },
+            }
         );
     } elsif ($options{cmd} eq 'SENDEXPORTFILE') {
         if (!defined($self->{clapi_password})) {
@@ -311,10 +312,10 @@ sub execute_cmd {
                     owner => 'centreon',
                     group => 'centreon',
                     metadata => {
-                        centcore_cmd => 'SENDEXPORTFILE',
+                        centcore_cmd => 'SENDEXPORTFILE'
                     }
                 }
-            },
+            }
         );
 
         # Forward data use to be done by createRemoteTask as well as task_id in a gorgone command
@@ -326,7 +327,7 @@ sub execute_cmd {
             target => $options{target},
             data => {
                 content => {
-                    parent_id => $options{param},
+                    parent_id => $options{param}
                 }
             }
         );
@@ -349,10 +350,10 @@ sub execute_cmd {
                     group => 'centreon',
                     metadata => {
                         centcore_proxy => 1,
-                        centcore_cmd => 'SYNCTRAP',
+                        centcore_cmd => 'SYNCTRAP'
                     }
                 }
-            },
+            }
         );
     } elsif ($options{cmd} eq 'RESTART') {
         my $cmd = $self->{pollers}->{$options{target}}->{engine_restart_command};
@@ -366,11 +367,11 @@ sub execute_cmd {
                         command => 'sudo ' . $cmd,
                         metadata => {
                             centcore_proxy => 1,
-                            centcore_cmd => 'RESTART',
+                            centcore_cmd => 'RESTART'
                         }
                     }
                 ]
-            },
+            }
         );
     } elsif ($options{cmd} eq 'RELOAD') {
         my $cmd = $self->{pollers}->{$options{target}}->{engine_reload_command};
@@ -402,11 +403,11 @@ sub execute_cmd {
                         command => 'sudo ' . $cmd,
                         metadata => {
                             centcore_proxy => 1,
-                            centcore_cmd => 'START',
+                            centcore_cmd => 'START'
                         }
                     }
                 ]
-            },
+            }
         );
     } elsif ($options{cmd} eq 'STOP') {
         my $cmd = $self->{pollers}->{$options{target}}->{engine_stop_command};
@@ -420,11 +421,11 @@ sub execute_cmd {
                         command => 'sudo ' . $cmd,
                         metadata => {
                             centcore_proxy => 1,
-                            centcore_cmd => 'STOP',
+                            centcore_cmd => 'STOP'
                         }
                     }
                 ]
-            },
+            }
         );
     } elsif ($options{cmd} eq 'RELOADBROKER') {
         my $cmd = $self->{pollers}->{$options{target}}->{broker_reload_command};
@@ -438,11 +439,11 @@ sub execute_cmd {
                         command => 'sudo ' . $cmd,
                         metadata => {
                             centcore_proxy => 1,
-                            centcore_cmd => 'RELOADBROKER',
+                            centcore_cmd => 'RELOADBROKER'
                         }
                     }
                 ]
-            },
+            }
         );
     } elsif ($options{cmd} eq 'RESTARTCENTREONTRAPD') {
         my $cmd = $self->{pollers}->{$options{target}}->{init_script_centreontrapd};
@@ -456,11 +457,11 @@ sub execute_cmd {
                         command => 'sudo service ' . $cmd . ' restart',
                         metadata => {
                             centcore_proxy => 1,
-                            centcore_cmd => 'RESTARTCENTREONTRAPD',
+                            centcore_cmd => 'RESTARTCENTREONTRAPD'
                         }
                     }
                 ]
-            },
+            }
         );
     } elsif ($options{cmd} eq 'RELOADCENTREONTRAPD') {
         my $cmd = $self->{pollers}->{$options{target}}->{init_script_centreontrapd};
@@ -474,11 +475,11 @@ sub execute_cmd {
                         command => 'sudo service ' . $cmd . ' reload',
                         metadata => {
                             centcore_proxy => 1,
-                            centcore_cmd => 'RELOADCENTREONTRAPD',
+                            centcore_cmd => 'RELOADCENTREONTRAPD'
                         }
                     }
                 ]
-            },
+            }
         );
     } elsif ($options{cmd} eq 'STARTWORKER') {
         if (!defined($self->{clapi_password})) {
@@ -497,11 +498,11 @@ sub execute_cmd {
                     {
                         command => $cmd,
                         metadata => {
-                            centcore_cmd => 'STARTWORKER',
+                            centcore_cmd => 'STARTWORKER'
                         }
                     }
                 ]
-            },
+            }
         );
     }
 

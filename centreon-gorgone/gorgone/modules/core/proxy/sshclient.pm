@@ -31,6 +31,7 @@ use File::Basename;
 use Time::HiRes;
 use gorgone::standard::constants qw(:all);
 use Encode;
+use MIME::Base64;
 
 sub new {
     my ($class, %options) = @_;
@@ -380,15 +381,84 @@ sub action_enginecommand {
     return (0, $results);
 }
 
+sub action_processcopy {
+    my ($self, %options) = @_;
+
+    if (!defined($options{data}->{content}->{status}) || $options{data}->{content}->{status} !~ /^(?:inprogress|end)$/) {
+        $self->{logger}->writeLogError('[sshclient] Action process copy - need status');
+        return (-1, { message => 'please set status' });
+    }
+    if (!defined($options{data}->{content}->{type}) || $options{data}->{content}->{type} !~ /^(?:archive|regular)$/) {
+        $self->{logger}->writeLogError('[sshclient] Action process copy - need type');
+        return (-1, { message => 'please set type' });
+    }
+    if (!defined($options{data}->{content}->{cache_dir}) || $options{data}->{content}->{cache_dir} eq '') {
+        $self->{logger}->writeLogError('[sshclient] Action process copy - need cache_dir');
+        return (-1, { message => 'please set cache_dir' });
+    }
+    if ($options{data}->{content}->{status} eq 'end' &&
+        (!defined($options{data}->{content}->{destination}) || $options{data}->{content}->{destination} eq '')) {
+        $self->{logger}->writeLogError('[sshclient] Action process copy - need destination');
+        return (-1, { message => 'please set destination' });
+    }
+
+    my $copy_local_file = $options{data}->{content}->{cache_dir} . '/copy_local_' . $options{token};
+    if ($options{data}->{content}->{status} eq 'inprogress') {
+        my $fh;
+        if (!sysopen($fh, $copy_local_file, O_RDWR|O_APPEND|O_CREAT, 0660)) {
+            return (-1, { message => "file '$copy_local_file' open failed: $!" });
+        }
+        binmode($fh);
+        syswrite(
+            $fh,
+            MIME::Base64::decode_base64($options{data}->{content}->{chunk}->{data}),
+            $options{data}->{content}->{chunk}->{size}
+        );
+        close $fh;
+
+        return (0, [{
+            code => GORGONE_MODULE_ACTION_PROCESSCOPY_INPROGRESS,
+            data => {
+                message => 'process copy inprogress'
+            }
+        }]);        
+    }
+    if ($options{data}->{content}->{status} eq 'end') {
+        my $copy_file = $options{data}->{content}->{cache_dir} . '/copy_' . $options{token};
+        my $code = $self->{sftp}->copy_file(src => $copy_local_file, dst => $copy_file);
+        unlink($copy_local_file);
+        if ($code == -1) {
+            return (-1, { message => "cannot sftp copy file : " . $self->{sftp}->error() });
+        }
+
+        if ($options{data}->{content}->{type} eq 'archive') {
+            return $self->action_command(
+                data => {
+                    content => [ { command => "tar zxf $copy_file -C '" . $options{data}->{content}->{destination}  .  "' ." } ]
+                }
+            );
+        }
+        if ($options{data}->{content}->{type} eq 'regular') {
+            return $self->action_command(
+                data => {
+                    content => [ { command => "cp -f $copy_file '$options{data}->{content}->{destination}'" } ]
+                }
+            );
+        }
+    }
+
+    return (-1, { message => 'process copy unknown error' });
+}
+
 sub action_remotecopy {
     my ($self, %options) = @_;
     
     if (!defined($options{data}->{content}->{source}) || $options{data}->{content}->{source} eq '') {
-        $self->{logger}->writeLogError('[sshclient] Action remote copy - Need source');
+        $self->{logger}->writeLogError('[sshclient] Action remote copy - need source');
         return (-1, { message => 'please set source' });
     }
     if (!defined($options{data}->{content}->{destination}) || $options{data}->{content}->{destination} eq '') {
-        $self->{logger}->writeLogError('[sshclient] Action remote copy - Need destination');
+        $self->{logger}->writeLogError('[sshclient] Action remote copy - need destination');
         return (-1, { message => 'please set destination' });
     }
 
@@ -426,7 +496,7 @@ sub action_remotecopy {
         ($code, $data) = $self->action_command(
             data => {
                 content => [ { command => "tar zxf $dst_sftp -C '" . $dst  .  "' ." } ]
-            },
+            }
         );
         return ($code, $data) if ($code == -1);
     }
@@ -454,7 +524,8 @@ sub action {
             $self,
             data => $options{data},
             target_direct => $options{target_direct},
-            target => $options{target}
+            target => $options{target},
+            token => $options{token}
         );
     }
 
