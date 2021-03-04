@@ -174,10 +174,22 @@ $buildServicegroupUri = function (
             'filter' => json_encode(
                 [
                     'criterias' => [
-                        'serviceGroups' => $servicegroups,
-                        'resourceTypes' => $types,
-                        'statuses' => $statuses,
-                        'search' => $search,
+                        [
+                            'name' => 'service_groups',
+                            'value' => $servicegroups
+                        ],
+                        [
+                            'name' => 'resource_types',
+                            'value' => $types
+                        ],
+                        [
+                            'name' => 'statuses',
+                            'value' => $statuses
+                        ],
+                        [
+                            'name' => 'search',
+                            'value' => $search
+                        ]
                     ],
                 ]
             ),
