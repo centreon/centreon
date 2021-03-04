@@ -96,7 +96,7 @@ describe(buildListingEndpoint, () => {
   });
 
   it('build the listing endpoint with a "$and" search expression between the given conditions', () => {
-    const endpoint = buildListingEndpoint({
+    const endpointWithValues = buildListingEndpoint({
       baseEndpoint,
       parameters: {
         ...parameters,
@@ -114,8 +114,27 @@ describe(buildListingEndpoint, () => {
       },
     });
 
-    expect(decodeURIComponent(endpoint)).toContain(
+    expect(decodeURIComponent(endpointWithValues)).toContain(
       '&search={"$and":[{"date":{"$gt":"2020-12-01T07:00:00"}},{"date":{"$lt":"2020-12-01T11:00:00"}}]}',
+    );
+
+    const endpointWithValue = buildListingEndpoint({
+      baseEndpoint,
+      parameters: {
+        ...parameters,
+        search: {
+          conditions: [
+            {
+              field: 'is_activated',
+              value: true,
+            },
+          ],
+        },
+      },
+    });
+
+    expect(decodeURIComponent(endpointWithValue)).toContain(
+      '&search={"$and":[{"is_activated":true}]}',
     );
   });
 });

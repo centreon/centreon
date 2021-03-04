@@ -61,7 +61,8 @@ export type ConditionValue = {
 
 export interface ConditionsSearchParameter {
   field: string;
-  values: ConditionValue;
+  values?: ConditionValue;
+  value?: unknown;
 }
 
 type SearchPatterns = Array<{ [field: string]: { $rg: string } }>;

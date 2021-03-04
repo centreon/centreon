@@ -22,6 +22,7 @@ export interface ConnectedAutoCompleteFieldProps {
   getEndpoint: ({ search, page }) => string;
   field: string;
   initialPage: number;
+  search?: Record<string, unknown>;
 }
 
 type SearchDebounce = (value: string) => void;
@@ -43,6 +44,7 @@ const ConnectedAutocompleteField = (
     initialPage = 1,
     getEndpoint,
     field,
+    search,
     ...props
   }: ConnectedAutoCompleteFieldProps &
     Omit<AutocompleteFieldProps, 'options'>): JSX.Element => {
@@ -80,10 +82,11 @@ const ConnectedAutocompleteField = (
 
     const getSearchOption = (value: string) => {
       if (isEmpty(value)) {
-        return undefined;
+        return search;
       }
 
       return {
+        ...(search || {}),
         regex: {
           fields: [field],
           value,

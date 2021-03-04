@@ -80,12 +80,25 @@ const getConditionsSearchQueryParameterValue = (
     return undefined;
   }
 
-  const toIndividualOperatorValues = ({ field, values }) =>
-    toPairs(values).map(([operator, operatorValue]) => ({
+  const toIndividualOperatorValues = ({
+    field,
+    values,
+    value,
+  }: ConditionsSearchParameter) => {
+    if (!isNil(value)) {
+      return [
+        {
+          [field]: value,
+        },
+      ];
+    }
+
+    return toPairs(values || {}).map(([operator, operatorValue]) => ({
       [field]: {
         [operator]: operatorValue,
       },
     }));
+  };
 
   return {
     $and: pipe(map(toIndividualOperatorValues), flatten)(conditions),
