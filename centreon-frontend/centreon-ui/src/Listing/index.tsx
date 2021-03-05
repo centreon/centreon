@@ -1,6 +1,6 @@
 import React, { useState, useRef, RefObject } from 'react';
 
-import { isNil } from 'ramda';
+import { equals, isNil } from 'ramda';
 
 import { makeStyles, Theme } from '@material-ui/core/styles';
 import {
@@ -26,8 +26,6 @@ import Cell from './Cell';
 import Checkbox from './Checkbox';
 
 const loadingIndicatorHeight = 3;
-
-const haveSameIds = (a, b): boolean => a.id === b.id;
 
 const useStyles = makeStyles<Theme>((theme) => ({
   container: {
@@ -100,6 +98,7 @@ export interface Props {
   onRowClick?: (row) => void;
   onSelectRows?: (rows) => void;
   onSort?: (sortParams) => void;
+  getCompositeId?: (row) => [number, number?];
 }
 
 const Listing = ({
@@ -127,11 +126,10 @@ const Listing = ({
   onSort = (): void => undefined,
   labelDisplayedRows = ({ from, to, count }): string =>
     `${from}-${to} of ${count}`,
+  getCompositeId = ({ id }) => [id],
 }: Props): JSX.Element => {
   const [tableTopOffset, setTableTopOffset] = useState(0);
-  const [hoveredRowId, setHoveredRowId] = useState<string | number | null>(
-    null,
-  );
+  const [hoveredRowId, setHoveredRowId] = useState<string | null>(null);
 
   const containerRef = useRef<HTMLDivElement>();
   const actionBarRef = useRef<HTMLDivElement>();
@@ -139,6 +137,10 @@ const Listing = ({
   const classes = useStyles();
 
   const theme = useTheme();
+
+  const getId = (row): string => {
+    return getCompositeId(row).join('-');
+  };
 
   useResizeObserver({
     ref: containerRef,
@@ -148,7 +150,9 @@ const Listing = ({
   });
 
   const selectedRowsInclude = (row): boolean => {
-    return !!selectedRows.find((includedRow) => haveSameIds(includedRow, row));
+    return !!selectedRows.find((includedRow) =>
+      equals(getId(includedRow), getId(row)),
+    );
   };
 
   const handleRequestSort = (_, property): void => {
@@ -177,17 +181,19 @@ const Listing = ({
     event.stopPropagation();
 
     if (selectedRowsInclude(row)) {
-      onSelectRows(selectedRows.filter((entity) => !haveSameIds(entity, row)));
+      onSelectRows(
+        selectedRows.filter((entity) => !equals(getId(entity), getId(row))),
+      );
       return;
     }
     onSelectRows([...selectedRows, row]);
   };
 
-  const hoverRow = (id): void => {
-    if (hoveredRowId === id) {
+  const hoverRow = (row): void => {
+    if (equals(hoveredRowId, getId(row))) {
       return;
     }
-    setHoveredRowId(id);
+    setHoveredRowId(getId(row));
   };
 
   const clearHoveredRow = (): void => {
@@ -302,20 +308,21 @@ const Listing = ({
             >
               {tableData.map((row) => {
                 const isRowSelected = isSelected(row);
-                const isRowHovered = hoveredRowId === row.id;
+                const isRowHovered = equals(hoveredRowId, getId(row));
 
                 return (
                   <ListingRow
                     tabIndex={-1}
-                    key={row.id}
-                    onMouseOver={(): void => hoverRow(row.id)}
-                    onFocus={(): void => hoverRow(row.id)}
+                    key={getId(row)}
+                    onMouseOver={(): void => hoverRow(row)}
+                    onFocus={(): void => hoverRow(row)}
                     onClick={(): void => {
                       onRowClick(row);
                     }}
                     isHovered={isRowHovered}
                     isSelected={isRowSelected}
                     row={row}
+                    rowColorConditions={rowColorConditions}
                   >
                     {checkable && (
                       <Cell
@@ -328,7 +335,7 @@ const Listing = ({
                         <Checkbox
                           checked={isRowSelected}
                           inputProps={{
-                            'aria-label': `Select row ${row.id}`,
+                            'aria-label': `Select row ${getId(row)}`,
                           }}
                           disabled={disableRowCheckCondition(row)}
                         />
@@ -337,7 +344,7 @@ const Listing = ({
 
                     {columnConfiguration.map((column) => (
                       <DataCell
-                        key={`${row.id}-${column.id}`}
+                        key={`${getId(row)}-${column.id}`}
                         column={column}
                         row={row}
                         listingCheckable={checkable}
