@@ -134,19 +134,19 @@ sub check_allowed_host {
 sub load_peer_subnets {
     my ($self, %options) = @_;
 
-    return if ($connector->{allowed_hosts_enabled} == 0);
+    return if ($self->{allowed_hosts_enabled} == 0);
 
-    $connector->{peer_subnets} = [];
+    $self->{peer_subnets} = [];
     return if (!defined($connector->{config}->{allowed_hosts}->{subnets}));
 
-    foreach (@{$connector->{config}->{allowed_hosts}->{subnets}}) {
+    foreach (@{$self->{config}->{allowed_hosts}->{subnets}}) {
         my $subnet = NetAddr::IP->new($_);
         if (!defined($subnet)) {
             $self->{logger}->writeLogError("[httpserver] Cannot load subnet: $_");
             next;
         }
 
-        push @{$connector->{peer_subnets}}, $subnet;
+        push @{$self->{peer_subnets}}, $subnet;
     }
 }
 
@@ -181,14 +181,16 @@ sub run {
     $self->init_dispatch();
 
     # HTTP daemon
-    my $daemon;
+    my ($daemon, $message_error);
     if ($self->{config}->{ssl} eq 'false') {
+        $message_error = '$@';
         $daemon = HTTP::Daemon->new(
             LocalAddr => $self->{config}->{address} . ':' . $self->{config}->{port},
             ReusePort => 1,
             Timeout => 5
         );
     } elsif ($self->{config}->{ssl} eq 'true') {
+        $message_error = '$!, ssl_error=$IO::Socket::SSL::SSL_ERROR';
         $daemon = HTTP::Daemon::SSL->new(
             LocalAddr => $self->{config}->{address} . ':' . $self->{config}->{port},
             SSL_cert_file => $self->{config}->{ssl_cert_file},
@@ -199,79 +201,85 @@ sub run {
         );
     }
 
-    if (defined($daemon)) {
-        while (1) {
-            my ($connection) = $daemon->accept();
+    if (!defined($daemon)) {
+        eval "\$message_error = \"$message_error\"";
+        $connector->{logger}->writeLogError("[httpserver] can't construct socket: $message_error");
+        exit(1);
+    }
 
-            if ($self->{stop} == 1) {
-                $self->{logger}->writeLogInfo("[httpserver] $$ has quit");
-                $connection->close() if (defined($connection));
-                zmq_close($connector->{internal_socket});
-                exit(0);
+    while (1) {
+        my ($connection) = $daemon->accept();
+
+        if ($self->{stop} == 1) {
+            $self->{logger}->writeLogInfo("[httpserver] $$ has quit");
+            $connection->close() if (defined($connection));
+            zmq_close($connector->{internal_socket});
+            exit(0);
+        }
+
+        next if (!defined($connection));
+
+        while (my $request = $connection->get_request) {
+            if ($connection->antique_client eq '1') {
+                $connection->force_last_request;
+                next;
             }
 
-            next if (!defined($connection));
-
-            while (my $request = $connection->get_request) {
-                if ($connection->antique_client eq '1') {
-                    $connection->force_last_request;
-                    next;
-                }
-
-                my $msg = "[httpserver] " . $connection->peerhost() . " " . $request->method . " '" . $request->uri->path . "'";
-                $msg .= " '" . $request->header("User-Agent") . "'" if (defined($request->header("User-Agent")) && $request->header("User-Agent") ne '');
-                $connector->{logger}->writeLogInfo($msg);
-                
-                if ($connector->{allowed_hosts_enabled} == 1) {
-                    if ($connector->check_allowed_host(peer_addr => inet_ntoa($connection->peeraddr())) == 0) {
-                        $connector->{logger}->writeLogError("[httpserver] " . $connection->peerhost() . " Unauthorized");
-                        $self->send_error(
-                            connection => $connection,
-                            code => "401",
-                            response => '{"error":"http_error_401","message":"unauthorized"}'
-                        );
-                        next;
-                    }
-                }
-
-                if ($self->authentication($request->header('Authorization'))) { # Check Basic authentication
-                    my ($root) = ($request->uri->path =~ /^(\/\w+)/);
-
-                    if ($root eq "/api") { # API
-                        $self->send_response(connection => $connection, response => $self->api_call($request));
-                    } elsif (defined($self->{dispatch}->{$root})) { # Other dispatch definition
-                        $self->send_response(connection => $connection, response => $self->dispatch_call(root => $root, request => $request));
-                    } else { # Forbidden
-                        $connector->{logger}->writeLogError("[httpserver] " . $connection->peerhost() . " '" . $request->uri->path . "' Forbidden");
-                        $self->send_error(
-                            connection => $connection,
-                            code => "403",
-                            response => '{"error":"http_error_403","message":"forbidden"}'
-                        );
-                    }
-                } else { # Authen error
+            my $msg = "[httpserver] " . $connection->peerhost() . " " . $request->method . " '" . $request->uri->path . "'";
+            $msg .= " '" . $request->header("User-Agent") . "'" if (defined($request->header("User-Agent")) && $request->header("User-Agent") ne '');
+            $connector->{logger}->writeLogInfo($msg);
+            
+            if ($connector->{allowed_hosts_enabled} == 1) {
+                if ($connector->check_allowed_host(peer_addr => inet_ntoa($connection->peeraddr())) == 0) {
                     $connector->{logger}->writeLogError("[httpserver] " . $connection->peerhost() . " Unauthorized");
                     $self->send_error(
                         connection => $connection,
                         code => "401",
                         response => '{"error":"http_error_401","message":"unauthorized"}'
                     );
+                    next;
                 }
-                $connection->force_last_request;
             }
-            $connection->close;
-            undef($connection);
+
+            if ($self->authentication($request->header('Authorization'))) { # Check Basic authentication
+                my ($root) = ($request->uri->path =~ /^(\/\w+)/);
+
+                if ($root eq "/api") { # API
+                    $self->send_response(connection => $connection, response => $self->api_call($request));
+                } elsif (defined($self->{dispatch}->{$root})) { # Other dispatch definition
+                    $self->send_response(connection => $connection, response => $self->dispatch_call(root => $root, request => $request));
+                } else { # Forbidden
+                    $connector->{logger}->writeLogError("[httpserver] " . $connection->peerhost() . " '" . $request->uri->path . "' Forbidden");
+                    $self->send_error(
+                        connection => $connection,
+                        code => "403",
+                        response => '{"error":"http_error_403","message":"forbidden"}'
+                    );
+                }
+            } else { # Authen error
+                $connector->{logger}->writeLogError("[httpserver] " . $connection->peerhost() . " Unauthorized");
+                $self->send_error(
+                    connection => $connection,
+                    code => "401",
+                    response => '{"error":"http_error_401","message":"unauthorized"}'
+                );
+            }
+            $connection->force_last_request;
         }
+        $connection->close;
+        undef($connection);
     }
 }
 
 sub ssl_error {
     my ($self, $error) = @_;
 
+    chomp $error;
+    $connector->{logger}->writeLogError("[httpserver] ssl error: $error");
     ${*$self}{httpd_client_proto} = 1000;
     ${*$self}{httpd_daemon} = HTTP::Daemon::SSL::DummyDaemon->new();
     $self->send_error(RC_BAD_REQUEST);
-    $self->close;
+    $self->close();
 }
 
 sub authentication {
