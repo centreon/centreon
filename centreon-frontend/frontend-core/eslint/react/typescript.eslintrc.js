@@ -1,7 +1,5 @@
 module.exports = {
-  extends: [
-    './index.eslintrc.js'
-  ],
+  extends: ['./index.eslintrc.js'],
   root: true,
   overrides: [
     {
@@ -12,18 +10,22 @@ module.exports = {
       settings: {
         'import/resolver': {
           alias: {
-            extensions: ['.ts', '.tsx', '.js', '.jsx']
-          }
-        }
+            extensions: ['.ts', '.tsx', '.js', '.jsx'],
+          },
+        },
       },
       rules: {
-        'react/jsx-filename-extension': ['error', { extensions: ['.jsx', '.tsx'] }],
+        'react/jsx-filename-extension': [
+          'error',
+          { extensions: ['.jsx', '.tsx'] },
+        ],
         camelcase: 'off',
         '@typescript-eslint/camelcase': 'off',
         '@typescript-eslint/naming-convention': [
           'error',
           {
-            selector: 'variable', format: ['camelCase', 'PascalCase'],
+            selector: 'variable',
+            format: ['camelCase', 'PascalCase'],
           },
           {
             selector: 'property',
@@ -34,7 +36,7 @@ module.exports = {
             },
           },
           {
-            selector: 'parameter', 
+            selector: 'parameter',
             format: ['snake_case', 'camelCase', 'PascalCase'],
             filter: {
               regex: '^_$',
@@ -43,28 +45,37 @@ module.exports = {
           },
         ],
         '@typescript-eslint/prefer-function-type': 'error',
-        '@typescript-eslint/consistent-type-definitions': ['error', 'interface'],
-        '@typescript-eslint/array-type': ['error', {
-          'default' : 'generic',
-          'readonly': 'generic'
-        }],
-        '@typescript-eslint/explicit-member-accessibility': ['error', {
-          accessibility: 'explicit',
-          overrides: {
-            accessors: 'explicit',
-            constructors: 'explicit',
-            methods: 'explicit',
-            properties: 'explicit',
-            parameterProperties: 'explicit'
-          }
-        }],
+        '@typescript-eslint/consistent-type-definitions': [
+          'error',
+          'interface',
+        ],
+        '@typescript-eslint/array-type': [
+          'error',
+          {
+            default: 'generic',
+            readonly: 'generic',
+          },
+        ],
+        '@typescript-eslint/explicit-member-accessibility': [
+          'error',
+          {
+            accessibility: 'explicit',
+            overrides: {
+              accessors: 'explicit',
+              constructors: 'explicit',
+              methods: 'explicit',
+              properties: 'explicit',
+              parameterProperties: 'explicit',
+            },
+          },
+        ],
         '@typescript-eslint/no-unused-expressions': ['error'],
         'no-unused-expressions': 'off',
         'react/require-default-props': 'off',
         'no-shadow': 'off',
         '@typescript-eslint/no-shadow': ['error'],
-        "@typescript-eslint/no-unused-vars": ["error"],
+        '@typescript-eslint/no-unused-vars': ['error'],
       },
-    }
-  ]
-}
+    },
+  ],
+};
