@@ -72,6 +72,8 @@ const useStyles = makeStyles<Theme>((theme) => ({
   },
 }));
 
+type RowId = number | string;
+
 export interface Props {
   checkable?: boolean;
   currentPage?: number;
@@ -98,7 +100,7 @@ export interface Props {
   onRowClick?: (row) => void;
   onSelectRows?: (rows) => void;
   onSort?: (sortParams) => void;
-  getCompositeId?: (row) => [number, number?];
+  getId?: (row) => RowId;
 }
 
 const Listing = ({
@@ -126,10 +128,10 @@ const Listing = ({
   onSort = (): void => undefined,
   labelDisplayedRows = ({ from, to, count }): string =>
     `${from}-${to} of ${count}`,
-  getCompositeId = ({ id }) => [id],
+  getId = ({ id }) => id,
 }: Props): JSX.Element => {
   const [tableTopOffset, setTableTopOffset] = useState(0);
-  const [hoveredRowId, setHoveredRowId] = useState<string | null>(null);
+  const [hoveredRowId, setHoveredRowId] = useState<RowId | null>(null);
 
   const containerRef = useRef<HTMLDivElement>();
   const actionBarRef = useRef<HTMLDivElement>();
@@ -137,10 +139,6 @@ const Listing = ({
   const classes = useStyles();
 
   const theme = useTheme();
-
-  const getId = (row): string => {
-    return getCompositeId(row).join('-');
-  };
 
   useResizeObserver({
     ref: containerRef,
