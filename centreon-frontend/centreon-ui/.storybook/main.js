@@ -1,13 +1,14 @@
 module.exports = {
-  stories: ['../src/**/*.stories.(jsx|tsx)'],
+  stories: ['../src/**/*.stories.@(jsx|tsx)'],
   addons: [],
-  webpackFinal: config => ({
+  webpackFinal: (config) => ({
     ...config,
     resolve: {
       ...config.resolve,
       extensions: ['.js', '.jsx', '.ts', '.tsx'],
     },
-    module: { ...config.module,
+    module: {
+      ...config.module,
       rules: [
         {
           test: /\.jsx?$/,
@@ -17,7 +18,15 @@ module.exports = {
         {
           test: /\.tsx?$/,
           exclude: /node_modules(\\|\/)(?!(@centreon))/,
-          use: ['babel-loader', 'awesome-typescript-loader'],
+          use: [
+            'babel-loader',
+            {
+              loader: 'ts-loader',
+              options: {
+                allowTsInNodeModules: true,
+              },
+            },
+          ],
         },
         {
           test: /\.s?[ac]ss$/i,

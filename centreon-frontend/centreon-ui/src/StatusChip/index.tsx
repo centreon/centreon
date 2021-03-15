@@ -55,7 +55,7 @@ const getStatusColors = ({ theme, severityCode }: StatusColorProps): Colors => {
   return colorMapping[severityCode];
 };
 
-type Props = {
+export type Props = {
   label?: string;
   severityCode: SeverityCode;
   clickable?: boolean;

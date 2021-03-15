@@ -75,8 +75,6 @@ export { default as IconDelete } from './Icon/IconDelete';
 export { default as IconDone } from './Icon/IconDone';
 export { default as IconInsertChart } from './Icon/IconInsertChart';
 export { default as IconLibraryAdd } from './Icon/IconLibraryAdd';
-export { default as IconPowerSettings } from './Icon/IconPowerSettings';
-export { default as IconPowerSettingsDisable } from './Icon/IconPowerSettingsDisable';
 export { default as IconRefresh } from './Icon/IconRefresh';
 export { default as IconReportProblem } from './Icon/IconReportProblem';
 export { default as CustomRow } from './Custom/CustomRow';
@@ -110,7 +108,7 @@ export { default as SubmenuItem } from './Submenu/SubmenuHeader/SubmenuItem';
 export { default as MultiSelectEntries } from './MultiSelectEntries';
 export { default as SectionPanel, MemoizedSectionPanel } from './Panel/Section';
 
-export { default as StatusChip } from './StatusChip';
+export { default as StatusChip, Props as StatusChipProps } from './StatusChip';
 export { SeverityCode, getStatusColors } from './StatusChip';
 
 export { Listing as ListingModel } from './api/models';
