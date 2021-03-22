@@ -25,7 +25,7 @@ const getFoundFields = ({
   fields,
 }: RegexSearchParameter): Array<SearchMatch> => {
   const fieldMatches = fields.map((field) => {
-    const pattern = `${field.replace('.', '\\.')}:([^\\s]+)`;
+    const pattern = `(?:^|\\s)${field.replace('.', '\\.')}:([^\\s]+)`;
 
     const [, valueMatch] = value?.match(pattern) || [];
 
