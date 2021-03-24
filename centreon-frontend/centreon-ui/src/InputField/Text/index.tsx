@@ -56,51 +56,57 @@ export type Props = {
   transparent?: boolean;
 } & Omit<TextFieldProps, 'variant' | 'size' | 'error'>;
 
-const TextField = ({
-  StartAdornment,
-  EndAdornment,
-  label,
-  error,
-  ariaLabel,
-  transparent = false,
-  compact = false,
-  ...rest
-}: Props): JSX.Element => {
-  const classes = useStyles();
+const TextField = React.forwardRef(
+  (
+    {
+      StartAdornment,
+      EndAdornment,
+      label,
+      error,
+      ariaLabel,
+      transparent = false,
+      compact = false,
+      ...rest
+    }: Props,
+    ref: React.ForwardedRef<HTMLDivElement>,
+  ): JSX.Element => {
+    const classes = useStyles();
 
-  return (
-    <MuiTextField
-      label={label}
-      error={!isNil(error)}
-      helperText={error}
-      InputProps={{
-        className: clsx({
-          [classes.transparent]: transparent,
-        }),
-        endAdornment: EndAdornment && (
-          <OptionalLabelInputAdornment label={label} position="end">
-            <EndAdornment />
-          </OptionalLabelInputAdornment>
-        ),
-        startAdornment: StartAdornment && (
-          <OptionalLabelInputAdornment label={label} position="start">
-            <StartAdornment />
-          </OptionalLabelInputAdornment>
-        ),
-        disableUnderline: true,
-      }}
-      inputProps={{
-        'aria-label': ariaLabel,
-        className: clsx(classes.input, {
-          [classes.noLabelInput]: !label && !compact,
-          [classes.compact]: compact,
-        }),
-      }}
-      variant="filled"
-      size="small"
-      {...rest}
-    />
-  );
-};
+    return (
+      <MuiTextField
+        ref={ref}
+        label={label}
+        error={!isNil(error)}
+        helperText={error}
+        InputProps={{
+          className: clsx({
+            [classes.transparent]: transparent,
+          }),
+          endAdornment: EndAdornment && (
+            <OptionalLabelInputAdornment label={label} position="end">
+              <EndAdornment />
+            </OptionalLabelInputAdornment>
+          ),
+          startAdornment: StartAdornment && (
+            <OptionalLabelInputAdornment label={label} position="start">
+              <StartAdornment />
+            </OptionalLabelInputAdornment>
+          ),
+          disableUnderline: true,
+        }}
+        inputProps={{
+          'aria-label': ariaLabel,
+          className: clsx(classes.input, {
+            [classes.noLabelInput]: !label && !compact,
+            [classes.compact]: compact,
+          }),
+        }}
+        variant="filled"
+        size="small"
+        {...rest}
+      />
+    );
+  },
+);
 
 export default TextField;
