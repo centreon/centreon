@@ -1,7 +1,7 @@
 import React from 'react';
 
 import clsx from 'clsx';
-import { isNil } from 'ramda';
+import { equals, isNil, not } from 'ramda';
 
 import {
   TextField as MuiTextField,
@@ -10,6 +10,11 @@ import {
   Theme,
   makeStyles,
 } from '@material-ui/core';
+
+enum Size {
+  compact = 'compact',
+  small = 'small',
+}
 
 const useStyles = makeStyles((theme: Theme) => ({
   input: {
@@ -21,6 +26,10 @@ const useStyles = makeStyles((theme: Theme) => ({
   compact: {
     padding: theme.spacing(0.75),
     fontSize: 'x-small',
+  },
+  small: {
+    padding: theme.spacing(0.75),
+    fontSize: 'small',
   },
   transparent: {
     backgroundColor: 'transparent',
@@ -51,7 +60,7 @@ export type Props = {
   StartAdornment?: React.SFC;
   EndAdornment?: React.SFC;
   error?: string;
-  compact?: boolean;
+  size?: 'small' | 'compact';
   ariaLabel?: string;
   transparent?: boolean;
 } & Omit<TextFieldProps, 'variant' | 'size' | 'error'>;
@@ -65,12 +74,14 @@ const TextField = React.forwardRef(
       error,
       ariaLabel,
       transparent = false,
-      compact = false,
+      size,
       ...rest
     }: Props,
     ref: React.ForwardedRef<HTMLDivElement>,
   ): JSX.Element => {
     const classes = useStyles();
+
+    const isSizeEqualTo = (sizeToCompare: Size) => equals(size, sizeToCompare);
 
     return (
       <MuiTextField
@@ -97,8 +108,9 @@ const TextField = React.forwardRef(
         inputProps={{
           'aria-label': ariaLabel,
           className: clsx(classes.input, {
-            [classes.noLabelInput]: !label && !compact,
-            [classes.compact]: compact,
+            [classes.noLabelInput]: !label && not(isSizeEqualTo(Size.compact)),
+            [classes.small]: isSizeEqualTo(Size.small),
+            [classes.compact]: isSizeEqualTo(Size.compact),
           }),
         }}
         variant="filled"
