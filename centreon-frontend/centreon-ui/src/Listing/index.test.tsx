@@ -1,17 +1,19 @@
 import React from 'react';
 
 import { render, fireEvent } from '@testing-library/react';
+import { prop } from 'ramda';
 
 import { ColumnType } from './models';
+import { labelAddColumns } from './translatedLabels';
 
-import Table from '.';
+import Listing from '.';
 
-describe('Table', () => {
+describe('Listing', () => {
   const getAllCheckboxes = (container) => {
     return container.querySelectorAll('[type = "checkbox"]');
   };
 
-  const columnConfiguration = [
+  const columns = [
     {
       id: 'name',
       label: 'name',
@@ -29,7 +31,7 @@ describe('Table', () => {
     },
   ];
 
-  const tableData = [
+  const rows = [
     { id: 0, name: 'My First Row', description: 'first row description' },
     { id: 1, name: 'My Second Row', description: 'second row description' },
     { id: 2, name: 'My Third Row', description: 'third row description' },
@@ -54,25 +56,25 @@ describe('Table', () => {
     const [page, setPage] = React.useState(4);
 
     return (
-      <Table
+      <Listing
         onSort={onSort}
-        columnConfiguration={columnConfiguration}
-        tableData={oneHundredTableData}
+        columns={columns}
+        rows={oneHundredTableData}
         totalRows={oneHundredTableData.length}
         limit={limit}
         currentPage={page}
-        onPaginate={(_, value) => setPage(value)}
-        onPaginationLimitChanged={({ target }) => setLimit(target.value)}
+        onPaginate={setPage}
+        onLimitChange={setLimit}
       />
     );
   };
 
   it('selects a row when the corresponding checkbox is clicked', () => {
     const { container } = render(
-      <Table
+      <Listing
         onSelectRows={onSelectRows}
-        columnConfiguration={columnConfiguration}
-        tableData={tableData}
+        columns={columns}
+        rows={rows}
         checkable
       />,
     );
@@ -82,19 +84,19 @@ describe('Table', () => {
 
     fireEvent.click(firstRowCheckbox);
 
-    const firstRow = tableData[0];
+    const firstRow = rows[0];
     expect(onSelectRows).toHaveBeenCalledWith([firstRow]);
   });
 
   it('unselects a row when it is currently selected and the corresponding checkbox is clicked', () => {
-    const firstRow = tableData[0];
+    const firstRow = rows[0];
     const selectedRows = [firstRow];
 
     const { container } = render(
-      <Table
+      <Listing
         onSelectRows={onSelectRows}
-        columnConfiguration={columnConfiguration}
-        tableData={tableData}
+        columns={columns}
+        rows={rows}
         selectedRows={selectedRows}
         checkable
       />,
@@ -108,10 +110,10 @@ describe('Table', () => {
 
   it('selects all rows when the "select all" checkbox is clicked', () => {
     const { container } = render(
-      <Table
+      <Listing
         onSelectRows={onSelectRows}
-        columnConfiguration={columnConfiguration}
-        tableData={tableData}
+        columns={columns}
+        rows={rows}
         totalRows={4}
         checkable
       />,
@@ -121,16 +123,16 @@ describe('Table', () => {
 
     fireEvent.click(selectAllCheckbox);
 
-    expect(onSelectRows).toHaveBeenLastCalledWith(tableData);
+    expect(onSelectRows).toHaveBeenLastCalledWith(rows);
   });
 
   it('unselects all rows when all rows are selected and the "select all" checkbox is clicked', () => {
     const { container } = render(
-      <Table
+      <Listing
         onSelectRows={onSelectRows}
-        columnConfiguration={columnConfiguration}
-        tableData={tableData}
-        selectedRows={tableData}
+        columns={columns}
+        rows={rows}
+        selectedRows={rows}
         checkable
       />,
     );
@@ -143,12 +145,12 @@ describe('Table', () => {
   });
 
   it('unselects selected rows when some rows are selected and the "select all" checkbox is clicked', () => {
-    const selectedRows = tableData.filter(({ id }) => id % 2 === 0);
+    const selectedRows = rows.filter(({ id }) => id % 2 === 0);
     const { container } = render(
-      <Table
+      <Listing
         onSelectRows={onSelectRows}
-        columnConfiguration={columnConfiguration}
-        tableData={tableData}
+        columns={columns}
+        rows={rows}
         selectedRows={selectedRows}
         checkable
       />,
@@ -162,40 +164,32 @@ describe('Table', () => {
   });
 
   it('sorts on on column id when the column header is clicked and sortField is not defined', () => {
-    const columnWithoutSortField = columnConfiguration[0];
+    const columnWithoutSortField = columns[0];
 
     const { getByLabelText } = render(
-      <Table
-        onSort={onSort}
-        columnConfiguration={columnConfiguration}
-        tableData={tableData}
-      />,
+      <Listing onSort={onSort} columns={columns} rows={rows} />,
     );
 
     fireEvent.click(getByLabelText(`Column ${columnWithoutSortField.label}`));
 
     expect(onSort).toHaveBeenCalledWith({
-      order: 'desc',
-      orderBy: columnWithoutSortField.id,
+      sortOrder: 'desc',
+      sortField: columnWithoutSortField.id,
     });
   });
 
   it('sorts on on column sortField when the column header is clicked and sortField is defined', () => {
-    const columnWithSortField = columnConfiguration[1];
+    const columnWithSortField = columns[1];
 
     const { getByLabelText } = render(
-      <Table
-        onSort={onSort}
-        columnConfiguration={columnConfiguration}
-        tableData={tableData}
-      />,
+      <Listing onSort={onSort} columns={columns} rows={rows} />,
     );
 
     fireEvent.click(getByLabelText(`Column ${columnWithSortField.label}`));
 
     expect(onSort).toHaveBeenCalledWith({
-      order: 'desc',
-      orderBy: columnWithSortField.sortField,
+      sortOrder: 'desc',
+      sortField: columnWithSortField.sortField,
     });
   });
 
@@ -204,12 +198,35 @@ describe('Table', () => {
 
     expect(getByText('41-50 of 100'));
 
-    fireEvent.change(container.querySelector('select'), {
+    fireEvent.change(container.querySelector('select') as HTMLSelectElement, {
       target: {
         value: 90,
       },
     });
 
     expect(getByText('1-90 of 100'));
+  });
+
+  it(`unselects a column when the "selectable" parameter is set and a column is unselected from the corresponding menu`, () => {
+    const onSelectColumns = jest.fn();
+
+    const { getAllByText, getByTitle } = render(
+      <Listing
+        onSort={onSort}
+        columns={columns}
+        rows={rows}
+        columnConfiguration={{
+          sortable: false,
+          selectedColumnIds: columns.map(prop('id')),
+        }}
+        onSelectColumns={onSelectColumns}
+      />,
+    );
+
+    fireEvent.click(getByTitle(labelAddColumns).firstChild as HTMLElement);
+
+    fireEvent.click(getAllByText('description')[1]);
+
+    expect(onSelectColumns).toHaveBeenCalledWith(['name']);
   });
 });

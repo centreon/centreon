@@ -1,5 +1,7 @@
 import '@testing-library/jest-dom/extend-expect';
 import registerRequireContextHook from 'babel-plugin-require-context-hook/register';
+import i18n from 'i18next';
+import { initReactI18next } from 'react-i18next';
 
 registerRequireContextHook();
 
@@ -23,3 +25,11 @@ global.IntersectionObserver = class IntersectionObserver {
     return null;
   }
 };
+
+i18n.use(initReactI18next).init({
+  nsSeparator: false,
+  keySeparator: false,
+  fallbackLng: 'en',
+  lng: 'en',
+  resources: {},
+});

@@ -18,7 +18,7 @@ export interface ItemProps {
 interface StyledSortableProps extends ItemProps {
   transform: Transform | null;
   isDragging: boolean;
-  transition?: string;
+  transition: string | null;
   setNodeRef: (node: HTMLElement | null) => void;
   listeners: DraggableSyntheticListeners;
 }
@@ -40,7 +40,7 @@ const StyledSortableItem = ({
     display: 'inline-block',
     opacity: isDragging ? '0.7' : '1',
     transform: CSS.Translate.toString(transform),
-    transition,
+    transition: transition || undefined,
   };
 
   return (

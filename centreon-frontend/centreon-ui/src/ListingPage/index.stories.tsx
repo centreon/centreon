@@ -66,7 +66,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const configuration = [
+const columns = [
   {
     id: 'name',
     label: 'Name',
@@ -113,11 +113,11 @@ const options = [
 
 const listing = (
   <Listing
-    columnConfiguration={configuration}
+    columns={columns}
     limit={elements.length}
     currentPage={0}
     totalRows={elements.length}
-    tableData={elements}
+    rows={elements}
     rowColorConditions={rowColorConditions}
   />
 );

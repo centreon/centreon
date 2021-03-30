@@ -2,10 +2,14 @@
 
 import React from 'react';
 
+import { prop } from 'ramda';
+
 import { makeStyles, Button } from '@material-ui/core';
 import { grey } from '@material-ui/core/colors';
 
-import { ColumnType } from './models';
+import { ListingProps } from '..';
+
+import { Column, ColumnType } from './models';
 
 import Listing from '.';
 
@@ -17,11 +21,11 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const ComponentColumn = ({ row, isRowSelected }): JSX.Element => (
+const ComponentColumn = ({ row, isSelected }): JSX.Element => (
   <>
     <span>
       {'I am '}
-      <b>{`${isRowSelected ? 'selected' : 'not selected'}`}</b>
+      <b>{`${isSelected ? 'selected' : 'not selected'}`}</b>
       {' / '}
     </span>
     <span>
@@ -31,7 +35,7 @@ const ComponentColumn = ({ row, isRowSelected }): JSX.Element => (
   </>
 );
 
-const configuration = [
+const defaultColumns = [
   {
     id: 'name',
     label: 'Name',
@@ -52,9 +56,16 @@ const configuration = [
   },
 ];
 
-const noOp = (): void => undefined;
-
 const tenElements = new Array(10).fill(0);
+
+interface Entity {
+  id: number;
+  name: string;
+  description: string;
+  active: boolean;
+  selected: boolean;
+  disableCheckbox: boolean;
+}
 
 const listing = [...tenElements].map((_, index) => ({
   id: index,
@@ -73,23 +84,24 @@ const rowColorConditions = [
   },
 ];
 
-const Story = ({ disableCheckable = false, ...props }): JSX.Element => {
+const Story = ({
+  columns = defaultColumns,
+  ...props
+}: Omit<ListingProps<Entity>, 'columns'> & {
+  columns?: Array<Column>;
+}): JSX.Element => {
   const classes = useStyles();
 
   return (
     <div className={classes.listing}>
       <Listing
-        columnConfiguration={configuration}
-        onSort={noOp}
-        onPaginate={noOp}
-        onPaginationLimitChanged={noOp}
+        columns={columns}
         limit={listing.length}
         currentPage={0}
         totalRows={listing.length}
-        tableData={listing}
+        rows={listing}
         rowColorConditions={rowColorConditions}
         selectedRows={listing.filter((row) => row.selected)}
-        checkable={!disableCheckable}
         disableRowCheckCondition={(row): boolean => row.disableCheckbox}
         {...props}
       />
@@ -100,19 +112,47 @@ const Story = ({ disableCheckable = false, ...props }): JSX.Element => {
 export const normal = (): JSX.Element => <Story />;
 
 export const loadingWithNoData = (): JSX.Element => {
-  return <Story tableData={[]} totalRows={0} loading />;
+  return <Story rows={[]} totalRows={0} loading />;
 };
 
 export const loadingWithData = (): JSX.Element => {
   return <Story loading />;
 };
 
-const Actions = (
+const actions = (
   <Button variant="contained" color="primary" size="small">
     Action
   </Button>
 );
 
-export const withActions = (): JSX.Element => <Story Actions={Actions} />;
+export const withActions = (): JSX.Element => <Story actions={actions} />;
 
-export const withoutCheckboxes = (): JSX.Element => <Story disableCheckable />;
+export const withoutCheckboxes = (): JSX.Element => <Story checkable={false} />;
+
+const ListingWithSortableColumns = (): JSX.Element => {
+  const defaultColumnIds = defaultColumns.map(prop('id'));
+
+  const [selectedColumnIds, setSelectedColumnIds] = React.useState<
+    Array<string>
+  >(defaultColumnIds);
+
+  const resetColumns = (): void => {
+    setSelectedColumnIds(defaultColumnIds);
+  };
+
+  return (
+    <Story
+      columnConfiguration={{
+        sortable: true,
+        selectedColumnIds,
+      }}
+      columns={defaultColumns}
+      onSelectColumns={setSelectedColumnIds}
+      onResetColumns={resetColumns}
+    />
+  );
+};
+
+export const withEditableColumns = (): JSX.Element => (
+  <ListingWithSortableColumns />
+);

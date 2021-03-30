@@ -44,6 +44,7 @@ const Cell = (props: Props): JSX.Element => {
 
   return (
     <TableCell
+      component="div"
       classes={{ root: classes.root }}
       {...omit(['isRowHovered', 'row', 'rowColorConditions', 'compact'], props)}
     >

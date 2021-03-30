@@ -24,7 +24,7 @@ export interface Column {
   compact?: boolean;
 }
 
-enum ColumnType {
+export enum ColumnType {
   string = 0,
   component = 1,
 }
@@ -35,4 +35,11 @@ export interface RowColorCondition {
   color: string;
 }
 
-export { ColumnType };
+export type RowId = number | string;
+
+export interface ColumnConfiguration {
+  sortable: boolean;
+  selectedColumnIds?: Array<string>;
+}
+
+export type SortOrder = 'asc' | 'desc';
