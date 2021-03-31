@@ -10,7 +10,7 @@ module.exports = {
     ecmaVersion: 2018,
     sourceType: 'module',
   },
-  plugins: ['prefer-arrow-functions'],
+  plugins: ['prefer-arrow-functions', 'sort-keys-fix'],
 
   rules: {
     'prettier/prettier': [
@@ -34,5 +34,6 @@ module.exports = {
     ],
     'prefer-arrow-functions/prefer-arrow-functions': ['error'],
     camelcase: ['error', { properties: 'never', ignoreDestructuring: true }],
+    'sort-keys-fix/sort-keys-fix': ['error', 'asc', { natural: true }]
   },
 };

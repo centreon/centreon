@@ -4,9 +4,9 @@ module.exports = {
   overrides: [
     {
       files: ['*.ts', '*.tsx'],
-      extends: ['plugin:@typescript-eslint/recommended'],
+      extends: ['plugin:@typescript-eslint/recommended', 'plugin:typescript-sort-keys/recommended'],
       parser: '@typescript-eslint/parser',
-      plugins: ['@typescript-eslint'],
+      plugins: ['@typescript-eslint', 'typescript-sort-keys'],
       settings: {
         'import/resolver': {
           alias: {
