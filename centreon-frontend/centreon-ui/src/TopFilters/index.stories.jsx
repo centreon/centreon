@@ -24,34 +24,34 @@ export const normal = () => (
             styles['container__col-md-3'],
             styles['container__col-xs-4'],
           ),
-          switchTitle: 'Status:',
+          defaultValue: false,
+          onChange: (value) => {
+            console.log(value);
+          },
           switchStatus: 'Not installed',
-          defaultValue: false,
-          onChange: (value) => {
-            console.log(value);
-          },
+          switchTitle: 'Status:',
         },
         {
           customClass: clsx(
             styles['container__col-md-3'],
             styles['container__col-xs-4'],
           ),
+          defaultValue: false,
+          onChange: (value) => {
+            console.log(value);
+          },
           switchStatus: 'Installed',
-          defaultValue: false,
-          onChange: (value) => {
-            console.log(value);
-          },
         },
         {
           customClass: clsx(
             styles['container__col-md-3'],
             styles['container__col-xs-4'],
           ),
-          switchStatus: 'Update',
           defaultValue: false,
           onChange: (value) => {
             console.log(value);
           },
+          switchStatus: 'Update',
         },
       ],
       [
@@ -60,29 +60,29 @@ export const normal = () => (
             styles['container__col-sm-3'],
             styles['container__col-xs-4'],
           ),
-          switchTitle: 'Type:',
-          switchStatus: 'Module',
           defaultValue: false,
           onChange: (value) => {
             console.log(value);
           },
+          switchStatus: 'Module',
+          switchTitle: 'Type:',
         },
         {
           customClass: clsx(
             styles['container__col-sm-3'],
             styles['container__col-xs-4'],
           ),
-          switchStatus: 'Update',
           defaultValue: false,
           onChange: (value) => {
             console.log(value);
           },
+          switchStatus: 'Update',
         },
         {
           button: true,
-          label: 'Clear Filters',
-          color: 'black',
           buttonType: 'bordered',
+          color: 'black',
+          label: 'Clear Filters',
           onClick: () => {
             console.log('Clear filters clicked');
           },

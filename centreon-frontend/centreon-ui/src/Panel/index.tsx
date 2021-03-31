@@ -18,71 +18,71 @@ import IconButton from '../Button/Icon';
 type StylesProps = Pick<Props, 'headerBackgroundColor' | 'width'>;
 
 const useStyles = makeStyles<Theme, StylesProps>((theme) => ({
-  container: {
+  body: {
+    display: 'grid',
+    gridArea: '3 / 1 / 4 / 1',
+    gridTemplateRows: 'auto 1fr',
     height: '100%',
+  },
+  container: {
     display: 'grid',
     gridTemplate: 'auto auto 1fr / 1fr',
+    height: '100%',
     overflow: 'hidden',
     width: ({ width }) => width,
   },
-  header: {
-    gridArea: '1 / 1 / 2 / 1',
-    padding: theme.spacing(1),
-    display: 'grid',
-    gridTemplateColumns: '1fr auto',
-    alignItems: 'center',
-    backgroundColor: ({ headerBackgroundColor }) => headerBackgroundColor,
-  },
-  divider: {
-    gridArea: '2 / 1 / 3 / 1',
-  },
-  body: {
-    gridArea: '3 / 1 / 4 / 1',
-    display: 'grid',
-    gridTemplateRows: 'auto 1fr',
-    height: '100%',
+  content: {
+    bottom: 0,
+    left: 0,
+    overflow: 'auto',
+    position: 'absolute',
+    right: 0,
+    top: 0,
   },
   contentContainer: {
     backgroundColor: theme.palette.background.default,
     position: 'relative',
   },
-  content: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    top: 0,
-    overflow: 'auto',
+  divider: {
+    gridArea: '2 / 1 / 3 / 1',
   },
   dragger: {
+    bottom: 0,
     cursor: 'ew-resize',
     position: 'absolute',
-    bottom: 0,
     right: ({ width }) => width,
     top: 0,
     width: 5,
     zIndex: theme.zIndex.drawer,
   },
+  header: {
+    alignItems: 'center',
+    backgroundColor: ({ headerBackgroundColor }) => headerBackgroundColor,
+    display: 'grid',
+    gridArea: '1 / 1 / 2 / 1',
+    gridTemplateColumns: '1fr auto',
+    padding: theme.spacing(1),
+  },
 }));
 
 export interface Tab {
-  tab: JSX.Element;
   id: number;
+  tab: JSX.Element;
 }
 
 export interface Props {
   header: React.ReactElement;
-  selectedTab: React.ReactElement;
-  tabs?: Array<JSX.Element>;
-  selectedTabId?: number;
-  onTabSelect?: (event, id: number) => void;
-  onClose?: () => void;
-  labelClose?: string;
-  width?: number;
-  minWidth?: number;
   headerBackgroundColor?: string;
-  onResize?: (newWidth: number) => void;
+  labelClose?: string;
   memoProps?: Array<unknown>;
+  minWidth?: number;
+  onClose?: () => void;
+  onResize?: (newWidth: number) => void;
+  onTabSelect?: (event, id: number) => void;
+  selectedTab: React.ReactElement;
+  selectedTabId?: number;
+  tabs?: Array<JSX.Element>;
+  width?: number;
 }
 
 const Panel = React.forwardRef<HTMLDivElement, Props>(
@@ -102,7 +102,7 @@ const Panel = React.forwardRef<HTMLDivElement, Props>(
     }: Omit<Props, 'memoProps'>,
     ref,
   ): JSX.Element => {
-    const classes = useStyles({ width, headerBackgroundColor });
+    const classes = useStyles({ headerBackgroundColor, width });
 
     const resize = () => {
       document.addEventListener('mouseup', releaseMouse, true);
@@ -137,16 +137,16 @@ const Panel = React.forwardRef<HTMLDivElement, Props>(
 
     return (
       <Slide
-        direction="left"
         in
+        direction="left"
         timeout={{
           enter: 150,
           exit: 50,
         }}
       >
-        <Paper elevation={2} className={classes.container}>
+        <Paper className={classes.container} elevation={2}>
           {!isNil(onResize) && (
-            <div className={classes.dragger} onMouseDown={resize} role="none" />
+            <div className={classes.dragger} role="none" onMouseDown={resize} />
           )}
           {header && (
             <>
@@ -154,8 +154,8 @@ const Panel = React.forwardRef<HTMLDivElement, Props>(
                 {header}
                 {onClose && (
                   <IconButton
-                    title={labelClose}
                     ariaLabel={labelClose}
+                    title={labelClose}
                     onClick={onClose}
                   >
                     <IconClose color="action" />
@@ -166,13 +166,13 @@ const Panel = React.forwardRef<HTMLDivElement, Props>(
             </>
           )}
           <div className={classes.body}>
-            <AppBar position="static" color="default">
+            <AppBar color="default" position="static">
               {!isEmpty(tabs) && (
                 <Tabs
-                  variant="fullWidth"
-                  value={selectedTabId}
                   indicatorColor="primary"
                   textColor="primary"
+                  value={selectedTabId}
+                  variant="fullWidth"
                   onChange={onTabSelect}
                 >
                   {tabs.map((tab) => tab)}

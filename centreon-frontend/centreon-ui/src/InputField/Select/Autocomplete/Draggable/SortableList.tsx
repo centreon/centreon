@@ -34,9 +34,9 @@ import SortableItem from './SortableItem';
 import Item from './Item';
 
 interface Props {
-  items: Array<SelectEntry>;
-  deleteValue: (id: number) => void;
   changeItemsOrder: (newItems: Array<SelectEntry>) => void;
+  deleteValue: (id: number) => void;
+  items: Array<SelectEntry>;
 }
 
 const SortableList = ({
@@ -95,37 +95,37 @@ const SortableList = ({
   return (
     <div>
       <DndContext
-        sensors={sensors}
         collisionDetection={rectIntersection}
-        onDragOver={dragOver}
-        onDragStart={dragStart}
+        sensors={sensors}
         onDragCancel={dragCancel}
         onDragEnd={dragEnd}
+        onDragOver={dragOver}
+        onDragStart={dragStart}
       >
         <SortableContext items={sortableItems} strategy={undefined}>
           {items.map(({ name, id, createOption }, index) => (
             <SortableItem
-              key={`${name}_${id}`}
+              createOption={createOption}
+              deleteValue={deleteValue}
               id={`${name}_${id}`}
               index={index}
+              key={`${name}_${id}`}
               name={name}
-              deleteValue={deleteValue}
-              createOption={createOption}
             />
           ))}
         </SortableContext>
         <DragOverlay>
           {activeId && (
             <Item
-              name={activeElement?.name as string}
-              deleteValue={deleteValue}
-              createOption={activeElement?.createOption}
-              index={activeElement?.index as number}
-              style={{
-                zIndex: theme.zIndex.tooltip,
-              }}
               chipStyle={{
                 boxShadow: theme.shadows[3],
+              }}
+              createOption={activeElement?.createOption}
+              deleteValue={deleteValue}
+              index={activeElement?.index as number}
+              name={activeElement?.name as string}
+              style={{
+                zIndex: theme.zIndex.tooltip,
               }}
             />
           )}

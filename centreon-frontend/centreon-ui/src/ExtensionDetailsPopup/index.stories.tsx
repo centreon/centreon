@@ -7,27 +7,27 @@ export default { title: 'Extension Details Popup' };
 const noOp = () => undefined;
 
 const modalDetails = {
-  id: 0,
-  type: 'module',
-  title: 'My module',
   description: 'My module description',
-  version: {
-    installed: true,
-    outdated: false,
-    available: '2.0.0',
-  },
-  stability: 'Stable',
+  id: 0,
   last_update: '01/01/1970',
   release_note: 'the release note',
+  stability: 'Stable',
+  title: 'My module',
+  type: 'module',
+  version: {
+    available: '2.0.0',
+    installed: true,
+    outdated: false,
+  },
 };
 
 const commonProps = {
+  animate: false,
   modalDetails,
   onCloseClicked: noOp,
   onDeleteClicked: noOp,
-  onUpdateClicked: noOp,
   onInstallClicked: noOp,
-  animate: false,
+  onUpdateClicked: noOp,
 };
 
 export const normal = (): JSX.Element => (
@@ -35,5 +35,5 @@ export const normal = (): JSX.Element => (
 );
 
 export const normalWithLoading = (): JSX.Element => (
-  <ExtensionDetailsPopup type="module" loading {...commonProps} />
+  <ExtensionDetailsPopup loading type="module" {...commonProps} />
 );

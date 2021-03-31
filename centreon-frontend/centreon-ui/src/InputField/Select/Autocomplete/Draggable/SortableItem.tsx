@@ -8,19 +8,19 @@ import { DraggableSyntheticListeners } from '@dnd-kit/core';
 import Item from './Item';
 
 export interface ItemProps {
-  name: string;
   createOption?: string;
+  deleteValue: (id: number) => void;
   id: string;
   index: number;
-  deleteValue: (id: number) => void;
+  name: string;
 }
 
 interface StyledSortableProps extends ItemProps {
-  transform: Transform | null;
   isDragging: boolean;
-  transition: string | null;
-  setNodeRef: (node: HTMLElement | null) => void;
   listeners: DraggableSyntheticListeners;
+  setNodeRef: (node: HTMLElement | null) => void;
+  transform: Transform | null;
+  transition: string | null;
 }
 
 const StyledSortableItem = ({
@@ -36,9 +36,9 @@ const StyledSortableItem = ({
   ...props
 }: Omit<StyledSortableProps, 'id'>): JSX.Element => {
   const style: React.CSSProperties = {
-    position: 'relative',
     display: 'inline-block',
     opacity: isDragging ? '0.7' : '1',
+    position: 'relative',
     transform: CSS.Translate.toString(transform),
     transition: transition || undefined,
   };
@@ -46,13 +46,13 @@ const StyledSortableItem = ({
   return (
     <Item
       {...props}
-      ref={setNodeRef}
-      style={style}
-      listeners={listeners}
-      name={name}
       createOption={createOption}
       deleteValue={deleteValue}
       index={index}
+      listeners={listeners}
+      name={name}
+      ref={setNodeRef}
+      style={style}
     />
   );
 };
@@ -87,14 +87,14 @@ const SortableItem = ({
     <MemoizedStyledDraggableItem
       setNodeRef={setNodeRef}
       {...attributes}
-      listeners={listeners}
-      name={name}
       createOption={createOption}
       deleteValue={deleteValue}
       index={index}
+      isDragging={isDragging}
+      listeners={listeners}
+      name={name}
       transform={transform}
       transition={transition}
-      isDragging={isDragging}
     />
   );
 };

@@ -12,10 +12,10 @@ import useSnackbar from '../../Snackbar/useSnackbar';
 const log = ulog('API Request');
 
 export interface RequestParams<TResult> {
-  request: (token) => (params?) => Promise<TResult>;
   decoder?: JsonDecoder.Decoder<TResult>;
-  getErrorMessage?: (error) => string;
   defaultFailureMessage?: string;
+  getErrorMessage?: (error) => string;
+  request: (token) => (params?) => Promise<TResult>;
 }
 
 export interface RequestResult<TResult> {

@@ -12,7 +12,7 @@ class ExtensionsWrapper extends Component {
   render() {
     const { children, style } = this.props;
     return (
-      <div style={style} className={clsx(styles['content-wrapper'])}>
+      <div className={clsx(styles['content-wrapper'])} style={style}>
         {children}
       </div>
     );

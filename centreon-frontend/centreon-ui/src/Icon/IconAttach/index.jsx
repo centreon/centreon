@@ -7,11 +7,6 @@ import React from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 
 const useStyles = makeStyles(() => ({
-  root: {
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
   icon: {
     color: '#707070',
     cursor: 'initial',
@@ -19,29 +14,34 @@ const useStyles = makeStyles(() => ({
     verticalAlign: 'middle',
   },
   iconAttach: {
-    width: 80,
-    height: 49,
-    textAlign: 'center',
-    lineHeight: '46px',
     backgroundColor: '#fff',
-    display: 'inline-block',
-    marginRight: 15,
-    verticalAlign: 'middle',
     cursor: 'initial',
-    marginLeft: -20,
-  },
-  iconAttachLabel: {
-    fontSize: 12,
-    color: '#707070',
     display: 'inline-block',
+    height: 49,
+    lineHeight: '46px',
+    marginLeft: -20,
+    marginRight: 15,
+    textAlign: 'center',
     verticalAlign: 'middle',
-    fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
-    marginLeft: 3,
+    width: 80,
   },
   iconAttachImage: {
-    maxWidth: '100%',
     maxHeight: '100%',
+    maxWidth: '100%',
     verticalAlign: 'middle',
+  },
+  iconAttachLabel: {
+    color: '#707070',
+    display: 'inline-block',
+    fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
+    fontSize: 12,
+    marginLeft: 3,
+    verticalAlign: 'middle',
+  },
+  root: {
+    alignItems: 'center',
+    display: 'flex',
+    justifyContent: 'center',
   },
 }));
 
@@ -56,7 +56,7 @@ const IconAttach = ({
   const classes = useStyles();
 
   return (
-    <span onClick={onClick} className={classes.iconAttach}>
+    <span className={classes.iconAttach} onClick={onClick}>
       {defaultImage && (
         <>
           <span className={classes.iconAttachLabel}>{labelNoIcon}</span>
@@ -64,9 +64,9 @@ const IconAttach = ({
       )}
       {uploadedImage && (
         <img
-          src={imgSource}
-          className={classes.iconAttachImage}
           alt={title}
+          className={classes.iconAttachImage}
+          src={imgSource}
           title={title}
         />
       )}

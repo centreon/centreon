@@ -19,29 +19,29 @@ import useHover from './useHover';
 const maxChips = 5;
 
 const useStyles = makeStyles((theme) => ({
-  hidden: {
-    visibility: 'hidden',
+  chip: {
+    marginTop: theme.spacing(1),
+    width: '95%',
   },
   container: {
     borderRadius: theme.spacing(1) * 0.5,
-    padding: theme.spacing(1),
     cursor: 'pointer',
     outline: 'none',
+    padding: theme.spacing(1),
     width: '100%',
+  },
+  emptyChip: {
+    borderColor: theme.palette.grey[600],
+    borderStyle: 'dashed',
+    borderWidth: 2,
+    padding: theme.spacing(1),
+    textAlign: 'center',
+  },
+  hidden: {
+    visibility: 'hidden',
   },
   hovered: {
     backgroundColor: theme.palette.grey[400],
-  },
-  chip: {
-    width: '95%',
-    marginTop: theme.spacing(1),
-  },
-  emptyChip: {
-    padding: theme.spacing(1),
-    borderWidth: 2,
-    borderColor: theme.palette.grey[600],
-    borderStyle: 'dashed',
-    textAlign: 'center',
   },
 }));
 
@@ -50,7 +50,7 @@ const Entry = ({ label }): JSX.Element => {
 
   return (
     <Grid item xs={6}>
-      <Chip className={classes.chip} disabled label={label} size="small" />
+      <Chip disabled className={classes.chip} label={label} size="small" />
     </Grid>
   );
 };
@@ -75,12 +75,12 @@ interface Value {
 }
 
 interface Props {
-  label: string;
-  highlight?: boolean;
   emptyLabel: string;
+  error?;
+  highlight?: boolean;
+  label: string;
   onClick: () => void;
   values?: Array<Value>;
-  error?;
 }
 
 const MultiSelectEntries = ({
@@ -101,15 +101,15 @@ const MultiSelectEntries = ({
 
   return (
     <div
-      ref={hoverRef as Ref<HTMLDivElement>}
       className={clsx({
         [classes.hovered]: isHovered || highlight,
         [classes.container]: true,
       })}
-      onClick={onClick}
-      onKeyDown={onClick}
+      ref={hoverRef as Ref<HTMLDivElement>}
       role="button"
       tabIndex={0}
+      onClick={onClick}
+      onKeyDown={onClick}
     >
       <Box display="flex">
         <Box flexGrow={1}>
@@ -117,8 +117,8 @@ const MultiSelectEntries = ({
         </Box>
         <Box>
           <IconCreate
-            fontSize="small"
             className={clsx({ [classes.hidden]: !isHovered && !highlight })}
+            fontSize="small"
           />
         </Box>
       </Box>

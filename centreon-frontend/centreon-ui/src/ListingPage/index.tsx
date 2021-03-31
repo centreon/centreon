@@ -6,20 +6,20 @@ import WithPanel from '../Panel/WithPanel';
 
 const useStyles = makeStyles<Theme>((theme) => {
   return {
-    page: {
-      height: '100%',
-      display: 'grid',
-      gridTemplateRows: 'auto 1fr',
-      backgroundColor: theme.palette.background.default,
-      overflow: 'hidden',
-    },
     filters: {
       zIndex: 4,
     },
     listing: {
+      height: '100%',
       marginLeft: theme.spacing(2),
       marginRight: theme.spacing(2),
+    },
+    page: {
+      backgroundColor: theme.palette.background.default,
+      display: 'grid',
+      gridTemplateRows: 'auto 1fr',
       height: '100%',
+      overflow: 'hidden',
     },
   };
 });
@@ -28,8 +28,8 @@ interface Props {
   filters: JSX.Element;
   listing: JSX.Element;
   panel?: JSX.Element;
-  panelOpen?: boolean;
   panelFixed?: boolean;
+  panelOpen?: boolean;
 }
 
 const ListingPage = ({
@@ -45,7 +45,7 @@ const ListingPage = ({
     <div className={classes.page}>
       <div className={classes.filters}>{filters}</div>
 
-      <WithPanel open={panelOpen} panel={panel} fixed={panelFixed}>
+      <WithPanel fixed={panelFixed} open={panelOpen} panel={panel}>
         <div className={classes.listing}>{listing}</div>
       </WithPanel>
     </div>

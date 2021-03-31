@@ -1,10 +1,10 @@
 export interface ListingMeta {
-  page: number;
   limit: number;
+  page: number;
   total: number;
 }
 
 export interface Listing<TEntity> {
-  result: Array<TEntity>;
   meta: ListingMeta;
+  result: Array<TEntity>;
 }

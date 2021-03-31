@@ -11,10 +11,10 @@ describe('DialogConfirm', () => {
     const { getByText } = render(
       <DialogConfirm
         open
-        labelTitle="title"
-        labelMessage="message"
         labelCancel="cancel"
         labelConfirm="confirm"
+        labelMessage="message"
+        labelTitle="title"
         onCancel={jest.fn()}
         onConfirm={mockConfirm}
       />,
@@ -31,10 +31,10 @@ describe('DialogConfirm', () => {
     const { getByText } = render(
       <DialogConfirm
         open
-        labelTitle="title"
-        labelMessage="message"
         labelCancel="cancel"
         labelConfirm="confirm"
+        labelMessage="message"
+        labelTitle="title"
         onCancel={mockCancel}
         onConfirm={jest.fn()}
       />,

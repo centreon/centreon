@@ -12,10 +12,10 @@ import { ActionsBarProps } from './models';
 
 const useStyles = makeStyles((theme) => ({
   container: {
-    position: 'sticky',
+    borderTop: `1px solid ${theme.palette.grey[300]}`,
     bottom: 0,
     padding: theme.spacing(0, 1),
-    borderTop: `1px solid ${theme.palette.grey[300]}`,
+    position: 'sticky',
   },
   loader: {
     marginLeft: theme.spacing(1),
@@ -47,18 +47,18 @@ const ActionsBar = ({
   return (
     <Grid
       container
-      direction="row"
-      justify="flex-end"
       alignItems="center"
       className={classes.container}
+      direction="row"
+      justify="flex-end"
     >
       <Grid item>
         {!isFirstStep && (
           <Button
+            aria-label={labelPrevious}
             color="primary"
             onClick={goToPreviousStep}
             onKeyPress={preventEnterKey}
-            aria-label={labelPrevious}
           >
             <Typography>{labelPrevious}</Typography>
           </Button>
@@ -66,15 +66,15 @@ const ActionsBar = ({
       </Grid>
       <Grid item>
         <Button
-          color="primary"
-          onClick={() => (isLastStep ? submit() : goToNextStep())}
-          disabled={disableActionButtons}
-          onKeyPress={preventEnterKey}
           aria-label={labelNextFinish}
+          color="primary"
+          disabled={disableActionButtons}
+          onClick={() => (isLastStep ? submit() : goToNextStep())}
+          onKeyPress={preventEnterKey}
         >
           <Typography>{labelNextFinish}</Typography>
           {isSubmitting && (
-            <CircularProgress size={20} className={classes.loader} />
+            <CircularProgress className={classes.loader} size={20} />
           )}
         </Button>
       </Grid>

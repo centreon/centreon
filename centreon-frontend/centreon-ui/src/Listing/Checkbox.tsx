@@ -13,8 +13,8 @@ const Checkbox = (
 
   return (
     <MuiCheckbox
-      size="small"
       color="primary"
+      size="small"
       style={{ padding: theme.spacing(0.5) }}
       {...props}
     />

@@ -13,22 +13,22 @@ const Confirm = ({ labelMessage, ...rest }) => (
 );
 
 Confirm.propTypes = {
-  open: PropTypes.bool.isRequired,
-  onClose: PropTypes.func,
-  onCancel: PropTypes.func.isRequired,
-  onConfirm: PropTypes.func.isRequired,
-  labelTitle: PropTypes.string,
-  labelMessage: PropTypes.string,
   labelCancel: PropTypes.string,
   labelConfirm: PropTypes.string,
+  labelMessage: PropTypes.string,
+  labelTitle: PropTypes.string,
+  onCancel: PropTypes.func.isRequired,
+  onClose: PropTypes.func,
+  onConfirm: PropTypes.func.isRequired,
+  open: PropTypes.bool.isRequired,
 };
 
 Confirm.defaultProps = {
-  onClose: null,
-  labelTitle: 'are you sure ?',
-  labelMessage: null,
   labelCancel: 'Cancel',
   labelConfirm: 'Confirm',
+  labelMessage: null,
+  labelTitle: 'are you sure ?',
+  onClose: null,
 };
 
 export default Confirm;

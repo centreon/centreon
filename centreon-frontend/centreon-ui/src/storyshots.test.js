@@ -27,11 +27,11 @@ const getStoryKindRegex = () => {
 };
 
 initStoryshots({
-  suite: 'Image StoryShots',
   storyKindRegex: getStoryKindRegex(),
+  suite: 'Image StoryShots',
   test: imageSnapshot({
-    storybookUrl: `file://${__dirname}/../.out`,
-    getMatchOptions,
     beforeScreenshot,
+    getMatchOptions,
+    storybookUrl: `file://${__dirname}/../.out`,
   }),
 });

@@ -12,18 +12,18 @@ import PaginationActions from './PaginationActions';
 import ColumnMultiSelect from './ColumnMultiSelect';
 
 const useStyles = makeStyles((theme) => ({
+  actions: {
+    padding: theme.spacing(1),
+  },
   container: {
+    alignItems: 'center',
     display: 'grid',
+    gridGap: theme.spacing(1),
     gridTemplateColumns: '1fr auto auto',
     width: '100%',
-    alignItems: 'center',
-    gridGap: theme.spacing(1),
   },
   pagination: {
     padding: 0,
-  },
-  actions: {
-    padding: theme.spacing(1),
   },
 }));
 
@@ -75,28 +75,28 @@ const ListingActionBar = ({
       <div className={classes.actions}>{actions}</div>
       {columnConfiguration?.selectedColumnIds && (
         <ColumnMultiSelect
-          columns={columns}
           columnConfiguration={columnConfiguration}
-          onSelectColumns={onSelectColumns}
+          columns={columns}
           onResetColumns={onResetColumns}
+          onSelectColumns={onSelectColumns}
         />
       )}
       {paginated && (
         <StyledPagination
-          className={classes.pagination}
-          rowsPerPageOptions={[10, 20, 30, 40, 50, 60, 70, 80, 90, 100]}
-          labelDisplayedRows={labelDisplayedRows}
-          labelRowsPerPage={t(labelRowsPerPage)}
-          colSpan={3}
-          count={totalRows}
-          rowsPerPage={limit}
-          page={currentPage}
+          ActionsComponent={PaginationActions}
           SelectProps={{
             native: true,
           }}
+          className={classes.pagination}
+          colSpan={3}
+          count={totalRows}
+          labelDisplayedRows={labelDisplayedRows}
+          labelRowsPerPage={t(labelRowsPerPage)}
+          page={currentPage}
+          rowsPerPage={limit}
+          rowsPerPageOptions={[10, 20, 30, 40, 50, 60, 70, 80, 90, 100]}
           onChangePage={changePage}
           onChangeRowsPerPage={changeRowPerPage}
-          ActionsComponent={PaginationActions}
         />
       )}
     </div>

@@ -11,10 +11,10 @@ describe('DialogDuplicate', () => {
     const { getByText } = render(
       <DialogDuplicate
         open
-        labelTitle="title"
-        labelInput="Duplications"
         labelCancel="cancel"
         labelConfirm="confirm"
+        labelInput="Duplications"
+        labelTitle="title"
         onCancel={jest.fn()}
         onConfirm={mockConfirm}
       />,
@@ -31,10 +31,10 @@ describe('DialogDuplicate', () => {
     const { getByDisplayValue, getByText } = render(
       <DialogDuplicate
         open
-        labelTitle="title"
-        labelInput="Duplications"
         labelCancel="cancel"
         labelConfirm="confirm"
+        labelInput="Duplications"
+        labelTitle="title"
         onCancel={jest.fn()}
         onConfirm={mockConfirm}
       />,

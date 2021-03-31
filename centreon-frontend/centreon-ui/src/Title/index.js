@@ -25,8 +25,8 @@ const Title = ({
       styles['custom-title'],
       customTitleStyles ? styles['custom-title-styles'] : '',
     )}
-    onClick={onClick}
     style={style}
+    onClick={onClick}
   >
     {icon ? (
       <span

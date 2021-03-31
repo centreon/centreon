@@ -19,19 +19,19 @@ const renderWizardThreeSteps = (): RenderResult =>
       open
       steps={[
         {
-          stepName: 'step label 1',
-          skipFormChangeCheck: true,
           Component: () => <div>Step 1</div>,
+          skipFormChangeCheck: true,
+          stepName: 'step label 1',
         },
         {
-          stepName: 'step label 2',
-          skipFormChangeCheck: true,
           Component: () => <div>Step 2</div>,
+          skipFormChangeCheck: true,
+          stepName: 'step label 2',
         },
         {
-          stepName: 'step label 3',
-          skipFormChangeCheck: true,
           Component: () => <div>Step 3</div>,
+          skipFormChangeCheck: true,
+          stepName: 'step label 3',
         },
       ]}
     />,
@@ -43,9 +43,9 @@ const renderWizardOneStep = (): RenderResult =>
       open
       steps={[
         {
-          stepName: 'step label 1',
-          skipFormChangeCheck: true,
           Component: () => <div>Step 1</div>,
+          skipFormChangeCheck: true,
+          stepName: 'step label 1',
         },
       ]}
     />,
@@ -62,15 +62,15 @@ const renderWizardTwoStepsWithFormValidation = () =>
       initialValues={{ secondInput: '' }}
       steps={[
         {
-          stepName: 'step label 1',
-          skipFormChangeCheck: true,
           Component: () => <div>Step 1</div>,
+          skipFormChangeCheck: true,
+          stepName: 'step label 1',
         },
         {
-          stepName: 'step label 2',
-          skipFormChangeCheck: true,
-          validationSchema: secondStepValidationSchema,
           Component: () => <div>Step 2</div>,
+          skipFormChangeCheck: true,
+          stepName: 'step label 2',
+          validationSchema: secondStepValidationSchema,
         },
       ]}
     />,
@@ -98,14 +98,14 @@ const renderWizardTwoStepsWithSendingRequests = () =>
       open
       steps={[
         {
-          stepName: 'step label 1',
-          skipFormChangeCheck: true,
           Component: () => <div>Step 1</div>,
+          skipFormChangeCheck: true,
+          stepName: 'step label 1',
         },
         {
-          stepName: 'step label 2',
-          skipFormChangeCheck: true,
           Component: SecondStep,
+          skipFormChangeCheck: true,
+          stepName: 'step label 2',
         },
       ]}
     />,

@@ -17,43 +17,43 @@ const entries = [...sixElement].map((_, index) => ({
 const noOp = (): void => undefined;
 
 export const empty = (): JSX.Element => (
-  <MultiSelectEntries label={label} onClick={noOp} emptyLabel={emptyLabel} />
+  <MultiSelectEntries emptyLabel={emptyLabel} label={label} onClick={noOp} />
 );
 
 export const oneElement = (): JSX.Element => (
   <MultiSelectEntries
+    emptyLabel={emptyLabel}
     label={label}
     values={[entries[0]]}
     onClick={noOp}
-    emptyLabel={emptyLabel}
   />
 );
 
 export const oneElementHighlight = (): JSX.Element => (
   <MultiSelectEntries
+    highlight
+    emptyLabel={emptyLabel}
     label={label}
     values={[entries[0]]}
     onClick={noOp}
-    highlight
-    emptyLabel={emptyLabel}
   />
 );
 
 export const sixElements = (): JSX.Element => (
   <MultiSelectEntries
+    emptyLabel={emptyLabel}
     label={label}
     values={entries}
     onClick={noOp}
-    emptyLabel={emptyLabel}
   />
 );
 
 export const sixElementsError = (): JSX.Element => (
   <MultiSelectEntries
+    emptyLabel={emptyLabel}
+    error="Something went wrong"
     label={label}
     values={entries}
     onClick={noOp}
-    emptyLabel={emptyLabel}
-    error="Something went wrong"
   />
 );

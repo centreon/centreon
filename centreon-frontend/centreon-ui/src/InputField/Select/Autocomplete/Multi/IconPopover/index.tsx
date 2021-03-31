@@ -29,9 +29,9 @@ const useStyles = makeStyles((theme) => ({
 
 type Props = MultiAutocompleteFieldProps & {
   icon: JSX.Element;
-  title: string;
   onReset?: () => void;
   popperPlacement?: PopperPlacementType;
+  title: string;
 };
 
 const IconPopoverMultiAutocomplete = ({
@@ -74,36 +74,36 @@ const IconPopoverMultiAutocomplete = ({
   return (
     <ClickAwayListener onClickAway={close}>
       <div>
-        <IconButton title={title} ariaLabel={title} onClick={toggle}>
+        <IconButton ariaLabel={title} title={title} onClick={toggle}>
           {icon}
         </IconButton>
         <Popper
-          style={{ zIndex: theme.zIndex.tooltip }}
-          open={isOpen}
           anchorEl={anchorEl}
+          open={isOpen}
           placement={popperPlacement}
+          style={{ zIndex: theme.zIndex.tooltip }}
         >
           <Paper>
             {!isNil(onReset) && (
               <Button
-                className={classes.button}
-                startIcon={<IconReset />}
-                size="small"
-                color="primary"
                 fullWidth
+                className={classes.button}
+                color="primary"
+                size="small"
+                startIcon={<IconReset />}
                 onClick={onReset}
               >
                 {t(labelReset)}
               </Button>
             )}
             <MultiAutocompleteField
-              onClose={close}
               label={label}
-              options={options}
-              onChange={onChange}
-              value={value}
-              open={isOpen}
               limitTags={1}
+              open={isOpen}
+              options={options}
+              value={value}
+              onChange={onChange}
+              onClose={close}
               {...props}
             />
           </Paper>

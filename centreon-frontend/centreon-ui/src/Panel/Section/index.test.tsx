@@ -9,15 +9,15 @@ describe(SectionPanel, () => {
     const header = <>Header</>;
     const sections = [
       {
-        id: 'non-expandable',
         expandable: false,
+        id: 'non-expandable',
         section: <>Non Expandable Section</>,
       },
       {
-        id: 'expandable',
         expandable: true,
-        title: 'Expand me',
+        id: 'expandable',
         section: <>Expandable Section</>,
+        title: 'Expand me',
       },
     ];
     const { getByText } = render(
@@ -36,9 +36,9 @@ describe(SectionPanel, () => {
     const { baseElement, getByText, queryByText } = render(
       <SectionPanel
         header={<>Header</>}
+        secondaryPanel={secondaryPanel}
         sections={[]}
         onClose={jest.fn()}
-        secondaryPanel={secondaryPanel}
       />,
     );
 

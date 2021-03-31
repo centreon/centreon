@@ -22,13 +22,13 @@ const SaveButton = ({ succeeded, loading, tooltipLabel, ...rest }) => {
   };
 
   return (
-    <Tooltip title={tooltipLabel} placement="bottom">
+    <Tooltip placement="bottom" title={tooltipLabel}>
       <div>
         <Button
-          variant="contained"
-          color="primary"
-          style={{ width: 40, height: 40 }}
           aria-label="save button"
+          color="primary"
+          style={{ height: 40, width: 40 }}
+          variant="contained"
           {...rest}
         >
           {ButtonContent()}
@@ -39,19 +39,19 @@ const SaveButton = ({ succeeded, loading, tooltipLabel, ...rest }) => {
 };
 
 SaveButton.defaultProps = {
-  succeeded: false,
   disabled: false,
   loading: false,
-  tooltipLabel: 'Save',
   onClick: () => {},
+  succeeded: false,
+  tooltipLabel: 'Save',
 };
 
 SaveButton.propTypes = {
-  succeeded: PropTypes.bool,
   disabled: PropTypes.bool,
   loading: PropTypes.bool,
-  tooltipLabel: PropTypes.string,
   onClick: PropTypes.func,
+  succeeded: PropTypes.bool,
+  tooltipLabel: PropTypes.string,
 };
 
 export default SaveButton;

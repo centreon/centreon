@@ -6,18 +6,18 @@ import { CircularProgress, makeStyles } from '@material-ui/core';
 
 const useStyles = makeStyles(() => ({
   alignCenter: {
-    width: '100%',
-    height: '100%',
-    display: 'grid',
-    justifyContent: 'center',
     alignItems: 'center',
+    display: 'grid',
+    height: '100%',
+    justifyContent: 'center',
+    width: '100%',
   },
 }));
 
 interface Props {
-  loading: boolean;
-  children: React.ReactElement;
   alignCenter?: boolean;
+  children: React.ReactElement;
+  loading: boolean;
   loadingIndicatorSize?: number;
 }
 

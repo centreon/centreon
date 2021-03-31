@@ -46,14 +46,14 @@ class ExtensionDetailPopup extends React.Component {
           <SliderSkeleton animate={animate} />
         ) : (
           <Slider
-            type={type}
             images={!loading && modalDetails.images ? modalDetails.images : []}
+            type={type}
           >
             {modalDetails.version.installed && modalDetails.version.outdated ? (
               <IconContent
                 customClass="content-icon-popup-wrapper"
-                iconContentType="update"
                 iconContentColor="orange"
+                iconContentType="update"
                 onClick={() => {
                   onUpdateClicked(modalDetails.id, modalDetails.type);
                 }}
@@ -62,8 +62,8 @@ class ExtensionDetailPopup extends React.Component {
             {modalDetails.version.installed ? (
               <IconContent
                 customClass="content-icon-popup-wrapper"
-                iconContentType="delete"
                 iconContentColor="red"
+                iconContentType="delete"
                 onClick={() => {
                   onDeleteClicked(modalDetails.id, modalDetails.type);
                 }}
@@ -71,8 +71,8 @@ class ExtensionDetailPopup extends React.Component {
             ) : (
               <IconContent
                 customClass="content-icon-popup-wrapper"
-                iconContentType="add"
                 iconContentColor="green"
+                iconContentType="add"
                 onClick={() => {
                   onInstallClicked(modalDetails.id, modalDetails.type);
                 }}
@@ -87,19 +87,19 @@ class ExtensionDetailPopup extends React.Component {
             <>
               <Title label={modalDetails.title} />
               <Button
-                style={{ cursor: 'default' }}
+                buttonType="regular"
+                color="blue"
                 label={
                   (!modalDetails.version.installed ? 'Available ' : '') +
                   modalDetails.version.available
                 }
-                buttonType="regular"
-                color="blue"
+                style={{ cursor: 'default' }}
               />
               <Button
-                label={modalDetails.stability}
                 buttonType="bordered"
                 color="gray"
-                style={{ margin: '15px', cursor: 'default' }}
+                label={modalDetails.stability}
+                style={{ cursor: 'default', margin: '15px' }}
               />
             </>
           )}
@@ -123,7 +123,7 @@ class ExtensionDetailPopup extends React.Component {
           {loading ? (
             <ReleaseNoteSkeleton animate={animate} />
           ) : (
-            <Description note={modalDetails.release_note} link />
+            <Description link note={modalDetails.release_note} />
           )}
         </div>
         <IconClose

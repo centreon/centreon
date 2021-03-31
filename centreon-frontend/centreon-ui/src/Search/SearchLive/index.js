@@ -32,10 +32,10 @@ class SearchLive extends Component {
         <input type="text" value={value} onChange={this.onChange.bind(this)} />
         {icon ? (
           <ButtonActionInput
-            buttonColor="green"
-            iconColor="white"
             buttonActionType="delete"
+            buttonColor="green"
             buttonIconType="arrow-right"
+            iconColor="white"
           />
         ) : null}
       </div>

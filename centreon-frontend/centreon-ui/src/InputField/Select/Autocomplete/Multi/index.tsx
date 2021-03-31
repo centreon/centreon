@@ -9,16 +9,16 @@ import Option from '../../Option';
 
 const useStyles = makeStyles((theme) => ({
   checkbox: {
-    padding: 0,
     marginRight: theme.spacing(1),
+    padding: 0,
+  },
+  deleteIcon: {
+    height: theme.spacing(1.5),
+    width: theme.spacing(1.5),
   },
   tag: {
     fontSize: theme.typography.caption.fontSize,
     height: theme.spacing(1.75),
-  },
-  deleteIcon: {
-    width: theme.spacing(1.5),
-    height: theme.spacing(1.5),
   },
 }));
 
@@ -50,8 +50,8 @@ const MultiAutocompleteField = ({
     value.map((option, index) => (
       <Chip
         classes={{
-          root: classes.tag,
           deleteIcon: classes.deleteIcon,
+          root: classes.tag,
         }}
         key={option.id}
         label={option.name}
@@ -62,23 +62,23 @@ const MultiAutocompleteField = ({
 
   return (
     <Autocomplete
-      multiple
       disableCloseOnSelect
+      multiple
+      getLimitTagsText={(more) => <Option>{`+${more}`}</Option>}
       renderOption={(option, { selected }): JSX.Element => (
         <>
           {displayCheckboxOption && (
             <Checkbox
-              color="primary"
-              size="small"
               checked={selected}
               className={classes.checkbox}
+              color="primary"
+              size="small"
             />
           )}
           <Option>{option.name}</Option>
         </>
       )}
       renderTags={renderTags}
-      getLimitTagsText={(more) => <Option>{`+${more}`}</Option>}
       {...props}
     />
   );

@@ -11,5 +11,5 @@ export const middle = () => <Icon iconType="middle" />;
 export const big = () => <Icon iconType="big" />;
 
 export const content = () => (
-  <Icon iconContentType="add" iconContentColor="green" iconType="content" />
+  <Icon iconContentColor="green" iconContentType="add" iconType="content" />
 );

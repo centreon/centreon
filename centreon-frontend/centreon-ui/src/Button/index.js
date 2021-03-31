@@ -36,12 +36,12 @@ const Button = ({
   );
 
   return (
-    <button className={cn} onClick={onClick} style={style} {...rest}>
+    <button className={cn} style={style} onClick={onClick} {...rest}>
       {iconActionType ? (
         <IconAction
-          iconDirection="icon-position-right"
-          iconColor={iconColor}
           iconActionType={iconActionType}
+          iconColor={iconColor}
+          iconDirection="icon-position-right"
         />
       ) : null}
       {label}

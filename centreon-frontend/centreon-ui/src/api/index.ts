@@ -8,8 +8,8 @@ const getData = <TResult>(cancelToken: CancelToken) => (
   axios.get(endpoint, { cancelToken }).then(({ data }) => data);
 
 interface RequestWithData<TData> {
-  endpoint: string;
   data: TData;
+  endpoint: string;
 }
 
 const patchData = <TData, TResult>(cancelToken: CancelToken) => ({
@@ -18,8 +18,8 @@ const patchData = <TData, TResult>(cancelToken: CancelToken) => ({
 }: RequestWithData<TData>): Promise<TResult> =>
   axios
     .patch(endpoint, data, {
-      headers,
       cancelToken,
+      headers,
     })
     .then(({ data: result }) => result);
 
@@ -29,8 +29,8 @@ const postData = <TData, TResult>(cancelToken: CancelToken) => ({
 }: RequestWithData<TData>): Promise<TResult> =>
   axios
     .post(endpoint, data, {
-      headers,
       cancelToken,
+      headers,
     })
     .then(({ data: result }) => result);
 
@@ -40,8 +40,8 @@ const putData = <TData, TResult>(cancelToken: CancelToken) => ({
 }: RequestWithData<TData>): Promise<TResult> =>
   axios
     .put(endpoint, data, {
-      headers,
       cancelToken,
+      headers,
     })
     .then(({ data: result }) => result);
 
@@ -50,8 +50,8 @@ const deleteData = <TResult>(cancelToken: CancelToken) => (
 ): Promise<TResult> =>
   axios
     .delete(endpoint, {
-      headers,
       cancelToken,
+      headers,
     })
     .then(({ data }) => data);
 

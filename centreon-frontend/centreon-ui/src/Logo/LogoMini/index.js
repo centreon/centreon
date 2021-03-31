@@ -17,16 +17,16 @@ class LogoMini extends Component {
     const { customClass, onClick } = this.props;
     return (
       <div
-        onClick={onClick}
         className={clsx(styles['logo-mini'], styles[customClass || ''])}
+        onClick={onClick}
       >
         <span>
           <img
+            alt=""
             className={clsx(styles['logo-mini-image'])}
+            height="21"
             src={miniLogo}
             width="23"
-            height="21"
-            alt=""
           />
         </span>
       </div>

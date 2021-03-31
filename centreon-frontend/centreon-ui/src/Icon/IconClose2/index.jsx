@@ -9,30 +9,30 @@ import MaterialIcon from '../MaterialIcon';
 
 const Label = styled('span')(() => ({
   color: '#009fdf',
-  fontSize: 12,
-  display: 'inline-block',
-  verticalAlign: 'middle',
-  fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
-  fontWeight: 'bold',
   cursor: 'pointer',
+  display: 'inline-block',
+  fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
+  fontSize: 12,
+  fontWeight: 'bold',
   paddingLeft: 5,
+  verticalAlign: 'middle',
 }));
 
 const FloatingIcon = styled(MaterialIcon)(() => ({
   '&:hover': {
-    background: '#707070',
     '& svg': {
       color: '#fff',
     },
+    background: '#707070',
   },
 }));
 
 const GreyClose = styled(Close)(() => ({
-  margin: 'auto',
-  height: '100%',
-  width: '100%',
   color: '#424242',
   cursor: 'pointer',
+  height: '100%',
+  margin: 'auto',
+  width: '100%',
   zIndex: 9,
 }));
 

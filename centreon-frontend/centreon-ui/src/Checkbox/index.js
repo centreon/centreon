@@ -9,15 +9,15 @@ import { withStyles } from '@material-ui/core/styles';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 
 const CustomCheckbox = withStyles({
+  checked: {},
   root: {
-    color: '#0072CE',
     '&$checked': {
       color: '#0072CE',
     },
+    color: '#0072CE',
     fontSize: 10,
     padding: 0,
   },
-  checked: {},
 })((props) => <Checkbox color="default" {...props} />);
 
 const CustomLabel = withStyles({

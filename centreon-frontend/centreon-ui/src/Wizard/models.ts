@@ -5,58 +5,58 @@ export interface StepComponentProps {
 }
 
 export interface Step {
-  stepName: string;
-  validate?: (values: FormikValues) => FormikErrors<FormikValues>;
-  validationSchema?;
   Component: (props: StepComponentProps) => JSX.Element;
   hasActionsBar?: boolean;
   skipFormChangeCheck?: boolean;
+  stepName: string;
+  validate?: (values: FormikValues) => FormikErrors<FormikValues>;
+  validationSchema?;
 }
 
 interface ActionsBarLabels {
-  labelPrevious: string;
-  labelNext: string;
   labelFinish: string;
+  labelNext: string;
+  labelPrevious: string;
 }
 
 export interface WizardContentProps {
+  actionsBarLabels: ActionsBarLabels;
+  currentStep: number;
+  disableNextOnSendingRequests: (sendingRequests: Array<boolean>) => void;
+  goToNextStep: () => void;
+  goToPreviousStep: () => void;
+  isFirstStep: boolean;
+  isLastStep: boolean;
   sendingRequest: boolean;
   step: Step;
-  isLastStep: boolean;
-  isFirstStep: boolean;
-  disableNextOnSendingRequests: (sendingRequests: Array<boolean>) => void;
-  goToPreviousStep: () => void;
-  goToNextStep: () => void;
-  currentStep: number;
-  actionsBarLabels: ActionsBarLabels;
 }
 
 interface ConfirmDialogLabels {
-  labelTitle: string;
-  labelMessage: string;
   labelCancel: string;
   labelConfirm: string;
+  labelMessage: string;
+  labelTitle: string;
 }
 
 export interface WizardProps {
-  steps: Array<Step>;
-  onSubmit?: (values: FormikValues, bag: FormikHelpers<FormikValues>) => void;
-  initialValues?: FormikValues;
-  fullHeight?: boolean;
-  open: boolean;
-  onClose?: () => void;
-  width?: 'lg' | 'md' | 'sm' | 'xl' | 'xs' | false;
-  confirmDialogLabels?: ConfirmDialogLabels;
   actionsBarLabels?: ActionsBarLabels;
+  confirmDialogLabels?: ConfirmDialogLabels;
+  fullHeight?: boolean;
+  initialValues?: FormikValues;
+  onClose?: () => void;
+  onSubmit?: (values: FormikValues, bag: FormikHelpers<FormikValues>) => void;
+  open: boolean;
+  steps: Array<Step>;
+  width?: 'lg' | 'md' | 'sm' | 'xl' | 'xs' | false;
 }
 
 export interface ActionsBarProps {
-  isLastStep: boolean;
-  isFirstStep: boolean;
-  goToPreviousStep: () => void;
-  goToNextStep: () => void;
+  actionsBarLabels: ActionsBarLabels;
   disableActionButtons: boolean;
+  goToNextStep: () => void;
+  goToPreviousStep: () => void;
+  isFirstStep: boolean;
+  isLastStep: boolean;
   isSubmitting: boolean;
   submit: () => void;
-  actionsBarLabels: ActionsBarLabels;
 }

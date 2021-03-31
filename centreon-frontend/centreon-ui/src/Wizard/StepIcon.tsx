@@ -5,31 +5,31 @@ import Avatar from '@material-ui/core/Avatar';
 import Check from '@material-ui/icons/Check';
 
 const useStepIconStyles = makeStyles((theme) => ({
-  root: {
-    color: '#000000',
-    display: 'flex',
-    height: 22,
-    alignItems: 'center',
-  },
   avatar: {
-    width: 20,
-    height: 20,
-    color: '#000000',
     backgroundColor: '#ffffff',
+    color: '#000000',
     fontSize: '0.8rem',
+    height: 20,
+    width: 20,
   },
   avatarActive: {
-    color: '#ffffff',
     backgroundColor: theme.palette.primary.main,
     boxShadow: '0 1px 2px 1px rgba(0,0,0,.25)',
+    color: '#ffffff',
   },
   avatarCompleted: {
     backgroundColor: theme.palette.primary.main,
   },
   completed: {
     color: '#ffffff',
-    zIndex: 1,
     fontSize: 18,
+    zIndex: 1,
+  },
+  root: {
+    alignItems: 'center',
+    color: '#000000',
+    display: 'flex',
+    height: 22,
   },
 }));
 

@@ -12,31 +12,31 @@ const headerHeight = 6.5;
 const footerHeight = 3.8;
 
 const useStyles = makeStyles((theme) => ({
-  skeletonContainer: {
-    width: '100%',
+  breadcrumbSkeleton: {
+    margin: theme.spacing(0.5, 2),
+    width: theme.spacing(30),
+  },
+  headerContentFooterContainer: {
+    alignContent: 'space-between',
+    display: 'grid',
+    gridTemplateRows: `auto ${theme.spacing(footerHeight)}`,
     height: '100%',
+    rowGap: `${theme.spacing(1)}px`,
   },
   menuContentContainer: {
     display: 'grid',
     gridTemplateColumns: `${theme.spacing(5.5)}px 1fr`,
     height: '100%',
   },
-  breadcrumbSkeleton: {
-    margin: theme.spacing(0.5, 2),
-    width: theme.spacing(30),
-  },
-  headerContentFooterContainer: {
+  skeletonContainer: {
     height: '100%',
-    display: 'grid',
-    gridTemplateRows: `auto ${theme.spacing(footerHeight)}`,
-    alignContent: 'space-between',
-    rowGap: `${theme.spacing(1)}px`,
+    width: '100%',
   },
 }));
 
 export interface PageSkeletonProps {
-  displayHeaderAndNavigation?: boolean;
   animate?: boolean;
+  displayHeaderAndNavigation?: boolean;
 }
 
 const PageSkeleton = ({
@@ -55,33 +55,33 @@ const PageSkeleton = ({
         })}
       >
         <BaseRectSkeleton
-          height="100%"
           animate={animate}
+          height="100%"
           width={`calc(100% - ${theme.spacing(0.5)}px)`}
         />
         <div className={classes.headerContentFooterContainer}>
           <div>
             {displayHeaderAndNavigation && (
               <BaseRectSkeleton
-                height={theme.spacing(headerHeight)}
                 animate={animate}
+                height={theme.spacing(headerHeight)}
               />
             )}
             <Skeleton
-              variant="text"
+              animation={animate ? 'wave' : false}
               className={clsx(
                 classes.breadcrumbSkeleton,
                 skeletonClasses.skeletonLayout,
               )}
-              animation={animate ? 'wave' : false}
               height={theme.spacing(2.5)}
+              variant="text"
             />
             <ContentSkeleton animate={animate} />
           </div>
           {displayHeaderAndNavigation && (
             <BaseRectSkeleton
-              height={theme.spacing(footerHeight)}
               animate={animate}
+              height={theme.spacing(footerHeight)}
             />
           )}
         </div>

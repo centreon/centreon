@@ -11,12 +11,12 @@ import HeaderLabel from '../Label';
 
 const useStyles = makeStyles<Theme, Pick<Props, 'isDragging'>>(() => ({
   content: {
-    display: 'flex',
     alignItems: 'center',
+    display: 'flex',
   },
   dragHandle: ({ isDragging }) => ({
-    display: 'flex',
     cursor: isDragging ? 'grabbing' : 'grab',
+    display: 'flex',
     outline: 'none',
   }),
 }));
@@ -53,8 +53,8 @@ const SortableHeaderCellContent = React.forwardRef(
       );
 
       onSort?.({
-        sortOrder: isDesc ? 'asc' : 'desc',
         sortField: columnSortField,
+        sortOrder: isDesc ? 'asc' : 'desc',
       });
     };
 
@@ -68,8 +68,8 @@ const SortableHeaderCellContent = React.forwardRef(
 
         {column.sortable ? (
           <TableSortLabel
-            aria-label={`Column ${column.label}`}
             active={sortField === columnSortField}
+            aria-label={`Column ${column.label}`}
             direction={sortOrder || 'desc'}
             onClick={sort}
           >

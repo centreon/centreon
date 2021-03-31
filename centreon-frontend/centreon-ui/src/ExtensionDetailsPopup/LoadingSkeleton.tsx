@@ -27,10 +27,10 @@ export const SliderSkeleton = ({ animate = true }: Props): JSX.Element => {
 
   return (
     <BaseSkeleton
+      animate={animate}
+      height={theme.spacing(50)}
       variant="rect"
       width="100%"
-      height={theme.spacing(50)}
-      animate={animate}
     />
   );
 };
@@ -42,17 +42,17 @@ export const HeaderSkeleton = ({ animate = true }: Props): JSX.Element => {
   return (
     <>
       <BaseSkeleton
-        variant="rect"
-        height={theme.spacing(headerHeight)}
-        width={theme.spacing(10)}
         animate={animate}
+        height={theme.spacing(headerHeight)}
+        variant="rect"
+        width={theme.spacing(10)}
       />
       <BaseSkeleton
-        variant="rect"
-        height={theme.spacing(headerHeight)}
-        width={theme.spacing(20)}
-        className={classes.nextContent}
         animate={animate}
+        className={classes.nextContent}
+        height={theme.spacing(headerHeight)}
+        variant="rect"
+        width={theme.spacing(20)}
       />
     </>
   );
@@ -65,21 +65,21 @@ export const ContentSkeleton = ({ animate = true }: Props): JSX.Element => {
   return (
     <>
       <BaseSkeleton
+        animate={animate}
         variant="text"
         width={theme.spacing(20)}
-        animate={animate}
       />
       <BaseSkeleton
+        animate={animate}
+        className={classes.nextContent}
         variant="text"
         width={theme.spacing(15)}
-        className={classes.nextContent}
-        animate={animate}
       />
       <BaseSkeleton
+        animate={animate}
+        className={classes.nextContent}
         variant="text"
         width={theme.spacing(25)}
-        className={classes.nextContent}
-        animate={animate}
       />
     </>
   );
@@ -92,15 +92,15 @@ export const ReleaseNoteSkeleton = ({ animate = true }: Props): JSX.Element => {
   return (
     <>
       <BaseSkeleton
+        animate={animate}
         variant="text"
         width={theme.spacing(15)}
-        animate={animate}
       />
       <BaseSkeleton
+        animate={animate}
+        className={classes.nextContent}
         variant="text"
         width={theme.spacing(25)}
-        className={classes.nextContent}
-        animate={animate}
       />
     </>
   );

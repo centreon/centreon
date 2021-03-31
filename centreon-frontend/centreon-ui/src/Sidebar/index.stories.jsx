@@ -27,19 +27,19 @@ export default { title: 'Sidebar' };
 export const normal = () => (
   <MemoryRouter>
     <Sidebar
+      externalHistory={window}
+      externalHistory={window}
+      handleDirectClick={(id, url) => {
+        console.log(id, url);
+      }}
       navigationData={mock}
-      externalHistory={window}
       reactRoutes={reactMock}
-      externalHistory={window}
       onNavigate={(id) => {
         window.location = `/iframe.html${replaceQueryParam(
           'p',
           id,
           window.location.search,
         )}`;
-      }}
-      handleDirectClick={(id, url) => {
-        console.log(id, url);
       }}
     />
   </MemoryRouter>

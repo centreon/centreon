@@ -8,9 +8,9 @@ import IconHeader from '.';
 export default { title: 'Icon/Header' };
 
 const customStyle = {
+  display: 'block',
   marginTop: '20px',
   paddingTop: '20px',
-  display: 'block',
   width: '50px',
 };
 
@@ -91,8 +91,8 @@ export const user = () => (
 export const homeWithText = () => (
   <HeaderBackground>
     <IconHeader
-      iconType="home"
       iconName="Home"
+      iconType="home"
       onClick={() => alertOnClick('Home')}
     />
   </HeaderBackground>

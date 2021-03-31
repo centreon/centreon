@@ -39,11 +39,11 @@ const TopFilters = ({ fullText, switches, onChange }) => {
                 )}
               >
                 <SearchLive
+                  filterKey={fullText.filterKey}
                   icon={fullText.icon}
-                  onChange={onChange}
                   label={fullText.label}
                   value={fullText.value}
-                  filterKey={fullText.filterKey}
+                  onChange={onChange}
                 />
               </div>
             ) : null}
@@ -52,8 +52,8 @@ const TopFilters = ({ fullText, switches, onChange }) => {
               {switches
                 ? switches.map((switchColumn, index) => (
                     <div
-                      key={`switchSubColumn${index}`}
                       className={filterStyles['switch-wrapper']}
+                      key={`switchSubColumn${index}`}
                     >
                       {switchColumn.map(
                         (
@@ -72,6 +72,7 @@ const TopFilters = ({ fullText, switches, onChange }) => {
                         ) =>
                           !button ? (
                             <FormControlLabel
+                              classes={{ label: classes.labelFontSize }}
                               control={
                                 <Switch
                                   checked={value}
@@ -93,11 +94,9 @@ const TopFilters = ({ fullText, switches, onChange }) => {
                                 </>
                               }
                               labelPlacement="top"
-                              classes={{ label: classes.labelFontSize }}
                             />
                           ) : (
                             <div
-                              key={`switch${index}${i}`}
                               className={clsx(
                                 styles['container__col-sm-6'],
                                 styles['container__col-xs-4'],
@@ -105,12 +104,13 @@ const TopFilters = ({ fullText, switches, onChange }) => {
                                 styles['mt-1'],
                                 filterStyles['button-wrapper'],
                               )}
+                              key={`switch${index}${i}`}
                             >
                               <Button
-                                key={`switchButton${index}${i}`}
-                                label={label}
                                 buttonType={buttonType}
                                 color={color}
+                                key={`switchButton${index}${i}`}
+                                label={label}
                                 onClick={onClick}
                               />
                             </div>

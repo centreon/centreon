@@ -13,23 +13,23 @@ import { Step as StepType } from './models';
 import StepIcon from './StepIcon';
 
 interface Props {
-  steps: Array<StepType>;
   currentStep: number;
+  steps: Array<StepType>;
 }
 
 const useStyles = makeStyles((theme) => ({
-  stepper: {
-    padding: theme.spacing(2),
-    backgroundColor: theme.palette.grey[200],
+  dialogTitle: {
+    padding: theme.spacing(0),
   },
   label: {
     '& .MuiStepLabel-alternativeLabel': {
-      marginTop: '4px',
       fontSize: '0.8rem',
+      marginTop: '4px',
     },
   },
-  dialogTitle: {
-    padding: theme.spacing(0),
+  stepper: {
+    backgroundColor: theme.palette.grey[200],
+    padding: theme.spacing(2),
   },
 }));
 
@@ -49,10 +49,10 @@ const Stepper = ({ steps, currentStep }: Props): JSX.Element | null => {
       {steps.map(({ stepName }) => (
         <Step key={stepName}>
           <StepLabel
+            StepIconComponent={StepIcon}
             classes={{
               alternativeLabel: classes.label,
             }}
-            StepIconComponent={StepIcon}
           >
             {stepName}
           </StepLabel>

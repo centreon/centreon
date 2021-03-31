@@ -40,10 +40,10 @@ const withSnackbar = (
       <Context.Provider value={{ showMessage, showMessages }}>
         <Component {...props} />
         <Snackbar
+          message={message}
+          open={hasMessage}
           severity={severity}
           onClose={confirmMessage}
-          open={hasMessage}
-          message={message}
         />
       </Context.Provider>
     );

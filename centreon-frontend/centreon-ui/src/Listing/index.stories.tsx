@@ -37,50 +37,50 @@ const ComponentColumn = ({ row, isSelected }): JSX.Element => (
 
 const defaultColumns = [
   {
+    getFormattedString: ({ name }): string => name,
     id: 'name',
     label: 'Name',
     type: ColumnType.string,
-    getFormattedString: ({ name }): string => name,
   },
   {
+    getFormattedString: ({ description }): string => description,
     id: 'description',
     label: 'Description',
     type: ColumnType.string,
-    getFormattedString: ({ description }): string => description,
   },
   {
+    Component: ComponentColumn,
     id: '#',
     label: 'Custom',
     type: ColumnType.component,
-    Component: ComponentColumn,
   },
 ];
 
 const tenElements = new Array(10).fill(0);
 
 interface Entity {
+  active: boolean;
+  description: string;
+  disableCheckbox: boolean;
   id: number;
   name: string;
-  description: string;
-  active: boolean;
   selected: boolean;
-  disableCheckbox: boolean;
 }
 
 const listing = [...tenElements].map((_, index) => ({
+  active: index % 2 === 0,
+  description: `Entity ${index}`,
+  disableCheckbox: index % 4 === 0,
   id: index,
   name: `E${index}`,
-  description: `Entity ${index}`,
-  active: index % 2 === 0,
   selected: index % 3 === 0,
-  disableCheckbox: index % 4 === 0,
 }));
 
 const rowColorConditions = [
   {
-    name: 'inactive',
-    condition: ({ active }): boolean => !active,
     color: grey[500],
+    condition: ({ active }): boolean => !active,
+    name: 'inactive',
   },
 ];
 
@@ -96,13 +96,13 @@ const Story = ({
     <div className={classes.listing}>
       <Listing
         columns={columns}
-        limit={listing.length}
         currentPage={0}
-        totalRows={listing.length}
-        rows={listing}
-        rowColorConditions={rowColorConditions}
-        selectedRows={listing.filter((row) => row.selected)}
         disableRowCheckCondition={(row): boolean => row.disableCheckbox}
+        limit={listing.length}
+        rowColorConditions={rowColorConditions}
+        rows={listing}
+        selectedRows={listing.filter((row) => row.selected)}
+        totalRows={listing.length}
         {...props}
       />
     </div>
@@ -112,7 +112,7 @@ const Story = ({
 export const normal = (): JSX.Element => <Story />;
 
 export const loadingWithNoData = (): JSX.Element => {
-  return <Story rows={[]} totalRows={0} loading />;
+  return <Story loading rows={[]} totalRows={0} />;
 };
 
 export const loadingWithData = (): JSX.Element => {
@@ -120,7 +120,7 @@ export const loadingWithData = (): JSX.Element => {
 };
 
 const actions = (
-  <Button variant="contained" color="primary" size="small">
+  <Button color="primary" size="small" variant="contained">
     Action
   </Button>
 );
@@ -143,12 +143,12 @@ const ListingWithSortableColumns = (): JSX.Element => {
   return (
     <Story
       columnConfiguration={{
-        sortable: true,
         selectedColumnIds,
+        sortable: true,
       }}
       columns={defaultColumns}
-      onSelectColumns={setSelectedColumnIds}
       onResetColumns={resetColumns}
+      onSelectColumns={setSelectedColumnIds}
     />
   );
 };

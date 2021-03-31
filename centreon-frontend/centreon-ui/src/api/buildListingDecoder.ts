@@ -4,8 +4,8 @@ import { ListingMeta, Listing } from './models';
 
 const metaDecoder = JsonDecoder.object<ListingMeta>(
   {
-    page: JsonDecoder.number,
     limit: JsonDecoder.number,
+    page: JsonDecoder.number,
     total: JsonDecoder.number,
   },
   'ListingMeta',
@@ -24,8 +24,8 @@ const buildListingDecoder = <TEntity>({
 }: ListingDecoderOptions<TEntity>): JsonDecoder.Decoder<Listing<TEntity>> =>
   JsonDecoder.object<Listing<TEntity>>(
     {
-      result: JsonDecoder.array(entityDecoder, entityDecoderName),
       meta: metaDecoder,
+      result: JsonDecoder.array(entityDecoder, entityDecoderName),
     },
     listingDecoderName,
   );

@@ -15,12 +15,12 @@ const options = [
 export const withThreeOptions = (): JSX.Element => {
   return (
     <IconPopoverMultiAutocompleteField
-      icon={<EditIcon />}
-      title="Edit"
-      options={options}
-      label="Autocomplete"
-      value={[options[1]]}
       open
+      icon={<EditIcon />}
+      label="Autocomplete"
+      options={options}
+      title="Edit"
+      value={[options[1]]}
     />
   );
 };

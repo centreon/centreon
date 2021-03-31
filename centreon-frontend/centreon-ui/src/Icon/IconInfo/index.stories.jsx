@@ -13,5 +13,5 @@ export const questionWithText = () => (
 );
 
 export const content = () => (
-  <Icon iconContentType="add" iconContentColor="green" iconType="content" />
+  <Icon iconContentColor="green" iconContentType="add" iconType="content" />
 );

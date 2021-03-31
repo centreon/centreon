@@ -15,11 +15,11 @@ const options = [
 export const openWithThreeOptions = (): JSX.Element => {
   return (
     <AutocompleteField
-      options={options}
+      open
       label="Autocomplete"
+      options={options}
       placeholder="Type here..."
       value={options[1]}
-      open
     />
   );
 };
@@ -27,11 +27,11 @@ export const openWithThreeOptions = (): JSX.Element => {
 export const closeWithEndAdornment = (): JSX.Element => {
   return (
     <AutocompleteField
-      options={options}
+      endAdornment={<EditIcon />}
       label="Autocomplete"
+      options={options}
       placeholder="Type here..."
       value={options[1]}
-      endAdornment={<EditIcon />}
     />
   );
 };
@@ -39,12 +39,12 @@ export const closeWithEndAdornment = (): JSX.Element => {
 export const required = (): JSX.Element => {
   return (
     <AutocompleteField
-      options={options}
+      required
+      endAdornment={<EditIcon />}
       label="Autocomplete"
+      options={options}
       placeholder="Type here..."
       value={options[1]}
-      endAdornment={<EditIcon />}
-      required
     />
   );
 };
@@ -52,12 +52,12 @@ export const required = (): JSX.Element => {
 export const closeWithError = (): JSX.Element => {
   return (
     <AutocompleteField
-      options={options}
-      label="Autocomplete"
-      placeholder="Type here..."
-      value={options[1]}
       endAdornment={<EditIcon />}
       error="Error"
+      label="Autocomplete"
+      options={options}
+      placeholder="Type here..."
+      value={options[1]}
     />
   );
 };

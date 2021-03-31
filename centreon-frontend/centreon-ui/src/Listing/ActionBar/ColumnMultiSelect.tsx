@@ -32,8 +32,8 @@ const ColumnMultiSelect = ({
   const { t } = useTranslation();
 
   const visibleColumns = getVisibleColumns({
-    columns,
     columnConfiguration,
+    columns,
   });
 
   const selectColumnIds = (_, updatedColumns) => {
@@ -42,14 +42,14 @@ const ColumnMultiSelect = ({
 
   return (
     <IconPopoverMultiSelect
-      title={t(labelAddColumns)}
-      options={toSelectEntries(columns)}
-      value={toSelectEntries(visibleColumns)}
-      label={t(labelColumns)}
-      onChange={selectColumnIds}
       icon={<ColumnIcon />}
-      onReset={onResetColumns}
+      label={t(labelColumns)}
+      options={toSelectEntries(columns)}
       popperPlacement="bottom-end"
+      title={t(labelAddColumns)}
+      value={toSelectEntries(visibleColumns)}
+      onChange={selectColumnIds}
+      onReset={onResetColumns}
     />
   );
 };

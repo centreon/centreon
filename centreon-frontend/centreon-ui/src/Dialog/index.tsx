@@ -11,16 +11,16 @@ import {
 } from '@material-ui/core';
 
 export type Props = {
-  open: boolean;
-  onClose?: () => void;
-  onCancel?: () => void;
-  onConfirm: () => void;
-  labelTitle?: string;
+  children: React.ReactNode;
+  confirmDisabled?: boolean;
+  contentWidth?: number;
   labelCancel?: string;
   labelConfirm?: string;
-  children: React.ReactNode;
-  contentWidth?: number;
-  confirmDisabled?: boolean;
+  labelTitle?: string;
+  onCancel?: () => void;
+  onClose?: () => void;
+  onConfirm: () => void;
+  open: boolean;
   submitting?: boolean;
 } & DialogProps;
 
@@ -53,9 +53,9 @@ const Dialog = ({
       )}
       <Button
         color="primary"
-        onClick={onConfirm}
         disabled={confirmDisabled}
         endIcon={submitting && <CircularProgress size={15} />}
+        onClick={onConfirm}
       >
         {labelConfirm}
       </Button>

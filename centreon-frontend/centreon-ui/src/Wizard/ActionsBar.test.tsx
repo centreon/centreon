@@ -18,14 +18,14 @@ describe('ActionsBar', () => {
   it('cannot finish if the form is not valid', () => {
     render(
       <ActionsBar
+        disableActionButtons
         isLastStep
-        isFirstStep={false}
-        goToPreviousStep={goToPreviousStep}
+        actionsBarLabels={actionsBarLabels}
         goToNextStep={goToNextStep}
+        goToPreviousStep={goToPreviousStep}
+        isFirstStep={false}
         isSubmitting={false}
         submit={submit}
-        actionsBarLabels={actionsBarLabels}
-        disableActionButtons
       />,
     );
 
@@ -35,18 +35,18 @@ describe('ActionsBar', () => {
   it('displays the given previous and next labels when the current page is not the last one', () => {
     render(
       <ActionsBar
-        isLastStep={false}
-        isFirstStep={false}
-        goToPreviousStep={goToPreviousStep}
-        goToNextStep={goToNextStep}
-        isSubmitting={false}
-        submit={submit}
         actionsBarLabels={{
           labelFinish: 'Custom finish',
           labelNext: 'Custom next',
           labelPrevious: 'Custom previous',
         }}
         disableActionButtons={false}
+        goToNextStep={goToNextStep}
+        goToPreviousStep={goToPreviousStep}
+        isFirstStep={false}
+        isLastStep={false}
+        isSubmitting={false}
+        submit={submit}
       />,
     );
 
@@ -57,18 +57,18 @@ describe('ActionsBar', () => {
   it('displays the given previous and finish labels when the current page is the last one', () => {
     render(
       <ActionsBar
+        disableActionButtons
         isLastStep
-        isFirstStep={false}
-        goToPreviousStep={goToPreviousStep}
-        goToNextStep={goToNextStep}
-        isSubmitting={false}
-        submit={submit}
         actionsBarLabels={{
           labelFinish: 'Custom finish',
           labelNext: 'Custom next',
           labelPrevious: 'Custom previous',
         }}
-        disableActionButtons
+        goToNextStep={goToNextStep}
+        goToPreviousStep={goToPreviousStep}
+        isFirstStep={false}
+        isSubmitting={false}
+        submit={submit}
       />,
     );
 
@@ -79,14 +79,14 @@ describe('ActionsBar', () => {
   it('goes to previous step when the "Previous" button is clicked', () => {
     render(
       <ActionsBar
-        isLastStep={false}
-        isFirstStep={false}
-        goToPreviousStep={goToPreviousStep}
-        goToNextStep={goToNextStep}
-        isSubmitting={false}
-        submit={submit}
         actionsBarLabels={actionsBarLabels}
         disableActionButtons={false}
+        goToNextStep={goToNextStep}
+        goToPreviousStep={goToPreviousStep}
+        isFirstStep={false}
+        isLastStep={false}
+        isSubmitting={false}
+        submit={submit}
       />,
     );
 
@@ -97,14 +97,14 @@ describe('ActionsBar', () => {
   it('goes to next step when the "Next" button is clicked', () => {
     render(
       <ActionsBar
-        isLastStep={false}
-        isFirstStep={false}
-        goToPreviousStep={goToPreviousStep}
-        goToNextStep={goToNextStep}
-        isSubmitting={false}
-        submit={submit}
         actionsBarLabels={actionsBarLabels}
         disableActionButtons={false}
+        goToNextStep={goToNextStep}
+        goToPreviousStep={goToPreviousStep}
+        isFirstStep={false}
+        isLastStep={false}
+        isSubmitting={false}
+        submit={submit}
       />,
     );
 
@@ -116,13 +116,13 @@ describe('ActionsBar', () => {
     render(
       <ActionsBar
         isLastStep
-        isFirstStep={false}
-        goToPreviousStep={goToPreviousStep}
-        goToNextStep={goToNextStep}
-        isSubmitting={false}
-        submit={submit}
         actionsBarLabels={actionsBarLabels}
         disableActionButtons={false}
+        goToNextStep={goToNextStep}
+        goToPreviousStep={goToPreviousStep}
+        isFirstStep={false}
+        isSubmitting={false}
+        submit={submit}
       />,
     );
 

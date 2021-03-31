@@ -17,17 +17,14 @@ declare module '@material-ui/core/styles/createPalette' {
 
 const theme = createMuiTheme({
   palette: {
-    primary: {
-      main: '#10069F',
+    action: {
+      acknowledged: '#AA9C24',
+      acknowledgedBackground: '#F7F4E5',
+      inDowntime: '#9C27B0',
+      inDowntimeBackground: '#F9E7FF',
     },
     background: {
       default: '#EDEDED',
-    },
-    warning: {
-      main: '#FF9A13',
-    },
-    success: {
-      main: '#84BD00',
     },
     error: {
       main: '#f90026',
@@ -35,11 +32,14 @@ const theme = createMuiTheme({
     info: {
       main: '#00d3d4',
     },
-    action: {
-      acknowledged: '#AA9C24',
-      acknowledgedBackground: '#F7F4E5',
-      inDowntime: '#9C27B0',
-      inDowntimeBackground: '#F9E7FF',
+    primary: {
+      main: '#10069F',
+    },
+    success: {
+      main: '#84BD00',
+    },
+    warning: {
+      main: '#FF9A13',
     },
   },
   typography: {

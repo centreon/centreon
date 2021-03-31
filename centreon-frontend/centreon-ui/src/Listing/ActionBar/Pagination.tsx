@@ -9,8 +9,8 @@ const styles = {
   toolbar: {
     height: '32px',
     minHeight: 'auto',
-    paddingLeft: 5,
     overflow: 'hidden',
+    paddingLeft: 5,
   },
 };
 

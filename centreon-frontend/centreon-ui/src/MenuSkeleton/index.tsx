@@ -11,8 +11,8 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 interface Props {
-  width?: number;
   animate?: boolean;
+  width?: number;
 }
 
 const MenuLoader = ({ width = 15, animate = true }: Props): JSX.Element => {
@@ -21,10 +21,10 @@ const MenuLoader = ({ width = 15, animate = true }: Props): JSX.Element => {
 
   return (
     <Skeleton
-      width={theme.spacing(width)}
-      height={theme.spacing(5)}
-      className={classes.skeleton}
       animation={animate ? 'wave' : false}
+      className={classes.skeleton}
+      height={theme.spacing(5)}
+      width={theme.spacing(width)}
     />
   );
 };

@@ -15,6 +15,17 @@ const panelWidth = 550;
 const closeSecondaryPanelBarWidth = 20;
 
 const useStyles = makeStyles((theme) => ({
+  closeIcon: {
+    margin: 'auto',
+    width: 15,
+  },
+  closeSecondaryPanelBar: {
+    alignContent: 'center',
+    alignItems: 'center',
+    backgroundColor: theme.palette.background.default,
+    cursor: 'pointer',
+    display: 'flex',
+  },
   container: {
     display: (hasSecondaryPanel) => (hasSecondaryPanel ? 'grid' : 'block'),
     gridTemplateColumns: (hasSecondaryPanel) => {
@@ -25,41 +36,30 @@ const useStyles = makeStyles((theme) => ({
     height: '100%',
   },
   mainPanel: {
-    position: (hasSecondaryPanel) => (hasSecondaryPanel ? 'unset' : 'absolute'),
     bottom: 0,
     left: 0,
+    overflow: 'auto',
+    position: (hasSecondaryPanel) => (hasSecondaryPanel ? 'unset' : 'absolute'),
     right: 0,
     top: 0,
-    overflow: 'auto',
     width: panelWidth,
-  },
-  closeSecondaryPanelBar: {
-    cursor: 'pointer',
-    display: 'flex',
-    alignItems: 'center',
-    alignContent: 'center',
-    backgroundColor: theme.palette.background.default,
-  },
-  closeIcon: {
-    width: 15,
-    margin: 'auto',
   },
 }));
 
 interface Section {
-  id: string;
   expandable: boolean;
-  title?: string;
+  id: string;
   section: JSX.Element;
+  title?: string;
 }
 
 interface SectionPanelProps {
   header: JSX.Element;
-  sections: Array<Section>;
-  onClose: () => void;
-  secondaryPanel?: JSX.Element;
-  onSecondaryPanelClose?: () => void;
   loading?: boolean;
+  onClose: () => void;
+  onSecondaryPanelClose?: () => void;
+  secondaryPanel?: JSX.Element;
+  sections: Array<Section>;
 }
 
 const SectionPanel = ({
@@ -84,9 +84,7 @@ const SectionPanel = ({
 
   return (
     <Panel
-      onClose={onClose}
       header={header}
-      width={getWidth()}
       selectedTab={
         <ContentWithCircularLoading alignCenter loading={loading}>
           <div className={classes.container}>
@@ -104,8 +102,8 @@ const SectionPanel = ({
 
             {hasSecondaryPanel && (
               <Paper
-                className={classes.closeSecondaryPanelBar}
                 aria-label="Close Secondary Panel"
+                className={classes.closeSecondaryPanelBar}
                 onClick={onSecondaryPanelClose}
               >
                 <ForwardIcon className={classes.closeIcon} color="action" />
@@ -113,8 +111,8 @@ const SectionPanel = ({
             )}
 
             <Slide
-              in={hasSecondaryPanel}
               direction="left"
+              in={hasSecondaryPanel}
               timeout={{ enter: 150, exit: 50 }}
             >
               <div>{secondaryPanel}</div>
@@ -122,6 +120,8 @@ const SectionPanel = ({
           </div>
         </ContentWithCircularLoading>
       }
+      width={getWidth()}
+      onClose={onClose}
     />
   );
 };
@@ -140,9 +140,9 @@ export const MemoizedSectionPanel = ({
   useMemoComponent({
     Component: (
       <SectionPanel
-        sections={sections}
-        secondaryPanel={secondaryPanel}
         loading={loading}
+        secondaryPanel={secondaryPanel}
+        sections={sections}
         {...props}
       />
     ),

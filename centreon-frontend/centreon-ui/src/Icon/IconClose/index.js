@@ -11,13 +11,13 @@ import styles from './close-icon.scss';
 
 const IconClose = ({ iconType, iconPosition, onClick, customStyle }) => (
   <span
-    onClick={onClick}
     className={clsx(
       styles['icon-close'],
       { [styles[`icon-close-${iconType}`]]: true },
       styles[iconPosition || ''],
       styles[customStyle || ''],
     )}
+    onClick={onClick}
   />
 );
 

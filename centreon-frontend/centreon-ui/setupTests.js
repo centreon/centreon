@@ -6,12 +6,12 @@ import { initReactI18next } from 'react-i18next';
 registerRequireContextHook();
 
 document.createRange = () => ({
-  setStart: () => {},
-  setEnd: () => {},
   commonAncestorContainer: {
     nodeName: 'BODY',
     ownerDocument: document,
   },
+  setEnd: () => {},
+  setStart: () => {},
 });
 
 global.IntersectionObserver = class IntersectionObserver {
@@ -27,9 +27,9 @@ global.IntersectionObserver = class IntersectionObserver {
 };
 
 i18n.use(initReactI18next).init({
-  nsSeparator: false,
-  keySeparator: false,
   fallbackLng: 'en',
+  keySeparator: false,
   lng: 'en',
+  nsSeparator: false,
   resources: {},
 });

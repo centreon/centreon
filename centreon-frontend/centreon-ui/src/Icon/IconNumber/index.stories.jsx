@@ -18,78 +18,78 @@ export const normal = () => (
 
 export const coloredRed = () => (
   <HeaderBackground>
-    <IconNumber iconNumber={3} iconColor="red" iconType="colored" />
+    <IconNumber iconColor="red" iconNumber={3} iconType="colored" />
   </HeaderBackground>
 );
 
 export const coloredGrayLight = () => (
   <HeaderBackground>
-    <IconNumber iconNumber={3} iconColor="gray-light" iconType="colored" />
+    <IconNumber iconColor="gray-light" iconNumber={3} iconType="colored" />
   </HeaderBackground>
 );
 
 export const coloredGrayDark = () => (
   <HeaderBackground>
-    <IconNumber iconNumber={3} iconColor="gray-dark" iconType="colored" />
+    <IconNumber iconColor="gray-dark" iconNumber={3} iconType="colored" />
   </HeaderBackground>
 );
 
 export const coloredGreen = () => (
   <HeaderBackground>
-    <IconNumber iconNumber={3} iconColor="green" iconType="colored" />
+    <IconNumber iconColor="green" iconNumber={3} iconType="colored" />
   </HeaderBackground>
 );
 
 export const coloredOrange = () => (
   <HeaderBackground>
-    <IconNumber iconNumber={3} iconColor="orange" iconType="colored" />
+    <IconNumber iconColor="orange" iconNumber={3} iconType="colored" />
   </HeaderBackground>
 );
 
 export const coloredBlue = () => (
   <HeaderBackground>
-    <IconNumber iconNumber={3} iconColor="blue" iconType="colored" />
+    <IconNumber iconColor="blue" iconNumber={3} iconType="colored" />
   </HeaderBackground>
 );
 
 export const borderedRed = () => (
   <HeaderBackground>
-    <IconNumber iconNumber={3} iconColor="red" iconType="bordered" />
+    <IconNumber iconColor="red" iconNumber={3} iconType="bordered" />
   </HeaderBackground>
 );
 
 export const borderedGrayLight = () => (
   <HeaderBackground>
-    <IconNumber iconNumber={3} iconColor="gray-light" iconType="bordered" />
+    <IconNumber iconColor="gray-light" iconNumber={3} iconType="bordered" />
   </HeaderBackground>
 );
 
 export const borderedGrayDark = () => (
   <HeaderBackground>
-    <IconNumber iconNumber={3} iconColor="gray-dark" iconType="bordered" />
+    <IconNumber iconColor="gray-dark" iconNumber={3} iconType="bordered" />
   </HeaderBackground>
 );
 
 export const borderedGreen = () => (
   <HeaderBackground>
-    <IconNumber iconNumber={3} iconColor="green" iconType="bordered" />
+    <IconNumber iconColor="green" iconNumber={3} iconType="bordered" />
   </HeaderBackground>
 );
 
 export const borderedOrange = () => (
   <HeaderBackground>
-    <IconNumber iconNumber={3} iconColor="orange" iconType="bordered" />
+    <IconNumber iconColor="orange" iconNumber={3} iconType="bordered" />
   </HeaderBackground>
 );
 
 export const borderedBlue = () => (
   <HeaderBackground>
-    <IconNumber iconNumber={3} iconColor="blue" iconType="bordered" />
+    <IconNumber iconColor="blue" iconNumber={3} iconType="bordered" />
   </HeaderBackground>
 );
 
 export const bigNumber = () => (
   <HeaderBackground>
-    <IconNumber iconNumber={123456789} iconColor="blue" iconType="bordered" />
+    <IconNumber iconColor="blue" iconNumber={123456789} iconType="bordered" />
   </HeaderBackground>
 );

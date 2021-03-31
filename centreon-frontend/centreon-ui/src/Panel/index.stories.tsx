@@ -12,7 +12,7 @@ const tab = <Typography>Tab</Typography>;
 const Story = (props): JSX.Element => {
   return (
     <div
-      style={{ height: '100vh', display: 'flex', flexDirection: 'row-reverse' }}
+      style={{ display: 'flex', flexDirection: 'row-reverse', height: '100vh' }}
     >
       <Panel header={header} selectedTab={tab} {...props} />
     </div>
@@ -24,7 +24,7 @@ export const normal = (): JSX.Element => <Story />;
 const StoryResizable = (): JSX.Element => {
   const [width, setWidth] = React.useState(550);
 
-  return <Story onResize={setWidth} width={width} />;
+  return <Story width={width} onResize={setWidth} />;
 };
 
 export const resizable = (): JSX.Element => <StoryResizable />;

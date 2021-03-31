@@ -4,9 +4,9 @@ import { SnackbarActions } from './withSnackbar';
 import Severity from './Severity';
 
 interface SnackbarContent {
+  confirmMessage: () => void;
   message;
   severity;
-  confirmMessage: () => void;
 }
 
 const useMessage = (): SnackbarContent & SnackbarActions => {
@@ -34,7 +34,7 @@ const useMessage = (): SnackbarContent & SnackbarActions => {
       message: (
         <div style={{ display: 'block' }}>
           {formattedMessages.map((errorMessage, index) => (
-            <p style={{ margin: 0 }} key={messageKeys[index]}>
+            <p key={messageKeys[index]} style={{ margin: 0 }}>
               {errorMessage}
             </p>
           ))}
@@ -45,9 +45,9 @@ const useMessage = (): SnackbarContent & SnackbarActions => {
   };
 
   return {
+    confirmMessage,
     message: snackbarMessage,
     severity: snackbarSeverity,
-    confirmMessage,
     showMessage,
     showMessages,
   };

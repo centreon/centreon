@@ -30,37 +30,38 @@ export const withThreeOptions = (): JSX.Element => {
 
 export const withError = (): JSX.Element => (
   <SelectField
+    error="Something went wrong"
     label="name"
     options={[{ id: 0, name: 'Selected' }]}
     selectedOptionId={0}
     onChange={(): void => undefined}
-    error="Something went wrong"
   />
 );
 
 export const compact = (): JSX.Element => (
   <SelectField
+    compact
     options={[{ id: 0, name: 'Tiny' }]}
     selectedOptionId={0}
     onChange={(): void => undefined}
-    compact
   />
 );
 
 export const openWithColors = (): JSX.Element => (
   <SelectField
+    open
     options={[
-      { id: 0, name: 'Red', color: 'red' },
-      { id: 1, name: 'Yellow', color: 'yellow' },
+      { color: 'red', id: 0, name: 'Red' },
+      { color: 'yellow', id: 1, name: 'Yellow' },
     ]}
     selectedOptionId={0}
     onChange={(): void => undefined}
-    open
   />
 );
 
 export const openWithHeader = (): JSX.Element => (
   <SelectField
+    open
     options={[
       {
         id: 0,
@@ -71,6 +72,5 @@ export const openWithHeader = (): JSX.Element => (
     ]}
     selectedOptionId={0}
     onChange={(): void => undefined}
-    open
   />
 );

@@ -8,9 +8,9 @@ export default { title: 'Button/Action' };
 
 export const deleteAction = () => (
   <ButtonAction
-    iconColor="gray"
     buttonActionType="delete"
     buttonIconType="delete"
+    iconColor="gray"
     onClick={() => {
       alert("I've been clicked");
     }}

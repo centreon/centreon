@@ -12,7 +12,7 @@ class Card extends Component {
   render() {
     const { children, style } = this.props;
     return (
-      <div style={style} className={clsx(styles.card)}>
+      <div className={clsx(styles.card)} style={style}>
         <div>{children}</div>
       </div>
     );

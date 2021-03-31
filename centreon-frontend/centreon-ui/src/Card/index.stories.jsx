@@ -43,22 +43,22 @@ export const withContent = () => (
       }}
     >
       <IconInfo
-        iconName="state"
         iconColor="green"
+        iconName="state"
         iconPosition="info-icon-position"
       />
       <div className={clsx(styles['custom-title-heading'])}>
         <Title
+          customTitleStyles="custom-title-styles"
           icon="object"
           label="Test Title"
-          customTitleStyles="custom-title-styles"
           onClick={() => {
             alert('Card clicked- open popin');
           }}
         />
         <Subtitle
-          label="Test Subtitle"
           customSubtitleStyles="custom-subtitle-styles"
+          label="Test Subtitle"
           onClick={() => {
             alert('Card clicked- open popin');
           }}
@@ -67,21 +67,21 @@ export const withContent = () => (
       <Button
         buttonType="regular"
         color="orange"
-        label="Button example"
         iconActionType="update"
         iconColor="white"
         iconPosition="icon-right"
+        label="Button example"
         position="button-card-position"
         onClick={() => {
           alert('Button clicked');
         }}
       />
       <ButtonAction
-        iconColor="gray"
         buttonActionType="delete"
         buttonIconType="delete"
-        iconPosition="icon-right"
         customPosition="button-action-card-position"
+        iconColor="gray"
+        iconPosition="icon-right"
         onClick={() => {
           alert('Button delete clicked');
         }}

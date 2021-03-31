@@ -7,9 +7,9 @@ import SectionPanel from '.';
 export default { title: 'Panel/Section' };
 
 interface Props {
-  sections;
-  secondaryPanel?;
   loading?;
+  secondaryPanel?;
+  sections;
 }
 
 const PanelWithHeader = ({
@@ -18,13 +18,13 @@ const PanelWithHeader = ({
   loading = false,
 }: Props): JSX.Element => (
   <div
-    style={{ height: '100vh', display: 'flex', flexDirection: 'row-reverse' }}
+    style={{ display: 'flex', flexDirection: 'row-reverse', height: '100vh' }}
   >
     <SectionPanel
       header={<Typography>Header</Typography>}
-      sections={sections}
       loading={loading}
       secondaryPanel={secondaryPanel}
+      sections={sections}
       onClose={() => undefined}
     />
   </div>
@@ -34,20 +34,20 @@ const sections = [
   {
     expandable: true,
     id: 'first section',
-    title: 'First section',
     section: <Typography>First section</Typography>,
+    title: 'First section',
   },
   {
     expandable: true,
     id: 'second section',
-    title: 'Second section',
     section: <Typography>Second section</Typography>,
+    title: 'Second section',
   },
   {
     expandable: true,
     id: 'third section',
-    title: 'Third section',
     section: <Typography>Third section</Typography>,
+    title: 'Third section',
   },
 ];
 
@@ -55,38 +55,38 @@ const moreSections = [
   {
     expandable: true,
     id: 'fourth section',
-    title: 'Fourth section',
     section: <Typography>Fourth section</Typography>,
+    title: 'Fourth section',
   },
   {
     expandable: true,
     id: 'fifth section',
-    title: 'Fifth section',
     section: <Typography>Fifth section</Typography>,
+    title: 'Fifth section',
   },
   {
     expandable: true,
     id: 'sixth section',
-    title: 'Sixth section',
     section: <Typography>Sixth section</Typography>,
+    title: 'Sixth section',
   },
   {
     expandable: true,
     id: 'seventh section',
-    title: 'Seventh section',
     section: <Typography>Seventh section</Typography>,
+    title: 'Seventh section',
   },
   {
     expandable: true,
     id: 'eighth section',
-    title: 'Eighth section',
     section: <Typography>Eighth section</Typography>,
+    title: 'Eighth section',
   },
   {
     expandable: true,
     id: 'nineth section',
-    title: 'Nineth section',
     section: <Typography>Nineth section</Typography>,
+    title: 'Nineth section',
   },
 ];
 
@@ -104,7 +104,7 @@ export const withLoading = (): JSX.Element => (
 
 export const withSecondaryPanel = (): JSX.Element => (
   <PanelWithHeader
-    sections={sections}
     secondaryPanel={<Typography variant="h6">Secondary Panel</Typography>}
+    sections={sections}
   />
 );

@@ -20,10 +20,10 @@ const CustomIconWithText = ({ label, image, onClick, iconOff }) => {
         alt=""
       />
       <span
+        className={clsx(styles['custom-multiple-text'])}
         style={{
           paddingLeft: '6px',
         }}
-        className={clsx(styles['custom-multiple-text'])}
       >
         {label}
       </span>

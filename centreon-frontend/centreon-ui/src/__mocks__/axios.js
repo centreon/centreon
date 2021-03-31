@@ -4,8 +4,8 @@ mockAxios.create = jest.fn(() => mockAxios);
 
 mockAxios.CancelToken = {
   source: () => ({
-    token: {},
     cancel: jest.fn(),
+    token: {},
   }),
 };
 

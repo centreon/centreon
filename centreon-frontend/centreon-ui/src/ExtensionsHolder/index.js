@@ -76,20 +76,20 @@ class ExtensionsHolder extends React.Component {
       <Wrapper>
         <HorizontalLineContent
           hrColor={hrColor}
-          hrTitleColor={hrTitleColor}
           hrTitle={title}
+          hrTitleColor={hrTitleColor}
         />
         <Card>
           <div>
             {entities.map((entity) => {
               return (
                 <div
-                  key={entity.id}
+                  className={cardStyles['card-inline']}
                   id={`${type}-${entity.id}`}
+                  key={entity.id}
                   onClick={() => {
                     onCardClicked(entity.id, type);
                   }}
-                  className={cardStyles['card-inline']}
                 >
                   <CardItem
                     itemBorderColor={
@@ -103,45 +103,21 @@ class ExtensionsHolder extends React.Component {
                   >
                     {entity.version.installed ? (
                       <IconInfo
-                        iconPosition="info-icon-position"
-                        iconName="state"
                         iconColor="green"
+                        iconName="state"
+                        iconPosition="info-icon-position"
                       />
                     ) : null}
 
                     <Title
-                      labelStyle={{ fontSize: '16px' }}
-                      titleColor={titleColor}
                       label={this.parseDescription(entity.description)}
+                      labelStyle={{ fontSize: '16px' }}
                       title={entity.description}
+                      titleColor={titleColor}
                     >
                       <Subtitle label={`by ${entity.label}`} />
                     </Title>
                     <Button
-                      onClick={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        const { id } = entity;
-                        const { version } = entity;
-                        if (version.outdated && !updating[entity.id]) {
-                          onUpdate(id, type);
-                        } else if (
-                          !version.installed &&
-                          !installing[entity.id]
-                        ) {
-                          onInstall(id, type);
-                        }
-                      }}
-                      customClass="button-card-position"
-                      style={{
-                        opacity:
-                          installing[entity.id] || updating[entity.id]
-                            ? '0.5'
-                            : 'inherit',
-                        cursor: entity.version.installed
-                          ? 'default'
-                          : 'pointer',
-                      }}
                       buttonType={
                         entity.version.installed
                           ? entity.version.outdated
@@ -156,26 +132,50 @@ class ExtensionsHolder extends React.Component {
                             : 'blue'
                           : 'green'
                       }
+                      customClass="button-card-position"
                       label={
                         (!entity.version.installed ? 'Available ' : '') +
                         entity.version.available
                       }
+                      style={{
+                        cursor: entity.version.installed
+                          ? 'default'
+                          : 'pointer',
+                        opacity:
+                          installing[entity.id] || updating[entity.id]
+                            ? '0.5'
+                            : 'inherit',
+                      }}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        const { id } = entity;
+                        const { version } = entity;
+                        if (version.outdated && !updating[entity.id]) {
+                          onUpdate(id, type);
+                        } else if (
+                          !version.installed &&
+                          !installing[entity.id]
+                        ) {
+                          onInstall(id, type);
+                        }
+                      }}
                     >
                       {!entity.version.installed ? (
                         <IconContent
+                          customClass="content-icon-button"
                           iconContentColor="white"
                           iconContentType={`${
                             installing[entity.id] ? 'update' : 'add'
                           }`}
                           loading={installing[entity.id]}
-                          customClass="content-icon-button"
                         />
                       ) : entity.version.outdated ? (
                         <IconContent
+                          customClass="content-icon-button"
                           iconContentColor="white"
                           iconContentType="update"
                           loading={updating[entity.id]}
-                          customClass="content-icon-button"
                         />
                       ) : null}
                     </Button>

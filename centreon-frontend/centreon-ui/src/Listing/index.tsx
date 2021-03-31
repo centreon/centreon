@@ -51,68 +51,68 @@ const getVisibleColumns = ({
 const loadingIndicatorHeight = 3;
 
 const useStyles = makeStyles<Theme>((theme) => ({
+  actionBar: {
+    alignItems: 'center',
+    display: 'flex',
+  },
   container: {
-    width: '100%',
-    height: '100%',
+    background: 'none',
     display: 'flex',
     flexDirection: 'column',
-    background: 'none',
-  },
-  actionBar: {
-    display: 'flex',
-    alignItems: 'center',
-  },
-  loadingIndicator: {
+    height: '100%',
     width: '100%',
-    height: loadingIndicatorHeight,
-  },
-  table: {
-    position: 'relative',
-    display: 'grid',
-    alignItems: 'center',
-  },
-  tableBody: {
-    position: 'relative',
-    display: 'contents',
-  },
-  paper: {
-    overflow: 'auto',
-  },
-  emptyDataRow: {
-    display: 'contents',
   },
   emptyDataCell: {
     paddingLeft: theme.spacing(2),
   },
+  emptyDataRow: {
+    display: 'contents',
+  },
+  loadingIndicator: {
+    height: loadingIndicatorHeight,
+    width: '100%',
+  },
+  paper: {
+    overflow: 'auto',
+  },
+  table: {
+    alignItems: 'center',
+    display: 'grid',
+    position: 'relative',
+  },
+  tableBody: {
+    display: 'contents',
+    position: 'relative',
+  },
 }));
 
 export interface Props<TRow> {
+  actions?: JSX.Element;
   checkable?: boolean;
-  currentPage?: number;
-  columns: Array<Column>;
   columnConfiguration?: ColumnConfiguration;
-  onSelectColumns?: (selectedColumnIds: Array<string>) => void;
-  onResetColumns?: () => void;
-  rowColorConditions?: Array<RowColorCondition>;
+  columns: Array<Column>;
+  currentPage?: number;
+  disableRowCheckCondition?;
+  expanded?: boolean;
+  getId?: (row: TRow) => RowId;
+  innerScrollDisabled?: boolean;
   limit?: number;
   loading?: boolean;
   loadingDataMessage?: string;
-  paginated?: boolean;
-  selectedRows?: Array<TRow>;
-  sortOrder?: SortOrder;
-  sortField?: string;
-  rows?: Array<TRow>;
-  totalRows?: number;
-  innerScrollDisabled?: boolean;
-  expanded?: boolean;
-  actions?: JSX.Element;
-  disableRowCheckCondition?;
-  onPaginate?: (page) => void;
   onLimitChange?: (limit) => void;
+  onPaginate?: (page) => void;
+  onResetColumns?: () => void;
   onRowClick?: (row: TRow) => void;
+  onSelectColumns?: (selectedColumnIds: Array<string>) => void;
   onSelectRows?: (rows: Array<TRow>) => void;
   onSort?: (sortParams) => void;
-  getId?: (row: TRow) => RowId;
+  paginated?: boolean;
+  rowColorConditions?: Array<RowColorCondition>;
+  rows?: Array<TRow>;
+  selectedRows?: Array<TRow>;
+  sortField?: string;
+  sortOrder?: SortOrder;
+  totalRows?: number;
 }
 
 const defaultColumnConfiguration = {
@@ -157,10 +157,10 @@ const Listing = <TRow extends { id: RowId }>({
   const theme = useTheme();
 
   useResizeObserver({
-    ref: containerRef,
     onResize: () => {
       setTableTopOffset(getCumulativeOffset(containerRef.current));
     },
+    ref: containerRef,
   });
 
   const selectedRowsInclude = (row): boolean => {
@@ -227,8 +227,8 @@ const Listing = <TRow extends { id: RowId }>({
     const checkbox = checkable ? 'min-content ' : '';
 
     const columnTemplate = getVisibleColumns({
-      columns,
       columnConfiguration,
+      columns,
     })
       .map(({ width }) => {
         if (isNil(width)) {
@@ -259,53 +259,53 @@ const Listing = <TRow extends { id: RowId }>({
           ref={actionBarRef as RefObject<HTMLDivElement>}
         >
           <ListingActionBar
-            limit={limit}
             actions={actions}
-            onLimitChange={onLimitChange}
-            onSelectColumns={onSelectColumns}
-            onResetColumns={onResetColumns}
-            onPaginate={onPaginate}
-            paginated={paginated}
-            currentPage={currentPage}
-            totalRows={totalRows}
-            columns={columns}
             columnConfiguration={columnConfiguration}
+            columns={columns}
+            currentPage={currentPage}
+            limit={limit}
+            paginated={paginated}
+            totalRows={totalRows}
+            onLimitChange={onLimitChange}
+            onPaginate={onPaginate}
+            onResetColumns={onResetColumns}
+            onSelectColumns={onSelectColumns}
           />
         </div>
         <Paper
+          square
+          className={classes.paper}
+          elevation={1}
           style={{
             maxHeight: tableMaxHeight(),
           }}
-          className={classes.paper}
-          elevation={1}
-          square
         >
           <Table
-            size="small"
             stickyHeader
             className={classes.table}
             component="div"
+            size="small"
             style={{
               gridTemplateColumns: getGridTemplateColumn(),
             }}
           >
             <ListingHeader
-              selectedRowCount={selectedRows.length}
-              sortOrder={sortOrder}
-              sortField={sortField}
               checkable={checkable}
-              onSelectAllClick={selectAllRows}
-              onSort={onSort}
-              rowCount={limit - emptyRows}
-              columns={columns}
               columnConfiguration={columnConfiguration}
+              columns={columns}
+              rowCount={limit - emptyRows}
+              selectedRowCount={selectedRows.length}
+              sortField={sortField}
+              sortOrder={sortOrder}
+              onSelectAllClick={selectAllRows}
               onSelectColumns={onSelectColumns}
+              onSort={onSort}
             />
 
             <TableBody
-              onMouseLeave={clearHoveredRow}
               className={classes.tableBody}
               component="div"
+              onMouseLeave={clearHoveredRow}
             >
               {rows.map((row) => {
                 const isRowSelected = isSelected(row);
@@ -313,49 +313,49 @@ const Listing = <TRow extends { id: RowId }>({
 
                 return (
                   <ListingRow
-                    tabIndex={-1}
+                    columnConfiguration={columnConfiguration}
+                    columnIds={columns.map(prop('id'))}
+                    isHovered={isRowHovered}
+                    isSelected={isRowSelected}
                     key={getId(row)}
-                    onMouseOver={(): void => hoverRow(row)}
-                    onFocus={(): void => hoverRow(row)}
+                    row={row}
+                    rowColorConditions={rowColorConditions}
+                    tabIndex={-1}
                     onClick={(): void => {
                       onRowClick(row);
                     }}
-                    isHovered={isRowHovered}
-                    isSelected={isRowSelected}
-                    row={row}
-                    rowColorConditions={rowColorConditions}
-                    columnIds={columns.map(prop('id'))}
-                    columnConfiguration={columnConfiguration}
+                    onFocus={(): void => hoverRow(row)}
+                    onMouseOver={(): void => hoverRow(row)}
                   >
                     {checkable && (
                       <Cell
                         align="left"
-                        onClick={(event): void => selectRow(event, row)}
                         isRowHovered={isRowHovered}
                         row={row}
                         rowColorConditions={rowColorConditions}
+                        onClick={(event): void => selectRow(event, row)}
                       >
                         <Checkbox
                           checked={isRowSelected}
+                          disabled={disableRowCheckCondition(row)}
                           inputProps={{
                             'aria-label': `Select row ${getId(row)}`,
                           }}
-                          disabled={disableRowCheckCondition(row)}
                         />
                       </Cell>
                     )}
 
                     {getVisibleColumns({
-                      columns,
                       columnConfiguration,
+                      columns,
                     }).map((column) => (
                       <DataCell
-                        key={`${getId(row)}-${column.id}`}
                         column={column}
-                        row={row}
-                        listingCheckable={checkable}
-                        isRowSelected={isRowSelected}
                         isRowHovered={isRowHovered}
+                        isRowSelected={isRowSelected}
+                        key={`${getId(row)}-${column.id}`}
+                        listingCheckable={checkable}
+                        row={row}
                         rowColorConditions={rowColorConditions}
                       />
                     ))}
@@ -364,14 +364,14 @@ const Listing = <TRow extends { id: RowId }>({
               })}
               {rows.length < 1 && (
                 <TableRow
-                  tabIndex={-1}
                   className={classes.emptyDataRow}
                   component="div"
+                  tabIndex={-1}
                 >
                   <Cell
+                    align="center"
                     className={classes.emptyDataCell}
                     isRowHovered={false}
-                    align="center"
                     style={{
                       gridColumn: `auto / span ${columns.length + 1}`,
                     }}
@@ -416,19 +416,19 @@ export const MemoizedListing = <TRow extends { id: string | number }>({
   useMemoComponent({
     Component: (
       <Listing
-        limit={limit}
-        columns={columns}
-        rows={rows}
-        currentPage={currentPage}
-        totalRows={totalRows}
         checkable={checkable}
-        rowColorConditions={rowColorConditions}
+        columns={columns}
+        currentPage={currentPage}
+        innerScrollDisabled={innerScrollDisabled}
+        limit={limit}
         loading={loading}
         paginated={paginated}
+        rowColorConditions={rowColorConditions}
+        rows={rows}
         selectedRows={selectedRows}
-        sortOrder={sortOrder}
         sortField={sortField}
-        innerScrollDisabled={innerScrollDisabled}
+        sortOrder={sortOrder}
+        totalRows={totalRows}
         {...props}
       />
     ),

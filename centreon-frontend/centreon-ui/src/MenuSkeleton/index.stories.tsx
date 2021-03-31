@@ -21,7 +21,7 @@ const MenuLoaderStory = ({ width }: Props): JSX.Element => {
 
   return (
     <div className={classes.container}>
-      <MenuLoader width={width} animate={false} />
+      <MenuLoader animate={false} width={width} />
     </div>
   );
 };

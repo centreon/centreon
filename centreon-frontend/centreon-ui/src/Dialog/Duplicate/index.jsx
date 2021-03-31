@@ -20,37 +20,37 @@ const Duplicate = ({ labelInput, onConfirm, ...rest }) => {
   return (
     <Dialog maxWidth="xs" onConfirm={handleConfirm} {...rest}>
       <TextField
-        type="number"
-        color="primary"
-        label={labelInput}
-        onChange={handleChange}
-        value={value}
-        inputProps={{ min: 1, 'aria-label': 'Duplications' }}
-        margin="dense"
-        fullWidth
         autoFocus
+        fullWidth
+        color="primary"
+        inputProps={{ 'aria-label': 'Duplications', min: 1 }}
+        label={labelInput}
+        margin="dense"
+        type="number"
+        value={value}
+        onChange={handleChange}
       />
     </Dialog>
   );
 };
 
 Duplicate.propTypes = {
-  open: PropTypes.bool.isRequired,
-  onClose: PropTypes.func,
-  onCancel: PropTypes.func.isRequired,
-  onConfirm: PropTypes.func.isRequired,
-  labelTitle: PropTypes.string,
-  labelInput: PropTypes.string,
   labelCancel: PropTypes.string,
   labelConfirm: PropTypes.string,
+  labelInput: PropTypes.string,
+  labelTitle: PropTypes.string,
+  onCancel: PropTypes.func.isRequired,
+  onClose: PropTypes.func,
+  onConfirm: PropTypes.func.isRequired,
+  open: PropTypes.bool.isRequired,
 };
 
 Duplicate.defaultProps = {
-  onClose: null,
-  labelTitle: 'Duplicate elements',
-  labelInput: 'Duplications',
   labelCancel: 'Cancel',
   labelConfirm: 'Duplicate',
+  labelInput: 'Duplications',
+  labelTitle: 'Duplicate elements',
+  onClose: null,
 };
 
 export default Duplicate;

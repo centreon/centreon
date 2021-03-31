@@ -19,16 +19,16 @@ class Logo extends Component {
 
     return (
       <div
-        onClick={onClick}
         className={clsx(styles.logo, styles[customClass || ''])}
+        onClick={onClick}
       >
         <span>
           <img
+            alt=""
             className={clsx(styles['logo-image'])}
+            height="57"
             src={logo}
             width="254"
-            height="57"
-            alt=""
           />
         </span>
       </div>

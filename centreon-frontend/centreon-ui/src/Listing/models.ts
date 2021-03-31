@@ -5,23 +5,23 @@ export interface ComponentColumnProps {
 }
 
 export interface Column {
-  id: string;
-  label: string;
-  type: ColumnType;
   Component?: (props: ComponentColumnProps) => JSX.Element | null;
-  hasHoverableComponent?: boolean;
   clickable?: boolean;
-  width?: number | string;
-  getFormattedString?: (row) => string | null;
-  getColSpan?: (isSelected) => number | undefined;
-  isTruncated?: boolean;
-  getHiddenCondition?: (isSelected) => boolean;
-  disablePadding?: boolean;
-  sortable?: boolean;
-  sortField?: string;
-  getRenderComponentOnRowUpdateCondition?: (row) => boolean;
-  getRenderComponentCondition?: (row) => boolean;
   compact?: boolean;
+  disablePadding?: boolean;
+  getColSpan?: (isSelected) => number | undefined;
+  getFormattedString?: (row) => string | null;
+  getHiddenCondition?: (isSelected) => boolean;
+  getRenderComponentCondition?: (row) => boolean;
+  getRenderComponentOnRowUpdateCondition?: (row) => boolean;
+  hasHoverableComponent?: boolean;
+  id: string;
+  isTruncated?: boolean;
+  label: string;
+  sortField?: string;
+  sortable?: boolean;
+  type: ColumnType;
+  width?: number | string;
 }
 
 export enum ColumnType {
@@ -30,16 +30,16 @@ export enum ColumnType {
 }
 
 export interface RowColorCondition {
-  name: string;
-  condition: (row) => boolean;
   color: string;
+  condition: (row) => boolean;
+  name: string;
 }
 
 export type RowId = number | string;
 
 export interface ColumnConfiguration {
-  sortable: boolean;
   selectedColumnIds?: Array<string>;
+  sortable: boolean;
 }
 
 export type SortOrder = 'asc' | 'desc';

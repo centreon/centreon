@@ -29,18 +29,18 @@ const RegexpHelp = (): JSX.Element => (
     description={tooltipDescription}
     examples={tooltipExamples}
     labelExamples="Here are some examples"
+    labelGetHelp="This link should help you"
     labelSearchHelp="search input"
     labelTips="Tips"
-    labelGetHelp="This link should help you"
-    urlTip="https://regex101.com"
     labelUrlTip="regex101.com"
+    urlTip="https://regex101.com"
   />
 );
 
 export const searchInputWithRegexpHelpTooltip = (): JSX.Element => (
   <SearchInput
-    placeholder="Search"
     EndAdornment={(): JSX.Element => <RegexpHelp />}
+    placeholder="Search"
   />
 );
 
@@ -55,14 +55,14 @@ const PersistentHelpTooltip = (props): JSX.Element => (
 
 export const searchInputWithPersistentHelpTooltip = (): JSX.Element => (
   <SearchInput
-    placeholder="Search"
     EndAdornment={(): JSX.Element => <PersistentHelpTooltip />}
+    placeholder="Search"
   />
 );
 
 export const searchInputWithOpenedPersistentHelpTooltip = (): JSX.Element => (
   <SearchInput
-    placeholder="Search"
     EndAdornment={(): JSX.Element => <PersistentHelpTooltip openTooltip />}
+    placeholder="Search"
   />
 );

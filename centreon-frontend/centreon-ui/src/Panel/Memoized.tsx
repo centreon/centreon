@@ -23,13 +23,13 @@ const MemoizedPanel = React.forwardRef<HTMLDivElement, Props>(
     return useMemoComponent({
       Component: (
         <Panel
-          tabs={tabs}
-          selectedTabId={selectedTabId}
-          labelClose={labelClose}
-          width={width}
-          minWidth={minWidth}
           headerBackgroundColor={headerBackgroundColor}
+          labelClose={labelClose}
+          minWidth={minWidth}
           ref={ref}
+          selectedTabId={selectedTabId}
+          tabs={tabs}
+          width={width}
           {...props}
         />
       ),

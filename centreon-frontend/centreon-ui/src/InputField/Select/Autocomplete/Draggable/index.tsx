@@ -19,8 +19,8 @@ import { Props as SingleAutocompletefieldProps } from '..';
 import SortableList from './SortableList';
 
 interface Props {
-  onSelectedValuesChange?: (values: Array<SelectEntry>) => Array<SelectEntry>;
   initialValues?: Array<SelectEntry>;
+  onSelectedValuesChange?: (values: Array<SelectEntry>) => Array<SelectEntry>;
 }
 
 const DraggableAutocomplete = (
@@ -57,9 +57,9 @@ const DraggableAutocomplete = (
         setSelectedValues((values) => [
           ...values,
           {
+            createOption: lastValue,
             id: totalValues,
             name: lastValue,
-            createOption: lastValue,
           },
         ]);
         setTotalValues(inc(totalValues));
@@ -79,9 +79,9 @@ const DraggableAutocomplete = (
     const renderTags = () => {
       return (
         <SortableList
-          items={selectedValues}
-          deleteValue={deleteValue}
           changeItemsOrder={onChangeSelectedValuesOrder}
+          deleteValue={deleteValue}
+          items={selectedValues}
         />
       );
     };
@@ -92,16 +92,16 @@ const DraggableAutocomplete = (
 
     return (
       <MultiAutocomplete
-        value={selectedValues}
-        selectOnFocus
         clearOnBlur
         freeSolo
         handleHomeEndKeys
-        renderTags={renderTags}
-        onChange={onChange}
+        selectOnFocus
         disableCloseOnSelect={false}
         displayCheckboxOption={false}
         getOptionSelected={F}
+        renderTags={renderTags}
+        value={selectedValues}
+        onChange={onChange}
         {...props}
       />
     );

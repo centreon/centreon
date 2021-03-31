@@ -3,8 +3,8 @@ import * as React from 'react';
 import ResizeObserver from 'resize-observer-polyfill';
 
 interface Props<TRef> {
-  ref: React.RefObject<TRef | undefined>;
   onResize: ResizeObserverCallback;
+  ref: React.RefObject<TRef | undefined>;
 }
 
 const useResizeObserver = <TRef extends Element>({

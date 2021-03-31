@@ -20,11 +20,11 @@ const HeaderLabel = ({
 
   return (
     <Typography
-      variant="body2"
       className={className}
       classes={{
         root: classes.root,
       }}
+      variant="body2"
     >
       {children}
     </Typography>

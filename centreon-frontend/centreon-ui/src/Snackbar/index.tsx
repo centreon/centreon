@@ -15,12 +15,12 @@ interface PropsStyle {
 }
 
 const useStyles = makeStyles<PropsStyle>({
+  alertIcon: {
+    paddingTop: '10px',
+  },
   closeIcon: {
     fontSize: 20,
     opacity: 0.9,
-  },
-  alertIcon: {
-    paddingTop: '10px',
   },
   message: {
     display: 'flex',
@@ -31,8 +31,8 @@ const useStyles = makeStyles<PropsStyle>({
 
 interface Props {
   message: string;
-  open: boolean;
   onClose?: () => void;
+  open: boolean;
   severity: Severity;
 }
 
@@ -42,22 +42,22 @@ const Snackbar = ({ message, open, onClose, severity }: Props): JSX.Element => {
   return (
     <MuiSnackbar
       anchorOrigin={{
-        vertical: 'bottom',
         horizontal: 'center',
+        vertical: 'bottom',
       }}
-      open={open}
       autoHideDuration={6000}
+      open={open}
       onClose={onClose}
     >
       <Alert
-        variant="filled"
-        severity={severity}
         action={[
-          <IconButton key="close" color="inherit" onClick={onClose}>
+          <IconButton color="inherit" key="close" onClick={onClose}>
             <IconClose className={classes.closeIcon} />
           </IconButton>,
         ]}
         classes={{ icon: classes.alertIcon, message: classes.message }}
+        severity={severity}
+        variant="filled"
       >
         {message}
       </Alert>

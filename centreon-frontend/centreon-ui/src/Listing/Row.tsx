@@ -11,21 +11,21 @@ import { ColumnConfiguration, RowColorCondition } from './models';
 const useStyles = makeStyles<Theme>(() => {
   return {
     row: {
+      cursor: 'pointer',
       display: 'contents',
       width: '100%',
-      cursor: 'pointer',
     },
   };
 });
 
 type Props = {
   children;
+  columnConfiguration?: ColumnConfiguration;
+  columnIds: Array<string>;
   isHovered?: boolean;
   isSelected?: boolean;
   row;
   rowColorConditions: Array<RowColorCondition>;
-  columnIds: Array<string>;
-  columnConfiguration?: ColumnConfiguration;
 } & TableRowProps;
 
 const Row = React.memo<Props>(
@@ -40,12 +40,12 @@ const Row = React.memo<Props>(
 
     return (
       <TableRow
-        tabIndex={tabIndex}
-        onMouseOver={onMouseOver}
         className={classes.row}
-        onFocus={onFocus}
-        onClick={onClick}
         component="div"
+        tabIndex={tabIndex}
+        onClick={onClick}
+        onFocus={onFocus}
+        onMouseOver={onMouseOver}
       >
         {children}
       </TableRow>

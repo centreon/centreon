@@ -9,21 +9,21 @@ import IconButton from '@material-ui/core/IconButton';
 import Tooltip from '@material-ui/core/Tooltip';
 
 const styles = () => ({
-  tooltipStyle: {},
   iconButtonStyle: {
     padding: 5,
   },
+  tooltipStyle: {},
 });
 
 class TooltipMaterial extends React.Component {
   render() {
     const { label, classes, children, onClick, customStyle } = this.props;
     return (
-      <Tooltip title={label} className={classes.tooltipStyle} onClick={onClick}>
+      <Tooltip className={classes.tooltipStyle} title={label} onClick={onClick}>
         <IconButton
-          style={customStyle}
           aria-label={label}
           className={classes.iconButtonStyle}
+          style={customStyle}
         >
           {children}
         </IconButton>

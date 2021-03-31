@@ -19,8 +19,8 @@ import {
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    flexShrink: 0,
     color: theme.palette.text.secondary,
+    flexShrink: 0,
   },
 }));
 
@@ -57,30 +57,30 @@ const PaginationActions = ({
   return (
     <div className={classes.root}>
       <IconButton
-        onClick={changeToFirstPage}
-        disabled={isFirstPage}
         aria-label={t(labelFirstPage)}
+        disabled={isFirstPage}
+        onClick={changeToFirstPage}
       >
         <FirstPageIcon />
       </IconButton>
       <IconButton
-        onClick={changeToPreviousPage}
-        disabled={isFirstPage}
         aria-label={t(labelPreviousPage)}
+        disabled={isFirstPage}
+        onClick={changeToPreviousPage}
       >
         <KeyboardArrowLeft />
       </IconButton>
       <IconButton
-        onClick={changeToNextPage}
-        disabled={isLastPage}
         aria-label={t(labelNextPage)}
+        disabled={isLastPage}
+        onClick={changeToNextPage}
       >
         <KeyboardArrowRight />
       </IconButton>
       <IconButton
-        onClick={changeToLastPage}
-        disabled={isLastPage}
         aria-label={t(labelLastPage)}
+        disabled={isLastPage}
+        onClick={changeToLastPage}
       >
         <LastPageIcon />
       </IconButton>

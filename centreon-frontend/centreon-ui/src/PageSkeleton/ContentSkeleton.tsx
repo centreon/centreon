@@ -14,19 +14,19 @@ const contentHeight = 40;
 
 const useStyles = makeStyles((theme) => ({
   actionBarPaginationContainer: {
-    marginTop: theme.spacing(1.25),
-    marginLeft: theme.spacing(3),
+    alignItems: 'center',
     display: 'grid',
     gridTemplateColumns: `${theme.spacing(50)}px ${theme.spacing(54)}px`,
     justifyContent: 'space-between',
-    alignItems: 'center',
+    marginLeft: theme.spacing(3),
+    marginTop: theme.spacing(1.25),
   },
   actionBarSkeleton: {
+    columnGap: `${theme.spacing(1)}px`,
     display: 'grid',
     gridTemplateColumns: `repeat(${numberOfActionButtons}, ${theme.spacing(
       10,
     )}px)`,
-    columnGap: `${theme.spacing(1)}px`,
   },
   contentSkeleton: {
     marginLeft: theme.spacing(2),
@@ -43,8 +43,8 @@ const ContentSkeleton = ({
   return (
     <>
       <BaseRectSkeleton
-        height={theme.spacing(filterHeight)}
         animate={animate}
+        height={theme.spacing(filterHeight)}
       />
       <div className={classes.actionBarPaginationContainer}>
         <div className={classes.actionBarSkeleton}>
@@ -52,21 +52,21 @@ const ContentSkeleton = ({
             .fill(null)
             .map((_, idx) => (
               <BaseRectSkeleton
-                key={idx.toString()}
-                height={theme.spacing(actionBarHeight)}
                 animate={animate}
+                height={theme.spacing(actionBarHeight)}
+                key={idx.toString()}
               />
             ))}
         </div>
         <BaseRectSkeleton
-          height={theme.spacing(paginationHeight)}
           animate={animate}
+          height={theme.spacing(paginationHeight)}
         />
       </div>
       <div className={classes.contentSkeleton}>
         <BaseRectSkeleton
-          height={theme.spacing(contentHeight)}
           animate={animate}
+          height={theme.spacing(contentHeight)}
         />
       </div>
     </>

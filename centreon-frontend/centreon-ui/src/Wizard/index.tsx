@@ -12,20 +12,20 @@ import Stepper from './Stepper';
 import WizardContent from './WizardContent';
 
 const useStyles = makeStyles((theme) => ({
+  dialogContent: {
+    backgroundColor: theme.palette.grey[100],
+    display: 'flex',
+    padding: 0,
+  },
   fullHeight: {
     height: '100%',
-  },
-  dialogContent: {
-    display: 'flex',
-    backgroundColor: theme.palette.grey[100],
-    padding: 0,
   },
 }));
 
 const actionsBarLabelsDefaultValues = {
-  labelPrevious: 'Previous',
-  labelNext: 'Next',
   labelFinish: 'Finish',
+  labelNext: 'Next',
+  labelPrevious: 'Previous',
 };
 
 const Wizard = ({
@@ -100,34 +100,34 @@ const Wizard = ({
   return (
     <>
       <Dialog
-        maxWidth={width}
         fullWidth
-        open={open}
-        onClose={handleClose}
         classes={{
           paper: fullHeight ? classes.fullHeight : undefined,
         }}
+        maxWidth={width}
+        open={open}
+        onClose={handleClose}
       >
-        <Stepper steps={steps} currentStep={currentStep} />
+        <Stepper currentStep={currentStep} steps={steps} />
         <Formik
+          validateOnChange
           initialValues={initialValues}
           validate={validate}
+          validateOnBlur={false}
           validationSchema={validationSchema}
           onSubmit={submit}
-          validateOnBlur={false}
-          validateOnChange
         >
           <DialogContent className={classes.dialogContent}>
             <WizardContent
-              step={steps[currentStep]}
-              sendingRequest={sendingRequest}
-              isLastStep={isLastStep}
-              isFirstStep={isFirstStep}
-              disableNextOnSendingRequests={disableNextOnSendingRequests}
-              goToPreviousStep={goToPreviousStep}
-              currentStep={currentStep}
               actionsBarLabels={actionsBarLabels}
+              currentStep={currentStep}
+              disableNextOnSendingRequests={disableNextOnSendingRequests}
               goToNextStep={goToNextStep}
+              goToPreviousStep={goToPreviousStep}
+              isFirstStep={isFirstStep}
+              isLastStep={isLastStep}
+              sendingRequest={sendingRequest}
+              step={steps[currentStep]}
             />
           </DialogContent>
         </Formik>

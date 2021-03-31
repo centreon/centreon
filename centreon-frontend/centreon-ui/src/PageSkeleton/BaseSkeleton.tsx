@@ -18,10 +18,10 @@ const BaseRectSkeleton = ({
   const classes = useSkeletonStyles();
   return (
     <Skeleton
-      variant="rect"
-      width="100%"
       animation={animate ? 'wave' : false}
       className={classes.skeletonLayout}
+      variant="rect"
+      width="100%"
       {...props}
     />
   );

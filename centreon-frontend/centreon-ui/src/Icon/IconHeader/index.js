@@ -13,10 +13,10 @@ const IconHeader = ({ iconType, iconName, style, onClick, children }) => {
   return (
     <span className={clsx(styles['icons-wrap'])} style={style}>
       <span
-        onClick={onClick}
         className={clsx(styles.iconmoon, {
           [styles[`icon-${iconType}`]]: true,
         })}
+        onClick={onClick}
       />
       <span className={clsx(styles.icons__name)}>{iconName}</span>
       {children}

@@ -8,9 +8,9 @@ export default { title: 'Button' };
 
 export const regularOrange = () => (
   <Button
-    label="Button Regular"
     buttonType="regular"
     color="orange"
+    label="Button Regular"
     onClick={() => {
       alert('Button clicked');
     }}
@@ -19,9 +19,9 @@ export const regularOrange = () => (
 
 export const regularBlue = () => (
   <Button
-    label="Button Regular"
     buttonType="regular"
     color="blue"
+    label="Button Regular"
     onClick={() => {
       alert('Button clicked');
     }}
@@ -30,9 +30,9 @@ export const regularBlue = () => (
 
 export const regularGreen = () => (
   <Button
-    label="Button Regular"
     buttonType="regular"
     color="green"
+    label="Button Regular"
     onClick={() => {
       alert('Button clicked');
     }}
@@ -41,9 +41,9 @@ export const regularGreen = () => (
 
 export const regularRed = () => (
   <Button
-    label="Button Regular"
     buttonType="regular"
     color="red"
+    label="Button Regular"
     onClick={() => {
       alert('Button clicked');
     }}
@@ -52,9 +52,9 @@ export const regularRed = () => (
 
 export const regularGray = () => (
   <Button
-    label="Button Regular"
     buttonType="regular"
     color="gray"
+    label="Button Regular"
     onClick={() => {
       alert('Button clicked');
     }}
@@ -63,9 +63,9 @@ export const regularGray = () => (
 
 export const borderedOrange = () => (
   <Button
-    label="Button Bordered"
     buttonType="bordered"
     color="orange"
+    label="Button Bordered"
     onClick={() => {
       alert('Button clicked');
     }}
@@ -74,9 +74,9 @@ export const borderedOrange = () => (
 
 export const borderedBlue = () => (
   <Button
-    label="Button Bordered"
     buttonType="bordered"
     color="blue"
+    label="Button Bordered"
     onClick={() => {
       alert('Button clicked');
     }}
@@ -85,9 +85,9 @@ export const borderedBlue = () => (
 
 export const borderedGreen = () => (
   <Button
-    label="Button Bordered"
     buttonType="bordered"
     color="green"
+    label="Button Bordered"
     onClick={() => {
       alert('Button clicked');
     }}
@@ -96,9 +96,9 @@ export const borderedGreen = () => (
 
 export const borderedRed = () => (
   <Button
-    label="Button Bordered"
     buttonType="bordered"
     color="red"
+    label="Button Bordered"
     onClick={() => {
       alert('Button clicked');
     }}
@@ -107,9 +107,9 @@ export const borderedRed = () => (
 
 export const borderedGray = () => (
   <Button
-    label="Button Bordered"
     buttonType="bordered"
     color="gray"
+    label="Button Bordered"
     onClick={() => {
       alert('Button clicked');
     }}
@@ -118,9 +118,9 @@ export const borderedGray = () => (
 
 export const borderedBlack = () => (
   <Button
-    label="Button Bordered"
     buttonType="bordered"
     color="black"
+    label="Button Bordered"
     onClick={() => {
       alert('Button clicked');
     }}
@@ -129,9 +129,9 @@ export const borderedBlack = () => (
 
 export const validateBlue = () => (
   <Button
-    label="Button Validate"
     buttonType="validate"
     color="blue"
+    label="Button Validate"
     onClick={() => {
       alert('Button clicked');
     }}
@@ -140,9 +140,9 @@ export const validateBlue = () => (
 
 export const validateRed = () => (
   <Button
-    label="Button Validate"
     buttonType="bordered"
     color="red"
+    label="Button Validate"
     onClick={() => {
       alert('Button clicked');
     }}
@@ -151,9 +151,9 @@ export const validateRed = () => (
 
 export const validateGreen = () => (
   <Button
-    label="Button Validate"
     buttonType="validate"
     color="green"
+    label="Button Validate"
     onClick={() => {
       alert('Button clicked');
     }}
@@ -175,11 +175,11 @@ export const validateIconGreenArrowLeft = () => (
 
 export const iconOrangeUpdate = () => (
   <Button
-    label="Button with icon"
     buttonType="regular"
     color="orange"
     iconActionType="update"
     iconColor="white"
+    label="Button with icon"
     onClick={() => {
       alert('Button clicked');
     }}
@@ -188,11 +188,11 @@ export const iconOrangeUpdate = () => (
 
 export const iconGreenUpdate = () => (
   <Button
-    label="Button with icon"
     buttonType="regular"
     color="green"
     iconActionType="update"
     iconColor="white"
+    label="Button with icon"
     onClick={() => {
       alert('Button clicked');
     }}

@@ -14,26 +14,26 @@ import {
 import Cell from '.';
 
 interface Props {
-  row?;
-  isRowSelected: boolean;
-  isRowHovered: boolean;
-  rowColorConditions?: Array<RowColorCondition>;
-  listingCheckable: boolean;
   column: Column;
+  isRowHovered: boolean;
+  isRowSelected: boolean;
+  listingCheckable: boolean;
+  row?;
+  rowColorConditions?: Array<RowColorCondition>;
 }
 
 const useStyles = makeStyles<Theme, { listingCheckable: boolean }>(() => ({
   cell: {
+    alignItems: 'center',
     alignSelf: 'stretch',
     display: 'flex',
-    alignItems: 'center',
-    whiteSpace: 'nowrap',
     overflow: 'hidden',
+    whiteSpace: 'nowrap',
   },
   text: {
     overflow: 'hidden',
-    whiteSpace: 'nowrap',
     textOverflow: 'ellipsis',
+    whiteSpace: 'nowrap',
   },
 }));
 
@@ -48,12 +48,12 @@ const DataCell = ({
   const classes = useStyles({ listingCheckable });
 
   const commonCellProps = {
-    isRowHovered,
-    rowColorConditions,
-    className: classes.cell,
     align: 'left' as const,
-    row,
+    className: classes.cell,
     compact: column.compact,
+    isRowHovered,
+    row,
+    rowColorConditions,
   };
 
   const cellByColumnType = {
@@ -67,7 +67,7 @@ const DataCell = ({
       const gridColumn = colSpan ? `auto / span ${colSpan}` : 'auto / auto';
 
       const typography = (
-        <Typography variant="body2" className={classes.text}>
+        <Typography className={classes.text} variant="body2">
           {formattedString}
         </Typography>
       );
@@ -105,9 +105,9 @@ const DataCell = ({
           {...commonCellProps}
         >
           <Component
-            row={row}
-            isSelected={isRowSelected}
             isHovered={isRowHovered}
+            isSelected={isRowSelected}
+            row={row}
           />
         </Cell>
       );

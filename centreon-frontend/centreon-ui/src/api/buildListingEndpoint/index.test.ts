@@ -3,8 +3,8 @@ import buildListingEndpoint from '.';
 describe(buildListingEndpoint, () => {
   const baseEndpoint = 'resources';
   const parameters = {
-    page: 1,
     limit: 10,
+    page: 1,
     sort: { name: 'asc' },
   };
   it('builds the listing endpoint string using the given params', () => {
@@ -22,8 +22,8 @@ describe(buildListingEndpoint, () => {
         ...parameters,
         search: {
           regex: {
-            value: 'h.name:hvalue',
             fields: ['h.name'],
+            value: 'h.name:hvalue',
           },
         },
       },
@@ -41,8 +41,8 @@ describe(buildListingEndpoint, () => {
         ...parameters,
         search: {
           regex: {
-            value: 'searchValue',
             fields: ['h.name', 's.description'],
+            value: 'searchValue',
           },
         },
       },

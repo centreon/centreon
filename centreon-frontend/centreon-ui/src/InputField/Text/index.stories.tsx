@@ -5,7 +5,7 @@ import TextField from '.';
 export default { title: 'InputField/Text' };
 
 export const withLabelAndHelperText = (): JSX.Element => (
-  <TextField label="name" helperText="choose a name for current object" />
+  <TextField helperText="choose a name for current object" label="name" />
 );
 
 export const withPlaceholderOnly = (): JSX.Element => (
@@ -21,11 +21,11 @@ export const fullWidth = (): JSX.Element => (
 );
 
 export const compact = (): JSX.Element => (
-  <TextField size="compact" placeholder="Compact" />
+  <TextField placeholder="Compact" size="compact" />
 );
 
 export const small = (): JSX.Element => (
-  <TextField size="small" placeholder="Small" />
+  <TextField placeholder="Small" size="small" />
 );
 
 export const transparent = (): JSX.Element => (

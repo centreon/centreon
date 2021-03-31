@@ -30,20 +30,20 @@ const height = 28;
 const HeaderCell = withStyles((theme) => ({
   root: {
     backgroundColor: theme.palette.common.white,
-    padding: theme.spacing(0, 0, 0, 1.5),
     height,
+    padding: theme.spacing(0, 0, 0, 1.5),
   },
 }))(TableCell);
 
 const useStyles = makeStyles((theme) => ({
-  row: {
-    display: 'contents',
-  },
   compactCell: {
     paddingLeft: theme.spacing(0.5),
   },
   headerLabelDragging: {
     cursor: 'grabbing',
+  },
+  row: {
+    display: 'contents',
   },
 }));
 
@@ -59,8 +59,8 @@ type Props = Pick<
   | 'totalRows'
 > & {
   onSelectAllClick: (event) => void;
-  selectedRowCount: number;
   rowCount: number;
+  selectedRowCount: number;
 };
 
 const ListingHeader = ({
@@ -80,8 +80,8 @@ const ListingHeader = ({
   const sensors = useSensors(useSensor(PointerSensor));
 
   const visibleColumns = getVisibleColumns({
-    columns,
     columnConfiguration,
+    columns,
   });
 
   const visibleColumnIds = visibleColumns.map(prop('id'));
@@ -118,20 +118,20 @@ const ListingHeader = ({
   return (
     <DndContext
       sensors={sensors}
-      onDragStart={startDrag}
       onDragCancel={cancelDrag}
       onDragEnd={endDrag}
+      onDragStart={startDrag}
     >
       <TableHead className={classes.row} component="div">
         <TableRow className={classes.row} component="div">
           {checkable && (
             <HeaderCell component="div">
               <Checkbox
-                inputProps={{ 'aria-label': 'Select all' }}
+                checked={selectedRowCount === rowCount}
                 indeterminate={
                   selectedRowCount > 0 && selectedRowCount < rowCount
                 }
-                checked={selectedRowCount === rowCount}
+                inputProps={{ 'aria-label': 'Select all' }}
                 onChange={onSelectAllClick}
               />
             </HeaderCell>
@@ -140,12 +140,12 @@ const ListingHeader = ({
           <SortableContext items={visibleColumnIds}>
             {visibleColumns.map((column) => (
               <SortableHeaderCell
-                key={column.id}
-                columnConfiguration={columnConfiguration}
                 column={column}
-                onSort={onSort}
-                sortOrder={sortOrder}
+                columnConfiguration={columnConfiguration}
+                key={column.id}
                 sortField={sortField}
+                sortOrder={sortOrder}
+                onSort={onSort}
               />
             ))}
           </SortableContext>
@@ -154,9 +154,9 @@ const ListingHeader = ({
       <DragOverlay>
         {draggingColumnId && (
           <SortableHeaderCellContent
+            isDragging
             column={getColumnById(draggingColumnId)}
             columnConfiguration={columnConfiguration}
-            isDragging
           />
         )}
       </DragOverlay>

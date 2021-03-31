@@ -13,8 +13,8 @@ enum SeverityCode {
 }
 
 interface StatusColorProps {
-  theme: Theme;
   severityCode: SeverityCode;
+  theme: Theme;
 }
 
 interface Colors {
@@ -56,20 +56,20 @@ const getStatusColors = ({ theme, severityCode }: StatusColorProps): Colors => {
 };
 
 export type Props = {
+  clickable?: boolean;
   label?: string;
   severityCode: SeverityCode;
-  clickable?: boolean;
 } & ChipProps;
 
 const useStyles = makeStyles<Theme, Props>((theme) => ({
   chip: ({ severityCode, label }: Props): CreateCSSProperties<Props> => ({
-    ...getStatusColors({ theme, severityCode }),
+    ...getStatusColors({ severityCode, theme }),
     ...(!label && {
       borderRadius: theme.spacing(1.5),
-      width: theme.spacing(1.5),
       height: theme.spacing(1.5),
+      width: theme.spacing(1.5),
     }),
-    '&:hover': { ...getStatusColors({ theme, severityCode }) },
+    '&:hover': { ...getStatusColors({ severityCode, theme }) },
   }),
 }));
 
@@ -79,14 +79,14 @@ const StatusChip = ({
   clickable = false,
   ...rest
 }: Props): JSX.Element => {
-  const classes = useStyles({ severityCode, label });
+  const classes = useStyles({ label, severityCode });
 
   return (
     <Chip
-      size="small"
+      className={classes.chip}
       clickable={clickable}
       label={label?.toUpperCase()}
-      className={classes.chip}
+      size="small"
       {...rest}
     />
   );

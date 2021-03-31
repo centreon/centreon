@@ -24,32 +24,32 @@ const Title = styled(Typography)(({ theme }) => ({
 }));
 
 const Section = styled(Accordion)({
-  width: '100%',
-  margin: '0',
   backgroundColor: 'transparent',
-  boxShadow: 'none',
   borderBottom: '1px solid #bcbdc0',
   borderRadius: '0',
+  boxShadow: 'none',
+  margin: '0',
+  width: '100%',
 });
 
 const CustomizedAccordionSummary = withStyles((theme) => ({
-  root: {
-    minHeight: theme.spacing(4),
-    '&$expanded': {
-      minHeight: theme.spacing(4),
-    },
-  },
   content: {
     '&$expanded': {
       margin: theme.spacing(1, 0),
     },
   },
   expanded: {},
+  root: {
+    '&$expanded': {
+      minHeight: theme.spacing(4),
+    },
+    minHeight: theme.spacing(4),
+  },
 }))(AccordionSummary);
 
 interface Props {
-  title: string;
   children: JSX.Element;
+  title: string;
 }
 
 const ExpandableSection = ({ title, children }: Props): JSX.Element => {

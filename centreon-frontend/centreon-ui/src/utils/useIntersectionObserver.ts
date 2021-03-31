@@ -1,10 +1,10 @@
 import * as React from 'react';
 
 interface HookParam {
+  action: () => void;
+  loading: boolean;
   maxPage: number;
   page: number;
-  loading: boolean;
-  action: () => void;
 }
 
 const useIntersectionObserver = ({

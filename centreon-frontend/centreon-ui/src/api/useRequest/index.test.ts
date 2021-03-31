@@ -58,7 +58,7 @@ describe(useRequest, () => {
 
     const getErrorMessage = (): string => 'custom message';
 
-    const { result } = renderUseRequest({ request, getErrorMessage });
+    const { result } = renderUseRequest({ getErrorMessage, request });
 
     await act(async () => {
       result.current.sendRequest().catch((error) => {
@@ -98,8 +98,8 @@ describe(useRequest, () => {
     request.mockImplementation(() => jest.fn().mockRejectedValue({}));
 
     const { result } = renderUseRequest({
-      request,
       defaultFailureMessage: 'Oops',
+      request,
     });
 
     await act(async () => {

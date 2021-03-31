@@ -15,18 +15,18 @@ import { HeaderCell } from '..';
 import SortableHeaderCellContent from './Content';
 
 interface StylesProps {
-  transition?: string;
-  transform: Transform | null;
   isSorting: boolean;
+  transform: Transform | null;
+  transition?: string;
 }
 
 const useStyles = makeStyles<Theme, StylesProps>(() => ({
   item: ({ transform, transition, isSorting }: StylesProps) => {
     return {
-      opacity: isSorting ? 0.5 : 1,
-      transition: transition || undefined,
-      transform: CSS.Translate.toString(transform),
       display: 'flex',
+      opacity: isSorting ? 0.5 : 1,
+      transform: CSS.Translate.toString(transform),
+      transition: transition || undefined,
     };
   },
 }));
@@ -59,27 +59,27 @@ const SortableHeaderCell = ({
   } = useSortable({ id });
 
   const classes = useStyles({
-    transition: transition || undefined,
     isSorting,
     transform,
+    transition: transition || undefined,
   });
   const cellClasses = useCellStyles({ listingCheckable: true });
 
   return (
     <HeaderCell
+      className={clsx([cellClasses.cell, classes.item])}
+      component="div"
       key={column.id}
       padding={column.compact ? 'none' : 'default'}
       sortDirection={equals(sortField, column.id) ? sortOrder : false}
-      component="div"
-      className={clsx([cellClasses.cell, classes.item])}
     >
       <SortableHeaderCellContent
-        columnConfiguration={columnConfiguration}
         column={column}
+        columnConfiguration={columnConfiguration}
+        ref={sortableRef}
         sortField={sortField}
         sortOrder={sortOrder}
         onSort={onSort}
-        ref={sortableRef}
         {...attributes}
         {...listeners}
       />

@@ -16,9 +16,9 @@ export interface LocaleDateTimeFormat {
   format: (dateFormat: FormatParameters) => string;
   toDate: (date: Date | string) => string;
   toDateTime: (date: Date | string) => string;
-  toTime: (date: Date | string) => string;
-  toIsoString: (date: Date) => string;
   toHumanizedDuration: (duration: number) => string;
+  toIsoString: (date: Date) => string;
+  toTime: (date: Date | string) => string;
 }
 
 const dateFormat = 'L';
@@ -68,22 +68,22 @@ const useLocaleDateTimeFormat = (): LocaleDateTimeFormat => {
     const normalizedLocale = locale.substring(0, 2).toUpperCase();
 
     return humanizer(duration * 1000, {
-      round: true,
-      language: `short${normalizedLocale}`,
       delimiter: ' ',
-      spacer: '',
-      serialComma: false,
       fallbacks: ['shortEN'],
+      language: `short${normalizedLocale}`,
+      round: true,
+      serialComma: false,
+      spacer: '',
     });
   };
 
   return {
     format,
-    toDateTime,
     toDate,
-    toTime,
-    toIsoString,
+    toDateTime,
     toHumanizedDuration,
+    toIsoString,
+    toTime,
   };
 };
 

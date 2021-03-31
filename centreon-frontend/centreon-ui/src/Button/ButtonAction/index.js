@@ -29,7 +29,7 @@ const ButtonAction = ({
   );
   return (
     <span className={cn} onClick={onClick}>
-      <IconAction iconColor={iconColor || ''} iconActionType={buttonIconType} />
+      <IconAction iconActionType={buttonIconType} iconColor={iconColor || ''} />
       {title && <span className={styles['button-action-title']}>{title}</span>}
     </span>
   );

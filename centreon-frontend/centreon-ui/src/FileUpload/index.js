@@ -89,15 +89,15 @@ class FileUpload extends Component {
                   )}
                 >
                   <Files
+                    clickable
+                    multiple
+                    accepts={['.zip', '.license']}
                     className={clsx('test')}
+                    maxFileSize={1048576}
+                    maxFiles={5}
+                    minFileSize={0}
                     onChange={this.onFilesChange}
                     onError={this.onFilesError}
-                    accepts={['.zip', '.license']}
-                    multiple
-                    maxFiles={5}
-                    maxFileSize={1048576}
-                    minFileSize={0}
-                    clickable
                   >
                     <div
                       className={clsx(
@@ -136,51 +136,51 @@ class FileUpload extends Component {
                   {!uploadStatus ? (
                     files.map((file, idx) => (
                       <FileUploadItem
-                        key={file.name}
                         icon={file.extension === 'zip' ? 'zip' : 'file'}
                         iconStatus={uploading ? 'percentage' : 'warning'}
-                        title={file.name}
-                        titleStatus={uploading ? 'percentage' : 'warning'}
+                        info={file.sizeReadable}
                         infoStatus={uploading ? 'percentage' : 'warning'}
+                        key={file.name}
                         progressBar={uploading ? 'percentage' : ''}
                         progressPercentage={
                           uploadingProgress[idx] ? uploadingProgress[idx] : 0
                         }
-                        info={file.sizeReadable}
+                        title={file.name}
+                        titleStatus={uploading ? 'percentage' : 'warning'}
+                        uploading={uploading}
                         onDeleteFile={() => {
                           this.onRemoveFile(idx);
                         }}
-                        uploading={uploading}
                       />
                     ))
                   ) : (
                     <>
                       {uploadStatus.result.successed.map(({ license }) => (
                         <FileUploadItem
-                          key={license}
+                          uploading
                           icon="file"
                           iconStatus="success"
-                          title={license}
-                          titleStatus="success"
                           infoStatus="success"
+                          key={license}
                           progressBar="success"
                           progressPercentage={100}
-                          uploading
+                          title={license}
+                          titleStatus="success"
                         />
                       ))}
                       {uploadStatus.result.errors.map(
                         ({ license, message }) => (
                           <FileUploadItem
-                            key={license}
+                            uploading
                             icon="file"
                             iconStatus="error"
-                            title={license}
-                            titleStatus="error"
                             infoStatus="error"
+                            key={license}
+                            message={message}
                             progressBar="error"
                             progressPercentage={100}
-                            message={message}
-                            uploading
+                            title={license}
+                            titleStatus="error"
                           />
                         ),
                       )}
@@ -189,9 +189,9 @@ class FileUpload extends Component {
                 </div>
                 {!finished ? (
                   <Button
-                    label="Apply"
                     buttonType={uploading ? 'bordered' : 'regular'}
                     color={uploading ? 'gray' : 'blue'}
+                    label="Apply"
                     onClick={() => {
                       if (!uploading) {
                         onApply(files);
@@ -200,9 +200,9 @@ class FileUpload extends Component {
                   />
                 ) : (
                   <Button
-                    label="Ok"
                     buttonType="regular"
                     color="green"
+                    label="Ok"
                     onClick={onClose}
                   />
                 )}

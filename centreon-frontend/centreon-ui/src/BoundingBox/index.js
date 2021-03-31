@@ -17,8 +17,8 @@ export default class BoundingBox extends React.Component {
   };
 
   static propTypes = {
-    onChange: PropTypes.func,
     children: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
+    onChange: PropTypes.func,
   };
 
   getContainer = () => {
@@ -27,10 +27,10 @@ export default class BoundingBox extends React.Component {
 
   roundRectDown(rect) {
     return {
-      top: Math.floor(rect.top),
-      left: Math.floor(rect.left),
       bottom: Math.floor(rect.bottom),
+      left: Math.floor(rect.left),
       right: Math.floor(rect.right),
+      top: Math.floor(rect.top),
     };
   }
 
@@ -44,18 +44,18 @@ export default class BoundingBox extends React.Component {
     const rect = normalize(this.roundRectDown(element.getBoundingClientRect()));
 
     const windowRect = {
-      top: 0,
-      left: 0,
       bottom: window.innerHeight || document.documentElement.clientHeight,
+      left: 0,
       right: window.innerWidth || document.documentElement.clientWidth,
+      top: 0,
     };
 
     const rectBox = {
-      top: windowRect.top - rect.top,
-      left: windowRect.left - rect.left,
       bottom: windowRect.bottom - rect.bottom,
-      right: windowRect.right - rect.right,
+      left: windowRect.left - rect.left,
       offsetHeight: element.offsetHeight,
+      right: windowRect.right - rect.right,
+      top: windowRect.top - rect.top,
     };
 
     const isNotHidden = rect.height > 0 && rect.width > 0;

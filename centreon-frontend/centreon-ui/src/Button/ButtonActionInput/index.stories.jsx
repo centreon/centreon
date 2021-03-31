@@ -6,9 +6,9 @@ export default { title: 'Button/ActionInput' };
 
 export const greenArrowRight = () => (
   <ButtonActionInput
-    buttonColor="green"
-    iconColor="white"
     buttonActionType="delete"
+    buttonColor="green"
     buttonIconType="arrow-right"
+    iconColor="white"
   />
 );

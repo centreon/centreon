@@ -17,19 +17,19 @@ enum Size {
 }
 
 const useStyles = makeStyles((theme: Theme) => ({
+  compact: {
+    fontSize: 'x-small',
+    padding: theme.spacing(0.75),
+  },
   input: {
     fontSize: theme.typography.body1.fontSize,
   },
   noLabelInput: {
     padding: theme.spacing(1.25),
   },
-  compact: {
-    padding: theme.spacing(0.75),
-    fontSize: 'x-small',
-  },
   small: {
-    padding: theme.spacing(0.75),
     fontSize: 'small',
+    padding: theme.spacing(0.75),
   },
   transparent: {
     backgroundColor: 'transparent',
@@ -37,9 +37,9 @@ const useStyles = makeStyles((theme: Theme) => ({
 }));
 
 interface OptionalLabelInputAdornmentProps {
+  children: React.ReactNode;
   label?: React.ReactNode;
   position: 'end' | 'start';
-  children: React.ReactNode;
 }
 
 const OptionalLabelInputAdornment = ({
@@ -57,11 +57,11 @@ const OptionalLabelInputAdornment = ({
 };
 
 export type Props = {
-  StartAdornment?: React.SFC;
   EndAdornment?: React.SFC;
+  StartAdornment?: React.SFC;
+  ariaLabel?: string;
   error?: string;
   size?: 'small' | 'compact';
-  ariaLabel?: string;
   transparent?: boolean;
 } & Omit<TextFieldProps, 'variant' | 'size' | 'error'>;
 
@@ -85,14 +85,11 @@ const TextField = React.forwardRef(
 
     return (
       <MuiTextField
-        ref={ref}
-        label={label}
-        error={!isNil(error)}
-        helperText={error}
         InputProps={{
           className: clsx({
             [classes.transparent]: transparent,
           }),
+          disableUnderline: true,
           endAdornment: EndAdornment && (
             <OptionalLabelInputAdornment label={label} position="end">
               <EndAdornment />
@@ -103,8 +100,9 @@ const TextField = React.forwardRef(
               <StartAdornment />
             </OptionalLabelInputAdornment>
           ),
-          disableUnderline: true,
         }}
+        error={!isNil(error)}
+        helperText={error}
         inputProps={{
           'aria-label': ariaLabel,
           className: clsx(classes.input, {
@@ -113,8 +111,10 @@ const TextField = React.forwardRef(
             [classes.compact]: isSizeEqualTo(Size.compact),
           }),
         }}
-        variant="filled"
+        label={label}
+        ref={ref}
         size="small"
+        variant="filled"
         {...rest}
       />
     );

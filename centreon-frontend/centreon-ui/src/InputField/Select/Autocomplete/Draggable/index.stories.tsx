@@ -21,12 +21,12 @@ const buildEntities = (from) => {
 };
 
 const buildResult = (page) => ({
-  result: buildEntities((page - 1) * 10),
   meta: {
     limit: 10,
     page,
     total: 40,
   },
+  result: buildEntities((page - 1) * 10),
 });
 
 const baseEndpoint = 'endpoint';
@@ -58,8 +58,8 @@ const options = [
 
 const MultiDraggable = (): JSX.Element => (
   <MultiDraggableAutocompleteField
-    options={options}
     label="Draggable Autocomplete"
+    options={options}
     placeholder="Type here..."
   />
 );
@@ -72,13 +72,13 @@ export const containedDraggable = (): JSX.Element => (
 
 const MultiDraggableConnected = (): JSX.Element => (
   <MultiDraggableConnectedAutocompleteField
-    label="Multi Draggable Connected Autocomplete"
-    initialPage={1}
     field="host.name"
     getEndpoint={(parameters) => {
       return getEndpoint({ endpoint: baseEndpoint, parameters });
     }}
     getOptionsFromResult={(result): Array<SelectEntry> => result}
+    initialPage={1}
+    label="Multi Draggable Connected Autocomplete"
     placeholder="Type here..."
   />
 );
@@ -89,10 +89,10 @@ export const draggableConnected = (): JSX.Element => (
 
 const MultiDraggableError = (): JSX.Element => (
   <MultiDraggableAutocompleteField
-    options={options}
-    label="Draggable Autocomplete"
-    placeholder="Type here..."
     error="Error"
+    label="Draggable Autocomplete"
+    options={options}
+    placeholder="Type here..."
   />
 );
 
@@ -100,10 +100,10 @@ export const draggableWithError = (): JSX.Element => <MultiDraggableError />;
 
 const MultiDraggableRequired = (): JSX.Element => (
   <MultiDraggableAutocompleteField
-    options={options}
-    label="Draggable Autocomplete"
-    placeholder="Type here..."
     required
+    label="Draggable Autocomplete"
+    options={options}
+    placeholder="Type here..."
   />
 );
 
@@ -113,10 +113,10 @@ export const draggableWithRequired = (): JSX.Element => (
 
 const MultiDraggableInitialValues = (): JSX.Element => (
   <MultiDraggableAutocompleteField
-    options={options}
-    label="Draggable Autocomplete"
-    placeholder="Type here..."
     initialValues={[options[0]]}
+    label="Draggable Autocomplete"
+    options={options}
+    placeholder="Type here..."
   />
 );
 

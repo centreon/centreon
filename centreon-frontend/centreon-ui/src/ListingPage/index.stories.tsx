@@ -19,89 +19,89 @@ import ListingPage from '.';
 export default { title: 'Listing Page' };
 
 const useStyles = makeStyles((theme) => ({
-  filtersSummary: {
-    display: 'grid',
-    gridTemplateColumns: 'auto auto 1fr',
-    gridGap: theme.spacing(2),
-    alignItems: 'center',
-  },
   autoComplete: {
     width: 250,
   },
-  detailsPanel: {
-    display: 'grid',
-    gridTemplateRows: 'auto 1fr',
-    gridTemplateColumns: '94%',
-    justifyContent: 'center',
-    marginTop: theme.spacing(2),
-    gridGap: theme.spacing(4),
+  comment: {
+    gridArea: 'comment',
+  },
+  description: {
+    gridArea: 'description',
   },
   detailsContent: {
     display: 'grid',
+    gridGap: theme.spacing(2),
     gridTemplateAreas: `
       'title title'
       'description comment'
     `,
     gridTemplateRows: '50px 100px',
-    gridGap: theme.spacing(2),
   },
-  title: {
-    gridArea: 'title',
-    alignItems: 'center',
-    textAlign: 'center',
-  },
-  description: {
-    gridArea: 'description',
-  },
-  comment: {
-    gridArea: 'comment',
+  detailsPanel: {
+    display: 'grid',
+    gridGap: theme.spacing(4),
+    gridTemplateColumns: '94%',
+    gridTemplateRows: 'auto 1fr',
+    justifyContent: 'center',
+    marginTop: theme.spacing(2),
   },
   detailsPanelHeader: {
     display: 'grid',
-    gridTemplateColumns: 'auto min-content',
     gridGap: theme.spacing(2),
-    margin: '0 auto',
+    gridTemplateColumns: 'auto min-content',
     justifyItems: 'center',
+    margin: '0 auto',
     width: '95%',
+  },
+  filtersSummary: {
+    alignItems: 'center',
+    display: 'grid',
+    gridGap: theme.spacing(2),
+    gridTemplateColumns: 'auto auto 1fr',
+  },
+  title: {
+    alignItems: 'center',
+    gridArea: 'title',
+    textAlign: 'center',
   },
 }));
 
 const columns = [
   {
+    getFormattedString: ({ name }): string => name,
     id: 'name',
     label: 'Name',
     type: ColumnType.string,
-    getFormattedString: ({ name }): string => name,
   },
   {
+    getFormattedString: ({ description }): string => description,
     id: 'description',
     label: 'Description',
     type: ColumnType.string,
-    getFormattedString: ({ description }): string => description,
   },
   {
+    getFormattedString: ({ alias }): string => alias,
     id: 'alias',
     label: 'Alias',
     type: ColumnType.string,
-    getFormattedString: ({ alias }): string => alias,
   },
 ];
 
 const twentyFiveElements = new Array(25).fill(0);
 
 const elements = [...twentyFiveElements].map((_, index) => ({
+  active: index % 2 === 0,
+  alias: `Alias ${index}`,
+  description: `Entity ${index}`,
   id: index,
   name: `E${index}`,
-  description: `Entity ${index}`,
-  alias: `Alias ${index}`,
-  active: index % 2 === 0,
 }));
 
 const rowColorConditions = [
   {
-    name: 'inactive',
-    condition: ({ active }): boolean => !active,
     color: grey[500],
+    condition: ({ active }): boolean => !active,
+    name: 'inactive',
   },
 ];
 
@@ -114,11 +114,11 @@ const options = [
 const listing = (
   <Listing
     columns={columns}
-    limit={elements.length}
     currentPage={0}
-    totalRows={elements.length}
-    rows={elements}
+    limit={elements.length}
     rowColorConditions={rowColorConditions}
+    rows={elements}
+    totalRows={elements.length}
   />
 );
 
@@ -166,15 +166,15 @@ const FiltersDetails = (): JSX.Element => {
       <TextField placeholder="Text" />
       <AutocompleteField
         className={classes.autoComplete}
-        options={options}
         label="Autocomplete"
+        options={options}
         placeholder="Type here..."
         value={options[0]}
       />
       <AutocompleteField
         className={classes.autoComplete}
-        options={options}
         label="Other Autocomplete"
+        options={options}
         placeholder="Type here..."
         value={options[1]}
       />
@@ -188,10 +188,10 @@ const ExpandableFilters = (): JSX.Element => {
 
   return (
     <Filters
-      filters={<FiltersSummary />}
-      expanded={expanded}
-      onExpand={() => setExpanded(!expanded)}
       expandableFilters={<FiltersDetails />}
+      expanded={expanded}
+      filters={<FiltersSummary />}
+      onExpand={() => setExpanded(!expanded)}
     />
   );
 };
@@ -267,7 +267,7 @@ const DetailsPanelHeader = (): JSX.Element => {
   const classes = useStyles();
   return (
     <div className={classes.detailsPanelHeader}>
-      <Typography variant="h5" align="center">
+      <Typography align="center" variant="h5">
         Details Panel
       </Typography>
     </div>
@@ -278,33 +278,33 @@ const DetailsPanel = ({
   onClose = () => undefined,
 }: PanelProps): JSX.Element => (
   <Panel
-    onClose={onClose}
     header={<DetailsPanelHeader />}
     selectedTab={<DetailsPanelContent />}
+    onClose={onClose}
   />
 );
 
 const DetailsPanelWithTabs = (): JSX.Element => (
   <Panel
     header={<DetailsPanelHeader />}
-    tabs={[<Tab key="tab1" label="Tab 1" />, <Tab key="tab2" label="Tab 2" />]}
     selectedTab={<DetailsPanelContent />}
+    tabs={[<Tab key="tab1" label="Tab 1" />, <Tab key="tab2" label="Tab 2" />]}
   />
 );
 
 export const normal = (): JSX.Element => (
   <ListingPage
-    panelOpen={false}
-    listing={listing}
     filters={<NonExpandableFilters />}
+    listing={listing}
+    panelOpen={false}
   />
 );
 
 export const withOpenPanel = (): JSX.Element => (
   <ListingPage
     panelOpen
-    listing={listing}
     filters={<NonExpandableFilters />}
+    listing={listing}
     panel={<DetailsPanel />}
   />
 );
@@ -312,25 +312,25 @@ export const withOpenPanel = (): JSX.Element => (
 export const withOpenPanelAndTabs = (): JSX.Element => (
   <ListingPage
     panelOpen
-    listing={listing}
     filters={<NonExpandableFilters />}
+    listing={listing}
     panel={<DetailsPanelWithTabs />}
   />
 );
 
 export const withExpandableFilters = (): JSX.Element => (
   <ListingPage
-    panelOpen={false}
-    listing={listing}
     filters={<ExpandableFilters />}
+    listing={listing}
+    panelOpen={false}
   />
 );
 
 export const withFilterDetailsAndOpenPanel = (): JSX.Element => (
   <ListingPage
     panelOpen
-    listing={listing}
     filters={<ExpandableFilters />}
+    listing={listing}
     panel={<DetailsPanel />}
   />
 );
@@ -339,11 +339,11 @@ export const withExpandableFiltersAndFixedPanel = (): JSX.Element => {
   const [open, setOpen] = React.useState(true);
   return (
     <ListingPage
-      panelOpen={open}
-      listing={listing}
-      filters={<ExpandableFiltersWithOpenButton onOpen={() => setOpen(true)} />}
-      panel={<DetailsPanel onClose={() => setOpen(false)} />}
       panelFixed
+      filters={<ExpandableFiltersWithOpenButton onOpen={() => setOpen(true)} />}
+      listing={listing}
+      panel={<DetailsPanel onClose={() => setOpen(false)} />}
+      panelOpen={open}
     />
   );
 };

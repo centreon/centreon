@@ -15,11 +15,11 @@ const options = [
 export const openWithThreeOptions = (): JSX.Element => {
   return (
     <MultiAutocompleteField
-      options={options}
+      open
       label="Autocomplete"
+      options={options}
       placeholder="Type here..."
       value={[options[1]]}
-      open
     />
   );
 };
@@ -27,11 +27,11 @@ export const openWithThreeOptions = (): JSX.Element => {
 export const closeWithEndAdornment = (): JSX.Element => {
   return (
     <MultiAutocompleteField
-      options={options}
+      endAdornment={<EditIcon />}
       label="Autocomplete"
+      options={options}
       placeholder="Type here..."
       value={[options[1]]}
-      endAdornment={<EditIcon />}
     />
   );
 };
