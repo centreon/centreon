@@ -4,7 +4,7 @@ import EditIcon from '@material-ui/icons/Edit';
 
 import IconPopoverMultiAutocompleteField from '.';
 
-export default { title: 'InputField/Autocomplete/Multi/IconPopover' };
+export default { title: 'InputField/Select/IconPopover' };
 
 const options = [
   { id: 0, name: 'First Entity' },
@@ -15,12 +15,11 @@ const options = [
 export const withThreeOptions = (): JSX.Element => {
   return (
     <IconPopoverMultiAutocompleteField
-      open
       icon={<EditIcon />}
-      label="Autocomplete"
       options={options}
       title="Edit"
       value={[options[1]]}
+      onChange={() => undefined}
     />
   );
 };

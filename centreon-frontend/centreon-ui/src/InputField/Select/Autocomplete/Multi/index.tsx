@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import { Checkbox, Chip, makeStyles } from '@material-ui/core';
+import { Chip, makeStyles } from '@material-ui/core';
 import { UseAutocompleteProps } from '@material-ui/lab';
 
 import Autocomplete, { Props as AutocompleteProps } from '..';
@@ -22,10 +22,6 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-interface MultiAutocompleteProps {
-  displayCheckboxOption?: boolean;
-}
-
 type Multiple = boolean;
 type DisableClearable = boolean;
 type FreeSolo = boolean;
@@ -37,13 +33,9 @@ export type Props = Omit<
   Omit<
     UseAutocompleteProps<SelectEntry, Multiple, DisableClearable, FreeSolo>,
     'multiple'
-  > &
-  MultiAutocompleteProps;
+  >;
 
-const MultiAutocompleteField = ({
-  displayCheckboxOption = true,
-  ...props
-}: Props): JSX.Element => {
+const MultiAutocompleteField = (props: Props): JSX.Element => {
   const classes = useStyles();
 
   const renderTags = (value, getTagProps): Array<JSX.Element> =>
@@ -66,17 +58,7 @@ const MultiAutocompleteField = ({
       multiple
       getLimitTagsText={(more) => <Option>{`+${more}`}</Option>}
       renderOption={(option, { selected }): JSX.Element => (
-        <>
-          {displayCheckboxOption && (
-            <Checkbox
-              checked={selected}
-              className={classes.checkbox}
-              color="primary"
-              size="small"
-            />
-          )}
-          <Option>{option.name}</Option>
-        </>
+        <Option checkboxSelected={selected}>{option.name}</Option>
       )}
       renderTags={renderTags}
       {...props}

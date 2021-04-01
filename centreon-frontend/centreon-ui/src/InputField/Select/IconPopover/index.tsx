@@ -1,12 +1,13 @@
 import * as React from 'react';
 
 import { useTranslation } from 'react-i18next';
-import { isNil } from 'ramda';
+import { find, isNil, pipe, propEq, reject } from 'ramda';
 
 import {
   Button,
   ClickAwayListener,
   makeStyles,
+  MenuItem,
   Paper,
   Popper,
   PopperPlacementType,
@@ -14,10 +15,9 @@ import {
 } from '@material-ui/core';
 import IconReset from '@material-ui/icons/RotateLeft';
 
-import IconButton from '../../../../../Button/Icon';
-import MultiAutocompleteField, {
-  Props as MultiAutocompleteFieldProps,
-} from '..';
+import IconButton from '../../../Button/Icon';
+import Option from '../Option';
+import { SelectEntry } from '..';
 
 import { labelReset } from './translatedLabels';
 
@@ -27,23 +27,24 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-type Props = MultiAutocompleteFieldProps & {
+interface Props {
   icon: JSX.Element;
+  onChange: (updatedValues: Array<SelectEntry>) => void;
   onReset?: () => void;
+  options: Array<SelectEntry>;
   popperPlacement?: PopperPlacementType;
   title: string;
-};
+  value: Array<SelectEntry>;
+}
 
 const IconPopoverMultiAutocomplete = ({
   icon,
   options,
-  label,
   title,
   onChange,
   value,
   onReset,
   popperPlacement = 'bottom-start',
-  ...props
 }: Props): JSX.Element => {
   const theme = useTheme();
   const classes = useStyles();
@@ -71,6 +72,20 @@ const IconPopoverMultiAutocomplete = ({
     setAnchorEl(event.currentTarget);
   };
 
+  const isSelected = (id: number | string): boolean => {
+    return pipe(find(propEq('id', id)), Boolean)(value);
+  };
+
+  const unSelect = (option: SelectEntry): void => {
+    const { id } = option;
+
+    const updatedValue = isSelected(id)
+      ? reject(propEq('id', id), value)
+      : [...value, option];
+
+    onChange(updatedValue);
+  };
+
   return (
     <ClickAwayListener onClickAway={close}>
       <div>
@@ -96,16 +111,18 @@ const IconPopoverMultiAutocomplete = ({
                 {t(labelReset)}
               </Button>
             )}
-            <MultiAutocompleteField
-              label={label}
-              limitTags={1}
-              open={isOpen}
-              options={options}
-              value={value}
-              onChange={onChange}
-              onClose={close}
-              {...props}
-            />
+            {options.map((option) => {
+              const { id, name } = option;
+              return (
+                <MenuItem
+                  key={id}
+                  value={name}
+                  onClick={() => unSelect(option)}
+                >
+                  <Option checkboxSelected={isSelected(id)}>{name}</Option>
+                </MenuItem>
+              );
+            })}
           </Paper>
         </Popper>
       </div>

@@ -35,7 +35,7 @@ export {
   Props as TextFieldProps,
 } from './InputField/Text';
 export { default as SelectField, SelectEntry } from './InputField/Select';
-export { default as IconPopoverAutocompleteField } from './InputField/Select/Autocomplete/Multi/IconPopover';
+export { default as IconPopoverMultiSelectField } from './InputField/Select/IconPopover';
 
 export { default as Logo } from './Logo';
 export { default as LogoMini } from './Logo/LogoMini';

@@ -6,8 +6,8 @@ import { prop } from 'ramda';
 import ColumnIcon from '@material-ui/icons/ViewColumn';
 
 import { getVisibleColumns, Props as ListingProps } from '..';
-import IconPopoverMultiSelect from '../../InputField/Select/Autocomplete/Multi/IconPopover';
-import { labelAddColumns, labelColumns } from '../translatedLabels';
+import IconPopoverMultiSelect from '../../InputField/Select/IconPopover';
+import { labelAddColumns } from '../translatedLabels';
 import { SelectEntry } from '../../InputField/Select';
 import { Column } from '../models';
 
@@ -36,14 +36,13 @@ const ColumnMultiSelect = ({
     columns,
   });
 
-  const selectColumnIds = (_, updatedColumns) => {
+  const selectColumnIds = (updatedColumns) => {
     onSelectColumns?.(updatedColumns.map(prop('id')));
   };
 
   return (
     <IconPopoverMultiSelect
       icon={<ColumnIcon />}
-      label={t(labelColumns)}
       options={toSelectEntries(columns)}
       popperPlacement="bottom-end"
       title={t(labelAddColumns)}

@@ -3,20 +3,22 @@ import * as React from 'react';
 import { and, equals } from 'ramda';
 
 import { makeStyles, TableSortLabel, Theme } from '@material-ui/core';
-import DragIndicatorIcon from '@material-ui/icons/DragIndicator';
+import DragIndicatorIcon from '@material-ui/icons/MoreVert';
 
 import { Props as ListingProps } from '../..';
 import { Column } from '../../models';
 import HeaderLabel from '../Label';
 
-const useStyles = makeStyles<Theme, Pick<Props, 'isDragging'>>(() => ({
+const useStyles = makeStyles<Theme, Pick<Props, 'isDragging'>>((theme) => ({
   content: {
     alignItems: 'center',
     display: 'flex',
   },
   dragHandle: ({ isDragging }) => ({
+    alignSelf: 'flex-start',
     cursor: isDragging ? 'grabbing' : 'grab',
     display: 'flex',
+    marginLeft: -theme.spacing(1),
     outline: 'none',
   }),
 }));
