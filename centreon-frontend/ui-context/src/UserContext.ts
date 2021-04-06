@@ -3,29 +3,29 @@ import * as React from 'react';
 import { UserContext } from './types';
 
 const defaultUser = {
-  name: '',
   alias: '',
   locale: navigator.language,
+  name: '',
   timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
 };
 
 const defaultAcl = {
   actions: {
     host: {
-      check: false,
       acknowledgement: false,
+      check: false,
+      comment: false,
       disacknowledgement: false,
       downtime: false,
       submit_status: false,
-      comment: false,
     },
     service: {
-      check: false,
       acknowledgement: false,
+      check: false,
+      comment: false,
       disacknowledgement: false,
       downtime: false,
       submit_status: false,
-      comment: false,
     },
   },
 };

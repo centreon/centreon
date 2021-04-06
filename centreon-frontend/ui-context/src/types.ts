@@ -1,8 +1,8 @@
 export interface User {
-  locale: string;
-  timezone: string;
-  name: string;
   alias: string;
+  locale: string;
+  name: string;
+  timezone: string;
 }
 
 export type UserContext = {
@@ -12,16 +12,16 @@ export type UserContext = {
 } & User;
 
 export interface ActionAcl {
-  check: boolean;
   acknowledgement: boolean;
+  check: boolean;
+  comment: boolean;
   downtime: boolean;
   submit_status: boolean;
-  comment: boolean;
 }
 
 export interface Actions {
-  service: ActionAcl;
   host: ActionAcl;
+  service: ActionAcl;
 }
 
 interface Acl {
