@@ -20,11 +20,3 @@ const Story = (props): JSX.Element => {
 };
 
 export const normal = (): JSX.Element => <Story />;
-
-const StoryResizable = (): JSX.Element => {
-  const [width, setWidth] = React.useState(550);
-
-  return <Story width={width} onResize={setWidth} />;
-};
-
-export const resizable = (): JSX.Element => <StoryResizable />;

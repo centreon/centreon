@@ -104,6 +104,24 @@ const Panel = React.forwardRef<HTMLDivElement, Props>(
   ): JSX.Element => {
     const classes = useStyles({ headerBackgroundColor, width });
 
+    const getMaxWidth = (): number => window.innerWidth * 0.85;
+
+    const resizeWindow = (): void => {
+      const maxWidth = getMaxWidth();
+
+      if (width > maxWidth) {
+        onResize?.(maxWidth);
+      }
+    };
+
+    React.useEffect(() => {
+      window.addEventListener('resize', resizeWindow);
+
+      return () => {
+        window.removeEventListener('resize', resizeWindow);
+      };
+    }, []);
+
     const resize = () => {
       document.addEventListener('mouseup', releaseMouse, true);
       document.addEventListener('mousemove', moveMouse, true);
@@ -117,7 +135,7 @@ const Panel = React.forwardRef<HTMLDivElement, Props>(
     const moveMouse = React.useCallback((e) => {
       e.preventDefault();
 
-      const maxWidth = window.innerWidth * 0.85;
+      const maxWidth = getMaxWidth();
       const newWidth = document.body.clientWidth - e.clientX;
 
       const getResizedWidth = (): number => {

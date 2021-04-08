@@ -34,7 +34,8 @@ export { default as RegexpHelpTooltip } from './InputField/Search/RegexpHelpTool
 export { default as TextField } from './InputField/Text';
 export { Props as TextFieldProps } from './InputField/Text';
 
-export type { SelectEntry, default as SelectField } from './InputField/Select';
+export type { SelectEntry } from './InputField/Select';
+export { default as SelectField } from './InputField/Select';
 export { default as IconPopoverMultiSelectField } from './InputField/Select/IconPopover';
 
 export { default as Logo } from './Logo';
