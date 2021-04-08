@@ -32,7 +32,7 @@ export { default as SearchField } from './InputField/Search';
 export { default as RegexpHelpTooltip } from './InputField/Search/RegexpHelpTooltip';
 
 export { default as TextField } from './InputField/Text';
-export { Props as TextFieldProps } from './InputField/Text';
+export type { Props as TextFieldProps } from './InputField/Text';
 
 export type { SelectEntry } from './InputField/Select';
 export { default as SelectField } from './InputField/Select';
@@ -111,6 +111,7 @@ export { default as SubmenuItem } from './Submenu/SubmenuHeader/SubmenuItem';
 
 export { default as MultiSelectEntries } from './MultiSelectEntries';
 export { default as SectionPanel, MemoizedSectionPanel } from './Panel/Section';
+export { default as Tab } from './Panel/Tab';
 
 export { default as StatusChip } from './StatusChip';
 export type { Props as StatusChipProps } from './StatusChip';

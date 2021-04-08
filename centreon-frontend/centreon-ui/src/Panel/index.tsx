@@ -15,6 +15,8 @@ import IconClose from '@material-ui/icons/Clear';
 
 import IconButton from '../Button/Icon';
 
+import { minTabHeight } from './Tab';
+
 type StylesProps = Pick<Props, 'headerBackgroundColor' | 'width'>;
 
 const useStyles = makeStyles<Theme, StylesProps>((theme) => ({
@@ -62,6 +64,9 @@ const useStyles = makeStyles<Theme, StylesProps>((theme) => ({
     gridArea: '1 / 1 / 2 / 1',
     gridTemplateColumns: '1fr auto',
     padding: theme.spacing(1),
+  },
+  tabs: {
+    minHeight: minTabHeight,
   },
 }));
 
@@ -187,6 +192,7 @@ const Panel = React.forwardRef<HTMLDivElement, Props>(
             <AppBar color="default" position="static">
               {!isEmpty(tabs) && (
                 <Tabs
+                  className={classes.tabs}
                   indicatorColor="primary"
                   textColor="primary"
                   value={selectedTabId}
