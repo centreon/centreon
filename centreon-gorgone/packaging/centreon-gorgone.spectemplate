@@ -1,6 +1,6 @@
 Name:       centreon-gorgone
-Version:    21.04.0-beta.2
-Release:    @RELEASE@%{?dist}
+Version:    21.04.0
+Release:    beta.2.@RELEASE@%{?dist}
 Summary:    Perl daemon task handlers
 Group:      Applications/System
 License:    Apache2
