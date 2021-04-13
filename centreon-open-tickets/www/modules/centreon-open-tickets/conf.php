@@ -1,6 +1,7 @@
 <?php
+
 /*
- * Copyright 2016-2020 Centreon (http://www.centreon.com/)
+ * Copyright 2016-2021 Centreon (http://www.centreon.com/)
  *
  * Centreon is a full-fledged industry-strength solution that meets
  * the needs in IT infrastructure and application monitoring for
@@ -21,7 +22,7 @@
 
 $module_conf['centreon-open-tickets']["rname"] = "Centreon Open Tickets";
 $module_conf['centreon-open-tickets']["name"] = "centreon-open-tickets";
-$module_conf['centreon-open-tickets']["mod_release"] = "21.04.0";
+$module_conf['centreon-open-tickets']["mod_release"] = "21.04.0-beta.2";
 $module_conf['centreon-open-tickets']["infos"] = "Centreon Open Tickets is a community module developed to " .
     "create tickets to your favorite ITSM tools using API.
 
@@ -36,9 +37,9 @@ Regarding the widget configuration, it is possible to see the created tickets by
 $module_conf['centreon-open-tickets']["is_removeable"] = "1";
 $module_conf['centreon-open-tickets']["author"] = "Centreon";
 $module_conf['centreon-open-tickets']["stability"] = "stable";
-$module_conf['centreon-open-tickets']["last_update"] = "2020-10-30";
-$module_conf['centreon-open-tickets']["release_note"] = "https://documentation.centreon.com/21.04/en/releases/centreon-os-extensions.html' .
-    '/centreon-open-tickets/en/latest/release_notes/index.html";
+$module_conf['centreon-open-tickets']["last_update"] = "2021-04-13";
+$module_conf['centreon-open-tickets']["release_note"] =
+    "https://docs.centreon.com/21.04/en/releases/centreon-os-extensions.html";
 $module_conf['centreon-open-tickets']["images"] = [
     'images/image1.png',
     'images/image2.png',
