@@ -2,14 +2,7 @@ import * as React from 'react';
 
 import { equals, prop, last, isEmpty } from 'ramda';
 
-import {
-  Typography,
-  Checkbox,
-  makeStyles,
-  CircularProgress,
-  useTheme,
-  FormControlLabel,
-} from '@material-ui/core';
+import { Typography, CircularProgress, useTheme } from '@material-ui/core';
 import debounce from '@material-ui/core/utils/debounce';
 
 import { Props as AutocompleteFieldProps } from '..';
@@ -17,6 +10,7 @@ import useRequest from '../../../../api/useRequest';
 import { getData } from '../../../../api';
 import useIntersectionObserver from '../../../../utils/useIntersectionObserver';
 import { ListingModel } from '../../../..';
+import Option from '../../Option';
 
 export interface ConnectedAutoCompleteFieldProps {
   field: string;
@@ -26,13 +20,6 @@ export interface ConnectedAutoCompleteFieldProps {
 }
 
 type SearchDebounce = (value: string) => void;
-
-const useStyles = makeStyles((theme) => ({
-  checkbox: {
-    marginRight: theme.spacing(1),
-    padding: 0,
-  },
-}));
 
 const ConnectedAutocompleteField = (
   AutocompleteField: (props) => JSX.Element,
@@ -54,7 +41,6 @@ const ConnectedAutocompleteField = (
     const [page, setPage] = React.useState(1);
     const [maxPage, setMaxPage] = React.useState(initialPage);
 
-    const classes = useStyles();
     const theme = useTheme();
 
     const { sendRequest, sending } = useRequest<ListingModel<TData>>({
@@ -126,25 +112,13 @@ const ConnectedAutocompleteField = (
       const isLastElement = equals(last(options))(option);
       const refProp = isLastElement ? { ref: lastItemElementRef } : {};
 
-      const checkbox = (
-        <Checkbox
-          checked={selected}
-          className={classes.checkbox}
-          color="primary"
-          size="small"
-        />
-      );
-
       return (
         <div style={{ width: '100%' }}>
           <div>
             {multiple ? (
-              <FormControlLabel
-                control={checkbox}
-                label={<Typography variant="body2">{option.name}</Typography>}
-                labelPlacement="end"
-                {...refProp}
-              />
+              <Option checkboxSelected={selected} {...refProp}>
+                {option.name}
+              </Option>
             ) : (
               <Typography variant="body2" {...refProp}>
                 {option.name}

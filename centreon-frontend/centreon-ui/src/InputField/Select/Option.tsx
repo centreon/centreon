@@ -9,6 +9,10 @@ const useStyles = makeStyles((theme) => ({
     marginRight: theme.spacing(1),
     padding: 0,
   },
+  container: {
+    alignItems: 'center',
+    display: 'flex',
+  },
 }));
 
 interface Props {
@@ -16,22 +20,27 @@ interface Props {
   children: string;
 }
 
-const Option = ({ children, checkboxSelected }: Props): JSX.Element => {
-  const classes = useStyles();
+const Option = React.forwardRef(
+  ({ children, checkboxSelected }: Props, ref): JSX.Element => {
+    const classes = useStyles();
 
-  return (
-    <>
-      {!isNil(checkboxSelected) && (
-        <Checkbox
-          checked={checkboxSelected}
-          className={classes.checkbox}
-          color="primary"
-          size="small"
-        />
-      )}
-      <Typography variant="body1">{children}</Typography>
-    </>
-  );
-};
+    return (
+      <div
+        className={classes.container}
+        ref={ref as React.RefObject<HTMLDivElement>}
+      >
+        {!isNil(checkboxSelected) && (
+          <Checkbox
+            checked={checkboxSelected}
+            className={classes.checkbox}
+            color="primary"
+            size="small"
+          />
+        )}
+        <Typography variant="body2">{children}</Typography>
+      </div>
+    );
+  },
+);
 
 export default Option;

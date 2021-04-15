@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import { equals } from 'ramda';
+import { equals, pick } from 'ramda';
 
 import {
   makeStyles,
@@ -106,6 +106,15 @@ const AutocompleteField = ({
 }: Props): JSX.Element => {
   const classes = useStyles();
 
+  const areSelectEntriesEqual = (option, value) => {
+    const identifyingProps = ['id', 'name'];
+
+    return equals(
+      pick(identifyingProps, option),
+      pick(identifyingProps, value),
+    );
+  };
+
   return (
     <Autocomplete
       classes={{
@@ -113,7 +122,7 @@ const AutocompleteField = ({
         inputRoot: classes.input,
       }}
       getOptionLabel={(option: SelectEntry): string => option.name}
-      getOptionSelected={equals}
+      getOptionSelected={areSelectEntriesEqual}
       loading={loading}
       loadingText={<LoadingIndicator />}
       options={options}
