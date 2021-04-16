@@ -109,6 +109,8 @@ sub send_log {
 
     return if (!defined($options{token}));
 
+    return if (defined($options{logging}) && $options{logging} =~ /^(?:false|0)$/);
+
     gorgone::standard::library::zmq_send_message(
         socket => (defined($options{socket})) ? $options{socket} : $self->{internal_socket},
         action => 'PUTLOG',

@@ -91,6 +91,7 @@ sub action_enginecommand {
         socket => $options{socket_log},
         code => GORGONE_ACTION_BEGIN,
         token => $options{token},
+        logging => $options{data}->{logging},
         data => {
             message => "commands processing has started",
             request_content => $options{data}->{content}
@@ -103,6 +104,7 @@ sub action_enginecommand {
             socket => $options{socket_log},
             code => GORGONE_ACTION_FINISH_KO,
             token => $options{token},
+            logging => $options{data}->{logging},
             data => {
                 message => "need command_file (config or call) argument"
             }
@@ -115,6 +117,7 @@ sub action_enginecommand {
             socket => $options{socket_log},
             code => GORGONE_ACTION_FINISH_KO,
             token => $options{token},
+            logging => $options{data}->{logging},
             data => {
                 message => "command file '$command_file' must exist"
             }
@@ -127,6 +130,7 @@ sub action_enginecommand {
             socket => $options{socket_log},
             code => GORGONE_ACTION_FINISH_KO,
             token => $options{token},
+            logging => $options{data}->{logging},
             data => {
                 message => "command file '$command_file' must be a pipe file"
             }
@@ -139,6 +143,7 @@ sub action_enginecommand {
             socket => $options{socket_log},
             code => GORGONE_ACTION_FINISH_KO,
             token => $options{token},
+            logging => $options{data}->{logging},
             data => {
                 message => "command file '$command_file' must be writeable"
             }
@@ -159,6 +164,7 @@ sub action_enginecommand {
                 socket => $options{socket_log},
                 code => GORGONE_ACTION_FINISH_OK,
                 token => $options{token},
+                logging => $options{data}->{logging},
                 data => {
                     message => "command has been submitted",
                     command => $command
@@ -176,6 +182,7 @@ sub action_enginecommand {
             socket => $options{socket_log},
             code => GORGONE_ACTION_FINISH_KO,
             token => $options{token},
+            logging => $options{data}->{logging},
             data => {
                 message => "submit engine command issue: $@"
             }
@@ -187,6 +194,7 @@ sub action_enginecommand {
         socket => $options{socket_log},
         code => GORGONE_ACTION_FINISH_OK,
         token => $options{token},
+        logging => $options{data}->{logging},
         data => {
             message => "commands processing has finished"
         }

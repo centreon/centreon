@@ -739,9 +739,9 @@ sub service_execute_commands {
                     target => $poller_id,
                     token => 'svc-disco-' . $self->{uuid} . '-' . $rule_id . '-' . $host_id,
                     data => {
+                        instant => 1,
                         content => [
                             {
-                                instant => 1,
                                 command => $command,
                                 timeout => 90
                             }

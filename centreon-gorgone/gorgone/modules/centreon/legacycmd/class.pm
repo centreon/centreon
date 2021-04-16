@@ -181,6 +181,7 @@ sub send_external_commands {
             target => $target,
             token => $token,
             data => {
+                logging => $options{logging},
                 content => {
                     command_file => $self->{pollers}->{$target}->{command_file},
                     commands => [
@@ -206,6 +207,7 @@ sub add_external_command {
             target => $options{target},
             token => $options{token},
             data => {
+                logging => $options{logging},
                 content => {
                     command_file => $self->{pollers}->{ $options{target} }->{command_file},
                     commands => [
@@ -241,7 +243,8 @@ sub execute_cmd {
             action => $options{action},
             param => $options{param},
             target => $options{target},
-            token => $options{token}
+            token => $options{token},
+            logging => $options{logging}
         );
         return 0;
     }
@@ -258,6 +261,7 @@ sub execute_cmd {
             target => $options{target},
             token => $token,
             data => {
+                logging => $options{logging},
                 content => {
                     source => $cache_dir . '/config/engine/' . $options{target},
                     destination => $self->{pollers}->{$options{target}}->{cfg_dir} . '/',
@@ -269,7 +273,7 @@ sub execute_cmd {
                         centcore_cmd => 'SENDCFGFILE'
                     }
                 }
-            },
+            }
         );
         # broker
         $self->send_internal_action(
@@ -277,6 +281,7 @@ sub execute_cmd {
             target => $options{target},
             token => $token,
             data => {
+                logging => $options{logging},
                 content => {
                     source => $cache_dir . '/config/broker/' . $options{target},
                     destination => $self->{pollers}->{$options{target}}->{centreonbroker_cfg_path} . '/',
@@ -305,6 +310,7 @@ sub execute_cmd {
             target => $options{target},
             token => $token,
             data => {
+                logging => $options{logging},
                 content => {
                     source => $cache_dir . '/config/export/' . $options{target},
                     destination => $remote_dir,
@@ -326,6 +332,7 @@ sub execute_cmd {
             token => $options{token},
             target => $options{target},
             data => {
+                logging => $options{logging},
                 content => {
                     parent_id => $options{param}
                 }
@@ -342,6 +349,7 @@ sub execute_cmd {
             target => $options{target},
             token => $token,
             data => {
+                logging => $options{logging},
                 content => {
                     source => $cache_dir_trap . '/' . $options{target} . '/centreontrapd.sdb',
                     destination => $self->{pollers}->{$options{target}}->{snmp_trapd_path_conf} . '/',
@@ -362,6 +370,7 @@ sub execute_cmd {
             target => $options{target},
             token => $token,
             data => {
+                logging => $options{logging},
                 content => [
                     {
                         command => 'sudo ' . $cmd,
@@ -380,6 +389,7 @@ sub execute_cmd {
             target => $options{target},
             token => $token,
             data => {
+                logging => $options{logging},
                 content => [
                     {
                         command => 'sudo ' . $cmd,
@@ -389,7 +399,7 @@ sub execute_cmd {
                         }
                     }
                 ]
-            },
+            }
         );
     } elsif ($options{cmd} eq 'START') {
         my $cmd = $self->{pollers}->{$options{target}}->{engine_start_command};
@@ -398,6 +408,7 @@ sub execute_cmd {
             target => $options{target},
             token => $token,
             data => {
+                logging => $options{logging},
                 content => [
                     {
                         command => 'sudo ' . $cmd,
@@ -416,6 +427,7 @@ sub execute_cmd {
             target => $options{target},
             token => $token,
             data => {
+                logging => $options{logging},
                 content => [
                     {
                         command => 'sudo ' . $cmd,
@@ -434,6 +446,7 @@ sub execute_cmd {
             target => $options{target},
             token => $token,
             data => {
+                logging => $options{logging},
                 content => [
                     {
                         command => 'sudo ' . $cmd,
@@ -452,6 +465,7 @@ sub execute_cmd {
             target => $options{target},
             token => $token,
             data => {
+                logging => $options{logging},
                 content => [
                     {
                         command => 'sudo service ' . $cmd . ' restart',
@@ -470,6 +484,7 @@ sub execute_cmd {
             target => $options{target},
             token => $token,
             data => {
+                logging => $options{logging},
                 content => [
                     {
                         command => 'sudo service ' . $cmd . ' reload',
@@ -494,6 +509,7 @@ sub execute_cmd {
             target => undef,
             token => $token,
             data => {
+                logging => $options{logging},
                 content => [
                     {
                         command => $cmd,
@@ -516,6 +532,7 @@ sub action_addimporttaskwithparent {
         $self->send_log(
             code => GORGONE_ACTION_FINISH_KO,
             token => $options{token},
+            logging => $options{data}->{logging},
             data => {
                 message => "expected parent_id task ID, found '" . $options{data}->{content}->{parent_id} . "'",
             }
@@ -530,6 +547,7 @@ sub action_addimporttaskwithparent {
         $self->send_log(
             code => GORGONE_ACTION_FINISH_KO,
             token => $options{token},
+            logging => $options{data}->{logging},
             data => {
                 message => "Cannot add import task on Remote Server.",
             }
@@ -545,17 +563,19 @@ sub action_addimporttaskwithparent {
         action => 'COMMAND',
         token => $options{token},
         data => {
+            logging => $options{data}->{logging},
             content => [
                 {
-                    command => $cmd,
+                    command => $cmd
                 }
             ]
-        },
+        }
     );
     
     $self->send_log(
         code => GORGONE_ACTION_FINISH_OK,
         token => $options{token},
+        logging => $options{data}->{logging},
         data => {
             message => 'Task inserted on Remote Server',
         }
@@ -610,7 +630,7 @@ sub handle_file {
         }
 
         if ($line =~ /^(.*?):([^:]*)(?::(.*)){0,1}/) {
-            $self->execute_cmd(action => 0, cmd => $1, target => $2, param => $3);
+            $self->execute_cmd(action => 0, cmd => $1, target => $2, param => $3, logging => 0);
             if ($self->{config}->{dirty_mode} != 1) {
                 my $current_pos = tell($handle);
                 seek($handle, $current_pos - bytes::length($line), 0);
@@ -678,7 +698,7 @@ sub handle_cmd_files {
     return if ($self->check_pollers_config() == 0);
     $self->handle_centcore_cmd();
     $self->handle_centcore_dir();
-    $self->send_external_commands();
+    $self->send_external_commands(logging => 0);
 }
 
 sub action_centreoncommand {
@@ -700,6 +720,7 @@ sub action_centreoncommand {
     }
 
     if ($self->check_pollers_config() == 0) {
+        $self->{logger}->writeLogError('[legacycmd] cannot get centreon database configuration');
         $self->send_log(code => GORGONE_ACTION_FINISH_KO, token => $options{token}, data => { message => 'cannot get centreon database configuration' });
         return 1;
     }
@@ -710,7 +731,8 @@ sub action_centreoncommand {
             token => $options{token},
             target => $command->{target},
             cmd => $command->{command},
-            param => $command->{param}
+            param => $command->{param},
+            logging => 1
         );
 
         if ($code == -1) {

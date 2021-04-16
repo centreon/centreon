@@ -480,9 +480,9 @@ sub launchhostdiscovery {
         target => $self->{hdisco_jobs_ids}->{$job_id}->{target},
         token => $self->{hdisco_jobs_ids}->{$job_id}->{token},
         data => {
+            instant => 1,
             content => [
                 {
-                    instant => 1,
                     command => $self->{hdisco_jobs_ids}->{$job_id}->{command_line},
                     timeout => $timeout,
                     metadata => {
@@ -742,9 +742,9 @@ sub discovery_command_result {
             action => $post_command->{action},
             token => $self->{hdisco_jobs_ids}->{$job_id}->{token},
             data => {
+                instant => 1,
                 content => [
                     {
-                        instant => 1,
                         command => $post_command->{command_line},
                         metadata => {
                             job_id => $job_id,

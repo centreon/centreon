@@ -1060,7 +1060,9 @@ sub prepare_remote_copy {
     my $buffer_size = (defined($config->{buffer_size})) ? $config->{buffer_size} : 500_000;
     my $buffer;
     while (my $bytes = sysread(FH, $buffer, $buffer_size)) {
-        push @actions, { content => {
+        push @actions, {
+            logging => $options{data}->{logging},
+            content => {
                 status => 'inprogress',
                 type => $type,
                 chunk => {
@@ -1077,6 +1079,7 @@ sub prepare_remote_copy {
     close FH;
 
     push @actions, {
+        logging => $options{data}->{logging},
         content => {
             status => 'end',
             type => $type,

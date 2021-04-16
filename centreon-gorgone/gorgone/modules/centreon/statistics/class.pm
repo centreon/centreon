@@ -195,9 +195,9 @@ sub action_brokerstats {
             action => 'COMMAND',
             token => $options{token} . '-' . $target,
             data => {
+                instant => 1,
                 content => [ 
                     {
-                        instant => 1,
                         command => 'cat ' . $statistics_file,
                         timeout => $options{data}->{content}->{timeout},
                         metadata => {
@@ -267,9 +267,9 @@ sub action_enginestats {
             action => 'COMMAND',
             token => $options{token} . '-' . $target,
             data => {
+                instant => 1,
                 content => [ 
                     {
-                        instant => 1,
                         command => $enginestats_file . ' -c ' . $config_file,
                         timeout => $options{data}->{content}->{timeout},
                         metadata => {
