@@ -1,7 +1,8 @@
 import dayjs from 'dayjs';
-import humanizeDuration from 'humanize-duration';
-
 import 'dayjs/plugin/timezone';
+import 'dayjs/plugin/utc';
+import humanizeDuration from 'humanize-duration';
+import { equals } from 'ramda';
 
 import { useUserContext } from '@centreon/ui-context';
 
@@ -31,10 +32,12 @@ const useLocaleDateTimeFormat = (): LocaleDateTimeFormat => {
   const format = ({ date, formatString }: FormatParameters): string => {
     const normalizedLocale = locale.substring(0, 2);
 
-    return dayjs(date)
-      .tz(timezone)
-      .locale(normalizedLocale)
-      .format(formatString);
+    const dayjsDate = dayjs(date);
+    const timezoneDate = equals(timezone, 'UTC')
+      ? dayjsDate.utc()
+      : dayjsDate.tz(timezone);
+
+    return timezoneDate.locale(normalizedLocale).format(formatString);
   };
 
   const toDateTime = (date: Date | string): string => {
