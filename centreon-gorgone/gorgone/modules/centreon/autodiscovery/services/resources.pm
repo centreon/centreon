@@ -324,7 +324,7 @@ sub get_hosts {
     
     my $filter_poller = '';
     my $join_table = '';
-    if (defined($options{poller_lookup}) && ref($options{host_lookup}) eq 'ARRAY' && scalar(@{$options{poller_lookup}}) > 0) {
+    if (defined($options{poller_lookup}) && ref($options{poller_lookup}) eq 'ARRAY' && scalar(@{$options{poller_lookup}}) > 0) {
         my $filter_append = '';
         foreach (@{$options{poller_lookup}}) {
             $filter_poller .= $filter_append . $options{class_object_centreon}->quote(value => $_);
