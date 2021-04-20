@@ -18,7 +18,7 @@
 
 $module_conf['centreon-awie']['rname'] = 'Centreon Api Web Import Export';
 $module_conf['centreon-awie']['name'] = 'centreon-awie';
-$module_conf['centreon-awie']["mod_release"] = "21.04.0-beta.2";
+$module_conf['centreon-awie']["mod_release"] = "21.04.0";
 $module_conf['centreon-awie']["infos"] = "The Centreon AWIE (Application Web Import Export) module has been " .
     "designed to help users configure several Centreon Web platforms in a faster and easier way, thanks to its " .
     "import/export mechanism.
@@ -32,9 +32,9 @@ Centreon AWIE is based on CLAPI commands but its added value is to allow using C
 $module_conf['centreon-awie']["is_removeable"] = "1";
 $module_conf['centreon-awie']["author"] = "Centreon";
 $module_conf['centreon-awie']["stability"] = "stable";
-$module_conf['centreon-awie']["last_update"] = "2021-04-13";
+$module_conf['centreon-awie']["last_update"] = "2021-04-20";
 $module_conf['centreon-awie']["release_note"] =
-    "https://documentation.centreon.com/20.10/en/releases/centreon-os-extensions.html";
+    "https://documentation.centreon.com/21.04/en/releases/centreon-os-extensions.html";
 $module_conf['centreon-awie']["images"] = [
     'images/image1.png'
 ];
