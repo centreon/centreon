@@ -1,7 +1,7 @@
 /*
 ** Variables.
 */
-def serie = '21.04'
+def serie = '21.10'
 def maintenanceBranch = "${serie}.x"
 if (env.BRANCH_NAME.startsWith('release-')) {
   env.BUILD = 'RELEASE'
