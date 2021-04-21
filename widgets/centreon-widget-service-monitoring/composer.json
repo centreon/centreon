@@ -1,7 +1,7 @@
 {
   "name": "centreon/centreon-widget-service-monitoring",
   "description": "Interactive service event console widget to display the services status",
-  "version": "21.04.0",
+  "version": "21.10.0",
   "type": "project",
   "license": "GPL-2.0-only",
   "scripts": {
