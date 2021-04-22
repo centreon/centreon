@@ -1,7 +1,7 @@
 {
   "name": "centreon/centreon-widget-grid-map",
   "description": "Grid map widget to display the status of services for a set of hosts",
-  "version": "21.04.0",
+  "version": "21.10.0",
   "type": "project",
   "license": "GPL-2.0-only",
   "scripts": {
