@@ -1,6 +1,17 @@
 import * as React from 'react';
 
-import { equals, find, indexOf, isNil, move, path, prop, propEq } from 'ramda';
+import {
+  equals,
+  find,
+  indexOf,
+  isNil,
+  map,
+  move,
+  path,
+  pick,
+  prop,
+  propEq,
+} from 'ramda';
 import {
   DndContext,
   DragOverlay,
@@ -115,6 +126,7 @@ const ListingHeader = ({
   const getColumnById = (id: string): Column => {
     return find(propEq('id', id), columns) as Column;
   };
+
   return (
     <DndContext
       sensors={sensors}
@@ -164,6 +176,15 @@ const ListingHeader = ({
   );
 };
 
+const columnMemoProps = [
+  'id',
+  'label',
+  'rowMemoProps',
+  'sortField',
+  'sortable',
+  'type',
+];
+
 const MemoizedListingHeader = React.memo(
   ListingHeader,
   (prevProps, nextProps) =>
@@ -171,7 +192,10 @@ const MemoizedListingHeader = React.memo(
     equals(prevProps.sortField, nextProps.sortField) &&
     equals(prevProps.selectedRowCount, nextProps.selectedRowCount) &&
     equals(prevProps.rowCount, nextProps.rowCount) &&
-    equals(prevProps.columns, nextProps.columns) &&
+    equals(
+      map(pick(columnMemoProps), prevProps.columns),
+      map(pick(columnMemoProps), nextProps.columns),
+    ) &&
     equals(prevProps.checkable, nextProps.checkable) &&
     equals(prevProps.columnConfiguration, nextProps.columnConfiguration),
 );

@@ -2,17 +2,28 @@
 
 import * as React from 'react';
 
-import { equals } from 'ramda';
+import { equals, not, pluck } from 'ramda';
 
 import { TableRowProps, TableRow, makeStyles, Theme } from '@material-ui/core';
 
-import { ColumnConfiguration, RowColorCondition } from './models';
+import { useViewportIntersection } from '../utils/useViewportIntersection';
 
-const useStyles = makeStyles<Theme>(() => {
+import { Column, ColumnConfiguration, RowColorCondition } from './models';
+
+const useStyles = makeStyles<Theme>((theme) => {
   return {
+    intersectionRow: {
+      display: 'contents',
+      width: '100%',
+    },
     row: {
       cursor: 'pointer',
       display: 'contents',
+      width: '100%',
+    },
+    skeleton: {
+      height: theme.spacing(2.5),
+      margin: theme.spacing(0.5, 0),
       width: '100%',
     },
   };
@@ -26,16 +37,21 @@ type Props = {
   isSelected?: boolean;
   row;
   rowColorConditions: Array<RowColorCondition>;
+  visibleColumns: Array<Column>;
 } & TableRowProps;
 
-const Row = React.memo<Props>(
+type RowProps = {
+  isInViewport: boolean;
+} & Props;
+
+const Row = React.memo<RowProps>(
   ({
     children,
     tabIndex,
     onMouseOver,
     onFocus,
     onClick,
-  }: Props & TableRowProps): JSX.Element => {
+  }: RowProps): JSX.Element => {
     const classes = useStyles();
 
     return (
@@ -55,11 +71,29 @@ const Row = React.memo<Props>(
     const {
       row: previousRow,
       rowColorConditions: previousRowColorConditions,
+      visibleColumns: previousVisibleColumns,
     } = prevProps;
     const {
       row: nextRow,
       rowColorConditions: nextRowColorConditions,
+      isInViewport: nextIsInViewport,
+      visibleColumns: nextVisibleColumns,
     } = nextProps;
+
+    if (
+      not(
+        equals(
+          pluck('id', previousVisibleColumns),
+          pluck('id', nextVisibleColumns),
+        ),
+      )
+    ) {
+      return false;
+    }
+
+    if (not(nextIsInViewport)) {
+      return true;
+    }
 
     const previousRowColors = previousRowColorConditions?.map(({ condition }) =>
       condition(previousRow),
@@ -80,4 +114,22 @@ const Row = React.memo<Props>(
   },
 );
 
-export default Row;
+const IntersectionRow = (props: Props): JSX.Element => {
+  const rowRef = React.useRef<HTMLDivElement | null>(null);
+  const { isInViewport, setElement } = useViewportIntersection();
+  const classes = useStyles();
+
+  const getFirstCellElement = () => rowRef.current?.firstChild?.firstChild;
+
+  React.useEffect(() => {
+    setElement(getFirstCellElement() as HTMLDivElement);
+  }, [getFirstCellElement()]);
+
+  return (
+    <div className={classes.intersectionRow} ref={rowRef}>
+      <Row {...props} isInViewport={isInViewport} />
+    </div>
+  );
+};
+
+export default IntersectionRow;

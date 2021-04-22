@@ -242,6 +242,11 @@ const Listing = <TRow extends { id: RowId }>({
     return `${checkbox}${columnTemplate}`;
   };
 
+  const visibleColumns = getVisibleColumns({
+    columnConfiguration,
+    columns,
+  });
+
   return (
     <>
       {loading && rows.length > 0 && (
@@ -321,6 +326,7 @@ const Listing = <TRow extends { id: RowId }>({
                     row={row}
                     rowColorConditions={rowColorConditions}
                     tabIndex={-1}
+                    visibleColumns={visibleColumns}
                     onClick={(): void => {
                       onRowClick(row);
                     }}
@@ -345,10 +351,7 @@ const Listing = <TRow extends { id: RowId }>({
                       </Cell>
                     )}
 
-                    {getVisibleColumns({
-                      columnConfiguration,
-                      columns,
-                    }).map((column) => (
+                    {visibleColumns.map((column) => (
                       <DataCell
                         column={column}
                         isRowHovered={isRowHovered}
