@@ -11,8 +11,8 @@ Name:           centreon-awie
 Version:        @VERSION@
 Release:        @RELEASE@%{?dist}
 Summary:        Centreon API Web Import Export
-%define thismajor 21.04.0
-%define nextmajor 21.05.0
+%define thismajor 21.10.0
+%define nextmajor 21.11.0
 
 Group:          Applications/System
 License:        Proprietary
