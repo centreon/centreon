@@ -16,7 +16,6 @@ Please include a short resume of the changes and what is the purpose of PR. Any 
 
 ## Target serie
 
-- [ ] 19.10.x
 - [ ] 20.04.x
 - [ ] 20.10.x
 - [ ] 21.04.x
