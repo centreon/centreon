@@ -1,80 +1,20 @@
 module.exports = {
-  extends: ['./index.eslintrc.js'],
-  root: true,
+  extends: ['./index.eslintrc.js', '../base.typescript.eslintrc.js'],
   overrides: [
     {
+      extends: [
+        'plugin:@typescript-eslint/recommended',
+        'plugin:typescript-sort-keys/recommended',
+      ],
       files: ['*.ts', '*.tsx'],
-      extends: ['plugin:@typescript-eslint/recommended', 'plugin:typescript-sort-keys/recommended'],
       parser: '@typescript-eslint/parser',
       plugins: ['@typescript-eslint', 'typescript-sort-keys'],
-      settings: {
-        'import/resolver': {
-          alias: {
-            extensions: ['.ts', '.tsx', '.js', '.jsx'],
-          },
-        },
-      },
       rules: {
         'react/jsx-filename-extension': [
           'error',
           { extensions: ['.jsx', '.tsx'] },
         ],
-        camelcase: 'off',
-        '@typescript-eslint/camelcase': 'off',
-        '@typescript-eslint/naming-convention': [
-          'error',
-          {
-            selector: 'variable',
-            format: ['camelCase', 'PascalCase'],
-          },
-          {
-            selector: 'property',
-            format: ['snake_case', 'camelCase', 'PascalCase'],
-            filter: {
-              regex: '(__esModule|.+-.+)',
-              match: false,
-            },
-          },
-          {
-            selector: 'parameter',
-            format: ['snake_case', 'camelCase', 'PascalCase'],
-            filter: {
-              regex: '^_$',
-              match: false,
-            },
-          },
-        ],
-        '@typescript-eslint/prefer-function-type': 'error',
-        '@typescript-eslint/consistent-type-definitions': [
-          'error',
-          'interface',
-        ],
-        '@typescript-eslint/array-type': [
-          'error',
-          {
-            default: 'generic',
-            readonly: 'generic',
-          },
-        ],
-        '@typescript-eslint/explicit-member-accessibility': [
-          'error',
-          {
-            accessibility: 'explicit',
-            overrides: {
-              accessors: 'explicit',
-              constructors: 'explicit',
-              methods: 'explicit',
-              properties: 'explicit',
-              parameterProperties: 'explicit',
-            },
-          },
-        ],
-        '@typescript-eslint/no-unused-expressions': ['error'],
-        'no-unused-expressions': 'off',
         'react/require-default-props': 'off',
-        'no-shadow': 'off',
-        '@typescript-eslint/no-shadow': ['error'],
-        '@typescript-eslint/no-unused-vars': ['error'],
       },
     },
   ],

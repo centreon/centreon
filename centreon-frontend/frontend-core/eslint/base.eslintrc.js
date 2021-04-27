@@ -1,5 +1,4 @@
 module.exports = {
-  root: true,
   extends: ['plugin:prettier/recommended'],
   globals: {
     Atomics: 'readonly',
@@ -11,20 +10,10 @@ module.exports = {
     sourceType: 'module',
   },
   plugins: ['prefer-arrow-functions', 'sort-keys-fix'],
+  root: true,
 
   rules: {
-    'prettier/prettier': [
-      'error',
-      {
-        singleQuote: true,
-        arrowParens: 'always',
-        trailingComma: 'all',
-        endOfLine: 'auto',
-      },
-    ],
-    'import/no-extraneous-dependencies': ['error', { devDependencies: true }],
-
-    'import/prefer-default-export': 'off',
+    camelcase: ['error', { ignoreDestructuring: true, properties: 'never' }],
     'import/extensions': [
       'error',
       'ignorePackages',
@@ -32,8 +21,19 @@ module.exports = {
         js: 'never',
       },
     ],
+
+    'import/no-extraneous-dependencies': ['error', { devDependencies: true }],
+    'import/prefer-default-export': 'off',
     'prefer-arrow-functions/prefer-arrow-functions': ['error'],
-    camelcase: ['error', { properties: 'never', ignoreDestructuring: true }],
-    'sort-keys-fix/sort-keys-fix': ['error', 'asc', { natural: true }]
+    'prettier/prettier': [
+      'error',
+      {
+        arrowParens: 'always',
+        endOfLine: 'auto',
+        singleQuote: true,
+        trailingComma: 'all',
+      },
+    ],
+    'sort-keys-fix/sort-keys-fix': ['error', 'asc', { natural: true }],
   },
 };
