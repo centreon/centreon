@@ -431,6 +431,7 @@ sub generate_lua_filter_file {
     foreach (values %{$self->{centreon_metrics}}) {
         next if ($_->{saas_to_delete} == 1);
         next if (!defined($_->{saas_creation_date}));
+        next if (!defined($_->{host_id}));
 
         $data->{filters}->{ $_->{host_id} } = {}
             if (!defined($data->{filters}->{ $_->{host_id} }));
