@@ -107,5 +107,6 @@ try {
     $importReturn['error'] = $e->getMessage();
 }
 unlink($uploadFile);
+unlink($finalFile);
 echo json_encode($importReturn);
 exit;
