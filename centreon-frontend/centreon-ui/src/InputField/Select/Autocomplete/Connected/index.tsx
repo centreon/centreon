@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import { equals, prop, last, isEmpty } from 'ramda';
+import { equals, prop, last, isEmpty, map, isNil } from 'ramda';
 
 import { Typography, CircularProgress, useTheme } from '@material-ui/core';
 import debounce from '@material-ui/core/utils/debounce';
@@ -9,7 +9,7 @@ import { Props as AutocompleteFieldProps } from '..';
 import useRequest from '../../../../api/useRequest';
 import { getData } from '../../../../api';
 import useIntersectionObserver from '../../../../utils/useIntersectionObserver';
-import { ListingModel } from '../../../..';
+import { ListingModel, SelectEntry } from '../../../..';
 import Option from '../../Option';
 
 export interface ConnectedAutoCompleteFieldProps {
@@ -31,15 +31,16 @@ const ConnectedAutocompleteField = (
     initialPage = 1,
     getEndpoint,
     field,
-    search,
+    search = {},
+    open,
     ...props
   }: ConnectedAutoCompleteFieldProps &
     Omit<AutocompleteFieldProps, 'options'>): JSX.Element => {
     const [options, setOptions] = React.useState<Array<TData>>([]);
-    const [optionsOpen, setOptionsOpen] = React.useState<boolean>(false);
     const [searchValue, setSearchValue] = React.useState<string>('');
     const [page, setPage] = React.useState(1);
     const [maxPage, setMaxPage] = React.useState(initialPage);
+    const [optionsOpen, setOptionsOpen] = React.useState(open || false);
 
     const theme = useTheme();
 
@@ -50,6 +51,7 @@ const ConnectedAutocompleteField = (
     const loadOptions = ({ endpoint, loadMore = false }) => {
       sendRequest(endpoint).then(({ result, meta }) => {
         const moreOptions = loadMore ? options : [];
+
         setOptions(moreOptions.concat(result));
 
         const total = prop('total', meta) || 1;
@@ -59,20 +61,53 @@ const ConnectedAutocompleteField = (
       });
     };
 
-    const lastItemElementRef = useIntersectionObserver({
+    const lastOptionRef = useIntersectionObserver({
       action: () => setPage(page + 1),
       loading: sending,
       maxPage,
       page,
     });
 
-    const getSearchOption = (value: string) => {
+    const getSearchCondition = () => {
+      const { value: selectedValue } = props;
+
+      if (isEmpty(selectedValue || [])) {
+        return undefined;
+      }
+
+      const selectedValues = Array.isArray(selectedValue)
+        ? selectedValue
+        : [selectedValue];
+
+      return {
+        conditions: [
+          {
+            field: 'id',
+            values: {
+              $ni: map(prop('id'), selectedValues as Array<SelectEntry>),
+            },
+          },
+        ],
+      };
+    };
+
+    const getSearchWithCondition = () => {
+      const searchCondition = getSearchCondition();
+
+      if (isNil(searchCondition)) {
+        return equals(search, {}) ? undefined : search;
+      }
+
+      return { ...search, ...getSearchCondition() };
+    };
+
+    const getSearchParameter = (value: string) => {
       if (isEmpty(value)) {
-        return search;
+        return getSearchWithCondition();
       }
 
       return {
-        ...(search || {}),
+        ...getSearchWithCondition(),
         regex: {
           fields: [field],
           value,
@@ -86,7 +121,7 @@ const ConnectedAutocompleteField = (
           loadOptions({
             endpoint: getEndpoint({
               page: initialPage,
-              search: getSearchOption(value),
+              search: getSearchParameter(value),
             }),
           });
         }
@@ -100,36 +135,35 @@ const ConnectedAutocompleteField = (
       setSearchValue(event.target.value);
     };
 
-    const openOptions = (): void => {
-      setOptionsOpen(true);
-    };
-
-    const closeOptions = (): void => {
-      setOptionsOpen(false);
-    };
-
     const renderOptions = (option, { selected }): JSX.Element => {
-      const isLastElement = equals(last(options))(option);
-      const refProp = isLastElement ? { ref: lastItemElementRef } : {};
+      const { value } = props;
+
+      const lastValue = Array.isArray(value) ? last(value) : value;
+      const lastPreSelectedValue = equals(lastValue)(option);
+      const lastOption = last(options);
+
+      const isLastOption = equals(lastOption)(option) && page > 1;
+      const ref = isLastOption ? { ref: lastOptionRef } : {};
 
       return (
         <div style={{ width: '100%' }}>
           <div>
             {multiple ? (
-              <Option checkboxSelected={selected} {...refProp}>
+              <Option checkboxSelected={selected} {...ref}>
                 {option.name}
               </Option>
             ) : (
-              <Typography variant="body2" {...refProp}>
+              <Typography variant="body2" {...ref}>
                 {option.name}
               </Typography>
             )}
           </div>
-          {isLastElement && page > 1 && sending && (
-            <div style={{ textAlign: 'center', width: '100%' }}>
-              <CircularProgress size={theme.spacing(2.5)} />
-            </div>
-          )}
+          {isLastOption ||
+            (lastPreSelectedValue && sending && (
+              <div style={{ textAlign: 'center', width: '100%' }}>
+                <CircularProgress size={theme.spacing(2.5)} />
+              </div>
+            ))}
         </div>
       );
     };
@@ -143,7 +177,10 @@ const ConnectedAutocompleteField = (
       }
 
       loadOptions({
-        endpoint: getEndpoint({ page, search: getSearchOption(searchValue) }),
+        endpoint: getEndpoint({
+          page,
+          search: getSearchParameter(searchValue),
+        }),
         loadMore: page > 1,
       });
     }, [optionsOpen, page]);
@@ -152,10 +189,11 @@ const ConnectedAutocompleteField = (
       <AutocompleteField
         filterOptions={(opt) => opt}
         loading={sending}
+        open={open}
         options={options}
         renderOption={renderOptions}
-        onClose={closeOptions}
-        onOpen={openOptions}
+        onClose={() => setOptionsOpen(false)}
+        onOpen={() => setOptionsOpen(true)}
         onTextChange={changeText}
         {...props}
       />

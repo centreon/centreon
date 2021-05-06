@@ -1,4 +1,4 @@
-import React from 'react';
+import * as React from 'react';
 
 import axios from 'axios';
 import {
@@ -46,7 +46,6 @@ const renderSingleAutocompleteField = (): RenderResult =>
     <SingleAutocompleteField
       field="host.name"
       getEndpoint={getEndpoint}
-      initialPage={1}
       label={label}
       placeholder="Type here..."
     />,

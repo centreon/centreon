@@ -16,10 +16,14 @@ const useStyles = makeStyles((theme) => ({
 type Props = {
   ariaLabel?: string;
   onClick: (event) => void;
-  title: string;
+  title?: string;
 } & IconButtonProps;
 
-const IconButton = ({ title, ariaLabel, ...props }: Props): JSX.Element => {
+const IconButton = ({
+  title = '',
+  ariaLabel,
+  ...props
+}: Props): JSX.Element => {
   const classes = useStyles();
 
   return (

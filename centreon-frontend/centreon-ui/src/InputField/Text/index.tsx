@@ -104,6 +104,7 @@ const TextField = React.forwardRef(
         error={!isNil(error)}
         helperText={error}
         inputProps={{
+          ...rest.inputProps,
           'aria-label': ariaLabel,
           className: clsx(classes.input, {
             [classes.noLabelInput]: !label && not(isSizeEqualTo(Size.compact)),

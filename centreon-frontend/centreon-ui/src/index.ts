@@ -13,11 +13,13 @@ export type { SingleAutocompleteFieldProps };
 
 export { default as MultiAutocompleteField } from './InputField/Select/Autocomplete/Multi';
 export type { Props as MultiAutocompleteFieldProps } from './InputField/Select/Autocomplete/Multi';
+export { default as PopoverMultiAutocompleteField } from './InputField/Select/Autocomplete/Multi/Popover';
 
 export { default as SingleConnectedAutocompleteField } from './InputField/Select/Autocomplete/Connected/Single';
-export { default as MultiConnectedAutocompleteField } from './InputField/Select/Autocomplete/Connected/Multi';
+export { default as MultiConnectedAutocompleteField } from './InputField/Select/Autocomplete/Connected/Multi/index';
 export { default as DraggableAutocompleteField } from './InputField/Select/Autocomplete/Draggable/Multi';
 export { default as DraggableConnectedAutocompleteField } from './InputField/Select/Autocomplete/Draggable/MultiConnected';
+export { default as PopoverMultiConnectedAutocompleteField } from './InputField/Select/Autocomplete/Connected/Multi/Popover';
 export { default as SearchField } from './InputField/Search';
 export { default as RegexpHelpTooltip } from './InputField/Search/RegexpHelpTooltip';
 
@@ -116,3 +118,4 @@ export type {
 
 export { default as useMemoComponent } from './utils/useMemoComponent';
 export { default as MenuSkeleton } from './MenuSkeleton';
+export { default as PopoverMenu } from './PopoverMenu';

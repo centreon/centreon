@@ -1,5 +1,7 @@
 import * as React from 'react';
 
+import { includes, map, prop, reject } from 'ramda';
+
 import { Chip, makeStyles } from '@material-ui/core';
 import { UseAutocompleteProps } from '@material-ui/lab';
 
@@ -35,11 +37,15 @@ export type Props = Omit<
     'multiple'
   >;
 
-const MultiAutocompleteField = (props: Props): JSX.Element => {
+const MultiAutocompleteField = ({
+  value,
+  options,
+  ...props
+}: Props): JSX.Element => {
   const classes = useStyles();
 
-  const renderTags = (value, getTagProps): Array<JSX.Element> =>
-    value.map((option, index) => (
+  const renderTags = (renderedValue, getTagProps): Array<JSX.Element> =>
+    renderedValue.map((option, index) => (
       <Chip
         classes={{
           deleteIcon: classes.deleteIcon,
@@ -52,15 +58,28 @@ const MultiAutocompleteField = (props: Props): JSX.Element => {
       />
     ));
 
+  const values = (value as Array<SelectEntry>) || [];
+
+  const isOptionSelected = ({ id }): boolean => {
+    const valueIds = map(prop('id'), values);
+
+    return includes(id, valueIds);
+  };
+
+  const sortedOptions = [...values, ...reject(isOptionSelected, options)];
+
   return (
     <Autocomplete
       disableCloseOnSelect
+      displayOptionThumbnail
       multiple
       getLimitTagsText={(more) => <Option>{`+${more}`}</Option>}
+      options={sortedOptions}
       renderOption={(option, { selected }): JSX.Element => (
         <Option checkboxSelected={selected}>{option.name}</Option>
       )}
       renderTags={renderTags}
+      value={value}
       {...props}
     />
   );

@@ -3,7 +3,6 @@ import * as React from 'react';
 import axios from 'axios';
 import MockAdapter from 'axios-mock-adapter';
 
-import { SelectEntry } from '../..';
 import { buildListingEndpoint } from '../../../..';
 
 import SingleConnectedAutocompleteField from './Single';
@@ -56,8 +55,6 @@ export const single = (): JSX.Element => (
     getEndpoint={(parameters) => {
       return getEndpoint({ endpoint: baseEndpoint, parameters });
     }}
-    getOptionsFromResult={(result): Array<SelectEntry> => result}
-    initialPage={1}
     label="Single Connected Autocomplete"
     placeholder="Type here..."
   />
@@ -69,8 +66,6 @@ export const multi = (): JSX.Element => (
     getEndpoint={(parameters) => {
       return getEndpoint({ endpoint: baseEndpoint, parameters });
     }}
-    getOptionsFromResult={(result): Array<SelectEntry> => result}
-    initialPage={1}
     label="Multi Connected Autocomplete"
     placeholder="Type here..."
   />
