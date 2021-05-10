@@ -28,18 +28,19 @@ type Multiple = boolean;
 type DisableClearable = boolean;
 type FreeSolo = boolean;
 
-export type Props = Omit<
-  AutocompleteProps,
-  'renderTags' | 'renderOption' | 'multiple'
-> &
-  Omit<
-    UseAutocompleteProps<SelectEntry, Multiple, DisableClearable, FreeSolo>,
-    'multiple'
-  >;
+export interface Props
+  extends Omit<AutocompleteProps, 'renderTags' | 'renderOption' | 'multiple'>,
+    Omit<
+      UseAutocompleteProps<SelectEntry, Multiple, DisableClearable, FreeSolo>,
+      'multiple'
+    > {
+  disableSortedOptions?: boolean;
+}
 
 const MultiAutocompleteField = ({
   value,
   options,
+  disableSortedOptions = false,
   ...props
 }: Props): JSX.Element => {
   const classes = useStyles();
@@ -66,7 +67,9 @@ const MultiAutocompleteField = ({
     return includes(id, valueIds);
   };
 
-  const sortedOptions = [...values, ...reject(isOptionSelected, options)];
+  const autocompleteOptions = disableSortedOptions
+    ? options
+    : [...values, ...reject(isOptionSelected, options)];
 
   return (
     <Autocomplete
@@ -74,7 +77,7 @@ const MultiAutocompleteField = ({
       displayOptionThumbnail
       multiple
       getLimitTagsText={(more) => <Option>{`+${more}`}</Option>}
-      options={sortedOptions}
+      options={autocompleteOptions}
       renderOption={(option, { selected }): JSX.Element => (
         <Option checkboxSelected={selected}>{option.name}</Option>
       )}

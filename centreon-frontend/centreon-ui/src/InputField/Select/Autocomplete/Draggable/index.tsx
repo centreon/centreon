@@ -10,7 +10,11 @@ import {
   F,
   length,
   isEmpty,
+  isNil,
+  not,
 } from 'ramda';
+
+import { Typography } from '@material-ui/core';
 
 import { SelectEntry } from '../..';
 import { ConnectedAutoCompleteFieldProps } from '../Connected';
@@ -38,6 +42,7 @@ const DraggableAutocomplete = (
     const [totalValues, setTotalValues] = React.useState<number>(
       length(initialValues || []),
     );
+    const [inputText, setInputText] = React.useState<string | null>(null);
 
     const onChangeSelectedValuesOrder = (newSelectedValues) => {
       setSelectedValues(newSelectedValues);
@@ -74,6 +79,7 @@ const DraggableAutocomplete = (
         },
       ]);
       setTotalValues(inc(totalValues));
+      setInputText(null);
     };
 
     const renderTags = () => {
@@ -86,22 +92,50 @@ const DraggableAutocomplete = (
       );
     };
 
+    const changeInput = (e: React.ChangeEvent<HTMLInputElement>): void => {
+      if (pipe(isNil, not)(e)) {
+        setInputText(e.target.value);
+      }
+    };
+
+    const blurInput = (): void => {
+      if (inputText) {
+        setSelectedValues((values) => [
+          ...values,
+          {
+            createOption: inputText,
+            id: totalValues,
+            name: inputText,
+          },
+        ]);
+        setTotalValues(inc(totalValues));
+      }
+      setInputText(null);
+    };
+
+    const renderOption = (option): JSX.Element => (
+      <Typography variant="body2">{option.name}</Typography>
+    );
+
     React.useEffect(() => {
       onSelectedValuesChange?.(selectedValues);
     }, [selectedValues]);
 
     return (
       <MultiAutocomplete
-        clearOnBlur
+        disableSortedOptions
         freeSolo
         handleHomeEndKeys
         selectOnFocus
         disableCloseOnSelect={false}
         displayCheckboxOption={false}
         getOptionSelected={F}
+        renderOption={renderOption}
         renderTags={renderTags}
         value={selectedValues}
+        onBlur={blurInput}
         onChange={onChange}
+        onInputChange={changeInput}
         {...props}
       />
     );
