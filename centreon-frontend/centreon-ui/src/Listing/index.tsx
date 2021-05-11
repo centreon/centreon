@@ -92,7 +92,8 @@ export interface Props<TRow> {
   columnConfiguration?: ColumnConfiguration;
   columns: Array<Column>;
   currentPage?: number;
-  disableRowCheckCondition?;
+  disableRowCheckCondition?: (row) => boolean;
+  disableRowCondition?: (row) => boolean;
   expanded?: boolean;
   getId?: (row: TRow) => RowId;
   innerScrollDisabled?: boolean;
@@ -138,6 +139,7 @@ const Listing = <TRow extends { id: RowId }>({
   innerScrollDisabled = false,
   actions,
   disableRowCheckCondition = (): boolean => false,
+  disableRowCondition = (): boolean => false,
   onPaginate,
   onLimitChange,
   onRowClick = (): void => undefined,
@@ -314,12 +316,14 @@ const Listing = <TRow extends { id: RowId }>({
             >
               {rows.map((row) => {
                 const isRowSelected = isSelected(row);
+
                 const isRowHovered = equals(hoveredRowId, getId(row));
 
                 return (
                   <ListingRow
                     columnConfiguration={columnConfiguration}
                     columnIds={columns.map(prop('id'))}
+                    disableRowCondition={disableRowCondition}
                     isHovered={isRowHovered}
                     isSelected={isRowSelected}
                     key={getId(row)}
@@ -336,6 +340,7 @@ const Listing = <TRow extends { id: RowId }>({
                     {checkable && (
                       <Cell
                         align="left"
+                        disableRowCondition={disableRowCondition}
                         isRowHovered={isRowHovered}
                         row={row}
                         rowColorConditions={rowColorConditions}
@@ -343,7 +348,10 @@ const Listing = <TRow extends { id: RowId }>({
                       >
                         <Checkbox
                           checked={isRowSelected}
-                          disabled={disableRowCheckCondition(row)}
+                          disabled={
+                            disableRowCheckCondition(row) ||
+                            disableRowCondition(row)
+                          }
                           inputProps={{
                             'aria-label': `Select row ${getId(row)}`,
                           }}
@@ -354,6 +362,7 @@ const Listing = <TRow extends { id: RowId }>({
                     {visibleColumns.map((column) => (
                       <DataCell
                         column={column}
+                        disableRowCondition={disableRowCondition}
                         isRowHovered={isRowHovered}
                         isRowSelected={isRowSelected}
                         key={`${getId(row)}-${column.id}`}
@@ -374,6 +383,7 @@ const Listing = <TRow extends { id: RowId }>({
                   <Cell
                     align="center"
                     className={classes.emptyDataCell}
+                    disableRowCondition={() => false}
                     isRowHovered={false}
                     style={{
                       gridColumn: `auto / span ${columns.length + 1}`,

@@ -11,7 +11,16 @@ const useStyles = makeStyles((theme) => ({
     '&:last-child': {
       paddingRight: ({ compact }: Props) => theme.spacing(compact ? 0 : 2),
     },
-    backgroundColor: ({ isRowHovered, row, rowColorConditions }: Props) => {
+    backgroundColor: ({
+      isRowHovered,
+      row,
+      rowColorConditions,
+      disableRowCondition,
+    }: Props) => {
+      if (disableRowCondition(row)) {
+        return fade(theme.palette.common.black, 0.08);
+      }
+
       if (isRowHovered) {
         return fade(theme.palette.primary.main, 0.08);
       }
@@ -32,7 +41,10 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 interface Props
-  extends Pick<DataCellProps, 'isRowHovered' | 'row' | 'rowColorConditions'>,
+  extends Pick<
+      DataCellProps,
+      'isRowHovered' | 'row' | 'rowColorConditions' | 'disableRowCondition'
+    >,
     TableCellProps {
   compact?: boolean;
 }

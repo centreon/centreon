@@ -33,6 +33,7 @@ type Props = {
   children;
   columnConfiguration?: ColumnConfiguration;
   columnIds: Array<string>;
+  disableRowCondition: (row) => boolean;
   isHovered?: boolean;
   isSelected?: boolean;
   row;
@@ -119,7 +120,8 @@ const IntersectionRow = (props: Props): JSX.Element => {
   const { isInViewport, setElement } = useViewportIntersection();
   const classes = useStyles();
 
-  const getFirstCellElement = () => rowRef.current?.firstChild?.firstChild;
+  const getFirstCellElement = () =>
+    rowRef.current?.firstChild?.firstChild?.firstChild;
 
   React.useEffect(() => {
     setElement(getFirstCellElement() as HTMLDivElement);

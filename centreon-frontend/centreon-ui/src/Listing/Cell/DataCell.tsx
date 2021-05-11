@@ -15,6 +15,7 @@ import Cell from '.';
 
 interface Props {
   column: Column;
+  disableRowCondition: (row) => boolean;
   isRowHovered: boolean;
   isRowSelected: boolean;
   listingCheckable: boolean;
@@ -44,6 +45,7 @@ const DataCell = ({
   isRowSelected,
   isRowHovered,
   rowColorConditions,
+  disableRowCondition,
 }: Props): JSX.Element | null => {
   const classes = useStyles({ listingCheckable });
 
@@ -51,6 +53,7 @@ const DataCell = ({
     align: 'left' as const,
     className: classes.cell,
     compact: column.compact,
+    disableRowCondition,
     isRowHovered,
     row,
     rowColorConditions,

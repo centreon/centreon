@@ -71,6 +71,7 @@ const listing = [...tenElements].map((_, index) => ({
   active: index % 2 === 0,
   description: `Entity ${index}`,
   disableCheckbox: index % 4 === 0,
+  disableRow: index % 5 === 0,
   id: index,
   name: `E${index}`,
   selected: index % 3 === 0,
@@ -98,6 +99,7 @@ const Story = ({
         columns={columns}
         currentPage={0}
         disableRowCheckCondition={(row): boolean => row.disableCheckbox}
+        disableRowCondition={(row): boolean => row.disableRow}
         limit={listing.length}
         rowColorConditions={rowColorConditions}
         rows={listing}
