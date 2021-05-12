@@ -27,7 +27,7 @@ const useStyles = makeStyles((theme: Theme) => ({
     fontSize: theme.typography.body1.fontSize,
   },
   noLabelInput: {
-    padding: theme.spacing(1.25),
+    padding: theme.spacing(1),
   },
 }));
 

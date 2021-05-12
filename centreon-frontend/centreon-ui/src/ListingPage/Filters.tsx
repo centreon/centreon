@@ -7,6 +7,7 @@ import {
   Accordion,
   AccordionSummary,
   AccordionDetails,
+  useTheme,
 } from '@material-ui/core';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 
@@ -45,7 +46,7 @@ export interface FiltersProps {
   expandLabel?: string;
   expandableFilters?: React.ReactElement;
   expanded?: boolean;
-  filters: React.ReactElement;
+  filters?: React.ReactElement;
   onExpand?: () => void;
 }
 
@@ -61,16 +62,16 @@ const Filters = React.forwardRef(
     ref,
   ): JSX.Element => {
     const expandable = !isNil(onExpand);
+    const theme = useTheme();
 
     return (
       <Accordion square expanded={expandable ? expanded : false}>
         <ExpansionPanelSummary
-          IconButtonProps={{ onClick: onExpand }}
-          expandIcon={
-            expandable && (
-              <ExpandMoreIcon aria-label={expandLabel} color="primary" />
-            )
-          }
+          IconButtonProps={{
+            onClick: onExpand,
+            style: { padding: theme.spacing(1) },
+          }}
+          expandIcon={expandable && <ExpandMoreIcon aria-label={expandLabel} />}
           ref={ref as React.RefObject<HTMLDivElement>}
           style={{ cursor: 'default' }}
         >
