@@ -1,7 +1,3 @@
-const mockedUlog = {
-  error: jest.fn(),
-};
-
-const ulog = () => mockedUlog;
+const ulog = () => jest.fn();
 
 export default ulog;

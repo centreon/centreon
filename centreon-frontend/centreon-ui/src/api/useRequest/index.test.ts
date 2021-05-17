@@ -4,7 +4,7 @@ import {
   RenderHookResult,
 } from '@testing-library/react-hooks';
 import axios from 'axios';
-import ulog from 'ulog';
+import anyLogger from 'anylogger';
 
 import { Severity } from '../..';
 
@@ -86,7 +86,7 @@ describe(useRequest, () => {
       });
     });
 
-    expect(ulog().error).toHaveBeenCalledWith(response);
+    expect(anyLogger().error).toHaveBeenCalledWith(response);
 
     expect(mockedShowMessage).toHaveBeenCalledWith({
       message: 'failure',
