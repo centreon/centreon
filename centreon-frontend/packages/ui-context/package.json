@@ -30,7 +30,6 @@
     "eslint-plugin-sort-keys-fix": "^1.1.1",
     "eslint-plugin-typescript-sort-keys": "^1.5.0",
     "prettier": "^2.2.1",
-    "ts-loader": "^9.2.1",
     "typescript": "^4.2.3"
   },
   "dependencies": {
