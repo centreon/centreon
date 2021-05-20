@@ -1,0 +1,31 @@
+@import '../../global-sass-files/mixins';
+@import '../../global-sass-files/variables';
+
+// Button action
+.button {
+  &-action {
+    position: relative;
+    cursor: pointer;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    border: 1px solid #cdcdcd;
+    @include center(both);
+    &-icon {
+      &-delete {
+        &:after {
+          content: "\e903";
+          color: #cdcdcd;
+        }
+        &.gray {
+          color: #dcdcdc;
+        }
+      }
+    }
+    &-card-position {
+      position: absolute;
+      bottom: 20px;
+      right: 15px;
+    }
+  }
+}
