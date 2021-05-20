@@ -11,7 +11,7 @@
     "eslint:fix": "npm run eslint -- --fix"
   },
   "devDependencies": {
-    "@centreon/frontend-core": "github:centreon/frontend-core",
+    "@centreon/frontend-config": "file:../frontend-config",
     "@typescript-eslint/eslint-plugin": "^4.17.0",
     "@typescript-eslint/parser": "^4.17.0",
     "babel-eslint": "^10.1.0",
