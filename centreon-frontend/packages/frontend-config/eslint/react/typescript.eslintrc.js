@@ -16,6 +16,17 @@ module.exports = {
         ],
         'react/require-default-props': 'off',
       },
+      settings: {
+        'import/resolver': {
+          alias: {
+            map: [
+              ["@centreon/ui", "./node_modules/@centreon/centreon-frontend/packages/centreon-ui"],
+              ["@centreon/ui-context", "./node_modules/@centreon/centreon-frontend/packages/ui-context"]
+            ],
+            extensions: ['.ts', '.tsx', '.js', '.jsx'],
+          },
+        },
+      },
     },
   ],
 };
