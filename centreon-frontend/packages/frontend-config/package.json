@@ -1,10 +1,10 @@
 {
-  "name": "@centreon/frontend-core",
+  "name": "@centreon/frontend-config",
   "description": "Centreon Frontend shared build configuration",
   "version": "1.0.0",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/centreon/frontend-core.git"
+    "url": "git+https://github.com/centreon/centreon-frontend.git"
   },
   "keywords": [
     "centreon",
@@ -13,9 +13,9 @@
   "author": "centreon@centreon.com",
   "license": "GPL-2.0",
   "bugs": {
-    "url": "https://github.com/centreon/frontend-core/issues"
+    "url": "https://github.com/centreon/centreon-frontend/issues"
   },
-  "homepage": "https://github.com/centreon/frontend-core#readme",
+  "homepage": "https://github.com/centreon/centreon-frontend#readme",
   "peerDependencies": {
     "prettier": "2.x",
     "eslint-config-prettier": "8.x",
