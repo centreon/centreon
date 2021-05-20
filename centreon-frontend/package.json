@@ -20,6 +20,14 @@
     "url": "https://github.com/centreon/centreon-frontend/issues"
   },
   "homepage": "https://github.com/centreon/centreon-frontend#readme",
+  "dependencies": {
+    "@dnd-kit/core": "^1.1.0",
+    "@dnd-kit/modifiers": "^1.0.5",
+    "@dnd-kit/sortable": "^1.0.2",
+    "@dnd-kit/utilities": "^1.0.2",
+    "anylogger": "^1.0.11",
+    "humanize-duration": "^3.25.1"
+  },
   "workspaces": [
     "packages/*"
   ]
