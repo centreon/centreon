@@ -80,10 +80,8 @@ describe(SingleAutocompleteField, () => {
   });
 
   it('populates options with the first page result of the get call from the endpoint after typing something in input field', async () => {
-    const {
-      getByLabelText,
-      getByPlaceholderText,
-    } = renderSingleAutocompleteField();
+    const { getByLabelText, getByPlaceholderText } =
+      renderSingleAutocompleteField();
 
     act(() => {
       fireEvent.click(getByLabelText('Open'));

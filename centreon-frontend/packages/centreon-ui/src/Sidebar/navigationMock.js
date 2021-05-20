@@ -118,8 +118,7 @@ export default [
                 is_react: '0',
                 label: 'Curves',
                 options: null,
-                url:
-                  './include/views/componentTemplates/componentTemplates.php',
+                url: './include/views/componentTemplates/componentTemplates.php',
               },
               {
                 active: false,
@@ -159,8 +158,7 @@ export default [
                 is_react: '0',
                 label: 'Monitoring',
                 options: null,
-                url:
-                  './modules/centreon-bam-server/core/dashboard/dashboard.php',
+                url: './modules/centreon-bam-server/core/dashboard/dashboard.php',
               },
               {
                 active: false,
@@ -168,8 +166,7 @@ export default [
                 is_react: '0',
                 label: 'Reporting',
                 options: null,
-                url:
-                  './modules/centreon-bam-server/core/reporting/reporting.php',
+                url: './modules/centreon-bam-server/core/reporting/reporting.php',
               },
               {
                 active: false,
@@ -326,8 +323,7 @@ export default [
                 is_react: '0',
                 label: 'Jobs',
                 options: null,
-                url:
-                  './modules/centreon-bi-server/configuration/generation/generation_task.php',
+                url: './modules/centreon-bi-server/configuration/generation/generation_task.php',
               },
               {
                 active: false,
@@ -335,8 +331,7 @@ export default [
                 is_react: '0',
                 label: 'Job groups',
                 options: null,
-                url:
-                  './modules/centreon-bi-server/configuration/generationGroups/groups.php',
+                url: './modules/centreon-bi-server/configuration/generationGroups/groups.php',
               },
               {
                 active: false,
@@ -344,8 +339,7 @@ export default [
                 is_react: '0',
                 label: 'Report designs',
                 options: null,
-                url:
-                  './modules/centreon-bi-server/configuration/report/report.php',
+                url: './modules/centreon-bi-server/configuration/report/report.php',
               },
               {
                 active: false,
@@ -353,8 +347,7 @@ export default [
                 is_react: '0',
                 label: 'Report design groups',
                 options: null,
-                url:
-                  './modules/centreon-bi-server/configuration/reportGroups/reportGroups.php',
+                url: './modules/centreon-bi-server/configuration/reportGroups/reportGroups.php',
               },
               {
                 active: false,
@@ -375,8 +368,7 @@ export default [
                 is_react: '0',
                 label: 'Publication rules',
                 options: null,
-                url:
-                  './modules/centreon-bi-server/options/publications/publications.php',
+                url: './modules/centreon-bi-server/options/publications/publications.php',
               },
               {
                 active: false,
@@ -427,8 +419,7 @@ export default [
                 is_react: '0',
                 label: 'Host Groups',
                 options: null,
-                url:
-                  './include/configuration/configObject/hostgroup/hostGroup.php',
+                url: './include/configuration/configObject/hostgroup/hostGroup.php',
               },
               {
                 active: false,
@@ -436,8 +427,7 @@ export default [
                 is_react: '0',
                 label: 'Templates',
                 options: null,
-                url:
-                  './include/configuration/configObject/host_template_model/hostTemplateModel.php',
+                url: './include/configuration/configObject/host_template_model/hostTemplateModel.php',
               },
               {
                 active: false,
@@ -445,8 +435,7 @@ export default [
                 is_react: '0',
                 label: 'Categories',
                 options: null,
-                url:
-                  './include/configuration/configObject/host_categories/hostCategories.php',
+                url: './include/configuration/configObject/host_categories/hostCategories.php',
               },
               {
                 active: false,
@@ -477,8 +466,7 @@ export default [
                 is_react: '0',
                 label: 'Services by host',
                 options: null,
-                url:
-                  './include/configuration/configObject/service/serviceByHost.php',
+                url: './include/configuration/configObject/service/serviceByHost.php',
               },
               {
                 active: false,
@@ -486,8 +474,7 @@ export default [
                 is_react: '0',
                 label: 'Services by host group',
                 options: null,
-                url:
-                  './include/configuration/configObject/service/serviceByHostGroup.php',
+                url: './include/configuration/configObject/service/serviceByHostGroup.php',
               },
               {
                 active: false,
@@ -495,8 +482,7 @@ export default [
                 is_react: '0',
                 label: 'Service Groups',
                 options: null,
-                url:
-                  './include/configuration/configObject/servicegroup/serviceGroup.php',
+                url: './include/configuration/configObject/servicegroup/serviceGroup.php',
               },
               {
                 active: false,
@@ -504,8 +490,7 @@ export default [
                 is_react: '0',
                 label: 'Templates',
                 options: null,
-                url:
-                  './include/configuration/configObject/service_template_model/serviceTemplateModel.php',
+                url: './include/configuration/configObject/service_template_model/serviceTemplateModel.php',
               },
               {
                 active: false,
@@ -513,8 +498,7 @@ export default [
                 is_react: '0',
                 label: 'Categories',
                 options: null,
-                url:
-                  './include/configuration/configObject/service_categories/serviceCategories.php',
+                url: './include/configuration/configObject/service_categories/serviceCategories.php',
               },
               {
                 active: false,
@@ -522,8 +506,7 @@ export default [
                 is_react: '0',
                 label: 'Meta Services',
                 options: null,
-                url:
-                  './include/configuration/configObject/meta_service/metaService.php',
+                url: './include/configuration/configObject/meta_service/metaService.php',
               },
             ],
             label: 'Main Menu',
@@ -536,8 +519,7 @@ export default [
                 is_react: '0',
                 label: 'Scan',
                 options: null,
-                url:
-                  './modules/centreon-autodiscovery-server/views/scan/index.php',
+                url: './modules/centreon-autodiscovery-server/views/scan/index.php',
               },
               {
                 active: false,
@@ -545,8 +527,7 @@ export default [
                 is_react: '0',
                 label: 'Rules',
                 options: null,
-                url:
-                  './modules/centreon-autodiscovery-server/views/rules/index.php',
+                url: './modules/centreon-autodiscovery-server/views/rules/index.php',
               },
               {
                 active: false,
@@ -554,8 +535,7 @@ export default [
                 is_react: '0',
                 label: 'Overview',
                 options: null,
-                url:
-                  './modules/centreon-autodiscovery-server/views/overview/index.php',
+                url: './modules/centreon-autodiscovery-server/views/overview/index.php',
               },
             ],
             label: 'Auto Discovery',
@@ -578,8 +558,7 @@ export default [
                 is_react: '0',
                 label: 'Business Views',
                 options: null,
-                url:
-                  './modules/centreon-bam-server/core/configuration/group/configuration_ba_group.php',
+                url: './modules/centreon-bam-server/core/configuration/group/configuration_ba_group.php',
               },
               {
                 active: false,
@@ -587,8 +566,7 @@ export default [
                 is_react: '0',
                 label: 'Business Activity',
                 options: null,
-                url:
-                  './modules/centreon-bam-server/core/configuration/ba/configuration_ba.php',
+                url: './modules/centreon-bam-server/core/configuration/ba/configuration_ba.php',
               },
               {
                 active: false,
@@ -596,8 +574,7 @@ export default [
                 is_react: '0',
                 label: 'Indicators',
                 options: null,
-                url:
-                  './modules/centreon-bam-server/core/configuration/kpi/configuration_kpi.php',
+                url: './modules/centreon-bam-server/core/configuration/kpi/configuration_kpi.php',
               },
               {
                 active: false,
@@ -605,8 +582,7 @@ export default [
                 is_react: '0',
                 label: 'Boolean Rules',
                 options: null,
-                url:
-                  './modules/centreon-bam-server/core/configuration/boolean/configuration_boolean.php',
+                url: './modules/centreon-bam-server/core/configuration/boolean/configuration_boolean.php',
               },
               {
                 active: false,
@@ -614,8 +590,7 @@ export default [
                 is_react: '0',
                 label: 'Dependencies',
                 options: null,
-                url:
-                  './modules/centreon-bam-server/core/configuration/dependencies/configuration_dependencies.php',
+                url: './modules/centreon-bam-server/core/configuration/dependencies/configuration_dependencies.php',
               },
             ],
             label: 'Management',
@@ -628,8 +603,7 @@ export default [
                 is_react: '0',
                 label: 'Default Settings',
                 options: null,
-                url:
-                  './modules/centreon-bam-server/core/options/general/general.php',
+                url: './modules/centreon-bam-server/core/options/general/general.php',
               },
               {
                 active: false,
@@ -650,8 +624,7 @@ export default [
                 is_react: '0',
                 label: 'Troubleshooter',
                 options: null,
-                url:
-                  './modules/centreon-bam-server/core/help/troubleshooter/troubleshooter.php',
+                url: './modules/centreon-bam-server/core/help/troubleshooter/troubleshooter.php',
               },
             ],
             label: 'Help',
@@ -661,8 +634,7 @@ export default [
         is_react: '0',
         label: 'Business Activity',
         options: null,
-        url:
-          './modules/centreon-bam-server/core/configuration/group/configuration_ba_group.php',
+        url: './modules/centreon-bam-server/core/configuration/group/configuration_ba_group.php',
       },
       {
         active: false,
@@ -683,8 +655,7 @@ export default [
                 is_react: '0',
                 label: 'Contact Groups',
                 options: null,
-                url:
-                  './include/configuration/configObject/contactgroup/contactGroup.php',
+                url: './include/configuration/configObject/contactgroup/contactGroup.php',
               },
               {
                 active: false,
@@ -692,8 +663,7 @@ export default [
                 is_react: '0',
                 label: 'Time Periods',
                 options: null,
-                url:
-                  './include/configuration/configObject/timeperiod/timeperiod.php',
+                url: './include/configuration/configObject/timeperiod/timeperiod.php',
               },
             ],
             label: 'Main Menu',
@@ -755,8 +725,7 @@ export default [
                 is_react: '0',
                 label: 'Escalations',
                 options: null,
-                url:
-                  './include/configuration/configObject/escalation/escalation.php',
+                url: './include/configuration/configObject/escalation/escalation.php',
               },
             ],
             label: 'Escalations',
@@ -769,8 +738,7 @@ export default [
                 is_react: '0',
                 label: 'Hosts',
                 options: null,
-                url:
-                  './include/configuration/configObject/host_dependency/hostDependency.php',
+                url: './include/configuration/configObject/host_dependency/hostDependency.php',
               },
               {
                 active: false,
@@ -778,8 +746,7 @@ export default [
                 is_react: '0',
                 label: 'Host Groups',
                 options: null,
-                url:
-                  './include/configuration/configObject/hostgroup_dependency/hostGroupDependency.php',
+                url: './include/configuration/configObject/hostgroup_dependency/hostGroupDependency.php',
               },
               {
                 active: false,
@@ -787,8 +754,7 @@ export default [
                 is_react: '0',
                 label: 'Services',
                 options: null,
-                url:
-                  './include/configuration/configObject/service_dependency/serviceDependency.php',
+                url: './include/configuration/configObject/service_dependency/serviceDependency.php',
               },
               {
                 active: false,
@@ -796,8 +762,7 @@ export default [
                 is_react: '0',
                 label: 'Service Groups',
                 options: null,
-                url:
-                  './include/configuration/configObject/servicegroup_dependency/serviceGroupDependency.php',
+                url: './include/configuration/configObject/servicegroup_dependency/serviceGroupDependency.php',
               },
               {
                 active: false,
@@ -805,8 +770,7 @@ export default [
                 is_react: '0',
                 label: 'Meta Services',
                 options: null,
-                url:
-                  './include/configuration/configObject/metaservice_dependency/MetaServiceDependency.php',
+                url: './include/configuration/configObject/metaservice_dependency/MetaServiceDependency.php',
               },
             ],
             label: 'Dependencies',
@@ -837,8 +801,7 @@ export default [
                 is_react: '0',
                 label: 'Manufacturer',
                 options: null,
-                url:
-                  './include/configuration/configObject/traps-manufacturer/mnftr.php',
+                url: './include/configuration/configObject/traps-manufacturer/mnftr.php',
               },
             ],
             label: 'SNMP Traps',
@@ -886,8 +849,7 @@ export default [
                 is_react: '0',
                 label: 'Broker configuration',
                 options: null,
-                url:
-                  './include/configuration/configCentreonBroker/centreon-broker.php',
+                url: './include/configuration/configCentreonBroker/centreon-broker.php',
               },
             ],
             label: 'Main Menu',
@@ -1027,8 +989,7 @@ export default [
                 is_react: '0',
                 label: 'Resources Access',
                 options: null,
-                url:
-                  './include/options/accessLists/resourcesACL/resourcesAccess.php',
+                url: './include/options/accessLists/resourcesACL/resourcesAccess.php',
               },
               {
                 active: false,
@@ -1036,8 +997,7 @@ export default [
                 is_react: '0',
                 label: 'Actions Access',
                 options: null,
-                url:
-                  './include/options/accessLists/actionsACL/actionsConfig.php',
+                url: './include/options/accessLists/actionsACL/actionsConfig.php',
               },
             ],
             label: 'Access List',

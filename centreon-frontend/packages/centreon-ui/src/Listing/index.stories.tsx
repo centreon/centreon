@@ -134,9 +134,8 @@ export const withoutCheckboxes = (): JSX.Element => <Story checkable={false} />;
 const ListingWithSortableColumns = (): JSX.Element => {
   const defaultColumnIds = defaultColumns.map(prop('id'));
 
-  const [selectedColumnIds, setSelectedColumnIds] = React.useState<
-    Array<string>
-  >(defaultColumnIds);
+  const [selectedColumnIds, setSelectedColumnIds] =
+    React.useState<Array<string>>(defaultColumnIds);
 
   const resetColumns = (): void => {
     setSelectedColumnIds(defaultColumnIds);

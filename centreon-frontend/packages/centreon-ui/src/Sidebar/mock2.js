@@ -105,8 +105,7 @@ export default [
                 label: 'Curves',
                 options: null,
                 page: '20405',
-                url:
-                  './include/views/componentTemplates/componentTemplates.php',
+                url: './include/views/componentTemplates/componentTemplates.php',
               },
               {
                 is_react: false,
@@ -134,16 +133,14 @@ export default [
                 label: 'Monitoring',
                 options: null,
                 page: '20701',
-                url:
-                  './modules/centreon-bam-server/core/dashboard/dashboard.php',
+                url: './modules/centreon-bam-server/core/dashboard/dashboard.php',
               },
               {
                 is_react: false,
                 label: 'Reporting',
                 options: null,
                 page: '20702',
-                url:
-                  './modules/centreon-bam-server/core/reporting/reporting.php',
+                url: './modules/centreon-bam-server/core/reporting/reporting.php',
               },
               {
                 is_react: false,
@@ -300,24 +297,21 @@ export default [
                 label: 'Host Groups',
                 options: null,
                 page: '60102',
-                url:
-                  './include/configuration/configObject/hostgroup/hostGroup.php',
+                url: './include/configuration/configObject/hostgroup/hostGroup.php',
               },
               {
                 is_react: false,
                 label: 'Templates',
                 options: null,
                 page: '60103',
-                url:
-                  './include/configuration/configObject/host_template_model/hostTemplateModel.php',
+                url: './include/configuration/configObject/host_template_model/hostTemplateModel.php',
               },
               {
                 is_react: false,
                 label: 'Categories',
                 options: null,
                 page: '60104',
-                url:
-                  './include/configuration/configObject/host_categories/hostCategories.php',
+                url: './include/configuration/configObject/host_categories/hostCategories.php',
               },
             ],
             label: 'Hosts',
@@ -338,48 +332,42 @@ export default [
                 label: 'Services by host',
                 options: null,
                 page: '60201',
-                url:
-                  './include/configuration/configObject/service/serviceByHost.php',
+                url: './include/configuration/configObject/service/serviceByHost.php',
               },
               {
                 is_react: false,
                 label: 'Services by host group',
                 options: null,
                 page: '60202',
-                url:
-                  './include/configuration/configObject/service/serviceByHostGroup.php',
+                url: './include/configuration/configObject/service/serviceByHostGroup.php',
               },
               {
                 is_react: false,
                 label: 'Service Groups',
                 options: null,
                 page: '60203',
-                url:
-                  './include/configuration/configObject/servicegroup/serviceGroup.php',
+                url: './include/configuration/configObject/servicegroup/serviceGroup.php',
               },
               {
                 is_react: false,
                 label: 'Templates',
                 options: null,
                 page: '60206',
-                url:
-                  './include/configuration/configObject/service_template_model/serviceTemplateModel.php',
+                url: './include/configuration/configObject/service_template_model/serviceTemplateModel.php',
               },
               {
                 is_react: false,
                 label: 'Categories',
                 options: null,
                 page: '60209',
-                url:
-                  './include/configuration/configObject/service_categories/serviceCategories.php',
+                url: './include/configuration/configObject/service_categories/serviceCategories.php',
               },
               {
                 is_react: false,
                 label: 'Meta Services',
                 options: null,
                 page: '60204',
-                url:
-                  './include/configuration/configObject/meta_service/metaService.php',
+                url: './include/configuration/configObject/meta_service/metaService.php',
               },
             ],
             label: 'Main Menu',
@@ -400,40 +388,35 @@ export default [
                 label: 'Business Activity',
                 options: null,
                 page: '62605',
-                url:
-                  './modules/centreon-bam-server/core/configuration/ba/configuration_ba.php',
+                url: './modules/centreon-bam-server/core/configuration/ba/configuration_ba.php',
               },
               {
                 is_react: false,
                 label: 'Business Views',
                 options: null,
                 page: '62604',
-                url:
-                  './modules/centreon-bam-server/core/configuration/group/configuration_ba_group.php',
+                url: './modules/centreon-bam-server/core/configuration/group/configuration_ba_group.php',
               },
               {
                 is_react: false,
                 label: 'Indicators',
                 options: null,
                 page: '62606',
-                url:
-                  './modules/centreon-bam-server/core/configuration/kpi/configuration_kpi.php',
+                url: './modules/centreon-bam-server/core/configuration/kpi/configuration_kpi.php',
               },
               {
                 is_react: false,
                 label: 'Boolean Rules',
                 options: null,
                 page: '62611',
-                url:
-                  './modules/centreon-bam-server/core/configuration/boolean/configuration_boolean.php',
+                url: './modules/centreon-bam-server/core/configuration/boolean/configuration_boolean.php',
               },
               {
                 is_react: false,
                 label: 'Dependencies',
                 options: null,
                 page: '62612',
-                url:
-                  './modules/centreon-bam-server/core/configuration/dependencies/configuration_dependencies.php',
+                url: './modules/centreon-bam-server/core/configuration/dependencies/configuration_dependencies.php',
               },
             ],
             label: 'Management',
@@ -445,8 +428,7 @@ export default [
                 label: 'Default Settings',
                 options: null,
                 page: '62607',
-                url:
-                  './modules/centreon-bam-server/core/options/general/general.php',
+                url: './modules/centreon-bam-server/core/options/general/general.php',
               },
               {
                 is_react: false,
@@ -465,8 +447,7 @@ export default [
                 label: 'Troubleshooter',
                 options: null,
                 page: '62610',
-                url:
-                  './modules/centreon-bam-server/core/help/troubleshooter/troubleshooter.php',
+                url: './modules/centreon-bam-server/core/help/troubleshooter/troubleshooter.php',
               },
             ],
             label: 'Help',
@@ -476,8 +457,7 @@ export default [
         label: 'Business Activity',
         options: null,
         page: '626',
-        url:
-          './modules/centreon-bam-server/core/configuration/group/configuration_ba.php',
+        url: './modules/centreon-bam-server/core/configuration/group/configuration_ba.php',
       },
       {
         groups: [
@@ -495,24 +475,21 @@ export default [
                 label: 'Contact Templates',
                 options: null,
                 page: '60306',
-                url:
-                  './include/configuration/configObject/contact_template_model/contact_template.php',
+                url: './include/configuration/configObject/contact_template_model/contact_template.php',
               },
               {
                 is_react: false,
                 label: 'Contact Groups',
                 options: null,
                 page: '60302',
-                url:
-                  './include/configuration/configObject/contactgroup/contactGroup.php',
+                url: './include/configuration/configObject/contactgroup/contactGroup.php',
               },
               {
                 is_react: false,
                 label: 'Time Periods',
                 options: null,
                 page: '60304',
-                url:
-                  './include/configuration/configObject/timeperiod/timeperiod.php',
+                url: './include/configuration/configObject/timeperiod/timeperiod.php',
               },
             ],
             label: 'Main Menu',
@@ -561,8 +538,7 @@ export default [
                 label: 'Connectors',
                 options: null,
                 page: '60806',
-                url:
-                  './include/configuration/configObject/connector/connector.php',
+                url: './include/configuration/configObject/connector/connector.php',
               },
             ],
             label: 'Main Menu',
@@ -583,8 +559,7 @@ export default [
                 label: 'Escalations',
                 options: null,
                 page: '60401',
-                url:
-                  './include/configuration/configObject/escalation/escalation.php',
+                url: './include/configuration/configObject/escalation/escalation.php',
               },
             ],
             label: 'Escalations',
@@ -596,40 +571,35 @@ export default [
                 label: 'Hosts',
                 options: null,
                 page: '60407',
-                url:
-                  './include/configuration/configObject/host_dependency/hostDependency.php',
+                url: './include/configuration/configObject/host_dependency/hostDependency.php',
               },
               {
                 is_react: false,
                 label: 'Host Groups',
                 options: null,
                 page: '60408',
-                url:
-                  './include/configuration/configObject/hostgroup_dependency/hostGroupDependency.php',
+                url: './include/configuration/configObject/hostgroup_dependency/hostGroupDependency.php',
               },
               {
                 is_react: false,
                 label: 'Services',
                 options: null,
                 page: '60409',
-                url:
-                  './include/configuration/configObject/service_dependency/serviceDependency.php',
+                url: './include/configuration/configObject/service_dependency/serviceDependency.php',
               },
               {
                 is_react: false,
                 label: 'Service Groups',
                 options: null,
                 page: '60410',
-                url:
-                  './include/configuration/configObject/servicegroup_dependency/serviceGroupDependency.php',
+                url: './include/configuration/configObject/servicegroup_dependency/serviceGroupDependency.php',
               },
               {
                 is_react: false,
                 label: 'Meta Services',
                 options: null,
                 page: '60411',
-                url:
-                  './include/configuration/configObject/metaservice_dependency/MetaServiceDependency.php',
+                url: './include/configuration/configObject/metaservice_dependency/MetaServiceDependency.php',
               },
             ],
             label: 'Dependencies',
@@ -657,16 +627,14 @@ export default [
                 label: 'Manufacturer',
                 options: null,
                 page: '61702',
-                url:
-                  './include/configuration/configObject/traps-manufacturer/mnftr.php',
+                url: './include/configuration/configObject/traps-manufacturer/mnftr.php',
               },
               {
                 is_react: false,
                 label: 'Group',
                 options: null,
                 page: '61705',
-                url:
-                  './include/configuration/configObject/traps-groups/groups.php',
+                url: './include/configuration/configObject/traps-groups/groups.php',
               },
               {
                 is_react: false,
@@ -680,8 +648,7 @@ export default [
                 label: 'Generate',
                 options: null,
                 page: '61704',
-                url:
-                  './include/configuration/configGenerateTraps/generateTraps.php',
+                url: './include/configuration/configGenerateTraps/generateTraps.php',
               },
             ],
             label: 'SNMP Traps',
@@ -737,8 +704,7 @@ export default [
                 label: 'Broker configuration',
                 options: null,
                 page: '60909',
-                url:
-                  './include/configuration/configCentreonBroker/centreon-broker.php',
+                url: './include/configuration/configCentreonBroker/centreon-broker.php',
               },
               {
                 is_react: false,
@@ -766,32 +732,28 @@ export default [
                 label: 'Hosts',
                 options: null,
                 page: '61001',
-                url:
-                  './include/configuration/configKnowledge/display-hosts.php',
+                url: './include/configuration/configKnowledge/display-hosts.php',
               },
               {
                 is_react: false,
                 label: 'Services',
                 options: null,
                 page: '61002',
-                url:
-                  './include/configuration/configKnowledge/display-services.php',
+                url: './include/configuration/configKnowledge/display-services.php',
               },
               {
                 is_react: false,
                 label: 'Host Templates',
                 options: null,
                 page: '61003',
-                url:
-                  './include/configuration/configKnowledge/display-hostTemplates.php',
+                url: './include/configuration/configKnowledge/display-hostTemplates.php',
               },
               {
                 is_react: false,
                 label: 'Service Templates',
                 options: null,
                 page: '61004',
-                url:
-                  './include/configuration/configKnowledge/display-serviceTemplates.php',
+                url: './include/configuration/configKnowledge/display-serviceTemplates.php',
               },
             ],
             label: 'Knowledge Base',
@@ -946,16 +908,14 @@ export default [
                 label: 'Resources Access',
                 options: null,
                 page: '50202',
-                url:
-                  './include/options/accessLists/resourcesACL/resourcesAccess.php',
+                url: './include/options/accessLists/resourcesACL/resourcesAccess.php',
               },
               {
                 is_react: false,
                 label: 'Actions Access',
                 options: null,
                 page: '50204',
-                url:
-                  './include/options/accessLists/actionsACL/actionsConfig.php',
+                url: './include/options/accessLists/actionsACL/actionsConfig.php',
               },
               {
                 is_react: false,
@@ -997,8 +957,7 @@ export default [
                 label: 'Subscription',
                 options: null,
                 page: '50707',
-                url:
-                  './modules/centreon-license-manager/frontend/app/index.php',
+                url: './modules/centreon-license-manager/frontend/app/index.php',
               },
             ],
             label: 'Extensions',
@@ -1035,8 +994,7 @@ export default [
                 label: 'Broker Statistics',
                 options: null,
                 page: '50501',
-                url:
-                  './include/Administration/brokerPerformance/brokerPerformance.php',
+                url: './include/Administration/brokerPerformance/brokerPerformance.php',
               },
               {
                 is_react: false,

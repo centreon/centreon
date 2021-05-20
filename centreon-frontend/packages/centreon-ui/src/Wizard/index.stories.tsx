@@ -255,13 +255,8 @@ const Form = (): JSX.Element => {
       steps={[
         {
           Component: () => {
-            const {
-              handleChange,
-              handleBlur,
-              values,
-              errors,
-              touched,
-            } = useFormikContext<Values>();
+            const { handleChange, handleBlur, values, errors, touched } =
+              useFormikContext<Values>();
 
             return (
               <TextField

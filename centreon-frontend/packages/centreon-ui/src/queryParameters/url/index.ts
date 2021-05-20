@@ -19,7 +19,7 @@ const setUrlQueryParameters = (
 };
 
 const getUrlQueryParameters = <
-  TQueryParameters extends Record<string, unknown>
+  TQueryParameters extends Record<string, unknown>,
 >(): TQueryParameters => {
   const urlParams = new URLSearchParams(window.location.search);
 

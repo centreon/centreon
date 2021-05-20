@@ -6,9 +6,8 @@ interface ViewportIntersectionState {
 }
 
 export const useViewportIntersection = (): ViewportIntersectionState => {
-  const [entry, setEntry] = React.useState<IntersectionObserverEntry | null>(
-    null,
-  );
+  const [entry, setEntry] =
+    React.useState<IntersectionObserverEntry | null>(null);
   const [element, setElement] = React.useState<HTMLElement | null>(null);
 
   const observer = React.useRef<IntersectionObserver | null>(null);

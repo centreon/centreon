@@ -214,9 +214,8 @@ class Navigation extends Component {
                     <li
                       className={clsx(styles['collapsed-item'], {
                         [styles.active]: secondLevelIsActive,
-                        [styles[
-                          `active-${firstLevel.color}`
-                        ]]: secondLevelIsColored,
+                        [styles[`active-${firstLevel.color}`]]:
+                          secondLevelIsColored,
                       })}
                       key={`secondLevel-${secondLevel.page}`}
                     >

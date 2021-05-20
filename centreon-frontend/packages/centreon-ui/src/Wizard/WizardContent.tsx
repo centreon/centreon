@@ -33,13 +33,8 @@ const WizardContent = ({
   goToNextStep,
 }: WizardContentProps): JSX.Element => {
   const classes = useStyles();
-  const {
-    isSubmitting,
-    isValid,
-    dirty,
-    handleSubmit,
-    validateForm,
-  } = useFormikContext();
+  const { isSubmitting, isValid, dirty, handleSubmit, validateForm } =
+    useFormikContext();
 
   const { Component, hasActionsBar = true, skipFormChangeCheck } = step;
 
