@@ -1,7 +1,7 @@
 {
   "name": "@centreon/frontend-config",
   "description": "Centreon Frontend shared build configuration",
-  "version": "1.0.0",
+  "version": "21.10.0",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/centreon/centreon-frontend.git"
