@@ -2,6 +2,6 @@
   "compilerOptions": {
     "jsx": "react"
   },
-  "extends": "@centreon/frontend-core/tsconfig/index",
+  "extends": "@centreon/frontend-config/tsconfig/index",
   "baseUrl": "./src",
 }

@@ -1,6 +1,6 @@
 {
   "name": "@centreon/ui",
-  "version": "21.04.0",
+  "version": "21.10.0",
   "description": "Centreon UI Components",
   "main": "src",
   "scripts": {
@@ -14,7 +14,7 @@
   "sideEffects": false,
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/centreon/centreon-ui.git"
+    "url": "git+https://github.com/centreon/centreon-frontend.git"
   },
   "keywords": [
     "centreon",
@@ -23,15 +23,15 @@
   "author": "centreon@centreon.com",
   "license": "GPL-2.0",
   "bugs": {
-    "url": "https://github.com/centreon/centreon-ui/issues"
+    "url": "https://github.com/centreon/centreon-frontend/issues"
   },
-  "homepage": "https://github.com/centreon/centreon-ui#readme",
+  "homepage": "https://github.com/centreon/centreon-frontend#readme",
   "peerDependencies": {
     "react": "^17.0.2",
     "react-dom": "^17.0.2"
   },
   "dependencies": {
-    "@centreon/ui-context": "github:centreon/ui-context",
+    "@centreon/ui-context": "file:../ui-context",
     "@dnd-kit/core": "^1.1.0",
     "@dnd-kit/modifiers": "^1.0.5",
     "@dnd-kit/sortable": "^1.0.2",
@@ -64,7 +64,7 @@
     "@babel/preset-env": "^7.13.12",
     "@babel/preset-react": "^7.12.13",
     "@babel/preset-typescript": "^7.13.0",
-    "@centreon/frontend-core": "github:centreon/frontend-core",
+    "@centreon/frontend-config": "file:../frontend-config",
     "@storybook/addon-essentials": "^6.1.21",
     "@storybook/addon-storyshots": "^6.1.21",
     "@storybook/addon-storyshots-puppeteer": "^6.1.21",
@@ -103,7 +103,7 @@
     "identity-obj-proxy": "^3.0.0",
     "jest": "26.6.3",
     "jest-junit": "^12.0.0",
-    "node-sass": "^5.0.0",
+    "node-sass": "^6.0.0",
     "prettier": "^2.2.1",
     "puppeteer": "^8.0.0",
     "react-test-renderer": "^17.0.2",
