@@ -50,7 +50,7 @@
     "mini-css-extract-plugin": "1.x",
     "css-loader": "5.x",
     "sass-loader": "11.x",
-    "node-sass": "5.x",
+    "node-sass": "6.x",
     "jest": "26.x",
     "@testing-library/jest-dom": "5.x",
     "@testing-library/react": "11.x",
