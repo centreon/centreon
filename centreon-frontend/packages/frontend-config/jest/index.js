@@ -3,7 +3,7 @@ module.exports = {
   transform: {
     '^.+\\.[jt]sx?$': 'babel-jest',
   },
-  transformIgnorePatterns: ['/node_modules/(?!@centreon/ui).+\\.jsx?$'],
+  transformIgnorePatterns: ['/node_modules/(?!@centreon/centreon-frontend/packages/(centreon-ui|ui-context)).+\\.jsx?$'],
   moduleNameMapper: {
     '\\.(s?css|png|svg)$': 'identity-obj-proxy',
     '@centreon/ui': '<rootDir>/node_modules/@centreon/centreon-frontend/packages/centreon-ui',
