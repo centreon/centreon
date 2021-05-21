@@ -28,6 +28,8 @@
     "anylogger": "^1.0.11",
     "humanize-duration": "^3.25.1",
     "react-files": "^3.0.0-alpha.1",
+    "react-router-dom": "^5.2.0",
+    "resize-observer-polyfill": "^1.5.1",
     "ulog": "^2.0.0-beta.18"
   },
   "workspaces": [
