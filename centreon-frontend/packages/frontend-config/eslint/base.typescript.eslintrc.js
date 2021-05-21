@@ -68,10 +68,6 @@ module.exports = {
       settings: {
         'import/resolver': {
           alias: {
-            map: [
-              ["@centreon/ui", "@centreon/centreon-frontend/packages/centreon-ui"],
-              ["@centreon/ui-context", "@centreon/centreon-frontend/packages/ui-context"]
-            ],
             extensions: ['.ts', '.tsx', '.js', '.jsx'],
           },
         },
