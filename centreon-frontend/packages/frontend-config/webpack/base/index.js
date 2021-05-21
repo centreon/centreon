@@ -40,7 +40,7 @@ module.exports = {
     rules: [
       {
         test: /\.(j|t)sx?$/,
-        exclude: /node_modules(\\|\/)(?!(@centreon(\\|\/)ui))/,
+        exclude: /node_modules(\\|\/)(?!(@centreon(\\|\/)centreon-frontend(\\|\/)packages(\\|\/)(ui-context|centreon-ui)))/,
         use: [
           { loader: 'cache-loader' },
           'babel-loader',
