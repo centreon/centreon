@@ -58,7 +58,7 @@ const useRequest = <TResult>({
     return request(token)(params)
       .then((data) => {
         if (decoder) {
-          return decoder.decodePromise(data);
+          return decoder.decodeToPromise(data);
         }
         return data;
       })

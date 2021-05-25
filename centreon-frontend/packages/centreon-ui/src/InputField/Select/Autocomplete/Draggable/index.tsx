@@ -128,7 +128,6 @@ const DraggableAutocomplete = (
         handleHomeEndKeys
         selectOnFocus
         disableCloseOnSelect={false}
-        displayCheckboxOption={false}
         getOptionSelected={F}
         renderOption={renderOption}
         renderTags={renderTags}
