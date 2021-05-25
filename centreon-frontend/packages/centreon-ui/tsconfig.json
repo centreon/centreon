@@ -2,6 +2,6 @@
   "compilerOptions": {
     "jsx": "react"
   },
-  "extends": "../frontend-config/tsconfig/index",
+  "extends": "../frontend-config/tsconfig/base",
   "baseUrl": "./src",
 }

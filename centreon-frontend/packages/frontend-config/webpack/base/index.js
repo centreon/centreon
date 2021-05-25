@@ -4,6 +4,15 @@ const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin');
 module.exports = {
   resolve: {
     extensions: ['.js', '.jsx', '.ts', '.tsx'],
+    alias: {
+      '@centreon/ui': path.resolve(
+        './node_modules/@centreon/centreon-frontend/packages/centreon-ui',
+      ),
+      '@centreon/ui-context': path.resolve(
+        './node_modules/@centreon/centreon-frontend/packages/ui-context',
+      ),
+      react: path.resolve('./node_modules/react'),
+    },
   },
   output: {
     libraryTarget: 'umd',
