@@ -26,6 +26,7 @@
     "@dnd-kit/sortable": "^1.0.2",
     "@dnd-kit/utilities": "^1.0.2",
     "anylogger": "^1.0.11",
+    "dayjs": "^1.9.4",
     "humanize-duration": "^3.25.1",
     "react-files": "^3.0.0-alpha.1",
     "react-router-dom": "^5.2.0",
