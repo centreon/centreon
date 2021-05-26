@@ -5,9 +5,12 @@ function loadPage()
 {
   jQuery.ajax("./src/index.php?widgetId=" + widgetId + "&page=" + pageNumber, {
     success: function (htmlData) {
-      jQuery("#openTicketsTable").empty().append(htmlData);
-      var hostMonitoringTable = jQuery("#openTicketsTable").find("img, style, script, link").load(function () {
-        var h = document.getElementById("openTicketsTable").scrollHeight + 50;
+      jQuery("#openTicketsTable").empty().append(htmlData).append(function () {
+        let horizontalScrollHeight = 0;
+        if (jQuery("#openTicketsTable").outerWidth() < jQuery("#openTicketsTable").get(0).scrollWidth) {
+            horizontalScrollHeight = 20;
+        }
+        const h = jQuery("#openTicketsTable").prop("scrollHeight") + horizontalScrollHeight;
         parent.iResize(window.name, h);
       });
     }
@@ -37,14 +40,14 @@ function loadToolBar()
 jQuery(function () {
   loadToolBar();
   loadPage();
-  $('.checkall').live('click', function () {
+  $(document).on('click', ".checkall", function () {
     var chck = this.checked;
     $(this).parents().find(':checkbox').each(function () {
       $(this).attr('checked', chck);
       clickedCb[$(this).attr('id')] = chck;
     });
   });
-  $(".selection").live('click', function () {
+  $(document).on('click', ".selection", function () {
     clickedCb[$(this).attr('id')] = this.checked;
   });
 });
