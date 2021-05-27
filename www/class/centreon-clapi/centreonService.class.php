@@ -62,6 +62,7 @@ require_once "Centreon/Object/Relation/Host/Service.php";
 require_once "Centreon/Object/Relation/Host/Group/Service/Service.php";
 require_once "Centreon/Object/Relation/Trap/Service.php";
 require_once "Centreon/Object/Relation/Service/Category/Service.php";
+require_once "Centreon/Object/Media/Media.php";
 
 /**
  * Centreon Service objects
@@ -76,6 +77,7 @@ class CentreonService extends CentreonObject
     const ORDER_SVCTPL = 2;
     const NB_UPDATE_PARAMS = 4;
     const UNKNOWN_NOTIFICATION_OPTIONS = "Invalid notifications options";
+    const SERVICE_LOCATION = "timezone";
 
     public static $aDepends = array(
         'CMD',
@@ -403,6 +405,186 @@ class CentreonService extends CentreonObject
 
         $extended = new \Centreon_Object_Service_Extended();
         $extended->insert(array($extended->getUniqueLabelField() => $serviceId));
+    }
+
+    /**
+     * Get a parameter
+     *
+     * @param null $parameters
+     * @throws CentreonClapiException
+     */
+    public function getparam($parameters = null)
+    {
+        $params = explode($this->delim, $parameters);
+        if (count($params) < 3) {
+            throw new CentreonClapiException(self::MISSINGPARAMETER);
+        }
+        $authorizeParam = array(
+            'acknowledgement_timeout',
+            'action_url',
+            'activate',
+            'active_checks_enabled',
+            'alias',
+            'cg_additive_inheritance',
+            'check_command',
+            'check_command_arguments',
+            'check_freshness',
+            'check_period',
+            'comment',
+            'contact_additive_inheritance',
+            'description',
+            'event_handler',
+            'event_handler_arguments',
+            'event_handler_enabled',
+            'first_notification_delay',
+            'flap_detection_enabled',
+            'flap_detection_options',
+            'freshness_threshold',
+            'geo_coords',
+            'high_flap_threshold',
+            'icon_image',
+            'icon_image_alt',
+            'id',
+            'inherit_contacts_from_host',
+            'is_volatile',
+            'locked',
+            'low_flap_threshold',
+            'max_check_attempts',
+            'normal_check_interval',
+            'notes',
+            'notes_url',
+            'notifications_enabled',
+            'notification_interval',
+            'notification_options',
+            'notification_period',
+            'notification_period',
+            'obsess_over_service',
+            'parallelize_check',
+            'passive_checks_enabled',
+            'process_perf_data',
+            'recovery_notification_delay',
+            'register',
+            'retain_nonstatus_information',
+            'retain_status_information',
+            'retry_check_interval',
+            'stalking_options',
+            'template',
+            'use_only_contacts_from_host'
+        );
+        $unknownParam = array();
+
+        $hostName = $params[0];
+        $serviceDesc = $params[1];
+        $relObject = new \Centreon_Object_Relation_Host_Service();
+        $elements = $relObject->getMergedParameters(
+            array("host_id"),
+            array("service_id"),
+            -1,
+            0,
+            null,
+            null,
+            array(
+                "host_name" => $hostName,
+                "service_description" => $serviceDesc
+            ),
+            "AND"
+        );
+        if (!count($elements)) {
+            throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ":" . $hostName . "/" . $serviceDesc);
+        } else{
+            $objectId = $elements[0]['service_id'];
+            $listParam = explode('|', $params[2]);
+            foreach ($listParam as $paramSearch) {
+                $field = $paramSearch;
+                if (!in_array($field, $authorizeParam)) {
+                    $unknownParam[] = $field;
+                } else {
+                    $extended = false;
+                    switch ($paramSearch) {
+                        case "check_command":
+                            $field = "command_command_id";
+                            break;
+                        case "check_command_arguments":
+                            $field = "command_command_id_arg";
+                            break;
+                        case "event_handler":
+                            $field = "command_command_id2";
+                            break;
+                        case "event_handler_arguments":
+                            $field = "command_command_id_arg2";
+                            break;
+                        case "check_period":
+                            $field = "timeperiod_tp_id";
+                            break;
+                        case "notification_period":
+                            $field = "timeperiod_tp_id2";
+                            break;
+                        case "template":
+                            $field = "service_template_model_stm_id";
+                            break;
+                        case "geo_coords":
+                        case "contact_additive_inheritance":
+                        case "cg_additive_inheritance":
+                        case "flap_detection_options":
+                            break;
+                        case "notes":
+                        case "notes_url":
+                        case "action_url":
+                        case "icon_image":
+                        case "icon_image_alt":
+                        case "vrml_image":
+                        case "statusmap_image":
+                            $extended = true;
+                            break;
+                        case self::SERVICE_LOCATION:
+                            $field = 'service_location';
+                            break;
+                        default:
+                            if (!preg_match("/^service_/", $field)) {
+                                $field = "service_" . $field;
+                            }
+                            break;
+                    }
+
+                    if (!$extended) {
+                        $ret = $this->object->getParameters($objectId, $field);
+                        $ret = $ret[$field];
+                    } else {
+                        $field = "esi_" . $field;
+                        $extended = new \Centreon_Object_Service_Extended();
+                        $ret = $extended->getParameters($objectId, $field);
+                        $ret = $ret[$field];
+                    }
+
+                    switch ($paramSearch) {
+                        case "check_command":
+                        case "event_handler":
+                            $commandObject = new CentreonCommand();
+                            $field = $commandObject->object->getUniqueLabelField();
+                            $ret = $commandObject->object->getParameters($ret, $field);
+                            $ret = $ret[$field];
+                            break;
+                        case "check_period":
+                        case "notification_period":
+                            $tpObj = new CentreonTimePeriod();
+                            $field = $tpObj->object->getUniqueLabelField();
+                            $ret = $tpObj->object->getParameters($ret, $field);
+                            $ret = $ret[$field];
+                            break;
+                        case self::SERVICE_LOCATION:
+                            $field = $this->timezoneObject->getUniqueLabelField();
+                            $ret = $this->timezoneObject->getParameters($ret, $field);
+                            $ret = $ret[$field];
+                            break;
+                    }
+                    echo $paramSearch . ' : ' . $ret . "\n";
+                }
+            }
+        }
+
+        if (!empty($unknownParam)) {
+            throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ":" . implode('|', $unknownParam));
+        }
     }
 
     /**
