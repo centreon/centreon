@@ -473,7 +473,7 @@ class JiraProvider extends AbstractProvider
                 'contact' => $contact,
                 'host_problems' => $host_problems,
                 'service_problems' => $service_problems,
-                'ticket_value' => $this->_jira_call_response['id'],
+                'ticket_value' => $this->_jira_call_response['key'],
                 'subject' => $ticket_arguments[$this->_internal_arg_name[self::ARG_SUMMARY]],
                 'data_type' => self::DATA_TYPE_JSON,
                 'data' => json_encode(
