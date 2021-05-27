@@ -140,7 +140,7 @@
     protected function _setDefaultValueMain($body_html = 0) {
         parent::_setDefaultValueMain($body_html);
 
-        $this->default_data['url'] = '{$protocol}://{$address}{$api_path}';
+        $this->default_data['url'] = '{$protocol}://{$address}/glpi/front/ticket.form.php?id={$ticket_id}';
 
         $this->default_data['clones']['groupList'] = array(
             array(
