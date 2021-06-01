@@ -1,6 +1,5 @@
 module.exports = {
-  extends:
-    './node_modules/@centreon/frontend-config/eslint/react/typescript.eslintrc.js',
+  extends: '../frontend-config/eslint/react/typescript.eslintrc.js',
   overrides: [
     {
       files: ['*.ts', '*.tsx'],
@@ -8,9 +7,7 @@ module.exports = {
         'import/resolver': {
           alias: {
             extensions: ['.ts', '.tsx', '.js', '.jsx'],
-            map: [
-              ['@centreon/ui-context', './node_modules/@centreon/ui-context'],
-            ],
+            map: [['@centreon/ui-context', '../ui-context']],
           },
         },
       },
