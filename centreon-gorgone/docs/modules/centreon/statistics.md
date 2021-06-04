@@ -6,8 +6,8 @@ This module aims to deal with statistics collection of Centreon Engine and Broke
 
 ## Configuration
 
-| Directive | Description | Default value |
-| :- | :- | :- |
+| Directive        | Description                                                                                    | Default value                     |
+| :--------------- | :--------------------------------------------------------------------------------------------- | :-------------------------------- |
 | broker_cache_dir | Path to the Centreon Broker statistics directory (local) use to store node's broker statistics | `/var/lib/centreon/broker-stats/` |
 
 The configuration needs a cron definition to unsure that statistics collection will be done cyclically.
@@ -30,31 +30,31 @@ cron:
 
 ## Events
 
-| Event | Description |
-| :- | :- |
-| STATISTICSREADY | Internal event to notify the core |
-| BROKERSTATS | Collect Centreon Broker statistics files on node |
+| Event           | Description                                      |
+| :-------------- | :----------------------------------------------- |
+| STATISTICSREADY | Internal event to notify the core                |
+| BROKERSTATS     | Collect Centreon Broker statistics files on node |
 
 ## API
 
 ### Collect Centreon Broker statistics on one or several nodes
 
-| Endpoint | Method |
-| :- | :- |
-| /centreon/statistics/broker | `GET` |
-| /centreon/statistics/broker/:id | `GET` |
+| Endpoint                        | Method |
+| :------------------------------ | :----- |
+| /centreon/statistics/broker     | `GET`  |
+| /centreon/statistics/broker/:id | `GET`  |
 
 #### Headers
 
-| Header | Value |
-| :- | :- |
+| Header | Value            |
+| :----- | :--------------- |
 | Accept | application/json |
 
 #### Path variables
 
-| Variable | Description |
-| :- | :- |
-| id | Identifier of the node |
+| Variable | Description            |
+| :------- | :--------------------- |
+| id       | Identifier of the node |
 
 #### Example
 

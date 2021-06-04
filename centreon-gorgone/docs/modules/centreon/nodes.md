@@ -20,8 +20,8 @@ enable: true
 
 ## Events
 
-| Event | Description |
-| :- | :- |
+| Event              | Description                       |
+| :----------------- | :-------------------------------- |
 | CENTREONNODESREADY | Internal event to notify the core |
 
 ## API

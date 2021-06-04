@@ -10,12 +10,12 @@ No specific configuration is needed.
 
 Below the configuration to add cron definitions:
 
-| Directive | Description |
-| :- | :- |
-| id | Unique identifier of the cron definition |
-| timespec | Cron-like time specification |
-| action | Action/event to call at job execution |
-| parameters | Parameters needed by the called action/event |
+| Directive  | Description                                                                                     |
+| :--------- | :---------------------------------------------------------------------------------------------- |
+| id         | Unique identifier of the cron definition                                                        |
+| timespec   | Cron-like time specification                                                                    |
+| action     | Action/event to call at job execution                                                           |
+| parameters | Parameters needed by the called action/event                                                    |
 | keep_token | Boolean to define whether or not the ID of the definition will be used as token for the command |
 
 #### Example
@@ -48,22 +48,22 @@ cron:
 
 ### Get one or all definitions configuration
 
-| Endpoint | Method |
-| :- | :- |
-| /core/cron/definitions | `GET` |
-| /core/cron/definitions/:id | `GET` |
+| Endpoint                   | Method |
+| :------------------------- | :----- |
+| /core/cron/definitions     | `GET`  |
+| /core/cron/definitions/:id | `GET`  |
 
 #### Headers
 
-| Header | Value |
-| :- | :- |
+| Header | Value            |
+| :----- | :--------------- |
 | Accept | application/json |
 
 #### Path variables
 
-| Variable | Description |
-| :- | :- |
-| id | Identifier of the cron definition |
+| Variable | Description                       |
+| :------- | :-------------------------------- |
+| id       | Identifier of the cron definition |
 
 #### Example
 
@@ -79,21 +79,21 @@ curl --request GET "https://hostname:8443/api/core/cron/definitions/echo_date" \
 
 ### Get one definition status
 
-| Endpoint | Method |
-| :- | :- |
-| /core/cron/definitions/:id/status | `GET` |
+| Endpoint                          | Method |
+| :-------------------------------- | :----- |
+| /core/cron/definitions/:id/status | `GET`  |
 
 #### Headers
 
-| Header | Value |
-| :- | :- |
+| Header | Value            |
+| :----- | :--------------- |
 | Accept | application/json |
 
 #### Path variables
 
-| Variable | Description |
-| :- | :- |
-| id | Identifier of the cron definition |
+| Variable | Description                       |
+| :------- | :-------------------------------- |
+| id       | Identifier of the cron definition |
 
 #### Example
 
@@ -104,25 +104,25 @@ curl --request GET "https://hostname:8443/api/core/cron/definitions/echo_date/st
 
 ### Add one or several cron definitions
 
-| Endpoint | Method |
-| :- | :- |
+| Endpoint               | Method |
+| :--------------------- | :----- |
 | /core/cron/definitions | `POST` |
 
 #### Headers
 
-| Header | Value |
-| :- | :- |
-| Accept | application/json |
+| Header       | Value            |
+| :----------- | :--------------- |
+| Accept       | application/json |
 | Content-Type | application/json |
 
 #### Body
 
-| Key | Value |
-| :- | :- |
-| id | ID of the definition |
-| timespec | Cron-like time specification |
-| command | Action/event to call at job execution |
-| parameters | Parameters needed by the called action/event |
+| Key        | Value                                                                                           |
+| :--------- | :---------------------------------------------------------------------------------------------- |
+| id         | ID of the definition                                                                            |
+| timespec   | Cron-like time specification                                                                    |
+| command    | Action/event to call at job execution                                                           |
+| parameters | Parameters needed by the called action/event                                                    |
 | keep_token | Boolean to define whether or not the ID of the definition will be used as token for the command |
 
 ```json
@@ -161,22 +161,22 @@ curl --request POST "https://hostname:8443/api/core/cron/definitions" \
 
 ### Update a definition
 
-| Endpoint | Method |
-| :- | :- |
+| Endpoint                   | Method  |
+| :------------------------- | :------ |
 | /core/cron/definitions/:id | `PATCH` |
 
 #### Headers
 
-| Header | Value |
-| :- | :- |
-| Accept | application/json |
+| Header       | Value            |
+| :----------- | :--------------- |
+| Accept       | application/json |
 | Content-Type | application/json |
 
 #### Path variables
 
-| Variable | Description |
-| :- | :- |
-| id | Identifier of the cron definition |
+| Variable | Description                       |
+| :------- | :-------------------------------- |
+| id       | Identifier of the cron definition |
 
 #### Body
 
@@ -205,21 +205,21 @@ curl --request PATCH "https://hostname:8443/api/core/cron/definitions/job_123" \
 
 ### Delete a definition
 
-| Endpoint | Method |
-| :- | :- |
+| Endpoint                   | Method   |
+| :------------------------- | :------- |
 | /core/cron/definitions/:id | `DELETE` |
 
 #### Headers
 
-| Header | Value |
-| :- | :- |
+| Header | Value            |
+| :----- | :--------------- |
 | Accept | application/json |
 
 #### Path variables
 
-| Variable | Description |
-| :- | :- |
-| id | Identifier of the cron definition |
+| Variable | Description                       |
+| :------- | :-------------------------------- |
+| id       | Identifier of the cron definition |
 
 #### Example
 

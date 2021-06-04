@@ -8,15 +8,15 @@ It relies on a core API module to server Gorgone events and can dispatch any oth
 
 ## Configuration
 
-| Directive | Description | Default value |
-| :- | :- | :- |
-| address | IP address for the server to bind to | `0.0.0.0` |
-| port | Port on which the server will listen to requests | `8080` |
-| ssl | Boolean to enable SSL terminaison | `false` |
-| ssl_cert_file | Path to the SSL certificate (if SSL enabled) |  |
-| ssl_key_file | Path to the SSL key (if SSL enabled) |  |
-| auth | Basic credentials to access the server |  |
-| allowed_hosts | Peer address to access the server |  |
+| Directive     | Description                                      | Default value |
+| :------------ | :----------------------------------------------- | :------------ |
+| address       | IP address for the server to bind to             | `0.0.0.0`     |
+| port          | Port on which the server will listen to requests | `8080`        |
+| ssl           | Boolean to enable SSL terminaison                | `false`       |
+| ssl_cert_file | Path to the SSL certificate (if SSL enabled)     |               |
+| ssl_key_file  | Path to the SSL key (if SSL enabled)             |               |
+| auth          | Basic credentials to access the server           |               |
+| allowed_hosts | Peer address to access the server                |               |
 
 #### Example
 
@@ -51,6 +51,6 @@ dispatch:
 
 ## Events
 
-| Event | Description |
-| :- | :- |
+| Event           | Description                       |
+| :-------------- | :-------------------------------- |
 | HTTPSERVERREADY | Internal event to notify the core |

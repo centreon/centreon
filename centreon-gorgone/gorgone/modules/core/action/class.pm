@@ -50,7 +50,12 @@ sub new {
 
     $connector->{command_timeout} = defined($connector->{config}->{command_timeout}) ?
         $connector->{config}->{command_timeout} : 30;
-    
+    $connector->{whitelist_cmds} = defined($connector->{config}->{whitelist_cmds}) && $connector->{config}->{whitelist_cmds} =~ /true|1/i ?
+        1 : 0;
+    $connector->{allowed_cmds} = [];
+    $connector->{allowed_cmds} = $connector->{config}->{allowed_cmds}
+        if (defined($connector->{config}->{allowed_cmds}) && ref($connector->{config}->{allowed_cmds}) eq 'ARRAY');
+
     $connector->set_signal_handlers;
     return $connector;
 }
@@ -117,6 +122,31 @@ sub action_command {
             );
             return -1;
         }
+
+        if ($self->{whitelist_cmds} == 1) {
+            my $matched = 0;
+            foreach my $regexp (@{$self->{allowed_cmds}}) {
+                if ($command->{command} =~ /$regexp/) {
+                    $matched = 1;
+                    last;
+                }
+            }
+
+            if ($matched == 0) {
+                $self->{logger}->writeLogInfo("[action] command not allowed (whitelist): " . $command->{command});
+                $self->send_log(
+                    socket => $options{socket_log},
+                    code => GORGONE_ACTION_FINISH_KO,
+                    token => $options{token},
+                    logging => $options{data}->{logging},
+                    data => {
+                        message => "command not allowed (whitelist) at array index '" . $index . "'",
+                    }
+                );
+                return -1;
+            }
+        }
+
         $index++;
     }
     

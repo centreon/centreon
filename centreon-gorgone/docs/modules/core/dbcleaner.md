@@ -8,10 +8,10 @@ The module is loaded by default. Adding it to the configuration will overload da
 
 ## Configuration
 
-| Directive | Description | Default value |
-| :- | :- | :- |
-| purge_sessions_time | Time in seconds before deleting sessions in the `gorgone_identity` table | `3600` |
-| purge_history_time | Time in seconds before deleting history in the `gorgone_history` table | `604800` |
+| Directive           | Description                                                              | Default value |
+| :------------------ | :----------------------------------------------------------------------- | :------------ |
+| purge_sessions_time | Time in seconds before deleting sessions in the `gorgone_identity` table | `3600`        |
+| purge_history_time  | Time in seconds before deleting history in the `gorgone_history` table   | `604800`      |
 
 #### Example
 
@@ -25,8 +25,8 @@ purge_history_time: 604800
 
 ## Events
 
-| Event | Description |
-| :- | :- |
+| Event          | Description                       |
+| :------------- | :-------------------------------- |
 | DBCLEANERREADY | Internal event to notify the core |
 
 ## API
