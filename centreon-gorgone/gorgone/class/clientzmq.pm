@@ -98,10 +98,12 @@ sub init {
     
     $self->{handshake} = 0;
     $sockets->{$self->{identity}} = gorgone::standard::library::connect_com(
-        zmq_type => 'ZMQ_DEALER', name => $self->{identity} . '-' .  $self->{extra_identity},
+        zmq_type => 'ZMQ_DEALER',
+        name => $self->{identity} . '-' .  $self->{extra_identity},
         logger => $self->{logger},
         type => $self->{target_type},
-        path => $self->{target_path}
+        path => $self->{target_path},
+        zmq_ipv6 => $self->{config_core}->{ipv6}
     );
     $callbacks->{$self->{identity}} = $options{callback} if (defined($options{callback}));
 }

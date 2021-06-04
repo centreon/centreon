@@ -805,6 +805,7 @@ sub run {
                 zmq_type => 'ZMQ_ROUTER',
                 zmq_router_handover => $gorgone->{config}->{configuration}->{gorgone}->{gorgonecore}->{external_com_zmq_router_handover},
                 zmq_tcp_keepalive => $gorgone->{config}->{configuration}->{gorgone}->{gorgonecore}->{external_com_zmq_tcp_keepalive},
+                zmq_ipv6 => $gorgone->{config}->{configuration}->{gorgone}->{gorgonecore}->{ipv6},
                 name => 'router-external',
                 logger => $gorgone->{logger}
             );

@@ -41,6 +41,7 @@ our $listener;
 my %zmq_type = ('ZMQ_ROUTER' => ZMQ_ROUTER, 'ZMQ_DEALER' => ZMQ_DEALER);
 my $ZMQ_CONNECT_TIMEOUT = 79;
 my $ZMQ_ROUTER_HANDOVER = 56;
+my $ZMQ_IPV6 = 42;
 my $ZMQ_TCP_KEEPALIVE = 34;
 
 sub read_config {
@@ -739,6 +740,9 @@ sub connect_com {
     zmq_setsockopt($socket, ZMQ_RECONNECT_IVL, 1000);
     ZMQ::LibZMQ4::zmq_setsockopt_int($socket, $ZMQ_CONNECT_TIMEOUT, defined($options{zmq_connect_timeout}) ? $options{zmq_connect_timeout} : 30000);
     ZMQ::LibZMQ4::zmq_setsockopt_int($socket, $ZMQ_ROUTER_HANDOVER, defined($options{zmq_router_handover}) ? $options{zmq_router_handover} : 1);
+    if ($options{type} eq 'tcp') {
+        ZMQ::LibZMQ4::zmq_setsockopt_int($socket, $ZMQ_IPV6, defined($options{zmq_ipv6}) && $options{zmq_ipv6} =~ /true|1/i ? 1 : 0);
+    }
     zmq_connect($socket, $options{type} . '://' . $options{path});
     return $socket;
 }
@@ -757,6 +761,7 @@ sub create_com {
     zmq_setsockopt($socket, ZMQ_LINGER, 0); # we discard
     ZMQ::LibZMQ4::zmq_setsockopt_int($socket, $ZMQ_ROUTER_HANDOVER, defined($options{zmq_router_handover}) ? $options{zmq_router_handover} : 1);
     if ($options{type} eq 'tcp') {
+        ZMQ::LibZMQ4::zmq_setsockopt_int($socket, $ZMQ_IPV6, defined($options{zmq_ipv6}) && $options{zmq_ipv6} =~ /true|1/i ? 1 : 0);
         ZMQ::LibZMQ4::zmq_setsockopt_int($socket, $ZMQ_TCP_KEEPALIVE, defined($options{zmq_tcp_keepalive}) ? $options{zmq_tcp_keepalive} : -1);
         zmq_bind($socket, 'tcp://' . $options{path});
     } elsif ($options{type} eq 'ipc') {
