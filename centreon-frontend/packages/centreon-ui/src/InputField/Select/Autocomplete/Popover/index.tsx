@@ -3,7 +3,7 @@ import * as React from 'react';
 import { isEmpty } from 'ramda';
 
 import { UseAutocompleteProps } from '@material-ui/lab';
-import { Avatar, Chip } from '@material-ui/core';
+import { Avatar, Chip, useTheme } from '@material-ui/core';
 
 import { Props as AutocompleteProps } from '..';
 import { SelectEntry } from '../..';
@@ -29,6 +29,7 @@ const PopoverAutocomplete = (
     ...props
   }: Props): JSX.Element => {
     const [optionsOpen, setOptionsOpen] = React.useState<boolean>(false);
+    const theme = useTheme();
 
     const icon = (
       <Chip
@@ -58,7 +59,7 @@ const PopoverAutocomplete = (
           displayPopupIcon={false}
           open={optionsOpen}
           renderTags={() => null}
-          style={{ minWidth: 145 }}
+          style={{ minWidth: theme.spacing(20) }}
           value={value}
           onChange={onChange}
           {...props}
