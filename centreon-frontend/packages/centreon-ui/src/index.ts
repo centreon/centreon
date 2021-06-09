@@ -120,3 +120,5 @@ export type {
 export { default as useMemoComponent } from './utils/useMemoComponent';
 export { default as MenuSkeleton } from './MenuSkeleton';
 export { default as PopoverMenu } from './PopoverMenu';
+
+export { default as LicenseMessage } from './LicenseMessage';
