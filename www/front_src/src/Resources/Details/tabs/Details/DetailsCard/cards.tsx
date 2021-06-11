@@ -1,10 +1,12 @@
 import * as React from 'react';
 
-import { pick } from 'ramda';
+import { isNil, join, path, pick } from 'ramda';
 
 import { Grid, Chip, Tooltip } from '@material-ui/core';
 import FlappingIcon from '@material-ui/icons/SwapCalls';
 
+import { ResourceAdditionals } from '../../../../models';
+import { getFormattedCalculationMethod } from '../../../../Listing/columns';
 import ChecksIcon from '../../../../ChecksIcon';
 import {
   labelCurrentStateDuration,
@@ -25,6 +27,7 @@ import {
   labelCalculationType,
   labelCheck,
   labelFlapping,
+  labelHealth,
 } from '../../../../translatedLabels';
 import { ResourceDetails } from '../../../models';
 
@@ -43,6 +46,22 @@ interface DetailCardLineProps {
   t: (label: string) => string;
   toDateTime: (date: string | Date) => string;
 }
+
+const getCalculationMethodAndHealthInformations = (
+  additionals: ResourceAdditionals | undefined,
+): string | undefined => {
+  if (isNil(additionals)) {
+    return undefined;
+  }
+  const formattedCalculationMethod = `(${getFormattedCalculationMethod(
+    additionals,
+  )})`;
+
+  const formattedHealth = !isNil(additionals.health) ? additionals.health : '';
+
+  return join(' ', [formattedHealth, formattedCalculationMethod]);
+};
+
 const getDetailCardLines = ({
   details,
   toDateTime,
@@ -142,6 +161,19 @@ const getDetailCardLines = ({
       field: details.calculation_type,
       line: <DetailsLine line={details.calculation_type} />,
       title: labelCalculationType,
+    },
+    {
+      field: path(['additionals', 'calculation_method'], details),
+      line: (
+        <DetailsLine
+          line={
+            details
+              ? getCalculationMethodAndHealthInformations(details.additionals)
+              : ''
+          }
+        />
+      ),
+      title: labelHealth,
     },
     {
       field: details.groups,
