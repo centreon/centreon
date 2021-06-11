@@ -20,9 +20,9 @@
  */
 declare(strict_types=1);
 
-namespace Centreon\Infrastructure\Monitoring\Resource\Provider;
+namespace Centreon\Infrastructure\Monitoring\MonitoringResource\Repository\Provider;
 
-use Centreon\Infrastructure\Monitoring\Resource\Provider\Provider;
+use Centreon\Infrastructure\Monitoring\MonitoringResource\Repository\Provider\Provider;
 use Centreon\Domain\Monitoring\Resource;
 use Centreon\Domain\Monitoring\ResourceFilter;
 use Centreon\Domain\Monitoring\ResourceStatus;

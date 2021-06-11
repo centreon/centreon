@@ -198,22 +198,26 @@ services:
 
     # Monitoring resources
     _instanceof:
-        Centreon\Infrastructure\Monitoring\Resource\Provider\ProviderInterface:
-            tags: ['monitoring.resource.providers']
+        Centreon\Infrastructure\Monitoring\MonitoringResource\Repository\Provider\ProviderInterface:
+            tags: ['monitoring.monitoringresource.repository.providers']
             calls:
                 - method: setSqlRequestTranslator
                   arguments: ['@sqlRequestTranslator']
+        Centreon\Domain\Monitoring\MonitoringResource\Interfaces\HyperMediaProviderInterface:
+            tags: ['monitoring.monitoringresource.hypermediaproviders']
 
-    Centreon\Domain\Monitoring\Interfaces\ResourceServiceInterface:
-        class: Centreon\Domain\Monitoring\ResourceService
-
-    Centreon\Domain\Monitoring\Interfaces\ResourceRepositoryInterface:
-        class: Centreon\Infrastructure\Monitoring\Resource\ResourceRepositoryRDB
+    Centreon\Domain\Monitoring\MonitoringResource\Interfaces\MonitoringResourceRepositoryInterface:
+        class: Centreon\Infrastructure\Monitoring\MonitoringResource\Repository\MonitoringResourceRepositoryRDB
         calls:
             - method: setSqlRequestTranslator
               arguments: ['@sqlRequestTranslator']
             - method: setProviders
-              arguments: [!tagged_iterator 'monitoring.resource.providers']
+              arguments: [!tagged_iterator 'monitoring.monitoringresource.repository.providers']
+
+    Centreon\Application\Controller\MonitoringResourceController:
+        calls:
+            - method: setHyperMediaProviders
+              arguments: [!tagged_iterator 'monitoring.monitoringresource.hypermediaproviders']
 
     # Filters
     Centreon\Domain\Filter\Interfaces\FilterServiceInterface:

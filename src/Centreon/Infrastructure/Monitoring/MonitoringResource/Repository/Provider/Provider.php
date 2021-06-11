@@ -20,10 +20,10 @@
  */
 declare(strict_types=1);
 
-namespace Centreon\Infrastructure\Monitoring\Resource\Provider;
+namespace Centreon\Infrastructure\Monitoring\MonitoringResource\Repository\Provider;
 
 use Centreon\Infrastructure\Repository\AbstractRepositoryDRB;
-use Centreon\Infrastructure\Monitoring\Resource\Provider\ProviderInterface;
+use Centreon\Infrastructure\Monitoring\MonitoringResource\Repository\Provider\ProviderInterface;
 use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
 use Centreon\Domain\RequestParameters\RequestParameters;

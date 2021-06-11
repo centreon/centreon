@@ -20,10 +20,10 @@
  */
 declare(strict_types=1);
 
-namespace Centreon\Infrastructure\Monitoring\Resource\Provider;
+namespace Centreon\Infrastructure\Monitoring\MonitoringResource\Repository\Provider;
 
-use Centreon\Infrastructure\Monitoring\Resource\Provider\Provider;
-use Centreon\Domain\Monitoring\Resource;
+use Centreon\Infrastructure\Monitoring\MonitoringResource\Repository\Provider\Provider;
+use Centreon\Domain\Monitoring\MonitoringResource\Model\MonitoringResource;
 use Centreon\Domain\Monitoring\ResourceFilter;
 use Centreon\Domain\Monitoring\ResourceStatus;
 use Centreon\Domain\Monitoring\Interfaces\ResourceServiceInterface;
@@ -232,7 +232,7 @@ final class MetaServiceProvider extends Provider
         $metaServiceResources = [];
 
         foreach ($resources as $key => $resource) {
-            if ($resource->getType() === Resource::TYPE_META) {
+            if ($resource->getType() === MonitoringResource::TYPE_META) {
                 $where[] = "(s.description = :service_description_{$key})";
                 $collector->addValue(":service_description_{$key}", 'meta_' . $resource->getId(), \PDO::PARAM_STR);
                 $metaServiceResources[] = $resource;

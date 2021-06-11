@@ -20,10 +20,10 @@
  */
 declare(strict_types=1);
 
-namespace Centreon\Infrastructure\Monitoring\Resource\Provider;
+namespace Centreon\Infrastructure\Monitoring\MonitoringResource\Repository\Provider;
 
-use Centreon\Infrastructure\Monitoring\Resource\Provider\Provider;
-use Centreon\Domain\Monitoring\Resource;
+use Centreon\Infrastructure\Monitoring\MonitoringResource\Repository\Provider\Provider;
+use Centreon\Domain\Monitoring\MonitoringResource\Model\MonitoringResource;
 use Centreon\Domain\Monitoring\ResourceFilter;
 use Centreon\Domain\Monitoring\ResourceStatus;
 use Centreon\Domain\Monitoring\Interfaces\ResourceServiceInterface;
@@ -314,7 +314,7 @@ final class ServiceProvider extends Provider
         $serviceResources = [];
 
         foreach ($resources as $key => $resource) {
-            if ($resource->getType() === Resource::TYPE_SERVICE) {
+            if ($resource->getType() === MonitoringResource::TYPE_SERVICE) {
                 $where[] = "(i.host_id = :host_id_{$key} AND i.service_id = :service_id_{$key})";
                 $collector->addValue(":service_id_{$key}", $resource->getId(), \PDO::PARAM_INT);
                 $collector->addValue(":host_id_{$key}", $resource->getParent()->getId(), \PDO::PARAM_INT);

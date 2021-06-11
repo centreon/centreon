@@ -21,7 +21,7 @@
 
 namespace Tests\Centreon\Infrastructure\Monitoring\Resource\Provider;
 
-use Centreon\Infrastructure\Monitoring\Resource\Provider\ServiceProvider;
+use Centreon\Infrastructure\Monitoring\MonitoringResource\Repository\Provider\ServiceProvider;
 use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
 use Centreon\Domain\RequestParameters\RequestParameters;

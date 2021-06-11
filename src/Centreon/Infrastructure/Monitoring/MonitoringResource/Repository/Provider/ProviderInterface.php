@@ -20,10 +20,10 @@
  */
 declare(strict_types=1);
 
-namespace Centreon\Infrastructure\Monitoring\Resource\Provider;
+namespace Centreon\Infrastructure\Monitoring\MonitoringResource\Repository\Provider;
 
 use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
-use Centreon\Domain\Monitoring\Resource as ResourceEntity;
+use Centreon\Domain\Monitoring\MonitoringResource\Model\MonitoringResource;
 use Centreon\Domain\Monitoring\ResourceFilter;
 use Centreon\Infrastructure\CentreonLegacyDB\StatementCollector;
 

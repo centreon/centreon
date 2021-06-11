@@ -20,32 +20,28 @@
  */
 declare(strict_types=1);
 
-namespace Centreon\Infrastructure\Monitoring\Resource;
+namespace Centreon\Infrastructure\Monitoring\MonitoringResource\Repository;
 
+use Centreon\Domain\Security\AccessGroup;
+use Centreon\Domain\Monitoring\ResourceFilter;
+use Centreon\Infrastructure\DatabaseConnection;
+use Centreon\Domain\Repository\RepositoryException;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\RequestParameters\RequestParameters;
 use Centreon\Infrastructure\Repository\AbstractRepositoryDRB;
-use Centreon\Domain\Security\AccessGroup;
-use Centreon\Domain\Entity\EntityCreator;
-use Centreon\Domain\Monitoring\Icon;
-use Centreon\Domain\Monitoring\Resource as ResourceEntity;
-use Centreon\Domain\Monitoring\ResourceFilter;
-use Centreon\Domain\Monitoring\ResourceStatus;
-use Centreon\Domain\Monitoring\Interfaces\ResourceRepositoryInterface;
-use Centreon\Domain\Monitoring\Notes;
-use Centreon\Infrastructure\Monitoring\Resource\Provider\ProviderInterface;
-use Centreon\Infrastructure\DatabaseConnection;
-use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
 use Centreon\Infrastructure\CentreonLegacyDB\StatementCollector;
-use Centreon\Domain\Repository\RepositoryException;
+use Centreon\Domain\Monitoring\MonitoringResource\Interfaces\MonitoringResourceRepositoryInterface;
+use Centreon\Infrastructure\Monitoring\MonitoringResource\Repository\Provider\ProviderInterface;
+use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
 use Centreon\Infrastructure\RequestParameters\RequestParametersTranslatorException;
+use Centreon\Infrastructure\Monitoring\MonitoringResource\Repository\Model\MonitoringResourceFactoryRdb;
 
 /**
  * Database repository for the real time monitoring of services and host.
  *
- * @package Centreon\Infrastructure\Monitoring\Resource
+ * @package Centreon\Infrastructure\Monitoring\MonitoringResource\Repository
  */
-final class ResourceRepositoryRDB extends AbstractRepositoryDRB implements ResourceRepositoryInterface
+final class MonitoringResourceRepositoryRDB extends AbstractRepositoryDRB implements MonitoringResourceRepositoryInterface
 {
     /**
      * @var SqlRequestParametersTranslator
@@ -63,9 +59,14 @@ final class ResourceRepositoryRDB extends AbstractRepositoryDRB implements Resou
     private $contact;
 
     /**
-     * @var AccessGroup[] List of access group used to filter the requests
+     * @var AccessGroupRepositoryInterface
      */
-    private $accessGroups = [];
+    private $accessGroupRepository;
+
+    /**
+     * @var ResourceFilter
+     */
+    private $filter;
 
     /**
      * @var array Association of resource search parameters
@@ -131,34 +132,41 @@ final class ResourceRepositoryRDB extends AbstractRepositoryDRB implements Resou
     }
 
     /**
-     * {@inheritDoc}
+     * @inheritDoc
      */
-    public function setContact(ContactInterface $contact): ResourceRepositoryInterface
+    public function findAll(ResourceFilter $filter): array
     {
-        $this->contact = $contact;
-
-        return $this;
+        return $this->findAllRequest($filter, null);
     }
 
     /**
-     * {@inheritDoc}
+     * @inheritDoc
      */
-    public function filterByAccessGroups(?array $accessGroups): ResourceRepositoryInterface
+    public function findAllByContact(ResourceFilter $filter, ContactInterface $contact): array
     {
-        $this->accessGroups = $accessGroups;
-
-        return $this;
+        return $this->findAllRequest($filter, $contact->getId());
     }
 
     /**
-     * {@inheritDoc}
+     * Find all monitoring resources by contact id
+     *
+     * @param ResourceFilter $filter
+     * @param integer|null $contactId
+     * @return array
+     * @throws AssertionFailedException
+     * @throws \InvalidArgumentException
      */
-    public function findResources(ResourceFilter $filter): array
+    private function findAllRequest(ResourceFilter $filter, ?int $contactId): array
     {
-        $resources = [];
+        $monitoringResources = [];
+        $accessGroups = [];
 
-        if ($this->hasNotEnoughRightsToContinue()) {
-            return $resources;
+        if ($contactId !== null) {
+            $accessGroups = $this->accessGroup->findAllByContact($this->contact);
+
+            if (count($accessGroups) === 0) {
+                return [];
+            }
         }
 
         $collector = new StatementCollector();
@@ -189,20 +197,18 @@ final class ResourceRepositoryRDB extends AbstractRepositoryDRB implements Resou
 
         $subRequests = [];
         foreach ($this->providers as $provider) {
-            if ($provider->shouldBeSearched($filter)) {
-                if ($this->isAdmin()) {
-                    $subRequest = $provider->prepareSubQueryWithoutAcl($filter, $collector);
-                } else {
-                    $accessGroupIds = array_map(
-                        function ($accessGroup) {
-                            return $accessGroup->getId();
-                        },
-                        $this->accessGroups
-                    );
-                    $subRequest = $provider->prepareSubQueryWithAcl($filter, $collector, $accessGroupIds);
-                }
-                $subRequests[] = '(' . $subRequest . ')';
+            if ($contactId !== null) {
+                $accessGroupIds = array_map(
+                    function ($accessGroup) {
+                        return $accessGroup->getId();
+                    },
+                    $accessGroups
+                );
+                $subRequest = $provider->prepareSubQueryWithAcl($filter, $collector, $accessGroupIds);
+            } else {
+                $subRequest = $provider->prepareSubQueryWithoutAcl($filter, $collector);
             }
+            $subRequests[] = '(' . $subRequest . ')';
         }
 
         if (!$subRequests) {
@@ -277,85 +283,10 @@ final class ResourceRepositoryRDB extends AbstractRepositoryDRB implements Resou
             (int)$this->db->query('SELECT FOUND_ROWS()')->fetchColumn()
         );
 
-        while ($result = $statement->fetch()) {
-            $resources[] = $this->parseResource($result);
+        while (($record = $statement->fetch(\PDO::FETCH_ASSOC)) !== false) {
+            $monitoringResources[] = MonitoringResourceFactoryRdb::create($record);
         }
-
-        return $resources;
-    }
-
-    /**
-     * Parse array data from DB into Resource model
-     *
-     * @param array $data
-     * @return ResourceEntity
-     * @throws \Exception
-     */
-    protected function parseResource(array $data): ResourceEntity
-    {
-        $resource = EntityCreator::createEntityByArray(
-            ResourceEntity::class,
-            $data
-        );
-
-        $resource->setHostId((int)$data['host_id']);
-        $resource->setServiceId((int)$data['service_id']);
-
-        // parse ResourceStatus object
-        $resource->setStatus(EntityCreator::createEntityByArray(
-            ResourceStatus::class,
-            $data,
-            'status_'
-        ));
-
-        // parse Icon object
-        $icon = EntityCreator::createEntityByArray(
-            Icon::class,
-            $data,
-            'icon_'
-        );
-
-        if ($icon->getUrl()) {
-            $resource->setIcon($icon);
-        }
-
-        // parse parent Resource object
-        $parent = EntityCreator::createEntityByArray(
-            ResourceEntity::class,
-            $data,
-            'parent_'
-        );
-
-        if ($parent->getId()) {
-            $parentIcon = EntityCreator::createEntityByArray(
-                Icon::class,
-                $data,
-                'parent_icon_'
-            );
-
-            if ($parentIcon->getUrl()) {
-                $parent->setIcon($parentIcon);
-            }
-
-            $parentStatus = EntityCreator::createEntityByArray(
-                ResourceStatus::class,
-                $data,
-                'parent_status_'
-            );
-            $parent->setStatus($parentStatus);
-
-            $resource->setParent($parent);
-        }
-
-        // Setting the External links
-        $externalLinks = $resource->getLinks()->getExternals();
-        $externalLinks->setActionUrl($data['action_url']);
-        $notes = (new Notes())
-            ->setUrl($data['notes_url'])
-            ->setLabel($data['notes_label']);
-        $externalLinks->setNotes($notes);
-
-        return $resource;
+        return $monitoringResources;
     }
 
     /**
@@ -368,27 +299,5 @@ final class ResourceRepositoryRDB extends AbstractRepositoryDRB implements Resou
         }
 
         return $resources;
-    }
-
-    /**
-     * Check if the contact is admin
-     *
-     * @return bool
-     */
-    private function isAdmin(): bool
-    {
-        return ($this->contact !== null)
-            ? $this->contact->isAdmin()
-            : false;
-    }
-
-    /**
-     * @return bool Return FALSE if the contact is an admin or has at least one access group.
-     */
-    private function hasNotEnoughRightsToContinue(): bool
-    {
-        return ($this->contact !== null)
-            ? !($this->contact->isAdmin() || count($this->accessGroups) > 0)
-            : count($this->accessGroups) == 0;
     }
 }
