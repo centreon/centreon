@@ -144,7 +144,13 @@ sub call_internal {
         json_encode => 1
     );
 
-    my $rev = zmq_poll($poll, 5000);
+    my $timeout = 5000;
+    while ($timeout > 100) {
+        my $t1 = Time::HiRes::time();
+        my $rev = zmq_poll($poll, $timeout);
+        last if (defined($results->{ $action_token }));
+        $timeout -= ($t1 - Time::HiRes::time());
+    }
 
     my $response = '{"error":"no_result", "message":"No result found for action \'' . $options{action} . '\'"}';
     if (defined($results->{$action_token}->{data})) {
@@ -194,10 +200,11 @@ sub get_log {
         Time::HiRes::usleep($sync_wait);
     }
 
+    my $token_log = $options{token} . '-log';
     gorgone::standard::library::zmq_send_message(
         socket => $socket,
         action => 'GETLOG',
-        token => $options{token},
+        token => $token_log,
         data => {
             token => $options{token},
             %{$options{parameters}}
@@ -205,13 +212,19 @@ sub get_log {
         json_encode => 1
     );
 
-    my $rev = zmq_poll($poll, 5000);
+    my $timeout = 5000;
+    while ($timeout > 100) {
+        my $t1 = Time::HiRes::time();
+        my $rev = zmq_poll($poll, $timeout);
+        last if (defined($results->{ $token_log }));
+        $timeout -= ($t1 - Time::HiRes::time());
+    }
 
     my $response = '{"error":"no_log","message":"No log found for token","data":[],"token":"' . $options{token} . '"}';
-    if (defined($results->{ $options{token} }) && defined($results->{ $options{token} }->{data})) {
+    if (defined($results->{ $token_log }) && defined($results->{ $token_log }->{data})) {
         my $content;
         eval {
-            $content = JSON::XS->new->utf8->decode($results->{ $options{token} }->{data});
+            $content = JSON::XS->new->utf8->decode($results->{ $token_log }->{data});
         };
         if ($@) {
             $response = '{"error":"decode_error","message":"Cannot decode response"}';
