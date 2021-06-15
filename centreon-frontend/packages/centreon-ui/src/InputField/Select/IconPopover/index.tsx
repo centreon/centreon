@@ -115,6 +115,7 @@ const IconPopoverMultiAutocomplete = ({
               const { id, name } = option;
               return (
                 <MenuItem
+                  disabled={option.disabled || false}
                   key={id}
                   value={name}
                   onClick={() => unSelect(option)}

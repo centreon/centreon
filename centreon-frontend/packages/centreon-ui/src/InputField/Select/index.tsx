@@ -34,6 +34,7 @@ const useStyles = makeStyles((theme: Theme) => ({
 export interface SelectEntry {
   color?: string;
   createOption?: string;
+  disabled?: boolean;
   id: number | string;
   inputValue?: string;
   name: string;

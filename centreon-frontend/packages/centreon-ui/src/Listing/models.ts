@@ -9,6 +9,7 @@ export interface Column {
   clickable?: boolean;
   compact?: boolean;
   disablePadding?: boolean;
+  disabled?: boolean;
   getColSpan?: (isSelected) => number | undefined;
   getFormattedString?: (row) => string | null;
   getHiddenCondition?: (isSelected) => boolean;
