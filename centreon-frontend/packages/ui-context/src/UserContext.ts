@@ -36,10 +36,22 @@ const defaultDowntime = {
 
 const defaultRefreshInterval = 15;
 
+export const defaultPlatformModules = {
+  modules: {},
+  web: {
+    fix: '0',
+    license: null,
+    major: '21',
+    minor: '10',
+    version: '21.10.0',
+  },
+};
+
 const defaultContext: UserContext = {
   ...defaultUser,
   acl: defaultAcl,
   downtime: defaultDowntime,
+  platformModules: defaultPlatformModules,
   refreshInterval: defaultRefreshInterval,
 };
 
