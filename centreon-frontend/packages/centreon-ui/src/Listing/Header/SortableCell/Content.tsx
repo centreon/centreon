@@ -46,6 +46,8 @@ const SortableHeaderCellContent = React.forwardRef(
   ): JSX.Element => {
     const classes = useStyles({ isDragging });
 
+    const columnLabel = column.shortLabel || column.label;
+
     const columnSortField = column.sortField || column.id;
 
     const sort = (): void => {
@@ -75,10 +77,10 @@ const SortableHeaderCellContent = React.forwardRef(
             direction={sortOrder || 'desc'}
             onClick={sort}
           >
-            <HeaderLabel>{column.label}</HeaderLabel>
+            <HeaderLabel>{columnLabel}</HeaderLabel>
           </TableSortLabel>
         ) : (
-          <HeaderLabel>{column.label}</HeaderLabel>
+          <HeaderLabel>{columnLabel}</HeaderLabel>
         )}
       </div>
     );

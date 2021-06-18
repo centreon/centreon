@@ -20,6 +20,7 @@ export interface Column {
   isTruncated?: boolean;
   label: string;
   rowMemoProps?: Array<string>;
+  shortLabel?: string;
   sortField?: string;
   sortable?: boolean;
   type: ColumnType;

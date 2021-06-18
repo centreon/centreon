@@ -1,7 +1,7 @@
 import * as React from 'react';
 
 import { useTranslation } from 'react-i18next';
-import { prop } from 'ramda';
+import { isNil, prop } from 'ramda';
 
 import ColumnIcon from '@material-ui/icons/ViewColumn';
 
@@ -17,10 +17,9 @@ type Props = Pick<
 >;
 
 const toSelectEntries = (columns: Array<Column>): Array<SelectEntry> => {
-  return columns.map(({ id, label, disabled }) => ({
-    disabled,
+  return columns.map(({ id, label, shortLabel }) => ({
     id,
-    name: label,
+    name: `${label}${!isNil(shortLabel) ? ` (${shortLabel})` : ''}`,
   }));
 };
 
