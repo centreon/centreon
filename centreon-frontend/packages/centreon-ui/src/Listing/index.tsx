@@ -187,6 +187,10 @@ const Listing = <TRow extends { id: RowId }>({
     event.preventDefault();
     event.stopPropagation();
 
+    if (disableRowCheckCondition(row)) {
+      return;
+    }
+
     if (selectedRowsInclude(row)) {
       onSelectRows(
         selectedRows.filter((entity) => !equals(getId(entity), getId(row))),
