@@ -52,18 +52,20 @@ const PopoverAutocomplete = (
 
     return (
       <PopoverMenu icon={icon} onClose={closeOptions} onOpen={openOptions}>
-        <AutocompleteField
-          autoFocus
-          disableCloseOnSelect
-          multiple
-          displayPopupIcon={false}
-          open={optionsOpen}
-          renderTags={() => null}
-          style={{ minWidth: theme.spacing(20) }}
-          value={value}
-          onChange={onChange}
-          {...props}
-        />
+        {() => (
+          <AutocompleteField
+            autoFocus
+            disableCloseOnSelect
+            multiple
+            displayPopupIcon={false}
+            open={optionsOpen}
+            renderTags={() => null}
+            style={{ minWidth: theme.spacing(20) }}
+            value={value}
+            onChange={onChange}
+            {...props}
+          />
+        )}
       </PopoverMenu>
     );
   };
