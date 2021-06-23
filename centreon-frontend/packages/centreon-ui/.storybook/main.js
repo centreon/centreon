@@ -1,5 +1,8 @@
 module.exports = {
   stories: ['../src/**/*.stories.@(jsx|tsx)'],
+  typescript: {
+    reactDocgen: 'none'
+  },
   addons: [],
   webpackFinal: (config) => ({
     ...config,
@@ -49,10 +52,15 @@ module.exports = {
         },
         {
           test: /\.(?:png|jpg|svg)$/,
-          loader: 'url-loader',
-          query: {
-            limit: 10000,
-          },
+          use: [
+            {
+              loader: 'url-loader',
+              options: {
+                limit: 10000,
+                name: '[name].[hash:8].[ext]',
+              },
+            },
+          ],
         },
       ],
     },

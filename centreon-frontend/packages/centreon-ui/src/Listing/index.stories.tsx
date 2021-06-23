@@ -156,10 +156,8 @@ export const withActions = (): JSX.Element => <Story actions={actions} />;
 export const withoutCheckboxes = (): JSX.Element => <Story checkable={false} />;
 
 export const withShortLabelColumns = (): JSX.Element => (
-  <Story columns={columsWithShortLabel} />
+  <Story columns={columnsWithShortLabel} />
 );
-
-const ListingWithSortableColumns = (): JSX.Element => {
 
 const editableColumns = [
   {
