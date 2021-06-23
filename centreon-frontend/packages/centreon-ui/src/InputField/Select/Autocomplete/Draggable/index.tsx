@@ -55,6 +55,7 @@ const DraggableAutocomplete = (
     const onChange = (_, newValue) => {
       if (isEmpty(newValue)) {
         setSelectedValues(newValue);
+        setInputText(null);
         return;
       }
       const lastValue = last(newValue);
@@ -68,6 +69,7 @@ const DraggableAutocomplete = (
           },
         ]);
         setTotalValues(inc(totalValues));
+        setInputText(null);
         return;
       }
       const lastItem = last<SelectEntry>(newValue) as SelectEntry;
