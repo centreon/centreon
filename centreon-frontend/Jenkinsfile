@@ -43,40 +43,39 @@ def checkoutCentreonBuild(buildBranch) {
 ** Pipeline code.
 */
 
-stage('Source') {
-  parallel 'centreon-ui': {
-    node {
+stage('Sonar analysis') {
+  node {
       dir('centreon-frontend') {
         checkout scm
       }
       checkoutCentreonBuild(buildBranch)
-      sh "./centreon-build/jobs/frontend/centreon-ui/${serie}/centreonui-source.sh"
-      source = readProperties file: 'source.properties'
-      env.VERSION = "${source.VERSION}"
-      env.RELEASE = "${source.RELEASE}"
-      stash includes: '**', name: 'centreon-frontend-centreonui-centreon-build'
-    }
-  },
-  'ui-context': {
-    node {
-      dir('centreon-frontend') {
-        checkout scm
+      discoverGitReferenceBuild()
+      withSonarQubeEnv('SonarQubeDev') {  
+          sh "./centreon-build/jobs/frontend/${serie}/frontend-analysis.sh"
       }
-      checkoutCentreonBuild(buildBranch)
-      sh "./centreon-build/jobs/frontend/ui-context/${serie}/uicontext-source.sh"
+      timeout(time: 10, unit: 'MINUTES') {
+        def qualityGate = waitForQualityGate()
+        if (qualityGate.status != 'OK') {
+          currentBuild.result = 'FAIL'
+        }
+      }
       source = readProperties file: 'source.properties'
       env.VERSION = "${source.VERSION}"
       env.RELEASE = "${source.RELEASE}"
-      stash includes: '**', name: 'centreon-frontend-uicontext-centreon-build'
-    }
+      sh "./centreon-build/jobs/frontend/${serie}/frontend-sources.sh"
+      stash includes: '**', name: 'centreonui-centreon-build'
+      stash includes: '**', name: 'uicontext-centreon-build'
   }
+  if ((currentBuild.result ?: 'SUCCESS') != 'SUCCESS') {
+      error('Sonar analysis stage failure');
+    }
 }
 
 stage('Unit tests') {
   parallel 'centreon-ui': {
     node {
-      unstash name: 'centreon-frontend-centreonui-centreon-build'
-      sh "./centreon-build/jobs/frontend/centreon-ui/${serie}/centreonui-unittest.sh"
+      unstash name: 'centreonui-centreon-build'
+      sh "./centreon-build/jobs/frontend/${serie}/centreon-ui/centreonui-unittest.sh"
       junit 'ut.xml'
       discoverGitReferenceBuild()
         recordIssues(
@@ -86,14 +85,14 @@ stage('Unit tests') {
           tool: esLint(id: 'centreon-ui', pattern: 'codestyle.xml'),
           trendChartType: 'NONE'
         )
-
+      stash includes: '**', name: 'centreon-frontend-centreonui-centreon-build'
       archiveArtifacts allowEmptyArchive: true, artifacts: 'snapshots/*.png'
     }
   },
   'ui-context': {
     node {
-      unstash name: 'centreon-frontend-uicontext-centreon-build'
-      sh "./centreon-build/jobs/frontend/ui-context/${serie}/uicontext-unittest.sh"
+      unstash name: 'uicontext-centreon-build'
+      sh "./centreon-build/jobs/frontend/${serie}/ui-context/uicontext-unittest.sh"
       discoverGitReferenceBuild()
         recordIssues(
           enabledForFailure: true,
@@ -105,10 +104,12 @@ stage('Unit tests') {
     }
   }
 }
+
+
 if (env.BUILD == 'REFERENCE') {
   stage ('Delivery') {
     node {
-      unstash name: 'centreon-frontend-uicontext-centreon-build'
-      sh "./centreon-build/jobs/frontend/centreon-ui/${serie}/centreonui-delivery.sh"
+      unstash name: 'centreonui-centreon-build'
+      sh "./centreon-build/jobs/frontend/${serie}/centreon-ui/centreonui-delivery.sh"
     }}
 }
