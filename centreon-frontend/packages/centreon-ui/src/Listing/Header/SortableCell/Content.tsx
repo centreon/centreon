@@ -1,8 +1,8 @@
 import * as React from 'react';
 
-import { and, equals } from 'ramda';
+import { always, and, equals, ifElse, isNil } from 'ramda';
 
-import { makeStyles, TableSortLabel, Theme } from '@material-ui/core';
+import { makeStyles, TableSortLabel, Theme, Tooltip } from '@material-ui/core';
 import DragIndicatorIcon from '@material-ui/icons/MoreVert';
 
 import { Props as ListingProps } from '../..';
@@ -50,6 +50,8 @@ const SortableHeaderCellContent = React.forwardRef(
 
     const columnSortField = column.sortField || column.id;
 
+    const getTooltipLabel = ifElse(isNil, always(''), always(column.label));
+
     const sort = (): void => {
       const isDesc = and(
         equals(columnSortField, sortField),
@@ -61,6 +63,14 @@ const SortableHeaderCellContent = React.forwardRef(
         sortOrder: isDesc ? 'asc' : 'desc',
       });
     };
+
+    const headerContent = (
+      <Tooltip placement="top" title={getTooltipLabel(column.shortLabel)}>
+        <div>
+          <HeaderLabel>{columnLabel}</HeaderLabel>
+        </div>
+      </Tooltip>
+    );
 
     return (
       <div className={classes.content} ref={ref}>
@@ -77,10 +87,10 @@ const SortableHeaderCellContent = React.forwardRef(
             direction={sortOrder || 'desc'}
             onClick={sort}
           >
-            <HeaderLabel>{columnLabel}</HeaderLabel>
+            {headerContent}
           </TableSortLabel>
         ) : (
-          <HeaderLabel>{columnLabel}</HeaderLabel>
+          headerContent
         )}
       </div>
     );
