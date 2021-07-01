@@ -1,7 +1,10 @@
 import * as React from 'react';
 
+import clsx from 'clsx';
+
 import {
   ClickAwayListener,
+  makeStyles,
   Paper,
   Popper,
   PopperPlacementType,
@@ -10,8 +13,15 @@ import {
 
 import { IconButton } from '..';
 
+const useStyles = makeStyles({
+  popoverIconButton: {
+    padding: 0,
+  },
+});
+
 interface Props {
   children: (props?) => JSX.Element;
+  className?: string;
   icon: JSX.Element;
   onClose?: () => void;
   onOpen?: () => void;
@@ -26,9 +36,11 @@ const PopoverMenu = ({
   popperPlacement,
   onOpen,
   onClose,
+  className,
 }: Props): JSX.Element => {
   const theme = useTheme();
   const [anchorEl, setAnchorEl] = React.useState();
+  const classes = useStyles();
 
   const isOpen = Boolean(anchorEl);
 
@@ -55,7 +67,12 @@ const PopoverMenu = ({
   return (
     <ClickAwayListener onClickAway={close}>
       <div>
-        <IconButton ariaLabel={title} title={title} onClick={toggle}>
+        <IconButton
+          ariaLabel={title}
+          className={clsx(classes.popoverIconButton, className)}
+          title={title}
+          onClick={toggle}
+        >
           {icon}
         </IconButton>
         <Popper

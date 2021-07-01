@@ -4,9 +4,11 @@ import {
   equals,
   find,
   indexOf,
+  isEmpty,
   isNil,
   map,
   move,
+  not,
   path,
   pick,
   prop,
@@ -28,13 +30,16 @@ import {
   withStyles,
   makeStyles,
 } from '@material-ui/core';
+import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown';
 
 import Checkbox from '../Checkbox';
 import { getVisibleColumns, Props as ListingProps } from '..';
-import { Column } from '../models';
+import { Column, PredefinedRowSelection } from '../models';
+import PopoverMenu from '../../PopoverMenu';
 
 import SortableHeaderCell from './SortableCell';
 import SortableHeaderCellContent from './SortableCell/Content';
+import PredefinedSelectionList from './PredefinedSelectionList';
 
 const height = 28;
 
@@ -46,12 +51,25 @@ const HeaderCell = withStyles((theme) => ({
   },
 }))(TableCell);
 
+const CheckboxHeaderCell = withStyles((theme) => ({
+  root: {
+    backgroundColor: theme.palette.common.white,
+    display: 'grid',
+    gridTemplateColumns: 'repeat(2, min-content)',
+    height,
+    padding: theme.spacing(0, 0, 0, 0.5),
+  },
+}))(TableCell);
+
 const useStyles = makeStyles((theme) => ({
   compactCell: {
     paddingLeft: theme.spacing(0.5),
   },
   headerLabelDragging: {
     cursor: 'grabbing',
+  },
+  predefinedRowsMenu: {
+    width: theme.spacing(2),
   },
   row: {
     display: 'contents',
@@ -70,6 +88,8 @@ type Props = Pick<
   | 'totalRows'
 > & {
   onSelectAllClick: (event) => void;
+  onSelectRowsWithCondition: (condition) => void;
+  predefinedRowsSelection: Array<PredefinedRowSelection>;
   rowCount: number;
   selectedRowCount: number;
 };
@@ -85,6 +105,8 @@ const ListingHeader = ({
   onSort,
   onSelectColumns,
   checkable,
+  predefinedRowsSelection,
+  onSelectRowsWithCondition,
 }: Props): JSX.Element => {
   const classes = useStyles();
 
@@ -128,51 +150,68 @@ const ListingHeader = ({
   };
 
   return (
-    <DndContext
-      sensors={sensors}
-      onDragCancel={cancelDrag}
-      onDragEnd={endDrag}
-      onDragStart={startDrag}
-    >
-      <TableHead className={classes.row} component="div">
-        <TableRow className={classes.row} component="div">
-          {checkable && (
-            <HeaderCell component="div">
-              <Checkbox
-                checked={selectedRowCount === rowCount}
-                indeterminate={
-                  selectedRowCount > 0 && selectedRowCount < rowCount
-                }
-                inputProps={{ 'aria-label': 'Select all' }}
-                onChange={onSelectAllClick}
-              />
-            </HeaderCell>
-          )}
+    <>
+      <DndContext
+        sensors={sensors}
+        onDragCancel={cancelDrag}
+        onDragEnd={endDrag}
+        onDragStart={startDrag}
+      >
+        <TableHead className={classes.row} component="div">
+          <TableRow className={classes.row} component="div">
+            {checkable && (
+              <CheckboxHeaderCell component="div">
+                <Checkbox
+                  checked={selectedRowCount === rowCount}
+                  className={classes.compactCell}
+                  indeterminate={
+                    selectedRowCount > 0 && selectedRowCount < rowCount
+                  }
+                  inputProps={{ 'aria-label': 'Select all' }}
+                  onChange={onSelectAllClick}
+                />
+                {not(isEmpty(predefinedRowsSelection)) && (
+                  <PopoverMenu
+                    className={classes.predefinedRowsMenu}
+                    icon={<ArrowDropDownIcon />}
+                  >
+                    {({ close }) => (
+                      <PredefinedSelectionList
+                        close={close}
+                        predefinedRowsSelection={predefinedRowsSelection}
+                        onSelectRowsWithCondition={onSelectRowsWithCondition}
+                      />
+                    )}
+                  </PopoverMenu>
+                )}
+              </CheckboxHeaderCell>
+            )}
 
-          <SortableContext items={visibleColumnIds}>
-            {visibleColumns.map((column) => (
-              <SortableHeaderCell
-                column={column}
-                columnConfiguration={columnConfiguration}
-                key={column.id}
-                sortField={sortField}
-                sortOrder={sortOrder}
-                onSort={onSort}
-              />
-            ))}
-          </SortableContext>
-        </TableRow>
-      </TableHead>
-      <DragOverlay>
-        {draggingColumnId && (
-          <SortableHeaderCellContent
-            isDragging
-            column={getColumnById(draggingColumnId)}
-            columnConfiguration={columnConfiguration}
-          />
-        )}
-      </DragOverlay>
-    </DndContext>
+            <SortableContext items={visibleColumnIds}>
+              {visibleColumns.map((column) => (
+                <SortableHeaderCell
+                  column={column}
+                  columnConfiguration={columnConfiguration}
+                  key={column.id}
+                  sortField={sortField}
+                  sortOrder={sortOrder}
+                  onSort={onSort}
+                />
+              ))}
+            </SortableContext>
+          </TableRow>
+        </TableHead>
+        <DragOverlay>
+          {draggingColumnId && (
+            <SortableHeaderCellContent
+              isDragging
+              column={getColumnById(draggingColumnId)}
+              columnConfiguration={columnConfiguration}
+            />
+          )}
+        </DragOverlay>
+      </DndContext>
+    </>
   );
 };
 

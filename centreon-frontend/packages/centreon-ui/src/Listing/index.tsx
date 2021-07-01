@@ -1,6 +1,26 @@
-import React, { useState, useRef, RefObject } from 'react';
+import * as React from 'react';
 
-import { equals, isNil, prop, propEq } from 'ramda';
+import {
+  concat,
+  differenceWith,
+  equals,
+  filter,
+  findIndex,
+  gt,
+  includes,
+  isNil,
+  last,
+  length,
+  lt,
+  map,
+  not,
+  prop,
+  propEq,
+  reject,
+  slice,
+  subtract,
+  uniqBy,
+} from 'ramda';
 import { useTranslation } from 'react-i18next';
 
 import { makeStyles, Theme } from '@material-ui/core/styles';
@@ -14,6 +34,7 @@ import {
 } from '@material-ui/core';
 
 import useMemoComponent from '../utils/useMemoComponent';
+import useKeyObserver from '../utils/useKeyObserver';
 
 import ListingHeader, { headerHeight } from './Header/index';
 import ListingRow from './Row';
@@ -27,6 +48,7 @@ import { labelNoResultFound } from './translatedLabels';
 import {
   Column,
   ColumnConfiguration,
+  PredefinedRowSelection,
   RowColorCondition,
   RowId,
   SortOrder,
@@ -108,6 +130,7 @@ export interface Props<TRow> {
   onSelectRows?: (rows: Array<TRow>) => void;
   onSort?: (sortParams) => void;
   paginated?: boolean;
+  predefinedRowsSelection?: Array<PredefinedRowSelection>;
   rowColorConditions?: Array<RowColorCondition>;
   rows?: Array<TRow>;
   selectedRows?: Array<TRow>;
@@ -146,13 +169,20 @@ const Listing = <TRow extends { id: RowId }>({
   onSelectRows = (): void => undefined,
   onSort,
   getId = ({ id }) => id,
+  predefinedRowsSelection = [],
 }: Props<TRow>): JSX.Element => {
   const { t } = useTranslation();
-  const [tableTopOffset, setTableTopOffset] = useState(0);
-  const [hoveredRowId, setHoveredRowId] = useState<RowId | null>(null);
+  const [tableTopOffset, setTableTopOffset] = React.useState(0);
+  const [hoveredRowId, setHoveredRowId] = React.useState<RowId | null>(null);
+  const [shiftKeyDownRowPivot, setShiftKeyDownRowPivot] = React.useState<
+    number | null
+  >(null);
+  const [lastSelectionIndex, setLastSelectionIndex] = React.useState<
+    number | null
+  >(null);
 
-  const containerRef = useRef<HTMLDivElement>();
-  const actionBarRef = useRef<HTMLDivElement>();
+  const containerRef = React.useRef<HTMLDivElement>();
+  const actionBarRef = React.useRef<HTMLDivElement>();
 
   const classes = useStyles();
 
@@ -165,6 +195,11 @@ const Listing = <TRow extends { id: RowId }>({
     ref: containerRef,
   });
 
+  const { isShiftKeyDown } = useKeyObserver();
+
+  const haveSameId = (row: TRow, rowToCompare: TRow): boolean =>
+    equals(getId(row), getId(rowToCompare));
+
   const selectedRowsInclude = (row): boolean => {
     return !!selectedRows.find((includedRow) =>
       equals(getId(includedRow), getId(row)),
@@ -176,16 +211,145 @@ const Listing = <TRow extends { id: RowId }>({
       event.target.checked &&
       event.target.getAttribute('data-indeterminate') === 'false'
     ) {
-      onSelectRows(rows);
+      onSelectRows(reject(disableRowCheckCondition, rows));
+      setLastSelectionIndex(null);
       return;
     }
 
     onSelectRows([]);
+    setLastSelectionIndex(null);
   };
 
-  const selectRow = (event, row): void => {
+  const onSelectRowsWithCondition = (condition: (row) => boolean): void => {
+    onSelectRows(reject(disableRowCheckCondition, filter(condition, rows)));
+    setLastSelectionIndex(null);
+  };
+
+  interface GetSelectedRowsWithShiftKeyProps {
+    compareFunction;
+    comparisonSliceEndIndex: number;
+    comparisonSliceStartIndex: number;
+    newSelection: Array<TRow>;
+    selectedRowIndex: number;
+    selectedRowsIndex: Array<number>;
+  }
+
+  const getSelectedRowsWithShiftKey = ({
+    newSelection,
+    selectedRowsIndex,
+    selectedRowIndex,
+    compareFunction,
+    comparisonSliceStartIndex,
+    comparisonSliceEndIndex,
+  }: GetSelectedRowsWithShiftKeyProps): Array<TRow> => {
+    if (includes(selectedRowIndex, selectedRowsIndex)) {
+      return differenceWith(haveSameId, selectedRows, newSelection);
+    }
+    if (
+      compareFunction(lastSelectionIndex, last(selectedRowsIndex) as number)
+    ) {
+      const normalizedNewSelection = slice(
+        comparisonSliceStartIndex,
+        comparisonSliceEndIndex,
+        newSelection,
+      );
+
+      const newSelectionWithCurrentSelection = concat(
+        selectedRows,
+        normalizedNewSelection,
+      );
+
+      const newSelectedRowsWithUniqElements = uniqBy(
+        getId,
+        newSelectionWithCurrentSelection,
+      );
+
+      return newSelectedRowsWithUniqElements;
+    }
+    const newSelectedRowsWithCurrentSelection = concat(
+      selectedRows,
+      newSelection,
+    );
+
+    const newSelectedRowsWithUniqElements = uniqBy(
+      getId,
+      newSelectedRowsWithCurrentSelection,
+    );
+
+    return newSelectedRowsWithUniqElements;
+  };
+
+  const selectRowsWithShiftKey = (selectedRowIndex: number): void => {
+    const lastSelectedIndex = lastSelectionIndex as number;
+    if (isNil(shiftKeyDownRowPivot)) {
+      const selectedRowsFromTheStart = slice(0, selectedRowIndex + 1, rows);
+
+      onSelectRows(reject(disableRowCheckCondition, selectedRowsFromTheStart));
+      return;
+    }
+
+    const selectedRowsIndex = map(
+      (row) =>
+        findIndex((listingRow) => equals(getId(row), getId(listingRow)), rows),
+      selectedRows,
+    ).sort(subtract);
+
+    if (selectedRowIndex < lastSelectedIndex) {
+      const newSelection = slice(
+        selectedRowIndex,
+        (lastSelectionIndex as number) + 1,
+        rows,
+      );
+      onSelectRows(
+        reject(
+          disableRowCheckCondition,
+          getSelectedRowsWithShiftKey({
+            compareFunction: gt,
+            comparisonSliceEndIndex: -1,
+            comparisonSliceStartIndex: 0,
+            newSelection,
+            selectedRowIndex,
+            selectedRowsIndex,
+          }),
+        ),
+      );
+      return;
+    }
+
+    const newSelection = slice(lastSelectedIndex, selectedRowIndex + 1, rows);
+    onSelectRows(
+      reject(
+        disableRowCheckCondition,
+        getSelectedRowsWithShiftKey({
+          compareFunction: lt,
+          comparisonSliceEndIndex: length(newSelection),
+          comparisonSliceStartIndex: 1,
+          newSelection,
+          selectedRowIndex,
+          selectedRowsIndex,
+        }),
+      ),
+    );
+  };
+
+  const selectRow = (event: React.MouseEvent, row): void => {
     event.preventDefault();
     event.stopPropagation();
+    // This prevents unwanted text selection
+    document.getSelection()?.removeAllRanges();
+
+    const selectedRowIndex = findIndex(
+      (listingRow) => equals(getId(row), getId(listingRow)),
+      rows,
+    );
+
+    if (isShiftKeyDown) {
+      selectRowsWithShiftKey(selectedRowIndex);
+      setLastSelectionIndex(selectedRowIndex);
+      return;
+    }
+
+    setLastSelectionIndex(selectedRowIndex);
 
     if (disableRowCheckCondition(row)) {
       return;
@@ -256,6 +420,14 @@ const Listing = <TRow extends { id: RowId }>({
     columns,
   });
 
+  React.useEffect(() => {
+    if (not(isShiftKeyDown)) {
+      setShiftKeyDownRowPivot(null);
+      return;
+    }
+    setShiftKeyDownRowPivot(lastSelectionIndex);
+  }, [isShiftKeyDown, lastSelectionIndex]);
+
   return (
     <>
       {loading && rows.length > 0 && (
@@ -266,11 +438,11 @@ const Listing = <TRow extends { id: RowId }>({
       )}
       <div
         className={classes.container}
-        ref={containerRef as RefObject<HTMLDivElement>}
+        ref={containerRef as React.RefObject<HTMLDivElement>}
       >
         <div
           className={classes.actionBar}
-          ref={actionBarRef as RefObject<HTMLDivElement>}
+          ref={actionBarRef as React.RefObject<HTMLDivElement>}
         >
           <ListingActionBar
             actions={actions}
@@ -307,12 +479,14 @@ const Listing = <TRow extends { id: RowId }>({
               checkable={checkable}
               columnConfiguration={columnConfiguration}
               columns={columns}
+              predefinedRowsSelection={predefinedRowsSelection}
               rowCount={limit - emptyRows}
               selectedRowCount={selectedRows.length}
               sortField={sortField}
               sortOrder={sortOrder}
               onSelectAllClick={selectAllRows}
               onSelectColumns={onSelectColumns}
+              onSelectRowsWithCondition={onSelectRowsWithCondition}
               onSort={onSort}
             />
 
@@ -333,9 +507,12 @@ const Listing = <TRow extends { id: RowId }>({
                     disableRowCondition={disableRowCondition}
                     isHovered={isRowHovered}
                     isSelected={isRowSelected}
+                    isShiftKeyDown={isShiftKeyDown}
                     key={getId(row)}
+                    lastSelectionIndex={lastSelectionIndex}
                     row={row}
                     rowColorConditions={rowColorConditions}
+                    shiftKeyDownRowPivot={shiftKeyDownRowPivot}
                     tabIndex={-1}
                     visibleColumns={visibleColumns}
                     onClick={(): void => {
@@ -346,6 +523,7 @@ const Listing = <TRow extends { id: RowId }>({
                   >
                     {checkable && (
                       <Cell
+                        compact
                         align="left"
                         disableRowCondition={disableRowCondition}
                         isRowHovered={isRowHovered}

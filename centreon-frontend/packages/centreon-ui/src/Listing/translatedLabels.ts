@@ -8,3 +8,5 @@ export const labelNextPage = 'Next page';
 export const labelPreviousPage = 'Previous page';
 export const labelAddColumns = 'Add columns';
 export const labelColumns = 'Columns';
+export const labelPredefinedRowsSelectionMenu =
+  'Predefined rows selection menu';
