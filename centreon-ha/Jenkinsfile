@@ -1,8 +1,10 @@
+import groovy.json.JsonSlurper
+
 /*
 ** Variables.
 */
 properties([buildDiscarder(logRotator(numToKeepStr: '50'))])
-def serie = '21.04'
+def serie = '21.10'
 def maintenanceBranch = "${serie}.x"
 if (env.BRANCH_NAME.startsWith('release-')) {
   env.BUILD = 'RELEASE'
@@ -40,16 +42,38 @@ stage('Source') {
 }
 
 try {
-// sonarQube step to get qualityGate result
+  // sonarQube step to get qualityGate result
   stage('Quality gate') {
-    timeout(time: 10, unit: 'MINUTES') {
-      def qualityGate = waitForQualityGate()
-      if (qualityGate.status != 'OK') {
-        currentBuild.result = 'FAIL'
+    node {
+      def reportFilePath = "target/sonar/report-task.txt"
+      def reportTaskFileExists = fileExists "${reportFilePath}"
+      if (reportTaskFileExists) {
+        echo "Found report task file"
+        def taskProps = readProperties file: "${reportFilePath}"
+        echo "taskId[${taskProps['ceTaskId']}]"
+        timeout(time: 10, unit: 'MINUTES') {
+          while (true) {
+            sleep 10
+            def taskStatusResult    =
+            sh(returnStdout: true, script: "curl -s -X GET -u ${authString} \'${sonarProps['sonar.host.url']}/api/ce/task?id=${taskProps['ceTaskId']}\'")
+            echo "taskStatusResult[${taskStatusResult}]"
+            def taskStatus  = new JsonSlurper().parseText(taskStatusResult).task.status
+            echo "taskStatus[${taskStatus}]"
+            // Status can be SUCCESS, ERROR, PENDING, or IN_PROGRESS. The last two indicate it's
+            // not done yet.
+            if (taskStatus != "IN_PROGRESS" && taskStatus != "PENDING") {
+              break;
+            }
+            def qualityGate = waitForQualityGate()
+            if (qualityGate.status != 'OK') {
+              currentBuild.result = 'FAIL'
+            }
+          }
+        }
       }
-    }
-    if ((currentBuild.result ?: 'SUCCESS') != 'SUCCESS') {
-      error('Quality gate failure: ${qualityGate.status}.');
+      if ((currentBuild.result ?: 'SUCCESS') != 'SUCCESS') {
+        error("Quality gate failure: ${qualityGate.status}.");
+      }
     }
   }
 
