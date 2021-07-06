@@ -17,6 +17,8 @@
     <preference label="Service Description" name="service_description_search" defaultValue="" type="compare"/>
     <preference label="Hide services with DOWN host" name="hide_down_host" defaultValue="0" type="boolean"/>
     <preference label="Hide services with UNREACHABLE host" name="hide_unreachable_host" defaultValue="0" type="boolean"/>
+    <preference label="Hide hosts with disable notifications" name="hide_disable_notif_host" defaultValue="0" type="boolean"/>
+    <preference label="Hide services with disable notifications" name="hide_disable_notif_service" defaultValue="0" type="boolean"/>
     <preference label="Display Warning" name="svc_warning" defaultValue="1" type="boolean"/>
     <preference label="Display Critical" name="svc_critical" defaultValue="1" type="boolean"/>
     <preference label="Display Unknown" name="svc_unknown" defaultValue="1" type="boolean"/>

@@ -198,6 +198,13 @@ if (count($stateTab)) {
     $query = CentreonUtils::conditionBuilder($query, " s.state IN (" . implode(',', $stateTab) . ")");
 }
 
+if (isset($preferences['hide_disable_notif_host']) && $preferences['hide_disable_notif_host']) {
+    $query = CentreonUtils::conditionBuilder($query, " h.notify != 0 ");
+}
+if (isset($preferences['hide_disable_notif_service']) && $preferences['hide_disable_notif_service']) {
+    $query = CentreonUtils::conditionBuilder($query, " s.notify != 0 ");
+}
+
 if (isset($preferences['acknowledgement_filter']) && $preferences['acknowledgement_filter']) {
     if ($preferences['acknowledgement_filter'] == "ack") {
         $query = CentreonUtils::conditionBuilder($query, " s.acknowledged = 1");
