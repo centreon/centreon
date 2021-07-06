@@ -427,14 +427,12 @@ class DowntimeController extends AbstractController
      * Entry point to find the last hosts downtimes.
      *
      * @param RequestParametersInterface $requestParameters
-     * @param Request $request
      * @return View
      * @throws \Exception
      */
-    public function findHostDowntimes(RequestParametersInterface $requestParameters, Request $request): View
+    public function findHostDowntimes(RequestParametersInterface $requestParameters): View
     {
         $this->denyAccessUnlessGrantedForApiRealtime();
-        $isBeta = (bool) $request->attributes->get('version.is_beta');
         /**
          * @var Contact $contact
          */
@@ -449,9 +447,7 @@ class DowntimeController extends AbstractController
         return $this->view(
             [
                 'result' => $hostsDowntime,
-                'meta' => !$isBeta
-                    ? ['pagination' => $requestParameters->toArray()]
-                    : $requestParameters->toArray()
+                'meta' => $requestParameters->toArray()
             ]
         )->setContext($context);
     }

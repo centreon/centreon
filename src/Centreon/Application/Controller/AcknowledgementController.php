@@ -108,14 +108,12 @@ class AcknowledgementController extends AbstractController
      * Entry point to find the hosts acknowledgements.
      *
      * @param RequestParametersInterface $requestParameters
-     * @param Request $request
      * @return View
      * @throws \Exception
      */
-    public function findHostsAcknowledgements(RequestParametersInterface $requestParameters, Request $request): View
+    public function findHostsAcknowledgements(RequestParametersInterface $requestParameters): View
     {
         $this->denyAccessUnlessGrantedForApiRealtime();
-        $isBeta = (bool) $request->attributes->get('version.is_beta');
         $hostsAcknowledgements = $this->acknowledgementService
             ->filterByContact($this->getUser())
             ->findHostsAcknowledgements();
@@ -125,9 +123,7 @@ class AcknowledgementController extends AbstractController
         return $this->view(
             [
                 'result' => $hostsAcknowledgements,
-                'meta' => !$isBeta
-                    ? ['pagination' => $requestParameters->toArray()]
-                    : $requestParameters->toArray()
+                'meta' => $requestParameters->toArray()
             ]
         )->setContext($context);
     }
