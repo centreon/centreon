@@ -29,17 +29,17 @@ use Centreon\Domain\HostConfiguration\UseCase\V2110\HostGroup\FindHostGroupsResp
  *
  * @package Centreon\Infrastructure\HostConfiguration\API\Model\HostGroup
  */
-class HostGroupV21Factory
+class HostGroupV2110Factory
 {
     /**
      * @param FindHostGroupsResponse $response
-     * @return HostGroupV21[]
+     * @return HostGroupV2110[]
      */
     public static function createFromResponse(FindHostGroupsResponse $response): array
     {
         $hostGroups = [];
         foreach ($response->getHostGroups() as $hostGroup) {
-            $newHostGroup = new HostGroupV21();
+            $newHostGroup = new HostGroupV2110();
             $newHostGroup->id = $hostGroup['id'];
             $newHostGroup->name = $hostGroup['name'];
             $newHostGroup->alias = $hostGroup['alias'];

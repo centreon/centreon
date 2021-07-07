@@ -41,8 +41,6 @@ use FOS\RestBundle\Context\Context;
 use FOS\RestBundle\View\View;
 use Psr\Container\ContainerInterface;
 use PHPUnit\Framework\TestCase;
-use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
-use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 class MonitoringResourceControllerTest extends TestCase
 {

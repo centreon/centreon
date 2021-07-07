@@ -29,17 +29,17 @@ use Centreon\Domain\HostConfiguration\UseCase\V2110\HostTemplate\FindHostTemplat
  *
  * @package Centreon\Infrastructure\HostConfiguration\API\Model
  */
-class HostTemplateV21Factory
+class HostTemplateV2110Factory
 {
     /**
      * @param FindHostTemplatesResponse $response
-     * @return HostTemplateV21[]
+     * @return HostTemplateV2110[]
      */
     public static function createFromResponse(FindHostTemplatesResponse $response): array
     {
         $hostTemplates = [];
         foreach ($response->getHostTemplates() as $hostTemplate) {
-            $newHostTemplate = new HostTemplateV21();
+            $newHostTemplate = new HostTemplateV2110();
             $newHostTemplate->id = $hostTemplate['id'];
             $newHostTemplate->name = $hostTemplate['name'];
             $newHostTemplate->alias = $hostTemplate['alias'];
