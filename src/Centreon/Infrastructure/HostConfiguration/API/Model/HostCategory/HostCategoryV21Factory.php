@@ -22,7 +22,7 @@ declare(strict_types=1);
 
 namespace Centreon\Infrastructure\HostConfiguration\API\Model\HostCategory;
 
-use Centreon\Domain\HostConfiguration\UseCase\V21\HostCategory\FindHostCategoriesResponse;
+use Centreon\Domain\HostConfiguration\UseCase\V2110\HostCategory\FindHostCategoriesResponse;
 
 /**
  * This class is designed to create the hostCategoryV21 entity

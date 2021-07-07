@@ -23,7 +23,7 @@ declare(strict_types=1);
 namespace Tests\Centreon\Infrastructure\HostConfiguration\API\Model;
 
 use Centreon\Domain\HostConfiguration\Model\HostGroup;
-use Centreon\Domain\HostConfiguration\UseCase\V21\HostGroup\FindHostGroupsResponse;
+use Centreon\Domain\HostConfiguration\UseCase\V2110\HostGroup\FindHostGroupsResponse;
 use Centreon\Infrastructure\HostConfiguration\API\Model\HostGroup\HostGroupV21Factory;
 use PHPUnit\Framework\TestCase;
 use Tests\Centreon\Domain\HostConfiguration\Model\HostGroupTest;
@@ -31,7 +31,7 @@ use Tests\Centreon\Domain\HostConfiguration\Model\HostGroupTest;
 /**
  * @package Tests\Centreon\Infrastructure\HostConfiguration\API\Model
  */
-class HostGroupV21FactoryTest extends TestCase
+class HostGroupV2110FactoryTest extends TestCase
 {
     /**
      * @var HostGroup

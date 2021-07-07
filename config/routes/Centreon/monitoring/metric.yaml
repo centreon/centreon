@@ -44,7 +44,7 @@ monitoring.metric.getMetaServicePerformanceMetrics:
     requirements:
         metaId: '\d+'
     controller: 'Centreon\Application\Controller\Monitoring\MetricController::getMetaServicePerformanceMetrics'
-    condition: "request.attributes.get('version') >= 22.04"
+    condition: "request.attributes.get('version') >= 21.10"
 
 monitoring.metric.getMetaServiceStatusMetrics:
     methods: GET
@@ -52,4 +52,4 @@ monitoring.metric.getMetaServiceStatusMetrics:
     requirements:
         metaId: '\d+'
     controller: 'Centreon\Application\Controller\Monitoring\MetricController::getMetaServiceStatusMetrics'
-    condition: "request.attributes.get('version') >= 22.04"
+    condition: "request.attributes.get('version') >= 21.10"

@@ -23,7 +23,7 @@ declare(strict_types=1);
 namespace Centreon\Application\Controller\Configuration;
 
 use Centreon\Application\Controller\AbstractController;
-use Centreon\Domain\HostConfiguration\UseCase\V21\HostGroup\FindHostGroups;
+use Centreon\Domain\HostConfiguration\UseCase\V2110\HostGroup\FindHostGroups;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Centreon\Infrastructure\HostConfiguration\API\Model\HostGroup\HostGroupV21Factory;
 use FOS\RestBundle\View\View;

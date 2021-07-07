@@ -456,14 +456,12 @@ class DowntimeController extends AbstractController
      * Entry point to find the last services downtimes.
      *
      * @param RequestParametersInterface $requestParameters
-     * @param Request $request
      * @return View
      * @throws \Exception
      */
-    public function findServiceDowntimes(RequestParametersInterface $requestParameters, Request $request): View
+    public function findServiceDowntimes(RequestParametersInterface $requestParameters): View
     {
         $this->denyAccessUnlessGrantedForApiRealtime();
-        $isBeta = (bool) $request->attributes->get('version.is_beta');
         /**
          * @var Contact $contact
          */
@@ -478,9 +476,7 @@ class DowntimeController extends AbstractController
         return $this->view(
             [
                 'result' => $servicesDowntimes,
-                'meta' => !$isBeta
-                    ? ['pagination' => $requestParameters->toArray()]
-                    : $requestParameters->toArray()
+                'meta' => $requestParameters->toArray()
             ]
         )->setContext($context);
     }
@@ -498,11 +494,9 @@ class DowntimeController extends AbstractController
     public function findDowntimesByService(
         RequestParametersInterface $requestParameters,
         int $hostId,
-        int $serviceId,
-        Request $request
+        int $serviceId
     ): View {
         $this->denyAccessUnlessGrantedForApiRealtime();
-        $isBeta = (bool) $request->attributes->get('version.is_beta');
         /**
          * @var Contact $contact
          */
@@ -520,9 +514,7 @@ class DowntimeController extends AbstractController
             return $this->view(
                 [
                     'result' => $downtimesByHost,
-                    'meta' => !$isBeta
-                        ? ['pagination' => $requestParameters->toArray()]
-                        : $requestParameters->toArray()
+                    'meta' => $requestParameters->toArray()
                 ]
             )->setContext($context);
         } else {
@@ -601,14 +593,12 @@ class DowntimeController extends AbstractController
      * Entry point to find the last downtimes.
      *
      * @param RequestParametersInterface $requestParameters
-     * @param Request $request
      * @return View
      * @throws \Exception
      */
-    public function findDowntimes(RequestParametersInterface $requestParameters, Request $request): View
+    public function findDowntimes(RequestParametersInterface $requestParameters): View
     {
         $this->denyAccessUnlessGrantedForApiRealtime();
-        $isBeta = (bool) $request->attributes->get('version.is_beta');
         /**
          * @var Contact $contact
          */
@@ -623,9 +613,7 @@ class DowntimeController extends AbstractController
         return $this->view(
             [
                 'result' => $hostsDowntime,
-                'meta' => !$isBeta
-                    ? ['pagination' => $requestParameters->toArray()]
-                    : $requestParameters->toArray()
+                'meta' => $requestParameters->toArray()
             ]
         )->setContext($context);
     }
@@ -635,17 +623,12 @@ class DowntimeController extends AbstractController
      *
      * @param RequestParametersInterface $requestParameters
      * @param int $hostId Host id for which we want to find downtimes
-     * @param Request $request
      * @return View
      * @throws \Exception
      */
-    public function findDowntimesByHost(
-        RequestParametersInterface $requestParameters,
-        int $hostId,
-        Request $request
-    ): View {
+    public function findDowntimesByHost(RequestParametersInterface $requestParameters, int $hostId): View
+    {
         $this->denyAccessUnlessGrantedForApiRealtime();
-        $isBeta = (bool) $request->attributes->get('version.is_beta');
         /**
          * @var Contact $contact
          */
@@ -667,9 +650,7 @@ class DowntimeController extends AbstractController
             return $this->view(
                 [
                     'result' => $downtimesByHost,
-                    'meta' => !$isBeta
-                        ? ['pagination' => $requestParameters->toArray()]
-                        : $requestParameters->toArray()
+                    'meta' => $requestParameters->toArray()
                 ]
             )->setContext($context);
         } else {

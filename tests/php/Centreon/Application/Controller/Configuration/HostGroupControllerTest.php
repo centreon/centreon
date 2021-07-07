@@ -24,8 +24,8 @@ namespace Tests\Centreon\Application\Controller\Configuration;
 
 use Centreon\Application\Controller\Configuration\HostGroupController;
 use Centreon\Domain\Contact\Contact;
-use Centreon\Domain\HostConfiguration\UseCase\V21\HostGroup\FindHostGroups;
-use Centreon\Domain\HostConfiguration\UseCase\V21\HostGroup\FindHostGroupsResponse;
+use Centreon\Domain\HostConfiguration\UseCase\V2110\HostGroup\FindHostGroups;
+use Centreon\Domain\HostConfiguration\UseCase\V2110\HostGroup\FindHostGroupsResponse;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Centreon\Domain\RequestParameters\RequestParameters;
 use Centreon\Infrastructure\HostConfiguration\API\Model\HostGroup\HostGroupV21Factory;

@@ -22,7 +22,7 @@ declare(strict_types=1);
 
 namespace Centreon\Infrastructure\HostConfiguration\API\Model\HostGroup;
 
-use Centreon\Domain\HostConfiguration\UseCase\V21\HostGroup\FindHostGroupsResponse;
+use Centreon\Domain\HostConfiguration\UseCase\V2110\HostGroup\FindHostGroupsResponse;
 
 /**
  * This class is designed to create the HostGroupV21 entity
