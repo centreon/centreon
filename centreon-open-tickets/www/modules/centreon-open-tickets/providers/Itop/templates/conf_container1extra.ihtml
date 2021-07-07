@@ -1,6 +1,6 @@
 <tr class="list_lvl_1">
   <td class="ListColLvl1_name" colspan="2">
-    <h4>{$header.itop}</h4>
+    <h4>{$header.Itop}</h4>
   </td>
 </tr>
 <tr class="list_one">
@@ -53,14 +53,6 @@
 </tr>
 <tr class="list_one">
   <td class="FormRowField">
-    {$form.close_ticket_enable.label}
-  </td>
-  <td class="FormRowValue">
-    {$form.close_ticket_enable.html}
-  </td>
-</tr>
-<tr class="list_two">
-  <td class="FormRowField">
     {t}Test authentication{/t}
   </td>
   <td class="FormRowValue">
@@ -69,7 +61,7 @@
     <span id="test-ok" class="okay_message" style="display: none; color: green;"></span>
   </td>
 </tr>
-<tr class="list_one">
+<tr class="list_two">
   <td class="FormRowField">
     {$form.mappingticket.label}
   </td>

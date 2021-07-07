@@ -1,6 +1,6 @@
 <tr class="list_lvl_1">
   <td class="ListColLvl1_name" colspan="2">
-    <h4>{$header.TutoGlpi}</h4>
+    <h4>{$header.GlpiRestApi}</h4>
   </td>
 </tr>
 <tr class="list_one">

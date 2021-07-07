@@ -308,8 +308,6 @@ class ItopProvider extends AbstractProvider {
             $this->_getFormValue('protocol') . '" />';
         $timeout_html = '<input size="2" name="timeout" type="text" value="' .
             $this->_getFormValue('timeout') . '" />';
-        $close_ticket_enable_html = '<input type="checkbox" name="close_ticket_enable" value="yes" ' .
-            ($this->_getFormValue('close_ticket_enable') == 'yes' ? 'checked' : '') . '/>';
 
         // this array is here to link a label with the html code that we've wrote above
         $array_form = array(
