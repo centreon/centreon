@@ -33,8 +33,12 @@ class MailProvider extends AbstractProvider
     protected function _setDefaultValueExtra()
     {
         $this->default_data['from'] = '{$user.email}';
-        $this->default_data['subject'] = 'Issue {$ticket_id} - {include file="file:$centreon_open_tickets_path' .
-            '/providers/Abstract/templates/display_title.ihtml"}';
+        $this->default_data['subject'] = htmlentities(
+            'Issue {$ticket_id} - {include file="file:$centreon_open_tickets_path' .
+            '/providers/Abstract/templates/display_title.ihtml"}',
+            ENT_QUOTES,
+            'UTF-8'
+        );
         $this->default_data['clones']['headerMail'] = array();
         $this->default_data['ishtml'] = 'yes';
     }
@@ -77,8 +81,9 @@ class MailProvider extends AbstractProvider
         // Form
         $from_html = '<input size="50" name="from" type="text" value="' . $this->_getFormValue('from') . '" />';
         $to_html = '<input size="50" name="to" type="text" value="' . $this->_getFormValue('to') . '" />';
-        $subject_html = '<input size="50" name="subject" type="text" value="' .
-            htmlentities($this->_getFormValue('subject')) . '" />';
+        $subject_html = '<input size="50" name="subject" type="text" value="'
+            . html_entity_decode($this->_getFormValue('subject'), ENT_QUOTES, 'UTF-8')
+            . '" />';
         $ishtml_html = '<input type="checkbox" name="ishtml" value="yes" ' .
             ($this->_getFormValue('ishtml') == 'yes' ? 'checked' : '') . '/>';
 
@@ -119,7 +124,11 @@ class MailProvider extends AbstractProvider
         $this->_save_config['clones']['headerMail'] = $this->_getCloneSubmitted('headerMail', array('Name', 'Value'));
         $this->_save_config['simple']['from'] = $this->_submitted_config['from'];
         $this->_save_config['simple']['to'] = $this->_submitted_config['to'];
-        $this->_save_config['simple']['subject'] = $this->_submitted_config['subject'];
+        $this->_save_config['simple']['subject'] = htmlentities(
+            $this->_submitted_config['subject'],
+            ENT_QUOTES,
+            'UTF-8'
+        );
         $this->_save_config['simple']['ishtml'] = (
             isset($this->_submitted_config['ishtml'])
             && $this->_submitted_config['ishtml'] == 'yes'
