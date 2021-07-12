@@ -487,7 +487,6 @@ class DowntimeController extends AbstractController
      * @param RequestParametersInterface $requestParameters
      * @param int $hostId Host id linked to this service
      * @param int $serviceId Service id for which we want to find downtimes
-     * @param Request $request
      * @return View
      * @throws \Exception
      */

@@ -72,7 +72,7 @@ class AcknowledgementController extends AbstractController
      * @param Request $request
      * @param string $jsonValidatorFile
      * @return array $results
-     * @throws InvalidArgumentException
+     * @throws \InvalidArgumentException
      */
     private function validateAndRetrievePostData(Request $request, string $jsonValidatorFile): array
     {
@@ -133,7 +133,6 @@ class AcknowledgementController extends AbstractController
      *
      * @param RequestParametersInterface $requestParameters
      * @param int $hostId
-     * @param Request $request
      * @return View
      * @throws \Exception
      */
@@ -185,7 +184,6 @@ class AcknowledgementController extends AbstractController
      * @param RequestParametersInterface $requestParameters
      * @param int $hostId
      * @param int $serviceId
-     * @param Request $request
      * @return View
      * @throws \Exception
      */
