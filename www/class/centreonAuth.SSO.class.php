@@ -101,6 +101,7 @@ class CentreonAuthSSO extends CentreonAuth
             $this->source = "OpenId";
 
             # Get configured values
+            $clientBasicAuth = $this->ssoOptions['openid_connect_client_basic_auth'];
             $clientId = $this->ssoOptions['openid_connect_client_id'];
             $clientSecret = $this->ssoOptions['openid_connect_client_secret'];
             $redirectNoEncode = $this->ssoOptions['openid_connect_redirect_url'];
@@ -153,6 +154,7 @@ class CentreonAuthSSO extends CentreonAuth
                     $clientId,
                     $clientSecret,
                     $inputCode,
+                    $clientBasicAuth,
                     $verifyPeer
                 );
 
@@ -167,6 +169,7 @@ class CentreonAuthSSO extends CentreonAuth
                         $clientId,
                         $clientSecret,
                         $tokenInfo['refresh_token'],
+                        $clientBasicAuth,
                         $verifyPeer,
                         !empty($this->ssoOptions['openid_connect_scope'])
                             ? $this->ssoOptions['openid_connect_scope']
@@ -186,6 +189,7 @@ class CentreonAuthSSO extends CentreonAuth
                                 $clientId,
                                 $clientSecret,
                                 $tokenInfo['refresh_token'],
+                                $clientBasicAuth,
                                 $verifyPeer
                             );
                         }
@@ -365,15 +369,20 @@ class CentreonAuthSSO extends CentreonAuth
         string $clientId,
         string $clientSecret,
         string $code,
+        bool $clientBasicAuth,
         bool $verifyPeer
     ): ?array {
         $data = [
-            "client_id" => $clientId,
-            "client_secret" => $clientSecret,
             "grant_type" => "authorization_code",
             "code" => $code,
             "redirect_uri" => $redirectUri
         ];
+        if ($clientBasicAuth) {
+            $authentication =  "Authorization: Basic " . base64_encode($clientId . ":" . $clientSecret);
+        } else {
+            $data["client_id"] = $clientId;
+            $data["client_secret"] = $clientSecret;
+        }
 
         $restHttp = new \CentreonRestHttp('application/x-www-form-urlencoded');
         try {
@@ -381,7 +390,7 @@ class CentreonAuthSSO extends CentreonAuth
                 $url,
                 'POST',
                 $data,
-                null,
+                $clientBasicAuth ? [$authentication] : null,
                 true,
                 $verifyPeer
             );
@@ -433,11 +442,12 @@ class CentreonAuthSSO extends CentreonAuth
 
         $restHttp = new \CentreonRestHttp('application/x-www-form-urlencoded');
         try {
+            $authentication = "Authorization: Bearer " . trim($token);
             $result = $restHttp->call(
                 $url,
                 'POST',
                 $data,
-                ["Authorization" => "Bearer " . $token],
+                [$authentication],
                 true,
                 $verifyPeer
             );
@@ -527,16 +537,21 @@ class CentreonAuthSSO extends CentreonAuth
         string $clientId,
         string $clientSecret,
         string $refreshToken,
+        bool $clientBasicAuth,
         bool $verifyPeer,
         string $scope = null
     ): ?array {
         $data = [
-            "client_id" => $clientId,
-            "client_secret" => $clientSecret,
             "grant_type" => "refresh_token",
             "refresh_token" => $refreshToken,
             "scope" => $scope
         ];
+        if ($clientBasicAuth) {
+            $authentication =  "Authorization: Basic " . base64_encode($clientId . ":" . $clientSecret);
+        } else {
+            $data["client_id"] = $clientId;
+            $data["client_secret"] = $clientSecret;
+        }
 
         $restHttp = new \CentreonRestHttp('application/x-www-form-urlencoded');
         try {
@@ -544,7 +559,7 @@ class CentreonAuthSSO extends CentreonAuth
                 $url,
                 'POST',
                 $data,
-                null,
+                $clientBasicAuth ? [$authentication] : null,
                 true,
                 $verifyPeer
             );
@@ -586,13 +601,18 @@ class CentreonAuthSSO extends CentreonAuth
         string $clientId,
         string $clientSecret,
         string $refreshToken,
+        bool $clientBasicAuth,
         bool $verifyPeer
     ): ?array {
         $data = [
-            "client_id" => $clientId,
-            "client_secret" => $clientSecret,
             "refresh_token" => $refreshToken
         ];
+        if ($clientBasicAuth) {
+            $authentication =  "Authorization: Basic " . base64_encode($clientId . ":" . $clientSecret);
+        } else {
+            $data["client_id"] = $clientId;
+            $data["client_secret"] = $clientSecret;
+        }
 
         $restHttp = new \CentreonRestHttp('application/x-www-form-urlencoded');
         try {
@@ -600,7 +620,7 @@ class CentreonAuthSSO extends CentreonAuth
                 $url,
                 'POST',
                 $data,
-                null,
+                $clientBasicAuth ? [$authentication] : null,
                 true,
                 $verifyPeer
             );
