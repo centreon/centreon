@@ -25,7 +25,7 @@ const useStyles = makeStyles<Theme>((theme) => {
 });
 
 interface Props {
-  filters: JSX.Element;
+  filter: JSX.Element;
   listing: JSX.Element;
   panel?: JSX.Element;
   panelFixed?: boolean;
@@ -34,7 +34,7 @@ interface Props {
 
 const ListingPage = ({
   listing,
-  filters,
+  filter,
   panel,
   panelOpen = false,
   panelFixed = false,
@@ -43,7 +43,7 @@ const ListingPage = ({
 
   return (
     <div className={classes.page}>
-      <div className={classes.filters}>{filters}</div>
+      <div className={classes.filters}>{filter}</div>
 
       <WithPanel fixed={panelFixed} open={panelOpen} panel={panel}>
         <div className={classes.listing}>{listing}</div>

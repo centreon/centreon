@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { makeStyles, Theme, Chip, fade, ChipProps } from '@material-ui/core';
+import { makeStyles, Theme, Chip, alpha, ChipProps } from '@material-ui/core';
 import { CreateCSSProperties } from '@material-ui/styles';
 
 enum SeverityCode {
@@ -47,7 +47,7 @@ const getStatusColors = ({ theme, severityCode }: StatusColorProps): Colors => {
       color: palette.common.black,
     },
     [SeverityCode.None]: {
-      backgroundColor: fade(palette.primary.main, 0.1),
+      backgroundColor: alpha(palette.primary.main, 0.1),
       color: palette.primary.main,
     },
   };

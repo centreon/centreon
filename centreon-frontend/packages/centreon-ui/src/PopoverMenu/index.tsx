@@ -16,6 +16,7 @@ import { IconButton } from '..';
 const useStyles = makeStyles({
   popoverIconButton: {
     padding: 0,
+    width: '100%',
   },
 });
 

@@ -72,6 +72,9 @@ const useStyles = makeStyles((theme) => ({
     gridAutoFlow: 'column',
     gridGap: theme.spacing(1),
   },
+  popper: {
+    zIndex: theme.zIndex.tooltip + 1,
+  },
 }));
 
 const LoadingIndicator = (): JSX.Element => {
@@ -181,6 +184,7 @@ const AutocompleteField = ({
           classes.input,
           label ? classes.inputWithLabel : classes.inputWithoutLabel,
         ]),
+        popper: classes.popper,
       }}
       forcePopupIcon={displayPopupIcon}
       getOptionLabel={(option: SelectEntry): string => option.name}

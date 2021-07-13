@@ -70,7 +70,7 @@ const SortableHeaderCell = ({
       className={clsx([cellClasses.cell, classes.item])}
       component="div"
       key={column.id}
-      padding={column.compact ? 'none' : 'default'}
+      padding={column.compact ? 'none' : 'normal'}
       sortDirection={equals(sortField, column.id) ? sortOrder : false}
     >
       <SortableHeaderCellContent

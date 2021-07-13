@@ -3,7 +3,7 @@ import * as React from 'react';
 import { isEmpty } from 'ramda';
 
 import { UseAutocompleteProps } from '@material-ui/lab';
-import { Avatar, Chip, useTheme } from '@material-ui/core';
+import { Avatar, Chip, makeStyles, useTheme } from '@material-ui/core';
 
 import { Props as AutocompleteProps } from '..';
 import { SelectEntry } from '../..';
@@ -19,6 +19,15 @@ export type Props = Omit<AutocompleteProps, 'renderTags' | 'multiple'> &
     'multiple'
   >;
 
+const useStyles = makeStyles(() => ({
+  chip: {
+    cursor: 'pointer',
+    display: 'flex',
+    justifyContent: 'space-between',
+    width: '100%',
+  },
+}));
+
 const PopoverAutocomplete = (
   AutocompleteField: (props) => JSX.Element,
 ): ((props) => JSX.Element) => {
@@ -30,14 +39,15 @@ const PopoverAutocomplete = (
   }: Props): JSX.Element => {
     const [optionsOpen, setOptionsOpen] = React.useState<boolean>(false);
     const theme = useTheme();
+    const classes = useStyles();
 
     const icon = (
       <Chip
         avatar={<Avatar>{(value as Array<SelectEntry>).length}</Avatar>}
+        className={classes.chip}
         color={isEmpty(value) ? undefined : 'primary'}
         label={label}
         size="small"
-        style={{ cursor: 'pointer' }}
         onDelete={(e) => onChange?.(e, [], 'clear')}
       />
     );

@@ -1,7 +1,7 @@
 import React from 'react';
 
 import {
-  createMuiTheme,
+  createTheme,
   ThemeProvider as MuiThemeProvider,
   ThemeProviderProps,
 } from '@material-ui/core';
@@ -15,7 +15,7 @@ declare module '@material-ui/core/styles/createPalette' {
   }
 }
 
-const theme = createMuiTheme({
+const theme = createTheme({
   palette: {
     action: {
       acknowledged: '#AA9C24',

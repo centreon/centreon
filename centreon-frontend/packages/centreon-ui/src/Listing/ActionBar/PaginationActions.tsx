@@ -25,7 +25,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const PaginationActions = ({
-  onChangePage,
+  onPageChange,
   page,
   rowsPerPage,
   count,
@@ -34,15 +34,15 @@ const PaginationActions = ({
   const { t } = useTranslation();
 
   const changeToFirstPage = (event) => {
-    onChangePage(event, 0);
+    onPageChange(event, 0);
   };
 
   const changeToPreviousPage = (event) => {
-    onChangePage(event, page - 1);
+    onPageChange(event, page - 1);
   };
 
   const changeToNextPage = (event) => {
-    onChangePage(event, page + 1);
+    onPageChange(event, page + 1);
   };
 
   const lastPage = Math.ceil(count / rowsPerPage) - 1;
@@ -51,7 +51,7 @@ const PaginationActions = ({
   const isLastPage = page >= lastPage;
 
   const changeToLastPage = (event) => {
-    onChangePage(event, Math.max(0, lastPage));
+    onPageChange(event, Math.max(0, lastPage));
   };
 
   return (

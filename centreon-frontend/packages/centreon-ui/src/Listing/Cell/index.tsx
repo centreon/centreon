@@ -2,7 +2,12 @@ import * as React from 'react';
 
 import { isNil, omit } from 'ramda';
 
-import { fade, makeStyles, TableCell, TableCellProps } from '@material-ui/core';
+import {
+  alpha,
+  makeStyles,
+  TableCell,
+  TableCellProps,
+} from '@material-ui/core';
 
 import { Props as DataCellProps } from './DataCell';
 
@@ -18,11 +23,11 @@ const useStyles = makeStyles((theme) => ({
       disableRowCondition,
     }: Props) => {
       if (disableRowCondition(row)) {
-        return fade(theme.palette.common.black, 0.08);
+        return alpha(theme.palette.common.black, 0.08);
       }
 
       if (isRowHovered) {
-        return fade(theme.palette.primary.main, 0.08);
+        return alpha(theme.palette.primary.main, 0.08);
       }
 
       const foundCondition = rowColorConditions?.find(({ condition }) =>

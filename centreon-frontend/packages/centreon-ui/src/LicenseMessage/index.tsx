@@ -2,7 +2,7 @@ import * as React from 'react';
 
 import { useTranslation } from 'react-i18next';
 
-import { fade, makeStyles, Paper, Typography } from '@material-ui/core';
+import { alpha, makeStyles, Paper, Typography } from '@material-ui/core';
 
 import { labelInvalidLicense } from './translatedLabels';
 
@@ -13,7 +13,7 @@ const useStyles = makeStyles((theme) => ({
     flexDirection: 'column',
   },
   paper: {
-    backgroundColor: fade(theme.palette.error.main, 0.15),
+    backgroundColor: alpha(theme.palette.error.main, 0.15),
     marginTop: theme.spacing(8),
     textAlign: 'center',
     width: '400px',
