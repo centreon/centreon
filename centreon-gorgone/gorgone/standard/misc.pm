@@ -254,4 +254,66 @@ sub trim {
     return $value;
 }
 
+sub slurp {
+    my (%options) = @_;
+
+    my ($fh, $size);
+    if (!open($fh, '<', $options{file})) {
+        return (0, "Could not open $options{file}: $!");
+    }
+    my $buffer = do { local $/; <$fh> };
+    close $fh;
+    return (1, 'ok', $buffer);
+}
+
+sub scale {
+    my (%options) = @_;
+
+    my ($src_quantity, $src_unit) = (undef, 'B');
+    if (defined($options{src_unit}) && $options{src_unit} =~ /([kmgtpe])?(b)/i) {
+        $src_quantity = $1;
+        $src_unit = $2;
+    }
+    my ($dst_quantity, $dst_unit) = ('auto', $src_unit);
+    if (defined($options{dst_unit}) && $options{dst_unit} =~ /([kmgtpe])?(b)/i) {
+        $dst_quantity = $1;
+        $dst_unit = $2;
+    }
+
+    my $base = 1024;
+    $options{value} *= 8 if ($dst_unit eq 'b' && $src_unit eq 'B');
+    $options{value} /= 8 if ($dst_unit eq 'B' && $src_unit eq 'b');
+    $base = 1000 if ($dst_unit eq 'b');
+
+    my %expo = (k => 1, m => 2, g => 3, t => 4, p => 5, e => 6);
+    my $src_expo = 0;
+    $src_expo = $expo{ lc($src_quantity) } if (defined($src_quantity));
+
+    if (defined($dst_quantity) && $dst_quantity eq 'auto') {
+        my @auto = ('', 'k', 'm', 'g', 't', 'p', 'e');
+        for (; $src_expo < scalar(@auto); $src_expo++) {
+            last if ($options{value} < $base);
+            $options{value} = $options{value} / $base;
+        }
+
+        if (defined($options{format}) && $options{format} ne '') {
+            $options{value} = sprintf($options{format}, $options{value});
+        }
+        return ($options{value}, uc($auto[$src_expo]) . $dst_unit);
+    }
+
+    my $dst_expo = 0;
+    $dst_expo = $expo{ lc($dst_quantity) } if (defined($dst_quantity));
+    if ($dst_expo - $src_expo > 0) {
+        $options{value} = $options{value} / ($base ** ($dst_expo - $src_expo));
+    } elsif ($dst_expo - $src_expo < 0) {
+        $options{value} = $options{value} * ($base ** (($dst_expo - $src_expo) * -1));
+    }
+
+    if (defined($options{format}) && $options{format} ne '') {
+        $options{value} = sprintf($options{format}, $options{value});
+    }
+    return ($options{value}, $options{dst_unit});
+}
+
 1;
