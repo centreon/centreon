@@ -533,6 +533,17 @@ sub pathway {
         }
     }
 
+    if (!defined($first_target)) {
+        $options{logger}->writeLogDebug("[proxy] no pathway for target '$target'");
+        gorgone::standard::library::add_history(
+            dbh => $options{dbh},
+            code => GORGONE_ACTION_FINISH_KO, token => $options{token},
+            data => { message => 'proxy - no pathway for target ' . $target },
+            json_encode => 1
+        );
+        return -1;
+    }
+
     # if there are here, we use the first pathway (because all pathways had an issue)
     return (1, 0, $first_target . '~~' . $target, $first_target, $target);
 }
