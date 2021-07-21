@@ -26,4 +26,28 @@ enable: true
 
 ## API
 
-No API endpoints.
+### Synchronize centreon nodes configuration
+
+| Endpoint             | Method |
+| :------------------- | :----- |
+| /centreon/nodes/sync | `POST` |
+
+#### Headers
+
+| Header       | Value            |
+| :----------- | :--------------- |
+| Accept       | application/json |
+| Content-Type | application/json |
+
+#### Body
+
+No parameters.
+
+#### Example
+
+```bash
+curl --request POST "https://hostname:8443/api/centreon/nodes/sync" \
+  --header "Accept: application/json" \
+  --header "Content-Type: application/json" \
+  --data "{}"
+```
