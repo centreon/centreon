@@ -105,7 +105,7 @@ sub check_debug {
     return 0;
 }
 
-sub action_nodesresync {
+sub action_centreonnodessync {
     my ($self, %options) = @_;
 
     $options{token} = $self->generate_token() if (!defined($options{token}));
@@ -255,7 +255,7 @@ sub run {
         {
             socket  => $connector->{internal_socket},
             events  => ZMQ_POLLIN,
-            callback => \&event,
+            callback => \&event
         }
     ];
     while (1) {
@@ -269,7 +269,7 @@ sub run {
 
         if (time() - $self->{resync_time} > $self->{last_resync_time}) {
             $self->{last_resync_time} = time();
-            $self->action_nodesresync();
+            $self->action_centreonnodessync();
         }
     }
 }

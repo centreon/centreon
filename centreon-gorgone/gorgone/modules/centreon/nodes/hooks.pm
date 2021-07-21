@@ -30,7 +30,8 @@ use gorgone::standard::constants qw(:all);
 use constant NAMESPACE => 'centreon';
 use constant NAME => 'nodes';
 use constant EVENTS => [
-    { event => 'CENTREONNODESREADY' },
+    { event => 'CENTREONNODESSYNC', uri => '/sync', method => 'POST' },
+    { event => 'CENTREONNODESREADY' }
 ];
 
 my $config_core;
