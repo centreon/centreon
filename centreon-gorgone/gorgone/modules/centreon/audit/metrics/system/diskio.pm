@@ -52,6 +52,7 @@ sub metrics {
                     / ($options{sampling}->{diskio}->{partitions}->{$partname}->[0]->[0] - $options{sampling}->{diskio}->{partitions}->{$partname}->[ $_->[0] ]->[0])
             );
             $metrics->{partitions}->{$partname}->{ 'read_iops_' . $_->[1] . '_human' } = join('', gorgone::standard::misc::scale(value => $metrics->{partitions}->{$partname}->{ 'read_iops_' . $_->[1] . '_bytes' }, format => '%.2f'));
+
             $metrics->{partitions}->{$partname}->{ 'write_iops_' . $_->[1] . '_bytes' } = sprintf(
                 '%.2f',
                     ($options{sampling}->{diskio}->{partitions}->{$partname}->[0]->[2] - $options{sampling}->{diskio}->{partitions}->{$partname}->[ $_->[0] ]->[2])
@@ -62,7 +63,7 @@ sub metrics {
             $metrics->{partitions}->{$partname}->{ 'read_time_' . $_->[1] . '_ms' } = sprintf(
                 '%s', ($options{sampling}->{diskio}->{partitions}->{$partname}->[0]->[3] - $options{sampling}->{diskio}->{partitions}->{$partname}->[ $_->[0] ]->[3])
             );
-            $metrics->{partitions}->{$partname}->{ 'read_time_' . $_->[1] . '_ms' } = sprintf(
+            $metrics->{partitions}->{$partname}->{ 'write_time_' . $_->[1] . '_ms' } = sprintf(
                 '%s', ($options{sampling}->{diskio}->{partitions}->{$partname}->[0]->[4] - $options{sampling}->{diskio}->{partitions}->{$partname}->[ $_->[0] ]->[4])
             );
         }
