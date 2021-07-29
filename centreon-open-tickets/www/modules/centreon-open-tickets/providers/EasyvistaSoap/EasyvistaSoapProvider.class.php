@@ -19,8 +19,9 @@
  * limitations under the License.
  */
 
-class EasyvistaProvider extends AbstractProvider
+class EasyvistaSoapProvider extends AbstractProvider
 {
+    protected $_proxy_enabled = 1;
     protected $_attach_files = 1;
 
     const ARG_ACCOUNT = 1;
@@ -140,6 +141,7 @@ class EasyvistaProvider extends AbstractProvider
         $this->_checkFormValue('macro_ticket_id', "Please set 'Macro Ticket ID' value");
         $this->_checkFormInteger('timeout', "'Timeout' must be a number");
         $this->_checkFormInteger('confirm_autoclose', "'Confirm popup autoclose' must be a number");
+        $this->_checkFormInteger('proxy_port', "'Proxy port' must be a number");
 
         $this->_checkLists();
 
@@ -155,7 +157,7 @@ class EasyvistaProvider extends AbstractProvider
      */
     protected function _getConfigContainer1Extra()
     {
-        $tpl = $this->initSmartyTemplate('providers/Easyvista/templates');
+        $tpl = $this->initSmartyTemplate('providers/EasyvistaSoap/templates');
 
         $tpl->assign("centreon_open_tickets_path", $this->_centreon_open_tickets_path);
         $tpl->assign("img_brick", "./modules/centreon-open-tickets/images/brick.png");
@@ -236,7 +238,7 @@ class EasyvistaProvider extends AbstractProvider
      */
     protected function _getConfigContainer2Extra()
     {
-        $tpl = $this->initSmartyTemplate('providers/Easyvista/templates');
+        $tpl = $this->initSmartyTemplate('providers/EasyvistaSoap/templates');
 
         $tpl->assign("centreon_open_tickets_path", $this->_centreon_open_tickets_path);
         $tpl->assign("img_brick", "./modules/centreon-open-tickets/images/brick.png");
@@ -488,11 +490,21 @@ class EasyvistaProvider extends AbstractProvider
             return 1;
         }
 
+        self::setProxy(
+            $ch,
+            array(
+                'proxy_address' => $this->_getFormValue('proxy_address', false),
+                'proxy_port' => $this->_getFormValue('proxy_port', false),
+                'proxy_username' => $this->_getFormValue('proxy_username', false),
+                'proxy_password' => $this->_getFormValue('proxy_password', false)
+            )
+        );
         curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
         curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, $this->rule_data['timeout']);
         curl_setopt($ch, CURLOPT_TIMEOUT, $this->rule_data['timeout']);
         curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
         curl_setopt(
             $ch,
