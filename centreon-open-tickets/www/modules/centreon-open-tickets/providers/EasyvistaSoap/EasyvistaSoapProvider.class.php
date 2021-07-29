@@ -19,7 +19,7 @@
  * limitations under the License.
  */
 
-class EasyvistaProvider extends AbstractProvider
+class EasyvistaSoapProvider extends AbstractProvider
 {
     protected $proxy_enabled = 1;
     protected $attach_files = 1;
@@ -157,7 +157,7 @@ class EasyvistaProvider extends AbstractProvider
      */
     protected function getConfigContainer1Extra()
     {
-        $tpl = $this->initSmartyTemplate('providers/Easyvista/templates');
+        $tpl = $this->initSmartyTemplate('providers/EasyvistaSoap/templates');
 
         $tpl->assign("centreon_open_tickets_path", $this->centreon_open_tickets_path);
         $tpl->assign("img_brick", "./modules/centreon-open-tickets/images/brick.png");
@@ -240,7 +240,7 @@ class EasyvistaProvider extends AbstractProvider
      */
     protected function getConfigContainer2Extra()
     {
-        $tpl = $this->initSmartyTemplate('providers/Easyvista/templates');
+        $tpl = $this->initSmartyTemplate('providers/EasyvistaSoap/templates');
 
         $tpl->assign("centreon_open_tickets_path", $this->centreon_open_tickets_path);
         $tpl->assign("img_brick", "./modules/centreon-open-tickets/images/brick.png");
@@ -507,6 +507,7 @@ class EasyvistaProvider extends AbstractProvider
         curl_setopt($ch, CURLOPT_TIMEOUT, $this->rule_data['timeout']);
         curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
         curl_setopt(
             $ch,
