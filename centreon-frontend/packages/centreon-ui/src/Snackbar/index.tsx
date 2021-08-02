@@ -1,10 +1,9 @@
 import React from 'react';
 
-import {
-  Snackbar as MuiSnackbar,
-  IconButton,
-  makeStyles,
-} from '@material-ui/core';
+import { useSnackbar, SnackbarContent } from 'notistack';
+import { isNil, not } from 'ramda';
+
+import { IconButton, makeStyles } from '@material-ui/core';
 import IconClose from '@material-ui/icons/Close';
 import { Alert } from '@material-ui/lab';
 
@@ -29,40 +28,51 @@ const useStyles = makeStyles<PropsStyle>({
   },
 });
 
-interface Props {
+export interface SnackbarProps {
+  id: string | number;
   message: string;
-  onClose?: () => void;
-  open: boolean;
   severity: Severity;
 }
 
-const Snackbar = ({ message, open, onClose, severity }: Props): JSX.Element => {
-  const classes = useStyles();
+const Snackbar = React.forwardRef(
+  (
+    { message, id, severity }: SnackbarProps,
+    ref: React.ForwardedRef<HTMLDivElement>,
+  ): JSX.Element => {
+    const classes = useStyles();
+    const { closeSnackbar } = useSnackbar();
+    const timeoutId = React.useRef<NodeJS.Timeout | number | undefined>();
 
-  return (
-    <MuiSnackbar
-      anchorOrigin={{
-        horizontal: 'center',
-        vertical: 'bottom',
-      }}
-      autoHideDuration={6000}
-      open={open}
-      onClose={onClose}
-    >
-      <Alert
-        action={[
-          <IconButton color="inherit" key="close" onClick={onClose}>
-            <IconClose className={classes.closeIcon} />
-          </IconButton>,
-        ]}
-        classes={{ icon: classes.alertIcon, message: classes.message }}
-        severity={severity}
-        variant="filled"
-      >
-        {message}
-      </Alert>
-    </MuiSnackbar>
-  );
-};
+    React.useEffect((): void => {
+      timeoutId.current = setTimeout(() => {
+        closeSnackbar(id);
+      }, 6000);
+    }, []);
+
+    const close = (): void => {
+      if (not(isNil(timeoutId.current))) {
+        clearTimeout(timeoutId.current as number);
+      }
+      closeSnackbar(id);
+    };
+
+    return (
+      <SnackbarContent ref={ref}>
+        <Alert
+          action={[
+            <IconButton color="inherit" key="close" onClick={close}>
+              <IconClose className={classes.closeIcon} />
+            </IconButton>,
+          ]}
+          classes={{ icon: classes.alertIcon, message: classes.message }}
+          severity={severity}
+          variant="filled"
+        >
+          {message}
+        </Alert>
+      </SnackbarContent>
+    );
+  },
+);
 
 export default Snackbar;

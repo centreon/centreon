@@ -1,7 +1,6 @@
 import * as React from 'react';
 
 import { useSnackbar } from '../..';
-import Severity from '../../Snackbar/Severity';
 import withSnackbar from '../../Snackbar/withSnackbar';
 
 import UnsavedChangesDialog from '.';
@@ -14,16 +13,13 @@ interface Props {
 }
 
 const Story = ({ isValidForm, isSubmitting }: Props): JSX.Element => {
-  const { showMessage } = useSnackbar();
+  const { showInfoMessage } = useSnackbar();
 
-  const closeDialog = () =>
-    showMessage({ message: 'Close', severity: Severity.info });
+  const closeDialog = () => showInfoMessage('Close');
 
-  const discardChanges = () =>
-    showMessage({ message: 'Discard', severity: Severity.info });
+  const discardChanges = () => showInfoMessage('Discard');
 
-  const saveChanges = () =>
-    showMessage({ message: 'Save', severity: Severity.info });
+  const saveChanges = () => showInfoMessage('Save');
 
   return (
     <UnsavedChangesDialog
@@ -37,7 +33,7 @@ const Story = ({ isValidForm, isSubmitting }: Props): JSX.Element => {
   );
 };
 
-const StoryWithSnackbar = withSnackbar(Story);
+const StoryWithSnackbar = withSnackbar({ Component: Story });
 
 export const normal = (): JSX.Element => (
   <StoryWithSnackbar isValidForm isSubmitting={false} />

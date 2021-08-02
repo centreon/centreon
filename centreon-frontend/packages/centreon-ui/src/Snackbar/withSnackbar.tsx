@@ -1,50 +1,47 @@
-import React, { createContext, ReactNode, ReactElement } from 'react';
+import * as React from 'react';
 
-import useMessage from './useMessage';
+import { SnackbarProvider } from 'notistack';
 
-import Snackbar from '.';
+import { Fade } from '@material-ui/core';
 
-export interface SnackbarActions {
-  showMessage: ({ message, severity }) => void;
-  showMessages: ({ messages, severity }) => void;
-}
-
-const noOp = (): void => undefined;
-
-const defaultSnackBarState: SnackbarActions = {
-  showMessage: noOp,
-  showMessages: noOp,
-};
-
-const Context = createContext<SnackbarActions>(defaultSnackBarState);
+import Snackbar, { SnackbarProps } from '.';
 
 interface SnackbarContextProviderProps {
-  children?: ReactNode;
+  children?: React.ReactNode;
 }
 
-const withSnackbar = (
-  Component: (props) => JSX.Element,
-): ((props) => JSX.Element) => {
-  return (props: SnackbarContextProviderProps): ReactElement => {
-    const { message, severity, showMessage, showMessages, confirmMessage } =
-      useMessage();
+interface WithSnackbarProps {
+  Component: (props) => JSX.Element;
+  maxSnackbars?: number;
+}
 
-    const hasMessage = message !== undefined;
+const withSnackbar = ({
+  Component,
+  maxSnackbars = 3,
+}: WithSnackbarProps): ((props) => JSX.Element) => {
+  return (props: SnackbarContextProviderProps): React.ReactElement => {
+    const snackbarContent = (
+      id: string | number,
+      { message, severity }: Omit<SnackbarProps, 'id'>,
+    ): JSX.Element => {
+      return <Snackbar id={id} message={message} severity={severity} />;
+    };
 
     return (
-      <Context.Provider value={{ showMessage, showMessages }}>
+      <SnackbarProvider
+        TransitionComponent={({ children, ...rest }): JSX.Element => (
+          <Fade {...rest}>
+            <div>{children}</div>
+          </Fade>
+        )}
+        anchorOrigin={{ horizontal: 'center', vertical: 'bottom' }}
+        content={snackbarContent}
+        maxSnack={maxSnackbars}
+      >
         <Component {...props} />
-        <Snackbar
-          message={message}
-          open={hasMessage}
-          severity={severity}
-          onClose={confirmMessage}
-        />
-      </Context.Provider>
+      </SnackbarProvider>
     );
   };
 };
-
-export { Context as SnackbarContext };
 
 export default withSnackbar;

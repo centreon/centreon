@@ -6,19 +6,17 @@ import {
 import axios from 'axios';
 import anyLogger from 'anylogger';
 
-import { Severity } from '../..';
-
 import useRequest, { RequestResult, RequestParams } from '.';
 
 const mockedAxios = axios as jest.Mocked<typeof axios>;
 
-const mockedShowMessage = jest.fn();
+const mockedShowErrorMessage = jest.fn();
 
 jest.mock('../../Snackbar/useSnackbar', () => ({
   __esModule: true,
   default: jest
     .fn()
-    .mockImplementation(() => ({ showMessage: mockedShowMessage })),
+    .mockImplementation(() => ({ showErrorMessage: mockedShowErrorMessage })),
 }));
 
 interface Result {
@@ -35,7 +33,7 @@ const renderUseRequest = (
 describe(useRequest, () => {
   afterEach(() => {
     request.mockReset();
-    mockedShowMessage.mockReset();
+    mockedShowErrorMessage.mockReset();
     mockedAxios.isCancel.mockReset();
   });
 
@@ -66,10 +64,7 @@ describe(useRequest, () => {
       });
     });
 
-    expect(mockedShowMessage).toHaveBeenCalledWith({
-      message: 'custom message',
-      severity: Severity.error,
-    });
+    expect(mockedShowErrorMessage).toHaveBeenCalledWith('custom message');
   });
 
   it("shows an error via the Snackbar and inside browser's console using the error message from the API when available", async () => {
@@ -88,10 +83,7 @@ describe(useRequest, () => {
 
     expect(anyLogger().error).toHaveBeenCalledWith(response);
 
-    expect(mockedShowMessage).toHaveBeenCalledWith({
-      message: 'failure',
-      severity: Severity.error,
-    });
+    expect(mockedShowErrorMessage).toHaveBeenCalledWith('failure');
   });
 
   it('shows a default failure message via the Snackbar as fallback', async () => {
@@ -108,10 +100,7 @@ describe(useRequest, () => {
       });
     });
 
-    expect(mockedShowMessage).toHaveBeenCalledWith({
-      message: 'Oops',
-      severity: Severity.error,
-    });
+    expect(mockedShowErrorMessage).toHaveBeenCalledWith('Oops');
   });
 
   it('does not show any message via the Snackbar when the error is an axios cancel', async () => {
@@ -129,6 +118,6 @@ describe(useRequest, () => {
       });
     });
 
-    expect(mockedShowMessage).not.toHaveBeenCalled();
+    expect(mockedShowErrorMessage).not.toHaveBeenCalled();
   });
 });

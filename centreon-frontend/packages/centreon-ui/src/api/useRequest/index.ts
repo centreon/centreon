@@ -7,7 +7,6 @@ import anylogger from 'anylogger';
 import { JsonDecoder } from 'ts.data.json';
 
 import useCancelTokenSource from '../useCancelTokenSource';
-import Severity from '../../Snackbar/Severity';
 import useSnackbar from '../../Snackbar/useSnackbar';
 
 const log = anylogger('API Request');
@@ -31,7 +30,7 @@ const useRequest = <TResult>({
   defaultFailureMessage = 'Oops, something went wrong',
 }: RequestParams<TResult>): RequestResult<TResult> => {
   const { token, cancel } = useCancelTokenSource();
-  const { showMessage } = useSnackbar();
+  const { showErrorMessage } = useSnackbar();
 
   const [sending, setSending] = React.useState(false);
 
@@ -39,17 +38,14 @@ const useRequest = <TResult>({
     return (): void => cancel();
   }, []);
 
-  const showErrorMessage = (error): void => {
+  const showRequestErrorMessage = (error): void => {
     log.error(error);
     const message = defaultTo(
       pathOr(defaultFailureMessage, ['response', 'data', 'message']),
       getErrorMessage,
     )(error);
 
-    showMessage({
-      message,
-      severity: Severity.error,
-    });
+    showErrorMessage(message);
   };
 
   const sendRequest = (params): Promise<TResult> => {
@@ -70,7 +66,7 @@ const useRequest = <TResult>({
           return error;
         }
 
-        showErrorMessage(error);
+        showRequestErrorMessage(error);
 
         throw error;
       })
