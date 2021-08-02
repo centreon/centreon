@@ -8,6 +8,7 @@ const argv = process.argv.slice(0, 2);
 process.argv.reduce((cmd, arg) => {
   if (cmd) {
     config[cmd] = arg;
+
     return;
   }
 
@@ -16,6 +17,7 @@ process.argv.reduce((cmd, arg) => {
     if (Object.keys(config).includes(sub)) {
       if (typeof config[sub] === 'boolean') {
         config[cmd] = true;
+
         return;
       }
 

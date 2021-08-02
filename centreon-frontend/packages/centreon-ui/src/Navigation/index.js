@@ -55,6 +55,7 @@ class Navigation extends Component {
     const url = entryProps.is_react
       ? entryProps.url
       : `/main.php?p=${urlOptions}`;
+
     return url;
   };
 
@@ -78,6 +79,7 @@ class Navigation extends Component {
         index = i;
       }
     }
+
     return index;
   };
 
@@ -138,6 +140,7 @@ class Navigation extends Component {
         {navigationData.map((firstLevel, firstLevelIndex) => {
           const firstLevelIsActive =
             firstLevel.toggled || this.areSamePage(pageId, firstLevel, 1);
+
           return (
             <li
               className={clsx(
@@ -210,6 +213,7 @@ class Navigation extends Component {
                   const secondLevelIsColored =
                     secondLevel.toggled ||
                     this.areSamePage(pageId, secondLevel, 3);
+
                   return (
                     <li
                       className={clsx(styles['collapsed-item'], {
@@ -251,6 +255,7 @@ class Navigation extends Component {
                               height: rectBox.offsetHeight + rectBox.bottom,
                             };
                           }
+
                           return (
                             <ul
                               className={clsx(
@@ -276,6 +281,7 @@ class Navigation extends Component {
                                     const thirdLevelIsActive =
                                       thirdLevel.toggled ||
                                       this.areSamePage(pageId, thirdLevel);
+
                                     return (
                                       <li
                                         className={clsx(

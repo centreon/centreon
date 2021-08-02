@@ -17,6 +17,7 @@ const useStyles = makeStyles((theme) => ({
 
 const HorizontalLineContent = ({ hrTitle, hrColor, hrTitleColor }) => {
   const classes = useStyles();
+
   return (
     <div
       className={clsx(styles['content-hr'], {

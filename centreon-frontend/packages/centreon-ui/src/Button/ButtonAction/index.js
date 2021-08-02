@@ -27,6 +27,7 @@ const ButtonAction = ({
     styles[customPosition || ''],
     styles[iconColor],
   );
+
   return (
     <span className={cn} onClick={onClick}>
       <IconAction iconActionType={buttonIconType} iconColor={iconColor || ''} />

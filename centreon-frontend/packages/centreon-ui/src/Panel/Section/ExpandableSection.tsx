@@ -54,6 +54,7 @@ interface Props {
 
 const ExpandableSection = ({ title, children }: Props): JSX.Element => {
   const classes = useStyles();
+
   return (
     <Section>
       <CustomizedAccordionSummary expandIcon={<ExpandMoreIcon />}>

@@ -153,6 +153,7 @@ const FilterWithOpenButton = ({
 
 const DetailsPanelContent = (): JSX.Element => {
   const classes = useStyles();
+
   return (
     <div className={classes.detailsPanel}>
       <div className={classes.detailsContent}>
@@ -220,6 +221,7 @@ interface PanelProps {
 
 const DetailsPanelHeader = (): JSX.Element => {
   const classes = useStyles();
+
   return (
     <div className={classes.detailsPanelHeader}>
       <Typography align="center" variant="h5">

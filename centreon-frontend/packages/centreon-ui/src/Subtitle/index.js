@@ -13,6 +13,7 @@ const Subtitle = ({ label, subtitleType, customSubtitleStyles }) => {
     styles[subtitleType],
     styles[customSubtitleStyles || ''],
   );
+
   return <span className={cn}>{label}</span>;
 };
 

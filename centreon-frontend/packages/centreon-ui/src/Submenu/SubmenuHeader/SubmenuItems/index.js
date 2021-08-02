@@ -11,6 +11,7 @@ import styles from '../submenu.scss';
 class SubmenuItems extends Component {
   render() {
     const { children } = this.props;
+
     return <ul className={clsx(styles['submenu-items'])}>{children}</ul>;
   }
 }

@@ -89,6 +89,7 @@ export default class BoundingBox extends React.Component {
         rectBox: this.state.rectBox,
       });
     }
+
     return React.Children.only(this.props.children);
   }
 }

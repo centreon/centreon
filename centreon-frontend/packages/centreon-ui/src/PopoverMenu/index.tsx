@@ -58,6 +58,7 @@ const PopoverMenu = ({
     if (isOpen) {
       close();
       onClose?.();
+
       return;
     }
 

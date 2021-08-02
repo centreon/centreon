@@ -50,6 +50,7 @@ class FileUpload extends Component {
     if (uploadStatus && !uploadStatus.status) {
       isSuccessfull = false;
     }
+
     return (
       <>
         <Popup popupType="small">

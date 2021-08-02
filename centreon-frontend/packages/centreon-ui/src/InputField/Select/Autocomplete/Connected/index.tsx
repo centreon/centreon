@@ -178,6 +178,7 @@ const ConnectedAutocompleteField = (
         setSearchValue('');
         setOptions([]);
         setPage(initialPage);
+
         return;
       }
 

@@ -50,6 +50,7 @@ const PersistentTooltip = ({
   const closeTooltip = (): void => {
     if (!openTooltip) {
       setOpen(false);
+
       return;
     }
 

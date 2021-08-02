@@ -11,6 +11,7 @@ import styles from '../submenu.scss';
 class SubmenuItem extends Component {
   render() {
     const { dotColored, submenuTitle, submenuCount } = this.props;
+
     return (
       <li className={clsx(styles['submenu-item'])}>
         <span

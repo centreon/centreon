@@ -26,6 +26,7 @@ const useStyles = makeStyles({
 });
 const TopFilters = ({ fullText, switches, onChange }) => {
   const classes = useStyles();
+
   return (
     <div>
       <div className={filterStyles['filters-wrapper']}>

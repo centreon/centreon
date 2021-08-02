@@ -20,6 +20,7 @@ class SearchLive extends Component {
 
   render() {
     const { label, value, icon } = this.props;
+
     return (
       <div
         className={clsx(styles['search-live'], styles[icon ? 'custom' : ''])}

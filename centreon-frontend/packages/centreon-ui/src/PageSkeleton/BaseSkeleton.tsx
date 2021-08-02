@@ -16,6 +16,7 @@ const BaseRectSkeleton = ({
   ...props
 }: Pick<PageSkeletonProps, 'animate'> & SkeletonProps): JSX.Element => {
   const classes = useSkeletonStyles();
+
   return (
     <Skeleton
       animation={animate ? 'wave' : false}

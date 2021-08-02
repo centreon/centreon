@@ -11,6 +11,7 @@ import styles from './card.scss';
 class Card extends Component {
   render() {
     const { children, style } = this.props;
+
     return (
       <div className={clsx(styles.card)} style={style}>
         <div>{children}</div>

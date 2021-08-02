@@ -19,6 +19,7 @@ const IconInfo = ({
     styles[iconPosition || ''],
     styles[iconColor || ''],
   );
+
   return (
     <>
       {iconName && <span className={cn} />}

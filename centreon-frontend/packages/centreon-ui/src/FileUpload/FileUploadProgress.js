@@ -15,6 +15,7 @@ class FileUploadItem extends Component {
       styles['file-upload-item-title'],
       titleStatus || '',
     );
+
     return (
       <>
         <div className={clsx(styles['file-upload-item'])}>

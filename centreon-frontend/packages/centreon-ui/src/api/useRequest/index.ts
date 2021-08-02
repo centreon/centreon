@@ -60,11 +60,13 @@ const useRequest = <TResult>({
         if (decoder) {
           return decoder.decodeToPromise(data);
         }
+
         return data;
       })
       .catch((error) => {
         if (axios.isCancel(error)) {
           log.warn(error);
+
           return error;
         }
 

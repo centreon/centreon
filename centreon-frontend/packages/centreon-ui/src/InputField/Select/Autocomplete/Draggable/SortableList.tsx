@@ -84,6 +84,7 @@ const SortableList = ({
       return null;
     }
     const index = indexOf(activeId, sortableItems);
+
     return {
       ...items[index],
       index,

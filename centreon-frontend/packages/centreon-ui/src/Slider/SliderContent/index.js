@@ -64,6 +64,7 @@ class SliderContent extends Component {
 
     const slides = images.map((image, index) => {
       const isActive = currentIndex === index;
+
       return (
         <ContentSliderItem image={image} isActive={isActive} key={index} />
       );

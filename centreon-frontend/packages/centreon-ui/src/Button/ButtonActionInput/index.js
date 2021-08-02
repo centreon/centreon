@@ -23,6 +23,7 @@ const ButtonActionInput = ({
     styles[buttonColor || ''],
     styles[buttonPosition || ''],
   );
+
   return (
     <span className={cn} onClick={onClick}>
       <IconAction iconActionType={buttonIconType} iconColor={iconColor || ''} />

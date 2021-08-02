@@ -17,11 +17,13 @@ document.createRange = () => ({
 global.IntersectionObserver = class IntersectionObserver {
   observe() {
     this.a = '';
+
     return null;
   }
 
   disconnect() {
     this.a = '';
+
     return null;
   }
 };

@@ -22,6 +22,7 @@ const useIntersectionObserver = ({
 
       if (loading) {
         observer.current = null;
+
         return;
       }
 

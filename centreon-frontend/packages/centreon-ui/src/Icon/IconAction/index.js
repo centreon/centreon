@@ -23,6 +23,7 @@ const IconAction = ({
     styles[customStyle || ''],
     styles[iconReset || ''],
   );
+
   return <span className={cn} {...rest} />;
 };
 

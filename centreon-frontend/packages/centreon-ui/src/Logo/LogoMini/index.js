@@ -15,6 +15,7 @@ import styles from './logo-mini.scss';
 class LogoMini extends Component {
   render() {
     const { customClass, onClick } = this.props;
+
     return (
       <div
         className={clsx(styles['logo-mini'], styles[customClass || ''])}

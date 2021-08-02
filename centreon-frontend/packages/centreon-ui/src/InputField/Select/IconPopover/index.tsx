@@ -66,6 +66,7 @@ const IconPopoverMultiAutocomplete = ({
   const toggle = (event): void => {
     if (isOpen) {
       close();
+
       return;
     }
 
@@ -113,6 +114,7 @@ const IconPopoverMultiAutocomplete = ({
             )}
             {options.map((option) => {
               const { id, name } = option;
+
               return (
                 <MenuItem
                   disabled={option.disabled || false}

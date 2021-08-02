@@ -71,6 +71,7 @@ const Wizard = ({
   const submit = (values, bag) => {
     if (isLastStep && onSubmit) {
       onSubmit(values, bag);
+
       return;
     }
 
@@ -80,6 +81,7 @@ const Wizard = ({
   const handleClose = (_, reason) => {
     if (equals(reason, 'backdropClick')) {
       setOpenConfirm(true);
+
       return;
     }
     onClose?.();

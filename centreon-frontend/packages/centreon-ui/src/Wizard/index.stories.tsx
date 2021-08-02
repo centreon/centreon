@@ -245,6 +245,7 @@ interface Values {
 
 const Form = (): JSX.Element => {
   const [submitted, setSubmitted] = React.useState<boolean>(false);
+
   return (
     <Wizard
       open
@@ -281,6 +282,7 @@ const Form = (): JSX.Element => {
             ) {
               errors.email = 'Invalid email address';
             }
+
             return errors;
           },
         },
@@ -333,6 +335,7 @@ const Form = (): JSX.Element => {
         {
           Component: () => {
             const { values } = useFormikContext();
+
             return (
               <Typography>
                 {!submitted ? JSON.stringify(values) : 'Values submitted'}

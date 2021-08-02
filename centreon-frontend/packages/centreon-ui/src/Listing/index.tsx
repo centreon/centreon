@@ -213,6 +213,7 @@ const Listing = <TRow extends { id: RowId }>({
     ) {
       onSelectRows(reject(disableRowCheckCondition, rows));
       setLastSelectionIndex(null);
+
       return;
     }
 
@@ -285,6 +286,7 @@ const Listing = <TRow extends { id: RowId }>({
       const selectedRowsFromTheStart = slice(0, selectedRowIndex + 1, rows);
 
       onSelectRows(reject(disableRowCheckCondition, selectedRowsFromTheStart));
+
       return;
     }
 
@@ -313,6 +315,7 @@ const Listing = <TRow extends { id: RowId }>({
           }),
         ),
       );
+
       return;
     }
 
@@ -346,6 +349,7 @@ const Listing = <TRow extends { id: RowId }>({
     if (isShiftKeyDown) {
       selectRowsWithShiftKey(selectedRowIndex);
       setLastSelectionIndex(selectedRowIndex);
+
       return;
     }
 
@@ -359,6 +363,7 @@ const Listing = <TRow extends { id: RowId }>({
       onSelectRows(
         selectedRows.filter((entity) => !equals(getId(entity), getId(row))),
       );
+
       return;
     }
     onSelectRows([...selectedRows, row]);
@@ -423,6 +428,7 @@ const Listing = <TRow extends { id: RowId }>({
   React.useEffect(() => {
     if (not(isShiftKeyDown)) {
       setShiftKeyDownRowPivot(null);
+
       return;
     }
     setShiftKeyDownRowPivot(lastSelectionIndex);
