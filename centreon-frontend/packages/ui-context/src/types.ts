@@ -5,8 +5,13 @@ export interface User {
   timezone: string;
 }
 
+export interface CloudServices {
+  areCloudServicesEnabled: boolean;
+}
+
 export type UserContext = {
   acl: Acl;
+  cloudServices: CloudServices;
   downtime: Downtime;
   refreshInterval: number;
 } & User;
