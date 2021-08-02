@@ -1,3 +1,5 @@
+import React from 'react';
+
 export interface User {
   alias: string;
   locale: string;
@@ -7,11 +9,12 @@ export interface User {
 
 export interface CloudServices {
   areCloudServicesEnabled: boolean;
+  setAreCloudServicesEnabled: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 export type UserContext = {
   acl: Acl;
-  cloudServices: CloudServices;
+  cloudServices: CloudServices | undefined;
   downtime: Downtime;
   refreshInterval: number;
 } & User;

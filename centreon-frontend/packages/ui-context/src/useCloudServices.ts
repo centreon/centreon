@@ -1,18 +1,10 @@
 import * as React from 'react';
 
-import { defaultCloudServices } from './UserContext';
 import { CloudServices } from './types';
 
-interface CloudServicesState {
-  areCloudServicesEnabled: CloudServices;
-  setAreCloudServicesEnabled: React.Dispatch<
-    React.SetStateAction<CloudServices>
-  >;
-}
-
-const useCloudServices = (): CloudServicesState => {
+const useCloudServices = (): CloudServices => {
   const [areCloudServicesEnabled, setAreCloudServicesEnabled] =
-    React.useState<CloudServices>(defaultCloudServices);
+    React.useState(false);
 
   return { areCloudServicesEnabled, setAreCloudServicesEnabled };
 };

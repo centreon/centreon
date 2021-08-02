@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import { CloudServices, UserContext } from './types';
+import { UserContext } from './types';
 
 const defaultUser = {
   alias: '',
@@ -36,14 +36,12 @@ const defaultDowntime = {
 
 const defaultRefreshInterval = 15;
 
-const defaultCloudServices: CloudServices = {
-  areCloudServicesEnabled: false,
-};
+const defaultCloudServices = undefined;
 
 const defaultContext: UserContext = {
   ...defaultUser,
   acl: defaultAcl,
-  cloudServices: defaultCloudServices,
+  cloudServices: undefined,
   downtime: defaultDowntime,
   refreshInterval: defaultRefreshInterval,
 };
