@@ -43,56 +43,32 @@ def checkoutCentreonBuild(buildBranch) {
 /*
 ** Pipeline code.
 */
-
 stage('Sonar analysis') {
   node {
-      dir('centreon-frontend') {
-        checkout scm
-      }
-      checkoutCentreonBuild(buildBranch)
-      discoverGitReferenceBuild()
-      withSonarQubeEnv('SonarQubeDev') {  
-          sh "./centreon-build/jobs/frontend/${serie}/frontend-analysis.sh"
-      }
-    
-      def reportFilePath = "target/sonar/report-task.txt"
-      def reportTaskFileExists = fileExists "${reportFilePath}"
-      if (reportTaskFileExists) {
-        echo "Found report task file"
-        def taskProps = readProperties file: "${reportFilePath}"
-        echo "taskId[${taskProps['ceTaskId']}]"
-        timeout(time: 10, unit: 'MINUTES') {
-          while (true) {
-              sleep 5
-              def taskStatusResult    =
-                  sh(returnStdout: true,
-                     script: "curl -s -X GET -u ${authString} \'${sonarProps['sonar.host.url']}/api/ce/task?id=${taskProps['ceTaskId']}\'")
-                  echo "taskStatusResult[${taskStatusResult}]"
-              def taskStatus  = new JsonSlurper().parseText(taskStatusResult).task.status
-              echo "taskStatus[${taskStatus}]"
-              // Status can be SUCCESS, ERROR, PENDING, or IN_PROGRESS. The last two indicate it's
-              // not done yet.
-              if (taskStatus != "IN_PROGRESS" && taskStatus != "PENDING") {
-                  break;
-              }
-              def qualityGate = waitForQualityGate()
-              if (qualityGate.status != 'OK') {
-                currentBuild.result = 'FAIL'
-              }
-          }
-        }
+    dir('centreon-frontend') {
+      checkout scm
+    }
+    checkoutCentreonBuild(buildBranch)
+    discoverGitReferenceBuild()
+    withSonarQubeEnv('SonarQubeDev') {
+      sh "./centreon-build/jobs/frontend/${serie}/frontend-analysis.sh"
     }
 
-      source = readProperties file: 'source.properties'
-      env.VERSION = "${source.VERSION}"
-      env.RELEASE = "${source.RELEASE}"
-      sh "./centreon-build/jobs/frontend/${serie}/frontend-sources.sh"
-      stash includes: '**', name: 'centreonui-centreon-build'
-      stash includes: '**', name: 'uicontext-centreon-build'
+    def qualityGate = waitForQualityGate()
+    if (qualityGate.status != 'OK') {
+      currentBuild.result = 'FAIL'
+    }
+
+    source = readProperties file: 'source.properties'
+    env.VERSION = "${source.VERSION}"
+    env.RELEASE = "${source.RELEASE}"
+    sh "./centreon-build/jobs/frontend/${serie}/frontend-sources.sh"
+    stash includes: '**', name: 'centreonui-centreon-build'
+    stash includes: '**', name: 'uicontext-centreon-build'
   }
   if ((currentBuild.result ?: 'SUCCESS') != 'SUCCESS') {
-      error('Sonar analysis stage failure');
-    }
+    error('Sonar analysis stage failure');
+  }
 }
 
 stage('Unit tests') {
@@ -129,11 +105,11 @@ stage('Unit tests') {
   }
 }
 
-
 if (env.BUILD == 'REFERENCE') {
   stage ('Delivery') {
     node {
       unstash name: 'centreonui-centreon-build'
       sh "./centreon-build/jobs/frontend/${serie}/centreon-ui/centreonui-delivery.sh"
-    }}
+    }
+  }
 }
