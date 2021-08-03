@@ -1,6 +1,11 @@
 const merge = require('babel-merge');
 
 const configuration = {
+  plugins: [
+    '@babel/proposal-class-properties',
+    '@babel/plugin-proposal-optional-chaining',
+    '@babel/plugin-proposal-nullish-coalescing-operator',
+  ],
   presets: [
     [
       '@babel/preset-react',
@@ -10,13 +15,12 @@ const configuration = {
       },
     ],
   ],
-  plugins: ['@babel/proposal-class-properties'],
 };
 
 module.exports = {
   env: {
-    production: configuration,
     development: configuration,
+    production: configuration,
     test: merge(configuration, {
       presets: [
         [

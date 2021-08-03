@@ -1,16 +1,14 @@
-module.exports = assetPublicPath => ({
-  output: {
-    library: '[chunkhash:8]',
-    uniqueName: `wpJsonp-${assetPublicPath}`,
-  },
+const { CleanWebpackPlugin } = require('clean-webpack-plugin');
+
+module.exports = ({ assetPublicPath, outputPath }) => ({
   externals: {
+    '@centreon/ui-context': 'CentreonUiContext',
     react: 'React',
     'react-dom': 'ReactDOM',
+    'react-i18next': 'ReactI18Next',
+    'react-redux': 'ReactRedux',
     'react-redux-i18n': 'ReactReduxI18n',
     'react-router-dom': 'ReactRouterDom',
-    'react-redux': 'ReactRedux',
-    'react-i18next': 'ReactI18Next',
-    '@centreon/ui-context': 'CentreonUiContext',
   },
   module: {
     rules: [
@@ -42,4 +40,19 @@ module.exports = assetPublicPath => ({
       },
     ],
   },
+  output: {
+    library: '[chunkhash:8]',
+    path: outputPath,
+    uniqueName: `wpJsonp-${assetPublicPath}`,
+  },
+  plugins: [
+    new CleanWebpackPlugin({
+      cleanOnceBeforeBuildPatterns: [
+        `${outputPath}/**/*.js`,
+        `${outputPath}/**/*.css`,
+      ],
+      dangerouslyAllowCleanPatternsOutsideProject: true,
+      dry: false,
+    }),
+  ],
 });
