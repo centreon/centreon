@@ -51,9 +51,9 @@ mockedAxios
   });
 
 const options = [
-  { id: 0, name: 'First Entity' },
-  { id: 1, name: 'Second Entity' },
-  { id: 2, name: 'Third Entity' },
+  { id: `0`, name: 'First Entity' },
+  { id: `1`, name: 'Second Entity' },
+  { id: `2`, name: 'Third Entity' },
 ];
 
 const MultiDraggable = (): JSX.Element => (
@@ -113,7 +113,7 @@ export const draggableWithRequired = (): JSX.Element => (
 
 const MultiDraggableInitialValues = (): JSX.Element => (
   <MultiDraggableAutocompleteField
-    initialValues={[options[0]]}
+    initialValues={[options[0], options[1]]}
     label="Draggable Autocomplete"
     options={options}
     placeholder="Type here..."
