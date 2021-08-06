@@ -113,7 +113,6 @@
 <script type="text/javascript">
     var nbRows = {$nbRows};
     var currentpage = {$page};
-    var orderby = "{$orderby}";
     var nbCurrentItems = {$dataJS};
     var widgetId = {$widgetId};
     var autoRefresh = {$autoRefresh};
