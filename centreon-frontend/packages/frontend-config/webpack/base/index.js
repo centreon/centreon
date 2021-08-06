@@ -3,13 +3,13 @@ const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin');
 const path = require('path');
 
 module.exports = {
+  cache: false,
   module: {
     rules: [
       {
         exclude: /node_modules(\\|\/)(?!(@centreon(\\|\/)centreon-frontend(\\|\/)packages(\\|\/)(ui-context|centreon-ui)))/,
         test: /\.(j|t)sx?$/,
         use: [
-          { loader: 'cache-loader' },
           'babel-loader',
           {
             loader: 'ts-loader',
