@@ -9,11 +9,17 @@ import useMemoComponent from '../utils/useMemoComponent';
 import Item from './Item';
 
 interface Props extends Record<string, unknown> {
+  additionalProps: Array<unknown> | undefined;
   itemId: string;
   memoProps: Array<string>;
 }
 
-const SortableItem = ({ itemId, memoProps, ...rest }: Props): JSX.Element => {
+const SortableItem = ({
+  itemId,
+  memoProps,
+  additionalProps = [],
+  ...rest
+}: Props): JSX.Element => {
   const {
     attributes,
     listeners,
@@ -33,6 +39,7 @@ const SortableItem = ({ itemId, memoProps, ...rest }: Props): JSX.Element => {
     Component: (
       <Item
         {...rest}
+        {...additionalProps}
         attributes={attributes}
         isDragging={isDragging}
         listeners={listeners}
@@ -40,7 +47,12 @@ const SortableItem = ({ itemId, memoProps, ...rest }: Props): JSX.Element => {
         style={style}
       />
     ),
-    memoProps: [isDragging, transform, ...props(memoProps, rest)],
+    memoProps: [
+      isDragging,
+      transform,
+      ...props(memoProps, rest),
+      ...additionalProps,
+    ],
   });
 };
 

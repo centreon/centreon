@@ -172,7 +172,7 @@ const SortableItems = <T extends { [propertyToFilterItemsOn]: string }>({
                     key={sortableItemId}
                     memoProps={itemProps}
                     {...pick(itemProps, item)}
-                    {...additionalProps}
+                    additionalProps={additionalProps}
                   />
                 )
               );
