@@ -122,7 +122,7 @@ const MultiSelectEntries = ({
           />
         </Box>
       </Box>
-      <Grid container justify="flex-start">
+      <Grid container justifyContent="flex-start">
         {values.slice(0, maxChips).map(({ id, name }) => (
           <Entry key={id} label={name} />
         ))}
