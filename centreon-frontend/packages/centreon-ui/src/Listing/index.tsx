@@ -168,7 +168,7 @@ const Listing = <TRow extends { id: RowId }>({
   onRowClick = (): void => undefined,
   onSelectRows = (): void => undefined,
   onSort,
-  getId = ({ id }) => id,
+  getId = ({ id }): RowId => id,
   predefinedRowsSelection = [],
 }: Props<TRow>): JSX.Element => {
   const { t } = useTranslation();
@@ -574,7 +574,7 @@ const Listing = <TRow extends { id: RowId }>({
                   <Cell
                     align="center"
                     className={classes.emptyDataCell}
-                    disableRowCondition={() => false}
+                    disableRowCondition={(): boolean => false}
                     isRowHovered={false}
                     style={{
                       gridColumn: `auto / span ${columns.length + 1}`,

@@ -76,7 +76,7 @@ const MultiAutocompleteField = ({
       disableCloseOnSelect
       displayOptionThumbnail
       multiple
-      getLimitTagsText={(more) => <Option>{`+${more}`}</Option>}
+      getLimitTagsText={(more): JSX.Element => <Option>{`+${more}`}</Option>}
       options={autocompleteOptions}
       renderOption={(option, { selected }): JSX.Element => (
         <Option checkboxSelected={selected}>{option.name}</Option>

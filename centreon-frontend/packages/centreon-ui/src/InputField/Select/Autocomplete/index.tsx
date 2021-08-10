@@ -126,7 +126,7 @@ const AutocompleteField = ({
   const classes = useStyles();
   const { t } = useTranslation();
 
-  const areSelectEntriesEqual = (option, value) => {
+  const areSelectEntriesEqual = (option, value): boolean => {
     const identifyingProps = ['id', 'name'];
 
     return equals(
@@ -193,7 +193,7 @@ const AutocompleteField = ({
       loadingText={<LoadingIndicator />}
       options={options}
       renderInput={renderInput}
-      renderOption={(option) => {
+      renderOption={(option): JSX.Element => {
         return (
           <div className={classes.options}>
             {displayOptionThumbnail && (

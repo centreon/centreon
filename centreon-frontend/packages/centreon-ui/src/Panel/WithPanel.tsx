@@ -9,7 +9,7 @@ const useStyles = makeStyles(() => ({
     gridTemplateRows: '1fr',
   },
   content: {
-    gridArea: (panelDynamicAndOpen) =>
+    gridArea: (panelDynamicAndOpen): string =>
       panelDynamicAndOpen ? '1 / 1 / 1 / 1' : '1 / 1 / 1 / span 2',
   },
   panel: {

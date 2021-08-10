@@ -17,7 +17,7 @@ const PredefinedSelectionList = ({
 }: Props): JSX.Element => (
   <List dense>
     {predefinedRowsSelection.map(({ label, rowCondition }) => {
-      const onSelectionClick = () => {
+      const onSelectionClick = (): void => {
         onSelectRowsWithCondition(rowCondition);
         close();
       };

@@ -15,11 +15,11 @@ interface Props {
 const Story = ({ isValidForm, isSubmitting }: Props): JSX.Element => {
   const { showInfoMessage } = useSnackbar();
 
-  const closeDialog = () => showInfoMessage('Close');
+  const closeDialog = (): void => showInfoMessage('Close');
 
-  const discardChanges = () => showInfoMessage('Discard');
+  const discardChanges = (): void => showInfoMessage('Discard');
 
-  const saveChanges = () => showInfoMessage('Save');
+  const saveChanges = (): void => showInfoMessage('Save');
 
   return (
     <UnsavedChangesDialog

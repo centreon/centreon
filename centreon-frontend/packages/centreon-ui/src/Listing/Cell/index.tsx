@@ -14,14 +14,15 @@ import { Props as DataCellProps } from './DataCell';
 const useStyles = makeStyles((theme) => ({
   root: {
     '&:last-child': {
-      paddingRight: ({ compact }: Props) => theme.spacing(compact ? 0 : 2),
+      paddingRight: ({ compact }: Props): number =>
+        theme.spacing(compact ? 0 : 2),
     },
     backgroundColor: ({
       isRowHovered,
       row,
       rowColorConditions,
       disableRowCondition,
-    }: Props) => {
+    }: Props): string => {
       if (disableRowCondition(row)) {
         return alpha(theme.palette.common.black, 0.08);
       }
@@ -40,7 +41,7 @@ const useStyles = makeStyles((theme) => ({
 
       return 'unset';
     },
-    padding: ({ compact }: Props) =>
+    padding: ({ compact }: Props): string =>
       theme.spacing(0, 0, 0, compact ? 0.5 : 1.5),
   },
 }));

@@ -88,10 +88,11 @@ const SortableItems = <T extends { [propertyToFilterItemsOn]: string }>({
   additionalProps,
   RootComponent = DefaultRootComponent,
   Content,
-  getDisableItemCondition = () => false,
+  getDisableItemCondition = (): boolean => false,
   updateSortableItemsOnItemsChange = false,
 }: Props<T>): JSX.Element => {
-  const getItemsIds = () => pluck(propertyToFilterItemsOn, items);
+  const getItemsIds = (): Array<string> =>
+    pluck(propertyToFilterItemsOn, items);
 
   const [activeId, setActiveId] = React.useState<string | null>(null);
   const [sortableItemsIds, setSortableItemsIds] = React.useState(getItemsIds());
@@ -108,9 +109,9 @@ const SortableItems = <T extends { [propertyToFilterItemsOn]: string }>({
     setActiveId(path(['active', propertyToFilterItemsOn], event) as string);
   };
 
-  const dragCancel = () => setActiveId(null);
+  const dragCancel = (): void => setActiveId(null);
 
-  const dragEnd = () => {
+  const dragEnd = (): void => {
     setActiveId(null);
 
     onDragEnd?.(sortableItemsIds);
@@ -132,7 +133,8 @@ const SortableItems = <T extends { [propertyToFilterItemsOn]: string }>({
     }
   };
 
-  const getItemById = (id) => find(propEq(propertyToFilterItemsOn, id), items);
+  const getItemById = (id): T | undefined =>
+    find(propEq(propertyToFilterItemsOn, id), items);
 
   const activeItem = getItemById(activeId) as Record<string, unknown>;
 

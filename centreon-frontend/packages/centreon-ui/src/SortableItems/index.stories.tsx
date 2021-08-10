@@ -18,6 +18,7 @@ import {
   IconButton,
 } from '@material-ui/core';
 import MoreVertIcon from '@material-ui/icons/MoreVert';
+import { CreateCSSProperties } from '@material-ui/styles';
 
 import SortableItems, { RootComponentProps } from '.';
 
@@ -64,7 +65,7 @@ const items: Array<Entity> = [
 
 const useContentStyles = makeStyles<Theme, { isDragging: boolean }>(
   (theme) => ({
-    content: ({ isDragging }) => ({
+    content: ({ isDragging }): CreateCSSProperties => ({
       '&:hover': {
         boxShadow: theme.shadows[3],
       },
@@ -80,7 +81,7 @@ const useContentStyles = makeStyles<Theme, { isDragging: boolean }>(
       padding: theme.spacing(1),
     },
 
-    handler: ({ isDragging }) => ({
+    handler: ({ isDragging }): CreateCSSProperties => ({
       cursor: isDragging ? 'grabbing' : 'grab',
     }),
   }),

@@ -4,13 +4,15 @@ import axios from 'axios';
 import MockAdapter from 'axios-mock-adapter';
 
 import { buildListingEndpoint } from '../../../..';
+import { SelectEntry } from '../..';
+import { Listing } from '../../../../api/models';
 
 import SingleConnectedAutocompleteField from './Single';
 import MultiConnectedAutocompleteField from './Multi';
 
 export default { title: 'InputField/Autocomplete/Connected' };
 
-const buildEntities = (from) => {
+const buildEntities = (from): Array<SelectEntry> => {
   return Array(10)
     .fill(0)
     .map((_, index) => ({
@@ -19,7 +21,7 @@ const buildEntities = (from) => {
     }));
 };
 
-const buildResult = (page) => ({
+const buildResult = (page): Listing<SelectEntry> => ({
   meta: {
     limit: 10,
     page,
@@ -52,7 +54,7 @@ mockedAxios
 export const single = (): JSX.Element => (
   <SingleConnectedAutocompleteField
     field="host.name"
-    getEndpoint={(parameters) => {
+    getEndpoint={(parameters): string => {
       return getEndpoint({ endpoint: baseEndpoint, parameters });
     }}
     label="Single Connected Autocomplete"
@@ -63,7 +65,7 @@ export const single = (): JSX.Element => (
 export const multi = (): JSX.Element => (
   <MultiConnectedAutocompleteField
     field="host.name"
-    getEndpoint={(parameters) => {
+    getEndpoint={(parameters): string => {
       return getEndpoint({ endpoint: baseEndpoint, parameters });
     }}
     label="Multi Connected Autocomplete"

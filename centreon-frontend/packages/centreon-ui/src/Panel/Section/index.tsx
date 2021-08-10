@@ -27,8 +27,9 @@ const useStyles = makeStyles((theme) => ({
     display: 'flex',
   },
   container: {
-    display: (hasSecondaryPanel) => (hasSecondaryPanel ? 'grid' : 'block'),
-    gridTemplateColumns: (hasSecondaryPanel) => {
+    display: (hasSecondaryPanel): string =>
+      hasSecondaryPanel ? 'grid' : 'block',
+    gridTemplateColumns: (hasSecondaryPanel): string => {
       return hasSecondaryPanel
         ? `1fr ${closeSecondaryPanelBarWidth}px 1fr`
         : '100%';
@@ -39,7 +40,10 @@ const useStyles = makeStyles((theme) => ({
     bottom: 0,
     left: 0,
     overflow: 'auto',
-    position: (hasSecondaryPanel) => (hasSecondaryPanel ? 'unset' : 'absolute'),
+    position: (
+      hasSecondaryPanel,
+    ): 'static' | 'relative' | 'absolute' | 'sticky' | 'fixed' | 'unset' =>
+      hasSecondaryPanel ? 'unset' : 'absolute',
     right: 0,
     top: 0,
     width: panelWidth,
@@ -66,8 +70,8 @@ const SectionPanel = ({
   header,
   secondaryPanel,
   sections,
-  onSecondaryPanelClose = () => undefined,
-  onClose = () => undefined,
+  onSecondaryPanelClose = (): undefined => undefined,
+  onClose = (): undefined => undefined,
   loading = false,
 }: SectionPanelProps): JSX.Element => {
   const hasSecondaryPanel = !isNil(secondaryPanel);

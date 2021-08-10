@@ -4,19 +4,22 @@ import { always, and, equals, ifElse, isNil } from 'ramda';
 
 import { makeStyles, TableSortLabel, Theme, Tooltip } from '@material-ui/core';
 import DragIndicatorIcon from '@material-ui/icons/MoreVert';
+import { CreateCSSProperties } from '@material-ui/styles';
 
 import { Props as ListingProps } from '../..';
 import { Column } from '../../models';
 import HeaderLabel from '../Label';
 
-const useStyles = makeStyles<Theme, Pick<Props, 'isDragging'>>((theme) => ({
+type StylesProps = Pick<Props, 'isDragging'>;
+
+const useStyles = makeStyles<Theme, StylesProps>((theme) => ({
   content: {
     alignItems: 'center',
     display: 'flex',
     minHeight: theme.spacing(3),
     paddingLeft: theme.spacing(1.5),
   },
-  dragHandle: ({ isDragging }) => ({
+  dragHandle: ({ isDragging }): CreateCSSProperties<StylesProps> => ({
     alignSelf: 'flex-start',
     cursor: isDragging ? 'grabbing' : 'grab',
     display: 'flex',

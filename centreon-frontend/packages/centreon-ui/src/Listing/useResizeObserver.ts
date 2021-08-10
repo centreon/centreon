@@ -18,7 +18,7 @@ const useResizeObserver = <TRef extends Element>({
 
     ro.observe(element);
 
-    return () => {
+    return (): void => {
       ro.unobserve(element);
     };
   }, []);

@@ -4,7 +4,7 @@ import ExtensionDetailsPopup from '.';
 
 export default { title: 'Extension Details Popup' };
 
-const noOp = () => undefined;
+const noOp = (): undefined => undefined;
 
 const modalDetails = {
   description: 'My module description',

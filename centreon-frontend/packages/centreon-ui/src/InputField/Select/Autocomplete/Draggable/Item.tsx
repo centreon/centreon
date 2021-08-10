@@ -52,7 +52,7 @@ const Item = React.forwardRef(
           }
           size="small"
           style={chipStyle}
-          onDelete={() => deleteValue(index)}
+          onDelete={(): void => deleteValue(index)}
         />
       </div>
     );

@@ -21,6 +21,13 @@ export interface ConnectedAutoCompleteFieldProps {
 
 type SearchDebounce = (value: string) => void;
 
+interface GetSearchConditionState {
+  conditions: Array<{
+    field: string;
+    values: { $ni: Array<string | number> };
+  }>;
+}
+
 const ConnectedAutocompleteField = (
   AutocompleteField: (props) => JSX.Element,
   multiple: boolean,
@@ -48,7 +55,7 @@ const ConnectedAutocompleteField = (
       request: getData,
     });
 
-    const loadOptions = ({ endpoint, loadMore = false }) => {
+    const loadOptions = ({ endpoint, loadMore = false }): void => {
       sendRequest(endpoint).then(({ result, meta }) => {
         const moreOptions = loadMore ? options : [];
 
@@ -68,7 +75,7 @@ const ConnectedAutocompleteField = (
       page,
     });
 
-    const getSearchCondition = () => {
+    const getSearchCondition = (): GetSearchConditionState | undefined => {
       const { value: selectedValue } = props;
 
       if (isEmpty(selectedValue || [])) {
@@ -91,7 +98,7 @@ const ConnectedAutocompleteField = (
       };
     };
 
-    const getSearchWithCondition = () => {
+    const getSearchWithCondition = (): Record<string, unknown> | undefined => {
       const searchCondition = getSearchCondition();
 
       if (isNil(searchCondition)) {
@@ -101,7 +108,9 @@ const ConnectedAutocompleteField = (
       return { ...search, ...getSearchCondition() };
     };
 
-    const getSearchParameter = (value: string) => {
+    const getSearchParameter = (
+      value: string,
+    ): Record<string, unknown> | undefined => {
       if (isEmpty(value)) {
         return getSearchWithCondition();
       }
@@ -193,13 +202,13 @@ const ConnectedAutocompleteField = (
 
     return (
       <AutocompleteField
-        filterOptions={(opt) => opt}
+        filterOptions={(opt): SelectEntry => opt}
         loading={sending}
         open={open}
         options={options}
         renderOption={renderOptions}
-        onClose={() => setOptionsOpen(false)}
-        onOpen={() => setOptionsOpen(true)}
+        onClose={(): void => setOptionsOpen(false)}
+        onOpen={(): void => setOptionsOpen(true)}
         onTextChange={changeText}
         {...props}
       />

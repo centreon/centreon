@@ -48,27 +48,27 @@ const Wizard = ({
 
   const isFirstStep = equals(currentStep, 0);
 
-  const goToNextStep = () => {
+  const goToNextStep = (): void => {
     if (isLastStep) {
       return;
     }
     setCurrentStep(inc(currentStep));
   };
 
-  const goToPreviousStep = () => {
+  const goToPreviousStep = (): void => {
     if (isFirstStep) {
       return;
     }
     setCurrentStep(dec(currentStep));
   };
 
-  const disableNextOnSendingRequests = (sendingRequests) => {
+  const disableNextOnSendingRequests = (sendingRequests): void => {
     setSendingRequest(
       pipe(isEmpty, not)(filter(equals(true), sendingRequests)),
     );
   };
 
-  const submit = (values, bag) => {
+  const submit = (values, bag): void => {
     if (isLastStep && onSubmit) {
       onSubmit(values, bag);
 
@@ -78,7 +78,7 @@ const Wizard = ({
     bag.setSubmitting(false);
   };
 
-  const handleClose = (_, reason) => {
+  const handleClose = (_, reason): void => {
     if (equals(reason, 'backdropClick')) {
       setOpenConfirm(true);
 
@@ -87,7 +87,7 @@ const Wizard = ({
     onClose?.();
   };
 
-  const handleCloseConfirm = (confirm) => {
+  const handleCloseConfirm = (confirm): void => {
     setOpenConfirm(false);
 
     if (!confirm) {
@@ -136,8 +136,8 @@ const Wizard = ({
       </Dialog>
       <Confirm
         open={openConfirm}
-        onCancel={() => handleCloseConfirm(false)}
-        onConfirm={() => handleCloseConfirm(true)}
+        onCancel={(): void => handleCloseConfirm(false)}
+        onConfirm={(): void => handleCloseConfirm(true)}
         {...confirmDialogLabels}
       />
     </>

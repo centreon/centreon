@@ -7,8 +7,8 @@ interface UseKeyObserverProps {
 const useKeyObserver = (): UseKeyObserverProps => {
   const [isShiftKeyDown, setIsShiftKeyDown] = React.useState<boolean>(false);
 
-  const pressShift = () => setIsShiftKeyDown(true);
-  const releaseShift = () => setIsShiftKeyDown(false);
+  const pressShift = (): void => setIsShiftKeyDown(true);
+  const releaseShift = (): void => setIsShiftKeyDown(false);
 
   const observeKeyDown = (event: KeyboardEvent): void => {
     if (event.shiftKey) {
@@ -24,7 +24,7 @@ const useKeyObserver = (): UseKeyObserverProps => {
     window.addEventListener('keydown', observeKeyDown);
     window.addEventListener('keyup', observeKeyUp);
 
-    return () => {
+    return (): void => {
       window.removeEventListener('keydown', observeKeyDown);
       window.removeEventListener('keyup', observeKeyUp);
     };

@@ -47,7 +47,7 @@ const SortableList = ({
 }: Props): JSX.Element => {
   const classes = useStyles();
 
-  const dragEnd = (newItems) =>
+  const dragEnd = (newItems): void =>
     changeItemsOrder(
       map(
         (item) => find(propEq('id', item), items),
@@ -76,7 +76,7 @@ const SortableList = ({
             </p>
           }
           size="small"
-          onDelete={() => deleteValue(id)}
+          onDelete={(): void => deleteValue(id)}
         />
       </div>
     );

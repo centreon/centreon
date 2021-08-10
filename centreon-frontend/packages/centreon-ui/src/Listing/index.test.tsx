@@ -9,20 +9,20 @@ import { labelAddColumns } from './translatedLabels';
 import Listing from '.';
 
 describe('Listing', () => {
-  const getAllCheckboxes = (container) => {
+  const getAllCheckboxes = (container): Array<HTMLElement> => {
     return container.querySelectorAll('[type = "checkbox"]');
   };
 
   const columns = [
     {
-      getFormattedString: ({ name }) => name,
+      getFormattedString: ({ name }): string => name,
       id: 'name',
       label: 'name',
       sortable: true,
       type: ColumnType.string,
     },
     {
-      getFormattedString: ({ description }) => description,
+      getFormattedString: ({ description }): string => description,
       id: 'description',
       label: 'description',
       sortField: 'descriptionField',
@@ -51,7 +51,7 @@ describe('Listing', () => {
     selected: index % 3 === 0,
   }));
 
-  const PaginationTable = () => {
+  const PaginationTable = (): JSX.Element => {
     const [limit, setLimit] = React.useState(10);
     const [page, setPage] = React.useState(4);
 

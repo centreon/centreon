@@ -34,7 +34,7 @@ const ActionsBar = ({
 }: ActionsBarProps): JSX.Element => {
   const classes = useStyles();
 
-  const preventEnterKey = (keyEvent) => {
+  const preventEnterKey = (keyEvent): void => {
     if ((keyEvent.charCode || keyEvent.keyCode) === 13) {
       keyEvent.preventDefault();
     }
@@ -69,7 +69,7 @@ const ActionsBar = ({
           aria-label={labelNextFinish}
           color="primary"
           disabled={disableActionButtons}
-          onClick={() => (isLastStep ? submit() : goToNextStep())}
+          onClick={(): void => (isLastStep ? submit() : goToNextStep())}
           onKeyPress={preventEnterKey}
         >
           <Typography>{labelNextFinish}</Typography>

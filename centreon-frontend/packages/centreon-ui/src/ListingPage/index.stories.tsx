@@ -134,7 +134,7 @@ interface FilterWithOpenButton {
 }
 
 const FilterWithOpenButton = ({
-  onOpen = () => undefined,
+  onOpen = (): undefined => undefined,
 }: FilterWithOpenButton): JSX.Element => {
   const classes = useStyles();
 
@@ -232,7 +232,7 @@ const DetailsPanelHeader = (): JSX.Element => {
 };
 
 const DetailsPanel = ({
-  onClose = () => undefined,
+  onClose = (): undefined => undefined,
 }: PanelProps): JSX.Element => (
   <Panel
     header={<DetailsPanelHeader />}
@@ -290,9 +290,9 @@ export const withFixedPanel = (): JSX.Element => {
   return (
     <ListingPage
       panelFixed
-      filter={<FilterWithOpenButton onOpen={() => setOpen(true)} />}
+      filter={<FilterWithOpenButton onOpen={(): void => setOpen(true)} />}
       listing={listing}
-      panel={<DetailsPanel onClose={() => setOpen(false)} />}
+      panel={<DetailsPanel onClose={(): void => setOpen(false)} />}
       panelOpen={open}
     />
   );

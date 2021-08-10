@@ -5,13 +5,14 @@ import MockAdapter from 'axios-mock-adapter';
 
 import { SelectEntry } from '../..';
 import { buildListingEndpoint } from '../../../..';
+import { Listing } from '../../../../api/models';
 
 import MultiDraggableConnectedAutocompleteField from './MultiConnected';
 import MultiDraggableAutocompleteField from './Multi';
 
 export default { title: 'InputField/Autocomplete/Draggable' };
 
-const buildEntities = (from) => {
+const buildEntities = (from): Array<SelectEntry> => {
   return Array(10)
     .fill(0)
     .map((_, index) => ({
@@ -20,7 +21,7 @@ const buildEntities = (from) => {
     }));
 };
 
-const buildResult = (page) => ({
+const buildResult = (page): Listing<SelectEntry> => ({
   meta: {
     limit: 10,
     page,
@@ -73,7 +74,7 @@ export const containedDraggable = (): JSX.Element => (
 const MultiDraggableConnected = (): JSX.Element => (
   <MultiDraggableConnectedAutocompleteField
     field="host.name"
-    getEndpoint={(parameters) => {
+    getEndpoint={(parameters): string => {
       return getEndpoint({ endpoint: baseEndpoint, parameters });
     }}
     getOptionsFromResult={(result): Array<SelectEntry> => result}

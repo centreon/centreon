@@ -15,9 +15,10 @@ import {
   RegexSearchParameter,
   RegexSearchQueryParameterValue,
   SearchParameter,
-  ListsSearchQueryParameterValue,
   SearchQueryParameterValue,
   ConditionsSearchParameter,
+  GetListsSearchQueryParameterValueProps,
+  GetConditionsSearchQueryParameterValueState,
 } from './models';
 
 const getFoundFields = ({
@@ -61,7 +62,9 @@ const getRegexSearchQueryParameterValue = (
   };
 };
 
-const getListsSearchQueryParameterValue = (lists) => {
+const getListsSearchQueryParameterValue = (
+  lists,
+): GetListsSearchQueryParameterValueProps | undefined => {
   if (lists === undefined) {
     return undefined;
   }
@@ -75,7 +78,7 @@ const getListsSearchQueryParameterValue = (lists) => {
 
 const getConditionsSearchQueryParameterValue = (
   conditions: Array<ConditionsSearchParameter> | undefined,
-) => {
+): GetConditionsSearchQueryParameterValueState | undefined => {
   if (conditions === undefined) {
     return undefined;
   }
@@ -84,7 +87,7 @@ const getConditionsSearchQueryParameterValue = (
     field,
     values,
     value,
-  }: ConditionsSearchParameter) => {
+  }: ConditionsSearchParameter): Array<Record<string, unknown>> => {
     if (!isNil(value)) {
       return [
         {
@@ -120,7 +123,9 @@ const getSearchQueryParameterValue = (
     getConditionsSearchQueryParameterValue(conditions);
 
   const result = reject<
-    RegexSearchQueryParameterValue | ListsSearchQueryParameterValue
+    | RegexSearchQueryParameterValue
+    | GetListsSearchQueryParameterValueProps
+    | GetConditionsSearchQueryParameterValueState
   >(isNil, [regexSearchParam, listSearchesParam, conditionSearchesParam]);
 
   if (result.length === 1) {

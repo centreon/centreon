@@ -19,7 +19,7 @@ export const withThreeOptions = (): JSX.Element => {
       options={options}
       title="Edit"
       value={[options[1]]}
-      onChange={() => undefined}
+      onChange={(): undefined => undefined}
     />
   );
 };

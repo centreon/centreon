@@ -70,7 +70,7 @@ const SelectField = ({
     return options.find(propEq('id', id)) as SelectEntry;
   };
 
-  const changeOption = (event) => {
+  const changeOption = (event): void => {
     if (!isNil(event.target.value)) {
       onChange(event);
     }
@@ -96,7 +96,7 @@ const SelectField = ({
           }),
           ...inputProps,
         }}
-        renderValue={(id) => {
+        renderValue={(id): string => {
           return getOption(id)?.name;
         }}
         value={selectedOptionId}

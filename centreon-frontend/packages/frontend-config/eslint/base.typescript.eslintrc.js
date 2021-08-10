@@ -21,6 +21,7 @@ module.exports = {
           'error',
           'interface',
         ],
+        '@typescript-eslint/explicit-function-return-type': ['error'],
         '@typescript-eslint/explicit-member-accessibility': [
           'error',
           {
@@ -34,6 +35,7 @@ module.exports = {
             },
           },
         ],
+        '@typescript-eslint/method-signature-style': ['error'],
         '@typescript-eslint/naming-convention': [
           'error',
           {
@@ -61,6 +63,14 @@ module.exports = {
         '@typescript-eslint/no-unused-expressions': ['error'],
         '@typescript-eslint/no-unused-vars': ['error'],
         '@typescript-eslint/prefer-function-type': 'error',
+        '@typescript-eslint/type-annotation-spacing': [
+          'error',
+          {
+            after: true,
+            before: false,
+            overrides: { arrow: { after: true, before: true } },
+          },
+        ],
         camelcase: 'off',
         'no-shadow': 'off',
         'no-unused-expressions': 'off',

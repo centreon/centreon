@@ -31,7 +31,7 @@ const useStyles = makeStyles<Theme, StylesProps>((theme) => ({
     gridTemplate: 'auto auto 1fr / 1fr',
     height: '100%',
     overflow: 'hidden',
-    width: ({ width }) => width,
+    width: ({ width }): number | undefined => width,
   },
   content: {
     bottom: 0,
@@ -52,14 +52,15 @@ const useStyles = makeStyles<Theme, StylesProps>((theme) => ({
     bottom: 0,
     cursor: 'ew-resize',
     position: 'absolute',
-    right: ({ width }) => width,
+    right: ({ width }): number | undefined => width,
     top: 0,
     width: 5,
     zIndex: theme.zIndex.drawer,
   },
   header: {
     alignItems: 'center',
-    backgroundColor: ({ headerBackgroundColor }) => headerBackgroundColor,
+    backgroundColor: ({ headerBackgroundColor }): string | undefined =>
+      headerBackgroundColor,
     display: 'grid',
     gridArea: '1 / 1 / 2 / 1',
     gridTemplateColumns: '1fr auto',
@@ -98,7 +99,7 @@ const Panel = React.forwardRef<HTMLDivElement, Props>(
       selectedTabId = 0,
       selectedTab,
       onClose,
-      onTabSelect = () => undefined,
+      onTabSelect = (): undefined => undefined,
       labelClose = 'Close',
       width = 550,
       minWidth = 550,
@@ -122,17 +123,17 @@ const Panel = React.forwardRef<HTMLDivElement, Props>(
     React.useEffect(() => {
       window.addEventListener('resize', resizeWindow);
 
-      return () => {
+      return (): void => {
         window.removeEventListener('resize', resizeWindow);
       };
     }, []);
 
-    const resize = () => {
+    const resize = (): void => {
       document.addEventListener('mouseup', releaseMouse, true);
       document.addEventListener('mousemove', moveMouse, true);
     };
 
-    const releaseMouse = () => {
+    const releaseMouse = (): void => {
       document.removeEventListener('mouseup', releaseMouse, true);
       document.removeEventListener('mousemove', moveMouse, true);
     };

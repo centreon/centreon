@@ -110,11 +110,11 @@ const rowColorConditions = [
 const predefinedRowsSelection = [
   {
     label: 'active',
-    rowCondition: (row) => row.active,
+    rowCondition: (row): boolean => row.active,
   },
   {
     label: 'not active',
-    rowCondition: (row) => !row.active,
+    rowCondition: (row): boolean => !row.active,
   },
 ];
 

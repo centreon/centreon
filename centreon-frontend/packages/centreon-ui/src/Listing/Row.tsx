@@ -135,7 +135,7 @@ const IntersectionRow = (props: Props): JSX.Element => {
   const { isInViewport, setElement } = useViewportIntersection();
   const classes = useStyles();
 
-  const getFirstCellElement = () =>
+  const getFirstCellElement = (): ChildNode | null | undefined =>
     rowRef.current?.firstChild?.firstChild?.firstChild;
 
   React.useEffect(() => {

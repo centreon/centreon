@@ -116,7 +116,7 @@ const ListingHeader = ({
     isDragging,
     itemRef,
     id,
-  }: ContentProps) => {
+  }: ContentProps): JSX.Element => {
     return (
       <SortableHeaderCellContent
         column={getColumnById(id)}
@@ -153,7 +153,7 @@ const ListingHeader = ({
                   className={classes.predefinedRowsMenu}
                   icon={<ArrowDropDownIcon />}
                 >
-                  {({ close }) => (
+                  {({ close }): JSX.Element => (
                     <PredefinedSelectionList
                       close={close}
                       predefinedRowsSelection={predefinedRowsSelection}
@@ -172,7 +172,7 @@ const ListingHeader = ({
             itemProps={['id']}
             items={visibleColumns}
             sortingStrategy={rectSortingStrategy}
-            onDragOver={(newItems) => onSelectColumns?.(newItems)}
+            onDragOver={(newItems): void => onSelectColumns?.(newItems)}
           />
         </TableRow>
       </TableHead>

@@ -7,7 +7,7 @@ import IconButton from '.';
 export default { title: 'Button/Icon' };
 
 export const normal = (): JSX.Element => (
-  <IconButton title="Icon" onClick={() => undefined}>
+  <IconButton title="Icon" onClick={(): undefined => undefined}>
     <AccessibilityIcon />
   </IconButton>
 );

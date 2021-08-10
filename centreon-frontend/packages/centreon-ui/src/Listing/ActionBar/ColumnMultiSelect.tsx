@@ -36,7 +36,7 @@ const ColumnMultiSelect = ({
     columns,
   });
 
-  const selectColumnIds = (updatedColumns) => {
+  const selectColumnIds = (updatedColumns): void => {
     onSelectColumns?.(updatedColumns.map(prop('id')));
   };
 

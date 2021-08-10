@@ -25,7 +25,7 @@ const PanelWithHeader = ({
       loading={loading}
       secondaryPanel={secondaryPanel}
       sections={sections}
-      onClose={() => undefined}
+      onClose={(): undefined => undefined}
     />
   </div>
 );

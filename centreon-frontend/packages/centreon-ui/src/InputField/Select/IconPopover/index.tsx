@@ -120,7 +120,7 @@ const IconPopoverMultiAutocomplete = ({
                   disabled={option.disabled || false}
                   key={id}
                   value={name}
-                  onClick={() => unSelect(option)}
+                  onClick={(): void => unSelect(option)}
                 >
                   <Option checkboxSelected={isSelected(id)}>{name}</Option>
                 </MenuItem>

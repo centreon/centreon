@@ -38,7 +38,7 @@ const WizardContent = ({
 
   const { Component, hasActionsBar = true, skipFormChangeCheck } = step;
 
-  const getFormChanged = () =>
+  const getFormChanged = (): boolean =>
     equals(true, skipFormChangeCheck) ? false : !dirty;
 
   const submit = (): void => {

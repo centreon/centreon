@@ -33,15 +33,15 @@ const PaginationActions = ({
   const classes = useStyles();
   const { t } = useTranslation();
 
-  const changeToFirstPage = (event) => {
+  const changeToFirstPage = (event): void => {
     onPageChange(event, 0);
   };
 
-  const changeToPreviousPage = (event) => {
+  const changeToPreviousPage = (event): void => {
     onPageChange(event, page - 1);
   };
 
-  const changeToNextPage = (event) => {
+  const changeToNextPage = (event): void => {
     onPageChange(event, page + 1);
   };
 
@@ -50,7 +50,7 @@ const PaginationActions = ({
   const isFirstPage = page === 0;
   const isLastPage = page >= lastPage;
 
-  const changeToLastPage = (event) => {
+  const changeToLastPage = (event): void => {
     onPageChange(event, Math.max(0, lastPage));
   };
 

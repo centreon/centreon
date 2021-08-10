@@ -48,7 +48,7 @@ const PopoverAutocomplete = (
         color={isEmpty(value) ? undefined : 'primary'}
         label={label}
         size="small"
-        onDelete={(e) => onChange?.(e, [], 'clear')}
+        onDelete={(e): void => onChange?.(e, [], 'clear')}
       />
     );
 
@@ -62,14 +62,14 @@ const PopoverAutocomplete = (
 
     return (
       <PopoverMenu icon={icon} onClose={closeOptions} onOpen={openOptions}>
-        {() => (
+        {(): JSX.Element => (
           <AutocompleteField
             autoFocus
             disableCloseOnSelect
             multiple
             displayPopupIcon={false}
             open={optionsOpen}
-            renderTags={() => null}
+            renderTags={(): null => null}
             style={{ minWidth: theme.spacing(20) }}
             value={value}
             onChange={onChange}
