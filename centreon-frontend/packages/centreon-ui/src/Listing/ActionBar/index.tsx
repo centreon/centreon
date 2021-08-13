@@ -1,6 +1,7 @@
 import * as React from 'react';
 
 import { useTranslation } from 'react-i18next';
+import { isNil, not } from 'ramda';
 
 import { makeStyles } from '@material-ui/core';
 
@@ -54,7 +55,7 @@ const ListingActionBar = ({
   columnConfiguration,
   onResetColumns,
   onSelectColumns,
-}: Props): JSX.Element => {
+}: Props): JSX.Element | null => {
   const { t } = useTranslation();
   const classes = useStyles();
 
@@ -69,6 +70,14 @@ const ListingActionBar = ({
 
   const labelDisplayedRows = ({ from, to, count }): string =>
     `${from}-${to} ${t(labelOf)} ${count}`;
+
+  if (
+    not(paginated) &&
+    isNil(actions) &&
+    isNil(columnConfiguration?.selectedColumnIds)
+  ) {
+    return null;
+  }
 
   return (
     <div className={classes.container}>

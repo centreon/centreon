@@ -187,6 +187,7 @@ const SortableItems = <T extends { [propertyToFilterItemsOn]: string }>({
           {activeId ? (
             <Item
               isDragging
+              isInDragOverlay
               Content={Content}
               title={activeId}
               {...pick(itemProps, activeItem)}

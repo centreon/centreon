@@ -1,6 +1,7 @@
 import * as React from 'react';
 
 import { always, and, equals, ifElse, isNil } from 'ramda';
+import clsx from 'clsx';
 
 import { makeStyles, TableSortLabel, Theme, Tooltip } from '@material-ui/core';
 import DragIndicatorIcon from '@material-ui/icons/MoreVert';
@@ -9,8 +10,10 @@ import { CreateCSSProperties } from '@material-ui/styles';
 import { Props as ListingProps } from '../..';
 import { Column } from '../../models';
 import HeaderLabel from '../Label';
+import { HeaderCell } from '..';
+import { useStyles as useCellStyles } from '../../Cell/DataCell';
 
-type StylesProps = Pick<Props, 'isDragging'>;
+type StylesProps = Pick<Props, 'isDragging' | 'isInDragOverlay'>;
 
 const useStyles = makeStyles<Theme, StylesProps>((theme) => ({
   content: {
@@ -26,6 +29,9 @@ const useStyles = makeStyles<Theme, StylesProps>((theme) => ({
     marginLeft: -theme.spacing(1),
     outline: 'none',
   }),
+  item: ({ isInDragOverlay }): CreateCSSProperties<StylesProps> => ({
+    border: isInDragOverlay ? 'none' : undefined,
+  }),
 }));
 
 type Props = Pick<
@@ -34,11 +40,13 @@ type Props = Pick<
 > & {
   column: Column;
   isDragging?: boolean;
+  isInDragOverlay?: boolean;
   itemRef: React.RefObject<HTMLDivElement>;
   style;
 };
 
 const SortableHeaderCellContent = ({
+  isInDragOverlay,
   column,
   columnConfiguration,
   sortField,
@@ -49,7 +57,8 @@ const SortableHeaderCellContent = ({
   style,
   ...props
 }: Props): JSX.Element => {
-  const classes = useStyles({ isDragging });
+  const classes = useStyles({ isDragging, isInDragOverlay });
+  const cellClasses = useCellStyles();
 
   const columnLabel = column.shortLabel || column.label;
 
@@ -78,26 +87,33 @@ const SortableHeaderCellContent = ({
   );
 
   return (
-    <div className={classes.content} ref={itemRef} style={style}>
-      {columnConfiguration?.sortable && (
-        <div className={classes.dragHandle} {...props}>
-          <DragIndicatorIcon fontSize="small" />
-        </div>
-      )}
+    <HeaderCell
+      className={clsx([cellClasses.cell, classes.item])}
+      component="div"
+      padding={column.compact ? 'none' : 'normal'}
+      style={{ background: isDragging ? 'transparent' : 'white' }}
+    >
+      <div className={classes.content} ref={itemRef} style={style}>
+        {columnConfiguration?.sortable && (
+          <div className={classes.dragHandle} {...props}>
+            <DragIndicatorIcon fontSize="small" />
+          </div>
+        )}
 
-      {column.sortable ? (
-        <TableSortLabel
-          active={sortField === columnSortField}
-          aria-label={`Column ${column.label}`}
-          direction={sortOrder || 'desc'}
-          onClick={sort}
-        >
-          {headerContent}
-        </TableSortLabel>
-      ) : (
-        headerContent
-      )}
-    </div>
+        {column.sortable ? (
+          <TableSortLabel
+            active={sortField === columnSortField}
+            aria-label={`Column ${column.label}`}
+            direction={sortOrder || 'desc'}
+            onClick={sort}
+          >
+            {headerContent}
+          </TableSortLabel>
+        ) : (
+          headerContent
+        )}
+      </div>
+    </HeaderCell>
   );
 };
 

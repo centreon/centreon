@@ -557,7 +557,6 @@ const Listing = <TRow extends { id: RowId }>({
                         isRowHovered={isRowHovered}
                         isRowSelected={isRowSelected}
                         key={`${getId(row)}-${column.id}`}
-                        listingCheckable={checkable}
                         row={row}
                         rowColorConditions={rowColorConditions}
                       />

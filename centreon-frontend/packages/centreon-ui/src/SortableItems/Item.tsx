@@ -2,6 +2,7 @@ import * as React from 'react';
 
 interface Props extends Record<string, unknown> {
   Content: (props) => JSX.Element;
+  isInDragOverlay?: boolean;
 }
 
 const Item = React.forwardRef(

@@ -2,7 +2,7 @@ import * as React from 'react';
 
 import { equals, props } from 'ramda';
 
-import { makeStyles, Tooltip, Typography, Theme } from '@material-ui/core';
+import { makeStyles, Tooltip, Typography } from '@material-ui/core';
 
 import {
   Column,
@@ -18,12 +18,11 @@ interface Props {
   disableRowCondition: (row) => boolean;
   isRowHovered: boolean;
   isRowSelected: boolean;
-  listingCheckable: boolean;
   row?;
   rowColorConditions?: Array<RowColorCondition>;
 }
 
-const useStyles = makeStyles<Theme, { listingCheckable: boolean }>(() => ({
+const useStyles = makeStyles(() => ({
   cell: {
     alignItems: 'center',
     alignSelf: 'stretch',
@@ -41,13 +40,12 @@ const useStyles = makeStyles<Theme, { listingCheckable: boolean }>(() => ({
 const DataCell = ({
   row,
   column,
-  listingCheckable,
   isRowSelected,
   isRowHovered,
   rowColorConditions,
   disableRowCondition,
 }: Props): JSX.Element | null => {
-  const classes = useStyles({ listingCheckable });
+  const classes = useStyles();
 
   const commonCellProps = {
     align: 'left' as const,
