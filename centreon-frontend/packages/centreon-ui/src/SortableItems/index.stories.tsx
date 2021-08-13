@@ -103,6 +103,7 @@ const Content = ({
   name,
 }: ContentProps): JSX.Element => {
   const classes = useContentStyles({ isDragging });
+
   return (
     <Paper
       style={style}
@@ -125,6 +126,7 @@ const ContentWithHandler = ({
   name,
 }: ContentProps): JSX.Element => {
   const classes = useContentStyles({ isDragging });
+
   return (
     <div style={style}>
       <Paper
@@ -220,6 +222,7 @@ const ContentWithGrid = ({
   xs,
 }: ContentProps): JSX.Element => {
   const classes = useContentStyles({ isDragging });
+
   return (
     <Grid item style={style} xs={xs} {...listeners} {...attributes}>
       <Paper className={classes.content} ref={itemRef}>
