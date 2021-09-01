@@ -118,6 +118,7 @@ export interface Props<TRow> {
   disableRowCondition?: (row) => boolean;
   expanded?: boolean;
   getId?: (row: TRow) => RowId;
+  headerMemoProps?: Array<unknown>;
   innerScrollDisabled?: boolean;
   limit?: number;
   loading?: boolean;
@@ -169,6 +170,7 @@ const Listing = <TRow extends { id: RowId }>({
   onSelectRows = (): void => undefined,
   onSort,
   getId = ({ id }): RowId => id,
+  headerMemoProps = [],
   predefinedRowsSelection = [],
 }: Props<TRow>): JSX.Element => {
   const { t } = useTranslation();
@@ -485,6 +487,7 @@ const Listing = <TRow extends { id: RowId }>({
               checkable={checkable}
               columnConfiguration={columnConfiguration}
               columns={columns}
+              memoProps={headerMemoProps}
               predefinedRowsSelection={predefinedRowsSelection}
               rowCount={limit - emptyRows}
               selectedRowCount={selectedRows.length}
