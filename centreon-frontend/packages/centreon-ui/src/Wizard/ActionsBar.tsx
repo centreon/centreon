@@ -12,9 +12,7 @@ import { ActionsBarProps } from './models';
 
 const useStyles = makeStyles((theme) => ({
   container: {
-    borderTop: `1px solid ${theme.palette.grey[300]}`,
     bottom: 0,
-    padding: theme.spacing(0, 1),
     position: 'sticky',
   },
   loader: {
@@ -50,13 +48,13 @@ const ActionsBar = ({
       alignItems="center"
       className={classes.container}
       direction="row"
-      justify="flex-end"
+      justifyContent="flex-end"
     >
       <Grid item>
         {!isFirstStep && (
           <Button
             aria-label={labelPrevious}
-            color="primary"
+            color="default"
             onClick={goToPreviousStep}
             onKeyPress={preventEnterKey}
           >
