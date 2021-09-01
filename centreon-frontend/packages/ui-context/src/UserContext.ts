@@ -4,6 +4,7 @@ import { UserContext } from './types';
 
 const defaultUser = {
   alias: '',
+  isExportButtonEnabled: false,
   locale: navigator.language,
   name: '',
   timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,

@@ -2,6 +2,7 @@ import React from 'react';
 
 export interface User {
   alias: string;
+  isExportButtonEnabled: boolean;
   locale: string;
   name: string;
   timezone: string;
