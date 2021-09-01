@@ -1,5 +1,7 @@
 import * as React from 'react';
 
+import clsx from 'clsx';
+
 import { makeStyles, Theme } from '@material-ui/core';
 
 import WithPanel from '../Panel/WithPanel';
@@ -27,6 +29,7 @@ const useStyles = makeStyles<Theme>((theme) => {
 interface Props {
   filter: JSX.Element;
   listing: JSX.Element;
+  pageClassName?: string;
   panel?: JSX.Element;
   panelFixed?: boolean;
   panelOpen?: boolean;
@@ -38,11 +41,12 @@ const ListingPage = ({
   panel,
   panelOpen = false,
   panelFixed = false,
+  pageClassName,
 }: Props): JSX.Element => {
   const classes = useStyles();
 
   return (
-    <div className={classes.page}>
+    <div className={clsx(classes.page, pageClassName)}>
       <div className={classes.filters}>{filter}</div>
 
       <WithPanel fixed={panelFixed} open={panelOpen} panel={panel}>
