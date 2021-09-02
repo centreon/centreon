@@ -184,13 +184,18 @@ sub add_watch {
     my $cmd = 'rsync -rlptgD --omit-dir-times --chmod=g+w --update --delete --log-format="\%o \%m \%f \%l" --timeout=30 ' . $self->{centreon_central_sync_config}->{rsync_exclude} . ' -e "ssh ' .
         $self->{centreon_central_sync_config}->{ssh_options} . '" "' . $options{watch} . '/" "' . $self->{centreon_central_sync_config}->{peer_addr} .  ':' . $options{watch} . '/" 2>&1';
 
-    my ($lerror, $stdout) = centreon::common::misc::backtick(
+    my ($lerror, $stdout, $retcode) = centreon::common::misc::backtick(
         command => $cmd,
         logger => $self->{logger},
+        wait_exit => 1,
         timeout => 30
     );
 
-    $self->{logger}->writeLogDebug("rsync code: " . $lerror . " output: '$options{watch}' = \n$stdout ");
+    if (defined($retcode) and $retcode != 0) {
+        $self->{logger}->writeLogError("rsync code: " . $retcode . " output:\n$stdout ");
+    } else {
+        $self->{logger}->writeLogDebug("rsync code: " . $retcode . " output: '$options{watch}' = \n$stdout ");
+    }
 }
 
 sub watch_and_sync {
@@ -257,7 +262,7 @@ sub run {
     $self->{logger}->writeLogInfo("centreon_central_sync launched....");
     $self->{logger}->writeLogInfo("PID: $$");
 
-    my ($cmd, $lerror, $stdout);
+    my ($cmd, $lerror, $stdout, $retcode);
 
     $object_cb = $self;
     if (!defined($self->{centreon_central_sync_config}->{peer_addr}) || $self->{centreon_central_sync_config}->{peer_addr} eq '') {
@@ -277,13 +282,18 @@ sub run {
             $cmd = 'rsync -rlptgD --omit-dir-times --chmod=g+w --update --delete --log-format="\%o \%m \%f \%l" --timeout=30 ' . $self->{centreon_central_sync_config}->{rsync_exclude} . ' -e "ssh ' .
                 $self->{centreon_central_sync_config}->{ssh_options} . '" "' . $dir . '/" "' . $self->{centreon_central_sync_config}->{peer_addr} .  ':' . $dir . '/" 2>&1';
 
-            ($lerror, $stdout) = centreon::common::misc::backtick(
+            ($lerror, $stdout, $retcode) = centreon::common::misc::backtick(
                 command => $cmd,
                 logger => $self->{logger},
+                wait_exit => 1,
                 timeout => 30
             );
 
-            $self->{logger}->writeLogDebug("rsync code: " . $lerror . " output: = \n$stdout ");
+            if (defined($retcode) and $retcode != 0) {
+                $self->{logger}->writeLogError("rsync code: " . $retcode . " output:\n$stdout ");
+            } else {
+                $self->{logger}->writeLogDebug("rsync code: " . $retcode . " output: = \n$stdout ");
+            }
         }
 
         sleep(2);
@@ -293,13 +303,18 @@ sub run {
                 $cmd = 'rsync -rlptgD --omit-dir-times --chmod=g+w --update --delete --log-format="\%o \%m \%f \%l" --timeout=30 ' . $self->{centreon_central_sync_config}->{rsync_exclude} . ' -e "ssh ' .
                     $self->{centreon_central_sync_config}->{ssh_options} . '" "' . $dir . '/" "' . $self->{centreon_central_sync_config}->{peer_addr} .  ':' . $dir . '/" 2>&1';
 
-                ($lerror, $stdout) = centreon::common::misc::backtick(
+                ($lerror, $stdout, $retcode) = centreon::common::misc::backtick(
                     command => $cmd,
                     logger => $self->{logger},
+                    wait_exit => 1,
                     timeout => 30
                 );
 
-                $self->{logger}->writeLogDebug("rsync code: " . $lerror . " output: \n$stdout ");
+                if (defined($retcode) and $retcode != 0) {
+                    $self->{logger}->writeLogError("rsync code: " . $retcode . " output:\n$stdout ");
+                } else {
+                    $self->{logger}->writeLogDebug("rsync code: " . $retcode . " output: = \n$stdout ");
+                }
             }
 
             $self->{last_time} = time();
@@ -314,13 +329,18 @@ sub run {
                 $cmd = 'rsync -rlptgD --omit-dir-times --chmod=g+w --update --delete --log-format="\%o \%m \%f \%l" --timeout=30 ' . $self->{centreon_central_sync_config}->{rsync_exclude} . ' -e "ssh ' .
                     $self->{centreon_central_sync_config}->{ssh_options} . '" "' . $special_dir . '/" "' . $self->{centreon_central_sync_config}->{peer_addr} .  ':' . $special_dir . '/" 2>&1';
 
-                ($lerror, $stdout) = centreon::common::misc::backtick(
+                ($lerror, $stdout, $retcode) = centreon::common::misc::backtick(
                     command => $cmd,
                     logger => $self->{logger},
+                    wait_exit => 1,
                     timeout => 30
                 );
 
-                $self->{logger}->writeLogDebug("rsync code: " . $lerror . " output: \n$stdout ");
+                if (defined($retcode) and $retcode != 0) {
+                    $self->{logger}->writeLogError("rsync code: " . $retcode . " output:\n$stdout ");
+                } else {
+                    $self->{logger}->writeLogDebug("rsync code: " . $retcode . " output: = \n$stdout ");
+                }
 
                 while ((my $filename = readdir $dh)) {
                     if ($filename !~ /^\./ && -d "$special_dir/$filename") {
@@ -331,13 +351,18 @@ sub run {
                             $cmd = 'rsync -rlptgD --omit-dir-times --chmod=g+w --update --delete --log-format="\%o \%m \%f \%l" --timeout=30 ' . $self->{centreon_central_sync_config}->{rsync_exclude} . ' -e "ssh ' .
                                 $self->{centreon_central_sync_config}->{ssh_options} . '" "' . $special_dir . '/' . $filename . '/" "' . $self->{centreon_central_sync_config}->{peer_addr} .  ':' . $special_dir . '/' . $filename . '/" 2>&1';
 
-                            ($lerror, $stdout) = centreon::common::misc::backtick(
+                            ($lerror, $stdout, $retcode) = centreon::common::misc::backtick(
                                 command => $cmd,
                                 logger => $self->{logger},
+                                wait_exit => 1,
                                 timeout => 30
                             );
 
-                            $self->{logger}->writeLogDebug("rsync code: " . $lerror . " output:\n$stdout ");
+                            if (defined($retcode) and $retcode != 0) {
+                                $self->{logger}->writeLogError("rsync code: " . $retcode . " output:\n$stdout ");
+                            } else {
+                                $self->{logger}->writeLogDebug("rsync code: " . $retcode . " output: = \n$stdout ");
+                            }
                         }
                     }
                 }
