@@ -2,14 +2,14 @@
   timespec: "*/5 * * * *"
   action: COMMAND
   parameters:
-    - command: "/opt/rh/rh-php72/root/usr/bin/php -q /usr/share/centreon/cron/centAcl.php >> /var/log/centreon-gorgone/centAcl.log 2>&1"
+    - command: "/opt/rh/rh-php73/root/usr/bin/php -q /usr/share/centreon/cron/centAcl.php >> /var/log/centreon-gorgone/centAcl.log 2>&1"
       timeout: 120
   keep_token: true
 - id: recurrent_downtimes
   timespec: "*/5 * * * *"
   action: COMMAND
   parameters:
-    - command: "/opt/rh/rh-php72/root/usr/bin/php -q /usr/share/centreon/cron/downtimeManager.php >> /var/log/centreon-gorgone/downtimeManager.log 2>&1"
+    - command: "/opt/rh/rh-php73/root/usr/bin/php -q /usr/share/centreon/cron/downtimeManager.php >> /var/log/centreon-gorgone/downtimeManager.log 2>&1"
       timeout: 240
   keep_token: true
 - id: event_report_builder
@@ -30,13 +30,13 @@
   timespec: "0 2 * * *"
   action: COMMAND
   parameters:
-    - command: "/opt/rh/rh-php72/root/usr/bin/php /usr/share/centreon/cron/centstorage_purge.php >> /var/log/centreon-gorgone/centreon-purge.log 2>&1"
+    - command: "/opt/rh/rh-php73/root/usr/bin/php /usr/share/centreon/cron/centstorage_purge.php >> /var/log/centreon-gorgone/centreon-purge.log 2>&1"
       timeout: 120
   keep_token: true
 - id: database_partitioning
   timespec: "0 4 * * *"
   action: COMMAND
   parameters:
-    - command: "/opt/rh/rh-php72/root/usr/bin/php /usr/share/centreon/cron/centreon-partitioning.php >> /var/log/centreon-gorgone/centreon-partitioning.log 2>&1"
+    - command: "/opt/rh/rh-php73/root/usr/bin/php /usr/share/centreon/cron/centreon-partitioning.php >> /var/log/centreon-gorgone/centreon-partitioning.log 2>&1"
       timeout: 120
   keep_token: true
