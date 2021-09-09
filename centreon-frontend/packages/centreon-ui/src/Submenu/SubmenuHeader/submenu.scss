@@ -1,13 +1,12 @@
 @import '../../global-sass-files/variables';
 
-// Submenu
 .submenu {
   &-top, &-bottom {
     display: flex;
   }
   &-top {
     position: relative;
-    padding: 6px 20px 7px 20px;
+    padding: 6px 6px 6px 16px;
     flex-wrap: wrap;
     align-items: center;
     background-color: #232f39;
@@ -31,7 +30,6 @@
     &-count {
       float: right;
       padding: 10px;
-      font-family: $primary-font-light;
       color: $white-color;
       font-size: .8rem;
       text-decoration: none;
@@ -42,7 +40,6 @@
       position: relative;
       float: left;
       padding: 10px;
-      font-family: $primary-font-light;
       color: $white-color;
       font-size: .8rem;
       text-decoration: none;
@@ -54,11 +51,11 @@
     }
     &-dot {
       position: absolute;
-      left: 10px;
+      left: 8px;
       width: 8px;
       height: 8px;
       border-radius: 50%;
-      top: 50%;
+      top: 45%;
       transform: translateY(-50%);
       &.dot-red {
         background-color: #ed1b23;
@@ -88,7 +85,6 @@
     top: 100%;
     z-index: 99;
     box-sizing: border-box;
-    // display: none;
     text-align: left;
     width: 100%;
   }
@@ -105,7 +101,6 @@
     .profile {
       &-user {
         &-type, &-edit, &-name {
-          font-family: $primary-font-light;
           color: $white-color;
           text-decoration: none;
           font-size: .8rem;
@@ -129,7 +124,6 @@
           font-size: .785rem;
           color: #ffa225;
           text-decoration: none;
-          font-family: $primary-font-light;
           text-align: left;
           border-radius: 16px;
           border: 1px solid rgba(255, 161, 37, 1);

@@ -30,8 +30,6 @@ export type { SelectEntry } from './InputField/Select';
 export { default as SelectField } from './InputField/Select';
 export { default as IconPopoverMultiSelectField } from './InputField/Select/IconPopover';
 
-export { default as Sidebar } from './Sidebar';
-
 export { default as Listing, MemoizedListing } from './Listing';
 export type { Props as ListingProps } from './Listing';
 

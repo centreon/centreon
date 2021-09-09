@@ -6,6 +6,8 @@ import React, { Component } from 'react';
 
 import clsx from 'clsx';
 
+import { Typography } from '@material-ui/core';
+
 import styles from '../submenu.scss';
 
 class SubmenuItem extends Component {
@@ -25,10 +27,10 @@ class SubmenuItem extends Component {
               styles[`dot-${dotColored}`],
             )}
           />
-          {submenuTitle}
+          <Typography variant="body2">{submenuTitle}</Typography>
         </span>
         <span className={clsx(styles['submenu-item-count'])}>
-          {submenuCount}
+          <Typography variant="body2">{submenuCount}</Typography>
         </span>
       </li>
     );

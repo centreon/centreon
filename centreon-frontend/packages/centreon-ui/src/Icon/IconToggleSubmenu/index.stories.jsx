@@ -11,6 +11,6 @@ export const arrow = () => (
       padding: '10px',
     }}
   >
-    <Icon iconType="arrow" />
+    <Icon />
   </div>
 );

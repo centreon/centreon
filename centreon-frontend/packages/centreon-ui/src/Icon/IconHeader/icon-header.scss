@@ -1,22 +1,8 @@
 @import '../../global-sass-files/variables';
 @import '../../global-sass-files/mixins';
 
-// Icons generated
-@font-face {
-  font-family: 'icomoon';
-  src:  url('../../global-sass-files/fonts/icomoon.eot');
-  src:  url('../../global-sass-files/fonts/icomoon.eot') format('embedded-opentype'),
-    url('../../global-sass-files/fonts/icomoon.ttf') format('truetype'),
-    url('../../global-sass-files/fonts/icomoon.woff') format('woff'),
-    url('../../global-sass-files/fonts/icomoon.svg') format('svg');
-  font-weight: normal;
-  font-style: normal;
-}
-
 [class^="icon-"], [class*=" icon-"] {
   /* use !important to prevent issues with browser extensions that change fonts */
-  font-family: 'icomoon' !important;
-  speak: none;
   font-style: normal;
   font-weight: normal;
   font-variant: normal;
@@ -114,21 +100,13 @@
   color: $white-color;
 }
 
-.iconmoon {
-  display: block;
-  text-align: center;
-  height: 26px;
-  @include iconmoon();
-  &:before {
-    font-size: 24px;
-  }
-}
 .icons {
   &-wrap {
-    margin-right: 6px;
+    margin-right: 11px;
     cursor: pointer;
-    position: relative;
-    height: 39px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
   }
 }
 .icons {
@@ -136,7 +114,6 @@
     display: block;
     font-size: .6875rem;
     color: $white-color;
-    font-family: $primary-font-light !important;
     text-transform: lowercase;
   }
 }
