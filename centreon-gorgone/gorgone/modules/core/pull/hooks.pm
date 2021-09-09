@@ -146,6 +146,8 @@ sub broadcast {}
 sub transmit_back {
     my (%options) = @_;
 
+    return undef if (!defined($options{message}));
+
     if ($options{message} =~ /^\[ACK\]\s+\[(.*?)\]\s+(.*)/m) {
         my $data;
         eval {
