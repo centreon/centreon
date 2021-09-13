@@ -4,15 +4,35 @@
 import React from 'react';
 
 import clsx from 'clsx';
+import { not } from 'ramda';
 
-import { Typography } from '@material-ui/core';
+import { Badge, makeStyles, Typography } from '@material-ui/core';
 
 import styles from './icon-header.scss';
 
-const IconHeader = ({ Icon, iconName, style, onClick, children }) => {
+const useStyles = makeStyles({
+  badge: {
+    backgroundColor: '#29d1d3',
+  },
+});
+
+const IconHeader = ({ Icon, iconName, style, onClick, children, pending }) => {
+  const classes = useStyles();
+
   return (
     <span className={clsx(styles['icons-wrap'])} style={style}>
-      <Icon style={{ color: '#FFFFFF', cursor: 'pointer' }} onClick={onClick} />
+      <Badge
+        anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
+        classes={{ badge: classes.badge }}
+        invisible={not(pending)}
+        overlap="circular"
+        variant="dot"
+      >
+        <Icon
+          style={{ color: '#FFFFFF', cursor: 'pointer' }}
+          onClick={onClick}
+        />
+      </Badge>
       <span className={clsx(styles.icons__name)}>
         <Typography variant="caption">{iconName}</Typography>
       </span>

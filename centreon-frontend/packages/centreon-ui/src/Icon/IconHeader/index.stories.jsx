@@ -26,3 +26,14 @@ export const normal = () => (
     />
   </HeaderBackground>
 );
+
+export const withPending = () => (
+  <HeaderBackground>
+    <IconHeader
+      pending
+      Icon={DnsIcon}
+      iconName="hosts"
+      onClick={() => alertOnClick('Home')}
+    />
+  </HeaderBackground>
+);
