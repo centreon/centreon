@@ -71,6 +71,13 @@ $template = new Smarty();
 $template = initSmartyTplForPopup($path, $template, './', $centreon_path);
 
 $centreon = $_SESSION['centreon'];
+
+/**
+ * true: URIs will correspond to deprecated pages
+ * false: URIs will correspond to new page (Resource Status)
+ */
+$useDeprecatedPages = $centreon->user->doesShowDeprecatedPages();
+
 $centreonWebPath = trim($centreon->optGen['oreon_web_path'], '/');
 $widgetId = filter_input(INPUT_GET, 'widgetId', FILTER_VALIDATE_INT, ['options' => ['default' => 0]]);
 $page = filter_input(INPUT_GET, 'page', FILTER_VALIDATE_INT, ['options' => ['default' => 1]]);
@@ -313,7 +320,9 @@ while ($row = $res->fetch()) {
     $resourceController = $kernel->getContainer()->get(
         \Centreon\Application\Controller\MonitoringResourceController::class
     );
-    $data[$row['host_id']]['details_uri'] = $resourceController->buildHostDetailsUri($row['host_id']);
+    $data[$row['host_id']]['details_uri'] = $useDeprecatedPages
+        ? '/' . $centreonWebPath . '/main.php?p=20202&o=hd&host_name=' . $row['host_name']
+        : $resourceController->buildHostDetailsUri($row['host_id']);
 
     // action_url
     $valueActionUrl = $row['action_url'];
