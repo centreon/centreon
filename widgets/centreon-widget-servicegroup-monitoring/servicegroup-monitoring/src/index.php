@@ -60,6 +60,15 @@ $template = new Smarty();
 $template = initSmartyTplForPopup($path, $template, "./", $centreon_path);
 
 $centreon = $_SESSION['centreon'];
+
+/**
+ * true: URIs will correspond to deprecated pages
+ * false: URIs will correspond to new page (Resource Status)
+ */
+$useDeprecatedPages = $centreon->user->doesShowDeprecatedPages();
+
+$centreonWebPath = trim($centreon->optGen['oreon_web_path'], "/");
+
 $widgetId = filter_var($_REQUEST['widgetId'], FILTER_VALIDATE_INT);
 $page = filter_var($_REQUEST['page'], FILTER_VALIDATE_INT);
 
@@ -219,7 +228,7 @@ if (isset($preferences['enable_detailed_mode']) && $preferences['enable_detailed
 }
 while ($row = $res->fetch()) {
     $servicegroup = [
-        'id' => (int)$row['servicegroup_id'],
+        'id' => (int) $row['servicegroup_id'],
         'name' => $row['name'],
     ];
 
@@ -241,9 +250,9 @@ while ($row = $res->fetch()) {
 
     if ($detailMode === true) {
         foreach ($hostStates as $hostName => &$properties) {
-            $properties['details_uri'] = $resourceController->buildHostDetailsUri(
-                $properties['host_id']
-            );
+            $properties['details_uri'] = $useDeprecatedPages
+                ? '/' . $centreonWebPath . '/main.php?p=20202&o=hd&host_name=' . $hostName
+                : $resourceController->buildHostDetailsUri($properties['host_id']);
             $properties['services_uri'] = $buildServicegroupUri(
                 [$servicegroup],
                 [$serviceType],
@@ -254,25 +263,56 @@ while ($row = $res->fetch()) {
 
         foreach ($serviceStates as $hostId => &$serviceState) {
             foreach ($serviceState as $serviceId => &$properties) {
-                $properties['details_uri'] = $resourceController->buildServiceDetailsUri(
-                    $hostId,
-                    $serviceId
-                );
+                $properties['details_uri'] = $useDeprecatedPages
+                    ? '/' . $centreonWebPath
+                        . '/main.php?p=20201&o=svcd&host_name=' . $properties['name']
+                        . '&service_description=' . $properties['description']
+                    : $resourceController->buildServiceDetailsUri(
+                        $hostId,
+                        $serviceId
+                    );
             }
         }
     }
 
+    $serviceGroupDeprecatedUri = '/' . $centreonWebPath
+        . '/main.php?p=20201&search=0&host_search=0&output_search=0&hg=0&sg=' . $servicegroup['id'];
+
+    $serviceGroupUri = $useDeprecatedPages
+        ? $serviceGroupDeprecatedUri
+        : $buildServicegroupUri([$servicegroup]);
+
+    $serviceGroupServicesOkUri = $useDeprecatedPages
+        ? $serviceGroupDeprecatedUri . '&o=svc&statusFilter=ok'
+        : $buildServicegroupUri([$servicegroup], [$serviceType], [$okStatus]);
+
+    $serviceGroupServicesWarningUri = $useDeprecatedPages
+        ? $serviceGroupDeprecatedUri . '&o=svc&statusFilter=warning'
+        : $buildServicegroupUri([$servicegroup], [$serviceType], [$warningStatus]);
+
+    $serviceGroupServicesCriticalUri = $useDeprecatedPages
+        ? $serviceGroupDeprecatedUri . '&o=svc&statusFilter=critical'
+        : $buildServicegroupUri([$servicegroup], [$serviceType], [$criticalStatus]);
+
+    $serviceGroupServicesPendingUri = $useDeprecatedPages
+        ? $serviceGroupDeprecatedUri . '&o=svc&statusFilter=pending'
+        : $buildServicegroupUri([$servicegroup], [$serviceType], [$pendingStatus]);
+
+    $serviceGroupServicesUnknownUri = $useDeprecatedPages
+        ? $serviceGroupDeprecatedUri . '&o=svc&statusFilter=unknown'
+        : $buildServicegroupUri([$servicegroup], [$serviceType], [$unknownStatus]);
+
     $data[$row['name']] = [
         'name' => $row['name'],
         'svc_id' => $row['servicegroup_id'],
-        'sgurl' => $buildServicegroupUri([$servicegroup]),
+        'sgurl' => $serviceGroupUri,
         'host_state' => $hostStates,
         'service_state' => $serviceStates,
-        'sg_service_ok_uri' => $buildServicegroupUri([$servicegroup], [$serviceType], [$okStatus]),
-        'sg_service_warning_uri' => $buildServicegroupUri([$servicegroup], [$serviceType], [$warningStatus]),
-        'sg_service_critical_uri' => $buildServicegroupUri([$servicegroup], [$serviceType], [$criticalStatus]),
-        'sg_service_unknown_uri' => $buildServicegroupUri([$servicegroup], [$serviceType], [$unknownStatus]),
-        'sg_service_pending_uri' => $buildServicegroupUri([$servicegroup], [$serviceType], [$pendingStatus]),
+        'sg_service_ok_uri' => $serviceGroupServicesOkUri,
+        'sg_service_warning_uri' => $serviceGroupServicesWarningUri,
+        'sg_service_critical_uri' => $serviceGroupServicesCriticalUri,
+        'sg_service_unknown_uri' => $serviceGroupServicesUnknownUri,
+        'sg_service_pending_uri' => $serviceGroupServicesPendingUri,
     ];
 }
 
@@ -296,7 +336,7 @@ $template->assign('hostStateLabels', $hostStateLabels);
 $template->assign('hostStateColors', $hostStateColors);
 $template->assign('serviceStateLabels', $serviceStateLabels);
 $template->assign('serviceStateColors', $serviceStateColors);
-$template->assign('centreon_web_path', trim($centreon->optGen['oreon_web_path'], "/"));
+$template->assign('centreon_web_path', $centreonWebPath);
 $template->assign('centreon_path', $centreon_path);
 
 $bMoreViews = 0;
