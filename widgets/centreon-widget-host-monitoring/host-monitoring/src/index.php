@@ -367,7 +367,7 @@ while ($row = $res->fetch()) {
     if (isset($preferences['display_last_comment']) && $preferences['display_last_comment']) {
         $res2 = $dbb->prepare(
             'SELECT data FROM comments where host_id = :hostId
-            AND service_id IS NULL ORDER BY entry_time DESC LIMIT 1'
+            AND service_id = 0 ORDER BY entry_time DESC LIMIT 1'
         );
         $res2->bindValue(':hostId', $row['host_id'], \PDO::PARAM_INT);
         $res2->execute();
