@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005-2020 Centreon
+ * Copyright 2005-2021 Centreon
  * Centreon is developed by : Julien Mathis and Romain Le Merlus under
  * GPL Licence 2.0.
  *
@@ -51,8 +51,17 @@ if (!isset($_SESSION['centreon']) || !isset($_REQUEST['widgetId'])) {
 }
 
 $centreon = $_SESSION['centreon'];
+
+$centreonWebPath = trim($centreon->optGen['oreon_web_path'], '/');
+
 $widgetId = filter_var($_REQUEST['widgetId'], FILTER_VALIDATE_INT);
 $grouplistStr = '';
+
+/**
+ * true: URIs will correspond to deprecated pages
+ * false: URIs will correspond to new page (Resource Status)
+ */
+$useDeprecatedPages = $centreon->user->doesShowDeprecatedPages();
 
 try {
     if ($widgetId === false) {
@@ -129,7 +138,15 @@ $res = $db->query($query);
 while ($row = $res->fetch()) {
     $row['numLin'] = $numLine;
     $row['current_value'] = ceil($row['current_value']);
-    $row['details_uri'] = $resourceController->buildServiceDetailsUri($row['host_id'], $row['service_id']);
+    $row['details_uri'] = $useDeprecatedPages
+        ? '/' . $centreonWebPath . '/main.php?p=20201&o=svcd&host_name='
+            . $row['host_name']
+            . '&service_description='
+            . $row['service_description']
+        : $resourceController->buildServiceDetailsUri(
+            $row['host_id'],
+            $row['service_id']
+        );
     $data[] = $row;
     $numLine++;
 }
