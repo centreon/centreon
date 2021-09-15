@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005-2020 Centreon
+ * Copyright 2005-2021 Centreon
  * Centreon is developed by : Julien Mathis and Romain Le Merlus under
  * GPL Licence 2.0.
  *
@@ -52,6 +52,14 @@ if (!isset($_SESSION['centreon']) || !isset($_REQUEST['widgetId'])) {
 }
 
 $centreon = $_SESSION['centreon'];
+
+/**
+ * true: URIs will correspond to deprecated pages
+ * false: URIs will correspond to new page (Resource Status)
+ */
+$useDeprecatedPages = $centreon->user->doesShowDeprecatedPages();
+$centreonWebPath = trim($centreon->optGen['oreon_web_path'], '/');
+
 $widgetId = filter_var($_REQUEST['widgetId'], FILTER_VALIDATE_INT);
 
 /* INIT */
@@ -106,7 +114,7 @@ if ($preferences['host_group']) {
     /* Query 1 */
     $query1 = "SELECT DISTINCT T1.name, T2.host_id
         FROM hosts T1, hosts_hostgroups T2 " . ($centreon->user->admin == 0 ? ", centreon_acl acl " : "") . "
-        WHERE T1.host_id = T2.host_id 
+        WHERE T1.host_id = T2.host_id
             AND T1.enabled = 1
             AND T2.hostgroup_id = " . $preferences['host_group'] .
         ($centreon->user->admin == 0
@@ -135,9 +143,9 @@ if ($preferences['host_group']) {
     $query2 .= ");";
 
     /* Query 3 */
-    $query3 = "SELECT DISTINCT T1.service_id, T1.description, T1.state, T1.host_id
-        FROM services T1 " . ($centreon->user->admin == 0 ? ", centreon_acl acl " : "") . "
-        WHERE T1.enabled = 1
+    $query3 = "SELECT DISTINCT T1.service_id, T1.description, T1.state, T1.host_id, T2.name, T2.host_id
+        FROM services T1, hosts T2" . ($centreon->user->admin == 0 ? ", centreon_acl acl " : "") . "
+        WHERE T1.enabled = 1 AND T1.host_id = T2.host_id
             AND T1.description NOT LIKE 'ba_%' AND T1.description NOT LIKE 'meta_%' " .
         ($centreon->user->admin == 0
             ? " AND T1.service_id = acl.service_id AND acl.group_id IN (" .
@@ -163,7 +171,9 @@ if ($preferences['host_group']) {
     /* Get host listing */
     $res = $db->query($query1);
     while ($row = $res->fetch()) {
-        $row['details_uri'] = $resourceController->buildHostDetailsUri($row['host_id']);
+        $row['details_uri'] = $useDeprecatedPages
+        ? '/' . $centreonWebPath . '/main.php?p=20202&o=hd&host_name=' . $row['name']
+        : $resourceController->buildHostDetailsUri($row['host_id']);
         $data[] = $row;
     }
 
@@ -184,8 +194,10 @@ if ($preferences['host_group']) {
         if (isset($data_service[$row['description']])) {
             $data_service[$row['description']]['hosts'][] = $row['host_id'];
             $data_service[$row['description']]['hostsStatus'][$row['host_id']] = $colors[$row['state']];
-            $data_service[$row['description']]['details_uri'][$row['host_id']] =
-                $resourceController->buildServiceDetailsUri($row['host_id'], $row['service_id']);
+            $data_service[$row['description']]['details_uri'][$row['host_id']] = $useDeprecatedPages
+                ? '/' . $centreonWebPath . '/main.php?p=20201&o=svcd&host_name=' . $row['name']
+                    . '&service_description=' . $row['description']
+                : $resourceController->buildServiceDetailsUri($row['host_id'], $row['service_id']);
         }
     }
 }
