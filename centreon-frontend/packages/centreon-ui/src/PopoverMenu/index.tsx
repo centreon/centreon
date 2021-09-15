@@ -51,13 +51,13 @@ const PopoverMenu = ({
     if (isClosedByInputClick) {
       return;
     }
+    onClose?.();
     setAnchorEl(undefined);
   };
 
   const toggle = (event): void => {
     if (isOpen) {
       close();
-      onClose?.();
 
       return;
     }
