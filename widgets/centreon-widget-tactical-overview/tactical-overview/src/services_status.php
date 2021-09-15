@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005-2020 Centreon
+ * Copyright 2005-2021 Centreon
  * Centreon is developed by : Julien Mathis and Romain Le Merlus under
  * GPL Licence 2.0.
  *
@@ -41,6 +41,13 @@ $dataUNK = array();
 $dataPEND = array();
 $db = new CentreonDB("centstorage");
 
+/**
+ * true: URIs will correspond to deprecated pages
+ * false: URIs will correspond to new page (Resource Status)
+ */
+$useDeprecatedPages = $centreon->user->doesShowDeprecatedPages();
+$centreonWebPath = trim($centreon->optGen['oreon_web_path'], '/');
+
 $buildServiceUri = function (array $states, array $statuses) use ($resourceController, $buildParameter) {
     return $resourceController->buildListingUri(
         [
@@ -66,6 +73,8 @@ $unknownStatus = $buildParameter('UNKNOWN', 'Unknown');
 $unhandledState = $buildParameter('unhandled_problems', 'Unhandled');
 $acknowledgedState = $buildParameter('acknowledged', 'Acknowledged');
 $inDowntimeState = $buildParameter('in_downtime', 'In downtime');
+
+$deprecatedServiceListingUri = '/' . $centreonWebPath . '/main.php?p=20201&search=';
 
 // query for CRITICAL state
 $res = $db->query(
@@ -124,10 +133,22 @@ $res = $db->query(
     ) . ";"
 );
 while ($row = $res->fetch()) {
-    $row['listing_uri'] = $buildServiceUri([], [$criticalStatus]);
-    $row['listing_ack_uri'] = $buildServiceUri([$acknowledgedState], [$criticalStatus]);
-    $row['listing_downtime_uri'] = $buildServiceUri([$inDowntimeState], [$criticalStatus]);
-    $row['listing_unhandled_uri'] = $buildServiceUri([$unhandledState], [$criticalStatus]);
+    $row['listing_uri'] = $useDeprecatedPages
+        ? $deprecatedServiceListingUri . '&statusFilter=critical&o=svc'
+        : $buildServiceUri([], [$criticalStatus]);
+
+    $row['listing_ack_uri'] = $useDeprecatedPages
+        ? $deprecatedServiceListingUri . '&statusFilter=critical&statusService=svcpb'
+        : $buildServiceUri([$acknowledgedState], [$criticalStatus]);
+
+    $row['listing_downtime_uri'] = $useDeprecatedPages
+        ? $deprecatedServiceListingUri . '&statusFilter=critical&statusService=svcpb'
+        : $buildServiceUri([$inDowntimeState], [$criticalStatus]);
+
+    $row['listing_unhandled_uri'] = $useDeprecatedPages
+        ? $deprecatedServiceListingUri . '&statusFilter=critical&statusService=svc_unhandled'
+        : $buildServiceUri([$unhandledState], [$criticalStatus]);
+
     $dataCRI[] = $row;
 }
 
@@ -188,10 +209,22 @@ $res = $db->query(
     ) . ";"
 );
 while ($row = $res->fetch()) {
-    $row['listing_uri'] = $buildServiceUri([], [$warningStatus]);
-    $row['listing_ack_uri'] = $buildServiceUri([$acknowledgedState], [$warningStatus]);
-    $row['listing_downtime_uri'] = $buildServiceUri([$inDowntimeState], [$warningStatus]);
-    $row['listing_unhandled_uri'] = $buildServiceUri([$unhandledState], [$warningStatus]);
+    $row['listing_uri'] = $useDeprecatedPages
+        ? $deprecatedServiceListingUri . '&statusFilter=warning&o=svc'
+        : $buildServiceUri([], [$warningStatus]);
+
+    $row['listing_ack_uri'] = $useDeprecatedPages
+        ? $deprecatedServiceListingUri . '&statusFilter=warning&statusService=svcpb'
+        : $buildServiceUri([$acknowledgedState], [$warningStatus]);
+
+    $row['listing_downtime_uri'] = $useDeprecatedPages
+        ? $deprecatedServiceListingUri . '&statusFilter=warning&statusService=svcpb'
+        : $buildServiceUri([$inDowntimeState], [$warningStatus]);
+
+    $row['listing_unhandled_uri'] = $useDeprecatedPages
+        ? $deprecatedServiceListingUri . '&statusFilter=critical&statusService=svc_unhandled'
+        : $buildServiceUri([$unhandledState], [$warningStatus]);
+
     $dataWA[] = $row;
 }
 
@@ -218,7 +251,10 @@ $res = $db->query(
     ) . ";"
 );
 while ($row = $res->fetch()) {
-    $row['listing_uri'] = $buildServiceUri([], [$okStatus]);
+    $row['listing_uri'] = $useDeprecatedPages
+        ? $deprecatedServiceListingUri . '&statusFilter=ok&o=svc'
+        : $buildServiceUri([], [$okStatus]);
+
     $dataOK[] = $row;
 }
 
@@ -244,7 +280,10 @@ $res = $db->query(
         : "") . ";"
 );
 while ($row = $res->fetch()) {
-    $row['listing_uri'] = $buildServiceUri([], [$pendingStatus]);
+    $row['listing_uri'] = $useDeprecatedPages
+        ? $deprecatedServiceListingUri . '&statusFilter=pending&o=svc'
+        : $buildServiceUri([], [$pendingStatus]);
+
     $dataPEND[] = $row;
 }
 
@@ -305,10 +344,22 @@ $res = $db->query(
         ) . ";"
 );
 while ($row = $res->fetch()) {
-    $row['listing_uri'] = $buildServiceUri([], [$unknownStatus]);
-    $row['listing_ack_uri'] = $buildServiceUri([$acknowledgedState], [$unknownStatus]);
-    $row['listing_downtime_uri'] = $buildServiceUri([$inDowntimeState], [$unknownStatus]);
-    $row['listing_unhandled_uri'] = $buildServiceUri([$unhandledState], [$unknownStatus]);
+    $row['listing_uri'] = $useDeprecatedPages
+        ? $deprecatedServiceListingUri . '&statusFilter=unknown&o=svc'
+        : $buildServiceUri([], [$unknownStatus]);
+
+    $row['listing_ack_uri'] = $useDeprecatedPages
+        ? $deprecatedServiceListingUri . '&statusFilter=unknown&statusService=svcpb'
+        : $buildServiceUri([$acknowledgedState], [$unknownStatus]);
+
+    $row['listing_downtime_uri'] = $useDeprecatedPages
+        ? $deprecatedServiceListingUri . '&statusFilter=unknown&statusService=svcpb'
+        : $buildServiceUri([$inDowntimeState], [$unknownStatus]);
+
+    $row['listing_unhandled_uri'] = $useDeprecatedPages
+        ? $deprecatedServiceListingUri . '&statusFilter=unknown&statusService=svc_unhandled'
+        : $buildServiceUri([$unhandledState], [$unknownStatus]);
+
     $dataUNK[] = $row;
 }
 
