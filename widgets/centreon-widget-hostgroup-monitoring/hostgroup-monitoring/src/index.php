@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005-2020 Centreon
+ * Copyright 2005-2021 Centreon
  * Centreon is developed by : Julien Mathis and Romain Le Merlus under
  * GPL Licence 2.0.
  *
@@ -59,6 +59,15 @@ $template = new Smarty();
 $template = initSmartyTplForPopup($path, $template, "./", $centreon_path);
 
 $centreon = $_SESSION['centreon'];
+
+/**
+ * true: URIs will correspond to deprecated pages
+ * false: URIs will correspond to new page (Resource Status)
+ */
+$useDeprecatedPages = $centreon->user->doesShowDeprecatedPages();
+
+$centreonWebPath = trim($centreon->optGen['oreon_web_path'], "/");
+
 $widgetId = filter_var($_REQUEST['widgetId'], FILTER_VALIDATE_INT);
 $page = filter_var($_REQUEST['page'], FILTER_VALIDATE_INT);
 try {
@@ -213,21 +222,65 @@ while ($row = $res->fetch()) {
         'name' => $row['name'],
     ];
 
+    $hostgroupServicesUri = $useDeprecatedPages
+        ? '/' . $centreonWebPath . '/main.php?p=20201&search=&o=svc&hg=' . $hostgroup['id']
+        : $buildHostgroupUri([$hostgroup], [$serviceType], []);
+
+    $hostgroupOkServicesUri = $useDeprecatedPages
+        ? $hostgroupServicesUri . '&statusFilter=ok'
+        : $buildHostgroupUri([$hostgroup], [$serviceType], [$okStatus]);
+
+    $hostgroupWarningServicesUri = $useDeprecatedPages
+        ? $hostgroupServicesUri . '&statusFilter=warning'
+        : $buildHostgroupUri([$hostgroup], [$serviceType], [$warningStatus]);
+
+    $hostgroupCriticalServicesUri = $useDeprecatedPages
+        ? $hostgroupServicesUri . '&statusFilter=critical'
+        : $buildHostgroupUri([$hostgroup], [$serviceType], [$criticalStatus]);
+
+    $hostgroupUnknownServicesUri = $useDeprecatedPages
+        ? $hostgroupServicesUri . '&statusFilter=unknown'
+        : $buildHostgroupUri([$hostgroup], [$serviceType], [$unknownStatus]);
+
+    $hostgroupPendingServicesUri = $useDeprecatedPages
+        ? $hostgroupServicesUri . '&statusFilter=pending'
+        : $buildHostgroupUri([$hostgroup], [$serviceType], [$pendingStatus]);
+
+    $hostgroupHostsUri = $useDeprecatedPages
+        ? '/' . $centreonWebPath . '/main.php?p=20202&search=&hostgroups=' . $hostgroup['id'] . '&o=h_'
+        : $buildHostgroupUri([$hostgroup], [$hostType], []);
+
+    $hostgroupUpHostsUri = $useDeprecatedPages
+        ? $hostgroupHostsUri . 'up'
+        : $buildHostgroupUri([$hostgroup], [$hostType], [$upStatus]);
+
+    $hostgroupDownHostsUri = $useDeprecatedPages
+        ? $hostgroupHostsUri . 'down'
+        : $buildHostgroupUri([$hostgroup], [$hostType], [$downStatus]);
+
+    $hostgroupUnreachableHostsUri = $useDeprecatedPages
+        ? $hostgroupHostsUri . 'unreachable'
+        : $buildHostgroupUri([$hostgroup], [$hostType], [$unreachableStatus]);
+
+    $hostgroupPendingHostsUri = $useDeprecatedPages
+        ? $hostgroupHostsUri . 'pending'
+        : $buildHostgroupUri([$hostgroup], [$hostType], [$pendingStatus]);
+
     $data[$row['name']] = [
         'name' => $row['name'],
         'hg_id' => $row['hostgroup_id'],
-        'hg_uri' => $buildHostgroupUri([$hostgroup], [], []),
-        'hg_service_uri' => $buildHostgroupUri([$hostgroup], [$serviceType], []),
-        'hg_service_ok_uri' => $buildHostgroupUri([$hostgroup], [$serviceType], [$okStatus]),
-        'hg_service_warning_uri' => $buildHostgroupUri([$hostgroup], [$serviceType], [$warningStatus]),
-        'hg_service_critical_uri' => $buildHostgroupUri([$hostgroup], [$serviceType], [$criticalStatus]),
-        'hg_service_unknown_uri' => $buildHostgroupUri([$hostgroup], [$serviceType], [$unknownStatus]),
-        'hg_service_pending_uri' => $buildHostgroupUri([$hostgroup], [$serviceType], [$pendingStatus]),
-        'hg_host_uri' => $buildHostgroupUri([$hostgroup], [$hostType], []),
-        'hg_host_up_uri' => $buildHostgroupUri([$hostgroup], [$hostType], [$upStatus]),
-        'hg_host_down_uri' => $buildHostgroupUri([$hostgroup], [$hostType], [$downStatus]),
-        'hg_host_unreachable_uri' => $buildHostgroupUri([$hostgroup], [$hostType], [$unreachableStatus]),
-        'hg_host_pending_uri' => $buildHostgroupUri([$hostgroup], [$hostType], [$pendingStatus]),
+        'hg_uri' => $hostgroupServicesUri,
+        'hg_service_uri' => $hostgroupServicesUri,
+        'hg_service_ok_uri' => $hostgroupOkServicesUri,
+        'hg_service_warning_uri' => $hostgroupWarningServicesUri,
+        'hg_service_critical_uri' => $hostgroupCriticalServicesUri,
+        'hg_service_unknown_uri' => $hostgroupUnknownServicesUri,
+        'hg_service_pending_uri' => $hostgroupPendingServicesUri,
+        'hg_host_uri' => $hostgroupHostsUri,
+        'hg_host_up_uri' => $hostgroupUpHostsUri,
+        'hg_host_down_uri' => $hostgroupDownHostsUri,
+        'hg_host_unreachable_uri' => $hostgroupUnreachableHostsUri,
+        'hg_host_pending_uri' => $hostgroupPendingHostsUri,
         'host_state' => [],
         'service_state' => [],
     ];
@@ -238,14 +291,17 @@ $hgMonObj->getServiceStates($data, $centreon->user->admin, $aclObj, $preferences
 if ($detailMode === true) {
     foreach ($data as $hostgroupName => &$properties) {
         foreach ($properties['host_state'] as $hostName => &$hostProperties) {
-            $hostProperties['details_uri'] = $resourceController->buildHostDetailsUri($hostProperties['host_id']);
+            $hostProperties['details_uri'] = $useDeprecatedPages
+                ? '/' . $centreonWebPath . '/main.php?p=20202&o=hd&host_name=' . $hostProperties['name']
+                : $resourceController->buildHostDetailsUri($hostProperties['host_id']);
         }
         foreach ($properties['service_state'] as $hostId => &$services) {
             foreach ($services as &$serviceProperties) {
-                $serviceProperties['details_uri'] = $resourceController->buildServiceDetailsUri(
-                    $hostId,
-                    $serviceProperties['service_id']
-                );
+                $serviceProperties['details_uri'] = $useDeprecatedPages
+                    ? '/' . $centreonWebPath . '/main.php?o=svcd&p=20201'
+                        . '&host_name=' . $serviceProperties['name']
+                        . '&service_description=' . $serviceProperties['description']
+                    : $resourceController->buildServiceDetailsUri($hostId, $serviceProperties['service_id']);
             }
         }
     }
@@ -266,7 +322,7 @@ $template->assign('data', $data);
 $template->assign('dataJS', count($data));
 $template->assign('aColorHost', $aColorHost);
 $template->assign('aColorService', $aColorService);
-$template->assign('centreon_web_path', trim($centreon->optGen['oreon_web_path'], "/"));
+$template->assign('centreon_web_path', $centreonWebPath);
 $template->assign('preferences', $preferences);
 $template->assign('hostStateLabels', $hostStateLabels);
 $template->assign('hostStateColors', $hostStateColors);
