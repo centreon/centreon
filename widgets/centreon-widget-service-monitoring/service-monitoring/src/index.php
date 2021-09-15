@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005-2020 Centreon
+ * Copyright 2005-2021 Centreon
  * Centreon is developed by : Julien Mathis and Romain Le Merlus under
  * GPL Licence 2.0.
  *
@@ -71,6 +71,13 @@ $criticality = new CentreonCriticality($db);
 $media = new CentreonMedia($db);
 
 $centreon = $_SESSION['centreon'];
+
+/**
+ * true: URIs will correspond to deprecated pages
+ * false: URIs will correspond to new page (Resource Status)
+ */
+$useDeprecatedPages = $centreon->user->doesShowDeprecatedPages();
+
 $centreonWebPath = trim($centreon->optGen['oreon_web_path'], '/');
 $widgetId = filter_input(INPUT_GET, 'widgetId', FILTER_VALIDATE_INT, ['options' => ['default' => 0]]);
 $page = filter_input(INPUT_GET, 'page', FILTER_VALIDATE_INT, ['options' => ['default' => 0]]);
@@ -466,12 +473,22 @@ while ($row = $res->fetch()) {
     $resourceController = $kernel->getContainer()->get(
         \Centreon\Application\Controller\MonitoringResourceController::class
     );
-    $data[$row['host_id'] . '_' . $row['service_id']]['h_details_uri'] =
-        $resourceController->buildHostDetailsUri($row['host_id']);
-    $data[$row['host_id'] . '_' . $row['service_id']]['s_details_uri'] =
-        $resourceController->buildServiceDetailsUri($row['host_id'], $row['service_id']);
-    $data[$row['host_id'] . '_' . $row['service_id']]['s_graph_uri'] =
-        $resourceController->buildServiceUri($row['host_id'], $row['service_id'], $resourceController::TAB_GRAPH_NAME);
+    $data[$row['host_id'] . '_' . $row['service_id']]['h_details_uri'] = $useDeprecatedPages
+        ? '/' . $centreonWebPath . '/main.php?p=20202&o=hd&host_name=' . $row['hostname']
+        : $resourceController->buildHostDetailsUri($row['host_id']);
+
+    $data[$row['host_id'] . '_' . $row['service_id']]['s_details_uri'] = $useDeprecatedPages
+        ? '/' . $centreonWebPath . '/main.php?p=20201&o=svcd&host_name=' . $row['hostname']
+            . '&service_description=' . $row['description']
+        : $resourceController->buildServiceDetailsUri($row['host_id'], $row['service_id']);
+
+    $data[$row['host_id'] . '_' . $row['service_id']]['s_graph_uri'] = $useDeprecatedPages
+        ? '/' . $centreonWebPath . '/main.php?p=204&mode=0&svc_id=' . $row['hostname'] . ';' . $row['description']
+        : $resourceController->buildServiceUri(
+            $row['host_id'],
+            $row['service_id'],
+            $resourceController::TAB_GRAPH_NAME
+        );
 
     // h_action_url
     $valueHActionUrl = $row['h_action_url'];
@@ -604,7 +621,7 @@ $template->assign('dataJS', count($data));
 $template->assign('nbRows', $nbRows);
 $template->assign('StateHColors', $stateHColors);
 $template->assign('StateSColors', $stateSColors);
-$template->assign('centreon_web_path', $centreon->optGen['oreon_web_path']);
+$template->assign('centreon_web_path', $centreonWebPath);
 $template->assign('preferences', $preferences);
 $template->assign('data', $data);
 $template->assign('broker', 'broker');
