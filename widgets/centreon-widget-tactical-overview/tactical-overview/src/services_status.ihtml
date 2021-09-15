@@ -33,16 +33,28 @@
                 </td>
             </tr>
             <tr class="line_ack">
-                <td class='ListColLeft'><span class="badge service_critical margin_right">{$dataCRI[0].ack}</span>Acknowledge</td>
-                <td class='ListColLeft'><span class="badge service_warning margin_right">{$dataWA[0].ack}</span>Acknowledge</td>
-                <td class='ListColLeft'><span class="badge service_unknown margin_right">{$dataUNK[0].ack}</span>Acknowledge</td>
+                <td class='ListColLeft'>
+                    <a href='{$dataCRI[0].listing_ack_uri}' target="_blank"><span class="badge service_critical margin_right">{$dataCRI[0].ack}</span>Acknowledge</a>
+                </td>
+                <td class='ListColLeft'>
+                    <a href='{$dataWA[0].listing_ack_uri}' target="_blank"><span class="badge service_warning margin_right">{$dataWA[0].ack}</span>Acknowledge</a>
+                </td>
+                <td class='ListColLeft'>
+                    <a href='{$dataUNK[0].listing_ack_uri}' target="_blank"><span class="badge service_unknown margin_right">{$dataUNK[0].ack}</span>Acknowledge</a>
+                </td>
                 <td></td>
                 <td></td>
             </tr>
             <tr class ="line_downtime">
-                <td class='ListColLeft'><span class="badge service_critical margin_right">{$dataCRI[0].down}</span>Downtimes</td>
-                <td class='ListColLeft'><span class="badge service_warning margin_right">{$dataWA[0].down}</span>Downtimes</td>
-                <td class='ListColLeft'><span class="badge service_unknown margin_right">{$dataUNK[0].down}</span>Downtimes</td>
+                <td class='ListColLeft'>
+                    <a href='{$dataCRI[0].listing_downtime_uri}' target="_blank"><span class="badge service_critical margin_right">{$dataCRI[0].down}</span>Downtimes</a>
+                </td>
+                <td class='ListColLeft'>
+                    <a href='{$dataWA[0].listing_downtime_uri}' target="_blank"><span class="badge service_warning margin_right">{$dataWA[0].down}</span>Downtimes</a>
+                </td>
+                <td class='ListColLeft'>
+                    <a href='{$dataUNK[0].listing_downtime_uri}' target="_blank"><span class="badge service_unknown margin_right">{$dataUNK[0].down}</span>Downtimes</a>
+                </td>
                 <td></td>
                 <td></td>
             </tr>

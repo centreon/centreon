@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005-2020 Centreon
+ * Copyright 2005-2021 Centreon
  * Centreon is developed by : Julien Mathis and Romain Le Merlus under
  * GPL Licence 2.0.
  *
@@ -41,6 +41,13 @@ $dataPEND = array();
 $dataList = array();
 $db = new CentreonDB("centstorage");
 
+/**
+ * true: URIs will correspond to deprecated pages
+ * false: URIs will correspond to new page (Resource Status)
+ */
+$useDeprecatedPages = $centreon->user->doesShowDeprecatedPages();
+$centreonWebPath = trim($centreon->optGen['oreon_web_path'], '/');
+
 $buildHostUri = function (array $states, array $statuses) use ($resourceController, $buildParameter) {
     return $resourceController->buildListingUri(
         [
@@ -65,6 +72,8 @@ $unreachableStatus = $buildParameter('UNREACHABLE', 'Unreachable');
 $unhandledState = $buildParameter('unhandled_problems', 'Unhandled');
 $acknowledgedState = $buildParameter('acknowledged', 'Acknowledged');
 $inDowntimeState = $buildParameter('in_downtime', 'In downtime');
+
+$deprecatedHostListingUri = '/' . $centreonWebPath . '/main.php?p=20202&search=&o=h_';
 
 // query for DOWN status
 $res = $db->query(
@@ -101,10 +110,25 @@ $res = $db->query(
 );
 while ($row = $res->fetch()) {
     $row['un'] = $row['status'] - ($row['ack'] + $row['down']);
-    $row['listing_uri'] = $buildHostUri([], [$downStatus]);
-    $row['listing_ack_uri'] = $buildHostUri([$acknowledgedState], [$downStatus]);
-    $row['listing_downtime_uri'] = $buildHostUri([$inDowntimeState], [$downStatus]);
-    $row['listing_unhandled_uri'] = $buildHostUri([$unhandledState], [$downStatus]);
+
+    $deprecatedDownHostListingUri = $deprecatedHostListingUri . 'down';
+
+    $row['listing_uri'] = $useDeprecatedPages
+        ? $deprecatedDownHostListingUri
+        : $buildHostUri([], [$downStatus]);
+
+    $row['listing_ack_uri'] = $useDeprecatedPages
+        ? $deprecatedDownHostListingUri
+        : $buildHostUri([$acknowledgedState], [$downStatus]);
+
+    $row['listing_downtime_uri'] = $useDeprecatedPages
+        ? $deprecatedDownHostListingUri
+        : $buildHostUri([$inDowntimeState], [$downStatus]);
+
+    $row['listing_unhandled_uri'] = $useDeprecatedPages
+        ? $deprecatedDownHostListingUri
+        : $buildHostUri([$unhandledState], [$downStatus]);
+
     $dataDO[] = $row;
 }
 
@@ -143,10 +167,25 @@ $res = $db->query(
 );
 while ($row = $res->fetch()) {
     $row['un'] = $row['status'] - ($row['ack'] + $row['down']);
-    $row['listing_uri'] = $buildHostUri([], [$unreachableStatus]);
-    $row['listing_ack_uri'] = $buildHostUri([$acknowledgedState], [$unreachableStatus]);
-    $row['listing_downtime_uri'] = $buildHostUri([$inDowntimeState], [$unreachableStatus]);
-    $row['listing_unhandled_uri'] = $buildHostUri([$unhandledState], [$unreachableStatus]);
+
+    $deprecatedUnreachableHostListingUri = $deprecatedHostListingUri . 'unreachable';
+
+    $row['listing_uri'] = $useDeprecatedPages
+        ? $deprecatedUnreachableHostListingUri
+        : $buildHostUri([], [$unreachableStatus]);
+
+    $row['listing_ack_uri'] = $useDeprecatedPages
+        ? $deprecatedUnreachableHostListingUri
+        : $buildHostUri([$acknowledgedState], [$unreachableStatus]);
+
+    $row['listing_downtime_uri'] = $useDeprecatedPages
+        ? $deprecatedUnreachableHostListingUri
+        : $buildHostUri([$inDowntimeState], [$unreachableStatus]);
+
+    $row['listing_unhandled_uri'] = $useDeprecatedPages
+        ? $deprecatedUnreachableHostListingUri
+        : $buildHostUri([$unhandledState], [$unreachableStatus]);
+
     $dataUN[] = $row;
 }
 
@@ -170,7 +209,10 @@ $res = $db->query(
     ) . ";"
 );
 while ($row = $res->fetch()) {
-    $row['listing_uri'] = $buildHostUri([], [$upStatus]);
+    $row['listing_uri'] = $useDeprecatedPages
+        ? $deprecatedHostListingUri . 'up'
+        : $buildHostUri([], [$upStatus]);
+
     $dataUP[] = $row;
 }
 
@@ -194,7 +236,10 @@ $res = $db->query(
     ) . ";"
 );
 while ($row = $res->fetch()) {
-    $row['listing_uri'] = $buildHostUri([], [$pendingStatus]);
+    $row['listing_uri'] = $useDeprecatedPages
+        ? $deprecatedHostListingUri . 'pending'
+        : $buildHostUri([], [$pendingStatus]);
+
     $dataPEND[] = $row;
 }
 
