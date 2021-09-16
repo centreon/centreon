@@ -143,6 +143,8 @@ try {
   if ((env.BUILD == 'RELEASE') || (env.BUILD == 'QA') || (env.BUILD == 'CI')) {
     stage('Delivery') {
       node {
+        unstash 'rpms-centos7'
+        unstash 'rpms-centos8'
         checkoutCentreonBuild(buildBranch)
         sh "./centreon-build/jobs/dsm/${serie}/dsm-delivery.sh"
       }
