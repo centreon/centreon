@@ -1,27 +1,59 @@
-import groovy.json.JsonSlurper
-
 /*
 ** Variables.
 */
-properties([buildDiscarder(logRotator(numToKeepStr: '50'))])
 def serie = '21.10'
 def maintenanceBranch = "${serie}.x"
+def qaBranch = "dev-${serie}.x"
+env.REF_BRANCH = 'master'
 env.PROJECT='centreon-awie'
-
 if (env.BRANCH_NAME.startsWith('release-')) {
   env.BUILD = 'RELEASE'
-} else if ((env.BRANCH_NAME == 'master') || (env.BRANCH_NAME == maintenanceBranch)) {
+} else if ((env.BRANCH_NAME == env.REF_BRANCH) || (env.BRANCH_NAME == maintenanceBranch)) {
   env.BUILD = 'REFERENCE'
+} else if ((env.BRANCH_NAME == 'develop') || (env.BRANCH_NAME == qaBranch)) {
+  env.BUILD = 'QA'
 } else {
   env.BUILD = 'CI'
 }
 
+def buildBranch = env.BRANCH_NAME
+if (env.CHANGE_BRANCH) {
+  buildBranch = env.CHANGE_BRANCH
+}
+
+/*
+** Functions
+*/
+def isStableBuild() {
+  return ((env.BUILD == 'REFERENCE') || (env.BUILD == 'QA'))
+}
+
+def checkoutCentreonBuild(buildBranch) {
+  def getCentreonBuildGitConfiguration = { branchName -> [
+    $class: 'GitSCM',
+    branches: [[name: "refs/heads/${branchName}"]],
+    doGenerateSubmoduleConfigurations: false,
+    userRemoteConfigs: [[
+      $class: 'UserRemoteConfig',
+      url: "ssh://git@github.com/centreon/centreon-build.git"
+    ]]
+  ]}
+
+  dir('centreon-build') {
+    try {
+      checkout(getCentreonBuildGitConfiguration(buildBranch))
+    } catch(e) {
+      echo "branch '${buildBranch}' does not exist in centreon-build, then fallback to master"
+      checkout(getCentreonBuildGitConfiguration('master'))
+    }
+  }
+}
 /*
 ** Pipeline code.
 */
-stage('Source') {
+stage('Deliver sources') {
   node {
-    sh 'setup_centreon_build.sh'
+    checkoutCentreonBuild(buildBranch)
     dir('centreon-awie') {
       checkout scm
     }
@@ -41,10 +73,10 @@ stage('Source') {
 }
 
 try {
-  stage('Unit tests') {
-    parallel 'centos7': {
+  stage('Unit tests // RPM Packaging // Sonar analysis') {
+    parallel 'unit tests centos7': {
       node {
-        sh 'setup_centreon_build.sh'
+        checkoutCentreonBuild(buildBranch)
         sh "./centreon-build/jobs/awie/${serie}/mon-awie-unittest.sh centos7"
         if (currentBuild.result == 'UNSTABLE')
           currentBuild.result = 'FAILURE'
@@ -75,10 +107,31 @@ try {
           referenceJobName: 'centreon-awie/master'
         )
 
-        // Run sonarQube analysis
         withSonarQubeEnv('SonarQubeDev') {
           sh "./centreon-build/jobs/awie/${serie}/mon-awie-analysis.sh"
         }
+        def qualityGate = waitForQualityGate()
+        if (qualityGate.status != 'OK') {
+          currentBuild.result = 'FAIL'
+        }
+      }
+    },
+    'Packaging centos7': {
+      node {
+        checkoutCentreonBuild(buildBranch)
+        sh "./centreon-build/jobs/awie/${serie}/mon-awie-package.sh centos7"
+        archiveArtifacts artifacts: 'rpms-centos7.tar.gz'
+        stash name: "rpms-centos7", includes: 'output/noarch/*.rpm'
+        sh 'rm -rf output'
+      }
+    },
+    'Packaging centos8': {
+      node {
+        checkoutCentreonBuild(buildBranch)
+        sh "./centreon-build/jobs/awie/${serie}/mon-awie-package.sh centos8"
+        archiveArtifacts artifacts: 'rpms-centos8.tar.gz'
+        stash name: "rpms-centos8", includes: 'output/noarch/*.rpm'
+        sh 'rm -rf output'
       }
     }
     if ((currentBuild.result ?: 'SUCCESS') != 'SUCCESS') {
@@ -86,48 +139,30 @@ try {
     }
   }
 
-  // sonarQube step to get qualityGate result
-  stage('Quality gate') {
+  if ((env.BUILD == 'CI')) {
+    stage('Delivery to unstable') {
       node {
-        sleep 120
-        def qualityGate = waitForQualityGate()
-        if (qualityGate.status != 'OK') {
-          currentBuild.result = 'FAIL'
-        }
-        if ((currentBuild.result ?: 'SUCCESS') != 'SUCCESS') {
-          error("Quality gate failure: ${qualityGate.status}.");
-        }
+        unstash 'rpms-centos8'
+        unstash 'rpms-centos7'
+        checkoutCentreonBuild(buildBranch)
+        sh "./centreon-build/jobs/awie/${serie}/mon-awie-delivery.sh"
       }
-    }
-
-  stage('Package') {
-    parallel 'centos7': {
-      node {
-        sh 'setup_centreon_build.sh'
-        sh "./centreon-build/jobs/awie/${serie}/mon-awie-package.sh centos7"
+      if ((currentBuild.result ?: 'SUCCESS') != 'SUCCESS') {
+        error('Delivery stage failure.');
       }
-    },
-    'centos8': {
-      node {
-        sh 'setup_centreon_build.sh'
-        sh "./centreon-build/jobs/awie/${serie}/mon-awie-package.sh centos8"
-      }
-    }
-    if ((currentBuild.result ?: 'SUCCESS') != 'SUCCESS') {
-      error('Package stage failure.');
     }
   }
 
-  stage('Bundle') {
-    parallel 'centos7': {
+  stage('Docker creation') {
+    parallel 'Docker centos7': {
       node {
-        sh 'setup_centreon_build.sh'
+        checkoutCentreonBuild(buildBranch)
         sh "./centreon-build/jobs/awie/${serie}/mon-awie-bundle.sh centos7"
       }
     },
-    'centos8': {
+    'Docker centos8': {
       node {
-        sh 'setup_centreon_build.sh'
+        checkoutCentreonBuild(buildBranch)
         sh "./centreon-build/jobs/awie/${serie}/mon-awie-bundle.sh centos8"
       }
     }
@@ -139,7 +174,7 @@ try {
   stage('Acceptance tests') {
     parallel 'centos7': {
       node {
-        sh 'setup_centreon_build.sh'
+        checkoutCentreonBuild(buildBranch)
         sh "./centreon-build/jobs/awie/${serie}/mon-awie-acceptance.sh centos7"
         junit 'xunit-reports/**/*.xml'
         if (currentBuild.result == 'UNSTABLE')
@@ -149,7 +184,7 @@ try {
     },
     'centos8': {
       node {
-        sh 'setup_centreon_build.sh'
+        checkoutCentreonBuild(buildBranch)
         sh "./centreon-build/jobs/awie/${serie}/mon-awie-acceptance.sh centos8"
         junit 'xunit-reports/**/*.xml'
         if (currentBuild.result == 'UNSTABLE')
@@ -162,10 +197,12 @@ try {
     }
   }
 
-  if ((env.BUILD == 'RELEASE') || (env.BUILD == 'REFERENCE')) {
+  if ((env.BUILD == 'RELEASE') || (env.BUILD == 'QA')) {
     stage('Delivery') {
       node {
-        sh 'setup_centreon_build.sh'
+        checkoutCentreonBuild(buildBranch)
+        unstash 'rpms-centos8'
+        unstash 'rpms-centos7'
         sh "./centreon-build/jobs/awie/${serie}/mon-awie-delivery.sh"
       }
       if ((currentBuild.result ?: 'SUCCESS') != 'SUCCESS') {
