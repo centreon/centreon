@@ -1,23 +1,59 @@
-import groovy.json.JsonSlurper
 /*
 ** Variables.
 */
 def serie = '21.10'
 def maintenanceBranch = "${serie}.x"
+def qaBranch = "dev-${serie}.x"
+env.REF_BRANCH = 'master'
+env.PROJECT='centreon-gorgone'
 if (env.BRANCH_NAME.startsWith('release-')) {
   env.BUILD = 'RELEASE'
-} else if ((env.BRANCH_NAME == 'master') || (env.BRANCH_NAME == maintenanceBranch)) {
+} else if ((env.BRANCH_NAME == env.REF_BRANCH) || (env.BRANCH_NAME == maintenanceBranch)) {
   env.BUILD = 'REFERENCE'
+} else if ((env.BRANCH_NAME == 'develop') || (env.BRANCH_NAME == qaBranch)) {
+  env.BUILD = 'QA'
 } else {
   env.BUILD = 'CI'
 }
 
+def buildBranch = env.BRANCH_NAME
+if (env.CHANGE_BRANCH) {
+  buildBranch = env.CHANGE_BRANCH
+}
+
+/*
+** Functions
+*/
+def isStableBuild() {
+  return ((env.BUILD == 'REFERENCE') || (env.BUILD == 'QA'))
+}
+
+def checkoutCentreonBuild(buildBranch) {
+  def getCentreonBuildGitConfiguration = { branchName -> [
+    $class: 'GitSCM',
+    branches: [[name: "refs/heads/${branchName}"]],
+    doGenerateSubmoduleConfigurations: false,
+    userRemoteConfigs: [[
+      $class: 'UserRemoteConfig',
+      url: "ssh://git@github.com/centreon/centreon-build.git"
+    ]]
+  ]}
+
+  dir('centreon-build') {
+    try {
+      checkout(getCentreonBuildGitConfiguration(buildBranch))
+    } catch(e) {
+      echo "branch '${buildBranch}' does not exist in centreon-build, then fallback to master"
+      checkout(getCentreonBuildGitConfiguration('master'))
+    }
+  }
+}
 /*
 ** Pipeline code.
 */
-stage('Sonar analysis') {
+stage('Deliver sources // Sonar analysis') {
   node {
-    sh 'setup_centreon_build.sh'
+    checkoutCentreonBuild(buildBranch)
     dir('centreon-gorgone') {
       checkout scm
     }
@@ -25,54 +61,34 @@ stage('Sonar analysis') {
     source = readProperties file: 'source.properties'
     env.VERSION = "${source.VERSION}"
     env.RELEASE = "${source.RELEASE}"
-    // Run sonarQube analysis
     withSonarQubeEnv('SonarQubeDev') {
       sh "./centreon-build/jobs/gorgone/${serie}/gorgone-analysis.sh"
     }
-    def reportFilePath = "target/sonar/report-task.txt"
-    def reportTaskFileExists = fileExists "${reportFilePath}"
-      if (reportTaskFileExists) {
-        echo "Found report task file"
-        def taskProps = readProperties file: "${reportFilePath}"
-        echo "taskId[${taskProps['ceTaskId']}]"
-        timeout(time: 10, unit: 'MINUTES') {
-          while (true) {
-              sleep 5
-              def taskStatusResult    =
-                  sh(returnStdout: true,
-                     script: "curl -s -X GET -u ${authString} \'${sonarProps['sonar.host.url']}/api/ce/task?id=${taskProps['ceTaskId']}\'")
-                  echo "taskStatusResult[${taskStatusResult}]"
-              def taskStatus  = new JsonSlurper().parseText(taskStatusResult).task.status
-              echo "taskStatus[${taskStatus}]"
-              // Status can be SUCCESS, ERROR, PENDING, or IN_PROGRESS. The last two indicate it's
-              // not done yet.
-              if (taskStatus != "IN_PROGRESS" && taskStatus != "PENDING") {
-                  break;
-              }
-              def qualityGate = waitForQualityGate()
-              if (qualityGate.status != 'OK') {
-                currentBuild.result = 'FAIL'
-              }
-          }
-        }
-      }
+    def qualityGate = waitForQualityGate()
+    if (qualityGate.status != 'OK') {
+      currentBuild.result = 'FAIL'
+    }
   }
-}
+}  
 
 try {
-  stage('Package') {
-    parallel 'centos7': {
+  stage('RPM Packaging') {
+    parallel 'Packaging centos7': {
       node {
-        sh 'setup_centreon_build.sh'
+        checkoutCentreonBuild(buildBranch)
         sh "./centreon-build/jobs/gorgone/${serie}/gorgone-package.sh centos7"
         archiveArtifacts artifacts: 'rpms-centos7.tar.gz'
+        stash name: "rpms-centos7", includes: 'output/noarch/*.rpm'
+        sh 'rm -rf output'
       }
     },
-    'centos8': {
+    'Packaging centos8': {
       node {
-        sh 'setup_centreon_build.sh'
+        checkoutCentreonBuild(buildBranch)
         sh "./centreon-build/jobs/gorgone/${serie}/gorgone-package.sh centos8"
         archiveArtifacts artifacts: 'rpms-centos8.tar.gz'
+        stash name: "rpms-centos8", includes: 'output/noarch/*.rpm'
+        sh 'rm -rf output'
       }
     }
     if ((currentBuild.result ?: 'SUCCESS') != 'SUCCESS') {
@@ -80,10 +96,12 @@ try {
     }
   }
 
-  if ((env.BUILD == 'RELEASE') || (env.BUILD == 'REFERENCE')) {
+  if ((env.BUILD == 'RELEASE') || (env.BUILD == 'QA') || (env.BUILD == 'CI')) {
     stage('Delivery') {
       node {
-        sh 'setup_centreon_build.sh'
+        checkoutCentreonBuild(buildBranch)
+        unstash 'rpms-centos8'
+        unstash 'rpms-centos7'
         sh "./centreon-build/jobs/gorgone/${serie}/gorgone-delivery.sh"
       }
       if ((currentBuild.result ?: 'SUCCESS') != 'SUCCESS') {
