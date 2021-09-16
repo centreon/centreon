@@ -120,7 +120,7 @@ try {
     'RPM Packaging centos7': {
       node {
         checkoutCentreonBuild(buildBranch)
-        sh "./centreon-build/jobs/anomaly-detection/${serie}/dsm-package.sh centos7"
+        sh "./centreon-build/jobs/dsm/${serie}/dsm-package.sh centos7"
         archiveArtifacts artifacts: 'rpms-centos7.tar.gz'
         stash name: "rpms-centos7", includes: 'output/noarch/*.rpm'
         sh 'rm -rf output'
@@ -129,7 +129,7 @@ try {
     'RPM Packaging centos8': {
       node {
         checkoutCentreonBuild(buildBranch)
-        sh "./centreon-build/jobs/anomaly-detection/${serie}/dsm-package.sh centos8"
+        sh "./centreon-build/jobs/dsm/${serie}/dsm-package.sh centos8"
         archiveArtifacts artifacts: 'rpms-centos8.tar.gz'
         stash name: "rpms-centos8", includes: 'output/noarch/*.rpm'
         sh 'rm -rf output'
