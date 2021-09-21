@@ -135,6 +135,8 @@ try {
         stash name: "rpms-centos8", includes: 'output/noarch/*.rpm'
         sh 'rm -rf output'      
       }
+    }
+    
     if ((currentBuild.result ?: 'SUCCESS') != 'SUCCESS') {
       error('Unit tests stage failure.');
     }
