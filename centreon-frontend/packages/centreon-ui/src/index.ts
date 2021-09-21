@@ -1,11 +1,7 @@
 import type { Props as SingleAutocompleteFieldProps } from './InputField/Select/Autocomplete';
 
-export { default as Button } from './Button';
-export { default as ButtonAction } from './Button/ButtonAction';
-export { default as ButtonActionInput } from './Button/ButtonActionInput';
 export { default as IconButton } from './Button/Icon';
 
-export { default as FileUpload } from './FileUpload';
 export { default as IconToggleSubmenu } from './Icon/IconToggleSubmenu';
 
 export { default as SingleAutocompleteField } from './InputField/Select/Autocomplete';
@@ -47,11 +43,6 @@ export { default as Panel } from './Panel';
 export { default as WithPanel } from './Panel/WithPanel';
 export { default as MemoizedPanel } from './Panel/Memoized';
 
-export { default as Wrapper } from './Wrapper';
-export { default as TopFilters } from './TopFilters';
-export { default as ExtensionsHolder } from './ExtensionsHolder';
-export { default as ExtensionDetailsPopup } from './ExtensionDetailsPopup';
-export { default as ExtensionDeletePopup } from './ExtensionDeletePopup';
 export { default as ThemeProvider } from './ThemeProvider';
 export { default as Wizard } from './Wizard';
 export { default as PageSkeleton } from './PageSkeleton';
