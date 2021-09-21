@@ -67,26 +67,28 @@ const PopoverMenu = ({
   };
 
   return (
-    <ClickAwayListener onClickAway={close}>
-      <div>
-        <IconButton
-          ariaLabel={title}
-          className={clsx(classes.popoverIconButton, className)}
-          title={title}
-          onClick={toggle}
-        >
-          {icon}
-        </IconButton>
-        <Popper
-          anchorEl={anchorEl}
-          open={isOpen}
-          placement={popperPlacement}
-          style={{ zIndex: theme.zIndex.tooltip }}
-        >
-          <Paper>{children({ close })}</Paper>
-        </Popper>
-      </div>
-    </ClickAwayListener>
+    <div>
+      <IconButton
+        ariaLabel={title}
+        className={clsx(classes.popoverIconButton, className)}
+        title={title}
+        onClick={toggle}
+      >
+        {icon}
+      </IconButton>
+      {isOpen && (
+        <ClickAwayListener onClickAway={close}>
+          <Popper
+            open
+            anchorEl={anchorEl}
+            placement={popperPlacement}
+            style={{ zIndex: theme.zIndex.tooltip }}
+          >
+            <Paper>{children({ close })}</Paper>
+          </Popper>
+        </ClickAwayListener>
+      )}
+    </div>
   );
 };
 
