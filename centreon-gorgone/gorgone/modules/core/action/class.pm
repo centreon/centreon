@@ -35,8 +35,11 @@ use File::Copy;
 use File::Path qw(make_path);
 use MIME::Base64;
 use Digest::MD5::File qw(file_md5_hex);
+use Archive::Tar;
 use Fcntl;
 
+$Archive::Tar::SAME_PERMISSIONS = 1;
+$Archive::Tar::WARN = 0;
 $Digest::MD5::File::NOFATALS = 1;
 my %handlers = (TERM => {}, HUP => {});
 my ($connector);
@@ -329,30 +332,18 @@ sub action_processcopy {
                 if (! -d $options{data}->{content}->{destination}) {
                     make_path($options{data}->{content}->{destination});
                 }
-                my ($error, $stdout, $exit_code) = gorgone::standard::misc::backtick(
-                    command => "tar --no-overwrite-dir -zxf $cache_file -C '" . $options{data}->{content}->{destination} . "' .",
-                    timeout => (defined($options{timeout})) ? $options{timeout} : 10,
-                    wait_exit => 1,
-                    redirect_stderr => 1,
-                );
-                if ($error <= -1000) {
+
+                my $tar = Archive::Tar->new();
+                $tar->setcwd($options{data}->{content}->{destination});
+                unless ($tar->read($cache_file, undef, { extract => 1 })) {
+                    my $tar_error = $tar->error();
                     $self->send_log(
                         code => GORGONE_ACTION_FINISH_KO,
                         token => $options{token},
                         logging => $options{data}->{logging},
-                        data => { message => "untar failed: $stdout" }
+                        data => { message => "untar failed: $tar_error" }
                     );
-                    $self->{logger}->writeLogError('[action] Copy processing - Untar failed: ' . $stdout);
-                    return -1;
-                }
-                if ($exit_code != 0) {
-                    $self->send_log(
-                        code => GORGONE_ACTION_FINISH_KO,
-                        token => $options{token},
-                        logging => $options{data}->{logging},
-                        data => { message => "untar failed ($exit_code): $stdout" }
-                    );
-                    $self->{logger}->writeLogError('[action] Copy processing - Untar failed: ' . $stdout);
+                    $self->{logger}->writeLogError("[action] Copy processing - Untar failed: $tar_error");
                     return -1;
                 }
             } elsif ($options{data}->{content}->{type} eq 'regular') {
