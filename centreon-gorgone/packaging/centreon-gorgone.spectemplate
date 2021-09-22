@@ -12,6 +12,7 @@ BuildRoot:  %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 Requires:   bzip2
 Requires:   perl-Libssh-Session >= 0.8
 Requires:   perl-CryptX
+Requires:   perl(Archive::Tar)
 Requires:   perl(Schedule::Cron)
 Requires:   perl(ZMQ::LibZMQ4)
 Requires:   perl(ZMQ::Constants)
