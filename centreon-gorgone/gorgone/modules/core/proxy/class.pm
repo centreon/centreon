@@ -304,6 +304,7 @@ sub proxy_ssh {
         if ($self->{clients}->{ $options{target_client} }->{class}->ping() == -1) {
             $self->{clients}->{ $options{target_client} }->{delete} = 1;
         } else {
+            $self->{clients}->{ $options{target_client} }->{com_read_internal} = 1;
             $self->send_internal_action(
                 action => 'PONG',
                 data => { data => { id => $options{target_client} } },
