@@ -22,6 +22,7 @@ package gorgone::class::tpapi::centreonv2;
 
 use strict;
 use warnings;
+use gorgone::class::http::http;
 use JSON::XS;
 
 sub new {
