@@ -13,6 +13,7 @@ import { ListingModel, SelectEntry } from '../../../..';
 import Option from '../../Option';
 
 export interface ConnectedAutoCompleteFieldProps {
+  conditionField?: keyof SelectEntry;
   field: string;
   getEndpoint: ({ search, page }) => string;
   initialPage: number;
@@ -24,7 +25,7 @@ type SearchDebounce = (value: string) => void;
 interface GetSearchConditionState {
   conditions: Array<{
     field: string;
-    values: { $ni: Array<string | number> };
+    values: { $ni: Array<string | number | undefined> };
   }>;
 }
 
@@ -40,6 +41,7 @@ const ConnectedAutocompleteField = (
     field,
     search = {},
     open,
+    conditionField = 'id',
     ...props
   }: ConnectedAutoCompleteFieldProps &
     Omit<AutocompleteFieldProps, 'options'>): JSX.Element => {
@@ -89,9 +91,14 @@ const ConnectedAutocompleteField = (
       return {
         conditions: [
           {
-            field: 'id',
+            field: conditionField,
             values: {
-              $ni: map(prop('id'), selectedValues as Array<SelectEntry>),
+              $ni: map(
+                prop(conditionField),
+                selectedValues as Array<
+                  Record<keyof SelectEntry, string | number | undefined>
+                >,
+              ),
             },
           },
         ],
