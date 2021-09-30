@@ -56,7 +56,7 @@ export type Operator =
   | '$ni';
 
 export type ConditionValue = {
-  [value in Operator]?: string;
+  [value in Operator]?: string | Array<string>;
 };
 
 export interface ConditionsSearchParameter {
