@@ -3,7 +3,13 @@ import * as React from 'react';
 import { always, and, equals, ifElse, isNil } from 'ramda';
 import clsx from 'clsx';
 
-import { makeStyles, TableSortLabel, Theme, Tooltip } from '@material-ui/core';
+import {
+  makeStyles,
+  TableCellBaseProps,
+  TableSortLabel,
+  Theme,
+  Tooltip,
+} from '@material-ui/core';
 import DragIndicatorIcon from '@material-ui/icons/MoreVert';
 import { CreateCSSProperties } from '@material-ui/styles';
 
@@ -89,7 +95,7 @@ const SortableHeaderCellContent = ({
   return (
     <HeaderCell
       className={clsx([cellClasses.cell, classes.item])}
-      component="div"
+      component={'div' as unknown as React.ElementType<TableCellBaseProps>}
       padding={column.compact ? 'none' : 'normal'}
       style={{ background: isDragging ? 'transparent' : 'white' }}
     >

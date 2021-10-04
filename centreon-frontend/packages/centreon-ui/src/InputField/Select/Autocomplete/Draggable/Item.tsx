@@ -18,7 +18,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 interface Props extends Omit<ItemProps, 'id'> {
-  chipStyle?: React.CSSProperties;
+  chipStyle?;
   listeners?: DraggableSyntheticListeners;
   style?: React.CSSProperties;
 }

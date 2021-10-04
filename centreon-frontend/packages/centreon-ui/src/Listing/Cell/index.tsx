@@ -6,6 +6,7 @@ import {
   alpha,
   makeStyles,
   TableCell,
+  TableCellBaseProps,
   TableCellProps,
 } from '@material-ui/core';
 
@@ -63,7 +64,7 @@ const Cell = (props: Props): JSX.Element => {
   return (
     <TableCell
       classes={{ root: classes.root }}
-      component="div"
+      component={'div' as unknown as React.ElementType<TableCellBaseProps>}
       {...omit(
         [
           'isRowHovered',

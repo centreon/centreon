@@ -20,7 +20,7 @@ interface StyledSortableProps extends ItemProps {
   listeners: DraggableSyntheticListeners;
   setNodeRef: (node: HTMLElement | null) => void;
   transform: Transform | null;
-  transition: string | null;
+  transition: string | undefined;
 }
 
 const StyledSortableItem = ({

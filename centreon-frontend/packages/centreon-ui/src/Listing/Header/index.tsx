@@ -10,6 +10,7 @@ import {
   TableCell,
   withStyles,
   makeStyles,
+  TableCellBaseProps,
 } from '@material-ui/core';
 import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown';
 
@@ -142,7 +143,11 @@ const ListingHeader = ({
       <TableHead className={classes.row} component="div">
         <TableRow className={classes.row} component="div">
           {checkable && (
-            <CheckboxHeaderCell component="div">
+            <CheckboxHeaderCell
+              component={
+                'div' as unknown as React.ElementType<TableCellBaseProps>
+              }
+            >
               <Checkbox
                 checked={selectedRowCount === rowCount}
                 className={classes.compactCell}
