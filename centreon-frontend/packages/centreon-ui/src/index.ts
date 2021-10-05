@@ -15,6 +15,8 @@ export { default as SingleConnectedAutocompleteField } from './InputField/Select
 export { default as MultiConnectedAutocompleteField } from './InputField/Select/Autocomplete/Connected/Multi/index';
 export { default as DraggableAutocompleteField } from './InputField/Select/Autocomplete/Draggable/Multi';
 export { default as DraggableConnectedAutocompleteField } from './InputField/Select/Autocomplete/Draggable/MultiConnected';
+export type { DraggableSelectEntry } from './InputField/Select/Autocomplete/Draggable/SortableList';
+export type { ItemActionProps } from './InputField/Select/Autocomplete/Draggable';
 export { default as PopoverMultiConnectedAutocompleteField } from './InputField/Select/Autocomplete/Connected/Multi/Popover';
 export { default as SearchField } from './InputField/Search';
 export { default as RegexpHelpTooltip } from './InputField/Search/RegexpHelpTooltip';

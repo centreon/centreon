@@ -10,6 +10,7 @@ import Item from './Item';
 
 interface Props extends Record<string, unknown> {
   additionalProps: Array<unknown> | undefined;
+  index: number;
   itemId: string;
   itemProps: Array<string>;
   memoProps: Array<unknown>;
@@ -20,6 +21,7 @@ const SortableItem = ({
   memoProps,
   additionalProps = [],
   itemProps,
+  index,
   ...rest
 }: Props): JSX.Element => {
   const {
@@ -43,6 +45,7 @@ const SortableItem = ({
         {...rest}
         {...additionalProps}
         attributes={attributes}
+        index={index}
         isDragging={isDragging}
         listeners={listeners}
         ref={setNodeRef}
@@ -50,6 +53,7 @@ const SortableItem = ({
       />
     ),
     memoProps: [
+      index,
       isDragging,
       transform,
       props(itemProps, rest),

@@ -38,6 +38,7 @@ import Item from './Item';
 
 interface ContentProps {
   attributes;
+  index;
   isDragging: boolean;
   itemRef: React.RefObject<HTMLDivElement>;
   listeners: DraggableSyntheticListeners;
@@ -59,6 +60,7 @@ interface Props<T> {
     attributes,
     style,
     itemRef,
+    index,
     ...other
   }: ContentProps & T) => JSX.Element;
   RootComponent?: ({
@@ -159,7 +161,7 @@ const SortableItems = <T extends { [propertyToFilterItemsOn]: string }>({
       <SortableContext items={sortableItemsIds} strategy={sortingStrategy}>
         <RootComponent>
           <>
-            {sortableItemsIds.map((sortableItemId) => {
+            {sortableItemsIds.map((sortableItemId, index) => {
               const item = getItemById(sortableItemId) as
                 | Record<string, unknown>
                 | undefined;
@@ -172,6 +174,7 @@ const SortableItems = <T extends { [propertyToFilterItemsOn]: string }>({
                 not(getDisableItemCondition(item as T)) && (
                   <SortableItem
                     Content={Content}
+                    index={index}
                     itemId={sortableItemId}
                     itemProps={itemProps}
                     key={sortableItemId}
