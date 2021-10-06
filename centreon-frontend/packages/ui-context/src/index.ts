@@ -4,6 +4,7 @@ export { default as useAcl } from './useAcl';
 export { default as useDowntime } from './useDowntime';
 export { default as useRefreshInterval } from './useRefreshInterval';
 export { default as useCloudServices } from './useCloudServices';
+export { default as useAcknowledgement } from './useAcknowledgement';
 
 export type {
   User,
@@ -12,4 +13,5 @@ export type {
   Actions,
   Downtime,
   CloudServices,
+  Acknowledgement,
 } from './types';

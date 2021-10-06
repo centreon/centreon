@@ -40,8 +40,13 @@ const defaultRefreshInterval = 15;
 
 const defaultCloudServices = undefined;
 
+const defaultAcknowledgement = {
+  persistent: false,
+  sticky: false,
+};
 const defaultContext: UserContext = {
   ...defaultUser,
+  acknowledgement: defaultAcknowledgement,
   acl: defaultAcl,
   cloudServices: undefined,
   downtime: defaultDowntime,
@@ -61,4 +66,5 @@ export {
   defaultDowntime,
   defaultRefreshInterval,
   defaultCloudServices,
+  defaultAcknowledgement,
 };

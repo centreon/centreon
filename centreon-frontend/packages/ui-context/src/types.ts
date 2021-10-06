@@ -14,7 +14,13 @@ export interface CloudServices {
   setAreCloudServicesEnabled: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
+export interface Acknowledgement {
+  persistent: boolean;
+  sticky: boolean;
+}
+
 export type UserContext = {
+  acknowledgement: Acknowledgement;
   acl: Acl;
   cloudServices: CloudServices | undefined;
   downtime: Downtime;
