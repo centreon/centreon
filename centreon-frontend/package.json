@@ -82,6 +82,7 @@
     "eslint-plugin-react-hooks": "4.x",
     "eslint-plugin-sort-keys-fix": "1.x",
     "eslint-plugin-typescript-sort-keys": "1.x",
+    "eslint-plugin-hooks": "0.x",
     "fork-ts-checker-webpack-plugin": "6.x",
     "identity-obj-proxy": "3.x",
     "jest": "27.x",
