@@ -20,7 +20,7 @@ module.exports = {
         groups: [
           'useStyles',
           'useState',
-          'useTranslations',
+          'useTranslation',
           'useRequest',
           'useUserContext',
           'useCallback',

@@ -56,8 +56,8 @@ const ListingActionBar = ({
   onResetColumns,
   onSelectColumns,
 }: Props): JSX.Element | null => {
-  const { t } = useTranslation();
   const classes = useStyles();
+  const { t } = useTranslation();
 
   const changeRowPerPage = (event): void => {
     onLimitChange?.(event.target.value);

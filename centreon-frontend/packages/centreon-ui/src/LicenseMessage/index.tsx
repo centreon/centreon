@@ -25,8 +25,8 @@ interface Props {
 }
 
 const LicenseMessage = ({ label }: Props): JSX.Element => {
-  const { t } = useTranslation();
   const classes = useStyles();
+  const { t } = useTranslation();
 
   return (
     <div className={classes.divWrapper}>

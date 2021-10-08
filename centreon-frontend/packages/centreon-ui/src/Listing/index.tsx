@@ -173,7 +173,9 @@ const Listing = <TRow extends { id: RowId }>({
   headerMemoProps = [],
   predefinedRowsSelection = [],
 }: Props<TRow>): JSX.Element => {
+  const classes = useStyles();
   const { t } = useTranslation();
+
   const [tableTopOffset, setTableTopOffset] = React.useState(0);
   const [hoveredRowId, setHoveredRowId] = React.useState<RowId | null>(null);
   const [shiftKeyDownRowPivot, setShiftKeyDownRowPivot] = React.useState<
@@ -185,8 +187,6 @@ const Listing = <TRow extends { id: RowId }>({
 
   const containerRef = React.useRef<HTMLDivElement>();
   const actionBarRef = React.useRef<HTMLDivElement>();
-
-  const classes = useStyles();
 
   const theme = useTheme();
 
