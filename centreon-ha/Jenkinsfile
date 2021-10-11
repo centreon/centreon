@@ -46,39 +46,32 @@ stage('Deliver sources') {
   }
 }
 
-  stage('RPM packaging') {
-    parallel 'centos7': {
-      node {
-        sh 'setup_centreon_build.sh'
-        sh "./centreon-build/jobs/ha/${serie}/ha-package.sh centos7"
-      }
-    },
-    'centos8': {
-      node {
-        sh 'setup_centreon_build.sh'
-        sh "./centreon-build/jobs/ha/${serie}/ha-package.sh centos8"
-      }
+stage('RPM packaging') {
+  parallel 'centos7': {
+    node {
+      sh 'setup_centreon_build.sh'
+      sh "./centreon-build/jobs/ha/${serie}/ha-package.sh centos7"
     }
-    if ((currentBuild.result ?: 'SUCCESS') != 'SUCCESS') {
-      error('Package stage failure.')
+  },
+  'centos8': {
+    node {
+      sh 'setup_centreon_build.sh'
+      sh "./centreon-build/jobs/ha/${serie}/ha-package.sh centos8"
     }
   }
-
-  if ((env.BUILD == 'RELEASE') || (env.BUILD == 'CI') || (env.BUILD == 'QA') ) {
-    stage('Delivery') {
-      node {
-        sh 'setup_centreon_build.sh'
-        sh "./centreon-build/jobs/ha/${serie}/ha-delivery.sh"
-      }
-      if ((currentBuild.result ?: 'SUCCESS') != 'SUCCESS') {
-        error('Delivery stage failure.');
-      }
-    }
+  if ((currentBuild.result ?: 'SUCCESS') != 'SUCCESS') {
+    error('Package stage failure.')
   }
 }
-finally {
-  buildStatus = currentBuild.result ?: 'SUCCESS';
-  if ((buildStatus != 'SUCCESS') && ((env.BUILD == 'RELEASE') || (env.BUILD == 'REFERENCE'))) {
-    slackSend channel: '#monitoring-metrology', message: "@channel Centreon HA build ${env.BUILD_NUMBER} of branch ${env.BRANCH_NAME} was broken by ${source.COMMITTER}. Please fix it ASAP."
+
+if ((env.BUILD == 'RELEASE') || (env.BUILD == 'CI') || (env.BUILD == 'QA') ) {
+  stage('Delivery') {
+    node {
+      sh 'setup_centreon_build.sh'
+      sh "./centreon-build/jobs/ha/${serie}/ha-delivery.sh"
+    }
+    if ((currentBuild.result ?: 'SUCCESS') != 'SUCCESS') {
+      error('Delivery stage failure.');
+    }
   }
 }
