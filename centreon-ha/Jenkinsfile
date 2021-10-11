@@ -51,12 +51,18 @@ stage('RPM packaging') {
     node {
       sh 'setup_centreon_build.sh'
       sh "./centreon-build/jobs/ha/${serie}/ha-package.sh centos7"
+      stash name: 'rpms-centos7', includes: "output/noarch/*.rpm"
+      archiveArtifacts artifacts: 'rpms-centos7.tar.gz'
+      sh 'rm -rf output'
     }
   },
   'centos8': {
     node {
       sh 'setup_centreon_build.sh'
       sh "./centreon-build/jobs/ha/${serie}/ha-package.sh centos8"
+      stash name: 'rpms-centos8', includes: "output/noarch/*.rpm"
+      archiveArtifacts artifacts: 'rpms-centos8.tar.gz'
+      sh 'rm -rf output'
     }
   }
   if ((currentBuild.result ?: 'SUCCESS') != 'SUCCESS') {
@@ -68,6 +74,8 @@ if ((env.BUILD == 'RELEASE') || (env.BUILD == 'CI') || (env.BUILD == 'QA') ) {
   stage('Delivery') {
     node {
       sh 'setup_centreon_build.sh'
+      unstash 'rpms-centos7'
+      unstash 'rpms-centos7'
       sh "./centreon-build/jobs/ha/${serie}/ha-delivery.sh"
     }
     if ((currentBuild.result ?: 'SUCCESS') != 'SUCCESS') {
