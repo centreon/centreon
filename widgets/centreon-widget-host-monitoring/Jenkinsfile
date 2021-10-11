@@ -3,7 +3,7 @@
 */
 def serie = '21.10'
 def maintenanceBranch = "${serie}.x"
-
+def qaBranch = "dev-${serie}.x"
 if (env.BRANCH_NAME.startsWith('release-')) {
   env.BUILD = 'RELEASE'
 } else if ((env.BRANCH_NAME == env.REF_BRANCH) || (env.BRANCH_NAME == maintenanceBranch)) {
