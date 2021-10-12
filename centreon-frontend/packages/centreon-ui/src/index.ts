@@ -61,7 +61,7 @@ export { default as Severity } from './Snackbar/Severity';
 export { default as SaveButton } from './Button/Save';
 
 export { default as IconHeader } from './Icon/IconHeader';
-export { default as IconNumber } from './Icon/IconNumber';
+export { default as StatusCounter } from './StatusCounter';
 export { default as SubmenuHeader } from './Submenu/SubmenuHeader';
 export { default as SubmenuItems } from './Submenu/SubmenuHeader/SubmenuItems';
 export { default as SubmenuItem } from './Submenu/SubmenuHeader/SubmenuItem';

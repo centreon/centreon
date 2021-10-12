@@ -2,7 +2,8 @@ import React from 'react';
 
 import HostIcon from '@material-ui/icons/Dns';
 
-import { IconHeader, IconNumber, IconToggleSubmenu } from '../..';
+import { IconHeader, StatusCounter, IconToggleSubmenu } from '../..';
+import { SeverityCode } from '../../StatusChip';
 
 import SubmenuItems from './SubmenuItems';
 import SubmenuItem from './SubmenuItem';
@@ -11,11 +12,7 @@ import SubmenuHeader from '.';
 
 export default { title: 'SubemnuHeader' };
 
-interface Props {
-  iconType: string;
-}
-
-const Submenu = ({ iconType }: Props): JSX.Element => {
+const Submenu = (): JSX.Element => {
   const [active, setActive] = React.useState(false);
 
   return (
@@ -27,23 +24,10 @@ const Submenu = ({ iconType }: Props): JSX.Element => {
           iconName="Hosts"
           onClick={(): void => setActive(!active)}
         />
-        <IconNumber
-          iconColor="red"
-          iconNumber={<span>1</span>}
-          iconType={iconType}
-        />
-        <IconNumber
-          iconColor="gray-dark"
-          iconNumber={<span>2</span>}
-          iconType={iconType}
-        />
-        <IconNumber
-          iconColor="green"
-          iconNumber={<span>3</span>}
-          iconType={iconType}
-        />
+        <StatusCounter count={1} severityCode={SeverityCode.High} />
+        <StatusCounter count={0} severityCode={SeverityCode.Low} />
+        <StatusCounter count={200} severityCode={SeverityCode.Ok} />
         <IconToggleSubmenu
-          iconType="arrow"
           rotate={false}
           onClick={(): void => setActive(!active)}
         />
@@ -90,8 +74,4 @@ const Submenu = ({ iconType }: Props): JSX.Element => {
   );
 };
 
-export const hostSubmenu = (): JSX.Element => <Submenu iconType="bordered" />;
-
-export const hostSubmenuWithColor = (): JSX.Element => (
-  <Submenu iconType="colored" />
-);
+export const hostSubmenu = (): JSX.Element => <Submenu />;

@@ -2,6 +2,7 @@ import React from 'react';
 
 import { makeStyles, Theme, Chip, alpha, ChipProps } from '@material-ui/core';
 import { CreateCSSProperties } from '@material-ui/styles';
+import { grey } from '@material-ui/core/colors';
 
 enum SeverityCode {
   High = 1,
@@ -17,7 +18,7 @@ interface StatusColorProps {
   theme: Theme;
 }
 
-interface Colors {
+export interface Colors {
   backgroundColor: string;
   color: string;
 }
@@ -35,7 +36,7 @@ const getStatusColors = ({ theme, severityCode }: StatusColorProps): Colors => {
       color: palette.common.black,
     },
     [SeverityCode.Low]: {
-      backgroundColor: palette.action.disabled,
+      backgroundColor: grey[500],
       color: palette.common.black,
     },
     [SeverityCode.Pending]: {
