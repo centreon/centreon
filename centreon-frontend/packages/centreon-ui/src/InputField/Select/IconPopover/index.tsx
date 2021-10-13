@@ -48,8 +48,8 @@ const IconPopoverMultiAutocomplete = ({
 }: Props): JSX.Element => {
   const theme = useTheme();
   const classes = useStyles();
-  const [anchorEl, setAnchorEl] = React.useState();
   const { t } = useTranslation();
+  const [anchorEl, setAnchorEl] = React.useState();
 
   const isOpen = Boolean(anchorEl);
 

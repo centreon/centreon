@@ -19,8 +19,8 @@ module.exports = {
       {
         groups: [
           'useStyles',
-          'useState',
           'useTranslation',
+          'useState',
           'useRequest',
           'useUserContext',
           'useCallback',
