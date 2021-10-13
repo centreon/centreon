@@ -40,8 +40,8 @@ const PopoverMenu = ({
   className,
 }: Props): JSX.Element => {
   const theme = useTheme();
-  const [anchorEl, setAnchorEl] = React.useState();
   const classes = useStyles();
+  const [anchorEl, setAnchorEl] = React.useState();
 
   const isOpen = Boolean(anchorEl);
 

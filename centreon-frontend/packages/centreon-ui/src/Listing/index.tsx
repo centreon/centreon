@@ -174,7 +174,6 @@ const Listing = <TRow extends { id: RowId }>({
   predefinedRowsSelection = [],
 }: Props<TRow>): JSX.Element => {
   const classes = useStyles();
-  const { t } = useTranslation();
 
   const [tableTopOffset, setTableTopOffset] = React.useState(0);
   const [hoveredRowId, setHoveredRowId] = React.useState<RowId | null>(null);
@@ -184,6 +183,7 @@ const Listing = <TRow extends { id: RowId }>({
   const [lastSelectionIndex, setLastSelectionIndex] = React.useState<
     number | null
   >(null);
+  const { t } = useTranslation();
 
   const containerRef = React.useRef<HTMLDivElement>();
   const actionBarRef = React.useRef<HTMLDivElement>();

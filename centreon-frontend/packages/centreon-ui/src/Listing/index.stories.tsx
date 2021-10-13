@@ -125,8 +125,8 @@ const Story = ({
 }: Omit<ListingProps<Entity>, 'columns'> & {
   columns?: Array<Column>;
 }): JSX.Element => {
-  const [selected, setSelected] = React.useState<Array<Entity>>([]);
   const classes = useStyles();
+  const [selected, setSelected] = React.useState<Array<Entity>>([]);
 
   return (
     <div className={classes.listing}>
