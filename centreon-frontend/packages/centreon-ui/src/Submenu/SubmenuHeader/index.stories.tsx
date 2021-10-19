@@ -17,7 +17,7 @@ const Submenu = (): JSX.Element => {
 
   return (
     <div style={{ width: 'fit-content' }}>
-      <SubmenuHeader active={active} submenuType="top">
+      <SubmenuHeader active={active}>
         <IconHeader
           pending
           Icon={HostIcon}

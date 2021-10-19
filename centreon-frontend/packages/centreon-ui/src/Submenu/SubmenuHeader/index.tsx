@@ -7,7 +7,6 @@ import { makeStyles } from '@material-ui/core';
 interface Props {
   active: boolean;
   children: React.ReactChildren | Array<React.ReactElement>;
-  submenuType: string;
 }
 
 const useStyles = makeStyles((theme) => ({
