@@ -63,7 +63,7 @@ const useRequest = <TResult>({
         if (axios.isCancel(error)) {
           log.warn(error);
 
-          return error;
+          throw error;
         }
 
         showRequestErrorMessage(error);
