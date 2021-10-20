@@ -5,7 +5,9 @@ interface ViewportIntersectionState {
   setElement: React.Dispatch<React.SetStateAction<HTMLElement | null>>;
 }
 
-export const useViewportIntersection = (): ViewportIntersectionState => {
+export const useViewportIntersection = (
+  options?: IntersectionObserverInit,
+): ViewportIntersectionState => {
   const [entry, setEntry] = React.useState<IntersectionObserverEntry | null>(
     null,
   );
@@ -18,8 +20,9 @@ export const useViewportIntersection = (): ViewportIntersectionState => {
       observer.current.disconnect();
     }
 
-    observer.current = new window.IntersectionObserver(([newEntry]) =>
-      setEntry(newEntry),
+    observer.current = new window.IntersectionObserver(
+      ([newEntry]) => setEntry(newEntry),
+      options,
     );
 
     if (element) {

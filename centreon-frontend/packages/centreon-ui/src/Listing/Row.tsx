@@ -2,13 +2,22 @@
 
 import * as React from 'react';
 
-import { equals, not, pluck } from 'ramda';
+import { equals, gte, lt, not, pluck } from 'ramda';
 
-import { TableRowProps, TableRow, makeStyles, Theme } from '@material-ui/core';
+import {
+  TableRowProps,
+  TableRow,
+  makeStyles,
+  Theme,
+  useTheme,
+} from '@material-ui/core';
+import { Skeleton } from '@material-ui/lab';
 
 import { useViewportIntersection } from '../utils/useViewportIntersection';
 
 import { Column, ColumnConfiguration, RowColorCondition } from './models';
+
+import { performanceRowsLimit } from '.';
 
 const useStyles = makeStyles<Theme>((theme) => {
   return {
@@ -23,13 +32,16 @@ const useStyles = makeStyles<Theme>((theme) => {
     },
     skeleton: {
       height: theme.spacing(2.5),
-      margin: theme.spacing(0.5, 0),
       width: '100%',
+    },
+    skeletonContainer: {
+      padding: theme.spacing(0.5),
     },
   };
 });
 
 type Props = {
+  checkable: boolean;
   children;
   columnConfiguration?: ColumnConfiguration;
   columnIds: Array<string>;
@@ -38,6 +50,7 @@ type Props = {
   isSelected?: boolean;
   isShiftKeyDown: boolean;
   lastSelectionIndex: number | null;
+  limit: number;
   row;
   rowColorConditions: Array<RowColorCondition>;
   shiftKeyDownRowPivot: number | null;
@@ -55,8 +68,33 @@ const Row = React.memo<RowProps>(
     onMouseOver,
     onFocus,
     onClick,
+    isInViewport,
+    visibleColumns,
+    checkable,
+    limit,
   }: RowProps): JSX.Element => {
     const classes = useStyles();
+
+    if (not(isInViewport) && gte(limit, performanceRowsLimit)) {
+      return (
+        <div style={{ display: 'contents' }}>
+          {checkable && (
+            <div className={classes.skeletonContainer}>
+              <div>
+                <Skeleton className={classes.skeleton} variant="rect" />
+              </div>
+            </div>
+          )}
+          {visibleColumns.map(({ id }) => (
+            <div className={classes.skeletonContainer} key={`loading_${id}`}>
+              <div>
+                <Skeleton className={classes.skeleton} variant="rect" />
+              </div>
+            </div>
+          ))}
+        </div>
+      );
+    }
 
     return (
       <TableRow
@@ -75,6 +113,7 @@ const Row = React.memo<RowProps>(
     const {
       row: previousRow,
       rowColorConditions: previousRowColorConditions,
+      isInViewport: prevIsInViewport,
       visibleColumns: previousVisibleColumns,
       isShiftKeyDown: prevIsShiftKeyDown,
       shiftKeyDownRowPivot: prevShiftKeyDownRowPivot,
@@ -88,6 +127,7 @@ const Row = React.memo<RowProps>(
       isShiftKeyDown: nextIsShiftKeyDown,
       shiftKeyDownRowPivot: nextShiftKeyDownRowPivot,
       lastSelectionIndex: nextLastSelectionIndex,
+      limit: nextLimit,
     } = nextProps;
 
     if (
@@ -105,7 +145,19 @@ const Row = React.memo<RowProps>(
       return false;
     }
 
-    if (not(nextIsInViewport)) {
+    const isNoLongerInViewport = not(prevIsInViewport) && not(nextIsInViewport);
+
+    if (isNoLongerInViewport && gte(nextLimit, performanceRowsLimit)) {
+      return true;
+    }
+
+    const isBackInViewport = not(prevIsInViewport) && nextIsInViewport;
+
+    if (isBackInViewport && gte(nextLimit, performanceRowsLimit)) {
+      return false;
+    }
+
+    if (not(nextIsInViewport) && lt(nextLimit, 60)) {
       return equals(prevProps.isSelected, nextProps.isSelected);
     }
 
@@ -132,7 +184,11 @@ const Row = React.memo<RowProps>(
 
 const IntersectionRow = (props: Props): JSX.Element => {
   const rowRef = React.useRef<HTMLDivElement | null>(null);
-  const { isInViewport, setElement } = useViewportIntersection();
+  const theme = useTheme();
+  const { isInViewport, setElement } = useViewportIntersection({
+    root: rowRef.current?.parentElement?.parentElement?.parentElement,
+    rootMargin: `${theme.spacing(20)}px 0px ${theme.spacing(20)}px 0px`,
+  });
   const classes = useStyles();
 
   const getFirstCellElement = (): ChildNode | null | undefined =>

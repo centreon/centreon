@@ -1,3 +1,4 @@
+/* eslint-disable react/no-array-index-key */
 import * as React from 'react';
 
 import {
@@ -7,6 +8,7 @@ import {
   filter,
   findIndex,
   gt,
+  gte,
   includes,
   isNil,
   last,
@@ -143,6 +145,8 @@ export interface Props<TRow> {
 const defaultColumnConfiguration = {
   sortable: false,
 };
+
+export const performanceRowsLimit = 60;
 
 const Listing = <TRow extends { id: RowId }>({
   limit = 10,
@@ -504,21 +508,27 @@ const Listing = <TRow extends { id: RowId }>({
               component="div"
               onMouseLeave={clearHoveredRow}
             >
-              {rows.map((row) => {
+              {rows.map((row, index) => {
                 const isRowSelected = isSelected(row);
 
                 const isRowHovered = equals(hoveredRowId, getId(row));
 
                 return (
                   <ListingRow
+                    checkable={checkable}
                     columnConfiguration={columnConfiguration}
                     columnIds={columns.map(prop('id'))}
                     disableRowCondition={disableRowCondition}
                     isHovered={isRowHovered}
                     isSelected={isRowSelected}
                     isShiftKeyDown={isShiftKeyDown}
-                    key={getId(row)}
+                    key={
+                      gte(limit, performanceRowsLimit)
+                        ? `row_${index}`
+                        : getId(row)
+                    }
                     lastSelectionIndex={lastSelectionIndex}
+                    limit={limit}
                     row={row}
                     rowColorConditions={rowColorConditions}
                     shiftKeyDownRowPivot={shiftKeyDownRowPivot}
