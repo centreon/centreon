@@ -143,7 +143,7 @@
             </tr>
         </table>
     </div>
-	{else if $preferences.engine-status == ''}
+	{else if $preferences["engine-status"] == ''}
 	<div class="update" style="text-align:center;width:350px;">Please select a poller</div>
 	{/if}
     <script>
