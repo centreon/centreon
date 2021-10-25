@@ -12,10 +12,11 @@ import useIntersectionObserver from '../../../../utils/useIntersectionObserver';
 import { ListingModel, SelectEntry } from '../../../..';
 import Option from '../../Option';
 
-export interface ConnectedAutoCompleteFieldProps {
+export interface ConnectedAutoCompleteFieldProps<TData> {
   conditionField?: keyof SelectEntry;
   field: string;
   getEndpoint: ({ search, page }) => string;
+  getRenderedOptionText: (option: TData) => string;
   initialPage: number;
   search?: Record<string, unknown>;
 }
@@ -33,17 +34,16 @@ const ConnectedAutocompleteField = (
   AutocompleteField: (props) => JSX.Element,
   multiple: boolean,
 ): ((props) => JSX.Element) => {
-  const InnerConnectedAutocompleteField = <
-    TData extends Record<string, unknown>,
-  >({
+  const InnerConnectedAutocompleteField = <TData extends { name: string }>({
     initialPage = 1,
     getEndpoint,
     field,
     search = {},
     open,
     conditionField = 'id',
+    getRenderedOptionText = (option): string => option.name,
     ...props
-  }: ConnectedAutoCompleteFieldProps &
+  }: ConnectedAutoCompleteFieldProps<TData> &
     Omit<AutocompleteFieldProps, 'options'>): JSX.Element => {
     const [options, setOptions] = React.useState<Array<TData>>([]);
     const [searchValue, setSearchValue] = React.useState<string>('');
@@ -166,16 +166,18 @@ const ConnectedAutocompleteField = (
 
       const ref = canTriggerInfiniteScroll ? { ref: lastOptionRef } : {};
 
+      const optionText = getRenderedOptionText(option);
+
       return (
         <div style={{ width: '100%' }}>
           <div>
             {multiple ? (
               <Option checkboxSelected={selected} {...ref}>
-                {option.name}
+                {optionText}
               </Option>
             ) : (
               <Typography variant="body2" {...ref}>
-                {option.name}
+                {optionText}
               </Typography>
             )}
           </div>

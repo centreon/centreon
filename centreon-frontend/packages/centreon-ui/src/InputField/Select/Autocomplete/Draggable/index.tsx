@@ -51,7 +51,7 @@ const DraggableAutocomplete = (
     ...props
   }: Props &
     (
-      | ConnectedAutoCompleteFieldProps
+      | ConnectedAutoCompleteFieldProps<string>
       | SingleAutocompletefieldProps
     )): JSX.Element => {
     const [selectedValues, setSelectedValues] = React.useState<
