@@ -39,9 +39,10 @@ SNAPSHOT_MOUNT_PATH="/mnt/"
 MYSQL_CNF="/etc/my.cnf.d/server.cnf"
 USER="mysql"
 USER_SUDO="sudo -u $USER"
+MYSQLBINARY="mariadbd"
 MYSQLADMIN="mysqladmin"
 MYSQLBINLOG="mysqlbinlog"
-MYSQL_START="systemctl restart mysql"
+MYSQL_START="/usr/bin/mysqld_safe --defaults-file=/etc/my.cnf.d/server.cnf --pid-file=/var/lib/mysql/mysql.pid --socket=/var/lib/mysql/mysql.sock --datadir=/var/lib/mysql --log-error=/var/log/mysqld.log --user=mysql --skip-slave-start"
 SUDO_MYSQL_START_SLAVE="sudo"
 
 if [[ "$USER" == "root" ]] ; then
@@ -62,7 +63,7 @@ fi
 ###
 # Check MySQL launch
 ###
-process=$(ps -o args --no-headers -C mysqld)
+process=$(ps -o args --no-headers -C ${MYSQLBINARY})
 started=0
 
 ###
@@ -247,7 +248,7 @@ fi
 slave_hostname=$(get_other_db_hostname)
 master_hostname=$(get_other_db_hostname $slave_hostname)
 echo "Connection to slave Server (verify mysql stopped): $slave_hostname"
-result=$($USER_SUDO ssh $slave_hostname 'if ps --no-headers -C mysqld >/dev/null; then echo "yes" ; else echo "no"; fi')
+result=$($USER_SUDO ssh $slave_hostname 'if ps --no-headers -C '"$MYSQLBINARY"' >/dev/null; then echo "yes" ; else echo "no"; fi')
 if [ "$result" != "no" ] ; then
 	echo "ERROR: MySQL is launched or problem to connect to the server." >&2
 	exit 1
@@ -266,9 +267,9 @@ fi
 ###
 if [ "$started" -eq 1 ] ; then
 	i=0
-	echo -n "Stopping mysqld:"
+	echo -n "Stopping $MYSQLBINARY:"
     $MYSQLADMIN -f -u "$DBROOTUSER" -h "$master_hostname" -p"$DBROOTPASSWORD" shutdown
-	while ps -o args --no-headers -C mysqld >/dev/null; do
+	while ps -o args --no-headers -C $MYSQLBINARY >/dev/null; do
 		if [ "$i" -gt "$STOP_TIMEOUT" ] ; then
 			echo ""
 			echo "ERROR: Can't stop MySQL Server" >&2
@@ -295,8 +296,20 @@ fi
 ###
 # Start server
 ###
-echo "Start mysqld: ($MYSQL_START)"
-$MYSQL_START
+echo "Start $MYSQLBINARY: ($MYSQL_START)"
+$MYSQL_START &
+i=0
+until mysqlshow -u "$DBROOTUSER" -h "$master_hostname" -p"$DBROOTPASSWORD" > /dev/null 2>&1; do
+	if [ "$i" -gt "$STOP_TIMEOUT" ] ; then
+		echo ""
+		echo "ERROR: Can't start MySQL server" >&2
+		exit 1
+	fi
+	echo -n "."
+	sleep 1
+	i=$(($i + 1))
+done
+echo "OK"
 
 ###
 # Mount snapshot
@@ -382,7 +395,19 @@ fi
 ###
 
 echo "Start MySQL Slave"
-$USER_SUDO ssh $slave_hostname "$SUDO_MYSQL_START_SLAVE $MYSQL_START"
+$USER_SUDO ssh $slave_hostname -- "$MYSQL_START &"
+i=0
+until mysqlshow -u "$DBROOTUSER" -h "$slave_hostname" -p"$DBROOTPASSWORD" > /dev/null 2>&1; do
+        if [ "$i" -gt "$STOP_TIMEOUT" ] ; then
+                echo ""
+                echo "ERROR: Can't start MySQL server" >&2
+                exit 1
+        fi
+        echo -n "."
+        sleep 1
+        i=$(($i + 1))
+done
+echo "OK"
 
 ###
 # Demarrer la replication
