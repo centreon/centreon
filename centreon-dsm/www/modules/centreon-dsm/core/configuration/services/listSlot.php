@@ -1,6 +1,7 @@
 <?php
+
 /*
- * Copyright 2005-2019 Centreon
+ * Copyright 2005-2021 Centreon
  * Centreon is developed by : Julien Mathis and Romain Le Merlus under
  * GPL Licence 2.0.
  *
@@ -163,9 +164,7 @@ $tpl->assign(
     'msg',
     array(
         "addL" => "?p=" . $p . "&o=a",
-        "addT" => _("Add"),
-        "ldap_importL" => "?p=" . $p . "&o=li",
-        "ldap_importT" => _("LDAP Import")
+        "addT" => _("Add")
     )
 );
 

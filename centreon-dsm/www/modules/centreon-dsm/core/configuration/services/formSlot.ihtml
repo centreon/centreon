@@ -5,7 +5,18 @@
 <form {$form.attributes}>
     <div id="validFormTop">
     {if $o == "a" || $o == "c" || $o == "mc"}
-        <p class="oreonbutton">{$form.submitC.html}{$form.submitMC.html}{$form.submitA.html}&nbsp;&nbsp;&nbsp;{$form.reset.html}</p>
+        <p class="oreonbutton">
+        {if isset($form.submitC)}
+            {$form.submitC.html}
+        {/if}
+        {if isset($form.submitMC)}
+            {$form.submitMC.html}
+        {/if}
+        {if isset($form.submitA)}
+            {$form.submitA.html}
+        {/if}
+            &nbsp;&nbsp;&nbsp;{$form.reset.html}
+        </p>
     {else if $o == "w"}
         <p class="oreonbutton">{$form.change.html}</p>
     {/if}
@@ -17,22 +28,29 @@
             <tr class="list_one"><td class="FormRowField"><img class="helpTooltip" name="pool_name" /><span>{$form.pool_name.label}</span></td><td class="FormRowValue">{$form.pool_name.html}</td></tr>
             <tr class="list_two"><td class="FormRowField"><img class="helpTooltip" name="pool_description" /><span>{$form.pool_description.label}</span></td><td class="FormRowValue">{$form.pool_description.html}</td></tr>
             <tr class="list_one"><td class="FormRowField"><img class="helpTooltip" name="pool_host_id" /><span>{$form.pool_host_id.label}</span></td><td class="FormRowValue">{$form.pool_host_id.html}</td></tr>
-            
             <tr class="list_lvl_1"><td class="ListColLvl1_name" colspan="2"><h4>{$form.header.slotInformation}</h4></td></tr>
             <tr class="list_one"><td class="FormRowField"><img class="helpTooltip" name="pool_service_template" /><span>{$form.pool_service_template_id.label}</span></td><td class="FormRowValue">{$form.pool_service_template_id.html}</td></tr>
             <tr class="list_two"><td class="FormRowField"><img class="helpTooltip" name="pool_number" /><span>{$form.pool_number.label}</span></td><td class="FormRowValue">{$form.pool_number.html}</td></tr>
-            <tr class="list_one"><td class="FormRowField"><img class="helpTooltip" name="pool_prefix" /><span>{$form.pool_prefix.label}</span></td><td class="FormRowValue">{$form.pool_prefix.html}</td></tr>        
-            <tr class="list_two"><td class="FormRowField"><img class="helpTooltip" name="pool_cmd_id" /><span>{$form.pool_cmd_id.label}</span></td><td class="FormRowValue">{$form.pool_cmd_id.html}&nbsp;{$form.pool_args.html}</td></tr>         
+            <tr class="list_one"><td class="FormRowField"><img class="helpTooltip" name="pool_prefix" /><span>{$form.pool_prefix.label}</span></td><td class="FormRowValue">{$form.pool_prefix.html}</td></tr>
+            <tr class="list_two"><td class="FormRowField"><img class="helpTooltip" name="pool_cmd_id" /><span>{$form.pool_cmd_id.label}</span></td><td class="FormRowValue">{$form.pool_cmd_id.html}&nbsp;{$form.pool_args.html}</td></tr>
             <tr class="list_lvl_1"><td class="ListColLvl1_name" colspan="2"><h4>{$form.header.furtherInfos}</h4></td></tr>
             <tr class="list_one"><td class="FormRowField"><img class="helpTooltip" name="pool_activate" /><span>{$form.pool_activate.label}</span></td><td class="FormRowValue">{$form.pool_activate.html}</td></tr>
-            {if $o == "a" || $o == "c"}
-                <tr class="list_lvl_2"><td class="ListColLvl2_name" colspan="2">{$form.required._note}</td></tr>
-            {/if}
         </table>
     </div>
     <div id="validForm">
     {if $o == "a" || $o == "c" || $o == "mc"}
-        <p class="oreonbutton">{$form.submitC.html}{$form.submitMC.html}{$form.submitA.html}&nbsp;&nbsp;&nbsp;{$form.reset.html}</p>
+        <p class="oreonbutton">
+        {if isset($form.submitC)}
+            {$form.submitC.html}
+        {/if}
+        {if isset($form.submitMC)}
+            {$form.submitMC.html}
+        {/if}
+        {if isset($form.submitA)}
+            {$form.submitA.html}
+        {/if}
+            &nbsp;&nbsp;&nbsp;{$form.reset.html}
+        </p>
     {else if $o == "w"}
         <p class="oreonbutton">{$form.change.html}</p>
     {/if}

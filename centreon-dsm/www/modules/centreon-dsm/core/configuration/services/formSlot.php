@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Copyright 2005-2020 Centreon
+ * Copyright 2005-2021 Centreon
  * Centreon is developed by : Julien Mathis and Romain Le Merlus under
  * GPL Licence 2.0.
  *
@@ -129,12 +129,6 @@ $poolActivation[] = $form->createElement('radio', 'pool_activate', null, _("Disa
 $form->addGroup($poolActivation, 'pool_activate', _("Status"), '&nbsp;');
 $form->setDefaults(array('pool_activate' => '1'));
 
-$tab = array();
-$tab[] = $form->createElement('radio', 'action', null, _("List"), '1');
-$tab[] = $form->createElement('radio', 'action', null, _("Form"), '0');
-$form->addGroup($tab, 'action', _("Post Validation"), '&nbsp;');
-$form->setDefaults(array('action' => '1'));
-
 $form->addElement('hidden', 'pool_id');
 $redirect = $form->addElement('hidden', 'o');
 $redirect->setValue($o);
@@ -237,8 +231,8 @@ if ($form->validate() && $from_list_menu == false) {
     );
     $form->freeze();
 }
-$action = $form->getSubmitValue("action");
-if ($valid && $action["action"]["action"]) {
+
+if ($valid) {
     include $path . "listSlot.php";
 } else {
     /*
