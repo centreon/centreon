@@ -12,7 +12,7 @@ List of the available modules:
   * [Register](../docs/modules/core/register.md)
 * Centreon
   * [Autodiscovery](../docs/modules/centreon/autodiscovery.md)
-  * [Broker](../docs/modules/centreon/broker.md)
+  * [Broker](../docs/modules/centreon/statistics.md)
   * [Engine](../docs/modules/centreon/engine.md)
   * [Legacy Cmd](../docs/modules/centreon/legacycmd.md)
   * [Nodes](../docs/modules/centreon/nodes.md)
