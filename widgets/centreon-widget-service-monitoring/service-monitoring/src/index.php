@@ -621,7 +621,7 @@ $template->assign('dataJS', count($data));
 $template->assign('nbRows', $nbRows);
 $template->assign('StateHColors', $stateHColors);
 $template->assign('StateSColors', $stateSColors);
-$template->assign('centreon_web_path', $centreonWebPath);
+$template->assign('centreon_web_path', $centreon->optGen['oreon_web_path']);
 $template->assign('preferences', $preferences);
 $template->assign('data', $data);
 $template->assign('broker', 'broker');
