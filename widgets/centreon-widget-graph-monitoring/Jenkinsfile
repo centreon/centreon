@@ -2,13 +2,14 @@
 ** Variables.
 */
 def serie = '21.10'
-def maintenanceBranch = "${serie}.x"
-def qaBranch = "dev-${maintenanceBranch}"
+def stableBranch = "${serie}.x"
+def devBranch = "dev-${serie}.x"
+env.REF_BRANCH = stableBranch
 if (env.BRANCH_NAME.startsWith('release-')) {
   env.BUILD = 'RELEASE'
-} else if ((env.BRANCH_NAME == env.REF_BRANCH) || (env.BRANCH_NAME == maintenanceBranch)) {
+} else if (env.BRANCH_NAME == stableBranch) {
   env.BUILD = 'REFERENCE'
-} else if ((env.BRANCH_NAME == 'develop') || (env.BRANCH_NAME == qaBranch)) {
+} else if (env.BRANCH_NAME == devBranch) {
   env.BUILD = 'QA'
 } else {
   env.BUILD = 'CI'
