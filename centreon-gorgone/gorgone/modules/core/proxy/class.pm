@@ -86,6 +86,11 @@ sub exit_process {
 
     $self->{logger}->writeLogInfo("[proxy] $$ has quit");
     $self->close_connections();
+    foreach (keys %{$self->{internal_channels}}) {
+        $self->{logger}->writeLogInfo("[proxy] Close internal connection for $_");
+        zmq_close($self->{internal_channels}->{$_});
+    }
+    $self->{logger}->writeLogInfo("[proxy] Close control connection");
     zmq_close($self->{internal_socket});
     exit(0);
 }
