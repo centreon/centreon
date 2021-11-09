@@ -547,12 +547,12 @@ sub run {
 
         # we try to do all we can
         my $rv = scalar(zmq_poll($polls, 5000));
-        
+
         # Sometimes (with big message) we have a undef ??!!!
         if ($rv == -1) {
             $self->{logger}->writeLogError("[proxy] zmq_poll failed: $!");
         }
-        
+
         if ($rv == 0 && $self->{stop} == 1) {
             $self->exit_process();
         }

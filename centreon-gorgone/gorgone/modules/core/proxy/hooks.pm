@@ -401,7 +401,7 @@ sub check {
                 $constatus_ping->{$_}->{in_progress_ping} = 0;
                 $constatus_ping->{$_}->{ping_timeout}++;
                 $constatus_ping->{$_}->{ping_failed}++;
-                if (($synctime_nodes->{$_}->{ping_timeout} % $config->{pong_max_timeout}) == 0) {
+                if (($constatus_ping->{$_}->{ping_timeout} % $config->{pong_max_timeout}) == 0) {
                     $options{logger}->writeLogInfo("[proxy] Ping max timeout reached from '" . $_ . "'");
                     routing(
                         socket => $internal_socket,
