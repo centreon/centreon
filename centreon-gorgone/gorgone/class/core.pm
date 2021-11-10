@@ -109,6 +109,15 @@ sub init_server_keys {
         $self->{logger}->writeLogInfo("[core] Public key file '$self->{config}->{configuration}->{gorgone}->{gorgonecore}->{pubkey}' written");
     }
 
+    my $rv = chmod(0600, $self->{config}->{configuration}->{gorgone}->{gorgonecore}->{privkey});
+    if ($rv == 0) {
+        $self->{logger}->writeLogInfo("[core] chmod private key file '$self->{config}->{configuration}->{gorgone}->{gorgonecore}->{privkey}': $!");
+    }
+    $rv = chmod(0640, $self->{config}->{configuration}->{gorgone}->{gorgonecore}->{pubkey});
+    if ($rv == 0) {
+        $self->{logger}->writeLogInfo("[core] chmod public key file '$self->{config}->{configuration}->{gorgone}->{gorgonecore}->{pubkey}': $!");
+    }
+
     ($code, $self->{server_privkey}) = gorgone::standard::library::loadprivkey(
         logger => $self->{logger},
         privkey => $self->{config}->{configuration}->{gorgone}->{gorgonecore}->{privkey},
