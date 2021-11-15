@@ -16,6 +16,7 @@ import {
   lt,
   map,
   not,
+  pick,
   prop,
   propEq,
   reject,
@@ -627,12 +628,14 @@ export const MemoizedListing = <TRow extends { id: string | number }>({
   sortOrder = undefined,
   sortField = undefined,
   innerScrollDisabled = false,
+  columnConfiguration,
   ...props
 }: MemoizedListingProps<TRow>): JSX.Element =>
   useMemoComponent({
     Component: (
       <Listing
         checkable={checkable}
+        columnConfiguration={columnConfiguration}
         columns={columns}
         currentPage={currentPage}
         innerScrollDisabled={innerScrollDisabled}
@@ -650,7 +653,11 @@ export const MemoizedListing = <TRow extends { id: string | number }>({
     ),
     memoProps: [
       ...memoProps,
-      columns,
+      pick(
+        ['id', 'label', 'disabled', 'width', 'shortLabel', 'sortField'],
+        columns,
+      ),
+      columnConfiguration,
       limit,
       rows,
       currentPage,

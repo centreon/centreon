@@ -87,6 +87,7 @@
     "fork-ts-checker-webpack-plugin": "6.x",
     "identity-obj-proxy": "3.x",
     "jest": "27.x",
+    "jotai": "1.x",
     "mini-css-extract-plugin": "2.x",
     "node-sass": "6.x",
     "prettier": "2.x",

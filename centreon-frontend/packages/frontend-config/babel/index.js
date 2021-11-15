@@ -5,6 +5,7 @@ const configuration = {
     '@babel/proposal-class-properties',
     '@babel/plugin-proposal-optional-chaining',
     '@babel/plugin-proposal-nullish-coalescing-operator',
+    'jotai/babel/plugin-react-refresh',
   ],
   presets: [
     [
