@@ -4,11 +4,11 @@ import groovy.json.JsonSlurper
 ** Variables.
 */
 properties([buildDiscarder(logRotator(numToKeepStr: '50'))])
-def serie = '21.10'
-def maintenanceBranch = "${serie}.x"
+def serie = '22.04'
+def stableBranch = "master"
 if (env.BRANCH_NAME.startsWith('release-')) {
   env.BUILD = 'RELEASE'
-} else if ((env.BRANCH_NAME == 'master') || (env.BRANCH_NAME == maintenanceBranch)) {
+} else if (env.BRANCH_NAME == stableBranch) {
   env.BUILD = 'REFERENCE'
 } else {
   env.BUILD = 'CI'
