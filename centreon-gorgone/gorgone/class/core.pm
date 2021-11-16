@@ -886,8 +886,12 @@ sub run {
             }
 
             $cb_timer_check = time();
-            # We can clean return_child.
-            $gorgone->{return_child} = {};
+            # We can clean old return_child.
+            foreach my $pid (keys %{$gorgone->{return_child}}) {
+                if (($cb_timer_check - $gorgone->{return_child}->{$pid}) > 300) {
+                    delete $gorgone->{return_child}->{$pid};
+                }
+            }
         }
 
         if ($gorgone->{stop} == 1) {
