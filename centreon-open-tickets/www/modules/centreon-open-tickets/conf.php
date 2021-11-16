@@ -22,7 +22,7 @@
 
 $module_conf['centreon-open-tickets']["rname"] = "Centreon Open Tickets";
 $module_conf['centreon-open-tickets']["name"] = "centreon-open-tickets";
-$module_conf['centreon-open-tickets']["mod_release"] = "21.10.0";
+$module_conf['centreon-open-tickets']["mod_release"] = "22.04.0-beta.1";
 $module_conf['centreon-open-tickets']["infos"] = "Centreon Open Tickets is a community module developed to " .
     "create tickets to your favorite ITSM tools using API.
 
@@ -37,9 +37,9 @@ Regarding the widget configuration, it is possible to see the created tickets by
 $module_conf['centreon-open-tickets']["is_removeable"] = "1";
 $module_conf['centreon-open-tickets']["author"] = "Centreon";
 $module_conf['centreon-open-tickets']["stability"] = "stable";
-$module_conf['centreon-open-tickets']["last_update"] = "2021-10-29";
+$module_conf['centreon-open-tickets']["last_update"] = "2021-11-05";
 $module_conf['centreon-open-tickets']["release_note"] =
-    "https://docs.centreon.com/21.10/en/releases/centreon-os-extensions.html";
+    "https://docs.centreon.com/22.04/en/releases/centreon-os-extensions.html";
 $module_conf['centreon-open-tickets']["images"] = [
     'images/image1.png',
     'images/image2.png',
