@@ -48,3 +48,15 @@ export const popover = (): JSX.Element => {
     />
   );
 };
+
+export const popoverWithoutInput = (): JSX.Element => {
+  return (
+    <MultiPopoverAutocomplete
+      hideInput
+      label="Popover Autocomplete"
+      options={options}
+      placeholder="Type here..."
+      value={[options[1]]}
+    />
+  );
+};
