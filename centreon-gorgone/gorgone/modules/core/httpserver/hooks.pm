@@ -114,8 +114,8 @@ sub gently {
     my (%options) = @_;
 
     $stop = 1;
-    $options{logger}->writeLogDebug("[httpserver] Send TERM signal");
-    if ($httpserver->{running} == 1) {
+    if (defined($httpserver->{running}) && $httpserver->{running} == 1) {
+        $options{logger}->writeLogDebug("[httpserver] Send TERM signal $httpserver->{pid}");
         CORE::kill('TERM', $httpserver->{pid});
     }
 }

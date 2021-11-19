@@ -118,8 +118,8 @@ sub gently {
     my (%options) = @_;
 
     $stop = 1;
-    $options{logger}->writeLogDebug("[statistics] Send TERM signal");
-    if ($statistics->{running} == 1) {
+    if (defined($statistics->{running}) && $statistics->{running} == 1) {
+        $options{logger}->writeLogDebug("[statistics] Send TERM signal $statistics->{pid}");
         CORE::kill('TERM', $statistics->{pid});
     }
 }

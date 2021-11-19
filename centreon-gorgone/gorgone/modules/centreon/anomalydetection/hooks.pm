@@ -104,8 +104,8 @@ sub gently {
     my (%options) = @_;
 
     $stop = 1;
-    $options{logger}->writeLogDebug("[anomalydetection] Send TERM signal");
-    if ($process->{running} == 1) {
+    if (defined($process->{running}) && $process->{running} == 1) {
+        $options{logger}->writeLogDebug("[anomalydetection] Send TERM signal $process->{pid}");
         CORE::kill('TERM', $process->{pid});
     }
 }

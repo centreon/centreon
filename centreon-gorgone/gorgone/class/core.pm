@@ -58,7 +58,8 @@ sub new {
     $self->{modules_id} = {};
     $self->{purge_timer} = time();
     $self->{history_timer} = time();
-    $self->{kill_timer} = undef;
+    $self->{sigterm_start_time} = undef;
+    $self->{sigterm_last_time} = undef;
     $self->{server_privkey} = undef;
     $self->{register_parent_nodes} = {};
     $self->{counters} = { total => 0, internal => { total => 0 }, external => { total => 0 }, proxy => { total => 0 } };
@@ -262,12 +263,8 @@ sub class_handle_DIE {
 sub handle_TERM {
     my ($self) = @_;
     $self->{logger}->writeLogInfo("[core] $$ Receiving order to stop...");
+
     $self->{stop} = 1;
-    
-    foreach my $name (keys %{$self->{modules_register}}) {
-        $self->{modules_register}->{$name}->{gently}->(logger => $self->{logger});
-    }
-    $self->{kill_timer} = time();
 }
 
 sub handle_HUP {
@@ -737,6 +734,7 @@ sub waiting_ready_pool {
     while (time() - $time < 60) {
         return 1 if ($method->() == 100);
         zmq_poll($gorgone->{poll}, 5000);
+        $gorgone->check_exit_modules();
     }
 
     if ($method->() > 0) {
@@ -756,6 +754,7 @@ sub waiting_ready {
     while (${$options{ready}} == 0 && 
            time() - $time < 10) {
         zmq_poll($gorgone->{poll}, 5000);
+        $gorgone->check_exit_modules();
     }
 
     if (${$options{ready}} == 0) {
@@ -777,6 +776,61 @@ sub quit {
         unlink($self->{config}->{configuration}->{gorgone}->{gorgonecore}->{internal_com_path});
     }
     exit(0);
+}
+
+sub check_exit_modules {
+    my ($self, %options) = @_;
+
+    my $count = 0;
+    my $current_time = time();
+    if (time() - $self->{cb_timer_check} > 15 || $self->{stop} == 1) {
+        if ($self->{stop} == 1 && (!defined($self->{sigterm_last_time}) || ($current_time - $self->{sigterm_last_time}) >= 10)) {
+            $self->{sigterm_start_time} = time() if (!defined($self->{sigterm_start_time}));
+            $self->{sigterm_last_time} = time();
+            foreach my $name (keys %{$self->{modules_register}}) {
+                $self->{modules_register}->{$name}->{gently}->(logger => $gorgone->{logger});
+            }
+        }
+
+        foreach my $name (keys %{$self->{modules_register}}) {
+            my ($count_module, $keepalive) = $self->{modules_register}->{$name}->{check}->(
+                gorgone => $self,
+                logger => $self->{logger},
+                dead_childs => $self->{return_child},
+                internal_socket => $self->{internal_socket},
+                dbh => $self->{db_gorgone},
+                api_endpoints => $self->{api_endpoints}
+            );
+
+            $count += $count_module;
+            if ($count_module == 0 && (!defined($keepalive) || $keepalive == 0)) {
+                $self->unload_module(package => $name);
+            }
+        }
+
+        $self->{cb_timer_check} = time();
+        # We can clean old return_child.
+        foreach my $pid (keys %{$self->{return_child}}) {
+            if (($self->{cb_timer_check} - $self->{return_child}->{$pid}) > 300) {
+                delete $self->{return_child}->{$pid};
+            }
+        }
+    }
+
+    if ($self->{stop} == 1) {
+        # No childs
+        if ($count == 0) {
+            $self->quit();
+        }
+
+        # Send KILL
+        if (time() - $self->{sigterm_start_time} > $self->{config}->{configuration}->{gorgone}->{gorgonecore}->{timeout}) {
+            foreach my $name (keys %{$self->{modules_register}}) {
+                $self->{modules_register}->{$name}->{kill_internal}->(logger => $gorgone->{logger});
+            }
+            $self->quit();
+        }
+    }
 }
 
 sub run {
@@ -861,56 +915,11 @@ sub run {
     $gorgone::standard::library::listener = $gorgone->{listener};
 
     $gorgone->{logger}->writeLogInfo("[core] Server accepting clients");
-    my $cb_timer_check = time();
+    $gorgone->{cb_timer_check} = time();
     while (1) {
-        my $count = 0;
-        my $poll = [];
+        $gorgone->check_exit_modules();
 
-        my $current_time = time();
-        if (time() - $cb_timer_check > 15 || $gorgone->{stop} == 1) {
-            foreach my $name (keys %{$gorgone->{modules_register}}) {
-                my ($count_module, $keepalive) = $gorgone->{modules_register}->{$name}->{check}->(
-                    gorgone => $gorgone,
-                    logger => $gorgone->{logger},
-                    dead_childs => $gorgone->{return_child},
-                    internal_socket => $gorgone->{internal_socket},
-                    dbh => $gorgone->{db_gorgone},
-                    poll => $poll,
-                    api_endpoints => $gorgone->{api_endpoints},
-                );
-
-                $count += $count_module;
-                if ($count_module == 0 && (!defined($keepalive) || $keepalive == 0)) {
-                    $gorgone->unload_module(package => $name);
-                }
-            }
-
-            $cb_timer_check = time();
-            # We can clean old return_child.
-            foreach my $pid (keys %{$gorgone->{return_child}}) {
-                if (($cb_timer_check - $gorgone->{return_child}->{$pid}) > 300) {
-                    delete $gorgone->{return_child}->{$pid};
-                }
-            }
-        }
-
-        if ($gorgone->{stop} == 1) {
-            # No childs
-            if ($count == 0) {
-                $gorgone->quit();
-            }
-            
-            # Send KILL
-            if (time() - $gorgone->{kill_timer} > $gorgone->{config}->{configuration}->{gorgone}->{gorgonecore}->{timeout}) {
-                foreach my $name (keys %{$gorgone->{modules_register}}) {
-                    $gorgone->{modules_register}->{$name}->{kill_internal}->(logger => $gorgone->{logger});
-                }
-                $gorgone->quit();
-            }
-        }
-
-        push @$poll, @{$gorgone->{poll}};
-        zmq_poll($poll, 5000);
+        zmq_poll($gorgone->{poll}, 5000);
 
         $gorgone->{listener}->check();
     }

@@ -111,8 +111,8 @@ sub gently {
     my (%options) = @_;
 
     $stop = 1;
-    $options{logger}->writeLogDebug("[dbcleaner] Send TERM signal");
-    if ($dbcleaner->{running} == 1) {
+    if (defined($dbcleaner->{running}) && $dbcleaner->{running} == 1) {
+        $options{logger}->writeLogDebug("[dbcleaner] Send TERM signal $dbcleaner->{pid}");
         CORE::kill('TERM', $dbcleaner->{pid});
     }
 }

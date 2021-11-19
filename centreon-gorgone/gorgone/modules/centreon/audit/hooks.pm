@@ -106,8 +106,8 @@ sub gently {
     my (%options) = @_;
 
     $stop = 1;
-    $options{logger}->writeLogDebug("[audit] Send TERM signal");
-    if ($audit->{running} == 1) {
+    if (defined($audit->{running}) && $audit->{running} == 1) {
+        $options{logger}->writeLogDebug("[audit] Send TERM signal $audit->{pid}");
         CORE::kill('TERM', $audit->{pid});
     }
 }

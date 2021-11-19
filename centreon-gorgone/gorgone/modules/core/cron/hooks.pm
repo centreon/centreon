@@ -104,8 +104,8 @@ sub gently {
     my (%options) = @_;
 
     $stop = 1;
-    $options{logger}->writeLogDebug("[cron] Send TERM signal");
-    if ($cron->{running} == 1) {
+    if (defined($cron->{running}) && $cron->{running} == 1) {
+        $options{logger}->writeLogDebug("[cron] Send TERM signal $cron->{pid}");
         CORE::kill('TERM', $cron->{pid});
     }
 }
