@@ -102,8 +102,8 @@ sub gently {
     my (%options) = @_;
 
     $stop = 1;
-    $options{logger}->writeLogDebug("[engine] Send TERM signal");
-    if ($engine->{running} == 1) {
+    if (defined($engine->{running}) && $engine->{running} == 1) {
+        $options{logger}->writeLogDebug("[engine] Send TERM signal $engine->{pid}");
         CORE::kill('TERM', $engine->{pid});
     }
 }

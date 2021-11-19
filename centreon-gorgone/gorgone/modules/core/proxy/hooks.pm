@@ -325,9 +325,9 @@ sub gently {
     my (%options) = @_;
 
     $stop = 1;
-    foreach my $pool_id (keys %{$pools}) {
-        $options{logger}->writeLogDebug("[proxy] Send TERM signal for pool '" . $pool_id . "'");
-        if ($pools->{$pool_id}->{running} == 1) {
+    foreach my $pool_id (keys %$pools) {
+        if (defined($pools->{$pool_id}->{running}) && $pools->{$pool_id}->{running} == 1) {
+            $options{logger}->writeLogDebug("[proxy] Send TERM signal for pool '" . $pool_id . "'");
             CORE::kill('TERM', $pools->{$pool_id}->{pid});
         }
     }

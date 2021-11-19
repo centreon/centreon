@@ -374,8 +374,7 @@ sub run {
         }
     ];
     while (1) {
-        # we try to do all we can
-        my $rev = zmq_poll($self->{poll}, 5000);
+        my $rev = scalar(zmq_poll($self->{poll}, 5000));
         if ($rev == 0 && $self->{stop} == 1) {
             $self->{logger}->writeLogInfo("[audit] $$ has quit");
             zmq_close($connector->{internal_socket});

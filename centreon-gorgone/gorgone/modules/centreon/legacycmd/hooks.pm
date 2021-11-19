@@ -108,8 +108,8 @@ sub gently {
     my (%options) = @_;
 
     $stop = 1;
-    $options{logger}->writeLogDebug("[legacycmd] Send TERM signal");
-    if ($legacycmd->{running} == 1) {
+    if (defined($legacycmd->{running}) && $legacycmd->{running} == 1) {
+        $options{logger}->writeLogDebug("[legacycmd] Send TERM signal $legacycmd->{running}");
         CORE::kill('TERM', $legacycmd->{pid});
     }
 }
