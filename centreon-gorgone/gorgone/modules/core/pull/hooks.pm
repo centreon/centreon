@@ -126,7 +126,7 @@ sub check {
     my (%options) = @_;
 
     if ($stop == 0) {
-        # If distant server restart, it's a not problem. It save the key. 
+        # If distant server restart, it's not problem. It save the key. 
         # But i don't have the registernode anymore. The ping is the 'registernode' for pull mode.
         $client->ping(
             poll => $options{gorgone}->{poll},

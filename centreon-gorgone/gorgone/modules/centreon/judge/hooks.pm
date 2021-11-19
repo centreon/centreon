@@ -107,8 +107,8 @@ sub gently {
     my (%options) = @_;
 
     $stop = 1;
-    $options{logger}->writeLogDebug('[judge] Send TERM signal');
-    if ($judge->{running} == 1) {
+    if (defined($judge->{running}) && $judge->{running} == 1) {
+        $options{logger}->writeLogDebug("[judge] Send TERM signal $judge->{pid}");
         CORE::kill('TERM', $judge->{pid});
     }
 }

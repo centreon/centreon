@@ -120,8 +120,8 @@ sub gently {
 
     $stop = 1;
     foreach my $container_id (keys %$containers) {
-        $options{logger}->writeLogDebug("[newtest] Send TERM signal for container '" . $container_id . "'");
-        if ($containers->{$container_id}->{running} == 1) {
+        if (defined($containers->{$container_id}->{running}) && $containers->{$container_id}->{running} == 1) {
+            $options{logger}->writeLogDebug("[newtest] Send TERM signal for container '" . $container_id . "'");
             CORE::kill('TERM', $containers->{$container_id}->{pid});
         }
     }

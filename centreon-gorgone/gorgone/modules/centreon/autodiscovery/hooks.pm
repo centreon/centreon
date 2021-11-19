@@ -110,8 +110,8 @@ sub gently {
     my (%options) = @_;
 
     $stop = 1;
-    $options{logger}->writeLogDebug("[autodiscovery] Send TERM signal");
-    if ($autodiscovery->{running} == 1) {
+    if (defined($autodiscovery->{running}) && $autodiscovery->{running} == 1) {
+        $options{logger}->writeLogDebug("[autodiscovery] Send TERM signal $autodiscovery->{pid}");
         CORE::kill('TERM', $autodiscovery->{pid});
     }
 }

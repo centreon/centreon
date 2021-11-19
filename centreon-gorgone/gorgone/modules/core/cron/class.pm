@@ -478,7 +478,7 @@ sub run {
             }
         );
     }
-        
+
     $self->{cron}->run(sleep => \&cron_sleep);
 
     zmq_close($connector->{internal_socket});
