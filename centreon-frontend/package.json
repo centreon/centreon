@@ -1,6 +1,6 @@
 {
   "name": "centreon-frontend",
-  "version": "21.10.0",
+  "version": "22.4.0",
   "description": "The monorepo to manage the frontend projects",
   "repository": {
     "type": "git",
