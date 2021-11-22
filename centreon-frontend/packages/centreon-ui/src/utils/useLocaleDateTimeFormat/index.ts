@@ -3,8 +3,9 @@ import 'dayjs/plugin/timezone';
 import 'dayjs/plugin/utc';
 import humanizeDuration from 'humanize-duration';
 import { equals } from 'ramda';
+import { useAtomValue } from 'jotai/utils';
 
-import { useUserContext } from '@centreon/ui-context';
+import { userAtom } from '@centreon/ui-context';
 
 import shortLocales from './sortLocales';
 
@@ -27,7 +28,7 @@ const timeFormat = 'LT';
 const dateTimeFormat = `${dateFormat} ${timeFormat}`;
 
 const useLocaleDateTimeFormat = (): LocaleDateTimeFormat => {
-  const { locale, timezone } = useUserContext();
+  const { locale, timezone } = useAtomValue(userAtom);
 
   const format = ({ date, formatString }: FormatParameters): string => {
     const normalizedLocale = locale.substring(0, 2);

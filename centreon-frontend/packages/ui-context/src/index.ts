@@ -1,10 +1,9 @@
-export { default as Context, useUserContext } from './UserContext';
-export { default as useUser } from './useUser';
-export { default as useAcl } from './useAcl';
-export { default as useDowntime } from './useDowntime';
-export { default as useRefreshInterval } from './useRefreshInterval';
-export { default as useCloudServices } from './useCloudServices';
-export { default as useAcknowledgement } from './useAcknowledgement';
+export { default as userAtom } from './userAtom';
+export { default as aclAtom } from './aclAtom';
+export { default as downtimeAtom } from './downtimeAtom';
+export { default as refreshIntervalAtom } from './refreshIntervalAtom';
+export { default as cloudServicesAtom } from './cloudServicesAtom';
+export { default as acknowledgementAtom } from './acknowledgementAtom';
 
 export type {
   User,
@@ -14,4 +13,5 @@ export type {
   Downtime,
   CloudServices,
   Acknowledgement,
+  Acl,
 } from './types';

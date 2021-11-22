@@ -1,7 +1,3 @@
-import * as React from 'react';
-
-import { UserContext } from './types';
-
 const defaultUser = {
   alias: '',
   isExportButtonEnabled: false,
@@ -38,33 +34,15 @@ const defaultDowntime = {
 
 const defaultRefreshInterval = 15;
 
-const defaultCloudServices = undefined;
-
 const defaultAcknowledgement = {
   persistent: false,
   sticky: false,
 };
-const defaultContext: UserContext = {
-  ...defaultUser,
-  acknowledgement: defaultAcknowledgement,
-  acl: defaultAcl,
-  cloudServices: undefined,
-  downtime: defaultDowntime,
-  refreshInterval: defaultRefreshInterval,
-};
-
-const Context = React.createContext<UserContext>(defaultContext);
-
-const useUserContext = (): UserContext => React.useContext(Context);
-
-export default Context;
 
 export {
-  useUserContext,
   defaultUser,
   defaultAcl,
   defaultDowntime,
   defaultRefreshInterval,
-  defaultCloudServices,
   defaultAcknowledgement,
 };

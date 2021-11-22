@@ -40,7 +40,7 @@ export interface Actions {
   service: ActionAcl;
 }
 
-interface Acl {
+export interface Acl {
   actions: Actions;
 }
 
