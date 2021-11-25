@@ -253,12 +253,14 @@ while ($row = $res->fetch()) {
             $properties['details_uri'] = $useDeprecatedPages
                 ? '/' . $centreonWebPath . '/main.php?p=20202&o=hd&host_name=' . $hostName
                 : $resourceController->buildHostDetailsUri($properties['host_id']);
-            $properties['services_uri'] = $buildServicegroupUri(
-                [$servicegroup],
-                [$serviceType],
-                [],
-                'h.name:' . $hostName
-            );
+            $properties['services_uri'] = $useDeprecatedPages
+                ? '/' . $centreonWebPath . '/main.php?p=20201&host_search=' . $hostName . '&sg=' . $servicegroup['id']
+                : $buildServicegroupUri(
+                    [$servicegroup],
+                    [$serviceType],
+                    [],
+                    'h.name:' . $hostName
+                );
         }
 
         foreach ($serviceStates as $hostId => &$serviceState) {
