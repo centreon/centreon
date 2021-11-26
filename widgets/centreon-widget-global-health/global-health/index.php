@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005-2020 Centreon
+ * Copyright 2005-2021 Centreon
  * Centreon is developed by : Julien Mathis and Romain Le Merlus under
  * GPL Licence 2.0.
  *
@@ -112,7 +112,7 @@ try {
                 jQuery("#global_health").html(htmlData);
                 let h = jQuery("#global_health").prop("scrollHeight") + 36;
                 parent.iResize(window.name, h);
-                jQuery("#global_health").find("img, style, script, link").load(function () {
+                jQuery("#global_health").find("img, style, script, link").on('load', function () {
                     let h = jQuery("#global_health").prop("scrollHeight") + 36;
                     parent.iResize(window.name, h);
                 });
