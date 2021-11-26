@@ -4,7 +4,7 @@
 import groovy.json.JsonSlurper
 
 properties([buildDiscarder(logRotator(numToKeepStr: '50'))])
-def serie = '21.10'
+def serie = '22.04'
 def maintenanceBranch = "${serie}.x"
 if (env.BRANCH_NAME.startsWith('release-')) {
   env.BUILD = 'RELEASE'
@@ -54,9 +54,11 @@ stage('Sonar analysis') {
       sh "./centreon-build/jobs/frontend/${serie}/frontend-analysis.sh"
     }
 
-    def qualityGate = waitForQualityGate()
-    if (qualityGate.status != 'OK') {
-      currentBuild.result = 'FAIL'
+    timeout (time:10, unit: 'MINUTES') {
+      def qualityGate = waitForQualityGate()
+      if (qualityGate.status != 'OK') {
+        currentBuild.result = 'FAIL'
+      }
     }
 
     source = readProperties file: 'source.properties'
