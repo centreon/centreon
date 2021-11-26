@@ -745,7 +745,7 @@ sub discovery_command_result {
                 instant => 1,
                 content => [
                     {
-                        command => $post_command->{command_line},
+                        command => $post_command->{command_line} . ' --token=' . $self->{tpapi_centreonv2}->get_token(),
                         metadata => {
                             job_id => $job_id,
                             source => 'autodiscovery-host-job-postcommand'
