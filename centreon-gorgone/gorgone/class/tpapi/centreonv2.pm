@@ -222,6 +222,12 @@ sub request {
     return (0, $decoded);
 }
 
+sub get_token {
+    my ($self, %options) = @_;
+
+    return $self->{token};
+}
+
 sub get_monitoring_hosts {
     my ($self, %options) = @_;
 
