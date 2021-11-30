@@ -32,19 +32,17 @@ use ZMQ::Constants qw(:all);
 use Net::SMTP;
 use XML::Simple;
 use POSIX qw(strftime);
+use Safe;
 
 sub new {
     my ($class, %options) = @_;
+    my $connector = $class->SUPER::new(%options);
+    bless $connector, $class;
 
-    my $connector  = {};
     $connector->{internal_socket} = $options{internal_socket};
-    $connector->{module_id} = $options{module_id};
-    $connector->{logger} = $options{logger};
-    $connector->{config} = $options{config};
-    $connector->{config_core} = $options{config_core};
-    $connector->{tpapi_clapi} = $options{tpapi_clapi};
     $connector->{class_object_centreon} = $options{class_object_centreon};
     $connector->{class_object_centstorage} = $options{class_object_centstorage};
+    $connector->{tpapi_clapi} = $options{tpapi_clapi};
     $connector->{mail_subject} = defined($connector->{config}->{mail_subject}) ? $connector->{config}->{mail_subject} : 'Centreon Auto Discovery';
     $connector->{mail_from} = defined($connector->{config}->{mail_from}) ? $connector->{config}->{mail_from} : 'centreon-autodisco';
 
@@ -54,7 +52,19 @@ sub new {
     $connector->{service_current_commands_poller} = {};
     $connector->{finished} = 0;
 
-    bless $connector, $class;
+    $connector->{safe_display} = Safe->new();
+    $connector->{safe_display}->share('$values');
+    $connector->{safe_display}->share('$description');
+    $connector->{safe_display}->permit_only(':default');
+    $connector->{safe_display}->share_from(
+        'gorgone::modules::centreon::autodiscovery::services::resources',
+        ['change_bytes']
+    );
+
+    $connector->{safe_cv} = Safe->new();
+    $connector->{safe_cv}->share('$values');
+    $connector->{safe_cv}->permit_only(':default');
+
     $connector->{uuid} = $connector->generate_token(length => 4) . ':' . $options{service_number};
     return $connector;
 }
@@ -216,21 +226,40 @@ sub audit_update {
     }
 }
 
+sub custom_variables {
+    my ($self, %options) = @_;
+
+    if (defined($options{rule}->{rule_variable_custom}) && $options{rule}->{rule_variable_custom} ne '') {
+        local $SIG{__DIE__} = 'IGNORE';
+
+        our $values = { attributes => $options{discovery_svc}->{attributes}, service_name => $options{discovery_svc}->{service_name} };
+        $self->{safe_cv}->reval($options{rule}->{rule_variable_custom}, 1);
+        if ($@) {
+            $self->{logger}->writeLogError("$options{logger_pre_message} custom variable code execution problem: " . $@);
+        } else {
+            $options{discovery_svc}->{attributes} = $values->{attributes};
+        }
+    }
+}
+
 sub get_description {
     my ($self, %options) = @_;
     
-    my $description = $options{discovery_svc}->{service_name};
+    my $desc = $options{discovery_svc}->{service_name};
     if (defined($self->{discovery}->{rules}->{ $options{rule_id} }->{rule_scan_display_custom}) && $self->{discovery}->{rules}->{ $options{rule_id} }->{rule_scan_display_custom} ne '') {
-        my $error;
-        local $SIG{__DIE__} = sub { $error = $_[0]; };
+        local $SIG{__DIE__} = 'IGNORE';
 
-        eval "$self->{discovery}->{rules}->{ $options{rule_id} }->{rule_scan_display_custom}";
-        if (defined($error)) {
-            $self->{logger}->writeLogError("$options{logger_pre_message} [" . $options{discovery_svc}->{service_name} . "] custom description code execution problem: " . $error);
+        our $description = $desc;
+        our $values = { attributes => $options{discovery_svc}->{attributes}, service_name => $options{discovery_svc}->{service_name} };
+        $self->{safe_display}->reval($self->{discovery}->{rules}->{ $options{rule_id} }->{rule_scan_display_custom}, 1);
+        if ($@) {
+            $self->{logger}->writeLogError("$options{logger_pre_message} [" . $options{discovery_svc}->{service_name} . "] custom description code execution problem: " . $@);
+        } else {
+            $desc = $description;
         }
     }
-    
-    return $description;
+
+    return $desc;
 }
 
 sub link_service_autodisco {
@@ -569,10 +598,9 @@ sub service_response_parsing {
                 logger_pre_message => $logger_pre_message
             )
         );
-        gorgone::modules::centreon::autodiscovery::services::resources::custom_variables(
+        $self->custom_variables(
             discovery_svc => $discovery_svc,
             rule => $self->{discovery}->{rules}->{ $options{rule_id} },
-            logger => $self->{logger},
             logger_pre_message => $logger_pre_message
         );
         my $macros = gorgone::modules::centreon::autodiscovery::services::resources::get_macros(
@@ -851,8 +879,8 @@ sub launchdiscovery {
 
         foreach (('rule_scan_display_custom', 'rule_variable_custom')) {
             if (defined($rules->{$rule_id}->{$_}) && $rules->{$rule_id}->{$_} ne '') {
-                $rules->{$rule_id}->{$_} =~ s/\$([a-zA-Z_\-\.]*?)\$/\$options{discovery_svc}->{attributes}->{$1}/msg;
-                $rules->{$rule_id}->{$_} =~ s/\@SERVICENAME\@/\$options{discovery_svc}->{service_name}/msg;
+                $rules->{$rule_id}->{$_} =~ s/\$([a-zA-Z_\-\.]*?)\$/\$values->{attributes}->{$1}/msg;
+                $rules->{$rule_id}->{$_} =~ s/\@SERVICENAME\@/\$values->{service_name}/msg;
             }
         }
     }
