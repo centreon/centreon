@@ -79,6 +79,7 @@ mkdir -p %{buildroot}/%{perl_vendorlib}/gorgone
 %{__cp} packaging/config.yaml %{buildroot}%{_sysconfdir}/centreon-gorgone/
 %{__cp} packaging/centreon.yaml %{buildroot}%{_sysconfdir}/centreon-gorgone/config.d/30-centreon.yaml
 %{__cp} packaging/centreon-api.yaml %{buildroot}%{_sysconfdir}/centreon-gorgone/config.d/31-centreon-api.yaml
+%{__cp} packaging/centreon-audit.yaml %{buildroot}%{_sysconfdir}/centreon-gorgone/config.d/50-centreon-audit.yaml
 
 %{_fixperms} $RPM_BUILD_ROOT/*
 
@@ -112,6 +113,7 @@ rm -rf %{buildroot}
 %files centreon-config
 %config(noreplace) %{_sysconfdir}/centreon-gorgone/config.d/30-centreon.yaml
 %config(noreplace) %{_sysconfdir}/centreon-gorgone/config.d/31-centreon-api.yaml
+%config(noreplace) %{_sysconfdir}/centreon-gorgone/config.d/50-centreon-audit.yaml
 
 %defattr(-, centreon-gorgone, centreon-gorgone, -)
 %{_localstatedir}/cache/centreon-gorgone/autodiscovery
