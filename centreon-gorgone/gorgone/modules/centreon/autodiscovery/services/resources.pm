@@ -533,20 +533,6 @@ sub change_bytes {
     return (sprintf("%.2f", $options{value}), $unit . (defined($options{network}) ? 'b' : 'B'));
 }
 
-sub custom_variables {
-    my (%options) = @_;
-
-    if (defined($options{rule}->{rule_variable_custom}) && $options{rule}->{rule_variable_custom} ne '') {
-        my $error;
-        local $SIG{__DIE__} = sub { $error = $_[0]; };
-
-        eval "$options{rule}->{rule_variable_custom}";
-        if (defined($error)) {
-            $options{logger}->writeLogError("$options{logger_pre_message} custom variable code execution problem: " . $error);
-        }  
-    }
-}
-
 sub check_exinc {
     my (%options) = @_;
     
