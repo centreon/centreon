@@ -3,6 +3,7 @@ const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 module.exports = ({ assetPublicPath, outputPath }) => ({
   externals: {
     '@centreon/ui-context': 'CentreonUiContext',
+    jotai: 'Jotai',
     react: 'React',
     'react-dom': 'ReactDOM',
     'react-i18next': 'ReactI18Next',
