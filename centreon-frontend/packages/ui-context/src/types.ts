@@ -46,4 +46,6 @@ export interface Acl {
 
 export interface Downtime {
   default_duration: number;
+  default_fixed: boolean;
+  default_with_services: boolean;
 }
