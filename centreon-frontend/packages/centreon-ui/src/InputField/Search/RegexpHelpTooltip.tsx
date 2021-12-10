@@ -19,14 +19,12 @@ const RegexpHelpTooltipContent = ({
   examples,
   tips,
 }: ContentProps): JSX.Element => (
-  <>
-    <Box padding={1}>
-      {description}
-      {labelExamples}
-      {examples}
-      {tips}
-    </Box>
-  </>
+  <Box padding={1}>
+    {description}
+    {labelExamples}
+    {examples}
+    {tips}
+  </Box>
 );
 
 interface TooltipProps {

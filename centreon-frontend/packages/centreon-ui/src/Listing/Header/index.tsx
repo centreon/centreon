@@ -112,81 +112,82 @@ const ListingHeader = ({
     return find(propEq('id', id), columns) as Column;
   };
 
-  const Content = ({
-    isInDragOverlay,
-    listeners,
-    attributes,
-    style,
-    isDragging,
-    itemRef,
-    id,
-  }: ContentProps): JSX.Element => {
-    return (
-      <SortableHeaderCellContent
-        column={getColumnById(id)}
-        columnConfiguration={columnConfiguration}
-        isDragging={isDragging}
-        isInDragOverlay={isInDragOverlay}
-        itemRef={itemRef}
-        sortField={sortField}
-        sortOrder={sortOrder}
-        style={style}
-        onSort={onSort}
-        {...listeners}
-        {...attributes}
-      />
-    );
-  };
+  const Content = React.useCallback(
+    ({
+      isInDragOverlay,
+      listeners,
+      attributes,
+      style,
+      isDragging,
+      itemRef,
+      id,
+    }: ContentProps): JSX.Element => {
+      return (
+        <SortableHeaderCellContent
+          column={getColumnById(id)}
+          columnConfiguration={columnConfiguration}
+          isDragging={isDragging}
+          isInDragOverlay={isInDragOverlay}
+          itemRef={itemRef}
+          sortField={sortField}
+          sortOrder={sortOrder}
+          style={style}
+          onSort={onSort}
+          {...listeners}
+          {...attributes}
+        />
+      );
+    },
+    [columnConfiguration, columns, sortField, sortOrder],
+  );
 
   return (
-    <>
-      <TableHead className={classes.row} component="div">
-        <TableRow className={classes.row} component="div">
-          {checkable && (
-            <CheckboxHeaderCell
-              component={
-                'div' as unknown as React.ElementType<TableCellBaseProps>
+    <TableHead className={classes.row} component="div">
+      <TableRow className={classes.row} component="div">
+        {checkable && (
+          <CheckboxHeaderCell
+            component={
+              'div' as unknown as React.ElementType<TableCellBaseProps>
+            }
+          >
+            <Checkbox
+              checked={selectedRowCount === rowCount}
+              className={classes.compactCell}
+              indeterminate={
+                selectedRowCount > 0 && selectedRowCount < rowCount
               }
-            >
-              <Checkbox
-                checked={selectedRowCount === rowCount}
-                className={classes.compactCell}
-                indeterminate={
-                  selectedRowCount > 0 && selectedRowCount < rowCount
-                }
-                inputProps={{ 'aria-label': 'Select all' }}
-                onChange={onSelectAllClick}
-              />
-              {not(isEmpty(predefinedRowsSelection)) && (
-                <PopoverMenu
-                  className={classes.predefinedRowsMenu}
-                  icon={<ArrowDropDownIcon />}
-                >
-                  {({ close }): JSX.Element => (
-                    <PredefinedSelectionList
-                      close={close}
-                      predefinedRowsSelection={predefinedRowsSelection}
-                      onSelectRowsWithCondition={onSelectRowsWithCondition}
-                    />
-                  )}
-                </PopoverMenu>
-              )}
-            </CheckboxHeaderCell>
-          )}
-          <SortableItems
-            updateSortableItemsOnItemsChange
-            Content={Content}
-            additionalProps={[sortField, sortOrder]}
-            collisionDetection={rectIntersection}
-            itemProps={['id']}
-            items={visibleColumns}
-            memoProps={memoProps}
-            sortingStrategy={rectSortingStrategy}
-            onDragOver={(newItems): void => onSelectColumns?.(newItems)}
-          />
-        </TableRow>
-      </TableHead>
-    </>
+              inputProps={{ 'aria-label': 'Select all' }}
+              onChange={onSelectAllClick}
+            />
+            {not(isEmpty(predefinedRowsSelection)) && (
+              <PopoverMenu
+                className={classes.predefinedRowsMenu}
+                icon={<ArrowDropDownIcon />}
+              >
+                {({ close }): JSX.Element => (
+                  <PredefinedSelectionList
+                    close={close}
+                    predefinedRowsSelection={predefinedRowsSelection}
+                    onSelectRowsWithCondition={onSelectRowsWithCondition}
+                  />
+                )}
+              </PopoverMenu>
+            )}
+          </CheckboxHeaderCell>
+        )}
+        <SortableItems
+          updateSortableItemsOnItemsChange
+          Content={Content}
+          additionalProps={[sortField, sortOrder]}
+          collisionDetection={rectIntersection}
+          itemProps={['id']}
+          items={visibleColumns}
+          memoProps={memoProps}
+          sortingStrategy={rectSortingStrategy}
+          onDragOver={(newItems): void => onSelectColumns?.(newItems)}
+        />
+      </TableRow>
+    </TableHead>
   );
 };
 

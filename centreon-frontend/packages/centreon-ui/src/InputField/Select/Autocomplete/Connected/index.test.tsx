@@ -16,10 +16,9 @@ import SingleConnectedAutocompleteField from './Single';
 
 const mockedAxios = axios as jest.Mocked<typeof axios>;
 
-mockedAxios.CancelToken = jest.requireActual('axios').CancelToken;
-
 const cancelTokenRequestParam = {
-  cancelToken: { promise: Promise.resolve({}) },
+  cancelToken: {},
+  headers: undefined,
 };
 
 const label = 'Connected Autocomplete';
@@ -111,7 +110,6 @@ describe(SingleConnectedAutocompleteField, () => {
         `${baseEndpoint}?page=1&search=${encodeURIComponent(
           '{"$and":[{"host.name":{"$lk":"%My Option 2%"}}]}',
         )}`,
-
         cancelTokenRequestParam,
       );
     });
@@ -138,7 +136,6 @@ describe(SingleConnectedAutocompleteField, () => {
         `${baseEndpoint}?page=1&search=${encodeURIComponent(
           '{"$and":[{"parent_name":{"$eq":"Centreon-Server"}}]}',
         )}`,
-
         cancelTokenRequestParam,
       );
     });

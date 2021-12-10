@@ -58,9 +58,7 @@ const IconAttach = ({
   return (
     <span className={classes.iconAttach} onClick={onClick}>
       {defaultImage && (
-        <>
-          <span className={classes.iconAttachLabel}>{labelNoIcon}</span>
-        </>
+        <span className={classes.iconAttachLabel}>{labelNoIcon}</span>
       )}
       {uploadedImage && (
         <img

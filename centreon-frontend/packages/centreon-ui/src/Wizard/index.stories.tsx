@@ -245,6 +245,67 @@ interface Values {
   password?: string;
 }
 
+const FirstStepWithTextField = (): JSX.Element => {
+  const { handleChange, handleBlur, values, errors, touched } =
+    useFormikContext<Values>();
+
+  return (
+    <TextField
+      error={!!touched.email && !!errors.email}
+      helperText={touched.email ? errors.email : ''}
+      label="email"
+      name="email"
+      type="email"
+      value={values.email}
+      onBlur={handleBlur('email')}
+      onChange={handleChange('email')}
+    />
+  );
+};
+
+const SecondStep = ({
+  disableNextOnSendingRequests,
+}: StepComponentProps): JSX.Element => {
+  const { setFieldValue, values, errors, touched, handleChange, handleBlur } =
+    useFormikContext<Values>();
+  React.useEffect(() => {
+    if (!values.password) {
+      disableNextOnSendingRequests([true, false, true]);
+      setTimeout(() => {
+        disableNextOnSendingRequests([false, false, false]);
+        setFieldValue('password', 'pwd');
+      }, 1000);
+    }
+  }, []);
+
+  return (
+    <TextField
+      error={!!touched.password && !!errors.password}
+      helperText={touched.password ? errors.password : ''}
+      label="password"
+      name="password"
+      type="password"
+      value={values.password}
+      onBlur={handleBlur('password')}
+      onChange={handleChange('password')}
+    />
+  );
+};
+
+const ThirdStep = (submitted: boolean): (() => JSX.Element) => {
+  const Step = (): JSX.Element => {
+    const { values } = useFormikContext();
+
+    return (
+      <Typography>
+        {!submitted ? JSON.stringify(values) : 'Values submitted'}
+      </Typography>
+    );
+  };
+
+  return Step;
+};
+
 const Form = (): JSX.Element => {
   const [submitted, setSubmitted] = React.useState<boolean>(false);
 
@@ -257,72 +318,19 @@ const Form = (): JSX.Element => {
       }}
       steps={[
         {
-          Component: (): JSX.Element => {
-            const { handleChange, handleBlur, values, errors, touched } =
-              useFormikContext<Values>();
-
-            return (
-              <TextField
-                error={!!touched.email && !!errors.email}
-                helperText={touched.email ? errors.email : ''}
-                label="email"
-                name="email"
-                type="email"
-                value={values.email}
-                onBlur={handleBlur('email')}
-                onChange={handleChange('email')}
-              />
-            );
-          },
+          Component: FirstStepWithTextField,
           stepName: 'First Step',
           validate: (values: Values): FormikErrors<FormikValues> => {
             const errors: FormikErrors<FormikValues> = {};
             if (!values.email) {
               errors.email = 'Required';
-            } else if (
-              !/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(values.email)
-            ) {
-              errors.email = 'Invalid email address';
             }
 
             return errors;
           },
         },
         {
-          Component: ({
-            disableNextOnSendingRequests,
-          }: StepComponentProps): JSX.Element => {
-            const {
-              setFieldValue,
-              values,
-              errors,
-              touched,
-              handleChange,
-              handleBlur,
-            } = useFormikContext<Values>();
-            React.useEffect(() => {
-              if (!values.password) {
-                disableNextOnSendingRequests([true, false, true]);
-                setTimeout(() => {
-                  disableNextOnSendingRequests([false, false, false]);
-                  setFieldValue('password', 'pwd');
-                }, 1000);
-              }
-            }, []);
-
-            return (
-              <TextField
-                error={!!touched.password && !!errors.password}
-                helperText={touched.password ? errors.password : ''}
-                label="password"
-                name="password"
-                type="password"
-                value={values.password}
-                onBlur={handleBlur('password')}
-                onChange={handleChange('password')}
-              />
-            );
-          },
+          Component: SecondStep,
           stepName: 'Second Step',
           validate: (values: Values): FormikErrors<FormikValues> => {
             const errors: FormikErrors<FormikValues> = {};
@@ -337,15 +345,7 @@ const Form = (): JSX.Element => {
           },
         },
         {
-          Component: (): JSX.Element => {
-            const { values } = useFormikContext();
-
-            return (
-              <Typography>
-                {!submitted ? JSON.stringify(values) : 'Values submitted'}
-              </Typography>
-            );
-          },
+          Component: ThirdStep(submitted),
           stepName: 'Third Step',
         },
       ]}

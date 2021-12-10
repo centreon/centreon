@@ -16,6 +16,17 @@ module.exports = {
   plugins: ['react', 'react-hooks', 'babel'],
   root: true,
   rules: {
+    camelcase: ['error', { ignoreDestructuring: true, properties: 'never' }],
+    'import/extensions': [
+      'error',
+      'ignorePackages',
+      {
+        js: 'never',
+        jsx: 'never',
+        ts: 'never',
+        tsx: 'never',
+      },
+    ],
     'import/no-extraneous-dependencies': 'off',
     'import/order': [
       'error',
@@ -42,23 +53,18 @@ module.exports = {
       },
     ],
     'no-use-before-define': 'off',
-    'import/extensions': [
+    'prefer-arrow-functions/prefer-arrow-functions': ['error'],
+    'react/function-component-definition': [
       'error',
-      'ignorePackages',
       {
-        js: 'never',
-        jsx: 'never',
-        ts: 'never',
-        tsx: 'never',
+        namedComponents: 'arrow-function',
+        unnamedComponents: 'arrow-function',
       },
     ],
     'react/jsx-filename-extension': ['error', { extensions: ['.jsx'] }],
-    camelcase: ['error', { ignoreDestructuring: true, properties: 'never' }],
     'react/jsx-key': 'error',
-    'prefer-arrow-functions/prefer-arrow-functions': ['error'],
     'react/jsx-no-duplicate-props': ['error', { ignoreCase: false }],
     'react/jsx-props-no-spreading': 'off',
-    'react-hooks/exhaustive-deps': 'off',
     'react/jsx-sort-props': [
       'error',
       {
@@ -66,18 +72,22 @@ module.exports = {
         shorthandFirst: true,
       },
     ],
-    'react-hooks/rules-of-hooks': 'error',
     'react/jsx-wrap-multilines': 'off',
     'react/jsx-wrap-multilines': ['error', { prop: false }],
     'react/state-in-constructor': 'off',
+    'react-hooks/exhaustive-deps': 'off',
+    'react-hooks/rules-of-hooks': 'error',
   },
   settings: {
     'import/resolver': {
       alias: {
         extensions: ['.ts', '.tsx', '.js', '.jsx'],
         map: [
-          ["@centreon/ui", "@centreon/centreon-frontend/packages/centreon-ui"],
-          ["@centreon/ui-context", "@centreon/centreon-frontend/packages/ui-context"]
+          ['@centreon/ui', '@centreon/centreon-frontend/packages/centreon-ui'],
+          [
+            '@centreon/ui-context',
+            '@centreon/centreon-frontend/packages/ui-context',
+          ],
         ],
       },
     },

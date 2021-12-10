@@ -1,23 +1,11 @@
 import React from 'react';
 
-import { useTranslation } from 'react-i18next';
-import {
-  always,
-  any,
-  cond,
-  equals,
-  isEmpty,
-  isNil,
-  not,
-  or,
-  pipe,
-  propEq,
-  T,
-} from 'ramda';
+import { any, equals, isEmpty, isNil, not, or, pipe } from 'ramda';
 
-import { Button, CircularProgress, Tooltip } from '@material-ui/core';
-import CheckIcon from '@material-ui/icons/Check';
-import SaveIcon from '@material-ui/icons/Save';
+import { Button, Tooltip } from '@material-ui/core';
+
+import StartIcon from './StartIcon';
+import Content from './Content';
 
 interface Props extends Record<string, unknown> {
   labelLoading?: string;
@@ -53,8 +41,6 @@ const SaveButton = ({
   size = 'medium',
   ...rest
 }: Props): JSX.Element => {
-  const { t } = useTranslation();
-
   const hasLabel = hasValue([labelLoading, labelSave, labelSucceeded]);
   const isSmall = equals('small', size);
 
@@ -63,41 +49,6 @@ const SaveButton = ({
     loading,
     succeeded,
   } as StartIconConfigProps;
-
-  const ButtonStartIcon = (): JSX.Element | null =>
-    cond<StartIconConfigProps, JSX.Element | null>([
-      [pipe(propEq('hasLabel', true), not), always(null)],
-      [propEq('succeeded', true), always(<CheckIcon />)],
-      [
-        propEq('loading', true),
-        always(
-          <CircularProgress
-            color="inherit"
-            size={isSmall ? smallIconSize : iconSize}
-          />,
-        ),
-      ],
-      [T, always(<SaveIcon />)],
-    ])(startIconConfig);
-
-  const ButtonContent = (): JSX.Element | string => {
-    if (succeeded) {
-      return labelSucceeded ? t(labelSucceeded) : <CheckIcon />;
-    }
-
-    if (loading) {
-      return labelLoading ? (
-        t(labelLoading)
-      ) : (
-        <CircularProgress
-          color="inherit"
-          size={isSmall ? smallIconSize : iconSize}
-        />
-      );
-    }
-
-    return labelSave ? t(labelSave) : <SaveIcon />;
-  };
 
   const style = hasLabel ? baseStyle : { ...baseStyle, width: 40 };
 
@@ -108,12 +59,28 @@ const SaveButton = ({
           aria-label="save button"
           color="primary"
           size={size}
-          startIcon={<ButtonStartIcon />}
+          startIcon={
+            <StartIcon
+              iconSize={iconSize}
+              isSmall={isSmall}
+              smallIconSize={smallIconSize}
+              startIconConfig={startIconConfig}
+            />
+          }
           style={not(isSmall) ? style : undefined}
           variant="contained"
           {...rest}
         >
-          {ButtonContent()}
+          {Content({
+            iconSize,
+            isSmall,
+            labelLoading,
+            labelSave,
+            labelSucceeded,
+            loading,
+            smallIconSize,
+            succeeded,
+          })}
         </Button>
       </div>
     </Tooltip>
