@@ -43,7 +43,7 @@
     "@testing-library/jest-dom": "^5.15.1",
     "@testing-library/react": "^12.1.2",
     "@testing-library/react-hooks": "^7.0.2",
-    "@types/ramda": "^0.27.58",
+    "@types/ramda": "0.27.45",
     "@typescript-eslint/eslint-plugin": "^5.5.0",
     "@typescript-eslint/parser": "^5.5.0",
     "awesome-typescript-loader": "^5.2.1",

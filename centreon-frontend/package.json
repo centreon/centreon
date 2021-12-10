@@ -64,6 +64,7 @@
     "@testing-library/react": "12.x",
     "@typescript-eslint/eslint-plugin": "^5.x",
     "@typescript-eslint/parser": "^5.x",
+    "@types/ramda": "0.27.45",
     "babel-jest": "27.x",
     "babel-loader": "8.x",
     "babel-merge": "3.x",

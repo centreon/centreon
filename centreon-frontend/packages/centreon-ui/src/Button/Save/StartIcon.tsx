@@ -25,7 +25,7 @@ const StartIcon = ({
   smallIconSize,
   iconSize,
 }: Props): JSX.Element | null =>
-  cond<Array<StartIconConfigProps>, JSX.Element | null>([
+  cond<StartIconConfigProps, JSX.Element | null>([
     [pipe(propEq('hasLabel', true), not), always(null)],
     [propEq('succeeded', true), always(<CheckIcon />)],
     [
