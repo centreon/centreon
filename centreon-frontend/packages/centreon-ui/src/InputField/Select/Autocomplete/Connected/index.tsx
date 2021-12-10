@@ -1,9 +1,9 @@
 import * as React from 'react';
 
-import { equals, prop, last, isEmpty, map, isNil } from 'ramda';
+import { equals, prop, last, isEmpty, map, isNil, pipe, not } from 'ramda';
 
 import { Typography, CircularProgress, useTheme } from '@material-ui/core';
-import debounce from '@material-ui/core/utils/debounce';
+import { debounce } from '@material-ui/core/utils';
 
 import { Props as AutocompleteFieldProps } from '..';
 import useRequest from '../../../../api/useRequest';
@@ -11,24 +11,22 @@ import { getData } from '../../../../api';
 import useIntersectionObserver from '../../../../utils/useIntersectionObserver';
 import { ListingModel, SelectEntry } from '../../../..';
 import Option from '../../Option';
+import {
+  ConditionsSearchParameter,
+  SearchParameter,
+} from '../../../../api/buildListingEndpoint/models';
 
 export interface ConnectedAutoCompleteFieldProps<TData> {
   conditionField?: keyof SelectEntry;
   field: string;
   getEndpoint: ({ search, page }) => string;
   getRenderedOptionText: (option: TData) => string;
+  getRequestHeaders?: Record<string, unknown>;
   initialPage: number;
-  search?: Record<string, unknown>;
+  searchConditions?: Array<ConditionsSearchParameter>;
 }
 
 type SearchDebounce = (value: string) => void;
-
-interface GetSearchConditionState {
-  conditions: Array<{
-    field: string;
-    values: { $ni: Array<string | number | undefined> };
-  }>;
-}
 
 const ConnectedAutocompleteField = (
   AutocompleteField: (props) => JSX.Element,
@@ -38,10 +36,11 @@ const ConnectedAutocompleteField = (
     initialPage = 1,
     getEndpoint,
     field,
-    search = {},
     open,
     conditionField = 'id',
+    searchConditions = [],
     getRenderedOptionText = (option): string => option.name,
+    getRequestHeaders,
     ...props
   }: ConnectedAutoCompleteFieldProps<TData> &
     Omit<AutocompleteFieldProps, 'options'>): JSX.Element => {
@@ -58,16 +57,18 @@ const ConnectedAutocompleteField = (
     });
 
     const loadOptions = ({ endpoint, loadMore = false }): void => {
-      sendRequest(endpoint).then(({ result, meta }) => {
-        const moreOptions = loadMore ? options : [];
+      sendRequest({ endpoint, headers: getRequestHeaders }).then(
+        ({ result, meta }) => {
+          const moreOptions = loadMore ? options : [];
 
-        setOptions(moreOptions.concat(result));
+          setOptions(moreOptions.concat(result));
 
-        const total = prop('total', meta) || 1;
-        const limit = prop('limit', meta) || 1;
+          const total = prop('total', meta) || 1;
+          const limit = prop('limit', meta) || 1;
 
-        setMaxPage(Math.ceil(total / limit));
-      });
+          setMaxPage(Math.ceil(total / limit));
+        },
+      );
     };
 
     const lastOptionRef = useIntersectionObserver({
@@ -77,7 +78,9 @@ const ConnectedAutocompleteField = (
       page,
     });
 
-    const getSearchCondition = (): GetSearchConditionState | undefined => {
+    const getExcludeSelectedValueCondition = ():
+      | ConditionsSearchParameter
+      | undefined => {
       const { value: selectedValue } = props;
 
       if (isEmpty(selectedValue || [])) {
@@ -89,49 +92,53 @@ const ConnectedAutocompleteField = (
         : [selectedValue];
 
       return {
-        conditions: [
-          {
-            field: conditionField,
-            values: {
-              $ni: map(
-                prop(conditionField),
-                selectedValues as Array<
-                  Record<keyof SelectEntry, string | number | undefined>
-                >,
-              ),
-            },
-          },
-        ],
-      };
-    };
-
-    const getSearchWithCondition = (): Record<string, unknown> | undefined => {
-      const searchCondition = getSearchCondition();
-
-      if (isNil(searchCondition)) {
-        return equals(search, {}) ? undefined : search;
-      }
-
-      return { ...search, ...getSearchCondition() };
-    };
-
-    const getSearchParameter = (
-      value: string,
-    ): Record<string, unknown> | undefined => {
-      if (isEmpty(value)) {
-        return getSearchWithCondition();
-      }
-
-      return {
-        ...getSearchWithCondition(),
-        regex: {
-          fields: [field],
-          value,
+        field: conditionField,
+        values: {
+          $ni: map(
+            prop(conditionField),
+            selectedValues as Array<
+              Record<keyof SelectEntry, string | undefined>
+            >,
+          ) as Array<string>,
         },
       };
     };
 
-    const debouncedChangeText = React.useRef<SearchDebounce>(
+    const getSearchedValueCondition = (
+      searchedValue: string,
+    ): ConditionsSearchParameter | undefined => {
+      if (isEmpty(searchedValue)) {
+        return undefined;
+      }
+
+      return {
+        field,
+        values: {
+          $lk: `%${searchedValue}%`,
+        },
+      };
+    };
+
+    const getSearchParameter = (value: string): SearchParameter | undefined => {
+      const excludeSelectedValueCondition = getExcludeSelectedValueCondition();
+      const searchedValueCondition = getSearchedValueCondition(value);
+
+      const conditions = [
+        excludeSelectedValueCondition,
+        searchedValueCondition,
+        ...searchConditions,
+      ].filter(pipe(isNil, not)) as Array<ConditionsSearchParameter>;
+
+      if (isEmpty(conditions)) {
+        return undefined;
+      }
+
+      return {
+        conditions,
+      };
+    };
+
+    const debouncedChangeText = React.useCallback(
       debounce<SearchDebounce>((value): void => {
         if (page === initialPage) {
           loadOptions({
@@ -144,10 +151,11 @@ const ConnectedAutocompleteField = (
 
         setPage(1);
       }, 500),
+      [page, setPage, searchConditions],
     );
 
     const changeText = (event): void => {
-      debouncedChangeText.current(event.target.value);
+      debouncedChangeText(event.target.value);
       setSearchValue(event.target.value);
     };
 

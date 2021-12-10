@@ -122,11 +122,11 @@ const getSearchQueryParameterValue = (
   const conditionSearchesParam =
     getConditionsSearchQueryParameterValue(conditions);
 
-  const result = reject<
-    | RegexSearchQueryParameterValue
-    | GetListsSearchQueryParameterValueProps
-    | GetConditionsSearchQueryParameterValueState
-  >(isNil, [regexSearchParam, listSearchesParam, conditionSearchesParam]);
+  const result = reject(isNil, [
+    regexSearchParam,
+    listSearchesParam,
+    conditionSearchesParam,
+  ]);
 
   if (result.length === 1) {
     return head(result);

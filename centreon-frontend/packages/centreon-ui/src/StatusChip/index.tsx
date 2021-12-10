@@ -86,7 +86,7 @@ const StatusChip = ({
     <Chip
       className={classes.chip}
       clickable={clickable}
-      label={label?.toUpperCase()}
+      label={label}
       size="small"
       {...rest}
     />
