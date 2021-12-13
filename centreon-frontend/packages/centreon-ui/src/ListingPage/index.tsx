@@ -6,6 +6,9 @@ import { makeStyles, Theme } from '@material-ui/core';
 
 import WithPanel from '../Panel/WithPanel';
 
+import FilterSkeleton from './FilterSkeleton';
+import ListingSkeleton from './ListingSkeleton';
+
 const useStyles = makeStyles<Theme>((theme) => {
   return {
     filters: {
@@ -47,10 +50,16 @@ const ListingPage = ({
 
   return (
     <div className={clsx(classes.page, pageClassName)}>
-      <div className={classes.filters}>{filter}</div>
+      <div className={classes.filters}>
+        <React.Suspense fallback={<FilterSkeleton />}>{filter}</React.Suspense>
+      </div>
 
       <WithPanel fixed={panelFixed} open={panelOpen} panel={panel}>
-        <div className={classes.listing}>{listing}</div>
+        <div className={classes.listing}>
+          <React.Suspense fallback={<ListingSkeleton />}>
+            {listing}
+          </React.Suspense>
+        </div>
       </WithPanel>
     </div>
   );
