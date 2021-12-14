@@ -39,8 +39,6 @@ use JSON::XS;
 my %handlers = (TERM => {}, HUP => {});
 my ($connector);
 
-plugin('basic_auth_plus');
-
 websocket '/' => sub {
     my $mojo = shift;
 
@@ -272,6 +270,20 @@ sub run {
         }
     });
 
+    $self->{basic_auth_plus} = 1;
+    eval {
+        local $SIG{__DIE__} = 'IGNORE';
+
+        app->plugin('basic_auth_plus');
+    };
+    if ($@) {
+        $self->{basic_auth_plus} = 0;
+    }
+    if ($self->{auth_enabled} == 1 && $self->{basic_auth_plus} == 0 && $self->{allowed_hosts_enabled} == 0) {
+        $connector->{logger}->writeLogError("[httpserverng] need to install the module basic_auth_plus");
+        exit(1);
+    }
+
     app->mode('production');
     my $daemon = Mojo::Server::Daemon->new(
         app    => app,
@@ -397,7 +409,7 @@ sub api_call {
         }
     }
 
-    if ($self->{auth_enabled} == 1) {
+    if ($self->{auth_enabled} == 1 && $self->{basic_auth_plus} == 1) {
         my ($hash_ref, $auth_ok) = $options{mojo}->basic_auth(
             'Realm Name' => {
                 username => $self->{config}->{auth}->{user},
