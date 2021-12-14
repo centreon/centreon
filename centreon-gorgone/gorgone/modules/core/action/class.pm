@@ -445,12 +445,14 @@ sub event {
             $message =~ /^\[(.*?)\]\s+\[(.*?)\]\s+\[.*?\]\s+(.*)$/m;
             
             my ($action, $token) = ($1, $2);
-            my $data = JSON::XS->new->utf8->decode($3);
+            my ($rv, $data) = $connector->json_decode(argument => $3, token => $token);
+            next if ($rv);
+
             if (defined($data->{parameters}->{no_fork})) {
                 if ((my $method = $connector->can('action_' . lc($action)))) {
                     $method->($connector, token => $token, data => $data);
                 }
-            } else{
+            } else {
                 $connector->create_child(action => $action, token => $token, data => $data);
             }
         }

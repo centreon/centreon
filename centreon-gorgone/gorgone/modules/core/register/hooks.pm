@@ -22,7 +22,6 @@ package gorgone::modules::core::register::hooks;
 
 use warnings;
 use strict;
-use JSON::XS;
 use gorgone::class::core;
 use gorgone::modules::core::register::class;
 use gorgone::standard::constants qw(:all);
@@ -60,22 +59,6 @@ sub init {
 
 sub routing {
     my (%options) = @_;
-
-    my $data;
-    eval {
-        $data = JSON::XS->new->utf8->decode($options{data});
-    };
-    if ($@) {
-        $options{logger}->writeLogError("[register] Cannot decode json data: $@");
-        gorgone::standard::library::add_history(
-            dbh => $options{dbh},
-            code => GORGONE_ACTION_FINISH_KO,
-            token => $options{token},
-            data => { message => 'gorgoneregister: cannot decode json' },
-            json_encode => 1
-        );
-        return undef;
-    }
     
     if ($options{action} eq 'REGISTERREADY') {
         $register->{ready} = 1;
@@ -98,7 +81,7 @@ sub routing {
         identity => 'gorgone-register',
         action => $options{action},
         data => $options{data},
-        token => $options{token},
+        token => $options{token}
     );
 }
 

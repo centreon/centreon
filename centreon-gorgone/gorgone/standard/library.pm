@@ -214,6 +214,18 @@ sub zmq_core_response {
     zmq_sendmsg($options{socket}, $msg, ZMQ_DONTWAIT);
 }
 
+sub zmq_getfd {
+    my (%options) = @_;
+
+    return zmq_getsockopt($options{socket}, ZMQ_FD);
+}
+
+sub zmq_events {
+    my (%options) = @_;
+
+    return zmq_getsockopt($options{socket}, ZMQ_EVENTS);
+}
+
 sub uncrypt_message {
     my (%options) = @_;
     my $plaintext;
