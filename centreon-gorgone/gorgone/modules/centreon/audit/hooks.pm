@@ -25,7 +25,6 @@ use strict;
 use gorgone::class::core;
 use gorgone::modules::centreon::audit::class;
 use gorgone::standard::constants qw(:all);
-use JSON::XS;
 
 use constant NAMESPACE => 'centreon';
 use constant NAME => 'audit';
@@ -60,22 +59,6 @@ sub init {
 
 sub routing {
     my (%options) = @_;
-
-    my $data;
-    eval {
-        $data = JSON::XS->new->utf8->decode($options{data});
-    };
-    if ($@) {
-        $options{logger}->writeLogError("[audit] Cannot decode json data: $@");
-        gorgone::standard::library::add_history(
-            dbh => $options{dbh},
-            code => GORGONE_ACTION_FINISH_KO,
-            token => $options{token},
-            data => { message => 'gorgone-audit: cannot decode json' },
-            json_encode => 1
-        );
-        return undef;
-    }
     
     if ($options{action} eq 'CENTREONAUDITREADY') {
         $audit->{ready} = 1;
@@ -98,7 +81,7 @@ sub routing {
         identity => 'gorgone-audit',
         action => $options{action},
         data => $options{data},
-        token => $options{token},
+        token => $options{token}
     );
 }
 

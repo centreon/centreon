@@ -49,7 +49,7 @@ websocket '/echo' => sub {
 
 get '/' => sub { 
     my $self = shift;
- 
+
     $self->render(json => { message => 'ok' })
       if $self->basic_auth(
         "Realm Name" => {

@@ -22,7 +22,6 @@ package gorgone::modules::centreon::anomalydetection::hooks;
 
 use warnings;
 use strict;
-use JSON::XS;
 use gorgone::class::core;
 use gorgone::modules::centreon::anomalydetection::class;
 use gorgone::standard::constants qw(:all);
@@ -30,7 +29,7 @@ use gorgone::standard::constants qw(:all);
 use constant NAMESPACE => 'centreon';
 use constant NAME => 'anomalydetection';
 use constant EVENTS => [
-    { event => 'CENTREONADREADY' },
+    { event => 'CENTREONADREADY' }
 ];
 
 my $config_core;
@@ -58,22 +57,6 @@ sub init {
 
 sub routing {
     my (%options) = @_;
-
-    my $data;
-    eval {
-        $data = JSON::XS->new->utf8->decode($options{data});
-    };
-    if ($@) {
-        $options{logger}->writeLogError("[anomalydetection] Cannot decode json data: $@");
-        gorgone::standard::library::add_history(
-            dbh => $options{dbh},
-            code => GORGONE_ACTION_FINISH_KO,
-            token => $options{token},
-            data => { message => 'gorgone-anomalydetection: cannot decode json' },
-            json_encode => 1
-        );
-        return undef;
-    }
     
     if ($options{action} eq 'CENTREONADREADY') {
         $process->{ready} = 1;
@@ -96,7 +79,7 @@ sub routing {
         identity => 'gorgone-anomalydetection',
         action => $options{action},
         data => $options{data},
-        token => $options{token},
+        token => $options{token}
     );
 }
 

@@ -148,6 +148,13 @@ sub json_decode {
         my $container = '';
         $container = 'container ' . $self->{container_id} . ': ' if (defined($self->{container_id}));
         $self->{logger}->writeLogError("[$self->{module_id}] ${container}$options{method} - cannot decode json: $@");
+        if (defined($options{token})) {
+            $self->send_log(
+                code => GORGONE_ACTION_FINISH_KO,
+                token => $options{token},
+                data => { message => 'cannot decode json' }
+            );
+        }
         return 1;
     }
 
