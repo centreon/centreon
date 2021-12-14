@@ -236,7 +236,8 @@ sub create_child {
     $options{message} =~ /^\[(.*?)\]\s+\[(.*?)\]\s+\[.*?\]\s+(.*)$/m;
     
     my ($action, $token) = ($1, $2);
-    my $data = JSON::XS->new->utf8->decode($3);
+    my ($rv, $data) = $self->json_decode(argument => $3, token => $token);
+    return undef if ($rv);
     
     if ($action =~ /^BCAST.*/) {
         if ((my $method = $self->can('action_' . lc($action)))) {

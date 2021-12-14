@@ -25,7 +25,6 @@ use strict;
 use gorgone::class::core;
 use gorgone::modules::core::cron::class;
 use gorgone::standard::constants qw(:all);
-use JSON::XS;
 
 use constant NAMESPACE => 'core';
 use constant NAME => 'cron';
@@ -58,22 +57,6 @@ sub init {
 
 sub routing {
     my (%options) = @_;
-
-    my $data;
-    eval {
-        $data = JSON::XS->new->utf8->decode($options{data});
-    };
-    if ($@) {
-        $options{logger}->writeLogError("[cron] Cannot decode json data: $@");
-        gorgone::standard::library::add_history(
-            dbh => $options{dbh},
-            code => GORGONE_ACTION_FINISH_KO,
-            token => $options{token},
-            data => { message => 'gorgonecron: cannot decode json' },
-            json_encode => 1
-        );
-        return undef;
-    }
     
     if ($options{action} eq 'CRONREADY') {
         $cron->{ready} = 1;
@@ -96,7 +79,7 @@ sub routing {
         identity => 'gorgone-cron',
         action => $options{action},
         data => $options{data},
-        token => $options{token},
+        token => $options{token}
     );
 }
 

@@ -378,17 +378,21 @@ sub event {
         $connector->{logger}->writeLogDebug("[cron] Event: $message");
         if ($message =~ /^\[ACK\]\s+\[(.*?)\]\s+(.*)$/m) {
             my $token = $1;
-            my $data = JSON::XS->new->utf8->decode($2);
+            my ($rv, $data) = $connector->json_decode(argument => $2, token => $token);
+            next if ($rv);
+
             $connector->{ack} = {
                 token => $token,
-                data => $data,
+                data => $data
             };
         } else {
             $message =~ /^\[(.*?)\]\s+\[(.*?)\]\s+\[.*?\]\s+(.*)$/m;
             if ((my $method = $connector->can('action_' . lc($1)))) {
                 $message =~ /^\[(.*?)\]\s+\[(.*?)\]\s+\[.*?\]\s+(.*)$/m;
                 my ($action, $token) = ($1, $2);
-                my $data = JSON::XS->new->utf8->decode($3);
+                my ($rv, $data) = $connector->json_decode(argument => $3, token => $token);
+                next if ($rv);
+
                 $method->($connector, token => $token, data => $data);
             }
         }        
