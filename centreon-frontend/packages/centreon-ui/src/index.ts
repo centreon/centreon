@@ -120,3 +120,5 @@ export { default as unsavedChangesTranslatedLabels } from './Dialog/UnsavedChang
 
 export { default as SortableItems } from './SortableItems';
 export type { RootComponentProps } from './SortableItems';
+
+export { default as LoadingSkeleton } from './LoadingSkeleton';

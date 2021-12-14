@@ -3,7 +3,8 @@ import * as React from 'react';
 import clsx from 'clsx';
 
 import { makeStyles, useTheme } from '@material-ui/core';
-import { Skeleton } from '@material-ui/lab';
+
+import LoadingSkeleton from '../LoadingSkeleton';
 
 import BaseRectSkeleton, { useSkeletonStyles } from './BaseSkeleton';
 import ContentSkeleton from './ContentSkeleton';
@@ -67,7 +68,7 @@ const PageSkeleton = ({
                 height={theme.spacing(headerHeight)}
               />
             )}
-            <Skeleton
+            <LoadingSkeleton
               animation={animate ? 'wave' : false}
               className={clsx(
                 classes.breadcrumbSkeleton,

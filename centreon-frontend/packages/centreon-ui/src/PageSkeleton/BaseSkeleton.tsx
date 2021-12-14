@@ -1,7 +1,9 @@
 import * as React from 'react';
 
-import { Skeleton, SkeletonProps } from '@material-ui/lab';
+import { SkeletonProps } from '@material-ui/lab';
 import { makeStyles } from '@material-ui/core';
+
+import LoadingSkeleton from '../LoadingSkeleton';
 
 import { PageSkeletonProps } from '.';
 
@@ -18,7 +20,7 @@ const BaseRectSkeleton = ({
   const classes = useSkeletonStyles();
 
   return (
-    <Skeleton
+    <LoadingSkeleton
       animation={animate ? 'wave' : false}
       className={classes.skeletonLayout}
       variant="rect"

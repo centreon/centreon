@@ -11,9 +11,9 @@ import {
   Theme,
   useTheme,
 } from '@material-ui/core';
-import { Skeleton } from '@material-ui/lab';
 
 import { useViewportIntersection } from '../utils/useViewportIntersection';
+import LoadingSkeleton from '../LoadingSkeleton';
 
 import { Column, ColumnConfiguration, RowColorCondition } from './models';
 
@@ -81,14 +81,14 @@ const Row = React.memo<RowProps>(
           {checkable && (
             <div className={classes.skeletonContainer}>
               <div>
-                <Skeleton className={classes.skeleton} variant="rect" />
+                <LoadingSkeleton className={classes.skeleton} />
               </div>
             </div>
           )}
           {visibleColumns.map(({ id }) => (
             <div className={classes.skeletonContainer} key={`loading_${id}`}>
               <div>
-                <Skeleton className={classes.skeleton} variant="rect" />
+                <LoadingSkeleton className={classes.skeleton} />
               </div>
             </div>
           ))}

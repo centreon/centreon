@@ -1,7 +1,8 @@
 import * as React from 'react';
 
 import { useTheme, makeStyles, alpha } from '@material-ui/core';
-import { Skeleton } from '@material-ui/lab';
+
+import LoadingSkeleton from '../LoadingSkeleton';
 
 const useStyles = makeStyles((theme) => ({
   skeleton: {
@@ -20,7 +21,7 @@ const MenuLoader = ({ width = 15, animate = true }: Props): JSX.Element => {
   const classes = useStyles();
 
   return (
-    <Skeleton
+    <LoadingSkeleton
       animation={animate ? 'wave' : false}
       className={classes.skeleton}
       height={theme.spacing(5)}
