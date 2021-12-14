@@ -36,6 +36,9 @@ Requires:   perl(NetAddr::IP)
 Requires:   perl(Hash::Merge)
 Requires:   perl(Clone)
 Requires:   perl(Sys::Syslog)
+Requires:   perl(Mojolicious::Lite)
+Requires:   perl(Mojo::Server::Daemon)
+Requires:   perl(Authen::Simple::Password)
 AutoReqProv: no
 
 %description
