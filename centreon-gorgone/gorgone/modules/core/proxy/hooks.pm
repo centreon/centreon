@@ -648,7 +648,7 @@ sub ping_send {
         } elsif ($register_nodes->{$id}->{type} eq 'pull') {
             $constatus_ping->{$id}->{in_progress_ping} = 1;
             $constatus_ping->{$id}->{in_progress_ping_pull} = time();
-            routing(action => 'PING', target => $id, data => '{}', dbh => $options{dbh}, logger => $options{logger});
+            routing(socket => $internal_socket, action => 'PING', target => $id, data => '{}', dbh => $options{dbh}, logger => $options{logger});
         }
     }
 }
@@ -670,7 +670,7 @@ sub full_sync_history {
         if ($register_nodes->{$id}->{type} eq 'push_zmq') {
             routing(socket => $internal_socket, action => 'GETLOG', target => $id, data => '{}', dbh => $options{dbh}, logger => $options{logger});
         } elsif ($register_nodes->{$id}->{type} eq 'pull') {
-            routing(action => 'GETLOG', target => $id, data => '{}', dbh => $options{dbh}, logger => $options{logger});
+            routing(socket => $internal_socket, action => 'GETLOG', target => $id, data => '{}', dbh => $options{dbh}, logger => $options{logger});
         }
     }
 }
