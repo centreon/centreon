@@ -344,6 +344,7 @@ sub load_module {
 
     foreach my $method_name (('register', 'routing', 'kill', 'kill_internal', 'gently', 'check', 'init', 'broadcast')) {
         unless ($self->{modules_register}->{$package}->{$method_name} = $package->can($method_name)) {
+            delete $self->{modules_register}->{$package};
             $self->{logger}->writeLogError("[core] No function '$method_name' for module '" . $options{config_module}->{name} . "'");
             return 0;
         }
@@ -354,9 +355,10 @@ sub load_module {
         config_core => $self->{config}->{configuration}->{gorgone},
         config_db_centreon => $self->{config}->{configuration}->{centreon}->{database}->{db_configuration},
         config_db_centstorage => $self->{config}->{configuration}->{centreon}->{database}->{db_realtime},
-        logger => $self->{logger},
+        logger => $self->{logger}
     );
     if ($loaded == 0) {
+        delete $self->{modules_register}->{$package};
         $self->{logger}->writeLogError("[core] Module '" . $options{config_module}->{name} . "' cannot be loaded");
         return 0;
     }
