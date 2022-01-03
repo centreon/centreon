@@ -4,13 +4,8 @@ import * as React from 'react';
 
 import { equals, gte, lt, not, pluck } from 'ramda';
 
-import {
-  TableRowProps,
-  TableRow,
-  makeStyles,
-  Theme,
-  useTheme,
-} from '@material-ui/core';
+import { TableRowProps, TableRow, Theme, useTheme } from '@mui/material';
+import makeStyles from '@mui/styles/makeStyles';
 
 import { useViewportIntersection } from '../utils/useViewportIntersection';
 import LoadingSkeleton from '../LoadingSkeleton';
@@ -187,7 +182,7 @@ const IntersectionRow = (props: Props): JSX.Element => {
   const theme = useTheme();
   const { isInViewport, setElement } = useViewportIntersection({
     root: rowRef.current?.parentElement?.parentElement?.parentElement,
-    rootMargin: `${theme.spacing(20)}px 0px ${theme.spacing(20)}px 0px`,
+    rootMargin: `${theme.spacing(20)} 0px ${theme.spacing(20)} 0px`,
   });
   const classes = useStyles();
 

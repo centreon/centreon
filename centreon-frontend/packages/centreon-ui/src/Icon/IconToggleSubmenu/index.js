@@ -3,8 +3,8 @@
 
 import React from 'react';
 
-import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
-import ExpandLessIcon from '@material-ui/icons/ExpandLess';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 
 const IconToggleSubmenu = ({ rotate, onClick }) => {
   const ExpandIcon = rotate ? ExpandLessIcon : ExpandMoreIcon;

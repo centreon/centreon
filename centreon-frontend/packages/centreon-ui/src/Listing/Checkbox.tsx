@@ -4,7 +4,7 @@ import {
   useTheme,
   Checkbox as MuiCheckbox,
   CheckboxProps,
-} from '@material-ui/core';
+} from '@mui/material';
 
 const Checkbox = (
   props: Omit<CheckboxProps, 'size' | 'color'>,

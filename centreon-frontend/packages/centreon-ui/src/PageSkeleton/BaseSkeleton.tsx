@@ -1,7 +1,7 @@
 import * as React from 'react';
 
-import { SkeletonProps } from '@material-ui/lab';
-import { makeStyles } from '@material-ui/core';
+import { SkeletonProps } from '@mui/material';
+import makeStyles from '@mui/styles/makeStyles';
 
 import LoadingSkeleton from '../LoadingSkeleton';
 
@@ -23,7 +23,7 @@ const BaseRectSkeleton = ({
     <LoadingSkeleton
       animation={animate ? 'wave' : false}
       className={classes.skeletonLayout}
-      variant="rect"
+      variant="rectangular"
       width="100%"
       {...props}
     />

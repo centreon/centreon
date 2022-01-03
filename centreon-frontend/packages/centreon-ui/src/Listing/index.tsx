@@ -26,7 +26,7 @@ import {
 } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
-import { makeStyles, Theme } from '@material-ui/core/styles';
+import makeStyles from '@mui/styles/makeStyles';
 import {
   Table,
   TableBody,
@@ -34,7 +34,7 @@ import {
   LinearProgress,
   TableRow,
   useTheme,
-} from '@material-ui/core';
+} from '@mui/material';
 
 import useMemoComponent from '../utils/useMemoComponent';
 import useKeyObserver from '../utils/useKeyObserver';
@@ -75,7 +75,7 @@ const getVisibleColumns = ({
 
 const loadingIndicatorHeight = 3;
 
-const useStyles = makeStyles<Theme>((theme) => ({
+const useStyles = makeStyles((theme) => ({
   actionBar: {
     alignItems: 'center',
     display: 'flex',
@@ -427,6 +427,10 @@ const Listing = <TRow extends { id: RowId }>({
     return `${checkbox}${columnTemplate}`;
   };
 
+  const changeLimit = (updatedLimit: string): void => {
+    onLimitChange?.(Number(updatedLimit));
+  };
+
   const visibleColumns = getVisibleColumns({
     columnConfiguration,
     columns,
@@ -465,7 +469,7 @@ const Listing = <TRow extends { id: RowId }>({
             limit={limit}
             paginated={paginated}
             totalRows={totalRows}
-            onLimitChange={onLimitChange}
+            onLimitChange={changeLimit}
             onPaginate={onPaginate}
             onResetColumns={onResetColumns}
             onSelectColumns={onSelectColumns}
@@ -590,7 +594,9 @@ const Listing = <TRow extends { id: RowId }>({
                     disableRowCondition={(): boolean => false}
                     isRowHovered={false}
                     style={{
-                      gridColumn: `auto / span ${columns.length + 1}`,
+                      gridColumn: `auto / span ${
+                        checkable ? columns.length + 1 : columns.length
+                      }`,
                     }}
                   >
                     {loading ? (

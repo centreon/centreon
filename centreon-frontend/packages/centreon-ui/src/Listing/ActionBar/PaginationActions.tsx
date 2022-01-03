@@ -2,13 +2,13 @@ import React from 'react';
 
 import { useTranslation } from 'react-i18next';
 
-import { makeStyles } from '@material-ui/core';
-import IconButton from '@material-ui/core/IconButton';
-import FirstPageIcon from '@material-ui/icons/FirstPage';
-import KeyboardArrowLeft from '@material-ui/icons/KeyboardArrowLeft';
-import KeyboardArrowRight from '@material-ui/icons/KeyboardArrowRight';
-import LastPageIcon from '@material-ui/icons/LastPage';
-import { TablePaginationActionsProps } from '@material-ui/core/TablePagination/TablePaginationActions';
+import makeStyles from '@mui/styles/makeStyles';
+import IconButton from '@mui/material/IconButton';
+import FirstPageIcon from '@mui/icons-material/FirstPage';
+import KeyboardArrowLeft from '@mui/icons-material/KeyboardArrowLeft';
+import KeyboardArrowRight from '@mui/icons-material/KeyboardArrowRight';
+import LastPageIcon from '@mui/icons-material/LastPage';
+import { TablePaginationActionsProps } from '@mui/material/TablePagination/TablePaginationActions';
 
 import {
   labelFirstPage,
@@ -59,6 +59,7 @@ const PaginationActions = ({
       <IconButton
         aria-label={t(labelFirstPage)}
         disabled={isFirstPage}
+        size="large"
         onClick={changeToFirstPage}
       >
         <FirstPageIcon />
@@ -66,6 +67,7 @@ const PaginationActions = ({
       <IconButton
         aria-label={t(labelPreviousPage)}
         disabled={isFirstPage}
+        size="large"
         onClick={changeToPreviousPage}
       >
         <KeyboardArrowLeft />
@@ -73,6 +75,7 @@ const PaginationActions = ({
       <IconButton
         aria-label={t(labelNextPage)}
         disabled={isLastPage}
+        size="large"
         onClick={changeToNextPage}
       >
         <KeyboardArrowRight />
@@ -80,6 +83,7 @@ const PaginationActions = ({
       <IconButton
         aria-label={t(labelLastPage)}
         disabled={isLastPage}
+        size="large"
         onClick={changeToLastPage}
       >
         <LastPageIcon />

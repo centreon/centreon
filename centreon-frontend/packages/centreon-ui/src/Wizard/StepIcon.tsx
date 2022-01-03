@@ -1,8 +1,9 @@
 import React from 'react';
 
-import { makeStyles, StepIconProps } from '@material-ui/core';
-import Avatar from '@material-ui/core/Avatar';
-import Check from '@material-ui/icons/Check';
+import { StepIconProps } from '@mui/material';
+import makeStyles from '@mui/styles/makeStyles';
+import Avatar from '@mui/material/Avatar';
+import Check from '@mui/icons-material/Check';
 
 const useStepIconStyles = makeStyles((theme) => ({
   avatar: {

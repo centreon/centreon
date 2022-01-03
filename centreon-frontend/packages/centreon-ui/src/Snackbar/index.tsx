@@ -3,9 +3,9 @@ import React from 'react';
 import { useSnackbar, SnackbarContent } from 'notistack';
 import { isNil, not } from 'ramda';
 
-import { IconButton, makeStyles } from '@material-ui/core';
-import IconClose from '@material-ui/icons/Close';
-import { Alert } from '@material-ui/lab';
+import { IconButton, Alert } from '@mui/material';
+import makeStyles from '@mui/styles/makeStyles';
+import IconClose from '@mui/icons-material/Close';
 
 import Severity from './Severity';
 
@@ -60,7 +60,12 @@ const Snackbar = React.forwardRef(
       <SnackbarContent ref={ref}>
         <Alert
           action={[
-            <IconButton color="inherit" key="close" onClick={close}>
+            <IconButton
+              color="inherit"
+              key="close"
+              size="large"
+              onClick={close}
+            >
               <IconClose className={classes.closeIcon} />
             </IconButton>,
           ]}

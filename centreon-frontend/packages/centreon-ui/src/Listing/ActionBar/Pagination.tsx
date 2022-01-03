@@ -2,8 +2,8 @@ import * as React from 'react';
 
 import { equals } from 'ramda';
 
-import TablePagination from '@material-ui/core/TablePagination';
-import { withStyles } from '@material-ui/core/styles';
+import TablePagination from '@mui/material/TablePagination';
+import withStyles from '@mui/styles/withStyles';
 
 const styles = {
   toolbar: {

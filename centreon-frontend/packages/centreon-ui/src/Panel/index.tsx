@@ -4,16 +4,9 @@ import * as React from 'react';
 
 import { isEmpty, isNil } from 'ramda';
 
-import {
-  makeStyles,
-  Paper,
-  Slide,
-  Divider,
-  AppBar,
-  Tabs,
-  Theme,
-} from '@material-ui/core';
-import IconClose from '@material-ui/icons/Clear';
+import { Paper, Slide, Divider, AppBar, Tabs, Theme } from '@mui/material';
+import makeStyles from '@mui/styles/makeStyles';
+import IconClose from '@mui/icons-material/Clear';
 
 import IconButton from '../Button/Icon';
 
@@ -93,7 +86,7 @@ export interface Props {
   width?: number;
 }
 
-const Panel = React.forwardRef<HTMLDivElement, Props>(
+const Panel = React.forwardRef(
   (
     {
       header,
@@ -107,7 +100,7 @@ const Panel = React.forwardRef<HTMLDivElement, Props>(
       minWidth = 550,
       headerBackgroundColor,
       onResize,
-    }: Omit<Props, 'memoProps'>,
+    }: Props,
     ref,
   ): JSX.Element => {
     const classes = useStyles({ headerBackgroundColor, width });
@@ -181,6 +174,7 @@ const Panel = React.forwardRef<HTMLDivElement, Props>(
                 {onClose && (
                   <IconButton
                     ariaLabel={labelClose}
+                    size="large"
                     title={labelClose}
                     onClick={onClose}
                   >
@@ -206,7 +200,10 @@ const Panel = React.forwardRef<HTMLDivElement, Props>(
                 </Tabs>
               )}
             </AppBar>
-            <div className={classes.contentContainer} ref={ref}>
+            <div
+              className={classes.contentContainer}
+              ref={ref as React.RefObject<HTMLDivElement>}
+            >
               <div className={classes.content}>{selectedTab}</div>
             </div>
           </div>

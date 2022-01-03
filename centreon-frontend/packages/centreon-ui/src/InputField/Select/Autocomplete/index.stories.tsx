@@ -1,6 +1,6 @@
 import React from 'react';
 
-import EditIcon from '@material-ui/icons/Edit';
+import EditIcon from '@mui/icons-material/Edit';
 
 import AutocompleteField from '.';
 

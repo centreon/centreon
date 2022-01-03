@@ -122,3 +122,4 @@ export { default as SortableItems } from './SortableItems';
 export type { RootComponentProps } from './SortableItems';
 
 export { default as LoadingSkeleton } from './LoadingSkeleton';
+export * from './testRenderer';

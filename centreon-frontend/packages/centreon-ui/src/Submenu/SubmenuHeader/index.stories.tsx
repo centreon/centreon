@@ -1,6 +1,6 @@
 import React from 'react';
 
-import HostIcon from '@material-ui/icons/Dns';
+import HostIcon from '@mui/icons-material/Dns';
 
 import { IconHeader, StatusCounter, IconToggleSubmenu } from '../..';
 import { SeverityCode } from '../../StatusChip';

@@ -8,9 +8,9 @@ import {
   InputAdornment,
   TextFieldProps,
   Theme,
-  makeStyles,
   Tooltip,
-} from '@material-ui/core';
+} from '@mui/material';
+import makeStyles from '@mui/styles/makeStyles';
 
 enum Size {
   compact = 'compact',
@@ -93,6 +93,7 @@ const TextField = React.forwardRef(
       <Tooltip placement="top" title={tooltipTitle}>
         <MuiTextField
           InputProps={{
+            ...rest.InputProps,
             className: clsx({
               [classes.transparent]: transparent,
             }),

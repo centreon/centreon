@@ -1,12 +1,7 @@
 import * as React from 'react';
 
-import {
-  Grid,
-  Button,
-  Typography,
-  CircularProgress,
-  makeStyles,
-} from '@material-ui/core';
+import { Grid, Button, Typography, CircularProgress } from '@mui/material';
+import makeStyles from '@mui/styles/makeStyles';
 
 import { ActionsBarProps } from './models';
 
@@ -54,7 +49,6 @@ const ActionsBar = ({
         {!isFirstStep && (
           <Button
             aria-label={labelPrevious}
-            color="default"
             onClick={goToPreviousStep}
             onKeyPress={preventEnterKey}
           >

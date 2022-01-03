@@ -2,7 +2,8 @@ import * as React from 'react';
 
 import clsx from 'clsx';
 
-import { makeStyles, Theme } from '@material-ui/core';
+import { Theme } from '@mui/material';
+import makeStyles from '@mui/styles/makeStyles';
 
 import WithPanel from '../Panel/WithPanel';
 

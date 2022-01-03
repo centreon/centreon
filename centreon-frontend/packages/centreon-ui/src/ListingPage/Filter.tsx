@@ -1,6 +1,7 @@
 import * as React from 'react';
 
-import { Paper, makeStyles } from '@material-ui/core';
+import { Paper } from '@mui/material';
+import makeStyles from '@mui/styles/makeStyles';
 
 import { useMemoComponent } from '..';
 
@@ -19,7 +20,11 @@ const Filter = React.forwardRef(
     const classes = useStyles();
 
     return (
-      <Paper square className={classes.content} ref={ref}>
+      <Paper
+        square
+        className={classes.content}
+        ref={ref as React.RefObject<HTMLDivElement>}
+      >
         {content}
       </Paper>
     );

@@ -9,16 +9,10 @@ import {
 } from '@dnd-kit/sortable';
 import { not } from 'ramda';
 
-import {
-  Paper,
-  Theme,
-  Typography,
-  makeStyles,
-  Grid,
-  IconButton,
-} from '@material-ui/core';
-import MoreVertIcon from '@material-ui/icons/MoreVert';
-import { CreateCSSProperties } from '@material-ui/styles';
+import { Paper, Theme, Typography, Grid, IconButton } from '@mui/material';
+import makeStyles from '@mui/styles/makeStyles';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
+import { CreateCSSProperties } from '@mui/styles';
 
 import SortableItems, { RootComponentProps } from '.';
 

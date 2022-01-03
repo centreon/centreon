@@ -1,7 +1,8 @@
 import React from 'react';
 
-import { render, fireEvent } from '@testing-library/react';
 import { prop } from 'ramda';
+
+import { render, fireEvent } from '../testRenderer';
 
 import { ColumnType } from './models';
 import { labelAddColumns } from './translatedLabels';
@@ -210,7 +211,7 @@ describe('Listing', () => {
   it(`unselects a column when the "selectable" parameter is set and a column is unselected from the corresponding menu`, () => {
     const onSelectColumns = jest.fn();
 
-    const { getAllByText, getByTitle } = render(
+    const { getAllByText, getByLabelText } = render(
       <Listing
         columnConfiguration={{
           selectedColumnIds: columns.map(prop('id')),
@@ -223,7 +224,7 @@ describe('Listing', () => {
       />,
     );
 
-    fireEvent.click(getByTitle(labelAddColumns).firstChild as HTMLElement);
+    fireEvent.click(getByLabelText(labelAddColumns).firstChild as HTMLElement);
 
     fireEvent.click(getAllByText('description')[1]);
 

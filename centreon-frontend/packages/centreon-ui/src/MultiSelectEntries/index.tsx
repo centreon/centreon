@@ -4,15 +4,9 @@ import React, { Ref } from 'react';
 
 import clsx from 'clsx';
 
-import {
-  Box,
-  Chip,
-  Grid,
-  FormHelperText,
-  Typography,
-  makeStyles,
-} from '@material-ui/core';
-import IconCreate from '@material-ui/icons/Create';
+import { Box, Chip, Grid, FormHelperText, Typography } from '@mui/material';
+import makeStyles from '@mui/styles/makeStyles';
+import IconCreate from '@mui/icons-material/Create';
 
 import useHover from './useHover';
 
@@ -24,7 +18,7 @@ const useStyles = makeStyles((theme) => ({
     width: '95%',
   },
   container: {
-    borderRadius: theme.spacing(1) * 0.5,
+    borderRadius: theme.spacing(0.5),
     cursor: 'pointer',
     outline: 'none',
     padding: theme.spacing(1),

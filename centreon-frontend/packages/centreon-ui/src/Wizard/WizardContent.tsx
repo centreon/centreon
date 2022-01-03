@@ -3,7 +3,7 @@ import * as React from 'react';
 import { useFormikContext } from 'formik';
 import { equals } from 'ramda';
 
-import { makeStyles } from '@material-ui/core';
+import makeStyles from '@mui/styles/makeStyles';
 
 import { WizardContentProps } from './models';
 import ActionsBar from './ActionsBar';

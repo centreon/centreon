@@ -1,14 +1,14 @@
 import * as React from 'react';
 
 import axios from 'axios';
+
 import {
   render,
   fireEvent,
   waitFor,
   RenderResult,
-} from '@testing-library/react';
-import { act } from 'react-test-renderer';
-
+  act,
+} from '../../../../testRenderer';
 import buildListingEndpoint from '../../../../api/buildListingEndpoint';
 import { ConditionsSearchParameter } from '../../../../api/buildListingEndpoint/models';
 
@@ -16,10 +16,7 @@ import SingleConnectedAutocompleteField from './Single';
 
 const mockedAxios = axios as jest.Mocked<typeof axios>;
 
-const cancelTokenRequestParam = {
-  cancelToken: {},
-  headers: undefined,
-};
+mockedAxios.CancelToken = jest.requireActual('axios').CancelToken;
 
 const label = 'Connected Autocomplete';
 const placeholder = 'Type here...';
@@ -80,7 +77,7 @@ describe(SingleConnectedAutocompleteField, () => {
 
     expect(mockedAxios.get).toHaveBeenCalledWith(
       `${baseEndpoint}?page=1`,
-      cancelTokenRequestParam,
+      expect.anything(),
     );
 
     await waitFor(() => {
@@ -98,7 +95,7 @@ describe(SingleConnectedAutocompleteField, () => {
 
     expect(mockedAxios.get).toHaveBeenCalledWith(
       `${baseEndpoint}?page=1`,
-      cancelTokenRequestParam,
+      expect.anything(),
     );
 
     fireEvent.change(getByPlaceholderText(placeholder), {
@@ -110,7 +107,7 @@ describe(SingleConnectedAutocompleteField, () => {
         `${baseEndpoint}?page=1&search=${encodeURIComponent(
           '{"$and":[{"host.name":{"$lk":"%My Option 2%"}}]}',
         )}`,
-        cancelTokenRequestParam,
+        expect.anything(),
       );
     });
   });
@@ -136,7 +133,7 @@ describe(SingleConnectedAutocompleteField, () => {
         `${baseEndpoint}?page=1&search=${encodeURIComponent(
           '{"$and":[{"parent_name":{"$eq":"Centreon-Server"}}]}',
         )}`,
-        cancelTokenRequestParam,
+        expect.anything(),
       );
     });
   });

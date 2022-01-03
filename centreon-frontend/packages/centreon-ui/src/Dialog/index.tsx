@@ -8,7 +8,7 @@ import {
   DialogActions,
   DialogProps,
   CircularProgress,
-} from '@material-ui/core';
+} from '@mui/material';
 
 export type Props = {
   children: React.ReactNode;

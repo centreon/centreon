@@ -2,15 +2,15 @@ import React from 'react';
 
 import {
   Typography,
-  makeStyles,
   AccordionSummary,
   AccordionDetails,
   Accordion,
   styled,
-  withStyles,
   ListItem,
-} from '@material-ui/core';
-import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
+} from '@mui/material';
+import makeStyles from '@mui/styles/makeStyles';
+import withStyles from '@mui/styles/withStyles';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
 const useStyles = makeStyles((theme) => ({
   details: {

@@ -1,9 +1,9 @@
 import * as React from 'react';
 
-import { Skeleton, SkeletonProps } from '@material-ui/lab';
+import { Skeleton, SkeletonProps } from '@mui/material';
 
 const LoadingSkeleton = (props: SkeletonProps): JSX.Element => (
-  <Skeleton animation="wave" variant="rect" {...props} />
+  <Skeleton animation="wave" variant="rectangular" {...props} />
 );
 
 export default LoadingSkeleton;

@@ -4,7 +4,8 @@ import { map, find, propEq } from 'ramda';
 import { rectIntersection } from '@dnd-kit/core';
 import { rectSortingStrategy } from '@dnd-kit/sortable';
 
-import { lighten, makeStyles } from '@material-ui/core';
+import { lighten } from '@mui/material';
+import makeStyles from '@mui/styles/makeStyles';
 
 import { SelectEntry } from '../..';
 import SortableItems from '../../../../SortableItems';

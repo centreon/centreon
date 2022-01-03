@@ -4,8 +4,9 @@ import React from 'react';
 
 import { prop } from 'ramda';
 
-import { makeStyles, Button } from '@material-ui/core';
-import { grey } from '@material-ui/core/colors';
+import { Button } from '@mui/material';
+import makeStyles from '@mui/styles/makeStyles';
+import { grey } from '@mui/material/colors';
 
 import { ListingProps } from '..';
 

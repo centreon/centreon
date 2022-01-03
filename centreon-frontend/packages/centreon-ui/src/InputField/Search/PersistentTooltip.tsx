@@ -2,9 +2,10 @@ import * as React from 'react';
 
 import { isNil, cond, T } from 'ramda';
 
-import { Tooltip, makeStyles, IconButton } from '@material-ui/core';
-import IconHelp from '@material-ui/icons/HelpOutline';
-import IconClose from '@material-ui/icons/HighlightOff';
+import { Tooltip, IconButton } from '@mui/material';
+import makeStyles from '@mui/styles/makeStyles';
+import IconHelp from '@mui/icons-material/HelpOutline';
+import IconClose from '@mui/icons-material/HighlightOff';
 
 const useStyles = makeStyles((theme) => ({
   buttonClose: {
@@ -71,12 +72,7 @@ const PersistentTooltip = ({
   );
 
   return (
-    <Tooltip
-      interactive
-      classes={{ tooltip: classes.tooltip }}
-      open={open}
-      title={title}
-    >
+    <Tooltip classes={{ tooltip: classes.tooltip }} open={open} title={title}>
       <IconButton
         aria-label={labelSearchHelp}
         size="small"

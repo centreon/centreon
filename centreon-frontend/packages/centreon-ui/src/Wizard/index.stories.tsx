@@ -2,7 +2,7 @@ import * as React from 'react';
 
 import { useFormikContext, FormikErrors, FormikValues } from 'formik';
 
-import { Typography, TextField } from '@material-ui/core';
+import { Typography, TextField } from '@mui/material';
 
 import { StepComponentProps } from './models';
 

@@ -4,8 +4,8 @@ import { findIndex, not, propEq } from 'ramda';
 import { DraggableSyntheticListeners } from '@dnd-kit/core';
 import clsx from 'clsx';
 
-import { Chip, Typography } from '@material-ui/core';
-import CloseIcon from '@material-ui/icons/Close';
+import { Chip, Typography, useTheme } from '@mui/material';
+import CloseIcon from '@mui/icons-material/Close';
 
 import { DraggableSelectEntry, SortableListProps } from './SortableList';
 
@@ -40,7 +40,9 @@ const SortableListContent = ({
     style,
     itemRef,
     index,
+    isDragging,
   }: ContentProps): JSX.Element => {
+    const theme = useTheme();
     const labelItemRef = React.useRef<HTMLElement | null>(null);
 
     const mouseUp = (event: React.MouseEvent): void => {
@@ -83,6 +85,9 @@ const SortableListContent = ({
             </Typography>
           }
           size="small"
+          style={{
+            backgroundColor: isDragging ? theme.palette.grey[300] : undefined,
+          }}
           onDelete={deleteItem}
           onMouseEnter={mouseEnter}
           onMouseLeave={mouseLeave}

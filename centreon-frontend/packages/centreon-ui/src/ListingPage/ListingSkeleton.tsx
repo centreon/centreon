@@ -1,7 +1,7 @@
 import * as React from 'react';
 
-import { Skeleton } from '@material-ui/lab';
-import { makeStyles } from '@material-ui/core';
+import { makeStyles } from '@mui/styles';
+import { Skeleton } from '@mui/material';
 
 const useStyles = makeStyles((theme) => ({
   listingSkeleton: {
@@ -17,7 +17,7 @@ const ListingSkeleton = (): JSX.Element => {
     <Skeleton
       animation="wave"
       className={classes.listingSkeleton}
-      variant="rect"
+      variant="rectangular"
     />
   );
 };

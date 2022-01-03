@@ -1,13 +1,13 @@
 import React from 'react';
 
-import AccessibilityIcon from '@material-ui/icons/Accessibility';
+import AccessibilityIcon from '@mui/icons-material/Accessibility';
 
 import IconButton from '.';
 
 export default { title: 'Button/Icon' };
 
 export const normal = (): JSX.Element => (
-  <IconButton title="Icon" onClick={(): undefined => undefined}>
+  <IconButton size="large" title="Icon" onClick={(): undefined => undefined}>
     <AccessibilityIcon />
   </IconButton>
 );

@@ -3,7 +3,7 @@
 
 import React from 'react';
 
-import DnsIcon from '@material-ui/icons/Dns';
+import DnsIcon from '@mui/icons-material/Dns';
 
 import IconHeader from '.';
 

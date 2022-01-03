@@ -17,10 +17,11 @@ import {
   pluck,
 } from 'ramda';
 
-import { Typography } from '@material-ui/core';
+import { Typography } from '@mui/material';
 
 import { ConnectedAutoCompleteFieldProps } from '../Connected';
 import { Props as SingleAutocompletefieldProps } from '..';
+import TextField from '../../../Text';
 
 import SortableList, { DraggableSelectEntry } from './SortableList';
 
@@ -31,13 +32,16 @@ export interface ItemActionProps {
 }
 
 interface Props {
+  error?: string;
   initialValues?: Array<DraggableSelectEntry>;
   itemClick?: (item: ItemActionProps) => void;
   itemHover?: (item: ItemActionProps | null) => void;
+  label: string;
   onSelectedValuesChange?: (
     values: Array<DraggableSelectEntry>,
     valueAddedOrDeleted?: DraggableSelectEntry,
   ) => Array<DraggableSelectEntry>;
+  required?: boolean;
 }
 
 const DraggableAutocomplete = (
@@ -48,6 +52,9 @@ const DraggableAutocomplete = (
     initialValues,
     itemClick,
     itemHover,
+    label,
+    required,
+    error,
     ...props
   }: Props &
     (
@@ -162,8 +169,28 @@ const DraggableAutocomplete = (
       setInputText(null);
     };
 
-    const renderOption = (option): JSX.Element => (
-      <Typography variant="body2">{option.name}</Typography>
+    const renderOption = (renderProps, option): JSX.Element => (
+      <div key={option.id} style={{ width: '100%' }}>
+        <li {...renderProps}>
+          <Typography variant="body2">{option.name}</Typography>
+        </li>
+      </div>
+    );
+
+    const renderInput = (renderProps): JSX.Element => (
+      <TextField
+        {...renderProps}
+        error={error}
+        helperText={error}
+        inputProps={{
+          ...renderProps.inputProps,
+          value: inputText || '',
+        }}
+        label={label}
+        required={required}
+        onBlur={blurInput}
+        onChange={changeInput}
+      />
     );
 
     React.useEffect(() => {
@@ -190,13 +217,12 @@ const DraggableAutocomplete = (
         handleHomeEndKeys
         selectOnFocus
         disableCloseOnSelect={false}
-        getOptionSelected={F}
+        isOptionEqualToValue={F}
+        renderInput={renderInput}
         renderOption={renderOption}
         renderTags={renderTags}
         value={selectedValues}
-        onBlur={blurInput}
         onChange={onChange}
-        onInputChange={changeInput}
         {...props}
       />
     );

@@ -2,7 +2,8 @@ import * as React from 'react';
 
 import { isNil } from 'ramda';
 
-import { Checkbox, makeStyles, Typography } from '@material-ui/core';
+import { Checkbox, Typography } from '@mui/material';
+import makeStyles from '@mui/styles/makeStyles';
 
 const useStyles = makeStyles((theme) => ({
   checkbox: {

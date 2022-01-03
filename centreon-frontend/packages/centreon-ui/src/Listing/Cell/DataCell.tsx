@@ -2,7 +2,8 @@ import * as React from 'react';
 
 import { equals, props } from 'ramda';
 
-import { makeStyles, Tooltip, Typography } from '@material-ui/core';
+import { Tooltip, Typography } from '@mui/material';
+import makeStyles from '@mui/styles/makeStyles';
 
 import {
   Column,

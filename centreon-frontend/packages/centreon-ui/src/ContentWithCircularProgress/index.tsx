@@ -2,7 +2,8 @@ import React from 'react';
 
 import clsx from 'clsx';
 
-import { CircularProgress, makeStyles } from '@material-ui/core';
+import { CircularProgress } from '@mui/material';
+import makeStyles from '@mui/styles/makeStyles';
 
 const useStyles = makeStyles(() => ({
   alignCenter: {

@@ -2,8 +2,9 @@ import * as React from 'react';
 
 import { isNil } from 'ramda';
 
-import { List, ListItem, makeStyles, Slide, Paper } from '@material-ui/core';
-import ForwardIcon from '@material-ui/icons/ArrowForwardIos';
+import { List, ListItem, Slide, Paper } from '@mui/material';
+import makeStyles from '@mui/styles/makeStyles';
+import ForwardIcon from '@mui/icons-material/ArrowForwardIos';
 
 import Panel from '..';
 import ContentWithCircularLoading from '../../ContentWithCircularProgress';

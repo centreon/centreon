@@ -3,8 +3,9 @@ import React from 'react';
 import clsx from 'clsx';
 import numeral from 'numeral';
 
-import { makeStyles, Theme, Avatar } from '@material-ui/core';
-import { CreateCSSProperties } from '@material-ui/styles';
+import { Theme, Avatar } from '@mui/material';
+import makeStyles from '@mui/styles/makeStyles';
+import { CreateCSSProperties } from '@mui/styles';
 
 import { getStatusColors } from '@centreon/ui';
 

@@ -1,8 +1,9 @@
 import React from 'react';
 
-import { makeStyles, Theme, Chip, alpha, ChipProps } from '@material-ui/core';
-import { CreateCSSProperties } from '@material-ui/styles';
-import { grey } from '@material-ui/core/colors';
+import { Theme, Chip, alpha, ChipProps } from '@mui/material';
+import makeStyles from '@mui/styles/makeStyles';
+import { CreateCSSProperties } from '@mui/styles';
+import { grey } from '@mui/material/colors';
 
 enum SeverityCode {
   High = 1,

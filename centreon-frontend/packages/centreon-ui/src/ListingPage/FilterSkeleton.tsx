@@ -1,7 +1,7 @@
 import * as React from 'react';
 
-import { Skeleton } from '@material-ui/lab';
-import { makeStyles } from '@material-ui/core';
+import { Skeleton } from '@mui/material';
+import { makeStyles } from '@mui/styles';
 
 const useStyles = makeStyles((theme) => ({
   filterSkeleton: {
@@ -17,7 +17,7 @@ const FilterSkeleton = (): JSX.Element => {
     <Skeleton
       animation="wave"
       className={classes.filterSkeleton}
-      variant="rect"
+      variant="rectangular"
     />
   );
 };

@@ -1,13 +1,14 @@
 import * as React from 'react';
 
+import * as Yup from 'yup';
+
 import {
   render,
   fireEvent,
   waitFor,
   screen,
   RenderResult,
-} from '@testing-library/react';
-import * as Yup from 'yup';
+} from '../testRenderer';
 
 import { StepComponentProps } from './models';
 

@@ -8,13 +8,13 @@ import {
   MenuItem,
   FormControl,
   InputLabel,
-  makeStyles,
   Theme,
   SelectProps,
   FormHelperText,
   ListSubheader,
   Divider,
-} from '@material-ui/core';
+} from '@mui/material';
+import makeStyles from '@mui/styles/makeStyles';
 
 import Option from './Option';
 

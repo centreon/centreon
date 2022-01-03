@@ -4,14 +4,14 @@ import { always, and, equals, ifElse, isNil } from 'ramda';
 import clsx from 'clsx';
 
 import {
-  makeStyles,
   TableCellBaseProps,
   TableSortLabel,
   Theme,
   Tooltip,
-} from '@material-ui/core';
-import DragIndicatorIcon from '@material-ui/icons/MoreVert';
-import { CreateCSSProperties } from '@material-ui/styles';
+} from '@mui/material';
+import makeStyles from '@mui/styles/makeStyles';
+import DragIndicatorIcon from '@mui/icons-material/MoreVert';
+import { CreateCSSProperties } from '@mui/styles';
 
 import { Props as ListingProps } from '../..';
 import { Column } from '../../models';
@@ -26,7 +26,7 @@ const useStyles = makeStyles<Theme, StylesProps>((theme) => ({
     alignItems: 'center',
     display: 'flex',
     minHeight: theme.spacing(3),
-    paddingLeft: theme.spacing(1.5),
+    padding: theme.spacing(0, 1.5),
   },
   dragHandle: ({ isDragging }): CreateCSSProperties<StylesProps> => ({
     alignSelf: 'flex-start',

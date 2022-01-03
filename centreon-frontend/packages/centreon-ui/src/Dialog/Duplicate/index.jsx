@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 
 import PropTypes from 'prop-types';
 
-import TextField from '@material-ui/core/TextField';
+import TextField from '@mui/material/TextField';
 
 import Dialog from '..';
 

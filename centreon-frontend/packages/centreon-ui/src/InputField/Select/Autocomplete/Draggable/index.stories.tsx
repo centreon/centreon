@@ -4,7 +4,7 @@ import axios from 'axios';
 import MockAdapter from 'axios-mock-adapter';
 import { isNil, not } from 'ramda';
 
-import { Tooltip, Typography } from '@material-ui/core';
+import { Tooltip, Typography } from '@mui/material';
 
 import { SelectEntry } from '../..';
 import { buildListingEndpoint } from '../../../..';
@@ -82,7 +82,6 @@ const MultiDraggableConnected = (): JSX.Element => (
     getEndpoint={(parameters): string => {
       return getEndpoint({ endpoint: baseEndpoint, parameters });
     }}
-    getOptionsFromResult={(result): Array<SelectEntry> => result}
     initialPage={1}
     label="Multi Draggable Connected Autocomplete"
     placeholder="Type here..."

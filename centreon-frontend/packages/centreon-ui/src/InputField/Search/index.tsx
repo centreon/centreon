@@ -1,6 +1,6 @@
 import React from 'react';
 
-import IconSearch from '@material-ui/icons/Search';
+import IconSearch from '@mui/icons-material/Search';
 
 import TextField, { Props as TextFieldProps } from '../Text';
 

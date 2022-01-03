@@ -2,7 +2,7 @@ import * as React from 'react';
 
 import { ifElse, always, isNil } from 'ramda';
 
-import { Box, Link } from '@material-ui/core';
+import { Box, Link } from '@mui/material';
 
 import PersistentTooltip from './PersistentTooltip';
 

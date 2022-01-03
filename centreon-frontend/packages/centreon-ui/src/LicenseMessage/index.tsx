@@ -2,7 +2,8 @@ import * as React from 'react';
 
 import { useTranslation } from 'react-i18next';
 
-import { alpha, makeStyles, Paper, Typography } from '@material-ui/core';
+import { alpha, Paper, Typography } from '@mui/material';
+import makeStyles from '@mui/styles/makeStyles';
 
 import { labelInvalidLicense } from './translatedLabels';
 

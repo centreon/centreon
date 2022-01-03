@@ -2,9 +2,9 @@ import * as React from 'react';
 
 import { always, cond, not, pipe, propEq, T } from 'ramda';
 
-import { CircularProgress } from '@material-ui/core';
-import CheckIcon from '@material-ui/icons/Check';
-import SaveIcon from '@material-ui/icons/Save';
+import { CircularProgress } from '@mui/material';
+import CheckIcon from '@mui/icons-material/Check';
+import SaveIcon from '@mui/icons-material/Save';
 
 interface StartIconConfigProps {
   hasLabel: boolean;

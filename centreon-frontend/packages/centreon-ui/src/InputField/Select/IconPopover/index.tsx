@@ -6,14 +6,14 @@ import { find, isNil, pipe, propEq, reject } from 'ramda';
 import {
   Button,
   ClickAwayListener,
-  makeStyles,
   MenuItem,
   Paper,
   Popper,
   PopperPlacementType,
   useTheme,
-} from '@material-ui/core';
-import IconReset from '@material-ui/icons/RotateLeft';
+} from '@mui/material';
+import makeStyles from '@mui/styles/makeStyles';
+import IconReset from '@mui/icons-material/RotateLeft';
 
 import IconButton from '../../../Button/Icon';
 import Option from '../Option';
@@ -89,7 +89,12 @@ const IconPopoverMultiAutocomplete = ({
   return (
     <ClickAwayListener onClickAway={close}>
       <div>
-        <IconButton ariaLabel={title} title={title} onClick={toggle}>
+        <IconButton
+          ariaLabel={title}
+          size="large"
+          title={title}
+          onClick={toggle}
+        >
           {icon}
         </IconButton>
         <Popper

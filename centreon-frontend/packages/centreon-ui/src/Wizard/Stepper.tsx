@@ -2,12 +2,8 @@ import * as React from 'react';
 
 import { length, gte } from 'ramda';
 
-import {
-  Stepper as MUIStepper,
-  Step,
-  StepLabel,
-  makeStyles,
-} from '@material-ui/core';
+import { Stepper as MUIStepper, Step, StepLabel } from '@mui/material';
+import makeStyles from '@mui/styles/makeStyles';
 
 import { Step as StepType } from './models';
 import StepIcon from './StepIcon';

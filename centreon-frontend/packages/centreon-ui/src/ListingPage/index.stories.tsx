@@ -2,8 +2,9 @@
 
 import * as React from 'react';
 
-import { Typography, makeStyles, Paper, Button, Tab } from '@material-ui/core';
-import { grey } from '@material-ui/core/colors';
+import { Typography, Paper, Button, Tab } from '@mui/material';
+import makeStyles from '@mui/styles/makeStyles';
+import { grey } from '@mui/material/colors';
 
 import Listing from '../Listing';
 import { ColumnType } from '../Listing/models';

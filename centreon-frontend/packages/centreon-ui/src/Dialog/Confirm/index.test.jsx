@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { render, fireEvent } from '@testing-library/react';
+import { render, fireEvent } from '../../testRenderer';
 
 import DialogConfirm from '.';
 
@@ -20,7 +20,7 @@ describe('DialogConfirm', () => {
       />,
     );
 
-    fireEvent.click(getByText('confirm').parentNode);
+    fireEvent.click(getByText('confirm'));
 
     expect(mockConfirm).toBeCalled();
   });
@@ -40,7 +40,7 @@ describe('DialogConfirm', () => {
       />,
     );
 
-    fireEvent.click(getByText('cancel').parentNode);
+    fireEvent.click(getByText('cancel'));
 
     expect(mockCancel).toBeCalled();
   });

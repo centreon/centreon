@@ -5,7 +5,7 @@ import {
   TransitionActions,
 } from 'react-transition-group/Transition';
 
-import { Fade } from '@material-ui/core';
+import { Fade } from '@mui/material';
 
 type TransitionHandlerKeys =
   | 'onEnter'

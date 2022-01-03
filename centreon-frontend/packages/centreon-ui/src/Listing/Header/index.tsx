@@ -8,11 +8,11 @@ import {
   TableHead,
   TableRow,
   TableCell,
-  withStyles,
-  makeStyles,
   TableCellBaseProps,
-} from '@material-ui/core';
-import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown';
+} from '@mui/material';
+import withStyles from '@mui/styles/withStyles';
+import makeStyles from '@mui/styles/makeStyles';
+import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 
 import Checkbox from '../Checkbox';
 import { getVisibleColumns, Props as ListingProps } from '..';

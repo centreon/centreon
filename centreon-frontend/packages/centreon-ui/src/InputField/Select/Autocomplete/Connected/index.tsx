@@ -2,8 +2,8 @@ import * as React from 'react';
 
 import { equals, prop, last, isEmpty, map, isNil, pipe, not } from 'ramda';
 
-import { Typography, CircularProgress, useTheme } from '@material-ui/core';
-import { debounce } from '@material-ui/core/utils';
+import { Typography, CircularProgress, useTheme } from '@mui/material';
+import { debounce } from '@mui/material/utils';
 
 import { Props as AutocompleteFieldProps } from '..';
 import useRequest from '../../../../api/useRequest';
@@ -159,7 +159,7 @@ const ConnectedAutocompleteField = (
       setSearchValue(event.target.value);
     };
 
-    const renderOptions = (option, { selected }): JSX.Element => {
+    const renderOptions = (renderProps, option, { selected }): JSX.Element => {
       const { value } = props;
 
       const lastValue = Array.isArray(value) ? last(value) : value;
@@ -177,8 +177,8 @@ const ConnectedAutocompleteField = (
       const optionText = getRenderedOptionText(option);
 
       return (
-        <div style={{ width: '100%' }}>
-          <div>
+        <div key={option.id} style={{ width: '100%' }}>
+          <li {...renderProps}>
             {multiple ? (
               <Option checkboxSelected={selected} {...ref}>
                 {optionText}
@@ -188,7 +188,7 @@ const ConnectedAutocompleteField = (
                 {optionText}
               </Typography>
             )}
-          </div>
+          </li>
 
           {(isLastValueWithoutOptions || isLastOption) && sending && (
             <div style={{ textAlign: 'center', width: '100%' }}>

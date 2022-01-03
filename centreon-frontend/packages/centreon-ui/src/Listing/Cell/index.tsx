@@ -4,18 +4,18 @@ import { isNil, omit } from 'ramda';
 
 import {
   alpha,
-  makeStyles,
   TableCell,
   TableCellBaseProps,
   TableCellProps,
-} from '@material-ui/core';
+} from '@mui/material';
+import makeStyles from '@mui/styles/makeStyles';
 
 import { Props as DataCellProps } from './DataCell';
 
 const useStyles = makeStyles((theme) => ({
   root: {
     '&:last-child': {
-      paddingRight: ({ compact }: Props): number =>
+      paddingRight: ({ compact }: Props): string =>
         theme.spacing(compact ? 0 : 2),
     },
     backgroundColor: ({

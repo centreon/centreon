@@ -40,7 +40,7 @@ module.exports = {
           },
           {
             group: 'external',
-            pattern: '@material-ui/**',
+            pattern: '@mui/**',
             position: 'after',
           },
           {

@@ -5,16 +5,14 @@ import clsx from 'clsx';
 import { useTranslation } from 'react-i18next';
 
 import {
-  makeStyles,
   CircularProgress,
   InputAdornment,
-  Theme,
-} from '@material-ui/core';
-import {
   Autocomplete,
   AutocompleteProps,
-  UseAutocompleteProps,
-} from '@material-ui/lab';
+  Theme,
+} from '@mui/material';
+import makeStyles from '@mui/styles/makeStyles';
+import { UseAutocompleteProps } from '@mui/material/useAutocomplete';
 
 import Option from '../Option';
 import TextField from '../../Text';
@@ -51,6 +49,7 @@ const useStyles = makeStyles<Theme, StyledProps>((theme) => ({
     },
     '&:before': {
       borderBottom: 0,
+      content: 'unset',
     },
     '&:hover:before': {
       borderBottom: 0,
@@ -83,11 +82,11 @@ const useStyles = makeStyles<Theme, StyledProps>((theme) => ({
   },
   inputWithoutLabel: {
     '&[class*="MuiFilledInput-root"][class*="MuiFilledInput-marginDense"]': {
-      paddingBottom: ({ hideInput }): number =>
+      paddingBottom: ({ hideInput }): number | string =>
         hideInput ? 0 : theme.spacing(0.75),
-      paddingRight: ({ hideInput }): number =>
+      paddingRight: ({ hideInput }): number | string =>
         hideInput ? 0 : theme.spacing(1),
-      paddingTop: ({ hideInput }): number =>
+      paddingTop: ({ hideInput }): number | string =>
         hideInput ? 0 : theme.spacing(0.75),
     },
   },
@@ -209,20 +208,20 @@ const AutocompleteField = ({
       }}
       forcePopupIcon={displayPopupIcon}
       getOptionLabel={(option: SelectEntry): string => option.name}
-      getOptionSelected={areSelectEntriesEqual}
+      isOptionEqualToValue={areSelectEntriesEqual}
       loading={loading}
       loadingText={<LoadingIndicator />}
       options={options}
       renderInput={renderInput}
-      renderOption={(option): JSX.Element => {
+      renderOption={(renderProps, option): JSX.Element => {
         return (
-          <div className={classes.options}>
+          <li className={classes.options} {...renderProps}>
             {displayOptionThumbnail && (
               <img alt={option.name} height={20} src={option.url} width={20} />
             )}
 
             <Option>{option.name}</Option>
-          </div>
+          </li>
         );
       }}
       size="small"

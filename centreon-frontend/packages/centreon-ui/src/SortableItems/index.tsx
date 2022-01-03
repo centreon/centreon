@@ -31,7 +31,7 @@ import {
   pluck,
 } from 'ramda';
 
-import { useTheme } from '@material-ui/core';
+import { useTheme } from '@mui/material';
 
 import SortableItem from './SortableItem';
 import Item from './Item';

@@ -3,7 +3,7 @@ import * as React from 'react';
 import { useTranslation } from 'react-i18next';
 import { isNil, prop } from 'ramda';
 
-import ColumnIcon from '@material-ui/icons/ViewColumn';
+import ColumnIcon from '@mui/icons-material/ViewColumn';
 
 import { getVisibleColumns, Props as ListingProps } from '..';
 import IconPopoverMultiSelect from '../../InputField/Select/IconPopover';

@@ -2,8 +2,9 @@ import * as React from 'react';
 
 import { isEmpty } from 'ramda';
 
-import { UseAutocompleteProps } from '@material-ui/lab';
-import { Avatar, Chip, makeStyles, useTheme } from '@material-ui/core';
+import { UseAutocompleteProps } from '@mui/material/useAutocomplete';
+import { Avatar, Chip, useTheme } from '@mui/material';
+import makeStyles from '@mui/styles/makeStyles';
 
 import { Props as AutocompleteProps } from '..';
 import { SelectEntry } from '../..';

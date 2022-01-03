@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { render, fireEvent } from '@testing-library/react';
+import { render, fireEvent } from '../../testRenderer';
 
 import DialogDuplicate from '.';
 
@@ -20,7 +20,7 @@ describe('DialogDuplicate', () => {
       />,
     );
 
-    fireEvent.click(getByText('confirm').parentNode);
+    fireEvent.click(getByText('confirm'));
 
     expect(mockConfirm).toBeCalledWith(expect.anything(), 1);
   });
@@ -43,7 +43,7 @@ describe('DialogDuplicate', () => {
     const input = getByDisplayValue('1');
     fireEvent.change(input, { target: { value: '3' } });
 
-    fireEvent.click(getByText('confirm').parentNode);
+    fireEvent.click(getByText('confirm'));
 
     expect(mockConfirm).toBeCalledWith(expect.anything(), '3');
   });

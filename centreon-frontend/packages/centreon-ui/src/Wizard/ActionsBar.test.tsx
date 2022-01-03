@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent } from '../testRenderer';
 
 import ActionsBar from './ActionsBar';
 
