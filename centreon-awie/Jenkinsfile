@@ -110,9 +110,11 @@ try {
         withSonarQubeEnv('SonarQubeDev') {
           sh "./centreon-build/jobs/awie/${serie}/mon-awie-analysis.sh"
         }
-        def qualityGate = waitForQualityGate()
-        if (qualityGate.status != 'OK') {
-          currentBuild.result = 'FAIL'
+        timeout(time: 10, unit: 'MINUTES') {
+          def qualityGate = waitForQualityGate()
+          if (qualityGate.status != 'OK') {
+            currentBuild.result = 'FAIL'
+          }
         }
       }
     },
