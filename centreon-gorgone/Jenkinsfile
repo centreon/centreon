@@ -64,9 +64,11 @@ stage('Deliver sources // Sonar analysis') {
     withSonarQubeEnv('SonarQubeDev') {
       sh "./centreon-build/jobs/gorgone/${serie}/gorgone-analysis.sh"
     }
-    def qualityGate = waitForQualityGate()
-    if (qualityGate.status != 'OK') {
-      currentBuild.result = 'FAIL'
+    timeout(time: 10, unit: 'MINUTES') {
+      def qualityGate = waitForQualityGate()
+      if (qualityGate.status != 'OK') {
+        currentBuild.result = 'FAIL'
+      }
     }
   }
 }  
