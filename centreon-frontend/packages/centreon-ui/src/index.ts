@@ -55,7 +55,6 @@ export { default as Dialog } from './Dialog';
 export { default as ConfirmDialog } from './Dialog/Confirm';
 export { default as DuplicateDialog } from './Dialog/Duplicate';
 
-export { default as withSnackbar } from './Snackbar/withSnackbar';
 export { default as useSnackbar } from './Snackbar/useSnackbar';
 export { default as Severity } from './Snackbar/Severity';
 export { default as SaveButton } from './Button/Save';
@@ -122,4 +121,8 @@ export { default as SortableItems } from './SortableItems';
 export type { RootComponentProps } from './SortableItems';
 
 export { default as LoadingSkeleton } from './LoadingSkeleton';
+
+export { default as Module } from './Module';
+export { default as LicensedModule } from './Module/LicensedModule';
+export { default as SnackbarProvider } from './Snackbar/SnackbarProvider';
 export * from './testRenderer';

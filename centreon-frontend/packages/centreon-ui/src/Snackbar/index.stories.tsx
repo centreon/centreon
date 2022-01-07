@@ -1,9 +1,7 @@
 import React from 'react';
 
-import { Typography } from '@mui/material';
-
+import SnackbarProvider from './SnackbarProvider';
 import useSnackbar from './useSnackbar';
-import withSnackbar from './withSnackbar';
 
 export default { title: 'Snackbar' };
 
@@ -54,10 +52,14 @@ const Story = ({ displayMessages = false }: Props): JSX.Element => {
     });
   }, [displayMessages]);
 
-  return <Typography>Snackbars</Typography>;
+  return <div />;
 };
 
-const StoryWithSnackbar = withSnackbar({ Component: Story, maxSnackbars: 4 });
+const StoryWithSnackbar = ({ displayMessages }: Props): JSX.Element => (
+  <SnackbarProvider maxSnackbars={4}>
+    <Story displayMessages={displayMessages} />
+  </SnackbarProvider>
+);
 
 export const snackbar = (): JSX.Element => <StoryWithSnackbar />;
 
