@@ -26,6 +26,7 @@ const TestComponent = (): JSX.Element => {
   React.useEffect(() => {
     setUser({
       alias: 'admin',
+      default_page: '/monitoring/resources',
       isExportButtonEnabled: false,
       locale: 'en',
       name: 'admin',

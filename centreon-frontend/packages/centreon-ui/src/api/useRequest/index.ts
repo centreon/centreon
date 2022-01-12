@@ -2,7 +2,7 @@ import * as React from 'react';
 
 import 'ulog';
 import axios from 'axios';
-import { pathOr, defaultTo } from 'ramda';
+import { pathOr, defaultTo, path } from 'ramda';
 import anylogger from 'anylogger';
 import { JsonDecoder } from 'ts.data.json';
 
@@ -15,6 +15,7 @@ export interface RequestParams<TResult> {
   decoder?: JsonDecoder.Decoder<TResult>;
   defaultFailureMessage?: string;
   getErrorMessage?: (error) => string;
+  httpCodesBypassErrorSnackbar?: Array<number>;
   request: (token) => (params?) => Promise<TResult>;
 }
 
@@ -28,6 +29,7 @@ const useRequest = <TResult>({
   decoder,
   getErrorMessage,
   defaultFailureMessage = 'Oops, something went wrong',
+  httpCodesBypassErrorSnackbar = [],
 }: RequestParams<TResult>): RequestResult<TResult> => {
   const { token, cancel } = useCancelTokenSource();
   const { showErrorMessage } = useSnackbar();
@@ -63,6 +65,14 @@ const useRequest = <TResult>({
         if (axios.isCancel(error)) {
           log.warn(error);
 
+          throw error;
+        }
+
+        const hasACorrespondingHttpCode = httpCodesBypassErrorSnackbar.includes(
+          path<number>(['response', 'status'], error) as number,
+        );
+
+        if (hasACorrespondingHttpCode) {
           throw error;
         }
 
