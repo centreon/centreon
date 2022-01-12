@@ -75,6 +75,7 @@ mkdir -p %{buildroot}/%{perl_vendorlib}/gorgone
 %{__cp} gorgoned %{buildroot}%{_bindir}/
 %{__cp} contrib/gorgone_config_init.pl %{buildroot}%{_usr}/local/bin/
 %{__cp} contrib/gorgone_audit.pl %{buildroot}%{_usr}/local/bin/
+%{__cp} contrib/gorgone_install_plugins.pl %{buildroot}%{_usr}/local/bin/
 
 %{__install} -d %{buildroot}%{_sysconfdir}/centreon-gorgone
 %{__install} -d %{buildroot}%{_sysconfdir}/centreon-gorgone/config.d/
@@ -84,6 +85,9 @@ mkdir -p %{buildroot}/%{perl_vendorlib}/gorgone
 %{__cp} packaging/centreon.yaml %{buildroot}%{_sysconfdir}/centreon-gorgone/config.d/30-centreon.yaml
 %{__cp} packaging/centreon-api.yaml %{buildroot}%{_sysconfdir}/centreon-gorgone/config.d/31-centreon-api.yaml
 %{__cp} packaging/centreon-audit.yaml %{buildroot}%{_sysconfdir}/centreon-gorgone/config.d/50-centreon-audit.yaml
+
+%{__install} -d %buildroot%{_sysconfdir}/sudoers.d/
+%{__cp} packaging/sudoers.d/centreon-gorgone %buildroot%{_sysconfdir}/sudoers.d/centreon-gorgone
 
 %{_fixperms} $RPM_BUILD_ROOT/*
 
@@ -98,6 +102,7 @@ rm -rf %{buildroot}
 %attr(755, root, root) %{_bindir}/gorgoned
 %attr(755, root, root) %{_usr}/local/bin/gorgone_config_init.pl
 %attr(755, root, root) %{_usr}/local/bin/gorgone_audit.pl
+%attr(750, root, root) %{_usr}/local/bin/gorgone_install_plugins.pl
 %attr(755, root, root) %{_sysconfdir}/systemd/system/gorgoned.service
 %config(noreplace) %{_sysconfdir}/sysconfig/gorgoned
 %config(noreplace) %{_sysconfdir}/logrotate.d/gorgoned
@@ -119,6 +124,8 @@ rm -rf %{buildroot}
 %config(noreplace) %{_sysconfdir}/centreon-gorgone/config.d/30-centreon.yaml
 %config(noreplace) %{_sysconfdir}/centreon-gorgone/config.d/31-centreon-api.yaml
 %config(noreplace) %{_sysconfdir}/centreon-gorgone/config.d/50-centreon-audit.yaml
+
+%attr(0600, root, root) %{_sysconfdir}/sudoers.d/centreon-gorgone
 
 %defattr(-, centreon-gorgone, centreon-gorgone, -)
 %{_localstatedir}/cache/centreon-gorgone/autodiscovery

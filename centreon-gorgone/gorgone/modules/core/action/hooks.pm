@@ -32,6 +32,7 @@ use constant EVENTS => [
     { event => 'ACTIONREADY' },
     { event => 'PROCESSCOPY' },
     { event => 'COMMAND', uri => '/command', method => 'POST' },
+    { event => 'ACTIONENGINE', uri => '/engine', method => 'POST' }
 ];
 
 my $config_core;

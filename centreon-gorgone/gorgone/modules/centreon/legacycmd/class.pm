@@ -363,6 +363,24 @@ sub execute_cmd {
                 }
             }
         );
+    } elsif ($options{cmd} eq 'ENGINERESTART') {
+        my $cmd = $self->{pollers}->{$options{target}}->{engine_restart_command};
+        $self->send_internal_action(
+            action => 'ACTIONENGINE',
+            target => $options{target},
+            token => $token,
+            data => {
+                logging => $options{logging},
+                content => {
+                    command => 'sudo ' . $cmd,
+                    plugins => $self->{pollers}->{ $options{target} }->{cfg_dir} . '/plugins.json',
+                    metadata => {
+                        centcore_proxy => 1,
+                        centcore_cmd => 'ENGINERESTART'
+                    }
+                }
+            }
+        );
     } elsif ($options{cmd} eq 'RESTART') {
         my $cmd = $self->{pollers}->{$options{target}}->{engine_restart_command};
         $self->send_internal_action(
@@ -382,6 +400,24 @@ sub execute_cmd {
                 ]
             }
         );
+    } elsif ($options{cmd} eq 'ENGINERELOAD') {
+        my $cmd = $self->{pollers}->{ $options{target} }->{engine_reload_command};
+        $self->send_internal_action(
+            action => 'ACTIONENGINE',
+            target => $options{target},
+            token => $token,
+            data => {
+                logging => $options{logging},
+                content => {
+                    command => 'sudo ' . $cmd,
+                    plugins => $self->{pollers}->{ $options{target} }->{cfg_dir} . '/plugins.json',
+                    metadata => {
+                        centcore_proxy => 1,
+                        centcore_cmd => 'ENGINERELOAD'
+                    }
+                }
+            }
+        );
     } elsif ($options{cmd} eq 'RELOAD') {
         my $cmd = $self->{pollers}->{$options{target}}->{engine_reload_command};
         $self->send_internal_action(
@@ -395,7 +431,7 @@ sub execute_cmd {
                         command => 'sudo ' . $cmd,
                         metadata => {
                             centcore_proxy => 1,
-                            centcore_cmd => 'RELOAD',
+                            centcore_cmd => 'RELOAD'
                         }
                     }
                 ]

@@ -33,6 +33,7 @@ use JSON::XS;
 use File::Basename;
 use File::Copy;
 use File::Path qw(make_path);
+use POSIX ":sys_wait_h";
 use MIME::Base64;
 use Digest::MD5::File qw(file_md5_hex);
 use Archive::Tar;
@@ -41,7 +42,7 @@ use Fcntl;
 $Archive::Tar::SAME_PERMISSIONS = 1;
 $Archive::Tar::WARN = 0;
 $Digest::MD5::File::NOFATALS = 1;
-my %handlers = (TERM => {}, HUP => {});
+my %handlers = (TERM => {}, HUP => {}, CHLD => {});
 my ($connector);
 
 sub new {
@@ -59,7 +60,12 @@ sub new {
     $connector->{allowed_cmds} = $connector->{config}->{allowed_cmds}
         if (defined($connector->{config}->{allowed_cmds}) && ref($connector->{config}->{allowed_cmds}) eq 'ARRAY');
 
-    $connector->set_signal_handlers;
+    $connector->{return_childs} = {};
+    $connector->{engine_childs} = {};
+    $connector->{max_concurrent_engine} = defined($connector->{config}->{max_concurrent_engine}) ?
+        $connector->{config}->{max_concurrent_engine} : 3;
+
+    $connector->set_signal_handlers();
     return $connector;
 }
 
@@ -70,6 +76,8 @@ sub set_signal_handlers {
     $handlers{TERM}->{$self} = sub { $self->handle_TERM() };
     $SIG{HUP} = \&class_handle_HUP;
     $handlers{HUP}->{$self} = sub { $self->handle_HUP() };
+    $SIG{CHLD} = \&class_handle_CHLD;
+    $handlers{CHLD}->{$self} = sub { $self->handle_CHLD() };
 }
 
 sub handle_HUP {
@@ -81,6 +89,18 @@ sub handle_TERM {
     my $self = shift;
     $self->{logger}->writeLogInfo("[action] $$ Receiving order to stop...");
     $self->{stop} = 1;
+}
+
+sub handle_CHLD {
+    my $self = shift;
+    my $child_pid;
+
+    while (($child_pid = waitpid(-1, &WNOHANG)) > 0) {
+        $self->{logger}->writeLogDebug("[action] Received SIGCLD signal (pid: $child_pid)");
+        $self->{return_child}->{$child_pid} = 1;
+    }
+
+    $SIG{CHLD} = \&class_handle_CHLD;
 }
 
 sub class_handle_TERM {
@@ -95,6 +115,163 @@ sub class_handle_HUP {
     }
 }
 
+sub class_handle_CHLD {
+    foreach (keys %{$handlers{CHLD}}) {
+        &{$handlers{CHLD}->{$_}}();
+    }
+}
+
+sub check_childs {
+    my ($self, %options) = @_;
+
+    foreach (keys %{$self->{return_child}}) {
+        delete $self->{engine_childs}->{$_} if (defined($self->{engine_childs}->{$_}));
+    }
+
+    $self->{return_child} = {};
+}
+
+sub get_package_manager {
+    my ($self, %options) = @_;
+
+    $self->{package_manager} = 'unknown';
+    my ($error, $stdout, $return_code) = gorgone::standard::misc::backtick(
+        command => 'lsb_release -a',
+        timeout => 5,
+        wait_exit => 1,
+        redirect_stderr => 1,
+        logger => $options{logger}
+    );
+    if ($error == 0 && $stdout =~ /^Description:\s+(.*)$/mi) {
+        my $os = $1;
+        if ($os =~ /Debian|Ubuntu/i) {
+            $self->{package_manager} = 'deb';
+        } elsif ($os =~ /CentOS|Redhat/i) {
+            $self->{package_manager} = 'rpm';
+        }
+    }
+}
+
+sub check_plugins_rpm {
+    my ($self, %options) = @_;
+
+    #rpm -q centreon-plugin-Network-Microsens-G6-Snmp test centreon-plugin-Network-Generic-Bluecoat-Snmp
+    #centreon-plugin-Network-Microsens-G6-Snmp-20211228-150846.el7.centos.noarch
+    #package test is not installed
+    #centreon-plugin-Network-Generic-Bluecoat-Snmp-20211102-130335.el7.centos.noarch
+    my ($error, $stdout, $return_code) = gorgone::standard::misc::backtick(
+        command => 'rpm',
+        arguments => ['-q', keys %{$options{plugins}}],
+        timeout => 60,
+        wait_exit => 1,
+        redirect_stderr => 1,
+        logger => $self->{logger}
+    );
+    if ($error != 0) {
+        return (-1, 'check rpm plugins command issue: ' . $stdout);
+    }
+
+    my $installed = [];
+    foreach my $package_name (keys %{$options{plugins}}) {
+        if ($stdout =~ /^$package_name-(\d+)-/m) {
+            my $current_version = $1;
+            if ($current_version < $options{plugins}->{$package_name}) {
+                push @$installed, $package_name . '-' . $options{plugins}->{$package_name};
+            }
+        } else {
+            push @$installed, $package_name . '-' . $options{plugins}->{$package_name};
+        }
+    }
+
+    if (scalar(@$installed) > 0) {
+        return (1, 'install', $installed);
+    }
+
+    $self->{logger}->writeLogInfo("[action] validate plugins - nothing to install");
+    return 0;
+}
+
+sub install_plugins {
+    my ($self, %options) = @_;
+
+    $self->{logger}->writeLogInfo("[action] validate plugins - install " . join(' ', @{$options{installed}}));
+    my ($error, $stdout, $return_code) = gorgone::standard::misc::backtick(
+        command => 'sudo',
+        arguments => ['/usr/local/bin/gorgone_install_plugins.pl', @{$options{installed}}],
+        timeout => 300,
+        wait_exit => 1,
+        redirect_stderr => 1,
+        logger => $self->{logger}
+    );
+    if ($error != 0) {
+        return (-1, 'install plugins command issue: ' . $stdout);
+    }
+
+    return 0;
+}
+
+sub validate_plugins_rpm {
+    my ($self, %options) = @_;
+
+    my ($rv, $message, $installed) = $self->check_plugins_rpm(%options);
+    return ($rv, $message) if ($rv == -1);
+    return 0 if ($rv == 0);
+
+    if ($rv == 1) {
+        ($rv, $message) = $self->install_plugins(installed => $installed);
+        return ($rv, $message) if ($rv == -1);
+    }
+
+    ($rv, $message, $installed) = $self->check_plugins_rpm(%options);
+    return ($rv, $message) if ($rv == -1);
+    if ($rv == 1) {
+        $self->{logger}->writeLogError("[action] validate plugins - still some to install: " . join(' ', @$installed));
+    }
+
+    return 0;
+}
+
+sub validate_plugins {
+    my ($self, %options) = @_;
+
+    my ($rv, $message, $content) = gorgone::standard::misc::slurp(file => $options{file});
+    return (1, $message) if (!$rv);
+
+    my $plugins;
+    eval {
+        $plugins = JSON::XS->new->utf8->decode($content);
+    };
+    if ($@) {
+        return (1, 'cannot decode json');
+    }
+
+    # nothing to validate. so it's ok, show must go on!! :)
+    if (ref($plugins) ne 'HASH' || scalar(keys %$plugins) <= 0) {
+        return 0;
+    }
+
+    if ($self->{package_manager} eq 'rpm') {
+        ($rv, $message) = $self->validate_plugins_rpm(plugins => $plugins);
+    } else {
+        # for debian/ubuntu: apt-get install centreon-plugin-test=version1 centreon-plugin-test=version2
+        ($rv, $message) = (1, 'validate plugins - unsupported operating system');
+    }
+
+    return ($rv, $message);
+}
+
+sub is_command_authorized {
+    my ($self, %options) = @_;
+
+    return 0 if ($self->{whitelist_cmds} == 0);
+
+    foreach my $regexp (@{$self->{allowed_cmds}}) {
+        return 0 if ($options{command} =~ /$regexp/);
+    }
+
+    return 1;
+}
+
 sub action_command {
     my ($self, %options) = @_;
     
@@ -105,7 +282,7 @@ sub action_command {
             token => $options{token},
             logging => $options{data}->{logging},
             data => {
-                message => "expected array, found '" . ref($options{data}->{content}) . "'",
+                message => "expected array, found '" . ref($options{data}->{content}) . "'"
             }
         );
         return -1;
@@ -120,34 +297,24 @@ sub action_command {
                 token => $options{token},
                 logging => $options{data}->{logging},
                 data => {
-                    message => "need command argument at array index '" . $index . "'",
+                    message => "need command argument at array index '" . $index . "'"
                 }
             );
             return -1;
         }
 
-        if ($self->{whitelist_cmds} == 1) {
-            my $matched = 0;
-            foreach my $regexp (@{$self->{allowed_cmds}}) {
-                if ($command->{command} =~ /$regexp/) {
-                    $matched = 1;
-                    last;
+        if ($self->is_command_authorized(command => $command->{command})) {
+            $self->{logger}->writeLogInfo("[action] command not allowed (whitelist): " . $command->{command});
+            $self->send_log(
+                socket => $options{socket_log},
+                code => GORGONE_ACTION_FINISH_KO,
+                token => $options{token},
+                logging => $options{data}->{logging},
+                data => {
+                    message => "command not allowed (whitelist) at array index '" . $index . "'"
                 }
-            }
-
-            if ($matched == 0) {
-                $self->{logger}->writeLogInfo("[action] command not allowed (whitelist): " . $command->{command});
-                $self->send_log(
-                    socket => $options{socket_log},
-                    code => GORGONE_ACTION_FINISH_KO,
-                    token => $options{token},
-                    logging => $options{data}->{logging},
-                    data => {
-                        message => "command not allowed (whitelist) at array index '" . $index . "'",
-                    }
-                );
-                return -1;
-            }
+            );
+            return -1;
         }
 
         $index++;
@@ -378,6 +545,109 @@ sub action_processcopy {
     return 0;
 }
 
+sub action_actionengine {
+    my ($self, %options) = @_;
+
+    if (!defined($options{data}->{content}) || $options{data}->{content} eq '') {
+        $self->send_log(
+            socket => $options{socket_log},
+            code => GORGONE_ACTION_FINISH_KO,
+            token => $options{token},
+            logging => $options{data}->{logging},
+            data => { message => 'no content' }
+        );
+        return -1;
+    }
+
+    if (!defined($options{data}->{content}->{command})) {
+        $self->send_log(
+            socket => $options{socket_log},
+            code => GORGONE_ACTION_FINISH_KO,
+            token => $options{token},
+            logging => $options{data}->{logging},
+            data => {
+                message => "need valid command argument"
+            }
+        );
+        return -1;
+    }
+
+    if ($self->is_command_authorized(command => $options{data}->{content}->{command})) {
+        $self->{logger}->writeLogInfo("[action] command not allowed (whitelist): " . $options{data}->{content}->{command});
+        $self->send_log(
+            socket => $options{socket_log},
+            code => GORGONE_ACTION_FINISH_KO,
+            token => $options{token},
+            logging => $options{data}->{logging},
+            data => {
+                message => 'command not allowed (whitelist)'
+            }
+        );
+        return -1;
+    }
+
+    if (defined($options{data}->{content}->{plugins}) && $options{data}->{content}->{plugins} ne '') {
+        my ($rv, $message) = $self->validate_plugins(file => $options{data}->{content}->{plugins});
+        if ($rv) {
+            $self->{logger}->writeLogError("[action] $message");
+            $self->send_log(
+                socket => $options{socket_log},
+                code => GORGONE_ACTION_FINISH_KO,
+                token => $options{token},
+                logging => $options{data}->{logging},
+                data => {
+                    message => $message
+                }
+            );
+            return -1;
+        }
+    }
+
+    my $start = time();
+    my ($error, $stdout, $return_code) = gorgone::standard::misc::backtick(
+        command => $options{data}->{content}->{command},
+        timeout => $self->{command_timeout},
+        wait_exit => 1,
+        redirect_stderr => 1,
+        logger => $self->{logger}
+    );
+    my $end = time();
+    if ($error != 0) {
+        $self->send_log(
+            socket => $options{socket_log},
+            code => GORGONE_ACTION_FINISH_KO,
+            token => $options{token},
+            logging => $options{data}->{logging},
+            data => {
+                message => "command execution issue",
+                command => $options{data}->{content}->{command},
+                result => {
+                    exit_code => $return_code,
+                    stdout => $stdout
+                },
+                metrics => {
+                    start => $start,
+                    end => $end,
+                    duration => $end - $start
+                }
+            }
+        );
+        return -1;
+    }
+
+    $self->send_log(
+        socket => $options{socket_log},
+        code => GORGONE_ACTION_FINISH_OK,
+        token => $options{token},
+        logging => $options{data}->{logging},
+        data => {
+            message => 'actionengine has finished successfully'
+        }
+    );
+
+    return 0;
+}
+
 sub action_run {
     my ($self, %options) = @_;
     
@@ -392,6 +662,8 @@ sub action_run {
 
     if ($options{action} eq 'COMMAND') {
         $self->action_command(%options, socket_log => $socket_log);
+    } elsif ($options{action} eq 'ACTIONENGINE') {
+        $self->action_actionengine(%options, socket_log => $socket_log);
     } else {
         $self->send_log(
             socket => $socket_log,
@@ -416,6 +688,19 @@ sub create_child {
         return undef;
     }
 
+    if ($options{action} eq 'ACTIONENGINE') {
+        my $num = scalar(keys %{$self->{engine_childs}});
+        if ($num > $self->{max_concurrent_engine}) {
+            $self->{logger}->writeLogInfo("[action] max_concurrent_engine limit reached ($num/$self->{max_concurrent_engine})");
+            $self->send_log(
+                code => GORGONE_ACTION_FINISH_KO,
+                token => $options{token},
+                data => { message => "max_concurrent_engine limit reached ($num/$self->{max_concurrent_engine})" }
+            );
+            return undef;
+        }
+    }
+
     $self->{logger}->writeLogDebug("[action] Create sub-process");
     my $child_pid = fork();
     if (!defined($child_pid)) {
@@ -431,6 +716,10 @@ sub create_child {
     if ($child_pid == 0) {
         $self->action_run(action => $options{action}, token => $options{token}, data => $options{data});
         exit(0);
+    } else {
+        if ($options{action} eq 'ACTIONENGINE') {
+            $self->{engine_childs}->{$child_pid} = 1;
+        }
     }
 }
 
@@ -481,8 +770,13 @@ sub run {
             callback => \&event,
         }
     ];
+
+    $self->get_package_manager();
+
     while (1) {
         my $rev = scalar(zmq_poll($self->{poll}, 5000));
+        $self->check_childs();
+
         if ($rev == 0 && $self->{stop} == 1) {
             $self->{logger}->writeLogInfo("[action] $$ has quit");
             zmq_close($connector->{internal_socket});
