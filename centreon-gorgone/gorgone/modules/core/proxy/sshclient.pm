@@ -160,6 +160,23 @@ sub action_centcore {
     return (0, { message => 'send action_centcore succeeded' });
 }
 
+sub action_actionengine {
+    my ($self, %options) = @_;
+
+    # validate plugins unsupported with ssh
+    $self->action_command(
+        data => {
+            logging => $options{data}->{logging},
+            content => [
+                $options{data}->{content}
+            ]
+        },
+        target_direct => $options{target_direct},
+        target => $options{target},
+        token => $options{token}
+    );
+}
+
 sub action_command {
     my ($self, %options) = @_;
 
