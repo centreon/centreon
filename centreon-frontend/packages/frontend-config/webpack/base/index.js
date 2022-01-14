@@ -12,7 +12,7 @@ module.exports = {
       },
       {
         exclude:
-          /node_modules(\\|\/)(?!(@centreon(\\|\/)centreon-frontend(\\|\/)packages(\\|\/)(ui-context|centreon-ui)))/,
+          /node_modules(\\|\/)(?!(centreon-frontend(\\|\/)packages(\\|\/)(ui-context|centreon-ui)))/,
         test: /\.(j|t)sx?$/,
         use: [
           'babel-loader',
@@ -58,10 +58,10 @@ module.exports = {
   resolve: {
     alias: {
       '@centreon/ui': path.resolve(
-        './node_modules/@centreon/centreon-frontend/packages/centreon-ui',
+        './node_modules/centreon-frontend/packages/centreon-ui',
       ),
       '@centreon/ui-context': path.resolve(
-        './node_modules/@centreon/centreon-frontend/packages/ui-context',
+        './node_modules/centreon-frontend/packages/ui-context',
       ),
       react: path.resolve('./node_modules/react'),
     },
