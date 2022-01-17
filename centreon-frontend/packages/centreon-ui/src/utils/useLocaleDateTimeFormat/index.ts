@@ -33,12 +33,12 @@ const useLocaleDateTimeFormat = (): LocaleDateTimeFormat => {
   const format = ({ date, formatString }: FormatParameters): string => {
     const normalizedLocale = locale.substring(0, 2);
 
-    const dayjsDate = dayjs(date).locale(normalizedLocale);
     const timezoneDate = equals(timezone, 'UTC')
-      ? dayjsDate.utc()
-      : dayjsDate.tz(timezone);
+      ? dayjs(date).utc()
+      : dayjs(date).tz(timezone);
+    const timezoneWithLocaleDate = timezoneDate.locale(normalizedLocale);
 
-    return timezoneDate.format(formatString);
+    return timezoneWithLocaleDate.format(formatString);
   };
 
   const toDateTime = (date: Date | string): string => {
