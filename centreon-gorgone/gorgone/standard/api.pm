@@ -149,7 +149,7 @@ sub call_internal {
         my $t1 = Time::HiRes::time();
         my $rev = zmq_poll($poll, $timeout);
         last if (defined($results->{ $action_token }));
-        $timeout -= ($t1 - Time::HiRes::time());
+        $timeout -= ((Time::HiRes::time() - $t1) * 1000);
     }
 
     my $response = '{"error":"no_result", "message":"No result found for action \'' . $options{action} . '\'"}';
@@ -252,8 +252,8 @@ sub event {
         my $message = gorgone::standard::library::zmq_dealer_read_message(socket => $socket);
         last if (!defined($message));
 
-        if ($message =~ /^\[(.*?)\]\s+\[(.*?)\]\s+\[.*?\]\s+(.*)$/m || 
-            $message =~ /^\[(.*?)\]\s+\[(.*?)\]\s+(.*)$/m) {
+        if ($message =~ /^\[(.*?)\]\s+\[([a-zA-Z0-9:\-_]*?)\]\s+\[.*?\]\s+(.*)$/m || 
+            $message =~ /^\[(.*?)\]\s+\[([a-zA-Z0-9:\-_]*?)\]\s+(.*)$/m) {
             $results->{$2} = {
                 action => $1,
                 token => $2,
