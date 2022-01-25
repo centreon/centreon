@@ -536,6 +536,17 @@ sub run {
     $self->SUPER::run();
     $self->{cmdDir} = $self->{centreon_config}->{VarLib} . "/centcore";
 
+    $self->{db_centreon} = centreon::common::db->new(
+        db => $self->{centreon_config}->{centreon_db},
+        host => $self->{centreon_config}->{db_host},
+        port => $self->{centreon_config}->{db_port},
+        user => $self->{centreon_config}->{db_user},
+        password => $self->{centreon_config}->{db_passwd},
+        force => 0,
+        logger => $self->{logger}
+    );
+    $self->{db_centreon}->connect();
+
     $self->{db_centstorage} = centreon::common::db->new(
         db => $self->{centreon_config}->{centstorage_db},
         host => $self->{centreon_config}->{db_host},
@@ -547,7 +558,17 @@ sub run {
     );
     $self->{db_centstorage}->connect();
 
+    my $moduleDsm = $self->{db_centreon}->query("
+        SELECT count(name) FROM modules_informations WHERE name = 'centreon-dsm'
+    ");
+
+    if ($moduleDsm->fetchrow() == 0) {
+        $self->{logger}->writeLogInfo('Module is not installed, exiting program....');
+        exit(1);
+    }
+
     $self->load_slot_locks();
+
     while (1) {
         $self->check_signals();
         $self->clean_locks();
