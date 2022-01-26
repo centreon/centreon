@@ -170,7 +170,7 @@ sub md_node_system_cpu {
 END_CPU
 
     if ($options{entry}->{status_code} != 0) {
-        my $message = '_**Error:** cannot get informations ' . $options{node}->{status_message}; 
+        my $message = '_**Error:** cannot get informations ' . $options{entry}->{status_message}; 
         $cpu .= <<"END_CPU";
     <tr>
          <td colspan="2">$message</td>
@@ -223,7 +223,7 @@ sub md_node_system_load {
 END_LOAD
 
     if ($options{entry}->{status_code} != 0) {
-        my $message = '_**Error:** cannot get informations ' . $options{node}->{status_message}; 
+        my $message = '_**Error:** cannot get informations ' . $options{entry}->{status_message}; 
         $load .= <<"END_LOAD";
     <tr>
          <td colspan="2">$message</td>
@@ -253,7 +253,7 @@ sub md_node_system_memory {
 END_MEMORY
 
     if ($options{entry}->{status_code} != 0) {
-        my $message = '_**Error:** cannot get informations ' . $options{node}->{status_message}; 
+        my $message = '_**Error:** cannot get informations ' . $options{entry}->{status_message}; 
         $memory .= <<"END_MEMORY";
     <tr>
          <td colspan="2">$message</td>
@@ -290,7 +290,7 @@ sub md_node_system_disk {
 
     my $disk = "#### Filesystems\n\n";
     if ($options{entry}->{status_code} != 0) {
-        $disk .= '_**Error:** cannot get informations ' . $options{node}->{status_message} . "\n\n";
+        $disk .= '_**Error:** cannot get informations ' . $options{entry}->{status_message} . "\n\n";
         return $disk;
     }
 
@@ -317,7 +317,7 @@ sub md_node_system_diskio {
 
     my $diskio = "#### Disks I/O\n\n";
     if ($options{entry}->{status_code} != 0) {
-        $diskio .= '_**Error:** cannot get informations ' . $options{node}->{status_message} . "\n\n";
+        $diskio .= '_**Error:** cannot get informations ' . $options{entry}->{status_message} . "\n\n";
         return $diskio;
     }
 
@@ -370,7 +370,7 @@ sub md_node_centreon_packages {
 
     my $packages = "#### Packages\n\n";
     if ($options{entry}->{status_code} != 0) {
-        $packages .= '_**Error:** cannot get informations ' . $options{node}->{status_message} . "\n\n";
+        $packages .= '_**Error:** cannot get informations ' . $options{entry}->{status_message} . "\n\n";
         return $packages;
     }
 
@@ -396,7 +396,7 @@ sub md_node_centreon_realtime {
 
     my $realtime = "#### Realtime\n\n";
     if ($options{entry}->{status_code} != 0) {
-        $realtime .= '_**Error:** cannot get informations ' . $options{node}->{status_message} . "\n\n";
+        $realtime .= '_**Error:** cannot get informations ' . $options{entry}->{status_message} . "\n\n";
         return $realtime;
     }
 
@@ -419,7 +419,7 @@ sub md_node_centreon_rrd {
 
     my $rrd = "#### Rrd\n\n";
     if ($options{entry}->{status_code} != 0) {
-        $rrd .= '_**Error:** cannot get informations ' . $options{node}->{status_message} . "\n\n";
+        $rrd .= '_**Error:** cannot get informations ' . $options{entry}->{status_message} . "\n\n";
         return $rrd;
     }
 
@@ -443,7 +443,7 @@ sub md_node_centreon_database {
 
     my $db = "#### Database\n\n";
     if ($options{entry}->{status_code} != 0) {
-        $db .= '_**Error:** cannot get informations ' . $options{node}->{status_message} . "\n\n";
+        $db .= '_**Error:** cannot get informations ' . $options{entry}->{status_message} . "\n\n";
         return $db;
     }
 
@@ -497,7 +497,7 @@ sub md_node_centreon_pluginpacks {
 
     my $pp = "#### Plugin-Packs\n\n";
     if ($options{entry}->{status_code} != 0) {
-        $pp .= '_**Error:** cannot get informations ' . $options{node}->{status_message} . "\n\n";
+        $pp .= '_**Error:** cannot get informations ' . $options{entry}->{status_message} . "\n\n";
         return $pp;
     }
 
