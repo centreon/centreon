@@ -318,7 +318,7 @@ sub get_system {
 
     my ($rv, $message, $content) = gorgone::standard::misc::slurp(file => '/etc/os-release');
     if ($rv && $content =~ /^ID="(.*?)"/mi) {
-        $self->{os} = $1
+        $self->{os} = $1;
         return ;
     }
 
