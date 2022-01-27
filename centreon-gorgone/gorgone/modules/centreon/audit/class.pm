@@ -315,6 +315,13 @@ sub get_system {
     my ($self, %options) = @_;
 
     $self->{os} = 'unknown';
+
+    my ($rv, $message, $content) = gorgone::standard::misc::slurp(file => '/etc/os-release');
+    if ($rv && $content =~ /^ID="(.*?)"/mi) {
+        $self->{os} = $1
+        return ;
+    }
+
     my ($error, $stdout, $return_code) = gorgone::standard::misc::backtick(
         command => 'lsb_release -a',
         timeout => 5,
