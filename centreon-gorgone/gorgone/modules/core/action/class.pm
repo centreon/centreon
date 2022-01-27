@@ -134,21 +134,28 @@ sub check_childs {
 sub get_package_manager {
     my ($self, %options) = @_;
 
-    $self->{package_manager} = 'unknown';
-    my ($error, $stdout, $return_code) = gorgone::standard::misc::backtick(
-        command => 'lsb_release -a',
-        timeout => 5,
-        wait_exit => 1,
-        redirect_stderr => 1,
-        logger => $options{logger}
-    );
-    if ($error == 0 && $stdout =~ /^Description:\s+(.*)$/mi) {
-        my $os = $1;
-        if ($os =~ /Debian|Ubuntu/i) {
-            $self->{package_manager} = 'deb';
-        } elsif ($os =~ /CentOS|Redhat/i) {
-            $self->{package_manager} = 'rpm';
+    my $os = 'unknown';
+    my ($rv, $message, $content) = gorgone::standard::misc::slurp(file => '/etc/os-release');
+    if ($rv && $content =~ /^ID="(.*?)"/mi) {
+        $os = $1;
+    } else {
+        my ($error, $stdout, $return_code) = gorgone::standard::misc::backtick(
+            command => 'lsb_release -a',
+            timeout => 5,
+            wait_exit => 1,
+            redirect_stderr => 1,
+            logger => $options{logger}
+        );
+        if ($error == 0 && $stdout =~ /^Description:\s+(.*)$/mi) {
+            $os = $1;
         }
+    }
+
+    $self->{package_manager} = 'unknown';
+    if ($os =~ /Debian|Ubuntu/i) {
+        $self->{package_manager} = 'deb';
+    } elsif ($os =~ /CentOS|Redhat/i) {
+        $self->{package_manager} = 'rpm';
     }
 }
 
