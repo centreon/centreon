@@ -83,7 +83,8 @@ try {
         stash name: "rpms-centos7", includes: 'output/noarch/*.rpm'
         sh 'rm -rf output'
       }
-    },
+    }
+/*
     'Packaging centos8': {
       node {
         checkoutCentreonBuild(buildBranch)
@@ -93,6 +94,7 @@ try {
         sh 'rm -rf output'
       }
     }
+*/
     if ((currentBuild.result ?: 'SUCCESS') != 'SUCCESS') {
       error('Package stage failure.');
     }
@@ -102,7 +104,7 @@ try {
     stage('Delivery') {
       node {
         checkoutCentreonBuild(buildBranch)
-        unstash 'rpms-centos8'
+//        unstash 'rpms-centos8'
         unstash 'rpms-centos7'
         sh "./centreon-build/jobs/gorgone/${serie}/gorgone-delivery.sh"
       }
