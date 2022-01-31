@@ -125,7 +125,8 @@ try {
         stash name: "rpms-centos7", includes: 'output/noarch/*.rpm'
         sh 'rm -rf output'
       }
-    },
+    }
+/*
     'RPM Packaging centos8': {
       node {
         checkoutCentreonBuild(buildBranch)
@@ -135,6 +136,7 @@ try {
         sh 'rm -rf output'
       }
     }
+*/
     if ((currentBuild.result ?: 'SUCCESS') != 'SUCCESS') {
       error('Unit tests // RPM Packaging // Sonar analysis stage failure.');
     }
@@ -144,7 +146,7 @@ try {
     stage('Delivery') {
       node {
         unstash 'rpms-centos7'
-        unstash 'rpms-centos8'
+//        unstash 'rpms-centos8'
         checkoutCentreonBuild(buildBranch)
         sh "./centreon-build/jobs/dsm/${serie}/dsm-delivery.sh"
       }
