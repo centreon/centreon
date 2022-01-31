@@ -126,16 +126,16 @@ try {
         stash name: "rpms-centos7", includes: 'output/noarch/*.rpm'
         sh 'rm -rf output'
       }
-    },
-    'Packaging centos8': {
-      node {
-        checkoutCentreonBuild(buildBranch)
-        sh "./centreon-build/jobs/awie/${serie}/mon-awie-package.sh centos8"
-        archiveArtifacts artifacts: 'rpms-centos8.tar.gz'
-        stash name: "rpms-centos8", includes: 'output/noarch/*.rpm'
-        sh 'rm -rf output'
-      }
     }
+//    'Packaging centos8': {
+//      node {
+//        checkoutCentreonBuild(buildBranch)
+//        sh "./centreon-build/jobs/awie/${serie}/mon-awie-package.sh centos8"
+//        archiveArtifacts artifacts: 'rpms-centos8.tar.gz'
+//        stash name: "rpms-centos8", includes: 'output/noarch/*.rpm'
+//        sh 'rm -rf output'
+//      }
+//    }
     if ((currentBuild.result ?: 'SUCCESS') != 'SUCCESS') {
       error('Unit tests stage failure.');
     }
@@ -144,7 +144,7 @@ try {
   if ((env.BUILD == 'CI')) {
     stage('Delivery to unstable') {
       node {
-        unstash 'rpms-centos8'
+//        unstash 'rpms-centos8'
         unstash 'rpms-centos7'
         checkoutCentreonBuild(buildBranch)
         sh "./centreon-build/jobs/awie/${serie}/mon-awie-delivery.sh"
@@ -161,13 +161,13 @@ try {
         checkoutCentreonBuild(buildBranch)
         sh "./centreon-build/jobs/awie/${serie}/mon-awie-bundle.sh centos7"
       }
-    },
-    'Docker centos8': {
-      node {
-        checkoutCentreonBuild(buildBranch)
-        sh "./centreon-build/jobs/awie/${serie}/mon-awie-bundle.sh centos8"
-      }
     }
+//    'Docker centos8': {
+//      node {
+//        checkoutCentreonBuild(buildBranch)
+//        sh "./centreon-build/jobs/awie/${serie}/mon-awie-bundle.sh centos8"
+//      }
+//    }
     if ((currentBuild.result ?: 'SUCCESS') != 'SUCCESS') {
       error('Bundle stage failure.');
     }
@@ -183,17 +183,17 @@ try {
           currentBuild.result = 'FAILURE'
         archiveArtifacts allowEmptyArchive: true, artifacts: 'acceptance-logs/*.txt, acceptance-logs/*.png'
       }
-    },
-    'centos8': {
-      node {
-        checkoutCentreonBuild(buildBranch)
-        sh "./centreon-build/jobs/awie/${serie}/mon-awie-acceptance.sh centos8"
-        junit 'xunit-reports/**/*.xml'
-        if (currentBuild.result == 'UNSTABLE')
-          currentBuild.result = 'FAILURE'
-        archiveArtifacts allowEmptyArchive: true, artifacts: 'acceptance-logs/*.txt, acceptance-logs/*.png'
-      }
     }
+//    'centos8': {
+//      node {
+//        checkoutCentreonBuild(buildBranch)
+//        sh "./centreon-build/jobs/awie/${serie}/mon-awie-acceptance.sh centos8"
+//        junit 'xunit-reports/**/*.xml'
+//        if (currentBuild.result == 'UNSTABLE')
+//          currentBuild.result = 'FAILURE'
+//        archiveArtifacts allowEmptyArchive: true, artifacts: 'acceptance-logs/*.txt, acceptance-logs/*.png'
+//      }
+//    }
     if ((currentBuild.result ?: 'SUCCESS') != 'SUCCESS') {
       error('Acceptance tests stage failure.');
     }
@@ -203,7 +203,7 @@ try {
     stage('Delivery') {
       node {
         checkoutCentreonBuild(buildBranch)
-        unstash 'rpms-centos8'
+//        unstash 'rpms-centos8'
         unstash 'rpms-centos7'
         sh "./centreon-build/jobs/awie/${serie}/mon-awie-delivery.sh"
       }
