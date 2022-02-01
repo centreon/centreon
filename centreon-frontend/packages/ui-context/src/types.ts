@@ -6,8 +6,14 @@ export interface User {
   isExportButtonEnabled: boolean;
   locale: string;
   name: string;
+  theme: ThemeMode;
   timezone: string;
   use_deprecated_pages: boolean;
+}
+
+export enum ThemeMode {
+  dark = 'dark',
+  light = 'light',
 }
 
 export interface CloudServices {

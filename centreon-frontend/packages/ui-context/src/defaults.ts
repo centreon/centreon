@@ -1,9 +1,12 @@
-const defaultUser = {
+import { User, ThemeMode } from './types';
+
+const defaultUser: User = {
   alias: '',
   default_page: '/monitoring/resources',
   isExportButtonEnabled: false,
   locale: navigator.language,
   name: '',
+  theme: ThemeMode.light,
   timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
   use_deprecated_pages: false,
 };
