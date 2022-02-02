@@ -52,6 +52,16 @@ sub get_username {
     return $self->{username};
 }
 
+sub get_password {
+    my ($self, %options) = @_;
+
+    if ($self->{is_error} == 1) {
+        return undef;
+    }
+
+    return $self->{password};
+}
+
 sub set_configuration {
     my ($self, %options) = @_;
 
