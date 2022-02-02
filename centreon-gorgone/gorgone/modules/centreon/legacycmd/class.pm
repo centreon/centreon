@@ -28,6 +28,7 @@ use gorgone::standard::library;
 use gorgone::standard::constants qw(:all);
 use gorgone::standard::misc;
 use gorgone::class::sqlquery;
+use gorgone::class::tpapi::clapi;
 use ZMQ::LibZMQ4;
 use ZMQ::Constants qw(:all);
 use File::Copy;
@@ -40,6 +41,9 @@ sub new {
     $connector = $class->SUPER::new(%options);
     bless $connector, $class;
 
+    $connector->{tpapi_clapi_name} = defined($options{config}->{tpapi_clapi}) && $options{config}->{tpapi_clapi} ne ''
+        ? $options{config}->{tpapi_clapi}
+        : 'clapi';
     if (!defined($connector->{config}->{cmd_file}) || $connector->{config}->{cmd_file} eq '') {
         $connector->{config}->{cmd_file} = '/var/lib/centreon/centcore.cmd';
     }
@@ -97,7 +101,7 @@ sub cache_refresh {
 
     return if ((time() - $self->{cache_refresh_interval}) < $self->{cache_refresh_last});
     $self->{cache_refresh_last} = time();
-    
+
     # get pollers config
     $self->{pollers} = undef;
     my ($status, $datas) = $self->{class_object_centreon}->custom_execute(
@@ -116,38 +120,12 @@ sub cache_refresh {
 
     $self->{pollers} = $datas;
 
-    # get clapi user
-    $self->{clapi_user} = undef;
-    $self->{clapi_password} = undef;
-    ($status, $datas) = $self->{class_object_centreon}->custom_execute(
-        request => "SELECT contact_alias, contact_passwd " .
-            "FROM `contact` " .
-            "WHERE `contact_admin` = '1' " . 
-            "AND `contact_activate` = '1' " .
-            "AND `contact_passwd` IS NOT NULL " .
-            "LIMIT 1 ",
-        mode => 2
-    );
-
-    if ($status == -1 || !defined($datas->[0]->[0])) {
-        $self->{logger}->writeLogInfo('[legacycmd] Cannot get configuration for CLAPI user');
-    } else {
-        my $clapi_user = $datas->[0]->[0];
-        my $clapi_password = $datas->[0]->[1];
-        if ($clapi_password =~ m/^md5__(.*)/) {
-            $clapi_password = $1;
-        }
-
-        $self->{clapi_user} = $clapi_user;
-        $self->{clapi_password} = $clapi_password;
-    }
-
     # check illegal characters
     ($status, $datas) = $self->{class_object_centreon}->custom_execute(
         request => "SELECT `value` FROM options WHERE `key` = 'gorgone_illegal_characters'",
         mode => 2
     );
-    if ($status == -1) { 
+    if ($status == -1) {
         $self->{logger}->writeLogError('[legacycmd] Cannot get illegal characters');
         return ;
     }
@@ -803,6 +781,14 @@ sub event {
 
 sub run {
     my ($self, %options) = @_;
+
+    $self->{tpapi_clapi} = gorgone::class::tpapi::clapi->new();
+    $self->{tpapi_clapi}->set_configuration(
+        config => $self->{tpapi}->get_configuration(name => $self->{tpapi_clapi_name})
+    );
+
+    $self->{clapi_user} = $self->{tpapi_clapi}->get_username();
+    $self->{clapi_password} = $self->{tpapi_clapi}->get_password();
 
     # Connect internal
     $connector->{internal_socket} = gorgone::standard::library::connect_com(
