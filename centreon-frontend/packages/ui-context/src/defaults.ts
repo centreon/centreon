@@ -6,7 +6,7 @@ const defaultUser: User = {
   isExportButtonEnabled: false,
   locale: navigator.language,
   name: '',
-  theme: ThemeMode.light,
+  themeMode: ThemeMode.light,
   timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
   use_deprecated_pages: false,
 };
