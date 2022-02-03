@@ -1,9 +1,9 @@
 /*
 ** Variables.
 */
-def serie = '21.10'
-def maintenanceBranch = "${serie}.x"
-def qaBranch = "dev-${serie}.x"
+def serie = '22.04'
+def maintenanceBranch = "master"
+def qaBranch = "develop"
 env.REF_BRANCH = 'master'
 env.PROJECT='centreon-dsm'
 if (env.BRANCH_NAME.startsWith('release-')) {
