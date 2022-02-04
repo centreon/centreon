@@ -1,6 +1,7 @@
 import React from 'react';
 
 import { useAtomValue } from 'jotai/utils';
+import { equals } from 'ramda';
 
 import {
   ThemeProvider as MuiThemeProvider,
@@ -9,6 +10,7 @@ import {
   createTheme,
 } from '@mui/material';
 import { ThemeOptions } from '@mui/material/styles/createTheme';
+import { blue, grey } from '@mui/material/colors';
 
 import { ThemeMode, userAtom } from '@centreon/ui-context';
 
@@ -28,24 +30,35 @@ declare module '@mui/material/styles/createPalette' {
 
 export const getTheme = (mode: ThemeMode): ThemeOptions => ({
   palette: {
+    mode,
+    ...(equals(mode, ThemeMode.light)
+      ? {
+          background: {
+            default: '#EDEDED',
+          },
+          primary: {
+            main: '#10069F',
+          },
+        }
+      : {
+          background: {
+            default: grey[800],
+          },
+          primary: {
+            main: blue[500],
+          },
+        }),
     action: {
       acknowledged: '#AA9C24',
       acknowledgedBackground: '#F7F4E5',
       inDowntime: '#9C27B0',
       inDowntimeBackground: '#F9E7FF',
     },
-    background: {
-      default: '#EDEDED',
-    },
     error: {
       main: '#f90026',
     },
     info: {
       main: '#00d3d4',
-    },
-    mode,
-    primary: {
-      main: '#10069F',
     },
     success: {
       main: '#84BD00',

@@ -97,7 +97,7 @@ const SortableHeaderCellContent = ({
       className={clsx([cellClasses.cell, classes.item])}
       component={'div' as unknown as React.ElementType<TableCellBaseProps>}
       padding={column.compact ? 'none' : 'normal'}
-      style={{ background: isDragging ? 'transparent' : 'white' }}
+      style={{ background: isDragging ? 'transparent' : 'unset' }}
     >
       <div className={classes.content} ref={itemRef} style={style}>
         {columnConfiguration?.sortable && (
