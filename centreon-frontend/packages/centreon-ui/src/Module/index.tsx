@@ -23,13 +23,15 @@ const Module = ({
   });
 
   return (
-    <StylesProvider generateClassName={generateClassName}>
-      <ThemeProvider>
-        <SnackbarProvider maxSnackbars={maxSnackbars}>
-          <JotaiProvider scope="ui-context">{children}</JotaiProvider>
-        </SnackbarProvider>
-      </ThemeProvider>
-    </StylesProvider>
+    <JotaiProvider scope="ui-context">
+      <StylesProvider generateClassName={generateClassName}>
+        <ThemeProvider>
+          <SnackbarProvider maxSnackbars={maxSnackbars}>
+            {children}
+          </SnackbarProvider>
+        </ThemeProvider>
+      </StylesProvider>
+    </JotaiProvider>
   );
 };
 
