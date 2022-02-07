@@ -1,6 +1,5 @@
 import React, { ReactElement } from 'react';
 
-import { Provider as JotaiProvider } from 'jotai';
 import {
   render as rtlRender,
   RenderOptions,
@@ -16,11 +15,7 @@ interface Props {
 }
 
 const ThemeProviderWrapper = ({ children }: Props): JSX.Element => {
-  return (
-    <JotaiProvider scope="ui-context">
-      <ThemeProvider themeMode={ThemeMode.light}>{children}</ThemeProvider>
-    </JotaiProvider>
-  );
+  return <ThemeProvider themeMode={ThemeMode.light}>{children}</ThemeProvider>;
 };
 
 const render = (
