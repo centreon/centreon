@@ -88,7 +88,7 @@ const ThemeProvider = ({ children }: Props): JSX.Element => {
   const { themeMode } = useAtomValue(userAtom);
 
   const theme = React.useMemo(
-    () => createTheme(getTheme(themeMode)),
+    () => createTheme(getTheme(themeMode || ThemeMode.light)),
     [themeMode],
   );
 
