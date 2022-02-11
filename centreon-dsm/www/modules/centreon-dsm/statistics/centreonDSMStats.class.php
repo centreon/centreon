@@ -65,7 +65,7 @@ class CentreonDSMStats
         } catch (\Throwable $e) {
             throw new StatisticException(
                 "Unable to get Centreon DSM statistics: " . $e->getMessage(),
-                $e->getCode(),
+                (int) $e->getCode(),
                 $e
             );
         }
