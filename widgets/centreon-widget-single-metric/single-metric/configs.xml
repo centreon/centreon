@@ -1,0 +1,8 @@
+<configs>
+    <title>Single metric</title>
+    <author>Centreon</author>
+    <email>contact@centreon.com</email>
+    <website>http://www.centreon.com</website>
+    <description></description>
+    <version>22.04.0</version>
+</configs>
