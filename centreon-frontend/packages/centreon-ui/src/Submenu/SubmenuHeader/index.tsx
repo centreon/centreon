@@ -18,7 +18,7 @@ const useStyles = makeStyles((theme) => ({
   },
   top: {
     alignItems: 'center',
-    backgroundColor: theme.palette.common.black,
+    backgroundColor: '#232f39',
     display: 'flex',
     flexWrap: 'wrap',
     gridGap: theme.spacing(1),
