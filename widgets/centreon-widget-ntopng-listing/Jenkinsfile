@@ -49,6 +49,8 @@ def checkoutCentreonBuild(buildBranch) {
   }
 }
 
+
+
 /*
 ** Pipeline code.
 */
