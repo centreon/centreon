@@ -32,14 +32,14 @@ For the RPM based systems
 
 -- Copy/Paste the result of the following command --
 ```
-$ rpm -qa | grep centreon-widget-hostgroup-monitoring
+$ rpm -qa | grep centreon-widget-single-metric
 ```
 
 For the deb based systems
 
 -- Copy/Paste the result of the following command --
 ```
-$ dpkg -l | grep centreon-widget-hostgroup-monitoring
+$ dpkg -l | grep centreon-widget-single-metric
 ```
 ***Operating System***
 
