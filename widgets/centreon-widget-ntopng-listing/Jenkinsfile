@@ -49,8 +49,6 @@ def checkoutCentreonBuild(buildBranch) {
   }
 }
 
-
-
 /*
 ** Pipeline code.
 */
@@ -134,16 +132,7 @@ try {
         stash name: "rpms-centos7", includes: 'output/noarch/*.rpm'
         sh 'rm -rf output'
       }
-    }/*,
-    'RPM packaging centos8': {
-      node {
-        checkoutCentreonBuild(buildBranch)
-        sh "./centreon-build/jobs/widgets/${serie}/widget-package.sh centos8"
-        archiveArtifacts artifacts: 'rpms-centos8.tar.gz'
-        stash name: "rpms-centos8", includes: 'output/noarch/*.rpm'
-        sh 'rm -rf output'      
-      }
-    }*/
+    }
     if ((currentBuild.result ?: 'SUCCESS') != 'SUCCESS') {
       error('Unit tests stage failure.');
     }
