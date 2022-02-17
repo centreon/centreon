@@ -34,7 +34,7 @@ const HeaderCell = withStyles((theme) => ({
 
 const CheckboxHeaderCell = withStyles((theme) => ({
   root: {
-    backgroundColor: theme.palette.common.white,
+    backgroundColor: 'unset',
     display: 'grid',
     gridTemplateColumns: 'repeat(2, min-content)',
     height,

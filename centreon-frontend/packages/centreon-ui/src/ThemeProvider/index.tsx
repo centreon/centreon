@@ -33,6 +33,12 @@ export const getTheme = (mode: ThemeMode): ThemeOptions => ({
     mode,
     ...(equals(mode, ThemeMode.light)
       ? {
+          action: {
+            acknowledged: '#635a15',
+            acknowledgedBackground: '#F7F4E5',
+            inDowntime: '#4e1358',
+            inDowntimeBackground: '#F9E7FF',
+          },
           background: {
             default: '#EDEDED',
           },
@@ -41,6 +47,12 @@ export const getTheme = (mode: ThemeMode): ThemeOptions => ({
           },
         }
       : {
+          action: {
+            acknowledged: '#F7F4E5',
+            acknowledgedBackground: '#635a15',
+            inDowntime: '#F9E7FF',
+            inDowntimeBackground: '#4e1358',
+          },
           background: {
             default: grey[800],
           },
@@ -48,12 +60,6 @@ export const getTheme = (mode: ThemeMode): ThemeOptions => ({
             main: blue[500],
           },
         }),
-    action: {
-      acknowledged: '#AA9C24',
-      acknowledgedBackground: '#F7F4E5',
-      inDowntime: '#9C27B0',
-      inDowntimeBackground: '#F9E7FF',
-    },
     error: {
       main: '#f90026',
     },
