@@ -10,7 +10,7 @@ const useStyles = makeStyles((theme) => ({
     backgroundColor: '#2ad1d4',
   },
   count: {
-    color: theme.palette.background.paper,
+    color: theme.palette.common.white,
     float: 'right',
     fontSize: '.8rem',
     padding: '10px',
@@ -49,7 +49,7 @@ const useStyles = makeStyles((theme) => ({
     width: '100%',
   },
   title: {
-    color: theme.palette.background.paper,
+    color: theme.palette.common.white,
     display: 'block',
     float: 'left',
     fontSize: '.8rem',

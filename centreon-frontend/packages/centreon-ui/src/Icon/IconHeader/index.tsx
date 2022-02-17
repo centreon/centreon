@@ -7,7 +7,7 @@ import makeStyles from '@mui/styles/makeStyles';
 
 const useStyles = makeStyles((theme) => ({
   iconName: {
-    color: theme.palette.background.paper,
+    color: theme.palette.common.white,
     display: 'block',
     fontSize: '.6875rem',
     textTransform: 'lowercase',
