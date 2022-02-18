@@ -239,8 +239,8 @@ sub run {
         zmq_type => 'ZMQ_DEALER',
         name => 'gorgone-httpserverng',
         logger => $self->{logger},
-        type => $self->{config_core}->{internal_com_type},
-        path => $self->{config_core}->{internal_com_path}
+        type => $self->get_core_config(name => 'internal_com_type'),
+        path => $self->get_core_config(name => 'internal_com_path')
     );
     $self->send_internal_action(
         action => 'HTTPSERVERNGREADY',
@@ -380,7 +380,7 @@ sub read_zmq_events {
 
     while (my $events = gorgone::standard::library::zmq_events(socket => $self->{internal_socket})) {
         if ($events & ZMQ_POLLIN) {
-            my $message = gorgone::standard::library::zmq_dealer_read_message(socket => $connector->{internal_socket});
+            my $message = $connector->read_message();
             $connector->{logger}->writeLogDebug('[httpserverng] zmq message received: ' . $message);
             if ($message =~ /^\[(.*?)\]\s+\[(.*?)\]\s+\[.*?\]\s+(.*)$/m || 
                 $message =~ /^\[(.*?)\]\s+\[(.*?)\]\s+(.*)$/m) {
@@ -391,6 +391,9 @@ sub read_zmq_events {
                     } elsif ($token =~ /-log$/) {
                         $connector->read_log_event(token => $token, data => $data);
                     }
+                }
+                if ((my $method = $connector->can('action_' . lc($action)))) {
+                    $method->($connector, token => $token, data => $data);
                 }
             }
         } else {
@@ -442,12 +445,11 @@ sub api_call {
 sub get_log {
     my ($self, %options) = @_;
 
-    if (defined($options{target}) && $options{target} ne '') {        
-        gorgone::standard::library::zmq_send_message(
-            socket => $self->{internal_socket},
+    if (defined($options{target}) && $options{target} ne '') {
+        $self->send_internal_action(
             target => $options{target},
             action => 'GETLOG',
-            json_encode => 1
+            data => {}
         );
         $self->read_zmq_events();
     }
@@ -463,16 +465,15 @@ sub get_log {
         mojo => $options{mojo}
     };
 
-    gorgone::standard::library::zmq_send_message(
-        socket => $self->{internal_socket},
+    $self->send_internal_action(
         action => 'GETLOG',
         token => $token_log,
         data => {
             token => $options{token},
             %{$options{parameters}}
-        },
-        json_encode => 1
+        }
     );
+
     $self->read_zmq_events();
 
     # keep reference tx to avoid "Transaction already destroyed"

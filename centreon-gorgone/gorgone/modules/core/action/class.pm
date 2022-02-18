@@ -663,8 +663,8 @@ sub action_run {
         name => 'gorgone-action-'. $$,
         logger => $self->{logger},
         zmq_linger => 60000,
-        type => $self->{config_core}->{internal_com_type},
-        path => $self->{config_core}->{internal_com_path}
+        type => $self->get_core_config(name => 'internal_com_type'),
+        path => $self->get_core_config(name => 'internal_com_path')
     );
 
     if ($options{action} eq 'COMMAND') {
@@ -721,6 +721,7 @@ sub create_child {
     }
     
     if ($child_pid == 0) {
+        $self->set_fork();
         $self->action_run(action => $options{action}, token => $options{token}, data => $options{data});
         exit(0);
     } else {
@@ -732,7 +733,7 @@ sub create_child {
 
 sub event {
     while (1) {
-        my $message = gorgone::standard::library::zmq_dealer_read_message(socket => $connector->{internal_socket}); 
+        my $message = $connector->read_message();
         last if (!defined($message));
 
         $connector->{logger}->writeLogDebug("[action] Event: $message");
@@ -763,8 +764,8 @@ sub run {
         zmq_type => 'ZMQ_DEALER',
         name => 'gorgone-action',
         logger => $self->{logger},
-        type => $self->{config_core}->{internal_com_type},
-        path => $self->{config_core}->{internal_com_path}
+        type => $self->get_core_config(name => 'internal_com_type'),
+        path => $self->get_core_config(name => 'internal_com_path')
     );
     $connector->send_internal_action(
         action => 'ACTIONREADY',

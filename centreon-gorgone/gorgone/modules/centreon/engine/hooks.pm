@@ -72,8 +72,7 @@ sub routing {
         return undef;
     }
     
-    gorgone::standard::library::zmq_send_message(
-        socket => $options{socket},
+    $options{gorgone}->send_internal_message(
         identity => 'gorgone-engine',
         action => $options{action},
         data => $options{data},

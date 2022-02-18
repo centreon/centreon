@@ -152,7 +152,7 @@ sub action_dbclean {
 
 sub event {
     while (1) {
-        my $message = gorgone::standard::library::zmq_dealer_read_message(socket => $connector->{internal_socket});
+        my $message = $connector->read_message();
         last if (!defined($message));
 
         $connector->{logger}->writeLogDebug("[dbcleaner] Event: $message");
@@ -177,8 +177,8 @@ sub run {
         zmq_type => 'ZMQ_DEALER',
         name => 'gorgone-dbcleaner',
         logger => $self->{logger},
-        type => $self->{config_core}->{internal_com_type},
-        path => $self->{config_core}->{internal_com_path}
+        type => $self->get_core_config(name => 'internal_com_type'),
+        path => $self->get_core_config(name => 'internal_com_path')
     );
     $connector->send_internal_action(
         action => 'DBCLEANERREADY',
@@ -193,12 +193,12 @@ sub run {
     ];
 
     $self->{db_gorgone} = gorgone::class::db->new(
-        type => $self->{config_core}->{gorgone_db_type},
-        db => $self->{config_core}->{gorgone_db_name},
-        host => $self->{config_core}->{gorgone_db_host},
-        port => $self->{config_core}->{gorgone_db_port},
-        user => $self->{config_core}->{gorgone_db_user},
-        password => $self->{config_core}->{gorgone_db_password},
+        type => $self->get_core_config(name => 'gorgone_db_type'),
+        db => $self->get_core_config(name => 'gorgone_db_name'),
+        host => $self->get_core_config(name => 'gorgone_db_host'),
+        port => $self->get_core_config(name => 'gorgone_db_port'),
+        user => $self->get_core_config(name => 'gorgone_db_user'),
+        password => $self->get_core_config(name => 'gorgone_db_password'),
         force => 2,
         logger => $self->{logger}
     );

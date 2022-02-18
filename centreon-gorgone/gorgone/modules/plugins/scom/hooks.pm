@@ -108,9 +108,11 @@ sub routing {
         return undef;
     }
     
-    gorgone::standard::library::zmq_send_message(
-        socket => $options{socket}, identity => 'gorgone-scom-' . $data->{container_id},
-        action => $options{action}, data => $options{data}, token => $options{token},
+    $options{gorgone}->send_internal_message(
+        identity => 'gorgone-scom-' . $data->{container_id},
+        action => $options{action},
+        data => $options{data},
+        token => $options{token}
     );
 }
 
@@ -173,9 +175,13 @@ sub broadcast {
 
     foreach my $container_id (keys %$containers) {
         if ($containers->{$container_id}->{running} == 1) {
-            gorgone::standard::library::zmq_send_message(
-                socket => $options{socket}, identity => 'gorgone-scom-' . $container_id,
-                action => $options{action}, data => $options{data}, token => $options{token}
+            gorgone::standard::library::zmq_send_internal_message(
+                socket => $options{socket},
+                internal_crypt => $options{internal_crypt},
+                identity => 'gorgone-scom-' . $container_id,
+                action => $options{action},
+                data => $options{data},
+                token => $options{token}
             );
         }
     }
