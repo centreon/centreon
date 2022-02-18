@@ -109,9 +109,11 @@ sub routing {
         return undef;
     }
     
-    gorgone::standard::library::zmq_send_message(
-        socket => $options{socket}, identity => 'gorgone-newtest-' . $data->{container_id},
-        action => $options{action}, data => $options{data}, token => $options{token}
+    $options{gorgone}->send_internal_message(
+        identity => 'gorgone-newtest-' . $data->{container_id},
+        action => $options{action},
+        data => $options{data},
+        token => $options{token}
     );
 }
 
@@ -174,9 +176,13 @@ sub broadcast {
 
     foreach my $container_id (keys %$containers) {
         if ($containers->{$container_id}->{running} == 1) {
-            gorgone::standard::library::zmq_send_message(
-                socket => $options{socket}, identity => 'gorgone-newtest-' . $container_id,
-                action => $options{action}, data => $options{data}, token => $options{token}
+            gorgone::standard::library::zmq_send_internal_message(
+                socket => $options{socket},
+                internal_crypt => $options{internal_crypt},
+                identity => 'gorgone-newtest-' . $container_id,
+                action => $options{action},
+                data => $options{data},
+                token => $options{token}
             );
         }
     }
@@ -275,7 +281,7 @@ sub create_child {
             config_db_centreon => $config_db_centreon,
             config_db_centstorage => $config_db_centstorage,
             config_newtest => $last_containers->{$options{container_id}},
-            container_id => $options{container_id},
+            container_id => $options{container_id}
         );
         $module->run();
         exit(0);

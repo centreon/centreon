@@ -584,7 +584,7 @@ sub rrd_update {
 
 sub event {
     while (1) {
-        my $message = gorgone::standard::library::zmq_dealer_read_message(socket => $connector->{internal_socket});
+        my $message = $connector->read_message();
         last if (!defined($message));
 
         $connector->{logger}->writeLogDebug("[statistics] Event: $message");
@@ -609,8 +609,8 @@ sub run {
         zmq_type => 'ZMQ_DEALER',
         name => 'gorgone-statistics',
         logger => $self->{logger},
-        type => $self->{config_core}->{internal_com_type},
-        path => $self->{config_core}->{internal_com_path}
+        type => $self->get_core_config(name => 'internal_com_type'),
+        path => $self->get_core_config(name => 'internal_com_path')
     );
     $connector->send_internal_action(
         action => 'STATISTICSREADY',

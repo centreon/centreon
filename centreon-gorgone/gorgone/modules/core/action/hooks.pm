@@ -73,8 +73,7 @@ sub routing {
         return undef;
     }
     
-    gorgone::standard::library::zmq_send_message(
-        socket => $options{socket},
+    $options{gorgone}->send_internal_message(
         identity => 'gorgone-action',
         action => $options{action},
         data => $options{data},
@@ -135,7 +134,7 @@ sub broadcast {
 # Specific functions
 sub create_child {
     my (%options) = @_;
-    
+
     $options{logger}->writeLogInfo("[action] Create module 'action' process");
     my $child_pid = fork();
     if ($child_pid == 0) {
@@ -144,7 +143,7 @@ sub create_child {
             logger => $options{logger},
             module_id => NAME,
             config_core => $config_core,
-            config => $config,
+            config => $config
         );
         $module->run();
         exit(0);

@@ -28,6 +28,7 @@ use ZMQ::Constants qw(:all);
 use Time::HiRes;
 use JSON::XS;
 
+my $module;
 my $socket;
 my $results;
 my $action_token;
@@ -39,6 +40,7 @@ sub root {
 
     $action_token = undef;
     $socket = $options{socket};
+    $module = $options{module};
     $results = {};
 
     my $response;
@@ -47,7 +49,8 @@ sub root {
             target => $2,
             token => $3,
             sync_wait => (defined($options{parameters}->{sync_wait})) ? $options{parameters}->{sync_wait} : undef,
-            parameters => $options{parameters}
+            parameters => $options{parameters},
+            module => $options{module}
         );
     } elsif ($options{uri} =~ /^\/api\/(nodes\/(\w*)\/)?internal\/(\w+)\/?([\w\/]*?)$/
         && defined($options{api_endpoints}->{$options{method} . '_/internal/' . $3})) {
@@ -61,7 +64,8 @@ sub root {
                 variables => \@variables
             },
             log_wait => (defined($options{parameters}->{log_wait})) ? $options{parameters}->{log_wait} : undef,
-            sync_wait => (defined($options{parameters}->{sync_wait})) ? $options{parameters}->{sync_wait} : undef
+            sync_wait => (defined($options{parameters}->{sync_wait})) ? $options{parameters}->{sync_wait} : undef,
+            module => $options{module}
         );
     } elsif ($options{uri} =~ /^\/api\/(nodes\/(\w*)\/)?(\w+)\/(\w+)\/(\w+)\/?([\w\/]*?)$/
         && defined($options{api_endpoints}->{$options{method} . '_/' . $3 . '/' . $4 . '/' . $5})) {
@@ -75,7 +79,8 @@ sub root {
                 variables => \@variables
             },
             log_wait => (defined($options{parameters}->{log_wait})) ? $options{parameters}->{log_wait} : undef,
-            sync_wait => (defined($options{parameters}->{sync_wait})) ? $options{parameters}->{sync_wait} : undef
+            sync_wait => (defined($options{parameters}->{sync_wait})) ? $options{parameters}->{sync_wait} : undef,
+            module => $options{module}
         );
     } else {
         $response = '{"error":"method_unknown","message":"Method not implemented"}';
@@ -89,7 +94,7 @@ sub call_action {
 
     $action_token = gorgone::standard::library::generate_token() if (!defined($options{token}));
 
-    gorgone::standard::library::zmq_send_message(
+    $options{module}->send_internal_action(
         socket => $socket,
         action => $options{action},
         target => $options{target},
@@ -105,7 +110,8 @@ sub call_action {
             target => $options{target},
             token => $action_token,
             sync_wait => $options{sync_wait},
-            parameters => $options{data}->{parameters}
+            parameters => $options{data}->{parameters},
+            module => $options{module}
         );
     }
 
@@ -132,11 +138,12 @@ sub call_internal {
             data => $options{data},
             json_encode => 1,
             log_wait => $options{log_wait},
-            sync_wait => $options{sync_wait}
+            sync_wait => $options{sync_wait},
+            module => $options{module}
         );
     }
 
-    gorgone::standard::library::zmq_send_message(
+    $options{module}->send_internal_action(
         socket => $socket,
         action => $options{action},
         token => $action_token,
@@ -188,8 +195,8 @@ sub get_log {
         }
     ];
 
-    if (defined($options{target}) && $options{target} ne '') {        
-        gorgone::standard::library::zmq_send_message(
+    if (defined($options{target}) && $options{target} ne '') {
+        $options{module}->send_internal_action(
             socket => $socket,
             target => $options{target},
             action => 'GETLOG',
@@ -201,7 +208,7 @@ sub get_log {
     }
 
     my $token_log = $options{token} . '-log';
-    gorgone::standard::library::zmq_send_message(
+    $options{module}->send_internal_action(
         socket => $socket,
         action => 'GETLOG',
         token => $token_log,
@@ -249,16 +256,20 @@ sub get_log {
 
 sub event {
     while (1) {
-        my $message = gorgone::standard::library::zmq_dealer_read_message(socket => $socket);
+        my $message = $module->read_message();
         last if (!defined($message));
 
         if ($message =~ /^\[(.*?)\]\s+\[([a-zA-Z0-9:\-_]*?)\]\s+\[.*?\]\s+(.*)$/m || 
             $message =~ /^\[(.*?)\]\s+\[([a-zA-Z0-9:\-_]*?)\]\s+(.*)$/m) {
-            $results->{$2} = {
-                action => $1,
-                token => $2,
-                data => $3
+            my ($action, $token, $data) = ($1, $2, $3);
+            $results->{$token} = {
+                action => $action,
+                token => $token,
+                data => $data
             };
+            if ((my $method = $module->can('action_' . lc($action)))) {
+                $method->($module, token => $token, data => $data);
+            }
         }
     }
 }

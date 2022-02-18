@@ -95,7 +95,7 @@ my $prevails = {};
 my $prevails_subnodes = {};
 my $rr_current = 0;
 my $stop = 0;
-my ($external_socket, $internal_socket, $core_id);
+my ($external_socket, $core_id);
 
 sub register {
     my (%options) = @_;
@@ -118,7 +118,6 @@ sub init {
     $synctime_lasttime = Time::HiRes::time();
     $core_id = $options{id};
     $external_socket = $options{external_socket};
-    $internal_socket = $options{internal_socket};
     for my $pool_id (1..$config->{pool}) {
         create_child(dbh => $options{dbh}, pool_id => $pool_id, logger => $options{logger});
     }
@@ -184,10 +183,10 @@ sub routing {
             foreach my $node_id (keys %$nodes_pool) {
                 next if ($nodes_pool->{$node_id} != $data->{pool_id});
                 routing(
-                    socket => $internal_socket,
                     action => 'PROXYADDNODE',
                     target => $node_id,
                     data => JSON::XS->new->utf8->encode($register_nodes->{$node_id}),
+                    gorgone => $options{gorgone},
                     dbh => $options{dbh},
                     logger => $options{logger}
                 );
@@ -208,6 +207,7 @@ sub routing {
         target => $options{target},
         dbh => $options{dbh},
         token => $options{token},
+        gorgone => $options{gorgone},
         logger => $options{logger}
     );
     return if ($code == -1);
@@ -309,8 +309,7 @@ sub routing {
             next;
         }
 
-        gorgone::standard::library::zmq_send_message(
-            socket => $options{socket},
+        $options{gorgone}->send_internal_message(
             identity => $identity,
             action => $action,
             data => $data,
@@ -404,10 +403,10 @@ sub check {
                 if (($constatus_ping->{$_}->{ping_timeout} % $config->{pong_max_timeout}) == 0) {
                     $options{logger}->writeLogInfo("[proxy] Ping max timeout reached from '" . $_ . "'");
                     routing(
-                        socket => $internal_socket,
                         target => $_,
                         action => 'PROXYCLOSECONNECTION',
                         data => JSON::XS->new->utf8->encode({ id => $_ }),
+                        gorgone => $options{gorgone},
                         dbh => $options{dbh},
                         logger => $options{logger}
                     );
@@ -431,11 +430,11 @@ sub check {
     if ($stop == 0 &&
         time() - $synctime_lasttime > $synctime_option) {
         $synctime_lasttime = time();
-        full_sync_history(dbh => $options{dbh}, logger => $options{logger});
+        full_sync_history(gorgone => $options{gorgone}, dbh => $options{dbh}, logger => $options{logger});
     }
     
     if ($stop == 0) {
-        ping_send(dbh => $options{dbh}, logger => $options{logger});
+        ping_send(gorgone => $options{gorgone}, dbh => $options{dbh}, logger => $options{logger});
     }
 
     # We clean all parents
@@ -454,8 +453,7 @@ sub broadcast {
     foreach my $pool_id (keys %$pools) {
         next if ($pools->{$pool_id}->{ready} != 1);
 
-        gorgone::standard::library::zmq_send_message(
-            socket => $options{socket},
+        $options{gorgone}->send_internal_message(
             identity => 'gorgone-proxy-' . $pool_id,
             action => $options{action},
             data => $options{data},
@@ -523,10 +521,10 @@ sub pathway {
         if ($synctime_nodes->{$_}->{channel_read_stop} == 0) {
             $synctime_nodes->{$_}->{channel_read_stop} = 1;
             routing(
-                socket => $internal_socket,
                 target => $_,
                 action => 'PROXYCLOSEREADCHANNEL',
                 data => JSON::XS->new->utf8->encode({ id => $_ }),
+                gorgone => $options{gorgone},
                 dbh => $options{dbh},
                 logger => $options{logger}
             );
@@ -644,11 +642,11 @@ sub ping_send {
         $constatus_ping->{$id}->{next_ping} = $current_time + $ping_interval;
         if ($register_nodes->{$id}->{type} eq 'push_zmq' || $register_nodes->{$id}->{type} eq 'push_ssh') {
             $constatus_ping->{$id}->{in_progress_ping} = 1;
-            routing(socket => $internal_socket, action => 'PING', target => $id, data => '{}', dbh => $options{dbh}, logger => $options{logger});
+            routing(action => 'PING', target => $id, data => '{}', gorgone => $options{gorgone}, dbh => $options{dbh}, logger => $options{logger});
         } elsif ($register_nodes->{$id}->{type} eq 'pull') {
             $constatus_ping->{$id}->{in_progress_ping} = 1;
             $constatus_ping->{$id}->{in_progress_ping_pull} = time();
-            routing(socket => $internal_socket, action => 'PING', target => $id, data => '{}', dbh => $options{dbh}, logger => $options{logger});
+            routing(action => 'PING', target => $id, data => '{}', gorgone => $options{gorgone}, dbh => $options{dbh}, logger => $options{logger});
         }
     }
 }
@@ -668,9 +666,9 @@ sub full_sync_history {
     
     foreach my $id (keys %{$register_nodes}) {
         if ($register_nodes->{$id}->{type} eq 'push_zmq') {
-            routing(socket => $internal_socket, action => 'GETLOG', target => $id, data => '{}', dbh => $options{dbh}, logger => $options{logger});
+            routing(action => 'GETLOG', target => $id, data => '{}', gorgone => $options{gorgone}, dbh => $options{dbh}, logger => $options{logger});
         } elsif ($register_nodes->{$id}->{type} eq 'pull') {
-            routing(socket => $internal_socket, action => 'GETLOG', target => $id, data => '{}', dbh => $options{dbh}, logger => $options{logger});
+            routing(action => 'GETLOG', target => $id, data => '{}', gorgone => $options{gorgone}, dbh => $options{dbh}, logger => $options{logger});
         }
     }
 }
@@ -750,7 +748,8 @@ sub create_child {
             config_core => $config_core,
             config => $config,
             pool_id => $options{pool_id},
-            core_id => $core_id
+            core_id => $core_id,
+            container_id => $options{pool_id}
         );
         $module->run();
         exit(0);
@@ -819,7 +818,14 @@ sub unregister_nodes {
 
     foreach my $node (@{$options{data}->{nodes}}) {
         if (defined($register_nodes->{ $node->{id} }) && $register_nodes->{ $node->{id} }->{type} ne 'pull') {
-            routing(socket => $internal_socket, action => 'PROXYDELNODE', target => $node->{id}, data => JSON::XS->new->utf8->encode($node), dbh => $options{dbh}, logger => $options{logger});
+            routing(
+                action => 'PROXYDELNODE',
+                target => $node->{id},
+                data => JSON::XS->new->utf8->encode($node),
+                gorgone => $options{gorgone},
+                dbh => $options{dbh},
+                logger => $options{logger}
+            );
         }
 
         my $prevail = 0;
@@ -911,6 +917,7 @@ sub register_nodes {
 
             unregister_nodes(
                 data => { nodes => [ { id => $node->{id} } ] },
+                gorgone => $options{gorgone},
                 dbh => $options{dbh},
                 logger => $options{logger}
             ) if ($register_nodes->{ $node->{id} }->{type} ne 'pull' && $node->{type} eq 'pull');
@@ -927,6 +934,7 @@ sub register_nodes {
                     if (defined($node->{prevail}) && $node->{prevail} == 1) {
                         unregister_nodes(
                             data => { nodes => [ { id => $subnode->{id} } ] },
+                            gorgone => $options{gorgone},
                             dbh => $options{dbh},
                             logger => $options{logger}
                         );
@@ -957,9 +965,23 @@ sub register_nodes {
 
         if ($register_nodes->{ $node->{id} }->{type} ne 'pull') {
             if ($prevail == 1) {
-                routing(socket => $internal_socket, action => 'PROXYADDNODE', target => $node->{id}, data => JSON::XS->new->utf8->encode($register_nodes->{ $node->{id} }), dbh => $options{dbh}, logger => $options{logger});
+                routing(
+                    action => 'PROXYADDNODE',
+                    target => $node->{id},
+                    data => JSON::XS->new->utf8->encode($register_nodes->{ $node->{id} }),
+                    gorgone => $options{gorgone},
+                    dbh => $options{dbh},
+                    logger => $options{logger}
+                );
             } else {
-                routing(socket => $internal_socket, action => 'PROXYADDNODE', target => $node->{id}, data => JSON::XS->new->utf8->encode($node), dbh => $options{dbh}, logger => $options{logger});
+                routing(
+                    action => 'PROXYADDNODE',
+                    target => $node->{id},
+                    data => JSON::XS->new->utf8->encode($node),
+                    gorgone => $options{gorgone},
+                    dbh => $options{dbh},
+                    logger => $options{logger}
+                );
             }
         }
         if ($new_node == 1) {

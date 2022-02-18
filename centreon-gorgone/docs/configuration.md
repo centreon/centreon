@@ -1,24 +1,24 @@
 # Configuration
 
-| Directive | Description |
-| :- | :- |
-| name | Name of the configuration |
-| description | Short string to decribe the configuration |
-| configuration | First configuration entry point |
-| centreon | Entry point to set Centreon configuration |
-| database | Entry point to set Centreon databases data source names and credentials  |
-| gorgonecore | Entry point to set Gorgone main configuration |
-| modules | Table to load and configuration Gorgone modules |
+| Directive     | Description                                                             |
+| :------------ | :---------------------------------------------------------------------- |
+| name          | Name of the configuration                                               |
+| description   | Short string to decribe the configuration                               |
+| configuration | First configuration entry point                                         |
+| centreon      | Entry point to set Centreon configuration                               |
+| database      | Entry point to set Centreon databases data source names and credentials |
+| gorgonecore   | Entry point to set Gorgone main configuration                           |
+| modules       | Table to load and configuration Gorgone modules                         |
 
 ## *database*
 
 Usefull in a Centreon Central installation to access Centreon databases.
 
-| Directive | Description |
-| :- | :- |
-| dsn | Data source name of the database |
-| username | Username to access the database |
-| password | Username's password |
+| Directive | Description                      |
+| :-------- | :------------------------------- |
+| dsn       | Data source name of the database |
+| username  | Username to access the database  |
+| password  | Username's password              |
 
 #### Example
 
@@ -38,30 +38,36 @@ configuration:
 
 ## *gorgonecore*
 
-| Directive | Description | Default value
-| :- | :- | :- |
-| internal_com_type | Type of the internal ZMQ socket | `ipc` |
-| internal_com_path | Path to the internal ZMQ socket | `/tmp/gorgone/routing.ipc` |
-| external_com_type | Type of the external ZMQ socket | `tcp` |
-| external_com_path | Path to the external ZMQ socket | `*:5555` |
-| timeout | Time in seconds before killing child processes when stopping Gorgone | `50` |
-| gorgone_db_type | Type of the Gorgone database | `SQLite` |
-| gorgone_db_name | Path and name of the database | `dbname=/var/lib/centreon-gorgone/history.sdb` |
-| gorgone_db_host | Hostname/IP address of the server hosting the database |  |
-| gorgone_db_port | Port of the database listener |  |
-| gorgone_db_user | Username to access the database |  |
-| gorgone_db_password | Username's password |  |
-| hostname | Hostname of the server running Gorgone | Result of *hostname* system function. |
-| id | Identifier of server running Gorgone | None. Must be unique over all Gorgone daemons. |
-| privkey | Path to the Gorgone core private key | `keys/rsakey.priv.pem` |
-| privkey | Path to the Gorgone core public key | `keys/rsakey.pub.pem` |
-| cipher | Cipher used for encryption | `Cipher::AES` |
-| keysize | Size in bytes of the symmetric encryption key | `32` |
-| vector | Encryption vector | `0123456789012345` |
-| fingerprint_mode | Validation mode of zmq nodes to connect (can be: always, first, strict) | `first` |
-| fingerprint_mgr | Hash of the definition class to store fingerprints | |
-| authorized_clients | Table of string-formated JWK thumbprints of clients public key |  |
-| proxy_name | Name of the proxy module definition | `proxy` (loaded internally) |
+| Directive             | Description                                                             | Default value                                  |
+| :-------------------- | :---------------------------------------------------------------------- | :--------------------------------------------- |
+| internal_com_type     | Type of the internal ZMQ socket                                         | `ipc`                                          |
+| internal_com_path     | Path to the internal ZMQ socket                                         | `/tmp/gorgone/routing.ipc`                     |
+| internal_com_crypt    | Internal communication crypt enabled                                    | `false`                                        |
+| internal_com_cipher   | Internal communication cipher                                           | `AES`                                          |
+| internal_com_padding  | Internal communication padding                                          | `1` (mean: PKCS5)                              |
+| internal_com_keysize  | Internal communication key size                                         | `32` (bytes)                                   |
+| internal_com_rotation | Internal communication time before key rotation                         | `1440` (minutes)                               |
+| internal_com_crypt    | Crypt internal communication                                            | `false`                                        |
+| external_com_type     | Type of the external ZMQ socket                                         | `tcp`                                          |
+| external_com_path     | Path to the external ZMQ socket                                         | `*:5555`                                       |
+| timeout               | Time in seconds before killing child processes when stopping Gorgone    | `50`                                           |
+| gorgone_db_type       | Type of the Gorgone database                                            | `SQLite`                                       |
+| gorgone_db_name       | Path and name of the database                                           | `dbname=/var/lib/centreon-gorgone/history.sdb` |
+| gorgone_db_host       | Hostname/IP address of the server hosting the database                  |                                                |
+| gorgone_db_port       | Port of the database listener                                           |                                                |
+| gorgone_db_user       | Username to access the database                                         |                                                |
+| gorgone_db_password   | Username's password                                                     |                                                |
+| hostname              | Hostname of the server running Gorgone                                  | Result of *hostname* system function.          |
+| id                    | Identifier of server running Gorgone                                    | None. Must be unique over all Gorgone daemons. |
+| privkey               | Path to the Gorgone core private key                                    | `keys/rsakey.priv.pem`                         |
+| pubkey                | Path to the Gorgone core public key                                     | `keys/rsakey.pub.pem`                          |
+| cipher                | Cipher used for encryption                                              | `Cipher::AES`                                  |
+| keysize               | Size in bytes of the symmetric encryption key                           | `32`                                           |
+| vector                | Encryption vector                                                       | `0123456789012345`                             |
+| fingerprint_mode      | Validation mode of zmq nodes to connect (can be: always, first, strict) | `first`                                        |
+| fingerprint_mgr       | Hash of the definition class to store fingerprints                      |                                                |
+| authorized_clients    | Table of string-formated JWK thumbprints of clients public key          |                                                |
+| proxy_name            | Name of the proxy module definition                                     | `proxy` (loaded internally)                    |
 
 #### Example
 
