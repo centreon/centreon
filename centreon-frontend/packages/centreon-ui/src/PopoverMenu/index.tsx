@@ -23,6 +23,7 @@ const useStyles = makeStyles({
 interface Props {
   children: (props?) => JSX.Element;
   className?: string;
+  dataTestId?: string;
   icon: JSX.Element;
   onClose?: () => void;
   onOpen?: () => void;
@@ -38,6 +39,7 @@ const PopoverMenu = ({
   onOpen,
   onClose,
   className,
+  dataTestId,
 }: Props): JSX.Element => {
   const theme = useTheme();
   const classes = useStyles();
@@ -71,6 +73,7 @@ const PopoverMenu = ({
       <IconButton
         ariaLabel={title}
         className={clsx(classes.popoverIconButton, className)}
+        data-testid={dataTestId}
         size="large"
         title={title}
         onClick={toggle}

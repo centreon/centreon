@@ -64,15 +64,19 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 interface Props {
+  countTestId?: string;
   dotColored?: string;
   submenuCount: string | number;
   submenuTitle: string;
+  titleTestId?: string;
 }
 
 const SubmenuItem = ({
   dotColored,
   submenuTitle,
   submenuCount,
+  titleTestId,
+  countTestId,
 }: Props): JSX.Element => {
   const classes = useStyles();
 
@@ -82,13 +86,14 @@ const SubmenuItem = ({
         className={clsx(classes.title, {
           [classes.dotted]: !!dotColored,
         })}
+        data-testid={titleTestId}
       >
         <span className={clsx(classes.dot, classes[dotColored || ''])} />
         <Typography className={classes.titleContent} variant="body2">
           {submenuTitle}
         </Typography>
       </span>
-      <span className={classes.count}>
+      <span className={classes.count} data-testid={countTestId}>
         <Typography variant="body2">{submenuCount}</Typography>
       </span>
     </li>
