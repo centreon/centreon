@@ -4,7 +4,7 @@ module.exports = {
       '<rootDir>/node_modules/centreon-frontend/packages/centreon-ui',
     '@centreon/ui-context':
       '<rootDir>/node_modules/centreon-frontend/packages/ui-context',
-    '\\.(s?css|png|svg)$': 'identity-obj-proxy',
+    '\\.(s?css|png|svg|jpg)$': 'identity-obj-proxy',
   },
   setupFilesAfterEnv: ['@testing-library/jest-dom/extend-expect'],
   testEnvironment: 'jsdom',
