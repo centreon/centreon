@@ -298,6 +298,7 @@ sub routing {
         # Mode zmq pull
         if ($register_nodes->{$target_parent}->{type} eq 'pull') {
             pull_request(
+                gorgone => $options{gorgone},
                 dbh => $options{dbh},
                 action => $action,
                 data => $data,
@@ -780,11 +781,12 @@ sub pull_request {
         );
         return undef;
     }
-    my ($status, $key) = gorgone::standard::library::is_handshake_done(
-        dbh => $options{dbh},
-        identity => unpack('H*', $register_nodes->{ $options{target_parent} }->{identity})
+
+    my $identity = unpack('H*', $register_nodes->{ $options{target_parent} }->{identity});
+    my ($rv, $cipher_infos) = $options{gorgone}->is_handshake_done(
+        identity => $identity
     );
-    if ($status == 0) {
+    if ($rv == 0) {
         gorgone::standard::library::add_history(
             dbh => $options{dbh},
             code => GORGONE_ACTION_FINISH_KO,
@@ -795,12 +797,9 @@ sub pull_request {
         return undef;
     }
 
-    gorgone::standard::library::zmq_send_message(
-        socket => $external_socket,
-        cipher => $config_core->{gorgonecore}->{cipher},
-        vector => $config_core->{gorgonecore}->{vector},
-        symkey => $key,
-        identity => $register_nodes->{ $options{target_parent} }->{identity},
+    $options{gorgone}->external_core_response(
+        cipher_infos => $cipher_infos,
+        identity => $identity,
         message => $message
     );
 }

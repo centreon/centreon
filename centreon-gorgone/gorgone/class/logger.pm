@@ -211,6 +211,7 @@ sub writeLog {
     }
 
     $newmsg = encode('UTF-8', $newmsg);
+    chomp($newmsg);
     if ($self->{log_mode} == 0) {
         print "$newmsg\n";
     } elsif ($self->{log_mode} == 1) {

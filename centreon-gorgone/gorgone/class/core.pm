@@ -24,6 +24,7 @@ use strict;
 use warnings;
 use POSIX ":sys_wait_h";
 use Sys::Hostname;
+use MIME::Base64;
 use Crypt::Mode::CBC;
 use ZMQ::LibZMQ4;
 use ZMQ::Constants qw(:all);
@@ -38,12 +39,13 @@ my ($gorgone);
 
 use base qw(gorgone::class::script);
 
-my $VERSION = '1.0';
+my $VERSION = '22.04.0';
 my %handlers = (TERM => {}, HUP => {}, CHLD => {}, DIE => {});
 
 sub new {
     my $class = shift;
-    my $self = $class->SUPER::new('gorgoned',
+    my $self = $class->SUPER::new(
+        'gorgoned',
         centreon_db_conn => 0,
         centstorage_db_conn => 0,
         noconfig => 1
@@ -73,6 +75,12 @@ sub new {
     $self->{config} = 
 
     return $self;
+}
+
+sub get_version {
+    my ($self, %options) = @_;
+
+    return $VERSION;
 }
 
 sub init_server_keys {
@@ -218,12 +226,15 @@ sub init {
     $self->{config}->{configuration}->{gorgone}->{gorgonecore}->{timeout} = 
         defined($self->{config}->{configuration}->{gorgone}->{gorgonecore}->{timeout}) && $self->{config}->{configuration}->{gorgone}->{gorgonecore}->{timeout} =~ /(\d+)/ ? $1 : 50;
 
-    $self->{config}->{configuration}->{gorgone}->{gorgonecore}->{cipher} = 'Cipher::AES'
-        if (!defined($self->{config}->{configuration}->{gorgone}->{gorgonecore}->{cipher}) || $self->{config}->{configuration}->{gorgone}->{gorgonecore}->{cipher} eq '');
-    $self->{config}->{configuration}->{gorgone}->{gorgonecore}->{keysize} = 32
-        if (!defined($self->{config}->{configuration}->{gorgone}->{gorgonecore}->{keysize}) || $self->{config}->{configuration}->{gorgone}->{gorgonecore}->{keysize} eq '');
-    $self->{config}->{configuration}->{gorgone}->{gorgonecore}->{vector} = '0123456789012345'
-        if (!defined($self->{config}->{configuration}->{gorgone}->{gorgonecore}->{vector}) || $self->{config}->{configuration}->{gorgone}->{gorgonecore}->{vector} eq '');
+    $self->{config}->{configuration}->{gorgone}->{gorgonecore}->{external_com_cipher} = 'AES'
+        if (!defined($self->{config}->{configuration}->{gorgone}->{gorgonecore}->{external_com_cipher}) || $self->{config}->{configuration}->{gorgone}->{gorgonecore}->{external_com_cipher} eq '');
+    $self->{config}->{configuration}->{gorgone}->{gorgonecore}->{external_com_padding} = 1 # PKCS5 padding
+        if (!defined($self->{config}->{configuration}->{gorgone}->{gorgonecore}->{external_com_padding}) || $self->{config}->{configuration}->{gorgone}->{gorgonecore}->{external_com_padding} eq '');
+    $self->{config}->{configuration}->{gorgone}->{gorgonecore}->{external_com_keysize} = 32
+        if (!defined($self->{config}->{configuration}->{gorgone}->{gorgonecore}->{external_com_keysize}) || $self->{config}->{configuration}->{gorgone}->{gorgonecore}->{external_com_keysize} eq '');
+    $self->{config}->{configuration}->{gorgone}->{gorgonecore}->{external_com_rotation} = 1440 # minutes
+        if (!defined($self->{config}->{configuration}->{gorgone}->{gorgonecore}->{external_com_rotation}) || $self->{config}->{configuration}->{gorgone}->{gorgonecore}->{external_com_rotation} eq '');
+    $self->{config}->{configuration}->{gorgone}->{gorgonecore}->{external_com_rotation} *= 60;
 
     $self->{config}->{configuration}->{gorgone}->{gorgonecore}->{fingerprint_mode} =
         defined($self->{config}->{configuration}->{gorgone}->{gorgonecore}->{fingerprint_mode}) && $self->{config}->{configuration}->{gorgone}->{gorgonecore}->{fingerprint_mode} =~ /^\s*(always|firt|strict)\s*/i ? lc($1) : 'first';
@@ -242,6 +253,7 @@ sub init {
         defined($self->{config}->{configuration}->{gorgone}->{gorgonecore}->{gorgone_db_autocreate_schema}) && $self->{config}->{configuration}->{gorgone}->{gorgonecore}->{gorgone_db_autocreate_schema} =~ /(\d+)/ ? $1 : 1;
     gorgone::standard::library::init_database(
         gorgone => $gorgone,
+        version => $self->get_version(),
         type => $self->{config}->{configuration}->{gorgone}->{gorgonecore}->{gorgone_db_type},
         db => $self->{config}->{configuration}->{gorgone}->{gorgonecore}->{gorgone_db_name},
         host => $self->{config}->{configuration}->{gorgone}->{gorgonecore}->{gorgone_db_host},
@@ -265,6 +277,39 @@ sub init {
     $self->load_modules();
 
     $self->set_signal_handlers();
+}
+
+sub init_external_informations {
+    my ($self) = @_;
+
+    my ($status, $sth) = $self->{db_gorgone}->query(
+        "SELECT `identity`, `ctime`, `mtime`, `key`, `oldkey`, `iv`, `oldiv` FROM gorgone_identity ORDER BY id DESC"
+    );
+    if ($status == -1) {
+        $self->{logger}->writeLogError("[core] cannot load gorgone_identity");
+        return 0;
+    }
+
+    $self->{identity_infos} = {};
+    while (my $row = $sth->fetchrow_arrayref()) {
+        next if (!defined($row->[3]));
+
+        if (!defined($self->{identity_infos}->{ $row->[0] })) {
+            $self->{identity_infos}->{ $row->[0] } = {
+                ctime => $row->[1],
+                mtime => $row->[2],
+                key => pack('H*', $row->[3]),
+                oldkey => defined($row->[4]) ? pack('H*', $row->[4]) : undef,
+                iv => pack('H*', $row->[5]),
+                oldiv => defined($row->[6]) ? pack('H*', $row->[6]) : undef
+            };
+        }
+    }
+
+    $self->{external_crypt_mode} = Crypt::Mode::CBC->new(
+        $self->{config}->{configuration}->{gorgone}->{gorgonecore}->{external_com_cipher},
+        $self->{config}->{configuration}->{gorgone}->{gorgonecore}->{external_com_padding}
+    );
 }
 
 sub set_signal_handlers {
@@ -483,7 +528,7 @@ sub read_internal_message {
             eval {
                 $plaintext = $self->{cipher}->decrypt($message, $key, $self->{internal_crypt}->{iv});
             };
-            if (defined($plaintext) && $plaintext =~ /^\[[A-Za-z_\-]+?\]/) {
+            if (defined($plaintext) && $plaintext =~ /^\[[A-Za-z0-9_\-]+?\]/) {
                 return ($identity, $plaintext);
             }
         }
@@ -551,7 +596,7 @@ sub send_internal_message {
 sub broadcast_run {
     my ($self, %options) = @_;
 
-    my $data = gorgone::standard::library::json_decode(data => $options{data}, logger => $self->{logger});
+    my $data = gorgone::standard::library::json_decode(module => 'core', data => $options{data}, logger => $self->{logger});
     return if (!defined($data));
 
     if ($options{action} eq 'BCASTLOGGER') {
@@ -724,8 +769,159 @@ sub router_internal_event {
     }
 }
 
+sub is_handshake_done {
+    my ($self, %options) = @_;
+
+    if (defined($self->{identity_infos}->{ $options{identity} })) {
+        return (1, $self->{identity_infos}->{ $options{identity} });
+    }
+
+    return 0;
+}
+
+sub check_external_rotate_keys {
+    my ($self, %options) = @_;
+
+    my $time = time();
+    my ($rv, $key, $iv);
+    foreach my $id (keys %{$self->{identity_infos}}) {
+        if ($self->{identity_infos}->{$id}->{mtime} < ($time - 86400)) {
+            $self->{logger}->writeLogDebug('[core] clean external key for ' . $id);
+            delete $self->{identity_infos}->{$id};
+            next;
+        }
+        next if ($self->{identity_infos}->{$id}->{ctime} > ($time - $self->{config}->{configuration}->{gorgone}->{gorgonecore}->{external_com_rotation}));
+
+        $self->{logger}->writeLogDebug('[core] rotate external key for ' . $id);
+
+        ($rv, $key) = gorgone::standard::library::generate_symkey(
+            keysize => $self->{config}->{configuration}->{gorgone}->{gorgonecore}->{external_com_keysize}
+        );
+        ($rv, $iv) = gorgone::standard::library::generate_symkey(keysize => 16);
+        $rv = gorgone::standard::library::update_identity_attrs(
+            dbh => $self->{db_gorgone},
+            identity => $id,
+            ctime => $time,
+            oldkey => unpack('H*', $self->{identity_infos}->{$id}->{key}),
+            oldiv => unpack('H*', $self->{identity_infos}->{$id}->{iv}),
+            key => unpack('H*', $key),
+            iv => unpack('H*', $iv)
+        );
+        next if ($rv == -1);
+
+        my $message = gorgone::standard::library::json_encode(
+            data => {
+                hostname => $self->{hostname},
+                cipher => $self->{config}->{configuration}->{gorgone}->{gorgonecore}->{external_com_cipher},
+                padding => $self->{config}->{configuration}->{gorgone}->{gorgonecore}->{external_com_padding},
+                key => unpack('H*', $key),
+                iv => unpack('H*', $iv)
+            }
+        );
+
+        $self->external_core_response(
+            message => '[KEY] ' . $message,
+            identity => $id,
+            cipher_infos => {
+                key => $self->{identity_infos}->{$id}->{key},
+                iv => $self->{identity_infos}->{$id}->{iv}
+            }
+        );
+
+        $self->{identity_infos}->{$id}->{ctime} = $time;
+        $self->{identity_infos}->{$id}->{oldkey} = $self->{identity_infos}->{$id}->{key};
+        $self->{identity_infos}->{$id}->{oldiv} = $self->{identity_infos}->{$id}->{iv};
+        $self->{identity_infos}->{$id}->{key} = $key;
+        $self->{identity_infos}->{$id}->{iv} = $iv;
+    }
+}
+
+sub external_decrypt_message {
+    my ($self, %options) = @_;
+
+    my $crypt = MIME::Base64::decode_base64($options{message});
+
+    my $keys = [ { key => $options{cipher_infos}->{key}, iv => $options{cipher_infos}->{iv} } ];
+    if (defined($options{cipher_infos}->{oldkey})) {
+        push @$keys, { key => $options{cipher_infos}->{oldkey}, iv => $options{cipher_infos}->{oldiv} }
+    }
+    foreach my $key (@$keys) {
+        my $plaintext;
+        eval {
+            $plaintext = $self->{external_crypt_mode}->decrypt($crypt, $key->{key}, $key->{iv});
+        };
+        if (defined($plaintext) && $plaintext =~ /^\[[A-Za-z0-9_\-]+?\]/) {
+            return (0, $plaintext);
+        }
+    }
+
+    $self->{logger}->writeLogError("[core] external decrypt issue: " .  ($@ ? $@ : 'no message'));
+    return (-1, ($@ ? $@ : 'no message'));
+}
+
+sub external_core_response {
+    my ($self, %options) = @_;
+
+    my $message = $options{message};
+    if (!defined($message)) {
+        my $response_type = defined($options{response_type}) ? $options{response_type} : 'ACK';
+        my $data = gorgone::standard::library::json_encode(data => { code => $options{code}, data => $options{data} });
+        # We add 'target' for 'PONG', 'SYNCLOGS'. Like that 'gorgone-proxy can get it
+        $message = '[' . $response_type . '] [' . (defined($options{token}) ? $options{token} : '') . '] ' . ($response_type =~ /^PONG|SYNCLOGS$/ ? '[] ' : '') . $data;
+    }
+
+    if (defined($options{cipher_infos})) {
+        eval {
+            $message = $self->{external_crypt_mode}->encrypt(
+                $message,
+                $options{cipher_infos}->{key},
+                $options{cipher_infos}->{iv}
+            );
+        };
+        if ($@) {
+            $self->{logger}->writeLogError("[core] external_core_response encrypt issue: " .  $@);
+            return undef;
+        }
+
+        $message = MIME::Base64::encode_base64($message, '');
+    }
+
+    zmq_sendmsg($self->{external_socket}, pack('H*', $options{identity}), ZMQ_DONTWAIT|ZMQ_SNDMORE);
+    zmq_sendmsg($self->{external_socket}, $message, ZMQ_DONTWAIT);
+}
+
+sub external_core_key_response {
+    my ($self, %options) = @_;
+
+    my $data = gorgone::standard::library::json_encode(
+        data => {
+            hostname => $self->{hostname},
+            cipher => $self->{config}->{configuration}->{gorgone}->{gorgonecore}->{external_com_cipher},
+            padding => $self->{config}->{configuration}->{gorgone}->{gorgonecore}->{external_com_padding},
+            key => unpack('H*', $options{key}),
+            iv => unpack('H*', $options{iv})
+        }
+    );
+    return -1 if (!defined($data));
+
+    my $crypttext;
+    eval {
+        $crypttext = $options{client_pubkey}->encrypt("[KEY] " . $data, 'v1.5');
+    };
+    if ($@) {
+        $self->{logger}->writeLogError("[core] core key response encrypt issue: " .  $@);
+        return -1;
+    }
+
+    zmq_sendmsg($self->{external_socket}, pack('H*', $options{identity}), ZMQ_DONTWAIT | ZMQ_SNDMORE);
+    zmq_sendmsg($self->{external_socket}, MIME::Base64::encode_base64($crypttext, ''), ZMQ_DONTWAIT);
+    return 0;
+}
+
 sub handshake {
     my ($self, %options) = @_;
+
+    my ($rv, $cipher_infos);
 
     # Test if it asks for the pubkey
     if ($options{message} =~ /^\s*\[GETPUBKEY\]/) {
@@ -737,81 +933,80 @@ sub handshake {
         return undef;
     }
 
-    my ($status, $key) = gorgone::standard::library::is_handshake_done(dbh => $self->{db_gorgone}, identity => $options{identity});
+    ($rv, $cipher_infos) = $self->is_handshake_done(identity => $options{identity});
 
-    if ($status == 1) {
-        ($status, my $response) = gorgone::standard::library::uncrypt_message(
-            cipher => $self->{config}->{configuration}->{gorgone}->{gorgonecore}->{cipher}, 
+    if ($rv == 1) {
+        my $response;
+
+        ($rv, $response) = $self->external_decrypt_message(
             message => $options{message},
-            symkey => $key,
-            vector => $self->{config}->{configuration}->{gorgone}->{gorgonecore}->{vector}
+            cipher_infos => $cipher_infos
         );
-        if ($status == 0 && $response =~ /^(?:[\[a-zA-Z-_]+?\]\s+\[.*?\]|[\[a-zA-Z-_]+?\]\s*$)/) {
-            gorgone::standard::library::update_identity(dbh => $self->{db_gorgone}, identity => $options{identity});
-            return ($key, $response);
+        if ($rv == 0 && $response =~ /^(?:[\[a-zA-Z-_]+?\]\s+\[.*?\]|[\[a-zA-Z-_]+?\]\s*$)/) {
+            gorgone::standard::library::update_identity_mtime(dbh => $self->{db_gorgone}, identity => $options{identity});
+            return ($cipher_infos, $response);
         }
 
         # Maybe he want to redo a handshake
-        $status = 0;    
+        $rv = 0;    
     }
 
-    if ($status == -1) {
-        gorgone::standard::library::zmq_core_response(
-            socket => $self->{external_socket}, 
-            identity => $options{identity},
-            code => GORGONE_ACTION_FINISH_KO,
-            data => { message => 'Database issue' }
-        );
-        return undef;
-    } elsif ($status == 0) {
+    if ($rv == 0) {
+        my ($client_pubkey, $key, $iv);
+
         # We try to uncrypt
-        ($status, my $client_pubkey) = gorgone::standard::library::is_client_can_connect(
+        ($rv, $client_pubkey) = gorgone::standard::library::is_client_can_connect(
             privkey => $self->{server_privkey},
             message => $options{message},
             logger => $self->{logger},
             authorized_clients => $self->{config}->{configuration}->{gorgone}->{gorgonecore}->{authorized_clients}
         );
-        if ($status == -1) {
-            gorgone::standard::library::zmq_core_response(
-                socket => $self->{external_socket},
+        if ($rv == -1) {
+            $self->external_core_response(
                 identity => $options{identity},
                 code => GORGONE_ACTION_FINISH_KO,
                 data => { message => 'handshake issue' }
             );
             return undef;
         }
-        my ($status, $symkey) = gorgone::standard::library::generate_symkey(
-            logger => $self->{logger},
-            cipher => $self->{config}->{configuration}->{gorgone}->{gorgonecore}->{cipher},
-            keysize => $self->{config}->{configuration}->{gorgone}->{gorgonecore}->{keysize}
+        ($rv, $key) = gorgone::standard::library::generate_symkey(
+            keysize => $self->{config}->{configuration}->{gorgone}->{gorgonecore}->{external_com_keysize}
         );
-        if ($status == -1) {
-            gorgone::standard::library::zmq_core_response(
-                socket => $self->{external_socket}, identity => $options{identity},
-                code => GORGONE_ACTION_FINISH_KO,
-                data => { message => 'handshake issue' }
-            );
-        }
-        if (gorgone::standard::library::add_identity(dbh => $self->{db_gorgone}, identity => $options{identity}, symkey => $symkey) == -1) {
-            gorgone::standard::library::zmq_core_response(
-                socket => $self->{external_socket}, identity => $options{identity},
+        ($rv, $iv) = gorgone::standard::library::generate_symkey(keysize => 16);
+
+        if (gorgone::standard::library::add_identity(dbh => $self->{db_gorgone}, identity => $options{identity}, key => $key, iv => $iv) == -1) {
+            $self->external_core_response(
+                identity => $options{identity},
                 code => GORGONE_ACTION_FINISH_KO,
                 data => { message => 'handshake issue' }
             );
         }
 
-        if (gorgone::standard::library::zmq_core_key_response(
-                logger => $self->{logger}, socket => $self->{external_socket}, identity => $options{identity},
-                client_pubkey => $client_pubkey, hostname => $self->{hostname}, symkey => $symkey) == -1
-            ) {
-            gorgone::standard::library::zmq_core_response(
-                socket => $self->{external_socket}, identity => $options{identity},
+        $self->{identity_infos}->{ $options{identity} } = {
+            ctime => time(),
+            mtime => time(),
+            key => $key,
+            oldkey => undef,
+            iv => $iv,
+            oldiv => undef
+        };
+
+        $rv = $self->external_core_key_response(
+            identity => $options{identity},
+            client_pubkey => $client_pubkey,
+            key => $key,
+            iv => $iv
+        );
+        if ($rv == -1) {
+            $self->external_core_response(
+                identity => $options{identity},
                 code => GORGONE_ACTION_FINISH_KO,
                 data => { message => 'handshake issue' }
             );
         }
-        return undef;
-    }    
+    }
+
+    return undef;
 }
 
 sub send_message_parent {
@@ -827,15 +1022,12 @@ sub send_message_parent {
         );
     }
     if ($options{router_type} eq 'external') {
-        my ($status, $key) = gorgone::standard::library::is_handshake_done(dbh => $gorgone->{db_gorgone}, identity => $options{identity});
-        return if ($status == 0);
-        gorgone::standard::library::zmq_core_response(
-            socket => $gorgone->{external_socket},
+        my ($rv, $cipher_infos) = $gorgone->is_handshake_done(identity => $options{identity});
+        return if ($rv == 0);
+        $gorgone->external_core_response(
+            cipher_infos => $cipher_infos,
             identity => $options{identity},
             response_type => $options{response_type},
-            cipher => $gorgone->{config}->{configuration}->{gorgone}->{gorgonecore}->{cipher},
-            vector => $gorgone->{config}->{configuration}->{gorgone}->{gorgonecore}->{vector},
-            symkey => $key,
             token => $options{token},
             code => $options{code},
             data => $options{data}
@@ -851,7 +1043,7 @@ sub router_external_event {
         );
         last if (!defined($identity));
 
-        my ($key, $uncrypt_message) = $gorgone->handshake(
+        my ($cipher_infos, $uncrypt_message) = $gorgone->handshake(
             identity => $identity,
             message => $message,
         );
@@ -861,12 +1053,10 @@ sub router_external_event {
                 identity => $identity,
                 router_type => 'external',
             );
-            gorgone::standard::library::zmq_core_response(
-                socket => $gorgone->{external_socket},
-                identity => $identity, response_type => $response_type,
-                cipher => $gorgone->{config}->{configuration}->{gorgone}->{gorgonecore}->{cipher},
-                vector => $gorgone->{config}->{configuration}->{gorgone}->{gorgonecore}->{vector},
-                symkey => $key,
+            $gorgone->external_core_response(
+                identity => $identity,
+                cipher_infos => $cipher_infos,
+                response_type => $response_type,
                 token => $token, code => $code,
                 data => $response
             );
@@ -938,7 +1128,10 @@ sub check_exit_modules {
         ($current_time - $self->{config}->{configuration}->{gorgone}->{gorgonecore}->{internal_com_core_key_ctime}) > $self->{config}->{configuration}->{gorgone}->{gorgonecore}->{internal_com_rotation}) {
         $self->broadcast_core_key();
     }
-    
+    if (defined($self->{external_socket})) {
+        $self->check_external_rotate_keys();
+    }
+
     my $count = 0;
     if (time() - $self->{cb_timer_check} > 15 || $self->{stop} == 1) {
         if ($self->{stop} == 1 && (!defined($self->{sigterm_last_time}) || ($current_time - $self->{sigterm_last_time}) >= 10)) {
@@ -1018,6 +1211,8 @@ sub run {
     );
     if (defined($gorgone->{config}->{configuration}->{gorgone}->{gorgonecore}->{external_com_type}) && $gorgone->{config}->{configuration}->{gorgone}->{gorgonecore}->{external_com_type} ne '') {
         if ($gorgone->{keys_loaded}) {
+            $gorgone->init_external_informations();
+
             $gorgone->{external_socket} = gorgone::standard::library::create_com(
                 type => $gorgone->{config}->{configuration}->{gorgone}->{gorgonecore}->{external_com_type},
                 path => $gorgone->{config}->{configuration}->{gorgone}->{gorgonecore}->{external_com_path},

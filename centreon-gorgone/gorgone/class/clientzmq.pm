@@ -26,6 +26,7 @@ use gorgone::standard::library;
 use gorgone::standard::misc;
 use ZMQ::LibZMQ4;
 use ZMQ::Constants qw(:all);
+use Crypt::Mode::CBC;
 use MIME::Base64;
 use Scalar::Util;
 
@@ -40,10 +41,6 @@ sub new {
     $connector->{identity} = $options{identity};
     $connector->{extra_identity} = gorgone::standard::library::generate_token(length => 12);
 
-    $connector->{cipher} = defined($options{cipher}) && $options{cipher} ne '' ? $options{cipher} : 'Cipher::AES';
-    $connector->{vector} = defined($options{vector}) && $options{vector} ne '' ? $options{vector} : '0123456789012345';
-
-    $connector->{symkey} = undef;
     $connector->{verbose_last_message} = '';
     $connector->{config_core} = $options{config_core};
 
@@ -88,7 +85,7 @@ sub new {
         $connector->{logger}->writeLogDebug('[core] JWK thumbprint = ' . $connector->{client_pubkey}->export_key_jwk_thumbprint('SHA256'));
     }
 
-    $connectors->{$options{identity}} = $connector;
+    $connectors->{ $options{identity} } = $connector;
     bless $connector, $class;
     return $connector;
 }
@@ -127,11 +124,75 @@ sub get_server_pubkey {
     zmq_poll([$self->get_poll()], 10000);
 }
 
+sub read_key_protocol {
+    my ($self, %options) = @_;
+
+    $self->{logger}->writeLogDebug('[clientzmq] read key protocol: ' . $options{text});
+
+    return (-1, 'Wrong protocol') if ($options{text} !~ /^\[KEY\]\s+(.*)$/);
+
+    my $data = gorgone::standard::library::json_decode(module => 'clientzmq', data => $1, logger => $self->{logger});
+    return (-1, 'Wrong protocol') if (!defined($data));
+
+    return (-1, 'Wrong protocol') if (
+        !defined($data->{hostname}) ||
+        !defined($data->{key}) || $data->{key} eq '' ||
+        !defined($data->{cipher}) || $data->{cipher} eq '' ||
+        !defined($data->{iv}) || $data->{iv} eq '' ||
+        !defined($data->{padding}) || $data->{padding} eq ''
+    );
+
+    $self->{key} = pack('H*', $data->{key});
+    $self->{iv} = pack('H*', $data->{iv});
+    $self->{cipher} = $data->{cipher};
+    $self->{padding} = $data->{padding};
+
+    $self->{crypt_mode} = Crypt::Mode::CBC->new(
+        $self->{cipher},
+        $self->{padding}
+    );
+
+    return (0, 'ok');
+}
+
+sub decrypt_message {
+    my ($self, %options) = @_;
+
+    my $plaintext;
+    eval {
+        $plaintext = $self->{crypt_mode}->decrypt(
+            MIME::Base64::decode_base64($options{message}),
+            $self->{key},
+            $self->{iv}
+        );
+    };
+    if ($@) {
+        $self->{logger}->writeLogError("[clientzmq] decrypt message issue: " .  $@);
+        return (-1, $@);
+    }
+    return (0, $plaintext);
+}
+
+sub client_get_secret {
+    my ($self, %options) = @_;
+
+    my $plaintext;
+    eval {
+        my $cryptedtext = MIME::Base64::decode_base64($options{message});
+        $plaintext = $self->{client_privkey}->decrypt($cryptedtext, 'v1.5');
+    };
+    if ($@) {
+        return (-1, "Decoding issue: $@");
+    }
+
+    return $self->read_key_protocol(text => $plaintext);
+}
+
 sub check_server_pubkey {
     my ($self, %options) = @_;
 
     if ($options{message} !~ /^\s*\[PUBKEY\]\s+\[(.*?)\]/) {
-        $self->{logger}->writeLogError('[core] Cannot read pubbkey response from server: ' . $options{message}) if (defined($self->{logger}));
+        $self->{logger}->writeLogError('[clientzmq] Cannot read pubbkey response from server: ' . $options{message}) if (defined($self->{logger}));
         $self->{verbose_last_message} = 'cannot read pubkey response from server';
         return 0;
     }
@@ -145,7 +206,7 @@ sub check_server_pubkey {
     );
 
     if ($code == 0) {
-        $self->{logger}->writeLogError('[core] Cannot load pubbkey') if (defined($self->{logger}));
+        $self->{logger}->writeLogError('[clientzmq] Cannot load pubbkey') if (defined($self->{logger}));
         $self->{verbose_last_message} = 'cannot load pubkey';
         return 0;
     }
@@ -191,7 +252,7 @@ sub ping {
     }
     if ($self->{ping_progress} == 1 && 
         time() - $self->{ping_timeout_time} > $self->{ping_timeout}) {
-        $self->{logger}->writeLogError("[core] No ping response") if (defined($self->{logger}));
+        $self->{logger}->writeLogError("[clientzmq] No ping response") if (defined($self->{logger}));
         $self->{ping_progress} = 0;
         # we delete the old one
         for (my $i = 0; $i < scalar(@{$options{poll}}); $i++) {
@@ -226,57 +287,77 @@ sub event {
     my (%options) = @_;
 
     # We have a response. So it's ok :)
-    if ($connectors->{$options{identity}}->{ping_progress} == 1) {
-        $connectors->{$options{identity}}->{ping_progress} = 0;
+    if ($connectors->{ $options{identity} }->{ping_progress} == 1) {
+        $connectors->{ $options{identity} }->{ping_progress} = 0;
     }
-    $connectors->{$options{identity}}->{ping_time} = time();
+
+    $connectors->{ $options{identity} }->{ping_time} = time();
     while (1) {
         my $message = gorgone::standard::library::zmq_dealer_read_message(socket => $sockets->{$options{identity}});
         last if (!defined($message));
 
         # in progress
-        if ($connectors->{$options{identity}}->{handshake} == 0) {
-            $connectors->{$options{identity}}->{handshake} = 1;
-            if ($connectors->{$options{identity}}->check_server_pubkey(message => $message) == 0) {
-                $connectors->{$options{identity}}->{handshake} = -1;
+        if ($connectors->{ $options{identity} }->{handshake} == 0) {
+            $connectors->{ $options{identity} }->{handshake} = 1;
+            if ($connectors->{ $options{identity} }->check_server_pubkey(message => $message) == 0) {
+                $connectors->{ $options{identity} }->{handshake} = -1;
             }
-        } elsif ($connectors->{$options{identity}}->{handshake} == 1) {
-            my ($status, $verbose, $symkey, $hostname) = gorgone::standard::library::client_get_secret(
-                privkey => $connectors->{$options{identity}}->{client_privkey},
+        } elsif ($connectors->{ $options{identity} }->{handshake} == 1) {
+            my ($status, $verbose, $symkey, $hostname) = $connectors->{ $options{identity} }->client_get_secret(
                 message => $message
             );
             if ($status == -1) {
-                $connectors->{$options{identity}}->{handshake} = -1;
-                $connectors->{$options{identity}}->{verbose_last_message} = $verbose;
+                $connectors->{ $options{identity} }->{handshake} = -1;
+                $connectors->{ $options{identity} }->{verbose_last_message} = $verbose;
                 return ;
             }
-            $connectors->{$options{identity}}->{symkey} = $symkey;
-            $connectors->{$options{identity}}->{handshake} = 2;
-            if (defined($connectors->{$options{identity}}->{logger})) {
-                $connectors->{$options{identity}}->{logger}->writeLogInfo(
-                    "[zmqclient] Client connected successfully to '" . $connectors->{$options{identity}}->{target_type} .
-                    "://" . $connectors->{$options{identity}}->{target_path} . "'"
+            $connectors->{ $options{identity} }->{handshake} = 2;
+            if (defined($connectors->{ $options{identity} }->{logger})) {
+                $connectors->{ $options{identity} }->{logger}->writeLogInfo(
+                    "[clientzmq] Client connected successfully to '" . $connectors->{ $options{identity} }->{target_type} .
+                    "://" . $connectors->{ $options{identity} }->{target_path} . "'"
                 );
             }
         } else {
-            my ($status, $data) = gorgone::standard::library::uncrypt_message(
-                message => $message, 
-                cipher => $connectors->{$options{identity}}->{cipher}, 
-                vector => $connectors->{$options{identity}}->{vector},
-                symkey => $connectors->{$options{identity}}->{symkey}
-            );
-            
-            if ($status == -1 || $data !~ /^\[(.+?)\]\s+\[(.*?)\]\s+(?:\[(.*?)\]\s*(.*)|(.*))$/m) {
-                $connectors->{$options{identity}}->{handshake} = -1;
-                $connectors->{$options{identity}}->{verbose_last_message} = 'uncrypt issue: ' . $data;
+            my ($rv, $data) = $connectors->{ $options{identity} }->decrypt_message(message => $message);
+
+            if ($rv == -1 || $data !~ /^\[([a-zA-Z0-9:\-_]+?)\]\s+/) {
+                $connectors->{ $options{identity} }->{handshake} = -1;
+                $connectors->{ $options{identity} }->{verbose_last_message} = 'decrypt issue: ' . $data;
                 return ;
             }
-            
-            if (defined($callbacks->{$options{identity}})) {
+
+            if ($1 eq 'KEY') {
+                ($rv) = $connectors->{ $options{identity} }->read_key_protocol(text => $data);
+            } elsif (defined($callbacks->{$options{identity}})) {
                 $callbacks->{$options{identity}}->(identity => $options{identity}, data => $data);
             }
         }        
     }
+}
+
+sub zmq_send_message {
+    my ($self, %options) = @_;
+
+    my $message = $options{message};
+    if (!defined($message)) {
+        $message = gorgone::standard::library::build_protocol(%options);
+    }
+
+    eval {
+        $message = $self->{crypt_mode}->encrypt(
+            $message,
+            $self->{key},
+            $self->{iv}
+        );
+        $message = MIME::Base64::encode_base64($message, '');
+    };
+    if ($@) {
+        $self->{logger}->writeLogError("[clientzmq] encrypt message issue: " .  $@);
+        return undef;
+    }
+
+    zmq_sendmsg($options{socket}, $message, ZMQ_DONTWAIT);    
 }
 
 sub send_message {
@@ -310,12 +391,9 @@ sub send_message {
         $self->{handshake} = 0;
         return (-1, $self->{verbose_last_message});
     }
-    
-    gorgone::standard::library::zmq_send_message(
-        socket => $sockets->{$self->{identity}},
-        cipher => $self->{cipher},
-        symkey => $self->{symkey},
-        vector => $self->{vector},
+
+    $self->zmq_send_message(
+        socket => $sockets->{ $self->{identity} },
         %options
     );
     return 0;

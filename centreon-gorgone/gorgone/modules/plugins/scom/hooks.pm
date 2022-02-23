@@ -174,16 +174,14 @@ sub broadcast {
     my (%options) = @_;
 
     foreach my $container_id (keys %$containers) {
-        if ($containers->{$container_id}->{running} == 1) {
-            gorgone::standard::library::zmq_send_internal_message(
-                socket => $options{socket},
-                internal_crypt => $options{internal_crypt},
-                identity => 'gorgone-scom-' . $container_id,
-                action => $options{action},
-                data => $options{data},
-                token => $options{token}
-            );
-        }
+        next if ($containers->{$container_id}->{ready} != 1);
+
+        $options{gorgone}->send_internal_message(
+            identity => 'gorgone-scom-' . $container_id,
+            action => $options{action},
+            data => $options{data},
+            token => $options{token}
+        );
     }
 }
 

@@ -39,7 +39,7 @@ Third-party clients have to use the ZeroMQ library and the following process:
     * If uncrypted message result is "HELO", server accepts the connection if the clientpubkey is authorized. It creates a symmetric key and send the following message crypted with client pubkey:
 
     ```text
-    [KEY] [HOSTNAME] [symmetric key]
+    [KEY] { "hostname": "xxxx", "key": "ab0182xxxx", "iv": "ab0182xxx", "cipher": "AES", "padding": 1 }
     ```
 
 4. Client: uncrypts the server message with its private key.

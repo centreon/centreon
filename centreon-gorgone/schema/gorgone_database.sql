@@ -1,10 +1,19 @@
 PRAGMA encoding = "UTF-8";
 
+CREATE TABLE `gorgone_information` (
+    `key` varchar(1024) DEFAULT NULL,
+    `value` varchar(1024) DEFAULT NULL
+);
+
 CREATE TABLE IF NOT EXISTS `gorgone_identity` (
   `id` INTEGER PRIMARY KEY,
   `ctime` int(11) DEFAULT NULL,
+  `mtime` int(11) DEFAULT NULL,
   `identity` varchar(2048) DEFAULT NULL,
-  `key` varchar(4096) DEFAULT NULL,
+  `key` varchar(1024) DEFAULT NULL,
+  `oldkey` varchar(1024) DEFAULT NULL,
+  `iv` varchar(1024) DEFAULT NULL,
+  `oldiv` varchar(1024) DEFAULT NULL,
   `parent` int(11) DEFAULT '0'
 );
 
