@@ -59,7 +59,8 @@ sub new {
         'logfile=s'   => \$self->{log_file},
         'severity=s'  => \$self->{severity},
         'flushoutput' => \$self->{flushoutput},
-        'help|?'      => \$self->{help}
+        'help|?'      => \$self->{help},
+        'version'     => \$self->{version}
     };
     return $self;
 }
@@ -127,6 +128,10 @@ sub parse_options {
     Getopt::Long::Configure('bundling');
     die "Command line error" if (!GetOptions(%{$self->{options}}));
     pod2usage(-exitval => 1, -input => $FindBin::Bin . "/" . $FindBin::Script) if ($self->{help});
+    if ($self->{version}) {
+        print "version: " . $self->get_version() . "\n";
+        exit(0);
+    }
 }
 
 sub run {

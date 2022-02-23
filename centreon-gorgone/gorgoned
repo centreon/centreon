@@ -50,6 +50,10 @@ Specify the path to the yaml configuration file (default: '').
 
 Print a brief help message and exits.
 
+=item B<--version>
+
+Print version message and exits.
+
 =back
 
 =head1 DESCRIPTION

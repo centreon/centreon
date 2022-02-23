@@ -121,7 +121,7 @@ sub action_dbclean {
     ) if (!defined($options{cycle}));
 
     $self->{logger}->writeLogDebug("[dbcleaner] Purge database in progress...");
-    my ($status) = $self->{db_gorgone}->query("DELETE FROM gorgone_identity WHERE `ctime` <  " . $self->{db_gorgone}->quote(time() - $self->{config}->{purge_sessions_time}));
+    my ($status) = $self->{db_gorgone}->query("DELETE FROM gorgone_identity WHERE `mtime` <  " . $self->{db_gorgone}->quote(time() - $self->{config}->{purge_sessions_time}));
     my ($status2) = $self->{db_gorgone}->query(
         "DELETE FROM gorgone_history WHERE (instant = 1 AND `ctime` <  " . (time() - 86400) . ") OR `ctime` <  " . $self->{db_gorgone}->quote(time() - $self->{config}->{purge_history_time})
     );

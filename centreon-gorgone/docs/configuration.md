@@ -50,6 +50,10 @@ configuration:
 | internal_com_crypt    | Crypt internal communication                                            | `false`                                        |
 | external_com_type     | Type of the external ZMQ socket                                         | `tcp`                                          |
 | external_com_path     | Path to the external ZMQ socket                                         | `*:5555`                                       |
+| external_com_cipher   | Cipher used for encryption                                              | `AES`                                          |
+| external_com_keysize  | Size in bytes of the symmetric encryption key                           | `32`                                           |
+| external_com_padding  | External communication padding                                          | `1` (mean: PKCS5)                              |
+| external_com_rotation | External communication time before key rotation                         | `1440` (minutes)                               |
 | timeout               | Time in seconds before killing child processes when stopping Gorgone    | `50`                                           |
 | gorgone_db_type       | Type of the Gorgone database                                            | `SQLite`                                       |
 | gorgone_db_name       | Path and name of the database                                           | `dbname=/var/lib/centreon-gorgone/history.sdb` |
@@ -61,9 +65,6 @@ configuration:
 | id                    | Identifier of server running Gorgone                                    | None. Must be unique over all Gorgone daemons. |
 | privkey               | Path to the Gorgone core private key                                    | `keys/rsakey.priv.pem`                         |
 | pubkey                | Path to the Gorgone core public key                                     | `keys/rsakey.pub.pem`                          |
-| cipher                | Cipher used for encryption                                              | `Cipher::AES`                                  |
-| keysize               | Size in bytes of the symmetric encryption key                           | `32`                                           |
-| vector                | Encryption vector                                                       | `0123456789012345`                             |
 | fingerprint_mode      | Validation mode of zmq nodes to connect (can be: always, first, strict) | `first`                                        |
 | fingerprint_mgr       | Hash of the definition class to store fingerprints                      |                                                |
 | authorized_clients    | Table of string-formated JWK thumbprints of clients public key          |                                                |
