@@ -54,10 +54,10 @@ export const getTheme = (mode: ThemeMode): ThemeOptions => ({
             inDowntimeBackground: '#4e1358',
           },
           background: {
-            default: grey[800],
+            default: grey[900],
           },
           primary: {
-            main: blue[500],
+            main: blue[300],
           },
         }),
     error: {
