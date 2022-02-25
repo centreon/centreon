@@ -2,14 +2,13 @@ import React from 'react';
 
 export interface User {
   alias: string;
-  defaultPage?: string | null;
+  default_page?: string | null;
   isExportButtonEnabled: boolean;
   locale: string;
   name: string;
-  passwordRemainingTime: number | null;
   themeMode?: ThemeMode;
   timezone: string;
-  useDeprecatedPages: boolean;
+  use_deprecated_pages: boolean;
 }
 
 export enum ThemeMode {
