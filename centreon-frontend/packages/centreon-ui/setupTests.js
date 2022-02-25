@@ -35,8 +35,3 @@ i18n.use(initReactI18next).init({
   nsSeparator: false,
   resources: {},
 });
-
-jest.mock('@centreon/ui-context', () => ({
-  ...jest.requireActual('centreon-frontend/packages/ui-context'),
-  ThemeMode: 'light',
-}));

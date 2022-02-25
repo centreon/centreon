@@ -94,6 +94,7 @@ const ListingActionBar = ({
         <StyledPagination
           ActionsComponent={PaginationActions}
           SelectProps={{
+            id: labelRowsPerPage,
             native: true,
           }}
           className={classes.pagination}

@@ -402,7 +402,7 @@ const Listing = <TRow extends { id: RowId }>({
       actionBarRef.current?.offsetHeight
     }px - ${headerHeight}px - ${loadingIndicatorHeight}px - ${theme.spacing(
       1,
-    )}px)`;
+    )})`;
   };
 
   const getGridTemplateColumn = (): string => {

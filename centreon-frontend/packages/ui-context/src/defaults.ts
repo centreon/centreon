@@ -2,13 +2,14 @@ import { User, ThemeMode } from './types';
 
 const defaultUser: User = {
   alias: '',
-  default_page: '/monitoring/resources',
+  defaultPage: '/monitoring/resources',
   isExportButtonEnabled: false,
   locale: navigator.language,
   name: '',
+  passwordRemainingTime: null,
   themeMode: ThemeMode.light,
   timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-  use_deprecated_pages: false,
+  useDeprecatedPages: false,
 };
 
 const defaultAcl = {
