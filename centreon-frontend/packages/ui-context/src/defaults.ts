@@ -1,11 +1,12 @@
 const defaultUser = {
   alias: '',
-  default_page: '/monitoring/resources',
+  defaultPage: '/monitoring/resources',
   isExportButtonEnabled: false,
   locale: navigator.language,
   name: '',
+  passwordRemainingTime: null,
   timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-  use_deprecated_pages: false,
+  useDeprecatedPages: false,
 };
 
 const defaultAcl = {
