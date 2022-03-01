@@ -125,4 +125,5 @@ export { default as LoadingSkeleton } from './LoadingSkeleton';
 export { default as Module } from './Module';
 export { default as LicensedModule } from './Module/LicensedModule';
 export { default as SnackbarProvider } from './Snackbar/SnackbarProvider';
+export { default as PersistentTooltip } from './InputField/Search/PersistentTooltip';
 export * from './testRenderer';
