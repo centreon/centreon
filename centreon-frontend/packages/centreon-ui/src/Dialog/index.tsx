@@ -38,12 +38,10 @@ const Dialog = ({
   submitting = false,
   ...rest
 }: Props): JSX.Element => (
-  <MuiDialog open={open} onClose={onClose} {...rest}>
+  <MuiDialog open={open} scroll="paper" onClose={onClose} {...rest}>
     {labelTitle && <DialogTitle>{labelTitle}</DialogTitle>}
     {children && (
-      <DialogContent style={{ overflowY: 'visible', width: contentWidth }}>
-        {children}
-      </DialogContent>
+      <DialogContent style={{ width: contentWidth }}>{children}</DialogContent>
     )}
     <DialogActions>
       {onCancel && (
