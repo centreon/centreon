@@ -39,6 +39,8 @@ export type Props = {
 
 type StyledProps = Partial<Pick<Props, 'hideInput'>>;
 
+type VisibilityState = 'visible' | 'hidden';
+
 const textfieldHeight = (hideInput?: boolean): string | number =>
   hideInput ? 0 : '100%';
 
