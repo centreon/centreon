@@ -148,15 +148,6 @@ try {
         archiveArtifacts artifacts: "*"
       }
     }
-    //'Packaging centos8': {
-    //  node {
-    //    checkoutCentreonBuild(buildBranch)
-    //    sh "./centreon-build/jobs/awie/${serie}/mon-awie-package.sh centos8"
-    //    archiveArtifacts artifacts: 'rpms-centos8.tar.gz'
-    //    stash name: "rpms-centos8", includes: 'output/noarch/*.rpm'
-    //    sh 'rm -rf output'
-    //  }
-    //}
     if ((currentBuild.result ?: 'SUCCESS') != 'SUCCESS') {
       error('Unit tests stage failure.');
     }
