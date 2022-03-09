@@ -107,16 +107,16 @@ try {
         stash name: "rpms-centos7", includes: 'output/noarch/*.rpm'
         sh 'rm -rf output'
       }
+    },
+    'alma8': {
+      node {
+        sh 'setup_centreon_build.sh'
+        sh "./centreon-build/jobs/open-tickets/${serie}/mon-open-tickets-package.sh alma8"
+        archiveArtifacts artifacts: 'rpms-alma8.tar.gz'
+        stash name: "rpms-alma8", includes: 'output/noarch/*.rpm'
+        sh 'rm -rf output'
+      }
     }
-    //'centos8': {
-    //  node {
-    //    sh 'setup_centreon_build.sh'
-    //    sh "./centreon-build/jobs/open-tickets/${serie}/mon-open-tickets-package.sh centos8"
-    //    archiveArtifacts artifacts: 'rpms-centos8.tar.gz'
-    //    stash name: "rpms-centos8", includes: 'output/noarch/*.rpm'
-    //    sh 'rm -rf output'
-    //  }
-    //}
     if ((currentBuild.result ?: 'SUCCESS') != 'SUCCESS') {
       error('Package stage failure.')
     }
@@ -127,7 +127,7 @@ try {
       node {
         sh 'setup_centreon_build.sh'
         unstash 'rpms-centos7'
-        //unstash 'rpms-centos8'
+        unstash 'rpms-alma8'
         sh "./centreon-build/jobs/open-tickets/${serie}/mon-open-tickets-delivery.sh"
       }
       if ((currentBuild.result ?: 'SUCCESS') != 'SUCCESS') {
