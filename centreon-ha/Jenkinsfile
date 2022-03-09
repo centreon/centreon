@@ -57,16 +57,16 @@ stage('RPM packaging') {
       archiveArtifacts artifacts: 'rpms-centos7.tar.gz'
       sh 'rm -rf output'
     }
+  },
+  'alma8': {
+    node {
+      sh 'setup_centreon_build.sh'
+      sh "./centreon-build/jobs/ha/${serie}/ha-package.sh alma8"
+      stash name: 'rpms-alma8', includes: "output/noarch/*.rpm"
+      archiveArtifacts artifacts: 'rpms-alma8.tar.gz'
+      sh 'rm -rf output'
+    }
   }
-  //'centos8': {
-  //  node {
-  //    sh 'setup_centreon_build.sh'
-  //    sh "./centreon-build/jobs/ha/${serie}/ha-package.sh centos8"
-  //    stash name: 'rpms-centos8', includes: "output/noarch/*.rpm"
-  //    archiveArtifacts artifacts: 'rpms-centos8.tar.gz'
-  //    sh 'rm -rf output'
-  //  }
-  //}
   if ((currentBuild.result ?: 'SUCCESS') != 'SUCCESS') {
     error('Package stage failure.')
   }
@@ -77,7 +77,7 @@ if ((env.BUILD == 'RELEASE') || (env.BUILD == 'CI') || (env.BUILD == 'QA') ) {
     node {
       sh 'setup_centreon_build.sh'
       unstash 'rpms-centos7'
-      //unstash 'rpms-centos8'
+      unstash 'rpms-alma8'
       sh "./centreon-build/jobs/ha/${serie}/ha-delivery.sh"
     }
     if ((currentBuild.result ?: 'SUCCESS') != 'SUCCESS') {
