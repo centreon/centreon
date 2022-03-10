@@ -83,10 +83,7 @@ module.exports = {
         extensions: ['.ts', '.tsx', '.js', '.jsx'],
         map: [
           ['@centreon/ui', 'centreon-frontend/packages/centreon-ui'],
-          [
-            '@centreon/ui-context',
-            'centreon-frontend/packages/ui-context',
-          ],
+          ['@centreon/ui-context', 'centreon-frontend/packages/ui-context'],
         ],
       },
     },
