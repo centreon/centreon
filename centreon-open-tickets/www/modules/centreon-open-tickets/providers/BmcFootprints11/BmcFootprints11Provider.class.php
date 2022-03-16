@@ -121,10 +121,15 @@ class BmcFootprints11Provider extends AbstractProvider
             $this->getFormValue('username') . '" />';
         $password_html = '<input size="50" name="password" type="password" value="' .
             $this->getFormValue('password') . '" autocomplete="off" />';
+<<<<<<< HEAD
         $https_html = '<div class="md-checkbox md-checkbox-inline">' .
             '<input type="checkbox" id="https" name="https" value="yes" ' .
             ($this->getFormValue('https') === 'yes' ? 'checked' : '') .
             '/><label class="empty-label" for="https"></label></div>';
+=======
+        $https_html = '<input type="checkbox" name="https" value="yes" ' .
+            ($this->getFormValue('https') == 'yes' ? 'checked' : '') . '/>';
+>>>>>>> 3238101 (providers: email provider title issue + bump phpmailer + code sanitize (#206))
         $timeout_html = '<input size="2" name="timeout" type="text" value="' .
             $this->getFormValue('timeout') . '" />';
 
