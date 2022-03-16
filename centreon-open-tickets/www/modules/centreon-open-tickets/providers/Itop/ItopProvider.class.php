@@ -18,26 +18,27 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
-class ItopProvider extends AbstractProvider {
-    protected $_proxy_enabled = 1;
-    protected $_close_advanced = 1;
+class ItopProvider extends AbstractProvider
+{
+    protected $proxy_enabled = 1;
+    protected $close_advanced = 1;
 
-    const ITOP_ORGANIZATION_TYPE = 10;
-    const ITOP_CALLER_TYPE = 11;
-    const ITOP_SERVICE_TYPE = 12;
-    const ITOP_SERVICE_SUBCATEGORY_TYPE = 13;
+    public const ITOP_ORGANIZATION_TYPE = 10;
+    public const ITOP_CALLER_TYPE = 11;
+    public const ITOP_SERVICE_TYPE = 12;
+    public const ITOP_SERVICE_SUBCATEGORY_TYPE = 13;
 
-    const ARG_CONTENT = 1;
-    const ARG_TITLE = 2;
-    const ARG_ORGANIZATION = 3;
-    const ARG_CALLER = 4;
-    const ARG_ORIGIN = 5;
-    const ARG_SERVICE = 6;
-    const ARG_SERVICE_SUBCATEGORY = 7;
-    const ARG_IMPACT = 8;
-    const ARG_URGENCY = 9;
+    public const ARG_CONTENT = 1;
+    public const ARG_TITLE = 2;
+    public const ARG_ORGANIZATION = 3;
+    public const ARG_CALLER = 4;
+    public const ARG_ORIGIN = 5;
+    public const ARG_SERVICE = 6;
+    public const ARG_SERVICE_SUBCATEGORY = 7;
+    public const ARG_IMPACT = 8;
+    public const ARG_URGENCY = 9;
 
-    protected $_internal_arg_name = array(
+    protected $internal_arg_name = [
         self::ARG_CONTENT => 'content',
         self::ARG_TITLE => 'title',
         self::ARG_ORGANIZATION => 'organization',
@@ -47,13 +48,15 @@ class ItopProvider extends AbstractProvider {
         self::ARG_SERVICE_SUBCATEGORY => 'service_subcategory',
         self::ARG_IMPACT => 'impact',
         self::ARG_URGENCY => 'urgency'
-    );
+    ];
+
     /*
     * Set default values for our rule form options
     *
     * @return {void}
     */
-    protected function _setDefaultValueExtra() {
+    protected function setDefaultValueExtra()
+    {
         $this->default_data['address'] = '10.30.2.22/itop/web';
         $this->default_data['api_version'] = '1.4';
         $this->default_data['username'] = '';
@@ -107,8 +110,9 @@ class ItopProvider extends AbstractProvider {
     *
     * @return {void}
     */
-    protected function _setDefaultValueMain($body_html = 0) {
-        parent::_setDefaultValueMain($body_html = 0);
+    protected function setDefaultValueMain($body_html = 0)
+    {
+        parent::setDefaultValueMain($body_html = 0);
 
         $this->default_data['url'] = '{$protocol}://{$address}/webservices/rest.php?version={$version}';
 
@@ -263,21 +267,22 @@ class ItopProvider extends AbstractProvider {
     *
     * @throw \Exception when a form field is not set
     */
-    protected function _checkConfigForm() {
-        $this->_check_error_message = '';
-        $this->_check_error_message_append = '';
+    protected function checkConfigForm()
+    {
+        $this->check_error_message = '';
+        $this->check_error_message_append = '';
 
-        $this->_checkFormValue('address', 'Please set the "Address" value');
-        $this->_checkFormValue('api_version', 'Please set the "API version" value');
-        $this->_checkFormValue('username', 'Please set the "Username" value');
-        $this->_checkFormValue('password', 'Please set the "Password" value');
-        $this->_checkFormValue('protocol', 'Please set the "Protocol" value');
-        $this->_checkFormInteger('timeout', '"Timeout" must be an integer');
+        $this->checkFormValue('address', 'Please set the "Address" value');
+        $this->checkFormValue('api_version', 'Please set the "API version" value');
+        $this->checkFormValue('username', 'Please set the "Username" value');
+        $this->checkFormValue('password', 'Please set the "Password" value');
+        $this->checkFormValue('protocol', 'Please set the "Protocol" value');
+        $this->checkFormInteger('timeout', '"Timeout" must be an integer');
 
-        $this->_checkLists();
+        $this->checkLists();
 
-        if ($this->_check_error_message != '') {
-            throw new \Exception($this->_check_error_message);
+        if ($this->check_error_message != '') {
+            throw new \Exception($this->check_error_message);
         }
     }
 
@@ -286,45 +291,50 @@ class ItopProvider extends AbstractProvider {
     *
     * return {void}
     */
-    protected function _getConfigContainer1Extra() {
+    protected function getConfigContainer1Extra()
+    {
         $tpl = new Smarty();
-        $tpl = initSmartyTplForPopup($this->_centreon_open_tickets_path, $tpl, 'providers/Itop/templates',
-            $this->_centreon_path);
-        $tpl->assign('centreon_open_tickets_path', $this->_centreon_open_tickets_path);
+        $tpl = initSmartyTplForPopup(
+            $this->centreon_open_tickets_path,
+            $tpl,
+            'providers/Itop/templates',
+            $this->centreon_path
+        );
+        $tpl->assign('centreon_open_tickets_path', $this->centreon_open_tickets_path);
         $tpl->assign('img_brick', './modules/centreon-open-tickets/images/brick.png');
         $tpl->assign('header', array('Itop' => _("Itop Rest Api")));
         $tpl->assign('webServiceUrl', './api/internal.php');
 
         // we create the html that is going to be displayed
         $address_html = '<input size="50" name="address" type="text" value="' .
-            $this->_getFormValue('address') . '" />';
+            $this->getFormValue('address') . '" />';
         $username_html = '<input size="50" name="username" type="text" value="' .
-            $this->_getFormValue('username') . '" />';
+            $this->getFormValue('username') . '" />';
         $password_html = '<input size="50" name="password" type="password" value="' .
-            $this->_getFormValue('password') . '" />';
+            $this->getFormValue('password') . '" />';
         $api_version_html = '<input size="50" name="api_version" type="text" value ="' .
-            $this->_getFormValue('api_version') . '" />';
+            $this->getFormValue('api_version') . '" />';
         $protocol_html = '<input size="2" name="protocol" type="text" value="' .
-            $this->_getFormValue('protocol') . '" />';
+            $this->getFormValue('protocol') . '" />';
         $timeout_html = '<input size="2" name="timeout" type="text" value="' .
-            $this->_getFormValue('timeout') . '" />';
+            $this->getFormValue('timeout') . '" />';
 
         // this array is here to link a label with the html code that we've wrote above
         $array_form = array(
              'address' => array(
-                 'label' => _('Address') . $this->_required_field,
+                 'label' => _('Address') . $this->required_field,
                  'html' => $address_html
              ),
              'username' => array(
-                 'label' => _('Username') . $this->_required_field,
+                 'label' => _('Username') . $this->required_field,
                  'html' => $username_html
              ),
              'password' => array(
-                 'label' => _('Password') . $this->_required_field,
+                 'label' => _('Password') . $this->required_field,
                  'html' => $password_html
              ),
              'api_version' => array(
-                 'label' => _('API version') . $this->_required_field,
+                 'label' => _('API version') . $this->required_field,
                  'html' => $api_version_html
              ),
              'protocol' => array(
@@ -367,25 +377,31 @@ class ItopProvider extends AbstractProvider {
         );
 
         $tpl->assign('form', $array_form);
-        $this->_config['container1_html'] .= $tpl->fetch('conf_container1extra.ihtml');
-        $this->_config['clones']['mappingTicket'] = $this->_getCloneValue('mappingTicket');
+        $this->config['container1_html'] .= $tpl->fetch('conf_container1extra.ihtml');
+        $this->config['clones']['mappingTicket'] = $this->getCloneValue('mappingTicket');
     }
 
-    protected function _getConfigContainer2Extra() {}
+    protected function getConfigContainer2Extra()
+    {
+    }
 
     /*
     * Saves the rule form in the database
     *
     * @return {void}
     */
-    protected function saveConfigExtra() {
-        $this->_save_config['simple']['address'] = $this->_submitted_config['address'];
-        $this->_save_config['simple']['username'] = $this->_submitted_config['username'];
-        $this->_save_config['simple']['password'] = $this->_submitted_config['password'];
-        $this->_save_config['simple']['api_version'] = $this->_submitted_config['api_version'];
-        $this->_save_config['simple']['protocol'] = $this->_submitted_config['protocol'];
-        $this->_save_config['simple']['timeout'] = $this->_submitted_config['timeout'];
-        $this->_save_config['clones']['mappingTicket'] = $this->_getCloneSubmitted('mappingTicket', array('Arg', 'Value'));
+    protected function saveConfigExtra()
+    {
+        $this->save_config['simple']['address'] = $this->submitted_config['address'];
+        $this->save_config['simple']['username'] = $this->submitted_config['username'];
+        $this->save_config['simple']['password'] = $this->submitted_config['password'];
+        $this->save_config['simple']['api_version'] = $this->submitted_config['api_version'];
+        $this->save_config['simple']['protocol'] = $this->submitted_config['protocol'];
+        $this->save_config['simple']['timeout'] = $this->submitted_config['timeout'];
+        $this->save_config['clones']['mappingTicket'] = $this->getCloneSubmitted(
+            'mappingTicket',
+            ['Arg', 'Value']
+        );
     }
 
     /*
@@ -393,7 +409,8 @@ class ItopProvider extends AbstractProvider {
     *
     * @return {string} $str html code that add an option to a select
     */
-    protected function getGroupListOptions() {
+    protected function getGroupListOptions()
+    {
         $str = '<option value="' . self::ITOP_SERVICE_TYPE . '">Service</option>' .
             '<option value="' . self::ITOP_CALLER_TYPE . '">Caller</option>' .
             '<option value="' . self::ITOP_ORGANIZATION_TYPE . '">Organization</option>' .
@@ -410,12 +427,15 @@ class ItopProvider extends AbstractProvider {
     *
     * @return {void}
     */
-    protected function assignOthers($entry, &$groups_order, &$groups) {
+    protected function assignOthers($entry, &$groups_order, &$groups)
+    {
         if ($entry['Type'] == self::ITOP_ORGANIZATION_TYPE) {
             $this->assignItopOrganizations($entry, $groups_order, $groups);
-        } elseif ($entry['Type'] == self::ITOP_CALLER_TYPE ||
-            $entry['Type'] == self::ITOP_SERVICE_TYPE ||
-            $entry['Type'] == self::ITOP_SERVICE_SUBCATEGORY_TYPE) {
+        } elseif (
+            $entry['Type'] == self::ITOP_CALLER_TYPE
+            || $entry['Type'] == self::ITOP_SERVICE_TYPE
+            || $entry['Type'] == self::ITOP_SERVICE_SUBCATEGORY_TYPE
+        ) {
                 $this->assignItopAjax($entry, $groups_order, $groups);
         }
     }
@@ -431,11 +451,12 @@ class ItopProvider extends AbstractProvider {
     *
     * throw \Exception if we can't get organizations from itop
     */
-    protected function assignItopOrganizations($entry, &$groups_order, &$groups) {
+    protected function assignItopOrganizations($entry, &$groups_order, &$groups)
+    {
         // add a label to our entry and activate sorting or not.
         $groups[$entry['Id']] = array(
             'label' => _($entry['Label']) .
-                (isset($entry['Mandatory']) && $entry['Mandatory'] == 1 ? $this->_required_field : ''),
+                (isset($entry['Mandatory']) && $entry['Mandatory'] == 1 ? $this->required_field : ''),
             'sort' => (isset($entry['Sort']) && $entry['Sort'] == 1 ? 1 : 0)
         );
 
@@ -481,11 +502,12 @@ class ItopProvider extends AbstractProvider {
     *
     * @return {void}
     */
-    protected function assignItopAjax($entry, &$groups_order, &$groups) {
+    protected function assignItopAjax($entry, &$groups_order, &$groups)
+    {
         // add a label to our entry and activate sorting or not.
         $groups[$entry['Id']] = array(
             'label' => _($entry['Label']) .
-                (isset($entry['Mandatory']) && $entry['Mandatory'] == 1 ? $this->_required_field : ''),
+                (isset($entry['Mandatory']) && $entry['Mandatory'] == 1 ? $this->required_field : ''),
             'sort' => (isset($entry['Sort']) && $entry['Sort'] == 1 ? 1 : 0),
             'filter' => $entry['Filter']
         );
@@ -500,7 +522,8 @@ class ItopProvider extends AbstractProvider {
     *
     * @return {array} telling us if there is a missing parameter
     */
-    public function validateFormatPopup() {
+    public function validateFormatPopup()
+    {
         $result = array('code' => 0, 'message' => 'ok');
         $this->validateFormatPopupLists($result);
         return $result;
@@ -519,7 +542,8 @@ class ItopProvider extends AbstractProvider {
     *
     * @return {array} $result will tell us if the submit ticket action resulted in a ticket being opened
     */
-    protected function doSubmit($db_storage, $contact, $host_problems, $service_problems, $extraTicketArguments=array()) {
+    protected function doSubmit($db_storage, $contact, $host_problems, $service_problems, $extraTicketArguments = [])
+    {
         // initiate a result array
         $result = array(
             'ticket_id' => null,
@@ -527,11 +551,8 @@ class ItopProvider extends AbstractProvider {
             'ticket_is_ok' => 0,
             'ticket_time' => time()
         );
-        // initiate smarty variables
-        $tpl = new Smarty();
-        $tpl = initSmartyTplForPopup($this->_centreon_open_tickets_path, $tpl, 'providers/Abstract/templates',
-        $this->_centreon_path);
-        $tpl->assign('centreon_open_tickets_path', $this->_centreon_open_tickets_path);
+        $tpl = $this->initSmartyTemplate();
+        $tpl->assign('centreon_open_tickets_path', $this->centreon_open_tickets_path);
         $tpl->assign('user', $contact);
         $tpl->assign('host_selected', $host_problems);
         $tpl->assign('service_selected', $service_problems);
@@ -547,7 +568,7 @@ class ItopProvider extends AbstractProvider {
                 if ($resultString == '') {
                     $resultstring = null;
                 }
-                $ticketArguments[$this->_internal_arg_name[$value['Arg']]] = $resultString;
+                $ticketArguments[$this->internal_arg_name[$value['Arg']]] = $resultString;
             }
         }
         // we try to open the ticket
@@ -580,11 +601,17 @@ class ItopProvider extends AbstractProvider {
     * throw \Exception if there are some missing parameters
     * throw \Exception if the connection failed
     */
-    static public function test($info) {
+    public static function test($info)
+    {
         // this is called through our javascript code. Those parameters are already checked in JS code.
         // but since this function is public, we check again because anyone could use this function
-        if (!isset($info['address']) || !isset($info['api_version']) || !isset($info['username'])
-            || !isset($info['password']) || !isset($info['protocol'])) {
+        if (
+            !isset($info['address'])
+            || !isset($info['api_version'])
+            || !isset($info['username'])
+            || !isset($info['password'])
+            || !isset($info['protocol'])
+        ) {
                 throw new \Exception('missing arguments', 13);
         }
         // check if php curl is installed
@@ -640,35 +667,50 @@ class ItopProvider extends AbstractProvider {
     * throw \Exception 10 if php-curl is not installed
     * throw \Exception 11 if itop api fails
     */
-    protected function curlQuery($data) {
+    protected function curlQuery($data)
+    {
         // check if php curl is installed
         if (!extension_loaded("curl")) {
             throw new \Exception("couldn't find php curl", 10);
         }
 
         $query = array(
-            'auth_user' => $this->_getFormValue('username'),
-            'auth_pwd' => $this->_getFormValue('password'),
+            'auth_user' => $this->getFormValue('username'),
+            'auth_pwd' => $this->getFormValue('password'),
             'json_data' => json_encode($data)
         );
 
         $curl = curl_init();
-        $apiAddress = $this->_getFormValue('protocol') . '://' . $this->_getFormValue('address') .
-        '/webservices/rest.php?version=' . $this->_getFormValue('api_version');
+        $apiAddress = $this->getFormValue('protocol') . '://' . $this->getFormValue('address') .
+        '/webservices/rest.php?version=' . $this->getFormValue('api_version');
         // initiate our curl options
         curl_setopt($curl, CURLOPT_URL, $apiAddress);
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
         curl_setopt($curl, CURLOPT_POST, true);
         curl_setopt($curl, CURLOPT_POSTFIELDS, http_build_query($query));
-        curl_setopt($curl, CURLOPT_TIMEOUT, $this->_getFormValue('timeout'));
+        curl_setopt($curl, CURLOPT_TIMEOUT, $this->getFormValue('timeout'));
 
         // if proxy is set, we add it to curl
-        if ($this->_getFormValue('proxy_address') != '' && $this->_getFormValue('proxy_port') != '') {
-            curl_setopt($curl, CURLOPT_PROXY, $this->_getFormValue('proxy_address') . ':' . $this->_getFormValue('proxy_port'));
+        if (
+            $this->getFormValue('proxy_address') != ''
+            && $this->getFormValue('proxy_port') != ''
+        ) {
+            curl_setopt(
+                $curl,
+                CURLOPT_PROXY,
+                $this->getFormValue('proxy_address') . ':' . $this->getFormValue('proxy_port')
+            );
             // if proxy authentication configuration is set, we add it to curl
-            if ($this->_getFormValue('proxy_username') != '' && $this->_getFormValue('proxy_password') != '') {
-                curl_setopt($curl, CURLOPT_PROXYUSERPWD, $this->_getFormValue('proxy_username') . ':' . $this->_getFormValue('proxy_password'));
+            if (
+                $this->getFormValue('proxy_username') != ''
+                && $this->getFormValue('proxy_password') != ''
+            ) {
+                curl_setopt(
+                    $curl,
+                    CURLOPT_PROXYUSERPWD,
+                    $this->getFormValue('proxy_username') . ':' . $this->getFormValue('proxy_password')
+                );
             }
         }
         // execute curl and get status information
@@ -694,7 +736,8 @@ class ItopProvider extends AbstractProvider {
     *
     * throw \Exception if we can't get organizations data
     */
-    protected function getOrganizations() {
+    protected function getOrganizations()
+    {
         $key = "SELECT Organization WHERE status='active'";
 
         $data = array(
@@ -722,7 +765,8 @@ class ItopProvider extends AbstractProvider {
     *
     * throw \Exception if we can't get callers data
     */
-    public function getCallers($data) {
+    public function getCallers($data)
+    {
         $key = "SELECT Person WHERE status='active'";
 
         if (preg_match('/(.*?)___(.*)/', $data['organization_value'], $matches)) {
@@ -766,7 +810,8 @@ class ItopProvider extends AbstractProvider {
     *
     * throw \Exception if we can't get services data
     */
-    public function getServices($data) {
+    public function getServices($data)
+    {
         $key = "SELECT Service";
 
         if (preg_match('/(.*?)___(.*)/', $data['organization_value'], $matches)) {
@@ -811,7 +856,8 @@ class ItopProvider extends AbstractProvider {
     *
     * throw \Exception if we can't get service subcategories data
     */
-    public function getServiceSubcategories($data) {
+    public function getServiceSubcategories($data)
+    {
         $key = "SELECT ServiceSubcategory";
 
         if (preg_match('/(.*?)___(.*)/', $data['service_value'], $matches)) {
@@ -846,7 +892,8 @@ class ItopProvider extends AbstractProvider {
         return $listServiceSubcategories;
     }
 
-    protected function createTicket($ticketArguments) {
+    protected function createTicket($ticketArguments)
+    {
         $data = array (
             'operation' => 'core/create',
             'class' => 'UserRequest',
@@ -915,7 +962,8 @@ class ItopProvider extends AbstractProvider {
     *
     * throw \Exception if it can't close the ticket
     */
-    protected function closeTicketItop($ticketId) {
+    protected function closeTicketItop($ticketId)
+    {
 
         $data = array(
             'operation' => 'core/update',
@@ -943,7 +991,8 @@ class ItopProvider extends AbstractProvider {
     *
     * @return {void}
     */
-    public function closeTicket(&$tickets) {
+    public function closeTicket(&$tickets)
+    {
         if ($this->doCloseTicket()) {
             foreach ($tickets as $k => $v) {
                 try {

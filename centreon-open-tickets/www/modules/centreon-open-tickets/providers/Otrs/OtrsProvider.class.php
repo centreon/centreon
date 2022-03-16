@@ -21,32 +21,32 @@
 
 class OtrsProvider extends AbstractProvider
 {
-    protected $_otrs_connected = 0;
-    protected $_otrs_session = null;
-    protected $_attach_files = 1;
-    protected $_close_advanced = 1;
+    protected $otrs_connected = 0;
+    protected $otrs_session = null;
+    protected $attach_files = 1;
+    protected $close_advanced = 1;
 
-    const OTRS_QUEUE_TYPE = 10;
-    const OTRS_PRIORITY_TYPE = 11;
-    const OTRS_STATE_TYPE = 12;
-    const OTRS_TYPE_TYPE = 13;
-    const OTRS_CUSTOMERUSER_TYPE = 14;
-    const OTRS_OWNER_TYPE = 15;
-    const OTRS_RESPONSIBLE_TYPE = 16;
+    public const OTRS_QUEUE_TYPE = 10;
+    public const OTRS_PRIORITY_TYPE = 11;
+    public const OTRS_STATE_TYPE = 12;
+    public const OTRS_TYPE_TYPE = 13;
+    public const OTRS_CUSTOMERUSER_TYPE = 14;
+    public const OTRS_OWNER_TYPE = 15;
+    public const OTRS_RESPONSIBLE_TYPE = 16;
 
-    const ARG_QUEUE = 1;
-    const ARG_PRIORITY = 2;
-    const ARG_STATE = 3;
-    const ARG_TYPE = 4;
-    const ARG_CUSTOMERUSER = 5;
-    const ARG_SUBJECT = 6;
-    const ARG_BODY = 7;
-    const ARG_FROM = 8;
-    const ARG_CONTENTTYPE = 9;
-    const ARG_OWNER = 17;
-    const ARG_RESPONSIBLE = 18;
+    public const ARG_QUEUE = 1;
+    public const ARG_PRIORITY = 2;
+    public const ARG_STATE = 3;
+    public const ARG_TYPE = 4;
+    public const ARG_CUSTOMERUSER = 5;
+    public const ARG_SUBJECT = 6;
+    public const ARG_BODY = 7;
+    public const ARG_FROM = 8;
+    public const ARG_CONTENTTYPE = 9;
+    public const ARG_OWNER = 17;
+    public const ARG_RESPONSIBLE = 18;
 
-    protected $_internal_arg_name = array(
+    protected $internal_arg_name = array(
         self::ARG_QUEUE => 'Queue',
         self::ARG_PRIORITY => 'Priority',
         self::ARG_STATE => 'State',
@@ -69,7 +69,7 @@ class OtrsProvider extends AbstractProvider
      *
      * @return void
      */
-    protected function _setDefaultValueExtra()
+    protected function setDefaultValueExtra()
     {
         $this->default_data['address'] = '127.0.0.1';
         $this->default_data['path'] = '/otrs';
@@ -94,9 +94,9 @@ class OtrsProvider extends AbstractProvider
         );
     }
 
-    protected function _setDefaultValueMain($body_html = 0)
+    protected function setDefaultValueMain($body_html = 0)
     {
-        parent::_setDefaultValueMain(1);
+        parent::setDefaultValueMain(1);
         $this->default_data['url'] = 'http://{$address}/index.pl?Action=AgentTicketZoom;TicketNumber={$ticket_id}';
         $this->default_data['clones']['groupList'] = array(
             array(
@@ -142,24 +142,24 @@ class OtrsProvider extends AbstractProvider
      *
      * @return a string
      */
-    protected function _checkConfigForm()
+    protected function checkConfigForm()
     {
-        $this->_check_error_message = '';
-        $this->_check_error_message_append = '';
-        $this->_checkFormValue('address', "Please set 'Address' value");
-        $this->_checkFormValue('rest_link', "Please set 'Rest Link' value");
-        $this->_checkFormValue('webservice_name', "Please set 'Webservice Name' value");
-        $this->_checkFormValue('timeout', "Please set 'Timeout' value");
-        $this->_checkFormValue('username', "Please set 'Username' value");
-        $this->_checkFormValue('password', "Please set 'Password' value");
-        $this->_checkFormValue('macro_ticket_id', "Please set 'Macro Ticket ID' value");
-        $this->_checkFormInteger('timeout', "'Timeout' must be a number");
-        $this->_checkFormInteger('confirm_autoclose', "'Confirm popup autoclose' must be a number");
+        $this->check_error_message = '';
+        $this->check_error_message_append = '';
+        $this->checkFormValue('address', "Please set 'Address' value");
+        $this->checkFormValue('rest_link', "Please set 'Rest Link' value");
+        $this->checkFormValue('webservice_name', "Please set 'Webservice Name' value");
+        $this->checkFormValue('timeout', "Please set 'Timeout' value");
+        $this->checkFormValue('username', "Please set 'Username' value");
+        $this->checkFormValue('password', "Please set 'Password' value");
+        $this->checkFormValue('macro_ticket_id', "Please set 'Macro Ticket ID' value");
+        $this->checkFormInteger('timeout', "'Timeout' must be a number");
+        $this->checkFormInteger('confirm_autoclose', "'Confirm popup autoclose' must be a number");
 
-        $this->_checkLists();
+        $this->checkLists();
 
-        if ($this->_check_error_message != '') {
-            throw new Exception($this->_check_error_message);
+        if ($this->check_error_message != '') {
+            throw new Exception($this->check_error_message);
         }
     }
 
@@ -168,42 +168,42 @@ class OtrsProvider extends AbstractProvider
      *
      * @return void
      */
-    protected function _getConfigContainer1Extra()
+    protected function getConfigContainer1Extra()
     {
         $tpl = $this->initSmartyTemplate('providers/Otrs/templates');
 
-        $tpl->assign("centreon_open_tickets_path", $this->_centreon_open_tickets_path);
+        $tpl->assign("centreon_open_tickets_path", $this->centreon_open_tickets_path);
         $tpl->assign("img_brick", "./modules/centreon-open-tickets/images/brick.png");
         $tpl->assign("header", array("otrs" => _("OTRS")));
 
         // Form
         $address_html = '<input size="50" name="address" type="text" value="' .
-            $this->_getFormValue('address') . '" />';
+            $this->getFormValue('address') . '" />';
         $path_html = '<input size="50" name="path" type="text" value="' .
-            $this->_getFormValue('path') . '" />';
+            $this->getFormValue('path') . '" />';
         $rest_link_html = '<input size="50" name="rest_link" type="text" value="' .
-            $this->_getFormValue('rest_link') . '" />';
+            $this->getFormValue('rest_link') . '" />';
         $webservice_name_html = '<input size="50" name="webservice_name" type="text" value="' .
-            $this->_getFormValue('webservice_name') . '" />';
+            $this->getFormValue('webservice_name') . '" />';
         $username_html = '<input size="50" name="username" type="text" value="' .
-            $this->_getFormValue('username') . '" />';
+            $this->getFormValue('username') . '" />';
         $password_html = '<input size="50" name="password" type="password" value="' .
-            $this->_getFormValue('password') . '" autocomplete="off" />';
+            $this->getFormValue('password') . '" autocomplete="off" />';
         $https_html = '<input type="checkbox" name="https" value="yes" ' .
-            ($this->_getFormValue('https') == 'yes' ? 'checked' : '') . '/>';
+            ($this->getFormValue('https') == 'yes' ? 'checked' : '') . '/>';
         $timeout_html = '<input size="2" name="timeout" type="text" value="' .
-            $this->_getFormValue('timeout') . '" />';
+            $this->getFormValue('timeout') . '" />';
 
         $array_form = array(
-            'address' => array('label' => _("Address") . $this->_required_field, 'html' => $address_html),
+            'address' => array('label' => _("Address") . $this->required_field, 'html' => $address_html),
             'path' => array('label' => _("Path"), 'html' => $path_html),
-            'rest_link' => array('label' => _("Rest link") . $this->_required_field, 'html' => $rest_link_html),
+            'rest_link' => array('label' => _("Rest link") . $this->required_field, 'html' => $rest_link_html),
             'webservice_name' => array(
-                'label' => _("Webservice name") . $this->_required_field,
+                'label' => _("Webservice name") . $this->required_field,
                 'html' => $webservice_name_html
             ),
-            'username' => array('label' => _("Username") . $this->_required_field, 'html' => $username_html),
-            'password' => array('label' => _("Password") . $this->_required_field, 'html' => $password_html),
+            'username' => array('label' => _("Username") . $this->required_field, 'html' => $username_html),
+            'password' => array('label' => _("Password") . $this->required_field, 'html' => $password_html),
             'https' => array('label' => _("Use https"), 'html' => $https_html),
             'timeout' => array('label' => _("Timeout"), 'html' => $timeout_html),
             'mappingticket' => array('label' => _("Mapping ticket arguments")),
@@ -243,9 +243,9 @@ class OtrsProvider extends AbstractProvider
         );
 
         $tpl->assign('form', $array_form);
-        $this->_config['container1_html'] .= $tpl->fetch('conf_container1extra.ihtml');
-        $this->_config['clones']['mappingTicket'] = $this->_getCloneValue('mappingTicket');
-        $this->_config['clones']['mappingTicketDynamicField'] = $this->_getCloneValue('mappingTicketDynamicField');
+        $this->config['container1_html'] .= $tpl->fetch('conf_container1extra.ihtml');
+        $this->config['clones']['mappingTicket'] = $this->getCloneValue('mappingTicket');
+        $this->config['clones']['mappingTicketDynamicField'] = $this->getCloneValue('mappingTicketDynamicField');
     }
 
     /**
@@ -253,28 +253,28 @@ class OtrsProvider extends AbstractProvider
      *
      * @return void
      */
-    protected function _getConfigContainer2Extra()
+    protected function getConfigContainer2Extra()
     {
     }
 
     protected function saveConfigExtra()
     {
-        $this->_save_config['simple']['address'] = $this->_submitted_config['address'];
-        $this->_save_config['simple']['path'] = $this->_submitted_config['path'];
-        $this->_save_config['simple']['rest_link'] = $this->_submitted_config['rest_link'];
-        $this->_save_config['simple']['webservice_name'] = $this->_submitted_config['webservice_name'];
-        $this->_save_config['simple']['username'] = $this->_submitted_config['username'];
-        $this->_save_config['simple']['password'] = $this->_submitted_config['password'];
-        $this->_save_config['simple']['https'] = (isset($this->_submitted_config['https'])
-            && $this->_submitted_config['https'] == 'yes')
-            ? $this->_submitted_config['https'] : '';
-        $this->_save_config['simple']['timeout'] = $this->_submitted_config['timeout'];
+        $this->save_config['simple']['address'] = $this->submitted_config['address'];
+        $this->save_config['simple']['path'] = $this->submitted_config['path'];
+        $this->save_config['simple']['rest_link'] = $this->submitted_config['rest_link'];
+        $this->save_config['simple']['webservice_name'] = $this->submitted_config['webservice_name'];
+        $this->save_config['simple']['username'] = $this->submitted_config['username'];
+        $this->save_config['simple']['password'] = $this->submitted_config['password'];
+        $this->save_config['simple']['https'] = (isset($this->submitted_config['https'])
+            && $this->submitted_config['https'] == 'yes')
+            ? $this->submitted_config['https'] : '';
+        $this->save_config['simple']['timeout'] = $this->submitted_config['timeout'];
 
-        $this->_save_config['clones']['mappingTicket'] = $this->_getCloneSubmitted(
+        $this->save_config['clones']['mappingTicket'] = $this->getCloneSubmitted(
             'mappingTicket',
             array('Arg', 'Value')
         );
-        $this->_save_config['clones']['mappingTicketDynamicField'] = $this->_getCloneSubmitted(
+        $this->save_config['clones']['mappingTicketDynamicField'] = $this->getCloneSubmitted(
             'mappingTicketDynamicField',
             array('Name', 'Value')
         );
@@ -299,7 +299,7 @@ class OtrsProvider extends AbstractProvider
 
         $groups[$entry['Id']] = array(
             'label' => _($entry['Label']) . (
-                isset($entry['Mandatory']) && $entry['Mandatory'] == 1 ? $this->_required_field : ''
+                isset($entry['Mandatory']) && $entry['Mandatory'] == 1 ? $this->required_field : ''
             ),
             'sort' => (isset($entry['Sort']) && $entry['Sort'] == 1 ? 1 : 0)
         );
@@ -312,7 +312,7 @@ class OtrsProvider extends AbstractProvider
         }
 
         $result = array();
-        foreach ($this->_otrs_call_response['response'] as $row) {
+        foreach ($this->otrs_call_response['response'] as $row) {
             if (!isset($entry['Filter']) || is_null($entry['Filter']) || $entry['Filter'] == '') {
                 $result[$row['id']] = $this->to_utf8($row['name']);
                 continue;
@@ -323,7 +323,7 @@ class OtrsProvider extends AbstractProvider
             }
         }
 
-        $this->saveSession('otrs_queue', $this->_otrs_call_response['response']);
+        $this->saveSession('otrs_queue', $this->otrs_call_response['response']);
         $groups[$entry['Id']]['values'] = $result;
     }
 
@@ -334,7 +334,7 @@ class OtrsProvider extends AbstractProvider
 
         $groups[$entry['Id']] = array(
             'label' => _($entry['Label']) . (
-                isset($entry['Mandatory']) && $entry['Mandatory'] == 1 ? $this->_required_field : ''
+                isset($entry['Mandatory']) && $entry['Mandatory'] == 1 ? $this->required_field : ''
             ),
             'sort' => (isset($entry['Sort']) && $entry['Sort'] == 1 ? 1 : 0)
         );
@@ -347,7 +347,7 @@ class OtrsProvider extends AbstractProvider
         }
 
         $result = array();
-        foreach ($this->_otrs_call_response['response'] as $row) {
+        foreach ($this->otrs_call_response['response'] as $row) {
             if (!isset($entry['Filter']) || is_null($entry['Filter']) || $entry['Filter'] == '') {
                 $result[$row['id']] = $this->to_utf8($row['name']);
                 continue;
@@ -358,7 +358,7 @@ class OtrsProvider extends AbstractProvider
             }
         }
 
-        $this->saveSession('otrs_priority', $this->_otrs_call_response['response']);
+        $this->saveSession('otrs_priority', $this->otrs_call_response['response']);
         $groups[$entry['Id']]['values'] = $result;
     }
 
@@ -369,7 +369,7 @@ class OtrsProvider extends AbstractProvider
 
         $groups[$entry['Id']] = array(
             'label' => _($entry['Label']) . (
-                isset($entry['Mandatory']) && $entry['Mandatory'] == 1 ? $this->_required_field : ''
+                isset($entry['Mandatory']) && $entry['Mandatory'] == 1 ? $this->required_field : ''
             ),
             'sort' => (isset($entry['Sort']) && $entry['Sort'] == 1 ? 1 : 0)
         );
@@ -382,7 +382,7 @@ class OtrsProvider extends AbstractProvider
         }
 
         $result = array();
-        foreach ($this->_otrs_call_response['response'] as $row) {
+        foreach ($this->otrs_call_response['response'] as $row) {
             if (!isset($entry['Filter']) || is_null($entry['Filter']) || $entry['Filter'] == '') {
                 $result[$row['id']] = $this->to_utf8($row['name']);
                 continue;
@@ -393,7 +393,7 @@ class OtrsProvider extends AbstractProvider
             }
         }
 
-        $this->saveSession('otrs_state', $this->_otrs_call_response['response']);
+        $this->saveSession('otrs_state', $this->otrs_call_response['response']);
         $groups[$entry['Id']]['values'] = $result;
     }
 
@@ -404,7 +404,7 @@ class OtrsProvider extends AbstractProvider
 
         $groups[$entry['Id']] = array(
             'label' => _($entry['Label']) . (
-                isset($entry['Mandatory']) && $entry['Mandatory'] == 1 ? $this->_required_field : ''
+                isset($entry['Mandatory']) && $entry['Mandatory'] == 1 ? $this->required_field : ''
             ),
             'sort' => (isset($entry['Sort']) && $entry['Sort'] == 1 ? 1 : 0)
         );
@@ -417,7 +417,7 @@ class OtrsProvider extends AbstractProvider
         }
 
         $result = array();
-        foreach ($this->_otrs_call_response['response'] as $row) {
+        foreach ($this->otrs_call_response['response'] as $row) {
             if (!isset($entry['Filter']) || is_null($entry['Filter']) || $entry['Filter'] == '') {
                 $result[$row['id']] = $this->to_utf8($row['name']);
                 continue;
@@ -428,7 +428,7 @@ class OtrsProvider extends AbstractProvider
             }
         }
 
-        $this->saveSession('otrs_type', $this->_otrs_call_response['response']);
+        $this->saveSession('otrs_type', $this->otrs_call_response['response']);
         $groups[$entry['Id']]['values'] = $result;
     }
 
@@ -439,7 +439,7 @@ class OtrsProvider extends AbstractProvider
 
         $groups[$entry['Id']] = array(
             'label' => _($entry['Label']) . (
-                isset($entry['Mandatory']) && $entry['Mandatory'] == 1 ? $this->_required_field : ''
+                isset($entry['Mandatory']) && $entry['Mandatory'] == 1 ? $this->required_field : ''
             ),
             'sort' => (isset($entry['Sort']) && $entry['Sort'] == 1 ? 1 : 0)
         );
@@ -452,7 +452,7 @@ class OtrsProvider extends AbstractProvider
         }
 
         $result = array();
-        foreach ($this->_otrs_call_response['response'] as $row) {
+        foreach ($this->otrs_call_response['response'] as $row) {
             if (!isset($entry['Filter']) || is_null($entry['Filter']) || $entry['Filter'] == '') {
                 $result[$row['id']] = $this->to_utf8($row['name']);
                 continue;
@@ -463,7 +463,7 @@ class OtrsProvider extends AbstractProvider
             }
         }
 
-        $this->saveSession('otrs_customeruser', $this->_otrs_call_response['response']);
+        $this->saveSession('otrs_customeruser', $this->otrs_call_response['response']);
         $groups[$entry['Id']]['values'] = $result;
     }
 
@@ -474,7 +474,7 @@ class OtrsProvider extends AbstractProvider
 
         $groups[$entry['Id']] = array(
             'label' => _($entry['Label']) . (
-                isset($entry['Mandatory']) && $entry['Mandatory'] == 1 ? $this->_required_field : ''
+                isset($entry['Mandatory']) && $entry['Mandatory'] == 1 ? $this->required_field : ''
             ),
             'sort' => (isset($entry['Sort']) && $entry['Sort'] == 1 ? 1 : 0)
         );
@@ -487,7 +487,7 @@ class OtrsProvider extends AbstractProvider
         }
 
         $result = array();
-        foreach ($this->_otrs_call_response['response'] as $row) {
+        foreach ($this->otrs_call_response['response'] as $row) {
             if (!isset($entry['Filter']) || is_null($entry['Filter']) || $entry['Filter'] == '') {
                 $result[$row['id']] = $this->to_utf8($row['name']);
                 continue;
@@ -498,7 +498,7 @@ class OtrsProvider extends AbstractProvider
             }
         }
 
-        $this->saveSession($label_session, $this->_otrs_call_response['response']);
+        $this->saveSession($label_session, $this->otrs_call_response['response']);
         $groups[$entry['Id']]['values'] = $result;
     }
 
@@ -584,7 +584,7 @@ class OtrsProvider extends AbstractProvider
 
         $tpl = $this->initSmartyTemplate();
 
-        $tpl->assign("centreon_open_tickets_path", $this->_centreon_open_tickets_path);
+        $tpl->assign("centreon_open_tickets_path", $this->centreon_open_tickets_path);
         $tpl->assign('user', $contact);
         $tpl->assign('host_selected', $host_problems);
         $tpl->assign('service_selected', $service_problems);
@@ -601,7 +601,7 @@ class OtrsProvider extends AbstractProvider
                     $result_str = null;
                 }
 
-                $ticket_arguments[$this->_internal_arg_name[$value['Arg']]] = $result_str;
+                $ticket_arguments[$this->internal_arg_name[$value['Arg']]] = $result_str;
             }
         }
         $ticket_dynamic_fields = array();
@@ -634,7 +634,7 @@ class OtrsProvider extends AbstractProvider
                 'contact' => $contact,
                 'host_problems' => $host_problems,
                 'service_problems' => $service_problems,
-                'ticket_value' => $this->_otrs_call_response['TicketNumber'],
+                'ticket_value' => $this->otrs_call_response['TicketNumber'],
                 'subject' => $ticket_arguments['Subject'],
                 'data_type' => self::DATA_TYPE_JSON,
                 'data' => json_encode(
@@ -661,13 +661,13 @@ class OtrsProvider extends AbstractProvider
 
     protected function listQueueOtrs()
     {
-        if ($this->_otrs_connected == 0) {
+        if ($this->otrs_connected == 0) {
             if ($this->loginOtrs() == -1) {
                 return -1;
             }
         }
 
-        $argument = array('SessionID' => $this->_otrs_session);
+        $argument = array('SessionID' => $this->otrs_session);
         if ($this->callRest('QueueGet', $argument) == 1) {
             return -1;
         }
@@ -677,13 +677,13 @@ class OtrsProvider extends AbstractProvider
 
     protected function listPriorityOtrs()
     {
-        if ($this->_otrs_connected == 0) {
+        if ($this->otrs_connected == 0) {
             if ($this->loginOtrs() == -1) {
                 return -1;
             }
         }
 
-        $argument = array('SessionID' => $this->_otrs_session);
+        $argument = array('SessionID' => $this->otrs_session);
         if ($this->callRest('PriorityGet', $argument) == 1) {
             return -1;
         }
@@ -693,13 +693,13 @@ class OtrsProvider extends AbstractProvider
 
     protected function listStateOtrs()
     {
-        if ($this->_otrs_connected == 0) {
+        if ($this->otrs_connected == 0) {
             if ($this->loginOtrs() == -1) {
                 return -1;
             }
         }
 
-        $argument = array('SessionID' => $this->_otrs_session);
+        $argument = array('SessionID' => $this->otrs_session);
         if ($this->callRest('StateGet', $argument) == 1) {
             return -1;
         }
@@ -709,13 +709,13 @@ class OtrsProvider extends AbstractProvider
 
     protected function listTypeOtrs()
     {
-        if ($this->_otrs_connected == 0) {
+        if ($this->otrs_connected == 0) {
             if ($this->loginOtrs() == -1) {
                 return -1;
             }
         }
 
-        $argument = array('SessionID' => $this->_otrs_session);
+        $argument = array('SessionID' => $this->otrs_session);
         if ($this->callRest('TypeGet', $argument) == 1) {
             return -1;
         }
@@ -725,13 +725,13 @@ class OtrsProvider extends AbstractProvider
 
     protected function listCustomerUserOtrs()
     {
-        if ($this->_otrs_connected == 0) {
+        if ($this->otrs_connected == 0) {
             if ($this->loginOtrs() == -1) {
                 return -1;
             }
         }
 
-        $argument = array('SessionID' => $this->_otrs_session);
+        $argument = array('SessionID' => $this->otrs_session);
         if ($this->callRest('CustomerUserGet', $argument) == 1) {
             return -1;
         }
@@ -741,13 +741,13 @@ class OtrsProvider extends AbstractProvider
 
     protected function listUserOtrs()
     {
-        if ($this->_otrs_connected == 0) {
+        if ($this->otrs_connected == 0) {
             if ($this->loginOtrs() == -1) {
                 return -1;
             }
         }
 
-        $argument = array('SessionID' => $this->_otrs_session);
+        $argument = array('SessionID' => $this->otrs_session);
         if ($this->callRest('UserGet', $argument) == 1) {
             return -1;
         }
@@ -757,14 +757,14 @@ class OtrsProvider extends AbstractProvider
 
     protected function closeTicketOtrs($ticket_number)
     {
-        if ($this->_otrs_connected == 0) {
+        if ($this->otrs_connected == 0) {
             if ($this->loginOtrs() == -1) {
                 return -1;
             }
         }
 
         $argument = array(
-            'SessionID' => $this->_otrs_session,
+            'SessionID' => $this->otrs_session,
             'TicketNumber' => $ticket_number,
             'Ticket' => array(
                 'State' => 'closed successful',
@@ -780,14 +780,14 @@ class OtrsProvider extends AbstractProvider
 
     protected function createTicketOtrs($ticket_arguments, $ticket_dynamic_fields)
     {
-        if ($this->_otrs_connected == 0) {
+        if ($this->otrs_connected == 0) {
             if ($this->loginOtrs() == -1) {
                 return -1;
             }
         }
 
         $argument = array(
-            'SessionID' => $this->_otrs_session,
+            'SessionID' => $this->otrs_session,
             'Ticket' => array(
                 'Title'             => $ticket_arguments['Subject'],
                 //'QueueID'         => xxx,
@@ -839,7 +839,7 @@ class OtrsProvider extends AbstractProvider
 
     protected function loginOtrs()
     {
-        if ($this->_otrs_connected == 1) {
+        if ($this->otrs_connected == 1) {
             return 0;
         }
 
@@ -853,14 +853,14 @@ class OtrsProvider extends AbstractProvider
             return -1;
         }
 
-        $this->_otrs_session = $this->_otrs_call_response['SessionID'];
-        $this->_otrs_connected = 1;
+        $this->otrs_session = $this->otrs_call_response['SessionID'];
+        $this->otrs_connected = 1;
         return 0;
     }
 
     protected function callRest($function, $argument)
     {
-        $this->_otrs_call_response = null;
+        $this->otrs_call_response = null;
 
         $proto = 'http';
         if (isset($this->rule_data['https']) && $this->rule_data['https'] == 'yes') {
@@ -911,7 +911,7 @@ class OtrsProvider extends AbstractProvider
             return 1;
         }
 
-        $this->_otrs_call_response = $decoded_result;
+        $this->otrs_call_response = $decoded_result;
         return 0;
     }
 

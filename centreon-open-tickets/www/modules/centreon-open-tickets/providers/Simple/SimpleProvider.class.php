@@ -22,13 +22,13 @@
 class SimpleProvider extends AbstractProvider
 {
 
-    protected function _setDefaultValueExtra()
+    protected function setDefaultValueExtra()
     {
     }
 
-    protected function _setDefaultValueMain($body_html = 0)
+    protected function setDefaultValueMain($body_html = 0)
     {
-        parent::_setDefaultValueMain($body_html);
+        parent::setDefaultValueMain($body_html);
         $this->default_data['format_popup'] = '';
     }
 
@@ -37,18 +37,18 @@ class SimpleProvider extends AbstractProvider
      *
      * @return a string
      */
-    protected function _checkConfigForm()
+    protected function checkConfigForm()
     {
-        $this->_check_error_message = '';
-        $this->_check_error_message_append = '';
+        $this->check_error_message = '';
+        $this->check_error_message_append = '';
 
-        $this->_checkFormValue('macro_ticket_id', "Please set 'Macro Ticket ID' value");
-        $this->_checkFormInteger('confirm_autoclose', "'Confirm popup autoclose' must be a number");
+        $this->checkFormValue('macro_ticket_id', "Please set 'Macro Ticket ID' value");
+        $this->checkFormInteger('confirm_autoclose', "'Confirm popup autoclose' must be a number");
 
-        $this->_checkLists();
+        $this->checkLists();
 
-        if ($this->_check_error_message != '') {
-            throw new Exception($this->_check_error_message);
+        if ($this->check_error_message != '') {
+            throw new Exception($this->check_error_message);
         }
     }
 
@@ -57,7 +57,7 @@ class SimpleProvider extends AbstractProvider
      *
      * @return void
      */
-    protected function _getConfigContainer1Extra()
+    protected function getConfigContainer1Extra()
     {
     }
 
@@ -66,7 +66,7 @@ class SimpleProvider extends AbstractProvider
      *
      * @return void
      */
-    protected function _getConfigContainer2Extra()
+    protected function getConfigContainer2Extra()
     {
     }
 

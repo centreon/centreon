@@ -66,7 +66,7 @@ class BmcItsmProvider extends AbstractProvider
          'z2Attachment_3_attachmentOrigSize', 'zTmpEventGUID'
     );
 
-    protected $_internal_arguments = array(
+    protected $internal_arguments = array(
         'Action' => array('id' => 1, 'soap' => 'z1D_Action'),
         'Service Type' => array('id' => 2, 'soap' => 'Service_Type'),
         'Subject' => array('id' => 3, 'soap' => 'Description'),
@@ -91,7 +91,7 @@ class BmcItsmProvider extends AbstractProvider
      *
      * @return void
      */
-    protected function _setDefaultValueExtra()
+    protected function setDefaultValueExtra()
     {
         $this->default_data['endpoint'] = 'http://127.0.0.1/arsys/services/' .
             'ARService?server=XXXX&webService=HPD_IncidentInterface_Create_WS';
@@ -100,21 +100,21 @@ class BmcItsmProvider extends AbstractProvider
 
         $this->default_data['clones']['mappingTicket'] = array(
             array(
-                'Arg' => $this->_internal_arguments['Subject']['id'],
+                'Arg' => $this->internal_arguments['Subject']['id'],
                 'Value' => 'Issue {include file="file:$centreon_open_tickets_path/providers' .
                     '/Abstract/templates/display_title.ihtml"}'
             ),
-            array('Arg' => $this->_internal_arguments['Content']['id'], 'Value' => '{$body}'),
-            array('Arg' => $this->_internal_arguments['Action']['id'], 'Value' => 'CREATE'),
-            array('Arg' => $this->_internal_arguments['Status']['id'], 'Value' => 'Assigned'),
-            array('Arg' => $this->_internal_arguments['Source']['id'], 'Value' => 'Supervision'),
-            array('Arg' => $this->_internal_arguments['Type Service']['id'], 'Value' => 'Infrastructure Event'),
+            array('Arg' => $this->internal_arguments['Content']['id'], 'Value' => '{$body}'),
+            array('Arg' => $this->internal_arguments['Action']['id'], 'Value' => 'CREATE'),
+            array('Arg' => $this->internal_arguments['Status']['id'], 'Value' => 'Assigned'),
+            array('Arg' => $this->internal_arguments['Source']['id'], 'Value' => 'Supervision'),
+            array('Arg' => $this->internal_arguments['Type Service']['id'], 'Value' => 'Infrastructure Event'),
         );
     }
 
-    protected function _setDefaultValueMain($body_html = 0)
+    protected function setDefaultValueMain($body_html = 0)
     {
-        parent::_setDefaultValueMain($body_html);
+        parent::setDefaultValueMain($body_html);
 
         $this->default_data['message_confirm'] = '
 <table class="table">
@@ -142,24 +142,24 @@ class BmcItsmProvider extends AbstractProvider
      *
      * @return a string
      */
-    protected function _checkConfigForm()
+    protected function checkConfigForm()
     {
-        $this->_check_error_message = '';
-        $this->_check_error_message_append = '';
+        $this->check_error_message = '';
+        $this->check_error_message_append = '';
 
-        $this->_checkFormValue('endpoint', "Please set 'Endpoint' value");
-        $this->_checkFormValue('namespace', "Please set 'Namespace' value");
-        $this->_checkFormValue('timeout', "Please set 'Timeout' value");
-        $this->_checkFormValue('username', "Please set 'Username' value");
-        $this->_checkFormValue('password', "Please set 'Password' value");
-        $this->_checkFormValue('macro_ticket_id', "Please set 'Macro Ticket ID' value");
-        $this->_checkFormInteger('timeout', "'Timeout' must be a number");
-        $this->_checkFormInteger('confirm_autoclose', "'Confirm popup autoclose' must be a number");
+        $this->checkFormValue('endpoint', "Please set 'Endpoint' value");
+        $this->checkFormValue('namespace', "Please set 'Namespace' value");
+        $this->checkFormValue('timeout', "Please set 'Timeout' value");
+        $this->checkFormValue('username', "Please set 'Username' value");
+        $this->checkFormValue('password', "Please set 'Password' value");
+        $this->checkFormValue('macro_ticket_id', "Please set 'Macro Ticket ID' value");
+        $this->checkFormInteger('timeout', "'Timeout' must be a number");
+        $this->checkFormInteger('confirm_autoclose', "'Confirm popup autoclose' must be a number");
 
-        $this->_checkLists();
+        $this->checkLists();
 
-        if ($this->_check_error_message != '') {
-            throw new Exception($this->_check_error_message);
+        if ($this->check_error_message != '') {
+            throw new Exception($this->check_error_message);
         }
     }
 
@@ -168,31 +168,31 @@ class BmcItsmProvider extends AbstractProvider
      *
      * @return void
      */
-    protected function _getConfigContainer1Extra()
+    protected function getConfigContainer1Extra()
     {
         $tpl = $this->initSmartyTemplate('providers/BmcItsm/templates');
 
-        $tpl->assign("centreon_open_tickets_path", $this->_centreon_open_tickets_path);
+        $tpl->assign("centreon_open_tickets_path", $this->centreon_open_tickets_path);
         $tpl->assign("img_brick", "./modules/centreon-open-tickets/images/brick.png");
         $tpl->assign("header", array("bmcitsm" => _("BMC ITSM")));
 
         // Form
         $endpoint_html = '<input size="50" name="endpoint" type="text" value="' .
-            $this->_getFormValue('endpoint') . '" />';
+            $this->getFormValue('endpoint') . '" />';
         $namespace_html = '<input size="50" name="namespace" type="text" value="' .
-            $this->_getFormValue('namespace') . '" />';
+            $this->getFormValue('namespace') . '" />';
         $username_html = '<input size="50" name="username" type="text" value="' .
-            $this->_getFormValue('username') . '" />';
+            $this->getFormValue('username') . '" />';
         $password_html = '<input size="50" name="password" type="password" value="' .
-            $this->_getFormValue('password') . '" autocomplete="off" />';
+            $this->getFormValue('password') . '" autocomplete="off" />';
         $timeout_html = '<input size="2" name="timeout" type="text" value="' .
-            $this->_getFormValue('timeout') . '" />';
+            $this->getFormValue('timeout') . '" />';
 
         $array_form = array(
-            'endpoint' => array('label' => _("Endpoint") . $this->_required_field, 'html' => $endpoint_html),
+            'endpoint' => array('label' => _("Endpoint") . $this->required_field, 'html' => $endpoint_html),
             'namespace' => array('label' => _("Namespace"), 'html' => $namespace_html),
-            'username' => array('label' => _("Username") . $this->_required_field, 'html' => $username_html),
-            'password' => array('label' => _("Password") . $this->_required_field, 'html' => $password_html),
+            'username' => array('label' => _("Username") . $this->required_field, 'html' => $username_html),
+            'password' => array('label' => _("Password") . $this->required_field, 'html' => $password_html),
             'timeout' => array('label' => _("Timeout"), 'html' => $timeout_html),
             'mappingticket' => array('label' => _("Mapping ticket arguments")),
         );
@@ -202,8 +202,8 @@ class BmcItsmProvider extends AbstractProvider
             'size="20"  type="text" />';
         $mappingTicketArg_html = '<select id="mappingTicketArg_#index#" name="mappingTicketArg[#index#]" ' .
             'type="select-one">';
-        ksort($this->_internal_arguments);
-        foreach ($this->_internal_arguments as $label => $array) {
+        ksort($this->internal_arguments);
+        foreach ($this->internal_arguments as $label => $array) {
             $mappingTicketArg_html .= '<option value="' . $array['id'] . '">' . _($label) . '</options>';
         }
         $mappingTicketArg_html .= '</select>';
@@ -213,8 +213,8 @@ class BmcItsmProvider extends AbstractProvider
         );
 
         $tpl->assign('form', $array_form);
-        $this->_config['container1_html'] .= $tpl->fetch('conf_container1extra.ihtml');
-        $this->_config['clones']['mappingTicket'] = $this->_getCloneValue('mappingTicket');
+        $this->config['container1_html'] .= $tpl->fetch('conf_container1extra.ihtml');
+        $this->config['clones']['mappingTicket'] = $this->getCloneValue('mappingTicket');
     }
 
     /**
@@ -222,7 +222,7 @@ class BmcItsmProvider extends AbstractProvider
      *
      * @return void
      */
-    protected function _getConfigContainer2Extra()
+    protected function getConfigContainer2Extra()
     {
     }
 
@@ -235,13 +235,13 @@ class BmcItsmProvider extends AbstractProvider
 
     protected function saveConfigExtra()
     {
-        $this->_save_config['simple']['endpoint'] = $this->_submitted_config['endpoint'];
-        $this->_save_config['simple']['namespace'] = $this->_submitted_config['namespace'];
-        $this->_save_config['simple']['username'] = $this->_submitted_config['username'];
-        $this->_save_config['simple']['password'] = $this->_submitted_config['password'];
-        $this->_save_config['simple']['timeout'] = $this->_submitted_config['timeout'];
+        $this->save_config['simple']['endpoint'] = $this->submitted_config['endpoint'];
+        $this->save_config['simple']['namespace'] = $this->submitted_config['namespace'];
+        $this->save_config['simple']['username'] = $this->submitted_config['username'];
+        $this->save_config['simple']['password'] = $this->submitted_config['password'];
+        $this->save_config['simple']['timeout'] = $this->submitted_config['timeout'];
 
-        $this->_save_config['clones']['mappingTicket'] = $this->_getCloneSubmitted(
+        $this->save_config['clones']['mappingTicket'] = $this->getCloneSubmitted(
             'mappingTicket',
             array('Arg', 'Value')
         );
@@ -257,7 +257,7 @@ class BmcItsmProvider extends AbstractProvider
         );
 
         $tpl = $this->initSmartyTemplate();
-        $tpl->assign("centreon_open_tickets_path", $this->_centreon_open_tickets_path);
+        $tpl->assign("centreon_open_tickets_path", $this->centreon_open_tickets_path);
         $tpl->assign('user', $contact);
         $tpl->assign('host_selected', $host_problems);
         $tpl->assign('service_selected', $service_problems);
@@ -273,7 +273,7 @@ class BmcItsmProvider extends AbstractProvider
                     $result_str = null;
                 }
 
-                foreach ($this->_internal_arguments as $arg) {
+                foreach ($this->internal_arguments as $arg) {
                     if ($arg['id'] == $value['Arg']) {
                         $ticket_arguments[$arg['soap']] = $result_str;
                         break;
@@ -360,7 +360,7 @@ class BmcItsmProvider extends AbstractProvider
 
     protected function callSOAP($data)
     {
-        $this->_otrs_call_response = null;
+        $this->otrs_call_response = null;
 
         $base_url = $this->rule_data['endpoint'];
         $ch = curl_init($base_url);

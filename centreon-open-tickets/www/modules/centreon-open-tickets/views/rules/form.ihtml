@@ -1,5 +1,4 @@
 <script type="text/javascript" src="include/common/javascript/changetab.js"></script>
-{$form.javascript}{$javascript}
 <div id="rule_error" style="color: red"></div>
 <form id="RuleForm" action="?p={$page}">
 <input type="hidden" id="rule_id" name="rule_id" value="{$rule_id}">
