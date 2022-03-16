@@ -21,14 +21,14 @@
 
 class SerenaProvider extends AbstractProvider
 {
-    const ARG_PROJECT_ID = 1;
-    const ARG_SUBJECT = 2;
-    const ARG_CONTENT = 3;
-    const ARG_CATEGORY = 4;
-    const ARG_SUB_CATEGORY = 5;
-    const ARG_SUB_CATEGORY_DETAILS = 6;
+    public const ARG_PROJECT_ID = 1;
+    public const ARG_SUBJECT = 2;
+    public const ARG_CONTENT = 3;
+    public const ARG_CATEGORY = 4;
+    public const ARG_SUB_CATEGORY = 5;
+    public const ARG_SUB_CATEGORY_DETAILS = 6;
 
-    protected $_internal_arg_name = array(
+    protected $internal_arg_name = array(
         self::ARG_PROJECT_ID => 'project_id',
         self::ARG_SUBJECT => 'subject',
         self::ARG_CONTENT => 'content',
@@ -46,7 +46,7 @@ class SerenaProvider extends AbstractProvider
      *
      * @return void
      */
-    protected function _setDefaultValueExtra()
+    protected function setDefaultValueExtra()
     {
         $this->default_data['endpoint'] = 'http://127.0.0.1//gsoap/gsoap_ssl.dll?XXXXXX';
         $this->default_data['namespace'] = 'XXXXXXX';
@@ -63,9 +63,9 @@ class SerenaProvider extends AbstractProvider
         );
     }
 
-    protected function _setDefaultValueMain($body_html = 0)
+    protected function setDefaultValueMain($body_html = 0)
     {
-        parent::_setDefaultValueMain($body_html);
+        parent::setDefaultValueMain($body_html);
 
         $this->default_data['message_confirm'] = '
 <table class="table">
@@ -90,24 +90,24 @@ class SerenaProvider extends AbstractProvider
      *
      * @return a string
      */
-    protected function _checkConfigForm()
+    protected function checkConfigForm()
     {
-        $this->_check_error_message = '';
-        $this->_check_error_message_append = '';
+        $this->check_error_message = '';
+        $this->check_error_message_append = '';
 
-        $this->_checkFormValue('endpoint', "Please set 'Endpoint' value");
-        $this->_checkFormValue('namespace', "Please set 'Namespace' value");
-        $this->_checkFormValue('timeout', "Please set 'Timeout' value");
-        $this->_checkFormValue('username', "Please set 'Username' value");
-        $this->_checkFormValue('password', "Please set 'Password' value");
-        $this->_checkFormValue('macro_ticket_id', "Please set 'Macro Ticket ID' value");
-        $this->_checkFormInteger('timeout', "'Timeout' must be a number");
-        $this->_checkFormInteger('confirm_autoclose', "'Confirm popup autoclose' must be a number");
+        $this->checkFormValue('endpoint', "Please set 'Endpoint' value");
+        $this->checkFormValue('namespace', "Please set 'Namespace' value");
+        $this->checkFormValue('timeout', "Please set 'Timeout' value");
+        $this->checkFormValue('username', "Please set 'Username' value");
+        $this->checkFormValue('password', "Please set 'Password' value");
+        $this->checkFormValue('macro_ticket_id', "Please set 'Macro Ticket ID' value");
+        $this->checkFormInteger('timeout', "'Timeout' must be a number");
+        $this->checkFormInteger('confirm_autoclose', "'Confirm popup autoclose' must be a number");
 
-        $this->_checkLists();
+        $this->checkLists();
 
-        if ($this->_check_error_message != '') {
-            throw new Exception($this->_check_error_message);
+        if ($this->check_error_message != '') {
+            throw new Exception($this->check_error_message);
         }
     }
 
@@ -116,31 +116,31 @@ class SerenaProvider extends AbstractProvider
      *
      * @return void
      */
-    protected function _getConfigContainer1Extra()
+    protected function getConfigContainer1Extra()
     {
         $tpl = $this->initSmartyTemplate('providers/Serena/templates');
 
-        $tpl->assign("centreon_open_tickets_path", $this->_centreon_open_tickets_path);
+        $tpl->assign("centreon_open_tickets_path", $this->centreon_open_tickets_path);
         $tpl->assign("img_brick", "./modules/centreon-open-tickets/images/brick.png");
         $tpl->assign("header", array("serena" => _("Serena")));
 
         // Form
         $endpoint_html = '<input size="50" name="endpoint" type="text" value="' .
-            $this->_getFormValue('endpoint') . '" />';
+            $this->getFormValue('endpoint') . '" />';
         $namespace_html = '<input size="50" name="namespace" type="text" value="' .
-            $this->_getFormValue('namespace') . '" />';
+            $this->getFormValue('namespace') . '" />';
         $username_html = '<input size="50" name="username" type="text" value="' .
-            $this->_getFormValue('username') . '" />';
+            $this->getFormValue('username') . '" />';
         $password_html = '<input size="50" name="password" type="password" value="' .
-            $this->_getFormValue('password') . '" autocomplete="off" />';
+            $this->getFormValue('password') . '" autocomplete="off" />';
         $timeout_html = '<input size="2" name="timeout" type="text" value="' .
-            $this->_getFormValue('timeout') . '" />';
+            $this->getFormValue('timeout') . '" />';
 
         $array_form = array(
-            'endpoint' => array('label' => _("Endpoint") . $this->_required_field, 'html' => $endpoint_html),
+            'endpoint' => array('label' => _("Endpoint") . $this->required_field, 'html' => $endpoint_html),
             'namespace' => array('label' => _("Namespace"), 'html' => $namespace_html),
-            'username' => array('label' => _("Username") . $this->_required_field, 'html' => $username_html),
-            'password' => array('label' => _("Password") . $this->_required_field, 'html' => $password_html),
+            'username' => array('label' => _("Username") . $this->required_field, 'html' => $username_html),
+            'password' => array('label' => _("Password") . $this->required_field, 'html' => $password_html),
             'timeout' => array('label' => _("Timeout"), 'html' => $timeout_html),
             'mappingticket' => array('label' => _("Mapping ticket arguments")),
         );
@@ -164,8 +164,8 @@ class SerenaProvider extends AbstractProvider
         );
 
         $tpl->assign('form', $array_form);
-        $this->_config['container1_html'] .= $tpl->fetch('conf_container1extra.ihtml');
-        $this->_config['clones']['mappingTicket'] = $this->_getCloneValue('mappingTicket');
+        $this->config['container1_html'] .= $tpl->fetch('conf_container1extra.ihtml');
+        $this->config['clones']['mappingTicket'] = $this->getCloneValue('mappingTicket');
     }
 
     /**
@@ -173,7 +173,7 @@ class SerenaProvider extends AbstractProvider
      *
      * @return void
      */
-    protected function _getConfigContainer2Extra()
+    protected function getConfigContainer2Extra()
     {
     }
 
@@ -186,13 +186,13 @@ class SerenaProvider extends AbstractProvider
 
     protected function saveConfigExtra()
     {
-        $this->_save_config['simple']['endpoint'] = $this->_submitted_config['endpoint'];
-        $this->_save_config['simple']['namespace'] = $this->_submitted_config['namespace'];
-        $this->_save_config['simple']['username'] = $this->_submitted_config['username'];
-        $this->_save_config['simple']['password'] = $this->_submitted_config['password'];
-        $this->_save_config['simple']['timeout'] = $this->_submitted_config['timeout'];
+        $this->save_config['simple']['endpoint'] = $this->submitted_config['endpoint'];
+        $this->save_config['simple']['namespace'] = $this->submitted_config['namespace'];
+        $this->save_config['simple']['username'] = $this->submitted_config['username'];
+        $this->save_config['simple']['password'] = $this->submitted_config['password'];
+        $this->save_config['simple']['timeout'] = $this->submitted_config['timeout'];
 
-        $this->_save_config['clones']['mappingTicket'] = $this->_getCloneSubmitted(
+        $this->save_config['clones']['mappingTicket'] = $this->getCloneSubmitted(
             'mappingTicket',
             array('Arg', 'Value')
         );
@@ -209,7 +209,7 @@ class SerenaProvider extends AbstractProvider
 
         $tpl = $this->initSmartyTemplate();
 
-        $tpl->assign("centreon_open_tickets_path", $this->_centreon_open_tickets_path);
+        $tpl->assign("centreon_open_tickets_path", $this->centreon_open_tickets_path);
         $tpl->assign('user', $contact);
         $tpl->assign('host_selected', $host_problems);
         $tpl->assign('service_selected', $service_problems);
@@ -225,7 +225,7 @@ class SerenaProvider extends AbstractProvider
                     $result_str = null;
                 }
 
-                $ticket_arguments[$this->_internal_arg_name[$value['Arg']]] = $result_str;
+                $ticket_arguments[$this->internal_arg_name[$value['Arg']]] = $result_str;
             }
         }
 
@@ -244,7 +244,7 @@ class SerenaProvider extends AbstractProvider
                 'service_problems' => $service_problems,
                 'ticket_value' => $this->_ticket_number,
                 'subject' => $ticket_arguments[
-                    $this->_internal_arg_name[self::ARG_SUBJECT]
+                    $this->internal_arg_name[self::ARG_SUBJECT]
                 ],
                 'data_type' => self::DATA_TYPE_JSON,
                 'data' => json_encode(
@@ -270,15 +270,15 @@ class SerenaProvider extends AbstractProvider
     {
         $extended_fields = "";
         $listing = array(
-            $this->_internal_arg_name[self::ARG_SUB_CATEGORY_DETAILS] => array(
+            $this->internal_arg_name[self::ARG_SUB_CATEGORY_DETAILS] => array(
                 'dbName' => 'OT_SUB_CATEGORY_DETAILS',
                 'displayName' => 'Sub-category details'
             ),
-            $this->_internal_arg_name[self::ARG_SUB_CATEGORY] => array(
+            $this->internal_arg_name[self::ARG_SUB_CATEGORY] => array(
                 'dbName' => 'OT_SUB_CATEGORY',
                 'displayName' => 'Sub-category'
             ),
-            $this->_internal_arg_name[self::ARG_CATEGORY] => array(
+            $this->internal_arg_name[self::ARG_CATEGORY] => array(
                 'dbName' => 'OT_CATEGORY',
                 'displayName' => 'OT_CATEGORY'
             ),
@@ -319,7 +319,7 @@ class SerenaProvider extends AbstractProvider
     </ae:auth>
     <ae:project>
         <ae:displayName></ae:displayName>
-        <ae:id>" . $ticket_arguments[$this->_internal_arg_name[self::ARG_PROJECT_ID]] . "</ae:id>
+        <ae:id>" . $ticket_arguments[$this->internal_arg_name[self::ARG_PROJECT_ID]] . "</ae:id>
         <ae:uuid></ae:uuid>
         <ae:fullyQualifiedName></ae:fullyQualifiedName>
     </ae:project>
@@ -341,9 +341,9 @@ class SerenaProvider extends AbstractProvider
                 <ae:fullyQualifiedName></ae:fullyQualifiedName>
         </ae:project>
         <ae:title><![CDATA[" .
-                $ticket_arguments[$this->_internal_arg_name[self::ARG_SUBJECT]] . "]]></ae:title>
+                $ticket_arguments[$this->internal_arg_name[self::ARG_SUBJECT]] . "]]></ae:title>
         <ae:description><![CDATA[" .
-                $ticket_arguments[$this->_internal_arg_name[self::ARG_CONTENT]] . "]]></ae:description>
+                $ticket_arguments[$this->internal_arg_name[self::ARG_CONTENT]] . "]]></ae:description>
         <ae:createdBy>
                 <ae:displayName></ae:displayName>
                 <ae:id></ae:id>
@@ -389,7 +389,7 @@ class SerenaProvider extends AbstractProvider
 
     protected function callSOAP($data)
     {
-        $this->_otrs_call_response = null;
+        $this->otrs_call_response = null;
 
         $base_url = $this->rule_data['endpoint'];
         $ch = curl_init($base_url);

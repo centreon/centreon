@@ -19,34 +19,35 @@
  * limitations under the License.
  */
 
- class GlpiRestApiProvider extends AbstractProvider {
-    protected $_close_advanced = 1;
-    protected $_proxy_enabled = 1;
+class GlpiRestApiProvider extends AbstractProvider
+{
+    protected $close_advanced = 1;
+    protected $proxy_enabled = 1;
 
-    const GLPI_ENTITY_TYPE = 14;
-    const GLPI_GROUP_TYPE = 15;
-    const GLPI_ITIL_CATEGORY_TYPE = 16;
-    const GLPI_USER_TYPE = 17;
-    const GLPI_SUPPLIER_TYPE = 18;
-    const GLPI_REQUESTER_TYPE = 19;
+    public const GLPI_ENTITY_TYPE = 14;
+    public const GLPI_GROUP_TYPE = 15;
+    public const GLPI_ITIL_CATEGORY_TYPE = 16;
+    public const GLPI_USER_TYPE = 17;
+    public const GLPI_SUPPLIER_TYPE = 18;
+    public const GLPI_REQUESTER_TYPE = 19;
 
-    const ARG_CONTENT = 1;
-    const ARG_ENTITY = 2;
-    const ARG_URGENCY = 3;
-    const ARG_IMPACT = 4;
-    const ARG_ITIL_CATEGORY = 5;
-    const ARG_USER = 6;
-    const ARG_GROUP = 7;
-    const ARG_TITLE = 8;
-    const ARG_PRIORITY = 9;
-    const ARG_SUPPLIER = 10;
-    const ARG_GROUP_ROLE = 11;
-    const ARG_USER_ROLE = 12;
-    const ARG_REQUESTER = 13;
+    public const ARG_CONTENT = 1;
+    public const ARG_ENTITY = 2;
+    public const ARG_URGENCY = 3;
+    public const ARG_IMPACT = 4;
+    public const ARG_ITIL_CATEGORY = 5;
+    public const ARG_USER = 6;
+    public const ARG_GROUP = 7;
+    public const ARG_TITLE = 8;
+    public const ARG_PRIORITY = 9;
+    public const ARG_SUPPLIER = 10;
+    public const ARG_GROUP_ROLE = 11;
+    public const ARG_USER_ROLE = 12;
+    public const ARG_REQUESTER = 13;
 
     private const PAGE_SIZE = 20;
 
-    protected $_internal_arg_name = array(
+    protected $internal_arg_name = [
         self::ARG_CONTENT => 'content',
         self::ARG_ENTITY => 'entity',
         self::ARG_URGENCY => 'urgency',
@@ -60,14 +61,15 @@
         self::ARG_GROUP_ROLE => 'group_role',
         self::ARG_USER_ROLE => 'user_role',
         self::ARG_REQUESTER => 'requester'
-    );
+    ];
 
     /*
     * Set default values for our rule form options
     *
     * @return {void}
     */
-    protected function _setDefaultValueExtra() {
+    protected function setDefaultValueExtra()
+    {
         $this->default_data['address'] = '127.0.0.1';
         $this->default_data['api_path'] = '/glpi/apirest.php';
         $this->default_data['protocol'] = 'http';
@@ -75,61 +77,61 @@
         $this->default_data['app_token'] = '';
         $this->default_data['timeout'] = 60;
 
-        $this->default_data['clones']['mappingTicket'] = array(
-            array(
+        $this->default_data['clones']['mappingTicket'] = [
+            [
                 'Arg' => self::ARG_TITLE,
                 'Value' => 'Issue {include file="file:$centreon_open_tickets_path/providers' .
                     '/Abstract/templates/display_title.ihtml"}'
-            ),
-            array(
+            ],
+            [
                 'Arg' => self::ARG_CONTENT,
                 'Value' => '{$body}'
-            ),
-            array(
+            ],
+            [
                 'Arg' => self::ARG_ENTITY,
                 'Value' => '{$select.glpi_entity.id}'
-            ),
-            array(
+            ],
+            [
                 'Arg' => self::ARG_ITIL_CATEGORY,
                 'Value' => '{$select.glpi_itil_category.id}'
-            ),
-            array(
+            ],
+            [
                 'Arg' => self::ARG_REQUESTER,
                 'Value' => '{$select.glpi_requester.id}'
-            ),
-            array(
+            ],
+            [
                 'Arg' => self::ARG_USER,
                 'Value' => '{$select.glpi_users.id}'
-            ),
-            array(
+            ],
+            [
                 'Arg' => self::ARG_USER_ROLE,
                 'Value' => '{$select.user_role.value}'
-            ),
-            array(
+            ],
+            [
                 'Arg' => self::ARG_GROUP,
                 'Value' => '{$select.glpi_group.id}'
-            ),
-            array(
+            ],
+            [
                 'Arg' => self::ARG_GROUP_ROLE,
                 'Value' => '{$select.group_role.value}'
-            ),
-            array(
+            ],
+            [
                 'Arg' => self::ARG_URGENCY,
                 'Value' => '{$select.urgency.value}'
-            ),
-            array(
+            ],
+            [
                 'Arg' => self::ARG_IMPACT,
                 'Value' => '{$select.impact.value}'
-            ),
-            array(
+            ],
+            [
                 'Arg' => self::ARG_PRIORITY,
                 'Value' => '{$select.priority.value}'
-            ),
-            array(
+            ],
+            [
                 'Arg' => self::ARG_SUPPLIER,
                 'Value' => '{$select.glpi_supplier.id}'
-            ),
-        );
+            ]
+        ];
     }
 
     /*
@@ -137,213 +139,214 @@
     *
     * @return {void}
     */
-    protected function _setDefaultValueMain($body_html = 0) {
-        parent::_setDefaultValueMain($body_html);
+    protected function setDefaultValueMain($body_html = 0)
+    {
+        parent::setDefaultValueMain($body_html);
 
         $this->default_data['url'] = '{$protocol}://{$address}/glpi/front/ticket.form.php?id={$ticket_id}';
 
-        $this->default_data['clones']['groupList'] = array(
-            array(
+        $this->default_data['clones']['groupList'] = [
+            [
                 'Id' => 'glpi_entity',
                 'Label' => _('Entity'),
                 'Type' => self::GLPI_ENTITY_TYPE,
                 'Filter' => '',
                 'Mandatory' => ''
-            ),
-            array(
+            ],
+            [
                 'Id' => 'glpi_itil_category',
                 'Label' => _('Itil category'),
                 'Type' => self::GLPI_ITIL_CATEGORY_TYPE,
                 'Filter' => '',
                 'Mandatory' => ''
-            ),
-            array(
+            ],
+            [
                 'Id' => 'glpi_requester',
                 'Label' => _('Requester'),
                 'Type' => self::GLPI_REQUESTER_TYPE,
                 'Filter' => '',
                 'Mandatory' => ''
-            ),
-            array(
+            ],
+            [
                 'Id' => 'glpi_users',
                 'Label' => _('Glpi users'),
                 'Type' => self::GLPI_USER_TYPE,
                 'Filter' => '',
                 'Mandatory' => ''
-            ),
-            array(
+            ],
+            [
                 'Id' => 'user_role',
                 'Label' => _('user_role'),
                 'Type' => self::CUSTOM_TYPE,
                 'Filter' => '',
                 'Mandatory' => ''
-            ),
-            array(
+            ],
+            [
                 'Id' => 'glpi_group',
                 'Label' => _('Glpi group'),
                 'Type' => self::GLPI_GROUP_TYPE,
                 'Filter' => '',
                 'Mandatory' => ''
-            ),
-            array(
+            ],
+            [
                 'Id' => 'group_role',
                 'Label' => _('group_role'),
                 'Type' => self::CUSTOM_TYPE,
                 'Filter' => '',
                 'Mandatory' => ''
-            ),
-            array(
+            ],
+            [
                 'Id' => 'urgency',
                 'Label' => _('Urgency'),
                 'Type' => self::CUSTOM_TYPE,
                 'Filter' => '',
                 'Mandatory' => ''
-            ),
-            array(
+            ],
+            [
                 'Id' => 'impact',
                 'Label' => _('Impact'),
                 'Type' => self::CUSTOM_TYPE,
                 'Filter' => '',
                 'Mandatory' => ''
-            ),
-            array(
+            ],
+            [
                 'Id' => 'priority',
                 'Label' => _('Priority'),
                 'Type' => self::CUSTOM_TYPE,
                 'Filter' => '',
                 'Mandatory' => ''
-            ),
-            array(
+            ],
+            [
                 'Id' => 'glpi_supplier',
                 'Label' => _('Glpi supplier'),
                 'Type' => self::GLPI_SUPPLIER_TYPE,
                 'Filter' => '',
                 'Mandatory' => ''
-            ),
-        );
+            ]
+        ];
 
-        $this->default_data['clones']['customList'] = array(
-            array(
+        $this->default_data['clones']['customList'] = [
+            [
                 'Id' => 'urgency',
                 'Value' => '1',
                 'Label' => 'Very Low',
                 'Default' => ''
-            ),
-            array(
+            ],
+            [
                 'Id' => 'urgency',
                 'Value' => '2',
                 'Label' => 'Low',
                 'Default' => ''
-            ),
-            array(
+            ],
+            [
                 'Id' => 'urgency',
                 'Value' => '3',
                 'Label' => 'Medium',
                 'Default' => ''
-            ),
-            array(
+            ],
+            [
                 'Id' => 'urgency',
                 'Value' => '4',
                 'Label' => 'High',
                 'Default' => ''
-            ),
-            array(
+            ],
+            [
                 'Id' => 'urgency',
                 'Value' => '5',
                 'Label' => 'Very High',
                 'Default' => ''
-            ),
-            array(
+            ],
+            [
                 'Id' => 'impact',
                 'Value' => '1',
                 'Label' => '',
                 'Default' => ''
-            ),
-            array(
+            ],
+            [
                 'Id' => 'impact',
                 'Value' => '2',
                 'Label' => '',
                 'Default' => ''
-            ),
-            array(
+            ],
+            [
                 'Id' => 'impact',
                 'Value' => '3',
                 'Label' => '',
                 'Default' => ''
-            ),
-            array(
+            ],
+            [
                 'Id' => 'impact',
                 'Value' => '4',
                 'Label' => '',
                 'Default' => ''
-            ),
-            array(
+            ],
+            [
                 'Id' => 'impact',
                 'Value' => '5',
                 'Label' => '',
                 'Default' => ''
-            ),
-            array(
+            ],
+            [
                 'Id' => 'priority',
                 'Value' => '1',
                 'Label' => '',
                 'Default' => ''
-            ),
-            array(
+            ],
+            [
                 'Id' => 'priority',
                 'Value' => '2',
                 'Label' => '',
                 'Default' => ''
-            ),
-            array(
+            ],
+            [
                 'Id' => 'priority',
                 'Value' => '3',
                 'Label' => '',
                 'Default' => ''
-            ),
-            array(
+            ],
+            [
                 'Id' => 'priority',
                 'Value' => '4',
                 'Label' => '',
                 'Default' => ''
-            ),
-            array(
+            ],
+            [
                 'Id' => 'priority',
                 'Value' => '5',
                 'Label' => '',
                 'Default' => ''
-            ),
-            array(
+            ],
+            [
                 'Id' => 'priority',
                 'Value' => '6',
                 'Label' => '',
                 'Default' => ''
-            ),
-            array(
+            ],
+            [
                 'Id' => 'group_role',
                 'Value' => '3',
                 'Label' => 'Watcher',
                 'Default' => ''
-            ),
-            array(
+            ],
+            [
                 'Id' => 'group_role',
                 'Value' => '2',
                 'Label' => 'Assigned',
                 'Default' => ''
-            ),
-            array(
+            ],
+            [
                 'Id' => 'user_role',
                 'Value' => '3',
                 'Label' => 'Watcher',
                 'Default' => ''
-            ),
-            array(
+            ],
+            [
                 'Id' => 'user_role',
                 'Value' => '2',
                 'Label' => 'Assigned',
                 'Default' => ''
-            ),
-        );
+            ]
+        ];
     }
 
     /*
@@ -353,21 +356,22 @@
     *
     * @throw \Exception when a form field is not set
     */
-    protected function _checkConfigForm() {
-        $this->_check_error_message = '';
-        $this->_check_error_message_append = '';
+    protected function checkConfigForm()
+    {
+        $this->check_error_message = '';
+        $this->check_error_message_append = '';
 
-        $this->_checkFormValue('address', 'Please set "Address" value');
-        $this->_checkFormValue('api_path', 'Please set "API path" value');
-        $this->_checkFormValue('protocol', 'Please set "Protocol" value');
-        $this->_checkFormValue('user_token', 'Please set "User token" value');
-        $this->_checkFormValue('app_token', 'Please set "APP token" value');
-        $this->_checkFormInteger('timeout', '"Timeout" must be an integer');
+        $this->checkFormValue('address', 'Please set "Address" value');
+        $this->checkFormValue('api_path', 'Please set "API path" value');
+        $this->checkFormValue('protocol', 'Please set "Protocol" value');
+        $this->checkFormValue('user_token', 'Please set "User token" value');
+        $this->checkFormValue('app_token', 'Please set "APP token" value');
+        $this->checkFormInteger('timeout', '"Timeout" must be an integer');
 
-        $this->_checkLists();
+        $this->checkLists();
 
-        if ($this->_check_error_message != '') {
-            throw new Exception($this->_check_error_message);
+        if ($this->check_error_message != '') {
+            throw new Exception($this->check_error_message);
         }
     }
 
@@ -376,12 +380,10 @@
     *
     * @return {void}
     */
-    protected function _getConfigContainer1Extra() {
-        // initiate smarty and a few variables.
-        $tpl = new Smarty();
-        $tpl = initSmartyTplForPopup($this->_centreon_open_tickets_path, $tpl, 'providers/GlpiRestApi/templates',
-            $this->_centreon_path);
-        $tpl->assign('centreon_open_tickets_path', $this->_centreon_open_tickets_path);
+    protected function getConfigContainer1Extra()
+    {
+        $tpl = $this->initSmartyTemplate('providers/GlpiRestApi/templates');
+        $tpl->assign('centreon_open_tickets_path', $this->centreon_open_tickets_path);
         $tpl->assign('img_brick', './modules/centreon-open-tickets/images/brick.png');
         $tpl->assign('header', array('GlpiRestApi' => _("Glpi Rest Api")));
         $tpl->assign('webServiceUrl', './api/internal.php');
@@ -390,38 +392,38 @@
         * we create the html that is going to be displayed
         */
         $address_html = '<input size="50" name="address" type="text" value="' .
-            $this->_getFormValue('address') .'" />';
+            $this->getFormValue('address') . '" />';
         $api_path_html = '<input size="50" name="api_path" type="text" value="' .
-            $this->_getFormValue('api_path') . '" />';
+            $this->getFormValue('api_path') . '" />';
         $protocol_html = '<input size="50" name="protocol" type="text" value="' .
-            $this->_getFormValue('protocol') . '" />';
+            $this->getFormValue('protocol') . '" />';
         $user_token_html = '<input size="50" name="user_token" type="text" value="' .
-            $this->_getFormValue('user_token') . '" autocomplete="off" />';
+            $this->getFormValue('user_token') . '" autocomplete="off" />';
         $app_token_html = '<input size="50" name="app_token" type="text" value="' .
-            $this->_getFormValue('app_token') . '" autocomplete="off" />';
+            $this->getFormValue('app_token') . '" autocomplete="off" />';
         $timeout_html = '<input size="50" name="timeout" type="text" value="' .
-            $this->_getFormValue('timeout') . '" :>';
+            $this->getFormValue('timeout') . '" :>';
 
         // this array is here to link a label with the html code that we've wrote above
         $array_form = array(
             'address' => array(
-                'label' => _('Address') . $this->_required_field,
+                'label' => _('Address') . $this->required_field,
                 'html' => $address_html
             ),
             'api_path' => array(
-                'label' => _('API path') . $this->_required_field,
+                'label' => _('API path') . $this->required_field,
                 'html' => $api_path_html
             ),
             'protocol' => array(
-                'label' => _('Protocol') . $this->_required_field,
+                'label' => _('Protocol') . $this->required_field,
                 'html' => $protocol_html
             ),
             'user_token' => array(
-                'label' => _('User token') . $this->_required_field,
+                'label' => _('User token') . $this->required_field,
                 'html' => $user_token_html
             ),
             'app_token' => array(
-                'label' => _('APP token') . $this->_required_field,
+                'label' => _('APP token') . $this->required_field,
                 'html' => $app_token_html
             ),
             'timeout' => array(
@@ -469,27 +471,30 @@
         );
 
         $tpl->assign('form', $array_form);
-        $this->_config['container1_html'] .= $tpl->fetch('conf_container1extra.ihtml');
-        $this->_config['clones']['mappingTicket'] = $this->_getCloneValue('mappingTicket');
+        $this->config['container1_html'] .= $tpl->fetch('conf_container1extra.ihtml');
+        $this->config['clones']['mappingTicket'] = $this->getCloneValue('mappingTicket');
     }
 
-    protected function _getConfigContainer2Extra() {}
+    protected function getConfigContainer2Extra()
+    {
+    }
 
     /*
     * Saves the rule form in the database
     *
     * @return {void}
     */
-    protected function saveConfigExtra() {
-        $this->_save_config['simple']['address'] = $this->_submitted_config['address'];
-        $this->_save_config['simple']['api_path'] = $this->_submitted_config['api_path'];
-        $this->_save_config['simple']['protocol'] = $this->_submitted_config['protocol'];
-        $this->_save_config['simple']['user_token'] = $this->_submitted_config['user_token'];
-        $this->_save_config['simple']['app_token'] = $this->_submitted_config['app_token'];
-        $this->_save_config['simple']['timeout'] = $this->_submitted_config['timeout'];
+    protected function saveConfigExtra()
+    {
+        $this->save_config['simple']['address'] = $this->submitted_config['address'];
+        $this->save_config['simple']['api_path'] = $this->submitted_config['api_path'];
+        $this->save_config['simple']['protocol'] = $this->submitted_config['protocol'];
+        $this->save_config['simple']['user_token'] = $this->submitted_config['user_token'];
+        $this->save_config['simple']['app_token'] = $this->submitted_config['app_token'];
+        $this->save_config['simple']['timeout'] = $this->submitted_config['timeout'];
 
         // saves the ticket arguments
-        $this->_save_config['clones']['mappingTicket'] = $this->_getCloneSubmitted('mappingTicket', array('Arg', 'Value'));
+        $this->save_config['clones']['mappingTicket'] = $this->getCloneSubmitted('mappingTicket', ['Arg', 'Value']);
     }
 
     /*
@@ -497,7 +502,8 @@
     *
     * @return {string} $str html code that add an option to a select
     */
-    protected function getGroupListOptions() {
+    protected function getGroupListOptions()
+    {
         $str = '<option value="' . self::GLPI_ENTITY_TYPE . '">Entity</option>' .
             '<option value="' . self::GLPI_REQUESTER_TYPE . '">Requester</option>' .
             '<option value="' . self::GLPI_GROUP_TYPE . '">Group</option>' .
@@ -517,18 +523,19 @@
     *
     * @return {void}
     */
-    protected function assignOthers($entry, &$groups_order, &$groups) {
+    protected function assignOthers($entry, &$groups_order, &$groups)
+    {
         if ($entry['Type'] == self::GLPI_ENTITY_TYPE) {
             $this->assignGlpiEntities($entry, $groups_order, $groups);
-        } else if ($entry['Type'] == self::GLPI_GROUP_TYPE) {
+        } elseif ($entry['Type'] == self::GLPI_GROUP_TYPE) {
             $this->assignGlpiGroups($entry, $groups_order, $groups);
-        } else if ($entry['Type'] == self::GLPI_ITIL_CATEGORY_TYPE) {
+        } elseif ($entry['Type'] == self::GLPI_ITIL_CATEGORY_TYPE) {
             $this->assignItilCategories($entry, $groups_order, $groups);
-        } else if ($entry['Type'] == self::GLPI_USER_TYPE) {
+        } elseif ($entry['Type'] == self::GLPI_USER_TYPE) {
             $this->assignGlpiUsers($entry, $groups_order, $groups);
-        } else if ($entry['Type'] == self::GLPI_SUPPLIER_TYPE) {
+        } elseif ($entry['Type'] == self::GLPI_SUPPLIER_TYPE) {
             $this->assignGlpiSuppliers($entry, $groups_order, $groups);
-        } else if ($entry['Type'] == self::GLPI_REQUESTER_TYPE) {
+        } elseif ($entry['Type'] == self::GLPI_REQUESTER_TYPE) {
             $this->assignGlpiRequesters($entry, $groups_order, $groups);
         }
     }
@@ -544,11 +551,12 @@
     *
     * throw \Exception if we can't get entities from glpi
     */
-    protected function assignGlpiEntities($entry, &$groups_order, &$groups) {
+    protected function assignGlpiEntities($entry, &$groups_order, &$groups)
+    {
         // add a label to our entry and activate sorting or not.
         $groups[$entry['Id']] = array(
             'label' => _($entry['Label']) .
-            (isset($entry['Mandatory']) && $entry['Mandatory'] == 1 ? $this->_required_field : '' ),
+            (isset($entry['Mandatory']) && $entry['Mandatory'] == 1 ? $this->required_field : '' ),
             'sort' => (isset($entry['Sort']) && $entry['Sort'] == 1 ? 1 : 0)
         );
         // adds our entry in the group order array
@@ -597,11 +605,12 @@
     *
     * throw \Exception if we can't get requesters from glpi
     */
-    protected function assignGlpiRequesters($entry, &$groups_order, &$groups) {
+    protected function assignGlpiRequesters($entry, &$groups_order, &$groups)
+    {
         // add a label to our entry and activate sorting or not.
         $groups[$entry['Id']] = array(
             'label' => _($entry['Label']) .
-            (isset($entry['Mandatory']) && $entry['Mandatory'] == 1 ? $this->_required_field : '' ),
+            (isset($entry['Mandatory']) && $entry['Mandatory'] == 1 ? $this->required_field : '' ),
             'sort' => (isset($entry['Sort']) && $entry['Sort'] == 1 ? 1 : 0)
         );
         // adds our entry in the group order array
@@ -650,11 +659,12 @@
     *
     * throw \Exception if we can't get users from glpi
     */
-    protected function assignGlpiUsers($entry, &$groups_order, &$groups) {
+    protected function assignGlpiUsers($entry, &$groups_order, &$groups)
+    {
         // add a label to our entry and activate sorting or not.
         $groups[$entry['Id']] = array(
             'label' => _($entry['Label']) .
-            (isset($entry['Mandatory']) && $entry['Mandatory'] == 1 ? $this->_required_field : '' ),
+            (isset($entry['Mandatory']) && $entry['Mandatory'] == 1 ? $this->required_field : '' ),
             'sort' => (isset($entry['Sort']) && $entry['Sort'] == 1 ? 1 : 0)
         );
         // adds our entry in the group order array
@@ -703,11 +713,12 @@
     *
     * throw \Exception if we can't get groups from glpi
     */
-    protected function assignGlpiGroups($entry, &$groups_order, &$groups) {
+    protected function assignGlpiGroups($entry, &$groups_order, &$groups)
+    {
         // add a label to our entry and activate sorting or not.
         $groups[$entry['Id']] = array(
             'label' => _($entry['Label']) .
-            (isset($entry['Mandatory']) && $entry['Mandatory'] == 1 ? $this->_required_field : '' ),
+            (isset($entry['Mandatory']) && $entry['Mandatory'] == 1 ? $this->required_field : '' ),
             'sort' => (isset($entry['Sort']) && $entry['Sort'] == 1 ? 1 : 0)
         );
         // adds our entry in the group order array
@@ -757,11 +768,12 @@
     *
     * throw \Exception if we can't get suppliers from glpi
     */
-    protected function assignGlpiSuppliers($entry, &$groups_order, &$groups) {
+    protected function assignGlpiSuppliers($entry, &$groups_order, &$groups)
+    {
         // add a label to our entry and activate sorting or not.
         $groups[$entry['Id']] = array(
             'label' => _($entry['Label']) .
-            (isset($entry['Mandatory']) && $entry['Mandatory'] == 1 ? $this->_required_field : '' ),
+            (isset($entry['Mandatory']) && $entry['Mandatory'] == 1 ? $this->required_field : '' ),
             'sort' => (isset($entry['Sort']) && $entry['Sort'] == 1 ? 1 : 0)
         );
         // adds our entry in the group order array
@@ -810,11 +822,12 @@
     *
     * throw \Exception if we can't get suppliers from glpi
     */
-    protected function assignItilCategories($entry, &$groups_order, &$groups) {
+    protected function assignItilCategories($entry, &$groups_order, &$groups)
+    {
         // add a label to our entry and activate sorting or not.
         $groups[$entry['Id']] = array(
             'label' => _($entry['Label']) .
-            (isset($entry['Mandatory']) && $entry['Mandatory'] == 1 ? $this->_required_field : '' ),
+            (isset($entry['Mandatory']) && $entry['Mandatory'] == 1 ? $this->required_field : '' ),
             'sort' => (isset($entry['Sort']) && $entry['Sort'] == 1 ? 1 : 0)
         );
         // adds our entry in the group order array
@@ -876,7 +889,8 @@
     *
     * @return {array} $result will tell us if the submit ticket action resulted in a ticket being opened
     */
-    protected function doSubmit($db_storage, $contact, $host_problems, $service_problems, $extraTicketArguments=array()) {
+    protected function doSubmit($db_storage, $contact, $host_problems, $service_problems, $extraTicketArguments = [])
+    {
         // initiate a result array
         $result = array(
             'ticket_id' => null,
@@ -887,10 +901,14 @@
 
         // initiate smarty variables
         $tpl = new Smarty();
-        $tpl = initSmartyTplForPopup($this->_centreon_open_tickets_path, $tpl, 'providers/Abstract/templates',
-        $this->_centreon_path);
+        $tpl = initSmartyTplForPopup(
+            $this->centreon_open_tickets_path,
+            $tpl,
+            'providers/Abstract/templates',
+            $this->centreon_path
+        );
 
-        $tpl->assign('centreon_open_tickets_path', $this->_centreon_open_tickets_path);
+        $tpl->assign('centreon_open_tickets_path', $this->centreon_open_tickets_path);
         $tpl->assign('user', $contact);
         $tpl->assign('host_selected', $host_problems);
         $tpl->assign('service_selected', $service_problems);
@@ -906,7 +924,7 @@
                 if ($resultString == '') {
                     $resultstring = null;
                 }
-                $ticketArguments[$this->_internal_arg_name[$value['Arg']]] = $resultString;
+                $ticketArguments[$this->internal_arg_name[$value['Arg']]] = $resultString;
             }
         }
 
@@ -941,11 +959,17 @@
     * throw \Exception if there are some missing parameters
     * throw \Exception if the connection failed
     */
-    static public function test($info) {
+    public static function test($info)
+    {
         // this is called through our javascript code. Those parameters are already checked in JS code.
         // but since this function is public, we check again because anyone could use this function
-        if (!isset($info['address']) || !isset($info['api_path']) || !isset($info['user_token'])
-            || !isset($info['app_token']) || !isset($info['protocol'])) {
+        if (
+            !isset($info['address'])
+            || !isset($info['api_path'])
+            || !isset($info['user_token'])
+            || !isset($info['app_token'])
+            || !isset($info['protocol'])
+        ) {
                 throw new \Exception('missing arguments', 13);
         }
 
@@ -992,14 +1016,15 @@
     * throw \Exception if no api information has been found
     * throw \Exception if the connection failed
     */
-    protected function initSession() {
+    protected function initSession()
+    {
         // add the api endpoint and method to our info array
         $info['query_endpoint'] = '/initSession';
         $info['method'] = 0;
         // set headers
         $info['headers'] = array(
-            'App-Token: ' . $this->_getFormValue('app_token'),
-            'Authorization: user_token ' . $this->_getFormValue('user_token'),
+            'App-Token: ' . $this->getFormValue('app_token'),
+            'Authorization: user_token ' . $this->getFormValue('user_token'),
             'Content-Type: application/json'
         );
         // try to call the rest api
@@ -1025,7 +1050,8 @@
     * throw \Exception if we can't get a session token
     * throw \Exception 11 if glpi api fails
     */
-    protected function curlQuery($info, int $offset = null) {
+    protected function curlQuery($info, int $offset = null)
+    {
         // check if php curl is installed
         if (!extension_loaded("curl")) {
             throw new \Exception("couldn't find php curl", 10);
@@ -1054,8 +1080,8 @@
 
         $curl = curl_init();
 
-        $apiAddress = $this->_getFormValue('protocol') . '://' . $this->_getFormValue('address') .
-            $this->_getFormValue('api_path') . $info['query_endpoint'];
+        $apiAddress = $this->getFormValue('protocol') . '://' . $this->getFormValue('address') .
+            $this->getFormValue('api_path') . $info['query_endpoint'];
 
         if ($offset !== null) {
             $apiAddress .= preg_match('/.+\?/', $apiAddress) ? '&' : '?';
@@ -1068,7 +1094,7 @@
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
         curl_setopt($curl, CURLOPT_POST, $info['method']);
-        curl_setopt($curl, CURLOPT_TIMEOUT, $this->_getFormValue('timeout'));
+        curl_setopt($curl, CURLOPT_TIMEOUT, $this->getFormValue('timeout'));
         // add postData if needed
         if ($info['method']) {
             curl_setopt($curl, CURLOPT_POSTFIELDS, $info['postFields']);
@@ -1079,12 +1105,26 @@
         }
 
         // if proxy is set, we add it to curl
-        if ($this->_getFormValue('proxy_address') != '' && $this->_getFormValue('proxy_port') != '') {
-                curl_setopt($curl, CURLOPT_PROXY, $this->_getFormValue('proxy_address') . ':' . $this->_getFormValue('proxy_port'));
+        if (
+            $this->getFormValue('proxy_address') != ''
+            && $this->getFormValue('proxy_port') != ''
+        ) {
+            curl_setopt(
+                $curl,
+                CURLOPT_PROXY,
+                $this->getFormValue('proxy_address') . ':' . $this->getFormValue('proxy_port')
+            );
 
             // if proxy authentication configuration is set, we add it to curl
-            if ($this->_getFormValue('proxy_username') != '' && $this->_getFormValue('proxy_password') != '') {
-                curl_setopt($curl, CURLOPT_PROXYUSERPWD, $this->_getFormValue('proxy_username') . ':' . $this->_getFormValue('proxy_password'));
+            if (
+                $this->getFormValue('proxy_username') != ''
+                && $this->getFormValue('proxy_password') != ''
+            ) {
+                curl_setopt(
+                    $curl,
+                    CURLOPT_PROXYUSERPWD,
+                    $this->getFormValue('proxy_username') . ':' . $this->getFormValue('proxy_password')
+                );
             }
         }
 
@@ -1148,13 +1188,14 @@
     *
     * throw \Exception if we can't get entities data
     */
-    protected function getEntities() {
+    protected function getEntities()
+    {
         // add the api endpoint and method to our info array
         $info['query_endpoint'] = '/getMyEntities?is_recursive=1';
         $info['method'] = 0;
         // set headers
         $info['headers'] = array(
-            'App-Token: ' . $this->_getFormValue('app_token'),
+            'App-Token: ' . $this->getFormValue('app_token'),
             'Content-Type: application/json'
         );
         // try to get entities from Glpi
@@ -1175,7 +1216,8 @@
     *
     * throw \Exception if we can't get groups data
     */
-    protected function getUserId() {
+    protected function getUserId()
+    {
         // try to get userID
         try {
             $userId = $this->getCache('userId');
@@ -1187,7 +1229,7 @@
                 $info['method'] = 0;
                 // set headers
                 $info['headers'] = array(
-                    'App-Token: ' . $this->_getFormValue('app_token'),
+                    'App-Token: ' . $this->getFormValue('app_token'),
                     'Content-Type: application/json'
                 );
 
@@ -1211,14 +1253,14 @@
     *
     * throw \Exception if we can't get groups data
     */
-    protected function getGroups() {
-
+    protected function getGroups()
+    {
         // add the api endpoint and method to our info array
         $info['query_endpoint'] = '/User/' . $this->getUserId() . '/group';
         $info['method'] = 0;
         // set headers
         $info['headers'] = array(
-            'App-Token: ' . $this->_getFormValue('app_token'),
+            'App-Token: ' . $this->getFormValue('app_token'),
             'Content-Type: application/json'
         );
         // try to get groups from Glpi
@@ -1239,13 +1281,14 @@
     *
     * throw \Exception if we can't get suppliers data
     */
-    protected function getSuppliers() {
+    protected function getSuppliers()
+    {
         // add the api endpoint and method to our info array
         $info['query_endpoint'] = '/Supplier';
         $info['method'] = 0;
         // set headers
         $info['headers'] = array(
-            'App-Token: ' . $this->_getFormValue('app_token'),
+            'App-Token: ' . $this->getFormValue('app_token'),
             'Content-Type: application/json'
         );
         // try to get suppliers from Glpi
@@ -1266,13 +1309,14 @@
     *
     * throw \Exception if we can't get itil categories data
     */
-    protected function getItilCategories() {
+    protected function getItilCategories()
+    {
         // add the api endpoint and method to our info array
         $info['query_endpoint'] = '/itilCategory';
         $info['method'] = 0;
         // set headers
         $info['headers'] = array(
-            'App-Token: ' . $this->_getFormValue('app_token'),
+            'App-Token: ' . $this->getFormValue('app_token'),
             'Content-Type: application/json'
         );
         // try to get itil categories from Glpi
@@ -1293,13 +1337,14 @@
     *
     * throw \Exception if we can't get users data
     */
-    protected function getUsers() {
+    protected function getUsers()
+    {
         // add the api endpoint and method to our info array
         $info['query_endpoint'] = '/User';
         $info['method'] = 0;
         // set headers
         $info['headers'] = array(
-            'App-Token: ' . $this->_getFormValue('app_token'),
+            'App-Token: ' . $this->getFormValue('app_token'),
             'Content-Type: application/json'
         );
         // try to get users from Glpi
@@ -1326,13 +1371,14 @@
     * throw \Exception if we can't assign a supplier to the ticket
     * throw \Exception if we can't assign a requester to the ticket
     */
-    protected function createTicket($ticketArguments) {
+    protected function createTicket($ticketArguments)
+    {
         // add the api endpoint and method to our info array
         $info['query_endpoint'] = '/Ticket';
         $info['method'] = 1;
         // set headers
         $info['headers'] = array(
-            'App-Token: ' . $this->_getFormValue('app_token'),
+            'App-Token: ' . $this->getFormValue('app_token'),
             'Content-Type: application/json'
         );
 
@@ -1404,13 +1450,14 @@
     *
     * throw \Exception if we can't assign the ticket to a user
     */
-    protected function assignUserTicketGlpi($ticketId, $ticketArguments) {
+    protected function assignUserTicketGlpi($ticketId, $ticketArguments)
+    {
         // add the api endpoint and method to our info array
         $info['query_endpoint'] = '/Ticket/' . $ticketId . '/Ticket_User';
         $info['method'] = 1;
         // set headers
         $info['headers'] = array(
-            'App-Token: ' . $this->_getFormValue('app_token'),
+            'App-Token: ' . $this->getFormValue('app_token'),
             'Content-Type: application/json'
         );
 
@@ -1439,13 +1486,14 @@
     *
     * throw \Exception if we can't assign the ticket to a group
     */
-    protected function assignGroupTicketGlpi($ticketId, $ticketArguments) {
+    protected function assignGroupTicketGlpi($ticketId, $ticketArguments)
+    {
         // add the api endpoint and method to our info array
         $info['query_endpoint'] = '/Ticket/' . $ticketId . '/group_ticket';
         $info['method'] = 1;
         // set headers
         $info['headers'] = array(
-            'App-Token: ' . $this->_getFormValue('app_token'),
+            'App-Token: ' . $this->getFormValue('app_token'),
             'Content-Type: application/json'
         );
 
@@ -1474,13 +1522,14 @@
     *
     * throw \Exception if we can't assign the ticket to a supplier
     */
-    protected function assignSupplierTicketGlpi($ticketId, $ticketArguments) {
+    protected function assignSupplierTicketGlpi($ticketId, $ticketArguments)
+    {
         // add the api endpoint and method to our info array
         $info['query_endpoint'] = '/Ticket/' . $ticketId . '/supplier_ticket';
         $info['method'] = 1;
         // set headers
         $info['headers'] = array(
-            'App-Token: ' . $this->_getFormValue('app_token'),
+            'App-Token: ' . $this->getFormValue('app_token'),
             'Content-Type: application/json'
         );
 
@@ -1509,13 +1558,14 @@
     *
     * throw \Exception if we can't assign the ticket to a requester
     */
-    protected function assignRequesterTicketGlpi($ticketId, $ticketArguments) {
+    protected function assignRequesterTicketGlpi($ticketId, $ticketArguments)
+    {
         // add the api endpoint and method to our info array
         $info['query_endpoint'] = '/Ticket/' . $ticketId . '/Ticket_User';
         $info['method'] = 1;
         // set headers
         $info['headers'] = array(
-            'App-Token: ' . $this->_getFormValue('app_token'),
+            'App-Token: ' . $this->getFormValue('app_token'),
             'Content-Type: application/json'
         );
 
@@ -1543,14 +1593,15 @@
     *
     * throw \Exception if it can't close the ticket
     */
-    protected function closeTicketGlpi($ticketId) {
+    protected function closeTicketGlpi($ticketId)
+    {
         // add the api endpoint and method to our info array
         $info['query_endpoint'] = '/Ticket/' . $ticketId;
         $info['method'] = 1;
         $info['custom_request'] = 'PUT';
         // set headers
         $info['headers'] = array(
-            'App-Token: ' . $this->_getFormValue('app_token'),
+            'App-Token: ' . $this->getFormValue('app_token'),
             'Content-Type: application/json'
         );
 
@@ -1577,7 +1628,8 @@
     *
     * @return {void}
     */
-    public function closeTicket(&$tickets) {
+    public function closeTicket(&$tickets)
+    {
         if ($this->doCloseTicket()) {
             foreach ($tickets as $k => $v) {
                 try {

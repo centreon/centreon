@@ -28,25 +28,21 @@ class BmcFootprints11Provider extends AbstractProvider
     const ARG_PRIORITYNUMBER = 5;
     const ARG_ASSIGNEE = 6;
 
-    protected $_internal_arg_name = array(
+    protected $internal_arg_name = [
         self::ARG_TITLE => 'Title',
         self::ARG_DESCRIPTION => 'Description',
         self::ARG_STATUS => 'Status',
         self::ARG_PROJECTID => 'ProjectID',
         self::ARG_PRIORITYNUMBER => 'PriorityNumber',
-        self::ARG_ASSIGNEE => 'Assignee',
-    );
-
-    function __destruct()
-    {
-    }
+        self::ARG_ASSIGNEE => 'Assignee'
+    ];
 
     /**
      * Set default extra value
      *
      * @return void
      */
-    protected function _setDefaultValueExtra()
+    protected function setDefaultValueExtra()
     {
         $this->default_data['address'] = '127.0.0.1';
         $this->default_data['wspath'] = '/MRcgi/MRWebServices.pl';
@@ -67,9 +63,9 @@ class BmcFootprints11Provider extends AbstractProvider
         );
     }
 
-    protected function _setDefaultValueMain($body_html = 0)
+    protected function setDefaultValueMain($body_html = 0)
     {
-        parent::_setDefaultValueMain($body_html);
+        parent::setDefaultValueMain($body_html);
 
         $this->default_data['url'] = 'http://{$address}/TicketNumber={$ticket_id}';
     }
@@ -79,25 +75,25 @@ class BmcFootprints11Provider extends AbstractProvider
      *
      * @return a string
      */
-    protected function _checkConfigForm()
+    protected function checkConfigForm()
     {
-        $this->_check_error_message = '';
-        $this->_check_error_message_append = '';
+        $this->check_error_message = '';
+        $this->check_error_message_append = '';
 
-        $this->_checkFormValue('address', "Please set 'Address' value");
-        $this->_checkFormValue('wspath', "Please set 'Webservice Path' value");
-        $this->_checkFormValue('action', "Please set 'Action' value");
-        $this->_checkFormValue('timeout', "Please set 'Timeout' value");
-        $this->_checkFormValue('username', "Please set 'Username' value");
-        $this->_checkFormValue('password', "Please set 'Password' value");
-        $this->_checkFormValue('macro_ticket_id', "Please set 'Macro Ticket ID' value");
-        $this->_checkFormInteger('timeout', "'Timeout' must be a number");
-        $this->_checkFormInteger('confirm_autoclose', "'Confirm popup autoclose' must be a number");
+        $this->checkFormValue('address', "Please set 'Address' value");
+        $this->checkFormValue('wspath', "Please set 'Webservice Path' value");
+        $this->checkFormValue('action', "Please set 'Action' value");
+        $this->checkFormValue('timeout', "Please set 'Timeout' value");
+        $this->checkFormValue('username', "Please set 'Username' value");
+        $this->checkFormValue('password', "Please set 'Password' value");
+        $this->checkFormValue('macro_ticket_id', "Please set 'Macro Ticket ID' value");
+        $this->checkFormInteger('timeout', "'Timeout' must be a number");
+        $this->checkFormInteger('confirm_autoclose', "'Confirm popup autoclose' must be a number");
 
-        $this->_checkLists();
+        $this->checkLists();
 
-        if ($this->_check_error_message != '') {
-            throw new Exception($this->_check_error_message);
+        if ($this->check_error_message != '') {
+            throw new Exception($this->check_error_message);
         }
     }
 
@@ -106,41 +102,41 @@ class BmcFootprints11Provider extends AbstractProvider
      *
      * @return void
      */
-    protected function _getConfigContainer1Extra()
+    protected function getConfigContainer1Extra()
     {
         $tpl = $this->initSmartyTemplate('providers/BmcFootprints11/templates');
 
-        $tpl->assign("centreon_open_tickets_path", $this->_centreon_open_tickets_path);
+        $tpl->assign("centreon_open_tickets_path", $this->centreon_open_tickets_path);
         $tpl->assign("img_brick", "./modules/centreon-open-tickets/images/brick.png");
         $tpl->assign("header", array("bmc" => _("BMC Footprints 11")));
 
         // Form
         $address_html = '<input size="50" name="address" type="text" value="' .
-            $this->_getFormValue('address') . '" />';
+            $this->getFormValue('address') . '" />';
         $wspath_html = '<input size="50" name="wspath" type="text" value="' .
-            $this->_getFormValue('wspath') . '" />';
+            $this->getFormValue('wspath') . '" />';
         $action_html = '<input size="50" name="action" type="text" value="' .
-            $this->_getFormValue('action') . '" />';
+            $this->getFormValue('action') . '" />';
         $username_html = '<input size="50" name="username" type="text" value="' .
-            $this->_getFormValue('username') . '" />';
+            $this->getFormValue('username') . '" />';
         $password_html = '<input size="50" name="password" type="password" value="' .
-            $this->_getFormValue('password') . '" autocomplete="off" />';
+            $this->getFormValue('password') . '" autocomplete="off" />';
         $https_html = '<input type="checkbox" name="https" value="yes" ' .
-            ($this->_getFormValue('https') == 'yes' ? 'checked' : '') . '/>';
+            ($this->getFormValue('https') == 'yes' ? 'checked' : '') . '/>';
         $timeout_html = '<input size="2" name="timeout" type="text" value="' .
-            $this->_getFormValue('timeout') . '" />';
+            $this->getFormValue('timeout') . '" />';
 
-        $array_form = array(
-            'address' => array('label' => _("Address") . $this->_required_field, 'html' => $address_html),
-            'wspath' => array('label' => _("Webservice Path") . $this->_required_field, 'html' => $wspath_html),
-            'action' => array('label' => _("Action") . $this->_required_field, 'html' => $action_html),
-            'username' => array('label' => _("Username") . $this->_required_field, 'html' => $username_html),
-            'password' => array('label' => _("Password") . $this->_required_field, 'html' => $password_html),
-            'https' => array('label' => _("Use https"), 'html' => $https_html),
-            'timeout' => array('label' => _("Timeout"), 'html' => $timeout_html),
-            'mappingticket' => array('label' => _("Mapping ticket arguments")),
-            'mappingticketprojectfield' => array('label' => _("Mapping ticket project field")),
-        );
+        $array_form = [
+            'address' => ['label' => _("Address") . $this->required_field, 'html' => $address_html],
+            'wspath' => ['label' => _("Webservice Path") . $this->required_field, 'html' => $wspath_html],
+            'action' => ['label' => _("Action") . $this->required_field, 'html' => $action_html],
+            'username' => ['label' => _("Username") . $this->required_field, 'html' => $username_html],
+            'password' => ['label' => _("Password") . $this->required_field, 'html' => $password_html],
+            'https' => ['label' => _("Use https"), 'html' => $https_html],
+            'timeout' => ['label' => _("Timeout"), 'html' => $timeout_html],
+            'mappingticket' => ['label' => _("Mapping ticket arguments")],
+            'mappingticketprojectfield' => ['label' => _("Mapping ticket project field")]
+        ];
 
         // mapping Ticket clone
         $mappingTicketValue_html = '<input id="mappingTicketValue_#index#" name="mappingTicketValue[#index#]" ' .
@@ -171,10 +167,10 @@ class BmcFootprints11Provider extends AbstractProvider
 
         $tpl->assign('form', $array_form);
 
-        $this->_config['container1_html'] .= $tpl->fetch('conf_container1extra.ihtml');
+        $this->config['container1_html'] .= $tpl->fetch('conf_container1extra.ihtml');
 
-        $this->_config['clones']['mappingTicket'] = $this->_getCloneValue('mappingTicket');
-        $this->_config['clones']['mappingTicketProjectField'] = $this->_getCloneValue('mappingTicketProjectField');
+        $this->config['clones']['mappingTicket'] = $this->getCloneValue('mappingTicket');
+        $this->config['clones']['mappingTicketProjectField'] = $this->getCloneValue('mappingTicketProjectField');
     }
 
     /**
@@ -182,27 +178,27 @@ class BmcFootprints11Provider extends AbstractProvider
      *
      * @return void
      */
-    protected function _getConfigContainer2Extra()
+    protected function getConfigContainer2Extra()
     {
     }
 
     protected function saveConfigExtra()
     {
-        $this->_save_config['simple']['address'] = $this->_submitted_config['address'];
-        $this->_save_config['simple']['wspath'] = $this->_submitted_config['wspath'];
-        $this->_save_config['simple']['action'] = $this->_submitted_config['action'];
-        $this->_save_config['simple']['username'] = $this->_submitted_config['username'];
-        $this->_save_config['simple']['password'] = $this->_submitted_config['password'];
-        $this->_save_config['simple']['https'] = (
-            isset($this->_submitted_config['https']) && $this->_submitted_config['https'] == 'yes'
-        ) ? $this->_submitted_config['https'] : '';
-        $this->_save_config['simple']['timeout'] = $this->_submitted_config['timeout'];
+        $this->save_config['simple']['address'] = $this->submitted_config['address'];
+        $this->save_config['simple']['wspath'] = $this->submitted_config['wspath'];
+        $this->save_config['simple']['action'] = $this->submitted_config['action'];
+        $this->save_config['simple']['username'] = $this->submitted_config['username'];
+        $this->save_config['simple']['password'] = $this->submitted_config['password'];
+        $this->save_config['simple']['https'] = (
+            isset($this->submitted_config['https']) && $this->submitted_config['https'] == 'yes'
+        ) ? $this->submitted_config['https'] : '';
+        $this->save_config['simple']['timeout'] = $this->submitted_config['timeout'];
 
-        $this->_save_config['clones']['mappingTicket'] = $this->_getCloneSubmitted(
+        $this->save_config['clones']['mappingTicket'] = $this->getCloneSubmitted(
             'mappingTicket',
             array('Arg', 'Value')
         );
-        $this->_save_config['clones']['mappingTicketProjectField'] = $this->_getCloneSubmitted(
+        $this->save_config['clones']['mappingTicketProjectField'] = $this->getCloneSubmitted(
             'mappingTicketProjectField',
             array('Name', 'Value')
         );
@@ -228,7 +224,7 @@ class BmcFootprints11Provider extends AbstractProvider
 
         $tpl = $this->initSmartyTemplate();
 
-        $tpl->assign("centreon_open_tickets_path", $this->_centreon_open_tickets_path);
+        $tpl->assign("centreon_open_tickets_path", $this->centreon_open_tickets_path);
         $tpl->assign('user', $contact);
         $tpl->assign('host_selected', $host_problems);
         $tpl->assign('service_selected', $service_problems);
@@ -245,7 +241,7 @@ class BmcFootprints11Provider extends AbstractProvider
                     $result_str = null;
                 }
 
-                $ticket_arguments[$this->_internal_arg_name[$value['Arg']]] = $result_str;
+                $ticket_arguments[$this->internal_arg_name[$value['Arg']]] = $result_str;
             }
         }
         $ticket_project_fields = array();
@@ -343,21 +339,21 @@ class BmcFootprints11Provider extends AbstractProvider
             <assignees
                 soapenc:arrayType="xsd:string[1]" xsi:type="soapenc:Array">
                 <item xsi:type="xsd:string">' .
-                    $ticket_arguments[$this->_internal_arg_name[self::ARG_ASSIGNEE]] . '</item>
+                    $ticket_arguments[$this->internal_arg_name[self::ARG_ASSIGNEE]] . '</item>
             </assignees>
             ' . $project_fields .
-            (isset($ticket_arguments[$this->_internal_arg_name[self::ARG_PRIORITYNUMBER]]) ?
+            (isset($ticket_arguments[$this->internal_arg_name[self::ARG_PRIORITYNUMBER]]) ?
                 '<priorityNumber xsi:type="xsd:int">' .
-                    $ticket_arguments[$this->_internal_arg_name[self::ARG_PRIORITYNUMBER]] .
+                    $ticket_arguments[$this->internal_arg_name[self::ARG_PRIORITYNUMBER]] .
                     '</priorityNumber>' : '') . '
             <status xsi:type="xsd:string">' .
-                $ticket_arguments[$this->_internal_arg_name[self::ARG_STATUS]] . '</status>
+                $ticket_arguments[$this->internal_arg_name[self::ARG_STATUS]] . '</status>
             <projectID xsi:type="xsd:int">' .
-                $ticket_arguments[$this->_internal_arg_name[self::ARG_PROJECTID]] . '</projectID>
+                $ticket_arguments[$this->internal_arg_name[self::ARG_PROJECTID]] . '</projectID>
             <title xsi:type="xsd:string"><![CDATA[' .
-                $ticket_arguments[$this->_internal_arg_name[self::ARG_TITLE]] . ']]></title>
+                $ticket_arguments[$this->internal_arg_name[self::ARG_TITLE]] . ']]></title>
             <description xsi:type="xsd:string"><![CDATA[' .
-                $ticket_arguments[$this->_internal_arg_name[self::ARG_DESCRIPTION]] . ']]></description>
+                $ticket_arguments[$this->internal_arg_name[self::ARG_DESCRIPTION]] . ']]></description>
         </c-gensym9>
     </MRWebServices__createIssue>
 </soap:Body>
