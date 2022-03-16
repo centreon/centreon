@@ -20,8 +20,10 @@
  */
 
 use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception as MailerException;
 
 require_once __DIR__ . '/library/PHPMailer.php';
+require_once __DIR__ . '/library/Exception.php';
 
 class MailProvider extends AbstractProvider
 {
@@ -172,34 +174,35 @@ class MailProvider extends AbstractProvider
         $tpl->assign('string', $this->rule_data['subject']);
         $subject = $tpl->fetch('eval.ihtml');
 
-        $mail = new PHPMailer();
-        $mail->CharSet = 'utf-8';
-        $mail->setFrom($from);
-        $mail->addAddress($this->rule_data['to']);
-        if (isset($this->rule_data['ishtml']) && $this->rule_data['ishtml'] == 'yes') {
-            $mail->isHTML(true);
-        }
-        $attach_files = $this->getUploadFiles();
-        foreach ($attach_files as $file) {
-            $mail->addAttachment($file['filepath'], $file['filename']);
-        }
-
-        $headers = "From: " . $from;
-
-        if (isset($this->rule_data['clones']['headerMail'])) {
-            foreach ($this->rule_data['clones']['headerMail'] as $values) {
-                $mail->addCustomHeader($values['Name'], $values['Value']);
-                $headers .= "\r\n" . $values['Name'] . ':' . $values['Value'];
+        $mail = new PHPMailer(true);
+        try {
+            $mail->CharSet = 'utf-8';
+            $mail->setFrom($from);
+            $mail->addAddress($this->rule_data['to']);
+            if (isset($this->rule_data['ishtml']) && $this->rule_data['ishtml'] == 'yes') {
+                $mail->isHTML(true);
             }
-        }
+            $attach_files = $this->getUploadFiles();
+            foreach ($attach_files as $file) {
+                $mail->addAttachment($file['filepath'], $file['filename']);
+            }
 
-        $mail->Subject = $subject;
-        $mail->Body = $this->body;
-        if ($mail->send()) {
+            $headers = "From: " . $from;
+
+            if (isset($this->rule_data['clones']['headerMail'])) {
+                foreach ($this->rule_data['clones']['headerMail'] as $values) {
+                    $mail->addCustomHeader($values['Name'], $values['Value']);
+                    $headers .= "\r\n" . $values['Name'] . ':' . $values['Value'];
+                }
+            }
+
+            $mail->Subject = $subject;
+            $mail->Body = $this->body;
+            $mail->send();
             $this->saveHistory(
                 $db_storage,
                 $result,
-                array(
+                [
                     'no_create_ticket_id' => true,
                     'contact' => $contact,
                     'host_problems' => $host_problems,
@@ -207,15 +210,16 @@ class MailProvider extends AbstractProvider
                     'subject' => $subject,
                     'data_type' => self::DATA_TYPE_JSON,
                     'data' => json_encode(
-                        array(
+                        [
                             'mail' => $mail->getSentMIMEMessage()
-                        )
+                        ]
                     )
-                )
+                ]
             );
-        } else {
+        } catch (MailerException $e) {
             $result['ticket_error_message'] = 'Mailer Error: ' . $mail->ErrorInfo;
-            $result['ticket_is_ok'] = 1;
+        } catch (\Exception $e) {
+            $result['ticket_error_message'] = 'Mailer Error: ' . $e->getMessage();
         }
 
         return $result;
