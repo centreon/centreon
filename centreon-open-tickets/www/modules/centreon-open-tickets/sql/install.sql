@@ -57,7 +57,7 @@ ALTER TABLE `mod_open_tickets_form_value`
   ADD CONSTRAINT `mod_open_tickets_form_value_fk_1` FOREIGN KEY (`rule_id`) REFERENCES `mod_open_tickets_rule` (`rule_id`) ON DELETE CASCADE;
 
 -- Historic and tickets
-CREATE TABLE IF NOT EXISTS centreon_storage.`mod_open_tickets` (
+CREATE TABLE IF NOT EXISTS `@DB_CENTSTORAGE@`.`mod_open_tickets` (
     `ticket_id` int(11) NOT NULL AUTO_INCREMENT,
     `timestamp` int(11) NOT NULL,
     `user` VARCHAR(512) NOT NULL,
@@ -65,20 +65,20 @@ CREATE TABLE IF NOT EXISTS centreon_storage.`mod_open_tickets` (
     PRIMARY KEY (`ticket_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-CREATE INDEX `mod_open_tickets_timestamp_idx` ON centreon_storage.`mod_open_tickets` (`timestamp`);
-CREATE INDEX `mod_open_tickets_ticket_value_idx` ON centreon_storage.`mod_open_tickets` (`ticket_value`(768));
+CREATE INDEX `mod_open_tickets_timestamp_idx` ON `@DB_CENTSTORAGE@`.`mod_open_tickets` (`timestamp`);
+CREATE INDEX `mod_open_tickets_ticket_value_idx` ON `@DB_CENTSTORAGE@`.`mod_open_tickets` (`ticket_value`(768));
 
-CREATE TABLE IF NOT EXISTS centreon_storage.`mod_open_tickets_data` (
+CREATE TABLE IF NOT EXISTS `@DB_CENTSTORAGE@`.`mod_open_tickets_data` (
     `ticket_id` int(11) NOT NULL,
     `subject` VARCHAR(2048),
     `data_type` enum('0', '1') NOT NULL DEFAULT '1',
     `data` TEXT
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-ALTER TABLE centreon_storage.`mod_open_tickets_data`
+ALTER TABLE `@DB_CENTSTORAGE@`.`mod_open_tickets_data`
   ADD CONSTRAINT `mod_open_tickets_data_fk_1` FOREIGN KEY (`ticket_id`) REFERENCES `mod_open_tickets` (`ticket_id`) ON DELETE CASCADE;
 
-CREATE TABLE IF NOT EXISTS centreon_storage.`mod_open_tickets_link` (
+CREATE TABLE IF NOT EXISTS `@DB_CENTSTORAGE@`.`mod_open_tickets_link` (
     `ticket_id` int(11) NOT NULL,
     `host_id` int(11),
     `service_id` int(11) DEFAULT NULL,
@@ -88,8 +88,8 @@ CREATE TABLE IF NOT EXISTS centreon_storage.`mod_open_tickets_link` (
     `service_description` VARCHAR(1024) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-ALTER TABLE centreon_storage.`mod_open_tickets_link`
+ALTER TABLE `@DB_CENTSTORAGE@`.`mod_open_tickets_link`
   ADD CONSTRAINT `mod_open_tickets_link_fk_1` FOREIGN KEY (`ticket_id`) REFERENCES `mod_open_tickets` (`ticket_id`) ON DELETE CASCADE;
-CREATE INDEX `mod_open_tickets_link_hostservice_idx` ON centreon_storage.`mod_open_tickets_link` (`host_id`, `service_id`);
+CREATE INDEX `mod_open_tickets_link_hostservice_idx` ON `@DB_CENTSTORAGE@`.`mod_open_tickets_link` (`host_id`, `service_id`);
 
 INSERT INTO widget_parameters_field_type (ft_typename, field_type_id, is_connector) VALUES ('openTicketsRule', '100', '1');
