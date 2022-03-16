@@ -21,18 +21,18 @@
 
 class RequestTracker2Provider extends AbstractProvider
 {
-    protected $_proxy_enabled = 1;
+    protected $proxy_enabled = 1;
 
-    const RT_QUEUE_TYPE = 10;
-    const RT_CUSTOMFIELD_TYPE = 11;
+    public const RT_QUEUE_TYPE = 10;
+    public const RT_CUSTOMFIELD_TYPE = 11;
 
-    const ARG_QUEUE = 1;
-    const ARG_SUBJECT = 2;
-    const ARG_REQUESTOR = 3;
-    const ARG_CC = 4;
-    const ARG_CONTENT = 5;
+    public const ARG_QUEUE = 1;
+    public const ARG_SUBJECT = 2;
+    public const ARG_REQUESTOR = 3;
+    public const ARG_CC = 4;
+    public const ARG_CONTENT = 5;
 
-    protected $_internal_arg_name = array(
+    protected $internal_arg_name = array(
         self::ARG_QUEUE => 'Queue',
         self::ARG_SUBJECT => 'Priority',
         self::ARG_REQUESTOR => 'Requestor',
@@ -49,7 +49,7 @@ class RequestTracker2Provider extends AbstractProvider
      *
      * @return void
      */
-    protected function _setDefaultValueExtra()
+    protected function setDefaultValueExtra()
     {
         $this->default_data['address'] = '127.0.0.1';
         $this->default_data['path'] = '/REST/2.0/';
@@ -68,9 +68,9 @@ class RequestTracker2Provider extends AbstractProvider
         );
     }
 
-    protected function _setDefaultValueMain($body_html = 0)
+    protected function setDefaultValueMain($body_html = 0)
     {
-        parent::_setDefaultValueMain(0);
+        parent::setDefaultValueMain(0);
         $this->default_data['url'] = 'http://{$address}/SelfService/Display.html?id={$ticket_id}';
         $this->default_data['clones']['groupList'] = array(
             array(
@@ -88,22 +88,22 @@ class RequestTracker2Provider extends AbstractProvider
      *
      * @return a string
      */
-    protected function _checkConfigForm()
+    protected function checkConfigForm()
     {
-        $this->_check_error_message = '';
-        $this->_check_error_message_append = '';
-        $this->_checkFormValue('address', "Please set 'Address' value");
-        $this->_checkFormValue('path', "Please set 'Path' value");
-        $this->_checkFormValue('timeout', "Please set 'Timeout' value");
-        $this->_checkFormValue('token', "Please set 'Token' value");
-        $this->_checkFormValue('macro_ticket_id', "Please set 'Macro Ticket ID' value");
-        $this->_checkFormInteger('timeout', "'Timeout' must be a number");
-        $this->_checkFormInteger('confirm_autoclose', "'Confirm popup autoclose' must be a number");
+        $this->check_error_message = '';
+        $this->check_error_message_append = '';
+        $this->checkFormValue('address', "Please set 'Address' value");
+        $this->checkFormValue('path', "Please set 'Path' value");
+        $this->checkFormValue('timeout', "Please set 'Timeout' value");
+        $this->checkFormValue('token', "Please set 'Token' value");
+        $this->checkFormValue('macro_ticket_id', "Please set 'Macro Ticket ID' value");
+        $this->checkFormInteger('timeout', "'Timeout' must be a number");
+        $this->checkFormInteger('confirm_autoclose', "'Confirm popup autoclose' must be a number");
 
-        $this->_checkLists();
+        $this->checkLists();
 
-        if ($this->_check_error_message != '') {
-            throw new Exception($this->_check_error_message);
+        if ($this->check_error_message != '') {
+            throw new Exception($this->check_error_message);
         }
     }
 
@@ -112,30 +112,30 @@ class RequestTracker2Provider extends AbstractProvider
      *
      * @return void
      */
-    protected function _getConfigContainer1Extra()
+    protected function getConfigContainer1Extra()
     {
         $tpl = $this->initSmartyTemplate('providers/RequestTracker2/templates');
 
-        $tpl->assign("centreon_open_tickets_path", $this->_centreon_open_tickets_path);
+        $tpl->assign("centreon_open_tickets_path", $this->centreon_open_tickets_path);
         $tpl->assign("img_brick", "./modules/centreon-open-tickets/images/brick.png");
         $tpl->assign("header", array("rt" => _("RequestTracker")));
 
         // Form
         $address_html = '<input size="50" name="address" type="text" value="' .
-            $this->_getFormValue('address') . '" />';
+            $this->getFormValue('address') . '" />';
         $path_html = '<input size="50" name="path" type="text" value="' .
-            $this->_getFormValue('path') . '" />';
+            $this->getFormValue('path') . '" />';
         $token_html = '<input size="50" name="token" type="password" value="' .
-            $this->_getFormValue('token') . '" autocomplete="off" />';
+            $this->getFormValue('token') . '" autocomplete="off" />';
         $https_html = '<input type="checkbox" name="https" value="yes" ' .
-            ($this->_getFormValue('https') == 'yes' ? 'checked' : '') . '/>';
+            ($this->getFormValue('https') == 'yes' ? 'checked' : '') . '/>';
         $timeout_html = '<input size="2" name="timeout" type="text" value="' .
-            $this->_getFormValue('timeout') . '" />';
+            $this->getFormValue('timeout') . '" />';
 
         $array_form = array(
-            'address' => array('label' => _("Address") . $this->_required_field, 'html' => $address_html),
-            'path' => array('label' => _("Path") . $this->_required_field, 'html' => $path_html),
-            'token' => array('label' => _("Token") . $this->_required_field, 'html' => $token_html),
+            'address' => array('label' => _("Address") . $this->required_field, 'html' => $address_html),
+            'path' => array('label' => _("Path") . $this->required_field, 'html' => $path_html),
+            'token' => array('label' => _("Token") . $this->required_field, 'html' => $token_html),
             'https' => array('label' => _("Use https"), 'html' => $https_html),
             'timeout' => array('label' => _("Timeout"), 'html' => $timeout_html),
             'mappingticket' => array('label' => _("Mapping ticket arguments")),
@@ -169,9 +169,9 @@ class RequestTracker2Provider extends AbstractProvider
         );
 
         $tpl->assign('form', $array_form);
-        $this->_config['container1_html'] .= $tpl->fetch('conf_container1extra.ihtml');
-        $this->_config['clones']['mappingTicket'] = $this->_getCloneValue('mappingTicket');
-        $this->_config['clones']['mappingTicketDynamicField'] = $this->_getCloneValue('mappingTicketDynamicField');
+        $this->config['container1_html'] .= $tpl->fetch('conf_container1extra.ihtml');
+        $this->config['clones']['mappingTicket'] = $this->getCloneValue('mappingTicket');
+        $this->config['clones']['mappingTicketDynamicField'] = $this->getCloneValue('mappingTicketDynamicField');
     }
 
     /**
@@ -179,25 +179,25 @@ class RequestTracker2Provider extends AbstractProvider
      *
      * @return void
      */
-    protected function _getConfigContainer2Extra()
+    protected function getConfigContainer2Extra()
     {
     }
 
     protected function saveConfigExtra()
     {
-        $this->_save_config['simple']['address'] = $this->_submitted_config['address'];
-        $this->_save_config['simple']['path'] = $this->_submitted_config['path'];
-        $this->_save_config['simple']['token'] = $this->_submitted_config['token'];
-        $this->_save_config['simple']['https'] = (isset($this->_submitted_config['https'])
-            && $this->_submitted_config['https'] == 'yes')
-            ? $this->_submitted_config['https'] : '';
-        $this->_save_config['simple']['timeout'] = $this->_submitted_config['timeout'];
+        $this->save_config['simple']['address'] = $this->submitted_config['address'];
+        $this->save_config['simple']['path'] = $this->submitted_config['path'];
+        $this->save_config['simple']['token'] = $this->submitted_config['token'];
+        $this->save_config['simple']['https'] = (isset($this->submitted_config['https'])
+            && $this->submitted_config['https'] == 'yes')
+            ? $this->submitted_config['https'] : '';
+        $this->save_config['simple']['timeout'] = $this->submitted_config['timeout'];
 
-        $this->_save_config['clones']['mappingTicket'] = $this->_getCloneSubmitted(
+        $this->save_config['clones']['mappingTicket'] = $this->getCloneSubmitted(
             'mappingTicket',
             array('Arg', 'Value')
         );
-        $this->_save_config['clones']['mappingTicketDynamicField'] = $this->_getCloneSubmitted(
+        $this->save_config['clones']['mappingTicketDynamicField'] = $this->getCloneSubmitted(
             'mappingTicketDynamicField',
             array('Name', 'Value')
         );
@@ -217,7 +217,7 @@ class RequestTracker2Provider extends AbstractProvider
 
         $groups[$entry['Id']] = array(
             'label' => _($entry['Label']) . (
-                isset($entry['Mandatory']) && $entry['Mandatory'] == 1 ? $this->_required_field : ''
+                isset($entry['Mandatory']) && $entry['Mandatory'] == 1 ? $this->required_field : ''
             ),
             'sort' => (isset($entry['Sort']) && $entry['Sort'] == 1 ? 1 : 0)
         );
@@ -253,7 +253,7 @@ class RequestTracker2Provider extends AbstractProvider
 
         $groups[$entry['Id']] = array(
             'label' => _($entry['Label']) . (
-                isset($entry['Mandatory']) && $entry['Mandatory'] == 1 ? $this->_required_field : ''
+                isset($entry['Mandatory']) && $entry['Mandatory'] == 1 ? $this->required_field : ''
             ),
             'sort' => (isset($entry['Sort']) && $entry['Sort'] == 1 ? 1 : 0)
         );
@@ -333,7 +333,7 @@ class RequestTracker2Provider extends AbstractProvider
 
         $tpl = $this->initSmartyTemplate();
 
-        $tpl->assign("centreon_open_tickets_path", $this->_centreon_open_tickets_path);
+        $tpl->assign("centreon_open_tickets_path", $this->centreon_open_tickets_path);
         $tpl->assign('user', $contact);
         $tpl->assign('host_selected', $host_problems);
         $tpl->assign('service_selected', $service_problems);
@@ -350,7 +350,7 @@ class RequestTracker2Provider extends AbstractProvider
                     $result_str = null;
                 }
 
-                $ticket_arguments[$this->_internal_arg_name[$value['Arg']]] = $result_str;
+                $ticket_arguments[$this->internal_arg_name[$value['Arg']]] = $result_str;
             }
         }
         $ticket_dynamic_fields = array();
@@ -383,7 +383,7 @@ class RequestTracker2Provider extends AbstractProvider
                 'contact' => $contact,
                 'host_problems' => $host_problems,
                 'service_problems' => $service_problems,
-                'ticket_value' => $this->_call_response['id'],
+                'ticket_value' => $this->call_response['id'],
                 'subject' => $ticket_arguments['Subject'],
                 'data_type' => self::DATA_TYPE_JSON,
                 'data' => json_encode(
@@ -419,8 +419,8 @@ class RequestTracker2Provider extends AbstractProvider
                 return [-1, $items];
             }
 
-            $items = array_merge($items, $this->_call_response['items']);
-            if ($this->_call_response['total'] < ($page * $per_page)) {
+            $items = array_merge($items, $this->call_response['items']);
+            if ($this->call_response['total'] < ($page * $per_page)) {
                 break;
             }
 
@@ -443,7 +443,7 @@ class RequestTracker2Provider extends AbstractProvider
             return [-1, $items];
         }
 
-        $customField = array_shift($this->_call_response['items']);
+        $customField = array_shift($this->call_response['items']);
         /*
          * Format:
          *    {
@@ -462,7 +462,7 @@ class RequestTracker2Provider extends AbstractProvider
         }
 
         $duplicated = [];
-        foreach ($this->_call_response['Values'] as $value) {
+        foreach ($this->call_response['Values'] as $value) {
             if (isset($duplicated[$value])) {
                 continue;
             }
@@ -477,16 +477,17 @@ class RequestTracker2Provider extends AbstractProvider
     protected function createTicketRt($ticket_arguments, $ticket_dynamic_fields)
     {
         $argument = array(
-            'Queue' => $ticket_arguments[$this->_internal_arg_name[self::ARG_QUEUE]],
-            'Subject' => $ticket_arguments[$this->_internal_arg_name[self::ARG_SUBJECT]],
-            'Requestor' => $ticket_arguments[$this->_internal_arg_name[self::ARG_REQUESTOR]],
-            'Content' => $ticket_arguments[$this->_internal_arg_name[self::ARG_CONTENT]],
+            'Queue' => $ticket_arguments[$this->internal_arg_name[self::ARG_QUEUE]],
+            'Subject' => $ticket_arguments[$this->internal_arg_name[self::ARG_SUBJECT]],
+            'Requestor' => $ticket_arguments[$this->internal_arg_name[self::ARG_REQUESTOR]],
+            'Content' => $ticket_arguments[$this->internal_arg_name[self::ARG_CONTENT]],
         );
 
-        if (isset($ticket_arguments[$this->_internal_arg_name[self::ARG_CC]])
-            && $ticket_arguments[$this->_internal_arg_name[self::ARG_CC]] != ''
+        if (
+            isset($ticket_arguments[$this->internal_arg_name[self::ARG_CC]])
+            && $ticket_arguments[$this->internal_arg_name[self::ARG_CC]] != ''
         ) {
-            $argument['Cc'] = $ticket_arguments[$this->_internal_arg_name[self::ARG_CC]];
+            $argument['Cc'] = $ticket_arguments[$this->internal_arg_name[self::ARG_CC]];
         }
 
         if (count($ticket_dynamic_fields) > 0) {
@@ -512,8 +513,8 @@ class RequestTracker2Provider extends AbstractProvider
             $this->setWsError("cannot load curl extension");
             return 1;
         }
-        
-        $this->_call_response = null;
+
+        $this->call_response = null;
 
         $proto = 'http';
         if (isset($this->rule_data['https']) && $this->rule_data['https'] == 'yes') {
@@ -529,7 +530,7 @@ class RequestTracker2Provider extends AbstractProvider
 
         $method = 'GET';
         $headers = array('Content-Type: application/json', 'Accept: application/json');
-        $headers[] = 'Authorization: token ' . $this->_getFormValue('token', false);
+        $headers[] = 'Authorization: token ' . $this->getFormValue('token', false);
         if (!is_null($argument)) {
             $argument_json = json_encode($argument);
             curl_setopt($ch, CURLOPT_POSTFIELDS, $argument_json);
@@ -541,14 +542,14 @@ class RequestTracker2Provider extends AbstractProvider
         curl_setopt($ch, CURLOPT_TIMEOUT, $this->rule_data['timeout']);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-        
+
         self::setProxy(
             $ch,
             array(
-                'proxy_address' => $this->_getFormValue('proxy_address', false),
-                'proxy_port' => $this->_getFormValue('proxy_port', false),
-                'proxy_username' => $this->_getFormValue('proxy_username', false),
-                'proxy_password' => $this->_getFormValue('proxy_password', false),
+                'proxy_address' => $this->getFormValue('proxy_address', false),
+                'proxy_port' => $this->getFormValue('proxy_port', false),
+                'proxy_username' => $this->getFormValue('proxy_username', false),
+                'proxy_password' => $this->getFormValue('proxy_password', false),
             )
         );
         curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
@@ -575,7 +576,7 @@ class RequestTracker2Provider extends AbstractProvider
 
         curl_close($ch);
 
-        $this->_call_response = $decoded_result;
+        $this->call_response = $decoded_result;
         return 0;
     }
 }

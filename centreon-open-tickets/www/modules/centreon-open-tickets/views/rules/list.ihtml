@@ -17,10 +17,9 @@
     <table class="ToolbarTable table">
         <tr class="ToolbarTR">
             <td>
-                {$msg.options} {$form.o1.html}
+                {$form.o1.html}
                 <a class='btc bt_success' href="{$msg.addL}">{$msg.add}</a>
             </td>
-            <input name="p" value="{$p}" type="hidden">
             <td class='toolbarPagination'>
                 {php}
                     include('./include/common/pagination.php');
@@ -65,10 +64,9 @@
     <table class="ToolbarTable table">
         <tr class="ToolbarTR">
             <td>
-                {$msg.options} {$form.o2.html}
+                {$form.o2.html}
                 <a class='btc bt_success' href="{$msg.addL}">{$msg.add}</a>
             </td>
-            <input name="p" value="{$p}" type="hidden">
             <td class='toolbarPagination'>
                 {php}
                     include('./include/common/pagination.php');
