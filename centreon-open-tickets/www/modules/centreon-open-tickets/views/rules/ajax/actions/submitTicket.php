@@ -163,6 +163,12 @@ $selected = $rule->loadSelection(
     $get_information['form']['selection']
 );
 
+$sticky = ! empty($centreon->optGen['monitoring_ack_sticky']) ? 2 : 1;
+
+$notify = ! empty($centreon->optGen['monitoring_ack_notify']) ? 1 : 0;
+
+$persistent = ! empty($centreon->optGen['monitoring_ack_persistent']) ? 1 : 0;
+
 try {
     $contact_infos = get_contact_information();
     $resultat['result'] = $centreon_provider->submitTicket(
@@ -205,9 +211,9 @@ try {
                         sprintf(
                             $command,
                             $value['name'],
-                            2,
-                            0,
-                            1,
+                            $sticky,
+                            $notify,
+                            $persistent,
                             $contact_infos['alias'],
                             'open ticket: ' . $resultat['result']['ticket_id']
                         ),
@@ -240,9 +246,9 @@ try {
                             $command,
                             $value['host_name'],
                             $value['description'],
-                            2,
-                            0,
-                            1,
+                            $sticky,
+                            $notify,
+                            $persistent,
                             $contact_infos['alias'],
                             'open ticket: ' . $resultat['result']['ticket_id']
                         ),
