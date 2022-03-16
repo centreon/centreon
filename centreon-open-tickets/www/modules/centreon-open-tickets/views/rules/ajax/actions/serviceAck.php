@@ -96,14 +96,13 @@ if (isset($get_information['form']['persistent'])) {
     $persistent = 1;
 }
 if (isset($get_information['form']['sticky'])) {
-    $sticky = 1;
+    $sticky = 2;
 }
 if (isset($get_information['form']['notify'])) {
     $notify = 1;
 }
 
 try {
-    #fwrite($fp, print_r($problems, true) . "===\n");
     require_once $centreon_path . 'www/class/centreonExternalCommand.class.php';
     $oreon = $_SESSION['centreon'];
     $external_cmd = new CentreonExternalCommand($oreon);
