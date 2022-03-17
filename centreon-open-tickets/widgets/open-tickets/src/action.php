@@ -106,13 +106,14 @@ function format_popup()
 
     $result = $rule->getFormatPopupProvider(
         $preferences['rule'],
-        array(
+        [
             'title' => $title,
-            'user' => array(
+            'user' => [
+                'name' => $centreon->user->name,
                 'alias' => $centreon->user->alias,
                 'email' => $centreon->user->email
-            )
-        ),
+            ]
+        ],
         $widgetId,
         $uniq_id,
         $_REQUEST['cmd'],
