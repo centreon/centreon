@@ -15,10 +15,16 @@ if (env.BRANCH_NAME.startsWith('release-')) {
   env.BUILD = 'CI'
 }
 
+// Skip sonarQ analysis on branch without PR  - Unable to merge
+def securityAnalysisRequired = 'yes'
+if (!env.CHANGE_ID && env.BUILD == 'CI') {
+    securityAnalysisRequired = 'no'
+}
+
 /*
 ** Pipeline code.
 */
-stage('Deliver sources') {
+stage('Deliver and analyse sources') {
   node {
     sh 'setup_centreon_build.sh'
     dir('centreon-ha') {
@@ -36,14 +42,21 @@ stage('Deliver sources') {
       reportName: 'Centreon HA Build Artifacts',
       reportTitles: ''
     ])
-    withSonarQubeEnv('SonarQubeDev') {
-      sh "./centreon-build/jobs/ha/${serie}/ha-analysis.sh"
-    }
-    timeout(time: 10, unit: 'MINUTES') {
-      def qualityGate = waitForQualityGate()
-      if (qualityGate.status != 'OK') {
-        currentBuild.result = 'FAIL'
+
+    if (securityAnalysisRequired == 'yes') {
+      // Run sonarQube analysis
+      withSonarQubeEnv('SonarQubeDev') {
+        sh "./centreon-build/jobs/ha/${serie}/ha-analysis.sh"
       }
+      timeout(time: 10, unit: 'MINUTES') {
+        def qualityGate = waitForQualityGate()
+        if (qualityGate.status != 'OK') {
+          currentBuild.result = 'FAIL'
+        }
+      }
+    }
+    if ((currentBuild.result ?: 'SUCCESS') != 'SUCCESS') {
+      error('Source stage failure.');
     }
   }
 }
