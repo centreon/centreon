@@ -1,7 +1,7 @@
 /*
 ** Variables.
 */
-def serie = '21.10'
+def serie = '22.04'
 def maintenanceBranch = "${serie}.x"
 def qaBranch = "dev-${serie}.x"
 
