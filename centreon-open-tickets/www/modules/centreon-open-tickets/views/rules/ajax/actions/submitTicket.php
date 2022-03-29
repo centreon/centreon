@@ -192,8 +192,8 @@ try {
         foreach ($selected['host_selected'] as $value) {
             $command = "CHANGE_CUSTOM_HOST_VAR;%s;%s;%s";
             call_user_func_array(
-                array($external_cmd, $method_external_name),
-                array(
+                [$external_cmd, $method_external_name],
+                [
                     sprintf(
                         $command,
                         $value['name'],
@@ -201,13 +201,13 @@ try {
                         $resultat['result']['ticket_id']
                     ),
                     $value['instance_id']
-                )
+                ]
             );
             if ($centreon_provider->doAck()) {
                 $command = "ACKNOWLEDGE_HOST_PROBLEM;%s;%s;%s;%s;%s;%s";
                 call_user_func_array(
-                    array($external_cmd, $method_external_name),
-                    array(
+                    [$external_cmd, $method_external_name],
+                    [
                         sprintf(
                             $command,
                             $value['name'],
@@ -218,15 +218,29 @@ try {
                             'open ticket: ' . $resultat['result']['ticket_id']
                         ),
                         $value['instance_id']
-                    )
+                    ]
+                );
+            }
+            if ($centreon_provider->doesScheduleCheck()) {
+                $command = "SCHEDULE_FORCED_HOST_CHECK;%s;%d";
+                call_user_func_array(
+                    [$external_cmd, $method_external_name],
+                    [
+                        sprintf(
+                            $command,
+                            $value['name'],
+                            time()
+                        ),
+                        $value['instance_id']
+                    ]
                 );
             }
         }
         foreach ($selected['service_selected'] as $value) {
             $command = "CHANGE_CUSTOM_SVC_VAR;%s;%s;%s;%s";
             call_user_func_array(
-                array($external_cmd, $method_external_name),
-                array(
+                [$external_cmd, $method_external_name],
+                [
                     sprintf(
                         $command,
                         $value['host_name'],
@@ -235,13 +249,13 @@ try {
                         $resultat['result']['ticket_id']
                     ),
                     $value['instance_id']
-                )
+                ]
             );
             if ($centreon_provider->doAck()) {
                 $command = "ACKNOWLEDGE_SVC_PROBLEM;%s;%s;%s;%s;%s;%s;%s";
                 call_user_func_array(
-                    array($external_cmd, $method_external_name),
-                    array(
+                    [$external_cmd, $method_external_name],
+                    [
                         sprintf(
                             $command,
                             $value['host_name'],
@@ -253,7 +267,22 @@ try {
                             'open ticket: ' . $resultat['result']['ticket_id']
                         ),
                         $value['instance_id']
-                    )
+                    ]
+                );
+            }
+            if ($centreon_provider->doesScheduleCheck()) {
+                $command = "SCHEDULE_FORCED_SVC_CHECK;%s;%s;%d";
+                call_user_func_array(
+                    [$external_cmd, $method_external_name],
+                    [
+                        sprintf(
+                            $command,
+                            $value['host_name'],
+                            $value['description'],
+                            time()
+                        ),
+                        $value['instance_id']
+                    ]
                 );
             }
         }
