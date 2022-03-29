@@ -229,6 +229,7 @@ abstract class AbstractProvider
     {
         $this->default_data['macro_ticket_id'] = 'TICKET_ID';
         $this->default_data['ack'] = 'yes';
+        $this->default_data['schedule_check'] = 'no';
 
         $this->default_data['format_popup'] = '
 <table class="table">
@@ -525,6 +526,8 @@ Output: {$service.output|substr:0:1024}
             $this->getFormValue('message_confirm') . '</textarea>';
         $ack_html = '<input type="checkbox" name="ack" value="yes" ' .
             ($this->getFormValue('ack') == 'yes' ? 'checked' : '') . '/>';
+        $scheduleCheckHtml = '<input type="checkbox" name="schedule_check" value="yes" ' .
+            ($this->getFormValue('schedule_check') === 'yes' ? 'checked' : '') . '/>';
         $close_ticket_enable_html = '<input type="checkbox" name="close_ticket_enable" value="yes" ' .
             ($this->getFormValue('close_ticket_enable') == 'yes' ? 'checked' : '') . '/>';
         $error_close_centreon_html = '<input type="checkbox" name="error_close_centreon" value="yes" ' .
@@ -534,6 +537,7 @@ Output: {$service.output|substr:0:1024}
             'url' => ['label' => _("Url"), 'html' => $url_html],
             'message_confirm' => ['label' => _("Confirm message popup"), 'html' => $message_confirm_html],
             'ack' => ['label' => _("Acknowledge"), 'html' => $ack_html],
+            'schedule_check' => ['label' => _("Schedule check"), 'html' => $scheduleCheckHtml],
             'close_ticket_enable' => [
                 'label' => _("Enable"),
                 'enable' => $this->close_advanced,
@@ -746,6 +750,9 @@ Output: {$service.output|substr:0:1024}
         $this->save_config['simple']['ack'] = (
             isset($this->submitted_config['ack']) && $this->submitted_config['ack'] == 'yes'
         ) ? $this->submitted_config['ack'] : '';
+        $this->save_config['simple']['schedule_check'] = (
+            isset($this->submitted_config['schedule_check']) && $this->submitted_config['schedule_check'] === 'yes'
+        ) ? $this->submitted_config['schedule_check'] : '';
         $this->save_config['simple']['attach_files'] =
             (isset($this->submitted_config['attach_files']) && $this->submitted_config['attach_files'] == 'yes'
         ) ? $this->submitted_config['attach_files'] : '';
@@ -1054,6 +1061,19 @@ Output: {$service.output|substr:0:1024}
         }
 
         return 0;
+    }
+
+    /**
+     * Check if schedule check is needed
+     *
+     * @return bool
+     */
+    public function doesScheduleCheck(): bool
+    {
+        return (
+            isset($this->rule_data['schedule_check'])
+            && $this->rule_data['schedule_check'] === 'yes'
+        );
     }
 
     public function doCloseTicket()
