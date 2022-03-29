@@ -29,13 +29,21 @@
 </tr>
 <tr class="list_two">
     <td class="FormRowField">
+        {$form.schedule_check.label}
+    </td>
+    <td class="FormRowValue">
+        {$form.schedule_check.html}
+    </td>
+</tr>
+<tr class="list_one">
+    <td class="FormRowField">
         {$form.grouplist.label}
     </td>
     <td class="FormRowValue">
         {include file="file:$centreon_open_tickets_path/providers/Abstract/templates/clone.ihtml" cloneId="groupList" cloneSet=$form.groupList}
     </td>
 </tr>
-<tr class="list_one">
+<tr class="list_two">
     <td class="FormRowField">
         {$form.customlist.label}
     </td>
@@ -43,7 +51,7 @@
         {include file="file:$centreon_open_tickets_path/providers/Abstract/templates/clone.ihtml" cloneId="customList" cloneSet=$form.customList}
     </td>
 </tr>
-<tr class="list_two">
+<tr class="list_one">
     <td class="FormRowField">
         {$form.bodylist.label}
     </td>
