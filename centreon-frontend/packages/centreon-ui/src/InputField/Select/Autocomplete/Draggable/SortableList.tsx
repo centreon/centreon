@@ -44,7 +44,7 @@ const SortableList = ({
 }: SortableListProps): JSX.Element => {
   const classes = useStyles();
 
-  const dragEnd = (newItems): void =>
+  const dragEnd = ({ items: newItems }): void =>
     changeItemsOrder(
       map(
         (item) => find(propEq('id', item), items),

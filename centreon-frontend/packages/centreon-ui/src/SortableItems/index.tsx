@@ -11,6 +11,7 @@ import {
   DraggableSyntheticListeners,
   DragOverEvent,
   DragStartEvent,
+  DragEndEvent,
 } from '@dnd-kit/core';
 import {
   SortableContext,
@@ -50,6 +51,11 @@ export interface RootComponentProps {
   isInDragOverlay?: boolean;
 }
 
+interface DragEnd {
+  event: DragEndEvent;
+  items: Array<string>;
+}
+
 const DefaultRootComponent = ({ children }: RootComponentProps): JSX.Element =>
   children as JSX.Element;
 
@@ -73,7 +79,7 @@ interface Props<T> {
   itemProps: Array<string>;
   items: Array<T>;
   memoProps?: Array<unknown>;
-  onDragEnd?: (items: Array<string>) => void;
+  onDragEnd?: (props: DragEnd) => void;
   onDragOver?: (items: Array<string>) => void;
   sortingStrategy: SortingStrategy;
   updateSortableItemsOnItemsChange?: boolean;
@@ -115,10 +121,10 @@ const SortableItems = <T extends { [propertyToFilterItemsOn]: string }>({
 
   const dragCancel = (): void => setActiveId(null);
 
-  const dragEnd = (): void => {
+  const dragEnd = (event: DragEndEvent): void => {
     setActiveId(null);
 
-    onDragEnd?.(sortableItemsIds);
+    onDragEnd?.({ event, items: sortableItemsIds });
   };
 
   const dragOver = (event: DragOverEvent): void => {
