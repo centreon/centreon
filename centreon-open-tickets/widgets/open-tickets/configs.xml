@@ -22,6 +22,7 @@
     <preference label="Display Warning" name="svc_warning" defaultValue="1" type="boolean"/>
     <preference label="Display Critical" name="svc_critical" defaultValue="1" type="boolean"/>
     <preference label="Display Unknown" name="svc_unknown" defaultValue="1" type="boolean"/>
+    <preference label="Duration Filter (seconds)" name="duration_filter" defaultValue="" type="compare"/>
     <preference label="Criticities Filters (criticities name separated by ',')" name="criticality_filter" defaultValue="" type="text"/>
     <preference label="Acknowledgement Filter" name="acknowledgement_filter" defaultValue="all" type="list">
       <option value="ack" label="Acknowledged"/>
