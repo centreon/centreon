@@ -144,26 +144,34 @@ sub run {
 sub yaml_get_include {
     my ($self, %options) = @_;
 
-    my $dir = File::Basename::dirname($options{include});
-    $dir = $options{current_dir} . '/' . $dir if ($dir !~ /^\//);
-    my $match_files = File::Basename::basename($options{include});
-    $match_files =~ s/\*/\\E.*\\Q/g;
-    $match_files = '\Q' . $match_files . '\E';
+    my @all_files = ();
+    my @dirs = split(/,/, $options{include});
+    foreach my $dir (@dirs) {
+        next if ($dir eq '');
+        my $dirname = File::Basename::dirname($dir);
+        $dirname = $options{current_dir} . '/' . $dirname if ($dirname !~ /^\//);
+        my $match_files = File::Basename::basename($dir);
+        $match_files =~ s/\*/\\E.*\\Q/g;
+        $match_files = '\Q' . $match_files . '\E';
 
-    my $DIR;
-    if (!opendir($DIR, $dir)) {
-        $self->{logger}->writeLogError("config - cannot opendir '$dir' error: $!");
-        return ();
-    }
-    my @sorted_files = ();
-    while (readdir($DIR)) {
-        if (-f "$dir/$_" && eval "/^$match_files\$/") {
-            push @sorted_files, "$dir/$_";
+        my @sorted_files = ();
+        my $DIR;
+        if (!opendir($DIR, $dirname)) {
+            $self->{logger}->writeLogError("config - cannot opendir '$dirname' error: $!");
+            return ();
         }
+
+        while (readdir($DIR)) {
+            if (-f "$dirname/$_" && eval "/^$match_files\$/") {
+                push @sorted_files, "$dirname/$_";
+            }
+        }
+        closedir($DIR);
+        @sorted_files = sort { $a cmp $b } @sorted_files;
+        push @all_files, @sorted_files;
     }
-    closedir($DIR);
-    @sorted_files = sort { $a cmp $b } @sorted_files;
-    return @sorted_files;
+
+    return @all_files;
 }
 
 sub yaml_parse_config {
