@@ -129,7 +129,7 @@ sub transmit_back {
         return undef;
     } elsif ($options{message} =~ /^\[(PONG|SYNCLOGS)\]/) {
         return $options{message};
-    } 
+    }
     return undef;
 }
 
