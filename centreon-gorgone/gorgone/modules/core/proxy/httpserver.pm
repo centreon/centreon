@@ -208,7 +208,7 @@ sub read_message_client {
             target => ''
         );
         $connector->read_zmq_events();
-    } elsif ($options{data} =~ /^\[(?:REGISTERNODES|UNREGISTERNODES|SYNCLOGS)\]/) {
+    } elsif ($options{data} =~ /^\[(?:REGISTERNODES|UNREGISTERNODES|SYNCLOGS|SETLOGS)\]/) {
         return undef if ($options{data} !~ /^\[(.+?)\]\s+\[(.*?)\]\s+\[.*?\]\s+(.*)/ms);
 
         my ($action, $token, $data)  = ($1, $2, $3);
@@ -221,19 +221,6 @@ sub read_message_client {
             target => ''
         );
         $connector->read_zmq_events();
-    } elsif ($options{data} =~ /^\[ACK\]\s+\[(.*?)\]\s+(.*)/ms) {
-        my ($rv, $data) = $connector->json_decode(argument => $2);
-        return undef if ($rv == 1);
-
-        if (defined($data->{data}->{action}) && $data->{data}->{action} eq 'getlog') {
-            $connector->send_internal_action(
-                action => 'SETLOGS',
-                data => $data,
-                token => $1,
-                target => ''
-            );
-            $connector->read_zmq_events();
-        }
     }
 }
 
