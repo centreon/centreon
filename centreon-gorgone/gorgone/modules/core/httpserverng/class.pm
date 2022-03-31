@@ -161,7 +161,7 @@ sub handle_HUP {
 
 sub handle_TERM {
     my $self = shift;
-    $self->{logger}->writeLogDebug("[httpserver] $$ Receiving order to stop...");
+    $self->{logger}->writeLogDebug("[httpserverng] $$ Receiving order to stop...");
     $self->{stop} = 1;
 }
 
@@ -215,12 +215,12 @@ sub run {
     my $listen = 'reuse=1';
     if ($self->{config}->{ssl} eq 'true') {
         if (!defined($self->{config}->{ssl_cert_file}) || $self->{config}->{ssl_cert_file} eq '' ||
-            -r "$self->{config}->{ssl_cert_file}") {
+            ! -r "$self->{config}->{ssl_cert_file}") {
             $connector->{logger}->writeLogError("[httpserverng] cannot read/find ssl-cert-file");
             exit(1);
         }
         if (!defined($self->{config}->{ssl_key_file}) || $self->{config}->{ssl_key_file} eq '' ||
-            -r "$self->{config}->{ssl_key_file}") {
+            ! -r "$self->{config}->{ssl_key_file}") {
             $connector->{logger}->writeLogError("[httpserverng] cannot read/find ssl-key-file");
             exit(1);
         }
@@ -584,8 +584,6 @@ sub close_websocket {
 
 sub api_root_ws {
     my ($self, %options) = @_;
-
-    use Data::Dumper; print Data::Dumper::Dumper($options{content});
 
     if (!defined($options{content}->{method})) {
         $self->{ws_clients}->{ $options{ws_id} }->{tx}->send({json => {

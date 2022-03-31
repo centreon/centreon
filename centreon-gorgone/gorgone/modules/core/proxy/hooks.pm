@@ -28,6 +28,7 @@ use gorgone::class::core;
 use gorgone::standard::library;
 use gorgone::standard::constants qw(:all);
 use gorgone::modules::core::proxy::class;
+use gorgone::modules::core::proxy::httpserver;
 use File::Basename;
 use MIME::Base64;
 use Digest::MD5::File qw(file_md5_hex);
@@ -95,11 +96,15 @@ my $prevails = {};
 my $prevails_subnodes = {};
 my $rr_current = 0;
 my $stop = 0;
+
+# httpserver is only for pull wss client
+my $httpserver = {};
+
 my ($external_socket, $core_id);
 
 sub register {
     my (%options) = @_;
-    
+
     $config = $options{config};
     $config_core = $options{config_core};
 
@@ -120,6 +125,9 @@ sub init {
     $external_socket = $options{external_socket};
     for my $pool_id (1..$config->{pool}) {
         create_child(dbh => $options{dbh}, pool_id => $pool_id, logger => $options{logger});
+    }
+    if (defined($config->{httpserver}->{enable}) && $config->{httpserver}->{enable} eq 'true') {
+        create_httpserver_child(dbh => $options{dbh}, logger => $options{logger});
     }
 }
 
@@ -191,6 +199,8 @@ sub routing {
                     logger => $options{logger}
                 );
             }
+        } elsif (defined($data->{httpserver})) {
+            $httpserver->{ready} = 1;
         } elsif (defined($data->{node_id}) && defined($synctime_nodes->{ $data->{node_id} })) {
             $synctime_nodes->{ $data->{node_id} }->{channel_ready} = 1;
         }
@@ -293,6 +303,9 @@ sub routing {
     if ($is_ctrl_channel == 0 && $synctime_nodes->{$target_parent}->{channel_ready} == 1) {
         $identity = 'gorgone-proxy-channel-' . $target_parent;
     }
+    if ($register_nodes->{$target_parent}->{type} eq 'wss') {
+        $identity = 'gorgone-proxy-httpserver';
+    }
 
     foreach my $data (@{$bulk_actions}) {
         # Mode zmq pull
@@ -331,6 +344,11 @@ sub gently {
             CORE::kill('TERM', $pools->{$pool_id}->{pid});
         }
     }
+
+    if (defined($httpserver->{running}) && $httpserver->{running} == 1) {
+        $options{logger}->writeLogDebug("[action] Send TERM signal for httpserver");
+        CORE::kill('TERM', $httpserver->{pid});
+    }
 }
 
 sub kill {
@@ -341,6 +359,11 @@ sub kill {
             $options{logger}->writeLogDebug("[proxy] Send KILL signal for pool '" . $_ . "'");
             CORE::kill('KILL', $pools->{$_}->{pid});
         }
+    }
+
+    if (defined($httpserver->{running}) && $httpserver->{running} == 1) {
+        $options{logger}->writeLogDebug("[action] Send KILL signal for httpserver");
+        CORE::kill('KILL', $httpserver->{pid});
     }
 }
 
@@ -367,6 +390,15 @@ sub check {
 
     my $count = 0;
     foreach my $pid (keys %{$options{dead_childs}}) {
+        if (defined($httpserver->{pid}) && $httpserver->{pid} == $pid) {
+            $httpserver = {};
+            delete $options{dead_childs}->{$pid};
+            if ($stop == 0) {
+                create_httpserver_child(logger => $options{logger});
+            }
+            next;
+        }
+
         # Not me
         next if (!defined($pools_pid->{$pid}));
         
@@ -382,20 +414,21 @@ sub check {
 
     check_create_child(dbh => $options{dbh}, logger => $options{logger});
 
+    $count++  if (defined($httpserver->{running}) && $httpserver->{running} == 1);
     foreach (keys %$pools) {
         $count++  if ($pools->{$_}->{running} == 1);
     }
 
     # We check synclog/ping/ping request timeout 
     foreach (keys %$synctime_nodes) {
-        if ($register_nodes->{$_}->{type} eq 'pull' && $constatus_ping->{$_}->{in_progress_ping} == 1) {
+        if ($register_nodes->{$_}->{type} =~ /^(?:pull|wss)$/ && $constatus_ping->{$_}->{in_progress_ping} == 1) {
             my $ping_timeout = defined($register_nodes->{$_}->{ping_timeout}) ? $register_nodes->{$_}->{ping_timeout} : 30;
             if ((time() - $constatus_ping->{$_}->{in_progress_ping_pull}) > $ping_timeout) {
                 $constatus_ping->{$_}->{in_progress_ping} = 0;
                 $options{logger}->writeLogInfo("[proxy] Ping timeout from '" . $_ . "'");
             }
         }
-        if ($register_nodes->{$_}->{type} ne 'pull' && $constatus_ping->{$_}->{in_progress_ping} == 1) {
+        if ($register_nodes->{$_}->{type} !~ /^(?:pull|wss)$/ && $constatus_ping->{$_}->{in_progress_ping} == 1) {
             if (time() - $constatus_ping->{ $_ }->{last_ping_sent} > $config->{pong_discard_timeout}) {
                 $options{logger}->writeLogInfo("[proxy] Ping timeout from '" . $_ . "'");
                 $constatus_ping->{$_}->{in_progress_ping} = 0;
@@ -461,6 +494,15 @@ sub broadcast {
             token => $options{token}
         );
     }
+
+    if (defined($httpserver->{ready}) && $httpserver->{ready} == 1) {
+        $options{gorgone}->send_internal_message(
+            identity => 'gorgone-proxy-httpserver',
+            action => $options{action},
+            data => $options{data},
+            token => $options{token}
+        );
+    }
 }
 
 # Specific functions
@@ -503,8 +545,8 @@ sub pathway {
 
     my $first_target;
     foreach (@targets) {
-        if ($register_nodes->{$_}->{type} eq 'pull' && !defined($register_nodes->{$_}->{identity})) {
-            $options{logger}->writeLogDebug("[proxy] skip node pull target '$_' for node '$target' - never connected");
+        if ($register_nodes->{$_}->{type} =~ /^(?:pull|wss)$/ && !defined($register_nodes->{$_}->{identity})) {
+            $options{logger}->writeLogDebug("[proxy] skip node " . $register_nodes->{$_}->{type} . " target '$_' for node '$target' - never connected");
             next;
         }
 
@@ -644,7 +686,7 @@ sub ping_send {
         if ($register_nodes->{$id}->{type} eq 'push_zmq' || $register_nodes->{$id}->{type} eq 'push_ssh') {
             $constatus_ping->{$id}->{in_progress_ping} = 1;
             routing(action => 'PING', target => $id, data => '{}', gorgone => $options{gorgone}, dbh => $options{dbh}, logger => $options{logger});
-        } elsif ($register_nodes->{$id}->{type} eq 'pull') {
+        } elsif ($register_nodes->{$id}->{type} =~ /^(?:pull|wss)$/) {
             $constatus_ping->{$id}->{in_progress_ping} = 1;
             $constatus_ping->{$id}->{in_progress_ping_pull} = time();
             routing(action => 'PING', target => $id, data => '{}', gorgone => $options{gorgone}, dbh => $options{dbh}, logger => $options{logger});
@@ -668,7 +710,7 @@ sub full_sync_history {
     foreach my $id (keys %{$register_nodes}) {
         if ($register_nodes->{$id}->{type} eq 'push_zmq') {
             routing(action => 'GETLOG', target => $id, data => '{}', gorgone => $options{gorgone}, dbh => $options{dbh}, logger => $options{logger});
-        } elsif ($register_nodes->{$id}->{type} eq 'pull') {
+        } elsif ($register_nodes->{$id}->{type} =~ /^(?:pull|wss)$/) {
             routing(action => 'GETLOG', target => $id, data => '{}', gorgone => $options{gorgone}, dbh => $options{dbh}, logger => $options{logger});
         }
     }
@@ -760,6 +802,27 @@ sub create_child {
     $pools_pid->{$child_pid} = $options{pool_id};
 }
 
+sub create_httpserver_child {
+    my (%options) = @_;
+
+    $options{logger}->writeLogInfo("[proxy] Create module 'proxy' httpserver child process");
+    my $child_pid = fork();
+    if ($child_pid == 0) {
+        $0 = 'gorgone-proxy-httpserver';
+        my $module = gorgone::modules::core::proxy::httpserver->construct(
+            logger => $options{logger},
+            module_id => NAME,
+            config_core => $config_core,
+            config => $config,
+            container_id => 'httpserver'
+        );
+        $module->run();
+        exit(0);
+    }
+    $options{logger}->writeLogDebug("[proxy] PID $child_pid (gorgone-proxy-httpserver)");
+    $httpserver = { pid => $child_pid, ready => 0, running => 1 };
+}
+
 sub pull_request {
     my (%options) = @_;
 
@@ -816,7 +879,7 @@ sub unregister_nodes {
     return if (!defined($options{data}->{nodes}));
 
     foreach my $node (@{$options{data}->{nodes}}) {
-        if (defined($register_nodes->{ $node->{id} }) && $register_nodes->{ $node->{id} }->{type} ne 'pull') {
+        if (defined($register_nodes->{ $node->{id} }) && $register_nodes->{ $node->{id} }->{type} !~ /^(?:pull|wss)$/) {
             routing(
                 action => 'PROXYDELNODE',
                 target => $node->{id},
@@ -830,7 +893,7 @@ sub unregister_nodes {
         my $prevail = 0;
         $prevail = 1  if (defined($prevails->{ $node->{id} }));
 
-        if (defined($register_nodes->{ $node->{id} }) && $register_nodes->{ $node->{id} }->{type} eq 'pull' && $prevail == 1) {
+        if (defined($register_nodes->{ $node->{id} }) && $register_nodes->{ $node->{id} }->{type} =~ /^(?:pull|wss)$/ && $prevail == 1) {
             $register_nodes->{ $node->{id} }->{identity} = undef;
         }
 
@@ -877,7 +940,6 @@ sub register_subnodes {
     }
 }
 
-
 # 'pull' type:
 #    - it does a REGISTERNODES without subnodes (if it already exist, no new entry created, otherwise create an entry). We save the uniq identity
 #    - PING done by proxy and with PONG we get subnodes
@@ -919,7 +981,7 @@ sub register_nodes {
                 gorgone => $options{gorgone},
                 dbh => $options{dbh},
                 logger => $options{logger}
-            ) if ($register_nodes->{ $node->{id} }->{type} ne 'pull' && $node->{type} eq 'pull');
+            ) if ($register_nodes->{ $node->{id} }->{type} !~ /^(?:pull|wss)$/ && $node->{type} =~ /^(?:pull|wss)$/);
         }
 
         if ($prevail == 0) {
@@ -944,7 +1006,7 @@ sub register_nodes {
         }
 
         # we update identity in all cases (already created or not)
-        if ($node->{type} eq 'pull' && defined($node->{identity})) {
+        if ($node->{type} =~ /^(?:pull|wss)$/ && defined($node->{identity})) {
             $register_nodes->{ $node->{id} }->{identity} = $node->{identity};
             $last_pong->{ $node->{id} } = time() if (defined($last_pong->{ $node->{id} }));
         }
@@ -962,7 +1024,7 @@ sub register_nodes {
             get_sync_time(node_id => $node->{id}, dbh => $options{dbh});
         }
 
-        if ($register_nodes->{ $node->{id} }->{type} ne 'pull') {
+        if ($register_nodes->{ $node->{id} }->{type} !~ /^(?:pull|wss)$/) {
             if ($prevail == 1) {
                 routing(
                     action => 'PROXYADDNODE',
@@ -1004,7 +1066,7 @@ sub prepare_remote_copy {
     my (%options) = @_;
 
     my @actions;
-    
+
     if (!defined($options{data}->{content}->{source}) || $options{data}->{content}->{source} eq '') {
         $options{logger}->writeLogError('[proxy] Need source for remote copy');
         gorgone::standard::library::add_history(
@@ -1139,7 +1201,7 @@ sub add_parent_ping {
     my (%options) = @_;
 
     $options{logger}->writeLogDebug("[proxy] Parent ping '" . $options{identity} . "' is registered");
-    $parent_ping->{$options{identity}} = { last_time => time(), router_type => $options{router_type} };
+    $parent_ping->{ $options{identity} } = { last_time => time(), router_type => $options{router_type} };
 }
 
 1;
