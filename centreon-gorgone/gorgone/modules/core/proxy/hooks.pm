@@ -28,7 +28,6 @@ use gorgone::class::core;
 use gorgone::standard::library;
 use gorgone::standard::constants qw(:all);
 use gorgone::modules::core::proxy::class;
-use gorgone::modules::core::proxy::httpserver;
 use File::Basename;
 use MIME::Base64;
 use Digest::MD5::File qw(file_md5_hex);
@@ -806,6 +805,14 @@ sub create_httpserver_child {
     my (%options) = @_;
 
     $options{logger}->writeLogInfo("[proxy] Create module 'proxy' httpserver child process");
+
+    my $rv = gorgone::standard::misc::mymodule_load(
+        logger => $options{logger},
+        module => 'gorgone::modules::core::proxy::httpserver',
+        error_msg => "Cannot load module 'gorgone::modules::core::proxy::httpserver'"
+    );
+    return if ($rv != 0);
+
     my $child_pid = fork();
     if ($child_pid == 0) {
         $0 = 'gorgone-proxy-httpserver';
