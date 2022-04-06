@@ -106,6 +106,7 @@ const Content = ({
       {...attributes}
       className={classes.content}
       ref={itemRef}
+      tabIndex={0}
     >
       <Typography>{name as string}</Typography>
     </Paper>

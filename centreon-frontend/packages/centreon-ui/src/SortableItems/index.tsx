@@ -111,6 +111,19 @@ const SortableItems = <T extends { [propertyToFilterItemsOn]: string }>({
     useSensor(PointerSensor),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
+      keyboardCodes: {
+        cancel: ['Escape'],
+        end: ['Space', 'Enter'],
+        start: [
+          'ArrowUp',
+          'ArrowDown',
+          'ArrowLeft',
+          'ArrowRight',
+          'Enter',
+          'Space',
+        ],
+      },
+      scrollBehavior: 'smooth',
     }),
   );
   const theme = useTheme();
