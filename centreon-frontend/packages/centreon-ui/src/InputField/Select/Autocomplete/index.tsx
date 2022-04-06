@@ -218,11 +218,11 @@ const AutocompleteField = ({
       renderOption={(renderProps, option): JSX.Element => {
         return (
           <li className={classes.options} {...renderProps}>
-            {displayOptionThumbnail && (
-              <img alt={option.name} height={20} src={option.url} width={20} />
-            )}
-
-            <Option>{option.name}</Option>
+            <Option
+              thumbnailUrl={displayOptionThumbnail ? option.url : undefined}
+            >
+              {option.name}
+            </Option>
           </li>
         );
       }}
