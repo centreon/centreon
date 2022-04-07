@@ -3,7 +3,6 @@ import * as React from 'react';
 import { equals, prop, last, isEmpty, map, isNil, pipe, not } from 'ramda';
 
 import { CircularProgress, useTheme } from '@mui/material';
-import { debounce } from '@mui/material/utils';
 
 import { Props as AutocompleteFieldProps } from '..';
 import useRequest from '../../../../api/useRequest';
@@ -15,6 +14,7 @@ import {
   ConditionsSearchParameter,
   SearchParameter,
 } from '../../../../api/buildListingEndpoint/models';
+import useDebounce from '../../../../utils/useDebounce';
 
 export interface ConnectedAutoCompleteFieldProps<TData> {
   conditionField?: keyof SelectEntry;
@@ -25,8 +25,6 @@ export interface ConnectedAutoCompleteFieldProps<TData> {
   initialPage: number;
   searchConditions?: Array<ConditionsSearchParameter>;
 }
-
-type SearchDebounce = (value: string) => void;
 
 const ConnectedAutocompleteField = (
   AutocompleteField: (props) => JSX.Element,
@@ -50,6 +48,22 @@ const ConnectedAutocompleteField = (
     const [page, setPage] = React.useState(1);
     const [maxPage, setMaxPage] = React.useState(initialPage);
     const [optionsOpen, setOptionsOpen] = React.useState(open || false);
+    const debounce = useDebounce({
+      functionToDebounce: (value): void => {
+        if (page === initialPage) {
+          loadOptions({
+            endpoint: getEndpoint({
+              page: initialPage,
+              search: getSearchParameter(value),
+            }),
+          });
+        }
+
+        setPage(1);
+      },
+      memoProps: [page, searchConditions],
+      wait: 500,
+    });
 
     const theme = useTheme();
 
@@ -139,24 +153,8 @@ const ConnectedAutocompleteField = (
       };
     };
 
-    const debouncedChangeText = React.useCallback(
-      debounce<SearchDebounce>((value): void => {
-        if (page === initialPage) {
-          loadOptions({
-            endpoint: getEndpoint({
-              page: initialPage,
-              search: getSearchParameter(value),
-            }),
-          });
-        }
-
-        setPage(1);
-      }, 500),
-      [page, setPage, searchConditions],
-    );
-
     const changeText = (event): void => {
-      debouncedChangeText(event.target.value);
+      debounce(event.target.value);
       setSearchValue(event.target.value);
     };
 
