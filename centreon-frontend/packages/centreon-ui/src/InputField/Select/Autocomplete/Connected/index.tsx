@@ -2,7 +2,7 @@ import * as React from 'react';
 
 import { equals, prop, last, isEmpty, map, isNil, pipe, not } from 'ramda';
 
-import { Typography, CircularProgress, useTheme } from '@mui/material';
+import { CircularProgress, useTheme } from '@mui/material';
 import { debounce } from '@mui/material/utils';
 
 import { Props as AutocompleteFieldProps } from '..';
@@ -41,6 +41,7 @@ const ConnectedAutocompleteField = (
     searchConditions = [],
     getRenderedOptionText = (option): string => option.name,
     getRequestHeaders,
+    displayOptionThumbnail,
     ...props
   }: ConnectedAutoCompleteFieldProps<TData> &
     Omit<AutocompleteFieldProps, 'options'>): JSX.Element => {
@@ -176,18 +177,17 @@ const ConnectedAutocompleteField = (
 
       const optionText = getRenderedOptionText(option);
 
+      const optionProps = {
+        checkboxSelected: multiple ? selected : undefined,
+        thumbnailUrl: displayOptionThumbnail ? option.url : undefined,
+      };
+
       return (
         <div key={option.id} style={{ width: '100%' }}>
           <li {...renderProps}>
-            {multiple ? (
-              <Option checkboxSelected={selected} {...ref}>
-                {optionText}
-              </Option>
-            ) : (
-              <Typography variant="body2" {...ref}>
-                {optionText}
-              </Typography>
-            )}
+            <Option {...optionProps} {...ref}>
+              {optionText}
+            </Option>
           </li>
 
           {(isLastValueWithoutOptions || isLastOption) && sending && (

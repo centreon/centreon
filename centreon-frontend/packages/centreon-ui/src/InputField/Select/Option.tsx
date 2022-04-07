@@ -2,7 +2,7 @@ import * as React from 'react';
 
 import { isNil } from 'ramda';
 
-import { Checkbox, Typography } from '@mui/material';
+import { Checkbox, Stack, Typography } from '@mui/material';
 import makeStyles from '@mui/styles/makeStyles';
 
 const useStyles = makeStyles((theme) => ({
@@ -19,10 +19,11 @@ const useStyles = makeStyles((theme) => ({
 interface Props {
   checkboxSelected?: boolean;
   children: string;
+  thumbnailUrl?: string;
 }
 
 const Option = React.forwardRef(
-  ({ children, checkboxSelected }: Props, ref): JSX.Element => {
+  ({ children, checkboxSelected, thumbnailUrl }: Props, ref): JSX.Element => {
     const classes = useStyles();
 
     return (
@@ -38,7 +39,12 @@ const Option = React.forwardRef(
             size="small"
           />
         )}
-        <Typography variant="body2">{children}</Typography>
+        <Stack alignItems="center" direction="row" spacing={1}>
+          {thumbnailUrl && (
+            <img alt={children} height={20} src={thumbnailUrl} width={20} />
+          )}
+          <Typography variant="body2">{children}</Typography>
+        </Stack>
       </div>
     );
   },
