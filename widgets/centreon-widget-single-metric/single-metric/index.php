@@ -154,7 +154,7 @@ if (! isset($preferences['service']) || $preferences['service'] === "") {
                 $preferences['display_number']
             );
             $data[0]['value_displayed'] = str_replace(".", ",", (string) $size);
-            if ($data[0]['warning'] !== '') {
+            if (is_numeric($data[0]['warning'])) {
                 $newWarning = convertSizeToHumanReadable(
                     $data[0]['warning'],
                     $data[0]['unit_name'],
@@ -162,7 +162,7 @@ if (! isset($preferences['service']) || $preferences['service'] === "") {
                 );
                 $data[0]['warning_displayed'] = str_replace(".", ",", (string) $newWarning[0]);
             }
-            if ($data[0]['critical'] !== '') {
+            if (is_numeric($data[0]['critical'])) {
                 $newCritical = convertSizeToHumanReadable(
                     $data[0]['critical'],
                     $data[0]['unit_name'],
