@@ -41,9 +41,9 @@
           {else if $preferences.coloring == 'p_state'}
             {if $elem.status == 3 }
               <span style="font-size:{$preferences.font_size}pt;">{$elem.value_displayed} {$elem.unit_displayed}</span>
-            {else if $elem.current_float_value >= $elem.critical }
+            {else if $elem.critical !== null && $elem.current_float_value >= $elem.critical }
               <span style="color: #e00b3d;font-size:{$preferences.font_size}pt;">{$elem.value_displayed} {$elem.unit_displayed}</span>
-            {else if $elem.current_float_value >= $elem.warning }
+            {else if $elem.warning !== null && $elem.current_float_value >= $elem.warning }
               <span style="color: #ff9a13;font-size:{$preferences.font_size}pt;">{$elem.value_displayed} {$elem.unit_displayed}</span>
             {else}
               <span style="color: #88b917;font-size:{$preferences.font_size}pt;">{$elem.value_displayed} {$elem.unit_displayed}</span>
