@@ -97,6 +97,7 @@ export {
   timeFormat,
 } from './utils/useLocaleDateTimeFormat';
 export { default as copyToClipboard } from './utils/copy';
+export { default as useDebounce } from './utils/useDebounce';
 export { default as useIntersectionObserver } from './utils/useIntersectionObserver';
 export { default as ContentWithCircularLoading } from './ContentWithCircularProgress';
 export {
