@@ -67,7 +67,7 @@ class JiraProvider extends AbstractProvider
             ),
             array('Arg' => self::ARG_DESCRIPTION, 'Value' => '{$body}'),
             array('Arg' => self::ARG_PROJECT, 'Value' => '{$select.jira_project.id}'),
-            array('Arg' => self::ARG_ASSIGNEE, 'Value' => '{$select.jira_assignee.value}'),
+            array('Arg' => self::ARG_ASSIGNEE, 'Value' => '{$select.jira_assignee.id}'),
             array('Arg' => self::ARG_PRIORITY, 'Value' => '{$select.jira_priority.id}'),
             array('Arg' => self::ARG_ISSUETYPE, 'Value' => '{$select.jira_issuetype.id}'),
         );
@@ -363,7 +363,7 @@ class JiraProvider extends AbstractProvider
 
         $result = array();
         foreach ($this->_jira_call_response as $row) {
-            $result[$row['key']] = $this->to_utf8($row['name']);
+            $result[$row['accountId']] = $this->to_utf8($row['displayName']);
         }
 
         $this->saveSession($label_session, $this->_jira_call_response);
@@ -524,7 +524,7 @@ class JiraProvider extends AbstractProvider
 
     protected function listUserJira($filter)
     {
-        $search = 'username=';
+        $search = 'query=';
         if (isset($filter)) {
             $search .= urlencode($filter);
         }
@@ -549,7 +549,7 @@ class JiraProvider extends AbstractProvider
             && $ticket_arguments[$this->_internal_arg_name[self::ARG_ASSIGNEE]] != ''
         ) {
             $argument['fields']['assignee'] = array(
-                'name' => $ticket_arguments[$this->_internal_arg_name[self::ARG_ASSIGNEE]]
+                'accountId' => $ticket_arguments[$this->_internal_arg_name[self::ARG_ASSIGNEE]]
             );
         }
         if (isset($ticket_arguments[$this->_internal_arg_name[self::ARG_PRIORITY]])
