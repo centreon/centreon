@@ -103,11 +103,12 @@ rm -rf %{buildroot}
 %config(noreplace) %{_sysconfdir}/sysconfig/gorgoned
 %config(noreplace) %{_sysconfdir}/logrotate.d/gorgoned
 
-%defattr(-, centreon-gorgone, centreon-gorgone, -)
+%defattr(0664, centreon-gorgone, centreon-gorgone, 0775)
 %dir %{_sysconfdir}/centreon-gorgone
-%dir %attr(775, centreon-gorgone, centreon-gorgone) %{_sysconfdir}/centreon-gorgone/config.d
-%dir %attr(775, centreon-gorgone, centreon-gorgone) %{_sysconfdir}/centreon-gorgone/config.d/cron.d
+%dir %{_sysconfdir}/centreon-gorgone/config.d
+%dir %{_sysconfdir}/centreon-gorgone/config.d/cron.d
 %{_sysconfdir}/centreon-gorgone/config.yaml
+%defattr(-, centreon-gorgone, centreon-gorgone, -)
 %{_localstatedir}/lib/centreon-gorgone
 %{_localstatedir}/log/centreon-gorgone
 %{_localstatedir}/cache/centreon-gorgone
@@ -117,6 +118,7 @@ rm -rf %{buildroot}
 %{_bindir}/getent passwd centreon-gorgone &>/dev/null || %{_sbindir}/useradd -g centreon-gorgone -m -d %{_localstatedir}/lib/centreon-gorgone -r centreon-gorgone 2> /dev/null
 
 %files centreon-config
+%defattr(0664, centreon-gorgone, centreon-gorgone, 0775)
 %config(noreplace) %{_sysconfdir}/centreon-gorgone/config.d/30-centreon.yaml
 %config(noreplace) %{_sysconfdir}/centreon-gorgone/config.d/31-centreon-api.yaml
 %config(noreplace) %{_sysconfdir}/centreon-gorgone/config.d/50-centreon-audit.yaml
