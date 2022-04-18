@@ -11,6 +11,7 @@ import {
 } from '@mui/material';
 
 export type Props = {
+  cancelDisabled?: boolean;
   children: React.ReactNode;
   confirmDisabled?: boolean;
   contentWidth?: number;
@@ -35,6 +36,7 @@ const Dialog = ({
   children,
   contentWidth,
   confirmDisabled = false,
+  cancelDisabled = false,
   submitting = false,
   ...rest
 }: Props): JSX.Element => (
@@ -45,7 +47,7 @@ const Dialog = ({
     )}
     <DialogActions>
       {onCancel && (
-        <Button color="primary" onClick={onCancel}>
+        <Button color="primary" disabled={cancelDisabled} onClick={onCancel}>
           {labelCancel}
         </Button>
       )}
