@@ -1,0 +1,61 @@
+Source: centreon-gorgone
+Section: net
+Priority: optional
+Maintainer: Luiz Costa <me@luizgustavo.pro.br>
+Build-Depends: 
+  debhelper-compat (=12),
+  lsb-base,
+  perl:native,
+  libnet-ssh2-perl,
+  libuuid-perl,
+  libdigest-md5-file-perl,
+  libjson-pp-perl,
+  libjson-xs-perl,
+  libyaml-perl,
+  libyaml-libyaml-perl,
+  libdbd-sqlite3-perl,
+  libdbd-mysql-perl,
+  libcrypt-cbc-perl,
+  libhttp-daemon-perl,
+  libhttp-daemon-ssl-perl,
+  libmime-base64-urlsafe-perl,
+  libnetaddr-ip-perl,
+  libschedule-cron-perl,
+  libhash-merge-perl,
+  libcryptx-perl,
+  libzmq-constants-perl,
+  zmq-libzmq4-perl
+Standards-Version: 4.5.0
+Homepage: https://wwww.centreon.com
+
+Package: centreon-gorgone
+Architecture: any
+Depends:
+  centreon-common,
+  libnet-ssh2-perl,
+  libnet-ldap-perl,
+  libuuid-perl,
+  libdigest-md5-file-perl,
+  libjson-pp-perl,
+  libjson-xs-perl,
+  libyaml-perl,
+  libyaml-libyaml-perl,
+  libdbd-sqlite3-perl,
+  libdbd-mysql-perl,
+  libcrypt-cbc-perl,
+  libhttp-daemon-perl,
+  libhttp-daemon-ssl-perl,
+  libmime-base64-urlsafe-perl,
+  libnetaddr-ip-perl,
+  libschedule-cron-perl,
+  libhash-merge-perl,
+  libcryptx-perl,
+  libmojolicious-perl,
+  libauthen-simple-perl,
+  libauthen-simple-net-perl,
+  libzmq-constants-perl,
+  libzmq5,
+  zmq-libzmq4-perl,
+  ${shlibs:Depends}, 
+  ${misc:Depends}
+Description: Centreon Gorgone.

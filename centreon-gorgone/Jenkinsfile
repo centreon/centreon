@@ -8,10 +8,12 @@ env.REF_BRANCH = stableBranch
 env.PROJECT='centreon-gorgone'
 if (env.BRANCH_NAME.startsWith('release-')) {
   env.BUILD = 'RELEASE'
+  env.REPO = 'testing'
 } else if ((env.BRANCH_NAME == env.REF_BRANCH) || (env.BRANCH_NAME == maintenanceBranch)) {
   env.BUILD = 'REFERENCE'
 } else if ((env.BRANCH_NAME == 'develop') || (env.BRANCH_NAME == qaBranch)) {
   env.BUILD = 'QA'
+  env.REPO = 'unstable'
 } else {
   env.BUILD = 'CI'
 }
@@ -74,7 +76,7 @@ stage('Deliver sources // Sonar analysis') {
 }  
 
 try {
-  stage('RPM Packaging') {
+  stage('DEB/RPM Packaging') {
     parallel 'Packaging centos7': {
       node {
         checkoutCentreonBuild(buildBranch)
@@ -93,6 +95,17 @@ try {
         stash name: "rpms-alma8", includes: 'output/noarch/*.rpm'
         sh 'rm -rf output'
       }
+    },
+
+    'Debian bullseye packaging and signing': {
+      node {
+        dir('centreon-gorgone') {
+          checkout scm
+        }
+        sh 'docker run -i --entrypoint "/src/centreon-gorgone/ci/scripts/gorgone-deb-package.sh" -v "$PWD:/src" -e "DISTRIB=Debian11" -e "VERSION=$VERSION" -e "RELEASE=$RELEASE" registry.centreon.com/centreon-gorgone-debian11-dependencies:22.04'
+        stash name: 'Debian11', includes: '*.deb'
+        archiveArtifacts artifacts: "*.deb"
+      }
     }
 
     if ((currentBuild.result ?: 'SUCCESS') != 'SUCCESS') {
@@ -107,6 +120,15 @@ try {
         unstash 'rpms-alma8'
         unstash 'rpms-centos7'
         sh "./centreon-build/jobs/gorgone/${serie}/gorgone-delivery.sh"
+        withCredentials([usernamePassword(credentialsId: 'nexus-credentials', passwordVariable: 'NEXUS_PASSWORD', usernameVariable: 'NEXUS_USERNAME')]) {
+          checkout scm
+          unstash "Debian11"
+          sh '''for i in $(echo *.deb)
+                do 
+                  curl -u $NEXUS_USERNAME:$NEXUS_PASSWORD -H "Content-Type: multipart/form-data" --data-binary "@./$i" https://apt.centreon.com/repository/22.04-$REPO/
+                done
+             '''    
+        }
       }
       if ((currentBuild.result ?: 'SUCCESS') != 'SUCCESS') {
         error('Delivery stage failure.');
