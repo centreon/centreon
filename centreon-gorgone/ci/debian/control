@@ -34,6 +34,8 @@ Depends:
   centreon-common,
   libnet-ssh2-perl,
   libnet-ldap-perl,
+  libdatetime-perl,
+  libxml-libxml-simple-perl,
   libuuid-perl,
   libdigest-md5-file-perl,
   libjson-pp-perl,
