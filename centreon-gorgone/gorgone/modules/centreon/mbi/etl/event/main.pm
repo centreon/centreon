@@ -193,16 +193,20 @@ sub dailyProcessing {
         type => 'sql',
         db => 'centstorage',
         sql => [
-            '[PARTITIONS] Add partition [p' . $partName . '] on table [mod_bi_hostavailability]',
-            "ALTER TABLE `mod_bi_hostavailability` ADD PARTITION (PARTITION `p$partName` VALUES LESS THAN(" . $epoch . "))"
+            [
+                '[PARTITIONS] Add partition [p' . $partName . '] on table [mod_bi_hostavailability]',
+                "ALTER TABLE `mod_bi_hostavailability` ADD PARTITION (PARTITION `p$partName` VALUES LESS THAN(" . $epoch . "))"
+            ]
         ]
     };
     push @{$etl->{run}->{schedule}->{event}->{stages}->[0]}, {
         type => 'sql',
         db => 'centstorage',
         sql => [
-            '[PARTITIONS] Add partition [p' . $partName . '] on table [mod_bi_serviceavailability]',
-            "ALTER TABLE `mod_bi_serviceavailability` ADD PARTITION (PARTITION `p$partName` VALUES LESS THAN(" . $epoch . "))"
+            [
+                '[PARTITIONS] Add partition [p' . $partName . '] on table [mod_bi_serviceavailability]',
+                "ALTER TABLE `mod_bi_serviceavailability` ADD PARTITION (PARTITION `p$partName` VALUES LESS THAN(" . $epoch . "))"
+            ]
         ]
     };
 

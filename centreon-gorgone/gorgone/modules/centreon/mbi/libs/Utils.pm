@@ -41,14 +41,14 @@ sub checkBasicOptions {
     my ($self, $options) = @_;
 
     # check execution mode daily to extract yesterday data or rebuild to get more historical data
-    if (($options->{daily} == 0 && $options->{rebuild} == 0 && $options->{create_tables} == 0 && (!defined($options->{centile}) || $options->{centile} == 0))
+    if (($options->{daily} == 0 && $options->{rebuild} == 0 && (!defined($options->{create_tables}) || $options->{create_tables} == 0) && (!defined($options->{centile}) || $options->{centile} == 0))
         || ($options->{daily} == 1 && $options->{rebuild} == 1)) {
         $self->{logger}->writeLogError("Specify one execution method. Check program help for more informations");
         return 1;
     }
 
     # check if options are set correctly for rebuild mode
-    if (($options->{rebuild} == 1 || $options->{create_tables} == 1) 
+    if (($options->{rebuild} == 1 || (defined($options->{create_tables}) && $options->{create_tables} == 1))
         && ($options->{start} ne '' && $options->{end} eq '') 
         || ($options->{start} eq '' && $options->{end} ne '')) {
         $self->{logger}->writeLogError("Specify both options --start and --end or neither of them to use default data retention options");

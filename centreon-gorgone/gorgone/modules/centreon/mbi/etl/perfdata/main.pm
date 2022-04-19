@@ -307,8 +307,10 @@ sub dailyProcessing {
         type => 'sql',
         db => 'centstorage',
         sql => [
-            '[PARTITIONS] Add partition [p' . $partName . '] on table [mod_bi_metricdailyvalue]',
-            "ALTER TABLE `mod_bi_metricdailyvalue` ADD PARTITION (PARTITION `p$partName` VALUES LESS THAN(" . $epoch . "))"
+            [
+                '[PARTITIONS] Add partition [p' . $partName . '] on table [mod_bi_metricdailyvalue]',
+                "ALTER TABLE `mod_bi_metricdailyvalue` ADD PARTITION (PARTITION `p$partName` VALUES LESS THAN(" . $epoch . "))"
+            ]
         ]
     };
     if ($etl->{run}->{etlProperties}->{'perfdata.granularity'} ne 'day') {
@@ -316,8 +318,10 @@ sub dailyProcessing {
             type => 'sql',
             db => 'centstorage',
             sql => [
-                '[PARTITIONS] Add partition [p' . $partName . '] on table [mod_bi_metrichourlyvalue]',
-                "ALTER TABLE `mod_bi_metrichourlyvalue` ADD PARTITION (PARTITION `p$partName` VALUES LESS THAN(" . $epoch . "))"
+                [
+                    '[PARTITIONS] Add partition [p' . $partName . '] on table [mod_bi_metrichourlyvalue]',
+                    "ALTER TABLE `mod_bi_metrichourlyvalue` ADD PARTITION (PARTITION `p$partName` VALUES LESS THAN(" . $epoch . "))"
+                ]
             ]
         };
     }
@@ -326,8 +330,10 @@ sub dailyProcessing {
             type => 'sql',
             db => 'centstorage',
             sql => [
-                '[PARTITIONS] Add partition [p' . $partName . '] on table [mod_bi_metriccentiledailyvalue]',
-                "ALTER TABLE `mod_bi_metriccentiledailyvalue` ADD PARTITION (PARTITION `p$partName` VALUES LESS THAN(" . $epoch . "))"
+                [
+                    '[PARTITIONS] Add partition [p' . $partName . '] on table [mod_bi_metriccentiledailyvalue]',
+                    "ALTER TABLE `mod_bi_metriccentiledailyvalue` ADD PARTITION (PARTITION `p$partName` VALUES LESS THAN(" . $epoch . "))"
+                ]
             ]
         };
     }
