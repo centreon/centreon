@@ -35,6 +35,7 @@ Depends:
   libnet-ssh2-perl,
   libnet-ldap-perl,
   libdatetime-perl,
+  libtry-tiny-perl,
   libxml-libxml-simple-perl,
   libuuid-perl,
   libdigest-md5-file-perl,
