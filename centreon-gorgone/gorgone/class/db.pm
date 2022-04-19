@@ -46,6 +46,7 @@ sub new {
         $self->{dsn} =~ s/"\s*$//;
     }
 
+    $self->{die} = defined($options{die}) ? 1 : 0;
     $self->{instance} = undef;
     $self->{transaction_begin} = 0;
     $self->{args} = [];
@@ -62,6 +63,12 @@ sub type {
     return $self->{type};
 }
 
+sub getInstance {
+	my ($self) = @_;
+
+	return $self->{instance};
+}
+
 # Getter/Setter DB name
 sub db {
     my $self = shift;
@@ -69,6 +76,28 @@ sub db {
         $self->{db} = shift;
     }
     return $self->{db};
+}
+
+sub sameParams {
+    my ($self, %options) = @_;
+
+    my $params = '';
+    if (defined($self->{dsn})) {
+        $params = $self->{dsn};
+    } else {
+       $params = $self->{host} . ':' . $self->{port} . ':' . $self->{db};
+    }
+    $params .= ':' . $self->{user} . ':' . $self->{password};
+
+    my $paramsNew = '';
+    if (defined($options{dsn})) {
+        $paramsNew = $options{dsn};
+    } else {
+       $paramsNew = $options{host} . ':' . $options{port} . ':' . $options{db};
+    }
+    $params .= ':' . $options{user} . ':' . $options{password};
+
+    return ($paramsNew eq $params) ? 1 : 0;
 }
 
 # Getter/Setter DB host
@@ -254,6 +283,8 @@ sub connect() {
             (defined($self->{db}) ? $self->{db} : $self->{dsn}) . "': " . $DBI::errstr . " (caller: $package:$filename:$line) (try: $count)"
         );
         if ($self->{force} == 0 || ($self->{force} == 2 && $count == 1)) {
+            $self->{lastError} = "MySQL error : cannot connect to database '" . 
+                (defined($self->{db}) ? $self->{db} : $self->{dsn}) . "': " . $DBI::errstr;
             $status = -1;
             last;
         }
@@ -293,15 +324,21 @@ sub error {
     my ($package, $filename, $line) = caller 1;
 
     chomp($query);
-    $self->{logger}->writeLogError(<<"EOE");
-SQL error: $error (caller: $package:$filename:$line)
+    $self->{lastError} = "SQL error: $error (caller: $package:$filename:$line)
 Query: $query
-EOE
+";
+    $self->{logger}->writeLogError($error);
     if ($self->{transaction_begin} == 1) {
         $self->rollback();
     }
     $self->disconnect();
     $self->{instance} = undef;
+}
+
+sub prepare {
+    my ($self, $query) = @_;
+
+    return $self->query($query, prepare_only => 1);
 }
 
 sub query {
@@ -338,6 +375,7 @@ sub query {
         }
 
         if (defined($options{prepare_only})) {
+            return $statement_handle if ($self->{die} == 1);
             return ($status, $statement_handle);
         }
 
@@ -351,6 +389,11 @@ sub query {
         }
 
         last;
+    }
+
+    if ($self->{die} == 1) {
+        die $self->{lastError} if ($status == -1);
+        return $statement_handle;
     }
 
     return ($status, $statement_handle);

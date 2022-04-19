@@ -92,7 +92,7 @@ sub init_server_keys {
     $self->{keys_loaded} = 0;
     $self->{config} = { configuration => {} } if (!defined($self->{config}->{configuration}));
     $self->{config}->{configuration} = { gorgone => {} } if (!defined($self->{config}->{configuration}->{gorgone}));
-    $self->{config}->{configuration}->{gorgone} = { gorgonecore => {} } if (!defined($self->{config}->{configuration}->{gorgone}->{gorgonecore}));
+    $self->{config}->{configuration}->{gorgone}->{gorgonecore} = {} if (!defined($self->{config}->{configuration}->{gorgone}->{gorgonecore}));
 
     $self->{config}->{configuration}->{gorgone}->{gorgonecore}->{privkey} = '/var/lib/centreon-gorgone/.keys/rsakey.priv.pem'
         if (!defined($self->{config}->{configuration}->{gorgone}->{gorgonecore}->{privkey}) || $self->{config}->{configuration}->{gorgone}->{gorgonecore}->{privkey} eq '');

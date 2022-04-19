@@ -93,12 +93,14 @@ my $http_code_explained = {
     415 => 'Unsupported Media Type',
     416 => 'Requested Range Not Satisfiable',
     417 => 'Expectation Failed',
+    450 => 'Timeout reached', # custom code
+    451 => 'Failed Connection Host', # custom code
     500 => 'Internal Server Error',
     501 => 'Not Implemented',
     502 => 'Bad Gateway',
     503 => 'Service Unavailable',
     504 => 'Gateway Timeout',
-    505 => 'HTTP Version Not Supported',
+    505 => 'HTTP Version Not Supported'
 };
 
 sub cb_debug {
@@ -342,10 +344,25 @@ sub request {
     $self->curl_setopt(option => $self->{constant_cb}->(name => 'CURLOPT_HEADERFUNCTION'), parameter => \&cb_get_header);
 
     eval {
+        $SIG{__DIE__} = sub {};
+
         $self->{curl_easy}->perform();
     };
     if ($@) {
-        $self->{logger}->writeLogError('curl perform error : ' . $@);
+        my $err = $@;
+        if (ref($@) eq "Net::Curl::Easy::Code") {
+            my $num = $@;
+            if ($num == $self->{constant_cb}->(name => 'CURLE_OPERATION_TIMEDOUT')) {
+                $self->{response_code} = 450;
+            } elsif ($num == $self->{constant_cb}->(name => 'CURLE_COULDNT_CONNECT')) {
+                $self->{response_code} = 451;
+            }
+        }
+
+        if (!defined($self->{response_code})) {
+            $self->{logger}->writeLogError('curl perform error : ' . $err);
+        }
+
         return 1;
     }
     

@@ -19,6 +19,7 @@ Requires:   perl(ZMQ::Constants)
 Requires:   perl(JSON::XS)
 Requires:   perl(JSON::PP)
 Requires:   perl(XML::Simple)
+Requires:   perl(XML::LibXML::Simple)
 Requires:   perl(Net::SMTP)
 Requires:   perl(YAML::XS)
 Requires:   perl(DBD::SQLite)
@@ -35,6 +36,7 @@ Requires:   perl(NetAddr::IP)
 Requires:   perl(Hash::Merge)
 Requires:   perl(Clone)
 Requires:   perl(Sys::Syslog)
+Requires:   perl(DateTime)
 AutoReqProv: no
 
 %description
