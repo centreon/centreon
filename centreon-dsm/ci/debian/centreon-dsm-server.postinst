@@ -1,0 +1,13 @@
+#!/bin/sh
+
+if [ "$1" = "configure" ] ; then
+
+  sed -i "s/@CENTREON_LOG@/\/var\/log\/centreon/" /usr/sysconfig/dsmd
+  sed -i "s/@CENTREON_ETC@/\/etc\/centreon/" /usr/sysconfig/dsmd
+
+  systemctl daemon-reload
+  systemctl enable dsmd.service
+  systemctl restart dsmd.service
+
+fi
+exit 0

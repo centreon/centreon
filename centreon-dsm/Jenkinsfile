@@ -8,10 +8,12 @@ env.REF_BRANCH = 'master'
 env.PROJECT='centreon-dsm'
 if (env.BRANCH_NAME.startsWith('release-')) {
   env.BUILD = 'RELEASE'
+  env.REPO = 'testing'
 } else if ((env.BRANCH_NAME == env.REF_BRANCH) || (env.BRANCH_NAME == maintenanceBranch)) {
   env.BUILD = 'REFERENCE'
 } else if ((env.BRANCH_NAME == 'develop') || (env.BRANCH_NAME == qaBranch)) {
   env.BUILD = 'QA'
+  env.REPO = 'unstable'
 } else {
   env.BUILD = 'CI'
 }
@@ -74,7 +76,7 @@ stage('Deliver sources') {
 }
 
 try {
-  stage('Unit tests // RPM Packaging // Sonar analysis') {
+  stage('Unit tests // RPM/DEB Packaging // Sonar analysis') {
     parallel 'unit tests centos7': {
       node {
         checkoutCentreonBuild(buildBranch)
@@ -134,9 +136,19 @@ try {
         stash name: "rpms-alma8", includes: 'output/noarch/*.rpm'
         sh 'rm -rf output'
       }
+    },
+    'Debian bullseye packaging and signing': {
+      node {
+        dir('centreon-dsm') {
+          checkout scm
+        }
+        sh 'docker run -i --entrypoint "/src/centreon-dsm/ci/scripts/centreon-dsm-package.sh" -w "/src" -v "$PWD:/src" -e "DISTRIB=Debian11" -e "VERSION=$VERSION" -e "RELEASE=$RELEASE" registry.centreon.com/centreon-debian11-dependencies:22.04'
+        stash name: 'Debian11', includes: '*.deb'
+        archiveArtifacts artifacts: "*"
+      }
     }
     if ((currentBuild.result ?: 'SUCCESS') != 'SUCCESS') {
-      error('Unit tests // RPM Packaging // Sonar analysis stage failure.');
+      error('Unit tests // RPM/DEB Packaging // Sonar analysis stage failure.');
     }
   }
 
@@ -147,6 +159,15 @@ try {
         unstash 'rpms-alma8'
         checkoutCentreonBuild(buildBranch)
         sh "./centreon-build/jobs/dsm/${serie}/dsm-delivery.sh"
+        withCredentials([usernamePassword(credentialsId: 'nexus-credentials', passwordVariable: 'NEXUS_PASSWORD', usernameVariable: 'NEXUS_USERNAME')]) {
+          checkout scm
+          unstash "Debian11"
+          sh '''for i in $(echo *.deb)
+                do 
+                  curl -u $NEXUS_USERNAME:$NEXUS_PASSWORD -H "Content-Type: multipart/form-data" --data-binary "@./$i" https://apt.centreon.com/repository/22.04-$REPO/
+                done
+             '''    
+        }
       }
       if ((currentBuild.result ?: 'SUCCESS') != 'SUCCESS') {
         error('Delivery stage failure');
