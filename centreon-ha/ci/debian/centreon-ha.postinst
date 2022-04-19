@@ -1,0 +1,11 @@
+#!/bin/sh
+
+if [ "$1" = "configure" ] ; then
+
+  if [ "$(getent passwd centreon)" ]; then
+    chown -vR centreon:centreon /var/log/centreon-ha
+    chmod -vR 0755 /var/log/centreon-ha
+  fi
+
+fi
+exit 0
