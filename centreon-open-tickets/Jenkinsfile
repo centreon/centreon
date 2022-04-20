@@ -1,15 +1,18 @@
-import groovy.json.JsonSlurper
-
 /*
 ** Variables.
 */
-properties([buildDiscarder(logRotator(numToKeepStr: '50'))])
 def serie = '22.04'
 def stableBranch = "master"
+def devBranch = "develop"
+
 if (env.BRANCH_NAME.startsWith('release-')) {
   env.BUILD = 'RELEASE'
+  env.REPO = 'testing'
 } else if (env.BRANCH_NAME == stableBranch) {
   env.BUILD = 'REFERENCE'
+} else if (env.BRANCH_NAME == devBranch) {
+  env.BUILD = 'QA'
+  env.REPO = 'unstable'
 } else {
   env.BUILD = 'CI'
 }
@@ -116,19 +119,38 @@ try {
         stash name: "rpms-alma8", includes: 'output/noarch/*.rpm'
         sh 'rm -rf output'
       }
+    },
+    'Debian bullseye packaging and signing': {
+      node {
+        dir('centreon-open-tickets') {
+          checkout scm
+        }
+        sh 'docker run -i --entrypoint "/src/centreon-open-tickets/ci/scripts/centreon-deb-package.sh" -w "/src" -v "$PWD:/src" -e "DISTRIB=Debian11" -e "VERSION=$VERSION" -e "RELEASE=$RELEASE" registry.centreon.com/centreon-debian11-dependencies:22.04'
+        stash name: 'Debian11', includes: '*.deb'
+        archiveArtifacts artifacts: "*.deb"
+      }
     }
     if ((currentBuild.result ?: 'SUCCESS') != 'SUCCESS') {
       error('Package stage failure.')
     }
   }
 
-  if ((env.BUILD == 'RELEASE') || (env.BUILD == 'REFERENCE')) {
+  if ((env.BUILD == 'RELEASE') || (env.BUILD == 'QA')) {
     stage('Delivery') {
       node {
         sh 'setup_centreon_build.sh'
         unstash 'rpms-centos7'
         unstash 'rpms-alma8'
         sh "./centreon-build/jobs/open-tickets/${serie}/mon-open-tickets-delivery.sh"
+        withCredentials([usernamePassword(credentialsId: 'nexus-credentials', passwordVariable: 'NEXUS_PASSWORD', usernameVariable: 'NEXUS_USERNAME')]) {
+          checkout scm
+          unstash "Debian11"
+          sh '''for i in $(echo *.deb)
+                do 
+                  curl -u $NEXUS_USERNAME:$NEXUS_PASSWORD -H "Content-Type: multipart/form-data" --data-binary "@./$i" https://apt.centreon.com/repository/22.04-$REPO/
+                done
+            '''    
+        }
       }
       if ((currentBuild.result ?: 'SUCCESS') != 'SUCCESS') {
         error('Delivery stage failure.');
