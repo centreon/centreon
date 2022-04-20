@@ -209,7 +209,7 @@ const AutocompleteField = ({
         root: classes.textfield,
       }}
       forcePopupIcon={displayPopupIcon}
-      getOptionLabel={(option: SelectEntry): string => option.name}
+      getOptionLabel={(option): string => (option as SelectEntry)?.name || ''}
       isOptionEqualToValue={areSelectEntriesEqual}
       loading={loading}
       loadingText={<LoadingIndicator />}
