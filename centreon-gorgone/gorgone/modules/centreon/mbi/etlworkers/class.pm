@@ -294,7 +294,7 @@ sub action_centreonmbietlworkersperfdata {
 
 sub event {
     while (1) {
-        my $message = $connector->read_message();
+        my $message = gorgone::standard::library::zmq_dealer_read_message(socket => $connector->{internal_socket});
         last if (!defined($message));
 
         $connector->{logger}->writeLogDebug("[mbi-etlworkers] Event: $message");
@@ -319,8 +319,8 @@ sub run {
         zmq_type => 'ZMQ_DEALER',
         name => 'gorgone-' . $self->{module_id} . '-' . $self->{pool_id},
         logger => $self->{logger},
-        type => $self->get_core_config(name => 'internal_com_type'),
-        path => $self->get_core_config(name => 'internal_com_path')
+        type => $self->{config_core}->{internal_com_type},
+        path => $self->{config_core}->{internal_com_path}
     );
     $connector->send_internal_action(
         action => 'CENTREONMBIETLWORKERSREADY',

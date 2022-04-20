@@ -104,7 +104,8 @@ sub routing {
 
     my $identity = 'gorgone-' . NAME . '-' . $pool_id;
 
-    $options{gorgone}->send_internal_message(
+    gorgone::standard::library::zmq_send_message(
+        socket => $options{socket},
         identity => $identity,
         action => $options{action},
         data => $options{data},
