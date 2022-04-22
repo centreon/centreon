@@ -96,7 +96,6 @@ sub getMetricValueByHour {
     $query .= "ctime >=UNIX_TIMESTAMP('".$start."') AND ctime < UNIX_TIMESTAMP('".$end."') ";
     $query .= "GROUP BY id_metric, date_format(FROM_UNIXTIME(ctime), '".$dateFormat."')";
     
-    $logger->writeLog("DEBUG", "Getting min, max, avg values by metric into temporary tables");
     $db->query($query);
     $self->addIndexTempTableMetricMinMaxAvgValues("hour");
 }
@@ -131,8 +130,7 @@ sub getMetricsValueByDay {
     
     $query =~  s/OR $//;
     $query .= "GROUP BY id_metric";
-    
-    $logger->writeLog("DEBUG", "Getting min, max, avg values by metric");
+
     $db->query($query);
     $self->addIndexTempTableMetricMinMaxAvgValues("day");
     $self->getFirstAndLastValues($start_date, $end_date, $useMemory);

@@ -127,17 +127,17 @@ sub getMetricCapacityValuesOnPeriod {
 
 	$sth = $db->query($query);
 	while (my $row = $sth->fetchrow_hashref()) {
-		my $entry =  $data{$row->{"servicemetric_id"}.";".$row->{"liveservice_id"}};
+		my $entry =  $data{$row->{servicemetric_id} . ';' . $row->{liveservice_id}};
 		if (defined($entry)) {
-			$entry->[4] = $row->{"last_value"};
-			$entry->[5] = $row->{"total"};
-		}else {
+			$entry->[4] = $row->{last_value};
+			$entry->[5] = $row->{total};
+		} else {
 			my @table;
-			$table[0] = $row->{"servicemetric_id"};
-			$table[1] = $row->{"liveservice_id"};
-			$table[4] = $row->{"last_value"};
-			$table[5] = $row->{"total"};
-			$data{$row->{"servicemetric_id"}.";".$row->{"liveservice_id"}} = \@table;
+			$table[0] = $row->{servicemetric_id};
+			$table[1] = $row->{liveservice_id};
+			$table[4] = $row->{last_value};
+			$table[5] = $row->{total};
+			$data{$row->{servicemetric_id} . ';' . $row->{liveservice_id}} = \@table;
 		}
 	}
 	return \%data;

@@ -53,38 +53,37 @@ sub getTimeColumn() {
 }
 
 sub insertStats {
-	my $self = shift;
-	my $db = $self->{centstorage};
-	my ($time_id, $data) = @_;
+    my $self = shift;
+    my $db = $self->{centstorage};
+    my ($time_id, $data) = @_;
     my $insertParam = 5000;
 
-	my $query_start = "INSERT INTO `" . $self->{name} . "`".
-				"(`time_id`, `servicemetric_id`, `liveservice_id`,".
-				" `first_value`, `first_total`, `last_value`, `last_total`)".
-				" VALUES ";
-	my $counter = 0;
+    my $query_start = "INSERT INTO `" . $self->{name} . "`".
+        "(`time_id`, `servicemetric_id`, `liveservice_id`,".
+        " `first_value`, `first_total`, `last_value`, `last_total`)".
+        " VALUES ";
+    my $counter = 0;
     my $query = $query_start;
     my $append = '';
 
-	while (my ($key, $entry) = each %$data) {
+    while (my ($key, $entry) = each %$data) {
         $query .= $append . "($time_id";
 
-		my $size = scalar(@$entry);
-		for (my $i = 0; $i < $size; $i++) {
-			$query .= ', ' . (defined($entry->[$i]) ? $entry->[$i] : 'NULL');
-		}
+        for (my $i = 0; $i <= 5; $i++) {
+            $query .= ', ' . (defined($entry->[$i]) ? $entry->[$i] : 'NULL');
+        }
         $query .= ')';
 
         $append = ',';
-		$counter++;
+        $counter++;
         if ($counter >= $insertParam) {
             $db->query($query);
             $query = $query_start;
-			$counter = 0;
+            $counter = 0;
             $append = '';
-		}
-	}
-	$db->query($query) if ($counter > 0);
+        }
+    }
+    $db->query($query) if ($counter > 0);
 }
 
 1;
