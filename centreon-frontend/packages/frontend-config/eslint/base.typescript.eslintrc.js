@@ -53,7 +53,7 @@ module.exports = {
           {
             filter: {
               match: false,
-              regex: '^_$',
+              regex: '^_$|^(/|&)',
             },
             format: ['snake_case', 'camelCase', 'PascalCase'],
             selector: 'parameter',
