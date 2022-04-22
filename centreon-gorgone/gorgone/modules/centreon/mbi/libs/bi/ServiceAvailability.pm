@@ -219,7 +219,6 @@ sub getHGMonthAvailability_optimised {
 	while (my $row = $sth->fetchrow_hashref()) {
 		my ($totalwarnEvents, $totalCritEvents, $totalUnknownEvents) = ($row->{'warningEvents'},$row->{'criticalEvents'},$row->{'unknownEvents'}); 
 
-		
 		my ($mtrs, $mtbf, $mtbsi) = (undef, undef, undef);
 		if (defined($totalCritEvents) && $totalCritEvents != 0) {
 			$mtrs = $row->{'unav_time'}/$totalCritEvents;

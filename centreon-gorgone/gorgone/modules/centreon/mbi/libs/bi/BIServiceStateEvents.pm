@@ -149,15 +149,19 @@ sub getDayEvents {
 		return \%results;
 	}
 
-	while (my $row = $sth->fetchrow_hashref()) {
-        my $entryID = $row->{modbiservice_id};
+    my $rows = [];
+    while (my $row = (
+            shift(@$rows) ||
+            shift(@{$rows = $sth->fetchall_arrayref(undef,10_000) || []}) ) 
+        ) {
+        my $entryID = $row->[3];
 
         my ($started, $ended) = (0,0);
         my $rangeSize = scalar(@$ranges);
         my $eventDuration = 0;
         for (my $count = 0; $count < $rangeSize; $count++) {
-            my $currentStart = $row->{start_time};
-            my $currentEnd = $row->{end_time};
+            my $currentStart = $row->[0];
+            my $currentEnd = $row->[1];
 				
             my $range = $ranges->[$count];
             my ($rangeStart, $rangeEnd) = ($range->[0], $range->[1]);
@@ -185,7 +189,7 @@ sub getDayEvents {
             $results{$entryID} = \@tab;
         }
         my $stats = $results{$entryID};
-        my $state = $row->{state};
+        my $state = $row->[2];
         if ($state == 0) {
             $stats->[0] += $eventDuration;
         } elsif ($state == 1) {
