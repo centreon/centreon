@@ -6,7 +6,7 @@ import makeStyles from '@mui/styles/makeStyles';
 
 interface Props {
   active: boolean;
-  children: React.ReactChildren | Array<React.ReactElement>;
+  children: React.ReactNode | Array<React.ReactElement>;
 }
 
 const useStyles = makeStyles((theme) => ({
