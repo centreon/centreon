@@ -207,7 +207,6 @@ try {
     stage('Delivery') {
       node {
         checkoutCentreonBuild(buildBranch)
-        unstash 'rpms-centos8'
         unstash 'rpms-centos7'
         sh "./centreon-build/jobs/awie/${serie}/mon-awie-delivery.sh"
       }
