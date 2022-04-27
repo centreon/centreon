@@ -73,6 +73,11 @@ try {
     if ($autoRefresh === false || $autoRefresh < 5) {
         $autoRefresh = 30;
     }
+    $variablesThemeCSS = match ($centreon->user->theme) {
+        'light' => "Generic-theme",
+        'dark' => "Centreon-Dark",
+        default => throw new \Exception('Unknown user theme : ' . $centreon->user->theme),
+    };
 } catch (InvalidArgumentException $e) {
     echo $e->getMessage() . "<br/>";
     exit;
@@ -162,7 +167,7 @@ while ($row = $res->fetch()) {
 $avg_l = $preferences['avg-l'];
 $avg_e = $preferences['avg-e'];
 $max_e = $preferences['max-e'];
-
+$template->assign('theme', $variablesThemeCSS);
 $template->assign('avg_l', $avg_l);
 $template->assign('avg_e', $avg_e);
 $template->assign('widgetId', $widgetId);

@@ -1,16 +1,9 @@
 <html>
 <head>
 	<title>engine-status</title>
-        <link href="../../Themes/Centreon-2/style.css" type="text/css"/>
-        <link href="../../Themes/Centreon-2/Color/blue_css.php" rel="stylesheet" text="text/css"/>
-        {literal}
-        <style type="text/css">
-            .ListTable {font-size:11px;border-color: #BFD0E2;}
-        </style>
-        <style>
-            @import url('../../Themes/Centreon-2/style.css');
-        </style>
-        {/literal}
+    <link href="../../Themes/Generic-theme/style.css" rel="stylesheet" type="text/css"/>
+    <link href="../../Themes/Generic-theme/color.css" rel="stylesheet" type="text/css"/>
+    <link href="../../Themes/{($theme === "Generic-theme") ? ($theme|cat:"/Variables-css") : $theme}/variables.css"/>
 </head>
 <body>
     {if $preferences.poller != ''}
