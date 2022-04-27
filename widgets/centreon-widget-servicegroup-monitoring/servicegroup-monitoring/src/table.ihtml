@@ -1,8 +1,3 @@
-{literal}
-<style>
-    @import url('../../Themes/Centreon-2/style.css');
-</style>
-{/literal}
 <table id='ServicegroupTable' class='ListTable styleTable'>
     <tr class="ListHeader">
         <td class='ListColHeaderLeft' name='name' {if $preferences.enable_detailed_mode == 1} colspan='2' {/if}>Servicegroups{if $preferences.enable_detailed_mode == 1} / Hosts{/if}</td>
