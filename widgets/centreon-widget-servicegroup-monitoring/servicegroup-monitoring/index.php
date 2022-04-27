@@ -61,6 +61,11 @@ try {
     $widgetObj = new CentreonWidget($centreon, $db_centreon);
     $preferences = $widgetObj->getWidgetPreferences($widgetId);
     $autoRefresh = filter_var($preferences['refresh_interval'], FILTER_VALIDATE_INT);
+    $variablesThemeCSS = match ($centreon->user->theme) {
+        'light' => "Generic-theme",
+        'dark' => "Centreon-Dark",
+        default => throw new \Exception('Unknown user theme : ' . $centreon->user->theme),
+    };
     if ($autoRefresh === false || $autoRefresh < 5) {
         $autoRefresh = 30;
     }
@@ -77,6 +82,7 @@ $template = initSmartyTplForPopup($path, $template, "./", $centreon_path);
 $template->assign('widgetId', $widgetId);
 $template->assign('preferences', $preferences);
 $template->assign('autoRefresh', $autoRefresh);
+$template->assign('theme', $variablesThemeCSS);
 
 $bMoreViews = 0;
 if ($preferences['more_views']) {
