@@ -6,7 +6,7 @@ import makeStyles from '@mui/styles/makeStyles';
 
 interface Props {
   active: boolean;
-  children: React.ReactChildren | Array<React.ReactElement>;
+  children: React.ReactNode | Array<React.ReactElement>;
 }
 
 const useStyles = makeStyles((theme) => ({
@@ -18,7 +18,7 @@ const useStyles = makeStyles((theme) => ({
   },
   top: {
     alignItems: 'center',
-    backgroundColor: '#232f39',
+    backgroundColor: theme.palette.common.black,
     display: 'flex',
     flexWrap: 'wrap',
     gridGap: theme.spacing(1),

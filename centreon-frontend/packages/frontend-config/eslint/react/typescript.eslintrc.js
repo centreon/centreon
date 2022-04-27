@@ -10,6 +10,10 @@ module.exports = {
       parser: '@typescript-eslint/parser',
       plugins: ['@typescript-eslint', 'typescript-sort-keys'],
       rules: {
+        '@typescript-eslint/naming-convention': [
+          'error',
+          { format: null, selector: 'objectLiteralProperty' },
+        ],
         'react/jsx-filename-extension': [
           'error',
           { extensions: ['.jsx', '.tsx'] },

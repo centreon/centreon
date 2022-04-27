@@ -14,6 +14,7 @@ const maxChips = 5;
 
 const useStyles = makeStyles((theme) => ({
   chip: {
+    backgroundColor: theme.palette.action.disabledBackground,
     marginTop: theme.spacing(1),
     width: '95%',
   },
@@ -25,7 +26,7 @@ const useStyles = makeStyles((theme) => ({
     width: '100%',
   },
   emptyChip: {
-    borderColor: theme.palette.grey[600],
+    borderColor: theme.palette.divider,
     borderStyle: 'dashed',
     borderWidth: 2,
     padding: theme.spacing(1),
@@ -35,7 +36,17 @@ const useStyles = makeStyles((theme) => ({
     visibility: 'hidden',
   },
   hovered: {
-    backgroundColor: theme.palette.grey[400],
+    backgroundColor: theme.palette.action.hover,
+  },
+  icon: {
+    color: theme.palette.action.active,
+  },
+  labelChip: {
+    color: theme.palette.text.disabled,
+  },
+
+  text: {
+    color: theme.palette.text.primary,
   },
 }));
 
@@ -44,7 +55,11 @@ const Entry = ({ label }): JSX.Element => {
 
   return (
     <Grid item xs={6}>
-      <Chip disabled className={classes.chip} label={label} size="small" />
+      <Chip
+        className={classes.chip}
+        label={<div className={classes.labelChip}>{label}</div>}
+        size="small"
+      />
     </Grid>
   );
 };
@@ -59,9 +74,15 @@ const EmptyEntry = ({ label }): JSX.Element => {
   );
 };
 
-const Caption = ({ children }): JSX.Element => (
-  <Typography variant="caption">{children}</Typography>
-);
+const Caption = ({ children }): JSX.Element => {
+  const classes = useStyles();
+
+  return (
+    <Typography className={classes.text} variant="caption">
+      {children}
+    </Typography>
+  );
+};
 
 interface Value {
   id: number;
@@ -111,7 +132,10 @@ const MultiSelectEntries = ({
         </Box>
         <Box>
           <IconCreate
-            className={clsx({ [classes.hidden]: !isHovered && !highlight })}
+            className={clsx(
+              { [classes.hidden]: !isHovered && !highlight },
+              classes.icon,
+            )}
             fontSize="small"
           />
         </Box>

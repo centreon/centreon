@@ -58,8 +58,8 @@ const OptionalLabelInputAdornment = ({
 };
 
 export type Props = {
-  EndAdornment?: React.SFC;
-  StartAdornment?: React.SFC;
+  EndAdornment?: React.FC;
+  StartAdornment?: React.FC;
   ariaLabel?: string;
   displayErrorInTooltip?: boolean;
   error?: string;

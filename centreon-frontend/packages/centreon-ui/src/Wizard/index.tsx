@@ -12,9 +12,8 @@ import { WizardProps } from './models';
 import Stepper from './Stepper';
 import WizardContent from './WizardContent';
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles(() => ({
   dialogContent: {
-    backgroundColor: theme.palette.grey[100],
     display: 'flex',
     padding: 0,
   },
