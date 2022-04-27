@@ -65,6 +65,11 @@ try {
     if ($frameheight === false) {
         $frameheight = 900;
     }
+    $variablesThemeCSS = match ($centreon->user->theme) {
+        'light' => "Generic-theme",
+        'dark' => "Centreon-Dark",
+        default => throw new \Exception('Unknown user theme : ' . $centreon->user->theme),
+    };
 } catch (Exception $e) {
     echo $e->getMessage() . "<br/>";
     exit;
@@ -80,9 +85,12 @@ try {
     </style>
     <head>
         <title>Graph Monitoring</title>
-        <link href="../../Themes/Centreon-2/style.css" rel="stylesheet" type="text/css"/>
-        <link href="../../Themes/Centreon-2/jquery-ui/jquery-ui.css" rel="stylesheet" type="text/css"/>
-        <link href="../../Themes/Centreon-2/jquery-ui/jquery-ui-centreon.css" rel="stylesheet" type="text/css"/>
+        <link href="../../Themes/Generic-theme/style.css" rel="stylesheet" type="text/css"/>
+        <link href="../../Themes/Generic-theme/jquery-ui/jquery-ui.css" rel="stylesheet" type="text/css"/>
+        <link href="../../Themes/Generic-theme/jquery-ui/jquery-ui-centreon.css" rel="stylesheet" type="text/css"/>
+        <link href="./Themes/<?php echo $variablesThemeCSS === "Generic-theme" ? $variablesThemeCSS . "/Variables-css/"
+            : $variablesThemeCSS . "/"; ?>variables.css" rel="stylesheet" type="text/css"
+        />
         <script type="text/javascript" src="../../include/common/javascript/jquery/jquery.min.js"></script>
         <script type="text/javascript" src="../../include/common/javascript/jquery/jquery-ui.js"></script>
         <script type="text/javascript" src="../../include/common/javascript/widgetUtils.js"></script>
