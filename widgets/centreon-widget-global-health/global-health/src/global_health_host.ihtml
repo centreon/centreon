@@ -1,10 +1,7 @@
 <style>
-{literal}
-.global_health_div_tab td, .global_health_div_tab th
-{
-    padding:0 10px 0 10px;
-}
-{/literal}
+        <link href="../../Themes/Generic-theme/style.css" rel="stylesheet" type="text/css"/>
+        <link href="../../Themes/Generic-theme/color.css" rel="stylesheet" type="text/css"/>
+        <link href="{($theme === "Generic-theme") ? ($theme|cat:"/Variables-css") : $theme}"  rel="stylesheet" type="text/css"/>
 </style>
     <h3 style="text-align: center;"> Global health of Hosts </h3>
     <div id="container" style="text-align:center">
