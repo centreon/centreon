@@ -55,6 +55,11 @@ try {
     if ($autoRefresh === false || $autoRefresh < 5) {
         $autoRefresh = 30;
     }
+    $variablesThemeCSS = match ($centreon->user->theme) {
+        'light' => "Generic-theme",
+        'dark' => "Centreon-Dark",
+        default => throw new \Exception('Unknown user theme : ' . $centreon->user->theme),
+    };
 } catch (Exception $e) {
     echo $e->getMessage() . "<br/>";
     exit;
@@ -74,5 +79,6 @@ if ($preferences['more_views']) {
     $bMoreViews = $preferences['more_views'];
 }
 $template->assign('more_views', $bMoreViews);
+$template->assign('theme', $variablesThemeCSS);
 
 $template->display('index.ihtml');
