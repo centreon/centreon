@@ -1,9 +1,3 @@
-{literal}
-<style>
-    @import url('../../Themes/Centreon-2/style.css');
-</style>
-{/literal}
-
 <table id='HostgroupTable' class='ListTable styleTable'>
     <tr class="ListHeader">
         <td class="ListColHeaderLeft" name='name'>Hostgroup</td>
