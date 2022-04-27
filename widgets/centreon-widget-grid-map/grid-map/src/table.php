@@ -91,6 +91,11 @@ try {
     if ($autoRefresh === false || $autoRefresh < 5) {
         $autoRefresh = 30;
     }
+    $variablesThemeCSS = match ($centreon->user->theme) {
+        'light' => "Generic-theme",
+        'dark' => "Centreon-Dark",
+        default => throw new \Exception('Unknown user theme : ' . $centreon->user->theme),
+    };
 } catch (Exception $e) {
     echo $e->getMessage() . "<br/>";
     exit;
@@ -202,6 +207,7 @@ if ($preferences['host_group']) {
     }
 }
 
+$template->assign('theme', $variablesThemeCSS);
 $template->assign('autoRefresh', $autoRefresh);
 $template->assign('preferences', $preferences);
 $template->assign('widgetId', $widgetId);
