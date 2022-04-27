@@ -21,7 +21,6 @@
 
 class SimpleProvider extends AbstractProvider
 {
-
     protected function setDefaultValueExtra()
     {
     }

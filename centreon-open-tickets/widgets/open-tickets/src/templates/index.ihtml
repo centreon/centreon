@@ -2,8 +2,10 @@
     <head>
         <title>Open Tickets</title>
         <link href="../../include/common/javascript/jquery/plugins/pagination/pagination.css" rel="stylesheet" type="text/css"/>
-        <link href="../../Themes/Centreon-2/Color/blue_css.php" rel="stylesheet" type="text/css"/>
-        <link href="../../Themes/Centreon-2/style.css" rel="stylesheet" type="text/css"/>
+        <link href="../../Themes/Generic-theme/style.css" rel="stylesheet" type="text/css"/>
+        <link href="../../Themes/Generic-theme/color.css" rel="stylesheet" type="text/css"/>
+        <link href="../../Themes/{($theme === "Generic-theme") ? ($theme|cat:"/Variables-css") : $theme}/variables.css"
+              rel="stylesheet" type="text/css"/>
     </head>
     <body>
         {if isset($error)}

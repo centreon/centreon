@@ -1,7 +1,12 @@
 <form>
     <table id='HostTable' class='ListTable styleTable'>
     <tr class="ListHeader">
-        <td class="ListColHeaderPicker"><input type='checkbox' id='selection_0;0' class='checkall selection'/></td>
+        <td class="ListColHeaderPicker">
+            <div class="md-checkbox md-checkbox-inline">
+                <input type='checkbox' id='selection_0;0' class='checkall selection'/>
+                <label class="empty-label" for="selection_0;0"></label>
+            </div>
+        </td>
         {if $preferences.display_severities}<td class="ListColHeaderCenter" style="white-space: nowrap; width: 17px;" name='Severities'>S</td>{/if}
         {if $preferences.display_host_name}<td class='ListColHeaderCenter' name='hostname' colspan='2'>Host</td>{/if}
         {if $preferences.display_svc_description}<td class='ListColHeaderCenter' name='description' colspan='2'>Service</td>{/if}
@@ -30,7 +35,12 @@
                 {assign var='classStyle' value='line_ack'}
             {/if}
             <tr class ='{$classStyle}'>
-                <td class='ListColLeft'><input class='selection' id='selection_{$elem.host_id};{$elem.service_id}' type='checkbox'/></td>
+                <td class='ListColLeft'>
+                    <div class="md-checkbox md-checkbox-inline">
+                        <input class='selection' id='selection_{$elem.host_id};{$elem.service_id}' type='checkbox'/>
+                        <label class="empty-label" for="selection_{$elem.host_id};{$elem.service_id}"></label>
+                    </div>
+                </td>
                 {if $preferences.display_severities}<td class=''>{$elem.criticality_id}</td>{/if}
                 {if $preferences.display_host_name}
                 {if $elem.hostname != $previous}
