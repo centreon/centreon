@@ -13,9 +13,26 @@ module.exports = {
     sourceType: 'module',
   },
 
-  plugins: ['react', 'react-hooks', 'babel'],
+  plugins: ['react', 'hooks', 'react-hooks', 'babel'],
   root: true,
   rules: {
+    'hooks/sort': [
+      2,
+      {
+        groups: [
+          'useStyles',
+          'useTranslation',
+          'useState',
+          'useRequest',
+          'useUserContext',
+          'useAtom',
+          'useAtomValue',
+          'useUpdateAtom',
+          'useCallback',
+          'useEffect',
+        ],
+      },
+    ],
     camelcase: ['error', { ignoreDestructuring: true, properties: 'never' }],
     'import/extensions': [
       'error',
