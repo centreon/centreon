@@ -52,6 +52,7 @@ const Dialog = ({
         </Button>
       )}
       <Button
+        aria-label={labelConfirm}
         color="primary"
         disabled={confirmDisabled}
         endIcon={submitting && <CircularProgress size={15} />}
