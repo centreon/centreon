@@ -416,6 +416,7 @@ $template->assign('data', $data);
 $template->assign('broker', 'broker');
 $template->assign('title_graph', _('See Graphs of this host'));
 $template->assign('title_flapping', _('Host is flapping'));
+
 $bMoreViews = 0;
 
 if ($preferences['more_views']) {
