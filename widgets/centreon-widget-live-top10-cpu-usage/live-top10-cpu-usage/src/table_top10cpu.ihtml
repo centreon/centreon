@@ -3,7 +3,8 @@
     <title>live-top10-cpu-usage</title>
     <link href="../../Themes/Generic-theme/style.css" rel="stylesheet" type="text/css"/>
     <link href="../../Themes/Generic-theme/color.css" rel="stylesheet" type="text/css"/>
-    <link href="../../Themes/{$theme}/variables.css"  rel="stylesheet" type="text/css"/>
+    <link href="../../Themes/{($theme === "Generic-theme") ? ($theme|cat:"/Variables-css") : $theme}/variables.css"
+          rel="stylesheet" type="text/css"/>
     {literal}
     <style>
         @import url('src/top10_cpu.css');
