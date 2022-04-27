@@ -29,7 +29,12 @@
     </table>
     <table class="ListTable">
         <tr class="ListHeader">
-            <td class="ListColHeaderPicker"><input type="checkbox" name="checkall" onclick="checkUncheckAll(this);"></td>
+            <td class="ListColHeaderPicker">
+                <div class="md-checkbox md-checkbox-inline">
+                    <input type="checkbox" id="checkall" name="checkall" onclick="checkUncheckAll(this);">
+                    <label class="empty-label" for="checkall"></label>
+                </div>
+            </td>
             <td class="ListColHeaderLeft">{$ruleLabel}</td>
             <td class="ListColHeaderCenter">{$statusLabel}</td>
             <td class="ListColHeaderCenter">{$optionLabel}</td>
@@ -41,7 +46,7 @@
                 {if $elem.status == 'Disabled'}
                 <tr class="row_disabled">
                 {else}
-                <tr class="row_enabled">
+                <tr class="{cycle values='list_one,list_two'} row_enabled">
                 {/if}
                     <td class="ListColPicker">
                         {$elem.select}
