@@ -75,6 +75,11 @@ try {
     if ($autoRefresh === false || $autoRefresh < 5) {
         $autoRefresh = 30;
     }
+    $variablesThemeCSS = match ($centreon->user->theme) {
+        'light' => "Generic-theme",
+        'dark' => "Centreon-Dark",
+        default => throw new \Exception('Unknown user theme : ' . $centreon->user->theme),
+    };
 } catch (Exception $e) {
     echo $e->getMessage() . "<br/>";
     exit;
@@ -124,7 +129,7 @@ if ($acl === 0) {
     $servicePreferences = "<div class='update' style='text-align:center;margin-left: auto;margin-right: " .
         "auto;width:350px;'>" . _("Please select a graph period") . "</div>";
 }
-
+$template->assign('theme', $variablesThemeCSS);
 $template->assign('widgetId', $widgetId);
 $template->assign('preferences', $preferences);
 $template->assign('interval', $preferences['graph_period']);
