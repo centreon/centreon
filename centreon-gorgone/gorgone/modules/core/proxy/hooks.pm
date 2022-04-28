@@ -699,7 +699,7 @@ sub synclog {
     # We check if we need synclogs
     if ($stop == 0) {
         $synctime_lasttime = time();
-        full_sync_history(dbh => $options{dbh}, logger => $options{logger});
+        full_sync_history(gorgone => $options{gorgone}, dbh => $options{dbh}, logger => $options{logger});
     }
 }
 
