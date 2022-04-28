@@ -406,7 +406,11 @@ sub synclogs {
         my $name = $options{gorgone}->{modules_id}->{$options{gorgone_config}->{gorgonecore}->{proxy_name}};
         my $method;
         if (defined($name) && ($method = $name->can('synclog'))) {
-            $method->(dbh => $options{gorgone}->{db_gorgone}, logger => $options{gorgone}->{logger});
+            $method->(
+                gorgone => $options{gorgone},
+                dbh => $options{gorgone}->{db_gorgone},
+                logger => $options{gorgone}->{logger}
+            );
             return (GORGONE_ACTION_BEGIN, { action => 'synclog', message => 'synclog launched' });
         }
     }
