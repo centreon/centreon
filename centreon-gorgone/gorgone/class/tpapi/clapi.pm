@@ -59,6 +59,13 @@ sub get_password {
         return undef;
     }
 
+    if (defined($options{protected}) && $options{protected} == 1) {
+        my $password = $self->{password};
+        $password =~ s/\$/\\\$/g;
+        $password =~ s/"/\\"/g;
+        return $password;
+    }
+
     return $self->{password};
 }
 
@@ -91,7 +98,7 @@ sub get_applycfg_command {
         return undef;
     }
 
-    return 'centreon -u ' . $self->{username} . ' -p ' . $self->{password} . ' -a APPLYCFG -v ' . $options{poller_id};
+    return 'centreon -u "' . $self->{username} . '" -p "' . $self->get_password(protected => 1) . '" -a APPLYCFG -v ' . $options{poller_id};
 }
 
 1;
