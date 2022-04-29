@@ -1,6 +1,6 @@
 /* eslint-disable react/prop-types */
 
-import React from 'react';
+import { useState } from 'react';
 
 import { prop } from 'ramda';
 
@@ -127,7 +127,7 @@ const Story = ({
   columns?: Array<Column>;
 }): JSX.Element => {
   const classes = useStyles();
-  const [selected, setSelected] = React.useState<Array<Entity>>([]);
+  const [selected, setSelected] = useState<Array<Entity>>([]);
 
   return (
     <div className={classes.listing}>
@@ -206,7 +206,7 @@ const ListingWithEditableColumns = (): JSX.Element => {
   const defaultColumnIds = defaultColumns.map(prop('id'));
 
   const [selectedColumnIds, setSelectedColumnIds] =
-    React.useState<Array<string>>(defaultColumnIds);
+    useState<Array<string>>(defaultColumnIds);
 
   const resetColumns = (): void => {
     setSelectedColumnIds(defaultColumnIds);

@@ -1,4 +1,4 @@
-import * as React from 'react';
+import { useState, useEffect } from 'react';
 
 import 'ulog';
 import axios from 'axios';
@@ -34,9 +34,9 @@ const useRequest = <TResult>({
   const { token, cancel } = useCancelTokenSource();
   const { showErrorMessage } = useSnackbar();
 
-  const [sending, setSending] = React.useState(false);
+  const [sending, setSending] = useState(false);
 
-  React.useEffect(() => {
+  useEffect(() => {
     return (): void => cancel();
   }, []);
 

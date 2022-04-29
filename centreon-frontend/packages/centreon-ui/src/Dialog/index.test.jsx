@@ -1,5 +1,3 @@
-import React from 'react';
-
 import { render } from '../testRenderer';
 
 import Dialog from '.';

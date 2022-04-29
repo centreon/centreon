@@ -1,4 +1,4 @@
-import * as React from 'react';
+import { useEffect } from 'react';
 
 import dayjs from 'dayjs';
 import 'dayjs/locale/en';
@@ -23,7 +23,7 @@ const TestComponent = (): JSX.Element => {
   const localeDateTimeFormat = useLocaleDateTimeFormat();
   const setUser = useUpdateAtom(userAtom);
 
-  React.useEffect(() => {
+  useEffect(() => {
     setUser({
       alias: 'admin',
       default_page: '/monitoring/resources',

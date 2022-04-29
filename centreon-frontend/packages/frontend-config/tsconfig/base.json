@@ -4,7 +4,7 @@
     "downlevelIteration": true,
     "module": "es6",
     "target": "es6",
-    "jsx": "react",
+    "jsx": "react-jsx",
     "strict": true,
     "noImplicitAny": false,
     "skipLibCheck": true,

@@ -45,7 +45,7 @@ module.exports = {
           {
             filter: {
               match: false,
-              regex: '(__esModule|.+-.+)',
+              regex: '((__esModule|.+-.+)|^_$|^(/|&))',
             },
             format: ['snake_case', 'camelCase', 'PascalCase'],
             selector: 'property',

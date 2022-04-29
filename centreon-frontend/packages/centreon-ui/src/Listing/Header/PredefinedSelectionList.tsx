@@ -1,5 +1,3 @@
-import * as React from 'react';
-
 import { List, ListItem, ListItemText } from '@mui/material';
 
 import { PredefinedRowSelection } from '../models';

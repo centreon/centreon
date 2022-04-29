@@ -1,4 +1,4 @@
-import * as React from 'react';
+import { useEffect } from 'react';
 
 import { useFormikContext } from 'formik';
 import { equals } from 'ramda';
@@ -45,7 +45,7 @@ const WizardContent = ({
     handleSubmit();
   };
 
-  React.useEffect(() => {
+  useEffect(() => {
     validateForm();
   }, [currentStep]);
 

@@ -1,5 +1,3 @@
-import React from 'react';
-
 import { any, equals, isEmpty, isNil, not, or, pipe } from 'ramda';
 
 import { Button, Tooltip } from '@mui/material';

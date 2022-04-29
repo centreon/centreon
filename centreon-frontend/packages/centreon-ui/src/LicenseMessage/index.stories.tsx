@@ -1,5 +1,3 @@
-import React from 'react';
-
 import LicenseMessage from '.';
 
 export default { title: 'License Message' };

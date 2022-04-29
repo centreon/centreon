@@ -1,4 +1,4 @@
-import * as React from 'react';
+import { memo } from 'react';
 
 import { equals, props } from 'ramda';
 
@@ -119,7 +119,7 @@ const DataCell = ({
   return cellByColumnType[column.type]();
 };
 
-const MemoizedDataCell = React.memo<Props>(
+const MemoizedDataCell = memo<Props>(
   DataCell,
   (prevProps, nextProps): boolean => {
     const {

@@ -1,5 +1,3 @@
-import React from 'react';
-
 import AccessibilityIcon from '@mui/icons-material/Accessibility';
 
 import IconButton from '.';

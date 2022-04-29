@@ -1,5 +1,3 @@
-import * as React from 'react';
-
 import { not } from 'ramda';
 
 import { Badge, Typography } from '@mui/material';

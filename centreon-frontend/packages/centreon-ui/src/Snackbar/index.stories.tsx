@@ -1,4 +1,4 @@
-import React from 'react';
+import { useEffect } from 'react';
 
 import SnackbarProvider from './SnackbarProvider';
 import useSnackbar from './useSnackbar';
@@ -43,7 +43,7 @@ const Story = ({ displayMessages = false }: Props): JSX.Element => {
     },
   ];
 
-  React.useEffect(() => {
+  useEffect(() => {
     snackbars.forEach(({ showSnackbar }) => {
       showSnackbar(
         (displayMessages ? messages : message) as string &

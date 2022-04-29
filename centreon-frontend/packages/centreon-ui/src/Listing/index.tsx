@@ -119,13 +119,11 @@ export interface Props<TRow> {
   currentPage?: number;
   disableRowCheckCondition?: (row) => boolean;
   disableRowCondition?: (row) => boolean;
-  expanded?: boolean;
   getId?: (row: TRow) => RowId;
   headerMemoProps?: Array<unknown>;
   innerScrollDisabled?: boolean;
   limit?: number;
   loading?: boolean;
-  loadingDataMessage?: string;
   onLimitChange?: (limit) => void;
   onPaginate?: (page) => void;
   onResetColumns?: () => void;

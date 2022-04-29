@@ -1,5 +1,3 @@
-import * as React from 'react';
-
 import { not } from 'ramda';
 import { useTranslation } from 'react-i18next';
 

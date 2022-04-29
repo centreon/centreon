@@ -1,5 +1,3 @@
-import * as React from 'react';
-
 import clsx from 'clsx';
 import { isNil, propEq } from 'ramda';
 

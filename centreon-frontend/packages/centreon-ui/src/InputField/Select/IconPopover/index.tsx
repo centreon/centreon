@@ -1,4 +1,4 @@
-import * as React from 'react';
+import { useState } from 'react';
 
 import { useTranslation } from 'react-i18next';
 import { find, isNil, pipe, propEq, reject } from 'ramda';
@@ -49,7 +49,7 @@ const IconPopoverMultiAutocomplete = ({
   const theme = useTheme();
   const classes = useStyles();
   const { t } = useTranslation();
-  const [anchorEl, setAnchorEl] = React.useState();
+  const [anchorEl, setAnchorEl] = useState();
 
   const isOpen = Boolean(anchorEl);
 

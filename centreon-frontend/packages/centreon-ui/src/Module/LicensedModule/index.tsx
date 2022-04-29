@@ -1,5 +1,3 @@
-import * as React from 'react';
-
 import Module, { ModuleProps } from '..';
 
 import LicenseCheck, { LicenseCheckProps } from './LicenseCheck';

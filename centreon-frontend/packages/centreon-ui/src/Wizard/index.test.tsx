@@ -1,4 +1,4 @@
-import * as React from 'react';
+import { useEffect } from 'react';
 
 import * as Yup from 'yup';
 
@@ -84,7 +84,7 @@ const SecondStep = ({
     disableNextOnSendingRequests([false, false, false]);
   };
 
-  React.useEffect(() => {
+  useEffect(() => {
     disableNextOnSendingRequests([true, false, true]);
   }, []);
 
@@ -158,6 +158,10 @@ describe(Wizard, () => {
 
     await waitFor(() => {
       expect(screen.getByText('Step 1')).toBeInTheDocument();
+    });
+
+    await waitFor(() => {
+      expect(screen.getByText('Next').parentElement).not.toBeDisabled();
     });
 
     fireEvent.click(screen.getByText('Next'));

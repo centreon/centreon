@@ -1,5 +1,3 @@
-import React from 'react';
-
 import { Theme, Chip, alpha, ChipProps } from '@mui/material';
 import makeStyles from '@mui/styles/makeStyles';
 import { CreateCSSProperties } from '@mui/styles';

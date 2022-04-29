@@ -1,6 +1,6 @@
 /* eslint-disable react/no-unused-prop-types */
 
-import * as React from 'react';
+import { memo, useRef, useEffect } from 'react';
 
 import { equals, gte, lt, not, pluck } from 'ramda';
 
@@ -56,7 +56,7 @@ type RowProps = {
   isInViewport: boolean;
 } & Props;
 
-const Row = React.memo<RowProps>(
+const Row = memo<RowProps>(
   ({
     children,
     tabIndex,
@@ -178,7 +178,7 @@ const Row = React.memo<RowProps>(
 );
 
 const IntersectionRow = (props: Props): JSX.Element => {
-  const rowRef = React.useRef<HTMLDivElement | null>(null);
+  const rowRef = useRef<HTMLDivElement | null>(null);
   const theme = useTheme();
   const { isInViewport, setElement } = useViewportIntersection({
     root: rowRef.current?.parentElement?.parentElement?.parentElement,
@@ -189,7 +189,7 @@ const IntersectionRow = (props: Props): JSX.Element => {
   const getFirstCellElement = (): ChildNode | null | undefined =>
     rowRef.current?.firstChild?.firstChild?.firstChild;
 
-  React.useEffect(() => {
+  useEffect(() => {
     setElement(getFirstCellElement() as HTMLDivElement);
   }, [getFirstCellElement()]);
 

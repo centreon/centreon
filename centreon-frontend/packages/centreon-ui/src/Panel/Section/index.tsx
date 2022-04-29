@@ -1,5 +1,3 @@
-import * as React from 'react';
-
 import { isNil } from 'ramda';
 
 import { List, ListItem, Slide, Paper } from '@mui/material';

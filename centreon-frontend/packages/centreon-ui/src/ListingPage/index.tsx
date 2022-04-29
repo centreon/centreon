@@ -1,4 +1,4 @@
-import * as React from 'react';
+import { Suspense } from 'react';
 
 import clsx from 'clsx';
 
@@ -52,14 +52,12 @@ const ListingPage = ({
   return (
     <div className={clsx(classes.page, pageClassName)}>
       <div className={classes.filters}>
-        <React.Suspense fallback={<FilterSkeleton />}>{filter}</React.Suspense>
+        <Suspense fallback={<FilterSkeleton />}>{filter}</Suspense>
       </div>
 
       <WithPanel fixed={panelFixed} open={panelOpen} panel={panel}>
         <div className={classes.listing}>
-          <React.Suspense fallback={<ListingSkeleton />}>
-            {listing}
-          </React.Suspense>
+          <Suspense fallback={<ListingSkeleton />}>{listing}</Suspense>
         </div>
       </WithPanel>
     </div>

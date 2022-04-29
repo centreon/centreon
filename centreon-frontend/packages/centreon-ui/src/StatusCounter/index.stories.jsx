@@ -1,7 +1,5 @@
 /* eslint-disable react/prop-types */
 
-import React from 'react';
-
 import { SeverityCode } from '../StatusChip';
 
 import StatusCounter from '.';

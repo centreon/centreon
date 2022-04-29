@@ -1,5 +1,3 @@
-import React from 'react';
-
 import LoadingSkeleton from '../LoadingSkeleton';
 
 const ListingLoadingSkeleton = (): JSX.Element => (

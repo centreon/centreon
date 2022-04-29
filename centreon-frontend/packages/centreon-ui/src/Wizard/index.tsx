@@ -1,4 +1,4 @@
-import * as React from 'react';
+import { useState } from 'react';
 
 import { equals, length, dec, pipe, inc, filter, isEmpty, not } from 'ramda';
 import { Formik } from 'formik';
@@ -40,9 +40,9 @@ const Wizard = ({
   actionsBarLabels = actionsBarLabelsDefaultValues,
 }: WizardProps): JSX.Element => {
   const classes = useStyles();
-  const [currentStep, setCurrentStep] = React.useState(0);
-  const [sendingRequest, setSendingRequest] = React.useState(false);
-  const [openConfirm, setOpenConfirm] = React.useState(false);
+  const [currentStep, setCurrentStep] = useState(0);
+  const [sendingRequest, setSendingRequest] = useState(false);
+  const [openConfirm, setOpenConfirm] = useState(false);
 
   const isLastStep = pipe(dec, equals(currentStep))(length(steps));
 

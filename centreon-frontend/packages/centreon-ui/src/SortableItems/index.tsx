@@ -80,7 +80,6 @@ interface Props<T> {
   items: Array<T>;
   memoProps?: Array<unknown>;
   onDragEnd?: (props: DragEnd) => void;
-  onDragOver?: (items: Array<string>) => void;
   sortingStrategy: SortingStrategy;
   updateSortableItemsOnItemsChange?: boolean;
 }
@@ -90,7 +89,6 @@ const propertyToFilterItemsOn = 'id';
 const SortableItems = <T extends { [propertyToFilterItemsOn]: string }>({
   items,
   onDragEnd,
-  onDragOver,
   collisionDetection,
   sortingStrategy,
   itemProps,
@@ -152,7 +150,6 @@ const SortableItems = <T extends { [propertyToFilterItemsOn]: string }>({
 
       const newItemsOrder = move<string>(oldIndex, newIndex, sortableItemsIds);
       setSortableItemsIds(newItemsOrder);
-      onDragOver?.(newItemsOrder);
     }
   };
 

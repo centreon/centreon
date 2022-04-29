@@ -1,4 +1,4 @@
-import * as React from 'react';
+import { useState } from 'react';
 
 import { isEmpty } from 'ramda';
 
@@ -39,7 +39,7 @@ const PopoverAutocomplete = (
     hideInput,
     ...props
   }: Props): JSX.Element => {
-    const [optionsOpen, setOptionsOpen] = React.useState<boolean>(false);
+    const [optionsOpen, setOptionsOpen] = useState<boolean>(false);
     const theme = useTheme();
     const classes = useStyles();
 

@@ -2,8 +2,6 @@
 /* eslint-disable jsx-a11y/click-events-have-key-events */
 /* eslint-disable react/prop-types */
 
-import React from 'react';
-
 import makeStyles from '@mui/styles/makeStyles';
 
 const useStyles = makeStyles(() => ({

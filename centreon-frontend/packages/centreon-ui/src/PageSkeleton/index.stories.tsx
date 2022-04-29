@@ -1,5 +1,3 @@
-import * as React from 'react';
-
 import PageSkeleton from '.';
 
 export default { title: 'Page Skeleton' };

@@ -1,5 +1,3 @@
-import * as React from 'react';
-
 import { useSnackbar as useNotistackSnackbar } from 'notistack';
 
 import { Typography } from '@mui/material';

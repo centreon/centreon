@@ -1,5 +1,3 @@
-import * as React from 'react';
-
 import { length, gte } from 'ramda';
 
 import { Stepper as MUIStepper, Step, StepLabel } from '@mui/material';

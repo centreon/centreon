@@ -1,5 +1,3 @@
-import React from 'react';
-
 import EditIcon from '@mui/icons-material/Edit';
 
 import AutocompleteField from '.';

@@ -1,4 +1,4 @@
-import React from 'react';
+import { useState } from 'react';
 
 import HostIcon from '@mui/icons-material/Dns';
 
@@ -13,7 +13,7 @@ import SubmenuHeader from '.';
 export default { title: 'SubemnuHeader' };
 
 const Submenu = (): JSX.Element => {
-  const [active, setActive] = React.useState(false);
+  const [active, setActive] = useState(false);
 
   return (
     <div style={{ width: 'fit-content' }}>

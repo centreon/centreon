@@ -1,4 +1,4 @@
-import * as React from 'react';
+import { memo } from 'react';
 
 import { equals } from 'ramda';
 
@@ -18,7 +18,7 @@ const Pagination = (props): JSX.Element => (
   <TablePagination component="div" {...props} />
 );
 
-const MemoizedPagination = React.memo(
+const MemoizedPagination = memo(
   Pagination,
   (prevProps, nextProps) =>
     equals(prevProps.rowsPerPage, nextProps.rowsPerPage) &&

@@ -184,7 +184,9 @@ const ListingHeader = ({
           items={visibleColumns}
           memoProps={memoProps}
           sortingStrategy={rectSortingStrategy}
-          onDragOver={(newItems): void => onSelectColumns?.(newItems)}
+          onDragEnd={({ items }): void => {
+            onSelectColumns?.(items);
+          }}
         />
       </TableRow>
     </TableHead>

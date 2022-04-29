@@ -1,5 +1,3 @@
-import * as React from 'react';
-
 import { useTheme } from '@mui/material';
 import makeStyles from '@mui/styles/makeStyles';
 
@@ -49,15 +47,13 @@ const ContentSkeleton = ({
       />
       <div className={classes.actionBarPaginationContainer}>
         <div className={classes.actionBarSkeleton}>
-          {Array(numberOfActionButtons)
-            .fill(null)
-            .map((_, idx) => (
-              <BaseRectSkeleton
-                animate={animate}
-                height={theme.spacing(actionBarHeight)}
-                key={idx.toString()}
-              />
-            ))}
+          {[...Array(numberOfActionButtons).keys()].map((id) => (
+            <BaseRectSkeleton
+              animate={animate}
+              height={theme.spacing(actionBarHeight)}
+              key={`base-bar-skeleton-${id}`}
+            />
+          ))}
         </div>
         <BaseRectSkeleton
           animate={animate}

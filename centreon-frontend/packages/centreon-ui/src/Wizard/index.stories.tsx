@@ -1,4 +1,4 @@
-import * as React from 'react';
+import { useEffect, useState } from 'react';
 
 import { useFormikContext, FormikErrors, FormikValues } from 'formik';
 
@@ -204,7 +204,7 @@ export const threeStepsWithCustomConfirmDialogLabels = (): JSX.Element => (
 const FirstStep = ({
   disableNextOnSendingRequests,
 }: StepComponentProps): JSX.Element => {
-  React.useEffect(() => {
+  useEffect(() => {
     disableNextOnSendingRequests([true, false, true]);
     setTimeout(() => {
       disableNextOnSendingRequests([false, false, false]);
@@ -268,7 +268,7 @@ const SecondStep = ({
 }: StepComponentProps): JSX.Element => {
   const { setFieldValue, values, errors, touched, handleChange, handleBlur } =
     useFormikContext<Values>();
-  React.useEffect(() => {
+  useEffect(() => {
     if (!values.password) {
       disableNextOnSendingRequests([true, false, true]);
       setTimeout(() => {
@@ -307,7 +307,7 @@ const ThirdStep = (submitted: boolean): (() => JSX.Element) => {
 };
 
 const Form = (): JSX.Element => {
-  const [submitted, setSubmitted] = React.useState<boolean>(false);
+  const [submitted, setSubmitted] = useState<boolean>(false);
 
   return (
     <Wizard

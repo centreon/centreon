@@ -1,4 +1,4 @@
-import React from 'react';
+import * as React from 'react';
 
 import { useSnackbar, SnackbarContent } from 'notistack';
 import { isNil, not } from 'ramda';

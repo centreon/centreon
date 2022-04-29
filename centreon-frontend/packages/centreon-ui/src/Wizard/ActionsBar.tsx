@@ -1,5 +1,3 @@
-import * as React from 'react';
-
 import { Grid, Button, Typography, CircularProgress } from '@mui/material';
 import makeStyles from '@mui/styles/makeStyles';
 

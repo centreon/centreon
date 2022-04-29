@@ -1,6 +1,6 @@
 /* eslint-disable react/prop-types */
 
-import React, { Ref } from 'react';
+import { Ref } from 'react';
 
 import clsx from 'clsx';
 

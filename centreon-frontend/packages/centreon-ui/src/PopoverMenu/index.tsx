@@ -1,4 +1,4 @@
-import * as React from 'react';
+import { useState } from 'react';
 
 import clsx from 'clsx';
 
@@ -43,7 +43,7 @@ const PopoverMenu = ({
 }: Props): JSX.Element => {
   const theme = useTheme();
   const classes = useStyles();
-  const [anchorEl, setAnchorEl] = React.useState();
+  const [anchorEl, setAnchorEl] = useState();
 
   const isOpen = Boolean(anchorEl);
 

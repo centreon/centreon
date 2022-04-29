@@ -1,4 +1,4 @@
-import React from 'react';
+import * as React from 'react';
 
 import { useAtomValue } from 'jotai/utils';
 import { equals } from 'ramda';

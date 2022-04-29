@@ -1,5 +1,3 @@
-import React from 'react';
-
 import { StepIconProps } from '@mui/material';
 import makeStyles from '@mui/styles/makeStyles';
 import Avatar from '@mui/material/Avatar';

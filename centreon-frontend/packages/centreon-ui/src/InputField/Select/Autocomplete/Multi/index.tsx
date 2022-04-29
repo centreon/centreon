@@ -1,5 +1,3 @@
-import * as React from 'react';
-
 import { includes, map, prop, reject } from 'ramda';
 
 import { Chip } from '@mui/material';

@@ -1,5 +1,3 @@
-import React from 'react';
-
 import ButtonSave from '.';
 
 export default { title: 'Button/Save' };

@@ -1,6 +1,6 @@
 /* eslint-disable react-hooks/rules-of-hooks */
 
-import * as React from 'react';
+import { useState } from 'react';
 
 import { Typography, Paper, Button, Tab } from '@mui/material';
 import makeStyles from '@mui/styles/makeStyles';
@@ -286,7 +286,7 @@ export const withFilterDetailsAndOpenPanel = (): JSX.Element => (
 );
 
 export const withFixedPanel = (): JSX.Element => {
-  const [open, setOpen] = React.useState(true);
+  const [open, setOpen] = useState(true);
 
   return (
     <ListingPage

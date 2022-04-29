@@ -1,5 +1,3 @@
-import React from 'react';
-
 import ConfirmDialog from '.';
 
 export default { title: 'Dialog/Confirm' };

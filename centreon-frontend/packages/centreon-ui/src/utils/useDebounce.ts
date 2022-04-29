@@ -1,4 +1,4 @@
-import * as React from 'react';
+import { useRef, useCallback } from 'react';
 
 interface Props {
   functionToDebounce: (...args) => void;
@@ -11,9 +11,9 @@ const useDebounce = ({
   wait,
   memoProps = [],
 }: Props): ((...args) => void) => {
-  const timeoutRef = React.useRef<NodeJS.Timeout | null>(null);
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  return React.useCallback((...args): void => {
+  return useCallback((...args): void => {
     if (timeoutRef.current) {
       clearTimeout(timeoutRef.current);
     }

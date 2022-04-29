@@ -1,4 +1,4 @@
-import * as React from 'react';
+import { useRef, useCallback } from 'react';
 
 interface HookParam {
   action: () => void;
@@ -13,8 +13,8 @@ const useIntersectionObserver = ({
   loading,
   action,
 }: HookParam): ((node) => void) => {
-  const observer = React.useRef<IntersectionObserver | null>(null);
-  const lastElementRef = React.useCallback(
+  const observer = useRef<IntersectionObserver | null>(null);
+  const lastElementRef = useCallback(
     (node) => {
       if (observer.current) {
         observer.current.disconnect();

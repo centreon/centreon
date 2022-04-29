@@ -1,5 +1,3 @@
-import React from 'react';
-
 import RegexpHelpTooltip from './RegexpHelpTooltip';
 import PersistentTooltip from './PersistentTooltip';
 

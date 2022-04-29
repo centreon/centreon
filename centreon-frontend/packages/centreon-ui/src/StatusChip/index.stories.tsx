@@ -1,5 +1,3 @@
-import React from 'react';
-
 import StatusChip, { SeverityCode } from '.';
 
 export default { title: 'StatusChip' };

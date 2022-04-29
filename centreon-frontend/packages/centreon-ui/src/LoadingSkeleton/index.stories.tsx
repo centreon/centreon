@@ -1,5 +1,3 @@
-import React from 'react';
-
 import LoadingSkeleton from '.';
 
 export default { title: 'Loading Skeleton' };

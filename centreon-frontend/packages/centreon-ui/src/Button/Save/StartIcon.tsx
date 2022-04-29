@@ -1,5 +1,3 @@
-import * as React from 'react';
-
 import { always, cond, not, pipe, propEq, T } from 'ramda';
 
 import { CircularProgress } from '@mui/material';

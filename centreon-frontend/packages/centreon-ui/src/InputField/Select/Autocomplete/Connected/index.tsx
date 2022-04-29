@@ -1,4 +1,4 @@
-import * as React from 'react';
+import { useState, useEffect } from 'react';
 
 import { equals, prop, last, isEmpty, map, isNil, pipe, not } from 'ramda';
 
@@ -43,11 +43,11 @@ const ConnectedAutocompleteField = (
     ...props
   }: ConnectedAutoCompleteFieldProps<TData> &
     Omit<AutocompleteFieldProps, 'options'>): JSX.Element => {
-    const [options, setOptions] = React.useState<Array<TData>>([]);
-    const [searchValue, setSearchValue] = React.useState<string>('');
-    const [page, setPage] = React.useState(1);
-    const [maxPage, setMaxPage] = React.useState(initialPage);
-    const [optionsOpen, setOptionsOpen] = React.useState(open || false);
+    const [options, setOptions] = useState<Array<TData>>([]);
+    const [searchValue, setSearchValue] = useState<string>('');
+    const [page, setPage] = useState(1);
+    const [maxPage, setMaxPage] = useState(initialPage);
+    const [optionsOpen, setOptionsOpen] = useState(open || false);
     const debounce = useDebounce({
       functionToDebounce: (value): void => {
         if (page === initialPage) {
@@ -197,7 +197,7 @@ const ConnectedAutocompleteField = (
       );
     };
 
-    React.useEffect(() => {
+    useEffect(() => {
       if (!optionsOpen) {
         setSearchValue('');
         setOptions([]);

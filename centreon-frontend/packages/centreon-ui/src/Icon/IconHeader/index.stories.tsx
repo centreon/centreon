@@ -1,8 +1,6 @@
 /* eslint-disable no-alert */
 /* eslint-disable react/prop-types */
 
-import React from 'react';
-
 import DnsIcon from '@mui/icons-material/Dns';
 
 import IconHeader from '.';

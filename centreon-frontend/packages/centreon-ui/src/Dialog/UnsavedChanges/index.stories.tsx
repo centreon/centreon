@@ -1,5 +1,3 @@
-import * as React from 'react';
-
 import { useSnackbar } from '../..';
 import SnackbarProvider from '../../Snackbar/SnackbarProvider';
 
