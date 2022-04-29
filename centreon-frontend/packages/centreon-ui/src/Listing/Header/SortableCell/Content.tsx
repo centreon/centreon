@@ -36,6 +36,9 @@ const useStyles = makeStyles<Theme, StylesProps>((theme) => ({
     outline: 'none',
   }),
   item: ({ isInDragOverlay }): CreateCSSProperties<StylesProps> => ({
+    background: isInDragOverlay
+      ? 'transparent'
+      : theme.palette.background.paper,
     border: isInDragOverlay ? 'none' : undefined,
   }),
 }));
@@ -97,7 +100,6 @@ const SortableHeaderCellContent = ({
       className={clsx([cellClasses.cell, classes.item])}
       component={'div' as unknown as React.ElementType<TableCellBaseProps>}
       padding={column.compact ? 'none' : 'normal'}
-      style={{ background: isDragging ? 'transparent' : 'unset' }}
     >
       <div className={classes.content} ref={itemRef} style={style}>
         {columnConfiguration?.sortable && (
