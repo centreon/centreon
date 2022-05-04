@@ -298,8 +298,8 @@ sub saas_register_metrics {
                 {
                     name => $self->{centreon_metrics}->{$_}->{metric_name},
                     labels => {
-                        host_id => $self->{centreon_metrics}->{$_}->{host_id},
-                        service_id => $self->{centreon_metrics}->{$_}->{service_id}
+                        host_id => "" . $self->{centreon_metrics}->{$_}->{host_id},
+                        service_id => "" . $self->{centreon_metrics}->{$_}->{service_id}
                     },
                     preprocessingOptions =>  {
                         bucketize => {
