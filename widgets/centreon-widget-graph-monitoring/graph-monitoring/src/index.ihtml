@@ -4,7 +4,7 @@
         <link href="../../Themes/Generic-theme/style.css" rel="stylesheet" type="text/css"/>
         <link href="../../Themes/Generic-theme/jquery-ui/jquery-ui.css" rel="stylesheet" type="text/css"/>
         <link href="../../Themes/Generic-theme/jquery-ui/jquery-ui-centreon.css" rel="stylesheet" type="text/css"/>
-        <link href="../../Themes/{($theme === "Generic-theme") ? ($theme|cat:"/Variables-css") : $theme}/variables.css"/>
+        <link href="../../Themes/{$theme}/variables.css" rel="stylesheet" type="text/css"/>
         <link href="../../include/common/javascript/charts/c3.min.css" rel="stylesheet">
     </head>
     <body>
