@@ -129,7 +129,10 @@ if ($acl === 0) {
     $servicePreferences = "<div class='update' style='text-align:center;margin-left: auto;margin-right: " .
         "auto;width:350px;'>" . _("Please select a graph period") . "</div>";
 }
-$template->assign('theme', $variablesThemeCSS);
+$template->assign(
+    'theme',
+    $variablesThemeCSS === 'Generic-theme' ? $variablesThemeCSS . '/Variables-css' : $variablesThemeCSS
+);
 $template->assign('widgetId', $widgetId);
 $template->assign('preferences', $preferences);
 $template->assign('interval', $preferences['graph_period']);
