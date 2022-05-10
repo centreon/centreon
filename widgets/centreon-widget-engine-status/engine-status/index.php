@@ -167,7 +167,6 @@ while ($row = $res->fetch()) {
 $avg_l = $preferences['avg-l'];
 $avg_e = $preferences['avg-e'];
 $max_e = $preferences['max-e'];
-$template->assign('theme', $variablesThemeCSS);
 $template->assign('avg_l', $avg_l);
 $template->assign('avg_e', $avg_e);
 $template->assign('widgetId', $widgetId);
@@ -178,4 +177,8 @@ $template->assign('dataSth', $dataSth);
 $template->assign('dataSts', $dataSts);
 $template->assign('dataEx', $dataEx);
 $template->assign('dataLat', $dataLat);
+$template->assign(
+    'theme',
+    $variablesThemeCSS === 'Generic-theme' ? $variablesThemeCSS . '/Variables-css' : $variablesThemeCSS
+);
 $template->display('engine-status.ihtml');
