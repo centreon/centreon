@@ -312,7 +312,8 @@ sub execute_cmd {
             data => {
                 logging => $options{logging},
                 content => {
-                    parent_id => $options{param}
+                    parent_id => $options{param},
+                    cbd_reload => 'sudo ' . $self->{pollers}->{ $options{target} }->{broker_reload_command}
                 }
             }
         );
@@ -582,10 +583,23 @@ sub action_addimporttaskwithparent {
                 {
                     command => $cmd
                 }
+            ],
+            parameters => { no_fork => 1 }
+        }
+    );
+    $self->send_internal_action(
+        action => 'COMMAND',
+        token => $options{token},
+        data => {
+            logging => $options{data}->{logging},
+            content => [
+                {
+                    command => $options{data}->{content}->{cbd_reload}
+                }
             ]
         }
     );
-    
+
     $self->send_log(
         code => GORGONE_ACTION_FINISH_OK,
         token => $options{token},
