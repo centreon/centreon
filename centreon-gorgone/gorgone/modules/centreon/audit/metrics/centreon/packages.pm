@@ -81,6 +81,8 @@ sub metrics {
         dpkg_list(metrics => $metrics);
     } elsif ($options{os} =~ /CentOS|Redhat|almalinux/i) {
         rpm_list(metrics => $metrics);
+    } elsif ($options{os} eq 'ol' || $options{os} =~ /Oracle Linux/i) {
+        rpm_list(metrics => $metrics);
     } else {
         $metrics->{status_code} = 1;
         $metrics->{status_message} = 'unsupported os';
