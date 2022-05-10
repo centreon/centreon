@@ -31,7 +31,7 @@ Homepage: https://wwww.centreon.com
 Package: centreon-gorgone
 Architecture: any
 Depends:
-  centreon-common,
+  centreon-common (>= ${centreon:version}~),
   libnet-ssh2-perl,
   libnet-ldap-perl,
   libdatetime-perl,
@@ -59,6 +59,7 @@ Depends:
   libzmq-constants-perl,
   libzmq5,
   zmq-libzmq4-perl,
+  sudo,
   ${shlibs:Depends}, 
   ${misc:Depends}
 Description: Centreon Gorgone.
