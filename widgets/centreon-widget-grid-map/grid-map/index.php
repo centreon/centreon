@@ -80,6 +80,11 @@ $template = initSmartyTplForPopup(getcwd() . "/", $template, "./", $centreon_pat
 
 $template->assign('autoRefresh', $autoRefresh);
 $template->assign('widgetId', $widgetId);
-$template->assign('theme', $variablesThemeCSS);
+$template->assign(
+    'theme',
+    $variablesThemeCSS === 'Generic-theme'
+        ? $variablesThemeCSS . '/Variables-css'
+        : $variablesThemeCSS
+);
 /* Display */
 $template->display('index.ihtml');
