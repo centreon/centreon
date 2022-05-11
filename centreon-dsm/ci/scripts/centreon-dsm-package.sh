@@ -23,6 +23,7 @@ mkdir -p /build/$PROJECT
 (cd /src && tar czvpf - $PROJECT) | dd of=$PROJECT-$VERSION.tar.gz
 cp -rv /src/$PROJECT /build/
 cp -rv /src/$PROJECT/ci/debian /build/$PROJECT/
+sed -i "s/^centreon:version=.*$/centreon:version=${VERSION}/" /build/$PROJECT/debian/substvars
 
 ls -lart
 cd /build/$PROJECT

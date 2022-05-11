@@ -11,15 +11,14 @@ Homepage: https://wwww.centreon.com
 
 Package: centreon-dsm
 Architecture: any
-Description:
-  This add-on is built to manage passive alerts into slots of alerts. Alerts are not defined
-  into the configuration. This module give possibility to collect all alerts into a tray of
-  events.
+Description: This add-on is built to manage passive alerts into slots of alerts. Alerts are not defined
+ into the configuration. This module give possibility to collect all alerts into a tray of
+ events.
 Depends:
   ${misc:Depends}, 
   ${shlibs:Depends},
-  centreon-dsm-client,
-  centreon-dsm-server
+  centreon-dsm-client (>= ${centreon:version}~),
+  centreon-dsm-server (>= ${centreon:version}~)
 
 Package: centreon-dsm-client
 Architecture: any
@@ -34,4 +33,4 @@ Description: Centreon-dsm server package
 Depends:
   ${misc:Depends}, 
   ${shlibs:Depends},
-  centreon-web (>= 21.10.0~)
+  centreon-web (>= ${centreon:version}~)
