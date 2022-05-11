@@ -34,13 +34,13 @@
                 <td class="ListColLeft">Unreachable</td>
                 <td class="ListColLeft"><span class="badge host_unreachable">{$dataSth[0].Un}</span></td>
             </tr>
-            <tr>
+            <tr class="list_two">
                 <td class="ListColLeft">Unknown</td>
                 <td class="ListColLeft"><span class="badge service_unknown">{$dataSts[0].Unk}</span></td>
                 <td class="ListColLeft">Pending</td>
                 <td class="ListColLeft"><span class="badge pending">{$dataSth[0].Pend}</span></td>
             </tr>
-            <tr>
+            <tr class="list_one">
                 <td class="ListColLeft">Pending</td>
                 <td class="ListColLeft"><span class="badge pending">{$dataSts[0].Pend}</span></td>
                 <td></td>
