@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import { not } from 'ramda';
+import { isNil } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
 import { Alert, AlertTitle, Container } from '@mui/material';
@@ -44,9 +44,9 @@ const LicenseCheck = ({
   children,
   moduleName,
 }: LicenseCheckProps): JSX.Element => {
-  const [isValid, setIsValid] = React.useState(false);
+  const [isValid, setIsValid] = React.useState<boolean | null>(null);
 
-  const { sendRequest, sending } = useRequest<License>({
+  const { sendRequest } = useRequest<License>({
     decoder: licenseDecoder,
     request: getData,
   });
@@ -65,10 +65,10 @@ const LicenseCheck = ({
     checkLicense();
   }, []);
 
-  return not(sending) ? (
-    <Content isValid={isValid}>{children}</Content>
-  ) : (
+  return isNil(isValid) ? (
     <PageSkeleton />
+  ) : (
+    <Content isValid={isValid as boolean}>{children}</Content>
   );
 };
 
