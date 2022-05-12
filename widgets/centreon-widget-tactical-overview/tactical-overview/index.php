@@ -81,6 +81,13 @@ $path = $centreon_path . "www/widgets/tactical-overview/src/";
 $template = new Smarty();
 $template = initSmartyTplForPopup($path, $template, "./", $centreon_path);
 
+$template->assign(
+    'theme',
+    $variablesThemeCSS === 'Generic-theme'
+        ? $variablesThemeCSS . '/Variables-css'
+        : $variablesThemeCSS
+);
+
 $kernel = \App\Kernel::createForWeb();
 $resourceController = $kernel->getContainer()->get(
     \Centreon\Application\Controller\MonitoringResourceController::class
