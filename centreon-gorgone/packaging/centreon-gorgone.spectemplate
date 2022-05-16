@@ -38,6 +38,7 @@ Requires:   perl(Clone)
 Requires:   perl(Sys::Syslog)
 Requires:   perl(DateTime)
 Requires:   perl(Try::Tiny)
+Requires:   tar
 AutoReqProv: no
 
 %description
