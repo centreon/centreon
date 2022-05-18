@@ -50,3 +50,23 @@
     text-align : center;
     line-height: 45px;
 }
+
+.metric-links a, span {
+    color: var(--metric-links-font-color);
+}
+
+.state-ok {
+    color: var(--state-ok-font-color);
+}
+
+.state-warning {
+    color: var(--state-warning-font-color);
+}
+
+.state-critical {
+    color: var(--state-critical-font-color);
+}
+
+.metric-coloring {
+    color: var(--metric-coloring-font-color);
+}

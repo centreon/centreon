@@ -59,6 +59,11 @@ try {
     if ($autoRefresh === false || $autoRefresh < 5) {
         $autoRefresh = 30;
     }
+    $variablesThemeCSS = match ($centreon->user->theme) {
+        'light' => "Generic-theme",
+        'dark' => "Centreon-Dark",
+        default => throw new \Exception('Unknown user theme : ' . $centreon->user->theme),
+    };
 } catch (Exception $e) {
     echo $e->getMessage() . "<br/>";
     exit;
@@ -83,6 +88,13 @@ if (! $isAdmin) {
 $path = $centreon_path . "www/widgets/single-metric/src/";
 $template = new Smarty();
 $template = initSmartyTplForPopup($path, $template, "./", $centreon_path);
+$template->assign('theme', $variablesThemeCSS);
+$template->assign(
+    'webTheme',
+    $variablesThemeCSS === 'Generic-theme'
+        ? $variablesThemeCSS . '/Variables-css'
+        : $variablesThemeCSS
+);
 
 $data = array();
 
