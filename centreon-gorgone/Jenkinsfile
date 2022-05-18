@@ -102,7 +102,7 @@ try {
         dir('centreon-gorgone') {
           checkout scm
         }
-        sh 'docker run -i --entrypoint "/src/centreon-gorgone/ci/scripts/gorgone-deb-package.sh" -v "$PWD:/src" -e "DISTRIB=Debian11" -e "VERSION=$VERSION" -e "RELEASE=$RELEASE" registry.centreon.com/centreon-gorgone-debian11-dependencies:22.04'
+        sh 'docker run -i --entrypoint "/src/centreon-gorgone/ci/scripts/gorgone-deb-package.sh" -v "$PWD:/src" -e "DISTRIB=bullseye" -e "VERSION=$VERSION" -e "RELEASE=$RELEASE" registry.centreon.com/centreon-gorgone-debian11-dependencies:22.04'
         stash name: 'Debian11', includes: '*.deb'
         archiveArtifacts artifacts: "*.deb"
       }
