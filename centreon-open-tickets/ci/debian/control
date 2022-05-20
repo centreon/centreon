@@ -11,9 +11,8 @@ Homepage: https://wwww.centreon.com
 
 Package: centreon-open-tickets
 Architecture: any
-Description:
-  The module allows to open tickets on ITSM providers.
+Description: The module allows to open tickets on ITSM providers.
 Depends:
   ${misc:Depends}, 
   ${shlibs:Depends},
-  centreon-web (>= 21.10.0~)
+  centreon-web (>= ${centreon:version}~)

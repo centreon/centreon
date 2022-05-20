@@ -19,6 +19,9 @@ fi
 mkdir -p /build
 cd /build
 
+# fix version to debian format accept
+VERSION="$(echo $VERSION | sed 's/-/./g')"
+
 mkdir -p /build/$PROJECT
 (cd /src && tar czvpf - $PROJECT) | dd of=$PROJECT-$VERSION.tar.gz
 cp -rv /src/$PROJECT /build/
@@ -26,6 +29,7 @@ cp -rv /src/$PROJECT/ci/debian /build/$PROJECT/
 
 ls -lart
 cd /build/$PROJECT
+sed -i "s/^centreon:version=.*$/centreon:version=$(echo $VERSION | egrep -o '^[0-9][0-9].[0-9][0-9]')/" debian/substvars
 debmake -f "${AUTHOR}" -e "${AUTHOR_EMAIL}" -u "$VERSION" -y -r "$RELEASE"
 debuild-pbuilder
 cd /build
