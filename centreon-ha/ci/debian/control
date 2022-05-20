@@ -20,8 +20,8 @@ Depends:
   rsync,
   libcommon-sense-perl,
   liblinux-inotify2-perl,
-  centreon-common (>= 21.10.0~),
-  centreon-gorgone (>= 21.10.0~)
+  centreon-common (>= ${centreon:version}~),
+  centreon-gorgone (>= ${centreon:version}~)
 
 
 Package: centreon-ha-web
@@ -31,5 +31,5 @@ Depends:
   ${misc:Depends}, 
   ${shlibs:Depends},
   resources-agents,
-  centreon-ha (>= 21.10.0~),
-  centreon-web (>= 21.10.0~)
+  centreon-ha (>= ${centreon:version}~),
+  centreon-web (>= ${centreon:version}~)
