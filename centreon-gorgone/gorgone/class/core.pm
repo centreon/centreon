@@ -292,7 +292,7 @@ sub init_external_informations {
 
     $self->{identity_infos} = {};
     while (my $row = $sth->fetchrow_arrayref()) {
-        next if (!defined($row->[3]));
+        next if (!defined($row->[3]) || !defined($row->[2]));
 
         if (!defined($self->{identity_infos}->{ $row->[0] })) {
             $self->{identity_infos}->{ $row->[0] } = {
