@@ -7,8 +7,8 @@ jobs:
   filters:
     runs-on: self-hosted
     outputs:
-      centreon: ${{ steps.filter.outputs.lm }}
-      frontend: ${{ steps.filter.outputs.ppm }}
+      centreon: ${{ steps.filter.outputs.centreon }}
+      frontend: ${{ steps.filter.outputs.frontend }}
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v2
