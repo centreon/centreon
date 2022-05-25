@@ -1,0 +1,64 @@
+<script type="text/javascript" src="./include/common/javascript/tool.js"></script>
+<form name='form' method='POST'>
+	<input name="o" type="hidden">
+	<table class="ToolbarTable">
+		<tr class="ToolbarTR">
+			<td class="Toolbar_TDSelectAction_Top">
+				{$form.o1.html}
+				&nbsp;&nbsp;&nbsp;
+				<a href="{$msg.addL}">{$msg.addT}</a>
+			</td>
+			{php}
+			   include('./include/common/pagination.php');
+			{/php}
+		</tr>
+	</table>
+	<table class="ListTable">
+	 	<tr class="ListHeader">
+            <td class="ListColHeaderPicker">
+                <div class="md-checkbox md-checkbox-inline">
+                    <input type="checkbox" id="checkall" name="checkall" onclick="checkUncheckAll(this);"/>
+                    <label class="empty-label" for="checkall"></label>
+                </div>
+            </td>
+	 		<td class="ListColLeft">{$Host}</td>
+	 		<td class="ListColCenter">{$Service}</td>
+	 		<td class="ListColCenter">{$Metrics}</td>
+	 		<td class="ListColCenter">{$RebuildWaiting}</td>
+	 		<td class="ListColCenter">{$Hidden}</td>
+	 		<td class="ListColCenter">{$Locked}</td>
+	 	</tr>
+	 	{assign var='host_name' value=''}
+		{foreach item=d from=$data}
+		<tr class="{$d.class}">
+		 	<td class="ListColCenter">
+                <div class="md-checkbox md-checkbox-inline">
+                    <input name="select[{$d.id}]" id="{$d.id}" value="1" type="checkbox">
+                    <label class="empty-label" for="{$d.id}"></label>
+                </div>
+            </td>
+			<td class="ListColLeft">{if !$host_name || $host_name != $d.host_name}{$d.host_name}{/if}</td>
+	 		<td class="ListColLeft">{$d.service_description}</td>
+	 		<td class="ListColCenter">{$d.metrics_name}</td>
+	 		<td class="ListColCenter">{$d.must_be_rebuild}</td>
+	 		<td class="ListColCenter">{$d.trashed}</td>
+	 		<td class="ListColCenter">{$d.locked}</td>
+		</tr> 	
+	 	{assign var='host_name' value=$d.host_name}	
+		{/foreach}
+	</table>
+	<table class="ToolbarTable">
+		<tr>
+			<td class="Toolbar_TDSelectAction_Bottom">
+				{$form.o2.html}
+				&nbsp;&nbsp;&nbsp;
+				<a href="{$msg.addL}">{$msg.addT}</a>
+			</td>
+			{php}
+			   include('./include/common/pagination.php');
+			{/php}
+		</tr>
+	</table>
+	<input type='hidden' id='limit' name='limit' value='{$limit}'>	
+	{$form.hidden}
+</form>
