@@ -1,0 +1,54 @@
+---
+name: Centreon Open Source
+
+on: pull_request
+
+jobs:
+  filters:
+    runs-on: self-hosted
+    outputs:
+      centreon: ${{ steps.filter.outputs.lm }}
+      frontend: ${{ steps.filter.outputs.ppm }}
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: Check Path Changed
+        uses: dorny/paths-filter@v2
+        id: filter
+        with:
+          filters: |
+            centreon:
+              - 'centreon/**'
+            frontend:
+              - 'centreon-frontend/**'
+
+  centreon:
+    needs: filters
+    strategy:
+      matrix:
+        include:
+          - image: frontend
+            version: 1.1
+          - image: backend
+            version: 2.5
+    if: ${{ needs.filters.outputs.centreon == 'false' }}
+    uses: ./.github/workflows/module-workflow.yml
+    with:
+      module_name: centreon
+      package: ${{ matrix.package }}
+      image_version: ${{ matrix.version }}
+
+  frontend:
+    needs: filters
+    strategy:
+      matrix:
+        include:
+          - image: frontend
+            version: 1.1
+    if: ${{ needs.filters.outputs.frontend == 'false' }}
+    uses: ./.github/workflows/dependency-workflow.yml
+    with:
+      module_name: frontend
+      package: ${{ matrix.package }}
+      image_version: ${{ matrix.version }}
