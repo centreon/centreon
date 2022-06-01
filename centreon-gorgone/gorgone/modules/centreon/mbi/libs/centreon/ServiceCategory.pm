@@ -67,7 +67,7 @@ sub getCategory {
     if(my $row = $sth->fetchrow_hashref()) {
 		$result = $row->{"sc_id"};
 	}else {
-		($self->{"logger"})->writeLog("error", "Cannot find service category '".."' in database");
+		($self->{"logger"})->writeLog("error", "Cannot find service category '" . $scName . "' in database");
 	}
 	$sth->finish();
 		
