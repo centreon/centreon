@@ -160,25 +160,24 @@ sub isTablePartitioned {
 }
 
 sub getLastPartRange {
-	my $self = shift;
-	my $tableName = shift;
-	
-	my $query = "SHOW CREATE TABLE $tableName";
+    my $self = shift;
+    my $tableName = shift;
 
-	my $partName;
-	my $sth = $self->{centstorage}->query($query);
-	if (my $row = $sth->fetchrow_hashref()) {
-        while ($row->{'Create Table'} =~ /PARTITION `(.*?)` VALUES LESS THAN \(([0-9]+?)\)/g) {
-            $partName = $1;
-            $partName =~ s/p(\d{4})(\d{2})(\d{2})/$1-$2-$3/;
+    my $query = "SHOW CREATE TABLE $tableName";
+
+    my $partName;
+    my $sth = $self->{centstorage}->query($query);
+    if (my $row = $sth->fetchrow_hashref()) {
+        while ($row->{'Create Table'} =~ /PARTITION.*?p(\d{4})(\d{2})(\d{2}).*?VALUES LESS THAN \([0-9]+?\)/g) {
+            $partName = "$1-$2-$3";
         }
-	}
+    }
 
     if (!defined($partName)) {
         die "[UPDATE PARTS] Cannot find table [data_bin] in database";
     }
 
-	return $partName;
+    return $partName;
 }
 
 sub deleteEntriesForRebuild {
