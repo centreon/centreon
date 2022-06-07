@@ -2,9 +2,9 @@
 ** Variables.
 */
 def serie = '22.04'
-def stableBranch = "master"
-def devBranch = "develop"
-env.REF_BRANCH = 'master'
+def stableBranch = "22.04.x"
+def devBranch = "dev-22.04.x"
+env.REF_BRANCH = stableBranch
 env.PROJECT='centreon-awie'
 if (env.BRANCH_NAME.startsWith('release-')) {
   env.BUILD = 'RELEASE'
