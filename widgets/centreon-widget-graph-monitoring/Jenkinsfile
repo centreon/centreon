@@ -2,8 +2,8 @@
 ** Variables.
 */
 def serie = '22.04'
-def stableBranch = "master"
-def devBranch = "develop"
+def stableBranch = "22.04.x"
+def devBranch = "dev-22.04.x"
 env.REF_BRANCH = stableBranch
 
 if (env.BRANCH_NAME.startsWith('release-')) {
