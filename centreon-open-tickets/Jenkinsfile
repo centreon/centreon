@@ -5,7 +5,8 @@ import groovy.json.JsonSlurper
 */
 properties([buildDiscarder(logRotator(numToKeepStr: '50'))])
 def serie = '22.04'
-def stableBranch = "master"
+def stableBranch = "22.04.x"
+
 if (env.BRANCH_NAME.startsWith('release-')) {
   env.BUILD = 'RELEASE'
 } else if (env.BRANCH_NAME == stableBranch) {
