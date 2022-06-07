@@ -1,4 +1,4 @@
-import * as React from 'react';
+import { ReactElement, useState } from 'react';
 
 import { isNil, cond, T } from 'ramda';
 
@@ -23,7 +23,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 interface Props {
-  children?: React.ReactElement;
+  children?: ReactElement;
   closeTooltip?: () => void;
   labelSearchHelp: string;
   openTooltip?: boolean;
@@ -39,7 +39,7 @@ const PersistentTooltip = ({
 }: Props): JSX.Element => {
   const classes = useStyles();
 
-  const [open, setOpen] = React.useState(openTooltip || false);
+  const [open, setOpen] = useState(openTooltip || false);
 
   const toggleTooltip = (): void => {
     cond([

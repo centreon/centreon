@@ -1,4 +1,4 @@
-import * as React from 'react';
+import { ReactElement } from 'react';
 
 import clsx from 'clsx';
 
@@ -17,7 +17,7 @@ const useStyles = makeStyles(() => ({
 
 interface Props {
   alignCenter?: boolean;
-  children: React.ReactElement;
+  children: ReactElement;
   loading: boolean;
   loadingIndicatorSize?: number;
 }

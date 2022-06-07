@@ -6,59 +6,59 @@ import StatusCounter from '.';
 
 export default { title: 'StatusCounter' };
 
-const HeaderBackground = ({ children }) => (
+const HeaderBackground = ({ children }): JSX.Element => (
   <div style={{ backgroundColor: '#232f39' }}>{children}</div>
 );
 
-export const severityCodeHigh = () => (
+export const severityCodeHigh = (): JSX.Element => (
   <HeaderBackground>
     <StatusCounter count={3} severityCode={SeverityCode.High} />
   </HeaderBackground>
 );
 
-export const severityCodeMedium = () => (
+export const severityCodeMedium = (): JSX.Element => (
   <HeaderBackground>
     <StatusCounter count={3} severityCode={SeverityCode.Medium} />
   </HeaderBackground>
 );
 
-export const severityCodeLow = () => (
+export const severityCodeLow = (): JSX.Element => (
   <HeaderBackground>
     <StatusCounter count={3} severityCode={SeverityCode.Low} />
   </HeaderBackground>
 );
 
-export const severityCodeOk = () => (
+export const severityCodeOk = (): JSX.Element => (
   <HeaderBackground>
     <StatusCounter count={3} severityCode={SeverityCode.Ok} />
   </HeaderBackground>
 );
 
-export const severityCodeHighCount0 = () => (
+export const severityCodeHighCount0 = (): JSX.Element => (
   <HeaderBackground>
     <StatusCounter count={0} severityCode={SeverityCode.High} />
   </HeaderBackground>
 );
 
-export const severityCodeMediumCount0 = () => (
+export const severityCodeMediumCount0 = (): JSX.Element => (
   <HeaderBackground>
     <StatusCounter count={0} severityCode={SeverityCode.Medium} />
   </HeaderBackground>
 );
 
-export const severityCodeLowCount0 = () => (
+export const severityCodeLowCount0 = (): JSX.Element => (
   <HeaderBackground>
     <StatusCounter count={0} severityCode={SeverityCode.Low} />
   </HeaderBackground>
 );
 
-export const severityCodeOkCount0 = () => (
+export const severityCodeOkCount0 = (): JSX.Element => (
   <HeaderBackground>
     <StatusCounter count={0} severityCode={SeverityCode.Ok} />
   </HeaderBackground>
 );
 
-export const severityCodeOkBigCount = () => (
+export const severityCodeOkBigCount = (): JSX.Element => (
   <HeaderBackground>
     <StatusCounter count={500000} severityCode={SeverityCode.Ok} />
   </HeaderBackground>

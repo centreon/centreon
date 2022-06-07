@@ -1,4 +1,4 @@
-import * as React from 'react';
+import { ReactElement } from 'react';
 
 import { Typography } from '@mui/material';
 
@@ -7,7 +7,7 @@ import Dialog from '.';
 export default { title: 'Dialog' };
 
 interface Props {
-  children: React.ReactNode;
+  children: ReactElement;
   confirmDisabled?: boolean;
   submitting?: boolean;
 }

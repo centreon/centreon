@@ -1,4 +1,5 @@
-import React from 'react';
+import * as React from 'react';
+import { useMemo } from 'react';
 
 import {
   ThemeProvider as MuiThemeProvider,
@@ -11,7 +12,7 @@ import { ThemeMode } from '@centreon/ui-context';
 import { getTheme } from '../ThemeProvider';
 
 interface Props {
-  children: React.ReactChild;
+  children: React.ReactElement;
   themeMode: ThemeMode;
 }
 
@@ -19,10 +20,7 @@ const StoryBookThemeProvider = ({
   children,
   themeMode,
 }: Props): JSX.Element => {
-  const theme = React.useMemo(
-    () => createTheme(getTheme(themeMode)),
-    [themeMode],
-  );
+  const theme = useMemo(() => createTheme(getTheme(themeMode)), [themeMode]);
 
   return (
     <StyledEngineProvider injectFirst>

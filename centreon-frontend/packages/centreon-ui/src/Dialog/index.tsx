@@ -1,4 +1,4 @@
-import * as React from 'react';
+import { ReactNode } from 'react';
 
 import {
   Button,
@@ -12,7 +12,7 @@ import {
 
 export type Props = {
   cancelDisabled?: boolean;
-  children: React.ReactNode;
+  children: ReactNode;
   confirmDisabled?: boolean;
   contentWidth?: number;
   labelCancel?: string;
@@ -20,7 +20,7 @@ export type Props = {
   labelTitle?: string;
   onCancel?: () => void;
   onClose?: () => void;
-  onConfirm: () => void;
+  onConfirm: (event) => void;
   open: boolean;
   submitting?: boolean;
 } & DialogProps;
@@ -30,7 +30,7 @@ const Dialog = ({
   onClose,
   onCancel,
   onConfirm,
-  labelTitle,
+  labelTitle = 'Are you sure?',
   labelCancel = 'Cancel',
   labelConfirm = 'Confirm',
   children,

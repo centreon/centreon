@@ -1,5 +1,6 @@
+/* eslint-disable react/no-unused-prop-types */
 // There is an issue about using forwardRef: https://github.com/yannickcr/eslint-plugin-react/issues/2760
-/* eslint-disable react/prop-types */
+
 import * as React from 'react';
 
 import { isEmpty, isNil } from 'ramda';

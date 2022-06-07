@@ -1,4 +1,4 @@
-import * as React from 'react';
+import { Dispatch, SetStateAction, useState } from 'react';
 
 import { and, isNil, not } from 'ramda';
 
@@ -20,20 +20,16 @@ interface UseUnsavedChanges {
   openUnsavedDialog: (action: () => void) => void;
   panelSubmitForm: PanelSubmitForm | null;
   savePanelChanges: () => void;
-  setPanelSubmitForm: React.Dispatch<
-    React.SetStateAction<PanelSubmitForm | null>
-  >;
-  setUnsavedDialogOpened: React.Dispatch<
-    React.SetStateAction<UnsavedDialogOpened | null>
-  >;
+  setPanelSubmitForm: Dispatch<SetStateAction<PanelSubmitForm | null>>;
+  setUnsavedDialogOpened: Dispatch<SetStateAction<UnsavedDialogOpened | null>>;
   unsavedDialogOpened: UnsavedDialogOpened | null;
 }
 
 const useUnsavedChanges = ({ isValidForm }: Props): UseUnsavedChanges => {
   const [unsavedDialogOpened, setUnsavedDialogOpened] =
-    React.useState<UnsavedDialogOpened | null>(null);
+    useState<UnsavedDialogOpened | null>(null);
   const [panelSubmitForm, setPanelSubmitForm] =
-    React.useState<PanelSubmitForm | null>(null);
+    useState<PanelSubmitForm | null>(null);
 
   const openUnsavedDialog = (action: () => void): void => {
     setUnsavedDialogOpened({ action });

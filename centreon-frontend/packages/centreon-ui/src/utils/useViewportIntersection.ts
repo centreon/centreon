@@ -1,21 +1,19 @@
-import * as React from 'react';
+import { useState, useRef, useEffect, Dispatch, SetStateAction } from 'react';
 
 interface ViewportIntersectionState {
   isInViewport: boolean;
-  setElement: React.Dispatch<React.SetStateAction<HTMLElement | null>>;
+  setElement: Dispatch<SetStateAction<HTMLElement | null>>;
 }
 
 export const useViewportIntersection = (
   options?: IntersectionObserverInit,
 ): ViewportIntersectionState => {
-  const [entry, setEntry] = React.useState<IntersectionObserverEntry | null>(
-    null,
-  );
-  const [element, setElement] = React.useState<HTMLElement | null>(null);
+  const [entry, setEntry] = useState<IntersectionObserverEntry | null>(null);
+  const [element, setElement] = useState<HTMLElement | null>(null);
 
-  const observer = React.useRef<IntersectionObserver | null>(null);
+  const observer = useRef<IntersectionObserver | null>(null);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (observer.current) {
       observer.current.disconnect();
     }

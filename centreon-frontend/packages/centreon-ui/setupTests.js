@@ -1,9 +1,14 @@
-import '@testing-library/jest-dom/extend-expect';
-import registerRequireContextHook from 'babel-plugin-require-context-hook/register';
+// import '@testing-library/jest-dom/extend-expect';
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 
-registerRequireContextHook();
+const mockedMatchMedia = () => ({
+  addListener: () => {},
+  matches: false,
+  removeListener: () => {},
+});
+
+window.matchMedia = window.matchMedia || mockedMatchMedia;
 
 document.createRange = () => ({
   commonAncestorContainer: {

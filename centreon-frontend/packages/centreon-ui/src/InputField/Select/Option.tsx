@@ -1,4 +1,4 @@
-import * as React from 'react';
+import { forwardRef, RefObject } from 'react';
 
 import { isNil } from 'ramda';
 
@@ -22,15 +22,12 @@ interface Props {
   thumbnailUrl?: string;
 }
 
-const Option = React.forwardRef(
+const Option = forwardRef(
   ({ children, checkboxSelected, thumbnailUrl }: Props, ref): JSX.Element => {
     const classes = useStyles();
 
     return (
-      <div
-        className={classes.container}
-        ref={ref as React.RefObject<HTMLDivElement>}
-      >
+      <div className={classes.container} ref={ref as RefObject<HTMLDivElement>}>
         {!isNil(checkboxSelected) && (
           <Checkbox
             checked={checkboxSelected}

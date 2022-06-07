@@ -13,9 +13,10 @@ module.exports = {
     sourceType: 'module',
   },
 
-  plugins: ['react', 'hooks', 'react-hooks', 'babel'],
+  plugins: ['react', 'hooks', 'react-hooks'],
   root: true,
   rules: {
+    camelcase: ['error', { ignoreDestructuring: true, properties: 'never' }],
     'hooks/sort': [
       2,
       {
@@ -33,7 +34,6 @@ module.exports = {
         ],
       },
     ],
-    camelcase: ['error', { ignoreDestructuring: true, properties: 'never' }],
     'import/extensions': [
       'error',
       'ignorePackages',

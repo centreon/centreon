@@ -1,10 +1,12 @@
-/* eslint-disable react/jsx-filename-extension */
-/* eslint-disable react/prop-types */
-
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 
-const IconToggleSubmenu = ({ rotate, onClick }) => {
+interface Props {
+  onClick: () => void;
+  rotate: boolean;
+}
+
+const IconToggleSubmenu = ({ rotate, onClick }: Props): JSX.Element => {
   const ExpandIcon = rotate ? ExpandLessIcon : ExpandMoreIcon;
 
   return (
