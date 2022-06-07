@@ -1,7 +1,7 @@
 /*
 ** Variables.
 */
-def serie = '22.04'
+def serie = '22.10'
 def stableBranch = "master"
 def devBranch = "develop"
 env.REF_BRANCH = 'master'
