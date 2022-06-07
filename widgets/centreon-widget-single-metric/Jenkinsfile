@@ -1,7 +1,7 @@
 /*
 ** Variables.
 */
-def serie = '22.04'
+def serie = '22.10'
 def stableBranch = "master"
 def devBranch = "develop"
 env.REF_BRANCH = stableBranch
@@ -149,7 +149,7 @@ try {
         dir('centreon-widget-single-metric') {
           checkout scm
         }
-        sh 'docker run -i --entrypoint "/src/centreon-widget-single-metric/ci/scripts/widget-deb-package.sh" -w "/src" -v "$PWD:/src" -e "DISTRIB=Debian11" -e "VERSION=$VERSION" -e "RELEASE=$RELEASE" registry.centreon.com/centreon-debian11-dependencies:22.04'
+        sh 'docker run -i --entrypoint "/src/centreon-widget-single-metric/ci/scripts/widget-deb-package.sh" -w "/src" -v "$PWD:/src" -e "DISTRIB=Debian11" -e "VERSION=$VERSION" -e "RELEASE=$RELEASE" registry.centreon.com/centreon-debian11-dependencies:22.10'
         stash name: 'Debian11', includes: '*.deb'
         archiveArtifacts artifacts: "*.deb"
       }
@@ -171,7 +171,7 @@ try {
           unstash "Debian11"
           sh '''for i in $(echo *.deb)
                 do 
-                  curl -u $NEXUS_USERNAME:$NEXUS_PASSWORD -H "Content-Type: multipart/form-data" --data-binary "@./$i" https://apt.centreon.com/repository/22.04-$REPO/
+                  curl -u $NEXUS_USERNAME:$NEXUS_PASSWORD -H "Content-Type: multipart/form-data" --data-binary "@./$i" https://apt.centreon.com/repository/22.10-$REPO/
                 done
             '''    
         }
