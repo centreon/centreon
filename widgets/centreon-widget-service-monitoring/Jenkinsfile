@@ -1,7 +1,7 @@
 /*
 ** Variables.
 */
-def serie = '22.04'
+def serie = '22.10'
 def stableBranch = "master"
 def devBranch = "develop"
 env.REF_BRANCH = stableBranch
@@ -141,7 +141,7 @@ try {
         sh "./centreon-build/jobs/widgets/${serie}/widget-package.sh alma8"
         archiveArtifacts artifacts: 'rpms-alma8.tar.gz'
         stash name: "rpms-alma8", includes: 'output/noarch/*.rpm'
-        sh 'rm -rf output'      
+        sh 'rm -rf output'
       }
     },
     'Debian bullseye packaging and signing': {
@@ -149,7 +149,7 @@ try {
         dir('centreon-widget-service-monitoring') {
           checkout scm
         }
-        sh 'docker run -i --entrypoint "/src/centreon-widget-service-monitoring/ci/scripts/widget-deb-package.sh" -w "/src" -v "$PWD:/src" -e "DISTRIB=Debian11" -e "VERSION=$VERSION" -e "RELEASE=$RELEASE" registry.centreon.com/centreon-debian11-dependencies:22.04'
+        sh 'docker run -i --entrypoint "/src/centreon-widget-service-monitoring/ci/scripts/widget-deb-package.sh" -w "/src" -v "$PWD:/src" -e "DISTRIB=Debian11" -e "VERSION=$VERSION" -e "RELEASE=$RELEASE" registry.centreon.com/centreon-debian11-dependencies:22.10'
         stash name: 'Debian11', includes: '*.deb'
         archiveArtifacts artifacts: "*.deb"
       }
@@ -170,10 +170,10 @@ try {
           checkout scm
           unstash "Debian11"
           sh '''for i in $(echo *.deb)
-                do 
-                  curl -u $NEXUS_USERNAME:$NEXUS_PASSWORD -H "Content-Type: multipart/form-data" --data-binary "@./$i" https://apt.centreon.com/repository/22.04-$REPO/
+                do
+                  curl -u $NEXUS_USERNAME:$NEXUS_PASSWORD -H "Content-Type: multipart/form-data" --data-binary "@./$i" https://apt.centreon.com/repository/22.10-$REPO/
                 done
-            '''    
+            '''
         }
       }
       if ((currentBuild.result ?: 'SUCCESS') != 'SUCCESS') {
