@@ -66,7 +66,7 @@ class Centreon_OpenTickets_Rule
 
     public function getAliasAndProviderId($rule_id)
     {
-        $result = array();
+        $result = [];
         if (is_null($rule_id)) {
             return $result;
         }
@@ -159,7 +159,7 @@ class Centreon_OpenTickets_Rule
         return $result;
     }
 
-    public function loadSelection($db_storage = null, $cmd, $selection)
+    public function loadSelection($db_storage, $cmd, $selection)
     {
         global $centreon_bg;
 

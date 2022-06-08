@@ -162,6 +162,17 @@ abstract class AbstractProvider
         $this->uniq_id = $uniq_id;
     }
 
+    /**
+     * Set form values
+     *
+     * @param  mixed $form
+     * @return void
+     */
+    public function setForm($form)
+    {
+        $this->submitted_config = $form;
+    }
+
     protected function clearSession()
     {
         if (
@@ -489,7 +500,7 @@ Output: {$service.output|substr:0:1024}
 
     public function getChainRuleList()
     {
-        $result = array();
+        $result = [];
         if (isset($this->rule_data['clones']['chainruleList'])) {
             $result = $this->rule_data['clones']['chainruleList'];
         }
@@ -731,7 +742,7 @@ Output: {$service.output|substr:0:1024}
 
     protected function getCloneSubmitted($clone_key, $values)
     {
-        $result = array();
+        $result = [];
 
         foreach ($this->submitted_config as $key => $value) {
             if (preg_match('/^clone_order_' . $clone_key . '_(\d+)/', $key, $matches)) {
@@ -783,15 +794,15 @@ Output: {$service.output|substr:0:1024}
 
         $this->save_config['clones']['groupList'] = $this->getCloneSubmitted(
             'groupList',
-            array('Id', 'Label', 'Type', 'Filter', 'Mandatory', 'Sort')
+            ['Id', 'Label', 'Type', 'Filter', 'Mandatory', 'Sort']
         );
         $this->save_config['clones']['customList'] = $this->getCloneSubmitted(
             'customList',
-            array('Id', 'Value', 'Label', 'Default')
+            ['Id', 'Value', 'Label', 'Default']
         );
         $this->save_config['clones']['bodyList'] = $this->getCloneSubmitted(
             'bodyList',
-            array('Name', 'Value', 'Default')
+            ['Name', 'Value', 'Default']
         );
         $this->save_config['clones']['chainruleList'] = $this->getCloneSubmitted('chainruleList', array('Provider'));
         $this->save_config['clones']['commandList'] = $this->getCloneSubmitted('commandList', array('Cmd'));
@@ -913,7 +924,7 @@ Output: {$service.output|substr:0:1024}
 
     protected function assignCustom($entry, &$groups_order, &$groups)
     {
-        $result = array();
+        $result = [];
         $default = '';
         if (isset($this->rule_data['clones']['customList'])) {
             foreach ($this->rule_data['clones']['customList'] as $values) {
@@ -932,7 +943,7 @@ Output: {$service.output|substr:0:1024}
             }
         }
 
-        $groups[$entry['Id']] = array(
+        $groups[$entry['Id']] = [
             'label' => _($entry['Label']) . (
                 isset($entry['Mandatory']) && $entry['Mandatory'] == 1 ? $this->required_field : ''
             ),
@@ -940,7 +951,7 @@ Output: {$service.output|substr:0:1024}
             'placeholder' => $placeholder,
             'default' => $default,
             'sort' => (isset($entry['Sort']) && $entry['Sort'] == 1 ? 1 : 0)
-        );
+        ];
         $groups_order[] = $entry['Id'];
     }
 
@@ -981,9 +992,9 @@ Output: {$service.output|substr:0:1024}
 
         $this->clearSession();
 
-        $groups_order = array();
-        $groups = array();
-        $tpl->assign('custom_message', array('label' => _('Custom message')));
+        $groups_order = [];
+        $groups = [];
+        $tpl->assign('custom_message', ['label' => _('Custom message')]);
         $tpl->assign('centreon_open_tickets_path', $this->centreon_open_tickets_path);
 
         if (isset($this->rule_data['clones']['groupList'])) {
@@ -1028,6 +1039,8 @@ Output: {$service.output|substr:0:1024}
 
         $tpl->assign('groups_order', $groups_order);
         $tpl->assign('groups', $groups);
+
+        return $groups;
     }
 
     protected function validateFormatPopupLists(&$result)
@@ -1046,7 +1059,30 @@ Output: {$service.output|substr:0:1024}
         }
     }
 
-    public function getFormatPopup($args)
+    /**
+     * Check select lists requirement
+     *
+     * @return array
+     */
+    public function automateValidateFormatPopupLists()
+    {
+        $rv = ['code' => 0, 'lists' => [] ];
+        if (isset($this->rule_data['clones']['groupList'])) {
+            foreach ($this->rule_data['clones']['groupList'] as $values) {
+                if (
+                    $values['Mandatory'] == 1
+                    && !isset($this->submitted_config['select_' . $values['Id']])
+                ) {
+                    $rv['code'] = 1;
+                    $rv['lists'][] = $values['Id'];
+                }
+            }
+        }
+
+        return $rv;
+    }
+
+    public function getFormatPopup($args, $addGroups = false)
     {
         if (
             !isset($this->rule_data['format_popup'])
@@ -1056,14 +1092,17 @@ Output: {$service.output|substr:0:1024}
             return null;
         }
 
-        $result = array('format_popup' => null);
+        $result = ['format_popup' => null];
 
         $tpl = $this->initSmartyTemplate();
 
-        $this->assignFormatPopupTemplate($tpl, $args);
+        $groups = $this->assignFormatPopupTemplate($tpl, $args);
         $tpl->assign('string', $this->rule_data['format_popup']);
         $result['format_popup'] = $tpl->fetch('eval.ihtml');
         $result['attach_files_enable'] = isset($this->rule_data['attach_files']) ? $this->rule_data['attach_files'] : 0;
+        if ($addGroups === true) {
+            $result['groups'] = $groups;
+        }
         return $result;
     }
 
@@ -1155,18 +1194,18 @@ Output: {$service.output|substr:0:1024}
                     $value = $matches[2];
                 }
                 if (!empty($placeholder)) {
-                    $select_lists[$values['Id']] = array(
+                    $select_lists[$values['Id']] = [
                         'label' => _($values['Label']),
                         'id' => $id,
                         'value' => $value,
                         'placeholder' => $placeholder
-                    );
+                    ];
                 } else {
-                    $select_lists[$values['Id']] = array(
+                    $select_lists[$values['Id']] = [
                         'label' => _($values['Label']),
                         'id' => $id,
                         'value' => $value
-                    );
+                    ];
                 }
                 if (method_exists($this, $method_name)) {
                     $more_attributes = $this->{$method_name}($values['Id'], $id);
@@ -1178,7 +1217,7 @@ Output: {$service.output|substr:0:1024}
         $tpl->assign('select', $select_lists);
 
         // Manage body
-        $body_lists = array();
+        $body_lists = [];
         if (isset($this->rule_data['clones']['groupList'])) {
             foreach ($this->rule_data['clones']['groupList'] as $values) {
                 if (
@@ -1191,7 +1230,7 @@ Output: {$service.output|substr:0:1024}
                 $id = '-1';
                 $value = '';
                 $placeholder = '';
-                $matches = array();
+                $matches = [];
                 if (
                     preg_match(
                         '/^(.*?)___(.*?)___(.*)$/',

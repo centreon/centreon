@@ -410,16 +410,16 @@ class JiraProvider extends AbstractProvider
         }
 
         if (is_null($session_name) && $selected_id == -1) {
-            return array();
+            return [];
         }
         if ($selected_id == -1) {
-            return array('id' => null, 'value' => null);
+            return ['id' => null, 'value' => null];
         }
 
         $result = $this->getSession($session_name);
 
         if (is_null($result)) {
-            return array();
+            return [];
         }
 
         foreach ($result as $value) {
@@ -428,7 +428,7 @@ class JiraProvider extends AbstractProvider
             }
         }
 
-        return array();
+        return [];
     }
 
     protected function doSubmit($db_storage, $contact, $host_problems, $service_problems)
