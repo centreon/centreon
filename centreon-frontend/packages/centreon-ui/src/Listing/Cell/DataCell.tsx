@@ -121,61 +121,52 @@ const DataCell = ({
 
 const MemoizedDataCell = memo<Props>(
   DataCell,
-  (prevProps, nextProps): boolean => {
-    const {
-      column: previousColumn,
-      row: previousRow,
-      isRowHovered: previousIsRowHovered,
-      isRowSelected: previousIsRowSelected,
-      rowColorConditions: previousRowColorConditions,
-      disableRowCondition: prevDisableRowCondition,
-    } = prevProps;
-    const previousHasHoverableComponent = previousColumn.hasHoverableComponent;
+  (prevProps: Props, nextProps: Props): boolean => {
+    const previousHasHoverableComponent =
+      prevProps.column.hasHoverableComponent;
     const previousRenderComponentOnRowUpdate =
-      previousColumn.getRenderComponentOnRowUpdateCondition?.(previousRow);
+      prevProps.column.getRenderComponentOnRowUpdateCondition?.(prevProps.row);
     const previousRenderComponentCondition =
-      previousColumn.getRenderComponentCondition?.(previousRow);
-    const previousRowMemoProps = previousColumn.rowMemoProps;
+      prevProps.column.getRenderComponentCondition?.(prevProps.row);
+    const previousRowMemoProps = prevProps.column.rowMemoProps;
     const previousIsComponentHovered =
-      previousHasHoverableComponent && previousIsRowHovered;
-    const previousFormattedString =
-      previousColumn.getFormattedString?.(previousRow);
-    const previousIsTruncated = previousColumn.isTruncated;
-    const previousColSpan = previousColumn.getColSpan?.(previousIsRowSelected);
-    const previousHiddenCondition = previousColumn.getHiddenCondition?.(
-      previousIsRowSelected,
+      previousHasHoverableComponent && prevProps.isRowHovered;
+    const previousFormattedString = prevProps.column.getFormattedString?.(
+      prevProps.row,
+    );
+    const previousIsTruncated = prevProps.column.isTruncated;
+    const previousColSpan = prevProps.column.getColSpan?.(
+      prevProps.isRowSelected,
+    );
+    const previousHiddenCondition = prevProps.column.getHiddenCondition?.(
+      prevProps.isRowSelected,
     );
 
-    const {
-      column: nextColumn,
-      row: nextRow,
-      isRowHovered: nextIsRowHovered,
-      isRowSelected: nextIsRowSelected,
-      rowColorConditions: nextRowColorConditions,
-      disableRowCondition: nextDisableRowCondition,
-    } = nextProps;
-    const nextHasHoverableComponent = nextColumn.hasHoverableComponent;
+    const nextHasHoverableComponent = nextProps.column.hasHoverableComponent;
     const nextRenderComponentOnRowUpdate =
-      nextColumn.getRenderComponentOnRowUpdateCondition?.(nextRow);
+      nextProps.column.getRenderComponentOnRowUpdateCondition?.(nextProps.row);
     const nextRenderComponentCondition =
-      nextColumn.getRenderComponentCondition?.(nextRow);
-    const nextRowMemoProps = nextColumn.rowMemoProps;
+      nextProps.column.getRenderComponentCondition?.(nextProps.row);
+    const nextRowMemoProps = nextProps.column.rowMemoProps;
     const nextIsComponentHovered =
-      nextHasHoverableComponent && nextIsRowHovered;
+      nextHasHoverableComponent && nextProps.isRowHovered;
 
-    const nextFormattedString = nextColumn.getFormattedString?.(nextRow);
-
-    const nextColSpan = nextColumn.getColSpan?.(nextIsRowSelected);
-
-    const nextHiddenCondition =
-      nextColumn.getHiddenCondition?.(nextIsRowSelected);
-    const nextIsTruncated = nextColumn.isTruncated;
-
-    const prevRowColors = previousRowColorConditions?.map(({ condition }) =>
-      condition(previousRow),
+    const nextFormattedString = nextProps.column.getFormattedString?.(
+      nextProps.row,
     );
-    const nextRowColors = nextRowColorConditions?.map(({ condition }) =>
-      condition(nextRow),
+
+    const nextColSpan = nextProps.column.getColSpan?.(nextProps.isRowSelected);
+
+    const nextHiddenCondition = nextProps.column.getHiddenCondition?.(
+      nextProps.isRowSelected,
+    );
+    const nextIsTruncated = nextProps.column.isTruncated;
+
+    const prevRowColors = prevProps.rowColorConditions?.map(({ condition }) =>
+      condition(prevProps.row),
+    );
+    const nextRowColors = nextProps.rowColorConditions?.map(({ condition }) =>
+      condition(nextProps.row),
     );
 
     // Explicitely render the Component.
@@ -189,15 +180,15 @@ const MemoizedDataCell = memo<Props>(
     }
 
     const previousRowProps = previousRowMemoProps
-      ? props(previousRowMemoProps, previousRow)
-      : previousRow;
+      ? props(previousRowMemoProps, prevProps.row)
+      : prevProps.row;
     const nextRowProps = nextRowMemoProps
-      ? props(nextRowMemoProps, nextRow)
-      : nextRow;
+      ? props(nextRowMemoProps, nextProps.row)
+      : nextProps.row;
 
     return (
       equals(previousIsComponentHovered, nextIsComponentHovered) &&
-      equals(previousIsRowHovered, nextIsRowHovered) &&
+      equals(prevProps.isRowHovered, nextProps.isRowHovered) &&
       equals(previousFormattedString, nextFormattedString) &&
       equals(previousColSpan, nextColSpan) &&
       equals(previousIsTruncated, nextIsTruncated) &&
@@ -212,8 +203,8 @@ const MemoizedDataCell = memo<Props>(
       ) &&
       equals(prevRowColors, nextRowColors) &&
       equals(
-        prevDisableRowCondition(previousRow),
-        nextDisableRowCondition(nextRow),
+        prevProps.disableRowCondition(prevProps.row),
+        nextProps.disableRowCondition(nextProps.row),
       )
     );
   },
