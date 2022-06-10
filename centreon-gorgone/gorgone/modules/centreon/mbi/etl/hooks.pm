@@ -31,6 +31,7 @@ use constant NAME => 'mbietl';
 use constant EVENTS => [
     { event => 'CENTREONMBIETLRUN', uri => '/run', method => 'POST' },
     { event => 'CENTREONMBIETLKILL', uri => '/kill', method => 'GET' },
+    { event => 'CENTREONMBIETLSTATUS', uri => '/status', method => 'GET' },
     { event => 'CENTREONMBIETLLISTENER' },
     { event => 'CENTREONMBIETLREADY' }
 ];
