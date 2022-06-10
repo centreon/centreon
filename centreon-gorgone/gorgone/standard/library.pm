@@ -577,6 +577,26 @@ sub getlog {
 sub kill {
     my (%options) = @_;
 
+    my $data;
+    eval {
+        $data = JSON::XS->new->utf8->decode($options{data});
+    };
+    if ($@) {
+        return (GORGONE_ACTION_FINISH_KO, { message => 'request not well formatted' });
+    }
+
+    if (defined($data->{content}->{package}) && defined($options{gorgone}->{modules_register}->{ $data->{content}->{package} })) {
+        $options{gorgone}->{modules_register}->{ $data->{content}->{package} }->{kill}->(logger => $options{gorgone}->{logger});
+        return (GORGONE_ACTION_FINISH_OK, { action => 'kill', message => "module '$data->{content}->{package}' kill in progress" });
+    }
+    if (defined($data->{content}->{name}) &&
+        defined($options{gorgone}->{modules_id}->{ $data->{content}->{name} }) && 
+        defined($options{gorgone}->{modules_register}->{ $options{gorgone}->{modules_id}->{ $data->{content}->{name} } })) {
+        $options{gorgone}->{modules_register}->{ $options{gorgone}->{modules_id}->{ $data->{content}->{name} } }->{kill}->(logger => $options{gorgone}->{logger});
+        return (GORGONE_ACTION_FINISH_OK, { action => 'kill', message => "module '$data->{content}->{name}' kill in progress" });
+    }
+
+    return (GORGONE_ACTION_FINISH_KO, { action => 'kill', message => 'cannot find module' });
 }
 
 #######################

@@ -716,9 +716,6 @@ sub action_centreonmbietlrun {
         $self->runko(msg => $_)
     };
 
-    #use Data::Dumper;
-    #print Data::Dumper::Dumper($self->{run});
-
     return 0;
 }
 
@@ -748,6 +745,49 @@ sub action_centreonmbietllistener {
     }
 
     return 1;
+}
+
+sub action_centreonmbietlkill {
+    my ($self, %options) = @_;
+
+    $options{token} = $self->generate_token() if (!defined($options{token}));
+
+    if ($self->{run}->{status} == NONE) {
+        $self->{logger}->writeLogDebug('[mbi-etl] kill action - etl not running');
+        $self->send_log(
+            code => GORGONE_ACTION_FINISH_OK,
+            token => $options{token},
+            data => {
+                messages => 'etl not running'
+            }
+        );
+        return 0;
+    } 
+
+    $self->{logger}->writeLogDebug('[mbi-etl] kill sent to the module etlworkers');
+
+    $self->send_internal_action(
+        action => 'KILL',
+        token => $options{token},
+        data => {
+            content => {
+                package => 'gorgone::modules::centreon::mbi::etlworkers::hooks'
+            }
+        }
+    );
+
+    # RUNNING or STOP
+    $self->send_log(
+        code => GORGONE_ACTION_CONTINUE,
+        token => $options{token},
+        data => {
+            messages => 'kill sent to the module etlworkers'
+        }
+    );
+
+    $self->reset();
+
+    return 0;
 }
 
 sub event {
