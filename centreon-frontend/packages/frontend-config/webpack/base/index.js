@@ -1,10 +1,15 @@
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const path = require('path');
+const { ModuleFederationPlugin } = require('webpack').container;
 
 const excludeNodeModulesExceptCentreonUi =
   /node_modules(\\|\/)(?!(centreon-frontend(\\|\/)packages(\\|\/)(ui-context|centreon-ui)))/;
 
-module.exports = (jscTransformConfiguration) => ({
+const getBaseConfiguration = ({
+  moduleName,
+  moduleFederationConfig,
+  jscTransformConfiguration,
+}) => ({
   cache: false,
   module: {
     rules: [
@@ -32,23 +37,8 @@ module.exports = (jscTransformConfiguration) => ({
   },
   optimization: {
     splitChunks: {
-      cacheGroups: {
-        commons: {
-          chunks: 'initial',
-          filename: '[name].[chunkhash:8].js',
-          minChunks: 2,
-          name: 'commons',
-        },
-        vendor: {
-          chunks: 'initial',
-          enforce: true,
-          filename: '[name].[chunkhash:8].js',
-          name: 'vendor',
-          priority: 10,
-          test: /node_modules/,
-        },
-      },
       chunks: 'all',
+      maxSize: 800 * 1024,
     },
   },
   output: {
@@ -57,7 +47,53 @@ module.exports = (jscTransformConfiguration) => ({
     libraryTarget: 'umd',
     umdNamedDefine: true,
   },
-  plugins: [new CleanWebpackPlugin()],
+  plugins: [
+    new CleanWebpackPlugin(),
+    new ModuleFederationPlugin({
+      filename: 'remoteEntry.[chunkhash:8].js',
+      library: { name: moduleName, type: 'var' },
+      name: moduleName,
+      shared: [
+        {
+          '@centreon/ui-context': {
+            requiredVersion: '22.10.0',
+            singleton: true,
+          },
+        },
+        {
+          jotai: {
+            requiredVersion: '1.x',
+            singleton: true,
+          },
+        },
+        {
+          react: {
+            requiredVersion: '18.x',
+            singleton: true,
+          },
+        },
+        {
+          'react-dom': {
+            requiredVersion: '18.x',
+            singleton: true,
+          },
+        },
+        {
+          'react-i18next': {
+            requiredVersion: '11.x',
+            singleton: true,
+          },
+        },
+        {
+          'react-router-dom': {
+            requiredVersion: '6.x',
+            singleton: true,
+          },
+        },
+      ],
+      ...moduleFederationConfig,
+    }),
+  ],
   resolve: {
     alias: {
       '@centreon/ui': path.resolve(
@@ -71,3 +107,5 @@ module.exports = (jscTransformConfiguration) => ({
     extensions: ['.js', '.jsx', '.ts', '.tsx'],
   },
 });
+
+module.exports = getBaseConfiguration;

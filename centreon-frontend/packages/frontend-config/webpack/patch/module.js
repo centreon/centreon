@@ -1,14 +1,37 @@
+const fs = require('fs');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 
-module.exports = ({ assetPublicPath, outputPath }) => ({
-  externals: {
-    '@centreon/ui-context': 'CentreonUiContext',
-    jotai: 'Jotai',
-    react: 'React',
-    'react-dom': 'ReactDOM',
-    'react-i18next': 'ReactI18Next',
-    'react-router-dom': 'ReactRouterDom',
-  },
+class CentreonModulePlugin {
+  constructor(federatedComponentConfiguration) {
+    this.federatedComponentConfiguration = federatedComponentConfiguration;
+  }
+
+  apply(compiler) {
+    compiler.hooks.done.tap('CentreonModulePlugin', (stats) => {
+      const newFederatedComponentConfiguration = {
+        ...this.federatedComponentConfiguration,
+        remoteEntry: Object.keys(stats.compilation.assets).find((assetName) =>
+          assetName.match(/(^remoteEntry)\S+.js$/),
+        ),
+      };
+
+      if (!fs.existsSync(compiler.options.output.path)) {
+        fs.mkdirSync(compiler.options.output.path);
+      }
+
+      fs.writeFileSync(
+        `${compiler.options.output.path}/moduleFederation.json`,
+        JSON.stringify(newFederatedComponentConfiguration, null, 2),
+      );
+    });
+  }
+}
+
+module.exports = ({
+  assetPublicPath,
+  outputPath,
+  federatedComponentConfiguration,
+}) => ({
   output: {
     library: '[chunkhash:8]',
     path: outputPath,
@@ -20,5 +43,6 @@ module.exports = ({ assetPublicPath, outputPath }) => ({
       dangerouslyAllowCleanPatternsOutsideProject: true,
       dry: false,
     }),
+    new CentreonModulePlugin(federatedComponentConfiguration),
   ],
 });
