@@ -128,7 +128,7 @@ sub gently {
 sub kill {
     my (%options) = @_;
 
-    foreach (keys %{$pools}) {
+    foreach (keys %$pools) {
         if ($pools->{$_}->{running} == 1) {
             $options{logger}->writeLogDebug("[" . NAME . "] Send KILL signal for pool '" . $_ . "'");
             CORE::kill('KILL', $pools->{$_}->{pid});
