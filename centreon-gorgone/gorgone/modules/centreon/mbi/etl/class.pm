@@ -790,6 +790,62 @@ sub action_centreonmbietlkill {
     return 0;
 }
 
+sub action_centreonmbietlstatus {
+    my ($self, %options) = @_;
+
+    $options{token} = $self->generate_token() if (!defined($options{token}));
+
+    my $map_etl_status = {
+        0 => 'ready',
+        1 => 'running',
+        2 => 'stopping'
+    };
+
+    my $map_planning_status = {
+        0 => 'running',
+        1 => 'ok'
+    };
+
+    my $map_section_status = {
+        -1 => 'unplanned',
+        0 => 'planned',
+        1 => 'running',
+        2 => 'ok'
+    };
+
+    my $section = {};
+    foreach ('import', 'dimensions', 'event', 'perfdata') {
+        next if (!defined($self->{run}->{schedule}));
+
+        $section->{$_} = {
+            status => $self->{run}->{schedule}->{$_}->{status},
+            statusStr => $map_section_status->{ $self->{run}->{schedule}->{$_}->{status} }
+        };
+        if ($self->{run}->{schedule}->{$_}->{status} == RUNNING) {
+            $section->{$_}->{steps_total} = $self->{run}->{schedule}->{$_}->{substeps_total};
+            $section->{$_}->{steps_executed} = $self->{run}->{schedule}->{$_}->{substeps_executed};
+        }
+    }
+
+    $self->send_log(
+        code => GORGONE_ACTION_FINISH_OK,
+        token => $options{token},
+        data => {
+            token => defined($self->{run}->{token}) ? $self->{run}->{token} : undef,
+
+            status => $self->{run}->{status},
+            statusStr => $map_etl_status->{ $self->{run}->{status} },
+
+            planning => defined($self->{run}->{schedule}->{planned}) ? $self->{run}->{schedule}->{planned} : undef,
+            planningStr => defined($self->{run}->{schedule}->{planned}) ? $map_planning_status->{ $self->{run}->{schedule}->{planned} } : undef,
+
+            sections => $section
+        }
+    );
+
+    return 0;
+}
+
 sub event {
     while (1) {
         my $message = $connector->read_message();
