@@ -8,10 +8,12 @@ env.REF_BRANCH = 'master'
 env.PROJECT='centreon-dsm'
 if (env.BRANCH_NAME.startsWith('release-')) {
   env.BUILD = 'RELEASE'
+  env.REPO = 'testing'
 } else if (env.BRANCH_NAME == stableBranch) {
   env.BUILD = 'REFERENCE'
 } else if (env.BRANCH_NAME == devBranch) {
   env.BUILD = 'QA'
+  env.REPO = 'unstable'
 } else {
   env.BUILD = 'CI'
 }
