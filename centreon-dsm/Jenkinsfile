@@ -140,7 +140,7 @@ try {
         dir('centreon-dsm') {
           checkout scm
         }
-        sh 'docker run -i --entrypoint "/src/centreon-dsm/ci/scripts/centreon-dsm-package.sh" -w "/src" -v "$PWD:/src" -e "DISTRIB=Debian11" -e "VERSION=$VERSION" -e "RELEASE=$RELEASE" registry.centreon.com/centreon-debian11-dependencies:22.10'
+        sh 'docker run -i --entrypoint "/src/centreon-dsm/ci/scripts/centreon-dsm-package.sh" -w "/src" -v "$PWD:/src" -e "DISTRIB=bullseye" -e "VERSION=$VERSION" -e "RELEASE=$RELEASE" registry.centreon.com/centreon-debian11-dependencies:22.10'
         stash name: 'Debian11', includes: '*.deb'
         archiveArtifacts artifacts: "*"
       }
