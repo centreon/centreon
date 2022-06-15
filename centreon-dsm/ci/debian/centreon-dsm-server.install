@@ -2,4 +2,4 @@ www/modules/centreon-dsm/*          usr/share/centreon/www/modules/centreon-dsm
 cron/centreon-dsm                   etc/cron.d
 bin/dsmd.pl                         usr/share/centreon/bin
 debian/lib/systemd/dsmd.service     lib/systemd/system
-debian/lib/sysconfig/dsmd           usr/sysconfig
+debian/lib/sysconfig/dsmd           etc/sysconfig
