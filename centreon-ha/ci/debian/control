@@ -30,6 +30,6 @@ Description: This add-on is built to manage a failover solution for Centreon.
 Depends:
   ${misc:Depends}, 
   ${shlibs:Depends},
-  resources-agents,
+  resource-agents,
   centreon-ha (>= ${centreon:version}~),
   centreon-web (>= ${centreon:version}~)
