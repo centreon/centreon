@@ -1,5 +1,5 @@
 etc/centreon-gorgone/config.d/cron.d/*      etc/centreon-gorgone/config.d/cron.d
 etc/centreon-ha/centreon_central_sync.pm    etc/centreon-ha
 etc/sudoers.d/centreon-cluster              etc/sudoers.d
-etc/sysconfig/*                             etc/sysconfig
+etc/sysconfig/*                             etc/default
 systemd/*                                   lib/systemd/system
