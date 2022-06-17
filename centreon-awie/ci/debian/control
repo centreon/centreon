@@ -1,0 +1,17 @@
+Source: centreon-awie
+Section: net
+Priority: optional
+Maintainer: Luiz Costa <me@luizgustavo.pro.br>
+Build-Depends: 
+  debhelper-compat (=12),
+  lsb-base
+Standards-Version: 4.5.0
+Homepage: https://wwww.centreon.com
+
+Package: centreon-awie
+Architecture: any
+Description: UI to export/import centreon configuration.
+Depends:
+  ${misc:Depends}, 
+  ${shlibs:Depends},
+  centreon-web (>= ${centreon:version}~)
