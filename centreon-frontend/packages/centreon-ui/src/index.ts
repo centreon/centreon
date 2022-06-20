@@ -130,3 +130,10 @@ export { default as LicensedModule } from './Module/LicensedModule';
 export { default as SnackbarProvider } from './Snackbar/SnackbarProvider';
 export { default as PersistentTooltip } from './InputField/Search/PersistentTooltip';
 export * from './testRenderer';
+export { default as Form } from './Form';
+export type {
+  InputProps,
+  InputPropsWithoutGroup,
+  Group,
+  InputType,
+} from './Form/Inputs/models';
