@@ -11,6 +11,7 @@ if (env.BRANCH_NAME.startsWith('release-')) {
   env.REPO = 'testing'
 } else if ((env.BRANCH_NAME == env.REF_BRANCH) || (env.BRANCH_NAME == maintenanceBranch)) {
   env.BUILD = 'REFERENCE'
+  env.REPO = '22.04'
 } else if ((env.BRANCH_NAME == 'develop') || (env.BRANCH_NAME == qaBranch)) {
   env.BUILD = 'QA'
   env.REPO = 'unstable'
@@ -125,7 +126,7 @@ try {
           unstash "Debian11"
           sh '''for i in $(echo *.deb)
                 do 
-                  curl -u $NEXUS_USERNAME:$NEXUS_PASSWORD -H "Content-Type: multipart/form-data" --data-binary "@./$i" https://apt.centreon.com/repository/22.04-$REPO/
+                  curl -u $NEXUS_USERNAME:$NEXUS_PASSWORD -H "Content-Type: multipart/form-data" --data-binary "@./$i" https://apt.centreon.com/repository/$REPO/
                 done
              '''    
         }
