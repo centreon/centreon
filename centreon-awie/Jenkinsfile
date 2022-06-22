@@ -154,21 +154,12 @@ try {
   }
 
   if ((env.BUILD == 'CI')) {
-    stage('Delivery to unstable') {
+    stage('Delivery') {
       node {
         unstash 'rpms-alma8'
         unstash 'rpms-centos7'
         checkoutCentreonBuild(buildBranch)
         sh "./centreon-build/jobs/awie/${serie}/mon-awie-delivery.sh"
-        withCredentials([usernamePassword(credentialsId: 'nexus-credentials', passwordVariable: 'NEXUS_PASSWORD', usernameVariable: 'NEXUS_USERNAME')]) {
-          checkout scm
-          unstash "Debian11"
-          sh '''for i in $(echo *.deb)
-                do 
-                  curl -u $NEXUS_USERNAME:$NEXUS_PASSWORD -H "Content-Type: multipart/form-data" --data-binary "@./$i" https://apt.centreon.com/repository/22.04-$REPO/
-                done
-             '''    
-        }
       }
       if ((currentBuild.result ?: 'SUCCESS') != 'SUCCESS') {
         error('Delivery stage failure.');
@@ -230,7 +221,17 @@ try {
         checkoutCentreonBuild(buildBranch)
         unstash 'rpms-alma8'
         unstash 'rpms-centos7'
+        unstash 'Debian11'
         sh "./centreon-build/jobs/awie/${serie}/mon-awie-delivery.sh"
+        withCredentials([usernamePassword(credentialsId: 'nexus-credentials', passwordVariable: 'NEXUS_PASSWORD', usernameVariable: 'NEXUS_USERNAME')]) {
+          checkout scm
+          unstash "Debian11"
+          sh '''for i in $(echo *.deb)
+                do 
+                  curl -u $NEXUS_USERNAME:$NEXUS_PASSWORD -H "Content-Type: multipart/form-data" --data-binary "@./$i" https://apt.centreon.com/repository/22.04-$REPO/
+                done
+             '''    
+        }
       }
       if ((currentBuild.result ?: 'SUCCESS') != 'SUCCESS') {
         error('Delivery stage failure.');
