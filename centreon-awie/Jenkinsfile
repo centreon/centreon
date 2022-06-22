@@ -174,12 +174,14 @@ try {
         sh "./centreon-build/jobs/awie/${serie}/mon-awie-bundle.sh centos7"
       }
     }
-    //'Docker centos8': {
-    //  node {
-    //    checkoutCentreonBuild(buildBranch)
-    //    sh "./centreon-build/jobs/awie/${serie}/mon-awie-bundle.sh centos8"
-    //  }
-    //}
+/*
+    'Docker centos8': {
+      node {
+        checkoutCentreonBuild(buildBranch)
+        sh "./centreon-build/jobs/awie/${serie}/mon-awie-bundle.sh centos8"
+      }
+    }
+*/
     if ((currentBuild.result ?: 'SUCCESS') != 'SUCCESS') {
       error('Bundle stage failure.');
     }
