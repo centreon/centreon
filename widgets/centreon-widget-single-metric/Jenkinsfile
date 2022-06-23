@@ -149,7 +149,7 @@ try {
         dir('centreon-widget-single-metric') {
           checkout scm
         }
-        sh 'docker run -i --entrypoint "/src/centreon-widget-single-metric/ci/scripts/widget-deb-package.sh" -w "/src" -v "$PWD:/src" -e "DISTRIB=Debian11" -e "VERSION=$VERSION" -e "RELEASE=$RELEASE" registry.centreon.com/centreon-debian11-dependencies:22.10'
+        sh 'docker run -i --entrypoint "/src/centreon-widget-single-metric/ci/scripts/widget-deb-package.sh" -w "/src" -v "$PWD:/src" -e "DISTRIB=bullseye" -e "VERSION=$VERSION" -e "RELEASE=$RELEASE" registry.centreon.com/centreon-debian11-dependencies:22.10'
         stash name: 'Debian11', includes: '*.deb'
         archiveArtifacts artifacts: "*.deb"
       }
