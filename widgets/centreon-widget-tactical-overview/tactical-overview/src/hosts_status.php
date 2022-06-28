@@ -46,7 +46,6 @@ $db = new CentreonDB("centstorage");
  * false: URIs will correspond to new page (Resource Status)
  */
 $useDeprecatedPages = $centreon->user->doesShowDeprecatedPages();
-$centreonWebPath = trim($centreon->optGen['oreon_web_path'], '/');
 
 $buildHostUri = function (array $states, array $statuses) use ($resourceController, $buildParameter) {
     return $resourceController->buildListingUri(
@@ -73,7 +72,7 @@ $unhandledState = $buildParameter('unhandled_problems', 'Unhandled');
 $acknowledgedState = $buildParameter('acknowledged', 'Acknowledged');
 $inDowntimeState = $buildParameter('in_downtime', 'In downtime');
 
-$deprecatedHostListingUri = '/' . $centreonWebPath . '/main.php?p=20202&search=&o=h_';
+$deprecatedHostListingUri = '../../main.php?p=20202&search=&o=h_';
 
 // query for DOWN status
 $res = $db->query(
