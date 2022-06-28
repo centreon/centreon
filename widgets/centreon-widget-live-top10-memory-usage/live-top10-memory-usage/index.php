@@ -53,8 +53,6 @@ if (!isset($_SESSION['centreon']) || !isset($_REQUEST['widgetId'])) {
 
 $centreon = $_SESSION['centreon'];
 
-$centreonWebPath = trim($centreon->optGen['oreon_web_path'], '/');
-
 /**
  * true: URIs will correspond to deprecated pages
  * false: URIs will correspond to new page (Resource Status)
@@ -151,7 +149,7 @@ while ($row = $res->fetchRow()) {
     $row['remaining_space'] = round($row['remaining_space']);
     $row['ratio'] = ceil($row['ratio'] * 100);
     $row['details_uri'] = $useDeprecatedPages
-        ? '/' . $centreonWebPath . '/main.php?p=20201&o=svcd&host_name='
+        ? '../../main.php?p=20201&o=svcd&host_name='
             . $row['host_name']
             . '&service_description='
             . $row['service_description']
