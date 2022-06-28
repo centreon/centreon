@@ -66,15 +66,15 @@
     {/if}
     <tr id="host-{$elem2.host_id}" class="{$classStyle}">
         <td class='ListColLeft' width='160' style="padding-left: 19px;">
-            <img src="/{$centreon_web_path}/img/icons/host.png" class="margin_right ico-18">
+            <img src="../../img/icons/host.png" class="margin_right ico-18">
             <a href='{$elem2.details_uri}' target=_blank>{$host_name}</a>
         </td>
         <td class='ListColLeft' style='white-space:nowrap;width:37px;'>
             <a href='{$elem2.services_uri}' target=_blank>
-                <img src='/{$centreon_web_path}/img/icons/view.png' class='ico-18' />
+                <img src='../../img/icons/view.png' class='ico-18' />
             </a>&nbsp;
-            <a href='/{$centreon_web_path}/main.php?p=20401&mode=0&svc_id={$elem2.name}' target=_blank>
-                <img src='/{$centreon_web_path}/img/icons/chart.png' class='ico-18' />
+            <a href='../../main.php?p=20401&mode=0&svc_id={$elem2.name}' target=_blank>
+                <img src='../../img/icons/chart.png' class='ico-18' />
             </a>
         </td>
         <td class='ListColCenter' style='white-space:nowrap;'><span class='badge {$aColorHost[$elem2.state]}'>{$hostStateLabels[$elem2.state]}</span></td>

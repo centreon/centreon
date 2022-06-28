@@ -67,8 +67,6 @@ $centreon = $_SESSION['centreon'];
  */
 $useDeprecatedPages = $centreon->user->doesShowDeprecatedPages();
 
-$centreonWebPath = trim($centreon->optGen['oreon_web_path'], "/");
-
 $widgetId = filter_var($_REQUEST['widgetId'], FILTER_VALIDATE_INT);
 $page = filter_var($_REQUEST['page'], FILTER_VALIDATE_INT);
 
@@ -251,10 +249,10 @@ while ($row = $res->fetch()) {
     if ($detailMode === true) {
         foreach ($hostStates as $hostName => &$properties) {
             $properties['details_uri'] = $useDeprecatedPages
-                ? '/' . $centreonWebPath . '/main.php?p=20202&o=hd&host_name=' . $hostName
+                ? '../../main.php?p=20202&o=hd&host_name=' . $hostName
                 : $resourceController->buildHostDetailsUri($properties['host_id']);
             $properties['services_uri'] = $useDeprecatedPages
-                ? '/' . $centreonWebPath . '/main.php?p=20201&host_search=' . $hostName . '&sg=' . $servicegroup['id']
+                ? '../../main.php?p=20201&host_search=' . $hostName . '&sg=' . $servicegroup['id']
                 : $buildServicegroupUri(
                     [$servicegroup],
                     [$serviceType],
@@ -266,8 +264,7 @@ while ($row = $res->fetch()) {
         foreach ($serviceStates as $hostId => &$serviceState) {
             foreach ($serviceState as $serviceId => &$properties) {
                 $properties['details_uri'] = $useDeprecatedPages
-                    ? '/' . $centreonWebPath
-                        . '/main.php?p=20201&o=svcd&host_name=' . $properties['name']
+                    ? '../../main.php?p=20201&o=svcd&host_name=' . $properties['name']
                         . '&service_description=' . $properties['description']
                     : $resourceController->buildServiceDetailsUri(
                         $hostId,
@@ -277,8 +274,8 @@ while ($row = $res->fetch()) {
         }
     }
 
-    $serviceGroupDeprecatedUri = '/' . $centreonWebPath
-        . '/main.php?p=20201&search=0&host_search=0&output_search=0&hg=0&sg=' . $servicegroup['id'];
+    $serviceGroupDeprecatedUri = '../../main.php?p=20201&search=0'
+        . '&host_search=0&output_search=0&hg=0&sg=' . $servicegroup['id'];
 
     $serviceGroupUri = $useDeprecatedPages
         ? $serviceGroupDeprecatedUri
@@ -338,7 +335,6 @@ $template->assign('hostStateLabels', $hostStateLabels);
 $template->assign('hostStateColors', $hostStateColors);
 $template->assign('serviceStateLabels', $serviceStateLabels);
 $template->assign('serviceStateColors', $serviceStateColors);
-$template->assign('centreon_web_path', $centreonWebPath);
 $template->assign('centreon_path', $centreon_path);
 
 $bMoreViews = 0;
