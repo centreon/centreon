@@ -58,7 +58,6 @@ $centreon = $_SESSION['centreon'];
  * false: URIs will correspond to new page (Resource Status)
  */
 $useDeprecatedPages = $centreon->user->doesShowDeprecatedPages();
-$centreonWebPath = trim($centreon->optGen['oreon_web_path'], '/');
 
 $widgetId = filter_var($_REQUEST['widgetId'], FILTER_VALIDATE_INT);
 
@@ -177,7 +176,7 @@ if ($preferences['host_group']) {
     $res = $db->query($query1);
     while ($row = $res->fetch()) {
         $row['details_uri'] = $useDeprecatedPages
-        ? '/' . $centreonWebPath . '/main.php?p=20202&o=hd&host_name=' . $row['name']
+        ? '../../main.php?p=20202&o=hd&host_name=' . $row['name']
         : $resourceController->buildHostDetailsUri($row['host_id']);
         $data[] = $row;
     }
@@ -200,7 +199,7 @@ if ($preferences['host_group']) {
             $data_service[$row['description']]['hosts'][] = $row['host_id'];
             $data_service[$row['description']]['hostsStatus'][$row['host_id']] = $colors[$row['state']];
             $data_service[$row['description']]['details_uri'][$row['host_id']] = $useDeprecatedPages
-                ? '/' . $centreonWebPath . '/main.php?p=20201&o=svcd&host_name=' . $row['name']
+                ? '../../main.php?p=20201&o=svcd&host_name=' . $row['name']
                     . '&service_description=' . $row['description']
                 : $resourceController->buildServiceDetailsUri($row['host_id'], $row['service_id']);
         }
