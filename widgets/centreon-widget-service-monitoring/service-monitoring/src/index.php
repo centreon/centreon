@@ -78,7 +78,6 @@ $centreon = $_SESSION['centreon'];
  */
 $useDeprecatedPages = $centreon->user->doesShowDeprecatedPages();
 
-$centreonWebPath = trim($centreon->optGen['oreon_web_path'], '/');
 $widgetId = filter_input(INPUT_GET, 'widgetId', FILTER_VALIDATE_INT, ['options' => ['default' => 0]]);
 $page = filter_input(INPUT_GET, 'page', FILTER_VALIDATE_INT, ['options' => ['default' => 0]]);
 
@@ -474,16 +473,16 @@ while ($row = $res->fetch()) {
         \Centreon\Application\Controller\MonitoringResourceController::class
     );
     $data[$row['host_id'] . '_' . $row['service_id']]['h_details_uri'] = $useDeprecatedPages
-        ? '/' . $centreonWebPath . '/main.php?p=20202&o=hd&host_name=' . $row['hostname']
+        ? '../../main.php?p=20202&o=hd&host_name=' . $row['hostname']
         : $resourceController->buildHostDetailsUri($row['host_id']);
 
     $data[$row['host_id'] . '_' . $row['service_id']]['s_details_uri'] = $useDeprecatedPages
-        ? '/' . $centreonWebPath . '/main.php?p=20201&o=svcd&host_name=' . $row['hostname']
+        ? '../../main.php?p=20201&o=svcd&host_name=' . $row['hostname']
             . '&service_description=' . $row['description']
         : $resourceController->buildServiceDetailsUri($row['host_id'], $row['service_id']);
 
     $data[$row['host_id'] . '_' . $row['service_id']]['s_graph_uri'] = $useDeprecatedPages
-        ? '/' . $centreonWebPath . '/main.php?p=204&mode=0&svc_id=' . $row['hostname'] . ';' . $row['description']
+        ? '../../main.php?p=204&mode=0&svc_id=' . $row['hostname'] . ';' . $row['description']
         : $resourceController->buildServiceUri(
             $row['host_id'],
             $row['service_id'],
@@ -494,7 +493,7 @@ while ($row = $res->fetch()) {
     $valueHActionUrl = $row['h_action_url'];
     if ($valueHActionUrl) {
         if (preg_match('#^\./(.+)#', $valueHActionUrl, $matches)) {
-            $valueHActionUrl = '/' . $centreonWebPath . '/' . $matches[1];
+            $valueHActionUrl = '../../' . $matches[1];
         } elseif (!preg_match($allowedProtocolsRegex, $valueHActionUrl)) {
             $valueHActionUrl = '//' . $valueHActionUrl;
         }
@@ -512,7 +511,7 @@ while ($row = $res->fetch()) {
     $valueHNotesUrl = $row['h_notes_url'];
     if ($valueHNotesUrl) {
         if (preg_match('#^\./(.+)#', $valueHNotesUrl, $matches)) {
-            $valueHNotesUrl = '/' . $centreonWebPath . '/' . $matches[1];
+            $valueHNotesUrl = '../../' . $matches[1];
         } elseif (!preg_match($allowedProtocolsRegex, $valueHNotesUrl)) {
             $valueHNotesUrl = '//' . $valueHNotesUrl;
         }
@@ -530,7 +529,7 @@ while ($row = $res->fetch()) {
     $valueSActionUrl = $row['s_action_url'];
     if ($valueSActionUrl) {
         if (preg_match('#^\./(.+)#', $valueSActionUrl, $matches)) {
-            $valueSActionUrl = '/' . $centreonWebPath . '/' . $matches[1];
+            $valueSActionUrl = '../../' . $matches[1];
         } elseif (!preg_match($allowedProtocolsRegex, $valueSActionUrl)) {
             $valueSActionUrl = '//' . $valueSActionUrl;
         }
@@ -549,7 +548,7 @@ while ($row = $res->fetch()) {
     $valueSNotesUrl = $row['s_notes_url'];
     if ($valueSNotesUrl) {
         if (preg_match('#^\./(.+)#', $valueSNotesUrl, $matches)) {
-            $valueSNotesUrl = '/' . $centreonWebPath . '/' . $matches[1];
+            $valueSNotesUrl = '../../' . $matches[1];
         } elseif (!preg_match($allowedProtocolsRegex, $valueSNotesUrl)) {
             $valueSNotesUrl = '//' . $valueSNotesUrl;
         }
@@ -621,7 +620,6 @@ $template->assign('dataJS', count($data));
 $template->assign('nbRows', $nbRows);
 $template->assign('StateHColors', $stateHColors);
 $template->assign('StateSColors', $stateSColors);
-$template->assign('centreon_web_path', $centreon->optGen['oreon_web_path']);
 $template->assign('preferences', $preferences);
 $template->assign('data', $data);
 $template->assign('broker', 'broker');
