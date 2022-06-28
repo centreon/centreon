@@ -1,0 +1,38 @@
+.bar {
+    position: relative;
+    margin: 0 6px;
+    padding: 2px;
+    height: 15px;
+    text-align: center;
+    border-width: 1px;
+    border-color: var(--progress-bar-border-color);
+    border-style: solid;
+    border-radius: 4px;
+}
+.bar .progress {
+    background-color: var(--progress-bar-color);
+    height: 100%;
+    display: block;
+    border-radius: 4px;
+}
+
+.styleTable .stat {
+    width : 30%;
+}
+.bar .percent {
+    position: absolute;
+    top: 3px;
+    line-height: 15px;
+    border-radius: 4px;
+    color: var(--progress-bar-font-color);
+}
+
+.index {
+    width: 15px;
+    text-align: center;
+}
+
+.title {
+    text-align : center;
+    line-height: 45px;
+}
