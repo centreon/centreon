@@ -66,8 +66,6 @@ $centreon = $_SESSION['centreon'];
  */
 $useDeprecatedPages = $centreon->user->doesShowDeprecatedPages();
 
-$centreonWebPath = trim($centreon->optGen['oreon_web_path'], "/");
-
 $widgetId = filter_var($_REQUEST['widgetId'], FILTER_VALIDATE_INT);
 $page = filter_var($_REQUEST['page'], FILTER_VALIDATE_INT);
 try {
@@ -223,7 +221,7 @@ while ($row = $res->fetch()) {
     ];
 
     $hostgroupServicesUri = $useDeprecatedPages
-        ? '/' . $centreonWebPath . '/main.php?p=20201&search=&o=svc&hg=' . $hostgroup['id']
+        ? '../../main.php?p=20201&search=&o=svc&hg=' . $hostgroup['id']
         : $buildHostgroupUri([$hostgroup], [$serviceType], []);
 
     $hostgroupOkServicesUri = $useDeprecatedPages
@@ -247,7 +245,7 @@ while ($row = $res->fetch()) {
         : $buildHostgroupUri([$hostgroup], [$serviceType], [$pendingStatus]);
 
     $hostgroupHostsUri = $useDeprecatedPages
-        ? '/' . $centreonWebPath . '/main.php?p=20202&search=&hostgroups=' . $hostgroup['id'] . '&o=h_'
+        ? '../../main.php?p=20202&search=&hostgroups=' . $hostgroup['id'] . '&o=h_'
         : $buildHostgroupUri([$hostgroup], [$hostType], []);
 
     $hostgroupUpHostsUri = $useDeprecatedPages
@@ -292,13 +290,13 @@ if ($detailMode === true) {
     foreach ($data as $hostgroupName => &$properties) {
         foreach ($properties['host_state'] as $hostName => &$hostProperties) {
             $hostProperties['details_uri'] = $useDeprecatedPages
-                ? '/' . $centreonWebPath . '/main.php?p=20202&o=hd&host_name=' . $hostProperties['name']
+                ? '../../main.php?p=20202&o=hd&host_name=' . $hostProperties['name']
                 : $resourceController->buildHostDetailsUri($hostProperties['host_id']);
         }
         foreach ($properties['service_state'] as $hostId => &$services) {
             foreach ($services as &$serviceProperties) {
                 $serviceProperties['details_uri'] = $useDeprecatedPages
-                    ? '/' . $centreonWebPath . '/main.php?o=svcd&p=20201'
+                    ? '../../main.php?o=svcd&p=20201'
                         . '&host_name=' . $serviceProperties['name']
                         . '&service_description=' . $serviceProperties['description']
                     : $resourceController->buildServiceDetailsUri($hostId, $serviceProperties['service_id']);
@@ -322,7 +320,6 @@ $template->assign('data', $data);
 $template->assign('dataJS', count($data));
 $template->assign('aColorHost', $aColorHost);
 $template->assign('aColorService', $aColorService);
-$template->assign('centreon_web_path', $centreonWebPath);
 $template->assign('preferences', $preferences);
 $template->assign('hostStateLabels', $hostStateLabels);
 $template->assign('hostStateColors', $hostStateColors);
