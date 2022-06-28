@@ -27,7 +27,7 @@ sed -i "s/^centreon:version=.*$/centreon:version=$(echo $VERSION | egrep -o '^[0
 
 ls -lart
 cd /build/$PROJECT
-debmake -f "${AUTHOR}" -e "${AUTHOR_EMAIL}" -u "$VERSION" -y -r "$RELEASE"
+debmake -f "${AUTHOR}" -e "${AUTHOR_EMAIL}" -u "$VERSION" -y -r "$DISTRIB"
 debuild-pbuilder
 cd /build
 
