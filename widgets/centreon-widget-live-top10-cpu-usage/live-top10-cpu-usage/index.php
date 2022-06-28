@@ -52,8 +52,6 @@ if (!isset($_SESSION['centreon']) || !isset($_REQUEST['widgetId'])) {
 
 $centreon = $_SESSION['centreon'];
 
-$centreonWebPath = trim($centreon->optGen['oreon_web_path'], '/');
-
 $widgetId = filter_var($_REQUEST['widgetId'], FILTER_VALIDATE_INT);
 $grouplistStr = '';
 
@@ -144,7 +142,7 @@ while ($row = $res->fetch()) {
     $row['numLin'] = $numLine;
     $row['current_value'] = ceil($row['current_value']);
     $row['details_uri'] = $useDeprecatedPages
-        ? '/' . $centreonWebPath . '/main.php?p=20201&o=svcd&host_name='
+        ? '../../main.php?p=20201&o=svcd&host_name='
             . $row['host_name']
             . '&service_description='
             . $row['service_description']
