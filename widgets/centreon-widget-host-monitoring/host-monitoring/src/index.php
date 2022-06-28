@@ -78,7 +78,6 @@ $centreon = $_SESSION['centreon'];
  */
 $useDeprecatedPages = $centreon->user->doesShowDeprecatedPages();
 
-$centreonWebPath = trim($centreon->optGen['oreon_web_path'], '/');
 $widgetId = filter_input(INPUT_GET, 'widgetId', FILTER_VALIDATE_INT, ['options' => ['default' => 0]]);
 $page = filter_input(INPUT_GET, 'page', FILTER_VALIDATE_INT, ['options' => ['default' => 1]]);
 
@@ -321,14 +320,14 @@ while ($row = $res->fetch()) {
         \Centreon\Application\Controller\MonitoringResourceController::class
     );
     $data[$row['host_id']]['details_uri'] = $useDeprecatedPages
-        ? '/' . $centreonWebPath . '/main.php?p=20202&o=hd&host_name=' . $row['host_name']
+        ? '../../main.php?p=20202&o=hd&host_name=' . $row['host_name']
         : $resourceController->buildHostDetailsUri($row['host_id']);
 
     // action_url
     $valueActionUrl = $row['action_url'];
     if (!empty($valueActionUrl)) {
         if (preg_match('#^\./(.+)#', $valueActionUrl, $matches)) {
-            $valueActionUrl = '/' . $centreonWebPath . '/' . $matches[1];
+            $valueActionUrl = '../../' . $matches[1];
         } elseif (!preg_match($allowedProtocolsRegex, $valueActionUrl)) {
             $valueActionUrl = '//' . $valueActionUrl;
         }
@@ -343,7 +342,7 @@ while ($row = $res->fetch()) {
     $valueNotesUrl = $row['notes_url'];
     if (!empty($valueNotesUrl)) {
         if (preg_match('#^\./(.+)#', $valueNotesUrl, $matches)) {
-            $valueNotesUrl = '/' . $centreonWebPath . '/' . $matches[1];
+            $valueNotesUrl = '../../' . $matches[1];
         } elseif (!preg_match($allowedProtocolsRegex, $valueNotesUrl)) {
             $valueNotesUrl = '//' . $valueNotesUrl;
         }
@@ -410,7 +409,6 @@ $template->assign('page', $page);
 $template->assign('dataJS', count($data));
 $template->assign('nbRows', $nbRows);
 $template->assign('aColorHost', $aColorHost);
-$template->assign('centreon_web_path', $centreonWebPath);
 $template->assign('preferences', $preferences);
 $template->assign('data', $data);
 $template->assign('broker', 'broker');

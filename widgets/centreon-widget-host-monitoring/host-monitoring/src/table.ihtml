@@ -42,7 +42,7 @@
             <span class="state_badge" style="background-color:{$elem.color};"></span>
         {/if}
         {if $elem.icon_image != ''}
-           <img src ='/{$centreon_web_path}/img/media/{$elem.icon_image}' width='16' height='16' style ='padding-right:5px;' />
+           <img src ='../../img/media/{$elem.icon_image}' width='16' height='16' style ='padding-right:5px;' />
         {/if}
         {if $preferences.display_host_name && $preferences.display_host_alias}
             {assign var='host_name' value=$elem.host_name|cat:" - "|cat:$elem.alias}
@@ -57,27 +57,27 @@
         {/if}
             <td class='ListColRight'>
                 <div style='float: right;'>
-                    {if $elem.scheduled_downtime_depth != 0}<img src='/{$centreon_web_path}/img/icons/warning.png' class="ico-18">{/if}
-                    {if $elem.acknowledged == 1}<img src='/{$centreon_web_path}/img/icons/technician.png' class='ico-20'>{/if}
-                    {if ($elem.active_checks == 0 && $elem.passive_checks == 0) }<img src='/{$centreon_web_path}/img/icons/never_checked.png' class='ico-16'>{/if}
-                    {if ($elem.active_checks == 0 && $elem.passive_checks == 1) }<img src='/{$centreon_web_path}/img/icons/passive_check.png' class='ico-16'>{/if}
-                    {if $elem.notify == 0}<img src='/{$centreon_web_path}/img/icons/notifications_off.png' class="ico-18">{/if}
+                    {if $elem.scheduled_downtime_depth != 0}<img src='../../img/icons/warning.png' class="ico-18">{/if}
+                    {if $elem.acknowledged == 1}<img src='../../img/icons/technician.png' class='ico-20'>{/if}
+                    {if ($elem.active_checks == 0 && $elem.passive_checks == 0) }<img src='../../img/icons/never_checked.png' class='ico-16'>{/if}
+                    {if ($elem.active_checks == 0 && $elem.passive_checks == 1) }<img src='../../img/icons/passive_check.png' class='ico-16'>{/if}
+                    {if $elem.notify == 0}<img src='../../img/icons/notifications_off.png' class="ico-18">{/if}
                     {if $elem.action_url}
                         <a target=_blank href='{$elem.action_url}'>
-                            <img src='/{$centreon_web_path}/img/icons/star-full.png' class='ico-16'>
+                            <img src='../../img/icons/star-full.png' class='ico-16'>
                         </a>
                     {/if}
                     {if $elem.flapping}
-                        <img src='/{$centreon_web_path}/img/icones/16x16/flapping.gif' class="ico-18" title={$title_flapping}>
+                        <img src='../../img/icones/16x16/flapping.gif' class="ico-18" title={$title_flapping}>
                     {/if}
                     {if $elem.notes_url}
                     <a target=_blank href='{$elem.notes_url}'>
-                        <img src='/{$centreon_web_path}/img/icons/link.png' class='ico-14'>
+                        <img src='../../img/icons/link.png' class='ico-14'>
                     </a>
                     {/if}
                     {if $preferences.display_chart_icon}
-                    <a target=_blank href='/{$centreon_web_path}/main.php?p=204&amp;mode=0&svc_id={$elem.encoded_host_name}'>
-                        <img src='/{$centreon_web_path}/img/icons/chart.png' class='ico-18' title='{$title_graph}' />
+                    <a target=_blank href='../../main.php?p=204&amp;mode=0&svc_id={$elem.encoded_host_name}'>
+                        <img src='../../img/icons/chart.png' class='ico-18' title='{$title_graph}' />
                     </a>
                     {/if}
                 </div>
