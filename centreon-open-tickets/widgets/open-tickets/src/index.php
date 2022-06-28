@@ -502,7 +502,6 @@ $template->assign('preferences', $preferences);
 $template->assign('page', $page);
 $template->assign('dataJS', count($data));
 $template->assign('nbRows', $nbRows);
-$template->assign('centreon_web_path', $centreon->optGen['oreon_web_path']);
 $template->assign('preferences', $preferences);
 $template->assign('data', $data);
 $template->display('table.ihtml');

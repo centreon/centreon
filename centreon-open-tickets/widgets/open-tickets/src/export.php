@@ -343,7 +343,7 @@ while ($row = $res->fetch()) {
         }
     }
 }
-$template->assign('centreon_web_path', trim($centreon->optGen['oreon_web_path'], "/"));
+
 $template->assign('preferences', $preferences);
 $template->assign('data', $data);
 $template->display('export.ihtml');
