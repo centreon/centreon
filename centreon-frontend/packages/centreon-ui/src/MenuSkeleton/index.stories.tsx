@@ -1,8 +1,17 @@
+import { ComponentMeta, ComponentStory } from '@storybook/react';
+
 import makeStyles from '@mui/styles/makeStyles';
 
 import MenuLoader from '.';
 
-export default { title: 'Menu Skeleton' };
+export default {
+  argTypes: {
+    animate: { control: 'boolean' },
+    width: { control: 'number' },
+  },
+  component: MenuLoader,
+  title: 'Menu Skeleton',
+} as ComponentMeta<typeof MenuLoader>;
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -22,6 +31,16 @@ const MenuLoaderStory = ({ width }: Props): JSX.Element => {
       <MenuLoader animate={false} width={width} />
     </div>
   );
+};
+
+const TemplateMenuLoaderStory: ComponentStory<typeof MenuLoader> = (args) => (
+  <MenuLoaderStory {...args} />
+);
+
+export const PlaygroundMenuLoaderStory = TemplateMenuLoaderStory.bind({});
+PlaygroundMenuLoaderStory.args = {
+  animate: false,
+  width: 40,
 };
 
 export const menuLoader = (): JSX.Element => <MenuLoaderStory />;

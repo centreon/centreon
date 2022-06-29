@@ -1,9 +1,18 @@
+import { ComponentMeta, ComponentStory } from '@storybook/react';
+
 import { useSnackbar } from '../..';
 import SnackbarProvider from '../../Snackbar/SnackbarProvider';
 
 import UnsavedChangesDialog from '.';
 
-export default { title: 'Dialog/Unsaved Changes Dialog' };
+export default {
+  argTypes: {
+    isSubmitting: { control: 'boolean' },
+    isValidForm: { control: 'boolean' },
+  },
+  component: UnsavedChangesDialog,
+  title: 'Dialog/Unsaved Changes Dialog',
+} as ComponentMeta<typeof UnsavedChangesDialog>;
 
 interface Props {
   isSubmitting: boolean;
@@ -32,6 +41,14 @@ const Story = ({ isValidForm, isSubmitting }: Props): JSX.Element => {
     </SnackbarProvider>
   );
 };
+
+const TemplateUnsavedChangesDialog: ComponentStory<
+  typeof UnsavedChangesDialog
+> = (args) => <Story {...args} />;
+
+export const PlaygroundUnsavedChangesDialog = TemplateUnsavedChangesDialog.bind(
+  {},
+);
 
 export const normal = (): JSX.Element => (
   <Story isValidForm isSubmitting={false} />

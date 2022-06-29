@@ -1,7 +1,7 @@
 /* eslint-disable react/prop-types */
-
 import { useState } from 'react';
 
+import { ComponentMeta, ComponentStory } from '@storybook/react';
 import { prop } from 'ramda';
 
 import { Button } from '@mui/material';
@@ -14,7 +14,17 @@ import { Column, ColumnType } from './models';
 
 import Listing from '.';
 
-export default { title: 'Listing' };
+export default {
+  argTypes: {
+    checkable: { control: 'boolean' },
+    currentPage: { control: 'number' },
+    limit: { control: 'number' },
+    loading: { control: 'boolean' },
+    totalRows: { control: 'number' },
+  },
+  component: Listing,
+  title: 'Listing',
+} as ComponentMeta<typeof Listing>;
 
 const useStyles = makeStyles((theme) => ({
   listing: {
@@ -228,3 +238,24 @@ const ListingWithEditableColumns = (): JSX.Element => {
 export const withEditableColumns = (): JSX.Element => (
   <ListingWithEditableColumns />
 );
+
+const TemplateListing: ComponentStory<typeof Listing> = (args) => (
+  <Listing
+    {...args}
+    columns={editableColumns}
+    disableRowCheckCondition={(row): boolean => row.disableCheckbox}
+    disableRowCondition={(row): boolean => row.disableRow}
+    predefinedRowsSelection={predefinedRowsSelection}
+    rowColorConditions={rowColorConditions}
+    rows={listing}
+  />
+);
+
+export const PlaygroundListing = TemplateListing.bind({});
+PlaygroundListing.args = {
+  checkable: true,
+  currentPage: 1,
+  limit: 10,
+  loading: false,
+  totalRows: 10,
+};

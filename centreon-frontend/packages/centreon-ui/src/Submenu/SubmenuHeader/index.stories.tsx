@@ -10,7 +10,9 @@ import SubmenuItem from './SubmenuItem';
 
 import SubmenuHeader from '.';
 
-export default { title: 'SubemnuHeader' };
+export default {
+  title: 'SubmenuHeader',
+};
 
 const Submenu = (): JSX.Element => {
   const [active, setActive] = useState(false);

@@ -1,3 +1,4 @@
+import { ComponentMeta, ComponentStory } from '@storybook/react';
 import axios from 'axios';
 import MockAdapter from 'axios-mock-adapter';
 
@@ -7,7 +8,14 @@ import { getModuleLicenseCheckEndpoint } from '../api';
 
 import LicenseCheck from '.';
 
-export default { title: 'LicenseCheck' };
+export default {
+  argTypes: {
+    isLicenseValid: { control: 'boolean' },
+    moduleName: { control: 'text' },
+  },
+  component: LicenseCheck,
+  title: 'LicenseCheck',
+} as ComponentMeta<typeof LicenseCheck>;
 
 const mockedAxios = new MockAdapter(axios);
 
@@ -32,6 +40,14 @@ const Story = ({ isLicenseValid }: Props): JSX.Element => {
       <Module />
     </LicenseCheck>
   );
+};
+
+const TemplateLicenseCheck: ComponentStory<typeof LicenseCheck> = (args) => (
+  <Story {...args} isLicenseValid={false} />
+);
+export const PlaygroundLicenseCheck = TemplateLicenseCheck.bind({});
+PlaygroundLicenseCheck.args = {
+  moduleName: 'Paid Module',
 };
 
 export const withInvalidLicense = (): JSX.Element => (

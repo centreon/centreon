@@ -1,5 +1,6 @@
 import * as React from 'react';
 
+import { ComponentMeta, ComponentStory } from '@storybook/react';
 import { DraggableSyntheticListeners, rectIntersection } from '@dnd-kit/core';
 import {
   horizontalListSortingStrategy,
@@ -16,7 +17,10 @@ import { CreateCSSProperties } from '@mui/styles';
 
 import SortableItems, { RootComponentProps } from '.';
 
-export default { title: 'SortableItems' };
+export default {
+  component: SortableItems,
+  title: 'SortableItems',
+} as ComponentMeta<typeof SortableItems>;
 
 interface Entity {
   id: string;
@@ -189,6 +193,12 @@ const Story = ({
     </div>
   );
 };
+
+const TemplateSortableItems: ComponentStory<typeof SortableItems> = (args) => (
+  <Story direction="horizontalContainer" {...args} />
+);
+
+export const PlaygroundSortableItems = TemplateSortableItems.bind({});
 
 export const vertical = (): JSX.Element => (
   <Story

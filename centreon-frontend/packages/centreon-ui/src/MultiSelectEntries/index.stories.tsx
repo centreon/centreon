@@ -1,6 +1,17 @@
+import { ComponentMeta, ComponentStory } from '@storybook/react';
+
 import MultiSelectEntries from '.';
 
-export default { title: 'MultiSelectEntries' };
+export default {
+  argTypes: {
+    emptyLabel: { control: 'text' },
+    highlight: { control: 'boolean' },
+    label: { control: 'text' },
+    values: { control: 'object' },
+  },
+  component: MultiSelectEntries,
+  title: 'MultiSelectEntries',
+} as ComponentMeta<typeof MultiSelectEntries>;
 
 const label = 'Entries';
 const emptyLabel = 'Click to add Entries';
@@ -13,6 +24,18 @@ const entries = [...sixElement].map((_, index) => ({
 }));
 
 const noOp = (): void => undefined;
+
+const TemplateMultiSelectEntries: ComponentStory<typeof MultiSelectEntries> = (
+  args,
+) => <MultiSelectEntries {...args} />;
+
+export const PlaygroundMultiSelectEntries = TemplateMultiSelectEntries.bind({});
+PlaygroundMultiSelectEntries.args = {
+  emptyLabel,
+  highlight: false,
+  label,
+  values: entries,
+};
 
 export const empty = (): JSX.Element => (
   <MultiSelectEntries emptyLabel={emptyLabel} label={label} onClick={noOp} />

@@ -1,6 +1,25 @@
+import { ComponentMeta, ComponentStory } from '@storybook/react';
+
 import StatusChip, { SeverityCode } from '.';
 
-export default { title: 'StatusChip' };
+export default {
+  argTypes: {
+    clickable: { control: 'boolean' },
+    label: { control: 'text' },
+  },
+  component: StatusChip,
+  title: 'StatusChip',
+} as ComponentMeta<typeof StatusChip>;
+
+const TemplateStatusChip: ComponentStory<typeof StatusChip> = (args) => (
+  <StatusChip {...args} />
+);
+
+export const PlaygroundStatusChip = TemplateStatusChip.bind({});
+PlaygroundStatusChip.args = {
+  clickable: true,
+  label: 'Status CHip Label',
+};
 
 export const withOkSeverityCode = (): JSX.Element => (
   <StatusChip label="Up" severityCode={SeverityCode.Ok} />

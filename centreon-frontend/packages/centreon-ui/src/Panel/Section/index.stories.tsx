@@ -1,8 +1,17 @@
+import { ComponentMeta, ComponentStory } from '@storybook/react';
+
 import { Typography } from '@mui/material';
 
 import SectionPanel from '.';
 
-export default { title: 'Panel/Section' };
+export default {
+  argsType: {
+    loading: { control: 'bolean' },
+    sections: { control: 'object' },
+  },
+  component: SectionPanel,
+  title: 'Panel/Section',
+} as ComponentMeta<typeof SectionPanel>;
 
 interface Props {
   loading?;
@@ -87,6 +96,16 @@ const moreSections = [
     title: 'Nineth section',
   },
 ];
+
+const TemplateSectionPanel: ComponentStory<typeof SectionPanel> = (args) => (
+  <PanelWithHeader {...args} />
+);
+
+export const PlaygroundSection = TemplateSectionPanel.bind({});
+PlaygroundSection.args = {
+  loading: false,
+  sections,
+};
 
 export const normal = (): JSX.Element => (
   <PanelWithHeader sections={sections} />
