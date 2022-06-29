@@ -292,7 +292,7 @@ if (isset($preferences['hostgroup']) && $preferences['hostgroup']) {
         $query,
         " s.host_id IN (
             SELECT host_host_id
-            FROM " . $conf_centreon['db'] . ".hostgroup_relation
+            FROM `" . $conf_centreon['db'] . "`.hostgroup_relation
             WHERE hostgroup_hg_id IN (" . $queryHG . ")
         )"
     );
