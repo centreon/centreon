@@ -246,7 +246,7 @@ if (!empty($preferences['display_severities']) && !empty($preferences['criticali
     $SeverityIdCondition =
         "h.host_id IN (
             SELECT DISTINCT host_host_id
-            FROM {$conf_centreon['db']}.hostcategories_relation
+            FROM `{$conf_centreon['db']}`.hostcategories_relation
             WHERE hostcategories_hc_id IN ({$labels}))";
     $query = CentreonUtils::conditionBuilder($query, $SeverityIdCondition);
 }
