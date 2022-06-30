@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import { equals, pick } from 'ramda';
+import { equals, isNil, pick } from 'ramda';
 import clsx from 'clsx';
 import { useTranslation } from 'react-i18next';
 
@@ -29,7 +29,7 @@ export type Props = {
   label?: string;
   loading?: boolean;
   onTextChange?;
-  placeholder?: string;
+  placeholder?: string | undefined;
   required?: boolean;
 } & Omit<
   AutocompleteProps<SelectEntry, Multiple, DisableClearable, FreeSolo>,
@@ -189,7 +189,7 @@ const AutocompleteField = ({
         'aria-label': label,
       }}
       label={label}
-      placeholder={placeholder || t(searchLabel)}
+      placeholder={isNil(placeholder) ? t(searchLabel) : placeholder}
       required={required}
       value={inputValue || ''}
       onChange={onTextChange}

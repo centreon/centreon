@@ -18,7 +18,7 @@ export const openWithThreeOptions = (): JSX.Element => {
       open
       label="Autocomplete"
       options={options}
-      placeholder="Type here..."
+      placeholder=""
       value={[options[1]]}
     />
   );
