@@ -2,7 +2,7 @@ import { ChangeEvent, useCallback, useState } from 'react';
 
 import { useTranslation } from 'react-i18next';
 import { useFormikContext, FormikValues } from 'formik';
-import { equals, not, path, split } from 'ramda';
+import { equals, isEmpty, not, path, split } from 'ramda';
 
 import { TextField, useMemoComponent } from '@centreon/ui';
 
@@ -18,6 +18,7 @@ const Text = ({
   getRequired,
   change,
   additionalMemoProps,
+  text,
 }: InputPropsWithoutGroup): JSX.Element => {
   const { t } = useTranslation();
 
@@ -29,13 +30,19 @@ const Text = ({
   const fieldNamePath = split('.', fieldName);
 
   const changeText = (event: ChangeEvent<HTMLInputElement>): void => {
+    const { value } = event.target;
     if (change) {
-      change({ setFieldValue, value: event.target.value });
+      change({ setFieldValue, value });
 
       return;
     }
 
-    setFieldValue(fieldName, event.target.value);
+    const formattedValue =
+      equals(text?.type, 'number') && !isEmpty(value)
+        ? parseInt(value, 10)
+        : value;
+
+    setFieldValue(fieldName, formattedValue);
   };
 
   const changeVisibility = (): void => {
@@ -59,8 +66,15 @@ const Text = ({
     [isVisible],
   );
 
-  const inputType =
-    equals(type, InputType.Password) && not(isVisible) ? 'password' : 'text';
+  const getInputType = (): string => {
+    if (text?.type) {
+      return text.type;
+    }
+
+    return equals(type, InputType.Password) && not(isVisible)
+      ? 'password'
+      : 'text';
+  };
 
   const disabled = getDisabled?.(values) || false;
   const isRequired = required || getRequired?.(values) || false;
@@ -75,7 +89,7 @@ const Text = ({
         error={error as string | undefined}
         label={t(label)}
         required={isRequired}
-        type={inputType}
+        type={getInputType()}
         value={value || ''}
         onBlur={handleBlur(fieldName)}
         onChange={changeText}

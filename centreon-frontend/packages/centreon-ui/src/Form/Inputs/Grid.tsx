@@ -5,19 +5,26 @@ import { InputPropsWithoutGroup } from './models';
 
 import { getInput } from '.';
 
-const useStyles = makeStyles<Theme, { columns; gridTemplateColumns }>(
-  (theme) => ({
-    gridFields: ({ columns, gridTemplateColumns }): CreateCSSProperties => ({
-      alignItems: 'flex-start',
-      columnGap: theme.spacing(2),
-      display: 'grid',
-      gridTemplateColumns: gridTemplateColumns || `repeat(${columns}, 1fr)`,
-    }),
+const useStyles = makeStyles<
+  Theme,
+  { alignItems; columns; gridTemplateColumns }
+>((theme) => ({
+  gridFields: ({
+    columns,
+    gridTemplateColumns,
+    alignItems,
+  }): CreateCSSProperties => ({
+    alignItems: alignItems || 'flex-start',
+    columnGap: theme.spacing(2),
+    display: 'grid',
+    gridTemplateColumns: gridTemplateColumns || `repeat(${columns}, 1fr)`,
+    rowGap: theme.spacing(2),
   }),
-);
+}));
 
 const Grid = ({ grid }: InputPropsWithoutGroup): JSX.Element => {
   const classes = useStyles({
+    alignItems: grid?.alignItems,
     columns: grid?.columns.length,
     gridTemplateColumns: grid?.gridTemplateColumns,
   });

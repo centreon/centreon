@@ -41,6 +41,13 @@ const ConnectedAutocomplete = ({
       baseEndpoint: connectedAutocomplete?.endpoint,
       parameters: {
         ...parameters,
+        search: {
+          conditions: [
+            ...(connectedAutocomplete?.additionalConditionParameters || []),
+            ...(parameters.search?.conditions || []),
+          ],
+          ...parameters.search,
+        },
         sort: { [filterKey]: 'ASC' },
       },
     });
@@ -63,7 +70,7 @@ const ConnectedAutocomplete = ({
 
       setFieldTouched(fieldName, true);
     },
-    [fieldName, touched],
+    [fieldName, touched, additionalMemoProps],
   );
 
   const blur = (): void => setFieldTouched(fieldName, true);
