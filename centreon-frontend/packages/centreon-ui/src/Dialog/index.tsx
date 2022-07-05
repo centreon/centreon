@@ -12,7 +12,7 @@ import {
 
 export type Props = {
   cancelDisabled?: boolean;
-  children: ReactNode;
+  children?: ReactNode;
   confirmDisabled?: boolean;
   contentWidth?: number;
   labelCancel?: string;
