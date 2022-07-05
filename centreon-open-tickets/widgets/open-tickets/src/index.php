@@ -320,17 +320,17 @@ if (isset($preferences['state_type_filter']) && $preferences['state_type_filter'
 if (isset($preferences['hostgroup']) && $preferences['hostgroup']) {
     $query = CentreonUtils::conditionBuilder(
         $query,
-        " s.host_id IN ( SELECT host_host_id FROM " . $conf_centreon['db'] .
-        ".hostgroup_relation WHERE hostgroup_hg_id = " . $dbb->escape($preferences['hostgroup']) . ")"
+        " s.host_id IN ( SELECT host_host_id FROM `" . $conf_centreon['db'] .
+        "`.hostgroup_relation WHERE hostgroup_hg_id = " . $dbb->escape($preferences['hostgroup']) . ")"
     );
 }
 if (isset($preferences['servicegroup']) && $preferences['servicegroup']) {
     $query = CentreonUtils::conditionBuilder(
         $query,
-        " s.service_id IN (SELECT service_service_id FROM " . $conf_centreon['db'] .
-        ".servicegroup_relation WHERE servicegroup_sg_id = " . $dbb->escape($preferences['servicegroup']) .
-        " UNION SELECT sgr.service_service_id FROM " . $conf_centreon['db'] . ".servicegroup_relation sgr, " .
-        $conf_centreon['db'] . ".host_service_relation hsr WHERE hsr.hostgroup_hg_id = sgr.hostgroup_hg_id " .
+        " s.service_id IN (SELECT service_service_id FROM `" . $conf_centreon['db'] .
+        "`.servicegroup_relation WHERE servicegroup_sg_id = " . $dbb->escape($preferences['servicegroup']) .
+        " UNION SELECT sgr.service_service_id FROM `" . $conf_centreon['db'] . "`.servicegroup_relation sgr, `" .
+        $conf_centreon['db'] . "`.host_service_relation hsr WHERE hsr.hostgroup_hg_id = sgr.hostgroup_hg_id " .
         "AND sgr.servicegroup_sg_id = " . $dbb->escape($preferences['servicegroup']) . ") "
     );
 }
