@@ -154,7 +154,7 @@ sub get_package_manager {
     $self->{package_manager} = 'unknown';
     if ($os =~ /Debian|Ubuntu/i) {
         $self->{package_manager} = 'deb';
-    } elsif ($os =~ /CentOS|Redhat|rhel|almalinux/i) {
+    } elsif ($os =~ /CentOS|Redhat|rhel|almalinux|rocky/i) {
         $self->{package_manager} = 'rpm';
     } elsif ($os eq 'ol' || $os =~ /Oracle Linux/i) {
         $self->{package_manager} = 'rpm';
