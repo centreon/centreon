@@ -4,15 +4,18 @@ import {
   AccordionDetails,
   Accordion,
   styled,
-  ListItem,
+  AccordionProps,
+  AccordionSummaryProps,
 } from '@mui/material';
 import makeStyles from '@mui/styles/makeStyles';
-import withStyles from '@mui/styles/withStyles';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+
+import useMemoComponent from '../../utils/useMemoComponent';
 
 const useStyles = makeStyles((theme) => ({
   details: {
-    padding: theme.spacing(0, 2),
+    backgroundColor: theme.palette.background.default,
+    padding: theme.spacing(1, 3, 2),
   },
 }));
 
@@ -21,29 +24,32 @@ const Title = styled(Typography)(({ theme }) => ({
   fontWeight: 700,
 }));
 
-const Section = styled(Accordion)({
-  backgroundColor: 'transparent',
-  borderBottom: '1px solid #bcbdc0',
-  borderRadius: '0',
-  boxShadow: 'none',
-  margin: '0',
-  width: '100%',
-});
+const Section = styled((props: AccordionProps) => (
+  <Accordion disableGutters square elevation={0} {...props} />
+))(({ theme }) => ({
+  '&:before': {
+    display: 'none',
+  },
+  '&:not(:last-child)': {
+    borderBottom: `1px solid ${theme.palette.divider}`,
+  },
+  borderBottom: `1px solid ${theme.palette.divider}`,
+}));
 
-const CustomizedAccordionSummary = withStyles((theme) => ({
-  content: {
-    '&$expanded': {
-      margin: theme.spacing(1, 0),
-    },
+const CustomizedAccordionSummary = styled((props: AccordionSummaryProps) => (
+  <AccordionSummary {...props} />
+))(({ theme }) => ({
+  '& .MuiAccordionSummary-content': {
+    margin: theme.spacing(1),
   },
-  expanded: {},
-  root: {
-    '&$expanded': {
-      minHeight: theme.spacing(4),
-    },
-    minHeight: theme.spacing(4),
+  '& .MuiAccordionSummary-expandIconWrapper': {
+    transform: 'rotate(-90deg)',
   },
-}))(AccordionSummary);
+  '& .MuiAccordionSummary-expandIconWrapper.Mui-expanded': {
+    transform: 'rotate(0deg)',
+  },
+  backgroundColor: theme.palette.background.default,
+}));
 
 interface Props {
   children: JSX.Element;
@@ -53,16 +59,19 @@ interface Props {
 const ExpandableSection = ({ title, children }: Props): JSX.Element => {
   const classes = useStyles();
 
-  return (
-    <Section>
-      <CustomizedAccordionSummary expandIcon={<ExpandMoreIcon />}>
-        <Title>{title}</Title>
-      </CustomizedAccordionSummary>
-      <AccordionDetails className={classes.details}>
-        <ListItem>{children}</ListItem>
-      </AccordionDetails>
-    </Section>
-  );
+  return useMemoComponent({
+    Component: (
+      <Section>
+        <CustomizedAccordionSummary expandIcon={<ExpandMoreIcon />}>
+          <Title>{title}</Title>
+        </CustomizedAccordionSummary>
+        <AccordionDetails className={classes.details}>
+          {children}
+        </AccordionDetails>
+      </Section>
+    ),
+    memoProps: [title],
+  });
 };
 
 export default ExpandableSection;

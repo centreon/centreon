@@ -109,7 +109,7 @@ const SectionPanel = ({
                 className={classes.closeSecondaryPanelBar}
                 onClick={onSecondaryPanelClose}
               >
-                <ForwardIcon className={classes.closeIcon} color="action" />
+                <ForwardIcon className={classes.closeIcon} color="primary" />
               </Paper>
             )}
 
