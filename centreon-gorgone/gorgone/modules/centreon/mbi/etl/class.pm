@@ -713,7 +713,8 @@ sub action_centreonmbietlrun {
         $self->planning();
         $self->run_etl();
     } catch {
-        $self->runko(msg => $_)
+        $self->runko(msg => $_);
+        $self->reset();
     };
 
     return 0;
