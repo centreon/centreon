@@ -60,6 +60,10 @@ sub new {
     $connector->{allowed_cmds} = $connector->{config}->{allowed_cmds}
         if (defined($connector->{config}->{allowed_cmds}) && ref($connector->{config}->{allowed_cmds}) eq 'ARRAY');
 
+    if (defined($connector->{config}->{tar_insecure_extra_mode}) && $connector->{config}->{tar_insecure_extra_mode} =~ /^(?:1|true)$/) {
+        $Archive::Tar::INSECURE_EXTRACT_MODE = 1;
+    }
+
     $connector->{return_childs} = {};
     $connector->{engine_childs} = {};
     $connector->{max_concurrent_engine} = defined($connector->{config}->{max_concurrent_engine}) ?
