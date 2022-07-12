@@ -23,7 +23,7 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Testing ${{ inputs.module_name }} ${{ inputs.image_name }}
-        run: docker run -i --entrypoint /src/ci/scripts/${{ inputs.module_name }}-test-${{ inputs.image_name }}.sh -v "$PWD:/src" registry.centreon.com/${{ inputs.module_name }}-build-${{ inputs.image_name }}:${{ inputs.image_version }}
+        run: docker run -i --entrypoint /src/ci/scripts/${{ inputs.module_name }}-test-${{ inputs.image_name }}.sh -v "$PWD:/src" docker.registry.apps.centreon.com/${{ inputs.module_name }}-test-${{ inputs.image_name }}:${{ inputs.image_version }}
 
   build:
     runs-on: self-hosted
@@ -33,4 +33,4 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Building ${{ inputs.module_name }} ${{ inputs.package }}
-        run: docker run -i --entrypoint /src/ci/scripts/${{ inputs.module_name }}-build-${{ inputs.package }}.sh -v "$PWD:/src" registry.centreon.com/${{ inputs.module_name }}-build-${{ inputs.package }}:${{ inputs.docker_version }}
+        run: docker run -i --entrypoint /src/ci/scripts/${{ inputs.module_name }}-build-${{ inputs.package }}.sh -v "$PWD:/src" docker.registry.apps.centreon.com/${{ inputs.module_name }}-build-${{ inputs.package }}:${{ inputs.docker_version }}
