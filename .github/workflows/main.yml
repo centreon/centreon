@@ -23,22 +23,6 @@ jobs:
             frontend:
               - 'centreon-frontend/**'
 
-  centreon:
-    needs: filters
-    strategy:
-      matrix:
-        include:
-          - image: frontend
-            version: 1.1
-          - image: backend
-            version: 2.5
-    if: ${{ needs.filters.outputs.centreon == 'false' }}
-    uses: ./.github/workflows/module-workflow.yml
-    with:
-      module_name: centreon
-      package: ${{ matrix.package }}
-      image_version: ${{ matrix.version }}
-
   frontend:
     needs: filters
     strategy:
