@@ -5,7 +5,7 @@ on: pull_request
 
 jobs:
   filters:
-    runs-on: self-hosted
+    runs-on: common
     outputs:
       centreon: ${{ steps.filter.outputs.centreon }}
       frontend: ${{ steps.filter.outputs.frontend }}
@@ -25,7 +25,7 @@ jobs:
 
   frontend:
     needs: filters
-    runs-on: self-hosted
+    runs-on: common
     strategy:
       matrix:
         include:
