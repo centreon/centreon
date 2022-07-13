@@ -62,7 +62,6 @@ jobs:
 
       - name: Test Web
         uses: ./.github/actions/centreon-build
-        continue-on-error: true
         with:
           module_name: web
           image_name: ${{ matrix.image }}
