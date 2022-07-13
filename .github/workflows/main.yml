@@ -11,7 +11,7 @@ jobs:
       frontend: ${{ steps.filter.outputs.frontend }}
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Check Path Changed
         uses: dorny/paths-filter@v2
@@ -35,7 +35,7 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Frontend
-        uses: ./.github/workflows/dependency-workflow.yml
+        uses: ./.github/actions/centreon-build.yml
         with:
           module_name: frontend
           package: ${{ matrix.package }}
