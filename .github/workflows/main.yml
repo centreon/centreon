@@ -43,6 +43,7 @@ jobs:
           module_name: frontend
           image_name: ${{ matrix.image }}
           image_version: ${{ matrix.version }}
+          step: test
 
   web-test:
     needs: filters
@@ -50,8 +51,10 @@ jobs:
     strategy:
       matrix:
         include:
-          - image: web
+          - image: frontend
             version: 1.1
+          - image: backend
+            version: 2.5
     if: ${{ needs.filters.outputs.web == 'true' }}
     steps:
       - name: Checkout sources
@@ -64,3 +67,4 @@ jobs:
           module_name: web
           image_name: ${{ matrix.image }}
           image_version: ${{ matrix.version }}
+          step: test
