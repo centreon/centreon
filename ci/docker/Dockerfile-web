@@ -7,3 +7,4 @@ RUN curl --silent --location https://rpm.nodesource.com/setup_16.x | bash -
 RUN yum install -y nodejs php-cli php-dom php-mbstring php-intl php-pdo
 RUN curl -sS https://getcomposer.org/installer | php
 RUN mv composer.phar /usr/local/bin/composer && chmod +x /usr/local/bin/composer
+WORKDIR /src
