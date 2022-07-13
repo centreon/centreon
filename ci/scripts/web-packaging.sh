@@ -1,5 +1,9 @@
 #!/bin/bash 
 
+set -ex 
+
+ls -lart
+pwd
 cd centreon
 
 COMMIT=`git log -1 HEAD --pretty=format:%h`
