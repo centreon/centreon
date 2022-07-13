@@ -125,7 +125,7 @@
         },
         "test": "pest",
         "test:ci": "@test --log-junit ./build/phpunit.xml --coverage-clover ./build/coverage-be.xml --no-interaction --do-not-cache-result",
-        "codestyle": "phpcs --extensions=php --standard=./ruleset.xml ./",
+        "codestyle": "phpcs --config-set ignore_warnings_on_exit 1 --extensions=php --standard=./ruleset.xml ./",
         "codestyle:ci": "@codestyle --report=checkstyle --report-file=./build/checkstyle-be.xml --no-cache",
         "phpstan": "phpstan analyse -c phpstan.neon --level 6 --memory-limit=512M",
         "phpstan:ci": "@phpstan --error-format=absolute --no-interaction --no-progress"
