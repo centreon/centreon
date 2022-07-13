@@ -1,5 +1,6 @@
 #!/bin/bash 
 
+node --version
 cd centreon-frontend
 npm ci --legacy-peer-deps
 
