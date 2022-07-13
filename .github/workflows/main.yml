@@ -8,6 +8,7 @@ jobs:
     runs-on: common
     outputs:
       frontend: ${{ steps.filter.outputs.frontend }}
+      web: ${{ steps.filter.outputs.web }}
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v3
@@ -19,6 +20,8 @@ jobs:
           filters: |
             frontend:
               - 'centreon-frontend/**'
+            web:
+              - 'centreon/**'
 
   frontend-test:
     needs: filters
@@ -38,5 +41,26 @@ jobs:
         continue-on-error: true
         with:
           module_name: frontend
+          image_name: ${{ matrix.image }}
+          image_version: ${{ matrix.version }}
+
+  web-test:
+    needs: filters
+    runs-on: common
+    strategy:
+      matrix:
+        include:
+          - image: web
+            version: 1.1
+    if: ${{ needs.filters.outputs.web == 'true' }}
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v3
+
+      - name: Test Web
+        uses: ./.github/actions/centreon-build
+        continue-on-error: true
+        with:
+          module_name: web
           image_name: ${{ matrix.image }}
           image_version: ${{ matrix.version }}
