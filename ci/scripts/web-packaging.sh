@@ -2,8 +2,6 @@
 
 set -ex 
 
-ls -lart
-pwd
 cd centreon
 
 COMMIT=`git log -1 HEAD --pretty=format:%h`
@@ -11,7 +9,7 @@ now=`date +%s`
 export RELEASE="$now.$COMMIT"
 
 composer install --no-dev --optimize-autoloader
-npm ci
+npm ci --legacy-peer-deps
 npm run build
 find ./www/include/Administration/about -type f | xargs --delimiter='\n' sed -i -e "s/@COMMIT@/$COMMIT/g"
 mkdir -p www/locale/en_US.UTF-8/LC_MESSAGES
