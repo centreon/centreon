@@ -67,3 +67,13 @@ jobs:
           image_name: ${{ matrix.image }}
           image_version: ${{ matrix.version }}
           step: test
+
+  web-packaging:
+    needs: filters
+    if: ${{ needs.filters.outputs.web == 'true' }}
+    uses: ./.github/workflows/module_workflow.yml
+    with:
+      module_name: web
+    secrets:
+      nexus_username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
+      nexus_password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
