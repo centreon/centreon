@@ -3,7 +3,7 @@
 set -ex 
 
 cd centreon
-
+VERSION=1
 COMMIT=`git log -1 HEAD --pretty=format:%h`
 now=`date +%s`
 export RELEASE="$now.$COMMIT"
@@ -23,3 +23,15 @@ for i in lang/* ; do
   php bin/centreon-translations.php "$langcode" "lang/$localefull/LC_MESSAGES/messages.po" "www/locale/$localefull/LC_MESSAGES/messages.ser"
 done
 rm -rf lang
+
+if [ ! -d /root/rpmbuild/SOURCES ] ; then
+    mkdir -p /root/rpmbuild/{BUILD,BUILDROOT,RPMS,SOURCES,SPECS,SRPMS}
+fi
+rm -rf ../centreon-$VERSION
+mkdir ../centreon-$VERSION
+cp -rp centreon ../centreon-$VERSION/
+tar czf /root/rpmbuild/SOURCES/centreon-$VERSION.tar.gz ../centreon-$VERSION
+rm -rf /root/rpmbuild/RPMS/*
+rpmbuild -ba centreon/packaging/centreon.spectemplate -D "VERSION $VERSION" -D "RELEASE $RELEASE"
+cp -r /root/rpmbuild/RPMS/noarch/*.rpm .
+chmod 777 *.rpm
