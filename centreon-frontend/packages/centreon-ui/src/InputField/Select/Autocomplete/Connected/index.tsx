@@ -1,6 +1,16 @@
 import { useState, useEffect } from 'react';
 
-import { equals, prop, last, isEmpty, map, isNil, pipe, not } from 'ramda';
+import {
+  equals,
+  prop,
+  last,
+  isEmpty,
+  map,
+  isNil,
+  pipe,
+  not,
+  omit,
+} from 'ramda';
 
 import { CircularProgress, useTheme } from '@mui/material';
 
@@ -23,6 +33,7 @@ export interface ConnectedAutoCompleteFieldProps<TData> {
   getRenderedOptionText: (option: TData) => string;
   getRequestHeaders?: Record<string, unknown>;
   initialPage: number;
+  labelKey?: string;
   searchConditions?: Array<ConditionsSearchParameter>;
 }
 
@@ -34,10 +45,11 @@ const ConnectedAutocompleteField = (
     initialPage = 1,
     getEndpoint,
     field,
+    labelKey,
     open,
     conditionField = 'id',
     searchConditions = [],
-    getRenderedOptionText = (option): string => option.name,
+    getRenderedOptionText = (option): string => option.name?.toString(),
     getRequestHeaders,
     displayOptionThumbnail,
     ...props
@@ -71,17 +83,31 @@ const ConnectedAutocompleteField = (
       request: getData,
     });
 
+    const renameKey = ({ object, key, newKey }): Partial<TData> => {
+      const oldKeyValue = object[key];
+      const newObject = { ...object, [newKey]: oldKeyValue };
+
+      return omit([key], newObject);
+    };
+
     const loadOptions = ({ endpoint, loadMore = false }): void => {
       sendRequest({ endpoint, headers: getRequestHeaders }).then(
         ({ result, meta }) => {
           const moreOptions = loadMore ? options : [];
-
-          setOptions(moreOptions.concat(result));
-
           const total = prop('total', meta) || 1;
           const limit = prop('limit', meta) || 1;
 
           setMaxPage(Math.ceil(total / limit));
+
+          if (!isEmpty(labelKey) && !isNil(labelKey)) {
+            const list = result.map((item) =>
+              renameKey({ key: labelKey, newKey: 'name', object: item }),
+            );
+            setOptions(moreOptions.concat(list as Array<TData>));
+
+            return;
+          }
+          setOptions(moreOptions.concat(result));
         },
       );
     };
