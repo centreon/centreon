@@ -35,7 +35,7 @@ jobs:
 
       - name: Test Frontend
         uses: ./.github/actions/centreon-build
-        continue-with-error: true
+        continue-on-error: true
         with:
           module_name: frontend
           image_name: ${{ matrix.image }}
