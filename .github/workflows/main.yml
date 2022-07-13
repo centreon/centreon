@@ -1,54 +1,42 @@
 ---
-name: Centreon Open Source
+name: Centreon Modules
 
 on: pull_request
 
 jobs:
   filters:
-    runs-on: self-hosted
+    runs-on: common
     outputs:
-      centreon: ${{ steps.filter.outputs.lm }}
-      frontend: ${{ steps.filter.outputs.ppm }}
+      frontend: ${{ steps.filter.outputs.frontend }}
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Check Path Changed
         uses: dorny/paths-filter@v2
         id: filter
         with:
           filters: |
-            centreon:
-              - 'centreon/**'
             frontend:
               - 'centreon-frontend/**'
 
-  centreon:
+  frontend-test:
     needs: filters
+    runs-on: common
     strategy:
       matrix:
         include:
           - image: frontend
             version: 1.1
-          - image: backend
-            version: 2.5
-    if: ${{ needs.filters.outputs.centreon == 'false' }}
-    uses: ./.github/workflows/module-workflow.yml
-    with:
-      module_name: centreon
-      package: ${{ matrix.package }}
-      image_version: ${{ matrix.version }}
+    if: ${{ needs.filters.outputs.frontend == 'true' }}
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v3
 
-  frontend:
-    needs: filters
-    strategy:
-      matrix:
-        include:
-          - image: frontend
-            version: 1.1
-    if: ${{ needs.filters.outputs.frontend == 'false' }}
-    uses: ./.github/workflows/dependency-workflow.yml
-    with:
-      module_name: frontend
-      package: ${{ matrix.package }}
-      image_version: ${{ matrix.version }}
+      - name: Test Frontend
+        uses: ./.github/actions/centreon-build
+        continue-on-error: true
+        with:
+          module_name: frontend
+          image_name: ${{ matrix.image }}
+          image_version: ${{ matrix.version }}
