@@ -1,42 +1,478 @@
 ---
-name: Centreon Open Source
+name: Centreon Modules
 
 on: pull_request
 
 jobs:
   filters:
-    runs-on: common
+    runs-on: self-hosted
     outputs:
-      centreon: ${{ steps.filter.outputs.centreon }}
-      frontend: ${{ steps.filter.outputs.frontend }}
+      lm: ${{ steps.filter.outputs.lm }}
+      ppm: ${{ steps.filter.outputs.ppm }}
+      bam: ${{ steps.filter.outputs.bam }}
+      map-server: ${{ steps.filter.outputs.map-server }}
+      map-server-ng: ${{ steps.filter.outputs.map-server-ng }}
+      map-web: ${{ steps.filter.outputs.map-web }}
+      autodisco: ${{ steps.filter.outputs.autodisco }}
+      augmented-services: ${{ steps.filter.outputs.augmented-services }}
+      anomaly-detection: ${{ steps.filter.outputs.anomaly-detection }}
+      cloud-extensions: ${{ steps.filter.outputs.cloud-extensions }}
+      mbi: ${{ steps.filter.outputs.mbi }}
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v2
 
       - name: Check Path Changed
         uses: dorny/paths-filter@v2
         id: filter
         with:
           filters: |
-            frontend:
-              - 'centreon-frontend/**'
+            lm:
+              - 'centreon-license-manager/**'
+            ppm:
+              - 'centreon-pp-manager/**'
+            bam:
+              - 'centreon-bam/**'
+            map-server:
+              - 'centreon-map/**'
+            autodisco:
+              - 'centreon-autodiscovery/**'
+            augmented-services:
+              - 'centreon-augmented-services/**'
+            anomaly-detection:
+              - 'centreon-anomaly-detection/**'
+            map-server-ng:
+              - 'centreon-map/**'
+            map-web:
+              - 'centreon-map/**'
+            cloud-extensions:
+              - 'centreon-cloud-extensions/**'
+            mbi:
+              - 'centreon-mbi/**'
 
-  frontend:
+  lm-test:
     needs: filters
-    runs-on: common
+    runs-on: self-hosted
     strategy:
       matrix:
         include:
           - image: frontend
             version: 1.1
-    if: ${{ needs.filters.outputs.frontend == 'true' }}
+          - image: backend
+            version: 2.5
+    if: ${{ needs.filters.outputs.lm == 'true' }}
     steps:
       - name: Checkout sources
         uses: actions/checkout@v3
 
-      - name: Frontend
-        uses: ./.github/actions/centreon-build.yml
+      - name: Test LM
+        uses: ./.github/actions/centreon-build
         with:
-          module_name: frontend
-          package: ${{ matrix.package }}
+          module_name: lm
+          image_name: ${{ matrix.image }}
           image_version: ${{ matrix.version }}
+
+  lm-build:
+    needs: filters
+    runs-on: self-hosted
+    strategy:
+      matrix:
+        include:
+          - image: frontend
+            version: 1.1
+          - image: backend
+            version: 2.5
+    if: ${{ needs.filters.outputs.lm == 'true' }}
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v3
+
+      - name: Build LM
+        uses: ./.github/actions/centreon-build
+        with:
+          step: build
+          module_name: lm
+          image_name: ${{ matrix.image }}
+          image_version: ${{ matrix.version }}
+
+  lm-packaging:
+    needs: filters
+    if: ${{ needs.filters.outputs.lm == 'true' }}
+    uses: ./.github/workflows/module_workflow.yml
+    with:
+      module_name: lm
+    secrets:
+      nexus_username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
+      nexus_password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
+
+  ppm-test:
+    needs: filters
+    runs-on: self-hosted
+    strategy:
+      matrix:
+        include:
+          - image: backend
+            version: 2.5
+    if: ${{ needs.filters.outputs.ppm == 'true' }}
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v3
+
+      - name: Test PPM
+        uses: ./.github/actions/centreon-build
+        with:
+          module_name: ppm
+          image_name: ${{ matrix.image }}
+          image_version: ${{ matrix.version }}
+          centreon_pat: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
+
+  ppm-build:
+    needs: filters
+    runs-on: self-hosted
+    strategy:
+      matrix:
+        include:
+          - image: backend
+            version: 2.5
+    if: ${{ needs.filters.outputs.ppm == 'true' }}
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v3
+
+      - name: Build PPM
+        uses: ./.github/actions/centreon-build
+        with:
+          step: build
+          module_name: ppm
+          image_name: ${{ matrix.image }}
+          image_version: ${{ matrix.version }}
+
+  ppm-packaging:
+    needs: filters
+    if: ${{ needs.filters.outputs.ppm == 'true' }}
+    uses: ./.github/workflows/module_workflow.yml
+    with:
+      module_name: ppm
+    secrets:
+      nexus_username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
+      nexus_password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
+
+  bam-test:
+    needs: filters
+    runs-on: self-hosted
+    strategy:
+      matrix:
+        include:
+          - image: frontend
+            version: 1.1
+          - image: backend
+            version: 2.5
+    if: ${{ needs.filters.outputs.bam == 'true' }}
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v3
+
+      - name: Test BAM
+        uses: ./.github/actions/centreon-build
+        with:
+          module_name: bam
+          image_name: ${{ matrix.image }}
+          image_version: ${{ matrix.version }}
+          centreon_pat: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
+
+  bam-build:
+    needs: filters
+    runs-on: self-hosted
+    strategy:
+      matrix:
+        include:
+          - image: frontend
+            version: 1.1
+          - image: backend
+            version: 2.5
+    if: ${{ needs.filters.outputs.bam == 'true' }}
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v3
+
+      - name: Build PPM
+        uses: ./.github/actions/centreon-build
+        with:
+          step: build
+          module_name: bam
+          image_name: ${{ matrix.image }}
+          image_version: ${{ matrix.version }}
+
+  bam-packaging:
+    needs: filters
+    if: ${{ needs.filters.outputs.bam == 'true' }}
+    uses: ./.github/workflows/module_workflow.yml
+    with:
+      module_name: bam
+    secrets:
+      nexus_username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
+      nexus_password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
+
+  augmented-services-test:
+    needs: filters
+    runs-on: self-hosted
+    strategy:
+      matrix:
+        include:
+          - image: frontend
+            version: 1.1
+    if: ${{ needs.filters.outputs.augmented-services == 'true' }}
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v3
+
+      - name: Test Augmented Services
+        uses: ./.github/actions/centreon-build
+        continue-on-error: true
+        with:
+          module_name: augmented-services
+          image_name: ${{ matrix.image }}
+          image_version: ${{ matrix.version }}
+          centreon_pat: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
+
+  augmented-services-build:
+    needs: filters
+    runs-on: self-hosted
+    strategy:
+      matrix:
+        include:
+          - image: frontend
+            version: 1.1
+    if: ${{ needs.filters.outputs.augmented-services == 'true' }}
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v3
+
+      - name: Build Augmented Services
+        uses: ./.github/actions/centreon-build
+        with:
+          step: build
+          module_name: augmented-services
+          image_name: ${{ matrix.image }}
+          image_version: ${{ matrix.version }}
+
+  autodisco-test:
+    needs: filters
+    runs-on: self-hosted
+    strategy:
+      matrix:
+        include:
+          - image: frontend
+            version: 1.1
+          - image: backend
+            version: 2.5
+    if: ${{ needs.filters.outputs.autodisco == 'true' }}
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v3
+
+      - name: Test AUTODISCO
+        uses: ./.github/actions/centreon-build
+        continue-on-error: true
+        with:
+          module_name: autodisco
+          image_name: ${{ matrix.image }}
+          image_version: ${{ matrix.version }}
+          centreon_pat: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
+
+  autodisco-build:
+    needs: filters
+    runs-on: self-hosted
+    strategy:
+      matrix:
+        include:
+          - image: frontend
+            version: 1.1
+          - image: backend
+            version: 2.5
+    if: ${{ needs.filters.outputs.autodisco == 'true' }}
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v3
+
+      - name: Build AUTODISCO
+        uses: ./.github/actions/centreon-build
+        with:
+          step: build
+          module_name: autodisco
+          image_name: ${{ matrix.image }}
+          image_version: ${{ matrix.version }}
+
+  autodisco-packaging:
+    needs: filters
+    if: ${{ needs.filters.outputs.autodisco == 'true' }}
+    uses: ./.github/workflows/module_workflow.yml
+    with:
+      module_name: autodisco
+    secrets:
+      nexus_username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
+      nexus_password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
+
+  map-server-packaging:
+    needs: filters
+    if: ${{ needs.filters.outputs.map-server == 'true' }}
+    uses: ./.github/workflows/module_workflow.yml
+    with:
+      module_name: map-server
+    secrets:
+      nexus_username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
+      nexus_password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
+
+  map-server-ng-packaging:
+    needs: filters
+    if: ${{ needs.filters.outputs.map-server-ng == 'true' }}
+    uses: ./.github/workflows/module_workflow.yml
+    with:
+      module_name: map-server-ng
+    secrets:
+      nexus_username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
+      nexus_password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
+
+  anomaly-packaging:
+    needs: filters
+    if: ${{ needs.filters.outputs.anomaly-detection == 'true' }}
+    uses: ./.github/workflows/module_workflow.yml
+    with:
+      module_name: anomaly-detection
+    secrets:
+      nexus_username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
+      nexus_password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
+
+  map-web-test:
+    needs: filters
+    runs-on: self-hosted
+    strategy:
+      matrix:
+        include:
+          - image: frontend
+            version: 1.1
+          - image: backend
+            version: 2.5
+    if: ${{ needs.filters.outputs.map-web == 'true' }}
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v3
+
+      - name: Test MAP WEB
+        uses: ./.github/actions/centreon-build
+        with:
+          module_name: map-web
+          image_name: ${{ matrix.image }}
+          image_version: ${{ matrix.version }}
+
+  cloud-extensions-test:
+    needs: filters
+    runs-on: self-hosted
+    strategy:
+      matrix:
+        include:
+          - image: backend
+            version: 2.5
+    if: ${{ needs.filters.outputs.cloud-extensions == 'true' }}
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v3
+
+      - name: Test Cloud Extensions
+        uses: ./.github/actions/centreon-build
+        with:
+          module_name: cloud-extensions
+          image_name: ${{ matrix.image }}
+          image_version: ${{ matrix.version }}
+
+  cloud-extensions-packaging:
+    needs: filters
+    if: ${{ needs.filters.outputs.cloud-extensions == 'true' }}
+    uses: ./.github/workflows/module_workflow.yml
+    with:
+      module_name: cloud-extensions
+    secrets:
+      nexus_username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
+      nexus_password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
+
+  mbi-test:
+    needs: filters
+    runs-on: self-hosted
+    strategy:
+      matrix:
+        include:
+          - image: backend
+            version: 2.5
+    if: ${{ needs.filters.outputs.mbi == 'true' }}
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v3
+
+      - name: Test MBI
+        uses: ./.github/actions/centreon-build
+        continue-on-error: true
+        with:
+          module_name: mbi
+          image_name: ${{ matrix.image }}
+          image_version: ${{ matrix.version }}
+
+  mbi-build:
+    needs: filters
+    runs-on: self-hosted
+    strategy:
+      matrix:
+        include:
+          - image: backend
+            version: 2.5
+    if: ${{ needs.filters.outputs.mbi == 'true' }}
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v3
+
+      - name: Build MBI
+        uses: ./.github/actions/centreon-build
+        with:
+          step: build
+          module_name: mbi
+          image_name: ${{ matrix.image }}
+          image_version: ${{ matrix.version }}
+
+  mbi-engine-packaging:
+    needs: filters
+    if: ${{ needs.filters.outputs.mbi == 'true' }}
+    uses: ./.github/workflows/module_workflow.yml
+    with:
+      module_name: mbi-engine
+    secrets:
+      nexus_username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
+      nexus_password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
+
+  mbi-etl-packaging:
+    needs: filters
+    if: ${{ needs.filters.outputs.mbi == 'true' }}
+    uses: ./.github/workflows/module_workflow.yml
+    with:
+      module_name: mbi-etl
+    secrets:
+      nexus_username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
+      nexus_password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
+
+  mbi-report-packaging:
+    needs: filters
+    if: ${{ needs.filters.outputs.mbi == 'true' }}
+    uses: ./.github/workflows/module_workflow.yml
+    with:
+      module_name: mbi-report
+    secrets:
+      nexus_username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
+      nexus_password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
+
+  mbi-reporting-server-packaging:
+    needs: filters
+    if: ${{ needs.filters.outputs.mbi == 'true' }}
+    uses: ./.github/workflows/module_workflow.yml
+    with:
+      module_name: mbi-reporting-server
+    secrets:
+      nexus_username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
+      nexus_password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
