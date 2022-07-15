@@ -385,7 +385,7 @@ find . -type f | grep -v additional/centreon-macroreplacement.txt | xargs --deli
 
 # Copy base files.
 find centreon -name .env
-%{__cp} -r centreon/.env centreon/.env.local.php centreon/bootstrap.php centreon/composer.json centreon/composer.lock centreon/symfony.lock centreon/container.php centreon/package.json centreon/package-lock.json centreon/config centreon/GPL_LIB centreon/api centreon/src centreon/vendor centreon/www %buildroot%{_datadir}/centreon/
+%{__cp} -r centreon/bootstrap.php centreon/composer.json centreon/composer.lock centreon/symfony.lock centreon/container.php centreon/package.json centreon/package-lock.json centreon/config centreon/GPL_LIB centreon/api centreon/src centreon/vendor centreon/www %buildroot%{_datadir}/centreon/
 
 # Install configuration files.
 %{__mv} %buildroot%{_datadir}/centreon/config/centreon.config.php.template %buildroot%{_datadir}/centreon/config/centreon.config.php
