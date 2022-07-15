@@ -321,44 +321,44 @@ find . -type f | grep -v additional/centreon-macroreplacement.txt | xargs --deli
 %{__install} -d -m 0755 %buildroot%{_datadir}/centreon
 %{__install} -d -m 0755 %buildroot%{_datadir}/centreon/bin
 %{__install} -d -m 0755 %buildroot%{_bindir}
-%{__install} -m 0755 bin/centFillTrapDB %buildroot%{_bindir}
+%{__install} -m 0755 centreon/bin/centFillTrapDB %buildroot%{_bindir}
 %{__ln_s} %{_bindir}/centFillTrapDB %buildroot%{_datadir}/centreon/bin/
-%{__install} -m 0755 bin/centreon_trap_send %buildroot%{_bindir}
+%{__install} -m 0755 centreon/bin/centreon_trap_send %buildroot%{_bindir}
 %{__ln_s} %{_bindir}/centreon_trap_send %buildroot%{_datadir}/centreon/bin/
-%{__install} -m 0755 bin/centreonSyncPlugins %buildroot%{_bindir}
+%{__install} -m 0755 centreon/bin/centreonSyncPlugins %buildroot%{_bindir}
 %{__ln_s} %{_bindir}/centreonSyncPlugins %buildroot%{_datadir}/centreon/bin/
-%{__install} -m 0755 bin/centreonSyncArchives %buildroot%{_bindir}
+%{__install} -m 0755 centreon/bin/centreonSyncArchives %buildroot%{_bindir}
 %{__ln_s} %{_bindir}/centreonSyncArchives %buildroot%{_datadir}/centreon/bin/
-%{__install} -m 0755 bin/generateSqlLite %buildroot%{_bindir}
+%{__install} -m 0755 centreon/bin/generateSqlLite %buildroot%{_bindir}
 %{__ln_s} %{_bindir}/generateSqlLite %buildroot%{_datadir}/centreon/bin/
 
 # Script for synchronize database schema
-%{__install} -m 0755 bin/export-mysql-indexes %buildroot%{_datadir}/centreon/bin/
-%{__install} -m 0755 bin/import-mysql-indexes %buildroot%{_datadir}/centreon/bin/
+%{__install} -m 0755 centreon/bin/export-mysql-indexes %buildroot%{_datadir}/centreon/bin/
+%{__install} -m 0755 centreon/bin/import-mysql-indexes %buildroot%{_datadir}/centreon/bin/
 
 # Install snmptrapd
 %{__install} -d -m 0755 %buildroot%{_localstatedir}/spool/centreontrapd
 
 # Install cron
 %{__install} -d -m 0775 %buildroot%{_datadir}/centreon/cron
-%{__install} -m 0775 cron/* %buildroot%{_datadir}/centreon/cron
+%{__install} -m 0775 centreon/cron/* %buildroot%{_datadir}/centreon/cron
 
 # Install bin
-%{__install} -m 0755 bin/centFillTrapDB %buildroot%{_datadir}/centreon/bin/
-%{__install} -m 0755 bin/centreon_trap_send %buildroot%{_datadir}/centreon/bin/
-%{__install} -m 0755 bin/centreon_health %buildroot%{_datadir}/centreon/bin/
-%{__install} -m 0755 bin/centreonSyncPlugins %buildroot%{_datadir}/centreon/bin/
-%{__install} -m 0755 bin/centreonSyncArchives %buildroot%{_datadir}/centreon/bin/
-%{__install} -m 0755 bin/generateSqlLite %buildroot%{_datadir}/centreon/bin/
-%{__install} -m 0755 bin/centreontrapd %buildroot%{_datadir}/centreon/bin/
-%{__install} -m 0755 bin/centreontrapdforward %buildroot%{_datadir}/centreon/bin/
-%{__install} -m 0755 bin/centreon-partitioning.php %buildroot%{_datadir}/centreon/bin/
-%{__install} -m 0755 bin/logAnalyserBroker %buildroot%{_datadir}/centreon/bin/
-%{__install} -m 0755 bin/changeRrdDsName.pl %buildroot%{_datadir}/centreon/bin/
-%{__install} -m 0755 bin/migrateWikiPages.php %buildroot%{_datadir}/centreon/bin/
-%{__install} -m 0755 bin/registerServerTopology.sh %buildroot%{_datadir}/centreon/bin/
-%{__install} -m 0755 bin/registerServerTopologyTemplate %buildroot%{_datadir}/centreon/bin/
-%{__install} -m 0755 bin/centreon-sanitize-images.php %buildroot%{_datadir}/centreon/bin/
+%{__install} -m 0755 centreon/bin/centFillTrapDB %buildroot%{_datadir}/centreon/bin/
+%{__install} -m 0755 centreon/bin/centreon_trap_send %buildroot%{_datadir}/centreon/bin/
+%{__install} -m 0755 centreon/bin/centreon_health %buildroot%{_datadir}/centreon/bin/
+%{__install} -m 0755 centreon/bin/centreonSyncPlugins %buildroot%{_datadir}/centreon/bin/
+%{__install} -m 0755 centreon/bin/centreonSyncArchives %buildroot%{_datadir}/centreon/bin/
+%{__install} -m 0755 centreon/bin/generateSqlLite %buildroot%{_datadir}/centreon/bin/
+%{__install} -m 0755 centreon/bin/centreontrapd %buildroot%{_datadir}/centreon/bin/
+%{__install} -m 0755 centreon/bin/centreontrapdforward %buildroot%{_datadir}/centreon/bin/
+%{__install} -m 0755 centreon/bin/centreon-partitioning.php %buildroot%{_datadir}/centreon/bin/
+%{__install} -m 0755 centreon/bin/logAnalyserBroker %buildroot%{_datadir}/centreon/bin/
+%{__install} -m 0755 centreon/bin/changeRrdDsName.pl %buildroot%{_datadir}/centreon/bin/
+%{__install} -m 0755 centreon/bin/migrateWikiPages.php %buildroot%{_datadir}/centreon/bin/
+%{__install} -m 0755 centreon/bin/registerServerTopology.sh %buildroot%{_datadir}/centreon/bin/
+%{__install} -m 0755 centreon/bin/registerServerTopologyTemplate %buildroot%{_datadir}/centreon/bin/
+%{__install} -m 0755 centreon/bin/centreon-sanitize-images.php %buildroot%{_datadir}/centreon/bin/
 
 # Add new installation backup directory
 %{__install} -d -m 0775 %buildroot%{_localstatedir}/lib/centreon/installs
@@ -369,11 +369,11 @@ find . -type f | grep -v additional/centreon-macroreplacement.txt | xargs --deli
 %{__cp} -r centreon/lib/Centreon/* %buildroot%{_datadir}/centreon/lib/Centreon
 
 # Install clapi bin
-%{__install} -m 0755 bin/centreon %buildroot%{_datadir}/centreon/bin/
+%{__install} -m 0755 centreon/bin/centreon %buildroot%{_datadir}/centreon/bin/
 %{__ln_s} -f %{_datadir}/centreon/bin/centreon %buildroot%{_bindir}/centreon
 
 # Install Symfony console script
-%{__install} -m 0755 bin/console %buildroot%{_datadir}/centreon/bin/
+%{__install} -m 0755 centreon/bin/console %buildroot%{_datadir}/centreon/bin/
 
 # Install indexes template schema
 
