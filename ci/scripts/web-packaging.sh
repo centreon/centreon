@@ -31,6 +31,7 @@ fi
 rm -rf ../centreon-$VERSION
 mkdir ../centreon-$VERSION
 cp -rp centreon ../centreon-$VERSION/
+ls -lart ../centreon-$VERSION/
 tar czf /root/rpmbuild/SOURCES/centreon-$VERSION.tar.gz ../centreon-$VERSION
 rm -rf /root/rpmbuild/RPMS/*
 cp -rp centreon/packaging/src/* /root/rpmbuild/SOURCES/
