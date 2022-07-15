@@ -284,7 +284,7 @@ find . -type f | grep -v additional/centreon-macroreplacement.txt | xargs --deli
 
 # Install cron files
 %{__install} -d -m 0700 %buildroot%{_sysconfdir}/cron.d
-%{__cp} tmpl/install/centreon.cron %buildroot%{_sysconfdir}/cron.d/centreon
+%{__cp} centreon/tmpl/install/centreon.cron %buildroot%{_sysconfdir}/cron.d/centreon
 %{__cp} tmpl/install/centstorage.cron %buildroot%{_sysconfdir}/cron.d/centstorage
 
 %if 0%{?el7}

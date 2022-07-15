@@ -34,7 +34,6 @@ cp -rp centreon ../centreon-$VERSION/
 tar czf /root/rpmbuild/SOURCES/centreon-$VERSION.tar.gz ../centreon-$VERSION
 rm -rf /root/rpmbuild/RPMS/*
 cp -rp centreon/packaging/src/* /root/rpmbuild/SOURCES/
-ls -lart /root/rpmbuild/SOURCES/
 mv /root/rpmbuild/SOURCES/centreon-macroreplacement.centos7.txt /root/rpmbuild/SOURCES/centreon-macroreplacement.txt
 rpmbuild -ba centreon/packaging/centreon.spectemplate -D "VERSION $VERSION" -D "RELEASE $RELEASE"
 cp -r /root/rpmbuild/RPMS/noarch/*.rpm .
