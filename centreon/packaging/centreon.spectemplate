@@ -285,7 +285,7 @@ find . -type f | grep -v additional/centreon-macroreplacement.txt | xargs --deli
 # Install cron files
 %{__install} -d -m 0700 %buildroot%{_sysconfdir}/cron.d
 %{__cp} centreon/tmpl/install/centreon.cron %buildroot%{_sysconfdir}/cron.d/centreon
-%{__cp} tmpl/install/centstorage.cron %buildroot%{_sysconfdir}/cron.d/centstorage
+%{__cp} centreon/tmpl/install/centstorage.cron %buildroot%{_sysconfdir}/cron.d/centstorage
 
 %if 0%{?el7}
 %{__install} -d -m 0755 %buildroot/opt/rh/httpd24/root/etc/httpd/conf.d
@@ -303,16 +303,16 @@ find . -type f | grep -v additional/centreon-macroreplacement.txt | xargs --deli
 
 # Install systemd configuration files
 %{__install} -d -m 0755 %buildroot%{_unitdir}
-%{__install} -m 0644 tmpl/install/redhat/centreontrapd.systemd %buildroot%{_unitdir}/centreontrapd.service
-%{__install} -m 0644 tmpl/install/redhat/centreon.systemd %buildroot%{_unitdir}/centreon.service
+%{__install} -m 0644 centreon/tmpl/install/redhat/centreontrapd.systemd %buildroot%{_unitdir}/centreontrapd.service
+%{__install} -m 0644 centreon/tmpl/install/redhat/centreon.systemd %buildroot%{_unitdir}/centreon.service
 
 # Install centreontrapd sysconfig files
 %{__install} -d -m 0755 %buildroot%{_sysconfdir}/sysconfig
-%{__install} -m 0755 tmpl/install/redhat/centreontrapd.sysconfig %buildroot%{_sysconfdir}/sysconfig/centreontrapd
+%{__install} -m 0755 centreon/tmpl/install/redhat/centreontrapd.sysconfig %buildroot%{_sysconfdir}/sysconfig/centreontrapd
 
 # Install perl lib
 %{__install} -d -m 0755 %buildroot%{perl_vendorlib}/
-%{__cp} -rp lib/perl/centreon %buildroot%{perl_vendorlib}/
+%{__cp} -rp centreon/lib/perl/centreon %buildroot%{perl_vendorlib}/
 
 # Install file configuration snmptrapd and snmp
 %{__install} -d -m 0755 %buildroot%{_sysconfdir}/snmp/centreon_traps
@@ -365,8 +365,8 @@ find . -type f | grep -v additional/centreon-macroreplacement.txt | xargs --deli
 
 # Install clapi lib
 %{__install} -d -m 0755 %buildroot%{_datadir}/centreon/lib/Centreon
-%{__cp} -r lib/Slug.class.php %buildroot%{_datadir}/centreon/lib
-%{__cp} -r lib/Centreon/* %buildroot%{_datadir}/centreon/lib/Centreon
+%{__cp} -r centreon/lib/Slug.class.php %buildroot%{_datadir}/centreon/lib
+%{__cp} -r centreon/lib/Centreon/* %buildroot%{_datadir}/centreon/lib/Centreon
 
 # Install clapi bin
 %{__install} -m 0755 bin/centreon %buildroot%{_datadir}/centreon/bin/
@@ -379,12 +379,12 @@ find . -type f | grep -v additional/centreon-macroreplacement.txt | xargs --deli
 
 # Install examples.
 %{__install} -d -m 0775 %buildroot%{_datadir}/centreon/examples
-%{__cp} tmpl/install/redhat/centreontrapd.systemd %buildroot%{_datadir}/centreon/examples/
+%{__cp} centreon/tmpl/install/redhat/centreontrapd.systemd %buildroot%{_datadir}/centreon/examples/
 %{__cp} additional/centreon-apache.conf %buildroot%{_datadir}/centreon/examples/centreon.apache.conf
 %{__cp} additional/centreon-apache-https.conf %buildroot%{_datadir}/centreon/examples/centreon.apache.https.conf
 
 # Copy base files.
-%{__cp} -r .env .env.local.php bootstrap.php composer.json composer.lock symfony.lock container.php package.json package-lock.json config GPL_LIB api src vendor www %buildroot%{_datadir}/centreon/
+%{__cp} -r centreon/.env centreon/.env.local.php centreon/bootstrap.php centreon/composer.json centreon/composer.lock centreon/symfony.lock centreon/container.php centreon/package.json centreon/package-lock.json centreon/config centreon/GPL_LIB centreon/api centreon/src centreon/vendor centreon/www %buildroot%{_datadir}/centreon/
 
 # Install configuration files.
 %{__mv} %buildroot%{_datadir}/centreon/config/centreon.config.php.template %buildroot%{_datadir}/centreon/config/centreon.config.php
@@ -421,7 +421,7 @@ find . -type f | grep -v additional/centreon-macroreplacement.txt | xargs --deli
 
 # Install logrotate
 %{__install} -d %buildroot%{_sysconfdir}/logrotate.d
-%{__cp} logrotate/* %buildroot%{_sysconfdir}/logrotate.d/
+%{__cp} centreon/logrotate/* %buildroot%{_sysconfdir}/logrotate.d/
 
 # Template configuration files.
 touch %buildroot%{_sysconfdir}/centreon/conf.pm
@@ -429,7 +429,7 @@ touch %buildroot%{_sysconfdir}/centreon/centreon.conf.php
 
 # Sudoers files
 %{__install} -d %buildroot%{_sysconfdir}/sudoers.d/
-%{__cp} tmpl/install/sudoersCentreonEngine %buildroot%{_sysconfdir}/sudoers.d/centreon
+%{__cp} centreon/tmpl/install/sudoersCentreonEngine %buildroot%{_sysconfdir}/sudoers.d/centreon
 
 # MySQL/MariaDB custom configuration
 %{__install} -d %buildroot%{_sysconfdir}/my.cnf.d/
@@ -438,7 +438,7 @@ touch %buildroot%{_sysconfdir}/centreon/centreon.conf.php
 %{__cp} additional/mariadb-systemd.conf %buildroot%{_sysconfdir}/systemd/system/mariadb.service.d/centreon.conf
 
 # Translations
-%{__cp} -r www/locale %buildroot%{_datadir}/centreon/www/
+%{__cp} -r centreon/www/locale %buildroot%{_datadir}/centreon/www/
 
 ######################################################
 # Package centreon
