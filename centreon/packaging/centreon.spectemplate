@@ -16,7 +16,7 @@ Source0:    centreon-%{version}.tar.gz
 # Be careful : additional sources have to be copied in the /additional
 # directory in the %prep step to be properly macro-replaced.
 #
-Source1:    centreon-macroreplacement.txt
+Source1:    packaging/centreon-macroreplacement.txt
 Source2:    instCentPlugins.conf
 Source3:    instCentWeb.conf
 Source4:    centreontrapd.pm
