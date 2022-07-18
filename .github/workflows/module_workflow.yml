@@ -15,7 +15,7 @@ on:
 
 jobs:
   rpm-package:
-    runs-on: self-hosted
+    runs-on: common
     name: Package
     strategy:
       matrix:
@@ -48,7 +48,7 @@ jobs:
 
   rpm-delivery:
     needs: rpm-package
-    runs-on: self-hosted
+    runs-on: common
     name: Delivery
     strategy:
       matrix:
