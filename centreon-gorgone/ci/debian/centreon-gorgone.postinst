@@ -51,9 +51,15 @@ if [ "$1" = "configure" ] ; then
   fi
 
   # rename files to priority
-  mv /etc/centreon-gorgone/config.d/centreon.yaml /etc/centreon-gorgone/config.d/30-centreon.yaml
-  mv /etc/centreon-gorgone/config.d/centreon-api.yaml /etc/centreon-gorgone/config.d/31-centreon-api.yaml
-  mv /etc/centreon-gorgone/config.d/centreon-audit.yaml /etc/centreon-gorgone/config.d/50-centreon-audit.yaml
+  if [ ! -e /etc/centreon-gorgone/config.d/30-centreon.yaml ] && [ -e /etc/centreon-gorgone/config.d/centreon.yaml ]; then
+    mv /etc/centreon-gorgone/config.d/centreon.yaml /etc/centreon-gorgone/config.d/30-centreon.yaml
+  fi
+  if [ ! -e /etc/centreon-gorgone/config.d/31-centreon-api.yaml ] && [ -e /etc/centreon-gorgone/config.d/centreon-api.yaml ]; then
+    mv /etc/centreon-gorgone/config.d/centreon-api.yaml /etc/centreon-gorgone/config.d/31-centreon-api.yaml
+  fi
+  if [ ! -e /etc/centreon-gorgone/config.d/50-centreon-audit.yaml ] && [ -e /etc/centreon-gorgone/config.d/centreon-audit.yaml ]; then
+    mv /etc/centreon-gorgone/config.d/centreon-audit.yaml /etc/centreon-gorgone/config.d/50-centreon-audit.yaml
+  fi
 
   systemctl preset gorgoned.service || : >/dev/null 2>&1 || :
 

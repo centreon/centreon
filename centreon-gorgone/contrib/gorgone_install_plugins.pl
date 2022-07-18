@@ -23,9 +23,16 @@ use strict;
 use warnings;
 
 my $plugins = [];
-for (my $i = 0; $i < scalar(@ARGV); $i++) {
-    if ($ARGV[$i] =~ /^centreon-plugin-([A-Za-z\-_0-9]+)$/) {
-        push @$plugins, '"' . $ARGV[$i] . '"';
+my $type;
+if ($ARGV[0] !~ /^--type=(deb|rpm)$/) {
+    print "need to set option --type=[deb|rpm]\n";
+    exit(1);
+}
+$type = $1;
+
+for (my $i = 1; $i < scalar(@ARGV); $i++) {
+    if ($ARGV[$i] =~ /^centreon-plugin-([A-Za-z\-_=0-9]+)$/) {
+        push @$plugins, $ARGV[$i];
     }
 }
 
@@ -34,7 +41,20 @@ if (scalar(@$plugins) <= 0) {
     exit(0);
 }
 
-my $command = 'yum -y install ' . join(' ', @$plugins) . ' 2>&1';
+my $command;
+if ($type eq 'rpm') {
+    $command = 'yum -y install';
+    foreach (@$plugins) {
+        $command .= " '" . $_ . "-*'"
+    }
+} elsif ($type eq 'deb') {
+    $command = 'apt-get -y install';
+    foreach (@$plugins) {
+        $command .= " '" . $_ . "-*'"
+    }
+}
+$command .= ' 2>&1';
+
 my $output = `$command`;
 if ($? == -1) {
     print "failed to execute: $!\n";

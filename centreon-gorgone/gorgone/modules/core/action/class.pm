@@ -200,13 +200,46 @@ sub check_plugins_rpm {
     return 0;
 }
 
+sub check_plugins_deb {
+    my ($self, %options) = @_;
+
+    #dpkg -l centreon-plugin-*
+    my ($error, $stdout, $return_code) = gorgone::standard::misc::backtick(
+        command => 'dpkg',
+        arguments => ['-l', 'centreon-plugin-*'],
+        timeout => 60,
+        wait_exit => 1,
+        redirect_stderr => 1,
+        logger => $self->{logger}
+    );
+
+    my $installed = [];
+    foreach my $package_name (keys %{$options{plugins}}) {
+        if ($stdout =~ /\s+$package_name\s+(\d+)-/m) {
+            my $current_version = $1;
+            if ($current_version < $options{plugins}->{$package_name}) {
+                push @$installed, $package_name . '=' . $options{plugins}->{$package_name};
+            }
+        } else {
+            push @$installed, $package_name . '=' . $options{plugins}->{$package_name};
+        }
+    }
+
+    if (scalar(@$installed) > 0) {
+        return (1, 'install', $installed);
+    }
+
+    $self->{logger}->writeLogInfo("[action] validate plugins - nothing to install");
+    return 0;
+}
+
 sub install_plugins {
     my ($self, %options) = @_;
 
     $self->{logger}->writeLogInfo("[action] validate plugins - install " . join(' ', @{$options{installed}}));
     my ($error, $stdout, $return_code) = gorgone::standard::misc::backtick(
         command => 'sudo',
-        arguments => ['/usr/local/bin/gorgone_install_plugins.pl', @{$options{installed}}],
+        arguments => ['/usr/local/bin/gorgone_install_plugins.pl', '--type=' . $options{type}, @{$options{installed}}],
         timeout => 300,
         wait_exit => 1,
         redirect_stderr => 1,
@@ -227,11 +260,37 @@ sub validate_plugins_rpm {
     return 0 if ($rv == 0);
 
     if ($rv == 1) {
-        ($rv, $message) = $self->install_plugins(installed => $installed);
+        ($rv, $message) = $self->install_plugins(type => 'rpm', installed => $installed);
         return ($rv, $message) if ($rv == -1);
     }
 
     ($rv, $message, $installed) = $self->check_plugins_rpm(%options);
+    return ($rv, $message) if ($rv == -1);
+    if ($rv == 1) {
+        $self->{logger}->writeLogError("[action] validate plugins - still some to install: " . join(' ', @$installed));
+    }
+
+    return 0;
+}
+
+sub validate_plugins_deb {
+    my ($self, %options) = @_;
+
+    my $plugins = {};
+    foreach (keys %{$options{plugins}}) {
+        $plugins->{ lc($_) } = $options{plugins}->{$_};
+    }
+
+    my ($rv, $message, $installed) = $self->check_plugins_deb(plugins => $plugins);
+    return ($rv, $message) if ($rv == -1);
+    return 0 if ($rv == 0);
+
+    if ($rv == 1) {
+        ($rv, $message) = $self->install_plugins(type => 'deb', installed => $installed);
+        return ($rv, $message) if ($rv == -1);
+    }
+
+    ($rv, $message, $installed) = $self->check_plugins_deb(plugins => $plugins);
     return ($rv, $message) if ($rv == -1);
     if ($rv == 1) {
         $self->{logger}->writeLogError("[action] validate plugins - still some to install: " . join(' ', @$installed));
@@ -261,8 +320,9 @@ sub validate_plugins {
 
     if ($self->{package_manager} eq 'rpm') {
         ($rv, $message) = $self->validate_plugins_rpm(plugins => $plugins);
+    } elsif ($self->{package_manager} eq 'deb') {
+        ($rv, $message) = $self->validate_plugins_deb(plugins => $plugins);
     } else {
-        # for debian/ubuntu: apt-get install centreon-plugin-test=version1 centreon-plugin-test=version2
         ($rv, $message) = (1, 'validate plugins - unsupported operating system');
     }
 
