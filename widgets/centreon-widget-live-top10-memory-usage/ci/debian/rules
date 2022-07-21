@@ -4,9 +4,6 @@ export DEB_BUILD_MAINT_OPTIONS = hardening=+all
 
 %:
 	dh $@
-<<<<<<< HEAD
 
 override_dh_gencontrol:
 	dh_gencontrol -- -Tdebian/substvars
-=======
->>>>>>> 513b0f9 (Add configuration to build DEB package (#49))
