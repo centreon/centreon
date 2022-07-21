@@ -153,17 +153,7 @@ try {
         stash name: 'Debian11', includes: '*.deb'
         archiveArtifacts artifacts: "*.deb"
       }
-    },
-    'Debian bullseye packaging and signing': {
-      node {
-        dir('centreon-widget-global-health') {
-          checkout scm
-        }
-        sh 'docker run -i --entrypoint "/src/centreon-widget-global-health/ci/scripts/widget-deb-package.sh" -w "/src" -v "$PWD:/src" -e "DISTRIB=Debian11" -e "VERSION=$VERSION" -e "RELEASE=$RELEASE" registry.centreon.com/centreon-debian11-dependencies:22.04'
-        stash name: 'Debian11', includes: '*.deb'
-        archiveArtifacts artifacts: "*.deb"
-      }
-    }
+    } 
     if ((currentBuild.result ?: 'SUCCESS') != 'SUCCESS') {
       error('Unit tests stage failure.');
     }
