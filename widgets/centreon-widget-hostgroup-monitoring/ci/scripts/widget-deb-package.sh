@@ -23,18 +23,11 @@ mkdir -p /build/$PROJECT
 (cd /src && tar czvpf - $PROJECT) | dd of=$PROJECT-$VERSION.tar.gz
 cp -rv /src/$PROJECT /build/
 cp -rv /src/$PROJECT/ci/debian /build/$PROJECT/
-<<<<<<< HEAD
 sed -i "s/^centreon:version=.*$/centreon:version=$(echo $VERSION | egrep -o '^[0-9][0-9].[0-9][0-9]')/" /build/$PROJECT/debian/substvars
 
 ls -lart
 cd /build/$PROJECT
 debmake -f "${AUTHOR}" -e "${AUTHOR_EMAIL}" -u "$VERSION" -y -r "$DISTRIB"
-=======
-
-ls -lart
-cd /build/$PROJECT
-debmake -f "${AUTHOR}" -e "${AUTHOR_EMAIL}" -u "$VERSION" -y -r "$RELEASE"
->>>>>>> 808886a (Add configuration to build DEB package (#77))
 debuild-pbuilder
 cd /build
 
