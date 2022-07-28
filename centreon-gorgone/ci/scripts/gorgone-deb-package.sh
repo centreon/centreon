@@ -11,6 +11,8 @@ echo "################################################## PACKAGING COLLECT #####
 AUTHOR="Luiz Costa"
 AUTHOR_EMAIL="me@luizgustavo.pro.br"
 
+apt-get update
+
 pwd
 
 if [ -d /build ]; then
