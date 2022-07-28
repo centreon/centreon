@@ -47,7 +47,7 @@ websocket '/' => sub {
         tx => $mojo->tx,
         logged => 0,
         last_update => time(),
-        authentication => $mojo->tx->req->headers->header('authentication')
+        authorization => $mojo->tx->req->headers->header('authorization')
     };
 
     $mojo->on(message => sub {
@@ -301,11 +301,11 @@ sub is_logged_websocket {
 
     return 1 if ($self->{ws_clients}->{ $options{ws_id} }->{logged} == 1);
 
-    if (!defined($self->{ws_clients}->{ $options{ws_id} }->{authentication}) || 
-        $self->{ws_clients}->{ $options{ws_id} }->{authentication} !~ /^\s*Bearer\s+$self->{config}->{httpserver}->{token}/) {
+    if (!defined($self->{ws_clients}->{ $options{ws_id} }->{authorization}) || 
+        $self->{ws_clients}->{ $options{ws_id} }->{authorization} !~ /^\s*Bearer\s+$self->{config}->{httpserver}->{token}\s*$/) {
         $self->close_websocket(
             code => 500,
-            message  => 'token authentication unallowed',
+            message  => 'token authorization unallowed',
             ws_id => $options{ws_id}
         );
         return 0;

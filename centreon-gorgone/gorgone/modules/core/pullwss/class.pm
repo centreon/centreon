@@ -130,7 +130,7 @@ sub wss_connect {
     }
 
     $self->{ua}->websocket(
-        $proto . '://' . $self->{config}->{address} . ':' . $self->{config}->{port} . '/' => { Authentication => 'Bearer ' . $self->{config}->{token} } => sub {
+        $proto . '://' . $self->{config}->{address} . ':' . $self->{config}->{port} . '/' => { Authorization => 'Bearer ' . $self->{config}->{token} } => sub {
             my ($ua, $tx) = @_;
 
             $connector->{tx} = $tx;
