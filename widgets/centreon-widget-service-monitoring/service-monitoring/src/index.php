@@ -421,6 +421,8 @@ while ($row = $res->fetch()) {
         $data[$row['host_id'] . '_' . $row['service_id']][$key] = $value;
     }
 
+    $dataKey = $row['host_id'] . '_' . $row['service_id'];
+
     // last_check
     $valueLastCheck = (int)$row['last_check'];
     $valueLastCheckTimestamp = time() - $valueLastCheck;
@@ -430,7 +432,7 @@ while ($row = $res->fetch()) {
     ) {
         $valueLastCheck = CentreonDuration::toString($valueLastCheckTimestamp) . ' ago';
     }
-    $data[$row['host_id'] . '_' . $row['service_id']]['last_check'] = $valueLastCheck;
+    $data[$dataKey]['last_check'] = $valueLastCheck;
 
     // last_state_change
     $valueLastState = (int)$row['last_state_change'];
@@ -440,7 +442,7 @@ while ($row = $res->fetch()) {
     } else {
         $valueLastState = 'N/A';
     }
-    $data[$row['host_id'] . '_' . $row['service_id']]['last_state_change'] = $valueLastState;
+    $data[$dataKey]['last_state_change'] = $valueLastState;
 
     // last_hard_state_change
     $valueLastHardState = (int)$row['last_hard_state_change'];
@@ -450,38 +452,38 @@ while ($row = $res->fetch()) {
     } else {
         $valueLastHardState = 'N/A';
     }
-    $data[$row['host_id'] . '_' . $row['service_id']]['last_hard_state_change'] = $valueLastHardState;
+    $data[$dataKey]['last_hard_state_change'] = $valueLastHardState;
 
     // check_attempt
     $valueCheckAttempt = $row['check_attempt'] . "/" .
         $row['max_check_attempts'] . " (" . $aStateType[$row['state_type']] . ")";
-    $data[$row['host_id'] . '_' . $row['service_id']]['check_attempt'] = $valueCheckAttempt;
+    $data[$dataKey]['check_attempt'] = $valueCheckAttempt;
 
     // s_state
-    $data[$row['host_id'] . '_' . $row['service_id']]['color'] = $stateSColors[$row['s_state']];
-    $data[$row['host_id'] . '_' . $row['service_id']]['s_state'] = $stateLabels[$row['s_state']];
+    $data[$dataKey]['color'] = $stateSColors[$row['s_state']];
+    $data[$dataKey]['s_state'] = $stateLabels[$row['s_state']];
 
     // h_state
-    $value = $data[$row['host_id'] . '_' . $row['service_id']]['hcolor'] = $stateHColors[$row['h_state']];
-    $data[$row['host_id'] . '_' . $row['service_id']]['h_state'] = $stateLabels[$row['h_state']];
+    $value = $data[$dataKey]['hcolor'] = $stateHColors[$row['h_state']];
+    $data[$dataKey]['h_state'] = $stateLabels[$row['h_state']];
 
     // output
-    $data[$row['host_id'] . '_' . $row['service_id']]['output'] = substr($row['output'], 0, $outputLength);
+    $data[$dataKey]['output'] = htmlspecialchars(substr($row['output'], 0, $outputLength));
 
     $kernel = \App\Kernel::createForWeb();
     $resourceController = $kernel->getContainer()->get(
         \Centreon\Application\Controller\MonitoringResourceController::class
     );
-    $data[$row['host_id'] . '_' . $row['service_id']]['h_details_uri'] = $useDeprecatedPages
+    $data[$dataKey]['h_details_uri'] = $useDeprecatedPages
         ? '../../main.php?p=20202&o=hd&host_name=' . $row['hostname']
         : $resourceController->buildHostDetailsUri($row['host_id']);
 
-    $data[$row['host_id'] . '_' . $row['service_id']]['s_details_uri'] = $useDeprecatedPages
+    $data[$dataKey]['s_details_uri'] = $useDeprecatedPages
         ? '../../main.php?p=20201&o=svcd&host_name=' . $row['hostname']
             . '&service_description=' . $row['description']
         : $resourceController->buildServiceDetailsUri($row['host_id'], $row['service_id']);
 
-    $data[$row['host_id'] . '_' . $row['service_id']]['s_graph_uri'] = $useDeprecatedPages
+    $data[$dataKey]['s_graph_uri'] = $useDeprecatedPages
         ? '../../main.php?p=204&mode=0&svc_id=' . $row['hostname'] . ';' . $row['description']
         : $resourceController->buildServiceUri(
             $row['host_id'],
@@ -504,7 +506,7 @@ while ($row = $res->fetch()) {
                 $valueHActionUrl
             )
         );
-        $data[$row['host_id'] . '_' . $row['service_id']]['h_action_url'] = $valueHActionUrl;
+        $data[$dataKey]['h_action_url'] = $valueHActionUrl;
     }
 
     // h_notes_url
@@ -522,7 +524,7 @@ while ($row = $res->fetch()) {
                 $valueHNotesUrl
             )
         );
-        $data[$row['host_id'] . '_' . $row['service_id']]['h_notes_url'] = $valueHNotesUrl;
+        $data[$dataKey]['h_notes_url'] = $valueHNotesUrl;
     }
 
     // s_action_url
@@ -541,7 +543,7 @@ while ($row = $res->fetch()) {
             $row['service_id'],
             $valueSActionUrl
         ));
-        $data[$row['host_id'] . '_' . $row['service_id']]['s_action_url'] = $valueSActionUrl;
+        $data[$dataKey]['s_action_url'] = $valueSActionUrl;
     }
 
     // s_notes_url
@@ -560,7 +562,7 @@ while ($row = $res->fetch()) {
             $row['service_id'],
             $valueSNotesUrl
         ));
-        $data[$row['host_id'] . '_' . $row['service_id']]['s_notes_url'] = $valueSNotesUrl;
+        $data[$dataKey]['s_notes_url'] = $valueSNotesUrl;
     }
 
     // criticality_id
@@ -574,7 +576,7 @@ while ($row = $res->fetch()) {
                 "' title='" . $critData["sc_name"] . "' width='16' height='16'>";
         }
 
-        $data[$row['host_id'] . '_' . $row['service_id']]['criticality_id'] = $valueCriticalityId;
+        $data[$dataKey]['criticality_id'] = $valueCriticalityId;
     }
 
     if (isset($preferences['display_last_comment']) && $preferences['display_last_comment']) {
@@ -597,16 +599,11 @@ while ($row = $res->fetch()) {
             unset($commentRow);
         }
 
-        $data[$row['host_id'] . '_' . $row['service_id']]['comment'] = $comment;
+        $data[$dataKey]['comment'] = $comment;
     }
 
-    $data[$row['host_id'] . '_' . $row['service_id']]['encoded_description'] = urlencode(
-        $data[$row['host_id'] . '_' . $row['service_id']]['description']
-    );
-
-    $data[$row['host_id'] . '_' . $row['service_id']]['encoded_hostname'] = urlencode(
-        $data[$row['host_id'] . '_' . $row['service_id']]['hostname']
-    );
+    $data[$dataKey]['encoded_description'] = urlencode($data[$dataKey]['description']);
+    $data[$dataKey]['encoded_hostname'] = urlencode($data[$dataKey]['hostname']);
 }
 
 $autoRefresh = (isset($preferences['refresh_interval']) && (int)$preferences['refresh_interval'] > 0)
