@@ -1,5 +1,4 @@
-import axios from 'axios';
-import MockAdapter from 'axios-mock-adapter';
+import withMock from 'storybook-addon-mock';
 
 import { buildListingEndpoint } from '../../../..';
 import { SelectEntry } from '../..';
@@ -8,7 +7,10 @@ import { Listing } from '../../../../api/models';
 import SingleConnectedAutocompleteField from './Single';
 import MultiConnectedAutocompleteField from './Multi';
 
-export default { title: 'InputField/Autocomplete/Connected' };
+export default {
+  decorators: [withMock],
+  title: 'InputField/Autocomplete/Connected',
+};
 
 const buildEntities = (from): Array<SelectEntry> => {
   return Array(10)
@@ -36,18 +38,35 @@ const getEndpoint = ({ endpoint, parameters }): string =>
     parameters,
   });
 
-const mockedAxios = new MockAdapter(axios, { delayResponse: 500 });
+const mockSearch = (page: number): object => ({
+  delay: 1000,
+  method: 'GET',
+  response: (request): Listing<SelectEntry> => {
+    const { searchParams } = request;
 
-mockedAxios
-  .onGet(
-    /endpoint\?page=\d+(?:&search={"\$or":\[{"host\.name":{"\$rg":".*"}}]})?/,
-  )
-  .reply((config) => {
-    return [
-      200,
-      buildResult(parseInt(config.url?.split('page=')[1][0] || '0', 10)),
-    ];
-  });
+    return buildResult(parseInt(searchParams.page || '0', 10));
+  },
+  status: 200,
+  url: `/endpoint?page=${page}&search=`,
+});
+
+const getMockData = (): Array<object> => [
+  {
+    delay: 1000,
+    method: 'GET',
+    response: (request): Listing<SelectEntry> => {
+      const { searchParams } = request;
+
+      return buildResult(parseInt(searchParams.page || '0', 10));
+    },
+    status: 200,
+    url: '/endpoint?page=',
+  },
+  mockSearch(1),
+  mockSearch(2),
+  mockSearch(3),
+  mockSearch(4),
+];
 
 export const single = (): JSX.Element => (
   <SingleConnectedAutocompleteField
@@ -59,6 +78,9 @@ export const single = (): JSX.Element => (
     placeholder="Type here..."
   />
 );
+single.parameters = {
+  mockData: getMockData(),
+};
 
 export const multi = (): JSX.Element => (
   <MultiConnectedAutocompleteField
@@ -70,3 +92,6 @@ export const multi = (): JSX.Element => (
     placeholder="Type here..."
   />
 );
+multi.parameters = {
+  mockData: getMockData(),
+};

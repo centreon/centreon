@@ -1,6 +1,3 @@
-import MockAdapter from 'axios-mock-adapter';
-import axios from 'axios';
-
 import { Paper } from '@mui/material';
 
 import {
@@ -9,26 +6,12 @@ import {
   basicFormInitialValues,
   basicFormInputs,
   basicFormValidationSchema,
-  buildResult,
   CustomButton,
 } from './storiesData';
 
 import Form from '.';
 
 export default { title: 'Form' };
-
-const mockedAxios = new MockAdapter(axios, { delayResponse: 500 });
-
-mockedAxios
-  .onGet(
-    /endpoint\?page=\d+(?:&search={"\$or":\[{"host\.name":{"\$rg":".*"}}]})?/,
-  )
-  .reply((config) => {
-    return [
-      200,
-      buildResult(parseInt(config.url?.split('page=')[1][0] || '0', 10)),
-    ];
-  });
 
 const submit = (_, { setSubmitting }): void => {
   setSubmitting(true);

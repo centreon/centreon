@@ -1,8 +1,7 @@
 import { useState } from 'react';
 
-import axios from 'axios';
-import MockAdapter from 'axios-mock-adapter';
 import { isNil, not } from 'ramda';
+import withMock from 'storybook-addon-mock';
 
 import { Tooltip, Typography } from '@mui/material';
 
@@ -15,7 +14,10 @@ import MultiDraggableAutocompleteField from './Multi';
 
 import { ItemActionProps } from '.';
 
-export default { title: 'InputField/Autocomplete/Draggable' };
+export default {
+  decorators: [withMock],
+  title: 'InputField/Autocomplete/Draggable',
+};
 
 const buildEntities = (from): Array<SelectEntry> => {
   return Array(10)
@@ -43,18 +45,35 @@ const getEndpoint = ({ endpoint, parameters }): string =>
     parameters,
   });
 
-const mockedAxios = new MockAdapter(axios, { delayResponse: 500 });
+const mockSearch = (page: number): object => ({
+  delay: 1000,
+  method: 'GET',
+  response: (request): Listing<SelectEntry> => {
+    const { searchParams } = request;
 
-mockedAxios
-  .onGet(
-    /endpoint\?page=\d+(?:&search={"\$or":\[{"host\.name":{"\$rg":".*"}}]})?/,
-  )
-  .reply((config) => {
-    return [
-      200,
-      buildResult(parseInt(config.url?.split('page=')[1][0] || '0', 10)),
-    ];
-  });
+    return buildResult(parseInt(searchParams.page || '0', 10));
+  },
+  status: 200,
+  url: `/endpoint?page=${page}&search=`,
+});
+
+const getMockData = (): Array<object> => [
+  {
+    delay: 1000,
+    method: 'GET',
+    response: (request): Listing<SelectEntry> => {
+      const { searchParams } = request;
+
+      return buildResult(parseInt(searchParams.page || '0', 10));
+    },
+    status: 200,
+    url: '/endpoint?page=',
+  },
+  mockSearch(1),
+  mockSearch(2),
+  mockSearch(3),
+  mockSearch(4),
+];
 
 const options = [
   { id: `0`, name: 'First Entity' },
@@ -91,6 +110,9 @@ const MultiDraggableConnected = (): JSX.Element => (
 export const draggableConnected = (): JSX.Element => (
   <MultiDraggableConnected />
 );
+draggableConnected.parameters = {
+  mockData: getMockData(),
+};
 
 const MultiDraggableError = (): JSX.Element => (
   <MultiDraggableAutocompleteField

@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 
 import { Alert, AlertTitle, Container } from '@mui/material';
 
-import { getData, PageSkeleton, useRequest } from '../../..';
+import { PageSkeleton, useFetchQuery } from '../../..';
 import { getModuleLicenseCheckEndpoint } from '../api';
 
 import { licenseDecoder } from './decoder';
@@ -43,27 +43,18 @@ const Content = ({ children, isValid }: ContentProps): JSX.Element => {
 const LicenseCheck = ({
   children,
   moduleName,
-}: LicenseCheckProps): JSX.Element => {
-  const [isValid, setIsValid] = React.useState<boolean | null>(null);
-
-  const { sendRequest } = useRequest<License>({
+}: LicenseCheckProps): JSX.Element | null => {
+  const { isError, data } = useFetchQuery<License>({
     decoder: licenseDecoder,
-    request: getData,
+    getEndpoint: () => getModuleLicenseCheckEndpoint(moduleName),
+    getQueryKey: () => ['license', moduleName],
   });
 
-  const endpoint = getModuleLicenseCheckEndpoint(moduleName);
+  if (isError) {
+    return null;
+  }
 
-  const checkLicense = (): void => {
-    sendRequest({
-      endpoint,
-    }).then(({ success }) => {
-      setIsValid(success);
-    });
-  };
-
-  React.useEffect(() => {
-    checkLicense();
-  }, []);
+  const isValid = data?.success;
 
   return isNil(isValid) ? (
     <PageSkeleton />

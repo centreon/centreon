@@ -1,6 +1,5 @@
 import { ComponentMeta, ComponentStory } from '@storybook/react';
-import axios from 'axios';
-import MockAdapter from 'axios-mock-adapter';
+import withMock from 'storybook-addon-mock';
 
 import { Alert, Container } from '@mui/material';
 
@@ -14,44 +13,60 @@ export default {
     moduleName: { control: 'text' },
   },
   component: LicenseCheck,
+  decorators: [withMock],
   title: 'LicenseCheck',
 } as ComponentMeta<typeof LicenseCheck>;
 
-const mockedAxios = new MockAdapter(axios);
+const getMockData = ({ moduleName, isLicenseValid }): Array<object> => [
+  {
+    method: 'GET',
+    response: {
+      success: isLicenseValid,
+    },
+    status: 200,
+    url: getModuleLicenseCheckEndpoint(moduleName),
+  },
+];
 
-const moduleName = 'paidModule';
+interface Props {
+  moduleName: string;
+}
 
-const endpoint = getModuleLicenseCheckEndpoint(moduleName);
-
-const Module = (): JSX.Element => (
+const Module = ({ moduleName }: Props): JSX.Element => (
   <Container maxWidth="sm">
     <Alert severity="success">Welcome to {moduleName}</Alert>
   </Container>
 );
 
-interface Props {
-  isLicenseValid: boolean;
-}
-const Story = ({ isLicenseValid }: Props): JSX.Element => {
-  mockedAxios.onGet(endpoint).reply(() => [200, { success: isLicenseValid }]);
-
+const Story = ({ moduleName }: Props): JSX.Element => {
   return (
     <LicenseCheck moduleName={moduleName}>
-      <Module />
+      <Module moduleName={moduleName} />
     </LicenseCheck>
   );
 };
 
 const TemplateLicenseCheck: ComponentStory<typeof LicenseCheck> = (args) => (
-  <Story {...args} isLicenseValid={false} />
+  <Story {...args} moduleName="paidModule1" />
 );
 export const PlaygroundLicenseCheck = TemplateLicenseCheck.bind({});
 PlaygroundLicenseCheck.args = {
-  moduleName: 'Paid Module',
+  moduleName: 'paidModule1',
+};
+PlaygroundLicenseCheck.parameters = {
+  mockData: getMockData({ isLicenseValid: true, moduleName: 'paidModule1' }),
 };
 
 export const withInvalidLicense = (): JSX.Element => (
-  <Story isLicenseValid={false} />
+  <Story moduleName="paidModule2" />
 );
+withInvalidLicense.parameters = {
+  mockData: getMockData({ isLicenseValid: false, moduleName: 'paidModule2' }),
+};
 
-export const withValidLicense = (): JSX.Element => <Story isLicenseValid />;
+export const withValidLicense = (): JSX.Element => (
+  <Story moduleName="paidModule3" />
+);
+withValidLicense.parameters = {
+  mockData: getMockData({ isLicenseValid: true, moduleName: 'paidModule3' }),
+};

@@ -7,6 +7,7 @@ module.exports = {
     reactDocgen: 'react-docgen-typescript'
   },
   addons: [
+    'storybook-addon-mock/register',
     'storybook-dark-mode',
     '@storybook/addon-controls', 
     {

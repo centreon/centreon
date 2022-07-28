@@ -1,20 +1,18 @@
-import axios from 'axios';
-
 import {
   render,
   fireEvent,
   waitFor,
   RenderResult,
   act,
+  TestQueryProvider,
+  resetMocks,
+  mockResponse,
+  getFetchCall,
 } from '../../../../testRenderer';
 import buildListingEndpoint from '../../../../api/buildListingEndpoint';
 import { ConditionsSearchParameter } from '../../../../api/buildListingEndpoint/models';
 
 import SingleConnectedAutocompleteField from './Single';
-
-const mockedAxios = axios as jest.Mocked<typeof axios>;
-
-mockedAxios.CancelToken = jest.requireActual('axios').CancelToken;
 
 const label = 'Connected Autocomplete';
 const placeholder = 'Type here...';
@@ -45,38 +43,30 @@ const renderSingleConnectedAutocompleteField = (
   { searchConditions }: Props = { searchConditions: undefined },
 ): RenderResult =>
   render(
-    <SingleConnectedAutocompleteField
-      field="host.name"
-      getEndpoint={getEndpoint}
-      label={label}
-      placeholder="Type here..."
-      searchConditions={searchConditions}
-    />,
+    <TestQueryProvider>
+      <SingleConnectedAutocompleteField
+        field="host.name"
+        getEndpoint={getEndpoint}
+        label={label}
+        placeholder="Type here..."
+        searchConditions={searchConditions}
+      />
+    </TestQueryProvider>,
   );
 
 describe(SingleConnectedAutocompleteField, () => {
   beforeEach(() => {
-    mockedAxios.get.mockResolvedValue({
-      data: optionsData,
-    });
-  });
-
-  afterEach(() => {
-    mockedAxios.get.mockReset();
+    resetMocks();
+    mockResponse({ data: optionsData });
   });
 
   it('populates options with the first page result from the endpoint request', async () => {
     const { getByLabelText, getByText } =
       renderSingleConnectedAutocompleteField();
 
-    act(() => {
-      fireEvent.click(getByLabelText('Open'));
-    });
+    fireEvent.click(getByLabelText('Open'));
 
-    expect(mockedAxios.get).toHaveBeenCalledWith(
-      `${baseEndpoint}?page=1`,
-      expect.anything(),
-    );
+    expect(getFetchCall(0)).toEqual(`${baseEndpoint}?page=1`);
 
     await waitFor(() => {
       expect(getByText('My Option 1')).toBeInTheDocument();
@@ -91,21 +81,23 @@ describe(SingleConnectedAutocompleteField, () => {
       fireEvent.click(getByLabelText('Open'));
     });
 
-    expect(mockedAxios.get).toHaveBeenCalledWith(
-      `${baseEndpoint}?page=1`,
-      expect.anything(),
-    );
+    await waitFor(() => {
+      expect(getFetchCall(0)).toEqual(`${baseEndpoint}?page=1`);
+    });
+
+    await waitFor(() => {
+      expect(getFetchCall(1)).toEqual(`${baseEndpoint}?page=2`);
+    });
 
     fireEvent.change(getByPlaceholderText(placeholder), {
       target: { value: 'My Option 2' },
     });
 
     await waitFor(() => {
-      expect(mockedAxios.get).toHaveBeenCalledWith(
+      expect(getFetchCall(2)).toEqual(
         `${baseEndpoint}?page=1&search=${encodeURIComponent(
           '{"$and":[{"host.name":{"$lk":"%My Option 2%"}}]}',
         )}`,
-        expect.anything(),
       );
     });
   });
@@ -122,16 +114,13 @@ describe(SingleConnectedAutocompleteField, () => {
       ],
     });
 
-    act(() => {
-      fireEvent.click(getByLabelText('Open'));
-    });
+    fireEvent.click(getByLabelText('Open'));
 
     await waitFor(() => {
-      expect(mockedAxios.get).toHaveBeenCalledWith(
+      expect(getFetchCall(0)).toEqual(
         `${baseEndpoint}?page=1&search=${encodeURIComponent(
           '{"$and":[{"parent_name":{"$eq":"Centreon-Server"}}]}',
         )}`,
-        expect.anything(),
       );
     });
   });

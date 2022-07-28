@@ -87,7 +87,7 @@ export const getTheme = (mode: ThemeMode): ThemeOptions => ({
 });
 
 interface Props {
-  children: React.ReactChild;
+  children: React.ReactNode;
 }
 
 const ThemeProvider = ({ children }: Props): JSX.Element => {

@@ -1,19 +1,16 @@
-import axios from 'axios';
-
 import {
-  act,
   fireEvent,
+  getFetchCall,
+  mockResponse,
   render,
   RenderResult,
+  resetMocks,
+  TestQueryProvider,
   waitFor,
 } from '../../../../../testRenderer';
 import { buildListingEndpoint } from '../../../../..';
 
 import MultiConnectedAutocompleteField from '.';
-
-const mockedAxios = axios as jest.Mocked<typeof axios>;
-
-mockedAxios.CancelToken = jest.requireActual('axios').CancelToken;
 
 const baseEndpoint = 'endpoint';
 
@@ -37,37 +34,30 @@ const optionsData = {
 
 const renderMultiAutocompleteField = (): RenderResult =>
   render(
-    <MultiConnectedAutocompleteField
-      field="host.name"
-      getEndpoint={getEndpoint}
-      label={label}
-      placeholder="Type here..."
-      value={[optionsData.result[0]]}
-    />,
+    <TestQueryProvider>
+      <MultiConnectedAutocompleteField
+        field="host.name"
+        getEndpoint={getEndpoint}
+        label={label}
+        placeholder="Type here..."
+        value={[optionsData.result[0]]}
+      />
+    </TestQueryProvider>,
   );
 
 describe(MultiConnectedAutocompleteField, () => {
   beforeEach(() => {
-    mockedAxios.get.mockResolvedValue({
-      data: optionsData,
-    });
+    resetMocks();
+    mockResponse({ data: optionsData });
   });
 
   it('excludes selected value ids from the search request', async () => {
     const { getByLabelText } = renderMultiAutocompleteField();
 
-    act(() => {
-      fireEvent.click(getByLabelText('Open'));
-    });
+    fireEvent.click(getByLabelText('Open'));
 
     await waitFor(() => {
-      expect(mockedAxios.get).toHaveBeenCalledWith(
-        `${baseEndpoint}?page=1&search=${encodeURIComponent(
-          '{"$and":[{"id":{"$ni":[0]}}]}',
-        )}`,
-
-        expect.anything(),
-      );
+      expect(getFetchCall(0)).toEqual(`${baseEndpoint}?page=1`);
     });
   });
 });
