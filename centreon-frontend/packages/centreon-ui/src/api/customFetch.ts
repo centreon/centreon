@@ -42,7 +42,10 @@ export const customFetch = <T>({
   const defaultOptions = { headers, method, signal };
 
   const options = isMutation
-    ? { ...defaultOptions, body: JSON.stringify(payload) }
+    ? {
+        ...defaultOptions,
+        body: payload instanceof FormData ? payload : JSON.stringify(payload),
+      }
     : defaultOptions;
 
   return fetch(endpoint, options).then(async (response) => {

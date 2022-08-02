@@ -15,7 +15,7 @@ const useStyles = makeStyles<
     alignItems,
   }): CreateCSSProperties => ({
     alignItems: alignItems || 'flex-start',
-    columnGap: theme.spacing(2),
+    columnGap: theme.spacing(4),
     display: 'grid',
     gridTemplateColumns: gridTemplateColumns || `repeat(${columns}, 1fr)`,
     rowGap: theme.spacing(2),

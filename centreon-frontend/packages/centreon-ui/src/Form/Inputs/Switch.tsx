@@ -6,7 +6,7 @@ import { useTranslation } from 'react-i18next';
 
 import { FormControlLabel, Switch as MUISwitch } from '@mui/material';
 
-import { useMemoComponent } from '@centreon/ui';
+import { useMemoComponent } from '../..';
 
 import { InputPropsWithoutGroup } from './models';
 

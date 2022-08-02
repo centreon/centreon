@@ -6,8 +6,7 @@ import { Theme } from '@mui/material';
 import { CreateCSSProperties, makeStyles } from '@mui/styles';
 import DeleteIcon from '@mui/icons-material/Delete';
 
-import { IconButton } from '@centreon/ui';
-
+import { IconButton } from '../../..';
 import { getInput } from '..';
 import { InputPropsWithoutGroup } from '../models';
 

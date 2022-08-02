@@ -1,9 +1,5 @@
 import 'ulog';
-import {
-  UseMutateAsyncFunction,
-  UseMutateFunction,
-  useMutation,
-} from '@tanstack/react-query';
+import { useMutation } from '@tanstack/react-query';
 import { JsonDecoder } from 'ts.data.json';
 import anylogger from 'anylogger';
 
@@ -33,13 +29,8 @@ const log = anylogger('API Request');
 export interface UseMutationQueryState<T> {
   isError: boolean;
   isMutating: boolean;
-  mutate: UseMutateFunction<T | ResponseError, unknown, void, unknown>;
-  mutateAsync: UseMutateAsyncFunction<
-    T | ResponseError,
-    unknown,
-    void,
-    unknown
-  >;
+  mutate: (payload) => void;
+  mutateAsync: (payload) => Promise<T | ResponseError>;
 }
 
 const useMutationQuery = <T extends object>({

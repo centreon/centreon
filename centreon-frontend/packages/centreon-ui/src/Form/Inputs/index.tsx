@@ -1,12 +1,13 @@
-import { useMemo } from 'react';
+import { Fragment, useMemo } from 'react';
 
 import * as R from 'ramda';
 import { useTranslation } from 'react-i18next';
 
-import { makeStyles } from '@mui/styles';
-import { Divider, Typography } from '@mui/material';
+import { CreateCSSProperties, makeStyles } from '@mui/styles';
+import { Divider, Theme, Typography } from '@mui/material';
 
 import CollapsibleGroup from '../CollapsibleGroup';
+import { GroupDirection } from '..';
 
 import { Group, InputProps, InputPropsWithoutGroup, InputType } from './models';
 import Autocomplete from './Autocomplete';
@@ -62,7 +63,11 @@ export const getInput = R.cond<
   [R.equals(InputType.Custom) as (b: InputType) => boolean, R.always(Custom)],
 ]);
 
-const useStyles = makeStyles((theme) => ({
+interface StylesProps {
+  groupDirection?: GroupDirection;
+}
+
+const useStyles = makeStyles<Theme, StylesProps>((theme) => ({
   additionalLabel: {
     marginBottom: theme.spacing(0.5),
   },
@@ -72,10 +77,17 @@ const useStyles = makeStyles((theme) => ({
     flexDirection: 'row',
     justifyContent: 'flex-end',
   },
-  group: {
-    marginBottom: theme.spacing(2),
-    marginTop: theme.spacing(2),
-  },
+  divider: ({ groupDirection }): CreateCSSProperties => ({
+    margin: R.equals(groupDirection, GroupDirection.Horizontal)
+      ? theme.spacing(0, 2)
+      : theme.spacing(2, 0),
+  }),
+  groups: ({ groupDirection }): CreateCSSProperties => ({
+    display: 'flex',
+    flexDirection: R.equals(groupDirection, GroupDirection.Horizontal)
+      ? 'row'
+      : 'column',
+  }),
   inputWrapper: { width: '100%' },
   inputs: {
     display: 'flex',
@@ -86,6 +98,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 interface Props {
+  groupDirection?: GroupDirection;
   groups?: Array<Group>;
   inputs: Array<InputProps>;
   isCollapsible: boolean;
@@ -97,8 +110,9 @@ const Inputs = ({
   groups = [],
   isLoading = false,
   isCollapsible,
+  groupDirection,
 }: Props): JSX.Element => {
-  const classes = useStyles();
+  const classes = useStyles({ groupDirection });
   const { t } = useTranslation();
 
   const groupsName = R.pluck('name', groups);
@@ -148,7 +162,7 @@ const Inputs = ({
   ) as Array<[string | null, Array<InputProps>]>;
 
   return (
-    <div>
+    <div className={classes.groups}>
       {normalizedInputsByGroup.map(([groupName, groupedInputs], index) => {
         const hasGroupTitle = R.not(R.isNil(groupName));
 
@@ -159,8 +173,8 @@ const Inputs = ({
         const isFirstElement = R.equals(index, 0);
 
         return (
-          <div key={groupName}>
-            <div className={classes.group}>
+          <Fragment key={groupName}>
+            <div>
               <CollapsibleGroup
                 defaultIsOpen={isFirstElement}
                 group={groupProps}
@@ -201,8 +215,18 @@ const Inputs = ({
               </CollapsibleGroup>
             </div>
             {hasGroupTitle &&
-              R.not(R.equals(lastGroup, groupName as string)) && <Divider />}
-          </div>
+              R.not(R.equals(lastGroup, groupName as string)) && (
+                <Divider
+                  flexItem
+                  className={classes.divider}
+                  orientation={
+                    R.equals(groupDirection, GroupDirection.Horizontal)
+                      ? 'vertical'
+                      : 'horizontal'
+                  }
+                />
+              )}
+          </Fragment>
         );
       })}
     </div>

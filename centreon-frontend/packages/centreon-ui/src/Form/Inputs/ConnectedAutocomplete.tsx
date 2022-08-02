@@ -8,8 +8,7 @@ import {
   SingleConnectedAutocompleteField,
   buildListingEndpoint,
   useMemoComponent,
-} from '@centreon/ui';
-
+} from '../..';
 import MultiConnectedAutocompleteField from '../../InputField/Select/Autocomplete/Connected/Multi';
 
 import { InputPropsWithoutGroup, InputType } from './models';

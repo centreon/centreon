@@ -6,9 +6,9 @@ import { useTranslation } from 'react-i18next';
 import { FormHelperText, Theme, Typography } from '@mui/material';
 import { CreateCSSProperties, makeStyles } from '@mui/styles';
 
-import { useMemoComponent } from '@centreon/ui';
 import { userAtom } from '@centreon/ui-context';
 
+import { useMemoComponent } from '../../..';
 import { InputPropsWithoutGroup } from '../models';
 
 import Row from './Row';

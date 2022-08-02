@@ -13,8 +13,14 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
+export enum GroupDirection {
+  Horizontal = 'horizontal',
+  Vertical = 'vertical',
+}
+
 interface Props<T> {
   Buttons?: React.ComponentType;
+  groupDirection?: GroupDirection;
   groups?: Array<Group>;
   initialValues: T;
   inputs: Array<InputProps>;
@@ -35,6 +41,7 @@ const Form = <T extends object>({
   Buttons = FormButtons,
   isLoading = false,
   isCollapsible = false,
+  groupDirection = GroupDirection.Vertical,
 }: Props<T>): JSX.Element => {
   const classes = useStyles();
 
@@ -60,7 +67,12 @@ const Form = <T extends object>({
       onSubmit={submit}
     >
       <div className={classes.formContainer}>
-        <Inputs groups={groups} inputs={inputs} isCollapsible={isCollapsible} />
+        <Inputs
+          groupDirection={groupDirection}
+          groups={groups}
+          inputs={inputs}
+          isCollapsible={isCollapsible}
+        />
         <Buttons />
       </div>
     </Formik>

@@ -9,7 +9,7 @@ import {
   CustomButton,
 } from './storiesData';
 
-import Form from '.';
+import Form, { GroupDirection } from '.';
 
 export default { title: 'Form' };
 
@@ -64,5 +64,15 @@ export const loadingForm = (): JSX.Element => (
 export const loadingFormWithGroups = (): JSX.Element => (
   <Paper elevation={0} sx={{ p: 1 }}>
     <Form<BasicForm> {...mandatoryProps} isLoading groups={basicFormGroups} />
+  </Paper>
+);
+
+export const basicFormWithHorizontalGroups = (): JSX.Element => (
+  <Paper elevation={0} sx={{ p: 1 }}>
+    <Form<BasicForm>
+      {...mandatoryProps}
+      groupDirection={GroupDirection.Horizontal}
+      groups={basicFormGroups}
+    />
   </Paper>
 );

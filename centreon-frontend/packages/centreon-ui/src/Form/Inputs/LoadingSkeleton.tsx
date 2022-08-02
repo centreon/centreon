@@ -1,6 +1,6 @@
 import { always, cond, equals } from 'ramda';
 
-import { LoadingSkeleton } from '@centreon/ui';
+import { LoadingSkeleton } from '../..';
 
 import { InputProps, InputType } from './models';
 

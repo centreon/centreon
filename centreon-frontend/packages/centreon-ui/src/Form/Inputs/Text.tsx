@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { useFormikContext, FormikValues } from 'formik';
 import { equals, isEmpty, not, path, split } from 'ramda';
 
-import { TextField, useMemoComponent } from '@centreon/ui';
+import { TextField, useMemoComponent } from '../..';
 
 import PasswordEndAdornment from './PasswordEndAdornment';
 import { InputPropsWithoutGroup, InputType } from './models';

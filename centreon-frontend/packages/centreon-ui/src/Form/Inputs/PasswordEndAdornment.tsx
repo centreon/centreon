@@ -4,8 +4,7 @@ import { InputAdornment } from '@mui/material';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 
-import { IconButton } from '@centreon/ui';
-
+import { IconButton } from '../..';
 import {
   labelDisplayThePassword,
   labelHideThePassword,

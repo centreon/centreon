@@ -5,8 +5,7 @@ import { Theme, Avatar } from '@mui/material';
 import makeStyles from '@mui/styles/makeStyles';
 import { CreateCSSProperties } from '@mui/styles';
 
-import { getStatusColors } from '@centreon/ui';
-
+import { getStatusColors } from '..';
 import { Colors, SeverityCode } from '../StatusChip';
 
 interface StyleProps {

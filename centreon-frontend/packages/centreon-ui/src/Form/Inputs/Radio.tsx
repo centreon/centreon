@@ -10,7 +10,7 @@ import {
   Radio as MUIRadio,
 } from '@mui/material';
 
-import { useMemoComponent } from '@centreon/ui';
+import { useMemoComponent } from '../..';
 
 import { InputPropsWithoutGroup } from './models';
 
