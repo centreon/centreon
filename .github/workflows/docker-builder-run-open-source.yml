@@ -31,7 +31,7 @@ jobs:
           password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
 
       - name: run docker ${{ matrix.project }} ${{ matrix.distrib }}
-        run: docker run -i -e -d --privileged --name open-source-${{ matrix.distrib }}  docker.registry.apps.centreon.com/${{ matrix.project }}-${{ matrix.distrib }}:${{ env.version }} 
+        run: docker run -it -d --privileged --name open-source-${{ matrix.distrib }}  docker.registry.apps.centreon.com/${{ matrix.project }}-${{ matrix.distrib }}:${{ env.version }} 
 
       - name: exec docker ${{ matrix.project }} ${{ matrix.distrib }} 
         run: docker exec -i -e --privileged open-source-${{ matrix.distrib }} /bin/bash -c "export ENV_WIZARD_AUTOPLAY=true"
