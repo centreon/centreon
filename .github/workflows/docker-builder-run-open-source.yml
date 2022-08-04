@@ -1,4 +1,4 @@
-name: Centreon build docker test and build frontend
+name: Centreon build docker run centreon open source
 
 on:  
   workflow_dispatch:
@@ -31,13 +31,13 @@ jobs:
           password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
 
       - name: run docker ${{ matrix.project }} ${{ matrix.distrib }}
-        run: docker run -it -d --privileged --name open-source-${{ matrix.distrib }}  docker.registry.apps.centreon.com/${{ matrix.project }}-${{ matrix.distrib }}:${{ env.version }} 
+        run: docker run -i -e -d --privileged --name open-source-${{ matrix.distrib }}  docker.registry.apps.centreon.com/${{ matrix.project }}-${{ matrix.distrib }}:${{ env.version }} 
 
       - name: exec docker ${{ matrix.project }} ${{ matrix.distrib }} 
-        run: docker exec -it --privileged open-source-${{ matrix.distrib }} /bin/bash -c "export ENV_WIZARD_AUTOPLAY=true"
+        run: docker exec -i -e --privileged open-source-${{ matrix.distrib }} /bin/bash -c "export ENV_WIZARD_AUTOPLAY=true"
 
       - name: exec docker ${{ matrix.project }} ${{ matrix.distrib }} 
-        run: docker exec -it --privileged open-source-${{ matrix.distrib }} /bin/bash -c "curl -L https://raw.githubusercontent.com/centreon/centreon/master/unattended.sh | sh"
+        run: docker exec -i -e --privileged open-source-${{ matrix.distrib }} /bin/bash -c "curl -L https://raw.githubusercontent.com/centreon/centreon/master/unattended.sh | sh"
 
       - name: exec docker ${{ matrix.project }} ${{ matrix.distrib }}
         run: docker commit open-source-${{ matrix.distrib }} docker.registry.apps.centreon.com/run-centreon-open-source-${{ matrix.distrib }}:${{ env.version }}

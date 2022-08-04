@@ -1,4 +1,4 @@
-name: Centreon build docker test and build frontend
+name: Centreon build docker systemd
 
 on:  
   workflow_dispatch:
