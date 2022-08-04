@@ -1,0 +1,41 @@
+name: Centreon build docker test and build frontend
+
+on:  
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - '.github/workflows/docker-builder-run-open-source.yml'
+      - 'ci/docker/Dockerfile.systemd-centos7'
+
+env:
+  version: test-22.10
+
+jobs:
+  create-and-push-docker:
+    runs-on: common
+    
+    strategy:
+      matrix:
+        include:
+          - project: systemd
+            distrib: centos7
+
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v3
+
+      - name: Login to Registry
+        uses: docker/login-action@v2
+        with:
+          registry: docker.registry.apps.centreon.com
+          username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
+          password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
+
+      - name: build docker ${{ matrix.project }} ${{ matrix.distrib }}
+        run: docker build --no-cache . -f ci/docker/Dockerfile.packaging-${{ matrix.project }}-${{ matrix.distrib }} -t docker.registry.apps.centreon.com/${{ matrix.project }}-${{ matrix.distrib }}:${{ env.version }}
+
+      - name: push docker packaging ${{ matrix.project }} ${{ matrix.distrib }}
+        run: docker push docker.registry.apps.centreon.com/${{ matrix.project }}-${{ matrix.distrib }}:${{ env.version }}
+
+
+

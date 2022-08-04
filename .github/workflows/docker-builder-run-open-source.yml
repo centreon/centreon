@@ -5,7 +5,6 @@ on:
   pull_request:
     paths:
       - '.github/workflows/docker-builder-run-open-source.yml'
-      - 'ci/docker/Dockerfile.centreon-open-source-centos7'
 
 env:
   version: test-22.10
@@ -17,7 +16,7 @@ jobs:
     strategy:
       matrix:
         include:
-          - project: centreon-open-source
+          - project: systemd
             distrib: centos7
 
     steps:
@@ -31,8 +30,17 @@ jobs:
           username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
           password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
 
-      - name: build docker packaging ${{ matrix.project }} ${{ matrix.distrib }}
-        run: docker build --no-cache . -f ci/docker/run/Dockerfile.${{ matrix.project }}-${{ matrix.distrib }} -t docker.registry.apps.centreon.com/${{ matrix.project }}-${{ matrix.distrib }}:${{ env.version }}
+      - name: run docker ${{ matrix.project }} ${{ matrix.distrib }}
+        run: docker run -it -d --privileged --name open-source-${{ matrix.distrib }}  docker.registry.apps.centreon.com/${{ matrix.project }}-${{ matrix.distrib }}:${{ env.version }} 
+
+      - name: exec docker ${{ matrix.project }} ${{ matrix.distrib }} 
+        run: docker exec -it --privileged open-source-${{ matrix.distrib }} /bin/bash -c "export ENV_WIZARD_AUTOPLAY=true"
+
+      - name: exec docker ${{ matrix.project }} ${{ matrix.distrib }} 
+        run: docker exec -it --privileged open-source-${{ matrix.distrib }} /bin/bash -c "curl -L https://raw.githubusercontent.com/centreon/centreon/master/unattended.sh | sh"
+
+      - name: exec docker ${{ matrix.project }} ${{ matrix.distrib }}
+        run: docker commit open-source-${{ matrix.distrib }} docker.registry.apps.centreon.com/run-centreon-open-source-${{ matrix.distrib }}:${{ env.version }}
 
       - name: push docker packaging ${{ matrix.project }} ${{ matrix.distrib }}
         run: docker push docker.registry.apps.centreon.com/${{ matrix.project }}-${{ matrix.distrib }}:${{ env.version }}
