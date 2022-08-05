@@ -33,13 +33,10 @@ jobs:
       - name: run docker ${{ matrix.project }} ${{ matrix.distrib }}
         run: docker run -it -d --privileged --name open-source-${{ matrix.distrib }}  docker.registry.apps.centreon.com/${{ matrix.project }}-${{ matrix.distrib }}:${{ env.version }} 
 
-      # - name: exec docker ${{ matrix.project }} ${{ matrix.distrib }} 
-      #   run: docker exec -i -e --privileged open-source-${{ matrix.distrib }} /bin/bash -c "export ENV_WIZARD_AUTOPLAY=true"
-
       - name: exec docker ${{ matrix.project }} ${{ matrix.distrib }} 
         run: docker exec -i -e --privileged open-source-${{ matrix.distrib }} /bin/bash -c "export ENV_WIZARD_AUTOPLAY=true && curl -L https://raw.githubusercontent.com/centreon/centreon/master/unattended.sh | sh"
 
-      - name: exec docker ${{ matrix.project }} ${{ matrix.distrib }}
+      - name: commit docker ${{ matrix.project }} ${{ matrix.distrib }}
         run: docker commit open-source-${{ matrix.distrib }} docker.registry.apps.centreon.com/run-centreon-open-source-${{ matrix.distrib }}:${{ env.version }}
 
       - name: push docker packaging ${{ matrix.project }} ${{ matrix.distrib }}

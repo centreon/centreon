@@ -5,7 +5,7 @@ on:
   pull_request:
     paths:
       - '.github/workflows/docker-builder-run-open-source.yml'
-      - 'ci/docker/run/Dockerfile.systemd-centos7'
+      - 'ci/docker/Dockerfile.systemd-centos7'
 
 env:
   version: test-22.10
@@ -32,7 +32,7 @@ jobs:
           password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
 
       - name: build docker ${{ matrix.project }} ${{ matrix.distrib }}
-        run: docker build --no-cache . -f ci/docker/run/Dockerfile.${{ matrix.project }}-${{ matrix.distrib }} -t docker.registry.apps.centreon.com/${{ matrix.project }}-${{ matrix.distrib }}:${{ env.version }}
+        run: docker build --no-cache . -f ci/docker/Dockerfile.${{ matrix.project }}-${{ matrix.distrib }} -t docker.registry.apps.centreon.com/${{ matrix.project }}-${{ matrix.distrib }}:${{ env.version }}
 
       - name: push docker packaging ${{ matrix.project }} ${{ matrix.distrib }}
         run: docker push docker.registry.apps.centreon.com/${{ matrix.project }}-${{ matrix.distrib }}:${{ env.version }}
