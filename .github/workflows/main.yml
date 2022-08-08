@@ -114,6 +114,7 @@ jobs:
       - name: run docker ${{ matrix.project }} ${{ matrix.distrib }}
         run: docker run -it -d --privileged --name ${{ matrix.project }}-${{ matrix.distrib }}  docker.registry.apps.centreon.com/${{ matrix.project }}-${{ matrix.distrib }}:${{ env.version }} 
 
+
       - name: exec docker ${{ matrix.project }} ${{ matrix.distrib }} 
         run: docker exec -i -e --privileged ${{ matrix.project }}-${{ matrix.distrib }} /bin/bash -c "/tmp/install.sh"
 
