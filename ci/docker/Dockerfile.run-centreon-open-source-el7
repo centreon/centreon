@@ -16,6 +16,11 @@ RUN yum install -y libselinux-utils
 RUN curl -o centreon-release.rpm "https://yum.centreon.com/standard/22.10/el7/stable/noarch/RPMS/centreon-release-22.10-1.el7.centos.noarch.rpm"
 RUN yum install -y --nogpgcheck -y centreon-release.rpm
 RUN yum-config-manager --enable 'centreon-testing*' && yum-config-manager --enable 'centreon-unstable*'
+RUN yum install -y https://rpms.remirepo.net/enterprise/remi-release-7.rpm https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+RUN yum-config-manager --enable remi-php80
+RUN yum install -y php80
+RUN ln -s /usr/bin/php80 /usr/bin/php
+
 COPY *.rpm /tmp/
 COPY ./ci/scripts/install.sh /tmp/install.sh
 COPY /ci/scripts/autoinstall.php /usr/share/centreon/autoinstall.php
