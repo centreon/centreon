@@ -109,6 +109,14 @@ jobs:
           key: ${{ env.cache-name-rpmbuild }}-${{ matrix.distrib }}
           restore-keys: |
             ${{ env.cache-name-rpmbuild }}-${{ matrix.distrib }}
+      
+      - name: pwd
+        run: pwd
+        shell: bash
+
+      - name: ls -l
+        run: ls -l
+        shell: bash
 
       - name: build docker ${{ matrix.project }} ${{ matrix.distrib }}
         run: docker build --no-cache . -f ci/docker/Dockerfile.${{ matrix.project }}-${{ matrix.distrib }} -t docker.registry.apps.centreon.com/${{ matrix.project }}-${{ matrix.distrib }}:${{  matrix.version }}
