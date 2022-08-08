@@ -79,6 +79,7 @@ jobs:
       nexus_password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
   
   create-and-push-docker:
+    needs: [web-packaging]
     runs-on: common
     
     strategy:
@@ -86,6 +87,7 @@ jobs:
         include:
           - project: run-centreon-open-source
             distrib: centos7
+            version: "22.10"
 
     steps:
       - name: Checkout sources
@@ -109,17 +111,17 @@ jobs:
             ${{ env.cache-name-rpmbuild }}-${{ matrix.distrib }}
 
       - name: build docker ${{ matrix.project }} ${{ matrix.distrib }}
-        run: docker build --no-cache . -f ci/docker/Dockerfile.${{ matrix.project }}-${{ matrix.distrib }} -t docker.registry.apps.centreon.com/${{ matrix.project }}-${{ matrix.distrib }}:${{ env.version }}
+        run: docker build --no-cache . -f ci/docker/Dockerfile.${{ matrix.project }}-${{ matrix.distrib }} -t docker.registry.apps.centreon.com/${{ matrix.project }}-${{ matrix.distrib }}:${{  matrix.version }}
       
       - name: run docker ${{ matrix.project }} ${{ matrix.distrib }}
-        run: docker run -it -d --privileged --name ${{ matrix.project }}-${{ matrix.distrib }}  docker.registry.apps.centreon.com/${{ matrix.project }}-${{ matrix.distrib }}:${{ env.version }} 
+        run: docker run -it -d --privileged --name ${{ matrix.project }}-${{ matrix.distrib }}  docker.registry.apps.centreon.com/${{ matrix.project }}-${{ matrix.distrib }}:${{ matrix.version }} 
 
 
       - name: exec docker ${{ matrix.project }} ${{ matrix.distrib }} 
         run: docker exec -i -e --privileged ${{ matrix.project }}-${{ matrix.distrib }} /bin/bash -c "/tmp/install.sh"
 
       - name: commit docker ${{ matrix.project }} ${{ matrix.distrib }}
-        run: docker commit ${{ matrix.project }}-${{ matrix.distrib }} docker.registry.apps.centreon.com/${{ matrix.project }}-${{ matrix.distrib }}:${{ env.version }}
+        run: docker commit ${{ matrix.project }}-${{ matrix.distrib }} docker.registry.apps.centreon.com/${{ matrix.project }}-${{ matrix.distrib }}:${{ matrix.version }}
 
       - name: push docker packaging ${{ matrix.project }} ${{ matrix.distrib }}
-        run: docker push docker.registry.apps.centreon.com/${{ matrix.project }}-${{ matrix.distrib }}:${{ env.version }}
+        run: docker push docker.registry.apps.centreon.com/${{ matrix.project }}-${{ matrix.distrib }}:${{ matrix.version }}
