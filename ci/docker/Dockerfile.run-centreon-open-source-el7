@@ -27,7 +27,7 @@ COPY *.rpm /tmp/
 COPY ./ci/scripts/install.sh /tmp/install.sh
 COPY /ci/scripts/autoinstall.php /usr/share/centreon/autoinstall.php
 COPY /ci/scripts/configuration/* /usr/share/centreon/www/install/tmp/
-RUN yum install /tmp/*.rpm
+RUN yum install -y /tmp/*.rpm
 VOLUME [ "/sys/fs/cgroup" ]
 
 CMD ["/usr/sbin/init"]
