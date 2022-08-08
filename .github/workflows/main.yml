@@ -86,7 +86,7 @@ jobs:
       matrix:
         include:
           - project: run-centreon-open-source
-            distrib: centos7
+            distrib: el7
             version: "22.10"
             module_name: web
 
