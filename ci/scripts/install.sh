@@ -2,6 +2,9 @@
 
 set -ex 
 
+systemctl enable mariadb php-fpm httpd24-httpd gorgoned centreontrapd cbd centengine centreon
+systemctl restart mariadb php-fpm httpd24-httpd
+
 mysql -e "GRANT ALL ON *.* to 'root'@'localhost' IDENTIFIED BY 'centreon' WITH GRANT OPTION"
 cd /usr/share/centreon/www/install/steps/process
 su apache -s /bin/bash -c "php configFileSetup.php"
