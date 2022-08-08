@@ -14,7 +14,7 @@ rm -f /lib/systemd/system/anaconda.target.wants/*;
 RUN yum -y update
 RUN yum install -y libselinux-utils
 RUN curl -o centreon-release.rpm "https://yum.centreon.com/standard/22.10/el8/stable/noarch/RPMS/centreon-release-22.10-1.el8.noarch.rpm"
-
+RUN dnf install -y --nogpgcheck -y centreon-release.rpm
 COPY *.rpm /tmp/
 COPY ./ci/scripts/install.sh /tmp/install.sh
 COPY /ci/scripts/autoinstall.php /usr/share/centreon/autoinstall.php
