@@ -2,6 +2,7 @@
 
 set -ex 
 
+yum install -y /tmp/*.rpm
 systemctl enable mariadb php-fpm httpd24-httpd gorgoned centreontrapd cbd centengine centreon
 systemctl restart mariadb php-fpm httpd24-httpd
 
