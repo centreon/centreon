@@ -16,9 +16,9 @@ RUN yum install -y libselinux-utils
 RUN curl -o centreon-release.rpm "https://yum.centreon.com/standard/22.10/el8/stable/noarch/RPMS/centreon-release-22.10-1.el8.noarch.rpm"
 
 COPY *.rpm /tmp/
-COPY ./ci/script/install.sh /tmp/install.sh
-COPY /ci/script/autoinstall.php /usr/share/centreon/autoinstall.php
-COPY /ci/script/configuration/* /usr/share/centreon/www/install/tmp/
+COPY ./ci/scripts/install.sh /tmp/install.sh
+COPY /ci/scripts/autoinstall.php /usr/share/centreon/autoinstall.php
+COPY /ci/scripts/configuration/* /usr/share/centreon/www/install/tmp/
 RUN chown -R apache.apache /usr/share/centreon/www/install/tmp
 RUN yum install /tmp/*.rpm
 VOLUME [ "/sys/fs/cgroup" ]
