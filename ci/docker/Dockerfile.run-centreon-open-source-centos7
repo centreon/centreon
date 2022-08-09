@@ -20,7 +20,6 @@ RUN yum install -y yum-utils centos-release-scl-rh https://rpms.remirepo.net/ent
 RUN yum install -y httpd24-httpd
 RUN yum-config-manager --enable remi-php80
 
-
 COPY *.rpm /tmp/
 COPY ./ci/scripts/install.sh /tmp/install.sh
 RUN chmod +x /tmp/install.sh

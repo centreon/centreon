@@ -86,7 +86,8 @@ jobs:
       matrix:
         include:
           - project: run-centreon-open-source
-            distrib: el7
+            distrib: centos7
+            distrib_rpm: el7
             version: "22.10"
             module_name: web
 
@@ -107,9 +108,9 @@ jobs:
           cache-name-rpmbuild: cache-${{ github.sha }}-${{ github.run_id }}-rpmbuild-${{ matrix.module_name}}
         with:
           path: ./*.rpm
-          key: ${{ env.cache-name-rpmbuild }}-${{ matrix.distrib }}
+          key: ${{ env.cache-name-rpmbuild }}-${{ matrix.distrib_rpm }}
           restore-keys: |
-            ${{ env.cache-name-rpmbuild }}-${{ matrix.distrib }}
+            ${{ env.cache-name-rpmbuild }}-${{ matrix.distrib_rpm }}
       
       - name: pwd
         run: pwd

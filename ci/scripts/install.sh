@@ -4,7 +4,8 @@ set -ex
 
 yum install -y /tmp/*.rpm
 systemctl enable mariadb php-fpm httpd24-httpd gorgoned centreontrapd cbd centengine centreon
-systemctl restart mariadb php-fpm httpd24-httpd
+systemctl restart mariadb php-fpm httpd24-httpd gorgoned cbd centengine
+
 
 mysql -e "GRANT ALL ON *.* to 'root'@'localhost' IDENTIFIED BY 'centreon' WITH GRANT OPTION"
 cd /usr/share/centreon/www/install/steps/process
