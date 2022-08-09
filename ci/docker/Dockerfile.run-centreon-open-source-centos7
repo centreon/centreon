@@ -1,4 +1,4 @@
-FROM centos:7
+FROM docker-proxy.registry.apps.centreon.com/centos:7
 
 ENV container docker
 
