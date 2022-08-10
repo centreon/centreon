@@ -105,7 +105,7 @@ jobs:
       - name: build docker run
         uses: ./.github/actions/docker-builder-run
         with:
-          distrib: autodisco-test-${{ matrix.distrib }}
+          distrib: ${{ matrix.distrib }}
           project: ${{ matrix.project }}
           distrib_rpm: ${{ matrix.distrib_rpm }}
-          module_name: ${{ matrix.autodisco }}
+          module_name: ${{ matrix.module_name }}
