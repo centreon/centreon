@@ -106,6 +106,6 @@ jobs:
         uses: ./.github/actions/docker-builder-run
         with:
           distrib: autodisco-test-${{ matrix.distrib }}
-          project: ${{ matrix.run-centreon-business-autodisco }}
+          project: ${{ matrix.project }}
           distrib_rpm: ${{ matrix.distrib_rpm }}
           module_name: ${{ matrix.autodisco }}
