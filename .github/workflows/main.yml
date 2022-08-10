@@ -102,28 +102,10 @@ jobs:
           username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
           password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
 
-      - name: Use cache RPM files
-        uses: actions/cache@v3
-        env:
-          cache-name-rpmbuild: cache-${{ github.sha }}-${{ github.run_id }}-rpmbuild-${{ matrix.module_name}}
+      - name: build docker run
+        uses: ./.github/actions/docker-builder-run
         with:
-          path: ./*.rpm
-          key: ${{ env.cache-name-rpmbuild }}-${{ matrix.distrib_rpm }}
-          restore-keys: |
-            ${{ env.cache-name-rpmbuild }}-${{ matrix.distrib_rpm }}
-
-      - name: build docker ${{ matrix.project }} ${{ matrix.distrib }}
-        run: docker build --no-cache . -f ci/docker/Dockerfile.${{ matrix.project }}-${{ matrix.distrib }} -t docker.registry.apps.centreon.com/${{ matrix.project }}-${{ matrix.distrib }}:${{ github.head_ref }}
-      
-      - name: run docker ${{ matrix.project }} ${{ matrix.distrib }}
-        run: docker run -it -d --privileged --name ${{ matrix.project }}-${{ matrix.distrib }}  docker.registry.apps.centreon.com/${{ matrix.project }}-${{ matrix.distrib }}:${{ github.head_ref }} 
-
-
-      - name: exec docker ${{ matrix.project }} ${{ matrix.distrib }} 
-        run: docker exec -i -e --privileged ${{ matrix.project }}-${{ matrix.distrib }} /bin/bash -c "/tmp/install.sh"
-
-      - name: commit docker ${{ matrix.project }} ${{ matrix.distrib }}
-        run: docker commit ${{ matrix.project }}-${{ matrix.distrib }} docker.registry.apps.centreon.com/${{ matrix.project }}-${{ matrix.distrib }}:${{ github.head_ref }}
-
-      - name: push docker ${{ matrix.project }} ${{ matrix.distrib }}
-        run: docker push docker.registry.apps.centreon.com/${{ matrix.project }}-${{ matrix.distrib }}:${{ github.head_ref }}
+          distrib: autodisco-test-${{ matrix.distrib }}
+          project: ${{ matrix.run-centreon-business-autodisco }}
+          distrib_rpm: ${{ matrix.distrib_rpm }}
+          module_name: ${{ matrix.autodisco }}
