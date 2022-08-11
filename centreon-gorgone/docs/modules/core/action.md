@@ -6,12 +6,12 @@ This module aims to execute actions on the server running the Gorgone daemon or 
 
 ## Configuration
 
-| Directive               | Description                                                         | Default value |
-| :---------------------- | :------------------------------------------------------------------ | :------------ |
-| command_timeout         | Time in seconds before a command is considered timed out            | `30`          |
-| whitelist_cmds          | Boolean to enable commands whitelist                                | `false`       |
-| allowed_cmds            | Regexp list of allowed commands                                     |               |
-| tar_insecure_extra_mode | allow files to be extracted outside their current working directory |               |
+| Directive        | Description                                                    | Default value |
+| :--------------- | :------------------------------------------------------------- | :------------ |
+| command_timeout  | Time in seconds before a command is considered timed out       | `30`          |
+| whitelist_cmds   | Boolean to enable commands whitelist                           | `false`       |
+| allowed_cmds     | Regexp list of allowed commands                                |               |
+| paranoid_plugins | Block centengine restart/reload if plugin dependencies missing | `false`       |
 
 #### Example
 
