@@ -3,7 +3,7 @@
 set -ex 
 
 cd centreon
-VERSION=1
+VERSION="22.10.0"
 COMMIT=`git log -1 HEAD --pretty=format:%h`
 now=`date +%s`
 export RELEASE="$now.$COMMIT"
