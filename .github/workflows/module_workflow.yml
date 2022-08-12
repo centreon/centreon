@@ -32,7 +32,7 @@ jobs:
       - name: 'Get tag'
         uses: oprypin/find-latest-tag@v1
         with:
-          repository: centreon-internal/centreon-monorepoc
+          repository: centreon-internal/centreon-monorepoc-open-source
           prefix: '${{ inputs.version }}.'
         id: tag
 
