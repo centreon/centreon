@@ -11,7 +11,6 @@
 Centreon is one of the most flexible and powerful monitoring softwares
 on the market; it is absolutely free and Open Source.
 
-
 <h2> Getting Started </h2>
 
 *Centreon software* can be set up
