@@ -26,16 +26,12 @@ runs:
         restore-keys: |
           ${{ env.cache-name-rpmbuild }}-${{ inputs.distrib_rpm }}
     
-    - name: Get branch names
-      id: branch-name
-      uses: tj-actions/branch-names@v5.4
-    
     - name: build docker ${{ inputs.project }} ${{ inputs.distrib }}
-      run: docker build --no-cache . -f ci/docker/Dockerfile.${{ inputs.project }}-${{ inputs.distrib }} -t docker.registry.apps.centreon.com/${{ inputs.project }}-${{ inputs.distrib }}:${{ steps.branch-name.outputs.current_branch }}
+      run: docker build --no-cache . -f ci/docker/Dockerfile.${{ inputs.project }}-${{ inputs.distrib }} -t docker.registry.apps.centreon.com/${{ inputs.project }}-${{ inputs.distrib }}:${{ github.head_ref || github.ref_name }}
       shell: bash
     
     - name: run docker ${{ inputs.project }} ${{ inputs.distrib }}
-      run: docker run -it -d --privileged --name ${{ inputs.project }}-${{ inputs.distrib }}  docker.registry.apps.centreon.com/${{ inputs.project }}-${{ inputs.distrib }}:${{ steps.branch-name.outputs.current_branch }}
+      run: docker run -it -d --privileged --name ${{ inputs.project }}-${{ inputs.distrib }}  docker.registry.apps.centreon.com/${{ inputs.project }}-${{ inputs.distrib }}:${{ github.head_ref || github.ref_name }}
       shell: bash
 
 
@@ -44,9 +40,9 @@ runs:
       shell: bash
 
     - name: commit docker ${{ inputs.project }} ${{ inputs.distrib }}
-      run: docker commit ${{ inputs.project }}-${{ inputs.distrib }} docker.registry.apps.centreon.com/${{ inputs.project }}-${{ inputs.distrib }}:${{ steps.branch-name.outputs.current_branch }}
+      run: docker commit ${{ inputs.project }}-${{ inputs.distrib }} docker.registry.apps.centreon.com/${{ inputs.project }}-${{ inputs.distrib }}:${{ github.head_ref || github.ref_name }}
       shell: bash
 
     - name: push docker ${{ inputs.project }} ${{ inputs.distrib }}
-      run: docker push docker.registry.apps.centreon.com/${{ inputs.project }}-${{ inputs.distrib }}:${{ steps.branch-name.outputs.current_branch }}
+      run: docker push docker.registry.apps.centreon.com/${{ inputs.project }}-${{ inputs.distrib }}:${{ github.head_ref || github.ref_name }}
       shell: bash
