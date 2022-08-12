@@ -78,7 +78,7 @@ jobs:
     uses: ./.github/workflows/module_workflow.yml
     with:
       module_name: web
-      version: ${{ env.version }}
+      version: "22.10"
     secrets:
       nexus_username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
       nexus_password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
