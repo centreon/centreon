@@ -467,7 +467,9 @@ while ($row = $res->fetch()) {
     $data[$row['host_id'] . '_' . $row['service_id']]['h_state'] = $stateLabels[$row['h_state']];
 
     // output
-    $data[$row['host_id'] . '_' . $row['service_id']]['output'] = substr($row['output'], 0, $outputLength);
+    $data[$row['host_id'] . '_' . $row['service_id']]['output'] = htmlspecialchars(
+        substr($row['output'], 0, $outputLength)
+    );
 
     $kernel = \App\Kernel::createForWeb();
     $resourceController = $kernel->getContainer()->get(
