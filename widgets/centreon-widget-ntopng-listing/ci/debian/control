@@ -1,0 +1,14 @@
+Source: centreon-widget-ntopng-listing
+Section: net
+Priority: optional
+Maintainer: Luiz Costa <me@luizgustavo.pro.br>
+Build-Depends: debhelper-compat (= 12)
+Standards-Version: 4.5.0
+Homepage: https://www.centreon.com
+
+Package: centreon-widget-ntopng-listing
+Architecture: all
+Depends:    ${misc:Depends},
+            ${shlibs:Depends},
+            centreon-web
+Description: Add homepage with Centreon Widgets
