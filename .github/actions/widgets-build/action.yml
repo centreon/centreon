@@ -1,0 +1,24 @@
+name: "Package Centreon Widgets"
+description: "Test Widgets"
+inputs:
+  module_name:
+    description: "module_name"
+    required: true
+  image_name:
+    description: "image_name"
+    required: true
+  image_version:
+    description: "image_version"
+    required: true
+  step:
+    description: "Step to use in workflow"
+    required: false
+    default: "test"
+  centreon_pat:
+    description: "Secret"
+    required: false
+runs:
+  using: "composite"
+  steps:
+    - run: docker run -i -e TOKEN=${{ inputs.centreon_pat }} --entrypoint /src/ci/scripts/${{ inputs.module_name }}-${{ inputs.step }}-${{ inputs.image_name }}.sh -v "$PWD:/src" docker.registry.apps.centreon.com/${{ inputs.module_name }}-${{ inputs.step }}-${{ inputs.image_name }}:${{ inputs.image_version}}
+      shell: bash
