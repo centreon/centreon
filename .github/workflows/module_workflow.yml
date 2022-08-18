@@ -7,6 +7,9 @@ on:
       module_name:
         required: true
         type: string
+      version:
+        required: true
+        type: string
     secrets:
       nexus_username:
         required: true
@@ -23,6 +26,15 @@ jobs:
     steps:
       - name: Checkout sources
         uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      
+      - name: 'Get tag'
+        uses: oprypin/find-latest-tag@v1
+        with:
+          repository: centreon-internal/centreon-monorepoc-open-source
+          prefix: '${{ inputs.version }}.'
+        id: tag
 
       - name: Login to Registry
         uses: docker/login-action@v2
@@ -36,7 +48,8 @@ jobs:
         with:
           module_name: ${{ inputs.module_name}}
           distrib: ${{ matrix.distrib }}
-          version: 22.04
+          image_version: 22.04
+          params: ${{ steps.tag.outputs.tag }} ${{ github.sha }}
 
       - name: Use cache RPM files
         uses: actions/cache@v3
