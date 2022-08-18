@@ -9,6 +9,7 @@ jobs:
     outputs:
       frontend: ${{ steps.filter.outputs.frontend }}
       web: ${{ steps.filter.outputs.web }}
+      widgets: ${{ steps.filter.outputs.widgets }}
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v3
@@ -22,6 +23,8 @@ jobs:
               - 'centreon-frontend/**'
             web:
               - 'centreon/**'
+            widgets:
+              - 'widgets/**'
 
   frontend-test:
     needs: filters
@@ -74,6 +77,16 @@ jobs:
     uses: ./.github/workflows/module_workflow.yml
     with:
       module_name: web
+    secrets:
+      nexus_username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
+      nexus_password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
+
+  widgets-packaging:
+    needs: filters
+    if: ${{ needs.filters.outputs.widgets == 'true' }}
+    uses: ./.github/workflows/module_workflow.yml
+    with:
+      module_name: widgets
     secrets:
       nexus_username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
       nexus_password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
