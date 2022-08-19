@@ -1,0 +1,5 @@
+FROM docker-proxy.registry.apps.centreon.com/debian:bullseye
+RUN apt -y update && apt -y upgrade
+RUN apt install -y git wget curl tar
+
+WORKDIR /src

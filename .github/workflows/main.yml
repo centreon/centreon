@@ -36,21 +36,19 @@ jobs:
     strategy:
       matrix:
         include:
-          - image: frontend
-            version: 1.1
+          - rules: frontend
+            image: test-frontend-open-source-alpine
     if: ${{ needs.filters.outputs.frontend == 'true' }}
     steps:
       - name: Checkout sources
         uses: actions/checkout@v3
 
       - name: Test Frontend
-        uses: ./.github/actions/centreon-build
-        continue-on-error: true
+        uses: ./.github/actions/runner-docker
         with:
-          module_name: frontend
+          script_name: frontend-test-${{ matrix.rules }}
           image_name: ${{ matrix.image }}
-          image_version: ${{ matrix.version }}
-          step: test
+          image_version: ${{ env.version }}
 
   web-test:
     needs: filters
@@ -58,35 +56,98 @@ jobs:
     strategy:
       matrix:
         include:
-          - image: frontend
-            version: 1.1
-          - image: backend
-            version: 2.5
+          - rules: frontend
+            image: test-frontend-open-source-alpine
+          - rules: backend
+            image: test-backend-open-source-alpine
     if: ${{ needs.filters.outputs.web == 'true' }}
     steps:
       - name: Checkout sources
         uses: actions/checkout@v3
 
       - name: Test Web
-        uses: ./.github/actions/centreon-build
+        uses: ./.github/actions/runner-docker
         with:
-          module_name: web
+          script_name: web-test-${{ matrix.rules }}
           image_name: ${{ matrix.image }}
-          image_version: ${{ matrix.version }}
-          step: test
-
+          image_version: ${{ env.version }}
+  
   web-packaging:
+    runs-on: common
     needs: filters
-    if: ${{ needs.filters.outputs.web == 'true' }}
-    uses: ./.github/workflows/module_workflow.yml
-    with:
-      module_name: web
-      version: "22.10"
-    secrets:
-      nexus_username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
-      nexus_password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
+    
+    strategy:
+      matrix:
+        include:
+          - image: packaging-web-centos7
+            distrib: el7
+          - image: packaging-web-alma8
+            distrib: el8
+          # - image: packaging-web-bullseye
+          #   distrib: bullseye
 
-  create-and-push-docker-web:
+    if: ${{ needs.filters.outputs.web == 'true' }}
+    steps: 
+      - name: Checkout sources
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      
+      - name: 'Get tag'
+        uses: oprypin/find-latest-tag@v1
+        with:
+          repository: centreon-internal/centreon-monorepoc-open-source
+          prefix: '${{ env.version }}.'
+        id: tag
+
+      - name: Package
+        uses: ./.github/actions/runner-docker
+        with:
+          script_name: web-packaging
+          image_name: ${{ matrix.image }}
+          image_version: ${{ env.version }}
+          params: ${{ steps.tag.outputs.tag }} ${{ github.sha }}
+
+      - name: Sign 
+        uses: ./.github/actions/runner-docker
+        with:
+          script_name: rpm-signing
+          image_name: rpm-signing
+          image_version: ubuntu
+          
+      - name: Use cache RPM files
+        uses: actions/cache@v3
+        env:
+          cache-name-rpmbuild: cache-${{ github.sha }}-${{ github.run_id }}-rpmbuild-web
+        with:
+          path: ./*.rpm
+          key: ${{ env.cache-name-rpmbuild }}-${{ matrix.distrib }}
+      
+  delivery-rpm:
+    needs: [web-packaging, web-test]
+    runs-on: common
+    strategy:
+      matrix:
+        include:
+          - module_name: web
+            distrib: el7
+
+          - module_name: web
+            distrib: el8
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v3
+
+      - name: Delivery
+        uses: ./.github/actions/rpm-delivery
+        with:
+          module_name: ${{ matrix.module_name }}
+          distrib: ${{ matrix.distrib }}
+          version: ${{ env.version }}
+          nexus_username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
+          nexus_password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
+  
+  create-and-push-docker:
     needs: [web-packaging]
     runs-on: common
     
