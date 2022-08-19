@@ -103,6 +103,12 @@ jobs:
             distrib_rpm: el7
             version: "22.10"
             module_name: web
+          
+          - project: run-centreon-widgets-open-source
+            distrib: centos7
+            distrib_rpm: el7
+            version: "22.10"
+            module_name: widgets
 
     steps:
       - name: Checkout sources
