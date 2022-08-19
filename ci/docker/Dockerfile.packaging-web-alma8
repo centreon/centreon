@@ -5,7 +5,7 @@ RUN dnf -y update && dnf install -y centreon-devel rpm-build git wget dnf-plugin
 RUN dnf config-manager --set-enabled 'powertools'
 RUN dnf module -y reset php && dnf module -y install php:remi-8.0
 RUN curl --silent --location https://rpm.nodesource.com/setup_16.x | bash -
-RUN dnf install --nogpgcheck -y nodejs php-cli php-dom php-json php-mbstring php-intl php-pdo
+RUN dnf install --nogpgcheck -y nodejs php-cli php-dom php-json php-mbstring php-intl php-pdo dos2unix
 RUN npm install -g redoc-cli
 RUN curl -sS https://getcomposer.org/installer | php
 RUN mv composer.phar /usr/local/bin/composer
