@@ -9,7 +9,7 @@ module.exports = merge(baseConfig, {
   performance: {
     assetFilter: (assetFilename) => assetFilename.endsWith('.js'),
     hints: 'error',
-    maxAssetSize: 1250000,
-    maxEntrypointSize: 1500000,
+    maxAssetSize: 2250000,
+    maxEntrypointSize: 2500000,
   },
 });
