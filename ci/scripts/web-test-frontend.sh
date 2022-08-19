@@ -2,6 +2,6 @@
 set -ex
 
 cd centreon
-npm ci --legacy-peer-deps
+npm ci
 npm run eslint -- -o checkstyle-fe.xml -f checkstyle
-npm run test:coverage -- --ci --reporters=jest-junit --maxWorkers=1
+npm run test:coverage -- --ci --reporters=jest-junit
