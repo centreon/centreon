@@ -1,21 +1,24 @@
 FROM alpine:3.15.5
-RUN apk add --no-cache git nodejs npm bash
 
 RUN apk upgrade --no-cache --available \
     && apk add --no-cache \
       chromium \
       ttf-freefont \
       font-noto-emoji \
+      git \
+      nodejs \
+      npm \
+      bash \
     && apk add --no-cache \
       --repository=https://dl-cdn.alpinelinux.org/alpine/edge/testing \
       font-wqy-zenhei
 
-RUN mkdir -p /usr/src/app \
-    && adduser -D chrome \
-    && chown -R chrome:chrome /usr/src/app
+# RUN mkdir -p /usr/src/app \
+#     && adduser -D chrome \
+#     && chown -R chrome:chrome /usr/src/app
 
-USER chrome
-WORKDIR /usr/src/app
+# USER chrome
+# WORKDIR /usr/src/app
 
 ENV CHROME_BIN=/usr/bin/chromium-browser \
     CHROME_PATH=/usr/lib/chromium/
@@ -23,5 +26,3 @@ ENV CHROME_BIN=/usr/bin/chromium-browser \
 # Autorun chrome headless
 ENTRYPOINT ["chromium-browser", "--headless", "--use-gl=swiftshader", "--disable-software-rasterizer", "--disable-dev-shm-usage"]
 WORKDIR /src
-
-FROM alpine
