@@ -88,20 +88,6 @@ $pearDB = $db;
 $aclObj = new CentreonACL($centreon->user->user_id, $centreon->user->admin);
 $nbRows = $preferences['entries'];
 
-$hostStateColors = array(
-    0 => "#88B917",
-    1 => "#F91E05",
-    2 => "#82CFD8",
-    4 => "#2AD1D4"
-);
-
-$serviceStateColors = array(
-    0 => "#88B917",
-    1 => "#FF9A13",
-    2 => "#E00B3D",
-    3 => "#DCDADA",
-    4 => "#2AD1D4"
-);
 
 $aColorHost = array(
     0 => 'host_up',
@@ -332,9 +318,7 @@ $template->assign('aColorHost', $aColorHost);
 $template->assign('aColorService', $aColorService);
 $template->assign('preferences', $preferences);
 $template->assign('hostStateLabels', $hostStateLabels);
-$template->assign('hostStateColors', $hostStateColors);
 $template->assign('serviceStateLabels', $serviceStateLabels);
-$template->assign('serviceStateColors', $serviceStateColors);
 $template->assign('centreon_path', $centreon_path);
 
 $bMoreViews = 0;

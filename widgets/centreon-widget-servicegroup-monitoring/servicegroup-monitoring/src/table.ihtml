@@ -22,7 +22,7 @@
     {if $preferences.enable_detailed_mode == 0}
         <td class='ListColLeft'>
             {foreach key=state item=counter from=$elem.host_state}
-            <span class="state_badge" style='background-color: {$hostStateColors[$state]};'></span>
+            <span class="state_badge {$aColorHost[$state]}"></span>
             <span class='margin_right'>{$counter}</span>
             {/foreach}
         </td>
@@ -39,7 +39,7 @@
                 {elseif $state == 4 }
                     {assign var='link' value=$elem.sg_service_pending_uri}
                 {/if}
-            <span class="state_badge" style='background-color: {$serviceStateColors[$state]};'></span>
+            <span class="state_badge {$aColorService[$state]}"></span>
             <span class='margin_right'>
                 <a href='{$link}' target=_blank>{$counter}</a>
             </span>
