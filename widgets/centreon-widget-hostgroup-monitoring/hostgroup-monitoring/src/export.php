@@ -72,54 +72,6 @@ $sgMonObj = new HostgroupMonitoring($dbb);
 $preferences = $widgetObj->getWidgetPreferences($widgetId);
 $aclObj = new CentreonACL($centreon->user->user_id, $centreon->user->admin);
 
-$res = $db->query("SELECT `key`, `value` FROM `options` WHERE `key` LIKE 'color%'");
-$hostStateColors = array(
-    0 => "#19EE11",
-    1 => "#F91E05",
-    2 => "#82CFD8",
-    4 => "#2AD1D4"
-);
-
-$serviceStateColors = array(
-    0 => "#13EB3A",
-    1 => "#F8C706",
-    2 => "#F91D05",
-    3 => "#DCDADA",
-    4 => "#2AD1D4"
-);
-
-while ($row = $res->fetch()) {
-    switch ($row['key']) {
-        case "color_up":
-            $hostStateColors[0] = $row['value'];
-            break;
-        case "color_down":
-            $hostStateColors[1] = $row['value'];
-            break;
-        case "color_unreachable":
-            $hostStateColors[2] = $row['value'];
-            break;
-        case "color_pending":
-            $hostStateColors[4] = $row['value'];
-            break;
-        case "color_ok":
-            $serviceStateColors[0] = $row['value'];
-            break;
-        case "color_warning":
-            $serviceStateColors[1] = $row['value'];
-            break;
-        case "color_critical":
-            $serviceStateColors[2] = $row['value'];
-            break;
-        case "color_unknown":
-            $serviceStateColors[3] = $row['value'];
-            break;
-        case "color_pending":
-            $serviceStateColors[4] = $row['value'];
-            break;
-    }
-}
-
 $hostStateLabels = array(
     0 => "Up",
     1 => "Down",
@@ -179,10 +131,7 @@ $sgMonObj->getServiceStates($data, $centreon->user->admin, $aclObj, $preferences
 
 $template->assign('preferences', $preferences);
 $template->assign('hostStateLabels', $hostStateLabels);
-$template->assign('hostStateColors', $hostStateColors);
 $template->assign('serviceStateLabels', $serviceStateLabels);
-$template->assign('serviceStateColors', $serviceStateColors);
-
 $template->assign('data', $data);
 
 $template->display('export.ihtml');

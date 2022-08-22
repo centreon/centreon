@@ -26,7 +26,7 @@
             {elseif $state == 4}
             {assign var='link' value=$elem.hg_host_unreachable_uri}
             {/if}
-            <a href='{$link}' target=_blank><span class='state_badge' style='background-color: {$hostStateColors[$state]};'>&nbsp;&nbsp;</span>{$counter}</a>&nbsp;
+            <a href='{$link}' target=_blank><span class='state_badge {$aColorHost[$state]}'>&nbsp;&nbsp;</span>{$counter}</a>&nbsp;
             {/foreach}
         </td>
         <td class='ListColLeft'>
@@ -43,7 +43,7 @@
             {elseif $state == 4}
             {assign var='link' value=$elem.hg_service_pending_uri}
             {/if}
-            <a href='{$link}' target=_blank><span class='state_badge' style='background-color: {$serviceStateColors[$state]};'>&nbsp;&nbsp;</span>{$counter}</a>&nbsp;
+            <a href='{$link}' target=_blank><span class='state_badge {$aColorService[$state]}'>&nbsp;&nbsp;</span>{$counter}</a>&nbsp;
             {/foreach}
         </td>
         {else}

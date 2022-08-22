@@ -99,22 +99,6 @@ $aColorService = array(
 );
 
 
-$hostStateColors = array(
-    0 => "#88b917",
-    1 => "#e00b3d",
-    2 => "#82CFD8",
-    4 => "#2ad1d4"
-);
-
-$serviceStateColors = array(
-    0 => "#88b917",
-    1 => "#F8C706",
-    2 => "#e00b3d",
-    3 => "#DCDADA",
-    4 => "#2ad1d4"
-);
-
-
 $hostStateLabels = array(
     0 => "Up",
     1 => "Down",
@@ -322,9 +306,7 @@ $template->assign('aColorHost', $aColorHost);
 $template->assign('aColorService', $aColorService);
 $template->assign('preferences', $preferences);
 $template->assign('hostStateLabels', $hostStateLabels);
-$template->assign('hostStateColors', $hostStateColors);
 $template->assign('serviceStateLabels', $serviceStateLabels);
-$template->assign('serviceStateColors', $serviceStateColors);
 $template->assign('data', $data);
 
 $template->display('table.ihtml');
