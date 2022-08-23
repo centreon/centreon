@@ -20,6 +20,5 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - name: run docker ${{ inputs.project }} ${{ inputs.distrib }}
-      run: docker run -i -e TOKEN=${{ inputs.centreon_pat }} --entrypoint /src/ci/scripts/${{ inputs.module_name }}-${{ inputs.step }}-${{ inputs.image_name }}.sh -v "$PWD:/src" docker.registry.apps.centreon.com/${{ inputs.module_name }}-${{ inputs.step }}-${{ inputs.image_name }}:${{ inputs.image_version}}
+    - run: docker run -i -e TOKEN=${{ inputs.centreon_pat }} --entrypoint /src/ci/scripts/${{ inputs.module_name }}-${{ inputs.step }}-${{ inputs.image_name }}.sh -v "$PWD:/src" docker.registry.apps.centreon.com/${{ inputs.module_name }}-${{ inputs.step }}-${{ inputs.image_name }}:${{ inputs.image_version}}
       shell: bash
