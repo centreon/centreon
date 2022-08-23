@@ -13,6 +13,7 @@ jobs:
     outputs:
       frontend: ${{ steps.filter.outputs.frontend }}
       web: ${{ steps.filter.outputs.web }}
+      widgets: ${{ steps.filter.outputs.widgets }}
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v3
