@@ -1,28 +1,12 @@
-FROM alpine:3.15.5
-
-RUN apk upgrade --no-cache --available \
-    && apk add --no-cache \
-      chromium \
-      ttf-freefont \
-      font-noto-emoji \
-      git \
-      nodejs \
-      npm \
-      bash \
-    && apk add --no-cache \
-      --repository=https://dl-cdn.alpinelinux.org/alpine/edge/testing \
-      font-wqy-zenhei
-
-# RUN mkdir -p /usr/src/app \
-#     && adduser -D chrome \
-#     && chown -R chrome:chrome /usr/src/app
-
-# USER chrome
-# WORKDIR /usr/src/app
-
-ENV CHROME_BIN=/usr/bin/chromium-browser \
-    CHROME_PATH=/usr/lib/chromium/
-
-# Autorun chrome headless
-ENTRYPOINT ["chromium-browser", "--headless", "--use-gl=swiftshader", "--disable-software-rasterizer", "--disable-dev-shm-usage"]
+FROM node:lts-bullseye
+RUN apt-get update -y && apt-get install -y \
+    ca-certificates \
+    curl \
+    gnupg \
+    lsb-release 
+RUN mkdir -p /etc/apt/keyrings && curl -fsSL https://download.docker.com/linux/debian/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg 
+RUN echo \
+  "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/debian \
+  $(lsb_release -cs) stable" | tee /etc/apt/sources.list.d/docker.list > /dev/null
+RUN apt-get update -y && apt-get install -y docker-ce-cli libnss3 libatk1.0-0 libatk-bridge2.0-0 libcups2 libdrm-nouveau2 libxkbcommon-dev libxcomposite1 libxdamage1 libxfixes3 libxrandr2 libgbm-dev libasound2
 WORKDIR /src
