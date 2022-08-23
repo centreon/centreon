@@ -148,7 +148,7 @@ jobs:
           nexus_password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
   
   create-and-push-docker:
-    needs: [web-packaging]
+    needs: [web-packaging, web-test]
     runs-on: common
     
     strategy:
