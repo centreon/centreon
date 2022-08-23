@@ -138,7 +138,7 @@ jobs:
     strategy:
       matrix:
         include:
-          - project: run-widgets-open-source
+          - project: widgets-package
             distrib: centos7
             distrib_rpm: el7
             version: "22.10"
