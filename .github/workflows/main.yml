@@ -3,6 +3,10 @@ name: Centreon Modules
 
 on: pull_request
 
+env:
+  version: "22.10"
+
+
 jobs:
   filters:
     runs-on: common
@@ -77,6 +81,7 @@ jobs:
     uses: ./.github/workflows/module_workflow.yml
     with:
       module_name: web
+      version: "22.10"
     secrets:
       nexus_username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
       nexus_password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
