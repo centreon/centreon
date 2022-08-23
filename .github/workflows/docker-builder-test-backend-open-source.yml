@@ -2,6 +2,12 @@ name: Centreon build docker test and backend
 
 on:  
   workflow_dispatch:
+  push:
+    branches:
+      - develop
+    paths:
+      - '.github/workflows/docker-builder-test-backend-open-source.yml'
+      - 'ci/docker/Dockerfile.test-backend-open-source-alpine'
   pull_request:
     paths:
       - '.github/workflows/docker-builder-test-backend-open-source.yml'

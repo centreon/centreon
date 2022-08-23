@@ -37,7 +37,7 @@ jobs:
       matrix:
         include:
           - rules: frontend
-            image: test-frontend-open-source-alpine
+            image: test-frontend-open-source-bullseye
     if: ${{ needs.filters.outputs.frontend == 'true' }}
     steps:
       - name: Checkout sources
@@ -57,7 +57,7 @@ jobs:
       matrix:
         include:
           - rules: frontend
-            image: test-frontend-open-source-alpine
+            image: test-frontend-open-source-bullseye
           - rules: backend
             image: test-backend-open-source-alpine
     if: ${{ needs.filters.outputs.web == 'true' }}
@@ -124,7 +124,7 @@ jobs:
           key: ${{ env.cache-name-rpmbuild }}-${{ matrix.distrib }}
       
   delivery-rpm:
-    needs: [web-packaging, web-test]
+    needs: [web-packaging, web-test, frontend-test]
     runs-on: common
     strategy:
       matrix:
@@ -148,7 +148,7 @@ jobs:
           nexus_password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
   
   create-and-push-docker:
-    needs: [web-packaging, web-test]
+    needs: [web-packaging, web-test, frontend-test]
     runs-on: common
     
     strategy:

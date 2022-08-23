@@ -2,6 +2,14 @@ name: Centreon web build docker
 
 on:  
   workflow_dispatch:
+  push:
+    branches:
+      - develop
+    paths:
+      - '.github/workflows/docker-builder-packaging-web.yml'
+      - 'ci/docker/Dockerfile.packaging-web-centos7'
+      - 'ci/docker/Dockerfile.packaging-web-alma8'
+      - 'ci/docker/Dockerfile.packaging-web-bullseye'
   pull_request:
     paths:
       - '.github/workflows/docker-builder-packaging-web.yml'

@@ -2,10 +2,16 @@ name: Centreon build docker test and build frontend
 
 on:  
   workflow_dispatch:
+  push:
+    branches:
+      - develop
+    paths:
+      - '.github/workflows/docker-builder-test-frontend-open-source.yml'
+      - 'ci/docker/Dockerfile.test-frontend-open-source-bullseye'
   pull_request:
     paths:
       - '.github/workflows/docker-builder-test-frontend-open-source.yml'
-      - 'ci/docker/Dockerfile.test-frontend-open-source-alpine'
+      - 'ci/docker/Dockerfile.test-frontend-open-source-bullseye'
 
 env:
   version: "22.10"
@@ -18,7 +24,7 @@ jobs:
       matrix:
         include:
           - project: test-frontend-open-source
-            distrib: alpine
+            distrib: bullseye
 
     steps:
       - name: Checkout sources
