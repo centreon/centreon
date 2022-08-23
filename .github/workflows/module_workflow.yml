@@ -48,7 +48,7 @@ jobs:
         with:
           module_name: ${{ inputs.module_name}}
           distrib: ${{ matrix.distrib }}
-          image_version: 22.04
+          image_version: ${{ github.head_ref || github.ref_name }}
           params: ${{ steps.tag.outputs.tag }} ${{ github.sha }}
 
       - name: Use cache RPM files
