@@ -98,8 +98,8 @@ jobs:
       nexus_password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
 
 
-  create-and-push-docker:
-    needs: [web-packaging, widgets-packaging]
+  create-and-push-docker-web:
+    needs: [web-packaging]
     runs-on: common
     
     strategy:
@@ -110,6 +110,38 @@ jobs:
             distrib_rpm: el7
             version: "22.10"
             module_name: web
+
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v3
+
+      - name: Login to Registry
+        uses: docker/login-action@v2
+        with:
+          registry: docker.registry.apps.centreon.com
+          username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
+          password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
+
+      - name: build docker run
+        uses: ./.github/actions/docker-builder-run
+        with:
+          distrib: ${{ matrix.distrib }}
+          project: ${{ matrix.project }}
+          distrib_rpm: ${{ matrix.distrib_rpm }}
+          module_name: ${{ matrix.module_name }}
+
+  create-and-push-docker-widgets:
+    needs: [widgets-packaging]
+    runs-on: common
+    
+    strategy:
+      matrix:
+        include:
+          - project: run-centreon-open-source
+            distrib: centos7
+            distrib_rpm: el7
+            version: "22.10"
+            module_name: widgets
 
     steps:
       - name: Checkout sources
