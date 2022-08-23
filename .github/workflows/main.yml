@@ -120,8 +120,7 @@ jobs:
 
 
   widgets-packaging:
-    needs: filters
-    if: ${{ needs.filters.outputs.widgets == 'true' }}
+    needs: [create-and-push-docker-widgets]
 
     uses: ./.github/workflows/module_workflow.yml
     with:
@@ -132,7 +131,8 @@ jobs:
       nexus_password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
 
   create-and-push-docker-widgets:
-    needs: [widgets-packaging]
+    needs: filters
+    if: ${{ needs.filters.outputs.widgets == 'true' }}
     runs-on: common
     
     strategy:
