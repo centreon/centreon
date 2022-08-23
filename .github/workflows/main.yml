@@ -118,9 +118,21 @@ jobs:
           distrib_rpm: ${{ matrix.distrib_rpm }}
           module_name: ${{ matrix.module_name }}
 
-  create-and-push-docker-widgets:
+
+  widgets-packaging:
     needs: filters
     if: ${{ needs.filters.outputs.widgets == 'true' }}
+
+    uses: ./.github/workflows/module_workflow.yml
+    with:
+      module_name: widgets
+      version: "22.10"
+    secrets:
+      nexus_username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
+      nexus_password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
+
+  create-and-push-docker-widgets:
+    needs: [widgets-packaging]
     runs-on: common
     
     strategy:
@@ -143,7 +155,7 @@ jobs:
           username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
           password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
 
-      - name: build docker run
+      - name: build docker run for widgets
         uses: ./.github/actions/widgets-docker-builder
         with:
           distrib: ${{ matrix.distrib }}
@@ -151,12 +163,3 @@ jobs:
           distrib_rpm: ${{ matrix.distrib_rpm }}
           module_name: ${{ matrix.module_name }}
 
-  widgets-packaging:
-    needs: [create-and-push-docker-widgets]
-    uses: ./.github/workflows/module_workflow.yml
-    with:
-      module_name: widgets
-      version: "22.10"
-    secrets:
-      nexus_username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
-      nexus_password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
