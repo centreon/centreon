@@ -10,7 +10,7 @@ if [ ! -d /root/rpmbuild/SOURCES ] ; then
 fi
 
 cd /src/widgets
-ls -1 | while read PROJECT; do
+ls -1 | sed '/centreon-widget.spectemplate/d' | while read PROJECT; do
     rm -rf /tmp/$PROJECT-$VERSION
     mkdir /tmp/$PROJECT-$VERSION
     cp -rp $PROJECT/* /tmp/$PROJECT-$VERSION/
