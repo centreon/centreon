@@ -17,12 +17,14 @@ ls -1 | while read PROJECT; do
     (cd /tmp && tar czf /root/rpmbuild/SOURCES/$PROJECT-$VERSION.tar.gz $PROJECT-$VERSION)
     rm -rf /root/rpmbuild/RPMS/*
     cd $PROJECT
+    export WIDGET="$(echo $PROJECT | sed 's/centreon-widget-//')"
     COMMIT=$(git log -1 HEAD --pretty=format:%h)
     export RELEASE="$now.$COMMIT"
     export SUMMARY="$(find . -name configs.xml | xargs sed -n 's|\s*<description>\(.*\)</description>|\1|p'
  2>/dev/null)"
     sed \
         -e "s/@PROJECT@/$PROJECT/g" \
+        -e "s/@WIDGET@/$WIDGET/g" \
         -e "s/@VERSION@/$VERSION/g" \
         -e "s/@RELEASE@/$RELEASE/g" \
         -e "s/@SUMMARY@/$SUMMARY/g" \
