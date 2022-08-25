@@ -3,9 +3,7 @@
 set -ex
 
 VERSION="22.10.0"
-COMMIT=`git log -1 HEAD --pretty=format:%h`
 now=`date +%s`
-export RELEASE="$now.$COMMIT"
 
 if [ ! -d /root/rpmbuild/SOURCES ] ; then
     mkdir -p /root/rpmbuild/{BUILD,BUILDROOT,RPMS,SOURCES,SPECS,SRPMS}
@@ -19,6 +17,8 @@ ls -1 | while read PROJECT; do
     cp -rp $PROJECT ../$PROJECT-$VERSION/
     tar czf /root/rpmbuild/SOURCES/$PROJECT-$VERSION.tar.gz ../$PROJECT-$VERSION
     rm -rf /root/rpmbuild/RPMS/*
+    COMMIT=$(git log -1 HEAD --pretty=format:%h)
+    export RELEASE="$now.$COMMIT"
     export SUMMARY="$(find . -name configs.xml | xargs sed -n 's|\s*<description>\(.*\)</description>|\1|p'
  2>/dev/null)"
     sed \
