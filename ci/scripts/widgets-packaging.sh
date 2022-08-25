@@ -3,7 +3,7 @@
 set -ex
 
 VERSION="22.10.0"
-now=`date +%s`
+now=$(date +%s)
 
 if [ ! -d /root/rpmbuild/SOURCES ] ; then
     mkdir -p /root/rpmbuild/{BUILD,BUILDROOT,RPMS,SOURCES,SPECS,SRPMS}
@@ -11,12 +11,12 @@ fi
 
 cd /src/widgets
 ls -1 | while read PROJECT; do
-    cd $PROJECT
-    rm -rf ../$PROJECT-$VERSION
-    mkdir ../$PROJECT-$VERSION
-    cp -rp $PROJECT ../$PROJECT-$VERSION/
-    tar czf /root/rpmbuild/SOURCES/$PROJECT-$VERSION.tar.gz ../$PROJECT-$VERSION
+    rm -rf /tmp/$PROJECT-$VERSION
+    mkdir /tmp/$PROJECT-$VERSION
+    cp -rp $PROJECT /tmp/$PROJECT-$VERSION/
+    (cd /tmp && tar czf /root/rpmbuild/SOURCES/$PROJECT-$VERSION.tar.gz $PROJECT-$VERSION)
     rm -rf /root/rpmbuild/RPMS/*
+    cd $PROJECT
     COMMIT=$(git log -1 HEAD --pretty=format:%h)
     export RELEASE="$now.$COMMIT"
     export SUMMARY="$(find . -name configs.xml | xargs sed -n 's|\s*<description>\(.*\)</description>|\1|p'
