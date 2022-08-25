@@ -13,7 +13,7 @@ cd /src/widgets
 ls -1 | while read PROJECT; do
     rm -rf /tmp/$PROJECT-$VERSION
     mkdir /tmp/$PROJECT-$VERSION
-    cp -rp $PROJECT /tmp/$PROJECT-$VERSION/
+    cp -rp $PROJECT/* /tmp/$PROJECT-$VERSION/
     (cd /tmp && tar czf /root/rpmbuild/SOURCES/$PROJECT-$VERSION.tar.gz $PROJECT-$VERSION)
     rm -rf /root/rpmbuild/RPMS/*
     cd $PROJECT
