@@ -38,5 +38,7 @@ done
 find /src -type f -iname '*.rpm' | xargs cp -vt /src/
 
 # Add here delivery of files
+#
+#
 
 exit 0
