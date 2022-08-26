@@ -28,18 +28,18 @@ runs:
         cache-name-rpmbuild: cache-${{ github.sha }}-${{ github.run_id }}-rpmbuild-${{ inputs.module_name}}
       with:
         path: ./*.rpm
-        key: ${{ env.cache-name-rpmbuild }}-${{ inputs || inputs.distrib_rpm }}
+        key: ${{ env.cache-name-rpmbuild }}-${{ inputs.distrib_rpm }}
         restore-keys: |
           ${{ env.cache-name-rpmbuild }}-${{ inputs.distrib_rpm }}
     
     - name: build docker ${{ inputs.project }} ${{ inputs.distrib_redhat }}
       if: ${{ inputs.distrib_redhat }}
-      run: docker build --no-cache . -f ci/docker/Dockerfile.${{ inputs.module_name }}-package-${{ inputs.distrib_rpm }} -t docker.registry.apps.centreon.com/${{ inputs.module_name }}-package-${{ inputs || inputs.distrib_rpm }}:${{ github.head_ref || github.ref_name }}
+      run: docker build --no-cache . -f ci/docker/Dockerfile.${{ inputs.module_name }}-package-${{ inputs.distrib_rpm }} -t docker.registry.apps.centreon.com/${{ inputs.module_name }}-package-${{ inputs.distrib_rpm }}:${{ github.head_ref || github.ref_name }}
       shell: bash
 
     - name: build docker ${{ inputs.project }} ${{ inputs.distrib_debian }}
       if: ${{ inputs.distrib_debian }}
-      run: docker build --no-cache . -f ci/docker/Dockerfile.${{ inputs.module_name }}-package-${{ inputs.distrib_deb }} -t docker.registry.apps.centreon.com/${{ inputs.module_name }}-package-${{ inputs || inputs.distrib_deb }}:${{ github.head_ref || github.ref_name }}
+      run: docker build --no-cache . -f ci/docker/Dockerfile.${{ inputs.module_name }}-package-${{ inputs.distrib_deb }} -t docker.registry.apps.centreon.com/${{ inputs.module_name }}-package-${{ inputs.distrib_deb }}:${{ github.head_ref || github.ref_name }}
       shell: bash
     
     - name: run docker ${{ inputs.project }} ${{ inputs.distrib_redhat }}
