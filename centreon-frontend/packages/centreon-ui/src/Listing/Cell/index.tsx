@@ -25,11 +25,17 @@ const useStyles = makeStyles((theme) => ({
       disableRowCondition,
     }: Props): string => {
       if (disableRowCondition(row)) {
-        return alpha(theme.palette.common.black, 0.08);
+        return alpha(
+          theme.palette.common.black,
+          theme.palette.action.focusOpacity,
+        );
       }
 
       if (isRowHovered) {
-        return alpha(theme.palette.primary.main, 0.08);
+        return alpha(
+          theme.palette.primary.main,
+          theme.palette.action.focusOpacity,
+        );
       }
 
       const foundCondition = rowColorConditions?.find(({ condition }) =>
@@ -42,6 +48,7 @@ const useStyles = makeStyles((theme) => ({
 
       return 'unset';
     },
+    borderBottom: `1px solid ${theme.palette.divider}`,
     padding: ({ compact }: Props): string =>
       theme.spacing(0, 0, 0, compact ? 0.5 : 1.5),
   },

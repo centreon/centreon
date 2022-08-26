@@ -40,6 +40,9 @@ const useStyles = makeStyles<Theme, StylesProps>((theme) => ({
       ? 'transparent'
       : theme.palette.background.paper,
     border: isInDragOverlay ? 'none' : undefined,
+    borderBottom: isInDragOverlay
+      ? 'none'
+      : `1px solid ${theme.palette.text.primary}`,
   }),
 }));
 

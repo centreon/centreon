@@ -8,14 +8,23 @@ import { isEmpty, isNil } from 'ramda';
 import { Paper, Slide, Divider, AppBar, Tabs, Theme } from '@mui/material';
 import makeStyles from '@mui/styles/makeStyles';
 import IconClose from '@mui/icons-material/Clear';
+import { CreateCSSProperties } from '@mui/styles';
 
 import IconButton from '../Button/Icon';
 
 import { minTabHeight } from './Tab';
 
-type StylesProps = Pick<Props, 'headerBackgroundColor' | 'width'>;
+interface StylesProps extends Pick<Props, 'headerBackgroundColor' | 'width'> {
+  hasTabs: boolean;
+}
 
 const useStyles = makeStyles<Theme, StylesProps>((theme) => ({
+  appBar: ({ hasTabs }): CreateCSSProperties => ({
+    borderBottomWidth: hasTabs ? 1 : 0,
+    borderLeft: 'none',
+    borderRight: 'none',
+    borderTop: 'none',
+  }),
   body: {
     display: 'grid',
     gridArea: '3 / 1 / 4 / 1',
@@ -38,7 +47,7 @@ const useStyles = makeStyles<Theme, StylesProps>((theme) => ({
     top: 0,
   },
   contentContainer: {
-    backgroundColor: theme.palette.background.default,
+    backgroundColor: theme.palette.background.paper,
     position: 'relative',
   },
   divider: {
@@ -57,12 +66,14 @@ const useStyles = makeStyles<Theme, StylesProps>((theme) => ({
     alignItems: 'center',
     backgroundColor: ({ headerBackgroundColor }): string | undefined =>
       headerBackgroundColor,
+    borderBottom: 'none',
     display: 'grid',
     gridArea: '1 / 1 / 2 / 1',
     gridTemplateColumns: '1fr auto',
     padding: theme.spacing(1),
   },
   tabs: {
+    backgroundColor: theme.palette.background.paper,
     minHeight: minTabHeight,
   },
 }));
@@ -103,7 +114,11 @@ const Panel = React.forwardRef(
     }: Props,
     ref,
   ): JSX.Element => {
-    const classes = useStyles({ headerBackgroundColor, width });
+    const classes = useStyles({
+      hasTabs: !isEmpty(tabs),
+      headerBackgroundColor,
+      width,
+    });
 
     const getMaxWidth = (): number => window.innerWidth * 0.85;
 
@@ -186,7 +201,11 @@ const Panel = React.forwardRef(
             </>
           )}
           <div className={classes.body}>
-            <AppBar color="default" position="static">
+            <AppBar
+              className={classes.appBar}
+              color="default"
+              position="static"
+            >
               {!isEmpty(tabs) && (
                 <Tabs
                   className={classes.tabs}

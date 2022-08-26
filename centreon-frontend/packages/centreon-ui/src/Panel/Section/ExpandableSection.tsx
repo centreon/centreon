@@ -10,11 +10,9 @@ import {
 import makeStyles from '@mui/styles/makeStyles';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
-import useMemoComponent from '../../utils/useMemoComponent';
-
 const useStyles = makeStyles((theme) => ({
   details: {
-    backgroundColor: theme.palette.background.default,
+    backgroundColor: theme.palette.background.paper,
     padding: theme.spacing(1, 3, 2),
   },
 }));
@@ -34,6 +32,9 @@ const Section = styled((props: AccordionProps) => (
     borderBottom: `1px solid ${theme.palette.divider}`,
   },
   borderBottom: `1px solid ${theme.palette.divider}`,
+  borderLeft: 'none',
+  borderRight: 'none',
+  borderTop: 'none',
 }));
 
 const CustomizedAccordionSummary = styled((props: AccordionSummaryProps) => (
@@ -48,7 +49,7 @@ const CustomizedAccordionSummary = styled((props: AccordionSummaryProps) => (
   '& .MuiAccordionSummary-expandIconWrapper.Mui-expanded': {
     transform: 'rotate(0deg)',
   },
-  backgroundColor: theme.palette.background.default,
+  backgroundColor: theme.palette.background.paper,
 }));
 
 interface Props {
@@ -59,19 +60,18 @@ interface Props {
 const ExpandableSection = ({ title, children }: Props): JSX.Element => {
   const classes = useStyles();
 
-  return useMemoComponent({
-    Component: (
-      <Section>
-        <CustomizedAccordionSummary expandIcon={<ExpandMoreIcon />}>
-          <Title>{title}</Title>
-        </CustomizedAccordionSummary>
-        <AccordionDetails className={classes.details}>
-          {children}
-        </AccordionDetails>
-      </Section>
-    ),
-    memoProps: [title],
-  });
+  return (
+    <Section>
+      <CustomizedAccordionSummary
+        expandIcon={<ExpandMoreIcon color="action" />}
+      >
+        <Title>{title}</Title>
+      </CustomizedAccordionSummary>
+      <AccordionDetails className={classes.details}>
+        {children}
+      </AccordionDetails>
+    </Section>
+  );
 };
 
 export default ExpandableSection;

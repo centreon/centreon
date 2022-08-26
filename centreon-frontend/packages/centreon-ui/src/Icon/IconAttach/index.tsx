@@ -3,15 +3,14 @@
 
 import makeStyles from '@mui/styles/makeStyles';
 
-const useStyles = makeStyles(() => ({
+const useStyles = makeStyles((theme) => ({
   icon: {
-    color: '#707070',
+    color: theme.palette.text.secondary,
     cursor: 'initial',
     fontSize: 14,
     verticalAlign: 'middle',
   },
   iconAttach: {
-    backgroundColor: '#fff',
     cursor: 'initial',
     display: 'inline-block',
     height: 49,
@@ -28,7 +27,7 @@ const useStyles = makeStyles(() => ({
     verticalAlign: 'middle',
   },
   iconAttachLabel: {
-    color: '#707070',
+    color: theme.palette.text.secondary,
     display: 'inline-block',
     fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
     fontSize: 12,

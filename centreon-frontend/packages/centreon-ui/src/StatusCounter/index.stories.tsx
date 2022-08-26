@@ -3,7 +3,7 @@ import { ComponentMeta, ComponentStory } from '@storybook/react';
 
 import { SeverityCode } from '../StatusChip';
 
-import StatusCounter from '.';
+import StatusCounter, { Props } from '.';
 
 export default {
   argTypes: {
@@ -13,70 +13,52 @@ export default {
   title: 'StatusCounter',
 } as ComponentMeta<typeof StatusCounter>;
 
-const HeaderBackground = ({ children }): JSX.Element => (
+interface HeaderProps {
+  children: React.ReactNode;
+}
+
+const HeaderBackground = ({ children }: HeaderProps): JSX.Element => (
   <div style={{ backgroundColor: '#232f39' }}>{children}</div>
 );
-const TemplateStatusCounter: ComponentStory<typeof StatusCounter> = (args) => (
+const TemplateStatusCounter: ComponentStory<typeof StatusCounter> = (
+  args: Props,
+) => (
   <HeaderBackground>
-    <StatusCounter {...args} severityCode={SeverityCode.High} />
+    <StatusCounter {...args} />
   </HeaderBackground>
 );
 
-export const PlaygroundStatusChip = TemplateStatusCounter.bind({});
+const PlaygroundStatusChip = TemplateStatusCounter.bind({});
 PlaygroundStatusChip.args = {
   count: 4,
 };
 
-export const severityCodeHigh = (): JSX.Element => (
-  <HeaderBackground>
-    <StatusCounter count={3} severityCode={SeverityCode.High} />
-  </HeaderBackground>
-);
+export const SeverityCodeHigh = TemplateStatusCounter.bind({});
+SeverityCodeHigh.args = {
+  count: 3,
+  severityCode: SeverityCode.High,
+};
 
-export const severityCodeMedium = (): JSX.Element => (
-  <HeaderBackground>
-    <StatusCounter count={3} severityCode={SeverityCode.Medium} />
-  </HeaderBackground>
-);
+export const SeverityCodeMedium = TemplateStatusCounter.bind({});
+SeverityCodeMedium.args = {
+  count: 3,
+  severityCode: SeverityCode.Medium,
+};
 
-export const severityCodeLow = (): JSX.Element => (
-  <HeaderBackground>
-    <StatusCounter count={3} severityCode={SeverityCode.Low} />
-  </HeaderBackground>
-);
+export const SeverityCodeLow = TemplateStatusCounter.bind({});
+SeverityCodeLow.args = {
+  count: 3,
+  severityCode: SeverityCode.Low,
+};
 
-export const severityCodeOk = (): JSX.Element => (
-  <HeaderBackground>
-    <StatusCounter count={3} severityCode={SeverityCode.Ok} />
-  </HeaderBackground>
-);
+export const SeverityCodeOk = TemplateStatusCounter.bind({});
+SeverityCodeOk.args = {
+  count: 3,
+  severityCode: SeverityCode.Ok,
+};
 
-export const severityCodeHighCount0 = (): JSX.Element => (
-  <HeaderBackground>
-    <StatusCounter count={0} severityCode={SeverityCode.High} />
-  </HeaderBackground>
-);
-
-export const severityCodeMediumCount0 = (): JSX.Element => (
-  <HeaderBackground>
-    <StatusCounter count={0} severityCode={SeverityCode.Medium} />
-  </HeaderBackground>
-);
-
-export const severityCodeLowCount0 = (): JSX.Element => (
-  <HeaderBackground>
-    <StatusCounter count={0} severityCode={SeverityCode.Low} />
-  </HeaderBackground>
-);
-
-export const severityCodeOkCount0 = (): JSX.Element => (
-  <HeaderBackground>
-    <StatusCounter count={0} severityCode={SeverityCode.Ok} />
-  </HeaderBackground>
-);
-
-export const severityCodeOkBigCount = (): JSX.Element => (
-  <HeaderBackground>
-    <StatusCounter count={500000} severityCode={SeverityCode.Ok} />
-  </HeaderBackground>
-);
+export const SeverityCodeOkBigCount = TemplateStatusCounter.bind({});
+SeverityCodeOkBigCount.args = {
+  count: 500000,
+  severityCode: SeverityCode.Ok,
+};

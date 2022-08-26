@@ -112,7 +112,7 @@ const listing = [...tenElements].map((_, index) => ({
 
 const rowColorConditions = [
   {
-    color: grey[500],
+    color: grey[100],
     condition: ({ active }): boolean => !active,
     name: 'inactive',
   },

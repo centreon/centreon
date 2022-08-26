@@ -99,6 +99,7 @@ const useStyles = makeStyles((theme) => ({
     width: '100%',
   },
   paper: {
+    borderBottom: 'none',
     overflow: 'auto',
   },
   table: {

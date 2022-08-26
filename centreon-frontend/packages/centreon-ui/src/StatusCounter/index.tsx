@@ -1,14 +1,13 @@
-import clsx from 'clsx';
 import numeral from 'numeral';
 
-import { Theme, Avatar } from '@mui/material';
+import { Theme } from '@mui/material';
 import makeStyles from '@mui/styles/makeStyles';
 import { CreateCSSProperties } from '@mui/styles';
 
 import { getStatusColors } from '..';
 import { Colors, SeverityCode } from '../StatusChip';
 
-interface StyleProps {
+export interface StyleProps {
   severityCode: SeverityCode;
 }
 
@@ -20,27 +19,22 @@ const useStyles = makeStyles<Theme, StyleProps>((theme) => {
     });
 
   return {
-    bordered: ({ severityCode }): CreateCSSProperties<StyleProps> => ({
-      background: 'transparent',
-      border: `2px solid ${getStatusIconColors(severityCode).backgroundColor}`,
-    }),
-    colored: ({ severityCode }): CreateCSSProperties<StyleProps> => ({
+    statusCounter: ({ severityCode }): CreateCSSProperties<StyleProps> => ({
+      alignItems: 'center',
       background: getStatusIconColors(severityCode).backgroundColor,
-      border: '2px solid transparent',
+      borderRadius: '50%',
       color: getStatusIconColors(severityCode).color,
-    }),
-
-    icon: {
-      color: theme.palette.common.white,
       cursor: 'pointer',
-      fontSize: theme.typography.body1.fontSize,
-      height: theme.spacing(3.5),
-      width: theme.spacing(3.5),
-    },
+      display: 'inline-flex',
+      fontSize: theme.typography.caption.fontSize,
+      justifyContent: 'center',
+      minHeight: theme.spacing(2),
+      minWidth: theme.spacing(2),
+    }),
   };
 });
 
-interface Props {
+export interface Props {
   count: number | JSX.Element;
   severityCode: SeverityCode;
 }
@@ -48,12 +42,8 @@ interface Props {
 const StatusCounter = ({ severityCode, count }: Props): JSX.Element => {
   const classes = useStyles({ severityCode });
 
-  const avatarClass = count > 0 ? classes.colored : classes.bordered;
-
   return (
-    <Avatar className={clsx(avatarClass, classes.icon)}>
-      {numeral(count).format('0a')}
-    </Avatar>
+    <div className={classes.statusCounter}>{numeral(count).format('0a')}</div>
   );
 };
 

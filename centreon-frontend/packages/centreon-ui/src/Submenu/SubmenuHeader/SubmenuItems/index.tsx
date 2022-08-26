@@ -4,6 +4,9 @@ import makeStyles from '@mui/styles/makeStyles';
 
 const useStyles = makeStyles({
   submenuItems: {
+    '& a:last-child li': {
+      borderBottom: 'none',
+    },
     listStyle: 'none',
     margin: 0,
     padding: 0,

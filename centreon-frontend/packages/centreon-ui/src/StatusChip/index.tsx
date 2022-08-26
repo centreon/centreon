@@ -39,7 +39,7 @@ const getStatusColors = ({ theme, severityCode }: StatusColorProps): Colors => {
       color: palette.common.white,
     },
     [SeverityCode.Pending]: {
-      backgroundColor: palette.info.main,
+      backgroundColor: palette.pending.main,
       color: palette.common.white,
     },
     [SeverityCode.Ok]: {

@@ -42,9 +42,8 @@ const useStyles = makeStyles((theme) => ({
     color: theme.palette.action.active,
   },
   labelChip: {
-    color: theme.palette.text.disabled,
+    color: theme.palette.text.secondary,
   },
-
   text: {
     color: theme.palette.text.primary,
   },

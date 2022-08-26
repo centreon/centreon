@@ -7,6 +7,7 @@ import { useMemoComponent } from '..';
 
 const useStyles = makeStyles((theme) => ({
   content: {
+    border: 'none',
     padding: theme.spacing(1),
   },
 }));

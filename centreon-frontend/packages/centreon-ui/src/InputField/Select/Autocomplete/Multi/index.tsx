@@ -18,6 +18,7 @@ const useStyles = makeStyles((theme) => ({
     width: theme.spacing(1.5),
   },
   tag: {
+    backgroundColor: theme.palette.divider,
     fontSize: theme.typography.caption.fontSize,
     height: theme.spacing(1.75),
   },

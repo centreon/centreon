@@ -21,7 +21,9 @@ const useStyles = makeStyles((theme) => ({
   closeSecondaryPanelBar: {
     alignContent: 'center',
     alignItems: 'center',
-    backgroundColor: theme.palette.background.default,
+    backgroundColor: theme.palette.background.paper,
+    borderBottom: 'none',
+    borderTop: 'none',
     cursor: 'pointer',
     display: 'flex',
   },
@@ -105,6 +107,7 @@ const SectionPanel = ({
 
             {hasSecondaryPanel && (
               <Paper
+                square
                 aria-label="Close Secondary Panel"
                 className={classes.closeSecondaryPanelBar}
                 onClick={onSecondaryPanelClose}

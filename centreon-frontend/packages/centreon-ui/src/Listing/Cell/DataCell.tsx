@@ -1,6 +1,7 @@
 import { memo } from 'react';
 
 import { equals, props } from 'ramda';
+import clsx from 'clsx';
 
 import { Tooltip, Typography } from '@mui/material';
 import makeStyles from '@mui/styles/makeStyles';
@@ -23,13 +24,16 @@ interface Props {
   rowColorConditions?: Array<RowColorCondition>;
 }
 
-const useStyles = makeStyles(() => ({
+const useStyles = makeStyles((theme) => ({
   cell: {
     alignItems: 'center',
     alignSelf: 'stretch',
     display: 'flex',
     overflow: 'hidden',
     whiteSpace: 'nowrap',
+  },
+  rowNotHovered: {
+    color: theme.palette.text.secondary,
   },
   text: {
     overflow: 'hidden',
@@ -69,7 +73,12 @@ const DataCell = ({
       const gridColumn = colSpan ? `auto / span ${colSpan}` : 'auto / auto';
 
       const typography = (
-        <Typography className={classes.text} variant="body2">
+        <Typography
+          className={clsx(classes.text, {
+            [classes.rowNotHovered]: !isRowHovered || disableRowCondition(row),
+          })}
+          variant="body2"
+        >
           {formattedString}
         </Typography>
       );

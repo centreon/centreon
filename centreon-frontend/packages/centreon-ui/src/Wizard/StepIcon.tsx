@@ -5,29 +5,21 @@ import Check from '@mui/icons-material/Check';
 
 const useStepIconStyles = makeStyles((theme) => ({
   avatar: {
-    backgroundColor: '#ffffff',
-    color: '#000000',
-    fontSize: '0.8rem',
+    fontSize: theme.typography.body2.fontSize,
     height: 20,
     width: 20,
   },
   avatarActive: {
     backgroundColor: theme.palette.primary.main,
-    boxShadow: '0 1px 2px 1px rgba(0,0,0,.25)',
-    color: '#ffffff',
   },
   avatarCompleted: {
     backgroundColor: theme.palette.primary.main,
   },
   completed: {
-    color: '#ffffff',
-    fontSize: 18,
+    fontSize: theme.typography.body2.fontSize,
     zIndex: 1,
   },
   root: {
-    alignItems: 'center',
-    color: '#000000',
-    display: 'flex',
     height: 22,
   },
 }));

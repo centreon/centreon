@@ -51,7 +51,7 @@ export const TestQueryProvider = ({
 );
 
 interface MockResponse {
-  data: object;
+  data: object | unknown;
   options?: MockParams;
 }
 
