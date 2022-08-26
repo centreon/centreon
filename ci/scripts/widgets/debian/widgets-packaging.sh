@@ -24,7 +24,7 @@ ls -1 | sed '/centreon-widget.spectemplate/d' | while read PROJECT; do
 
     ls -lart
     cd /build/$PROJECT
-    COMMIT=$(git log -1 HEAD --pretty=format:%h)
+    COMMIT=$(cd /src && git log -1 HEAD --pretty=format:%h)
     export RELEASE="$DISTRIB+$now.$COMMIT"
     debmake -f "${AUTHOR}" -e "${AUTHOR_EMAIL}" -u "$VERSION" -y -r "$RELEASE"
     debuild-pbuilder
