@@ -139,8 +139,10 @@ jobs:
       matrix:
         include:
           - project: widgets-package
-            distrib: centos7
+            distrib_redhat: centos7
+            distrib_debian: debian11
             distrib_rpm: el7
+            distrib_deb: deb11
             version: "22.10"
             module_name: widgets
 
@@ -155,11 +157,19 @@ jobs:
           username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
           password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
 
-      - name: build docker run for widgets
+      - name: build redhat docker run for widgets
         uses: ./.github/actions/widgets-docker-builder
         with:
-          distrib: ${{ matrix.distrib }}
+          distrib: ${{ matrix.distrib_redhat }}
           project: ${{ matrix.project }}
           distrib_rpm: ${{ matrix.distrib_rpm }}
+          module_name: ${{ matrix.module_name }}
+
+      - name: build debian docker run for widgets
+        uses: ./.github/actions/widgets-docker-builder
+        with:
+          distrib: ${{ matrix.distrib_debian }}
+          project: ${{ matrix.project }}
+          distrib_rpm: ${{ matrix.distrib_deb }}
           module_name: ${{ matrix.module_name }}
 
