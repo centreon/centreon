@@ -18,9 +18,9 @@ ls -1 | sed '/centreon-widget.spectemplate/d' | while read PROJECT; do
     cd /build
 
     mkdir -p /build/$PROJECT
-    (cd /src && tar czvpf - $PROJECT) | dd of=$PROJECT-$VERSION.tar.gz
-    cp -rv /src/$PROJECT /build/
-    cp -rv /src/$PROJECT/ci/debian /build/$PROJECT/
+    (cd /src/widgets && tar czvpf - $PROJECT) | dd of=$PROJECT-$VERSION.tar.gz
+    cp -rv /src/widgets/$PROJECT /build/
+    cp -rv /src/widgets/$PROJECT/ci/debian /build/$PROJECT/
 
     ls -lart
     cd /build/$PROJECT
