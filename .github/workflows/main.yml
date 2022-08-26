@@ -160,7 +160,7 @@ jobs:
       - name: build redhat docker run for widgets
         uses: ./.github/actions/widgets-docker-builder
         with:
-          distrib: ${{ matrix.distrib_redhat }}
+          distrib_redhat: ${{ matrix.distrib_redhat }}
           project: ${{ matrix.project }}
           distrib_rpm: ${{ matrix.distrib_rpm }}
           module_name: ${{ matrix.module_name }}
@@ -168,8 +168,8 @@ jobs:
       - name: build debian docker run for widgets
         uses: ./.github/actions/widgets-docker-builder
         with:
-          distrib: ${{ matrix.distrib_debian }}
+          distrib_debian: ${{ matrix.distrib_debian }}
           project: ${{ matrix.project }}
-          distrib_rpm: ${{ matrix.distrib_deb }}
+          distrib_deb: ${{ matrix.distrib_deb }}
           module_name: ${{ matrix.module_name }}
 
