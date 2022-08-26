@@ -41,6 +41,8 @@ ls -1 | sed '/centreon-widget.spectemplate/d' | while read PROJECT; do
     mv /build/$RELEASE/*.deb /src
 done
 
+find /src -iname '*.deb'
+
 # Add here delivery of files
 #
 #
