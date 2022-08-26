@@ -5,6 +5,8 @@ set -ex
 VERSION="22.10.0"
 now=$(date +%s)
 DISTRIB="1"
+COMMIT=$(cd /src && git log -1 HEAD --pretty=format:%h)
+export RELEASE="$DISTRIB+$now.$COMMIT"
 
 AUTHOR="Luiz Costa"
 AUTHOR_EMAIL="me@luizgustavo.pro.br"
@@ -24,8 +26,9 @@ ls -1 | sed '/centreon-widget.spectemplate/d' | while read PROJECT; do
 
     ls -lart
     cd /build/$PROJECT
-    COMMIT=$(cd /src && git log -1 HEAD --pretty=format:%h)
-    export RELEASE="$DISTRIB+$now.$COMMIT"
+    if [ -e /build/$PROJECT/debian/substvars ]; then
+        sed -i "s/^centreon:version=.*$/centreon:version=$(echo $VERSION | egrep -o '^[0-9][0-9].[0-9][0-9]')/" /build/$PROJECT/debian/substvars
+    fi
     debmake -f "${AUTHOR}" -e "${AUTHOR_EMAIL}" -u "$VERSION" -y -r "$RELEASE"
     debuild-pbuilder
     cd /build
