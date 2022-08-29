@@ -66,7 +66,7 @@ $widgetObj = new CentreonWidget($centreon, $db);
 $preferences = $widgetObj->getWidgetPreferences($widgetId);
 
 // Set Colors Table
-$res = $db->query("SELECT `key`, `value` FROM `options` WHERE `key` LIKE 'color%'");
+
 $stateSColors = array(
     0 => "#13EB3A",
     1 => "#F8C706",
@@ -80,25 +80,7 @@ $stateHColors = array(
     2 => "#DCDADA",
     3 => "#2AD1D4"
 );
-while ($row = $res->fetch()) {
-    if ($row['key'] == "color_ok") {
-        $stateSColors[0] = $row['value'];
-    } elseif ($row['key'] == "color_warning") {
-        $stateSColors[1] = $row['value'];
-    } elseif ($row['key'] == "color_critical") {
-        $stateSColors[2] = $row['value'];
-    } elseif ($row['key'] == "color_unknown") {
-        $stateSColors[3] = $row['value'];
-    } elseif ($row['key'] == "color_pending") {
-        $stateSColors[4] = $row['value'];
-    } elseif ($row['key'] == "color_up") {
-        $stateHColors[4] = $row['value'];
-    } elseif ($row['key'] == "color_down") {
-        $stateHColors[4] = $row['value'];
-    } elseif ($row['key'] == "color_unreachable") {
-        $stateHColors[4] = $row['value'];
-    }
-}
+
 
 $stateLabels = array(
     0 => "Ok",

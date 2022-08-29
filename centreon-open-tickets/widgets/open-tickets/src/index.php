@@ -76,43 +76,22 @@ if (!isset($preferences['rule'])) {
 
 $macro_tickets = $rule->getMacroNames($preferences['rule'], $widgetId);
 
-// Set Colors Table
-$res = $db->query("SELECT `key`, `value` FROM `options` WHERE `key` LIKE 'color%'");
-$stateSColors = array(
-    0 => "#13EB3A",
-    1 => "#F8C706",
-    2 => "#F91D05",
-    3 => "#DCDADA",
-    4 => "#2AD1D4"
-);
-$stateHColors = array(
-    0 => "#13EB3A",
-    1 => "#F91D05",
-    2 => "#DCDADA",
-    3 => "#2AD1D4"
-);
-while ($row = $res->fetch()) {
-    if ($row['key'] == "color_ok") {
-        $stateSColors[0] = $row['value'];
-    } elseif ($row['key'] == "color_warning") {
-        $stateSColors[1] = $row['value'];
-    } elseif ($row['key'] == "color_critical") {
-        $stateSColors[2] = $row['value'];
-    } elseif ($row['key'] == "color_unknown") {
-        $stateSColors[3] = $row['value'];
-    } elseif ($row['key'] == "color_pending") {
-        $stateSColors[4] = $row['value'];
-    } elseif ($row['key'] == "color_up") {
-        $stateHColors[4] = $row['value'];
-    } elseif ($row['key'] == "color_down") {
-        $stateHColors[4] = $row['value'];
-    } elseif ($row['key'] == "color_unreachable") {
-        $stateHColors[4] = $row['value'];
-    }
-}
 
 $aStateType = array("1" => "H", "0" => "S");
+$aColorHost = [
+    0 => 'host_up',
+    1 => 'host_down',
+    2 => 'host_unreachable',
+    4 => 'host_pending'
+];
 
+$aColorService = [
+    0 => 'service_ok',
+    1 => 'service_warning',
+    2 => 'service_critical',
+    3 => 'service_unknown',
+    4 => 'pending'
+];
 $stateLabels = array(
     0 => "Ok",
     1 => "Warning",
@@ -429,10 +408,10 @@ while ($row = $res->fetch()) {
         } elseif ($key == "check_attempt") {
             $value = $value . "/" . $row['max_check_attempts'] . ' (' . $aStateType[$row['state_type']] . ')';
         } elseif ($key == "s_state") {
-            $data[$row['host_id'] . "_" . $row['service_id']]['color'] = $stateSColors[$value];
+            $data[$row['host_id'] . "_" . $row['service_id']]['color'] = $aColorService[$value];
             $value = $stateLabels[$value];
         } elseif ($key == "h_state") {
-            $data[$row['host_id'] . "_" . $row['service_id']]['hcolor'] = $stateHColors[$value];
+            $data[$row['host_id'] . "_" . $row['service_id']]['hcolor'] = $aColorHost[$value];
             $value = $stateLabels[$value];
         } elseif ($key == "output") {
             $value = substr($value, 0, $outputLength);

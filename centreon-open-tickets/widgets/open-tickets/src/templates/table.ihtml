@@ -48,7 +48,7 @@
                         {if $elem.icon_image != ''}
                             <img src ='../../img/media/{$elem.icon_image}' width='16' height='16' style ='padding-right:5px;' />
                         {/if}
-                        <span class="state_badge" style='background-color: {$elem.hcolor};'></span>
+                        <span class="state_badge {$elem.hcolor}"></span>
                         <a href='../../main.php?p=20202&o=hd&host_name={$elem.encoded_hostname}' target=_blank>{$elem.hostname}</a>
                     </td>
                     <td class='ListColRight'>
@@ -77,7 +77,7 @@
         {if $preferences.display_svc_description}
             <td class=''>
                 {if $preferences.display_status == 0}
-                    <div style='background-color: {$elem.color};'>
+                    <div class="{$elem.color}">
                 {/if}
         <a href='../../main.php?p=202&o=svcd&host_name={$elem.encoded_hostname}&service_description={$elem.encoded_description}' target=_blank>{$elem.description}</a>
         {if $preferences.display_status == 0}
@@ -106,7 +106,7 @@
             {/if}
         {if $preferences.display_status}
         <td class='ListColCenter' style='white-space:nowrap;'>
-            <span style='background-color: {$elem.color};font-weight:bold;' class="badge">{$elem.s_state}</span>
+            <span style='font-weight:bold;' class="badge {$elem.color}">{$elem.s_state}</span>
         </td>
         {/if}
         {if $preferences.display_duration}<td class='ListColCenter' style='white-space:nowrap;'>{$elem.last_state_change}</td>{/if}
