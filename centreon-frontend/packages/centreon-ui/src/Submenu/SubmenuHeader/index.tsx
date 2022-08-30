@@ -212,7 +212,7 @@ const SubmenuHeader = ({
               return (
                 <Link
                   className={classes.link}
-                  key={classes.link}
+                  key={to}
                   to={to}
                   onClick={onClick}
                 >
