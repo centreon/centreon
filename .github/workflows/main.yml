@@ -13,6 +13,7 @@ jobs:
     outputs:
       frontend: ${{ steps.filter.outputs.frontend }}
       web: ${{ steps.filter.outputs.web }}
+      widgets: ${{ steps.filter.outputs.widgets }}
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v3
@@ -26,6 +27,8 @@ jobs:
               - 'centreon-frontend/**'
             web:
               - 'centreon/**'
+            widgets:
+              - 'widgets/**'
 
   frontend-test:
     needs: filters
@@ -82,8 +85,8 @@ jobs:
     secrets:
       nexus_username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
       nexus_password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
-  
-  create-and-push-docker:
+
+  create-and-push-docker-web:
     needs: [web-packaging]
     runs-on: common
     
@@ -114,3 +117,59 @@ jobs:
           project: ${{ matrix.project }}
           distrib_rpm: ${{ matrix.distrib_rpm }}
           module_name: ${{ matrix.module_name }}
+
+
+  widgets-packaging:
+    needs: [create-and-push-docker-widgets]
+
+    uses: ./.github/workflows/module_workflow.yml
+    with:
+      module_name: widgets
+      version: "22.10"
+    secrets:
+      nexus_username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
+      nexus_password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
+
+  create-and-push-docker-widgets:
+    needs: filters
+    if: ${{ needs.filters.outputs.widgets == 'true' }}
+    runs-on: common
+    
+    strategy:
+      matrix:
+        include:
+          - project: widgets-package
+            distrib_redhat: centos7
+            distrib_debian: debian11
+            distrib_rpm: el7
+            distrib_deb: deb11
+            version: "22.10"
+            module_name: widgets
+
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v3
+
+      - name: Login to Registry
+        uses: docker/login-action@v2
+        with:
+          registry: docker.registry.apps.centreon.com
+          username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
+          password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
+
+      - name: build redhat docker run for widgets
+        uses: ./.github/actions/widgets-docker-builder
+        with:
+          distrib_redhat: ${{ matrix.distrib_redhat }}
+          project: ${{ matrix.project }}
+          distrib_rpm: ${{ matrix.distrib_rpm }}
+          module_name: ${{ matrix.module_name }}
+
+      - name: build debian docker run for widgets
+        uses: ./.github/actions/widgets-docker-builder
+        with:
+          distrib_debian: ${{ matrix.distrib_debian }}
+          project: ${{ matrix.project }}
+          distrib_deb: ${{ matrix.distrib_deb }}
+          module_name: ${{ matrix.module_name }}
+

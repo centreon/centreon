@@ -22,7 +22,9 @@ jobs:
     name: Package
     strategy:
       matrix:
-        distrib: [el7]
+        distrib_redhat: [el7]
+        distrib_debian: [deb11]
+
     steps:
       - name: Checkout sources
         uses: actions/checkout@v3
@@ -43,12 +45,12 @@ jobs:
           username: ${{ secrets.nexus_username }}
           password: ${{ secrets.nexus_password }}
 
-      - name: Package
+      - name: RPM Package
         uses: ./.github/actions/rpm-packaging
         with:
           module_name: ${{ inputs.module_name}}
-          distrib: ${{ matrix.distrib }}
-          image_version: 22.04
+          distrib: ${{ matrix.distrib_redhat }}
+          image_version: ${{ github.head_ref || github.ref_name }}
           params: ${{ steps.tag.outputs.tag }} ${{ github.sha }}
 
       - name: Use cache RPM files
@@ -58,6 +60,14 @@ jobs:
         with:
           path: ./*.rpm
           key: ${{ env.cache-name-rpmbuild }}-${{ matrix.distrib }}
+
+      - name: DEB Package
+        uses: ./.github/actions/deb-packaging
+        with:
+          module_name: ${{ inputs.module_name}}
+          distrib: ${{ matrix.distrib_debian }}
+          image_version: ${{ github.head_ref || github.ref_name }}
+          params: ${{ steps.tag.outputs.tag }} ${{ github.sha }}
 
   rpm-delivery:
     needs: rpm-package
