@@ -57,7 +57,11 @@ const IconHeader = ({
       >
         <Icon className={classes.icon} onClick={onClick} />
       </Badge>
-      <Typography className={classes.iconName} variant="caption">
+      <Typography
+        className={classes.iconName}
+        variant="caption"
+        onClick={onClick}
+      >
         {iconName}
       </Typography>
     </span>

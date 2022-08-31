@@ -37,7 +37,7 @@ const useStyles = makeStyles<Theme, StyleProps>((theme) => {
     },
     subMenuCounters: {
       display: 'flex',
-      gap: theme.spacing(0.5),
+      gap: theme.spacing(2.5),
       [theme.breakpoints.down(768)]: {
         display: 'grid',
         gridTemplateColumns: 'auto auto',
