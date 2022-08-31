@@ -1,0 +1,101 @@
+<table id='ServicegroupTable' class='ListTable styleTable'>
+    <tr class="ListHeader">
+        <td class='ListColHeaderLeft' name='name' {if $preferences.enable_detailed_mode == 1} colspan='2' {/if}>Servicegroups{if $preferences.enable_detailed_mode == 1} / Hosts{/if}</td>
+        <td {if $preferences.enable_detailed_mode == 1} class='ListColHeaderCenter'{/if} class="ListColHeaderLeft">Host Status</td>
+        <td class='ListColHeaderLeft'>Service Status</td>
+    </tr>
+    {assign var='classStyle' value='list_two'}
+    {foreach key=sgId item=elem from=$data}
+    {if $classStyle == 'list_two'}
+        {assign var='classStyle' value='list_one'}
+    {else}
+        {assign var='classStyle' value='list_two'}
+    {/if}
+    <tr id="sg-{$sgId}" class='{$classStyle}'>
+        <td class='ListColLeft' {if $preferences.enable_detailed_mode == 1} colspan='4' {/if}>
+            <a href='{$elem.sgurl}' target=_blank>{$elem.name}</a>
+        </td>
+    {if $preferences.enable_detailed_mode == 1}
+    </tr>
+    <tr id="sg-{$sgId}" class='{$classStyle}'>
+    {/if}
+    {if $preferences.enable_detailed_mode == 0}
+        <td class='ListColLeft'>
+            {foreach key=state item=counter from=$elem.host_state}
+            <span class="state_badge {$aColorHost[$state]}"></span>
+            <span class='margin_right'>{$counter}</span>
+            {/foreach}
+        </td>
+        <td class='ListColLeft'>
+            {foreach key=state item=counter from=$elem.service_state}
+                {if $state == 0 }
+                    {assign var='link' value=$elem.sg_service_ok_uri}
+                {elseif $state == 1 }
+                    {assign var='link' value=$elem.sg_service_warning_uri}
+                {elseif $state == 2 }
+                    {assign var='link' value=$elem.sg_service_critical_uri}
+                {elseif $state == 3 }
+                    {assign var='link' value=$elem.sg_service_unknown_uri}
+                {elseif $state == 4 }
+                    {assign var='link' value=$elem.sg_service_pending_uri}
+                {/if}
+            <span class="state_badge {$aColorService[$state]}"></span>
+            <span class='margin_right'>
+                <a href='{$link}' target=_blank>{$counter}</a>
+            </span>
+            {/foreach}
+        </td>
+    {else}
+        <td></td>
+        <td></td>
+    {if $preferences.enable_detailed_mode != 1}
+    </tr>
+    {/if}
+    {/if}
+    {if $preferences.enable_detailed_mode == 1}
+    {foreach item=elem2 from=$elem.host_state}
+    {if $preferences.display_host_alias}
+        {assign var='host_name' value=$elem2.alias}
+    {else}
+        {assign var='host_name' value=$elem2.name}
+    {/if}
+    {if $classStyle == 'list_two'}
+        {assign var='classStyle' value='list_one'}
+    {else}
+        {assign var='classStyle' value='list_two'}
+    {/if}
+    <tr id="host-{$elem2.host_id}" class="{$classStyle}">
+        <td class='ListColLeft' width='160' style="padding-left: 19px;">
+            <img src="../../img/icons/host.png" class="margin_right ico-18">
+            <a href='{$elem2.details_uri}' target=_blank>{$host_name}</a>
+        </td>
+        <td class='ListColLeft' style='white-space:nowrap;width:37px;'>
+            <a href='{$elem2.services_uri}' target=_blank>
+                <img src='../../img/icons/view.png' class='ico-18' />
+            </a>&nbsp;
+            <a href='../../main.php?p=20401&mode=0&svc_id={$elem2.name}' target=_blank>
+                <img src='../../img/icons/chart.png' class='ico-18' />
+            </a>
+        </td>
+        <td class='ListColCenter' style='white-space:nowrap;'><span class='badge {$aColorHost[$elem2.state]}'>{$hostStateLabels[$elem2.state]}</span></td>
+        <td class='ListColLeft'>
+            {foreach item=elem3 from=$elem.service_state[$elem2.host_id]}
+            <a target="_blank" href='{$elem3.details_uri}' >
+                <span class='state_badge {$aColorService[$elem3.state]}'></span>{$elem3.description}
+            </a>&nbsp;
+            {/foreach}
+        </td>
+    </tr>
+    {/foreach}
+    {/if}
+    {/foreach}
+</table>
+<script>
+    var widgetId = {$widgetId};
+    var autoRefresh = {$autoRefresh};
+    var nbRows = {$nbRows};
+    var currentpage = {$page};
+    var orderby = "{$orderby}";
+    var nbCurrentItems = {$dataJS};
+</script>
+<script type="text/javascript" src="src/data_js.js"></script>
