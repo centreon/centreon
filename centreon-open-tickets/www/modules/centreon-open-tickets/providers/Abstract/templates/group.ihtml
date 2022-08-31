@@ -10,7 +10,7 @@
             {assign var="group" value=$sortgroup_result}
         {/if}
         <select id="select_{$groupId}" name="select_{$groupId}">
-        {if $group|@count != 1}
+        {if $group|is_array && $group|@count != 1}
             <option value="-1"> -- select -- </option>
         {/if}
         {foreach from=$group key=k item=v}
