@@ -5,7 +5,7 @@ import { startFlow } from 'lighthouse/lighthouse-core/fraggle-rock/api';
 
 import { generateReportForLoginPage } from './pages/login';
 import { generateReportForResourceStatusPage } from './pages/resourceStatus';
-import { baseConfigContext } from './defaults';
+import { baseConfigContext, baseUrl } from './defaults';
 import { generateReportForAuthenticationPage } from './pages/authentication';
 
 const createReportFile = (report): void => {
