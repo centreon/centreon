@@ -31,9 +31,6 @@ jobs:
           - image: packaging-widgets-alma8
             distrib: el8
             path: widgets/redhat
-          - image: packaging-widgets-bullseye
-            distrib: bullseye
-            path: widgets/debian
 
     steps: 
       - name: Checkout sources

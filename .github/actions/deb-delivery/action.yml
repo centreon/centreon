@@ -74,6 +74,6 @@ runs:
           echo "Arch: $ARCH"
           echo "Module: $MODULE"
 
-          curl -v -u ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}:${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }} -H "Content-Type: multipart/form-data" --data-binary "@./$FILE" "http://nexus-svc.nexus.svc.cluster.local:8081/repository/$VERSION-$REPO/"
+          curl -v -u ${{ inputs.nexus_username }}:${{ inputs.nexus_password }} -H "Content-Type: multipart/form-data" --data-binary "@./$FILE" "http://nexus-svc.nexus.svc.cluster.local:8081/repository/$VERSION-$REPO/"
         done
       shell: bash
