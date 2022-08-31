@@ -1,0 +1,28 @@
+FROM docker-proxy.registry.apps.centreon.com/centos:7
+
+ENV container docker
+
+RUN (cd /lib/systemd/system/sysinit.target.wants/; for i in *; do [ $i == systemd-tmpfiles-setup.service ] || rm -f $i; done); \
+rm -f /lib/systemd/system/multi-user.target.wants/*;\
+rm -f /etc/systemd/system/*.wants/*;\
+rm -f /lib/systemd/system/local-fs.target.wants/*; \
+rm -f /lib/systemd/system/sockets.target.wants/*udev*; \
+rm -f /lib/systemd/system/sockets.target.wants/*initctl*; \
+rm -f /lib/systemd/system/basic.target.wants/*;\
+rm -f /lib/systemd/system/anaconda.target.wants/*;
+
+RUN curl -o centreon-release.rpm "https://yum.centreon.com/standard/22.10/el7/stable/noarch/RPMS/centreon-release-22.10-1.el7.centos.noarch.rpm"
+RUN yum -y update && yum install -y libselinux-utils --nogpgcheck centreon-release.rpm yum-utils centos-release-scl-rh \
+    https://rpms.remirepo.net/enterprise/remi-release-7.rpm https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm httpd24-httpd
+RUN yum-config-manager --enable 'centreon-testing*' && yum-config-manager --enable 'centreon-unstable*' --enable remi-php80
+
+COPY *.rpm /tmp/
+COPY ./ci/scripts/install.sh /tmp/install.sh
+COPY /ci/scripts/autoinstall.php /usr/share/centreon/autoinstall.php
+COPY /ci/scripts/configuration/* /usr/share/centreon/www/install/tmp/
+RUN chmod +x /tmp/install.sh
+
+
+VOLUME [ "/sys/fs/cgroup" ]
+
+CMD ["/usr/sbin/init"]
