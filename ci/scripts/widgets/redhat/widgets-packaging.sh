@@ -24,11 +24,11 @@ ls -1 | sed '/centreon-widget.spectemplate/d' | while read PROJECT; do
     export SUMMARY="$(find . -name configs.xml | xargs sed -n 's|\s*<description>\(.*\)</description>|\1|p'
  2>/dev/null)"
     rpmbuild -ba ../centreon-widget.spectemplate \
-        -D "VERSION $VERSION" \
-        -D "RELEASE $RELEASE" \
-        -D "SUMMARY $SUMMARY" \
-        -D "NAME $PROJECT" \
-        -D "WIDGET_SUB_DIR $WIDGET"
+        -D "version $VERSION" \
+        -D "release $RELEASE" \
+        -D "summary $SUMMARY" \
+        -D "name $PROJECT" \
+        -D "widget_sub_dir $WIDGET"
     cp -r /root/rpmbuild/RPMS/noarch/*.rpm .
     chmod 777 *.rpm
     cd ..
