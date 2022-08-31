@@ -1,15 +1,11 @@
-%define name @PROJECT@
-%define widget_sub_dir @WIDGET@
-%define version @VERSION@
-%define release @RELEASE@%{?dist}
-%define summary @SUMMARY@
+
 %define thismajor 22.10.0
 %define nextmajor 22.11.0
 
 Summary:    %{summary}
 Name:       %{name}
 Version:    %{version}
-Release:    %{release}
+Release:    %{release}%{?dist}
 Source0:    %{name}-%{version}.tar.gz
 
 License:    GPLv2

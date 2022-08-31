@@ -3,9 +3,10 @@
 set -ex 
 
 cd centreon
-VERSION="22.10.0"
-COMMIT=`git log -1 HEAD --pretty=format:%h`
+VERSION=$1
+COMMIT=$2
 now=`date +%s`
+
 export RELEASE="$now.$COMMIT"
 
 composer install --no-dev --optimize-autoloader

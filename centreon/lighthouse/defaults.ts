@@ -1,4 +1,4 @@
-export const baseUrl = 'http://localhost:4000/centreon/';
+export const baseUrl = 'http://172.19.0.20:80/centreon/';
 
 const screenEmulation = {
   deviceScaleFactor: 1,

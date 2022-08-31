@@ -1,0 +1,5 @@
+FROM alpine:3.15.5
+RUN apk add curl tar gettext git bash php8 composer php8-dom php8-xml php8-ctype php8-xmlwriter php8-simplexml php8-gettext php8-tokenizer php8-zip php8-pdo php8-intl php8-mbstring php8-cli
+RUN ln -s /usr/bin/php8 /usr/bin/php &&  git config --global --add safe.directory /src
+WORKDIR /src
+
