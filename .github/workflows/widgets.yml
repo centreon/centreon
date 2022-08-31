@@ -27,13 +27,13 @@ jobs:
         include:
           - image: packaging-widgets-centos7
             distrib: el7
-            path: redhat
+            path: widgets/redhat
           - image: packaging-widgets-alma8
             distrib: el8
-            path: redhat
+            path: widgets/redhat
           - image: packaging-widgets-bullseye
             distrib: bullseye
-            path: debian
+            path: widgets/debian
 
     steps: 
       - name: Checkout sources
