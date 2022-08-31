@@ -120,7 +120,7 @@ jobs:
     strategy:
       matrix:
         include:
-          - project: run-centreon-business-centreon
+          - project: run-centreon-open-source
             distrib: centos7
             distrib_rpm: el7
             module_name: web
