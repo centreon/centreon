@@ -1,0 +1,13 @@
+FROM docker-proxy.registry.apps.centreon.com/almalinux:8.5
+RUN curl -o centreon-release.rpm "https://yum.centreon.com/standard/22.10/el8/stable/noarch/RPMS/centreon-release-22.10-1.el8.noarch.rpm"
+RUN dnf install -y --nogpgcheck -y centreon-release.rpm
+RUN dnf -y update && dnf install -y centreon-devel rpm-build git wget dnf-plugins-core https://rpms.remirepo.net/enterprise/remi-release-8.rpm https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm
+RUN dnf config-manager --set-enabled 'powertools'
+RUN dnf module -y reset php && dnf module -y install php:remi-8.0
+RUN curl --silent --location https://rpm.nodesource.com/setup_16.x | bash -
+RUN dnf install --nogpgcheck -y nodejs php-cli php-dom php-json php-mbstring php-intl php-pdo dos2unix
+RUN npm install -g redoc-cli
+RUN curl -sS https://getcomposer.org/installer | php
+RUN mv composer.phar /usr/local/bin/composer
+RUN chmod +x /usr/local/bin/composer
+WORKDIR /src

@@ -5,7 +5,7 @@ import { startFlow } from 'lighthouse/lighthouse-core/fraggle-rock/api';
 
 import { generateReportForLoginPage } from './pages/login';
 import { generateReportForResourceStatusPage } from './pages/resourceStatus';
-import { baseConfigContext } from './defaults';
+import { baseConfigContext, baseUrl } from './defaults';
 import { generateReportForAuthenticationPage } from './pages/authentication';
 
 const createReportFile = (report): void => {
@@ -21,6 +21,15 @@ const createReportFile = (report): void => {
 const captureReport = async (): Promise<void> => {
   const browser = await puppeteer.launch({
     headless: true,
+    args: [
+      '--disable-gpu',
+      '--disable-dev-shm-usage',
+      '--disable-setuid-sandbox',
+      '--no-first-run',
+      '--no-sandbox',
+      '--no-zygote',
+      '--single-process',
+    ]
   });
   const page = await browser.newPage();
 

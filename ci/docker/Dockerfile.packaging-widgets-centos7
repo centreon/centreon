@@ -1,0 +1,3 @@
+FROM docker-proxy.registry.apps.centreon.com/centos:7
+RUN yum -y update && yum -y install git gettext rpm-build dos2unix
+WORKDIR /src

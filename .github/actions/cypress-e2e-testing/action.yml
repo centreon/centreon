@@ -1,0 +1,24 @@
+name: "Cypress E2E Testing"
+description: "Cypress E2E Testing"
+inputs:
+  image:
+    description: "image"
+    required: true
+  image_version:
+    description: "image version"
+    required: true
+  image_cypress_version:
+    description: "image cypress version"
+    required: true
+  module:
+    description: "module"
+    required: true
+runs:
+  using: "composite"
+  steps:
+    - run: docker network create cypress-network
+      shell: bash
+    - run: docker run --privileged -p 4000:80 -d --name e2e-tests-${{ inputs.module }} --network cypress-network ${{ inputs.image }}:${{ inputs.image_version }}
+      shell: bash
+    - run: docker run -e MODULE=${{ inputs.module }} -i -v "$PWD:/tmp" -w "/tmp" --entrypoint "/tmp/ci/scripts/cypress-e2e-testing.sh" --network cypress-network docker.registry.apps.centreon.com/cypress:${{ inputs.image_cypress_version }}
+      shell: bash
