@@ -6,6 +6,6 @@ export HOME=$PWD/cache
 
 cd $MODULE/tests/e2e
 
-npm ci
+npm ci --legacy-peer-deps
 
 npm run cypress:run
