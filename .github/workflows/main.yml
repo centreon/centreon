@@ -25,7 +25,7 @@ jobs:
           filters: |
             frontend:
               - 'centreon-frontend/**'
-            web:
+            centreon-web:
               - 'centreon/**'
             widgets:
               - 'widgets/**'
@@ -62,7 +62,7 @@ jobs:
             version: 1.1
           - image: backend
             version: 2.5
-    if: ${{ needs.filters.outputs.web == 'true' }}
+    if: ${{ needs.filters.outputs.centreon-web == 'true' }}
     steps:
       - name: Checkout sources
         uses: actions/checkout@v3
@@ -77,7 +77,7 @@ jobs:
 
   web-packaging:
     needs: filters
-    if: ${{ needs.filters.outputs.web == 'true' }}
+    if: ${{ needs.filters.outputs.centreon-web == 'true' }}
     uses: ./.github/workflows/module_workflow.yml
     with:
       module_name: web
