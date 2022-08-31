@@ -50,7 +50,7 @@ jobs:
       - name: Package
         uses: ./.github/actions/runner-docker
         with:
-          script_name: widgets-packaging
+          script_name: ${{ matrix.path }}/widgets-packaging
           image_name: ${{ matrix.image }}
           image_version: ${{ env.version }}
           params: ${{ env.version }}.${{ steps.get_version.outputs.minor_version }} ${{ steps.get_version.outputs.release }}

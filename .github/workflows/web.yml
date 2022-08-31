@@ -123,7 +123,7 @@ jobs:
           - project: run-centreon-business-centreon
             distrib: centos7
             distrib_rpm: el7
-            module_name: centreon
+            module_name: web
 
     steps:
       - name: Checkout sources
