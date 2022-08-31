@@ -27,35 +27,35 @@
                 </thead>
                 <tbody>
                     <tr>
-                        <td> <span class="ListColCenter state_badge" style="background:#87BD23"></span> <b> Ok </b> </td>
+                        <td> <span class="ListColCenter state_badge service_ok" ></span> <b> Ok </b> </td>
                         <td> {$services.OK.value} </td>
                         <td> {$services.OK.acknowledged} </td>
                         <td> {$services.OK.downtime} </td>
                         <td> {$services.OK.percent}</td>
                     </tr>
                     <tr>
-                        <td> <span class="ListColCenter state_badge" style="background:#FF9913"></span> <b> Warning </b> </td>
+                        <td> <span class="ListColCenter state_badge service_warning" ></span> <b> Warning </b> </td>
                         <td> {$services.WARNING.value} </td>
                         <td> {$services.WARNING.acknowledged} </td>
                         <td> {$services.WARNING.downtime} </td>
                         <td> {$services.WARNING.percent} </td>
                     </tr>
                     <tr>
-                        <td> <span class="ListColCenter state_badge" style="background:#ED1C24"></span> <b> Critical </b> </td>
+                        <td> <span class="ListColCenter state_badge service_critical" ></span> <b> Critical </b> </td>
                         <td> {$services.CRITICAL.value} </td>
                         <td> {$services.CRITICAL.acknowledged}</td>
                         <td> {$services.CRITICAL.downtime}</td>
                         <td> {$services.CRITICAL.percent}</td>
                     </tr>
                     <tr>
-                        <td> <span class="ListColCenter state_badge" style="background:#CDCDCD"></span> <b> Unknown </b> </td>
+                        <td> <span class="ListColCenter state_badge service_unknown" ></span> <b> Unknown </b> </td>
                         <td> {$services.UNKNOWN.value} </td>
                         <td> {$services.UNKNOWN.acknowledged} </td>
                         <td> {$services.UNKNOWN.downtime} </td>
                         <td> {$services.UNKNOWN.percent} </td>
                     </tr>
                     <tr>
-                        <td> <span class="ListColCenter state_badge" style="background:#2AD1D4"></span> <b> Pending </b> </td>
+                        <td> <span class="ListColCenter state_badge pending" ></span> <b> Pending </b> </td>
                         <td> {$services.PENDING.value} </td>
                         <td> {$services.PENDING.acknowledged} </td>
                         <td> {$services.PENDING.downtime} </td>
@@ -113,7 +113,7 @@
                 },
                 labels:['Ok', 'Warning', 'Critical','Unknown', 'Pending'],
                 series:[OK, WARNING, CRITICAL,UNKNOWN, PENDING],
-                colors:['#87BD23','#FF9913', '#ED1C24', '#CDCDCD','#2AD1D4']
+                colors:['#88B922','#C49B27', '#FF4A4A', '#bcbdc0','#1EBEB3']
             };
             //The legend appear when the user hide the table because the table include it originally
             {/literal}{if $preferences.hide_table}

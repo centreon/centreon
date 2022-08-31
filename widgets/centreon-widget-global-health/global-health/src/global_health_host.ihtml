@@ -26,15 +26,15 @@
                 </thead>
                 <tbody>
                     <tr>
-                        <td> <span class="ListColCenter state_badge" style="background:#87BD23"></span> <b> Up </b> </td>
+                        <td> <span class="ListColCenter state_badge host_up" ></span> <b> Up </b> </td>
                         <td> {$hosts.UP.value} </td>
                         <td> {$hosts.UP.acknowledged} </td>
                         <td> {$hosts.UP.downtime} </td>
-                        <td> {$hosts.UP.percent} </td>
+                        <td> {$hosts.UP.percent}  </td>
                     </tr>
                     <tr>
 
-                        <td> <span class="ListColCenter state_badge" style="background:#ED1C24"></span> <b> Down </b> </td>
+                        <td> <span class="ListColCenter state_badge host_down" ></span> <b> Down </b> </td>
                         <td> {$hosts.DOWN.value} </td>
                         <td> {$hosts.DOWN.acknowledged} </td>
                         <td> {$hosts.DOWN.downtime} </td>
@@ -42,14 +42,14 @@
                     </tr>
                     <tr>
 
-                        <td> <span class="ListColCenter state_badge" style="background: #CDCDCD "></span> <b> Unreachable </b> </td>
+                        <td> <span class="ListColCenter state_badge host_unreachable" ></span> <b> Unreachable </b> </td>
                         <td> {$hosts.UNREACHABLE.value} </td>
                         <td> {$hosts.UNREACHABLE.acknowledged} </td>
                         <td> {$hosts.UNREACHABLE.downtime} </td>
                         <td> {$hosts.UNREACHABLE.percent} </td>
                     </tr>
                     <tr>
-                        <td> <span class="ListColCenter state_badge" style="background:#2AD1D4 "></span> <b> Pending </b> </td>
+                        <td> <span class="ListColCenter state_badge pending" ></span> <b> Pending </b> </td>
                         <td> {$hosts.PENDING.value} </td>
                         <td> {$hosts.PENDING.acknowledged} </td>
                         <td> {$hosts.PENDING.downtime} </td>
@@ -106,7 +106,7 @@
                 },
                 labels:['Up', 'Down', 'Unreachable', 'Pending'],
                 series:[UP, DOWN, UNREACHABLE, PENDING],
-                colors:['#87BD23', '#ED1C24', '#CDCDCD','#2AD1D4']
+                colors:['#88B922', '#FF4A4A', '#757575','#1EBEB3']
             };
             //The legend appear when the user hide the table because the table include it originally
             {/literal}{if $preferences.hide_table}
