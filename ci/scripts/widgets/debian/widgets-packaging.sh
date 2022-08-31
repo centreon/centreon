@@ -2,11 +2,11 @@
 
 set -ex
 
-VERSION="22.10.0"
-now=$(date +%s)
-DISTRIB="1"
-COMMIT=$(cd /src && git log -1 HEAD --pretty=format:%h)
-export RELEASE="$DISTRIB+$now.$COMMIT"
+VERSION=$1
+COMMIT=$2
+now=`date +%s`
+
+export RELEASE="$now.$COMMIT"
 
 AUTHOR="Luiz Costa"
 AUTHOR_EMAIL="me@luizgustavo.pro.br"

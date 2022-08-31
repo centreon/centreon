@@ -2,8 +2,11 @@
 
 set -ex
 
-VERSION="22.10.0"
-now=$(date +%s)
+VERSION=$1
+COMMIT=$2
+now=`date +%s`
+
+export RELEASE="$now.$COMMIT"
 
 if [ ! -d /root/rpmbuild/SOURCES ] ; then
     mkdir -p /root/rpmbuild/{BUILD,BUILDROOT,RPMS,SOURCES,SPECS,SRPMS}
@@ -18,20 +21,14 @@ ls -1 | sed '/centreon-widget.spectemplate/d' | while read PROJECT; do
     rm -rf /root/rpmbuild/RPMS/*
     cd $PROJECT
     export WIDGET="$(echo $PROJECT | sed 's/centreon-widget-//')"
-    COMMIT=$(git log -1 HEAD --pretty=format:%h)
-    export RELEASE="$now.$COMMIT"
     export SUMMARY="$(find . -name configs.xml | xargs sed -n 's|\s*<description>\(.*\)</description>|\1|p'
  2>/dev/null)"
-    sed \
-        -e "s/@PROJECT@/$PROJECT/g" \
-        -e "s/@WIDGET@/$WIDGET/g" \
-        -e "s/@VERSION@/$VERSION/g" \
-        -e "s/@RELEASE@/$RELEASE/g" \
-        -e "s/@SUMMARY@/$SUMMARY/g" \
-        ../centreon-widget.spectemplate > $PROJECT.spectemplate
-    rpmbuild -ba $PROJECT.spectemplate \
+    rpmbuild -ba centreon-widget.spectemplate \
         -D "VERSION $VERSION" \
-        -D "RELEASE $RELEASE"
+        -D "RELEASE $RELEASE" \
+        -D "SUMMARY $SUMMARY" \
+        -D "PROJECT $PROJECT" \
+        -D "WIDGET_SUB_DIR $WIDGET"
     cp -r /root/rpmbuild/RPMS/noarch/*.rpm .
     chmod 777 *.rpm
     cd ..
