@@ -27,7 +27,7 @@ ls -1 | sed '/centreon-widget.spectemplate/d' | while read PROJECT; do
         -D "VERSION $VERSION" \
         -D "RELEASE $RELEASE" \
         -D "SUMMARY $SUMMARY" \
-        -D "PROJECT $PROJECT" \
+        -D "NAME $PROJECT" \
         -D "WIDGET $WIDGET"
     cp -r /root/rpmbuild/RPMS/noarch/*.rpm .
     chmod 777 *.rpm
