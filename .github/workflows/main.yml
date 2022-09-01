@@ -78,7 +78,7 @@ jobs:
   web-packaging:
     needs: filters
     if: ${{ needs.filters.outputs.centreon-web == 'true' }}
-    uses: ./.github/workflows/centreon-web.yml
+    uses: ./.github/workflows/docker-builder-packaging-web.yml
     with:
       module_name: centreon-web
       version: "22.10"
