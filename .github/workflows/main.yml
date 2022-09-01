@@ -12,7 +12,7 @@ jobs:
     runs-on: common
     outputs:
       frontend: ${{ steps.filter.outputs.frontend }}
-      web: ${{ steps.filter.outputs.web }}
+      centreon-web: ${{ steps.filter.outputs.centreon-web }}
       widgets: ${{ steps.filter.outputs.widgets }}
     steps:
       - name: Checkout Repository
@@ -70,7 +70,7 @@ jobs:
       - name: Test Web
         uses: ./.github/actions/centreon-build
         with:
-          module_name: web
+          module_name: centreon-web
           image_name: ${{ matrix.image }}
           image_version: ${{ matrix.version }}
           step: test
@@ -80,7 +80,7 @@ jobs:
     if: ${{ needs.filters.outputs.centreon-web == 'true' }}
     uses: ./.github/workflows/module_workflow.yml
     with:
-      module_name: web
+      module_name: centreon-web
       version: "22.10"
     secrets:
       nexus_username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
@@ -97,7 +97,7 @@ jobs:
             distrib: centos7
             distrib_rpm: el7
             version: "22.10"
-            module_name: web
+            module_name: centreon-web
 
     steps:
       - name: Checkout sources
