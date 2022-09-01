@@ -75,8 +75,7 @@ jobs:
           step: test
 
   web-packaging:
-    needs: filters
-    if: ${{ needs.filters.outputs.centreon-web == 'true' }}
+    needs: [create-and-push-docker-web]
     uses: ./.github/workflows/docker-builder-packaging-web.yml
     with:
       module_name: centreon-web
@@ -86,9 +85,9 @@ jobs:
       nexus_password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
 
   create-and-push-docker-web:
-    needs: [web-packaging]
+    needs: filters
+    if: ${{ needs.filters.outputs.centreon-web == 'true' }}
     runs-on: common
-    
     strategy:
       matrix:
         include:
@@ -118,9 +117,7 @@ jobs:
           module_name: ${{ matrix.module_name }}
 
   widgets-packaging:
-    needs: filters
-    if: ${{ needs.filters.outputs.widgets == 'true' }}
-
+    needs: [create-and-push-docker-widgets]
     uses: ./.github/workflows/docker-builder-packaging-widgets.yml
     with:
       module_name: widgets
@@ -130,9 +127,9 @@ jobs:
       nexus_password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
 
   create-and-push-docker-widgets:
-    needs: [widgets-packaging]
+    needs: filters
+    if: ${{ needs.filters.outputs.widgets == 'true' }}
     runs-on: common
-    
     strategy:
       matrix:
         include:
