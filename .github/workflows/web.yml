@@ -21,7 +21,7 @@ env:
 jobs:
   centreon-test:
     runs-on: common
-    
+    continue-on-error: true
     strategy:
       matrix:
         include:
