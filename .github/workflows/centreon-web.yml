@@ -95,10 +95,10 @@ jobs:
     strategy:
       matrix:
         include:
-          - module_name: web
+          - module_name: centreon-web
             distrib: el7
 
-          - module_name: web
+          - module_name: centreon-web
             distrib: el8
     steps:
       - name: Checkout sources
@@ -123,7 +123,7 @@ jobs:
           - project: run-centreon-open-source
             distrib: centos7
             distrib_rpm: el7
-            module_name: web
+            module_name: centreon-web
 
     steps:
       - name: Checkout sources
