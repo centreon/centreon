@@ -1,13 +1,12 @@
 import { Formik, FormikHelpers, FormikValues } from 'formik';
 import * as Yup from 'yup';
-
-import { makeStyles } from '@mui/styles';
+import { makeStyles } from 'tss-react/mui';
 
 import FormButtons from './FormButtons';
 import Inputs from './Inputs';
 import { Group, InputProps } from './Inputs/models';
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles()((theme) => ({
   formContainer: {
     margin: theme.spacing(2, 0, 0),
   },
@@ -43,7 +42,7 @@ const Form = <T extends object>({
   isCollapsible = false,
   groupDirection = GroupDirection.Vertical,
 }: Props<T>): JSX.Element => {
-  const classes = useStyles();
+  const { classes } = useStyles();
 
   if (isLoading) {
     return (

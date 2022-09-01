@@ -1,12 +1,8 @@
 import * as React from 'react';
 
-import clsx from 'clsx';
 import { equals } from 'ramda';
 import { Link } from 'react-router-dom';
-
-import makeStyles from '@mui/styles/makeStyles';
-import { Theme } from '@mui/material';
-import { CreateCSSProperties } from '@mui/styles';
+import { makeStyles } from 'tss-react/mui';
 
 import { ThemeMode } from '@centreon/ui-context';
 
@@ -22,8 +18,8 @@ interface StyleProps {
   counterRightTranslation?: number;
 }
 
-const useStyles = makeStyles<Theme, StyleProps>((theme) => {
-  return {
+const useStyles = makeStyles<StyleProps>()(
+  (theme, { counterRightTranslation }) => ({
     active: {
       backgroundColor: equals(theme.palette.mode, ThemeMode.dark)
         ? theme.palette.background.default
@@ -78,22 +74,18 @@ const useStyles = makeStyles<Theme, StyleProps>((theme) => {
       display: 'flex',
       position: 'relative',
     },
-
-    translateCountersNearToIcon: ({
-      counterRightTranslation,
-    }): CreateCSSProperties => ({
+    translateCountersNearToIcon: {
       position: 'relative',
       right: theme.spacing(counterRightTranslation || 0),
       [theme.breakpoints.down(768)]: {
         position: 'static',
       },
-    }),
-
+    },
     wrapMiddleIcon: {
       display: 'flex',
     },
-  };
-});
+  }),
+);
 
 interface IconHeaderProps {
   Icon: (props) => JSX.Element;
@@ -148,11 +140,11 @@ const SubmenuHeader = ({
   counterRightTranslation,
   ...props
 }: Props): JSX.Element => {
-  const classes = useStyles({ counterRightTranslation });
+  const { classes, cx } = useStyles({ counterRightTranslation });
 
   return (
     <div
-      className={clsx(classes.top, {
+      className={cx(classes.top, {
         [classes.active]: active,
       })}
       {...props}
@@ -173,7 +165,7 @@ const SubmenuHeader = ({
           {counters?.map(({ testId, to, onClick, count, severityCode }) => {
             return (
               <Link
-                className={clsx(classes.link, classes.wrapMiddleIcon)}
+                className={cx(classes.link, classes.wrapMiddleIcon)}
                 data-testid={testId}
                 key={to}
                 to={to}
@@ -193,7 +185,7 @@ const SubmenuHeader = ({
       </div>
 
       <div
-        className={clsx({
+        className={cx({
           [classes.submenuDisplayed]: toggled,
           [classes.submenu]: true,
         })}

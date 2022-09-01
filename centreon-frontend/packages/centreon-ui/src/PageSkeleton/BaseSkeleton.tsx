@@ -1,11 +1,12 @@
+import { makeStyles } from 'tss-react/mui';
+
 import { SkeletonProps } from '@mui/material';
-import makeStyles from '@mui/styles/makeStyles';
 
 import LoadingSkeleton from '../LoadingSkeleton';
 
 import { PageSkeletonProps } from '.';
 
-export const useSkeletonStyles = makeStyles((theme) => ({
+export const useSkeletonStyles = makeStyles()((theme) => ({
   skeletonLayout: {
     borderRadius: theme.spacing(0.5),
   },
@@ -15,7 +16,7 @@ const BaseRectSkeleton = ({
   animate,
   ...props
 }: Pick<PageSkeletonProps, 'animate'> & SkeletonProps): JSX.Element => {
-  const classes = useSkeletonStyles();
+  const { classes } = useSkeletonStyles();
 
   return (
     <LoadingSkeleton

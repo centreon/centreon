@@ -2,8 +2,9 @@
 
 import { useState } from 'react';
 
+import { makeStyles } from 'tss-react/mui';
+
 import { Typography, Paper, Button, Tab } from '@mui/material';
-import makeStyles from '@mui/styles/makeStyles';
 import { grey } from '@mui/material/colors';
 
 import Listing from '../Listing';
@@ -17,7 +18,7 @@ import ListingPage from '.';
 
 export default { title: 'Listing Page' };
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles()((theme) => ({
   autoComplete: {
     width: 250,
   },
@@ -116,7 +117,7 @@ const listing = (
 );
 
 const FilterSummary = (): JSX.Element => {
-  const classes = useStyles();
+  const { classes } = useStyles();
 
   return (
     <div className={classes.filterSummary}>
@@ -137,7 +138,7 @@ interface FilterWithOpenButton {
 const FilterWithOpenButton = ({
   onOpen = (): undefined => undefined,
 }: FilterWithOpenButton): JSX.Element => {
-  const classes = useStyles();
+  const { classes } = useStyles();
 
   return (
     <Filter
@@ -153,7 +154,7 @@ const FilterWithOpenButton = ({
 };
 
 const DetailsPanelContent = (): JSX.Element => {
-  const classes = useStyles();
+  const { classes } = useStyles();
 
   return (
     <div className={classes.detailsPanel}>
@@ -221,7 +222,7 @@ interface PanelProps {
 }
 
 const DetailsPanelHeader = (): JSX.Element => {
-  const classes = useStyles();
+  const { classes } = useStyles();
 
   return (
     <div className={classes.detailsPanelHeader}>

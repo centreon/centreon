@@ -1,7 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { isNil, not } from 'ramda';
-
-import makeStyles from '@mui/styles/makeStyles';
+import { makeStyles } from 'tss-react/mui';
 
 import { ListingProps } from '../..';
 import { labelOf, labelRowsPerPage } from '../translatedLabels';
@@ -10,7 +9,7 @@ import StyledPagination from './Pagination';
 import PaginationActions from './PaginationActions';
 import ColumnMultiSelect from './ColumnMultiSelect';
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles()((theme) => ({
   actions: {
     padding: theme.spacing(1),
   },
@@ -54,7 +53,7 @@ const ListingActionBar = ({
   onResetColumns,
   onSelectColumns,
 }: Props): JSX.Element | null => {
-  const classes = useStyles();
+  const { classes } = useStyles();
   const { t } = useTranslation();
 
   const changeRowPerPage = (event): void => {

@@ -1,9 +1,10 @@
+import { makeStyles } from 'tss-react/mui';
+
 import { Grid, Button, Typography, CircularProgress } from '@mui/material';
-import makeStyles from '@mui/styles/makeStyles';
 
 import { ActionsBarProps } from './models';
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles()((theme) => ({
   container: {
     bottom: 0,
     position: 'sticky',
@@ -23,7 +24,7 @@ const ActionsBar = ({
   isSubmitting,
   actionsBarLabels,
 }: ActionsBarProps): JSX.Element => {
-  const classes = useStyles();
+  const { classes } = useStyles();
 
   const preventEnterKey = (keyEvent): void => {
     if ((keyEvent.charCode || keyEvent.keyCode) === 13) {

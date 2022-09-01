@@ -2,13 +2,12 @@ import { useEffect } from 'react';
 
 import { useFormikContext } from 'formik';
 import { equals } from 'ramda';
-
-import makeStyles from '@mui/styles/makeStyles';
+import { makeStyles } from 'tss-react/mui';
 
 import { WizardContentProps } from './models';
 import ActionsBar from './ActionsBar';
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles()((theme) => ({
   content: {
     height: '100%',
     overflow: 'auto',
@@ -32,7 +31,7 @@ const WizardContent = ({
   actionsBarLabels,
   goToNextStep,
 }: WizardContentProps): JSX.Element => {
-  const classes = useStyles();
+  const { classes } = useStyles();
   const { isSubmitting, isValid, dirty, handleSubmit, validateForm } =
     useFormikContext();
 

@@ -1,6 +1,7 @@
 import { useCallback, useState } from 'react';
 
 import { useTranslation } from 'react-i18next';
+import { makeStyles } from 'tss-react/mui';
 
 import {
   Collapse,
@@ -10,7 +11,6 @@ import {
   ListItemButton,
   Box,
 } from '@mui/material';
-import { makeStyles } from '@mui/styles';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import ExpandMore from '@mui/icons-material/ExpandMore';
 
@@ -24,7 +24,7 @@ interface Props {
   isCollapsible: boolean;
 }
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles()((theme) => ({
   expandCollapseIcon: {
     justifySelf: 'flex-end',
   },
@@ -52,7 +52,7 @@ const CollapsibleGroup = ({
   hasGroupTitle,
   defaultIsOpen = false,
 }: Props): JSX.Element => {
-  const classes = useStyles();
+  const { classes } = useStyles();
   const { t } = useTranslation();
 
   const [isOpen, setIsOpen] = useState(isCollapsible && defaultIsOpen);

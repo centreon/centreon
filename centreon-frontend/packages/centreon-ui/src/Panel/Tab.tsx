@@ -1,9 +1,10 @@
+import { makeStyles } from 'tss-react/mui';
+
 import { Tab as MuiTab, TabProps } from '@mui/material';
-import makeStyles from '@mui/styles/makeStyles';
 
 const minTabHeight = 40;
 
-const useStyles = makeStyles(() => ({
+const useStyles = makeStyles()(() => ({
   tab: {
     minHeight: minTabHeight,
     minWidth: 'unset',
@@ -13,7 +14,7 @@ const useStyles = makeStyles(() => ({
 }));
 
 const Tab = (props: TabProps): JSX.Element => {
-  const classes = useStyles();
+  const { classes } = useStyles();
 
   return <MuiTab className={classes.tab} {...props} />;
 };

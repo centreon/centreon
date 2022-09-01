@@ -1,11 +1,10 @@
 import { ReactElement } from 'react';
 
-import clsx from 'clsx';
+import { makeStyles } from 'tss-react/mui';
 
 import { CircularProgress } from '@mui/material';
-import makeStyles from '@mui/styles/makeStyles';
 
-const useStyles = makeStyles(() => ({
+const useStyles = makeStyles()(() => ({
   alignCenter: {
     alignItems: 'center',
     display: 'grid',
@@ -28,11 +27,11 @@ const ContentWithCircularLoading = ({
   loadingIndicatorSize = undefined,
   alignCenter = true,
 }: Props): JSX.Element => {
-  const classes = useStyles();
+  const { classes, cx } = useStyles();
 
   if (loading) {
     return (
-      <div className={clsx({ [classes.alignCenter]: alignCenter })}>
+      <div className={cx({ [classes.alignCenter]: alignCenter })}>
         <CircularProgress size={loadingIndicatorSize} />
       </div>
     );

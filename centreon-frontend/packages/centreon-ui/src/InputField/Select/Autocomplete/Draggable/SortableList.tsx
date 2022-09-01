@@ -1,9 +1,9 @@
 import { map, find, propEq } from 'ramda';
 import { rectIntersection } from '@dnd-kit/core';
 import { rectSortingStrategy } from '@dnd-kit/sortable';
+import { makeStyles } from 'tss-react/mui';
 
 import { lighten } from '@mui/material';
-import makeStyles from '@mui/styles/makeStyles';
 
 import { SelectEntry } from '../..';
 import SortableItems from '../../../../SortableItems';
@@ -24,7 +24,7 @@ export interface SortableListProps {
   items: Array<DraggableSelectEntry>;
 }
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles()((theme) => ({
   createdTag: {
     backgroundColor: lighten(theme.palette.primary.main, 0.7),
   },
@@ -40,7 +40,7 @@ const SortableList = ({
   itemClick,
   itemHover,
 }: SortableListProps): JSX.Element => {
-  const classes = useStyles();
+  const { classes } = useStyles();
 
   const dragEnd = ({ items: newItems }): void =>
     changeItemsOrder(

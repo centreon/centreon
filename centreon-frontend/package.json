@@ -30,7 +30,7 @@
     "@mui/icons-material": "^5.6.2",
     "@mui/lab": "^5.0.0-alpha.80",
     "@mui/material": "^5.6.4",
-    "@mui/styles": "^5.6.2",
+    "@mui/styles": "^5.10.2",
     "anylogger": "^1.0.11",
     "axios": "^0.27.2",
     "clsx": "^1.1.1",
@@ -59,6 +59,8 @@
   "peerDependencies": {
     "@swc/core": "1.x",
     "@swc/jest": "0.x",
+    "@tanstack/react-query": "4.x",
+    "@tanstack/react-query-devtools": "4.x",
     "@testing-library/jest-dom": "5.x",
     "@testing-library/react": "13.x",
     "@types/ramda": "0.28.x",
@@ -84,10 +86,9 @@
     "jest-fetch-mock": "^3.x",
     "jotai": "^1.6.5",
     "prettier": "2.x",
-    "@tanstack/react-query": "4.x",
-    "@tanstack/react-query-devtools": "4.x",
     "resolve-url-loader": "5.x",
     "swc-loader": "0.x",
+    "tss-react": "4.x",
     "typescript": "4.x",
     "webpack-merge": "5.x"
   }

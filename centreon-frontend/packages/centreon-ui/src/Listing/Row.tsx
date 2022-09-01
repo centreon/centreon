@@ -3,9 +3,9 @@
 import { memo, useRef, useEffect } from 'react';
 
 import { equals, gte, lt, not, pluck } from 'ramda';
+import { makeStyles } from 'tss-react/mui';
 
-import { TableRowProps, TableRow, Theme, useTheme } from '@mui/material';
-import makeStyles from '@mui/styles/makeStyles';
+import { TableRowProps, TableRow, useTheme } from '@mui/material';
 
 import { useViewportIntersection } from '../utils/useViewportIntersection';
 import LoadingSkeleton from '../LoadingSkeleton';
@@ -14,7 +14,7 @@ import { Column, ColumnConfiguration, RowColorCondition } from './models';
 
 import { performanceRowsLimit } from '.';
 
-const useStyles = makeStyles<Theme>((theme) => {
+const useStyles = makeStyles()((theme) => {
   return {
     intersectionRow: {
       display: 'contents',
@@ -68,7 +68,7 @@ const Row = memo<RowProps>(
     checkable,
     limit,
   }: RowProps): JSX.Element => {
-    const classes = useStyles();
+    const { classes } = useStyles();
 
     if (not(isInViewport) && gte(limit, performanceRowsLimit)) {
       return (
@@ -184,7 +184,7 @@ const IntersectionRow = (props: Props): JSX.Element => {
     root: rowRef.current?.parentElement?.parentElement?.parentElement,
     rootMargin: `${theme.spacing(20)} 0px ${theme.spacing(20)} 0px`,
   });
-  const classes = useStyles();
+  const { classes } = useStyles();
 
   const getFirstCellElement = (): ChildNode | null | undefined =>
     rowRef.current?.firstChild?.firstChild?.firstChild;

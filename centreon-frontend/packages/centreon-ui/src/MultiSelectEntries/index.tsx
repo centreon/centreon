@@ -2,17 +2,16 @@
 
 import { Ref } from 'react';
 
-import clsx from 'clsx';
+import { makeStyles } from 'tss-react/mui';
 
 import { Box, Chip, Grid, FormHelperText, Typography } from '@mui/material';
-import makeStyles from '@mui/styles/makeStyles';
 import IconCreate from '@mui/icons-material/Create';
 
 import useHover from './useHover';
 
 const maxChips = 5;
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles()((theme) => ({
   chip: {
     backgroundColor: theme.palette.action.disabledBackground,
     marginTop: theme.spacing(1),
@@ -50,7 +49,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const Entry = ({ label }): JSX.Element => {
-  const classes = useStyles();
+  const { classes } = useStyles();
 
   return (
     <Grid item xs={6}>
@@ -64,7 +63,7 @@ const Entry = ({ label }): JSX.Element => {
 };
 
 const EmptyEntry = ({ label }): JSX.Element => {
-  const classes = useStyles();
+  const { classes } = useStyles();
 
   return (
     <div className={classes.emptyChip}>
@@ -74,7 +73,7 @@ const EmptyEntry = ({ label }): JSX.Element => {
 };
 
 const Caption = ({ children }): JSX.Element => {
-  const classes = useStyles();
+  const { classes } = useStyles();
 
   return (
     <Typography className={classes.text} variant="caption">
@@ -105,7 +104,7 @@ const MultiSelectEntries = ({
   highlight = false,
   error = undefined,
 }: Props): JSX.Element => {
-  const classes = useStyles();
+  const { classes, cx } = useStyles();
 
   const [hoverRef, isHovered] = useHover();
 
@@ -115,7 +114,7 @@ const MultiSelectEntries = ({
 
   return (
     <div
-      className={clsx({
+      className={cx({
         [classes.hovered]: isHovered || highlight,
         [classes.container]: true,
       })}
@@ -131,7 +130,7 @@ const MultiSelectEntries = ({
         </Box>
         <Box>
           <IconCreate
-            className={clsx(
+            className={cx(
               { [classes.hidden]: !isHovered && !highlight },
               classes.icon,
             )}

@@ -26,8 +26,8 @@ import {
   uniqBy,
 } from 'ramda';
 import { useTranslation } from 'react-i18next';
+import { makeStyles } from 'tss-react/mui';
 
-import makeStyles from '@mui/styles/makeStyles';
 import {
   Table,
   TableBody,
@@ -76,7 +76,7 @@ const getVisibleColumns = ({
 
 const loadingIndicatorHeight = 3;
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles()((theme) => ({
   actionBar: {
     alignItems: 'center',
     display: 'flex',
@@ -178,7 +178,7 @@ const Listing = <TRow extends { id: RowId }>({
   headerMemoProps = [],
   predefinedRowsSelection = [],
 }: Props<TRow>): JSX.Element => {
-  const classes = useStyles();
+  const { classes } = useStyles();
   const { t } = useTranslation();
 
   const [tableTopOffset, setTableTopOffset] = React.useState(0);

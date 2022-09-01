@@ -1,13 +1,13 @@
 import { ReactElement, useState } from 'react';
 
 import { isNil, cond, T } from 'ramda';
+import { makeStyles } from 'tss-react/mui';
 
 import { Tooltip, IconButton } from '@mui/material';
-import makeStyles from '@mui/styles/makeStyles';
 import IconHelp from '@mui/icons-material/HelpOutline';
 import IconClose from '@mui/icons-material/HighlightOff';
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles()((theme) => ({
   buttonClose: {
     position: 'absolute',
     right: theme.spacing(0.5),
@@ -37,7 +37,7 @@ const PersistentTooltip = ({
   toggleTooltip: toggleTooltipProp,
   closeTooltip: closeTooltipProp,
 }: Props): JSX.Element => {
-  const classes = useStyles();
+  const { classes } = useStyles();
 
   const [open, setOpen] = useState(openTooltip || false);
 

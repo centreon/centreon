@@ -9,11 +9,10 @@ import {
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
 import { not } from 'ramda';
+import { makeStyles } from 'tss-react/mui';
 
-import { Paper, Theme, Typography, Grid, IconButton } from '@mui/material';
-import makeStyles from '@mui/styles/makeStyles';
+import { Paper, Typography, Grid, IconButton } from '@mui/material';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
-import { CreateCSSProperties } from '@mui/styles';
 
 import SortableItems, { RootComponentProps } from '.';
 
@@ -61,29 +60,31 @@ const items: Array<Entity> = [
   },
 ];
 
-const useContentStyles = makeStyles<Theme, { isDragging: boolean }>(
-  (theme) => ({
-    content: ({ isDragging }): CreateCSSProperties => ({
-      '&:hover': {
-        boxShadow: theme.shadows[3],
-      },
-      cursor: isDragging ? 'grabbing' : 'grab',
-      padding: theme.spacing(1),
-    }),
-    contentWithHandler: {
-      '&:hover': {
-        boxShadow: theme.shadows[3],
-      },
-      display: 'grid',
-      gridTemplateColumns: 'min-content auto',
-      padding: theme.spacing(1),
-    },
+interface StylesProps {
+  isDragging: boolean;
+}
 
-    handler: ({ isDragging }): CreateCSSProperties => ({
-      cursor: isDragging ? 'grabbing' : 'grab',
-    }),
-  }),
-);
+const useContentStyles = makeStyles<StylesProps>()((theme, { isDragging }) => ({
+  content: {
+    '&:hover': {
+      boxShadow: theme.shadows[3],
+    },
+    cursor: isDragging ? 'grabbing' : 'grab',
+    padding: theme.spacing(1),
+  },
+  contentWithHandler: {
+    '&:hover': {
+      boxShadow: theme.shadows[3],
+    },
+    display: 'grid',
+    gridTemplateColumns: 'min-content auto',
+    padding: theme.spacing(1),
+  },
+
+  handler: {
+    cursor: isDragging ? 'grabbing' : 'grab',
+  },
+}));
 
 interface ContentProps extends Entity {
   attributes;
@@ -101,7 +102,7 @@ const Content = ({
   itemRef,
   name,
 }: ContentProps): JSX.Element => {
-  const classes = useContentStyles({ isDragging });
+  const { classes } = useContentStyles({ isDragging });
 
   return (
     <Paper
@@ -125,7 +126,7 @@ const ContentWithHandler = ({
   itemRef,
   name,
 }: ContentProps): JSX.Element => {
-  const classes = useContentStyles({ isDragging });
+  const { classes } = useContentStyles({ isDragging });
 
   return (
     <div style={style}>
@@ -143,7 +144,7 @@ const ContentWithHandler = ({
   );
 };
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles()((theme) => ({
   gridContainer: {
     columnGap: theme.spacing(1),
     display: 'grid',
@@ -179,7 +180,7 @@ const Story = ({
   sortingStrategy,
   handler = false,
 }: StoryProps): JSX.Element => {
-  const classes = useStyles();
+  const { classes } = useStyles();
 
   return (
     <div className={classes[direction]}>
@@ -227,7 +228,7 @@ const ContentWithGrid = ({
   name,
   xs,
 }: ContentProps): JSX.Element => {
-  const classes = useContentStyles({ isDragging });
+  const { classes } = useContentStyles({ isDragging });
 
   return (
     <Grid item style={style} xs={xs} {...listeners} {...attributes}>
@@ -253,7 +254,7 @@ const RootComponent = ({
 );
 
 const StoryWithRootComponent = (): JSX.Element => {
-  const classes = useStyles();
+  const { classes } = useStyles();
 
   return (
     <div className={classes.verticalContainer}>

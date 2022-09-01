@@ -3,9 +3,9 @@ import { useState } from 'react';
 
 import { ComponentMeta, ComponentStory } from '@storybook/react';
 import { prop } from 'ramda';
+import { makeStyles } from 'tss-react/mui';
 
 import { Button } from '@mui/material';
-import makeStyles from '@mui/styles/makeStyles';
 import { grey } from '@mui/material/colors';
 
 import { ListingProps } from '..';
@@ -26,7 +26,7 @@ export default {
   title: 'Listing',
 } as ComponentMeta<typeof Listing>;
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles()((theme) => ({
   listing: {
     backgroundColor: theme.palette.background.default,
   },
@@ -136,7 +136,7 @@ const Story = ({
 }: Omit<ListingProps<Entity>, 'columns'> & {
   columns?: Array<Column>;
 }): JSX.Element => {
-  const classes = useStyles();
+  const { classes } = useStyles();
   const [selected, setSelected] = useState<Array<Entity>>([]);
 
   return (

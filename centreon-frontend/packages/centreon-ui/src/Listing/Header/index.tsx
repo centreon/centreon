@@ -3,6 +3,7 @@ import * as React from 'react';
 import { equals, find, isEmpty, map, not, pick, propEq } from 'ramda';
 import { DraggableSyntheticListeners, rectIntersection } from '@dnd-kit/core';
 import { rectSortingStrategy } from '@dnd-kit/sortable';
+import { withStyles, makeStyles } from 'tss-react/mui';
 
 import {
   TableHead,
@@ -10,8 +11,6 @@ import {
   TableCell,
   TableCellBaseProps,
 } from '@mui/material';
-import withStyles from '@mui/styles/withStyles';
-import makeStyles from '@mui/styles/makeStyles';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 
 import Checkbox from '../Checkbox';
@@ -25,14 +24,14 @@ import PredefinedSelectionList from './PredefinedSelectionList';
 
 const height = 28;
 
-const HeaderCell = withStyles((theme) => ({
+const HeaderCell = withStyles(TableCell, (theme) => ({
   root: {
     height,
     padding: theme.spacing(0),
   },
-}))(TableCell);
+}));
 
-const CheckboxHeaderCell = withStyles((theme) => ({
+const CheckboxHeaderCell = withStyles(TableCell, (theme) => ({
   root: {
     backgroundColor: theme.palette.background.paper,
     borderBottom: `1px solid ${theme.palette.text.primary}`,
@@ -41,9 +40,9 @@ const CheckboxHeaderCell = withStyles((theme) => ({
     height,
     padding: theme.spacing(0, 0, 0, 0.5),
   },
-}))(TableCell);
+}));
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles()((theme) => ({
   compactCell: {
     paddingLeft: theme.spacing(0.5),
   },
@@ -102,7 +101,7 @@ const ListingHeader = ({
   onSelectRowsWithCondition,
   memoProps,
 }: Props): JSX.Element => {
-  const classes = useStyles();
+  const { classes } = useStyles();
 
   const visibleColumns = getVisibleColumns({
     columnConfiguration,

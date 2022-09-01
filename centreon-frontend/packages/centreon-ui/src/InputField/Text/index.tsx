@@ -1,7 +1,7 @@
 import * as React from 'react';
 
-import clsx from 'clsx';
 import { equals, isNil, not } from 'ramda';
+import { makeStyles } from 'tss-react/mui';
 
 import {
   TextField as MuiTextField,
@@ -10,14 +10,13 @@ import {
   Theme,
   Tooltip,
 } from '@mui/material';
-import makeStyles from '@mui/styles/makeStyles';
 
 enum Size {
   compact = 'compact',
   small = 'small',
 }
 
-const useStyles = makeStyles((theme: Theme) => ({
+const useStyles = makeStyles()((theme: Theme) => ({
   compact: {
     fontSize: 'x-small',
     padding: theme.spacing(0.75),
@@ -83,7 +82,7 @@ const TextField = React.forwardRef(
     }: Props,
     ref: React.ForwardedRef<HTMLDivElement>,
   ): JSX.Element => {
-    const classes = useStyles();
+    const { classes, cx } = useStyles();
 
     const isSizeEqualTo = (sizeToCompare: Size): boolean =>
       equals(size, sizeToCompare);
@@ -94,7 +93,7 @@ const TextField = React.forwardRef(
         <MuiTextField
           InputProps={{
             ...rest.InputProps,
-            className: clsx({
+            className: cx({
               [classes.transparent]: transparent,
             }),
             disableUnderline: true,
@@ -114,7 +113,7 @@ const TextField = React.forwardRef(
           inputProps={{
             ...rest.inputProps,
             'aria-label': ariaLabel,
-            className: clsx(classes.input, {
+            className: cx(classes.input, {
               [classes.noLabelInput]:
                 !label && not(isSizeEqualTo(Size.compact)),
               [classes.small]: isSizeEqualTo(Size.small),

@@ -1,56 +1,51 @@
-import makeStyles from '@mui/styles/makeStyles';
-import { Typography, Theme } from '@mui/material';
-import { CreateCSSProperties } from '@mui/styles';
+import { makeStyles } from 'tss-react/mui';
 
-import { Colors, SeverityCode } from '../../../StatusChip';
+import { Typography } from '@mui/material';
+
+import { SeverityCode } from '../../../StatusChip';
 import { getStatusColors } from '../../..';
 
 export interface StyleProps {
   severityCode: SeverityCode;
 }
 
-const useStyles = makeStyles<Theme, StyleProps>((theme) => {
-  const getStatusIconColors = (severityCode: SeverityCode): Colors =>
-    getStatusColors({
+const useStyles = makeStyles<StyleProps>()((theme, { severityCode }) => ({
+  count: {
+    color: theme.palette.common.white,
+    fontSize: theme.typography.body1.fontSize,
+    lineHeight: '1',
+  },
+  statusCounter: {
+    background: getStatusColors({
       severityCode,
       theme,
-    });
-
-  return {
-    count: {
-      color: theme.palette.common.white,
-      fontSize: theme.typography.body1.fontSize,
-      lineHeight: '1',
+    })?.backgroundColor,
+    borderRadius: '50%',
+    height: theme.spacing(1),
+    width: theme.spacing(1),
+  },
+  submenuItem: {
+    '&:hover': {
+      background: theme.palette.grey[500],
     },
-    statusCounter: ({ severityCode }): CreateCSSProperties<StyleProps> => ({
-      background: getStatusIconColors(severityCode)?.backgroundColor,
-      borderRadius: '50%',
-      height: theme.spacing(1),
-      width: theme.spacing(1),
-    }),
-    submenuItem: {
-      '&:hover': {
-        background: theme.palette.grey[500],
-      },
-      alignItems: 'center',
-      borderBottom: `1px solid ${theme.palette.grey[500]}`,
-      display: 'flex',
-      justifyContent: 'space-between',
-      padding: theme.spacing(1, 0),
-      position: 'relative',
-      width: '100%',
-    },
-    title: {
-      alignItems: 'center',
-      color: theme.palette.common.white,
-      display: 'flex',
-    },
-    titleContent: {
-      lineHeight: '1',
-      marginLeft: theme.spacing(1.5),
-    },
-  };
-});
+    alignItems: 'center',
+    borderBottom: `1px solid ${theme.palette.grey[500]}`,
+    display: 'flex',
+    justifyContent: 'space-between',
+    padding: theme.spacing(1, 0),
+    position: 'relative',
+    width: '100%',
+  },
+  title: {
+    alignItems: 'center',
+    color: theme.palette.common.white,
+    display: 'flex',
+  },
+  titleContent: {
+    lineHeight: '1',
+    marginLeft: theme.spacing(1.5),
+  },
+}));
 
 interface Props {
   countTestId?: string;
@@ -67,7 +62,7 @@ const SubmenuItem = ({
   titleTestId,
   countTestId,
 }: Props): JSX.Element => {
-  const classes = useStyles({ severityCode });
+  const { classes } = useStyles({ severityCode });
 
   return (
     <li className={classes.submenuItem}>

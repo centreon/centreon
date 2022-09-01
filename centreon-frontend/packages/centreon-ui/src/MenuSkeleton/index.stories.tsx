@@ -1,6 +1,5 @@
 import { ComponentMeta, ComponentStory } from '@storybook/react';
-
-import makeStyles from '@mui/styles/makeStyles';
+import { makeStyles } from 'tss-react/mui';
 
 import MenuLoader from '.';
 
@@ -13,7 +12,7 @@ export default {
   title: 'Menu Skeleton',
 } as ComponentMeta<typeof MenuLoader>;
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles()((theme) => ({
   container: {
     backgroundColor: theme.palette.primary.main,
   },
@@ -24,7 +23,7 @@ interface Props {
 }
 
 const MenuLoaderStory = ({ width }: Props): JSX.Element => {
-  const classes = useStyles();
+  const { classes } = useStyles();
 
   return (
     <div className={classes.container}>

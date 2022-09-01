@@ -1,11 +1,11 @@
 import { useTranslation } from 'react-i18next';
+import { makeStyles } from 'tss-react/mui';
 
 import { alpha, Paper, Typography } from '@mui/material';
-import makeStyles from '@mui/styles/makeStyles';
 
 import { labelInvalidLicense } from './translatedLabels';
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles()((theme) => ({
   divWrapper: {
     alignItems: 'center',
     display: 'flex',
@@ -24,7 +24,7 @@ interface Props {
 }
 
 const LicenseMessage = ({ label }: Props): JSX.Element => {
-  const classes = useStyles();
+  const { classes } = useStyles();
   const { t } = useTranslation();
 
   return (

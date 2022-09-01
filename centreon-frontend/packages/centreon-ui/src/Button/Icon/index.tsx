@@ -1,11 +1,12 @@
+import { makeStyles } from 'tss-react/mui';
+
 import {
   IconButton as MuiIconButton,
   IconButtonProps,
   Tooltip,
 } from '@mui/material';
-import makeStyles from '@mui/styles/makeStyles';
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles()((theme) => ({
   button: {
     padding: theme.spacing(0.25),
   },
@@ -22,7 +23,7 @@ const IconButton = ({
   ariaLabel,
   ...props
 }: Props): JSX.Element => {
-  const classes = useStyles();
+  const { classes } = useStyles();
 
   return (
     <Tooltip aria-label={ariaLabel} title={title}>

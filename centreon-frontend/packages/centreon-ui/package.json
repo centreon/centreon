@@ -27,8 +27,8 @@
   },
   "homepage": "https://github.com/centreon/centreon-frontend#readme",
   "devDependencies": {
-    "@centreon/ui-context": "file:../ui-context",
     "@centreon/frontend-config": "file:../frontend-config",
+    "@centreon/ui-context": "file:../ui-context",
     "@storybook/addon-essentials": "^6.5.9",
     "@storybook/addon-storyshots": "^6.5.9",
     "@storybook/addon-storyshots-puppeteer": "^6.5.9",
@@ -83,6 +83,7 @@
   },
   "dependencies": {
     "@tanstack/react-query": "^4.0.10",
-    "@tanstack/react-query-devtools": "^4.0.10"
+    "@tanstack/react-query-devtools": "^4.0.10",
+    "tss-react": "^4.0.0"
   }
 }

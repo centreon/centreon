@@ -1,8 +1,8 @@
 import * as React from 'react';
 
-import makeStyles from '@mui/styles/makeStyles';
+import { makeStyles } from 'tss-react/mui';
 
-const useStyles = makeStyles({
+const useStyles = makeStyles()({
   submenuItems: {
     '& a:last-child li': {
       borderBottom: 'none',
@@ -18,7 +18,7 @@ interface Props {
 }
 
 const SubmenuItems = ({ children }: Props): JSX.Element => {
-  const classes = useStyles();
+  const { classes } = useStyles();
 
   return <ul className={classes.submenuItems}>{children}</ul>;
 };

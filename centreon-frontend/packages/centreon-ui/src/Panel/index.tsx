@@ -4,11 +4,10 @@
 import * as React from 'react';
 
 import { isEmpty, isNil } from 'ramda';
+import { makeStyles } from 'tss-react/mui';
 
-import { Paper, Slide, Divider, AppBar, Tabs, Theme } from '@mui/material';
-import makeStyles from '@mui/styles/makeStyles';
+import { Paper, Slide, Divider, AppBar, Tabs } from '@mui/material';
 import IconClose from '@mui/icons-material/Clear';
-import { CreateCSSProperties } from '@mui/styles';
 
 import IconButton from '../Button/Icon';
 
@@ -18,65 +17,66 @@ interface StylesProps extends Pick<Props, 'headerBackgroundColor' | 'width'> {
   hasTabs: boolean;
 }
 
-const useStyles = makeStyles<Theme, StylesProps>((theme) => ({
-  appBar: ({ hasTabs }): CreateCSSProperties => ({
-    borderBottomWidth: hasTabs ? 1 : 0,
-    borderLeft: 'none',
-    borderRight: 'none',
-    borderTop: 'none',
+const useStyles = makeStyles<StylesProps>()(
+  (theme, { hasTabs, width, headerBackgroundColor }) => ({
+    appBar: {
+      borderBottomWidth: hasTabs ? 1 : 0,
+      borderLeft: 'none',
+      borderRight: 'none',
+      borderTop: 'none',
+    },
+    body: {
+      display: 'grid',
+      gridArea: '3 / 1 / 4 / 1',
+      gridTemplateRows: 'auto 1fr',
+      height: '100%',
+    },
+    container: {
+      display: 'grid',
+      gridTemplate: 'auto auto 1fr / 1fr',
+      height: '100%',
+      overflow: 'hidden',
+      width,
+    },
+    content: {
+      bottom: 0,
+      left: 0,
+      overflow: 'auto',
+      position: 'absolute',
+      right: 0,
+      top: 0,
+    },
+    contentContainer: {
+      backgroundColor: theme.palette.background.paper,
+      position: 'relative',
+    },
+    divider: {
+      gridArea: '2 / 1 / 3 / 1',
+    },
+    dragger: {
+      bottom: 0,
+      cursor: 'ew-resize',
+      position: 'absolute',
+      right: width,
+      top: 0,
+      width: 5,
+      zIndex: theme.zIndex.drawer,
+    },
+    header: {
+      alignItems: 'center',
+      backgroundColor: headerBackgroundColor,
+      borderBottom: 'none',
+      display: 'grid',
+      gridArea: '1 / 1 / 2 / 1',
+      gridTemplateColumns: '1fr auto',
+      padding: theme.spacing(1),
+    },
+    tabs: {
+      backgroundColor: theme.palette.background.paper,
+      minHeight: minTabHeight,
+    },
   }),
-  body: {
-    display: 'grid',
-    gridArea: '3 / 1 / 4 / 1',
-    gridTemplateRows: 'auto 1fr',
-    height: '100%',
-  },
-  container: {
-    display: 'grid',
-    gridTemplate: 'auto auto 1fr / 1fr',
-    height: '100%',
-    overflow: 'hidden',
-    width: ({ width }): number | undefined => width,
-  },
-  content: {
-    bottom: 0,
-    left: 0,
-    overflow: 'auto',
-    position: 'absolute',
-    right: 0,
-    top: 0,
-  },
-  contentContainer: {
-    backgroundColor: theme.palette.background.paper,
-    position: 'relative',
-  },
-  divider: {
-    gridArea: '2 / 1 / 3 / 1',
-  },
-  dragger: {
-    bottom: 0,
-    cursor: 'ew-resize',
-    position: 'absolute',
-    right: ({ width }): number | undefined => width,
-    top: 0,
-    width: 5,
-    zIndex: theme.zIndex.drawer,
-  },
-  header: {
-    alignItems: 'center',
-    backgroundColor: ({ headerBackgroundColor }): string | undefined =>
-      headerBackgroundColor,
-    borderBottom: 'none',
-    display: 'grid',
-    gridArea: '1 / 1 / 2 / 1',
-    gridTemplateColumns: '1fr auto',
-    padding: theme.spacing(1),
-  },
-  tabs: {
-    backgroundColor: theme.palette.background.paper,
-    minHeight: minTabHeight,
-  },
-}));
+);
 
 export interface Tab {
   id: number;
@@ -114,7 +114,7 @@ const Panel = React.forwardRef(
     }: Props,
     ref,
   ): JSX.Element => {
-    const classes = useStyles({
+    const { classes } = useStyles({
       hasTabs: !isEmpty(tabs),
       headerBackgroundColor,
       width,

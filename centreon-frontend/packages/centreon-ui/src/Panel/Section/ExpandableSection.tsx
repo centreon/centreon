@@ -1,3 +1,5 @@
+import { makeStyles } from 'tss-react/mui';
+
 import {
   Typography,
   AccordionSummary,
@@ -7,10 +9,9 @@ import {
   AccordionProps,
   AccordionSummaryProps,
 } from '@mui/material';
-import makeStyles from '@mui/styles/makeStyles';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles()((theme) => ({
   details: {
     backgroundColor: theme.palette.background.paper,
     padding: theme.spacing(1, 3, 2),
@@ -58,7 +59,7 @@ interface Props {
 }
 
 const ExpandableSection = ({ title, children }: Props): JSX.Element => {
-  const classes = useStyles();
+  const { classes } = useStyles();
 
   return (
     <Section>

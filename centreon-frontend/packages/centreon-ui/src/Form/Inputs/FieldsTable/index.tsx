@@ -2,9 +2,9 @@ import { FormikValues, useFormikContext } from 'formik';
 import { equals, length, pick, pipe, prop, type } from 'ramda';
 import { useAtomValue } from 'jotai';
 import { useTranslation } from 'react-i18next';
+import { makeStyles } from 'tss-react/mui';
 
-import { FormHelperText, Theme, Typography } from '@mui/material';
-import { CreateCSSProperties, makeStyles } from '@mui/styles';
+import { FormHelperText, Typography } from '@mui/material';
 
 import { userAtom } from '@centreon/ui-context';
 
@@ -13,7 +13,11 @@ import { InputPropsWithoutGroup } from '../models';
 
 import Row from './Row';
 
-const useStyles = makeStyles<Theme, { columns }, string>((theme) => ({
+interface StylesProps {
+  columns?: number;
+}
+
+const useStyles = makeStyles<StylesProps>()((theme, { columns }) => ({
   container: {
     display: 'flex',
     flexDirection: 'column',
@@ -22,11 +26,11 @@ const useStyles = makeStyles<Theme, { columns }, string>((theme) => ({
   icon: {
     marginTop: theme.spacing(0.5),
   },
-  inputsRow: ({ columns }): CreateCSSProperties => ({
+  inputsRow: {
     columnGap: theme.spacing(2),
     display: 'grid',
     gridTemplateColumns: `repeat(${columns}, 1fr) min-content`,
-  }),
+  },
   table: {
     display: 'flex',
     flexDirection: 'column',
@@ -39,7 +43,7 @@ const FieldsTable = ({
   fieldName,
   label,
 }: InputPropsWithoutGroup): JSX.Element => {
-  const classes = useStyles({
+  const { classes } = useStyles({
     columns: fieldsTable?.columns.length,
   });
   const { t } = useTranslation();

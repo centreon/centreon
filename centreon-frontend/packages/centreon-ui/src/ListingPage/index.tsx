@@ -1,16 +1,15 @@
 import { Suspense, useEffect, useRef, useState } from 'react';
 
-import clsx from 'clsx';
+import { makeStyles } from 'tss-react/mui';
 
-import { Box, Theme } from '@mui/material';
-import makeStyles from '@mui/styles/makeStyles';
+import { Box } from '@mui/material';
 
 import WithPanel from '../Panel/WithPanel';
 
 import FilterSkeleton from './FilterSkeleton';
 import ListingSkeleton from './ListingSkeleton';
 
-const useStyles = makeStyles<Theme>((theme) => {
+const useStyles = makeStyles()((theme) => {
   return {
     filters: {
       zIndex: 4,
@@ -48,7 +47,7 @@ const ListingPage = ({
   pageClassName,
   listingScrollOffset = 16,
 }: Props): JSX.Element => {
-  const classes = useStyles();
+  const { classes, cx } = useStyles();
   const [listingHeight, setListingHeight] = useState(0);
   const listingRef = useRef<HTMLDivElement | null>(null);
   const filtersRef = useRef<HTMLDivElement | null>(null);
@@ -74,7 +73,7 @@ const ListingPage = ({
     listingScrollOffset;
 
   return (
-    <div className={clsx(classes.page, pageClassName)}>
+    <div className={cx(classes.page, pageClassName)}>
       <div className={classes.filters} ref={filtersRef}>
         <Suspense fallback={<FilterSkeleton />}>{filter}</Suspense>
       </div>

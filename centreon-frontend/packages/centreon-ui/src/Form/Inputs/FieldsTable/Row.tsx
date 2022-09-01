@@ -1,25 +1,28 @@
 import { FormikValues, useFormikContext } from 'formik';
 import { not, prop, remove } from 'ramda';
 import { useTranslation } from 'react-i18next';
+import { makeStyles } from 'tss-react/mui';
 
-import { Theme } from '@mui/material';
-import { CreateCSSProperties, makeStyles } from '@mui/styles';
 import DeleteIcon from '@mui/icons-material/Delete';
 
 import { IconButton } from '../../..';
 import { getInput } from '..';
 import { InputPropsWithoutGroup } from '../models';
 
-const useStyles = makeStyles<Theme, { columns }, string>((theme) => ({
+interface StylesProps {
+  columns?: number;
+}
+
+const useStyles = makeStyles<StylesProps>()((theme, { columns }) => ({
   icon: {
     marginTop: theme.spacing(0.5),
   },
-  inputsRow: ({ columns }): CreateCSSProperties => ({
+  inputsRow: {
     columnGap: theme.spacing(2),
     display: 'grid',
     gridTemplateColumns: `repeat(${columns}, 1fr) ${theme.spacing(6)}`,
     gridTemplateRows: 'min-content',
-  }),
+  },
 }));
 
 interface Props {
@@ -43,7 +46,7 @@ const Row = ({
   isLastElement,
   deleteLabel,
 }: Props): JSX.Element => {
-  const classes = useStyles({ columns: columns?.length });
+  const { classes } = useStyles({ columns: columns?.length });
   const { t } = useTranslation();
 
   const { setFieldValue, values } = useFormikContext<FormikValues>();

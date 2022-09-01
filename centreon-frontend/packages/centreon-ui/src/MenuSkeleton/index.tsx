@@ -1,11 +1,10 @@
-import clsx from 'clsx';
+import { makeStyles } from 'tss-react/mui';
 
 import { SkeletonProps, useTheme, alpha } from '@mui/material';
-import makeStyles from '@mui/styles/makeStyles';
 
 import LoadingSkeleton from '../LoadingSkeleton';
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles()((theme) => ({
   skeleton: {
     backgroundColor: alpha(theme.palette.grey[50], 0.4),
     borderRadius: 5,
@@ -29,12 +28,12 @@ const MenuLoader = ({
   animate = true,
 }: Props): JSX.Element => {
   const theme = useTheme();
-  const classes = useStyles();
+  const { classes, cx } = useStyles();
 
   return (
     <LoadingSkeleton
       animation={animate ? 'wave' : false}
-      className={clsx(classes.skeleton, className)}
+      className={cx(classes.skeleton, className)}
       height={theme.spacing(height)}
       variant={variant}
       width={theme.spacing(width)}

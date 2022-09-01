@@ -1,6 +1,6 @@
+import { makeStyles } from 'tss-react/mui';
+
 import { Theme, Chip, alpha, ChipProps } from '@mui/material';
-import makeStyles from '@mui/styles/makeStyles';
-import { CreateCSSProperties } from '@mui/styles';
 import { grey } from '@mui/material/colors';
 
 enum SeverityCode {
@@ -61,8 +61,8 @@ export type Props = {
   severityCode: SeverityCode;
 } & ChipProps;
 
-const useStyles = makeStyles<Theme, Props>((theme) => ({
-  chip: ({ severityCode, label }: Props): CreateCSSProperties<Props> => ({
+const useStyles = makeStyles<Props>()((theme, { severityCode, label }) => ({
+  chip: {
     ...getStatusColors({ severityCode, theme }),
     ...(!label && {
       borderRadius: theme.spacing(1.5),
@@ -70,7 +70,7 @@ const useStyles = makeStyles<Theme, Props>((theme) => ({
       width: theme.spacing(1.5),
     }),
     '&:hover': { ...getStatusColors({ severityCode, theme }) },
-  }),
+  },
 }));
 
 const StatusChip = ({
@@ -79,7 +79,7 @@ const StatusChip = ({
   clickable = false,
   ...rest
 }: Props): JSX.Element => {
-  const classes = useStyles({ label, severityCode });
+  const { classes } = useStyles({ label, severityCode });
 
   return (
     <Chip

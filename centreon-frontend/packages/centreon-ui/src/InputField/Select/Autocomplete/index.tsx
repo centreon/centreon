@@ -1,17 +1,15 @@
 import * as React from 'react';
 
 import { equals, isNil, pick } from 'ramda';
-import clsx from 'clsx';
 import { useTranslation } from 'react-i18next';
+import { makeStyles } from 'tss-react/mui';
 
 import {
   CircularProgress,
   InputAdornment,
   Autocomplete,
   AutocompleteProps,
-  Theme,
 } from '@mui/material';
-import makeStyles from '@mui/styles/makeStyles';
 import { UseAutocompleteProps } from '@mui/material/useAutocomplete';
 
 import Option from '../Option';
@@ -39,12 +37,10 @@ export type Props = {
 
 type StyledProps = Partial<Pick<Props, 'hideInput'>>;
 
-type VisibilityState = 'visible' | 'hidden';
-
 const textfieldHeight = (hideInput?: boolean): string | number =>
   hideInput ? 0 : '100%';
 
-const useStyles = makeStyles<Theme, StyledProps>((theme) => ({
+const useStyles = makeStyles<StyledProps>()((theme, { hideInput }) => ({
   input: {
     '&:after': {
       borderBottom: 0,
@@ -56,7 +52,7 @@ const useStyles = makeStyles<Theme, StyledProps>((theme) => ({
     '&:hover:before': {
       borderBottom: 0,
     },
-    height: ({ hideInput }): string | number => textfieldHeight(hideInput),
+    height: textfieldHeight(hideInput),
   },
   inputEndAdornment: {
     paddingBottom: '19px',
@@ -84,12 +80,9 @@ const useStyles = makeStyles<Theme, StyledProps>((theme) => ({
   },
   inputWithoutLabel: {
     '&[class*="MuiFilledInput-root"][class*="MuiFilledInput-marginDense"]': {
-      paddingBottom: ({ hideInput }): number | string =>
-        hideInput ? 0 : theme.spacing(0.75),
-      paddingRight: ({ hideInput }): number | string =>
-        hideInput ? 0 : theme.spacing(1),
-      paddingTop: ({ hideInput }): number | string =>
-        hideInput ? 0 : theme.spacing(0.75),
+      paddingBottom: hideInput ? 0 : theme.spacing(0.75),
+      paddingRight: hideInput ? 0 : theme.spacing(1),
+      paddingTop: hideInput ? 0 : theme.spacing(0.75),
     },
   },
   loadingIndicator: {
@@ -105,14 +98,13 @@ const useStyles = makeStyles<Theme, StyledProps>((theme) => ({
     zIndex: theme.zIndex.tooltip + 1,
   },
   textfield: {
-    height: ({ hideInput }): string | number => textfieldHeight(hideInput),
-    visibility: ({ hideInput }): VisibilityState =>
-      hideInput ? 'hidden' : 'visible',
+    height: textfieldHeight(hideInput),
+    visibility: hideInput ? 'hidden' : 'visible',
   },
 }));
 
 const LoadingIndicator = (): JSX.Element => {
-  const classes = useStyles({});
+  const { classes } = useStyles({});
 
   return (
     <div className={classes.loadingIndicator}>
@@ -141,7 +133,7 @@ const AutocompleteField = ({
   hideInput = false,
   ...props
 }: Props): JSX.Element => {
-  const classes = useStyles({ hideInput });
+  const { classes, cx } = useStyles({ hideInput });
   const { t } = useTranslation();
 
   const areSelectEntriesEqual = (option, value): boolean => {
@@ -201,7 +193,7 @@ const AutocompleteField = ({
       disableClearable
       classes={{
         groupLabel: classes.inputLabel,
-        inputRoot: clsx([
+        inputRoot: cx([
           classes.input,
           label ? classes.inputWithLabel : classes.inputWithoutLabel,
         ]),
