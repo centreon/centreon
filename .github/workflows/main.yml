@@ -122,7 +122,7 @@ jobs:
   widgets-packaging:
     needs: [create-and-push-docker-widgets]
 
-    uses: ./.github/workflows/module_workflow.yml
+    uses: ./.github/workflows/docker-builder-packaging-widgets.yml
     with:
       module_name: widgets
       version: "22.10"
