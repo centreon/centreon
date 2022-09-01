@@ -119,7 +119,6 @@ jobs:
           module_name: ${{ matrix.module_name }}
 
   widgets-packaging:
-    needs: [create-and-push-docker-widgets]
     needs: filters
     if: ${{ needs.filters.outputs.widgets == 'true' }}
 
