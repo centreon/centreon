@@ -22,7 +22,6 @@ jobs:
   centreon-frontend-test:
     runs-on: common
     
-
     strategy:
       matrix:
         include:

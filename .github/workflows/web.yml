@@ -4,13 +4,13 @@ on:
   workflow_dispatch:
   pull_request:
     paths:
-      - '.github/workflows/centreon.yml'
+      - '.github/workflows/web.yml'
       - 'centreon/**'
   push:
     branches:
       - develop
     paths:
-      - '.github/workflows/centreon.yml'
+      - '.github/workflows/web.yml'
       - 'centreon/**'
     tags:
       - centreon-22.10.**
