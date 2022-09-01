@@ -25,7 +25,7 @@ ls -1 | sed '/centreon-widget.spectemplate/d' | while read PROJECT; do
  2>/dev/null)"
     rpmbuild -ba ../centreon-widget.spectemplate \
         -D "version $VERSION" \
-        -D "release $RELEASE" \
+        -D "rel $RELEASE" \
         -D "summary $SUMMARY" \
         -D "name $PROJECT" \
         -D "widget_sub_dir $WIDGET"

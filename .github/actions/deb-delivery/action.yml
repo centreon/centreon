@@ -24,7 +24,7 @@ runs:
     - name: Use cache RPM files
       uses: actions/cache@v3
       env:
-        cache-name-rpmbuild: cache-${{ github.sha }}-${{ github.run_id }}-rpmbuild-${{ inputs.module_name }}-${{ inputs.distrib }}
+        cache-name-rpmbuild: cache-${{ github.sha }}-${{ github.run_id }}-debbuild-${{ inputs.module_name }}-${{ inputs.distrib }}
       with:
         path: ./*.rpm
         key: ${{ env.cache-name-rpmbuild }}
