@@ -1,4 +1,4 @@
-name: Centreon web build docker
+name: Centreon build docker
 
 on:  
   workflow_dispatch:

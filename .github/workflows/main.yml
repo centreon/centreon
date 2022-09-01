@@ -78,7 +78,7 @@ jobs:
   web-packaging:
     needs: filters
     if: ${{ needs.filters.outputs.centreon-web == 'true' }}
-    uses: ./.github/workflows/docker-builder-packaging-web.yml
+    uses: ./.github/workflows/docker-builder-packaging.yml
     with:
       module_name: centreon-web
       version: "22.10"
@@ -122,7 +122,7 @@ jobs:
     needs: filters
     if: ${{ needs.filters.outputs.widgets == 'true' }}
 
-    uses: ./.github/workflows/docker-builder-packaging-widgets.yml
+    uses: ./.github/workflows/docker-builder-packaging.yml
     with:
       module_name: widgets
       version: "22.10"
