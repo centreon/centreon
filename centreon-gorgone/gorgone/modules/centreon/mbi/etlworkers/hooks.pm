@@ -69,7 +69,7 @@ sub routing {
 
     my $data;
     eval {
-        $data = JSON::XS->new->utf8->decode($options{data});
+        $data = JSON::XS->new->decode($options{data});
     };
     if ($@) {
         $options{logger}->writeLogError("[proxy] Cannot decode json data: $@");

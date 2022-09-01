@@ -164,7 +164,6 @@ sub backtick {
     }
     
     if ($pid) {
-        binmode(KID, ":encoding(UTF-8)");
         eval {
            local $SIG{ALRM} = sub { die "Timeout by signal ALARM\n"; };
            alarm( $arg{timeout} );

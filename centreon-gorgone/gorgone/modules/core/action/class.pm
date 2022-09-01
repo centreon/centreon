@@ -314,7 +314,7 @@ sub validate_plugins {
 
     my $plugins;
     eval {
-        $plugins = JSON::XS->new->utf8->decode($content);
+        $plugins = JSON::XS->new->decode($content);
     };
     if ($@) {
         return (1, 'cannot decode json');

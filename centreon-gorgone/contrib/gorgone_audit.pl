@@ -50,7 +50,7 @@ sub json_decode {
 
     my $decoded;
     eval {
-        $decoded = JSON::XS->new->utf8->decode($options{content});
+        $decoded = JSON::XS->new->decode($options{content});
     };
     if ($@) {
         $self->{logger}->writeLogError("cannot decode json response: $@");
@@ -151,7 +151,7 @@ sub get_audit_log {
     }
 
     if (defined($self->{audit})) {
-        $self->{logger}->writeLogInfo("audit result: " . JSON::XS->new->utf8->encode($self->{audit}));
+        $self->{logger}->writeLogInfo("audit result: " . JSON::XS->new->encode($self->{audit}));
         if (defined($self->{markdown})) {
             $self->md_output();
         }

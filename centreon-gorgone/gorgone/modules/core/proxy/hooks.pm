@@ -135,7 +135,7 @@ sub routing {
 
     my $data;
     eval {
-        $data = JSON::XS->new->utf8->decode($options{data});
+        $data = JSON::XS->new->decode($options{data});
     };
     if ($@) {
         $options{logger}->writeLogError("[proxy] Cannot decode json data: $@");
@@ -192,7 +192,7 @@ sub routing {
                 routing(
                     action => 'PROXYADDNODE',
                     target => $node_id,
-                    data => JSON::XS->new->utf8->encode($register_nodes->{$node_id}),
+                    data => JSON::XS->new->encode($register_nodes->{$node_id}),
                     gorgone => $options{gorgone},
                     dbh => $options{dbh},
                     logger => $options{logger}
@@ -438,7 +438,7 @@ sub check {
                     routing(
                         target => $_,
                         action => 'PROXYCLOSECONNECTION',
-                        data => JSON::XS->new->utf8->encode({ id => $_ }),
+                        data => JSON::XS->new->encode({ id => $_ }),
                         gorgone => $options{gorgone},
                         dbh => $options{dbh},
                         logger => $options{logger}
@@ -565,7 +565,7 @@ sub pathway {
             routing(
                 target => $_,
                 action => 'PROXYCLOSEREADCHANNEL',
-                data => JSON::XS->new->utf8->encode({ id => $_ }),
+                data => JSON::XS->new->encode({ id => $_ }),
                 gorgone => $options{gorgone},
                 dbh => $options{dbh},
                 logger => $options{logger}
@@ -638,8 +638,7 @@ sub setlogs {
             code => $_->{code}, 
             token => $_->{token},
             instant => $_->{instant},
-            data => $_->{data},
-            encode_utf8 => 1
+            data => $_->{data}
         );
         last if ($status == -1);
         $ctime_recent = $_->{ctime} if ($ctime_recent < $_->{ctime});
@@ -890,7 +889,7 @@ sub unregister_nodes {
             routing(
                 action => 'PROXYDELNODE',
                 target => $node->{id},
-                data => JSON::XS->new->utf8->encode($node),
+                data => JSON::XS->new->encode($node),
                 gorgone => $options{gorgone},
                 dbh => $options{dbh},
                 logger => $options{logger}
@@ -1036,7 +1035,7 @@ sub register_nodes {
                 routing(
                     action => 'PROXYADDNODE',
                     target => $node->{id},
-                    data => JSON::XS->new->utf8->encode($register_nodes->{ $node->{id} }),
+                    data => JSON::XS->new->encode($register_nodes->{ $node->{id} }),
                     gorgone => $options{gorgone},
                     dbh => $options{dbh},
                     logger => $options{logger}
@@ -1045,7 +1044,7 @@ sub register_nodes {
                 routing(
                     action => 'PROXYADDNODE',
                     target => $node->{id},
-                    data => JSON::XS->new->utf8->encode($node),
+                    data => JSON::XS->new->encode($node),
                     gorgone => $options{gorgone},
                     dbh => $options{dbh},
                     logger => $options{logger}

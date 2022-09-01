@@ -247,7 +247,7 @@ sub json_encode {
 
     my $encoded_arguments;
     eval {
-        $encoded_arguments = JSON::XS->new->utf8->encode($options{argument});
+        $encoded_arguments = JSON::XS->new->encode($options{argument});
     };
     if ($@) {
         $self->{logger}->writeLogError("[$self->{module_id}]$self->{container} $options{method} - cannot encode json: $@");
@@ -262,7 +262,7 @@ sub json_decode {
 
     my $decoded_arguments;
     eval {
-        $decoded_arguments = JSON::XS->new->utf8->decode($options{argument});
+        $decoded_arguments = JSON::XS->new->decode($options{argument});
     };
     if ($@) {
         $self->{logger}->writeLogError("[$self->{module_id}]$self->{container} $options{method} - cannot decode json: $@");

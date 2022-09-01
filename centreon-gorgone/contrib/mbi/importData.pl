@@ -80,7 +80,7 @@ sub json_decode {
 
     my $decoded;
     eval {
-        $decoded = JSON::XS->new->utf8->decode($options{content});
+        $decoded = JSON::XS->new->decode($options{content});
     };
     if ($@) {
         $self->{logger}->writeLogError("cannot decode json response: $@");
@@ -98,7 +98,7 @@ sub run_etl {
         method => 'POST',
         hostname => '',
         full_url => $self->{url} . '/api/centreon/mbietl/run',
-        query_form_post => JSON::XS->new->utf8->encode($self->{moptions}),
+        query_form_post => JSON::XS->new->encode($self->{moptions}),
         header => [
             'Accept-Type: application/json; charset=utf-8',
             'Content-Type: application/json; charset=utf-8',

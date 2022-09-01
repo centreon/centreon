@@ -30,7 +30,7 @@ use JSON::XS;
 
 my $module;
 my $socket;
-my $results;
+my $results = {};
 my $action_token;
 
 sub root {
@@ -163,14 +163,14 @@ sub call_internal {
     if (defined($results->{$action_token}->{data})) {
         my $content;
         eval {
-            $content = JSON::XS->new->utf8->decode($results->{$action_token}->{data});
+            $content = JSON::XS->new->decode($results->{$action_token}->{data});
         };
         if ($@) {
             $response = '{"error":"decode_error","message":"Cannot decode response"}';
         } else {
             if (defined($content->{data})) {
                 eval {
-                    $response = JSON::XS->new->utf8->encode($content->{data});
+                    $response = JSON::XS->new->encode($content->{data});
                 };
                 if ($@) {
                     $response = '{"error":"encode_error","message":"Cannot encode response"}';
@@ -231,13 +231,13 @@ sub get_log {
     if (defined($results->{ $token_log }) && defined($results->{ $token_log }->{data})) {
         my $content;
         eval {
-            $content = JSON::XS->new->utf8->decode($results->{ $token_log }->{data});
+            $content = JSON::XS->new->decode($results->{ $token_log }->{data});
         };
         if ($@) {
             $response = '{"error":"decode_error","message":"Cannot decode response"}';
         } elsif (defined($content->{data}->{result}) && scalar(@{$content->{data}->{result}}) > 0) {
             eval {
-                $response = JSON::XS->new->utf8->encode(
+                $response = JSON::XS->new->encode(
                     {
                         message => "Logs found",
                         token => $options{token},
@@ -255,8 +255,11 @@ sub get_log {
 }
 
 sub event {
+    my (%options) = @_;
+
+    my $httpserver = defined($options{httpserver}) ? $options{httpserver} : $module;
     while (1) {
-        my $message = $module->read_message();
+        my $message = $httpserver->read_message();
         last if (!defined($message));
 
         if ($message =~ /^\[(.*?)\]\s+\[([a-zA-Z0-9:\-_]*?)\]\s+\[.*?\]\s+(.*)$/m || 
@@ -267,8 +270,10 @@ sub event {
                 token => $token,
                 data => $data
             };
-            if ((my $method = $module->can('action_' . lc($action)))) {
-                $method->($module, token => $token, data => $data);
+            if ((my $method = $httpserver->can('action_' . lc($action)))) {
+                my ($rv, $decoded) = $httpserver->json_decode(argument => $data, token => $token);
+                next if ($rv);
+                $method->($httpserver, token => $token, data => $decoded);
             }
         }
     }

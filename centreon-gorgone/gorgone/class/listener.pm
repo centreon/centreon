@@ -24,7 +24,6 @@ use strict;
 use warnings;
 use gorgone::standard::constants qw(:all);
 use gorgone::standard::library;
-use Encode;
 
 sub new {
     my ($class, %options) = @_;
@@ -49,15 +48,8 @@ sub event_log {
         delete $self->{tokens}->{ $options{token} };
     }
 
-    my $encoded = 0;
     foreach (keys %{$events->{events}}) {
         $self->{logger}->writeLogDebug("[listener] trigger event '$options{token}'");
-
-        # it will be decoded by module (hooks.pm). So in some case, we want to avoid double utf8 decode
-        if ($encoded == 0 && defined($options{encode_utf8}) && $options{encode_utf8} == 1) {
-            $options{data} = Encode::encode('UTF-8', $options{data});
-            $encoded = 1;
-        }
 
         $self->{gorgone_core}->message_run(
             message => '[' . $_ . '] [' . $options{token} . '] [] { "code": ' . $options{code} . ', "data": ' . $options{data} . ' }',

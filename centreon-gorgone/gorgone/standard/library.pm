@@ -295,7 +295,7 @@ sub addlistener {
 
     my $data;
     eval {
-        $data = JSON::XS->new->utf8->decode($options{data});
+        $data = JSON::XS->new->decode($options{data});
     };
     if ($@) {
         return (GORGONE_ACTION_FINISH_KO, { message => 'request not well formatted' });
@@ -340,7 +340,7 @@ sub unloadmodule {
 
     my $data;
     eval {
-        $data = JSON::XS->new->utf8->decode($options{data});
+        $data = JSON::XS->new->decode($options{data});
     };
     if ($@) {
         return (GORGONE_ACTION_FINISH_KO, { message => 'request not well formatted' });
@@ -365,7 +365,7 @@ sub loadmodule {
 
     my $data;
     eval {
-        $data = JSON::XS->new->utf8->decode($options{data});
+        $data = JSON::XS->new->decode($options{data});
     };
     if ($@) {
         return (GORGONE_ACTION_FINISH_KO, { message => 'request not well formatted' });
@@ -392,7 +392,7 @@ sub synclogs {
 
     my $data;
     eval {
-        $data = JSON::XS->new->utf8->decode($options{data});
+        $data = JSON::XS->new->decode($options{data});
     };
     if ($@) {
         return (GORGONE_ACTION_FINISH_KO, { message => 'request not well formatted' });
@@ -437,7 +437,7 @@ sub setmodulekey {
 
     my $data;
     eval {
-        $data = JSON::XS->new->utf8->decode($options{data});
+        $data = JSON::XS->new->decode($options{data});
     };
     if ($@) {
         return (GORGONE_ACTION_FINISH_KO, { message => 'request not well formatted' });
@@ -467,7 +467,7 @@ sub setcoreid {
 
     my $data;
     eval {
-        $data = JSON::XS->new->utf8->decode($options{data});
+        $data = JSON::XS->new->decode($options{data});
     };
     if ($@) {
         return (GORGONE_ACTION_FINISH_KO, { message => 'request not well formatted' });
@@ -513,7 +513,7 @@ sub putlog {
 
     my $data;
     eval {
-        $data = JSON::XS->new->utf8->decode($options{data});
+        $data = JSON::XS->new->decode($options{data});
     };
     if ($@) {
         return (GORGONE_ACTION_FINISH_KO, { message => 'request not well formatted' });
@@ -538,7 +538,7 @@ sub getlog {
 
     my $data;
     eval {
-        $data = JSON::XS->new->utf8->decode($options{data});
+        $data = JSON::XS->new->decode($options{data});
     };
     if ($@) {
         return (GORGONE_ACTION_FINISH_KO, { message => 'request not well formatted' });
@@ -579,7 +579,7 @@ sub kill {
 
     my $data;
     eval {
-        $data = JSON::XS->new->utf8->decode($options{data});
+        $data = JSON::XS->new->decode($options{data});
     };
     if ($@) {
         return (GORGONE_ACTION_FINISH_KO, { message => 'request not well formatted' });
@@ -682,8 +682,7 @@ sub add_history {
         $listener->event_log(
             token => $options{token},
             code => $options{code},
-            data => $options{data},
-            encode_utf8 => $options{encode_utf8}
+            data => $options{data}
         );
     }
     return $status;
@@ -698,7 +697,7 @@ sub json_encode {
 
     my $data;
     eval {
-        $data = JSON::XS->new->utf8->encode($options{data});
+        $data = JSON::XS->new->encode($options{data});
     };
     if ($@) {
         if (defined($options{logger})) {
@@ -715,7 +714,7 @@ sub json_decode {
 
     my $data;
     eval {
-        $data = JSON::XS->new->utf8->decode($options{data});
+        $data = JSON::XS->new->decode($options{data});
     };
     if ($@) {
         if (defined($options{logger})) {
