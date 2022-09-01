@@ -1,7 +1,7 @@
-name: Centreon build docker
+name: Centreon web build docker
 
 on:  
-  workflow_dispatch:
+  workflow_call:
   push:
     branches:
       - develop
