@@ -1,7 +1,7 @@
 name: Centreon widgets build docker
 
 on:  
-  workflow_dispatch:
+  workflow_call:
   push:
     branches:
       - develop
