@@ -78,7 +78,7 @@ jobs:
   web-packaging:
     needs: filters
     if: ${{ needs.filters.outputs.centreon-web == 'true' }}
-    uses: ./.github/workflows/module_workflow.yml
+    uses: ./.github/workflows/centreon-web.yml
     with:
       module_name: centreon-web
       version: "22.10"
