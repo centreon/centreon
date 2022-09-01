@@ -30,7 +30,6 @@ use gorgone::standard::misc;
 use File::Basename;
 use Time::HiRes;
 use gorgone::standard::constants qw(:all);
-use Encode;
 use MIME::Base64;
 
 sub new {
@@ -313,7 +312,6 @@ sub action_enginecommand {
     if ($options{target_direct} == 0) {
         foreach my $command (@{$options{data}->{content}->{commands}}) {
             chomp $command;
-            $command = Encode::decode('UTF-8', $command);
             my $msg = "[sshclient] Handling command 'EXTERNALCMD'";
             $msg .= ", Target: '" . $options{target} . "'" if (defined($options{target}));
             $msg .= ", Parameters: '" . $command . "'" if (defined($command));
@@ -362,7 +360,6 @@ sub action_enginecommand {
         };
 
         foreach my $command (@{$options{data}->{content}->{commands}}) {
-            $command = Encode::decode('UTF-8', $command);
             $self->{logger}->writeLogInfo("[sshclient] Processing external command '" . $command . "'");
             if ($self->{sftp}->write(handle_file => $file, data => $command . "\n") != Libssh::Session::SSH_OK) {
                 $self->{logger}->writeLogError("[sshclient] Command file '$command_file' must be writeable");

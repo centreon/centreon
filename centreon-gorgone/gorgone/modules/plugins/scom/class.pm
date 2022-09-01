@@ -484,7 +484,7 @@ sub event {
             if ((my $method = $connector->can('action_' . lc($1)))) {
                 $message =~ /^\[(.*?)\]\s+\[(.*?)\]\s+\[.*?\]\s+(.*)$/m;
                 my ($action, $token) = ($1, $2);
-                my $data = JSON::XS->new->utf8->decode($3);
+                my $data = JSON::XS->new->decode($3);
                 $method->($connector, token => $token, data => $data);
             }
         }

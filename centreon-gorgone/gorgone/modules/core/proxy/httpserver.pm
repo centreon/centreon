@@ -322,7 +322,7 @@ sub is_logged_websocket {
 
     my $content;
     eval {
-        $content = JSON::XS->new->utf8->decode($1);
+        $content = JSON::XS->new->decode($1);
     };
     if ($@) {
         $self->close_websocket(

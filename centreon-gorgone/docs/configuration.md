@@ -42,12 +42,11 @@ configuration:
 | :-------------------- | :---------------------------------------------------------------------- | :--------------------------------------------- |
 | internal_com_type     | Type of the internal ZMQ socket                                         | `ipc`                                          |
 | internal_com_path     | Path to the internal ZMQ socket                                         | `/tmp/gorgone/routing.ipc`                     |
-| internal_com_crypt    | Internal communication crypt enabled                                    | `false`                                        |
+| internal_com_crypt    | Crypt internal communication                                            | `true`                                         |
 | internal_com_cipher   | Internal communication cipher                                           | `AES`                                          |
 | internal_com_padding  | Internal communication padding                                          | `1` (mean: PKCS5)                              |
 | internal_com_keysize  | Internal communication key size                                         | `32` (bytes)                                   |
 | internal_com_rotation | Internal communication time before key rotation                         | `1440` (minutes)                               |
-| internal_com_crypt    | Crypt internal communication                                            | `false`                                        |
 | external_com_type     | Type of the external ZMQ socket                                         | `tcp`                                          |
 | external_com_path     | Path to the external ZMQ socket                                         | `*:5555`                                       |
 | external_com_cipher   | Cipher used for encryption                                              | `AES`                                          |

@@ -238,7 +238,7 @@ sub transmit_back {
     if ($options{message} =~ /^\[ACK\]\s+\[(.*?)\]\s+(.*)/m) {
         my $data;
         eval {
-            $data = JSON::XS->new->utf8->decode($2);
+            $data = JSON::XS->new->decode($2);
         };
         if ($@) {
             return $options{message};

@@ -42,7 +42,7 @@ sub json_decode {
 
     my $decoded;
     eval {
-        $decoded = JSON::XS->new->utf8->decode($options{content});
+        $decoded = JSON::XS->new->decode($options{content});
     };
     if ($@) {
         $self->{is_error} = 1;

@@ -68,7 +68,7 @@ sub routing {
     
     my $data;
     eval {
-        $data = JSON::XS->new->utf8->decode($options{data});
+        $data = JSON::XS->new->decode($options{data});
     };
     if ($@) {
         $options{logger}->writeLogError("[newtest] Cannot decode json data: $@");
@@ -209,7 +209,7 @@ sub get_containers {
 
         my $list_scenario;
         eval {
-            $list_scenario = JSON::XS->new->utf8->decode($_->{list_scenario_status});
+            $list_scenario = JSON::XS->new->decode($_->{list_scenario_status});
         };
         if ($@) {
             $options{logger}->writeLogError("[newtest] cannot load container '" . $_->{name} . "' - cannot decode list scenario option");
