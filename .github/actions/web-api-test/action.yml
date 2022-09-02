@@ -8,7 +8,7 @@ inputs:
     description: "image"
     required: true
   image_version:
-    description: "image version"
+    description: "image centreon run version"
     required: true
   test_version:
     description: "test image version"
