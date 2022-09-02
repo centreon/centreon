@@ -1,0 +1,10 @@
+version: '2'
+services:
+  web:
+    image: @WEB_IMAGE@
+    ports:
+    - "80"
+    - "3306"
+    dns:
+    - "10.24.10.254"
+    - "10.24.0.2"

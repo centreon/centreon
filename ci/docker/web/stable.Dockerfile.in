@@ -1,0 +1,39 @@
+# Base information.
+FROM centos:@CENTOS_VERSION@
+MAINTAINER Kevin Duret <kduret@centreon.com>
+
+# Prepare the machine
+COPY repo/centreon-standard-stable.centos@CENTOS_VERSION@.repo /etc/yum.repos.d/centreon-standard-stable.repo
+RUN mkdir /usr/share/monitoring && \
+    echo 'gpgcheck=0' >> /etc/yum.conf && echo 'http_caching=none' >> /etc/yum.conf && \
+    yum install --nogpgcheck -y wget bzip2 php && \
+    yum clean all
+
+# Install composer.
+RUN curl -sS https://getcomposer.org/installer | php && \
+    mv composer.phar /usr/local/bin/composer && \
+    chmod +x /usr/local/bin/composer
+
+# Install faketime for acceptance tests
+RUN rpm -i http://srvi-repo.int.centreon.com/yum/internal/3.4/el@CENTOS_VERSION@/x86_64/RPMS/libfaketime-0.9.6-2.el@CENTOS_VERSION@.nux.x86_64.rpm
+
+# Install Node.js and related elements.
+RUN curl --silent --location https://rpm.nodesource.com/setup_6.x | bash - && \
+    yum install --nogpgcheck -y nodejs && \
+    npm install -g gulp
+
+# Install Centreon Web Stable.
+COPY web/3.4 /tmp/stable
+RUN yum install --nogpgcheck -y centreon-base-config-centreon-engine centreon centreon-broker* MariaDB-server git && \
+    echo 'date.timezone = Europe/Paris' > /etc/php.d/centreon.ini && \
+    cp /tmp/stable/centengine.sh /etc/init.d/centengine && \
+    cp /tmp/stable/cbd.sh /etc/init.d/cbd && \
+    cp /tmp/stable/autoinstall.php /usr/share/centreon/autoinstall.php && \
+    chmod +x /etc/init.d/centengine /etc/init.d/cbd /tmp/stable/fresh.sh && \
+    /tmp/stable/fresh.sh && \
+    cp /tmp/stable/run.sh /usr/share/centreon/container.sh && \
+    chmod +x /usr/share/centreon/container.sh && \
+    cp -r /tmp/stable/run /usr/share/centreon/container.d && \
+    yum clean all
+
+ENTRYPOINT ["/usr/share/centreon/container.sh"]

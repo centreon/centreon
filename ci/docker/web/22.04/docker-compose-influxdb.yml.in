@@ -1,0 +1,24 @@
+version: '2'
+services:
+  web:
+    image: @WEB_IMAGE@
+    ports:
+    - "80"
+    - "3306"
+    links:
+    - influxdb
+  influxdb:
+    image: registry.centreon.com/influxdb:latest
+    ports:
+    - "8083"
+    - "8086"
+  webdriver:
+    image: registry.centreon.com/standalone-chrome:3.141.59-oxygen
+    environment:
+    - "SCREEN_WIDTH=1600"
+    - "SCREEN_HEIGHT=2000"
+    ports:
+    - "4444"
+    - "5900"
+    volumes:
+    - /dev/shm:/dev/shm

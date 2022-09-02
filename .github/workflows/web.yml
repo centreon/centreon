@@ -183,3 +183,18 @@ jobs:
           image_version: ${{ github.head_ref || github.ref_name }}
           image_lighthouse_version: ${{ env.version }}
           module: centreon
+
+  web-api-test:
+    needs: [create-and-push-docker]
+    runs-on: common
+      
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v3
+
+      - name: Web API Test
+        uses: ./.github/actions/web-api-test
+        with:
+          distrib: centos7
+          image_version: ${{ env.version }}
+          module: centreon

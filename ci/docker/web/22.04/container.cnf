@@ -1,0 +1,10 @@
+[server]
+log_output=FILE
+general_log_file=/var/lib/mysql/queries.log
+general_log=0
+slow_query_log_file=/var/lib/mysql/slow_queries.log
+slow_query_log=1
+
+[mysqld]
+skip-host-cache
+skip-name-resolve

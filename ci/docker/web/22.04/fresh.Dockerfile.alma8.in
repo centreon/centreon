@@ -1,0 +1,36 @@
+# Base information.
+FROM @BASE_IMAGE@
+
+# Install repository.
+COPY web/22.04 /tmp/fresh
+COPY rpms /tmp/rpms
+
+RUN dnf clean all && \
+    # TEMPORARY FIX UNTIL FOLLOWING PACKAGES ARE AVAILABLE.
+    mkdir -p /usr/lib64/centreon-connector && \
+    mkdir -p /usr/lib/centreon/plugins && \
+    rm -f /tmp/rpms/centreon-22.04*.rpm && \
+    dnf install /tmp/rpms/centreon-*.rpm  centreon-broker-cbd centreon-broker-influxdb libfaketime && \
+    mkdir /run/php-fpm && \
+    cp /tmp/fresh/centengine.sh /etc/init.d/centengine && \
+    cp /tmp/fresh/cbd.sh /etc/init.d/cbd && \
+    chmod +x /etc/init.d/centengine /etc/init.d/cbd && \
+    cp /tmp/fresh/autoinstall.php /usr/share/centreon/autoinstall.php && \
+    cp /tmp/fresh/configuration/* /usr/share/centreon/www/install/tmp/ && \
+    chown -R apache.apache /usr/share/centreon/www/install/tmp && \
+    chmod +x /tmp/fresh/fresh.sh && \
+    touch /var/log/php-fpm/centreon-error.log && \
+    chown apache:apache /var/log/php-fpm/centreon-error.log && \
+    cp -r /tmp/fresh/run /usr/share/centreon/container.d && \
+    /tmp/fresh/fresh.sh && \
+    cp /tmp/fresh/run.sh /usr/share/centreon/container.sh && \
+    chmod +x /usr/share/centreon/container.sh && \
+    dnf clean all && \
+    rm -rf /tmp/fresh && \
+    rm -f /etc/php-fpm.d/www.conf
+
+# License stuff.
+ENV CENTREON_IMP_SERVER HELLOWORLD:http://ci.int.centreon.com:3000
+COPY web/22.04/php-fpm/centreon-license-manager.conf /etc/php-fpm.d/centreon-license-manager.conf
+
+ENTRYPOINT ["/usr/share/centreon/container.sh"]

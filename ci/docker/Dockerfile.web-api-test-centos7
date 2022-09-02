@@ -1,0 +1,114 @@
+FROM centos:7
+
+LABEL maintainer="Matthieu Kermagoret <mkermagoret@centreon.com>"
+
+RUN yum clean all && \
+    echo 'http_caching=none' >> /etc/yum.conf && \
+    echo 'assumeyes=1' >> /etc/yum.conf && \
+    sed -i -e 's/\(override_install_langs=.*\)/\1:es_ES.utf8:fr_FR.utf8:pt_BR.utf8:pt_PT.utf8/' /etc/yum.conf && \
+    yum update glibc-common && \
+    yum reinstall glibc-common && \
+    localedef -i es_ES -f UTF-8 es_ES.UTF-8 && \
+    localedef -i fr_FR -f UTF-8 fr_FR.UTF-8 && \
+    localedef -i pt_BR -f UTF-8 pt_BR.UTF-8 && \
+    localedef -i pt_PT -f UTF-8 pt_PT.UTF-8 && \
+    yum install curl nc && \
+    curl -o centreon-release.rpm "https://yum.centreon.com/standard/22.10/el7/stable/noarch/RPMS/centreon-release-22.10-1.el7.centos.noarch.rpm" && \
+    yum install --nogpgcheck centreon-release.rpm && \
+    curl -o centreon-release-business.rpm https://yum.centreon.com/centreon-business/1a97ff9985262bf3daf7a0919f9c59a6/22.10/el7/stable/noarch/RPMS/centreon-business-release-22.10-1.el7.centos.noarch.rpm && \
+    yum install --nogpgcheck centreon-release-business.rpm && \
+    yum-config-manager --enable 'centreon-testing*' && \
+    yum-config-manager --enable 'centreon-unstable*' && \
+    yum-config-manager --enable 'centreon-business-testing*' && \
+    yum-config-manager --enable 'centreon-business-unstable*' && \
+    yum-config-manager --enable 'centreon-business-testing-noarch' && \
+    yum-config-manager --enable 'centreon-business-unstable-noarch' && \
+    curl -o remi-release-7.rpm https://rpms.remirepo.net/enterprise/remi-release-7.rpm && \
+    yum install remi-release-7.rpm && \
+    yum-config-manager --enable remi-php80 && \
+    curl --silent --location https://rpm.nodesource.com/setup_14.x | bash - && \
+    head -n 8 /etc/yum.repos.d/nodesource-el7.repo > /etc/yum.repos.d/nodesource-el7.repo.new && \
+    mv /etc/yum.repos.d/nodesource-el7.repo{.new,} && \
+    yum install --nogpgcheck -y nodejs && \
+    npm cache clean -f && \
+    npm install -g n && \
+    n 16 && \
+    npm install -g npm@8.5.0 && \
+    yum install centos-release-scl && \
+    yum install \
+    gnutls \
+    httpd24-httpd \
+    initscripts \
+    libgcrypt \
+    libssh2 \
+    lua \
+    MariaDB-client \
+    MariaDB-server \
+    MariaDB-shared \
+    nodejs \
+    nagios-plugins \
+    net-snmp \
+    net-snmp-perl \
+    perl \
+    perl-Config-IniFiles \
+    perl-Crypt-DES \
+    perl-DateTime \
+    perl-DBD-MySQL \
+    perl-DBI \
+    perl-HTML-Parser \
+    php-cli \
+    php-curl \
+    php-fpm \
+    php-gd \
+    php-intl \
+    php-ldap \
+    php-mbstring \
+    php-mysqlnd \
+    php-pdo \
+    php-pear \
+    php-pecl-gnupg \
+    php-snmp \
+    php-xml \
+    php-zip \
+    rrdtool \
+    rrdtool-perl \
+    rrdtool-devel \
+    rsync \
+    sudo \
+    which \
+    tar && \
+    echo 'date.timezone = Europe/Paris' > /etc/php.d/centreon.ini && \
+    yum clean all
+
+COPY ./ci/docker/dependencies/22.10/init/mysql /etc/init.d/mysql
+RUN chmod +x /etc/init.d/mysql
+
+# Install repository.
+COPY ./ci/docker/web/22.10 /tmp/fresh
+COPY *.rpms /tmp/rpms
+
+# Install Centreon software.
+RUN yum clean all && \
+    rm -f /tmp/rpms/centreon-22.10*.rpm && \
+    yum install -y /tmp/rpms/centreon-*.rpm centreon-broker-cbd centreon-broker-influxdb libfaketime && \
+    cp /tmp/fresh/centengine.sh /etc/init.d/centengine && \
+    cp /tmp/fresh/cbd.sh /etc/init.d/cbd && \
+    chmod +x /etc/init.d/centengine /etc/init.d/cbd && \
+    cp /tmp/fresh/autoinstall.php /usr/share/centreon/autoinstall.php && \
+    cp /tmp/fresh/configuration/* /usr/share/centreon/www/install/tmp/ && \
+    chown -R apache.apache /usr/share/centreon/www/install/tmp && \
+    chmod +x /tmp/fresh/fresh.sh && \
+    touch /var/log/php-fpm/centreon-error.log && \
+    chown apache:apache /var/log/php-fpm/centreon-error.log && \
+    cp -r /tmp/fresh/run /usr/share/centreon/container.d && \
+    /tmp/fresh/fresh.sh && \
+    cp /tmp/fresh/run.sh /usr/share/centreon/container.sh && \
+    chmod +x /usr/share/centreon/container.sh && \
+    yum clean all && \
+    rm -rf /tmp/fresh
+
+# License stuff.
+ENV CENTREON_IMP_SERVER HELLOWORLD:http://ci.int.centreon.com:3000
+COPY ./ci/docker/web/22.10/php-fpm/centreon-license-manager.conf /etc/php-fpm.d/centreon-license-manager.conf
+
+ENTRYPOINT ["/usr/share/centreon/container.sh"]
