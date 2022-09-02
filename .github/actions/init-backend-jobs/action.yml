@@ -17,7 +17,7 @@ runs:
 
     - name: Install composer dependencies
       if: steps.composer-cache.outputs.cache-hit != 'true'
-      run: composer install --prefer-dist --no-progress --no-suggest
+      run: cd centreon && composer install --prefer-dist --no-progress
       shell: bash
 
     - name: Setup PHP version
