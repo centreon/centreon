@@ -7,9 +7,7 @@ inputs:
   image_version:
     description: "image version"
     required: true
-  module:
-    description: "module"
-    required: true
+
 runs:
   using: "composite"
   steps:
