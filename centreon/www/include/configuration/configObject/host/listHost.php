@@ -82,7 +82,7 @@ $status = filter_var(
     FILTER_VALIDATE_INT
 );
 
-if (isset($_POST['search']) || isset($_GET['search'])) {
+if (isset($_POST['search']) || isset($_GET['search'])){
     //saving chosen filters values
     $centreon->historySearch[$url] = array();
     $centreon->historySearch[$url]["searchH"] = $search;
