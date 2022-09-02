@@ -4,8 +4,14 @@ inputs:
   distrib:
     description: "distrib"
     required: true
+  image:
+    description: "image"
+    required: true
   image_version:
     description: "image version"
+    required: true
+  test_version:
+    description: "test image version"
     required: true
 
 runs:
@@ -13,7 +19,7 @@ runs:
   steps:
     - run: docker network create api-network
       shell: bash
-    - run: docker run --privileged -p 80:80 -p 3306:3306 -d --name web-api-test-${{ inputs.module }} --network api-network web-api-test:${{ inputs.image_version }}
+    - run: docker run --privileged -p 80:80 -p 3306:3306 -d --name web-api-test-${{ inputs.module }} --network api-network {{ inputs.image }}:${{ inputs.image_version }}
       shell: bash
-    - run: docker run -i -v "$PWD:/tmp" -w "/tmp" --entrypoint "/tmp/ci/scripts/do-web-api-test.sh" --network api-network docker.registry.apps.centreon.com/web-api-test-node:${{ inputs.image_version }}
+    - run: docker run -i -v "$PWD:/tmp" -w "/tmp" --entrypoint "/tmp/ci/scripts/do-web-api-test.sh" --network api-network docker.registry.apps.centreon.com/web-api-test-node:${{ inputs.test_version }}
       shell: bash

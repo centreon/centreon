@@ -196,4 +196,6 @@ jobs:
         uses: ./.github/actions/web-api-test
         with:
           distrib: centos7
-          image_version: ${{ env.version }}
+          test_version: ${{ env.version }}
+          image: docker.registry.apps.centreon.com/run-centreon-open-source-centos7
+          image_version: ${{ github.head_ref || github.ref_name }}
