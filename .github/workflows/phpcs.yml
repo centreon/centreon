@@ -18,7 +18,9 @@ on:
 env:
   version: "22.10"
   
-be-phpcs:
+jobs:
+
+  be-phpcs:
 
     runs-on: ubuntu-latest
 
