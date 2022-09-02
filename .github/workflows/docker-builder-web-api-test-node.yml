@@ -23,7 +23,7 @@ jobs:
     strategy:
       matrix:
         include:
-          - project: web-api-test
+          - project: web-api-test-node
 
     steps:
       - name: Checkout sources
@@ -36,8 +36,8 @@ jobs:
           username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
           password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
 
-      - name: build docker ${{ matrix.project }}-node 
-        run: docker build --no-cache . -f ci/docker/Dockerfile.${{ matrix.project }}-node -t docker.registry.apps.centreon.com/${{ matrix.project }}-node:${{ env.version }}
+      - name: build docker ${{ matrix.project }} 
+        run: docker build --no-cache . -f ci/docker/Dockerfile.${{ matrix.project }} -t docker.registry.apps.centreon.com/${{ matrix.project }}:${{ env.version }}
 
-      - name: push docker ${{ matrix.project }}-node
-        run: docker push docker.registry.apps.centreon.com/${{ matrix.project }}-node:${{ env.version }}
+      - name: push docker ${{ matrix.project }}
+        run: docker push docker.registry.apps.centreon.com/${{ matrix.project }}:${{ env.version }}
