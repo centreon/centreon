@@ -30,7 +30,7 @@ jobs:
       uses: actions/checkout@v2
 
     - name: Init
-      uses: ./.github/actions/init-job-backend
+      uses: ./.github/actions/init-backend-jobs
 
     - name: Get changed files
       id: files
