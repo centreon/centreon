@@ -12,7 +12,7 @@ runs:
       uses: actions/cache@v2
       id: composer-cache
       with:
-        path: vendor
+        path: centreon/vendor
         key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
 
     - name: Install composer dependencies
