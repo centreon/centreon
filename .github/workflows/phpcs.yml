@@ -45,9 +45,9 @@ jobs:
       uses: actions/checkout@v2
       with:
         repository: kduret/custom-github-action
-        path: my-action
+        path: centreon/my-action
         ref: master
 
     - name: Annotate PR from PHPCS result
       run: |
-        ./my-action/cs2pr.php --prefix=PHPCS checkstyle-be.xml
+        cd centreon && ./my-action/cs2pr.php --prefix=PHPCS checkstyle-be.xml
