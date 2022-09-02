@@ -185,7 +185,7 @@ jobs:
           module: centreon
 
   web-api-test:
-    needs: [create-and-push-docker]
+    needs: [create-and-push-docker, centreon-packaging]
     runs-on: common
       
     steps:
