@@ -2,7 +2,8 @@ FROM docker-proxy.registry.apps.centreon.com/centos:7
 RUN curl -o centreon-devel.rpm "https://yum.centreon.com/standard/22.10/el7/stable/noarch/RPMS/centreon-devel-2-2.el7.centos.noarch.rpm"
 RUN yum install -y --nogpgcheck -y centreon-devel.rpm
 RUN curl --silent --location https://rpm.nodesource.com/setup_16.x | bash -
-RUN yum -y update && yum install -y rpm-build git composer wget gettext yum-utils  https://rpms.remirepo.net/enterprise/remi-release-7.rpm https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+RUN yum -y update && yum install -y rpm-build sudo git composer wget gettext yum-utils  https://rpms.remirepo.net/enterprise/remi-release-7.rpm https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+RUN echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
 RUN yum-config-manager --enable remi-php80
 RUN yum install -y php80 
 RUN ln -s /usr/bin/php80 /usr/bin/php

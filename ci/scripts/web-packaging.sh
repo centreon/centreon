@@ -9,6 +9,8 @@ now=`date +%s`
 
 export RELEASE="$now.$COMMIT"
 
+whoami
+
 sudo composer install --no-dev --optimize-autoloader
 sudo npm ci --legacy-peer-deps
 sudo npm run build
