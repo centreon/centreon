@@ -10,7 +10,7 @@ now=`date +%s`
 export RELEASE="$now.$COMMIT"
 
 whoami
-apt install -y sudo
+yum install -y sudo
 
 sudo composer install --no-dev --optimize-autoloader
 sudo npm ci --legacy-peer-deps
