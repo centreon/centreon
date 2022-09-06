@@ -33,7 +33,7 @@ jobs:
       uses: ./.github/actions/init-backend-jobs
 
     - name: Run changed-files with defaults on the dir1
-      id: changed-files-for-dir1
+      id: changed-files-for-centreon
       uses: tj-actions/changed-files@v29.0.3
       with:
         path: centreon
