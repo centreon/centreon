@@ -16,7 +16,7 @@ class CentreonModulePlugin {
       };
 
       if (!fs.existsSync(compiler.options.output.path)) {
-        fs.mkdirSync(compiler.options.output.path);
+        fs.mkdirSync(compiler.options.output.path, { recursive: true });
       }
 
       fs.writeFileSync(
