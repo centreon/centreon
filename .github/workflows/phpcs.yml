@@ -32,13 +32,15 @@ jobs:
     - name: Init
       uses: ./.github/actions/init-backend-jobs
 
-    - name: Get changed files
-      id: files
-      uses: jitterbit/get-changed-files@v1
+    - name: Run changed-files with defaults on the dir1
+      id: changed-files-for-dir1
+      uses: tj-actions/changed-files@v29.0.3
+      with:
+        path: centreon
 
     - name: Run PHPCS
       run: |
-           ./vendor/bin/phpcs --extensions=php --standard=./ruleset.xml --report=checkstyle --report-file=./checkstyle-be.xml ${{ steps.files.outputs.added }} ${{ steps.files.outputs.modified }}
+           ./vendor/bin/phpcs --extensions=php --standard=./ruleset.xml --report=checkstyle --report-file=./checkstyle-be.xml ${{ steps.changed-files-for-centreon.outputs.added_files }} ${{ steps.changed-files-for-centreon.outputs.modified }}
       working-directory: centreon
       continue-on-error: true
 
