@@ -2,7 +2,7 @@ import { renderHook, waitFor } from '@testing-library/react';
 import { RenderHookResult } from '@testing-library/react-hooks';
 import fetchMock from 'jest-fetch-mock';
 
-import { TestQueryProvider } from '../../testRenderer';
+import TestQueryProvider from '../TestQueryProvider';
 
 import useMutationQuery, {
   Method,

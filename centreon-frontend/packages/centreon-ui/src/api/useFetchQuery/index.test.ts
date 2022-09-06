@@ -3,7 +3,7 @@ import { RenderHookResult } from '@testing-library/react-hooks';
 import fetchMock from 'jest-fetch-mock';
 import anyLogger from 'anylogger';
 
-import { TestQueryProvider } from '../../testRenderer';
+import TestQueryProvider from '../TestQueryProvider';
 
 import useFetchQuery, { UseFetchQueryProps, UseFetchQueryState } from '.';
 

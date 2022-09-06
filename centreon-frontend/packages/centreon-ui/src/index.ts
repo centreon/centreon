@@ -148,3 +148,4 @@ export {
   transformFileListToArray,
 } from './FileDropZone';
 export type { CustomDropZoneContentProps } from './FileDropZone';
+export { default as TestQueryProvider } from './api/TestQueryProvider';
