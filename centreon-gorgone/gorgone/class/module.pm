@@ -162,9 +162,8 @@ sub send_internal_key {
 sub send_internal_action {
     my ($self, %options) = @_;
 
-    my $message = $options{message};
-    if (!defined($message)) {
-        $message = gorgone::standard::library::build_protocol(
+    if (!defined($options{message})) {
+        $options{message} = gorgone::standard::library::build_protocol(
             token => $options{token},
             action => $options{action},
             target => $options{target},
@@ -200,7 +199,7 @@ sub send_internal_action {
         }
 
         eval {
-            $message = $self->{cipher}->encrypt($message, $key, $self->{internal_crypt}->{iv});
+            $options{message} = $self->{cipher}->encrypt($options{message}, $key, $self->{internal_crypt}->{iv});
         };
         if ($@) {
             $self->{logger}->writeLogError("[$self->{module_id}]$self->{container} encrypt issue: " .  $@);
@@ -208,7 +207,7 @@ sub send_internal_action {
         }
     }
 
-    zmq_sendmsg($socket, $message, ZMQ_DONTWAIT);
+    zmq_sendmsg($socket, $options{message}, ZMQ_DONTWAIT);
 }
 
 sub send_log_msg_error {

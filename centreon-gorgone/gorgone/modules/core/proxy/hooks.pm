@@ -720,10 +720,10 @@ sub update_sync_time {
     # Nothing to update (no insert before)
     return 0 if ($options{ctime} == 0);
 
-    my ($status) = $options{dbh}->query(
-        "REPLACE INTO gorgone_synchistory (`id`, `ctime`) VALUES (" .
-        $options{dbh}->quote($options{id}) . ', ' . 
-        $options{dbh}->quote($options{ctime}) . ')'
+    my ($status) = $options{dbh}->query({
+            query => "REPLACE INTO gorgone_synchistory (`id`, `ctime`) VALUES (?, ?)",
+            bind_values => [$options{id}, $options{ctime}]
+        }
     );
     return $status;
 }
@@ -731,7 +731,7 @@ sub update_sync_time {
 sub get_sync_time {
     my (%options) = @_;
 
-    my ($status, $sth) = $options{dbh}->query("SELECT * FROM gorgone_synchistory WHERE id = '" . $options{node_id} . "'");
+    my ($status, $sth) = $options{dbh}->query({ query => "SELECT * FROM gorgone_synchistory WHERE id = '" . $options{node_id} . "'" });
     if ($status == -1) {
         $synctime_nodes->{$options{node_id}}->{synctime_error} = -1; 
         return -1;

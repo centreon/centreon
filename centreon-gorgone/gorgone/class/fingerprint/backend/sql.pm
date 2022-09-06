@@ -55,7 +55,10 @@ sub check_fingerprint {
 
     return 1 if ($self->{fingerprint_mode} eq 'always');
 
-    my ($status, $sth) = $self->query("SELECT `id`, `fingerprint` FROM gorgone_target_fingerprint WHERE target = " . $self->quote($options{target}) . " ORDER BY id ASC LIMIT 1");
+    my ($status, $sth) = $self->query({
+        query => "SELECT `id`, `fingerprint` FROM gorgone_target_fingerprint WHERE target = ? ORDER BY id ASC LIMIT 1",
+        bind_values => [$options{target}]
+    });
     return (0, "cannot get fingerprint for target '$options{target}'") if ($status == -1);
     my $row = $sth->fetchrow_hashref();
 
@@ -63,8 +66,10 @@ sub check_fingerprint {
         if ($self->{fingerprint_mode} eq 'strict') {
             return (0, "no fingerprint found for target '" . $options{target} . "' [strict mode] [fingerprint: $options{fingerprint}]");
         }
-        ($status) = $self->query("INSERT INTO gorgone_target_fingerprint (`target`, `fingerprint`) VALUES (" 
-            . $self->quote($options{target}) . ', ' . $self->quote($options{fingerprint}) . ')');
+        ($status) = $self->query({
+            query => "INSERT INTO gorgone_target_fingerprint (`target`, `fingerprint`) VALUES (?, ?)",
+            bind_values => [$options{target}, $options{fingerprint}]
+        });
         return (0, "cannot insert target '$options{target}' fingerprint") if ($status == -1);
         return 1;
     }

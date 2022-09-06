@@ -546,10 +546,12 @@ sub getlog {
 
     my %filters = ();
     my ($filter, $filter_append) = ('', '');
+    my @bind_values = ();
     foreach ((['id', '>'], ['token', '='], ['ctime', '>'], ['etime', '>'], ['code', '='])) {
         if (defined($data->{$_->[0]}) && $data->{$_->[0]} ne '') {
-            $filter .= $filter_append . $_->[0] . ' ' . $_->[1] . ' ' . $options{gorgone}->{db_gorgone}->quote($data->{$_->[0]});
+            $filter .= $filter_append . $_->[0] . ' ' . $_->[1] . ' ?';
             $filter_append = ' AND ';
+            push @bind_values, $data->{ $_->[0] };
         }
     }
 
@@ -560,7 +562,7 @@ sub getlog {
     my $query = "SELECT * FROM gorgone_history WHERE " . $filter;
     $query .= " ORDER BY id DESC LIMIT " . $data->{limit} if (defined($data->{limit}) && $data->{limit} ne '');
 
-    my ($status, $sth) = $options{gorgone}->{db_gorgone}->query($query);
+    my ($status, $sth) = $options{gorgone}->{db_gorgone}->query({ query => $query, bind_values => \@bind_values });
     if ($status == -1) {
         return (GORGONE_ACTION_FINISH_KO, { message => 'database issue' });
     }
@@ -606,33 +608,40 @@ sub kill {
 sub update_identity_attrs {
     my (%options) = @_;
 
-    my $values = [];
+    my @fields = ();
+    my @bind_values = ();
     foreach ('key', 'oldkey', 'iv', 'oldiv', 'ctime') {
         next if (!defined($options{$_}));
 
         if ($options{$_} eq 'NULL') {
-            push @$values, "`$_` = NULL";
+            push @fields, "`$_` = NULL";
         } else {
-            push @$values, "`$_` = " . $options{dbh}->quote($options{$_});
+            push @fields, "`$_` = ?";
+            push @bind_values, $options{$_};
         }
     }
+    push @bind_values, $options{identity}, $options{identity};
 
-    my ($status, $sth) = $options{dbh}->query(
-        "UPDATE gorgone_identity SET " .
-        join(', ', @$values) .
-        " WHERE `identity` = " . $options{dbh}->quote($options{identity}) . " AND " .
-        " `id` = (SELECT `id` FROM gorgone_identity WHERE `identity` = " . $options{dbh}->quote($options{identity}) . " ORDER BY `id` DESC LIMIT 1)"
+    my ($status, $sth) = $options{dbh}->query({
+            query => "UPDATE gorgone_identity SET " . join(', ', @fields) .
+                " WHERE `identity` = ? AND " .
+                " `id` = (SELECT `id` FROM gorgone_identity WHERE `identity` = ? ORDER BY `id` DESC LIMIT 1)",
+            bind_values => \@bind_values
+        }
     );
+
     return $status;
 }
 
 sub update_identity_mtime {
     my (%options) = @_;
 
-    my ($status, $sth) = $options{dbh}->query(
-        "UPDATE gorgone_identity SET `mtime` = " . $options{dbh}->quote(time()) .
-        " WHERE `identity` = " . $options{dbh}->quote($options{identity}) . " AND " .
-        " `id` = (SELECT `id` FROM gorgone_identity WHERE `identity` = " . $options{dbh}->quote($options{identity}) . " ORDER BY `id` DESC LIMIT 1)"
+    my ($status, $sth) = $options{dbh}->query({
+            query => "UPDATE gorgone_identity SET `mtime` = ?" .
+                " WHERE `identity` = ? AND " .
+                " `id` = (SELECT `id` FROM gorgone_identity WHERE `identity` = ? ORDER BY `id` DESC LIMIT 1)",
+            bind_values => [time(), $options{identity}, $options{identity}]
+        }
     );
     return $status;
 }
@@ -641,13 +650,10 @@ sub add_identity {
     my (%options) = @_;
 
     my $time = time();
-    my ($status, $sth) = $options{dbh}->query(
-        "INSERT INTO gorgone_identity (`ctime`, `mtime`, `identity`, `key`, `iv`) VALUES (" . 
-        $options{dbh}->quote($time) . ", " .
-        $options{dbh}->quote($time) . ", " .
-        $options{dbh}->quote($options{identity}) . ", " .
-        $options{dbh}->quote(unpack('H*', $options{key})) . ", " .
-        $options{dbh}->quote(unpack('H*', $options{iv})) . ")",
+    my ($status, $sth) = $options{dbh}->query({
+            query =>  "INSERT INTO gorgone_identity (`ctime`, `mtime`, `identity`, `key`, `iv`) VALUES (?, ?, ?, ?, ?)",
+            bind_values => [$time, $time, $options{identity}, unpack('H*', $options{key}), unpack('H*', $options{iv})]
+        }
     );
     return $status;
 }
@@ -665,24 +671,30 @@ sub add_history {
         $options{etime} = time();
     }
 
-    my @names = ();
-    my @values = ();
+
+    my $fields = '';
+    my $placeholder = '';
+    my $append = '';
+    my @bind_values = ();
     foreach (('data', 'token', 'ctime', 'etime', 'code', 'instant')) {
         if (defined($options{$_})) {
-            push @names, $_;
-            push @values, $options{dbh}->quote($options{$_});
+            $fields .= $append . $_;
+            $placeholder .= $append . '?';
+            $append = ', ';
+            push @bind_values, $options{$_};
         }
     }
     my ($status, $sth) = $options{dbh}->query(
-        "INSERT INTO gorgone_history (" . join(',', @names) . ") VALUES (" . 
-        join(',', @values) . ")"
+        { query => "INSERT INTO gorgone_history ($fields) VALUES ($placeholder)", bind_values => \@bind_values }
     );
 
     if (defined($options{token}) && $options{token} ne '') {
         $listener->event_log(
-            token => $options{token},
-            code => $options{code},
-            data => $options{data}
+            {
+                token => $options{token},
+                code => $options{code},
+                data => \$options{data}
+            }
         );
     }
     return $status;
@@ -695,9 +707,8 @@ sub add_history {
 sub json_encode {
     my (%options) = @_;
 
-    my $data;
     eval {
-        $data = JSON::XS->new->encode($options{data});
+        $options{data} = JSON::XS->new->encode($options{data});
     };
     if ($@) {
         if (defined($options{logger})) {
@@ -706,15 +717,14 @@ sub json_encode {
         return undef;
     }
 
-    return $data;
+    return $options{data};
 }
 
 sub json_decode {
     my (%options) = @_;
 
-    my $data;
     eval {
-        $data = JSON::XS->new->decode($options{data});
+        $options{data} = JSON::XS->new->decode($options{data});
     };
     if ($@) {
         if (defined($options{logger})) {
@@ -723,7 +733,7 @@ sub json_decode {
         return undef;
     }
 
-    return $data;
+    return $options{data};
 }
 
 #######################
@@ -966,7 +976,7 @@ sub create_schema {
         }
     ];
     foreach (@$schema) {
-        my ($status, $sth) = $options{gorgone}->{db_gorgone}->query($_);
+        my ($status, $sth) = $options{gorgone}->{db_gorgone}->query({ query => $_ });
         if ($status == -1) {
             $options{logger}->writeLogError("[core] create schema issue");
             exit(1);
@@ -1000,9 +1010,9 @@ sub init_database {
     return if (!defined($options{autocreate_schema}) || $options{autocreate_schema} != 1);
 
     my $db_version = '1.0';
-    my ($status, $sth) = $options{gorgone}->{db_gorgone}->query(q{SELECT `value` FROM gorgone_information WHERE `key` = 'version'});
+    my ($status, $sth) = $options{gorgone}->{db_gorgone}->query({ query => q{SELECT `value` FROM gorgone_information WHERE `key` = 'version'} });
     if ($status == -1) {
-        ($status, $sth) = $options{gorgone}->{db_gorgone}->query(q{SELECT 1 FROM gorgone_identity LIMIT 1});
+        ($status, $sth) = $options{gorgone}->{db_gorgone}->query({ query => q{SELECT 1 FROM gorgone_identity LIMIT 1} });
         if ($status == -1) {
             create_schema(gorgone => $options{gorgone}, logger => $options{logger}, version => $options{version});
             return ;
@@ -1042,7 +1052,7 @@ sub init_database {
             }
         ];
         foreach (@$schema) {
-            my ($status, $sth) = $options{gorgone}->{db_gorgone}->query($_);
+            my ($status, $sth) = $options{gorgone}->{db_gorgone}->query({ query => $_ });
             if ($status == -1) {
                 $options{logger}->writeLogError("[core] update schema issue");
                 exit(1);
@@ -1052,7 +1062,7 @@ sub init_database {
     }
 
     if ($db_version ne $options{version}) {
-        $options{gorgone}->{db_gorgone}->query("UPDATE gorgone_information SET `value` = '$options{version}' WHERE `key` = 'version'");
+        $options{gorgone}->{db_gorgone}->query({ query => "UPDATE gorgone_information SET `value` = '$options{version}' WHERE `key` = 'version'" });
     }
 }
         

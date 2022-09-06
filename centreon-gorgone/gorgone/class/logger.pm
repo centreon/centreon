@@ -199,26 +199,28 @@ sub writeLog {
     my $withdate = (defined $options{withdate}) ? $options{withdate} : 1;
     my $withseverity = (defined $options{withseverity}) ? $options{withseverity} : 1;
 
-    my $msg = $options{message};
-    $msg = (($self->{withpid} == 1) ? "$$ - $msg " : $msg);
-    my $newmsg = ($withseverity) 
-      ? $options{severity_str} . " - $msg" : $msg;
-    $newmsg = ($withdate) 
-      ? $self->get_date . " - $newmsg" : $newmsg;
-
     if (($self->{severity} & $options{severity}) == 0) {
         return;
     }
 
-    chomp($newmsg);
+    if ($self->{log_mode} == 2) {
+        syslog($severities{$options{severity}}, $options{message});
+        return;
+    }
+
+    $options{message} = (($self->{withpid} == 1) ? "$$ - $options{message} " : $options{message});
+    $options{message} = ($withseverity)
+      ? $options{severity_str} . " - $options{message}" : $options{message};
+    $options{message} = ($withdate)
+      ? $self->get_date . " - $options{message}" : $options{message};
+
+    chomp($options{message});
     if ($self->{log_mode} == 0) {
-        print "$newmsg\n";
+        print "$options{message}\n";
     } elsif ($self->{log_mode} == 1) {
         if (defined $self->{filehandler}) {
-            print { $self->{filehandler} } "$newmsg\n";
+            print { $self->{filehandler} } "$options{message}\n";
         }
-    } elsif ($self->{log_mode} == 2) {
-        syslog($severities{$options{severity}}, $msg);
     }
 }
 

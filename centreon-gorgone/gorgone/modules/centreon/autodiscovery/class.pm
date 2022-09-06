@@ -666,8 +666,8 @@ sub discovery_command_result {
     }
 
     # Delete previous results
-    my $query = "DELETE FROM mod_host_disco_host WHERE job_id = " . $self->{class_object_centreon}->quote(value => $job_id);
-    my ($status) = $self->{class_object_centreon}->custom_execute(request => $query);
+    my $query = "DELETE FROM mod_host_disco_host WHERE job_id = ?";
+    my ($status) = $self->{class_object_centreon}->custom_execute(request => $query, bind_values => [$job_id]);
     if ($status == -1) {
         $self->{logger}->writeLogError("[autodiscovery] -class- host discovery - failed to delete previous job '$job_id' results");
         $self->update_job_status(
@@ -681,11 +681,12 @@ sub discovery_command_result {
     # Add new results
     my $number_of_lines = 0;
     my $values = '';
+    my @bind_values = ();
     my $append = '';
     $query = "INSERT INTO mod_host_disco_host (job_id, discovery_result, uuid) VALUES ";
     foreach my $host (@{$result->{results}}) {
         if ($number_of_lines == MAX_INSERT_BY_QUERY) {
-            ($status) = $self->{class_object_centreon}->custom_execute(request => $query . $values);
+            ($status) = $self->{class_object_centreon}->custom_execute(request => $query . $values, bind_values => \@bind_values);
             if ($status == -1) {
                 $self->{logger}->writeLogError("[autodiscovery] -class- host discovery - failed to insert job '$job_id' results");
                 $self->update_job_status(
@@ -698,6 +699,7 @@ sub discovery_command_result {
             $number_of_lines = 0;
             $values = '';
             $append = '';
+            @bind_values = ();
         }
 
         # Generate uuid based on attributs
@@ -713,15 +715,14 @@ sub discovery_command_result {
         my $encoded_host = JSON::XS->new->encode($host);
 
         # Build bulk insert
-        $values .= $append . "(" . $self->{class_object_centreon}->quote(value => $job_id) . ", " . 
-            $self->{class_object_centreon}->quote(value => $encoded_host) . ", " . 
-            $self->{class_object_centreon}->quote(value => $uuid) . ")";
+        $values .= $append . '(?, ?, ?)';
         $append = ', ';
+        push @bind_values, $job_id, $encoded_host, $uuid;
         $number_of_lines++;
     }
 
     if ($values ne '') {
-        ($status) = $self->{class_object_centreon}->custom_execute(request => $query . $values);
+        ($status) = $self->{class_object_centreon}->custom_execute(request => $query . $values, bind_values => \@bind_values);
         if ($status == -1) {
             $self->{logger}->writeLogError("[autodiscovery] -class- host discovery - failed to insert job '$job_id' results");
             $self->update_job_status(
@@ -856,21 +857,24 @@ sub update_job_information {
     return 1 if (!defined($options{values}) || ref($options{values}) ne 'HASH' || !keys %{$options{values}});
     
     my $query = "UPDATE mod_host_disco_job SET ";
+    my @bind_values = ();
     my $append = '';
     foreach (keys %{$options{values}}) {
-        $query .= $append . $_ . " = " .  $self->{class_object_centreon}->quote(value => $options{values}->{$_});
+        $query .= $append . $_ . ' = ?';
         $append = ', ';
+        push @bind_values, $options{values}->{$_};
     }
 
     $query .= " WHERE ";
     $append = '';
     foreach (@{$options{where_clause}}) {
         my ($key, $value) = each %{$_};
-        $query .= $append . $key . " = " . $self->{class_object_centreon}->quote(value => $value);
+        $query .= $append . $key . " = ?";
         $append = 'AND ';
+        push @bind_values, $value;
     }
 
-    my ($status) = $self->{class_object_centreon}->custom_execute(request => $query);
+    my ($status) = $self->{class_object_centreon}->custom_execute(request => $query, bind_values => \@bind_values);
     if ($status == -1) {
         $self->{logger}->writeLogError('[autodiscovery] Failed to update job information');
         return -1;
@@ -1062,7 +1066,7 @@ sub event {
         my $message = $connector->read_message();
         last if (!defined($message));
 
-        $connector->{logger}->writeLogDebug("[autodiscovery] Event: $message");
+        $connector->{logger}->writeLogDebug("[autodiscovery] Event: $message") if ($connector->{logger}->is_debug());
         if ($message =~ /^\[(.*?)\]/) {
             if ((my $method = $connector->can('action_' . lc($1)))) {
                 $message =~ /^\[(.*?)\]\s+\[(.*?)\]\s+\[.*?\]\s+(.*)$/m;

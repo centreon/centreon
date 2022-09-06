@@ -38,23 +38,21 @@ sub new {
 }
 
 sub event_log {
-    my ($self, %options) = @_;
+    my ($self) = shift;
 
-    return if (!defined($self->{tokens}->{$options{token}}));
+    return if (!defined($self->{tokens}->{ $_[0]->{token}}));
 
     # we want to avoid loop
-    my $events = $self->{tokens}->{ $options{token} };
-    if ($options{code} == GORGONE_ACTION_FINISH_KO || $options{code} == GORGONE_ACTION_FINISH_OK) {
-        delete $self->{tokens}->{ $options{token} };
+    my $events = $self->{tokens}->{ $_[0]->{token} };
+    if ($_[0]->{code} == GORGONE_ACTION_FINISH_KO || $_[0]->{code} == GORGONE_ACTION_FINISH_OK) {
+        delete $self->{tokens}->{ $_[0]->{token} };
     }
 
     foreach (keys %{$events->{events}}) {
-        $self->{logger}->writeLogDebug("[listener] trigger event '$options{token}'");
+        $self->{logger}->writeLogDebug("[listener] trigger event '$_[0]->{token}'");
 
-        $self->{gorgone_core}->message_run(
-            message => '[' . $_ . '] [' . $options{token} . '] [] { "code": ' . $options{code} . ', "data": ' . $options{data} . ' }',
-            router_type => 'internal'
-        );
+        my $message = '[' . $_ . '] [' . $_[0]->{token} . '] [] { "code": ' . $_[0]->{code} . ', "data": ' . ${$_[0]->{data}} . ' }';
+        $self->{gorgone_core}->message_run({ message => \$message, router_type => 'internal' });
     }
 }
 
@@ -91,10 +89,8 @@ sub check_getlog_token {
         return if (defined($self->{gorgone_core}->{id}) && $self->{gorgone_core}->{id} == $self->{tokens}->{$options{token}}->{target});
         
         if ((time() - $self->{tokens}->{$options{token}}->{log_pace}) > $self->{tokens}->{$options{token}}->{getlog_last}) {
-            $self->{gorgone_core}->message_run(
-                message => "[GETLOG] [] [$self->{tokens}->{$options{token}}->{target}] {}",
-                router_type => 'internal'
-            );
+            my $message = "[GETLOG] [] [$self->{tokens}->{$options{token}}->{target}] {}";
+            $self->{gorgone_core}->message_run({ message => \$message, router_type => 'internal' });
 
             $self->{tokens}->{$options{token}}->{getlog_last} = time();
         }

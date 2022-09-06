@@ -282,7 +282,7 @@ sub init_external_informations {
     my ($self) = @_;
 
     my ($status, $sth) = $self->{db_gorgone}->query(
-        "SELECT `identity`, `ctime`, `mtime`, `key`, `oldkey`, `iv`, `oldiv` FROM gorgone_identity ORDER BY id DESC"
+        { query => "SELECT `identity`, `ctime`, `mtime`, `key`, `oldkey`, `iv`, `oldiv` FROM gorgone_identity ORDER BY id DESC" }
     );
     if ($status == -1) {
         $self->{logger}->writeLogError("[core] cannot load gorgone_identity");
@@ -497,9 +497,13 @@ sub broadcast_core_key {
     my ($rv, $key) = gorgone::standard::library::generate_symkey(
         keysize => $self->{config}->{configuration}->{gorgone}->{gorgonecore}->{internal_com_keysize}
     );
+
+    my $message = '[BCASTCOREKEY] [] [] { "key": "' . unpack('H*', $key). '"}';
     $self->message_run(
-        message => '[BCASTCOREKEY] [] [] { "key": "' . unpack('H*', $key). '"}',
-        router_type => 'internal'
+        {
+            message => \$message,
+            router_type => 'internal'
+        }
     );
 }
 
@@ -627,10 +631,10 @@ sub broadcast_run {
 }
 
 sub message_run {
-    my ($self, %options) = @_;
+    my ($self) = shift;
 
-    $self->{logger}->writeLogDebug('[core] Message received - ' . $options{message});
-    if ($options{message} !~ /^\[(.+?)\]\s+\[(.*?)\]\s+\[(.*?)\]\s+(.*)$/) {
+    $self->{logger}->writeLogDebug('[core] Message received - ' . ${$_[0]->{message}}) if ($self->{logger}->is_debug());
+    if (${$_[0]->{message}} !~ /^\[(.+?)\]\s+\[(.*?)\]\s+\[(.*?)\]\s+(.*)$/) {
         return (undef, 1, { message => 'request not well formatted' });
     }
     my ($action, $token, $target, $data) = ($1, $2, $3, $4);
@@ -656,10 +660,10 @@ sub message_run {
         return (undef, 1, { error => "unknown_action", message => "action '$action' is unknown" });
     }
 
-    $self->{counters}->{$options{router_type}}->{lc($action)} = 0 if (!defined($self->{counters}->{$options{router_type}}->{lc($action)}));
-    $self->{counters}->{$options{router_type}}->{lc($action)}++;
+    $self->{counters}->{ $_[0]->{router_type} }->{lc($action)} = 0 if (!defined($self->{counters}->{ $_[0]->{router_type} }->{lc($action)}));
+    $self->{counters}->{ $_[0]->{router_type} }->{lc($action)}++;
     $self->{counters}->{total}++;
-    $self->{counters}->{$options{router_type}}->{total}++;
+    $self->{counters}->{ $_[0]->{router_type} }->{total}++;
 
     if ($self->{stop} == 1) {
         gorgone::standard::library::add_history(
@@ -707,8 +711,8 @@ sub message_run {
         my ($code, $response, $response_type) = $self->{internal_register}->{lc($action)}->(
             gorgone => $self,
             gorgone_config => $self->{config}->{configuration}->{gorgone},
-            identity => $options{identity},
-            router_type => $options{router_type},
+            identity => $_[0]->{identity},
+            router_type => $_[0]->{router_type},
             id => $self->{id},
             data => $data,
             token => $token,
@@ -754,9 +758,11 @@ sub router_internal_event {
         last if (!defined($identity));
 
         my ($token, $code, $response, $response_type) = $gorgone->message_run(
-            message => $message,
-            identity => $identity,
-            router_type => 'internal',
+            {
+                message => \$message,
+                identity => $identity,
+                router_type => 'internal'
+            }
         );
         $gorgone->send_internal_response(
             identity => $identity,
@@ -1048,9 +1054,11 @@ sub router_external_event {
         );
         if (defined($uncrypt_message)) {
             my ($token, $code, $response, $response_type) = $gorgone->message_run(
-                message => $uncrypt_message,
-                identity => $identity,
-                router_type => 'external',
+                {
+                    message => \$uncrypt_message,
+                    identity => $identity,
+                    router_type => 'external'
+                }
             );
             $gorgone->external_core_response(
                 identity => $identity,
