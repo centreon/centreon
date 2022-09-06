@@ -21,6 +21,10 @@ export interface BasicForm {
   custom: string;
   email: string;
   group: { id: number; name: string } | null;
+  inviteUsers: Array<{
+    role: SelectEntry;
+    user: string;
+  }>;
   isForced: boolean;
   language: string;
   name: string;
@@ -41,21 +45,34 @@ export const basicFormValidationSchema = Yup.object().shape({
   custom: Yup.string().required('Custom is required'),
   email: Yup.string().email('Invalid email').required('Email is required'),
   group: selectEntryValidationSchema.nullable().required('Required'),
+  inviteUsers: Yup.array().of(
+    Yup.object({
+      email: Yup.string()
+        .email('Invalid user email')
+        .required('Email is required'),
+      role: selectEntryValidationSchema,
+    }),
+  ),
   isForced: Yup.boolean().required('Is forced is required'),
   language: Yup.string().required('Language is required'),
   name: Yup.string().required('Name is required'),
   password: Yup.string().required('Password is required'),
-  scopes: Yup.array().of(Yup.string().required('Required')),
-  sports: Yup.array().of(selectEntryValidationSchema.required('Required')),
+  scopes: Yup.array().of(
+    Yup.string().min(3, '3 characters min').required('Required'),
+  ),
+  sports: Yup.array()
+    .of(selectEntryValidationSchema.required('Required'))
+    .min(2, 'Choose at least 2 sports'),
 });
 
 export const basicFormInitialValues = {
   active: false,
   animals: [],
-  class: null,
+  class: { id: 0, name: 'Class 0' },
   custom: '',
   email: '',
   group: null,
+  inviteUsers: [],
   isForced: false,
   language: 'French',
   name: '',
@@ -84,6 +101,21 @@ export const basicFormGroups: Array<Group> = [
     TooltipContent: (): JSX.Element => <Typography>Tooltip content</Typography>,
     name: 'Second group',
     order: 2,
+  },
+];
+
+const roleEntries: Array<SelectEntry> = [
+  {
+    id: 1,
+    name: 'Administrator',
+  },
+  {
+    id: 2,
+    name: 'User',
+  },
+  {
+    id: 3,
+    name: 'Editor',
   },
 ];
 
@@ -191,6 +223,7 @@ export const basicFormInputs: Array<InputProps> = [
       columns: [
         {
           connectedAutocomplete: {
+            additionalConditionParameters: [],
             endpoint: 'endpoint',
           },
           fieldName: 'group',
@@ -199,6 +232,7 @@ export const basicFormInputs: Array<InputProps> = [
         },
         {
           connectedAutocomplete: {
+            additionalConditionParameters: [],
             endpoint: 'endpoint',
           },
           fieldName: 'animals',
@@ -222,6 +256,36 @@ export const basicFormInputs: Array<InputProps> = [
     group: 'Second group',
     label: 'Custom',
     type: InputType.Custom,
+  },
+  {
+    fieldName: 'inviteUsers',
+    fieldsTable: {
+      columns: [
+        {
+          fieldName: 'email',
+          label: 'Email',
+          required: true,
+          type: InputType.Text,
+        },
+        {
+          autocomplete: {
+            creatable: false,
+            options: roleEntries,
+          },
+          fieldName: 'role',
+          label: 'Role',
+          type: InputType.SingleAutocomplete,
+        },
+      ],
+      defaultRowValue: {
+        email: 'example',
+        role: null,
+      },
+      deleteLabel: 'Delete',
+    },
+    group: 'First group',
+    label: '',
+    type: InputType.FieldsTable,
   },
 ];
 

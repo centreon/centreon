@@ -1,5 +1,5 @@
 import { FormikValues, useFormikContext } from 'formik';
-import { equals, length, pick, pipe, prop, type } from 'ramda';
+import { dec, equals, inc, isNil, pick, prop, type } from 'ramda';
 import { useAtomValue } from 'jotai';
 import { useTranslation } from 'react-i18next';
 import { makeStyles } from 'tss-react/mui';
@@ -61,19 +61,22 @@ const FieldsTable = ({
     values,
   );
 
+  const createNewRow = isNil(fieldsTableError);
+
+  const fieldsTableRows = createNewRow
+    ? inc(tableValues.length)
+    : tableValues.length;
+
   return useMemoComponent({
     Component: (
       <div className={classes.container}>
         <Typography>{t(label)}</Typography>
         <div className={classes.table}>
-          {[...Array(tableValues.length + 1).keys()].map((idx): JSX.Element => {
+          {[...Array(fieldsTableRows).keys()].map((idx): JSX.Element => {
             const getRequired = (): boolean =>
               fieldsTable?.getRequired?.({ index: idx, values }) || false;
 
-            const isLastElement = pipe(
-              length as (list) => number,
-              equals(idx),
-            )(tableValues);
+            const isLastElement = equals(idx, dec(fieldsTableRows));
 
             return (
               <Row
