@@ -35,10 +35,12 @@ jobs:
     - name: Get changed files
       id: files
       uses: jitterbit/get-changed-files@v1
+      working-directory: centreon
 
     - name: Run PHPCS
       run: |
-          cd centreon && ./vendor/bin/phpcs --extensions=php --standard=./ruleset.xml --report=checkstyle --report-file=./checkstyle-be.xml ../${{ steps.files.outputs.added }} ../${{ steps.files.outputs.modified }}
+           ./vendor/bin/phpcs --extensions=php --standard=./ruleset.xml --report=checkstyle --report-file=./checkstyle-be.xml ${{ steps.files.outputs.added }} ${{ steps.files.outputs.modified }}
+      working-directory: centreon
       continue-on-error: true
 
     - name: Checkout Private GitHub Action Repo
@@ -49,5 +51,6 @@ jobs:
         ref: master
 
     - name: Annotate PR from PHPCS result
+      working-directory: centreon
       run: |
-        cd centreon && ./my-action/cs2pr.php --prefix=PHPCS checkstyle-be.xml
+        ./my-action/cs2pr.php --prefix=PHPCS checkstyle-be.xml
