@@ -35,7 +35,6 @@ jobs:
     - name: Get changed files
       id: files
       uses: jitterbit/get-changed-files@v1
-      working-directory: centreon
 
     - name: Run PHPCS
       run: |
