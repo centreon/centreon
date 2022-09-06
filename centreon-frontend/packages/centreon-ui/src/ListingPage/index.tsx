@@ -30,6 +30,7 @@ const useStyles = makeStyles()((theme) => {
 
 interface Props {
   filter: JSX.Element;
+  fullHeight?: boolean;
   listing: JSX.Element;
   listingScrollOffset?: number;
   pageClassName?: string;
@@ -46,6 +47,7 @@ const ListingPage = ({
   panelFixed = false,
   pageClassName,
   listingScrollOffset = 16,
+  fullHeight = false,
 }: Props): JSX.Element => {
   const { classes, cx } = useStyles();
   const [listingHeight, setListingHeight] = useState(0);
@@ -83,6 +85,7 @@ const ListingPage = ({
           className={classes.listing}
           ref={listingRef}
           sx={{
+            ...(fullHeight && { height: '100%' }),
             maxHeight: listingContainerHeight,
             overflowY: 'auto',
           }}
