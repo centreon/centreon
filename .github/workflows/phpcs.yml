@@ -38,7 +38,7 @@ jobs:
 
     - name: Run PHPCS
       run: |
-          ./centreon/vendor/bin/phpcs --extensions=php --standard=./centreon/ruleset.xml --report=checkstyle --report-file=./centreon/checkstyle-be.xml ${{ steps.files.outputs.added }} ${{ steps.files.outputs.modified }}
+          cd centreon && ./vendor/bin/phpcs --extensions=php --standard=./ruleset.xml --report=checkstyle --report-file=./checkstyle-be.xml ${{ steps.files.outputs.added }} ${{ steps.files.outputs.modified }}
       continue-on-error: true
 
     - name: Checkout Private GitHub Action Repo
