@@ -12,11 +12,11 @@ import ListingSkeleton from './ListingSkeleton';
 const useStyles = makeStyles()((theme) => {
   return {
     filters: {
+      margin: theme.spacing(0, 4, 0, 3),
       zIndex: 4,
     },
     listing: {
-      marginLeft: theme.spacing(2),
-      marginRight: theme.spacing(2),
+      margin: theme.spacing(0, 4, 0, 3),
     },
     page: {
       backgroundColor: theme.palette.background.paper,

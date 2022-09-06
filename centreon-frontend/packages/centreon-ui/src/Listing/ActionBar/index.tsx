@@ -11,7 +11,7 @@ import ColumnMultiSelect from './ColumnMultiSelect';
 
 const useStyles = makeStyles()((theme) => ({
   actions: {
-    padding: theme.spacing(1),
+    padding: theme.spacing(1, 0),
   },
   container: {
     alignItems: 'center',
