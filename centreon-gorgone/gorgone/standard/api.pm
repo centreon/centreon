@@ -94,14 +94,14 @@ sub call_action {
 
     $action_token = gorgone::standard::library::generate_token() if (!defined($options{token}));
 
-    $options{module}->send_internal_action(
+    $options{module}->send_internal_action({
         socket => $socket,
         action => $options{action},
         target => $options{target},
         token => $action_token,
         data => $options{data},
         json_encode => 1
-    );
+    });
 
     my $response = '{"token":"' . $action_token . '"}';
     if (defined($options{log_wait}) && $options{log_wait} ne '') {
@@ -143,13 +143,13 @@ sub call_internal {
         );
     }
 
-    $options{module}->send_internal_action(
+    $options{module}->send_internal_action({
         socket => $socket,
         action => $options{action},
         token => $action_token,
         data => $options{data},
         json_encode => 1
-    );
+    });
 
     my $timeout = 5000;
     while ($timeout > 100) {
@@ -196,19 +196,19 @@ sub get_log {
     ];
 
     if (defined($options{target}) && $options{target} ne '') {
-        $options{module}->send_internal_action(
+        $options{module}->send_internal_action({
             socket => $socket,
             target => $options{target},
             action => 'GETLOG',
             json_encode => 1
-        );
+        });
 
         my $sync_wait = (defined($options{sync_wait}) && $options{sync_wait} ne '') ? $options{sync_wait} : 10000;
         Time::HiRes::usleep($sync_wait);
     }
 
     my $token_log = $options{token} . '-log';
-    $options{module}->send_internal_action(
+    $options{module}->send_internal_action({
         socket => $socket,
         action => 'GETLOG',
         token => $token_log,
@@ -217,7 +217,7 @@ sub get_log {
             %{$options{parameters}}
         },
         json_encode => 1
-    );
+    });
 
     my $timeout = 5000;
     while ($timeout > 100) {

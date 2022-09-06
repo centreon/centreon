@@ -248,7 +248,7 @@ sub action_centreonauditschedule {
         nodes => {}
     };
     foreach (@$datas) {
-        $self->send_internal_action(
+        $self->send_internal_action({
             action => 'ADDLISTENER',
             data => [
                 {
@@ -258,8 +258,8 @@ sub action_centreonauditschedule {
                     timeout => 300
                 }
             ]
-        );
-        $self->send_internal_action(
+        });
+        $self->send_internal_action({
             action => 'CENTREONAUDITNODE',
             target => $_->[0],
             token => 'audit-' . $options{token} . '-' . $_->[0],
@@ -267,7 +267,7 @@ sub action_centreonauditschedule {
                 instant => 1,
                 content => $params
             }
-        );
+        });
 
         $self->{audit_tokens}->{ $options{token} }->{nodes}->{$_->[0]} = {
             name => $_->[1],
@@ -345,10 +345,10 @@ sub run {
         type => $self->get_core_config(name => 'internal_com_type'),
         path => $self->get_core_config(name => 'internal_com_path')
     );
-    $connector->send_internal_action(
+    $connector->send_internal_action({
         action => 'CENTREONAUDITREADY',
         data => {}
-    );
+    });
 
     if (defined($self->{config_db_centreon})) {
         $self->{db_centreon} = gorgone::class::db->new(

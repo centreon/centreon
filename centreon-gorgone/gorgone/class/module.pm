@@ -160,19 +160,19 @@ sub send_internal_key {
 }
 
 sub send_internal_action {
-    my ($self, %options) = @_;
+    my ($self) = shift;
 
     if (!defined($options{message})) {
         $options{message} = gorgone::standard::library::build_protocol(
-            token => $options{token},
-            action => $options{action},
-            target => $options{target},
-            data => $options{data},
-            json_encode => defined($options{data_noencode}) ? undef : 1
+            token => $_[0]->{token},
+            action => $_[0]->{action},
+            target => $_[0]->{target},
+            data => $_[0]->{data},
+            json_encode => defined($_[0]->{data_noencode}) ? undef : 1
         );
     }
 
-    my $socket = defined($options{socket}) ? $options{socket} : $self->{internal_socket};
+    my $socket = defined($_[0]->{socket}) ? $_[0]->{socket} : $self->{internal_socket};
     if ($self->{internal_crypt}->{enabled} == 1) {
         my $identity = gorgone::standard::library::zmq_get_routing_id(socket => $socket);
 
@@ -199,7 +199,7 @@ sub send_internal_action {
         }
 
         eval {
-            $options{message} = $self->{cipher}->encrypt($options{message}, $key, $self->{internal_crypt}->{iv});
+            $_[0]->{message} = $self->{cipher}->encrypt($_[0]->{message}, $key, $self->{internal_crypt}->{iv});
         };
         if ($@) {
             $self->{logger}->writeLogError("[$self->{module_id}]$self->{container} encrypt issue: " .  $@);
@@ -207,7 +207,7 @@ sub send_internal_action {
         }
     }
 
-    zmq_sendmsg($socket, $options{message}, ZMQ_DONTWAIT);
+    zmq_sendmsg($socket, $_[0]->{message}, ZMQ_DONTWAIT);
 }
 
 sub send_log_msg_error {
@@ -216,13 +216,13 @@ sub send_log_msg_error {
     return if (!defined($options{token}));
 
     $self->{logger}->writeLogError("[$self->{module_id}]$self->{container} -$options{subname}- $options{number} $options{message}");
-    $self->send_internal_action(
+    $self->send_internal_action({
         socket => (defined($options{socket})) ? $options{socket} : $self->{internal_socket},
         action => 'PUTLOG',
         token => $options{token},
         data => { code => GORGONE_ACTION_FINISH_KO, etime => time(), instant => $options{instant}, token => $options{token}, data => { message => $options{message} } },
         json_encode => 1
-    );
+    });
 }
 
 sub send_log {
@@ -232,13 +232,13 @@ sub send_log {
 
     return if (defined($options{logging}) && $options{logging} =~ /^(?:false|0)$/);
 
-    $self->send_internal_action(
+    $self->send_internal_action({
         socket => (defined($options{socket})) ? $options{socket} : $self->{internal_socket},
         action => 'PUTLOG',
         token => $options{token},
         data => { code => $options{code}, etime => time(), instant => $options{instant}, token => $options{token}, data => $options{data} },
         json_encode => 1
-    );
+    });
 }
 
 sub json_encode {

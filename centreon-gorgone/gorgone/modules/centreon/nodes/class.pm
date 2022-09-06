@@ -98,7 +98,7 @@ sub check_debug {
     my $debug_gorgone = 0;
     $debug_gorgone = $datas->[0]->[0] if (defined($datas->[0]->[0]));
     if (!defined($self->{debug_gorgone}) || $self->{debug_gorgone} != $debug_gorgone) {
-        $self->send_internal_action(action => 'BCASTLOGGER', data => { content => { severity => $map_values->{$debug_gorgone} } } );
+        $self->send_internal_action({action => 'BCASTLOGGER', data => { content => { severity => $map_values->{$debug_gorgone} } } });
     }
 
     $self->{debug_gorgone} = $debug_gorgone;
@@ -197,9 +197,9 @@ sub action_centreonnodessync {
         }
     }
 
-    $self->send_internal_action(action => 'SETCOREID', data => { id => $core_id } ) if (defined($core_id));
-    $self->send_internal_action(action => 'REGISTERNODES', data => { nodes => $register_nodes } );
-    $self->send_internal_action(action => 'UNREGISTERNODES', data => { nodes => $unregister_nodes } );
+    $self->send_internal_action({ action => 'SETCOREID', data => { id => $core_id } }) if (defined($core_id));
+    $self->send_internal_action({ action => 'REGISTERNODES', data => { nodes => $register_nodes } });
+    $self->send_internal_action({ action => 'UNREGISTERNODES', data => { nodes => $unregister_nodes } });
 
     $self->{logger}->writeLogDebug("[nodes] Finish resync");
     $self->send_log(code => GORGONE_ACTION_FINISH_OK, token => $options{token}, data => { message => 'action nodesresync finished' });
@@ -249,10 +249,10 @@ sub run {
         type => $self->get_core_config(name => 'internal_com_type'),
         path => $self->get_core_config(name => 'internal_com_path')
     );
-    $connector->send_internal_action(
+    $connector->send_internal_action({
         action => 'CENTREONNODESREADY',
         data => {}
-    );
+    });
     $self->{poll} = [
         {
             socket  => $connector->{internal_socket},
