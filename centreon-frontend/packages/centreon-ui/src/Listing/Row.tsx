@@ -95,6 +95,7 @@ const Row = memo<RowProps>(
       <TableRow
         className={classes.row}
         component="div"
+        role={undefined}
         tabIndex={tabIndex}
         onClick={onClick}
         onFocus={onFocus}

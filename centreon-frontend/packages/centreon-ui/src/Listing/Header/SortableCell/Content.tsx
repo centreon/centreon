@@ -101,7 +101,11 @@ const SortableHeaderCellContent = ({
     >
       <div className={classes.content} ref={itemRef} style={style}>
         {columnConfiguration?.sortable && (
-          <div className={classes.dragHandle} {...props}>
+          <div
+            className={classes.dragHandle}
+            {...props}
+            aria-label={columnLabel}
+          >
             <DragIndicatorIcon fontSize="small" />
           </div>
         )}

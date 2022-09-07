@@ -18,6 +18,7 @@ import { getVisibleColumns, Props as ListingProps } from '..';
 import { Column, PredefinedRowSelection } from '../models';
 import PopoverMenu from '../../PopoverMenu';
 import SortableItems from '../../SortableItems';
+import { labelPredefinedRowsSelectionMenu } from '../translatedLabels';
 
 import SortableHeaderCellContent from './SortableCell/Content';
 import PredefinedSelectionList from './PredefinedSelectionList';
@@ -142,8 +143,8 @@ const ListingHeader = ({
   );
 
   return (
-    <TableHead className={classes.row} component="div">
-      <TableRow className={classes.row} component="div">
+    <TableHead className={classes.row} component="div" role={undefined}>
+      <TableRow className={classes.row} component="div" role={undefined}>
         {checkable && (
           <CheckboxHeaderCell
             component={
@@ -163,6 +164,7 @@ const ListingHeader = ({
               <PopoverMenu
                 className={classes.predefinedRowsMenu}
                 icon={<ArrowDropDownIcon />}
+                title={labelPredefinedRowsSelectionMenu}
               >
                 {({ close }): JSX.Element => (
                   <PredefinedSelectionList

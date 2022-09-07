@@ -487,6 +487,7 @@ const Listing = <TRow extends { id: RowId }>({
             stickyHeader
             className={classes.table}
             component="div"
+            role={undefined}
             size="small"
             style={{
               gridTemplateColumns: getGridTemplateColumn(),
@@ -511,6 +512,7 @@ const Listing = <TRow extends { id: RowId }>({
             <TableBody
               className={classes.tableBody}
               component="div"
+              role={undefined}
               onMouseLeave={clearHoveredRow}
             >
               {rows.map((row, index) => {

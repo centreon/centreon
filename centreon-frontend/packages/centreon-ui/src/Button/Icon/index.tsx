@@ -26,9 +26,14 @@ const IconButton = ({
   const { classes } = useStyles();
 
   return (
-    <Tooltip aria-label={ariaLabel} title={title}>
-      <span>
-        <MuiIconButton className={classes.button} color="primary" {...props} />
+    <Tooltip title={title}>
+      <span aria-label={undefined}>
+        <MuiIconButton
+          aria-label={ariaLabel}
+          className={classes.button}
+          color="primary"
+          {...props}
+        />
       </span>
     </Tooltip>
   );
