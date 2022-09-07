@@ -16,7 +16,7 @@ runs:
         key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
 
     - name: Install composer dependencies
-      if: steps.composer-cache.outputs.cache-hit != 'true'
+      #if: steps.composer-cache.outputs.cache-hit != 'true'
       run: cd centreon && composer install --prefer-dist --no-progress && composer require staabm/annotate-pull-request-from-checkstyle
       shell: bash
 
