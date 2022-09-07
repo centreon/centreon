@@ -175,7 +175,7 @@ sub action_brokerstats {
             "[statistics] Collecting Broker statistics file '" . $statistics_file . "' from target '" . $target . "'"
         );
 
-        $self->send_internal_action(
+        $self->send_internal_action({
             action => 'ADDLISTENER',
             data => [
                 {
@@ -188,9 +188,9 @@ sub action_brokerstats {
                     log_pace => $self->{log_pace}
                 }
             ]
-        );
+        });
 
-        $self->send_internal_action(
+        $self->send_internal_action({
             target => $target,
             action => 'COMMAND',
             token => $options{token} . '-' . $target,
@@ -208,7 +208,7 @@ sub action_brokerstats {
                     }
                 ]
             }
-        );
+        });
     }
 
     $self->send_log(
@@ -247,7 +247,7 @@ sub action_enginestats {
             "[statistics] Collecting Engine statistics from target '" . $target . "'"
         );
 
-        $self->send_internal_action(
+        $self->send_internal_action({
             action => 'ADDLISTENER',
             data => [
                 {
@@ -260,9 +260,9 @@ sub action_enginestats {
                     log_pace => $self->{log_pace}
                 }
             ]
-        );
+        });
         
-        $self->send_internal_action(
+        $self->send_internal_action({
             target => $target,
             action => 'COMMAND',
             token => $options{token} . '-' . $target,
@@ -279,7 +279,7 @@ sub action_enginestats {
                     }
                 ]
             }
-        );
+        });
     }
 
     $self->send_log(
@@ -612,10 +612,10 @@ sub run {
         type => $self->get_core_config(name => 'internal_com_type'),
         path => $self->get_core_config(name => 'internal_com_path')
     );
-    $connector->send_internal_action(
+    $connector->send_internal_action({
         action => 'STATISTICSREADY',
         data => {}
-    );
+    });
 
     $self->{db_centreon} = gorgone::class::db->new(
         dsn => $self->{config_db_centreon}->{dsn},
@@ -650,12 +650,12 @@ sub run {
     ];
 
     if (defined($self->{config}->{cron})) {
-        $self->send_internal_action(
+        $self->send_internal_action({
             action => 'ADDCRON', 
             data => {
-                content => $self->{config}->{cron},
+                content => $self->{config}->{cron}
             }
-        );
+        });
     }
 
     while (1) {

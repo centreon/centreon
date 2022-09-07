@@ -182,7 +182,7 @@ sub restart_pollers {
     my $poller_ids = {};
     foreach my $poller_id (keys %{$self->{discovery}->{pollers_reload}}) {
         $self->{logger}->writeLogInfo("[autodiscovery] -servicediscovery- $self->{uuid} generate poller config '" . $poller_id . "'");
-        $self->send_internal_action(
+        $self->send_internal_action({
             action => 'COMMAND',
             token => $self->{discovery}->{token} . ':config',
             data => {
@@ -192,7 +192,7 @@ sub restart_pollers {
                     }
                 ]
             }
-        );
+        });
     }
 }
 
@@ -748,7 +748,7 @@ sub service_execute_commands {
                     $host->{host_name} . "] -> substitute string: " . $command
                 );
 
-                $self->send_internal_action(
+                $self->send_internal_action({
                     action => 'ADDLISTENER',
                     data => [
                         {
@@ -760,9 +760,9 @@ sub service_execute_commands {
                             log_pace => 15
                         }
                     ]
-                );
+                });
 
-                $self->send_internal_action(
+                $self->send_internal_action({
                     action => 'COMMAND',
                     target => $poller_id,
                     token => 'svc-disco-' . $self->{uuid} . '-' . $rule_id . '-' . $host_id,
@@ -775,7 +775,7 @@ sub service_execute_commands {
                             }
                         ]
                     }
-                );
+                });
             }
         }
     }

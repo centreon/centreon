@@ -175,7 +175,7 @@ sub wss_connect {
 
                     if ($msg =~ /^\[.*\]/) {
                         $connector->{logger}->writeLogDebug('[pullwss] websocket message: ' . $msg);
-                        $connector->send_internal_action(message => $msg);
+                        $connector->send_internal_action({message => $msg});
                         $self->read_zmq_events();
                     } else {
                         $connector->{logger}->writeLogInfo('[pullwss] websocket message: ' . $msg);
@@ -203,10 +203,10 @@ sub run {
         type => $self->get_core_config(name => 'internal_com_type'),
         path => $self->get_core_config(name => 'internal_com_path')
     );
-    $self->send_internal_action(
+    $self->send_internal_action({
         action => 'PULLWSSREADY',
         data => {}
-    );
+    });
     $self->read_zmq_events();
 
     $self->wss_connect();

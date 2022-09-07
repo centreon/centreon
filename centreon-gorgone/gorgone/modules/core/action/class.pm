@@ -38,6 +38,7 @@ use MIME::Base64;
 use Digest::MD5::File qw(file_md5_hex);
 use Archive::Tar;
 use Fcntl;
+use Try::Tiny;
 
 $Archive::Tar::SAME_PERMISSIONS = 1;
 $Archive::Tar::WARN = 0;
@@ -314,12 +315,11 @@ sub validate_plugins {
     return (1, $message) if (!$rv);
 
     my $plugins;
-    eval {
+    try {
         $plugins = JSON::XS->new->decode($content);
-    };
-    if ($@) {
+    } catch {
         return (1, 'cannot decode json');
-    }
+    };
 
     # nothing to validate. so it's ok, show must go on!! :)
     if (ref($plugins) ne 'HASH' || scalar(keys %$plugins) <= 0) {
@@ -837,15 +837,15 @@ sub run {
         type => $self->get_core_config(name => 'internal_com_type'),
         path => $self->get_core_config(name => 'internal_com_path')
     );
-    $connector->send_internal_action(
+    $connector->send_internal_action({
         action => 'ACTIONREADY',
         data => {}
-    );
+    });
     $self->{poll} = [
         {
             socket  => $connector->{internal_socket},
             events  => ZMQ_POLLIN,
-            callback => \&event,
+            callback => \&event
         }
     ];
 

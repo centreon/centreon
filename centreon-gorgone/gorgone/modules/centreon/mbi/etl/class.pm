@@ -174,7 +174,7 @@ sub db_parse_xml {
 sub execute_action {
     my ($self, %options) = @_;
 
-    $self->send_internal_action(
+    $self->send_internal_action({
         action => 'ADDLISTENER',
         data => [
             {
@@ -184,7 +184,7 @@ sub execute_action {
                 timeout => 43200
             }
         ]
-    );
+    });
 
     my $content =  {
         dbmon => $self->{run}->{dbmon},
@@ -201,14 +201,14 @@ sub execute_action {
         $content->{options} = $self->{run}->{options};
     }
 
-    $self->send_internal_action(
+    $self->send_internal_action({
         action => $options{action},
         token => $self->{module_id} . '-' . $self->{run}->{token} . '-' . $options{substep},
         data => {
             instant => 1,
             content => $content
         }
-    );
+    });
 }
 
 sub watch_etl_event {
@@ -767,7 +767,7 @@ sub action_centreonmbietlkill {
 
     $self->{logger}->writeLogDebug('[mbi-etl] kill sent to the module etlworkers');
 
-    $self->send_internal_action(
+    $self->send_internal_action({
         action => 'KILL',
         token => $options{token},
         data => {
@@ -775,7 +775,7 @@ sub action_centreonmbietlkill {
                 package => 'gorgone::modules::centreon::mbi::etlworkers::hooks'
             }
         }
-    );
+    });
 
     # RUNNING or STOP
     $self->send_log(
@@ -877,10 +877,10 @@ sub run {
         type => $self->get_core_config(name => 'internal_com_type'),
         path => $self->get_core_config(name => 'internal_com_path')
     );
-    $connector->send_internal_action(
+    $connector->send_internal_action({
         action => 'CENTREONMBIETLREADY',
         data => {}
-    );
+    });
     $self->{poll} = [
         {
             socket  => $connector->{internal_socket},

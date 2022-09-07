@@ -36,6 +36,7 @@ use JSON::XS;
 use Time::HiRes;
 use POSIX qw(strftime);
 use Digest::MD5 qw(md5_hex);
+use Try::Tiny;
 
 use constant JOB_SCHEDULED => 0;
 use constant JOB_FINISH => 1;
@@ -149,7 +150,7 @@ sub hdisco_add_cron {
         return (1, "missing 'cron_definition' parameter");
     }
 
-    $self->send_internal_action(
+    $self->send_internal_action({
         action => 'ADDLISTENER',
         data => [
             {
@@ -158,7 +159,7 @@ sub hdisco_add_cron {
                 token => 'cron-' . $options{discovery_token}
             }
         ]
-    );
+    });
 
     $self->{logger}->writeLogDebug("[autodiscovery] -class- host discovery - add cron for job '" . $options{job}->{job_id} . "'");
     my $definition = {
@@ -170,13 +171,13 @@ sub hdisco_add_cron {
             timeout => (defined($options{job}->{timeout}) && $options{job}->{timeout} =~ /(\d+)/) ? $1 : $self->{global_timeout}
         }
     };
-    $self->send_internal_action(
+    $self->send_internal_action({
         action => 'ADDCRON',
         token => 'cron-' . $options{discovery_token},
         data => {
             content => [ $definition ]
         }
-    );
+    });
 
     return 0;
 }
@@ -328,13 +329,13 @@ sub hdisco_delete_cron {
 
     $self->{logger}->writeLogInfo("[autodiscovery] -class- host discovery - delete job '" . $job_id . "'");
 
-    $self->send_internal_action(
+    $self->send_internal_action({
         action => 'DELETECRON',
         token => $options{token},
         data => {   
             variables => [ $options{discovery_token} ]
         }
-    );
+    });
 }
 
 sub action_addhostdiscoveryjob {
@@ -461,7 +462,7 @@ sub launchhostdiscovery {
     $self->{hdisco_jobs_ids}->{$job_id}->{status} = JOB_RUNNING;
     my $timeout = (defined($options{timeout}) && $options{timeout} =~ /(\d+)/) ? $1 : $self->{global_timeout};
 
-    $self->send_internal_action(
+    $self->send_internal_action({
         action => 'ADDLISTENER',
         data => [
             {
@@ -473,9 +474,9 @@ sub launchhostdiscovery {
                 log_pace => $self->{check_interval}
             }
         ]
-    );
+    });
 
-    $self->send_internal_action(
+    $self->send_internal_action({
         action => 'COMMAND',
         target => $self->{hdisco_jobs_ids}->{$job_id}->{target},
         token => $self->{hdisco_jobs_ids}->{$job_id}->{token},
@@ -492,7 +493,7 @@ sub launchhostdiscovery {
                 }
             ]
         }
-    );
+    });
 
     return (0, "job '$job_id' launched");
 }
@@ -651,11 +652,9 @@ sub discovery_command_result {
     }
 
     my $result;
-    eval {
+    try {
         $result = JSON::XS->new->decode($output);
-    };
-
-    if ($@) {
+    } catch {
         $self->{logger}->writeLogError("[autodiscovery] -class- host discovery - failed to decode discovery plugin response job '$job_id'");
         $self->update_job_status(
             job_id => $job_id,
@@ -663,7 +662,7 @@ sub discovery_command_result {
             message => 'Failed to decode discovery plugin response'
         );
         return 1;
-    }
+    };
 
     # Delete previous results
     my $query = "DELETE FROM mod_host_disco_host WHERE job_id = ?";
@@ -739,7 +738,7 @@ sub discovery_command_result {
         $self->{logger}->writeLogDebug("[autodiscovery] -class- host discovery - execute post command job '$job_id'");
         my $post_command = $self->{hdisco_jobs_ids}->{$job_id}->{post_execution}->{commands}->[0];
 
-        $self->send_internal_action(
+        $self->send_internal_action({
             action => $post_command->{action},
             token => $self->{hdisco_jobs_ids}->{$job_id}->{token},
             data => {
@@ -754,7 +753,7 @@ sub discovery_command_result {
                     }
                 ]
             }
-        );
+        });
     }
     
     $self->{logger}->writeLogDebug("[autodiscovery] -class- host discovery - finished discovery command job '$job_id'");
@@ -952,7 +951,7 @@ sub hdisco_add_joblistener {
     foreach (@{$options{jobs}}) {
         $self->{logger}->writeLogDebug("[autodiscovery] -class- host discovery - register listener for '" . $_->{job_id} . "'");
 
-        $self->send_internal_action(
+        $self->send_internal_action({
             action => 'ADDLISTENER',
             data => [
                 {
@@ -963,7 +962,7 @@ sub hdisco_add_joblistener {
                     log_pace => $self->{check_interval}
                 }
             ]
-        );
+        });
     }
 
     return 0;
@@ -1128,10 +1127,10 @@ sub run {
         type => $self->get_core_config(name => 'internal_com_type'),
         path => $self->get_core_config(name => 'internal_com_path')
     );
-    $connector->send_internal_action(
+    $connector->send_internal_action({
         action => 'AUTODISCOVERYREADY',
         data => {}
-    );
+    });
     $self->{poll} = [
         {
             socket  => $connector->{internal_socket},

@@ -31,6 +31,7 @@ use JSON::XS;
 use Crypt::Mode::CBC;
 use ZMQ::LibZMQ4;
 use ZMQ::Constants qw(:all);
+use Try::Tiny;
 
 my %handlers = (DIE => {});
 
@@ -127,7 +128,7 @@ sub read_message {
         next if (!defined($key));
 
         my $plaintext;
-        eval {
+        try {
             $plaintext = $self->{cipher}->decrypt($message, $key, $self->{internal_crypt}->{iv});
         };
         if (defined($plaintext) && $plaintext =~ /^\[[A-Za-z_\-]+?\]/) {
@@ -135,7 +136,7 @@ sub read_message {
         }
     }
 
-    $self->{logger}->writeLogError("[$self->{module_id}]$self->{container} decrypt issue: " . ($@ ? $@ : 'no message'));
+    $self->{logger}->writeLogError("[$self->{module_id}]$self->{container} decrypt issue: " . ($_ ? $_ : 'no message'));
     return undef;
 }
 
@@ -147,32 +148,31 @@ sub send_internal_key {
         data => { key => unpack('H*', $options{key}) },
         json_encode => 1
     );
-    eval {
+    try {
         $message = $self->{cipher}->encrypt($message, $options{encrypt_key}, $self->{internal_crypt}->{iv});
-    };
-    if ($@) {
-        $self->{logger}->writeLogError("[$self->{module_id}]$self->{container} encrypt issue: " .  $@);
+    } catch {
+        $self->{logger}->writeLogError("[$self->{module_id}]$self->{container} encrypt issue: $_");
         return -1;
-    }
+    };
 
     zmq_sendmsg($options{socket}, $message, ZMQ_DONTWAIT);
     return 0;
 }
 
 sub send_internal_action {
-    my ($self) = shift;
+    my ($self, $options) = (shift, shift);
 
-    if (!defined($options{message})) {
-        $options{message} = gorgone::standard::library::build_protocol(
-            token => $_[0]->{token},
-            action => $_[0]->{action},
-            target => $_[0]->{target},
-            data => $_[0]->{data},
-            json_encode => defined($_[0]->{data_noencode}) ? undef : 1
+    if (!defined($options->{message})) {
+         $options->{message} = gorgone::standard::library::build_protocol(
+            token => $options->{token},
+            action => $options->{action},
+            target => $options->{target},
+            data => $options->{data},
+            json_encode => defined($options->{data_noencode}) ? undef : 1
         );
     }
 
-    my $socket = defined($_[0]->{socket}) ? $_[0]->{socket} : $self->{internal_socket};
+    my $socket = defined($options->{socket}) ? $options->{socket} : $self->{internal_socket};
     if ($self->{internal_crypt}->{enabled} == 1) {
         my $identity = gorgone::standard::library::zmq_get_routing_id(socket => $socket);
 
@@ -198,16 +198,15 @@ sub send_internal_action {
             $key = $self->{internal_crypt}->{identity_keys}->{$identity}->{key};
         }
 
-        eval {
-            $_[0]->{message} = $self->{cipher}->encrypt($_[0]->{message}, $key, $self->{internal_crypt}->{iv});
-        };
-        if ($@) {
-            $self->{logger}->writeLogError("[$self->{module_id}]$self->{container} encrypt issue: " .  $@);
+        try {
+            $options->{message} = $self->{cipher}->encrypt($options->{message}, $key, $self->{internal_crypt}->{iv});
+        } catch {
+            $self->{logger}->writeLogError("[$self->{module_id}]$self->{container} encrypt issue: $_");
             return undef;
-        }
+        };
     }
 
-    zmq_sendmsg($socket, $_[0]->{message}, ZMQ_DONTWAIT);
+    zmq_sendmsg($socket, $options->{message}, ZMQ_DONTWAIT);
 }
 
 sub send_log_msg_error {
@@ -245,13 +244,12 @@ sub json_encode {
     my ($self, %options) = @_;
 
     my $encoded_arguments;
-    eval {
+    try {
         $encoded_arguments = JSON::XS->new->encode($options{argument});
-    };
-    if ($@) {
-        $self->{logger}->writeLogError("[$self->{module_id}]$self->{container} $options{method} - cannot encode json: $@");
+    } catch {
+        $self->{logger}->writeLogError("[$self->{module_id}]$self->{container} $options{method} - cannot encode json: $_");
         return 1;
-    }
+    };
 
     return (0, $encoded_arguments);
 }
@@ -260,11 +258,10 @@ sub json_decode {
     my ($self, %options) = @_;
 
     my $decoded_arguments;
-    eval {
+    try {
         $decoded_arguments = JSON::XS->new->decode($options{argument});
-    };
-    if ($@) {
-        $self->{logger}->writeLogError("[$self->{module_id}]$self->{container} $options{method} - cannot decode json: $@");
+    } catch {
+        $self->{logger}->writeLogError("[$self->{module_id}]$self->{container} $options{method} - cannot decode json: $_");
         if (defined($options{token})) {
             $self->send_log(
                 code => GORGONE_ACTION_FINISH_KO,
@@ -273,7 +270,7 @@ sub json_decode {
             );
         }
         return 1;
-    }
+    };
 
     return (0, $decoded_arguments);
 }

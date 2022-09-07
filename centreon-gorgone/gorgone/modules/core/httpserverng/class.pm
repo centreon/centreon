@@ -242,10 +242,10 @@ sub run {
         type => $self->get_core_config(name => 'internal_com_type'),
         path => $self->get_core_config(name => 'internal_com_path')
     );
-    $self->send_internal_action(
+    $self->send_internal_action({
         action => 'HTTPSERVERNGREADY',
         data => {}
-    );
+    });
     $self->read_zmq_events();
 
     my $socket_fd = gorgone::standard::library::zmq_getfd(socket => $self->{internal_socket});
@@ -449,11 +449,11 @@ sub get_log {
     my ($self, %options) = @_;
 
     if (defined($options{target}) && $options{target} ne '') {
-        $self->send_internal_action(
+        $self->send_internal_action({
             target => $options{target},
             action => 'GETLOG',
             data => {}
-        );
+        });
         $self->read_zmq_events();
     }
 
@@ -468,14 +468,14 @@ sub get_log {
         mojo => $options{mojo}
     };
 
-    $self->send_internal_action(
+    $self->send_internal_action({
         action => 'GETLOG',
         token => $token_log,
         data => {
             token => $options{token},
             %{$options{parameters}}
         }
-    );
+    });
 
     $self->read_zmq_events();
 
@@ -500,7 +500,7 @@ sub call_action {
             results => []
         };
 
-        $self->send_internal_action(
+        $self->send_internal_action({
             action => 'ADDLISTENER',
             data => [
                 {
@@ -512,16 +512,16 @@ sub call_action {
                     timeout => 110
                 }
             ]
-        );
+        });
         $self->read_zmq_events();
     }
 
-    $self->send_internal_action(
+    $self->send_internal_action({
         action => $options{action},
         target => $options{target},
         token => $action_token,
         data => $options{data}
-    );
+    });
     $self->read_zmq_events();
 
     if ($options{async} == 1) {

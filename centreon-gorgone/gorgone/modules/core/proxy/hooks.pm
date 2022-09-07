@@ -33,6 +33,7 @@ use MIME::Base64;
 use Digest::MD5::File qw(file_md5_hex);
 use Fcntl;
 use Time::HiRes;
+use Try::Tiny;
 
 =begin comment
 for each proxy processus, we have: 
@@ -134,11 +135,10 @@ sub routing {
     my (%options) = @_;
 
     my $data;
-    eval {
+    try {
         $data = JSON::XS->new->decode($options{data});
-    };
-    if ($@) {
-        $options{logger}->writeLogError("[proxy] Cannot decode json data: $@");
+    } catch {
+        $options{logger}->writeLogError("[proxy] Cannot decode json data: $_");
         gorgone::standard::library::add_history(
             dbh => $options{dbh},
             code => GORGONE_ACTION_FINISH_KO,
@@ -147,7 +147,7 @@ sub routing {
             json_encode => 1
         );
         return undef;
-    }
+    };
 
     if ($options{action} eq 'PONG') {
         return undef if (!defined($data->{data}->{id}) || $data->{data}->{id} eq '');

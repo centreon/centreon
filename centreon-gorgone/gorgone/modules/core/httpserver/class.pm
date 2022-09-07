@@ -163,10 +163,10 @@ sub run {
         type => $self->get_core_config(name => 'internal_com_type'),
         path => $self->get_core_config(name => 'internal_com_path')
     );
-    $connector->send_internal_action(
+    $connector->send_internal_action({
         action => 'HTTPSERVERREADY',
         data => {}
-    );
+    });
 
     $self->{poll} = [
         {

@@ -35,6 +35,7 @@ use File::Basename;
 use MIME::Base64;
 use Errno;
 use Time::HiRes;
+use Try::Tiny;
 use YAML::XS;
 $YAML::XS::Boolean = 'JSON::PP';
 $YAML::XS::LoadBlessed = 1;
@@ -50,14 +51,13 @@ sub read_config {
     my (%options) = @_;
     
     my $config;
-    eval {
+    try {
         $config = YAML::XS::LoadFile($options{config_file});
-    };
-    if ($@) {
+    } catch {
         $options{logger}->writeLogError("[core] Parsing config file error:");
         $options{logger}->writeLogError($@);
         exit(1);
-    }
+    };
     
     return $config;
 }
@@ -70,16 +70,15 @@ sub generate_keys {
     my (%options) = @_;
 
     my ($privkey, $pubkey);
-    eval {
+    try {
         my $pkrsa = Crypt::PK::RSA->new();
         $pkrsa->generate_key(256, 65537);
         $pubkey = $pkrsa->export_key_pem('public_x509');
         $privkey = $pkrsa->export_key_pem('private');
-    };
-    if ($@) {
-        $options{logger}->writeLogError("[core] Cannot generate server keys: $@");
+    } catch {
+        $options{logger}->writeLogError("[core] Cannot generate server keys: $_");
         return 0;
-    }
+    };
 
     return (1, $privkey, $pubkey);
 }
@@ -104,14 +103,13 @@ sub loadpubkey {
     }
 
     my $pubkey;
-    eval {
+    try {
         $pubkey = Crypt::PK::RSA->new(\$string_key);
-    };
-    if ($@) {
-        $options{logger}->writeLogError("[core] Cannot load pubkey '$options{pubkey}': $@") if (defined($options{logger}));
+    } catch {
+        $options{logger}->writeLogError("[core] Cannot load pubkey '$options{pubkey}': $_") if (defined($options{logger}));
         exit(1) if ($quit);
         return 0;
-    }
+    };
     if ($pubkey->is_private()) {
         $options{logger}->writeLogError("[core] '$options{pubkey}' is not a public key") if (defined($options{logger}));
         exit(1) if ($quit);
@@ -137,14 +135,13 @@ sub loadprivkey {
     close FILE;
 
     my $privkey;
-    eval {
+    try {
         $privkey = Crypt::PK::RSA->new(\$string_key);
-    };
-    if ($@) {
-        $options{logger}->writeLogError("[core] Cannot load privkey '$options{privkey}': $@");
+    } catch {
+        $options{logger}->writeLogError("[core] Cannot load privkey '$options{privkey}': $_");
         exit(1) if ($quit);
         return 0;
-    }
+    };
     if (!$privkey->is_private()) {
         $options{logger}->writeLogError("[core] '$options{privkey}' is not a private key");
         exit(1) if ($quit);
@@ -174,13 +171,12 @@ sub zmq_core_key_response {
         zmq_sendmsg($options{socket}, pack('H*', $options{identity}), ZMQ_DONTWAIT | ZMQ_SNDMORE);
     }
     my $crypttext;
-    eval {
+    try {
         $crypttext = $options{client_pubkey}->encrypt("[KEY] [$options{hostname}] [" . $options{symkey} . "]", 'v1.5');
-    };
-    if ($@) {
-        $options{logger}->writeLogError("[core] Encoding issue: " .  $@);
+    } catch {
+        $options{logger}->writeLogError("[core] Encoding issue: $_");
         return -1;
-    }
+    };
 
     zmq_sendmsg($options{socket}, MIME::Base64::encode_base64($crypttext, ''), ZMQ_DONTWAIT);
     return 0;
@@ -224,12 +220,11 @@ sub client_helo_encrypt {
     my $ciphertext;
 
     my $client_pubkey = $options{client_pubkey}->export_key_pem('public');
-    eval {
+    try {
         $ciphertext = $options{server_pubkey}->encrypt('HELO', 'v1.5');
+    } catch {
+        return (-1, "Encoding issue: $_");
     };
-    if ($@) {
-        return (-1, "Encoding issue: $@");
-    }
 
     return (0, '[' . $options{identity} . '] [' . MIME::Base64::encode_base64($client_pubkey, '') . '] [' . MIME::Base64::encode_base64($ciphertext, '') . ']');
 }
@@ -244,13 +239,12 @@ sub is_client_can_connect {
     }
 
     my ($client, $client_pubkey_str, $cipher_text) = ($1, $2, $3);
-    eval {
+    try {
         $plaintext = $options{privkey}->decrypt(MIME::Base64::decode_base64($cipher_text), 'v1.5');
-    };
-    if ($@) {
-        $options{logger}->writeLogError("[core] Decoding issue: " .  $@);
+    } catch {
+        $options{logger}->writeLogError("[core] Decoding issue: $_");
         return -1;
-    }
+    };
     if ($plaintext ne 'HELO') {
         $options{logger}->writeLogError("[core] Encrypted issue for HELO");
         return -1;
@@ -258,13 +252,12 @@ sub is_client_can_connect {
 
     my ($client_pubkey);
     $client_pubkey_str = MIME::Base64::decode_base64($client_pubkey_str);
-    eval {
+    try {
         $client_pubkey = Crypt::PK::RSA->new(\$client_pubkey_str);
-    };
-    if ($@) {
-        $options{logger}->writeLogError("[core] Cannot load client pubkey '$client_pubkey': $@");
+    } catch {
+        $options{logger}->writeLogError("[core] Cannot load client pubkey '$client_pubkey': $_");
         return -1;
-    }
+    };
 
     my $is_authorized = 0;
     my $thumbprint = $client_pubkey->export_key_jwk_thumbprint('SHA256');
@@ -294,12 +287,11 @@ sub addlistener {
     my (%options) = @_;
 
     my $data;
-    eval {
+    try {
         $data = JSON::XS->new->decode($options{data});
-    };
-    if ($@) {
+    } catch {
         return (GORGONE_ACTION_FINISH_KO, { message => 'request not well formatted' });
-    }
+    };
 
     foreach (@$data) {
         $options{gorgone}->{listener}->add_listener(
@@ -339,12 +331,11 @@ sub unloadmodule {
     my (%options) = @_;
 
     my $data;
-    eval {
+    try {
         $data = JSON::XS->new->decode($options{data});
-    };
-    if ($@) {
+    } catch {
         return (GORGONE_ACTION_FINISH_KO, { message => 'request not well formatted' });
-    }
+    };
 
     if (defined($data->{content}->{package}) && defined($options{gorgone}->{modules_register}->{ $data->{content}->{package} })) {
         $options{gorgone}->{modules_register}->{ $data->{content}->{package} }->{gently}->(logger => $options{gorgone}->{logger});
@@ -364,12 +355,11 @@ sub loadmodule {
     my (%options) = @_;
 
     my $data;
-    eval {
+    try {
         $data = JSON::XS->new->decode($options{data});
-    };
-    if ($@) {
+    } catch {
         return (GORGONE_ACTION_FINISH_KO, { message => 'request not well formatted' });
-    }
+    };
 
     if ($options{gorgone}->load_module(config_module => $data->{content})) {
         $options{gorgone}->{modules_register}->{ $data->{content}->{package} }->{init}->(
@@ -391,12 +381,11 @@ sub synclogs {
     my (%options) = @_;
 
     my $data;
-    eval {
+    try {
         $data = JSON::XS->new->decode($options{data});
-    };
-    if ($@) {
+    } catch {
         return (GORGONE_ACTION_FINISH_KO, { message => 'request not well formatted' });
-    }
+    };
 
     if (!defined($data->{data}->{id})) {
         return (GORGONE_ACTION_FINISH_KO, { action => 'synclog', message => 'please set id for synclog' });
@@ -436,12 +425,11 @@ sub setmodulekey {
     my (%options) = @_;
 
     my $data;
-    eval {
+    try {
         $data = JSON::XS->new->decode($options{data});
-    };
-    if ($@) {
+    } catch {
         return (GORGONE_ACTION_FINISH_KO, { message => 'request not well formatted' });
-    }
+    };
 
     if (!defined($data->{key})) {
         return (GORGONE_ACTION_FINISH_KO, { action => 'setmodulekey', message => 'please set key' });
@@ -466,12 +454,11 @@ sub setcoreid {
     }
 
     my $data;
-    eval {
+    try {
         $data = JSON::XS->new->decode($options{data});
-    };
-    if ($@) {
+    } catch {
         return (GORGONE_ACTION_FINISH_KO, { message => 'request not well formatted' });
-    }
+    };
 
     if (!defined($data->{id})) {
         return (GORGONE_ACTION_FINISH_KO, { action => 'setcoreid', message => 'please set id for setcoreid' });
@@ -512,12 +499,11 @@ sub putlog {
     my (%options) = @_;
 
     my $data;
-    eval {
+    try {
         $data = JSON::XS->new->decode($options{data});
-    };
-    if ($@) {
+    } catch {
         return (GORGONE_ACTION_FINISH_KO, { message => 'request not well formatted' });
-    }
+    };
 
     my $status = add_history(
         dbh => $options{gorgone}->{db_gorgone}, 
@@ -537,12 +523,11 @@ sub getlog {
     my (%options) = @_;
 
     my $data;
-    eval {
+    try {
         $data = JSON::XS->new->decode($options{data});
-    };
-    if ($@) {
+    } catch {
         return (GORGONE_ACTION_FINISH_KO, { message => 'request not well formatted' });
-    }
+    };
 
     my %filters = ();
     my ($filter, $filter_append) = ('', '');
@@ -580,12 +565,11 @@ sub kill {
     my (%options) = @_;
 
     my $data;
-    eval {
+    try {
         $data = JSON::XS->new->decode($options{data});
-    };
-    if ($@) {
+    } catch {
         return (GORGONE_ACTION_FINISH_KO, { message => 'request not well formatted' });
-    }
+    };
 
     if (defined($data->{content}->{package}) && defined($options{gorgone}->{modules_register}->{ $data->{content}->{package} })) {
         $options{gorgone}->{modules_register}->{ $data->{content}->{package} }->{kill}->(logger => $options{gorgone}->{logger});
@@ -623,12 +607,11 @@ sub update_identity_attrs {
     push @bind_values, $options{identity}, $options{identity};
 
     my ($status, $sth) = $options{dbh}->query({
-            query => "UPDATE gorgone_identity SET " . join(', ', @fields) .
-                " WHERE `identity` = ? AND " .
-                " `id` = (SELECT `id` FROM gorgone_identity WHERE `identity` = ? ORDER BY `id` DESC LIMIT 1)",
-            bind_values => \@bind_values
-        }
-    );
+        query => "UPDATE gorgone_identity SET " . join(', ', @fields) .
+            " WHERE `identity` = ? AND " .
+            " `id` = (SELECT `id` FROM gorgone_identity WHERE `identity` = ? ORDER BY `id` DESC LIMIT 1)",
+        bind_values => \@bind_values
+    });
 
     return $status;
 }
@@ -637,12 +620,11 @@ sub update_identity_mtime {
     my (%options) = @_;
 
     my ($status, $sth) = $options{dbh}->query({
-            query => "UPDATE gorgone_identity SET `mtime` = ?" .
-                " WHERE `identity` = ? AND " .
-                " `id` = (SELECT `id` FROM gorgone_identity WHERE `identity` = ? ORDER BY `id` DESC LIMIT 1)",
-            bind_values => [time(), $options{identity}, $options{identity}]
-        }
-    );
+        query => "UPDATE gorgone_identity SET `mtime` = ?" .
+            " WHERE `identity` = ? AND " .
+            " `id` = (SELECT `id` FROM gorgone_identity WHERE `identity` = ? ORDER BY `id` DESC LIMIT 1)",
+        bind_values => [time(), $options{identity}, $options{identity}]
+    });
     return $status;
 }
 
@@ -651,10 +633,9 @@ sub add_identity {
 
     my $time = time();
     my ($status, $sth) = $options{dbh}->query({
-            query =>  "INSERT INTO gorgone_identity (`ctime`, `mtime`, `identity`, `key`, `iv`) VALUES (?, ?, ?, ?, ?)",
-            bind_values => [$time, $time, $options{identity}, unpack('H*', $options{key}), unpack('H*', $options{iv})]
-        }
-    );
+        query =>  "INSERT INTO gorgone_identity (`ctime`, `mtime`, `identity`, `key`, `iv`) VALUES (?, ?, ?, ?, ?)",
+        bind_values => [$time, $time, $options{identity}, unpack('H*', $options{key}), unpack('H*', $options{iv})]
+    });
     return $status;
 }
 
@@ -684,9 +665,10 @@ sub add_history {
             push @bind_values, $options{$_};
         }
     }
-    my ($status, $sth) = $options{dbh}->query(
-        { query => "INSERT INTO gorgone_history ($fields) VALUES ($placeholder)", bind_values => \@bind_values }
-    );
+    my ($status, $sth) = $options{dbh}->query({
+        query => "INSERT INTO gorgone_history ($fields) VALUES ($placeholder)",
+        bind_values => \@bind_values
+    });
 
     if (defined($options{token}) && $options{token} ne '') {
         $listener->event_log(
@@ -707,15 +689,14 @@ sub add_history {
 sub json_encode {
     my (%options) = @_;
 
-    eval {
+    try {
         $options{data} = JSON::XS->new->encode($options{data});
-    };
-    if ($@) {
+    } catch {
         if (defined($options{logger})) {
-            $options{logger}->writeLogError("[core] Cannot encode json data: $@");
+            $options{logger}->writeLogError("[core] Cannot encode json data: $_");
         }
         return undef;
-    }
+    };
 
     return $options{data};
 }
@@ -723,15 +704,14 @@ sub json_encode {
 sub json_decode {
     my (%options) = @_;
 
-    eval {
+    try {
         $options{data} = JSON::XS->new->decode($options{data});
-    };
-    if ($@) {
+    } catch {
         if (defined($options{logger})) {
-            $options{logger}->writeLogError("[$options{module}] Cannot decode json data: $@");
+            $options{logger}->writeLogError("[$options{module}] Cannot decode json data: $_");
         }
         return undef;
-    }
+    };
 
     return $options{data};
 }
@@ -831,6 +811,7 @@ sub zmq_dealer_read_message {
     return undef if (!defined($message));
 
     my $data = zmq_msg_data($message);
+    zmq_msg_close($message);
     return $data;
 }
 
@@ -838,29 +819,35 @@ sub zmq_read_message {
     my (%options) = @_;
 
     # Process all parts of the message
-    my $message = zmq_recvmsg($options{socket}, ZMQ_DONTWAIT);
-    if (!defined($message)) {
+    my $message = zmq_msg_init();
+    my $rv = zmq_msg_recv($message, $options{socket}, ZMQ_DONTWAIT);
+    if ($rv == -1) {
         return undef if ($! == Errno::EAGAIN);
 
         $options{logger}->writeLogError("[core] zmq_recvmsg error: $!");
         return undef;
     }
     my $identity = zmq_msg_data($message);
+    zmq_msg_close($message);
+
     $identity = defined($identity) ? $identity  : 'undef';
     if ($identity !~ /^gorgone-/) {
         $options{logger}->writeLogError("[core] unknown identity: $identity");
         return undef;
     }
-    $message = zmq_recvmsg($options{socket}, ZMQ_DONTWAIT);
-    if (!defined($message)) {
+
+    $message = zmq_msg_init();
+    $rv = zmq_msg_recv($message, $options{socket}, ZMQ_DONTWAIT);
+    if ($rv == -1) {
         return undef if ($! == Errno::EAGAIN);
 
         $options{logger}->writeLogError("[core] zmq_recvmsg error: $!");
         return undef;
     }
     my $data = zmq_msg_data($message);
+    zmq_msg_close($message);
 
-    return (unpack('H*', $identity), $data);
+    return (unpack('H*', $identity), \$data);
 }
 
 sub zmq_still_read {

@@ -113,25 +113,25 @@ sub read_message_client {
 
         # if we get a pong response, we can open the internal com read
         $connector->{clients}->{ $client_identity }->{com_read_internal} = 1;
-        $connector->send_internal_action(
+        $connector->send_internal_action({
             action => 'PONG',
             data => $data,
             token => $token,
             target => ''
-        );
+        });
     } elsif ($options{data} =~ /^\[(?:REGISTERNODES|UNREGISTERNODES|SYNCLOGS)\]/) {
         if ($options{data} !~ /^\[(.+?)\]\s+\[(.*?)\]\s+\[.*?\]\s+(.*)/ms) {
             return undef;
         }
         my ($action, $token, $data)  = ($1, $2, $3);
 
-        $connector->send_internal_action(
+        $connector->send_internal_action({
             action => $action,
             data => $data,
             data_noencode => 1,
             token => $token,
             target => ''
-        );
+        });
     } elsif ($options{data} =~ /^\[ACK\]\s+\[(.*?)\]\s+(.*)/ms) {
         my ($code, $data) = $connector->json_decode(argument => $2);
         return undef if ($code == 1);
@@ -139,12 +139,12 @@ sub read_message_client {
         # we set the id (distant node can not have id in configuration)
         $data->{data}->{id} = $client_identity;
         if (defined($data->{data}->{action}) && $data->{data}->{action} eq 'getlog') {
-            $connector->send_internal_action(
+            $connector->send_internal_action({
                 action => 'SETLOGS',
                 data => $data,
                 token => $1,
                 target => ''
-            );
+            });
         }
     }
 }
@@ -218,13 +218,13 @@ sub action_proxyaddnode {
 
         $self->{logger}->writeLogInfo("[proxy] Recreate session for $data->{id}");
         # we send a pong reset. because the ping can be lost
-        $self->send_internal_action(
+        $self->send_internal_action({
             action => 'PONGRESET',
             data => '{ "data": { "id": ' . $data->{id} . ' } }',
             data_noencode => 1,
             token => $self->generate_token(),
             target => ''
-        );
+        });
 
         $self->{clients}->{ $data->{id} }->{class}->close();
     } else {
@@ -235,12 +235,12 @@ sub action_proxyaddnode {
             type => $self->get_core_config(name => 'internal_com_type'),
             path => $self->get_core_config(name => 'internal_com_path')
         );
-        $self->send_internal_action(
+        $self->send_internal_action({
             action => 'PROXYREADY',
             data => {
                 node_id => $data->{id}
             }
-        );
+        });
     }
 
     $self->{clients}->{ $data->{id} } = $data;
@@ -310,12 +310,12 @@ sub proxy_ssh {
             $self->{clients}->{ $options{target_client} }->{delete} = 1;
         } else {
             $self->{clients}->{ $options{target_client} }->{com_read_internal} = 1;
-            $self->send_internal_action(
+            $self->send_internal_action({
                 action => 'PONG',
                 data => { data => { id => $options{target_client} } },
                 token => $options{token},
                 target => ''
-            );
+            });
         }
         return ;
     }
@@ -506,12 +506,12 @@ sub run {
         type => $self->get_core_config(name => 'internal_com_type'),
         path => $self->get_core_config(name => 'internal_com_path')
     );
-    $self->send_internal_action(
+    $self->send_internal_action({
         action => 'PROXYREADY',
         data => {
             pool_id => $self->{pool_id}
         }
-    );
+    });
     my $poll = {
         socket   => $self->{internal_socket},
         events   => ZMQ_POLLIN,
@@ -523,13 +523,13 @@ sub run {
         my $polls = [$poll];
         foreach (keys %{$self->{clients}}) {
             if (defined($self->{clients}->{$_}->{delete}) && $self->{clients}->{$_}->{delete} == 1) {
-                $self->send_internal_action(
+                $self->send_internal_action({
                     action => 'PONGRESET',
                     data => '{ "data": { "id": ' . $_ . ' } }',
                     data_noencode => 1,
                     token => $self->generate_token(),
                     target => ''
-                );
+                });
                 $self->{clients}->{$_}->{class}->close() if (defined($self->{clients}->{$_}->{class}));
                 $self->{clients}->{$_}->{class} = undef;
                 $self->{clients}->{$_}->{delete} = 0;

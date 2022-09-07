@@ -84,7 +84,7 @@ sub send_listener {
     my $current = $self->{pipelines}->{ $options{token} }->{current};
 
     $self->{pipelines}->{ $options{token} }->{pipe}->[$current]->{created} = time();
-    $self->send_internal_action(
+    $self->send_internal_action({
         action => 'ADDLISTENER',
         data => [
             {
@@ -96,14 +96,14 @@ sub send_listener {
                 log_pace => $self->{pipelines}->{ $options{token} }->{pipe}->[$current]->{log_pace}
             }
         ]
-    );
+    });
 
-    $self->send_internal_action(
+    $self->send_internal_action({
         action => $self->{pipelines}->{ $options{token} }->{pipe}->[$current]->{action},
         target => $self->{pipelines}->{ $options{token} }->{pipe}->[$current]->{target},
         token => $options{token} . '-' . $current,
         data => $self->{pipelines}->{ $options{token} }->{pipe}->[$current]->{data}
-    );
+    });
 
     $self->{logger}->writeLogDebug("[pipeline] -class- pipeline '$options{token}' run $current");
     $self->send_log(
@@ -242,15 +242,15 @@ sub run {
         type => $self->get_core_config(name => 'internal_com_type'),
         path => $self->get_core_config(name => 'internal_com_path')
     );
-    $connector->send_internal_action(
+    $connector->send_internal_action({
         action => 'PIPELINEREADY',
         data => {}
-    );
+    });
     $self->{poll} = [
         {
             socket  => $connector->{internal_socket},
             events  => ZMQ_POLLIN,
-            callback => \&event,
+            callback => \&event
         }
     ];
 

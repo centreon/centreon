@@ -112,19 +112,19 @@ sub action_registerresync {
         }
     }
 
-    $self->send_internal_action(
+    $self->send_internal_action({
         action => 'REGISTERNODES',
         data => {
             nodes => $register_nodes
         }
-    ) if (scalar(@$register_nodes) > 0);
+    }) if (scalar(@$register_nodes) > 0);
     
-    $self->send_internal_action(
+    $self->send_internal_action({
         action => 'UNREGISTERNODES',
         data => {
             nodes => $unregister_nodes
         }
-    ) if (scalar(@$unregister_nodes) > 0);
+    }) if (scalar(@$unregister_nodes) > 0);
 
     $self->{logger}->writeLogDebug("[register] Finish resync");
     $self->send_log(
@@ -167,10 +167,10 @@ sub run {
         type => $self->get_core_config(name => 'internal_com_type'),
         path => $self->get_core_config(name => 'internal_com_path')
     );
-    $connector->send_internal_action(
+    $connector->send_internal_action({
         action => 'REGISTERREADY',
         data => {}
-    );
+    });
     $self->{poll} = [
         {
             socket  => $connector->{internal_socket},

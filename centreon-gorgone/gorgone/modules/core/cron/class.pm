@@ -86,7 +86,7 @@ sub action_getcron {
     if (defined($id) && $id ne '') {
         if (defined($parameter) && $parameter =~ /^status$/) {
             $self->{logger}->writeLogInfo("[cron] Get logs results for definition '" . $id . "'");
-            $self->send_internal_action(
+            $self->send_internal_action({
                 action => 'GETLOG',
                 token => $options{token},
                 data => {
@@ -96,7 +96,7 @@ sub action_getcron {
                     limit => $options{data}->{parameters}->{limit},
                     code => $options{data}->{parameters}->{code}
                 }
-            );
+            });
             my $rev = zmq_poll($connector->{poll}, 5000);
             $data = $connector->{ack}->{data}->{data}->{result};
         } else {
@@ -417,7 +417,7 @@ sub dispatcher {
     my $token = (defined($options->{definition}->{keep_token})) && $options->{definition}->{keep_token} =~ /true|1/i
         ? $options->{definition}->{id} : undef;
 
-    $options->{connector}->send_internal_action(
+    $options->{connector}->send_internal_action({
         socket => $options->{socket},
         token => $token,
         action => $options->{definition}->{action},
@@ -426,7 +426,7 @@ sub dispatcher {
             content => $options->{definition}->{parameters}
         },
         json_encode => 1
-    );
+    });
  
     my $poll = [
         {
@@ -450,10 +450,10 @@ sub run {
         type => $self->get_core_config(name => 'internal_com_type'),
         path => $self->get_core_config(name => 'internal_com_path')
     );
-    $connector->send_internal_action(
+    $connector->send_internal_action({
         action => 'CRONREADY',
         data => {}
-    );
+    });
     $connector->{poll} = [
         {
             socket  => $connector->{internal_socket},

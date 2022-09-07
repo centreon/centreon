@@ -142,7 +142,7 @@ sub read_message_client {
     }
 
     $connector->{logger}->writeLogDebug("[pull] read message from external: $options{data}");
-    $connector->send_internal_action(message => $options{data});
+    $connector->send_internal_action({ message => $options{data} });
 }
 
 sub event {
@@ -167,10 +167,10 @@ sub run {
         type => $self->get_core_config(name => 'internal_com_type'),
         path => $self->get_core_config(name => 'internal_com_path')
     );
-    $self->send_internal_action(
+    $self->send_internal_action({
         action => 'PULLREADY',
         data => {}
-    );
+    });
 
     $self->{client} = gorgone::class::clientzmq->new(
         identity => 'gorgone-' . $self->get_core_config(name => 'id'), 

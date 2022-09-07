@@ -493,12 +493,12 @@ sub add_pipeline_config_reload_poller {
         };
     }
 
-    $self->send_internal_action(
+    $self->send_internal_action({
         action => 'ADDPIPELINE',
         token => $options{token},
         timeout => $options{pipeline_timeout},
         data => $actions
-    );
+    });
 }
 
 sub test_types {
@@ -544,15 +544,15 @@ sub run {
         type => $self->get_core_config(name => 'internal_com_type'),
         path => $self->get_core_config(name => 'internal_com_path')
     );
-    $connector->send_internal_action(
+    $connector->send_internal_action({
         action => 'JUDGEREADY',
         data => {}
-    );
+    });
     $self->{poll} = [
         {
             socket  => $connector->{internal_socket},
             events  => ZMQ_POLLIN,
-            callback => \&event,
+            callback => \&event
         }
     ];
 

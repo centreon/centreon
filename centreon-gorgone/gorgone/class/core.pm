@@ -34,6 +34,7 @@ use gorgone::standard::misc;
 use gorgone::class::db;
 use gorgone::class::listener;
 use Time::HiRes;
+use Try::Tiny;
 
 my ($gorgone);
 
@@ -178,10 +179,11 @@ sub init {
         if (!defined($self->{config}->{configuration}->{gorgone}->{gorgonecore}->{internal_com_type}) || $self->{config}->{configuration}->{gorgone}->{gorgonecore}->{internal_com_type} eq '');
     $self->{config}->{configuration}->{gorgone}->{gorgonecore}->{internal_com_path} = '/tmp/gorgone/routing-' . $time_hi . '.ipc'
         if (!defined($self->{config}->{configuration}->{gorgone}->{gorgonecore}->{internal_com_path}) || $self->{config}->{configuration}->{gorgone}->{gorgonecore}->{internal_com_path} eq '');
-
-    $self->{config}->{configuration}->{gorgone}->{gorgonecore}->{internal_com_crypt} = 1;
+    
     if (defined($self->{config}->{configuration}->{gorgone}->{gorgonecore}->{internal_com_crypt}) && $self->{config}->{configuration}->{gorgone}->{gorgonecore}->{internal_com_crypt} =~ /^(?:false|0)$/i) {
         $self->{config}->{configuration}->{gorgone}->{gorgonecore}->{internal_com_crypt} = 0;
+    } else {
+        $self->{config}->{configuration}->{gorgone}->{gorgonecore}->{internal_com_crypt} = 1;
     }
 
     $self->{internal_crypt} = { enabled => 0 };
@@ -281,9 +283,9 @@ sub init {
 sub init_external_informations {
     my ($self) = @_;
 
-    my ($status, $sth) = $self->{db_gorgone}->query(
-        { query => "SELECT `identity`, `ctime`, `mtime`, `key`, `oldkey`, `iv`, `oldiv` FROM gorgone_identity ORDER BY id DESC" }
-    );
+    my ($status, $sth) = $self->{db_gorgone}->query({
+        query => "SELECT `identity`, `ctime`, `mtime`, `key`, `oldkey`, `iv`, `oldiv` FROM gorgone_identity ORDER BY id DESC"
+    });
     if ($status == -1) {
         $self->{logger}->writeLogError("[core] cannot load gorgone_identity");
         return 0;
@@ -528,15 +530,15 @@ sub read_internal_message {
         }
         foreach my $key (@$keys) {
             my $plaintext;
-            eval {
-                $plaintext = $self->{cipher}->decrypt($message, $key, $self->{internal_crypt}->{iv});
+            try {
+                $plaintext = $self->{cipher}->decrypt($$message, $key, $self->{internal_crypt}->{iv});
             };
             if (defined($plaintext) && $plaintext =~ /^\[[A-Za-z0-9_\-]+?\]/) {
-                return ($identity, $plaintext);
+                return ($identity, \$plaintext);
             }
         }
 
-        $self->{logger}->writeLogError("[core] decrypt issue ($id): " .  ($@ ? $@ : 'no message'));
+        $self->{logger}->writeLogError("[core] decrypt issue ($id): " .  ($_ ? $_ : 'no message'));
         return undef;
     }
 
@@ -554,17 +556,16 @@ sub send_internal_response {
     my $message = '[' . $response_type . '] [' . (defined($options{token}) ? $options{token} : '') . '] ' . ($response_type =~ /^PONG|SYNCLOGS$/ ? '[] ' : '') . $data;
 
     if ($self->{internal_crypt}->{enabled} == 1) {
-        eval {
+        try {
             $message = $self->{cipher}->encrypt(
                 $message,
                 $self->{config}->{configuration}->{gorgone}->{gorgonecore}->{internal_com_core_key},
                 $self->{internal_crypt}->{iv}
             );
-        };
-        if ($@) {
-            $self->{logger}->writeLogError("[core] encrypt issue: " .  $@);
+        } catch {
+            $self->{logger}->writeLogError("[core] encrypt issue: $_");
             return undef;
-        }
+        };
     }
 
     zmq_sendmsg($self->{internal_socket}, $message, ZMQ_DONTWAIT);
@@ -580,17 +581,16 @@ sub send_internal_message {
     zmq_sendmsg($self->{internal_socket}, $options{identity}, ZMQ_DONTWAIT | ZMQ_SNDMORE);
 
     if ($self->{internal_crypt}->{enabled} == 1) {
-        eval {
+        try {
             $message = $self->{cipher}->encrypt(
                 $message,
                 $self->{config}->{configuration}->{gorgone}->{gorgonecore}->{internal_com_core_key},
                 $self->{internal_crypt}->{iv}
             );
-        };
-        if ($@) {
-            $self->{logger}->writeLogError("[core] encrypt issue: " .  $@);
+        } catch {
+            $self->{logger}->writeLogError("[core] encrypt issue: $_");
             return undef;
-        }
+        };
     }
 
     zmq_sendmsg($self->{internal_socket}, $message, ZMQ_DONTWAIT);
@@ -631,10 +631,10 @@ sub broadcast_run {
 }
 
 sub message_run {
-    my ($self) = shift;
+    my ($self, $options) = (shift, shift);
 
-    $self->{logger}->writeLogDebug('[core] Message received - ' . ${$_[0]->{message}}) if ($self->{logger}->is_debug());
-    if (${$_[0]->{message}} !~ /^\[(.+?)\]\s+\[(.*?)\]\s+\[(.*?)\]\s+(.*)$/) {
+    $self->{logger}->writeLogDebug('[core] Message received - ' . ${$options->{message}}) if ($self->{logger}->is_debug());
+    if (${$options->{message}} !~ /^\[(.+?)\]\s+\[(.*?)\]\s+\[(.*?)\]\s+(.*)$/) {
         return (undef, 1, { message => 'request not well formatted' });
     }
     my ($action, $token, $target, $data) = ($1, $2, $3, $4);
@@ -660,10 +660,10 @@ sub message_run {
         return (undef, 1, { error => "unknown_action", message => "action '$action' is unknown" });
     }
 
-    $self->{counters}->{ $_[0]->{router_type} }->{lc($action)} = 0 if (!defined($self->{counters}->{ $_[0]->{router_type} }->{lc($action)}));
-    $self->{counters}->{ $_[0]->{router_type} }->{lc($action)}++;
+    $self->{counters}->{ $options->{router_type} }->{lc($action)} = 0 if (!defined($self->{counters}->{ $options->{router_type} }->{lc($action)}));
+    $self->{counters}->{ $options->{router_type} }->{lc($action)}++;
     $self->{counters}->{total}++;
-    $self->{counters}->{ $_[0]->{router_type} }->{total}++;
+    $self->{counters}->{ $options->{router_type} }->{total}++;
 
     if ($self->{stop} == 1) {
         gorgone::standard::library::add_history(
@@ -711,8 +711,8 @@ sub message_run {
         my ($code, $response, $response_type) = $self->{internal_register}->{lc($action)}->(
             gorgone => $self,
             gorgone_config => $self->{config}->{configuration}->{gorgone},
-            identity => $_[0]->{identity},
-            router_type => $_[0]->{router_type},
+            identity => $options->{identity},
+            router_type => $options->{router_type},
             id => $self->{id},
             data => $data,
             token => $token,
@@ -759,7 +759,7 @@ sub router_internal_event {
 
         my ($token, $code, $response, $response_type) = $gorgone->message_run(
             {
-                message => \$message,
+                message => $message,
                 identity => $identity,
                 router_type => 'internal'
             }
@@ -852,7 +852,7 @@ sub external_decrypt_message {
     }
     foreach my $key (@$keys) {
         my $plaintext;
-        eval {
+        try {
             $plaintext = $self->{external_crypt_mode}->decrypt($crypt, $key->{key}, $key->{iv});
         };
         if (defined($plaintext) && $plaintext =~ /^\[[A-Za-z0-9_\-]+?\]/) {
@@ -860,8 +860,8 @@ sub external_decrypt_message {
         }
     }
 
-    $self->{logger}->writeLogError("[core] external decrypt issue: " .  ($@ ? $@ : 'no message'));
-    return (-1, ($@ ? $@ : 'no message'));
+    $self->{logger}->writeLogError("[core] external decrypt issue: " .  ($_ ? $_ : 'no message'));
+    return (-1, ($_ ? $_ : 'no message'));
 }
 
 sub external_core_response {
@@ -876,17 +876,16 @@ sub external_core_response {
     }
 
     if (defined($options{cipher_infos})) {
-        eval {
+        try {
             $message = $self->{external_crypt_mode}->encrypt(
                 $message,
                 $options{cipher_infos}->{key},
                 $options{cipher_infos}->{iv}
             );
-        };
-        if ($@) {
-            $self->{logger}->writeLogError("[core] external_core_response encrypt issue: " .  $@);
+        } catch {
+            $self->{logger}->writeLogError("[core] external_core_response encrypt issue: $_");
             return undef;
-        }
+        };
 
         $message = MIME::Base64::encode_base64($message, '');
     }
@@ -910,13 +909,12 @@ sub external_core_key_response {
     return -1 if (!defined($data));
 
     my $crypttext;
-    eval {
+    try {
         $crypttext = $options{client_pubkey}->encrypt("[KEY] " . $data, 'v1.5');
-    };
-    if ($@) {
-        $self->{logger}->writeLogError("[core] core key response encrypt issue: " .  $@);
+    } catch {
+        $self->{logger}->writeLogError("[core] core key response encrypt issue: $_");
         return -1;
-    }
+    };
 
     zmq_sendmsg($self->{external_socket}, pack('H*', $options{identity}), ZMQ_DONTWAIT | ZMQ_SNDMORE);
     zmq_sendmsg($self->{external_socket}, MIME::Base64::encode_base64($crypttext, ''), ZMQ_DONTWAIT);
@@ -1050,7 +1048,7 @@ sub router_external_event {
 
         my ($cipher_infos, $uncrypt_message) = $gorgone->handshake(
             identity => $identity,
-            message => $message,
+            message => $$message
         );
         if (defined($uncrypt_message)) {
             my ($token, $code, $response, $response_type) = $gorgone->message_run(
@@ -1240,7 +1238,7 @@ sub run {
         {
             socket  => $gorgone->{internal_socket},
             events  => ZMQ_POLLIN,
-            callback => \&router_internal_event,
+            callback => \&router_internal_event
         }
     ];
     
@@ -1248,7 +1246,7 @@ sub run {
         push @{$gorgone->{poll}}, {
             socket  => $gorgone->{external_socket},
             events  => ZMQ_POLLIN,
-            callback => \&router_external_event,
+            callback => \&router_external_event
         };
     }
 

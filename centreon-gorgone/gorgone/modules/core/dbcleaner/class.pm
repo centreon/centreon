@@ -121,10 +121,14 @@ sub action_dbclean {
     ) if (!defined($options{cycle}));
 
     $self->{logger}->writeLogDebug("[dbcleaner] Purge database in progress...");
-    my ($status) = $self->{db_gorgone}->query("DELETE FROM gorgone_identity WHERE `mtime` <  " . $self->{db_gorgone}->quote(time() - $self->{config}->{purge_sessions_time}));
-    my ($status2) = $self->{db_gorgone}->query(
-        "DELETE FROM gorgone_history WHERE (instant = 1 AND `ctime` <  " . (time() - 86400) . ") OR `ctime` <  " . $self->{db_gorgone}->quote(time() - $self->{config}->{purge_history_time})
-    );
+    my ($status) = $self->{db_gorgone}->query({
+        query => 'DELETE FROM gorgone_identity WHERE `mtime` < ?',
+        bind_values => [time() - $self->{config}->{purge_sessions_time}]
+    });
+    my ($status2) = $self->{db_gorgone}->query({
+        query => "DELETE FROM gorgone_history WHERE (instant = 1 AND `ctime` <  " . (time() - 86400) . ") OR `ctime` < ?",
+        bind_values => [time() - $self->{config}->{purge_history_time}]
+    });
     $self->{purge_timer} = time();
 
     $self->{logger}->writeLogDebug("[dbcleaner] Purge finished");
@@ -180,15 +184,15 @@ sub run {
         type => $self->get_core_config(name => 'internal_com_type'),
         path => $self->get_core_config(name => 'internal_com_path')
     );
-    $connector->send_internal_action(
+    $connector->send_internal_action({
         action => 'DBCLEANERREADY',
         data => {}
-    );
+    });
     $self->{poll} = [
         {
             socket  => $connector->{internal_socket},
             events  => ZMQ_POLLIN,
-            callback => \&event,
+            callback => \&event
         }
     ];
 
