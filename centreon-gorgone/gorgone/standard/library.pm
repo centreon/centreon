@@ -37,6 +37,7 @@ use Errno;
 use Time::HiRes;
 use Try::Tiny;
 use YAML::XS;
+use gorgone::class::frame;
 $YAML::XS::Boolean = 'JSON::PP';
 $YAML::XS::LoadBlessed = 1;
 
@@ -793,7 +794,9 @@ sub build_protocol {
     my $action = defined($options{action}) ? $options{action} : '';
     my $target = defined($options{target}) ? $options{target} : '';
 
-    if (defined($data)) {
+    if (defined($options{raw_data_ref})) {
+        return '[' . $action . '] [' . $token . '] [' . $target . '] ' . $$options{raw_data_ref};
+    } elsif (defined($data)) {
         if (defined($options{json_encode})) {
             $data = json_encode(data => $data, logger => $options{logger});
         }
@@ -845,9 +848,11 @@ sub zmq_read_message {
         return undef;
     }
     my $data = zmq_msg_data($message);
+    my $frame = gorgone::class::frame->new();
+    $frame->setFrame(frame => \$data);
     zmq_msg_close($message);
 
-    return (unpack('H*', $identity), \$data);
+    return (unpack('H*', $identity), $frame);
 }
 
 sub zmq_still_read {

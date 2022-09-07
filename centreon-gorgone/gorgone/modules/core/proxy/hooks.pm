@@ -33,6 +33,7 @@ use MIME::Base64;
 use Digest::MD5::File qw(file_md5_hex);
 use Fcntl;
 use Time::HiRes;
+use centreon::class::frame;
 use Try::Tiny;
 
 =begin comment
@@ -134,11 +135,9 @@ sub init {
 sub routing {
     my (%options) = @_;
 
-    my $data;
-    try {
-        $data = JSON::XS->new->decode($options{data});
-    } catch {
-        $options{logger}->writeLogError("[proxy] Cannot decode json data: $_");
+    my $data_ref = $options{frame}->decodeData();
+    if (!defined($data_ref)) {
+        $options{logger}->writeLogError("[proxy] Cannot decode json data: " . $options{frame}->getLastError());
         gorgone::standard::library::add_history(
             dbh => $options{dbh},
             code => GORGONE_ACTION_FINISH_KO,
@@ -150,64 +149,64 @@ sub routing {
     };
 
     if ($options{action} eq 'PONG') {
-        return undef if (!defined($data->{data}->{id}) || $data->{data}->{id} eq '');
-        $constatus_ping->{ $data->{data}->{id} }->{in_progress_ping} = 0;
-        $constatus_ping->{ $data->{data}->{id} }->{ping_timeout} = 0;
-        $last_pong->{$data->{data}->{id}} = time();
-        $constatus_ping->{ $data->{data}->{id} }->{last_ping_recv} = time();
-        $constatus_ping->{ $data->{data}->{id} }->{nodes} = $data->{data}->{data};
-        $constatus_ping->{ $data->{data}->{id} }->{ping_ok}++;
-        register_subnodes(%options, id => $data->{data}->{id}, subnodes => $data->{data}->{data});
-        $options{logger}->writeLogInfo("[proxy] Pong received from '" . $data->{data}->{id} . "'");
+        return undef if (!defined($data->{data}->{id}) || $$data_ref->{data}->{id} eq '');
+        $constatus_ping->{ $$data_ref->{data}->{id} }->{in_progress_ping} = 0;
+        $constatus_ping->{ $$data_ref->{data}->{id} }->{ping_timeout} = 0;
+        $last_pong->{ $$data_ref->{data}->{id} } = time();
+        $constatus_ping->{ $$data_ref->{data}->{id} }->{last_ping_recv} = time();
+        $constatus_ping->{ $$data_ref->{data}->{id} }->{nodes} = $$data_ref->{data}->{data};
+        $constatus_ping->{ $$data_ref->{data}->{id} }->{ping_ok}++;
+        register_subnodes(%options, id => $$data_ref->{data}->{id}, subnodes => $$data_ref->{data}->{data});
+        $options{logger}->writeLogInfo("[proxy] Pong received from '" . $$data_ref->{data}->{id} . "'");
         return undef;
     }
 
     if ($options{action} eq 'PONGRESET') {
-        return undef if (!defined($data->{data}->{id}) || $data->{data}->{id} eq '');
-        if (defined($constatus_ping->{ $data->{data}->{id} })) {
-            $constatus_ping->{ $data->{data}->{id} }->{in_progress_ping} = 0;
-            $constatus_ping->{ $data->{data}->{id} }->{ping_timeout} = 0;
-            $constatus_ping->{ $data->{data}->{id} }->{ping_failed}++;
+        return undef if (!defined($$data_ref->{data}->{id}) || $$data_ref->{data}->{id} eq '');
+        if (defined($constatus_ping->{ $$data_ref->{data}->{id} })) {
+            $constatus_ping->{ $$data_ref->{data}->{id} }->{in_progress_ping} = 0;
+            $constatus_ping->{ $$data_ref->{data}->{id} }->{ping_timeout} = 0;
+            $constatus_ping->{ $$data_ref->{data}->{id} }->{ping_failed}++;
         }
-        $options{logger}->writeLogInfo("[proxy] PongReset received from '" . $data->{data}->{id} . "'");
+        $options{logger}->writeLogInfo("[proxy] PongReset received from '" . $$data_ref->{data}->{id} . "'");
         return undef;
     }
 
     if ($options{action} eq 'UNREGISTERNODES') {
-        unregister_nodes(%options, data => $data);
+        unregister_nodes(%options, data_ref => $data_ref);
         return undef;
     }
 
     if ($options{action} eq 'REGISTERNODES') {
-        register_nodes(%options, data => $data);
+        register_nodes(%options, data_ref => $data_ref);
         return undef;
     }
 
     if ($options{action} eq 'PROXYREADY') {
-        if (defined($data->{pool_id})) {
-            $pools->{ $data->{pool_id} }->{ready} = 1;
+        if (defined($$data_ref->{pool_id})) {
+            $pools->{ $$data_ref->{pool_id} }->{ready} = 1;
             # we sent proxyaddnode to sync
             foreach my $node_id (keys %$nodes_pool) {
-                next if ($nodes_pool->{$node_id} != $data->{pool_id});
+                next if ($nodes_pool->{$node_id} != $$data_ref->{pool_id});
                 routing(
                     action => 'PROXYADDNODE',
                     target => $node_id,
-                    data => JSON::XS->new->encode($register_nodes->{$node_id}),
+                    frame => centreon::class::frame->new(data => $register_nodes->{$node_id}),
                     gorgone => $options{gorgone},
                     dbh => $options{dbh},
                     logger => $options{logger}
                 );
             }
-        } elsif (defined($data->{httpserver})) {
+        } elsif (defined($$data_ref->{httpserver})) {
             $httpserver->{ready} = 1;
-        } elsif (defined($data->{node_id}) && defined($synctime_nodes->{ $data->{node_id} })) {
-            $synctime_nodes->{ $data->{node_id} }->{channel_ready} = 1;
+        } elsif (defined($$data_ref->{node_id}) && defined($synctime_nodes->{ $$data_ref->{node_id} })) {
+            $synctime_nodes->{ $$data_ref->{node_id} }->{channel_ready} = 1;
         }
         return undef;
     }
 
     if ($options{action} eq 'SETLOGS') {
-        setlogs(dbh => $options{dbh}, data => $data, token => $options{token}, logger => $options{logger});
+        setlogs(dbh => $options{dbh}, data_ref => $data_ref, token => $options{token}, logger => $options{logger});
         return undef;
     }
 
@@ -275,14 +274,14 @@ sub routing {
 
     my $action = $options{action};
     my $bulk_actions;
-    push @{$bulk_actions}, $data;
+    push @{$bulk_actions}, $$data_ref;
 
     if ($options{action} eq 'REMOTECOPY' && defined($register_nodes->{$target_parent}) &&
         $register_nodes->{$target_parent}->{type} ne 'push_ssh') {
         $action = 'PROCESSCOPY';
         ($code, $bulk_actions) = prepare_remote_copy(
             dbh => $options{dbh},
-            data => $data,
+            data_ref => $data_ref,
             target => $target_parent,
             token => $options{token},
             logger => $options{logger}
@@ -313,7 +312,7 @@ sub routing {
                 gorgone => $options{gorgone},
                 dbh => $options{dbh},
                 action => $action,
-                data => $data,
+                raw_data_ref => $options{frame}->getRawData(),
                 token => $options{token},
                 target_parent => $target_parent,
                 target => $target,
@@ -325,10 +324,9 @@ sub routing {
         $options{gorgone}->send_internal_message(
             identity => $identity,
             action => $action,
-            data => $data,
+            raw_data_ref => $options{frame}->getRawData(),
             token => $options{token},
-            target => $target_complete,
-            json_encode => 1
+            target => $target_complete
         );
     }
 }
@@ -438,7 +436,7 @@ sub check {
                     routing(
                         target => $_,
                         action => 'PROXYCLOSECONNECTION',
-                        data => JSON::XS->new->encode({ id => $_ }),
+                        frame => centreon::class::frame->new(data => { id => $_ }),
                         gorgone => $options{gorgone},
                         dbh => $options{dbh},
                         logger => $options{logger}
@@ -565,7 +563,7 @@ sub pathway {
             routing(
                 target => $_,
                 action => 'PROXYCLOSEREADCHANNEL',
-                data => JSON::XS->new->encode({ id => $_ }),
+                frame => centreon::class::frame->new(data => { id => $_ }),
                 gorgone => $options{gorgone},
                 dbh => $options{dbh},
                 logger => $options{logger}
@@ -683,11 +681,11 @@ sub ping_send {
         $constatus_ping->{$id}->{next_ping} = $current_time + $ping_interval;
         if ($register_nodes->{$id}->{type} eq 'push_zmq' || $register_nodes->{$id}->{type} eq 'push_ssh') {
             $constatus_ping->{$id}->{in_progress_ping} = 1;
-            routing(action => 'PING', target => $id, data => '{}', gorgone => $options{gorgone}, dbh => $options{dbh}, logger => $options{logger});
+            routing(action => 'PING', target => $id, frame => centreon::class::frame->new(data => {}), gorgone => $options{gorgone}, dbh => $options{dbh}, logger => $options{logger});
         } elsif ($register_nodes->{$id}->{type} =~ /^(?:pull|wss)$/) {
             $constatus_ping->{$id}->{in_progress_ping} = 1;
             $constatus_ping->{$id}->{in_progress_ping_pull} = time();
-            routing(action => 'PING', target => $id, data => '{}', gorgone => $options{gorgone}, dbh => $options{dbh}, logger => $options{logger});
+            routing(action => 'PING', target => $id, frame => centreon::class::frame->new(data => {}), gorgone => $options{gorgone}, dbh => $options{dbh}, logger => $options{logger});
         }
     }
 }
@@ -707,9 +705,9 @@ sub full_sync_history {
     
     foreach my $id (keys %{$register_nodes}) {
         if ($register_nodes->{$id}->{type} eq 'push_zmq') {
-            routing(action => 'GETLOG', target => $id, data => '{}', gorgone => $options{gorgone}, dbh => $options{dbh}, logger => $options{logger});
+            routing(action => 'GETLOG', target => $id, frame => centreon::class::frame->new(data => {}), gorgone => $options{gorgone}, dbh => $options{dbh}, logger => $options{logger});
         } elsif ($register_nodes->{$id}->{type} =~ /^(?:pull|wss)$/) {
-            routing(action => 'GETLOG', target => $id, data => '{}', gorgone => $options{gorgone}, dbh => $options{dbh}, logger => $options{logger});
+            routing(action => 'GETLOG', target => $id, frame => centreon::class::frame->new(data => {}), gorgone => $options{gorgone}, dbh => $options{dbh}, logger => $options{logger});
         }
     }
 }
@@ -834,10 +832,9 @@ sub pull_request {
 
     my $message = gorgone::standard::library::build_protocol(
         action => $options{action},
-        data => $options{data},
+        raw_data_ref => $options{raw_data_ref},
         token => $options{token},
-        target => $options{target},
-        json_encode => 1
+        target => $options{target}
     );
 
     if (!defined($register_nodes->{ $options{target_parent} }->{identity})) {
@@ -882,6 +879,8 @@ sub get_constatus_result {
 sub unregister_nodes {
     my (%options) = @_;
 
+    $options{data} = defined($options{data}) ? $options{data} : $$options{data_ref};
+
     return if (!defined($options{data}->{nodes}));
 
     foreach my $node (@{$options{data}->{nodes}}) {
@@ -889,7 +888,7 @@ sub unregister_nodes {
             routing(
                 action => 'PROXYDELNODE',
                 target => $node->{id},
-                data => JSON::XS->new->encode($node),
+                frame => centreon::class::frame->new(data => $node),
                 gorgone => $options{gorgone},
                 dbh => $options{dbh},
                 logger => $options{logger}
@@ -951,6 +950,8 @@ sub register_subnodes {
 #    - PING done by proxy and with PONG we get subnodes
 sub register_nodes {
     my (%options) = @_;
+
+    $options{data} = defined($options{data}) ? $options{data} : $$options{data_ref};
 
     return if (!defined($options{data}->{nodes}));
 
@@ -1035,7 +1036,7 @@ sub register_nodes {
                 routing(
                     action => 'PROXYADDNODE',
                     target => $node->{id},
-                    data => JSON::XS->new->encode($register_nodes->{ $node->{id} }),
+                    frame => centreon::class::frame->new(data => $register_nodes->{ $node->{id} }),
                     gorgone => $options{gorgone},
                     dbh => $options{dbh},
                     logger => $options{logger}
@@ -1044,7 +1045,7 @@ sub register_nodes {
                 routing(
                     action => 'PROXYADDNODE',
                     target => $node->{id},
-                    data => JSON::XS->new->encode($node),
+                    frame => centreon::class::frame->new(data => $node),
                     gorgone => $options{gorgone},
                     dbh => $options{dbh},
                     logger => $options{logger}
@@ -1073,7 +1074,7 @@ sub prepare_remote_copy {
 
     my @actions;
 
-    if (!defined($options{data}->{content}->{source}) || $options{data}->{content}->{source} eq '') {
+    if (!defined($$options{data_ref}->{content}->{source}) || $$options{data_ref}->{content}->{source} eq '') {
         $options{logger}->writeLogError('[proxy] Need source for remote copy');
         gorgone::standard::library::add_history(
             dbh => $options{dbh},
@@ -1084,7 +1085,7 @@ sub prepare_remote_copy {
         );
         return -1;
     }
-    if (!defined($options{data}->{content}->{destination}) || $options{data}->{content}->{destination} eq '') {
+    if (!defined($$options{data_ref}->{content}->{destination}) || $$options{data_ref}->{content}->{destination} eq '') {
         $options{logger}->writeLogError('[proxy] Need destination for remote copy');
         gorgone::standard::library::add_history(
             dbh => $options{dbh},
@@ -1102,19 +1103,19 @@ sub prepare_remote_copy {
     my $src = $options{data}->{content}->{source};
     my $dst = $options{data}->{content}->{destination};
 
-    if (-f $options{data}->{content}->{source}) {
+    if (-f $$options{data_ref}->{content}->{source}) {
         $type = 'regular';
         $localsrc = $src;
         $filename = File::Basename::basename($src);
         $dst .= $filename if ($dst =~ /\/$/);
-    } elsif (-d $options{data}->{content}->{source}) {
+    } elsif (-d $$options{data_ref}->{content}->{source}) {
         $type = 'archive';
-        $filename = (defined($options{data}->{content}->{type}) ? $options{data}->{content}->{type} : 'tmp') . '-' . $options{target} . '.tar.gz';
-        $localsrc = $options{data}->{content}->{cache_dir} . '/' . $filename;
+        $filename = (defined($$options{data_ref}->{content}->{type}) ? $$options{data_ref}->{content}->{type} : 'tmp') . '-' . $options{target} . '.tar.gz';
+        $localsrc = $$options{data_ref}->{content}->{cache_dir} . '/' . $filename;
 
         my $tar_cmd = "tar -czf $localsrc -C '" . $src . "' .";
-        $tar_cmd .= " --owner=" . $options{data}->{content}->{owner} if (defined($options{data}->{content}->{owner}) && $options{data}->{content}->{owner} ne '');
-        $tar_cmd .= " --group=" . $options{data}->{content}->{group} if (defined($options{data}->{content}->{group}) && $options{data}->{content}->{group} ne '');
+        $tar_cmd .= " --owner=" . $$options{data_ref}->{content}->{owner} if (defined($$options{data_ref}->{content}->{owner}) && $$options{data_ref}->{content}->{owner} ne '');
+        $tar_cmd .= " --group=" . $$options{data_ref}->{content}->{group} if (defined($$options{data_ref}->{content}->{group}) && $$options{data_ref}->{content}->{group} ne '');
         my ($error, $stdout, $exit_code) = gorgone::standard::misc::backtick(
             command => $tar_cmd,
             timeout => (defined($options{timeout})) ? $options{timeout} : 10,
@@ -1161,7 +1162,7 @@ sub prepare_remote_copy {
     my $buffer;
     while (my $bytes = sysread(FH, $buffer, $buffer_size)) {
         push @actions, {
-            logging => $options{data}->{logging},
+            logging => $$options{data_ref}->{logging},
             content => {
                 status => 'inprogress',
                 type => $type,
@@ -1171,7 +1172,7 @@ sub prepare_remote_copy {
                 },
                 md5 => undef,
                 destination => $dst,
-                cache_dir => $options{data}->{content}->{cache_dir},
+                cache_dir => $$options{data_ref}->{content}->{cache_dir}
             },
             parameters => { no_fork => 1 }
         };
@@ -1179,16 +1180,16 @@ sub prepare_remote_copy {
     close FH;
 
     push @actions, {
-        logging => $options{data}->{logging},
+        logging => $$options{data_ref}->{logging},
         content => {
             status => 'end',
             type => $type,
             chunk => undef,
             md5 => file_md5_hex($localsrc),
             destination => $dst,
-            cache_dir => $options{data}->{content}->{cache_dir},
-            owner => $options{data}->{content}->{owner},
-            group => $options{data}->{content}->{group},
+            cache_dir => $$options{data_ref}->{content}->{cache_dir},
+            owner => $$options{data_ref}->{content}->{owner},
+            group => $$options{data_ref}->{content}->{group}
         },
         parameters => { no_fork => 1 }
     };

@@ -512,7 +512,7 @@ sub broadcast_core_key {
 sub read_internal_message {
     my ($self, %options) = @_;
 
-    my ($identity, $message) = gorgone::standard::library::zmq_read_message(
+    my ($identity, $frame) = gorgone::standard::library::zmq_read_message(
         socket => $self->{internal_socket},
         logger => $self->{logger}
     );
@@ -529,20 +529,16 @@ sub read_internal_message {
                 if (defined($self->{config}->{configuration}->{gorgone}->{gorgonecore}->{internal_com_core_oldkey}));
         }
         foreach my $key (@$keys) {
-            my $plaintext;
-            try {
-                $plaintext = $self->{cipher}->decrypt($$message, $key, $self->{internal_crypt}->{iv});
-            };
-            if (defined($plaintext) && $plaintext =~ /^\[[A-Za-z0-9_\-]+?\]/) {
-                return ($identity, \$plaintext);
+            if ($frame->decrypt({ cipher => $self->{cipher}, key => $key, iv => $self->{internal_crypt}->{iv}) == 0) {
+                return ($identity, $frame);
             }
         }
 
-        $self->{logger}->writeLogError("[core] decrypt issue ($id): " .  ($_ ? $_ : 'no message'));
+        $self->{logger}->writeLogError("[core] decrypt issue ($id): " .  $frame->getLastError());
         return undef;
     }
 
-    return ($identity, $message);
+    return ($identity, $frame);
 }
 
 sub send_internal_response {
@@ -633,11 +629,14 @@ sub broadcast_run {
 sub message_run {
     my ($self, $options) = (shift, shift);
 
-    $self->{logger}->writeLogDebug('[core] Message received - ' . ${$options->{message}}) if ($self->{logger}->is_debug());
-    if (${$options->{message}} !~ /^\[(.+?)\]\s+\[(.*?)\]\s+\[(.*?)\]\s+(.*)$/) {
+    if ($self->{logger}->is_debug()) {
+        my $frame_ref = $options->{frame}->getFrame();
+        $self->{logger}->writeLogDebug('[core] Message received - ' . $$frame_ref);
+    }
+    if ($options->{frame}->parse() != 0) {
         return (undef, 1, { message => 'request not well formatted' });
     }
-    my ($action, $token, $target, $data) = ($1, $2, $3, $4);
+    my ($action, $token, $target) = ($options->{frame}->getAction(), $options->{frame}->getToken(), $options->{frame}->getTarget());
 
     # Check if not myself ;)
     if (defined($target) && ($target eq '' || (defined($self->{id}) && $target eq $self->{id}))) {
@@ -701,7 +700,7 @@ sub message_run {
             action => $action,
             token => $token,
             target => $target,
-            data => $data,
+            frame => $frame,
             hostname => $self->{hostname}
         );
         return ($token, 0);
@@ -714,7 +713,7 @@ sub message_run {
             identity => $options->{identity},
             router_type => $options->{router_type},
             id => $self->{id},
-            data => $data,
+            frame => $frame,
             token => $token,
             logger => $self->{logger}
         );
@@ -734,7 +733,7 @@ sub message_run {
         return (undef, 1, { message => "action '$action' is not known" }) if ($1 !~ /^(?:LOGGER|COREKEY)$/);
         $self->broadcast_run(
             action => $action,
-            data => $data,
+            frame => $frame,
             token => $token
         );
     } else {
@@ -745,21 +744,22 @@ sub message_run {
             action => $action,
             token => $token,
             target => $target,
-            data => $data,
+            frame => $frame,
             hostname => $self->{hostname},
         );
     }
+
     return ($token, 0);
 }
 
 sub router_internal_event {
     while (1) {
-        my ($identity, $message) = $gorgone->read_internal_message();
+        my ($identity, $frame) = $gorgone->read_internal_message();
         last if (!defined($identity));
 
         my ($token, $code, $response, $response_type) = $gorgone->message_run(
             {
-                message => $message,
+                frame => $frame,
                 identity => $identity,
                 router_type => 'internal'
             }
