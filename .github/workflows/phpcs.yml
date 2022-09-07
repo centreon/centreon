@@ -38,7 +38,7 @@ jobs:
 
     - name: Run PHPCS
       run: |
-           ./vendor/bin/phpcs --extensions=php --standard=./ruleset.xml --report=checkstyle --report-file=./checkstyle-be.xml ${{ steps.files.outputs.added }} ${{ steps.files.outputs.modified }
+           ./vendor/bin/phpcs --extensions=php --standard=./ruleset.xml --report=checkstyle --report-file=./checkstyle-be.xml ${{ steps.files.outputs.added }} ${{ steps.files.outputs.modified }}
       working-directory: centreon
       continue-on-error: true
 
