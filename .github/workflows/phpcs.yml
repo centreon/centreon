@@ -19,30 +19,18 @@ env:
   version: "22.10"
   
 jobs:
-
-  be-phpcs:
-
-    runs-on: ubuntu-latest
-
-    steps:
-
-    - name: Checkout
-      uses: actions/checkout@v2
-
-    - name: Init
-      uses: ./.github/actions/init-backend-jobs
-
-    - name: Get changed files
-      id: files
-      uses: jitterbit/get-changed-files@v1
-
-    - name: Run PHPCS
-      run: |
-           ./vendor/bin/phpcs --extensions=php --standard=./ruleset.xml --report=checkstyle --report-file=./checkstyle-be.xml ${{ steps.files.outputs.added }} ${{ steps.files.outputs.modified }}
-      working-directory: centreon
-      continue-on-error: true
-
-    - name: Annotate PR from PHPCS result
-      working-directory: centreon
-      run: |
-        cs2pr checkstyle-be.xml
+    phpstan-analysis:
+      name: phpstan static code analysis and code sniffer
+      runs-on: ubuntu-latest
+      steps:
+          - uses: actions/checkout@v2
+          - name: Setup PHP
+            uses: shivammathur/setup-php@v1
+            with:
+                php-version: 8.0
+                coverage: none # disable xdebug, pcov
+                tools: cs2pr
+          - run: |
+                cd centreon
+                composer install 
+                composer run-script codestyle:ci | cs2pr ./build/checkstyle-be.xml
