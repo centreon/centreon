@@ -35,6 +35,11 @@ use Digest::MD5::File qw(file_md5_hex);
 use Fcntl;
 use Time::HiRes;
 use Try::Tiny;
+use Archive::Tar;
+use File::Find;
+
+$Archive::Tar::SAME_PERMISSIONS = 1;
+$Archive::Tar::WARN = 0;
 
 =begin comment
 for each proxy processus, we have: 
@@ -274,7 +279,7 @@ sub routing {
 
     my $action = $options{action};
     my $bulk_actions;
-    push @{$bulk_actions}, $data;
+    push @{$bulk_actions}, $options{frame}->getRawData();
 
     if ($options{action} eq 'REMOTECOPY' && defined($register_nodes->{$target_parent}) &&
         $register_nodes->{$target_parent}->{type} ne 'push_ssh') {
@@ -305,14 +310,14 @@ sub routing {
         $identity = 'gorgone-proxy-httpserver';
     }
 
-    foreach my $data (@{$bulk_actions}) {
+    foreach my $raw_data_ref (@{$bulk_actions}) {
         # Mode zmq pull
         if ($register_nodes->{$target_parent}->{type} eq 'pull') {
             pull_request(
                 gorgone => $options{gorgone},
                 dbh => $options{dbh},
                 action => $action,
-                raw_data_ref => $options{frame}->getRawData(),
+                raw_data_ref => $raw_data_ref,
                 token => $options{token},
                 target_parent => $target_parent,
                 target => $target,
@@ -324,7 +329,7 @@ sub routing {
         $options{gorgone}->send_internal_message(
             identity => $identity,
             action => $action,
-            raw_data_ref => $options{frame}->getRawData(),
+            raw_data_ref => $raw_data_ref,
             token => $options{token},
             target => $target_complete
         );
@@ -1068,7 +1073,7 @@ sub register_nodes {
 sub prepare_remote_copy {
     my (%options) = @_;
 
-    my @actions;
+    my @actions = ();
 
     if (!defined($options{data}->{content}->{source}) || $options{data}->{content}->{source} eq '') {
         $options{logger}->writeLogError('[proxy] Need source for remote copy');
@@ -1109,17 +1114,45 @@ sub prepare_remote_copy {
         $filename = (defined($options{data}->{content}->{type}) ? $options{data}->{content}->{type} : 'tmp') . '-' . $options{target} . '.tar.gz';
         $localsrc = $options{data}->{content}->{cache_dir} . '/' . $filename;
 
-        my $tar_cmd = "tar -czf $localsrc -C '" . $src . "' .";
-        $tar_cmd .= " --owner=" . $options{data}->{content}->{owner} if (defined($options{data}->{content}->{owner}) && $options{data}->{content}->{owner} ne '');
-        $tar_cmd .= " --group=" . $options{data}->{content}->{group} if (defined($options{data}->{content}->{group}) && $options{data}->{content}->{group} ne '');
-        my ($error, $stdout, $exit_code) = gorgone::standard::misc::backtick(
-            command => $tar_cmd,
-            timeout => (defined($options{timeout})) ? $options{timeout} : 10,
-            wait_exit => 1,
-            redirect_stderr => 1,
-        );
-        if ($error <= -1000) {
-            $options{logger}->writeLogError("[proxy] Tar failed: $stdout");
+        my $tar = Archive::Tar->new();
+        unless (chdir($options{data}->{content}->{source})) {
+            $options{logger}->writeLogError("[proxy] cannot chdir: $!");
+            gorgone::standard::library::add_history(
+                dbh => $options{dbh},
+                code => GORGONE_ACTION_FINISH_KO,
+                token => $options{token},
+                data => { message => "cannot chdir: $!" },
+                json_encode => 1
+            );
+            return -1;
+        }
+
+        my @inventory = ();
+        File::Find::find ({ wanted => sub { push @inventory, $_ }, no_chdir => 1 }, '.');
+        my $owner;
+        $owner = $options{data}->{content}->{owner} if (defined($options{data}->{content}->{owner}) && $options{data}->{content}->{owner} ne '');
+        my $group;
+        $group = $options{data}->{content}->{group} if (defined($options{data}->{content}->{group}) && $options{data}->{content}->{group} ne '');
+        foreach my $file (@inventory) {
+            $tar->add_files($file);
+            if (defined($owner) || defined($group)) {
+                $tar->chown($file, $owner, $group);
+            }
+        }
+
+        unless (chdir($options{data}->{content}->{cache_dir})) {
+            $options{logger}->writeLogError("[proxy] cannot chdir: $!");
+            gorgone::standard::library::add_history(
+                dbh => $options{dbh},
+                code => GORGONE_ACTION_FINISH_KO,
+                token => $options{token},
+                data => { message => "cannot chdir: $!" },
+                json_encode => 1
+            );
+            return -1;
+        }
+        unless ($tar->write($filename, COMPRESS_GZIP)) {
+            $options{logger}->writeLogError("[proxy] Tar failed: " . $tar->error());
             gorgone::standard::library::add_history(
                 dbh => $options{dbh},
                 code => GORGONE_ACTION_FINISH_KO,
@@ -1129,17 +1162,6 @@ sub prepare_remote_copy {
             );
             return -1;
         }
-        if ($exit_code != 0) {
-            $options{logger}->writeLogError("[proxy] Tar failed ($exit_code): $stdout");
-            gorgone::standard::library::add_history(
-                dbh => $options{dbh},
-                code => GORGONE_ACTION_FINISH_KO,
-                token => $options{token},
-                data => { message => 'tar failed' },
-                json_encode => 1
-            );
-            return -1;
-        };
     } else {
         $options{logger}->writeLogError('[proxy] Unknown source for remote copy');
         gorgone::standard::library::add_history(
@@ -1157,7 +1179,7 @@ sub prepare_remote_copy {
     my $buffer_size = (defined($config->{buffer_size})) ? $config->{buffer_size} : 500_000;
     my $buffer;
     while (my $bytes = sysread(FH, $buffer, $buffer_size)) {
-        push @actions, {
+        my $action = JSON::XS->new->encode({
             logging => $options{data}->{logging},
             content => {
                 status => 'inprogress',
@@ -1171,11 +1193,12 @@ sub prepare_remote_copy {
                 cache_dir => $options{data}->{content}->{cache_dir}
             },
             parameters => { no_fork => 1 }
-        };
+        });
+        push @actions, \$action;
     }
     close FH;
 
-    push @actions, {
+    my $action = JSON::XS->new->encode({
         logging => $options{data}->{logging},
         content => {
             status => 'end',
@@ -1188,7 +1211,8 @@ sub prepare_remote_copy {
             group => $options{data}->{content}->{group}
         },
         parameters => { no_fork => 1 }
-    };
+    });
+    push @actions, \$action;
 
     return (0, \@actions);
 }
