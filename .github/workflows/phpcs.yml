@@ -31,7 +31,6 @@ jobs:
             
           - name: Setup PHP
             uses: shivammathur/setup-php@v2
-            continue-on-error: true
             with:
                 php-version: 8.0
                 coverage: none # disable xdebug, pcov
@@ -41,6 +40,7 @@ jobs:
                 composer install 
                 cd ..
                 ./centreon/vendor/bin/phpcs --extensions=php --standard=./centreon/ruleset.xml --report=checkstyle --report-file=./phpcs-report.xml ${{ steps.files.outputs.added }} ${{ steps.files.outputs.modified }}
+          - continue-on-error: true
 
           - name: Show PHPCS results in PR
             run: cs2pr ./phpcs-report.xml
