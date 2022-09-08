@@ -24,6 +24,7 @@ use strict;
 use warnings;
 use gorgone::standard::constants qw(:all);
 use gorgone::standard::library;
+use gorgone::class::frame;
 
 sub new {
     my ($class, %options) = @_;
@@ -52,7 +53,10 @@ sub event_log {
         $self->{logger}->writeLogDebug("[listener] trigger event '$_[0]->{token}'");
 
         my $message = '[' . $_ . '] [' . $_[0]->{token} . '] [] { "code": ' . $_[0]->{code} . ', "data": ' . ${$_[0]->{data}} . ' }';
-        $self->{gorgone_core}->message_run({ message => \$message, router_type => 'internal' });
+        my $frame = gorgone::class::frame->new();
+        $frame->setFrame(\$message);
+
+        $self->{gorgone_core}->message_run({ frame => $frame, router_type => 'internal' });
     }
 }
 
@@ -90,7 +94,10 @@ sub check_getlog_token {
         
         if ((time() - $self->{tokens}->{$options{token}}->{log_pace}) > $self->{tokens}->{$options{token}}->{getlog_last}) {
             my $message = "[GETLOG] [] [$self->{tokens}->{$options{token}}->{target}] {}";
-            $self->{gorgone_core}->message_run({ message => \$message, router_type => 'internal' });
+            my $frame = gorgone::class::frame->new();
+            $frame->setFrame(\$message);
+            
+            $self->{gorgone_core}->message_run({ frame => $frame, router_type => 'internal' });
 
             $self->{tokens}->{$options{token}}->{getlog_last} = time();
         }

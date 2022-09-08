@@ -287,12 +287,10 @@ sub is_client_can_connect {
 sub addlistener {
     my (%options) = @_;
 
-    my $data;
-    try {
-        $data = JSON::XS->new->decode($options{data});
-    } catch {
+    my $data = $options{frame}->decodeData();
+    if (!defined($data)) {
         return (GORGONE_ACTION_FINISH_KO, { message => 'request not well formatted' });
-    };
+    }
 
     foreach (@$data) {
         $options{gorgone}->{listener}->add_listener(
@@ -304,6 +302,7 @@ sub addlistener {
             timeout => $_->{timeout}
         );
     }
+
     return (GORGONE_ACTION_FINISH_OK, { action => 'addlistener', message => 'ok', data => $data });
 }
 
@@ -331,12 +330,10 @@ sub information {
 sub unloadmodule {
     my (%options) = @_;
 
-    my $data;
-    try {
-        $data = JSON::XS->new->decode($options{data});
-    } catch {
+    my $data = $options{frame}->decodeData();
+    if (!defined($data)) {
         return (GORGONE_ACTION_FINISH_KO, { message => 'request not well formatted' });
-    };
+    }
 
     if (defined($data->{content}->{package}) && defined($options{gorgone}->{modules_register}->{ $data->{content}->{package} })) {
         $options{gorgone}->{modules_register}->{ $data->{content}->{package} }->{gently}->(logger => $options{gorgone}->{logger});
@@ -355,12 +352,10 @@ sub unloadmodule {
 sub loadmodule {
     my (%options) = @_;
 
-    my $data;
-    try {
-        $data = JSON::XS->new->decode($options{data});
-    } catch {
+    my $data = $options{frame}->decodeData();
+    if (!defined($data)) {
         return (GORGONE_ACTION_FINISH_KO, { message => 'request not well formatted' });
-    };
+    }
 
     if ($options{gorgone}->load_module(config_module => $data->{content})) {
         $options{gorgone}->{modules_register}->{ $data->{content}->{package} }->{init}->(
@@ -370,7 +365,7 @@ sub loadmodule {
             external_socket => $options{gorgone}->{external_socket},
             internal_socket => $options{gorgone}->{internal_socket},
             dbh => $options{gorgone}->{db_gorgone},
-            api_endpoints => $options{gorgone}->{api_endpoints},
+            api_endpoints => $options{gorgone}->{api_endpoints}
         );
         return (GORGONE_ACTION_BEGIN, { action => 'loadmodule', message => "module '$data->{content}->{name}' is loaded" }, 'LOADMODULE');
     }
@@ -381,12 +376,10 @@ sub loadmodule {
 sub synclogs {
     my (%options) = @_;
 
-    my $data;
-    try {
-        $data = JSON::XS->new->decode($options{data});
-    } catch {
+    my $data = $options{frame}->decodeData();
+    if (!defined($data)) {
         return (GORGONE_ACTION_FINISH_KO, { message => 'request not well formatted' });
-    };
+    }
 
     if (!defined($data->{data}->{id})) {
         return (GORGONE_ACTION_FINISH_KO, { action => 'synclog', message => 'please set id for synclog' });
@@ -425,12 +418,10 @@ sub constatus {
 sub setmodulekey {
     my (%options) = @_;
 
-    my $data;
-    try {
-        $data = JSON::XS->new->decode($options{data});
-    } catch {
+    my $data = $options{frame}->decodeData();
+    if (!defined($data)) {
         return (GORGONE_ACTION_FINISH_KO, { message => 'request not well formatted' });
-    };
+    }
 
     if (!defined($data->{key})) {
         return (GORGONE_ACTION_FINISH_KO, { action => 'setmodulekey', message => 'please set key' });
@@ -454,12 +445,10 @@ sub setcoreid {
         return (GORGONE_ACTION_FINISH_OK, { action => 'setcoreid', message => 'setcoreid unchanged, use config value' })
     }
 
-    my $data;
-    try {
-        $data = JSON::XS->new->decode($options{data});
-    } catch {
+    my $data = $options{frame}->decodeData();
+    if (!defined($data)) {
         return (GORGONE_ACTION_FINISH_KO, { message => 'request not well formatted' });
-    };
+    }
 
     if (!defined($data->{id})) {
         return (GORGONE_ACTION_FINISH_KO, { action => 'setcoreid', message => 'please set id for setcoreid' });
@@ -499,12 +488,10 @@ sub ping {
 sub putlog {
     my (%options) = @_;
 
-    my $data;
-    try {
-        $data = JSON::XS->new->decode($options{data});
-    } catch {
+    my $data = $options{frame}->decodeData();
+    if (!defined($data)) {
         return (GORGONE_ACTION_FINISH_KO, { message => 'request not well formatted' });
-    };
+    }
 
     my $status = add_history(
         dbh => $options{gorgone}->{db_gorgone}, 
@@ -523,12 +510,10 @@ sub putlog {
 sub getlog {
     my (%options) = @_;
 
-    my $data;
-    try {
-        $data = JSON::XS->new->decode($options{data});
-    } catch {
+    my $data = $options{frame}->decodeData();
+    if (!defined($data)) {
         return (GORGONE_ACTION_FINISH_KO, { message => 'request not well formatted' });
-    };
+    }
 
     my %filters = ();
     my ($filter, $filter_append) = ('', '');
@@ -565,12 +550,10 @@ sub getlog {
 sub kill {
     my (%options) = @_;
 
-    my $data;
-    try {
-        $data = JSON::XS->new->decode($options{data});
-    } catch {
+    my $data = $options{frame}->decodeData();
+    if (!defined($data)) {
         return (GORGONE_ACTION_FINISH_KO, { message => 'request not well formatted' });
-    };
+    }
 
     if (defined($data->{content}->{package}) && defined($options{gorgone}->{modules_register}->{ $data->{content}->{package} })) {
         $options{gorgone}->{modules_register}->{ $data->{content}->{package} }->{kill}->(logger => $options{gorgone}->{logger});
@@ -652,7 +635,6 @@ sub add_history {
     if (!defined($options{etime})) {
         $options{etime} = time();
     }
-
 
     my $fields = '';
     my $placeholder = '';
@@ -795,7 +777,7 @@ sub build_protocol {
     my $target = defined($options{target}) ? $options{target} : '';
 
     if (defined($options{raw_data_ref})) {
-        return '[' . $action . '] [' . $token . '] [' . $target . '] ' . $$options{raw_data_ref};
+        return '[' . $action . '] [' . $token . '] [' . $target . '] ' . ${$options{raw_data_ref}};
     } elsif (defined($data)) {
         if (defined($options{json_encode})) {
             $data = json_encode(data => $data, logger => $options{logger});
@@ -810,8 +792,12 @@ sub build_protocol {
 sub zmq_dealer_read_message {
     my (%options) = @_;
 
-    my $message = zmq_recvmsg($options{socket}, ZMQ_DONTWAIT);
-    return undef if (!defined($message));
+    my $message = zmq_msg_init();
+    my $rv = zmq_msg_recv($message, $options{socket}, ZMQ_DONTWAIT);
+    if ($rv == -1) {
+        zmq_msg_close($message);
+        return undef;
+    }
 
     my $data = zmq_msg_data($message);
     zmq_msg_close($message);
@@ -825,6 +811,7 @@ sub zmq_read_message {
     my $message = zmq_msg_init();
     my $rv = zmq_msg_recv($message, $options{socket}, ZMQ_DONTWAIT);
     if ($rv == -1) {
+        zmq_msg_close($message);
         return undef if ($! == Errno::EAGAIN);
 
         $options{logger}->writeLogError("[core] zmq_recvmsg error: $!");
@@ -842,15 +829,17 @@ sub zmq_read_message {
     $message = zmq_msg_init();
     $rv = zmq_msg_recv($message, $options{socket}, ZMQ_DONTWAIT);
     if ($rv == -1) {
+        zmq_msg_close($message);
         return undef if ($! == Errno::EAGAIN);
 
         $options{logger}->writeLogError("[core] zmq_recvmsg error: $!");
         return undef;
     }
     my $data = zmq_msg_data($message);
-    my $frame = gorgone::class::frame->new();
-    $frame->setFrame(frame => \$data);
     zmq_msg_close($message);
+
+    my $frame = gorgone::class::frame->new();
+    $frame->setFrame(\$data);
 
     return (unpack('H*', $identity), $frame);
 }

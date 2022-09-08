@@ -32,10 +32,10 @@ sub new {
     bless $self, $class;
 
     if (defined($options{rawData})) {
-        $self->setRawData(rawData => $options{rawData});
+        $self->setRawData($options{rawData});
     }
     if (defined($options{data})) {
-        $self->setRawData(data => $options{data});
+        $self->setData($options{data});
     }
 
     return $self;
@@ -44,19 +44,19 @@ sub new {
 sub setData {
     my ($self) = shift;
 
-    $self->{rawData} = $_[0]->{rawData};
+    $self->{data} = $_[0];
 }
 
 sub setRawData {
     my ($self) = shift;
 
-    $self->{data} = $_[0]->{data};
+    $self->{rawData} = $_[0];
 }
 
 sub setFrame {
     my ($self) = shift;
 
-    $self->{frame} = $_[0]->{frame};
+    $self->{frame} = $_[0];
 }
 
 sub getFrame {
@@ -76,7 +76,7 @@ sub decrypt {
 
     my $plaintext;
     try {
-        $plaintext = $options->{cipher}->decrypt(${$self->{frame}}, $option->{key}, $options->{iv});
+        $plaintext = $options->{cipher}->decrypt(${$self->{frame}}, $options->{key}, $options->{iv});
     };
     if (defined($plaintext) && $plaintext =~ /^\[[A-Za-z0-9_\-]+?\]/) {
         $self->{frame} = \$plaintext;
@@ -90,7 +90,7 @@ sub decrypt {
 sub parse {
     my ($self) = shift;
 
-    if (${$self->{frame}} !~ /^\[(.+?)\]\s+\[(.*?)\]\s+\[(.*?)\]\s+(.*)$/) {
+    if (${$self->{frame}} =~ /^\[(.+?)\]\s+\[(.*?)\]\s+\[(.*?)\]\s+(.*)$/) {
         $self->{action} = $1;
         $self->{token} = $2;
         $self->{target} = $3;
@@ -113,13 +113,13 @@ sub decodeData {
         }
     }
 
-    return \$self->{data};
+    return $self->{data};
 }
 
 sub getRawData {
     my ($self) = shift;
 
-    if (!defined(\$self->{rawData})) {
+    if (!defined($self->{rawData})) {
         try {
             $self->{rawData} = JSON::XS->new->encode($self->{data});
         } catch {

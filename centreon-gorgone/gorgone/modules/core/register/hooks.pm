@@ -79,7 +79,7 @@ sub routing {
     $options{gorgone}->send_internal_message(
         identity => 'gorgone-register',
         action => $options{action},
-        data => $options{data},
+        raw_data_ref => $options{frame}->getRawData(),
         token => $options{token}
     );
 }

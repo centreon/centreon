@@ -33,6 +33,7 @@ use gorgone::standard::constants qw(:all);
 use gorgone::standard::misc;
 use gorgone::class::db;
 use gorgone::class::listener;
+use gorgone::class::frame;
 use Time::HiRes;
 use Try::Tiny;
 
@@ -501,9 +502,12 @@ sub broadcast_core_key {
     );
 
     my $message = '[BCASTCOREKEY] [] [] { "key": "' . unpack('H*', $key). '"}';
+    my $frame = gorgone::class::frame->new();
+    $frame->setFrame(\$message);
+
     $self->message_run(
         {
-            message => \$message,
+            frame => $frame,
             router_type => 'internal'
         }
     );
@@ -529,7 +533,7 @@ sub read_internal_message {
                 if (defined($self->{config}->{configuration}->{gorgone}->{gorgonecore}->{internal_com_core_oldkey}));
         }
         foreach my $key (@$keys) {
-            if ($frame->decrypt({ cipher => $self->{cipher}, key => $key, iv => $self->{internal_crypt}->{iv}) == 0) {
+            if ($frame->decrypt({ cipher => $self->{cipher}, key => $key, iv => $self->{internal_crypt}->{iv} }) == 0) {
                 return ($identity, $frame);
             }
         }
@@ -595,7 +599,7 @@ sub send_internal_message {
 sub broadcast_run {
     my ($self, %options) = @_;
 
-    my $data = gorgone::standard::library::json_decode(module => 'core', data => $options{data}, logger => $self->{logger});
+    my $data = $options{frame}->decodeData();
     return if (!defined($data));
 
     if ($options{action} eq 'BCASTLOGGER') {
@@ -614,6 +618,7 @@ sub broadcast_run {
             dbh => $self->{db_gorgone},
             action => $options{action},
             logger => $self->{logger},
+            frame => $options{frame},
             data => $options{data},
             token => $options{token}
         );
@@ -700,7 +705,7 @@ sub message_run {
             action => $action,
             token => $token,
             target => $target,
-            frame => $frame,
+            frame => $options->{frame},
             hostname => $self->{hostname}
         );
         return ($token, 0);
@@ -713,7 +718,7 @@ sub message_run {
             identity => $options->{identity},
             router_type => $options->{router_type},
             id => $self->{id},
-            frame => $frame,
+            frame => $options->{frame},
             token => $token,
             logger => $self->{logger}
         );
@@ -733,19 +738,19 @@ sub message_run {
         return (undef, 1, { message => "action '$action' is not known" }) if ($1 !~ /^(?:LOGGER|COREKEY)$/);
         $self->broadcast_run(
             action => $action,
-            frame => $frame,
+            frame => $options->{frame},
             token => $token
         );
     } else {
-        $self->{modules_register}->{$self->{modules_events}->{$action}->{module}->{package}}->{routing}->(
+        $self->{modules_register}->{ $self->{modules_events}->{$action}->{module}->{package} }->{routing}->(
             gorgone => $self,
             dbh => $self->{db_gorgone},
             logger => $self->{logger},
             action => $action,
             token => $token,
             target => $target,
-            frame => $frame,
-            hostname => $self->{hostname},
+            frame => $options->{frame},
+            hostname => $self->{hostname}
         );
     }
 
@@ -844,7 +849,9 @@ sub check_external_rotate_keys {
 sub external_decrypt_message {
     my ($self, %options) = @_;
 
-    my $crypt = MIME::Base64::decode_base64($options{message});
+    my $message = $options{frame}->getFrame();
+
+    my $crypt = MIME::Base64::decode_base64($$message);
 
     my $keys = [ { key => $options{cipher_infos}->{key}, iv => $options{cipher_infos}->{iv} } ];
     if (defined($options{cipher_infos}->{oldkey})) {
@@ -856,12 +863,13 @@ sub external_decrypt_message {
             $plaintext = $self->{external_crypt_mode}->decrypt($crypt, $key->{key}, $key->{iv});
         };
         if (defined($plaintext) && $plaintext =~ /^\[[A-Za-z0-9_\-]+?\]/) {
-            return (0, $plaintext);
+            $options{frame}->setFrame(\$plaintext);
+            return 0;
         }
     }
 
     $self->{logger}->writeLogError("[core] external decrypt issue: " .  ($_ ? $_ : 'no message'));
-    return (-1, ($_ ? $_ : 'no message'));
+    return -1;
 }
 
 sub external_core_response {
@@ -925,9 +933,10 @@ sub handshake {
     my ($self, %options) = @_;
 
     my ($rv, $cipher_infos);
+    my $message = $options{frame}->getFrame();
 
     # Test if it asks for the pubkey
-    if ($options{message} =~ /^\s*\[GETPUBKEY\]/) {
+    if ($$message =~ /^\s*\[GETPUBKEY\]/) {
         gorgone::standard::library::zmq_core_pubkey_response(
             socket => $self->{external_socket},
             identity => $options{identity},
@@ -941,13 +950,15 @@ sub handshake {
     if ($rv == 1) {
         my $response;
 
-        ($rv, $response) = $self->external_decrypt_message(
-            message => $options{message},
+        ($rv) = $self->external_decrypt_message(
+            frame => $options{frame},
             cipher_infos => $cipher_infos
         );
-        if ($rv == 0 && $response =~ /^(?:[\[a-zA-Z-_]+?\]\s+\[.*?\]|[\[a-zA-Z-_]+?\]\s*$)/) {
+
+        $message = $options{frame}->getFrame();
+        if ($rv == 0 && $message =~ /^(?:[\[a-zA-Z-_]+?\]\s+\[.*?\]|[\[a-zA-Z-_]+?\]\s*$)/) {
             gorgone::standard::library::update_identity_mtime(dbh => $self->{db_gorgone}, identity => $options{identity});
-            return ($cipher_infos, $response);
+            return (0, $cipher_infos);
         }
 
         # Maybe he want to redo a handshake
@@ -960,7 +971,7 @@ sub handshake {
         # We try to uncrypt
         ($rv, $client_pubkey) = gorgone::standard::library::is_client_can_connect(
             privkey => $self->{server_privkey},
-            message => $options{message},
+            message => $$message,
             logger => $self->{logger},
             authorized_clients => $self->{config}->{configuration}->{gorgone}->{gorgonecore}->{authorized_clients}
         );
@@ -970,7 +981,7 @@ sub handshake {
                 code => GORGONE_ACTION_FINISH_KO,
                 data => { message => 'handshake issue' }
             );
-            return undef;
+            return 1;
         }
         ($rv, $key) = gorgone::standard::library::generate_symkey(
             keysize => $self->{config}->{configuration}->{gorgone}->{gorgonecore}->{external_com_keysize}
@@ -1009,7 +1020,7 @@ sub handshake {
         }
     }
 
-    return undef;
+    return 1;
 }
 
 sub send_message_parent {
@@ -1040,20 +1051,20 @@ sub send_message_parent {
 
 sub router_external_event {
     while (1) {
-        my ($identity, $message) = gorgone::standard::library::zmq_read_message(
+        my ($identity, $frame) = gorgone::standard::library::zmq_read_message(
             socket => $gorgone->{external_socket},
             logger => $gorgone->{logger}
         );
         last if (!defined($identity));
 
-        my ($cipher_infos, $uncrypt_message) = $gorgone->handshake(
+        my ($rv, $cipher_infos) = $gorgone->handshake(
             identity => $identity,
-            message => $$message
+            frame => $frame
         );
-        if (defined($uncrypt_message)) {
+        if ($rv == 0) {
             my ($token, $code, $response, $response_type) = $gorgone->message_run(
                 {
-                    message => \$uncrypt_message,
+                    frame => $frame,
                     identity => $identity,
                     router_type => 'external'
                 }
@@ -1062,7 +1073,8 @@ sub router_external_event {
                 identity => $identity,
                 cipher_infos => $cipher_infos,
                 response_type => $response_type,
-                token => $token, code => $code,
+                token => $token, 
+                code => $code,
                 data => $response
             );
         }

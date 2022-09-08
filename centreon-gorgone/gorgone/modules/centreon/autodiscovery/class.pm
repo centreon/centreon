@@ -889,7 +889,7 @@ sub action_hostdiscoveryjoblistener {
     return 0 if (!defined($options{token}));
     return 0 if (!defined($self->{hdisco_jobs_tokens}->{$options{token}}));
 
-    my $job_id = $self->{hdisco_jobs_tokens}->{$options{token}};
+    my $job_id = $self->{hdisco_jobs_tokens}->{ $options{token} };
     if ($options{data}->{code} == GORGONE_MODULE_ACTION_COMMAND_RESULT && 
         $options{data}->{data}->{metadata}->{source} eq 'autodiscovery-host-job-discovery') {
         $self->discovery_command_result(%options);

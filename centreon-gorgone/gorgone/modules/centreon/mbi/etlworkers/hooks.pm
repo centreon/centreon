@@ -67,12 +67,9 @@ sub init {
 sub routing {
     my (%options) = @_;
 
-    my $data;
-    eval {
-        $data = JSON::XS->new->decode($options{data});
-    };
-    if ($@) {
-        $options{logger}->writeLogError("[proxy] Cannot decode json data: $@");
+    my $data = $options{frame}->decodeData();
+    if (!defined($data)) {
+        $options{logger}->writeLogError("[" . NAME . "] Cannot decode json data: " . $options{frame}->getLastError());
         gorgone::standard::library::add_history(
             dbh => $options{dbh},
             code => GORGONE_ACTION_FINISH_KO,
@@ -107,7 +104,7 @@ sub routing {
     $options{gorgone}->send_internal_message(
         identity => $identity,
         action => $options{action},
-        data => $options{data},
+        raw_data_ref => $options{frame}->getRawData(),
         token => $options{token}
     );
 }
