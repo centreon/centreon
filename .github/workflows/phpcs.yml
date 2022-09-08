@@ -26,6 +26,7 @@ jobs:
           - uses: actions/checkout@v2
           - name: Setup PHP
             uses: shivammathur/setup-php@v1
+            continue-on-error: true
             with:
                 php-version: 8.0
                 coverage: none # disable xdebug, pcov
@@ -35,3 +36,4 @@ jobs:
                 composer install 
                 ./vendor/bin/phpcs --report-full -q . --report-checkstyle=./phpcs-report.xml
                 cs2pr ./phpcs-report.xml
+
