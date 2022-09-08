@@ -40,6 +40,6 @@ jobs:
                 cd centreon
                 composer install 
                 cd ..
-                ./centreon/vendor/bin/phpcs --extensions=php --standard=./ruleset.xml --report=checkstyle --report-file=./phpcs-report.xml ${{ steps.files.outputs.added }} ${{ steps.files.outputs.modified }}
+                ./centreon/vendor/bin/phpcs --extensions=php --standard=./centreon/ruleset.xml --report=checkstyle --report-file=./phpcs-report.xml ${{ steps.files.outputs.added }} ${{ steps.files.outputs.modified }}
                 cs2pr ./phpcs-report.xml
 
