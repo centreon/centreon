@@ -30,18 +30,15 @@ jobs:
             uses: jitterbit/get-changed-files@v1
             
           - name: Setup PHP
-            continue-on-error: true
             uses: shivammathur/setup-php@v2
             with:
                 php-version: 8.0
                 coverage: none # disable xdebug, pcov
                 tools: cs2pr
-          - run: |
-                cd centreon
-                composer install 
-                cd ..
-                ./centreon/vendor/bin/phpcs --extensions=php --standard=./centreon/ruleset.xml --report=checkstyle --report-file=./phpcs-report.xml ${{ steps.files.outputs.added }} ${{ steps.files.outputs.modified }}
-            
+          - run: 
+                cd centreon && composer install && cd .. && ./centreon/vendor/bin/phpcs --extensions=php --standard=./centreon/ruleset.xml --report=checkstyle --report-file=./phpcs-report.xml ${{ steps.files.outputs.added }} ${{ steps.files.outputs.modified }}
+            continue-on-error: true
+
 
           - name: Show PHPCS results in PR
             run: cs2pr ./phpcs-report.xml
