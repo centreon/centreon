@@ -33,4 +33,5 @@ jobs:
           - run: |
                 cd centreon
                 composer install 
-                ./vendor/bin/phpcs --extensions=php --standard=./ruleset.xml ./ | cs2pr ./checkstyle-be.xml
+                phpcs --report-full --report-checkstyle=./phpcs-report.xml
+                cs2pr ./phpcs-report.xml
