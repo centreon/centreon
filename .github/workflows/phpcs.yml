@@ -33,4 +33,4 @@ jobs:
           - run: |
                 cd centreon
                 composer install 
-                composer run-script codestyle:ci | cs2pr ./build/checkstyle-be.xml
+                ./vendor/bin/phpcs --extensions=php --standard=./ruleset.xml ./ | cs2pr ./checkstyle-be.xml
