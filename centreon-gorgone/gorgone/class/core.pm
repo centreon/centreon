@@ -933,16 +933,16 @@ sub handshake {
     my ($self, %options) = @_;
 
     my ($rv, $cipher_infos);
-    my $message = $options{frame}->getFrame();
+    my $first_message = $options{frame}->getFrame();
 
     # Test if it asks for the pubkey
-    if ($$message =~ /^\s*\[GETPUBKEY\]/) {
+    if ($$first_message =~ /^\s*\[GETPUBKEY\]/) {
         gorgone::standard::library::zmq_core_pubkey_response(
             socket => $self->{external_socket},
             identity => $options{identity},
             pubkey => $self->{server_pubkey}
         );
-        return undef;
+        return 1;
     }
 
     ($rv, $cipher_infos) = $self->is_handshake_done(identity => $options{identity});
@@ -955,8 +955,8 @@ sub handshake {
             cipher_infos => $cipher_infos
         );
 
-        $message = $options{frame}->getFrame();
-        if ($rv == 0 && $message =~ /^(?:[\[a-zA-Z-_]+?\]\s+\[.*?\]|[\[a-zA-Z-_]+?\]\s*$)/) {
+        my $message = $options{frame}->getFrame();
+        if ($rv == 0 && $$message =~ /^(?:[\[a-zA-Z-_]+?\]\s+\[.*?\]|[\[a-zA-Z-_]+?\]\s*$)/) {
             gorgone::standard::library::update_identity_mtime(dbh => $self->{db_gorgone}, identity => $options{identity});
             return (0, $cipher_infos);
         }
@@ -971,7 +971,7 @@ sub handshake {
         # We try to uncrypt
         ($rv, $client_pubkey) = gorgone::standard::library::is_client_can_connect(
             privkey => $self->{server_privkey},
-            message => $$message,
+            message => $$first_message,
             logger => $self->{logger},
             authorized_clients => $self->{config}->{configuration}->{gorgone}->{gorgonecore}->{authorized_clients}
         );
@@ -981,7 +981,7 @@ sub handshake {
                 code => GORGONE_ACTION_FINISH_KO,
                 data => { message => 'handshake issue' }
             );
-            return 1;
+            return -1;
         }
         ($rv, $key) = gorgone::standard::library::generate_symkey(
             keysize => $self->{config}->{configuration}->{gorgone}->{gorgonecore}->{external_com_keysize}
@@ -1020,7 +1020,7 @@ sub handshake {
         }
     }
 
-    return 1;
+    return -1;
 }
 
 sub send_message_parent {

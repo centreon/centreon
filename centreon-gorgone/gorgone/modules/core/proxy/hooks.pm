@@ -1134,6 +1134,7 @@ sub prepare_remote_copy {
         my $group;
         $group = $options{data}->{content}->{group} if (defined($options{data}->{content}->{group}) && $options{data}->{content}->{group} ne '');
         foreach my $file (@inventory) {
+            next if ($file eq '.');
             $tar->add_files($file);
             if (defined($owner) || defined($group)) {
                 $tar->chown($file, $owner, $group);
