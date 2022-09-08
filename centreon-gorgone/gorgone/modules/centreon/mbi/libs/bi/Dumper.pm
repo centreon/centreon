@@ -106,7 +106,7 @@ sub dumpTableStructure {
 	my ($tableName) = (shift);
 	
 	my $sql = "";
-	my $sth = $db->query("SHOW CREATE TABLE ".$tableName);
+	my $sth = $db->query({ query => "SHOW CREATE TABLE ".$tableName });
     if (my $row = $sth->fetchrow_hashref()) {
 	  $sql = $row->{'Create Table'};
 	  $sql =~ s/(CONSTRAINT.*\n)//g;
@@ -126,7 +126,7 @@ sub insertData {
 	
 	my ($tableName, $inFile) = (shift, shift);
 	my $query = "LOAD DATA INFILE '".$inFile."' INTO TABLE `".$tableName."`";
-	my $sth = $db->query($query);
+	my $sth = $db->query({ query => $query });
 }
 
 1;

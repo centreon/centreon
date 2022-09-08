@@ -293,7 +293,8 @@ sub migrate_steps_1_2_3 {
     my ($status, $datas) = $options{module}->{class_object_centreon}->custom_execute(
         request => 'SELECT host_host_id ' .
             'FROM ns_host_relation ' .
-            'WHERE nagios_server_id = ' . $options{module}->{class_object_centreon}->quote(value => $options{node_src}),
+            'WHERE nagios_server_id = ?',
+        bind_values => [$options{node_src}],
         mode => 2
     );
     if ($status == -1) {
@@ -374,8 +375,9 @@ sub migrate_steps_1_2_3 {
     send_log(module => $options{module}, code => GORGONE_MODULE_CENTREON_JUDGE_FAILOVER_RUNNING, live => $options{clusters}->{ $options{cluster} }->{live});
 
     ($status) = $options{module}->{class_object_centreon}->custom_execute(
-        request => 'UPDATE ns_host_relation SET nagios_server_id = ' . $options{module}->{class_object_centreon}->quote(value => $options{clusters}->{ $options{cluster} }->{spare}) .
-            ' WHERE host_host_id IN (' . join(',', @{$data->{hosts}}) . ')'
+        request => 'UPDATE ns_host_relation SET nagios_server_id = ?' .
+            ' WHERE host_host_id IN (' . join(',', @{$data->{hosts}}) . ')',
+        bind_values => [$options{clusters}->{ $options{cluster} }->{spare}]
     );
     if ($status == -1) {
         $options{module}->{logger}->writeLogError("[judge] -class- cluster '" . $options{clusters}->{ $options{cluster} }->{name} . "' step STATE_MIGRATION_UPDATE_CENTREON_DB: cannot update database");
@@ -602,7 +604,8 @@ sub migrate_step_5 {
         $options{clusters}->{ $options{cluster} }->{live}->{no_update_running_failed} != 1) {
         my ($status) = $options{module}->{class_object_centstorage}->custom_execute(
             request => 'UPDATE instances SET running = 0 ' .
-                ' WHERE instance_id = ' . $options{module}->{class_object_centstorage}->quote(value => $options{clusters}->{ $options{cluster} }->{live}->{node_src})
+                ' WHERE instance_id = ?',
+            bind_values => [$options{clusters}->{ $options{cluster} }->{live}->{node_src}]
         );
         if ($status == -1) {
             $options{module}->{logger}->writeLogError("[judge] -class- cluster '" . $options{clusters}->{ $options{cluster} }->{name} . "' step STATE_MIGRATION_UPDATE_RUNNING_POLLER_FAILED: cannot update database");
@@ -741,8 +744,9 @@ sub failback_start {
     send_log(module => $options{module}, code => GORGONE_MODULE_CENTREON_JUDGE_FAILBACK_RUNNING, live => $options{clusters}->{ $options{cluster} }->{live});
 
     ($status) = $options{module}->{class_object_centreon}->custom_execute(
-        request => 'UPDATE ns_host_relation SET nagios_server_id = ' . $options{module}->{class_object_centreon}->quote(value => $options{clusters}->{ $options{cluster} }->{live}->{node_dst}) .
-            ' WHERE host_host_id IN (' . join(',', @{$decoded->{hosts}}) . ')'
+        request => 'UPDATE ns_host_relation SET nagios_server_id = ?' .
+            ' WHERE host_host_id IN (' . join(',', @{$decoded->{hosts}}) . ')',
+        bind_values => [$options{clusters}->{ $options{cluster} }->{live}->{node_dst}]
     );
     if ($status == -1) {
         $options{module}->{logger}->writeLogError("[judge] -class- cluster '" . $options{clusters}->{ $options{cluster} }->{name} . "' step STATE_FAILBACK_UPDATE_CENTREON_DB: cannot update database");

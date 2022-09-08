@@ -62,7 +62,7 @@ sub getTimeColumn() {
 sub createTempTableMetricMinMaxAvgValues {
     my ($self, $useMemory, $granularity) = @_;
     my $db = $self->{"centstorage"};
-    $db->query("DROP TABLE IF EXISTS `" . $self->{name_minmaxavg_tmp} . "`");
+    $db->query({ query => "DROP TABLE IF EXISTS `" . $self->{name_minmaxavg_tmp} . "`" });
     my $createTable = " CREATE TABLE `" . $self->{name_minmaxavg_tmp} . "` (";
     $createTable .= " id_metric INT NULL,";
     $createTable .= " avg_value FLOAT NULL,";
@@ -76,7 +76,7 @@ sub createTempTableMetricMinMaxAvgValues {
     }else {
         $createTable .= ") ENGINE=INNODB CHARSET=utf8 COLLATE=utf8_general_ci;";
     }
-    $db->query($createTable);
+    $db->query({ query => $createTable });
 }
 
 sub getMetricValueByHour {
@@ -96,7 +96,7 @@ sub getMetricValueByHour {
     $query .= "ctime >=UNIX_TIMESTAMP('".$start."') AND ctime < UNIX_TIMESTAMP('".$end."') ";
     $query .= "GROUP BY id_metric, date_format(FROM_UNIXTIME(ctime), '".$dateFormat."')";
     
-    $db->query($query);
+    $db->query({ query => $query });
     $self->addIndexTempTableMetricMinMaxAvgValues("hour");
 }
 
@@ -131,7 +131,7 @@ sub getMetricsValueByDay {
     $query =~  s/OR $//;
     $query .= "GROUP BY id_metric";
 
-    $db->query($query);
+    $db->query({ query => $query });
     $self->addIndexTempTableMetricMinMaxAvgValues("day");
     $self->getFirstAndLastValues($start_date, $end_date, $useMemory);
 }
@@ -139,7 +139,7 @@ sub getMetricsValueByDay {
 sub createTempTableMetricDayFirstLastValues {
     my ($self, $useMemory) = @_;
     my $db = $self->{"centstorage"};
-    $db->query("DROP TABLE IF EXISTS `" . $self->{name_firstlast_tmp} . "`");
+    $db->query({ query => "DROP TABLE IF EXISTS `" . $self->{name_firstlast_tmp} . "`" });
     my $createTable = " CREATE TABLE `" . $self->{name_firstlast_tmp} . "` (";
     $createTable .= " `first_value` FLOAT NULL,";
     $createTable .= " `last_value` FLOAT NULL,";
@@ -149,13 +149,13 @@ sub createTempTableMetricDayFirstLastValues {
     } else {
         $createTable .= ") ENGINE=INNODB CHARSET=utf8 COLLATE=utf8_general_ci;";
     }
-    $db->query($createTable);
+    $db->query({ query => $createTable });
 }
 
 sub addIndexTempTableMetricDayFirstLastValues {
     my $self = shift;
     my $db = $self->{"centstorage"};
-    $db->query("ALTER TABLE " . $self->{name_firstlast_tmp} . " ADD INDEX (`id_metric`)");
+    $db->query({ query => "ALTER TABLE " . $self->{name_firstlast_tmp} . " ADD INDEX (`id_metric`)" });
 }
 
 sub addIndexTempTableMetricMinMaxAvgValues {
@@ -167,13 +167,13 @@ sub addIndexTempTableMetricMinMaxAvgValues {
         $index .= ", valueTime";
     }
     my $query = "ALTER TABLE " . $self->{name_minmaxavg_tmp} . " ADD INDEX (" . $index . ")";
-    $db->query($query);
+    $db->query({ query => $query });
 }
 
 sub createTempTableCtimeMinMaxValues {
     my ($self, $useMemory) = @_;
     my $db = $self->{"centstorage"};
-    $db->query("DROP TABLE IF EXISTS `" . $self->{name_minmaxctime_tmp} . "`");
+    $db->query({ query => "DROP TABLE IF EXISTS `" . $self->{name_minmaxctime_tmp} . "`" });
     my $createTable = " CREATE TABLE `" . $self->{name_minmaxctime_tmp} . "` (";
     $createTable .= " min_val INT NULL,";
     $createTable .= " max_val INT NULL,";
@@ -183,13 +183,13 @@ sub createTempTableCtimeMinMaxValues {
     } else {
         $createTable .= ") ENGINE=INNODB CHARSET=utf8 COLLATE=utf8_general_ci;";
     }
-    $db->query($createTable);
+    $db->query({ query => $createTable });
 }
 
 sub dropTempTableCtimeMinMaxValues {
     my $self = shift;
     my $db = $self->{"centstorage"};
-    $db->query("DROP TABLE `" . $self->{name_minmaxctime_tmp} . "`");
+    $db->query({ query => "DROP TABLE `" . $self->{name_minmaxctime_tmp} . "`" });
 }
 
 sub getFirstAndLastValues {
@@ -203,7 +203,7 @@ sub getFirstAndLastValues {
     $query .= " FROM `data_bin`";
     $query .= " WHERE ctime >= UNIX_TIMESTAMP(" . $start_date . ") AND ctime < UNIX_TIMESTAMP(" . $end_date . ")";
     $query .= " GROUP BY id_metric";
-    $db->query($query);
+    $db->query({ query => $query });
     
     $self->createTempTableMetricDayFirstLastValues($useMemory);
     $query = "INSERT INTO " . $self->{name_firstlast_tmp} . " SELECT d.value as `first_value`, d2.value as `last_value`, d.id_metric";
@@ -211,7 +211,7 @@ sub getFirstAndLastValues {
     $query .= " WHERE db.id_metric=d.id_metric AND db.min_val=d.ctime";
     $query .=         " AND db.id_metric=d2.id_metric AND db.max_val=d2.ctime";
     $query .= " GROUP BY db.id_metric";
-    my $sth = $db->query($query);
+    my $sth = $db->query({ query => $query });
     $self->addIndexTempTableMetricDayFirstLastValues();
     $self->dropTempTableCtimeMinMaxValues();
 }
@@ -224,7 +224,7 @@ sub dailyPurge {
     
     my $query = "DELETE FROM `data_bin` where ctime < UNIX_TIMESTAMP('" . $end . "')";
     $logger->writeLog("DEBUG", "[PURGE] [data_bin] purging data older than " . $end);
-    $db->query($query);
+    $db->query({ query => $query });
 }
 
 1;

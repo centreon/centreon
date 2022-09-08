@@ -47,7 +47,7 @@ sub getAllEntries {
 
 	my $query = "SELECT `id`, `hg_id`, `hg_name`";
 	$query .= " FROM `mod_bi_hostgroups`";
-	my $sth = $db->query($query);
+	my $sth = $db->query({ query => $query });
 	my @entries = ();
 	while (my $row = $sth->fetchrow_hashref()) {
 		push @entries, $row->{"hg_id"}.";".$row->{"hg_name"};
@@ -62,7 +62,7 @@ sub getEntryIds {
 
 	my $query = "SELECT `id`, `hg_id`, `hg_name`";
 	$query .= " FROM `mod_bi_hostgroups`";
-	my $sth = $db->query($query);
+	my $sth = $db->query({ query => $query });
 	my %entries = ();
 	while (my $row = $sth->fetchrow_hashref()) {
 		$entries{$row->{"hg_id"}.";".$row->{"hg_name"}} = $row->{"id"};
@@ -124,8 +124,8 @@ sub truncateTable {
 	my $db = $self->{"centstorage"};
 	
 	my $query = "TRUNCATE TABLE `mod_bi_hostgroups`";
-	$db->query($query);
-	$db->query("ALTER TABLE `mod_bi_hostgroups` AUTO_INCREMENT=1");
+	$db->query({ query => $query });
+	$db->query({ query => "ALTER TABLE `mod_bi_hostgroups` AUTO_INCREMENT=1" });
 }
 
 1;

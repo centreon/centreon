@@ -201,25 +201,21 @@ sub audit_update {
     
     return if ($self->{discovery}->{audit_enable} != 1);
 
-    my $query = 'INSERT INTO log_action (action_log_date, object_type, object_id, object_name, action_type, log_contact_id) VALUES (' . 
-        time() . ', ' . $self->{class_object_centstorage}->quote(value => $options{object_type}) . ',' . 
-        $self->{class_object_centstorage}->quote(value => $options{object_id}) . ',' . 
-        $self->{class_object_centstorage}->quote(value => $options{object_name}) . ',' .
-        $self->{class_object_centstorage}->quote(value => $options{action_type}) . ',' .
-        $self->{class_object_centstorage}->quote(value => $options{contact_id}) .
-        ')';
-    my ($status, $sth) = $self->{class_object_centstorage}->custom_execute(request => $query);
+    my $query = 'INSERT INTO log_action (action_log_date, object_type, object_id, object_name, action_type, log_contact_id) VALUES (?, ?, ?, ?, ?, ?)';
+    my ($status, $sth) = $self->{class_object_centstorage}->custom_execute(
+        request => $query,
+        bind_values => [time(), $options{object_type}, $options{object_id}, $options{object_name}, $options{action_type}, $options{contact_id}]
+    );
 
     return if (!defined($options{fields}));
 
     my $action_log_id = $self->{class_object_centstorage}->{db_centreon}->last_insert_id();
     foreach (keys %{$options{fields}}) {
-        $query = 'INSERT INTO log_action_modification (action_log_id, field_name, field_value) VALUES (' .
-            $action_log_id . ', '.
-            $self->{class_object_centstorage}->quote(value => $_) .  ', ' .
-            $self->{class_object_centstorage}->quote(value => $options{fields}->{$_}) .
-            ')';
-        ($status) = $self->{class_object_centstorage}->custom_execute(request => $query);
+        $query = 'INSERT INTO log_action_modification (action_log_id, field_name, field_value) VALUES (?, ?, ?)';
+        ($status) = $self->{class_object_centstorage}->custom_execute(
+            request => $query,
+            bind_values => [$action_log_id, $_, $options{fields}->{$_}]
+        );
         if ($status == -1) {
             return -1;
         }
@@ -366,15 +362,21 @@ sub update_service {
     }
     
     foreach (@update_macros) {
-        my $query = 'UPDATE on_demand_macro_service SET svc_macro_value = ' . $self->{class_object_centreon}->quote(value => $_->{value}) . ' WHERE svc_svc_id = ' . $options{service}->{id} .  ' AND svc_macro_name = ' . $self->{class_object_centreon}->quote(value => '$_SERVICE' . $_->{name} . '$');
-        my ($status) = $self->{class_object_centreon}->custom_execute(request => $query);
+        my $query = 'UPDATE on_demand_macro_service SET svc_macro_value = ? WHERE svc_svc_id = ' . $options{service}->{id} .  ' AND svc_macro_name = ?';
+        my ($status) = $self->{class_object_centreon}->custom_execute(
+            request => $query,
+            bind_values => [$_->{value}, '$_SERVICE' . $_->{name} . '$']
+        );
         if ($status == -1) {
             return $self->database_error_rollback(message => "$options{logger_pre_message} [" . $options{discovery_svc}->{service_name} . "] -> cannot update macro");
         }
     }
     foreach (@insert_macros) {
-        my $query = 'INSERT on_demand_macro_service (svc_svc_id, svc_macro_name, svc_macro_value) VALUES (' . $options{service}->{id} .  ', ' . $self->{class_object_centreon}->quote(value => '$_SERVICE' . $_->{name} . '$') . ', ' . $self->{class_object_centreon}->quote(value => $_->{value}) . ')';
-        my ($status) = $self->{class_object_centreon}->custom_execute(request => $query);
+        my $query = 'INSERT on_demand_macro_service (svc_svc_id, svc_macro_name, svc_macro_value) VALUES (' . $options{service}->{id} .  ', ?, ?)';
+        my ($status) = $self->{class_object_centreon}->custom_execute(
+            request => $query,
+            bind_values => ['$_SERVICE' . $_->{name} . '$', $_->{value}]
+        );
         if ($status == -1) {
             return $self->database_error_rollback(message => "$options{logger_pre_message} [" . $options{discovery_svc}->{service_name} . "] -> cannot insert macro");
         }
@@ -435,8 +437,11 @@ sub create_service {
 
     return -1 if ($self->database_init_transaction() == -1);
 
-    my $query = 'INSERT INTO service (service_template_model_stm_id, service_description, service_register) VALUES (' . $self->{class_object_centreon}->quote(value => $self->{discovery}->{rules}->{ $options{rule_id} }->{service_template_model_id}) . ', ' . $self->{class_object_centreon}->quote(value => $options{discovery_svc}->{service_name}) . ", '1')";
-    my ($status, $sth) = $self->{class_object_centreon}->custom_execute(request => $query);
+    my $query = "INSERT INTO service (service_template_model_stm_id, service_description, service_register) VALUES (?, ?, '1')";
+    my ($status, $sth) = $self->{class_object_centreon}->custom_execute(
+        request => $query,
+        bind_values => [$self->{discovery}->{rules}->{ $options{rule_id} }->{service_template_model_id}, $options{discovery_svc}->{service_name}]
+    );
     if ($status == -1) {
         return $self->database_error_rollback(message => "$options{logger_pre_message} [" . $options{discovery_svc}->{service_name} . "] -> cannot create service");
     }
@@ -455,8 +460,11 @@ sub create_service {
     }
     
     foreach (keys %{$options{macros}}) {
-        $query = 'INSERT INTO on_demand_macro_service (svc_svc_id, svc_macro_name, svc_macro_value) VALUES (' . $service_id . ', ' . $self->{class_object_centreon}->quote(value => '$_SERVICE' . $_ . '$') . ', ' . $self->{class_object_centreon}->quote(value => $options{macros}->{$_}) . ')';
-        ($status) = $self->{class_object_centreon}->custom_execute(request => $query);
+        $query = 'INSERT INTO on_demand_macro_service (svc_svc_id, svc_macro_name, svc_macro_value) VALUES (' . $service_id . ', ?, ?)';
+        ($status) = $self->{class_object_centreon}->custom_execute(
+            request => $query,
+            bind_values => ['$_SERVICE' . $_ . '$', $options{macros}->{$_}]
+        );
         if ($status == -1) {
             return $self->database_error_rollback(message => "$options{logger_pre_message} [" . $options{discovery_svc}->{service_name} . "] -> cannot create macro '$_' => '$options{macros}->{$_}'");
         }

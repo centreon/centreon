@@ -51,7 +51,7 @@ sub getEntriesDtime {
 	$query .= " FROM `mod_bi_time`";
 	$query .= " WHERE dtime >= '".$start."' AND dtime <'".$end."'";
 
-	my $sth = $db->query($query);
+	my $sth = $db->query({ query => $query });
 	my @results = ();
 	if (my $row = $sth->fetchrow_hashref()) {
 		push @results, $row->{dtime};
@@ -78,7 +78,7 @@ sub getEntryID {
 	}else {
 		$query .= " WHERE dtime = DATE_ADD('".$dtime."', INTERVAL ".$interval." ".$type.")";
 	}
-	my $sth = $db->query($query);
+	my $sth = $db->query({ query => $query });
 	my @results = ();
 	if (my $row = $sth->fetchrow_hashref()) {
 		$results[0] = $row->{'id'};
@@ -97,7 +97,7 @@ sub getDayOfWeek {
 	my $logger = $self->{"logger"};
 	my $date = shift;
 	
-	my $sth = $db->query("SELECT LOWER(DAYNAME('".$date."')) as dayOfWeek");
+	my $sth = $db->query({ query => "SELECT LOWER(DAYNAME('".$date."')) as dayOfWeek" });
 	my $dayofweek;
 	if (my $row = $sth->fetchrow_hashref()) {
 		$dayofweek = $row->{"dayOfWeek"};
@@ -114,7 +114,7 @@ sub getYesterdayTodayDate {
 	my $self = shift;
 	
 	# get yesterday date. date format : YYYY-MM-DD
-	my $sth = $self->{centstorage}->query("SELECT CURRENT_DATE() as today, DATE_SUB(CURRENT_DATE(), INTERVAL 1 DAY) as yesterday");
+	my $sth = $self->{centstorage}->query({ query => "SELECT CURRENT_DATE() as today, DATE_SUB(CURRENT_DATE(), INTERVAL 1 DAY) as yesterday" });
 
 	my $yesterday;
 	my $today;
@@ -138,7 +138,7 @@ sub addDateInterval {
 	my ($date, $interval, $intervalType) = @_;
 
 	# get new date. date format : YYYY-MM-DD
-	my $sth = $self->{centstorage}->query("SELECT DATE_ADD('".$date."', INTERVAL ".$interval." ".$intervalType.") as newDate");
+	my $sth = $self->{centstorage}->query({ query => "SELECT DATE_ADD('".$date."', INTERVAL ".$interval." ".$intervalType.") as newDate" });
 
 	my $newDate;
 	if (my $row = $sth->fetchrow_hashref()) {
@@ -154,7 +154,7 @@ sub compareDates {
     my $self = shift;
     my ($date1, $date2) = @_;
 
-    my $sth = $self->{centstorage}->query("SELECT DATEDIFF('".$date1."','".$date2."') as nbDays");
+    my $sth = $self->{centstorage}->query({ query => "SELECT DATEDIFF('".$date1."','".$date2."') as nbDays" });
     if (my $row = $sth->fetchrow_hashref()) {
         return $row->{nbDays};
     }
@@ -186,13 +186,13 @@ sub insertTimeEntriesForPeriod {
 		$date = "ADDDATE('".$start."',INTERVAL ".$counter." HOUR)";
 		if ($counter % 30 == 0) {
 			chop($query_suffix);
-			$db->query($self->{insertQuery} . $query_suffix);
+			$db->query({ query => $self->{insertQuery} . $query_suffix });
 			$query_suffix = "";
 		}
 	}
 	chop($query_suffix);
 	if ($query_suffix ne "") {
-		$db->query($self->{insertQuery} . $query_suffix);
+		$db->query({ query => $self->{insertQuery} . $query_suffix });
 	}
 }
 
@@ -207,14 +207,14 @@ sub deleteDuplicateEntries {
 	$query .= " AND dtime <= '".$end."'";
 	$query .= " GROUP BY utime";
 	$query .= " HAVING COUNT(utime) > 1";
-	my $sth = $db->query($query);
+	my $sth = $db->query({ query => $query });
 	my $ids_to_delete = "";
 	while (my $row = $sth->fetchrow_hashref()) {
 		$ids_to_delete .= $row->{'id'}.",";
 	}
 	if ($ids_to_delete ne "") {
 		chop ($ids_to_delete);
-		$db->query("DELETE FROM mod_bi_time WHERE id IN (".$ids_to_delete.")");
+		$db->query({ query => "DELETE FROM mod_bi_time WHERE id IN (".$ids_to_delete.")" });
 	}
 }
 
@@ -225,7 +225,7 @@ sub getTotalDaysInPeriod {
 	my ($start, $end) = @_;
 
 	my $query = "SELECT DATEDIFF('".$end."', '".$start."') diff";
-	my $sth = $db->query($query);
+	my $sth = $db->query({ query => $query });
 	my $diff;
 	if (my $row = $sth->fetchrow_hashref()) {
 		$diff = $row->{'diff'};
@@ -248,8 +248,8 @@ sub truncateTable {
 	my $db = $self->{"centstorage"};
 	
 	my $query = "TRUNCATE TABLE `mod_bi_time`";
-	$db->query($query);
-	$db->query("ALTER TABLE `mod_bi_time` AUTO_INCREMENT=1");
+	$db->query({ query => $query });
+	$db->query({ query => "ALTER TABLE `mod_bi_time` AUTO_INCREMENT=1" });
 }
 
 sub deleteEntriesForPeriod {
@@ -258,7 +258,7 @@ sub deleteEntriesForPeriod {
 	my ($start, $end) = @_;
 	
 	my $query = "DELETE FROM `mod_bi_time` WHERE dtime >= '".$start."' AND dtime < '".$end."'";
-	$db->query($query);
+	$db->query({ query => $query });
 }
 
 1;

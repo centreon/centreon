@@ -75,7 +75,7 @@ sub assign {
     my $request = "
         SELECT nhr.host_host_id
         FROM hostcategories hc, hostcategories_relation hcr, ns_host_relation nhr, nagios_server ns
-        WHERE hc.hc_activate = '1' AND hc.hc_name = " . $options{module}->{class_object_centreon}->quote(value => $options{cluster}->{hcategory}) . "
+        WHERE hc.hc_activate = '1' AND hc.hc_name = ?
          AND hc.hc_id = hcr.hostcategories_hc_id
          AND hcr.host_host_id = nhr.host_host_id
          AND nhr.nagios_server_id = ns.id
@@ -83,7 +83,8 @@ sub assign {
          AND ns.ns_activate = '0'
     ";
     my ($status, $datas) = $options{module}->{class_object_centreon}->custom_execute(
-        request => $request, 
+        request => $request,
+        bind_values => [$options{cluster}->{hcategory}],
         mode => 2
     );
     if ($status == -1) {

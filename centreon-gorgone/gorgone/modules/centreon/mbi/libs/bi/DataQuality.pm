@@ -59,7 +59,7 @@ sub getDuplicateRelations {
         "FROM host_service_relation t1, host t2 WHERE t1.host_host_id = t2.host_id ".
         "AND t2.host_name not like '_Module%' group by host_host_id, service_service_id HAVING COUNT(*) > 1";
 
-	my $sth = $self->{centreon}->query($duplicateEntriesQuery);
+	my $sth = $self->{centreon}->query({ query => $duplicateEntriesQuery });
 	while (my $row = $sth->fetchrow_hashref()) {
 		if (defined($row->{host_host_id})) {
 			$self->{logger}->writeLog(
@@ -69,7 +69,7 @@ sub getDuplicateRelations {
 			#Get all relation IDs related to duplicated data
 			my $relationIdQuery = "SELECT hsr_id from host_service_relation ".
                 "WHERE host_host_id = ".$row->{host_host_id}." AND service_service_id = ".$row->{service_service_id};
-			my $sth2 = $self->{centreon}->query($relationIdQuery);
+			my $sth2 = $self->{centreon}->query({ query => $relationIdQuery });
 			while (my $hsr = $sth2->fetchrow_hashref()) {
 				if (defined($hsr->{hsr_id})) {
 					push(@relationIDS,$hsr->{hsr_id});
@@ -92,7 +92,7 @@ sub deleteDuplicateEntries {
 	foreach (@relationIDS) {
 		my $idToDelete = $_;
 		my $deleteQuery = "DELETE FROM host_service_relation WHERE hsr_id = ".$idToDelete;
-		$self->{centreon}->query($deleteQuery)
+		$self->{centreon}->query({ query => $deleteQuery })
 	}
 }
 

@@ -86,13 +86,13 @@ sub insertStats {
         $append = ',';
 		$counter++;
         if ($counter >= $insertParam) {
-            $self->{centstorage}->query($query);
+            $self->{centstorage}->query({ query => $query });
             $query = $query_start;
 			$counter = 0;
             $append = '';
 		}
 	}
-    $self->{centstorage}->query($query) if ($counter > 0);
+    $self->{centstorage}->query({ query => $query }) if ($counter > 0);
 }
 
 sub saveStatsInFile {
@@ -152,7 +152,7 @@ sub getHGMonthAvailability {
 	$query .= " STRAIGHT_JOIN mod_bi_hostcategories hc ON (h.hc_name=hc.hc_name AND h.hc_id=hc.hc_id)";
 	$query .= " WHERE t.year = YEAR('".$start."') AND t.month = MONTH('".$start."') and t.hour=0";
 	$query .= " GROUP BY h.hg_id, h.hc_id, ha.liveservice_id";
-	my $sth = $db->query($query);
+	my $sth = $db->query({ query => $query });
 	
 	$self->{"logger"}->writeLog("DEBUG","[HOST] Calculating MTBF/MTRS/MTBSI for Host");	
 	my @data = ();

@@ -69,7 +69,7 @@ sub prepareQuery {
 sub createTempBIEventsTable {
 	my ($self) = @_;
 	my $db = $self->{"centstorage"};
-	$db->query("DROP TABLE IF EXISTS `mod_bi_servicestateevents_tmp`");
+	$db->query({ query => "DROP TABLE IF EXISTS `mod_bi_servicestateevents_tmp`" });
 	my $createTable = " CREATE TABLE `mod_bi_servicestateevents_tmp` (";
 	$createTable .= " `host_id` int(11) NOT NULL,";
 	$createTable .= " `service_id` int(11) NOT NULL,";
@@ -83,7 +83,7 @@ sub createTempBIEventsTable {
 	$createTable .= " `last_update` tinyint(4) DEFAULT '0',";
 	$createTable .= " KEY `modbiservice_id` (`host_id`,`service_id`)";
 	$createTable .= " ) ENGINE=InnoDB DEFAULT CHARSET=utf8";
-	$db->query($createTable);
+	$db->query({ query => $createTable });
 }
 
 sub prepareTempQuery {
@@ -143,7 +143,7 @@ sub getDayEvents {
     $query .= " AND `end_time` > " . $start;
     $query .= " AND `state` IN (0,1,2,3)";
     $query .= " AND modbiliveservice_id=" . $liveserviceId;
-	my $sth = $db->query($query);
+	my $sth = $db->query({ query => $query });
 
 	if (!scalar(@$ranges)) {
 		return \%results;
@@ -224,7 +224,7 @@ sub getNbEvents {
 	$query .= " AND e.modbiliveservice_id=".$liveServiceID;
 	$query .= " AND e.state in (1,2,3)";
 	$query .= " GROUP BY e.state";
-	my $sth = $db->query($query);
+	my $sth = $db->query({ query => $query });
 	
 	my ($warnEvents, $criticalEvents, $otherEvents) = (undef, undef, undef);
 	while (my $row = $sth->fetchrow_hashref()) {
@@ -245,7 +245,7 @@ sub deleteUnfinishedEvents {
 	
 	my $query = "DELETE FROM `".$self->{'name'}."`";
 	$query .= " WHERE last_update = 1 OR end_time is null";
-	$db->query($query);
+	$db->query({ query => $query });
 }
 
 1;
