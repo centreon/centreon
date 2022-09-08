@@ -39,6 +39,6 @@ jobs:
           - run: |
                 cd centreon
                 composer install 
-                ./vendor/bin/phpcs --extensions=php --standard=./ruleset.xml --report=checkstyle --report-file=./phpcs-report.xml ${{ steps.files.outputs.added }} ${{ steps.files.outputs.modified }${{ steps.files.outputs.added }} ${{ steps.files.outputs.modified }
+                ./vendor/bin/phpcs --extensions=php --standard=./ruleset.xml --report=checkstyle --report-file=./phpcs-report.xml ${{ steps.files.outputs.added }} ${{ steps.files.outputs.modified }}
                 cs2pr ./phpcs-report.xml
 
