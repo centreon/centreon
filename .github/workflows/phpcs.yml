@@ -41,5 +41,6 @@ jobs:
                 composer install 
                 cd ..
                 ./centreon/vendor/bin/phpcs --extensions=php --standard=./centreon/ruleset.xml --report=checkstyle --report-file=./phpcs-report.xml ${{ steps.files.outputs.added }} ${{ steps.files.outputs.modified }}
-                cs2pr ./phpcs-report.xml
 
+          - name: Show PHPCS results in PR
+            run: cs2pr ./phpcs-report.xml
