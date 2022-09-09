@@ -638,7 +638,7 @@ sub message_run {
         my $frame_ref = $options->{frame}->getFrame();
         $self->{logger}->writeLogDebug('[core] Message received - ' . $$frame_ref);
     }
-    if ($options->{frame}->parse() != 0) {
+    if ($options->{frame}->parse({ releaseFrame => 1 }) != 0) {
         return (undef, 1, { message => 'request not well formatted' });
     }
     my ($action, $token, $target) = ($options->{frame}->getAction(), $options->{frame}->getToken(), $options->{frame}->getTarget());
