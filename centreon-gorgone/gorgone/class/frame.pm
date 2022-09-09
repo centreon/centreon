@@ -88,13 +88,26 @@ sub decrypt {
 }
 
 sub parse {
-    my ($self) = shift;
+    my ($self, $options) = (shift, shift);
 
     if (${$self->{frame}} =~ /^\[(.+?)\]\s+\[(.*?)\]\s+\[(.*?)\]\s+(.*)$/) {
         $self->{action} = $1;
         $self->{token} = $2;
         $self->{target} = $3;
-        $self->{rawData} = $4;
+        
+        if (defined($options) && defined($options->{releaseFrame})) {
+            $self->{frame} = undef;
+        }
+        if (defined($options) && defined($options->{decode})) {
+            try {
+                $self->{data} = JSON::XS->new->decode($4);
+            } catch {
+                $self->{lastError} = $_;
+                return 1;
+            }
+        } else {
+            $self->{rawData} = $4;
+        }
         return 0;
     }
 
@@ -166,6 +179,7 @@ sub getTarget {
 sub DESTROY {
     my ($self) = shift;
 
+    $self->{frame} = undef;
     $self->{data} = undef;
     $self->{rawData} = undef;
 }

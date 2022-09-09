@@ -679,6 +679,22 @@ sub discovery_add_host_result {
 sub discovery_command_result {
     my ($self, %options) = @_;
 
+=pod
+    use Devel::Size;
+    print "frame = " . (Devel::Size::total_size($options{frame}) / 1024 / 1024) . "==\n";
+
+    my $data = $options{frame}->getData();
+    print "data = " . (Devel::Size::total_size($data) / 1024 / 1024) . "==\n";
+
+    my $frame = $options{frame}->getFrame();
+    print "frame data = " . (Devel::Size::total_size($frame) / 1024 / 1024) . "==\n";
+
+    my $raw = $options{frame}->getRawData();
+    print "raw data = " . (Devel::Size::total_size($raw) / 1024 / 1024) . "==\n";
+
+    return 1;
+=cut
+
     my $data = $options{frame}->getData();
 
     return 1 if (!defined($data->{data}->{metadata}->{job_id}));
@@ -1111,7 +1127,7 @@ sub event {
         $connector->{logger}->writeLogDebug("[autodiscovery] Event: " . $$raw) if ($connector->{logger}->is_debug());
         if ($$raw =~ /^\[(.*?)\]/) {
             if ((my $method = $connector->can('action_' . lc($1)))) {
-                next if ($frame->parse());
+                next if ($frame->parse({ releaseFrame => 1, decode => 1 }));
 
                 $method->($connector, token => $frame->getToken(), frame => $frame);
             }
@@ -1175,7 +1191,7 @@ sub run {
         {
             socket  => $connector->{internal_socket},
             events  => ZMQ_POLLIN,
-            callback => \&event,
+            callback => \&event
         }
     ];
 
