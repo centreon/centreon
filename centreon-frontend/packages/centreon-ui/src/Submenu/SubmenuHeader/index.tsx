@@ -23,7 +23,7 @@ const useStyles = makeStyles<StyleProps>()(
     active: {
       backgroundColor: equals(theme.palette.mode, ThemeMode.dark)
         ? theme.palette.background.default
-        : theme.palette.primary.dark,
+        : theme.palette.primary.main,
     },
     bottom: {
       display: 'flex',
@@ -186,9 +186,8 @@ const SubmenuHeader = ({
       </div>
 
       <div
-        className={cx({
+        className={cx(classes.submenu, {
           [classes.submenuDisplayed]: toggled,
-          [classes.submenu]: true,
         })}
       >
         <SubmenuItems>

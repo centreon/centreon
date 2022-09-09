@@ -8,7 +8,6 @@ const useStyles = makeStyles()((theme) => ({
   skeleton: {
     backgroundColor: alpha(theme.palette.grey[50], 0.4),
     borderRadius: 5,
-    margin: theme.spacing(1, 1, 1, 2),
   },
 }));
 
