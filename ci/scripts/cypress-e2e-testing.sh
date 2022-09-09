@@ -8,4 +8,4 @@ cd $MODULE/tests/e2e
 
 npm ci --legacy-peer-deps
 
-npm run cypress:run
+$(npm bin)/cypress run
