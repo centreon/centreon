@@ -633,7 +633,7 @@ sub action_saasregister {
 
 sub event {
     while (1) {
-        my $message = $connector->read_message();
+        my ($message) = $connector->read_message();
         last if (!defined($message));
 
         $connector->{logger}->writeLogDebug("[anomalydetection] Event: $message");

@@ -796,12 +796,19 @@ sub zmq_dealer_read_message {
     my $rv = zmq_msg_recv($message, $options{socket}, ZMQ_DONTWAIT);
     if ($rv == -1) {
         zmq_msg_close($message);
-        return undef;
+        return 1;
     }
 
     my $data = zmq_msg_data($message);
     zmq_msg_close($message);
-    return $data;
+    $message = undef;
+
+    if (defined($options{frame})) {
+        $options{frame}->setFrame(\$data);
+        return 0;
+    }
+
+    return (0, $data);
 }
 
 sub zmq_read_message {
@@ -837,6 +844,7 @@ sub zmq_read_message {
     }
     my $data = zmq_msg_data($message);
     zmq_msg_close($message);
+    $message = undef;
 
     my $frame = gorgone::class::frame->new();
     $frame->setFrame(\$data);

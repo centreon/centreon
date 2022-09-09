@@ -120,24 +120,43 @@ sub get_core_config {
 sub read_message {
     my ($self, %options) = @_;
 
-    my $message = gorgone::standard::library::zmq_dealer_read_message(socket => defined($options{socket}) ? $options{socket} : $self->{internal_socket});
-    return undef if (!defined($message));
-    return $message if ($self->{internal_crypt}->{enabled} == 0);
+    my ($rv, $message) = gorgone::standard::library::zmq_dealer_read_message(
+        socket => defined($options{socket}) ? $options{socket} : $self->{internal_socket},
+        frame => $options{frame}
+    );
+    return (undef, 1) if ($rv);
+    if ($self->{internal_crypt}->{enabled} == 0) {
+        if (defined($options{frame})) {
+            return (undef, 0);
+        }
+        return ($message, 0);
+    }
 
     foreach my $key (@{$self->{internal_crypt}->{core_keys}}) {
         next if (!defined($key));
 
-        my $plaintext;
-        try {
-            $plaintext = $self->{cipher}->decrypt($message, $key, $self->{internal_crypt}->{iv});
-        };
-        if (defined($plaintext) && $plaintext =~ /^\[[A-Za-z_\-]+?\]/) {
-            return $plaintext;
+        if (defined($options{frame})) {
+            if ($options{frame}->decrypt({ cipher => $self->{cipher}, key => $key, iv => $self->{internal_crypt}->{iv} }) == 0) {
+                return (undef, 0);
+            }
+        } else {
+            my $plaintext;
+            try {
+                $plaintext = $self->{cipher}->decrypt($message, $key, $self->{internal_crypt}->{iv});
+            };
+            if (defined($plaintext) && $plaintext =~ /^\[[A-Za-z_\-]+?\]/) {
+                $message = undef;
+                return ($plaintext, 0);
+            }
         }
     }
 
-    $self->{logger}->writeLogError("[$self->{module_id}]$self->{container} decrypt issue: " . ($_ ? $_ : 'no message'));
-    return undef;
+    if (defined($options{frame})) {
+        $self->{logger}->writeLogError("[$self->{module_id}]$self->{container} decrypt issue: " . $options{frame}->getLastError());
+    } else {
+        $self->{logger}->writeLogError("[$self->{module_id}]$self->{container} decrypt issue: " . ($_ ? $_ : 'no message'));
+    }
+    return (undef, 1);
 }
 
 sub send_internal_key {

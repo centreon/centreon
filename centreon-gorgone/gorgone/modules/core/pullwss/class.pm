@@ -259,7 +259,8 @@ sub read_zmq_events {
 
     while (my $events = gorgone::standard::library::zmq_events(socket => $self->{internal_socket})) {
         if ($events & ZMQ_POLLIN) {
-            my $message = transmit_back(message => $connector->read_message());
+            my ($message) = $connector->read_message();
+            $message = transmit_back(message => $message);
             next if (!defined($message));
 
             # Only send back SETLOGS and PONG

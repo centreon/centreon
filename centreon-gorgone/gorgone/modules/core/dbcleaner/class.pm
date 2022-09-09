@@ -156,7 +156,7 @@ sub action_dbclean {
 
 sub event {
     while (1) {
-        my $message = $connector->read_message();
+        my ($message) = $connector->read_message();
         last if (!defined($message));
 
         $connector->{logger}->writeLogDebug("[dbcleaner] Event: $message");

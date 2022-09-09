@@ -147,7 +147,8 @@ sub read_message_client {
 
 sub event {
     while (1) {
-        my $message = transmit_back(message => $connector->read_message());
+        my ($message) = $connector->read_message();
+        $message = transmit_back(message => $message);
         last if (!defined($message));
 
         # Only send back SETLOGS and PONG

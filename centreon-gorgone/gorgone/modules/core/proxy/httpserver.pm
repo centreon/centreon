@@ -288,7 +288,7 @@ sub read_zmq_events {
 
     while (my $events = gorgone::standard::library::zmq_events(socket => $self->{internal_socket})) {
         if ($events & ZMQ_POLLIN) {
-            my $message = $connector->read_message();
+            my ($message) = $connector->read_message();
             proxy(message => $message);
         } else {
             last;

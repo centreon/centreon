@@ -163,4 +163,11 @@ sub getTarget {
     return $self->{target};
 }
 
+sub DESTROY {
+    my ($self) = shift;
+
+    $self->{data} = undef;
+    $self->{rawData} = undef;
+}
+
 1;

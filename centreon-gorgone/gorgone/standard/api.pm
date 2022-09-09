@@ -259,7 +259,7 @@ sub event {
 
     my $httpserver = defined($options{httpserver}) ? $options{httpserver} : $module;
     while (1) {
-        my $message = $httpserver->read_message();
+        my ($message) = $httpserver->read_message();
         last if (!defined($message));
 
         if ($message =~ /^\[(.*?)\]\s+\[([a-zA-Z0-9:\-_]*?)\]\s+\[.*?\]\s+(.*)$/m || 

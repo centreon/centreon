@@ -1103,14 +1103,14 @@ sub is_hdisco_synced {
 
 sub event {
     while (1) {
-        my $message = $connector->read_message();
-        last if (!defined($message));
+        my $frame = gorgone::class::frame->new();
+        my (undef, $rv) = $connector->read_message(frame => $frame);
+        last if ($rv);
 
-        $connector->{logger}->writeLogDebug("[autodiscovery] Event: $message") if ($connector->{logger}->is_debug());
-        if ($message =~ /^\[(.*?)\]/) {
+        my $raw = $frame->getFrame();
+        $connector->{logger}->writeLogDebug("[autodiscovery] Event: " . $$raw) if ($connector->{logger}->is_debug());
+        if ($$raw =~ /^\[(.*?)\]/) {
             if ((my $method = $connector->can('action_' . lc($1)))) {
-                my $frame = gorgone::class::frame->new();
-                $frame->setFrame(\$message);
                 next if ($frame->parse());
 
                 $method->($connector, token => $frame->getToken(), frame => $frame);
