@@ -306,11 +306,16 @@ sub change_macros {
 sub action_bcastlogger {
     my ($self, %options) = @_;
 
-    if (defined($options{data}->{content}->{severity}) && $options{data}->{content}->{severity} ne '') {
-        if ($options{data}->{content}->{severity} eq 'default') {
+    my $data = $options{data};
+    if (defined($options{frame})) {
+        $data = $options{frame}->decodeData();
+    }
+
+    if (defined($data->{content}->{severity}) && $data->{content}->{severity} ne '') {
+        if ($data->{content}->{severity} eq 'default') {
             $self->{logger}->set_default_severity();
         } else {
-            $self->{logger}->severity($options{data}->{content}->{severity});
+            $self->{logger}->severity($data->{content}->{severity});
         }
     }
 }
@@ -320,10 +325,15 @@ sub action_bcastcorekey {
 
     return if ($self->{internal_crypt}->{enabled} == 0);
 
-    if (defined($options{data}->{key})) {
+    my $data = $options{data};
+    if (defined($options{frame})) {
+        $data = $options{frame}->decodeData();
+    }
+
+    if (defined($data->{key})) {
         $self->{logger}->writeLogDebug("[$self->{module_id}]$self->{container} core key changed");
         $self->{internal_crypt}->{core_keys}->[1] = $self->{internal_crypt}->{core_keys}->[0];
-        $self->{internal_crypt}->{core_keys}->[0] = pack('H*', $options{data}->{key});
+        $self->{internal_crypt}->{core_keys}->[0] = pack('H*', $data->{key});
     }
 }
 

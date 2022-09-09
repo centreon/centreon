@@ -101,6 +101,21 @@ sub parse {
     return 1;
 }
 
+sub getData {
+    my ($self) = shift;
+
+    if (!defined($self->{data})) {
+        try {
+            $self->{data} = JSON::XS->new->decode($self->{rawData});
+        } catch {
+            $self->{lastError} = $_;
+            return undef;
+        }
+    }
+
+    return $self->{data};
+}
+
 sub decodeData {
     my ($self) = shift;
 
@@ -147,6 +162,5 @@ sub getTarget {
 
     return $self->{target};
 }
-
 
 1;
