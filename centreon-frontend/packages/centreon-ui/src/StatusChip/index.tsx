@@ -1,7 +1,10 @@
 import { makeStyles } from 'tss-react/mui';
+import { equals } from 'ramda';
 
-import { Theme, Chip, alpha, ChipProps } from '@mui/material';
+import { Theme, Chip, ChipProps, alpha } from '@mui/material';
 import { grey } from '@mui/material/colors';
+
+import { ThemeMode } from '@centreon/ui-context';
 
 enum SeverityCode {
   High = 1,
@@ -19,7 +22,6 @@ interface StatusColorProps {
 
 export interface Colors {
   backgroundColor: string;
-  color: string;
 }
 
 const getStatusColors = ({ theme, severityCode }: StatusColorProps): Colors => {
@@ -28,27 +30,22 @@ const getStatusColors = ({ theme, severityCode }: StatusColorProps): Colors => {
   const colorMapping = {
     [SeverityCode.High]: {
       backgroundColor: palette.error.main,
-      color: palette.common.white,
     },
     [SeverityCode.Medium]: {
       backgroundColor: palette.warning.main,
-      color: palette.common.black,
     },
     [SeverityCode.Low]: {
-      backgroundColor: grey[600],
-      color: palette.common.white,
+      backgroundColor:
+        grey[equals(ThemeMode.dark, theme.palette.mode) ? 600 : 300],
     },
     [SeverityCode.Pending]: {
       backgroundColor: palette.pending.main,
-      color: palette.common.white,
     },
     [SeverityCode.Ok]: {
       backgroundColor: palette.success.main,
-      color: palette.common.black,
     },
     [SeverityCode.None]: {
       backgroundColor: alpha(palette.primary.main, 0.1),
-      color: palette.primary.main,
     },
   };
 

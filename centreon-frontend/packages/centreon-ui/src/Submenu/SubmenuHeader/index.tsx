@@ -82,6 +82,7 @@ const useStyles = makeStyles<StyleProps>()(
       },
     },
     wrapMiddleIcon: {
+      color: 'inherit',
       display: 'flex',
     },
   }),

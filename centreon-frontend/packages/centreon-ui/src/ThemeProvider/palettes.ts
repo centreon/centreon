@@ -130,7 +130,7 @@ export const darkPalette: PaletteOptions = {
     main: '#7C1FA2',
   },
   success: {
-    main: '#759F1D',
+    main: '#5F8118',
   },
   text: {
     disabled: '#666666',
@@ -138,7 +138,7 @@ export const darkPalette: PaletteOptions = {
     secondary: '#B5B5B5',
   },
   warning: {
-    main: '#FC7E00',
+    main: '#C55400',
   },
 };
 
