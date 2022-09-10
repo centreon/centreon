@@ -22,6 +22,16 @@ COPY /ci/scripts/autoinstall.php /usr/share/centreon/autoinstall.php
 COPY /ci/scripts/configuration/* /usr/share/centreon/www/install/tmp/
 RUN chmod +x /tmp/install.sh
 
+COPY ./scripts/sql/standard.sql /tmp/standard.sql
+COPY ./scripts/sql/media.sql /tmp/media.sql
+COPY ./scripts/sql/openldap.sql /tmp/openldap.sql
+
+RUN service mysql start
+RUN mysql centreon < /tmp/standard.sql
+RUN mysql centreon < /tmp/media.sql
+RUN mysql centreon < /tmp/openldap.sql
+RUN centreon -u admin -p Centreon\!2021 -a APPLYCFG -v 1
+RUN service mysql stop
 
 VOLUME [ "/sys/fs/cgroup" ]
 
