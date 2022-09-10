@@ -16,6 +16,6 @@
   "execTimeout": 60000,
   "baseUrl": "http://localhost:4000",
   "env": {
-    "dockerName": "centreon-web"
+    "dockerName": "e2e-tests-centreon"
   }
 }
