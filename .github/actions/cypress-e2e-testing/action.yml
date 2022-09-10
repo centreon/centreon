@@ -1,5 +1,7 @@
 name: "Cypress E2E Testing"
 description: "Cypress E2E Testing"
+container: cypress/included:10.7.0
+
 inputs:
   image:
     description: "image"
@@ -18,8 +20,8 @@ runs:
   steps:
     - name: "Run Cypress"
       uses: cypress-io/github-action@v4
+      
       with:
-        container: cypress/included:10.7.0
         working-directory: ./centreon/tests/e2e
         browser: chrome
         build: npm ci
