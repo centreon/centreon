@@ -14,7 +14,7 @@
   "defaultCommandTimeout": 6000,
   "requestTimeout": 10000,
   "execTimeout": 60000,
-  "baseUrl": "http://centreon-web",
+  "baseUrl": "http://0.0.0.0:4000",
   "env": {
     "dockerName": "centreon-web"
   }

@@ -1,6 +1,5 @@
 #!/bin/bash
 set -ex
-apt-get install git
 cd $MODULE_PATH
 rm -rf centreon-injector
 git clone https://github.com/centreon/centreon-injector.git
