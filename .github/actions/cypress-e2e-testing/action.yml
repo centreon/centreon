@@ -20,5 +20,5 @@ runs:
     #   shell: bash
     - run: docker run --privileged -p 4000:80 -d --name e2e-tests-${{ inputs.module }} ${{ inputs.image }}:${{ inputs.image_version }}
       shell: bash
-    - run: docker run -e MODULE=${{ inputs.module }} -i -v "$PWD:/tmp" -w "/tmp" --entrypoint "/tmp/ci/scripts/cypress-e2e-testing.sh" --net="host" cypress/browsers:chrome69
+    - run: docker run -e MODULE=${{ inputs.module }} -i -v "$PWD:/tmp" -w "/tmp" --entrypoint "/tmp/ci/scripts/cypress-e2e-testing.sh" --net="host" cypress/included:10.7.0
       shell: bash
