@@ -151,6 +151,7 @@ jobs:
   cypress-e2e-testing:
     needs: [create-and-push-docker]
     runs-on: common
+    container: cypress/included:10.7.0
       
     steps:
       - name: Checkout sources
