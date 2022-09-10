@@ -154,7 +154,6 @@ jobs:
 
       - name: Cypress e2e testing
         working-directory: ./centreon/tests/e2e
-
         uses: ./.github/actions/cypress-e2e-testing
         with:
           image: docker.registry.apps.centreon.com/run-centreon-open-source-centos7
