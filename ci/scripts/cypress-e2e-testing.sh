@@ -8,4 +8,4 @@ cd $MODULE/tests/e2e
 
 npm ci --legacy-peer-deps
 
-$(npm bin)/cypress run
+$(npm bin)/cypress run --browser chrome
