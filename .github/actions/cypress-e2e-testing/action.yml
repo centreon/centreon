@@ -18,7 +18,6 @@ runs:
   steps:
     - name: "Run Cypress"
       uses: cypress-io/github-action@v4
-      working-directory: ./centreon/tests/e2e
       with:
         browser: chrome
         build: npm ci
