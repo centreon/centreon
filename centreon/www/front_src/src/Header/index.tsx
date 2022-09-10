@@ -12,7 +12,7 @@ import FederatedComponent from '../components/FederatedComponents';
 import PollerMenu from './PollerMenu';
 import HostStatusCounter from './RessourceStatusCounter/Host';
 import ServiceStatusCounter from './RessourceStatusCounter/Service';
-import UserMenu from './UserMenu';
+import UserMenu from './userMenu';
 
 export const isDarkMode = (theme: Theme): boolean =>
   equals(theme.palette.mode, ThemeMode.dark);
