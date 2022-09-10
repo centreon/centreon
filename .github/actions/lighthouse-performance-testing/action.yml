@@ -23,5 +23,5 @@ runs:
       shell: bash
     - run: docker run --privileged -p 4000:80 -d --name lighthouse-tests-${{ inputs.module }} --network lighthouse --ip 172.19.0.20 ${{ inputs.image }}:${{ inputs.image_version }}
       shell: bash
-    - run: docker run --privileged -i -e MODULE_PATH=${{ inputs.path }} -i -v "/var/run/docker.sock:/var/run/docker.sock" -v "$PWD:/tmp" -w "/tmp" --network lighthouse --ip 172.19.0.21 --entrypoint "/tmp/ci/scripts/lighthouse-performance-testing.sh" kanti/lighthouse-ci
+    - run: docker run --privileged -i -e MODULE_PATH=${{ inputs.path }} -i -v "/var/run/docker.sock:/var/run/docker.sock" -v "$PWD:/tmp" -w "/tmp" --network lighthouse --ip 172.19.0.21 --entrypoint "/tmp/ci/scripts/lighthouse-performance-testing.sh" docker.registry.apps.centreon.com/cypress:${{ inputs.image_lighthouse_version }}
       shell: bash
