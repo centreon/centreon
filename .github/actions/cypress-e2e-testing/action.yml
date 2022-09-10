@@ -16,12 +16,13 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - uses: cypress-io/github-action@v4.x.x
-    with:
-      browser: chrome
-      build: npm ci
-      start: docker run --privileged -p 4000:80 -d --name e2e-tests-${{ inputs.module }} -v "/var/run/docker.sock:/var/run/docker.sock" ${{ inputs.image }}:${{ inputs.image_version }}
-      wait-on: 'http://localhost:4000'
+    - name: "Run Cypress"
+      uses: cypress-io/github-action@v4.x.x
+      with:
+        browser: chrome
+        build: npm ci
+        start: docker run --privileged -p 4000:80 -d --name e2e-tests-${{ inputs.module }} -v "/var/run/docker.sock:/var/run/docker.sock" ${{ inputs.image }}:${{ inputs.image_version }}
+        wait-on: 'http://localhost:4000'
       # shell: bash
     # - run: docker run -e MODULE=${{ inputs.module }} -i -v "$PWD:/tmp" -v "/var/run/docker.sock:/var/run/docker.sock" -w "/tmp" --entrypoint "/tmp/ci/scripts/cypress-e2e-testing.sh" --net="host" cypress/included:10.7.0
     #   shell: bash
