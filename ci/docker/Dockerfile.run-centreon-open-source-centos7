@@ -25,11 +25,8 @@ RUN chmod +x /tmp/install.sh
 COPY ./ci/scripts/sql/standard.sql /tmp/standard.sql
 COPY ./ci/scripts/sql/media.sql /tmp/media.sql
 COPY ./ci/scripts/sql/openldap.sql /tmp/openldap.sql
-
-RUN mysql centreon < /tmp/standard.sql
-RUN mysql centreon < /tmp/media.sql
-RUN mysql centreon < /tmp/openldap.sql
-RUN centreon -u admin -p Centreon\!2021 -a APPLYCFG -v 1
+COPY ./ci/scripts/insert-standard-fixtures.sh /tmp/insert-standard-fixtures.sh
+RUN chmod +x /tmp/insert-standard-fixtures.sh
 
 VOLUME [ "/sys/fs/cgroup" ]
 
