@@ -17,7 +17,7 @@ runs:
   using: "composite"
   steps:
     - name: "Run Cypress"
-      uses: cypress-io/github-action@v4.x.x
+      uses: cypress-io/github-action@v4
       with:
         browser: chrome
         build: npm ci
