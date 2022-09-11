@@ -18,7 +18,7 @@ runs:
   using: "composite"
   steps:
     - name: "Start Centreon container"
-    - run: docker run --privileged -p 5000:80 -d --name e2e-tests-${{ inputs.module }} ${{ inputs.image }}:${{ inputs.image_version }}
+    - run: docker run --privileged -p 5000:80 -d -it --name e2e-tests-${{ inputs.module }} ${{ inputs.image }}:${{ inputs.image_version }}
     - shell: bash
 
     - name: "Start Centreon container"
