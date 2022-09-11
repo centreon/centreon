@@ -1,3 +1,4 @@
+/* eslint-disable no-param-reassign */
 /* eslint-disable default-param-last */
 /* eslint-disable global-require */
 /* eslint-disable @typescript-eslint/no-var-requires */
@@ -10,16 +11,10 @@ module.exports = (on): void => {
   };
   on('file:preprocessor', webpackPreprocessor(options));
 
-  on('before:browser:launch', (browser = {}, launchOptions) => {
-    if ((browser as { name }).name === 'chrome') {
-      launchOptions.args.push('--disable-gpu');
-
-      const args = launchOptions.args.filter(
-        (element) => element !== '--disable-dev-shm-usage',
-      );
-
-      return { ...launchOptions, args };
-    }
+  on('before:browser:launch', (launchOptions) => {
+    launchOptions.args = launchOptions.args.filter(
+      (item) => item !== '--disable-dev-shm-usage',
+    );
 
     return launchOptions;
   });
