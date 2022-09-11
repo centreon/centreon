@@ -41,115 +41,115 @@ jobs:
   #         image_name: ${{ matrix.image }}
   #         image_version: ${{ env.version }}
 
-  centreon-packaging:
-    runs-on: common
+  # centreon-packaging:
+  #   runs-on: common
     
-    strategy:
-      matrix:
-        include:
-          - image: packaging-web-centos7
-            distrib: el7
-          # - image: packaging-web-alma8
-          #   distrib: el8
-          # - image: packaging-web-bullseye
-          #   distrib: bullseye
+  #   strategy:
+  #     matrix:
+  #       include:
+  #         - image: packaging-web-centos7
+  #           distrib: el7
+  #         # - image: packaging-web-alma8
+  #         #   distrib: el8
+  #         # - image: packaging-web-bullseye
+  #         #   distrib: bullseye
 
-    steps: 
-      - name: Checkout sources
-        uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
+  #   steps: 
+  #     - name: Checkout sources
+  #       uses: actions/checkout@v3
+  #       with:
+  #         fetch-depth: 0
       
-      - name: 'Get minor and release version'
-        uses: ./.github/actions/get-package-version
-        with:
-          module_name: ${{ env.module }}
-        id: get_version
+  #     - name: 'Get minor and release version'
+  #       uses: ./.github/actions/get-package-version
+  #       with:
+  #         module_name: ${{ env.module }}
+  #       id: get_version
 
-      - name: Package
-        uses: ./.github/actions/runner-docker
-        with:
-          script_name: web-packaging
-          image_name: ${{ matrix.image }}
-          image_version: ${{ env.version }}
-          params: ${{ env.version }}.${{ steps.get_version.outputs.minor_version }} ${{ steps.get_version.outputs.release }}
+  #     - name: Package
+  #       uses: ./.github/actions/runner-docker
+  #       with:
+  #         script_name: web-packaging
+  #         image_name: ${{ matrix.image }}
+  #         image_version: ${{ env.version }}
+  #         params: ${{ env.version }}.${{ steps.get_version.outputs.minor_version }} ${{ steps.get_version.outputs.release }}
 
-      - name: Sign 
-        uses: ./.github/actions/runner-docker
-        with:
-          script_name: rpm-signing
-          image_name: rpm-signing
-          image_version: ubuntu
+  #     - name: Sign 
+  #       uses: ./.github/actions/runner-docker
+  #       with:
+  #         script_name: rpm-signing
+  #         image_name: rpm-signing
+  #         image_version: ubuntu
           
-      - name: Use cache RPM files
-        uses: actions/cache@v3
-        env:
-          cache-name-rpmbuild: cache-${{ github.sha }}-${{ github.run_id }}-rpmbuild-web
-        with:
-          path: ./*.rpm
-          key: ${{ env.cache-name-rpmbuild }}-${{ matrix.distrib }}
+  #     - name: Use cache RPM files
+  #       uses: actions/cache@v3
+  #       env:
+  #         cache-name-rpmbuild: cache-${{ github.sha }}-${{ github.run_id }}-rpmbuild-web
+  #       with:
+  #         path: ./*.rpm
+  #         key: ${{ env.cache-name-rpmbuild }}-${{ matrix.distrib }}
       
-  delivery-rpm:
-    # needs: [centreon-packaging, centreon-test]
-    needs: [centreon-packaging]
+  # delivery-rpm:
+  #   # needs: [centreon-packaging, centreon-test]
+  #   needs: [centreon-packaging]
 
-    runs-on: common
-    strategy:
-      matrix:
-        include:
-          - module_name: web
-            distrib: el7
+  #   runs-on: common
+  #   strategy:
+  #     matrix:
+  #       include:
+  #         - module_name: web
+  #           distrib: el7
 
-          - module_name: web
-            distrib: el8
-    steps:
-      - name: Checkout sources
-        uses: actions/checkout@v3
+  #         - module_name: web
+  #           distrib: el8
+  #   steps:
+  #     - name: Checkout sources
+  #       uses: actions/checkout@v3
 
-      - name: Delivery
-        uses: ./.github/actions/rpm-delivery
-        with:
-          module_name: ${{ matrix.module_name }}
-          distrib: ${{ matrix.distrib }}
-          version: ${{ env.version }}
-          nexus_username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
-          nexus_password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
+  #     - name: Delivery
+  #       uses: ./.github/actions/rpm-delivery
+  #       with:
+  #         module_name: ${{ matrix.module_name }}
+  #         distrib: ${{ matrix.distrib }}
+  #         version: ${{ env.version }}
+  #         nexus_username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
+  #         nexus_password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
   
-  create-and-push-docker:
-    # needs: [centreon-packaging, centreon-test]
-    needs: [centreon-packaging]
+  # create-and-push-docker:
+  #   # needs: [centreon-packaging, centreon-test]
+  #   needs: [centreon-packaging]
 
-    runs-on: common
+  #   runs-on: common
     
-    strategy:
-      matrix:
-        include:
-          - project: run-centreon-open-source
-            distrib: centos7
-            distrib_rpm: el7
-            module_name: web
+  #   strategy:
+  #     matrix:
+  #       include:
+  #         - project: run-centreon-open-source
+  #           distrib: centos7
+  #           distrib_rpm: el7
+  #           module_name: web
 
-    steps:
-      - name: Checkout sources
-        uses: actions/checkout@v3
+  #   steps:
+  #     - name: Checkout sources
+  #       uses: actions/checkout@v3
 
-      - name: Login to Registry
-        uses: docker/login-action@v2
-        with:
-          registry: docker.registry.apps.centreon.com
-          username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
-          password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
+  #     - name: Login to Registry
+  #       uses: docker/login-action@v2
+  #       with:
+  #         registry: docker.registry.apps.centreon.com
+  #         username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
+  #         password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
 
-      - name: build docker run
-        uses: ./.github/actions/docker-builder-run
-        with:
-          distrib: ${{ matrix.distrib }}
-          project: ${{ matrix.project }}
-          distrib_rpm: ${{ matrix.distrib_rpm }}
-          module_name: ${{ matrix.module_name }}
+  #     - name: build docker run
+  #       uses: ./.github/actions/docker-builder-run
+  #       with:
+  #         distrib: ${{ matrix.distrib }}
+  #         project: ${{ matrix.project }}
+  #         distrib_rpm: ${{ matrix.distrib_rpm }}
+  #         module_name: ${{ matrix.module_name }}
 
   cypress-e2e-testing:
-    needs: [create-and-push-docker]
+    # needs: [create-and-push-docker]
     runs-on: common
     # container: docker.registry.apps.centreon.com/cypress:22.10
       
@@ -172,19 +172,19 @@ jobs:
           name: cypress-videos
           path: centreon/tests/e2e/cypress/results/video 
 
-  lighthouse-performance-testing:
-    needs: [create-and-push-docker]
-    runs-on: common
+  # lighthouse-performance-testing:
+  #   needs: [create-and-push-docker]
+  #   runs-on: common
       
-    steps:
-      - name: Checkout sources
-        uses: actions/checkout@v3
+  #   steps:
+  #     - name: Checkout sources
+  #       uses: actions/checkout@v3
 
-      - name: Lighthouse performance testing
-        uses: ./.github/actions/lighthouse-performance-testing
-        with:
-          path: "centreon/lighthouse"
-          image: docker.registry.apps.centreon.com/run-centreon-open-source-centos7
-          image_version: ${{ github.head_ref || github.ref_name }}
-          image_lighthouse_version: ${{ env.version }}
-          module: centreon
+  #     - name: Lighthouse performance testing
+  #       uses: ./.github/actions/lighthouse-performance-testing
+  #       with:
+  #         path: "centreon/lighthouse"
+  #         image: docker.registry.apps.centreon.com/run-centreon-open-source-centos7
+  #         image_version: ${{ github.head_ref || github.ref_name }}
+  #         image_lighthouse_version: ${{ env.version }}
+  #         module: centreon
