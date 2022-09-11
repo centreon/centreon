@@ -17,6 +17,14 @@ inputs:
 runs:
   using: "composite"
   steps:
+    - name: "Start Centreon container"
+    - run: docker run --privileged -p 5000:80 -d --name e2e-tests-${{ inputs.module }} ${{ inputs.image }}:${{ inputs.image_version }}
+    - shell: bash
+
+    - name: "Start Centreon container"
+    - run: docker logs e2e-tests-${{ inputs.module }}
+    - shell: bash
+
     - name: "Run Cypress"
       uses: cypress-io/github-action@v4
       
@@ -24,7 +32,7 @@ runs:
         working-directory: ./centreon/tests/e2e
         browser: chrome
         build: npm ci
-        start: docker run --privileged -p 5000:80 -d -it --name e2e-tests-${{ inputs.module }} ${{ inputs.image }}:${{ inputs.image_version }} && docker logs e2e-tests-${{ inputs.module }}
+        start: docker run --privileged -p 5000:80 -d --name e2e-tests-${{ inputs.module }} ${{ inputs.image }}:${{ inputs.image_version }}
         wait-on: "http://localhost:5000"
       # shell: bash
     # - run: docker run -e MODULE=${{ inputs.module }} -i -v "$PWD:/tmp" -v "/var/run/docker.sock:/var/run/docker.sock" -w "/tmp" --entrypoint "/tmp/ci/scripts/cypress-e2e-testing.sh" --net="host" cypress/included:10.7.0
