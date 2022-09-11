@@ -22,7 +22,7 @@ runs:
       shell: bash
 
     - name: "Logs"
-      run: docker logs e2e-tests-${{ inputs.module }}
+      run: curl http://$(echo docker-machine ip default):5000
       shell: bash
 
     - name: "Run Cypress"
