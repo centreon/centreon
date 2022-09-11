@@ -16,16 +16,5 @@ module.exports = (on, config) => {
     on('dev-server:start', (options) =>
       startDevServer({ options, webpackConfig }),
     );
-
-    on('before:browser:launch', (browser = {}, launchOptions) => {
-      if (browser.name === 'chrome') {
-        launchOptions.args.push('--disable-gpu');
-        launchOptions.args = launchOptions.args.filter(
-          (Element) => Element !== '--disable-dev-shm-usage',
-        );
-      }
-
-      return launchOptions;
-    });
   }
 };
