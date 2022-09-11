@@ -35,5 +35,5 @@ runs:
         # start: docker run --privileged -p 5000:80 -d --name e2e-tests-${{ inputs.module }} ${{ inputs.image }}:${{ inputs.image_version }}
         # wait-on: "http://localhost:5000"
       # shell: bash
-      run: docker run --shm_size 2gb -e MODULE=${{ inputs.module }} -i -v "$PWD:/tmp" -v "/var/run/docker.sock:/var/run/docker.sock" -w "/tmp" --entrypoint "/tmp/ci/scripts/cypress-e2e-testing.sh" --net="host" docker.registry.apps.centreon.com/cypress:${{ inputs.image_cypress_version }}
+      run: docker run --shm-size 2gb -e MODULE=${{ inputs.module }} -i -v "$PWD:/tmp" -v "/var/run/docker.sock:/var/run/docker.sock" -w "/tmp" --entrypoint "/tmp/ci/scripts/cypress-e2e-testing.sh" --net="host" docker.registry.apps.centreon.com/cypress:${{ inputs.image_cypress_version }}
       shell: bash
