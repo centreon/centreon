@@ -22,7 +22,7 @@ runs:
       shell: bash
 
     - name: "Logs"
-      run: curl http://$(echo docker-machine ip default):5000
+      run: curl http://localhost:5000
       shell: bash
 
     - name: "Run Cypress"
