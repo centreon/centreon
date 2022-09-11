@@ -6,6 +6,6 @@ export HOME=$PWD/cache
 
 cd $MODULE/tests/e2e
 
-npm ci --legacy-peer-deps
+npm ci
 
 $(npm bin)/cypress run --browser chrome
