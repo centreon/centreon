@@ -12,9 +12,9 @@ RUN apt-get update -y && apt-get install -y docker-ce-cli libnss3 libatk1.0-0 li
 RUN wget -O composer-setup.php https://getcomposer.org/installer
 RUN php composer-setup.php --install-dir=/usr/local/bin --filename=composer
 
-RUN composer self-update
-RUN composer self-update --2
-RUN composer dump-autoload --ignore-platform-reqs
+# RUN composer self-update
+# RUN composer self-update --2
+# RUN composer dump-autoload --ignore-platform-reqs
 
 WORKDIR /src
 
