@@ -648,7 +648,9 @@ sub service_response_parsing {
 sub discoverylistener {
     my ($self, %options) = @_;
 
-    return 0 if ($options{data}->{code} != GORGONE_MODULE_ACTION_COMMAND_RESULT && $options{data}->{code} != GORGONE_ACTION_FINISH_KO);
+    my $data = $options{frame}->getData();
+
+    return 0 if ($data->{code} != GORGONE_MODULE_ACTION_COMMAND_RESULT && $data->{code} != GORGONE_ACTION_FINISH_KO);
 
     if ($self->{discovery}->{is_manual} == 1) {
         $self->{discovery}->{manual}->{ $options{host_id} } = { rules => {} } if (!defined($self->{discovery}->{manual}->{ $options{host_id} }));
@@ -656,27 +658,27 @@ sub discoverylistener {
     }
 
     # if i have GORGONE_MODULE_ACTION_COMMAND_RESULT, i can't have GORGONE_ACTION_FINISH_KO
-    if ($options{data}->{code} == GORGONE_MODULE_ACTION_COMMAND_RESULT) {
-        my $exit_code = $options{data}->{data}->{result}->{exit_code};
+    if ($data->{code} == GORGONE_MODULE_ACTION_COMMAND_RESULT) {
+        my $exit_code = $data->{data}->{result}->{exit_code};
         if ($exit_code == 0) {
             $self->service_response_parsing(
                 rule_id => $options{rule_id},
                 host_id => $options{host_id},
                 poller_id => $self->{discovery}->{hosts}->{ $options{host_id} }->{poller_id},
-                response => $options{data}->{data}->{result}->{stdout}
+                response => $data->{data}->{result}->{stdout}
             );
         } else {
             $self->{discovery}->{failed_discoveries}++;
             if ($self->{discovery}->{is_manual} == 1) {
                 $self->{discovery}->{manual}->{ $options{host_id} }->{rules}->{ $options{rule_id} }->{failed} = 1;
-                $self->{discovery}->{manual}->{ $options{host_id} }->{rules}->{ $options{rule_id} }->{message} = $options{data}->{data}->{message};
-                $self->{discovery}->{manual}->{ $options{host_id} }->{rules}->{ $options{rule_id} }->{data} = $options{data}->{data};
+                $self->{discovery}->{manual}->{ $options{host_id} }->{rules}->{ $options{rule_id} }->{message} = $data->{data}->{message};
+                $self->{discovery}->{manual}->{ $options{host_id} }->{rules}->{ $options{rule_id} }->{data} = $data->{data};
             }
         }
-    } elsif ($options{data}->{code} == GORGONE_ACTION_FINISH_KO) {
+    } elsif ($data->{code} == GORGONE_ACTION_FINISH_KO) {
         if ($self->{discovery}->{is_manual} == 1) {
             $self->{discovery}->{manual}->{ $options{host_id} }->{rules}->{ $options{rule_id} }->{failed} = 1;
-            $self->{discovery}->{manual}->{ $options{host_id} }->{rules}->{ $options{rule_id} }->{message} = $options{data}->{data}->{message};
+            $self->{discovery}->{manual}->{ $options{host_id} }->{rules}->{ $options{rule_id} }->{message} = $data->{data}->{message};
         }
         $self->{discovery}->{failed_discoveries}++;
     } else {
@@ -792,6 +794,8 @@ sub service_execute_commands {
 sub launchdiscovery {
     my ($self, %options) = @_;
 
+    my $data = $options{frame}->getData();
+
     $options{token} = $self->generate_token() if (!defined($options{token}));
 
     $self->{logger}->writeLogInfo("[autodiscovery] -servicediscovery- $self->{uuid} discovery start");
@@ -848,8 +852,8 @@ sub launchdiscovery {
     
     ($status, $message, my $rules) = gorgone::modules::centreon::autodiscovery::services::resources::get_rules(
         class_object_centreon => $self->{class_object_centreon},
-        filter_rules => $options{data}->{content}->{filter_rules},
-        force_rule => (defined($options{data}->{content}->{force_rule}) && $options{data}->{content}->{force_rule} =~ /^1$/) ? 1 : 0
+        filter_rules => $data->{content}->{filter_rules},
+        force_rule => (defined($data->{content}->{force_rule}) && $data->{content}->{force_rule} =~ /^1$/) ? 1 : 0
     );
     if ($status < 0) {
         $self->send_log_msg_error(token => $options{token}, subname => 'servicediscovery', number => $self->{uuid}, message => $message);
@@ -868,8 +872,8 @@ sub launchdiscovery {
             poller_id => $rules->{$rule_id}->{poller_id},
             class_object_centreon => $self->{class_object_centreon},
             with_macro => 1,
-            host_lookup => $options{data}->{content}->{filter_hosts},
-            poller_lookup => $options{data}->{content}->{filter_pollers}
+            host_lookup => $data->{content}->{filter_hosts},
+            poller_lookup => $data->{content}->{filter_pollers}
         );
         if ($status < 0) {
             $self->send_log_msg_error(token => $options{token}, subname => 'servicediscovery', number => $self->{uuid}, message => $message);
@@ -906,11 +910,11 @@ sub launchdiscovery {
         progress_div => 0,
         rules => $rules,
         manual => {},
-        is_manual => (defined($options{data}->{content}->{manual}) && $options{data}->{content}->{manual} =~ /^1$/) ? 1 : 0,
-        dry_run => (defined($options{data}->{content}->{dry_run}) && $options{data}->{content}->{dry_run} =~ /^1$/) ? 1 : 0,
+        is_manual => (defined($data->{content}->{manual}) && $data->{content}->{manual} =~ /^1$/) ? 1 : 0,
+        dry_run => (defined($data->{content}->{dry_run}) && $data->{content}->{dry_run} =~ /^1$/) ? 1 : 0,
         audit_enable => $audit_enable,
-        no_generate_config => (defined($options{data}->{content}->{no_generate_config}) && $options{data}->{content}->{no_generate_config} =~ /^1$/) ? 1 : 0,
-        options => defined($options{data}->{content}) ? $options{data}->{content} : {},
+        no_generate_config => (defined($data->{content}->{no_generate_config}) && $data->{content}->{no_generate_config} =~ /^1$/) ? 1 : 0,
+        options => defined($data->{content}) ? $data->{content} : {},
         hosts => $all_hosts,
         journal => [],
         pollers_reload => {}
