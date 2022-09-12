@@ -5,7 +5,7 @@ cd $MODULE_PATH
 rm -rf centreon-injector
 git clone https://github.com/centreon/centreon-injector.git
 cd centreon-injector
-composer install
+composer install --ignore-platform-req=ext-xml
 cd ..
 
 docker cp centreon-injector lighthouse-tests-centreon:/usr/share
