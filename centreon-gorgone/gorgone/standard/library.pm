@@ -493,14 +493,14 @@ sub putlog {
         return (GORGONE_ACTION_FINISH_KO, { message => 'request not well formatted' });
     }
 
-    my $status = add_history(
+    my $status = add_history({
         dbh => $options{gorgone}->{db_gorgone}, 
         etime => $data->{etime},
         token => $data->{token},
         instant => $data->{instant},
         data => json_encode(data => $data->{data}, logger => $options{logger}),
         code => $data->{code}
-    );
+    });
     if ($status == -1) {
         return (GORGONE_ACTION_FINISH_KO, { message => 'database issue' });
     }
@@ -624,16 +624,16 @@ sub add_identity {
 }
 
 sub add_history {
-    my (%options) = @_;
+    my ($options) = (shift);
 
-    if (defined($options{data}) && defined($options{json_encode})) {
-        return -1 if (!($options{data} = json_encode(data => $options{data}, logger => $options{logger})));
+    if (defined($options->{data}) && defined($options->{json_encode})) {
+        return -1 if (!($options->{data} = json_encode(data => $options->{data}, logger => $options->{logger})));
     }
-    if (!defined($options{ctime})) {
-        $options{ctime} = Time::HiRes::time();
+    if (!defined($options->{ctime})) {
+        $options->{ctime} = Time::HiRes::time();
     }
-    if (!defined($options{etime})) {
-        $options{etime} = time();
+    if (!defined($options->{etime})) {
+        $options->{etime} = time();
     }
 
     my $fields = '';
@@ -641,27 +641,28 @@ sub add_history {
     my $append = '';
     my @bind_values = ();
     foreach (('data', 'token', 'ctime', 'etime', 'code', 'instant')) {
-        if (defined($options{$_})) {
+        if (defined($options->{$_})) {
             $fields .= $append . $_;
             $placeholder .= $append . '?';
             $append = ', ';
-            push @bind_values, $options{$_};
+            push @bind_values, $options->{$_};
         }
     }
-    my ($status, $sth) = $options{dbh}->query({
+    my ($status, $sth) = $options->{dbh}->query({
         query => "INSERT INTO gorgone_history ($fields) VALUES ($placeholder)",
         bind_values => \@bind_values
     });
 
-    if (defined($options{token}) && $options{token} ne '') {
+    if (defined($options->{token}) && $options->{token} ne '') {
         $listener->event_log(
             {
-                token => $options{token},
-                code => $options{code},
-                data => \$options{data}
+                token => $options->{token},
+                code => $options->{code},
+                data => \$options->{data}
             }
         );
     }
+
     return $status;
 }
 

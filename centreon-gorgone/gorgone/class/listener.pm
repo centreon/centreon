@@ -110,12 +110,12 @@ sub check {
     foreach my $token (keys %{$self->{tokens}}) {
         if (time() - $self->{tokens}->{$token}->{created} > $self->{tokens}->{$token}->{timeout}) {
             $self->{logger}->writeLogDebug("[listener] delete token '$token': timeout");
-            gorgone::standard::library::add_history(
+            gorgone::standard::library::add_history({
                 dbh => $self->{gorgone_core}->{db_gorgone},
                 code => GORGONE_ACTION_FINISH_KO,
                 token => $token,
                 data => '{ "message": "listener token ' . $token . ' timeout reached" }'
-            );
+            });
             delete $self->{tokens}->{$token};
             next;
         }

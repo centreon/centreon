@@ -654,13 +654,13 @@ sub message_run {
 
     if ($action !~ /^(?:ADDLISTENER|PUTLOG|GETLOG|KILL|PING|CONSTATUS|SETCOREID|SETMODULEKEY|SYNCLOGS|LOADMODULE|UNLOADMODULE|INFORMATION|GETTHUMBPRINT|BCAST.*)$/ && 
         !defined($target) && !defined($self->{modules_events}->{$action})) {
-        gorgone::standard::library::add_history(
+        gorgone::standard::library::add_history({
             dbh => $self->{db_gorgone},
             code => GORGONE_ACTION_FINISH_KO,
             token => $token,
             data => { error => "unknown_action", message => "action '$action' is unknown" },
             json_encode => 1
-        );
+        });
         return (undef, 1, { error => "unknown_action", message => "action '$action' is unknown" });
     }
 
@@ -670,13 +670,13 @@ sub message_run {
     $self->{counters}->{ $options->{router_type} }->{total}++;
 
     if ($self->{stop} == 1) {
-        gorgone::standard::library::add_history(
+        gorgone::standard::library::add_history({
             dbh => $self->{db_gorgone},
             code => GORGONE_ACTION_FINISH_KO,
             token => $token,
             data => { message => 'gorgone is stopping/restarting. Cannot proceed request.' },
             json_encode => 1
-        );
+        });
         return ($token, 1, { message => 'gorgone is stopping/restarting. Cannot proceed request.' });
     }
     
@@ -684,13 +684,13 @@ sub message_run {
     if (defined($target)) {
         if (!defined($self->{modules_id}->{ $self->{config}->{configuration}->{gorgone}->{gorgonecore}->{proxy_name} }) || 
             !defined($self->{modules_register}->{ $self->{modules_id}->{ $self->{config}->{configuration}->{gorgone}->{gorgonecore}->{proxy_name} } })) {
-            gorgone::standard::library::add_history(
+            gorgone::standard::library::add_history({
                 dbh => $self->{db_gorgone},
                 code => GORGONE_ACTION_FINISH_KO,
                 token => $token,
                 data => { error => "no_proxy", message => 'no proxy configured. cannot manage target.' },
                 json_encode => 1
-            );
+            });
             return ($token, 1, { error => "no_proxy", message => 'no proxy configured. cannot manage target.' });
         }
 
@@ -724,13 +724,13 @@ sub message_run {
         );
 
         if ($action =~ /^(?:CONSTATUS|INFORMATION|GETTHUMBPRINT)$/) {
-            gorgone::standard::library::add_history(
+            gorgone::standard::library::add_history({
                 dbh => $self->{db_gorgone},
                 code => $code,
                 token => $token,
                 data => $response,
                 json_encode => 1
-            );
+            });
         }
         
         return ($token, $code, $response, $response_type);
@@ -1208,11 +1208,11 @@ sub run {
     $gorgone->{logger}->writeLogInfo("[core] Gorgoned started");
     $gorgone->{logger}->writeLogInfo("[core] PID $$");
 
-    if (gorgone::standard::library::add_history(
+    if (gorgone::standard::library::add_history({
         dbh => $gorgone->{db_gorgone},
         code => GORGONE_STARTED,
         data => { message => 'gorgoned is starting...' },
-        json_encode => 1) == -1
+        json_encode => 1}) == -1
     ) {
         $gorgone->{logger}->writeLogInfo("[core] Cannot write in history. We quit!!");
         exit(1);

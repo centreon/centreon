@@ -63,13 +63,13 @@ sub routing {
     }
     
     if (gorgone::class::core::waiting_ready(ready => \$action->{ready}) == 0) {
-        gorgone::standard::library::add_history(
+        gorgone::standard::library::add_history({
             dbh => $options{dbh},
             code => GORGONE_ACTION_FINISH_KO,
             token => $options{token},
             data => { msg => 'gorgoneaction: still no ready' },
             json_encode => 1
-        );
+        });
         return undef;
     }
     

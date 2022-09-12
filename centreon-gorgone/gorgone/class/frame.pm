@@ -90,24 +90,26 @@ sub decrypt {
 sub parse {
     my ($self, $options) = (shift, shift);
 
-    if (${$self->{frame}} =~ /^\[(.+?)\]\s+\[(.*?)\]\s+\[(.*?)\]\s+(.*)$/) {
+    if (${$self->{frame}} =~ /^\[(.+?)\]\s+\[(.*?)\]\s+\[(.*?)\]\s+/g) {
         $self->{action} = $1;
         $self->{token} = $2;
         $self->{target} = $3;
         
-        if (defined($options) && defined($options->{releaseFrame})) {
-            $self->{frame} = undef;
-        }
         if (defined($options) && defined($options->{decode})) {
             try {
-                $self->{data} = JSON::XS->new->decode($4);
+                $self->{data} = JSON::XS->new->decode(substr(${$self->{frame}}, pos(${$self->{frame}})));
             } catch {
                 $self->{lastError} = $_;
                 return 1;
             }
         } else {
-            $self->{rawData} = $4;
+            $self->{rawData} = substr(${$self->{frame}}, pos(${$self->{frame}}));
         }
+
+        if (defined($options) && defined($options->{releaseFrame})) {
+            $self->{frame} = undef;
+        }
+
         return 0;
     }
 
