@@ -44,6 +44,7 @@ jobs:
   eslint:
     name: ESLint Static analysis
     runs-on: common
+    container: node:lts-bullseye
     steps:
       - uses: actions/checkout@v3
 
