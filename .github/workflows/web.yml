@@ -91,6 +91,7 @@ jobs:
 
   delivery-rpm:
     needs: [centreon-packaging, centreon-test]
+
     runs-on: common
     strategy:
       matrix:
@@ -115,6 +116,7 @@ jobs:
 
   create-and-push-docker:
     needs: [centreon-packaging, centreon-test]
+
     runs-on: common
 
     strategy:
@@ -159,8 +161,8 @@ jobs:
           image_version: ${{ github.head_ref || github.ref_name }}
           image_cypress_version: ${{ env.version }}
           module: centreon
-
-      - name: Archive code coverage results
+            
+      - name: Archive test results
         uses: actions/upload-artifact@v3
         if: ${{ failure() }}
         with:
@@ -183,3 +185,9 @@ jobs:
           image_version: ${{ github.head_ref || github.ref_name }}
           image_lighthouse_version: ${{ env.version }}
           module: centreon
+
+      - name: Archive report
+        uses: actions/upload-artifact@v3
+        with:
+          name: lighthouse-report
+          path: centreon/lighthouse/report/lighthouseci-index.html

@@ -8,6 +8,7 @@ COMMIT=$2
 now=`date +%s`
 
 export RELEASE="$now.$COMMIT"
+export CYPRESS_CACHE_FOLDER=$PWD/cypress_cache
 
 composer install --no-dev --optimize-autoloader
 npm ci --legacy-peer-deps
