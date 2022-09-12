@@ -485,6 +485,8 @@ sub ping {
     return (GORGONE_ACTION_BEGIN, { action => 'ping', message => 'ping ok', id => $options{id}, hostname => $options{gorgone}->{hostname}, data => $constatus }, 'PONG');
 }
 
+use Devel::Size;
+
 sub putlog {
     my (%options) = @_;
 
