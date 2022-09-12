@@ -19,8 +19,8 @@ env:
   version: "22.10"
 
 jobs:
-  phpstan-analysis:
-    name: phpstan static code analysis and code sniffer
+  phpstan-linting:
+    name: PHPCS Static analysis
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -40,6 +40,16 @@ jobs:
 
       - name: Show PHPCS results in PR
         run: cs2pr ./phpcs-report.xml
+
+  eslint:
+    name: ESLint Static analysis
+    runs-on: common
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Run ESLint
+        run: cd centreon && npm ci --legacy-peer-deps && npm run eslint
+        shell: bash
 
   centreon-test:
     runs-on: common
