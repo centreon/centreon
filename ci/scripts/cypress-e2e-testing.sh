@@ -2,10 +2,11 @@
 set -ex
 
 export CYPRESS_CACHE_FOLDER=$PWD/cypress_cache
+export CYPRESS_VERIFY_TIMEOUT=100000
 export HOME=$PWD/cache
 
 cd $MODULE/tests/e2e
 
-npm ci --legacy-peer-deps
+npm ci
 
-npm run cypress:run
+$(npm bin)/cypress run --quiet --browser chrome

@@ -32,6 +32,7 @@
         "webmozart/assert": "^1.8",
         "zircote/swagger-php": "^4.0",
         "pestphp/pest": "^1.21",
+        "friendsofphp/php-cs-fixer": "^3.10",
         "staabm/annotate-pull-request-from-checkstyle": "^1.8.3"
     },
     "require": {
@@ -131,6 +132,7 @@
         "codestyle:ci": "@codestyle --report=checkstyle --report-file=./build/checkstyle-be.xml --no-cache",
         "phpstan": "phpstan analyse -c phpstan.neon --level 6 --memory-limit=512M",
         "phpstan:ci": "@phpstan --error-format=absolute --no-interaction --no-progress",
-        "phpstan:core": "phpstan analyse -c phpstan.core.neon --memory-limit=1G"
+        "phpstan:core": "phpstan analyse -c phpstan.core.neon --memory-limit=1G",
+        "codestyle:core": "php-cs-fixer fix --dry-run --format=checkstyle > checkstyle.core.xml"
     }
 }
