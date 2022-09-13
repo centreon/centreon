@@ -33,6 +33,8 @@
  *
  */
 
+ lala
+
 class CentreonUserLog
 {
     private static $instance;
