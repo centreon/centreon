@@ -33,7 +33,6 @@
  *
  */
 
- lala
 
 class CentreonUserLog
 {
