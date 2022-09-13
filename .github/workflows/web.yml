@@ -57,11 +57,11 @@ jobs:
           php-version: 8.0
           coverage: none # disable xdebug, pcov
           tools: cs2pr
-      - run: cd centreon && composer install && cd .. && ./centreon/vendor/bin/phpstan analyse -c ./centreon/phpstan.neon --level 6 --memory-limit=512M --error-format=github --no-interaction --no-progress ${{ steps.files.outputs.added }} ${{ steps.files.outputs.modified }}
+      - run: cd centreon && composer install && cd .. && ./centreon/vendor/bin/phpstan analyse -c ./centreon/phpstan.neon --level 6 --memory-limit=512M --error-format=github --no-interaction --no-progress ${{ steps.files.outputs.added }} ${{ steps.files.outputs.modified }} > checkstyle-phpstan.xml
         continue-on-error: true
 
       - name: Show PHPStan results in PR
-        run: cs2pr ./centreon/checkstyle-phpstan.xml
+        run: cs2pr ./checkstyle-phpstan.xml
 
   eslint:
     name: ESLint Static analysis
