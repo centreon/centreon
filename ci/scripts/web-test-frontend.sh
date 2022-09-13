@@ -1,7 +1,8 @@
 #!/bin/bash 
 set -ex
 
+export CYPRESS_CACHE_FOLDER=$PWD/cypress_cache
+
 cd centreon
 npm ci --legacy-peer-deps
-npm run eslint -- -o checkstyle-fe.xml -f checkstyle
-npm run test:coverage -- --ci --reporters=jest-junit
+npm run test:coverage -- --ci
