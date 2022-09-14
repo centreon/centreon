@@ -1,5 +1,4 @@
-import { renderHook, waitFor } from '@testing-library/react';
-import { RenderHookResult } from '@testing-library/react-hooks';
+import { renderHook, waitFor, RenderHookResult } from '@testing-library/react';
 import fetchMock from 'jest-fetch-mock';
 import anyLogger from 'anylogger';
 

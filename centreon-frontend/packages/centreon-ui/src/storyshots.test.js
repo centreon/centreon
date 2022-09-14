@@ -5,16 +5,17 @@ jest.unmock('axios');
 
 const getMatchOptions = () => {
   return {
-    failureThreshold: 0.1,
+    failureThreshold: 0.2,
     failureThresholdType: 'percent',
   };
 };
-const beforeScreenshot = () => {
-  return new Promise((resolve) =>
-    setTimeout(() => {
-      resolve();
-    }, 600),
-  );
+
+const beforeScreenshot = async (page) => {
+  await page.setViewport({
+    height: 1000,
+    width: 1000,
+  });
+  await page.waitFor(600);
 };
 
 const getStoryKindRegex = () => {

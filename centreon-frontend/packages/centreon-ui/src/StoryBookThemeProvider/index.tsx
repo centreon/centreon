@@ -5,6 +5,7 @@ import {
   ThemeProvider as MuiThemeProvider,
   StyledEngineProvider,
   createTheme,
+  CssBaseline,
 } from '@mui/material';
 
 import { ThemeMode } from '@centreon/ui-context';
@@ -24,7 +25,10 @@ const StoryBookThemeProvider = ({
 
   return (
     <StyledEngineProvider injectFirst>
-      <MuiThemeProvider theme={theme}>{children}</MuiThemeProvider>
+      <MuiThemeProvider theme={theme}>
+        {children}
+        <CssBaseline />
+      </MuiThemeProvider>
     </StyledEngineProvider>
   );
 };

@@ -3,8 +3,7 @@ import * as React from 'react';
 import { isNil } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
-import { Alert, AlertTitle, Container } from '@mui/material';
-
+import { FallbackPage } from '../../../FallbackPage/FallbackPage';
 import { PageSkeleton, useFetchQuery } from '../../..';
 import { getModuleLicenseCheckEndpoint } from '../api';
 
@@ -13,6 +12,7 @@ import { License } from './models';
 import {
   labelContactYourAdministrator,
   labelInvalidLicense,
+  labelOops,
 } from './translatedLabels';
 
 export interface LicenseCheckProps {
@@ -31,12 +31,11 @@ const Content = ({ children, isValid }: ContentProps): JSX.Element => {
   return isValid ? (
     children
   ) : (
-    <Container maxWidth="sm">
-      <Alert severity="error">
-        <AlertTitle>{t(labelInvalidLicense)}</AlertTitle>
-        {t(labelContactYourAdministrator)}
-      </Alert>
-    </Container>
+    <FallbackPage
+      contactAdmin={t(labelContactYourAdministrator)}
+      message={t(labelInvalidLicense)}
+      title={t(labelOops)}
+    />
   );
 };
 
