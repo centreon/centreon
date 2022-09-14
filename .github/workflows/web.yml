@@ -19,7 +19,7 @@ env:
   version: "22.10"
 
 jobs:
-  phpstan-linting:
+  phpcs-linting:
     name: PHPCS Static analysis
     runs-on: ubuntu-latest
     steps:
@@ -40,6 +40,28 @@ jobs:
 
       - name: Show PHPCS results in PR
         run: cs2pr ./phpcs-report.xml
+
+  phpstan-linting:
+    name: PHPStan Static analysis
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Get changed files
+        id: files
+        uses: jitterbit/get-changed-files@v1
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: 8.0
+          coverage: none # disable xdebug, pcov
+          tools: cs2pr
+      - run: cd centreon && composer install && cd .. && ./centreon/vendor/bin/phpstan analyse -c ./centreon/phpstan.neon --level 6 --memory-limit=512M --error-format=github --no-interaction --no-progress ${{ steps.files.outputs.added }} ${{ steps.files.outputs.modified }} > checkstyle-phpstan.xml
+        continue-on-error: true
+
+      - name: Show PHPStan results in PR
+        run: cs2pr ./checkstyle-phpstan.xml
 
   eslint:
     name: ESLint Static analysis
