@@ -27,6 +27,11 @@ RUN apt-get -y update && \
     curl \
     gettext \
     php \
+    php-cli \
+    php-dom \
+    php-mbstring \
+    php-intl \
+    php-pdo \
     tar \
     devscripts \
     fakeroot \
