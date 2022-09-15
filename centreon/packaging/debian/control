@@ -1,0 +1,50 @@
+Source: centreon
+Section: net
+Priority: optional
+Maintainer: Matthieu Kermagoret <mkermagoret@centreon.com>
+Build-Depends: debhelper (>=10)
+Standards-Version: 3.9.8
+Homepage: https://github.com/centreon/centreon
+
+Package: centreon
+Architecture: all
+Depends: centreon-base-config-centreon-engine, centreon-database
+Description: Centreon installation entry point.
+
+Package: centreon-base-config-centreon-engine
+Architecture: all
+Depends: centreon-broker, centreon-web, centreon-poller-centreon-engine
+Description: The package contains base configuration for Centreon Engine and Centreon Broker.
+ It provides one default monitoring engine running with Centreon Engine and
+ two Centreon Broker instances to store real-time information in database and
+ performance data in RRD files.
+
+Package: centreon-common
+Architecture: all
+Description: Base package for all Centreon installations.
+
+Package: centreon-database
+Architecture: all
+Depends: mariadb-server
+Description: Install a database server optimized for use with Centreon.
+
+Package: centreon-poller-centreon-engine
+Architecture: all
+Depends: centreon-broker, centreon-engine,
+ centreon-plugin-applications-monitoring-centreon-central,
+ centreon-plugin-applications-monitoring-centreon-poller,
+ centreon-plugin-applications-protocol-dns,
+ centreon-plugin-applications-protocol-ldap,
+ centreon-plugin-hardware-printers-generic-snmp,
+ centreon-plugin-network-cisco-standard-snmp,
+ centreon-plugin-operatingsystems-linux-snmp,
+ centreon-plugin-operatingsystems-windows-snmp
+Description: This package add rights and default directories for a poller
+ managed by Centreon. This includes the default central poller.
+
+Package: centreon-web
+Architecture: all
+Depends: apache2, brotli, centreon-common
+Description: Centreon is a network, system, applicative supervision and monitoring tool,
+ it is based upon an effective Open Source monitoring engine : Centreon Engine.
+ Centreon provides a new frontend and new functionnalities to Centreon Engine.

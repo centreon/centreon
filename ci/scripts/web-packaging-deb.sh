@@ -4,10 +4,12 @@ set -ex
 
 cd centreon
 VERSION=$1
-COMMIT=$2
-now=`date +%s`
-
-export RELEASE="$now.$COMMIT"
+RELEASE=$2
+PROJECT="centreon"
+PHPVERSION="php80"
+DISTRIB="bullseye"
+AUTHOR="Luiz Costa"
+AUTHOR_EMAIL="me@luizgustavo.pro.br"
 export CYPRESS_CACHE_FOLDER=$PWD/cypress_cache
 
 composer install --no-dev --optimize-autoloader
@@ -27,17 +29,12 @@ done
 rm -rf lang
 cd ..
 
-if [ ! -d /root/rpmbuild/SOURCES ] ; then
-    mkdir -p /root/rpmbuild/{BUILD,BUILDROOT,RPMS,SOURCES,SPECS,SRPMS}
-fi
-rm -rf ../centreon-$VERSION
-mkdir ../centreon-$VERSION
-cp -rp centreon ../centreon-$VERSION/
-ls -lart ../centreon-$VERSION/centreon/
-tar czf /root/rpmbuild/SOURCES/centreon-$VERSION.tar.gz ../centreon-$VERSION
-rm -rf /root/rpmbuild/RPMS/*
-cp -rp centreon/packaging/src/* /root/rpmbuild/SOURCES/
-mv /root/rpmbuild/SOURCES/centreon-macroreplacement.centos7.txt /root/rpmbuild/SOURCES/centreon-macroreplacement.txt
-rpmbuild -ba centreon/packaging/centreon.spectemplate -D "VERSION $VERSION" -D "REL $RELEASE"
-cp -r /root/rpmbuild/RPMS/noarch/*.rpm .
-chmod 777 *.rpm
+tar czpvf centreon-$VERSION.tar.gz centreon
+cd centreon
+cp -rp packaging/debian .
+
+#packaging
+sed -i "s/^centreon:version=.*$/centreon:version=$(echo $VERSION | egrep -o '^[0-9][0-9].[0-9][0-9]')/" debian/substvars
+debmake -f "${AUTHOR}" -e "${AUTHOR_EMAIL}" -u "$VERSION" -r "${DISTRIB}"
+debuild-pbuilder
+cd ../

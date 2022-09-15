@@ -1,0 +1,28 @@
+#!/usr/bin/make -f
+
+export DH_VERBOSE=1
+
+%:
+	dh $@
+
+override_dh_auto_clean:
+
+override_dh_auto_build:
+	find . -type f | xargs -d '\n' sed -i -f debian/src/centreon-macroreplacement.txt
+	mv config/centreon.config.php.template config/centreon.config.php
+
+override_dh_auto_install:
+# centreon
+	install -d debian/centreon
+# centreon-base-config-centreon-engine
+	install -d debian/centreon-base-config-centreon-engine
+# centreon-common
+	install -d debian/centreon-common
+# centreon-database
+	install -d debian/centreon-database
+# centreon-poller-centreon-engine
+	install -d debian/centreon-poller-centreon-engine/etc/sudoers.d
+	cp debian/src/sudoersCentreonEngine debian/centreon-poller-centreon-engine/etc/sudoers.d/centreon
+# centreon-web
+	install -d debian/centreon-web/usr/share/centreon
+	cp -r .env .env.local.php container.php bootstrap.php composer.json GPL_LIB src vendor www api debian/centreon-web/usr/share/centreon/

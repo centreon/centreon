@@ -1,5 +1,5 @@
-name: "rpm-package"
-description: "Package RPM Centreon"
+name: "deb-package"
+description: "Package deb Centreon"
 inputs:
   module_name:
     description: "The package module name"
@@ -21,17 +21,17 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - name: Use cache RPM files
+    - name: Use cache DEB files
       uses: actions/cache@v3
       env:
-        cache-name-rpmbuild: cache-${{ github.sha }}-${{ github.run_id }}-rpmbuild-${{ inputs.module_name }}-${{ inputs.distrib }}
+        cache-name-debbuild: cache-${{ github.sha }}-${{ github.run_id }}-debbuild-${{ inputs.module_name }}-${{ inputs.distrib }}
       with:
-        path: ./*.rpm
-        key: ${{ env.cache-name-rpmbuild }}
+        path: ./*.deb
+        key: ${{ env.cache-name-debbuild }}
         restore-keys: |
-          ${{ env.cache-name-rpmbuild }}
+          ${{ env.cache-name-debbuild }}
 
-    - name: Publish RPMS to Nexus
+    - name: Publish debS to Nexus
       run: |
         if [[ -z "$GITHUB_HEAD_REF" ]];
         then

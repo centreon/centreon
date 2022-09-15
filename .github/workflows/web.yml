@@ -96,7 +96,7 @@ jobs:
           image_name: ${{ matrix.image }}
           image_version: ${{ env.version }}
 
-  centreon-packaging:
+  centreon-packaging-rpm:
     runs-on: common
 
     strategy:
@@ -106,8 +106,6 @@ jobs:
             distrib: el7
           - image: packaging-web-alma8
             distrib: el8
-          # - image: packaging-web-bullseye
-          #   distrib: bullseye
 
     steps:
       - name: Checkout sources
@@ -124,7 +122,7 @@ jobs:
       - name: Package
         uses: ./.github/actions/runner-docker
         with:
-          script_name: web-packaging
+          script_name: web-packaging-rpm
           image_name: ${{ matrix.image }}
           image_version: ${{ env.version }}
           params: ${{ env.version }}.${{ steps.get_version.outputs.minor_version }} ${{ steps.get_version.outputs.release }}
@@ -145,7 +143,7 @@ jobs:
           key: ${{ env.cache-name-rpmbuild }}-${{ matrix.distrib }}
 
   delivery-rpm:
-    needs: [centreon-packaging, centreon-test]
+    needs: [centreon-packaging-rpm, centreon-test]
 
     runs-on: common
     strategy:
@@ -162,6 +160,64 @@ jobs:
 
       - name: Delivery
         uses: ./.github/actions/rpm-delivery
+        with:
+          module_name: ${{ matrix.module_name }}
+          distrib: ${{ matrix.distrib }}
+          version: ${{ env.version }}
+          nexus_username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
+          nexus_password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
+  
+  centreon-packaging-deb:
+    runs-on: common
+    
+    strategy:
+      matrix:
+        include:
+          - image: packaging-licence-manager-bullseye
+            distrib: bullseye
+
+    steps: 
+      - name: Checkout sources
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      
+      - name: 'Get minor and release version'
+        uses: ./.github/actions/get-package-version
+        with:
+          module_name: ${{ env.module }}
+        id: get_version
+
+      - name: Package
+        uses: ./.github/actions/runner-docker
+        with:
+          script_name: web-packaging-deb
+          image_name: ${{ matrix.image }}
+          image_version: ${{ env.version }}
+          params: ${{ env.version }}.${{ steps.get_version.outputs.minor_version }} ${{ steps.get_version.outputs.release }}
+
+      - name: Use cache DEB files
+        uses: actions/cache@v3
+        env:
+          cache-name-debbuild: cache-${{ github.sha }}-${{ github.run_id }}-debbuild-web
+        with:
+          path: ./*.deb
+          key: ${{ env.cache-name-debbuild }}-${{ matrix.distrib }}
+
+  delivery-deb:
+    needs: [centreon-packaging-deb, centreon-test]
+    runs-on: common
+    strategy:
+      matrix:
+        include:
+          - module_name: web
+            distrib: bullseye
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v3
+
+      - name: Delivery
+        uses: ./.github/actions/deb-delivery
         with:
           module_name: ${{ matrix.module_name }}
           distrib: ${{ matrix.distrib }}

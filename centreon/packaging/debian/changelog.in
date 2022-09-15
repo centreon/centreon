@@ -1,0 +1,5 @@
+centreon (@VERSION@-@RELEASE@) UNRELEASED; urgency=medium
+
+  * Release.
+
+ -- Matthieu Kermagoret <mkermagoret@centreon.com>  Thu, 13 Jul 2017 10:40:36 +0200
