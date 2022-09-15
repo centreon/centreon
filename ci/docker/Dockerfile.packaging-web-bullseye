@@ -32,6 +32,7 @@ RUN apt-get -y update && \
     php-mbstring \
     php-intl \
     php-pdo \
+    php-curl \
     tar \
     devscripts \
     fakeroot \
