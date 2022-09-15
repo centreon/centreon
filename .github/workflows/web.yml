@@ -173,7 +173,7 @@ jobs:
     strategy:
       matrix:
         include:
-          - image: packaging-licence-manager-bullseye
+          - image: packaging-web-bullseye
             distrib: bullseye
 
     steps: 
