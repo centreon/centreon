@@ -226,7 +226,7 @@ jobs:
           nexus_password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
 
   create-and-push-docker:
-    needs: [centreon-packaging, centreon-test]
+    needs: [centreon-packaging-rpm, centreon-packaging-deb, centreon-test]
 
     runs-on: common
 
