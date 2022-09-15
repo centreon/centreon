@@ -55,7 +55,7 @@ const getBaseConfiguration = ({
   optimization: {
     splitChunks: {
       chunks: 'all',
-      maxSize: 800 * 1024,
+      maxSize: 400 * 1024,
     },
   },
   output: {
