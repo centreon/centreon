@@ -39,6 +39,9 @@ RUN apt-get -y update && \
     locales && \
     rm -rf /var/lib/apt/lists/* && \
     localedef -i en_US -c -f UTF-8 -A /usr/share/locale/locale.alias en_US.UTF-8 
+RUN RUN curl -fsSL https://deb.nodesource.com/setup_17.x | sudo -E bash - && \
+    apt-get -y update && \
+    apt-get -y install nodejs
 RUN php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');" && \
     php composer-setup.php --install-dir=/usr/local/bin --filename=composer && \
     chmod +x /usr/local/bin/composer
