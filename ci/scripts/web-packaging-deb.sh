@@ -15,7 +15,6 @@ export CYPRESS_CACHE_FOLDER=$PWD/cypress_cache
 composer install --no-dev --optimize-autoloader
 npm ci --legacy-peer-deps
 npm run build
-find ./www/include/Administration/about -type f | xargs --delimiter='\n' sed -i -e "s/@COMMIT@/$COMMIT/g"
 mkdir -p www/locale/en_US.UTF-8/LC_MESSAGES
 php bin/centreon-translations.php en lang/fr_FR.UTF-8/LC_MESSAGES/messages.po www/locale/en_US.UTF-8/LC_MESSAGES/messages.ser
 for i in lang/* ; do
