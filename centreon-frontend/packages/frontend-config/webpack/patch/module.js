@@ -28,14 +28,12 @@ class CentreonModulePlugin {
 }
 
 module.exports = ({
-  assetPublicPath,
   outputPath,
   federatedComponentConfiguration,
 }) => ({
   output: {
     library: '[chunkhash:8]',
     path: outputPath,
-    uniqueName: `wpJsonp-${assetPublicPath}`,
   },
   plugins: [
     new CleanWebpackPlugin({
