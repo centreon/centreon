@@ -148,7 +148,9 @@ jobs:
           key: ${{ env.cache-name-rpmbuild }}-${{ matrix.distrib }}
 
   delivery-rpm:
-    needs: [centreon-packaging, centreon-test]
+    # needs: [centreon-packaging, centreon-test]
+    needs: [centreon-packaging]
+
 
     runs-on: common
     strategy:
