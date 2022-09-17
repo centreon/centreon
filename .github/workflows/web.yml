@@ -22,82 +22,82 @@ env:
   version: "22.10"
 
 jobs:
-  phpcs-linting:
-    name: PHPCS Static analysis
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
+  # phpcs-linting:
+  #   name: PHPCS Static analysis
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v3
 
-      - name: Get changed files
-        id: files
-        uses: jitterbit/get-changed-files@v1
+  #     - name: Get changed files
+  #       id: files
+  #       uses: jitterbit/get-changed-files@v1
 
-      - name: Setup PHP
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: 8.0
-          coverage: none # disable xdebug, pcov
-          tools: cs2pr
-      - run: cd centreon && composer install && cd .. && ./centreon/vendor/bin/phpcs --extensions=php --standard=./centreon/ruleset.xml --report=checkstyle --report-file=./phpcs-report.xml ${{ steps.files.outputs.added }} ${{ steps.files.outputs.modified }}
-        continue-on-error: true
+  #     - name: Setup PHP
+  #       uses: shivammathur/setup-php@v2
+  #       with:
+  #         php-version: 8.0
+  #         coverage: none # disable xdebug, pcov
+  #         tools: cs2pr
+  #     - run: cd centreon && composer install && cd .. && ./centreon/vendor/bin/phpcs --extensions=php --standard=./centreon/ruleset.xml --report=checkstyle --report-file=./phpcs-report.xml ${{ steps.files.outputs.added }} ${{ steps.files.outputs.modified }}
+  #       continue-on-error: true
 
-      - name: Show PHPCS results in PR
-        run: cs2pr ./phpcs-report.xml
+  #     - name: Show PHPCS results in PR
+  #       run: cs2pr ./phpcs-report.xml
 
-  phpstan-linting:
-    name: PHPStan Static analysis
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
+  # phpstan-linting:
+  #   name: PHPStan Static analysis
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v3
 
-      - name: Get changed files
-        id: files
-        uses: jitterbit/get-changed-files@v1
+  #     - name: Get changed files
+  #       id: files
+  #       uses: jitterbit/get-changed-files@v1
 
-      - name: Setup PHP
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: 8.0
-          coverage: none # disable xdebug, pcov
-          tools: cs2pr
-      - run: cd centreon && composer install && cd .. && ./centreon/vendor/bin/phpstan analyse -c ./centreon/phpstan.neon --level 6 --memory-limit=512M --error-format=github --no-interaction --no-progress ${{ steps.files.outputs.added }} ${{ steps.files.outputs.modified }} > checkstyle-phpstan.xml
-        continue-on-error: true
+  #     - name: Setup PHP
+  #       uses: shivammathur/setup-php@v2
+  #       with:
+  #         php-version: 8.0
+  #         coverage: none # disable xdebug, pcov
+  #         tools: cs2pr
+  #     - run: cd centreon && composer install && cd .. && ./centreon/vendor/bin/phpstan analyse -c ./centreon/phpstan.neon --level 6 --memory-limit=512M --error-format=github --no-interaction --no-progress ${{ steps.files.outputs.added }} ${{ steps.files.outputs.modified }} > checkstyle-phpstan.xml
+  #       continue-on-error: true
 
-      - name: Show PHPStan results in PR
-        run: cs2pr ./checkstyle-phpstan.xml
+  #     - name: Show PHPStan results in PR
+  #       run: cs2pr ./checkstyle-phpstan.xml
 
-  eslint:
-    name: ESLint Static analysis
-    runs-on: common
-    container: node:lts-bullseye
-    steps:
-      - uses: actions/checkout@v3
+  # eslint:
+  #   name: ESLint Static analysis
+  #   runs-on: common
+  #   container: node:lts-bullseye
+  #   steps:
+  #     - uses: actions/checkout@v3
 
-      - name: Run ESLint
-        run: cd centreon && npm ci --legacy-peer-deps && npm run eslint
-        shell: bash
+  #     - name: Run ESLint
+  #       run: cd centreon && npm ci --legacy-peer-deps && npm run eslint
+  #       shell: bash
 
-  centreon-test:
-    runs-on: common
+  # centreon-test:
+  #   runs-on: common
 
-    strategy:
-      matrix:
-        include:
-          - rules: frontend
-            image: test-frontend-open-source-bullseye
-          - rules: backend
-            image: test-backend-open-source-alpine
+  #   strategy:
+  #     matrix:
+  #       include:
+  #         - rules: frontend
+  #           image: test-frontend-open-source-bullseye
+  #         - rules: backend
+  #           image: test-backend-open-source-alpine
 
-    steps:
-      - name: Checkout sources
-        uses: actions/checkout@v3
+  #   steps:
+  #     - name: Checkout sources
+  #       uses: actions/checkout@v3
 
-      - name: Test centreon
-        uses: ./.github/actions/runner-docker
-        with:
-          script_name: web-test-${{ matrix.rules }}
-          image_name: ${{ matrix.image }}
-          image_version: ${{ env.version }}
+  #     - name: Test centreon
+  #       uses: ./.github/actions/runner-docker
+  #       with:
+  #         script_name: web-test-${{ matrix.rules }}
+  #         image_name: ${{ matrix.image }}
+  #         image_version: ${{ env.version }}
 
   centreon-packaging:
     runs-on: common
@@ -107,8 +107,8 @@ jobs:
         include:
           - image: packaging-web-centos7
             distrib: el7
-          - image: packaging-web-alma8
-            distrib: el8
+          # - image: packaging-web-alma8
+          #   distrib: el8
           # - image: packaging-web-bullseye
           #   distrib: bullseye
 
@@ -157,8 +157,8 @@ jobs:
           - module_name: web
             distrib: el7
 
-          - module_name: web
-            distrib: el8
+          # - module_name: web
+          #   distrib: el8
     steps:
       - name: Checkout sources
         uses: actions/checkout@v3
