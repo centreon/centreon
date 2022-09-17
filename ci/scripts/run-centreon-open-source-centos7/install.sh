@@ -4,8 +4,6 @@ set -ex
 
 yum clean all
 yum install -y /tmp/*.rpm centreon-broker-cbd centreon-broker-influxdb
-# systemctl enable mariadb php-fpm httpd24-httpd gorgoned centreontrapd cbd centengine centreon
-# systemctl restart mariadb php-fpm httpd24-httpd gorgoned cbd centengine
 
 cp /tmp/centengine.sh /etc/init.d/centengine
 cp /tmp/cbd.sh /etc/init.d/cbd
@@ -37,5 +35,3 @@ cp /tmp/run.sh /usr/share/centreon/container.sh
 chmod +x /usr/share/centreon/container.sh
 yum clean all
 rm -rf /tmp/fresh
-
-

@@ -35,11 +35,7 @@ runs:
       shell: bash
 
     - name: exec docker ${{ inputs.project }} ${{ inputs.distrib }} 
-      run: docker exec -i -e --privileged ${{ inputs.project }}-${{ inputs.distrib }} /bin/bash -c "/tmp/install.sh"
-      shell: bash
-
-    - name: exec docker ${{ inputs.project }} ${{ inputs.distrib }} 
-      run: docker exec -i -e --privileged ${{ inputs.project }}-${{ inputs.distrib }} /bin/bash -c "/tmp/insert-standard-fixtures.sh"
+      run: docker exec -i -e --privileged ${{ inputs.project }}-${{ inputs.distrib }} /bin/bash -c "/tmp/fresh/insert-standard-fixtures.sh"
       shell: bash
 
     - name: commit docker ${{ inputs.project }} ${{ inputs.distrib }}
