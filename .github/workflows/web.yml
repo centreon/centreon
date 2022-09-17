@@ -6,12 +6,15 @@ on:
     paths:
       - ".github/workflows/centreon.yml"
       - "centreon/**"
+      - "ci/docker/Dockerfile.run-centreon-open-source-centos7"
   push:
     branches:
       - develop
     paths:
       - ".github/workflows/centreon.yml"
       - "centreon/**"
+      - "ci/docker/Dockerfile.run-centreon-open-source-centos7"
+
     tags:
       - centreon-22.10.**
 
