@@ -1,7 +1,20 @@
 FROM docker-proxy.registry.apps.centreon.com/centos:7
 
-COPY *.rpm /tmp/
-COPY ./ci/scripts/unattended.sh /tmp/unattended.sh
+ENV container docker
+
+RUN (cd /lib/systemd/system/sysinit.target.wants/; for i in *; do [ $i == systemd-tmpfiles-setup.service ] || rm -f $i; done); \
+rm -f /lib/systemd/system/multi-user.target.wants/*;\
+rm -f /etc/systemd/system/*.wants/*;\
+rm -f /lib/systemd/system/local-fs.target.wants/*; \
+rm -f /lib/systemd/system/sockets.target.wants/*udev*; \
+rm -f /lib/systemd/system/sockets.target.wants/*initctl*; \
+rm -f /lib/systemd/system/basic.target.wants/*;\
+rm -f /lib/systemd/system/anaconda.target.wants/*;
+
+# RUN yum update
+RUN rm -rf /tmp/*.rpm
+COPY ./*.rpm /tmp/
+COPY ./unattended.sh /tmp/unattended.sh
 RUN chmod +x /tmp/unattended.sh
 RUN /tmp/unattended.sh
 # COPY ./ci/scripts/run-centreon-open-source-centos7/ /tmp/fresh
@@ -31,3 +44,6 @@ RUN /tmp/unattended.sh
 # COPY ./ci/scripts/run-centreon-open-source-centos7/php-fpm/centreon-license-manager.conf /etc/php-fpm.d/centreon-license-manager.conf
 
 # ENTRYPOINT ["/usr/share/centreon/container.sh"]
+
+VOLUME [ "/sys/fs/cgroup" ]
+CMD ["/usr/sbin/init"]
