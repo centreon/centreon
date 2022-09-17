@@ -1,30 +1,33 @@
 FROM docker-proxy.registry.apps.centreon.com/centos:7
 
 COPY *.rpm /tmp/
-COPY ./ci/scripts/run-centreon-open-source-centos7/ /tmp/fresh
+COPY ./ci/scripts/unattended.sh /tmp/unattended.sh
+RUN chmod +x /tmp/unattended.sh
+RUN /tmp/unattended.sh
+# COPY ./ci/scripts/run-centreon-open-source-centos7/ /tmp/fresh
 
-# Install Centreon software.
-RUN yum clean all && \
-    yum install -y /tmp/rpms/centreon-*.rpm centreon-broker-cbd centreon-broker-influxdb libfaketime && \
-    cp /tmp/fresh/centengine.sh /etc/init.d/centengine && \
-    cp /tmp/fresh/cbd.sh /etc/init.d/cbd && \
-    chmod +x /etc/init.d/centengine /etc/init.d/cbd && \
-    cp /tmp/fresh/autoinstall.php /usr/share/centreon/autoinstall.php && \
-    cp /tmp/fresh/configuration/* /usr/share/centreon/www/install/tmp/ && \
-    chown -R apache.apache /usr/share/centreon/www/install/tmp && \
-    chmod +x /tmp/fresh/install.sh && \
-    touch /var/log/php-fpm/centreon-error.log && \
-    chown apache:apache /var/log/php-fpm/centreon-error.log && \
-    cp -r /tmp/fresh/run /usr/share/centreon/container.d && \
-    /tmp/fresh/install.sh && \
-    cp /tmp/fresh/run.sh /usr/share/centreon/container.sh && \
-    chmod +x /usr/share/centreon/container.sh && \
-    yum clean all && \
-    rm -rf /tmp/fresh
+# # Install Centreon software.
+# RUN yum clean all && \
+#     yum install -y /tmp/rpms/centreon-*.rpm centreon-broker-cbd centreon-broker-influxdb libfaketime && \
+#     cp /tmp/fresh/centengine.sh /etc/init.d/centengine && \
+#     cp /tmp/fresh/cbd.sh /etc/init.d/cbd && \
+#     chmod +x /etc/init.d/centengine /etc/init.d/cbd && \
+#     cp /tmp/fresh/autoinstall.php /usr/share/centreon/autoinstall.php && \
+#     cp /tmp/fresh/configuration/* /usr/share/centreon/www/install/tmp/ && \
+#     chown -R apache.apache /usr/share/centreon/www/install/tmp && \
+#     chmod +x /tmp/fresh/install.sh && \
+#     touch /var/log/php-fpm/centreon-error.log && \
+#     chown apache:apache /var/log/php-fpm/centreon-error.log && \
+#     cp -r /tmp/fresh/run /usr/share/centreon/container.d && \
+#     /tmp/fresh/install.sh && \
+#     cp /tmp/fresh/run.sh /usr/share/centreon/container.sh && \
+#     chmod +x /usr/share/centreon/container.sh && \
+#     yum clean all && \
+#     rm -rf /tmp/fresh
 
-RUN chmod +x /tmp/fresh/insert-standard-fixtures.sh
+# RUN chmod +x /tmp/fresh/insert-standard-fixtures.sh
 
-ENV CENTREON_IMP_SERVER HELLOWORLD:http://ci.int.centreon.com:3000
-COPY ./ci/scripts/run-centreon-open-source-centos7/php-fpm/centreon-license-manager.conf /etc/php-fpm.d/centreon-license-manager.conf
+# ENV CENTREON_IMP_SERVER HELLOWORLD:http://ci.int.centreon.com:3000
+# COPY ./ci/scripts/run-centreon-open-source-centos7/php-fpm/centreon-license-manager.conf /etc/php-fpm.d/centreon-license-manager.conf
 
-ENTRYPOINT ["/usr/share/centreon/container.sh"]
+# ENTRYPOINT ["/usr/share/centreon/container.sh"]
