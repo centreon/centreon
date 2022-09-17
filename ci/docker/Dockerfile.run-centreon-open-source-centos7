@@ -52,10 +52,10 @@ RUN yum clean all && \
 # COPY ./ci/scripts/sql/media.sql /tmp/media.sql
 # COPY ./ci/scripts/sql/openldap.sql /tmp/openldap.sql
 # COPY ./ci/scripts/insert-standard-fixtures.sh /tmp/insert-standard-fixtures.sh
-RUN chmod +x /tmp/insert-standard-fixtures.sh
+RUN chmod +x /tmp/fresh/insert-standard-fixtures.sh
 
 ENV CENTREON_IMP_SERVER HELLOWORLD:http://ci.int.centreon.com:3000
-COPY web/22.10/php-fpm/centreon-license-manager.conf /etc/php-fpm.d/centreon-license-manager.conf
+COPY ./ci/scripts/run-centreon-open-source-centos7/php-fpm/centreon-license-manager.conf /etc/php-fpm.d/centreon-license-manager.conf
 
 ENTRYPOINT ["/usr/share/centreon/container.sh"]
 
