@@ -518,15 +518,15 @@ function install_centreon_repo() {
 	log "INFO" "Centreon official repositories installation..."
 	$PKG_MGR -q clean all
 
-	rpm -q centreon-release-$CENTREON_MAJOR_VERSION >/dev/null 2>&1
-	if [ $? -ne 0 ]; then
-		$PKG_MGR -q install -y $RELEASE_RPM_URL
-		if [ $? -ne 0 ]; then
-			error_and_exit "Could not install Centreon repository"
-		fi
-	else
-		log "INFO" "Centreon repository seems to be already installed"
-	fi
+	# rpm -q centreon-release-$CENTREON_MAJOR_VERSION >/dev/null 2>&1
+	# if [ $? -ne 0 ]; then
+	$PKG_MGR -q install -y $RELEASE_RPM_URL
+	# 	if [ $? -ne 0 ]; then
+	# 		error_and_exit "Could not install Centreon repository"
+	# 	fi
+	# else
+	# 	log "INFO" "Centreon repository seems to be already installed"
+	# fi
 }
 #========= end of function install_centreon_repo()
 
