@@ -20,9 +20,8 @@ env:
 
 jobs:
   centreon-backend-linting-phpcs:
-    name: PHPCS Static analysis
     runs-on: common
-    container: ubuntu-latest
+    container: ubuntu:20.04
 
     steps:
       - uses: actions/checkout@v3
@@ -52,7 +51,7 @@ jobs:
     name: PHPStan Static analysis
     runs-on: common
 
-    container: ubuntu-latest
+    container: ubuntu:20.04
     steps:
       - uses: actions/checkout@v3
 
@@ -79,7 +78,6 @@ jobs:
           path: "checkstyle-phpstan.xml"
 
   centreon-frontend-linting:
-    name: ESLint Static analysis
     runs-on: common
     container: node:lts-bullseye
 
