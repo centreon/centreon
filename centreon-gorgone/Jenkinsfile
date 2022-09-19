@@ -2,8 +2,8 @@
 ** Variables.
 */
 def serie = '22.10'
-def maintenanceBranch = "${serie}.x"
-def qaBranch = "dev-${serie}.x"
+def maintenanceBranch = "master"
+def qaBranch = "develop"
 env.REF_BRANCH = 'master'
 env.PROJECT='centreon-gorgone'
 if (env.BRANCH_NAME.startsWith('release-')) {
