@@ -19,9 +19,11 @@ env:
   version: "22.10"
 
 jobs:
-  phpcs-linting:
+  centreon-backend-linting-phpcs:
     name: PHPCS Static analysis
-    runs-on: ubuntu-latest
+    runs-on: common
+    container: ubuntu-latest
+
     steps:
       - uses: actions/checkout@v3
 
@@ -35,15 +37,22 @@ jobs:
           php-version: 8.0
           coverage: none # disable xdebug, pcov
           tools: cs2pr
-      - run: cd centreon && composer install && cd .. && ./centreon/vendor/bin/phpcs --extensions=php --standard=./centreon/ruleset.xml --report=checkstyle --report-file=./phpcs-report.xml ${{ steps.files.outputs.added }} ${{ steps.files.outputs.modified }}
-        continue-on-error: true
+      - run: ./ci/scripts/web-lint-backend.phpcs.sh ${{ steps.files.outputs.added }} ${{ steps.files.outputs.modified }}
 
       - name: Show PHPCS results in PR
-        run: cs2pr ./phpcs-report.xml
+        if: ${{ always }}
+        run: cs2pr ./checkstyle-phpcs.xml
 
-  phpstan-linting:
+      - uses: jwgmeligmeyling/checkstyle-github-action@master
+        with:
+          name: centreon-phpcs-report
+          path: "checkstyle-phpcs.xml"
+
+  centreon-backend-linting-phpstan:
     name: PHPStan Static analysis
-    runs-on: ubuntu-latest
+    runs-on: common
+
+    container: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
 
@@ -57,16 +66,23 @@ jobs:
           php-version: 8.0
           coverage: none # disable xdebug, pcov
           tools: cs2pr
-      - run: cd centreon && composer install && cd .. && ./centreon/vendor/bin/phpstan analyse -c ./centreon/phpstan.neon --level 6 --memory-limit=512M --error-format=github --no-interaction --no-progress ${{ steps.files.outputs.added }} ${{ steps.files.outputs.modified }} > checkstyle-phpstan.xml
-        continue-on-error: true
+      - run: ./ci/scripts/web-lint-backend.phpstan.sh ${{ steps.files.outputs.added }} ${{ steps.files.outputs.modified }}
 
       - name: Show PHPStan results in PR
+        if: ${{ always() }}
         run: cs2pr ./checkstyle-phpstan.xml
 
-  eslint:
+      - name: Publish report
+        uses: jwgmeligmeyling/checkstyle-github-action@master
+        with:
+          name: centreon-phpstan-report
+          path: "checkstyle-phpstan.xml"
+
+  centreon-frontend-linting:
     name: ESLint Static analysis
     runs-on: common
     container: node:lts-bullseye
+
     steps:
       - uses: actions/checkout@v3
 
