@@ -18,6 +18,7 @@ on:
 env:
   version: "22.10"
 
+
 jobs:
   phpcs-linting:
     name: PHPCS Static analysis
