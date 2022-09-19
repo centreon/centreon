@@ -171,9 +171,9 @@ jobs:
         uses: EnricoMi/publish-unit-test-result-action@v2
         if: always()
         with:
-          check_name: "centreo-web-backend-unit-tests-report"
+          check_name: "centreon-web-backend-unit-tests-report"
           comment_mode: failures
-          junit_files: "centreon/**/junit.xml"
+          junit_files: "centreon/build/phpunit.xml"
 
   centreon-web-package:
     runs-on: ubuntu-22.04
