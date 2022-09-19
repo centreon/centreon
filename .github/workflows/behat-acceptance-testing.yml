@@ -1,0 +1,25 @@
+name: behat-acceptance-tests
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - MON-14946-migrate-behat-tests
+    paths:
+      - ".github/workflows/behat-acceptance-testing.yml"
+      - ".github/actions/behat-acceptance-testing/action.yml"
+
+jobs:
+  run-acceptance-test:
+    runs-on: common
+
+    steps:
+      - name: Checkout centreon-monorepoc-open-source
+        uses: actions/checkout@v3 
+
+      - name: Behat acceptance testing
+        uses: ./.github/actions/behat-acceptance-testing
+        with:
+          image: docker.registry.apps.centreon.com/run-centreon-open-source-centos7
+          image_version: develop
+          module: centreon
