@@ -140,7 +140,7 @@ jobs:
         working-directory: centreon
 
       - name: Unit test
-        run: npm t -- --silent --reporters=jest-junit --outputFile=junit-frontend.xml
+        run: npm t -- --silent --reporters=jest-junit
         working-directory: centreon
 
       - name: Publish report
@@ -149,7 +149,7 @@ jobs:
         with:
           check_name: "centreon-web-frontend-unit-tests-report"
           comment_mode: failures
-          junit_files: "centreon/junit-frontend.xml"
+          junit_files: "centreon/junit.xml"
 
   centreon-web-backend-unit-test:
     runs-on: ubuntu-22.04
