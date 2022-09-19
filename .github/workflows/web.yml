@@ -86,19 +86,20 @@ jobs:
           path: ./centreon/vendor
           key: ${{ github.sha }}-${{ github.run_id }}-vendor
 
-      # - name: Setup PHP
-      #   uses: shivammathur/setup-php@v2
-      #   with:
-      #     php-version: 8.0
-      #     coverage: none # disable xdebug, pcov
-      #     tools: cs2pr
-      # - run: |
-      #     ./centreon/vendor/bin/phpcs \
-      #       --extensions=php \
-      #       --standard=./centreon/ruleset.xml \
-      #       --report=checkstyle \
-      #       --report-file=./checkstyle-phpcs.xml \
-      #       ${{ steps.files.outputs.added }} ${{ steps.files.outputs.modified }}
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: 8.0
+          coverage: none # disable xdebug, pcov
+          tools: cs2pr
+          
+      - run: |
+          ./centreon/vendor/bin/phpcs \
+            --extensions=php \
+            --standard=./centreon/ruleset.xml \
+            --report=checkstyle \
+            --report-file=./checkstyle-phpcs.xml \
+            ${{ steps.files.outputs.added }} ${{ steps.files.outputs.modified }}
 
       - name: Show PHPCS results in PR
         if: ${{ always() }}
