@@ -148,10 +148,9 @@ jobs:
           node-version: 17
 
       - uses: actions/checkout@v3
-        
+
       - run: npm run eslint -- -o checkstyle.xml -f checkstyle --quiet
         working-directory: ${{ env.frontend_directory }}
-
 
       - uses: jwgmeligmeyling/checkstyle-github-action@master
         with:
