@@ -122,7 +122,7 @@ jobs:
         uses: jwgmeligmeyling/checkstyle-github-action@master
         with:
           name: centreon-web-eslint-report
-          path: ${{ env.frontend_directory }}/checkstyle-eslint.xml
+          path: ${{ env.frontend_directory }}/checkstyle.xml
 
   centreon-web-frontend-unit-test:
     runs-on: ubuntu-22.04
