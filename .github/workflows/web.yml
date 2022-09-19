@@ -40,7 +40,7 @@ jobs:
       - run: ./ci/scripts/web-lint-backend.phpcs.sh ${{ steps.files.outputs.added }} ${{ steps.files.outputs.modified }}
 
       - name: Show PHPCS results in PR
-        if: ${{ always }}
+        if: ${{ always() }}
         run: cs2pr ./checkstyle-phpcs.xml
 
       - uses: jwgmeligmeyling/checkstyle-github-action@master
