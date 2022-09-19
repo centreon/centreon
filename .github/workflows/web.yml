@@ -21,7 +21,7 @@ env:
 
 jobs:
   centreon-web-frontend-build:
-    runs-on: common
+    runs-on: ubuntu-22.04
 
     steps:
       - name: Checkout sources
@@ -31,19 +31,13 @@ jobs:
         with:
           node-version: 17
 
-      - name: Install frontend dependencies
+      - name: Install dependencies
         working-directory: centreon
         run: npm ci --legacy-peer-deps
 
-      - name: Build frontend
+      - name: Build
         working-directory: ${{ env.frontend_directory }}
         run: npm run build
-
-      - name: Cache node_modules directory
-        uses: actions/cache@v3
-        with:
-          path: ./centreon/www/front_src/node_modules
-          key: ${{ github.sha }}-${{ github.run_id }}-npm
 
       - name: Cache static directory
         uses: actions/cache@v3
@@ -51,35 +45,23 @@ jobs:
           path: ./centreon/www/static
           key: ${{ github.sha }}-${{ github.run_id }}-static
 
-  centreon-web-backend-install-dependencies:
-    runs-on: common
-    # container: ubuntu:latest
+  # centreon-web-backend-install-dependencies:
+  #   runs-on: ubuntu-22.04
 
-    steps:
-      - uses: actions/checkout@v3
+  #   steps:
+  #     - uses: actions/checkout@v3
 
-      - run: sudo apt-get update -y && sudo apt-get install libsodium-dev -y
+  #     - uses: shivammathur/setup-php@v2
+  #       with:
+  #         php-version: 8.0
+  #         coverage: none
+  #         # tools: none
 
-
-      - uses: shivammathur/setup-php@v2
-        with:
-          php-version: 8.0
-          coverage: none
-          # tools: none
-
-      - run: composer install --optimize autoloader
-        working-directory: centreon
-
-      - name: Cache vendor directory
-        uses: actions/cache@v3
-        with:
-          path: ./centreon/vendor
-          key: ${{ github.sha }}-${{ github.run_id }}-vendor
+  #     - run: composer install --optimize autoloader
+  #       working-directory: centreon
 
   centreon-web-backend-linting-phpcs:
-    runs-on: common
-    needs: [centreon-web-backend-install-dependencies]
-    # container: ubuntu:latest
+    runs-on: ubuntu-22.04
 
     steps:
       - uses: actions/checkout@v3
@@ -88,19 +70,18 @@ jobs:
         id: files
         uses: jitterbit/get-changed-files@v1
 
-      - name: Restore vendor directory
-        uses: actions/cache@v3
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
         with:
-          path: ./centreon/vendor
-          key: ${{ github.sha }}-${{ github.run_id }}-vendor
-      # - name: Setup PHP
-      #   uses: shivammathur/setup-php@v2
-      #   with:
-      #     php-version: 8.0
-      #     coverage: none # disable xdebug, pcov
-      #     tools: cs2pr
+          php-version: 8.0
+          coverage: none
+          tools: cs2pr
 
-      - run: |
+      - run: composer install
+        working-directory: centreon
+
+      - name: Lint
+        run: |
           ./centreon/vendor/bin/phpcs \
             --extensions=php \
             --standard=./centreon/ruleset.xml \
@@ -112,31 +93,32 @@ jobs:
         if: ${{ always() }}
         run: cs2pr checkstyle-phpcs.xml
 
-      - uses: jwgmeligmeyling/checkstyle-github-action@master
+      - name: Publish report
+        uses: jwgmeligmeyling/checkstyle-github-action@master
         with:
           name: centreon-phpcs-report
           path: checkstyle-phpcs.xml
 
   centreon-web-backend-linting-phpstan:
-    runs-on: common
-    needs: [centreon-web-backend-install-dependencies]
+    runs-on: ubuntu-22.04
 
     steps:
-      - uses: actions/checkout@v3
-
       - name: Get changed files
         id: files
         uses: jitterbit/get-changed-files@v1
 
-      - run: ln -s /usr/local/lib/libsodium.so.23.3.0 /usr/lib/libsodium.so.23
-
-      - uses: shivammathur/setup-php@v2
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
         with:
           php-version: 8.0
           coverage: none
           tools: cs2pr
 
-      - run: |
+      - run: composer install
+        working-directory: centreon
+
+      - name: Lint
+        run: |
           ./centreon/vendor/bin/phpstan \
             analyse -c ./centreon/phpstan.neon \
             --level 6 \
@@ -157,33 +139,7 @@ jobs:
           path: checkstyle-phpstan.xml
 
   centreon-web-frontend-linting:
-    runs-on: common
-    needs: [centreon-web-frontend-build]
-
-    steps:
-      - uses: actions/setup-node@v3
-        with:
-          node-version: 17
-
-      - uses: actions/checkout@v3      
-      
-      - name: Restore node_modules directory
-        uses: actions/cache@v3
-        with:
-          path: ./centreon/www/front_src/node_modules
-          key: ${{ github.sha }}-${{ github.run_id }}-npm
-
-      - run: npm run eslint -- -o checkstyle.xml -f checkstyle --quiet
-        working-directory: ${{ env.frontend_directory }}
-
-      - uses: jwgmeligmeyling/checkstyle-github-action@master
-        with:
-          name: centreon-web-eslint-report
-          path: ${{ env.frontend_directory }}/checkstyle-eslint.xml
-
-  centreon-web-frontend-unit-testing:
-    runs-on: common
-    needs: [centreon-web-frontend-build]
+    runs-on: ubuntu-22.04
 
     steps:
       - uses: actions/setup-node@v3
@@ -192,13 +148,36 @@ jobs:
 
       - uses: actions/checkout@v3
 
-      - name: Restore node_modules directory
-        uses: actions/cache@v3
-        with:
-          path: ./centreon/www/front_src/node_modules
-          key: ${{ github.sha }}-${{ github.run_id }}-npm
+      - name: Install dependencies
+        run: npm ci --legacy-peer-deps
+        working-directory: ${{ env.frontend_directory }}
 
-      - working-directory: ${{ env.frontend_directory }}
+      - name: Lint
+        run: npm run eslint -- -o checkstyle.xml -f checkstyle --quiet
+        working-directory: ${{ env.frontend_directory }}
+
+      - name: Publish report
+        uses: jwgmeligmeyling/checkstyle-github-action@master
+        with:
+          name: centreon-web-eslint-report
+          path: ${{ env.frontend_directory }}/checkstyle-eslint.xml
+
+  centreon-web-frontend-unit-testing:
+    runs-on: ubuntu-22.04
+
+    steps:
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 17
+
+      - uses: actions/checkout@v3
+
+      - name: Install dependencies
+        run: npm ci --legacy-peer-deps
+        working-directory: ${{ env.frontend_directory }}
+
+      - name: Unit test
+        working-directory: ${{ env.frontend_directory }}
         run: npm t -- --silent --reporters=jest-junit --outputFile=junit-frontend.xml
 
       - uses: jwgmeligmeyling/checkstyle-github-action@master
@@ -207,30 +186,29 @@ jobs:
           path: ${{ env.frontend_directory }}/junit-frontend.xml
 
   centreon-web-backend-unit-testing:
-    runs-on: common
-    needs: [centreon-web-backend-install-dependencies]
-
-    # container: docker.registry.apps.centreon.com/test-backend-alpine:22.10
+    runs-on: ubuntu-22.04
 
     steps:
       - name: Checkout sources
         uses: actions/checkout@v3
 
-      - uses: shivammathur/setup-php@v2
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
         with:
           php-version: 8.0
           coverage: none # disable xdebug, pcov
 
-      - name: Run unit tests
+      - name: Unit test
         working-directory: centreon
         run: XDEBUG_MODE=coverage composer run-script test:ci
 
-      - uses: EnricoMi/publish-unit-test-result-action@v2
+      - name: Publish report
+        uses: EnricoMi/publish-unit-test-result-action@v2
         if: always()
         with:
-          check_name: "autodiscovery-backend-unit-tests-report"
+          check_name: "centreo-web-backend-unit-tests-report"
           comment_mode: failures
-          junit_files: "centreon-autodiscovery/**/junit.xml"
+          junit_files: "centreon/**/junit.xml"
 
   # centreon-packaging:
   #   runs-on: common
