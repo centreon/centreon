@@ -58,7 +58,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - run: sudo ln -s /usr/local/lib/libsodium.so.23.3.0 /usr/lib/libsodium.so.23
+      - run: sudo ln -s /usr/local/lib/libsodium.so.23 /lib/x86_64-linux-gnu/libsodium.so.23
 
       - uses: shivammathur/setup-php@v2
         with:
