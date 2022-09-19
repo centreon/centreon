@@ -123,7 +123,7 @@ jobs:
         uses: jwgmeligmeyling/checkstyle-github-action@master
         with:
           name: centreon-web-eslint-report
-          path: checkstyle.xml
+          path: centreon/checkstyle.xml
 
   centreon-web-frontend-unit-test:
     runs-on: ubuntu-22.04
@@ -149,7 +149,7 @@ jobs:
         with:
           check_name: "centreon-web-frontend-unit-tests-report"
           comment_mode: failures
-          junit_files: "junit-frontend.xml"
+          junit_files: "centreon/junit-frontend.xml"
 
   centreon-web-backend-unit-test:
     runs-on: ubuntu-22.04
