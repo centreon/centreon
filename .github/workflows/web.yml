@@ -31,9 +31,12 @@ jobs:
         with:
           node-version: 17
 
+      - name: Install frontend dependencies
+        run: npm ci --legacy-peer-deps
+
       - name: Build frontend
-        run: ./ci/scripts/web-build-frontend.sh
-        shell: bash
+        working-directory: ${{ env.frontend_directory }}
+        run: npm run build
 
       - name: Cache node_modules directory
         uses: actions/cache@v3
@@ -54,12 +57,13 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Setup PHP
-        uses: shivammathur/setup-php@v2
+      - run: ln -s /usr/local/lib/libsodium.so.23.3.0 /usr/lib/libsodium.so.23
+
+      - uses: shivammathur/setup-php@v2
         with:
           php-version: 8.0
           coverage: none
-          tools: cs2pr
+          tools: none
 
       - run: composer install --optimize autoloader
 
@@ -85,13 +89,12 @@ jobs:
         with:
           path: ./centreon/vendor
           key: ${{ github.sha }}-${{ github.run_id }}-vendor
-
-      - name: Setup PHP
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: 8.0
-          coverage: none # disable xdebug, pcov
-          tools: cs2pr
+      # - name: Setup PHP
+      #   uses: shivammathur/setup-php@v2
+      #   with:
+      #     php-version: 8.0
+      #     coverage: none # disable xdebug, pcov
+      #     tools: cs2pr
 
       - run: |
           ./centreon/vendor/bin/phpcs \
@@ -121,8 +124,6 @@ jobs:
         id: files
         uses: jitterbit/get-changed-files@v1
 
-      - run: ln -s /usr/local/lib/libsodium.so.23.3.0 /usr/lib/libsodium.so.23
-
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
@@ -130,7 +131,15 @@ jobs:
           coverage: none # disable xdebug, pcov
           tools: cs2pr
 
-      - run: ./ci/scripts/web-lint-backend-phpstan.sh ${{ steps.files.outputs.added }} ${{ steps.files.outputs.modified }}
+      - run: |
+          ./centreon/vendor/bin/phpstan \
+            analyse -c ./centreon/phpstan.neon \
+            --level 6 \
+            --memory-limit=512M \
+            --error-format=checkstyle \
+            --no-interaction \
+            --no-progress $${{ steps.files.outputs.added }} ${{ steps.files.outputs.modified }} \
+            > checkstyle-phpstan.xml 
 
       - name: Show PHPStan results in PR
         if: ${{ always() }}
@@ -140,7 +149,7 @@ jobs:
         uses: jwgmeligmeyling/checkstyle-github-action@master
         with:
           name: centreon-phpstan-report
-          path: "checkstyle-eslint.xml"
+          path: checkstyle-phpstan.xml
 
   centreon-web-frontend-linting:
     runs-on: common
