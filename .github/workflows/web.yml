@@ -60,7 +60,7 @@ jobs:
           php-version: 8.0
           coverage: none
           tools: cs2pr
-          
+
       - run: composer install --optimize autoloader
 
       - name: Cache vendor directory
@@ -126,6 +126,7 @@ jobs:
           php-version: 8.0
           coverage: none # disable xdebug, pcov
           tools: cs2pr
+
       - run: ./ci/scripts/web-lint-backend-phpstan.sh ${{ steps.files.outputs.added }} ${{ steps.files.outputs.modified }}
 
       - name: Show PHPStan results in PR
@@ -147,9 +148,10 @@ jobs:
           node-version: 17
 
       - uses: actions/checkout@v3
+        
+      - run: npm run eslint -- -o checkstyle.xml -f checkstyle --quiet
         working-directory: ${{ env.frontend_directory }}
-        run: npm run eslint -- -o checkstyle.xml -f checkstyle --quiet
-        shell: bash
+
 
       - uses: jwgmeligmeyling/checkstyle-github-action@master
         with:
