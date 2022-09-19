@@ -167,7 +167,8 @@ jobs:
           node-version: 17
 
       - uses: actions/checkout@v3
-        working-directory: ${{ env.frontend_directory }}
+
+      - working-directory: ${{ env.frontend_directory }}
         run: npm t -- --silent --reporters=jest-junit --outputFile=junit-frontend.xml
 
       - uses: jwgmeligmeyling/checkstyle-github-action@master
