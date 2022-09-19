@@ -56,6 +56,7 @@ export interface InputProps {
     gridTemplateColumns?: string;
   };
   group: string;
+  hideInput?: (values: FormikValues) => boolean;
   label: string;
   radio?: {
     options?: Array<{

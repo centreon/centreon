@@ -16,6 +16,7 @@ const Switch = ({
   label,
   switchInput,
   getDisabled,
+  hideInput,
   additionalMemoProps,
 }: InputPropsWithoutGroup): JSX.Element => {
   const { t } = useTranslation();
@@ -36,9 +37,12 @@ const Switch = ({
     switchInput?.getChecked?.(prop(fieldName, values)) ??
     prop(fieldName, values);
   const disabled = getDisabled?.(values) || false;
+  const hidden = hideInput?.(values) || false;
 
   return useMemoComponent({
-    Component: (
+    Component: hidden ? (
+      <div />
+    ) : (
       <FormControlLabel
         control={
           <MUISwitch
@@ -51,7 +55,7 @@ const Switch = ({
         label={t(label) as string}
       />
     ),
-    memoProps: [value, disabled, additionalMemoProps],
+    memoProps: [value, disabled, additionalMemoProps, hidden],
   });
 };
 

@@ -16,6 +16,7 @@ const Text = ({
   required,
   getDisabled,
   getRequired,
+  hideInput,
   change,
   additionalMemoProps,
   text,
@@ -78,9 +79,12 @@ const Text = ({
 
   const disabled = getDisabled?.(values) || false;
   const isRequired = required || getRequired?.(values) || false;
+  const hidden = hideInput?.(values) || false;
 
   return useMemoComponent({
-    Component: (
+    Component: hidden ? (
+      <div />
+    ) : (
       <TextField
         fullWidth
         EndAdornment={passwordEndAdornment}
@@ -102,6 +106,7 @@ const Text = ({
       disabled,
       isRequired,
       additionalMemoProps,
+      hidden,
     ],
   });
 };

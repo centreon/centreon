@@ -1,5 +1,6 @@
 import { useFormikContext } from 'formik';
 import * as Yup from 'yup';
+import { equals } from 'ramda';
 
 import { Typography } from '@mui/material';
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
@@ -17,6 +18,7 @@ import {
 export interface BasicForm {
   active: boolean;
   animals: Array<SelectEntry>;
+  anotherText: string;
   class: { id: number; name: string } | null;
   custom: string;
   email: string;
@@ -41,6 +43,7 @@ const selectEntryValidationSchema = Yup.object().shape({
 export const basicFormValidationSchema = Yup.object().shape({
   active: Yup.boolean().required('Active is required'),
   animals: Yup.array().of(selectEntryValidationSchema.required('Required')),
+  anotherText: Yup.string(),
   class: selectEntryValidationSchema.nullable().required('Required'),
   custom: Yup.string().required('Custom is required'),
   email: Yup.string().email('Invalid email').required('Email is required'),
@@ -162,6 +165,13 @@ export const basicFormInputs: Array<InputProps> = [
       ],
     },
     type: InputType.Radio,
+  },
+  {
+    fieldName: 'anotherText',
+    group: 'First group',
+    hideInput: ({ language }) => equals(language, 'French'),
+    label: 'Another Text input',
+    type: InputType.Text,
   },
   {
     fieldName: 'isForced',
