@@ -119,10 +119,11 @@ jobs:
         working-directory: ${{ env.frontend_directory }}
 
       - name: Publish report
+        if: ${{ always() }}
         uses: jwgmeligmeyling/checkstyle-github-action@master
         with:
           name: centreon-web-eslint-report
-          path: ${{ env.frontend_directory }}/checkstyle.xml
+          path: centreon/**/checkstyle.xml
 
   centreon-web-frontend-unit-test:
     runs-on: ubuntu-22.04
