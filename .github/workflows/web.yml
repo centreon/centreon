@@ -87,8 +87,8 @@ jobs:
             --memory-limit=512M \
             --error-format=checkstyle \
             --no-interaction \
-            --no-progress $${{ steps.files.outputs.added }} ${{ steps.files.outputs.modified }} \
-            > checkstyle-phpstan.xml 
+            --no-progress ${{ steps.files.outputs.added }} ${{ steps.files.outputs.modified }} \
+            > checkstyle-phpstan.xml
 
       - name: Show PHPStan results in PR
         if: ${{ always() }}
@@ -161,10 +161,11 @@ jobs:
 
       - name: Install dependencies
         run: composer install --optimize-autoloader
+        working-directory: centreon
 
       - name: Unit test
-        working-directory: centreon
         run: XDEBUG_MODE=coverage composer run-script test:ci
+        working-directory: centreon
 
       - name: Publish report
         uses: EnricoMi/publish-unit-test-result-action@v2
@@ -176,11 +177,13 @@ jobs:
 
   centreon-web-package:
     runs-on: ubuntu-22.04
-    needs: [
-      centreon-web-backend-lint-phpcs,
-      centreon-web-backend-lint-phpstan,
-      centreon-web-frontend-lint,
-      centreon-web-frontend-unit-test
+    needs:
+      [
+        centreon-web-backend-lint-phpcs,
+        centreon-web-backend-lint-phpstan,
+        centreon-web-backend-unit-test,
+        centreon-web-frontend-lint,
+        centreon-web-frontend-unit-test,
       ]
 
     strategy:
@@ -227,31 +230,6 @@ jobs:
         with:
           path: ./*.rpm
           key: ${{ env.cache-name-rpmbuild }}-${{ matrix.distrib }}
-
-  centreon-web-deliver-packages:
-    runs-on: ubuntu-22.04
-    needs: [centreon-web-package]
-
-    strategy:
-      matrix:
-        include:
-          - module_name: web
-            distrib: el7
-
-          - module_name: web
-            distrib: el8
-    steps:
-      - name: Checkout sources
-        uses: actions/checkout@v3
-
-      - name: Delivery
-        uses: ./.github/actions/rpm-delivery
-        with:
-          module_name: ${{ matrix.module_name }}
-          distrib: ${{ matrix.distrib }}
-          version: ${{ env.version }}
-          nexus_username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
-          nexus_password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
 
   centreon-web-dockerize:
     runs-on: ubuntu-22.04
@@ -306,6 +284,32 @@ jobs:
         with:
           name: cypress-videos
           path: centreon/tests/e2e/cypress/results/video
+
+  centreon-web-deliver-packages:
+    runs-on: ubuntu-22.04
+    needs: [centreon-web-test-e2e]
+
+    strategy:
+      matrix:
+        include:
+          - module_name: web
+            distrib: el7
+
+          - module_name: web
+            distrib: el8
+
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v3
+
+      - name: Delivery
+        uses: ./.github/actions/rpm-delivery
+        with:
+          module_name: ${{ matrix.module_name }}
+          distrib: ${{ matrix.distrib }}
+          version: ${{ env.version }}
+          nexus_username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
+          nexus_password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
 
   centreon-web-test-performances:
     runs-on: ubuntu-22.04
