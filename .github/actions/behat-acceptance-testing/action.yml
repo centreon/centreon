@@ -25,3 +25,6 @@ runs:
       with:
         php-version: 8.0
         coverage: none
+
+    - name: Composer install
+      run: cd centreon && composer install --ignore-platform-reqs 
