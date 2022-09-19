@@ -17,11 +17,60 @@ on:
 
 env:
   version: "22.10"
+  frontend_directory: centreon/www/front_src/src
 
 jobs:
-  centreon-backend-linting-phpcs:
+  centreon-web-frontend-build:
     runs-on: common
-    container: ubuntu:latest
+
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v3
+
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 17
+
+      - name: Build frontend
+        run: ./ci/scripts/web-build-frontend.sh
+        shell: bash
+
+      - name: Cache node_modules directory
+        uses: actions/cache@v3
+        with:
+          path: ./centreon/www/front_src/node_modules
+          key: ${{ github.sha }}-${{ github.run_id }}-npm
+
+      - name: Cache static directory
+        uses: actions/cache@v3
+        with:
+          path: ./centreon/www/static
+          key: ${{ github.sha }}-${{ github.run_id }}-static
+
+  centreon-web-backend-install-dependencies:
+    runs-on: common
+    # container: ubuntu:latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: 8.0
+          coverage: none
+          tools: cs2pr
+      - run: composer install --optimize autoloader
+
+      - name: Cache vendor directory
+        uses: actions/cache@v3
+        with:
+          path: ./centreon/vendor
+          key: ${{ github.sha }}-${{ github.run_id }}-vendor
+
+  centreon-web-backend-linting-phpcs:
+    runs-on: common
+    # container: ubuntu:latest
 
     steps:
       - uses: actions/checkout@v3
@@ -30,24 +79,36 @@ jobs:
         id: files
         uses: jitterbit/get-changed-files@v1
 
-      - name: Setup PHP
-        uses: shivammathur/setup-php@v2
+      - name: Restore vendor directory
+        uses: actions/cache@v3
         with:
-          php-version: 8.0
-          coverage: none # disable xdebug, pcov
-          tools: cs2pr
-      - run: ./ci/scripts/web-lint-backend-phpcs.sh ${{ steps.files.outputs.added }} ${{ steps.files.outputs.modified }}
+          path: ./centreon/vendor
+          key: ${{ github.sha }}-${{ github.run_id }}-vendor
+
+      # - name: Setup PHP
+      #   uses: shivammathur/setup-php@v2
+      #   with:
+      #     php-version: 8.0
+      #     coverage: none # disable xdebug, pcov
+      #     tools: cs2pr
+      - run: |
+        ./centreon/vendor/bin/phpcs \
+          --extensions=php \
+          --standard=./centreon/ruleset.xml \
+          --report=checkstyle \
+          --report-file=./checkstyle-phpcs.xml \
+          ${{ steps.files.outputs.added }} ${{ steps.files.outputs.modified }}
 
       - name: Show PHPCS results in PR
         if: ${{ always() }}
-        run: cs2pr ./checkstyle-phpcs.xml
+        run: cs2pr checkstyle-phpcs.xml
 
       - uses: jwgmeligmeyling/checkstyle-github-action@master
         with:
           name: centreon-phpcs-report
-          path: "checkstyle-phpcs.xml"
+          path: checkstyle-phpcs.xml
 
-  centreon-backend-linting-phpstan:
+  centreon-web-backend-linting-phpstan:
     runs-on: common
     container: ubuntu:latest
 
@@ -74,40 +135,66 @@ jobs:
         uses: jwgmeligmeyling/checkstyle-github-action@master
         with:
           name: centreon-phpstan-report
-          path: "checkstyle-phpstan.xml"
+          path: "checkstyle-eslint.xml"
 
-  centreon-frontend-linting:
+  centreon-web-frontend-linting:
     runs-on: common
-    container: node:lts-bullseye
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 17
 
-      - name: Run ESLint
-        run: cd centreon && npm ci --legacy-peer-deps && npm run eslint
+      - uses: actions/checkout@v3
+        working-directory: ${{ env.frontend_directory }}
+        run: npm run eslint -- -o checkstyle.xml -f checkstyle --quiet
         shell: bash
 
-  centreon-test:
+      - uses: jwgmeligmeyling/checkstyle-github-action@master
+        with:
+          name: centreon-web-eslint-report
+          path: ${{ env.frontend_directory }}/checkstyle-eslint.xml
+
+  centreon-web-frontend-unit-testing:
     runs-on: common
 
-    strategy:
-      matrix:
-        include:
-          - rules: frontend
-            image: test-frontend-open-source-bullseye
-          - rules: backend
-            image: test-backend-open-source-alpine
+    steps:
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 17
+
+      - uses: actions/checkout@v3
+        working-directory: ${{ env.frontend_directory }}
+        run: npm t -- --silent --reporters=jest-junit --outputFile=junit-frontend.xml
+
+      - uses: jwgmeligmeyling/checkstyle-github-action@master
+        with:
+          name: centreon-web-eslint-report
+          path: ${{ env.frontend_directory }}/junit-frontend.xml
+
+  centreon-web-backend-unit-testing:
+    runs-on: common
+    # container: docker.registry.apps.centreon.com/test-backend-alpine:22.10
 
     steps:
       - name: Checkout sources
         uses: actions/checkout@v3
 
-      - name: Test centreon
-        uses: ./.github/actions/runner-docker
+      - uses: shivammathur/setup-php@v2
         with:
-          script_name: web-test-${{ matrix.rules }}
-          image_name: ${{ matrix.image }}
-          image_version: ${{ env.version }}
+          php-version: 8.0
+          coverage: none # disable xdebug, pcov
+
+      - name: Run unit tests
+        run: ./ci/scripts/autodisco-test-backend.sh
+        shell: bash
+
+      - uses: EnricoMi/publish-unit-test-result-action@v2
+        if: always()
+        with:
+          check_name: "autodiscovery-backend-unit-tests-report"
+          comment_mode: failures
+          junit_files: "centreon-autodiscovery/**/junit.xml"
 
   centreon-packaging:
     runs-on: common
