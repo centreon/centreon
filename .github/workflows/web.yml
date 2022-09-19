@@ -176,7 +176,7 @@ jobs:
         with:
           check_name: "centreon-web-backend-unit-tests-report"
           comment_mode: failures
-          junit_files: "centreon/**/junit-frontend.xml"
+          junit_files: "centreon/**/phpunit.xml"
 
   centreon-web-package:
     runs-on: common
