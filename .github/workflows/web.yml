@@ -246,3 +246,18 @@ jobs:
         with:
           name: lighthouse-report
           path: centreon/lighthouse/report/lighthouseci-index.html
+
+  behat-acceptance-testing:
+    needs: [create-and-push-docker]
+    runs-on: common
+
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v3
+
+      - name: Behat acceptance testing
+        uses: ./.github/actions/behat-acceptance-testing
+        with:
+          image: docker.registry.apps.centreon.com/run-centreon-open-source-centos7
+          image_version: ${{ github.head_ref || github.ref_name }}
+          module: centreon
