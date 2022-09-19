@@ -92,7 +92,7 @@ jobs:
           php-version: 8.0
           coverage: none # disable xdebug, pcov
           tools: cs2pr
-          
+
       - run: |
           ./centreon/vendor/bin/phpcs \
             --extensions=php \
@@ -120,6 +120,8 @@ jobs:
       - name: Get changed files
         id: files
         uses: jitterbit/get-changed-files@v1
+
+      - run: ln -s /usr/local/lib/libsodium.so.23.3.0 /usr/lib/libsodium.so.23
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
