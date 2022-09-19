@@ -36,7 +36,7 @@ jobs:
           php-version: 8.0
           coverage: none # disable xdebug, pcov
           tools: cs2pr
-      - run: ./ci/scripts/web-lint-backend.phpcs.sh ${{ steps.files.outputs.added }} ${{ steps.files.outputs.modified }}
+      - run: ./ci/scripts/web-lint-backend-phpcs.sh ${{ steps.files.outputs.added }} ${{ steps.files.outputs.modified }}
 
       - name: Show PHPCS results in PR
         if: ${{ always() }}
@@ -64,7 +64,7 @@ jobs:
           php-version: 8.0
           coverage: none # disable xdebug, pcov
           tools: cs2pr
-      - run: ./ci/scripts/web-lint-backend.phpstan.sh ${{ steps.files.outputs.added }} ${{ steps.files.outputs.modified }}
+      - run: ./ci/scripts/web-lint-backend-phpstan.sh ${{ steps.files.outputs.added }} ${{ steps.files.outputs.modified }}
 
       - name: Show PHPStan results in PR
         if: ${{ always() }}
