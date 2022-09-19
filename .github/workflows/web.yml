@@ -153,6 +153,7 @@ jobs:
 
   centreon-web-frontend-linting:
     runs-on: common
+    needs: [centreon-web-frontend-build]
 
     steps:
       - uses: actions/setup-node@v3
@@ -171,6 +172,7 @@ jobs:
 
   centreon-web-frontend-unit-testing:
     runs-on: common
+    needs: [centreon-web-frontend-build]
 
     steps:
       - uses: actions/setup-node@v3
