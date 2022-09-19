@@ -142,10 +142,13 @@ jobs:
         working-directory: ${{ env.frontend_directory }}
         run: npm t -- --silent --reporters=jest-junit --outputFile=junit-frontend.xml
 
-      - uses: jwgmeligmeyling/checkstyle-github-action@master
+      - name: Publish report
+        uses: EnricoMi/publish-unit-test-result-action@v2
+        if: always()
         with:
-          name: centreon-web-eslint-report
-          path: ${{ env.frontend_directory }}/junit-frontend.xml
+          check_name: "centreon-web-frontend-unit-tests-report"
+          comment_mode: failures
+          junit_files: "centreon/**/junit-frontend.xml"
 
   centreon-web-backend-unit-test:
     runs-on: ubuntu-22.04
@@ -173,10 +176,10 @@ jobs:
         with:
           check_name: "centreon-web-backend-unit-tests-report"
           comment_mode: failures
-          junit_files: "centreon/build/phpunit.xml"
+          junit_files: "centreon/**/junit-frontend.xml"
 
   centreon-web-package:
-    runs-on: ubuntu-22.04
+    runs-on: common
     needs:
       [
         centreon-web-backend-lint-phpcs,
@@ -232,7 +235,7 @@ jobs:
           key: ${{ env.cache-name-rpmbuild }}-${{ matrix.distrib }}
 
   centreon-web-dockerize:
-    runs-on: ubuntu-22.04
+    runs-on: common
     needs: [centreon-web-package]
 
     strategy:
@@ -263,7 +266,7 @@ jobs:
           module_name: ${{ matrix.module_name }}
 
   centreon-web-test-e2e:
-    runs-on: ubuntu-22.04
+    runs-on: common
     needs: [centreon-web-dockerize]
 
     steps:
@@ -286,7 +289,7 @@ jobs:
           path: centreon/tests/e2e/cypress/results/video
 
   centreon-web-deliver-packages:
-    runs-on: ubuntu-22.04
+    runs-on: common
     needs: [centreon-web-test-e2e]
 
     strategy:
@@ -312,7 +315,7 @@ jobs:
           nexus_password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
 
   centreon-web-test-performances:
-    runs-on: ubuntu-22.04
+    runs-on: common
     needs: [centreon-web-dockerize]
 
     steps:
