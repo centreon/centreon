@@ -64,7 +64,7 @@ jobs:
         with:
           php-version: 8.0
           coverage: none
-          tools: none
+          # tools: none
 
       - run: composer install --optimize autoloader
         working-directory: centreon
