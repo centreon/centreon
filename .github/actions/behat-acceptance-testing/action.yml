@@ -25,7 +25,7 @@ runs:
       with:
         php-version: 8.0
         coverage: none
-        extentions: libsodium
+        extensions: libsodium
 
     - name: Composer install
       shell: bash
