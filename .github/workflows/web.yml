@@ -17,7 +17,7 @@ on:
 
 env:
   version: "22.10"
-  frontend_directory: centreon/www/front_src/src
+  frontend_directory: ./centreon/www/front_src/src
 
 jobs:
   centreon-web-frontend-build:
@@ -58,7 +58,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - run: ln -s /usr/local/lib/libsodium.so.23.3.0 /usr/lib/libsodium.so.23
+      - run: sudo ln -s /usr/local/lib/libsodium.so.23.3.0 /usr/lib/libsodium.so.23
 
       - uses: shivammathur/setup-php@v2
         with:
@@ -67,6 +67,7 @@ jobs:
           tools: none
 
       - run: composer install --optimize autoloader
+        working-directory: centreon
 
       - name: Cache vendor directory
         uses: actions/cache@v3
@@ -116,7 +117,6 @@ jobs:
 
   centreon-web-backend-linting-phpstan:
     runs-on: common
-    container: ubuntu:latest
 
     steps:
       - uses: actions/checkout@v3
@@ -125,11 +125,12 @@ jobs:
         id: files
         uses: jitterbit/get-changed-files@v1
 
-      - name: Setup PHP
-        uses: shivammathur/setup-php@v2
+      - run: ln -s /usr/local/lib/libsodium.so.23.3.0 /usr/lib/libsodium.so.23
+
+      - uses: shivammathur/setup-php@v2
         with:
           php-version: 8.0
-          coverage: none # disable xdebug, pcov
+          coverage: none
           tools: cs2pr
 
       - run: |
@@ -161,7 +162,13 @@ jobs:
         with:
           node-version: 17
 
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v3      
+      
+      - name: Restore node_modules directory
+        uses: actions/cache@v3
+        with:
+          path: ./centreon/www/front_src/node_modules
+          key: ${{ github.sha }}-${{ github.run_id }}-npm
 
       - run: npm run eslint -- -o checkstyle.xml -f checkstyle --quiet
         working-directory: ${{ env.frontend_directory }}
@@ -181,6 +188,12 @@ jobs:
           node-version: 17
 
       - uses: actions/checkout@v3
+
+      - name: Restore node_modules directory
+        uses: actions/cache@v3
+        with:
+          path: ./centreon/www/front_src/node_modules
+          key: ${{ github.sha }}-${{ github.run_id }}-npm
 
       - working-directory: ${{ env.frontend_directory }}
         run: npm t -- --silent --reporters=jest-junit --outputFile=junit-frontend.xml
@@ -204,8 +217,8 @@ jobs:
           coverage: none # disable xdebug, pcov
 
       - name: Run unit tests
-        run: ./ci/scripts/autodisco-test-backend.sh
-        shell: bash
+        working-directory: centreon
+        run: XDEBUG_MODE=coverage composer run-script test:ci
 
       - uses: EnricoMi/publish-unit-test-result-action@v2
         if: always()
