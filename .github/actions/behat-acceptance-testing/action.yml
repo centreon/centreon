@@ -27,4 +27,5 @@ runs:
         coverage: none
 
     - name: Composer install
+      shell: bash
       run: cd centreon && composer install --ignore-platform-reqs 
