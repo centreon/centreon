@@ -1349,7 +1349,9 @@ Output: {$service.output|substr:0:1024}
         do {
             $timeleft = $timeout - time();
             $read = array($pipes[1]);
-            stream_select($read, $write = null, $exeptions = null, $timeleft, null);
+            $write = null;
+            $exceptions = null;
+            stream_select($read, $write, $exceptions, $timeleft, null);
 
             if (!empty($read)) {
                 $output .= fread($pipes[1], 8192);
