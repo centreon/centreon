@@ -7,6 +7,6 @@ RUN apt-get -y update && apt-get -y dist-upgrade \
   && echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/debian $(lsb_release -cs) stable" | tee /etc/apt/sources.list.d/docker.list > /dev/null \
   && apt-get update -y \
   && apt-get install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin libsodium-dev \
-  && wget -O- https://packages.sury.org/php/apt.gpg | gpg --dearmor -o /etc/apt/keyrings/sury.gpg \
   && wget -O- https://packages.sury.org/php/apt.gpg | gpg --dearmor | tee /etc/apt/trusted.gpg.d/php.gpg  > /dev/null 2>&1 \
+  && echo "deb https://packages.sury.org/php/ $(lsb_release -sc) main" | tee /etc/apt/sources.list.d/sury-php.list \
   && apt-get update -y && apt-get install php8.0-fpm php8.0-cli
