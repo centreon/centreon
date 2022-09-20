@@ -20,13 +20,12 @@ runs:
       with:
         version: '2.10.2'
 
+    - name: Install libsodium
+      shell: bash
+      run: yum install epel-release && yum install libsodium libsodium-devel
+
     - name: Install PHP
       uses: shivammathur/setup-php@v2
       with:
         php-version: 8.0
         coverage: none
-        extensions: libsodium
-
-    - name: Composer install
-      shell: bash
-      run: cd centreon && composer install --ignore-platform-reqs --no-interaction --no-progress --ansi
