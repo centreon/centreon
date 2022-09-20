@@ -18,9 +18,9 @@ if (env.BRANCH_NAME.startsWith('release-')) {
   env.BUILD = 'CI'
 }
 
-def buildBranch = env.BRANCH_NAME
+env.BUILD_BRANCH = env.BRANCH_NAME
 if (env.CHANGE_BRANCH) {
-  buildBranch = env.CHANGE_BRANCH
+  env.BUILD_BRANCH = env.CHANGE_BRANCH
 }
 
 /*
@@ -30,23 +30,18 @@ def isStableBuild() {
   return ((env.BUILD == 'REFERENCE') || (env.BUILD == 'QA'))
 }
 
-def checkoutCentreonBuild(buildBranch) {
-  def getCentreonBuildGitConfiguration = { branchName -> [
-    $class: 'GitSCM',
-    branches: [[name: "refs/heads/${branchName}"]],
-    doGenerateSubmoduleConfigurations: false,
-    userRemoteConfigs: [[
-      $class: 'UserRemoteConfig',
-      url: "ssh://git@github.com/centreon/centreon-build.git"
-    ]]
-  ]}
-
+def checkoutCentreonBuild() {
   dir('centreon-build') {
-    try {
-      checkout(getCentreonBuildGitConfiguration(buildBranch))
-    } catch(e) {
-      echo "branch '${buildBranch}' does not exist in centreon-build, then fallback to master"
-      checkout(getCentreonBuildGitConfiguration('master'))
+    retry(3) {
+      checkout resolveScm(
+        source: [
+          $class: 'GitSCMSource',
+          remote: 'https://github.com/centreon/centreon-build.git',
+          credentialsId: 'technique-ci',
+          traits: [[$class: 'jenkins.plugins.git.traits.BranchDiscoveryTrait']]
+        ],
+        targets: [env.BUILD_BRANCH, 'master']
+      )
     }
   }
 }
@@ -56,7 +51,7 @@ def checkoutCentreonBuild(buildBranch) {
 */
 stage('Deliver sources') {
   node {
-    checkoutCentreonBuild(buildBranch)
+    checkoutCentreonBuild()
     dir('centreon-dsm') {
       checkout scm
     }
@@ -79,7 +74,7 @@ try {
   stage('Unit tests // RPM/DEB Packaging // Sonar analysis') {
     parallel 'unit tests centos7': {
       node {
-        checkoutCentreonBuild(buildBranch)
+        checkoutCentreonBuild()
         sh "./centreon-build/jobs/dsm/${serie}/dsm-unittest.sh centos7"
 
         if (env.CHANGE_ID) { // pull request to comment with coding style issues
@@ -121,7 +116,7 @@ try {
     },
     'RPM Packaging centos7': {
       node {
-        checkoutCentreonBuild(buildBranch)
+        checkoutCentreonBuild()
         sh "./centreon-build/jobs/dsm/${serie}/dsm-package.sh centos7"
         archiveArtifacts artifacts: 'rpms-centos7.tar.gz'
         stash name: "rpms-centos7", includes: 'output/noarch/*.rpm'
@@ -130,7 +125,7 @@ try {
     },
     'RPM Packaging alma8': {
       node {
-        checkoutCentreonBuild(buildBranch)
+        checkoutCentreonBuild()
         sh "./centreon-build/jobs/dsm/${serie}/dsm-package.sh alma8"
         archiveArtifacts artifacts: 'rpms-alma8.tar.gz'
         stash name: "rpms-alma8", includes: 'output/noarch/*.rpm'
@@ -157,16 +152,16 @@ try {
       node {
         unstash 'rpms-centos7'
         unstash 'rpms-alma8'
-        checkoutCentreonBuild(buildBranch)
+        checkoutCentreonBuild()
         sh "./centreon-build/jobs/dsm/${serie}/dsm-delivery.sh"
         withCredentials([usernamePassword(credentialsId: 'nexus-credentials', passwordVariable: 'NEXUS_PASSWORD', usernameVariable: 'NEXUS_USERNAME')]) {
           checkout scm
           unstash "Debian11"
           sh '''for i in $(echo *.deb)
-                do 
+                do
                   curl -u $NEXUS_USERNAME:$NEXUS_PASSWORD -H "Content-Type: multipart/form-data" --data-binary "@./$i" https://apt.centreon.com/repository/22.10-$REPO/
                 done
-             '''    
+             '''
         }
       }
       if ((currentBuild.result ?: 'SUCCESS') != 'SUCCESS') {
