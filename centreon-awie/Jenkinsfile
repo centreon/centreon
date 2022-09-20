@@ -18,9 +18,9 @@ if (env.BRANCH_NAME.startsWith('release-')) {
   env.BUILD = 'CI'
 }
 
-def buildBranch = env.BRANCH_NAME
+env.BUILD_BRANCH = env.BRANCH_NAME
 if (env.CHANGE_BRANCH) {
-  buildBranch = env.CHANGE_BRANCH
+  env.BUILD_BRANCH = env.CHANGE_BRANCH
 }
 
 /*
@@ -30,32 +30,26 @@ def isStableBuild() {
   return ((env.BUILD == 'REFERENCE') || (env.BUILD == 'QA'))
 }
 
-def checkoutCentreonBuild(buildBranch) {
-  def getCentreonBuildGitConfiguration = { branchName -> [
-    $class: 'GitSCM',
-    branches: [[name: "refs/heads/${branchName}"]],
-    doGenerateSubmoduleConfigurations: false,
-    userRemoteConfigs: [[
-      $class: 'UserRemoteConfig',
-      url: "ssh://git@github.com/centreon/centreon-build.git"
-    ]]
-  ]}
-
+def checkoutCentreonBuild() {
   dir('centreon-build') {
-    try {
-      checkout(getCentreonBuildGitConfiguration(buildBranch))
-    } catch(e) {
-      echo "branch '${buildBranch}' does not exist in centreon-build, then fallback to master"
-      checkout(getCentreonBuildGitConfiguration('master'))
-    }
+    checkout resolveScm(
+      source: [
+        $class: 'GitSCMSource',
+        remote: 'https://github.com/centreon/centreon-build.git',
+        credentialsId: 'technique-ci',
+        traits: [[$class: 'jenkins.plugins.git.traits.BranchDiscoveryTrait']]
+      ],
+      targets: [env.BUILD_BRANCH, 'master']
+    )
   }
 }
+
 /*
 ** Pipeline code.
 */
 stage('Deliver sources') {
   node {
-    checkoutCentreonBuild(buildBranch)
+    checkoutCentreonBuild()
     dir('centreon-awie') {
       checkout scm
     }
@@ -78,7 +72,7 @@ try {
   stage('Unit tests // RPM Packaging // Sonar analysis') {
     parallel 'unit tests centos7': {
       node {
-        checkoutCentreonBuild(buildBranch)
+        checkoutCentreonBuild()
         sh "./centreon-build/jobs/awie/${serie}/mon-awie-unittest.sh centos7"
         if (currentBuild.result == 'UNSTABLE')
           currentBuild.result = 'FAILURE'
@@ -122,7 +116,7 @@ try {
     },
     'Packaging centos7': {
       node {
-        checkoutCentreonBuild(buildBranch)
+        checkoutCentreonBuild()
         sh "./centreon-build/jobs/awie/${serie}/mon-awie-package.sh centos7"
         archiveArtifacts artifacts: 'rpms-centos7.tar.gz'
         stash name: "rpms-centos7", includes: 'output/noarch/*.rpm'
@@ -131,7 +125,7 @@ try {
     },
     'Packaging alma8': {
       node {
-        checkoutCentreonBuild(buildBranch)
+        checkoutCentreonBuild()
         sh "./centreon-build/jobs/awie/${serie}/mon-awie-package.sh alma8"
         archiveArtifacts artifacts: 'rpms-alma8.tar.gz'
         stash name: "rpms-alma8", includes: 'output/noarch/*.rpm'
@@ -153,42 +147,15 @@ try {
     }
   }
 
-  if ((env.BUILD == 'CI')) {
-    stage('Delivery to unstable') {
-      node {
-        unstash 'rpms-alma8'
-        unstash 'rpms-centos7'
-        checkoutCentreonBuild(buildBranch)
-        sh "./centreon-build/jobs/awie/${serie}/mon-awie-delivery.sh"
-        withCredentials([usernamePassword(credentialsId: 'nexus-credentials', passwordVariable: 'NEXUS_PASSWORD', usernameVariable: 'NEXUS_USERNAME')]) {
-          checkout scm
-          unstash "Debian11"
-          sh '''for i in $(echo *.deb)
-                do 
-                  curl -u $NEXUS_USERNAME:$NEXUS_PASSWORD -H "Content-Type: multipart/form-data" --data-binary "@./$i" https://apt.centreon.com/repository/22.10-$REPO/
-                done
-             '''    
-        }
-      }
-      if ((currentBuild.result ?: 'SUCCESS') != 'SUCCESS') {
-        error('Delivery stage failure.');
-      }
-    }
-  }
-
   stage('Docker creation') {
     parallel 'Docker centos7': {
       node {
-        checkoutCentreonBuild(buildBranch)
+        checkoutCentreonBuild()
+        sh 'rm -rf output'
+        unstash 'rpms-centos7'
         sh "./centreon-build/jobs/awie/${serie}/mon-awie-bundle.sh centos7"
       }
     }
-    //'Docker centos8': {
-    //  node {
-    //    checkoutCentreonBuild(buildBranch)
-    //    sh "./centreon-build/jobs/awie/${serie}/mon-awie-bundle.sh centos8"
-    //  }
-    //}
     if ((currentBuild.result ?: 'SUCCESS') != 'SUCCESS') {
       error('Bundle stage failure.');
     }
@@ -197,7 +164,7 @@ try {
   stage('Acceptance tests') {
     parallel 'centos7': {
       node {
-        checkoutCentreonBuild(buildBranch)
+        checkoutCentreonBuild()
         sh "./centreon-build/jobs/awie/${serie}/mon-awie-acceptance.sh centos7"
         junit 'xunit-reports/**/*.xml'
         if (currentBuild.result == 'UNSTABLE')
@@ -205,16 +172,6 @@ try {
         archiveArtifacts allowEmptyArchive: true, artifacts: 'acceptance-logs/*.txt, acceptance-logs/*.png'
       }
     }
-    //'centos8': {
-    //  node {
-    //    checkoutCentreonBuild(buildBranch)
-    //    sh "./centreon-build/jobs/awie/${serie}/mon-awie-acceptance.sh centos8"
-    //    junit 'xunit-reports/**/*.xml'
-    //    if (currentBuild.result == 'UNSTABLE')
-    //      currentBuild.result = 'FAILURE'
-    //    archiveArtifacts allowEmptyArchive: true, artifacts: 'acceptance-logs/*.txt, acceptance-logs/*.png'
-    //  }
-    //}
     if ((currentBuild.result ?: 'SUCCESS') != 'SUCCESS') {
       error('Acceptance tests stage failure.');
     }
@@ -223,10 +180,19 @@ try {
   if ((env.BUILD == 'RELEASE') || (env.BUILD == 'QA')) {
     stage('Delivery') {
       node {
-        checkoutCentreonBuild(buildBranch)
+        checkoutCentreonBuild()
         unstash 'rpms-alma8'
         unstash 'rpms-centos7'
         sh "./centreon-build/jobs/awie/${serie}/mon-awie-delivery.sh"
+        withCredentials([usernamePassword(credentialsId: 'nexus-credentials', passwordVariable: 'NEXUS_PASSWORD', usernameVariable: 'NEXUS_USERNAME')]) {
+          checkout scm
+          unstash "Debian11"
+          sh '''for i in $(echo *.deb)
+                do
+                  curl -u $NEXUS_USERNAME:$NEXUS_PASSWORD -H "Content-Type: multipart/form-data" --data-binary "@./$i" https://apt.centreon.com/repository/22.10-$REPO/
+                done
+             '''
+        }
       }
       if ((currentBuild.result ?: 'SUCCESS') != 'SUCCESS') {
         error('Delivery stage failure.');
