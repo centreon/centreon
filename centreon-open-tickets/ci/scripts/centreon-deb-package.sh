@@ -8,7 +8,7 @@ if [ -z "$VERSION" -o -z "$RELEASE" -o -z "$DISTRIB" ] ; then
   exit 1
 fi
 
-echo "################################################## PACKAGING GRAPH MONITORING ##################################################"
+echo "################################################## PACKAGING OPEN TICKETS ##################################################"
 
 AUTHOR="Luiz Costa"
 AUTHOR_EMAIL="me@luizgustavo.pro.br"

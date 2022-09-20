@@ -17,12 +17,33 @@ if (env.BRANCH_NAME.startsWith('release-')) {
   env.BUILD = 'CI'
 }
 
+env.BUILD_BRANCH = env.BRANCH_NAME
+if (env.CHANGE_BRANCH) {
+  env.BUILD_BRANCH = env.CHANGE_BRANCH
+}
+
+def checkoutCentreonBuild() {
+  dir('centreon-build') {
+    retry(3) {
+      checkout resolveScm(
+        source: [
+          $class: 'GitSCMSource',
+          remote: 'https://github.com/centreon/centreon-build.git',
+          credentialsId: 'technique-ci',
+          traits: [[$class: 'jenkins.plugins.git.traits.BranchDiscoveryTrait']]
+        ],
+        targets: [env.BUILD_BRANCH, 'master']
+      )
+    }
+  }
+}
+
 /*
 ** Pipeline code.
 */
 stage('Source') {
   node {
-    sh 'setup_centreon_build.sh'
+    checkoutCentreonBuild()
     dir('centreon-open-tickets') {
       checkout scm
     }
@@ -45,7 +66,7 @@ try {
   stage('Unit tests') {
     parallel 'centos7': {
       node {
-        sh 'setup_centreon_build.sh'
+        checkoutCentreonBuild()
         sh "./centreon-build/jobs/open-tickets/${serie}/mon-open-tickets-unittest.sh centos7"
         if (currentBuild.result == 'UNSTABLE')
           currentBuild.result = 'FAILURE'
@@ -93,7 +114,7 @@ try {
       timeout(time: 10, unit: 'MINUTES') {
         def qualityGate = waitForQualityGate()
           if (qualityGate.status != 'OK') {
-            currentBuild.result = 'FAIL' 
+            currentBuild.result = 'FAIL'
           }
       if ((currentBuild.result ?: 'SUCCESS') != 'SUCCESS') {
         error("Quality gate failure: ${qualityGate.status}.");
@@ -104,7 +125,7 @@ try {
   stage('Package') {
     parallel 'centos7': {
       node {
-        sh 'setup_centreon_build.sh'
+        checkoutCentreonBuild()
         sh "./centreon-build/jobs/open-tickets/${serie}/mon-open-tickets-package.sh centos7"
         archiveArtifacts artifacts: 'rpms-centos7.tar.gz'
         stash name: "rpms-centos7", includes: 'output/noarch/*.rpm'
@@ -113,7 +134,7 @@ try {
     },
     'alma8': {
       node {
-        sh 'setup_centreon_build.sh'
+        checkoutCentreonBuild()
         sh "./centreon-build/jobs/open-tickets/${serie}/mon-open-tickets-package.sh alma8"
         archiveArtifacts artifacts: 'rpms-alma8.tar.gz'
         stash name: "rpms-alma8", includes: 'output/noarch/*.rpm'
@@ -138,7 +159,7 @@ try {
   if ((env.BUILD == 'RELEASE') || (env.BUILD == 'QA')) {
     stage('Delivery') {
       node {
-        sh 'setup_centreon_build.sh'
+        checkoutCentreonBuild()
         unstash 'rpms-centos7'
         unstash 'rpms-alma8'
         sh "./centreon-build/jobs/open-tickets/${serie}/mon-open-tickets-delivery.sh"
@@ -146,10 +167,10 @@ try {
           checkout scm
           unstash "Debian11"
           sh '''for i in $(echo *.deb)
-                do 
+                do
                   curl -u $NEXUS_USERNAME:$NEXUS_PASSWORD -H "Content-Type: multipart/form-data" --data-binary "@./$i" https://apt.centreon.com/repository/22.10-$REPO/
                 done
-            '''    
+            '''
         }
       }
       if ((currentBuild.result ?: 'SUCCESS') != 'SUCCESS') {
@@ -157,8 +178,7 @@ try {
       }
     }
   }
-}
-finally {
+} finally {
   buildStatus = currentBuild.result ?: 'SUCCESS';
   if ((buildStatus != 'SUCCESS') && ((env.BUILD == 'RELEASE') || (env.BUILD == 'REFERENCE'))) {
     slackSend channel: '#monitoring-metrology', message: "@channel Centreon Open Tickets build ${env.BUILD_NUMBER} of branch ${env.BRANCH_NAME} was broken by ${source.COMMITTER}. Please fix it ASAP."
