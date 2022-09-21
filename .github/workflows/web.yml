@@ -163,8 +163,16 @@ jobs:
           php-version: 8.0
           coverage: none
 
-      - name: Install dependencies
-        run: composer install --optimize-autoloader
+      - name: Cache Composer
+        uses: actions/cache@v3
+        id: composer-cache
+        with:
+          path: centreon/vendor
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+
+      - name: Install composer dependencies
+        if: steps.composer-cache.outputs.cache-hit != 'true'
+        run: composer install --prefer-dist --no-progress --no-suggest
         working-directory: centreon
 
       - name: Unit test
