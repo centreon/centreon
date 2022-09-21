@@ -266,6 +266,37 @@ jobs:
           distrib_rpm: ${{ matrix.distrib_rpm }}
           module_name: ${{ matrix.module_name }}
 
+  centreon-web-fresh-dockerize:
+    runs-on: common
+    needs: [centreon-web-package]
+
+    strategy:
+      matrix:
+        include:
+          - project: run-centreon-open-source-fresh
+            distrib: centos7
+            distrib_rpm: el7
+            module_name: web
+
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v3
+
+      - name: Login to Registry
+        uses: docker/login-action@v2
+        with:
+          registry: docker.registry.apps.centreon.com
+          username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
+          password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
+
+      - name: build docker run
+        uses: ./.github/actions/docker-builder-run
+        with:
+          distrib: ${{ matrix.distrib }}
+          project: ${{ matrix.project }}
+          distrib_rpm: ${{ matrix.distrib_rpm }}
+          module_name: ${{ matrix.module_name }}
+          
   centreon-web-test-e2e:
     runs-on: common
     needs: [centreon-web-dockerize]
