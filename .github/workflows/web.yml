@@ -135,7 +135,15 @@ jobs:
 
       - uses: actions/checkout@v3
 
+      - name: Cache node modules
+        uses: actions/cache@v3
+        id: npm-cache
+        with:
+          path: centreon/node_modules
+          key: ${{ runner.os }}-npm-${{ hashFiles('**/package-lock.lock') }}
+
       - name: Install dependencies
+        if: steps.npm-cache.outputs.cache-hit != 'true'
         run: npm ci --legacy-peer-deps
         working-directory: centreon
 
@@ -163,7 +171,7 @@ jobs:
           php-version: 8.0
           coverage: none
 
-      - name: Cache Composer
+      - name: Cache composer dependencies
         uses: actions/cache@v3
         id: composer-cache
         with:
