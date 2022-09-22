@@ -71,6 +71,7 @@ const CollapsibleGroup = ({
           dense
           disableGutters
           disableRipple
+          aria-label={group?.name}
           className={classes.groupTitleContainer}
           onClick={toggle}
         >

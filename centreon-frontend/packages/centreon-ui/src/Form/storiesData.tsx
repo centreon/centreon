@@ -27,6 +27,7 @@ export interface BasicForm {
     role: SelectEntry;
     user: string;
   }>;
+  inviteUsers2: Array<string>;
   isForced: boolean;
   language: string;
   name: string;
@@ -56,6 +57,7 @@ export const basicFormValidationSchema = Yup.object().shape({
       role: selectEntryValidationSchema,
     }),
   ),
+  inviteUsers2: Yup.array().of(Yup.string()),
   isForced: Yup.boolean().required('Is forced is required'),
   language: Yup.string().required('Language is required'),
   name: Yup.string().required('Name is required'),
@@ -76,6 +78,7 @@ export const basicFormInitialValues = {
   email: '',
   group: null,
   inviteUsers: [],
+  inviteUsers2: [],
   isForced: false,
   language: 'French',
   name: '',
@@ -292,6 +295,25 @@ export const basicFormInputs: Array<InputProps> = [
         role: null,
       },
       deleteLabel: 'Delete',
+    },
+    group: 'First group',
+    label: '',
+    type: InputType.FieldsTable,
+  },
+  {
+    fieldName: 'inviteUsers2',
+    fieldsTable: {
+      columns: [
+        {
+          fieldName: 'email',
+          label: 'Email',
+          required: true,
+          type: InputType.Text,
+        },
+      ],
+      defaultRowValue: 'example',
+      deleteLabel: 'Delete',
+      hasSingleValue: true,
     },
     group: 'First group',
     label: '',

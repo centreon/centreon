@@ -1,5 +1,5 @@
 import { FormikValues, useFormikContext } from 'formik';
-import { equals, includes, prop } from 'ramda';
+import { equals, includes, path, split } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
 import {
@@ -49,7 +49,9 @@ const Radio = ({
     setFieldValue(fieldName, value);
   };
 
-  const value = prop(fieldName, values);
+  const fieldNamePath = split('.', fieldName);
+
+  const value = path(fieldNamePath, values);
 
   const disabled = getDisabled?.(values) || false;
   const hidden = hideInput?.(values) || false;

@@ -44,9 +44,10 @@ export interface InputProps {
   fieldsTable?: {
     additionalFieldsToMemoize?: Array<string>;
     columns: Array<Omit<InputProps, 'group'>>;
-    defaultRowValue: object;
+    defaultRowValue: object | string;
     deleteLabel: string;
     getRequired?: ({ values, index }: FieldsTableGetRequiredProps) => boolean;
+    hasSingleValue?: boolean;
   };
   getDisabled?: (values: FormikValues) => boolean;
   getRequired?: (values: FormikValues) => boolean;

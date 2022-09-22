@@ -1,7 +1,7 @@
 import { ChangeEvent } from 'react';
 
 import { FormikValues, useFormikContext } from 'formik';
-import { prop } from 'ramda';
+import { path, split } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
 import { FormControlLabel, Switch as MUISwitch } from '@mui/material';
@@ -33,9 +33,11 @@ const Switch = ({
     setFieldValue(fieldName, event.target.checked);
   };
 
+  const fieldNamePath = split('.', fieldName);
+
   const value =
-    switchInput?.getChecked?.(prop(fieldName, values)) ??
-    prop(fieldName, values);
+    switchInput?.getChecked?.(path(fieldNamePath, values)) ??
+    path(fieldNamePath, values);
   const disabled = getDisabled?.(values) || false;
   const hidden = hideInput?.(values) || false;
 

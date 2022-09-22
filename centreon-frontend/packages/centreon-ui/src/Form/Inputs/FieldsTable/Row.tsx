@@ -1,5 +1,5 @@
 import { FormikValues, useFormikContext } from 'formik';
-import { not, prop, remove } from 'ramda';
+import { not, path, split, remove } from 'ramda';
 import { useTranslation } from 'react-i18next';
 import { makeStyles } from 'tss-react/mui';
 
@@ -27,9 +27,10 @@ const useStyles = makeStyles<StylesProps>()((theme, { columns }) => ({
 
 interface Props {
   columns?: Array<InputPropsWithoutGroup>;
-  defaultRowValue?: object;
+  defaultRowValue?: object | string;
   deleteLabel?: string;
   getRequired: () => boolean;
+  hasSingleValue?: boolean;
   index: number;
   isLastElement: boolean;
   label: string;
@@ -45,13 +46,16 @@ const Row = ({
   getRequired,
   isLastElement,
   deleteLabel,
+  hasSingleValue,
 }: Props): JSX.Element => {
   const { classes } = useStyles({ columns: columns?.length });
   const { t } = useTranslation();
 
   const { setFieldValue, values } = useFormikContext<FormikValues>();
 
-  const tableValues = prop(tableFieldName, values);
+  const tableFieldNamePath = split('.', tableFieldName);
+
+  const tableValues = path(tableFieldNamePath, values) as Array<unknown>;
   const rowValues = tableValues[index];
 
   const deleteRow = (): void => {
@@ -61,16 +65,25 @@ const Row = ({
   const changeRow = ({ property, value }): void => {
     const currentRowValue = rowValues || defaultRowValue;
 
-    setFieldValue(`${tableFieldName}.${index}`, {
-      ...currentRowValue,
-      [property]: value,
-    });
+    setFieldValue(
+      `${tableFieldName}.${index}`,
+      hasSingleValue
+        ? value
+        : {
+            ...currentRowValue,
+            [property]: value,
+          },
+    );
   };
 
   return (
     <div className={classes.inputsRow} key={`${label}_${index}`}>
       {columns?.map((field): JSX.Element => {
         const Input = getInput(field.type);
+
+        const inputFieldName = hasSingleValue
+          ? `${tableFieldName}.${index}`
+          : `${tableFieldName}.${index}.${field.fieldName}`;
 
         return (
           <Input
@@ -82,7 +95,7 @@ const Row = ({
                 value,
               })
             }
-            fieldName={`${tableFieldName}.${index}.${field.fieldName}`}
+            fieldName={inputFieldName}
             getRequired={getRequired}
             key={`${label}_${index}_${field.label}`}
           />

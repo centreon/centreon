@@ -1,5 +1,5 @@
 import { FormikValues, useFormikContext } from 'formik';
-import { dec, equals, inc, isNil, pick, prop, type } from 'ramda';
+import { dec, equals, inc, isNil, pick, split, path, type } from 'ramda';
 import { useAtomValue } from 'jotai';
 import { useTranslation } from 'react-i18next';
 import { makeStyles } from 'tss-react/mui';
@@ -52,9 +52,11 @@ const FieldsTable = ({
 
   const { values, errors } = useFormikContext<FormikValues>();
 
-  const tableValues = prop(fieldName, values);
+  const fieldNamePath = split('.', fieldName);
 
-  const fieldsTableError = prop(fieldName, errors) as string | undefined;
+  const tableValues = path(fieldNamePath, values) as Array<unknown>;
+
+  const fieldsTableError = path(fieldNamePath, errors) as string | undefined;
 
   const fieldsToMemoize = pick(
     fieldsTable?.additionalFieldsToMemoize || [],
@@ -84,6 +86,7 @@ const FieldsTable = ({
                 defaultRowValue={fieldsTable?.defaultRowValue}
                 deleteLabel={fieldsTable?.deleteLabel}
                 getRequired={getRequired}
+                hasSingleValue={fieldsTable?.hasSingleValue}
                 index={idx}
                 isLastElement={isLastElement}
                 key={`${label}_${idx}`}

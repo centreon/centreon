@@ -84,7 +84,10 @@ const Autocomplete = ({
   );
 
   const getError = useCallback((): Array<string> | undefined => {
-    const error = prop(fieldName, errors) as Array<string> | string | undefined;
+    const error = path([...fieldName.split('.')], errors) as
+      | Array<string>
+      | string
+      | undefined;
 
     const isStringError = equals(type(error), 'String');
 
