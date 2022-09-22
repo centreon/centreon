@@ -277,6 +277,7 @@ jobs:
             distrib: centos7
             distrib_rpm: el7
             module_name: web
+            is_fresh: true
 
     steps:
       - name: Checkout sources
