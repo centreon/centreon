@@ -22,6 +22,9 @@ COPY /ci/scripts/autoinstall.php /usr/share/centreon/autoinstall.php
 COPY /ci/scripts/configuration/* /usr/share/centreon/www/install/tmp/
 RUN chmod +x /tmp/install.sh
 
+COPY ./ci/scripts/insert-standard-fixtures.sh /tmp/insert-standard-fixtures.sh
+RUN chmod +x /tmp/insert-standard-fixtures.sh
+
 VOLUME [ "/sys/fs/cgroup" ]
 
 CMD ["/usr/sbin/init"]
