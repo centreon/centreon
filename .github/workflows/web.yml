@@ -236,6 +236,14 @@ jobs:
   
   centreon-web-package-deb:
     runs-on: common
+    needs:
+      [
+        centreon-web-backend-lint-phpcs,
+        centreon-web-backend-lint-phpstan,
+        centreon-web-backend-unit-test,
+        centreon-web-frontend-lint,
+        centreon-web-frontend-unit-test,
+      ]
     
     strategy:
       matrix:
