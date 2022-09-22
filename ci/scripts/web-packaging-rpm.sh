@@ -4,10 +4,7 @@ set -ex
 
 cd centreon
 VERSION=$1
-COMMIT=$2
-now=`date +%s`
-
-export RELEASE="$now.$COMMIT"
+RELEASE=$2
 export CYPRESS_CACHE_FOLDER=$PWD/cypress_cache
 
 composer install --no-dev --optimize-autoloader
