@@ -1,4 +1,4 @@
-name: centreon-frontend
+name: test_regitries
 
 on:   
   workflow_dispatch:
