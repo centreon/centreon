@@ -19,4 +19,5 @@ jobs:
           username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
           password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
       - name: Login to Registry
-        run: docker pull docker.centreon.com/busybox
+        run: |
+          docker pull docker-proxy.centreon.com/busybox
