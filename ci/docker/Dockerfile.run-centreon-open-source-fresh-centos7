@@ -16,6 +16,7 @@ RUN yum -y update && yum install -y libselinux-utils --nogpgcheck centreon-relea
     https://rpms.remirepo.net/enterprise/remi-release-7.rpm https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm httpd24-httpd
 RUN yum-config-manager --enable 'centreon-testing*' && yum-config-manager --enable 'centreon-unstable*' --enable remi-php81
 
+
 COPY *.rpm /tmp/
 COPY ./ci/scripts/install.sh /tmp/install.sh
 COPY /ci/scripts/autoinstall.php /usr/share/centreon/autoinstall.php
