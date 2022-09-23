@@ -31,7 +31,6 @@ sub new {
     );
 
     bless $self, $class;
-
     $self->{moptions}->{rebuild} = 0;
     $self->{moptions}->{daily} = 0;
     $self->{moptions}->{import} = 0;

@@ -130,7 +130,6 @@ sub getMetricsValueByDay {
     
     $query =~  s/OR $//;
     $query .= "GROUP BY id_metric";
-
     $db->query($query);
     $self->addIndexTempTableMetricMinMaxAvgValues("day");
     $self->getFirstAndLastValues($start_date, $end_date, $useMemory);
