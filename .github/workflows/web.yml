@@ -19,6 +19,7 @@ env:
   version: "22.10"
   frontend_directory: ./centreon/www/front_src/src
 
+
 jobs:
   centreon-web-backend-lint-phpcs:
     runs-on: ubuntu-22.04
@@ -179,7 +180,7 @@ jobs:
           comment_mode: failures
           junit_files: "centreon/build/phpunit.xml"
 
-  centreon-web-package:
+  centreon-web-package-rpm:
     runs-on: common
     needs:
       [
@@ -197,8 +198,6 @@ jobs:
             distrib: el7
           - image: packaging-web-alma8
             distrib: el8
-          # - image: packaging-web-bullseye
-          #   distrib: bullseye
 
     steps:
       - name: Checkout sources
@@ -215,7 +214,7 @@ jobs:
       - name: Package
         uses: ./.github/actions/runner-docker
         with:
-          script_name: web-packaging
+          script_name: web-packaging-rpm
           image_name: ${{ matrix.image }}
           image_version: ${{ env.version }}
           params: ${{ env.version }}.${{ steps.get_version.outputs.minor_version }} ${{ steps.get_version.outputs.release }}
@@ -234,10 +233,55 @@ jobs:
         with:
           path: ./*.rpm
           key: ${{ env.cache-name-rpmbuild }}-${{ matrix.distrib }}
+  
+  centreon-web-package-deb:
+    runs-on: common
+    needs:
+      [
+        centreon-web-backend-lint-phpcs,
+        centreon-web-backend-lint-phpstan,
+        centreon-web-backend-unit-test,
+        centreon-web-frontend-lint,
+        centreon-web-frontend-unit-test,
+      ]
+    
+    strategy:
+      matrix:
+        include:
+          - image: packaging-web-bullseye
+            distrib: bullseye
+
+    steps: 
+      - name: Checkout sources
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      
+      - name: 'Get minor and release version'
+        uses: ./.github/actions/get-package-version
+        with:
+          module_name: ${{ env.module }}
+        id: get_version
+
+      - name: Package
+        uses: ./.github/actions/runner-docker
+        with:
+          script_name: web-packaging-deb
+          image_name: ${{ matrix.image }}
+          image_version: ${{ env.version }}
+          params: ${{ env.version }}.${{ steps.get_version.outputs.minor_version }} ${{ steps.get_version.outputs.release }}
+
+      - name: Cache DEB files
+        uses: actions/cache@v3
+        env:
+          cache-name-debbuild: cache-${{ github.sha }}-${{ github.run_id }}-debbuild-web
+        with:
+          path: ./*.deb
+          key: ${{ env.cache-name-debbuild }}-${{ matrix.distrib }}
 
   centreon-web-dockerize:
     runs-on: common
-    needs: [centreon-web-package]
+    needs: [centreon-web-package-rpm, centreon-web-package-deb]
 
     strategy:
       matrix:
@@ -329,7 +373,7 @@ jobs:
           comment_mode: failures
           junit_files: centreon/tests/e2e/cypress-result.xml
 
-  centreon-web-deliver-packages:
+  centreon-web-deliver-rpm:
     runs-on: common
     needs: [centreon-web-test-e2e]
 
@@ -348,6 +392,27 @@ jobs:
 
       - name: Delivery
         uses: ./.github/actions/rpm-delivery
+        with:
+          module_name: ${{ matrix.module_name }}
+          distrib: ${{ matrix.distrib }}
+          version: ${{ env.version }}
+          nexus_username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
+          nexus_password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
+
+  centreon-web-deliver-deb:
+    needs: [centreon-web-test-e2e]
+    runs-on: common
+    strategy:
+      matrix:
+        include:
+          - module_name: web
+            distrib: bullseye
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v3
+
+      - name: Delivery
+        uses: ./.github/actions/deb-delivery
         with:
           module_name: ${{ matrix.module_name }}
           distrib: ${{ matrix.distrib }}
