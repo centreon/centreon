@@ -2,30 +2,22 @@ name: "Behat Acceptance Testing"
 description: "Behat Acceptance Testing"
 
 inputs:
-  image:
-    description: "image"
+  project:
+    description: "project"
     required: true
-  image_version:
-    description: "image version"
+  distr:
+    description: "distr"
     required: true
-  module:
-    description: "module"
+  version:
+    description: "version"
+    required: true
+  behat_image_version:
+    description: "version"
     required: true
 runs:
   using: "composite"
 
   steps:
-    - name: Install docker-compose
-      uses: KengoTODA/actions-setup-docker-compose@main
-      with:
-        version: '2.10.2'
-
-    - name: Install libsodium
+    - name: "Run Behat"
+      run: docker run --shm-size 2gb -i -e PROJECT=${{ inputs.project }} -e DISTR=${{ inputs.distr }} -e VERSION=${{ inputs.version }} -v "$PWD:/tmp" -v "/var/run/docker.sock:/var/run/docker.sock" -w "/tmp" --entrypoint "/tmp/ci/scripts/behat-acceptance-testing.sh" --net="host" docker.registry.apps.centreon.com/behat:${{ inputs.behat_image_version }}
       shell: bash
-      run: yum install epel-release && yum install libsodium libsodium-devel
-
-    - name: Install PHP
-      uses: shivammathur/setup-php@v2
-      with:
-        php-version: 8.0
-        coverage: none
