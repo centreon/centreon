@@ -312,7 +312,7 @@ jobs:
 
   centreon-web-fresh-dockerize:
     runs-on: common
-    needs: [centreon-web-package]
+    needs: [centreon-web-package-rpm, centreon-web-package-deb]
 
     strategy:
       matrix:
