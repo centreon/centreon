@@ -1,6 +1,7 @@
-import { Suspense, useEffect, useRef, useState } from 'react';
+import { Suspense, useEffect, useRef, useState, memo } from 'react';
 
 import { makeStyles } from 'tss-react/mui';
+import { T } from 'ramda';
 
 import { Box } from '@mui/material';
 
@@ -38,6 +39,11 @@ interface Props {
   panelFixed?: boolean;
   panelOpen?: boolean;
 }
+
+const MemoListingComponent = memo(
+  ({ listing }: Pick<Props, 'listing'>): JSX.Element => listing,
+  T,
+);
 
 const ListingPage = ({
   listing,
@@ -90,7 +96,9 @@ const ListingPage = ({
             overflowY: 'auto',
           }}
         >
-          <Suspense fallback={<ListingSkeleton />}>{listing}</Suspense>
+          <Suspense fallback={<ListingSkeleton />}>
+            <MemoListingComponent listing={listing} />
+          </Suspense>
         </Box>
       </WithPanel>
     </div>
