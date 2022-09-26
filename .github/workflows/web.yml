@@ -10,9 +10,11 @@ on:
   push:
     branches:
       - develop
+      - MON-14950-check-mysql-status
     paths:
       - ".github/workflows/web.yml"
       - "centreon/**"
+      - "ci/**"
     tags:
       - centreon-22.10.**
 
