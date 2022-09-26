@@ -68,7 +68,7 @@ describe('useFetchQuery', () => {
       status: 400,
     });
 
-    renderFetchQuery<User>({
+    const { result } = renderFetchQuery<User>({
       getEndpoint: () => '/endpoint',
       getQueryKey: () => ['queryKey'],
     });
@@ -78,6 +78,13 @@ describe('useFetchQuery', () => {
     });
 
     expect(anyLogger().error).toHaveBeenCalledWith('custom message');
+
+    await waitFor(() => {
+      expect(result.current.error).toStrictEqual({
+        message: 'custom message',
+        statusCode: 400,
+      });
+    });
   });
 
   it('shows a default failure message via the Snackbar as fallback', async () => {
@@ -85,7 +92,7 @@ describe('useFetchQuery', () => {
       status: 400,
     });
 
-    renderFetchQuery<User>({
+    const { result } = renderFetchQuery<User>({
       getEndpoint: () => '/endpoint',
       getQueryKey: () => ['queryKey'],
     });
@@ -95,6 +102,13 @@ describe('useFetchQuery', () => {
         'Something went wrong',
       );
     });
+
+    await waitFor(() => {
+      expect(result.current.error).toStrictEqual({
+        message: 'Something went wrong',
+        statusCode: 400,
+      });
+    });
   });
 
   it('does not show any message via the Snackbar when the httpCodesBypassErrorSnackbar is passed', async () => {
@@ -102,7 +116,7 @@ describe('useFetchQuery', () => {
       status: 400,
     });
 
-    renderFetchQuery<User>({
+    const { result } = renderFetchQuery<User>({
       getEndpoint: () => '/endpoint',
       getQueryKey: () => ['queryKey'],
       httpCodesBypassErrorSnackbar: [400],
@@ -110,6 +124,13 @@ describe('useFetchQuery', () => {
 
     await waitFor(() => {
       expect(mockedShowErrorMessage).not.toHaveBeenCalled();
+    });
+
+    await waitFor(() => {
+      expect(result.current.error).toStrictEqual({
+        message: 'Something went wrong',
+        statusCode: 400,
+      });
     });
   });
 });
