@@ -6,6 +6,7 @@ on:
     paths:
       - ".github/workflows/web.yml"
       - "centreon/**"
+      - "ci/**"
   push:
     branches:
       - develop
