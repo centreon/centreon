@@ -24,7 +24,8 @@ RUN yum -y update && \
 RUN yum-config-manager --enable 'centreon-testing*' && yum-config-manager --enable 'centreon-unstable*' --enable remi-php81
 
 COPY ./ci/scripts/systemd/mysql-status.conf /etc/systemd/system/mariadb.service.d/mysql-status.conf
-COPY --chmod=+x ./ci/scripts/systemd/check-mysql-status.sh /var/lib/mysql/check-mysql-status.sh
+COPY ./ci/scripts/systemd/check-mysql-status.sh /var/lib/mysql/check-mysql-status.sh
+RUN chmod +x /var/lib/mysql/check-mysql-status.sh
 
 COPY *.rpm /tmp/
 COPY ./ci/scripts/install.sh /tmp/install.sh
