@@ -1,4 +1,4 @@
-# 
+#
 # Copyright 2020 Centreon (http://www.centreon.com/)
 #
 # Centreon is a full-fledged industry-strength solution that meets
@@ -145,6 +145,7 @@ sub saas_api_request {
         ($status, $payload) = $self->json_encode(argument => $options{payload});
         return 1 if ($status == 1);
     }
+    my $accept = defined $options{accept} ? $options{accept} : '*/*';
 
     ($status, my $response) = $self->{http}->request(
         method => $options{method}, hostname => '',
@@ -153,6 +154,7 @@ sub saas_api_request {
         header => [
             'Accept-Type: application/json; charset=utf-8',
             'Content-Type: application/json; charset=utf-8',
+            'Accept: ' . $accept,
             'x-api-key: ' . $self->{saas_token}
         ],
         proxyurl => $self->{proxy_url},
@@ -232,8 +234,8 @@ sub get_centreon_anomaly_metrics {
         request => '
             SELECT mas.*, hsr.host_host_id as host_id, nhr.nagios_server_id as instance_id
             FROM mod_anomaly_service mas
-            LEFT JOIN (host_service_relation hsr, ns_host_relation nhr) ON 
-                (mas.service_id = hsr.service_service_id AND hsr.host_host_id = nhr.host_host_id)                
+            LEFT JOIN (host_service_relation hsr, ns_host_relation nhr) ON
+                (mas.service_id = hsr.service_service_id AND hsr.host_host_id = nhr.host_host_id)
         ',
         keys => 'id',
         mode => 1
@@ -253,7 +255,7 @@ sub save_centreon_previous_register {
 
     my ($query, $query_append) = ('', '');
     foreach (keys %{$self->{unregister_metrics_centreon}}) {
-        $query .= $query_append . 
+        $query .= $query_append .
             'UPDATE mod_anomaly_service SET' .
             ' saas_model_id = ' . $self->{class_object_centreon}->quote(value => $self->{unregister_metrics_centreon}->{$_}->{saas_model_id}) . ',' .
             ' saas_metric_id = ' . $self->{class_object_centreon}->quote(value => $self->{unregister_metrics_centreon}->{$_}->{saas_metric_id}) . ',' .
@@ -286,7 +288,7 @@ sub saas_register_metrics {
 
     my $register_centreon_metrics = {};
     my ($query, $query_append) = ('', '');
-    
+
     $self->{generate_metrics_lua} = 0;
     foreach (keys %{$self->{centreon_metrics}}) {
         # saas_creation_date is set when we need to register it
@@ -356,7 +358,7 @@ sub saas_register_metrics {
             saas_metric_id => $result->{metrics}->[0]->{id}
         };
 
-        $query .= $query_append . 
+        $query .= $query_append .
             'UPDATE mod_anomaly_service SET' .
             ' saas_model_id = ' . $self->{class_object_centreon}->quote(value => $register_centreon_metrics->{$_}->{saas_model_id}) . ',' .
             ' saas_metric_id = ' . $self->{class_object_centreon}->quote(value => $register_centreon_metrics->{$_}->{saas_metric_id}) . ',' .
@@ -489,7 +491,8 @@ sub saas_get_predicts {
         ($status, my $result) = $self->saas_api_request(
             endpoint => '/machinelearning/' . $self->{centreon_metrics}->{$_}->{saas_model_id} . '/predicts',
             method => 'GET',
-            http_code_continue => '^2'
+            http_code_continue => '^2',
+            accept => 'application/vnd.centreon.v2+json'
         );
         next if ($status);
 
@@ -531,7 +534,7 @@ sub saas_get_predicts {
         $engine_reload->{ $self->{centreon_metrics}->{$_}->{instance_id} } = [] if (!defined($engine_reload->{ $self->{centreon_metrics}->{$_}->{instance_id} }));
         push @{$engine_reload->{ $self->{centreon_metrics}->{$_}->{instance_id} }}, $poller->{cfg_dir} . '/anomaly/' . $_ . '.json';
 
-        $query .= $query_append . 
+        $query .= $query_append .
             'UPDATE mod_anomaly_service SET' .
             ' saas_update_date = ' . time() .
             ' WHERE `id` = ' . $_;
