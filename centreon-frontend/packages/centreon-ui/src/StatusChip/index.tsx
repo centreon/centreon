@@ -30,22 +30,28 @@ const getStatusColors = ({ theme, severityCode }: StatusColorProps): Colors => {
   const colorMapping = {
     [SeverityCode.High]: {
       backgroundColor: palette.error.main,
+      color: palette.error.contrastText,
     },
     [SeverityCode.Medium]: {
       backgroundColor: palette.warning.main,
+      color: palette.warning.contrastText,
     },
     [SeverityCode.Low]: {
       backgroundColor:
         grey[equals(ThemeMode.dark, theme.palette.mode) ? 600 : 300],
+      color: '#000',
     },
     [SeverityCode.Pending]: {
       backgroundColor: palette.pending.main,
+      color: '#fff',
     },
     [SeverityCode.Ok]: {
       backgroundColor: palette.success.main,
+      color: palette.success.contrastText,
     },
     [SeverityCode.None]: {
       backgroundColor: alpha(palette.primary.main, 0.1),
+      color: palette.text.primary,
     },
   };
 
@@ -58,15 +64,15 @@ export type Props = {
   severityCode: SeverityCode;
 } & ChipProps;
 
-const useStyles = makeStyles<Props>()((theme, { severityCode, label }) => ({
+const useStyles = makeStyles<Props>()((theme, { severityCode }) => ({
   chip: {
-    ...getStatusColors({ severityCode, theme }),
-    ...(!label && {
-      borderRadius: theme.spacing(1.5),
-      height: theme.spacing(1.5),
-      width: theme.spacing(1.5),
-    }),
     '&:hover': { ...getStatusColors({ severityCode, theme }) },
+    ...getStatusColors({ severityCode, theme }),
+    borderRadius: theme.spacing(1.25),
+    fontSize: theme.typography.body2.fontSize,
+    height: theme.spacing(2.5),
+    lineHeight: theme.spacing(2.5),
+    minWidth: theme.spacing(2.5),
   },
 }));
 

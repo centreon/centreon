@@ -18,12 +18,17 @@ const getColor = (themeMode: string): string =>
 const useStyles = makeStyles<StyleProps>()((theme, { severityCode }) => ({
   badge: {
     background: getStatusColors({ severityCode, theme }).backgroundColor,
+    borderRadius: theme.spacing(1.25),
     color: theme.palette.common[getColor(theme.palette.mode)],
     cursor: 'pointer',
-    fontSize: theme.typography.caption.fontSize,
-    height: theme.spacing(1.875),
-    minWidth: theme.spacing(1.875),
-    padding: theme.spacing(0, 0.5),
+    fontSize: theme.typography.body2.fontSize,
+    height: theme.spacing(2.5),
+    lineHeight: theme.spacing(2.5),
+    minWidth: theme.spacing(2.5),
+    position: 'relative',
+    right: 0,
+    top: 0,
+    transform: 'none',
   },
 }));
 

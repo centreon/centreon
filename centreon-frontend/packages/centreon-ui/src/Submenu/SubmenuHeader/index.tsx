@@ -4,6 +4,8 @@ import { equals } from 'ramda';
 import { Link } from 'react-router-dom';
 import { makeStyles } from 'tss-react/mui';
 
+import { ClickAwayListener } from '@mui/material';
+
 import { ThemeMode } from '@centreon/ui-context';
 
 import IconHeader from '../../Icon/IconHeader';
@@ -18,75 +20,51 @@ interface StyleProps {
   counterRightTranslation?: number;
 }
 
-const useStyles = makeStyles<StyleProps>()(
-  (theme, { counterRightTranslation }) => ({
-    active: {
-      backgroundColor: equals(theme.palette.mode, ThemeMode.dark)
-        ? theme.palette.background.default
-        : theme.palette.primary.main,
-    },
-    bottom: {
-      display: 'flex',
-    },
-    link: {
-      textDecoration: 'none',
-    },
-    subMenuCounters: {
-      display: 'flex',
-      gap: theme.spacing(2.5),
-      [theme.breakpoints.down(768)]: {
-        display: 'grid',
-        gridTemplateColumns: 'auto auto',
-      },
-    },
-    subMenuRight: {
-      alignItem: 'flex-start',
-      display: 'flex',
-      flexDirection: 'column',
-      gap: theme.spacing(1),
-      justifyContent: 'space-between',
-      [theme.breakpoints.down(768)]: {
-        alignItems: 'center',
-        flexDirection: 'row',
-      },
-    },
-    submenu: {
-      backgroundColor: equals(theme.palette.mode, ThemeMode.dark)
-        ? theme.palette.background.default
-        : theme.palette.primary.main,
-      boxSizing: 'border-box',
-      display: 'none',
-      left: 0,
-      padding: `${theme.spacing(1)} ${theme.spacing(1)} 0 ${theme.spacing(1)}`,
-      position: 'absolute',
-      textAlign: 'left',
-      top: '100%',
-      width: theme.spacing(18),
-      zIndex: theme.zIndex.mobileStepper,
-    },
-    submenuDisplayed: {
-      display: 'block',
-    },
-    top: {
-      backgroundColor: equals(theme.palette.mode, ThemeMode.dark)
-        ? theme.palette.background.default
-        : theme.palette.primary.main,
-      display: 'flex',
-      position: 'relative',
-    },
-    translateCountersNearToIcon: {
-      position: 'relative',
-      right: theme.spacing(counterRightTranslation || 0),
-      [theme.breakpoints.down(768)]: {
-        position: 'static',
-      },
-    },
-    wrapMiddleIcon: {
-      color: 'inherit',
-      display: 'flex',
-    },
-  }),
-);
+const useStyles = makeStyles<StyleProps>()((theme) => ({
+  active: {
+    backgroundColor: equals(theme.palette.mode, ThemeMode.dark)
+      ? theme.palette.common.black
+      : theme.palette.primary.dark,
+  },
+  bottom: {
+    display: 'flex',
+  },
+  link: {
+    textDecoration: 'none',
+  },
+  subMenuCounters: {
+    display: 'flex',
+    gap: theme.spacing(0.5),
+  },
+  subMenuRight: {
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'space-between',
+  },
+  submenu: {
+    backgroundColor: theme.palette.background.default,
+    boxShadow: theme.shadows[3],
+    boxSizing: 'border-box',
+    display: 'none',
+    left: 0,
+    position: 'absolute',
+    textAlign: 'left',
+    top: 'calc(100% + 10px)',
+    width: theme.spacing(18),
+    zIndex: theme.zIndex.mobileStepper,
+  },
+  submenuDisplayed: {
+    display: 'block',
+  },
+  top: {
+    display: 'flex',
+    position: 'relative',
+  },
+  wrapMiddleIcon: {
+    color: 'inherit',
+    fontSize: 0,
+  },
+}));
 
 interface IconHeaderProps {
   Icon: (props) => JSX.Element;
@@ -144,84 +122,87 @@ const SubmenuHeader = ({
   const { classes, cx } = useStyles({ counterRightTranslation });
 
   return (
-    <div
-      className={cx(classes.top, {
-        [classes.active]: active,
-      })}
-      {...props}
+    <ClickAwayListener
+      onClickAway={(): void => {
+        if (!toggled) {
+          return;
+        }
+        iconHeader.onClick();
+      }}
     >
-      {iconHeader && (
-        <IconHeader
-          Icon={iconHeader.Icon}
-          iconName={iconHeader.iconName}
-          pending={hasPending}
-          onClick={iconHeader.onClick}
-        />
-      )}
-
-      <div className={classes.subMenuRight}>
-        <div
-          className={`${classes.subMenuCounters} ${classes.translateCountersNearToIcon}`}
-        >
-          {counters?.map(({ testId, to, onClick, count, severityCode }) => {
-            return (
-              <Link
-                className={cx(classes.link, classes.wrapMiddleIcon)}
-                data-testid={testId}
-                key={to}
-                to={to}
-                onClick={onClick}
-              >
-                <StatusCounter count={count} severityCode={severityCode} />
-              </Link>
-            );
-          })}
-        </div>
-        <IconToggleSubmenu
-          aria-label={iconToggleSubmenu?.Label}
-          data-testid={iconToggleSubmenu?.testid}
-          rotate={iconToggleSubmenu?.rotate}
-          onClick={iconToggleSubmenu?.onClick}
-        />
-      </div>
-
       <div
-        className={cx(classes.submenu, {
-          [classes.submenuDisplayed]: toggled,
+        className={cx(classes.top, {
+          [classes.active]: active,
         })}
+        {...props}
       >
-        <SubmenuItems>
-          {submenuItems?.map(
-            ({
-              to,
-              onClick,
-              countTestId,
-              severityCode,
-              submenuCount,
-              submenuTitle,
-              titleTestId,
-            }) => {
+        {iconHeader && (
+          <IconHeader
+            Icon={iconHeader.Icon}
+            iconName={iconHeader.iconName}
+            pending={hasPending}
+            onClick={iconHeader.onClick}
+          />
+        )}
+
+        <div className={classes.subMenuRight}>
+          <div className={classes.subMenuCounters}>
+            {counters?.map(({ testId, to, onClick, count, severityCode }) => {
               return (
                 <Link
-                  className={classes.link}
+                  className={cx(classes.link, classes.wrapMiddleIcon)}
+                  data-testid={testId}
                   key={to}
                   to={to}
                   onClick={onClick}
                 >
+                  <StatusCounter count={count} severityCode={severityCode} />
+                </Link>
+              );
+            })}
+          </div>
+          <IconToggleSubmenu
+            aria-label={iconToggleSubmenu?.Label}
+            data-testid={iconToggleSubmenu?.testid}
+            rotate={iconToggleSubmenu?.rotate}
+            onClick={iconToggleSubmenu?.onClick}
+          />
+        </div>
+
+        <div
+          className={cx(classes.submenu, {
+            [classes.submenuDisplayed]: toggled,
+          })}
+        >
+          <SubmenuItems>
+            {submenuItems?.map(
+              ({
+                to,
+                onClick,
+                countTestId,
+                severityCode,
+                submenuCount,
+                submenuTitle,
+                titleTestId,
+              }) => {
+                return (
                   <SubmenuItem
                     countTestId={countTestId}
+                    key={to}
                     severityCode={severityCode as SeverityCode}
                     submenuCount={submenuCount}
                     submenuTitle={submenuTitle}
                     titleTestId={titleTestId}
+                    to={to}
+                    onClick={onClick}
                   />
-                </Link>
-              );
-            },
-          )}
-        </SubmenuItems>
+                );
+              },
+            )}
+          </SubmenuItems>
+        </div>
       </div>
-    </div>
+    </ClickAwayListener>
   );
 };
 

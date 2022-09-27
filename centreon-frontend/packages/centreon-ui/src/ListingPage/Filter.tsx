@@ -2,7 +2,7 @@ import * as React from 'react';
 
 import { makeStyles } from 'tss-react/mui';
 
-import { Paper } from '@mui/material';
+import { Box } from '@mui/material';
 
 import { useMemoComponent } from '..';
 
@@ -22,13 +22,13 @@ const Filter = React.forwardRef(
     const { classes } = useStyles();
 
     return (
-      <Paper
-        square
+      <Box
         className={classes.content}
+        component="div"
         ref={ref as React.RefObject<HTMLDivElement>}
       >
         {content}
-      </Paper>
+      </Box>
     );
   },
 );

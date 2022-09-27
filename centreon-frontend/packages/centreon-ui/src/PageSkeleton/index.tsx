@@ -7,7 +7,7 @@ import LoadingSkeleton from '../LoadingSkeleton';
 import BaseRectSkeleton, { useSkeletonStyles } from './BaseSkeleton';
 import ContentSkeleton from './ContentSkeleton';
 
-const headerHeight = 6.5;
+const headerHeight = 8;
 const footerHeight = 3.8;
 
 const useStyles = makeStyles()((theme) => ({

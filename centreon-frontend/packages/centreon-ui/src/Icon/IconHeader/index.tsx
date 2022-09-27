@@ -27,7 +27,6 @@ const useStyles = makeStyles()((theme) => ({
     cursor: 'pointer',
     display: 'flex',
     flexDirection: 'column',
-    justifyContent: 'space-between',
   },
 }));
 

@@ -31,7 +31,7 @@ import { makeStyles } from 'tss-react/mui';
 import {
   Table,
   TableBody,
-  Paper,
+  Box,
   LinearProgress,
   TableRow,
   useTheme,
@@ -98,10 +98,6 @@ const useStyles = makeStyles()((theme) => ({
     height: loadingIndicatorHeight,
     width: '100%',
   },
-  paper: {
-    borderBottom: 'none',
-    overflow: 'auto',
-  },
   table: {
     alignItems: 'center',
     display: 'grid',
@@ -110,6 +106,10 @@ const useStyles = makeStyles()((theme) => ({
   tableBody: {
     display: 'contents',
     position: 'relative',
+  },
+  tableWrapper: {
+    borderBottom: 'none',
+    overflow: 'auto',
   },
 }));
 
@@ -475,10 +475,9 @@ const Listing = <TRow extends { id: RowId }>({
             onSelectColumns={onSelectColumns}
           />
         </div>
-        <Paper
-          square
-          className={classes.paper}
-          elevation={1}
+        <Box
+          className={classes.tableWrapper}
+          component="div"
           style={{
             maxHeight: tableMaxHeight(),
           }}
@@ -611,7 +610,7 @@ const Listing = <TRow extends { id: RowId }>({
               )}
             </TableBody>
           </Table>
-        </Paper>
+        </Box>
       </div>
     </>
   );

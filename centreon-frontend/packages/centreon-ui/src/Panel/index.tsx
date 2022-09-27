@@ -20,6 +20,7 @@ interface StylesProps extends Pick<Props, 'headerBackgroundColor' | 'width'> {
 const useStyles = makeStyles<StylesProps>()(
   (theme, { hasTabs, width, headerBackgroundColor }) => ({
     appBar: {
+      backgroundColor: theme.palette.background.default,
       borderBottomWidth: hasTabs ? 1 : 0,
       borderLeft: 'none',
       borderRight: 'none',
@@ -32,6 +33,7 @@ const useStyles = makeStyles<StylesProps>()(
       height: '100%',
     },
     container: {
+      backgroundColor: theme.palette.background.default,
       display: 'grid',
       gridTemplate: 'auto auto 1fr / 1fr',
       height: '100%',
@@ -47,7 +49,6 @@ const useStyles = makeStyles<StylesProps>()(
       top: 0,
     },
     contentContainer: {
-      backgroundColor: theme.palette.background.paper,
       position: 'relative',
     },
     divider: {
@@ -72,7 +73,6 @@ const useStyles = makeStyles<StylesProps>()(
       padding: theme.spacing(1),
     },
     tabs: {
-      backgroundColor: theme.palette.background.paper,
       minHeight: minTabHeight,
     },
   }),

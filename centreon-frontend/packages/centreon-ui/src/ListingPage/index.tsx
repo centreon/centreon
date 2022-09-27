@@ -13,14 +13,15 @@ import ListingSkeleton from './ListingSkeleton';
 const useStyles = makeStyles()((theme) => {
   return {
     filters: {
-      margin: theme.spacing(0, 4, 0, 3),
-      zIndex: 4,
+      borderBottom: `1px solid ${theme.palette.primary.main}`,
+      margin: theme.spacing(0, 3),
     },
     listing: {
-      margin: theme.spacing(0, 4, 0, 3),
+      margin: theme.spacing(0, 3),
+      overflowY: 'auto',
+      paddingTop: theme.spacing(1),
     },
     page: {
-      backgroundColor: theme.palette.background.paper,
       display: 'grid',
       gridTemplateRows: 'auto 1fr',
       height: '100%',
@@ -93,7 +94,6 @@ const ListingPage = ({
           sx={{
             ...(fullHeight && { height: '100%' }),
             maxHeight: listingContainerHeight,
-            overflowY: 'auto',
           }}
         >
           <Suspense fallback={<ListingSkeleton />}>
