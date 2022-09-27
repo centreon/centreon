@@ -25,6 +25,7 @@ const useCopyToClipboard = ({
         textArea.select();
         document.execCommand('copy');
         document.body.removeChild(textArea);
+        showSuccessMessage(successMessage);
       } catch (e) {
         showErrorMessage(errorMessage);
       }
