@@ -23,7 +23,6 @@ COPY /ci/scripts/autoinstall.php /usr/share/centreon/autoinstall.php
 COPY /ci/scripts/configuration/* /usr/share/centreon/www/install/tmp/
 RUN chmod +x /tmp/install.sh
 
-
 VOLUME [ "/sys/fs/cgroup" ]
 
 CMD ["/usr/sbin/init"]
