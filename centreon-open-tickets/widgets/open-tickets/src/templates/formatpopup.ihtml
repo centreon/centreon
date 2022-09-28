@@ -1,4 +1,4 @@
-<form id="Form"s>
+<form id="Form">
     <div align=center>
         <div id="form_error" style="color: red"></div>
 

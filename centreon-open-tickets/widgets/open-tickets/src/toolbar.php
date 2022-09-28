@@ -1,6 +1,6 @@
 <?php
 /*
- * Copyright 2015-2019 Centreon (http://www.centreon.com/)
+ * Copyright 2015-2022 Centreon (http://www.centreon.com/)
  *
  * Centreon is a full-fledged industry-strength solution that meets
  * the needs in IT infrastructure and application monitoring for
@@ -57,50 +57,122 @@ $toolbar = '';
 if ($preferences['toolbar_buttons']) {
     if (!isset($preferences['opened_tickets']) || $preferences['opened_tickets'] == 0) {
         if ($preferences['action_open_hosts']) {
-            $toolbar .= "<label id='buttontoolbar_4' style='font-size: 13px; font-weight: bold; cursor:pointer;' " .
-            "for='host-ticket'>Host <input type='image' title='" .
-            _("Host: Open ticket") . "' alt='" . _("Host: Open ticket") . "' src='" .
-            "../../modules/centreon-open-tickets/images/open-ticket.svg' name='host-ticket' " .
-            "style='border: none; width: 24px; height: 24px; vertical-align: middle;'/> </label> | ";
+            $toolbar .= "<label id='buttontoolbar_4' style='font-size: 13px; font-weight: bold; cursor:pointer;' "
+                . "for='host-ticket'>Host <input type='image' title='"
+                . _("Host: Open ticket") . "' alt='" . _("Host: Open ticket") . "' src='"
+                . $centreon->optGen['oreon_web_path']
+                . "/modules/centreon-open-tickets/images/open-ticket.svg' name='host-ticket' "
+                . "style='border: none; width: 24px; height: 24px; vertical-align: middle;'/> </label> | ";
         }
         if ($preferences['action_open_services']) {
-            $toolbar .= "<label id='buttontoolbar_3' style='font-size: 13px; font-weight: bold; cursor:pointer;'  " .
-            "for='service-ticket'> Service <input type='image' title='" . _("Service: Open ticket") . "' alt='" .
-            _("Service: Open ticket") . "' src='" .
-            "../../modules/centreon-open-tickets/images/open-ticket.svg' name='service-ticket' " .
-            "style='border: none; width: 24px; height: 24px; vertical-align: middle;' /> </label> | ";
+            $toolbar .= "<label id='buttontoolbar_3' style='font-size: 13px; font-weight: bold; cursor:pointer;'  "
+                . "for='service-ticket'> Service <input type='image' title='" . _("Service: Open ticket") . "' alt='"
+                . _("Service: Open ticket") . "' src='" . $centreon->optGen['oreon_web_path']
+                . "/modules/centreon-open-tickets/images/open-ticket.svg' name='service-ticket' "
+                . "style='border: none; width: 24px; height: 24px; vertical-align: middle;' /> </label> | ";
         }
         if (
             $preferences['action_ack']
             && ($canDoAction || $centreon->user->access->checkAction("service_acknowledgement"))
         ) {
-            $toolbar .= "<label id='buttontoolbar_70' style='font-size: 13px; font-weight: bold; cursor:pointer;'' " .
-            "for='ack-ticket'>Acknowledge <input type='image' title='" . _("Service: Acknowledge") . "' alt='" .
-            _("Service: Acknowledge") . "' src='" .
-            "../../modules/centreon-open-tickets/images/acknowledge.png' name='ack-ticket' " .
-            "style='border: none; height: 22px; vertical-align: middle;' /> ";
+            $toolbar .= "<label id='buttontoolbar_70' style='font-size: 13px; font-weight: bold; cursor:pointer;'' "
+                . "for='ack-ticket'>Acknowledge <input type='image' title='" . _("Service: Acknowledge") . "' alt='"
+                . _("Service: Acknowledge") . "' src='" . $centreon->optGen['oreon_web_path']
+                . "/modules/centreon-open-tickets/images/acknowledge.png' name='ack-ticket' "
+                . "style='border: none; height: 22px; vertical-align: middle;' /> </label> | ";
+        }
+        if (
+            $preferences['action_service_forced_check']
+            && ($canDoAction || $centreon->user->access->checkAction("service_schedule_forced_check"))
+        ) {
+            $toolbar .= "<label id='buttontoolbar_80' style='font-size: 13px; font-weight: bold; cursor:pointer;'' "
+                . "for='schedule-service-forced-check-ticket'>Service: Schedule forced check <input type='image' "
+                . "title='" . _("Service: Schedule Forced Check") . "' alt='"
+                . _("Service: Schedule Forced Check") . "' src='" . $centreon->optGen['oreon_web_path']
+                . "/modules/centreon-open-tickets/images/schedule_forced_check.png' "
+                . "name='schedule-service-forced-check-ticket' "
+                . "style='border: none; height: 22px; vertical-align: middle;' /> </label> | ";
+        }
+        if (
+            $preferences['action_service_check']
+            && ($canDoAction || $centreon->user->access->checkAction("service_schedule_check"))
+        ) {
+            $toolbar .= "<label id='buttontoolbar_81' style='font-size: 13px; font-weight: bold; cursor:pointer;'' "
+                . "for='schedule-sevice-check-ticket'>Service: Schedule check <input type='image' title='"
+                . _("Service: Schedule Check") . "' alt='"
+                . _("Service: Schedule Check") . "' src='" . $centreon->optGen['oreon_web_path']
+                . "/modules/centreon-open-tickets/images/schedule_check.png' name='schedule-service-check-ticket' "
+                . "style='border: none; height: 22px; vertical-align: middle;' /> </label> | ";
+        }
+        if (
+            $preferences['action_host_forced_check']
+            && ($canDoAction || $centreon->user->access->checkAction("host_schedule_forced_check"))
+        ) {
+            $toolbar .= "<label id='buttontoolbar_82' style='font-size: 13px; font-weight: bold; cursor:pointer;'' "
+                . "for='host-service-forced-check-ticket'>Host: Schedule forced check <input type='image' title='"
+                . _("Host: Schedule Forced Check") . "' alt='"
+                . _("Host: Schedule Forced Check") . "' src='" . $centreon->optGen['oreon_web_path']
+                . "/modules/centreon-open-tickets/images/schedule_forced_check.png' "
+                . "name='schedule-host-forced-check-ticket' "
+                . "style='border: none; height: 22px; vertical-align: middle;' /> </label> | ";
+        }
+        if (
+            $preferences['action_host_check']
+            && ($canDoAction || $centreon->user->access->checkAction("host_schedule_check"))
+        ) {
+            $toolbar .= "<label id='buttontoolbar_83' style='font-size: 13px; font-weight: bold; cursor:pointer;'' "
+                . "for='schedule-host-check-ticket'>Host: Schedule check <input type='image' title='"
+                . _("Host: Schedule Check") . "' alt='"
+                . _("Host: Schedule Check") . "' src='" . $centreon->optGen['oreon_web_path']
+                . "/modules/centreon-open-tickets/images/schedule_check.png' name='schedule-host-check-ticket' "
+                . "style='border: none; height: 22px; vertical-align: middle;' /> </label> |";
         }
     } else {
-        $toolbar .= "<input type='image' title='" . _("Close Tickets") . "' alt='" . _("Close Tickets") .
-        "' src='" .
-        "../../modules/centreon-open-tickets/images/close-ticket.svg' id='buttontoolbar_10' " .
-        "style='cursor:pointer; border: none;width: 24px; height: 24px;' />";
+        $toolbar .= "<input type='image' title='" . _("Close Tickets") . "' alt='" . _("Close Tickets")
+            . "' src='" . $centreon->optGen['oreon_web_path']
+            . "/modules/centreon-open-tickets/images/close-ticket.svg' id='buttontoolbar_10' "
+            . "style='cursor:pointer; border: none;width: 24px; height: 24px;' />";
     }
 } else {
     $toolbar .= "<select class='toolbar'>";
-    $toolbar .= "<option value='0'>-- "._("More actions")." -- </option>";
+    $toolbar .= "<option value='0'>-- " . _("More actions") . " -- </option>";
 
     if (!isset($preferences['opened_tickets']) || $preferences['opened_tickets'] == 0) {
         if ($preferences['action_open_hosts']) {
-            $toolbar .= "<option value='4'>"._("Host: Open ticket")."</option>";
+            $toolbar .= "<option value='4'>" . _("Host: Open ticket") . "</option>";
         }
         if ($preferences['action_open_services']) {
-            $toolbar .= "<option value='3'>"._("Service: Open ticket")."</option>";
+            $toolbar .= "<option value='3'>" . _("Service: Open ticket") . "</option>";
         }
-        if ($preferences['action_ack']
+        if (
+            $preferences['action_ack']
             && ($canDoAction || $centreon->user->access->checkAction("service_acknowledgement"))
         ) {
-            $toolbar .= "<option value='70'>"._("Service: Acknowledge")."</option>";
+            $toolbar .= "<option value='70'>" . _("Service: Acknowledge") . "</option>";
+        }
+        if (
+            $preferences['action_host_forced_check']
+            && ($canDoAction || $centreon->user->access->checkAction("host_schedule_forced_check"))
+        ) {
+            $toolbar .= "<option value='82'>" . _("Host: Schedule Forced Check") . "</option>";
+        }
+        if (
+            $preferences['action_host_check']
+            && ($canDoAction || $centreon->user->access->checkAction("host_schedule_check"))
+        ) {
+            $toolbar .= "<option value='83'>" . _("Host: Schedule Check") . "</option>";
+        }
+        if (
+            $preferences['action_service_forced_check']
+            && ($canDoAction || $centreon->user->access->checkAction("service_schedule_forced_check"))
+        ) {
+            $toolbar .= "<option value='80'>" . _("Service: Schedule Forced Check") . "</option>";
+        }
+        if (
+            $preferences['action_service_check']
+            && ($canDoAction || $centreon->user->access->checkAction("service_schedule_check"))
+        ) {
+            $toolbar .= "<option value='81'>" . _("Service: Schedule Check") . "</option>";
         }
     } else {
         $toolbar .= "<option value='10'>" . _("Close Tickets") . "</option>";
@@ -130,8 +202,10 @@ $(function() {
             }).get().join(",");
 
             if (checkValues != '') {
-                var url = "./widgets/open-tickets/src/action.php?widgetId="+widget_id+"&selection="+checkValues+"&cmd="+jQuery(this).val();
-                // We delete the old one (not really clean. Should be managed by popin itself. Like with a destroy parameters)
+                var url = "./widgets/open-tickets/src/action.php?widgetId="
+                    + widget_id + "&selection=" + checkValues + "&cmd=" + jQuery(this).val();
+                // We delete the old one 
+                // (not really clean. Should be managed by popin itself. Like with a destroy parameters)
                 parent.jQuery('#OTWidgetPopin').parent().remove();
                 var popin = parent.jQuery('<div id="OTWidgetPopin">');
                 popin.centreonPopin({open:true,url:url});
@@ -145,20 +219,22 @@ $(function() {
 
     $("[id^=buttontoolbar_]").click(function() {
         var checkValues = $("input:checked").map(function() {
-                var tmp = $(this).attr('id').split("_");
-                return tmp[1];
-            }).get().join(",");
+            var tmp = $(this).attr('id').split("_");
+            return tmp[1];
+        }).get().join(",");
 
-         if (checkValues != '') {
-             var tmp = $(this).attr('id').split("_");
-             var url = "./widgets/open-tickets/src/action.php?widgetId="+widget_id+"&selection="+checkValues+"&cmd="+tmp[1];
-             // We delete the old one (not really clean. Should be managed by popin itself. Like with a destroy parameters)
-             parent.jQuery('#OTWidgetPopin').parent().remove();
-             var popin = parent.jQuery('<div id="OTWidgetPopin">');
-             popin.centreonPopin({open:true,url:url});
-         } else {
-             alert("<?php echo _('Please select one or more items'); ?>");
-         }
+        if (checkValues != '') {
+            var tmp = $(this).attr('id').split("_");
+            var url = "./widgets/open-tickets/src/action.php?widgetId=" 
+                + widget_id + "&selection=" + checkValues + "&cmd=" + tmp[1];
+            // We delete the old one 
+            // (not really clean. Should be managed by popin itself. Like with a destroy parameters)
+            parent.jQuery('#OTWidgetPopin').parent().remove();
+            var popin = parent.jQuery('<div id="OTWidgetPopin">');
+            popin.centreonPopin({open:true,url:url});
+        } else {
+            alert("<?php echo _('Please select one or more items'); ?>");
+        }
     });
 });
 </script>

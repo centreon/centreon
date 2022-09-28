@@ -1,0 +1,76 @@
+<form id="Form">
+  <div align=center>
+    <div class="colorbox-popin">
+      <h3 style="color: #00bfb3;">{$titleLabel}</h3>
+      <div id="form_error" style="color: #ed1c24"></div>
+      <div id="form_success" style="color: #87bd23"></div>
+    </div>
+    <div id="OTcountdown" style="color: red"></div>
+  </div>
+</form>
+<script>
+  var resource_selected = "{$selection}";
+  var forced = {$forced};
+  var isService = {$isService};
+  var autoCloseActionPopup = {$autoCloseActionPopup}
+</script>
+
+{literal}
+<script type="text/javascript">
+
+var $callback_confirm_autoclose = function() {
+    jQuery("#OTWidgetPopin > .close").trigger("click");
+};
+
+var $callback_countdown = function() {
+    var value = jQuery("#OTcountdown").text();
+    value = value - 1;
+    jQuery("#OTcountdown").html(value);
+    if (value > 1) {
+        setTimeout($callback_countdown, 1000);
+    }
+};
+
+var $callback_scheduleCheck = function(res) {
+    jQuery("#OTcontainer").html('');
+    var data_ret = JSON.parse(res);
+
+    // display error messages
+    if (data_ret['code'] === 1) {
+      jQuery("#form_error").html("Full response: " + res);
+
+    // display success messages and activate pop up auto close
+    } else {
+      jQuery("#form_success").html(data_ret['msg']);
+      if (autoCloseActionPopup) {
+        jQuery('#OTWidgetPopin > .close').hide();
+        jQuery('#centreonPopinOverlay').unbind('click');
+        setTimeout($callback_confirm_autoclose, 1000);
+        setTimeout($callback_countdown, 1000);
+      }
+    }
+};
+
+function scheduleCheck() {
+    jQuery("#form_error").html('');
+    var data = {
+        "action": "schedule-check",
+        "form": {
+          "selection": resource_selected,
+          "forced": forced,
+          "isService": isService
+        }
+    }
+
+    jQuery("#validForm").empty();
+    jQuery("#OTcontainer").html('<div style="margin-top: 50px; margin-bottom:10px">Please wait...</div><div><img src="./widgets/open-tickets/resources/ajax-waiting.gif" / ></div>');
+
+    call_ajax_async(data, $callback_scheduleCheck, './widgets/open-tickets/src/ajax/callforwardmodule.php');
+    return false;
+}
+
+jQuery(function() {
+  scheduleCheck()
+});
+</script>
+{/literal}
