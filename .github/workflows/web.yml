@@ -62,48 +62,48 @@ jobs:
           name: centreon-phpcs-report
           path: checkstyle-phpcs.xml
 
-  centreon-web-backend-lint-phpstan:
-    runs-on: ubuntu-22.04
-    if: ${{ github.event_name != 'workflow_dispatch' }}
+#  centreon-web-backend-lint-phpstan:
+#    runs-on: ubuntu-22.04
+#    if: ${{ github.event_name != 'workflow_dispatch' }}
 
-    steps:
-      - uses: actions/checkout@v3
+#    steps:
+#      - uses: actions/checkout@v3
 
-      - name: Get changed files
-        id: files
-        uses: jitterbit/get-changed-files@v1
+#      - name: Get changed files
+#        id: files
+#        uses: jitterbit/get-changed-files@v1
 
-      - name: Setup PHP
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: 8.0
-          coverage: none
-          tools: cs2pr
+#      - name: Setup PHP
+#        uses: shivammathur/setup-php@v2
+#        with:
+#          php-version: 8.0
+#          coverage: none
+#          tools: cs2pr
 
-      - run: composer install
-        working-directory: centreon
+#      - run: composer install
+#        working-directory: centreon
 
-      - name: Lint
-        run: |
-          ./centreon/vendor/bin/phpstan \
-            analyse -c ./centreon/phpstan.neon \
-            --level 6 \
-            --memory-limit=512M \
-            --error-format=checkstyle \
-            --no-interaction \
-            --no-progress ${{ steps.files.outputs.added }} ${{ steps.files.outputs.modified }} \
-            > checkstyle-phpstan.xml
+#      - name: Lint
+#        run: |
+#          ./centreon/vendor/bin/phpstan \
+#            analyse -c ./centreon/phpstan.neon \
+#            --level 6 \
+#            --memory-limit=512M \
+#            --error-format=checkstyle \
+#            --no-interaction \
+#            --no-progress ${{ steps.files.outputs.added }} ${{ steps.files.outputs.modified }} \
+#            > checkstyle-phpstan.xml
 
-      - name: Show PHPStan results in PR
-        if: ${{ always() }}
-        run: cs2pr ./checkstyle-phpstan.xml
+#      - name: Show PHPStan results in PR
+#        if: ${{ always() }}
+#        run: cs2pr ./checkstyle-phpstan.xml
 
-      - name: Publish report
-        if: ${{ always() }}
-        uses: jwgmeligmeyling/checkstyle-github-action@master
-        with:
-          name: centreon-phpstan-report
-          path: checkstyle-phpstan.xml
+#      - name: Publish report
+#        if: ${{ always() }}
+#        uses: jwgmeligmeyling/checkstyle-github-action@master
+#        with:
+#          name: centreon-phpstan-report
+#          path: checkstyle-phpstan.xml
 
   centreon-web-frontend-lint:
     runs-on: ubuntu-22.04
@@ -185,11 +185,11 @@ jobs:
           junit_files: "centreon/build/phpunit.xml"
 
   centreon-web-package-rpm:
-    runs-on: common
+    runs-on: [self-hosted, common]
     needs:
       [
         centreon-web-backend-lint-phpcs,
-        centreon-web-backend-lint-phpstan,
+#        centreon-web-backend-lint-phpstan,
         centreon-web-backend-unit-test,
         centreon-web-frontend-lint,
         centreon-web-frontend-unit-test,
@@ -237,30 +237,30 @@ jobs:
         with:
           path: ./*.rpm
           key: ${{ env.cache-name-rpmbuild }}-${{ matrix.distrib }}
-  
+
   centreon-web-package-deb:
-    runs-on: common
+    runs-on: [self-hosted, common]
     needs:
       [
         centreon-web-backend-lint-phpcs,
-        centreon-web-backend-lint-phpstan,
+#        centreon-web-backend-lint-phpstan,
         centreon-web-backend-unit-test,
         centreon-web-frontend-lint,
         centreon-web-frontend-unit-test,
       ]
-    
+
     strategy:
       matrix:
         include:
           - image: packaging-web-bullseye
             distrib: bullseye
 
-    steps: 
+    steps:
       - name: Checkout sources
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
-      
+
       - name: 'Get minor and release version'
         uses: ./.github/actions/get-package-version
         with:
@@ -284,7 +284,7 @@ jobs:
           key: ${{ env.cache-name-debbuild }}-${{ matrix.distrib }}
 
   centreon-web-dockerize:
-    runs-on: common
+    runs-on: [self-hosted, common]
     needs: [centreon-web-package-rpm, centreon-web-package-deb]
 
     strategy:
@@ -306,16 +306,28 @@ jobs:
           username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
           password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
 
-      - name: build docker run
-        uses: ./.github/actions/docker-builder-run
+      - name: Use cache RPM files
+        uses: actions/cache@v3
+        env:
+          cache-name-rpmbuild: cache-${{ github.sha }}-${{ github.run_id }}-rpmbuild-${{ matrix.module_name}}
         with:
-          distrib: ${{ matrix.distrib }}
-          project: ${{ matrix.project }}
-          distrib_rpm: ${{ matrix.distrib_rpm }}
-          module_name: ${{ matrix.module_name }}
+          path: ./*.rpm
+          key: ${{ env.cache-name-rpmbuild }}-${{ matrix.distrib_rpm }}
+          restore-keys: |
+            ${{ env.cache-name-rpmbuild }}-${{ matrix.distrib_rpm }}
+
+      - uses: docker/setup-buildx-action@v2
+
+      - uses: docker/build-push-action@v3
+        with:
+          file: ci/docker/Dockerfile.${{ matrix.project }}-${{ matrix.distrib }}
+          context: .
+          no-cache: true
+          pull: true
+          tags: docker.registry.apps.centreon.com/${{ matrix.project }}-${{ matrix.distrib }}:${{ github.head_ref || github.ref_name }}
 
   centreon-web-test-e2e:
-    runs-on: common
+    runs-on: [self-hosted, common]
     needs: [centreon-web-dockerize]
 
     steps:
@@ -346,7 +358,7 @@ jobs:
           junit_files: centreon/tests/e2e/cypress-result.xml
 
   centreon-web-deliver-rpm:
-    runs-on: common
+    runs-on: [self-hosted, common]
     needs: [centreon-web-test-e2e]
 
     strategy:
@@ -373,7 +385,7 @@ jobs:
 
   centreon-web-deliver-deb:
     needs: [centreon-web-test-e2e]
-    runs-on: common
+    runs-on: [self-hosted, common]
     strategy:
       matrix:
         include:
@@ -393,7 +405,7 @@ jobs:
           nexus_password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
 
   centreon-web-test-performances:
-    runs-on: common
+    runs-on: [self-hosted, common]
     needs: [centreon-web-dockerize]
 
     steps:
