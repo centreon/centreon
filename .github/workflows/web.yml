@@ -235,9 +235,16 @@ jobs:
 
       - name: Cache RPM files
         uses: actions/cache@v3
+        env:
+          cache-name-rpmbuild: cache-${{ github.sha }}-${{ github.run_id }}-rpmbuild-bam
         with:
           path: ./*.rpm
-          key: cache-${{ github.sha }}-${{ github.run_id }}-rpmbuild-web-${{ matrix.distrib_rpm }}
+          key: ${{ env.cache-name-rpmbuild }}-${{ matrix.distrib }}
+      #- name: Cache RPM files
+      #  uses: actions/cache@v3
+      #  with:
+      #    path: ./*.rpm
+      #    key: cache-${{ github.sha }}-${{ github.run_id }}-rpmbuild-web-${{ matrix.distrib_rpm }}
 
   centreon-web-package-deb:
     runs-on: [self-hosted, common]
@@ -308,11 +315,21 @@ jobs:
           username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
           password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
 
-      - name: Restore cache RPM files
+      #- name: Restore cache RPM files
+      #  uses: actions/cache@v3
+      #  with:
+      #    path: /rpms/*.rpm
+      #    key: cache-${{ github.sha }}-${{ github.run_id }}-rpmbuild-web-${{ matrix.distrib_rpm }}#
+
+      - name: Use cache RPM files
         uses: actions/cache@v3
+        env:
+          cache-name-rpmbuild: cache-${{ github.sha }}-${{ github.run_id }}-rpmbuild-${{ matrix.module_name}}
         with:
-          path: /rpms/*.rpm
-          key: cache-${{ github.sha }}-${{ github.run_id }}-rpmbuild-web-${{ matrix.distrib_rpm }}
+          path: ./*.rpm
+          key: ${{ env.cache-name-rpmbuild }}-${{ matrix.distrib_rpm }}
+          restore-keys: |
+            ${{ env.cache-name-rpmbuild }}-${{ matrix.distrib_rpm }}
 
       - uses: docker/setup-buildx-action@v2
 
