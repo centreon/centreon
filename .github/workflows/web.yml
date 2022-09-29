@@ -23,7 +23,7 @@ env:
 jobs:
   centreon-web-backend-lint-phpcs:
     runs-on: ubuntu-22.04
-    if: ${{ github.event_name != 'workflow_dispatch' }}
+    if: ${{ false && github.event_name != 'workflow_dispatch' }}
 
     steps:
       - uses: actions/checkout@v3
@@ -107,6 +107,7 @@ jobs:
 
   centreon-web-frontend-lint:
     runs-on: ubuntu-22.04
+    if: ${{ false }}
 
     steps:
       - uses: actions/setup-node@v3
@@ -132,6 +133,7 @@ jobs:
 
   centreon-web-frontend-unit-test:
     runs-on: ubuntu-22.04
+    if: ${{ false }}
 
     steps:
       - uses: actions/setup-node@v3
@@ -158,6 +160,7 @@ jobs:
 
   centreon-web-backend-unit-test:
     runs-on: ubuntu-22.04
+    if: ${{ false }}
 
     steps:
       - uses: actions/checkout@v3
@@ -186,22 +189,22 @@ jobs:
 
   centreon-web-package-rpm:
     runs-on: [self-hosted, common]
-    needs:
-      [
-        centreon-web-backend-lint-phpcs,
+#    needs:
+#      [
+#        centreon-web-backend-lint-phpcs,
 #        centreon-web-backend-lint-phpstan,
-        centreon-web-backend-unit-test,
-        centreon-web-frontend-lint,
-        centreon-web-frontend-unit-test,
-      ]
+#        centreon-web-backend-unit-test,
+#        centreon-web-frontend-lint,
+#        centreon-web-frontend-unit-test,
+#      ]
 
     strategy:
       matrix:
         include:
           - image: packaging-web-centos7
             distrib: el7
-          - image: packaging-web-alma8
-            distrib: el8
+#          - image: packaging-web-alma8
+#            distrib: el8
 
     steps:
       - name: Checkout sources
@@ -285,7 +288,8 @@ jobs:
 
   centreon-web-dockerize:
     runs-on: [self-hosted, common]
-    needs: [centreon-web-package-rpm, centreon-web-package-deb]
+    needs: [centreon-web-package-rpm]
+#    needs: [centreon-web-package-rpm, centreon-web-package-deb]
 
     strategy:
       matrix:
