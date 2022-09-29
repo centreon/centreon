@@ -236,7 +236,7 @@ jobs:
       - name: Cache RPM files
         uses: actions/cache@v3
         env:
-          cache-name-rpmbuild: cache-${{ github.sha }}-${{ github.run_id }}-rpmbuild-bam
+          cache-name-rpmbuild: cache-${{ github.sha }}-${{ github.run_id }}-rpmbuild-web
         with:
           path: ./*.rpm
           key: ${{ env.cache-name-rpmbuild }}-${{ matrix.distrib }}
@@ -324,7 +324,7 @@ jobs:
       - name: Use cache RPM files
         uses: actions/cache@v3
         env:
-          cache-name-rpmbuild: cache-${{ github.sha }}-${{ github.run_id }}-rpmbuild-${{ matrix.module_name}}
+          cache-name-rpmbuild: cache-${{ github.sha }}-${{ github.run_id }}-rpmbuild-web
         with:
           path: ./*.rpm
           key: ${{ env.cache-name-rpmbuild }}-${{ matrix.distrib_rpm }}
