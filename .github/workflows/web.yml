@@ -315,7 +315,7 @@ jobs:
         env:
           cache-name-rpmbuild: cache-${{ github.sha }}-${{ github.run_id }}-rpmbuild-${{ matrix.module_name}}
         with:
-          path: ./*.rpm
+          path: /rpms
           key: ${{ env.cache-name-rpmbuild }}-${{ matrix.distrib_rpm }}
           restore-keys: |
             ${{ env.cache-name-rpmbuild }}-${{ matrix.distrib_rpm }}
