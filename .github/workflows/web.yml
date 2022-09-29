@@ -311,7 +311,7 @@ jobs:
       - name: Restore cache RPM files
         uses: actions/cache@v3
         with:
-          path: ./*.rpm
+          path: /rpms/*.rpm
           key: cache-${{ github.sha }}-${{ github.run_id }}-rpmbuild-web-${{ matrix.distrib_rpm }}
 
       - uses: docker/setup-buildx-action@v2
