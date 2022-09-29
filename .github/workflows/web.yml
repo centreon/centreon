@@ -238,7 +238,7 @@ jobs:
         env:
           cache-name-rpmbuild: cache-${{ github.sha }}-${{ github.run_id }}-rpmbuild-web
         with:
-          path: ./*.rpm
+          path: /rpms/*.rpm
           key: ${{ env.cache-name-rpmbuild }}-${{ matrix.distrib }}
       #- name: Cache RPM files
       #  uses: actions/cache@v3
