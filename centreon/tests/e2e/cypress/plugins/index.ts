@@ -14,6 +14,7 @@ module.exports = (on): void => {
   on('before:browser:launch', (browser = {}, launchOptions) => {
     if ((browser as { name }).name === 'chrome') {
       launchOptions.args.push('--disable-gpu');
+      launchOptions.args.push('--disable-software-rasterizer');
       launchOptions.args = launchOptions.args.filter(
         (element) => element !== '--disable-dev-shm-usage',
       );
