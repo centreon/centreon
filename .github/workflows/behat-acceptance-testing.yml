@@ -2,6 +2,7 @@ name: behat-acceptance-tests
 
 on:
   workflow_dispatch:
+  
   push:
     branches:
       - MON-14946-migrate-behat-tests
