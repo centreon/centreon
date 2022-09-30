@@ -326,7 +326,7 @@ jobs:
         env:
           cache-name-rpmbuild: cache-${{ github.sha }}-${{ github.run_id }}-rpmbuild-web-el7
         with:
-          path: ./rpms/*.rpm
+          path: ./*.rpm
           key: ${{ env.cache-name-rpmbuild }}
           restore-keys: |
             ${{ env.cache-name-rpmbuild }}
