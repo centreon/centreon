@@ -1,8 +1,5 @@
 FROM docker-proxy.registry.apps.centreon.com/centos:7
 
-#COPY web/22.10 /tmp/fresh
-COPY --chmod=+x ./ci/scripts/init/* /etc/init.d/
-
 RUN mkdir /tmp/rpms-centreon
 COPY *.rpm /tmp/rpms-centreon/
 
@@ -37,6 +34,7 @@ RUN yum clean all
 
 #EOF
 
+COPY --chmod=+x ./ci/scripts/init/* /etc/init.d/
 COPY --chmod=+x ./ci/scripts/autoinstall.php /usr/share/centreon/
 COPY --chown=apache:apache ./ci/scripts/configuration /usr/share/centreon/www/install/tmp/
 
