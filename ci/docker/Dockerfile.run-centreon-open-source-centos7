@@ -21,6 +21,8 @@ rm -f centreonrelease-.rpm
 yum-config-manager --enable 'centreon-testing*'
 yum-config-manager --enable 'centreon-unstable*'
 
+yum clean all
+
 EOF
 
 RUN mkdir /tmp/rpms-centreon
@@ -38,14 +40,14 @@ yum clean all
 
 EOF
 
-COPY ./ci/scripts/entrypoint/* /usr/share/centreon/
+COPY --chmod=+x ./ci/scripts/entrypoint/container.sh /usr/share/centreon/container.sh
+COPY ./ci/scripts/entrypoint/container.d /usr/share/centreon/container.d
 COPY ./ci/scripts/init/* /etc/init.d/
 COPY --chmod=+x ./ci/scripts/autoinstall.php /usr/share/centreon/
 COPY --chown=apache:apache ./ci/scripts/configuration /usr/share/centreon/www/install/tmp/
 
 RUN <<EOF
 
-chmod +x /usr/share/centreon/container.sh
 chmod +x /usr/share/centreon/container.d/*
 chmod +x /etc/init.d/*
 service mysql start
