@@ -338,6 +338,7 @@ jobs:
           file: ci/docker/Dockerfile.${{ matrix.project }}-${{ matrix.distrib }}
           context: .
           pull: true
+          push: true
           tags: docker.registry.apps.centreon.com/${{ matrix.project }}-${{ matrix.distrib }}:${{ github.head_ref || github.ref_name }}
 
   centreon-web-test-e2e:
