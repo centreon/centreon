@@ -2,7 +2,9 @@ FROM docker-proxy.registry.apps.centreon.com/centos:7
 
 #COPY web/22.10 /tmp/fresh
 COPY --chmod=+x ./ci/scripts/init/* /etc/init.d/
-COPY rpms /tmp/rpms
+
+RUN mkdir /tmp/rpms-centreon
+COPY *.rpm /tmp/rpms-centreon/
 
 RUN <<EOF
 
@@ -15,8 +17,8 @@ sed -ri 's/10\../10.5/' /etc/yum.repos.d/mariadb.repo
 rm -f /tmp/mariadb_repo_setup
 yum install -y MariaDB-server MariaDB-client
 
-rm -f /tmp/rpms/centreon-22.10*.rpm /tmp/rpms/centreon-central-22.10*.rpm
-yum install -y /tmp/rpms/centreon-*.rpm centreon-broker-cbd centreon-broker-influxdb libfaketime
+rm -f /tmp/rpms-centreon/centreon-22.10*.rpm /tmp/rpms-centreon/centreon-central-22.10*.rpm
+yum install -y /tmp/rpms-centreon/centreon-*.rpm centreon-broker-cbd centreon-broker-influxdb libfaketime
 
 touch /var/log/php-fpm/centreon-error.log
 chown apache:apache /var/log/php-fpm/centreon-error.log
