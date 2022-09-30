@@ -23,5 +23,4 @@ jobs:
         with:
           project: run-centreon-open-source
           image_version: ${{ github.head_ref || github.ref_name }}
-          behat_image_version: ${{ github.head_ref || github.ref_name }}
           distrib: centos7
