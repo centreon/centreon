@@ -12,9 +12,20 @@ rm -f /lib/systemd/system/basic.target.wants/*;\
 rm -f /lib/systemd/system/anaconda.target.wants/*;
 
 RUN curl -o centreon-release.rpm "https://yum.centreon.com/standard/22.10/el7/stable/noarch/RPMS/centreon-release-22.10-1.el7.centos.noarch.rpm"
-RUN yum -y update && yum install -y libselinux-utils --nogpgcheck centreon-release.rpm yum-utils centos-release-scl-rh \
-    https://rpms.remirepo.net/enterprise/remi-release-7.rpm https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm httpd24-httpd
+RUN yum -y update && \
+    yum install -y libselinux-utils --nogpgcheck centreon-release.rpm yum-utils centos-release-scl-rh \
+    https://rpms.remirepo.net/enterprise/remi-release-7.rpm https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm \
+    httpd24-httpd && \
+    curl -o /tmp/mariadb_repo_setup -JO https://downloads.mariadb.com/MariaDB/mariadb_repo_setup && \
+    bash /tmp/mariadb_repo_setup && \
+    sed -ri 's/10\../10.5/' /etc/yum.repos.d/mariadb.repo && \
+    rm -f /tmp/mariadb_repo_setup && \
+    yum install -y MariaDB-server MariaDB-client
 RUN yum-config-manager --enable 'centreon-testing*' && yum-config-manager --enable 'centreon-unstable*' --enable remi-php81
+
+COPY ./ci/scripts/systemd/mysql-status.conf /etc/systemd/system/mariadb.service.d/mysql-status.conf
+COPY ./ci/scripts/systemd/check-mysql-status.sh /var/lib/mysql/check-mysql-status.sh
+RUN chmod +x /var/lib/mysql/check-mysql-status.sh
 
 COPY *.rpm /tmp/
 COPY ./ci/scripts/install.sh /tmp/install.sh

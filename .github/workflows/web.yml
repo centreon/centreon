@@ -23,6 +23,7 @@ env:
 jobs:
   centreon-web-backend-lint-phpcs:
     runs-on: ubuntu-22.04
+    if: ${{ github.event_name != 'workflow_dispatch' }}
 
     steps:
       - uses: actions/checkout@v3
@@ -55,6 +56,7 @@ jobs:
         run: cs2pr checkstyle-phpcs.xml
 
       - name: Publish report
+        if: ${{ always() }}
         uses: jwgmeligmeyling/checkstyle-github-action@master
         with:
           name: centreon-phpcs-report
@@ -62,6 +64,7 @@ jobs:
 
   centreon-web-backend-lint-phpstan:
     runs-on: ubuntu-22.04
+    if: ${{ github.event_name != 'workflow_dispatch' }}
 
     steps:
       - uses: actions/checkout@v3
@@ -96,6 +99,7 @@ jobs:
         run: cs2pr ./checkstyle-phpstan.xml
 
       - name: Publish report
+        if: ${{ always() }}
         uses: jwgmeligmeyling/checkstyle-github-action@master
         with:
           name: centreon-phpstan-report
@@ -304,6 +308,38 @@ jobs:
 
       - name: build docker run
         uses: ./.github/actions/docker-builder-run
+        with:
+          distrib: ${{ matrix.distrib }}
+          project: ${{ matrix.project }}
+          distrib_rpm: ${{ matrix.distrib_rpm }}
+          module_name: ${{ matrix.module_name }}
+
+  centreon-web-fresh-dockerize:
+    runs-on: common
+    needs: [centreon-web-package-rpm, centreon-web-package-deb]
+
+    strategy:
+      matrix:
+        include:
+          - project: run-centreon-open-source-fresh
+            distrib: centos7
+            distrib_rpm: el7
+            module_name: web
+            is_fresh: "yes"
+
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v3
+
+      - name: Login to Registry
+        uses: docker/login-action@v2
+        with:
+          registry: docker.registry.apps.centreon.com
+          username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
+          password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
+
+      - name: build docker run
+        uses: ./.github/actions/docker-builder-run-fresh
         with:
           distrib: ${{ matrix.distrib }}
           project: ${{ matrix.project }}
