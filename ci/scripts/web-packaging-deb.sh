@@ -10,6 +10,7 @@ PHPVERSION="php80"
 DISTRIB="bullseye"
 AUTHOR="Luiz Costa"
 AUTHOR_EMAIL="me@luizgustavo.pro.br"
+export CYPRESS_CACHE_FOLDER=$PWD/cypress_cache
 
 mkdir -p www/locale/en_US.UTF-8/LC_MESSAGES
 php bin/centreon-translations.php en lang/fr_FR.UTF-8/LC_MESSAGES/messages.po www/locale/en_US.UTF-8/LC_MESSAGES/messages.ser

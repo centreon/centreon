@@ -5,6 +5,7 @@ set -ex
 cd centreon
 VERSION=$1
 RELEASE=$2
+export CYPRESS_CACHE_FOLDER=$PWD/cypress_cache
 
 composer install --no-dev --optimize-autoloader
 
