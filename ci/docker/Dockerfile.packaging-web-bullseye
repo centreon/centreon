@@ -2,9 +2,11 @@ FROM docker-proxy.registry.apps.centreon.com/debian:bullseye
 
 RUN <<EOF
 
+apt-get update
 apt-get install -y locales
 rm -rf /var/lib/apt/lists/*
 localedef -i en_US -c -f UTF-8 -A /usr/share/locale/locale.alias en_US.UTF-8
+apt-get clean
 
 EOF
 
@@ -12,6 +14,7 @@ ENV LANG en_US.utf8
 
 RUN <<EOF
 
+apt-get update
 apt-get install -y \
   dh-make \
   dh-make-perl \
@@ -45,6 +48,8 @@ apt-get -y install nodejs npm
 php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');"
 php composer-setup.php --install-dir=/usr/local/bin --filename=composer
 chmod +x /usr/local/bin/composer
+
+apt-get clean
 
 EOF
 
