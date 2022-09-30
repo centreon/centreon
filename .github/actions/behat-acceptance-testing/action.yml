@@ -1,23 +1,24 @@
-name: "Behat Acceptance Testing"
-description: "Behat Acceptance Testing"
+name: Behat Acceptance Testing
+description: Behat Acceptance Testing
 
 inputs:
   project:
-    description: "project"
+    description: project
     required: true
-  distr:
-    description: "distr"
+  distrib:
+    description: distrib
     required: true
-  version:
-    description: "version"
+  behat_image:
+    description: behat_image_version
     required: true
-  behat_image_version:
-    description: "version"
-    required: true
+  registry:
+    description: registry
+    required: false
+    default: docker.registry.apps.centreon.com
 runs:
   using: "composite"
 
   steps:
     - name: "Run Behat"
-      run: docker run --shm-size 2gb -i -e PROJECT=${{ inputs.project }} -e DISTR=${{ inputs.distr }} -e VERSION=${{ inputs.version }} -v "$PWD:/tmp" -v "/var/run/docker.sock:/var/run/docker.sock" -w "/tmp" --entrypoint "/tmp/ci/scripts/behat-acceptance-testing.sh" --net="host" docker.registry.apps.centreon.com/behat:${{ inputs.behat_image_version }}
+      run: docker run --shm-size 2gb -i -e PROJECT=${{ inputs.project }} DISTRIB=${{ inputs.distrib }} -e REGISTRY=${{ inputs.registry }} -v "$PWD:/tmp" -v "/var/run/docker.sock:/var/run/docker.sock" -w "/tmp" --entrypoint "/tmp/ci/scripts/behat-acceptance-testing.sh" --net="host" ${{ inputs.registry }}/behat:${{ inputs.behat_image_version }}
       shell: bash

@@ -1,0 +1,26 @@
+version: '2'
+services:
+  web:
+    image: @WEB_IMAGE@
+    ports:
+    - "80"
+    - "3306"
+    dns:
+    - "10.24.10.254"
+    - "10.24.0.2"
+    links:
+    - squid
+  squid:
+    image: registry.centreon.com/mon-squid-simple:latest
+    ports:
+    - "3128"
+  webdriver:
+    image: registry.centreon.com/standalone-chrome-debug:3.141.59-oxygen
+    environment:
+    - "SCREEN_WIDTH=1600"
+    - "SCREEN_HEIGHT=2000"
+    ports:
+    - "4444"
+    - "5900"
+    volumes:
+    - /dev/shm:/dev/shm
