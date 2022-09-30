@@ -8,6 +8,7 @@ on:
     paths:
       - ".github/workflows/behat-acceptance-testing.yml"
       - ".github/actions/behat-acceptance-testing/action.yml"
+      - "ci/scripts/behat-acceptance-testing.sh"
 
 jobs:
   run-acceptance-test:
