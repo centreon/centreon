@@ -1,8 +1,5 @@
 FROM docker-proxy.registry.apps.centreon.com/centos:7
 
-RUN mkdir /tmp/rpms-centreon
-COPY *.rpm /tmp/rpms-centreon/
-
 RUN <<EOF
 
 yum install -y centos-release-scl
@@ -24,6 +21,13 @@ rm -f centreonrelease-.rpm
 yum-config-manager --enable 'centreon-testing*'
 yum-config-manager --enable 'centreon-unstable*'
 
+EOF
+
+RUN mkdir /tmp/rpms-centreon
+COPY *.rpm /tmp/rpms-centreon/
+
+RUN <<EOF
+
 rm -f /tmp/rpms-centreon/centreon-22.10*.rpm /tmp/rpms-centreon/centreon-central-22.10*.rpm
 yum install -y /tmp/rpms-centreon/centreon-*.rpm centreon-broker-cbd centreon-broker-influxdb libfaketime
 
@@ -34,15 +38,15 @@ yum clean all
 
 EOF
 
-COPY ./ci/scripts/entrypoint/* /user/share/centreon/
+COPY ./ci/scripts/entrypoint/* /usr/share/centreon/
 COPY ./ci/scripts/init/* /etc/init.d/
 COPY --chmod=+x ./ci/scripts/autoinstall.php /usr/share/centreon/
 COPY --chown=apache:apache ./ci/scripts/configuration /usr/share/centreon/www/install/tmp/
 
 RUN <<EOF
 
-chmod +x /user/share/centreon/container.sh
-chmod +x /user/share/centreon/container.d/*
+chmod +x /usr/share/centreon/container.sh
+chmod +x /usr/share/centreon/container.d/*
 chmod +x /etc/init.d/*
 service mysql start
 mysql -e "GRANT ALL ON *.* to 'root'@'localhost' IDENTIFIED BY 'centreon' WITH GRANT OPTION"
