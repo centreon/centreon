@@ -43,7 +43,7 @@ runs:
       shell: bash
 
     - name: exec docker ${{ inputs.project }} ${{ inputs.distrib }}
-      if: inputs.is_fresh == false
+      if: ${{ ! inputs.is_fresh }}
       run: docker exec -i -e --privileged ${{ inputs.project }}-${{ inputs.distrib }} /bin/bash -c "/tmp/insert-standard-fixtures.sh"
       shell: bash
 
