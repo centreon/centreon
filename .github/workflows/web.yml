@@ -420,7 +420,7 @@ jobs:
           nexus_password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
 
   centreon-web-test-performances:
-    runs-on: [self-hosted, common]
+    runs-on: ubuntu-22.04
     needs: [centreon-web-dockerize]
 
     steps:
@@ -430,7 +430,7 @@ jobs:
         uses: ./.github/actions/lighthouse-performance-testing
         with:
           path: "centreon/lighthouse"
-          image: docker.registry.apps.centreon.com/run-centreon-open-source-centos7
+          image: docker.centreon.com/run-centreon-open-source-centos7
           image_version: ${{ github.head_ref || github.ref_name }}
           image_lighthouse_version: ${{ env.version }}
           module: centreon

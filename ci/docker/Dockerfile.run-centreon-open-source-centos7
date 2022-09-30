@@ -34,12 +34,15 @@ yum clean all
 
 EOF
 
-COPY --chmod=+x ./ci/scripts/init/* /etc/init.d/
+COPY ./ci/scripts/entrypoint/* /user/share/centreon/
+COPY ./ci/scripts/init/* /etc/init.d/
 COPY --chmod=+x ./ci/scripts/autoinstall.php /usr/share/centreon/
 COPY --chown=apache:apache ./ci/scripts/configuration /usr/share/centreon/www/install/tmp/
 
 RUN <<EOF
 
+chmod +x /user/share/centreon/container.sh
+chmod +x /user/share/centreon/container.d/*
 chmod +x /etc/init.d/*
 service mysql start
 mysql -e "GRANT ALL ON *.* to 'root'@'localhost' IDENTIFIED BY 'centreon' WITH GRANT OPTION"
@@ -72,7 +75,5 @@ centreon -u admin -p Centreon\!2021 -a APPLYCFG -v 1
 service mysql stop
 
 EOF
-
-COPY --chmod=+x ./ci/scripts/entrypoint/* /user/share/centreon/
 
 ENTRYPOINT ["/usr/share/centreon/container.sh"]
