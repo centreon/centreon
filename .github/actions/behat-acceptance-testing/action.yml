@@ -8,9 +8,10 @@ inputs:
   distrib:
     description: distrib
     required: true
-  behat_image:
+  behat_image_version:
     description: behat_image_version
-    required: true
+    default: "22.10"
+    required: false
   registry:
     description: registry
     required: false

@@ -1,5 +1,6 @@
 name: Centreon build docker test behat
 
+
 on:  
   workflow_dispatch:
   push:
