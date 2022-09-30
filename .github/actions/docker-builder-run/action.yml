@@ -16,7 +16,6 @@ inputs:
   is_fresh: 
     description: "is_fresh"
     required: false
-    default: "no"
 runs:
   using: "composite"
   steps:
@@ -43,7 +42,7 @@ runs:
       shell: bash
 
     - name: exec docker ${{ inputs.project }} ${{ inputs.distrib }}
-      if: ${{ inputs.is_fresh == 'no' }}
+      if: ${{ inputs.is_fresh != 'yes' }}
       run: docker exec -i -e --privileged ${{ inputs.project }}-${{ inputs.distrib }} /bin/bash -c "/tmp/insert-standard-fixtures.sh"
       shell: bash
 
