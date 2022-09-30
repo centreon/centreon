@@ -40,8 +40,8 @@ COPY --chown=apache:apache ./ci/scripts/configuration /usr/share/centreon/www/in
 
 #RUN <<EOF
 
-RUN ls /etc/init.d/mysql
-RUN /etc/init.d/mysql start
+RUN ls -l /etc/init.d/
+RUN sh /etc/init.d/mysql start
 RUN mysql -e "GRANT ALL ON *.* to 'root'@'localhost' IDENTIFIED BY 'centreon' WITH GRANT OPTION"
 RUN cd /usr/share/centreon/www/install/steps/process
 RUN su apache -s /bin/bash -c "php configFileSetup.php"
