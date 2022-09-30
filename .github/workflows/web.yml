@@ -240,11 +240,6 @@ jobs:
         with:
           path: ./*.rpm
           key: ${{ env.cache-name-rpmbuild }}
-      #- name: Cache RPM files
-      #  uses: actions/cache@v3
-      #  with:
-      #    path: ./*.rpm
-      #    key: cache-${{ github.sha }}-${{ github.run_id }}-rpmbuild-web-${{ matrix.distrib_rpm }}
 
   centreon-web-package-deb:
     runs-on: [self-hosted, common]
@@ -314,12 +309,6 @@ jobs:
           registry: docker.registry.apps.centreon.com
           username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
           password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
-
-      #- name: Restore cache RPM files
-      #  uses: actions/cache@v3
-      #  with:
-      #    path: /rpms/*.rpm
-      #    key: cache-${{ github.sha }}-${{ github.run_id }}-rpmbuild-web-${{ matrix.distrib_rpm }}#
 
       - name: Use cache RPM files
         uses: actions/cache@v3

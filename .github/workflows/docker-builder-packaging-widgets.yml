@@ -1,6 +1,6 @@
 name: Centreon widgets build docker
 
-on:  
+on:
   workflow_dispatch:
   push:
     branches:
@@ -22,10 +22,10 @@ env:
 
 jobs:
   create-and-push-docker:
-    runs-on: common
-    
+    runs-on: [self-hosted, common]
+
     strategy:
-      
+
       matrix:
         include:
           - project: widgets
@@ -45,8 +45,12 @@ jobs:
           username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
           password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
 
-      - name: build docker packaging ${{ matrix.project }} ${{ matrix.distrib }}
-        run: docker build --no-cache . -f ci/docker/Dockerfile.packaging-${{ matrix.project }}-${{ matrix.distrib }} -t docker.registry.apps.centreon.com/packaging-${{ matrix.project }}-${{ matrix.distrib }}:${{ env.version }}
+      - uses: docker/setup-buildx-action@v2
 
-      - name: push docker packaging ${{ matrix.project }} ${{ matrix.distrib }}
-        run: docker push docker.registry.apps.centreon.com/packaging-${{ matrix.project }}-${{ matrix.distrib }}:${{ env.version }}
+      - uses: docker/build-push-action@v3
+        with:
+          file: ci/docker/Dockerfile.packaging-${{ matrix.project }}-${{ matrix.distrib }}
+          context: .
+          pull: true
+          push: true
+          tags: docker.registry.apps.centreon.com/packaging-${{ matrix.project }}-${{ matrix.distrib }}:${{ env.version }}
