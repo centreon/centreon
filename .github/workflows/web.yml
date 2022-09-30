@@ -331,23 +331,12 @@ jobs:
           restore-keys: |
             ${{ env.cache-name-rpmbuild }}
 
-#      - name: Use cache RPM files
-#        uses: actions/cache@v3
-#        env:
-#          cache-name-rpmbuild: cache-${{ github.sha }}-${{ github.run_id }}-rpmbuild-web
-#        with:
-#          path: ./*.rpm
-#          key: ${{ env.cache-name-rpmbuild }}-${{ matrix.distrib_rpm }}
-#          restore-keys: |
-#            ${{ env.cache-name-rpmbuild }}-${{ matrix.distrib_rpm }}
-
       - uses: docker/setup-buildx-action@v2
 
       - uses: docker/build-push-action@v3
         with:
           file: ci/docker/Dockerfile.${{ matrix.project }}-${{ matrix.distrib }}
           context: .
-          no-cache: true
           pull: true
           tags: docker.registry.apps.centreon.com/${{ matrix.project }}-${{ matrix.distrib }}:${{ github.head_ref || github.ref_name }}
 

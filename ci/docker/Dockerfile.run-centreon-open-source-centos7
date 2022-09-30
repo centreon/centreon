@@ -3,46 +3,45 @@ FROM docker-proxy.registry.apps.centreon.com/centos:7
 RUN mkdir /tmp/rpms-centreon
 COPY *.rpm /tmp/rpms-centreon/
 
-#RUN <<EOF
+RUN <<EOF
 
-RUN yum install -y centos-release-scl
+yum install -y centos-release-scl
 
-RUN curl -o remi-release-7.rpm https://rpms.remirepo.net/enterprise/remi-release-7.rpm
-RUN yum install -y remi-release-7.rpm
-RUN rm -f remi-release-7.rpm
-RUN yum-config-manager --enable remi-php81
+curl -o remi-release-7.rpm https://rpms.remirepo.net/enterprise/remi-release-7.rpm
+yum install -y remi-release-7.rpm
+rm -f remi-release-7.rpm
+yum-config-manager --enable remi-php81
 
-RUN curl -o /tmp/mariadb_repo_setup -JO https://downloads.mariadb.com/MariaDB/mariadb_repo_setup
-RUN bash /tmp/mariadb_repo_setup
-RUN sed -ri 's/10\../10.5/' /etc/yum.repos.d/mariadb.repo
-RUN rm -f /tmp/mariadb_repo_setup
-RUN yum install -y MariaDB-server MariaDB-client
+curl -o /tmp/mariadb_repo_setup -JO https://downloads.mariadb.com/MariaDB/mariadb_repo_setup
+bash /tmp/mariadb_repo_setup
+sed -ri 's/10\../10.5/' /etc/yum.repos.d/mariadb.repo
+rm -f /tmp/mariadb_repo_setup
+yum install -y MariaDB-server MariaDB-client
 
-RUN curl -o centreon-release.rpm "https://yum.centreon.com/standard/22.10/el7/stable/noarch/RPMS/centreon-release-22.10-1.el7.centos.noarch.rpm"
-RUN yum install -y centreon-release.rpm
-RUN rm -f centreonrelease-.rpm
-RUN yum-config-manager --enable 'centreon-testing*'
-RUN yum-config-manager --enable 'centreon-unstable*'
+curl -o centreon-release.rpm "https://yum.centreon.com/standard/22.10/el7/stable/noarch/RPMS/centreon-release-22.10-1.el7.centos.noarch.rpm"
+yum install -y centreon-release.rpm
+rm -f centreonrelease-.rpm
+yum-config-manager --enable 'centreon-testing*'
+yum-config-manager --enable 'centreon-unstable*'
 
-RUN rm -f /tmp/rpms-centreon/centreon-22.10*.rpm /tmp/rpms-centreon/centreon-central-22.10*.rpm
-RUN yum install -y /tmp/rpms-centreon/centreon-*.rpm centreon-broker-cbd centreon-broker-influxdb libfaketime
+rm -f /tmp/rpms-centreon/centreon-22.10*.rpm /tmp/rpms-centreon/centreon-central-22.10*.rpm
+yum install -y /tmp/rpms-centreon/centreon-*.rpm centreon-broker-cbd centreon-broker-influxdb libfaketime
 
-RUN touch /var/log/php-fpm/centreon-error.log
-RUN chown apache:apache /var/log/php-fpm/centreon-error.log
+touch /var/log/php-fpm/centreon-error.log
+chown apache:apache /var/log/php-fpm/centreon-error.log
 
-RUN yum clean all
+yum clean all
 
-#EOF
+EOF
 
 COPY --chmod=+x ./ci/scripts/init/* /etc/init.d/
 COPY --chmod=+x ./ci/scripts/autoinstall.php /usr/share/centreon/
 COPY --chown=apache:apache ./ci/scripts/configuration /usr/share/centreon/www/install/tmp/
 
-#RUN <<EOF
-
-RUN chmod +x /etc/init.d/*
 RUN <<EOF
-/etc/init.d/mysql start
+
+chmod +x /etc/init.d/*
+service mysql start
 mysql -e "GRANT ALL ON *.* to 'root'@'localhost' IDENTIFIED BY 'centreon' WITH GRANT OPTION"
 cd /usr/share/centreon/www/install/steps/process
 su apache -s /bin/bash -c "php configFileSetup.php"
