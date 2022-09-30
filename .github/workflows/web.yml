@@ -339,7 +339,7 @@ jobs:
           password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
 
       - name: build docker run
-        uses: ./.github/actions/docker-builder-run
+        uses: ./.github/actions/docker-builder-run-fresh
         with:
           distrib: ${{ matrix.distrib }}
           project: ${{ matrix.project }}
