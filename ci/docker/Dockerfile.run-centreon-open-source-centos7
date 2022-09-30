@@ -60,7 +60,7 @@ service mysql stop
 
 EOF
 
-COPY ./ci/scripts/sql /tmp/
+COPY ./ci/scripts/sql /tmp/sql
 
 RUN <<EOF
 
