@@ -262,7 +262,7 @@ echo "s:@@LIB_ARCH@@:%{_lib}:g" >> additional/centreon-macroreplacement.txt
 %build
 
 # Replace macros.
-find . -type f | grep -v additional/centreon-macroreplacement.txt | xargs --delimiter='\n' sed -i -f additional/centreon-macroreplacement.txt
+find . -type f -not -path "./vendor/*" | grep -v additional/centreon-macroreplacement.txt | xargs --delimiter='\n' sed -i -f additional/centreon-macroreplacement.txt
 
 # Build selinux configurations
 #(cd selinux && %{__make} -f %{selinuxdevel}/Makefile)
