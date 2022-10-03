@@ -1,11 +1,25 @@
 #!/bin/bash
 set -ex
 
+test_feature() {
+    mkdir ../xunit-reports
+    mkdir ../acceptance-logs
+
+    ./vendor/bin/behat -vv --format=pretty --out=std --format=junit --out="../xunit-reports" $TAGS "$1"
+
+    rm -rf ../xunit-reports
+    rm -rf ../acceptance-logs
+}
+
+[ ! -z "${TAGS+x}" ] && TAGS="--tags $TAGS"
+
 WEB_IMAGE="$REGISTRY/$PROJECT-$DISTRIB:$IMAGE_VERSION"
 WEB_FRESH_IMAGE="$REGISTRY/$PROJECT-fresh-$DISTRIB:$IMAGE_VERSION"
+WEB_WIDGETS_IMAGE="$REGISTRY/packaging-widgets-$DISTRIB:22.10"
 
 docker pull $WEB_IMAGE
 docker pull $WEB_FRESH_IMAGE
+docker pull $WEB_WIDGETS_IMAGE
 
 COMPOSE_DIR="$PROJECT-$DISTRIB-$RELEASE"
 mkdir $COMPOSE_DIR
@@ -19,3 +33,17 @@ sed 's#@WEB_IMAGE@#'$WEB_IMAGE'#g' < `dirname $0`/../docker/compose/docker-compo
 sed 's#@WEB_IMAGE@#'$WEB_IMAGE'#g' < `dirname $0`/../docker/compose/docker-compose-mediawiki.yml.in > "$COMPOSE_DIR/docker-compose-web-kb.yml"
 sed 's#@WEB_IMAGE@#'$WEB_IMAGE'#g' < `dirname $0`/../docker/compose/docker-compose-openldap.yml.in > "$COMPOSE_DIR/docker-compose-web-openldap.yml"
 sed 's#@WEB_IMAGE@#'$WEB_IMAGE'#g' < `dirname $0`/../docker/compose/docker-compose-influxdb.yml.in > "$COMPOSE_DIR/docker-compose-web-influxdb.yml"
+
+cd "$COMPOSE_DIR"
+alreadyset=`grep docker-compose-web.yml < `dirname $0`/../../centreon/behat.yml || true`
+if [ -z "$alreadyset" ] ; then
+  sed -i 's#    Centreon\\Test\\Behat\\Extensions\\ContainerExtension:#    Centreon\\Test\\Behat\\Extensions\\ContainerExtension:\n      log_directory: ../acceptance-logs\n      web: docker-compose-web.yml\n      web_fresh: docker-compose-web-fresh.yml\n      web_widgets: docker-compose-web-widgets.yml\n      web_squid_simple: docker-compose-web-squid-simple.yml\n      web_squid_basic_auth: docker-compose-web-squid-basic-auth.yml\n      web_kb: docker-compose-web-kb.yml\n      web_openldap: docker-compose-web-openldap.yml\n      web_influxdb: docker-compose-web-influxdb.yml#g' behat.yml
+fi
+
+rm ../centreon/features/Ldap*.feature
+
+FEATURES=$(find ../centreon/features -type f -name '*.feature' | sed -e 's#centreon/features/##g' | sort)
+
+while read -r line; do
+    test_feature $line
+done < <(FEATURES)
