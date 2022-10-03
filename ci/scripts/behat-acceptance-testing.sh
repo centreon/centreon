@@ -40,7 +40,7 @@ fi
 
 rm `dirname $0`/../../centreon/features/Ldap*.feature
 
-FEATURES=$(find `dirname $0`/../../centreon/features -type f -name '*.feature' | sed -e "s#$(pwd)##g" -e 's#/\.\./\.\./centreon/features/##g' | sort)
+FEATURES=$(find `dirname $0`/../../centreon/features -type f -name '*.feature' | sed -e "s#$(dirname $0)##g" -e 's#centreon/features/##g' | sort)
 
 #while read -r line; do
 #    echo $line
