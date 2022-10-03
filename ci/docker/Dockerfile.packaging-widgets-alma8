@@ -1,3 +1,10 @@
 FROM docker-proxy.registry.apps.centreon.com/almalinux:8.5
-RUN dnf -y update && dnf -y install git gettext rpm-build dos2unix
+
+RUN <<EOF
+
+dnf -y install git gettext rpm-build dos2unix
+dnf clean all
+
+EOF
+
 WORKDIR /src

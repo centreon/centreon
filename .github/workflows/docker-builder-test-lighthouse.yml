@@ -1,6 +1,6 @@
 name: Centreon build docker test lighthouse
 
-on:  
+on:
   workflow_dispatch:
   pull_request:
     paths:
@@ -18,8 +18,8 @@ env:
 
 jobs:
   create-and-push-docker:
-    runs-on: common
-    
+    runs-on: [self-hosted, common]
+
     strategy:
       matrix:
         include:

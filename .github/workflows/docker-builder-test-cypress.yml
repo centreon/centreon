@@ -18,8 +18,8 @@ env:
 
 jobs:
   create-and-push-docker:
-    runs-on: common
-    
+    runs-on: [self-hosted, common]
+
     strategy:
       matrix:
         include:
@@ -36,7 +36,7 @@ jobs:
           username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
           password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
 
-      - name: build docker ${{ matrix.project }} 
+      - name: build docker ${{ matrix.project }}
         run: docker build --no-cache . -f ci/docker/Dockerfile.${{ matrix.project }} -t docker.registry.apps.centreon.com/${{ matrix.project }}:${{ env.version }}
 
       - name: push docker ${{ matrix.project }}
