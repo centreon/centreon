@@ -1,6 +1,6 @@
 name: widgets
 
-on:   
+on:
   workflow_dispatch:
   pull_request:
     paths:
@@ -17,11 +17,11 @@ on:
 
 env:
   version: "22.10"
-  
+
 jobs:
   widgets-packaging-rpm:
-    runs-on: common
-    
+    runs-on: [self-hosted, common]
+
     strategy:
       matrix:
         include:
@@ -32,12 +32,12 @@ jobs:
             distrib: el8
             path: widgets/redhat
 
-    steps: 
+    steps:
       - name: Checkout sources
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
-      
+
       - name: 'Get minor and release version'
         uses: ./.github/actions/get-package-version
         with:
@@ -52,13 +52,13 @@ jobs:
           image_version: ${{ env.version }}
           params: ${{ env.version }}.${{ steps.get_version.outputs.minor_version }} ${{ steps.get_version.outputs.release }}
 
-      - name: Sign 
+      - name: Sign
         uses: ./.github/actions/runner-docker
         with:
           script_name: rpm-signing
           image_name: rpm-signing
           image_version: ubuntu
-          
+
       - name: Use cache RPM files
         uses: actions/cache@v3
         env:
@@ -66,10 +66,10 @@ jobs:
         with:
           path: ./*.rpm
           key: ${{ env.cache-name-rpmbuild }}-${{ matrix.distrib }}
-      
+
   widgets-packaging-deb:
-    runs-on: common
-    
+    runs-on: [self-hosted, common]
+
     strategy:
       matrix:
         include:
@@ -77,12 +77,12 @@ jobs:
             distrib: bullseye
             path: widgets/debian
 
-    steps: 
+    steps:
       - name: Checkout sources
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
-      
+
       - name: 'Get minor and release version'
         uses: ./.github/actions/get-package-version
         with:
@@ -96,7 +96,7 @@ jobs:
           image_name: ${{ matrix.image }}
           image_version: ${{ env.version }}
           params: ${{ env.version }}.${{ steps.get_version.outputs.minor_version }} ${{ steps.get_version.outputs.release }}
-          
+
       - name: Use cache DEB files
         uses: actions/cache@v3
         env:
@@ -107,7 +107,7 @@ jobs:
 
   delivery-rpm:
     needs: [widgets-packaging-rpm]
-    runs-on: common
+    runs-on: [self-hosted, common]
     strategy:
       matrix:
         include:
@@ -127,10 +127,10 @@ jobs:
           version: ${{ env.version }}
           nexus_username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
           nexus_password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
-  
+
   delivery-debian:
     needs: [widgets-packaging-deb]
-    runs-on: common
+    runs-on: [self-hosted, common]
     strategy:
       matrix:
         include:

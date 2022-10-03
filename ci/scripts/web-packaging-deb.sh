@@ -1,6 +1,6 @@
-#!/bin/bash 
+#!/bin/bash
 
-set -ex 
+set -ex
 
 cd centreon
 VERSION=$1

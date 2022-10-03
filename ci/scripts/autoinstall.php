@@ -47,5 +47,3 @@ $_SESSION['firstname'] = 'admin';
 $_SESSION['lastname'] = 'admin';
 $_SESSION['ADMIN_PASSWORD'] = 'centreon';
 $_SESSION['email'] = 'admin@centreon.com';
-
-?>

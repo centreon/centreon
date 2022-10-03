@@ -1,6 +1,6 @@
-#!/bin/bash 
+#!/bin/bash
 
-set -ex 
+set -ex
 
 cd centreon
 VERSION=$1
@@ -11,7 +11,7 @@ composer install --no-dev --optimize-autoloader
 
 npm ci --legacy-peer-deps
 npm run build
-rm -rf ./www/front_src
+rm -rf ./node_modules ./www/front_src
 
 find ./www/include/Administration/about -type f | xargs --delimiter='\n' sed -i -e "s/@COMMIT@/$COMMIT/g"
 mkdir -p www/locale/en_US.UTF-8/LC_MESSAGES
