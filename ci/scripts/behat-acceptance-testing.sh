@@ -11,17 +11,17 @@ test_feature() {
     rm -rf ../acceptance-logs
 }
 
-[ ! -z "${TAGS+x}" ] && TAGS="--tags $TAGS"
+[ ! -z "${TAGS}" ] && TAGS="--tags $TAGS"
 
-WEB_IMAGE="$REGISTRY/$PROJECT-$DISTRIB:$IMAGE_VERSION"
-WEB_FRESH_IMAGE="$REGISTRY/$PROJECT-fresh-$DISTRIB:$IMAGE_VERSION"
+WEB_IMAGE="$REGISTRY/$PROJECT-$DISTRIB:develop"
+WEB_FRESH_IMAGE="$REGISTRY/$PROJECT-fresh-$DISTRIB:develop"
 WEB_WIDGETS_IMAGE="$REGISTRY/packaging-widgets-$DISTRIB:22.10"
 
 docker pull $WEB_IMAGE
 docker pull $WEB_FRESH_IMAGE
 docker pull $WEB_WIDGETS_IMAGE
 
-COMPOSE_DIR="$PROJECT-$DISTRIB-$RELEASE"
+COMPOSE_DIR="$PROJECT-$DISTRIB-$IMAGE_VERSION"
 mkdir $COMPOSE_DIR
 
 sed 's#@WEB_IMAGE@#'$WEB_IMAGE'#g' < `dirname $0`/../docker/compose/docker-compose-web.yml.in > "$COMPOSE_DIR/docker-compose-web.yml"
