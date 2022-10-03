@@ -317,17 +317,17 @@ jobs:
 
       - uses: docker/build-push-action@v3
         with:
-          file: ci/docker/Dockerfile.${{ matrix.project }}-fresh-${{ matrix.distrib }}
+          file: ci/docker/Dockerfile.${{ matrix.project }}-${{ matrix.distrib }}
+          target: web_fresh
           context: .
           pull: true
           push: true
           tags: docker.registry.apps.centreon.com/${{ matrix.project }}-${{ matrix.distrib }}-fresh:${{ github.head_ref || github.ref_name }}
 
-      - run: sed -i "s#@WEB_FRESH_IMAGE@#${{ matrix.project }}-${{ matrix.distrib }}-fresh:${{ github.head_ref || github.ref_name }}# ci/docker/Dockerfile.${{ matrix.project }}-${{ matrix.distrib }}
-
       - uses: docker/build-push-action@v3
         with:
           file: ci/docker/Dockerfile.${{ matrix.project }}-${{ matrix.distrib }}
+          target: web_standard
           context: .
           pull: true
           push: true
