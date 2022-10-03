@@ -6,11 +6,11 @@ FEATURES=$(find `dirname $0`/../../centreon/features -type f -name '*.feature' -
 
 composer install --working-dir=`dirname $0`/../../centreon
 
-#test_feature() {
-    #mkdir `dirname $0`/"$1"
+test_feature() {
+    mkdir ../xunit-reports/"$1"
 
-    #./vendor/bin/behat -vv --format=pretty --out=std --format=junit --out="xunit-reports$1" $TAGS "$1"
-#}
+    `dirname $0`/../../centreon/vendor/bin/behat -vv --format=pretty --out=std --format=junit --out="xunit-reports" $TAGS "features/$1"
+}
 
 [ ! -z "${TAGS}" ] && TAGS="--tags $TAGS"
 
@@ -24,6 +24,9 @@ docker pull $WEB_WIDGETS_IMAGE
 
 COMPOSE_DIR="$PROJECT-$DISTRIB-$IMAGE_VERSION"
 mkdir $COMPOSE_DIR
+
+mkdir acceptance-logs
+mkdir xunit-reports
 
 sed 's#@WEB_IMAGE@#'$WEB_IMAGE'#g' < `dirname $0`/../docker/compose/docker-compose-web.yml.in > "$COMPOSE_DIR/docker-compose-web.yml"
 sed 's#@WEB_IMAGE@#'$WEB_FRESH_IMAGE'#g' < `dirname $0`/../docker/compose/docker-compose-web.yml.in > "$COMPOSE_DIR/docker-compose-web-fresh.yml"
@@ -43,5 +46,5 @@ fi
 
 while read -r line; do
     echo $line
-    #test_feature $line
+    test_feature $line
 done <<< "$FEATURES"
