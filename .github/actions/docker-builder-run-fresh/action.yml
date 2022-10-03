@@ -1,0 +1,47 @@
+name: "Package Centreon"
+description: "Test Centreon"
+inputs:
+  distrib:
+    description: "distrib"
+    required: true
+  project:
+    description: "project"
+    required: true
+  distrib_rpm:
+    description: "distrib rpm"
+    required: true
+  module_name:
+    description: "module name"
+    required: true
+runs:
+  using: "composite"
+  steps:
+    - name: Use cache RPM files
+      uses: actions/cache@v3
+      env:
+        cache-name-rpmbuild: cache-${{ github.sha }}-${{ github.run_id }}-rpmbuild-${{ inputs.module_name}}
+      with:
+        path: ./*.rpm
+        key: ${{ env.cache-name-rpmbuild }}-${{ inputs.distrib_rpm }}
+        restore-keys: |
+          ${{ env.cache-name-rpmbuild }}-${{ inputs.distrib_rpm }}
+
+    - name: build docker ${{ inputs.project }} ${{ inputs.distrib }}
+      run: docker build --no-cache . -f ci/docker/Dockerfile.${{ inputs.project }}-${{ inputs.distrib }} -t docker.registry.apps.centreon.com/${{ inputs.project }}-${{ inputs.distrib }}:${{ github.head_ref || github.ref_name }}
+      shell: bash
+
+    - name: run docker ${{ inputs.project }} ${{ inputs.distrib }}
+      run: docker run -it -d --privileged --name ${{ inputs.project }}-${{ inputs.distrib }}  docker.registry.apps.centreon.com/${{ inputs.project }}-${{ inputs.distrib }}:${{ github.head_ref || github.ref_name }}
+      shell: bash
+
+    - name: exec docker ${{ inputs.project }} ${{ inputs.distrib }}
+      run: docker exec -i -e --privileged ${{ inputs.project }}-${{ inputs.distrib }} /bin/bash -c "/tmp/install.sh"
+      shell: bash
+
+    - name: commit docker ${{ inputs.project }} ${{ inputs.distrib }}
+      run: docker commit ${{ inputs.project }}-${{ inputs.distrib }} docker.registry.apps.centreon.com/${{ inputs.project }}-${{ inputs.distrib }}:${{ github.head_ref || github.ref_name }}
+      shell: bash
+
+    - name: push docker ${{ inputs.project }} ${{ inputs.distrib }}
+      run: docker push docker.registry.apps.centreon.com/${{ inputs.project }}-${{ inputs.distrib }}:${{ github.head_ref || github.ref_name }}
+      shell: bash
