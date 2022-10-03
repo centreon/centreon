@@ -1,6 +1,6 @@
 name: centreon-frontend
 
-on: 
+on:
   workflow_dispatch:
   pull_request:
     paths:
@@ -38,3 +38,13 @@ jobs:
           script_name: frontend-test-${{ matrix.rules }}
           image_name: ${{ matrix.image }}
           image_version: ${{ env.version }}
+
+      - name: Publish report
+        uses: EnricoMi/publish-unit-test-result-action@v2
+        if: always()
+        with:
+          check_name: "centreon-web-frontend-unit-tests-report"
+          comment_mode: failures
+          junit_files: |
+            "centreon-frontend/packages/ui-context/checkstyle.xml"
+            "centreon-frontend/packages/centreon-ui/checkstyle.xml"
