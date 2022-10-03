@@ -4,11 +4,11 @@ set -e
 rm `dirname $0`/../../centreon/features/Ldap*.feature
 FEATURES=$(find `dirname $0`/../../centreon/features -type f -name '*.feature' -printf "%f\n" | sort)
 
-test_feature() {
+#test_feature() {
     #mkdir `dirname $0`/"$1"
 
     #./vendor/bin/behat -vv --format=pretty --out=std --format=junit --out="xunit-reports$1" $TAGS "$1"
-}
+#}
 
 [ ! -z "${TAGS}" ] && TAGS="--tags $TAGS"
 
