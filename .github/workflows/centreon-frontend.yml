@@ -39,15 +39,17 @@ jobs:
           image_name: ${{ matrix.image }}
           image_version: ${{ env.version }}
 
-      - name: show results
-        run: |
-          cat centreon-frontend/packages/ui-context/checkstyle.xml
-          at centreon-frontend/packages/centreon-ui/checkstyle.xml
+      - name: Publish linting report
+        uses: jwgmeligmeyling/checkstyle-github-action@master
+        if: always()
+        with:
+          name: centreon-frontend-linting-report
+          path: "centreon-frontend/packages/*/checkstyle.xml"
 
-      - name: Publish report
+      - name: Publish unit tests report
         uses: EnricoMi/publish-unit-test-result-action@v2
         if: always()
         with:
-          check_name: "centreon-web-frontend-unit-tests-report"
+          check_name: centreon-frontend-unit-tests-report
           comment_mode: failures
-          junit_files: "centreon-frontend/packages/*/checkstyle.xml"
+          junit_files: "centreon-frontend/packages/centreon-ui/junit.xml"

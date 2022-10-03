@@ -12,4 +12,4 @@ cd ../centreon-ui
 npm ci --legacy-peer-deps
 npm run eslint -- -o checkstyle.xml -f checkstyle
 npm run build:storybook
-npm t
+npm t -- --silent --reporters=jest-junit
