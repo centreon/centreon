@@ -2,6 +2,12 @@
 set -ex
 
 echo `dirname $0`
+echo `dirname $0`/../../centreon/behat.yml
+ls -la `dirname $0`/../..
+ls -la `dirname $0`/../../centreon
+exit
+
+
 mkdir "xunit-reports"
 
 test_feature() {
@@ -43,7 +49,7 @@ rm `dirname $0`/../../centreon/features/Ldap*.feature
 
 FEATURES=$(find `dirname $0`../../centreon/features -type f -name '*.feature' | sed -e 's#centreon/features/##g' | sort)
 
-while read -r line; do
-    echo $line
+#while read -r line; do
+#    echo $line
     #test_feature $line
-done < <(FEATURES)
+#done < <(FEATURES)
