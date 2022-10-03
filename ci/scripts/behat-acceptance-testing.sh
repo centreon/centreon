@@ -4,6 +4,7 @@ set -e
 rm `dirname $0`/../../centreon/features/Ldap*.feature
 FEATURES=$(find `dirname $0`/../../centreon/features -type f -name '*.feature' -printf "%f\n" | sort)
 
+
 composer install --working-dir=`dirname $0`/../../centreon
 
 #test_feature() {
