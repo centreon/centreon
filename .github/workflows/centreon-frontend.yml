@@ -39,6 +39,11 @@ jobs:
           image_name: ${{ matrix.image }}
           image_version: ${{ env.version }}
 
+      - name: show results
+        run: |
+          cat centreon-frontend/packages/ui-context/checkstyle.xml
+          at centreon-frontend/packages/centreon-ui/checkstyle.xml
+
       - name: Publish report
         uses: EnricoMi/publish-unit-test-result-action@v2
         if: always()
