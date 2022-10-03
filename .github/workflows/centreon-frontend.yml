@@ -45,6 +45,4 @@ jobs:
         with:
           check_name: "centreon-web-frontend-unit-tests-report"
           comment_mode: failures
-          junit_files: |
-            "centreon-frontend/packages/ui-context/checkstyle.xml"
-            "centreon-frontend/packages/centreon-ui/checkstyle.xml"
+          junit_files: "centreon-frontend/packages/*/checkstyle.xml"
