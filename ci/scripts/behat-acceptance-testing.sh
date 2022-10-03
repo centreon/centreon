@@ -42,4 +42,4 @@ fi
 while read -r line; do
     echo $line
     #test_feature $line
-done < <(FEATURES)
+done <<< "$FEATURES"
