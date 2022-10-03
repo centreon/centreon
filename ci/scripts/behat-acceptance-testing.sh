@@ -1,18 +1,16 @@
 #!/bin/bash
 set -e
 
-rm `dirname $0`/../../centreon/features/Ldap*.feature
-FEATURES=$(find `dirname $0`/../../centreon/features -type f -name '*.feature' -printf "%f\n" | sort)
-
-composer install --working-dir=`dirname $0`/../../centreon
-
 test_feature() {
     mkdir ../xunit-reports/"$1"
 
-    `dirname $0`/../../centreon/vendor/bin/behat -vv --format=pretty --out=std --format=junit --out="xunit-reports" $TAGS "features/$1"
+    `dirname $0`/../../centreon/vendor/bin/behat -vv --format=pretty --out=std --format=junit --out="../xunit-reports/$1" $TAGS "features/$1"
 }
 
 [ ! -z "${TAGS}" ] && TAGS="--tags $TAGS"
+
+rm `dirname $0`/../../centreon/features/Ldap*.feature
+FEATURES=$(find `dirname $0`/../../centreon/features -type f -name '*.feature' -printf "%f\n" | sort)
 
 WEB_IMAGE="$REGISTRY/$PROJECT-$DISTRIB:develop"
 WEB_FRESH_IMAGE="$REGISTRY/$PROJECT-fresh-$DISTRIB:develop"
@@ -21,6 +19,8 @@ WEB_WIDGETS_IMAGE="$REGISTRY/packaging-widgets-$DISTRIB:22.10"
 docker pull $WEB_IMAGE
 docker pull $WEB_FRESH_IMAGE
 docker pull $WEB_WIDGETS_IMAGE
+
+composer install --working-dir=`dirname $0`/../../centreon
 
 COMPOSE_DIR="$PROJECT-$DISTRIB-$IMAGE_VERSION"
 mkdir $COMPOSE_DIR
