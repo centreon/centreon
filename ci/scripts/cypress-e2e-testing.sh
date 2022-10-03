@@ -8,4 +8,4 @@ cd $MODULE/tests/e2e
 
 npm ci
 
-$(npm bin)/cypress run --config-file cypress.json --browser chrome --reporter junit --reporter-options mochaFile=cypress-result.xml,toConsole=false
+$(npm bin)/cypress run --browser chrome --reporter junit --reporter-options mochaFile=cypress-result.xml,toConsole=false
