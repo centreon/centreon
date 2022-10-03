@@ -6,7 +6,7 @@ curl -o centreon-devel.rpm "https://yum.centreon.com/standard/22.10/el7/stable/n
 yum install -y --nogpgcheck -y centreon-devel.rpm
 
 curl --silent --location https://rpm.nodesource.com/setup_17.x | bash -
-yum -y update && yum install -y rpm-build git composer wget gettext yum-utils  https://rpms.remirepo.net/enterprise/remi-release-7.rpm https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+yum install -y rpm-build git composer wget gettext yum-utils  https://rpms.remirepo.net/enterprise/remi-release-7.rpm https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
 
 yum-config-manager --enable remi-php81
 yum install -y php81

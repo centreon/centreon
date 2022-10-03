@@ -40,7 +40,7 @@ echo "deb https://packages.sury.org/php/ $(lsb_release -sc) main" | tee /etc/apt
 wget -qO /etc/apt/trusted.gpg.d/sury-php.gpg https://packages.sury.org/php/apt.gpg
 
 apt-get -y install php8.1
-apt-get -y install php8.0-intl php8.0-xml php8.0-curl php8.0-mbstring php8.0-zip php8.0-cli php8.0-common php8.0-fpm php8.0-mysql php8.0-ldap
+apt-get -y install php8.1-intl php8.1-xml php8.1-curl php8.1-mbstring php8.1-zip php8.1-cli php8.1-common php8.1-fpm php8.1-mysql php8.1-ldap
 
 curl -fsSL https://deb.nodesource.com/setup_17.x | sudo -E bash -
 apt-get -y install nodejs npm
