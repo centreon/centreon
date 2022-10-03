@@ -1,10 +1,6 @@
 #!/bin/bash
 set -ex
 
-ls -la `dirname $0`/../../centreon/behat.yml
-exit
-
-
 mkdir "xunit-reports"
 
 test_feature() {
