@@ -1,12 +1,13 @@
 #!/bin/bash
-set -ex
+set -e
 
-mkdir "xunit-reports"
+rm `dirname $0`/../../centreon/features/Ldap*.feature
+FEATURES=$(find `dirname $0`/../../centreon/features -type f -name '*.feature' -printf "%f\n" | sort)
 
 test_feature() {
-    mkdir "xunit-reports-$1"
+    #mkdir `dirname $0`/"$1"
 
-    ./vendor/bin/behat -vv --format=pretty --out=std --format=junit --out="xunit-reports-$1" $TAGS "$1"
+    #./vendor/bin/behat -vv --format=pretty --out=std --format=junit --out="xunit-reports$1" $TAGS "$1"
 }
 
 [ ! -z "${TAGS}" ] && TAGS="--tags $TAGS"
@@ -38,11 +39,7 @@ if [ -z "$alreadyset" ] ; then
   sed -i 's#    Centreon\\Test\\Behat\\Extensions\\ContainerExtension:#    Centreon\\Test\\Behat\\Extensions\\ContainerExtension:\n      log_directory: ../acceptance-logs\n      web: docker-compose-web.yml\n      web_fresh: docker-compose-web-fresh.yml\n      web_widgets: docker-compose-web-widgets.yml\n      web_squid_simple: docker-compose-web-squid-simple.yml\n      web_squid_basic_auth: docker-compose-web-squid-basic-auth.yml\n      web_kb: docker-compose-web-kb.yml\n      web_openldap: docker-compose-web-openldap.yml\n      web_influxdb: docker-compose-web-influxdb.yml#g' `dirname $0`/../../centreon/behat.yml
 fi
 
-rm `dirname $0`/../../centreon/features/Ldap*.feature
-
-FEATURES=$(find `dirname $0`/../../centreon/features -type f -name '*.feature' | sed -e "s#$(dirname $0)##g" -e 's#\.\./\.\./centreon/features/##g' | sort)
-
-#while read -r line; do
-#    echo $line
+while read -r line; do
+    echo $line
     #test_feature $line
-#done < <(FEATURES)
+done < <(FEATURES)
