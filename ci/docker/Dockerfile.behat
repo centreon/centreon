@@ -1,7 +1,7 @@
 FROM docker-proxy.registry.apps.centreon.com/debian:bullseye
 
 RUN apt-get -y update && apt-get -y dist-upgrade \
-  && apt-get install -y ca-certificates curl gnupg lsb-release wget \
+  && apt-get install -y ca-certificates curl gnupg lsb-release wget zip pigz \
   && mkdir -p /etc/apt/keyrings \
   && curl -fsSL https://download.docker.com/linux/debian/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg \
   && echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/debian $(lsb_release -cs) stable" | tee /etc/apt/sources.list.d/docker.list > /dev/null \
