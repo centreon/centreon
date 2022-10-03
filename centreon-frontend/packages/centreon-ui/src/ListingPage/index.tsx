@@ -1,10 +1,10 @@
-import { Suspense, useEffect, useRef, useState, memo } from 'react';
+import { Suspense, useEffect, useRef, useState } from 'react';
 
 import { makeStyles } from 'tss-react/mui';
-import { T } from 'ramda';
 
 import { Box } from '@mui/material';
 
+import useMemoComponent from '../utils/useMemoComponent';
 import WithPanel from '../Panel/WithPanel';
 
 import FilterSkeleton from './FilterSkeleton';
@@ -35,16 +35,12 @@ interface Props {
   fullHeight?: boolean;
   listing: JSX.Element;
   listingScrollOffset?: number;
+  memoListingProps: Array<unknown>;
   pageClassName?: string;
   panel?: JSX.Element;
   panelFixed?: boolean;
   panelOpen?: boolean;
 }
-
-const MemoListingComponent = memo(
-  ({ listing }: Pick<Props, 'listing'>): JSX.Element => listing,
-  T,
-);
 
 const ListingPage = ({
   listing,
@@ -55,6 +51,7 @@ const ListingPage = ({
   pageClassName,
   listingScrollOffset = 16,
   fullHeight = false,
+  memoListingProps = [],
 }: Props): JSX.Element => {
   const { classes, cx } = useStyles();
   const [listingHeight, setListingHeight] = useState(0);
@@ -81,6 +78,11 @@ const ListingPage = ({
     (filtersRef.current?.getBoundingClientRect().top || 0) -
     listingScrollOffset;
 
+  const memoListingComponent = useMemoComponent({
+    Component: listing,
+    memoProps: [...memoListingProps],
+  });
+
   return (
     <div className={cx(classes.page, pageClassName)}>
       <div className={classes.filters} ref={filtersRef}>
@@ -97,7 +99,7 @@ const ListingPage = ({
           }}
         >
           <Suspense fallback={<ListingSkeleton />}>
-            <MemoListingComponent listing={listing} />
+            {memoListingComponent}
           </Suspense>
         </Box>
       </WithPanel>
