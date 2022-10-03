@@ -1,8 +1,10 @@
 #!/bin/bash
-set -ex
+set -e
 
 rm `dirname $0`/../../centreon/features/Ldap*.feature
 FEATURES=$(find `dirname $0`/../../centreon/features -type f -name '*.feature' -printf "%f\n" | sort)
+
+composer install --working-dir=`dirname $0`/../../centreon
 
 #test_feature() {
     #mkdir `dirname $0`/"$1"
@@ -42,4 +44,4 @@ fi
 while read -r line; do
     echo $line
     #test_feature $line
-done < <(FEATURES)
+done <<< "$FEATURES"
