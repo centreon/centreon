@@ -1,5 +1,5 @@
 #!/bin/bash
-set -e
+set -ex
 
 rm `dirname $0`/../../centreon/features/Ldap*.feature
 FEATURES=$(find `dirname $0`/../../centreon/features -type f -name '*.feature' -printf "%f\n" | sort)
@@ -42,4 +42,4 @@ fi
 while read -r line; do
     echo $line
     #test_feature $line
-done <<< "$FEATURES"
+done < <(FEATURES)
