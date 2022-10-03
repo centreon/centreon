@@ -1,10 +1,7 @@
 #!/bin/bash
 set -ex
 
-echo `dirname $0`
-echo `dirname $0`/../../centreon/behat.yml
-ls -la `dirname $0`/../..
-ls -la `dirname $0`/../../centreon
+ls -la `dirname $0`/../../centreon/behat.yml
 exit
 
 
