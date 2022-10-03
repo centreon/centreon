@@ -1,5 +1,5 @@
 #!/bin/bash
-set -ex
+set -e
 
 mkdir "xunit-reports"
 
@@ -40,7 +40,7 @@ fi
 
 rm `dirname $0`/../../centreon/features/Ldap*.feature
 
-FEATURES=$(find `dirname $0`../../centreon/features -type f -name '*.feature' | sed -e 's#centreon/features/##g' | sort)
+FEATURES=$(find `dirname $0`/../../centreon/features -type f -name '*.feature' | sed -e 's#centreon/features/##g' | sort)
 
 #while read -r line; do
 #    echo $line
