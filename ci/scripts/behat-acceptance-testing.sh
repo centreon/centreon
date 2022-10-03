@@ -4,7 +4,7 @@ set -e
 test_feature() {
     mkdir ../xunit-reports/"$1"
 
-    `dirname $0`/../../centreon/vendor/bin/behat -vv --format=pretty --out=std --format=junit --out="../xunit-reports/$1" $TAGS "features/$1"
+    `dirname $0`/../../centreon/vendor/bin/behat -vv --config=`dirname $0`/../../centreon/behat.yml --format=pretty --out=std --format=junit --out="../xunit-reports/$1" $TAGS "features/$1"
 }
 
 [ ! -z "${TAGS}" ] && TAGS="--tags $TAGS"
