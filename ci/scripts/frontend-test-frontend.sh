@@ -1,4 +1,5 @@
 #!/bin/bash
+set -x
 
 cd centreon-frontend
 npm ci --legacy-peer-deps
