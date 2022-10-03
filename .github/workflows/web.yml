@@ -23,7 +23,7 @@ env:
 jobs:
   centreon-web-backend-lint-phpcs:
     runs-on: ubuntu-22.04
-    if: ${{ false && github.event_name != 'workflow_dispatch' }}
+    if: ${{ github.event_name != 'workflow_dispatch' }}
 
     steps:
       - uses: actions/checkout@v3
@@ -107,7 +107,6 @@ jobs:
 
   centreon-web-frontend-lint:
     runs-on: ubuntu-22.04
-    if: ${{ false }}
 
     steps:
       - uses: actions/setup-node@v3
@@ -133,7 +132,6 @@ jobs:
 
   centreon-web-frontend-unit-test:
     runs-on: ubuntu-22.04
-    if: ${{ false }}
 
     steps:
       - uses: actions/setup-node@v3
@@ -160,7 +158,6 @@ jobs:
 
   centreon-web-backend-unit-test:
     runs-on: ubuntu-22.04
-    if: ${{ false }}
 
     steps:
       - uses: actions/checkout@v3
@@ -189,22 +186,21 @@ jobs:
 
   centreon-web-package-rpm:
     runs-on: [self-hosted, common]
-#    needs:
-#      [
-#        centreon-web-backend-lint-phpcs,
-#        centreon-web-backend-lint-phpstan,
-#        centreon-web-backend-unit-test,
-#        centreon-web-frontend-lint,
-#        centreon-web-frontend-unit-test,
-#      ]
+    needs: [
+      centreon-web-backend-lint-phpcs,
+#     centreon-web-backend-lint-phpstan,
+      centreon-web-backend-unit-test,
+      centreon-web-frontend-lint,
+      centreon-web-frontend-unit-test,
+    ]
 
     strategy:
       matrix:
         include:
           - image: packaging-web-centos7
             distrib: el7
-#          - image: packaging-web-alma8
-#            distrib: el8
+          - image: packaging-web-alma8
+            distrib: el8
 
     steps:
       - name: Checkout sources
@@ -236,10 +232,10 @@ jobs:
       - name: Cache RPM files
         uses: actions/cache@v3
         env:
-          cache-name-rpmbuild: cache-${{ github.sha }}-${{ github.run_id }}-rpmbuild-web-el7
+          cache-name-rpmbuild: cache-${{ github.sha }}-${{ github.run_id }}-rpmbuild-web
         with:
           path: ./*.rpm
-          key: ${{ env.cache-name-rpmbuild }}
+          key: ${{ env.cache-name-rpmbuild }}-${{ matrix.distrib }}
 
   centreon-web-package-deb:
     runs-on: [self-hosted, common]
@@ -288,8 +284,7 @@ jobs:
 
   centreon-web-dockerize:
     runs-on: [self-hosted, common]
-    needs: [centreon-web-package-rpm]
-#    needs: [centreon-web-package-rpm, centreon-web-package-deb]
+    needs: [centreon-web-package-rpm, centreon-web-package-deb]
 
     strategy:
       matrix:
@@ -313,12 +308,10 @@ jobs:
       - name: Use cache RPM files
         uses: actions/cache@v3
         env:
-          cache-name-rpmbuild: cache-${{ github.sha }}-${{ github.run_id }}-rpmbuild-web-el7
+          cache-name-rpmbuild: cache-${{ github.sha }}-${{ github.run_id }}-rpmbuild-web
         with:
           path: ./*.rpm
-          key: ${{ env.cache-name-rpmbuild }}
-          restore-keys: |
-            ${{ env.cache-name-rpmbuild }}
+          key: ${{ env.cache-name-rpmbuild }}-${{ matrix.distrib_rpm }}
 
       - uses: docker/setup-buildx-action@v2
 
