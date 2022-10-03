@@ -1,5 +1,5 @@
 #!/bin/bash
-set -e
+set -ex
 
 mkdir "xunit-reports"
 
