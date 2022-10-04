@@ -6,7 +6,7 @@ cd centreon
 VERSION=$1
 RELEASE=$2
 PROJECT="centreon"
-PHPVERSION="php80"
+PHPVERSION="php81"
 DISTRIB="bullseye"
 AUTHOR="Luiz Costa"
 AUTHOR_EMAIL="me@luizgustavo.pro.br"
