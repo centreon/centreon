@@ -18,6 +18,13 @@ inputs:
     required: false
 runs:
   using: "composite"
+
   steps:
+    - uses: docker/login-action@v2
+      with:
+        registry: docker.registry.apps.centreon.com
+        username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
+        password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
+
     - run: docker run -i -e TOKEN=${{ inputs.centreon_pat }} --entrypoint /src/ci/scripts/${{ inputs.script_name }}.sh -v "$PWD:/src" docker.registry.apps.centreon.com/${{ inputs.image_name }}:${{ inputs.image_version}} ${{ inputs.params }}
       shell: bash
