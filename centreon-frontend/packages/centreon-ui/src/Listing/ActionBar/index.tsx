@@ -39,6 +39,7 @@ type Props = Pick<
   | 'columnConfiguration'
   | 'onSelectColumns'
   | 'onResetColumns'
+  | 'actionsBarMemoProps'
 >;
 
 const MemoListingActionBar = ({
@@ -53,6 +54,7 @@ const MemoListingActionBar = ({
   onSelectColumns,
   onPaginate,
   onLimitChange,
+  actionsBarMemoProps = [],
 }: Props): JSX.Element => {
   const { classes } = useStyles();
   const { t } = useTranslation();
@@ -112,6 +114,7 @@ const MemoListingActionBar = ({
         columns,
       ),
       columnConfiguration,
+      ...actionsBarMemoProps,
     ],
   });
 };
@@ -128,6 +131,7 @@ const ListingActionBar = ({
   columnConfiguration,
   onResetColumns,
   onSelectColumns,
+  actionsBarMemoProps,
 }: Props): JSX.Element | null => {
   if (
     not(paginated) &&
@@ -140,6 +144,7 @@ const ListingActionBar = ({
   return (
     <MemoListingActionBar
       actions={actions}
+      actionsBarMemoProps={actionsBarMemoProps}
       columnConfiguration={columnConfiguration}
       columns={columns}
       currentPage={currentPage}

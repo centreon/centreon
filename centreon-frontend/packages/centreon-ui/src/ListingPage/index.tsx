@@ -35,7 +35,7 @@ interface Props {
   fullHeight?: boolean;
   listing: JSX.Element;
   listingScrollOffset?: number;
-  memoListingProps: Array<unknown>;
+  memoListingProps?: Array<unknown>;
   pageClassName?: string;
   panel?: JSX.Element;
   panelFixed?: boolean;

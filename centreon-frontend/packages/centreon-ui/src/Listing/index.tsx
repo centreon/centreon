@@ -115,6 +115,7 @@ const useStyles = makeStyles()((theme) => ({
 
 export interface Props<TRow> {
   actions?: JSX.Element;
+  actionsBarMemoProps?: Array<unknown>;
   checkable?: boolean;
   columnConfiguration?: ColumnConfiguration;
   columns: Array<Column>;
@@ -177,6 +178,7 @@ const Listing = <TRow extends { id: RowId }>({
   getId = ({ id }): RowId => id,
   headerMemoProps = [],
   predefinedRowsSelection = [],
+  actionsBarMemoProps = [],
 }: Props<TRow>): JSX.Element => {
   const { classes } = useStyles();
   const { t } = useTranslation();
@@ -463,6 +465,7 @@ const Listing = <TRow extends { id: RowId }>({
         >
           <ListingActionBar
             actions={actions}
+            actionsBarMemoProps={actionsBarMemoProps}
             columnConfiguration={columnConfiguration}
             columns={columns}
             currentPage={currentPage}
