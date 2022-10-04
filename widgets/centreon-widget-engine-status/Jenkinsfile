@@ -6,7 +6,7 @@ def stableBranch = "master"
 def devBranch = "develop"
 env.REF_BRANCH = stableBranch
 
-if (env.BRANCH_NAME.startsWith('release-22.10.0-next') {
+if (env.BRANCH_NAME.startsWith('release-22.10.0-next')) {
   env.BUILD = 'QA'
   env.REPO = 'unstable'
 } else if (env.BRANCH_NAME.startsWith('release-')) {
