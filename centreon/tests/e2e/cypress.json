@@ -6,16 +6,12 @@
   "video": true,
   "videosFolder": "cypress/results/videos",
   "screenshotsFolder": "cypress/results/screenshots",
-  "reporter": "junit",
-  "reporterOptions": {
-    "mochaFile": "cypress/results/reports/junit-report.xml"
-  },
   "retries": 0,
-  "defaultCommandTimeout": 6000,
+  "defaultCommandTimeout": 10000,
   "requestTimeout": 10000,
   "execTimeout": 60000,
-  "baseUrl": "http://centreon-web",
+  "baseUrl": "http://localhost:4000",
   "env": {
-    "dockerName": "centreon-web"
+    "dockerName": "e2e-tests-centreon"
   }
 }
