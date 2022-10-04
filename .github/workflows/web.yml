@@ -21,46 +21,46 @@ env:
 
 
 jobs:
-  centreon-web-backend-lint-phpcs:
-    runs-on: ubuntu-22.04
-    if: ${{ github.event_name != 'workflow_dispatch' }}
+#  centreon-web-backend-lint-phpcs:
+#    runs-on: ubuntu-22.04
+#    if: ${{ github.event_name != 'workflow_dispatch' }}
 
-    steps:
-      - uses: actions/checkout@v3
+#    steps:
+#      - uses: actions/checkout@v3
 
-      - name: Get changed files
-        id: files
-        uses: jitterbit/get-changed-files@v1
+#      - name: Get changed files
+#        id: files
+#        uses: jitterbit/get-changed-files@v1
 
-      - name: Setup PHP
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: 8.1
-          coverage: none
-          tools: cs2pr
+#      - name: Setup PHP
+#        uses: shivammathur/setup-php@v2
+#        with:
+#          php-version: 8.1
+#          coverage: none
+#          tools: cs2pr
 
-      - run: composer install
-        working-directory: centreon
+#      - run: composer install
+#        working-directory: centreon
 
-      - name: Lint
-        run: |
-          ./centreon/vendor/bin/phpcs \
-            --extensions=php \
-            --standard=./centreon/ruleset.xml \
-            --report=checkstyle \
-            --report-file=./checkstyle-phpcs.xml \
-            ${{ steps.files.outputs.added }} ${{ steps.files.outputs.modified }}
+#      - name: Lint
+#        run: |
+#          ./centreon/vendor/bin/phpcs \
+#            --extensions=php \
+#            --standard=./centreon/ruleset.xml \
+#            --report=checkstyle \
+#            --report-file=./checkstyle-phpcs.xml \
+#            ${{ steps.files.outputs.added }} ${{ steps.files.outputs.modified }}
 
-      - name: Show PHPCS results in PR
-        if: ${{ always() }}
-        run: cs2pr checkstyle-phpcs.xml
+#      - name: Show PHPCS results in PR
+#        if: ${{ always() }}
+#        run: cs2pr checkstyle-phpcs.xml
 
-      - name: Publish report
-        if: ${{ always() }}
-        uses: jwgmeligmeyling/checkstyle-github-action@master
-        with:
-          name: centreon-phpcs-report
-          path: checkstyle-phpcs.xml
+#      - name: Publish report
+#        if: ${{ always() }}
+#        uses: jwgmeligmeyling/checkstyle-github-action@master
+#        with:
+#          name: centreon-phpcs-report
+#          path: checkstyle-phpcs.xml
 
 #  centreon-web-backend-lint-phpstan:
 #    runs-on: ubuntu-22.04
@@ -187,7 +187,7 @@ jobs:
   centreon-web-package-rpm:
     runs-on: [self-hosted, common]
     needs: [
-      centreon-web-backend-lint-phpcs,
+#     centreon-web-backend-lint-phpcs,
 #     centreon-web-backend-lint-phpstan,
       centreon-web-backend-unit-test,
       centreon-web-frontend-lint,
