@@ -172,8 +172,8 @@
     /********************/
 
     /** Badge **/
-    --badge-color: var(--color-white);
-    --badge-a-color : var(--color-white);
+    --badge-color: var(--color-black);
+    --badge-a-color : var(--color-black);
     /***********/
 
     /** States **/
@@ -193,6 +193,7 @@
     --badge-downtime-background-color : var(--color-mauve);
     --badge-undetermined :var(--color-iron);
     --status-success-color:var(--color-white);
+    --status-ok-color : var(--color-black) ;
     /***********/
 
     /** START : Buttons **/
@@ -351,6 +352,7 @@
     --date-font-color: var(--color-ghost);
     --detail-chart-title-background-color:var(--color-periwinkle-gray);
     --header-text-font-color: var(--body-color);
+    --chart-legend-color: var(--color-black);
 
     /* ------ START : info box variables -----*/
     --info-box-border-color: var(--color-iron);

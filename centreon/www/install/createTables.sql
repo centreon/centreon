@@ -2422,11 +2422,25 @@ CREATE TABLE `security_provider_access_group_relation` (
   `claim_value` VARCHAR(255) NOT NULL,
   `access_group_id` int(11) NOT NULL,
   `provider_configuration_id` int(11) NOT NULL,
+  `priority` SMALLINT UNSIGNED  NOT NULL,
   PRIMARY KEY (`claim_value`, `access_group_id`, `provider_configuration_id`),
   CONSTRAINT `security_provider_access_group_id`
     FOREIGN KEY (`access_group_id`)
     REFERENCES `acl_groups` (`acl_group_id`) ON DELETE CASCADE,
   CONSTRAINT `security_provider_provider_configuration_id`
+    FOREIGN KEY (`provider_configuration_id`)
+    REFERENCES `provider_configuration` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE `security_provider_contact_group_relation` (
+  `claim_value` VARCHAR(255) NOT NULL,
+  `contact_group_id` int(11) NOT NULL,
+  `provider_configuration_id` int(11) NOT NULL,
+  PRIMARY KEY (`claim_value`, `contact_group_id`, `provider_configuration_id`),
+  CONSTRAINT `security_provider_contact_group_id`
+    FOREIGN KEY (`contact_group_id`)
+    REFERENCES `contactgroup` (`cg_id`) ON DELETE CASCADE,
+  CONSTRAINT `security_provider_configuration_provider_id`
     FOREIGN KEY (`provider_configuration_id`)
     REFERENCES `provider_configuration` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;

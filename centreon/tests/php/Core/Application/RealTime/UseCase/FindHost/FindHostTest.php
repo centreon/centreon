@@ -40,7 +40,7 @@ use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
 use Core\Tag\RealTime\Application\Repository\ReadTagRepositoryInterface;
 use Core\Application\RealTime\Repository\ReadDowntimeRepositoryInterface;
 use Core\Application\RealTime\Repository\ReadHostgroupRepositoryInterface;
-use Core\Security\Application\Repository\ReadAccessGroupRepositoryInterface;
+use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use Core\Application\RealTime\Repository\ReadAcknowledgementRepositoryInterface;
 use Core\Severity\RealTime\Application\Repository\ReadSeverityRepositoryInterface;
 
@@ -57,7 +57,10 @@ beforeEach(function () {
     $this->severityRepository = $this->createMock(ReadSeverityRepositoryInterface::class);
 
     $this->acknowledgement = new Acknowledgement(1, 1, 10, new \DateTime('1991-09-10'));
-    $this->host = HostTest::createHostModel();
+    $this->host = (HostTest::createHostModel())
+        ->setIsInDowntime(true)
+        ->setIsAcknowledged(true);
+
     $this->contact = $this->createMock(ContactInterface::class);
 
     $this->hostgroup = new Hostgroup(10, 'ALL');

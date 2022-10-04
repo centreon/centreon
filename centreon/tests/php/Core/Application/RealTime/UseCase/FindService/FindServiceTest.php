@@ -41,7 +41,7 @@ use Core\Infrastructure\RealTime\Api\FindService\FindServicePresenter;
 use Core\Application\RealTime\Repository\ReadServiceRepositoryInterface;
 use Core\Tag\RealTime\Application\Repository\ReadTagRepositoryInterface;
 use Core\Application\RealTime\Repository\ReadDowntimeRepositoryInterface;
-use Core\Security\Application\Repository\ReadAccessGroupRepositoryInterface;
+use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use Core\Application\RealTime\Repository\ReadServicegroupRepositoryInterface;
 use Core\Application\RealTime\Repository\ReadAcknowledgementRepositoryInterface;
 use Tests\Core\Application\RealTime\UseCase\FindService\FindServicePresenterStub;
@@ -67,8 +67,14 @@ beforeEach(function () {
 
     $this->contact = $this->createMock(ContactInterface::class);
 
-    $this->host = HostTest::createHostModel();
-    $this->service = ServiceTest::createServiceModel();
+    $this->host = (HostTest::createHostModel())
+        ->setIsInDowntime(true)
+        ->setIsAcknowledged(true);
+
+    $this->service = (ServiceTest::createServiceModel())
+        ->setIsInDowntime(true)
+        ->setIsAcknowledged(true);
+
     $this->servicegroup = new Servicegroup(1, 'ALL');
     $this->category = new Tag(1, 'service-category-name', Tag::SERVICE_CATEGORY_TYPE_ID);
     $icon = (new Icon())->setId(1)->setName('centreon')->setUrl('ppm/centreon.png');
