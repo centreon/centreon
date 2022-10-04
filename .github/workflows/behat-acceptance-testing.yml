@@ -18,6 +18,13 @@ jobs:
       - name: Checkout centreon-monorepoc-open-source
         uses: actions/checkout@v3 
 
+      - name: Login to Registry
+        uses: docker/login-action@v2
+        with:
+          registry: docker.registry.apps.centreon.com
+          username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
+          password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
+
       - name: Behat acceptance testing
         uses: ./.github/actions/behat-acceptance-testing
         with:
