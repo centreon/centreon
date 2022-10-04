@@ -355,6 +355,13 @@ jobs:
       - name: Checkout sources
         uses: actions/checkout@v3
 
+      - name: Login to Registry
+        uses: docker/login-action@v2
+        with:
+          registry: docker.centreon.com
+          username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
+          password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
+
       - name: Cypress e2e testing
         uses: ./.github/actions/cypress-e2e-testing
         with:
@@ -377,6 +384,35 @@ jobs:
           check_name: "centreon-web-frontend-e2e-tests-report"
           comment_mode: failures
           junit_files: centreon/tests/e2e/cypress-result.xml
+
+  centreon-web-test-performances:
+    runs-on: ubuntu-22.04
+    needs: [centreon-web-dockerize]
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Login to Registry
+        uses: docker/login-action@v2
+        with:
+          registry: docker.centreon.com
+          username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
+          password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
+
+      - name: Run lighthouse
+        uses: ./.github/actions/lighthouse-performance-testing
+        with:
+          path: "centreon/lighthouse"
+          image: docker.centreon.com/run-centreon-open-source-centos7
+          image_version: ${{ github.head_ref || github.ref_name }}
+          image_lighthouse_version: ${{ env.version }}
+          module: centreon
+
+      - name: Publish report
+        uses: actions/upload-artifact@v3
+        with:
+          name: lighthouse-report
+          path: centreon/lighthouse/report/lighthouseci-index.html
 
   centreon-web-deliver-rpm:
     runs-on: [self-hosted, common]
@@ -424,25 +460,3 @@ jobs:
           version: ${{ env.version }}
           nexus_username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
           nexus_password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
-
-  centreon-web-test-performances:
-    runs-on: ubuntu-22.04
-    needs: [centreon-web-dockerize]
-
-    steps:
-      - uses: actions/checkout@v3
-
-      - name: Run lighthouse
-        uses: ./.github/actions/lighthouse-performance-testing
-        with:
-          path: "centreon/lighthouse"
-          image: docker.centreon.com/run-centreon-open-source-centos7
-          image_version: ${{ github.head_ref || github.ref_name }}
-          image_lighthouse_version: ${{ env.version }}
-          module: centreon
-
-      - name: Publish report
-        uses: actions/upload-artifact@v3
-        with:
-          name: lighthouse-report
-          path: centreon/lighthouse/report/lighthouseci-index.html
