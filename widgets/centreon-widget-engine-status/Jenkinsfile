@@ -8,7 +8,7 @@ env.REF_BRANCH = stableBranch
 
 if (env.BRANCH_NAME.startsWith('release-')) {
   env.BUILD = 'RELEASE'
-  env.REPO = 'testing'
+  env.REPO = 'unstable'
 } else if (env.BRANCH_NAME == stableBranch) {
   env.BUILD = 'REFERENCE'
 } else if (env.BRANCH_NAME == devBranch) {
