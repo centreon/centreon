@@ -322,7 +322,7 @@ jobs:
           context: .
           pull: true
           push: true
-          tags: docker.registry.apps.centreon.com/${{ matrix.project }}-${{ matrix.distrib }}-fresh:${{ github.head_ref || github.ref_name }}
+          tags: docker.registry.apps.centreon.com/${{ matrix.project }}-fresh-${{ matrix.distrib }}:${{ github.head_ref || github.ref_name }}
 
       - uses: docker/build-push-action@v3
         with:
