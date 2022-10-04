@@ -31,3 +31,5 @@ jobs:
           project: run-centreon-open-source
           image_version: ${{ github.head_ref || github.ref_name }}
           distrib: centos7
+          registry_username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
+          registry_password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}

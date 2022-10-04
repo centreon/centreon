@@ -21,12 +21,10 @@ inputs:
     default: docker.registry.apps.centreon.com
   registry_username:
     description: registry_username
-    required: false
-    default: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
+    required: true
   registry_password:
     description: registry_password
-    required: false
-    default: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
+    required: true
   tags:
     description: tags
     required: false
