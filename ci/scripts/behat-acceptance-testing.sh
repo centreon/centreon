@@ -7,8 +7,9 @@ test_feature() {
     `dirname $0`/../../centreon/vendor/bin/behat -vv --config=`dirname $0`/../../centreon/behat.yml --format=pretty --out=std --format=junit --out="../xunit-reports/$1" $TAGS "features/$1"
 }
 
-
 [ ! -z "${TAGS}" ] && TAGS="--tags $TAGS"
+
+echo $REGISTRY_PASSWORD | docker login --username $REGISTRY_USERNAME --password-stdin $REGISTRY
 
 rm `dirname $0`/../../centreon/features/Ldap*.feature
 FEATURES=$(find `dirname $0`/../../centreon/features -type f -name '*.feature' -printf "%f\n" | sort)

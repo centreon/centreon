@@ -19,6 +19,14 @@ inputs:
     description: registry
     required: false
     default: docker.registry.apps.centreon.com
+  registry_username:
+    description: registry_username
+    required: false
+    default: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
+  registry_password:
+    description: registry_password
+    required: false
+    default: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
   tags:
     description: tags
     required: false
@@ -28,5 +36,5 @@ runs:
 
   steps:
     - name: "Run Behat"
-      run: docker run --shm-size 2gb -e PROJECT="${{ inputs.project }}" -e IMAGE_VERSION="${{ inputs.image_version }}" -e DISTRIB="${{ inputs.distrib }}" -e REGISTRY=${{ inputs.registry }} -e TAGS=${{ inputs.tags }} -v "$PWD:/tmp" -v "/var/run/docker.sock:/var/run/docker.sock" -w "/tmp" --entrypoint "/tmp/ci/scripts/behat-acceptance-testing.sh" --net="host" ${{ inputs.registry }}/behat:${{ inputs.behat_image_version }}
+      run: docker run --shm-size 2gb -e PROJECT="${{ inputs.project }}" -e IMAGE_VERSION="${{ inputs.image_version }}" -e DISTRIB="${{ inputs.distrib }}" -e REGISTRY=${{ inputs.registry }} -e REGISTRY_USERNAME=${{ inputs.registry_username }} -e REGISTRY_PASSWORD=${{ inputs.registry_password }} -e TAGS=${{ inputs.tags }} -v "$PWD:/tmp" -v "/var/run/docker.sock:/var/run/docker.sock" -w "/tmp" --entrypoint "/tmp/ci/scripts/behat-acceptance-testing.sh" --net="host" ${{ inputs.registry }}/behat:${{ inputs.behat_image_version }}
       shell: bash
