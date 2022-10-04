@@ -5,7 +5,10 @@ def serie = '22.10'
 def stableBranch = "master"
 def devBranch = "develop"
 
-if (env.BRANCH_NAME.startsWith('release-')) {
+if (env.BRANCH_NAME.startsWith('release-22.10.0-next')) {
+  env.BUILD = 'QA'
+  env.REPO = 'unstable'
+} else if (env.BRANCH_NAME.startsWith('release-')) {
   env.BUILD = 'RELEASE'
   env.REPO = 'testing'
 } else if (env.BRANCH_NAME == stableBranch) {
