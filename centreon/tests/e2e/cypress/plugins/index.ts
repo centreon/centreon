@@ -1,5 +1,3 @@
-/* eslint-disable no-param-reassign */
-/* eslint-disable default-param-last */
 /* eslint-disable global-require */
 /* eslint-disable @typescript-eslint/no-var-requires */
 
